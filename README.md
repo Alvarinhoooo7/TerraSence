@@ -619,28 +619,203 @@ Cada dispositivo tiene un **Device ID único** (ej: `1234567890123456`) con sopo
 
 ---
 
-## 10. Comparativa de Mercado: Por qué todos los demás fallan
+## 10. Análisis Competitivo Real: Quiénes son los Rivales de TerraSense
 
-La brecha no está en los sensores. Está en lo que pasa **después de medir**.
-
-| Solución | Precio | NPK | pH Real | Diagnóstico IA | Cultivos Aptos | Alertas Clima | Mapa GIS |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| THE01904 Handheld (China) | ~$205 USD | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Hanna Instruments HI9814 | ~$340 USD | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Tuya Smart Soil (Zigbee) | ~$170 USD | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Spectrum FieldScout TDR 350 | ~$2.300 USD | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Meter Group TEROS 12 + ZL6 | ~$2.900 USD | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Análisis Laboratorio Tradicional | $40K CLP + 3 semanas | ✅ | ✅ | Parcial (manual) | ❌ | ❌ | ❌ |
-| Técnico Agrónomo Privado | $80K–200K / visita | ✅ | ✅ | ✅ | ✅ | Parcial | ❌ |
-| 🌱 **TERRASENSE** | **~$188 USD** | **✅** | **✅** | **✅ (< 5 s)** | **✅ (+80)** | **✅ (7 días)** | **✅** |
-
-> **La conclusión es simple:**
-> Ningún dispositivo en el mercado —barato o caro— te dice qué sembrar.
-> Ningún laboratorio te da respuesta en tiempo real.
-> TerraSense es el primer sistema que actúa como el técnico agrónomo
-> que el 99% de los agricultores de Chile nunca pudo pagar.
+> TerraSense se comercializará entre **$170.000 y $200.000 CLP** (~$178–$210 USD).
+> En ese rango y en el segmento superior, los competidores reales son los siguientes.
 
 ---
+
+### 10.1. La Problemática Central que Nadie Ha Resuelto
+
+El mercado de sensores de suelo lleva más de 20 años en un estado de **parálisis de interpretación**. Tanto los equipos baratos como los costosos comparten el mismo defecto fundamental:
+
+```
+ESTADO DEL ARTE HOY (cualquier competidor):
+┌─────────────────────────────────────────────────┐
+│  SENSOR  ──►  DATO CRUDO  ──►  AGRICULTOR       │
+│                                                  │
+│  pH: 5.1                  "¿Qué hago con esto?" │
+│  EC: 2400 µS/cm           "¿Puedo sembrar?"     │
+│  T°: 9.3°C                "¿Cuánto corrijo?"    │
+│  N:  23 mg/kg             "¿Qué cultivo pongo?" │
+│  P:  12 mg/kg                                   │
+│  K:  23 mg/kg             ❌ NADIE RESPONDE      │
+└─────────────────────────────────────────────────┘
+
+LO QUE TERRASENSE HACE:
+┌─────────────────────────────────────────────────┐
+│  SENSOR ──► DATOS ──► MOTOR AGRONÓMICO ──► ACCIÓN│
+│                                                  │
+│  "pH 5.1 → bloqueo de Fósforo.                 │
+│   Aplica 500 kg/ha de cal agrícola.             │
+│   Espera 7 días antes de sembrar.               │
+│   Con corrección puedes plantar:                │
+│   ✅ Papa, Avena, Raps, Arándano                 │
+│   ⚠️  Tomate (necesita pH > 6.0)               │
+│   🌦️  Lluvia prevista en 48h → no siembres aún"│
+└─────────────────────────────────────────────────┘
+```
+
+La brecha no es de sensores. Es de **interpretación y decisión agronómica en tiempo real.**
+
+---
+
+### 10.2. Mapa de Competidores Reales (Segmento $170.000–$300.000+ CLP)
+
+#### Rival A — Bluelab Pulse Multimedia Meter (~$265–$350 USD / ~$255.000–$335.000 CLP)
+
+**Qué tiene Bluelab que TerraSense v1 no tiene:**
+
+| Ventaja de Bluelab | Detalle |
+| :--- | :--- |
+| **Precisión de electrodo de vidrio** | Electrodo de pH de vidrio borosilicato de alta precisión. Su pH es más estable en el tiempo que un electrodo de estado sólido. |
+| **Marca consolidada con +20 años** | Confianza de la industria hidroponía/cannabis profesional. Respaldo técnico global. |
+| **App Bluelab Pulse** | App Bluetooth para ver y exportar EC, Moisture y Temperatura. Historial por sesión de cultivo. |
+| **Calibración certificada** | Sistema de calibración con soluciones buffer incluidas y recordatorio de 30 días. |
+
+**Qué le falta a Bluelab que TerraSense sí implementa:**
+
+| Brecha de Bluelab | Impacto Real |
+| :--- | :--- |
+| **No mide NPK** | El agricultor solo ve EC total — no sabe qué nutriente específico está deficiente. |
+| **No tiene motor agronómico** | La app muestra el dato. No dice qué hacer con él. |
+| **No sugiere cultivos aptos** | El agricultor interpreta por su cuenta o llama a un técnico. |
+| **No integra clima/meteorología** | No sabe si viene lluvia o helada que impidan la siembra. |
+| **No georeferencia mediciones** | Sin mapa satelital ni historial geoespacial del predio. |
+| **Precio mayor (~$265–$350 USD)** | 40–80% más caro que TerraSense sin ofrecer diagnóstico agronómico. |
+| **Orientado a hidroponía, no campo abierto** | Diseñado para sustratos controlados, no suelos agrícolas de campo. |
+
+---
+
+#### Rival B — Hanna Instruments HI9814 GroLine (~$310 USD / ~$295.000 CLP)
+
+**Qué tiene Hanna que TerraSense v1 no tiene:**
+
+| Ventaja de Hanna | Detalle |
+| :--- | :--- |
+| **Electrodo de vidrio pre-amplificado** | El HI1285-7 combina pH, EC y temperatura en una sola sonda resistente a interferencias eléctricas. |
+| **IP67 certificado** | Sellado industrial, resiste inmersión completa. |
+| **Quick-Cal con solución única** | Calibración en 1 paso con solución combinada pH + EC, sin buffers separados. |
+| **Compensación automática de temperatura (ATC)** | Corrige lecturas de pH según temperatura del suelo automáticamente. |
+| **Respaldo técnico y distribución global** | Distribuidores en Chile (Veto.cl), soporte postventa establecido. |
+| **Precisión validada en laboratorio** | Electrodo de vidrio con correlación > 95% frente a análisis de laboratorio. |
+
+**Qué le falta a Hanna que TerraSense sí implementa:**
+
+| Brecha de Hanna | Impacto Real |
+| :--- | :--- |
+| **No mide NPK** | Solo mide pH, EC, TDS y T°. Para NPK se necesitan kits químicos separados ($40–$80 USD adicionales). |
+| **Sin app ni conectividad** | No tiene Bluetooth ni WiFi. Los datos mueren en la pantalla LCD. |
+| **Sin GPS ni mapa** | El agricultor no puede georeferenciar cada medición ni generar mapas de predio. |
+| **Sin diagnóstico agronómico** | Muestra números. No dice qué cultivar ni cuándo sembrar. |
+| **Requiere muestra de suelo disuelta** | Para usar el electrodo de vidrio en suelo hay que preparar una suspensión suelo:agua. No es in-situ directo. |
+| **Sin alertas climáticas** | No integra pronóstico meteorológico. |
+| **Precio mayor (~$310 USD)** | 55–70% más caro, sin ninguna capacidad de interpretación agronómica. |
+
+---
+
+#### Rival C — Análisis de Laboratorio Tradicional (~$35.000–$60.000 CLP por muestra)
+
+**Qué tiene el laboratorio que TerraSense v1 no tiene:**
+
+| Ventaja del Laboratorio | Detalle |
+| :--- | :--- |
+| **Precisión química absoluta** | Análisis por espectrometría de absorción atómica o ICP-OES. Exactitud de laboratorio real. |
+| **Validación científica** | Reconocido por INDAP, SAG y normas ISO. Los resultados son aceptados en juicio. |
+| **Análisis de micronutrientes completo** | Cobre, Zinc, Manganeso, Boro, Molibdeno — parámetros que TerraSense no puede medir. |
+| **Materia orgánica y textura de suelo** | Determinación de MO% y clasificación de suelo (arcilloso, franco, arenoso). |
+
+**Qué le falta al laboratorio que TerraSense sí implementa:**
+
+| Brecha del Laboratorio | Impacto Real |
+| :--- | :--- |
+| **3 semanas de espera** | Para cuando el resultado llega, la ventana de siembra óptima ya pasó. |
+| **$40.000–$60.000 CLP por muestra** | Un predio de 5 hectáreas con 10 puntos de muestreo = $400.000–$600.000 CLP solo en análisis. |
+| **Sin georreferenciación** | El resultado es un promedio del predio. No dice dónde exactamente está el problema. |
+| **Foto estática, no película** | Un análisis al año. El suelo cambia semana a semana según riego, lluvia y temperatura. |
+| **Sin diagnóstico en tiempo real** | No sabe si el suelo está a 9°C hoy y por eso no puede germinar la semilla. |
+| **Sin integración climática** | No incorpora el pronóstico de lluvia de la semana siguiente. |
+
+---
+
+#### Rival D — Técnico Agrónomo Privado ($80.000–$200.000 CLP / visita)
+
+**Qué tiene el técnico agrónomo que TerraSense no tiene:**
+
+| Ventaja del Técnico | Detalle |
+| :--- | :--- |
+| **Criterio profesional titulado** | Interpreta datos en contexto completo: historia del suelo, variedad, mercado, clima local. |
+| **Diagnóstico de enfermedades visuales** | Identifica patógenos, plagas y deficiencias visibles que un sensor no detecta. |
+| **Negociación con INDAP/SAG** | Puede respaldar solicitudes de crédito o subsidio con informe técnico firmado. |
+| **Relación de confianza con el agricultor** | Décadas de validación en campo. |
+
+**Qué le falta al técnico que TerraSense sí implementa:**
+
+| Brecha del Técnico | Impacto Real |
+| :--- | :--- |
+| **$80.000–$200.000 CLP por visita** | Inaccesible para AFC y pequeña agricultura. TerraSense: $0 por medición. |
+| **Agenda de 2–4 semanas** | El técnico no llega el día que el agricultor necesita sembrar. |
+| **Sin disponibilidad 24/7** | No hay técnico a las 7 AM del lunes de la siembra. |
+| **Sin mapa geoespacial del predio** | No genera mapas de calor de fertilidad por sector en tiempo real. |
+| **Sin historial digital integrado** | El diagnóstico es oral o en papel. No queda en una base de datos consulable. |
+
+---
+
+### 10.3. Matriz Comparativa de Brechas
+
+| Capacidad | Bluelab Pulse | Hanna HI9814 | Laboratorio | Técnico Agrónomo | **TerraSense** |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Precio** | ~$265–$350 USD | ~$310 USD | $35–60K CLP/muestra | $80–200K CLP/visita | **~$185 USD (pago único)** |
+| **Medición in-situ directa** | ✅ | Parcial¹ | ❌ | ❌ | ✅ |
+| **Mide NPK** | ❌ | ❌ | ✅ | Con lab | ✅ |
+| **Mide pH** | ❌ | ✅ | ✅ | Con lab | ✅ |
+| **Resultado en < 5 segundos** | ✅ | ✅ | ❌ (3 semanas) | ❌ (días) | ✅ |
+| **Conectividad Bluetooth/App** | ✅ (EC/Moisture) | ❌ | ❌ | ❌ | ✅ (7 parámetros) |
+| **Diagnóstico agronómico automático** | ❌ | ❌ | Parcial (informe) | ✅ | ✅ |
+| **Lista de cultivos aptos (+80)** | ❌ | ❌ | ❌ | ✅ | ✅ |
+| **Plan de enmienda cuantificado** | ❌ | ❌ | ✅ (por informe) | ✅ | ✅ |
+| **Alertas climáticas integradas** | ❌ | ❌ | ❌ | Parcial | ✅ (7 días GPS) |
+| **Mapa satelital GIS del predio** | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **Georreferenciación por punto** | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **Funciona sin internet (Offline)** | ✅ | ✅ | ❌ | ✅ | ✅ |
+| **Disponibilidad 24/7** | ✅ | ✅ | ❌ | ❌ | ✅ |
+| **Costo por medición** | $0 | $0 | ~$4.000–6.000 CLP | ~$80.000+ CLP | **$0** |
+
+> ¹ *Hanna HI9814 requiere preparar una suspensión suelo:agua para usar el electrodo de vidrio — no es pinche directo en campo.*
+
+---
+
+### 10.4. Lo que TerraSense Admite Honestamente
+
+La transparencia técnica es parte del diferenciador:
+
+| Limitación Real de TerraSense v1 | Contexto |
+| :--- | :--- |
+| **Electrodo NPK de estado sólido ≠ laboratorio** | Los valores de N, P, K son estimaciones relativas por intercambio iónico superficial, no análisis absoluto. Útiles para *tendencias y semáforos*, no para fertilización de precisión grampo-por-gramo. |
+| **Sin micronutrientes (Cu, Zn, Mn, B, Mo)** | Para diagnósticos de deficiencias específicas de microelementos se requiere laboratorio. |
+| **Sin análisis de textura ni materia orgánica** | No reemplaza un análisis de suelo completo anual — lo *complementa* con monitoreo continuo. |
+| **pH potenciométrico de estado sólido** | Ligeramente menos estable que el electrodo de vidrio de Hanna a largo plazo. Requiere recalibración periódica. |
+
+> **Posicionamiento honesto de TerraSense:**
+> No reemplaza al laboratorio ni al técnico agrónomo para decisiones de alta precisión.
+> **Sí reemplaza la ignorancia total** del 99% de los agricultores que hoy siembran sin ningún dato de su suelo,
+> entregando un diagnóstico accionable en 5 segundos al costo de $0 por medición.
+
+---
+
+### 10.5. Ventajas Defensivas de TerraSense (Difíciles de Copiar)
+
+| Ventaja | Por qué es difícil de replicar |
+| :--- | :--- |
+| **Motor agronómico calibrado para Chile** | Base de datos de cultivos, umbrales fisiológicos y recomendaciones de enmienda calibradas para suelos volcánicos (trumaos), arcillas del Valle Central y condiciones climáticas de Chile/Latinoamérica. No es un algoritmo genérico. |
+| **7 parámetros + diagnóstico en 1 sola acción** | Ningún competidor en el rango $150–$350 USD mide NPK + pH + VWC + T° + EC en una sola sonda con app de diagnóstico. Para lograrlo necesitarías comprar 3 instrumentos separados (~$600–$900 USD). |
+| **Integración GIS + meteorología en $185 USD** | Equipos con mapa satelital de campo y alertas climáticas cuestan $1.500–$5.000 USD (Trimble, Ag Leader, Climate FieldView Pro). |
+| **Ecosistema abierto (Supabase + PostGIS)** | Sin licencias de software. El agricultor no depende de una suscripción para seguir usando su historial de datos. |
+| **Diseñado para campo chileno sin internet** | La arquitectura offline-first con sincronización automática es una decisión de diseño explícita para la realidad de conectividad del campo chileno (Araucanía, Bío-Bío, Maule). |
+
+---
+
 
 ## 11. Protocolos de Comunicación: RS485 Modbus RTU y BLE GATT
 
