@@ -2,11 +2,11 @@
 
 > **No vendemos datos. Vendemos decisiones.**
 >
-> El primer sistema IoT agronómico que no solo *sensa* tu suelo —  
+> El primer sistema IoT agronómico que no solo *sensa* el suelo —  
 > sino que lo *interpreta*, lo *diagnostica* y te *dice exactamente qué hacer*.
 
 > **Proyecto de Título:** Ingeniería en Electrónica y Sistemas Inteligentes — INACAP  
-> **Stack:** `ESP32` · RS-485 Modbus RTU · BLE 5.0 · BME280 I2C · React Native / Expo / Vite · Supabase + PostGIS · Motor Agronómico IA
+> **Stack:** `ESP32` · RS-485 Modbus RTU · BLE 5.0 · BME280 I2C · React Native / Expo / TypeScript · Supabase + PostGIS · Motor Agronómico IA
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![ESP32](https://img.shields.io/badge/MCU-ESP32%20(Espressif)-E7352C.svg)](https://www.espressif.com/en/products/socs/esp32)
@@ -19,1026 +19,815 @@
 
 ## 📑 Tabla de Contenidos
 
-1. [La Brecha que Nadie ha Cerrado](#1-la-brecha-que-nadie-ha-cerrado)
-2. [Qué hace TerraSense que nadie más hace](#2-qué-hace-terrasense-que-nadie-más-hace)
-3. [El Motor Agronómico: El Corazón del Sistema](#3-el-motor-agronómico-el-corazón-del-sistema)
-4. [Arquitectura General del Sistema](#4-arquitectura-general-del-sistema)
-5. [Parámetros de Medición (7-en-1 + Ambiente)](#5-parámetros-de-medición-7-en-1--ambiente)
-6. [**Especificación de Hardware del Dispositivo**](#6-especificación-de-hardware-del-dispositivo)
-7. [Eficiencia Energética y Sistema de Alimentación](#7-eficiencia-energética-y-sistema-de-alimentación)
-8. [Aplicación Móvil: Tu Asistente Agronómico](#8-aplicación-móvil-tu-asistente-agronómico)
-9. [Plataforma Cloud y Consola Web (Supabase + PostGIS)](#9-plataforma-cloud-y-consola-web-supabase--postgis)
-10. [Comparativa de Mercado: Por qué todos los demás fallan](#10-comparativa-de-mercado-por-qué-todos-los-demás-fallan)
-11. [Protocolos de Comunicación: RS485 Modbus RTU y BLE GATT](#11-protocolos-de-comunicación-rs485-modbus-rtu-y-ble-gatt)
-12. [Modelos Agronómicos: Balance Hídrico y Evapotranspiración](#12-modelos-agronómicos-balance-hídrico-y-evapotranspiración)
-13. [Modelo Económico y Estudio de Mercado](#13-modelo-económico-y-estudio-de-mercado)
-14. [Guía de Defensa Hostil: Las 7 Preguntas Incómodas](#14-guía-de-defensa-hostil-las-7-preguntas-incómodas)
-15. [Criterios de Éxito y KPIs](#15-criterios-de-éxito-y-kpis)
-16. [Guía de Puesta en Marcha](#16-guía-de-puesta-en-marcha)
-17. [Estructura del Repositorio](#17-estructura-del-repositorio)
+* [🏛️ PARTE I: VISIÓN ESTRATÉGICA, PROBLEMÁTICA Y MERCADO](#️-parte-i-visión-estratégica-problemática-y-mercado)
+  * [1. Problemática del Agro y Propuesta de Valor](#1-problemática-del-agro-y-propuesta-de-valor)
+    * [1.1. La Brecha que Nadie ha Cerrado: Parálisis de Interpretación](#11-la-brecha-que-nadie-ha-cerrado-parálisis-de-interpretación)
+    * [1.2. La Realidad del Campo Chileno en Cifras](#12-la-realidad-del-campo-chileno-en-cifras)
+    * [1.3. Qué hace TerraSense que nadie más hace: De Sensor a Asistente IA](#13-qué-hace-terrasense-que-nadie-más-hace-de-sensor-a-asistente-ia)
+    * [1.4. Los 5 Pilares de Diferenciación Tecnológica](#14-los-5-pilares-de-diferenciación-tecnológica)
+  * [2. Análisis Competitivo y Matriz de Brechas](#2-análisis-competitivo-y-matriz-de-brechas)
+    * [2.1. Mapa de Rivales Reales ($170.000 – $300.000+ CLP)](#21-mapa-de-rivales-reales-170000--300000-clp)
+    * [2.2. Matriz Comparativa de Brechas](#22-matriz-comparativa-de-brechas)
+    * [2.3. Transparencia Técnica: Lo que TerraSense Admite Honestamente](#23-transparencia-técnica-lo-que-terrasense-admite-honestamente)
+    * [2.4. Ventajas Defensivas de TerraSense (Moats)](#24-ventajas-defensivas-de-terrasense-moats)
+  * [3. Modelo Económico y Viabilidad Comercial](#3-modelo-económico-y-viabilidad-comercial)
+    * [3.1. Estructura de Costos Industriales (BOM Lote 100 unidades)](#31-estructura-de-costos-industriales-bom-lote-100-unidades)
+    * [3.2. Precio de Venta al Público (PVP) y Margen de Rentabilidad](#32-precio-de-venta-al-público-pvp-y-margen-de-rentabilidad)
+    * [3.3. Dimensionamiento de Mercado en Chile (TAM / SAM / SOM)](#33-dimensionamiento-de-mercado-en-chile-tam--sam--som)
+* [🧬 PARTE II: MOTOR AGRONÓMICO Y MODELOS CIENTÍFICOS](#-parte-ii-motor-agronómico-y-modelos-científicos)
+  * [4. Arquitectura del Motor Agronómico IA](#4-arquitectura-del-motor-agronómico-ia)
+    * [4.1. Capa 1 — Perfiles de Cultivo y Umbrales Fisiológicos (+80 Especies)](#41-capa-1--perfiles-de-cultivo-y-umbrales-fisiológicos-80-especies)
+    * [4.2. Capa 2 — Diagnóstico de Deficiencias y Toxicidades](#42-capa-2--diagnóstico-de-deficiencias-y-toxicidades)
+    * [4.3. Capa 3 — Plan de Enmiendas y Fertilización Cuantificada](#43-capa-3--plan-de-enmiendas-y-fertilización-cuantificada)
+    * [4.4. Capa 4 — Integración Climática Predictiva (7 Días GPS)](#44-capa-4--integración-climática-predictiva-7-días-gps)
+  * [5. Parámetros de Medición y Modelos Físico-Químicos](#5-parámetros-de-medición-y-modelos-físico-químicos)
+    * [5.1. Matriz de Parámetros Sensados (Suelo 7-en-1 + Ambiente BME280)](#51-matriz-de-parámetros-sensados-suelo-7-en-1--ambiente-bme280)
+    * [5.2. Modelos de Balance Hídrico, AUD y Evapotranspiración (VPD / ET₀)](#52-modelos-de-balance-hídrico-aud-y-evapotranspiración-vpd--et₀)
+* [⚡ PARTE III: INGENIERÍA DE HARDWARE Y ELECTRÓNICA](#-parte-iii-ingeniería-de-hardware-y-electrónica)
+  * [6. Especificación y Diseño Electrónico](#6-especificación-y-diseño-electrónico)
+    * [6.1. Diagrama de Arquitectura Integral de Sistema](#61-diagrama-de-arquitectura-integral-de-sistema)
+    * [6.2. Microcontrolador Principal: ESP32-WROOM-32 y Pinout](#62-microcontrolador-principal-esp32-wroom-32-y-pinout)
+    * [6.3. Sensor Ambiental Integrado: Bosch BME280 I2C](#63-sensor-ambiental-integrado-bosch-bme280-i2c)
+    * [6.4. BOM Detallado de Componentes Electrónicos](#64-bom-detallado-de-componentes-electrónicos)
+    * [6.5. Interfaz Física del Dispositivo (Panel, LED WS2812B, Pulsador)](#65-interfaz-física-del-dispositivo-panel-led-ws2812b-pulsador)
+    * [6.6. Persistencia de Vinculación BLE tras Apagado (Flash NVS)](#66-persistencia-de-vinculación-ble-tras-apagado-flash-nvs)
+    * [6.7. Roadmap de Hardware v2.0](#67-roadmap-de-hardware-v20)
+  * [7. Sistema de Potencia y Eficiencia Energética](#7-sistema-de-potencia-y-eficiencia-energética)
+    * [7.1. Sistema de Carga USB-C y Gestión de Batería (TP5100 + 2× 18650)](#71-sistema-de-carga-usb-c-y-gestión-de-batería-tp5100--2-18650)
+    * [7.2. Control de Alimentación del Boost MT3608 por MOSFET](#72-control-de-alimentación-del-boost-mt3608-por-mosfet)
+    * [7.3. Perfil de Consumo Eléctrico y Autonomía en Terreno](#73-perfil-de-consumo-eléctrico-y-autonomía-en-terreno)
+  * [8. Protocolos de Comunicación Industrial e Inalámbrica](#8-protocolos-de-comunicación-industrial-e-inalámbrica)
+    * [8.1. Trama Industrial RS-485 Modbus RTU (Sonda NPK)](#81-trama-industrial-rs-485-modbus-rtu-sonda-npk)
+    * [8.2. Comunicación Bluetooth 5.0 BLE (GATT) hacia el Smartphone](#82-comunicación-bluetooth-50-ble-gatt-hacia-el-smartphone)
+* [💻 PARTE IV: ECOSISTEMA DE SOFTWARE Y NUBE](#-parte-iv-ecosistema-de-software-y-nube)
+  * [9. Aplicación Móvil TerraSense (React Native / Expo)](#9-aplicación-móvil-terrasense-react-native--expo)
+    * [9.1. Arquitectura In-App y Flujo de Pantallas](#91-arquitectura-in-app-y-flujo-de-pantallas)
+    * [9.2. Funcionalidades Clave y Experiencia de Usuario (UX)](#92-funcionalidades-clave-y-experiencia-de-usuario-ux)
+    * [9.3. Arquitectura Offline-First y Sincronización Automática](#93-arquitectura-offline-first-y-sincronización-automática)
+  * [10. Plataforma Cloud y Consola Web GIS (Supabase + PostGIS)](#10-plataforma-cloud-y-consola-web-gis-supabase--postgis)
+    * [10.1. Arquitectura Multi-Rol (Agricultor, Asesor Técnico, Admin)](#101-arquitectura-multi-rol-agricultor-asesor-técnico-admin)
+    * [10.2. Consola Web de Gestión Geoespacial y Mapeo de Calor](#102-consola-web-de-gestión-geoespacial-y-mapeo-de-calor)
+    * [10.3. Actualización de Firmware Over-The-Air (WiFi OTA)](#103-actualización-de-firmware-over-the-air-wifi-ota)
+* [🎯 PARTE V: VALIDACIÓN, DEFENSA Y PUESTA EN MARCHA](#-parte-v-validación-defensa-y-puesta-en-marcha)
+  * [11. Criterios de Éxito y Validación Experimental (KPIs)](#11-criterios-de-éxito-y-validación-experimental-kpis)
+  * [12. Guía de Defensa Hostil (Las 7 Preguntas Incómodas)](#12-guía-de-defensa-hostil-las-7-preguntas-incómodas)
+  * [13. Guía de Puesta en Marcha y Entornos de Desarrollo](#13-guía-de-puesta-en-marcha-y-entornos-de-desarrollo)
+  * [14. Estructura Integral del Repositorio](#14-estructura-integral-del-repositorio)
 
 ---
 
-## 1. La Brecha que Nadie ha Cerrado
+# 🏛️ PARTE I: VISIÓN ESTRATÉGICA, PROBLEMÁTICA Y MERCADO
 
-### El Problema Real del Campo
+## 1. Problemática del Agro y Propuesta de Valor
 
-En Chile y en toda Latinoamérica, existen decenas de dispositivos que miden el suelo. Los hay baratos, los hay caros. Pero todos cometen el mismo error fundamental:
+### 1.1. La Brecha que Nadie ha Cerrado: Parálisis de Interpretación
 
-**Te dan los números. Y te dejan solo.**
+En Chile y en toda Latinoamérica, existen decenas de dispositivos capaces de medir variables del suelo: desde instrumentos manuales económicos hasta costosas estaciones fijas de investigación. Sin embargo, todos adolecen de la misma falla estructural:
 
+**Entregan datos crudos y dejan al agricultor en completa incertidumbre.**
+
+```text
+ESTADO DEL ARTE HOY (Cualquier competidor):
+┌─────────────────────────────────────────────────────────┐
+│  SENSOR DE SUELO  ──►  DATO CRUDO  ──►  AGRICULTOR      │
+│                                                         │
+│  pH:    5.1             "¿Qué significa esto?"          │
+│  EC:    2.400 µS/cm     "¿Puedo sembrar tomates hoy?"   │
+│  Temp:  9.3°C           "¿Cuánto fertilizante aplico?"  │
+│  N:     23 mg/kg        "¿Qué cultivo tolera mi suelo?" │
+│  P:     12 mg/kg                                        │
+│  K:     23 mg/kg        ❌ NADIE RESPONDE               │
+│  VWC:   38%                                             │
+└─────────────────────────────────────────────────────────┘
 ```
-TODOS LOS COMPETIDORES HOY:
-┌─────────────────────┐
-│  SENSOR DE SUELO    │
-│                     │
-│  pH:    5.1         │
-│  EC:    2.400 µS/cm │
-│  Temp:  9°C         │
-│  N:     23 mg/kg    │
-│  P:     12 mg/kg    │
-│  K:     23 mg/kg    │
-│  VWC:   38%         │
-│                     │
-│       FIN.          │
-└─────────────────────┘
-        ↓
-  El agricultor:
-  "¿Y ahora qué hago?"
-```
-
-### La Realidad en Números
-
-- **278.000 explotaciones** agropecuarias en Chile (92% AFC y mediana agricultura) que abarcan **+12 millones de hectáreas** *(ODEPA / FAO)*.
-- **0% de análisis in situ** previo a la siembra en la agricultura familiar campesina.
-- **$40.000 CLP por muestra** cuesta un análisis de laboratorio, con **1 a 4 semanas de espera**.
-- Un técnico agrónomo privado cobra entre **$80.000–$200.000 CLP por visita** y puede tardar días o semanas en responder.
-- Mientras el laboratorio llega o el técnico contesta, el agricultor ya tomó la decisión a ciegas — o perdió la ventana de siembra.
-
-> *"No existe ningún sistema en el mercado que tome los datos de tu suelo y te diga inmediatamente:*
-> *tu tierra le falta potasio, tiene exceso de nitrógeno,*
-> *no plantes tomates — pero sí puedes plantar limones, lechuga o papa.*
-> *Y dado que se viene lluvia fuerte en 3 días, espera dos semanas antes de sembrar."*
-> **— Eso es exactamente lo que TerraSense hace.**
 
 ---
 
-## 2. Qué hace TerraSense que nadie más hace
+### 1.2. La Realidad del Campo Chileno en Cifras
 
-### El Salto: De Sensor a Asistente
+* **278.000 explotaciones** agropecuarias en Chile (el **92%** corresponde a Agricultura Familiar Campesina y medianos productores), abarcando más de **12 millones de hectáreas** *(ODEPA / FAO)*.
+* **0% de análisis in situ previo a la siembra:** La inmensa mayoría siembra guiada por intuición empírica o calendarios tradicionales desfasados por el cambio climático.
+* **$40.000 a $60.000 CLP por muestra** cuesta un análisis químico tradicional de laboratorio, tardando de **1 a 4 semanas** en entregar resultados. Para cuando llega el informe, la ventana agronómica de siembra ya expiró.
+* **$80.000 a $200.000 CLP por visita** cobra un asesor agronómico privado, cuya disponibilidad física en terreno es limitada frente a la urgencia diaria del agricultor.
 
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│                     TODO EL MERCADO ACTUAL                           │
-│                                                                      │
-│  SENSOR → DATOS CRUDOS → [ VACÍO ] → TÚ DECIDES A CIEGAS           │
-│                                                                      │
-│──────────────────────────────────────────────────────────────────── │
-│                          TERRASENSE                                  │
-│                                                                      │
-│  SENSOR → DATOS → MOTOR AGRONÓMICO IA → DIAGNÓSTICO INMEDIATO       │
-│                        (≤ 5 seg)      → RECOMENDACIONES CONCRETAS   │
-│                                       → LISTA DE CULTIVOS APTOS     │
-│                                       → ALERTAS DE CLIMA            │
-│                                       → PLAN DE CORRECCIÓN          │
-└──────────────────────────────────────────────────────────────────────┘
-```
-
-### Los 5 Pilares que nos Diferencian
-
-#### 1. 🧠 Diagnóstico Instantáneo de Deficiencias
-No solo mide. **Interpreta**. En menos de 5 segundos TerraSense te dice:
-
-- *"Tu suelo tiene deficiencia de Potasio (K: 23 mg/kg cuando debería ser ≥ 80 mg/kg). Aplica 150 kg/ha de sulfato de potasio antes de sembrar."*
-- *"Exceso de Nitrógeno detectado. Evita cultivos de hoja como espinaca o acelga — priorizarías follaje sobre fruto."*
-- *"pH ácido (5.1). El Fósforo está bloqueado. Aunque tus niveles de P parecen normales, la planta NO puede asimilarlo con este pH."*
-
-#### 2. 🌿 Lista de Cultivos Aptos para TU Suelo
-Con los 7 parámetros actuales de tu suelo, el motor cruza contra una base de datos de **+80 cultivos** y te entrega:
-
-```
-🟢 CULTIVOS COMPATIBLES CON TU SUELO HOY:
-   ✅ Papa  ✅ Lechuga  ✅ Cilantro  ✅ Remolacha
-   ✅ Trigo ✅ Avena    ✅ Zanahoria
-
-🟡 CULTIVOS CON CORRECCIÓN PREVIA:
-   ⚠️  Tomate   → Encalar pH a 6.0–6.8 primero
-   ⚠️  Maíz     → Temperatura de suelo aún baja (9°C < 12°C mínimo)
-   ⚠️  Limón    → Mejorar drenaje (VWC 38% = riesgo de asfixia radicular)
-
-🔴 CULTIVOS NO RECOMENDADOS:
-   ❌ Espinaca  → Exceso de N generará follaje sin valor comercial
-   ❌ Frutilla  → EC 2.400 µS/cm supera tolerancia a salinidad
-```
-
-#### 3. 🌦️ Alertas Climáticas Integradas
-La app cruza los datos de suelo con el pronóstico meteorológico de tu zona GPS:
-
-- *"Se pronostican 45 mm de lluvia en las próximas 72 horas. Con tu VWC actual de 38%, el suelo llegará a saturación. NO siembres esta semana."*
-- *"Temperaturas nocturnas bajarán a 3°C el jueves. Si tienes plantines trasplantados, cúbrelos con malla térmica."*
-- *"Ventana óptima de siembra: martes a jueves próximos — condiciones ideales."*
-
-#### 4. ⚡ De Semanas a Segundos
-Un análisis de laboratorio tarda **1 a 4 semanas**. Un técnico agrónomo puede demorar **días en responder**.
-TerraSense entrega el diagnóstico completo en **≤ 5 segundos**, en el campo, sin conexión a internet si es necesario.
-
-#### 5. 🗺️ Mapa Inteligente de tu Predio
-Cada medición queda georreferenciada. Con el tiempo, TerraSense construye un **mapa de fertilidad por sectores** de tu propio terreno, revelando:
-- Zonas con pH uniforme vs. sectores con acidez localizada
-- Áreas con déficit de NPK por sector
-- Zonas de alto rendimiento histórico vs. zonas problema
+> *"No vendemos un sensor: vendemos la certeza de saber, antes de sembrar, si la tierra está lista, qué cultivo plantar y exactamente qué enmienda aplicar."*
 
 ---
 
-## 3. El Motor Agronómico: El Corazón del Sistema
+### 1.3. Qué hace TerraSense que nadie más hace: De Sensor a Asistente IA
 
-Este es el componente que ningún competidor tiene. No es solo un semáforo verde/rojo. Es un **sistema de razonamiento agronómico** que opera en capas:
+TerraSense transforma un conjunto de variables físico-químicas en una **instrucción agronómica ejecutable e instantánea**:
 
-### Capa 1 — Perfiles de Cultivo con Rangos de Tolerancia
-
-Cada cultivo tiene un perfil agronómico con umbrales para los 7 parámetros:
-
-```json
-{
-  "cultivo": "Tomate (Solanum lycopersicum)",
-  "parametros_optimos": {
-    "pH":         { "min": 6.0, "max": 6.8, "critico_bajo": 5.5, "critico_alto": 7.2 },
-    "EC":         { "max_siembra": 1800, "max_produccion": 2500, "unidad": "µS/cm" },
-    "temp_suelo": { "min_germinacion": 15, "optima": 20, "max": 35, "unidad": "°C" },
-    "VWC":        { "min": 25, "optima": 40, "max_asfixia": 65, "unidad": "%" },
-    "N":          { "min_arranque": 40, "optimo": 80, "exceso": 200, "unidad": "mg/kg" },
-    "P":          { "min": 25, "optimo": 60, "unidad": "mg/kg" },
-    "K":          { "min": 80, "optimo": 150, "unidad": "mg/kg" }
-  }
-}
-```
-
-### Capa 2 — Diagnóstico de Deficiencias y Toxicidades
-
-El motor analiza cada parámetro, detecta desequilibrios y genera diagnóstico en lenguaje natural:
-
-| Condición Detectada | Diagnóstico Automático Generado |
-| :--- | :--- |
-| pH < 5.5 | *"Acidez crítica. Fósforo y Molibdeno bloqueados. Aplicar cal agrícola 500 kg/ha con 3 semanas de anticipación."* |
-| N > 200 mg/kg | *"Exceso de Nitrógeno. Riesgo de quemadura nitrogenada y desarrollo excesivo de follaje a costa del fruto."* |
-| K < 40 mg/kg | *"Deficiencia severa de Potasio. La planta será vulnerable a enfermedades fúngicas y estrés hídrico."* |
-| EC > 2.500 µS/cm | *"Salinidad excesiva. Provocará plasmólisis radicular (quemadura osmótica). Riego de lavado antes de sembrar."* |
-| Temp < umbral cultivo | *"Suelo frío para este cultivo. Riesgo de pudrición de semilla. Esperar o usar mulch plástico negro."* |
-| VWC > 65% | *"Saturación hídrica. Riesgo de asfixia radicular y proliferación de hongos (Pythium, Phytophthora)."* |
-
-### Capa 3 — Recomendaciones de Enmienda Cuantificadas
-
-No dice "le falta potasio". Dice **cuánto aplicar y qué comprar**:
-
-```
-PLAN DE CORRECCIÓN — SECTOR NORTE (0.5 ha):
-──────────────────────────────────────────────────────
-  K detectado:   23 mg/kg  (objetivo mínimo: 80 mg/kg)
-  Déficit:       57 mg/kg
-  Superficie:    0.5 ha
-
-  ACCIÓN RECOMENDADA:
-  → Aplicar Sulfato de Potasio (K₂SO₄) al voleo
-    Dosis:   120 kg/ha  →  60 kg para tu superficie
-    Momento: 15 días antes de siembra, incorporar con disco
-    Costo est.: ~$15.000 CLP (60 kg × $250/kg aprox.)
-──────────────────────────────────────────────────────
-```
-
-### Capa 4 — Integración Climática en Tiempo Real
-
-El motor consulta la API meteorológica de tu ubicación GPS y combina:
-- Pronóstico de precipitaciones (7 días)
-- Temperatura mínima nocturna proyectada
-- Índice UV y radiación solar
-
-Para generar alertas contextuales como:
-- *"Ventana óptima de siembra: martes a jueves próximos"*
-- *"Evitar aplicar fungicidas los próximos 3 días (lluvias previstas)"*
-- *"Riesgo de helada nocturna en 48 hrs — proteger plantines"*
-
----
-
-## 4. Arquitectura General del Sistema
-
-```
-                       ARQUITECTURA INTEGRAL TERRASENSE
+```text
 ┌────────────────────────────────────────────────────────────────────────┐
-│                         HARDWARE / EN TERRENO                          │
+│                        FLUJO TERRASENSE                                │
 │                                                                        │
-│  ┌────────────────────┐   RS-485 Modbus RTU   ┌─────────────────────┐ │
-│  │ Sonda Suelo 7-en-1 ├──────────────────────►│ NÓDULO IoT          │ │
-│  │ (VWC,T,EC,pH,N,P,K)│ [Power Gating MOSFET] │ Nordic nRF52840     │ │
-│  │ Acero Inox 316L    │◄──────────────────────┤ ARM Cortex-M4F 64MHz│ │
-│  └────────────────────┘                       │ BLE 5.2 Long Range  │ │
-│  ┌────────────────────┐                       │ 8 MB SPI Flash      │ │
-│  │ Sensor Luz Solar   ├──────────────────────►│ Li-Ion 1.000 mAh    │ │
-│  └────────────────────┘                       └──────────┬──────────┘ │
-└──────────────────────────────────────────────────────────┼────────────┘
-                                                           │ BLE 5.2
-                                                           ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│                     SMARTPHONE DEL AGRICULTOR                          │
-│                                                                        │
-│  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │               APP TERRASENSE (React Native / TS)                 │  │
-│  │                                                                  │  │
-│  │  • Recibe 7 parámetros vía BLE en < 300 ms                      │  │
-│  │  • Motor Agronómico ejecuta diagnóstico en < 5 s                │  │
-│  │  • Lista de cultivos aptos / no aptos — generada al instante    │  │
-│  │  • Alertas climáticas integradas con GPS                        │  │
-│  │  • Recomendaciones de enmienda cuantificadas                    │  │
-│  │  • Mapa satelital georreferenciado del predio                   │  │
-│  │  • Funciona 100% OFFLINE — sincroniza al recuperar señal        │  │
-│  └────────────────────────────────────┬─────────────────────────────┘  │
-└───────────────────────────────────────┼────────────────────────────────┘
-                                        │ 4G / 5G / WiFi
-                                        ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│                   BACKEND CLOUD (Supabase + PostGIS)                   │
-│                                                                        │
-│  • Histórico multi-temporal de evolución del suelo                     │
-│  • Motor Agronómico extendido (ML / modelos de cultivo regional)       │
-│  • Mapas de calor e interpolación geoestadística (Kriging / IDW)       │
-│  • API Meteorológica integrada (pronóstico 7 días por coordenada GPS)  │
-│  • Consola Web para técnicos asesores y administradores                │
-│  • FOTA — Actualización de Firmware OTA vía WiFi (ESP32)              │
+│  MEDICIÓN IN-SITU ──► MOTOR AGRONÓMICO IA ──► DIAGNÓSTICO EN ≤ 5 SEG   │
+│   (Sonda Inox 316L)       (En el Smartphone)                           │
+│                                                ├─► VEREDICTO SEMÁFORO  │
+│                                                ├─► CULTIVOS APTOS (+80)│
+│                                                ├─► ALERTAS DE CLIMA    │
+│                                                ├─► DOSIS DE ENMIENDA   │
+│                                                └─► MAPA SATELITAL GIS  │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 5. Parámetros de Medición (7-en-1 + Ambiente)
+### 1.4. Los 5 Pilares de Diferenciación Tecnológica
 
-| Parámetro | Rango | Precisión | Principio Físico | Utilidad Agronómica |
-| :--- | :---: | :---: | :--- | :--- |
-| **Humedad Volumétrica (VWC)** | $0–100\%$ | $\pm 2\%$ | FDR a 100 MHz | Detectar riesgo de asfixia radicular o déficit hídrico para germinación |
-| **Temperatura del Suelo** | $-40$ a $+80°C$ | $\pm 0.3°C$ | Termistor NTC platino sellado | Evaluar si supera umbral de germinación (>10–15°C según cultivo) |
-| **Conductividad Eléctrica (EC)** | $0–20.000\,\mu\text{S/cm}$ | $\pm 3\%$ | Electrodos bipolares CA | Detección de salinidad que quema raíces osmóticamente |
-| **pH del Suelo** | $3.0–9.0$ | $\pm 0.1\,\text{pH}$ | Potenciométrico estado sólido | Detectar bloqueo de absorción de Fósforo y micronutrientes |
-| **Nitrógeno (N)** | $1–1.999\,\text{mg/kg}$ | $\pm 5\%$ | Reactividad iónica in situ | Disponibilidad de nitratos/amonio para arranque vegetativo |
-| **Fósforo (P)** | $1–1.999\,\text{mg/kg}$ | $\pm 5\%$ | Reactividad química superficial | Estimación para desarrollo radicular temprano |
-| **Potasio (K)** | $1–1.999\,\text{mg/kg}$ | $\pm 5\%$ | Intercambio catiónico | Resistencia al estrés térmico, hídrico y patógenos |
+1. 🧠 **Diagnóstico Instantáneo de Deficiencias:** En menos de 5 segundos traduce valores como `pH 5.1` y `K 23 mg/kg` a instrucciones directas: *"Acidez bloquea fósforo. Aplica 500 kg/ha de cal agrícola antes de sembrar"*.
+2. 🌿 **Lista de Cultivos Compatibles en Tiempo Real:** Cruza los 7 parámetros sensados contra una matriz biológica de **+80 cultivos**, clasificándolos en: *Aptos*, *Aptos con corrección* y *No recomendados*.
+3. 🌦️ **Alertas Climáticas Predictivas (7 Días GPS):** Vincula el estado del suelo con el pronóstico meteorológico local (ej. *"Suelo al 38% VWC + 45 mm de lluvia prevista en 48h = riesgo de asfixia radicular. Posponer siembra 10 días"*).
+4. ⚡ **Velocidad de Decisión (De Semanas a Segundos):** Reduce el ciclo de retroalimentación agronómica de 21 días (laboratorio) a **≤ 5 segundos** directamente en el potrero.
+5. 🗺️ **Mapeo Satelital Geoespacial del Predio:** Georreferencia automáticamente cada pinchazo, generando mapas de variabilidad de fertilidad para aplicar enmiendas dirigidas por sector.
 
 ---
 
-## 6. Especificación de Hardware del Dispositivo
+## 2. Análisis Competitivo y Matriz de Brechas
 
-### 6.1. Microcontrolador: ESP32-WROOM-32
+TerraSense se posiciona en el segmento de entrada profesional con un precio estimado de **$170.000 a $200.000 CLP** (~$178–$210 USD). En ese rango y hacia el segmento superior, el panorama competitivo es el siguiente:
 
-El sistema utiliza el **ESP32-WROOM-32 (Espressif)** como microcontrolador principal.
+### 2.1. Mapa de Rivales Reales ($170.000 – $300.000+ CLP)
 
-| Característica | Especificación |
-| :--- | :--- |
-| CPU | Xtensa LX6 dual-core @ 240 MHz |
-| BLE | 5.0 (compatible con Android e iOS) |
-| WiFi | 802.11 b/g/n — para OTA firmware updates |
-| Persistencia bonding BLE | NVS (Non-Volatile Storage) en flash interno |
-| UART RS-485 | UART2 — GPIO 16 (RX) / GPIO 17 (TX) |
-| GPIO control MOSFET boost | GPIO 4 |
-| I2C para BME280 | SDA GPIO 21 / SCL GPIO 22 |
-| LED WS2812B | GPIO 5 |
-| Pulsador | GPIO 0 (pull-up interno) |
-| Costo módulo DevKit | ~$3 USD |
+#### Rival A — Bluelab Pulse Multimedia Meter (~$265–$350 USD / ~$255.000–$335.000 CLP)
+* **Lo que tiene Bluelab:** Electrodo de vidrio de alta precisión, marca consolidada (+20 años), app BLE para registro de humedad/temperatura/EC y soluciones de calibración certificadas.
+* **Lo que le falta frente a TerraSense:** **No mide NPK ni pH** (requiere medidores separados), no tiene motor agronómico, no sugiere cultivos, no integra clima, no georreferencia en mapa satelital y está orientado a sustratos hidropónicos/invernaderos, no a suelo agrícola abierto.
 
-El bonding BLE persiste en flash NVS. Al encender con el rocker switch, la app se reconecta automáticamente sin re-vincular.
+#### Rival B — Hanna Instruments HI9814 GroLine (~$310 USD / ~$295.000 CLP)
+* **Lo que tiene Hanna:** Electrodo pre-amplificado IP67 resistente a interferencias, calibración rápida (*Quick-Cal*), compensación automática de temperatura y respaldo técnico en Chile (Veto.cl).
+* **Lo que le falta frente a TerraSense:** **No mide NPK**, no tiene conectividad inalámbrica ni app móvil, no tiene GPS, no ofrece recomendaciones agronómicas y requiere preparar soluciones de suelo disuelto en agua para medir pH (no es inserción directa rápida).
+
+#### Rival C — Análisis de Laboratorio Químico (~$35.000–$60.000 CLP / muestra)
+* **Lo que tiene el Laboratorio:** Exactitud metrológica absoluta por espectrometría (ICP-OES), validez legal/SAG e informe de micronutrientes y materia orgánica.
+* **Lo que le falta frente a TerraSense:** **Demora de 1 a 4 semanas**, costo prohibitivo para muestreo denso ($400.000+ CLP para 10 puntos), muestra estática que no refleja cambios térmicos o hídricos diarios y carece de integración con clima en tiempo real.
+
+#### Rival D — Asesor Agrónomo Particular ($80.000–$200.000 CLP / visita)
+* **Lo que tiene el Asesor:** Criterio profesional para diagnóstico visual de plagas, patógenos y gestión de créditos INDAP.
+* **Lo que le falta frente a TerraSense:** Costo inviable para consultas diarias, agenda con semanas de desfase, sin disponibilidad inmediata a las 7:00 AM del día de siembra y diagnósticos sin respaldo geoespacial continuo.
 
 ---
 
-### 6.2. BOM Completo — Lista de Componentes
+### 2.2. Matriz Comparativa de Brechas
 
-```
+| Capacidad / Función | Bluelab Pulse | Hanna HI9814 | Laboratorio Químico | Asesor Privado | **TerraSense IoT** |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Precio Unitario** | ~$265–$350 USD | ~$310 USD | $35–60K CLP/muestra | $80–200K CLP/visita | **~$185 USD (Único)** |
+| **Inserción In-Situ Directa** | ✅ | Parcial *(Slurry)* | ❌ | ❌ | **✅ (Inox 316L)** |
+| **Medición de NPK** | ❌ | ❌ | ✅ | Con laboratorio | **✅ (Reactividad)** |
+| **Medición de pH Suelo** | ❌ *(Solo EC)* | ✅ | ✅ | Con laboratorio | **✅ (Estado Sólido)** |
+| **Tiempo de Respuesta** | < 5 s | < 10 s | 1–4 semanas | 2–14 días | **≤ 5 segundos** |
+| **Conectividad App Móvil** | ✅ *(Básica)* | ❌ | ❌ | ❌ | **✅ (BLE + Nube)** |
+| **Motor Agronómico IA** | ❌ | ❌ | Parcial *(Manual)* | ✅ | **✅ (Instantáneo)** |
+| **Lista de Cultivos Aptos** | ❌ | ❌ | ❌ | ✅ | **✅ (+80 Especies)** |
+| **Dosis de Enmienda Cuantificada**| ❌ | ❌ | ✅ *(En informe)* | ✅ | **✅ (kg/ha + costo)**|
+| **Alertas Climáticas (GPS)** | ❌ | ❌ | ❌ | Parcial | **✅ (7 Días)** |
+| **Mapa Satelital GIS Predial** | ❌ | ❌ | ❌ | ❌ | **✅ (PostGIS)** |
+| **Operación 100% Offline** | ✅ | ✅ | ❌ | ✅ | **✅ (Store&Forward)**|
+| **Costo por Medición** | $0 | $0 | ~$40.000 CLP | ~$80.000 CLP | **$0 CLP** |
+
+---
+
+### 2.3. Transparencia Técnica: Lo que TerraSense Admite Honestamente
+
+Para garantizar rigor académico y honestidad técnica en defensa:
+
+* **Electrodo NPK de Estado Sólido ≠ Espectrometría de Laboratorio:** Las mediciones de N, P y K se basan en reactividad iónica superficial de CA. Son estimaciones relativas altamente precisas para **clasificación de rangos y detección de anomalías**, no para dosificación farmacéutica gramo a gramo.
+* **Sin Detección de Micronutrientes Específicos:** TerraSense no mide elementos traza como Boro, Cobre, Zinc o Molibdeno. Para corregir micro-deficiencias graves se recomienda un análisis químico complementario de laboratorio cada 2 o 3 años.
+* **No reemplaza al agrónomo en fitopatología visual:** El sensor diagnostica la condición físico-química del suelo; no detecta virus, bacterias o insectos en follaje.
+
+---
+
+### 2.4. Ventajas Defensivas de TerraSense (Moats)
+
+1. **Algoritmia Regionalizada:** Base de datos calibrada específicamente para suelos volcánicos (trumaos del sur), vertisoles arcillosos del Valle Central y condiciones hídricas de Chile y Latinoamérica.
+2. **Arquitectura 7-en-1 Integrada:** Un solo hardware realiza el trabajo de 3 instrumentos separados cuyo costo combinado superaría los $700 USD.
+3. **Ecosistema Abierto sin Suscripción Cautiva:** El usuario es dueño de su hardware y de sus datos históricos en PostgreSQL, sin cobros mensuales por acceder a sus mapas.
+
+---
+
+## 3. Modelo Económico y Viabilidad Comercial
+
+### 3.1. Estructura de Costos Industriales (BOM Lote 100 unidades)
+
+| Componente / Módulo | Descripción Técnica / SKU | Costo Unitario (CLP) | Costo Unitario (USD) |
+| :--- | :--- | :---: | :---: |
+| **Sonda Suelo 7-en-1 Industrial** | Sonda RS-485 Modbus Inox 316L (VWC, T, EC, pH, N, P, K) | $16.500 CLP | $17.20 USD |
+| **Microcontrolador ESP32** | ESP32-WROOM-32 DevKit v1 (Xtensa Dual-Core, BLE, WiFi) | $2.900 CLP | $3.00 USD |
+| **Sensor Ambiental I2C** | Bosch BME280 (Temperatura, Humedad Relativa, Presión) | $800 CLP | $0.80 USD |
+| **Etapa de Potencia & RS-485** | N-MOSFET 2N7002 + Boost MT3608 (12V) + MAX485 | $1.200 CLP | $1.25 USD |
+| **Sistema de Carga & BMS USB-C** | Módulo TP5100 (2A, gestión Li-Ion con protección) | $1.500 CLP | $1.50 USD |
+| **Baterías Li-Ion (2 Celdas)** | 2× 18650 Li-Ion 3.000 mAh en paralelo (~6.000 mAh) | $7.600 CLP | $8.00 USD |
+| **PCB Fabricación & SMT** | Placa FR4 2 capas con serigrafía + ensamblaje de componentes | $2.500 CLP | $2.60 USD |
+| **Carcasa Rugged IP67 & Switches**| Gabinete ABS industrial con prensaestopas, rocker switch, LED | $5.000 CLP | $5.20 USD |
+| **Empaque, Calibración & QA** | Caja de presentación, espumas, soluciones de prueba y control QA | $4.000 CLP | $4.20 USD |
+| **TOTAL COSTO DIRECTO (BOM)** | | **$42.000 CLP** | **$43.75 USD** |
+
+---
+
+### 3.2. Precio de Venta al Público (PVP) y Margen de Rentabilidad
+
+$$\begin{aligned}
+\text{Costo Industrial de Fabricación (BOM):} & \quad \mathbf{\$42.000\text{ CLP}}\quad(\approx \$44\text{ USD}) \\
+\text{Precio de Venta al Público (PVP Objetivo):} & \quad \mathbf{\$179.990\text{ CLP}}\quad(\approx \$188\text{ USD}) \\
+\text{Margen Bruto Unitario:} & \quad \$179.990 - \$42.000 = \mathbf{\$137.990\text{ CLP}}\quad(\mathbf{76.6\% \text{ Margen}})
+\end{aligned}$$
+
+---
+
+### 3.3. Dimensionamiento de Mercado en Chile (TAM / SAM / SOM)
+
+* **TAM (Total Addressable Market):** **278.000 explotaciones agropecuarias** en Chile.
+* **SAM (Serviceable Available Market):** **83.400 explotaciones** (productores con smartphone, cobertura y cultivos comerciales hortofrutícolas).
+* **SOM (Serviceable Obtainable Market - Meta Año 1):** **834 unidades (1% de SAM)**.
+
+$$\begin{aligned}
+\text{Facturación Bruta Año 1 (834 equipos } \times \$179.990\text{):} & \quad \mathbf{\$150.111.660\text{ CLP}}\quad(\approx \$158.000\text{ USD}) \\
+\text{Costo Total de Producción (834 } \times \$42.000\text{):} & \quad \mathbf{\$35.028.000\text{ CLP}} \\
+\mathbf{\text{MARGEN BRUTO GENERADO:}} & \quad \mathbf{\$115.083.660\text{ CLP}}\quad(\approx \$121.000\text{ USD})
+\end{aligned}$$
+
+---
+
+# 🧬 PARTE II: MOTOR AGRONÓMICO Y MODELOS CIENTÍFICOS
+
+## 4. Arquitectura del Motor Agronómico IA
+
+El núcleo diferencial de TerraSense reside en su **motor de inferencia agronómica multicapa**, ejecutado de forma nativa en el dispositivo móvil y respaldado por modelos geoestadísticos en la nube:
+
+```text
+                  ARQUITECTURA DEL MOTOR DE REGLAS AGRONÓMICAS
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    DIAGRAMA DE BLOQUES TERRASENSE v2.0                      │
-│                                                                             │
-│  ┌──────────┐   ┌──────────┐    ┌─────────────────────────────────────┐    │
-│  │ 18650 #1 │   │ 18650 #2 │    │         TP5100 / IP5328             │    │
-│  │  3.7V    ├───┤  3.7V    ├───►│  BMS + Cargador 2A + USB-C         │    │
-│  │ ~3000mAh │   │ ~3000mAh │    │  Protección: sobre/sub-carga, SC   │    │
-│  └──────────┘   └──────────┘    └──────────────┬──────────────────────┘    │
-│                                                │ 3.7–4.2V rail             │
-│                  ┌─────────────────────────────┼───────────────────┐       │
-│                  │                             │                   │       │
-│                  ▼                             ▼                   ▼       │
-│          ┌──────────────┐            ┌─────────────────┐   ┌─────────────┐ │
-│          │  ROCKER SW   │            │  MT3608 Boost   │   │   ESP32     │ │
-│          │  (Corte      │            │  3.7V → 12V DC  │   │  DevKit v1  │ │
-│          │   Total)     │            │  para NPK RS485 │   │  BLE + WiFi │ │
-│          └──────────────┘            └────────┬────────┘   └──────┬──────┘ │
-│                                               │                   │        │
-│                                               ▼                   │ I2C    │
-│                                    ┌─────────────────┐            ▼        │
-│                                    │  Sensor NPK     │   ┌───────────────┐ │
-│                                    │  7-en-1 RS485   │   │    BME280     │ │
-│                                    │  (5–30V DC)     │   │  T°+HR+Presión│ │
-│                                    └────────┬────────┘   └───────────────┘ │
-│                                             │ RS485                        │
-│                                             ▼                              │
-│                                    ┌─────────────────┐                     │
-│                                    │  MAX485 / SP3485│                     │
-│                                    │  Transceptor    │◄────── ESP32 UART   │
-│                                    └─────────────────┘                     │
+│ CAPA 1: MATRIZ BIOLÓGICA DE CULTIVOS (+80 Especies)                         │
+│ • Umbrales de pH óptimo/crítico • Conductividad máxima de germinación       │
+│ • Temperatura base de suelo (Tb) • Rangos NPK por etapa fenológica          │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ CAPA 2: MOTOR DE DIAGNÓSTICO FÍSICO-QUÍMICO                                 │
+│ • Detección de bloqueos iónicos (pH vs Fósforo/Micronutrientes)             │
+│ • Identificación de estrés osmótico (EC) y frío de suelo (< Tb)             │
+│ • Evaluación de riesgo de asfixia radicular (VWC > Capacidad de Campo)      │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ CAPA 3: GENERADOR DE RECOMENDACIONES Y ENMIENDAS CUANTIFICADAS              │
+│ • Cálculo de dosis de enmienda (kg/ha de Cal agrícola / Yeso / Sulfatos)    │
+│ • Estimación de costo económico de insumos para la superficie indicada      │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ CAPA 4: INTEGRACIÓN CLIMÁTICA Y VENTANAS DE SIEMBRA                         │
+│ • Pronóstico meteorológico GPS 7 días (Lluvia, Heladas, Radiación)         │
+│ • Cálculo de Evapotranspiración (ET₀) y Déficit de Presión de Vapor (VPD)   │
+│ • Veredicto final: Semáforo (🟢 Verde, 🟡 Ámbar, 🔴 Rojo) + Lista Cultivos │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-#### Componentes Principales
-
-| # | Componente | Modelo Recomendado | Función | Precio Est. |
-| :---: | :--- | :--- | :--- | :---: |
-| 1 | **Microcontrolador** | ESP32-WROOM-32 DevKit v1 | CPU principal, BLE 5.0, WiFi, NVS | ~$3 USD |
-| 2 | **Sensor Ambiental** | **BME280** (no BMP280) | Temperatura + Humedad + Presión ambiental vía I2C | ~$0.80 USD |
-| 3 | **Sensor NPK 7-en-1** | Sonda RS-485 Modbus (VWC, T, EC, pH, N, P, K) | Medición de suelo 7 parámetros | ~$15–18 USD |
-| 4 | **Transceptor RS-485** | MAX485 / SP3485 | Adaptador TTL ↔ RS-485 para comunicar ESP32 con sonda | ~$0.20 USD |
-| 5 | **Boost DC-DC** | MT3608 (módulo) | Eleva 3.7V batería → 12V para alimentar sonda NPK | ~$0.30 USD |
-| 6 | **Baterías** | 2× 18650 Li-Ion 3.000 mAh (paralelo) | ~6.000 mAh totales, 3.7V nominal | ~$4 USD c/u |
-| 7 | **BMS + Cargador USB-C** | **TP5100** (módulo) | Carga 2A, protección completa, soporta 1S/2S paralelo | ~$1.50 USD |
-| 8 | **Interruptor de Alimentación** | Rocker Switch SPST 3A | Corte total de energía del sistema | ~$0.50 USD |
-| 9 | **LED RGB** | WS2812B (NeoPixel) × 1 | Estado: vinculación (azul), medición OK (verde), error (rojo) | ~$0.20 USD |
-| 10 | **Pulsador** | Táctil 6×6mm momentáneo | Vinculación BLE (press corto) + reset de fábrica (press 5s) | ~$0.10 USD |
-| 11 | **Carcasa** | IP67 ABS con empuñadura y prensaestopas | Protección campo + cable gland para sonda | ~$5 USD |
-
 ---
 
-### 6.3. Sensor Ambiental: BME280
+### 4.1. Capa 1 — Perfiles de Cultivo y Umbrales Fisiológicos (+80 Especies)
 
-El sistema implementa el sensor **Bosch BME280** vía I2C (SDA GPIO 21 / SCL GPIO 22).
+Cada especie vegetal cuenta con una definición agronómica estructurada:
 
-| Parámetro | Rango | Precisión |
-| :--- | :--- | :---: |
-| Temperatura | −40 a +85°C | ±1°C |
-| Humedad relativa | 0–100% HR | ±3% HR |
-| Presión atmosférica | 300–110 hPa | ±1 hPa |
-
-La humedad relativa permite al motor agronómico calcular:
-- **VPD (Déficit de Presión de Vapor):** índice de estrés hídrico en cultivos
-- **Evapotranspiración (ET₀):** cuánta agua pierde el suelo por evaporación
-- **Riesgo de hongos:** HR > 85% + T° óptima = condición favorable para Botrytis y Mildiu
-
----
-
-### 6.4. Sistema de Carga y Alimentación
-
-```
-         CONTROL DE ALIMENTACIÓN — BOOST MT3608 (ESP32 GPIO 4)
-                     +VBAT (3.7–4.2V)
-                             │
-                       ┌─────────────────────┐
-                       │ N-MOSFET (2N7002)    │
-                       │ GPIO 4 ESP32 → Gate │
-                       └─────────────────────┘
-                             │
-               ┌───────────┴───────────┐
-               ▼                         ▼
-   ┌───────────────┐         ┌──────────────┐
-   │ MT3608 Boost   │         │  MAX485 RS-485  │
-   │ 3.7V → 12V DC  │         │  Transceptor    │
-   └────────┬──────┘         └──────┬───────┘
-            │                         │ UART2 GPIO 16/17
-            ▼                         ▼
-   ┌───────────────┐         ┌──────────────┐
-   │ Sonda NPK 7-en-1│         │   ESP32 UART2  │
-   │ 5–30V DC        │         │  GPIO 16 / 17  │
-   └───────────────┘         └──────────────┘
-
-GPIO 4 HIGH = MOSFET ON  = Boost activo  = Sonda energizada (~40 mA)
-GPIO 4 LOW  = MOSFET OFF = Boost apagado = 0 mA en etapa de potencia
-```
-
-#### Especificaciones TP5100 (Módulo USB-C)
-
-| Parámetro | Valor |
-| :--- | :--- |
-| Corriente de carga máx. | 2A |
-| Tensión de carga (Li-Ion 1S paralelo) | 4.2V |
-| Soporte 2 celdas en paralelo | Sí (nativo) |
-| Protección de sobrecarga | Integrada |
-| Protección de sobredescarga | Integrada |
-| Protección de cortocircuito | Integrada |
-| Puerto USB-C | Sí (resistencias CC 5.1 kΩ) |
-| Indicador LED | Rojo cargando / Azul completo |
-
----
-
-### 6.5. Interfaz Física del Dispositivo
-
-```
-                    PANEL FRONTAL TERRASENSE
-      ┌────────────────────────────────────────────┐
-      │                                            │
-      │    🔴/🟢/🔵 LED RGB         [PAIR]          │
-      │    (Estado del sistema)     Pulsador        │
-      │                                            │
-      │    ━━━━━━━━━━━━━━━  USB-C ▬ (Carga)        │
-      │                                            │
-      │    [ ○  OFF  |  ON  ○ ]  ← Rocker Switch   │
-      │                                            │
-      └────────────────────────────────────────────┘
-                    ↓
-           Cable hacia sonda NPK (RS-485)
-```
-
-#### Lógica del LED RGB (1 solo LED WS2812B = 3 en 1)
-
-| Estado del Sistema | Color | Patrón |
-| :--- | :---: | :--- |
-| Encendido, buscando dispositivo | 🔵 Azul | Pulso lento (1 Hz) |
-| **Vinculando / Pairing** | 🔵 Azul | Parpadeo rápido (4 Hz) |
-| Vinculado, listo para medir | 🟢 Verde | Estático |
-| **Medición completada con éxito** | 🟢 Verde | 3 destellos rápidos |
-| Batería baja (< 15%) | 🟠 Naranja | Pulso lento |
-| Error de sonda / RS-485 | 🔴 Rojo | Parpadeo continuo |
-| **Reset de fábrica en curso** | 🔴 Rojo | Fijo durante 3 s |
-
-#### Lógica del Pulsador
-
-| Acción | Resultado |
-| :--- | :--- |
-| **Press corto (< 1 s)** | Activa modo pairing BLE (ventana de 30 s) |
-| **Press largo (≥ 5 s)** | Reset de fábrica: borra bonding NVS, reinicia como nuevo |
-
----
-
-### 6.6. Persistencia de Vinculación BLE tras Apagado
-
-El ESP32 almacena la información de bonding en su **partición NVS (Non-Volatile Storage)** en flash. Esto significa:
-
-- ✅ **El usuario apaga con el rocker switch → enciende → la app se reconecta automáticamente.** No se necesita re-vincular.
-- ✅ El bonding persiste incluso si se descarga la batería completamente.
-- ✅ **Reset de fábrica** (press 5s): borra la partición NVS de bonding. El dispositivo queda como de fábrica, listo para un nuevo propietario.
-- ✅ La app incluye la opción **"Desvincular dispositivo"** en configuración para el mismo efecto desde el teléfono.
-
-```cpp
-// Ejemplo ESP32 Arduino — Borrar bonding para factory reset
-void factoryReset() {
-  nvs_flash_erase();   // Borra partición NVS (bonding BLE + config)
-  nvs_flash_init();
-  ESP.restart();
+```json
+{
+  "cultivo_id": "solanum_lycopersicum",
+  "nombre_comun": "Tomate",
+  "familia": "Solanáceas",
+  "umbrales_fisiologicos": {
+    "ph": { "critico_bajo": 5.5, "min_optimo": 6.0, "max_optimo": 6.8, "critico_alto": 7.5 },
+    "ec_us_cm": { "optimo": 1500, "max_germinacion": 2000, "limite_toxicidad": 2800 },
+    "temp_suelo_c": { "cero_vegetativo": 10.0, "min_siembra": 12.0, "optima": 22.0, "max": 35.0 },
+    "vwc_porcentaje": { "punto_marchitez": 12.0, "min_optimo": 25.0, "capacidad_campo": 38.0, "asfixia": 55.0 },
+    "npk_mg_kg": { "n_min": 50, "n_opt": 100, "p_min": 30, "p_opt": 60, "k_min": 100, "k_opt": 200 }
+  }
 }
 ```
 
 ---
 
-### 6.7. Roadmap de Hardware — TerraSense v2.0
+### 4.2. Capa 2 — Diagnóstico de Deficiencias y Toxicidades
 
-Características planificadas para la siguiente versión del hardware:
-
-| # | Feature | Descripción | Costo Est. |
-| :---: | :--- | :--- | :---: |
-| 1 | **Display OLED 0.96"** | Muestra pH, T°, NPK en pantalla sin necesitar el teléfono | ~$1.50 USD |
-| 2 | **Buzzer piezoeléctrico** | Beep de confirmación al completar medición | ~$0.20 USD |
-| 3 | **Indicador % de batería** | Lectura ADC de tensión de celda, mostrado en app y OLED | ~$0 (GPIO ADC) |
-| 4 | **Memoria SPI Flash 4 MB** | Almacena mediciones offline cuando el teléfono no está cerca | ~$0.50 USD |
-| 5 | **Conector M8 IP67** | Conector de campo ruggedizado para la sonda en vez de cable fijo | ~$2 USD |
-| 6 | **Puerto de calibración** | Header UART expuesto para recalibrar la sonda sin abrir el equipo | ~$0.20 USD |
-
----
-
-## 7. Eficiencia Energética y Sistema de Alimentación
-
-### 7.1. El Desafío
-La sonda NPK RS-485 opera a 5–30V (típicamente 12V) y consume entre **25 y 40 mA** activa. El ESP32 consume ~80 mA en transmisión BLE y ~240 mA con WiFi activo. Con 2×18650 en paralelo (~6.000 mAh) y el rocker switch como control principal de energía, la autonomía es la siguiente:
-
-### 7.2. Solución: Rocker Switch + MOSFET para el Boost
-El corte principal se realiza con el **interruptor rocker físico** que desconecta toda la alimentación. Adicionalmente, un **N-MOSFET** controlado por GPIO del ESP32 corta la alimentación al boost MT3608 cuando no se está realizando una medición, eliminando el consumo en reposo del boost (~1–2 mA en standby):
-
-```
-               CIRCUITO DE CORTE TOTAL (POWER GATING)
-                        +VBAT (3.7–4.2V)
-                                │
-                          ┌─────┴─────┐
-                          │  P-MOSFET │
-                          │  AO3401A  │
-                          └─────┬─────┘
-                                │
-       GPIO P0.24 ──────────────┘  Gate (Low=ON, High=OFF)
-                                │
-             ┌──────────────────┴──────────────────┐
-             ▼                                     ▼
- ┌───────────────────────┐           ┌───────────────────────┐
- │  Step-Up Boost (12V)  │           │  Transceptor RS-485   │
- │  TPS61040 / MT3608    │           │  MAX13487E / SP3485   │
- └───────────┬───────────┘           └───────────┬───────────┘
-             └──────────────┬────────────────────┘
-                            ▼
-             ┌──────────────────────────────┐
-             │  Sonda 7-en-1                │
-             │  EN REPOSO: 0.0 µA           │
-             └──────────────────────────────┘
-```
-
-| Estado | Subsistema | Consumo |
-| :--- | :--- | :---: |
-| Standby BLE (conectado, sin medir) | ESP32 + BLE activo | **~20 mA** |
-| Boost apagado (MOSFET) | MT3608 + Sonda | **0.0 mA** |
-| Activo — Medición (150 ms) | Boost + Sonda + RS-485 | ~40 mA |
-| Activo — Transmisión BLE | ESP32 TX | ~80 mA |
-| Apagado total | Rocker switch OFF | **0.0 mA** |
-
-### 7.3. Autonomía Estimada con 2× 18650 (~6.000 mAh)
-
-| Modo de Uso | Mediciones/Día | Consumo Promedio | Autonomía Estimada |
-| :--- | :---: | :---: | :---: |
-| 🌾 **Modo Campo** (15 med/día, rest. standby BLE) | 15 | ~22 mA promedio | **~11 días continuos** |
-| 🚜 **Modo Recorrido** (medir y apagar) | 60 | Solo activo | **Meses (con rocker switch)** |
-| 📊 **Modo Intensivo** (200 med/día) | 200 | ~30 mA promedio | **~8 días continuos** |
-| ⚡ **Uso Real** (enciende, mide, apaga) | Variable | Depende de uso | **Batería prácticamente eterna** |
-
-> 💡 **Con el interruptor rocker:** El usuario enciende, mide, apaga. El consumo real es de minutos por día. 6.000 mAh alcanzan para **semanas o meses** en uso práctico de campo.
-
----
-
-## 8. Aplicación Móvil: Tu Asistente Agronómico
-
-Desarrollada en **React Native + TypeScript + Expo**. Diseñada para que cualquier agricultor la entienda al primer uso.
-
-```
-┌────────────────────────┐  ┌────────────────────────┐  ┌────────────────────────┐
-│   PANTALLA PRINCIPAL   │  │  DIAGNÓSTICO COMPLETO  │  │    LISTA DE CULTIVOS   │
-│                        │  │                        │  │                        │
-│  📡 Sonda detectada    │  │  🔴 CORRECCIÓN URGENTE │  │  🟢 PUEDES PLANTAR:    │
-│  RSSI: -58 dBm         │  │                        │  │                        │
-│                        │  │  pH: 5.1 → Ácido       │  │  ✅ Papa               │
-│  pH:    5.1  🔴        │  │  Bloquea absorción de  │  │  ✅ Lechuga            │
-│  EC:  2400 µS/cm ⚠️   │  │  Fósforo y micro-      │  │  ✅ Zanahoria          │
-│  T°:    9.3°C  ⚠️     │  │  nutrientes            │  │  ✅ Avena              │
-│  VWC:   38%            │  │  → 500 kg/ha cal agric.│  │                        │
-│  N:     23 mg/kg ⚠️   │  │                        │  │  🟡 CON CORRECCIÓN:    │
-│  P:     12 mg/kg ⚠️   │  │  Temp: 9.3°C → Fría    │  │  ⚠️  Tomate (pH)       │
-│  K:     23 mg/kg 🔴   │  │  Maíz/Tomate necesitan │  │  ⚠️  Maíz  (T° baja)  │
-│                        │  │  > 12°C para germinar  │  │                        │
-│  [ ANALIZAR SUELO ]    │  │                        │  │  🔴 NO RECOMENDADOS:   │
-│                        │  │  🌦️ Lluvia en 48h:     │  │  ❌ Espinaca (N alto)  │
-│                        │  │  No siembres esta sem. │  │  ❌ Frutilla (salinidad)│
-└────────────────────────┘  └────────────────────────┘  └────────────────────────┘
-```
-
-### 7.1. Funcionalidades Clave
-
-| Funcionalidad | Descripción |
-| :--- | :--- |
-| 🧠 **Diagnóstico instantáneo** | Semáforo agronómico en ≤ 5 s con explicación en lenguaje natural |
-| 🌿 **Lista de cultivos aptos** | +80 cultivos cruzados con tus 7 parámetros actuales |
-| 📋 **Plan de corrección** | Qué enmienda aplicar, cuánto y cuándo — con estimación de costo |
-| 🌦️ **Alertas climáticas** | Integración con pronóstico meteorológico por coordenada GPS |
-| 🗺️ **Mapa satelital de predio** | Burbujas de colores georreferenciadas por sector |
-| 📈 **Historial de evolución** | Evolución del suelo semana a semana y por temporada |
-| 📡 **Offline-first** | Funciona 100% sin internet; sincroniza al recuperar señal |
-| 👥 **Multi-rol** | Agricultor, técnico asesor y operador de campo en 1 sola app |
-
-### 7.2. Sin Internet, Sin Problema
-
-Si el agricultor está en medio de un cerro sin señal 4G, la app funciona al 100%:
-1. Recibe datos vía BLE desde la sonda (sin internet)
-2. Ejecuta el motor agronómico localmente en el teléfono
-3. Entrega diagnóstico completo y lista de cultivos
-4. Guarda la medición con coordenadas GPS
-5. Al recuperar WiFi/4G → sincroniza todo automáticamente con Supabase
-
----
-
-## 9. Plataforma Cloud y Consola Web (Supabase + PostGIS)
-
-### 8.1. Arquitectura Multi-Rol
-
-Cada dispositivo tiene un **Device ID único** (ej: `1234567890123456`) con soporte multi-usuario: cada iD es de 16 digitos.
-
-| Rol | Plataforma | Capacidades |
+| Parámetro Sensado | Condición Crítica Detectada | Diagnóstico Agronómico Automatizado |
 | :--- | :--- | :--- |
-| 🧑‍🌾 **Agricultor / Dueño** | App móvil | Mediciones, diagnósticos, mapa de su predio, historial |
-| 👷 **Técnico Asesor (INDAP/PRODESAL)** | App + Web | Calibración de umbrales, revisión de diagnósticos, asistencia remota |
-| 👨‍💼 **Operador de Campo** | App móvil | Realiza mediciones diarias, sincroniza lecturas |
-| 🛠️ **Administrador (Equipo TerraSense)** | Consola Web | Gestión global, FOTA, soporte remoto |
-
-### 8.2. Consola Web para Técnicos y Administradores
-
-- **Gestión de Dispositivos:** Estado en línea, batería, ubicación y usuarios por `Device ID`
-- **Mapas de Calor (PostGIS):** Interpolación Kriging/IDW de fertilidad del suelo por zona
-- **FOTA (BLE DFU):** Actualización de firmware OTA inalámbrica a través del smartphone del agricultor
-- **Mesa de Ayuda Remota:** Diagnóstico de fallas (voltaje boost 12V, latencia UART Modbus, estado de electrodos)
-- **Motor Agronómico Avanzado:** Modelos ML por temporada y tipo de suelo (trumao, arcilla, franco-arenoso)
+| **pH Suelo** | $\text{pH} < 5.5$ (Acidez Fuerte) | *"Acidez crítica. El Fósforo está insolubilizado como fosfato de aluminio/hierro. Aplicar cal agrícola para desbloquear asimilación."* |
+| **Conductividad (EC)** | $\text{EC} > 2.400\,\mu\text{S/cm}$ | *"Salinidad severa. Provoca estrés osmótico y quema radicular. Aplicar riego de lavado de sales antes del trasplante."* |
+| **Temperatura Suelo** | $T_{\text{suelo}} < 12.0^\circ\text{C}$ | *"Suelo bajo el cero vegetativo para solanáceas/cucurbitáceas. Riesgo inminente de pudrición de semilla por hongos del suelo."* |
+| **Humedad (VWC)** | $\text{VWC} > 45\%$ | *"Contenido hídrico sobre capacidad de campo. Riesgo de anoxia radicular y ataque de Phytophthora/Pythium."* |
+| **Potasio (K)** | $\text{K} < 40\,\text{mg/kg}$ | *"Deficiencia severa de Potasio. Pérdida de turgencia celular y alta susceptibilidad a estrés térmico."* |
 
 ---
 
-## 10. Análisis Competitivo Real: Quiénes son los Rivales de TerraSense
+### 4.3. Capa 3 — Plan de Enmiendas y Fertilización Cuantificada
 
-> TerraSense se comercializará entre **$170.000 y $200.000 CLP** (~$178–$210 USD).
-> En ese rango y en el segmento superior, los competidores reales son los siguientes.
+TerraSense no solo reporta la carencia; calcula la **dosis exacta de producto comercial** según el área declarada por el agricultor:
 
----
-
-### 10.1. La Problemática Central que Nadie Ha Resuelto
-
-El mercado de sensores de suelo lleva más de 20 años en un estado de **parálisis de interpretación**. Tanto los equipos baratos como los costosos comparten el mismo defecto fundamental:
-
-```
-ESTADO DEL ARTE HOY (cualquier competidor):
-┌─────────────────────────────────────────────────┐
-│  SENSOR  ──►  DATO CRUDO  ──►  AGRICULTOR       │
-│                                                  │
-│  pH: 5.1                  "¿Qué hago con esto?" │
-│  EC: 2400 µS/cm           "¿Puedo sembrar?"     │
-│  T°: 9.3°C                "¿Cuánto corrijo?"    │
-│  N:  23 mg/kg             "¿Qué cultivo pongo?" │
-│  P:  12 mg/kg                                   │
-│  K:  23 mg/kg             ❌ NADIE RESPONDE      │
-└─────────────────────────────────────────────────┘
-
-LO QUE TERRASENSE HACE:
-┌─────────────────────────────────────────────────┐
-│  SENSOR ──► DATOS ──► MOTOR AGRONÓMICO ──► ACCIÓN│
-│                                                  │
-│  "pH 5.1 → bloqueo de Fósforo.                 │
-│   Aplica 500 kg/ha de cal agrícola.             │
-│   Espera 7 días antes de sembrar.               │
-│   Con corrección puedes plantar:                │
-│   ✅ Papa, Avena, Raps, Arándano                 │
-│   ⚠️  Tomate (necesita pH > 6.0)               │
-│   🌦️  Lluvia prevista en 48h → no siembres aún"│
-└─────────────────────────────────────────────────┘
-```
-
-La brecha no es de sensores. Es de **interpretación y decisión agronómica en tiempo real.**
-
----
-
-### 10.2. Mapa de Competidores Reales (Segmento $170.000–$300.000+ CLP)
-
-#### Rival A — Bluelab Pulse Multimedia Meter (~$265–$350 USD / ~$255.000–$335.000 CLP)
-
-**Qué tiene Bluelab que TerraSense v1 no tiene:**
-
-| Ventaja de Bluelab | Detalle |
-| :--- | :--- |
-| **Precisión de electrodo de vidrio** | Electrodo de pH de vidrio borosilicato de alta precisión. Su pH es más estable en el tiempo que un electrodo de estado sólido. |
-| **Marca consolidada con +20 años** | Confianza de la industria hidroponía/cannabis profesional. Respaldo técnico global. |
-| **App Bluelab Pulse** | App Bluetooth para ver y exportar EC, Moisture y Temperatura. Historial por sesión de cultivo. |
-| **Calibración certificada** | Sistema de calibración con soluciones buffer incluidas y recordatorio de 30 días. |
-
-**Qué le falta a Bluelab que TerraSense sí implementa:**
-
-| Brecha de Bluelab | Impacto Real |
-| :--- | :--- |
-| **No mide NPK** | El agricultor solo ve EC total — no sabe qué nutriente específico está deficiente. |
-| **No tiene motor agronómico** | La app muestra el dato. No dice qué hacer con él. |
-| **No sugiere cultivos aptos** | El agricultor interpreta por su cuenta o llama a un técnico. |
-| **No integra clima/meteorología** | No sabe si viene lluvia o helada que impidan la siembra. |
-| **No georeferencia mediciones** | Sin mapa satelital ni historial geoespacial del predio. |
-| **Precio mayor (~$265–$350 USD)** | 40–80% más caro que TerraSense sin ofrecer diagnóstico agronómico. |
-| **Orientado a hidroponía, no campo abierto** | Diseñado para sustratos controlados, no suelos agrícolas de campo. |
-
----
-
-#### Rival B — Hanna Instruments HI9814 GroLine (~$310 USD / ~$295.000 CLP)
-
-**Qué tiene Hanna que TerraSense v1 no tiene:**
-
-| Ventaja de Hanna | Detalle |
-| :--- | :--- |
-| **Electrodo de vidrio pre-amplificado** | El HI1285-7 combina pH, EC y temperatura en una sola sonda resistente a interferencias eléctricas. |
-| **IP67 certificado** | Sellado industrial, resiste inmersión completa. |
-| **Quick-Cal con solución única** | Calibración en 1 paso con solución combinada pH + EC, sin buffers separados. |
-| **Compensación automática de temperatura (ATC)** | Corrige lecturas de pH según temperatura del suelo automáticamente. |
-| **Respaldo técnico y distribución global** | Distribuidores en Chile (Veto.cl), soporte postventa establecido. |
-| **Precisión validada en laboratorio** | Electrodo de vidrio con correlación > 95% frente a análisis de laboratorio. |
-
-**Qué le falta a Hanna que TerraSense sí implementa:**
-
-| Brecha de Hanna | Impacto Real |
-| :--- | :--- |
-| **No mide NPK** | Solo mide pH, EC, TDS y T°. Para NPK se necesitan kits químicos separados ($40–$80 USD adicionales). |
-| **Sin app ni conectividad** | No tiene Bluetooth ni WiFi. Los datos mueren en la pantalla LCD. |
-| **Sin GPS ni mapa** | El agricultor no puede georeferenciar cada medición ni generar mapas de predio. |
-| **Sin diagnóstico agronómico** | Muestra números. No dice qué cultivar ni cuándo sembrar. |
-| **Requiere muestra de suelo disuelta** | Para usar el electrodo de vidrio en suelo hay que preparar una suspensión suelo:agua. No es in-situ directo. |
-| **Sin alertas climáticas** | No integra pronóstico meteorológico. |
-| **Precio mayor (~$310 USD)** | 55–70% más caro, sin ninguna capacidad de interpretación agronómica. |
-
----
-
-#### Rival C — Análisis de Laboratorio Tradicional (~$35.000–$60.000 CLP por muestra)
-
-**Qué tiene el laboratorio que TerraSense v1 no tiene:**
-
-| Ventaja del Laboratorio | Detalle |
-| :--- | :--- |
-| **Precisión química absoluta** | Análisis por espectrometría de absorción atómica o ICP-OES. Exactitud de laboratorio real. |
-| **Validación científica** | Reconocido por INDAP, SAG y normas ISO. Los resultados son aceptados en juicio. |
-| **Análisis de micronutrientes completo** | Cobre, Zinc, Manganeso, Boro, Molibdeno — parámetros que TerraSense no puede medir. |
-| **Materia orgánica y textura de suelo** | Determinación de MO% y clasificación de suelo (arcilloso, franco, arenoso). |
-
-**Qué le falta al laboratorio que TerraSense sí implementa:**
-
-| Brecha del Laboratorio | Impacto Real |
-| :--- | :--- |
-| **3 semanas de espera** | Para cuando el resultado llega, la ventana de siembra óptima ya pasó. |
-| **$40.000–$60.000 CLP por muestra** | Un predio de 5 hectáreas con 10 puntos de muestreo = $400.000–$600.000 CLP solo en análisis. |
-| **Sin georreferenciación** | El resultado es un promedio del predio. No dice dónde exactamente está el problema. |
-| **Foto estática, no película** | Un análisis al año. El suelo cambia semana a semana según riego, lluvia y temperatura. |
-| **Sin diagnóstico en tiempo real** | No sabe si el suelo está a 9°C hoy y por eso no puede germinar la semilla. |
-| **Sin integración climática** | No incorpora el pronóstico de lluvia de la semana siguiente. |
-
----
-
-#### Rival D — Técnico Agrónomo Privado ($80.000–$200.000 CLP / visita)
-
-**Qué tiene el técnico agrónomo que TerraSense no tiene:**
-
-| Ventaja del Técnico | Detalle |
-| :--- | :--- |
-| **Criterio profesional titulado** | Interpreta datos en contexto completo: historia del suelo, variedad, mercado, clima local. |
-| **Diagnóstico de enfermedades visuales** | Identifica patógenos, plagas y deficiencias visibles que un sensor no detecta. |
-| **Negociación con INDAP/SAG** | Puede respaldar solicitudes de crédito o subsidio con informe técnico firmado. |
-| **Relación de confianza con el agricultor** | Décadas de validación en campo. |
-
-**Qué le falta al técnico que TerraSense sí implementa:**
-
-| Brecha del Técnico | Impacto Real |
-| :--- | :--- |
-| **$80.000–$200.000 CLP por visita** | Inaccesible para AFC y pequeña agricultura. TerraSense: $0 por medición. |
-| **Agenda de 2–4 semanas** | El técnico no llega el día que el agricultor necesita sembrar. |
-| **Sin disponibilidad 24/7** | No hay técnico a las 7 AM del lunes de la siembra. |
-| **Sin mapa geoespacial del predio** | No genera mapas de calor de fertilidad por sector en tiempo real. |
-| **Sin historial digital integrado** | El diagnóstico es oral o en papel. No queda en una base de datos consulable. |
-
----
-
-### 10.3. Matriz Comparativa de Brechas
-
-| Capacidad | Bluelab Pulse | Hanna HI9814 | Laboratorio | Técnico Agrónomo | **TerraSense** |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **Precio** | ~$265–$350 USD | ~$310 USD | $35–60K CLP/muestra | $80–200K CLP/visita | **~$185 USD (pago único)** |
-| **Medición in-situ directa** | ✅ | Parcial¹ | ❌ | ❌ | ✅ |
-| **Mide NPK** | ❌ | ❌ | ✅ | Con lab | ✅ |
-| **Mide pH** | ❌ | ✅ | ✅ | Con lab | ✅ |
-| **Resultado en < 5 segundos** | ✅ | ✅ | ❌ (3 semanas) | ❌ (días) | ✅ |
-| **Conectividad Bluetooth/App** | ✅ (EC/Moisture) | ❌ | ❌ | ❌ | ✅ (7 parámetros) |
-| **Diagnóstico agronómico automático** | ❌ | ❌ | Parcial (informe) | ✅ | ✅ |
-| **Lista de cultivos aptos (+80)** | ❌ | ❌ | ❌ | ✅ | ✅ |
-| **Plan de enmienda cuantificado** | ❌ | ❌ | ✅ (por informe) | ✅ | ✅ |
-| **Alertas climáticas integradas** | ❌ | ❌ | ❌ | Parcial | ✅ (7 días GPS) |
-| **Mapa satelital GIS del predio** | ❌ | ❌ | ❌ | ❌ | ✅ |
-| **Georreferenciación por punto** | ❌ | ❌ | ❌ | ❌ | ✅ |
-| **Funciona sin internet (Offline)** | ✅ | ✅ | ❌ | ✅ | ✅ |
-| **Disponibilidad 24/7** | ✅ | ✅ | ❌ | ❌ | ✅ |
-| **Costo por medición** | $0 | $0 | ~$4.000–6.000 CLP | ~$80.000+ CLP | **$0** |
-
-> ¹ *Hanna HI9814 requiere preparar una suspensión suelo:agua para usar el electrodo de vidrio — no es pinche directo en campo.*
-
----
-
-### 10.4. Lo que TerraSense Admite Honestamente
-
-La transparencia técnica es parte del diferenciador:
-
-| Limitación Real de TerraSense v1 | Contexto |
-| :--- | :--- |
-| **Electrodo NPK de estado sólido ≠ laboratorio** | Los valores de N, P, K son estimaciones relativas por intercambio iónico superficial, no análisis absoluto. Útiles para *tendencias y semáforos*, no para fertilización de precisión grampo-por-gramo. |
-| **Sin micronutrientes (Cu, Zn, Mn, B, Mo)** | Para diagnósticos de deficiencias específicas de microelementos se requiere laboratorio. |
-| **Sin análisis de textura ni materia orgánica** | No reemplaza un análisis de suelo completo anual — lo *complementa* con monitoreo continuo. |
-| **pH potenciométrico de estado sólido** | Ligeramente menos estable que el electrodo de vidrio de Hanna a largo plazo. Requiere recalibración periódica. |
-
-> **Posicionamiento honesto de TerraSense:**
-> No reemplaza al laboratorio ni al técnico agrónomo para decisiones de alta precisión.
-> **Sí reemplaza la ignorancia total** del 99% de los agricultores que hoy siembran sin ningún dato de su suelo,
-> entregando un diagnóstico accionable en 5 segundos al costo de $0 por medición.
-
----
-
-### 10.5. Ventajas Defensivas de TerraSense (Difíciles de Copiar)
-
-| Ventaja | Por qué es difícil de replicar |
-| :--- | :--- |
-| **Motor agronómico calibrado para Chile** | Base de datos de cultivos, umbrales fisiológicos y recomendaciones de enmienda calibradas para suelos volcánicos (trumaos), arcillas del Valle Central y condiciones climáticas de Chile/Latinoamérica. No es un algoritmo genérico. |
-| **7 parámetros + diagnóstico en 1 sola acción** | Ningún competidor en el rango $150–$350 USD mide NPK + pH + VWC + T° + EC en una sola sonda con app de diagnóstico. Para lograrlo necesitarías comprar 3 instrumentos separados (~$600–$900 USD). |
-| **Integración GIS + meteorología en $185 USD** | Equipos con mapa satelital de campo y alertas climáticas cuestan $1.500–$5.000 USD (Trimble, Ag Leader, Climate FieldView Pro). |
-| **Ecosistema abierto (Supabase + PostGIS)** | Sin licencias de software. El agricultor no depende de una suscripción para seguir usando su historial de datos. |
-| **Diseñado para campo chileno sin internet** | La arquitectura offline-first con sincronización automática es una decisión de diseño explícita para la realidad de conectividad del campo chileno (Araucanía, Bío-Bío, Maule). |
-
----
-
-
-## 11. Protocolos de Comunicación: RS485 Modbus RTU y BLE GATT
-
-### 10.1. Trama Modbus RTU de Lectura de la Sonda
-
-El microcontrolador consulta la sonda mediante **Modbus RTU** a $9.600\,\text{bps}$ (8N1):
+$$\text{Dosis Cal Agrícola (kg/ha)} = (\text{pH}_{\text{objetivo}} - \text{pH}_{\text{actual}}) \times \text{Factor Buffer Suelo} \times 1.000$$
 
 ```text
-[Consulta MCU]:
-0x01 | 0x03 | 0x00 0x00 | 0x00 0x07 | 0x04 0x08
- ID    Cmd    Reg Base    7 Registros   CRC16
+EJEMPLO DE PRESCRIPCIÓN GENERADA EN LA APP:
+─────────────────────────────────────────────────────────────────
+SECTOR: Potrero Bajo (Superficie: 0.8 ha)
+DIAGNÓSTICO: pH actual = 5.1  |  Potasio = 23 mg/kg
+OBJETIVO: Siembra de Maíz Dulce
 
-[Respuesta Sonda — 14 Bytes de Carga Útil]:
-Byte 0-1  : VWC          → 0x015E = 350  → 35.0 %
-Byte 2-3  : Temperatura  → 0x00F5 = 245  → 24.5 °C
-Byte 4-5  : EC           → 0x04D2 = 1234 → 1234 µS/cm
-Byte 6-7  : pH           → 0x0041 = 65   → 6.5 pH
-Byte 8-9  : Nitrógeno N  → 0x002D = 45   → 45 mg/kg
-Byte 10-11: Fósforo P    → 0x001E = 30   → 30 mg/kg
-Byte 12-13: Potasio K    → 0x0050 = 80   → 80 mg/kg
+PLAN DE APLICACIÓN RECOMENDADO:
+1. Encalado: Aplicar 480 kg de Cal Agrícola (CaCO₃) al voleo.
+   Incorporar con rastra 15 días antes de la siembra.
+   Costo estimado: ~$35.000 CLP.
+2. Fertilización Potásica: Aplicar 100 kg de Sulfato de Potasio.
+   Costo estimado: ~$45.000 CLP.
+─────────────────────────────────────────────────────────────────
 ```
 
-### 10.2. Arquitectura BLE: Sonda sin SIM, Smartphone como Gateway Inteligente
+---
 
-La sonda física **no tiene chip celular ni SIM**. Usa solo BLE 5.2. El smartphone del agricultor actúa como gateway:
-- Recibe 16 bytes de telemetría vía BLE en < 300 ms
-- Asocia coordenadas GPS de alta precisión del teléfono
-- Ejecuta el motor agronómico localmente
-- Sincroniza con Supabase cuando hay conexión
+### 4.4. Capa 4 — Integración Climática Predictiva (7 Días GPS)
 
-Esto reduce el costo BOM drásticamente y el consumo en reposo a solo **1.8 µA**.
+El motor consulta la API meteorológica georreferenciada del predio y cruza:
+* **Precipitaciones acumuladas pronosticadas:** Si se pronostican $> 25\text{ mm}$ en suelos con VWC $> 35\%$, bloquea la siembra por riesgo de lavado de semillas y compactación.
+* **Temperaturas mínimas nocturnas:** Alerta de heladas agronómicas ($< 2^\circ\text{C}$) en cultivos sensibles recién trasplantados.
+* **Índice UV y Temperatura Ambiental:** Evalúa la velocidad de desecación superficial mediante el cálculo de evapotranspiración.
 
 ---
 
-## 12. Modelos Agronómicos: Balance Hídrico y Evapotranspiración
+## 5. Parámetros de Medición y Modelos Físico-Químicos
 
+### 5.1. Matriz de Parámetros Sensados (Suelo 7-en-1 + Ambiente BME280)
+
+| Sensor / Subsistema | Parámetro Físico | Rango de Medición | Precisión Metrológica | Utilidad en el Diagnóstico |
+| :--- | :--- | :---: | :---: | :--- |
+| **Sonda Suelo Inox 316L** | **Humedad Volumétrica (VWC)** | $0 - 100\%$ | $\pm 2\%$ ($0-50\%$) | Balance hídrico, punto de marchitez y encharcamiento. |
+| **Sonda Suelo Inox 316L** | **Temperatura de Suelo** | $-40 \text{ a } +80^\circ\text{C}$ | $\pm 0.3^\circ\text{C}$ | Superación del umbral térmico de germinación. |
+| **Sonda Suelo Inox 316L** | **Conductividad Eléctrica (EC)** | $0 - 20.000\,\mu\text{S/cm}$ | $\pm 3\%$ | Salinidad efectiva y riesgo osmótico en raíces. |
+| **Sonda Suelo Inox 316L** | **pH de Suelo** | $3.0 - 9.0\text{ pH}$ | $\pm 0.1\text{ pH}$ | Disponibilidad y bloqueo químico de macro/micronutrientes. |
+| **Sonda Suelo Inox 316L** | **Nitrógeno (N)** | $1 - 1.999\text{ mg/kg}$ | $\pm 5\%$ | Vigor vegetativo inicial y desarrollo foliar. |
+| **Sonda Suelo Inox 316L** | **Fósforo (P)** | $1 - 1.999\text{ mg/kg}$ | $\pm 5\%$ | Reserva energética y estimulación radicular temprana. |
+| **Sonda Suelo Inox 316L** | **Potasio (K)** | $1 - 1.999\text{ mg/kg}$ | $\pm 5\%$ | Regulación estomática, tolerancia al frío y llenado de fruto. |
+| **Bosch BME280 (I2C)** | **Temperatura Ambiental** | $-40 \text{ a } +85^\circ\text{C}$ | $\pm 1.0^\circ\text{C}$ | Gradiente térmico aire-suelo y riesgo de heladas. |
+| **Bosch BME280 (I2C)** | **Humedad Relativa Aire** | $0 - 100\%\text{ HR}$ | $\pm 3\%\text{ HR}$ | Cálculo de VPD y condiciones predisponentes a hongos. |
+| **Bosch BME280 (I2C)** | **Presión Barométrica** | $300 - 1.100\text{ hPa}$ | $\pm 1.0\text{ hPa}$ | Detección de frentes de mal tiempo y altitud predial. |
+
+---
+
+### 5.2. Modelos de Balance Hídrico, AUD y Evapotranspiración (VPD / ET₀)
+
+#### 1. Agua Útil Disponible (AUD)
 $$\text{AUD} = (\theta_{\text{CC}} - \theta_{\text{PMP}}) \times Z_r$$
+Donde $\theta_{\text{CC}}$ es la Capacidad de Campo, $\theta_{\text{PMP}}$ es el Punto de Marchitez Permanente y $Z_r$ es la profundidad radicular activa en milímetros.
 
-Donde:
-- $\theta_{\text{CC}}$: Contenido de agua en Capacidad de Campo ($m^3/m^3$)
-- $\theta_{\text{PMP}}$: Contenido de agua en Punto de Marchitez Permanente ($m^3/m^3$)
-- $Z_r$: Profundidad de zona radicular efectiva ($mm$)
+#### 2. Déficit de Presión de Vapor (VPD)
+El BME280 permite calcular el VPD ambiental para anticipar el estrés hídrico:
+$$\text{VPD} = \text{VP}_{\text{sat}} \times \left(1 - \frac{\text{HR}}{100}\right) \quad \text{donde} \quad \text{VP}_{\text{sat}} = 0.61078 \times \exp\left(\frac{17.27 \times T_{\text{aire}}}{T_{\text{aire}} + 237.3}\right)$$
 
-El motor combina este modelo con la lectura de VWC actual y el pronóstico de ET₀ (Penman-Monteith simplificado con radiación solar del sensor de lux) para estimar el **déficit hídrico en días** antes de requerir riego.
-
----
-
-## 13. Modelo Económico y Estudio de Mercado
-
-### 12.1. Estructura de Costos (BOM — Lote 100 unidades)
-
-| Componente | Referencia | Costo Unitario |
-| :--- | :--- | :---: |
-| Sonda Suelo 7-en-1 Grado Industrial | RS-485 Modbus Inox 316L | $16.500 CLP |
-| SoC nRF52840 BLE 5.2 | Nordic / Raytac MDBT50Q | $4.200 CLP |
-| PCB 2 Capas ENIG + Ensamblaje SMT | FR4 1.2mm + montaje automatizado | $3.500 CLP |
-| Power Gating + RS-485 | P-MOSFET AO3401A + MT3608 + MAX13487E | $2.400 CLP |
-| Flash 8MB + Sensor Luz | Winbond W25Q64JV + Fotodiodo CIE | $1.800 CLP |
-| Batería Li-Ion 1.000 mAh + USB-C | Celda LiPo + TP4056 | $3.800 CLP |
-| Carcasa Estanca IP68 | ABS/PC con O-rings y empuñadura ergonómica | $5.800 CLP |
-| Empaque, QA y Calibración | Caja + espuma protectora + certificación | $4.000 CLP |
-| **TOTAL BOM** | | **$42.000 CLP (~$44 USD)** |
-
-### 12.2. Precio de Venta y Margen
-
-$$\text{PVP:}\ \mathbf{\$179.990\ CLP}\ (\approx \$188\ USD)\qquad\text{BOM:}\ \$42.000\ CLP$$
-
-$$\text{Margen Bruto Unitario:}\ \$137.990\ CLP\ \Rightarrow\ \mathbf{76.6\%}$$
-
-### 12.3. Dimensionamiento de Mercado (TAM / SAM / SOM)
-
-- **TAM:** 278.000 explotaciones agropecuarias en Chile
-- **SAM:** 83.400 (30% con smartphone, cobertura y cultivos comerciales)
-- **SOM Año 1 (1%):** 834 equipos
-
-$$834\ \text{unidades} \times \$179.990 = \mathbf{\$150.111.660\ CLP}\ (\approx \$158.000\ USD)$$
-$$\text{Ganancia Bruta Año 1:}\ \mathbf{\$115.083.660\ CLP}\ (\approx \$121.000\ USD)$$
+* **$\text{VPD} < 0.4\text{ kPa}$:** Transpiración vegetal bloqueada; alta propensión a enfermedades fungosas (*Botrytis*, *Oídio*).
+* **$\text{VPD} \in [0.8, 1.2]\text{ kPa}$:** Rango de confort transpiratorio óptimo.
+* **$\text{VPD} > 1.6\text{ kPa}$:** Estrés hídrico severo; cierre estomático preventivo de la planta.
 
 ---
 
-## 14. Guía de Defensa Hostil: Las 7 Preguntas Incómodas
+# ⚡ PARTE III: INGENIERÍA DE HARDWARE Y ELECTRÓNICA
 
-### ❓ 1. *"¿Qué hace tu equipo que no haga el THE01904 de $205 USD si usan la misma sonda?"*
+## 6. Especificación y Diseño Electrónico
 
-> **🎯 Respuesta:**
-> *"El THE01904 muestra 7 números en una pantalla LCD y termina ahí. Si le aparece `pH 5.1`, `K 23 mg/kg` y `Temp 9°C`, el agricultor no sabe si sembrar, qué le falta al suelo, cuánto aplicar ni qué puede plantar con esos valores.*
->
-> *TerraSense procesa esos mismos 7 datos y en 5 segundos entrega: diagnóstico de deficiencias en lenguaje natural, plan de corrección cuantificado en kg y costo, lista completa de qué puede y qué no puede plantar hoy, y si conviene esperar por lluvia próxima. El THE01904 no tiene GPS ni nube; los datos mueren en la pantalla. TerraSense genera un mapa satelital del predio y construye el historial del suelo temporada a temporada."*
+### 6.1. Diagrama de Arquitectura Integral de Sistema
 
----
-
-### ❓ 2. *"¿Por qué no mandar un análisis de laboratorio una vez al año?"*
-
-> **🎯 Respuesta:**
-> *"Un análisis de laboratorio cuesta $40.000 CLP y tarda 1 a 4 semanas. Para entonces ya sembraste o perdiste la temporada. El suelo cambia todos los días: la temperatura sube tras la lluvia, la humedad varía por sector, la salinidad se concentra en las zonas bajas. TerraSense es la diferencia entre una fotografía mensual cara y lenta, y una cámara en tiempo real a $0 por medición."*
-
----
-
-### ❓ 3. *"¿Por qué un campesino de 60 años te compraría a ti?"*
-
-> **🎯 Respuesta:**
-> *"Porque el cambio climático y el costo de insumos rompieron la regla del 'ojo'. Un saco de fertilizante supera $45.000 CLP, una bolsa de semilla híbrida $150.000 CLP. Sembrar a ciegas en suelo ácido o frío significa endeudarse con INDAP por toda una temporada. La app tiene interfaz de semáforo — Verde, Amarillo, Rojo — que cualquier persona entiende en 2 segundos, sin saber nada de agronomía."*
-
----
-
-### ❓ 4. *"¿De verdad tus clientes tienen $180.000 CLP para esto?"*
-
-> **🎯 Respuesta:**
-> *"Un agricultor de 2 hectáreas de tomate invierte $2–5 millones CLP por temporada en fertilizantes y semillas. Pagar $179.990 CLP una sola vez para proteger esa inversión representa menos del 4% de su presupuesto de siembra. Además, el canal B2B apunta a cooperativas, consultores privados y programas de INDAP y PRODESAL, que pueden adquirir por lote."*
-
----
-
-### ❓ 5. *"¿Qué pasa si en el cerro no hay señal 4G?"*
-
-> **🎯 Respuesta:**
-> *"BLE no requiere internet. La sonda transmite al teléfono, la app ejecuta el motor agronómico localmente y entrega el diagnóstico completo al instante. En cuanto regresa a zona con WiFi o 4G, sincroniza automáticamente con Supabase en segundo plano sin que el agricultor haga nada."*
-
----
-
-### ❓ 6. *"¿Si un Meter Group vale $2.900 USD y el tuyo $188, no será de juguete?"*
-
-> **🎯 Respuesta:**
-> *"La diferencia está en el modelo de negocio, no en la precisión. Meter Group vende dataloggers con gabinetes solares, módems 4G dedicados y licencias de software de $300 USD/año. Nosotros aprovechamos la pantalla, el GPS y el módem 4G que el agricultor ya tiene en el bolsillo. En banco de pruebas contrastado con laboratorio químico, nuestros electrodos 316L alcanzan correlación superior al 90% en pH, humedad y EC."*
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    DIAGRAMA DE HARDWARE TERRASENSE                          │
+│                                                                             │
+│  ┌──────────┐   ┌──────────┐    ┌─────────────────────────────────────┐    │
+│  │ 18650 #1 │   │ 18650 #2 │    │         MÓDULO TP5100               │    │
+│  │  3.7V    ├───┤  3.7V    ├───►│  BMS + Cargador 2A + USB-C         │    │
+│  │ 3000 mAh │   │ 3000 mAh │    │  Protección: Sobrecarga, Subcarga,SC│    │
+│  └──────────┘   └──────────┘    └──────────────┬──────────────────────┘    │
+│                                                │ Bus 3.7–4.2V              │
+│                  ┌─────────────────────────────┼───────────────────┐       │
+│                  │                             │                   │       │
+│                  ▼                             ▼                   ▼       │
+│          ┌──────────────┐            ┌─────────────────┐   ┌─────────────┐ │
+│          │  ROCKER SW   │            │  MT3608 Boost   │   │   ESP32     │ │
+│          │  (Corte      │            │  3.7V → 12V DC  │   │  WROOM-32   │ │
+│          │   Físico)    │            │  Alim. Sonda    │   │  BLE + WiFi │ │
+│          └──────────────┘            └────────┬────────┘   └──────┬──────┘ │
+│                                               │                   │        │
+│                                               ▼                   │ I2C    │
+│                                    ┌─────────────────┐            ▼        │
+│                                    │  Sonda NPK      │   ┌───────────────┐ │
+│                                    │  7-en-1 RS-485  │   │ Bosch BME280  │ │
+│                                    │  (5–30V DC)     │   │ T° + HR + Bar │ │
+│                                    └────────┬────────┘   └───────────────┘ │
+│                                             │ RS-485                       │
+│                                             ▼                              │
+│                                    ┌─────────────────┐                     │
+│                                    │  MAX485 / SP3485│                     │
+│                                    │  Transceptor    │◄────── ESP32 UART2  │
+│                                    └─────────────────┘        (GPIO 16/17) │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-### ❓ 7. *"¿Qué impide que los chinos saquen una app mañana y te copien?"*
+### 6.2. Microcontrolador Principal: ESP32-WROOM-32 y Pinout
 
-> **🎯 Respuesta:**
-> *"El hardware es replicable. El valor de TerraSense es el motor agronómico contextualizado: calibraciones para suelos volcánicos (trumaos), arcillas del Valle Central, rangos de fertilización de variedades locales de Chile y Latinoamérica, integración con programas de INDAP/PRODESAL y el histórico acumulado de datos por temporada y región. Los fabricantes asiáticos venden hardware genérico a nivel global sin soporte agronómico local ni integración GIS predial."*
+El sistema está gobernado por un **ESP32-WROOM-32 (Espressif Systems)** con CPU Xtensa Dual-Core @ 240 MHz:
 
----
-
-## 15. Criterios de Éxito y KPIs
-
-| # | Indicador | Meta |
-| :---: | :--- | :--- |
-| 🔋 | **Autonomía de batería** en Modo Campo | $\geq 4$ meses (1.000 mAh) |
-| 🎯 | **Precisión pH y EC** vs. laboratorio químico | $\geq 90\%$ correlación (≥ 30 muestras) |
-| ⚡ | **Tiempo de veredicto agronómico** | $\leq 5$ segundos post-medición |
-| 📶 | **Cobertura BLE en campo abierto** | $\geq 100$ metros (BLE 5.2 Coded PHY) |
-| 🌿 | **Exactitud de lista de cultivos** | $\geq 85\%$ concordancia con agrónomo certificado |
-| 🌦️ | **Precisión de alertas climáticas** | $\leq 12$ h de desfase vs. lluvia real registrada |
+| Señal / Periférico | Pin GPIO ESP32 | Tipo / Configuración | Función en TerraSense |
+| :--- | :---: | :---: | :--- |
+| **UART2 RX** | **GPIO 16** | Entrada Digital | Recepción de tramas Modbus RTU desde MAX485 |
+| **UART2 TX** | **GPIO 17** | Salida Digital | Transmisión de consultas Modbus RTU hacia MAX485 |
+| **RS-485 DE / RE** | **GPIO 18** | Salida Digital | Control de dirección de bus RS-485 (Transmisión / Recepción) |
+| **I2C SDA** | **GPIO 21** | Bidireccional Open-Drain | Línea de datos para sensor ambiental BME280 |
+| **I2C SCL** | **GPIO 22** | Salida Open-Drain | Línea de reloj para sensor ambiental BME280 |
+| **Power Gate Boost** | **GPIO 4** | Salida Digital | Gate de N-MOSFET (HIGH = Energiza Boost 12V y Sonda) |
+| **LED RGB WS2812B** | **GPIO 5** | Salida Digital (1-Wire) | Indicador luminoso multicolor de estado del sistema |
+| **Pulsador de Pairing** | **GPIO 0** | Entrada Pull-up Int. | Activación de pairing BLE (corto) / Reset fábrica (5s) |
+| **Medición Batería ADC** | **GPIO 34** | Entrada Analógica | Divisor de tensión para monitoreo de voltaje Li-Ion |
 
 ---
 
-## 16. Guía de Puesta en Marcha
+### 6.3. Sensor Ambiental Integrado: Bosch BME280 I2C
 
-### 16.1. Aplicación Móvil (React Native / Expo / TypeScript)
+Integrado en la placa PCB interna con ventilación hidrofóbica ePTFE (membrana Gore-Tex respirable):
+* **Dirección I2C:** `0x76` (o `0x77` seleccionable).
+* **Consumo activo:** $3.6\,\mu\text{A}$ a $1\text{ Hz}$.
+* Permite independizar la lectura climática superficial de las condiciones internas del gabinete.
+
+---
+
+### 6.4. BOM Detallado de Componentes Electrónicos
+
+| Item | Componente | Encapsulado / Módulo | Especificación Clave |
+| :---: | :--- | :--- | :--- |
+| 1 | Microcontrolador | ESP32-WROOM-32D | Dual-Core 240 MHz, 4MB Flash, BLE 5.0 + WiFi |
+| 2 | Sensor Ambiental | Bosch BME280 | I2C, $T^\circ$, Humedad Relativa y Presión |
+| 3 | Sonda de Suelo | Sonda 7-en-1 RS-485 | Acero Inoxidable 316L, Modbus RTU, 5–30V DC |
+| 4 | Transceptor RS-485 | MAX485 / SP3485 | Conversión UART TTL a diferencial RS-485 |
+| 5 | Convertidor Boost | MT3608 Step-Up | Eleva 3.7V nominal a 12V DC regulados ($\eta \approx 92\%$) |
+| 6 | Transistor de Corte | 2N7002 / AO3400 | N-MOSFET $V_{\text{DS}} = 30\text{V}$, $R_{\text{DS(on)}} < 0.05\,\Omega$ |
+| 7 | Sistema de Carga/BMS | Módulo TP5100 | Carga Li-Ion 2A con protección integral y USB-C |
+| 8 | Baterías | 2× Celda 18650 Li-Ion | $3.7\text{V}$, $3.000\text{ mAh}$ c/u en paralelo ($6.000\text{ mAh}$ total) |
+| 9 | Interruptor Principal | Rocker Switch SPST | Interruptor basculante 250V/3A de corte físico total |
+| 10 | LED Piloto | WS2812B NeoPixel | LED direccionable digital RGB 5050 |
+| 11 | Gabinete | Caja ABS IP67 | Carcasa sellada con O-ring de silicona y prensaestopas PG7 |
+
+---
+
+### 6.5. Interfaz Física del Dispositivo (Panel, LED WS2812B, Pulsador)
+
+```text
+                    PANEL FRONTAL DEL DISPOSITIVO
+      ┌────────────────────────────────────────────────────────┐
+      │                                                        │
+      │    🔴/🟢/🔵 LED RGB                 [ PAIR ]           │
+      │    WS2812B Estado                 Pulsador Táctil      │
+      │                                                        │
+      │    ━━━━━━━━━━━━━━━━━  USB-C ▬ (Carga 2A)               │
+      │                                                        │
+      │    [  ○  OFF   |   ON  ○  ]  ← Rocker Switch           │
+      │                                                        │
+      └────────────────────────────────────────────────────────┘
+                                   │
+                                   ▼ Prensaestopas IP67
+                         Cable hacia Sonda Inox 316L
+```
+
+#### Código de Colores del LED RGB (WS2812B)
+
+| Estado del Dispositivo | Color LED | Patrón Visual | Significado Operacional |
+| :--- | :---: | :--- | :--- |
+| **Buscando Conexión** | 🔵 Azul | Pulso suave (1 Hz) | Equipo encendido, esperando conexión BLE con app. |
+| **Modo Pairing Activo** | 🔵 Azul | Parpadeo rápido (4 Hz) | Pulsador presionado; ventana de enlace abierta (30 s). |
+| **Enlazado y Listo** | 🟢 Verde | Luz fija continua | Conexión BLE establecida con el smartphone. |
+| **Medición Exitosa** | 🟢 Verde | 3 destellos rápidos | Lectura Modbus y BME280 capturada y enviada. |
+| **Batería Baja** | 🟠 Naranja | Pulso lento | Batería $< 15\%$ ($V_{\text{bat}} < 3.4\text{V}$). Recargar por USB-C. |
+| **Error de Sonda** | 🔴 Rojo | Parpadeo continuo | Falla de respuesta Modbus UART o timeout de sonda. |
+| **Reset de Fábrica** | 🔴 Rojo | Fijo por 3 segundos | NVS borrada; equipo restaurado a estado de fábrica. |
+
+#### Lógica del Pulsador Multifunción
+
+* **Pulsación Corta ($< 1\text{ s}$):** Activa el modo de anuncio BLE forzado para vincular un nuevo teléfono móvil.
+* **Pulsación Larga ($\ge 5\text{ s}$):** Ejecuta el borrado de la partición NVS del ESP32 (*Factory Reset*), eliminando el bonding previo para transferencia a un nuevo dueño.
+
+---
+
+### 6.6. Persistencia de Vinculación BLE tras Apagado (Flash NVS)
+
+El ESP32 almacena las claves de emparejamiento y bonding en su partición **NVS (Non-Volatile Storage)**:
+1. El agricultor vincula su teléfono una sola vez mediante el código PIN.
+2. Al apagar el equipo con el *Rocker Switch*, las claves quedan guardadas en la memoria Flash no volátil.
+3. Al encender nuevamente el equipo en terreno, el enlace BLE se restablece en **$< 1.5\text{ segundos}$** sin requerir interacción manual.
+
+---
+
+### 6.7. Roadmap de Hardware v2.0
+
+* **Display OLED monocromático de 0.96" (I2C):** Lectura directa de pH, Humedad y T° en pantalla para uso sin smartphone.
+* **Buzzer piezoeléctrico SMD:** Señal sonora de confirmación de medición exitosa y alerta de batería crítica.
+* **Conector M8 / M12 Industrial IP68:** Desconexión rápida de la sonda para facilitar transporte y reemplazo.
+
+---
+
+## 7. Sistema de Potencia y Eficiencia Energética
+
+### 7.1. Sistema de Carga USB-C y Gestión de Batería (TP5100 + 2× 18650)
+
+* **Capacidad Total:** $6.000\text{ mAh}$ a $3.7\text{V}$ nominal ($22.2\text{ Wh}$) mediante 2 celdas 18650 grado A en paralelo.
+* **Cargador Rápido TP5100:** Corriente de carga de $2.0\text{ A}$ constante (tiempo de carga completa: $\approx 3.5\text{ horas}$).
+* **Protecciones Integradas:** Corte por sobrevoltaje ($4.2\text{V}$), desconexión por sobredescarga ($2.9\text{V}$) y protección contra cortocircuitos.
+
+---
+
+### 7.2. Control de Alimentación del Boost MT3608 por MOSFET
+
+Para evitar el drenaje de corriente en reposo del convertidor elevador y de la sonda RS-485 (que consumirían entre 25 y 40 mA de forma permanente), se implementa **aislamiento por transistor MOSFET**:
+
+```text
+         CIRCUITO DE CONTROL DE ENERGÍA (POWER GATING)
+                     +VBAT (3.7V - 4.2V)
+                             │
+                       ┌─────┴─────┐
+                       │  N-MOSFET │
+                       │  2N7002   │◄─── GPIO 4 del ESP32
+                       └─────┬─────┘     (HIGH = Activo / LOW = 0 mA)
+                             │
+               ┌─────────────┴─────────────┐
+               ▼                           ▼
+   ┌───────────────────────┐   ┌───────────────────────┐
+   │ MT3608 Boost Step-Up  │   │ MAX485 Transceiver    │
+   │ 3.7V → 12V DC Sonda   │   │ Bus de Comunicación   │
+   └───────────┬───────────┘   └───────────┬───────────┘
+               └─────────────┬─────────────┘
+                             ▼
+              ┌─────────────────────────────┐
+              │ Sonda Suelo 7-en-1 (Inox)   │
+              │ EN REPOSO: 0.0 µA           │
+              └─────────────────────────────┘
+```
+
+---
+
+### 7.3. Perfil de Consumo Eléctrico y Autonomía en Terreno
+
+| Estado de Operación | Subsistemas Activos | Corriente Típica | Duración |
+| :--- | :--- | :---: | :---: |
+| **Apagado Total (Rocker OFF)** | Ninguno (circuito abierto físico) | **$0.0\,\mu\text{A}$** | Indefinida |
+| **Standby BLE (Conectado)** | ESP32 (Radio BLE activo) + BME280 | $\approx 22\text{ mA}$ | Entre mediciones |
+| **Ciclo de Medición Activa** | Boost 12V + Sonda 7-en-1 + MAX485 + ESP32 | $\approx 65\text{ mA}$ | $150\text{ ms}$ |
+| **Transmisión de Ráfaga BLE** | ESP32 TX @ $+9\text{ dBm}$ | $\approx 85\text{ mA}$ | $50\text{ ms}$ |
+
+#### Estimación de Autonomía con 2× 18650 (6.000 mAh):
+* **Uso Práctico en Terreno (Encender, medir 15 puntos y apagar):** **$> 6\text{ meses}$** con una sola carga USB-C.
+* **Modo Muestreo Intensivo Continuo (Sin apagar rocker switch):** **$\approx 11\text{ días}$** de funcionamiento ininterrumpido.
+
+---
+
+## 8. Protocolos de Comunicación Industrial e Inalámbrica
+
+### 8.1. Trama Industrial RS-485 Modbus RTU (Sonda NPK)
+
+El ESP32 realiza consultas periódicas mediante protocolo estándar **Modbus RTU** a $9.600\text{ bps}$ ($8\text{N}1$):
+
+```text
+[TRAMA DE CONSULTA - 8 Bytes]:
+0x01 (ID Dispositivo) | 0x03 (Función Read Holding Registers) | 0x00 0x00 (Registro Base) | 0x00 0x07 (7 Registros) | 0x04 0x08 (CRC16)
+
+[TRAMA DE RESPUESTA DE LA SONDA - 19 Bytes Totales / 14 Bytes de Datos]:
+Byte 0-1   : Humedad Volumétrica (VWC)   -> ej. 0x015E = 350  -> 35.0 %
+Byte 2-3   : Temperatura del Suelo       -> ej. 0x00F5 = 245  -> 24.5 °C
+Byte 4-5   : Conductividad Eléctrica (EC)-> ej. 0x04D2 = 1234 -> 1234 µS/cm
+Byte 6-7   : pH del Suelo                -> ej. 0x0041 = 65   -> 6.5 pH
+Byte 8-9   : Nitrógeno (N)               -> ej. 0x002D = 45   -> 45 mg/kg
+Byte 10-11 : Fósforo (P)                 -> ej. 0x001E = 30   -> 30 mg/kg
+Byte 12-13 : Potasio (K)                 -> ej. 0x0050 = 80   -> 80 mg/kg
+```
+
+---
+
+### 8.2. Comunicación Bluetooth 5.0 BLE (GATT) hacia el Smartphone
+
+* **Servicio Primario TerraSense:** UUID `00000001-5e4e-4c69-6d61-746572726101`
+* **Característica de Telemetría (Read / Notify):** UUID `00000002-5e4e-4c69-6d61-746572726102`
+  * Emite un paquete binario compacto de **16 bytes** que encapsula los 7 datos del suelo más los 3 datos del BME280 y el nivel de batería, recibido por la app en menos de $300\text{ ms}$.
+
+---
+
+# 💻 PARTE IV: ECOSISTEMA DE SOFTWARE Y NUBE
+
+## 9. Aplicación Móvil TerraSense (React Native / Expo)
+
+### 9.1. Arquitectura In-App y Flujo de Pantallas
+
+Desarrollada en **React Native con TypeScript estricto y Expo SDK 51+**:
+
+```text
+┌───────────────────────────┐  ┌───────────────────────────┐  ┌───────────────────────────┐
+│   RADAR Y TELEMETRÍA      │  │    DIAGNÓSTICO MOTOR IA   │  │   MAPA SATELITAL PREDIAL  │
+│                           │  │                           │  │                           │
+│  📡 Sonda: TS-840-A9F4    │  │  🟢 APTO PARA SIEMBRA     │  │   ┌─────────────────────┐ │
+│     Batería: 94% (4.1V)   │  │                           │  │   │  🟢 P1       🟢 P2  │ │
+│                           │  │  Cultivo: Maíz Dulce      │  │   │       🟡 P3         │ │
+│  pH: 6.4  |  EC: 420 µS/cm│  │  pH: 6.4 (Rango Óptimo)   │  │   │  🔴 P4       🟢 P5  │ │
+│  T°: 18.2°C | VWC: 32.1%  │  │  Temp: 18.2°C (>12°C OK)  │  │   └─────────────────────┘ │
+│  NPK: 65 / 40 / 140 mg/kg │  │  Humedad: 32% (Adecuada)  │  │  🟢 3 Puntos Aptos        │
+│                           │  │  Enmienda: No requerida   │  │  🟡 1 Requiere Encalado   │
+│  [ CAPTURAR MEDICIÓN ]    │  │  🌦️ Clima: Lluvia en 6 d  │  │  🔴 1 Salinidad Excesiva  │
+└───────────────────────────┘  └───────────────────────────┘  └───────────────────────────┘
+```
+
+---
+
+### 9.2. Funcionalidades Clave y Experiencia de Usuario (UX)
+
+1. **Veredicto Semáforo Trimodal:** Verde (Proceder a siembra), Amarillo (Requiere enmienda o espera térmica) y Rojo (Suelo no apto / toxicidad).
+2. **Selector Dinámico de Cultivos:** Despliega inmediatamente la lista de qué especies pueden plantarse hoy y cuáles no.
+3. **Generador de Prescripciones de Fertilizante:** Traduce las deficiencias a sacos comerciales de cal, urea, superfosfato triple o sulfato de potasio.
+4. **Georreferenciación Automática por GPS:** Registra latitud, longitud, altitud y precisión métrica del smartphone en cada punto.
+
+---
+
+### 9.3. Arquitectura Offline-First y Sincronización Automática
+
+* **Operación Sin Cobertura Celular:** Si el agricultor está en una quebrada o potrero sin señal 4G, la aplicación ejecuta el motor agronómico íntegramente en local y almacena las lecturas en la base de datos interna (**SQLite / WatermelonDB**).
+* **Mecanismo Store & Forward:** Al detectar conexión a Internet (red 4G/5G en el camino o WiFi del hogar), un *background sync service* transmite los registros en cola hacia Supabase sin requerir intervención del usuario.
+
+---
+
+## 10. Plataforma Cloud y Consola Web GIS (Supabase + PostGIS)
+
+### 10.1. Arquitectura Multi-Rol (Device ID Único)
+
+Cada instrumento TerraSense cuenta con un **Device ID único de 16 caracteres** grabado en hardware. Un mismo equipo físico puede compartirse entre varios usuarios mediante roles:
+
+```text
+                   MATRIZ DE ROLES Y PRIVILEGIOS DE USUARIO
+┌────────────────────┬────────────┬──────────────────────────────────────────┐
+│ ROL DE USUARIO     │ PLATAFORMA │ PRIVILEGIOS Y ACCIONES                   │
+├────────────────────┼────────────┼──────────────────────────────────────────┤
+│ 🧑‍🌾 Agricultor    │ App Móvil  │ Captura datos, ve semáforo, mapa predial.│
+│ 👷 Asesor INDAP    │ App + Web  │ Calibra umbrales, revisa predios, emite. │
+│ 👨‍🔧 Operador Campo │ App Móvil  │ Modo cuadrilla: pincha suelo y sincroniza│
+│ 🛠️ Administrador   │ Consola Web│ Gestión de hardware, soporte y FOTA OTA. │
+└────────────────────┴────────────┴──────────────────────────────────────────┘
+```
+
+---
+
+### 10.2. Consola Web de Gestión Geoespacial y Mapeo de Calor
+
+* **Motor Geoespacial PostGIS:** Polígonos prediales vectoriales asociados a cada rol de agricultor.
+* **Interpolación Espacial:** Algoritmos geoestadísticos de **Kriging e Inverse Distance Weighting (IDW)** para generar mapas de calor continuo de salinidad, pH y humedad a partir de muestreos discretos.
+* **Histórico Multitemporal:** Seguimiento de la degradación o recuperación del suelo a lo largo de las temporadas agrícolas.
+
+---
+
+### 10.3. Actualización de Firmware Over-The-Air (WiFi OTA)
+
+El ESP32 permite actualizar el firmware binario (`v1.0.4` $\rightarrow$ `v1.1.0`) de manera inalámbrica vía WiFi a través del smartphone o de la red local, permitiendo incorporar nuevas curvas de calibración sin requerir retorno al laboratorio.
+
+---
+
+# 🎯 PARTE V: VALIDACIÓN, DEFENSA Y PUESTA EN MARCHA
+
+## 11. Criterios de Éxito y Validación Experimental (KPIs)
+
+| Dimensión | Indicador Clave (KPI) | Meta Cuantificable | Método de Verificación |
+| :--- | :--- | :---: | :--- |
+| 🔋 **Energía** | Autonomía de batería en modo campo | $\ge 4\text{ meses}$ ($15\text{ med/día}$) | Prueba acelerada de descarga con carga activa $22\text{ mA}$. |
+| 🎯 **Metrología** | Correlación en lecturas de pH y EC | $\ge 90\%$ vs. Laboratorio | Contrastación de $\ge 30$ muestras de suelo agrícola. |
+| ⚡ **Rendimiento** | Tiempo de veredicto agronómico | $\le 5\text{ segundos}$ | Medición de latencia desde pulsación hasta render UI. |
+| 📶 **Conectividad** | Alcance de enlace inalámbrico BLE | $\ge 30\text{ metros}$ campo abierto | Verificación de RSSI y pérdida de paquetes en terreno. |
+| 🌿 **Algoritmia** | Concordancia en recomendación de cultivos| $\ge 85\%$ vs. Ingeniero Agrónomo | Validación ciega de 20 casos de prueba agronómica. |
+
+---
+
+## 12. Guía de Defensa Hostil (Las 7 Preguntas Incómodas)
+
+### ❓ 1. *"¿Qué hace tu equipo que no haga un medidor chino de $200 USD si usan la misma sonda?"*
+> **🎯 Respuesta:**  
+> *"El equipo genérico chino es solo una pantalla voltimétrica que muestra 7 números aislados (`pH 5.1`, `EC 2400`). El agricultor común no sabe qué hacer con eso. **TerraSense vende una decisión:** procesa esos datos con su motor agronómico y en 5 segundos le entrega un semáforo claro diciéndole: 'No plantes tomates porque el pH bloqueará el fósforo; aplica 500 kg/ha de cal agrícola y en su lugar planta papas o lechuga'. Además, georreferencia cada punto en un mapa satelital predial y sincroniza con la nube, algo que el equipo chino no puede hacer."*
+
+---
+
+### ❓ 2. *"¿Por qué no mandar un análisis tradicional de laboratorio una vez al año y olvidarse de tu aparato?"*
+> **🎯 Respuesta:**  
+> *"Porque el suelo cambia todos los días y el laboratorio cuesta $40.000 CLP y tarda 3 semanas. Para cuando llega el resultado, la ventana de siembra ya pasó. El suelo varía según la última lluvia, la temperatura de la semana o la salinidad acumulada por el riego. El laboratorio es una foto mensual cara; TerraSense es un monitoreo en tiempo real a costo cero por medición."*
+
+---
+
+### ❓ 3. *"¿Por qué un campesino de 60 años te compraría a ti si lleva 40 años sembrando 'al ojo'?"*
+> **🎯 Respuesta:**  
+> *"Porque el cambio climático rompió la regla del 'ojo'. Hoy un saco de fertilizante supera los $45.000 CLP y una bolsa de semilla híbrida cuesta $150.000 CLP. Si siembra a ciegas en un suelo frío o salino y pierde la siembra, se endeuda por todo el año. Diseñamos la app con interfaz de semáforo (Verde, Amarillo, Rojo) para que cualquier persona entienda el veredicto en 2 segundos sin requerir conocimientos técnicos."*
+
+---
+
+### ❓ 4. *"¿De verdad un agricultor pequeño tiene $180.000 CLP para comprar esto?"*
+> **🎯 Respuesta:**  
+> *"Un productor de 2 hectáreas de hortalizas invierte entre $2.000.000 y $5.000.000 CLP por temporada en insumos. Gastar $179.990 CLP una sola vez en la vida para proteger esa inversión representa menos del 4% de su presupuesto de siembra. Además, nuestro modelo B2B apunta a compras colectivas a través de programas de INDAP, PRODESAL y cooperativas agrícolas."*
+
+---
+
+### ❓ 5. *"¿Qué pasa si en medio del cerro no hay señal 4G?"*
+> **🎯 Respuesta:**  
+> *"El sistema funciona 100% desconectado. La sonda se comunica con el teléfono por Bluetooth Low Energy (BLE) sin requerir internet. El motor agronómico corre localmente en el procesador del smartphone y entrega el veredicto en 5 segundos. En cuanto el usuario recupera cobertura 4G o WiFi, la app se sincroniza en segundo plano con la base de datos Supabase."*
+
+---
+
+### ❓ 6. *"Si equipos como Meter Group o Spectrum valen $2.500 USD, ¿por qué el tuyo cuesta $188 USD? ¿Es de menor calidad?"*
+> **🎯 Respuesta:**  
+> *"No. La diferencia está en la arquitectura del sistema: ellos venden dataloggers pesados con paneles solares propietarios, pantallas LCD dedicadas y módems celulares con suscripciones anuales de $300 USD. Nosotros **aprovechamos la pantalla táctil, el GPS de precisión y el módem 4G/5G del smartphone que el agricultor ya tiene en su bolsillo**, reduciendo radicalmente el costo de hardware sin sacrificar la calidad metrológica de los electrodos."*
+
+---
+
+### ❓ 7. *"¿Qué impide que una empresa asiática saque una app mañana y te copie?"*
+> **🎯 Respuesta:**  
+> *"El hardware es genérico; la barrera de entrada está en el **motor agronómico calibrado para los suelos y cultivos de Chile y Latinoamérica** (suelos volcánicos trumaos, arcillas del Valle Central, variedades comerciales locales y vinculación con programas de fertilización de INDAP). Los fabricantes asiáticos comercializan hardware sin contextualización biológica local ni integración con plataformas satelitales territoriales."*
+
+---
+
+## 13. Guía de Puesta en Marcha y Entornos de Desarrollo
+
+### 13.1. Aplicación Móvil (React Native / Expo / TypeScript)
 ```bash
 cd App
 npm install
 npx expo start
 ```
 
-### 16.2. Consola Web Agronómica (React 18 / Vite)
+### 13.2. Consola Web Agronómica (React 18 / Vite)
 ```bash
 cd Web
 npm install
 npm run dev
 ```
 
-### 16.3. Firmware del Microcontrolador (ESP32 / Arduino / ESP-IDF)
+### 13.3. Firmware del Microcontrolador (ESP32 / PlatformIO / Arduino)
 ```bash
 cd Firmware
-# Con Arduino IDE: seleccionar ESP32 DevKit v1, puerto COM, Upload
-# Con PlatformIO:
+# Compilación y flasheo mediante PlatformIO:
 pio run --target upload
-# Con ESP-IDF:
-idf.py build flash monitor
+# Monitoreo serial de depuración:
+pio device monitor -b 115200
 ```
 
 ---
 
-## 17. Estructura del Repositorio
+## 14. Estructura Integral del Repositorio
 
 ```text
 TerraSence/
-├── README.md                          # Este documento — especificación integral
-├── .gitignore
-├── App/                               # App móvil React Native (Expo + TypeScript)
-│   ├── App.tsx                        # Componente raíz: estado, navegación, motor agronómico
-│   ├── tsconfig.json
-│   ├── app.json                       # Permisos BLE, GPS e Internet
+├── README.md                          # Documento maestro y especificación integral
+├── .gitignore                         # Reglas de exclusión de Git
+├── App/                               # Aplicación Móvil React Native (Expo + TypeScript)
+│   ├── App.tsx                        # Componente raíz: máquina de estados y navegación
+│   ├── tsconfig.json                  # Configuración TypeScript estricta
+│   ├── app.json                       # Configuración de permisos BLE, GPS y red
 │   ├── src/
-│   │   ├── engine/                    # Motor agronómico: diagnóstico, cultivos, enmiendas
-│   │   ├── services/                  # BLE, GPS, API clima, Supabase sync
-│   │   ├── screens/                   # Pantallas de la app
-│   │   └── types/                     # Tipos TypeScript
-│   └── package.json
-├── Web/                               # Consola Web (React 18 + Vite + PostGIS)
+│   │   ├── engine/                    # Motor Agronómico: reglas, cultivos, enmiendas
+│   │   ├── services/                  # Bluetooth BLE, GPS, Open-Meteo, Supabase Sync
+│   │   ├── screens/                   # Pantallas: Radar, Semáforo, Cultivos, Mapa
+│   │   └── types/                     # Interfaces y tipos de datos del sistema
+│   └── package.json                   # Dependencias de la app móvil
+├── Web/                               # Consola Web Agronómica (React 18 + Vite + GIS)
 │   ├── src/
-│   │   ├── components/                # Mapa GIS, heatmaps, panel de dispositivos
-│   │   └── pages/
-│   └── package.json
-├── Firmware/                          # Código ESP32 (Arduino / ESP-IDF / PlatformIO)
+│   │   ├── components/                # Visor satelital PostGIS, heatmaps, panel soporte
+│   │   └── pages/                     # Gestión predial y administración de dispositivos
+│   └── package.json                   # Dependencias web
+├── Firmware/                          # Firmware C++ para microcontrolador ESP32
 │   ├── src/
-│   │   ├── main.cpp                   # Loop principal, máquina de estados
-│   │   ├── ble/                       # Servidor GATT, bonding NVS, pairing handler
-│   │   ├── modbus/                    # Driver RS-485 Modbus RTU para sonda NPK
-│   │   ├── sensors/                   # Driver BME280 I2C
-│   │   ├── power/                     # Control MOSFET boost, rocker switch ISR
-│   │   └── ui/                        # LED WS2812B, buzzer, pulsador
-│   ├── platformio.ini                 # Configuración PlatformIO ESP32
-│   └── CMakeLists.txt                 # Alternativa ESP-IDF
-├── PCB/                               # Esquemáticos KiCad, diseño PCB y BOM
-│   ├── TerraSense_v2.kicad_sch
-│   ├── TerraSense_v2.kicad_pcb
-│   └── BOM.csv
-├── Diseño 3D/                         # CAD FreeCAD/Fusion360 de carcasa IP67
-└── supabase/                          # PostgreSQL + PostGIS + Edge Functions
+│   │   ├── main.cpp                   # Máquina de estados principal y bucle de eventos
+│   │   ├── ble/                       # Servidor GATT, bonding NVS y handler de pairing
+│   │   ├── modbus/                    # Driver RS-485 Modbus RTU para sonda 7-en-1
+│   │   ├── sensors/                   # Driver I2C para Bosch BME280
+│   │   ├── power/                     # Control de MOSFET Power Gating y lectura de batería
+│   │   └── ui/                        # Control de LED WS2812B y debounce de pulsador
+│   ├── platformio.ini                 # Configuración de entorno de compilación PlatformIO
+│   └── CMakeLists.txt                 # Configuración para ESP-IDF
+├── PCB/                               # Diseño Electrónico en KiCad
+│   ├── TerraSense_v2.kicad_sch        # Esquemático de circuito electrónico
+│   ├── TerraSense_v2.kicad_pcb        # Ruteo de pistas de 2 capas
+│   └── BOM.csv                        # Lista de materiales para ensamblaje SMT
+├── Diseño 3D/                         # Modelado CAD de Carcasas y Empuñaduras
+│   └── Carcasa_IP67_TerraSense.step   # Archivo STEP para inyección/impresión 3D
+└── supabase/                          # Infraestructura Backend Serverless
+    ├── migrations/                    # Esquema de tablas PostGIS y políticas RLS
+    └── functions/                     # Edge Functions para sincronización y reportes
 ```
 
 ---
 
-> *"Existen cientos de dispositivos que sensan la tierra.*
-> *Baratos, caros, industriales, portátiles.*
-> *Todos te dan los números.*
-> *Nadie te dice qué hacer con ellos.*
-> *TerraSense es el primero que actúa como el ingeniero agrónomo*
+> *"Existen cientos de dispositivos que sensan la tierra.*  
+> *Baratos, caros, industriales, portátiles.*  
+> *Todos te dan los números.*  
+> *Nadie te dice qué hacer con ellos.*  
+> *TerraSense es el primero que actúa como el ingeniero agrónomo*  
 > *que el 99% de los agricultores de Chile nunca pudo pagar."*
 
 ---
 
-*Desarrollado para Ingeniería en Electrónica y Sistemas Inteligentes — INACAP.*
+*Desarrollado para Ingeniería en Electrónica y Sistemas Inteligentes — INACAP.*  
 *Motor agronómico calibrado para suelos y cultivos de Chile y Latinoamérica.*
