@@ -43,7 +43,7 @@
 1. **S1–S4** · Revocar la clave de Google Maps de Akura y emitir una nueva restringida. *Manual, bloqueante.*
 2. **Variables de entorno** · Faltan las tres claves en el `.env` (ver sección 10). Sin ellas la app arranca pero no conecta.
 3. **Probar el enlace BLE contra la sonda física.** El código está escrito y compila, pero nunca ha hablado con hardware real.
-4. **C8** · Gestión de predios múltiples con perímetro. Hoy hay un solo predio por nombre.
+4. **Perímetro del predio** dibujado sobre el mapa. La selección entre predios ya funciona.
 5. **A7–A9** · Desplegar la consola en Vercel. **Requiere `vercel login` interactivo: el CLI se queda esperando entrada y no puede completarse de forma automática.**
 6. **D6b** · Gestión de firmware OTA en la consola.
 7. **SMTP propio** · Necesario para que los correos de recuperación usen la marca TerraSense y lleguen de verdad (ver A5).
@@ -390,8 +390,12 @@ leer, modificar y borrar todas las filas de todas las tablas, incluida `profiles
       mostrar etapa fenológica, antigüedad, los 7 parámetros y el veredicto resumido.
 - [x] **C7.** Portar `AuthScreen.tsx` prácticamente sin cambios: sólo textos, marca y paleta.
       **Es el mayor ahorro de la migración.**
-- [ ] **C8.** Adaptar `SafeZonesScreen.tsx` → gestión de **predios múltiples con perímetro dibujado**.
-      Parcialmente cubierto: `FieldSettingsScreen` ya permite nombre de predio, cultivo y textura.
+- [x] **C8.** **Predios múltiples** (`FieldPicker` + `fieldsService`): selector en el mapa, listado
+      con recuento de mediciones y antigüedad, y alta de predio nuevo que funciona sin cobertura.
+      Los predios se derivan de `field_name` de las mediciones más los creados en el teléfono: el
+      esquema adoptado no tiene tabla de predios, y añadirla obligaría a migrar filas y romper la
+      consola web. Un predio sin mediciones no merece sincronizarse.
+      **Pendiente menor:** dibujar el perímetro del predio sobre el mapa (`predios.geom`).
 - [x] **C9.** **Enlace BLE implementado** en `bleService.ts`: permisos de Android 12+, espera a que
       la radio esté encendida, escaneo filtrado por UUID de servicio, lectura por *notify* con
       tiempo límite y desconexión garantizada en `finally` —sin ella la sonda no vuelve a sueño

@@ -30,6 +30,7 @@ import * as Location from 'expo-location';
 import { Colors, Spacing, Typography, VERDICT_META } from '../constants/theme';
 import { useAppStore } from '../store/useAppStore';
 import { StageSelector } from '../components/StageSelector';
+import { FieldPicker } from '../components/FieldPicker';
 import { MeasurementBottomSheet } from '../components/MeasurementBottomSheet';
 import { fetchMeasurements, flushQueue, pendingCount } from '../services/measurementsService';
 import type { MapMeasurementPoint } from '../types/app';
@@ -67,6 +68,7 @@ export const MapScreen: React.FC<Props> = ({
     stage,
     setStage,
     fieldName,
+    setFieldName,
     device,
     points,
     setPoints,
@@ -234,11 +236,7 @@ export const MapScreen: React.FC<Props> = ({
         </View>
 
         <View style={styles.subBar} pointerEvents="box-none">
-          <View style={[styles.fieldPill, { backgroundColor: colors.mapOverlay, borderColor: colors.border }]}>
-            <Text style={[styles.fieldText, { color: colors.text }]} numberOfLines={1}>
-              📍 {fieldName}
-            </Text>
-          </View>
+          <FieldPicker value={fieldName} onChange={setFieldName} colors={colors} />
           {offline && (
             <View style={[styles.pendingPill, { backgroundColor: colors.secondary }]}>
               <Text style={styles.pendingText}>Modo campo · sin señal</Text>
