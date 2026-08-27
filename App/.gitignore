@@ -1,0 +1,33 @@
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+*.env
+*.local
+
+# Dependencies & Build
+node_modules/
+.expo/
+dist/
+web-build/
+
+# Native Builds
+android/
+ios/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing & Coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
