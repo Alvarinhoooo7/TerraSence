@@ -34,18 +34,18 @@
 | **1 · Infraestructura Supabase** | 🟢 Hecho | Proyecto `terrasense` vinculado (São Paulo). PostGIS activo. 8 migraciones aplicadas. |
 | **1 · Infraestructura Vercel** | 🔴 Pendiente | A7–A9, junto con la consola web. |
 | **2 · Base de datos** | 🟢 Hecho | Esquema existente adoptado y ampliado. **RLS abierto corregido** (ver 5.1). RPC de vinculación por código. |
-| **3 · App móvil** | 🟢 Núcleo hecho | Mapa, medición, autenticación, equipos, historial, ajustes. Empaqueta: 1.102 módulos. **Falta BLE real (C9).** |
+| **3 · App móvil** | 🟢 Hecho | Mapa, medición, autenticación, equipos, historial, ajustes y enlace BLE. Empaqueta: 1.113 módulos. **El BLE no está probado contra hardware.** |
 | **4 · Consola web** | 🟢 Núcleo hecho | Login, dashboard de 4 pestañas, búsqueda y visor GIS con IDW. Compila: 78 módulos. **Falta desplegar en Vercel (A7–A9) y OTA (D6b).** |
-| **5 · Edge Functions** | 🟡 Parcial | `device-checkin` desplegada y probada. **Falta el despacho de notificaciones push (E2).** |
+| **5 · Edge Functions** | 🟢 Hecho | `device-checkin` y `send-push-alert` desplegadas. Las de dominio médico de Akura, descartadas. |
 
 ### Lo que realmente falta, por orden
 
 1. **S1–S4** · Revocar la clave de Google Maps de Akura y emitir una nueva restringida. *Manual, bloqueante.*
 2. **Variables de entorno** · Faltan las tres claves en el `.env` (ver sección 10). Sin ellas la app arranca pero no conecta.
-3. **C9** · Emparejamiento BLE real con `react-native-ble-plx`. Requiere hardware.
+3. **Probar el enlace BLE contra la sonda física.** El código está escrito y compila, pero nunca ha hablado con hardware real.
 4. **C8** · Gestión de predios múltiples con perímetro. Hoy hay un solo predio por nombre.
 5. **A7–A9** · Desplegar la consola en Vercel. **Requiere `vercel login` interactivo: el CLI se queda esperando entrada y no puede completarse de forma automática.**
-6. **E2** · Despacho efectivo de notificaciones push.
+6. **D6b** · Gestión de firmware OTA en la consola.
 7. **Confirmar la ficha de la sonda** con el vendedor (README §5.3.1) antes de cerrar el driver Modbus.
 
 ---
@@ -387,11 +387,13 @@ leer, modificar y borrar todas las filas de todas las tablas, incluida `profiles
       **Es el mayor ahorro de la migración.**
 - [ ] **C8.** Adaptar `SafeZonesScreen.tsx` → gestión de **predios múltiples con perímetro dibujado**.
       Parcialmente cubierto: `FieldSettingsScreen` ya permite nombre de predio, cultivo y textura.
-- [ ] **C9.** **Emparejamiento BLE real.** `DevicesScreen` ya cubre alta, selección y vinculación por
-      código de 15 dígitos; `probeService` tiene el decodificador de la trama de 16 bytes y los UUID
-      GATT. Falta abrir la conexión con `react-native-ble-plx` y suscribirse a la característica.
-      **Requiere hardware para probarse.** Mientras tanto, `readSoilProbe` devuelve datos simulados
-      marcados con bandera visible en pantalla.
+- [x] **C9.** **Enlace BLE implementado** en `bleService.ts`: permisos de Android 12+, espera a que
+      la radio esté encendida, escaneo filtrado por UUID de servicio, lectura por *notify* con
+      tiempo límite y desconexión garantizada en `finally` —sin ella la sonda no vuelve a sueño
+      profundo y se agota la batería en días—. `probeService` lo usa con importación diferida y
+      degrada a simulación declarada donde no hay módulo nativo (Expo Go).
+      ⚠️ **Escrito y compilado, pero SIN PROBAR contra hardware real.** Es el único bloque del
+      proyecto que no puede verificarse sin la sonda física.
 - [x] **C10.** Adaptar `src/types/app.ts` al nuevo modelo de dominio.
 - [x] **C11.** Añadir el **selector de etapa fenológica** en el flujo de medición (obligatorio, ver Sección 3).
 - [x] **C12.** Crear `src/engine/` — el motor agronómico. **No existe en Akura: es desarrollo propio.**
@@ -436,7 +438,10 @@ leer, modificar y borrar todas las filas de todas las tablas, incluida `profiles
       veredicto rojo. Autentica por `device_code`, que no es un secreto fuerte: por eso exige que el
       equipo exista y esté activo, y devuelve el mismo mensaje genérico tanto si el código no existe
       como si está inactivo, para no filtrar códigos válidos.
-- [ ] **E2.** `send-push-alert`: despacho efectivo de la notificación. Las alertas ya se **generan** en `device-checkin`; falta enviarlas al teléfono.
+- [x] **E2.** `send-push-alert` **desplegada**. Despacha por Expo Push las alertas que
+      `device-checkin` genera. Van separadas a propósito: el registro de la alerta no depende de que
+      el envío funcione. Sólo marca `is_read` si algo llegó a salir, para que un fallo de Expo no
+      silencie la alerta para siempre. Protegida por JWT: exige clave de servicio.
 - [x] **E3.** Descartadas `contextual-fall-ai`, `medical-card` y `send-caregiver-approval-push`: dominio médico sin equivalente agronómico.
 - [ ] **E4.** El firmware de TerraSense es propio: Akura usa nRF9160 celular, no ESP32 con BLE.
       **Reutilizable sólo el patrón de check-in y OTA, no el código.**

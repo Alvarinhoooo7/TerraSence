@@ -78,10 +78,13 @@ function simulate(): SoilMeasurement {
 const PROBE_SETTLE_MS = 1200;
 
 /**
- * Lee la sonda. Si no hay dispositivo emparejado devuelve datos simulados.
+ * Lee la sonda por BLE.
  *
- * La conexión BLE real se implementa en la tarea C9 del plan de migración,
- * portando DevicePairingScreen de Akura junto con react-native-ble-plx.
+ * Si no hay equipo seleccionado, o si el módulo BLE no está disponible —caso
+ * de Expo Go, que no incluye código nativo—, devuelve datos SIMULADOS marcados
+ * como tales. La bandera se propaga hasta la interfaz, que está obligada a
+ * mostrarla: una demostración no debe poder confundirse con una medición real
+ * de campo.
  */
 export async function readSoilProbe(deviceId: string | null): Promise<ProbeReading> {
   if (!deviceId) {
@@ -89,8 +92,27 @@ export async function readSoilProbe(deviceId: string | null): Promise<ProbeReadi
     return { data: simulate(), simulated: true };
   }
 
-  // TODO(C9): abrir conexión BLE, suscribirse a TERRASENSE_TELEMETRY_UUID,
-  // esperar la notificación y pasarla por decodeTelemetry().
-  await new Promise((r) => setTimeout(r, PROBE_SETTLE_MS));
-  return { data: simulate(), simulated: true };
+  try {
+    // Importación diferida: cargar react-native-ble-plx en un entorno sin
+    // módulo nativo revienta al arrancar la app, no al medir.
+    const { readTelemetryOverBle, requestBlePermissions } = await import('./bleService');
+
+    const allowed = await requestBlePermissions();
+    if (!allowed) {
+      throw new Error('Se necesita permiso de Bluetooth para leer la sonda.');
+    }
+
+    const data = await readTelemetryOverBle();
+    return { data, simulated: false };
+  } catch (error) {
+    // Un fallo de permisos o de conexión debe llegar al usuario como error,
+    // no disfrazarse de medición simulada.
+    if (error instanceof Error && /permiso|Bluetooth|sonda|BLE/i.test(error.message)) {
+      throw error;
+    }
+    // El resto —típicamente ausencia de módulo nativo en Expo Go— degrada a
+    // simulación declarada.
+    await new Promise((r) => setTimeout(r, PROBE_SETTLE_MS));
+    return { data: simulate(), simulated: true };
+  }
 }
