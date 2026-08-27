@@ -36,6 +36,7 @@
 | **2 · Base de datos** | 🟢 Hecho | Esquema existente adoptado y ampliado. **RLS abierto corregido** (ver 5.1). RPC de vinculación por código. |
 | **3 · App móvil** | 🟢 Hecho | Mapa, medición, autenticación, equipos, historial, ajustes, enlace BLE y notificaciones. Empaqueta: 1.251 módulos. **El BLE no está probado contra hardware.** |
 | **4 · Consola web** | 🟢 Núcleo hecho | Login, dashboard de 4 pestañas, búsqueda y visor GIS con IDW. Compila: 78 módulos. **Falta desplegar en Vercel (A7–A9) y OTA (D6b).** |
+| **Documentación** | 🟢 Hecho | README independiente por carpeta (`App/`, `Web/`, `supabase/`), cada uno con su manual de instalación de herramientas. |
 | **5 · Edge Functions** | 🟢 Hecho | `device-checkin` y `send-push-alert` desplegadas. Las de dominio médico de Akura, descartadas. |
 
 ### Lo que realmente falta, por orden
@@ -418,6 +419,9 @@ leer, modificar y borrar todas las filas de todas las tablas, incluida `profiles
 - [x] **C16.** `DevicesScreen` + `deviceService`: alta de equipo, código de 15 dígitos y selección del equipo activo.
 - [x] **C17.** Corrección de dos huecos lógicos del motor rescatado: la rama `WARNING` de temperatura y humedad era código muerto, y `texture.ur` / `texture.cc` estaban definidos sin usarse.
 - [x] **C18.** Soporte de `.env` en la raíz del repositorio además de `App/.env`.
+- [x] **C21.** `App/README.md` independiente: alcance, arquitectura, motor agronómico, enlace BLE,
+      sincronización offline, decisiones que no conviene deshacer y manual de instalación completo
+      (Node LTS, Git, Expo, JDK 17, Android Studio y dispositivo físico).
 - [x] **C20.** Registro del token de notificaciones (`notifications.ts`). Cierra la mitad que
       faltaba del circuito de alertas: `send-push-alert` leía `profiles.push_token` y lo encontraba
       siempre vacío porque nada en la app lo escribía. Se registra tras iniciar sesión, no al
@@ -440,6 +444,10 @@ leer, modificar y borrar todas las filas de todas las tablas, incluida `profiles
       navegador, sobre 7 variables seleccionables. No usa proveedor de teselas ni clave de API, así
       que no hay restricción de términos de servicio. Kriging queda descartado: PostGIS no lo
       implementa y Supabase no habilita `PL/R` ni `PL/Python`.
+- [x] **D9.** `Web/README.md` independiente: alcance, pestañas, justificación de IDW frente a
+      Kriging, modelo de seguridad, despliegue en Vercel y manual de instalación.
+- [x] **D10.** `supabase/README.md` independiente: esquema, modelo de RLS con el hallazgo crítico
+      documentado, funciones, migraciones, diagnóstico sin Docker y manual de instalación.
 - [ ] **D8.** Revisar las capturas de `Web/Referencias UI/` de Akura para afinar el diseño.
 
 ---
