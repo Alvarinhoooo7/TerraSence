@@ -59,7 +59,7 @@ Mostrarle a un agricultor `pH 5.2` y `Conductividad 2.4 mS/cm` es una falla de i
 Los equipos tradicionales de investigación (Spectrum Technologies, Meter Group) cobran entre $1.500 y $2.500 USD porque incorporan dataloggers voluminosos, pantallas monocromáticas protegidas contra sol y módems celulares propietarios con cuotas anuales de $300 USD. TerraSense externaliza la interfaz humana, el GPS de precisión y el módem de comunicaciones hacia el teléfono inteligente del usuario mediante BLE 5.0, reduciendo el costo del hardware físico a solo **$42.000 CLP**.
 
 ### 1.3. Principio 3: "Diseño para el Campo Real (Rugged & No-Fragile)"
-La ergonomía de campo exige operabilidad con una sola mano, manipulación con guantes de cuero y resistencia a caídas sobre gravilla y barro. Se eliminaron pantallas LCD del mango del dispositivo (propensas a fracturarse en caídas o volverse ilegibles bajo el sol de mediodía de 100.000 lux) y se sustituyeron por un **LED RGB de estado ultrabrillante WS2812B** y una empuñadura ergonómica de ABS de alta densidad sellada con grado **IP67**.
+La ergonomía de campo exige operabilidad con una sola mano, manipulación con guantes de cuero y resistencia a caídas sobre gravilla y barro. Se eliminaron pantallas LCD del mango del dispositivo (propensas a fracturarse en caídas o volverse ilegibles bajo el sol de mediodía de 100.000 lux) y se sustituyeron por **tres LEDs SMD ultrabrillantes discretos (0805) montados directamente en la PCB** —azul, verde y rojo, cada uno con su propio GPIO y resistencia limitadora— y una empuñadura ergonómica de ABS de alta densidad sellada con grado **IP67**. Se descartan expresamente las tiras y los LEDs direccionables: su controlador interno drena entre 0,7 y 1 mA de forma permanente aun con el LED apagado, lo que resultaría incompatible con el presupuesto de corriente de reposo del equipo.
 
 ### 1.4. Principio 4: "Soberanía Tecnológica y Cero Suscripciones Cautivas"
 El agricultor es dueño irrevocable de su equipo físico y de su información geoespacial. Las aplicaciones operan en modo local permanente con sincronización voluntaria a Supabase y exportación libre en formatos abiertos (GeoJSON, CSV, PDF).
@@ -100,7 +100,7 @@ El agricultor es dueño irrevocable de su equipo físico y de su información ge
 │   │  ESP32-WROOM-32 (Xtensa Dual-Core 32-bit @ 160/240 MHz)             │   │
 │   │  Radio BLE 5.0 (Potencia TX: +9 dBm, Antena PCB Integrada)          │   │
 │   │  Memoria Flash 4 MB (Partición NVS para Bonding y Calibración)      │   │
-│   │  LED RGB WS2812B (GPIO 5) + Pulsador Táctil de Pairing (GPIO 0)     │   │
+│   │  3 LEDs SMD (GPIO 25/26/27) + Pulsador Táctil de Pairing (GPIO 0)   │   │
 │   └─────────────────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -154,7 +154,7 @@ El firmware se estructura en tres tareas concurrentes con prioridades estrictas:
 │  └─────────────────────────────────┘                                        │
 │                                                                             │
 │  ┌─────────────────────────────────┐   Prioridad 1 (Baja)                   │
-│  │ Task_UI_System (Núcleo 1)       │ ◄─ Animaciones LED RGB WS2812B         │
+│  │ Task_UI_System (Núcleo 1)       │ ◄─ Patrones de 3 LEDs SMD discretos    │
 │  │ - Debounce de Pulsador Pair     │ ◄─ ADC Batería y Modo Sleep            │
 │  └─────────────────────────────────┘                                        │
 └─────────────────────────────────────────────────────────────────────────────┘

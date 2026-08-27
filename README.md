@@ -391,7 +391,7 @@ Para un predio representativo de 3 hectáreas de hortalizas con un régimen de m
 | **Sistema de Carga & BMS USB-C** | Módulo TP5100 (2A, gestión Li-Ion con protección) | $1.500 CLP | $1.50 USD |
 | **Baterías Li-Ion (2 Celdas)** | 2× 18650 Li-Ion 3.000 mAh en paralelo (~6.000 mAh) | $7.600 CLP | $8.00 USD |
 | **PCB Fabricación & SMT** | Placa FR4 2 capas con serigrafía + ensamblaje de componentes | $2.500 CLP | $2.60 USD |
-| **Carcasa Rugged IP67 & Switches**| Gabinete ABS industrial con prensaestopas, rocker switch, LED | $5.000 CLP | $5.20 USD |
+| **Carcasa Rugged IP67 & Switches**| Gabinete ABS industrial con prensaestopas, rocker switch, 3 LEDs SMD 0805 | $5.000 CLP | $5.20 USD |
 | **Empaque, Calibración & QA** | Caja de presentación, espumas, soluciones de prueba y control QA | $4.000 CLP | $4.20 USD |
 | **TOTAL COSTO DIRECTO (BOM)** | | **$42.000 CLP** | **$43.75 USD** |
 
@@ -424,28 +424,63 @@ $$\begin{aligned}
 │    Valor Disponible: ~$18.000 Millones CLP (~$18.9M USD)                    │
 └──────────────────────────────────────┬──────────────────────────────────────┘
                                        │
-                                       ▼  Filtro: Captura Realista Año 1 (1% del SAM)
+                                       ▼  Filtro: Captura Comercial Alcanzable
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ 🚀 SOM (Serviceable Obtainable Market) — Meta de Captura Comercial Año 1   │
-│    1.000 Unidades Vendidas (1% del SAM)                                     │
-│    Facturación Bruta Año 1: $179.990.000 CLP (~$189.000 USD)                │
+│ 🚀 SOM (Serviceable Obtainable Market) — Meta Estratégica de Captura        │
+│    1.000 Unidades Anuales (1% del SAM) — techo comercial objetivo           │
+│                                                                             │
+│    RAMPA CONSERVADORA DE PENETRACIÓN REAL:                                  │
+│      Año 1  ->  0,1% del SAM  =  100 unidades  =  $17.999.000 CLP           │
+│      Año 2  ->  0,2% del SAM  =  200 unidades  =  $35.998.000 CLP           │
+│      Año 3  ->  0,3% del SAM  =  300 unidades  =  $53.997.000 CLP           │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+> [!NOTE]
+> **Sobre el dimensionamiento del SOM.** El **1% del SAM (1.000 unidades anuales) se mantiene como meta estratégica** y techo de captura del modelo, pero **no como proyección del primer año**. Una marca nueva, sin red de distribución consolidada ni historial de campo, no coloca mil unidades en doce meses en el agro chileno.
+>
+> La proyección financiera de 3.4 se construye por tanto sobre una **rampa conservadora de penetración**: 0,1% el primer año, 0,2% el segundo y 0,3% el tercero, con incrementos de una décima porcentual anual. Manteniendo esa progresión, el proyecto alcanzaría el 1% del SAM hacia el **año 10** de operación. Esta es la cifra defendible ante una comisión evaluadora: es preferible sostener 100 unidades y superarlas, que proyectar 1.000 y no acercarse.
 
 ---
 
 ## 3.4. Proyección Financiera a 3 Años y Punto de Equilibrio (Break-Even Point)
 
-| Métrica Financiera | Año 1 (SOM 1.0%) | Año 2 (SOM 2.5%) | Año 3 (SOM 5.0%) |
+| Métrica Financiera | Año 1 (SOM 0,1%) | Año 2 (SOM 0,2%) | Año 3 (SOM 0,3%) |
 | :--- | :---: | :---: | :---: |
-| **Unidades Comercializadas** | **1.000 unidades** | **2.500 unidades** | **5.000 unidades** |
+| **Unidades Comercializadas** | **100 unidades** | **200 unidades** | **300 unidades** |
 | **Precio de Venta Unitario (PVP)** | $179.990 CLP | $179.990 CLP | $179.990 CLP |
-| **Facturación Bruta (Ingresos)** | **$179.990.000 CLP** *(~$189K USD)* | **$449.975.000 CLP** *(~$473K USD)* | **$899.950.000 CLP** *(~$947K USD)* |
-| **Costo Total Directo (BOM $42K)** | $42.000.000 CLP | $105.000.000 CLP | $210.000.000 CLP |
-| **MARGEN BRUTO GENERADO** | **$137.990.000 CLP** | **$344.975.000 CLP** | **$689.950.000 CLP** |
+| **Facturación Bruta (Ingresos)** | **$17.999.000 CLP** *(~$18.8K USD)* | **$35.998.000 CLP** *(~$37.6K USD)* | **$53.997.000 CLP** *(~$56.4K USD)* |
+| **Costo Total Directo (BOM $42K)** | $4.200.000 CLP | $8.400.000 CLP | $12.600.000 CLP |
+| **MARGEN BRUTO GENERADO** | **$13.799.000 CLP** | **$27.598.000 CLP** | **$41.397.000 CLP** |
 | **Margen Bruto Porcentual** | **76.6%** | **76.6%** | **76.6%** |
+| **Costos Fijos Operacionales** | $12.000.000 CLP | $12.000.000 CLP | $12.000.000 CLP |
+| **RESULTADO OPERACIONAL** | **$1.799.000 CLP** | **$15.598.000 CLP** | **$29.397.000 CLP** |
+| **Resultado Acumulado** | $1.799.000 CLP | $17.397.000 CLP | **$46.794.000 CLP** |
 
 $$\text{Punto de Equilibrio (Unidades)} = \frac{\text{Costos Fijos Anuales}}{\text{Margen Unitario}} = \frac{\$12.000.000\text{ CLP}}{\$137.990\text{ CLP}} \approx \mathbf{87\text{ unidades/año}}$$
+
+> [!TIP]
+> **Conclusión de viabilidad con la rampa conservadora.** El punto de equilibrio de **87 unidades anuales** se sitúa **por debajo de la proyección más pesimista del modelo** (100 unidades el primer año). Es decir: el proyecto es rentable desde el Año 1 incluso capturando apenas **una décima parte del 1% del mercado servible**, y acumula **$46,8 millones CLP** de resultado operacional en el trienio vendiendo un total de sólo **600 unidades**.
+>
+> Esta es una posición de defensa mucho más sólida que la proyección de 1.000 unidades: no depende de un escenario optimista de adopción, sino de vender **menos de dos unidades por semana** durante el primer año.
+
+### Sensibilidad al IVA y a los Costos de Internación
+
+El modelo anterior calcula el margen sobre el **PVP bruto**. Dado que $179.990 CLP es precio al público **con IVA incluido**, la base imponible que efectivamente ingresa a la empresa es menor, y a los volúmenes reducidos de la rampa conservadora esa diferencia determina el signo del resultado del Año 1:
+
+$$\text{Precio Neto} = \frac{\$179.990}{1{,}19} = \$151.252\text{ CLP}$$
+
+| Escenario de Cálculo | Margen Unitario | Punto de Equilibrio | Resultado Año 1 (100 u) |
+| :--- | :---: | :---: | :---: |
+| **Bruto** (PVP con IVA − BOM) | $137.990 CLP | 87 u/año | **+$1.799.000 CLP** |
+| **Neto** (precio neto − costo puesto en bodega*) | $94.852 CLP | 127 u/año | **−$2.514.790 CLP** |
+
+*\*Costo puesto en bodega ≈ $56.400 CLP: BOM $42.000 + flete y seguro (8%) + arancel y aduana (4%) + merma (3%) + provisión de garantía legal de 6 meses (5%) + amortización de certificaciones sobre lote de 100 unidades.*
+
+> [!IMPORTANT]
+> **Implicancia práctica.** Bajo el escenario neto, el equilibrio real son **127 unidades/año**, de modo que el Año 1 cerraría con pérdida operacional acotada y el proyecto **alcanzaría el punto de equilibrio durante el Año 2** (200 unidades). Ambos escenarios son financieramente sanos; se documentan los dos porque un evaluador con formación comercial preguntará por el IVA.
+>
+> **Ventaja colateral de la rampa conservadora:** con 100 unidades el primer año, la necesidad de capital de trabajo en inventario cae a **~$5.640.000 CLP** (frente a los ~$56.400.000 que exigiría un lote de 1.000 unidades pagado por anticipado a proveedor). El riesgo de quiebre de caja —que es lo que mata proyectos rentables— queda prácticamente eliminado.
 
 ---
 
@@ -603,7 +638,9 @@ $$\text{VPD} = \text{VP}_{\text{sat}} \times \left(1 - \frac{\text{HR}}{100}\rig
 | **I2C SDA** | **GPIO 21** | Bidireccional Open-Drain | Línea de datos para sensor ambiental BME280 |
 | **I2C SCL** | **GPIO 22** | Salida Open-Drain | Línea de reloj para sensor ambiental BME280 |
 | **Power Gate Boost** | **GPIO 4** | Salida Digital | Gate de P-MOSFET (Conduce = Energiza Boost 12V y Sonda) |
-| **LED RGB WS2812B** | **GPIO 5** | Salida Digital (1-Wire) | Indicador luminoso multicolor de estado del sistema |
+| **LED SMD Azul (Enlace)** | **GPIO 25** | Salida Digital + R serie | Estado de enlace BLE: búsqueda, pairing y conexión establecida |
+| **LED SMD Verde (Estado OK)** | **GPIO 26** | Salida Digital + R serie | Equipo operativo y confirmación de medición exitosa |
+| **LED SMD Rojo (Alerta)** | **GPIO 27** | Salida Digital + R serie | Error de sonda, batería baja y reset de fábrica |
 | **Pulsador de Pairing** | **GPIO 0** | Entrada Pull-up Int. | Activación de pairing BLE (3s) / Reset fábrica (5s) |
 | **Medición Batería ADC** | **GPIO 34** | Entrada Analógica | Divisor de tensión para monitoreo de voltaje Li-Ion |
 
@@ -700,8 +737,8 @@ Byte 12-13 : Potasio (K)                 -> ej. 0x0050 = 80   -> 80 mg/kg
                     PANEL FRONTAL DEL DISPOSITIVO
       ┌────────────────────────────────────────────────────────┐
       │                                                        │
-      │    🔴/🟢/🔵 LED RGB                 [ PAIR ]           │
-      │    WS2812B Estado                 Pulsador Táctil      │
+      │    🔵/🟢/🔴 LEDs SMD                [ PAIR ]           │
+      │    Individuales en PCB            Pulsador Táctil      │
       │                                                        │
       │    ━━━━━━━━━━━━━━━━━  USB-C ▬ (Carga 2A)               │
       │                                                        │
@@ -712,6 +749,25 @@ Byte 12-13 : Potasio (K)                 -> ej. 0x0050 = 80   -> 80 mg/kg
                                    ▼ Prensaestopas IP67
                           Cable hacia Sonda Inox 316L
 ```
+
+### Indicadores Luminosos: 3 LEDs SMD Individuales en Placa
+
+El dispositivo **no incorpora tiras ni LEDs direccionables**. La señalización se resuelve con **tres LEDs SMD discretos (encapsulado 0805) montados directamente en la PCB**, atacados cada uno desde su propio GPIO a través de una resistencia limitadora en serie.
+
+| Estado del Dispositivo | LED | Patrón Visual | Significado Operacional |
+| :--- | :---: | :--- | :--- |
+| **Buscando Conexión** | 🔵 Azul | Pulso suave (1 Hz) | Equipo encendido, esperando enlace BLE con la app |
+| **Modo Pairing Activo** | 🔵 Azul | Parpadeo rápido (4 Hz) | Pulsador presionado; ventana de enlace abierta (30 s) |
+| **Enlazado y Listo** | 🟢 Verde | Luz fija continua | Conexión BLE establecida con el smartphone |
+| **Medición Exitosa** | 🟢 Verde | 3 destellos rápidos | Lectura Modbus y BME280 capturada y transmitida |
+| **Batería Baja** | 🔴 Rojo | Pulso lento (0,5 Hz) | Batería $< 15\%$ ($V_{\text{bat}} < 3.4\text{V}$). Recargar por USB-C |
+| **Error de Sonda** | 🔴 Rojo | Parpadeo continuo (2 Hz) | Fallo de respuesta Modbus UART o timeout de sonda |
+| **Reset de Fábrica** | 🔴 Rojo | Fijo por 3 segundos | NVS borrada; equipo restaurado a estado de fábrica |
+
+> [!TIP]
+> **Justificación técnica de LEDs discretos frente a LED direccionable.** Un LED direccionable tipo WS2812B integra un controlador interno que permanece alimentado de forma permanente y **consume del orden de 0,7 a 1 mA incluso con el LED apagado** — entre 30 y 50 veces la corriente objetivo de reposo de todo el equipo. Un LED SMD discreto atacado desde GPIO consume **exactamente 0 µA cuando está apagado**.
+>
+> La decisión de usar LEDs individuales no es sólo de simplicidad de montaje: **es la que hace alcanzable el presupuesto de reposo en sueño profundo** y, con ello, la autonomía declarada. Adicionalmente libera el **GPIO 5**, que es pin de *strapping* del ESP32 y conviene mantener libre de cargas externas.
 
 ---
 
@@ -1296,7 +1352,7 @@ TerraSence/
 │   │   ├── modbus/                                # Driver RS-485 Modbus RTU para sonda 7-en-1
 │   │   ├── sensors/                               # Driver I2C para Bosch BME280
 │   │   ├── power/                                 # Control de MOSFET Power Gating y lectura de batería
-│   │   └── ui/                                    # Control de LED WS2812B y debounce de pulsador
+│   │   └── ui/                                    # Control de LEDs SMD discretos y debounce de pulsador
 │   ├── platformio.ini                             # Configuración de entorno de compilación PlatformIO
 │   └── CMakeLists.txt                             # Configuración para ESP-IDF
 ├── PCB/                                           # Diseño Electrónico en KiCad

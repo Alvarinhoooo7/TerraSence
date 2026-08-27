@@ -217,7 +217,7 @@ Al iniciar sesión por primera vez o ingresar a la gestión de hardware, se pres
 ```
 
 1. **Instrucciones en Pantalla:** El usuario debe mantener presionado el pulsador táctil del dispositivo por 3 segundos.
-2. **Respuesta del Firmware:** El ESP32 activa el modo de anunciamiento BLE rápido (4 Hz en LED WS2812B azul) durante 30 segundos.
+2. **Respuesta del Firmware:** El ESP32 activa el modo de anunciamiento BLE rápido (4 Hz en el LED SMD azul) durante 30 segundos.
 3. **Handshake y Registro:** La app detecta el UUID del servicio primario (`00000001-5e4e-4c69-6d61-746572726101`), realiza el *bonding* criptográfico, almacena las credenciales en la memoria NVS del ESP32 y registra el dispositivo a nombre del usuario en Supabase con rol `propietario`.
 
 ---
