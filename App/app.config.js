@@ -6,6 +6,19 @@
 //   EXPO_PUBLIC_SUPABASE_URL=...
 //   EXPO_PUBLIC_SUPABASE_ANON_KEY=...
 
+const path = require('path');
+
+// Expo sólo carga automáticamente el .env que esté junto a este archivo
+// (App/.env). Se admite además un .env en la raíz del repositorio, que es
+// donde resulta natural ponerlo cuando el mismo archivo sirve para la app, la
+// consola web y el CLI de Supabase. App/.env tiene prioridad si ambos existen.
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
+} catch {
+  // dotenv no disponible o no hay .env en la raíz: se sigue con lo que Expo cargue.
+}
+
 export default () => ({
   expo: {
     name: 'TerraSense',
