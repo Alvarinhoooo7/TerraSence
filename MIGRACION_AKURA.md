@@ -35,7 +35,7 @@
 | **1 · Infraestructura Vercel** | 🔴 Pendiente | A7–A9, junto con la consola web. |
 | **2 · Base de datos** | 🟢 Hecho | Esquema existente adoptado y ampliado. **RLS abierto corregido** (ver 5.1). RPC de vinculación por código. |
 | **3 · App móvil** | 🟢 Núcleo hecho | Mapa, medición, autenticación, equipos, historial, ajustes. Empaqueta: 1.102 módulos. **Falta BLE real (C9).** |
-| **4 · Consola web** | 🟡 Base hecha | Login, dashboard de 3 pestañas y búsqueda. Compila: 77 módulos. **Falta desplegar en Vercel, el visor GIS (D7) y OTA (D6b).** |
+| **4 · Consola web** | 🟢 Núcleo hecho | Login, dashboard de 4 pestañas, búsqueda y visor GIS con IDW. Compila: 78 módulos. **Falta desplegar en Vercel (A7–A9) y OTA (D6b).** |
 | **5 · Edge Functions** | 🔴 Pendiente | E1–E4 sin empezar. |
 
 ### Lo que realmente falta, por orden
@@ -44,7 +44,7 @@
 2. **Variables de entorno** · Faltan las tres claves en el `.env` (ver sección 10). Sin ellas la app arranca pero no conecta.
 3. **C9** · Emparejamiento BLE real con `react-native-ble-plx`. Requiere hardware.
 4. **C8** · Gestión de predios múltiples con perímetro. Hoy hay un solo predio por nombre.
-5. **A7–A9 + D7** · Desplegar la consola en Vercel y añadir el visor GIS con mapas de calor.
+5. **A7–A9** · Desplegar la consola en Vercel. **Requiere `vercel login` interactivo: el CLI se queda esperando entrada y no puede completarse de forma automática.**
 6. **E1–E4** · Edge Functions.
 7. **Confirmar la ficha de la sonda** con el vendedor (README §5.3.1) antes de cerrar el driver Modbus.
 
@@ -420,7 +420,11 @@ leer, modificar y borrar todas las filas de todas las tablas, incluida `profiles
 - [x] **D5.** `utils/verdict.ts` sustituye a `bioclimaticStatus.ts`, con icono y etiqueta además del color.
 - [x] **D6a.** Búsqueda por predio, cultivo, veredicto y código de equipo.
 - [ ] **D6b.** `OtaFirmwareModal`: gestión de firmware OTA. Depende de que exista firmware que desplegar.
-- [ ] **D7.** Añadir el **visor GIS con mapas de calor IDW** — desarrollo propio, no existe en Akura.
+- [x] **D7.** **Visor GIS con mapa de calor IDW** — desarrollo propio, no existe en Akura.
+      Interpolación por ponderación inversa de la distancia (p = 2) calculada en canvas dentro del
+      navegador, sobre 7 variables seleccionables. No usa proveedor de teselas ni clave de API, así
+      que no hay restricción de términos de servicio. Kriging queda descartado: PostGIS no lo
+      implementa y Supabase no habilita `PL/R` ni `PL/Python`.
 - [ ] **D8.** Revisar las capturas de `Web/Referencias UI/` de Akura para afinar el diseño.
 
 ---

@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '../services/supabase';
+import { GisHeatmap } from './GisHeatmap';
 import type { Device, LabValidationRecord, SoilMeasurement, Verdict } from '../types';
 import { STAGE_LABEL } from '../types';
 import {
@@ -18,7 +19,7 @@ import {
   relativeTime,
 } from '../utils/verdict';
 
-type Tab = 'mediciones' | 'equipos' | 'validacion';
+type Tab = 'mediciones' | 'mapa' | 'equipos' | 'validacion';
 
 export function Dashboard({ email }: { email: string }) {
   const [tab, setTab] = useState<Tab>('mediciones');
@@ -99,7 +100,7 @@ export function Dashboard({ email }: { email: string }) {
         </div>
 
         <nav className="mx-auto max-w-7xl px-6 flex gap-1">
-          {(['mediciones', 'equipos', 'validacion'] as Tab[]).map((t) => (
+          {(['mediciones', 'mapa', 'equipos', 'validacion'] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -109,7 +110,7 @@ export function Dashboard({ email }: { email: string }) {
                   : 'border-transparent text-[--color-terra-muted] hover:text-[--color-terra-text]'
               }`}
             >
-              {t === 'validacion' ? 'Validación de laboratorio' : t}
+              {t === 'validacion' ? 'Validación de laboratorio' : t === 'mapa' ? 'Mapa GIS' : t}
             </button>
           ))}
         </nav>
@@ -163,6 +164,8 @@ export function Dashboard({ email }: { email: string }) {
             />
           </>
         )}
+
+        {!loading && tab === 'mapa' && <GisHeatmap measurements={filtered} />}
 
         {!loading && tab === 'equipos' && (
           <Table
