@@ -26,9 +26,10 @@ import type { CropId, SoilTextureId } from '../types/agronomy';
 
 interface Props {
   onClose: () => void;
+  onOpenDevices: () => void;
 }
 
-export const FieldSettingsScreen: React.FC<Props> = ({ onClose }) => {
+export const FieldSettingsScreen: React.FC<Props> = ({ onClose, onOpenDevices }) => {
   const isDark = useColorScheme() === 'dark';
   const colors = isDark ? Colors.dark : Colors.light;
 
@@ -52,6 +53,20 @@ export const FieldSettingsScreen: React.FC<Props> = ({ onClose }) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <TouchableOpacity
+          onPress={onOpenDevices}
+          style={[styles.option, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}
+        >
+          <Text style={styles.optionEmoji}>📡</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.optionTitle, { color: colors.text }]}>Mis equipos</Text>
+            <Text style={[styles.optionMeta, { color: colors.textSecondary }]}>
+              Registrar sonda, ver código de 15 dígitos y vincular operadores
+            </Text>
+          </View>
+          <Text style={{ color: colors.textMuted, fontSize: 20 }}>›</Text>
+        </TouchableOpacity>
+
         <Text style={[styles.section, { color: colors.textMuted }]}>NOMBRE DEL PREDIO</Text>
         <TextInput
           value={name}

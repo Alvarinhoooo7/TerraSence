@@ -11,10 +11,11 @@ import { MapScreen } from './src/screens/MapScreen';
 import { MeasureScreen } from './src/screens/MeasureScreen';
 import { FieldSettingsScreen } from './src/screens/FieldSettingsScreen';
 import { DevicesScreen } from './src/screens/DevicesScreen';
+import { HistoryScreen } from './src/screens/HistoryScreen';
 import { Colors } from './src/constants/theme';
 import type { MapMeasurementPoint } from './src/types/app';
 
-type Route = 'map' | 'measure' | 'settings' | 'devices';
+type Route = 'map' | 'measure' | 'settings' | 'devices' | 'history';
 
 export default function App() {
   const isDark = useColorScheme() === 'dark';
@@ -53,7 +54,11 @@ export default function App() {
   } else if (!session) {
     content = <AuthScreen onAuthenticated={() => setRoute('map')} />;
   } else if (route === 'settings') {
-    content = <FieldSettingsScreen onClose={() => setRoute('map')} />;
+    content = <FieldSettingsScreen onClose={() => setRoute('map')} onOpenDevices={() => setRoute('devices')} />;
+  } else if (route === 'history') {
+    content = (
+      <HistoryScreen onClose={() => setRoute('map')} onOpenDetail={handleOpenDetail} />
+    );
   } else if (route === 'devices') {
     content = <DevicesScreen onClose={() => setRoute('map')} />;
   } else if (route === 'measure') {
@@ -65,7 +70,7 @@ export default function App() {
       <MapScreen
         onStartMeasurement={() => setRoute('measure')}
         onOpenSettings={() => setRoute('settings')}
-        onOpenList={() => setRoute('devices')}
+        onOpenList={() => setRoute('history')}
         onOpenDetail={handleOpenDetail}
       />
     );

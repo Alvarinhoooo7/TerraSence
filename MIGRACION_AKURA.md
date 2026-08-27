@@ -26,6 +26,30 @@
 
 ---
 
+## ✅ Estado Actual — actualizado 27 de agosto de 2026
+
+| Bloque | Estado | Detalle |
+| :--- | :---: | :--- |
+| **0 · Seguridad** | 🟡 Parcial | `.gitignore` y `app.config.js` hechos. **Falta revocar la clave de Maps expuesta en Akura (S1–S4): es tarea manual en Google Cloud Console.** |
+| **1 · Infraestructura Supabase** | 🟢 Hecho | Proyecto `terrasense` vinculado (São Paulo). PostGIS activo. 8 migraciones aplicadas. |
+| **1 · Infraestructura Vercel** | 🔴 Pendiente | A7–A9, junto con la consola web. |
+| **2 · Base de datos** | 🟢 Hecho | Esquema existente adoptado y ampliado. **RLS abierto corregido** (ver 5.1). RPC de vinculación por código. |
+| **3 · App móvil** | 🟢 Núcleo hecho | Mapa, medición, autenticación, equipos, historial, ajustes. Empaqueta: 1.102 módulos. **Falta BLE real (C9).** |
+| **4 · Consola web** | 🔴 Pendiente | D1–D8 sin empezar. |
+| **5 · Edge Functions** | 🔴 Pendiente | E1–E4 sin empezar. |
+
+### Lo que realmente falta, por orden
+
+1. **S1–S4** · Revocar la clave de Google Maps de Akura y emitir una nueva restringida. *Manual, bloqueante.*
+2. **Variables de entorno** · Faltan las tres claves en el `.env` (ver sección 10). Sin ellas la app arranca pero no conecta.
+3. **C9** · Emparejamiento BLE real con `react-native-ble-plx`. Requiere hardware.
+4. **C8** · Gestión de predios múltiples con perímetro. Hoy hay un solo predio por nombre.
+5. **D1–D8** · Consola web.
+6. **E1–E4** · Edge Functions.
+7. **Confirmar la ficha de la sonda** con el vendedor (README §5.3.1) antes de cerrar el driver Modbus.
+
+---
+
 ## 0. Resumen Ejecutivo y Ahorro Estimado
 
 Akura es un localizador GPS con alerta médica para adultos mayores. Su dominio es distinto, pero su
@@ -308,6 +332,29 @@ alter table public.devices     enable row level security;
 alter table public.mediciones  enable row level security;
 ```
 
+### 5.1. Corrección de seguridad aplicada sobre el esquema adoptado
+
+Al auditar el esquema ya desplegado se encontró que **las 7 tablas tenían una única política
+idéntica: `FOR ALL TO public USING (true)`**. RLS estaba activo pero completamente permisivo.
+Como la clave anónima viaja embebida en cada binario y es pública por diseño, cualquiera podía
+leer, modificar y borrar todas las filas de todas las tablas, incluida `profiles`.
+
+- [x] **B7.** Auditoría de políticas mediante migraciones que sólo emiten `RAISE NOTICE`
+      (`20260827130000`), única vía disponible sin Docker ni `psql`.
+- [x] **B8.** Cierre del RLS abierto (`20260827140000`): 7 políticas permisivas eliminadas y
+      20 políticas acotadas por operación, limitadas al rol `authenticated`.
+- [x] **B9.** `has_device_access()` en `SECURITY DEFINER` para evitar la recursión entre las
+      políticas de `devices` y `device_members`.
+- [x] **B10.** Trigger `link_device_creator`: sin él, el usuario da de alta un equipo y la propia
+      política SELECT se lo oculta acto seguido.
+- [x] **B11.** RPC `join_device_by_code` (`20260827160000`): permite que un operador se vincule
+      con el código de 15 dígitos sin abrir `devices` a búsquedas enumerables. Incluye límite de
+      10 intentos fallidos por hora y mensaje de error idéntico exista o no el equipo.
+- [x] **B12.** Verificación posterior (`20260827150000`): 0 políticas expuestas al rol `public`
+      y 0 políticas `ALL USING(true)` en las 7 tablas.
+
+**Reversión** documentada en la cabecera de `20260827140000_cerrar_rls_abierto.sql`.
+
 ---
 
 ## 6. FASE C — Migración de la App Móvil
@@ -338,9 +385,13 @@ alter table public.mediciones  enable row level security;
       mostrar etapa fenológica, antigüedad, los 7 parámetros y el veredicto resumido.
 - [x] **C7.** Portar `AuthScreen.tsx` prácticamente sin cambios: sólo textos, marca y paleta.
       **Es el mayor ahorro de la migración.**
-- [ ] **C8.** Adaptar `SafeZonesScreen.tsx` → gestión de predios y su perímetro.
-- [ ] **C9.** Portar `DevicePairingScreen.tsx`, `QRScannerScreen.tsx` y `QRShareScreen.tsx`;
-      cambiar los UUID de servicio BLE por los de TerraSense (Sección 5.5 del README) y el ID a 15 dígitos.
+- [ ] **C8.** Adaptar `SafeZonesScreen.tsx` → gestión de **predios múltiples con perímetro dibujado**.
+      Parcialmente cubierto: `FieldSettingsScreen` ya permite nombre de predio, cultivo y textura.
+- [ ] **C9.** **Emparejamiento BLE real.** `DevicesScreen` ya cubre alta, selección y vinculación por
+      código de 15 dígitos; `probeService` tiene el decodificador de la trama de 16 bytes y los UUID
+      GATT. Falta abrir la conexión con `react-native-ble-plx` y suscribirse a la característica.
+      **Requiere hardware para probarse.** Mientras tanto, `readSoilProbe` devuelve datos simulados
+      marcados con bandera visible en pantalla.
 - [x] **C10.** Adaptar `src/types/app.ts` al nuevo modelo de dominio.
 - [x] **C11.** Añadir el **selector de etapa fenológica** en el flujo de medición (obligatorio, ver Sección 3).
 - [x] **C12.** Crear `src/engine/` — el motor agronómico. **No existe en Akura: es desarrollo propio.**
@@ -349,6 +400,14 @@ alter table public.mediciones  enable row level security;
       Servicio de Google Maps Platform lo prohíben expresamente. El mapa pasa a fondo neutro
       conservando círculos, escala y posición GPS, que son capas vectoriales locales.
 - [x] **C14.** Verificar compilación: `npm install && npx expo start`.
+
+### Tareas completadas que no estaban en el plan original
+
+- [x] **C15.** `HistoryScreen`: mediciones en lista, agrupadas por día y filtrables por etapa, con resumen del predio.
+- [x] **C16.** `DevicesScreen` + `deviceService`: alta de equipo, código de 15 dígitos y selección del equipo activo.
+- [x] **C17.** Corrección de dos huecos lógicos del motor rescatado: la rama `WARNING` de temperatura y humedad era código muerto, y `texture.ur` / `texture.cc` estaban definidos sin usarse.
+- [x] **C18.** Soporte de `.env` en la raíz del repositorio además de `App/.env`.
+- [x] **C19.** Verificación de empaquetado real con `expo export`, no sólo `tsc`.
 
 ---
 

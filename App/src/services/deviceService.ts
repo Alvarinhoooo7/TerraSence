@@ -51,13 +51,13 @@ export async function registerDevice(name: string): Promise<DeviceRow> {
 
 /**
  * Vincula al usuario con un equipo existente a partir de su código de 15
- * dígitos, para el caso de un operador que se suma a un equipo ajeno.
+ * dígitos: el caso del operador que se suma a la cuadrilla de otro.
  *
- * Nota: con la política SELECT vigente, un usuario sin membresía no puede
- * localizar el equipo por código desde el cliente. La vinculación de un
- * segundo usuario debe resolverse con una función RPC en SECURITY DEFINER que
- * valide el código y cree la membresía en el servidor. Queda pendiente y se
- * indica con un mensaje explícito en vez de fallar de forma silenciosa.
+ * Va por la RPC `join_device_by_code` en lugar de consultar `devices`
+ * directamente. La política SELECT sólo deja ver los equipos de los que ya se
+ * es miembro, y relajarla para permitir la búsqueda por código convertiría la
+ * tabla en enumerable. La función valida el código en el servidor, limita los
+ * intentos por fuerza bruta y devuelve sólo lo imprescindible.
  */
 export async function joinDeviceByCode(rawCode: string): Promise<DeviceRow> {
   const code = normalizeDeviceId(rawCode);
@@ -65,29 +65,16 @@ export async function joinDeviceByCode(rawCode: string): Promise<DeviceRow> {
     throw new Error('El código debe tener 15 dígitos y no empezar por cero.');
   }
 
-  const { data, error } = await supabase
+  const { error } = await supabase.rpc('join_device_by_code', { p_code: code });
+  if (error) throw new Error(error.message);
+
+  // Tras la vinculación el equipo ya es visible para la política SELECT.
+  const { data, error: readError } = await supabase
     .from('devices')
     .select(DEVICE_COLUMNS)
     .eq('device_code', code)
-    .maybeSingle();
+    .single();
 
-  if (error) throw error;
-  if (!data) {
-    throw new Error(
-      'No se encontró un equipo con ese código, o todavía no tienes permiso para verlo. ' +
-        'Pide al propietario que te agregue desde su app.',
-    );
-  }
-
-  const device = data as unknown as DeviceRow;
-  const { data: session } = await supabase.auth.getUser();
-  const uid = session.user?.id;
-  if (!uid) throw new Error('Sesión no válida.');
-
-  const { error: linkError } = await supabase
-    .from('device_members')
-    .insert({ device_id: device.id, user_id: uid, role: 'operator', is_authorized: true });
-
-  if (linkError && !linkError.message.includes('duplicate')) throw linkError;
-  return device;
+  if (readError) throw readError;
+  return data as unknown as DeviceRow;
 }
