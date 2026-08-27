@@ -31,24 +31,54 @@
 | Bloque | Estado | Detalle |
 | :--- | :---: | :--- |
 | **0 · Seguridad** | 🟡 Parcial | `.gitignore` y `app.config.js` hechos. **Falta revocar la clave de Maps expuesta en Akura (S1–S4): es tarea manual en Google Cloud Console.** |
-| **1 · Infraestructura Supabase** | 🟢 Hecho | Proyecto `terrasense` vinculado (São Paulo). PostGIS activo. 8 migraciones aplicadas. |
+| **1 · Infraestructura Supabase** | 🟢 Hecho | Proyecto `terrasense` vinculado (São Paulo). PostGIS activo. **9 migraciones aplicadas**, verificadas contra el remoto con `supabase migration list`. |
 | **1 · Infraestructura Vercel** | 🔴 Pendiente | A7–A9, junto con la consola web. |
 | **2 · Base de datos** | 🟢 Hecho | Esquema existente adoptado y ampliado. **RLS abierto corregido** (ver 5.1). RPC de vinculación por código. |
-| **3 · App móvil** | 🟢 Hecho | Mapa, medición, autenticación, equipos, historial, ajustes, enlace BLE y notificaciones. Empaqueta: 1.251 módulos. **El BLE no está probado contra hardware.** |
-| **4 · Consola web** | 🟢 Núcleo hecho | Login, dashboard de 4 pestañas, búsqueda y visor GIS con IDW. Compila: 78 módulos. **Falta desplegar en Vercel (A7–A9) y OTA (D6b).** |
+| **3 · App móvil** | 🟢 Hecho | Mapa, medición, autenticación, equipos, historial, ajustes, enlace BLE, notificaciones y **perímetro de predio dibujable**. **El BLE no está probado contra hardware.** |
+| **4 · Consola web** | 🟢 Núcleo hecho | Login, dashboard de **5 pestañas** (mediciones, mapa, equipos, **firmware**, validación), búsqueda y visor GIS con IDW. **Falta desplegar en Vercel (A7–A9).** |
 | **Documentación** | 🟢 Hecho | README independiente por carpeta (`App/`, `Web/`, `supabase/`), cada uno con su manual de instalación de herramientas. |
 | **5 · Edge Functions** | 🟢 Hecho | `device-checkin` y `send-push-alert` desplegadas. Las de dominio médico de Akura, descartadas. |
+| **6 · Firmware OTA** | 🟡 Parcial | Backend listo (`firmware_releases` + `check_firmware_update()`) y catálogo visible en la consola. **No existe el firmware ESP32 ni el circuito de descarga en el equipo** (ver E4). |
 
 ### Lo que realmente falta, por orden
 
-1. **S1–S4** · Revocar la clave de Google Maps de Akura y emitir una nueva restringida. *Manual, bloqueante.*
-2. **Variables de entorno** · Faltan las tres claves en el `.env` (ver sección 10). Sin ellas la app arranca pero no conecta.
-3. **Probar el enlace BLE contra la sonda física.** El código está escrito y compila, pero nunca ha hablado con hardware real.
-4. **Perímetro del predio** dibujado sobre el mapa. La selección entre predios ya funciona.
-5. **A7–A9** · Desplegar la consola en Vercel. **Requiere `vercel login` interactivo: el CLI se queda esperando entrada y no puede completarse de forma automática.**
-6. **D6b** · Gestión de firmware OTA en la consola.
-7. **SMTP propio** · Necesario para que los correos de recuperación usen la marca TerraSense y lleguen de verdad (ver A5).
-8. **Confirmar la ficha de la sonda** con el vendedor (README §5.3.1) antes de cerrar el driver Modbus.
+> Lista verificada contra el repositorio y contra el proyecto Supabase remoto el 27 de agosto de 2026.
+> Lo ya resuelto se ha retirado de aquí: el **perímetro del predio** (C8b) y el **catálogo de firmware en
+> la consola** (D6b) están hechos, con su migración aplicada en remoto.
+
+**Bloqueantes — sin esto nada funciona extremo a extremo**
+
+1. **Variables de entorno: el `.env` está vacío.** El `.env` de la raíz existe pero tiene **0 bytes**, y no
+   hay `App/.env` ni `Web/.env`. Lo único versionado son los `.env.example`. Hasta que se rellenen las tres
+   claves (sección 10), la app arranca pero no conecta con Supabase, y la consola tampoco.
+2. **S1–S4 · Revocar la clave de Google Maps de Akura** y emitir una nueva restringida.
+   *Manual en Google Cloud Console; no verificable desde el repositorio.*
+
+**Dependen de hardware o de terceros**
+
+3. **Probar el enlace BLE contra la sonda física.** El código está escrito y compila, pero nunca ha hablado
+   con hardware real. Es el único bloque que no puede verificarse sin la sonda.
+4. **E4 · El firmware del ESP32 no existe.** No hay carpeta `firmware/` en el repositorio. Sin él el OTA no
+   tiene nada que desplegar, y `devices.firmware_version` sólo se rellena con lo que declare quien llame a
+   `device-checkin`.
+5. **Confirmar la ficha de la sonda** con el vendedor (README §5.3.1) antes de cerrar el driver Modbus.
+
+**Despliegue y operación**
+
+6. **A7–A9 · Desplegar la consola en Vercel.** Falta además crear `vercel.json` en la raíz (A8): hoy no
+   existe. **Requiere `vercel login` interactivo: el CLI se queda esperando entrada y no puede completarse
+   de forma automática.**
+7. **SMTP propio (A5–A6)** · Necesario para que los correos de recuperación usen la marca TerraSense y
+   lleguen de verdad. Las plantillas ya están escritas, esperando.
+
+**Cierre del circuito OTA — el backend está, faltan los dos extremos**
+
+8. **Publicar firmware exige SQL manual.** `FirmwareView` es de sólo lectura: lista el catálogo publicado y
+   muestra en pantalla el SQL que hay que ejecutar. La política RLS reserva la escritura al rol de servicio
+   a propósito, así que para autoservicio harían falta un bucket donde subir el binario y una Edge Function
+   que inserte y publique.
+9. **La app nunca llama a `check_firmware_update()`.** La función existe y compara por versionado semántico,
+   pero ningún cliente la invoca todavía: el lado del equipo del circuito OTA sigue abierto.
 
 ---
 
@@ -396,7 +426,11 @@ leer, modificar y borrar todas las filas de todas las tablas, incluida `profiles
       Los predios se derivan de `field_name` de las mediciones más los creados en el teléfono: el
       esquema adoptado no tiene tabla de predios, y añadirla obligaría a migrar filas y romper la
       consola web. Un predio sin mediciones no merece sincronizarse.
-      **Pendiente menor:** dibujar el perímetro del predio sobre el mapa (`predios.geom`).
+- [x] **C8b.** **Perímetro del predio** (`PerimeterScreen` + `perimeterService` + tabla
+      `field_perimeters`): el polígono se dibuja tocando el mapa, se guarda y se pinta bajo las mediciones.
+      Se asocia por `(usuario, nombre de predio)` —la clave natural con la que ya trabajan la app y la
+      web— en vez de introducir la tabla `predios`, que obligaría a migrar filas y a tocar la consola.
+      La migración calcula además la superficie real a partir de la geometría.
 - [x] **C9.** **Enlace BLE implementado** en `bleService.ts`: permisos de Android 12+, espera a que
       la radio esté encendida, escaneo filtrado por UUID de servicio, lectura por *notify* con
       tiempo límite y desconexión garantizada en `finally` —sin ella la sonda no vuelve a sueño
@@ -438,7 +472,10 @@ leer, modificar y borrar todas las filas de todas las tablas, incluida `profiles
 - [x] **D4.** `Dashboard` con tres pestañas: mediciones, equipos y validación de laboratorio.
 - [x] **D5.** `utils/verdict.ts` sustituye a `bioclimaticStatus.ts`, con icono y etiqueta además del color.
 - [x] **D6a.** Búsqueda por predio, cultivo, veredicto y código de equipo.
-- [ ] **D6b.** `OtaFirmwareModal`: gestión de firmware OTA. Depende de que exista firmware que desplegar.
+- [x] **D6b.** **Pestaña de firmware** en la consola: lista el catálogo de `firmware_releases` y el parque
+      de equipos con su versión instalada. Es **de sólo lectura a propósito** —la política RLS deja la
+      escritura al rol de servicio— y muestra el SQL de publicación en pantalla.
+      ⚠️ Publicar una versión sigue siendo manual, y **no hay firmware que publicar** hasta E4.
 - [x] **D7.** **Visor GIS con mapa de calor IDW** — desarrollo propio, no existe en Akura.
       Interpolación por ponderación inversa de la distancia (p = 2) calculada en canvas dentro del
       navegador, sobre 7 variables seleccionables. No usa proveedor de teselas ni clave de API, así
@@ -507,34 +544,43 @@ VITE_GOOGLE_MAPS_API_KEY=<clave-nueva-restringida>
 
 ## 11. Checklist Maestro Ordenado
 
+> Esta sección estaba desalineada con el cuerpo del documento: daba por pendientes bloques (C7–C10,
+> C13–C14, D1–D8, E1–E3) que sí están hechos y marcados más arriba. Corregida contra el repositorio.
+
 **Bloque 0 — Seguridad (bloqueante)**
 - [ ] S1 · Revocar la clave de Google Maps expuesta
 - [ ] S2–S4 · Claves nuevas, restringidas, con cuotas y alertas
-- [ ] S5–S6 · `app.config.js` + `.gitignore` verificado
+- [x] S5–S6 · `app.config.js` + `.gitignore` verificado
 
 **Bloque 1 — Infraestructura**
-- [x] A1–A3 · Proyecto Supabase creado, vinculado, con PostGIS
-- [ ] A7–A9 · Vercel vinculado y primer despliegue
+- [x] A1–A4 · Proyecto Supabase creado, vinculado, con PostGIS y 9 migraciones aplicadas
+- [ ] A7–A9 · `vercel.json`, Vercel vinculado y primer despliegue
 
 **Bloque 2 — Datos**
 - [x] B1–B3 · Esquema traducido y aplicado
 - [x] B4 · Device ID de 15 dígitos implementado
 - [x] B5–B6 · RLS auditada e índice GiST creado
+- [x] B7–B12 · RLS abierto cerrado, `has_device_access()`, RPC de vinculación y verificación
 
 **Bloque 3 — App móvil**
 - [x] C1–C4 · Andamiaje, identidad, permisos y tema
 - [x] C5–C6 · **Mapa principal y burbuja de detalle** ⭐
-- [ ] C7–C10 · Autenticación, predios, emparejamiento y tipos
-- [x] C11 · Selector de etapa fenológica
-- [x] C12 · Motor agronómico (desarrollo propio)
-- [ ] C13–C14 · Precarga de teselas y compilación verificada
+- [x] C7–C10 · Autenticación, predios, perímetro, enlace BLE y tipos
+- [x] C11–C12 · Etapa fenológica y motor agronómico
+- [x] C13–C14 · Degradación sin cobertura y empaquetado verificado
+- [ ] Probar el enlace BLE contra la sonda física
 
 **Bloque 4 — Web y backend**
-- [ ] D1–D8 · Consola web migrada y visor GIS
-- [ ] E1–E4 · Edge Functions adaptadas
+- [x] D1–D7, D9–D10 · Consola web migrada, visor GIS IDW y pestaña de firmware
+- [ ] D8 · Revisar las capturas de `Web/Referencias UI/`
+- [x] E1–E3 · Edge Functions desplegadas y descartes hechos
+- [ ] E4 · Firmware propio del ESP32 (no existe aún)
 
 **Bloque 5 — Cierre**
-- [ ] A5–A6 · Correos de recuperación con marca propia y probados extremo a extremo
+- [ ] Rellenar `App/.env` y `Web/.env` — hoy el `.env` de la raíz está vacío
+- [ ] A5–A6 · SMTP propio y correos de recuperación probados extremo a extremo
+- [ ] Cerrar el OTA: publicación sin SQL manual y llamada a `check_firmware_update()` desde el equipo
+- [ ] Confirmar la ficha de la sonda con el vendedor
 - [ ] Prueba de campo: medir sin cobertura y verificar sincronización posterior
 - [ ] Actualizar la Sección 9.3 del README con los comandos reales de puesta en marcha
 
