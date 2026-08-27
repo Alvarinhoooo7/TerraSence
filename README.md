@@ -30,11 +30,12 @@
 * [⚔️ SECCIÓN GENERAL 2: Benchmarking y Análisis Competitivo Exhaustivo ($170.000 CLP hacia arriba)](#️-sección-general-2-benchmarking-y-análisis-competitivo-exhaustivo-170000-clp-hacia-arriba)
   * [2.1. Posicionamiento de Precio y Segmentación de Rivales](#21-posicionamiento-de-precio-y-segmentación-de-rivales)
   * [2.2. Fichas de Rivales Reales: Lo que Tienen vs. Lo que Falta vs. Lo que Destaca TerraSense](#22-fichas-de-rivales-reales-lo-que-tienen-vs-lo-que-falta-vs-lo-que-destaca-terrasense)
-  * [2.3. Matriz Comparativa Integral de Brechas y Capacidades](#23-matriz-comparativa-integral-de-brechas-y-capacidades)
-  * [2.4. Diagramas de Flujo y Arquitectura de las Alternativas](#24-diagramas-de-flujo-y-arquitectura-de-las-alternativas)
-  * [2.5. Estudio de Viabilidad Técnica y Económica de las Alternativas](#25-estudio-de-viabilidad-técnica-y-económica-de-las-alternativas)
-  * [2.6. Transparencia Técnica: Lo que TerraSense Admite Honestamente](#26-transparencia-técnica-lo-que-terrasense-admite-honestamente)
-  * [2.7. Ventajas Competitivas Defensivas (Moats)](#27-ventajas-competitivas-defensivas-moats)
+  * [2.3. Diagramas de Flujo Operativo de las Alternativas (Workflows de la Competencia)](#23-diagramas-de-flujo-operativo-de-las-alternativas-workflows-de-la-competencia)
+  * [2.4. Diagramas de Bloques de Arquitectura Tecnológica Comparativa](#24-diagramas-de-bloques-de-arquitectura-tecnológica-comparativa)
+  * [2.5. Matriz Comparativa Integral de Brechas y Capacidades](#25-matriz-comparativa-integral-de-brechas-y-capacidades)
+  * [2.6. Estudio de Viabilidad Técnica y Económica de las Alternativas](#26-estudio-de-viabilidad-técnica-y-económica-de-las-alternativas)
+  * [2.7. Transparencia Técnica: Lo que TerraSense Admite Honestamente](#27-transparencia-técnica-lo-que-terrasense-admite-honestamente)
+  * [2.8. Ventajas Competitivas Defensivas (Moats)](#28-ventajas-competitivas-defensivas-moats)
 * [💰 SECCIÓN GENERAL 3: Modelo Económico, Viabilidad Comercial y Estudio de Mercado (TAM / SAM / SOM)](#-sección-general-3-modelo-económico-viabilidad-comercial-y-estudio-de-mercado-tam--sam--som)
   * [3.1. Estructura de Costos Industriales (BOM Lote 100 unidades)](#31-estructura-de-costos-industriales-bom-lote-100-unidades)
   * [3.2. Precio de Venta al Público (PVP) y Margen Unitario de Contribución](#32-precio-de-venta-al-público-pvp-y-margen-unitario-de-contribución)
@@ -49,32 +50,36 @@
   * [4.4. Capa 3 — Generador de Prescripciones y Dosis de Enmienda Cuantificada](#44-capa-3--generador-de-prescripciones-y-dosis-de-enmienda-cuantificada)
   * [4.5. Capa 4 — Integración Climática Predictiva (7 Días GPS)](#45-capa-4--integración-climática-predictiva-7-días-gps)
   * [4.6. Modelos de Balance Hídrico, AUD y Evapotranspiración (VPD / ET₀)](#46-modelos-de-balance-hídrico-aud-y-evapotranspiración-vpd--et₀)
-* [⚡ SECCIÓN GENERAL 5: Ingeniería de Hardware, Electrónica y Eficiencia Energética](#-sección-general-5-ingeniería-de-hardware-electrónica-y-eficiencia-energética)
-  * [5.1. Diagrama de Arquitectura Integral de Sistema](#51-diagrama-de-arquitectura-integral-de-sistema)
+* [⚡ SECCIÓN GENERAL 5: Ingeniería de Hardware, Electrónica y Criterios de Eficiencia Energética](#-sección-general-5-ingeniería-de-hardware-electrónica-y-criterios-de-eficiencia-energética)
+  * [5.1. Diagrama de Arquitectura Integral de Sistema Hardware](#51-diagrama-de-arquitectura-integral-de-sistema-hardware)
   * [5.2. Microcontrolador Principal: ESP32-WROOM-32 y Pinout Detallado](#52-microcontrolador-principal-esp32-wroom-32-y-pinout-detallado)
   * [5.3. Sistema de Sensado Dual: Sonda Suelo 7-en-1 + Bosch BME280 I2C](#53-sistema-de-sensado-dual-sonda-suelo-7-en-1--bosch-bme280-i2c)
-  * [5.4. Criterios de Eficiencia Energética y Power Gating (0.0 µA en Reposo)](#54-criterios-de-eficiencia-energética-y-power-gating-00-µa-en-reposo)
+  * [5.4. Criterios de Eficiencia Energética y Conmutación por Power Gating (0.0 µA)](#54-criterios-de-eficiencia-energética-y-conmutación-por-power-gating-00-µa)
   * [5.5. Protocolos de Comunicación Industrial e Inalámbrica (Modbus + BLE)](#55-protocolos-de-comunicación-industrial-e-inalámbrica-modbus--ble)
   * [5.6. Interfaz Física del Dispositivo y Persistencia Flash NVS](#56-interfaz-física-del-dispositivo-y-persistencia-flash-nvs)
-  * [5.7. Especificaciones Conceptuales y Filosofía del Proyecto](#57-especificaciones-conceptuales-y-filosofía-del-proyecto)
+  * [5.7. Especificaciones Técnicas Conceptuales y Filosofía del Proyecto](#57-especificaciones-técnicas-conceptuales-y-filosofía-del-proyecto)
 * [💻 SECCIÓN GENERAL 6: Ecosistema de Software, UI/UX Móvil y Consola Web GIS](#-sección-general-6-ecosistema-de-software-uiux-móvil-y-consola-web-gis)
-  * [6.1. Aplicación Móvil TerraSense: Flujo de Pantallas y Experiencia de Usuario (UI/UX)](#61-aplicación-móvil-terrasense-flujo-de-pantallas-y-experiencia-de-usuario-uiux)
-    * [6.1.1. Onboarding y Propuesta de Valor (2 Pantallas)](#611-onboarding-y-propuesta-de-valor-2-pantallas)
+  * [6.1. Aplicación Móvil TerraSense: Flujo Completo de Pantallas y Wireframes (UI/UX)](#61-aplicación-móvil-terrasense-flujo-completo-de-pantallas-y-wireframes-uiux)
+    * [6.1.1. Onboarding y Propuesta de Valor (Carrusel 2 Pantallas)](#611-onboarding-y-propuesta-de-valor-carrusel-2-pantallas)
     * [6.1.2. Autenticación y Gestión de Sesión](#612-autenticación-y-gestión-de-sesión)
-    * [6.1.3. Lógica de Vinculación de Hardware: 3 Caminos](#613-lógica-de-vinculación-de-hardware-3-caminos)
-    * [6.1.4. Pantalla Principal y Selector de Modo (Rápida vs Detallada)](#614-pantalla-principal-y-selector-de-modo-rápida-vs-detallada)
+    * [6.1.3. Lógica de Vinculación de Hardware: 3 Caminos (Admin, Segundo Usuario y Omitir)](#613-lógica-de-vinculación-de-hardware-3-caminos-admin-segundo-usuario-y-omitir)
+    * [6.1.4. Pantalla Principal (Main Dashboard) y Selector de Modo](#614-pantalla-principal-main-dashboard-y-selector-de-modo)
     * [6.1.5. Pantalla de Carga Interactiva: Animación 2D y Tiempo de Muestreo (5 a 8s)](#615-pantalla-de-carga-interactiva-animación-2d-y-tiempo-de-muestreo-5-a-8s)
     * [6.1.6. Dashboard Comercial en Grid 3×3 (9 Variables Físicas)](#616-dashboard-comercial-en-grid-33-9-variables-físicas)
-    * [6.1.7. Carrusel de Recomendaciones Holísticas, Clima y Guardado GPS](#617-carrusel-de-recomendaciones-holísticas-clima-y-guardado-gps)
+    * [6.1.7. Diagnóstico Individual por Variable (Modal Interactivo)](#617-diagnóstico-individual-por-variable-modal-interactivo)
+    * [6.1.8. Carrusel de Recomendaciones Holísticas, Clima Predictivo (7 Días) y Guardado GPS](#618-carrusel-de-recomendaciones-holísticas-clima-predictivo-7-días-y-guardado-gps)
+    * [6.1.9. Modalidad Operativa: Medición Rápida vs. Medición Detallada](#619-modalidad-operativa-medición-rápida-vs-medición-detallada)
   * [6.2. Arquitectura Offline-First y Sincronización Automática (Store & Forward)](#62-arquitectura-offline-first-y-sincronización-automática-store--forward)
   * [6.3. Plataforma Cloud y Consola Web GIS (Supabase + PostGIS)](#63-plataforma-cloud-y-consola-web-gis-supabase--postgis)
-  * [6.4. Arquitectura Multi-Rol y Device ID Único](#64-arquitectura-multi-rol-y-device-id-único)
-  * [6.5. Actualización de Firmware Over-The-Air (WiFi OTA)](#65-actualización-de-firmware-over-the-air-wifi-ota)
+  * [6.4. Criterios de Digitalización e Inclusión Tecnológica Rural](#64-criterios-de-digitalización-e-inclusión-tecnológica-rural)
+  * [6.5. Arquitectura Multi-Rol y Device ID Único](#65-arquitectura-multi-rol-y-device-id-único)
+  * [6.6. Actualización de Firmware Over-The-Air (WiFi OTA)](#66-actualización-de-firmware-over-the-air-wifi-ota)
 * [📜 SECCIÓN GENERAL 7: Marco Normativo, Certificaciones y Estándares Internacionales](#-sección-general-7-marco-normativo-certificaciones-y-estándares-internacionales)
   * [7.1. Normas de Hardware, Seguridad Eléctrica y Envolventes (IEC 60529 IP67, UN 38.3, RoHS)](#71-normas-de-hardware-seguridad-eléctrica-y-envolventes-iec-60529-ip67-un-383-rohs)
   * [7.2. Normas de Radiofrecuencia y Telecomunicaciones (SUBTEL, FCC Parte 15, RED)](#72-normas-de-radiofrecuencia-y-telecomunicaciones-subtel-fcc-parte-15-red)
-  * [7.3. Estándares Edafológicos y de Calidad de Suelo (ISO 10390, ISO 11265, ISO 11277)](#73-estándares-edafológicos-y-de-calidad-de-suelo-iso-10390-iso-11265-iso-11277)
-  * [7.4. Legislación de Protección de Datos y Accesibilidad (Ley 19.628, GDPR, WCAG 2.1 AA)](#74-legislación-de-protección-de-datos-y-accesibilidad-ley-19628-gdpr-wcag-21-aa)
+  * [7.3. Estándares Edafológicos y Calidad de Suelo (ISO 10390, ISO 11265, ISO 11277)](#73-estándares-edafológicos-y-calidad-de-suelo-iso-10390-iso-11265-iso-11277)
+  * [7.4. Legislación de Protección de Datos, Ciberseguridad y Accesibilidad (Ley 19.628, GDPR, WCAG 2.1 AA)](#74-legislación-de-protección-de-datos-ciberseguridad-y-accesibilidad-ley-19628-gdpr-wcag-21-aa)
+  * [7.5. Matriz Consolidada de Cumplimiento Regulatorio](#75-matriz-consolidada-de-cumplimiento-regulatorio)
 * [🛠️ SECCIÓN GENERAL 8: Protocolos de Mantenimiento Integral y Ciclo de Vida](#️-sección-general-8-protocolos-de-mantenimiento-integral-y-ciclo-de-vida)
   * [8.1. Protocolo de Mantenimiento de Hardware y Sonda en Terreno](#81-protocolo-de-mantenimiento-de-hardware-y-sonda-en-terreno)
   * [8.2. Mantenimiento y Operaciones de Base de Datos Cloud (Supabase / PostGIS)](#82-mantenimiento-y-operaciones-de-base-de-datos-cloud-supabase--postgis)
@@ -146,7 +151,7 @@ Asimismo, **el valor de la medición física del suelo no se limita únicamente 
     antes de lluvia.      radicular.             de fruto.
 ```
 
-1. **Riego Diario y Manejo Hídrico:** Permite saber exactamente cuándo encender o apagar las bombas de riego, evitando tanto el marchitamiento por sequedad como la asfixia radicular por exceso de agua.
+1. **Riego Diario y Manejo Hídrico:** Permite saber exactamente cuándo encender o apagar las bombas de riego, evitando tanto el marchitamiento por sequedad como la asfixia radicular por sobre-riego.
 2. **Crecimiento Vegetativo:** Monitorea la absorción radicular efectiva de agua y Nitrógeno en la etapa de mayor demanda fotosintética.
 3. **Floración y Cuajado de Fruto:** Controla el estrés hídrico y la salinidad (EC) en el momento más delicado de la planta, donde un exceso de sales causa el aborto floral y arruina el rendimiento final.
 4. **Maduración y Cosecha / Post-Cosecha:** Monitorea el secado superficial para permitir el ingreso de maquinaria pesada sin compactar el potrero y evalúa el agotamiento de nutrientes para acondicionar el suelo de cara a la siguiente temporada.
@@ -268,7 +273,56 @@ $179.990 CLP              $255.000 - $380.000 CLP       $900.000 - $1.600.000 CL
 
 ---
 
-## 2.3. Matriz Comparativa Integral de Brechas y Capacidades
+## 2.3. Diagramas de Flujo Operativo de las Alternativas (Workflows de la Competencia)
+
+```mermaid
+flowchart TD
+    subgraph Sonda_Asiatica[Sonda Genérica LCD - $200 USD]
+        A1([Duda en Campo]) --> B1[Insertar Sonda] --> C1[Ver LCD: pH 5.2] --> D1{¿Sabe qué hacer?}
+        D1 -- No (90%) --> E1[Parálisis por Análisis: Siembra al Ojo] --> F1[🔴 Pérdida de Cosecha]
+    end
+
+    subgraph Hanna_Bluelab[Instrumentos Hidroponía - $350 USD]
+        A2([Duda en Campo]) --> B2[Preparar mezcla Slurry con agua destilada] --> C2[Medir pH en vaso] --> D2[❌ No mide NPK] --> E2[Consultar Agrónomo Externo]
+    end
+
+    subgraph Lab_Tradicional[Laboratorio Químico - $50.000 CLP/m]
+        A3([Duda en Campo]) --> B3[Excavar 10 calicatas + Enviar muestra] --> C3[⏳ Espera de 15 a 30 días] --> D3[Recibir PDF de 5 páginas] --> E3[Ventana de Siembra Expirada]
+    end
+
+    subgraph TerraSense_IoT[TerraSense IoT - $179.990 CLP]
+        A4([Duda a las 7:00 AM]) --> B4[Pinchar Suelo In-Situ] --> C4[Presionar Medición en App] --> D4[Adquisición 9 Variables + IA en 5s] --> E4[🟢 Semáforo + Cultivos Aptos + Dosis Cal kg/ha + Clima GPS + Mapa GIS]
+    end
+```
+
+---
+
+## 2.4. Diagramas de Bloques de Arquitectura Tecnológica Comparativa
+
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                 COMPARATIVA DE ARQUITECTURA DE BLOQUES                      │
+│                                                                             │
+│ 1. INSTRUMENTOS TRADICIONALES:                                              │
+│    [ Pila 9V / AAA ] ──► [ MCU 8-Bits ] ──► [ LCD Monocromo (Dato Crudo) ]  │
+│    (Sin Bluetooth, Sin GPS, Sin Cloud, Sin Inteligencia Agronómica)         │
+│                                                                             │
+│ 2. DATALOGGERS CIENTÍFICOS ($2.000 USD):                                    │
+│    [ Panel Solar 20W + Batería 12V 7Ah ] ──► [ Datalogger ] ──► [ Módem 4G]│
+│    (Peso >8 kg, Costo inasumible, suscripción anual obligatoria de $300 USD)│
+│                                                                             │
+│ 3. TERRASENSE IoT:                                                          │
+│    [ 2x 18650 Li-Ion + Power Gating ] ──► [ ESP32 Dual-Core ] ──► [ BLE 5.0]│
+│                                                   │                         │
+│                                                   ▼                         │
+│    [ SMARTPHONE: Inferencia IA + GPS + SQLite ] ──► [ SUPABASE + POSTGIS ]  │
+│    (BOM $42.000 CLP, 0.0 µA en reposo, 100% Offline-First, Mapas GIS)       │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 2.5. Matriz Comparativa Integral de Brechas y Capacidades
 
 | Capacidad / Función Técnica | Bluelab Pulse | Hanna HI9814 | Spectrum TDR 350 | Meter TEROS 12 | Laboratorio Químico | Asesor Privado | **TerraSense IoT** |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -290,21 +344,25 @@ $179.990 CLP              $255.000 - $380.000 CLP       $900.000 - $1.600.000 CL
 
 ---
 
-## 2.4. Diagramas de Flujo y Arquitectura de las Alternativas
+## 2.6. Estudio de Viabilidad Técnica y Económica de las Alternativas
 
-Para consultar los diagramas de flujo operativos (Mermaid) y la arquitectura de bloques de hardware de cada alternativa de la competencia en profundidad:
-* 📄 **Documento Completo:** [DIAGRAMAS_ALTERNATIVAS_COMPETENCIA.md](file:///c:/Users/alvar/OneDrive/Escritorio/8vo%20Semestre/medidor-de-suelo/docs/DIAGRAMAS_ALTERNATIVAS_COMPETENCIA.md)
+### Costo Total de Propiedad (TCO Proyectado a 1, 3 y 5 Años)
+Para un predio representativo de 3 hectáreas de hortalizas con un régimen de monitoreo estándar (20 mediciones de suelo por temporada):
+
+| Solución Tecnológica | TCO Año 1 | TCO Año 3 (Acumulado) | TCO Año 5 (Acumulado) |
+| :--- | :---: | :---: | :---: |
+| **Laboratorio Químico (20 muestras/año)**| $1.000.000 CLP | $3.000.000 CLP | $5.000.000 CLP |
+| **Asesor Agronómico (6 visitas/año)** | $720.000 CLP | $2.160.000 CLP | $3.600.000 CLP |
+| **Bluelab Pulse + Soil pH Pen** | $520.000 CLP | $640.000 CLP *(Sondas rep.)*| $780.000 CLP |
+| **Spectrum TDR 350 + Suscripción** | $1.950.000 CLP | $2.550.000 CLP | $3.150.000 CLP |
+| **TerraSense IoT (Kit Completo)** | **$179.990 CLP** | **$195.000 CLP** *(Buffers)* | **$215.000 CLP** *(Baterías)*|
+
+> [!IMPORTANT]
+> **Ahorro Financiero a 5 Años:** TerraSense representa un **ahorro de más del 95%** en comparación con el monitoreo tradicional por laboratorio químico y un **72% de ahorro** frente a combos comerciales importados sin inteligencia.
 
 ---
 
-## 2.5. Estudio de Viabilidad Técnica y Económica de las Alternativas
-
-Para revisar el estudio formal de viabilidad con TCO proyectado a 5 años, curvas de costo marginal acumulado y modelos de subsidio estatal (INDAP / CORFO / FIA):
-* 📄 **Documento Completo:** [ESTUDIO_VIABILIDAD_TECNICA_ECONOMICA.md](file:///c:/Users/alvar/OneDrive/Escritorio/8vo%20Semestre/medidor-de-suelo/docs/ESTUDIO_VIABILIDAD_TECNICA_ECONOMICA.md)
-
----
-
-## 2.6. Transparencia Técnica: Lo que TerraSense Admite Honestamente
+## 2.7. Transparencia Técnica: Lo que TerraSense Admite Honestamente
 
 1. **Estimación Electroquímica NPK vs. Espectrometría ICP-OES:** La sonda entrega clasificación operativa (*Bajo, Medio, Óptimo, Excesivo*) con precisión de $\pm 5\%$, ideal para fertilización en campo, pero no reemplaza un análisis SAG de certificación.
 2. **Ausencia de Micronutrientes Específicos:** No mide Boro, Zinc ni Molibdeno. Se recomienda mantener un análisis de laboratorio cada 2 o 3 años.
@@ -312,7 +370,7 @@ Para revisar el estudio formal de viabilidad con TCO proyectado a 5 años, curva
 
 ---
 
-## 2.7. Ventajas Competitivas Defensivas (Moats)
+## 2.8. Ventajas Competitivas Defensivas (Moats)
 
 1. **Algoritmia Regionalizada y Calibración Local:** Calibrado para suelos volcánicos trumaos, arcillas del Valle Central y suelos salinos del norte de Chile.
 2. **Arquitectura 7-en-1 Integrada de Bajo Costo:** Costo BOM de **$42.000 CLP**, permitiendo un precio de venta disruptivo con margen de contribución del **76.6%**.
@@ -399,7 +457,7 @@ $$\text{Payback} = \frac{\$179.990\text{ CLP}}{\$350.000\text{ CLP/temporada}} \
 
 ## 3.6. Canales de Distribución y Estrategia B2B / B2G
 
-1. **Canal B2G / Institucional (INDAP y PRODESAL):** Venta directa a programas de fomento estatal.
+1. **Canal B2G / Institucional (INDAP y PRODESAL):** Venta directa a programas de fomento estatal con financiamiento de hasta el 80% mediante el Programa de Desarrollo de Inversiones (PDI).
 2. **Canal B2B (Distribuidores de Insumos y Semilleras):** Alianzas comerciales con distribuidoras agrícolas (ej. Anasac, Copeval, Coagra).
 3. **Canal Directo B2C (E-commerce Agrícola):** Venta online directa con despacho a todo Chile.
 
@@ -495,9 +553,9 @@ $$\text{VPD} = \text{VP}_{\text{sat}} \times \left(1 - \frac{\text{HR}}{100}\rig
 
 ---
 
-# ⚡ SECCIÓN GENERAL 5: Ingeniería de Hardware, Electrónica y Eficiencia Energética
+# ⚡ SECCIÓN GENERAL 5: Ingeniería de Hardware, Electrónica y Criterios de Eficiencia Energética
 
-## 5.1. Diagrama de Arquitectura Integral de Sistema
+## 5.1. Diagrama de Arquitectura Integral de Sistema Hardware
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -568,12 +626,48 @@ $$\text{VPD} = \text{VP}_{\text{sat}} \times \left(1 - \frac{\text{HR}}{100}\rig
 
 ---
 
-## 5.4. Criterios de Eficiencia Energética y Power Gating (0.0 µA en Reposo)
+## 5.4. Criterios de Eficiencia Energética y Conmutación por Power Gating (0.0 µA)
 
-* **Consumo Cero en Reposo ($0.0\,\mu\text{A}$):** Mediante conmutación por MOSFET canal P en la línea de 12V.
+La sonda industrial RS-485 NPK 7-en-1 requiere una tensión de **$12\text{V DC}$** y un transceptor MAX485 que consumirían entre **$30\text{ mA}$ y $45\text{ mA}$** de forma continua si no se gestionaran adecuadamente.
+
+TerraSense erradica este consumo parásito mediante un circuito de **Power Gating** con transistor MOSFET controlado por el pin **GPIO 4 del ESP32**:
+
+```text
+               CIRCUITO DE GESTIÓN DE ENERGÍA POR POWER GATING
+                              V_BAT (3.7V - 4.2V)
+                                       │
+                                 ┌─────┴─────┐
+                                 │ P-MOSFET  │
+                 GPIO 4 ESP32 ──►│ Si2301DS  │ (LOW = Conduce / HIGH = 0.0 µA)
+                                 └─────┬─────┘
+                                       │
+                      ┌────────────────┴────────────────┐
+                      ▼                                 ▼
+           ┌──────────────────────┐          ┌──────────────────────┐
+           │ MT3608 Boost Step-Up │          │ MAX485 Driver RS-485 │
+           │ 3.7V ──► 12V DC      │          │ Bus Diferencial      │
+           └──────────┬───────────┘          └──────────┬───────────┘
+                      └────────────────┬────────────────┘
+                                       ▼
+                       ┌───────────────────────────────┐
+                       │ Sonda Suelo Inox 7-en-1       │
+                       │ CONSUMO EN REPOSO: 0.0 µA     │
+                       └───────────────────────────────┘
+```
+
+### Balance Energético y Cálculo de Autonomía de Campo
+El consumo de energía total por ciclo de medición ($E_{\text{ciclo}}$) es de solo **$0.141\text{ mAh}$**:
+
+| Fase Operativa | Subsistemas Activos | Corriente ($I$) | Duración ($t$) | Carga Consumida ($Q$) |
+| :--- | :--- | :---: | :---: | :---: |
+| **1. Conexión BLE** | ESP32 Radio BLE activa | $22.0\text{ mA}$ | $1.0\text{ s}$ | $22.0\text{ mAs}$ |
+| **2. Muestreo Modbus 12V** | Boost 12V + Sonda 7-en-1 + MAX485 + BME280 + ESP32 | $65.0\text{ mA}$ | $7.0\text{ s}$ | $455.0\text{ mAs}$ |
+| **3. Ráfaga BLE Telemetría**| ESP32 TX @ $+9\text{ dBm}$ | $85.0\text{ mA}$ | $0.2\text{ s}$ | $17.0\text{ mAs}$ |
+| **4. Retorno a Standby BLE**| ESP32 BLE en escucha | $18.0\text{ mA}$ | $0.8\text{ s}$ | $14.4\text{ mAs}$ |
+| **TOTAL POR CICLO** | | | **$9.0\text{ s}$** | **$508.4\text{ mAs} \approx \mathbf{0.141\text{ mAh}}$** |
+
 * **Autonomía Práctica:** Con 2 celdas 18650 en paralelo ($6.000\text{ mAh} / 22.2\text{ Wh}$), el equipo soporta **más de 1.500 mediciones activas por carga**, otorgando entre **6 y 9 meses de autonomía** en régimen de campo estándar.
 * **Recarga Rápida USB-C a 2A:** Módulo TP5100 que recarga al 100% en menos de 3.5 horas.
-* 📄 **Documento Completo:** [CRITERIOS_EFICIENCIA_ENERGETICA_Y_DIGITALIZACION.md](file:///c:/Users/alvar/OneDrive/Escritorio/8vo%20Semestre/medidor-de-suelo/docs/CRITERIOS_EFICIENCIA_ENERGETICA_Y_DIGITALIZACION.md)
 
 ---
 
@@ -621,18 +715,49 @@ Byte 12-13 : Potasio (K)                 -> ej. 0x0050 = 80   -> 80 mg/kg
 
 ---
 
-## 5.7. Especificaciones Conceptuales y Filosofía del Proyecto
+## 5.7. Especificaciones Técnicas Conceptuales y Filosofía del Proyecto
 
-Para consultar el manifiesto de ingeniería completo, la justificación del desacoplamiento tecnológico hacia el smartphone y los requerimientos no funcionales:
-* 📄 **Documento Completo:** [ESPECIFICACIONES_CONCEPTUALES_Y_FILOSOFIA.md](file:///c:/Users/alvar/OneDrive/Escritorio/8vo%20Semestre/medidor-de-suelo/docs/ESPECIFICACIONES_CONCEPTUALES_Y_FILOSOFIA.md)
+1. **"No Vendemos Datos, Vendemos Decisiones":** La agronomía es biológica; no voltimétrica.
+2. **"El Smartphone es el Datalogger Universal":** Aprovechar el procesador, GPS y módem 4G/5G que el productor ya lleva en su bolsillo.
+3. **"Diseño para el Campo Real":** Sin pantallas de cristal frágiles en la estaca; chasis IP67 y varillas de acero quirúrgico 316L.
+4. **"Soberanía del Dato":** Sin suscripciones cautivas ni formatos cerrados.
 
 ---
 
 # 💻 SECCIÓN GENERAL 6: Ecosistema de Software, UI/UX Móvil y Consola Web GIS
 
-## 6.1. Aplicación Móvil TerraSense: Flujo de Pantallas y Experiencia de Usuario (UI/UX)
+## 6.1. Aplicación Móvil TerraSense: Flujo Completo de Pantallas y Wireframes (UI/UX)
 
 La aplicación móvil de TerraSense (desarrollada en React Native, Expo y TypeScript) fue concebida para brindar una experiencia fluida, intuitiva y robusta en terreno.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Onboarding: Primera Apertura
+    Onboarding --> LoginScreen: Finalizar Carrusel (2 Slides)
+    LoginScreen --> PairingRouter: Autenticación Exitosa
+    
+    state PairingRouter {
+        [*] --> ChoiceModal
+        ChoiceModal --> BlePairingScreen: Opción A (Admin / BLE 3s)
+        ChoiceModal --> JoinDeviceScreen: Opción B (Operador / QR / ID)
+        ChoiceModal --> MainDashboard: Opción C ("Ya estoy vinculado")
+        
+        BlePairingScreen --> MainDashboard: Pairing Exitoso
+        JoinDeviceScreen --> WaitingApprovalScreen: Código Enviado
+        WaitingApprovalScreen --> MainDashboard: Aprobación Recibida (Realtime)
+    }
+    
+    state MainDashboard {
+        [*] --> Idle
+        Idle --> MeasureModeSelectModal: Pulsar "EMPEZAR MEDICIÓN"
+        MeasureModeSelectModal --> MeasuringScreen_Fast: Modo Rápido (5s)
+        MeasureModeSelectModal --> MeasuringScreen_Detail: Modo Detallado (7s)
+    }
+```
+
+---
+
+### 6.1.1. Onboarding y Propuesta de Valor (Carrusel 2 Pantallas)
 
 ```text
 ┌──────────────────────────────────────┐  ┌──────────────────────────────────────┐
@@ -653,17 +778,44 @@ La aplicación móvil de TerraSense (desarrollada en React Native, Expo y TypeSc
 └──────────────────────────────────────┘  └──────────────────────────────────────┘
 ```
 
-### 6.1.1. Onboarding y Propuesta de Valor (2 Pantallas)
 * **Slide 1:** Logo de TerraSense + Refrán central (*"No vendemos datos. Vendemos decisiones. Tu ingeniero agrónomo de bolsillo"*).
 * **Slide 2:** Quiénes somos, qué hacemos y a quién ayudamos (pequeña y mediana agricultura, AFC, cooperativas INDAP).
+
+---
 
 ### 6.1.2. Autenticación y Gestión de Sesión
 * Registro e inicio de sesión seguro con **Supabase Auth** (Email + Contraseña, Magic Link y Google OAuth).
 
-### 6.1.3. Lógica de Vinculación de Hardware: 3 Caminos
-1. **Opción A (Propietario / Admin):** Mantener presionado el botón `PAIR` en el hardware por 3 segundos para activar el modo de anunciamiento BLE.
+---
+
+### 6.1.3. Lógica de Vinculación de Hardware: 3 Caminos (Admin, Segundo Usuario y Omitir)
+
+```text
+┌────────────────────────────────────────────────────────┐
+│             VINCULAR DISPOSITIVO TERRASENSE            │
+│                                                        │
+│  Selecciona cómo deseas enlazar tu equipo:             │
+│                                                        │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │ 📡 OPCIÓN 1: VINCULAR MI EQUIPO (ADMIN)          │  │
+│  │ Soy el dueño del equipo. Conectar por BLE (3s).  │  │
+│  └──────────────────────────────────────────────────┘  │
+│                                                        │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │ 👥 OPCIÓN 2: UNIRME A UN EQUIPO EXISTENTE        │  │
+│  │ Soy operador/familiar. Escanear QR o código ID.  │  │
+│  └──────────────────────────────────────────────────┘  │
+│                                                        │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │ ⚡ OPCIÓN 3: YA ESTOY VINCULADO / OMITIR         │  │
+│  │ Entrar directamente a la pantalla principal.     │  │
+│  └──────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────┘
+```
+
+1. **Opción A (Propietario / Admin):** Mantener presionado el botón `PAIR` en el hardware por 3 segundos para activar el modo de anunciamiento BLE rápido (4 Hz en LED azul).
 2. **Opción B (Segundo Usuario / Operador):** Escanear el código QR del administrador o ingresar el código ID de 15 dígitos del equipo (`TS-8409-2026-A9F4`), entrando a una pantalla de espera en tiempo real hasta la aprobación del admin.
-3. **Opción C ("Ya Estoy Vinculado" / Omitir):** Entra directo al Main. Si no tiene hardware asociado, el Main muestra una tarjeta destacada de acceso rápido para vincularse.
+3. **Opción C ("Ya Estoy Vinculado" / Omitir):** Entra directo al Main. Si no tiene hardware asociado, el Main muestra una tarjeta destacada de acceso rápido para vincularse:
 
 ```text
 ┌────────────────────────────────────────────────────────┐
@@ -675,35 +827,79 @@ La aplicación móvil de TerraSense (desarrollada en React Native, Expo y TypeSc
 └────────────────────────────────────────────────────────┘
 ```
 
-### 6.1.4. Pantalla Principal y Selector de Modo (Rápida vs Detallada)
-* Botón central **"📍 EMPEZAR MEDICIÓN"** con selector de modalidad:
-  * **⚡ Medición Rápida:** Adquisición ágil de 5 segundos -> Grid 3×3 con semáforo global -> Auto-guardado transparente en historial y mapa GPS.
-  * **🔍 Medición Detallada:** Adquisición guiada de 7 segundos con filtro Nernst -> Grid 3×3 interactivo -> Carrusel completo con desglose por cultivo, pronóstico a 7 días y formulario de cuartel.
+---
+
+### 6.1.4. Pantalla Principal (Main Dashboard) y Selector de Modo
+
+```text
+┌────────────────────────────────────────────────────────┐
+│ 🌿 TERRASENSE                      📡 Conectado (98%) │
+│ Predio: Fundo San Fernando — Potrero 4                 │
+├────────────────────────────────────────────────────────┤
+│ 🌦️ CLIMA LOCAL (GPS): 16.5°C | HR 62% | ☀️ Soleado    │
+│    Alerta: Sin riesgo de helada en las próx. 72 horas. │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│              ╔══════════════════════════╗              │
+│              ║   📍 EMPEZAR MEDICIÓN    ║              │
+│              ╚══════════════════════════╝              │
+│             [ ⚡ RÁPIDA ]   [ 🔍 DETALLADA ]           │
+│                                                        │
+├────────────────────────────────────────────────────────┤
+│ 📊 RESUMEN DEL DÍA (4 Puntos Muestreados)              │
+│ • 🟢 3 Puntos: Óptimos para siembra de Maíz / Papa     │
+│ • 🟡 1 Punto: Requiere encalado de suelo (pH 5.2)      │
+├────────────────────────────────────────────────────────┤
+│ 🗺️ ÚLTIMA UBICACIÓN GEOESPACIAL                        │
+│ ┌────────────────────────────────────────────────────┐ │
+│ │  🗺️ [ MAPA SATELITAL INTERACTIVO CON PINES ]      │ │
+│ └────────────────────────────────────────────────────┘ │
+│                                                        │
+│ [ 🏠 Inicio ]   [ 📊 Historial ]   [ 🗺️ GIS ]   [ ⚙️ Config ]│
+└────────────────────────────────────────────────────────┘
+```
+
+---
 
 ### 6.1.5. Pantalla de Carga Interactiva: Animación 2D y Tiempo de Muestreo (5 a 8s)
-* Despliega una animación gráfica 2D ilustrando cómo clavar verticalmente las varillas en la zona radicular (15-20 cm de profundidad).
-* **Fundamentación Científica:** El ciclo de 5 a 8 segundos garantiza la polarización dieléctrica de alta frecuencia, el equilibrio térmico de la sonda para compensación de Nernst y la aplicación de un **filtro de mediana móvil sobre 10 muestras Modbus consecutivas** para eliminar ruido de contacto.
 
 ```text
 ┌────────────────────────────────────────────────────────┐
 │                   MEDICIÓN EN PROCESO                  │
-│  Progreso: [██████████████░░] 78% (6.2 s)             │
+│                                                        │
+│  Progreso de Muestreo: [██████████████░░] 78% (6.2 s) │
+│                                                        │
+│             ANIMACIÓN 2D EN TIEMPO REAL:               │
 │                                                        │
 │                      🌿 PLANTA                         │
+│                      │                                 │
 │          ┌───────────┴───────────┐                     │
 │          │  Zona Radicular (15cm)│                     │
 │          ▼                       ▼                     │
 │      ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒ Suelo          │
 │          │ ║ ║ ║                 ▲                     │
 │          │ ║ ║ ║ ← Inserción     │ 15-20 cm            │
-│          ▼ █ █ █   Vertical      ▼ de Profundidad      │
+│          │ ║ ║ ║   Vertical      │ de Profundidad      │
+│          ▼ █ █ █                 ▼                     │
+│                                                        │
+│  📢 INSTRUCCIONES EN VIVO:                             │
+│  1. Inserte las varillas de acero inox verticalmente.  │
+│  2. Asegure contacto pleno con la tierra sin moverla.  │
+│  3. Espere el promedio de estabilización térmica.     │
 │                                                        │
 │  🔄 Adquiriendo ráfaga: Muestra 8 de 10...             │
 └────────────────────────────────────────────────────────┘
 ```
 
+* **Fundamentación Científica:**
+  1. *Polarización Dieléctrica ($0 - 2\text{ s}$):* Estabilización del campo electromagnético de alta frecuencia.
+  2. *Equilibrio Térmico ($2 - 4\text{ s}$):* Ajuste de la sonda para aplicar la fórmula de compensación de Nernst en pH y conductividad.
+  3. *Doble Capa Electroquímica ($4 - 6\text{ s}$):* Estabilización del potencial redox e iónico superficial.
+  4. *Filtro de Mediana Móvil ($6 - 8\text{ s}$):* El ESP32 captura **10 tramas Modbus consecutivas**, descarta valores espurios y promedia las 8 restantes.
+
+---
+
 ### 6.1.6. Dashboard Comercial en Grid 3×3 (9 Variables Físicas)
-Disposición simétrica y equilibrada de las 9 variables físicas y ambientales:
 
 ```text
 ┌────────────────────────────────────────────────────────┐
@@ -732,14 +928,87 @@ Disposición simétrica y equilibrada de las 9 variables físicas y ambientales:
 └────────────────────────────────────────────────────────┘
 ```
 
-* **Diagnóstico Individual:** Al tocar cualquiera de las 9 tarjetas se abre un modal con el semáforo específico, explicación del estado físico, sugerencias correctivas (enmiendas o lavado) y correlación climática.
+---
 
-### 6.1.7. Carrusel de Recomendaciones Holísticas, Clima y Guardado GPS
-* **Slide 1 (Diagnóstico Integral y Cultivos):** Veredicto general combinando las 9 variables, cultivos compatibles (+80 especies) y dosis de cal/abono cuantificada.
-* **Slide 2 (Recomendaciones Agroclimáticas):** Cruce con pronóstico a 7 días (Open-Meteo GPS), alertas de heladas/lluvia y recomendaciones de riego.
-* **Slide 3 (Guardado y Georreferenciación):** Coordenadas submétricas ($\pm 1.5\text{ m}$), asignación de cuartel, notas de campo y guardado offline + cloud.
+### 6.1.7. Diagnóstico Individual por Variable (Modal Interactivo)
 
-* 📄 **Documento Completo:** [FLUJO_PANTALLAS_APP_MOVIL.md](file:///c:/Users/alvar/OneDrive/Escritorio/8vo%20Semestre/medidor-de-suelo/docs/FLUJO_PANTALLAS_APP_MOVIL.md)
+Al pulsar cualquier variable (ej. **🧪 pH SUELO = 5.3**):
+
+```text
+┌────────────────────────────────────────────────────────┐
+│ 🧪 DETALLE: pH DEL SUELO                               │
+│                                                        │
+│  Valor Actual: 5.3 pH  |  Estado: 🔴 Fuertemente Ácido │
+│                                                        │
+│  📈 ESCALA DE ACIDEZ:                                  │
+│  [ 4.0 ─── 🔴 5.3 ─── 🟡 5.8 ─── 🟢 6.5 ─── 8.5 ]      │
+│                                                        │
+│  ⚠️ DIAGNÓSTICO AGRONÓMICO:                            │
+│  A este nivel de pH, el Fósforo (P) se encuentra       │
+│  químicamente bloqueado por iones de Aluminio y        │
+│  Hierro. El fertilizante que apliques se perderá en un │
+│  60% sin ser absorbido por las raíces.                 │
+│                                                        │
+│  💊 ACCIÓN CORRECTIVA RECOMENDADA:                     │
+│  • Aplicar 500 kg/ha de Cal Agrícola (CaCO₃) o dolomita│
+│  • Incorporar con rastra ligera 15 días antes.         │
+│  • Costo estimado de corrección: ~$35.000 CLP / ha.    │
+│                                                        │
+│  🌦️ CORRELACIÓN CLIMÁTICA:                             │
+│  Aprovechar la humedad actual del 31.5% para que la    │
+│  cal reaccione antes del alza térmica de la semana.    │
+│                                                        │
+│                     [ ENTENDIDO / CERRAR ]             │
+└────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 6.1.8. Carrusel de Recomendaciones Holísticas, Clima Predictivo (7 Días) y Guardado GPS
+
+```text
+┌────────────────────────────────────────────────────────┐
+│           DIAGNÓSTICO AGRONÓMICO INTEGRAL              │
+│                                                        │
+│   🟡 VEREDICTO GENERAL: CONDICIONADO / REQUIERE CAL   │
+│                                                        │
+│  ❓ ¿Es recomendable plantar hoy?                      │
+│  ➜ SÍ para Papa, Arándano y Avena (toleran acidez).    │
+│  ➜ NO para Tomate, Maíz ni Alfalfa hasta encalar.      │
+│                                                        │
+│  🌿 MATRIZ DE CULTIVOS COMPATIBLES:                    │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │ 🟢 Papa Pastusa / Desirée   │ 92% Compatibilidad │  │
+│  │ 🟢 Arándano O'Neal          │ 88% Compatibilidad │  │
+│  │ 🟡 Tomate Larga Vida        │ 54% (Bloqueo de P) │  │
+│  │ 🔴 Cebolla Morada           │ 28% (Incompatible) │  │
+│  └──────────────────────────────────────────────────┘  │
+│                                                        │
+│  💊 PLAN DE ENMIENDA INTEGRADO:                        │
+│  1. Cal Agrícola: 480 kg/ha para elevar pH a 6.2.      │
+│  2. Fosfato Monoamónico (MAP): 60 kg/ha para suplir P. │
+│                                                        │
+│             ● ○ ○      [ SIGUIENTE: CLIMA ➔ ]          │
+└────────────────────────────────────────────────────────┘
+```
+
+* **Slide 1 (Matriz de Cultivos y Enmiendas):** Semáforo global holístico, evaluación de +80 cultivos y prescripción de cal en kg/ha.
+* **Slide 2 (Recomendaciones Agroclimáticas):** Pronóstico GPS 7 días (Open-Meteo), alertas de heladas matinales y recomendación de suspender/activar riego tecnificado.
+* **Slide 3 (Guardado Georreferenciado):** Coordenadas submétricas ($\pm 1.5\text{ m}$), asignación de cuartel/potrero y guardado local transaccional.
+
+---
+
+### 6.1.9. Modalidad Operativa: Medición Rápida vs. Medición Detallada
+
+| Aspecto Operacional | ⚡ Medición Rápida | 🔍 Medición Detallada |
+| :--- | :--- | :--- |
+| **Público Objetivo** | Operador de cuadrilla, regador o chequeo veloz matinal. | Propietario del campo, asesor INDAP o agrónomo. |
+| **Tiempo Total en Pantalla** | **~5 segundos**. | **~25 a 45 segundos**. |
+| **Paso de Carga** | Animación rápida 2D + adquisición de 5s. | Animación guiada paso a paso + 7s con filtro Nernst. |
+| **Presentación de Datos** | Grid 3×3 directo con semáforo global simplificado. | Grid 3×3 + Modales de diagnóstico individual. |
+| **Análisis de Cultivos** | Omitido (evalúa fertilidad base general). | Matriz completa de +80 cultivos y % compatibilidad. |
+| **Integración Climática** | Solo indicador de helada/lluvia en cabecera. | Pronóstico completo a 7 días y cálculo de evapotranspiración. |
+| **Guardado de Datos** | Auto-guardado transparente en segundo plano. | Formulario con asignación de cuartel, etapa y notas. |
 
 ---
 
@@ -752,12 +1021,50 @@ Disposición simétrica y equilibrada de las 9 variables físicas y ambientales:
 
 ## 6.3. Plataforma Cloud y Consola Web GIS (Supabase + PostGIS)
 
-* **Motor Geoespacial PostGIS:** Almacenamiento de polígonos prediales vectoriales y puntos muestreados.
+```text
+┌────────────────────────────────────────────────────────┐
+│ 🗺️ VISOR PREDIAL GEOESPACIAL           [ 🎛️ Capas ▼ ] │
+├────────────────────────────────────────────────────────┤
+│ ┌────────────────────────────────────────────────────┐ │
+│ │  🛰️ MAPA SATELITAL PREDIAL (HORTALIZAS)           │ │
+│ │                                                    │ │
+│ │   (P1) 🟢          (P2) 🟢                         │ │
+│ │    pH 6.4           pH 6.6                         │ │
+│ │                                                    │ │
+│ │           (P3) 🟡                                  │ │
+│ │            pH 5.8 [Cal 200 kg]                     │ │
+│ │                                                    │ │
+│ │   (P4) 🔴          (P5) 🟢                         │ │
+│ │    pH 5.1           pH 6.5                         │ │
+│ │    [Salino!]                                       │ │
+│ └────────────────────────────────────────────────────┘ │
+├────────────────────────────────────────────────────────┤
+│ 🎛️ FILTROS ACTIVOS:                                    │
+│ [ Capa: Semáforo Global ▼ ]   [ Fecha: Últimos 30 días ]│
+│                                                        │
+│ 📈 RESUMEN DEL PREDIO:                                 │
+│ • Superficie Muestreada: 3.2 Hectáreas                 │
+│ • Puntos Totales: 18 mediciones georreferenciadas      │
+│ • % Superficie Apta: 78% (2.5 ha) | Enmienda: 22%      │
+│                                                        │
+│       [ 📄 EXPORTAR INFORME TÉCNICO PDF / EXCEL ]      │
+└────────────────────────────────────────────────────────┘
+```
+
+* **Motor Geoespacial PostGIS:** Almacenamiento de polígonos prediales vectoriales y puntos muestreados con tipo `GEOMETRY(Point, 4326)`.
 * **Interpolación Espacial:** Algoritmos de **Kriging e IDW** para generar mapas de calor continuo de salinidad, pH y humedad a partir de muestreos discretos.
 
 ---
 
-## 6.4. Arquitectura Multi-Rol y Device ID Único
+## 6.4. Criterios de Digitalización e Inclusión Tecnológica Rural
+
+1. **De la Libreta de Papel al GIS Satelital:** Cada pinchazo queda registrado con fecha, hora y coordenadas GPS submétricas.
+2. **Cero Pérdida de Información:** Respaldo automático en nube Supabase al recuperar señal móvil.
+3. **Interoperabilidad Estatal:** Generación de informes agronómicos exportables para INDAP, SAG y Comisión Nacional de Riego (CNR).
+
+---
+
+## 6.5. Arquitectura Multi-Rol y Device ID Único
 
 ```text
                    MATRIZ DE ROLES Y PRIVILEGIOS DE USUARIO
@@ -773,7 +1080,7 @@ Disposición simétrica y equilibrada de las 9 variables físicas y ambientales:
 
 ---
 
-## 6.5. Actualización de Firmware Over-The-Air (WiFi OTA)
+## 6.6. Actualización de Firmware Over-The-Air (WiFi OTA)
 
 El ESP32 permite actualizar el firmware binario (`v1.0.4` $\rightarrow$ `v1.1.0`) de forma inalámbrica vía WiFi a través del smartphone o la red local.
 
@@ -797,12 +1104,39 @@ TerraSense se rige por un marco de cumplimiento normativo multidisciplinario:
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-* **Seguridad y Envolventes:** **IEC 60529 IP67** (inmersión $1\text{ m}$ por $30\text{ min}$ y estanqueidad total al polvo), **UN 38.3 / IEC 62133-2** para baterías Li-Ion 18650 con BMS TP5100 y directiva **RoHS 2011/65/EU**.
-* **Radiofrecuencia:** **SUBTEL Res. Exenta N° 1.985 / 2017** en Chile ($\text{PIRE} \le 100\text{ mW}$) y **FCC Parte 15 Clase B**.
-* **Edafología y Calidad de Suelo:** **ISO 10390** (pH compensado con Nernst), **ISO 11265** (Conductividad normalizada a $25^\circ\text{C}$ con $\alpha=2\%$) y métodos oficiales del SAG / INIA.
-* **Privacidad y Ciberseguridad:** **Ley N° 19.628** (armonizada con GDPR), aislamiento estricto de predios con **Row Level Security (RLS)** y cifrado **TLS 1.3**.
-* **Accesibilidad Rural:** Cumplimiento de **WCAG 2.1 Nivel AA** (botones $\ge 48\text{ dp}$, contraste $\ge 4.5:1$ y semáforo redundante no dependiente del color).
-* 📄 **Documento Completo:** [MARCO_NORMATIVO_Y_ESTANDARES.md](file:///c:/Users/alvar/OneDrive/Escritorio/8vo%20Semestre/medidor-de-suelo/docs/MARCO_NORMATIVO_Y_ESTANDARES.md)
+## 7.1. Normas de Hardware, Seguridad Eléctrica y Envolventes (IEC 60529 IP67, UN 38.3, RoHS)
+* **IEC 60529 (Grado de Protección IP67):** Gabinete hermético frente al polvo fino de campo e inmersión temporal en agua a 1 metro durante 30 minutos. Sonda de acero Inox 316L con grado **IP68**.
+* **UN 38.3 e IEC 62133-2:** Ensayos de choque térmico, impacto y sobrecarga en el pack de 2 celdas Li-Ion 18650 con módulo de protección BMS TP5100.
+* **Directiva RoHS 2011/65/EU / RoHS 3:** Soldadura libre de plomo (SAC305) y componentes SMD certificados.
+* **Ley REP N° 20.920 (Chile):** Gestión responsable y reciclaje de baterías al fin de su vida útil.
+
+## 7.2. Normas de Radiofrecuencia y Telecomunicaciones (SUBTEL, FCC Parte 15, RED)
+* **SUBTEL Resolución Exenta N° 1.985 / 2017 (Chile):** Dispositivos de corto alcance en la banda 2.4 GHz con $\text{PIRE} \le 100\text{ mW}$ (TerraSense opera a $+9\text{ dBm} \approx 8\text{ mW}$, 100% exento de licencia).
+* **FCC Parte 15 Subparte B y C:** Módulo precertificado ESP32-WROOM-32 con FCC ID: 2AC7Z-ESPWROOM32.
+
+## 7.3. Estándares Edafológicos y Calidad de Suelo (ISO 10390, ISO 11265, ISO 11277)
+* **ISO 10390:2021:** Determinación de pH con compensación de temperatura basada en la ecuación electroquímica de Nernst.
+* **ISO 11265:1994:** Normalización de conductividad eléctrica a $25.0^\circ\text{C}$ con coeficiente térmico $\alpha = 2.0\% / ^\circ\text{C}$.
+* **ISO 11277:** Granulometría y caracterización textural de suelos agrícolas según estándares SAG / INIA.
+
+## 7.4. Legislación de Protección de Datos, Ciberseguridad y Accesibilidad (Ley 19.628, GDPR, WCAG 2.1 AA)
+* **Ley N° 19.628 / Nueva Ley de Protección de Datos Personales (Chile):** Consentimiento informado, soberanía del dato y aislamiento de predios mediante **Row Level Security (RLS)** en PostgreSQL.
+* **ISO/IEC 27001:** Cifrado en tránsito vía TLS 1.3 / HTTPS / WSS y en reposo mediante AES-256.
+* **WCAG 2.1 Nivel AA:** Botones de área táctil $\ge 48 \times 48\text{ dp}$, contraste $\ge 4.5:1$ y semáforo cromático con texto redundante para campesinos adultos mayores.
+
+## 7.5. Matriz Consolidada de Cumplimiento Regulatorio
+
+| Norma / Estándar | Ámbito de Aplicación | Nivel de Cumplimiento | Método de Verificación en TerraSense |
+| :--- | :--- | :---: | :--- |
+| **IEC 60529** | Estanqueidad Mecánica IP67 | **100% Cumplido** | Envolvente ABS con O-ring de silicona y prensaestopas IP68. |
+| **UN 38.3 / IEC 62133**| Seguridad Baterías Li-Ion | **100% Cumplido** | Celdas 18650 certificadas + módulo BMS TP5100 integrado. |
+| **RoHS 2011/65/EU** | Restricción Sustancias Peligrosas | **100% Cumplido** | Fabricación PCB Lead-Free (SAC305) y componentes SMD certificados. |
+| **SUBTEL Res. 1.985** | Radiocomunicaciones Chile | **100% Cumplido** | Emisión BLE a $+9\text{ dBm}$ ($< 100\text{ mW}$ límite legal). |
+| **FCC Part 15 Class B**| Emisiones Electromagnéticas | **100% Cumplido** | Módulo pre-homologado ESP32-WROOM-32 FCC ID. |
+| **Modbus RTU v1.1b3**| Comunicación Serial Sonda | **100% Cumplido** | Trama industrial UART2 a 115.200 bps con checksum CRC-16. |
+| **ISO 10390 / 11265** | Metrología de pH y Conductividad | **100% Cumplido** | Compensación Nernst y normalización a $25^\circ\text{C}$ con $\alpha=2\%$. |
+| **Ley N° 19.628 / GDPR**| Privacidad de Datos Prediales | **100% Cumplido** | Row Level Security (RLS) en Supabase + Cifrado TLS 1.3. |
+| **WCAG 2.1 Nivel AA** | Accesibilidad e Inclusividad | **100% Cumplido** | Botones $\ge 48\text{dp}$, contraste $\ge 4.5:1$ y semáforo redundante. |
 
 ---
 
@@ -931,9 +1265,9 @@ pio device monitor -b 115200
 
 ```text
 TerraSence/
-├── README.md                                      # Documento maestro y especificación integral
+├── README.md                                      # Documento maestro y especificación integral exhaustiva
 ├── .gitignore                                     # Reglas de exclusión de Git
-├── docs/                                          # Documentación técnica formal de ingeniería
+├── docs/                                          # Documentación técnica formal de respaldo
 │   ├── FLUJO_PANTALLAS_APP_MOVIL.md               # Wireframes ASCII, UI/UX, estados y tiempos de muestreo
 │   ├── DIAGRAMAS_ALTERNATIVAS_COMPETENCIA.md      # Flujos operativos Mermaid y arquitectura de rivales
 │   ├── ESTUDIO_VIABILIDAD_TECNICA_ECONOMICA.md    # TCO a 5 años, curvas de costo marginal y modelos INDAP
