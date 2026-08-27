@@ -272,35 +272,63 @@ Si el usuario escoge saltarse la vinculación:
 
 ## 6. Flujo 4: Pantalla Principal (Main Dashboard)
 
-El centro de operaciones del agricultor al abrir la app a las 7:00 AM:
+**La pantalla principal es el mapa satelital a pantalla completa**, no un panel de tarjetas. El agricultor abre la app y ve inmediatamente el estado de su campo: cada medición es un **círculo de 20 m de radio coloreado según el veredicto del semáforo**. La decisión de dónde volver a medir se toma mirando el mapa, no leyendo una lista.
 
 ```text
 ┌────────────────────────────────────────────────────────┐
-│ 🌿 TERRASENSE                      📡 Conectado (98%) │
-│ Predio: Fundo San Fernando — Potrero 4                 │
-├────────────────────────────────────────────────────────┤
-│ 🌦️ CLIMA LOCAL (GPS): 16.5°C | HR 62% | ☀️ Soleado    │
-│    Alerta: Sin riesgo de helada en las próx. 72 horas. │
-├────────────────────────────────────────────────────────┤
+│ [⚙️]   Potrero 4  ▾    🌱 Vegetativo ▾    📡 98%  [👤] │
 │                                                        │
-│              ╔══════════════════════════╗              │
-│              ║   📍 EMPEZAR MEDICIÓN    ║              │
-│              ╚══════════════════════════╝              │
-│             [ ⚡ RÁPIDA ]   [ 🔍 DETALLADA ]           │
+│        ╭────────────────────────────────────────╮      │
+│        │  MAPA SATELITAL (Google) PANTALLA      │      │
+│        │  COMPLETA — tipo híbrido               │      │
+│        │                                        │      │
+│        │      ◯✓ verde         ◯✓ verde         │      │
+│        │      (r=20m)          (r=20m)          │      │
+│        │              ◯! ámbar                  │      │
+│        │              (r=20m)                   │      │
+│        │      ◯✕ rojo          ◯✓ verde         │      │
+│        │                                        │      │
+│        │  ┌──────────────────────────────────┐  │      │
+│        │  │ 🟡 P3 · hace 2 h · Vegetativo    │  │◄─ BURBUJA
+│        │  │ pH 5.8 · EC 1.240 · VWC 28%      │  │  (bottom
+│        │  │ "Acidez moderada limita el P"    │  │   sheet)
+│        │  │            [ VER DETALLE ▸ ]     │  │      │
+│        │  └──────────────────────────────────┘  │      │
+│        ╰────────────────────────────────────────╯      │
 │                                                        │
-├────────────────────────────────────────────────────────┤
-│ 📊 RESUMEN DEL DÍA (4 Puntos Muestreados)              │
-│ • 🟢 3 Puntos: Óptimos para siembra de Maíz / Papa     │
-│ • 🟡 1 Punto: Requiere encalado de suelo (pH 5.2)      │
-├────────────────────────────────────────────────────────┤
-│ 🗺️ ÚLTIMA UBICACIÓN GEOESPACIAL                        │
-│ ┌────────────────────────────────────────────────────┐ │
-│ │  🗺️ [ MAPA SATELITAL INTERACTIVO CON PINES ]      │ │
-│ └────────────────────────────────────────────────────┘ │
-│                                                        │
-│ [ 🏠 Inicio ]   [ 📊 Historial ]   [ 🗺️ GIS ]   [ ⚙️ Config ]│
+│  [ 📍 ]          ╭──────────────────╮           [ 🗂️ ] │
+│  Centrar         │  ⊕ MEDIR AHORA   │           Lista  │
+│                  ╰──────────────────╯                  │
 └────────────────────────────────────────────────────────┘
 ```
+
+### 6.1. Controles Permanentes de la Pantalla Principal
+
+| Control | Posición | Función |
+| :--- | :--- | :--- |
+| **Selector de predio** | Superior centro-izquierda | Cambia de potrero; recentra y recarga los círculos |
+| **Selector de etapa fenológica** | Superior centro | ⭐ `Pre-siembra · Vegetativo · Floración · Cosecha`. **Determina qué evalúa el semáforo** |
+| **Estado del equipo** | Superior derecha | Enlace BLE y batería de la sonda |
+| **Medir ahora** | Flotante inferior centro | Lanza el flujo de medición (sección 7) |
+| **Centrar** | Flotante inferior izquierda | Recentra en la posición GPS actual |
+| **Lista** | Flotante inferior derecha | Vista alternativa en tabla del histórico |
+
+> [!IMPORTANT]
+> ### El selector de etapa fenológica no es un filtro: es el contexto del diagnóstico
+>
+> TerraSense acompaña las **cuatro etapas del ciclo productivo** *(ver README, Sección 1.3)*, no sólo la siembra.
+> El mismo suelo con los mismos 7 valores **produce veredictos distintos según la etapa activa**:
+>
+> | Etapa | Qué evalúa prioritariamente el semáforo |
+> | :--- | :--- |
+> | **Pre-siembra** | Temperatura sobre el cero vegetativo, pH sin bloqueos, salinidad de germinación, lluvia próxima |
+> | **Vegetativo** | Nitrógeno disponible, humedad en zona radicular, riesgo de asfixia |
+> | **Floración** | Estrés salino (EC) y estrés hídrico — la etapa donde un exceso de sales provoca aborto floral |
+> | **Cosecha** | Secado superficial para transitabilidad de maquinaria y agotamiento de nutrientes para la rotación |
+>
+> Por eso el veredicto **nunca se rotula «APTO PARA SEMBRAR» de forma fija**: se rotula según la etapa activa
+> («Apto para sembrar», «Nutrición correcta», «Riesgo salino en floración», «Suelo transitable»).
+> Un instrumento atado a la siembra se usa una vez al año; atado al ciclo completo, entre 15 y 40 veces por temporada.
 
 ---
 

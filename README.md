@@ -156,6 +156,24 @@ Asimismo, **el valor de la medición física del suelo no se limita únicamente 
 3. **Floración y Cuajado de Fruto:** Controla el estrés hídrico y la salinidad (EC) en el momento más delicado de la planta, donde un exceso de sales causa el aborto floral y arruina el rendimiento final.
 4. **Maduración y Cosecha / Post-Cosecha:** Monitorea el secado superficial para permitir el ingreso de maquinaria pesada sin compactar el potrero y evalúa el agotamiento de nutrientes para acondicionar el suelo de cara a la siguiente temporada.
 
+> [!IMPORTANT]
+> ### ⚠️ Ámbito de Uso Declarado: TerraSense NO es un Decisor de Siembra
+>
+> **TerraSense es un instrumento de ciclo productivo completo.** La decisión de siembra es únicamente el **primer** caso de uso de cuatro, y es el más fácil de explicar — pero limitar el producto a ella subestima su valor entre un **70% y un 80%**, porque descarta las tres etapas donde el agricultor efectivamente pasa la mayor parte de la temporada.
+>
+> **Consecuencias vinculantes de este alcance sobre el diseño del sistema:**
+>
+> | Componente | Obligación derivada |
+> | :--- | :--- |
+> | **Motor de inferencia** | La Capa 4 evalúa **ventanas de manejo** (siembra, riego, fertilización, cosecha), no sólo ventanas de siembra. El veredicto depende de la etapa fenológica activa |
+> | **Aplicación móvil** | Toda medición se registra con su **etapa fenológica** (`pre_siembra`, `vegetativo`, `floracion`, `cosecha`). El selector de etapa es un control de primera clase, no un ajuste oculto |
+> | **Semáforo** | No dice "APTO PARA SEMBRAR" de forma fija: emite el veredicto **de la etapa activa**. En vegetativo evalúa nutrición y riego; en floración, estrés salino e hídrico; en cosecha, transitabilidad del suelo |
+> | **Umbrales de cultivo** | Cada perfil de la Capa 1 declara rangos **por etapa**, no un único rango global |
+> | **Frecuencia de uso** | El modelo de negocio asume **uso recurrente durante toda la temporada**, no un pinchazo anual. Es lo que sostiene el argumento de costo marginal cero de la Sección 10 |
+> | **Comunicación comercial** | El eslogan y el material de venta deben reflejar el ciclo completo. "¿Siembro hoy?" es el gancho de entrada; "¿cómo va mi cultivo esta semana?" es el uso real |
+>
+> Un instrumento que sólo sirve el día de la siembra se usa **una vez al año**. Un instrumento que acompaña las cuatro etapas se usa **entre 15 y 40 veces por temporada** — y esa diferencia es la que separa una compra impulsiva de una herramienta indispensable.
+
 ---
 
 ## 1.4. La Brecha de Interpretación: Del Dato Crudo a la Parálisis por Análisis
@@ -384,14 +402,14 @@ Para un predio representativo de 3 hectáreas de hortalizas con un régimen de m
 
 | Componente / Módulo | Descripción Técnica / SKU | Costo Unitario (CLP) | Costo Unitario (USD) |
 | :--- | :--- | :---: | :---: |
-| **Sonda Suelo 7-en-1 Industrial** | Sonda RS-485 Modbus Inox 316L (VWC, T, EC, pH, N, P, K) | $16.500 CLP | $17.20 USD |
+| **Sonda Suelo 7-en-1 Industrial** | Sonda RS-485 Modbus Inox 316L (VWC, T, EC, pH, N, P, K) — **SKU AliExpress `1005005697940574`** | $16.500 CLP | $17.20 USD |
 | **Microcontrolador ESP32** | ESP32-WROOM-32 DevKit v1 (Xtensa Dual-Core, BLE, WiFi) | $2.900 CLP | $3.00 USD |
 | **Sensor Ambiental I2C** | Bosch BME280 (Temperatura, Humedad Relativa, Presión) | $800 CLP | $0.80 USD |
 | **Etapa de Potencia & RS-485** | N-MOSFET 2N7002 + Boost MT3608 (12V) + MAX485 | $1.200 CLP | $1.25 USD |
 | **Sistema de Carga & BMS USB-C** | Módulo TP5100 (2A, gestión Li-Ion con protección) | $1.500 CLP | $1.50 USD |
 | **Baterías Li-Ion (2 Celdas)** | 2× 18650 Li-Ion 3.000 mAh en paralelo (~6.000 mAh) | $7.600 CLP | $8.00 USD |
 | **PCB Fabricación & SMT** | Placa FR4 2 capas con serigrafía + ensamblaje de componentes | $2.500 CLP | $2.60 USD |
-| **Carcasa Rugged IP67 & Switches**| Gabinete ABS industrial con prensaestopas, rocker switch, 3 LEDs SMD 0805 | $5.000 CLP | $5.20 USD |
+| **Carcasa Impresa 3D IP67 & Switches**| Gabinete en filamento **PETG** (impresión FDM propia) + prensaestopas M12, rocker switch, 3 LEDs SMD 0805 | $5.000 CLP | $5.20 USD |
 | **Empaque, Calibración & QA** | Caja de presentación, espumas, soluciones de prueba y control QA | $4.000 CLP | $4.20 USD |
 | **TOTAL COSTO DIRECTO (BOM)** | | **$42.000 CLP** | **$43.75 USD** |
 
@@ -660,6 +678,45 @@ $$\text{VPD} = \text{VP}_{\text{sat}} \times \left(1 - \frac{\text{HR}}{100}\rig
 | **Bosch BME280 (I2C)** | **Temperatura Ambiental** | $-40 \text{ a } +85^\circ\text{C}$ | $\pm 1.0^\circ\text{C}$ | Gradiente térmico aire-suelo y riesgo de heladas. |
 | **Bosch BME280 (I2C)** | **Humedad Relativa Aire** | $0 - 100\%\text{ HR}$ | $\pm 3\%\text{ HR}$ | Cálculo de VPD y condiciones predisponentes a hongos. |
 | **Bosch BME280 (I2C)** | **Presión Barométrica** | $300 - 1.100\text{ hPa}$ | $\pm 1.0\text{ hPa}$ | Detección de frentes de mal tiempo y altitud predial. |
+
+### 5.3.1. Identificación Exacta de la Sonda Seleccionada
+
+| Campo | Valor |
+| :--- | :--- |
+| **SKU / Item ID** | `1005005697940574` (AliExpress) |
+| **URL canónica** | `https://es.aliexpress.com/item/1005005697940574.html` |
+| **Interfaz** | RS-485 · Modbus RTU · 9600 8N1 |
+| **Parámetros** | 7 en 1: VWC, Temperatura, EC, pH, N, P, K |
+| **Alimentación** | 5 – 30 V DC (se alimenta a 12 V desde el elevador MT3608) |
+| **Material de varillas** | Acero inoxidable 316L |
+| **Mapa de registros** | Base `0x0000`, 7 registros *holding*, lectura con función `0x03` |
+
+> [!WARNING]
+> **Datos a confirmar contra la ficha del vendedor antes de la compra.** La ficha exacta de esta publicación no pudo verificarse automáticamente (AliExpress bloquea la lectura programática). Antes de cerrar el diseño de la etapa de potencia y del driver Modbus, hay que confirmar con el vendedor: **(a)** tensión de alimentación mínima real, **(b)** consumo en medición —determina el dimensionamiento del MT3608 y el presupuesto energético de la Sección 5.4—, **(c)** dirección Modbus de fábrica y velocidad por defecto, **(d)** mapa de registros exacto y factores de escala, y **(e)** longitud del cable, que condiciona el prensaestopas y la protección TVS de la línea RS-485.
+>
+> Si el mapa de registros difiere del documentado en 5.5, **el driver Modbus debe ajustarse antes del primer ensayo**, no después.
+
+---
+
+### 5.3.2. Carcasa: Impresión 3D FDM en PETG
+
+La envolvente **no es de inyección industrial en ABS**: se fabrica por **impresión 3D FDM con filamento PETG**, lo que permite iterar el diseño mecánico sin coste de molde y ajustar la ergonomía tras las primeras pruebas de campo.
+
+| Parámetro de Impresión | Especificación | Justificación |
+| :--- | :--- | :--- |
+| **Material** | **PETG** (no PLA, no ABS) | El PLA se deforma sobre 55 °C y se degrada con UV: inviable en un equipo que pasa el día al sol. El PETG resiste intemperie y humedad, y no requiere cámara cerrada como el ABS |
+| **Altura de capa** | 0,16 – 0,20 mm | Compromiso entre estanqueidad y tiempo de impresión |
+| **Perímetros** | ≥ 4 | La estanqueidad en FDM depende del número de perímetros, no del relleno |
+| **Relleno** | 40 – 60 % giroide | Rigidez frente a caídas sobre gravilla |
+| **Orientación** | Cara de sellado hacia la cama | Evita escalonado en la superficie del O-ring |
+| **Post-proceso** | Sellador de capas en juntas + O-ring de silicona | El FDM es poroso entre capas: sin sellado no se alcanza IP67 |
+| **Inserto de rosca** | Insertos metálicos por calor (M3) | El plástico impreso no tolera atornillado repetido |
+
+> [!TIP]
+> **El prensaestopas M12 se mantiene y es una buena decisión.** Además del acabado profesional en la salida del cable hacia la sonda, cumple una función real: es el único punto del ensamble que garantiza **alivio de tracción** sobre el cable. Sin él, un tirón del cable en terreno arranca la soldadura de la PCB — que es el modo de fallo más frecuente en instrumentos portátiles de campo.
+
+> [!WARNING]
+> **Riesgo específico del FDM sobre el grado IP67.** Una pieza impresa por capas tiene porosidad intercapa y **no alcanza IP67 por geometría solamente**. Para declarar IP67 según IEC 60529 hay que: sellar las juntas, usar O-ring en la tapa, aplicar el prensaestopas correctamente y **realizar el ensayo de inmersión de 30 min a 1 m**. Mientras no exista ese ensayo documentado, el README debe declarar **"diseñado para IP67"** y no **"IP67 certificado"** — la distinción importa por el Art. 28 de la Ley 19.496 (Sección 7).
 
 ---
 
@@ -1068,6 +1125,73 @@ Al pulsar cualquier variable (ej. **🧪 pH SUELO = 5.3**):
 
 ---
 
+## 6.1.1. Pantalla Principal: Mapa Satelital de Mediciones (Google Maps SDK)
+
+La pantalla principal de la aplicación **es el mapa**, no un panel de cifras. Cada medición existente en el predio se representa como un **círculo de radio configurable (20 m por defecto) coloreado según el veredicto del semáforo**, de modo que el agricultor vea el estado de su campo completo de un vistazo antes de decidir dónde volver a medir.
+
+```text
+              PANTALLA PRINCIPAL — MAPA DE MEDICIONES GEORREFERENCIADAS
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  [⚙️]                    TerraSense — Potrero Bajo               [👤]       │
+│                                                                             │
+│         ╭─────────────────────────────────────────────────────╮             │
+│         │   MAPA SATELITAL A PANTALLA COMPLETA                │             │
+│         │                                                     │             │
+│         │        ◯ verde              ◯ verde                 │             │
+│         │       (r=20 m)             (r=20 m)                 │             │
+│         │                 ◯ ámbar                             │             │
+│         │                (r=20 m)                             │             │
+│         │      ◯ rojo                    ◯ verde              │             │
+│         │     (r=20 m)                  (r=20 m)              │             │
+│         │                                                     │             │
+│         │   ┌───────────────────────────────────────────┐     │             │
+│         │   │ 🟡 P3 · hace 2 h · Etapa: Vegetativo      │     │  ◄─ BURBUJA │
+│         │   │ pH 5.8 · EC 1.240 µS/cm · VWC 28%         │     │     al tocar│
+│         │   │ "Acidez moderada limita el fósforo"       │     │     un punto│
+│         │   │              [ VER DETALLE COMPLETO ▸ ]   │     │             │
+│         │   └───────────────────────────────────────────┘     │             │
+│         ╰─────────────────────────────────────────────────────╯             │
+│                                                                             │
+│    [ 📍 Centrar ]              ╭──────────────────╮         [ 🗂️ Lista ]    │
+│                                │  ⊕  MEDIR AHORA  │                         │
+│                                ╰──────────────────╯                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Viabilidad en Campo Alejado: Sí, con Caché de Teselas
+
+**Sí es factible usar Google Maps en un campo sin cobertura**, y es la elección correcta. La implementación usa **`react-native-maps` con `PROVIDER_GOOGLE`**, que en Android es un envoltorio directo del **Google Maps SDK for Android**.
+
+| Aspecto | Comportamiento sin cobertura | Mitigación |
+| :--- | :--- | :--- |
+| **Posición GPS** | ✅ Funciona íntegramente | El GPS es un receptor pasivo satelital: no requiere red en absoluto |
+| **Círculos y marcadores** | ✅ Se dibujan siempre | Son capas vectoriales locales, independientes de las teselas |
+| **Teselas satelitales** | ⚠️ Sólo las cacheadas | El SDK cachea automáticamente lo ya visto. Se añade **precarga del predio** cuando hay WiFi |
+| **Medición y veredicto** | ✅ Íntegramente offline | El motor corre local *(Sección 6.2)* |
+
+> [!IMPORTANT]
+> **Flujo obligatorio de precarga.** Al dar de alta un predio con conectividad, la app descarga y fija en caché las teselas de su perímetro. En terreno, el mapa se muestra desde caché con los círculos de medición encima. Si no hay teselas cacheadas, **el mapa degrada a fondo neutro con los círculos y la escala visibles** — nunca se bloquea la medición por falta de mapa. Esto es coherente con el principio de degradación grácil del proyecto.
+
+### Especificación Funcional del Mapa
+
+| Elemento | Especificación |
+| :--- | :--- |
+| **Proveedor** | `react-native-maps` + `PROVIDER_GOOGLE`; tipo `hybrid` (satelital con etiquetas) |
+| **Círculo por medición** | Radio por defecto **20 m**, ajustable de 5 a 100 m en ajustes |
+| **Color de relleno** | Semáforo con transparencia: verde `rgba(44,122,78,0.25)`, ámbar `rgba(158,102,18,0.25)`, rojo `rgba(163,53,40,0.25)` |
+| **Borde** | Mismo color al 100 % de opacidad, grosor 2 |
+| **Precisión del punto** | Se exige `expo-location` en `Accuracy.BestForNavigation` y **se persiste el valor de precisión** en metros junto a la coordenada |
+| **Descarte de punto impreciso** | Si la precisión reportada supera los 15 m, la app advierte antes de guardar |
+| **Burbuja de detalle** | *Bottom sheet* al tocar el círculo: etapa fenológica, antigüedad, 7 parámetros, veredicto resumido y acceso al detalle completo |
+| **Botón de medición** | Flotante e inferior centrado, siempre visible sobre el mapa |
+| **Agrupación** | Con más de 50 puntos en la vista, se agrupan por proximidad y se muestra el peor veredicto del grupo |
+| **Accesibilidad** | El color nunca es el único código: cada círculo lleva icono central *(✓ / ! / ✕)* — WCAG 2.2 AA |
+
+> [!NOTE]
+> **Reutilización directa desde el proyecto Akura.** Esta pantalla no se construye desde cero. El repositorio `Akura` ya implementa el patrón completo —mapa a pantalla completa con `PROVIDER_GOOGLE`, círculos de geocerca con relleno y borde, marcadores personalizados, *bottom sheet* de detalle y barra flotante superior—. La migración está detallada íntegramente en **[`MIGRACION_AKURA.md`](MIGRACION_AKURA.md)**.
+
+---
+
 ## 6.2. Arquitectura Offline-First y Sincronización Automática (Store & Forward)
 
 * **Operación Sin Cobertura Celular:** El motor agronómico corre localmente en SQLite/WatermelonDB dentro del smartphone.
@@ -1134,6 +1258,50 @@ Al pulsar cualquier variable (ej. **🧪 pH SUELO = 5.3**):
 └────────────────────┴────────────┴──────────────────────────────────────────┘
 ```
 
+### 6.5.1. Device ID: 15 Dígitos Numéricos Aleatorios
+
+Cada equipo recibe un identificador **numérico de 15 dígitos generado aleatoriamente** en el momento del aprovisionamiento. Es el código que el propietario comparte con un operador o con soporte técnico para vincular o diagnosticar un equipo.
+
+| Propiedad | Especificación |
+| :--- | :--- |
+| **Longitud** | Exactamente **15 dígitos** decimales |
+| **Generación** | Aleatoria con generador criptográfico, **no derivada de la MAC** ni de un UUID |
+| **Primer dígito** | Distinto de cero, para preservar los 15 dígitos al mostrarse |
+| **Unicidad** | Restricción `UNIQUE` en base de datos + reintento ante colisión |
+| **Presentación** | Agrupado en tres bloques de cinco: `48213-90574-16628` |
+| **Entrada de usuario** | Se aceptan espacios y guiones; se normaliza a 15 dígitos antes de consultar |
+
+```typescript
+// src/utils/deviceId.ts — algoritmo canónico, idéntico en App y Web.
+// Si se modifica aquí, hay que replicarlo en la otra plataforma o los códigos
+// que el agricultor copia desde la app dejarán de encontrarse en la consola.
+
+const DEVICE_ID_LENGTH = 15;
+
+/** Genera un Device ID aleatorio de 15 dígitos (primer dígito 1-9). */
+export const generateDeviceId = (): string => {
+  const bytes = new Uint8Array(DEVICE_ID_LENGTH);
+  crypto.getRandomValues(bytes);            // expo-crypto en React Native
+  let id = String(1 + (bytes[0] % 9));      // primer dígito nunca 0
+  for (let i = 1; i < DEVICE_ID_LENGTH; i++) id += String(bytes[i] % 10);
+  return id;
+};
+
+/** Presenta el ID en bloques legibles: 48213-90574-16628 */
+export const formatDeviceId = (id: string): string =>
+  normalizeDeviceId(id).replace(/(\d{5})(\d{5})(\d{5})/, '$1-$2-$3');
+
+/** Normaliza la entrada del usuario a 15 dígitos crudos. */
+export const normalizeDeviceId = (raw: string): string =>
+  (raw ?? '').replace(/\D/g, '').slice(0, DEVICE_ID_LENGTH);
+
+export const isValidDeviceId = (raw: string): boolean =>
+  new RegExp(`^[1-9]\\d{${DEVICE_ID_LENGTH - 1}}$`).test(normalizeDeviceId(raw));
+```
+
+> [!NOTE]
+> **Por qué aleatorio y no derivado.** Akura deriva su identificador de 10 dígitos aplicando un *hash* al UUID del registro. Para TerraSense se opta por generación aleatoria pura con verificación de unicidad en base de datos: un *hash* de 10 dígitos sobre un espacio de UUID tiene colisiones prácticamente garantizadas por la paradoja del cumpleaños a partir de unos pocos miles de registros, mientras que 15 dígitos aleatorios con restricción `UNIQUE` y reintento no tienen ese problema. **Este es uno de los puntos donde la migración desde Akura no debe copiarse literalmente** *(ver `MIGRACION_AKURA.md`, tarea B4)*.
+
 ---
 
 ## 6.6. Actualización de Firmware Over-The-Air (WiFi OTA)
@@ -1184,7 +1352,7 @@ TerraSense se rige por un marco de cumplimiento normativo multidisciplinario:
 
 | Norma / Estándar | Ámbito de Aplicación | Nivel de Cumplimiento | Método de Verificación en TerraSense |
 | :--- | :--- | :---: | :--- |
-| **IEC 60529** | Estanqueidad Mecánica IP67 | **100% Cumplido** | Envolvente ABS con O-ring de silicona y prensaestopas IP68. |
+| **IEC 60529** | Estanqueidad Mecánica IP67 | **Diseñado — ensayo pendiente** | Envolvente PETG impresa en FDM con sellado intercapa, O-ring de silicona y prensaestopas M12. Requiere ensayo de inmersión 30 min a 1 m antes de declararse cumplido *(ver 5.3.2)*. |
 | **UN 38.3 / IEC 62133**| Seguridad Baterías Li-Ion | **100% Cumplido** | Celdas 18650 certificadas + módulo BMS TP5100 integrado. |
 | **RoHS 2011/65/EU** | Restricción Sustancias Peligrosas | **100% Cumplido** | Fabricación PCB Lead-Free (SAC305) y componentes SMD certificados. |
 | **SUBTEL Res. 1.985** | Radiocomunicaciones Chile | **100% Cumplido** | Emisión BLE a $+9\text{ dBm}$ ($< 100\text{ mW}$ límite legal). |
@@ -1360,7 +1528,8 @@ TerraSence/
 │   ├── TerraSense_v2.kicad_pcb                    # Ruteo de pistas de 2 capas
 │   └── BOM.csv                                    # Lista de materiales para ensamblaje SMT
 ├── Diseño 3D/                                     # Modelado CAD de Carcasas y Empuñaduras
-│   └── Carcasa_IP67_TerraSense.step               # Archivo STEP para inyección/impresión 3D
+│   ├── Carcasa_IP67_TerraSense.step               # Modelo CAD paramétrico (STEP)
+│   └── Carcasa_IP67_TerraSense.3mf                # Perfil de laminado PETG listo para FDM
 └── supabase/                                      # Infraestructura Backend Serverless
     ├── migrations/                                # Esquema de tablas PostGIS y políticas RLS
     └── functions/                                 # Edge Functions para sincronización y reportes
