@@ -22,6 +22,7 @@ import { Colors, Spacing, Typography } from '../constants/theme';
 import { useAppStore } from '../store/useAppStore';
 import { CROPS_DB, SOIL_TEXTURES } from '../engine/agronomyEngine';
 import { supabase } from '../services/supabase';
+import { clearPushToken } from '../services/notifications';
 import type { CropId, SoilTextureId } from '../types/agronomy';
 
 interface Props {
@@ -150,7 +151,10 @@ export const FieldSettingsScreen: React.FC<Props> = ({ onClose, onOpenDevices })
         })}
 
         <TouchableOpacity
-          onPress={() => supabase.auth.signOut()}
+          onPress={async () => {
+            await clearPushToken();
+            await supabase.auth.signOut();
+          }}
           style={[styles.signOut, { borderColor: colors.border }]}
         >
           <Text style={[styles.signOutText, { color: colors.danger }]}>Cerrar sesión</Text>

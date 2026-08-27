@@ -100,6 +100,10 @@ export default () => ({
         'expo-camera',
         { cameraPermission: 'Permite escanear el QR de vinculación del equipo.' },
       ],
+      [
+        'expo-notifications',
+        { icon: './assets/icon.png', color: '#1F5B3F' },
+      ],
     ],
 
     extra: {

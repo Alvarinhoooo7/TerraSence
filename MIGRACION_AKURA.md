@@ -34,7 +34,7 @@
 | **1 · Infraestructura Supabase** | 🟢 Hecho | Proyecto `terrasense` vinculado (São Paulo). PostGIS activo. 8 migraciones aplicadas. |
 | **1 · Infraestructura Vercel** | 🔴 Pendiente | A7–A9, junto con la consola web. |
 | **2 · Base de datos** | 🟢 Hecho | Esquema existente adoptado y ampliado. **RLS abierto corregido** (ver 5.1). RPC de vinculación por código. |
-| **3 · App móvil** | 🟢 Hecho | Mapa, medición, autenticación, equipos, historial, ajustes y enlace BLE. Empaqueta: 1.113 módulos. **El BLE no está probado contra hardware.** |
+| **3 · App móvil** | 🟢 Hecho | Mapa, medición, autenticación, equipos, historial, ajustes, enlace BLE y notificaciones. Empaqueta: 1.251 módulos. **El BLE no está probado contra hardware.** |
 | **4 · Consola web** | 🟢 Núcleo hecho | Login, dashboard de 4 pestañas, búsqueda y visor GIS con IDW. Compila: 78 módulos. **Falta desplegar en Vercel (A7–A9) y OTA (D6b).** |
 | **5 · Edge Functions** | 🟢 Hecho | `device-checkin` y `send-push-alert` desplegadas. Las de dominio médico de Akura, descartadas. |
 
@@ -409,6 +409,10 @@ leer, modificar y borrar todas las filas de todas las tablas, incluida `profiles
 - [x] **C16.** `DevicesScreen` + `deviceService`: alta de equipo, código de 15 dígitos y selección del equipo activo.
 - [x] **C17.** Corrección de dos huecos lógicos del motor rescatado: la rama `WARNING` de temperatura y humedad era código muerto, y `texture.ur` / `texture.cc` estaban definidos sin usarse.
 - [x] **C18.** Soporte de `.env` en la raíz del repositorio además de `App/.env`.
+- [x] **C20.** Registro del token de notificaciones (`notifications.ts`). Cierra la mitad que
+      faltaba del circuito de alertas: `send-push-alert` leía `profiles.push_token` y lo encontraba
+      siempre vacío porque nada en la app lo escribía. Se registra tras iniciar sesión, no al
+      arrancar, y se borra al cerrar sesión para que el teléfono no siga recibiendo avisos ajenos.
 - [x] **C19.** Verificación de empaquetado real con `expo export`, no sólo `tsc`.
 
 ---

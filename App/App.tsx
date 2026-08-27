@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { Session } from '@supabase/supabase-js';
 
 import { supabase } from './src/services/supabase';
+import { registerPushToken } from './src/services/notifications';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { MapScreen } from './src/screens/MapScreen';
 import { MeasureScreen } from './src/screens/MeasureScreen';
@@ -33,6 +34,12 @@ export default function App() {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  // El token se registra tras iniciar sesión, no al arrancar: antes no hay
+  // perfil donde guardarlo y la petición de permiso llegaría sin contexto.
+  useEffect(() => {
+    if (session) void registerPushToken();
+  }, [session]);
 
   // Pantallas pendientes de portar desde Akura (tareas C8 y C9).
   const notImplemented = useCallback((what: string) => {
