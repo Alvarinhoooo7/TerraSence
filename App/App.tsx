@@ -13,10 +13,11 @@ import { MeasureScreen } from './src/screens/MeasureScreen';
 import { FieldSettingsScreen } from './src/screens/FieldSettingsScreen';
 import { DevicesScreen } from './src/screens/DevicesScreen';
 import { HistoryScreen } from './src/screens/HistoryScreen';
+import { PerimeterScreen } from './src/screens/PerimeterScreen';
 import { Colors } from './src/constants/theme';
 import type { MapMeasurementPoint } from './src/types/app';
 
-type Route = 'map' | 'measure' | 'settings' | 'devices' | 'history';
+type Route = 'map' | 'measure' | 'settings' | 'devices' | 'history' | 'perimeter';
 
 export default function App() {
   const isDark = useColorScheme() === 'dark';
@@ -66,6 +67,8 @@ export default function App() {
     content = (
       <HistoryScreen onClose={() => setRoute('map')} onOpenDetail={handleOpenDetail} />
     );
+  } else if (route === 'perimeter') {
+    content = <PerimeterScreen onClose={() => setRoute('map')} />;
   } else if (route === 'devices') {
     content = <DevicesScreen onClose={() => setRoute('map')} />;
   } else if (route === 'measure') {
@@ -75,6 +78,7 @@ export default function App() {
   } else {
     content = (
       <MapScreen
+        onOpenPerimeter={() => setRoute('perimeter')}
         onStartMeasurement={() => setRoute('measure')}
         onOpenSettings={() => setRoute('settings')}
         onOpenList={() => setRoute('history')}

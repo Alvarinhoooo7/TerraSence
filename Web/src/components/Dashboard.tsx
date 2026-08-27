@@ -9,6 +9,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '../services/supabase';
 import { GisHeatmap } from './GisHeatmap';
+import { FirmwareView } from './FirmwareView';
 import type { Device, LabValidationRecord, SoilMeasurement, Verdict } from '../types';
 import { STAGE_LABEL } from '../types';
 import {
@@ -19,7 +20,7 @@ import {
   relativeTime,
 } from '../utils/verdict';
 
-type Tab = 'mediciones' | 'mapa' | 'equipos' | 'validacion';
+type Tab = 'mediciones' | 'mapa' | 'equipos' | 'firmware' | 'validacion';
 
 export function Dashboard({ email }: { email: string }) {
   const [tab, setTab] = useState<Tab>('mediciones');
@@ -100,7 +101,7 @@ export function Dashboard({ email }: { email: string }) {
         </div>
 
         <nav className="mx-auto max-w-7xl px-6 flex gap-1">
-          {(['mediciones', 'mapa', 'equipos', 'validacion'] as Tab[]).map((t) => (
+          {(['mediciones', 'mapa', 'equipos', 'firmware', 'validacion'] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -183,6 +184,8 @@ export function Dashboard({ email }: { email: string }) {
             empty="No hay equipos visibles para esta cuenta."
           />
         )}
+
+        {!loading && tab === 'firmware' && <FirmwareView devices={devices} />}
 
         {!loading && tab === 'validacion' && (
           <>

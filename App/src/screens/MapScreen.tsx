@@ -24,7 +24,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import MapView, { Circle, Marker, PROVIDER_GOOGLE, type Region } from 'react-native-maps';
+import MapView, { Circle, Marker, Polygon, PROVIDER_GOOGLE, type Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 
 import { Colors, Spacing, Typography, VERDICT_META } from '../constants/theme';
@@ -33,6 +33,7 @@ import { StageSelector } from '../components/StageSelector';
 import { FieldPicker } from '../components/FieldPicker';
 import { MeasurementBottomSheet } from '../components/MeasurementBottomSheet';
 import { fetchMeasurements, flushQueue, pendingCount } from '../services/measurementsService';
+import { getPerimeter, type LatLng } from '../services/perimeterService';
 import type { MapMeasurementPoint } from '../types/app';
 
 /** Precisión GPS por encima de la cual se advierte antes de guardar. */
@@ -47,6 +48,7 @@ const FALLBACK_REGION: Region = {
 };
 
 interface Props {
+  onOpenPerimeter: () => void;
   onStartMeasurement: () => void;
   onOpenSettings: () => void;
   onOpenList: () => void;
@@ -54,6 +56,7 @@ interface Props {
 }
 
 export const MapScreen: React.FC<Props> = ({
+  onOpenPerimeter,
   onStartMeasurement,
   onOpenSettings,
   onOpenList,
@@ -86,6 +89,7 @@ export const MapScreen: React.FC<Props> = ({
   // Se pasa a fondo neutro conservando círculos, escala y posición: son capas
   // vectoriales locales y se dibujan siempre.
   const [offline, setOffline] = useState(false);
+  const [perimeter, setPerimeter] = useState<LatLng[]>([]);
 
   const selected = points.find((p) => p.id === selectedPointId) ?? null;
 
@@ -130,6 +134,8 @@ export const MapScreen: React.FC<Props> = ({
       const rows = await fetchMeasurements(fieldName);
       setPoints(rows);
       setOffline(false);
+      const per = await getPerimeter(fieldName);
+      setPerimeter(per?.coordinates ?? []);
     } catch {
       // Sin cobertura: se conservan los puntos ya cargados en memoria y la app
       // sigue siendo plenamente operativa. La nube nunca bloquea la medición.
@@ -178,6 +184,16 @@ export const MapScreen: React.FC<Props> = ({
         toolbarEnabled={false}
         onPress={() => selectPoint(null)}
       >
+        {perimeter.length >= 3 && (
+          <Polygon
+            coordinates={perimeter}
+            fillColor={isDark ? 'rgba(79,183,131,0.10)' : 'rgba(31,91,63,0.10)'}
+            strokeColor={colors.primary}
+            strokeWidth={2}
+            zIndex={0}
+          />
+        )}
+
         {points.map((p) => {
           const meta = VERDICT_META[p.verdict];
           const fill = isDark ? meta.fillDark : meta.fillLight;
@@ -237,6 +253,14 @@ export const MapScreen: React.FC<Props> = ({
 
         <View style={styles.subBar} pointerEvents="box-none">
           <FieldPicker value={fieldName} onChange={setFieldName} colors={colors} />
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Dibujar el perímetro del predio"
+            onPress={onOpenPerimeter}
+            style={[styles.pendingPill, { backgroundColor: colors.mapOverlay, borderWidth: 1, borderColor: colors.border }]}
+          >
+            <Text style={[styles.fieldText, { color: colors.text }]}>⬡ Perímetro</Text>
+          </TouchableOpacity>
           {offline && (
             <View style={[styles.pendingPill, { backgroundColor: colors.secondary }]}>
               <Text style={styles.pendingText}>Modo campo · sin señal</Text>
