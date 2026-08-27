@@ -1192,7 +1192,7 @@ La pantalla principal de la aplicación **es el mapa**, no un panel de cifras. C
 | **Accesibilidad** | El color nunca es el único código: cada círculo lleva icono central *(✓ / ! / ✕)* — WCAG 2.2 AA |
 
 > [!NOTE]
-> **Reutilización directa desde el proyecto Akura.** Esta pantalla no se construye desde cero. El repositorio `Akura` ya implementa el patrón completo —mapa a pantalla completa con `PROVIDER_GOOGLE`, círculos de geocerca con relleno y borde, marcadores personalizados, *bottom sheet* de detalle y barra flotante superior—. La migración está detallada íntegramente en **[`MIGRACION_AKURA.md`](MIGRACION_AKURA.md)**.
+> **Diseño Geoespacial del Mapa:** La vista cartográfica implementa mapa satelital híbrido a pantalla completa con `PROVIDER_GOOGLE`, polígonos prediales vectoriales, marcadores de semáforo con WCAG 2.2 AA, *bottom sheet* de diagnóstico rápido y botón flotante de captura instantánea.
 
 ---
 
@@ -1203,40 +1203,26 @@ La pantalla principal de la aplicación **es el mapa**, no un panel de cifras. C
 
 ---
 
-## 6.3. Plataforma Cloud y Consola Web GIS (Supabase + PostGIS)
+## 6.3. Consola Web de Administración y Gestión de Flota (Backoffice Central)
+
+La plataforma web (**React 19 + Vite 6 + Tailwind 4**) es la **herramienta de control, aprovisionamiento de hardware y soporte técnico del administrador del proyecto (Álvaro)**. No es un portal de agricultores ni una plataforma SaaS con suscripciones de pago (el agricultor opera 100% de forma autónoma y sin costo recurrente desde la app móvil).
 
 ```text
-┌────────────────────────────────────────────────────────┐
-│ 🗺️ VISOR PREDIAL GEOESPACIAL           [ 🎛️ Capas ▼ ] │
-├────────────────────────────────────────────────────────┤
-│ ┌────────────────────────────────────────────────────┐ │
-│ │  🛰️ MAPA SATELITAL PREDIAL (HORTALIZAS)           │ │
-│ │                                                    │ │
-│ │   (P1) 🟢          (P2) 🟢                         │ │
-│ │    pH 6.4           pH 6.6                         │ │
-│ │                                                    │ │
-│ │           (P3) 🟡                                  │ │
-│ │            pH 5.8 [Cal 200 kg]                     │ │
-│ │                                                    │ │
-│ │   (P4) 🔴          (P5) 🟢                         │ │
-│ │    pH 5.1           pH 6.5                         │ │
-│ │    [Salino!]                                       │ │
-│ └────────────────────────────────────────────────────┘ │
-├────────────────────────────────────────────────────────┤
-│ 🎛️ FILTROS ACTIVOS:                                    │
-│ [ Capa: Semáforo Global ▼ ]   [ Fecha: Últimos 30 días ]│
-│                                                        │
-│ 📈 RESUMEN DEL PREDIO:                                 │
-│ • Superficie Muestreada: 3.2 Hectáreas                 │
-│ • Puntos Totales: 18 mediciones georreferenciadas      │
-│ • % Superficie Apta: 78% (2.5 ha) | Enmienda: 22%      │
-│                                                        │
-│       [ 📄 EXPORTAR INFORME TÉCNICO PDF / EXCEL ]      │
-└────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       TERRASENSE · ADMIN CONSOLA WEB                        │
+├──────────────┬──────────────┬──────────────┬──────────────┬─────────────────┤
+│ 📊 MEDICIONES│ 🗺️ MAPA GIS  │ 📡 EQUIPOS   │ ⚡ FIRMWARE  │ 🔬 VALIDACIÓN   │
+│ Telemetría   │ Interpolación│ Salud Flota, │ Releases OTA │ Contraste Lab   │
+│ y Semáforo   │ IDW predial  │ Batería, IDs │ Binarios ESP │ vs Sonda Inox   │
+└──────────────┴──────────────┴──────────────┴──────────────┴─────────────────┘
 ```
 
-* **Motor Geoespacial PostGIS:** Almacenamiento de polígonos prediales vectoriales y puntos muestreados con tipo `GEOMETRY(Point, 4326)`.
-* **Interpolación Espacial:** Algoritmos de **Kriging e IDW** para generar mapas de calor continuo de salinidad, pH y humedad a partir de muestreos discretos.
+### Módulos Principales de la Consola Web:
+1. **📊 Auditoría y Búsqueda de Mediciones:** Vista centralizada de todas las muestras sincronizadas en nube, con filtrado multicriterio (por predio, cultivo, semáforo o código de sonda).
+2. **🗺️ Visor GIS Predial con Interpolación IDW:** Mapeo de calor predial calculado en cliente sobre Canvas HTML5 con algoritmo IDW ($p=2$), sin requerir servicios de mapas de pago ni bloquear el servidor.
+3. **📡 Gestión de Flota y Salud de Hardware:** Control de inventario de sondas activas, asignación de códigos de vinculación de 15 dígitos (*Pairing Codes*), monitoreo del voltaje de batería Li-Ion ($V_{\text{bat}}$), firmware instalado y fecha de última sincronización.
+4. **⚡ Gestión y Despliegue de Firmware OTA:** Carga de binarios compilados de ESP32 (`.bin`), control de versiones semánticas y activación de releases para actualización inalámbrica WiFi OTA.
+5. **🔬 Corpus de Validación Metrológica:** Registro comparativo de lecturas de campo contra informes de laboratorio químico acreditado para verificación continua de KPIs y respaldo en la defensa de título.
 
 ---
 
@@ -1304,7 +1290,7 @@ export const isValidDeviceId = (raw: string): boolean =>
 ```
 
 > [!NOTE]
-> **Por qué aleatorio y no derivado.** Akura deriva su identificador de 10 dígitos aplicando un *hash* al UUID del registro. Para TerraSense se opta por generación aleatoria pura con verificación de unicidad en base de datos: un *hash* de 10 dígitos sobre un espacio de UUID tiene colisiones prácticamente garantizadas por la paradoja del cumpleaños a partir de unos pocos miles de registros, mientras que 15 dígitos aleatorios con restricción `UNIQUE` y reintento no tienen ese problema. **Este es uno de los puntos donde la migración desde Akura no debe copiarse literalmente** *(ver `MIGRACION_AKURA.md`, tarea B4)*.
+> **Por qué aleatorio y no derivado.** Para TerraSense se opta por generación aleatoria pura de 15 dígitos con verificación de unicidad en base de datos (`UNIQUE` constraint) en lugar de hashes de UUID: un hash corto sobre un espacio de UUID tiene colisiones por la paradoja del cumpleaños a partir de unos pocos miles de registros, mientras que 15 dígitos aleatorios ($10^{15}$ combinaciones posibles) eliminan el riesgo de colisión y permiten un formato limpio y humano (`48213-90574-16628`).
 
 ---
 

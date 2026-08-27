@@ -1,4 +1,4 @@
-// src/components/LoginScreen.tsx — adaptado de LoginScreen.tsx de Akura.
+// src/components/LoginScreen.tsx — Pantalla de acceso a la consola de administración TerraSense.
 
 import { useState, type FormEvent } from 'react';
 import { supabase } from '../services/supabase';

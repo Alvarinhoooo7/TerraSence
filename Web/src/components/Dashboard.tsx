@@ -1,7 +1,7 @@
 // src/components/Dashboard.tsx
 //
-// Consola de operaciones: equipos, mediciones y corpus de validación de
-// laboratorio. Adaptado de DeviceDetailView y GlobalSearch de Akura.
+// Consola de administración central de TerraSense: gestión de flota de equipos,
+// telemetría, mapas GIS, firmware OTA y validación metrológica.
 //
 // Lo que se ve aquí lo acota RLS en el servidor: la consola no aplica filtros
 // de seguridad propios, porque un filtro en el cliente no es una defensa.

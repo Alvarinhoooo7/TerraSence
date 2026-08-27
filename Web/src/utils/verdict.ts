@@ -1,7 +1,6 @@
 // src/utils/verdict.ts
 //
-// Semáforo agronómico. Sustituye a `bioclimaticStatus.ts` de Akura,
-// conservando el patrón umbral → color pero con criterio agronómico.
+// Semáforo agronómico: cálculo y asignación de umbrales biológicos y colores.
 //
 // Accesibilidad: cada veredicto expone además `icon` y `label`, porque el
 // color no puede ser el único código de la información (WCAG 2.2 AA).

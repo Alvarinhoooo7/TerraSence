@@ -42,9 +42,8 @@ export default function App() {
     if (session) void registerPushToken();
   }, [session]);
 
-  // Pantallas pendientes de portar desde Akura (tareas C8 y C9).
   const notImplemented = useCallback((what: string) => {
-    Alert.alert(what, 'Pantalla pendiente de portar desde el proyecto Akura.');
+    Alert.alert(what, 'Funcionalidad en desarrollo.');
   }, []);
 
   const handleOpenDetail = useCallback((p: MapMeasurementPoint) => {
