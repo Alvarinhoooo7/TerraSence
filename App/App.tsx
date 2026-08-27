@@ -9,10 +9,11 @@ import { supabase } from './src/services/supabase';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { MapScreen } from './src/screens/MapScreen';
 import { MeasureScreen } from './src/screens/MeasureScreen';
+import { FieldSettingsScreen } from './src/screens/FieldSettingsScreen';
 import { Colors } from './src/constants/theme';
 import type { MapMeasurementPoint } from './src/types/app';
 
-type Route = 'map' | 'measure';
+type Route = 'map' | 'measure' | 'settings';
 
 export default function App() {
   const isDark = useColorScheme() === 'dark';
@@ -50,6 +51,8 @@ export default function App() {
     );
   } else if (!session) {
     content = <AuthScreen onAuthenticated={() => setRoute('map')} />;
+  } else if (route === 'settings') {
+    content = <FieldSettingsScreen onClose={() => setRoute('map')} />;
   } else if (route === 'measure') {
     content = (
       <MeasureScreen onDone={() => setRoute('map')} onCancel={() => setRoute('map')} />
@@ -58,7 +61,7 @@ export default function App() {
     content = (
       <MapScreen
         onStartMeasurement={() => setRoute('measure')}
-        onOpenSettings={() => notImplemented('Ajustes')}
+        onOpenSettings={() => setRoute('settings')}
         onOpenList={() => notImplemented('Historial')}
         onOpenDetail={handleOpenDetail}
       />

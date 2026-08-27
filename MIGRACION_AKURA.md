@@ -344,7 +344,10 @@ alter table public.mediciones  enable row level security;
 - [ ] **C10.** Adaptar `src/types/app.ts` al nuevo modelo de dominio.
 - [ ] **C11.** Añadir el **selector de etapa fenológica** en el flujo de medición (obligatorio, ver Sección 3).
 - [ ] **C12.** Crear `src/engine/` — el motor agronómico. **No existe en Akura: es desarrollo propio.**
-- [ ] **C13.** Implementar la **precarga de teselas** del predio con conectividad (README 6.1.1).
+- [x] **C13.** Implementar la **degradación grácil del mapa sin cobertura** (README 6.1.1).
+      ⚠️ Corregido respecto al plan original: **no se precargan teselas**. Los Términos de
+      Servicio de Google Maps Platform lo prohíben expresamente. El mapa pasa a fondo neutro
+      conservando círculos, escala y posición GPS, que son capas vectoriales locales.
 - [ ] **C14.** Verificar compilación: `npm install && npx expo start`.
 
 ---

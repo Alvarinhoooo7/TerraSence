@@ -79,6 +79,11 @@ export const MapScreen: React.FC<Props> = ({
   const [loading, setLoading] = useState(true);
   const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
+  // Degradación grácil: sin cobertura las teselas satelitales no llegan y NO
+  // pueden precargarse (los Términos de Google Maps Platform lo prohíben).
+  // Se pasa a fondo neutro conservando círculos, escala y posición: son capas
+  // vectoriales locales y se dibujan siempre.
+  const [offline, setOffline] = useState(false);
 
   const selected = points.find((p) => p.id === selectedPointId) ?? null;
 
@@ -122,9 +127,11 @@ export const MapScreen: React.FC<Props> = ({
       if (sent > 0) setPendingCount(await pendingCount());
       const rows = await fetchMeasurements(fieldName);
       setPoints(rows);
+      setOffline(false);
     } catch {
       // Sin cobertura: se conservan los puntos ya cargados en memoria y la app
       // sigue siendo plenamente operativa. La nube nunca bloquea la medición.
+      setOffline(true);
       setPendingCount(await pendingCount());
     } finally {
       setLoading(false);
@@ -160,7 +167,9 @@ export const MapScreen: React.FC<Props> = ({
         provider={PROVIDER_GOOGLE}
         style={StyleSheet.absoluteFillObject}
         initialRegion={FALLBACK_REGION}
-        mapType="hybrid"
+        // Sin cobertura se renuncia a la imagen satelital y se conserva la capa
+        // vectorial, que sí funciona offline. No se cachea nada por nuestra cuenta.
+        mapType={offline ? 'none' : 'hybrid'}
         showsUserLocation={hasLocationPermission}
         showsMyLocationButton={false}
         showsCompass={false}
@@ -230,6 +239,11 @@ export const MapScreen: React.FC<Props> = ({
               📍 {fieldName}
             </Text>
           </View>
+          {offline && (
+            <View style={[styles.pendingPill, { backgroundColor: colors.secondary }]}>
+              <Text style={styles.pendingText}>Modo campo · sin señal</Text>
+            </View>
+          )}
           {pending > 0 && (
             <View style={[styles.pendingPill, { backgroundColor: colors.warning }]}>
               <Text style={styles.pendingText}>{pending} sin sincronizar</Text>

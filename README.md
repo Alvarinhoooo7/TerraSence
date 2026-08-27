@@ -1166,11 +1166,15 @@ La pantalla principal de la aplicación **es el mapa**, no un panel de cifras. C
 | :--- | :--- | :--- |
 | **Posición GPS** | ✅ Funciona íntegramente | El GPS es un receptor pasivo satelital: no requiere red en absoluto |
 | **Círculos y marcadores** | ✅ Se dibujan siempre | Son capas vectoriales locales, independientes de las teselas |
-| **Teselas satelitales** | ⚠️ Sólo las cacheadas | El SDK cachea automáticamente lo ya visto. Se añade **precarga del predio** cuando hay WiFi |
+| **Teselas satelitales** | ⚠️ Sólo las que el SDK conserve en su caché temporal | El SDK gestiona su propia caché; **la aplicación no puede descargarlas ni fijarlas** *(ver recuadro)* |
 | **Medición y veredicto** | ✅ Íntegramente offline | El motor corre local *(Sección 6.2)* |
 
 > [!IMPORTANT]
-> **Flujo obligatorio de precarga.** Al dar de alta un predio con conectividad, la app descarga y fija en caché las teselas de su perímetro. En terreno, el mapa se muestra desde caché con los círculos de medición encima. Si no hay teselas cacheadas, **el mapa degrada a fondo neutro con los círculos y la escala visibles** — nunca se bloquea la medición por falta de mapa. Esto es coherente con el principio de degradación grácil del proyecto.
+> **Restricción legal: no se pueden precargar teselas de Google.** Los Términos de Servicio de Google Maps Platform **prohíben expresamente descargar, almacenar o precargar masivamente el contenido de los mapas** para uso sin conexión. El SDK mantiene su propia caché temporal, opaca y no controlable por la aplicación. Cualquier implementación que descargue teselas para el modo campo incumpliría el contrato y expondría el proyecto a la revocación de la clave de API.
+>
+> **Comportamiento real implementado — degradación grácil.** Sin cobertura, la app conserva plena funcionalidad y **el mapa degrada a fondo neutro conservando visibles los círculos de medición, la escala y la posición GPS**. Los círculos son capas vectoriales locales: se dibujan siempre, haya teselas o no. La medición, el veredicto y el guardado en cola **nunca dependen del mapa**.
+>
+> Si en el futuro se exige imagen satelital sin conexión, la vía conforme es **cambiar de proveedor de teselas** —un servicio cuya licencia permita el uso sin conexión, o teselas propias autoalojadas— y no eludir los términos de Google.
 
 ### Especificación Funcional del Mapa
 
