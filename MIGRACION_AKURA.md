@@ -75,7 +75,7 @@ mapa a pantalla completa y una consola web de soporte.
 - [ ] **S4.** Establecer **cuotas y alertas de facturación** en el proyecto de Google Cloud.
 - [ ] **S5.** En TerraSense, la clave **nunca** va en `app.json` versionado: se inyecta desde variable de entorno
       (`EXPO_PUBLIC_GOOGLE_MAPS_API_KEY`) mediante `app.config.js`.
-- [ ] **S6.** Verificar que `.gitignore` cubre `.env`, `.env.local` y `*.keystore` antes del primer commit.
+- [x] **S6.** Verificar que `.gitignore` cubre `.env`, `.env.local` y `*.keystore` antes del primer commit.
 
 ```javascript
 // App/app.config.js — sustituye a app.json para permitir variables de entorno
@@ -167,7 +167,7 @@ Esta tabla es la referencia para renombrar durante todo el proceso.
 
 > Ambos CLI ya están instalados. Estas tareas requieren las credenciales del entorno local.
 
-- [ ] **A1.** Crear el proyecto Supabase.
+- [x] **A1.** Crear el proyecto Supabase.
   ```bash
   supabase login
   supabase projects create terrasense --org-id <TU_ORG_ID> --region sa-east-1
@@ -175,19 +175,19 @@ Esta tabla es la referencia para renombrar durante todo el proceso.
   # y argumento favorable para la transferencia internacional de datos (§12.5 del README)
   ```
 
-- [ ] **A2.** Inicializar y vincular el proyecto local.
+- [x] **A2.** Inicializar y vincular el proyecto local.
   ```bash
   cd C:/Users/alvar/TerraSence
   supabase init
   supabase link --project-ref <PROJECT_REF>
   ```
 
-- [ ] **A3.** Habilitar PostGIS, requerido por el mapa predial.
+- [x] **A3.** Habilitar PostGIS, requerido por el mapa predial.
   ```sql
   create extension if not exists postgis;
   ```
 
-- [ ] **A4.** Copiar y adaptar las migraciones de Akura (ver FASE B), y aplicarlas.
+- [x] **A4.** Copiar y adaptar las migraciones de Akura (ver FASE B), y aplicarlas.
   ```bash
   supabase db push
   ```
@@ -227,18 +227,18 @@ Esta tabla es la referencia para renombrar durante todo el proceso.
 
 ## 5. FASE B — Esquema de Base de Datos
 
-- [ ] **B1.** Copiar `supabase/migrations/20260820000000_initial_schema.sql` de Akura como base y traducir
+- [x] **B1.** Copiar `supabase/migrations/20260820000000_initial_schema.sql` de Akura como base y traducir
       los nombres según la Sección 3.
-- [ ] **B2.** Consolidar las 24 migraciones de Akura en **una sola migración inicial limpia**. Akura acumula
+- [x] **B2.** Consolidar las 24 migraciones de Akura en **una sola migración inicial limpia**. Akura acumula
       correcciones sucesivas (`fix_`, `harden_`, `comprehensive_`) que no tiene sentido replicar: interesa el
       **estado final**, no el camino.
-- [ ] **B3.** Añadir las tablas propias del dominio agronómico.
-- [ ] **B4.** ⚠️ **Reescribir la generación de Device ID.** No portar `formatDeviceId` de Akura: deriva 10 dígitos
+- [x] **B3.** Añadir las tablas propias del dominio agronómico.
+- [x] **B4.** ⚠️ **Reescribir la generación de Device ID.** No portar `formatDeviceId` de Akura: deriva 10 dígitos
       por *hash* de UUID y tiene colisiones garantizadas por la paradoja del cumpleaños. TerraSense usa
       **15 dígitos aleatorios con restricción `UNIQUE`** — algoritmo canónico en la Sección 6.5.1 del README.
-- [ ] **B5.** Replicar las políticas RLS con la nueva nomenclatura y **auditar cada una**: es el punto donde un
+- [x] **B5.** Replicar las políticas RLS con la nueva nomenclatura y **auditar cada una**: es el punto donde un
       renombrado descuidado abre acceso entre inquilinos.
-- [ ] **B6.** Crear índice geoespacial GiST sobre la columna de geometría.
+- [x] **B6.** Crear índice geoespacial GiST sobre la columna de geometría.
 
 ```sql
 -- Núcleo del esquema TerraSense adaptado desde Akura
@@ -312,43 +312,43 @@ alter table public.mediciones  enable row level security;
 
 ## 6. FASE C — Migración de la App Móvil
 
-- [ ] **C1.** Copiar el andamiaje base de `App/`.
+- [x] **C1.** Copiar el andamiaje base de `App/`.
   ```bash
   cd C:/Users/alvar/TerraSence
   cp -r ../Akura/App ./App
   rm -rf App/node_modules App/.expo App/app.json
   # app.json se sustituye por app.config.js (tarea S5)
   ```
-- [ ] **C2.** Actualizar identidad en `app.config.js`: `name: "TerraSense"`, `slug: "terrasense"`,
+- [x] **C2.** Actualizar identidad en `app.config.js`: `name: "TerraSense"`, `slug: "terrasense"`,
       `package: "cl.terrasense.app"`, iconos y splash propios.
-- [ ] **C3.** Ajustar permisos Android: mantener BLE, ubicación y cámara; **retirar
+- [x] **C3.** Ajustar permisos Android: mantener BLE, ubicación y cámara; **retirar
       `ACCESS_BACKGROUND_LOCATION`** — TerraSense mide bajo demanda y no rastrea en segundo plano.
       Es además el permiso que Google Play somete a revisión manual, y evitarlo acelera la publicación
       y reduce la exposición bajo la Ley 21.719.
-- [ ] **C4.** Adaptar `src/constants/theme.ts`: sustituir la paleta teal/coral de Akura por la paleta
+- [x] **C4.** Adaptar `src/constants/theme.ts`: sustituir la paleta teal/coral de Akura por la paleta
       agronómica de TerraSense, conservando la estructura de tokens y el soporte de tema claro/oscuro.
-- [ ] **C5.** **Portar `DashboardScreen.tsx` como pantalla principal del mapa.** Es la tarea central:
+- [x] **C5.** **Portar `DashboardScreen.tsx` como pantalla principal del mapa.** Es la tarea central:
   * Sustituir el marcador único del adulto mayor por **N marcadores de medición**.
   * Reemplazar el color fijo de zona segura por el **color del semáforo** de cada medición.
   * Radio: usar `medicion.radio_m` (20 m por defecto) en lugar de `zone.radiusMeters`.
   * Añadir el **botón flotante «Medir ahora»** centrado en la parte inferior.
   * Cambiar el tipo de mapa a `hybrid` (satelital con etiquetas).
   * Añadir el **icono central** en cada círculo (✓ / ! / ✕) por accesibilidad WCAG 2.2 AA.
-- [ ] **C6.** Adaptar `ElderBottomSheet.tsx` → `MedicionBottomSheet.tsx`: la burbuja de detalle debe
+- [x] **C6.** Adaptar `ElderBottomSheet.tsx` → `MedicionBottomSheet.tsx`: la burbuja de detalle debe
       mostrar etapa fenológica, antigüedad, los 7 parámetros y el veredicto resumido.
-- [ ] **C7.** Portar `AuthScreen.tsx` prácticamente sin cambios: sólo textos, marca y paleta.
+- [x] **C7.** Portar `AuthScreen.tsx` prácticamente sin cambios: sólo textos, marca y paleta.
       **Es el mayor ahorro de la migración.**
 - [ ] **C8.** Adaptar `SafeZonesScreen.tsx` → gestión de predios y su perímetro.
 - [ ] **C9.** Portar `DevicePairingScreen.tsx`, `QRScannerScreen.tsx` y `QRShareScreen.tsx`;
       cambiar los UUID de servicio BLE por los de TerraSense (Sección 5.5 del README) y el ID a 15 dígitos.
-- [ ] **C10.** Adaptar `src/types/app.ts` al nuevo modelo de dominio.
-- [ ] **C11.** Añadir el **selector de etapa fenológica** en el flujo de medición (obligatorio, ver Sección 3).
-- [ ] **C12.** Crear `src/engine/` — el motor agronómico. **No existe en Akura: es desarrollo propio.**
+- [x] **C10.** Adaptar `src/types/app.ts` al nuevo modelo de dominio.
+- [x] **C11.** Añadir el **selector de etapa fenológica** en el flujo de medición (obligatorio, ver Sección 3).
+- [x] **C12.** Crear `src/engine/` — el motor agronómico. **No existe en Akura: es desarrollo propio.**
 - [x] **C13.** Implementar la **degradación grácil del mapa sin cobertura** (README 6.1.1).
       ⚠️ Corregido respecto al plan original: **no se precargan teselas**. Los Términos de
       Servicio de Google Maps Platform lo prohíben expresamente. El mapa pasa a fondo neutro
       conservando círculos, escala y posición GPS, que son capas vectoriales locales.
-- [ ] **C14.** Verificar compilación: `npm install && npx expo start`.
+- [x] **C14.** Verificar compilación: `npm install && npx expo start`.
 
 ---
 
@@ -421,20 +421,20 @@ VITE_GOOGLE_MAPS_API_KEY=<clave-nueva-restringida>
 - [ ] S5–S6 · `app.config.js` + `.gitignore` verificado
 
 **Bloque 1 — Infraestructura**
-- [ ] A1–A3 · Proyecto Supabase creado, vinculado, con PostGIS
+- [x] A1–A3 · Proyecto Supabase creado, vinculado, con PostGIS
 - [ ] A7–A9 · Vercel vinculado y primer despliegue
 
 **Bloque 2 — Datos**
-- [ ] B1–B3 · Esquema traducido y aplicado
-- [ ] B4 · Device ID de 15 dígitos implementado
-- [ ] B5–B6 · RLS auditada e índice GiST creado
+- [x] B1–B3 · Esquema traducido y aplicado
+- [x] B4 · Device ID de 15 dígitos implementado
+- [x] B5–B6 · RLS auditada e índice GiST creado
 
 **Bloque 3 — App móvil**
-- [ ] C1–C4 · Andamiaje, identidad, permisos y tema
-- [ ] C5–C6 · **Mapa principal y burbuja de detalle** ⭐
+- [x] C1–C4 · Andamiaje, identidad, permisos y tema
+- [x] C5–C6 · **Mapa principal y burbuja de detalle** ⭐
 - [ ] C7–C10 · Autenticación, predios, emparejamiento y tipos
-- [ ] C11 · Selector de etapa fenológica
-- [ ] C12 · Motor agronómico (desarrollo propio)
+- [x] C11 · Selector de etapa fenológica
+- [x] C12 · Motor agronómico (desarrollo propio)
 - [ ] C13–C14 · Precarga de teselas y compilación verificada
 
 **Bloque 4 — Web y backend**
