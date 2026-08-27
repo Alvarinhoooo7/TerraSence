@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-terra-bg: #0d1512;
+  --color-terra-surface: #16211c;
+  --color-terra-border: #28352f;
+  --color-terra-primary: #4fb783;
+  --color-terra-text: #e4eae6;
+  --color-terra-muted: #9daca6;
+  --color-verdict-green: #58b87c;
+  --color-verdict-amber: #d6a044;
+  --color-verdict-red: #e07463;
+}
+
+html, body, #root { height: 100%; }
+body {
+  background: var(--color-terra-bg);
+  color: var(--color-terra-text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+/* Los números de las tablas deben alinearse en columna. */
+.tabular { font-variant-numeric: tabular-nums; }

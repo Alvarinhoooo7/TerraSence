@@ -35,7 +35,7 @@
 | **1 · Infraestructura Vercel** | 🔴 Pendiente | A7–A9, junto con la consola web. |
 | **2 · Base de datos** | 🟢 Hecho | Esquema existente adoptado y ampliado. **RLS abierto corregido** (ver 5.1). RPC de vinculación por código. |
 | **3 · App móvil** | 🟢 Núcleo hecho | Mapa, medición, autenticación, equipos, historial, ajustes. Empaqueta: 1.102 módulos. **Falta BLE real (C9).** |
-| **4 · Consola web** | 🔴 Pendiente | D1–D8 sin empezar. |
+| **4 · Consola web** | 🟡 Base hecha | Login, dashboard de 3 pestañas y búsqueda. Compila: 77 módulos. **Falta desplegar en Vercel, el visor GIS (D7) y OTA (D6b).** |
 | **5 · Edge Functions** | 🔴 Pendiente | E1–E4 sin empezar. |
 
 ### Lo que realmente falta, por orden
@@ -44,7 +44,7 @@
 2. **Variables de entorno** · Faltan las tres claves en el `.env` (ver sección 10). Sin ellas la app arranca pero no conecta.
 3. **C9** · Emparejamiento BLE real con `react-native-ble-plx`. Requiere hardware.
 4. **C8** · Gestión de predios múltiples con perímetro. Hoy hay un solo predio por nombre.
-5. **D1–D8** · Consola web.
+5. **A7–A9 + D7** · Desplegar la consola en Vercel y añadir el visor GIS con mapas de calor.
 6. **E1–E4** · Edge Functions.
 7. **Confirmar la ficha de la sonda** con el vendedor (README §5.3.1) antes de cerrar el driver Modbus.
 
@@ -413,15 +413,15 @@ leer, modificar y borrar todas las filas de todas las tablas, incluida `profiles
 
 ## 7. FASE D — Migración de la Consola Web
 
-- [ ] **D1.** Copiar `Web/` y limpiar `node_modules`.
-- [ ] **D2.** Sustituir `AkuraLogo.tsx` por el logotipo de TerraSense.
-- [ ] **D3.** Portar `LoginScreen.tsx` con la nueva marca.
-- [ ] **D4.** Adaptar `DeviceDetailView.tsx` → vista de predio con histórico de mediciones.
-- [ ] **D5.** Adaptar `utils/bioclimaticStatus.ts` → `semaforoAgronomico.ts`, reutilizando el patrón de
-      umbrales → color.
-- [ ] **D6.** Portar `OtaFirmwareModal.tsx` y `GlobalSearch.tsx` (búsqueda por Device ID de 15 dígitos).
+- [x] **D1.** Andamiaje Vite + React 19 + Tailwind 4 creado y compilando.
+- [x] **D2.** Identidad TerraSense aplicada (paleta agronómica y título propios).
+- [x] **D3.** `LoginScreen` con inicio de sesión y recuperación de contraseña.
+- [x] **D4.** `Dashboard` con tres pestañas: mediciones, equipos y validación de laboratorio.
+- [x] **D5.** `utils/verdict.ts` sustituye a `bioclimaticStatus.ts`, con icono y etiqueta además del color.
+- [x] **D6a.** Búsqueda por predio, cultivo, veredicto y código de equipo.
+- [ ] **D6b.** `OtaFirmwareModal`: gestión de firmware OTA. Depende de que exista firmware que desplegar.
 - [ ] **D7.** Añadir el **visor GIS con mapas de calor IDW** — desarrollo propio, no existe en Akura.
-- [ ] **D8.** Revisar las capturas de `Web/Referencias UI/` como referencia del diseño aprobado.
+- [ ] **D8.** Revisar las capturas de `Web/Referencias UI/` de Akura para afinar el diseño.
 
 ---
 
