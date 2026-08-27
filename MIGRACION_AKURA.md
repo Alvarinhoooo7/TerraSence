@@ -46,7 +46,8 @@
 4. **C8** · Gestión de predios múltiples con perímetro. Hoy hay un solo predio por nombre.
 5. **A7–A9** · Desplegar la consola en Vercel. **Requiere `vercel login` interactivo: el CLI se queda esperando entrada y no puede completarse de forma automática.**
 6. **D6b** · Gestión de firmware OTA en la consola.
-7. **Confirmar la ficha de la sonda** con el vendedor (README §5.3.1) antes de cerrar el driver Modbus.
+7. **SMTP propio** · Necesario para que los correos de recuperación usen la marca TerraSense y lleguen de verdad (ver A5).
+8. **Confirmar la ficha de la sonda** con el vendedor (README §5.3.1) antes de cerrar el driver Modbus.
 
 ---
 
@@ -216,11 +217,15 @@ Esta tabla es la referencia para renombrar durante todo el proceso.
   supabase db push
   ```
 
-- [ ] **A5.** Copiar las plantillas de correo y personalizarlas con la marca TerraSense.
-  ```bash
-  cp -r ../Akura/supabase/templates ./supabase/templates
-  # Editar recovery.html y confirmation.html: logo, colores, textos
-  ```
+- [x] **A5.** Plantillas `recovery.html` y `confirmation.html` reescritas con la marca TerraSense
+      (paleta agronómica, HTML de tabla compatible con clientes de correo).
+      ⚠️ **Bloqueadas por el plan de Supabase**, no por el código:
+      `400: Email template modification is not available for free tier projects using the default
+      email provider.` Quedan comentadas en `config.toml` porque activarlas hace fallar cualquier
+      `supabase config push` posterior. Para usarlas: configurar SMTP propio (Resend o SendGrid
+      tienen plan gratuito) y descomentar, o pegarlas a mano en el panel.
+      **Recomendado el SMTP propio:** el remitente por defecto de Supabase tiene límite de envíos y
+      baja entregabilidad, lo que en producción significa correos de recuperación que no llegan.
 
 - [ ] **A6.** Configurar Authentication en el panel: proveedor de correo, URL de redirección
       de recuperación de contraseña y plantillas personalizadas.

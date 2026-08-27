@@ -406,3 +406,32 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 # declarative_schema_path = "./database"
 # JSON string passed through to pg-delta SQL formatting.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PLANTILLAS DE CORREO DE TERRASENSE — DESACTIVADAS A PROPOSITO
+# ─────────────────────────────────────────────────────────────────────────────
+# Las plantillas existen en supabase/templates/ y estan listas para usarse,
+# pero quedan comentadas porque el plan gratuito de Supabase las rechaza:
+#
+#   400: "Email template modification is not available for free tier projects
+#         using the default email provider. Please upgrade your plan or
+#         configure a custom SMTP provider."
+#
+# Dejarlas activas haria fallar CUALQUIER `supabase config push` posterior.
+#
+# Para activarlas hay dos vias:
+#   1. Configurar SMTP propio (Resend o SendGrid tienen plan gratuito) en
+#      Authentication > SMTP Settings, y descomentar este bloque.
+#   2. Pegar el HTML a mano en Authentication > Email Templates del panel.
+#
+# Recomendada la 1: el remitente por defecto de Supabase tiene limite de envios
+# y baja entregabilidad, lo que en produccion se traduce en correos de
+# recuperacion que no llegan.
+#
+# [auth.email.template.recovery]
+# subject = "Restablecer tu contraseña de TerraSense"
+# content_path = "./supabase/templates/recovery.html"
+#
+# [auth.email.template.confirmation]
+# subject = "Confirma tu cuenta de TerraSense"
+# content_path = "./supabase/templates/confirmation.html"
