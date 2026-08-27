@@ -1,0 +1,13 @@
+-- MARCADOR DE LÍNEA BASE — NO CONTIENE DDL
+--
+-- Esta migración ya estaba aplicada en el proyecto remoto (bjmhjatykqccksddgtmo)
+-- antes de vincular este repositorio con el CLI. Se crea este archivo vacío
+-- únicamente para que el historial local coincida con el remoto y `supabase db
+-- push` pueda aplicar las migraciones nuevas.
+--
+-- El esquema que estas migraciones crearon (devices, device_members, profiles,
+-- soil_measurements, predial_quadrants, lab_validation_records, push_alerts,
+-- admin_support_users) se conserva intacto: la estrategia adoptada es ADITIVA.
+--
+-- ⚠️ Si algún día se reconstruye la base desde cero, estas migraciones NO
+--    recrearán el esquema. Habría que exportarlo antes con `supabase db dump`.
