@@ -36,7 +36,7 @@
 | **2 · Base de datos** | 🟢 Hecho | Esquema existente adoptado y ampliado. **RLS abierto corregido** (ver 5.1). RPC de vinculación por código. |
 | **3 · App móvil** | 🟢 Núcleo hecho | Mapa, medición, autenticación, equipos, historial, ajustes. Empaqueta: 1.102 módulos. **Falta BLE real (C9).** |
 | **4 · Consola web** | 🟢 Núcleo hecho | Login, dashboard de 4 pestañas, búsqueda y visor GIS con IDW. Compila: 78 módulos. **Falta desplegar en Vercel (A7–A9) y OTA (D6b).** |
-| **5 · Edge Functions** | 🔴 Pendiente | E1–E4 sin empezar. |
+| **5 · Edge Functions** | 🟡 Parcial | `device-checkin` desplegada y probada. **Falta el despacho de notificaciones push (E2).** |
 
 ### Lo que realmente falta, por orden
 
@@ -45,7 +45,7 @@
 3. **C9** · Emparejamiento BLE real con `react-native-ble-plx`. Requiere hardware.
 4. **C8** · Gestión de predios múltiples con perímetro. Hoy hay un solo predio por nombre.
 5. **A7–A9** · Desplegar la consola en Vercel. **Requiere `vercel login` interactivo: el CLI se queda esperando entrada y no puede completarse de forma automática.**
-6. **E1–E4** · Edge Functions.
+6. **E2** · Despacho efectivo de notificaciones push.
 7. **Confirmar la ficha de la sonda** con el vendedor (README §5.3.1) antes de cerrar el driver Modbus.
 
 ---
@@ -431,10 +431,13 @@ leer, modificar y borrar todas las filas de todas las tablas, incluida `profiles
 
 ## 8. FASE E — Firmware y Edge Functions
 
-- [ ] **E1.** Adaptar la Edge Function `device-checkin` para recibir la trama de 7 parámetros.
-- [ ] **E2.** Adaptar `send-push-alert` para alertas agronómicas.
-- [ ] **E3.** Descartar `contextual-fall-ai`, `medical-card` y `send-caregiver-approval-push`
-      (o adaptar la última al flujo de aprobación de operadores).
+- [x] **E1.** Edge Function `device-checkin` **desplegada y probada en producción**. Recibe la trama
+      de 7 parámetros de suelo, actualiza el estado del equipo y genera alerta automática ante
+      veredicto rojo. Autentica por `device_code`, que no es un secreto fuerte: por eso exige que el
+      equipo exista y esté activo, y devuelve el mismo mensaje genérico tanto si el código no existe
+      como si está inactivo, para no filtrar códigos válidos.
+- [ ] **E2.** `send-push-alert`: despacho efectivo de la notificación. Las alertas ya se **generan** en `device-checkin`; falta enviarlas al teléfono.
+- [x] **E3.** Descartadas `contextual-fall-ai`, `medical-card` y `send-caregiver-approval-push`: dominio médico sin equivalente agronómico.
 - [ ] **E4.** El firmware de TerraSense es propio: Akura usa nRF9160 celular, no ESP32 con BLE.
       **Reutilizable sólo el patrón de check-in y OTA, no el código.**
 
