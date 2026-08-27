@@ -1464,18 +1464,52 @@ ARQUITECTURA DE MANTENIMIENTO Y ALMACENAMIENTO POSTGRESQL / POSTGIS
 
 ## 9.3. Guía de Puesta en Marcha y Entornos de Desarrollo
 
-### 9.3.1. Aplicación Móvil (React Native / Expo / TypeScript)
+### 9.3.0. Requisito previo: variables de entorno
+
+Sin esto la app y la consola arrancan, pero no conectan con la base de datos.
+
+```bash
+# Un solo archivo en la raíz sirve a la app móvil, a la consola y al CLI.
+cp App/.env.example .env
+```
+
+| Variable | Dónde obtenerla |
+| :--- | :--- |
+| `EXPO_PUBLIC_SUPABASE_URL` | `https://bjmhjatykqccksddgtmo.supabase.co` |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Panel de Supabase → *Project Settings* → *API* |
+| `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` | Google Cloud Console. **Clave nueva y restringida por paquete + SHA-1, sólo *Maps SDK for Android*** |
+| `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` | Los mismos valores, para la consola web (`Web/.env`) |
+
+> [!WARNING]
+> No reutilizar la clave de Google Maps del proyecto Akura: quedó expuesta en un repositorio público y debe considerarse comprometida.
+
+### 9.3.1. Aplicación Móvil (React Native / Expo 54 / TypeScript)
 ```bash
 cd App
 npm install
-npx expo start
+npx expo start          # desarrollo
+npm run type-check      # verificación de tipos
+npx expo export --platform android   # verifica que el paquete compila de verdad
 ```
 
-### 9.3.2. Consola Web Agronómica (React 18 / Vite)
+> [!NOTE]
+> **El enlace BLE exige compilación nativa.** Expo Go no incluye `react-native-ble-plx`, así que allí la lectura de sonda degrada a datos simulados, marcados con una bandera visible en pantalla. Para probar contra la sonda real hace falta una *development build*: `npx expo run:android`.
+
+### 9.3.2. Consola Web Agronómica (React 19 / Vite 6 / Tailwind 4)
 ```bash
 cd Web
 npm install
-npm run dev
+npm run dev             # desarrollo
+npm run build           # compilación de producción
+```
+
+### 9.3.2b. Base de datos y funciones (Supabase CLI)
+```bash
+supabase link --project-ref bjmhjatykqccksddgtmo
+supabase db push                              # aplica migraciones
+supabase functions deploy device-checkin      # telemetría del equipo
+supabase functions deploy send-push-alert     # despacho de alertas
+supabase gen types typescript --linked        # tipos desde el esquema real
 ```
 
 ### 9.3.3. Firmware del Microcontrolador (ESP32 / PlatformIO / Arduino)
@@ -1502,21 +1536,41 @@ TerraSence/
 │   ├── ESPECIFICACIONES_CONCEPTUALES_Y_FILOSOFIA.md # Filosofía, arquitectura hardware/software y RNF
 │   ├── MARCO_NORMATIVO_Y_ESTANDARES.md            # IEC 60529, UN 38.3, RoHS, SUBTEL, ISO, GDPR/Ley 19.628
 │   └── CRITERIOS_EFICIENCIA_ENERGETICA_Y_DIGITALIZACION.md # Power Gating 0.0µA, balance de energía y GIS AFC
-├── App/                                           # Aplicación Móvil React Native (Expo + TypeScript)
-│   ├── App.tsx                                    # Componente raíz: máquina de estados y navegación
-│   ├── tsconfig.json                              # Configuración TypeScript estricta
-│   ├── app.json                                   # Configuración de permisos BLE, GPS y red
+├── MIGRACION_AKURA.md                             # Plan de migración y estado real de cada tarea
+├── App/                                           # Aplicación Móvil (Expo 54 + React Native + TypeScript)
+│   ├── App.tsx                                    # Raíz: puerta de autenticación y navegación
+│   ├── app.config.js                              # Permisos y claves por variable de entorno (sin secretos)
 │   ├── src/
-│   │   ├── engine/                                # Motor Agronómico: reglas, cultivos, enmiendas
-│   │   ├── services/                              # Bluetooth BLE, GPS, Open-Meteo, Supabase Sync
-│   │   ├── screens/                               # Pantallas: Radar, Semáforo, Cultivos, Mapa
-│   │   └── types/                                 # Interfaces y tipos de datos del sistema
-│   └── package.json                               # Dependencias de la app móvil
-├── Web/                                           # Consola Web Agronómica (React 18 + Vite + GIS)
-│   ├── src/
-│   │   ├── components/                            # Visor satelital PostGIS, heatmaps, panel soporte
-│   │   └── pages/                                 # Gestión predial y administración de dispositivos
-│   └── package.json                               # Dependencias web
+│   │   ├── engine/
+│   │   │   ├── agronomyEngine.ts                  # Motor de reglas: 8 cultivos y 4 texturas de suelo
+│   │   │   └── stageEvaluator.ts                  # Capa de etapa fenológica sobre el motor base
+│   │   ├── screens/
+│   │   │   ├── MapScreen.tsx                      # PANTALLA PRINCIPAL: mapa satelital con círculos
+│   │   │   ├── MeasureScreen.tsx                  # Captura, diagnóstico y guardado
+│   │   │   ├── AuthScreen.tsx                     # Registro, sesión y recuperación de contraseña
+│   │   │   ├── HistoryScreen.tsx                  # Mediciones en lista, por día y etapa
+│   │   │   ├── DevicesScreen.tsx                  # Alta de equipo y código de 15 dígitos
+│   │   │   └── FieldSettingsScreen.tsx            # Predio, cultivo objetivo y textura
+│   │   ├── components/
+│   │   │   ├── StageSelector.tsx                  # Etapa fenológica: contexto del diagnóstico
+│   │   │   ├── FieldPicker.tsx                    # Selección y alta de predios
+│   │   │   └── MeasurementBottomSheet.tsx         # Burbuja de detalle del punto
+│   │   ├── services/
+│   │   │   ├── bleService.ts                      # Enlace BLE con la sonda
+│   │   │   ├── probeService.ts                    # Decodificación de la trama de 16 bytes
+│   │   │   ├── measurementsService.ts             # Cola offline idempotente (store & forward)
+│   │   │   ├── deviceService.ts                   # Equipos y vinculación por código
+│   │   │   ├── fieldsService.ts                   # Predios
+│   │   │   └── notifications.ts                   # Registro del token de notificaciones
+│   │   └── utils/deviceId.ts                      # Device ID de 15 dígitos
+│   └── package.json
+├── Web/                                           # Consola Agronómica (React 19 + Vite 6 + Tailwind 4)
+│   ├── src/components/
+│   │   ├── Dashboard.tsx                          # Mediciones, equipos y validación de laboratorio
+│   │   ├── GisHeatmap.tsx                         # Mapa de calor predial por interpolación IDW
+│   │   └── LoginScreen.tsx                        # Acceso y recuperación de contraseña
+│   ├── vercel.json                                # Configuración de despliegue
+│   └── package.json
 ├── Firmware/                                      # Firmware C++ para microcontrolador ESP32
 │   ├── src/
 │   │   ├── main.cpp                               # Máquina de estados principal y bucle de eventos
@@ -1535,8 +1589,12 @@ TerraSence/
 │   ├── Carcasa_IP67_TerraSense.step               # Modelo CAD paramétrico (STEP)
 │   └── Carcasa_IP67_TerraSense.3mf                # Perfil de laminado PETG listo para FDM
 └── supabase/                                      # Infraestructura Backend Serverless
-    ├── migrations/                                # Esquema de tablas PostGIS y políticas RLS
-    └── functions/                                 # Edge Functions para sincronización y reportes
+    ├── migrations/                                # Esquema PostGIS, políticas RLS y auditoría
+    ├── functions/
+    │   ├── device-checkin/                        # Telemetría del equipo y alerta automática
+    │   └── send-push-alert/                       # Despacho de alertas por Expo Push
+    ├── templates/                                 # Correos de recuperación y confirmación
+    └── config.toml                                # Configuración del proyecto
 ```
 
 ---
