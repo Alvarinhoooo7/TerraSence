@@ -53,6 +53,12 @@ export interface MetricDetail {
   unit: string;
   status: 'OPTIMAL' | 'WARNING' | 'CRITICAL';
   msg: string;
+  /** true cuando la sonda no mide la variable, sino que la deriva de la conductividad. */
+  derived?: boolean;
+  /** 'LOW' cuando una condición del suelo compromete la validez de la lectura. */
+  confidence?: 'HIGH' | 'LOW';
+  /** Motivo de la baja confianza, redactado para mostrarse al usuario. */
+  confidenceNote?: string;
 }
 
 export interface AgronomicEvaluation {

@@ -137,6 +137,55 @@ export const SOIL_TEXTURES: Record<SoilTextureId, SoilTexture> = {
   }
 };
 
+/**
+ * Umbral de conductividad sobre el cual la calibración de fábrica de la sonda deja
+ * de ser válida y la estimación de NPK se contamina con iones no nutritivos.
+ * 1.000 µS/cm = 1,0 dS/m.
+ */
+export const EC_UMBRAL_CONFIANZA_NPK = 1000;
+
+/** Lecturas de NPK (mg/kg) a partir de las cuales el valor se considera "alto". */
+const NPK_REF_ALTO = { nitrogen: 100, phosphorus: 60, potassium: 200 };
+
+/**
+ * Regla de veto cruzado por salinidad.
+ *
+ * Las sondas de bajo costo no miden N, P y K con electrodos ion-selectivos: miden
+ * conductividad eléctrica y derivan los tres valores por regresión. El sensor no
+ * distingue el nitrógeno del sodio, el calcio o el hierro, de modo que en un suelo
+ * salino una lectura alta de NPK puede reflejar sal y no fertilidad.
+ *
+ * Cuando la EC supera el umbral de validez de la calibración y además el NPK reporta
+ * valores altos, se degrada la confianza de las tres lecturas en lugar de presentarlas
+ * como si fuesen medidas directas.
+ *
+ * No incrementa severityScore a propósito: la salinidad ya penaliza el veredicto en la
+ * regla de EC, y contarla dos veces sesgaría el semáforo. Esto advierte sobre la validez
+ * del dato, no añade un diagnóstico agronómico.
+ */
+export function vetoCruzadoSalinidad(
+  ec: number,
+  nitrogen: number,
+  phosphorus: number,
+  potassium: number
+): { activo: boolean; nota: string } {
+  const npkAlto =
+    nitrogen >= NPK_REF_ALTO.nitrogen ||
+    phosphorus >= NPK_REF_ALTO.phosphorus ||
+    potassium >= NPK_REF_ALTO.potassium;
+
+  if (ec <= EC_UMBRAL_CONFIANZA_NPK || !npkAlto) {
+    return { activo: false, nota: '' };
+  }
+
+  return {
+    activo: true,
+    nota:
+      `Lectura poco confiable: con ${ec} µS/cm de conductividad, la sonda puede estar ` +
+      'leyendo sales (sodio, calcio) y reportarlas como nutrientes. Tómelo como indicio, no como dato.'
+  };
+}
+
 export function evaluateAgronomicStatus(
   sensorData: SoilMeasurement, 
   cropId: CropId = 'maiz', 
@@ -252,6 +301,20 @@ export function evaluateAgronomicStatus(
     }
   }
 
+  // 3b. Veto cruzado: la salinidad contamina la estimación de NPK derivada de EC
+  const vetoNpk = vetoCruzadoSalinidad(ec, nitrogen, phosphorus, potassium);
+  if (vetoNpk.activo) {
+    alerts.push({
+      type: 'warning',
+      param: 'Nutrientes (N-P-K)',
+      title: '⚠️ Posible Falso Positivo por Salinidad',
+      action:
+        'La sonda estima los nutrientes a partir de la conductividad y no distingue el ' +
+        'nitrógeno del sodio. Con esta salinidad, los valores altos de N-P-K pueden ser sal. ' +
+        'Aplique un riego de lavado y vuelva a medir antes de decidir la fertilización.'
+    });
+  }
+
   // 4. Humedad (VWC)
   let vwcStatus: 'OPTIMAL' | 'WARNING' | 'CRITICAL' = 'OPTIMAL';
   let vwcMessage = `Humedad óptima (${vwc.toFixed(1)}% VWC en capacidad de campo)`;
@@ -323,6 +386,15 @@ export function evaluateAgronomicStatus(
     verdictSummary = 'El suelo es apto con precauciones específicas. Se recomienda aplicar las correcciones sugeridas.';
   }
 
+  // N, P y K son siempre estimaciones derivadas de la conductividad, nunca medidas directas.
+  const npkMeta = {
+    derived: true,
+    confidence: (vetoNpk.activo ? 'LOW' : 'HIGH') as 'LOW' | 'HIGH',
+    confidenceNote: vetoNpk.activo
+      ? vetoNpk.nota
+      : 'Estimación derivada de la conductividad eléctrica. Úsela como referencia de fertilidad, no como análisis químico.'
+  };
+
   return {
     verdict,
     verdictTitle,
@@ -335,9 +407,9 @@ export function evaluateAgronomicStatus(
       temp: { val: temp, unit: '°C', status: tempStatus, msg: tempMessage },
       ec: { val: ec, unit: 'µS/cm', status: ecStatus, msg: ecMessage },
       ph: { val: ph, unit: 'pH', status: phStatus, msg: phMessage },
-      nitrogen: { val: nitrogen, unit: 'mg/kg', status: 'OPTIMAL', msg: 'Nivel base para arranque' },
-      phosphorus: { val: phosphorus, unit: 'mg/kg', status: phosphorus < 20 ? 'WARNING' : 'OPTIMAL', msg: 'Enraizamiento y energía inicial' },
-      potassium: { val: potassium, unit: 'mg/kg', status: potassium < 40 ? 'WARNING' : 'OPTIMAL', msg: 'Vigor celular y estomas' },
+      nitrogen: { val: nitrogen, unit: 'mg/kg', status: 'OPTIMAL', msg: 'Nivel base para arranque', ...npkMeta },
+      phosphorus: { val: phosphorus, unit: 'mg/kg', status: phosphorus < 20 ? 'WARNING' : 'OPTIMAL', msg: 'Enraizamiento y energía inicial', ...npkMeta },
+      potassium: { val: potassium, unit: 'mg/kg', status: potassium < 40 ? 'WARNING' : 'OPTIMAL', msg: 'Vigor celular y estomas', ...npkMeta },
       lux: { val: lux, unit: 'Lux', status: 'OPTIMAL', msg: lightMsg }
     }
   };
