@@ -313,6 +313,8 @@ Lo que el teléfono no puede hacer —y por tanto define el alcance mínimo del 
 
 No para cuidar plantas. **Para proteger el patrimonio de una familia que se juega el año en cada siembra.**
 
+El fin filosófico no es cuidar la planta *per se*, sino **cuidar la economía familiar**. Una planta es un medio productivo; el beneficiario de la tecnología es el humano que la cultiva y cuyo sustento depende de ella. Las decisiones de riego y fertilización se toman para maximizar la rentabilidad y reducir el riesgo de quiebra.
+
 La planta es el medio; el agricultor es el fin. Un tomate que se pierde por acidez de suelo es un problema agronómico. Una familia que se endeuda por doce meses porque perdió la siembra es un problema social — y es el problema que este proyecto ataca. Toda decisión de diseño de TerraSense se resuelve preguntando cuál de las opciones **reduce más el riesgo económico del productor**, no cuál es técnicamente más elegante.
 
 De ahí se derivan cuatro principios que gobiernan el resto del documento:
@@ -544,7 +546,18 @@ Conectar la sonda directamente al teléfono, eliminando por completo la electró
 
 **Veredicto:** físicamente imposible con una sonda industrial de 12 V. Sería viable sólo con sensores capacitivos crudos de baja calidad, que es exactamente lo que el proyecto quiere superar.
 
-## VI.4. Alternativa D — Sonda + ESP32 + BLE + smartphone *(seleccionada)*
+## VI.4. Alternativa D — Sonda + nRF52840 + smartphone
+
+El nRF52840 es un SoC avanzado con radio BLE 5.0 nativa, ampliamente usado en wearables por su extrema eficiencia energética.
+
+| Ventaja real | Limitación decisiva para este proyecto |
+| :--- | :--- |
+| Consumo de energía inigualable en sueño profundo | **Arquitectura single-core.** El SoC tiene un solo núcleo (ARM Cortex-M4). Debe mantener estricta temporización Modbus (pausas de 3,5 caracteres) mientras atiende interrupciones de la pila BLE. Un solo núcleo genera riesgo de caída de conexión BLE o error de trama RS-485. |
+| Radio BLE nativa y muy robusta | Costo por unidad significativamente mayor frente al ESP32 |
+
+**Veredicto:** Excelente candidato energético, pero la complejidad de sostener Modbus estricto y BLE en un solo núcleo sin RTOS dual no justifica el aumento de precio respecto al ESP32.
+
+## VI.5. Alternativa E — Sonda + ESP32 + BLE + smartphone *(seleccionada)*
 
 ```text
 ┌──────────────┐  ┌──────────────┐  ┌───────────────┐  ┌──────────────────────┐
@@ -565,20 +578,20 @@ Conectar la sonda directamente al teléfono, eliminando por completo la electró
                   └────────────────────────────────────────────────────────┘
 ```
 
-## VI.5. Matriz de decisión ponderada
+## VI.6. Matriz de decisión ponderada
 
 Escala 1 a 10 (10 = mejor). Ponderaciones definidas antes de puntuar, derivadas de los objetivos específicos.
 
-| Criterio | Peso | **A** · ATmega + BT Classic | **B** · Datalogger 4G | **C** · Sonda directa | **D** · ESP32 + BLE |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **Compatibilidad Android + iOS** | 18 % | 2 | 7 | 2 | **10** |
-| **Autonomía energética en campo** | 18 % | 3 | 8 | 9 | **9** |
-| **Capacidad de ejecutar el motor de inferencia** | 16 % | 1 | 6 | 8 | **10** |
-| **Costo total del sistema (BOM + operación)** | 15 % | 6 | 1 | 10 | **8** |
-| **Robustez mecánica en terreno** | 12 % | 4 | 5 | 2 | **9** |
-| **Actualización de firmware y mantenibilidad** | 11 % | 1 | 7 | 10 | **10** |
-| **Cobertura espacial (puntos por jornada)** | 10 % | 8 | 1 | 8 | **10** |
-| **PUNTAJE PONDERADO** | **100 %** | **3,42** | **5,32** | **6,71** | **🏆 9,42** |
+| Criterio | Peso | **A** · ATmega | **B** · Datalogger 4G | **C** · Sonda directa | **D** · nRF52840 | **E** · ESP32 + BLE |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Compatibilidad Android + iOS** | 18 % | 2 | 7 | 2 | 10 | **10** |
+| **Autonomía energética en campo** | 18 % | 3 | 8 | 9 | 10 | **9** |
+| **Capacidad de ejecutar el motor de inferencia** | 16 % | 1 | 6 | 8 | 10 | **10** |
+| **Costo total del sistema (BOM + operación)** | 15 % | 6 | 1 | 10 | 6 | **8** |
+| **Robustez mecánica en terreno** | 12 % | 4 | 5 | 2 | 9 | **9** |
+| **Actualización de firmware y mantenibilidad** | 11 % | 1 | 7 | 10 | 10 | **10** |
+| **Cobertura espacial (puntos por jornada)** | 10 % | 8 | 1 | 8 | 10 | **10** |
+| **PUNTAJE PONDERADO** | **100 %** | **3,42** | **5,32** | **6,71** | **9,08** | **🏆 9,42** |
 
 <details>
 <summary><b>Verificación aritmética de la ponderación</b></summary>
@@ -827,6 +840,28 @@ flowchart TD
 ```
 
 ## VIII.3. Diagramas de flujo de las alternativas evaluadas
+
+> [!NOTE]
+> A continuación se expone la diferencia entre la arquitectura procesada internamente con display (competencia) frente a la arquitectura IoT externalizada (nuestra propuesta).
+
+```mermaid
+graph TD
+    subgraph ALT_COMPETENCIA["Arquitectura Competencia (con Pantalla)"]
+        A1[Sonda Agrícola] --> A2(Microcontrolador / MCU)
+        A2 --> A3[Procesamiento interno simple]
+        A3 --> A4[Pantalla LCD/OLED]
+        A4 --> A5(Usuario lee el número crudo)
+        A5 --> A6{Usuario debe inferir qué hacer}
+    end
+
+    subgraph ALT_TERRASENSE["Arquitectura TerraSense (BLE + App)"]
+        B1[Sonda Agrícola + BME280] --> B2(ESP32 lee y envía crudo por BLE)
+        B2 -. BLE .-> B3[App Móvil iOS/Android]
+        B3 --> B4[Motor de Inferencia Agronómica - 4 Capas]
+        B4 --> B5[Recomendación Prescriptiva]
+        B5 --> B6(Usuario toma decisión ejecutiva)
+    end
+```
 
 Se representan los flujos operativos reales de cada alternativa, incluyendo los descartados, para hacer visible **dónde está el cuello de botella de cada una**.
 
@@ -1130,6 +1165,8 @@ Este es el resultado más contraintuitivo del análisis energético:
 ### IX.3.1. Ronda 1 — La objeción
 
 > **Cliente:** *«Quiero que el equipo tenga pantalla, para ver los números sin sacar el teléfono.»*
+> **Respuesta extendida:** *«Si usted desea, le puedo agregar una pantalla OLED, pero la cantidad de mediciones bajará drásticamente. Si quiere compensar ese consumo, le debo agregar otra batería 18650 en paralelo. Eso le costaría aproximadamente $3.000 CLP extra, aumentaría el peso del equipo, haría el diseño más voluminoso y nos obligaría a abrir una ranura en la carcasa, comprometiendo la certificación IP67 contra humedad y charcos.»*
+>
 
 > **Respuesta:** *«El equipo no lleva pantalla porque la app cumple ese rol con una pantalla mejor —táctil, a color, legible al sol, que ya está pagada— y porque una pantalla en el equipo es consumo permanente que se descuenta directamente de la autonomía.»*
 
@@ -1255,6 +1292,9 @@ La [Sección VI](#vi-ingeniería-conceptual-alternativas-de-arquitectura-y-decis
 | **PETG impreso FDM** | ABS inyectado | La inyección exige molde: coste fijo elevado que sólo se amortiza con miles de unidades. Con 120 unidades el primer año, el molde es económicamente inviable ([XII](#xii-evaluación-económica-flujo-de-caja-van-y-tir)) |
 
 ## X.3. Aptitud para condiciones de campo: el caso IP67
+
+> [!IMPORTANT]
+> **El IP67 no es un capricho técnico, es una obligación del mercado.** El equipo trabajará en el campo, rodeado de humedad matinal, rocío, lodo y eventuales caídas en charcos de riego. Validar técnicamente que está preparado para soportar estas condiciones climatológicas es lo único que garantiza la vida útil de la inversión del cliente.
 
 El equipo trabajará en presencia de humedad, barro, charcos, rocío, polvo en suspensión durante la preparación de suelo, y radiación solar directa durante jornadas completas. La factibilidad técnica exige demostrar que está preparado para eso — **no afirmarlo**.
 
@@ -1412,7 +1452,7 @@ $179.990 CLP    US$294 [29]     US$339 [27]                   US$1.495 [30]
 ### XI.3.3. Matriz de capacidades
 
 | Capacidad | Bluelab | Hanna | TDR 350 | TEROS 12 | Laboratorio | Asesor | **TerraSense** |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | Inserción directa en suelo | ✅ | ❌ *(suspensión)* | ✅ | ✅ | ❌ | ❌ | **✅** |
 | Medición de NPK | ❌ | ❌ | ❌ | ❌ | ✅ | vía lab. | **✅** |
 | Medición de pH de suelo | ❌ | ✅ | ❌ | ❌ | ✅ | vía lab. | **✅** |
@@ -1495,6 +1535,8 @@ Los cuellos de botella reales son otros tres, y conviene nombrarlos:
 > La evaluación sigue la estructura de los **tres cuadros** de la planilla de evaluación económica: **Cuadro N° 1** (Inversiones del proyecto, fuentes de financiamiento, amortización del préstamo y depreciación), **Cuadro N° 2** (Ingresos, costos y gastos operacionales, con las ventas derivadas como $VT = CT \times (1 + \%\,\text{rentabilidad})$) y **Cuadro N° 3** (Estado de resultados proyectado a cinco años, flujo de fondos, VAN, TIR y Pay Back), cerrando con la **toma de decisiones** fundamentada en VAN y en Pay Back.
 
 ## XII.1. Tabla maestra de parámetros del modelo
+
+**El modelo asume vender 120 unidades el primer año**. Esto representa apenas entre el **0,1% y 0,2% del mercado servible** focalizado. Es una meta de ventas conservadora y extremadamente realista que no exige vender números irreales.
 
 Todos los supuestos económicos están concentrados aquí. **Modificar un valor de esta tabla propaga el cambio a todo el resto de la sección**, de modo que actualizar el estudio con cotizaciones reales es una edición de un solo punto.
 
@@ -1624,18 +1666,18 @@ $$\textbf{TOTAL INVERSIÓN INICIAL (A) + (B)} = \$9.892.415 + \$4.130.000 = \mat
 >
 > **Si el subsidio CORFO no se adjudica**, el socio debe aportar u obtener por deuda esos $8.000.000. El flujo del proyecto no cambia —la evaluación del proyecto es independiente de cómo se financie—, pero el riesgo del inversionista aumenta sustancialmente. **Postular a CORFO no es un adorno del plan: es una pieza estructural.**
 
-### XII.3.4. Memoria de cálculo — amortización del préstamo, sistema alemán
+### XII.3.4. Memoria de cálculo — amortización del préstamo, sistema francés
 
 **Préstamo a largo plazo: $1.522.415 · 10 % anual · 5 años**
 
 | Año | Saldo insoluto | Amortización de capital | Interés | **Cuota total** | Saldo final |
 | :---: | ---: | ---: | ---: | ---: | ---: |
-| 1 | $1.522.415 | $304.483 | $152.242 | **$456.724** | $1.217.932 |
-| 2 | $1.217.932 | $304.483 | $121.793 | **$426.276** | $913.449 |
-| 3 | $913.449 | $304.483 | $91.345 | **$395.828** | $608.966 |
-| 4 | $608.966 | $304.483 | $60.897 | **$365.380** | $304.483 |
-| 5 | $304.483 | $304.483 | $30.448 | **$334.931** | $0 |
-| | **TOTALES** | **$1.522.415** | **$456.724** | **$1.979.140** | |
+| 1 | $1.522.415 | $249.368 | $152.242 | **$401.610** | $1.273.047 |
+| 2 | $1.273.047 | $274.305 | $127.305 | **$401.610** | $998.742 |
+| 3 | $998.742 | $301.736 | $99.874 | **$401.610** | $697.006 |
+| 4 | $697.006 | $331.909 | $69.701 | **$401.610** | $365.097 |
+| 5 | $365.097 | $365.097 | $36.513 | **$401.610** | $0 |
+| | **TOTALES** | **$1.522.415** | **$485.635** | **$2.008.050** | |
 
 **Préstamo a corto plazo: $1.500.000 · 23 % anual · 1 año**
 
@@ -1647,15 +1689,15 @@ $$\textbf{TOTAL INVERSIÓN INICIAL (A) + (B)} = \$9.892.415 + \$4.130.000 = \mat
 
 | Concepto | Año 1 | Año 2 | Año 3 | Año 4 | Año 5 |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| Interés (costo financiero) | $497.242 | $121.793 | $91.345 | $60.897 | $30.448 |
-| Cuota de capital (amortización) | $1.804.483 | $304.483 | $304.483 | $304.483 | $304.483 |
+| Interés (costo financiero) | $497.242 | $127.305 | $99.874 | $69.701 | $36.513 |
+| Cuota de capital (amortización) | $1.749.368 | $274.305 | $301.736 | $331.909 | $365.097 |
 
 > [!NOTE]
-> ### ⚖️ Por qué sistema alemán y no francés
+> ### ⚖️ Por qué sistema francés y no alemán
 >
-> Se adopta el **sistema alemán** (amortización de capital constante, cuota decreciente). Sobre el préstamo a largo plazo, el sistema francés generaría **$32.400 más de intereses totales** para el mismo capital y plazo, y mantendría la cuota alta precisamente en los Años 3 y 4, que son los de mayor presión de gasto fijo por incorporación de personal y arriendo.
+> Se adopta el **sistema francés** (cuota total constante, amortización de capital creciente e intereses decrecientes) porque **es el estándar real de la banca comercial chilena** (los créditos comerciales para Pymes operan casi exclusivamente con cuotas fijas).
 >
-> El sistema alemán concentra la carga financiera en el Año 1 y la alivia progresivamente, lo que **coincide con el perfil de generación de caja del proyecto**: los flujos crecen año a año, de modo que conviene pagar más cuando el capital adeudado es mayor y menos cuando el negocio ya soporta otros compromisos. La contrapartida es una cuota inicial más alta, absorbida por la línea de corto plazo dimensionada en [XII.6](#xii6-prueba-de-caja-flujo-mensual-del-año-1).
+> Aunque el sistema alemán generaría levemente menos intereses totales, el sistema francés garantiza un flujo de pagos predecible (cuota fija de $401.610 anuales), aliviando la presión de caja del Año 1 frente a la inversión inicial, permitiendo que la deuda se vaya licuando progresivamente frente a los ingresos incrementales del negocio.
 
 ### XII.3.5. Memoria de cálculo — depreciación anual del activo fijo
 
