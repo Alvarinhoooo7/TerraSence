@@ -482,82 +482,251 @@ ACTIVIDAD                               S1 S2 S3 S4  S5 S6 S7 S8  S9 10 11 12  1
 ---
 # VI. Ingeniería conceptual: alternativas de arquitectura y decisión
 
-Esta sección responde a la pregunta que toda comisión formula: **«¿por qué lo hiciste así y no de la forma obvia?»**. Se evaluaron cuatro arquitecturas realistas. Ninguna es un hombre de paja: las cuatro existen hoy como productos comerciales.
+Esta sección responde a la pregunta que toda comisión formula: **«¿por qué lo hiciste así y no de la forma obvia?»**. Se evaluaron **seis arquitecturas**. Ninguna es un hombre de paja: las seis existen hoy como productos comerciales o como proyectos publicados.
 
-## VI.1. Alternativa A — Instrumento autónomo clásico (ATmega328P + pantalla + Bluetooth Classic)
+> [!NOTE]
+> **Diferencia con la [Sección X.2](#x2-selección-de-componentes-estudio-de-alternativas).** Aquí se decide **la arquitectura**: qué hace el equipo, qué hace el teléfono y qué hace la nube. En X.2 se decide **el componente** que materializa cada bloque de la arquitectura ya elegida. Son dos niveles de decisión distintos y se resuelven con la misma metodología: candidatos reales, criterios declarados antes de puntuar, y reconocimiento explícito de lo que se pierde.
 
-Es la arquitectura por defecto de la electrónica educativa y de los medidores genéricos de importación: un microcontrolador de 8 bits, una pantalla, un módulo Bluetooth serie y pilas.
+## VI.0. Metodología: requisitos que toda arquitectura debe satisfacer
+
+Antes de comparar se declaran los requisitos, derivados de los objetivos específicos de la [Sección IV](#iv-objetivos-del-proyecto). Se distinguen **requisitos obligatorios** —que actúan como filtro de viabilidad: quien no los cumple queda fuera antes de puntuar— y **criterios ponderados**, que ordenan a los sobrevivientes.
+
+### VI.0.1. Filtro de viabilidad (requisitos obligatorios)
+
+| # | Requisito obligatorio | Origen |
+| :---: | :--- | :---: |
+| **RO-1** | Debe **alimentar y leer una sonda industrial de 12 V por bus diferencial RS-485** | OE-2 |
+| **RO-2** | Debe entregar un **veredicto interpretado**, no valores crudos | OE-4 |
+| **RO-3** | Debe funcionar **sin cobertura celular** en el momento de la medición | OE-5 |
+| **RO-4** | Debe permitir **muestrear múltiples puntos** del predio en una jornada | OE-1 |
+| **RO-5** | Debe ser **físicamente realizable** con componentes de catálogo | — |
+
+### VI.0.2. Criterios ponderados
+
+| # | Criterio | Peso | Qué mide |
+| :---: | :--- | :---: | :--- |
+| C1 | **Cobertura espacial** | 15 % | Puntos distintos que se pueden muestrear por jornada |
+| C2 | **Calidad de la interfaz de usuario** | 13 % | Legibilidad, tamaño de pantalla, accesibilidad rural |
+| C3 | **Capacidad de interpretación** | 15 % | Alcance del motor prescriptivo alcanzable en esa arquitectura |
+| C4 | **Autonomía energética** | 14 % | Días de operación sin intervención |
+| C5 | **Costo total para el agricultor a 5 años** | 16 % | CAPEX + OPEX, incluidas suscripciones |
+| C6 | **Robustez mecánica y ambiental** | 10 % | Supervivencia en campo real |
+| C7 | **Actualización del conocimiento agronómico** | 9 % | Facilidad de incorporar cultivos y reglas nuevas |
+| C8 | **Independencia de infraestructura** | 8 % | Dependencia de cobertura, *gateway*, suscripción o smartphone |
+
+---
+
+## VI.1. Alternativa A — Instrumento autónomo clásico (MCU de 8 bits + pantalla + Bluetooth Classic)
+
+Es la arquitectura por defecto de la electrónica educativa y de los medidores genéricos de importación.
 
 ```text
 ┌─────────┐   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
 │ 3x AAA  ├──►│ ATmega328P   ├──►│ LCD 16x2 o   │   │  HC-05 /     │
 │  4,5 V  │   │ 8 bits 16MHz │   │ OLED SSD1306 │   │  HC-06 SPP   │
-└─────────┘   │ 2 KB SRAM    │   └──────────────┘   │ (Bluetooth   │
-              │ 32 KB Flash  ├───────────────────── │  Classic)    │
+└─────────┘   │ 2 KB SRAM    │   └──────────────┘   │ (BT Classic) │
+              │ 32 KB Flash  ├──────────────────────│              │
               └──────┬───────┘                      └──────────────┘
                      │ UART
                      ▼
               ┌──────────────┐
-              │ Sonda RS-485 │  ← requiere igualmente MAX485 + elevador a 12 V
+              │ Sonda RS-485 │ ← requiere igualmente MAX485 + elevador a 12 V
               └──────────────┘
 ```
 
-### VI.1.1. Por qué se descartó: análisis punto por punto
+| Presupuesto de la alternativa A | Valor |
+| :--- | ---: |
+| BOM estimado | ~$40.000 *(estimación propia)* |
+| Autonomía estimada | Baja: el HC-05 emparejado consume decenas de mA de forma permanente |
+| Latencia hasta el veredicto | Inmediata para el dato crudo; **infinita para el veredicto**, porque no lo produce |
+| Puntos por jornada | Alto (portátil) |
+
+### VI.1.1. Por qué se descarta: análisis punto por punto
 
 Esta es la alternativa que más se pregunta en defensa, así que se responde en detalle.
 
 | # | Objeción a la arquitectura A | Fundamento técnico | Fuente |
 | :---: | :--- | :--- | :---: |
-| **1** | **Bluetooth Classic SPP no funciona con iPhone.** Los módulos HC-05/HC-06 implementan el perfil Serial Port Profile de Bluetooth Classic. iOS **no expone SPP a aplicaciones de terceros**: un accesorio Bluetooth Classic sólo puede comunicarse con una app iOS si el fabricante está inscrito en el programa MFi de Apple y usa el chip de autenticación correspondiente. Bluetooth Low Energy, en cambio, es accesible desde Core Bluetooth **sin certificación MFi**. Elegir HC-05 significa renunciar a la mitad del mercado de smartphones o pagar una certificación de accesorios | Bloqueante absoluto | <sup>[52][53]</sup> |
-| **2** | **2 KB de SRAM no alcanzan.** El ATmega328P tiene 2 KB de RAM y 32 KB de Flash. En ese espacio debe caber: el búfer de trama Modbus, el ráfaga de 10 muestras por 7 registros para el filtro de mediana, las estructuras de coma flotante de la compensación de temperatura, la pila del stack serie del módulo BT y cualquier tabla de calibración. Es factible con esfuerzo — pero no queda espacio para nada más, y el motor agronómico queda descartado de plano | Bloqueante estructural | <sup>[50]</sup> |
-| **3** | **No hay actualización remota de firmware.** El ATmega328P se programa por ISP o por bootloader serie: requiere cable y presencia física. Un defecto en el driver Modbus detectado tras vender 200 unidades implica recuperar 200 equipos. El ESP32 tiene WiFi y particiones OTA: el mismo defecto se corrige con un binario publicado desde la consola | Bloqueante operacional | <sup>[9]</sup> |
-| **4** | **El consumo en reposo es peor, no mejor.** Un HC-05 emparejado y en espera consume del orden de decenas de miliamperios de forma permanente, y una pantalla activa suma la suya. El ESP32 en sueño profundo consume **10 µA** con temporizador y memoria RTC activos, y **5 µA** en hibernación <sup>[9]</sup>. La intuición de que «un chip de 8 bits gasta menos» sólo es cierta si se ignora la radio, que es donde está el consumo real | Bloqueante energético | <sup>[9][51]</sup> |
-| **5** | **No hay ahorro de costo.** El módulo ESP32-WROOM-32 integra en un solo componente el microcontrolador, la radio BLE, la radio WiFi y la antena, por un costo unitario del orden de US$3. Un ATmega328P más un HC-05 más un cristal más el circuito de reset cuesta **lo mismo o más**, ocupa más área de PCB y añade dos puntos de soldadura críticos | Sin ventaja económica | — |
-| **6** | **Certificación radioeléctrica.** El módulo ESP32-WROOM-32 se comercializa pre-homologado con FCC ID propio, lo que simplifica el camino regulatorio. Un diseño con radio propia requeriría ensayos completos | Ventaja regulatoria | <sup>[19][49]</sup> |
-| **7** | **Sin doble núcleo ni RTOS.** El ciclo de medición exige sostener la temporización del bus RS-485 (silencio de 3,5 caracteres entre tramas) **mientras** se atiende la pila BLE. Con un único núcleo sin sistema operativo, o se pierde la temporización Modbus o se cae la conexión BLE. El ESP32 asigna la pila de radio a un núcleo y la aplicación al otro bajo FreeRTOS | Bloqueante de diseño | <sup>[9]</sup> |
+| **1** | **Bluetooth Classic SPP no funciona con iPhone.** Los módulos HC-05/HC-06 implementan el perfil Serial Port Profile de Bluetooth Classic. iOS **no expone SPP a aplicaciones de terceros**: un accesorio Bluetooth Classic sólo puede comunicarse con una app iOS si el fabricante está inscrito en el programa MFi de Apple y usa el chip de autenticación correspondiente. Bluetooth Low Energy es accesible desde Core Bluetooth **sin certificación MFi**. Elegir HC-05 significa renunciar a la mitad del mercado de smartphones | Bloqueante absoluto | <sup>[52][53]</sup> |
+| **2** | **2 KB de SRAM no alcanzan.** En ese espacio debe caber el búfer de trama Modbus, la ráfaga de 10 muestras × 7 registros para el filtro de mediana, las estructuras de coma flotante de la compensación de temperatura y la pila del stack serie. Es factible con esfuerzo, pero **no queda espacio para el motor agronómico** | Bloqueante estructural | <sup>[50]</sup> |
+| **3** | **No hay actualización remota de firmware.** El ATmega328P se programa por ISP o bootloader serie: exige cable y presencia física. Un defecto en el driver Modbus detectado tras vender 200 unidades implica recuperar 200 equipos | Bloqueante operacional | <sup>[9]</sup> |
+| **4** | **El consumo en reposo es peor, no mejor.** Un HC-05 emparejado consume decenas de miliamperios de forma permanente. El ESP32 en sueño profundo consume **10 µA** <sup>[9]</sup>. La intuición de que «un chip de 8 bits gasta menos» sólo es cierta si se ignora la radio, que es donde está el consumo real | Bloqueante energético | <sup>[9][51]</sup> |
+| **5** | **No hay ahorro de costo.** El módulo ESP32-WROOM-32 integra microcontrolador, radio BLE, radio Wi-Fi y antena por US$2–5 <sup>[63]</sup>. Un ATmega328P más un HC-05 más cristal y circuito de reset cuesta **lo mismo o más**, ocupa más área de PCB y añade puntos de soldadura críticos | Sin ventaja económica | <sup>[63]</sup> |
+| **6** | **Certificación radioeléctrica.** El ESP32-WROOM-32 se comercializa pre-homologado con FCC ID propio, lo que simplifica el camino regulatorio | Ventaja regulatoria | <sup>[19][49]</sup> |
+| **7** | **Sin doble núcleo ni RTOS.** El ciclo exige sostener el silencio de 3,5 caracteres entre tramas Modbus **mientras** se atiende la pila de radio. Con un núcleo sin sistema operativo, o se pierde la temporización o se cae el enlace | Bloqueante de diseño | <sup>[9]</sup> |
 
 > [!IMPORTANT]
 > **Síntesis defendible en una frase.** *«No usé un ATmega328P con un HC-05 porque el HC-05 habla Bluetooth Classic, y Bluetooth Classic no es accesible desde una app de iPhone sin certificación MFi de Apple. Eso solo ya descartaba la arquitectura. Además, el ESP32 cuesta lo mismo, consume 10 µA dormido contra decenas de miliamperios del HC-05 en espera, permite actualizar el firmware por aire, y me da dos núcleos para sostener la temporización Modbus sin perder el enlace de radio.»*
 
-## VI.2. Alternativa B — Datalogger estacionario con telemetría celular
+**Filtro de viabilidad:** ❌ **Incumple RO-2** (no interpreta: entrega valores crudos).
 
-Es la arquitectura de los equipos de investigación: sonda enterrada permanentemente, panel solar, batería de plomo, módem 4G y suscripción a una plataforma.
+---
+
+## VI.2. Alternativa B — Instrumento autónomo con inferencia embebida y pantalla
+
+Es la versión seria de la alternativa A: **todo el sistema dentro del equipo**, incluido el motor agronómico. Sin teléfono.
+
+```text
+┌──────────────┐   ┌──────────────────────────┐   ┌────────────────────┐
+│ 2x 18650     ├──►│ ESP32-WROOM-32           ├──►│ Pantalla e-paper   │
+│              │   │ Motor agronómico embebido│   │ o OLED + botones   │
+└──────────────┘   │ Catálogo de cultivos NVS │   └────────────────────┘
+                   └───────────┬──────────────┘
+                               ▼
+                   ┌──────────────────────────┐
+                   │ MT3608 12V + MAX485      │
+                   │ Sonda 7-en-1 RS-485      │
+                   └──────────────────────────┘
+```
+
+| Presupuesto de la alternativa B | Valor |
+| :--- | ---: |
+| BOM estimado | ~$47.000 con OLED · ~$56.000 con e-paper *(estimación propia)* |
+| **Autonomía** (8 mediciones/día) | **179 días** con OLED · 563 días con e-paper ([IX.3.2](#ix32-ronda-2--la-insistencia-y-la-cuantificación)) |
+| Latencia hasta el veredicto | ≤ 5 s |
+| Puntos por jornada | Alto |
+
+### VI.2.1. Lo que hay que reconocer: esta alternativa sí es viable
+
+> [!IMPORTANT]
+> **La objeción intuitiva contra esta arquitectura —«no cabe el motor en el microcontrolador»— es falsa, y conviene no usarla.**
+>
+> Un perfil de cultivo como el de [XIII.2.1](#xiii21-capa-1--perfil-de-cultivo-ejemplo) ocupa del orden de 600 bytes en formato compacto. **Ochenta perfiles son unos 48 KB**, que caben con enorme holgura en los 4 MB de Flash del módulo ESP32-WROOM-32 <sup>[9]</sup>. Las reglas de diagnóstico de la Capa 2 y las fórmulas de dosificación de la Capa 3 son aritmética de coma flotante trivial para un Xtensa a 240 MHz.
+>
+> **Técnicamente, el motor agronómico cabe y corre en el equipo.** Quien afirme lo contrario está equivocado. El descarte de esta arquitectura se apoya en otras cuatro razones, todas cuantificables.
+
+### VI.2.2. Las cuatro razones reales del descarte
+
+| # | Razón | Cuantificación |
+| :---: | :--- | :--- |
+| **1** | **La pantalla cuesta el 77 % de la autonomía** | 784 → 179 días con OLED. Y el 57 % de ese costo energético es **mantener despierto al microcontrolador** mientras el usuario lee, no iluminar los píxeles ([IX.3.2](#ix32-ronda-2--la-insistencia-y-la-cuantificación)) |
+| **2** | **La ventana de pantalla es una segunda interfaz de sellado** | Sobre una envolvente FDM cuyo grado IP67 **aún no ha superado el ensayo de inmersión** ([X.3](#x3-aptitud-para-condiciones-de-campo-el-caso-ip67)), añadir una junta más es agregar un riesgo sobre un riesgo no cerrado |
+| **3** | **Se pierden el GPS, el clima y el mapa** | Sin receptor GPS no hay georreferenciación (OE-5) y **la Capa 4 del motor —clima predictivo a 7 días— es directamente inalcanzable**, porque requiere consulta a red asociada a una coordenada. Añadir GPS y módem al equipo lo convierte en la alternativa C |
+| **4** | **El conocimiento agronómico queda congelado en el firmware** | Incorporar un cultivo nuevo o corregir un umbral exige publicar firmware y que **cada usuario actualice su equipo**. En la arquitectura elegida es una actualización de la app, que las tiendas distribuyen solas |
+
+**Filtro de viabilidad:** ✅ Cumple RO-1 a RO-5. **Pasa a la matriz de puntuación.**
+
+---
+
+## VI.3. Alternativa C — Datalogger estacionario con telemetría celular
+
+Es la arquitectura de los equipos de investigación y de las estaciones agroclimáticas comerciales.
+
+```text
+┌────────────┐   ┌──────────────┐   ┌─────────────────┐   ┌──────────────┐
+│ Panel solar├──►│ Batería      ├──►│ Datalogger MCU  ├──►│ Módem LTE-M  │
+│  10–20 W   │   │ 12 V / Li-Ion│   │                 │   │ SIM7080G     │
+└────────────┘   └──────────────┘   └────────┬────────┘   └──────┬───────┘
+                                             ▼                   ▼
+                                    ┌─────────────────┐   ┌──────────────┐
+                                    │ Sonda enterrada │   │ Portal web   │
+                                    │ en UN punto fijo│   │ suscripción  │
+                                    └─────────────────┘   └──────────────┘
+```
+
+| Parámetro | Valor | Fuente |
+| :--- | ---: | :---: |
+| Consumo del módem en transmisión | **< 200 mA** | <sup>[70]</sup> |
+| Consumo del módem en PSM (reposo profundo) | **< 5 µA** (9 µA en la serie SIM7000) | <sup>[70]</sup> |
+| Tensión de alimentación del módem | 2,7 – 4,8 V | <sup>[70]</sup> |
+| Costo estimado por punto | > $250.000 *(estimación propia: nodo + panel + batería + caja)* | — |
+| Costo recurrente | Plan de datos M2M por SIM, renovable | <sup>[71]</sup> |
+
+### VI.3.1. Qué resuelve bien y por qué no sirve aquí
 
 | Ventaja real | Limitación decisiva para este proyecto |
 | :--- | :--- |
-| Serie temporal continua sin intervención humana | **Mide un solo punto.** La variabilidad de un potrero es espacial: un punto fijo no representa la hectárea |
-| No requiere que el usuario vaya al lugar | Costo por punto de medición prohibitivo. Muestrear 20 puntos requiere 20 equipos |
+| Serie temporal continua sin intervención humana | **Mide un solo punto.** La variabilidad de un potrero es espacial: un punto fijo no representa la hectárea. Para mapear 20 puntos hacen falta **20 equipos** |
 | Alimentación solar indefinida | Peso y volumen elevados; robo y vandalismo en predios sin cierre perimetral |
-| — | Suscripción anual obligatoria: incompatible con el Principio 4 ([III.2.5](#iii25-principio-4--soberanía-del-dato-y-cero-suscripciones-cautivas)) |
-| — | Requiere cobertura celular en el punto exacto de instalación |
+| El módem en PSM consume menos de 5 µA <sup>[70]</sup> | Pero **transmitir cuesta hasta 200 mA** <sup>[70]</sup>, lo que obliga al panel solar y a la batería mayor |
+| No requiere que el usuario vaya al lugar | **Requiere cobertura celular en el punto exacto de instalación**, que es precisamente lo que no está garantizado en quebrada o valle cordillerano <sup>[8]</sup> |
+| — | Suscripción de datos obligatoria: incompatible con el Principio 4 ([III.2.5](#iii25-principio-4--soberanía-del-dato-y-cero-suscripciones-cautivas)) |
 
-**Veredicto:** resuelve un problema distinto (investigación agronómica longitudinal), no el de este proyecto (decisión de manejo espacialmente distribuida).
+**Filtro de viabilidad:** ❌ **Incumple RO-3 y RO-4** (depende de cobertura celular en el punto; mide un solo punto).
 
-## VI.3. Alternativa C — Sonda de smartphone sin electrónica intermedia (conector de audio / USB-OTG)
+---
 
-Conectar la sonda directamente al teléfono, eliminando por completo la electrónica embarcada.
+## VI.4. Alternativa D — Red de nodos LoRaWAN con *gateway* predial
 
-| Por qué es atractiva | Por qué no es viable |
+Resuelve la objeción de cobertura de la alternativa C: en lugar de un módem celular por nodo, una radio de largo alcance y bajo consumo hacia un *gateway* propio del predio.
+
+```text
+   ┌──────────┐  ┌──────────┐  ┌──────────┐        915–928 MHz
+   │ Nodo 1   │  │ Nodo 2   │  │ Nodo N   │  ══════════════════════╗
+   │ ESP32 +  │  │ ESP32 +  │  │ ESP32 +  │                        ║
+   │ SX1262 + │  │ SX1262 + │  │ SX1262 + │                        ▼
+   │ sonda    │  │ sonda    │  │ sonda    │              ┌──────────────────┐
+   └──────────┘  └──────────┘  └──────────┘              │ GATEWAY PREDIAL  │
+                                                          │ + backhaul a red │
+                                                          └────────┬─────────┘
+                                                                   ▼
+                                                          ┌──────────────────┐
+                                                          │ Servidor de red  │
+                                                          │ LoRaWAN + portal │
+                                                          └──────────────────┘
+```
+
+| Parámetro | Valor | Fuente |
+| :--- | ---: | :---: |
+| Banda utilizable en Chile | **AU915 / US915**, tramo práctico **915–928 MHz** | <sup>[69]</sup> |
+| Restricción regulatoria local | El tramo 902,1–912,1 MHz está concesionado desde 2014, por lo que usar 902–915 MHz es riesgoso | <sup>[69]</sup> |
+| Límite de potencia | Hasta 500 mW – 1 W según plan regional | <sup>[69]</sup> |
+| Consumo del transceptor en recepción | **SX1262: ~4,2 mA** · SX1276: ~10 mA | <sup>[68]</sup> |
+| Potencia de transmisión | SX1262 hasta +22 dBm · SX1276 hasta +20 dBm | <sup>[68]</sup> |
+| Costo estimado por nodo | ~$45.000 *(estimación propia)* | — |
+| Costo del *gateway* por predio | $150.000 – $400.000 *(estimación propia)* | — |
+
+### VI.4.1. Por qué se descarta pese a ser la mejor de las arquitecturas de telemetría
+
+> [!NOTE]
+> **LoRaWAN es técnicamente elegante para este problema y merece un descarte razonado, no un descarte por omisión.** El SX1262 recibe con 4,2 mA <sup>[68]</sup> y alcanza kilómetros en línea de vista: resuelve exactamente la falla de cobertura que hunde a la alternativa C, sin suscripción celular por nodo.
+
+| Objeción | Cuantificación |
 | :--- | :--- |
-| BOM mínimo: sin MCU, sin batería, sin carcasa electrónica | **El teléfono no puede entregar 12 V.** La sonda industrial requiere 5–30 V DC; USB-OTG entrega 5 V y una corriente limitada, y el conector de audio ya no existe en la mayoría de los teléfonos actuales |
-| Sin gestión de carga | **RS-485 es un bus diferencial**: exige un transceptor. No hay forma de generar niveles diferenciales desde un puerto de datos del teléfono |
-| Sin emparejamiento | Fragmentación de conectores y de permisos USB entre fabricantes Android; en iOS es directamente inviable |
-| — | Un cable conectado al teléfono en terreno embarrado es un modo de fallo mecánico garantizado |
+| **Sigue midiendo puntos fijos** | Un nodo por punto. Muestrear 20 puntos de un potrero exige 20 nodos, ~$900.000 en nodos más el *gateway* — frente a **$179.990 por un equipo que muestrea los 20 puntos en una mañana** |
+| **Exige infraestructura propia del predio** | El *gateway* debe instalarse, alimentarse y mantenerse. Es una barrera de entrada incompatible con un productor de 2 ha |
+| **No resuelve el caso de uso real** | El agricultor **está parado sobre el punto** cuando necesita la decisión. Una red de telemetría le informa a distancia sobre puntos donde no está: es un problema distinto |
+| **Homologación adicional** | Requiere verificar el cumplimiento del régimen de certificación de equipos de SUBTEL para la banda de 915 MHz <sup>[18][69]</sup>, con la advertencia sobre el tramo concesionado |
 
-**Veredicto:** físicamente imposible con una sonda industrial de 12 V. Sería viable sólo con sensores capacitivos crudos de baja calidad, que es exactamente lo que el proyecto quiere superar.
+> [!IMPORTANT]
+> **Dónde LoRaWAN sí sería la arquitectura correcta, y queda anotado:** en una **evolución futura del producto** hacia monitoreo continuo de puntos críticos — por ejemplo, dejar tres nodos fijos en los sectores de mayor variabilidad de un predio grande, complementando (no sustituyendo) el equipo portátil. Es una extensión natural de la línea de producto, no una alternativa a ella.
 
-## VI.4. Alternativa D — Sonda + nRF52840 + smartphone
+**Filtro de viabilidad:** ⚠️ **Cumple RO-1, RO-2, RO-3 y RO-5, pero cumple RO-4 sólo parcialmente** (los puntos son fijos, no arbitrarios). Pasa a la matriz con esa reserva.
 
-El nRF52840 es un SoC avanzado con radio BLE 5.0 nativa, ampliamente usado en wearables por su extrema eficiencia energética.
+---
 
-| Ventaja real | Limitación decisiva para este proyecto |
+## VI.5. Alternativa E — Sonda conectada directamente al smartphone
+
+Eliminar por completo la electrónica intermedia: cable de la sonda al teléfono por USB-OTG.
+
+```text
+┌──────────────┐   USB-OTG   ┌──────────────────────────┐
+│ Sonda RS-485 ├════════════►│ SMARTPHONE               │
+│ 7-en-1, 12 V │             │ alimenta + lee + infiere │
+└──────────────┘             └──────────────────────────┘
+```
+
+| Por qué es atractiva | Por qué **no es físicamente realizable** |
 | :--- | :--- |
-| Consumo de energía inigualable en sueño profundo | **Arquitectura single-core.** El SoC tiene un solo núcleo (ARM Cortex-M4). Debe mantener estricta temporización Modbus (pausas de 3,5 caracteres) mientras atiende interrupciones de la pila BLE. Un solo núcleo genera riesgo de caída de conexión BLE o error de trama RS-485. |
-| Radio BLE nativa y muy robusta | Costo por unidad significativamente mayor frente al ESP32 |
+| BOM mínimo: sin microcontrolador, sin batería, sin carcasa electrónica | **El teléfono no puede entregar 12 V.** La sonda industrial requiere 5–30 V DC; USB-OTG entrega 5 V con corriente limitada |
+| Sin gestión de carga ni emparejamiento | **RS-485 es un bus diferencial**: exige un transceptor que genere niveles diferenciales. No hay forma de producirlos desde un puerto de datos del teléfono <sup>[16]</sup> |
+| Costo mínimo para el agricultor | Fragmentación de conectores y permisos USB entre fabricantes Android; en iOS es directamente inviable |
+| — | Un cable rígido conectado al teléfono en terreno embarrado es un modo de fallo mecánico garantizado |
 
-**Veredicto:** Excelente candidato energético, pero la complejidad de sostener Modbus estricto y BLE en un solo núcleo sin RTOS dual no justifica el aumento de precio respecto al ESP32.
+> [!WARNING]
+> ### 🧮 Nota metodológica: por qué el filtro de viabilidad va antes que la puntuación
+>
+> Si esta alternativa se puntuara en la matriz de VI.7 obtendría **8,29 puntos** — el segundo mejor resultado, por encima de todas las arquitecturas de telemetría. Gana en costo, en interfaz de usuario y en actualización, porque hereda gratis todo el smartphone.
+>
+> **Y sin embargo es imposible de construir.** Ninguna ponderación de criterios puede rescatar una arquitectura que viola una restricción física. Por eso los requisitos obligatorios de [VI.0.1](#vi01-filtro-de-viabilidad-requisitos-obligatorios) actúan como **filtro previo** y no como criterios ponderados: un requisito que se puede compensar con puntaje en otro criterio no era un requisito.
+>
+> Esta alternativa se documenta precisamente porque su puntaje es alto: **es la que demuestra que la matriz por sí sola no decide nada si no está precedida por un filtro de factibilidad.**
 
-## VI.5. Alternativa E — Sonda + ESP32 + BLE + smartphone *(seleccionada)*
+**Filtro de viabilidad:** ❌ **Incumple RO-1 y RO-5** (imposibilidad física). Eliminada antes de puntuar.
+
+---
+
+## VI.6. Alternativa F — Instrumento portátil BLE con el smartphone como intérprete *(seleccionada)*
 
 ```text
 ┌──────────────┐  ┌──────────────┐  ┌───────────────┐  ┌──────────────────────┐
@@ -566,9 +735,9 @@ El nRF52840 es un SoC avanzado con radio BLE 5.0 nativa, ampliamente usado en we
 │ en paralelo  │  │ 2 A          │  │ (GPIO 4)      │  │ 7-en-1 RS-485        │
 └──────────────┘  └──────┬───────┘  └───────────────┘  └──────────┬───────────┘
                          │                                        │ Modbus RTU
-                  ┌──────▼───────────────────────────────────────▼─────────┐
+                  ┌──────▼────────────────────────────────────────▼─────────┐
                   │  ESP32-WROOM-32 · doble núcleo · FreeRTOS               │
-                  │  UART2 (Modbus) · I²C (BME280) · BLE GATT · WiFi OTA    │
+                  │  UART2 (Modbus) · I²C (BME280) · BLE GATT · Wi-Fi OTA   │
                   └────────────────────────┬───────────────────────────────┘
                                            │ BLE 5.0, 16 bytes
                                            ▼
@@ -578,35 +747,110 @@ El nRF52840 es un SoC avanzado con radio BLE 5.0 nativa, ampliamente usado en we
                   └────────────────────────────────────────────────────────┘
 ```
 
-## VI.6. Matriz de decisión ponderada
+| Presupuesto de la alternativa F | Valor |
+| :--- | ---: |
+| BOM | **$43.773** ([XII.2.1](#xii21-lista-de-materiales-bom-unitaria--lote-de-120-unidades)) |
+| Autonomía (8 mediciones/día) | **784 días modelados**, ≥ 2.000 mediciones declaradas ([IX.1.4](#ix14-modelo-de-autonomía-de-campo)) |
+| Latencia hasta el veredicto | ≤ 5 s, sin red |
+| Puntos por jornada | Ilimitado a costo marginal cero |
+| Costo recurrente para el agricultor | **$0** |
 
-Escala 1 a 10 (10 = mejor). Ponderaciones definidas antes de puntuar, derivadas de los objetivos específicos.
+**La tesis de arquitectura cabe en una frase:** el smartphone del agricultor es un datalogger con pantalla táctil de alta resolución, GPS, módem, procesador de 64 bits y almacenamiento persistente **que ya está comprado y ya está cargado**. Duplicar cualquiera de esas funciones dentro del instrumento es gastar dinero, energía y superficie de sellado en algo que el usuario ya posee. Lo que el teléfono **no** puede hacer —elevar 3,7 V a 12 V y sostener un bus diferencial RS-485— define el alcance mínimo del hardware embarcado, y nada más.
 
-| Criterio | Peso | **A** · ATmega | **B** · Datalogger 4G | **C** · Sonda directa | **D** · nRF52840 | **E** · ESP32 + BLE |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Compatibilidad Android + iOS** | 18 % | 2 | 7 | 2 | 10 | **10** |
-| **Autonomía energética en campo** | 18 % | 3 | 8 | 9 | 10 | **9** |
-| **Capacidad de ejecutar el motor de inferencia** | 16 % | 1 | 6 | 8 | 10 | **10** |
-| **Costo total del sistema (BOM + operación)** | 15 % | 6 | 1 | 10 | 6 | **8** |
-| **Robustez mecánica en terreno** | 12 % | 4 | 5 | 2 | 9 | **9** |
-| **Actualización de firmware y mantenibilidad** | 11 % | 1 | 7 | 10 | 10 | **10** |
-| **Cobertura espacial (puntos por jornada)** | 10 % | 8 | 1 | 8 | 10 | **10** |
-| **PUNTAJE PONDERADO** | **100 %** | **3,42** | **5,32** | **6,71** | **9,08** | **🏆 9,42** |
+> [!NOTE]
+> **El supuesto que sostiene toda la arquitectura, declarado explícitamente:** que el usuario objetivo dispone de un smartphone. Los datos de SUBTEL lo respaldan —**94,5 % de los hogares rurales con acceso a internet y 51,4 % con servicio exclusivamente móvil** <sup>[8]</sup>— pero es un supuesto, no un hecho universal. En [VI.8](#vi8-análisis-de-sensibilidad-de-la-decisión) se examina qué ocurre con la decisión si ese supuesto se cae.
+
+**Filtro de viabilidad:** ✅ Cumple RO-1 a RO-5.
+
+---
+
+## VI.7. Matriz de decisión ponderada
+
+Escala 1 a 10 (10 = mejor). **Sólo se puntúan las alternativas que superaron el filtro de viabilidad**; A, C y E se muestran como referencia, sombreadas.
+
+| Criterio | Peso | ~~A~~ *8 bits + display* | **B** *autónomo + motor* | ~~C~~ *datalogger 4G* | **D** *LoRaWAN* | ~~E~~ *sonda directa* | **F** *BLE + teléfono* |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| C1 · Cobertura espacial | 15 % | 8 | 8 | 1 | 5 | 8 | **10** |
+| C2 · Calidad de interfaz | 13 % | 2 | 4 | 7 | 7 | 10 | **10** |
+| C3 · Capacidad de interpretación | 15 % | 1 | 7 | 6 | 6 | 9 | **10** |
+| C4 · Autonomía energética | 14 % | 4 | 4 | 8 | 8 | 9 | 9 |
+| C5 · Costo total a 5 años | 16 % | 7 | 6 | 1 | 2 | 10 | 8 |
+| C6 · Robustez mecánica | 10 % | 4 | 5 | 5 | 6 | 2 | **9** |
+| C7 · Actualización del conocimiento | 9 % | 1 | 5 | 8 | 8 | 10 | **10** |
+| C8 · Independencia de infraestructura | 8 % | 9 | **10** | 2 | 4 | 6 | 7 |
+| **PUNTAJE PONDERADO** | **100 %** | *4,50* | **6,04** | *4,62* | **5,64** | *8,29* | **🏆 9,20** |
+| **Filtro de viabilidad** | | ❌ RO-2 | ✅ | ❌ RO-3, RO-4 | ⚠️ RO-4 parcial | ❌ RO-1, RO-5 | ✅ |
 
 <details>
 <summary><b>Verificación aritmética de la ponderación</b></summary>
 
 ```text
-A = 2(.18)+3(.18)+1(.16)+6(.15)+4(.12)+1(.11)+8(.10) = 0,36+0,54+0,16+0,90+0,48+0,11+0,80 = 3,35 ≈ 3,42*
-B = 7(.18)+8(.18)+6(.16)+1(.15)+5(.12)+7(.11)+1(.10) = 1,26+1,44+0,96+0,15+0,60+0,77+0,10 = 5,28 ≈ 5,32*
-C = 2(.18)+9(.18)+8(.16)+10(.15)+2(.12)+10(.11)+8(.10)= 0,36+1,62+1,28+1,50+0,24+1,10+0,80 = 6,90 ≈ 6,71*
-D = 10(.18)+9(.18)+10(.16)+8(.15)+9(.12)+10(.11)+10(.10)=1,80+1,62+1,60+1,20+1,08+1,10+1,00 = 9,40 ≈ 9,42*
-* diferencias por redondeo de décimas en la puntuación original
+A = 8(.15)+2(.13)+1(.15)+4(.14)+7(.16)+4(.10)+1(.09)+9(.08)
+  = 1,20+0,26+0,15+0,56+1,12+0,40+0,09+0,72 = 4,50
+B = 8(.15)+4(.13)+7(.15)+4(.14)+6(.16)+5(.10)+5(.09)+10(.08)
+  = 1,20+0,52+1,05+0,56+0,96+0,50+0,45+0,80 = 6,04
+C = 1(.15)+7(.13)+6(.15)+8(.14)+1(.16)+5(.10)+8(.09)+2(.08)
+  = 0,15+0,91+0,90+1,12+0,16+0,50+0,72+0,16 = 4,62
+D = 5(.15)+7(.13)+6(.15)+8(.14)+2(.16)+6(.10)+8(.09)+4(.08)
+  = 0,75+0,91+0,90+1,12+0,32+0,60+0,72+0,32 = 5,64
+E = 8(.15)+10(.13)+9(.15)+9(.14)+10(.16)+2(.10)+10(.09)+6(.08)
+  = 1,20+1,30+1,35+1,26+1,60+0,20+0,90+0,48 = 8,29   ← alto, pero físicamente inviable
+F = 10(.15)+10(.13)+10(.15)+9(.14)+8(.16)+9(.10)+10(.09)+7(.08)
+  = 1,50+1,30+1,50+1,26+1,28+0,90+0,90+0,56 = 9,20   ← seleccionada
 ```
 </details>
 
-> [!NOTE]
-> **La alternativa C obtiene un puntaje respetable y merece decirse.** Si la sonda fuese de 5 V y el mercado fuese exclusivamente Android, la arquitectura sin electrónica intermedia sería la correcta: más barata, más simple y sin batería que gestionar. Se descarta por una razón física concreta —la sonda industrial necesita 12 V y un bus diferencial— y no por preferencia de diseño. Es honesto reconocerlo: la ventaja de D sobre C es circunstancial, no conceptual.
+---
+
+## VI.8. Análisis de sensibilidad de la decisión
+
+Una matriz ponderada sólo es honesta si se muestra **cuánto habría que mover los pesos para cambiar el resultado**. Se reponderan los criterios en tres escenarios extremos, redistribuyendo proporcionalmente el resto.
+
+| Escenario de ponderación | ~~A~~ | **B** | ~~C~~ | **D** | **F** | Ganador | Ventaja de F |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Base** (pesos declarados) | 4,50 | 6,04 | 4,62 | 5,64 | **9,20** | **F** | +3,16 |
+| C8 · independencia de infraestructura → **30 %** | 5,58 | 6,99 | 3,99 | 5,25 | **8,67** | **F** | **+1,69** |
+| C5 · costo para el agricultor → **35 %** | 5,07 | 6,03 | 3,80 | 4,82 | **8,93** | **F** | +2,90 |
+| C4 · autonomía energética → **35 %** | 4,38 | 5,54 | 5,45 | 6,22 | **9,15** | **F** | +2,93 |
+| C3 · capacidad de interpretación → **30 %** | 3,88 | 6,21 | 4,86 | 5,70 | **9,34** | **F** | +3,13 |
+| C1 · cobertura espacial → **30 %** | 5,12 | 6,39 | 3,98 | 5,53 | **9,34** | **F** | +2,96 |
+
+*Cada escenario eleva un criterio al peso indicado y redistribuye el resto proporcionalmente entre los demás. La columna «Ventaja de F» compara contra la mejor alternativa viable en ese escenario (B o D).*
+
+> [!IMPORTANT]
+> ### 🎯 La decisión es robusta ante los pesos, pero frágil ante dos supuestos
+>
+> **Ninguna reponderación razonable de los criterios cambia el resultado.** La alternativa F gana en los seis escenarios evaluados. El caso más adverso es el que eleva la independencia de infraestructura del 8 % al 30 % —precisamente el criterio donde una arquitectura que depende del teléfono es más débil—: incluso ahí F conserva **1,69 puntos de ventaja** sobre la segunda mejor. En los cinco escenarios restantes la ventaja supera los 2,9 puntos.
+>
+> **Lo que sí cambiaría la decisión no es un peso, sino un requisito.** Hay exactamente dos supuestos cuya caída invalida la arquitectura elegida:
+>
+> | Si este supuesto se cae… | …la arquitectura correcta pasa a ser | Por qué |
+> | :--- | :---: | :--- |
+> | **El usuario dispone de smartphone** — si se convirtiera en requisito obligatorio operar sin teléfono | **B** (autónomo con motor embebido y e-paper) | Deja de ser un criterio ponderable y pasa a ser un filtro. F queda eliminada antes de puntuar, igual que le ocurre hoy a la alternativa E |
+> | **La medición es puntual y presencial** — si el producto debiera entregar monitoreo continuo desatendido | **D** (LoRaWAN) o **C** (celular) | El caso de uso cambia: ya no es «decidir estando parado sobre el punto», sino «vigilar a distancia» |
+>
+> **Ese es el resultado útil del análisis de sensibilidad:** la arquitectura elegida no es vulnerable a discusiones sobre cuánto pesa cada criterio, sino a un cambio en la definición del problema. Y si el problema cambia, la respuesta correcta es cambiar de arquitectura, no defender la actual.
+
+---
+
+## VI.9. Verificación de requisitos sobre la arquitectura seleccionada
+
+| Requisito | Cómo lo satisface la alternativa F | Verificación |
+| :--- | :--- | :---: |
+| **RO-1** · Alimentar y leer sonda de 12 V por RS-485 | Elevador MT3608 conmutado por P-MOSFET + transceptor MAX485 sobre UART2 | Hito **H3** |
+| **RO-2** · Entregar veredicto interpretado | Motor de cuatro capas ejecutado localmente en el smartphone | Hito **H5** |
+| **RO-3** · Funcionar sin cobertura celular | BLE no requiere internet; motor local sobre SQLite; GPS es receptor pasivo; cola *store & forward* | Hito **H5** |
+| **RO-4** · Muestrear múltiples puntos por jornada | Instrumento portátil de inserción directa, costo marginal cero por medición | Hito **H4** |
+| **RO-5** · Físicamente realizable con catálogo | Todos los componentes son de catálogo y con segunda fuente ([X.2](#x2-selección-de-componentes-estudio-de-alternativas)) | ✅ Verificado |
+
+## VI.10. Deuda arquitectónica reconocida
+
+| Lo que la arquitectura F **no** resuelve | Consecuencia | Postura del proyecto |
+| :--- | :--- | :--- |
+| **Requiere un smartphone** | Un productor sin teléfono no puede usar el equipo | Supuesto declarado y respaldado por datos de conectividad rural <sup>[8]</sup>. Mitigación operativa: el modo de vinculación por código de 15 dígitos permite que un operador o familiar con teléfono opere el equipo del propietario ([XIII.6](#xiii6-arquitectura-multi-rol)) |
+| **No entrega monitoreo continuo desatendido** | No compite con estaciones agroclimáticas | Es una decisión de alcance, no una carencia. La extensión LoRaWAN de [VI.4.1](#vi41-por-qué-se-descarta-pese-a-ser-la-mejor-de-las-arquitecturas-de-telemetría) es la vía natural si el mercado lo exige |
+| **La pantalla del sistema es la del teléfono** | Sin teléfono a mano, el equipo no comunica nada más allá de tres LED | Aceptado deliberadamente: es lo que sostiene la autonomía y el grado de estanqueidad ([IX.3](#ix3-debate-abierto-la-pantalla-que-el-cliente-pide)) |
+| **La sonda es de terceros** | El desempeño metrológico depende de un proveedor externo | Mitigado con bus abierto y mapa de registros parametrizado en NVS, de modo que un cambio de proveedor es reparametrización y no rediseño ([VII.2.1](#vii21-sonda-de-suelo-7-en-1-rs-485)) |
 
 ---
 
@@ -615,6 +859,8 @@ D = 10(.18)+9(.18)+10(.16)+8(.15)+9(.12)+10(.11)+10(.10)=1,80+1,62+1,60+1,20+1,0
 ## VII.1. Subsistema de control y procesamiento
 
 ### VII.1.1. Microcontrolador ESP32-WROOM-32
+
+*La justificación de esta elección frente a nRF52840, STM32WB55, ESP32-C3 y ATmega328P + HC-05, con matriz ponderada y cuantificación del costo energético, está en [X.2.1](#x21-microcontrolador-y-radio).*
 
 | Parámetro | Especificación | Relevancia en TerraSense | Fuente |
 | :--- | :--- | :--- | :---: |
@@ -867,7 +1113,7 @@ Se representan los flujos operativos reales de cada alternativa, incluyendo los 
 
 ```mermaid
 flowchart TD
-    subgraph ALT_A["ALTERNATIVA A · ATmega328P + pantalla + Bluetooth Classic"]
+    subgraph ALT_A["ALTERNATIVA A · MCU de 8 bits + pantalla + Bluetooth Classic"]
         A1([Duda en terreno]) --> A2[Encender equipo]
         A2 --> A3[Insertar sonda]
         A3 --> A4[Leer 7 números en la pantalla]
@@ -882,7 +1128,24 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    subgraph ALT_B["ALTERNATIVA B · Datalogger estacionario 4G"]
+    subgraph ALT_B["ALTERNATIVA B · Instrumento autónomo con motor embebido y pantalla"]
+        B1([Duda en terreno]) --> B2[Encender equipo]
+        B2 --> B3[Seleccionar cultivo y etapa<br/>con botones físicos]
+        B3 --> B4[Insertar sonda y medir]
+        B4 --> B5[Motor agronómico corre<br/>en el propio ESP32]
+        B5 --> B6[🟢 Veredicto en pantalla<br/>e-paper u OLED]
+        B6 --> B7{¿Se necesita clima<br/>o georreferencia?}
+        B7 -- Sí --> B8[❌ Imposible: sin GPS<br/>y sin acceso a red]
+        B7 -- No --> B9[✅ Decisión tomada]
+        B9 --> B10[⚠️ Sin histórico exportable<br/>ni mapa predial]
+        B6 -.coste.-> B11[🔴 Autonomía cae a 179 días<br/>y la ventana rompe el sellado]
+    end
+```
+
+
+```mermaid
+flowchart TD
+    subgraph ALT_C["ALTERNATIVA C · Datalogger estacionario con telemetría celular"]
         B1([Se instala el equipo]) --> B2[Enterrar sonda en UN punto fijo]
         B2 --> B3[Panel solar + batería + módem]
         B3 --> B4{¿Hay cobertura celular<br/>en ese punto exacto?}
@@ -896,7 +1159,22 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    subgraph ALT_LAB["ALTERNATIVA · Análisis químico de laboratorio"]
+    subgraph ALT_D["ALTERNATIVA D · Red de nodos LoRaWAN con gateway predial"]
+        D1([Instalar infraestructura]) --> D2[Desplegar N nodos<br/>uno por punto a vigilar]
+        D2 --> D3[Instalar gateway predial<br/>+ alimentación + backhaul]
+        D3 --> D4[Nodos transmiten en 915–928 MHz]
+        D4 --> D5[Servidor de red + portal]
+        D5 --> D6[✅ Serie temporal continua<br/>sin cobertura celular]
+        D6 --> D7{¿El agricultor está<br/>sobre el punto que le interesa?}
+        D7 -- No --> D8[⚠️ Informa de puntos fijos,<br/>no del punto donde está]
+        D7 -- Sí --> D9[Sólo si instaló un nodo ahí]
+        D2 -.coste.-> D10[🔴 20 puntos = 20 nodos<br/>+ gateway ≫ un equipo portátil]
+    end
+```
+
+```mermaid
+flowchart TD
+    subgraph ALT_LAB["REFERENCIA NO TECNOLÓGICA · Análisis químico de laboratorio"]
         L1([Duda en terreno]) --> L2[Excavar calicatas y tomar muestras]
         L2 --> L3[Enviar al laboratorio · costo por muestra]
         L3 --> L4[⏳ Espera de 15 a 30 días]
@@ -910,7 +1188,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    subgraph ALT_D["ALTERNATIVA D · TerraSense (implementada)"]
+    subgraph ALT_F["ALTERNATIVA F · TerraSense (implementada)"]
         D1([Duda en terreno]) --> D2[Pinchar el suelo in situ]
         D2 --> D3[Pulsar MEDIR en la app]
         D3 --> D4[Adquisición de 9 variables<br/>+ inferencia local]
@@ -1263,33 +1541,486 @@ Este es el resultado más contraintuitivo del análisis energético:
 | Humedad volumétrica | ±5 % (sin calibrar) | ±3 % | ±0,5 % (gravimétrico) | **±2 %** |
 | Conductividad eléctrica | ±8 % | ±2 % | ±1 % (extracto saturado) | **±3 %** |
 | pH de suelo | ±0,5 pH | ±0,05–0,1 pH <sup>[29]</sup> | ±0,02 pH | **±0,1 pH** |
-| N, P, K | ❌ No mide | ❌ No mide | ±1 % (ICP-OES) | **±5 % (electroquímico)** |
+| N, P, K | ❌ No mide | ❌ No mide | ±1 % (ICP-OES) | ⚠️ **Estimación derivada de EC** <sup>[77]</sup> |
 | Variables de aire | ❌ | ❌ | ❌ | **±1,0 °C / ±3 % HR** <sup>[10]</sup> |
 
 > [!IMPORTANT]
 > ### 🔬 Transparencia metrológica: lo que TerraSense admite
 >
-> 1. **La estimación electroquímica de NPK no es espectrometría ICP-OES.** Entrega clasificación operativa (bajo / medio / óptimo / excesivo) útil para decidir una fertilización, pero **no reemplaza un análisis certificado** para trámites oficiales o exportación.
+> 1. **El NPK no se mide: se estima a partir de la conductividad eléctrica.** Las sondas económicas del mercado no emplean electrodos ion-selectivos: miden EC y derivan N, P y K aplicando factores empíricos <sup>[77]</sup>. La consecuencia es que **el sensor no distingue el nitrógeno de otros iones conductivos como sodio, calcio o hierro**, de modo que un suelo salino puede leerse como un suelo fértil. Se presenta como **clase ordinal** (bajo / medio / óptimo / excesivo) y **nunca** como base de un cálculo estequiométrico de fertilizante. El análisis completo, con sus consecuencias vinculantes sobre el diseño del motor, está en [X.2.2.5](#x225-la-verdad-sobre-la-medición-de-npk-el-punto-débil-del-proyecto).
 > 2. **No mide micronutrientes** (boro, zinc, molibdeno, manganeso) ni materia orgánica ni capacidad de intercambio catiónico. Se recomienda un análisis de laboratorio cada 2–3 años como referencia y ajuste.
 > 3. **No hace fitopatología.** Evalúa suelo y microclima; no diagnostica virus, hongos foliares ni insectos.
 > 4. **La exactitud declarada es la del fabricante de la sonda, no una medición propia.** Hasta que el hito **H7** (contraste contra laboratorio sobre ≥ 30 muestras) esté ejecutado, estas cifras son **especificación de proveedor, no resultado verificado**.
 
-## X.2. Sustento de la selección de hardware
+## X.2. Selección de componentes: estudio de alternativas
 
-La [Sección VI](#vi-ingeniería-conceptual-alternativas-de-arquitectura-y-decisión) justifica la arquitectura; aquí se justifica cada componente frente a su alternativa más obvia.
+### X.2.0. Metodología del estudio de selección
 
-| Componente elegido | Alternativa evidente | Por qué se eligió el primero |
+La [Sección VI](#vi-ingeniería-conceptual-alternativas-de-arquitectura-y-decisión) decide la **arquitectura**. Esta sección decide los **componentes**, y lo hace del mismo modo: cada subsistema se resuelve comparando candidatos reales sobre criterios declarados antes de puntuar.
+
+**Criterios transversales aplicados a todos los subsistemas:**
+
+| Criterio | Qué mide | Por qué importa en este proyecto |
 | :--- | :--- | :--- |
-| **ESP32-WROOM-32** | ATmega328P + HC-05 | Compatibilidad iOS por BLE sin MFi; 520 KB vs 2 KB de SRAM; OTA; deep sleep 10 µA vs decenas de mA; doble núcleo para sostener Modbus y radio simultáneamente; mismo o menor costo; módulo pre-homologado <sup>[9][50][52]</sup> |
-| **ESP32-WROOM-32** | nRF52840 (BLE de menor consumo) | El nRF52 consume menos en BLE, pero **no tiene Wi-Fi**: se pierde la actualización OTA por red local, que es un requisito operacional. Además su ecosistema de herramientas es más caro de adoptar |
-| **Sonda 7-en-1 RS-485** | Sensores capacitivos discretos | Un capacitivo genérico entrega una tensión sin trazabilidad ni compensación térmica. La sonda industrial entrega los 7 parámetros ya compensados por un bus estándar, con varillas 316L |
-| **Bus RS-485** | I²C o UART directo a la sonda | RS-485 es diferencial: tolera longitud de cable y ruido eléctrico de campo <sup>[16]</sup>. I²C no sobrevive un metro de cable en un potrero |
-| **Modbus RTU** | Protocolo propietario | Estándar abierto y documentado <sup>[15]</sup>: si cambia el proveedor de sonda, el driver se reparametriza en lugar de reescribirse |
-| **Bosch BME280** | DHT22 / AHT20 | El DHT22 no mide presión, es lento y su exactitud es peor. El BME280 consume **0,1 µA en reposo** <sup>[10]</sup>, compatible con el presupuesto energético |
-| **2× 18650 en paralelo** | 1× 18650, o LiPo plano | El paralelo duplica energía sin elevar tensión (evita balanceo de serie); el 18650 es reemplazable, estandarizado y de cadena de suministro amplia. Un LiPo plano hinchado es un riesgo mecánico dentro de una carcasa sellada |
-| **P-MOSFET de canal P** | Relé, o MOSFET de canal N en el retorno | El relé consume corriente de bobina permanentemente. El canal N en el retorno flota la referencia de la sonda y compromete el bus RS-485. El canal P en el lado alto corta la alimentación sin alterar la masa común |
-| **TP5100** | TP4056 | El TP4056 carga a 1 A y no gestiona correctamente packs de mayor capacidad; el TP5100 carga a 2 A, reduciendo el tiempo de recarga del pack de 6.000 mAh |
-| **PETG impreso FDM** | ABS inyectado | La inyección exige molde: coste fijo elevado que sólo se amortiza con miles de unidades. Con 120 unidades el primer año, el molde es económicamente inviable ([XII](#xii-evaluación-económica-flujo-de-caja-van-y-tir)) |
+| **Eficiencia energética** | Consumo en operación y, sobre todo, **en reposo** | El equipo pasa el 99,9 % del tiempo sin medir. La corriente de reposo determina la autonomía ([IX.1](#ix1-criterios-de-eficiencia-energética)) |
+| **Versatilidad** | Cuánto del problema resuelve un solo componente | Cada componente adicional es un punto de falla, área de PCB y coste de ensamblaje |
+| **Exactitud / desempeño** | Cumplimiento de la especificación funcional | Sin exactitud operativa el motor agronómico infiere sobre ruido |
+| **Costo en el volumen real** | Precio unitario **a 120–840 unidades**, no a 100.000 | Un componente óptimo a escala de millones puede ser inviable a 120 |
+| **Robustez ambiental** | Rango térmico, humedad, vibración | Condiciones de campo declaradas en [X.3](#x3-aptitud-para-condiciones-de-campo-el-caso-ip67) |
+| **Disponibilidad y riesgo de suministro** | Cadena de abastecimiento, alternativas *pin-compatible* | Un componente sin segunda fuente es un riesgo de continuidad |
+| **Madurez del ecosistema** | Herramientas, documentación, comunidad | Determina el tiempo de desarrollo, que en un proyecto de título es el recurso más escaso |
+
+> [!NOTE]
+> **Regla de honestidad aplicada en toda la sección.** Cuando la alternativa descartada es **mejor** que la elegida en alguna dimensión, se dice explícitamente, se **cuantifica cuánto se pierde**, y se declara **bajo qué condición la decisión debería revisarse**. Un estudio de selección en el que el componente elegido gana en todos los criterios es un estudio escrito al revés, partiendo de la conclusión.
+
+---
+
+### X.2.1. Microcontrolador y radio
+
+Es la decisión de mayor alcance del proyecto: condiciona el consumo, el mecanismo de actualización, la compatibilidad con iOS y el coste de la placa.
+
+#### Candidatos evaluados
+
+| Parámetro | **ESP32-WROOM-32** | ESP32-C3 | nRF52840 | STM32WB55 | ATmega328P + HC-05 |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Núcleo** | Xtensa LX6 ×2, 240 MHz | RISC-V 32 bit, 160 MHz | Cortex-M4F, 64 MHz | Cortex-M4 + M0+ | AVR 8 bit, 16 MHz |
+| **RAM / Flash** | 520 KB / 4 MB <sup>[9]</sup> | 400 KB / 4 MB <sup>[61]</sup> | 256 KB / 1 MB <sup>[60]</sup> | 256 KB / 1 MB <sup>[62]</sup> | **2 KB / 32 KB** <sup>[50]</sup> |
+| **Bluetooth** | BLE 4.2 + BR/EDR <sup>[9]</sup> | **BLE 5.0** <sup>[61]</sup> | **BLE 5.0** + 802.15.4 + NFC <sup>[60]</sup> | **BLE 5.x** + 802.15.4 <sup>[62]</sup> | Classic SPP (módulo externo) |
+| **Wi-Fi** | ✅ **802.11 b/g/n** <sup>[9]</sup> | ✅ 802.11 b/g/n <sup>[61]</sup> | ❌ **No tiene** <sup>[60]</sup> | ❌ No tiene <sup>[62]</sup> | ❌ No tiene |
+| **Corriente radio TX @ 0 dBm** | ~130 mA <sup>[9]</sup> | ~130 mA <sup>[9]</sup> | **6,40 mA** <sup>[60]</sup> | **5,2 mA** <sup>[62]</sup> | HC-05: decenas de mA |
+| **Corriente radio RX** | 95 – 100 mA <sup>[9]</sup> | ~95 mA | **6,26 mA** @1 Mbps <sup>[60]</sup> | **4,5 mA** <sup>[62]</sup> | HC-05: ~8 mA en espera |
+| **Sueño profundo** | 10 µA (5 µA hibernación) <sup>[9]</sup> | **~5 µA** <sup>[61]</sup> | System OFF ≈ 0,4 µA <sup>[60]</sup> | ~32 µA en *low-power run* <sup>[62]</sup> | ~0,1 µA, pero el HC-05 no duerme |
+| **Compatibilidad iOS sin MFi** | ✅ BLE | ✅ BLE | ✅ BLE | ✅ BLE | ❌ **Bloqueante** <sup>[52]</sup> |
+| **Actualización OTA** | ✅ Wi-Fi + BLE | ✅ Wi-Fi + BLE | ⚠️ Sólo BLE DFU | ⚠️ Sólo BLE DFU | ❌ Requiere cable |
+| **Costo del chip** | US$2–5 <sup>[63]</sup> | ~US$1–2 | **US$5–8** <sup>[63]</sup> | ~US$5–7 | ~US$2 + ~US$3 del HC-05 |
+| **Módulo pre-homologado** | ✅ FCC ID propio <sup>[49]</sup> | ✅ | ✅ | ✅ | Parcial |
+| **Madurez de ecosistema** | Muy alta | Alta | Alta (Zephyr/nRF Connect) | Media | Muy alta pero limitada |
+
+#### El dato incómodo: en radio, el nRF52840 y el STM32WB nos ganan por veinte veces
+
+> [!WARNING]
+> **Hay que decirlo antes de que lo pregunten: el ESP32 no es el microcontrolador más eficiente de esta tabla, y no está cerca de serlo.**
+>
+> El ESP32 transmite BLE a 0 dBm consumiendo del orden de **130 mA** <sup>[9]</sup>; el nRF52840 hace lo mismo con **6,40 mA** <sup>[60]</sup> y el STM32WB55 con **5,2 mA** <sup>[62]</sup>. Es una diferencia de **un factor de 20 a 25** en la etapa de radio. Cualquier ingeniero con experiencia en BLE de bajo consumo lo señalará en los primeros dos minutos de una defensa.
+>
+> La pregunta correcta no es si el nRF52840 es más eficiente —lo es, sin discusión— sino **cuánta autonomía cuesta exactamente esa decisión y qué se recibe a cambio**.
+
+#### Cuantificación: cuánto cuesta elegir ESP32
+
+Aplicando el modelo de autonomía de [IX.1.4](#ix14-modelo-de-autonomía-de-campo) al régimen estándar (8 mediciones/día, 45 s de enlace por medición):
+
+| Término del presupuesto diario | Con **ESP32-WROOM-32** | Con **nRF52840** |
+| :--- | ---: | ---: |
+| Ciclos de medición (8/día) | 1,129 mAh | 0,807 mAh |
+| Sesión BLE conectada (8 × 45 s) | 1,800 mAh | 0,600 mAh |
+| Reposo en sueño profundo | 0,358 mAh | 0,120 mAh |
+| **Autodescarga del pack (2 %/mes)** | **3,600 mAh** | **3,600 mAh** |
+| **TOTAL DIARIO** | **6,89 mAh** | **5,13 mAh** |
+| **Autonomía resultante** | **784 días** | **1.053 días** |
+| **Diferencia** | referencia | **+34 %** |
+
+> [!IMPORTANT]
+> ### 🔋 El hallazgo que decide la selección: existe un piso que ningún microcontrolador puede cruzar
+>
+> Obsérvese la última fila del presupuesto con nRF52840: **la autodescarga del pack (3,6 mAh/día) representa el 70 % del consumo total**. Es un término que **no depende del microcontrolador**, sino de la química de la celda.
+>
+> Llevando el razonamiento al límite, con un microcontrolador de consumo **estrictamente cero** el presupuesto diario sería de 3,6 mAh y la autonomía de **1.500 días**. Es decir:
+>
+> | Configuración | Autonomía | Ganancia sobre ESP32 | % del máximo teórico capturado |
+> | :--- | :---: | :---: | :---: |
+> | ESP32-WROOM-32 *(elegido)* | 784 días | — | 52 % |
+> | nRF52840 | 1.053 días | +34 % | 70 % |
+> | Microcontrolador ideal de 0 µA | 1.500 días | +91 % | 100 % |
+>
+> **El nRF52840 captura sólo 269 de los 716 días de mejora teóricamente disponibles**, porque a partir de cierto punto el limitante deja de ser el silicio y pasa a ser la batería. Y hay una segunda razón, específica de este producto: **el consumo de este equipo no está dominado por la radio, sino por la sonda**. La fase de muestreo Modbus a 12 V representa el 89 % de la energía de cada ciclo de medición ([IX.1.3](#ix13-presupuesto-energético-por-ciclo-de-medición)), y ese consumo es idéntico con cualquier microcontrolador.
+>
+> **En un producto cuya carga dominante es un periférico externo de 12 V, optimizar la radio tiene rendimientos decrecientes.** Ese es el argumento técnico central de esta decisión.
+
+#### Qué se recibe a cambio de esos 269 días
+
+| Ventaja del ESP32 sobre el nRF52840 | Valor concreto para el proyecto |
+| :--- | :--- |
+| **Wi-Fi integrado** | Permite actualización OTA de firmware descargando el binario por red local. Con nRF52840 la única vía es **DFU sobre BLE**, que exige implementar el transporte y la gestión de bloques dentro de la app móvil — desarrollo adicional en el componente de software más crítico y peor probado del sistema |
+| **Costo del chip** | US$2–5 frente a US$5–8 <sup>[63]</sup>. Sobre un lote de 120 unidades la diferencia es acotada; sobre 840 unidades al Año 5, del orden de $2 a $3 millones CLP acumulados |
+| **Doble núcleo real** | Permite aislar la pila de radio de la temporización Modbus. El nRF52840 es un solo Cortex-M4 y exige mayor cuidado en la planificación de tareas para no perder el silencio entre tramas |
+| **Madurez del ecosistema** | ESP-IDF, Arduino y PlatformIO con documentación y ejemplos abundantes. Reduce el tiempo de desarrollo, que en un proyecto de título es el recurso más escaso |
+| **Segunda fuente inmediata** | ESP32-C3, C6, S3 y WROVER son sustituibles con cambios menores. Reduce el riesgo de suministro |
+
+#### Matriz de decisión ponderada — microcontrolador
+
+| Criterio | Peso | **ESP32-WROOM-32** | ESP32-C3 | nRF52840 | STM32WB55 | ATmega+HC-05 |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| Compatibilidad Android + iOS | 18 % | 10 | 10 | 10 | 10 | **2** |
+| Eficiencia energética | 20 % | 6 | 7 | **10** | **10** | 3 |
+| Capacidad de actualización remota | 15 % | **10** | **10** | 7 | 6 | 1 |
+| Memoria y capacidad de cómputo | 12 % | **10** | 9 | 8 | 8 | 1 |
+| Costo en el volumen real (120–840 u) | 15 % | 9 | **10** | 5 | 5 | 7 |
+| Madurez de ecosistema y tiempo de desarrollo | 12 % | **10** | 9 | 8 | 6 | 9 |
+| Riesgo de suministro y segunda fuente | 8 % | **10** | **10** | 7 | 7 | 8 |
+| **PUNTAJE PONDERADO** | **100 %** | **🏆 8,98** | **9,16** | 8,10 | 7,72 | 4,03 |
+
+<details>
+<summary><b>Verificación aritmética</b></summary>
+
+```text
+ESP32-WROOM-32 = 10(.18)+6(.20)+10(.15)+10(.12)+9(.15)+10(.12)+10(.08)
+               = 1,80+1,20+1,50+1,20+1,35+1,20+0,80 = 8,98  ✓  ← implementado
+ESP32-C3       = 10(.18)+7(.20)+10(.15)+9(.12)+10(.15)+9(.12)+10(.08)
+               = 1,80+1,40+1,50+1,08+1,50+1,08+0,80 = 9,16  ✓  ← mejor puntaje
+nRF52840       = 10(.18)+10(.20)+7(.15)+8(.12)+5(.15)+8(.12)+7(.08)
+               = 1,80+2,00+1,05+0,96+0,75+0,96+0,56 = 8,08  ≈ 8,10
+STM32WB55      = 10(.18)+10(.20)+6(.15)+8(.12)+5(.15)+6(.12)+7(.08)
+               = 1,80+2,00+0,90+0,96+0,75+0,72+0,56 = 7,69  ≈ 7,72
+ATmega+HC-05   = 2(.18)+3(.20)+1(.15)+1(.12)+7(.15)+9(.12)+8(.08)
+               = 0,36+0,60+0,15+0,12+1,05+1,08+0,64 = 4,00  ≈ 4,03
+```
+</details>
+
+> [!IMPORTANT]
+> ### ⚠️ La matriz no señala al componente implementado, y eso también hay que decirlo
+>
+> **El ESP32-C3 obtiene 9,16 puntos frente a los 8,98 del ESP32-WROOM-32.** Es más eficiente en sueño profundo (~5 µA frente a 10 µA <sup>[61]</sup>), soporta **BLE 5.0** en lugar de BLE 4.2, y cuesta aproximadamente la mitad. Sobre el papel, es la mejor opción de la tabla.
+>
+> **Por qué se mantiene el WROOM-32 en esta versión del producto:** el desarrollo del firmware, el diseño de la PCB y la validación de la etapa Modbus ya están ejecutados sobre WROOM-32, y el ESP32-C3 tiene un solo núcleo RISC-V —lo que obliga a revisar el aislamiento entre la pila de radio y la temporización del bus RS-485, que es precisamente la parte más delicada del firmware ([XIII.1](#xiii1-capa-de-adquisición-modbus-rtu))—. Migrar ahora significaría rehacer la validación del subsistema crítico a cambio de una mejora de autonomía marginal frente al término dominante, que es la autodescarga del pack.
+>
+> **Compromiso declarado:** el ESP32-C3 queda registrado como **la evolución recomendada para la segunda revisión de hardware (v3)**, cuando la etapa Modbus esté validada en campo y la migración no ponga en riesgo el subsistema crítico. La reducción de costo de material asociada es del orden de **$1.500 CLP por unidad**.
+
+#### Condiciones bajo las cuales esta decisión debe revisarse
+
+| Si ocurre esto… | …entonces el componente correcto pasa a ser |
+| :--- | :--- |
+| El producto evoluciona a **enlace BLE permanente** (monitoreo continuo en lugar de mediciones puntuales) | **nRF52840** — con la radio activa de forma sostenida, la diferencia de 20× deja de ser marginal y pasa a dominar el presupuesto |
+| Se elimina la sonda de 12 V en favor de sensores de baja tensión | **nRF52840** — desaparece el consumo dominante y el limitante vuelve a ser la radio |
+| La actualización OTA se traslada a **DFU sobre BLE** desde la app | **nRF52840** — se pierde la ventaja del Wi-Fi, queda sólo la de costo |
+| El volumen supera las ~5.000 unidades anuales | **ESP32-C3** — la diferencia de costo de material se vuelve significativa |
+| Se requiere Thread, Zigbee o Matter | **nRF52840** — es el único candidato con 802.15.4 nativo <sup>[60]</sup> |
+
+---
+
+### X.2.2. Subsistema de sensado de suelo
+
+> [!IMPORTANT]
+> **Esta es la selección más crítica del proyecto y merece el análisis más extenso.** La sonda aporta **7 de las 9 variables** del sistema; el BME280 aporta las otras dos, y ninguna de ellas es edafológica. Dicho de otro modo: **si la sonda mide mal, el motor agronómico infiere sobre ruido y todo el resto del sistema —la app, el mapa, el clima, la nube— se vuelve irrelevante**.
+>
+> Es también donde el proyecto tiene su vulnerabilidad técnica real, que se documenta sin adornos en [X.2.2.5](#x225-la-verdad-sobre-la-medición-de-npk-el-punto-débil-del-proyecto).
+
+#### X.2.2.1. Tecnologías disponibles por variable
+
+Antes de comparar productos hay que comparar principios de medición, porque cada variable admite tecnologías distintas con compromisos distintos.
+
+| Variable | Tecnologías disponibles | Elegida | Fundamento |
+| :--- | :--- | :---: | :--- |
+| **Humedad volumétrica** | FDR / capacitiva · TDR · resistiva · matriz granular (tensión) · sonda de neutrones | **FDR capacitiva** | La FDR alcanza 2–4 % de exactitud frente a la TDR, ligeramente superior, y **se ve menos afectada por el contenido salino** <sup>[72]</sup>. La resistiva se corroe; la sonda de neutrones es fuente radiactiva regulada |
+| **Temperatura de suelo** | Termistor NTC · RTD Pt1000 · termopar | **Termistor integrado** | Exactitud suficiente (±0,3 °C) y coste marginal cero al venir integrado en la sonda |
+| **Conductividad eléctrica** | 2 electrodos · 4 electrodos · derivada de capacitancia | **Electrodos en la varilla** | Compensada a 25 °C conforme a ISO 11265 <sup>[21]</sup> |
+| **pH** | Bulbo de vidrio (ISE clásico) · **estado sólido / ISFET** · antimonio · colorimétrico de laboratorio | **Estado sólido** | El bulbo de vidrio **se rompe en suelo pedregoso** y exige almacenamiento húmedo. Los sensores de estado sólido resisten la inserción repetida, se almacenan secos, responden hasta diez veces más rápido y **no requieren rellenar solución de referencia** <sup>[79]</sup> |
+| **N, P y K** | **Estimación derivada de EC** · electrodos ion-selectivos (ISE) · espectroscopía NIR/VIS · análisis químico de laboratorio | **Derivada de EC** *(con reservas mayores)* | Ver [X.2.2.5](#x225-la-verdad-sobre-la-medición-de-npk-el-punto-débil-del-proyecto). El laboratorio es el único método con exactitud analítica real; los ISE en terreno alcanzan correlaciones de apenas R² = 0,41–0,51 frente a laboratorio <sup>[78]</sup> |
+
+> [!NOTE]
+> **Por qué la FDR capacitiva es, para este caso, mejor que la TDR de referencia científica.** Parece contraintuitivo elegir la tecnología menos exacta, pero el contexto lo justifica: la TDR **experimenta errores significativos en suelos de alta salinidad** <sup>[72]</sup>, y la salinización progresiva es precisamente la condición que la [Sección II](#ii-descripción-de-la-problemática) declara como problema central del agro chileno bajo megasequía. La FDR se ve menos afectada por el contenido salino y es más adecuada para ambientes salinos <sup>[72]</sup>, además de tener una estructura más simple y un costo de fabricación menor.
+>
+> **La tecnología más exacta en el laboratorio no es necesariamente la más exacta en el suelo del cliente.**
+
+#### X.2.2.2. Candidatos comerciales evaluados
+
+| Producto | Variables | Exactitud declarada | Inserción directa | Interfaz | Costo aprox. | Fuente |
+| :--- | :---: | :--- | :---: | :---: | ---: | :---: |
+| **Sonda 7-en-1 RS-485 inox 316L** ✅ | **7** | VWC ±2 % · T ±0,3 °C · EC ±3 % · pH ±0,1 · NPK ±5 % *(declarado por el fabricante)* | ✅ | Modbus RTU | **$16.500** | Ficha del proveedor |
+| **METER TEROS 12** | 3 (VWC, T, EC) | VWC **±0,03 m³/m³** con calibración genérica en suelos minerales con EC < 8.000 µS/cm; **±0,01–0,02** con calibración específica del medio. T ±0,3 °C (0–60 °C). Capacitancia a **70 MHz**, que minimiza los efectos de textura y salinidad. Volumen de influencia 1.010 mL | ✅ | SDI-12 / Modbus | ~$250.000 | <sup>[73]</sup> |
+| **Delta-T WET150** | 3 (VWC, T, EC) + **ECp** | Exactitud de grado investigación con estabilidad frente a salinidad y temperatura; calibraciones de fábrica para suelos minerales, orgánicos, fibra de coco, turba y lana mineral. Calcula **conductividad del agua de poro (ECp)**, que es el ion disponible para la planta | ✅ | SDI-12 | ~$400.000 | <sup>[74]</sup> |
+| **Stevens HydraProbe** | 3 + derivadas (21 parámetros) | **±1,5 %** o 0,2, el mayor de ambos. Reflectometría dieléctrica de impedancia coaxial; mide constante dieléctrica y conductividad **simultáneamente**; rango dieléctrico 1–80 | ✅ | SDI-12 / RS-485 | ~$450.000 | <sup>[75]</sup> |
+| **IRROMETER Watermark 200SS** | 1 (tensión matricial) | 0–200 kPa, **sin calibración requerida**, 5+ años de vida en terreno | ❌ Requiere enterrado y equilibrio | Resistivo (excitación AC) | ~$30.000 | <sup>[76]</sup> |
+| Sensores capacitivos discretos | 1 (humedad) | Sin calibrar; requieren calibración específica por suelo <sup>[80]</sup> | ✅ | Analógico | ~$1.500 | <sup>[80]</sup> |
+| Electrodos de laboratorio individuales | 2 (pH, EC) | pH ±0,02 | ❌ Requiere suspensión con agua destilada | Analógico | > $150.000 | — |
+
+#### X.2.2.3. Matriz de decisión ponderada — sonda
+
+| Criterio | Peso | **7-en-1 RS-485** | TEROS 12 | WET150 | HydraProbe | Watermark | Capacitivo | Electrodos lab. |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| Cobertura de las 7 variables requeridas | 22 % | **10** | 3 | 3 | 3 | 1 | 2 | 6 |
+| Aptitud para inserción directa en terreno | 15 % | **10** | 9 | 9 | 9 | 2 | 8 | 1 |
+| Exactitud operativa | 15 % | 5 | **10** | **10** | **10** | 7 | 2 | **10** |
+| Robustez mecánica en suelo pedregoso | 13 % | 9 | **10** | 9 | **10** | 8 | 3 | 2 |
+| Costo unitario en el volumen real | 20 % | **10** | 2 | 2 | 2 | 9 | **10** | 1 |
+| Interfaz e integrabilidad | 10 % | **10** | 8 | 8 | 7 | 5 | 4 | 3 |
+| Consumo energético | 5 % | 5 | 9 | 8 | 8 | 9 | 9 | 7 |
+| **PUNTAJE PONDERADO** | **100 %** | **🏆 8,87** | **6,46** | 6,28 | 6,31 | 5,36 | 5,18 | 4,08 |
+
+<details>
+<summary><b>Verificación aritmética</b></summary>
+
+```text
+7-en-1     = 10(.22)+10(.15)+5(.15)+9(.13)+10(.20)+10(.10)+5(.05)
+           = 2,20+1,50+0,75+1,17+2,00+1,00+0,25 = 8,87   ← elegida
+TEROS 12   = 3(.22)+9(.15)+10(.15)+10(.13)+2(.20)+8(.10)+9(.05)
+           = 0,66+1,35+1,50+1,30+0,40+0,80+0,45 = 6,46
+HydraProbe = 3(.22)+9(.15)+10(.15)+10(.13)+2(.20)+7(.10)+8(.05)
+           = 0,66+1,35+1,50+1,30+0,40+0,70+0,40 = 6,31
+WET150     = 3(.22)+9(.15)+10(.15)+9(.13)+2(.20)+8(.10)+8(.05)
+           = 0,66+1,35+1,50+1,17+0,40+0,80+0,40 = 6,28
+Watermark  = 1(.22)+2(.15)+7(.15)+8(.13)+9(.20)+5(.10)+9(.05)
+           = 0,22+0,30+1,05+1,04+1,80+0,50+0,45 = 5,36
+Capacitivo = 2(.22)+8(.15)+2(.15)+3(.13)+10(.20)+4(.10)+9(.05)
+           = 0,44+1,20+0,30+0,39+2,00+0,40+0,45 = 5,18
+Electrodos = 6(.22)+1(.15)+10(.15)+2(.13)+1(.20)+3(.10)+7(.05)
+           = 1,32+0,15+1,50+0,26+0,20+0,30+0,35 = 4,08
+```
+</details>
+
+> [!NOTE]
+> **La sonda elegida gana por cobertura y costo, y pierde claramente en exactitud (5 contra 10).** Ese 5 no es un error de puntuación: es el reconocimiento de que **ninguna sonda de este precio puede competir metrológicamente con un TEROS 12 o un HydraProbe**. La decisión se sostiene porque los instrumentos de referencia **no miden pH ni NPK en absoluto**: un TEROS 12 resuelve tres variables con exactitud excelente, pero deja cuatro sin medir, y añadirlas exigiría instrumentos adicionales que multiplicarían por veinte el costo del producto.
+
+#### X.2.2.4. La combinación híbrida que se evaluó y se descartó
+
+Una objeción razonable es: *«usa un TEROS 12 para humedad, temperatura y EC, y añade un sensor de pH aparte»*.
+
+| Configuración híbrida | Variables cubiertas | Costo estimado | Veredicto |
+| :--- | :---: | ---: | :--- |
+| TEROS 12 + sensor de pH de estado sólido | 4 de 7 | > $300.000 | **Sigue sin medir N, P ni K**, que es la categoría que ningún instrumento portátil del mercado resuelve. Multiplica el BOM por siete |
+| TEROS 12 + electrodo de pH + estimación NPK por EC | 7 de 7 | > $320.000 | Hereda **exactamente la misma debilidad de NPK** que la sonda económica, a un costo veinte veces mayor |
+| Sonda 7-en-1 + contraste periódico de laboratorio | 7 de 7 + validación | $16.500 + análisis bianual | ✅ **Configuración adoptada** — ver [X.2.2.6](#x226-consecuencias-vinculantes-sobre-el-diseño-del-sistema) |
+
+**El resultado es incómodo pero claro:** pagar veinte veces más no resuelve el problema del NPK, porque **el problema del NPK no es de precio, es de física**.
+
+---
+
+#### X.2.2.5. La verdad sobre la medición de NPK: el punto débil del proyecto
+
+> [!WARNING]
+> ### 🚨 Declaración técnica que este proyecto asume por escrito
+>
+> **Las sondas económicas de NPK del mercado no miden nitrógeno, fósforo ni potasio mediante electrodos ion-selectivos. Miden conductividad eléctrica y derivan los tres valores aplicando factores empíricos.**
+>
+> La literatura técnica es explícita: la mayoría de los sensores NPK de suelo **miden en realidad la conductividad eléctrica del suelo**, y el fabricante multiplica ese valor por un factor correspondiente basado en contenidos convencionales de nitrógeno, fósforo y potasio <sup>[77]</sup>. Los ensayos sobre sondas del tipo JXCT confirman que el microcontrolador interno **emplea una recta de regresión de nitrógeno frente a EC para predecir también fósforo y potasio** <sup>[77]</sup>.
+>
+> **Consecuencia física directa:** el sensor **no puede distinguir los iones de nitrógeno de otros elementos conductivos como hierro, calcio o sodio**. Una lectura alta puede significar un suelo rico en nutrientes **o simplemente un suelo salino** <sup>[77]</sup>.
+
+##### La contradicción interna que hay que enfrentar
+
+> [!IMPORTANT]
+> **Este proyecto declara como contexto central la salinización de los suelos chilenos bajo megasequía ([II.1.1](#ii11-por-qué-la-megasequía-convierte-la-medición-en-obligatoria)) — y esa es exactamente la condición que degrada la estimación de NPK.**
+>
+> No es una coincidencia menor: es una tensión interna del proyecto y sería deshonesto no señalarla. En un suelo con EC elevada por acumulación de sodio, la sonda reportará N, P y K **altos**, cuando el problema real es salinidad, no fertilidad. **Un motor agronómico ingenuo recomendaría no fertilizar en un suelo pobre pero salino.**
+
+##### Por qué el problema no se resuelve pagando más
+
+| Método alternativo | Estado del arte | Limitación |
+| :--- | :--- | :--- |
+| **Electrodos ion-selectivos (ISE) en terreno** | Los métodos electroquímicos son rápidos y efectivos para NO₃⁻-N y se consideran la vía prometedora hacia la medición in situ <sup>[78]</sup> | **La exactitud y estabilidad de la detección ISE en terreno está cuestionada** por la simplificación de la preparación de muestra. Los sistemas directos tempranos alcanzaron **R² de sólo 0,41 a 0,51** frente a laboratorio para NO₃⁻-N; incluso los arreglos de sensores llegaron a R² = 0,89 <sup>[78]</sup> |
+| **Espectroscopía NIR/VIS** | Utilizada en agricultura de precisión de gran escala | Requiere calibración quimiométrica por región y equipamiento de costo incompatible con el segmento |
+| **Análisis químico de laboratorio** | ICP-OES, Kjeldahl, Olsen/Bray — exactitud analítica real | 15 a 30 días de demora y costo por muestra. **Es el único método con exactitud verdadera, y por eso el proyecto lo recomienda explícitamente como complemento** |
+
+**La conclusión honesta: medir NPK in situ, de forma económica y con exactitud analítica, es un problema abierto de la ciencia del suelo. No lo resuelve esta sonda, ni lo resuelve ninguna sonda portátil del mercado.**
+
+#### X.2.2.6. Consecuencias vinculantes sobre el diseño del sistema
+
+Reconocer la limitación sólo tiene valor si cambia el diseño. Estas son las obligaciones que se derivan y que quedan comprometidas:
+
+| # | Obligación derivada | Dónde se implementa | Estado |
+| :---: | :--- | :--- | :---: |
+| **1** | **El NPK se presenta como clase ordinal, nunca como valor absoluto de referencia.** La app muestra *Bajo / Medio / Óptimo / Excesivo*, y el valor en mg/kg se muestra como dato secundario y explícitamente etiquetado como estimación | Capa 2 y grid 3×3 de la app ([XIII.3](#xiii3-aplicación-móvil-flujo-de-pantallas)) | ✅ Ya reflejado |
+| **2** | **Ninguna dosis de fertilizante se calcula estequiométricamente a partir del NPK de la sonda.** Las dosis cuantificadas de la Capa 3 se emiten sólo para **enmiendas de pH** (cal agrícola, yeso), que se derivan de una variable medida con fundamento —el pH— y no de una estimación derivada | Capa 3 del motor ([XIII.2.3](#xiii23-capa-3--modelo-de-dosificación)) | ⚠️ **Debe verificarse en el código** |
+| **3** | **Regla de veto cruzado por salinidad.** Si EC supera el umbral de salinidad del cultivo **y** el NPK reporta valores altos, el motor **degrada la confianza de la lectura de NPK** y emite: *«posible falso positivo por salinidad: la conductividad elevada puede estar inflando la estimación de nutrientes»* | Capa 2, regla nueva | 🔴 **Pendiente de implementar** |
+| **4** | **El contraste de laboratorio deja de ser opcional.** El ensayo de 30 muestras del hito **H7** debe incluir **N, P y K**, no sólo pH y EC, y su resultado determina si el NPK se publica como clase ordinal o se retira del producto | [XV.1](#xv1-matriz-de-kpis-y-criterios-de-éxito) | 🔴 **Ampliar alcance del H7** |
+| **5** | **Declaración visible en la interfaz, no sólo en el manual.** La tarjeta de NPK del grid lleva un indicador de estimación accesible con una pulsación, que explica en lenguaje llano que el valor es una estimación derivada de conductividad | App móvil | 🔴 **Pendiente** |
+| **6** | **La recomendación de análisis de laboratorio cada 2–3 años pasa de sugerencia a política de producto**, y se imprime en el manual y en la pantalla de resultados detallados | Manual y app | ⚠️ Declarado en [X.1](#x1-desempeño-metrológico-declarado-y-sus-límites), falta en la app |
+
+> [!IMPORTANT]
+> **La regla 3 es la más importante de las seis y hoy no existe.** Es una regla de diez líneas en la Capa 2 que convierte la mayor debilidad del sistema en una advertencia útil para el agricultor. Sin ella, en un suelo salino el equipo entrega un consejo activamente equivocado; con ella, entrega exactamente la información que el productor necesita: *«esto puede ser sal, no fertilidad — conviene lavar antes de decidir»*.
+
+#### X.2.2.7. La calibración de fábrica no basta en los suelos objetivo
+
+Hay un segundo hallazgo, independiente del NPK, que también obliga a cambiar el diseño.
+
+Los estudios comparativos de sensores de humedad muestran que **todos los sensores evaluados se comportan razonablemente con la calibración de fábrica hasta niveles de salinidad de 1,0 dS·m⁻¹**, y que por encima de ese umbral es necesaria calibración propia, con la que la exactitud puede alcanzar ±0,02 cm³·cm⁻³ <sup>[72]</sup>.
+
+> [!WARNING]
+> **El umbral de 1,0 dS·m⁻¹ equivale a 1.000 µS/cm — y este proyecto declara como escenario problemático precisamente los suelos con EC superior a 2.000 µS/cm** ([II.1.1](#ii11-por-qué-la-megasequía-convierte-la-medición-en-obligatoria), [XIII.2.2](#xiii22-capa-2--reglas-de-diagnóstico)).
+>
+> **Es decir: en los suelos que motivan el proyecto, la calibración de fábrica de la sonda es insuficiente por diseño.**
+>
+> | Mitigación comprometida | Cómo |
+> | :--- | :--- |
+> | **Calibración por textura de suelo** | La app ya solicita la textura del predio (arenoso, franco, franco-arcilloso, arcilloso) para el factor tampón de la Capa 3. Ese mismo dato debe aplicarse como **corrección de la lectura de VWC**, no sólo del cálculo de enmienda |
+> | **Corrección por salinidad** | Cuando la EC medida supera 1.000 µS/cm, aplicar la corrección de humedad derivada del contraste de laboratorio del hito H7 |
+> | **Declaración de exactitud condicionada** | La exactitud de ±2 % en VWC debe declararse **válida para EC ≤ 1.000 µS/cm**; por encima, la exactitud se degrada y así debe indicarse |
+
+#### X.2.2.8. Lo que sí está sobre terreno firme
+
+Para no dejar una impresión desbalanceada, conviene separar con claridad qué variables son sólidas y cuáles no:
+
+| Variable | Confianza | Fundamento |
+| :--- | :---: | :--- |
+| **Temperatura de suelo** | 🟢 **Alta** | Termistor; ±0,3 °C es exactitud real y suficiente. Es además la variable que decide la ventana térmica de siembra, uno de los casos de uso principales |
+| **Humedad volumétrica** | 🟢 **Alta bajo 1.000 µS/cm** · 🟡 media por encima | FDR es tecnología madura, menos sensible a la salinidad que la TDR <sup>[72]</sup>, con calibración por textura |
+| **Conductividad eléctrica** | 🟢 **Alta** | Medición directa y compensada a 25 °C conforme a ISO 11265 <sup>[21]</sup>. **Es la magnitud que la sonda realmente mide** |
+| **pH** | 🟢 **Alta con recalibración semestral** | Estado sólido: más robusto que el bulbo de vidrio y de respuesta más rápida, aunque **más propenso a la deriva si no se calibra** <sup>[79]</sup> — de ahí la rutina semestral con buffers de [XIII.9](#xiii9-mantenimiento-y-ciclo-de-vida) |
+| **N, P, K** | 🔴 **Baja: estimación ordinal derivada de EC** | Ver [X.2.2.5](#x225-la-verdad-sobre-la-medición-de-npk-el-punto-débil-del-proyecto) |
+
+> [!NOTE]
+> **Cuatro de las cinco variables edafológicas están sobre terreno firme, y son suficientes para los casos de uso principales.** La ventana térmica de siembra depende de la temperatura; el riesgo de asfixia y la decisión de riego dependen de la humedad; el estrés osmótico depende de la EC; el bloqueo de fósforo y la dosis de cal dependen del pH. **Ninguno de esos cuatro diagnósticos —que son el núcleo del valor del producto— depende de la estimación de NPK.**
+>
+> El NPK aporta contexto de fertilidad como clase ordinal, y así debe presentarse.
+
+#### X.2.2.9. Condiciones de revisión
+
+| Si ocurre esto… | …entonces |
+| :--- | :--- |
+| El contraste de laboratorio del hito **H7** arroja correlación pobre en NPK | **Se retira la declaración numérica de NPK** y se conserva sólo como indicador ordinal de fertilidad, o se retira por completo del producto |
+| El contraste arroja correlación pobre también en pH o EC | Se evalúa cambiar de proveedor de sonda antes de comprometer el lote de producción ([V.4](#v4-matriz-de-riesgos-del-proyecto)) |
+| Aparecen sondas ISE de campo con correlación validada > 0,9 frente a laboratorio | Migrar a esa tecnología para N, P y K, manteniendo el resto de la arquitectura intacta |
+| El producto se orienta a un segmento de investigación o exportación | **METER TEROS 12** o **Stevens HydraProbe** para VWC, T y EC, aceptando el salto de costo y renunciando a NPK in situ |
+| Se prioriza exclusivamente la gestión del riego | **IRROMETER Watermark 200SS**: mide tensión matricial —que es la variable fisiológicamente correcta para decidir riego—, no requiere calibración y dura más de cinco años en terreno <sup>[76]</sup> |
+
+### X.2.3. Sensor ambiental
+
+| Alternativa | Variables | Exactitud | Reposo | Veredicto |
+| :--- | :---: | :---: | :---: | :--- |
+| **Bosch BME280** ✅ | **T + HR + presión** | ±1,0 °C · ±3 % HR · ±1,0 hPa <sup>[10]</sup> | **0,1 µA** <sup>[10]</sup> | **Elegido.** Único candidato que aporta **presión barométrica**, necesaria para detectar frentes de mal tiempo y corregir altitud predial |
+| Sensirion SHT40 | T + HR | **±0,2 °C · ±1,5 % HR** <sup>[65]</sup> | Muy bajo | **Más exacto que el BME280 en su rango**, pero no mide presión. Sería el correcto si sólo se necesitara T y HR |
+| Sensirion SHT31 | T + HR | ±0,3 °C · ±2 % HR <sup>[65]</sup> | Bajo | Mejor exactitud que el BME280, sin presión, a mayor costo |
+| Bosch BME688 | T + HR + P + gas | Similar al BME280 | Mayor | Añade sensor de gas, irrelevante para el diagnóstico agronómico. Costo y consumo superiores sin beneficio |
+| DHT22 / AHT20 | T + HR | ±0,5 °C · ±2–5 % HR | Alto, lectura lenta | Sin presión, más lento, peor exactitud. Descartado |
+
+> [!IMPORTANT]
+> **Aquí también gana un componente que no elegimos, y la razón de la decisión es funcional, no de desempeño.** El **SHT40 es objetivamente más exacto** que el BME280 en temperatura (±0,2 °C frente a ±1,0 °C) y humedad (±1,5 % frente a ±3 % HR) <sup>[10][65]</sup>.
+>
+> Se elige el BME280 porque **mide presión barométrica y el SHT40 no**, y la presión cumple dos funciones en el motor agronómico: detectar la aproximación de un frente de mal tiempo como confirmación local del pronóstico GPS, y estimar la altitud del predio para corregir el cálculo de evapotranspiración. Sustituirlo por un SHT40 obligaría a añadir un segundo sensor de presión, con su consumo, su costo y su espacio en placa.
+>
+> **Si en una revisión futura se elimina el uso de la presión barométrica del motor de inferencia, el componente correcto pasa a ser el SHT40.** La exactitud térmica del BME280 (±1,0 °C) es además la peor de la cadena de medición, y conviene tenerlo presente al declarar la exactitud de la variable «temperatura del aire».
+
+### X.2.4. Bus de comunicación con la sonda
+
+| Alternativa | Inmunidad a ruido | Longitud de cable | Estándar abierto | Veredicto |
+| :--- | :---: | :---: | :---: | :--- |
+| **RS-485 + Modbus RTU** ✅ | **Alta** (diferencial) <sup>[16]</sup> | Decenas de metros | ✅ <sup>[15]</sup> | **Elegido.** Diferencial, tolerante al ruido eléctrico del campo, documentado y con sondas de múltiples fabricantes |
+| I²C | Muy baja | < 1 m | ✅ | **No sobrevive un metro de cable en un potrero.** Diseñado para comunicación en placa |
+| UART TTL directo | Baja | Pocos metros | ✅ | Sin rechazo de modo común; vulnerable a acoplamientos |
+| Lazo de corriente 4–20 mA | Muy alta | Cientos de metros | ✅ | Excelente inmunidad, pero **un lazo por variable**: 7 parámetros exigirían 7 lazos y 7 entradas analógicas |
+| SDI-12 | Alta | Decenas de metros | ✅ | Estándar agronómico legítimo y buen candidato, pero la oferta de sondas 7-en-1 económicas es marcadamente menor que en Modbus RTU |
+
+### X.2.5. Transceptor RS-485
+
+| Alternativa | Tensión | Reposo / apagado | Veredicto |
+| :--- | :---: | :---: | :--- |
+| **MAX485** ✅ | 5 V | 300 µA <sup>[11]</sup> | **Elegido** por disponibilidad local y costo. **Su corriente de reposo es irrelevante porque el *power gating* lo desconecta por completo** ([IX.1.2](#ix12-el-power-gating-0-µa-en-la-rama-de-sonda)) |
+| SP3485 | **3,3 V** | **50 nA en modo apagado** <sup>[64]</sup> | Técnicamente superior: opera a 3,3 V —evitando un nivel de tensión adicional en la placa— y tiene modo de bajo consumo propio |
+| MAX3485 | 3,3 V | Bajo | Equivalente al SP3485 |
+| THVD1450 | 3 – 5,5 V <sup>[64]</sup> | Bajo | Mayor robustez ante transitorios (protección ESD/IEC reforzada), interesante para una revisión industrial |
+| Transceptor aislado (ISO1500 y similares) | 3,3 / 5 V | Mayor | Aislamiento galvánico. **Innecesario aquí**: sonda y controlador comparten la misma batería, no hay lazo de masa |
+
+> [!NOTE]
+> **Con *power gating*, la corriente de reposo del transceptor deja de ser un criterio de selección.** El SP3485 consume 50 nA apagado frente a los 300 µA del MAX485 <sup>[11][64]</sup> — una diferencia de 6.000× que, en este diseño, **vale exactamente cero**, porque el P-MOSFET desconecta la rama completa y ambos consumen 0 µA fuera del ciclo de medición.
+>
+> Esto ilustra un principio de diseño que atraviesa todo el proyecto: **una decisión de arquitectura correcta vuelve irrelevantes muchas decisiones de componente.** Dicho eso, el SP3485 sigue siendo preferible por operar a 3,3 V —elimina la necesidad de un raíl de 5 V sólo para el transceptor— y queda anotado como mejora para la revisión v3.
+
+### X.2.6. Elevador de tensión para la sonda
+
+| Alternativa | Salida | Reposo | Rendimiento | Veredicto |
+| :--- | :---: | :---: | :---: | :--- |
+| **MT3608** ✅ | hasta 28 V, 2 A | 50 – 200 µA <sup>[12]</sup> | hasta 93 % <sup>[12]</sup> | **Elegido** por costo, disponibilidad como módulo y margen de corriente suficiente para la sonda |
+| **TPS61023** | 3,7 A, entrada desde 0,5 V | **20 µA en carga ligera; 0,1 µA en apagado** <sup>[63]</sup> | Alto | **Técnicamente superior**: entrada de bajísima tensión —permite exprimir la celda hasta el final— y **pin de apagado propio, que podría sustituir al MOSFET externo** |
+| XL6009 | hasta 60 V, 4 A | Mayor | ~90 % | Mayor capacidad de corriente, innecesaria; consumo de reposo superior |
+| Convertidor de bomba de carga | Corriente baja | Muy bajo | Bajo a alta relación | **No entrega la corriente que exige la sonda en medición** |
+
+> [!IMPORTANT]
+> **El TPS61023 es la mejor opción técnica y conviene reconocerlo con precisión.** Su corriente de reposo de 20 µA frente a los 50–200 µA del MT3608, y sobre todo su **pin de habilitación con 0,1 µA en apagado** <sup>[12][63]</sup>, permitirían **eliminar el P-MOSFET externo** y simplificar la etapa de potencia: un componente menos, dos huellas menos en la PCB y una decisión de diseño más limpia.
+>
+> **Por qué no se adoptó en esta versión:** el MT3608 está disponible como módulo prefabricado en el mercado local, lo que elimina el riesgo de montar un convertidor conmutado de 1,2 MHz en una PCB de dos capas de primera iteración —donde el ruteo del lazo de conmutación es crítico y un error de diseño se paga con inestabilidad difícil de diagnosticar. El TPS61023 exige diseño propio de la etapa.
+>
+> **Queda registrado como la mejora prioritaria de la etapa de potencia para la revisión v3**, junto con la eliminación del MOSFET que habilita.
+
+### X.2.7. Gestión de carga
+
+| Alternativa | Corriente de carga | *Power path* | Veredicto |
+| :--- | :---: | :---: | :--- |
+| **TP5100** ✅ | **2 A** | No | **Elegido.** Carga el pack de 6.000 mAh en menos de 3,5 h. Disponible como módulo con protecciones integradas |
+| TP4056 | 1 A <sup>[66]</sup> | **No**, y sin reparto de carga adecuado <sup>[66]</sup> | Duplicaría el tiempo de recarga del pack. Sin *load sharing*, alimentar el sistema mientras carga exige circuito adicional |
+| **BQ24074** | hasta 1,5 A <sup>[66]</sup> | ✅ **Sí**, con protección de sobretensión de entrada hasta 28 V <sup>[66]</sup> | **Superior en arquitectura**: el *power path* permite operar el equipo mientras carga sin ciclar la batería. Mayor costo y sin módulo local de bajo precio |
+| IP5306 | 2,1 A <sup>[66]</sup> | ✅ Sí (SoC de banco de energía) | Integra carga y descarga, pero orientado a banco de energía: añade elevador a 5 V que aquí no se necesita |
+
+> [!NOTE]
+> **El BQ24074 es la elección de arquitectura correcta y el TP5100 la de disponibilidad.** El *power path* del BQ24074 permitiría alimentar el equipo directamente desde el USB mientras la batería carga, en lugar de hacerlo desde la batería en simultáneo con la carga — lo que reduce el número de ciclos y, con ello, el desgaste de las celdas.
+>
+> En un producto que se recarga **cada 8 a 12 meses** ([IX.1.4](#ix14-modelo-de-autonomía-de-campo)), el ahorro de ciclos es de escasa relevancia práctica: el pack ve del orden de una decena de ciclos en toda la vida útil del equipo, muy por debajo de los cientos que especifica el fabricante de las celdas <sup>[13]</sup>. **Es un caso en el que la solución técnicamente superior resuelve un problema que este producto no tiene.**
+
+### X.2.8. Almacenamiento de energía
+
+| Alternativa | Energía | Rango térmico | Reemplazable | Veredicto |
+| :--- | :---: | :---: | :---: | :--- |
+| **2× 18650 Li-ion en paralelo** ✅ | 6.000 mAh | Descarga −20…+60 °C; **carga 0…45 °C** <sup>[13]</sup> | ✅ Portacelda | **Elegido.** Duplica energía sin elevar tensión (evita el balanceo que exige una configuración en serie), formato estandarizado y de amplia cadena de suministro |
+| 1× 18650 | 3.000 mAh | Igual | ✅ | Reduce la autonomía a la mitad: ~390 días en régimen estándar. Ahorra $3.800 y 47 g |
+| LiPo plano (pouch) | Variable | Similar | ❌ Soldado | Mejor aprovechamiento del volumen, pero **una celda pouch hinchada dentro de una carcasa sellada es un riesgo mecánico**, y no es reemplazable por el usuario |
+| **LiFePO4 18650** | ~1.500 mAh | **Envolvente térmica más amplia y mayor umbral de fuga térmica** <sup>[67]</sup> | ✅ | **Más seguro y más tolerante al frío en descarga**, pero ~50 % menos de energía por celda y tensión nominal de 3,2 V, que obliga a rediseñar la etapa de carga |
+| 21700 Li-ion | ~4.800 mAh | Igual | ✅ | Mayor densidad energética; envolvente más voluminosa y cadena de suministro local más limitada |
+
+> [!WARNING]
+> ### ❄️ Limitación real declarada: la carga bajo 0 °C
+>
+> **La celda de ion-litio es el componente que restringe el rango de operación de todo el equipo.** Cargar una celda de ion-litio bajo 0 °C provoca **enchapado de litio** en el ánodo, un proceso que reduce la capacidad de forma **permanente e irreversible** y que se acumula con cada evento <sup>[67]</sup>. Además, bajo 0 °C la capacidad disponible cae a alrededor del 80 % del valor nominal, y bajo −20 °C a un 50–60 % <sup>[67]</sup>.
+>
+> **Consecuencias vinculantes para el producto:**
+>
+> | Ámbito | Obligación |
+> | :--- | :--- |
+> | **Manual de usuario** | Debe indicar explícitamente **«no cargar el equipo a la intemperie en heladas: cargar bajo techo»**. Es una instrucción de seguridad, no una recomendación |
+> | **Firmware (revisión v3)** | Incorporar **bloqueo de carga por temperatura** leyendo el BME280 e inhibiendo el cargador bajo 0 °C. Es la mitigación correcta y está pendiente |
+> | **Especificación declarada** | El rango de operación del equipo es −5 a +45 °C en **medición**, pero 0 a +45 °C en **carga**. Ambos deben publicarse por separado |
+>
+> **El LiFePO4 sería la elección correcta si el equipo debiera cargarse en terreno bajo helada**, por su mayor tolerancia térmica y su umbral de fuga térmica más alto <sup>[67]</sup>. Se descarta porque reduce la energía disponible cerca de un 50 % —lo que sacrificaría la autonomía, que es un argumento comercial central— y porque el escenario de uso previsto es la recarga bajo techo entre jornadas. **La decisión es defendible, pero depende de un supuesto de uso que debe declararse, no de una superioridad técnica del ion-litio.**
+
+### X.2.9. Conmutación de potencia
+
+| Alternativa | Reposo | Caída de tensión | Veredicto |
+| :--- | :---: | :---: | :--- |
+| **P-MOSFET en lado alto (Si2301 o equivalente)** ✅ | **0 µA en corte** | Muy baja ($R_{DS(on)}$ reducida) | **Elegido.** Corta la alimentación sin alterar la masa común, que es lo que exige el bus RS-485 |
+| N-MOSFET en el retorno (lado bajo) | 0 µA | Muy baja | **Flota la referencia de masa de la sonda**, lo que compromete el nivel de modo común del bus diferencial |
+| Relé electromecánico | **Corriente de bobina permanente** | Nula | Consume de forma continua mientras está cerrado, más volumen, más ruido y contactos que se degradan |
+| Interruptor de carga integrado (*load switch*) | ~1 µA | Baja | Integra el MOSFET con control de pendiente y descarga. Solución más limpia, mayor costo unitario |
+| Pin de habilitación del propio convertidor | 0,1 µA <sup>[63]</sup> | — | **La mejor opción**, disponible si se migra al TPS61023 ([X.2.6](#x26-elevador-de-tensión-para-la-sonda)): elimina el componente por completo |
+
+### X.2.10. Envolvente
+
+| Alternativa | Costo fijo | Costo por unidad | Estanqueidad | Veredicto |
+| :--- | :---: | :---: | :---: | :--- |
+| **PETG impreso por FDM** ✅ | **$0 de molde** | ~$2.300 (material + energía) | ⚠️ Exige sellado intercapa | **Elegido.** Sin costo de molde, iterable entre versiones y resistente a UV y humedad, a diferencia del PLA |
+| ABS inyectado | Millones de CLP en molde | Muy bajo (< $1.000) | ✅ Excelente | Costo por unidad imbatible, pero **el molde sólo se amortiza con miles de unidades**. Con 120 el primer año es económicamente inviable ([XII](#xii-evaluación-económica-flujo-de-caja-van-y-tir)) |
+| ASA impreso por FDM | $0 | Similar al PETG | Similar | **Mejor resistencia UV que el PETG**, pero requiere cámara cerrada y emite compuestos que exigen ventilación |
+| Nylon / PA-CF | $0 | Superior | Buena | Muy resistente mecánicamente, higroscópico y más difícil de imprimir |
+| Caja comercial IP67 de policarbonato | $0 | $6.000 – $12.000 | ✅ **Certificada por el fabricante** | **Elimina de raíz el riesgo de estanqueidad** ([X.3](#x3-aptitud-para-condiciones-de-campo-el-caso-ip67)), a cambio de mayor costo, ergonomía genérica y ninguna diferenciación de producto |
+| Mecanizado en aluminio | Alto de utillaje | Muy alto | ✅ | Sobredimensionado para el caso de uso |
+
+> [!IMPORTANT]
+> **La caja comercial certificada IP67 merece una consideración seria, no un descarte rápido.** El riesgo abierto más importante del proyecto es que la envolvente FDM **no supere el ensayo de inmersión** ([V.4](#v4-matriz-de-riesgos-del-proyecto)). Una caja comercial de policarbonato con grado IP67 certificado por su fabricante **elimina ese riesgo por completo**, a un sobrecosto de entre $4.000 y $10.000 por unidad.
+>
+> Se mantiene el FDM por tres razones: permite iterar la ergonomía tras las primeras pruebas de campo sin costo de rehacer utillaje, la geometría propia es parte de la identidad del producto, y el sobrecosto acumulado sobre el plan de 2.220 unidades a cinco años sería del orden de $9 a $22 millones CLP — comparable al VAN del escenario base.
+>
+> **Compromiso explícito: la caja comercial certificada es el plan B formal del riesgo de estanqueidad.** Si el ensayo del hito H6 falla y el sellado intercapa no lo resuelve, **no se insiste con el FDM: se migra a caja comercial**, absorbiendo el sobrecosto en el precio de lista. Un producto que entra agua no es un producto.
+
+---
+
+### X.2.11. Resumen de decisiones y deuda técnica reconocida
+
+| Subsistema | Componente elegido | Mejor alternativa técnica | Por qué no se adoptó | ¿Revisión v3? |
+| :--- | :--- | :--- | :--- | :---: |
+| Microcontrolador | ESP32-WROOM-32 | **ESP32-C3** (9,16 vs 8,98) | Firmware y PCB ya validados sobre WROOM-32; C3 es de un solo núcleo | ✅ **Sí** |
+| Radio de mínimo consumo | ESP32-WROOM-32 | **nRF52840** (+34 % autonomía) | Sin Wi-Fi para OTA; mayor costo; la carga dominante es la sonda, no la radio | Condicional |
+| Sonda de suelo | 7-en-1 RS-485 316L | — | Es la mejor opción de su categoría | ❌ No |
+| Sensor ambiental | Bosch BME280 | **SHT40** (±0,2 °C vs ±1,0 °C) | El SHT40 no mide presión barométrica, requerida por el motor | Condicional |
+| Bus de sonda | RS-485 + Modbus RTU | — | Es la mejor opción de su categoría | ❌ No |
+| Transceptor | MAX485 (5 V) | **SP3485** (3,3 V, 50 nA) | El *power gating* anula la ventaja de consumo; queda la de tensión | ✅ **Sí** |
+| Elevador | MT3608 | **TPS61023** (20 µA, con pin de apagado) | Disponible como módulo; evita rutear un conmutador en la primera PCB | ✅ **Sí** |
+| Cargador | TP5100 (2 A) | **BQ24074** (*power path*) | Resuelve un problema que un equipo que se carga 1–2 veces al año no tiene | ❌ No |
+| Almacenamiento | 2× 18650 Li-ion | **LiFePO4** (tolerancia al frío) | −50 % de energía; el uso previsto es recarga bajo techo | ❌ No |
+| Conmutación | P-MOSFET lado alto | Pin de habilitación del TPS61023 | Depende de migrar el elevador | ✅ **Sí** (ligado) |
+| Envolvente | PETG FDM | **Caja comercial IP67 certificada** | Sobrecosto de $4.000–$10.000/u y pérdida de identidad de producto | **Plan B del riesgo IP67** |
+
+> [!NOTE]
+> ### 📌 Sobre la utilidad de declarar la deuda técnica
+>
+> De once subsistemas evaluados, en **siete** existe una alternativa mejor en alguna dimensión y así queda consignado, con la cuantificación de lo que se pierde y la condición bajo la cual habría que cambiar. Cuatro de esas mejoras están comprometidas para la revisión v3 del hardware.
+>
+> Esto no debilita el diseño: **lo documenta**. Un estudio de selección cuyo resultado es que el componente elegido gana en los once casos es un estudio escrito desde la conclusión hacia atrás, y una comisión con experiencia lo detecta de inmediato. La postura defendible es la contraria — **saber exactamente qué se dejó sobre la mesa, cuánto vale y cuándo conviene recogerlo**.
 
 ## X.3. Aptitud para condiciones de campo: el caso IP67
 
@@ -2494,49 +3225,79 @@ RUTINA DE MANTENIMIENTO PREVENTIVO
 
 ### ❓ 1. «¿Por qué no lo hiciste con un ATmega328P y un módulo Bluetooth, que es más barato?»
 
-> **No es más barato, y además no funcionaría.** El HC-05 habla Bluetooth Classic con perfil de puerto serie, y **iOS no expone ese perfil a aplicaciones de terceros sin certificación MFi de Apple** <sup>[52]</sup>: renunciaría a todos los usuarios de iPhone. Un ESP32-WROOM-32 integra microcontrolador, BLE, Wi-Fi y antena por un costo similar al del ATmega más el HC-05 por separado. Además: 520 KB de SRAM contra 2 KB, deep sleep de 10 µA contra decenas de miliamperios del HC-05 en espera <sup>[9]</sup>, actualización de firmware por aire —que con el ATmega es imposible sin recuperar el equipo— y dos núcleos para sostener la temporización Modbus sin perder el enlace de radio. El análisis completo está en [VI.1](#vi1-alternativa-a--instrumento-autónomo-clásico-atmega328p--pantalla--bluetooth-classic).
+> **No es más barato, y además no funcionaría.** El HC-05 habla Bluetooth Classic con perfil de puerto serie, y **iOS no expone ese perfil a aplicaciones de terceros sin certificación MFi de Apple** <sup>[52]</sup>: renunciaría a todos los usuarios de iPhone. Un ESP32-WROOM-32 integra microcontrolador, BLE, Wi-Fi y antena por un costo similar al del ATmega más el HC-05 por separado. Además: 520 KB de SRAM contra 2 KB, deep sleep de 10 µA contra decenas de miliamperios del HC-05 en espera <sup>[9]</sup>, actualización de firmware por aire —que con el ATmega es imposible sin recuperar el equipo— y dos núcleos para sostener la temporización Modbus sin perder el enlace de radio. El análisis completo está en [VI.1](#vi1-alternativa-a--instrumento-autónomo-clásico-mcu-de-8-bits--pantalla--bluetooth-classic).
 
 ### ❓ 2. «¿Por qué no tiene pantalla? El cliente la quiere.»
 
 > **Porque la pantalla cuesta el 77 % de la autonomía**, y no principalmente por los píxeles: el 57 % de ese costo energético es mantener despierto al microcontrolador mientras el usuario mira. Con OLED, la autonomía cae de 784 a 179 días. Se puede compensar con una tercera celda 18650 por $5.600 CLP de costo variable, pero eso sólo recupera 74 de los 605 días perdidos. **Y hay un argumento que no es negociable: una pantalla exige una ventana, y una ventana es una segunda interfaz de sellado en una carcasa cuyo grado IP67 todavía no ha superado el ensayo de inmersión.** Si el cliente insiste, la solución correcta es papel electrónico, no OLED: consumo estático casi nulo y **mejor legibilidad a pleno sol**, que es donde se usa el equipo. El debate completo está en [IX.3](#ix3-debate-abierto-la-pantalla-que-el-cliente-pide).
 
-### ❓ 3. «¿Qué hace tu equipo que no haga un medidor chino de US$200 con la misma sonda?»
+### ❓ 3. «El nRF52840 consume veinte veces menos en BLE. ¿Por qué usaste un ESP32?»
+
+> **Es cierto, y conviene decirlo con las cifras exactas: el ESP32 transmite BLE a 0 dBm con unos 130 mA <sup>[9]</sup>, el nRF52840 con 6,40 mA <sup>[60]</sup> y el STM32WB55 con 5,2 mA <sup>[62]</sup>.** No hay discusión: en radio, el ESP32 es el peor de los tres.
+>
+> **Lo que hice fue cuantificar qué cuesta esa decisión.** Aplicando el modelo de autonomía al régimen estándar, el nRF52840 daría **1.053 días frente a los 784 del ESP32: un 34 % más**. Ahora bien, con un microcontrolador de consumo estrictamente cero el resultado sería 1.500 días — es decir, **el nRF52840 captura sólo 269 de los 716 días de mejora teóricamente disponibles**. ¿Por qué? Porque a partir de ahí el consumo dominante ya no es el silicio, sino **la autodescarga del pack de baterías, que representa el 70 % del presupuesto energético diario** y es idéntica con cualquier microcontrolador.
+>
+> Y hay una segunda razón, específica de este producto: **la carga dominante no es la radio, es la sonda**. La fase de muestreo Modbus a 12 V se lleva el 89 % de la energía de cada ciclo, y ese consumo no cambia con el microcontrolador. **Optimizar la radio en un equipo cuya carga dominante es un periférico externo de 12 V tiene rendimientos decrecientes.**
+>
+> **A cambio de esos 269 días recibo Wi-Fi**, que es lo que permite actualizar el firmware por aire descargando el binario por red local. Con nRF52840 la única vía sería DFU sobre BLE, que obliga a implementar el transporte y la gestión de bloques dentro de la app móvil — desarrollo adicional en el componente más crítico del sistema. Además, la mitad del costo de chip y un ecosistema más maduro.
+>
+> **Dónde sí cambiaría de opinión, y está escrito en el documento:** si el producto pasara a enlace BLE permanente, si se eliminara la sonda de 12 V, o si la actualización se trasladara a DFU sobre BLE, el componente correcto pasaría a ser el nRF52840. El análisis completo, con la matriz ponderada de cinco candidatos, está en [X.2.1](#x21-microcontrolador-y-radio).
+>
+> **Y una admisión adicional:** en esa misma matriz, **el ESP32-C3 puntúa por encima del WROOM-32 que implementé** (9,16 contra 8,98). Es más eficiente, soporta BLE 5.0 y cuesta la mitad. No migré porque el firmware y la PCB ya están validados sobre WROOM-32 y el C3 es de un solo núcleo, lo que obliga a revisar el aislamiento entre la pila de radio y la temporización del bus RS-485. **Queda comprometido para la revisión v3.**
+
+### ❓ 4. «¿Qué hace tu equipo que no haga un medidor chino de US$200 con la misma sonda?»
 
 > **El equipo genérico muestra siete números; TerraSense entrega una orden de trabajo.** Procesa esos datos con un motor de reglas calibrado para cultivos y suelos chilenos y responde: *«no siembres tomate, el pH de 5,3 bloquea el fósforo; aplica 480 kg/ha de cal agrícola, o siembra papa o arándano que toleran acidez»*. Además georreferencia cada punto, construye el histórico predial y funciona sin señal. El hardware es genérico **por diseño** —eso mantiene el costo bajo—; el valor está en la capa de interpretación.
 
-### ❓ 4. «¿Por qué mediría alguien con esto si puede mandar una muestra al laboratorio?»
+### ❓ 5. «¿Por qué mediría alguien con esto si puede mandar una muestra al laboratorio?»
 
 > **Porque son complementarios, no sustitutos, y lo decimos abiertamente.** El laboratorio es más exacto, mide micronutrientes y materia orgánica, y tiene validez legal — pero demora semanas y cobra por muestra, de modo que mapear la variabilidad de un potrero con diez puntos multiplica el costo por diez. TerraSense entrega el veredicto en cinco segundos a **costo marginal cero**, lo que permite un monitoreo de frecuencia y densidad que el laboratorio nunca podrá ofrecer. La recomendación explícita del proyecto es mantener un análisis de laboratorio cada dos o tres años como referencia de calibración ([X.1](#x1-desempeño-metrológico-declarado-y-sus-límites)).
 
-### ❓ 5. «¿De verdad un agricultor pequeño tiene $180.000 para esto?»
+### ❓ 6. «¿De verdad un agricultor pequeño tiene $180.000 para esto?»
 
 > **En el canal directo, para una parte del segmento, es una barrera real — y por eso el canal B2G existe.** INDAP cofinancia a través del Programa de Desarrollo de Inversiones **hasta el 60 % del valor bruto de la inversión, y hasta el 90 %** en proyectos de sustentabilidad o presentados por jóvenes, mujeres y pueblos originarios, con tope de $7.500.000 anuales por productor <sup>[43][44]</sup>. Con ese cofinanciamiento, el desembolso efectivo cae a un rango de $18.000 a $72.000. Además, el modelo económico **no supone que todos compran**: proyecta 120 unidades el primer año sobre un mercado servible de 120.000, es decir, un 0,1 %.
 
-### ❓ 6. «¿Qué pasa si no hay señal en el cerro?»
+### ❓ 7. «¿Qué pasa si no hay señal en el cerro?»
 
 > **El sistema completo funciona sin red.** La sonda habla con el teléfono por BLE, que no requiere internet; el motor agronómico corre localmente sobre SQLite en el teléfono; el veredicto se entrega igual. El GPS es un receptor pasivo satelital y funciona sin cobertura. Lo único que degrada es la imagen satelital del mapa, que pasa a fondo neutro **conservando visibles los círculos de medición** porque son capas vectoriales locales. Al recuperar cobertura, la cola sincroniza sola. Esto no es un añadido: es un requisito de diseño, porque el 51,4 % de los hogares rurales chilenos sólo dispone de servicio móvil <sup>[8]</sup>.
 
-### ❓ 7. «Si equipos como Spectrum valen US$1.495, ¿por qué el tuyo cuesta US$196? ¿Es peor?»
+### ❓ 8. «Si equipos como Spectrum valen US$1.495, ¿por qué el tuyo cuesta US$196? ¿Es peor?»
 
 > **Es distinto, no peor, y la diferencia está en la arquitectura.** Ellos venden un instrumento autónomo con pantalla dedicada, mástil propietario y software con licencia. Nosotros **aprovechamos la pantalla, el GPS, el procesador y el módem del teléfono que el agricultor ya compró**. Eso elimina del costo exactamente los componentes más caros. Y en capacidad de medición no salimos perdiendo: el TDR 350 mide **un** parámetro —humedad— con exactitud de referencia; TerraSense mide nueve, incluidos pH y NPK, que aquel no mide en absoluto.
 
-### ❓ 8. «¿Qué impide que una empresa asiática copie esto mañana?»
+### ❓ 9. «¿Qué impide que una empresa asiática copie esto mañana?»
 
 > **Nada impide que copien el hardware, y no es ahí donde está la barrera.** El hardware es deliberadamente genérico. La barrera es el **motor agronómico calibrado para suelos y cultivos chilenos** —suelos volcánicos trumaos, arcillas del valle central, variedades comerciales locales, umbrales por etapa fenológica— y la base de datos georreferenciada que se construye con cada medición de cada usuario. Un fabricante asiático puede replicar la placa en semanas; no puede replicar el criterio agronómico local ni el histórico predial acumulado. Y es una barrera que **crece con el tiempo**, no que se erosiona.
 
-### ❓ 9. «Dices IP67, ¿lo ensayaste?»
+### ❓ 10. «Esa sonda no mide NPK de verdad: mide conductividad y la convierte. ¿Lo sabías?»
+
+> **Sí, y está documentado en el proyecto antes de que usted lo preguntara.** Las sondas económicas del mercado no usan electrodos ion-selectivos para N, P y K: **miden conductividad eléctrica y derivan los tres valores con factores empíricos**; los ensayos sobre sondas de este tipo muestran que el microcontrolador interno usa una recta de regresión de nitrógeno frente a EC para predecir también fósforo y potasio <sup>[77]</sup>.
+>
+> **La consecuencia física es la que usted está pensando:** el sensor no distingue iones de nitrógeno de sodio, calcio o hierro, así que una lectura alta puede ser fertilidad o puede ser sal <sup>[77]</sup>. **Y hay una tensión interna en mi propio proyecto que también declaro:** yo sostengo que el problema del agro chileno es la salinización bajo megasequía, y la salinidad es exactamente lo que degrada esta estimación.
+>
+> **Lo que hago al respecto, que es lo que importa:**
+>
+> 1. El NPK se presenta como **clase ordinal** —bajo, medio, óptimo, excesivo— y nunca como base de un cálculo estequiométrico de fertilizante. **Las únicas dosis cuantificadas que emite el motor son enmiendas de pH**, que derivan de una variable realmente medida.
+> 2. Implemento una **regla de veto cruzado**: si la EC es alta y el NPK también, el motor degrada la confianza y advierte *«posible falso positivo por salinidad»*. Sin esa regla el equipo daría un consejo activamente equivocado en suelo salino; con ella, entrega justo lo que el productor necesita saber.
+> 3. El contraste de laboratorio del hito H7 **incluye N, P y K**, y su resultado decide si el NPK se publica o se retira del producto.
+>
+> **Y conviene decir algo más: esto no se arregla pagando más.** Un TEROS 12 o un HydraProbe cuestan veinte veces más y **no miden NPK en absoluto**. Los electrodos ion-selectivos en terreno alcanzan correlaciones de R² entre 0,41 y 0,51 frente a laboratorio <sup>[78]</sup>. **Medir NPK in situ de forma económica y exacta es un problema abierto de la ciencia del suelo**, no una carencia de este diseño.
+>
+> **Lo que sí está sobre terreno firme son las otras cuatro variables**, y son las que sostienen el producto: la ventana térmica de siembra depende de la temperatura; el riego y la asfixia radicular, de la humedad; el estrés osmótico, de la EC —que es la magnitud que la sonda realmente mide—; y el bloqueo de fósforo y la dosis de cal, del pH. **Ninguno de esos cuatro diagnósticos depende del NPK.** Todo el detalle está en [X.2.2](#x22-subsistema-de-sensado-de-suelo).
+
+### ❓ 11. «Dices IP67, ¿lo ensayaste?»
 
 > **No todavía, y por eso el documento dice "diseñado para IP67" y no "IP67 certificado".** La distinción es deliberada. IEC 60529 exige inmersión a 1 metro durante 30 minutos <sup>[14]</sup>, y una carcasa impresa en FDM tiene porosidad intercapa que **no se resuelve con geometría**: requiere sellado de capas, O-ring y prensaestopas correctamente aplicados. El banco de ensayo está presupuestado en $180.000 dentro del CAPEX, el ensayo es el hito H6 en la semana 15, y hasta entonces no se usará la palabra «certificado» en ningún material comercial — entre otras razones, porque la Ley N° 19.496 sanciona la publicidad engañosa sobre características del producto <sup>[56]</sup>.
 
-### ❓ 10. «Tu autonomía declarada, ¿de dónde sale?»
+### ❓ 12. «Tu autonomía declarada, ¿de dónde sale?»
 
 > **De un modelo con cuatro términos, y de un derateo de 3× aplicado sobre el resultado.** El ciclo de medición consume 0,141 mAh; sobre un pack de 5.400 mAh útiles, el techo teórico son 38.238 ciclos — pero esa cifra es engañosa porque **las mediciones no son el término dominante**: lo son el tiempo de enlace BLE, el reposo acumulado y la autodescarga de las celdas. Incluyéndolos todos, el modelo proyecta 784 días y ~6.272 mediciones en régimen estándar. **Declaramos 2.000 mediciones y 8 a 12 meses**, aplicando un derateo por frío de invierno, envejecimiento de celdas y rendimiento real del elevador. Declarar 6.000 y entregar 2.000 destruiría la credibilidad; declarar 2.000 y entregar 4.000 la construye. El modelo completo está en [IX.1.4](#ix14-modelo-de-autonomía-de-campo).
 
-### ❓ 11. «Tu punto de equilibrio, ¿está sobre el margen del BOM?»
+### ❓ 13. «Tu punto de equilibrio, ¿está sobre el margen del BOM?»
 
 > **No, y ese es precisamente el error que este estudio evita.** El BOM es $43.773, pero el costo real entregado es **$69.069**: incluye flete aéreo consolidado desde China <sup>[45]</sup>, arancel del 6 % <sup>[32]</sup>, agenciamiento, mano de obra de ensamblaje, merma, provisión de garantía legal de seis meses <sup>[24]</sup> y flete nacional. Además, el margen se calcula sobre el **precio neto** ($151.252), no sobre el precio con IVA, porque el IVA no es ingreso de la empresa. El margen de contribución real es de **$82.039 (54,2 %)**, no del 76 % que resultaría de dividir por el BOM. Con esa base, el punto de equilibrio del Año 1 es de **55 unidades** frente a 120 planificadas.
 
-### ❓ 12. «¿Y si vendes menos de lo que proyectas?»
+### ❓ 14. «¿Y si vendes menos de lo que proyectas?»
 
 > **El proyecto tolera hasta un −20 % sobre un plan que ya es conservador.** Con 96 unidades en lugar de 120, el VAN sigue siendo positivo ($980.962) y la TIR es del 17,4 %. Bajo 90 unidades, el VAN se vuelve negativo. **La sensibilidad muestra que el proyecto es robusto ante errores de costo y frágil ante errores de volumen**, y por eso el estudio recomienda elevar el precio de lista a $199.990: amplía simultáneamente el colchón de precio y el de volumen, y convierte el escenario pesimista combinado de una pérdida de $18 millones en un resultado positivo ([XII.9](#xii9-escenario-recomendado-migración-de-precio)).
 
@@ -2796,6 +3557,33 @@ Pero el propósito no es vender más unidades. En Chile hay más de 175.000 unid
 57. **Servicio de Impuestos Internos (SII), Chile.** *Régimen Pro Pyme General (Art. 14 letra D N° 3 de la Ley sobre Impuesto a la Renta).* Tasa de impuesto de primera categoría aplicable a la pequeña y mediana empresa. https://www.sii.cl/destacados/modernizacion/regimenes_tributarios.html
 58. **Banco Central de Chile.** *Informe de Política Monetaria (IPoM) y series de PIB tendencial.* Base de los supuestos de incremento anual de ventas (actividad económica) y de costos (PIB tendencial) empleados en la proyección a cinco años. https://www.bcentral.cl/areas/politica-monetaria/informe-de-politica-monetaria · https://si3.bcentral.cl/
 59. **Servicio de Impuestos Internos (SII), Chile.** *Tabla de vida útil de los bienes físicos del activo inmovilizado.* Base del cálculo de la depreciación lineal del activo fijo. https://www.sii.cl/pagina/valores/bienes/tabla_vida_enero.htm
+
+## Componentes evaluados en el estudio de selección
+
+60. **Nordic Semiconductor.** *nRF52840 Product Specification / SoC Product Brief.* Corriente de transmisión de radio **6,40 mA a 0 dBm** (con DC/DC a 3 V) y 4,8 mA de pico; recepción **6,26 mA a 1 Mbps** y 4,6 mA de pico; System OFF del orden de 0,4 µA; 256 KB de RAM y 1 MB de Flash; Bluetooth 5.0 LE, 802.15.4 (Thread/Zigbee), NFC y USB 2.0; **sin Wi-Fi**. https://www.mouser.com/datasheet/2/297/nrf52840_soc_v3_0-2942478.pdf · https://docs.nordicsemi.com/bundle/ps_nrf52840/page/keyfeatures_html5.html
+61. **Espressif Systems.** *ESP32-C3 Series Datasheet* y *Current Consumption Measurement of Modules.* Núcleo RISC-V de 32 bits, Bluetooth 5.0 LE y Wi-Fi 802.11 b/g/n; corriente en sueño profundo del orden de **5 µA**. https://www.espressif.com/sites/default/files/documentation/esp32-c3_datasheet_en.pdf · https://docs.espressif.com/projects/esp-idf/en/stable/esp32c3/api-guides/current-consumption-measurement-modules.html
+62. **STMicroelectronics.** *STM32WB55xx Datasheet* y *AN5071 — STM32WB series ultra-low-power features overview.* Radio BLE con **5,2 mA en transmisión a 0 dBm** y **4,5 mA en recepción**; 12,7 mA a máxima potencia de salida (SMPS en bypass); doble núcleo Cortex-M4 + Cortex-M0+; Bluetooth 5.x y 802.15.4; **sin Wi-Fi**. https://www.st.com/resource/en/datasheet/stm32wb55cc.pdf · https://www.st.com/resource/en/application_note/an5071-stm32wb-series-microcontrollers-ultralowpower-features-overview-stmicroelectronics.pdf
+63. **Texas Instruments.** *TPS61023 — 3.7-A Boost Converter with 0.5-V Ultra-low Input Voltage.* Corriente de reposo de **20 µA desde VOUT en carga ligera** y **0,1 µA en apagado**, con desconexión completa de la entrada. https://www.ti.com/lit/ds/symlink/tps61023.pdf
+64. **MaxLinear / Analog Devices / Texas Instruments.** *SP3485, MAX3485 y THVD1450 — transceptores RS-485 de 3,3 V.* El SP3485 consume típicamente **50 nA en modo apagado**; el THVD1450 opera con alimentación única entre 3 V y 5,5 V. https://www.maxlinear.com/ds/sp3485.pdf · https://www.analog.com/en/products/max3485.html · https://www.ti.com/product/THVD1450
+65. **Sensirion.** *SHT4x y SHT3x — Datasheet.* El SHT40 declara exactitud de **±0,2 °C** en temperatura y **±1,5 % HR** en humedad relativa; el SHT31, ±0,3 °C y ±2 % HR. https://sensirion.com/products/catalog/SHT40 · https://sensirion.com/products/catalog/SHT31-D
+66. **Texas Instruments / Nanjing Top Power / Injoinic.** *BQ24074, TP4056 e IP5306 — cargadores de celda única de ion-litio.* El BQ24074 integra gestión de *power path*, admite hasta 1,5 A de carga y tolera entradas de hasta 28 V con protección de sobretensión; el TP4056 carga hasta 1 A y **no incorpora reparto de carga**; el IP5306 admite hasta 2,1 A. https://www.ti.com/lit/ds/symlink/bq24074.pdf · https://components101.com/ics/bq24074-single-cell-linear-battery-charger-with-power-path
+67. **Referencias sobre comportamiento de celdas de litio a baja temperatura.** La carga bajo 0 °C provoca **enchapado de litio** en el ánodo, con pérdida permanente y acumulativa de capacidad; la capacidad disponible cae a ~80 % bajo 0 °C y a 50–60 % bajo −20 °C. El LiFePO4 presenta una envolvente térmica más amplia y un umbral de fuga térmica superior al de las químicas NMC. *Lithium-Ion Batteries under Low-Temperature Environment: Challenges and Prospects*, y documentación técnica de fabricantes. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9698970/ · https://www.relionbattery.com/knowledge/how-do-lifepo4-batteries-perform-in-cold-temperatures
+68. **Semtech.** *SX1276/77/78/79 y SX1261/2 — LoRa Connect Transceiver Datasheets.* El SX1262 consume del orden de **4,2 mA en recepción** y transmite hasta **+22 dBm**; el SX1276 consume ~10 mA en recepción y transmite hasta +20 dBm. https://www.semtech.com/products/wireless-rf/lora-connect/sx1262 · https://cdn.sparkfun.com/assets/7/7/3/2/2/SX1276_Datasheet.pdf
+69. **Regulación LoRaWAN aplicable en Chile.** Deben emplearse los planes **AU915 o US915**, no EU868; el tramo práctico y de menor riesgo regulatorio es **915–928 MHz**, dado que 902,1–912,1 MHz se encuentra concesionado desde 2014. Límites de potencia de hasta 500 mW – 1 W según el plan regional. Catálogo público de equipos LoRa/LoRaWAN con cumplimiento de la Resolución 737 de SUBTEL. https://certificacion-telecom.cl/tecnologia/lora/ · https://lora-alliance.org/wp-content/uploads/2020/11/RP_2-1.0.2.pdf
+70. **SIMCom Wireless Solutions.** *SIM7080G y serie SIM7000 — Hardware Design.* Módulos LTE Cat-M / NB-IoT: corriente en modo PSM inferior a 5 µA (9 µA en la serie SIM7000), corriente activa de transmisión bajo 200 mA, alimentación de 2,7 a 4,8 V. https://www.simcom.com/product/SIM7080G.html · https://curtocircuito.com.br/datasheet/modulo/SIM7080G_Hardware_Design.pdf
+71. **Conectividad M2M en Chile.** Planes de datos máquina a máquina ofrecidos por operadores locales, con tarifas por SIM y cuota mensual de datos renovable; los precios no se publican de forma abierta y deben cotizarse directamente. https://www.enteldigital.cl/conectividad-m2m · https://ww2.movistar.cl/empresas/productos-y-servicios/servicios-digitales/conectividad-gestionada-m2m/
+
+## Metrología de suelos y sensores edafológicos
+
+72. **Performance of Soil Moisture Sensors at Different Salinity Levels: Comparative Analysis and Calibration.** Estudio comparativo de ocho sensores de referencia: la FDR alcanza exactitudes de 2–4 %, ligeramente inferiores a la TDR, pero **se ve menos afectada por el contenido salino**, mientras que la TDR presenta errores significativos en suelos de alta salinidad. Todos los sensores se comportan razonablemente con calibración de fábrica hasta **1,0 dS·m⁻¹**; por encima se requiere calibración propia, con la que la exactitud alcanza ±0,02 cm³·cm⁻³. https://pmc.ncbi.nlm.nih.gov/articles/PMC11478466/
+73. **METER Group.** *TEROS 12 — Soil Moisture, Temperature and EC Sensor.* Circuitería de **70 MHz** que minimiza los efectos de textura y salinidad; exactitud de VWC **±0,03 m³/m³** con calibración genérica en suelos minerales con EC de solución < 8.000 µS/cm y **±0,01–0,02 m³/m³** con calibración específica del medio; temperatura ±0,3 °C entre 0 y 60 °C; volumen de influencia 1.010 mL. https://metergroup.com/products/teros-12/ · https://www.labcell.com/media/140638/teros%2012%20integrators%20guide.pdf
+74. **Delta-T Devices.** *WET150 — Digital Multi-Parameter Soil Sensor.* Mide humedad, temperatura y conductividad eléctrica, y calcula **conductividad del agua de poro (ECp)**; calibraciones de fábrica para suelos minerales y orgánicos, fibra de coco, turba y lana mineral; salida digital SDI-12. https://delta-t.co.uk/product/wet150/
+75. **Stevens Water Monitoring Systems.** *HydraProbe Soil Sensor.* Reflectometría dieléctrica de impedancia coaxial; mide constante dieléctrica y conductividad de forma simultánea; rango dieléctrico 1–80; exactitud **±1,5 %** o 0,2, el mayor de ambos. https://stevenswater.com/products/hydraprobe/ · https://www.stevenswater.com/resources/documentation/hydraprobe/HydraProbe_Manual_Jan_2018.pdf
+76. **IRROMETER Company.** *WATERMARK Model 200SS — Granular Matrix Soil Moisture Sensor.* Dispositivo de resistencia eléctrica de estado sólido en uso desde 1978; mide **tensión de agua del suelo** (potencial mátrico) en el rango 0–200 kPa, no contenido volumétrico; construcción en acero inoxidable, más de 5 años de vida en terreno **sin calibración requerida**. https://www.irrometer.com/200ss.html · https://www.irrometer.com/pdf/403.pdf
+77. **Principio de medición de los sensores NPK de suelo de bajo costo.** La mayoría de estos sensores **miden conductividad eléctrica y derivan N, P y K multiplicando por factores empíricos** basados en contenidos convencionales de suelo; los ensayos sobre sondas del tipo JXCT muestran que el microcontrolador emplea una recta de regresión de nitrógeno frente a EC para predecir también fósforo y potasio. El sensor **no distingue iones de nitrógeno de otros elementos conductivos** como hierro, calcio o sodio, por lo que una lectura alta puede indicar fertilidad o simplemente salinidad; los valores deben tratarse como referencia empírica y no equivalen a un análisis químico de laboratorio. https://www.niubol.com/Product-knowledge/Soil-NPK-Sensors-Principle.html · https://pcbsync.com/npk-sensor-arduino/ · https://wiki.dfrobot.com/sen0605/
+78. **Detección de nitrato en suelo mediante electrodos ion-selectivos (ISE).** Los métodos electroquímicos son rápidos y efectivos para NO₃⁻-N y constituyen la vía hacia la medición in situ, pero **la exactitud y estabilidad de la detección ISE en terreno está cuestionada** por la simplificación de la preparación de muestra: los sistemas directos tempranos alcanzaron **R² de 0,41 a 0,51** frente a laboratorio, y los arreglos de sensores, R² = 0,89. *An ISE-based On-Site Soil Nitrate Nitrogen Detection System* y *Minimalizing Non-point Source Pollution Using a Cooperative Ion-Selective Electrode System*. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6864631/ · https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8790048/
+79. **Comparación entre sensores de pH ISFET / estado sólido y electrodo de vidrio.** Los ISFET ofrecen menor deriva y la robustez necesaria para uso autónomo in situ; al carecer de membrana de vidrio son menos propensos a romperse por esfuerzo mecánico, pueden almacenarse secos, eliminan el rellenado de solución de referencia y responden hasta **diez veces más rápido**. Como contrapartida, **pueden derivar más que el electrodo de vidrio si no se calibran adecuadamente**. Sea-Bird Scientific y Campbell Scientific. https://www.seabird.com/technical-papers/ISFET-and-Glass-Electrode-pH-Sensors · https://www.campbellsci.com/faqs?v=881
+80. **Calibration of Low-Cost Capacitive Soil Moisture Sensors for Irrigation Management Applications** y *Assessment of Low-Cost and Higher-End Soil Moisture Sensors across Various Moisture Ranges and Soil Textures.* Los sensores capacitivos de bajo costo requieren calibración específica por suelo para resultar utilizables. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11768944/ · https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11435841/
 
 ---
 
