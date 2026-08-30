@@ -11,7 +11,17 @@
 // Autenticación: por `device_code` de 15 dígitos. No es un secreto fuerte,
 // así que la función NO acepta escribir mediciones a ciegas: exige que el
 // equipo exista y esté activo, y sólo actualiza su estado. Para insertar
-// mediciones se exige además la cabecera de servicio.
+// mediciones se exige además la cabecera `x-device-ingest-key`, comparada
+// contra el secreto `DEVICE_INGEST_SECRET` (distinto de la service_role key:
+// si el firmware de un equipo se extrae por ingeniería inversa, sólo compromete
+// la capacidad de reportar mediciones falsas para equipos cuyo device_code ya
+// se conoce, no acceso administrativo a la base de datos).
+//
+// AUDITORÍA 2026-08-30: antes este comentario prometía la validación de la
+// cabecera de servicio pero el código nunca la implementaba — cualquiera con
+// la clave `anon` (pública, va embebida en la app/web) y un device_code válido
+// podía insertar mediciones falsas y disparar alertas críticas reales a los
+// dueños del equipo. Corregido aquí.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.0';
 
@@ -96,6 +106,14 @@ Deno.serve(async (req: Request): Promise<Response> => {
   let measurementId: string | null = null;
 
   if (body.measurement) {
+    const ingestSecret = Deno.env.get('DEVICE_INGEST_SECRET');
+    const providedKey = req.headers.get('x-device-ingest-key');
+    // Si el secreto no está configurado en el proyecto, se rechaza por defecto
+    // (fail closed) en vez de aceptar mediciones sin ninguna verificación.
+    if (!ingestSecret || providedKey !== ingestSecret) {
+      return json({ success: false, message: 'No autorizado para reportar mediciones' }, 401);
+    }
+
     const m = body.measurement;
     const { data: inserted, error: insertError } = await supabase
       .from('soil_measurements')

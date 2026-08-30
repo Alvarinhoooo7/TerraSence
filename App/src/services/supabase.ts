@@ -2,6 +2,7 @@
 import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
+import { AppState, Platform } from 'react-native';
 import { createClient } from '@supabase/supabase-js';
 
 const extra = Constants.expoConfig?.extra ?? {};
@@ -28,3 +29,12 @@ export const supabase = createClient(supabaseUrl ?? '', supabaseAnonKey ?? '', {
     detectSessionInUrl: false,
   },
 });
+
+// React Native no mantiene timers fiables cuando queda en segundo plano.
+// Detener y reanudar el refresco evita sesiones caducadas o trabajo innecesario.
+if (Platform.OS !== 'web') {
+  AppState.addEventListener('change', (state) => {
+    if (state === 'active') supabase.auth.startAutoRefresh();
+    else supabase.auth.stopAutoRefresh();
+  });
+}

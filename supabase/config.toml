@@ -159,6 +159,7 @@ site_url = "https://terrasense-web.vercel.app"
 # `npm run dev` sin tener que editar este archivo cada vez.
 additional_redirect_urls = [
   "https://terrasense-web.vercel.app",
+  "terrasense://reset-password",
   "http://127.0.0.1:3000",
   "http://localhost:5173",
 ]

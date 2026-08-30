@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Linking,
   Text,
   TouchableOpacity,
   View,
@@ -29,6 +30,8 @@ import { useTranslation } from './src/hooks/useTranslation';
 import { DEFAULT_APP_PREFERENCES } from './src/types/preferences';
 import type { MapMeasurementPoint } from './src/types/app';
 import { MeasurementDetailModal } from './src/components/MeasurementDetailModal';
+import { ResetPasswordScreen } from './src/screens/ResetPasswordScreen';
+import { createRecoverySession } from './src/services/authDeepLink';
 
 type Route = 'map' | 'measure' | 'settings' | 'devices' | 'history' | 'perimeter';
 
@@ -38,6 +41,7 @@ export default function App() {
 
   const [session, setSession] = useState<Session | null>(null);
   const [checking, setChecking] = useState(true);
+  const [recovering, setRecovering] = useState(false);
   const [checkingOnboarding, setCheckingOnboarding] = useState(false);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [onboardingError, setOnboardingError] = useState<string | null>(null);
@@ -55,10 +59,26 @@ export default function App() {
       setSession(data.session);
       setChecking(false);
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
+      if (event === 'PASSWORD_RECOVERY') setRecovering(true);
       setSession(s);
     });
-    return () => sub.subscription.unsubscribe();
+
+    const handleUrl = (url: string) => {
+      void createRecoverySession(url)
+        .then((isRecovery) => {
+          if (isRecovery) setRecovering(true);
+        })
+        .catch((error) => console.warn('[TerraSense] Enlace de recuperación inválido:', error));
+    };
+    void Linking.getInitialURL().then((url) => {
+      if (url) handleUrl(url);
+    });
+    const linkSubscription = Linking.addEventListener('url', ({ url }) => handleUrl(url));
+    return () => {
+      sub.subscription.unsubscribe();
+      linkSubscription.remove();
+    };
   }, []);
 
   useEffect(() => {
@@ -120,7 +140,9 @@ export default function App() {
 
   let content: React.ReactNode;
 
-  if (checking || (session && checkingOnboarding)) {
+  if (recovering) {
+    content = <ResetPasswordScreen onDone={() => setRecovering(false)} />;
+  } else if (checking || (session && checkingOnboarding)) {
     content = (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
         <ActivityIndicator size="large" color={colors.primary} />

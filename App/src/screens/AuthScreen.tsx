@@ -138,7 +138,9 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
         return;
       }
 
-      const { error: e } = await supabase.auth.resetPasswordForEmail(mail);
+      const { error: e } = await supabase.auth.resetPasswordForEmail(mail, {
+        redirectTo: 'terrasense://reset-password',
+      });
       if (e) throw e;
       setNotice(t('Te enviamos un enlace para elegir una contraseña nueva.', 'We sent you a link to choose a new password.'));
       setMode('signin');

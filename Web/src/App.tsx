@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from './services/supabase';
-import { LoginScreen } from './components/LoginScreen';
+import { AuthScreen } from './components/AuthScreen';
 import { Dashboard } from './components/Dashboard';
 import { ResetPasswordScreen } from './components/ResetPasswordScreen';
 
@@ -37,5 +37,5 @@ export default function App() {
     return <ResetPasswordScreen onDone={() => setRecovering(false)} />;
   }
 
-  return session ? <Dashboard email={session.user.email ?? ''} /> : <LoginScreen />;
+  return session ? <Dashboard email={session.user.email ?? ''} /> : <AuthScreen />;
 }

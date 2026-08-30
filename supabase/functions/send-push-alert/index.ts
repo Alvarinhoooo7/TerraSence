@@ -9,7 +9,13 @@
 // aparece en la app al abrirla.
 //
 // Invocación: por trigger de base de datos, por cron, o manualmente con el
-// id de la alerta. Requiere clave de servicio: no está pensada para clientes.
+// id de la alerta. Requiere el header `Authorization: Bearer <service_role key>`:
+// no está pensada para clientes.
+//
+// AUDITORÍA 2026-08-30: el comentario ya prometía "requiere clave de
+// servicio" pero el código nunca lo comprobaba — cualquiera con la clave
+// `anon` pública podía invocar esta función y forzar el despacho inmediato
+// de todas las alertas pendientes a discreción, sin límite. Corregido.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.0';
 
@@ -59,6 +65,15 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return json({ success: false, message: 'Método no permitido' }, 405);
   }
 
+  // El gateway acepta cualquier JWT válido (incluida la clave anon pública).
+  // Esta función opera con service_role y puede leer perfiles/tokens de toda la
+  // instalación, por lo que debe exigir explícitamente la clave de servicio.
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  const authorization = req.headers.get('authorization');
+  if (!serviceRoleKey || authorization !== `Bearer ${serviceRoleKey}`) {
+    return json({ success: false, message: 'No autorizado' }, 401);
+  }
+
   let payload: Payload = {};
   try {
     payload = (await req.json()) as Payload;
@@ -68,7 +83,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    serviceRoleKey,
   );
 
   // Sólo alertas no leídas: `is_read` hace de marca de despacho.
