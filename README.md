@@ -10,7 +10,7 @@
 | **Producto** | Instrumento portátil de medición edafológica 7-en-1 con motor de inferencia agronómica en smartphone |
 | **Stack** | ESP32-WROOM-32 · RS-485 Modbus RTU · BLE 5.0 · Bosch BME280 · React Native (Expo/TypeScript) · Supabase + PostGIS |
 | **Mercado objetivo** | Agricultura Familiar Campesina y pequeño/mediano productor comercial de Chile (0,5 – 20 ha) |
-| **Precio objetivo** | $179.990 CLP con IVA ($151.252 CLP netos) |
+| **Precio objetivo** | $249.990 CLP con IVA ($210.076 CLP netos) |
 | **Tipo de cambio de referencia** | 1 USD = 915 CLP (dólar observado, Banco Central de Chile, 18-ago-2026) <sup>[35]</sup> |
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -74,21 +74,20 @@
 
 **Eficiencia energética.** El equipo consume **0 µA** en la línea de sonda cuando no mide, gracias a un corte por P-MOSFET (*power gating*) que desconecta el elevador de 12 V y el transceptor RS-485; **~15 µA** en sueño profundo *(estimación de diseño, pendiente de medición en placa final)*; y **0,141 mAh por ciclo completo de medición**. Bajo un régimen de campo estándar de 8 mediciones diarias, el modelo energético de la [Sección IX](#ix-criterios-de-diseño) proyecta **~784 días de autonomía y ~6.200 mediciones por carga**, de los cuales se declara comercialmente un valor derateado de **≥ 2.000 mediciones y 8 a 12 meses**. Añadir una pantalla OLED activa reduce esa autonomía a **179 días (−77 %)**; el mismo cálculo demuestra que **el interruptor físico de corte —no el MOSFET— es el componente que más autonomía aporta**: sin él, el equipo en publicidad BLE permanente se agotaría en **27 días**.
 
-**Viabilidad económica.** El estudio se construye sobre una proyección deliberadamente conservadora: **120 unidades el primer año**, equivalentes al **0,1 % del mercado servible** y a diez ventas mensuales. El costo variable unitario puesto en manos del cliente es de **$69.069 CLP** —BOM de $43.773 más flete aéreo consolidado desde China <sup>[45]</sup>, arancel del 6 % <sup>[32]</sup>, mano de obra, merma, provisión de garantía legal de 6 meses <sup>[24]</sup> y flete nacional—, y el costo total de operar el primer año asciende a **$13.029.860**, es decir **$108.582 por unidad**. Sobre esa base, el precio predefinido de $179.990 CLP con IVA implica una **rentabilidad del 39,3 % sobre el costo total**, por encima del **30 % mínimo exigido**, cuyo piso comercial se sitúa en $169.990.
+**Viabilidad económica.** El estudio se construye sobre una proyección conservadora revisada: **200 unidades el primer año** (17 al mes), equivalentes al **0,17 % del mercado servible**. El costo variable unitario es de **$91.309 CLP** —BOM de $70.656 (componentes SMD cotizados en LCSC, PCBA en JLCPCB y una sonda de suelo a precio real de mercado, $48.000 CLP) más flete nacional por Bluexpress, mano de obra, merma y provisión de garantía legal de 6 meses <sup>[24]</sup>—, y el precio de venta se fija en el **techo de negocio declarado, $249.990 CLP con IVA**, necesario para que los dos socios fundadores puedan pagarse el **Ingreso Mínimo Mensual** ($553.553 c/u) desde el mes 1, sin ningún año sin retiro.
 
-La **inversión inicial es de $14.022.415 CLP** —$9.892.415 en capital de trabajo y activo nominal, más $4.130.000 en activo fijo—, financiada con subsidio CORFO Semilla Inicia ($8.000.000, no reembolsable), aporte propio ($3.000.000), una línea de corto plazo a 1 año y 23 % ($1.500.000) y un crédito a largo plazo a 5 años y 10 % ($1.522.415), ambos por sistema alemán. El punto de equilibrio del Año 1 es de **56 unidades** frente a 120 planificadas.
+La **inversión inicial es de $23.900.000 CLP** —$18.990.000 en capital de trabajo y activo nominal, más $4.910.000 en activo fijo—, financiada sin subsidio estatal: **pie de los dos socios ($8.900.000)**, un **crédito bancario a 5 años y 10 % con garantía FOGAPE ($10.000.000)** y una **línea de corto plazo a 1 año y 23 % ($5.000.000)** para el desfase de caja del primer lote. El punto de equilibrio contable del Año 1 es de **168 unidades** frente a 200 planificadas (holgura del 19 %).
 
-| Indicador (tasa de descuento 20 %) | Escenario base ($179.990) | Escenario recomendado |
-| :--- | ---: | ---: |
-| **VAN** | $7.019.065 | **$25.064.177** |
-| **TIR** | 34,6 % | **59,9 %** |
-| **Pay Back** | 3,14 años | **2,34 años** |
-| **Pay Back descontado** | 4,09 años | **3,03 años** |
-| VAN con volumen −10 % | −$669.851 | **$12.890.974** |
+| Indicador (tasa de descuento 20 %, horizonte 5 años) | Valor | Criterio |
+| :--- | ---: | :---: |
+| **VAN** | **−$8.143.581** | ❌ No cumple a 5 años |
+| **TIR real** | **≈ 8,5 %** | ❌ No cumple, pero es positiva |
+| **Pay Back** | **4,42 años** | ✅ Cumple, sin holgura |
+| Utilidad neta, todos los años | Positiva desde el Año 1 | ✅ Sin años de pérdida |
 
-Los cinco criterios de evaluación coinciden en **aceptar el proyecto**, pero el análisis de sensibilidad revela que **el escenario base es viable y a la vez frágil**: tolera apenas un −10 % de volumen, un −5,6 % de precio y un +13 % de costo variable. De ahí las dos recomendaciones del estudio: **elevar el precio de lista a $199.990 CLP desde el Año 2** —que sigue siendo un 35 % más barato que el competidor más cercano ofreciendo tres veces más parámetros, y que convierte la fragilidad en robustez— y **activar el canal INDAP/PDI**, cuyo cofinanciamiento del 60 % al 90 % <sup>[43][44]</sup> actúa directamente sobre la única variable capaz de hundir el proyecto. El flujo mensual detectó además que **el mes 6 es el punto crítico de caja del primer año**, cuando coincide el pago del segundo lote de importación con ventas todavía bajas: se resuelve fraccionando el lote, sin costo.
+**El proyecto no cumple el criterio estándar de VAN positivo a 5 años y 20 %, y este documento lo declara sin maquillarlo** — es la consecuencia directa de tres decisiones deliberadas: sonda a precio real (triplicó el costo del componente más caro), sueldo de ambos socios desde el mes 1, y un precio tope que no puede subir más de $249.990. Extendiendo el horizonte a 8–10 años, condición que los propios socios declararon aceptable, el proyecto se vuelve claramente rentable: la utilidad neta crece de $2,9 a $18,1 millones entre el Año 1 y el Año 5, sin ningún año de pérdida, y el flujo acumulado ya cruza a positivo dentro del propio quinquenio. Ver el detalle completo, incluida la trazabilidad de cada decisión de costo, en la [Sección XII](#xii-evaluación-económica-flujo-de-caja-van-y-tir).
 
-**Conclusión.** El proyecto es **técnicamente factible con dos riesgos abiertos y explícitamente declarados** —el grado IP67 está *diseñado pero no ensayado*, y el mapa de registros de la sonda requiere confirmación con el proveedor— y **económicamente viable**, con holgura frente a errores de costo y con un margen más estrecho frente a errores de volumen. Su barrera competitiva no está en el hardware, que es genérico y replicable por diseño, sino en el **motor agronómico calibrado para suelos y cultivos chilenos** y en el histórico georreferenciado que se acumula con el uso — una barrera que crece con el tiempo en lugar de erosionarse.
+**Conclusión.** El proyecto es **técnicamente factible con dos riesgos abiertos y explícitamente declarados** —el grado IP67 está *diseñado pero no ensayado*, y el mapa de registros de la sonda requiere confirmación con el proveedor— y **económicamente viable a largo plazo, pero no bajo la vara estándar de 5 años**: exige de los socios paciencia y un sueldo modesto durante los primeros años a cambio de un negocio que no arriesga insolvencia en ningún momento del quinquenio. Su barrera competitiva no está en el hardware, que es genérico y replicable por diseño, sino en el **motor agronómico calibrado para suelos y cultivos chilenos** y en el histórico georreferenciado que se acumula con el uso — una barrera que crece con el tiempo en lugar de erosionarse.
 
 ---
 
@@ -683,7 +682,7 @@ Resuelve la objeción de cobertura de la alternativa C: en lugar de un módem ce
 
 | Objeción | Cuantificación |
 | :--- | :--- |
-| **Sigue midiendo puntos fijos** | Un nodo por punto. Muestrear 20 puntos de un potrero exige 20 nodos, ~$900.000 en nodos más el *gateway* — frente a **$179.990 por un equipo que muestrea los 20 puntos en una mañana** |
+| **Sigue midiendo puntos fijos** | Un nodo por punto. Muestrear 20 puntos de un potrero exige 20 nodos, ~$900.000 en nodos más el *gateway* — frente a **$249.990 por un equipo que muestrea los 20 puntos en una mañana** |
 | **Exige infraestructura propia del predio** | El *gateway* debe instalarse, alimentarse y mantenerse. Es una barrera de entrada incompatible con un productor de 2 ha |
 | **No resuelve el caso de uso real** | El agricultor **está parado sobre el punto** cuando necesita la decisión. Una red de telemetría le informa a distancia sobre puntos donde no está: es un problema distinto |
 | **Homologación adicional** | Requiere verificar el cumplimiento del régimen de certificación de equipos de SUBTEL para la banda de 915 MHz <sup>[18][69]</sup>, con la advertencia sobre el tramo concesionado |
@@ -749,7 +748,7 @@ Eliminar por completo la electrónica intermedia: cable de la sonda al teléfono
 
 | Presupuesto de la alternativa F | Valor |
 | :--- | ---: |
-| BOM | **$43.773** ([XII.2.1](#xii21-lista-de-materiales-bom-unitaria--lote-de-120-unidades)) |
+| BOM | **$70.656** ([XII.2.1](#xii21-lista-de-materiales-bom-unitaria--100--smd-componentes-cotizados-en-lcsc--pcba-en-jlcpcb)) |
 | Autonomía (8 mediciones/día) | **784 días modelados**, ≥ 2.000 mediciones declaradas ([IX.1.4](#ix14-modelo-de-autonomía-de-campo)) |
 | Latencia hasta el veredicto | ≤ 5 s, sin red |
 | Puntos por jornada | Ilimitado a costo marginal cero |
@@ -2102,7 +2101,7 @@ El universo se construye **exclusivamente sobre la fuente censal oficial**, y no
 │ 🌍 TAM · Mercado total teórico                                               │
 │    175.556 unidades censadas = 138.628 UPA + 36.928 UAC          [1][2]      │
 │    48,7 millones de hectáreas censadas · 45,8 M ha con actividad  [1]        │
-│    Valor teórico a $151.252 netos: ~$26.554 millones CLP                     │
+│    Valor teórico a $210.076 netos: ~$36.880 millones CLP                     │
 └────────────────────────────────────┬─────────────────────────────────────────┘
                                      │  Filtro 1: excluir unidades de autoconsumo (UAC)
                                      │  Filtro 2: acceso efectivo a internet móvil (94,5% rural) [8]
@@ -2112,29 +2111,29 @@ El universo se construye **exclusivamente sobre la fuente censal oficial**, y no
 │ 🎯 SAM · Mercado servible                                                    │
 │    ~120.000 UPA comerciales con smartphone y cultivo de valor                │
 │    (138.628 UPA × ~87 % de acceso y orientación comercial)                   │
-│    Valor servible: ~$18.150 millones CLP                                     │
+│    Valor servible: ~$25.209 millones CLP                                     │
 └────────────────────────────────────┬─────────────────────────────────────────┘
                                      │  Filtro 4: capacidad real de captura comercial
                                      ▼
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │ 🚀 SOM · Meta de captura, año a año                                          │
-│    Año 1 → 0,10 % del SAM =  120 unidades                                    │
-│    Año 2 → 0,20 % del SAM =  240 unidades                                    │
-│    Año 3 → 0,35 % del SAM =  420 unidades                                    │
-│    Año 4 → 0,50 % del SAM =  600 unidades                                    │
-│    Año 5 → 0,70 % del SAM =  840 unidades                                    │
-│    Acumulado a 5 años: 2.220 unidades = 1,85 % del SAM                       │
+│    Año 1 → 0,17 % del SAM =  200 unidades                                    │
+│    Año 2 → 0,29 % del SAM =  350 unidades                                    │
+│    Año 3 → 0,42 % del SAM =  500 unidades                                    │
+│    Año 4 → 0,54 % del SAM =  650 unidades                                    │
+│    Año 5 → 0,71 % del SAM =  850 unidades                                    │
+│    Acumulado a 5 años: 2.550 unidades = 2,13 % del SAM                       │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
 > [!IMPORTANT]
-> ### 📉 Por qué 120 unidades y no 1.000
+> ### 📉 Por qué 200 unidades y no 1.000 — y por qué ya no son 120
 >
 > Una marca nueva, sin red de distribución consolidada, sin historial de campo y sin referencias de productores conocidos **no coloca mil unidades en doce meses en el agro chileno**. Nadie lo hace. Proyectarlo destruye la credibilidad de todo el resto del estudio.
 >
-> **120 unidades el primer año son 10 unidades al mes, o 2,5 por semana.** Esa cifra es defendible porque puede sustentarse con un canal directo y un puñado de demostraciones en terreno, sin suponer que existe una fuerza de ventas que aún no se ha contratado.
+> **El volumen del Año 1 se revisó de 120 a 200 unidades por una razón financiera, no comercial**, documentada en [XII](#xii-evaluación-económica-flujo-de-caja-van-y-tir): los dos socios fundadores se pagan **desde el mes 1** (no hay año sin retiro), lo que exige un punto de equilibrio más alto que el que sostenían 120 unidades. 200 unidades siguen siendo apenas **17 unidades al mes**, sustentable con venta directa y demostraciones en terreno, sin suponer una fuerza de ventas contratada.
 >
-> El compromiso del proyecto es explícito: **es preferible sostener 120 unidades y superarlas, que proyectar 1.000 y no acercarse.** El análisis de sensibilidad de [XII.8](#xii8-análisis-de-sensibilidad-y-punto-de-quiebre) demuestra además que el proyecto tolera una desviación de hasta −20 % sobre esta cifra ya conservadora.
+> El compromiso del proyecto sigue siendo el mismo: **es preferible sostener 200 unidades y superarlas, que proyectar 1.000 y no acercarse.**
 
 ## XI.2. Por qué crece cada año: el motor del crecimiento no es la esperanza
 
@@ -2142,30 +2141,33 @@ Un plan que dice «el año 2 venderemos el doble» sin explicar por qué es una 
 
 | Año | Unidades | Penetración | **Qué se hace ese año para conseguirlo** | Inversión en marketing | CAC |
 | :---: | :---: | :---: | :--- | :---: | :---: |
-| **1** | 120 | 0,10 % | Venta directa del fundador. Demostraciones en terreno con productores de contacto propio, 2 ferias regionales, presencia digital básica. Objetivo real: **construir los primeros 120 casos documentados con fotos, mediciones y testimonios** | $1.800.000 | $15.000 |
-| **2** | 240 | 0,20 % | Se activa el **canal PRODESAL/INDAP**: los asesores técnicos que atendieron a los primeros usuarios se convierten en prescriptores. Se duplica el presupuesto de ferias y se suma publicidad segmentada. La duplicación de ventas está sostenida por una **duplicación del gasto comercial** ($3.960.000), no por inercia | $3.960.000 | $16.500 |
-| **3** | 420 | 0,35 % | Se firma el **primer convenio con distribuidor de insumos agrícolas** y se incorpora un técnico. Se pasa de venta directa a venta asistida por canal, lo que aumenta el alcance geográfico sin multiplicar las horas del fundador | $6.300.000 | $15.000 |
-| **4** | 600 | 0,50 % | Consolidación del canal B2B y **primera postulación a compra institucional** (cooperativas, programas de fomento). El CAC se mantiene porque el canal aporta clientes con menor costo unitario, compensando el mayor gasto absoluto | $9.000.000 | $15.000 |
-| **5** | 840 | 0,70 % | Cobertura multirregional, base instalada de ~1.400 equipos generando recomendación entre pares. **El histórico de mediciones acumulado se convierte en argumento de venta** que ningún competidor nuevo puede replicar | $12.600.000 | $15.000 |
+| **1** | 200 | 0,17 % | **Sin agencia**: los dos socios gestionan directamente $100.000/mes en Google Ads y Meta Ads, más demostraciones en terreno con productores de contacto propio. Objetivo real: **construir los primeros 200 casos documentados con fotos, mediciones y testimonios**, antes de pagar por gestión externa | $1.200.000 | $6.000 |
+| **2** | 350 | 0,29 % | Se contrata una **agencia de marketing digital** (plan de crecimiento) y se activa el **canal PRODESAL/INDAP**: los asesores técnicos que atendieron a los primeros usuarios se convierten en prescriptores | $7.080.000 | $20.229 |
+| **3** | 500 | 0,42 % | Se firma el **primer convenio con distribuidor de insumos agrícolas** y se incorpora un segundo ensamblador. Se pasa de venta directa a venta asistida por canal, lo que aumenta el alcance geográfico sin multiplicar las horas de los socios | $10.680.000 | $21.360 |
+| **4** | 650 | 0,54 % | Consolidación del canal B2B y **primera postulación a compra institucional** (cooperativas, programas de fomento) | $12.000.000 | $18.462 |
+| **5** | 850 | 0,71 % | Cobertura multirregional, base instalada de ~1.700 equipos generando recomendación entre pares. **El histórico de mediciones acumulado se convierte en argumento de venta** que ningún competidor nuevo puede replicar | $14.400.000 | $16.941 |
 
 > [!NOTE]
-> **El CAC de $15.000 CLP por unidad es la métrica que hay que defender**, no el crecimiento porcentual. Representa el 8,3 % del PVP y el 18,3 % del margen de contribución. Es una relación sana para un producto de venta única y ticket medio-alto: si el CAC real resultara ser $30.000, el margen unitario caería a ~$67.000 y el punto de equilibrio del Año 1 subiría de 55 a 67 unidades — **todavía muy por debajo de las 120 planificadas**. El modelo tolera que esta estimación esté equivocada por un factor de 2.
+> **El Año 1 tiene, a propósito, el CAC más bajo de los cinco ($6.000)**: es el año sin agencia, pagado directo por los socios en pauta digital. El salto de CAC en el Año 2 (a $20.229) no es un descontrol: es el costo de pasar de gestión artesanal a una agencia profesional que sostiene el crecimiento de los años siguientes, y sigue siendo una fracción menor del precio de venta ($249.990).
 
 ## XI.3. Análisis competitivo
 
 ### XI.3.1. Posicionamiento de precio
 
 ```text
-$180.000        $270.000       $310.000                          $1.370.000
+$249.990        $270.000       $310.000                          $1.370.000
     │               │              │                                  │
     ▼               ▼              ▼                                  ▼
 [TERRASENSE]   [Hanna HI9814]  [Bluelab Pulse]              [FieldScout TDR 350]
-$179.990 CLP    US$294 [29]     US$339 [27]                   US$1.495 [30]
+$249.990 CLP    US$294 [29]     US$339 [27]                   US$1.495 [30]
                 = $269.010      = $310.185                     = $1.367.925
 9 parámetros    4 parámetros    3 parámetros                   1 parámetro
 + IA            sin NPK         sin NPK ni pH                  sólo humedad
 + GIS           sin GPS         app propia                     GPS opcional
 ```
+
+> [!NOTE]
+> **El precio subió de $179.990 a $249.990** al revisar el modelo económico con costos reales de sonda y con sueldo de ambos socios desde el mes 1 ([XII](#xii-evaluación-económica-flujo-de-caja-van-y-tir)). **Sigue siendo el más barato de los tres instrumentos portátiles comparables** — 7 % menos que el Hanna HI9814 y 19 % menos que el Bluelab Pulse — pero el margen de esa afirmación se estrechó considerablemente frente a la versión anterior del estudio, y conviene decirlo así de directo.
 
 *Conversión a 915 CLP/USD <sup>[35]</sup>. Precios de lista del fabricante o de distribuidor autorizado, sin considerar internación a Chile — que añadiría flete, arancel del 6 % e IVA del 19 % <sup>[32][33]</sup> sobre esos valores.*
 
@@ -2208,7 +2210,7 @@ Predio representativo de 3 ha con 20 mediciones por temporada.
 | Laboratorio químico (20 muestras/año) | alto y recurrente | 3× el Año 1 | 5× el Año 1 |
 | Asesoría agronómica (6 visitas/año) | alto y recurrente | 3× el Año 1 | 5× el Año 1 |
 | Bluelab Pulse + instrumento de pH separado | ~$500.000 CLP | + pilas y repuestos | + pilas y repuestos |
-| **TerraSense** | **$179.990 CLP** | **+ buffers de calibración** | **+ celdas de repuesto** |
+| **TerraSense** | **$249.990 CLP** | **+ buffers de calibración** | **+ celdas de repuesto** |
 
 > [!NOTE]
 > **El argumento decisivo no es el precio de compra: es el costo marginal.** Un laboratorio cobra por muestra, de modo que mapear la variabilidad de un potrero con 10 puntos multiplica el costo por diez. TerraSense permite muestrear 10, 50 o 100 puntos en una mañana **al mismo costo total**. Esa asimetría es lo que hace posible la agricultura de precisión en una escala en la que hasta ahora era económicamente impensable.
@@ -2223,9 +2225,7 @@ Predio representativo de 3 ha con 20 mediciones por temporada.
 | **Cooperativas y asociaciones** | Compra colectiva con descuento por volumen | Año 4 | Descuento por volumen acotado al 10 % |
 
 > [!WARNING]
-> **Implicancia directa sobre el precio.** Si el canal B2B exige un 15–20 % de margen y el precio de lista es $179.990, el fabricante recibiría entre $143.992 y $152.992 brutos, es decir, entre $121.001 y $128.564 netos por unidad. **Ese precio efectivo está por debajo del piso comercial de $169.990 que exige el margen mínimo del 30 % sobre el costo total** ([XII.4.2](#xii42-determinación-del-precio-de-venta)): con lista a $179.990, vender por canal B2B incumple la restricción de negocio del proyecto.
->
-> Esta es una de las cuatro razones por las que [XII.9](#xii9-escenario-recomendado-migración-de-precio) recomienda elevar el precio de lista a $199.990. **El descuento de canal debe salir del precio de lista, no del margen del fabricante.**
+> **Implicancia directa sobre el precio.** Si el canal B2B exige un 15–20 % de margen y el precio de lista es $249.990, el fabricante recibiría entre $199.992 y $212.492 brutos, es decir, entre $168.061 y $178.564 netos por unidad — **todavía por encima del costo variable unitario ($91.309)**, pero con un margen de contribución bastante más ajustado que en venta directa. **El descuento de canal debe salir del precio de lista, no del margen del fabricante**: es una razón adicional para no bajar el precio de lista por debajo de $249.990 una vez que el canal B2B esté activo (Año 3).
 
 ## XI.6. Capacidad de producción
 
@@ -2233,13 +2233,13 @@ Predio representativo de 3 ha con 20 mediciones por temporada.
 
 | Año | Unidades | Horas de impresión 3D | Impresoras necesarias | Horas de ensamblaje | Dotación necesaria | Impresoras disponibles | Utilización |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 1 | 120 | 900 h | 0,15 | 144 h | 0,08 FTE | 2 | **7,5 %** |
-| 2 | 240 | 1.800 h | 0,30 | 288 h | 0,16 FTE | 2 | **15,0 %** |
-| 3 | 420 | 3.150 h | 0,53 | 504 h | 0,28 FTE | 2 | **26,2 %** |
-| 4 | 600 | 4.500 h | 0,75 | 720 h | 0,40 FTE | 3 | **25,0 %** |
-| 5 | 840 | 6.300 h | 1,05 | 1.008 h | 0,56 FTE | 3 | **35,0 %** |
+| 1 | 200 | 1.500 h | 0,25 | 300 h | 0,17 FTE | 2 | **12,5 %** |
+| 2 | 350 | 2.625 h | 0,44 | 525 h | 0,29 FTE | 2 | **21,9 %** |
+| 3 | 500 | 3.750 h | 0,63 | 750 h | 0,42 FTE | 2 | **31,3 %** |
+| 4 | 650 | 4.875 h | 0,81 | 975 h | 0,54 FTE | 3 | **27,1 %** |
+| 5 | 850 | 6.375 h | 1,06 | 1.275 h | 0,71 FTE | 3 | **35,4 %** |
 
-*Supuestos: 7,5 h de impresión y 1,2 h de ensamblaje + QA por unidad; 6.000 h útiles por impresora al año (20 h/día × 300 días); 1.800 h por persona a jornada completa.*
+*Supuestos: 7,5 h de impresión y **1,5 h** de ensamblaje + QA por unidad (subió desde 1,2 h: la sonda de mayor costo y el sellado adicional exigen más tiempo de banco) <sup>[†]</sup>; 6.000 h útiles por impresora al año (20 h/día × 300 días); 1.800 h por persona a jornada completa. La dotación necesaria en el Año 1 (0,17 FTE) confirma que los dos socios pueden cubrir el ensamblaje sin contratar a nadie ese año — ver [XII](#xii-evaluación-económica-flujo-de-caja-van-y-tir).*
 
 ### XI.6.1. Conclusión y cuello de botella real
 
@@ -2267,9 +2267,14 @@ Los cuellos de botella reales son otros tres, y conviene nombrarlos:
 
 ## XII.1. Tabla maestra de parámetros del modelo
 
-**El modelo asume vender 120 unidades el primer año**. Esto representa apenas entre el **0,1% y 0,2% del mercado servible** focalizado. Es una meta de ventas conservadora y extremadamente realista que no exige vender números irreales.
+> [!WARNING]
+> ### 🔧 Revisión del modelo — 30 de agosto de 2026
+>
+> Esta sección se reconstruyó completamente sobre tres supuestos que cambiaron respecto de versiones anteriores del estudio: **(1)** el costo real de la sonda de suelo en el mercado es de **$48.000 CLP**, no $16.500 — una cotización previa subestimaba gravemente el componente que más pesa en el costo del producto; **(2)** los **dos socios fundadores se pagan sueldo desde el mes 1** (nunca un año sin retiro), lo que exige revisar el volumen y el precio; **(3)** el financiamiento se estructura con **pie de los dos socios + crédito bancario con garantía FOGAPE**, sin depender de un subsidio estatal no reembolsable. La consecuencia de los tres cambios juntos: **el volumen del Año 1 sube de 120 a 200 unidades y el precio de lista sube de $179.990 a $249.990** — el techo de precio que el proyecto se fijó como límite de negocio. Se documenta con la misma honestidad que el resto del informe: **el modelo resultante es más ajustado, no más cómodo, que el anterior.**
 
-Todos los supuestos económicos están concentrados aquí. **Modificar un valor de esta tabla propaga el cambio a todo el resto de la sección**, de modo que actualizar el estudio con cotizaciones reales es una edición de un solo punto.
+**El modelo asume vender 200 unidades el primer año**, equivalentes al **0,17 % del mercado servible**. Sigue siendo una meta conservadora, pero ya no es la misma que 120: subió porque pagarse desde el día 1 exige un punto de equilibrio más alto (ver [XII.4.2](#xii42-determinación-del-precio-y-del-volumen-necesario)).
+
+Todos los supuestos económicos están concentrados aquí. **Modificar un valor de esta tabla propaga el cambio a todo el resto de la sección**.
 
 | Parámetro | Valor adoptado | Origen |
 | :--- | :---: | :--- |
@@ -2277,68 +2282,63 @@ Todos los supuestos económicos están concentrados aquí. **Modificar un valor 
 | IVA | 19 % | SII <sup>[34]</sup> |
 | Impuesto de primera categoría | **25 %** | Régimen Pro Pyme General <sup>[57]</sup> |
 | Arancel de importación | 6 % sobre valor FOB | Aduanas <sup>[32]</sup> |
-| Flete aéreo consolidado China–Chile | US$7,5 / kg | Referencia de mercado <sup>[45]</sup> |
-| Masa por unidad embalada | 0,95 kg | Estimación propia |
+| Flete internacional (LCSC + JLCPCB, courier consolidado) | US$20 / kg | Referencia courier express para lotes pequeños |
+| Flete nacional al cliente | Bluexpress, tarifa referencial | ~$4.500 + IVA / kg, mínimo por envío |
 | Provisión de garantía legal | 5 % del costo en bodega | Ley 21.398, 6 meses <sup>[24]</sup> |
 | Merma y scrap | 3 % | Estimación propia |
 | **Tasa de descuento de evaluación** | **20 %** | Tasa de rentabilidad exigida por la planilla |
-| **Incremento anual de ventas** | **2,0 %** | Proyección de actividad económica, Banco Central <sup>[58]</sup> |
-| **Incremento anual de costos** | **2,7 %** | Crecimiento del PIB tendencial <sup>[58]</sup> |
 | **Margen mínimo exigido sobre costo total** | **30 %** | Restricción de negocio del proyecto |
 | Vidas útiles para depreciación | 6 años equipamiento; 7 años mobiliario | Tabla de vida útil del SII <sup>[59]</sup> |
-| Préstamo a largo plazo | 5 años, **10 % anual**, sistema alemán | Crédito PYME con garantía FOGAPE <sup>[c]</sup> |
-| Préstamo a corto plazo | 1 año, **23 % anual**, sistema alemán | Línea de capital de trabajo <sup>[b]</sup> |
-| Volumen proyectado | 120 / 240 / 420 / 600 / 840 unidades | [XI.1](#xi1-metodología-de-dimensionamiento) |
+| Préstamo a largo plazo | 5 años, **10 % anual**, sistema francés | Crédito PYME con garantía FOGAPE |
+| Préstamo a corto plazo | 1 año, **23 % anual** | Línea de capital de trabajo |
+| **Sueldo empresarial de cada socio (Año 1)** | **Ingreso Mínimo Mensual, $553.553 bruto/mes** | Piso legal vigente desde mayo de 2026 |
+| **Precio de venta** | **$249.990 CLP con IVA** (techo declarado del negocio) | Decisión de negocio, verificada contra competencia en [XI.3](#xi3-análisis-competitivo) |
+| Volumen proyectado | 200 / 350 / 500 / 650 / 850 unidades | [XI.1](#xi1-metodología-de-dimensionamiento) |
 
 ## XII.2. Estructura de costos unitarios
 
-### XII.2.1. Lista de materiales (BOM) unitaria — lote de 120 unidades
+### XII.2.1. Lista de materiales (BOM) unitaria — 100 % SMD, componentes cotizados en LCSC + PCBA en JLCPCB
 
-| Componente | Descripción | Costo unitario |
+| Componente | Fuente / detalle | Costo unitario |
 | :--- | :--- | ---: |
-| Sonda 7-en-1 RS-485 | Inox 316L, Modbus RTU, 5–30 V (FOB China) | $16.500 |
-| ESP32-WROOM-32 | Módulo desnudo para montaje en PCB propia | $2.900 |
-| Bosch BME280 | Sensor ambiental I²C | $800 |
-| Etapa de potencia y bus | MAX485 + P-MOSFET Si2301 + MT3608 + pasivos | $1.900 |
-| Carga y protección | TP5100 + conector USB-C + protección del pack | $1.500 |
-| Almacenamiento de energía | 2× celda 18650 3.000 mAh + portacelda + fusible | $8.200 |
-| PCB y ensamblaje | FR4 2 capas + SMT, NRE prorrateado en el lote <sup>[48]</sup> | $4.200 |
-| Interfaz y herrajes | Prensaestopas M12, rocker, 3 LED SMD, pulsador, insertos M3 | $2.100 |
-| Envolvente | Filamento PETG, 118 g | $2.124 |
-| Energía de impresión | 7,5 h × 110 W | $149 |
-| Sellado | O-ring de silicona, sellador de capas, tornillería inox | $900 |
-| Empaque | Caja, manual impreso, espumas, sachet desecante | $2.500 |
-| **BOM TOTAL** | | **$43.773** |
+| ESP32-WROOM-32E-N4, BME280, SP3485, TP4056, MT3608, Si2301 + pasivos | LCSC, precio unitario a pieza suelta | $6.711 |
+| PCB (2 capas) + ensamblaje SMT + NRE prorrateado | JLCPCB turnkey | $2.229 |
+| Flete internacional + arancel 6 % | Courier consolidado sobre el lote electrónico | $1.183 |
+| 2× celda 18650 3.000 mAh + portacelda + fusible | Cotización de mercado | $4.510 |
+| USB-C sellado, rocker, pulsador PAIR, **prensaestopas M12**, O-ring, insertos M3 | Cotización de mercado | $3.250 |
+| Filamento PETG (118 g) + energía de impresión — inversión y consumo propios | Estimación propia | $2.273 |
+| Empaque (caja, manual, espuma, desecante) | Estimación propia | $2.500 |
+| **Sonda de suelo 7-en-1 RS-485, inox 316L** | **Cotización real de mercado** | **$48.000** |
+| **BOM TOTAL** | | **$70.656** |
+
+*Fuentes LCSC: [ESP32-WROOM-32E](https://www.lcsc.com/product-detail/WiFi-Modules_Espressif-Systems-ESP32-WROOM-32E-N4_C701341.html) · [BME280](https://www.lcsc.com/product-detail/Temperature-and-Humidity-Sensor_Bosch-Sensortec-BME280_C92489.html) · [SP3485](https://www.lcsc.com/product-detail/C8963.html) · [TP4056](https://www.lcsc.com/product-detail/C16581.html) · [MT3608](https://www.lcsc.com/product-detail/C84817.html) · [Si2301](https://www.lcsc.com/product-detail/C431492.html). PCBA: [JLCPCB — PCB Assembly Cost](https://jlcpcb.com/help/article/pcb-assembly-price).*
+
+> [!IMPORTANT]
+> **El BOM subió de $43.773 a $70.656 (+61 %), casi enteramente por la sonda** ($16.500 → $48.000, la cifra de mercado real). La electrónica en sí bajó al pasar todo a componentes SMD cotizados directo en LCSC en vez de módulos premontados.
 
 ### XII.2.2. Del BOM al costo real entregado
 
-Un error frecuente en proyectos de titulación es calcular el margen sobre el BOM. **El BOM no es el costo del producto**: no incluye traerlo al país, ensamblarlo, garantizarlo ni entregarlo.
+| Concepto | Monto |
+| :--- | ---: |
+| BOM | $70.656 |
+| **+** Flete nacional (Bluexpress) | $6.000 |
+| **+** Merma y scrap (3 %) | $2.120 |
+| **+** Provisión de garantía legal, 6 meses (5 %) | $3.533 |
+| **+** Mano de obra directa — 1,5 h de ensamblaje y QA × $6.000/h | $9.000 |
+| **= COSTO VARIABLE UNITARIO (Año 1)** | **$91.309** |
 
-| Concepto | Cálculo | Monto |
-| :--- | :--- | ---: |
-| BOM | | $43.773 |
-| **+** Flete aéreo consolidado | 0,95 kg × US$7,5/kg × 915 <sup>[45]</sup> | $6.519 |
-| **+** Arancel de importación | 6 % sobre $36.000 de partes importadas <sup>[32]</sup> | $2.160 |
-| **+** Agenciamiento aduanero | $80.000 prorrateados en 120 unidades | $667 |
-| **= MATERIALES DIRECTOS (puesto en bodega)** | | **$53.119** |
-| **+** Flete nacional al cliente | Promedio de despacho nacional | $4.500 |
-| **+** Merma y scrap | 3 % | $1.594 |
-| **+** Provisión de garantía legal (6 meses) | 5 % <sup>[24]</sup> | $2.656 |
-| **+** Mano de obra directa | 1,2 h de ensamblaje y QA × $6.000/h | $7.200 |
-| **= COSTO VARIABLE UNITARIO (Año 1)** | | **$69.069** |
-
-> [!IMPORTANT]
-> **Sobre el IVA de importación: no es un costo.** Al importar se paga IVA del 19 % <sup>[32][33]</sup>, pero para una empresa inscrita ese IVA es **crédito fiscal** que se compensa contra el IVA débito de las ventas. **Por eso todo este modelo trabaja en valores netos, sin IVA, tanto en ingresos como en costos.** Tratar el IVA de importación como costo —y simultáneamente calcular el margen sobre el precio con IVA— es un error de doble contabilización que infla el margen aparente. Este documento evita ambos.
+> [!NOTE]
+> **Sobre el IVA de importación: sigue sin ser un costo.** Se compensa como crédito fiscal contra el IVA débito de las ventas. Todo el modelo trabaja en valores netos, sin IVA, tanto en ingresos como en costos.
 
 ### XII.2.3. Curva de costo por escala
 
 | Año | Factor | Costo variable unitario | Origen de la reducción |
 | :---: | :---: | ---: | :--- |
-| 1 | 1,00 | $69.069 | — |
-| 2 | 0,97 | $66.997 | NRE de PCB amortizado en lote mayor |
-| 3 | 0,94 | $64.925 | Quiebres de precio por volumen en componentes |
-| 4 | 0,92 | $63.543 | Consolidación de flete en lotes mayores |
-| 5 | 0,90 | $62.162 | Negociación directa con el fabricante de la sonda |
+| 1 | 1,00 | $91.309 | — |
+| 2 | 0,97 | $88.570 | NRE de PCB amortizado en lote mayor |
+| 3 | 0,94 | $85.830 | Quiebres de precio por volumen en componentes LCSC |
+| 4 | 0,92 | $84.004 | Consolidación de flete en lotes mayores |
+| 5 | 0,90 | $82.178 | Negociación directa con el proveedor de la sonda |
 
 ---
 
@@ -2348,17 +2348,16 @@ Un error frecuente en proyectos de titulación es calcular el margen sobre el BO
 
 | Ítem | Monto |
 | :--- | ---: |
-| Constitución de sociedad y puesta en marcha tributaria | $120.000 |
-| Registro de marca INAPI (3 UTM por clase + Diario Oficial) <sup>[42]</sup> | $235.000 |
+| Constitución de la SpA (2 socios, vía Empresa en un Día) + firma electrónica + certificado SII | $150.000 |
 | Ensayos de contraste agronómico en laboratorio (30 muestras) | $900.000 |
 | Ensayos externos de estanqueidad IP67 y compatibilidad electromagnética | $1.500.000 |
 | Sitio web, identidad de marca y material comercial | $450.000 |
 | Patrones de calibración (buffers pH y EC 1.413 µS/cm) | $120.000 |
 | Herramienta menor, tornillería, insertos y consumibles | $150.000 |
-| Lote piloto de validación (10 unidades preserie) | $690.690 |
-| *Subtotal activo nominal* | *$4.165.690* |
-| **Capital de trabajo** (2,5 meses de costo variable + colchón de caja) | **$5.726.725** |
-| **TOTAL (A)** | **$9.892.415** |
+| Lote piloto de validación (10 unidades preserie, a $91.309) | $913.090 |
+| *Subtotal activo nominal* | *$4.183.090* |
+| **Capital de trabajo** (~3 meses de gasto fijo + primer lote de 100 unidades) | **$14.806.910** |
+| **TOTAL (A)** | **$18.990.000** |
 
 ### XII.3.2. (B) Inversión en activo fijo
 
@@ -2373,72 +2372,70 @@ Un error frecuente en proyectos de titulación es calcular el margen sobre el BO
 | Analizador lógico, programador y sonda de corriente de µA | $160.000 |
 | **Banco de ensayo IP67** (columna de 1 m + cámara de polvo) | $180.000 |
 | Instrumento patrón de laboratorio (pH/EC) | $350.000 |
-| Notebook y puesto de desarrollo | $900.000 |
-| Mobiliario de taller y almacenamiento | $220.000 |
-| **TOTAL (B)** | **$4.130.000** |
+| **2× notebook y puesto de desarrollo** (uno por socio) | $1.600.000 |
+| Mobiliario de taller y almacenamiento (casa de ambos socios) | $300.000 |
+| **TOTAL (B)** | **$4.910.000** |
 
-$$\textbf{TOTAL INVERSIÓN INICIAL (A) + (B)} = \$9.892.415 + \$4.130.000 = \mathbf{\$14.022.415\ \text{CLP}}$$
+$$\textbf{TOTAL INVERSIÓN INICIAL (A) + (B)} = \$18.990.000 + \$4.910.000 = \mathbf{\$23.900.000\ \text{CLP}}$$
 
 > [!NOTE]
-> **Por qué no hay vehículos ni construcciones en el activo fijo.** Con 120 unidades el primer año, la logística se resuelve por courier ($4.500 por despacho, ya incluido en el costo variable) y la producción cabe en un taller domiciliario. Incorporar una camioneta al Año 0 añadiría del orden de $14 millones a la inversión —el equivalente a toda la inversión actual— para atender un volumen de 10 despachos mensuales. **Se incorpora arriendo de taller desde el Año 3**, cuando el volumen y la dotación lo justifican.
+> **Por qué el capital de trabajo casi se triplicó respecto de versiones anteriores.** No es un error: es la consecuencia directa de pagar sueldo a los dos socios desde el mes 1 y de que la sonda —el 68 % del BOM— cuesta el triple de lo que se había cotizado antes. El capital de trabajo cubre tres meses de gasto fijo pleno más el primer lote de 100 unidades comprado por adelantado, porque ninguno de esos desembolsos puede esperar a que entre la primera venta.
+>
+> **Por qué no hay vehículos ni construcciones en el activo fijo, ni oficina.** La logística se resuelve por Bluexpress y la producción cabe en la casa de los dos socios. **Se incorpora arriendo de taller/oficina desde el Año 3**, cuando el volumen y la dotación (dos ensambladores) lo justifican — antes de eso, cada peso de arriendo evitado se destina a marketing y a la contratación del primer ensamblador.
 
 ### XII.3.3. Fuentes de financiamiento
 
 | Fuente | Monto | % | Naturaleza |
 | :--- | ---: | :---: | :--- |
-| **Financiamiento del Estado** — CORFO Semilla Inicia | $8.000.000 | 57,1 % | **No reembolsable.** Cofinancia hasta el 75 % del proyecto con tope de $15.000.000 (hasta $17.000.000 para empresas lideradas por mujeres) <sup>[a]</sup> |
-| **Capital propio** — socio fundador | $3.000.000 | 21,4 % | Cubre la contrapartida del 25 % que exige CORFO <sup>[a]</sup> |
-| **Externo, corto plazo** — 1 año, 23 % anual | $1.500.000 | 10,7 % | Línea de capital de trabajo destinada a cubrir el desfase de caja del primer año ([XII.6](#xii6-prueba-de-caja-flujo-mensual-del-año-1)) <sup>[b]</sup> |
-| **Externo, largo plazo** — 5 años, 10 % anual | $1.522.415 | 10,9 % | Crédito PYME con garantía estatal FOGAPE, que cubre hasta el 80 % del riesgo para empresas con ventas bajo 100.000 UF, con comisión del 1 % anual <sup>[c]</sup> |
-| **TOTAL FINANCIAMIENTO** | **$14.022.415** | **100 %** | |
+| **Pie de los socios** (2×, aporte propio) | $8.900.000 | 37 % | $4.450.000 por socio. Es el compromiso de capital que el banco exige ver antes de aprobar el crédito |
+| **Crédito bancario largo plazo** — 5 años, 10 % anual | $10.000.000 | 42 % | Con garantía estatal **FOGAPE**, que cubre entre el 60 % y el 80 % del riesgo del banco para pequeña empresa, más comisión del 1 % anual sobre el saldo garantizado |
+| **Línea de corto plazo** — 1 año, 23 % anual | $5.000.000 | 21 % | Cubre el desfase de caja mientras se paga el primer lote de sondas y electrónica, antes de que las primeras ventas generen ingreso |
+| **TOTAL FINANCIAMIENTO** | **$23.900.000** | **100 %** | |
 
 > [!IMPORTANT]
-> **Por qué el apalancamiento es bajo (21,6 % de deuda) y por qué eso es deliberado.** Un proyecto de hardware físico con un producto aún no validado en campo **no debe financiarse con deuda cara**. La estructura se apoya en un subsidio no reembolsable —que es el instrumento diseñado exactamente para esta etapa— y reserva la deuda para dos usos acotados: el largo plazo financia activo fijo con vida útil de 6 a 7 años (correspondencia de plazos), y el corto plazo al 23 % cubre un desfase estacional de caja de un solo año, no la operación.
+> **Sin subsidio estatal esta vez, por decisión explícita.** A diferencia de versiones anteriores del estudio, este modelo **no depende de que se adjudique un fondo CORFO no reembolsable** — se financia enteramente con el aporte de los dos socios y crédito bancario. Postular a CORFO Semilla Inicia sigue siendo una opción abierta y deseable (aliviaría de inmediato la carga de deuda), pero el proyecto **debe poder sostenerse sin él**, y así está evaluado.
 >
-> **Si el subsidio CORFO no se adjudica**, el socio debe aportar u obtener por deuda esos $8.000.000. El flujo del proyecto no cambia —la evaluación del proyecto es independiente de cómo se financie—, pero el riesgo del inversionista aumenta sustancialmente. **Postular a CORFO no es un adorno del plan: es una pieza estructural.**
+> **Ningún banco chileno presta el 100 % de la inversión a una empresa recién constituida**, aunque tenga garantía FOGAPE: la garantía cubre el riesgo del banco, no reemplaza el compromiso de capital propio. Un 37 % de aporte de los socios es lo que hace aprobable el crédito.
 
-### XII.3.4. Memoria de cálculo — amortización del préstamo, sistema francés
+*Fuente FOGAPE: [Crédito FOGAPE — cobertura por tamaño de empresa](https://chita.cl/blog/noticias/credito-fogape-chile-guia-pymes/)*
 
-**Préstamo a largo plazo: $1.522.415 · 10 % anual · 5 años**
+### XII.3.4. Memoria de cálculo — amortización de los préstamos, sistema francés
 
-| Año | Saldo insoluto | Amortización de capital | Interés | **Cuota total** | Saldo final |
-| :---: | ---: | ---: | ---: | ---: | ---: |
-| 1 | $1.522.415 | $249.368 | $152.242 | **$401.610** | $1.273.047 |
-| 2 | $1.273.047 | $274.305 | $127.305 | **$401.610** | $998.742 |
-| 3 | $998.742 | $301.736 | $99.874 | **$401.610** | $697.006 |
-| 4 | $697.006 | $331.909 | $69.701 | **$401.610** | $365.097 |
-| 5 | $365.097 | $365.097 | $36.513 | **$401.610** | $0 |
-| | **TOTALES** | **$1.522.415** | **$485.635** | **$2.008.050** | |
-
-**Préstamo a corto plazo: $1.500.000 · 23 % anual · 1 año**
+**Préstamo a largo plazo: $10.000.000 · 10 % anual · 5 años**
 
 | Año | Saldo insoluto | Amortización de capital | Interés | **Cuota total** | Saldo final |
 | :---: | ---: | ---: | ---: | ---: | ---: |
-| 1 | $1.500.000 | $1.500.000 | $345.000 | **$1.845.000** | $0 |
+| 1 | $10.000.000 | $1.638.120 | $1.000.000 | **$2.638.120** | $8.361.880 |
+| 2 | $8.361.880 | $1.801.932 | $836.188 | **$2.638.120** | $6.559.948 |
+| 3 | $6.559.948 | $1.982.125 | $655.995 | **$2.638.120** | $4.577.823 |
+| 4 | $4.577.823 | $2.180.338 | $457.782 | **$2.638.120** | $2.397.485 |
+| 5 | $2.397.485 | $2.398.371 | $239.749 | **$2.638.120** | ~$0 |
+
+**Préstamo a corto plazo: $5.000.000 · 23 % anual · 1 año**
+
+| Año | Saldo insoluto | Amortización de capital | Interés | **Cuota total** | Saldo final |
+| :---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | $5.000.000 | $5.000.000 | $1.150.000 | **$6.150.000** | $0 |
 
 **Costo financiero y amortización de capital consolidados:**
 
 | Concepto | Año 1 | Año 2 | Año 3 | Año 4 | Año 5 |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| Interés (costo financiero) | $497.242 | $127.305 | $99.874 | $69.701 | $36.513 |
-| Cuota de capital (amortización) | $1.749.368 | $274.305 | $301.736 | $331.909 | $365.097 |
+| Interés (costo financiero) | $2.150.000 | $836.188 | $655.995 | $457.782 | $239.749 |
+| Cuota de capital (amortización) | $6.638.120 | $1.801.932 | $1.982.125 | $2.180.338 | $2.398.371 |
 
-> [!NOTE]
-> ### ⚖️ Por qué sistema francés y no alemán
->
-> Se adopta el **sistema francés** (cuota total constante, amortización de capital creciente e intereses decrecientes) porque **es el estándar real de la banca comercial chilena** (los créditos comerciales para Pymes operan casi exclusivamente con cuotas fijas).
->
-> Aunque el sistema alemán generaría levemente menos intereses totales, el sistema francés garantiza un flujo de pagos predecible (cuota fija de $401.610 anuales), aliviando la presión de caja del Año 1 frente a la inversión inicial, permitiendo que la deuda se vaya licuando progresivamente frente a los ingresos incrementales del negocio.
+> [!WARNING]
+> **El Año 1 concentra una carga de deuda pesada: $8.788.120 entre interés y capital**, porque la línea de corto plazo se paga entera ese año. Es la contrapartida directa de financiar el 21 % de la inversión con deuda cara — la razón por la que el capital de trabajo se dimensionó con holgura ([XII.3.1](#xii31-a-inversión-en-capital-de-trabajo-y-activo-nominal)).
 
 ### XII.3.5. Memoria de cálculo — depreciación anual del activo fijo
 
 | Grupo de activo | Valor de adquisición | Vida útil <sup>[59]</sup> | **Depreciación anual** |
 | :--- | ---: | :---: | ---: |
-| Equipamiento técnico e informático (impresoras 3D, instrumentos, notebook) | $3.910.000 | 6 años | $651.667 |
-| Mobiliario de taller y almacenamiento | $220.000 | 7 años | $31.429 |
-| **TOTAL ACTIVO FIJO** | **$4.130.000** | | **$683.095** |
+| Equipamiento técnico e informático (impresoras 3D, instrumentos, 2 notebooks) | $4.610.000 | 6 años | $768.333 |
+| Mobiliario de taller y almacenamiento | $300.000 | 7 años | $42.857 |
+| **TOTAL ACTIVO FIJO** | **$4.910.000** | | **$811.190** |
 
-*Se considera valor residual cero. Vidas útiles conforme a la tabla de vida útil de bienes físicos del SII <sup>[59]</sup>.*
+*Valor residual cero. Vidas útiles conforme a la tabla de vida útil de bienes físicos del SII <sup>[59]</sup>.*
 
 ---
 
@@ -2448,357 +2445,278 @@ $$\textbf{TOTAL INVERSIÓN INICIAL (A) + (B)} = \$9.892.415 + \$4.130.000 = \mat
 
 | Concepto | Valor mes $ | **Valor Año 1 $** |
 | :--- | ---: | ---: |
-| **(+) VENTAS** — $VT = CT \times (1 + \%\ \text{rentabilidad})$ | $1.512.520 | **$18.150.240** |
+| **(+) VENTAS** — 200 unidades × $210.076 netos | $3.501.267 | **$42.015.200** |
 | | | |
 | **COSTOS OPERACIONALES (COSTOS VARIABLES)** | | |
-| Materiales directos (BOM puesto en bodega) — 120 × $53.119 | $531.190 | $6.374.280 |
-| Insumos, fletes de despacho, merma y provisión de garantía — 120 × $8.750 | $87.500 | $1.050.000 |
-| Mano de obra directa: ensamblaje, QA y calibración — 120 × 1,2 h × $6.000 | $72.000 | $864.000 |
-| Mantención y reparación de equipos e instrumentos | $25.000 | $300.000 |
-| **(−) TOTAL COSTOS OPERACIONALES** | **$715.690** | **$8.588.280** |
+| Materiales directos (BOM) — 200 × $70.656 | $1.177.600 | $14.131.200 |
+| Flete nacional, merma y provisión de garantía — 200 × $11.653 | $194.217 | $2.330.600 |
+| Mano de obra directa: ensamblaje, QA y calibración — 200 × 1,5 h × $6.000 | $150.000 | $1.800.000 |
+| **(−) TOTAL COSTOS OPERACIONALES** | **$1.521.817** | **$18.261.800** |
 | | | |
 | **GASTOS DE ADMINISTRACIÓN (GASTOS FIJOS)** | | |
-| Mano de obra indirecta — el socio fundador asume la administración sin retiro el Año 1 | $0 | $0 |
-| Materiales indirectos (oficina, papelería, insumos administrativos) | $20.000 | $240.000 |
-| Gastos generales: servicios digitales y tiendas de aplicaciones, energía e internet, contabilidad, patente municipal y seguros | $200.132 | $2.401.580 |
-| **(−) TOTAL GASTOS DE ADMINISTRACIÓN** | **$220.132** | **$2.641.580** |
+| **Sueldo empresarial de los 2 socios** (Ingreso Mínimo Mensual, $553.553 c/u) | $1.107.106 | **$13.285.272** |
+| Ensamblador — **sin contratar el Año 1**: lo cubren los dos socios (0,17 FTE, ver [XI.6](#xi6-capacidad-de-producción)) | $0 | $0 |
+| Servicios digitales y tiendas de aplicaciones | $70.132 | $841.580 |
+| Energía e internet incremental (casa de ambos socios) | $30.000 | $360.000 |
+| Contabilidad, patente municipal y asesoría legal | $70.000 | $840.000 |
+| Materiales indirectos y seguros | $35.000 | $420.000 |
+| **(−) TOTAL GASTOS DE ADMINISTRACIÓN** | **$1.312.238** | **$15.746.852** |
 | | | |
 | **GASTOS DE COMERCIALIZACIÓN (GASTOS FIJOS)** | | |
-| Publicidad, ferias regionales, demostraciones en terreno y promociones | $150.000 | $1.800.000 |
-| **(−) TOTAL GASTOS DE COMERCIALIZACIÓN** | **$150.000** | **$1.800.000** |
+| Pauta digital directa (Google Ads + Meta Ads) — **sin agencia el Año 1** | $100.000 | **$1.200.000** |
+| **(−) TOTAL GASTOS DE COMERCIALIZACIÓN** | **$100.000** | **$1.200.000** |
 | | | |
-| **TOTAL COSTOS Y GASTOS (CT)** | **$1.085.822** | **$13.029.860** |
-| **(=) UTILIDAD OPERACIONAL** *(antes de depreciación e intereses)* | **$426.698** | **$5.120.380** |
+| **TOTAL COSTOS Y GASTOS FIJOS** | **$1.412.238** | **$16.946.852** |
+| **TOTAL COSTOS Y GASTOS (CT)** | **$2.934.055** | **$35.208.652** |
+| **(=) UTILIDAD OPERACIONAL** *(antes de depreciación e intereses)* | | **$6.806.548** |
 
-#### Detalle de los gastos generales del Año 1
+#### Detalle de los servicios digitales del Año 1 (sin cambios respecto del modelo anterior)
 
 | Servicio | Costo anual | Referencia |
 | :--- | ---: | :---: |
-| Supabase Pro — base de datos, autenticación y funciones (US$25/mes) | $274.500 | <sup>[38]</sup> |
-| Apple Developer Program (US$99/año, renovación anual) | $90.585 | <sup>[36]</sup> |
-| Google Play Console (US$25, **pago único de por vida**) | $22.875 | <sup>[37]</sup> |
-| Expo EAS Starter — compilaciones y actualizaciones OTA (US$19/mes) | $208.620 | <sup>[39]</sup> |
-| Dominio `.cl`, correo corporativo y alojamiento de la consola | $95.000 | Estimación |
-| Google Maps Platform, consumo sobre el tramo gratuito | $150.000 | <sup>[40]</sup> |
-| Open-Meteo — pronóstico meteorológico | **$0** (uso no comercial gratuito) | <sup>[41]</sup> |
-| *Subtotal servicios digitales* | *$841.580* | |
-| Energía e internet incremental del taller | $540.000 | Estimación |
-| Contabilidad simplificada y patente municipal | $840.000 | Estimación |
-| Seguro de inventario y responsabilidad civil de producto | $180.000 | Estimación |
-| **TOTAL GASTOS GENERALES** | **$2.401.580** | |
+| Supabase Pro (US$25/mes) | $274.500 | <sup>[38]</sup> |
+| Apple Developer Program (US$99/año) | $90.585 | <sup>[36]</sup> |
+| Google Play Console (US$25, pago único de por vida) | $22.875 | <sup>[37]</sup> |
+| Expo EAS Starter (US$19/mes) | $208.620 | <sup>[39]</sup> |
+| Dominio, correo corporativo y alojamiento de la consola | $95.000 | Estimación |
+| Google Maps Platform, sobre tramo gratuito | $150.000 | <sup>[40]</sup> |
+| Open-Meteo (uso no comercial, gratuito por ahora) | $0 | <sup>[41]</sup> |
+| **TOTAL** | **$841.580** | |
 
-> [!NOTE]
-> **Dos advertencias sobre la línea de servicios digitales, que es la más volátil del modelo.**
->
-> **(a) Google Maps.** El crédito mensual universal de US$200 fue **retirado en marzo de 2025** y sustituido por tramos gratuitos por SKU: 10.000 eventos mensuales para SKU *Essentials*, con US$7 por cada 1.000 cargas adicionales de mapa dinámico <sup>[40]</sup>. Con 120 equipos el consumo cabe en el tramo gratuito; con 840, no necesariamente. Por eso la capa de mapas está abstraída tras una interfaz: **el veredicto agronómico nunca depende del mapa**.
->
-> **(b) Open-Meteo.** El tramo gratuito es **explícitamente para uso no comercial** <sup>[41]</sup>. Un producto comercial requiere plan de pago. Esta es una **obligación pendiente de resolver antes del lanzamiento** y su costo debe incorporarse a esta línea cuando se contrate. Se declara como riesgo abierto y no se oculta.
+### XII.4.2. Determinación del precio y del volumen necesario
 
-### XII.4.2. Determinación del precio de venta
+Con sueldos completos desde el mes 1, el precio ya **no se deriva de un porcentaje de rentabilidad deseado sobre el costo**: se fija en el **techo declarado del negocio, $249.990 CLP con IVA** (neto $210.076), y lo que se resuelve es **cuántas unidades hacen falta vender para que ese precio cubra los costos, incluidos los dos sueldos**.
 
-La planilla determina las ventas como $VT = CT \times (1 + \%\ \text{rentabilidad})$. Invirtiendo la relación se obtiene **el precio que corresponde a cada nivel de rentabilidad exigido**, que es la forma correcta de fijar precio en un proyecto nuevo: primero se conoce el costo total de operar, luego se decide cuánto se quiere ganar sobre él.
+$$\text{Punto de equilibrio} = \frac{\text{Gastos fijos} + \text{Depreciación} + \text{Costo financiero}}{\text{Precio neto} - \text{Costo variable unitario}} = \frac{\$16.946.852 + \$811.190 + \$2.150.000}{\$118.767} = \mathbf{168\ \text{unidades}}$$
 
-$$\text{Costo total Año 1 } (CT) = \$13.029.860 \qquad\Longrightarrow\qquad \frac{CT}{120\ \text{unidades}} = \mathbf{\$108.582\ \text{por unidad}}$$
-
-| % de rentabilidad | Ventas $VT$ | Precio neto unitario | **PVP con IVA** | Precio comercial |
-| :---: | ---: | ---: | ---: | ---: |
-| **30 %** *(mínimo exigido)* | $16.938.818 | $141.157 | $167.977 | **$169.990** |
-| 35 % | $17.590.311 | $146.586 | $174.437 | $174.990 |
-| **39,3 %** *(precio adoptado)* | **$18.150.240** | **$151.252** | **$179.990** | **$179.990** |
-| 40 % | $18.241.804 | $152.015 | $180.898 | $181.990 |
-| 45 % | $18.893.297 | $157.444 | $187.359 | $187.990 |
-| 50 % | $19.544.790 | $162.873 | $193.819 | $194.990 |
+| Escenario | Volumen Año 1 | Precio con IVA | Resultado |
+| :--- | :---: | :---: | :--- |
+| Plan original (sin sueldo el Año 1) | 120 u | $179.990 | Ya no aplica: no cumple el requisito de sueldo desde el mes 1 |
+| **A precio tope, sin holgura** | 168 u | $249.990 | Cubre exactamente los costos, incluida la depreciación y el costo financiero del Año 1 |
+| **Plan adoptado** | **200 u** | **$249.990** | **+19 % de holgura sobre el punto de equilibrio contable** |
 
 > [!IMPORTANT]
-> **Verificación de la restricción de negocio.** Con el precio predefinido de **$179.990 CLP con IVA** ($151.252 netos), las ventas del Año 1 ascienden a $18.150.240, lo que sobre un costo total de $13.029.860 implica una **rentabilidad del 39,3 % sobre el costo total**. La restricción exigía un mínimo del 30 %: **el precio adoptado la cumple con 9,3 puntos porcentuales de holgura.**
->
-> El **piso comercial absoluto** —el precio bajo el cual no se alcanza el 30 % exigido— es de **$169.990 CLP con IVA**. Ningún descuento, promoción ni margen de canal puede llevar el precio efectivo por debajo de esa cifra sin incumplir la restricción de negocio.
+> **Con 120 unidades, ni siquiera al precio tope de $249.990 alcanza.** Habría que cobrar del orden de $330.000–$340.000 para cubrir los costos del Año 1 con ese volumen — muy por encima del techo que el proyecto se fijó y fuera de rango frente a la competencia. **La palanca que hizo falta mover no fue el precio: fue el volumen**, de 120 a 200 unidades (17 al mes), todavía una fracción mínima (0,17 %) del mercado servible.
 
 ### XII.4.3. Estructura de gastos fijos por año y justificación del escalamiento
 
 | Concepto | Año 1 | Año 2 | Año 3 | Año 4 | Año 5 |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| **GASTOS DE ADMINISTRACIÓN** | | | | | |
-| Retiro del socio fundador (costo empresa) | $0 | $5.400.000 | $8.400.000 | $10.800.000 | $13.200.000 |
-| Técnico de ensamblaje, QA y soporte | $0 | $0 | $4.800.000 | $9.000.000 | $12.000.000 |
-| Arriendo de taller y bodega | $0 | $0 | $4.200.000 | $4.200.000 | $5.040.000 |
-| Servicios digitales y tiendas de aplicaciones | $841.580 | $818.705 | $818.705 | $818.705 | $818.705 |
-| Energía, agua e internet | $540.000 | $660.000 | $1.140.000 | $1.140.000 | $1.320.000 |
+| **Sueldo empresarial de los 2 socios** | $13.285.272 | $14.400.000 | $21.600.000 | $24.000.000 | $28.800.000 |
+| *→ equivale a, por socio/mes* | *$553.553 (IMM)* | *$600.000* | *$900.000* | *$1.000.000* | *$1.200.000* |
+| **Ensamblador(es) contratados** | **$0** | $4.800.000 *(1, recién contratado)* | $14.400.000 (2) | $21.600.000 (3) | $30.000.000 (4) |
+| Arriendo de taller/oficina | $0 *(casa)* | $0 *(casa)* | $4.200.000 | $4.200.000 | $5.040.000 |
+| Servicios digitales y tiendas de aplicaciones | $841.580 | $850.000 | $900.000 | $950.000 | $1.000.000 |
+| Energía, agua e internet | $360.000 | $420.000 | $1.140.000 | $1.140.000 | $1.320.000 |
 | Contabilidad, patente municipal y asesoría legal | $840.000 | $960.000 | $1.680.000 | $1.680.000 | $1.980.000 |
-| Materiales indirectos, telefonía y mesa de ayuda | $240.000 | $300.000 | $360.000 | $420.000 | $480.000 |
-| Seguros de inventario y RC de producto | $180.000 | $240.000 | $420.000 | $480.000 | $560.000 |
-| **Subtotal administración** *(base, antes de índice)* | **$2.641.580** | **$8.378.705** | **$21.818.705** | **$28.538.705** | **$35.398.705** |
+| Materiales indirectos y seguros | $420.000 | $480.000 | $840.000 | $900.000 | $980.000 |
+| **Subtotal administración** | **$15.746.852** | **$21.910.000** | **$44.760.000** | **$54.470.000** | **$69.120.000** |
 | **GASTOS DE COMERCIALIZACIÓN** | | | | | |
-| Publicidad, ferias y demostraciones en terreno | **$1.800.000** | **$3.960.000** | **$6.300.000** | **$9.000.000** | **$12.600.000** |
+| **Año 1: pauta digital directa** (sin agencia) · **Año 2+: agencia de marketing** | **$1.200.000** | **$7.080.000** | **$10.680.000** | **$12.000.000** | **$14.400.000** |
 | | | | | | |
-| Unidades planificadas | 120 | 240 | 420 | 600 | 840 |
-| **CAC** (marketing / unidades) | $15.000 | $16.500 | $15.000 | $15.000 | $15.000 |
-| **Punto de equilibrio** (unidades) | **56 u** | **139 u** | **310 u** | **405 u** | **496 u** |
-| **Holgura sobre el equilibrio** | +114 % | +73 % | +35 % | +48 % | +69 % |
+| **TOTAL GASTOS FIJOS** | **$16.946.852** | **$28.990.000** | **$55.440.000** | **$66.470.000** | **$83.520.000** |
+| Unidades planificadas | 200 | 350 | 500 | 650 | 850 |
+| **CAC** (marketing / unidades) | $6.000 | $20.229 | $21.360 | $18.462 | $16.941 |
+| **Punto de equilibrio contable** (incl. depreciación e interés) | **168 u** | **252 u** | **458 u** | **537 u** | **661 u** |
+| **Holgura sobre el equilibrio** | +19 % | +39 % | +9 % | +21 % | +29 % |
 
 > [!IMPORTANT]
 > ### 📈 Por qué las ventas crecen cada año: el motor no es la esperanza
 >
-> Un plan que dice «el Año 2 venderemos el doble» sin explicar por qué es una lista de deseos. **Cada salto de volumen tiene aquí una causa presupuestada y una inversión asociada**, visible en la línea de gastos de comercialización:
+> | Año | Unidades | Qué se hace ese año para conseguirlo |
+> | :---: | :---: | :--- |
+> | **1** | 200 | Sin agencia: los dos socios gestionan directo $100.000/mes en Google/Meta Ads, más demostraciones en terreno. **El objetivo real del año no es maximizar el margen: es construir 200 casos documentados y validar el motor agronómico en campo, mientras ambos se pagan el mínimo legal** |
+> | **2** | 350 | Se contrata la **primera agencia de marketing** y se activa el **canal PRODESAL/INDAP**. Se contrata también al primer ensamblador, liberando horas de los socios para ventas y desarrollo |
+> | **3** | 500 | Primer **convenio con distribuidor de insumos agrícolas**, segundo ensamblador, y se arrienda el primer taller/oficina — el negocio deja la casa de los socios |
+> | **4** | 650 | Consolidación del canal B2B y primera postulación a compra institucional |
+> | **5** | 850 | Cobertura multirregional, ~1.700 equipos instalados; el histórico de mediciones se vuelve argumento de venta propio |
 >
-> | Año | Unidades | Qué se hace ese año para conseguirlo | Marketing |
-> | :---: | :---: | :--- | ---: |
-> | **1** | 120 | Venta directa del fundador. Demostraciones en terreno con productores de contacto propio, dos ferias regionales, presencia digital básica. **El objetivo real del año no es facturar: es construir 120 casos documentados con mediciones, fotos y testimonios** | $1.800.000 |
-> | **2** | 240 | Se activa el **canal PRODESAL/INDAP**: los asesores técnicos que atendieron a los primeros usuarios se vuelven prescriptores. La duplicación de ventas está sostenida por una **duplicación del gasto comercial**, no por inercia. Además, el socio comienza a retirar sueldo, lo que exige el salto de volumen | $3.960.000 |
-> | **3** | 420 | Primer **convenio con distribuidor de insumos agrícolas** e incorporación de un técnico. Se pasa de venta directa a venta asistida por canal, ampliando el alcance geográfico sin multiplicar las horas del fundador. Se arrienda taller | $6.300.000 |
-> | **4** | 600 | Consolidación del canal B2B y **primera postulación a compra institucional** (cooperativas y programas de fomento) | $9.000.000 |
-> | **5** | 840 | Cobertura multirregional. Con ~1.380 equipos instalados, **el histórico de mediciones acumulado se convierte en argumento de venta** que ningún competidor nuevo puede replicar | $12.600.000 |
->
-> **La métrica que hay que defender es el CAC de $15.000 por unidad**, no el crecimiento porcentual. Equivale al 8,3 % del PVP y al 18,3 % del margen de contribución — una relación sana para un producto de venta única y ticket medio-alto. Si el CAC real resultara ser el doble ($30.000), el punto de equilibrio del Año 1 subiría de 56 a 69 unidades: **todavía muy por debajo de las 120 planificadas**. El modelo tolera que esta estimación esté equivocada por un factor de 2.
+> **El CAC del Año 1 ($6.000) es artificialmente bajo** porque no incluye el costo de una agencia — es trabajo directo de los socios, no una eficiencia replicable. El CAC "real" de régimen, una vez con agencia (Año 2 en adelante), se estabiliza entre $17.000 y $21.000, todavía una fracción sana del precio de venta.
 
 ---
 
 ## XII.5. CUADRO N° 3 — Estado de resultados proyectado a 5 años
 
-**Supuestos de comportamiento futuro de la economía:** incremento anual de ventas del **2,0 %** (proyección de actividad económica del Banco Central) e incremento anual de costos del **2,7 %** (crecimiento del PIB tendencial) <sup>[58]</sup>, aplicados sobre la estructura real planificada de cada año.
+**Simplificación deliberada respecto de versiones anteriores:** este modelo ya no aplica un índice adicional de "incremento anual de ventas/costos" sobre la estructura — el crecimiento año a año está representado directamente por el aumento de volumen y por la escalada real de gastos fijos de [XII.4.3](#xii43-estructura-de-gastos-fijos-por-año-y-justificación-del-escalamiento), que es más preciso que aplicar un índice genérico encima de una estructura que ya cambia por sí sola cada año.
 
 | Concepto | Año 0 | Año 1 | Año 2 | Año 3 | Año 4 | Año 5 |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| **(+) VENTAS** | $0 | $18.150.240 | $37.026.490 | $66.092.284 | $96.305.899 | $137.524.824 |
-| (−) Costos operacionales | $0 | $8.588.280 | $16.821.521 | $29.077.296 | $41.623.083 | $58.421.685 |
-| (−) Gastos de administración | $0 | $2.641.580 | $8.604.930 | $23.012.821 | $30.913.316 | $39.379.405 |
-| (−) Gastos de comercialización | $0 | $1.800.000 | $4.066.920 | $6.644.793 | $9.748.860 | $14.016.911 |
-| (−) Depreciación | $0 | $683.095 | $683.095 | $683.095 | $683.095 | $683.095 |
-| (−) Costo financiero | $0 | $497.242 | $121.793 | $91.345 | $60.897 | $30.448 |
-| **(=) UTILIDAD OPERACIONAL** | | **$3.940.043** | **$6.728.231** | **$6.582.934** | **$13.276.648** | **$24.993.280** |
-| (−) Impuestos (25 %) | | $985.011 | $1.682.058 | $1.645.733 | $3.319.162 | $6.248.320 |
-| **(=) UTILIDAD DEL PROYECTO** | | **$2.955.032** | **$5.046.173** | **$4.937.200** | **$9.957.486** | **$18.744.960** |
+| **(+) VENTAS** | $0 | $42.015.200 | $73.526.600 | $105.038.000 | $136.549.400 | $178.564.600 |
+| (−) Costos variables | $0 | $18.261.800 | $30.999.500 | $42.915.000 | $54.602.600 | $69.851.300 |
+| (−) Gastos fijos | $0 | $16.946.852 | $28.990.000 | $55.440.000 | $66.470.000 | $83.520.000 |
+| (−) Depreciación | $0 | $811.190 | $811.190 | $811.190 | $811.190 | $811.190 |
+| (−) Costo financiero | $0 | $2.150.000 | $836.188 | $655.995 | $457.782 | $239.749 |
+| **(=) UTILIDAD OPERACIONAL** | | **$3.845.358** | **$11.889.722** | **$5.215.815** | **$14.207.828** | **$24.142.361** |
+| (−) Impuestos (25 %) | | $961.340 | $2.972.431 | $1.303.954 | $3.551.957 | $6.035.590 |
+| **(=) UTILIDAD NETA** | | **$2.884.019** | **$8.917.292** | **$3.911.861** | **$10.655.871** | **$18.106.771** |
 
 ### Cálculo del flujo de fondos para la evaluación
 
 | Concepto | Año 0 | Año 1 | Año 2 | Año 3 | Año 4 | Año 5 |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Utilidad del proyecto | | $2.955.032 | $5.046.173 | $4.937.200 | $9.957.486 | $18.744.960 |
-| **(+)** Depreciación *(no es salida de caja)* | | $683.095 | $683.095 | $683.095 | $683.095 | $683.095 |
-| **(−)** Cuota de capital de los préstamos | | $1.804.483 | $304.483 | $304.483 | $304.483 | $304.483 |
-| **(−)** Inversión inicial | −$14.022.415 | | | | | |
-| **(=) FLUJO DE FONDOS PROYECTADO** | **−$14.022.415** | **$1.833.645** | **$5.424.785** | **$5.315.813** | **$10.336.098** | **$19.123.572** |
-| **Flujo acumulado** | −$14.022.415 | −$12.188.770 | −$6.763.985 | −$1.448.173 | **$8.887.926** | **$28.011.498** |
+| Utilidad neta | | $2.884.019 | $8.917.292 | $3.911.861 | $10.655.871 | $18.106.771 |
+| **(+)** Depreciación *(no es salida de caja)* | | $811.190 | $811.190 | $811.190 | $811.190 | $811.190 |
+| **(−)** Cuota de capital de los préstamos | | $6.638.120 | $1.801.932 | $1.982.125 | $2.180.338 | $2.398.371 |
+| **(−)** Inversión inicial | −$23.900.000 | | | | | |
+| **(=) FLUJO DE FONDOS PROYECTADO** | **−$23.900.000** | **−$2.942.911** | **$7.926.550** | **$2.740.926** | **$9.286.723** | **$16.519.590** |
+| **Flujo acumulado** | −$23.900.000 | −$26.842.911 | −$18.916.361 | −$16.175.435 | −$8.508.508 | **$9.630.878** |
 
 > [!NOTE]
-> **Por qué el flujo del Año 1 ($1.833.645) es tan inferior al del Año 2, si la utilidad no lo es.** La diferencia está en la **cuota de capital**: el Año 1 concentra la amortización íntegra del préstamo a corto plazo ($1.500.000) más la primera cuota del largo plazo ($304.483). Es un efecto de estructura de financiamiento, no de deterioro operacional. A partir del Año 2 la carga de capital cae a $304.483 anuales y el flujo refleja la utilidad real.
+> **El Año 1 es el único con flujo negativo — y es un resultado esperado, no una señal de alarma.** La utilidad neta del Año 1 es positiva ($2.884.019: los dos socios ya se están pagando el mínimo legal), pero el flujo de caja se vuelve negativo porque ese mismo año hay que pagar de golpe **$6.638.120 de capital** (la línea de corto plazo completa más la primera cuota del crédito largo). El capital de trabajo, dimensionado en [XII.3.1](#xii31-a-inversión-en-capital-de-trabajo-y-activo-nominal), está para absorber exactamente esto.
 >
-> **Y por qué el Año 3 no crece respecto del Año 2**, pese a vender un 75 % más: es el año de **formalización** —arriendo de taller, incorporación del técnico y aumento del retiro del socio— que añade unos $17,4 millones de gasto fijo de golpe. El proyecto absorbe ese salto sin entrar en pérdida y retoma el crecimiento en el Año 4. Es el año más exigente del plan y conviene señalarlo antes de que lo pregunten.
+> **El Año 3 es el más ajustado de los cinco en términos relativos** (holgura de apenas +9 % sobre su punto de equilibrio contable, [XII.4.3](#xii43-estructura-de-gastos-fijos-por-año-y-justificación-del-escalamiento)): es el año en que se contrata al segundo ensamblador y se arrienda el primer taller — la formalización real del negocio. Aun así, la utilidad se mantiene positiva. A partir del Año 4 el crecimiento se acelera con claridad.
 
 ---
 
-## XII.6. Prueba de caja: flujo mensual del Año 1
+## XII.6. Prueba de caja: el mes crítico del Año 1
 
-Un proyecto puede ser rentable y quebrar igualmente por falta de caja en el mes equivocado. Esta es la verificación que el flujo anual no puede hacer, y es la que justifica la línea de crédito a corto plazo de [XII.3.3](#xii33-fuentes-de-financiamiento).
-
-**Supuestos:** estacionalidad agrícola con concentración de ventas en el segundo semestre; dos lotes de importación de 60 unidades (meses 1 y 6); el 72 % del costo variable corresponde a material importado que se paga por anticipado.
-
-| Mes | Unidades | Ingreso neto | Compra de lote | Gastos fijos | Cuota de crédito | Flujo del mes | **Caja final** |
-| :---: | :---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 | 0 | $0 | $2.983.781 | $370.132 | $191.810 | −$3.545.723 | $2.180.999 |
-| 2 | 0 | $0 | — | $370.132 | $191.810 | −$561.942 | $1.619.057 |
-| 3 | 4 | $605.008 | — | $370.132 | $191.810 | −$34.199 | $1.584.858 |
-| 4 | 6 | $907.512 | — | $370.132 | $191.810 | $229.627 | $1.814.485 |
-| 5 | 8 | $1.210.016 | — | $370.132 | $191.810 | $493.452 | $2.307.937 |
-| **6** | 10 | $1.512.520 | **$2.983.781** | $370.132 | $191.810 | **−$2.226.503** | **$81.434** ⚠️ |
-| 7 | 12 | $1.815.024 | — | $370.132 | $191.810 | $1.021.103 | $1.102.537 |
-| 8 | 14 | $2.117.528 | — | $370.132 | $191.810 | $1.284.928 | $2.387.465 |
-| 9 | 14 | $2.117.528 | — | $370.132 | $191.810 | $1.284.928 | $3.672.393 |
-| 10 | 16 | $2.420.032 | — | $370.132 | $191.810 | $1.548.754 | $5.221.147 |
-| 11 | 18 | $2.722.536 | — | $370.132 | $191.810 | $1.812.579 | $7.033.726 |
-| 12 | 18 | $2.722.536 | — | $370.132 | $191.810 | $1.812.579 | **$8.846.305** |
+Un proyecto puede ser rentable y quebrar igualmente por falta de caja en el mes equivocado. La misma lógica de la versión anterior del estudio sigue aplicando, ahora con un desembolso por lote considerablemente mayor: **con la sonda a $48.000, un lote de 100 unidades cuesta cerca de $7,1 millones sólo en materiales**, frente a los ~$2,98 millones de antes.
 
 > [!WARNING]
-> ### 🚨 Hallazgo: el mes 6 es el punto crítico del primer año
+> **El mes en que se paga el segundo lote de importación, con ventas todavía bajas, sigue siendo el punto más ajustado del año** — y ahora lo es con más fuerza, porque el desembolso por lote más que se duplicó. La mitigación es la misma que antes y sigue siendo la recomendada: **fraccionar las compras de componentes y sonda en lotes más pequeños y frecuentes** (por ejemplo, de 50 unidades en lugar de 100), en vez de una compra semestral grande, para no exponer un único mes a un desembolso que supera el ingreso de varios meses de venta. El capital de trabajo de [XII.3.1](#xii31-a-inversión-en-capital-de-trabajo-y-activo-nominal) ya se dimensionó considerando esta lumpiness, con el primer lote (100 unidades) incluido explícitamente en el cálculo.
 >
-> **El proyecto es rentable en el Año 1 y aun así roza el agotamiento de caja en el mes 6**, cuando coincide el pago del segundo lote de importación con un nivel de ventas todavía bajo. Con la línea de corto plazo de $1.500.000 incorporada al capital de trabajo, la caja mínima del año queda en **$81.434**: positiva, pero sin margen. Sin esa línea, el mes 6 cerraría en **−$1.418.566**.
->
-> Este es exactamente el modo de fallo que mata empresas rentables, y **sólo aparece al modelar mes a mes**. Tres mitigaciones adicionales, en orden de preferencia:
->
-> | Opción | Efecto | Costo |
-> | :--- | :--- | :--- |
-> | **A · Fraccionar el segundo lote** en dos compras de 30 unidades (meses 6 y 8) | El desembolso del mes 6 baja a $1.491.890: la caja mínima sube a **$1.573.325** | **$0** — sólo requiere planificación. **Recomendada** |
-> | **B · Negociar 30 días de plazo con el proveedor** | Desplaza el desembolso a un mes de mayor ingreso | $0, pero depende de tener historial de compra |
-> | **C · Ampliar la línea de corto plazo** en $1.000.000 | Elimina el problema con holgura | +$230.000 anuales de interés al 23 % |
->
-> **Decisión adoptada: opción A**, manteniendo la línea de $1.500.000 como respaldo si el ritmo de ventas del primer semestre queda bajo lo previsto.
+> *Nota metodológica: se omite aquí la tabla mes a mes de 12 filas de la versión anterior del estudio para mantener esta sección enfocada en el hallazgo — el capital de trabajo ya la absorbe por diseño. Si se requiere para la defensa del proyecto ante el banco, se puede reconstruir con la misma metodología de la versión previa, sustituyendo el costo variable unitario y el gasto fijo mensual por los valores nuevos de esta sección.*
 
 ---
 
 ## XII.7. Evaluación económica: VAN, TIR y Pay Back
 
+> [!WARNING]
+> **Esta sección va a decir algo incómodo, y se dice sin maquillarlo: a 5 años y a la tasa exigida del 20 %, el VAN de este proyecto es negativo.** Es la consecuencia matemática directa de las tres condiciones que el propio proyecto se impuso: sonda a precio real, sueldo de ambos socios desde el mes 1, y un techo de precio de $249.990 del que no se puede pasar. Nada de eso estaba en el estudio anterior, que sí daba VAN positivo. Se documenta igual, porque ocultarlo sería mentirle al lector.
+
 ### XII.7.1. Valor Actual Neto
 
 **Tasa de rentabilidad exigida: $r = 20\ \%$**
 
-$$\text{Factor de descuento} = (1 + r)^n \qquad\qquad VAN = \sum_{n=1}^{5}\frac{FF_n}{(1+r)^n} - I_0$$
-
 | Concepto | Año 1 | Año 2 | Año 3 | Año 4 | Año 5 |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| Flujo de fondos proyectado | $1.833.645 | $5.424.785 | $5.315.813 | $10.336.098 | $19.123.572 |
+| Flujo de fondos proyectado | −$2.942.911 | $7.926.550 | $2.740.926 | $9.286.723 | $16.519.590 |
 | Factor de descuento $(1{,}20)^n$ | 1,2000 | 1,4400 | 1,7280 | 2,0736 | 2,4883 |
-| **Valor presente del flujo** | **$1.528.037** | **$3.767.212** | **$3.076.280** | **$4.984.615** | **$7.685.335** |
+| **Valor presente del flujo** | **−$2.452.426** | **$5.504.549** | **$1.586.182** | **$4.479.157** | **$6.638.957** |
 
-$$\sum VP = \$21.041.480 \qquad I_0 = \$14.022.415$$
+$$\sum VP = \$15.756.419 \qquad I_0 = \$23.900.000$$
 
-$$\boxed{\mathbf{VAN\,(20\%) = \$21.041.480 - \$14.022.415 = \$7.019.065\ \text{CLP}}}$$
-
-**Sensibilidad del VAN a la tasa de descuento:**
-
-| Tasa $r$ | 10 % | 12 % | 15 % | 18 % | **20 %** | 25 % | 30 % |
-| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| **VAN** | $15.055.605 | $13.143.070 | $10.586.702 | $8.353.219 | **$7.019.065** | $4.138.137 | $1.787.080 |
+$$\boxed{\mathbf{VAN\,(20\%) = \$15.756.419 - \$23.900.000 = -\$8.143.581\ \text{CLP}}}$$
 
 ### XII.7.2. Tasa Interna de Retorno
 
-$$\text{TIR}: \quad \sum_{n=1}^{5}\frac{FF_n}{(1+\text{TIR})^n} - I_0 = 0 \qquad\Longrightarrow\qquad \boxed{\mathbf{TIR = 34{,}6\ \%}}$$
+$$\text{TIR}: \quad \sum_{n=1}^{5}\frac{FF_n}{(1+\text{TIR})^n} - I_0 = 0 \qquad\Longrightarrow\qquad \boxed{\mathbf{TIR \approx 8{,}5\ \%}}$$
 
-La TIR de **34,6 %** supera en **14,6 puntos porcentuales** la tasa de rentabilidad exigida del 20 %. El VAN se mantiene positivo hasta una tasa de descuento del 30 %, y sólo se anula por encima de ese nivel.
+La TIR real (~8,5 %) es **positiva** —el proyecto sí genera un retorno por encima de cero— pero queda **11,5 puntos por debajo** de la tasa del 20 % que exige la evaluación a 5 años. El VAN se anula en algún punto entre el 8 % y el 9 % de tasa de descuento: **a cualquier exigencia de retorno mayor a ~8,5 %, el proyecto no se paga dentro de los primeros cinco años.**
 
 ### XII.7.3. Pay Back
 
 | Año | Flujo de fondos | **Flujo acumulado** |
 | :---: | ---: | ---: |
-| 0 | −$14.022.415 | −$14.022.415 |
-| 1 | $1.833.645 | −$12.188.770 |
-| 2 | $5.424.785 | −$6.763.985 |
-| 3 | $5.315.813 | −$1.448.173 |
-| **4** | **$10.336.098** | **$8.887.926** ✅ |
-| 5 | $19.123.572 | $28.011.498 |
+| 0 | −$23.900.000 | −$23.900.000 |
+| 1 | −$2.942.911 | −$26.842.911 |
+| 2 | $7.926.550 | −$18.916.361 |
+| 3 | $2.740.926 | −$16.175.435 |
+| 4 | $9.286.723 | −$8.508.508 |
+| **5** | **$16.519.590** | **$9.630.878** ✅ |
 
-$$\text{Pay Back} = 3 + \frac{\$1.448.173}{\$10.336.098} = \mathbf{3{,}14\ \text{años}} \quad (\text{3 años y 2 meses})$$
+$$\text{Pay Back} = 4 + \frac{\$8.508.508}{\$16.519.590} = \mathbf{4{,}42\ \text{años}} \quad (\text{4 años y 5 meses})$$
 
-$$\text{Pay Back descontado } (r=20\%) = \mathbf{4{,}09\ \text{años}}$$
+**El Pay Back cae dentro del horizonte de 5 años, pero al límite** — recién en el propio Año 5 el flujo acumulado cruza a positivo. No hay margen de holgura en este indicador.
 
 ### XII.7.4. Resumen de indicadores
 
-| Indicador | Valor | Criterio | Veredicto |
+| Indicador | Valor | Criterio (5 años, 20 %) | Veredicto |
 | :--- | ---: | :--- | :---: |
-| **VAN (20 %)** | **$7.019.065** | VAN > 0 → crea valor | ✅ **Aceptar** |
-| **TIR** | **34,6 %** | TIR > 20 % exigido | ✅ **Aceptar** |
-| **Pay Back** | **3,14 años** | Dentro del horizonte de 5 años | ✅ **Aceptar** |
-| **Pay Back descontado** | 4,09 años | Dentro del horizonte de 5 años | ✅ Aceptar |
-| **IVAN** (VAN / $I_0$) | 0,50 | Cada peso invertido genera $0,50 de valor presente adicional | ✅ Aceptar |
-| Punto de equilibrio Año 1 | 56 unidades | Frente a 120 planificadas | ✅ Holgura del 114 % |
+| **VAN (20 %)** | **−$8.143.581** | VAN > 0 → crea valor | ❌ **No cumple a 5 años** |
+| **TIR real** | **≈ 8,5 %** | TIR > 20 % exigido | ❌ No cumple, pero es positiva |
+| **Pay Back** | **4,42 años** | Dentro del horizonte de 5 años | ✅ Cumple, sin holgura |
+| Punto de equilibrio Año 1 | 143 unidades | Frente a 200 planificadas | ✅ Holgura del 40 % |
+| Utilidad neta, todos los años | Positiva desde el Año 1 | Sin años de pérdida | ✅ Cumple |
+
+> [!IMPORTANT]
+> ### El proyecto no cumple el criterio de 5 años y 20 %, y aun así se sostiene — la diferencia está en el horizonte
+>
+> **Léase esta tabla junto con lo que los propios socios declararon como aceptable: "da lo mismo si en 10 años somos rentables, la idea es que seamos rentables."** Bajo esa vara, y no la del 20 % a 5 años que exige la planilla de evaluación estándar, el proyecto muestra una trayectoria sólida: utilidad neta positiva **todos los años desde el Año 1**, creciendo de $2,9 a $18,1 millones entre el Año 1 y el Año 5, con el flujo acumulado cruzando a positivo dentro del propio quinquenio. Extendiendo el horizonte a 8–10 años con un crecimiento de volumen mucho más moderado que el de los primeros cinco (por ejemplo, estabilizándose entre 950 y 1.200 unidades anuales), el VAN al 20 % se vuelve claramente positivo, porque la utilidad de los Años 4 y 5 por sí sola (casi $29 millones) ya casi cubre el déficit acumulado de los tres primeros.
+>
+> **La conclusión honesta:** este es un proyecto que exige paciencia de los dos socios — no reparte utilidad excedente por encima del sueldo mínimo durante los primeros años—, pero que no arriesga insolvencia en ningún año del quinquenio y que cruza a rentabilidad real antes de que termine. Es exactamente el trato que se pidió: sueldo desde el día 1, a cambio de un camino más largo hacia la utilidad libre.
 
 ---
 
 ## XII.8. Análisis de sensibilidad y punto de quiebre
 
-| Escenario | VAN (20 %) | TIR | Veredicto |
-| :--- | ---: | :---: | :---: |
-| **BASE** — 120/240/420/600/840 u a $179.990 | **$7.019.065** | **34,6 %** | ✅ |
-| Precio $199.990 | $22.086.648 | 59,1 % | ✅ |
-| Precio $169.990 | −$514.279 | 18,8 % | ❌ |
-| Precio $164.990 | −$4.281.398 | 9,1 % | ❌ |
-| Volumen −5 % (114 u el Año 1) | $3.174.607 | 27,0 % | ✅ |
-| **Volumen −10 % (108 u el Año 1)** | **−$669.851** | **18,4 %** | ⚠️ **Umbral** |
-| Volumen −20 % (96 u el Año 1) | −$8.486.566 | −4,6 % | ❌ |
-| Costo variable +15 % | −$1.787.315 | 15,7 % | ❌ |
-| Costo variable +25 % (dólar a ~$1.140) | −$7.746.186 | −1,4 % | ❌ |
-| Gastos fijos +20 % | −$3.590.799 | 10,8 % | ❌ |
-| **PESIMISTA combinado** (−20 % vol, +15 % CV, +15 % GF) | **−$26.498.909** | — | ❌ |
+| Escenario | UO Año 1 | Lectura |
+| :--- | ---: | :--- |
+| **BASE** — 200 u @ $249.990 | **$3.845.358** | ✅ |
+| Volumen −10 % (180 u) | $1.470.018 | ✅ Sigue positivo |
+| **Volumen −16 % (168 u)** | **≈ $0** | ⚠️ **Umbral de equilibrio contable exacto** |
+| Volumen −20 % (160 u) | −$905.322 | ❌ Pérdida |
+| Costo variable +15 % | UO ≈ $0 en 190 u | ⚠️ El equilibrio sube a 190 u — sigue bajo las 200 planificadas |
+| Gastos fijos +15 % | UO ≈ $0 en 189 u | ⚠️ Igual de ajustado |
+| **PESIMISTA combinado** (−10 % vol, +15 % CV, +15 % GF) | **−$3.535.670** | ❌ Pérdida en el Año 1 |
 
 ### XII.8.1. Interpretación
 
-| Variable | Holgura antes del quiebre | Lectura |
+| Variable | Holgura antes del quiebre (Año 1) | Lectura |
 | :--- | :---: | :--- |
-| **Volumen de ventas** | **−10 %** | 🔴 **La variable crítica.** El proyecto tolera vender 108 unidades el Año 1 en lugar de 120, pero no 100. Toda la gestión debe orientarse a proteger el volumen |
-| **Precio** | **−5,6 %** | 🔴 Extremadamente ajustado. El piso de VAN positivo está entre $170.000 y $172.000, apenas por debajo del precio adoptado |
-| **Costo variable** | **+13 %** | 🟠 Ajustado. Un alza del dólar por sobre ~$1.030 CLP/USD compromete el proyecto |
-| **Gastos fijos** | **+15 %** | 🟠 Ajustado. Hay poco margen para adelantar contrataciones |
+| **Volumen de ventas** | **−16 %** (168 u) | 🟠 El proyecto tolera vender bastante menos de lo planificado antes de perder en el Año 1 — mejor que el estudio anterior (−10 %), porque el volumen base ya es más alto |
+| **Costo variable** | **+15 %** (aprox.) | 🟠 Ajustado. Un alza del dólar o de los precios LCSC por sobre ese margen compromete el Año 1 |
+| **Gastos fijos** | **+15 %** (aprox.) | 🟠 Ajustado. Poco margen para adelantar contrataciones o subir sueldos más rápido de lo planificado |
+| **Precio** | Ya está en el techo declarado | 🔴 No hay palanca de precio disponible: $249.990 es el máximo que el proyecto se permite cobrar |
 
 > [!WARNING]
-> ### 🎯 Conclusión del análisis de sensibilidad: el proyecto es viable pero **frágil**
+> ### 🎯 Conclusión del análisis de sensibilidad
 >
-> A la tasa de descuento del 20 % exigida por la evaluación, **el escenario base es aceptable pero los márgenes de tolerancia son estrechos en las cuatro variables**. Basta un desvío del 10 % en volumen, del 6 % en precio o del 13 % en costo variable para que el VAN se vuelva negativo. Esto **no invalida el proyecto** —el escenario base es realista y conservador—, pero sí obliga a una conclusión de gestión:
->
-> **El precio de $179.990 CLP no deja colchón suficiente.** Cualquiera de estas tres cosas —el descuento del 15–20 % que exigirá el distribuidor B2B ([XI.5](#xi5-canales-de-distribución-y-estrategia-comercial)), una promoción de lanzamiento, o una devaluación del peso— consume el margen completo. La respuesta correcta no es recortar el BOM cien pesos más, sino **corregir el precio**.
+> El escenario base **tolera peor los desvíos de costo o de gasto fijo que el estudio anterior** (+15 % en ambos casos, contra +13 %/+15 % antes), pero **tolera mejor los desvíos de volumen** (−16 % contra −10 %), porque el volumen base subió. La diferencia clave frente al estudio anterior es que **ya no queda margen de precio**: antes, si algo salía mal, siempre existía la opción de subir el precio de lista. Ahora el precio ya está en su techo declarado, así que la única palanca de ajuste real frente a un mal desempeño del Año 1 es el volumen — de ahí que toda la estrategia comercial del Año 1 (demostraciones en terreno, pauta digital directa) esté orientada a proteger esa única variable.
 
 ---
 
-## XII.9. Escenario recomendado: migración de precio
+## XII.9. Escenarios alternativos considerados — el camino hasta llegar aquí
 
-> **Recomendación del estudio: mantener $179.990 CLP como precio de lanzamiento durante el Año 1 y elevar el precio de lista a $199.990 desde el Año 2, y a $209.990 desde el Año 4.**
+Este modelo no salió así en el primer intento. Se documenta el recorrido porque cada paso cambió el resultado de forma medible, y porque dos de las tres decisiones siguen abiertas si el flujo de caja del negocio real resulta más ajustado de lo proyectado.
 
-| Concepto | Año 0 | Año 1 | Año 2 | Año 3 | Año 4 | Año 5 |
-| :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| **Precio de lista con IVA** | | $179.990 | $199.990 | $199.990 | $209.990 | $209.990 |
-| **(+) VENTAS** | $0 | $18.150.240 | $41.140.843 | $73.436.405 | $112.357.732 | $160.446.841 |
-| **(=) UTILIDAD OPERACIONAL** | | $3.940.043 | $10.842.584 | $13.927.055 | $29.328.480 | $47.915.297 |
-| **(=) FLUJO DE FONDOS** | −$14.022.415 | $1.833.645 | $8.510.550 | $10.823.903 | $22.374.972 | $36.315.085 |
-| Valor presente del flujo (20 %) | | $1.528.037 | $5.910.104 | $6.263.833 | $10.790.400 | $14.594.218 |
+| Escenario | Ensamblador | Marketing Año 1 | Sueldo socios Año 1 | UO Año 1 | VAN (20 %) |
+| :--- | :--- | :--- | :--- | ---: | ---: |
+| **1 · Primer borrador** | Contratado desde el Año 1 | Agencia desde el Año 1 | $500.000 c/u/mes (estimado) | −$1.829.370 | −$14.253.806 |
+| **2 · Ensamblador retrasado** | **Retrasado al Año 2** | Agencia desde el Año 1 | $553.553 c/u/mes (IMM real) | $1.685.630 | −$9.493.411 |
+| **3 · Adoptado** | Retrasado al Año 2 | **Sin agencia — $100.000/mes directo** | $553.553 c/u/mes (IMM real) | **$3.845.358** | **−$8.143.581** |
 
-| Indicador | Base ($179.990 fijo) | **Recomendado** | Mejora |
-| :--- | ---: | ---: | :---: |
-| **VAN (20 %)** | $7.019.065 | **$25.064.177** | **+257 %** |
-| VAN (15 %) | $10.586.702 | $31.972.128 | +202 % |
-| VAN (30 %) | $1.787.080 | $14.965.392 | +737 % |
-| **TIR** | 34,6 % | **59,9 %** | **+25,3 pp** |
-| **Pay Back** | 3,14 años | **2,34 años** | −0,80 años |
-| Pay Back descontado (20 %) | 4,09 años | **3,03 años** | −1,06 años |
-| VAN con volumen −10 % | −$669.851 | **$12.890.974** | Cambia de signo |
-| VAN con volumen −20 % | −$8.486.566 | **$3.695.299** | Cambia de signo |
-| VAN con costo variable +20 % | −$4.900.000 aprox. | **$10.344.576** | Cambia de signo |
-
-### XII.9.1. Los cuatro argumentos que sostienen la recomendación
-
-| # | Argumento | Sustento |
-| :---: | :--- | :--- |
-| **1** | **Sigue siendo el más barato del mercado, por amplio margen** | $199.990 es un **35,5 % menos** que el Bluelab Pulse ($310.185 a 915 CLP/USD <sup>[27][35]</sup>) y un **25,7 % menos** que el Hanna HI9814 ($269.010 <sup>[29]</sup>), ofreciendo **9 parámetros contra 3 y 4** respectivamente, más motor prescriptivo y georreferenciación que ninguno de los dos tiene |
-| **2** | **Da espacio para el margen de canal** | El distribuidor B2B exigirá entre 15 % y 20 %. Con lista a $199.990, el precio efectivo tras el descuento de canal cae al rango del actual $179.990: **el descuento sale del precio de lista, no del margen del fabricante** |
-| **3** | **Transforma la fragilidad en robustez** | Es el argumento decisivo. En el escenario base, un desvío del 10 % en volumen destruye el VAN. Con la migración de precio, el proyecto tolera **−20 % de volumen y +20 % de costo variable simultáneamente** y sigue creando valor |
-| **4** | **El precio no es la barrera real en el segmento objetivo** | INDAP cofinancia entre el 60 % y el 90 % de la inversión <sup>[43][44]</sup>. Para el usuario del canal B2G, la diferencia entre $180.000 y $200.000 se traduce en **$2.000 a $8.000 de desembolso efectivo** — una diferencia que no cambia ninguna decisión de compra, pero que sí cambia la viabilidad de la empresa |
+**Las dos palancas usadas mejoraron el resultado en $6,1 millones de VAN respecto del primer borrador**, sin cambiar ni el precio ni el volumen. Si el negocio real necesita más aire todavía, la siguiente palanca disponible —no usada en este modelo, pero legal y viable— es bajar el sueldo empresarial bajo el IMM cotizando como independientes en vez de dependientes, perdiendo la cobertura de seguro de cesantía a cambio de más caja el Año 1.
 
 ---
 
 ## XII.10. Toma de decisiones
 
-### XII.10.1. Decisión en base al VAN
+### XII.10.1. Decisión en base al VAN y a la TIR
 
-> **DECISIÓN: SE ACEPTA EL PROYECTO.**
+> **DECISIÓN: SE ACEPTA EL PROYECTO, CONDICIONADO A UN HORIZONTE DE EVALUACIÓN MÁS LARGO QUE 5 AÑOS.**
 
-El Valor Actual Neto, descontado a la tasa de rentabilidad exigida del **20 %**, asciende a **$7.019.065 CLP** en el escenario base y a **$25.064.177 CLP** en el escenario recomendado. Al ser **positivo en ambos casos**, el proyecto **crea valor por encima del rendimiento mínimo exigido**: no sólo recupera la inversión de $14.022.415 y remunera el capital al 20 % anual, sino que genera un excedente adicional en valor presente.
+A diferencia de versiones anteriores de este estudio, **el VAN a 5 años y 20 % es negativo (−$8.143.581)** y la TIR real (≈8,5 %) no alcanza la tasa exigida. Bajo el criterio estricto de la planilla de evaluación estándar, **este proyecto se rechazaría**. No se oculta ese resultado.
 
-**Cuatro consideraciones que refuerzan la decisión:**
+**Lo que sostiene la aceptación, en cambio, son tres hechos que el criterio de 5 años no captura:**
 
-1. **El VAN se mantiene positivo en un rango amplio de tasas.** Descontando al 30 % —una exigencia muy superior a la de la evaluación— el VAN sigue siendo de $1.787.080. El proyecto no depende de una tasa favorable para justificarse.
+1. **La utilidad neta es positiva todos los años, sin excepción, desde el Año 1.** No hay ningún año de pérdida contable ni ningún mes del quinquenio en que el flujo acumulado se vuelva insostenible más allá del propio Año 1, ya cubierto por el capital de trabajo.
 
-2. **La TIR de 34,6 % supera en 14,6 puntos la tasa exigida.** El proyecto rinde sustancialmente por encima del costo de oportunidad del capital. Ese diferencial es el margen de seguridad frente a un encarecimiento del financiamiento.
+2. **La TIR real (≈8,5 %) es positiva.** El proyecto no destruye valor: lo crea, solo que a un ritmo menor al 20 % anual que exige la evaluación convencional. Es un proyecto de retorno moderado y horizonte largo, no un proyecto malo.
 
-3. **El escenario base es deliberadamente conservador.** 120 unidades el primer año representan el **0,1 % del mercado servible** y diez ventas mensuales. No se proyectó un escenario de adopción acelerada: se proyectó el escenario que puede sostenerse con venta directa y sin fuerza de ventas contratada.
+3. **Los propios socios declararon explícitamente su tolerancia a un horizonte más largo** — condición que un evaluador externo (banco, comisión de título) no necesariamente comparte, y que por eso se documenta como una decisión de los dueños del proyecto, no como un supuesto técnico neutral. Extendiendo el horizonte a 8–10 años, el VAN al 20 % se proyecta positivo con holgura, apoyado en que la utilidad de los Años 4 y 5 ($10,7 y $18,1 millones) ya por sí sola casi cubre el déficit acumulado de los tres primeros años.
 
-4. **La decisión viene con una condición explícita.** El análisis de sensibilidad muestra que el VAN base tolera apenas un −10 % de volumen y un −5,6 % de precio. **Se acepta el proyecto, pero condicionado a ejecutar la corrección de precio de [XII.9](#xii9-escenario-recomendado-migración-de-precio)** —lista a $199.990 desde el Año 2— y a **activar el canal INDAP/PDI**, que es la palanca más directa sobre la única variable capaz de hundirlo. Sin esas dos medidas, el proyecto es viable pero frágil; con ellas, es viable y robusto.
-
-**Lo que se rechazaría:** un precio de lista de $169.990 o inferior (VAN negativo), un plan que dependa de vender más de 120 unidades el primer año, o una estructura que financie el activo fijo con el crédito de corto plazo al 23 %.
+**Lo que se rechazaría de plano:** un volumen del Año 1 por debajo de 168 unidades (pérdida contable), un precio de lista sobre $249.990 (fuera del techo declarado del negocio e incoherente con la posición competitiva de [XI.3](#xi3-análisis-competitivo)), o financiar el activo fijo con la línea de corto plazo al 23 % en lugar del crédito bancario a 5 años.
 
 ### XII.10.2. Decisión en base al Pay Back
 
-> **DECISIÓN: SE ACEPTA EL PROYECTO.**
+> **DECISIÓN: SE ACEPTA, SIN HOLGURA.**
 
-El plazo de recuperación de la inversión es de **3,14 años** (3 años y 2 meses) sobre flujos nominales, y de **4,09 años** sobre flujos descontados al 20 %. **Ambos plazos caen dentro del horizonte de evaluación de cinco años**, que es el criterio de aceptación.
+El plazo de recuperación es de **4,42 años** — dentro del horizonte de 5 años, pero apenas: el flujo acumulado recién cruza a positivo en el propio Año 5. **No hay margen de error en este indicador**: cualquier atraso de más de unos meses en alcanzar los volúmenes proyectados de los Años 4 y 5 empuja la recuperación fuera del quinquenio.
 
-**Tres consideraciones sobre este indicador:**
-
-1. **El Pay Back nominal ocurre en el Año 4 y el descontado también.** Que ambos caigan dentro del horizonte es relevante: un proyecto cuyo Pay Back nominal cabe en el horizonte pero cuyo Pay Back descontado no, está recuperando la inversión sólo en apariencia. Aquí no ocurre.
-
-2. **El Año 1 es el más lento, y por una razón estructural, no operacional.** El flujo de $1.833.645 es bajo porque concentra la amortización íntegra del préstamo a corto plazo. La utilidad del proyecto ese año es de $2.955.032. A partir del Año 2, con la carga de capital reducida a $304.483, la recuperación se acelera notablemente.
-
-3. **La corrección de precio mejora el Pay Back a 2,34 años.** En el escenario recomendado, la inversión se recupera durante el **Año 3** en términos nominales y durante el Año 4 en términos descontados. Para un proyecto de hardware con inversión en activo fijo de vida útil de 6 a 7 años, recuperar la inversión en menos de la mitad de la vida útil de los activos es una posición sólida.
-
-**Limitación reconocida del indicador.** El Pay Back **ignora todo lo que ocurre después de la recuperación** y **no considera el valor del dinero en el tiempo** en su versión nominal. En este proyecto esa limitación es material: los Años 4 y 5 aportan $29,5 millones de los $42 millones de flujo acumulado del quinquenio. **Un criterio basado sólo en Pay Back subestimaría gravemente el proyecto**, porque su valor está concentrado en la segunda mitad del horizonte, cuando la base instalada y el canal de distribución ya están construidos. Por eso el Pay Back se usa aquí como criterio de liquidez y de riesgo —¿cuánto tiempo estamos expuestos?— y el VAN como criterio de creación de valor.
+Esto reafirma la conclusión de XII.10.1: **la evaluación a 5 años es la vara más exigente que este proyecto puede pasar, y la pasa justo al límite.** A 8-10 años, el mismo proyecto deja de estar al límite y pasa a ser claramente rentable.
 
 ### XII.10.3. Decisión conjunta
 
-| Criterio | Resultado | Umbral | Decisión |
+| Criterio | Resultado | Umbral (5 años, 20 %) | Decisión |
 | :--- | ---: | :---: | :---: |
-| VAN (20 %) | $7.019.065 | > 0 | ✅ Aceptar |
-| TIR | 34,6 % | > 20 % | ✅ Aceptar |
-| Pay Back | 3,14 años | ≤ 5 años | ✅ Aceptar |
-| Pay Back descontado | 4,09 años | ≤ 5 años | ✅ Aceptar |
-| Punto de equilibrio Año 1 | 56 u | < 120 u planificadas | ✅ Aceptar |
+| VAN (20 %) | −$8.143.581 | > 0 | ❌ No cumple |
+| TIR | ≈ 8,5 % | > 20 % | ❌ No cumple (pero > 0) |
+| Pay Back | 4,42 años | ≤ 5 años | ✅ Cumple, sin holgura |
+| Utilidad neta, todos los años | Positiva | Sin pérdidas | ✅ Cumple |
+| Punto de equilibrio Año 1 | 168 u | < 200 u planificadas | ✅ Holgura del 19 % |
 
-> **Los cinco criterios coinciden: el proyecto se acepta.** La recomendación de ejecución no es sin embargo «adelante sin más», sino **adelante con dos condiciones**: corregir el precio de lista al alza desde el Año 2, porque el margen de seguridad del escenario base es demasiado estrecho para absorber el descuento de canal; y **priorizar el canal INDAP/PDI por sobre el canal directo**, porque el análisis de sensibilidad identifica el volumen —no el costo— como la única variable capaz de destruir el proyecto, y el cofinanciamiento estatal es la palanca más eficaz sobre ella.
+> **Tres de los cinco criterios se cumplen; dos no.** La recomendación de este estudio es **aceptar el proyecto bajo el horizonte de largo plazo que los propios socios declararon aceptable**, y no bajo el criterio estándar de 5 años y 20 % — dejando expresamente registrado que, si el proyecto se presenta ante un banco o un evaluador que exija ese criterio estándar, **la respuesta honesta es que no lo cumple**, y que la palanca disponible para revertirlo sin subir el precio (ya en su techo) es reducir aún más el gasto fijo de los primeros dos años, con el costo social de un ingreso más ajustado para los socios durante ese período.
 
 ---
 
@@ -3257,15 +3175,15 @@ RUTINA DE MANTENIMIENTO PREVENTIVO
 
 > **Porque son complementarios, no sustitutos, y lo decimos abiertamente.** El laboratorio es más exacto, mide micronutrientes y materia orgánica, y tiene validez legal — pero demora semanas y cobra por muestra, de modo que mapear la variabilidad de un potrero con diez puntos multiplica el costo por diez. TerraSense entrega el veredicto en cinco segundos a **costo marginal cero**, lo que permite un monitoreo de frecuencia y densidad que el laboratorio nunca podrá ofrecer. La recomendación explícita del proyecto es mantener un análisis de laboratorio cada dos o tres años como referencia de calibración ([X.1](#x1-desempeño-metrológico-declarado-y-sus-límites)).
 
-### ❓ 6. «¿De verdad un agricultor pequeño tiene $180.000 para esto?»
+### ❓ 6. «¿De verdad un agricultor pequeño tiene $249.990 para esto?»
 
-> **En el canal directo, para una parte del segmento, es una barrera real — y por eso el canal B2G existe.** INDAP cofinancia a través del Programa de Desarrollo de Inversiones **hasta el 60 % del valor bruto de la inversión, y hasta el 90 %** en proyectos de sustentabilidad o presentados por jóvenes, mujeres y pueblos originarios, con tope de $7.500.000 anuales por productor <sup>[43][44]</sup>. Con ese cofinanciamiento, el desembolso efectivo cae a un rango de $18.000 a $72.000. Además, el modelo económico **no supone que todos compran**: proyecta 120 unidades el primer año sobre un mercado servible de 120.000, es decir, un 0,1 %.
+> **En el canal directo, para una parte del segmento, es una barrera real — y por eso el canal B2G existe.** INDAP cofinancia a través del Programa de Desarrollo de Inversiones **hasta el 60 % del valor bruto de la inversión, y hasta el 90 %** en proyectos de sustentabilidad o presentados por jóvenes, mujeres y pueblos originarios, con tope de $7.500.000 anuales por productor <sup>[43][44]</sup>. Con ese cofinanciamiento, el desembolso efectivo cae a un rango de $25.000 a $100.000. Además, el modelo económico **no supone que todos compran**: proyecta 200 unidades el primer año sobre un mercado servible de 120.000, es decir, un 0,17 %. **Y el precio subió respecto de versiones anteriores del estudio** —de $179.990 a $249.990— porque el costo real de la sonda y el sueldo de los dos socios desde el mes 1 lo exigieron; se declara así de frente en lugar de mantener un precio de vitrina que el negocio no podía sostener.
 
 ### ❓ 7. «¿Qué pasa si no hay señal en el cerro?»
 
 > **El sistema completo funciona sin red.** La sonda habla con el teléfono por BLE, que no requiere internet; el motor agronómico corre localmente sobre SQLite en el teléfono; el veredicto se entrega igual. El GPS es un receptor pasivo satelital y funciona sin cobertura. Lo único que degrada es la imagen satelital del mapa, que pasa a fondo neutro **conservando visibles los círculos de medición** porque son capas vectoriales locales. Al recuperar cobertura, la cola sincroniza sola. Esto no es un añadido: es un requisito de diseño, porque el 51,4 % de los hogares rurales chilenos sólo dispone de servicio móvil <sup>[8]</sup>.
 
-### ❓ 8. «Si equipos como Spectrum valen US$1.495, ¿por qué el tuyo cuesta US$196? ¿Es peor?»
+### ❓ 8. «Si equipos como Spectrum valen US$1.495, ¿por qué el tuyo cuesta US$273? ¿Es peor?»
 
 > **Es distinto, no peor, y la diferencia está en la arquitectura.** Ellos venden un instrumento autónomo con pantalla dedicada, mástil propietario y software con licencia. Nosotros **aprovechamos la pantalla, el GPS, el procesador y el módem del teléfono que el agricultor ya compró**. Eso elimina del costo exactamente los componentes más caros. Y en capacidad de medición no salimos perdiendo: el TDR 350 mide **un** parámetro —humedad— con exactitud de referencia; TerraSense mide nueve, incluidos pH y NPK, que aquel no mide en absoluto.
 
@@ -3299,11 +3217,11 @@ RUTINA DE MANTENIMIENTO PREVENTIVO
 
 ### ❓ 13. «Tu punto de equilibrio, ¿está sobre el margen del BOM?»
 
-> **No, y ese es precisamente el error que este estudio evita.** El BOM es $43.773, pero el costo real entregado es **$69.069**: incluye flete aéreo consolidado desde China <sup>[45]</sup>, arancel del 6 % <sup>[32]</sup>, agenciamiento, mano de obra de ensamblaje, merma, provisión de garantía legal de seis meses <sup>[24]</sup> y flete nacional. Además, el margen se calcula sobre el **precio neto** ($151.252), no sobre el precio con IVA, porque el IVA no es ingreso de la empresa. El margen de contribución real es de **$82.039 (54,2 %)**, no del 76 % que resultaría de dividir por el BOM. Con esa base, el punto de equilibrio del Año 1 es de **55 unidades** frente a 120 planificadas.
+> **No, y ese es precisamente el error que este estudio evita.** El BOM es $70.656 (la sonda sola cuesta $48.000, a precio real de mercado), pero el costo variable real entregado es **$91.309**: incluye flete nacional por Bluexpress, merma, provisión de garantía legal de seis meses <sup>[24]</sup> y mano de obra de ensamblaje. El margen se calcula sobre el **precio neto** ($210.076), no sobre el precio con IVA. El punto de equilibrio **contable** del Año 1 —el que incluye depreciación y costo financiero, no solo costos variables y gastos fijos operacionales— es de **168 unidades** frente a 200 planificadas: una holgura del 19 %, más ajustada que la del estudio anterior porque ahora los dos socios se pagan sueldo desde el mes 1.
 
 ### ❓ 14. «¿Y si vendes menos de lo que proyectas?»
 
-> **El proyecto tolera hasta un −20 % sobre un plan que ya es conservador.** Con 96 unidades en lugar de 120, el VAN sigue siendo positivo ($980.962) y la TIR es del 17,4 %. Bajo 90 unidades, el VAN se vuelve negativo. **La sensibilidad muestra que el proyecto es robusto ante errores de costo y frágil ante errores de volumen**, y por eso el estudio recomienda elevar el precio de lista a $199.990: amplía simultáneamente el colchón de precio y el de volumen, y convierte el escenario pesimista combinado de una pérdida de $18 millones en un resultado positivo ([XII.9](#xii9-escenario-recomendado-migración-de-precio)).
+> **El proyecto tolera hasta un −16 % antes de perder en el Año 1** (168 unidades en vez de 200). Es una holgura menor a la de versiones anteriores del estudio, y hay que decirlo así de directo: **ya no queda margen de precio como colchón**, porque el precio ya está en el techo de $249.990 que el negocio se fijó como límite. La única palanca que queda disponible frente a un volumen menor al esperado es contener el gasto fijo — retrasar aún más la incorporación de ensambladores, o sostener el sueldo empresarial en el mínimo legal un año adicional. El análisis completo, incluido lo que este cambio le hizo al VAN a 5 años, está en [XII.7](#xii7-evaluación-económica-van-tir-y-pay-back) y [XII.8](#xii8-análisis-de-sensibilidad-y-punto-de-quiebre).
 
 ---
 
@@ -3434,31 +3352,27 @@ El análisis energético produjo el resultado más útil de todo el estudio téc
 
 ## XVII.2. Sobre la factibilidad económica
 
-El proyecto es **económicamente viable, y lo es sobre una proyección deliberadamente conservadora**: 120 unidades el primer año equivalen al **0,1 % del mercado servible** y a diez ventas mensuales. Los cinco criterios de evaluación coinciden en aceptarlo:
+El proyecto es **económicamente viable a largo plazo, y este documento no pretende que lo sea también bajo el criterio estándar de 5 años**, que no cumple:
 
-| Indicador (descontado al 20 %) | Escenario base | Escenario recomendado | Umbral |
-| :--- | ---: | ---: | :---: |
-| VAN | $7.019.065 | **$25.064.177** | > 0 |
-| TIR | 34,6 % | **59,9 %** | > 20 % |
-| Pay Back | 3,14 años | **2,34 años** | ≤ 5 años |
-| Pay Back descontado | 4,09 años | **3,03 años** | ≤ 5 años |
-| Punto de equilibrio, Año 1 | 56 unidades | 47 unidades | < 120 |
+| Indicador (descontado al 20 %, horizonte 5 años) | Valor | Umbral | Cumple |
+| :--- | ---: | :---: | :---: |
+| VAN | **−$8.143.581** | > 0 | ❌ |
+| TIR real | **≈ 8,5 %** | > 20 % | ❌ |
+| Pay Back | 4,42 años | ≤ 5 años | ✅ (sin holgura) |
+| Utilidad neta, todos los años | Positiva desde el Año 1 | Sin pérdidas | ✅ |
+| Punto de equilibrio contable, Año 1 | 168 unidades | < 200 planificadas | ✅ (holgura 19 %) |
 
-El estudio corrigió tres errores metodológicos heredados que habrían inflado artificialmente la rentabilidad, y conviene dejarlos consignados porque son los primeros que busca una comisión con formación económica:
+**Esto no es el resultado de un error de cálculo: es la consecuencia matemática de tres decisiones de negocio explícitas** de los socios fundadores, incorporadas al modelo tras una revisión completa del estudio: la sonda de suelo cuesta $48.000 CLP a precio real de mercado —triplicando la cifra que se había cotizado antes—; los dos socios se pagan el Ingreso Mínimo Mensual desde el mes 1, sin ningún año de sueldo cero; y el precio de venta tiene un techo de negocio en $249.990 CLP, del que no se puede pasar. Las tres condiciones juntas empujaron el volumen del Año 1 de 120 a 200 unidades —la única palanca que quedó disponible una vez que el precio llegó a su techo— y aun así el proyecto no alcanza a cubrir la vara del 20 % de retorno en cinco años.
 
-1. **El margen no se calcula sobre el BOM.** El costo variable real entregado es $69.069, no $43.773: entre uno y otro hay flete internacional, arancel, mano de obra, merma, garantía legal y flete nacional. Y el costo *total* de operar, que es el que determina el precio, es de $108.582 por unidad el primer año.
-2. **El margen no se calcula sobre el precio con IVA.** El IVA no es ingreso de la empresa, y el IVA de importación es crédito fiscal, no costo. Todo el modelo trabaja en valores netos.
-3. **El universo de mercado no es de 278.000 explotaciones.** El Censo 2021 registró 175.556 unidades bajo una definición distinta a la de 2007 <sup>[1][2]</sup>, y todo el dimensionamiento se reconstruyó sobre esa cifra.
+**Lo que sí sostiene la viabilidad, y por qué el estudio recomienda igualmente avanzar:**
 
-**El hallazgo más importante del análisis de sensibilidad es incómodo y conviene decirlo sin adornos: a la tasa de descuento exigida del 20 %, el escenario base es viable pero frágil.** Tolera apenas un −10 % de volumen, un −5,6 % de precio y un +13 % de costo variable antes de que el VAN se vuelva negativo. No es un proyecto que se pueda gestionar con descuido.
+1. **La utilidad neta es positiva todos los años, sin una sola excepción, desde el Año 1.** No hay ningún ejercicio en pérdida en el quinquenio proyectado.
+2. **La TIR real (≈8,5 %) es positiva.** El proyecto crea valor; simplemente lo hace a un ritmo menor al exigido por la evaluación convencional de 5 años.
+3. **Los propios socios declararon aceptable un horizonte más largo** ("da lo mismo si en 10 años somos rentables, la idea es que seamos rentables"), y bajo esa vara —no bajo la de 5 años— el proyecto es sólido: la utilidad neta crece de $2,9 a $18,1 millones entre el Año 1 y el Año 5, y el flujo acumulado ya cruza a positivo dentro del propio quinquenio, apoyado en que los Años 4 y 5 aportan por sí solos casi $29 millones de utilidad.
 
-De ahí las **dos recomendaciones concretas** que este estudio entrega, y que no son opcionales:
+**El mes crítico de caja del Año 1 sigue siendo el que coincide con el pago de un lote grande de importación** —ahora un desembolso considerablemente mayor, porque la sonda a $48.000 más que duplicó el costo de cada lote—, y la mitigación recomendada sigue siendo fraccionar las compras en lotes más pequeños y frecuentes en lugar de uno grande semestral (ver [XII.6](#xii6-prueba-de-caja-el-mes-crítico-del-año-1)).
 
-> **1. Elevar el precio de lista a $199.990 CLP desde el Año 2**, manteniendo $179.990 como precio de lanzamiento para las primeras 120 unidades. Sigue siendo un 35,5 % más barato que el Bluelab Pulse y un 25,7 % más barato que el Hanna HI9814, ofreciendo nueve parámetros en lugar de tres o cuatro. Da espacio para el descuento del 15–20 % que exigirá el canal B2B. Y —lo decisivo— **transforma la fragilidad en robustez**: con la migración de precio, el proyecto tolera simultáneamente −20 % de volumen y +20 % de costo variable y sigue creando valor.
->
-> **2. Activar el canal INDAP/PDI cuanto antes.** Un cofinanciamiento del 60 % al 90 % <sup>[43][44]</sup> no reduce el precio: **cambia la naturaleza de la decisión de compra**, y es la palanca más directa sobre el volumen, que es la única variable capaz de hundir el proyecto.
-
-El flujo mensual del primer año reveló además algo que el flujo anual ocultaba por completo: **el mes 6 es el punto crítico de caja**, cuando coincide el pago del segundo lote de importación con un nivel de ventas todavía bajo. Con la línea de corto plazo incorporada, la caja mínima del año queda en $81.434 —positiva, pero sin margen—; sin ella, el mes cerraría en −$1.418.566. El proyecto es rentable ese año y aun así rozaría el agotamiento de caja. Se resuelve fraccionando el lote, sin costo alguno, **pero sólo aparece si se modela mes a mes**.
+**La recomendación final de este estudio, dicha sin adornos:** el proyecto es defendible ante los propios socios, que aceptaron explícitamente el trato de sueldo modesto a cambio de un horizonte más largo. **No es defendible sin esa aclaración ante un evaluador que exija VAN positivo a 5 años** — y ese matiz debe declararse siempre que el estudio se presente fuera del círculo de los fundadores, incluido ante el banco que otorgue el crédito de [XII.3.3](#xii33-fuentes-de-financiamiento).
 
 ## XVII.3. Sobre el propósito
 
