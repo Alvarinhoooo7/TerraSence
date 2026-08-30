@@ -14,6 +14,12 @@ Dependabot revisa semanalmente App, Web y las propias GitHub Actions. Las
 Actions están fijadas a SHA completos para impedir que una etiqueta mutable
 cambie el código ejecutado.
 
+La auditoría móvil mantiene una excepción temporal limitada a
+`GHSA-w3rx-r6r6-pgpr` y `GHSA-5p2g-fcmc-qvqq`: ambas afectan `image-size`, una
+dependencia de build de Metro, y GitHub Advisory todavía declara que no existe
+versión corregida. Cualquier vulnerabilidad alta/crítica distinta sigue
+bloqueando el check. La excepción debe eliminarse en cuanto exista un parche.
+
 ## Backup diario de Supabase
 
 `Supabase daily backup` corre diariamente a las 05:17 UTC y también se puede

@@ -62,7 +62,7 @@ jobs:
           cache-dependency-path: App/package-lock.json
       - run: npm ci
       - name: Audit production dependencies
-        run: npm audit --omit=dev --audit-level=high
+        run: node scripts/check-npm-audit.mjs
       - run: npm test
       - run: npm run type-check
       - name: Validate Expo dependencies and configuration

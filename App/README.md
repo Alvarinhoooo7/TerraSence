@@ -299,11 +299,29 @@ Este bloque está implementado y versionado para que la próxima sesión no teng
 3. **Confirmar el mapa Modbus con la ficha o banco del proveedor.** Verificar dirección, orden,
    escala, signo y CRC de los siete registros. Temperatura negativa ya se decodifica como `int16`,
    pero la trama completa sigue pendiente de contraste con una sonda real.
-4. **Configurar EAS de producción:** `projectId`, credenciales Android/iOS, firma, token Expo Push,
-   perfiles de build y prueba de instalación limpia. Hoy sólo se verificó `expo export`.
-5. **Cerrar recuperación de contraseña móvil.** Crear `ResetPasswordScreen`, escuchar
-   `PASSWORD_RECOVERY`, usar `terrasense://reset-password`, añadirlo a los redirects de Supabase y
-   probar el enlace con la app instalada. Web ya tiene este flujo; la app todavía no.
+4. **Configurar EAS de producción — PENDIENTE, avanzado hasta acá (2026-08-30):**
+   - ✅ Proyecto Firebase `terrasense-app` creado (cuenta `akurasoporte@gmail.com`), con apps
+     Android e iOS registradas bajo `cl.terrasense.app`.
+   - ✅ `App/google-services.json` y `App/GoogleService-Info.plist` descargados y conectados en
+     `app.config.js` (`android.googleServicesFile` / `ios.googleServicesFile`). Ambos ignorados
+     por git.
+   - ✅ Clave de servicio de Firebase Admin SDK (rol de envío FCM) ya descargada:
+     `terrasense-app-firebase-adminsdk-fbsvc-ea0846aefa.json` en la raíz del repo — **ya está en
+     `.gitignore`** (patrón `*firebase-adminsdk*.json`), pero no la muevas a ningún sitio público.
+   - ⬜ Falta correr (dentro de `App/`), en este orden:
+     ```bash
+     eas login                 # sesión de la cuenta Expo/EAS del proyecto
+     eas init                  # vincula el proyecto y escribe extra.eas.projectId
+     eas credentials           # Android → Push Notifications → Google Service Account →
+                                # subir terrasense-app-firebase-adminsdk-fbsvc-ea0846aefa.json
+     ```
+   - ⬜ Falta también: firma de release, perfiles de build (`eas.json` ya tiene development/
+     preview/production) y un `eas build` de prueba con instalación limpia en un equipo físico
+     para confirmar que llega un push real de punta a punta.
+5. **Validar recuperación de contraseña móvil en hardware.** La pantalla
+   `ResetPasswordScreen`, el evento `PASSWORD_RECOVERY` y el deep link
+   `terrasense://reset-password` ya están implementados. Falta aplicar el redirect al Auth remoto
+   mediante `supabase config push` y probar el enlace con el build instalado.
 6. **Validar SMTP móvil de extremo a extremo.** El backend y las plantillas fueron configurados,
    pero en esta máquina `GMAIL_APP_PASSWORD` no está exportada y el CLI avisa. No ejecutar
    `supabase config push` a ciegas: primero cargar el secreto y confirmar que el remoto conserva SMTP.
