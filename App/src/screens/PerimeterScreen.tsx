@@ -15,15 +15,18 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useColorScheme,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { Marker, Polygon, PROVIDER_GOOGLE, type Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 
-import { Colors, Spacing, Typography } from '../constants/theme';
+import { Spacing, Typography } from '../constants/theme';
+import { useAppTheme } from '../hooks/useAppTheme';
+import { ScreenGuide } from '../components/ScreenGuide';
+import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
+import { formatArea } from '../utils/units';
 import {
   MIN_VERTICES,
   deletePerimeter,
@@ -37,9 +40,9 @@ interface Props {
 }
 
 export const PerimeterScreen: React.FC<Props> = ({ onClose }) => {
-  const isDark = useColorScheme() === 'dark';
-  const colors = isDark ? Colors.dark : Colors.light;
-  const { fieldName } = useAppStore();
+  const { isDark, colors } = useAppTheme();
+  const { t } = useTranslation();
+  const { fieldName, preferences } = useAppStore();
 
   const [points, setPoints] = useState<LatLng[]>([]);
   const [areaHa, setAreaHa] = useState<number | null>(null);
@@ -92,17 +95,23 @@ export const PerimeterScreen: React.FC<Props> = ({ onClose }) => {
       });
       setPoints((p) => [...p, { latitude: pos.coords.latitude, longitude: pos.coords.longitude }]);
     } catch {
-      Alert.alert('Sin señal GPS', 'No se pudo obtener tu posición. Sal a cielo abierto e inténtalo otra vez.');
+      Alert.alert(
+        t('Sin señal GPS', 'No GPS signal'),
+        t('No se pudo obtener tu posición. Sal a cielo abierto e inténtalo otra vez.', 'Your position could not be obtained. Move outdoors and try again.'),
+      );
     }
-  }, []);
+  }, [t]);
 
   const undo = useCallback(() => setPoints((p) => p.slice(0, -1)), []);
 
   const save = useCallback(async () => {
     if (points.length < MIN_VERTICES) {
       Alert.alert(
-        'Faltan puntos',
-        `Hacen falta al menos ${MIN_VERTICES} esquinas para cerrar el predio. Llevas ${points.length}.`,
+        t('Faltan puntos', 'More points needed'),
+        t(
+          `Hacen falta al menos ${MIN_VERTICES} esquinas para cerrar el predio. Llevas ${points.length}.`,
+          `At least ${MIN_VERTICES} corners are needed to close the field. You have ${points.length}.`,
+        ),
       );
       return;
     }
@@ -111,24 +120,24 @@ export const PerimeterScreen: React.FC<Props> = ({ onClose }) => {
       const saved = await savePerimeter(fieldName, points);
       setAreaHa(saved.areaHa);
       Alert.alert(
-        'Perímetro guardado',
+        t('Perímetro guardado', 'Perimeter saved'),
         saved.areaHa != null
-          ? `Superficie calculada: ${saved.areaHa.toFixed(2)} ha.`
-          : 'Perímetro guardado.',
-        [{ text: 'Listo', onPress: onClose }],
+          ? t(`Superficie calculada: ${formatArea(saved.areaHa, preferences.measurementSystem)}.`, `Calculated area: ${formatArea(saved.areaHa, preferences.measurementSystem)}.`)
+          : t('Perímetro guardado.', 'Perimeter saved.'),
+        [{ text: t('Listo', 'Done'), onPress: onClose }],
       );
     } catch (e) {
-      Alert.alert('No se pudo guardar', e instanceof Error ? e.message : String(e));
+      Alert.alert(t('No se pudo guardar', 'Could not save'), e instanceof Error ? e.message : String(e));
     } finally {
       setBusy(false);
     }
-  }, [points, fieldName, onClose]);
+  }, [points, fieldName, onClose, preferences.measurementSystem, t]);
 
   const remove = useCallback(() => {
-    Alert.alert('Borrar perímetro', `Se eliminará el perímetro de "${fieldName}".`, [
-      { text: 'Cancelar', style: 'cancel' },
+    Alert.alert(t('Borrar perímetro', 'Delete perimeter'), t(`Se eliminará el perímetro de "${fieldName}".`, `The perimeter for "${fieldName}" will be deleted.`), [
+      { text: t('Cancelar', 'Cancel'), style: 'cancel' },
       {
-        text: 'Borrar',
+        text: t('Borrar', 'Delete'),
         style: 'destructive',
         onPress: async () => {
           await deletePerimeter(fieldName).catch(() => undefined);
@@ -137,7 +146,7 @@ export const PerimeterScreen: React.FC<Props> = ({ onClose }) => {
         },
       },
     ]);
-  }, [fieldName]);
+  }, [fieldName, t]);
 
   if (loading || !region) {
     return (
@@ -184,13 +193,15 @@ export const PerimeterScreen: React.FC<Props> = ({ onClose }) => {
       <SafeAreaView edges={['top']} style={styles.topSafe} pointerEvents="box-none">
         <View style={[styles.banner, { backgroundColor: colors.mapOverlay, borderColor: colors.border }]}>
           <Text style={[styles.bannerTitle, { color: colors.text }]} numberOfLines={1}>
-            Perímetro de {fieldName}
+            {t('Perímetro de', 'Perimeter of')} {fieldName}
           </Text>
           <Text style={[styles.bannerHint, { color: colors.textSecondary }]}>
             {points.length === 0
-              ? 'Toca el mapa en cada esquina, o camina la linde y usa «Estoy aquí».'
-              : `${points.length} punto${points.length === 1 ? '' : 's'}` +
-                (areaHa != null ? ` · ${areaHa.toFixed(2)} ha guardadas` : '')}
+              ? t('Toca el mapa en cada esquina, o camina la linde y usa «Estoy aquí».', 'Tap each corner on the map, or walk the boundary and use “I am here”.')
+              : `${points.length} ${t(points.length === 1 ? 'punto' : 'puntos', points.length === 1 ? 'point' : 'points')}` +
+                (areaHa != null
+                  ? ` · ${formatArea(areaHa, preferences.measurementSystem)} ${t('guardadas', 'saved')}`
+                  : '')}
           </Text>
         </View>
       </SafeAreaView>
@@ -201,7 +212,7 @@ export const PerimeterScreen: React.FC<Props> = ({ onClose }) => {
             onPress={onClose}
             style={[styles.secondary, { backgroundColor: colors.mapOverlay, borderColor: colors.border }]}
           >
-            <Text style={[styles.secondaryText, { color: colors.text }]}>Volver</Text>
+            <Text style={[styles.secondaryText, { color: colors.text }]}>{t('Volver', 'Back')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -212,14 +223,14 @@ export const PerimeterScreen: React.FC<Props> = ({ onClose }) => {
               { backgroundColor: colors.mapOverlay, borderColor: colors.border, opacity: points.length ? 1 : 0.4 },
             ]}
           >
-            <Text style={[styles.secondaryText, { color: colors.text }]}>Deshacer</Text>
+            <Text style={[styles.secondaryText, { color: colors.text }]}>{t('Deshacer', 'Undo')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={addHere}
             style={[styles.primary, { backgroundColor: colors.secondary }]}
           >
-            <Text style={styles.primaryText}>📍 Estoy aquí</Text>
+            <Text style={styles.primaryText}>📍 {t('Estoy aquí', 'I am here')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -229,7 +240,7 @@ export const PerimeterScreen: React.FC<Props> = ({ onClose }) => {
               onPress={remove}
               style={[styles.secondary, { backgroundColor: colors.mapOverlay, borderColor: colors.border }]}
             >
-              <Text style={[styles.secondaryText, { color: colors.danger }]}>Borrar</Text>
+              <Text style={[styles.secondaryText, { color: colors.danger }]}>{t('Borrar', 'Delete')}</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity
@@ -238,11 +249,12 @@ export const PerimeterScreen: React.FC<Props> = ({ onClose }) => {
             style={[styles.primary, { backgroundColor: colors.primary, flex: 1, opacity: busy ? 0.6 : 1 }]}
           >
             <Text style={styles.primaryText}>
-              {busy ? 'Guardando…' : `Guardar perímetro (${points.length})`}
+              {busy ? t('Guardando…', 'Saving…') : `${t('Guardar perímetro', 'Save perimeter')} (${points.length})`}
             </Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+      <ScreenGuide guideId="perimeter" style={{ top: 148 }} />
     </View>
   );
 };

@@ -13,8 +13,9 @@
 // función existe para previsualización y para provisionamiento sin conexión.
 
 import * as Crypto from 'expo-crypto';
+import { DEVICE_ID_LENGTH } from './deviceCode';
 
-export const DEVICE_ID_LENGTH = 15;
+export * from './deviceCode';
 
 /** Genera un Device ID aleatorio de 15 dígitos (el primero nunca es 0). */
 export const generateDeviceId = (): string => {
@@ -25,17 +26,3 @@ export const generateDeviceId = (): string => {
   }
   return id;
 };
-
-/** Normaliza lo que teclea el usuario a 15 dígitos crudos. */
-export const normalizeDeviceId = (raw?: string): string =>
-  (raw ?? '').replace(/\D/g, '').slice(0, DEVICE_ID_LENGTH);
-
-/** Presentación legible en tres bloques: 48213-90574-16628 */
-export const formatDeviceId = (raw?: string): string => {
-  const clean = normalizeDeviceId(raw);
-  if (clean.length !== DEVICE_ID_LENGTH) return clean;
-  return clean.replace(/(\d{5})(\d{5})(\d{5})/, '$1-$2-$3');
-};
-
-export const isValidDeviceId = (raw?: string): boolean =>
-  /^[1-9]\d{14}$/.test(normalizeDeviceId(raw));

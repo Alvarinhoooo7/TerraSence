@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { Spacing, Typography, type ThemeColors } from '../constants/theme';
 import { addLocalField, listFields, type FieldSummary } from '../services/fieldsService';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface Props {
   value: string;
@@ -24,15 +25,17 @@ interface Props {
   colors: ThemeColors;
 }
 
-const relative = (iso: string | null): string => {
-  if (!iso) return 'sin mediciones';
+const relative = (iso: string | null, en: boolean): string => {
+  if (!iso) return en ? 'no readings' : 'sin mediciones';
   const d = Math.round((Date.now() - new Date(iso).getTime()) / 86_400_000);
-  if (d <= 0) return 'medido hoy';
-  if (d === 1) return 'medido ayer';
-  return `hace ${d} días`;
+  if (d <= 0) return en ? 'measured today' : 'medido hoy';
+  if (d === 1) return en ? 'measured yesterday' : 'medido ayer';
+  return en ? `${d} days ago` : `hace ${d} días`;
 };
 
 export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
+  const { language, t } = useTranslation();
+  const en = language === 'en';
   const [open, setOpen] = useState(false);
   const [fields, setFields] = useState<FieldSummary[]>([]);
   const [loading, setLoading] = useState(false);
@@ -61,7 +64,7 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
     <>
       <TouchableOpacity
         accessibilityRole="button"
-        accessibilityLabel={`Predio actual: ${value}. Toca para cambiar.`}
+        accessibilityLabel={t(`Predio actual: ${value}. Toca para cambiar.`, `Current field: ${value}. Tap to change.`)}
         onPress={() => setOpen(true)}
         style={[styles.pill, { backgroundColor: colors.mapOverlay, borderColor: colors.border }]}
       >
@@ -78,7 +81,7 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
             onPress={(e) => e.stopPropagation()}
           >
             <View style={[styles.grabber, { backgroundColor: colors.textMuted }]} />
-            <Text style={[styles.title, { color: colors.text }]}>Predios</Text>
+            <Text style={[styles.title, { color: colors.text }]}>{t('Predios', 'Fields')}</Text>
 
             {loading ? (
               <ActivityIndicator color={colors.primary} style={{ marginVertical: Spacing.lg }} />
@@ -86,7 +89,7 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
               <ScrollView style={{ maxHeight: 320 }}>
                 {fields.length === 0 && (
                   <Text style={[styles.empty, { color: colors.textSecondary }]}>
-                    Todavía no hay predios. Crea el primero abajo.
+                    {t('Todavía no hay predios. Crea el primero abajo.', 'There are no fields yet. Create the first one below.')}
                   </Text>
                 )}
                 {fields.map((f) => {
@@ -114,12 +117,12 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
                           {active ? '  ✓' : ''}
                         </Text>
                         <Text style={[styles.rowMeta, { color: colors.textSecondary }]}>
-                          {f.measurements} medicion{f.measurements === 1 ? '' : 'es'} ·{' '}
-                          {relative(f.lastMeasuredAt)}
+                          {f.measurements} {t(f.measurements === 1 ? 'medición' : 'mediciones', f.measurements === 1 ? 'reading' : 'readings')} ·{' '}
+                          {relative(f.lastMeasuredAt, en)}
                         </Text>
                       </View>
                       {f.isDraft && (
-                        <Text style={[styles.draft, { color: colors.textMuted }]}>nuevo</Text>
+                        <Text style={[styles.draft, { color: colors.textMuted }]}>{t('nuevo', 'new')}</Text>
                       )}
                     </TouchableOpacity>
                   );
@@ -127,7 +130,7 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
               </ScrollView>
             )}
 
-            <Text style={[styles.section, { color: colors.textMuted }]}>CREAR PREDIO</Text>
+            <Text style={[styles.section, { color: colors.textMuted }]}>{t('CREAR PREDIO', 'CREATE FIELD')}</Text>
             <View style={styles.createRow}>
               <TextInput
                 value={newName}
@@ -135,7 +138,7 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
                 onSubmitEditing={create}
                 placeholder="Potrero Bajo"
                 placeholderTextColor={colors.textMuted}
-                accessibilityLabel="Nombre del predio nuevo"
+                accessibilityLabel={t('Nombre del predio nuevo', 'New field name')}
                 style={[
                   styles.input,
                   { backgroundColor: colors.background, borderColor: colors.border, color: colors.text },
@@ -144,10 +147,10 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
               <TouchableOpacity
                 onPress={create}
                 accessibilityRole="button"
-                accessibilityLabel="Crear predio"
+                accessibilityLabel={t('Crear predio', 'Create field')}
                 style={[styles.addBtn, { backgroundColor: colors.primary }]}
               >
-                <Text style={styles.addBtnText}>Crear</Text>
+                <Text style={styles.addBtnText}>{t('Crear', 'Create')}</Text>
               </TouchableOpacity>
             </View>
           </Pressable>

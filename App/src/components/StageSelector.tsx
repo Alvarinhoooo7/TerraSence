@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { PHENOLOGICAL_STAGES, type PhenologicalStage } from '../types/app';
 import { Spacing, Typography, type ThemeColors } from '../constants/theme';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface Props {
   value: PhenologicalStage;
@@ -24,20 +25,25 @@ interface Props {
 }
 
 export const StageSelector: React.FC<Props> = ({ value, onChange, colors }) => {
+  const { language, t } = useTranslation();
   const [open, setOpen] = useState(false);
   const current = PHENOLOGICAL_STAGES.find((s) => s.id === value) ?? PHENOLOGICAL_STAGES[0];
+  const currentLabel = language === 'en' ? current.labelEn : current.label;
 
   return (
     <>
       <TouchableOpacity
         accessibilityRole="button"
-        accessibilityLabel={`Etapa del cultivo: ${current.label}. Toca para cambiar.`}
+        accessibilityLabel={t(
+          `Etapa del cultivo: ${currentLabel}. Toca para cambiar.`,
+          `Crop stage: ${currentLabel}. Tap to change.`,
+        )}
         onPress={() => setOpen(true)}
         style={[styles.chip, { backgroundColor: colors.mapOverlay, borderColor: colors.border }]}
       >
         <Text style={styles.chipEmoji}>{current.emoji}</Text>
         <Text style={[styles.chipLabel, { color: colors.text }]} numberOfLines={1}>
-          {current.label}
+          {currentLabel}
         </Text>
         <Text style={[styles.chevron, { color: colors.textMuted }]}>▾</Text>
       </TouchableOpacity>
@@ -49,10 +55,12 @@ export const StageSelector: React.FC<Props> = ({ value, onChange, colors }) => {
             onPress={(e) => e.stopPropagation()}
           >
             <View style={styles.grabber} />
-            <Text style={[styles.title, { color: colors.text }]}>Etapa del cultivo</Text>
+            <Text style={[styles.title, { color: colors.text }]}>{t('Etapa del cultivo', 'Crop stage')}</Text>
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              Define qué evalúa el diagnóstico. TerraSense acompaña las cuatro etapas del ciclo,
-              no sólo la siembra.
+              {t(
+                'Define qué evalúa el diagnóstico. TerraSense acompaña las cuatro etapas del ciclo, no sólo la siembra.',
+                'It defines what the diagnosis evaluates. TerraSense supports all four crop-cycle stages, not only planting.',
+              )}
             </Text>
 
             <ScrollView style={{ maxHeight: 420 }}>
@@ -79,11 +87,11 @@ export const StageSelector: React.FC<Props> = ({ value, onChange, colors }) => {
                     <Text style={styles.optionEmoji}>{s.emoji}</Text>
                     <View style={{ flex: 1 }}>
                       <Text style={[styles.optionLabel, { color: colors.text }]}>
-                        {s.label}
+                        {language === 'en' ? s.labelEn : s.label}
                         {active ? '  ✓' : ''}
                       </Text>
                       <Text style={[styles.optionFocus, { color: colors.textSecondary }]}>
-                        {s.focus}
+                        {language === 'en' ? s.focusEn : s.focus}
                       </Text>
                     </View>
                   </TouchableOpacity>

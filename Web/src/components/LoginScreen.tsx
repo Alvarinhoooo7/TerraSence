@@ -42,6 +42,7 @@ export function LoginScreen() {
     setError(null);
     const { error: err } = await supabase.auth.resetPasswordForEmail(
       email.trim().toLowerCase(),
+      { redirectTo: window.location.origin },
     );
     if (err) setError(humanize(err.message));
     else setNotice('Te enviamos un enlace para elegir una contraseña nueva.');

@@ -13,13 +13,15 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useColorScheme,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
 
-import { Colors, Spacing, Typography, VERDICT_META } from '../constants/theme';
+import { Spacing, Typography, VERDICT_META } from '../constants/theme';
+import { useAppTheme } from '../hooks/useAppTheme';
+import { ScreenGuide } from '../components/ScreenGuide';
+import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { evaluateForStage, type StageAwareEvaluation } from '../engine/stageEvaluator';
 import { readSoilProbe } from '../services/probeService';
@@ -27,6 +29,7 @@ import { newClientUuid, saveMeasurement } from '../services/measurementsService'
 import { PHENOLOGICAL_STAGES, mapRowToPoint } from '../types/app';
 import type { SoilMeasurementInsert } from '../types/app';
 import type { SoilMeasurement } from '../types/agronomy';
+import { formatEngineMetric } from '../utils/units';
 
 const ENGINE_VERSION = '1.0.0';
 const CROP_CATALOG_VERSION = '1.0.0';
@@ -39,10 +42,10 @@ interface Props {
 }
 
 export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
-  const isDark = useColorScheme() === 'dark';
-  const colors = isDark ? Colors.dark : Colors.light;
+  const { isDark, colors } = useAppTheme();
+  const { language, t } = useTranslation();
 
-  const { stage, cropId, textureId, fieldName, device, addPoint, setPendingCount } =
+  const { stage, cropId, textureId, fieldName, device, preferences, addPoint, setPendingCount } =
     useAppStore();
 
   const [phase, setPhase] = useState<Phase>('idle');
@@ -62,22 +65,22 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
         Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.BestForNavigation,
         }).catch(() => null),
-        readSoilProbe(device?.id ?? null),
+        readSoilProbe(device?.device_code ?? null),
       ]);
 
       setCoords(pos?.coords ?? null);
       setRaw(probe.data);
       setSimulated(probe.simulated);
-      setEvaluation(evaluateForStage(probe.data, stage, cropId, textureId));
+      setEvaluation(evaluateForStage(probe.data, stage, cropId, textureId, preferences.language));
       setPhase('result');
     } catch (err) {
       setPhase('idle');
       Alert.alert(
-        'No se pudo medir',
-        err instanceof Error ? err.message : 'Error desconocido al leer la sonda.',
+        t('No se pudo medir', 'Could not measure'),
+        err instanceof Error ? err.message : t('Error desconocido al leer la sonda.', 'Unknown error while reading the probe.'),
       );
     }
-  }, [device, stage, cropId, textureId]);
+  }, [device, stage, cropId, textureId, preferences.language, t]);
 
   useEffect(() => {
     void runMeasurement();
@@ -87,8 +90,8 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     if (!evaluation || !raw) return;
     if (!coords) {
       Alert.alert(
-        'Sin posición GPS',
-        'No se pudo obtener la ubicación. La medición necesita coordenadas para aparecer en el mapa.',
+        t('Sin posición GPS', 'No GPS position'),
+        t('No se pudo obtener la ubicación. La medición necesita coordenadas para aparecer en el mapa.', 'Location could not be obtained. A reading needs coordinates to appear on the map.'),
       );
       return;
     }
@@ -147,7 +150,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     onDone();
   }, [
     evaluation, raw, coords, device, cropId, fieldName, stage, textureId,
-    addPoint, setPendingCount, onDone,
+    addPoint, setPendingCount, onDone, t,
   ]);
 
   const meta = evaluation ? VERDICT_META[evaluation.verdict] : null;
@@ -157,10 +160,12 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onCancel} hitSlop={12} style={styles.back}>
-          <Text style={{ color: colors.primary, ...Typography.bodyBold }}>‹ Volver</Text>
+          <Text style={{ color: colors.primary, ...Typography.bodyBold }}>‹ {t('Volver', 'Back')}</Text>
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>
-          {stageMeta ? `${stageMeta.emoji} ${stageMeta.label}` : 'Medición'}
+          {stageMeta
+            ? `${stageMeta.emoji} ${language === 'en' ? stageMeta.labelEn : stageMeta.label}`
+            : t('Medición', 'Measurement')}
         </Text>
         <View style={styles.back} />
       </View>
@@ -169,10 +174,10 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[styles.readingText, { color: colors.text }]}>
-            Leyendo la sonda…
+            {t('Leyendo la sonda…', 'Reading the probe…')}
           </Text>
           <Text style={[styles.readingHint, { color: colors.textSecondary }]}>
-            Mantén la sonda insertada y quieta hasta que termine.
+            {t('Mantén la sonda insertada y quieta hasta que termine.', 'Keep the probe inserted and still until it finishes.')}
           </Text>
         </View>
       )}
@@ -182,7 +187,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
           {simulated && (
             <View style={[styles.simBanner, { backgroundColor: colors.warning }]}>
               <Text style={styles.simText}>
-                DATOS SIMULADOS · no hay sonda emparejada
+                {t('DATOS SIMULADOS · no hay sonda emparejada', 'SIMULATED DATA · no paired probe')}
               </Text>
             </View>
           )}
@@ -194,7 +199,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
           </View>
 
           <Text style={[styles.section, { color: colors.textMuted }]}>
-            QUÉ HACER EN ESTA ETAPA
+            {t('QUÉ HACER EN ESTA ETAPA', 'WHAT TO DO AT THIS STAGE')}
           </Text>
           <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Text style={[styles.actionText, { color: colors.text }]}>
@@ -204,7 +209,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
 
           {evaluation.alerts.length > 0 && (
             <>
-              <Text style={[styles.section, { color: colors.textMuted }]}>ALERTAS</Text>
+              <Text style={[styles.section, { color: colors.textMuted }]}>{t('ALERTAS', 'ALERTS')}</Text>
               {evaluation.alerts.map((a, i) => (
                 <View
                   key={`${a.param}-${i}`}
@@ -227,21 +232,29 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
             </>
           )}
 
-          <Text style={[styles.section, { color: colors.textMuted }]}>LECTURAS</Text>
+          <Text style={[styles.section, { color: colors.textMuted }]}>{t('LECTURAS', 'READINGS')}</Text>
           <View style={styles.grid}>
-            {Object.entries(evaluation.metrics).map(([key, m]) => (
-              <View
-                key={key}
-                style={[styles.metric, { backgroundColor: colors.card, borderColor: colors.border }]}
-              >
-                <Text style={[styles.metricKey, { color: colors.textMuted }]}>
-                  {key.toUpperCase()}
-                </Text>
-                <Text style={[styles.metricVal, { color: colors.text }]}>
-                  {m.val.toFixed(1)} {m.unit}
-                </Text>
-              </View>
-            ))}
+            {Object.entries(evaluation.metrics).map(([key, m]) => {
+              const display = formatEngineMetric(
+                key,
+                m.val,
+                m.unit,
+                preferences.measurementSystem,
+              );
+              return (
+                <View
+                  key={key}
+                  style={[styles.metric, { backgroundColor: colors.card, borderColor: colors.border }]}
+                >
+                  <Text style={[styles.metricKey, { color: colors.textMuted }]}>
+                    {key.toUpperCase()}
+                  </Text>
+                  <Text style={[styles.metricVal, { color: colors.text }]}>
+                    {display.value.toFixed(1)} {display.unit}
+                  </Text>
+                </View>
+              );
+            })}
           </View>
 
           {coords && (
@@ -260,15 +273,16 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
             {phase === 'saving' ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.ctaText}>Guardar en el mapa</Text>
+              <Text style={styles.ctaText}>{t('Guardar en el mapa', 'Save to map')}</Text>
             )}
           </TouchableOpacity>
 
           <TouchableOpacity onPress={runMeasurement} style={styles.retry}>
-            <Text style={[styles.retryText, { color: colors.primary }]}>Volver a medir</Text>
+            <Text style={[styles.retryText, { color: colors.primary }]}>{t('Volver a medir', 'Measure again')}</Text>
           </TouchableOpacity>
         </ScrollView>
       )}
+      <ScreenGuide guideId="measure" />
     </SafeAreaView>
   );
 };

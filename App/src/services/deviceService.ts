@@ -2,14 +2,13 @@
 //
 // Alta y vinculación de equipos.
 //
-// El código de 15 dígitos lo genera Postgres por DEFAULT
-// (`public.generate_device_code()`), no el cliente: así la unicidad la
-// garantiza el índice UNIQUE y no un acuerdo de buena fe entre plataformas.
-// `generateDeviceId()` del cliente existe sólo para previsualización.
+// El alta de una sonda físicamente emparejada usa una RPC atómica que crea el
+// equipo y la membresía owner. El código debe coincidir con el provisionado en
+// NVS y su unicidad continúa respaldada por el índice UNIQUE de Postgres.
 
 import { supabase } from './supabase';
 import { normalizeDeviceId, isValidDeviceId } from '../utils/deviceId';
-import type { DeviceRow } from '../types/app';
+import type { DeviceMembershipRow, DeviceRow } from '../types/app';
 
 const DEVICE_COLUMNS =
   'id,device_code,name,alias,battery_level,firmware_version,hardware_version,' +
@@ -27,25 +26,54 @@ export async function listMyDevices(): Promise<DeviceRow[]> {
   return (data ?? []) as unknown as DeviceRow[];
 }
 
+/** Roles del usuario actual, usados para mostrar acciones de administración. */
+export async function listMyDeviceMemberships(): Promise<DeviceMembershipRow[]> {
+  const { data, error } = await supabase
+    .from('device_members')
+    .select('device_id,role,is_authorized');
+
+  if (error) throw error;
+  return (data ?? []) as unknown as DeviceMembershipRow[];
+}
+
 /**
  * Registra un equipo nuevo.
  *
- * No se envía `device_code`: lo genera la base. El trigger
- * `link_device_creator` inserta la membresía del creador justo después, de
- * modo que la política SELECT ya lo deja verlo al volver.
+ * Fuera del pairing no se envía `device_code`: lo genera la base. Durante el
+ * pairing se envía el mismo código criptográfico que la app acaba de grabar
+ * en la NVS del ESP32; el índice UNIQUE sigue siendo la autoridad final.
+ * El trigger `link_device_creator` inserta la membresía del creador justo
+ * después, de modo que la política SELECT ya lo deja verlo al volver.
  */
-export async function registerDevice(name: string): Promise<DeviceRow> {
-  const { data, error } = await supabase
-    .from('devices')
-    .insert({
-      name: name.trim() || 'Sonda TerraSense',
-      hardware_version: 'ESP32-WROOM-32',
-      microclimate_sensor_type: 'BME280',
-    })
-    .select(DEVICE_COLUMNS)
-    .single();
+export async function registerDevice(name: string, pairedCode: string): Promise<DeviceRow> {
+  const code = normalizeDeviceId(pairedCode);
+  if (!isValidDeviceId(code)) {
+    throw new Error('La sonda entregó un código de vinculación inválido.');
+  }
 
-  if (error) throw error;
+  const { data: registered, error } = await supabase.rpc('register_paired_device', {
+    p_code: code,
+    p_name: name.trim() || 'Sonda TerraSense',
+  });
+
+  if (error) {
+    if (error.code === '23505') {
+      throw new Error(
+        'Esta sonda ya tiene propietario. Pídele al administrador que te muestre su QR.',
+      );
+    }
+    throw error;
+  }
+
+  const result = registered as { device_id: string }[] | null;
+  if (!result?.[0]?.device_id) throw new Error('Supabase no confirmó el registro del equipo.');
+
+  const { data, error: readError } = await supabase
+    .from('devices')
+    .select(DEVICE_COLUMNS)
+    .eq('id', result[0].device_id)
+    .single();
+  if (readError) throw readError;
   return data as unknown as DeviceRow;
 }
 
@@ -65,14 +93,18 @@ export async function joinDeviceByCode(rawCode: string): Promise<DeviceRow> {
     throw new Error('El código debe tener 15 dígitos y no empezar por cero.');
   }
 
-  const { error } = await supabase.rpc('join_device_by_code', { p_code: code });
+  const { data: joined, error } = await supabase.rpc('join_device_by_code', { p_code: code });
   if (error) throw new Error(error.message);
+  const result = joined as { device_id: string; device_name: string }[] | null;
+  if (!result?.[0]?.device_id) {
+    throw new Error('No se pudo vincular con ese código.');
+  }
 
   // Tras la vinculación el equipo ya es visible para la política SELECT.
   const { data, error: readError } = await supabase
     .from('devices')
     .select(DEVICE_COLUMNS)
-    .eq('device_code', code)
+    .eq('id', result[0].device_id)
     .single();
 
   if (readError) throw readError;

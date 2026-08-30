@@ -2,6 +2,7 @@
 import { create } from 'zustand';
 import type { PhenologicalStage, MapMeasurementPoint, DeviceRow } from '../types/app';
 import type { CropId, SoilTextureId } from '../types/agronomy';
+import { DEFAULT_APP_PREFERENCES, type AppPreferences } from '../types/preferences';
 
 interface AppState {
   /** Etapa fenológica activa. Determina QUÉ evalúa el semáforo, no es un filtro. */
@@ -16,6 +17,8 @@ interface AppState {
 
   isSyncing: boolean;
   pendingCount: number;
+  preferences: AppPreferences;
+  preferencesLoaded: boolean;
 
   setStage: (s: PhenologicalStage) => void;
   setCrop: (c: CropId) => void;
@@ -27,6 +30,8 @@ interface AppState {
   selectPoint: (id: string | null) => void;
   setSyncing: (v: boolean) => void;
   setPendingCount: (n: number) => void;
+  setPreferences: (preferences: AppPreferences) => void;
+  setPreferencesLoaded: (loaded: boolean) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -41,6 +46,8 @@ export const useAppStore = create<AppState>((set) => ({
 
   isSyncing: false,
   pendingCount: 0,
+  preferences: DEFAULT_APP_PREFERENCES,
+  preferencesLoaded: false,
 
   setStage: (stage) => set({ stage }),
   setCrop: (cropId) => set({ cropId }),
@@ -52,4 +59,6 @@ export const useAppStore = create<AppState>((set) => ({
   selectPoint: (selectedPointId) => set({ selectedPointId }),
   setSyncing: (isSyncing) => set({ isSyncing }),
   setPendingCount: (pendingCount) => set({ pendingCount }),
+  setPreferences: (preferences) => set({ preferences }),
+  setPreferencesLoaded: (preferencesLoaded) => set({ preferencesLoaded }),
 }));

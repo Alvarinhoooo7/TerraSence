@@ -20,19 +20,26 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useColorScheme,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { Circle, Marker, Polygon, PROVIDER_GOOGLE, type Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 
-import { Colors, Spacing, Typography, VERDICT_META } from '../constants/theme';
+import { Spacing, Typography, VERDICT_META } from '../constants/theme';
+import { useAppTheme } from '../hooks/useAppTheme';
 import { useAppStore } from '../store/useAppStore';
 import { StageSelector } from '../components/StageSelector';
 import { FieldPicker } from '../components/FieldPicker';
 import { MeasurementBottomSheet } from '../components/MeasurementBottomSheet';
-import { fetchMeasurements, flushQueue, pendingCount } from '../services/measurementsService';
+import { ScreenGuide } from '../components/ScreenGuide';
+import { useTranslation } from '../hooks/useTranslation';
+import {
+  fetchMeasurements,
+  flushQueue,
+  pendingCount,
+  pendingMeasurementPoints,
+} from '../services/measurementsService';
 import { getPerimeter, type LatLng } from '../services/perimeterService';
 import type { MapMeasurementPoint } from '../types/app';
 
@@ -62,9 +69,8 @@ export const MapScreen: React.FC<Props> = ({
   onOpenList,
   onOpenDetail,
 }) => {
-  const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
-  const colors = isDark ? Colors.dark : Colors.light;
+  const { isDark, colors } = useAppTheme();
+  const { t } = useTranslation();
 
   const mapRef = useRef<MapView>(null);
   const {
@@ -131,8 +137,16 @@ export const MapScreen: React.FC<Props> = ({
     try {
       const { sent } = await flushQueue();
       if (sent > 0) setPendingCount(await pendingCount());
-      const rows = await fetchMeasurements(fieldName);
-      setPoints(rows);
+      const [rows, localPoints] = await Promise.all([
+        fetchMeasurements(fieldName, device?.id),
+        pendingMeasurementPoints(fieldName, device?.id),
+      ]);
+      const remoteIds = new Set(rows.map((point) => point.id));
+      setPoints(
+        [...localPoints.filter((point) => !remoteIds.has(point.id)), ...rows].sort(
+          (a, b) => new Date(b.measuredAt).getTime() - new Date(a.measuredAt).getTime(),
+        ),
+      );
       setOffline(false);
       const per = await getPerimeter(fieldName);
       setPerimeter(per?.coordinates ?? []);
@@ -141,10 +155,16 @@ export const MapScreen: React.FC<Props> = ({
       // sigue siendo plenamente operativa. La nube nunca bloquea la medición.
       setOffline(true);
       setPendingCount(await pendingCount());
+      const localPoints = await pendingMeasurementPoints(fieldName, device?.id);
+      if (localPoints.length > 0) {
+        const current = useAppStore.getState().points;
+        const localIds = new Set(localPoints.map((point) => point.id));
+        setPoints([...localPoints, ...current.filter((point) => !localIds.has(point.id))]);
+      }
     } finally {
       setLoading(false);
     }
-  }, [fieldName, setPoints, setPendingCount]);
+  }, [device?.id, fieldName, setPoints, setPendingCount]);
 
   useEffect(() => {
     void load();
@@ -154,18 +174,20 @@ export const MapScreen: React.FC<Props> = ({
   const handleMeasure = useCallback(() => {
     if (gpsAccuracy != null && gpsAccuracy > GPS_ACCURACY_WARN_M) {
       Alert.alert(
-        'Señal GPS imprecisa',
-        `La precisión actual es de ±${Math.round(gpsAccuracy)} m. El punto puede quedar ` +
-          'desplazado en el mapa. Espera unos segundos a cielo abierto o mide igualmente.',
+        t('Señal GPS imprecisa', 'Inaccurate GPS signal'),
+        t(
+          `La precisión actual es de ±${Math.round(gpsAccuracy)} m. El punto puede quedar desplazado en el mapa. Espera unos segundos a cielo abierto o mide igualmente.`,
+          `Current accuracy is ±${Math.round(gpsAccuracy)} m. The point may be displaced on the map. Wait outdoors for a few seconds or measure anyway.`,
+        ),
         [
-          { text: 'Esperar', style: 'cancel' },
-          { text: 'Medir igual', onPress: onStartMeasurement },
+          { text: t('Esperar', 'Wait'), style: 'cancel' },
+          { text: t('Medir igual', 'Measure anyway'), onPress: onStartMeasurement },
         ],
       );
       return;
     }
     onStartMeasurement();
-  }, [gpsAccuracy, onStartMeasurement]);
+  }, [gpsAccuracy, onStartMeasurement, t]);
 
   return (
     <View style={styles.root}>
@@ -233,7 +255,7 @@ export const MapScreen: React.FC<Props> = ({
         <View style={styles.topBar} pointerEvents="box-none">
           <TouchableOpacity
             accessibilityRole="button"
-            accessibilityLabel="Ajustes"
+            accessibilityLabel={t('Ajustes', 'Settings')}
             onPress={onOpenSettings}
             style={[styles.iconBtn, { backgroundColor: colors.mapOverlay, borderColor: colors.border }]}
           >
@@ -246,7 +268,7 @@ export const MapScreen: React.FC<Props> = ({
             style={[styles.statusPill, { backgroundColor: colors.mapOverlay, borderColor: colors.border }]}
           >
             <Text style={[styles.statusText, { color: colors.text }]}>
-              {device ? `🔋 ${device.battery_level}%` : '📡 Sin equipo'}
+              {device ? `🔋 ${device.battery_level}%` : t('📡 Sin equipo', '📡 No device')}
             </Text>
           </View>
         </View>
@@ -255,20 +277,20 @@ export const MapScreen: React.FC<Props> = ({
           <FieldPicker value={fieldName} onChange={setFieldName} colors={colors} />
           <TouchableOpacity
             accessibilityRole="button"
-            accessibilityLabel="Dibujar el perímetro del predio"
+            accessibilityLabel={t('Dibujar el perímetro del predio', 'Draw field perimeter')}
             onPress={onOpenPerimeter}
             style={[styles.pendingPill, { backgroundColor: colors.mapOverlay, borderWidth: 1, borderColor: colors.border }]}
           >
-            <Text style={[styles.fieldText, { color: colors.text }]}>⬡ Perímetro</Text>
+            <Text style={[styles.fieldText, { color: colors.text }]}>⬡ {t('Perímetro', 'Perimeter')}</Text>
           </TouchableOpacity>
           {offline && (
             <View style={[styles.pendingPill, { backgroundColor: colors.secondary }]}>
-              <Text style={styles.pendingText}>Modo campo · sin señal</Text>
+              <Text style={styles.pendingText}>{t('Modo campo · sin señal', 'Field mode · offline')}</Text>
             </View>
           )}
           {pending > 0 && (
             <View style={[styles.pendingPill, { backgroundColor: colors.warning }]}>
-              <Text style={styles.pendingText}>{pending} sin sincronizar</Text>
+              <Text style={styles.pendingText}>{pending} {t('sin sincronizar', 'not synced')}</Text>
             </View>
           )}
         </View>
@@ -288,7 +310,7 @@ export const MapScreen: React.FC<Props> = ({
         <View style={styles.bottomBar} pointerEvents="box-none">
           <TouchableOpacity
             accessibilityRole="button"
-            accessibilityLabel="Centrar en mi ubicación"
+            accessibilityLabel={t('Centrar en mi ubicación', 'Center on my location')}
             onPress={centerOnUser}
             style={[styles.iconBtn, { backgroundColor: colors.mapOverlay, borderColor: colors.border }]}
           >
@@ -297,16 +319,16 @@ export const MapScreen: React.FC<Props> = ({
 
           <TouchableOpacity
             accessibilityRole="button"
-            accessibilityLabel="Realizar una medición ahora"
+            accessibilityLabel={t('Realizar una medición ahora', 'Take a measurement now')}
             onPress={handleMeasure}
             style={[styles.measureBtn, { backgroundColor: colors.primary }]}
           >
-            <Text style={styles.measureText}>⊕  MEDIR AHORA</Text>
+            <Text style={styles.measureText}>⊕  {t('MEDIR AHORA', 'MEASURE NOW')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             accessibilityRole="button"
-            accessibilityLabel="Ver mediciones en lista"
+            accessibilityLabel={t('Ver mediciones en lista', 'View readings as a list')}
             onPress={onOpenList}
             style={[styles.iconBtn, { backgroundColor: colors.mapOverlay, borderColor: colors.border }]}
           >
@@ -318,9 +340,10 @@ export const MapScreen: React.FC<Props> = ({
       {loading && (
         <View style={[styles.loading, { backgroundColor: colors.mapOverlay }]}>
           <ActivityIndicator color={colors.primary} />
-          <Text style={[styles.loadingText, { color: colors.text }]}>Cargando mediciones…</Text>
+          <Text style={[styles.loadingText, { color: colors.text }]}>{t('Cargando mediciones…', 'Loading readings…')}</Text>
         </View>
       )}
+      <ScreenGuide guideId="map" style={{ top: 166 }} />
     </View>
   );
 };

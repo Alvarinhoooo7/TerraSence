@@ -16,7 +16,14 @@
 
 import { BleManager, type Device, type Subscription } from 'react-native-ble-plx';
 import { Platform, PermissionsAndroid } from 'react-native';
-import { decodeTelemetry, TERRASENSE_SERVICE_UUID, TERRASENSE_TELEMETRY_UUID } from './probeService';
+import {
+  decodeTelemetry,
+  TERRASENSE_IDENTITY_UUID,
+  TERRASENSE_PROVISIONING_UUID,
+  TERRASENSE_SERVICE_UUID,
+  TERRASENSE_TELEMETRY_UUID,
+} from './probeService';
+import { isValidDeviceId, normalizeDeviceId } from '../utils/deviceId';
 import type { SoilMeasurement } from '../types/agronomy';
 
 const SCAN_TIMEOUT_MS = 12_000;
@@ -82,17 +89,48 @@ async function waitForPoweredOn(timeoutMs = 6000): Promise<void> {
   });
 }
 
-/** Busca la primera sonda TerraSense al alcance. */
-export async function scanForProbe(): Promise<Device> {
+const decodeBase64Text = (value?: string | null): string => {
+  if (!value) return '';
+  try {
+    return globalThis.atob(value);
+  } catch {
+    return '';
+  }
+};
+
+const encodeBase64Text = (value: string): string => globalThis.btoa(value);
+
+/** Código anunciado por el firmware para distinguir sondas cercanas. */
+function advertisedDeviceCode(device: Device): string | null {
+  const haystack = [
+    device.localName,
+    device.name,
+    decodeBase64Text(device.manufacturerData),
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const match = haystack.match(/[1-9]\d{14}/);
+  return match?.[0] ?? null;
+}
+
+/**
+ * Busca una sonda TerraSense al alcance. Cuando se entrega un código sólo
+ * acepta el anuncio de esa sonda; así una medición nunca termina asociada a
+ * otro equipo cercano.
+ */
+export async function scanForProbe(expectedDeviceCode?: string): Promise<Device> {
   const mgr = getManager();
   await waitForPoweredOn();
+  const expected = expectedDeviceCode ? normalizeDeviceId(expectedDeviceCode) : null;
 
   return new Promise<Device>((resolve, reject) => {
     const timer = setTimeout(() => {
       mgr.stopDeviceScan();
       reject(
         new Error(
-          'No se encontró ninguna sonda cerca. Comprueba que esté encendida y a menos de 30 metros.',
+          expected
+            ? 'No se encontró la sonda seleccionada. Comprueba que esté encendida y que su código coincida con el equipo activo.'
+            : 'No se encontró ninguna sonda cerca. Comprueba que esté encendida y a menos de 30 metros.',
         ),
       );
     }, SCAN_TIMEOUT_MS);
@@ -104,13 +142,91 @@ export async function scanForProbe(): Promise<Device> {
         reject(new Error(`Fallo al buscar la sonda: ${error.message}`));
         return;
       }
-      if (device) {
+      if (device && (!expected || advertisedDeviceCode(device) === expected)) {
         clearTimeout(timer);
         mgr.stopDeviceScan();
         resolve(device);
       }
     });
   });
+}
+
+export interface PairedProbeIdentity {
+  /** Identificador que entrega el sistema operativo para esta radio. */
+  bleId: string;
+  name: string;
+  /** Código ya provisionado, si el ESP32 conserva uno en NVS. */
+  assignedCode: string | null;
+}
+
+async function readAssignedCode(device: Device): Promise<string | null> {
+  try {
+    const characteristic = await device.readCharacteristicForService(
+      TERRASENSE_SERVICE_UUID,
+      TERRASENSE_IDENTITY_UUID,
+    );
+    const code = normalizeDeviceId(decodeBase64Text(characteristic.value));
+    return isValidDeviceId(code) ? code : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Comprueba presencia física de una sonda en modo pairing.
+ *
+ * El usuario debe mantener pulsado PAIR durante 3 segundos: sólo entonces el
+ * firmware anuncia el UUID de TerraSense. Conectar y descubrir los servicios
+ * evita registrar por accidente un anuncio BLE incompleto o un dispositivo
+ * que sólo suplante el nombre comercial.
+ */
+export async function pairWithNearbyProbe(): Promise<PairedProbeIdentity> {
+  const discovered = await scanForProbe();
+  let connected: Device | null = null;
+
+  try {
+    connected = await discovered.connect();
+    await connected.discoverAllServicesAndCharacteristics();
+    return {
+      bleId: connected.id,
+      name: connected.localName ?? connected.name ?? 'Sonda TerraSense',
+      assignedCode: await readAssignedCode(connected),
+    };
+  } finally {
+    if (connected) await connected.cancelConnection().catch(() => undefined);
+  }
+}
+
+/**
+ * Graba el Device ID de Supabase en la NVS del ESP32.
+ *
+ * El firmware sólo debe aceptar esta característica durante los 30 segundos
+ * posteriores a mantener PAIR por 3 s. Después anuncia `TerraSense-<código>`
+ * para que otros teléfonos puedan identificar la misma sonda sin depender de
+ * la MAC/UUID que asigna cada sistema operativo.
+ */
+export async function provisionProbe(bleId: string, rawCode: string): Promise<void> {
+  const code = normalizeDeviceId(rawCode);
+  if (!isValidDeviceId(code)) throw new Error('El código de provisión no es válido.');
+
+  const mgr = getManager();
+  let connected: Device | null = null;
+  try {
+    connected = await mgr.connectToDevice(bleId);
+    await connected.discoverAllServicesAndCharacteristics();
+    await connected.writeCharacteristicWithResponseForService(
+      TERRASENSE_SERVICE_UUID,
+      TERRASENSE_PROVISIONING_UUID,
+      encodeBase64Text(code),
+    );
+
+    const confirmed = await readAssignedCode(connected);
+    if (confirmed !== code) {
+      throw new Error('La sonda no confirmó el código. Mantén PAIR 3 segundos y reintenta.');
+    }
+  } finally {
+    if (connected) await connected.cancelConnection().catch(() => undefined);
+  }
 }
 
 /**
@@ -120,12 +236,12 @@ export async function scanForProbe(): Promise<Device> {
  * en estabilizarse: el firmware notifica cuando el dato es válido, en lugar de
  * devolver una lectura prematura.
  */
-export async function readTelemetryOverBle(deviceId?: string): Promise<SoilMeasurement> {
+export async function readTelemetryOverBle(deviceCode?: string): Promise<SoilMeasurement> {
   const mgr = getManager();
   let connected: Device | null = null;
 
   try {
-    const target = deviceId ? await mgr.connectToDevice(deviceId) : await (await scanForProbe()).connect();
+    const target = await (await scanForProbe(deviceCode)).connect();
     connected = target;
 
     await target.discoverAllServicesAndCharacteristics();

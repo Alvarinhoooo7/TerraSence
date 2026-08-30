@@ -34,7 +34,25 @@ interface ExpoMessage {
   sound: 'default';
   priority: 'high' | 'normal';
   data: Record<string, unknown>;
+  channelId: 'agronomic' | 'device' | 'weather' | 'sync';
 }
+
+type NotificationCategory = 'agronomic' | 'device' | 'weather' | 'sync';
+
+const categoryFor = (raw: unknown): NotificationCategory => {
+  const category = String(raw ?? 'agronomic');
+  return category === 'device' || category === 'weather' || category === 'sync'
+    ? category
+    : 'agronomic';
+};
+
+const preferenceAllows = (raw: unknown, category: NotificationCategory): boolean => {
+  if (!raw || typeof raw !== 'object') return category !== 'sync';
+  const notifications = (raw as { notifications?: unknown }).notifications;
+  if (!notifications || typeof notifications !== 'object') return category !== 'sync';
+  const value = (notifications as Record<string, unknown>)[category];
+  return category === 'sync' ? value === true : value !== false;
+};
 
 Deno.serve(async (req: Request): Promise<Response> => {
   if (req.method !== 'POST') {
@@ -72,6 +90,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   // Destinatarios: el usuario de la alerta, o todos los miembros del equipo.
   const messages: ExpoMessage[] = [];
   const dispatched: string[] = [];
+  const skippedByPreference: string[] = [];
 
   for (const alert of alerts) {
     const userIds: string[] = [];
@@ -91,12 +110,22 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('id,push_token')
+      .select('id,push_token,app_preferences')
       .in('id', userIds)
       .not('push_token', 'is', null);
 
+    const category = categoryFor(alert.category);
+    let eligible = 0;
+    let considered = 0;
+    let disabledByPreference = 0;
     for (const p of profiles ?? []) {
       if (!p.push_token) continue;
+      considered += 1;
+      if (!preferenceAllows(p.app_preferences, category)) {
+        disabledByPreference += 1;
+        continue;
+      }
+      eligible += 1;
       messages.push({
         to: p.push_token,
         title: alert.title,
@@ -104,16 +133,27 @@ Deno.serve(async (req: Request): Promise<Response> => {
         sound: 'default',
         priority: alert.severity === 'critical' ? 'high' : 'normal',
         data: { alert_id: alert.id, category: alert.category, device_id: alert.device_id },
+        channelId: category,
       });
     }
-    dispatched.push(alert.id);
+    if (eligible > 0) dispatched.push(alert.id);
+    else if (considered > 0 && disabledByPreference === considered) {
+      skippedByPreference.push(alert.id);
+    }
   }
 
   if (messages.length === 0) {
+    if (skippedByPreference.length > 0) {
+      await supabase
+        .from('push_alerts')
+        .update({ is_read: true })
+        .in('id', skippedByPreference);
+    }
     return json({
       success: true,
       sent: 0,
-      message: 'Alertas sin destinatarios con token de notificación registrado',
+      skipped_by_preference: skippedByPreference.length,
+      message: 'Alertas sin destinatarios habilitados',
     });
   }
 

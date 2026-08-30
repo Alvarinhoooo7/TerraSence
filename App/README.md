@@ -60,7 +60,7 @@ herramienta tiene que funcionar.
 
 ```text
 App/
-├── App.tsx                     Raíz: puerta de autenticación y enrutado
+├── App.tsx                     Raíz: autenticación, onboarding y enrutado
 ├── index.ts                    Punto de entrada de Expo
 ├── app.config.js               Permisos y claves por variable de entorno
 ├── src/
@@ -71,24 +71,31 @@ App/
 │   │   ├── MapScreen.tsx       PANTALLA PRINCIPAL
 │   │   ├── MeasureScreen.tsx   Captura → diagnóstico → guardado
 │   │   ├── AuthScreen.tsx      Registro, sesión y recuperación de contraseña
+│   │   ├── OnboardingScreen.tsx QR de administrador o pairing del propietario
 │   │   ├── HistoryScreen.tsx   Mediciones en lista, por día y etapa
 │   │   ├── DevicesScreen.tsx   Alta de equipo y código de 15 dígitos
 │   │   └── FieldSettingsScreen.tsx  Predio, cultivo y textura
 │   ├── components/
 │   │   ├── StageSelector.tsx   Etapa fenológica
 │   │   ├── FieldPicker.tsx     Selección y alta de predios
+│   │   ├── ScreenGuide.tsx     Guía contextual persistente por pantalla
+│   │   ├── MeasurementDetailModal.tsx  Detalle completo de una medición
 │   │   └── MeasurementBottomSheet.tsx  Burbuja de detalle
 │   ├── services/
 │   │   ├── bleService.ts       Enlace BLE
 │   │   ├── probeService.ts     Decodificación de la trama de 16 bytes
 │   │   ├── measurementsService.ts  Cola offline idempotente
 │   │   ├── deviceService.ts    Equipos y vinculación por código
+│   │   ├── onboardingService.ts Estado persistente del onboarding en Supabase
+│   │   ├── preferencesService.ts Preferencias por cuenta y caché local
 │   │   ├── fieldsService.ts    Predios
 │   │   ├── notifications.ts    Token de notificaciones
 │   │   └── supabase.ts         Cliente
 │   ├── store/useAppStore.ts    Estado global (Zustand)
 │   ├── types/                  Tipos alineados con el esquema real
-│   └── utils/deviceId.ts       Device ID de 15 dígitos
+│   └── utils/                  Device ID/QR, unidades y estado de onboarding
+├── tests/                      Pruebas unitarias Node ejecutables
+├── scripts/verify-supabase-onboarding.mjs  Prueba E2E remota con limpieza
 └── plugins/withAndroidSecurity.js
 ```
 
@@ -96,14 +103,19 @@ App/
 
 ## 4. Pantallas y navegación
 
-Enrutado propio por estado en `App.tsx`, sin librería de navegación: hay cinco pantallas y una
-puerta de sesión, y meter React Navigation costaría más de lo que aporta.
+Enrutado propio por estado en `App.tsx`, sin librería de navegación: cubre autenticación,
+onboarding, mapa, medición, historial, configuración, equipos y perímetro.
 
 ```text
                     ┌──────────────┐
       sin sesión ──►│  AuthScreen  │
                     └──────┬───────┘
-                           ▼ con sesión
+                           ▼ cuenta nueva
+                    ┌──────────────────┐
+                    │ OnboardingScreen │── QR de administrador
+                    │  (sólo una vez)  │── pairing primer propietario
+                    └────────┬─────────┘
+                             ▼ cuenta vinculada
                     ┌──────────────┐
         ┌───────────┤   MapScreen  ├───────────┐
         │           └──────┬───────┘           │
@@ -154,7 +166,9 @@ Sonda 7-en-1 ──RS-485 Modbus──► ESP32 ──BLE GATT notify (16 B)─�
 ```
 
 - Servicio: `00000001-5e4e-4c69-6d61-746572726101`
-- Característica: `00000002-5e4e-4c69-6d61-746572726102`
+- Telemetría *notify*: `00000002-5e4e-4c69-6d61-746572726102`
+- Identidad *read*: `00000003-5e4e-4c69-6d61-746572726103`
+- Provisionamiento *write with response*: `00000004-5e4e-4c69-6d61-746572726104`
 
 Se usa **notify y no read** porque la sonda tarda en estabilizarse: el firmware avisa cuando el dato
 ya es válido, en vez de devolver una lectura prematura.
@@ -184,8 +198,9 @@ Medición ──► ¿hay red? ──sí──► upsert por client_uuid ──�
           AsyncStorage (cola) ──► al recuperar señal: flushQueue()
 ```
 
-De la cola local sólo se elimina lo que el servidor confirmó. Lo que falla se conserva para el
-siguiente intento.
+La cola se escribe **antes** del intento de red, se separa por cuenta y sólo elimina lo que el
+servidor confirmó. Lo que falla se conserva para el siguiente intento y vuelve a aparecer en mapa
+e historial después de reiniciar la app.
 
 ---
 
@@ -219,6 +234,8 @@ npx expo start                         # servidor de desarrollo
 npx expo run:android                   # development build (necesaria para BLE)
 
 npm run type-check                     # tsc --noEmit
+npm test                               # 16 pruebas unitarias del contrato
+npm run test:supabase-onboarding       # E2E remoto; necesita service role local
 npx expo export --platform android     # verifica que el paquete COMPILA de verdad
 npx expo install --fix                 # realinea dependencias al SDK
 ```
@@ -238,18 +255,111 @@ npx expo install --fix                 # realinea dependencias al SDK
 | **Áreas táctiles de 48 dp** | Se opera con guantes de trabajo |
 | **No se precargan teselas** | Los Términos de Google Maps Platform lo prohíben. Se degrada a fondo neutro |
 | **`Spacing.touchTarget` y tipografía ≥ 16 sp** | Legibilidad en terreno, no estética |
-| **El Device ID lo genera Postgres** | La unicidad la garantiza el índice `UNIQUE`, no un acuerdo entre plataformas |
+| **Un Device ID une hardware y nube** | En pairing la app genera el código, lo confirma en la NVS del ESP32 y la RPC `register_paired_device` registra exactamente el mismo valor junto con la membresía owner. El índice `UNIQUE` sigue siendo la autoridad final |
+| **Onboarding persistido en Supabase** | `profiles.onboarding_completed_at` y la membresía del equipo sobreviven a reinstalaciones y cambios de teléfono |
+| **Reapertura offline segura** | Una cuenta ya verificada conserva localmente su estado y equipo; una cuenta nunca verificada no puede saltarse el onboarding sin consultar al servidor |
+| **La medición busca el código seleccionado** | El firmware anuncia `TerraSense-<device_code>` y la app filtra por ese valor; nunca asigna al equipo activo la lectura de otra sonda cercana |
+| **Preferencias por cuenta** | Tema, idioma, sistema métrico/imperial, categorías de notificación y guías vistas viven en `profiles.app_preferences` y también tienen caché local |
+| **Guía independiente en cada pantalla** | El botón `?` reabre la ayuda; su apertura automática ocurre sólo la primera vez por cuenta |
+| **Cola offline por cuenta** | Evita cruzar mediciones cuando distintas personas usan el mismo teléfono y mantiene visibles los puntos pendientes tras reiniciar |
 
 ---
 
 ## 11. Pendientes conocidos
 
-- ⚠️ **El enlace BLE nunca ha hablado con hardware real.** Compila y está escrito con cuidado, pero
-  es el único bloque sin verificar. Al probarlo, confirmar también el mapa de registros Modbus con
-  el vendedor de la sonda.
-- Dibujar el perímetro del predio sobre el mapa.
-- Escáner QR para vincular equipos (hoy se vincula tecleando el código de 15 dígitos).
-- Estado detallado por variable al abrir un punto (hoy muestra un resumen).
+### 11.1. Estado exacto entregado el 30 de agosto de 2026
+
+Este bloque está implementado y versionado para que la próxima sesión no tenga que redescubrirlo:
+
+- Onboarding con **sólo dos rutas**: QR/código del administrador y pairing BLE del primer owner.
+- El alta física provisiona el mismo código de 15 dígitos en NVS y Supabase mediante
+  `register_paired_device`; el INSERT directo de `devices` está cerrado por RLS.
+- El QR crea y autoriza la membresía `operator`, persiste el onboarding dentro de la misma
+  transacción y limita a diez los códigos inexistentes por cuenta/hora.
+- Operadores no pueden autopromoverse ni modificar metadatos globales del equipo. Sólo
+  `owner`/`admin` puede hacerlo.
+- `profiles.onboarding_*`, la membresía y una caché local por UID permiten reinstalar/iniciar
+  sesión sin repetir pasos. Un sello huérfano sin equipo accesible **no** permite saltar el flujo.
+- Preferencias por cuenta: tema sistema/claro/oscuro, español/inglés, métrico/imperial,
+  categorías de notificación y guías vistas.
+- Guía `?` independiente en las ocho pantallas; detalle completo de mediciones; mapa e historial
+  filtrados por equipo; cola offline escrita primero, separada por cuenta y restaurable al reinicio.
+- Supabase tiene **18 migraciones alineadas local/remoto** y `send-push-alert` está desplegada.
+- Verificación actual: pruebas unitarias, TypeScript, Expo Doctor, bundle Android y un E2E remoto
+  que crea usuarios/equipo temporales, valida 12 invariantes de RLS/onboarding y limpia todo.
+
+### 11.2. P0 — bloqueantes antes de declarar el producto listo para terreno
+
+1. **Implementar o incorporar el firmware ESP32 real.** Este repositorio todavía no contiene un
+   proyecto PlatformIO/Arduino que implemente los cuatro UUID GATT, ventana física de pairing,
+   NVS, anuncio `TerraSense-<device_code>`, Modbus RTU, telemetría y retorno a *deep sleep*.
+2. **Probar BLE contra hardware**, no sólo bundle: Android físico y luego iPhone; pairing nuevo,
+   reintento tras corte de red, sonda ya provisionada, dos sondas cercanas, timeouts, desconexión
+   y consumo de batería. Expo Go no sirve; usar `npx expo run:android` o EAS development build.
+3. **Confirmar el mapa Modbus con la ficha o banco del proveedor.** Verificar dirección, orden,
+   escala, signo y CRC de los siete registros. Temperatura negativa ya se decodifica como `int16`,
+   pero la trama completa sigue pendiente de contraste con una sonda real.
+4. **Configurar EAS de producción:** `projectId`, credenciales Android/iOS, firma, token Expo Push,
+   perfiles de build y prueba de instalación limpia. Hoy sólo se verificó `expo export`.
+5. **Cerrar recuperación de contraseña móvil.** Crear `ResetPasswordScreen`, escuchar
+   `PASSWORD_RECOVERY`, usar `terrasense://reset-password`, añadirlo a los redirects de Supabase y
+   probar el enlace con la app instalada. Web ya tiene este flujo; la app todavía no.
+6. **Validar SMTP móvil de extremo a extremo.** El backend y las plantillas fueron configurados,
+   pero en esta máquina `GMAIL_APP_PASSWORD` no está exportada y el CLI avisa. No ejecutar
+   `supabase config push` a ciegas: primero cargar el secreto y confirmar que el remoto conserva SMTP.
+
+### 11.3. P1 — siguiente sesión extensa de producto
+
+- Administración de miembros: listar operadores, revocar acceso, promover a admin, transferir
+  propiedad y mostrar auditoría. Mantener todas esas mutaciones detrás de RPCs validadas.
+- Desafío criptográfico de pairing firmado por el firmware. La UI exige presencia BLE, pero una
+  llamada API fabricada aún podría invocar `register_paired_device` con un código aleatorio; el
+  desafío es lo que convertiría presencia física en prueba verificable por el servidor.
+- Historial avanzado: rango de fechas, búsqueda, notas/cuadrante, edición controlada, eliminación,
+  exportación CSV/PDF y comparación temporal por punto/predio.
+- Mapa con clustering al superar ~50 puntos, leyenda visible, heatmap/IDW opcional y selector claro
+  del equipo activo. No prometer teselas Google offline; cambiar de proveedor si eso se exige.
+- Productores reales para notificaciones `device`, `weather` y `sync`. Los toggles y el filtrado
+  remoto existen, pero hoy el productor automático principal es la alerta `agronomic`.
+- Receipts de Expo Push, limpieza de tokens inválidos, navegación al detalle al tocar una alerta y
+  prueba en Android 13+/iOS con permisos denegados/revocados.
+- Traducir `metric.msg`, nombres internos restantes y payloads históricos. Navegación, controles,
+  veredictos, alertas y acciones nuevas ya son bilingües.
+- Sustituir datos simulados por una bandera de compilación: permitidos en demo/desarrollo y
+  imposibles en una build productiva aunque el banner exista.
+
+### 11.4. P2 — robustez, seguridad y calidad
+
+- Mover el código de vinculación/cache sensible desde AsyncStorage a SecureStore o cifrado local;
+  `allowBackup=false` ya reduce exposición, pero no protege un teléfono rooteado.
+- Pruebas UI/E2E con Maestro/Detox para cámara, permisos, onboarding, cambio de idioma/tema,
+  medición offline, reinicio y sincronización. Mantener el verificador remoto actual en CI con un
+  proyecto Supabase de staging, nunca con producción.
+- Añadir pruebas SQL de políticas y triggers con Supabase local. Requiere Docker Desktop, que no
+  estaba disponible en esta sesión.
+- Revisar las 17 vulnerabilidades transitivas reportadas por `npm audit` (Expo/Metro). No ejecutar
+  `npm audit fix --force`: hoy propone saltos incompatibles; resolver al migrar a un SDK soportado.
+- Observabilidad: reporte de fallos BLE/sync sin datos agronómicos sensibles, métricas de cola y
+  trazabilidad de versión de firmware/motor.
+- Accesibilidad con TalkBack/VoiceOver, tamaño de fuente aumentado, contraste bajo sol y operación
+  con guantes en un dispositivo físico.
+
+### 11.5. P3 — publicación y operación
+
+- Política de privacidad, consentimiento, eliminación/exportación de cuenta, retención de datos y
+  revisión final bajo Ley chilena 21.719.
+- Rotar/restringir claves de Google Maps, configurar SHA-1/bundle ID y separar staging/producción.
+- Pipeline CI: `npm ci`, tests, type-check, Expo export, build Web y dry-run de migraciones.
+- Despliegue en stores, capturas, ficha, canal beta, monitoreo de crashes y procedimiento de rollback.
+
+### 11.6. Orden recomendado para retomar
+
+1. Firmware mínimo con identidad/provisionamiento/telemetría.
+2. Development build Android + prueba de pairing y una medición real.
+3. Recuperación de contraseña móvil.
+4. Administración de miembros y desafío firmado de pairing.
+5. Historial/mapa avanzados y notificaciones restantes.
+6. Automatización CI, seguridad final y publicación.
 
 El estado completo y ordenado está en [`MIGRACION_AKURA.md`](../MIGRACION_AKURA.md).
 

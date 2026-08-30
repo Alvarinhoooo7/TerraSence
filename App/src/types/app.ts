@@ -6,6 +6,8 @@
 
 import type { Verdict } from './agronomy';
 
+export type OnboardingMethod = 'qr' | 'pairing';
+
 /** Las 4 etapas del ciclo productivo. TerraSense no es exclusivo de siembra. */
 export type PhenologicalStage =
   | 'pre_siembra'
@@ -16,33 +18,43 @@ export type PhenologicalStage =
 export const PHENOLOGICAL_STAGES: {
   id: PhenologicalStage;
   label: string;
+  labelEn: string;
   emoji: string;
   /** Qué evalúa prioritariamente el semáforo en esta etapa. */
   focus: string;
+  focusEn: string;
 }[] = [
   {
     id: 'pre_siembra',
     label: 'Pre-siembra',
+    labelEn: 'Pre-planting',
     emoji: '🌱',
     focus: 'Temperatura sobre el cero vegetativo, pH sin bloqueos y salinidad de germinación',
+    focusEn: 'Temperature above the growth threshold, available pH and germination salinity',
   },
   {
     id: 'vegetativo',
     label: 'Vegetativo',
+    labelEn: 'Vegetative',
     emoji: '🌿',
     focus: 'Nitrógeno disponible, humedad radicular y riesgo de asfixia',
+    focusEn: 'Available nitrogen, root-zone moisture and waterlogging risk',
   },
   {
     id: 'floracion',
     label: 'Floración',
+    labelEn: 'Flowering',
     emoji: '🌸',
     focus: 'Estrés salino e hídrico: un exceso de sales provoca aborto floral',
+    focusEn: 'Salt and water stress: excessive salts can cause flower abortion',
   },
   {
     id: 'cosecha',
     label: 'Cosecha',
+    labelEn: 'Harvest',
     emoji: '🌾',
     focus: 'Secado superficial para transitabilidad y agotamiento de nutrientes',
+    focusEn: 'Surface drying for trafficability and nutrient depletion',
   },
 ];
 
@@ -111,6 +123,12 @@ export interface DeviceRow {
   transmission_interval_seconds: number;
   last_seen_at: string | null;
   last_measurement_at: string | null;
+}
+
+export interface DeviceMembershipRow {
+  device_id: string;
+  role: 'owner' | 'admin' | 'operator' | string;
+  is_authorized: boolean;
 }
 
 /** Fila de `public.predial_quadrants`. */

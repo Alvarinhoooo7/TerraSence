@@ -7,6 +7,9 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { PHENOLOGICAL_STAGES, type MapMeasurementPoint } from '../types/app';
 import { Spacing, Typography, VERDICT_META, type ThemeColors } from '../constants/theme';
+import { useAppStore } from '../store/useAppStore';
+import { formatTemperature } from '../utils/units';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface Props {
   point: MapMeasurementPoint | null;
@@ -17,14 +20,14 @@ interface Props {
 }
 
 /** Antigüedad en lenguaje natural: el agricultor piensa en "hace 2 h". */
-const relativeAge = (iso: string): string => {
+const relativeAge = (iso: string, en: boolean): string => {
   const min = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
-  if (min < 1) return 'recién medido';
-  if (min < 60) return `hace ${min} min`;
+  if (min < 1) return en ? 'just measured' : 'recién medido';
+  if (min < 60) return en ? `${min} min ago` : `hace ${min} min`;
   const h = Math.round(min / 60);
-  if (h < 24) return `hace ${h} h`;
+  if (h < 24) return en ? `${h} h ago` : `hace ${h} h`;
   const d = Math.round(h / 24);
-  return d === 1 ? 'ayer' : `hace ${d} días`;
+  return d === 1 ? (en ? 'yesterday' : 'ayer') : en ? `${d} days ago` : `hace ${d} días`;
 };
 
 export const MeasurementBottomSheet: React.FC<Props> = ({
@@ -34,20 +37,24 @@ export const MeasurementBottomSheet: React.FC<Props> = ({
   onClose,
   onOpenDetail,
 }) => {
+  const measurementSystem = useAppStore((state) => state.preferences.measurementSystem);
+  const { language, t } = useTranslation();
+  const en = language === 'en';
   if (!point) return null;
 
   const meta = VERDICT_META[point.verdict];
   const stroke = isDark ? meta.strokeDark : meta.strokeLight;
   const stage = PHENOLOGICAL_STAGES.find((s) => s.id === point.stage);
 
+  const temperature = formatTemperature(point.soilTempC, measurementSystem);
   const metrics: { label: string; value: string }[] = [
     { label: 'pH', value: point.ph.toFixed(1) },
     { label: 'CE', value: `${Math.round(point.ecUsCm)} µS/cm` },
-    { label: 'Humedad', value: `${point.vwcPercent.toFixed(0)} %` },
-    { label: 'T° suelo', value: `${point.soilTempC.toFixed(1)} °C` },
-    { label: 'N', value: `${Math.round(point.nitrogen)} mg/kg` },
-    { label: 'P', value: `${Math.round(point.phosphorus)} mg/kg` },
-    { label: 'K', value: `${Math.round(point.potassium)} mg/kg` },
+    { label: t('Humedad', 'Moisture'), value: `${point.vwcPercent.toFixed(0)} %` },
+    { label: t('T° suelo', 'Soil temp.'), value: `${temperature.value.toFixed(1)} ${temperature.unit}` },
+    { label: 'N', value: `${Math.round(point.nitrogen)} ppm` },
+    { label: 'P', value: `${Math.round(point.phosphorus)} ppm` },
+    { label: 'K', value: `${Math.round(point.potassium)} ppm` },
   ];
 
   return (
@@ -70,7 +77,7 @@ export const MeasurementBottomSheet: React.FC<Props> = ({
         <TouchableOpacity
           onPress={onClose}
           accessibilityRole="button"
-          accessibilityLabel="Cerrar detalle"
+          accessibilityLabel={t('Cerrar detalle', 'Close details')}
           hitSlop={12}
           style={styles.close}
         >
@@ -79,7 +86,7 @@ export const MeasurementBottomSheet: React.FC<Props> = ({
       </View>
 
       <Text style={[styles.meta, { color: colors.textSecondary }]}>
-        {stage ? `${stage.emoji} ${stage.label}` : ''} · {relativeAge(point.measuredAt)}
+        {stage ? `${stage.emoji} ${en ? stage.labelEn : stage.label}` : ''} · {relativeAge(point.measuredAt, en)}
         {point.gpsAccuracyM != null ? ` · ±${Math.round(point.gpsAccuracyM)} m` : ''}
       </Text>
 
@@ -106,7 +113,7 @@ export const MeasurementBottomSheet: React.FC<Props> = ({
         onPress={() => onOpenDetail(point)}
         style={[styles.cta, { backgroundColor: colors.primary }]}
       >
-        <Text style={styles.ctaText}>Ver detalle completo</Text>
+        <Text style={styles.ctaText}>{t('Ver detalle completo', 'View full details')}</Text>
       </TouchableOpacity>
     </View>
   );

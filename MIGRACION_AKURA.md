@@ -31,7 +31,7 @@
 | Bloque | Estado | Detalle |
 | :--- | :---: | :--- |
 | **0 · Seguridad** | 🟡 Parcial | `.gitignore` y `app.config.js` hechos. **Falta revocar la clave de Maps expuesta en Akura (S1–S4): es tarea manual en Google Cloud Console.** |
-| **1 · Infraestructura Supabase** | 🟢 Hecho | Proyecto `terrasense` vinculado (São Paulo). PostGIS activo. **9 migraciones aplicadas**, verificadas contra el remoto con `supabase migration list`. |
+| **1 · Infraestructura Supabase** | 🟢 Hecho | Proyecto `terrasense` vinculado (São Paulo). PostGIS activo. **18 migraciones aplicadas**, verificadas contra el remoto con `supabase migration list`. |
 | **1 · Infraestructura Vercel** | 🔴 Pendiente | A7–A9, junto con la consola web. |
 | **2 · Base de datos** | 🟢 Hecho | Esquema existente adoptado y ampliado. **RLS abierto corregido** (ver 5.1). RPC de vinculación por código. |
 | **3 · App móvil** | 🟢 Hecho | Mapa, medición, autenticación, equipos, historial, ajustes, enlace BLE, notificaciones y **perímetro de predio dibujable**. **El BLE no está probado contra hardware.** |
@@ -456,10 +456,23 @@ leer, modificar y borrar todas las filas de todas las tablas, incluida `profiles
 - [x] **C21.** `App/README.md` independiente: alcance, arquitectura, motor agronómico, enlace BLE,
       sincronización offline, decisiones que no conviene deshacer y manual de instalación completo
       (Node LTS, Git, Expo, JDK 17, Android Studio y dispositivo físico).
+- [x] **C22.** Onboarding persistente por cuenta con sólo dos rutas: escaneo del QR compartido por
+      el propietario/administrador, o pairing BLE para el primer propietario. La finalización se
+      guarda en `profiles` y se respalda con `device_members`, por lo que no reaparece tras
+      reinstalar la app. Incluye QR compartible desde `DevicesScreen`, migración remota aplicada y
+      provisión del mismo Device ID en la NVS del ESP32. Las mediciones filtran el anuncio BLE por
+      ese código para no leer por accidente otra sonda TerraSense cercana.
 - [x] **C20.** Registro del token de notificaciones (`notifications.ts`). Cierra la mitad que
       faltaba del circuito de alertas: `send-push-alert` leía `profiles.push_token` y lo encontraba
       siempre vacío porque nada en la app lo escribía. Se registra tras iniciar sesión, no al
       arrancar, y se borra al cerrar sesión para que el teléfono no siga recibiendo avisos ajenos.
+- [x] **C23.** Preferencias persistentes por cuenta: tema sistema/claro/oscuro, idioma español/inglés,
+      unidades métricas/imperiales y cuatro categorías de notificación. `send-push-alert` aplica los
+      toggles en el servidor; desactivar una categoría no es sólo un cambio visual.
+- [x] **C24.** Guías contextuales independientes en autenticación, onboarding, mapa, medición,
+      historial, ajustes, equipos y perímetro. Se abren una vez por cuenta y quedan accesibles con `?`.
+- [x] **C25.** Registro offline endurecido: cola escrita antes de enviar, aislada por cuenta,
+      restaurada en mapa/historial tras reinicio y filtrada por el equipo activo.
 - [x] **C19.** Verificación de empaquetado real con `expo export`, no sólo `tsc`.
 
 ---
@@ -553,7 +566,7 @@ VITE_GOOGLE_MAPS_API_KEY=<clave-nueva-restringida>
 - [x] S5–S6 · `app.config.js` + `.gitignore` verificado
 
 **Bloque 1 — Infraestructura**
-- [x] A1–A4 · Proyecto Supabase creado, vinculado, con PostGIS y 9 migraciones aplicadas
+- [x] A1–A4 · Proyecto Supabase creado, vinculado, con PostGIS y 18 migraciones aplicadas
 - [ ] A7–A9 · `vercel.json`, Vercel vinculado y primer despliegue
 
 **Bloque 2 — Datos**
@@ -568,6 +581,7 @@ VITE_GOOGLE_MAPS_API_KEY=<clave-nueva-restringida>
 - [x] C7–C10 · Autenticación, predios, perímetro, enlace BLE y tipos
 - [x] C11–C12 · Etapa fenológica y motor agronómico
 - [x] C13–C14 · Degradación sin cobertura y empaquetado verificado
+- [x] C22 · Onboarding QR/pairing persistente por cuenta
 - [ ] Probar el enlace BLE contra la sonda física
 
 **Bloque 4 — Web y backend**

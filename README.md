@@ -2846,6 +2846,15 @@ La ventana de estabilización no es arbitraria: responde a cuatro fenómenos fí
 | :--- | :--- | :--- |
 | Servicio primario TerraSense | `00000001-5e4e-4c69-6d61-746572726101` | — |
 | Característica de telemetría | `00000002-5e4e-4c69-6d61-746572726102` | Read / Notify — paquete binario de 16 bytes |
+| Identidad persistente | `00000003-5e4e-4c69-6d61-746572726103` | Read — Device ID ASCII de 15 dígitos guardado en NVS |
+| Provisionamiento | `00000004-5e4e-4c69-6d61-746572726104` | Write with response — sólo durante los 30 s posteriores a mantener PAIR 3 s |
+
+Tras el provisionamiento, el ESP32 anuncia el nombre local
+`TerraSense-<device_code>`. La aplicación filtra el escaneo por ese código antes
+de conectarse: el UUID de la fila de Supabase **no es** una identidad BLE y no
+puede utilizarse para distinguir dos sondas cercanas. El código de 15 dígitos
+es el vínculo estable y multiplataforma entre el equipo físico, su fila remota y
+los teléfonos de todos sus operadores.
 
 **Por qué 16 bytes y no JSON:** un paquete binario compacto cabe en una sola notificación BLE sin fragmentación, reduce el tiempo de radio encendida y, por tanto, el consumo. Serializar a texto multiplicaría por cuatro o cinco el tamaño y el tiempo de transmisión, y con ello la energía por ciclo del presupuesto de [IX.1.3](#ix13-presupuesto-energético-por-ciclo-de-medición).
 
@@ -2922,19 +2931,14 @@ $$\text{VPD} = \text{VP}_{\text{sat}} \times \left(1 - \frac{\text{HR}}{100}\rig
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Onboarding: primera apertura
-    Onboarding --> Autenticacion: fin del carrusel (2 pantallas)
-    Autenticacion --> RouterVinculacion: sesión iniciada
-
-    state RouterVinculacion {
-        [*] --> Eleccion
-        Eleccion --> PairingBLE: A · soy el dueño (botón 3 s)
-        Eleccion --> UnirseEquipo: B · soy operador (QR o ID de 15 dígitos)
-        Eleccion --> Principal: C · ya estoy vinculado / omitir
-        PairingBLE --> Principal: emparejamiento exitoso
-        UnirseEquipo --> EsperaAprobacion: código enviado
-        EsperaAprobacion --> Principal: aprobación en tiempo real
-    }
+    [*] --> Autenticacion
+    Autenticacion --> VerificarCuenta: sesión iniciada
+    VerificarCuenta --> Principal: onboarding ya completado en Supabase
+    VerificarCuenta --> Eleccion: cuenta nueva sin equipo
+    Eleccion --> PairingBLE: primer propietario (botón PAIR 3 s)
+    Eleccion --> UnirseEquipo: operador (QR del administrador)
+    PairingBLE --> Principal: presencia BLE verificada y equipo registrado
+    UnirseEquipo --> Principal: QR validado y membresía creada
 
     state Principal {
         [*] --> Mapa: pantalla principal = mapa satelital
@@ -2961,8 +2965,8 @@ Cada medición se representa como un **círculo coloreado según el veredicto**,
 | Relleno | Semáforo con transparencia: verde `rgba(44,122,78,.25)`, ámbar `rgba(158,102,18,.25)`, rojo `rgba(163,53,40,.25)` |
 | Precisión del punto | `expo-location` en `Accuracy.BestForNavigation`; **se persiste el valor de precisión** junto a la coordenada |
 | Descarte de punto impreciso | Si la precisión reportada supera 15 m, la app advierte antes de guardar |
-| Detalle | *Bottom sheet* al tocar: etapa fenológica, antigüedad, 7 parámetros, veredicto resumido |
-| Agrupación | Con más de 50 puntos en vista, se agrupan por proximidad mostrando el peor veredicto del grupo |
+| Detalle | *Bottom sheet* al tocar y modal completo: fecha, etapa fenológica, 7 parámetros, acción recomendada, coordenadas y precisión GPS |
+| Agrupación | Planificada para una iteración posterior; hoy se limita la consulta a las 200 mediciones más recientes del equipo y predio activos |
 | **Accesibilidad** | El color **nunca** es el único código: cada círculo lleva icono central (✓ / ! / ✕) <sup>[26]</sup> |
 
 > [!WARNING]
@@ -2985,9 +2989,9 @@ Cada medición se representa como un **círculo coloreado según el veredicto**,
 
 ### XIII.3.3. Arquitectura offline-first
 
-* **Motor local:** el veredicto se calcula en el teléfono, sobre SQLite. Sin red, sin excepciones.
-* **Guardado transaccional primero:** la medición se persiste localmente **antes** de intentar cualquier sincronización.
-* **Cola idempotente:** cada medición lleva un identificador propio; reintentos no duplican registros.
+* **Motor local:** el veredicto se calcula en memoria en el teléfono mediante reglas TypeScript. Sin red, sin excepciones.
+* **Guardado transaccional primero:** la medición entra en una cola `AsyncStorage` aislada por cuenta **antes** de intentar cualquier sincronización.
+* **Cola idempotente:** cada medición lleva un `client_uuid`; reintentos y reinicios no duplican registros.
 * **Store & forward:** al detectar cobertura, un servicio en segundo plano sincroniza la cola sin intervención del usuario.
 
 ## XIII.4. Asignación de pines y firmware
@@ -3015,7 +3019,7 @@ Cada equipo recibe un identificador **numérico de 15 dígitos generado aleatori
 | Propiedad | Especificación |
 | :--- | :--- |
 | Longitud | Exactamente 15 dígitos decimales |
-| Generación | Aleatoria con generador criptográfico; **no derivada de la MAC** ni de un UUID |
+| Generación | Aleatoria con generador criptográfico; **no derivada de la MAC** ni de un UUID. Postgres la genera por defecto; durante el primer pairing la app genera una candidata, la graba en NVS y la inserta en la misma operación de alta |
 | Primer dígito | Distinto de cero, para preservar los 15 dígitos al mostrarse |
 | Unicidad | Restricción `UNIQUE` en base de datos con reintento ante colisión |
 | Presentación | Tres bloques de cinco: `48213-90574-16628` |

@@ -10,12 +10,14 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useColorScheme,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Colors, Spacing, Typography, VERDICT_META } from '../constants/theme';
+import { Spacing, Typography, VERDICT_META } from '../constants/theme';
+import { useAppTheme } from '../hooks/useAppTheme';
+import { ScreenGuide } from '../components/ScreenGuide';
+import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { PHENOLOGICAL_STAGES, type MapMeasurementPoint, type PhenologicalStage } from '../types/app';
 
@@ -24,19 +26,19 @@ interface Props {
   onOpenDetail: (p: MapMeasurementPoint) => void;
 }
 
-const dayKey = (iso: string) =>
-  new Date(iso).toLocaleDateString('es-CL', {
+const dayKey = (iso: string, locale: string) =>
+  new Date(iso).toLocaleDateString(locale, {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
   });
 
-const hourLabel = (iso: string) =>
-  new Date(iso).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+const hourLabel = (iso: string, locale: string) =>
+  new Date(iso).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
 
 export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
-  const isDark = useColorScheme() === 'dark';
-  const colors = isDark ? Colors.dark : Colors.light;
+  const { isDark, colors } = useAppTheme();
+  const { language, locale, t } = useTranslation();
 
   const { points, fieldName } = useAppStore();
   const [filter, setFilter] = useState<PhenologicalStage | 'all'>('all');
@@ -45,13 +47,13 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
     const filtered = filter === 'all' ? points : points.filter((p) => p.stage === filter);
     const groups = new Map<string, MapMeasurementPoint[]>();
     for (const p of filtered) {
-      const k = dayKey(p.measuredAt);
+      const k = dayKey(p.measuredAt, locale);
       const arr = groups.get(k);
       if (arr) arr.push(p);
       else groups.set(k, [p]);
     }
     return [...groups.entries()].map(([title, data]) => ({ title, data }));
-  }, [points, filter]);
+  }, [points, filter, locale]);
 
   const counts = useMemo(() => {
     const c = { GREEN: 0, AMBER: 0, RED: 0 };
@@ -63,7 +65,7 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
     <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onClose} hitSlop={12} style={styles.headerBtn}>
-          <Text style={{ color: colors.primary, ...Typography.bodyBold }}>‹ Mapa</Text>
+          <Text style={{ color: colors.primary, ...Typography.bodyBold }}>‹ {t('Mapa', 'Map')}</Text>
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
           {fieldName}
@@ -95,8 +97,11 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
           const active = filter === id;
           const label =
             id === 'all'
-              ? 'Todas'
-              : PHENOLOGICAL_STAGES.find((s) => s.id === id)?.label ?? id;
+              ? t('Todas', 'All')
+              : (() => {
+                  const stage = PHENOLOGICAL_STAGES.find((s) => s.id === id);
+                  return stage ? (language === 'en' ? stage.labelEn : stage.label) : id;
+                })();
           return (
             <TouchableOpacity
               key={id}
@@ -131,8 +136,8 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
         ListEmptyComponent={
           <Text style={[styles.empty, { color: colors.textSecondary }]}>
             {points.length === 0
-              ? 'Todavía no hay mediciones en este predio.'
-              : 'No hay mediciones en la etapa seleccionada.'}
+              ? t('Todavía no hay mediciones en este predio.', 'There are no readings in this field yet.')
+              : t('No hay mediciones en la etapa seleccionada.', 'There are no readings for the selected stage.')}
           </Text>
         }
         renderSectionHeader={({ section }) => (
@@ -160,7 +165,8 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
                   {item.title}
                 </Text>
                 <Text style={[styles.rowMeta, { color: colors.textSecondary }]}>
-                  {hourLabel(item.measuredAt)} · {stage?.emoji} {stage?.label} · pH{' '}
+                  {hourLabel(item.measuredAt, locale)} · {stage?.emoji}{' '}
+                  {stage ? (language === 'en' ? stage.labelEn : stage.label) : ''} · pH{' '}
                   {item.ph.toFixed(1)} · CE {Math.round(item.ecUsCm)} · {item.vwcPercent.toFixed(0)}%
                 </Text>
               </View>
@@ -169,6 +175,7 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
           );
         }}
       />
+      <ScreenGuide guideId="history" />
     </SafeAreaView>
   );
 };

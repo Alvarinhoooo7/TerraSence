@@ -20,6 +20,10 @@ import type { SoilMeasurement } from '../types/agronomy';
 /** Servicio y característica GATT de TerraSense (README §5.5). */
 export const TERRASENSE_SERVICE_UUID = '00000001-5e4e-4c69-6d61-746572726101';
 export const TERRASENSE_TELEMETRY_UUID = '00000002-5e4e-4c69-6d61-746572726102';
+/** Código estable de 15 dígitos guardado por el ESP32 en NVS. */
+export const TERRASENSE_IDENTITY_UUID = '00000003-5e4e-4c69-6d61-746572726103';
+/** Escritura permitida únicamente durante la ventana física de pairing. */
+export const TERRASENSE_PROVISIONING_UUID = '00000004-5e4e-4c69-6d61-746572726104';
 
 export interface ProbeReading {
   data: SoilMeasurement;
@@ -42,10 +46,11 @@ export function decodeTelemetry(bytes: Uint8Array): SoilMeasurement {
   }
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const u16 = (offset: number) => view.getUint16(offset, false); // big-endian, como Modbus
+  const i16 = (offset: number) => view.getInt16(offset, false);
 
   return {
     vwc: u16(0) / 10,        // 0x015E = 350 -> 35,0 %
-    temp: u16(2) / 10,       // 0x00F5 = 245 -> 24,5 °C
+    temp: i16(2) / 10,       // signed: admite temperatura de suelo bajo 0 °C
     ec: u16(4),              // µS/cm directo
     ph: u16(6) / 10,         // 0x0041 = 65 -> 6,5 pH
     nitrogen: u16(8),        // mg/kg
@@ -86,8 +91,8 @@ const PROBE_SETTLE_MS = 1200;
  * mostrarla: una demostración no debe poder confundirse con una medición real
  * de campo.
  */
-export async function readSoilProbe(deviceId: string | null): Promise<ProbeReading> {
-  if (!deviceId) {
+export async function readSoilProbe(deviceCode: string | null): Promise<ProbeReading> {
+  if (!deviceCode) {
     await new Promise((r) => setTimeout(r, PROBE_SETTLE_MS));
     return { data: simulate(), simulated: true };
   }
@@ -102,7 +107,9 @@ export async function readSoilProbe(deviceId: string | null): Promise<ProbeReadi
       throw new Error('Se necesita permiso de Bluetooth para leer la sonda.');
     }
 
-    const data = await readTelemetryOverBle();
+    // El código estable identifica la sonda física seleccionada. Pasar el UUID
+    // de la fila de Supabase aquí era incorrecto: no es una identidad BLE.
+    const data = await readTelemetryOverBle(deviceCode);
     return { data, simulated: false };
   } catch (error) {
     // Un fallo de permisos o de conexión debe llegar al usuario como error,

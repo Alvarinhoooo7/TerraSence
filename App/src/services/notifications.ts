@@ -11,6 +11,8 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
 import { supabase } from './supabase';
+import { loadPreferences } from './preferencesService';
+import type { AppPreferences } from '../types/preferences';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -28,8 +30,16 @@ Notifications.setNotificationHandler({
  * impedir usar la app, que es una herramienta de campo antes que un canal de
  * avisos.
  */
-export async function registerPushToken(): Promise<string | null> {
+export async function registerPushToken(
+  preferencesOverride?: AppPreferences,
+): Promise<string | null> {
   try {
+    const preferences = preferencesOverride ?? (await loadPreferences());
+    if (!Object.values(preferences.notifications).some(Boolean)) {
+      await clearPushToken();
+      return null;
+    }
+
     // Los emuladores no reciben notificaciones remotas.
     if (!Device.isDevice) return null;
 
@@ -43,11 +53,26 @@ export async function registerPushToken(): Promise<string | null> {
     if (status !== 'granted') return null;
 
     if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('agronomic', {
-        name: 'Alertas agronómicas',
-        importance: Notifications.AndroidImportance.HIGH,
-        vibrationPattern: [0, 250, 250, 250],
-      });
+      const en = preferences.language === 'en';
+      await Promise.all([
+        Notifications.setNotificationChannelAsync('agronomic', {
+          name: en ? 'Agronomic alerts' : 'Alertas agronómicas',
+          importance: Notifications.AndroidImportance.HIGH,
+          vibrationPattern: [0, 250, 250, 250],
+        }),
+        Notifications.setNotificationChannelAsync('device', {
+          name: en ? 'Device status' : 'Estado del equipo',
+          importance: Notifications.AndroidImportance.DEFAULT,
+        }),
+        Notifications.setNotificationChannelAsync('weather', {
+          name: en ? 'Weather risks' : 'Riesgos meteorológicos',
+          importance: Notifications.AndroidImportance.HIGH,
+        }),
+        Notifications.setNotificationChannelAsync('sync', {
+          name: en ? 'Synchronization' : 'Sincronización',
+          importance: Notifications.AndroidImportance.LOW,
+        }),
+      ]);
     }
 
     const projectId =
@@ -76,6 +101,17 @@ export async function registerPushToken(): Promise<string | null> {
     return token;
   } catch {
     return null;
+  }
+}
+
+/** Aplica inmediatamente los toggles sin esperar al próximo arranque. */
+export async function reconcileNotificationRegistration(
+  preferences: AppPreferences,
+): Promise<void> {
+  if (Object.values(preferences.notifications).some(Boolean)) {
+    await registerPushToken(preferences);
+  } else {
+    await clearPushToken();
   }
 }
 

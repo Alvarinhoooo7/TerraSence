@@ -16,12 +16,15 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  useColorScheme,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '../services/supabase';
-import { Colors, Spacing, Typography } from '../constants/theme';
+import { Spacing, Typography } from '../constants/theme';
+import { useAppTheme } from '../hooks/useAppTheme';
+import { ScreenGuide } from '../components/ScreenGuide';
+import { useTranslation } from '../hooks/useTranslation';
+import { useAppStore } from '../store/useAppStore';
 
 type Mode = 'signin' | 'signup' | 'reset';
 
@@ -44,22 +47,22 @@ const MODE_COPY: Record<Mode, { title: string; cta: string; hint: string }> = {
 };
 
 /** Mensajes de Supabase traducidos a algo accionable para el agricultor. */
-const humanizeError = (message: string): string => {
+const humanizeError = (message: string, en: boolean): string => {
   const m = message.toLowerCase();
   if (m.includes('invalid login credentials')) {
-    return 'El correo o la contraseña no coinciden. Revísalos e inténtalo de nuevo.';
+    return en ? 'Email or password does not match. Check them and try again.' : 'El correo o la contraseña no coinciden. Revísalos e inténtalo de nuevo.';
   }
   if (m.includes('email not confirmed')) {
-    return 'Tu cuenta aún no está confirmada. Busca el correo de confirmación que te enviamos.';
+    return en ? 'Your account is not confirmed yet. Find the confirmation email we sent you.' : 'Tu cuenta aún no está confirmada. Busca el correo de confirmación que te enviamos.';
   }
   if (m.includes('user already registered')) {
-    return 'Ya existe una cuenta con ese correo. Entra o recupera tu contraseña.';
+    return en ? 'An account already exists for this email. Sign in or reset your password.' : 'Ya existe una cuenta con ese correo. Entra o recupera tu contraseña.';
   }
   if (m.includes('password should be at least')) {
-    return 'La contraseña debe tener al menos 6 caracteres.';
+    return en ? 'Password must be at least 6 characters long.' : 'La contraseña debe tener al menos 6 caracteres.';
   }
   if (m.includes('network') || m.includes('fetch')) {
-    return 'Sin conexión. Conéctate a internet para entrar la primera vez.';
+    return en ? 'No connection. Connect to the internet for your first sign-in.' : 'Sin conexión. Conéctate a internet para entrar la primera vez.';
   }
   return message;
 };
@@ -69,8 +72,7 @@ interface Props {
 }
 
 export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
-  const isDark = useColorScheme() === 'dark';
-  const colors = isDark ? Colors.dark : Colors.light;
+  const { colors } = useAppTheme();
 
   const [mode, setMode] = useState<Mode>('signin');
   const [email, setEmail] = useState('');
@@ -80,7 +82,14 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  const copy = MODE_COPY[mode];
+  const { t } = useTranslation();
+  const { preferences, setPreferences } = useAppStore();
+  const spanishCopy = MODE_COPY[mode];
+  const copy = mode === 'signin'
+    ? { title: t(spanishCopy.title, 'Sign in to TerraSense'), cta: t(spanishCopy.cta, 'Sign in'), hint: t(spanishCopy.hint, 'Use the email associated with your device.') }
+    : mode === 'signup'
+      ? { title: t(spanishCopy.title, 'Create account'), cta: t(spanishCopy.cta, 'Create account'), hint: t(spanishCopy.hint, 'We will email you to confirm your account.') }
+      : { title: t(spanishCopy.title, 'Reset password'), cta: t(spanishCopy.cta, 'Send link'), hint: t(spanishCopy.hint, 'We will send you a link to choose a new password.') };
 
   const switchMode = useCallback((next: Mode) => {
     setMode(next);
@@ -94,11 +103,11 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
 
     const mail = email.trim().toLowerCase();
     if (!mail.includes('@')) {
-      setError('Escribe un correo válido.');
+      setError(t('Escribe un correo válido.', 'Enter a valid email address.'));
       return;
     }
     if (mode !== 'reset' && password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres.');
+      setError(t('La contraseña debe tener al menos 6 caracteres.', 'Password must be at least 6 characters long.'));
       return;
     }
 
@@ -123,7 +132,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
         });
         if (e) throw e;
         setNotice(
-          'Cuenta creada. Revisa tu correo y confirma la cuenta antes de entrar.',
+          t('Cuenta creada. Revisa tu correo y confirma la cuenta antes de entrar.', 'Account created. Check your email and confirm it before signing in.'),
         );
         setMode('signin');
         return;
@@ -131,14 +140,14 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
 
       const { error: e } = await supabase.auth.resetPasswordForEmail(mail);
       if (e) throw e;
-      setNotice('Te enviamos un enlace para elegir una contraseña nueva.');
+      setNotice(t('Te enviamos un enlace para elegir una contraseña nueva.', 'We sent you a link to choose a new password.'));
       setMode('signin');
     } catch (err) {
-      setError(humanizeError(err instanceof Error ? err.message : String(err)));
+      setError(humanizeError(err instanceof Error ? err.message : String(err), preferences.language === 'en'));
     } finally {
       setBusy(false);
     }
-  }, [email, password, fullName, mode, onAuthenticated]);
+  }, [email, password, fullName, mode, onAuthenticated, preferences.language, t]);
 
   const inputStyle = [
     styles.input,
@@ -155,6 +164,25 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
         >
+          <View style={styles.languageRow}>
+            {(['es', 'en'] as const).map((language) => (
+              <TouchableOpacity
+                key={language}
+                onPress={() => setPreferences({ ...preferences, language })}
+                style={[
+                  styles.languageButton,
+                  {
+                    backgroundColor: preferences.language === language ? colors.primary : colors.card,
+                    borderColor: colors.border,
+                  },
+                ]}
+              >
+                <Text style={{ color: preferences.language === language ? '#FFFFFF' : colors.textSecondary, ...Typography.badge }}>
+                  {language.toUpperCase()}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
           <Text style={styles.logo}>🌱</Text>
           <Text style={[styles.brand, { color: colors.primary }]}>TerraSense</Text>
           <Text style={[styles.title, { color: colors.text }]}>{copy.title}</Text>
@@ -163,18 +191,18 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
           {mode === 'signup' && (
             <TextInput
               style={inputStyle}
-              placeholder="Tu nombre"
+              placeholder={t('Tu nombre', 'Your name')}
               placeholderTextColor={colors.textMuted}
               value={fullName}
               onChangeText={setFullName}
               autoCapitalize="words"
-              accessibilityLabel="Nombre completo"
+              accessibilityLabel={t('Nombre completo', 'Full name')}
             />
           )}
 
           <TextInput
             style={inputStyle}
-            placeholder="Correo"
+            placeholder={t('Correo', 'Email')}
             placeholderTextColor={colors.textMuted}
             value={email}
             onChangeText={setEmail}
@@ -182,18 +210,18 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
             autoCorrect={false}
             keyboardType="email-address"
             inputMode="email"
-            accessibilityLabel="Correo electrónico"
+            accessibilityLabel={t('Correo electrónico', 'Email address')}
           />
 
           {mode !== 'reset' && (
             <TextInput
               style={inputStyle}
-              placeholder="Contraseña"
+              placeholder={t('Contraseña', 'Password')}
               placeholderTextColor={colors.textMuted}
               value={password}
               onChangeText={setPassword}
               secureTextEntry
-              accessibilityLabel="Contraseña"
+              accessibilityLabel={t('Contraseña', 'Password')}
             />
           )}
 
@@ -224,24 +252,25 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
           <View style={styles.links}>
             {mode !== 'signin' && (
               <TouchableOpacity onPress={() => switchMode('signin')} style={styles.link}>
-                <Text style={[styles.linkText, { color: colors.primary }]}>Ya tengo cuenta</Text>
+                <Text style={[styles.linkText, { color: colors.primary }]}>{t('Ya tengo cuenta', 'I already have an account')}</Text>
               </TouchableOpacity>
             )}
             {mode !== 'signup' && (
               <TouchableOpacity onPress={() => switchMode('signup')} style={styles.link}>
-                <Text style={[styles.linkText, { color: colors.primary }]}>Crear cuenta</Text>
+                <Text style={[styles.linkText, { color: colors.primary }]}>{t('Crear cuenta', 'Create account')}</Text>
               </TouchableOpacity>
             )}
             {mode !== 'reset' && (
               <TouchableOpacity onPress={() => switchMode('reset')} style={styles.link}>
                 <Text style={[styles.linkText, { color: colors.textSecondary }]}>
-                  Olvidé mi contraseña
+                  {t('Olvidé mi contraseña', 'Forgot my password')}
                 </Text>
               </TouchableOpacity>
             )}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      <ScreenGuide guideId="auth" autoOpen={false} />
     </SafeAreaView>
   );
 };
@@ -249,6 +278,8 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   scroll: { padding: Spacing.lg, paddingTop: Spacing.xxl, gap: Spacing.sm },
+  languageRow: { flexDirection: 'row', justifyContent: 'flex-end', gap: Spacing.xs },
+  languageButton: { borderWidth: 1, borderRadius: 14, paddingHorizontal: 10, paddingVertical: 6 },
   logo: { fontSize: 48, textAlign: 'center' },
   brand: { ...Typography.titleLarge, textAlign: 'center', marginBottom: Spacing.lg },
   title: { ...Typography.titleLarge, marginBottom: Spacing.xs },

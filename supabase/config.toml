@@ -151,11 +151,17 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://127.0.0.1:3000"
+site_url = "https://terrasense-web.vercel.app"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://127.0.0.1:3000"]
+# Se mantiene localhost además del dominio de producción para poder seguir probando con
+# `npm run dev` sin tener que editar este archivo cada vez.
+additional_redirect_urls = [
+  "https://terrasense-web.vercel.app",
+  "http://127.0.0.1:3000",
+  "http://localhost:5173",
+]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to auth.external_url.
@@ -218,7 +224,7 @@ enable_signup = true
 # addresses. If disabled, only the new email is required to confirm.
 double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
-enable_confirmations = false
+enable_confirmations = true
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.
 secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
@@ -229,14 +235,14 @@ otp_length = 6
 otp_expiry = 3600
 
 # Use a production-ready SMTP server
-# [auth.email.smtp]
-# enabled = true
-# host = "smtp.sendgrid.net"
-# port = 587
-# user = "apikey"
-# pass = "env(SENDGRID_API_KEY)"
-# admin_email = "admin@email.com"
-# sender_name = "Admin"
+[auth.email.smtp]
+enabled = true
+host = "smtp.gmail.com"
+port = 587
+user = "alvarovillena8@gmail.com"
+pass = "env(GMAIL_APP_PASSWORD)"
+admin_email = "alvarovillena8@gmail.com"
+sender_name = "TerraSense"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]
@@ -408,30 +414,33 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# PLANTILLAS DE CORREO DE TERRASENSE — DESACTIVADAS A PROPOSITO
+# PLANTILLAS DE CORREO DE TERRASENSE — ACTIVAS (SMTP de Gmail configurado arriba)
 # ─────────────────────────────────────────────────────────────────────────────
-# Las plantillas existen en supabase/templates/ y estan listas para usarse,
-# pero quedan comentadas porque el plan gratuito de Supabase las rechaza:
+# Las tres viven en supabase/templates/. Requieren [auth.email.smtp] habilitado
+# (ver más arriba) — sin SMTP propio, `supabase config push` las rechaza con
+# 400: "Email template modification is not available for free tier projects
+# using the default email provider."
 #
-#   400: "Email template modification is not available for free tier projects
-#         using the default email provider. Please upgrade your plan or
-#         configure a custom SMTP provider."
-#
-# Dejarlas activas haria fallar CUALQUIER `supabase config push` posterior.
-#
-# Para activarlas hay dos vias:
-#   1. Configurar SMTP propio (Resend o SendGrid tienen plan gratuito) en
-#      Authentication > SMTP Settings, y descomentar este bloque.
-#   2. Pegar el HTML a mano en Authentication > Email Templates del panel.
-#
-# Recomendada la 1: el remitente por defecto de Supabase tiene limite de envios
-# y baja entregabilidad, lo que en produccion se traduce en correos de
-# recuperacion que no llegan.
-#
-# [auth.email.template.recovery]
-# subject = "Restablecer tu contraseña de TerraSense"
-# content_path = "./supabase/templates/recovery.html"
-#
-# [auth.email.template.confirmation]
-# subject = "Confirma tu cuenta de TerraSense"
-# content_path = "./supabase/templates/confirmation.html"
+# OJO con las rutas si se vuelven a tocar — el CLI las resuelve distinto según
+# la sección (verificado empíricamente el 30-ago-2026, `supabase config push`
+# corriendo desde la raíz del repo):
+#   [auth.email.template.*]        -> content_path relativo a la RAÍZ del repo
+#                                      (por eso lleva el prefijo "./supabase/").
+#   [auth.email.notification.*]    -> content_path relativo a la carpeta supabase/
+#                                      (SIN el prefijo "supabase/", si no dobla
+#                                      la ruta y falla con "supabase/supabase/...").
+
+[auth.email.template.recovery]
+subject = "Restablecer tu contraseña de TerraSense"
+content_path = "./supabase/templates/recovery.html"
+
+[auth.email.template.confirmation]
+subject = "Confirma tu cuenta de TerraSense"
+content_path = "./supabase/templates/confirmation.html"
+
+# Notificación (no es un enlace de acción): confirma al usuario que su contraseña
+# cambió, por si el cambio no fue iniciado por él.
+[auth.email.notification.password_changed]
+enabled = true
+subject = "Tu contraseña de TerraSense fue cambiada"
+content_path = "./templates/password_changed.html"

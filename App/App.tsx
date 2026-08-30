@@ -1,5 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, useColorScheme, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -12,47 +17,110 @@ import { MapScreen } from './src/screens/MapScreen';
 import { MeasureScreen } from './src/screens/MeasureScreen';
 import { FieldSettingsScreen } from './src/screens/FieldSettingsScreen';
 import { DevicesScreen } from './src/screens/DevicesScreen';
+import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { HistoryScreen } from './src/screens/HistoryScreen';
 import { PerimeterScreen } from './src/screens/PerimeterScreen';
-import { Colors } from './src/constants/theme';
+import { Typography } from './src/constants/theme';
+import { getOnboardingState } from './src/services/onboardingService';
+import { loadPreferences } from './src/services/preferencesService';
+import { useAppStore } from './src/store/useAppStore';
+import { useAppTheme } from './src/hooks/useAppTheme';
+import { useTranslation } from './src/hooks/useTranslation';
+import { DEFAULT_APP_PREFERENCES } from './src/types/preferences';
 import type { MapMeasurementPoint } from './src/types/app';
+import { MeasurementDetailModal } from './src/components/MeasurementDetailModal';
 
 type Route = 'map' | 'measure' | 'settings' | 'devices' | 'history' | 'perimeter';
 
 export default function App() {
-  const isDark = useColorScheme() === 'dark';
-  const colors = isDark ? Colors.dark : Colors.light;
+  const { isDark, colors } = useAppTheme();
+  const { t } = useTranslation();
 
   const [session, setSession] = useState<Session | null>(null);
   const [checking, setChecking] = useState(true);
+  const [checkingOnboarding, setCheckingOnboarding] = useState(false);
+  const [onboardingComplete, setOnboardingComplete] = useState(false);
+  const [onboardingError, setOnboardingError] = useState<string | null>(null);
+  const [onboardingRetry, setOnboardingRetry] = useState(0);
   const [route, setRoute] = useState<Route>('map');
+  const [detailPoint, setDetailPoint] = useState<MapMeasurementPoint | null>(null);
+  const setDevice = useAppStore((state) => state.setDevice);
+  const setPreferences = useAppStore((state) => state.setPreferences);
+  const setPreferencesLoaded = useAppStore((state) => state.setPreferencesLoaded);
+  const preferences = useAppStore((state) => state.preferences);
+  const preferencesLoaded = useAppStore((state) => state.preferencesLoaded);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setChecking(false);
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      setSession(s);
+    });
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    if (!session) {
+      setCheckingOnboarding(false);
+      setOnboardingComplete(false);
+      setOnboardingError(null);
+      setDevice(null);
+      setPreferences(DEFAULT_APP_PREFERENCES);
+      setPreferencesLoaded(false);
+      return () => {
+        active = false;
+      };
+    }
+
+    setCheckingOnboarding(true);
+    setOnboardingError(null);
+    Promise.all([getOnboardingState(), loadPreferences()])
+      .then(([state, preferences]) => {
+        if (!active) return;
+        setPreferences(preferences);
+        setPreferencesLoaded(true);
+        if (state.devices[0]) setDevice(state.devices[0]);
+        setOnboardingComplete(state.completed);
+      })
+      .catch((error) => {
+        if (!active) return;
+        // Sólo llega aquí si el servidor falló y tampoco existe un estado
+        // completo previamente verificado en la caché de esta cuenta.
+        setOnboardingComplete(false);
+        setOnboardingError(error instanceof Error ? error.message : String(error));
+      })
+      .finally(() => {
+        if (active) setCheckingOnboarding(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [
+    onboardingRetry,
+    session?.user.id,
+    setDevice,
+    setPreferences,
+    setPreferencesLoaded,
+  ]);
 
   // El token se registra tras iniciar sesión, no al arrancar: antes no hay
   // perfil donde guardarlo y la petición de permiso llegaría sin contexto.
   useEffect(() => {
-    if (session) void registerPushToken();
-  }, [session]);
-
-  const notImplemented = useCallback((what: string) => {
-    Alert.alert(what, 'Funcionalidad en desarrollo.');
-  }, []);
+    if (session && onboardingComplete && preferencesLoaded) void registerPushToken(preferences);
+  }, [session, onboardingComplete, preferences, preferencesLoaded]);
 
   const handleOpenDetail = useCallback((p: MapMeasurementPoint) => {
-    Alert.alert(p.title, p.action ?? 'Sin acciones correctivas para esta medición.');
+    setDetailPoint(p);
   }, []);
 
   let content: React.ReactNode;
 
-  if (checking) {
+  if (checking || (session && checkingOnboarding)) {
     content = (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -60,6 +128,63 @@ export default function App() {
     );
   } else if (!session) {
     content = <AuthScreen onAuthenticated={() => setRoute('map')} />;
+  } else if (onboardingError) {
+    content = (
+      <View
+        style={{
+          flex: 1,
+          padding: 28,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: colors.background,
+        }}
+      >
+        <Text style={{ fontSize: 42, marginBottom: 16 }}>↻</Text>
+        <Text style={{ ...Typography.titleLarge, color: colors.text, textAlign: 'center' }}>
+          {t('No pudimos revisar tu cuenta', 'We could not check your account')}
+        </Text>
+        <Text
+          style={{
+            ...Typography.bodyRegular,
+            color: colors.textSecondary,
+            textAlign: 'center',
+            marginTop: 10,
+            marginBottom: 22,
+          }}
+        >
+          {t('Comprueba tu conexión antes de continuar. Tus equipos y tu progreso siguen guardados.', 'Check your connection before continuing. Your devices and progress remain saved.')}
+        </Text>
+        <TouchableOpacity
+          onPress={() => setOnboardingRetry((value) => value + 1)}
+          style={{
+            minHeight: 54,
+            minWidth: 180,
+            paddingHorizontal: 24,
+            borderRadius: 16,
+            backgroundColor: colors.primary,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Text style={{ ...Typography.button, color: '#FFFFFF' }}>{t('Reintentar', 'Try again')}</Text>
+        </TouchableOpacity>
+        {__DEV__ && (
+          <Text style={{ ...Typography.caption, color: colors.textMuted, marginTop: 18 }}>
+            {onboardingError}
+          </Text>
+        )}
+      </View>
+    );
+  } else if (!onboardingComplete) {
+    content = (
+      <OnboardingScreen
+        onComplete={(device) => {
+          setDevice(device);
+          setOnboardingComplete(true);
+          setRoute('map');
+        }}
+      />
+    );
   } else if (route === 'settings') {
     content = <FieldSettingsScreen onClose={() => setRoute('map')} onOpenDevices={() => setRoute('devices')} />;
   } else if (route === 'history') {
@@ -91,6 +216,7 @@ export default function App() {
       <SafeAreaProvider>
         <StatusBar style={isDark ? 'light' : 'dark'} />
         {content}
+        <MeasurementDetailModal point={detailPoint} onClose={() => setDetailPoint(null)} />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
