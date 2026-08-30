@@ -38,6 +38,7 @@ export default () => ({
     ios: {
       supportsTablet: false,
       bundleIdentifier: 'cl.terrasense.app',
+      googleServicesFile: './GoogleService-Info.plist',
       infoPlist: {
         NSLocationWhenInUseUsageDescription:
           'TerraSense usa tu ubicación para georreferenciar cada medición de suelo en el mapa de tu predio.',
@@ -53,6 +54,7 @@ export default () => ({
 
     android: {
       package: 'cl.terrasense.app',
+      googleServicesFile: './google-services.json',
       adaptiveIcon: {
         foregroundImage: './assets/adaptive-icon.png',
         backgroundColor: '#12281F',

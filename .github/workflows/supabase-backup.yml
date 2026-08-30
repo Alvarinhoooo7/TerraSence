@@ -1,0 +1,58 @@
+name: Supabase daily backup
+
+on:
+  schedule:
+    - cron: '17 5 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: supabase-daily-backup
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    name: Logical database backup
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Require database connection secret
+        shell: bash
+        run: |
+          if [[ -z "$SUPABASE_DB_URL" ]]; then
+            echo '::error::Falta el Secret SUPABASE_DB_URL del repositorio.'
+            exit 1
+          fi
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@46f7f98c7f948ad727d22c1e67fab04c223a0520 # v3.0.0
+        with:
+          version: 2.116.0
+      - name: Dump roles, schema and data
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p backup
+          supabase db dump --db-url "$SUPABASE_DB_URL" --file backup/roles.sql --role-only
+          supabase db dump --db-url "$SUPABASE_DB_URL" --file backup/schema.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" --file backup/data.sql --data-only --use-copy \
+            -x 'storage.buckets_vectors' -x 'storage.vector_indexes'
+          stamp="$(date -u +'%Y-%m-%dT%H-%M-%SZ')"
+          archive="terrasense-supabase-${stamp}.tar.gz"
+          tar -czf "$archive" backup
+          sha256sum "$archive" > "${archive}.sha256"
+          echo "BACKUP_ARCHIVE=$archive" >> "$GITHUB_ENV"
+      - name: Store private backup for 7 days
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ env.BACKUP_ARCHIVE }}
+          path: |
+            ${{ env.BACKUP_ARCHIVE }}
+            ${{ env.BACKUP_ARCHIVE }}.sha256
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
