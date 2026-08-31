@@ -114,3 +114,5 @@ coverage/
 *.tmp
 *.log
 tmp/
+
+PCB/.history/
