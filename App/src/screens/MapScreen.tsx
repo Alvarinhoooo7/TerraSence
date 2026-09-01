@@ -143,7 +143,7 @@ export const MapScreen: React.FC<Props> = ({
       ]);
       const remoteIds = new Set(rows.map((point) => point.id));
       setPoints(
-        [...localPoints.filter((point) => !remoteIds.has(point.id)), ...rows].sort(
+        [...localPoints.filter((point) => !remoteIds.has(point.id)).map(p => ({ ...p, isPending: true })), ...rows].sort(
           (a, b) => new Date(b.measuredAt).getTime() - new Date(a.measuredAt).getTime(),
         ),
       );
@@ -159,7 +159,7 @@ export const MapScreen: React.FC<Props> = ({
       if (localPoints.length > 0) {
         const current = useAppStore.getState().points;
         const localIds = new Set(localPoints.map((point) => point.id));
-        setPoints([...localPoints, ...current.filter((point) => !localIds.has(point.id))]);
+        setPoints([...localPoints.map(p => ({ ...p, isPending: true })), ...current.filter((point) => !localIds.has(point.id))]);
       }
     } finally {
       setLoading(false);
@@ -169,6 +169,22 @@ export const MapScreen: React.FC<Props> = ({
   useEffect(() => {
     void load();
   }, [load]);
+
+  // ── Auto-Encuadre (Bounding Box) ────────────────────────────────────────
+  useEffect(() => {
+    if (perimeter.length > 0 || points.length > 0) {
+      const coords = [...perimeter, ...points.map((p) => ({ latitude: p.latitude, longitude: p.longitude }))];
+      if (coords.length > 0) {
+        // Retraso ligero para permitir que el mapa termine de renderizarse
+        setTimeout(() => {
+          mapRef.current?.fitToCoordinates(coords, {
+            edgePadding: { top: 120, right: 40, bottom: 120, left: 40 },
+            animated: true,
+          });
+        }, 800);
+      }
+    }
+  }, [perimeter, points]);
 
   // ── Acción de medir ─────────────────────────────────────────────────────
   const handleMeasure = useCallback(() => {

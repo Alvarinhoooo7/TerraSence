@@ -167,6 +167,7 @@ export interface MapMeasurementPoint {
   phosphorus: number;
   potassium: number;
   gpsAccuracyM: number | null;
+  isPending?: boolean;
 }
 
 export const mapRowToPoint = (r: SoilMeasurementRow): MapMeasurementPoint => ({

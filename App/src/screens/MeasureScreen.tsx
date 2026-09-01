@@ -30,6 +30,7 @@ import { PHENOLOGICAL_STAGES, mapRowToPoint } from '../types/app';
 import type { SoilMeasurementInsert } from '../types/app';
 import type { SoilMeasurement } from '../types/agronomy';
 import { formatEngineMetric } from '../utils/units';
+import { CalibrationReminderModal } from '../components/CalibrationReminderModal';
 
 const ENGINE_VERSION = '1.0.0';
 const CROP_CATALOG_VERSION = '1.0.0';
@@ -53,6 +54,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   const [evaluation, setEvaluation] = useState<StageAwareEvaluation | null>(null);
   const [simulated, setSimulated] = useState(false);
   const [coords, setCoords] = useState<Location.LocationObjectCoords | null>(null);
+  const [showCalibration, setShowCalibration] = useState(false);
   const clientUuid = useRef<string>(newClientUuid());
 
   const stageMeta = PHENOLOGICAL_STAGES.find((s) => s.id === stage);
@@ -143,11 +145,13 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
           measured_at: new Date().toISOString(),
         } as never),
       );
+      // Actualizar el punto con el flag local
+      useAppStore.getState().points.find(p => p.id === clientUuid.current)!.isPending = true;
       const { pendingCount } = await import('../services/measurementsService');
       setPendingCount(await pendingCount());
     }
 
-    onDone();
+    setShowCalibration(true);
   }, [
     evaluation, raw, coords, device, cropId, fieldName, stage, textureId,
     addPoint, setPendingCount, onDone, t,
@@ -283,6 +287,13 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
         </ScrollView>
       )}
       <ScreenGuide guideId="measure" />
+      <CalibrationReminderModal
+        visible={showCalibration}
+        onClose={() => {
+          setShowCalibration(false);
+          onDone();
+        }}
+      />
     </SafeAreaView>
   );
 };
