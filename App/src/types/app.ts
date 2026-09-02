@@ -131,6 +131,14 @@ export interface DeviceMembershipRow {
   is_authorized: boolean;
 }
 
+export interface ManagedDeviceMember {
+  user_id: string;
+  full_name: string;
+  email: string;
+  role: 'owner' | 'admin' | 'operator';
+  is_authorized: boolean;
+}
+
 /** Fila de `public.predial_quadrants`. */
 export interface PredialQuadrantRow {
   id: string;

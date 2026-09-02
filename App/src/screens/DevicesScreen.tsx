@@ -30,9 +30,11 @@ import {
   listMyDeviceMemberships,
   registerDevice,
   joinDeviceByCode,
+  listDeviceMembers,
+  manageDeviceMember,
 } from '../services/deviceService';
 import { buildDeviceQrPayload, formatDeviceId, generateDeviceId } from '../utils/deviceId';
-import type { DeviceRow } from '../types/app';
+import type { DeviceRow, ManagedDeviceMember } from '../types/app';
 
 interface Props {
   onClose: () => void;
@@ -50,6 +52,8 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
   const [joinCode, setJoinCode] = useState('');
   const [roles, setRoles] = useState<Record<string, string>>({});
   const [qrDevice, setQrDevice] = useState<DeviceRow | null>(null);
+  const [membersDevice, setMembersDevice] = useState<DeviceRow | null>(null);
+  const [members, setMembers] = useState<ManagedDeviceMember[]>([]);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -120,6 +124,36 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
     }
   }, [joinCode, setDevice, refresh, t]);
 
+  const openMembers = useCallback(async (nextDevice: DeviceRow) => {
+    setBusy(true);
+    try {
+      setMembers(await listDeviceMembers(nextDevice.id));
+      setMembersDevice(nextDevice);
+    } catch (e) {
+      Alert.alert(t('No se pudieron cargar los miembros', 'Could not load members'), String(e));
+    } finally {
+      setBusy(false);
+    }
+  }, [t]);
+
+  const changeMember = useCallback(async (
+    member: ManagedDeviceMember,
+    action: 'authorize' | 'revoke' | 'set_role' | 'transfer_owner',
+    role?: 'admin' | 'operator',
+  ) => {
+    if (!membersDevice) return;
+    setBusy(true);
+    try {
+      await manageDeviceMember(membersDevice.id, member.user_id, action, role);
+      setMembers(await listDeviceMembers(membersDevice.id));
+      await refresh();
+    } catch (e) {
+      Alert.alert(t('No se pudo actualizar el acceso', 'Could not update access'), String(e));
+    } finally {
+      setBusy(false);
+    }
+  }, [membersDevice, refresh, t]);
+
   const inputStyle = [
     styles.input,
     { backgroundColor: colors.card, borderColor: colors.border, color: colors.text },
@@ -179,14 +213,14 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
                   {t('Mantén pulsado para copiar el código', 'Press and hold to copy the code')}
                 </Text>
                 {canShare && (
-                  <TouchableOpacity
-                    onPress={() => setQrDevice(d)}
-                    style={[styles.qrButton, { borderColor: colors.primary }]}
-                    accessibilityRole="button"
-                    accessibilityLabel={t(`Mostrar QR de ${d.alias || d.name}`, `Show QR for ${d.alias || d.name}`)}
-                  >
-                    <Text style={[styles.qrButtonText, { color: colors.primary }]}>▦ {t('Mostrar QR', 'Show QR')}</Text>
-                  </TouchableOpacity>
+                  <View style={styles.adminActions}>
+                    <TouchableOpacity onPress={() => setQrDevice(d)} style={[styles.qrButton, { borderColor: colors.primary }]}>
+                      <Text style={[styles.qrButtonText, { color: colors.primary }]}>▦ {t('Mostrar QR', 'Show QR')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => void openMembers(d)} style={[styles.qrButton, { borderColor: colors.primary }]}>
+                      <Text style={[styles.qrButtonText, { color: colors.primary }]}>{t('Administrar miembros', 'Manage members')}</Text>
+                    </TouchableOpacity>
+                  </View>
                 )}
               </TouchableOpacity>
             );
@@ -268,6 +302,39 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
           </View>
         </View>
       </Modal>
+      <Modal visible={Boolean(membersDevice)} transparent animationType="slide" onRequestClose={() => setMembersDevice(null)}>
+        <View style={styles.modalBackdrop}>
+          <View style={[styles.membersModal, { backgroundColor: colors.card }]}>
+            <Text style={[styles.qrTitle, { color: colors.text }]}>{t('Miembros del equipo', 'Device members')}</Text>
+            <ScrollView style={{ alignSelf: 'stretch', maxHeight: 430 }}>
+              {members.map((member) => (
+                <View key={member.user_id} style={[styles.memberRow, { borderColor: colors.border }]}>
+                  <Text style={[styles.deviceName, { color: colors.text }]}>{member.full_name || member.email}</Text>
+                  <Text style={[styles.deviceMeta, { color: colors.textSecondary }]}>{member.email} · {member.role}</Text>
+                  {member.role !== 'owner' && (
+                    <View style={styles.memberActions}>
+                      <TouchableOpacity onPress={() => void changeMember(member, member.is_authorized ? 'revoke' : 'authorize')} disabled={busy}>
+                        <Text style={{ color: member.is_authorized ? colors.danger : colors.success }}>{member.is_authorized ? t('Revocar', 'Revoke') : t('Autorizar', 'Authorize')}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => void changeMember(member, 'set_role', member.role === 'admin' ? 'operator' : 'admin')} disabled={busy}>
+                        <Text style={{ color: colors.primary }}>{member.role === 'admin' ? t('Hacer operador', 'Make operator') : t('Hacer admin', 'Make admin')}</Text>
+                      </TouchableOpacity>
+                      {roles[membersDevice?.id ?? ''] === 'owner' && member.is_authorized && (
+                        <TouchableOpacity onPress={() => void changeMember(member, 'transfer_owner')} disabled={busy}>
+                          <Text style={{ color: colors.warning }}>{t('Transferir propiedad', 'Transfer ownership')}</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
+            <TouchableOpacity onPress={() => setMembersDevice(null)} style={[styles.cta, { backgroundColor: colors.primary, alignSelf: 'stretch' }]}>
+              <Text style={styles.ctaText}>{t('Cerrar', 'Close')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       <ScreenGuide guideId="devices" />
     </SafeAreaView>
   );
@@ -325,6 +392,10 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
   },
   qrButtonText: { ...Typography.button },
+  adminActions: { gap: Spacing.xs },
+  membersModal: { width: '100%', maxWidth: 480, maxHeight: '80%', borderRadius: Spacing.cardRadius, padding: Spacing.lg },
+  memberRow: { borderBottomWidth: 1, paddingVertical: Spacing.md },
+  memberActions: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.md, marginTop: Spacing.sm },
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,.62)',

@@ -326,10 +326,11 @@ Este bloque está implementado y versionado para que la próxima sesión no teng
    pero en esta máquina `GMAIL_APP_PASSWORD` no está exportada y el CLI avisa. No ejecutar
    `supabase config push` a ciegas: primero cargar el secreto y confirmar que el remoto conserva SMTP.
 
-### 11.3. P1 — siguiente sesión extensa de producto
+### 11.3. P1 — administración operativa
 
-- Administración de miembros: listar operadores, revocar acceso, promover a admin, transferir
-  propiedad y mostrar auditoría. Mantener todas esas mutaciones detrás de RPCs validadas.
+- Administración de miembros implementada: owner/admin pueden listar operadores y revocar o
+  restaurar acceso; el owner puede promover administradores y transferir propiedad. Las mutaciones
+  pasan por RPCs validadas y dejan trazabilidad en `device_member_audit`.
 - Desafío criptográfico de pairing firmado por el firmware. La UI exige presencia BLE, pero una
   llamada API fabricada aún podría invocar `register_paired_device` con un código aleatorio; el
   desafío es lo que convertiría presencia física en prueba verificable por el servidor.

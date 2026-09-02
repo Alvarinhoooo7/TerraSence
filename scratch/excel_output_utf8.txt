@@ -1,0 +1,469 @@
+=== Sheet: PORTADA ===
+                                           Unnamed: 1                                         Unnamed: 2              Unnamed: 3                             Unnamed: 4
+0      TERRASENSE — EVALUACIÓN ECONÓMICA DEL PROYECTO                                                NaN                     NaN                                    NaN
+1   Inversiones, financiamiento, depreciación, amo...                                                NaN                     NaN                                    NaN
+3                                 NOMBRE ESTUDIANTES:                                     Álvaro Villena                     NaN                                    NaN
+4                                           PROYECTO:  TerraSense — Sistema IoT de diagnóstico agronó...                     NaN                                    NaN
+5                                            CARRERA:  Ingeniería en Electrónica y Sistemas Inteligen...                     NaN                                    NaN
+6                                FUENTE DE LOS DATOS:  README.md del proyecto, Sección XII (versión 3.0)                     NaN                                    NaN
+7                                             MONEDA:        Pesos chilenos (CLP), valores netos sin IVA                     NaN                                    NaN
+8                            HORIZONTE DE EVALUACIÓN:    5 años, tasa de rentabilidad exigida 20 % anual                     NaN                                    NaN
+10                              ÍNDICE DE LA PLANILLA                                                NaN                     NaN                                    NaN
+11                                               Hoja                                          Contenido   Cuadro de la planilla                                    NaN
+12                                         PARÁMETROS  Tabla maestra de supuestos: macro, precio, vol...         Base del modelo                                    NaN
+13                                   COSTOS UNITARIOS  BOM unitario, costo variable entregado y curva...  Insumo del Cuadro N° 2                                    NaN
+14                                        INVERSIONES  Inversión en capital de trabajo, activo nomina...             CUADRO N° 1                                    NaN
+15                                     FINANCIAMIENTO  Fuentes de financiamiento y condiciones del cr...             CUADRO N° 1                                    NaN
+16                                       AMORTIZACIÓN  Amortización de ambos préstamos, sistema franc...             CUADRO N° 1                                    NaN
+17                                       DEPRECIACIÓN  Depreciación anual del activo fijo, ítem por í...             CUADRO N° 1                                    NaN
+18                               ESTADO DE RESULTADOS  Ingresos, costos y gastos operacionales del Añ...             CUADRO N° 2                                    NaN
+19                                GASTOS FIJOS 5 AÑOS  Escalamiento de los gastos fijos a 5 años y pu...    Apoyo al Cuadro N° 3                                    NaN
+20                                         PROYECCIÓN  Estado de resultados proyectado, flujo de fond...             CUADRO N° 3                                    NaN
+21                                       SENSIBILIDAD  Sensibilidad, punto de quiebre y VAN frente a ...             Complemento                                    NaN
+22                                 TOMA DE DECISIONES  Toma de decisiones en base al VAN/TIR y en bas...      Toma de decisiones                                    NaN
+23                                            RÚBRICA   Rúbrica de evaluación e instrucciones de entrega              Referencia                                    NaN
+25  RESULTADO DE LA EVALUACIÓN (todo calculado en ...                                                NaN                     NaN                                    NaN
+26                                          Indicador                                              Valor                Criterio                              Veredicto
+27                            Inversión inicial total                                           26548500                       —  Financiada ≈34 % socios / ≈66 % banca
+28                            VAN (tasa exigida 20 %)                                     2588182.125887                 VAN > 0                               ✔ Cumple
+29                                                TIR                                           0.227201              TIR > 20 %                               ✔ Cumple
+30                                           Pay Back                                           3.710136                ≤ 5 años                  ✔ Cumple, sin holgura
+31               Punto de equilibrio Año 1 (unidades)                                                166    < 200 u planificadas                      ✔ Holgura del 20%
+32                    Utilidad neta de todos los años                            Positiva desde el Año 1     Sin años de pérdida                               ✔ Cumple
+34  Planilla íntegramente formulada. Los únicos va...                                                NaN                     NaN                                    NaN
+35  Se declara con la misma honestidad que antes: ...                                                NaN                     NaN                                    NaN
+
+==================================================
+=== Sheet: PARÁMETROS ===
+                                           Unnamed: 1                       Unnamed: 2 Unnamed: 3 Unnamed: 4 Unnamed: 5 Unnamed: 6                                         Unnamed: 7
+0              TABLA MAESTRA DE PARÁMETROS DEL MODELO                              NaN        NaN        NaN        NaN        NaN                                                NaN
+1   README XII.1 · Modificar un valor de esta hoja...                              NaN        NaN        NaN        NaN        NaN                                                NaN
+2          1. SUPUESTOS MACROECONÓMICOS Y TRIBUTARIOS                              NaN        NaN        NaN        NaN        NaN                                                NaN
+3                                           Parámetro                   Valor adoptado        NaN        NaN        NaN        NaN                                             Origen
+4                            Tipo de cambio (CLP/USD)                              915        NaN        NaN        NaN        NaN       Dólar observado, Banco Central de Chile [35]
+5                                                 IVA                             0.19        NaN        NaN        NaN        NaN                                           SII [34]
+6   Impuesto de primera categoría (Régimen Pro Pym...                             0.25        NaN        NaN        NaN        NaN                                           SII [57]
+7              Arancel de importación sobre valor FOB                             0.06        NaN        NaN        NaN        NaN                                       Aduanas [32]
+8     Tasa de rentabilidad exigida / de descuento (r)                              0.2        NaN        NaN        NaN        NaN         Tasa exigida por la planilla de evaluación
+9             Margen mínimo exigido sobre costo total                              0.3        NaN        NaN        NaN        NaN                Restricción de negocio del proyecto
+10                     Horizonte de evaluación (años)                                5        NaN        NaN        NaN        NaN                   Planilla de evaluación económica
+12  2. PRODUCTO, PRECIO Y COSTOS UNITARIOS DE REFE...                              NaN        NaN        NaN        NaN        NaN                                                NaN
+13                                          Parámetro                   Valor adoptado        NaN        NaN        NaN        NaN                                             Origen
+14  Precio de venta con IVA (techo declarado del n...                           249990        NaN        NaN        NaN        NaN  Decisión de negocio, verificada contra la comp...
+15                     Precio de venta NETO (sin IVA)                           210076        NaN        NaN        NaN        NaN                         precio con IVA ÷ (1 + IVA)
+16                                      Merma y scrap                             0.03        NaN        NaN        NaN        NaN                                  Estimación propia
+17               Provisión de garantía legal, 6 meses                             0.05        NaN        NaN        NaN        NaN                                    Ley 21.398 [24]
+18  Mano de obra directa: horas de ensamblaje y QA...                              1.5        NaN        NaN        NaN        NaN  XI.6 — subió desde 1,2 h por la sonda de mayor...
+19                 Valor hora de mano de obra directa                             6000        NaN        NaN        NaN        NaN                                  Estimación propia
+20  Flete nacional al cliente, por unidad (Bluexpr...                             6000        NaN        NaN        NaN        NaN            Tarifa referencial ~$4.500 + IVA por kg
+22            3. VOLUMEN PROYECTADO Y CURVA DE ESCALA                              NaN        NaN        NaN        NaN        NaN                                                NaN
+23                                          Parámetro                            Año 1      Año 2      Año 3      Año 4      Año 5                                             Origen
+24                              Unidades planificadas                              200        350        500        650        850  XI.1 — 200 u equivalen al 0,17 % del mercado s...
+25                Factor de costo variable por escala                                1       0.97       0.94       0.92        0.9  XII.2.3 — NRE prorrateado, quiebres de precio ...
+27                                  4. FINANCIAMIENTO                              NaN        NaN        NaN        NaN        NaN                                                NaN
+28                                          Parámetro                   Valor adoptado        NaN        NaN        NaN        NaN                                         Naturaleza
+29               Inversión inicial total del proyecto                         26548500        NaN        NaN        NaN        NaN                   Calculada en la hoja INVERSIONES
+30  Pie de los socios (2 × $4.450.000, aporte propio)                          8900000        NaN        NaN        NaN        NaN  Compromiso de capital que el banco exige ver a...
+31                    Crédito bancario de largo plazo                         12648500        NaN        NaN        NaN        NaN  Crédito PYME con garantía FOGAPE; monto = inve...
+32                 Tasa de interés anual, largo plazo                              0.1        NaN        NaN        NaN        NaN                   Crédito PYME con garantía FOGAPE
+33            Plazo del crédito de largo plazo (años)                                5        NaN        NaN        NaN        NaN                                             5 años
+34                    Línea de crédito de corto plazo                          5000000        NaN        NaN        NaN        NaN           Cubre el desfase de caja del primer lote
+35                 Tasa de interés anual, corto plazo                             0.15        NaN        NaN        NaN        NaN  Línea de capital de trabajo con garantía FOGAP...
+36            Plazo de la línea de corto plazo (años)                                1        NaN        NaN        NaN        NaN                   Se paga íntegra dentro del Año 1
+37                            Sistema de amortización  Francés (cuota total constante)        NaN        NaN        NaN        NaN                                            XII.3.4
+38  Financiamiento del Estado (subsidio no reembol...                                0        NaN        NaN        NaN        NaN  Por decisión explícita: el proyecto no depende...
+40      5. ACTIVO FIJO, DEPRECIACIÓN Y REMUNERACIONES                              NaN        NaN        NaN        NaN        NaN                                                NaN
+41                                          Parámetro                   Valor adoptado        NaN        NaN        NaN        NaN                                             Origen
+42  Vida útil — equipamiento técnico e informático...                                6        NaN        NaN        NaN        NaN  Tabla de vida útil de bienes físicos del SII [59]
+43  Vida útil — mobiliario de taller y almacenamie...                                7        NaN        NaN        NaN        NaN  Tabla de vida útil de bienes físicos del SII [59]
+44                     Valor residual del activo fijo                                0        NaN        NaN        NaN        NaN                                Supuesto del modelo
+45  Sueldo empresarial por socio, Año 1 (IMM bruto...                           553553        NaN        NaN        NaN        NaN  Ingreso Mínimo Mensual vigente desde mayo de 2026
+46        Socios fundadores con sueldo desde el mes 1                                2        NaN        NaN        NaN        NaN          Condición impuesta: ningún año sin retiro
+48  Los tres supuestos que reconstruyeron este mod...                              NaN        NaN        NaN        NaN        NaN                                                NaN
+
+==================================================
+=== Sheet: COSTOS UNITARIOS ===
+                                           Unnamed: 1                                     Unnamed: 2        Unnamed: 3                 Unnamed: 4                                         Unnamed: 5
+0                      ESTRUCTURA DE COSTOS UNITARIOS                                            NaN               NaN                        NaN                                                NaN
+1   README XII.2 · 100 % SMD, componentes cotizado...                                            NaN               NaN                        NaN                                                NaN
+2               1. LISTA DE MATERIALES (BOM) UNITARIA                                            NaN               NaN                        NaN                                                NaN
+3                                          Componente                               Fuente / detalle  Costo unitario $                        NaN                                                NaN
+4   ESP32-WROOM-32E-N4, BME280, SP3485, TP4056, MT...           LCSC, precio unitario a pieza suelta              6711                        NaN                                                NaN
+5   PCB de 2 capas + ensamblaje SMT + NRE prorrateado                                 JLCPCB turnkey              2229                        NaN                                                NaN
+6               Flete internacional + arancel del 6 %  Courier consolidado sobre el lote electrónico              1183                        NaN                                                NaN
+7   2× celda 18650 de 3.000 mAh + portacelda + fus...                          Cotización de mercado              4510                        NaN                                                NaN
+8   USB-C sellado, rocker, pulsador PAIR, prensaes...                          Cotización de mercado              3250                        NaN                                                NaN
+9       Filamento PETG (118 g) + energía de impresión       Inversión y consumo propios (estimación)              2273                        NaN                                                NaN
+10          Empaque: caja, manual, espuma y desecante                              Estimación propia              2500                        NaN                                                NaN
+11  Sonda de suelo 7-en-1 RS-485, acero inoxidable...                     Cotización real de mercado             48000                        NaN                                                NaN
+12                                          BOM TOTAL                                            NaN             70656                        NaN                                                NaN
+13  El BOM subió de $43.773 a $70.656 (+61 %) casi...                                            NaN               NaN                        NaN                                                NaN
+15  2. DEL BOM AL COSTO VARIABLE UNITARIO ENTREGAD...                                            NaN               NaN                        NaN                                                NaN
+16                                           Concepto                                        Cálculo           Monto $                        NaN                                                NaN
+17                                                BOM                             Total del cuadro 1             70656                        NaN                                                NaN
+18         (+) Flete nacional al cliente (Bluexpress)                                      Parámetro              6000                        NaN                                                NaN
+19                            (+) Merma y scrap (3 %)                                      BOM × 3 %              2120                        NaN                                                NaN
+20     (+) Provisión de garantía legal, 6 meses (5 %)                                      BOM × 5 %              3533                        NaN                                                NaN
+21  (+) Mano de obra directa: ensamblaje, QA y cal...                        1,5 h × $6.000 por hora              9000                        NaN                                                NaN
+22                (=) COSTO VARIABLE UNITARIO — AÑO 1                                            NaN             91309                        NaN                                                NaN
+23  El IVA de importación no es un costo: se compe...                                            NaN               NaN                        NaN                                                NaN
+25     3. CURVA DE COSTO VARIABLE UNITARIO POR ESCALA                                            NaN               NaN                        NaN                                                NaN
+26                                                Año                          Unidades planificadas            Factor  Costo variable unitario $                             Origen de la reducción
+27                                              Año 1                                            200                 1                      91309         Sin reducción — es el costo base del Año 1
+28                                              Año 2                                            350              0.97                      88570             NRE de PCB amortizado en un lote mayor
+29                                              Año 3                                            500              0.94                      85830  Quiebres de precio por volumen en componentes ...
+30                                              Año 4                                            650              0.92                      84004            Consolidación de flete en lotes mayores
+31                                              Año 5                                            850               0.9                      82178   Negociación directa con el proveedor de la sonda
+33  4. DESGLOSE DEL COSTO VARIABLE UNITARIO PARA E...                                            NaN               NaN                        NaN                                                NaN
+34                      Componente del costo variable                Clasificación en el Cuadro N° 2  Monto unitario $                        NaN                                                NaN
+35                          Materiales directos (BOM)        Costo operacional — materiales directos             70656                        NaN                                                NaN
+36  Flete nacional, merma y provisión de garantía ...     Costo operacional — otros costos variables             11653                        NaN                                                NaN
+37  Mano de obra directa (ensamblaje, QA y calibra...       Costo operacional — mano de obra directa              9000                        NaN                                                NaN
+38                      TOTAL COSTO VARIABLE UNITARIO                                            NaN             91309                        NaN                                                NaN
+
+==================================================
+=== Sheet: INVERSIONES ===
+                                           Unnamed: 1      Unnamed: 2                 Unnamed: 3                    Unnamed: 4                                         Unnamed: 5      Unnamed: 6        Unnamed: 7
+0              CUADRO N° 1 — INVERSIONES DEL PROYECTO             NaN                        NaN                           NaN                                                NaN             NaN               NaN
+1   Álvaro Villena · Inversión inicial clasificada...             NaN                        NaN                           NaN                                                NaN             NaN               NaN
+3                                                 NaN             NaN  FUENTES DE FINANCIAMIENTO                           NaN                                                NaN             NaN               NaN
+4                                                 NaN             NaN  FINANCIAMIENTO DEL ESTADO                       CAPITAL  FINANCIAMIENTO EXTERNO — INSTITUCIONES FINANCI...             NaN             TOTAL
+5                               INVERSIÓN INICIAL EN:         MONTO $                (no aplica)  PROPIO — PIE DE LOS 2 SOCIOS                                        CORTO PLAZO     LARGO PLAZO  FINANCIAMIENTO $
+7   (A) INVERSIÓN INICIAL EN CAPITAL DE TRABAJO Y ...             NaN                        NaN                           NaN                                                NaN             NaN               NaN
+8   Dinero para cubrir la puesta en marcha: consti...             NaN                        NaN                           NaN                                                NaN             NaN               NaN
+9   Trámites y gastos de constituir la empresa, de...             NaN                        NaN                           NaN                                                NaN             NaN               NaN
+10  Constitución de la SpA vía "Empresa en un Día"...               0                        NaN                           NaN                                                NaN             NaN               NaN
+11  Firma electrónica avanzada (FEA) para ambos so...           30000                        NaN                           NaN                                                NaN             NaN               NaN
+12  Inicio de actividades SII, timbraje electrónic...               0                        NaN                           NaN                                                NaN             NaN               NaN
+13   Registro de marca comercial ante INAPI (1 clase)          220000                        NaN                           NaN                                                NaN             NaN               NaN
+14  Patente municipal — permiso de actividad en ca...           35000                        NaN                           NaN                                                NaN             NaN               NaN
+15  Resolución sanitaria y certificación SEC — no ...               0                        NaN                           NaN                                                NaN             NaN               NaN
+16  Honorarios contables de puesta en marcha (apar...          100000                        NaN                           NaN                                                NaN             NaN               NaN
+17  Ensayos de contraste agronómico en laboratorio...          900000                        NaN                           NaN                                                NaN             NaN               NaN
+18  Ensayos externos de estanqueidad IP67 y compat...         1500000                        NaN                           NaN                                                NaN             NaN               NaN
+19  Sitio web, identidad de marca y material comer...          450000                        NaN                           NaN                                                NaN             NaN               NaN
+20  Patrones de calibración (buffers de pH y EC 1....          120000                        NaN                           NaN                                                NaN             NaN               NaN
+21  Herramienta menor, tornillería, insertos y con...          150000                        NaN                           NaN                                                NaN             NaN               NaN
+22  Lote piloto de validación (10 unidades preseri...          913090                        NaN                           NaN                                                NaN             NaN               NaN
+23                            Subtotal activo nominal         4418090                        NaN                           NaN                                                NaN             NaN               NaN
+24  Capital de trabajo (≈3 meses de gasto fijo ple...        14806910                        NaN                           NaN                                                NaN             NaN               NaN
+25  Contingencia / imprevistos (10 % sobre el subt...         2413500                        NaN                           NaN                                                NaN             NaN               NaN
+26  TOTAL CAPITAL DE TRABAJO, ACTIVO NOMINAL Y CON...        21638500                          0                       8900000                                            5000000         7738500          21638500
+28               (B) INVERSIÓN INICIAL EN ACTIVO FIJO             NaN                        NaN                           NaN                                                NaN             NaN               NaN
+29  No hay terrenos, construcciones ni vehículos: ...             NaN                        NaN                           NaN                                                NaN             NaN               NaN
+30         Impresora 3D FDM principal, cámara cerrada          900000               Equipamiento                           NaN                                                NaN             NaN               NaN
+31  Impresora 3D FDM secundaria (redundancia opera...          450000               Equipamiento                           NaN                                                NaN             NaN               NaN
+32      Secador de filamento y almacenamiento estanco           80000               Equipamiento                           NaN                                                NaN             NaN               NaN
+33  Estación de soldadura, aire caliente y microsc...          240000               Equipamiento                           NaN                                                NaN             NaN               NaN
+34  Fuente de poder programable y multímetro de banco          250000               Equipamiento                           NaN                                                NaN             NaN               NaN
+35                 Osciloscopio de 100 MHz, 2 canales          400000               Equipamiento                           NaN                                                NaN             NaN               NaN
+36  Analizador lógico, programador y sonda de corr...          160000               Equipamiento                           NaN                                                NaN             NaN               NaN
+37  Banco de ensayo IP67 (columna de 1 m + cámara ...          180000               Equipamiento                           NaN                                                NaN             NaN               NaN
+38          Instrumento patrón de laboratorio (pH/EC)          350000               Equipamiento                           NaN                                                NaN             NaN               NaN
+39  2× notebook y puesto de desarrollo (uno por so...         1600000               Equipamiento                           NaN                                                NaN             NaN               NaN
+40  Mobiliario de taller y almacenamiento (casa de...          300000                 Mobiliario                           NaN                                                NaN             NaN               NaN
+41                            TOTAL ACTIVO FIJO   (B)         4910000                        NaN                           NaN                                                NaN         4910000           4910000
+43                TOTAL INVERSIÓN INICIAL   (A) + (B)        26548500                          0                       8900000                                            5000000        12648500          26548500
+44  Participación de cada fuente en el financiamiento             NaN                          0                      0.335236                                           0.188335         0.47643                 1
+45  ✔ VERIFICACIÓN: el financiamiento cubre exacta...             NaN                        NaN                           NaN                                                NaN             NaN               NaN
+47  MEMORIA DE CÁLCULO — RESUMEN (el detalle está ...             NaN                        NaN                           NaN                                                NaN             NaN               NaN
+48                                           Concepto           Año 1                      Año 2                         Año 3                                              Año 4           Año 5      Total 5 años
+49       Amortización de intereses (costo financiero)         2014850             1057670.756417                 829773.588475                                      579086.703739    303331.13053    4784712.179162
+50                Amortización de la cuota de capital  7071792.435832             2278971.679416                2506868.847357                                     2757555.732093  3033311.305302        17648500.0
+51       Cuota total pagada al banco (salida de caja)  9086642.435832             3336642.435832                3336642.435832                                     3336642.435832  3336642.435832   22433212.179162
+52        Cuota de depreciación anual del activo fijo          811190                     811190                        811190                                             811190          811190           4055950
+54  El Año 1 sigue concentrando la mayor carga de ...             NaN                        NaN                           NaN                                                NaN             NaN               NaN
+
+==================================================
+=== Sheet: FINANCIAMIENTO ===
+                                           Unnamed: 1                                 Unnamed: 2                   Unnamed: 3                                         Unnamed: 5
+0   FUENTES DE FINANCIAMIENTO Y CONDICIONES DEL CR...                                        NaN                          NaN                                                NaN
+1   README XII.3.3 · Pie de los dos socios + crédi...                                        NaN                          NaN                                                NaN
+2                        1. FUENTES DE FINANCIAMIENTO                                        NaN                          NaN                                                NaN
+3                                              Fuente                                    Monto $                  % del total                                         Naturaleza
+4   Pie de los socios (2 × $4.450.000, aporte propio)                                    8900000                     0.335236  Compromiso de capital que el banco exige ver a...
+5   Crédito bancario de largo plazo — 5 años, 10 %...                                   12648500                      0.47643  Con garantía estatal FOGAPE, que cubre entre e...
+6            Línea de corto plazo — 1 año, 15 % anual                                    5000000                     0.188335  Cubre el desfase de caja mientras se paga el p...
+7   Financiamiento del Estado (subsidio no reembol...                                          0                            0  Cero por decisión explícita: postular a CORFO ...
+8                                TOTAL FINANCIAMIENTO                                   26548500                            1                                                NaN
+9    Inversión inicial a financiar (hoja INVERSIONES)                                   26548500                          NaN                                                NaN
+10  ✔ VERIFICACIÓN: el financiamiento cubre exacta...                                        NaN                          NaN                                                NaN
+11  Ningún banco chileno presta el 100 % de la inv...                                        NaN                          NaN                                                NaN
+13                     2. CONDICIONES DE CADA CRÉDITO                                        NaN                          NaN                                                NaN
+14                                           Concepto                                Largo plazo                  Corto plazo                                         Comentario
+15                                     Tipo de fuente  Crédito bancario PYME con garantía FOGAPE  Línea de capital de trabajo                 Ambas de instituciones financieras
+16                            Sistema de amortización            Francés (cuota total constante)    Pago único al vencimiento                                            XII.3.4
+17                  Monto del préstamo (capital / VA)                                   12648500                      5000000                        Suman ≈66 % de la inversión
+18                              Tasa de interés anual                                        0.1                         0.15      La línea corta es deuda cara: se paga primero
+19                                       Plazo (años)                                          5                            1        El corto plazo se extingue dentro del Año 1
+21                           3. RESULTADO DEL CRÉDITO                                        NaN                          NaN                                                NaN
+22                                           Concepto                                Largo plazo                  Corto plazo                                            Fórmula
+23            Cuota anual constante (sistema francés)                             3336642.435832                    5750000.0                          PMT(tasa; plazo; capital)
+24                         Total de intereses pagados                             4034712.179162                     750000.0                            Cuota × plazo − capital
+25                              Total pagado al banco                            16683212.179162                    5750000.0                                Capital + intereses
+26      COSTO FINANCIERO TOTAL DEL PROYECTO (LP + CP)                             4784712.179162                          NaN                                                NaN
+27  Sin subsidio estatal, por decisión explícita: ...                                        NaN                          NaN                                                NaN
+
+==================================================
+=== Sheet: AMORTIZACIÓN ===
+                                           Unnamed: 1        Unnamed: 2       Unnamed: 3              Unnamed: 4                    Unnamed: 5       Unnamed: 6
+0   CÁLCULO DE LA AMORTIZACIÓN DE LOS PRÉSTAMOS Y ...               NaN              NaN                     NaN                           NaN              NaN
+1   README XII.3.4 · Sistema francés: la cuota tot...               NaN              NaN                     NaN                           NaN              NaN
+2   1. FINANCIAMIENTO A LARGO PLAZO — CRÉDITO BANC...               NaN              NaN                     NaN                           NaN              NaN
+3                        Monto del préstamo (capital)          12648500              NaN                     NaN                           NaN              NaN
+4                               Tasa de interés anual               0.1              NaN                     NaN                           NaN              NaN
+5                                        Plazo (años)                 5              NaN                     NaN                           NaN              NaN
+6                               Cuota anual constante    3336642.435832              NaN                     NaN                           NaN              NaN
+8                                       Período (año)  Saldo insoluto $    Cuota total $  Amortización interés $  Amortización cuota capital $    Saldo final $
+9                                                   1          12648500   3336642.435832                 1264850                2071792.435832  10576707.564168
+10                                                  2   10576707.564168   3336642.435832          1057670.756417                2278971.679416   8297735.884752
+11                                                  3    8297735.884752   3336642.435832           829773.588475                2506868.847357   5790867.037395
+12                                                  4    5790867.037395   3336642.435832           579086.703739                2757555.732093   3033311.305302
+13                                                  5    3033311.305302   3336642.435832            303331.13053                3033311.305302                0
+14                                            TOTALES               NaN  16683212.179162          4034712.179162                    12648500.0              NaN
+16  2. FINANCIAMIENTO A CORTO PLAZO — LÍNEA DE CAP...               NaN              NaN                     NaN                           NaN              NaN
+17                       Monto del préstamo (capital)           5000000              NaN                     NaN                           NaN              NaN
+18                              Tasa de interés anual              0.15              NaN                     NaN                           NaN              NaN
+19                                       Plazo (años)                 1              NaN                     NaN                           NaN              NaN
+20                              Cuota anual constante         5750000.0              NaN                     NaN                           NaN              NaN
+22                                      Período (año)  Saldo insoluto $    Cuota total $  Amortización interés $  Amortización cuota capital $    Saldo final $
+23                                                  1           5000000        5750000.0                  750000                     5000000.0                0
+24                                            TOTALES               NaN        5750000.0                  750000                     5000000.0              NaN
+26  3. COSTO FINANCIERO Y AMORTIZACIÓN DE CAPITAL ...               NaN              NaN                     NaN                           NaN              NaN
+27                                           Concepto             Año 1            Año 2                   Año 3                         Año 4            Año 5
+28           Interés — costo financiero del ejercicio           2014850   1057670.756417           829773.588475                 579086.703739     303331.13053
+29                Amortización de la cuota de capital    7071792.435832   2278971.679416          2506868.847357                2757555.732093   3033311.305302
+30       Cuota total pagada al banco (salida de caja)    9086642.435832   3336642.435832          3336642.435832                3336642.435832   3336642.435832
+31             Saldo insoluto al cierre del ejercicio   10576707.564168   8297735.884752          5790867.037395                3033311.305302                0
+33  El Año 1 acumula el interés de ambos préstamos...               NaN              NaN                     NaN                           NaN              NaN
+
+==================================================
+=== Sheet: DEPRECIACIÓN ===
+                                           Unnamed: 1              Unnamed: 2              Unnamed: 3            Unnamed: 4                         Unnamed: 5                         Unnamed: 6              Unnamed: 7
+0           CÁLCULO DE LA CUOTA DE DEPRECIACIÓN ANUAL                     NaN                     NaN                   NaN                                NaN                                NaN                     NaN
+1   README XII.3.5 · Depreciación lineal, valor re...                     NaN                     NaN                   NaN                                NaN                                NaN                     NaN
+2        1. DETALLE DEL ACTIVO FIJO Y SU DEPRECIACIÓN                     NaN                     NaN                   NaN                                NaN                                NaN                     NaN
+3                          Componente del activo fijo                   Grupo  Valor de adquisición $      Vida útil (años)               Depreciación anual $  Depreciación acumulada a 5 años $  Valor libro al Año 5 $
+4          Impresora 3D FDM principal, cámara cerrada            Equipamiento                  900000                     6                             150000                             750000                  150000
+5   Impresora 3D FDM secundaria (redundancia opera...            Equipamiento                  450000                     6                              75000                             375000                   75000
+6       Secador de filamento y almacenamiento estanco            Equipamiento                   80000                     6                       13333.333333                       66666.666667            13333.333333
+7   Estación de soldadura, aire caliente y microsc...            Equipamiento                  240000                     6                              40000                             200000                   40000
+8   Fuente de poder programable y multímetro de banco            Equipamiento                  250000                     6                       41666.666667                      208333.333333            41666.666667
+9                  Osciloscopio de 100 MHz, 2 canales            Equipamiento                  400000                     6                       66666.666667                      333333.333333            66666.666667
+10  Analizador lógico, programador y sonda de corr...            Equipamiento                  160000                     6                       26666.666667                      133333.333333            26666.666667
+11  Banco de ensayo IP67 (columna de 1 m + cámara ...            Equipamiento                  180000                     6                              30000                             150000                   30000
+12          Instrumento patrón de laboratorio (pH/EC)            Equipamiento                  350000                     6                       58333.333333                      291666.666667            58333.333333
+13  2× notebook y puesto de desarrollo (uno por so...            Equipamiento                 1600000                     6                      266666.666667                     1333333.333333           266666.666667
+14  Mobiliario de taller y almacenamiento (casa de...              Mobiliario                  300000                     7                       42857.142857                      214285.714286            85714.285714
+15                                  TOTAL ACTIVO FIJO                     NaN                 4910000                   NaN                       811190.47619                     4055952.380952           854047.619048
+17  2. RESUMEN POR GRUPO DE ACTIVO (cifra que usa ...                     NaN                     NaN                   NaN                                NaN                                NaN                     NaN
+18                                    Grupo de activo  Valor de adquisición $        Vida útil (años)  Depreciación anual $  Depreciación acumulada a 5 años $             Valor libro al Año 5 $                     NaN
+19  Equipamiento técnico e informático (impresoras...                 4610000                       6                768333                            3841665                             768335                     NaN
+20              Mobiliario de taller y almacenamiento                  300000                       7                 42857                             214285                              85715                     NaN
+21   TOTAL — CUOTA DE DEPRECIACIÓN ANUAL DEL PROYECTO                 4910000                     NaN                811190                            4055950                             854050                     NaN
+23  Valor residual cero. Vidas útiles conforme a l...                     NaN                     NaN                   NaN                                NaN                                NaN                     NaN
+
+==================================================
+=== Sheet: ESTADO DE RESULTADOS ===
+                                           Unnamed: 1                                         Unnamed: 2      Unnamed: 3     Unnamed: 4              Unnamed: 6
+0   CUADRO N° 2 — INGRESOS, COSTOS Y GASTOS OPERAC...                                                NaN             NaN            NaN                     NaN
+1   Álvaro Villena · README XII.4 · El precio se f...                                                NaN             NaN            NaN                     NaN
+3                                                 NaN                                                NaN     VALOR MES $  VALOR AÑO 1 $       ESTUDIO DE ORIGEN
+5                                                 NaN                                             VENTAS             NaN            NaN      ESTUDIO DE MERCADO
+6                                                 NaN                                  Unidades vendidas       16.666667            200                     NaN
+7                                                 NaN  Precio de venta neto por unidad, sin IVA ($249...             NaN         210076                     NaN
+8                                                 NaN                        VT = unidades × precio neto  3501266.666667       42015200                     NaN
+9                                                 (+)                                       TOTAL VENTAS  3501266.666667       42015200                     NaN
+11                                                NaN            COSTOS OPERACIONALES (COSTOS VARIABLES)             NaN            NaN         ESTUDIO TÉCNICO
+12                                                NaN  Materiales directos (BOM): 200 unidades × $70.656         1177600       14131200                     NaN
+13                                                NaN  Flete nacional, merma y provisión de garantía ...   194216.666667        2330600                     NaN
+14                                                NaN  Mano de obra directa — ensamblaje, QA y calibr...          150000        1800000                     NaN
+15                                                (−)                         TOTAL COSTOS OPERACIONALES  1521816.666667       18261800                     NaN
+17                                                NaN            GASTOS DE ADMINISTRACIÓN (GASTOS FIJOS)             NaN            NaN  ESTUDIO ADMINISTRATIVO
+18                                                NaN  Mano de obra indirecta — sueldo empresarial de...         1107106       13285272                     NaN
+19                                                NaN  Ensamblador — sin contratar el Año 1: lo cubre...               0              0                     NaN
+20                                                NaN      Servicios digitales y tiendas de aplicaciones    70131.666667         841580                     NaN
+21                                                NaN  Gastos generales — energía e internet incremen...           30000         360000                     NaN
+22                                                NaN   Contabilidad, patente municipal y asesoría legal           70000         840000                     NaN
+23                                                NaN                    Materiales indirectos y seguros           35000         420000                     NaN
+24                                                (−)                     TOTAL GASTOS DE ADMINISTRACIÓN  1312237.666667       15746852                     NaN
+26                                                NaN          GASTOS DE COMERCIALIZACIÓN (GASTOS FIJOS)             NaN            NaN      ESTUDIO DE MERCADO
+27                                                NaN  Publicidad y promoción — pauta digital directa...          100000        1200000                     NaN
+28                                                (−)                   TOTAL GASTOS DE COMERCIALIZACIÓN          100000        1200000                     NaN
+30                                                NaN  TOTAL COSTOS Y GASTOS FIJOS (administración + ...  1412237.666667       16946852                     NaN
+31                                                NaN                        TOTAL COSTOS Y GASTOS  (CT)  2934054.333333       35208652                     NaN
+33                                                (=)  UTILIDAD (PÉRDIDA) OPERACIONAL — antes de depr...   567212.333333        6806548                     NaN
+34                                                NaN  Margen implícito sobre el costo total  (VT ÷ C...             NaN        0.19332                     NaN
+35  La planilla estándar deriva las ventas como VT...                                                NaN             NaN            NaN                     NaN
+37  DETALLE DE SERVICIOS DIGITALES Y TIENDAS DE AP...                                                NaN             NaN            NaN                     NaN
+38                                                NaN                                           Servicio      Referencia  Costo anual $                     NaN
+39                                                NaN                        Supabase Pro (US$25 al mes)            [38]         274500                     NaN
+40                                                NaN             Apple Developer Program (US$99 al año)            [36]          90585                     NaN
+41                                                NaN  Google Play Console (US$25, pago único de por ...            [37]          22875                     NaN
+42                                                NaN                    Expo EAS Starter (US$19 al mes)            [39]         208620                     NaN
+43                                                NaN  Dominio, correo corporativo y alojamiento de l...      Estimación          95000                     NaN
+44                                                NaN      Google Maps Platform, sobre el tramo gratuito            [40]         150000                     NaN
+45                                                NaN  Open-Meteo (uso no comercial, gratuito por ahora)            [41]              0                     NaN
+46                                                NaN                          TOTAL SERVICIOS DIGITALES             NaN         841580                     NaN
+48             PUNTO DE EQUILIBRIO CONTABLE DEL AÑO 1                                                NaN             NaN            NaN                     NaN
+49                                                NaN   Gastos fijos (administración + comercialización)             NaN       16946852                     NaN
+50                                                NaN                                 Depreciación anual             NaN         811190                     NaN
+51                                                NaN                         Costo financiero del Año 1             NaN        2014850                     NaN
+52                                                NaN  Margen de contribución unitario (precio neto −...             NaN         118767                     NaN
+53                                                NaN            PUNTO DE EQUILIBRIO CONTABLE (unidades)             NaN            166                     NaN
+54                                                NaN                              Unidades planificadas             NaN            200                     NaN
+55                                                NaN               Holgura sobre el punto de equilibrio             NaN       0.204819                     NaN
+
+==================================================
+=== Sheet: GASTOS FIJOS 5 AÑOS ===
+                                           Unnamed: 1 Unnamed: 2      Unnamed: 3     Unnamed: 4     Unnamed: 5    Unnamed: 6                                         Unnamed: 7
+0   ESTRUCTURA DE GASTOS FIJOS POR AÑO Y JUSTIFICA...        NaN             NaN            NaN            NaN           NaN                                                NaN
+1   README XII.4.3 · El crecimiento no se modela c...        NaN             NaN            NaN            NaN           NaN                                                NaN
+2                            GASTOS DE ADMINISTRACIÓN        NaN             NaN            NaN            NaN           NaN                                                NaN
+3                                            Concepto      Año 1           Año 2          Año 3          Año 4         Año 5                     Justificación del escalamiento
+4                  Sueldo empresarial de los 2 socios   13285272        14400000       21600000       24000000      28800000  Año 1 al IMM; sube a medida que el negocio lo ...
+5                   → equivale a, por socio y por mes     553553          600000         900000        1000000       1200000                                                NaN
+6                         Ensamblador(es) contratados          0         3490000        6980000        6980000      10460000  0,5 FTE el Año 2, 1 FTE los Años 3 y 4, 1,5 FT...
+7                        Arriendo de taller / oficina          0               0        4200000        4200000       5040000  Los Años 1 y 2 la producción cabe en la casa d...
+8       Servicios digitales y tiendas de aplicaciones     841580          850000         900000         950000       1000000  Supabase, Apple, Google Play, Expo, dominio y ...
+9                            Energía, agua e internet     360000          420000        1140000        1140000       1320000  Salta el Año 3 al incorporarse el taller arren...
+10   Contabilidad, patente municipal y asesoría legal     840000          960000        1680000        1680000       1980000  Escala con la dotación y con la formalización ...
+11                    Materiales indirectos y seguros     420000          480000         840000         900000        980000    Escala con el volumen y con el activo asegurado
+12                  SUBTOTAL GASTOS DE ADMINISTRACIÓN   15746852        20600000       37340000       39850000      49580000                                                NaN
+14                         GASTOS DE COMERCIALIZACIÓN        NaN             NaN            NaN            NaN           NaN                                                NaN
+15  Publicidad y promoción — Año 1: pauta digital ...    1200000         7080000       10680000       12000000      14400000  Se evaluó contratar un ingeniero de marketing ...
+16                SUBTOTAL GASTOS DE COMERCIALIZACIÓN    1200000         7080000       10680000       12000000      14400000                                                NaN
+18                                 TOTAL GASTOS FIJOS   16946852        27680000       48020000       51850000      63980000                                                NaN
+20                      INDICADORES DERIVADOS POR AÑO        NaN             NaN            NaN            NaN           NaN                                                NaN
+21                              Unidades planificadas        200             350            500            650           850                                               XI.1
+22  CAC — costo de adquisición por cliente (market...       6000    20228.571429          21360   18461.538462  16941.176471  El del Año 1 es artificialmente bajo: es traba...
+23                            Costo variable unitario      91309           88570          85830          84004         82178                         Curva de escala de XII.2.3
+24                    Margen de contribución unitario     118767          121506         124246         126072        127898              Precio neto − costo variable unitario
+25                                 Depreciación anual     811190          811190         811190         811190        811190                       Constante durante los 5 años
+26                           Costo financiero del año    2014850  1057670.756417  829773.588475  579086.703739  303331.13053                       Intereses de ambos préstamos
+27            PUNTO DE EQUILIBRIO CONTABLE (unidades)        166             243            400            422           509  Incluye depreciación e interés, no sólo el gas...
+28            Holgura del volumen sobre el equilibrio   0.204819        0.440329           0.25       0.540284      0.669941  El Año 3 es el más ajustado: se contrata al se...
+30  Por qué las ventas crecen: Año 2, primera agen...        NaN             NaN            NaN            NaN           NaN                                                NaN
+
+==================================================
+=== Sheet: PROYECCIÓN ===
+                                           Unnamed: 1                                         Unnamed: 2                               Unnamed: 3             Unnamed: 4       Unnamed: 5       Unnamed: 6       Unnamed: 7
+0   CUADRO N° 3 — ESTADO DE RESULTADOS PROYECTADO ...                                                NaN                                      NaN                    NaN              NaN              NaN              NaN
+1   Álvaro Villena · README XII.5 y XII.7 · Flujo ...                                                NaN                                      NaN                    NaN              NaN              NaN              NaN
+3                                            Concepto                                              AÑO 0                                    AÑO 1                  AÑO 2            AÑO 3            AÑO 4            AÑO 5
+4                                      Año calendario                                               2026                                     2027                   2028             2029             2030             2031
+5                            n (período de descuento)                                                  0                                        1                      2                3                4                5
+6                                   Unidades vendidas                                                NaN                                      200                    350              500              650              850
+7                                          (+) VENTAS                                                  0                                 42015200               73526600        105038000        136549400        178564600
+8                (−) COSTOS OPERACIONALES (variables)                                                  0                                 18261800               30999500         42915000         54602600         69851300
+9                        (−) GASTOS DE ADMINISTRACIÓN                                                  0                                 15746852               20600000         37340000         39850000         49580000
+10                     (−) GASTOS DE COMERCIALIZACIÓN                                                  0                                  1200000                7080000         10680000         12000000         14400000
+11                                   (−) DEPRECIACIÓN                                                  0                                   811190                 811190           811190           811190           811190
+12                               (−) COSTO FINANCIERO                                                  0                                  2014850         1057670.756417    829773.588475    579086.703739     303331.13053
+13                 (=) UTILIDAD (PÉRDIDA) OPERACIONAL                                                  0                                  3980508        12978239.243583  12462036.411525  28706523.296261   43618778.86947
+14                     (−) IMPUESTO A LA RENTA (25 %)                                                  0                                   995127         3244559.810896   3115509.102881   7176630.824065  10904694.717367
+15           (=) UTILIDAD (PÉRDIDA) NETA DEL PROYECTO                                                  0                                  2985381         9733679.432687   9346527.308644  21529892.472195  32714084.152102
+17  CÁLCULO DEL FLUJO DE FONDOS PARA LA EVALUACIÓN...                                                NaN                                      NaN                    NaN              NaN              NaN              NaN
+18                                           Concepto                                              AÑO 0                                    AÑO 1                  AÑO 2            AÑO 3            AÑO 4            AÑO 5
+19               UTILIDAD (PÉRDIDA) NETA DEL PROYECTO                                                NaN                                  2985381         9733679.432687   9346527.308644  21529892.472195  32714084.152102
+20            (+) DEPRECIACIÓN — no es salida de caja                                                NaN                                   811190                 811190           811190           811190           811190
+21              (−) CUOTA DE CAPITAL DE LOS PRÉSTAMOS                                                NaN                           7071792.435832         2278971.679416   2506868.847357   2757555.732093   3033311.305302
+22                              (−) INVERSIÓN INICIAL                                          -26548500                                      NaN                    NaN              NaN              NaN              NaN
+23                     (=) FLUJO DE FONDOS PROYECTADO                                          -26548500                          -3275221.435832         8265897.753272   7650848.461286  19583526.740103    30491962.8468
+24                                    FLUJO ACUMULADO                                          -26548500                         -29823721.435832        -21557823.68256 -13906975.221274   5676551.518829  36168514.365629
+25  El Año 1 es el único con flujo negativo, y es ...                                                NaN                                      NaN                    NaN              NaN              NaN              NaN
+27  EVALUACIÓN ECONÓMICA — VALOR ACTUAL NETO (VAN)...                                                NaN                                      NaN                    NaN              NaN              NaN              NaN
+28     Tasa de rentabilidad exigida (descuento)   r =                                                0.2                                      NaN                    NaN              NaN              NaN              NaN
+29                           Inversión inicial   I₀ =                                           26548500                                      NaN                    NaN              NaN              NaN              NaN
+30                      Factor de descuento  (1 + r)ⁿ                                                NaN                                      1.2                   1.44            1.728           2.0736          2.48832
+31           Valor presente de los flujos proyectados                                                NaN                          -2729351.196527         5740206.773105   4427574.341022   9444216.213398  12254035.994888
+32  Sumatoria del valor presente de los flujos (Añ...                                    29136682.125887                                      NaN                    NaN              NaN              NaN              NaN
+33                           V. A. N.   =   Σ VP − I₀                                     2588182.125887                                      NaN                    NaN              NaN              NaN              NaN
+34     V. A. N. — comprobación con la función NPV/VNA                                     2588182.125887                                      NaN                    NaN              NaN              NaN              NaN
+35               T. I. R.   —   tasa que anula el VAN                                           0.227201          ✔ La TIR supera la tasa exigida                    NaN              NaN              NaN              NaN
+37   PAY BACK — PLAZO DE RECUPERACIÓN DE LA INVERSIÓN                                                NaN                                      NaN                    NaN              NaN              NaN              NaN
+38  Años completos con flujo acumulado todavía neg...                                                  3                                      NaN                    NaN              NaN              NaN              NaN
+39                                    PAY BACK (años)                                           3.710136                         3 años y 9 meses                    NaN              NaN              NaN              NaN
+40  Veredicto del Pay Back frente al horizonte de ...  ✔ Se recupera dentro del horizonte de 5 años, ...                                      NaN                    NaN              NaN              NaN              NaN
+42                             RESUMEN DE INDICADORES                                                NaN                                      NaN                    NaN              NaN              NaN              NaN
+43                                          Indicador                                              Valor                   Criterio de aceptación              Veredicto              NaN              NaN              NaN
+44                                    V. A. N. (20 %)                                     2588182.125887         VAN > 0 → el proyecto crea valor               ✔ Cumple              NaN              NaN              NaN
+45                                           T. I. R.                                           0.227201                       TIR > 20 % exigido               ✔ Cumple              NaN              NaN              NaN
+46                                           Pay Back                                           3.710136           Dentro del horizonte de 5 años  ✔ Cumple, sin holgura              NaN              NaN              NaN
+47           Punto de equilibrio del Año 1 (unidades)                                                166  Menor que las 200 unidades planificadas               ✔ Cumple              NaN              NaN              NaN
+48                    Utilidad neta de todos los años                            Positiva desde el Año 1             Sin años de pérdida contable               ✔ Cumple              NaN              NaN              NaN
+50  Se declara sin maquillarlo, igual que antes: a...                                                NaN                                      NaN                    NaN              NaN              NaN              NaN
+
+==================================================
+=== Sheet: SENSIBILIDAD ===
+                                           Unnamed: 1       Unnamed: 2 Unnamed: 3        Unnamed: 4    Unnamed: 5                  Unnamed: 6               Unnamed: 7                                         Unnamed: 8
+0         ANÁLISIS DE SENSIBILIDAD Y PUNTO DE QUIEBRE              NaN        NaN               NaN           NaN                         NaN                      NaN                                                NaN
+1   README XII.8 · Todo el bloque recalcula la Uti...              NaN        NaN               NaN           NaN                         NaN                      NaN                                                NaN
+2                        1. ESCENARIOS SOBRE EL AÑO 1              NaN        NaN               NaN           NaN                         NaN                      NaN                                                NaN
+3                                           Escenario        Δ Volumen   Unidades  Δ Costo variable  Δ Gasto fijo  Utilidad operacional Año 1  Punto de equilibrio (u)                                            Lectura
+4                     BASE — 200 u a $249.990 con IVA                0        200                 0             0                     3980508                      166                                 ✅ Utilidad holgada
+5                                       Volumen −10 %             -0.1        180                 0             0                     1605168                      166                                 ✅ Utilidad holgada
+6               Volumen −17 %  (umbral de equilibrio)            -0.17        166                 0             0                      -57570                      166                              ❌ Pérdida en el Año 1
+7                                       Volumen −20 %             -0.2        160                 0             0                     -770172                      166                              ❌ Pérdida en el Año 1
+8                                Costo variable +15 %                0        200              0.15             0                     1241238                      188                                 ✅ Utilidad holgada
+9                                  Gastos fijos +15 %                0        200                 0          0.15                   1438480.2                      188                                 ✅ Utilidad holgada
+10  PESIMISTA combinado (−10 % vol, +15 % CV, +15 ...             -0.1        180              0.15          0.15                  -3402202.8                      212                              ❌ Pérdida en el Año 1
+12            2. HOLGURA DISPONIBLE ANTES DEL QUIEBRE              NaN        NaN               NaN           NaN                         NaN                      NaN                                                NaN
+13                                           Variable          Holgura        NaN               NaN           NaN                         NaN                      NaN                                            Lectura
+14                                  Volumen de ventas    −17 % (166 u)        NaN               NaN           NaN                         NaN                      NaN  El proyecto tolera vender bastante menos de lo...
+15                            Costo variable unitario     +15 % aprox.        NaN               NaN           NaN                         NaN                      NaN  Ajustado. Un alza del dólar o de los precios d...
+16                                       Gastos fijos     +15 % aprox.        NaN               NaN           NaN                         NaN                      NaN  Ajustado. Poco margen para adelantar contratac...
+17                                    Precio de venta      Sin holgura        NaN               NaN           NaN                         NaN                      NaN  No hay palanca de precio disponible: $249.990 ...
+19     3. SENSIBILIDAD DEL VAN A LA TASA DE DESCUENTO              NaN        NaN               NaN           NaN                         NaN                      NaN                                                NaN
+20                                  Tasa de descuento         V. A. N.        NaN               NaN           NaN                         NaN                      NaN                                            Lectura
+21                                               0.05  24441411.651035        NaN               NaN           NaN                         NaN                      NaN  VAN positivo: a esta exigencia el proyecto se ...
+22                                               0.08  18725847.102791        NaN               NaN           NaN                         NaN                      NaN  VAN positivo: a esta exigencia el proyecto se ...
+23                                              0.085   17853794.12808        NaN               NaN           NaN                         NaN                      NaN  VAN positivo: a esta exigencia el proyecto se ...
+24                                               0.09  17002956.995705        NaN               NaN           NaN                         NaN                      NaN  VAN positivo: a esta exigencia el proyecto se ...
+25                                                0.1  15362464.293592        NaN               NaN           NaN                         NaN                      NaN  VAN positivo: a esta exigencia el proyecto se ...
+26                                               0.15   8241084.170799        NaN               NaN           NaN                         NaN                      NaN  VAN positivo: a esta exigencia el proyecto se ...
+27                                                0.2   2588182.125887        NaN               NaN           NaN                         NaN                      NaN  VAN positivo: a esta exigencia el proyecto se ...
+28           TIR del proyecto (donde el VAN se anula)         0.227201        NaN               NaN           NaN                         NaN                      NaN                                                NaN
+30  Conclusión: el escenario base tolera peor los ...              NaN        NaN               NaN           NaN                         NaN                      NaN                                                NaN
+
+==================================================
+=== Sheet: TOMA DE DECISIONES ===
+                                           Unnamed: 1      Unnamed: 2             Unnamed: 3             Unnamed: 4
+0                     TOMA DE DECISIONES DEL PROYECTO             NaN                    NaN                    NaN
+1   Álvaro Villena · README XII.10 · Decisión fund...             NaN                    NaN                    NaN
+3    RESPUESTA 1 — DECISIÓN EN BASE AL VAN Y A LA TIR             NaN                    NaN                    NaN
+4   RESPUESTA 1 — TOMA DE DECISIONES EN BASE AL VA...             NaN                    NaN                    NaN
+6          RESPUESTA 2 — DECISIÓN EN BASE AL PAY BACK             NaN                    NaN                    NaN
+7   RESPUESTA 2 — TOMA DE DECISIONES EN BASE AL PA...             NaN                    NaN                    NaN
+9            DECISIÓN CONJUNTA — RESUMEN DE CRITERIOS             NaN                    NaN                    NaN
+10                                           Criterio       Resultado  Umbral (5 años, 20 %)               Decisión
+11                                    V. A. N. (20 %)  2588182.125887                    > 0               ✔ Cumple
+12                                           T. I. R.        0.227201                 > 20 %               ✔ Cumple
+13                                           Pay Back        3.710136               ≤ 5 años  ✔ Cumple, sin holgura
+14                    Utilidad neta de todos los años        Positiva           Sin pérdidas               ✔ Cumple
+15                      Punto de equilibrio del Año 1             166   < 200 u planificadas               ✔ Cumple
+17  Los cinco criterios de evaluación se cumplen: ...             NaN                    NaN                    NaN
+
+==================================================
+=== Sheet: RÚBRICA ===
+                                           Unnamed: 1                                         Unnamed: 2                                         Unnamed: 3                                         Unnamed: 4                                         Unnamed: 5
+0   RÚBRICA — EVALUACIÓN ECONÓMICA DEL PROYECTO FINAL                                                NaN                                                NaN                                                NaN                                                NaN
+1   Preparación y Evaluación de Proyectos · ES3 Ev...                                                NaN                                                NaN                                                NaN                                                NaN
+3                                              PUNTOS                                    MUY BUENO 100 %                                         BUENO 60 %                                       REGULAR 50 %                                  INSUFICIENTE 10 %
+4                                                  20  Presenta la INVERSIÓN INICIAL del proyecto bie...  Presenta de acuerdo a la planilla Excel solici...  Se presenta de acuerdo a la planilla Excel sol...  No utiliza la planilla Excel solicitada; error...
+5                                                 NaN                                                 20                                                 12                                                 10                                                  2
+6                                                  20  Presenta el ESTADO DE RESULTADOS con los conce...  Presenta de acuerdo a la planilla Excel solici...  Se presenta de acuerdo a la planilla Excel sol...  No utiliza la planilla Excel solicitada; error...
+7                                                 NaN                                                 20                                                 12                                                 10                                                  2
+8                                                  20  Presenta el Excel de PROYECCIÓN A CINCO AÑOS, ...  Presenta de acuerdo a la planilla Excel solici...  Se presenta de acuerdo a la planilla Excel sol...  No utiliza la planilla Excel solicitada; error...
+9                                                 NaN                                                 20                                                 12                                                 10                                                  2
+10                                                 10  Calcula el VAN y el PAY BACK sin errores de cá...  Presenta errores de cálculo por clasificacione...  Presenta errores de cálculo. No presenta uno d...  Presenta errores de cálculo. No presenta dos d...
+11                                                NaN                                                 10                                                  6                                                  5                                                  1
+12                                                 30  TOMA DE DECISIONES del proyecto: 1) en base al...  La toma de decisiones se presenta completa, pe...  La toma de decisiones se presenta corta e inco...  Toma de decisiones incompleta, sin detalle y d...
+13                                                NaN                                                 30                                                 18                                                 15                                                  3
+14                                                100                                                100                                                 60                                                 50                                                 10
+16                                                NaN                           INSTRUCCIONES DE ENTREGA                                                NaN                                                NaN                                                NaN
+17                                                NaN  •  Todo se entrega en la planilla Excel de res...                                                NaN                                                NaN                                                NaN
+18                                                NaN  •  Todos los cálculos se deben hacer dentro de...                                                NaN                                                NaN                                                NaN
+19                                                NaN  •  El Excel de respuestas se presenta con el n...                                                NaN                                                NaN                                                NaN
+
+==================================================

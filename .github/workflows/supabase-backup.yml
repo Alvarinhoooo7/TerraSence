@@ -46,6 +46,9 @@ jobs:
           tar -czf "$archive" backup
           sha256sum "$archive" > "${archive}.sha256"
           echo "BACKUP_ARCHIVE=$archive" >> "$GITHUB_ENV"
+      - name: Purge expired operational records
+        shell: bash
+        run: psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'select * from public.purge_expired_operational_data();'
       - name: Store private backup for 7 days
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

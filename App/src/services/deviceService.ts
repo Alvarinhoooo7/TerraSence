@@ -8,7 +8,7 @@
 
 import { supabase } from './supabase';
 import { normalizeDeviceId, isValidDeviceId } from '../utils/deviceId';
-import type { DeviceMembershipRow, DeviceRow } from '../types/app';
+import type { DeviceMembershipRow, DeviceRow, ManagedDeviceMember } from '../types/app';
 
 const DEVICE_COLUMNS =
   'id,device_code,name,alias,battery_level,firmware_version,hardware_version,' +
@@ -109,4 +109,22 @@ export async function joinDeviceByCode(rawCode: string): Promise<DeviceRow> {
 
   if (readError) throw readError;
   return data as unknown as DeviceRow;
+}
+
+export async function listDeviceMembers(deviceId: string): Promise<ManagedDeviceMember[]> {
+  const { data, error } = await supabase.rpc('list_device_members', { p_device_id: deviceId });
+  if (error) throw error;
+  return (data ?? []) as ManagedDeviceMember[];
+}
+
+export async function manageDeviceMember(
+  deviceId: string,
+  userId: string,
+  action: 'authorize' | 'revoke' | 'set_role' | 'transfer_owner',
+  role?: 'admin' | 'operator',
+): Promise<void> {
+  const { error } = await supabase.rpc('manage_device_member', {
+    p_device_id: deviceId, p_target_user_id: userId, p_action: action, p_role: role ?? null,
+  });
+  if (error) throw error;
 }

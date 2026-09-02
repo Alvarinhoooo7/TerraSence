@@ -22,7 +22,7 @@ Es la **herramienta de control, aprovisionamiento de hardware y soporte técnico
 - [8. Despliegue en Vercel](#8-despliegue-en-vercel)
 - [9. 🛠️ Manual de instalación y puesta en marcha](#9-️-manual-de-instalación-y-puesta-en-marcha)
 - [10. Correos transaccionales: recuperación, confirmación y aviso de cambio](#10-correos-transaccionales-recuperación-confirmación-y-aviso-de-cambio)
-- [11. Aplicar el mismo esquema en la App móvil (pendiente)](#11-aplicar-el-mismo-esquema-en-la-app-móvil-pendiente)
+- [11. Recuperación de acceso en la App móvil (completada)](#11-recuperación-de-acceso-en-la-app-móvil-completada)
 
 ---
 
@@ -251,17 +251,18 @@ Gmail limita el envío por SMTP a **500 correos/día** por cuenta — muy por en
 
 ---
 
-## 11. Aplicar el mismo esquema en la App móvil (pendiente)
+## 11. Recuperación de acceso en la App móvil (completada)
 
 > [!NOTE]
-> **No se modificó ningún archivo de `App/` para esta auditoría** — se deja documentado aquí, tal como se pidió, para implementarlo más adelante sin tocar la app ahora.
+> **Estado actual:** la app ya implementa el flujo completo descrito originalmente en esta sección.
 
 La app móvil (`App/src/screens/AuthScreen.tsx`) ya invoca `supabase.auth.resetPasswordForEmail(...)` para la recuperación de contraseña (ver `App/README.md`), y comparte exactamente el mismo backend de Auth que esta consola — por lo tanto, **con el SMTP de Gmail y las tres plantillas ya activas (sección 10), un agricultor que pida recuperar su contraseña desde la app ya recibe hoy el correo con la marca TerraSense**, sin ningún cambio de código adicional: la plantilla vive en Supabase, no en el cliente.
 
-Lo que sí falta específicamente del lado de la app, y que replica el bug que se corrigió en esta consola (sección 10.1), es una pantalla equivalente a `ResetPasswordScreen.tsx`:
+La app registra `terrasense://reset-password`, solicita ese `redirectTo`, crea la sesión desde los
+tokens del enlace y muestra `ResetPasswordScreen.tsx` antes de volver al contenido autenticado.
 
 - **Problema esperado:** un enlace de recuperación de contraseña en un correo, en el contexto de una app móvil, no puede simplemente abrir `window.location.origin` — Supabase necesita un **deep link** de la app (esquema `terrasense://reset-password` o un *Universal Link*/*App Link*) configurado como `redirectTo` y dado de alta en `additional_redirect_urls`.
-- **Trabajo pendiente cuando se aborde:**
+- **Implementación terminada:**
   1. Registrar un esquema de deep link en `App/app.config.js` (Expo ya soporta esto vía `scheme`).
   2. Pasar `redirectTo: 'terrasense://reset-password'` (o el esquema elegido) en la llamada a `resetPasswordForEmail` de `AuthScreen.tsx`.
   3. Sumar ese esquema a `additional_redirect_urls` en `supabase/config.toml` y hacer `supabase config push`.

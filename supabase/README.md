@@ -270,10 +270,13 @@ modificar nada.
 ## 10. Pendientes conocidos
 
 - **SMTP propio**, para activar las plantillas de correo (§7).
-- **Tabla `firmware_releases`**, necesaria para la gestión OTA desde la consola.
-- **Política de retención**: hoy nada purga mediciones antiguas ni `device_join_attempts`.
-- **Copias de seguridad**: el plan gratuito no incluye *Point-in-Time Recovery*. Ante datos reales
-  de agricultores, esto deja de ser opcional.
+- **Firmware físico y publicación OTA**: el catálogo `firmware_releases`, su RPC de consulta y la
+  vista web existen; falta publicar un binario validado contra hardware real.
+- **Retención activa**: `purge_expired_operational_data()` elimina intentos de vinculación a los 30
+  días y auditorías de membresía a los dos años. El respaldo diario la ejecuta después del *dump*,
+  conservando las mediciones por su valor agronómico y probatorio.
+- **Copias de seguridad**: el flujo diario guarda un respaldo lógico privado durante siete días.
+  El plan gratuito sigue sin ofrecer *Point-in-Time Recovery*.
 
 El estado completo está en [`MIGRACION_AKURA.md`](../MIGRACION_AKURA.md).
 
