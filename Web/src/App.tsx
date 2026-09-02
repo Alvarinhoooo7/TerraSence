@@ -5,10 +5,7 @@ import { supabase } from './services/supabase';
 import { AuthScreen } from './components/AuthScreen';
 import { ResetPasswordScreen } from './components/ResetPasswordScreen';
 import { DashboardLayout } from './layouts/DashboardLayout';
-import { DashboardHome } from './pages/DashboardHome';
 import { DevicesPage } from './pages/DevicesPage';
-import { GisMapPage } from './pages/GisMapPage';
-import { ValidationPage } from './pages/ValidationPage';
 import { SupportPanelPage } from './pages/SupportPanelPage';
 import { SupportDeviceDetailPage } from './pages/SupportDeviceDetailPage';
 
@@ -31,7 +28,7 @@ export default function App() {
 
   if (checking) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-terra-bg text-terra-primary">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-terra-bg text-terra-primary transition-colors duration-500">
         <div className="h-12 w-12 border-4 border-terra-primary border-t-transparent rounded-full animate-spin mb-4" />
         <span className="text-terra-muted animate-pulse">Iniciando plataforma...</span>
       </div>
@@ -49,14 +46,11 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<DashboardLayout email={session.user.email ?? ''} />}>
-        <Route index element={<Navigate to="/dashboard" replace />} />
-        <Route path="dashboard" element={<DashboardHome />} />
-        <Route path="map" element={<GisMapPage />} />
+        <Route index element={<Navigate to="/devices" replace />} />
         <Route path="devices" element={<DevicesPage />} />
-        <Route path="validation" element={<ValidationPage />} />
         <Route path="admin" element={<SupportPanelPage />} />
         <Route path="admin/devices/:id" element={<SupportDeviceDetailPage />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/devices" replace />} />
       </Route>
     </Routes>
   );

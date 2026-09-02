@@ -2,15 +2,12 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 import { isSupportStaff } from '../../backend/adminApi';
 import { useEffect, useState } from 'react';
-import { Leaf, LayoutDashboard, Map as MapIcon, Cpu, FlaskConical, LogOut, ShieldAlert } from 'lucide-react';
+import { Leaf, Cpu, LogOut, ShieldAlert } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ThemeToggle } from '../components/ThemeToggle';
 
 const NAV_ITEMS = [
-  { path: '/dashboard', label: 'Resumen', icon: LayoutDashboard },
-  { path: '/map', label: 'Mapa GIS', icon: MapIcon },
   { path: '/devices', label: 'Equipos', icon: Cpu },
-  { path: '/validation', label: 'Validación Lab', icon: FlaskConical },
 ];
 
 export function DashboardLayout({ email }: { email: string }) {

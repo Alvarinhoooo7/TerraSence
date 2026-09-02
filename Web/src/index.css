@@ -12,6 +12,8 @@
   --color-verdict-green: #12d271;
   --color-verdict-amber: #ffc061;
   --color-verdict-red: #ff6b6b;
+  --color-glass-panel: rgba(10, 20, 15, 0.6);
+  --color-glass-hover: rgba(20, 40, 30, 0.8);
 }
 
 :root[data-theme='light'] {
@@ -25,6 +27,8 @@
   --color-verdict-green: #0ea759;
   --color-verdict-amber: #e59e10;
   --color-verdict-red: #e03131;
+  --color-glass-panel: rgba(255, 255, 255, 0.7);
+  --color-glass-hover: rgba(255, 255, 255, 0.9);
 }
 
 @theme {
@@ -46,6 +50,7 @@ body {
   background-image: radial-gradient(circle at top right, rgba(18, 210, 113, 0.05), transparent 600px),
                     radial-gradient(circle at bottom left, rgba(18, 210, 113, 0.03), transparent 400px);
   background-attachment: fixed;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 /* Los números de las tablas deben alinearse en columna. */
@@ -53,14 +58,15 @@ body {
 
 /* Utilidades adicionales UI */
 .glass-panel {
-  background: rgba(10, 20, 15, 0.6);
+  background: var(--color-glass-panel);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--color-terra-border);
+  transition: background-color 0.5s ease, border-color 0.5s ease;
 }
 
 .hover-glass:hover {
-  background: rgba(20, 40, 30, 0.8);
+  background: var(--color-glass-hover);
   border-color: rgba(18, 210, 113, 0.3);
 }
 
