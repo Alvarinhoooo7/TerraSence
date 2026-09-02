@@ -79,7 +79,7 @@ export function DashboardLayout({ email }: { email: string }) {
             </span>
             <button
               onClick={() => supabase.auth.signOut()}
-              className="flex items-center justify-center gap-2 w-full py-2 rounded-lg text-sm font-medium text-verdict-red bg-verdict-red/10 hover:bg-verdict-red/20 transition-colors"
+              className="flex items-center justify-center gap-2 w-full py-2 rounded-lg text-sm font-medium text-verdict-red bg-verdict-red/10 border border-verdict-red/20 hover:bg-verdict-red/20 hover:border-verdict-red/40 transition-colors"
             >
               <LogOut size={16} />
               Cerrar sesión

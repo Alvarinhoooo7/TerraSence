@@ -1,0 +1,21 @@
+-- Diagnóstico (histórico): esta migración reveló dos cosas en su primer
+-- intento, antes de reescribirse aquí para no seguir bloqueando el push:
+--
+-- 1. `is_support_staff()` funciona correctamente para un usuario de soporte
+--    real (auth.uid() resuelto vía request.jwt.claims, igual que hace
+--    PostgREST) -> devolvió `t`.
+-- 2. `admin_search()` fallaba con "structure of query does not match
+--    function result type" (varchar vs text) — corregido en
+--    20260902240000_arreglo_tipos_admin_search.sql.
+--
+-- Nota para el futuro: `set_config('role', 'authenticated', true)` es
+-- EQUIVALENTE a `SET LOCAL ROLE authenticated` (no es un GUC decorativo) —
+-- cambia de verdad el rol de Postgres para el resto de la transacción. Sin
+-- un `RESET ROLE` explícito antes de que termine la migración, el propio
+-- `INSERT` de contabilidad del CLI en `supabase_migrations.schema_migrations`
+-- falla con "permission denied" porque `authenticated` no puede escribir ahí
+-- — eso fue lo que bloqueó el push la primera vez. Este archivo ya no hace
+-- el cambio de rol, sólo deja constancia; la verificación con rol real vive
+-- en 20260902250000_verificacion_admin_search_arreglado.sql, con su propio
+-- RESET ROLE.
+SELECT 1;

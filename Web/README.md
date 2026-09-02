@@ -60,6 +60,30 @@ Esta consola resuelve la administración integral del ciclo de vida del hardware
 
 ---
 
+## 2.1. Panel de Soporte (`/admin`) — interno, no para agricultores
+
+Consola aparte dentro de la misma app, sólo visible para cuentas en `admin_support_users`
+(tabla gateada por `is_support_staff()`, ver `Web/backend/`). Busca un equipo por código,
+alias o correo de un usuario enlazado, y desde ahí administra sus miembros, ve su historial
+de batería/mediciones y dispara el reseteo de fábrica. Detalle completo de las funciones RPC
+en `supabase/README.md` §2.1.
+
+**Para probar el buscador** hay un equipo y un usuario de prueba sembrados directo en el
+proyecto Supabase (no vienen de una migración versionada — se insertaron a mano contra el
+remoto compartido, así que están disponibles para cualquiera que tenga acceso al panel):
+
+| Campo | Valor |
+| :--- | :--- |
+| Código de equipo | `465719423880094` |
+| Correo del usuario enlazado (owner) | `demo.agricultor@terrasense.cl` |
+
+Busca cualquiera de los dos en `/admin` — ambos deben devolver el mismo equipo
+("🧪 Sonda DEMO"), con ~4 lecturas de batería simuladas y una medición de ejemplo para
+probar también la ficha de detalle. Es data desechable: bórrala cuando ya no la necesites
+(pide que se quite en cascada — equipo, membresía, mediciones, histórico y el usuario).
+
+---
+
 ## 3. Estructura de carpetas
 
 ```text
