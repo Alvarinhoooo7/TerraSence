@@ -12,11 +12,9 @@ import {
 } from 'react-native';
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import LottieView from 'lottie-react-native';
 
 import { Spacing, Typography } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
-import { ScreenGuide } from '../components/ScreenGuide';
 import { useTranslation } from '../hooks/useTranslation';
 import { joinDeviceByCode, registerDevice } from '../services/deviceService';
 import { completeOnboarding } from '../services/onboardingService';
@@ -28,7 +26,7 @@ import {
 } from '../utils/deviceId';
 import type { DeviceRow, OnboardingMethod } from '../types/app';
 
-type Step = 'intro' | 'choice' | 'qr' | 'pairing';
+type Step = 'choice' | 'qr' | 'pairing';
 type PairingState = 'idle' | 'scanning' | 'found' | 'saving';
 
 interface ProbeIdentity {
@@ -46,8 +44,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
   const { t } = useTranslation();
   const setDevice = useAppStore((state) => state.setDevice);
 
-  const [step, setStep] = useState<Step>('intro');
-  const [introIndex, setIntroIndex] = useState(0);
+  const [step, setStep] = useState<Step>('choice');
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [joining, setJoining] = useState(false);
   const [scanned, setScanned] = useState(false);
@@ -181,67 +178,6 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
     setProbe(null);
   }, [joining, pairingState]);
 
-  if (step === 'intro') {
-    const slides = [
-      {
-        title: t('Mide humedad y más', 'Measure moisture and more'),
-        body: t('Conoce la humedad, pH y salinidad de tu cultivo en tiempo real usando nuestra sonda portátil.', 'Know your crop\'s moisture, pH, and salinity in real-time using our portable probe.'),
-        icon: '💧',
-      },
-      {
-        title: t('Define perímetros', 'Define perimeters'),
-        body: t('Dibuja tus lotes agrícolas en el mapa para tener tus lecturas perfectamente georreferenciadas.', 'Draw your agricultural fields on the map to have perfectly georeferenced readings.'),
-        icon: '🗺️',
-      },
-      {
-        title: t('Recibe alertas', 'Receive alerts'),
-        body: t('El sistema te notificará cuando haya estrés hídrico o salino crítico en tu predio.', 'The system will notify you when there is critical water or salinity stress on your farm.'),
-        icon: '🔔',
-      },
-    ];
-
-    const currentSlide = slides[introIndex];
-
-    return (
-      <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
-        <View style={styles.introContent}>
-          <Text style={{ fontSize: 80, marginBottom: Spacing.xl }}>{currentSlide.icon}</Text>
-          <Text style={[styles.introTitle, { color: colors.text }]}>{currentSlide.title}</Text>
-          <Text style={[styles.introBody, { color: colors.textSecondary }]}>{currentSlide.body}</Text>
-          
-          <View style={styles.dotsRow}>
-            {slides.map((_, i) => (
-              <View 
-                key={i} 
-                style={[
-                  styles.dot, 
-                  { backgroundColor: i === introIndex ? colors.primary : colors.border }
-                ]} 
-              />
-            ))}
-          </View>
-        </View>
-        
-        <View style={styles.introFooter}>
-          <TouchableOpacity 
-            style={[styles.primaryButton, { backgroundColor: colors.primary }]}
-            onPress={() => {
-              if (introIndex < slides.length - 1) {
-                setIntroIndex(i => i + 1);
-              } else {
-                setStep('choice');
-              }
-            }}
-          >
-            <Text style={styles.primaryButtonText}>
-              {introIndex < slides.length - 1 ? t('Siguiente', 'Next') : t('Empezar', 'Get started')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   if (step === 'qr') {
     return (
       <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
@@ -275,7 +211,6 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
             {t('La persona que administra la sonda debe abrir “Mis equipos” en su app y mostrarte el QR. Al escanearlo quedarás vinculado como operador.', 'The probe administrator must open “My devices” in their app and show you the QR. Scanning it links you as an operator.')}
           </Text>
         </View>
-        <ScreenGuide guideId="onboarding" />
       </SafeAreaView>
     );
   }
@@ -345,7 +280,6 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
             </TouchableOpacity>
           )}
         </ScrollView>
-        <ScreenGuide guideId="onboarding" />
       </SafeAreaView>
     );
   }
@@ -394,7 +328,6 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
           <Text style={[styles.chevron, { color: colors.primary }]}>›</Text>
         </TouchableOpacity>
       </ScrollView>
-      <ScreenGuide guideId="onboarding" />
     </SafeAreaView>
   );
 };

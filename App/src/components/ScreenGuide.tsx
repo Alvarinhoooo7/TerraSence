@@ -96,7 +96,7 @@ const COPY: Record<AppLanguage, Record<GuideId, GuideCopy>> = {
       steps: [
         'Toca cada esquina visible en el mapa o camina el borde y pulsa “Estoy aquí”.',
         'Agrega al menos tres puntos; usa “Deshacer” si una esquina quedó mal.',
-        'Guarda para calcular la superficie y mostrar el polígono en el mapa principal.',
+        'Guarda para calcular la superficie y mostrar el polígono en el mapa de pre-siembra.',
       ],
     },
   },

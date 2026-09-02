@@ -9,6 +9,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useAuthStore } from './src/store/useAuthStore';
 import { OfflineBanner } from './src/components/OfflineBanner';
@@ -33,8 +34,11 @@ import type { MapMeasurementPoint } from './src/types/app';
 import { MeasurementDetailModal } from './src/components/MeasurementDetailModal';
 import { ResetPasswordScreen } from './src/screens/ResetPasswordScreen';
 import { createRecoverySession } from './src/services/authDeepLink';
+import { WelcomeCarouselScreen } from './src/screens/WelcomeCarouselScreen';
+import { DashboardScreen } from './src/screens/DashboardScreen';
 
-type Route = 'map' | 'measure' | 'settings' | 'devices' | 'history' | 'perimeter';
+type Route = 'dashboard' | 'map' | 'measure' | 'settings' | 'devices' | 'history' | 'perimeter';
+const WELCOME_KEY = '@terrasense/welcome-complete-v1';
 
 export default function App() {
   const { isDark, colors } = useAppTheme();
@@ -42,18 +46,26 @@ export default function App() {
 
   const { session, setSession, isHydrated } = useAuthStore();
   const [checking, setChecking] = useState(true);
+  const [checkingWelcome, setCheckingWelcome] = useState(true);
+  const [welcomeComplete, setWelcomeComplete] = useState(false);
   const [recovering, setRecovering] = useState(false);
   const [checkingOnboarding, setCheckingOnboarding] = useState(false);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [onboardingError, setOnboardingError] = useState<string | null>(null);
   const [onboardingRetry, setOnboardingRetry] = useState(0);
-  const [route, setRoute] = useState<Route>('map');
+  const [route, setRoute] = useState<Route>('dashboard');
   const [detailPoint, setDetailPoint] = useState<MapMeasurementPoint | null>(null);
   const setDevice = useAppStore((state) => state.setDevice);
   const setPreferences = useAppStore((state) => state.setPreferences);
   const setPreferencesLoaded = useAppStore((state) => state.setPreferencesLoaded);
   const preferences = useAppStore((state) => state.preferences);
   const preferencesLoaded = useAppStore((state) => state.preferencesLoaded);
+
+  useEffect(() => {
+    AsyncStorage.getItem(WELCOME_KEY)
+      .then((value) => setWelcomeComplete(value === 'true'))
+      .finally(() => setCheckingWelcome(false));
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -141,16 +153,25 @@ export default function App() {
 
   let content;
 
-  if (checking || !isHydrated) {
+  if (checkingWelcome || checking || !isHydrated) {
     content = (
       <View style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
+  } else if (!welcomeComplete) {
+    content = (
+      <WelcomeCarouselScreen
+        onComplete={() => {
+          setWelcomeComplete(true);
+          void AsyncStorage.setItem(WELCOME_KEY, 'true');
+        }}
+      />
+    );
   } else if (recovering) {
     content = <ResetPasswordScreen onDone={() => setRecovering(false)} />;
   } else if (!session) {
-    content = <AuthScreen onAuthenticated={() => setRoute('map')} />;
+    content = <AuthScreen onAuthenticated={() => setRoute('dashboard')} />;
   } else if (checkingOnboarding) {
     content = (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
@@ -210,32 +231,41 @@ export default function App() {
         onComplete={(device) => {
           setDevice(device);
           setOnboardingComplete(true);
-          setRoute('map');
+          setRoute('dashboard');
         }}
       />
     );
   } else if (route === 'settings') {
-    content = <FieldSettingsScreen onClose={() => setRoute('map')} onOpenDevices={() => setRoute('devices')} />;
+    content = <FieldSettingsScreen onClose={() => setRoute('dashboard')} onOpenDevices={() => setRoute('devices')} />;
   } else if (route === 'history') {
     content = (
-      <HistoryScreen onClose={() => setRoute('map')} onOpenDetail={handleOpenDetail} />
+      <HistoryScreen onClose={() => setRoute('dashboard')} onOpenDetail={handleOpenDetail} />
     );
   } else if (route === 'perimeter') {
     content = <PerimeterScreen onClose={() => setRoute('map')} />;
   } else if (route === 'devices') {
-    content = <DevicesScreen onClose={() => setRoute('map')} />;
+    content = <DevicesScreen onClose={() => setRoute('dashboard')} />;
   } else if (route === 'measure') {
     content = (
-      <MeasureScreen onDone={() => setRoute('map')} onCancel={() => setRoute('map')} />
+      <MeasureScreen onDone={() => setRoute('dashboard')} onCancel={() => setRoute('dashboard')} />
     );
-  } else {
+  } else if (route === 'map') {
     content = (
       <MapScreen
         onOpenPerimeter={() => setRoute('perimeter')}
         onStartMeasurement={() => setRoute('measure')}
-        onOpenSettings={() => setRoute('settings')}
         onOpenList={() => setRoute('history')}
         onOpenDetail={handleOpenDetail}
+        onClose={() => setRoute('dashboard')}
+      />
+    );
+  } else {
+    content = (
+      <DashboardScreen
+        onStartMeasurement={() => setRoute('measure')}
+        onOpenMap={() => setRoute('map')}
+        onOpenHistory={() => setRoute('history')}
+        onOpenSettings={() => setRoute('settings')}
       />
     );
   }

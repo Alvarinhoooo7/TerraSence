@@ -1,8 +1,9 @@
 # 📱 TerraSense · Aplicación Móvil
 
 Aplicación de campo en **React Native + Expo 54 + TypeScript**. Es la herramienta que el agricultor
-lleva al potrero: mide el suelo con la sonda por Bluetooth, produce el veredicto **sin conexión** y
-lo georreferencia en un mapa.
+lleva al potrero: conecta la sonda de forma automática, permite elegir la fase productiva, explica
+cada lectura y formula una recomendación contextual **sin depender de la nube**. El mapa es una
+función secundaria reservada a mediciones de pre-siembra.
 
 > Este documento cubre **sólo la carpeta `App/`**. La especificación del producto está en el
 > [README raíz](../README.md); el backend, en [`supabase/README.md`](../supabase/README.md); la
@@ -29,12 +30,37 @@ lo georreferencia en un mapa.
 
 ## 1. Qué hace
 
-1. Se conecta por **BLE** a la sonda TerraSense, que a su vez lee la sonda de suelo 7-en-1 por
-   RS-485 Modbus RTU y publica el resultado ya decodificado.
-2. Captura la **posición GPS** con su precisión.
-3. Evalúa las lecturas con el **motor agronómico local**, según la etapa fenológica activa.
-4. Muestra el veredicto y lo guarda como un **círculo de 20 m** en el mapa del predio.
-5. Sincroniza con Supabase **cuando hay señal**; si no la hay, encola.
+1. Antes del acceso muestra un carrusel de tres páginas: **quiénes somos**, **qué hacemos** y
+   **por qué/cómo lo hacemos**. No incluye una guía de uso.
+2. Tras iniciar sesión llega a un dashboard cuya acción principal es **Iniciar medición**.
+3. Al comenzar, busca la sonda **automáticamente por BLE**. La interfaz sólo interviene si falla:
+   explica que el equipo debe estar encendido y ofrece reintentar.
+4. Con el equipo disponible, solicita la fase: **pre-siembra, vegetativo, floración o cosecha**.
+5. Captura sonda, clima disponible y GPS; luego evalúa localmente según la fase elegida.
+6. Presenta nueve tarjetas en una cuadrícula 3×3. Cada tarjeta abre una explicación y un consejo.
+7. Construye una recomendación integral con lecturas, fase y clima. En pre-siembra añade mejoras
+   del suelo, advertencias antes de sembrar y cultivos compatibles.
+8. Sólo una medición de **pre-siembra** puede guardarse y visualizarse como burbuja tonal en mapa.
+   Las demás fases permanecen en el historial, sin representación cartográfica.
+9. Sincroniza con Supabase cuando hay señal; si no la hay, encola.
+
+El contexto meteorológico se consulta en la API de pronóstico de
+[Open-Meteo](https://open-meteo.com/en/docs) usando ubicación, temperatura a 2 m, viento a 10 m y
+pronóstico diario de precipitación y temperaturas. Tiene un límite de espera corto: si no responde,
+la medición local continúa y el consejo declara que no pudo incorporar clima.
+
+### Modelo de comunicación del resultado
+
+La UI nueva **no usa una señal global de tres luces** como protagonista. El motor conserva internamente los
+estados `GREEN`, `AMBER` y `RED` por compatibilidad con datos históricos, reglas y base de datos,
+pero la interfaz los traduce a lenguaje de decisión:
+
+- **Condición favorable**: no requiere corrección inmediata.
+- **Requiere atención**: conviene ajustar antes de continuar.
+- **Condición limitante**: existe un riesgo concreto que debe corregirse.
+
+El color es sólo una tonalidad de apoyo. Toda tarjeta y burbuja debe incluir texto o icono; nunca
+se comunica un resultado únicamente por verde/amarillo/rojo.
 
 ---
 
@@ -68,8 +94,10 @@ App/
 │   │   ├── agronomyEngine.ts   Motor de reglas: 8 cultivos, 4 texturas de suelo
 │   │   └── stageEvaluator.ts   Capa de etapa fenológica sobre el motor base
 │   ├── screens/
-│   │   ├── MapScreen.tsx       PANTALLA PRINCIPAL
-│   │   ├── MeasureScreen.tsx   Captura → diagnóstico → guardado
+│   │   ├── WelcomeCarouselScreen.tsx Carrusel público previo al acceso
+│   │   ├── DashboardScreen.tsx PANTALLA PRINCIPAL y punto de entrada a medición
+│   │   ├── MapScreen.tsx       Mapa secundario, sólo pre-siembra
+│   │   ├── MeasureScreen.tsx   Conexión → fase → captura → grid 3×3 → consejo
 │   │   ├── AuthScreen.tsx      Registro, sesión y recuperación de contraseña
 │   │   ├── OnboardingScreen.tsx QR de administrador o pairing del propietario
 │   │   ├── HistoryScreen.tsx   Mediciones en lista, por día y etapa
@@ -103,10 +131,17 @@ App/
 
 ## 4. Pantallas y navegación
 
-Enrutado propio por estado en `App.tsx`, sin librería de navegación: cubre autenticación,
-onboarding, mapa, medición, historial, configuración, equipos y perímetro.
+Enrutado propio por estado en `App.tsx`, sin librería de navegación. El onboarding de marca es
+local y anterior a la cuenta; el onboarding de equipo sólo aparece cuando la cuenta todavía no
+tiene una sonda vinculada.
 
 ```text
+             primera apertura
+                    ┌─────────────────────────┐
+                    │ WelcomeCarouselScreen   │
+                    │ Quiénes / Qué / Por qué │
+                    └───────────┬─────────────┘
+                                ▼
                     ┌──────────────┐
       sin sesión ──►│  AuthScreen  │
                     └──────┬───────┘
@@ -116,17 +151,16 @@ onboarding, mapa, medición, historial, configuración, equipos y perímetro.
                     │  (sólo una vez)  │── pairing primer propietario
                     └────────┬─────────┘
                              ▼ cuenta vinculada
-                    ┌──────────────┐
-        ┌───────────┤   MapScreen  ├───────────┐
-        │           └──────┬───────┘           │
-        ▼                  ▼                   ▼
-┌───────────────┐  ┌──────────────┐  ┌─────────────────┐
-│ MeasureScreen │  │ HistoryScreen│  │ FieldSettings   │
-└───────────────┘  └──────────────┘  └────────┬────────┘
-                                              ▼
-                                     ┌─────────────────┐
-                                     │  DevicesScreen  │
-                                     └─────────────────┘
+                    ┌─────────────────┐
+        ┌───────────┤ DashboardScreen ├───────────┐
+        │           └────────┬────────┘           │
+        ▼                    ▼                    ▼
+┌───────────────┐   ┌──────────────┐    ┌─────────────────┐
+│ MeasureScreen │   │ HistoryScreen│    │ FieldSettings   │
+│ conexión auto │   └──────────────┘    └─────────────────┘
+│ elegir fase   │            │
+│ grid + consejo│            └── mapa sólo si pre-siembra
+└───────────────┘
 ```
 
 ---
@@ -140,10 +174,10 @@ responsabilidad legal.
 **`agronomyEngine.ts`** — evalúa humedad, temperatura, CE, pH y NPK contra los umbrales del cultivo
 y la textura del suelo. Define 8 cultivos y 4 texturas.
 
-**`stageEvaluator.ts`** — reponderá el veredicto según la etapa activa, porque el mismo suelo exige
+**`stageEvaluator.ts`** — repondera la condición interna según la etapa activa, porque el mismo suelo exige
 respuestas distintas:
 
-| Etapa | Qué gobierna el veredicto |
+| Etapa | Qué gobierna la recomendación |
 | :--- | :--- |
 | `pre_siembra` | Temperatura, CE, pH, humedad |
 | `vegetativo` | Nitrógeno, humedad, pH, CE |
@@ -251,7 +285,7 @@ npx expo install --fix                 # realinea dependencias al SDK
 | Decisión | Motivo |
 | :--- | :--- |
 | **Sin `ACCESS_BACKGROUND_LOCATION`** | La app mide bajo demanda. Pedirlo dispara revisión manual en Google Play y contradice el principio de proporcionalidad de la Ley 21.719 |
-| **El color nunca es el único código** | Cada veredicto lleva icono y texto. Cerca del 8 % de los hombres tiene deficiencia de visión al color, y el usuario objetivo lee bajo sol directo (WCAG 2.2 AA) |
+| **Resultado explicado, no reducido a un color** | La clasificación histórica se traduce a condición favorable, requiere atención o condición limitante. La tonalidad es secundaria y siempre lleva texto/icono |
 | **Áreas táctiles de 48 dp** | Se opera con guantes de trabajo |
 | **No se precargan teselas** | Los Términos de Google Maps Platform lo prohíben. Se degrada a fondo neutro |
 | **`Spacing.touchTarget` y tipografía ≥ 16 sp** | Legibilidad en terreno, no estética |
@@ -292,11 +326,11 @@ Este bloque está implementado y versionado para que la próxima sesión no teng
 
 Se implementaron mejoras enfocadas en la experiencia del usuario en terreno bajo el paradigma **Offline-First**:
 - **Store `useAuthStore`**: Migración de la sesión a Zustand con persistencia en AsyncStorage para carga inmediata sin red.
-- **Banner Offline Global**: Se integró `@react-native-community/netinfo` para informar sutilmente al usuario cuando está operando sin conexión.
+- **Banner Offline Global**: comprueba conectividad al volver a primer plano y de forma periódica, sin depender de un módulo nativo adicional.
 - **Topografía Inteligente**: El mapa (`MapScreen.tsx`) usa `fitToCoordinates` para encuadrar automáticamente las mediciones y perímetro en pantalla sin que los controles flotantes las tapen (Edge-to-Edge mediante `react-native-safe-area-context`).
 - **Estado de Sincronización**: Las lecturas locales pendientes de enviar a la nube muestran un badge de estado en el `MeasurementDetailModal`.
 - **UX Agronómica**: Modal de recordatorio amistoso para limpiar la sonda antes de cada nueva medición (`CalibrationReminderModal`).
-- **Onboarding Inmersivo**: Refactor de la pantalla de bienvenida con un carrusel moderno (preparado para `lottie-react-native`).
+- **Bienvenida pública**: carrusel de tres pantallas antes del acceso; no incluye guía de uso ni depende de una cuenta.
 
 ### 11.3. P0 — bloqueantes antes de declarar el producto listo para terreno
 

@@ -22,7 +22,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '../services/supabase';
 import { Spacing, Typography } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
-import { ScreenGuide } from '../components/ScreenGuide';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 
@@ -272,7 +271,6 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-      <ScreenGuide guideId="auth" autoOpen={false} />
     </SafeAreaView>
   );
 };

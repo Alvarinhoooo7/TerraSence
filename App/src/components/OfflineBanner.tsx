@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import NetInfo from '@react-native-community/netinfo';
+import { AppState, View, Text, StyleSheet } from 'react-native';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { Typography } from '../constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,14 +12,25 @@ export const OfflineBanner = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener((state) => {
-      // Consider connected if both isConnected and isInternetReachable are true
-      // or if isInternetReachable is null (sometimes happens on first load)
-      const connected = state.isConnected && (state.isInternetReachable ?? true);
-      setIsConnected(connected);
+    let active = true;
+    const check = async () => {
+      try {
+        const response = await fetch('https://www.google.com/generate_204');
+        if (active) setIsConnected(response.ok);
+      } catch {
+        if (active) setIsConnected(false);
+      }
+    };
+    void check();
+    const timer = setInterval(() => void check(), 20_000);
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') void check();
     });
-
-    return () => unsubscribe();
+    return () => {
+      active = false;
+      clearInterval(timer);
+      subscription.remove();
+    };
   }, []);
 
   if (isConnected !== false) {
@@ -45,7 +55,7 @@ const styles = StyleSheet.create({
     zIndex: 999, // Ensure it sits on top of everything
   },
   text: {
-    ...Typography.bodySmall,
+    ...Typography.caption,
     fontWeight: 'bold',
     textAlign: 'center',
   },

@@ -3,10 +3,8 @@
 // Sistema de diseño de TerraSense. Estructura de tokens heredada del proyecto
 // Akura; paleta reemplazada por una agronómica.
 //
-// Criterio de accesibilidad (WCAG 2.2 AA): el usuario objetivo es un agricultor
-// de edad avanzada leyendo bajo sol directo. Los colores del semáforo se eligen
-// con contraste ≥ 4,5:1 sobre su fondo y NUNCA son el único código: cada estado
-// lleva además icono y texto (ver VERDICT_META).
+// Criterio de accesibilidad (WCAG 2.2 AA): las tonalidades de condición tienen
+// contraste suficiente y NUNCA son el único código; siempre llevan texto/icono.
 
 export const Colors = {
   light: {
@@ -17,9 +15,9 @@ export const Colors = {
     primaryDark: '#12281F',
     secondary: '#8A6A3B',    // Tierra / húmus
     accent: '#C9762B',       // Ocre cálido para acciones
-    success: '#2C7A4E',      // Semáforo verde
-    warning: '#9E6612',      // Semáforo ámbar
-    danger: '#A33528',       // Semáforo rojo
+    success: '#2C7A4E',      // Condición favorable
+    warning: '#9E6612',      // Condición que requiere atención
+    danger: '#A33528',       // Condición limitante
     error: '#A33528',
     text: '#14201B',
     textSecondary: '#48584F',
@@ -55,14 +53,15 @@ export type ThemeMode = keyof typeof Colors;
 export type ThemeColors = (typeof Colors)['light'];
 
 /**
- * Metadatos del semáforo. El color va SIEMPRE acompañado de icono y etiqueta:
+ * Metadatos internos de condición. Conservan las claves históricas de la base,
+ * pero la UI usa lenguaje descriptivo y no reduce el diagnóstico a un color.
  * cerca del 8 % de los hombres tiene alguna deficiencia de visión al color.
  */
 export const VERDICT_META = {
   GREEN: {
     key: 'GREEN' as const,
     icon: '✓',
-    label: 'APTO',
+    label: 'CONDICIÓN FAVORABLE',
     fillLight: 'rgba(44,122,78,0.25)',
     fillDark: 'rgba(88,184,124,0.28)',
     strokeLight: '#2C7A4E',
@@ -71,7 +70,7 @@ export const VERDICT_META = {
   AMBER: {
     key: 'AMBER' as const,
     icon: '!',
-    label: 'PRECAUCIÓN',
+    label: 'REQUIERE ATENCIÓN',
     fillLight: 'rgba(158,102,18,0.25)',
     fillDark: 'rgba(214,160,68,0.28)',
     strokeLight: '#9E6612',
@@ -80,7 +79,7 @@ export const VERDICT_META = {
   RED: {
     key: 'RED' as const,
     icon: '✕',
-    label: 'NO APTO',
+    label: 'CONDICIÓN LIMITANTE',
     fillLight: 'rgba(163,53,40,0.25)',
     fillDark: 'rgba(224,116,99,0.28)',
     strokeLight: '#A33528',

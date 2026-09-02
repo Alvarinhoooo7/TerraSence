@@ -1,11 +1,4 @@
-// src/screens/MeasureScreen.tsx
-//
-// Flujo de medición: captura → motor de inferencia → georreferencia → guardado.
-//
-// El motor corre LOCALMENTE en el teléfono: el veredicto se produce sin una
-// sola petición de red. La nube sólo archiva después (store & forward).
-
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -18,86 +11,176 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
 
-import { Spacing, Typography, VERDICT_META } from '../constants/theme';
+import { Spacing, Typography } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
-import { ScreenGuide } from '../components/ScreenGuide';
-import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { evaluateForStage, type StageAwareEvaluation } from '../engine/stageEvaluator';
-import { readSoilProbe } from '../services/probeService';
+import { buildContextualAdvice, type ContextualAdvice } from '../engine/contextualAdvice';
+import { readSoilProbe, verifySoilProbe } from '../services/probeService';
+import { fetchCurrentWeather, type CurrentWeather } from '../services/weatherService';
 import { newClientUuid, saveMeasurement } from '../services/measurementsService';
-import { PHENOLOGICAL_STAGES, mapRowToPoint } from '../types/app';
-import type { SoilMeasurementInsert } from '../types/app';
-import type { SoilMeasurement } from '../types/agronomy';
+import { PHENOLOGICAL_STAGES, mapRowToPoint, type PhenologicalStage, type SoilMeasurementInsert } from '../types/app';
+import type { MetricDetail, SoilMeasurement } from '../types/agronomy';
 import { formatEngineMetric } from '../utils/units';
 import { CalibrationReminderModal } from '../components/CalibrationReminderModal';
 
-const ENGINE_VERSION = '1.0.0';
+const ENGINE_VERSION = '1.1.0';
 const CROP_CATALOG_VERSION = '1.0.0';
-
-type Phase = 'idle' | 'reading' | 'result' | 'saving';
+type Phase = 'connecting' | 'connection_error' | 'stage' | 'reading' | 'result' | 'saving';
 
 interface Props {
   onDone: () => void;
   onCancel: () => void;
 }
 
+interface ResultCard {
+  key: string;
+  label: string;
+  value: string;
+  status: MetricDetail['status'] | 'INFO';
+  explanation: string;
+  tip: string;
+  source: 'Sonda' | 'Clima';
+}
+
+const STATUS_COPY = {
+  OPTIMAL: 'Condición favorable',
+  WARNING: 'Requiere atención',
+  CRITICAL: 'Condición limitante',
+  INFO: 'Dato de contexto',
+} as const;
+
 export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
-  const { isDark, colors } = useAppTheme();
-  const { language, t } = useTranslation();
+  const { colors } = useAppTheme();
+  const {
+    stage,
+    setStage,
+    cropId,
+    textureId,
+    fieldName,
+    device,
+    preferences,
+    addPoint,
+    setPendingCount,
+  } = useAppStore();
 
-  const { stage, cropId, textureId, fieldName, device, preferences, addPoint, setPendingCount } =
-    useAppStore();
-
-  const [phase, setPhase] = useState<Phase>('idle');
+  const [phase, setPhase] = useState<Phase>('connecting');
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [demoMode, setDemoMode] = useState(false);
   const [raw, setRaw] = useState<SoilMeasurement | null>(null);
   const [evaluation, setEvaluation] = useState<StageAwareEvaluation | null>(null);
-  const [simulated, setSimulated] = useState(false);
+  const [weather, setWeather] = useState<CurrentWeather | null>(null);
   const [coords, setCoords] = useState<Location.LocationObjectCoords | null>(null);
+  const [advice, setAdvice] = useState<ContextualAdvice | null>(null);
+  const [detailIndex, setDetailIndex] = useState(0);
   const [showCalibration, setShowCalibration] = useState(false);
-  const clientUuid = useRef<string>(newClientUuid());
+  const clientUuid = useRef(newClientUuid());
 
-  const stageMeta = PHENOLOGICAL_STAGES.find((s) => s.id === stage);
+  const connect = useCallback(async () => {
+    setPhase('connecting');
+    setConnectionError(null);
+    const result = await verifySoilProbe(device?.device_code ?? null);
+    if (!result.connected) {
+      setConnectionError(result.message ?? 'No encontramos el equipo.');
+      setPhase('connection_error');
+      return;
+    }
+    setDemoMode(result.simulated);
+    setPhase('stage');
+  }, [device?.device_code]);
+
+  useEffect(() => {
+    void connect();
+  }, [connect]);
 
   const runMeasurement = useCallback(async () => {
     setPhase('reading');
     try {
-      // GPS y sonda en paralelo: ambos tardan y no dependen entre sí.
-      const [pos, probe] = await Promise.all([
-        Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.BestForNavigation,
-        }).catch(() => null),
+      const [position, probe] = await Promise.all([
+        Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation }).catch(() => null),
         readSoilProbe(device?.device_code ?? null),
       ]);
-
-      setCoords(pos?.coords ?? null);
+      const nextCoords = position?.coords ?? null;
+      const nextWeather = nextCoords
+        ? await fetchCurrentWeather(nextCoords.latitude, nextCoords.longitude)
+        : null;
+      const nextEvaluation = evaluateForStage(probe.data, stage, cropId, textureId, preferences.language);
+      setCoords(nextCoords);
       setRaw(probe.data);
-      setSimulated(probe.simulated);
-      setEvaluation(evaluateForStage(probe.data, stage, cropId, textureId, preferences.language));
+      setDemoMode((current) => current || probe.simulated);
+      setWeather(nextWeather);
+      setEvaluation(nextEvaluation);
+      setAdvice(buildContextualAdvice(stage, nextEvaluation, probe.data, nextWeather));
+      setDetailIndex(0);
       setPhase('result');
-    } catch (err) {
-      setPhase('idle');
-      Alert.alert(
-        t('No se pudo medir', 'Could not measure'),
-        err instanceof Error ? err.message : t('Error desconocido al leer la sonda.', 'Unknown error while reading the probe.'),
-      );
+    } catch (error) {
+      setConnectionError(error instanceof Error ? error.message : 'No se pudo leer la sonda.');
+      setPhase('connection_error');
     }
-  }, [device, stage, cropId, textureId, preferences.language, t]);
+  }, [cropId, device?.device_code, preferences.language, stage, textureId]);
 
-  useEffect(() => {
-    void runMeasurement();
-  }, [runMeasurement]);
+  const cards = useMemo<ResultCard[]>(() => {
+    if (!evaluation || !raw) return [];
+    const metricCard = (
+      key: keyof StageAwareEvaluation['metrics'],
+      label: string,
+      explanation: string,
+      tip: string,
+    ): ResultCard => {
+      const metric = evaluation.metrics[key];
+      const formatted = formatEngineMetric(key, metric.val, metric.unit, preferences.measurementSystem);
+      return {
+        key,
+        label,
+        value: `${formatted.value.toFixed(1)} ${formatted.unit}`,
+        status: metric.status,
+        explanation,
+        tip: metric.confidenceNote ?? tip,
+        source: 'Sonda',
+      };
+    };
+    return [
+      metricCard('vwc', 'Humedad', 'Cantidad de agua disponible en el volumen de suelo.', 'Evita corregir riego por una sola lectura; compara varios puntos.'),
+      metricCard('temp', 'Temp. suelo', 'Temperatura en la zona de contacto de la sonda.', 'En pre-siembra compárala con el mínimo de germinación del cultivo.'),
+      metricCard('ec', 'Conductividad', 'Concentración global de sales disueltas.', 'Una CE alta puede indicar salinidad, no necesariamente fertilidad.'),
+      metricCard('ph', 'pH', 'Nivel de acidez o alcalinidad que condiciona nutrientes.', 'Corrige de forma gradual y confirma cambios importantes con laboratorio.'),
+      metricCard('nitrogen', 'Nitrógeno', 'Estimación asociada al crecimiento vegetativo.', 'Esta sonda lo deriva de CE; úsalo como tendencia, no como análisis químico.'),
+      metricCard('phosphorus', 'Fósforo', 'Estimación vinculada a raíces, floración y energía.', 'Un pH fuera de rango puede bloquearlo aunque la lectura parezca suficiente.'),
+      metricCard('potassium', 'Potasio', 'Estimación relacionada con regulación hídrica y fruto.', 'Contrasta con laboratorio antes de una corrección de alto costo.'),
+      {
+        key: 'air_temperature',
+        label: 'Temp. ambiente',
+        value: weather ? `${weather.temperatureC.toFixed(1)} °C` : 'Sin conexión',
+        status: 'INFO',
+        explanation: 'Temperatura actual obtenida desde el servicio climático.',
+        tip: 'Compárala con la temperatura del suelo antes de sembrar o regar.',
+        source: 'Clima',
+      },
+      {
+        key: 'precipitation',
+        label: 'Lluvia 24 h',
+        value: weather?.dailyPrecipitationMm != null ? `${weather.dailyPrecipitationMm.toFixed(1)} mm` : 'Sin conexión',
+        status: weather && ((weather.rainProbabilityPct ?? 0) >= 60 || (weather.dailyPrecipitationMm ?? 0) >= 5) ? 'WARNING' : 'INFO',
+        explanation: 'Precipitación prevista para hoy en la ubicación.',
+        tip: 'Si hay lluvia relevante, posterga riego y evita compactar el suelo.',
+        source: 'Clima',
+      },
+    ];
+  }, [evaluation, preferences.measurementSystem, raw, weather]);
+
+  const tone = (status: ResultCard['status']) => {
+    if (status === 'CRITICAL') return colors.danger;
+    if (status === 'WARNING') return colors.warning;
+    if (status === 'OPTIMAL') return colors.success;
+    return colors.primary;
+  };
 
   const save = useCallback(async () => {
     if (!evaluation || !raw) return;
     if (!coords) {
-      Alert.alert(
-        t('Sin posición GPS', 'No GPS position'),
-        t('No se pudo obtener la ubicación. La medición necesita coordenadas para aparecer en el mapa.', 'Location could not be obtained. A reading needs coordinates to appear on the map.'),
-      );
+      Alert.alert('Sin ubicación', 'Activa la ubicación para guardar esta medición en el historial.');
       return;
     }
-
     setPhase('saving');
     const row: SoilMeasurementInsert = {
       device_id: device?.id ?? '',
@@ -118,236 +201,274 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       phosphorus: raw.phosphorus,
       potassium: raw.potassium,
       soil_texture: textureId,
-      canopy_temp_c: null,
+      canopy_temp_c: weather?.temperatureC ?? null,
       canopy_humidity_pct: null,
       vpd_kpa: null,
       verdict: evaluation.verdict,
       verdict_title: evaluation.verdictTitle,
-      action_summary: evaluation.actionSummary,
-      diagnosis: { alerts: evaluation.alerts, drivers: evaluation.drivers },
+      action_summary: advice?.summary ?? evaluation.actionSummary,
+      diagnosis: { alerts: evaluation.alerts, drivers: evaluation.drivers, advice, weather },
       engine_version: ENGINE_VERSION,
       crop_catalog_version: CROP_CATALOG_VERSION,
       firmware_version: device?.firmware_version ?? null,
       client_uuid: clientUuid.current,
     };
-
     const { synced, point } = await saveMeasurement(row);
-
-    if (synced && point) {
-      addPoint(point);
-    } else {
-      // Se muestra igualmente en el mapa aunque aún no haya viajado a la nube:
-      // el dato ya existe y está en cola. No se le miente al usuario sobre esto.
-      addPoint(
-        mapRowToPoint({
+    if (stage === 'pre_siembra') {
+      if (synced && point) addPoint(point);
+      else {
+        const localPoint = mapRowToPoint({
           ...row,
           id: clientUuid.current,
           measured_at: new Date().toISOString(),
-        } as never),
-      );
-      // Actualizar el punto con el flag local
-      useAppStore.getState().points.find(p => p.id === clientUuid.current)!.isPending = true;
+        } as never);
+        addPoint({ ...localPoint, isPending: true });
+      }
+    }
+    if (!synced) {
       const { pendingCount } = await import('../services/measurementsService');
       setPendingCount(await pendingCount());
     }
-
     setShowCalibration(true);
-  }, [
-    evaluation, raw, coords, device, cropId, fieldName, stage, textureId,
-    addPoint, setPendingCount, onDone, t,
-  ]);
+  }, [advice, addPoint, coords, cropId, device, evaluation, fieldName, raw, setPendingCount, stage, textureId, weather]);
 
-  const meta = evaluation ? VERDICT_META[evaluation.verdict] : null;
-  const stroke = meta ? (isDark ? meta.strokeDark : meta.strokeLight) : colors.primary;
+  const header = (
+    <View style={styles.header}>
+      <TouchableOpacity onPress={onCancel} style={styles.headerSide}>
+        <Text style={[styles.backText, { color: colors.primary }]}>‹ Volver</Text>
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>Nueva medición</Text>
+      <View style={styles.headerSide} />
+    </View>
+  );
 
-  return (
-    <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onCancel} hitSlop={12} style={styles.back}>
-          <Text style={{ color: colors.primary, ...Typography.bodyBold }}>‹ {t('Volver', 'Back')}</Text>
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>
-          {stageMeta
-            ? `${stageMeta.emoji} ${language === 'en' ? stageMeta.labelEn : stageMeta.label}`
-            : t('Medición', 'Measurement')}
-        </Text>
-        <View style={styles.back} />
-      </View>
-
-      {phase === 'reading' && (
+  if (phase === 'connecting') {
+    return (
+      <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
+        {header}
         <View style={styles.center}>
+          <View style={[styles.connectionIcon, { backgroundColor: colors.primaryDark }]}><Text style={styles.connectionGlyph}>⌁</Text></View>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.readingText, { color: colors.text }]}>
-            {t('Leyendo la sonda…', 'Reading the probe…')}
-          </Text>
-          <Text style={[styles.readingHint, { color: colors.textSecondary }]}>
-            {t('Mantén la sonda insertada y quieta hasta que termine.', 'Keep the probe inserted and still until it finishes.')}
-          </Text>
+          <Text style={[styles.centerTitle, { color: colors.text }]}>Buscando TerraSense</Text>
+          <Text style={[styles.centerBody, { color: colors.textSecondary }]}>La conexión es automática. Mantén el equipo encendido y cerca.</Text>
         </View>
-      )}
+      </SafeAreaView>
+    );
+  }
 
-      {phase !== 'reading' && evaluation && (
+  if (phase === 'connection_error') {
+    return (
+      <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
+        {header}
+        <View style={styles.center}>
+          <View style={[styles.connectionIcon, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}><Text style={[styles.connectionGlyph, { color: colors.primary }]}>!</Text></View>
+          <Text style={[styles.centerTitle, { color: colors.text }]}>No encontramos el equipo</Text>
+          <Text style={[styles.centerBody, { color: colors.textSecondary }]}>Comprueba que esté encendido, con batería y a menos de 30 metros.</Text>
+          {connectionError && <Text style={[styles.errorDetail, { color: colors.textMuted }]}>{connectionError}</Text>}
+          <TouchableOpacity onPress={connect} style={[styles.cta, { backgroundColor: colors.primary }]}>
+            <Text style={styles.ctaText}>Reintentar conexión</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (phase === 'stage') {
+    return (
+      <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
+        {header}
         <ScrollView contentContainerStyle={styles.scroll}>
-          {simulated && (
-            <View style={[styles.simBanner, { backgroundColor: colors.warning }]}>
-              <Text style={styles.simText}>
-                {t('DATOS SIMULADOS · no hay sonda emparejada', 'SIMULATED DATA · no paired probe')}
-              </Text>
-            </View>
-          )}
-
-          <View style={[styles.verdictCard, { backgroundColor: stroke }]}>
-            <Text style={styles.verdictIcon}>{meta?.icon}</Text>
-            <Text style={styles.verdictLabel}>{meta?.label}</Text>
-            <Text style={styles.verdictTitle}>{evaluation.verdictTitle}</Text>
-          </View>
-
-          <Text style={[styles.section, { color: colors.textMuted }]}>
-            {t('QUÉ HACER EN ESTA ETAPA', 'WHAT TO DO AT THIS STAGE')}
-          </Text>
-          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <Text style={[styles.actionText, { color: colors.text }]}>
-              {evaluation.actionSummary}
-            </Text>
-          </View>
-
-          {evaluation.alerts.length > 0 && (
-            <>
-              <Text style={[styles.section, { color: colors.textMuted }]}>{t('ALERTAS', 'ALERTS')}</Text>
-              {evaluation.alerts.map((a, i) => (
-                <View
-                  key={`${a.param}-${i}`}
+          {demoMode && <View style={[styles.demoBanner, { backgroundColor: colors.warning }]}><Text style={styles.demoText}>MODO DEMOSTRACIÓN · SIN SONDA REAL</Text></View>}
+          <Text style={[styles.eyebrow, { color: colors.primary }]}>EQUIPO DISPONIBLE</Text>
+          <Text style={[styles.pageTitle, { color: colors.text }]}>¿En qué fase quieres medir?</Text>
+          <Text style={[styles.pageBody, { color: colors.textSecondary }]}>La fase cambia la interpretación y las recomendaciones, no los datos capturados.</Text>
+          <View style={styles.stageGrid}>
+            {PHENOLOGICAL_STAGES.map((item) => {
+              const selected = item.id === stage;
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  onPress={() => setStage(item.id)}
                   style={[
-                    styles.card,
+                    styles.stageCard,
                     {
-                      backgroundColor: colors.card,
-                      borderColor: colors.border,
-                      borderLeftWidth: 3,
-                      borderLeftColor: a.type === 'danger' ? colors.danger : colors.warning,
+                      backgroundColor: selected ? colors.primaryDark : colors.card,
+                      borderColor: selected ? colors.primary : colors.border,
                     },
                   ]}
                 >
-                  <Text style={[styles.alertTitle, { color: colors.text }]}>{a.title}</Text>
-                  <Text style={[styles.alertAction, { color: colors.textSecondary }]}>
-                    {a.action}
-                  </Text>
-                </View>
-              ))}
-            </>
-          )}
-
-          <Text style={[styles.section, { color: colors.textMuted }]}>{t('LECTURAS', 'READINGS')}</Text>
-          <View style={styles.grid}>
-            {Object.entries(evaluation.metrics).map(([key, m]) => {
-              const display = formatEngineMetric(
-                key,
-                m.val,
-                m.unit,
-                preferences.measurementSystem,
-              );
-              return (
-                <View
-                  key={key}
-                  style={[styles.metric, { backgroundColor: colors.card, borderColor: colors.border }]}
-                >
-                  <Text style={[styles.metricKey, { color: colors.textMuted }]}>
-                    {key.toUpperCase()}
-                  </Text>
-                  <Text style={[styles.metricVal, { color: colors.text }]}>
-                    {display.value.toFixed(1)} {display.unit}
-                  </Text>
-                </View>
+                  <Text style={styles.stageEmoji}>{item.emoji}</Text>
+                  <Text style={[styles.stageTitle, { color: selected ? '#FFFFFF' : colors.text }]}>{item.label}</Text>
+                  <Text style={[styles.stageFocus, { color: selected ? '#D8E8DF' : colors.textSecondary }]}>{item.focus}</Text>
+                </TouchableOpacity>
               );
             })}
           </View>
-
-          {coords && (
-            <Text style={[styles.gps, { color: colors.textMuted }]}>
-              📍 {coords.latitude.toFixed(5)}, {coords.longitude.toFixed(5)}
-              {coords.accuracy != null ? ` · ±${Math.round(coords.accuracy)} m` : ''}
-            </Text>
-          )}
-
-          <TouchableOpacity
-            accessibilityRole="button"
-            onPress={save}
-            disabled={phase === 'saving'}
-            style={[styles.cta, { backgroundColor: colors.primary, opacity: phase === 'saving' ? 0.6 : 1 }]}
-          >
-            {phase === 'saving' ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text style={styles.ctaText}>{t('Guardar en el mapa', 'Save to map')}</Text>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={runMeasurement} style={styles.retry}>
-            <Text style={[styles.retryText, { color: colors.primary }]}>{t('Volver a medir', 'Measure again')}</Text>
+          <TouchableOpacity onPress={runMeasurement} style={[styles.cta, { backgroundColor: colors.primary }]}>
+            <Text style={styles.ctaText}>Medir en esta fase</Text>
           </TouchableOpacity>
         </ScrollView>
-      )}
-      <ScreenGuide guideId="measure" />
-      <CalibrationReminderModal
-        visible={showCalibration}
-        onClose={() => {
-          setShowCalibration(false);
-          onDone();
-        }}
-      />
+      </SafeAreaView>
+    );
+  }
+
+  if (phase === 'reading') {
+    return (
+      <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
+        {header}
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.centerTitle, { color: colors.text }]}>Leyendo el suelo</Text>
+          <Text style={[styles.centerBody, { color: colors.textSecondary }]}>Mantén la sonda insertada y quieta. También estamos consultando clima y ubicación.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const showingAdvice = detailIndex === cards.length;
+  const activeCard = cards[Math.min(detailIndex, cards.length - 1)];
+
+  return (
+    <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
+      {header}
+      <ScrollView contentContainerStyle={styles.scroll}>
+        {demoMode && <View style={[styles.demoBanner, { backgroundColor: colors.warning }]}><Text style={styles.demoText}>DATOS SIMULADOS · NO USAR PARA DECISIONES REALES</Text></View>}
+        <Text style={[styles.eyebrow, { color: colors.primary }]}>RESULTADOS · {PHENOLOGICAL_STAGES.find((item) => item.id === stage)?.label}</Text>
+        <Text style={[styles.pageTitle, { color: colors.text }]}>Explora cada lectura</Text>
+        <Text style={[styles.pageBody, { color: colors.textSecondary }]}>Toca una tarjeta para entender el dato y ver un consejo breve.</Text>
+
+        <View style={styles.resultGrid}>
+          {cards.map((card, index) => (
+            <TouchableOpacity
+              key={card.key}
+              onPress={() => setDetailIndex(index)}
+              style={[
+                styles.resultCard,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: detailIndex === index ? tone(card.status) : colors.border,
+                  borderTopColor: tone(card.status),
+                },
+              ]}
+            >
+              <Text style={[styles.resultLabel, { color: colors.textMuted }]} numberOfLines={1}>{card.label}</Text>
+              <Text style={[styles.resultValue, { color: colors.text }]} numberOfLines={2}>{card.value}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={[styles.detailCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={styles.detailHeader}>
+            <Text style={[styles.detailCounter, { color: colors.textMuted }]}>{detailIndex + 1} de {cards.length + 1}</Text>
+            <Text style={[styles.detailStatus, { color: showingAdvice ? colors.primary : tone(activeCard.status) }]}>
+              {showingAdvice ? 'RECOMENDACIÓN INTEGRAL' : STATUS_COPY[activeCard.status]}
+            </Text>
+          </View>
+          {showingAdvice && advice ? (
+            <>
+              <Text style={[styles.detailTitle, { color: colors.text }]}>{advice.title}</Text>
+              <Text style={[styles.detailBody, { color: colors.textSecondary }]}>{advice.summary}</Text>
+              {advice.actions.map((action, index) => <Text key={index} style={[styles.action, { color: colors.text }]}>• {action}</Text>)}
+              <Text style={[styles.weather, { color: colors.textSecondary }]}>Clima: {advice.weatherNote}</Text>
+              {stage === 'pre_siembra' && (
+                <View style={[styles.cropBox, { backgroundColor: colors.background }]}>
+                  <Text style={[styles.cropLabel, { color: colors.textMuted }]}>COMPATIBLES CON LA LECTURA ACTUAL</Text>
+                  <Text style={[styles.cropNames, { color: colors.text }]}>{advice.suggestedCrops.join('   ') || 'No hay coincidencias claras; corrige primero el suelo.'}</Text>
+                </View>
+              )}
+              <Text style={[styles.mapNote, { color: colors.textSecondary }]}>
+                {advice.mapEligible ? 'Esta medición puede aparecer como burbuja tonal en el mapa de pre-siembra.' : 'Esta fase se guarda en el historial y no genera una burbuja en el mapa.'}
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text style={[styles.detailTitle, { color: colors.text }]}>{activeCard.label} · {activeCard.value}</Text>
+              <Text style={[styles.source, { color: colors.textMuted }]}>Fuente: {activeCard.source}</Text>
+              <Text style={[styles.detailBody, { color: colors.textSecondary }]}>{activeCard.explanation}</Text>
+              <View style={[styles.tipBox, { backgroundColor: colors.background }]}>
+                <Text style={[styles.tipLabel, { color: colors.primary }]}>CONSEJO</Text>
+                <Text style={[styles.tipText, { color: colors.text }]}>{activeCard.tip}</Text>
+              </View>
+            </>
+          )}
+          <View style={styles.carouselActions}>
+            <TouchableOpacity
+              disabled={detailIndex === 0}
+              onPress={() => setDetailIndex((value) => Math.max(0, value - 1))}
+              style={[styles.carouselButton, { borderColor: colors.border, opacity: detailIndex === 0 ? 0.35 : 1 }]}
+            >
+              <Text style={[styles.carouselText, { color: colors.text }]}>‹ Anterior</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              disabled={showingAdvice}
+              onPress={() => setDetailIndex((value) => Math.min(cards.length, value + 1))}
+              style={[styles.carouselButton, { borderColor: colors.border, opacity: showingAdvice ? 0.35 : 1 }]}
+            >
+              <Text style={[styles.carouselText, { color: colors.text }]}>Siguiente ›</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <TouchableOpacity onPress={save} disabled={phase === 'saving'} style={[styles.cta, { backgroundColor: colors.primary, opacity: phase === 'saving' ? 0.6 : 1 }]}>
+          {phase === 'saving' ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.ctaText}>Guardar resultado</Text>}
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setPhase('stage')} style={styles.secondaryButton}>
+          <Text style={[styles.secondaryText, { color: colors.primary }]}>Cambiar fase y volver a medir</Text>
+        </TouchableOpacity>
+      </ScrollView>
+      <CalibrationReminderModal visible={showCalibration} onClose={() => { setShowCalibration(false); onDone(); }} />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.md,
-    height: Spacing.touchTarget + 8,
-  },
-  back: { minWidth: 80, minHeight: Spacing.touchTarget, justifyContent: 'center' },
+  header: { height: 62, paddingHorizontal: Spacing.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  headerSide: { minWidth: 86, minHeight: Spacing.touchTarget, justifyContent: 'center' },
+  backText: { ...Typography.bodyBold },
   headerTitle: { ...Typography.titleMedium },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.md },
-  readingText: { ...Typography.titleMedium },
-  readingHint: { ...Typography.caption, textAlign: 'center', paddingHorizontal: Spacing.xl },
-  scroll: { padding: Spacing.md, paddingBottom: Spacing.xxl, gap: Spacing.sm },
-  simBanner: { borderRadius: Spacing.borderRadius, padding: Spacing.sm },
-  simText: { ...Typography.badge, color: '#FFFFFF', textAlign: 'center' },
-  verdictCard: {
-    borderRadius: Spacing.cardRadius,
-    padding: Spacing.lg,
-    alignItems: 'center',
-    gap: Spacing.xs,
-  },
-  verdictIcon: { fontSize: 40, color: '#FFFFFF', fontWeight: '700' },
-  verdictLabel: { ...Typography.badge, color: '#FFFFFF' },
-  verdictTitle: { ...Typography.titleLarge, color: '#FFFFFF', textAlign: 'center' },
-  section: { ...Typography.badge, marginTop: Spacing.md },
-  card: { borderRadius: Spacing.borderRadius, borderWidth: 1, padding: Spacing.md },
-  actionText: { ...Typography.bodyRegular },
-  alertTitle: { ...Typography.bodyBold, marginBottom: 4 },
-  alertAction: { ...Typography.caption },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs },
-  metric: {
-    minWidth: 100,
-    flexGrow: 1,
-    borderRadius: 10,
-    borderWidth: 1,
-    padding: Spacing.sm,
-  },
-  metricKey: { ...Typography.badge },
-  metricVal: { ...Typography.bodyBold, marginTop: 2 },
-  gps: { ...Typography.caption, marginTop: Spacing.sm, textAlign: 'center' },
-  cta: {
-    height: 56,
-    borderRadius: Spacing.borderRadius,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: Spacing.md,
-  },
+  center: { flex: 1, padding: Spacing.xl, alignItems: 'center', justifyContent: 'center' },
+  connectionIcon: { width: 92, height: 92, borderRadius: 46, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.lg },
+  connectionGlyph: { color: '#FFFFFF', fontSize: 42, fontWeight: '700' },
+  centerTitle: { ...Typography.titleLarge, textAlign: 'center', marginTop: Spacing.lg },
+  centerBody: { ...Typography.bodyRegular, textAlign: 'center', marginTop: Spacing.sm, maxWidth: 360 },
+  errorDetail: { ...Typography.caption, textAlign: 'center', marginTop: Spacing.md },
+  scroll: { padding: Spacing.md, paddingBottom: Spacing.xxl },
+  demoBanner: { borderRadius: Spacing.borderRadius, padding: Spacing.sm, marginBottom: Spacing.md },
+  demoText: { ...Typography.badge, color: '#FFFFFF', textAlign: 'center' },
+  eyebrow: { ...Typography.badge, marginTop: Spacing.sm, marginBottom: Spacing.xs },
+  pageTitle: { ...Typography.titleLarge, fontSize: 28 },
+  pageBody: { ...Typography.bodyRegular, marginTop: Spacing.sm, marginBottom: Spacing.lg },
+  stageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
+  stageCard: { width: '48.5%', minHeight: 178, borderRadius: Spacing.cardRadius, borderWidth: 1, padding: Spacing.md },
+  stageEmoji: { fontSize: 31, marginBottom: Spacing.sm },
+  stageTitle: { ...Typography.titleMedium },
+  stageFocus: { ...Typography.caption, marginTop: Spacing.sm },
+  cta: { minHeight: 56, borderRadius: Spacing.borderRadius, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.md, marginTop: Spacing.lg },
   ctaText: { ...Typography.button, color: '#FFFFFF', fontSize: 17 },
-  retry: { minHeight: Spacing.touchTarget, alignItems: 'center', justifyContent: 'center' },
-  retryText: { ...Typography.bodyBold },
+  resultGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs, marginBottom: Spacing.lg },
+  resultCard: { width: '31.8%', minHeight: 96, borderRadius: 12, borderWidth: 1, borderTopWidth: 4, padding: Spacing.sm },
+  resultLabel: { ...Typography.badge },
+  resultValue: { ...Typography.bodyBold, marginTop: Spacing.sm },
+  detailCard: { borderRadius: Spacing.cardRadius, borderWidth: 1, padding: Spacing.md },
+  detailHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.sm },
+  detailCounter: { ...Typography.caption },
+  detailStatus: { ...Typography.badge },
+  detailTitle: { ...Typography.titleMedium, marginBottom: Spacing.xs },
+  source: { ...Typography.caption, marginBottom: Spacing.sm },
+  detailBody: { ...Typography.bodyRegular, marginBottom: Spacing.md },
+  tipBox: { borderRadius: 12, padding: Spacing.md },
+  tipLabel: { ...Typography.badge, marginBottom: Spacing.xs },
+  tipText: { ...Typography.bodyRegular },
+  action: { ...Typography.bodyRegular, marginBottom: Spacing.sm },
+  weather: { ...Typography.caption, marginTop: Spacing.sm },
+  cropBox: { borderRadius: 12, padding: Spacing.md, marginTop: Spacing.md },
+  cropLabel: { ...Typography.badge, marginBottom: Spacing.sm },
+  cropNames: { ...Typography.bodyBold },
+  mapNote: { ...Typography.caption, marginTop: Spacing.md },
+  carouselActions: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.lg },
+  carouselButton: { flex: 1, minHeight: Spacing.touchTarget, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  carouselText: { ...Typography.bodyBold },
+  secondaryButton: { minHeight: Spacing.touchTarget, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.sm },
+  secondaryText: { ...Typography.bodyBold },
 });

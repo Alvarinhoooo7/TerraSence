@@ -20,7 +20,7 @@ export const PHENOLOGICAL_STAGES: {
   label: string;
   labelEn: string;
   emoji: string;
-  /** Qué evalúa prioritariamente el semáforo en esta etapa. */
+  /** Qué evalúa prioritariamente la recomendación en esta fase. */
   focus: string;
   focusEn: string;
 }[] = [

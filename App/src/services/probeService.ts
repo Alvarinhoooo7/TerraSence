@@ -30,6 +30,41 @@ export interface ProbeReading {
   simulated: boolean;
 }
 
+export interface ProbeConnection {
+  connected: boolean;
+  simulated: boolean;
+  message?: string;
+}
+
+/**
+ * Verifica presencia de la sonda sin mostrar un selector BLE al usuario.
+ * En desarrollo/Expo Go permite continuar en modo demo, siempre identificado.
+ */
+export async function verifySoilProbe(deviceCode: string | null): Promise<ProbeConnection> {
+  if (!deviceCode) {
+    return {
+      connected: __DEV__,
+      simulated: __DEV__,
+      message: __DEV__ ? 'Modo demostración: no hay una sonda vinculada.' : 'No hay una sonda vinculada a esta cuenta.',
+    };
+  }
+  try {
+    const { requestBlePermissions, scanForProbe } = await import('./bleService');
+    if (!(await requestBlePermissions())) {
+      return { connected: false, simulated: false, message: 'Activa el permiso de Bluetooth para continuar.' };
+    }
+    await scanForProbe(deviceCode);
+    return { connected: true, simulated: false };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const nativeUnavailable = /native|module|Expo Go/i.test(message);
+    if (__DEV__ && nativeUnavailable) {
+      return { connected: true, simulated: true, message: 'Modo demostración: Bluetooth nativo no disponible.' };
+    }
+    return { connected: false, simulated: false, message };
+  }
+}
+
 /**
  * Decodifica el paquete binario de 16 bytes que emite el ESP32.
  *

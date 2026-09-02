@@ -1,12 +1,12 @@
 // src/screens/MapScreen.tsx
 //
-// PANTALLA PRINCIPAL de TerraSense: mapa satelital a pantalla completa.
+// Vista secundaria de TerraSense: mapa de mediciones de pre-siembra.
 // Adaptado de DashboardScreen.tsx del proyecto Akura.
 //
 // Diferencias respecto al original de Akura:
 //   · Akura pinta UN marcador (el adulto mayor) + N geocercas fijas.
 //     TerraSense pinta N mediciones, cada una con su propio círculo.
-//   · El color del círculo ya no es fijo: es el veredicto del semáforo.
+//   · La tonalidad del círculo representa la condición interna de la lectura.
 //   · El radio sale de `radius_m` de cada medición (20 m por defecto).
 //   · Se añade botón flotante de medición y selector de etapa fenológica.
 //
@@ -29,7 +29,6 @@ import * as Location from 'expo-location';
 import { Spacing, Typography, VERDICT_META } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useAppStore } from '../store/useAppStore';
-import { StageSelector } from '../components/StageSelector';
 import { FieldPicker } from '../components/FieldPicker';
 import { MeasurementBottomSheet } from '../components/MeasurementBottomSheet';
 import { ScreenGuide } from '../components/ScreenGuide';
@@ -55,17 +54,17 @@ const FALLBACK_REGION: Region = {
 };
 
 interface Props {
+  onClose: () => void;
   onOpenPerimeter: () => void;
   onStartMeasurement: () => void;
-  onOpenSettings: () => void;
   onOpenList: () => void;
   onOpenDetail: (p: MapMeasurementPoint) => void;
 }
 
 export const MapScreen: React.FC<Props> = ({
+  onClose,
   onOpenPerimeter,
   onStartMeasurement,
-  onOpenSettings,
   onOpenList,
   onOpenDetail,
 }) => {
@@ -74,8 +73,6 @@ export const MapScreen: React.FC<Props> = ({
 
   const mapRef = useRef<MapView>(null);
   const {
-    stage,
-    setStage,
     fieldName,
     setFieldName,
     device,
@@ -232,7 +229,7 @@ export const MapScreen: React.FC<Props> = ({
           />
         )}
 
-        {points.map((p) => {
+        {points.filter((p) => p.stage === 'pre_siembra').map((p) => {
           const meta = VERDICT_META[p.verdict];
           const fill = isDark ? meta.fillDark : meta.fillLight;
           const stroke = isDark ? meta.strokeDark : meta.strokeLight;
@@ -271,14 +268,16 @@ export const MapScreen: React.FC<Props> = ({
         <View style={styles.topBar} pointerEvents="box-none">
           <TouchableOpacity
             accessibilityRole="button"
-            accessibilityLabel={t('Ajustes', 'Settings')}
-            onPress={onOpenSettings}
+            accessibilityLabel={t('Volver al inicio', 'Back to dashboard')}
+            onPress={onClose}
             style={[styles.iconBtn, { backgroundColor: colors.mapOverlay, borderColor: colors.border }]}
           >
-            <Text style={{ fontSize: 20 }}>⚙️</Text>
+            <Text style={{ fontSize: 24 }}>‹</Text>
           </TouchableOpacity>
 
-          <StageSelector value={stage} onChange={setStage} colors={colors} />
+          <View style={[styles.mapTitle, { backgroundColor: colors.mapOverlay, borderColor: colors.border }]}>
+            <Text style={[styles.statusText, { color: colors.text }]}>{t('Mapa de pre-siembra', 'Pre-planting map')}</Text>
+          </View>
 
           <View
             style={[styles.statusPill, { backgroundColor: colors.mapOverlay, borderColor: colors.border }]}
@@ -374,6 +373,15 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     paddingHorizontal: Spacing.sm,
     paddingTop: Spacing.sm,
+  },
+  mapTitle: {
+    minHeight: Spacing.touchTarget,
+    flex: 1,
+    borderRadius: Spacing.borderRadius,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.sm,
   },
   subBar: {
     flexDirection: 'row',

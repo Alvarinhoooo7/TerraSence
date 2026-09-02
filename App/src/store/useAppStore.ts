@@ -5,7 +5,7 @@ import type { CropId, SoilTextureId } from '../types/agronomy';
 import { DEFAULT_APP_PREFERENCES, type AppPreferences } from '../types/preferences';
 
 interface AppState {
-  /** Etapa fenológica activa. Determina QUÉ evalúa el semáforo, no es un filtro. */
+  /** Fase elegida en el flujo de medición; determina la interpretación y el consejo. */
   stage: PhenologicalStage;
   cropId: CropId;
   textureId: SoilTextureId;

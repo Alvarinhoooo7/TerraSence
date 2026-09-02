@@ -160,7 +160,7 @@ const NPK_REF_ALTO = { nitrogen: 100, phosphorus: 60, potassium: 200 };
  * como si fuesen medidas directas.
  *
  * No incrementa severityScore a propósito: la salinidad ya penaliza el veredicto en la
- * regla de EC, y contarla dos veces sesgaría el semáforo. Esto advierte sobre la validez
+ * regla de EC, y contarla dos veces sesgaría la clasificación. Esto advierte sobre la validez
  * del dato, no añade un diagnóstico agronómico.
  */
 export function vetoCruzadoSalinidad(

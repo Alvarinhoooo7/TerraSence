@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { Typography, Spacing } from '../constants/theme';
 import { useTranslation } from '../hooks/useTranslation';
-import LottieView from 'lottie-react-native';
 
 interface Props {
   visible: boolean;
