@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/detection_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="4dp"
+    android:layout_marginVertical="@dimen/dug_card_spacing"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="@dimen/dug_card_corner_radius"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/dug_card_stroke"
+    app:strokeWidth="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/dug_card_padding">
+
+        <!-- Row 1: Category icon + label + timestamp -->
+        <ImageView
+            android:id="@+id/category_icon"
+            android:layout_width="@dimen/dug_card_category_icon_size"
+            android:layout_height="@dimen/dug_card_category_icon_size"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_dug_detection_music"
+            app:layout_constraintBottom_toBottomOf="@id/category_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/category_label" />
+
+        <TextView
+            android:id="@+id/category_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:fontFamily="@font/poppins"
+            android:text="@string/dug_category_music"
+            android:textColor="@color/dug_text_metadata"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toStartOf="@id/timestamp"
+            app:layout_constraintStart_toEndOf="@id/category_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Music" />
+
+        <TextView
+            android:id="@+id/timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins"
+            android:textColor="@color/dug_text_metadata"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@id/category_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/category_label"
+            tools:text="9:45 AM" />
+
+        <!-- Row 2: Song artwork + song title / artist name -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/song_artwork"
+            android:layout_width="@dimen/dug_music_artwork_size"
+            android:layout_height="@dimen/dug_music_artwork_size"
+            android:layout_marginTop="12dp"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/category_label"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Dug.MusicArtwork"
+            tools:src="@drawable/ic_dug_detection_music" />
+
+        <TextView
+            android:id="@+id/song_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="4dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/poppins_semibold"
+            android:maxLines="1"
+            android:textColor="@color/dug_text_primary"
+            android:textSize="15sp"
+            app:layout_constraintBottom_toTopOf="@id/artist_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/song_artwork"
+            app:layout_constraintTop_toTopOf="@id/song_artwork"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="WAP" />
+
+        <TextView
+            android:id="@+id/artist_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="4dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/poppins"
+            android:maxLines="1"
+            android:textColor="@color/dug_text_secondary"
+            android:textSize="13sp"
+            app:layout_constraintBottom_toBottomOf="@id/song_artwork"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/song_artwork"
+            app:layout_constraintTop_toBottomOf="@id/song_title"
+            tools:text="Cardi B ft. Megan Thee Stallion" />
+
+        <!-- Row 3: Small app icon + app name ... explicit chip -->
+        <ImageView
+            android:id="@+id/app_icon"
+            android:layout_width="@dimen/dug_music_small_app_icon_size"
+            android:layout_height="@dimen/dug_music_small_app_icon_size"
+            android:layout_marginTop="8dp"
+            android:contentDescription="@null"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/song_artwork"
+            tools:src="@drawable/ic_dug_detection_music" />
+
+        <TextView
+            android:id="@+id/app_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/poppins"
+            android:maxLines="1"
+            android:textColor="@color/dug_text_metadata"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@id/app_icon"
+            app:layout_constraintEnd_toStartOf="@id/explicit_chip"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/app_icon"
+            app:layout_constraintTop_toTopOf="@id/app_icon"
+            tools:text="Spotify" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/explicit_chip"
+            style="@style/Dug.Chip.Tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dug_explicit_label"
+            app:chipBackgroundColor="@color/colorChipVerySerious"
+            app:layout_constraintBottom_toBottomOf="@id/app_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/app_icon" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="contact_name_max_length">14</integer>
+    <integer name="sim_icc_id_length">19</integer>
+    <integer name="imei_length">15</integer>
+</resources>

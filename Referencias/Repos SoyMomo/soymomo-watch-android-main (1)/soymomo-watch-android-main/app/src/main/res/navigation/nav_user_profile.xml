@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_user_profile"
+    app:startDestination="@id/userProfileMainFragment">
+
+    <fragment
+        android:id="@+id/editUserProfileFragment"
+        android:name="com.sosmartlabs.momo.userprofile.ui.fragment.EditUserProfileFragment"
+        android:label="user_profile_edit_fragment"
+        tools:layout="@layout/user_profile_edit_fragment" />
+    <fragment
+        android:id="@+id/userProfileMainFragment"
+        android:name="com.sosmartlabs.momo.userprofile.ui.fragment.UserProfileMainFragment"
+        android:label="user_profile_main_fragment"
+        tools:layout="@layout/user_profile_main_fragment" >
+        <action
+            android:id="@+id/action_userProfileMainFragment_to_editUserProfileFragment"
+            app:destination="@id/editUserProfileFragment" />
+        <action
+            android:id="@+id/action_userProfileMainFragment_to_emailUserProfileFragment"
+            app:destination="@id/emailUserProfileFragment" />
+        <action
+            android:id="@+id/action_userProfileMainFragment_to_passwordUserProfileFragment"
+            app:destination="@id/passwordUserProfileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/emailUserProfileFragment"
+        android:name="com.sosmartlabs.momo.userprofile.ui.fragment.EmailUserProfileFragment"
+        android:label="user_profile_email_fragment"
+        tools:layout="@layout/user_profile_email_fragment" />
+    <fragment
+        android:id="@+id/passwordUserProfileFragment"
+        android:name="com.sosmartlabs.momo.userprofile.ui.fragment.PasswordUserProfileFragment"
+        android:label="user_profile_password_fragment"
+        tools:layout="@layout/user_profile_password_fragment" />
+</navigation>

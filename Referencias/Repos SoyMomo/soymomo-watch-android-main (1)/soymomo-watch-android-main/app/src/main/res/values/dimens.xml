@@ -1,0 +1,127 @@
+<resources>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="dialog_corner_radius">10dp</dimen>
+    <dimen name="settings_card_separation">48dp</dimen>
+    <dimen name="setting_item_padding">16dp</dimen>
+    <dimen name="chat_bubble_corner_radius">4dp</dimen>
+    <dimen name="card_corner_radius">8dp</dimen>
+    <dimen name="card_elevation">4dp</dimen>
+
+    <!-- Watch cards (main activity) -->
+    <dimen name="watch_card_profile_picture_size">80dp</dimen>
+    <dimen name="watch_selector_profile_picture_size">48dp</dimen>
+    <dimen name="watch_card_profile_picture_margin_start_top">16dp</dimen>
+    <dimen name="watch_card_profile_picture_margin_bottom">10dp</dimen>
+
+    <!-- Barcode Scanner-->
+    <dimen name="bottom_prompt_chip_text_size">14sp</dimen>
+    <dimen name="bottom_prompt_chip_margin_bottom">28dp</dimen>
+    <dimen name="bottom_prompt_chip_corner_radius">8dp</dimen>
+    <dimen name="chat_date_separator_text_size">13sp</dimen>
+    <dimen name="chat_date_separator_min_width">88dp</dimen>
+    <dimen name="chat_date_separator_min_height">32dp</dimen>
+    <dimen name="chat_date_separator_padding_horizontal">14dp</dimen>
+    <dimen name="chat_date_separator_padding_vertical">6dp</dimen>
+    <dimen name="chat_date_separator_vertical_margin">10dp</dimen>
+    <dimen name="chat_date_separator_corner_radius">16dp</dimen>
+    <dimen name="top_action_bar_padding_horizontal">8dp</dimen>
+    <dimen name="top_action_bar_height">64dp</dimen>
+    <dimen name="top_action_button_padding">12dp</dimen>
+    <dimen name="barcode_reticle_ripple_stroke_width">4dp</dimen>
+    <dimen name="barcode_reticle_ripple_size_offset">40dp</dimen>
+    <dimen name="barcode_reticle_stroke_width">4dp</dimen>
+    <dimen name="barcode_reticle_corner_radius">8dp</dimen>
+
+    <!-- Watch Settings-->
+    <dimen name="watch_settings_control_button_size">48dp</dimen>
+    <dimen name="watch_settings_control_button_text_size">16sp</dimen>
+    <dimen name="watch_settings_item_icon_size">48dp</dimen>
+    <dimen name="watch_settings_item_title_size">18sp</dimen>
+    <dimen name="watch_settings_item_description_size">16sp</dimen>
+
+    <!-- Pending Requests -->
+    <dimen name="pending_request_button_size">40dp</dimen>
+
+    <!-- Chat -->
+    <dimen name="chat_element_width">220dp</dimen>
+    <dimen name="chat_date_size">11sp</dimen>
+    <dimen name="chat_message_text_size">16sp</dimen>
+    <dimen name="chat_grouped_message_vertical_margin">0dp</dimen>
+    <dimen name="chat_grouped_media_message_vertical_margin">1dp</dimen>
+
+    <!-- Watch Info -->
+    <dimen name="watch_info_card_padding">16dp</dimen>
+
+    <!-- User Profile -->
+    <dimen name="horizontal_margin_input_user_profile">24dp</dimen>
+    <dimen name="margin_top_input_user_profile">8dp</dimen>
+    <dimen name="margin_top_input_name_user_profile">28dp</dimen>
+
+    <!-- Dialog number null-->
+    <dimen name="number_null_horizontal_margin">16dp</dimen>
+    <dimen name="number_null_horizontal_margin_success">48dp</dimen>
+    <dimen name="number_null_vertical_Top">16dp</dimen>
+
+    <!-- Reminders -->
+    <dimen name="reminders_margin_start_button_Add">36dp</dimen>
+    <dimen name="reminders_separation_days_of_week">4dp</dimen>
+
+    <!-- Utils -->
+    <dimen name="horizontal_margin_smallest">4dp</dimen>
+    <dimen name="horizontal_margin_small">8dp</dimen>
+    <dimen name="horizontal_margin">16dp</dimen>
+    <dimen name="horizontal_margin_medium">24dp</dimen>
+    <dimen name="horizontal_margin_large">32dp</dimen>
+    <dimen name="horizontal_margin_larger">36dp</dimen>
+    <dimen name="horizontal_margin_extra_large">48dp</dimen>
+    <dimen name="horizontal_margin_xx_large">64dp</dimen>
+    <dimen name="horizontal_margin_jumbo">72dp</dimen>
+
+    <dimen name="vertical_margin_smallest">4dp</dimen>
+    <dimen name="vertical_margin_small">8dp</dimen>
+    <dimen name="vertical_margin">16dp</dimen>
+    <dimen name="vertical_margin_medium">24dp</dimen>
+    <dimen name="vertical_margin_large">32dp</dimen>
+    <dimen name="vertical_margin_larger">36dp</dimen>
+    <dimen name="vertical_margin_extra_large">48dp</dimen>
+    <dimen name="vertical_margin_xx_large">64dp</dimen>
+    <dimen name="vertical_margin_jumbo">72dp</dimen>
+
+    <dimen name="vertical_margin_divider">32dp</dimen>
+
+    <dimen name="card_padding">2dp</dimen>
+    <dimen name="corner_radius">8dp</dimen>
+    <dimen name="round_card_corner_radius">48dp</dimen>
+    <dimen name="paragraph_spacing">19dp</dimen>
+
+    <dimen name="first_momo_button_height">64dp</dimen>
+    <dimen name="first_momo_button_transparent_height">46dp</dimen>
+    <dimen name="first_momo_button_border">24dp</dimen>
+    <dimen name="add_watch_button_text_size">16sp</dimen>
+    <dimen name="add_watch_title_text_size">19sp</dimen>
+    <dimen name="add_watch_description_text_size">14sp</dimen>
+    <dimen name="add_watch_description_text_size_small">12sp</dimen>
+    <dimen name="add_watch_form_label">12sp</dimen>
+
+    <!-- SoyMomo SIM -->
+    <dimen name="subscription_sim_margin_card">10dp</dimen>
+    <dimen name="subscription_sim_peek_offset_card">50dp</dimen>
+
+
+    <dimen name="onboarding_animation_width">300dp</dimen>
+    <dimen name="onboarding_animation_height">300dp</dimen>
+    <dimen name="onboarding_animation_width_small">224dp</dimen>
+    <dimen name="onboarding_animation_height_small">224dp</dimen>
+    <dimen name="hint_text_size">12sp</dimen>
+    <dimen name="view_padding">16dp</dimen>
+    <dimen name="button_corner_radius">20dp</dimen>
+
+    <dimen name="gesture_navigation_margin">24dp</dimen>
+    <dimen name="top_bar_margin">24dp</dimen>
+    <dimen name="button_navigation_margin">56dp</dimen>
+
+    <dimen name="chat_photo_share_dot_size">8dp</dimen>
+    <dimen name="chat_photo_share_dot_margin">8dp</dimen>
+    <dimen name="chat_photo_share_preview_corner_radius">24dp</dimen>
+</resources>

@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* AppListCard */
+.updateInfo {
+  @apply text-xs text-[#603BB0] text-right mb-2;
+}
+
+.container {
+  @apply min-h-[300px] max-h-[300px] overflow-y-auto;
+}
+
+.emptyMessage {
+  @apply text-gray-500 flex items-center justify-center text-center;
+}
+
+.appsGrid {
+  @apply grid gap-3;
+}
+
+.gridSingleColumn {
+  @apply grid-cols-1;
+}
+
+.gridMultiColumn {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.appCard {
+  @apply flex items-center gap-3 border border-gray-200 rounded-lg p-2 bg-white min-h-[56px] overflow-hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.appIcon {
+  @apply w-8 h-8 rounded-md object-cover flex-shrink-0;
+}
+
+.appIconPlaceholder {
+  @apply w-8 h-8 bg-gray-200 rounded-md flex-shrink-0;
+}
+
+.appContent {
+  @apply flex-1 min-w-0 overflow-hidden;
+}
+
+.appName {
+  @apply font-semibold text-sm text-[#603BB0] overflow-hidden whitespace-nowrap;
+  text-overflow: ellipsis;
+}
+
+.packageName {
+  @apply text-xs text-[#603BB0] overflow-hidden whitespace-nowrap;
+  text-overflow: ellipsis;
+}
+
+.versionInfo {
+  @apply text-xs text-[#603BB0];
+}
+
+.updateDate {
+  @apply text-xs text-[#603BB0] mt-1;
+} 

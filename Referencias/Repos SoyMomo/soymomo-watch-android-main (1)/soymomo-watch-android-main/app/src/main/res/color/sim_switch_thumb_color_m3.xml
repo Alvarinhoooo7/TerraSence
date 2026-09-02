@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  MaterialSwitch (M3) thumb tint for SimSwitch. M3 renders the thumb as a small
+  dot inside a fully-filled track, so the old unchecked thumb (#462097 dark
+  purple) was invisible on the purple track. Use white for the OFF thumb so the
+  off state is legible, keeping the teal accent for the ON thumb.
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true" android:color="@color/sim_button_positive" />
+    <item android:color="@color/white" />
+</selector>

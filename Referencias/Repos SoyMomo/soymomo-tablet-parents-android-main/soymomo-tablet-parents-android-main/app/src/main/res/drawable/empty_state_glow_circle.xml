@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Soft purple radial glow placed behind the welcome mascot on the empty state. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <gradient
+        android:type="radial"
+        android:gradientRadius="50%"
+        android:startColor="#26603BB0"
+        android:centerColor="#14603BB0"
+        android:endColor="#00603BB0" />
+</shape>

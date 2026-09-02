@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mirrors sim_button_text_color / sim_button_positive_selector so the outlined button
+     greys out when disabled like its filled sibling. Without a state list here, pinning a
+     flat colour silently discards Material3's own disabled handling and isEnabled=false
+     becomes invisible. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false"
+        android:color="@color/sim_button_disabled_text" />
+    <item android:color="@color/sim_button_positive" />
+</selector>

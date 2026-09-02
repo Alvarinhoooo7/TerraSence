@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/tabletInitialMenuFragment">
+
+    <!-- Main Menu -->
+    <fragment
+        android:id="@+id/tabletInitialMenuFragment"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.TabletInitialMenuFragment"
+        android:label="TabletInitialMenuFragment">
+        <action
+            android:id="@+id/action_tabletInitialMenuFragment_to_kidProfileEditFragment"
+            app:destination="@id/editKidProfileFragment" />
+        <action
+            android:id="@+id/action_tabletInitialMenuFragment_to_tabletFragmentAppsMain"
+            app:destination="@id/tabletFragmentAppsMain" />
+        <action
+            android:id="@+id/action_tabletInitialMenuFragment_to_tabletFragmentDugUnified"
+            app:destination="@id/tabletFragmentDugUnified" />
+        <action
+            android:id="@+id/action_tabletInitialMenuFragment_to_tabletRemoteScreenshotFragment"
+            app:destination="@id/tabletRemoteScreenshotFragment" />
+        <action
+            android:id="@+id/action_tabletInitialMenuFragment_to_tabletSafetyFragment"
+            app:destination="@id/tabletSafetyFragment" />
+        <action
+            android:id="@+id/action_tabletInitialMenuFragment_to_tabletStatsFragment"
+            app:destination="@id/tabletStatsFragment" />
+        <!-- Schedules: direct actions to the former Times submenu leaves -->
+        <action
+            android:id="@+id/action_tabletInitialMenuFragment_to_tabletTimeUseLimitFragment"
+            app:destination="@id/tabletTimeUseLimitFragment" />
+        <action
+            android:id="@+id/action_tabletInitialMenuFragment_to_tabletTimeSchoolModeFragment"
+            app:destination="@id/tabletTimeSchoolModeFragment" />
+        <action
+            android:id="@+id/action_tabletInitialMenuFragment_to_tabletTimeUseRangeFragment"
+            app:destination="@id/tabletTimeUseRangeFragment" />
+        <!-- Blocks: direct actions to the former Blocks submenu leaves -->
+        <action
+            android:id="@+id/action_tabletInitialMenuFragment_to_tabletBlockWebFragment"
+            app:destination="@id/tabletBlockWebFragment" />
+        <action
+            android:id="@+id/action_tabletInitialMenuFragment_to_tabletBlockPaymentsFragment"
+            app:destination="@id/tabletBlockPaymentsFragment" />
+        <action
+            android:id="@+id/action_tabletInitialMenuFragment_to_tabletBlockAdsFragment"
+            app:destination="@id/tabletBlockAdsFragment" />
+        <action
+            android:id="@+id/action_tabletInitialMenuFragment_to_safeWalkingFragment"
+            app:destination="@id/safeWalkingFragment" />
+        <action
+            android:id="@+id/action_tabletInitialMenuFragment_to_linkDeviceFragment"
+            app:destination="@id/linkDeviceFragment" />
+    </fragment>
+
+    <!-- Apps -->
+    <fragment
+        android:id="@+id/tabletFragmentAppsMain"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.appprotection.ui.TabletAppsMainFragment"
+        android:label="TabletFragmentAppsMain">
+        <action
+            android:id="@+id/action_tabletFragmentAppsMain_to_tabletFragmentAppsDetail"
+            app:destination="@id/tabletFragmentAppsDetail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tabletFragmentAppsDetail"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.appprotection.ui.TabletAppsDetailFragment"
+        android:label="TabletFragmentAppsDetail">
+    </fragment>
+
+    <!-- Blocks leaves (former TabletBlocksFragment hub menu removed; reached directly from main menu) -->
+    <fragment
+        android:id="@+id/tabletBlockAdsFragment"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.blocks.ads.AdsBlockFragment"
+        android:label="TabletBlockAdsFragment" >
+        <action
+            android:id="@+id/action_tabletBlockAdsFragment_to_adBlockerTutorialFragment"
+            app:destination="@id/adBlockerTutorialFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/adBlockerTutorialFragment"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.blocks.ads.AdBlockerTutorialFragment"
+        android:label="AdBlockerTutorialFragment" />
+
+    <fragment
+        android:id="@+id/tabletBlockPaymentsFragment"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.blocks.inapppayments.InAppPaymentsBlockFragment"
+        android:label="TabletBlockPaymentsFragment">
+    </fragment>
+
+    <fragment
+        android:id="@+id/tabletBlockWebFragment"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.blocks.web.WebBlockFragment"
+        android:label="TabletBlockWebFragment">
+    </fragment>
+
+    <!-- DUG -->
+    <fragment
+        android:id="@+id/tabletFragmentDugUnified"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.dug.TabletDugUnifiedFragment"
+        android:label="TabletFragmentDugUnified">
+        <action
+            android:id="@+id/action_tabletFragmentDugUnified_to_tabletFragmentDugSmartDetection"
+            app:destination="@id/tabletFragmentDugSmartDetection" />
+        <action
+            android:id="@+id/action_tabletFragmentDugUnified_to_tabletFragmentDugImageDetail"
+            app:destination="@id/tabletFragmentDugImageDetail" />
+        <action
+            android:id="@+id/action_tabletFragmentDugUnified_to_tabletFragmentDugMessagesDetectionDetail"
+            app:destination="@id/tabletFragmentDugMessagesDetectionDetail" />
+        <action
+            android:id="@+id/action_tabletFragmentDugUnified_to_tabletFragmentDugMoodDetectionDetail"
+            app:destination="@id/tabletFragmentDugMoodDetectionDetail" />
+        <action
+            android:id="@+id/action_tabletFragmentDugUnified_to_tabletFragmentDugMusicDetectionDetail"
+            app:destination="@id/tabletFragmentDugMusicDetectionDetail" />
+        <action
+            android:id="@+id/action_tabletFragmentDugUnified_to_tabletFragmentDugSearchDetectionDetail"
+            app:destination="@id/tabletFragmentDugSearchDetectionDetail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tabletFragmentDugMessagesDetection"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.dug.messages_detection.TabletDugMessagesDetectionFragment"
+        android:label="TabletFragmentDugMessagesDetection">
+        <action
+            android:id="@+id/action_tabletFragmentDugMessagesDetection_to_tabletFragmentDugMessagesDetectionDetail"
+            app:destination="@id/tabletFragmentDugMessagesDetectionDetail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tabletFragmentDugMessagesDetectionDetail"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.dug.messages_detection.TabletDugMessagesDetectionDetailFragment"
+        android:label="TabletFragmentDugMessagesDetectionDetail">
+    </fragment>
+
+    <fragment
+        android:id="@+id/tabletFragmentDugMoodDetection"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.dug.mood_detection.TabletDugMoodDetectionFragment"
+        android:label="TabletFragmentDugMoodDetection">
+        <action
+            android:id="@+id/action_tabletFragmentDugMoodDetection_to_tabletFragmentDugMoodDetectionDetail"
+            app:destination="@id/tabletFragmentDugMoodDetectionDetail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tabletFragmentDugMoodDetectionDetail"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.dug.mood_detection.TabletDugMoodDetectionDetailFragment"
+        android:label="TabletFragmentDugMoodDetectionDetail">
+    </fragment>
+
+    <fragment
+        android:id="@+id/tabletFragmentDugMusicDetection"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.dug.music_detection.TabletDugMusicDetectionFragment"
+        android:label="TabletFragmentDugMusicDetection">
+        <action
+            android:id="@+id/action_tabletFragmentDugMusicDetection_to_tabletFragmentDugMusicDetectionDetail"
+            app:destination="@id/tabletFragmentDugMusicDetectionDetail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tabletFragmentDugMusicDetectionDetail"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.dug.music_detection.TabletDugMusicDetectionDetailFragment"
+        android:label="TabletFragmentDugMusicDetectionDetail">
+    </fragment>
+
+    <fragment
+        android:id="@+id/tabletFragmentDugSearchDetection"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.dug.search_detection.TabletDugSearchDetectionFragment"
+        android:label="TabletFragmentDugSearchDetection">
+        <action
+            android:id="@+id/action_tabletFragmentDugSearchDetection_to_tabletFragmentDugSearchDetectionDetail"
+            app:destination="@id/tabletFragmentDugSearchDetectionDetail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tabletFragmentDugSearchDetectionDetail"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.dug.search_detection.TabletDugSearchDetectionDetailFragment"
+        android:label="TabletFragmentDugSearchDetectionDetail">
+    </fragment>
+
+    <fragment
+        android:id="@+id/tabletFragmentDugSmartDetection"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.dug.smart_detection.TabletDugSmartDetectionFragment"
+        android:label="TabletFragmentDugSmartDetection">
+    </fragment>
+
+    <fragment
+        android:id="@+id/tabletFragmentDugImageDetail"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.dug.smart_detection.TabletDugImageDetailFragment"
+        android:label="TabletFragmentDugImageDetail">
+    </fragment>
+
+    <!-- Kid Profile -->
+    <fragment
+        android:id="@+id/editKidProfileFragment"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.profile.KidProfileEditFragment"
+        android:label="KidProfileEditFragment">
+    </fragment>
+
+    <fragment
+        android:id="@+id/requestTimeAppFragment"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.appprotection.ui.RequestTimeAppFragment"
+        android:label="RequestTimeAppFragment" />
+
+    <fragment
+        android:id="@+id/requestTimeFragment"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.appprotection.ui.RequestTimeFragment"
+        android:label="RequestTimeFragment">
+        <argument
+            android:name="requestId"
+            app:argType="string" />
+    </fragment>
+
+    <!-- Remote Screenshot -->
+    <fragment
+        android:id="@+id/tabletRemoteScreenshotFragment"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.remotescreenshot.TabletRemoteScreenshotFragment"
+        android:label="TabletRemoteScreenshotFragment" />
+
+    <!-- Safety -->
+    <fragment
+        android:id="@+id/tabletSafetyFragment"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.pin.TabletSafetyFragment"
+        android:label="TabletSafetyFragment">
+    </fragment>
+
+    <!-- Stats -->
+    <fragment
+        android:id="@+id/tabletStatsFragment"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.stats.TabletStatsFragment"
+        android:label="TabletStatsFragment" />
+
+    <!-- Times leaves (former TimesFragment hub menu removed; reached directly from main menu) -->
+    <fragment
+        android:id="@+id/tabletTimeSchoolModeFragment"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.times.schoolmode.SchoolModeFragment"
+        android:label="TabletTimeSchoolModeFragment" />
+
+    <fragment
+        android:id="@+id/tabletTimeUseLimitFragment"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.times.usetime.limit.UseTimeLimitFragment"
+        android:label="TabletTimeUseLimitFragment" />
+
+    <fragment
+        android:id="@+id/tabletTimeUseRangeFragment"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.times.usetime.range.UseTimeRangeFragment"
+        android:label="TabletTimeUseRangeFragment" />
+
+    <fragment
+        android:id="@+id/safeWalkingFragment"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.safewalking.SafeWalkingFragment"
+        android:label="SafeWalkingFragment" />
+    <fragment
+        android:id="@+id/linkDeviceFragment"
+        android:name="com.sosmartlabs.momotabletpadres.tabletsettings.sharedevice.ShareDeviceFragment"
+        android:label="LinkDeviceFragment" />
+</navigation>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:background="@drawable/settings_card_design_white"
+android:paddingLeft="@dimen/horizontal_margin"
+android:paddingTop="@dimen/vertical_margin"
+android:paddingRight="@dimen/horizontal_margin"
+android:paddingBottom="@dimen/vertical_margin">
+
+        <TextView
+            android:id="@+id/text_title"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/settings_app_time_limit"
+            style="@style/ParentControlVariableFragmentTitle"
+            android:textAlignment="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <NumberPicker
+            android:id="@+id/hours_picker"
+            android:theme="@style/AppTheme.Picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:descendantFocusability="blocksDescendants"
+            app:layout_constraintTop_toBottomOf="@+id/text_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/minutes_picker"
+            />
+
+        <NumberPicker
+            android:id="@+id/minutes_picker"
+            android:theme="@style/AppTheme.Picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:descendantFocusability="blocksDescendants"
+            app:layout_constraintTop_toBottomOf="@+id/text_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/hours_picker"
+            />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_cancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_button_delete"
+            android:textAllCaps="false"
+            style="@style/ParentControlButtonText"
+            app:backgroundTint="@color/colorCancel"
+            app:cornerRadius="@dimen/button_corner_radius"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/button_save"
+            app:layout_constraintTop_toBottomOf="@+id/hours_picker"
+            android:layout_marginHorizontal="4dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_save"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_button_save"
+            android:textAllCaps="false"
+            style="@style/ParentControlButtonText"
+            app:backgroundTint="@color/colorAccept"
+            app:cornerRadius="@dimen/button_corner_radius"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/button_cancel"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/button_cancel"
+            android:layout_marginHorizontal="4dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

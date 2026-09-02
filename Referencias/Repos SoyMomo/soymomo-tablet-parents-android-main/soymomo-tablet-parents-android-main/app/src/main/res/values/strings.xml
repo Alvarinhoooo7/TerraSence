@@ -1,0 +1,1558 @@
+<resources>
+    <string name="tablet_id" translatable="false">ID:</string>
+    <string name="app_name" translatable="false">SoyMomo Tablet/Phone - Parent</string>
+    <string name="dug_cyberbullying_label" translatable="false">Cyberbullying</string>
+    <string name="dug_grooming_label" translatable="false">Grooming</string>
+    <string name="_0" translatable="false">0</string>
+    <string name="ok" translatable="false">OK</string>
+    <string name="dummy_app_name" translatable="false">Google Chrome</string>
+    <string name="dummy_detection_date" translatable="false">30/10/2018 22:00</string>
+    <string name="dummy_tablet_model" translatable="false">Pro</string>
+    <string name="_00h_00m" translatable="false">00h:00m</string>
+    <string name="lite_model_name" translatable="false">Lite</string>
+    <string name="lite_2_model_name" translatable="false">Lite 2.0</string>
+    <string name="lite_3_model_name" translatable="false">Lite 3.0</string>
+    <string name="pro_model_name" translatable="false">Pro</string>
+    <string name="pro_2_model_name" translatable="false">Pro 2.0</string>
+    <string name="uno_model_name" translatable="false">Uno</string>
+    <string name="momophone_1_model_name" translatable="false">MomoPhone 1.0</string>
+    <string name="unknown_model_name" translatable="false">-</string>
+    <string name="none" translatable="false">None</string>
+    <string name="explicit_songs_artist" translatable="false">%1$s - %2$s</string>
+    <string name="onboarding_select_language_title_carousel" translatable="false">Select the language / Selecciona el idioma / Sprache auswählen / Sélectionnez la langue</string>
+    <string name="notification_explicit_music_detection_config_title" translatable="false">SoyMomo Device</string>
+    <string name="hours">hours</string>
+    <!--Login-->
+    <string name="login">Log in</string>
+    <string name="sign_up">Sign up</string>
+    <string name="hint_mail">E-mail</string>
+    <string name="hint_password">Password</string>
+    <string name="unknown_tablet_name">No Name</string>
+    <string name="adblocker_no_ads">No ads have been blocked yet!</string>
+    <string name="accept">Accept</string>
+    <string name="cancel">Cancel</string>
+    <string name="create_account">Create account</string>
+    <string name="forgot_password"><u>Forgot your password?</u></string>
+    <string name="hint_name">First Name</string>
+    <string name="hint_last_name">Last Name</string>
+    <string name="invalid_login_fields">Invalid username or password</string>
+
+    <!--tos-->
+    <string name="tos_error">There was an error accepting the terms and conditions</string>
+    <string name="tos_must_accept">You must accept the terms and conditions</string>
+
+    <!--Main activity-->
+    <string name="title_my_tablets">My Devices</string>
+    <string name="title_profile">Profile</string>
+    <string name="title_add_tablet">Link</string>
+    <!--Profile-->
+    <string name="edit_profile">Change details</string>
+    <string name="save_changes">Change e-mail</string>
+    <string name="change_password">Change your password</string>
+    <string name="new_password">New password</string>
+    <string name="save_new_password">Change password</string>
+    <string name="scan">Scan</string>
+    <string name="add_tablet_qr_text">Go to the parents section on your SoyMomo device and press Settings to find the QR code. Then scan it to link the SoyMomo device to your account.</string>
+    <string name="add_tablet_manually_text">Go to the parents section on your SoyMomo device and press Settings. Below the QR code, you will find an alphanumeric code with uppercase and lowercase letters. Enter that code below to link the SoyMomo device to your account.</string>
+    <string name="enter_manual_code">Enter the code</string>
+
+    <!--Tablet settings-->
+    <string name="title_app_usage">App Usage</string>
+    <string name="today">Today</string>
+    <string name="this_week">This week</string>
+    <string name="usage">Usage</string>
+    <string name="protection">Protection</string>
+    <string name="websites">Web</string>
+    <string name="schedules">Schedules</string>
+    <string name="utils">Settings</string>
+    <string name="change_pin">Change PIN</string>
+    <string name="app_protection">App Protection</string>
+    <string name="website_protection">Website Protection</string>
+    <string name="block_explorer">Block Browser</string>
+    <string name="switch_block_browser">Enable Browser</string>
+    <string name="usage_hours">Usage Hours</string>
+    <string name="notification">No notifications found</string>
+    <!--Etc-->
+    <string name="loading_error">An error occurred while loading the information</string>
+
+    <string name="login_success">Welcome</string>
+    <string name="login_error">There was an error logging in</string>
+    <string name="creation_error">There was an error creating your account</string>
+    <string name="account_exist">This account already exists</string>
+
+    <string name="app_protection_desc">Block the apps you don\'t want your child to use</string>
+
+    <!--Tutorial-->
+    <string name="tutorial_title_welcome">Welcome</string>
+    <string name="tutorial_title_pin">Security PIN</string>
+    <string name="tutorial_title_app_protection">App Blocking</string>
+    <string name="tutorial_title_website_protection">Website Protection</string>
+    <string name="tutorial_title_usage_hours">Schedule Control</string>
+    <string name="tutorial_title_smart_detection"><b>Dug</b>: Dangerous Content Detector</string>
+
+    <string name="tutorial_welcome_description">Welcome to your SoyMomo parent application. From here you can link a SoyMomo device and set configurations remotely</string>
+    <string name="tutorial_pin_description">pin?</string>
+    <string name="tutorial_app_protection_description">Set which apps are allowed for your children, and block those that may be potentially dangerous</string>
+    <string name="tutorial_website_protection_description">Specify which websites you want your child to visit</string>
+    <string name="tutorial_usage_hours_description">Configure the schedules during which you want your child to use the SoyMomo device</string>
+    <string name="tutorial_smart_detection_description">
+        A new friend has joined SoyMomo! Meet <b>Dug</b>, trained to seek and find content that may be inappropriate for children.\n\n
+        Sometimes browsing the internet or interacting with strangers can result in negative experiences. But don\'t worry, <b>Dug</b> will prevent such situations, guiding safe use of the web, social networks, and digital content. We care for you!</string>
+
+    <string name="button_back_text">Back</string>
+    <string name="button_next_text">Next</string>
+    <string name="button_ready_text">Done</string>
+
+    <!--UseTime-->
+    <string name="usage_hour">USAGE SCHEDULE</string>
+    <string name="time_not_defined">hh:mm</string>
+
+    <string name="usage_hours_title_range">Time Range %1$d</string>
+    <string name="usage_hours_title_limit">Time Limit %1$d</string>
+    <string name="usage_hours_range_from">From: </string>
+    <string name="usage_hours_range_to">To: </string>
+    <string name="usage_hours_limit">Limit: </string>
+    <string name="usage_hours_chip_placeholder">Configure</string>
+    <string name="usage_hours_menu_delete">Delete</string>
+    <string name="snackbar_text_request_time">Confirmation sent</string>
+
+
+
+
+    <!--Tablet Item-->
+    <string name="tablet_name">Name:</string>
+
+    <string name="loading">Loading</string>
+    <string name="loading_app_usages">Loading apps</string>
+    <string name="total_app_usage">Total usage time:</string>
+
+    <string name="hour">hours</string>
+    <string name="minute">minutes</string>
+    <string name="second">seconds</string>
+
+    <string name="set_pin">Change PIN</string>
+    <string name="toast_error_no_email">Please enter your email.</string>
+    <string name="progress_resetting_password">Resetting password…</string>
+    <string name="toast_error_account_does_not_exist">No account exists with that email</string>
+    <string name="toast_error_recovering_password">Could not recover password</string>
+    <string name="toast_password_recovered_success">Password successfully recovered. Check your email in a few minutes</string>
+    <string name="button_logout">Log out</string>
+    <string name="text_personal_information">Personal Information</string>
+    <string name="menu_search">Search</string>
+    <string name="menu_this_week">THIS WEEK</string>
+    <string name="menu_today">TODAY</string>
+
+    <!--Change fields-->
+    <string name="change_email">Change E-Mail</string>
+    <string name="set_new_mail">Set a new E-Mail</string>
+    <string name="new_mail">New E-Mail</string>
+    <string name="confirm_mail">Confirm E-Mail</string>
+    <string name="set_new_password">Set a new password</string>
+    <string name="confirm_password">Confirm password</string>
+
+    <string name="error_invalid_mail">Enter a valid e-mail</string>
+    <string name="error_confirm_mail">Please confirm your e-mail</string>
+    <string name="error_mails_dont_match">E-mails do not match</string>
+    <string name="changing_mail">Changing e-mail</string>
+    <string name="email_changed">e-mail changed</string>
+
+    <string name="error_invalid_password">Please enter a password of at least 6 characters</string>
+    <string name="error_confirm_password">Please confirm the password</string>
+    <string name="error_passwords_dont_match">Passwords do not match</string>
+    <string name="changing_password">Changing password</string>
+    <string name="error_changing_password">Error changing password</string>
+    <string name="password_changed">Password has been changed</string>
+
+    <string name="invalid_mail">invalid e-mail</string>
+    <string name="mail_taken">e-mail already exists</string>
+    <string name="email_generic_error">error changing e-mail</string>
+    <string name="app_usage_placeholder">Last used: %1$s</string>
+    <string name="chart_loading_apps">Loading apps</string>
+    <string name="chart_other_apps">Others</string>
+    <string name="interval_day_text">Today</string>
+    <string name="interval_week_text">This week</string>
+    <string name="minutes">minutes</string>
+    <string name="seconds">seconds</string>
+    <string name="total_use_time">Total usage time:\n%1$s</string>
+
+    <string name="app_protection_enabled_app">%1$s enabled</string>
+    <string name="app_protection_disabled_app">%1$s disabled</string>
+
+    <string name="edittext_error_first_name">Please enter your first name.</string>
+    <string name="edittext_error_last_name">Please enter your last name.</string>
+    <string name="edittext_error_email">Please enter a valid e-mail.</string>
+    <string name="edittext_error_password">Please enter a password of at least 6 characters</string>
+    <string name="changing_personal_informartion">Changing personal information</string>
+    <string name="personal_information_changed">Information changed</string>
+    <string name="link_tablet_failure">There was an error linking the device</string>
+    <string name="link_tablet_success">Device linked</string>
+    <string name="tablet_last_activity">Last activity: %1$s</string>
+    <string name="dialog_remove_tablet_title">Are you sure you want to unlink the device?</string>
+    <string name="dialog_remove_tablet_description">This action cannot be undone and you will have to add it again manually</string>
+    <string name="updating">Updating</string>
+    <string name="title_app_protection">App Protection</string>
+    <string name="app_protection_usage_time">Usage: %1$dh:%2$02dm</string>
+    <string name="app_protection_usage_time_no_min">Usage: %1$dm</string>
+    <string name="app_protection_today_usage_time">Usage time today: %1$dh:%2$02dm</string>
+    <string name="app_protection_today_usage_time_no_min">Usage time today: %1$dm</string>
+    <string name="app_protection_limit_time">Limit: %1$dh:%2$02dm</string>
+    <string name="app_protection_limit_time_no_min">Limit: %1$dm</string>
+    <string name="app_protection_update_for_time_limit">Update your SoyMomo device to enable app protection by time limit</string>
+    <string name="title_settings">Settings</string>
+    <string name="title_usage_hours">Usage Hours</string>
+    <string name="title_website_protection">Website Protection</string>
+    <string name="error_connection">An error occurred: please check your connection</string>
+
+    <string name="menu_app_protection">Apps</string>
+    <string name="menu_app_time">Schedules</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_usage_stats">Usage</string>
+    <string name="menu_website_protection">Websites</string>
+    <string name="switch_disabled_browser">Browsing disabled</string>
+
+    <string name="use_time_delete_title">Delete</string>
+    <string name="use_time_delete_description">Are you sure you want to delete this rule?</string>
+    <string name="use_time_error_range">Error setting time</string>
+    <string name="use_time_confirm_delete">Confirm</string>
+    <string name="use_time_explanation">These rules only apply to app usage and web browsing</string>
+    <string name="use_time_ranges_summary_title">Usage ranges summary \n</string>
+    <string name="use_time_limits_summary_title">Usage limits summary \n</string>
+    <string name="use_time_no_ranges_created">No ranges created</string>
+    <string name="use_time_ranges_created">The following range rules have been created</string>
+    <string name="use_time_no_limits_created">No limits created</string>
+    <string name="use_time_limits_created">The following limit rules have been created</string>
+
+
+    <string name="button_save">Save</string>
+    <string name="smart_detection_title"><b>Dug</b>: Dangerous Content Detector</string>
+    <string name="switch_enabled_smart_detection">Dug is awake</string>
+    <string name="toast_pin_changed_successfully">PIN updated successfully</string>
+    <string name="new_pin_error_length">PIN must be 4 digits long</string>
+    <string name="error_wrong_pin">Incorrect PIN</string>
+    <string name="hint_pin">PIN</string>
+    <string name="dialog_recovery_pin_description">We will send a recovery message to the following email: %1$s</string>
+    <string name="dialog_recovery_pin_title">Recover PIN</string>
+    <string name="dialog_recovery_pin_recover">Recover</string>
+    <string name="internet_connection_disabled">No internet: please check your connection</string>
+    <string name="toast_check_email">We have sent you an email</string>
+    <string name="toast_error_email">The email entered is invalid</string>
+    <string name="recovery_pin_tablet_hid">Device ID: %1$s</string>
+    <string name="confirm">Confirm</string>
+    <string name="website_delete_title">Disable</string>
+    <string name="website_delete_description">Are you sure you want to disable this site?</string>
+    <string name="app_stats_disclaimer">Usage statistics may take between 15 and 20 minutes to sync</string>
+    <string name="remote_blocking_title">Block Device</string>
+    <string name="switch_enabled_remote_blocking">Block enabled</string>
+    <string name="title_remote_screenshot">Screenshots</string>
+    <string name="remote_screenshot_dialog_message">Sending command</string>
+    <string name="remote_screenshot_dialog_title">Screenshot</string>
+    <string name="remote_screenshot_error">There was a communication error</string>
+    <string name="remote_screenshot_establishing_connection">Establishing connection</string>
+    <string name="remote_screenshot_getting_screenshot">Getting screenshot</string>
+
+    <string name="feature_title_app_stats">Usage Statistics</string>
+    <string name="feature_title_web_protection">Website Protection</string>
+    <string name="feature_title_navigation_enabler">Internet Browsing Permission</string>
+    <string name="feature_title_use_time">Usage Schedules</string>
+    <string name="feature_title_remote_block">Remote Lock</string>
+    <string name="feature_title_remote_screenshot">Remote Screenshot</string>
+    <string name="feature_title_smart_detection"><b>Dug</b>: Malicious Content Detector</string>
+    <string name="feature_title_settings">Settings</string>
+    <string name="feature_title_update_tablet">SoyMomo Device Update</string>
+
+    <!-- Feature descriptions-->
+    <string name="feature_description_app_stats">Check your device usage information</string>
+    <string name="feature_description_app_protection">Select allowed apps on the device</string>
+    <string name="feature_description_web_protection">Control the websites the device can visit</string>
+    <string name="feature_description_use_time">Configure allowed usage times for the device</string>
+    <string name="feature_description_remote_block">Instantly lock the device</string>
+    <string name="feature_description_remote_screenshot">Get real-time screenshots</string>
+    <string name="feature_description_smart_detection">Wake up <b>Dug</b> to enable intelligent protection against internet dangers</string>
+    <string name="feature_description_settings">Check system settings</string>
+    <string name="feature_description_update_tablet">A new update is available!</string>
+    <string name="notification_installed_app_title">Approve application</string>
+    <string name="notification_installed_app_text">%1$s wants to install %2$s</string>
+    <string name="notification_adapter_installed_app_text">%1$s wants to install an app</string>
+    <string name="notification_smart_detection_title">Dug detected a dangerous image!</string>
+    <string name="notification_smart_detection_text">We detected inappropriate content on %1$s\'s device. View screenshot.</string>
+    <string name="notification_time_requested_title">Extra time request</string>
+    <string name="notification_time_requested_text">%1$s requested <b>more time</b> of use</string>
+    <string name="notification_time_requested_app_title">Extra time request</string>
+    <string name="notification_time_requested_app_text">%1$s requested <b>more time</b> to use %2$s</string>
+    <string name="notification_adapter_time_requested_app_text">%1$s requested <b>more time</b> for an app</string>
+    <string name="notification_detected_conversation_title">Dug detected dangerous text!</string>
+    <string name="notification_detected_conversation_text">We detected inappropriate language on %1$s\'s device. View screenshot.</string>
+    <string name="notification_detected_conversations_text">%2$s inappropriate texts detected on %1$s\'s device. Check the screenshot.</string>
+    <string name="notification_delete">Notification deleted</string>
+
+    <string name="notification_unsafe_search_title">Dug detected a risky search!</string>
+    <string name="notification_unsafe_search_text">%1$s performed a risky search. See what was searched</string>
+
+    <string name="notification_mood_detection_title">Dug found something!</string>
+    <string name="notification_mood_detection_text">Worrisome content was detected on %1$s\'s device. Check the screenshots</string>
+
+    <string name="notification_explicit_music_detection_title">Dug found something!</string>
+    <string name="notification_explicit_music_detection_text">Worrisome content was detected on %1$s\'s device. Check the explicit music history</string>
+
+    <string name="notification_explicit_music_detection_config_text">You need to configure explicit music detection. It\'s very easy!</string>
+
+    <string name="explicit_music_detection_config_step_1">Follow the steps to <b>set up explicit music detection.</b>\n\n<b>On your device, open Spotify</b> and go to the <b>settings</b> section at the top right</string>
+    <string name="explicit_music_detection_config_step_2">In the settings list, press the <b>device broadcasting status</b> button</string>
+    <string name="explicit_music_detection_config_ready"><b>All set!</b> Now your SoyMomo is a <b>safer space</b>.</string>
+    <string name="explicit_music_detection_config_go">Start</string>
+
+    <string name="smart_detection_date_placeholder">Detected on: %1$s</string>
+
+
+    <string name="link_tablet_error_qr"><u>Cannot scan the QR code</u></string>
+    <string name="link_tablet_use_qr"><u>Scan the QR code</u></string>
+    <string name="link_tablet_error_manual_code_size">The code must have at least 10 characters</string>
+    <string name="link_tablet_error_no_tablet_found">Device not found</string>
+    <string name="link_tablet_cant_find_code"><u>Code not found</u></string>
+
+    <string name="link_manual_error_dialog_title">We are here to help</string>
+    <string name="link_manual_error_dialog_text">Check that your SoyMomo device is updated to the latest version in the settings.\n\nYou can also contact us at contacto@soymomo.com and we will guide you.</string>
+
+    <string name="tablet_list_empty">Link your first SoyMomo device! \n\n You will find the QR code in your device\'s settings</string>
+    <string name="dug_detections_title">Detections History</string>
+
+    <string name="customactivityoncrash_error_activity_error_occurred_explanation">An unexpected error occurred.\nWe are sorry for the inconvenience.</string>
+    <string name="customactivityoncrash_error_activity_restart_app">Restart app</string>
+    <string name="customactivityoncrash_error_activity_close_app">Close application</string>
+    <string name="customactivityoncrash_error_activity_error_details">Error details</string>
+    <string name="customactivityoncrash_error_activity_error_details_title">Error details</string>
+    <string name="customactivityoncrash_error_activity_error_details_close">Close</string>
+    <string name="customactivityoncrash_error_activity_error_details_copy">Copy to clipboard</string>
+    <string name="customactivityoncrash_error_activity_error_details_copied">Copied to clipboard</string>
+    <string name="customactivityoncrash_error_activity_error_details_clipboard_label">Error information</string>
+
+    <string name="button_send">Send</string>
+    <string name="button_later">Later</string>
+    <string name="button_never">Never</string>
+    <string name="button_not_now">Not now</string>
+    <string name="button_cancel">Cancel</string>
+
+    <string name="message_received">Messages Received</string>
+    <string name="messages_send">Messages Sent</string>
+    <string name="own_message">Own</string>
+    <string name="title_profanity_detector">Title Profanity Detector</string>
+    <string name="text_profanity_detector">Text Profanity Detector</string>
+    <string name="profanity_detector_title">Profanity Detector Title Updated</string>
+    <string name="last_hour_interval">Last hour</string>
+    <string name="today_interval">Today</string>
+    <string name="this_week_interval">This week</string>
+    <string name="this_month_interval">This month</string>
+    <string name="all_time_interval">All time</string>
+    <string name="there_is_no_detections">There are no detections yet!</string>
+    <string name="dug_category_messages" translatable="false">Messages</string>
+    <string name="dug_category_images" translatable="false">Images</string>
+    <string name="dug_category_searches" translatable="false">Searches</string>
+    <string name="dug_category_mood" translatable="false">Mood</string>
+    <string name="dug_category_music" translatable="false">Music</string>
+    <string name="dug_empty_images">No image detections yet</string>
+    <string name="dug_empty_messages">No message detections yet</string>
+    <string name="dug_empty_searches">No search detections yet</string>
+    <string name="dug_empty_mood">No mood detections yet</string>
+    <string name="dug_empty_music">No music detections yet</string>
+    <string name="switch_detector_card_on">Service On</string>
+    <string name="switch_detector_card_off">Service Off</string>
+    <string name="image_detector_card">Image detector card</string>
+    <string name="text_detector_card">Text detector card</string>
+    <string name="action_button_card_text">Open Detections</string>
+
+    <string name="author_unknown">Unknown Sender</string>
+    <string name="user_saw_messages_at">The user saw these messages on:</string>
+    <string name="saw_messages_at">saw these messages on:</string>
+    <string name="detected_at">Conversation detected on:</string>
+    <string name="profanity_low_text">Danger level: Mild</string>
+    <string name="profanity_mid_text">Danger level: Severe</string>
+    <string name="profanity_high_text">Danger level: Very Severe</string>
+
+    <string name="dug_images_small_description">Dug will help detect inappropriate images or videos that your children may view on major internet search engines.</string>
+
+    <string name="dug_profanity_small_description">Dug will detect messages and words that may be aggressive or offensive to your children, in the main chats of the most used social networks.</string>
+
+
+
+    <string name="error_setting_schedule_date">Invalid time entered, please try again with a higher/lower value.</string>
+    <string name="enable_schedule">Schedule</string>
+
+
+    <string name="new_update_title">Update Available</string>
+
+
+    <string name="error_update">An unexpected error occurred, check your internet connection and try again.</string>
+    <string name="how_to_install">Installation Guide</string>
+    <string name="new_update_tutorial_title">Installation Guide</string>
+    <string name="notification_new_update">Update Available</string>
+    <string name="notification_new_update_description">Update available for your SoyMomo device</string>
+    <string name="error_removing_tablet">There was an error trying to remove the device, check your internet connection and try again.</string>
+    <string name="error_loading_tablets">An unexpected error occurred, check your internet connection and try again.</string>
+    <string name="link_table">Link device</string>
+    <string name="linking_tablet_title">Linking your SoyMomo device</string>
+    <string name="linking_tablet_description">We are getting your device data, please wait a moment.</string>
+    <string name="error_linking_tablet">An unexpected error occurred, check your internet connection and try again.</string>
+    <string name="link_tablet_go_to_store"><u>I don\'t have a device</u></string>
+    <string name="new_update">Update Available</string>
+    <string name="update_details">*This guide requires you to have your <b>SoyMomo device</b> at hand.</string>
+    <string name="version_code">version</string>
+    <string name="step">Step %d</string>
+    <string name="update_initial_step">Go to your SoyMomo device\'s main screen and follow the steps below.</string>
+    <string name="button_save_changes">Save Changes</string>
+    <string name="notification_new_update_tablets_description">Updates available for your devices</string>
+
+
+    <string name="opacity">Opacity</string>
+    <string name="min">Min</string>
+    <string name="max">Max</string>
+
+
+    <string name="error_pin_message_title">There was an error recovering the PIN</string>
+    <string name="cs_contact_message">Contact customer service at contacto@soymomo.com</string>
+    <string name="understand">Understood</string>
+    <string name="time_limit">TIME LIMIT</string>
+
+    <string name="detections_history">Detection History</string>
+
+
+
+    <string name="menu">menu</string>
+
+
+    <string-array name="usage_hours_rules">
+        <item>Time limit</item>
+        <item>Range</item>
+    </string-array>
+
+    <string-array name="days_initial">
+        <item>M</item>
+        <item>T</item>
+        <item>W</item>
+        <item>Th</item>
+        <item>F</item>
+        <item>Sa</item>
+        <item>Su</item>
+    </string-array>
+
+    <string-array name="days">
+        <item>@string/monday</item>
+        <item>@string/tuesday</item>
+        <item>@string/wednesday</item>
+        <item>@string/thursday</item>
+        <item>@string/friday</item>
+        <item>@string/saturday</item>
+        <item>@string/sunday</item>
+    </string-array>
+
+
+
+    <!--ADBLOCKER-->
+    <string name="adblocker_description">Dug intercepts web traffic and removes ads and personal data trackers before showing content to your child.</string>
+    <string name="adblocker_title">Ad Blocking</string>
+
+    <string name="vpn_notification_service_running_title">Ad Blocking</string>
+    <string name="vpn_notification_service_running_text">Dug is monitoring web traffic.</string>
+
+    <string name="adblocker_off">Ad blocking is disabled</string>
+
+    <string name="adblocker_date">Last block: %s</string>
+    <string name="adblocker_summary_description">Dug has blocked <b>%d</b> ads and/or personal data trackers.</string>
+
+    <string name="ads_blocked">Ads blocked today:</string>
+
+
+    <string name="error_loading_data">Something went wrong, please check your Internet connection and try again.</string>
+
+
+    <string name="adblocker_guide">Ad blocking must be enabled or disabled from the device settings.</string>
+    <string name="adblocker_tutorial_button">View Tutorial</string>
+    <string name="menu_tutorial">User Guide</string>
+    <string name="tutorial_feature_title">User Guide: Ad Blocking</string>
+    <string name="data_lag_info">This information may take 20 to 30 minutes to sync with the device.</string>
+    <string name="empty_profile_name">No name</string>
+
+
+    <!--    school mode-->
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="hours_of_operation">"Class Schedule "</string>
+    <string name="allowed_apps">Allowed Applications</string>
+    <string name="school_mode_title">Class Mode</string>
+    <string name="school_mode_enabled">Class Mode enabled</string>
+    <string name="school_mode_disabled">Class Mode disabled</string>
+    <string name="to_from_incorrect">The time set in FROM must be less than TO.</string>
+    <string name="hours_of_operation_summary">%1$s - %2$s (Monday to Friday)</string>
+    <string name="n_apps_selected">%1$d applications have been selected.</string>
+    <string name="selected_list_is_empty">No applications selected.</string>
+    <string name="new_hours_of_operation_set">New schedule set: %1$s</string>
+    <string name="allowed_apps_customized">%1$d apps allowed in Class Mode</string>
+    <string name="generic_error_message">An unexpected error has occurred. Please try again.</string>
+    <string name="school_mode_short_description">Control the device\'s usage during class hours.</string>
+    <string name="school_mode_long_description">Set your child\'s weekly class schedule and which apps will be allowed during that time.</string>
+    <string name="hours_of_operation_description">When Class Mode is enabled and the device is within class hours, it will block all apps except the allowed ones. Class Mode only works Monday to Friday.</string>
+    <string name="allowed_apps_description">While the device is in Class Mode, only the applications on this list are allowed. This way, your child can focus more easily and use the most useful apps for studying.</string>
+    <string name="school_mode_enabled_main_description">Class Mode is enabled, so only a pre-selected set of applications will be visible. This mode will run from %1$s to %2$s (Monday to Friday). Go to the device settings to modify the schedule and apps.</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+    <string name="done">Done</string>
+
+    <!-- In-app payments -->
+    <string name="in_app_payments_enabled">In-app payments enabled</string>
+    <string name="in_app_payments_disabled">In-app payments disabled</string>
+
+    <string name="request_time_btn_accept">Accept</string>
+    <string name="request_time_btn_reject">Reject</string>
+    <string name="request_time_text_title"><![CDATA[%s requested <b>extra time</b>. Would you like to give more time?]]></string>
+    <string name="notification_title">Notifications</string>
+    <string name="request_time_app_text_title"><![CDATA[%s requested <b>extra time</b>. Would you like to give more time for the following application?]]></string>
+    <string name="app_icon">App Icon</string>
+    <string name="request_time_app_name">Application</string>
+    <string name="toast_error_log_in_again">Please log in again</string>
+    <string name="request_time_status">Status: </string>
+    <string name="request_time_status_accepted">Accepted</string>
+    <string name="request_time_status_rejected">Rejected</string>
+    <string name="request_time_status_pending">Pending</string>
+    <string name="request_time_status_used">%1$s has already used the granted time!</string>
+    <string name="fragment_no_new_detections_recorded">Dug is disabled, no new detections will be recorded.</string>
+    <string name="unsafe_search_viral_label">Viral</string>
+    <string name="unsafe_search_movie_label">Movies/Series</string>
+    <string name="unsafe_search_social_network_label">Social Networks</string>
+    <string name="search_detected">"Detected search "</string>
+    <string name="phone">Phone number</string>
+    <string name="edittext_error_invalid_phone">Add a valid phone number</string>
+    <string name="hint_confirm_mail">Confirm E-mail</string>
+    <string name="edittext_error_confirm_email">The E-mails entered do not match</string>
+    <string name="app_protection_blocked_apps">Blocked apps</string>
+    <string name="app_protection_block_app_dialog_title">Block application</string>
+    <string name="app_protection_block_app_dialog_message">Are you sure you want to block this application?</string>
+
+    <string name="app_not_used_recently">Not recently used</string>
+
+    <string name="settings_remote_capture_time">Time: %1$s</string>
+    <string name="settings_remote_capture_day_date">Date: %1$s</string>
+
+    <string name="timecontrol_description">You can <b>configure the schedules</b> in which the device can be used.\n\nYou can also schedule usage ranges, where the SoyMomo phone can only be used in <b>certain time periods.</b></string>
+    <string name="block_description"> <b>Remote lock:</b> You can instantly lock the SoyMomo Phone from the App.\n\n<b>Website Protection:</b> You can define which websites your child can visit.\n\n<b>In-App payments:</b> Protection and restriction on the use of credit cards in apps.\n\n<b>Ad blocking:</b> Blocking ads and trackers, we care for your child.</string>
+
+
+    <string name="tablet_list_linked_tablets"><b>Linked</b> Devices</string>
+    <string name="tablet_list_saved_tablets">Your linked <b>SoyMomo</b> devices</string>
+    <string name="tablet_list_soymomo_tablets"><b>SoyMomo</b> Devices</string>
+    <string name="settings_my_linked_soymomo"><b>My linked</b> SoyMomo</string>
+    <string name="settings_link_soymomo"><b>Link</b> SoyMomo</string>
+    <string name="settings_sim_soymomo"><b>SoyMomo</b> SIM</string>
+    <string name="tablet_link_tablet"><b>Link</b> SoyMomo device</string>
+    <string name="tablet_link_must_steps">You must complete the <b>2 steps below</b> to link the SoyMomo device</string>
+    <string name="tablet_link_steps"><b>Steps</b> to link SoyMomo</string>
+    <string name="tablet_link_steps_first">1 Scan the QR code with the camera</string>
+    <string name="tablet_link_steps_second">2 Select the color of your device</string>
+    <string name="tablet_select_color"><b>Select</b> your device\'s color</string>
+    <string name="settings_app_edit">Edit</string>
+    <string name="settings_app_title">Configuration</string>
+    <string name="settings_app_my_linked_soymomo_chip">%1$d linked</string>
+    <plurals name="settings_app_my_active_sims_soymomo_chip">
+        <item quantity="one">%1$d active</item>
+        <item quantity="many">%1$d actives</item>
+    </plurals>
+    <string name="settings_app_store_title">Store</string>
+    <string name="settings_app_store_text">Products</string>
+    <string name="settings_app_support_title">Support</string>
+    <string name="settings_app_support_text">Contact us</string>
+    <string name="settings_app_settings_title">Settings</string>
+    <string name="settings_app_settings_text">Manage preferences</string>
+    <string name="settings_app_log_out_title">Log out</string>
+    <string name="settings_app_log_out_text">Switch account</string>
+    <string name="alert_log_out_text">Are you sure you want to log out?</string>
+    <string name="button_log_out">Log out</string>
+    <string name="add_soymomo_title">Add SoyMomo</string>
+    <string name="link_step_hint">Don\'t know how to do it?\nYou can see the animation at the top.</string>
+    <string name="completed_string">Completed</string>
+    <string name="net_error_text">There was an error loading your SoyMomo. There may be a problem with the Internet connection.</string>
+    <string name="imei_error_text">This IMEI does not exist. You may have entered the code incorrectly. Please try again.</string>
+    <string name="select_color_link_step"><b>Select</b> your SoyMomo\'s color</string>
+    <string name="imei_textinput">Manual code</string>
+    <string name="link_step_description">Enter the <b>IMEI</b> code on the back of the device or <b>scan it with a phone camera</b></string>
+    <string name="error_already_linked_status">The SoyMomo device is already linked to your account. Go back to the main menu!</string>
+    <string name="link_error_linked">This device is already linked</string>
+    <string name="edit_text_enter_name">Child\'s name</string>
+    <string name="tutorial_kid_birthday_text">Birthday</string>
+    <string name="toast_error_no_photo_permissions">Cannot access your photos</string>
+    <string name="complete_this_field">Please complete this field</string>
+    <string name="error_date_in_future">The birthdate is not valid!</string>
+    <string name="choose_option">Choose an option</string>
+    <string name="dialog_pick_photo">Select photo</string>
+    <string name="dialog_take_photo">Take a photo</string>
+    <string name="tutor_profile">Tutor profile</string>
+    <string name="tutor_other_settings">Other settings</string>
+    <string name="tutor_edit_profile_title">Edit profile</string>
+    <string name="tutor_edit_profile_description">Change photo, name, and details</string>
+    <string name="tutor_change_email_title">Change Email</string>
+    <string name="tutor_change_email_description">Modify</string>
+    <string name="tutor_delete_account_title">Delete account</string>
+    <string name="tutor_delete_account_description">Request</string>
+    <string name="tutor_link_accounts_title">Link social networks</string>
+    <string name="tutor_link_accounts_description">Google and Apple</string>
+    <string name="tutor_change_password_title">Change password</string>
+    <string name="tutor_change_password_description">Security</string>
+    <string name="tutor_logout_title">Log out</string>
+    <string name="tutor_logout_description">You can log in again</string>
+
+
+    <string name="main_empty_list_title">Welcome to SoyMomo</string>
+    <string name="main_empty_list_message">Link your SoyMomo device to get started! Click "Add" to connect your device or "Buy" to purchase a new one.</string>
+    <string name="main_add">Add</string>
+    <string name="main_buy">Buy</string>
+    <string name="main_empty_subtitle">Link your child\'s device to start looking after them — it only takes a minute.</string>
+    <string name="main_empty_add_device">Add a device</string>
+    <string name="main_empty_buy_device">Buy a SoyMomo</string>
+
+    <string name="main_prompt_device_disconnected_title">SoyMomo Disconnected</string>
+    <string name="main_prompt_device_disconnected_button">Click to learn more</string>
+    <string name="main_prompt_device_disconnected_description">When it is disconnected or turned off, the device\'s location and settings are not available. Once it\'s back online, all features are available through mobile data.</string>
+    <string name="main_prompt_device_disconnected_contact_us"><u>Contact</u></string>
+    <string name="main_card_disconnected_message">Features return once mobile data connection is restored or the device is turned on.</string>
+    <string name="main_map_no_location_title">Location unavailable</string>
+    <string name="main_map_no_location_message">We don\'t have this device\'s location yet.</string>
+    <string name="main_waiting_for_network">Waiting for network…</string>
+    <string name="unauthorized_title">Authorization pending</string>
+    <string name="unauthorized_text">It must be authorized by the administrator to use this device</string>
+
+    <string name="drawer_profile">Profile</string>
+    <string name="drawer_geofences">Add geofences</string>
+    <string name="drawer_add_momo">Add SoyMomo</string>
+    <string name="drawer_videocall_history">Video call history</string>
+    <string name="drawer_store">Store</string>
+    <string name="drawer_subscription">SoyMomo SIM</string>
+    <string name="drawer_support">Support</string>
+    <string name="drawer_settings">Settings</string>
+    <string name="drawer_log_out">Log out</string>
+
+    <string name="item_device_battery" translatable="false">%1$d%%</string>
+    <string name="waiting_for_authorization">Waiting for authorization</string>
+
+    <string name="battery_alert_battery_off">Device turned off</string>
+    <string name="battery_alert_battery_save">Battery saving mode</string>
+    <string name="battery_alert_disconnected_device">Your SoyMomo device is off, disconnected, or without signal</string>
+    <string name="battery_alert_low_battery">Low Battery</string>
+
+    <string name="tablet_parent_control_title">Parental control:</string>
+    <string name="tablet_parent_control_description">All functions</string>
+    <string name="tablet_parent_control_direct_access">Shortcuts</string>
+    <string name="tablet_parent_control_direct_settings">Direct settings</string>
+
+    <string name="direct_access_smart_detection_title">Images:</string>
+    <string name="direct_access_messages_detection_title">Messages:</string>
+    <string name="direct_access_search_detection_title">Searches:</string>
+    <string name="direct_access_music_detection_title">Music:</string>
+    <string name="direct_access_mood_detection_title">Mood:</string>
+    <string name="direct_access_new_description">%1$d new</string>
+
+    <string name="settings_app_safety_title">Change PIN</string>
+    <string name="settings_app_safety_text">Access PIN</string>
+    <string name="settings_app_unlink_title">Unlink</string>
+    <string name="settings_app_unlink_text">Device</string>
+
+    <string name="settings_parent_profile">Tutor\'s profile</string>
+
+    <string name="user_profile_title">Your SoyMomo account</string>
+    <string name="user_profile_main_title">Account settings</string>
+    <string name="user_profile_edit_profile_title">Edit profile</string>
+    <string name="user_profile_edit_profile_text">Change your personal information</string>
+    <string name="user_profile_change_email_title">Change email</string>
+    <string name="user_profile_change_email_text"></string>
+    <string name="user_profile_change_password_title">Change password</string>
+    <string name="user_profile_change_password_text"></string>
+    <string name="user_profile_erase_account_title">Delete your account</string>
+    <string name="user_profile_erase_account_text">You can delete your SoyMomo account at any time</string>
+    <string name="user_profile_social_media_title">Linked social media</string>
+    <string name="user_profile_social_media_text">Manage your social networks linked to your SoyMomo account</string>
+    <string name="user_profile_log_out_title">Log out</string>
+    <string name="user_profile_log_out_text">Log out from this device</string>
+    <string name="user_profile_save_changes">Save changes</string>
+    <string name="user_profile_form_error_first_name_empty">Your first name cannot be empty</string>
+    <string name="user_profile_form_error_last_name_empty">Your last name cannot be empty</string>
+    <string name="user_profile_form_error_birthday">Check the entered date</string>
+    <string name="user_profile_form_error_phone_number_empty">Your phone number cannot be empty</string>
+    <string name="user_profile_form_error_phone_number">Check your phone number</string>
+    <string name="user_profile_form_changes_success">Your changes have been saved successfully</string>
+    <string name="user_profile_form_changes_error">We found a problem, please try again</string>
+    <string name="user_profile_email_current">Current email</string>
+    <string name="user_profile_email_new">Enter the new email</string>
+    <string name="user_profile_email_confirm_new">Confirm the new email</string>
+    <string name="user_profile_email_current_empty">You do not have an associated email</string>
+    <string name="user_profile_email_error_empty">You cannot have an empty email</string>
+    <string name="user_profile_email_error_format">The email format is not valid</string>
+    <string name="user_profile_email_error_confirm_email">The confirmation email is different</string>
+    <string name="user_profile_password_current">Current password</string>
+    <string name="user_profile_password_new">Enter the new password</string>
+    <string name="user_profile_password_confirm_new">Confirm the new password</string>
+    <string name="user_profile_password_error_current_not_match">Your current password is not valid</string>
+    <string name="user_profile_password_error_empty">You cannot have an empty password</string>
+    <string name="user_profile_password_error_format">The password does not meet the security rules</string>
+    <string name="user_profile_password_error_confirm_password">The confirmation password is incorrect</string>
+    <string name="user_profile_password_security_rules">The password must contain at least one uppercase letter, one lowercase letter, one number or symbol (like ., !, # or %), and must be at least eight characters long.</string>
+    <string name="user_profile_label_name">Name</string>
+    <string name="user_profile_label_last_name">Last Name</string>
+    <string name="user_profile_label_birthday">Date of Birth</string>
+    <string name="user_profile_label_personal_id">ID</string>
+    <string name="user_profile_label_phone_number">Phone Number</string>
+    <string name="user_profile_label_email">Email</string>
+    <string name="user_profile_label_address">Address</string>
+    <string name="user_profile_label_city">City</string>
+    <string name="user_profile_label_state">State</string>
+    <string name="user_profile_label_postal_code">Postal Code</string>
+    <string name="user_profile_form_error_message">Missing or incorrect fields</string>
+    <string name="user_profile_form_error_title">Problem completing the form</string>
+
+
+    <string name="settings_general_title">Measurement system</string>
+    <string name="settings_general_imperial_text">This is the system used in the United States, based on the inch, foot, yard, and mile.</string>
+    <string name="settings_general_metric_text">A system of units based on the meter as the fundamental unit of length.</string>
+    <string name="imperial_system">Imperial</string>
+    <string name="metric_system">Metric</string>
+    <string name="settings_notification_battery_title">Low Battery</string>
+    <string name="settings_notification_battery_text">Receive a notification when your SoyMomo has low battery</string>
+    <string name="settings_notification_requests_title">Requests</string>
+    <string name="settings_notification_requests_text">Receive notifications when your requests to add a SoyMomo are accepted or rejected, when someone requests to add a SoyMomo for which you are an admin, or when you are assigned as an admin of a SoyMomo</string>
+    <string name="settings_notification_other_title">Other Notifications</string>
+    <string name="settings_notification_other_text">Receive other SoyMomo notifications: announcements, promotions, etc.</string>
+
+    <string name="settings_help_title">Help</string>
+    <string name="settings_frequent_questions_title">Frequently Asked Questions</string>
+    <string name="settings_contact_title">Contact us</string>
+    <string name="settings_chat_title">Chat with us</string>
+    <string name="settings_about_title">About</string>
+    <string name="settings_terms_title">Terms and conditions</string>
+    <string name="settings_policy_title">Privacy policy</string>
+    <string name="settings_version_title">Version %1$s</string>
+
+    <string name="notification_time_requested_app_title_new">Extra Time Request for App</string>
+    <string name="notification_mood_detection_title_new">Dug detected a concerning mood</string>
+    <string name="notification_explicit_music_detection_title_new">Dug detected explicit music</string>
+
+    <string name="notifications_general_title">General notifications</string>
+    <string name="tablet_detail_edit_title">Modify information</string>
+    <string name="tablet_detail_edit_description">Modify child\'s information</string>
+
+    <string name="tutorial_title_5">We are ready!</string>
+    <string name="tutorial_text_5">At SoyMomo, we create and adapt technology so that it is safe for the development of all children in the world.\n\nWelcome to using technology with its benefits while protecting your child\'s childhood.</string>
+    <string name="tutorial_title_4">Schedule control</string>
+    <string name="tutorial_text_4"><b>Set the schedules</b> during which the device should be used.\n\nYou can also program usage ranges, where the SoyMomo device can be used only during the time you decide.</string>
+    <string name="tutorial_title_3">Blocks</string>
+    <string name="tutorial_text_3"><b>Remote lock:</b> Instantly lock the SoyMomo device remotely.\n\n<b>Website Protection:</b> Define which websites your child can visit.\n\n<b>In-App Payments:</b> Protect and restrict the use of cards in apps.\n\n<b>Block ads:</b> Block ads and trackers, we care for your child.</string>
+    <string name="tutorial_title_2">Dug</string>
+    <string name="tutorial_text_2">Dug blocks dangerous content, it recognizes when your child is exposed to inappropriate or dangerous content such as viral videos or sexual content. With Dug, you can be much more at ease and be sure what your little one is watching.</string>
+    <string name="tutorial_title_1">Welcome to your SoyMomo Tablet/Phone application</string>
+    <string name="tutorial_text_1">From here you can link a SoyMomo device and set configurations remotely</string>
+    <string name="button_tutorial_finish">Understood</string>
+
+    <!-- NPS -->
+    <string name="nps_title">On a scale of 1 to 10, how likely are you to recommend this application to a friend?</string>
+    <string name="nps_comment">Write your opinion here…</string>
+    <string name="nps_comment_detractor">What\'s the main reason for your score?</string>
+    <string name="nps_comment_passive">What would make SoyMomo a 10 for you?</string>
+    <string name="nps_comment_promoter">Anything you\'d like to add? (optional)</string>
+    <string name="nps_send">Send</string>
+    <string name="nps_end_message">Thank you for your response! Your opinion helps us a lot to keep improving.</string>
+    <string name="nps_close">Close</string>
+
+    <string name="notification_explicit_music_detection_config_title_new">Set up explicit music detection</string>
+
+    <string name="toast_no_recovery_email">No recovery email is associated with this account</string>
+    <string name="tablet_profile_name"><b>%1$s</b> from %2$s</string>
+    <string name="title_access_denied">Access Denied</string>
+    <string name="description_access_denied">🚫 Oops! You cannot open the Parents App on your SoyMomo device. 🌟 Try opening a fun game instead! 🎮✨</string>
+
+    <string name="search_detected_at">Search detected: %1$s</string>
+
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+
+    <string name="monday_initial">Mon</string>
+    <string name="tuesday_initial">Tue</string>
+    <string name="wednesday_initial">Wed</string>
+    <string name="thursday_initial">Thu</string>
+    <string name="friday_initial">Fri</string>
+    <string name="saturday_initial">Sat</string>
+    <string name="sunday_initial">Sun</string>
+
+    <string name="monday_initial_narrow">M</string>
+    <string name="tuesday_initial_narrow">T</string>
+    <string name="wednesday_initial_narrow">W</string>
+    <string name="thursday_initial_narrow">T</string>
+    <string name="friday_initial_narrow">F</string>
+    <string name="saturday_initial_narrow">S</string>
+    <string name="sunday_initial_narrow">S</string>
+
+    <!-- Dug Fragment -->
+    <string name="image_detector_title">Inappropriate images</string>
+    <string name="text_detector_title">Dangerous messages</string>
+    <string name="unsafe_search_detector_title">Dangerous searches</string>
+    <string name="mood_detector_title">Mood</string>
+    <string name="explicit_music_detector_title">Explicit music</string>
+    <string name="safe_walking_detector_title">Safe walking</string>
+
+    <!-- Smart detections -->
+
+    <!-- Mood detections -->
+    <string name="mood_entries_title">Mood</string>
+
+    <!-- Mood detection risk factors -->
+    <string name="mood_detection_risk_factor_drugs">Drugs</string>
+    <string name="mood_detection_risk_factor_alcohol">Alcohol</string>
+    <string name="mood_detection_risk_factor_smoking">Smoking</string>
+    <string name="mood_detection_risk_factor_alimentary_disorders">Eating disorders</string>
+    <string name="mood_detection_risk_factor_sexual_curiosity">Sexual curiosity</string>
+    <string name="mood_detection_risk_factor_suicide_ideation">Suicide-related</string>
+    <string name="mood_detection_risk_factor_sadness">Sadness</string>
+    <string name="mood_detection_risk_factor_concerning">Concerning</string>
+
+    <!-- Explicit music -->
+
+    <!--Detected Conversation-->
+
+    <!--Unsafe Searches-->
+
+    <!--School Mode-->
+    <string name="ef_ok">OK</string>
+    <string name="website_protection_template">https://www.<b>%s</b>.com/.es/.etc</string>
+    <string name="button_accept">Accept</string>
+
+    <!--Safe Walking -->
+    <string name="safe_walking_detection_title">Safe walking</string>
+    <string name="safe_walking_detection_back_title">Back</string>
+    <string name="safe_walking_detection_title_explanation">What is safe walking?</string>
+    <string name="safe_walking_detection_explanation">Activate reminders for your child to stop using the phone while walking</string>
+    <string name="safe_walking_detection_disabled">Disabled</string>
+    <string name="safe_walking_detection_enabled">Enabled</string>
+    <string name="safe_walking_detection_notification_type_title">Notifications:</string>
+    <string name="safe_walking_detection_banner_notification_title">Banners</string>
+    <string name="safe_walking_detection_window_notification_title">Window</string>
+    <string name="safe_walking_detection_full_screen_notification_title">Full</string>
+    <string name="safe_walking_detection_sound_title">Sound</string>
+    <string name="safe_walking_detection_vibration_title">Vibration</string>
+    <string name="safe_walking_detection_enabled_description">Activate reminders so your child stops using the phone while walking</string>
+
+    <string name="link_app_title">Share phone</string>
+    <string name="steps_to_follow">Steps to follow</string>
+    <string name="step_1_title">1.- Download the application</string>
+    <string name="step_1_description">The additional parent or tutor must <b>download</b> the <b>SoyMomo Tablet/Phone</b> application from the <b>Google Play Store</b> or the <b>App Store</b>.</string>
+    <string name="step_2_title">2.- Create an account or use an existing one:</string>
+    <string name="step_2_description">The additional parent or tutor must create a new account or log in with an existing account in the SoyMomo Tablet/Phone application.</string>
+    <string name="step_3_title">3.- Access the application settings:</string>
+    <string name="step_3_description">From the SoyMomo Tablet/Phone main screen, tap the <b>settings icon</b> in the <b>top left corner</b> to open the settings.</string>
+    <string name="step_4_title">4.- Go to the \'Link\' section:</string>
+    <string name="step_4_description">In the application settings, select <b>Link SoyMomo</b>.</string>
+    <string name="step_5_title">5.- Scan the QR code or enter it manually:</string>
+    <string name="step_5_description">In the <b>Link view</b>, tap the <b>camera icon</b> and scan the <b>QR code shown below</b>. Alternatively, you can <b>manually enter the code shown under the QR code</b> into the input field.</string>
+
+    <!-- PARENT CONTROL NEW DESIGNS STRINGS -->
+    <!-- Main Settings Screen -->
+    <string name="settings_fragment_initial_title">Parental Control</string>
+
+    <string name="settings_fragment_initial_dug_alerts">%1$d new alerts</string>
+
+    <string name="settings_fragment_initial_apps_title">Apps</string>
+    <string name="settings_fragment_initial_apps_description">Allowed apps</string>
+
+    <string name="settings_fragment_initial_updates_description">New update</string>
+
+    <string name="settings_fragment_initial_times_title">Schedules</string>
+
+    <string name="settings_fragment_initial_linking_title">Link app</string>
+    <string name="settings_fragment_initial_linking_description">Tablet/Phone</string>
+
+    <string name="settings_fragment_initial_stats_title">Device usage statistics</string>
+
+    <string name="settings_fragment_initial_safety_title">PIN and security</string>
+
+
+    <string name="settings_fragment_initial_blocks_title">Blocks</string>
+
+    <string name="settings_fragment_initial_remote_capture_title">Remote screenshots</string>
+
+    <string name="settings_fragment_location_history_title">Location History</string>
+
+    <string name="settings_fragment_contacts_title">Allowed Contacts</string>
+
+
+    <!-- Block Menu -->
+    <string name="settings_fragment_block_menu_title">Blocks</string>
+
+    <string name="card_web_block_title">Website Protection</string>
+    <string name="card_web_block_description">Enable the websites your child can visit</string>
+
+    <string name="card_tablet_block_title">Device Lock</string>
+    <string name="card_tablet_block_description">You can disable your device at any time with a security code</string>
+
+    <string name="card_ads_block_title">Ad Blocking</string>
+    <string name="card_ads_block_description">No ADS</string>
+    <string name="card_ads_block_description_land">Dug blocks personal data trackers and annoying ads</string>
+
+    <string name="card_payments_block_title">In-App Payments</string>
+    <string name="card_payments_block_description">Block payments in "Google Play" apps</string>
+
+    <!-- Blocks Menus Configurations -->
+    <string name="settings_variable_status_enabled">Enabled</string>
+    <string name="settings_variable_status_disabled">Disabled</string>
+
+    <string name="settings_block_tablet_title">Block Device</string>
+    <string name="settings_block_tablet_description">You can also lock the device <b>from the "SoyMomo Tablet/Phone" app</b>.</string>
+
+    <string name="settings_block_payments_title">In-App Payments</string>
+    <string name="settings_block_payments_subtitle">In-app payments</string>
+    <string name="settings_block_payments_switch_title">Block in-app payments</string>
+
+    <string name="settings_block_payments_description">At SoyMomo we protect you from <b>accidental payments</b> your children might make, <b>you can disable in-app payments</b> at any time.</string>
+
+    <string name="settings_block_web_title">Website Protection</string>
+    <string name="settings_block_web_subtitle">Browsing</string>
+    <string name="settings_block_web_allowed_title">Allowed Websites</string>
+    <string name="settings_block_web_no_allowed">No allowed websites</string>
+    <string name="settings_block_web_add">Add Website</string>
+    <string name="settings_block_web_add_title">Enable Website</string>
+
+    <string name="settings_block_web_disable">Disable</string>
+
+    <string name="settings_block_ads_title">Ad Blocking</string>
+    <string name="settings_block_ads_tracking">ADS/tracking block</string>
+    <string name="settings_block_ads_resume_title">Block summary</string>
+    <string name="settings_block_ads_dug_title">Dug detected</string>
+    <string name="settings_block_ads_dug_description">Ads/trackers</string>
+    <string name="settings_block_ads_app_description">Ads/trackers</string>
+    <string name="settings_block_ads_num_detections">0</string>
+    <string name="settings_block_ads_apps">Applications</string>
+    <string name="settings_block_ads_description">At SoyMomo we <b>care about protecting your child\'s privacy</b>. Dug <b>blocks personal information trackers</b> and <b>annoying ads.</b></string>
+
+    <!-- Remote Capture Menu -->
+    <string name="settings_remote_capture_title">Remote Screenshots</string>
+    <string name="settings_remote_capture_subtitle">Last captures:</string>
+    <string name="settings_remote_capture_description">Remote screenshots sync with the SoyMomo Tablet/Phone application</string>
+    <string name="settings_remote_capture_no_captures">No new remote screenshots</string>
+    <string name="settings_remote_capture_request_screenshot">Request Screenshot</string>
+    <string name="settings_remote_capture_location">Location: Google, time: 13:45</string>
+    <string name="settings_remote_capture_date">Date: 23/06/2022</string>
+    <string name="settings_remote_capture_request_sent">Screenshot request sent</string>
+
+    <!-- Dug Detection Menu -->
+    <string name="settings_dug_detection_title">Dug: Inappropriate Content Detector</string>
+    <string name="settings_dug_detection_subtitle">Detection</string>
+    <string name="settings_dug_detection_switch_title">Detection System Status</string>
+
+    <string name="dug_filter_all">All</string>
+    <string name="dug_unified_hero_title">This week</string>
+    <string name="dug_unified_detections_count">%1$d detections</string>
+    <string name="dug_chip_images">Images</string>
+    <string name="dug_chip_messages">Messages</string>
+    <string name="dug_chip_searches">Searches</string>
+    <string name="dug_chip_music">Music</string>
+    <string name="dug_date_today">Today</string>
+    <string name="dug_date_yesterday">Yesterday</string>
+    <string name="dug_image_group_count">%1$d images in this detection</string>
+    <string name="dug_detail_explicit_song">an explicit song</string>
+    <string name="dug_detection_images_title">an inappropriate image</string>
+    <string name="dug_detail_dangerous_message">a dangerous message</string>
+    <string name="dug_detail_concerning_mood">a concerning mood</string>
+    <string name="dug_detection_messages_title">Dangerous messages</string>
+    <string name="dug_detection_search_title">Dangerous searches</string>
+    <string name="dug_detection_mood_title">Mood</string>
+    <string name="dug_detection_music_title">Explicit music</string>
+
+    <string name="dug_detection_check_history">Check history</string>
+
+    <string name="dug_detection_last_week">Last week</string>
+
+    <string name="dug_detection_chrome">Google Chrome: fast</string>
+    <string name="dug_detection_chrome_app">Chrome</string>
+
+    <string name="dug_detection_hate_message">"I hate you"</string>
+
+    <string name="dug_detection_song">Ultra solo - Polimá</string>
+
+    <string name="dug_detection_detected">Detected on:</string>
+    <string name="dug_detection_detected_date">07–12–22 16:45</string>
+
+    <string name="dug_detection_images_description">Dug will detect <b>images or videos</b> with content not suitable for children</string>
+    <string name="dug_detection_music_description">Dug will detect songs in <b>Spotify, Youtube and Youtube Music</b> with <b>explicit content</b>.</string>
+    <string name="dug_detection_messages_description">Dug will detect any aggressive content, the content will be <b>classified as mild, severe, or very severe.</b></string>
+    <string name="dug_detection_search_description">Dug will detect any dangerous search in <b>various search engines or social networks.</b></string>
+    <string name="dug_detection_mood_description">Dug detects risk factors associated with <b>childhood depression in messages and searches</b></string>
+
+    <string name="dug_detection_mood_extra_description">Does not replace clinical diagnosis by a health professional.</string>
+
+    <string name="dug_detection_dug_detected">Dug has detected</string>
+
+    <string name="dug_detection_images">%1$d images</string>
+
+    <string name="dug_detection_music">%1$d songs</string>
+    <string name="dug_detection_explicit">explicit</string>
+
+    <string name="dug_detection_explicit_music">Explicit music</string>
+    <string name="dug_detection_song_detail"><b>%1$d%%</b> of the artist\'s songs contain <b>explicit language</b></string>
+
+
+    <string name="dug_detection_messages">%1$d dangerous \n messages</string>
+    <string name="dug_detection_dangerous">dangerous</string>
+
+    <string name="dug_detection_message">Message</string>
+
+    <string name="dug_detection_search">%1$d searches</string>
+    <string name="dug_detection_search_dangerous">dangerous</string>
+
+    <string name="dug_detection_mood">%1$d mood \n entries</string>
+    <string name="dug_detection_of_mood">of mood</string>
+
+    <string name="dug_detection_app">App:</string>
+
+    <string name="dug_detection_correct">Is this detection correct?</string>
+
+    <string name="dug_detection_chip_suicide">Suicide</string>
+    <string name="dug_detection_chip_alimentary_disroder">Eating disorder</string>
+    <string name="dug_detection_chip_drugs">Drugs</string>
+    <string name="dug_detection_chip_alcohol">Alcohol</string>
+    <string name="dug_detection_chip_porn">Porn</string>
+    <string name="dug_detection_chip_smoking">Cigarette</string>
+    <string name="dug_detection_chip_sadness">Sadness</string>
+    <string name="dug_detection_chip_concerning">Concerning</string>
+
+    <string name="dug_detection_low">Low</string>
+    <string name="dug_detection_serious">Moderate</string>
+    <string name="dug_detection_very_serious">High</string>
+
+    <!-- DUG Dashboard Redesign -->
+    <string name="dug_monitoring_badge">%1$d/%2$d active</string>
+    <string name="dug_monitoring_title">Monitoring Status</string>
+    <string name="dug_empty_all_title">All clear this week</string>
+    <string name="dug_empty_all_subtitle">Dug is actively monitoring. You\'ll see alerts here if something comes up.</string>
+    <string name="dug_empty_images_title">No image alerts</string>
+    <string name="dug_empty_images_subtitle">Dug is watching for inappropriate visual content.</string>
+    <string name="dug_empty_messages_title">No message alerts</string>
+    <string name="dug_empty_messages_subtitle">Dug is scanning for harmful language and grooming.</string>
+    <string name="dug_empty_searches_title">No risky searches</string>
+    <string name="dug_empty_searches_subtitle">Dug is monitoring search activity.</string>
+    <string name="dug_empty_mood_title">No mood concerns</string>
+    <string name="dug_empty_mood_subtitle">Dug is analyzing emotional well-being signals.</string>
+    <string name="dug_empty_music_title">No explicit music</string>
+    <string name="dug_empty_music_subtitle">Dug is monitoring music listening activity.</string>
+    <string name="dug_image_group_count_v2">%1$d images detected</string>
+    <string name="dug_explicit_label">Explicit</string>
+    <!-- Detail screen headers -->
+    <string name="dug_detail_header_messages">Message Detection</string>
+    <string name="dug_detail_header_mood">Mood Detection</string>
+    <string name="dug_detail_header_image">Image Detection</string>
+    <string name="dug_detail_header_music">Music Detection</string>
+    <string name="dug_detail_header_search">Search Detection</string>
+    <!-- Why flagged -->
+    <string name="dug_detail_why_message_cyberbullying">This message contains language that may indicate cyberbullying or aggressive behavior.</string>
+    <string name="dug_detail_why_message_grooming">This conversation contains patterns that may indicate grooming behavior.</string>
+    <string name="dug_detail_why_message_profanity">This message contains language that may be harmful or inappropriate for children.</string>
+    <string name="dug_detail_why_mood">Dug identified language that may suggest emotional distress. This is a signal worth paying attention to, not a clinical diagnosis.</string>
+    <string name="dug_detail_why_image">Dug detected visual content that may be inappropriate for children.</string>
+    <string name="dug_detail_why_music">This song was flagged because %1$d%% of this artist\'s catalog contains explicit language.</string>
+    <string name="dug_detail_why_search_viral">This search was flagged because it matches patterns associated with dangerous viral content.</string>
+    <string name="dug_detail_why_search_movie">This search was flagged because it relates to movies or series with inappropriate content.</string>
+    <string name="dug_detail_why_search_creator">This search was flagged because it relates to content creators associated with risky content.</string>
+    <string name="dug_detail_why_search_generic">This search was flagged because it matches patterns associated with potentially harmful content.</string>
+    <!-- Parent guidance -->
+    <string name="dug_detail_guidance_message">Consider having a calm, open conversation with your child about this message and online communication.</string>
+    <string name="dug_detail_guidance_mood">If you\'re concerned, consider checking in with your child about how they\'re feeling. This does not replace professional assessment.</string>
+    <string name="dug_detail_guidance_image">Review the content and consider discussing internet safety with your child.</string>
+    <string name="dug_detail_guidance_music">You may want to review your child\'s music listening settings on this platform.</string>
+    <string name="dug_detail_guidance_search">Consider reviewing your child\'s recent search activity and discussing safe browsing habits.</string>
+    <!-- Image detail -->
+    <string name="dug_detail_tap_to_reveal">Tap to reveal</string>
+    <string name="dug_detail_sensitive_content">Sensitive content</string>
+
+    <string name="dug_detection_captures">Captures</string>
+
+
+    <string name="settings_apps_dug_warning">Dug Warning</string>
+
+
+    <string name="settings_apps_dug_approved">Dug Approved</string>
+    <string name="settings_apps_dug_approved_description">Approved application</string>
+    <string name="settings_apps_dug_approved_description_collapsible">This application is <b>recommended by Dug</b> and is safe for your child, it is <b>free of dangers</b></string>
+
+    <string name="settings_apps_description">At SoyMomo we <b>care about the apps your child uses</b>, you can block or allow them. <b>We warn you of dangers and give you recommendations.</b></string>
+
+    <!-- Pin and Safety Menu -->
+    <string name="settings_pin_title">PIN</string>
+    <string name="settings_hint_pin_actual">Current PIN</string>
+    <string name="settings_hint_pin_new">New PIN</string>
+    <string name="settings_pin_change">Change PIN</string>
+    <string name="settings_pin_forgot">I forgot my PIN</string>
+    <string name="settings_pin_recover">Recover PIN</string>
+    <string name="settings_pin_recover_description">We will send a recovery message to the following email: thomas@soymomo.com</string>
+    <string name="settings_pin_recover_button">Recover</string>
+
+    <!-- Stats Menu -->
+    <string name="settings_stats_title">Usage statistics</string>
+    <string name="settings_stats_subtitle">Daily usage</string>
+    <string name="settings_stats_daily_average">Daily average</string>
+    <string name="settings_stats_daily_average_time">%1$dh %2$dm</string>
+    <string name="settings_stats_daily_average_less_than">%1$d%% less than last week</string>
+    <string name="settings_stats_daily_average_more_than">%1$d%% more than last week</string>
+    <string name="settings_stats_week">Week</string>
+    <string name="settings_stats_today">Today</string>
+    <string name="settings_stats_month">Month</string>
+    <string name="settings_stats_period_today">Today</string>
+    <string name="settings_stats_period_week">This week</string>
+    <string name="settings_stats_period_month">This month</string>
+    <string name="settings_stats_categories">Category</string>
+    <string name="settings_stats_use_time">2 hours</string>
+    <string name="settings_stats_last_use">Last use: 22/06/2022</string>
+
+    <string name="settings_category_social_media">Social networks</string>
+    <string name="settings_category_leisure">Leisure</string>
+    <string name="settings_category_learning">Learning</string>
+    <string name="settings_category_communication">Communication</string>
+    <string name="settings_category_others">Others</string>
+
+    <!-- Apps Menu -->
+    <string name="settings_apps_title">Allowed applications</string>
+    <string name="settings_app_blocked"><b>Blocked</b></string>
+    <string name="settings_app_use_min"><b>Usage: %1$dm</b></string>
+    <string name="settings_app_use_hour">Usage: %1$dh:%2$02dm</string>
+
+
+    <string name="settings_app_add_limit">Add time limit</string>
+    <string name="settings_app_time_limit">Time limit</string>
+    <string name="settings_apps_blocked">Blocked</string>
+    <string name="settings_apps_allowed">Allowed</string>
+
+    <string name="settings_app_age">Recommended age: </string>
+
+    <string name="settings_app_dug_approved">Dug Approved</string>
+    <string name="settings_app_dug_approved_description">Approved application</string>
+    <string name="settings_app_dug_no_analisys">No Dug analysis</string>
+    <string name="settings_app_dug_request_analisys">Dug analysis requested</string>
+    <string name="settings_app_dug_no_analisys_description">This app has not been sniffed</string>
+
+
+    <string name="settings_button_save">Save</string>
+    <string name="settings_button_delete">Delete</string>
+
+    <!-- Times -->
+    <string name="card_use_limit_title">Usage limits</string>
+    <string name="card_use_limit_description">Limit the amount of time the device can be used on selected days</string>
+
+    <string name="card_school_mode_title">Class mode</string>
+    <string name="card_school_mode_description">Set your child\'s weekly class schedule and allowed apps during that time</string>
+
+    <string name="card_use_range_title">Usage ranges</string>
+    <string name="card_use_range_description">Select the time range in which the device can be used with certain selected days</string>
+
+    <string name="card_use_limit_per_day">Daily schedule</string>
+    <string name="time">Time:</string>
+    <string name="card_use_limit_add">Add usage limit</string>
+    <string name="card_use_limit_hours_quantity">Number of hours:</string>
+
+    <string name="card_school_mode_add_apps">No applications selected</string>
+
+    <string name="card_use_range_error">The start time cannot be later than the end time</string>
+    <string name="card_use_range_add">Add usage range</string>
+
+    <string name="title_days">Active Days</string>
+    <string name="daily_schedule">Daily schedule</string>
+
+    <string name="add_app">Add application</string>
+
+    <!-- Device Linking -->
+
+
+
+
+    <!-- Update Tablet -->
+    <string name="update_tablet_title">Updates</string>
+
+    <!-- OnBoarding -->
+    <string name="onboarding_select_language">Select Language</string>
+
+    <string name="onboarding_welcome">Welcome to your SoyMomo device!</string>
+    <string name="onboarding_welcome_description">At SoyMomo we create and adapt technology so it is safe for the development of all children around the world.</string>
+
+    <string name="return_button">Back</string>
+    <string name="continue_button">Continue</string>
+    <string name="back_button">Back</string>
+    <string name="enable_button">Enable</string>
+    <string name="connect_button">Connect</string>
+    <string name="begin_button">Let\'s start</string>
+    <string name="battery_notification_title">Battery monitor</string>
+    <string name="battery_notification_description">Upload the battery status to your parents!</string>
+
+    <string name="onboarding_terms">Terms and conditions</string>
+    <string name="onboarding_terms_accept">Accept terms of service</string>
+
+    <string name="onboarding_permissions">Permissions</string>
+    <string name="onboarding_permissions_enabled">All permissions enabled</string>
+
+    <string name="onboarding_networks">Networks/Wifi</string>
+    <string name="onboarding_networks_no_availables">No Wi-Fi networks found</string>
+    <string name="onboarding_networks_enable_wifi">Enable Wifi</string>
+
+    <string name="onboarding_child_profile_title">Who will use this device?</string>
+
+    <string name="onboarding_security">Security</string>
+    <string name="onboarding_recover_email_text">If you forget your PIN, we\'ll send it to the email you enter below.</string>
+    <string name="onboarding_recover_email">Email</string>
+    <string name="onboarding_create_pin">Create a secret PIN to ensure your children cannot modify the usage rules without your authorization.</string>
+
+    <string name="onboarding_download_app">Download the SoyMomo App</string>
+    <string name="onboarding_download_app_description">Through the app, you can use all the SoyMomo device features from your phone.</string>
+    <string name="onboarding_what_you_can_do">Next, we will show you everything you can do:</string>
+
+    <string name="onboarding_dug">Dug</string>
+    <string name="onboarding_dug_description">Dug blocks dangerous content and lets us recognize when our little ones are exposed to inappropriate or harmful content, such as viral videos or sexual content.</string>
+
+    <string name="onboarding_blocks">Blocks</string>
+    <string name="onboarding_remote_block"><b>Remote lock:</b> you can lock the SoyMomo device from your phone instantly.</string>
+    <string name="onboarding_web_block"><b>Website Protection:</b> you can define which websites your child can visit.</string>
+    <string name="onboarding_payments_block"><b>In-App Payments:</b> protection and restriction of card use in apps.</string>
+    <string name="onboarding_ads_block"><b>Ad Blocking:</b> blocking ads and trackers, we care for your child.</string>
+
+    <string name="onboarding_time">Schedule control</string>
+    <string name="onboarding_time_description">You can set the schedules in which the device can be used.</string>
+    <string name="onboarding_time_description_2">You can also set usage ranges where the SoyMomo device can only be used within a certain time frame.</string>
+
+    <string name="onboarding_night">Light filter</string>
+    <string name="onboarding_night_description">At SoyMomo we care about your children\'s eyesight. It\'s important to have a blue light filter option for using the device in low light or at night.</string>
+
+    <string name="onboarding_school_mode">Class Mode</string>
+    <string name="onboarding_school_mode_description">You can add class schedules during which the child will only be able to access the apps you allow. This way they won\'t be distracted while learning at school.</string>
+
+    <string name="onboarding_cyberbullying">Cyberbullying</string>
+    <string name="onboarding_cyberbullying_description">Dug detects cyberbullying, protecting your child from the problems that social networks can cause. It will notify you if they receive harmful messages.</string>
+
+    <string name="onboarding_screen_capture">Screenshot</string>
+    <string name="onboarding_screen_capture_description">Dug allows you to obtain remote screenshots from the "SoyMomo Tablet/Phone" app.</string>
+
+    <string name="onboarding_inappropriate_content">Inappropriate content</string>
+    <string name="onboarding_inappropriate_content_description">Dug detects inappropriate content and notifies the child\'s tutor. We care about what your children see.</string>
+
+    <string name="onboarding_end">Final adjustments</string>
+    <string name="onboarding_end_description">At SoyMomo we create and adapt technology to be safe for the development of all children.</string>
+    <string name="onboarding_end_description_2">Welcome to technology usage with its benefits, while protecting your child\'s childhood.</string>
+
+    <string name="onboarding_scan_qr">Scan the QR code to download the app</string>
+    <string name="dialog_block_website_text">Do you want to disable the website?</string>
+    <string name="grooming">Grooming</string>
+    <string name="cyberbullying">Cyberbullying</string>
+    <string name="three_points">....</string>
+    <string name="dug_detection_no_connection">To make the most of our detection features and receive real-time updates, ensure you\'re connected to the Internet. Keep your device connected for the best experience.</string>
+
+    <string name="dug_feedback_thanks">Thank you for your feedback</string>
+    <string name="receivers_service_notification_title">System Event Monitoring</string>
+    <string name="receivers_service_notification_description">Monitoring app installations, language changes, Spotify updates, and alarm settings.</string>
+
+    <string name="onboarding_child_profile">Who will use this device?</string>
+    <string name="request_time_app_title">Extra Time Request</string>
+
+    <string name="notification_geofence_entered_title">📍 Arrival Notification</string>
+    <string name="notification_geofence_entered_text">%1$s has arrived at %2$s.</string>
+    <string name="notification_geofence_exited_title">🚶‍♂️ Exit Notification</string>
+    <string name="notification_geofence_exited_text">%1$s has left %2$s.</string>
+
+    <string name="settings_app_geofences_title">Add <b>safe zones</b></string>
+    <string name="settings_app_geofences_chip">%1$d saved</string>
+
+    <string name="settings_app_terms">Terms</string>
+    <string name="settings_app_and_conditions">and Conditions</string>
+    <string name="settings_app_privacy">Privacy</string>
+    <string name="settings_app_privacy_policy">Policy</string>
+
+    <string name="geofences_title">Safe Zones</string>
+    <string name="geofences_add_message_title">Create your first Safe Zone</string>
+    <string name="geofences_add_message_description">Define safe areas and receive alerts when the device enters or leaves them.</string>
+    <string name="geofence_button_add">Add Safe Zone</string>
+    <string name="geofences_google_places_unavailable">Google Places is not available at this time.</string>
+    <string name="geofences_error_searching_address">An error occurred while searching the address. Please try again.</string>
+    <string name="geofence_button_create">Create Zone</string>
+    <string name="geofence_address_label">Location Address</string>
+    <string name="geofence_place_name_label">Place Name</string>
+    <string name="geofences_create_title">New Safe Zone</string>
+    <string name="geofences_edit_title">Edit Safe Zone</string>
+    <string name="geofence_save_error">Could not save the safe zone. Please try again.</string>
+    <string name="geofence_radius_in_meters">Radius: %1$d meters</string>
+    <string name="geofence_radius_in_yards">Radius: %1$d yards</string>
+    <string name="geofences_error_empty_name">Enter a name for the safe zone.</string>
+    <string name="geofences_error_empty_address">Enter an address for the safe zone.</string>
+    <string name="geofences_error_invalid_radius">The radius must be between 150 and 1500 meters.</string>
+    <string name="geofences_error_user_not_found">Your session has expired. Please log in again.</string>
+    <string name="geofences_error_delete">Could not delete the safe zone. Please try again.</string>
+    <string name="geofences_error_no_selection">No safe zone selected to delete.</string>
+    <string name="geofences_error_unknown">An unexpected error occurred. Please try again later.</string>
+
+    <string name="location_history_title">Location History</string>
+    <string name="location_history_start">Start</string>
+    <string name="location_history_end">End</string>
+    <string name="location_history_disconnected">Disconnected</string>
+    <string name="location_history_disconnected_text">Device disconnected or lost signal</string>
+    <string name="location_history_no_locations">No location data available for this day</string>
+    <string name="location_history_select_date">Select a date</string>
+    <string name="location_history_selected_date">Selected Date</string>
+    <string name="location_history_device_range">%s\'s activity range</string>
+    <string name="location_history_toast_error_no_locations">No location data found for the selected range</string>
+    <string name="location_history_infowindow_history_marker_time">Time Details</string>
+    <!-- Location History - Stop/Transit labels -->
+    <string name="location_history_stop">Stop</string>
+    <string name="location_history_transit">Moving</string>
+    <string name="location_history_moving">Moving</string>
+    <string name="location_history_duration">Duration: %s</string>
+    <string name="location_history_duration_format_hours">%1$dh %2$dm</string>
+    <string name="location_history_duration_format_minutes">%dm</string>
+    <string name="location_history_points">%d location points</string>
+    <string name="location_history_timeline">Timeline</string>
+    <string name="location_history_arrived_at">Arrived at %s</string>
+    <string name="location_history_left_at">Left at %s</string>
+    <string name="location_history_unknown_location">Unknown location</string>
+
+    <string name="contacts_title">Phone contacts</string>
+    <string name="contacts_empty_description">No contacts on this device</string>
+    <string name="contacts_contact_detail_unknown_name">Name not available</string>
+    <string name="contacts_contact_detail_unknown_phone">Phone number not available</string>
+
+    <string name="notification_phone_contact_new_title">📞 New contact added</string>
+    <string name="notification_phone_contact_new_text">A new contact %1$s has been added</string>
+    <string name="notification_phone_contact_deleted_title">🗑️ Contact deleted</string>
+    <string name="notification_phone_contact_deleted_text">The contact %1$s has been deleted</string>
+    <string name="notification_phone_contact_updated_title">✏️ Contact updated</string>
+    <string name="notification_phone_contact_updated_text">The contact %1$s has been updated</string>
+    <string name="notification_phone_contact_name_updated_text">The contact %1$s has changed their name to %2$s</string>
+    <string name="title_potential_dangers">Potential dangers</string>
+    <string name="title_app_description">Description</string>
+    <string name="text_add_time_limit">Add time limit</string>
+    <string name="text_app_status_allow">Status: \nAllowed</string>
+    <string name="text_app_status_block">Status: \nBlocked</string>
+    <string name="button_google_play">See the App on Google Play</string>
+    <string name="app_allowed_text">App allowed</string>
+    <string name="app_blocked_text">App blocked</string>
+    <string name="default_potential_dangers">We have not found any potential dangers associated with this application. However, it is always advisable to supervise its use and encourage responsible behavior.</string>
+    <string name="default_app_description">We do not have a detailed description for this application in our database. Explore it and learn more about it!</string>
+    <string name="dug_main_title_categories">Categories</string>
+    <string name="title_location_history">Location history</string>
+
+
+    <string name="subscription_empty_what_is_soymomo_sim">What is SoyMomo SIM?</string>
+    <string name="subscription_empty_soymomo_sim_explanation">A SIM with mobile data and minutes is included with your SoyMomo, you just have to request a plan.</string>
+    <string name="subscription_empty_plan_types">3 types of plans</string>
+    <string name="subscription_empty_soymomo_sim_subscribe">Subscribe</string>
+    <string name="subscription_list_your_plans_title">Your <b>SoyMomo plans</b>:</string>
+    <string name="subscription_list_subscription_associated_label">Device linked to SoyMomo SIM</string>
+    <string name="subscription_list_subscription_managed_label">SoyMomo SIM Managed by</string>
+    <string name="subscription_list_subscription_settings_label">Manage Subscription</string>
+    <string name="subscription_list_subscription_information_label">Subscription information:</string>
+    <string name="subscription_list_subscription_label_icc_id">Sim: <b>%1$s</b></string>
+    <string name="subscription_list_subscription_label_data">Data: <b>%1$s</b></string>
+    <string name="subscription_list_subscription_label_voice">Voice: <b>%1$s</b></string>
+    <string name="subscription_list_subscription_label_warranty">Warranty: <b>%1$s</b></string>
+    <string name="subscription_list_subscription_label_price">Price: <b>%1$s</b></string>
+    <string name="subscription_list_subscription_label_coverage">Coverage: <b>%1$s</b></string>
+    <string name="subscription_list_subscription_label_billing_period">Billing period: <b>%1$s</b></string>
+    <string name="subscription_list_whatsapp_preset_text">Hello! I have a query related to my SoyMomo SIM:\n\n- Subscription: %1$s\n- Device Model: %2$s\n- Device ID: %3$s</string>
+    <string name="subscription_list_empty_card_label">New subscription</string>
+    <string name="subscription_list_empty_title">Let\'s configure your SoyMomo SIM</string>
+    <string name="subscription_list_empty_subtitle">With the subscription for the SoyMomo SIM, you will have access to data and voice for your device</string>
+    <string name="subscription_list_subscription_status_terminated">Ended on %1$s. Tap to see the subscription details.</string>
+    <string name="subscription_list_payment_status_canceled">Payment canceled. Contact support for assistance.</string>
+    <string name="subscription_list_payment_status_pending">Payment failed. Please tap to see the subscription and update your details.</string>
+    <string name="subscription_list_payment_status_missing_payment_information">Payment details missing. Please add to continue your subscription.</string>
+    <string name="subscription_list_payment_status_activation_period">Completing setup. Syncing payment and subscription info.</string>
+    <string name="subscription_details_status_terminated_title">Subscription ended on %1$s</string>
+    <string name="subscription_details_status_terminated_subtitle">To reactivate your SoyMomo SIM, tap here.</string>
+    <string name="subscription_details_status_terminated_iccid_used_subtitle">You have an active subscription with this SoyMomo SIM</string>
+    <string name="subscription_details_payment_status_missing_payment_title">Problem with your payment</string>
+    <string name="subscription_details_payment_status_missing_payment_subtitle">Please, check your payment method and avoid losing communication</string>
+    <string name="subscription_details_payment_status_missing_payment_information_title">Payment details missing</string>
+    <string name="subscription_details_payment_status_missing_payment_information_subtitle">Please, add your payment method and avoid losing communication</string>
+    <string name="subscription_new_start_title">To continue you must have a SoyMomo SIM</string>
+    <string name="subscription_new_start_subtitle">The SoyMomo SIM are included in the SoyMomo device packaging. If you do not have one, request it in the following button</string>
+    <string name="subscription_new_link_sim_title">Scan SIM</string>
+    <string name="subscription_new_link_sim_subtitle">Enter the 19/20- digit code on the back of your SoyMomo SIM card, or scan the barcode next to it</string>
+    <string name="subscription_new_link_scan_icc_id">Scan your SoyMomo SIM\'s barcode</string>
+    <string name="subscription_new_link_icc_id_label_placeholder">SoyMomo SIM Code</string>
+    <string name="subscription_new_link_sim_error_title">Problem with the SoyMomo SIM</string>
+    <string name="subscription_new_link_sim_error_not_found">You are entering an invalid SoyMomo SIM</string>
+    <string name="subscription_new_link_sim_error_length">The SIM code is not 19 digits</string>
+    <string name="subscription_new_link_sim_error_already_in_use">The SoyMomo SIM is already in use</string>
+    <string name="subscription_new_link_request_new_physical_sim">Request physical SoyMomo SIM</string>
+    <string name="subscription_new_link_ask_new_sim_home">Ask for SoyMomo SIM at home</string>
+    <string name="subscription_new_link_now_select_plan">Next, <b>choose your preferred SoyMomo plan</b>. Let\'s get started!</string>
+    <string name="subscription_new_choose_device_title">Link to SoyMomo device</string>
+    <string name="subscription_new_choose_device_empty">You have no SoyMomo Devices available</string>
+    <string name="subscription_new_choose_no_device_selected">You must select one device</string>
+    <string name="subscription_new_choose_plan_title">Available plans</string>
+    <string name="subscription_new_choose_plan_no_wearer_title">Select one of our plans:</string>
+    <string name="subscription_new_choose_plan_monthly_switch">Monthly</string>
+    <string name="subscription_new_choose_plan_yearly_switch">Yearly</string>
+    <string name="subscription_new_choose_plan_discount_placeholder">%1$s%% discount</string>
+    <string name="subscription_new_choose_plan_button_choose">Choose %1$s/%2$s</string>
+    <string name="subscription_new_choose_plan_remember_can_cancel">You can cancel your subscription anytime without any additional fees.</string>
+    <string name="subscription_form_requesting_plan_label">You have selected:</string>
+    <string name="subscription_form_title">Subscription form</string>
+    <string name="subscription_form_label_name">Name</string>
+    <string name="subscription_form_label_last_name">Last Name</string>
+    <string name="subscription_form_label_birthday">Date of Birth</string>
+    <string name="subscription_form_label_personal_id">ID</string>
+    <string name="subscription_form_label_phone_number">Phone Number</string>
+    <string name="subscription_form_label_email">Email</string>
+    <string name="subscription_form_label_address">Address</string>
+    <string name="subscription_form_label_city">City</string>
+    <string name="subscription_form_label_state">State</string>
+    <string name="subscription_form_label_postal_code">Postal code</string>
+    <string name="subscription_form_label_checkboxes">To continue, please accept our Terms and Conditions</string>
+    <string name="subscription_form_label_checkboxes_tc">I accept SoyMomo\'s Terms and Conditions</string>
+    <string name="subscription_form_label_checkboxes_pc">I accept SoyMomo\'s Privacy Policy</string>
+    <string name="subscription_form_placeholder_address">Name and number ot the street</string>
+    <string name="subscription_form_placeholder_optional_address">Apartment floor, unit, building (optional)</string>
+    <string name="subscription_form_placeholder_personal_id"></string>
+    <string name="subscription_form_placeholder_birthday">yyyy-mm-dd</string>
+    <string name="subscription_form_error_message">Missing or incorrect fields</string>
+    <string name="subscription_form_error_title">Problem completing the form</string>
+    <string name="subscription_form_error_personal_info">Check your personal information</string>
+    <string name="subscription_form_error_email">Check the entered email</string>
+    <string name="subscription_form_error_phone_number">Check your phone number</string>
+    <string name="subscription_form_error_address">Check your address information</string>
+    <string name="subscription_form_error_checkbox">You must accept the SoyMomo\'s Terms and Conditions to continue</string>
+
+    <string name="subscription_payment_apio_user_cards_title">Choose payment method</string>
+    <string name="subscription_payment_apio_user_cards_add_title">Add new card</string>
+    <string name="subscription_payment_apio_user_cards_add_subtitle">Credit or debit</string>
+
+    <string name="subscription_payment_apio_confirm_title">Confirmation of order</string>
+
+    <string name="subscription_payment_success_title">Transaction completed successfully</string>
+    <string name="subscription_payment_success_point_1">\u2022 We will link the new phone number to the device automatically</string>
+    <string name="subscription_payment_success_point_2">\u2022 You will be able to manage the plan from the application settings</string>
+    <string name="subscription_payment_success_subtitle_mercado_pago">This transaction was securely processed by Mercado Pago</string>
+    <string name="subscription_payment_success_subtitle_mercado_stripe">This transaction was securely processed by Stripe</string>
+    <string name="subscription_payment_success_subtitle_receive_email">In the next 5 minutes, you will receive an email confirmation of your transaction</string>
+    <string name="subscription_payment_success_card_activating_title">Activating SoyMomo SIM</string>
+    <string name="subscription_payment_success_card_activating_description">Please wait while we finish the last details</string>
+    <string name="subscription_payment_success_card_activated_title">SoyMomo SIM is activated! Your phone number is:</string>
+    <string name="subscription_payment_success_card_finish_later_title">Finishing last details</string>
+    <string name="subscription_payment_success_card_finish_later_description">We will notify you when your SoyMomo SIM is ready. It may take 5 to 15 minutes.</string>
+
+    <string name="subscription_payment_error_title">Oops! There was an issue with your payment method.</string>
+    <string name="subscription_payment_error_description">We couldn\'t add your payment method. Please try again, or use a different payment method if the issue continues. If you need assistance with activating your SoyMomo SIM, feel free to contact SoyMomo support.</string>
+
+    <string name="subscription_new_end_title">You\'re all set!</string>
+    <string name="subscription_new_end_subtitle">Insert your activated SoyMomo SIM card into your SoyMomo device and explore the world of safe technology</string>
+    <string name="subscription_new_end_label_congratulations">Congratulations!</string>
+    <string name="subscription_new_end_label_new_phone_number">The SIM phone number is:</string>
+    <string name="subscription_device_card_model">Model: %1$s</string>
+    <string name="subscription_device_card_imei">IMEI: %1$s</string>
+    <string name="subscription_device_card_phone">Phone: %1$s</string>
+
+    <string name="subscription_button_dont_have_sim">I don\'t have a SIM</string>
+    <string name="subscription_button_have_sim">I already have a SIM</string>
+    <string name="subscription_button_next">Next</string>
+    <string name="subscription_button_add_new">Add SoyMomo SIM</string>
+    <string name="subscription_button_link_soymomo_sim">Link SoyMomo SIM</string>
+    <string name="subscription_button_return_to_subscriptions">Return</string>
+    <string name="subscription_button_try_again">Try again</string>
+    <string name="subscription_button_copy_content_clipboard">Copied phone to %1$s clipboard</string>
+    <string name="subscription_button_finish">Finish</string>
+    <string name="subscription_button_confirm_subscription">Confirm Subscription</string>
+    <string name="subscription_animation_hint"><b>Need help?</b>\nCheck the animation or visit our support page</string>
+
+    <string name="subscription_cancel_title">Are you sure?</string>
+    <string name="subscription_cancel_label">You will loose access to your SoyMomo SIM connection and your Subscription perks</string>
+    <string name="subscription_button_cancel_confirm">Cancel subscription</string>
+    <string name="subscription_button_cancel_maintain">Maintain subscription</string>
+    <string name="subscription_cancel_toast_error">There was an error cancelling your subscription, please contact customer service</string>
+    <string name="subscription_cancellation_title">Cancellation requested</string>
+    <string name="subscription_cancellation_message">Cancellation will be effective on %1$s. No charges will be applied.</string>
+
+    <string name="subscription_restore_button">Restore</string>
+    <string name="subscription_restore_toast_error">There was an error restoring your subscription, please contact customer service</string>
+    <string name="subscription_restore_title">Restore your subscription</string>
+    <string name="subscription_restore_description">You will regain access to your SoyMomo SIM plan</string>
+    <string name="subscription_restore_point_1">We will set up a new SoyMomo SIM subscription for your <b>%1$s</b> using the SIM card <b>%2$s</b>.</string>
+    <string name="subscription_restore_point_2">You can select a new SoyMomo plan for your device.</string>
+    <string name="subscription_restore_point_3">If you have removed the SoyMomo SIM, please insert it back into the device before proceeding.</string>
+
+    <string name="subscription_button_information">Manage subscription</string>
+    <string name="subscription_button_information_description">Manage your account, payment methods and history</string>
+    <string name="subscription_button_contact_us_description">Contact our technical support team, available 24/7</string>
+    <string name="subscription_button_faq_description">Check guides and information about your subscription</string>
+
+    <string name="add_device_button_soymomo_sim">SoyMomo SIM</string>
+    <string name="button_soymomo_sim">SoyMomo SIM</string>
+
+    <string name="subscription_button_transfer">Transfer subscription</string>
+    <string name="subscription_button_transfer_description">Start using a new SoyMomo SIM or SoyMomo device by easily transferring your subscription</string>
+    <string name="subscription_unavailable_go_back">Go back</string>
+    <string name="subscription_unavailable_title">Not available in your region</string>
+    <string name="subscription_unavailable_subtitle">We\'re sorry, SoyMomo cards are currently not available in your region.</string>
+    <string name="dialog_imei_error_title">Oh, something went wrong!</string>
+    <string name="dialog_imei_error_description">This IMEI does not exist, you may be entering the code incorrectly, try again.</string>
+    <string name="toast_error_searching_address">There was an error while searching for your address</string>
+    <string name="edittext_error_birthday">Please enter a valid birthday date (yyyy-mm-dd)</string>
+    <string name="edittext_error_rut">Please enter a valid personal id</string>
+    <string name="geocoder_error_unavailable">Geocoder unavailable</string>
+    <string name="edittext_error_birthday_18">You must be 18 years old or older to subscribe</string>
+    <string name="dialog_alai_sim_title">The inserted SIM number is invalid</string>
+    <string name="dialog_alai_sim_description">The SoyMomo SIM has expired. Please contact SoyMomo support to request a new SIM card and receive an additional month on your subscription <b>for free!</b></string>
+    <string name="subscription_payment_skip_title">Congrats on activating your SIM card! 😁</string>
+    <string name="subscription_payment_skip_text">The first 30 days are on us, and we\'ll email you with steps to activate your subscription a week before it expires. Enjoy staying connected with your child using SoyMomo! 📱🐼</string>
+    <string name="settings_app_soymomo_sim_chip">%1$d active</string>
+
+    <string name="link_device_title">Link SoyMomo Device</string>
+    <string name="link_device_subtitle">Let\'s link your SoyMomo device. Just follow the steps below to manage it from the app.</string>
+    <string name="link_device_step_1_text">Enter the 10 digits id shown in your SoyMomo Device, or scan the QR code to automatically enter the id</string>
+    <string name="link_device_step_2_text">Great! Let\'s setup your %1$s. To continue, please select its color below.</string>
+    <string name="link_device_step_3_text">You\'re all set! Press \'Link\' to connect the %1$s to your account.</string>
+    <string name="link_device_step_3_text_other_user">This device is already linked to another account. Press \'Link\' to connect the device to your account as well.</string>
+    <string name="link_device_step_3_link_button">Link</string>
+    <string name="link_device_step_3_link_device_success">Device Linked Successfully!</string>
+    <string name="link_device_step_end_text">Your %1$s was linked successfully and is ready to go!</string>
+    <string name="link_device_step_end_go_to_main_button">Go to Main Menu</string>
+    <string name="link_device_error_already_linked">This device is already linked</string>
+    <string name="link_device_error_belongs_to_other_user">This device is already linked to another account.</string>
+    <string name="link_device_error_select_color">Please select a color</string>
+    <string name="link_device_error_not_found">Device not found</string>
+    <string name="link_device_error_scan_qr">We couldn\'t read the QR code. Please try again or enter the ID manually.</string>
+
+    <!-- Previously inherited via transitive R class from momologin; explicit since AGP 9 / non-transitive R. -->
+    <string name="email">Email</string>
+    <string name="select_date">Select a date</string>
+    <string name="toast_error_cropping_image">There was an error while cropping the image</string>
+    <string name="toast_error_loading_image">There was an error while loading the image</string>
+
+    <!-- Tablet settings root screen: sectioned list. -->
+    <string name="tablet_settings_section_safety">Safety</string>
+    <string name="tablet_settings_dug_title">Malicious content detection</string>
+    <string name="tablet_settings_section_control">Control</string>
+    <string name="tablet_settings_section_monitoring">Monitoring</string>
+    <string name="tablet_settings_section_account">Account</string>
+    <string name="tablet_settings_card_id_format" translatable="false">ID: %1$s</string>
+    <string name="tablet_settings_action_share">Share with family</string>
+    <string name="tablet_settings_share_chooser_title">Share invitation</string>
+    <string name="tablet_settings_share_invitation_template">Add my SoyMomo tablet to your app: https://soymomo.com/link/tablet/%1$s</string>
+    <!-- Connection-status pill (tablet info screen) -->
+    <string name="tablet_settings_presence_online">Online</string>
+    <string name="tablet_settings_presence_last_seen">Last seen %1$s</string>
+    <string name="tablet_settings_presence_disconnected">Disconnected</string>
+    <string name="tablet_settings_presence_updating">Updating status…</string>
+    <string name="tablet_settings_presence_no_internet">No internet connection</string>
+    <string name="tablet_settings_presence_checking">Checking…</string>
+    <!-- Device lock toggle (remote block) on the tablet info screen -->
+    <string name="tablet_settings_lock_title">Device lock</string>
+    <string name="tablet_settings_lock_status_locked">Tablet locked</string>
+    <string name="tablet_settings_lock_status_active">Tablet active</string>
+    <string name="tablet_settings_lock_confirm_title">Lock this tablet?</string>
+    <string name="tablet_settings_lock_confirm_message">Your child won\'t be able to use the tablet until you unlock it.</string>
+    <string name="tablet_settings_lock_confirm_action">Lock now</string>
+    <string name="tablet_settings_lock_confirm_cancel">Cancel</string>
+    <string name="tablet_settings_lock_snackbar_locked">Tablet locked</string>
+    <string name="tablet_settings_lock_snackbar_unlocked">Tablet unlocked</string>
+    <string name="main_selector_add_device">Add device</string>
+    <string name="main_selector_selected_device">Selected device: %1$s</string>
+    <string name="main_load_error">Couldn\'t load your devices</string>
+    <string name="main_retry">Retry</string>
+</resources>

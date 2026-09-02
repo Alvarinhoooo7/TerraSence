@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+
+    <!-- Default configuration: HTTPS only, system certificates -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- Domains used by the app -->
+    <domain-config>
+        <!-- Parse / Back4App API -->
+        <domain includeSubdomains="true">momotablet.back4app.io</domain>
+        <domain includeSubdomains="true">back4app.com</domain>
+        <domain includeSubdomains="true">back4app.io</domain>
+        <domain includeSubdomains="true">b4a.io</domain>
+        <domain includeSubdomains="true">b4a.com</domain>
+
+        <!-- Parse File Server (images, files) -->
+        <domain includeSubdomains="true">parsefiles.back4app.com</domain>
+
+        <!-- Google APIs (Maps, Places, indirect Firebase) -->
+        <domain includeSubdomains="true">googleapis.com</domain>
+    </domain-config>
+
+</network-security-config>

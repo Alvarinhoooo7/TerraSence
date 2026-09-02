@@ -1,0 +1,17 @@
+{
+  "name": "terrasense-web-backend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Capa de datos del panel de soporte TerraSense: tipos generados del esquema Supabase y funciones tipadas sobre sus RPC. Consumido por Web/frontend (u otra app) — no se ejecuta de forma independiente.",
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.2",
+    "vite": "^6.0.0"
+  }
+}

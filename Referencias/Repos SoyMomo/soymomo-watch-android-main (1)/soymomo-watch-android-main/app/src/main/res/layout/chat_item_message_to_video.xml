@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="message"
+            type="com.sosmartlabs.momo.chat.data.local.entity.ChatEntity" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/messageBox"
+            android:layout_width="@dimen/chat_element_width"
+            android:layout_height="@dimen/chat_element_width"
+            android:layout_marginHorizontal="@dimen/horizontal_margin_smaller"
+            android:layout_marginVertical="@dimen/vertical_margin_smaller"
+            android:background="@drawable/background_image_message_to"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/messageVideoThumbnail"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_margin="@dimen/card_padding"
+                android:contentDescription="@null"
+                app:image="@{message.video}"
+                app:layout_constraintDimensionRatio="1"
+                app:shapeAppearanceOverlay="@style/chatMediaRoundedCornersImageView"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/playButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:srcCompat="@drawable/ic_action_play"
+                style="@style/noStrokeRoundedImageView"
+                android:background="@color/barcode_reticle_stroke"
+                android:visibility="@{message.video == null ? View.GONE : View.VISIBLE}"
+                app:layout_constraintTop_toTopOf="@id/messageVideoThumbnail"
+                app:layout_constraintBottom_toBottomOf="@id/messageVideoThumbnail"
+                app:layout_constraintStart_toStartOf="@+id/messageVideoThumbnail"
+                app:layout_constraintEnd_toEndOf="@id/messageVideoThumbnail"
+                app:layout_constraintWidth_percent=".3"
+                app:layout_constraintDimensionRatio="1" />
+
+            <ProgressBar
+                android:id="@+id/messageProgressBar"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_margin="@dimen/horizontal_margin"
+                android:visibility="@{message.video == null ? View.VISIBLE : View.GONE}"
+                android:indeterminateTint="@color/white"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <ImageView
+                android:id="@+id/messageStateIcon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginHorizontal="@dimen/horizontal_margin_small"
+                android:layout_marginVertical="@dimen/vertical_margin_smaller"
+                android:contentDescription="@null"
+                android:visibility="visible"
+                app:tint="@color/white"
+                app:status="@{message.status}"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:src="@drawable/ic_message_received"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/messageDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_margin_smallest"
+            android:layout_marginVertical="@dimen/vertical_margin_small"
+            android:textColor="@color/colorPrimary"
+            android:textSize="@dimen/chat_date_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/messageBox"
+            app:messageDate="@{message.createdAt}"
+            tools:text="11:30" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

@@ -1,23 +1,81 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --color-terra-bg: #050a07;
+  --color-terra-surface: #1e3326;
+  --color-terra-border: #335c45;
+  --color-terra-primary: #12d271;
+  --color-terra-primary-hover: #1ae580;
+  --color-terra-text: #ffffff;
+  --color-terra-muted: #b8d4c5;
+  --color-verdict-green: #12d271;
+  --color-verdict-amber: #ffc061;
+  --color-verdict-red: #ff6b6b;
+}
+
+:root[data-theme='light'] {
+  --color-terra-bg: #f2f7f4;
+  --color-terra-surface: #ffffff;
+  --color-terra-border: #d1e3d9;
+  --color-terra-primary: #0ea759;
+  --color-terra-primary-hover: #12d271;
+  --color-terra-text: #050a07;
+  --color-terra-muted: #5a7364;
+  --color-verdict-green: #0ea759;
+  --color-verdict-amber: #e59e10;
+  --color-verdict-red: #e03131;
+}
 
 @theme {
-  --color-terra-bg: #0d1512;
-  --color-terra-surface: #16211c;
-  --color-terra-border: #28352f;
-  --color-terra-primary: #4fb783;
-  --color-terra-text: #e4eae6;
-  --color-terra-muted: #9daca6;
-  --color-verdict-green: #58b87c;
-  --color-verdict-amber: #d6a044;
-  --color-verdict-red: #e07463;
+  --color-terra-bg: var(--color-terra-bg);
+  --color-terra-surface: var(--color-terra-surface);
+  --color-terra-border: var(--color-terra-border);
+  --color-terra-primary: var(--color-terra-primary);
+  --color-terra-primary-hover: var(--color-terra-primary-hover);
+  --color-terra-text: var(--color-terra-text);
+  --color-terra-muted: var(--color-terra-muted);
 }
 
 html, body, #root { height: 100%; }
 body {
   background: var(--color-terra-bg);
   color: var(--color-terra-text);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: 'Outfit', ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
+  background-image: radial-gradient(circle at top right, rgba(18, 210, 113, 0.05), transparent 600px),
+                    radial-gradient(circle at bottom left, rgba(18, 210, 113, 0.03), transparent 400px);
+  background-attachment: fixed;
 }
+
 /* Los números de las tablas deben alinearse en columna. */
 .tabular { font-variant-numeric: tabular-nums; }
+
+/* Utilidades adicionales UI */
+.glass-panel {
+  background: rgba(10, 20, 15, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-terra-border);
+}
+
+.hover-glass:hover {
+  background: rgba(20, 40, 30, 0.8);
+  border-color: rgba(18, 210, 113, 0.3);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-terra-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-terra-muted);
+}

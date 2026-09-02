@@ -174,8 +174,8 @@ export function GisHeatmap({ measurements }: { measurements: SoilMeasurement[] }
             onClick={() => setVariable(v.id)}
             className={`h-9 px-3 rounded-lg text-sm border ${
               variable === v.id
-                ? 'border-[--color-terra-primary] text-[--color-terra-primary] bg-[--color-terra-primary]/10'
-                : 'border-[--color-terra-border] text-[--color-terra-muted] hover:text-[--color-terra-text]'
+                ? 'border-terra-primary text-terra-primary bg-terra-primary/10'
+                : 'border-terra-border text-terra-muted hover:text-terra-text'
             }`}
           >
             {v.label}
@@ -184,13 +184,13 @@ export function GisHeatmap({ measurements }: { measurements: SoilMeasurement[] }
       </div>
 
       {points.length < 3 ? (
-        <p className="text-[--color-terra-muted] py-10 text-center">
+        <p className="text-terra-muted py-10 text-center">
           Hacen falta al menos 3 mediciones georreferenciadas para interpolar un mapa de calor.
           Hay {points.length}.
         </p>
       ) : (
         <>
-          <div className="overflow-x-auto rounded-xl border border-[--color-terra-border] bg-[--color-terra-surface] p-3">
+          <div className="overflow-x-auto rounded-xl border border-terra-border bg-terra-surface p-3">
             <canvas
               ref={canvasRef}
               width={CANVAS_W}
@@ -203,7 +203,7 @@ export function GisHeatmap({ measurements }: { measurements: SoilMeasurement[] }
 
           {bounds && (
             <div className="flex items-center gap-4 mt-3 text-sm">
-              <span className="text-[--color-terra-muted]">
+              <span className="text-terra-muted">
                 {meta.label} {meta.unit && `(${meta.unit})`}
               </span>
               <span className="tabular">{bounds.minVal.toFixed(1)}</span>
@@ -215,11 +215,11 @@ export function GisHeatmap({ measurements }: { measurements: SoilMeasurement[] }
                 }}
               />
               <span className="tabular">{bounds.maxVal.toFixed(1)}</span>
-              <span className="text-[--color-terra-muted]">· {points.length} puntos</span>
+              <span className="text-terra-muted">· {points.length} puntos</span>
             </div>
           )}
 
-          <p className="text-xs text-[--color-terra-muted] mt-3 max-w-2xl">
+          <p className="text-xs text-terra-muted mt-3 max-w-2xl">
             Interpolación por ponderación inversa de la distancia (IDW, p = 2) calculada en el
             navegador. Los círculos son las mediciones reales, coloreadas por su veredicto:{' '}
             {(['GREEN', 'AMBER', 'RED'] as const).map((v) => (

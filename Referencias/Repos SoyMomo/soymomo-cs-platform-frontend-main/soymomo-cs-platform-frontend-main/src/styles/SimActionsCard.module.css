@@ -1,0 +1,56 @@
+.comandTitle2 {
+    @apply text-base text-[#603BB0] text-start mb-1 mt-8
+}
+
+.actionSubTitle {
+    @apply text-xs text-gray-400 text-left mb-3
+}
+
+.inputContainer {
+    @apply w-full
+}
+
+.textBox{
+    @apply w-full border-2 border-slate-300 rounded-lg p-1.5
+}
+
+.selectBox {
+    @apply w-full border-2 border-slate-300 rounded-md
+}
+
+.space {
+    @apply flex w-3
+}
+
+.sendIcon {
+    @apply flex items-center px-2 rounded-3xl aspect-square hover:bg-slate-300 hover:cursor-pointer bg-[#32B8C0] text-white
+}
+
+.shutDownBtn {
+    @apply bg-[#F93C7C] text-white px-8 py-1 rounded-full w-auto text-sm mt-2 mb-2
+}
+
+.shutDownBtn:disabled {
+    @apply bg-[#f199b6]
+}
+
+.pausedBtn {
+    @apply bg-[#32B8C0] text-white p-1 rounded-full w-full mt-2 mb-2
+}
+
+.cancelBtn {
+    @apply border-[#F93C7C] text-[#F93C7C]
+}
+
+.okBtn {
+    @apply bg-[#8A66DA] border-[#8A66DA] text-white !important
+}
+
+.okBtn:disabled {
+    @apply bg-[#b7a7da] border-[#b7a7da] !important
+}
+
+.textArea {
+    @apply mt-3
+}
+

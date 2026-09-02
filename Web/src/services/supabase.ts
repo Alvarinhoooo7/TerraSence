@@ -10,4 +10,8 @@ if (!url || !key) {
   );
 }
 
-export const supabase = createClient(url ?? '', key ?? '');
+// Usamos valores por defecto seguros para que createClient no crashee toda la app de React en blanco/negro
+export const supabase = createClient(
+  url || 'https://dummy.supabase.co',
+  key || 'dummy-key'
+);

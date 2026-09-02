@@ -81,7 +81,7 @@ export function Dashboard({ email }: { email: string }) {
 
   return (
     <div className="min-h-full">
-      <header className="border-b border-[--color-terra-border] bg-[--color-terra-surface]">
+      <header className="border-b border-terra-border bg-terra-surface">
         <div className="mx-auto max-w-7xl px-6 py-4 flex flex-wrap items-center gap-4">
           <span className="text-2xl">🌱</span>
           <h1 className="text-lg font-bold">TerraSense · Consola</h1>
@@ -89,12 +89,12 @@ export function Dashboard({ email }: { email: string }) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por predio, cultivo o código de equipo…"
-            className="flex-1 min-w-[220px] h-10 rounded-lg border border-[--color-terra-border] bg-[--color-terra-bg] px-3 text-sm outline-none focus:border-[--color-terra-primary]"
+            className="flex-1 min-w-[220px] h-10 rounded-lg border border-terra-border bg-terra-bg px-3 text-sm outline-none focus:border-terra-primary"
           />
-          <span className="text-sm text-[--color-terra-muted]">{email}</span>
+          <span className="text-sm text-terra-muted">{email}</span>
           <button
             onClick={() => supabase.auth.signOut()}
-            className="h-10 px-4 rounded-lg border border-[--color-terra-border] text-sm hover:border-[--color-verdict-red] hover:text-[--color-verdict-red]"
+            className="h-10 px-4 rounded-lg border border-terra-border text-sm hover:border-verdict-red hover:text-verdict-red"
           >
             Salir
           </button>
@@ -107,8 +107,8 @@ export function Dashboard({ email }: { email: string }) {
               onClick={() => setTab(t)}
               className={`px-4 h-11 text-sm font-medium border-b-2 -mb-px capitalize ${
                 tab === t
-                  ? 'border-[--color-terra-primary] text-[--color-terra-primary]'
-                  : 'border-transparent text-[--color-terra-muted] hover:text-[--color-terra-text]'
+                  ? 'border-terra-primary text-terra-primary'
+                  : 'border-transparent text-terra-muted hover:text-terra-text'
               }`}
             >
               {t === 'validacion' ? 'Validación de laboratorio' : t === 'mapa' ? 'Mapa GIS' : t}
@@ -119,11 +119,11 @@ export function Dashboard({ email }: { email: string }) {
 
       <main className="mx-auto max-w-7xl p-6">
         {error && (
-          <p className="rounded-lg bg-[--color-verdict-red]/15 text-[--color-verdict-red] p-4 mb-4 text-sm">
+          <p className="rounded-lg bg-verdict-red/15 text-verdict-red p-4 mb-4 text-sm">
             {error}
           </p>
         )}
-        {loading && <p className="text-[--color-terra-muted]">Cargando…</p>}
+        {loading && <p className="text-terra-muted">Cargando…</p>}
 
         {!loading && tab === 'mediciones' && (
           <>
@@ -173,7 +173,7 @@ export function Dashboard({ email }: { email: string }) {
             head={['Equipo', 'Código', 'Batería', 'Firmware', 'Hardware', 'Última señal']}
             rows={devices.map((d) => [
               d.alias || d.name,
-              <code key="c" className="tabular text-[--color-terra-primary]">
+              <code key="c" className="tabular text-terra-primary">
                 {formatDeviceCode(d.device_code)}
               </code>,
               `${d.battery_level}%`,
@@ -189,7 +189,7 @@ export function Dashboard({ email }: { email: string }) {
 
         {!loading && tab === 'validacion' && (
           <>
-            <p className="text-sm text-[--color-terra-muted] mb-4 max-w-3xl">
+            <p className="text-sm text-terra-muted mb-4 max-w-3xl">
               Corpus de contraste contra laboratorio acreditado. Es la evidencia que sostiene los
               KPI metrológicos del proyecto: sin declarar el método de referencia, la correlación
               no es verificable.
@@ -229,8 +229,8 @@ function Stat({
   tone?: string;
 }) {
   return (
-    <div className="rounded-xl border border-[--color-terra-border] bg-[--color-terra-surface] p-4">
-      <div className="text-xs font-semibold tracking-wide text-[--color-terra-muted] uppercase">
+    <div className="rounded-xl border border-terra-border bg-terra-surface p-4">
+      <div className="text-xs font-semibold tracking-wide text-terra-muted uppercase">
         {icon ? `${icon} ` : ''}
         {label}
       </div>
@@ -249,17 +249,17 @@ function Table({
   empty: string;
 }) {
   if (rows.length === 0) {
-    return <p className="text-[--color-terra-muted] py-8 text-center">{empty}</p>;
+    return <p className="text-terra-muted py-8 text-center">{empty}</p>;
   }
   return (
-    <div className="overflow-x-auto rounded-xl border border-[--color-terra-border]">
+    <div className="overflow-x-auto rounded-xl border border-terra-border">
       <table className="w-full text-sm">
-        <thead className="bg-[--color-terra-surface]">
+        <thead className="bg-terra-surface">
           <tr>
             {head.map((h) => (
               <th
                 key={h}
-                className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wide text-[--color-terra-muted] whitespace-nowrap"
+                className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wide text-terra-muted whitespace-nowrap"
               >
                 {h}
               </th>
@@ -268,7 +268,7 @@ function Table({
         </thead>
         <tbody>
           {rows.map((r, i) => (
-            <tr key={i} className="border-t border-[--color-terra-border] hover:bg-[--color-terra-surface]/60">
+            <tr key={i} className="border-t border-terra-border hover:bg-terra-surface/60">
               {r.map((c, j) => (
                 <td key={j} className="px-4 py-3 whitespace-nowrap tabular">
                   {c}

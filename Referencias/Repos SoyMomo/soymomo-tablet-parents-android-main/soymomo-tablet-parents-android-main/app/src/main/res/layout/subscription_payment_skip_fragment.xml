@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".sim.ui.fragments.payment.PaymentSkipFragment"
+    android:background="@color/background_onboarding"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/payment_skipped_animation"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        tools:src="@drawable/animation_placeholder_onboarding"
+        android:layout_marginTop="@dimen/vertical_margin"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:id="@+id/subscription_new_start_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/add_watch_title_text_size"
+        android:textStyle="bold"
+        android:layout_marginTop="@dimen/vertical_margin_large"
+        android:fontFamily="@font/poppins"
+        android:textColor="@color/white"
+        android:layout_marginVertical="@dimen/vertical_margin_larger"
+        app:layout_constraintTop_toBottomOf="@id/payment_skipped_animation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="@string/subscription_payment_skip_title"/>
+
+    <TextView
+        android:id="@+id/subscription_new_start_subtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_extra_large"
+        android:layout_marginTop="@dimen/vertical_margin_large"
+        android:fontFamily="@font/poppins"
+        android:text="@string/subscription_payment_skip_text"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="@dimen/add_watch_description_text_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/subscription_new_start_title"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_next"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+        android:layout_marginVertical="@dimen/vertical_margin"
+        android:backgroundTint="@color/button_onboarding_enabled"
+        android:elevation="@dimen/card_elevation"
+        android:fontFamily="@font/poppins"
+        android:text="@string/subscription_button_next"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="@dimen/first_momo_button_border"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

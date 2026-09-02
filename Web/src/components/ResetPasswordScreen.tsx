@@ -57,18 +57,18 @@ export function ResetPasswordScreen({ onDone }: { onDone: () => void }) {
   if (success) {
     return (
       <div className="min-h-full grid place-items-center p-6">
-        <div className="w-full max-w-sm rounded-2xl border border-[--color-terra-border] bg-[--color-terra-surface] p-8 text-center">
+        <div className="w-full max-w-sm rounded-2xl border border-terra-border bg-terra-surface p-8 text-center">
           <div className="text-5xl mb-2">✅</div>
-          <h1 className="text-xl font-bold text-[--color-terra-primary] mb-2">
+          <h1 className="text-xl font-bold text-terra-primary mb-2">
             Contraseña actualizada
           </h1>
-          <p className="text-sm text-[--color-terra-muted] mb-6">
+          <p className="text-sm text-terra-muted mb-6">
             Tu contraseña se cambió correctamente. Inicia sesión con la nueva.
           </p>
           <button
             type="button"
             onClick={onDone}
-            className="w-full h-12 rounded-lg bg-[--color-terra-primary] text-[#0d1512] font-semibold"
+            className="w-full h-12 rounded-lg bg-terra-primary text-[#0d1512] font-semibold"
           >
             Ir a iniciar sesión
           </button>
@@ -81,17 +81,17 @@ export function ResetPasswordScreen({ onDone }: { onDone: () => void }) {
     <div className="min-h-full grid place-items-center p-6">
       <form
         onSubmit={submit}
-        className="w-full max-w-sm rounded-2xl border border-[--color-terra-border] bg-[--color-terra-surface] p-8"
+        className="w-full max-w-sm rounded-2xl border border-terra-border bg-terra-surface p-8"
       >
         <div className="text-5xl text-center mb-2">🔑</div>
-        <h1 className="text-2xl font-bold text-center text-[--color-terra-primary]">
+        <h1 className="text-2xl font-bold text-center text-terra-primary">
           Elige tu contraseña nueva
         </h1>
-        <p className="text-sm text-center text-[--color-terra-muted] mb-6">
+        <p className="text-sm text-center text-terra-muted mb-6">
           Llegaste desde el enlace de recuperación de TerraSense.
         </p>
 
-        <label className="block text-xs font-semibold tracking-wide text-[--color-terra-muted] mb-1">
+        <label className="block text-xs font-semibold tracking-wide text-terra-muted mb-1">
           CONTRASEÑA NUEVA
         </label>
         <input
@@ -99,10 +99,10 @@ export function ResetPasswordScreen({ onDone }: { onDone: () => void }) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="new-password"
-          className="w-full h-12 rounded-lg border border-[--color-terra-border] bg-[--color-terra-bg] px-3 mb-4 outline-none focus:border-[--color-terra-primary]"
+          className="w-full h-12 rounded-lg border border-terra-border bg-terra-bg px-3 mb-4 outline-none focus:border-terra-primary"
         />
 
-        <label className="block text-xs font-semibold tracking-wide text-[--color-terra-muted] mb-1">
+        <label className="block text-xs font-semibold tracking-wide text-terra-muted mb-1">
           CONFIRMA LA CONTRASEÑA
         </label>
         <input
@@ -110,11 +110,11 @@ export function ResetPasswordScreen({ onDone }: { onDone: () => void }) {
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           autoComplete="new-password"
-          className="w-full h-12 rounded-lg border border-[--color-terra-border] bg-[--color-terra-bg] px-3 mb-4 outline-none focus:border-[--color-terra-primary]"
+          className="w-full h-12 rounded-lg border border-terra-border bg-terra-bg px-3 mb-4 outline-none focus:border-terra-primary"
         />
 
         {error && (
-          <p className="text-sm rounded-lg bg-[--color-verdict-red]/15 text-[--color-verdict-red] p-3 mb-3">
+          <p className="text-sm rounded-lg bg-verdict-red/15 text-verdict-red p-3 mb-3">
             {error}
           </p>
         )}
@@ -122,7 +122,7 @@ export function ResetPasswordScreen({ onDone }: { onDone: () => void }) {
         <button
           type="submit"
           disabled={busy}
-          className="w-full h-12 rounded-lg bg-[--color-terra-primary] text-[#0d1512] font-semibold disabled:opacity-60"
+          className="w-full h-12 rounded-lg bg-terra-primary text-[#0d1512] font-semibold disabled:opacity-60"
         >
           {busy ? 'Guardando…' : 'Guardar contraseña nueva'}
         </button>

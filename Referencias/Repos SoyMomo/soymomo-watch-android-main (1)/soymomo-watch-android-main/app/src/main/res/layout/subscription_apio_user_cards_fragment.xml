@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parent_layout"
+    tools:context=".sim.ui.fragments.payment.ApioUserCardsFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/watch_settings_profile_background"
+            app:collapsedTitleTextAppearance="@style/CollapsingToolbarCollapsed"
+            app:contentScrim="@color/colorPrimary"
+            app:expandedTitleTextAppearance="@style/CollapsingToolbarExpanded"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/SimStepCardHeader.Under"
+                app:layout_collapseMode="parallax"
+                app:layout_scrollFlags="scroll|enterAlwaysCollapsed">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/app_bar_guide"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_begin="?attr/actionBarSize" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/plan_card_background"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintWidth_percent=".6"
+                    app:srcCompat="@drawable/ic_plan_background"
+                    app:layout_constraintTop_toBottomOf="@+id/app_bar_guide"
+                    app:layout_constraintBottom_toTopOf="@+id/subscription_payment_apio_user_cards_title"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintDimensionRatio="w,160:234"/>
+
+                <include
+                    layout="@layout/item_sim_plan_small"
+                    android:id="@+id/plan_info"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_margin="24dp"
+                    app:layout_constraintTop_toTopOf="@+id/plan_card_background"
+                    app:layout_constraintBottom_toBottomOf="@+id/plan_card_background"
+                    app:layout_constraintStart_toStartOf="@+id/plan_card_background"
+                    app:layout_constraintEnd_toEndOf="@+id/plan_card_background" />
+
+                <TextView
+                    android:id="@+id/subscription_payment_apio_user_cards_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin_large"
+                    android:padding="@dimen/horizontal_margin"
+                    android:background="@drawable/sim_card_form_background"
+                    android:fontFamily="@font/robotomedium"
+                    android:textColor="@color/background_sim_step_card_title"
+                    android:textSize="@dimen/add_watch_title_text_size"
+                    android:textStyle="bold"
+                    android:textAlignment="center"
+                    android:text="@string/subscription_payment_apio_user_cards_title"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/plan_card_background" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:theme="@style/ToolbarTheme"
+                android:background="@color/background_sim_step_card_title"
+                app:layout_collapseMode="pin"/>
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:transitionGroup="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <ViewFlipper
+            android:id="@+id/subscription_payment_apio_user_cards_view_flipper"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="@dimen/horizontal_margin_large"
+                app:layout_constraintTop_toBottomOf="@id/header"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:background="@color/white">
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    android:indeterminateTint="@color/colorPrimaryMedium"
+                    app:indicatorColor="@color/colorPrimaryDark"
+                    app:trackColor="@color/colorPrimaryMedium"
+                    android:layout_marginHorizontal="@dimen/horizontal_margin_extra_large"
+                    android:layout_marginVertical="@dimen/vertical_margin_extra_large"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingHorizontal="@dimen/horizontal_margin"
+                app:layout_constraintTop_toBottomOf="@id/header"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:background="@color/white">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/subscription_payment_apio_user_cards_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/item_subscription_apio_card_small"
+                    tools:itemCount="4"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/new_apio_card_small"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/vertical_margin"
+                    android:layout_marginHorizontal="@dimen/horizontal_margin"
+                    style="@style/SimContentCardView"
+                    app:cardCornerRadius="16dp"
+                    app:layout_constraintTop_toBottomOf="@id/subscription_payment_apio_user_cards_recycler_view"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/new_apio_card_small_card_view"
+                            android:layout_width="80dp"
+                            android:layout_height="0dp"
+                            android:layout_marginHorizontal="@dimen/horizontal_margin"
+                            android:layout_marginVertical="@dimen/vertical_margin_small"
+                            app:cardBackgroundColor="@color/sim_button_positive"
+                            app:cardCornerRadius="8dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintDimensionRatio="2:1">
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:id="@+id/apio_card_small_card_layout"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent" >
+
+                                <com.google.android.material.imageview.ShapeableImageView
+                                    android:id="@+id/apio_card_small_card_logo"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginVertical="@dimen/vertical_margin_smallest"
+                                    android:layout_marginHorizontal="@dimen/horizontal_margin_smallest"
+                                    app:srcCompat="@drawable/fab_add"
+                                    app:layout_constraintTop_toTopOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/new_apio_card_title"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:textStyle="bold"
+                            android:maxLines="1"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="14sp"
+                            android:text="@string/subscription_payment_apio_user_cards_add_title"
+                            android:layout_marginHorizontal="@dimen/horizontal_margin_small"
+                            app:layout_constraintStart_toEndOf="@id/new_apio_card_small_card_view"
+                            app:layout_constraintEnd_toStartOf="@id/new_apio_card_small_arrow"
+                            app:layout_constraintTop_toTopOf="@id/new_apio_card_small_card_view" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/new_apio_card_subtitle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="12sp"
+                            android:text="@string/subscription_payment_apio_user_cards_add_subtitle"
+                            app:layout_constraintStart_toStartOf="@id/new_apio_card_title"
+                            app:layout_constraintEnd_toStartOf="@id/new_apio_card_small_arrow"
+                            app:layout_constraintTop_toBottomOf="@id/new_apio_card_title"
+                            app:layout_constraintBottom_toBottomOf="@id/new_apio_card_small_card_view" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/new_apio_card_small_arrow"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:srcCompat="@drawable/ic_arrow_go"
+                            android:layout_margin="@dimen/vertical_margin"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </ViewFlipper>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

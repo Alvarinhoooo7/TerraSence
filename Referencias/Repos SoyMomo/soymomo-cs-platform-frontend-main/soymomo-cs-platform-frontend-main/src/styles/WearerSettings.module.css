@@ -1,0 +1,21 @@
+.buttonContainer {
+    position: absolute;
+    top: 25px;
+    right: 80px;
+  }
+  
+  .editButton {
+    @apply bg-purple-custom1;
+    border: none;
+    border-radius: 20%; /* Makes the background rounded */
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #ffffff; /* White icon color */
+    padding: 8px; /* Adds some padding for the rounded effect */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cardContainer {
+    position: relative;
+  }

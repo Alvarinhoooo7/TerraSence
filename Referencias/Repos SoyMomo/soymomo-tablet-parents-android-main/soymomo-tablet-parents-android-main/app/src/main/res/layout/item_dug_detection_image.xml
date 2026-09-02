@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/detection_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="4dp"
+    android:layout_marginVertical="@dimen/dug_card_spacing"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="@dimen/dug_card_corner_radius"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/dug_card_stroke"
+    app:strokeWidth="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/dug_card_padding">
+
+        <!-- Row 1: Category icon + label + timestamp -->
+        <ImageView
+            android:id="@+id/category_icon"
+            android:layout_width="@dimen/dug_card_category_icon_size"
+            android:layout_height="@dimen/dug_card_category_icon_size"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_dug_detection_images"
+            app:layout_constraintBottom_toBottomOf="@id/category_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/category_label" />
+
+        <TextView
+            android:id="@+id/category_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:fontFamily="@font/poppins"
+            android:text="@string/dug_category_images"
+            android:textColor="@color/dug_text_metadata"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toStartOf="@id/timestamp"
+            app:layout_constraintStart_toEndOf="@id/category_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Images" />
+
+        <TextView
+            android:id="@+id/timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins"
+            android:textColor="@color/dug_text_metadata"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@id/category_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/category_label"
+            tools:text="2:15 PM" />
+
+        <!-- Row 2: App icon + app name / group count -->
+        <ImageView
+            android:id="@+id/app_icon"
+            android:layout_width="@dimen/dug_card_app_icon_size"
+            android:layout_height="@dimen/dug_card_app_icon_size"
+            android:layout_marginTop="12dp"
+            android:contentDescription="@null"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/category_label"
+            tools:src="@drawable/ic_dug_detection_images" />
+
+        <TextView
+            android:id="@+id/app_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="4dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/poppins_semibold"
+            android:maxLines="1"
+            android:textColor="@color/dug_text_primary"
+            android:textSize="15sp"
+            app:layout_constraintBottom_toTopOf="@id/group_count"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/app_icon"
+            app:layout_constraintTop_toTopOf="@id/app_icon"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="Gallery" />
+
+        <TextView
+            android:id="@+id/group_count"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="4dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/poppins"
+            android:maxLines="1"
+            android:textColor="@color/dug_text_secondary"
+            android:textSize="13sp"
+            app:layout_constraintBottom_toBottomOf="@id/app_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/app_icon"
+            app:layout_constraintTop_toBottomOf="@id/app_name"
+            tools:text="3 images detected" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

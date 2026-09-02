@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".myfriends.MyFriendsActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/background_sim_step_card_title">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:theme="@style/ToolbarTheme" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ViewSwitcher
+        android:id="@+id/my_friends_view_switcher"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" >
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/friends_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/pending_friend_requests_label"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="@string/my_friends_pending_friends_label"
+                android:paddingTop="8dp"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <ViewSwitcher
+                android:id="@+id/pending_friend_requests_switcher"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/pending_friend_requests_label">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/pending_friend_requests"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/no_pending_friend_request_card_view"
+                    android:padding="8dp"
+                    android:layout_margin="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/my_friends_pending_requests_empty_list"
+                        android:textStyle="bold"
+                        android:layout_margin="10dp"
+                        android:layout_gravity="center"/>
+                </com.google.android.material.card.MaterialCardView>
+            </ViewSwitcher>
+
+            <TextView
+                android:paddingTop="8dp"
+                android:id="@+id/accepted_friend_requests_label"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="@string/my_friends_accepted_friends_label"
+                app:layout_constraintTop_toBottomOf="@+id/pending_friend_requests_switcher"/>
+
+            <ViewSwitcher
+                android:id="@+id/accepted_friend_requests_switcher"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/accepted_friend_requests_label">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/accepted_friend_requests"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/no_accepted_friend_requests_card_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:layout_margin="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/my_friends_accepted_requests_empty_list"
+                        android:textStyle="bold"
+                        android:layout_margin="10dp"
+                        android:layout_gravity="center"/>
+                </com.google.android.material.card.MaterialCardView>
+            </ViewSwitcher>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/no_friends_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/no_contacts_image"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_margin="40dp"
+                android:background="@color/phonebook_no_contacts_image_background"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_myfriends"
+                app:shapeAppearanceOverlay="@style/circleImageView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <TextView
+                android:id="@+id/no_contacts_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="20dp"
+                android:layout_marginHorizontal="30dp"
+                app:layout_constraintTop_toBottomOf="@+id/no_contacts_image"
+                android:textSize="18sp"
+                android:textAlignment="center"
+                android:text="@string/my_friends_no_friends_text"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/how_to_add_friends_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="24dp"
+                android:text="@string/my_friends_how_to_add_friends"
+                style="@style/PurpleButton"
+                app:layout_constraintTop_toBottomOf="@id/no_contacts_text"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ViewSwitcher>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

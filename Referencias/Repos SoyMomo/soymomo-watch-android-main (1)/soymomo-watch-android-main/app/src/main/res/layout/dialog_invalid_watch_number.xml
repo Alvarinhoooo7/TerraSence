@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:elevation="@dimen/cardview_default_elevation"
+    tools:context=".main.ui.dialog.InvalidWatchNumberDialogFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Background Image -->
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="@color/colorPrimary"
+                android:scaleType="centerCrop"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_background_dialog_invalid_number" />
+
+            <!-- Contact Avatar -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/contact_image"
+                style="@style/contactImageView"
+                android:layout_width="125dp"
+                android:layout_height="125dp"
+                android:layout_margin="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_default_avatar" />
+
+            <!-- Alert Icon -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/image_alert"
+                style="@style/Widget.Material3.FloatingActionButton.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                app:backgroundTint="@color/phonebook_dialog_primary"
+                app:layout_constraintCircle="@+id/contact_image"
+                app:layout_constraintCircleAngle="115"
+                app:layout_constraintCircleRadius="55dp"
+                app:srcCompat="@drawable/ic_alert"
+                app:tint="@android:color/white" />
+
+            <!-- Warning Message -->
+            <TextView
+                android:id="@+id/type_watch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/momoGreyLight"
+                android:textSize="16sp"
+                android:layout_marginTop="@dimen/margin_top_input_user_profile"
+                android:layout_marginHorizontal="@dimen/number_null_horizontal_margin"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/contact_image"
+                tools:text="@string/the_soy_momo_not_have_number"/>
+
+            <!-- Call to Action -->
+            <TextView
+                android:id="@+id/add_it_here"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/add_it_here"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:layout_marginTop="@dimen/margin_top_input_user_profile"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/type_watch" />
+
+            <!-- Phone Input Section -->
+            <com.hbb20.CountryCodePicker
+                android:id="@+id/ccp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                app:ccp_autoDetectCountry="true"
+                app:ccp_autoDetectLanguage="true"
+                app:ccp_countryAutoDetectionPref="SIM_NETWORK_LOCALE"
+                app:ccp_defaultLanguage="SPANISH"
+                app:ccp_defaultNameCode="CL"
+                app:ccp_showNameCode="false"
+                app:layout_constraintBottom_toBottomOf="@+id/contact_phone_input_layout"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/contact_phone_input_layout" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/contact_phone_input_layout"
+                style="@style/Widget.App.TextInputLayout.Dialog.Invalid.Number"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="24dp"
+                android:hint="@string/phone"
+                app:layout_constraintBottom_toTopOf="@+id/separator_one"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/ccp"
+                app:layout_constraintTop_toBottomOf="@+id/add_it_here">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/contact_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone"
+                    android:maxLines="1"
+                    tools:text="91234567" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Separators and Buttons -->
+            <View
+                android:id="@+id/separator_one"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/dialogSeparator"
+                app:layout_columnSpan="2"
+                android:layout_marginTop="@dimen/number_null_vertical_Top"
+                app:layout_constraintTop_toBottomOf="@+id/contact_phone_input_layout"
+                app:layout_constraintBottom_toTopOf="@+id/button_add" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_add"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/main_add"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/separator_one"
+                style="@style/WhiteOutlinedButtonTransparent"/>
+
+            <View
+                android:id="@+id/separator_two"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/dialogSeparator"
+                app:layout_columnSpan="2"
+                app:layout_constraintTop_toBottomOf="@+id/button_add"
+                app:layout_constraintBottom_toTopOf="@+id/button_later" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_later"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/later_add_watch_number"
+                android:textColor="@android:color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/separator_two"
+                style="@style/WhiteOutlinedButtonTransparent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

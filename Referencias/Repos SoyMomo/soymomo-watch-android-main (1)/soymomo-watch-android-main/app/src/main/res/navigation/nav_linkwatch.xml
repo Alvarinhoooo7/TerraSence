@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_linkwatch"
+    app:startDestination="@id/mainViewFragment">
+
+    <fragment
+        android:id="@+id/mainViewFragment"
+        android:name="com.sosmartlabs.momo.linkwatch.ui.fragments.MainViewFragment"
+        tools:layout="@layout/linkwatch_fragment_mainview"
+        android:label="MainViewFragment" >
+        <action
+            android:id="@+id/action_mainViewFragment_to_linkStepFragment"
+            app:destination="@id/linkStepFragment" />
+        <action
+            android:id="@+id/action_mainViewFragment_to_adminDataFragment"
+            app:destination="@id/adminDataFragment" />
+        <action
+            android:id="@+id/action_mainViewFragment_to_childDataFragment"
+            app:destination="@id/childDataFragment" />
+        <action
+            android:id="@+id/action_mainViewFragment_to_addSIMFragment"
+            app:destination="@id/addSIMFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/linkStepFragment"
+        android:name="com.sosmartlabs.momo.linkwatch.ui.fragments.LinkStepFragment"
+        tools:layout="@layout/linkwatch_fragment_link_step"
+        android:label="LinkStepFragment" >
+        <action
+            android:id="@+id/action_linkStepFragment_to_linkStepAskAdminFragment"
+            app:destination="@id/linkStepAskAdminFragment" />
+        <action
+            android:id="@+id/action_linkStepFragment_to_mainViewFragment"
+            app:destination="@id/mainViewFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/adminDataFragment"
+        android:name="com.sosmartlabs.momo.linkwatch.ui.fragments.AdminDataFragment"
+        tools:layout="@layout/linkwatch_fragment_admin_data"
+        android:label="AdminDataFragment" >
+        <action
+            android:id="@+id/action_adminDataFragment_to_mainViewFragment"
+            app:destination="@id/mainViewFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/childDataFragment"
+        android:name="com.sosmartlabs.momo.linkwatch.ui.fragments.ChildDataFragment"
+        tools:layout="@layout/linkwatch_fragment_child_data"
+        android:label="ChildDataFragment" >
+        <action
+            android:id="@+id/action_childDataFragment_to_mainViewFragment"
+            app:destination="@id/mainViewFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/linkStepAskAdminFragment"
+        android:name="com.sosmartlabs.momo.linkwatch.ui.fragments.LinkStepAskAdminFragment"
+        tools:layout="@layout/linkwatch_fragment_link_step_ask_admin"
+        android:label="LinkStepAskAdminFragment" >
+        <action
+            android:id="@+id/action_linkStepAskAdminFragment_to_mainViewFragment"
+            app:destination="@id/mainViewFragment" />
+        <action
+            android:id="@+id/action_linkStepAskAdminFragment_to_linkStepFragment"
+            app:destination="@id/linkStepFragment" />
+    </fragment>
+
+    <action
+        android:id="@+id/action_newSubscriptionPaymentSuccess_to_mainViewFragment"
+        app:destination="@id/mainViewFragment" />
+    <fragment
+        android:id="@+id/addSIMFragment"
+        android:name="com.sosmartlabs.momo.linkwatch.ui.fragments.AddSIMFragment"
+        android:label="fragment_add_s_i_m"
+        tools:layout="@layout/fragment_add_s_i_m" >
+        <action
+            android:id="@+id/action_addSIMFragment_to_nav_add_sim"
+            app:destination="@id/nav_add_sim" />
+        <action
+            android:id="@+id/action_addSIMFragment_to_configureSIMFragment"
+            app:destination="@id/configureSIMFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/otherCompaniesFragment"
+        android:name="com.sosmartlabs.momo.linkwatch.ui.fragments.OtherCompaniesFragment"
+        android:label="fragment_other_companies"
+        tools:layout="@layout/fragment_other_companies" >
+        <action
+            android:id="@+id/action_otherCompaniesFragment_to_mainViewFragment"
+            app:destination="@id/mainViewFragment" />
+        <action
+            android:id="@+id/action_otherCompaniesFragment_to_simExtraStepsFragment"
+            app:destination="@id/simExtraStepsFragment" />
+    </fragment>
+    <include app:graph="@navigation/nav_add_sim" />
+    <fragment
+        android:id="@+id/configureSIMFragment"
+        android:name="com.sosmartlabs.momo.linkwatch.ui.fragments.ConfigureSIMFragment"
+        android:label="fragment_configure_s_i_m"
+        tools:layout="@layout/fragment_configure_s_i_m" >
+        <action
+            android:id="@+id/action_configureSIMFragment_to_otherCompaniesFragment"
+            app:destination="@id/otherCompaniesFragment" />
+        <action
+            android:id="@+id/action_configureSIMFragment_to_mainViewFragment"
+            app:destination="@id/mainViewFragment" />
+    </fragment>
+    <action android:id="@+id/action_global_configureSIMFragment" app:destination="@id/configureSIMFragment" />
+    <fragment
+        android:id="@+id/simExtraStepsFragment"
+        android:name="com.sosmartlabs.momo.linkwatch.ui.fragments.SimExtraStepsFragment"
+        android:label="fragment_sim_extra_steps"
+        tools:layout="@layout/fragment_sim_extra_steps" >
+        <action
+            android:id="@+id/action_simExtraStepsFragment_to_mainViewFragment"
+            app:destination="@id/mainViewFragment" />
+    </fragment>
+</navigation>

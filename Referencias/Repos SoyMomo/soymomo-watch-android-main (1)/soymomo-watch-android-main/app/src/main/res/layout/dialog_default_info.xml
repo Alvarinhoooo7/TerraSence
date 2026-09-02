@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardElevation="@dimen/card_elevation">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/dialog_icon"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_marginHorizontal="@dimen/horizontal_margin"
+            android:layout_marginTop="@dimen/vertical_margin"
+            app:lottie_autoPlay="true"
+            app:lottie_rawRes="@raw/hey_momo_understood"
+            app:lottie_loop="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/dialog_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+            android:layout_marginVertical="@dimen/vertical_margin"
+            android:fontFamily="@font/poppins"
+            android:textColor="@color/background_onboarding"
+            android:textSize="18sp"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dialog_icon"
+            android:text="@string/dialog_imei_request_title" />
+
+        <TextView
+            android:id="@+id/dialog_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/vertical_margin_large"
+            android:layout_marginVertical="@dimen/vertical_margin_small"
+            android:fontFamily="@font/poppins"
+            android:textAlignment="center"
+            android:textColor="@color/background_onboarding"
+            android:textSize="12sp"
+            android:maxLines="3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dialog_title"
+            android:text="@string/dialog_imei_request_description" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dialog_button_close"
+            android:layout_width="256dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_margin_extra_large"
+            android:layout_marginVertical="@dimen/vertical_margin"
+            android:backgroundTint="@color/button_onboarding_enabled"
+            android:elevation="@dimen/card_elevation"
+            android:fontFamily="@font/poppins"
+            android:text="@string/button_accept"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            app:cornerRadius="@dimen/first_momo_button_border"
+            app:layout_constraintTop_toBottomOf="@id/dialog_description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

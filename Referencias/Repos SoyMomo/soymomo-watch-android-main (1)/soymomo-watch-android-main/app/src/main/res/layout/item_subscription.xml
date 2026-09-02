@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/plan_card"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:background="@drawable/ic_plan_card_bg_1">
+
+    <ImageView
+        android:id="@+id/soymomo_logo_icon"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:paddingTop="@dimen/vertical_margin_extra_large"
+        android:src="@drawable/ic_soymomo_logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </ImageView>
+
+    <TextView
+        android:id="@+id/plan_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vertical_margin_large"
+        android:fontFamily="@font/poppins"
+        android:paddingHorizontal="@dimen/vertical_margin_extra_large"
+        android:textColor="@color/white"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:textAlignment="center"
+        android:letterSpacing="0.03"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/soymomo_logo_icon"
+        tools:text="SmartPlan">
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/plan_currency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        tools:text="$"
+        app:layout_constraintEnd_toStartOf="@id/plan_price"
+        app:layout_constraintTop_toTopOf="@id/plan_price">
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/plan_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vertical_margin_large"
+        android:fontFamily="@font/poppins"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.42"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/plan_title"
+        tools:text="15.490">
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/plan_payment_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:text="@string/plan_payment_time"
+        app:layout_constraintStart_toEndOf="@id/plan_price"
+        app:layout_constraintTop_toTopOf="@id/plan_price">
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/plan_description"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/vertical_margin_xx_large"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:fontFamily="@font/poppins"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="9sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/plan_title"
+        app:layout_constraintStart_toStartOf="@id/plan_title"
+        app:layout_constraintTop_toBottomOf="@+id/plan_price"
+        app:layout_constraintVertical_bias="0.100000024"
+        tools:text="Nationwide 4G LTE Data \nUnlimited Talk and Text\nMonthly Subscription\n10 GB data">
+
+    </TextView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

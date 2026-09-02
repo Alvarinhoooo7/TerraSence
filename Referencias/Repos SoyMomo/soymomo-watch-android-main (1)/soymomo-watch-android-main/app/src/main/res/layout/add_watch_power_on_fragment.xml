@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/background_onboarding"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".addfirstwatch.ui.fragments.PowerOnDeviceFragment">
+
+    <ScrollView
+        android:id="@+id/sv_power_on_watch"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:layout_marginTop="@dimen/vertical_margin"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/button_next"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Watch Power-On Image -->
+            <ImageView
+                android:id="@+id/watch_power_image"
+                android:layout_width="@dimen/onboarding_animation_width_small"
+                android:layout_height="@dimen/onboarding_animation_height_small"
+                android:src="@drawable/ic_onboarding_power_on"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:ignore="ContentDescription" />
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/watch_power_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add_watch_power_on_watch_title"
+                android:textSize="@dimen/add_watch_title_text_size"
+                android:fontFamily="@font/poppins"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:layout_marginVertical="@dimen/vertical_margin"
+                app:layout_constraintTop_toBottomOf="@id/watch_power_image"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Description -->
+            <TextView
+                android:id="@+id/watch_power_description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/add_watch_power_on_watch_description"
+                android:textSize="@dimen/add_watch_description_text_size"
+                android:fontFamily="@font/poppins"
+                android:textColor="@color/white"
+                android:textAlignment="center"
+                android:layout_marginHorizontal="@dimen/horizontal_margin_extra_large"
+                android:layout_marginVertical="@dimen/vertical_margin_medium"
+                app:layout_constraintTop_toBottomOf="@id/watch_power_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/watch_power_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add_watch_power_on_watch_checkbox"
+                android:textColor="@color/white"
+                android:buttonTint="@color/check_power_on_color"
+                android:fontFamily="@font/poppins"
+                app:layout_constraintTop_toBottomOf="@id/watch_power_description"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="@dimen/vertical_margin_large" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <!-- Action Button (Next) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_next"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/first_momo_button_height"
+        android:text="@string/add_watch_power_on_watch_button_text"
+        android:textSize="@dimen/add_watch_button_text_size"
+        android:fontFamily="@font/poppins"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/button_next_tint"
+        android:elevation="@dimen/card_elevation"
+        app:cornerRadius="@dimen/first_momo_button_border"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+        android:layout_marginVertical="@dimen/vertical_margin"
+        app:layout_constraintTop_toBottomOf="@id/sv_power_on_watch"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:enabled="false" />
+
+    <!-- Optional Progress Indicator -->
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_indicator"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/colorPrimaryDark"
+        app:indicatorColor="@color/white"
+        app:trackColor="@color/colorPrimaryDark"
+        app:layout_constraintTop_toTopOf="@id/button_next"
+        app:layout_constraintBottom_toBottomOf="@id/button_next"
+        app:layout_constraintStart_toStartOf="@id/button_next"
+        app:layout_constraintEnd_toEndOf="@id/button_next"
+        android:visibility="invisible"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/link_watch_background"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:elevation="0dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/link_watch_background"
+            android:theme="@style/ToolbarTheme"
+            app:layout_collapseMode="pin"
+            app:elevation="0dp">
+
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/admin_profile_pic"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_default="percent"
+        app:layout_constraintHeight_percent="0.2"
+        android:src="@drawable/image_admin_linkwatch"
+        style="@style/contactImageView.noBorder"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/app_bar"
+        app:layout_constraintBottom_toTopOf="@id/admin_data_cardview"
+        android:layout_marginVertical="@dimen/vertical_margin">
+
+    </com.google.android.material.imageview.ShapeableImageView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/linkwatch_green_button"
+        app:tint="@color/white"
+        android:foregroundTint="@color/white"
+        app:fab_size="mini"
+        android:src="@drawable/ic_add_white_48dp"
+        android:layout_gravity="top|start"
+        app:layout_constraintTop_toTopOf="@id/admin_profile_pic"
+        app:layout_constraintStart_toStartOf="@id/admin_profile_pic"
+        android:contentDescription="@string/none"
+        android:minWidth="48dp">
+
+    </com.google.android.material.floatingactionbutton.FloatingActionButton>
+
+
+    <include
+        android:id="@+id/admin_data_cardview"
+        layout="@layout/linkwatch_cardview_admin_data"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/admin_profile_pic">
+
+    </include>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

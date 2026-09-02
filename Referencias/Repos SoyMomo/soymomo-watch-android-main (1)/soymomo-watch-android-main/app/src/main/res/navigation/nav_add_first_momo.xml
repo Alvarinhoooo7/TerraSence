@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_add_first_momo"
+    app:startDestination="@id/enterImeiFragment">
+
+    <fragment
+        android:id="@+id/enterImeiFragment"
+        android:name="com.sosmartlabs.momo.addfirstwatch.ui.fragments.EnterImeiFragment"
+        android:label="EnterImeiFragment"
+        tools:layout="@layout/add_watch_enter_imei_fragment" >
+        <action
+            android:id="@+id/action_enterImeiFragment_to_needToolsFragment"
+            app:destination="@id/needToolsFragment" />
+        <action
+            android:id="@+id/action_enterImeiFragment_to_imeiHasAdminFragment"
+            app:destination="@id/imeiHasAdminFragment" />
+        <action
+            android:id="@+id/action_enterImeiFragment_to_firstContactFragment"
+            app:destination="@id/firstContactFragment" />
+        <action
+            android:id="@+id/action_enterImeiFragment_to_alreadyLinkedFragment"
+            app:destination="@id/alreadyLinkedFragment" />
+        <action
+            android:id="@+id/action_enterImeiFragment_to_powerOnDeviceFragment"
+            app:destination="@id/powerOnDeviceFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/imeiHasAdminFragment"
+        android:name="com.sosmartlabs.momo.addfirstwatch.ui.fragments.HasAdminFragment"
+        android:label="ImeiHasAdminFragment"
+        tools:layout="@layout/add_watch_imei_has_admin_fragment" />
+
+    <fragment
+        android:id="@+id/needToolsFragment"
+        android:name="com.sosmartlabs.momo.addfirstwatch.ui.fragments.NeedToolsFragment"
+        android:label="NeedToolsFragment"
+        tools:layout="@layout/add_watch_need_tools_fragment" >
+        <action
+            android:id="@+id/action_needToolsFragment_to_firstContactFragment"
+            app:destination="@id/firstContactFragment" />
+        <action
+            android:id="@+id/action_needToolsFragment_to_powerOnDeviceFragment"
+            app:destination="@id/powerOnDeviceFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/firstContactFragment"
+        android:name="com.sosmartlabs.momo.addfirstwatch.ui.fragments.FirstContactFragment"
+        android:label="FirstContactFragment"
+        tools:layout="@layout/add_watch_first_contact_fragment">
+        <action
+            android:id="@+id/action_firstContactFragment_to_configureSimFragment"
+            app:destination="@id/configureSimFragment" />
+        <action
+            android:id="@+id/action_firstContactFragment_to_hasPreInsertedSimFragment"
+            app:destination="@id/hasPreInsertedSimFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/configureSimFragment"
+        android:name="com.sosmartlabs.momo.addfirstwatch.ui.fragments.ConfigureSimFragment"
+        android:label="ConfigureSimFragment"
+        tools:layout="@layout/add_watch_configure_sim_card_fragment">
+        <action
+            android:id="@+id/action_configureSimFragment_to_chooseMobileNetworkOperatorFragment"
+            app:destination="@id/chooseMobileNetworkOperatorFragment" />
+        <action
+            android:id="@+id/action_configureSimFragment_to_newSubscriptionLinkSimFragment"
+            app:destination="@id/newSubscriptionLinkSimFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/configureOtherSimFragment"
+        android:name="com.sosmartlabs.momo.addfirstwatch.ui.fragments.ConfigureOtherSimFragment"
+        android:label="ConfigureOtherSimFragment"
+        tools:layout="@layout/add_watch_configure_other_sim_fragment">
+    <action
+            android:id="@+id/action_configureOtherSimFragment_to_insertSimFragment"
+            app:destination="@id/insertSimFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/insertSimFragment"
+        android:name="com.sosmartlabs.momo.addfirstwatch.ui.fragments.InsertSimFragment"
+        android:label="InsertSimFragment"
+        tools:layout="@layout/add_watch_insert_sim_fragment">
+    <action
+            android:id="@+id/action_insertSimFragment_to_kidProfileFragment"
+            app:destination="@id/kidProfileFragment" />
+        <action
+            android:id="@+id/action_insertSimFragment_to_simExtraStepFragment"
+            app:destination="@id/simExtraStepFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/kidProfileFragment"
+        android:name="com.sosmartlabs.momo.addfirstwatch.ui.fragments.KidProfileFragment"
+        android:label="KidProfileFragment"
+        tools:layout="@layout/add_watch_kid_profile_fragment">
+        <action
+            android:id="@+id/action_kidProfileFragment_to_FinishFragment"
+            app:destination="@id/FinishFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/FinishFragment"
+        android:name="com.sosmartlabs.momo.addfirstwatch.ui.fragments.FinishFragment"
+        android:label="FinishFragment"
+        tools:layout="@layout/add_watch_finish_fragment"/>
+
+    <fragment
+        android:id="@+id/chooseMobileNetworkOperatorFragment"
+        android:name="com.sosmartlabs.momo.addfirstwatch.ui.fragments.ChooseMobileNetworkOperatorFragment"
+        android:label="add_watch_choose_mobile_network_operator_fragment"
+        tools:layout="@layout/add_watch_choose_mobile_network_operator_fragment" >
+        <action
+            android:id="@+id/action_chooseMobileNetworkOperatorFragment_to_configureOtherSimFragment"
+            app:destination="@id/configureOtherSimFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/simExtraStepFragment"
+        android:name="com.sosmartlabs.momo.addfirstwatch.ui.fragments.SimExtraStepFragment"
+        android:label="add_watch_sim_extra_step_fragment"
+        tools:layout="@layout/add_watch_sim_extra_step_fragment" >
+        <action
+            android:id="@+id/action_simExtraStepFragment_to_kidProfileFragment"
+            app:destination="@id/kidProfileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/newSubscriptionLinkSimFragment"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.newsubscription.NewSubscriptionLinkSimFragment"
+        android:label="fragment_new_subscription_link_sim"
+        tools:layout="@layout/subscription_new_link_sim_fragment" >
+        <action
+            android:id="@+id/action_add_momo_newSubscriptionLinkSimFragment_to_newSubscriptionChoosePlanFragment"
+            app:destination="@id/newSubscriptionChoosePlanFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/newSubscriptionChoosePlanFragment"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.newsubscription.NewSubscriptionChoosePlanFragment"
+        android:label="fragment_new_subscription_choose_plan"
+        tools:layout="@layout/subscription_new_choose_plan_fragment" >
+        <action
+            android:id="@+id/action_add_momo_newSubscriptionChoosePlanFragment_to_newSubscriptionForm"
+            app:destination="@id/newSubscriptionForm" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/newSubscriptionForm"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.forms.SubscriptionFormFragment"
+        android:label="fragment_new_subscription_form"
+        tools:layout="@layout/subscription_new_form_fragment" >
+        <action
+            android:id="@+id/action_add_momo_newSubscriptionForm_to_subscriptionPaymentSkipFragment"
+            app:destination="@id/subscriptionPaymentSkipFragment" />
+        <action
+            android:id="@+id/action_add_momo_newSubscriptionForm_to_stripeWebViewFragment"
+            app:destination="@id/stripeWebViewFragment" />
+        <action
+            android:id="@+id/action_add_momo_newSubscriptionForm_to_apioUserCardsFragment"
+            app:destination="@id/apioUserCardsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/newSubscriptionPaymentSuccess"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.payment.PaymentSuccessFragment"
+        android:label="fragment_new_subscription_payment_success"
+        tools:layout="@layout/subscription_payment_success_fragment" >
+        <action
+            android:id="@+id/action_newSubscriptionPaymentSuccess_to_insertSimFragment"
+            app:destination="@id/insertSimFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/newSubscriptionPaymentError"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.payment.PaymentErrorFragment"
+        android:label="fragment_new_subscription_payment_error"
+        tools:layout="@layout/subscription_payment_error_fragment" >
+        <action
+            android:id="@+id/action_add_momo_newSubscriptionPaymentError_to_newSubscriptionPaymentSuccess"
+            app:destination="@id/newSubscriptionPaymentSuccess" />
+        <action
+            android:id="@+id/action_add_momo_newSubscriptionPaymentError_to_newSubscriptionChoosePlanFragment"
+            app:destination="@id/newSubscriptionChoosePlanFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/subscriptionPaymentSkipFragment"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.payment.PaymentSkipFragment"
+        android:label="subscription_payment_skip_fragment"
+        tools:layout="@layout/subscription_payment_skip_fragment" >
+
+        <action
+            android:id="@+id/action_add_momo_subscriptionPaymentSkipFragment_to_newSubscriptionPaymentSuccess"
+            app:destination="@id/newSubscriptionPaymentSuccess" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/apioWebViewFragment"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.payment.ApioWebViewFragment"
+        android:label="subscription_apio_webview_fragment"
+        tools:layout="@layout/subscription_apio_webview_fragment" >
+        <action
+            android:id="@+id/action_add_momo_apioWebViewFragment_to_newSubscriptionPaymentError"
+            app:destination="@id/newSubscriptionPaymentError" />
+        <action
+            android:id="@+id/action_add_momo_apioWebViewFragment_to_newSubscriptionPaymentSuccess"
+            app:destination="@id/newSubscriptionPaymentSuccess" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/stripeWebViewFragment"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.payment.StripeWebViewFragment"
+        android:label="subscription_stripe_webview_fragment"
+        tools:layout="@layout/subscription_stripe_webview_fragment" >
+        <action
+            android:id="@+id/action_add_momo_stripeWebViewFragment_to_newSubscriptionPaymentError"
+            app:destination="@id/newSubscriptionPaymentError" />
+        <action
+            android:id="@+id/action_add_momo_stripeWebViewFragment_to_newSubscriptionPaymentSuccess"
+            app:destination="@id/newSubscriptionPaymentSuccess" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/apioUserCardsFragment"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.payment.ApioUserCardsFragment"
+        android:label="subscription_apio_user_cards_fragment"
+        tools:layout="@layout/subscription_apio_user_cards_fragment" >
+        <action
+            android:id="@+id/action_add_momo_apioUserCardsFragment_to_apioWebViewFragment"
+            app:destination="@id/apioWebViewFragment" />
+        <action
+            android:id="@+id/action_add_momo_apioUserCardsFragment_to_apioConfirmSubscriptionFragment"
+            app:destination="@id/apioConfirmSubscriptionFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/apioConfirmSubscriptionFragment"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.payment.ApioConfirmSubscriptionFragment"
+        android:label="subscription_apio_confirm_subscription_fragment"
+        tools:layout="@layout/subscription_apio_confirm_subscription_fragment" >
+        <action
+            android:id="@+id/action_add_momo_apioConfirmSubscriptionFragment_to_newSubscriptionPaymentSuccess"
+            app:destination="@id/newSubscriptionPaymentSuccess" />
+        <action
+            android:id="@+id/TEST_action_add_momo_apioConfirmSubscriptionFragment_to_newSubscriptionPaymentError"
+            app:destination="@id/newSubscriptionPaymentError" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/hasPreInsertedSimFragment"
+        android:name="com.sosmartlabs.momo.addfirstwatch.ui.fragments.HasPreInsertedSimFragment"
+        android:label="add_watch_has_pre_inserted_sim"
+        tools:layout="@layout/add_watch_has_pre_inserted_sim" >
+        <action
+            android:id="@+id/action_hasPreInsertedSimFragment_to_newSubscriptionChoosePlanFragment"
+            app:destination="@id/newSubscriptionChoosePlanFragment" />
+        <action
+            android:id="@+id/action_hasPreInsertedSimFragment_to_configureSimFragment"
+            app:destination="@id/configureSimFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/alreadyLinkedFragment"
+        android:name="com.sosmartlabs.momo.addfirstwatch.ui.fragments.AlreadyLinkedFragment"
+        android:label="AlreadyLinkedFragment"
+        tools:layout="@layout/add_watch_already_linked_fragment">
+        <action
+            android:id="@+id/action_alreadyLinkedFragment_to_hasPreInsertedSimFragment"
+            app:destination="@id/hasPreInsertedSimFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/enableBluetoothFragment"
+        android:name="com.sosmartlabs.momo.addfirstwatch.ui.fragments.EnableBluetoothFragment"
+        android:label="enable_bluetooth_fragment"
+        tools:layout="@layout/add_watch_enable_bluetooth_fragment" >
+        <action
+            android:id="@+id/action_enableBluetoothFragment_to_firstContactFragment"
+            app:destination="@id/firstContactFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/powerOnDeviceFragment"
+        android:name="com.sosmartlabs.momo.addfirstwatch.ui.fragments.PowerOnDeviceFragment"
+        android:label="power_on_fragment"
+        tools:layout="@layout/add_watch_power_on_fragment" >
+        <action
+            android:id="@+id/action_powerOnDeviceFragment_to_enableBluetoothFragment"
+            app:destination="@id/enableBluetoothFragment" />
+    </fragment>
+
+</navigation>

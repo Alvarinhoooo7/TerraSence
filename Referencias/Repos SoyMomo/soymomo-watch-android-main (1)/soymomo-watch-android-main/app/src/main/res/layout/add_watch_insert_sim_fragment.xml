@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_onboarding"
+    tools:context=".addfirstwatch.ui.fragments.InsertSimFragment">
+
+    <!-- Animation View -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/insert_sim_animation"
+        android:layout_width="@dimen/onboarding_animation_width_small"
+        android:layout_height="@dimen/onboarding_animation_height_small"
+        android:layout_marginTop="@dimen/vertical_margin"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:src="@drawable/animation_placeholder_onboarding" />
+
+    <!-- Title Text -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/insert_sim_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+        android:layout_marginVertical="@dimen/vertical_margin"
+        android:text="@string/add_watch_insert_sim_title"
+        android:textAlignment="center"
+        android:textSize="@dimen/add_watch_title_text_size"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:fontFamily="@font/poppins"
+        app:layout_constraintTop_toBottomOf="@id/insert_sim_animation"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Description Text -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/insert_sim_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_larger"
+        android:text="@string/add_watch_insert_sim_description"
+        android:textAlignment="center"
+        android:textSize="@dimen/add_watch_description_text_size"
+        android:textColor="@color/white"
+        android:fontFamily="@font/poppins"
+        app:layout_constraintTop_toBottomOf="@id/insert_sim_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Card View with ViewFlipper -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/insert_sim_first_interaction_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/vertical_margin"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+        app:cardBackgroundColor="@color/white"
+        style="@style/SimContentCardView"
+        app:layout_constraintBottom_toTopOf="@id/button_next"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ViewFlipper
+            android:id="@+id/insert_sim_first_interaction_card_flipper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Waiting Layout -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/insert_sim_first_interaction_card_waiting_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/insert_sim_first_interaction_card_waiting_progress"
+                    android:layout_width="@dimen/watch_card_profile_picture_size"
+                    android:layout_height="@dimen/watch_card_profile_picture_size"
+                    android:layout_marginStart="@dimen/horizontal_margin"
+                    android:layout_marginVertical="@dimen/vertical_margin"
+                    android:indeterminate="true"
+                    android:indeterminateTint="@color/colorPrimaryMedium"
+                    app:indicatorColor="@color/colorPrimaryDark"
+                    app:trackColor="@color/colorPrimaryMedium"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/insert_sim_first_interaction_card_waiting_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin"
+                    android:text="@string/add_watch_insert_sim_first_interaction_waiting_title"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorPrimary"
+                    style="@style/SimContentCardViewContent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/insert_sim_first_interaction_card_waiting_progress"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/insert_sim_first_interaction_card_waiting_message"
+                    style="@style/SimContentCardViewContent"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/vertical_margin"
+                    android:text="@string/add_watch_insert_sim_first_interaction_waiting_description"
+                    android:textColor="@color/colorPrimary"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/insert_sim_first_interaction_card_waiting_progress"
+                    app:layout_constraintTop_toBottomOf="@id/insert_sim_first_interaction_card_waiting_title" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Success Layout -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/insert_sim_first_interaction_card_success_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/insert_sim_first_interaction_card_success_image"
+                    android:layout_width="@dimen/watch_card_profile_picture_size"
+                    android:layout_height="@dimen/watch_card_profile_picture_size"
+                    android:layout_marginStart="@dimen/horizontal_margin"
+                    android:layout_marginVertical="@dimen/vertical_margin"
+                    style="@style/contactImageView.noBorder"
+                    app:srcCompat="@drawable/ic_soymomo_sim"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/insert_sim_first_interaction_card_success_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin"
+                    android:text="@string/add_watch_insert_sim_first_interaction_success_title"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorPrimary"
+                    style="@style/SimContentCardViewContent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/insert_sim_first_interaction_card_success_image"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/insert_sim_first_interaction_card_success_message"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/vertical_margin"
+                    android:text="@string/add_watch_insert_sim_first_interaction_success_description"
+                    android:textColor="@color/colorPrimary"
+                    style="@style/SimContentCardViewContent"
+                    app:layout_constraintTop_toBottomOf="@id/insert_sim_first_interaction_card_success_title"
+                    app:layout_constraintStart_toEndOf="@id/insert_sim_first_interaction_card_success_image"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </ViewFlipper>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Next Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_next"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/first_momo_button_height"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+        android:layout_marginVertical="@dimen/vertical_margin"
+        android:text="@string/button_next"
+        android:textSize="@dimen/add_watch_button_text_size"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/button_onboarding_enabled"
+        android:elevation="@dimen/card_elevation"
+        app:cornerRadius="@dimen/first_momo_button_border"
+        android:fontFamily="@font/poppins"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

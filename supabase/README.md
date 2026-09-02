@@ -55,13 +55,48 @@ auth.users
                 ▼
              devices ──1:N──► soil_measurements ──► push_alerts
                 │                    │
-                │                    └── geom (PostGIS, generada) + índice GiST
+                │                    ├── geom (PostGIS, generada) + índice GiST
+                │                    └──1:N──► device_status_log (histórico de batería/conexión, por trigger)
                 └──1:N──► predial_quadrants
 
  lab_validation_records   (corpus de contraste metrológico, sin dueño)
- admin_support_users      (soporte)
+ admin_support_users      (soporte — ligada a auth.users vía user_id desde 02-09-2026)
+ admin_support_invite     (código de invitación para alta de personal de soporte)
  device_join_attempts     (freno de fuerza bruta del RPC de vinculación)
 ```
+
+### 2.1. Panel de soporte (Web/backend)
+
+Añadido el 02-09-2026: consola interna para buscar un equipo por código o por
+el correo de un usuario enlazado, ver su ficha completa y administrar sus
+miembros. Detalle completo, con el hallazgo de seguridad que motivó esta
+migración, en `20260902120000_panel_soporte_backend.sql`. Resumen:
+
+- `is_support_staff()` — puerta de entrada: exige `admin_support_users.user_id
+  = auth.uid()` con `is_active`. La usan todas las funciones `admin_*`.
+- Alta de personal por autoservicio (`support_self_register`) con **código de
+  invitación** (`admin_support_invite`, hasheado con pgcrypto) como segundo
+  secreto — la URL del panel no basta sola porque `auth.users` se comparte
+  con la app y la consola de agricultores.
+- `admin_search`, `admin_get_device_detail`, `admin_set_member_authorized`,
+  `admin_set_member_role`, `admin_push_firmware_update`,
+  `admin_factory_reset_device` — nuevas.
+- **Reseteo de fábrica** (`admin_factory_reset_device`): para cuando el
+  cliente vende o regala su sonda. Desvincula a todos los miembros y borra
+  mediciones/cuadrantes/alertas de ese equipo; NO toca `device_code` (grabado
+  en la NVS del hardware) ni `firmware_version`/`hardware_version` (el
+  firmware real instalado). Exige repetir el `device_code` como confirmación.
+  De paso se corrigió `register_paired_device()`: antes rechazaba cualquier
+  equipo con `device_code` ya existente aunque no tuviera ningún miembro —
+  dejaba un equipo reseteado (o huérfano) igual de atascado que uno con
+  dueño; ya había 2 así en el remoto antes de este cambio.
+- `admin_approve_device_member`, `admin_unbind_user_device`,
+  `admin_toggle_user_status`, `get_admin_dashboard_full_data` — ya existían en
+  el esquema base **sin ninguna comprobación de quién las llamaba** y con
+  `EXECUTE` concedido a `anon`. Corregido en la misma migración.
+- El contrato TypeScript para el frontend vive en `Web/backend/adminApi.ts`
+  (funciones tipadas) y `Web/backend/types.ts` (formas de datos); no hace
+  falta leer SQL para consumirlo.
 
 ### Columnas añadidas por este proyecto
 
@@ -129,6 +164,8 @@ infinita. Es el error clásico al replicar este patrón.
 | `has_device_access(uuid)` | Membresía autorizada. Base de casi toda la RLS |
 | `link_device_creator()` | Al dar de alta un equipo, inserta la membresía del creador |
 | `join_device_by_code(text)` | Vincula a un operador por código sin exponer `devices` a búsquedas |
+| `is_support_staff()` | Puerta de entrada del panel de soporte. Base de toda la RLS/RPC `admin_*` |
+| `log_device_status_change()` | Trigger sobre `devices`: cada cambio de batería/`last_seen_at` queda en `device_status_log` |
 
 ### Por qué el Device ID lo genera la base
 

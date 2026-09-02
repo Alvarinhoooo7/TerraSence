@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_onboarding">
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/has_admin_animation"
+        android:layout_width="@dimen/onboarding_animation_width_small"
+        android:layout_height="@dimen/onboarding_animation_height_small"
+        tools:src="@drawable/animation_placeholder_onboarding"
+        android:layout_marginTop="@dimen/vertical_margin"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/has_admin_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/add_watch_title_text_size"
+        android:fontFamily="@font/poppins"
+        android:textColor="@color/white"
+        android:layout_marginVertical="@dimen/vertical_margin"
+        android:layout_marginHorizontal="@dimen/horizontal_margin"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/has_admin_animation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="@string/add_watch_imei_has_admin_title" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/has_admin_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textSize="@dimen/add_watch_description_text_size"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_extra_large"
+        android:fontFamily="@font/poppins"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/has_admin_title"
+        android:text="@string/add_watch_imei_has_admin_description" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/has_admin_current_admin_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textSize="@dimen/add_watch_description_text_size"
+        android:layout_marginTop="@dimen/vertical_margin_medium"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_extra_large"
+        android:fontFamily="@font/poppins"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/has_admin_description"
+        app:layout_constraintStart_toStartOf="@id/has_admin_masked_info_card"
+        app:layout_constraintEnd_toEndOf="@id/has_admin_masked_info_card"
+        app:layout_constraintBottom_toTopOf="@id/has_admin_masked_info_card"
+        android:text="@string/add_watch_imei_has_admin_current_admin" />
+
+    <!-- Has Admin Masked Info Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/has_admin_masked_info_card"
+        style="@style/SimContentCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+        app:cardBackgroundColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/has_admin_current_admin_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Masked Info -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/has_admin_masked_info_card_image"
+                style="@style/contactImageView.noBorder"
+                android:layout_width="@dimen/watch_card_profile_picture_size"
+                android:layout_height="@dimen/watch_card_profile_picture_size"
+                android:layout_marginStart="@dimen/horizontal_margin"
+                android:layout_marginVertical="@dimen/vertical_margin_small"
+                app:srcCompat="@drawable/ic_soymomo_sim"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="@dimen/horizontal_margin_small"
+                app:layout_constraintTop_toTopOf="@id/has_admin_masked_info_card_image"
+                app:layout_constraintStart_toEndOf="@id/has_admin_masked_info_card_image"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/has_admin_masked_info_card_image">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/has_admin_masked_info_card_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorPrimary"
+                    android:fontFamily="@font/poppins"
+                    android:textSize="12sp"
+                    tools:text="@string/add_watch_imei_has_admin_masked_info_email" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/has_admin_masked_info_card_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorPrimary"
+                    android:fontFamily="@font/poppins"
+                    android:textSize="12sp"
+                    tools:text="@string/add_watch_imei_has_admin_masked_info_name" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/has_admin_masked_info_card_phone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorPrimary"
+                    android:fontFamily="@font/poppins"
+                    android:textSize="12sp"
+                    tools:text="@string/add_watch_imei_has_admin_masked_info_phone" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_send_request"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/first_momo_button_height"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+        android:layout_marginVertical="@dimen/vertical_margin"
+        android:backgroundTint="@color/button_onboarding_enabled"
+        android:elevation="@dimen/card_elevation"
+        android:fontFamily="@font/poppins"
+        android:text="@string/add_watch_button_send_request"
+        app:cornerRadius="@dimen/first_momo_button_border"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:drawableStart="@drawable/ic_momo"
+        app:layout_constraintBottom_toTopOf="@id/button_back_menu"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_bias="0.25"
+        android:visibility="invisible" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/button_back_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+        android:layout_marginVertical="@dimen/vertical_margin_medium"
+        android:background="@drawable/first_momo_borderless_button"
+        android:fontFamily="@font/poppins"
+        android:text="@string/add_watch_button_back_menu"
+        android:textAllCaps="false"
+        android:textColor="@color/button_onboarding_enabled"
+        android:textSize="@dimen/add_watch_button_text_size"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

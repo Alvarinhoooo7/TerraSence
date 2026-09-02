@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- width = cursor thickness -->
+    <size android:width="2dp"/>
+    <!-- any colour you like -->
+    <solid android:color="@color/colorPrimary"/>
+</shape>

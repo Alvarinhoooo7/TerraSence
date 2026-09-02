@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardBackgroundColor="@color/watch_settings_background"
+    app:cardCornerRadius="40dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/watch_id_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ID: 374859382748"
+            style="@style/SettingsTitleText"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:textStyle="normal">
+
+        </TextView>
+
+        <TextView
+            android:id="@+id/phone_number_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+569 12345678"
+            app:layout_constraintTop_toBottomOf="@id/watch_id_textview"
+            app:layout_constraintStart_toStartOf="@id/watch_id_textview"
+            style="@style/SettingsDescriptionText">
+
+        </TextView>
+
+        <include
+            android:id="@+id/watch_button"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.15"
+            app:layout_constraintHeight_default="percent"
+            app:layout_constraintHeight_percent="0.4"
+            layout="@layout/settings_cardview_menu_watchinfo_watchbutton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/phone_number_textview"
+            android:layout_marginTop="8dp">
+
+        </include>
+
+        <include
+            android:id="@+id/power_button"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.15"
+            app:layout_constraintHeight_default="percent"
+            app:layout_constraintHeight_percent="0.4"
+            layout="@layout/settings_cardview_menu_watchinfo_powerbutton"
+            app:layout_constraintStart_toEndOf="@id/watch_button"
+            app:layout_constraintTop_toTopOf="@id/watch_button"
+            android:layout_marginHorizontal="12dp">
+
+        </include>
+
+        <include
+            android:id="@+id/edit_button"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.15"
+            app:layout_constraintHeight_default="percent"
+            app:layout_constraintHeight_percent="0.4"
+            layout="@layout/settings_cardview_menu_watchinfo_sharebutton"
+            app:layout_constraintStart_toEndOf="@id/power_button"
+            app:layout_constraintTop_toTopOf="@id/watch_button"
+            android:layout_marginHorizontal="12dp">
+
+        </include>
+
+        <ImageView
+            android:id="@+id/watch_id_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/watch_id_settings_menu"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+        </ImageView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

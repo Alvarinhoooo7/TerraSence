@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ads_app_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    app:cardBackgroundColor="@color/white"
+    android:layout_marginEnd="4dp"
+    android:layout_marginStart="4dp"
+    android:layout_marginBottom="4dp"
+    app:cardCornerRadius="@dimen/corner_radius"
+    app:cardElevation="@dimen/card_elevation"
+    app:strokeColor="@color/grey_400">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/vertical_margin_small"
+        android:paddingTop="@dimen/vertical_margin_small"
+        android:paddingEnd="@dimen/vertical_margin_small"
+        android:paddingBottom="@dimen/vertical_margin_small">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/detection_icon_multiple"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            app:layout_constraintStart_toStartOf="@+id/detection_icon"
+            app:layout_constraintTop_toTopOf="@+id/detection_icon"
+            android:src="@color/grey_600"
+            android:visibility="gone"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/roundedCornerImage"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/detection_icon"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_dug_smart_detection"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/roundedCornerImage"
+            android:elevation="4dp"
+            />
+
+        <TextView
+            android:id="@+id/detection_title"
+            style="@style/ParentControlAppCardTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            app:layout_constraintStart_toEndOf="@+id/detection_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/detection_description"
+            tools:text="@string/dug_detection_chrome"
+            tools:ignore="TextNoTranslation"/>
+
+        <TextView
+            android:id="@+id/detection_description"
+            style="@style/ParentControlAppCardDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="4dp"
+            app:layout_constraintBottom_toTopOf="@+id/detection_date"
+            app:layout_constraintEnd_toStartOf="@+id/app_icon"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/detection_icon"
+            app:layout_constraintTop_toBottomOf="@+id/detection_title"
+            app:layout_constraintVertical_bias="0.0"
+            tools:ignore="TextNoTranslation"
+            android:text="@string/dug_detection_detected" />
+
+        <TextView
+            android:id="@+id/detection_date"
+            style="@style/ParentControlAppCardDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/app_icon"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/detection_icon"
+            app:layout_constraintTop_toBottomOf="@+id/detection_description"
+            app:layout_constraintVertical_bias="0.0"
+            tools:ignore="TextNoTranslation"
+            tools:text="@string/dug_detection_detected_date" />
+
+        <ImageView
+            android:id="@+id/app_icon"
+            android:layout_width="40dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_dug_smart_detection"
+            android:layout_marginRight="16dp"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

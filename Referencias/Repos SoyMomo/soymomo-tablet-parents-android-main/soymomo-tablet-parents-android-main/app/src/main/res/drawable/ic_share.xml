@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material Symbols / Material Icons "ios_share" path. White-only fill so
+     the parent button can tint it via app:iconTint. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorControlNormal">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M5,20q-0.825,0 -1.412,-0.587Q3,18.825 3,18V11q0,-0.825 0.588,-1.412Q4.175,9 5,9h3v2H5v7h14v-7h-3V9h3q0.825,0 1.413,0.588Q21,10.175 21,11v7q0,0.825 -0.587,1.413Q19.825,20 19,20ZM11,15V6.85L9.4,8.45L8,7l4,-4 4,4 -1.4,1.45 -1.6,-1.6V15Z" />
+</vector>

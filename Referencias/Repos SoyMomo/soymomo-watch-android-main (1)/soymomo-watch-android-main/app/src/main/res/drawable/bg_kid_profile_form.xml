@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Define a rectangular shape with rounded top corners -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Use a solid color for the shape. The color is referenced from the colors resource file. -->
+    <solid android:color="@color/white"/>
+
+    <!-- Define the radius for the corners of the rectangle.
+         Top corners are rounded, bottom corners remain sharp.
+         It's a good practice to define dimensions in a dimensions resource file for easier maintenance and scalability. -->
+    <corners
+        android:topRightRadius="@dimen/round_card_corner_radius"
+        android:topLeftRadius="@dimen/round_card_corner_radius"
+        android:bottomRightRadius="0dp"
+        android:bottomLeftRadius="0dp"
+        />
+
+    <!-- Optionally, you can add a stroke to the shape to define a border.
+         Uncomment the following lines to enable a stroke. -->
+    <!--
+    <stroke
+        android:width="1dp"
+        android:color="@color/black" />
+    -->
+
+    <!-- If padding is needed inside the shape, define it here. -->
+    <!--
+    <padding
+        android:left="10dp"
+        android:top="10dp"
+        android:right="10dp"
+        android:bottom="10dp"
+        />
+    -->
+
+</shape>

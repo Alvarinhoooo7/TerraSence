@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="356dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/settings_card_design_white"
+        android:paddingLeft="@dimen/horizontal_margin"
+        android:paddingTop="@dimen/vertical_margin"
+        android:paddingRight="@dimen/horizontal_margin"
+        android:paddingBottom="@dimen/vertical_margin">
+
+        <TextView
+            android:id="@+id/text_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/card_use_limit_title"
+            style="@style/ParentControlVariableFragmentTitle"
+            android:textAlignment="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <ImageView
+            android:id="@+id/title_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            app:layout_constraintStart_toEndOf="@+id/text_title"
+            app:layout_constraintTop_toTopOf="@+id/text_title"
+            app:layout_constraintBottom_toBottomOf="@id/text_title"
+            android:src="@drawable/settings_use_limit_icon"
+            android:layout_marginLeft="8dp"/>
+
+        <HorizontalScrollView
+            android:id="@+id/horizontal_scrollview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_title"
+            app:layout_constraintBottom_toTopOf="@id/hours_picker">
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_monday"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/monday_initial"
+                            android:textAllCaps="false"
+                            style="@style/ParentControlButtonText"
+                            app:backgroundTint="@color/colorAccept"
+                            app:cornerRadius="@dimen/button_corner_radius"
+                            android:layout_marginHorizontal="4dp"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_tuesday"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/tuesday_initial"
+                            android:textAllCaps="false"
+                            style="@style/ParentControlButtonText"
+                            app:backgroundTint="@color/grey_400"
+                            app:cornerRadius="@dimen/button_corner_radius"
+                            android:layout_marginHorizontal="4dp"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_wednesday"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/wednesday_initial"
+                            android:textAllCaps="false"
+                            style="@style/ParentControlButtonText"
+                            app:backgroundTint="@color/grey_400"
+                            app:cornerRadius="@dimen/button_corner_radius"
+                            android:layout_marginHorizontal="4dp"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_thursday"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/thursday_initial"
+                            android:textAllCaps="false"
+                            style="@style/ParentControlButtonText"
+                            app:backgroundTint="@color/grey_400"
+                            app:cornerRadius="@dimen/button_corner_radius"
+                            android:layout_marginHorizontal="4dp"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_friday"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/friday_initial"
+                            android:textAllCaps="false"
+                            style="@style/ParentControlButtonText"
+                            app:backgroundTint="@color/grey_400"
+                            app:cornerRadius="@dimen/button_corner_radius"
+                            android:layout_marginHorizontal="4dp"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_saturday"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/saturday_initial"
+                            android:textAllCaps="false"
+                            style="@style/ParentControlButtonText"
+                            app:backgroundTint="@color/grey_400"
+                            app:cornerRadius="@dimen/button_corner_radius"
+                            android:layout_marginHorizontal="4dp"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_sunday"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/sunday_initial"
+                            android:textAllCaps="false"
+                            style="@style/ParentControlButtonText"
+                            app:backgroundTint="@color/grey_400"
+                            app:cornerRadius="@dimen/button_corner_radius"
+                            android:layout_marginHorizontal="4dp"/>
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+        </HorizontalScrollView>
+
+        <TextView
+            android:id="@+id/text_hours"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/card_use_limit_hours_quantity"
+            style="@style/ParentControlBigNumber"
+            android:textAlignment="center"
+            android:layout_marginHorizontal="32dp"
+            app:layout_constraintTop_toTopOf="@+id/hours_picker"
+            app:layout_constraintBottom_toBottomOf="@+id/hours_picker"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/hours_picker"/>
+
+        <NumberPicker
+            android:id="@+id/hours_picker"
+            android:theme="@style/AppTheme.Picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:descendantFocusability="blocksDescendants"
+            app:layout_constraintTop_toBottomOf="@+id/horizontal_scrollview"
+            app:layout_constraintEnd_toStartOf="@+id/minutes_picker"
+            app:layout_constraintStart_toEndOf="@+id/text_hours"
+            />
+
+        <NumberPicker
+            android:id="@+id/minutes_picker"
+            android:theme="@style/AppTheme.Picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:descendantFocusability="blocksDescendants"
+            app:layout_constraintTop_toBottomOf="@+id/horizontal_scrollview"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/hours_picker"
+            />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_cancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_button_delete"
+            android:textAllCaps="false"
+            style="@style/ParentControlButtonText"
+            app:backgroundTint="@color/colorCancel"
+            app:cornerRadius="@dimen/button_corner_radius"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/button_save"
+            app:layout_constraintTop_toBottomOf="@+id/hours_picker"
+            android:layout_marginHorizontal="4dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_save"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_button_save"
+            android:textAllCaps="false"
+            style="@style/ParentControlButtonText"
+            app:backgroundTint="@color/colorAccept"
+            app:cornerRadius="@dimen/button_corner_radius"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/button_cancel"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/button_cancel"
+            android:layout_marginHorizontal="4dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

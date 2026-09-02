@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parent_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            app:collapsedTitleTextAppearance="@style/CollapsingToolbarCollapsed"
+            app:contentScrim="@color/colorPrimary"
+            app:expandedTitleTextAppearance="@style/CollapsingToolbarExpanded"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                app:layout_collapseMode="parallax"
+                app:layout_scrollFlags="scroll|enterAlwaysCollapsed">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/app_bar_guide"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_begin="?attr/actionBarSize" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/user_profile_picture"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    style="@style/contactImageView"
+                    android:layout_marginTop="@dimen/vertical_margin_small"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/app_bar_guide"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:srcCompat="@drawable/default_parent_profile_pic"/>
+
+                <!-- Small white edit FAB nudged into the avatar's bottom-right
+                     corner, matching the tablet settings hero card. -->
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/user_profile_picture_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="-6dp"
+                    android:layout_marginBottom="-6dp"
+                    android:backgroundTint="@color/white"
+                    android:contentDescription="@string/edit_profile"
+                    android:foregroundTint="@color/white"
+                    android:src="@drawable/ic_edit"
+                    app:borderWidth="0dp"
+                    app:elevation="2dp"
+                    app:fabCustomSize="36dp"
+                    app:maxImageSize="18dp"
+                    app:layout_constraintBottom_toBottomOf="@id/user_profile_picture"
+                    app:layout_constraintEnd_toEndOf="@id/user_profile_picture"
+                    app:tint="@color/colorPrimary" />
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/picture_progress_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    android:indeterminateTint="@color/colorPrimaryDark"
+                    app:indicatorColor="@color/white"
+                    app:trackColor="@color/colorPrimaryDark"
+                    android:visibility="invisible"
+                    app:layout_constraintTop_toTopOf="@id/user_profile_picture"
+                    app:layout_constraintStart_toStartOf="@id/user_profile_picture"
+                    app:layout_constraintEnd_toEndOf="@id/user_profile_picture"
+                    app:layout_constraintBottom_toBottomOf="@id/user_profile_picture" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vertical_margin"
+                    android:padding="@dimen/horizontal_margin"
+                    android:background="@drawable/sim_card_form_background"
+                    android:fontFamily="@font/roboto_medium"
+                    android:textColor="@color/background_sim_step_card_title"
+                    android:textSize="19sp"
+                    android:textStyle="bold"
+                    android:textAlignment="center"
+                    android:text="@string/user_profile_edit_profile_title"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/user_profile_picture" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginTop="?attr/actionBarSize"
+                android:theme="@style/ToolbarTheme"
+                app:layout_collapseMode="pin" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nested_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:transitionGroup="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="@dimen/horizontal_margin_large"
+            app:layout_constraintTop_toBottomOf="@id/header"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@color/white">
+
+            <LinearLayout
+                android:id="@+id/form_error_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/sim_card_form_error_background"
+                android:padding="8dp"
+                android:gravity="center_vertical"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/ic_error" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/horizontal_margin"
+                    android:textColor="@color/error_red"
+                    android:text="@string/user_profile_form_error_message"/>
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/vertical_margin_smallest"
+                android:hint="@string/user_profile_label_name"
+                android:id="@+id/til_name"
+                style="@style/SimTextInputLayoutStyle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/form_error_message">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName"
+                    android:textColor="@color/background_sim_step_card_title"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_last_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/vertical_margin_smallest"
+                android:hint="@string/user_profile_label_last_name"
+                style="@style/SimTextInputLayoutStyle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/til_name">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName"
+                    android:textColor="@color/background_sim_step_card_title" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.hbb20.CountryCodePicker
+                android:id="@+id/ccp"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                app:ccp_autoDetectCountry="true"
+                app:ccp_autoDetectLanguage="true"
+                app:ccp_contentColor="@color/background_sim_step_card_title"
+                app:ccp_countryAutoDetectionPref="SIM_NETWORK_LOCALE"
+                app:ccp_defaultLanguage="SPANISH"
+                app:ccp_defaultNameCode="CL"
+                app:ccp_rememberLastSelection="true"
+                app:ccp_showNameCode="false"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/til_user_phone"
+                app:layout_constraintBottom_toBottomOf="@+id/til_user_phone"
+                tools:text="+56"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_user_phone"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="@string/user_profile_label_phone_number"
+                app:layout_constraintStart_toEndOf="@+id/ccp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/til_last_name"
+                style="@style/SimTextInputLayoutStyle">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone"
+                    android:textColor="@color/background_sim_step_card_title" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_save_changes"
+                android:layout_width="0dp"
+                android:layout_height="64dp"
+                android:layout_marginVertical="@dimen/vertical_margin"
+                android:text="@string/button_save"
+                style="@style/SimButton.Positive"
+                app:layout_constraintTop_toBottomOf="@+id/til_user_phone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progress_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/colorPrimary"
+                app:indicatorColor="@color/colorPrimaryDark"
+                app:trackColor="@color/colorPrimary"
+                android:visibility="invisible"
+                app:layout_constraintTop_toTopOf="@id/button_save_changes"
+                app:layout_constraintStart_toStartOf="@id/button_save_changes"
+                app:layout_constraintEnd_toEndOf="@id/button_save_changes"
+                app:layout_constraintBottom_toBottomOf="@id/button_save_changes" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:background="@color/white">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/device_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/vertical_margin_small"
+        android:layout_marginHorizontal="@dimen/horizontal_margin"
+        style="@style/SimContentCardView"
+        app:cardCornerRadius="24dp"
+        app:cardBackgroundColor="@color/colorPrimary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <FrameLayout
+                android:id="@+id/alert_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/subscription_alert_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/horizontal_margin"
+                    android:layout_marginTop="@dimen/vertical_margin"
+                    app:cardBackgroundColor="#FFD0E0"
+                    style="@style/SimContentCardView"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" >
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/subscription_alert_card_image"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            app:srcCompat="@drawable/ic_alert"
+                            android:layout_marginVertical="@dimen/vertical_margin_small"
+                            android:layout_marginHorizontal="@dimen/horizontal_margin"
+                            android:tint="#F8246C"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintDimensionRatio="1:1"/>
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/subscription_alert_card_title"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/subscription_list_payment_status_canceled"
+                            style="@style/SimContentCardViewContent"
+                            android:textColor="#F8246C"
+                            app:layout_constraintTop_toTopOf="@+id/subscription_alert_card_image"
+                            app:layout_constraintStart_toEndOf="@+id/subscription_alert_card_image"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintBottom_toBottomOf="@id/subscription_alert_card_image"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/payment_activation_alert_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/horizontal_margin"
+                    android:layout_marginTop="@dimen/vertical_margin"
+                    app:cardBackgroundColor="@color/white"
+                    style="@style/SimContentCardView"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" >
+
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/payment_activation_alert_card_progress"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:indicatorSize="24dp"
+                            android:layout_marginVertical="@dimen/vertical_margin_small"
+                            android:layout_marginHorizontal="@dimen/horizontal_margin"
+                            android:indeterminate="true"
+                            android:indeterminateTint="@color/colorPrimaryMedium"
+                            app:indicatorColor="@color/colorPrimaryDark"
+                            app:trackColor="@color/colorPrimaryMedium"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintDimensionRatio="1:1"/>
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/payment_activation_alert_card_title"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/subscription_list_payment_status_activation_period"
+                            style="@style/SimContentCardViewContent"
+                            android:textColor="@color/colorPrimary"
+                            app:layout_constraintTop_toTopOf="@+id/payment_activation_alert_card_progress"
+                            app:layout_constraintStart_toEndOf="@+id/payment_activation_alert_card_progress"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintBottom_toBottomOf="@id/payment_activation_alert_card_progress"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </FrameLayout>
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/device_profile_picture"
+                android:layout_width="@dimen/device_card_profile_picture_size"
+                android:layout_height="@dimen/device_card_profile_picture_size"
+                android:layout_margin="@dimen/horizontal_margin"
+                style="@style/contactImageView.noBorder"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/alert_container"
+                tools:srcCompat="@drawable/ic_momo_space"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintTop_toTopOf="@id/device_profile_picture"
+                app:layout_constraintBottom_toBottomOf="@id/device_profile_picture"
+                app:layout_constraintStart_toEndOf="@id/device_profile_picture"
+                app:layout_constraintEnd_toStartOf="@id/device_info_guideline">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/device_name"
+                    style="@style/SimContentCardTargetViewTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:textColor="@color/white"
+                    app:autoSizeMaxTextSize="16sp"
+                    app:autoSizeMinTextSize="14sp"
+                    app:autoSizeTextType="uniform"
+                    tools:text="José Feliú" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/device_imei"
+                    style="@style/SimContentCardViewContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="2"
+                    android:textColor="@color/white"
+                    app:autoSizeMaxTextSize="12sp"
+                    app:autoSizeMinTextSize="9sp"
+                    app:autoSizeTextType="uniform"
+                    tools:text="IMEI: 8696090349234" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/device_phone"
+                    style="@style/SimContentCardViewContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="2"
+                    android:textColor="@color/white"
+                    app:autoSizeMaxTextSize="12sp"
+                    app:autoSizeMinTextSize="9sp"
+                    app:autoSizeTextType="uniform"
+                    tools:text="Phone: +56989489526" />
+
+            </LinearLayout>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/device_info_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.7" />
+
+            <include
+                android:id="@+id/subscription_plan_info"
+                layout="@layout/item_sim_plan_nano"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_margin="@dimen/horizontal_margin"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintTop_toBottomOf="@id/alert_container"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/device_info_guideline"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

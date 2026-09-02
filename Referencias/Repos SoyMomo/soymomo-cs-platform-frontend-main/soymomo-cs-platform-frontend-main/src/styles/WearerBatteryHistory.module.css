@@ -1,0 +1,28 @@
+/* WearerBatteryHistory.module.css */
+.generalContainer {
+  @apply bg-white rounded-md shadow-md p-4 mb-4 max-w-full overflow-auto w-full;
+}
+
+.iconContainer {
+  @apply bg-[#603BB0] rounded-lg p-4;
+}
+
+.textContainer {
+  @apply flex flex-col;
+}
+
+.title {
+  @apply text-lg font-bold text-[#603BB0] ml-3;
+}
+
+.subtitle {
+  @apply text-base text-[#603BB0] self-start ml-3;
+}
+
+.refreshContainer {
+  @apply bg-[#603BB0] rounded-lg p-2 cursor-pointer;
+}
+
+.chartContainer {
+  @apply max-w-full mt-3;
+}

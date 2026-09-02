@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    android:layout_marginEnd="4dp"
+    android:layout_marginStart="4dp"
+    android:layout_marginBottom="4dp"
+    android:backgroundTint="@color/colorPrimary"
+    app:cardCornerRadius="28dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="8dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="8dp">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/detection_text"
+            android:textColor="@color/white"
+            app:fontFamily="@font/poppins_bold"
+            app:autoSizeMaxTextSize="16sp"
+            app:autoSizeMinTextSize="10sp"
+            app:autoSizeTextType="uniform"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="TextNoTranslation"
+            android:text="@string/dug_detection_correct" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_wrong"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            app:icon="@drawable/ic_cross"
+            app:iconSize="10dp"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:backgroundTint="@color/colorCancel"
+            app:cornerRadius="@dimen/button_corner_radius"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/detection_text"
+            app:layout_constraintStart_toEndOf="@id/button_correct"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginHorizontal="4dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_correct"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            app:icon="@drawable/ic_check"
+            app:iconSize="10dp"
+            app:iconGravity="textStart"
+            android:layout_marginTop="8dp"
+            app:iconPadding="0dp"
+            app:backgroundTint="@color/colorAccept"
+            app:cornerRadius="@dimen/button_corner_radius"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/button_wrong"
+            app:layout_constraintTop_toBottomOf="@id/detection_text"
+            android:layout_marginHorizontal="4dp"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

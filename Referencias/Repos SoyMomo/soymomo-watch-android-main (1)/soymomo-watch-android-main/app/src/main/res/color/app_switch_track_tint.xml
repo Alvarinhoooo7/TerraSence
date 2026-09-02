@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Default switch track (brand): translucent pink when ON, grey when OFF. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false" android:color="@color/momoDivider" />
+    <item android:state_checked="true" android:color="@color/colorAccentTrans" />
+    <item android:color="@color/momoGrey" />
+</selector>

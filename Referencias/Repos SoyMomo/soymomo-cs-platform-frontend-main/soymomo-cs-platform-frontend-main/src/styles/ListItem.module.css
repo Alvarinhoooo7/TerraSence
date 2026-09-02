@@ -1,0 +1,43 @@
+.row {
+    @apply flex flex-row justify-between content-center border-t-2 border-gray-300 pt-2 pb-1
+}
+
+.row:hover {
+    @apply bg-gray-300 cursor-pointer
+}
+
+.titleRow {
+    @apply flex flex-row justify-between content-center mt-1 border-b-2 border-gray-500 -mb-1 pb-3
+}
+
+.titleContainer {
+    @apply flex w-1/8 justify-center
+}
+
+.titleTxt {
+    @apply text-base font-semibold
+}
+
+.itemInfo {
+    @apply flex w-1/8 justify-center
+}
+
+.infoTxt {
+    @apply text-base
+}
+
+.undefinedContainer {
+    @apply flex w-1/8 justify-center
+}
+
+.undefined {
+    @apply text-base text-gray-500 
+}
+
+.typeIcon {
+    @apply w-6 h-6 text-purple-custom1
+}
+
+.watchIcon {
+    @apply w-5 h-5 text-purple-custom1
+}

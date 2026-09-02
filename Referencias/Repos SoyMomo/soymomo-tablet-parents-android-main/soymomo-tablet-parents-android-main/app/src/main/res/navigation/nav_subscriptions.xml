@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_subscriptions"
+    app:startDestination="@id/subscriptionDispatchFragment">
+
+    <fragment
+        android:id="@+id/subscriptionDispatchFragment"
+        android:name="com.sosmartlabs.momotabletpadres.sim.ui.fragments.SubscriptionDispatchFragment"
+        android:label="subscription_dispatch_fragment"
+        tools:layout="@layout/subscription_dispatch_fragment" >
+        <action
+            android:id="@+id/action_subscriptionDispatchFragment_to_subscriptionEmptyFragment"
+            app:destination="@id/subscriptionEmptyFragment" />
+        <action
+            android:id="@+id/action_subscriptionDispatchFragment_to_subscriptionListFragment"
+            app:destination="@id/subscriptionListFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/subscriptionEmptyFragment"
+        android:name="com.sosmartlabs.momotabletpadres.sim.ui.fragments.SubscriptionEmptyFragment"
+        android:label="subscription_empty_fragment"
+        tools:layout="@layout/subscription_empty_fragment" >
+        <action
+            android:id="@+id/action_subscriptionEmptyFragment_to_subscriptionUnavailableFragment"
+            app:destination="@id/subscriptionUnavailableFragment" />
+        <action
+            android:id="@+id/action_subscriptionEmptyFragment_to_newSubscriptionChooseWearerFragment"
+            app:destination="@id/newSubscriptionChooseDeviceFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/subscriptionListFragment"
+        android:name="com.sosmartlabs.momotabletpadres.sim.ui.fragments.SubscriptionListFragment"
+        android:label="subscription_list_fragment"
+        tools:layout="@layout/subscription_list_fragment" >
+        <action
+            android:id="@+id/action_subscriptionListFragment_to_subscriptionDetailFragment"
+            app:destination="@id/subscriptionDetailFragment" />
+        <action
+            android:id="@+id/action_subscriptionListFragment_to_newSubscriptionChooseWearerFragment"
+            app:destination="@id/newSubscriptionChooseDeviceFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/subscriptionUnavailableFragment"
+        android:name="com.sosmartlabs.momotabletpadres.sim.ui.fragments.SubscriptionUnavailableFragment"
+        android:label="subscription_unavailable_fragment"
+        tools:layout="@layout/subscription_unavailable_fragment" />
+
+    <fragment
+        android:id="@+id/subscriptionDetailFragment"
+        android:name="com.sosmartlabs.momotabletpadres.sim.ui.fragments.SubscriptionDetailFragment"
+        android:label="subscription_detail_fragment"
+        tools:layout="@layout/subscription_detail_fragment" >
+        <action
+            android:id="@+id/action_subscriptionDetailFragment_to_subscriptionRestoreFragment"
+            app:destination="@id/subscriptionRestoreFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/newSubscriptionChooseDeviceFragment"
+        android:name="com.sosmartlabs.momotabletpadres.sim.ui.fragments.newsubscription.NewSubscriptionChooseDeviceFragment"
+        android:label="subscription_new_choose_device_fragment"
+        tools:layout="@layout/subscription_new_choose_device_fragment" >
+        <action
+            android:id="@+id/action_newSubscriptionChooseDeviceFragment_to_nav_add_sim"
+            app:destination="@id/nav_add_sim" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/subscriptionRestoreFragment"
+        android:name="com.sosmartlabs.momotabletpadres.sim.ui.fragments.SubscriptionRestoreFragment"
+        android:label="subscription_restore_fragment"
+        tools:layout="@layout/subscription_restore_fragment" >
+        <action
+            android:id="@+id/action_subscriptionRestoreFragment_to_nav_add_sim"
+            app:destination="@id/nav_add_sim" />
+    </fragment>
+
+    <include app:graph="@navigation/nav_add_sim" />
+
+</navigation>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Translucent gray scrim drawn over the map_card when the selected device has no
+  location. Corners match map_card's 32dp radius so the dim respects the card
+  shape. ~70% dark-gray keeps the underlying (dimmed) map readable while giving
+  white overlay text strong contrast.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="32dp" />
+    <solid android:color="#B3212121" />
+</shape>

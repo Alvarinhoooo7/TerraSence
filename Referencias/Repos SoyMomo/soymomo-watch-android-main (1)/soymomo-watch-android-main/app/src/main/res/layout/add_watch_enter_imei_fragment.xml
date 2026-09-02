@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/background_onboarding"
+    tools:context=".addfirstwatch.ui.fragments.EnterImeiFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:id="@+id/sv_enter_imei"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:layout_marginTop="@dimen/vertical_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/button_next"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/enter_imei_animation"
+                android:layout_width="@dimen/onboarding_animation_width_small"
+                android:layout_height="@dimen/onboarding_animation_height_small"
+                tools:src="@drawable/animation_placeholder_onboarding"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/bind_watch_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/add_watch_title_text_size"
+                android:fontFamily="@font/poppins"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:layout_marginVertical="@dimen/vertical_margin"
+                app:layout_constraintTop_toBottomOf="@id/enter_imei_animation"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:text="@string/add_watch_enter_imei_title" />
+
+            <TextView
+                android:id="@+id/bind_watch_description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/horizontal_margin_extra_large"
+                android:layout_marginVertical="@dimen/vertical_margin_medium"
+                android:fontFamily="@font/poppins"
+                android:text="@string/add_watch_enter_imei_description"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="@dimen/add_watch_description_text_size"
+                app:layout_constraintBottom_toTopOf="@+id/enter_imei_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/bind_watch_title"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <TextView
+                android:id="@+id/enter_imei_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
+                android:textSize="@dimen/add_watch_form_label"
+                android:text="@string/add_watch_enter_imei_input_label"
+                android:layout_marginTop="@dimen/vertical_margin_large"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/til_imei"
+                app:layout_constraintBottom_toTopOf="@id/til_imei"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_imei"
+                style="@style/TextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+                android:layout_marginTop="@dimen/vertical_margin_smallest"
+                android:layout_marginBottom="@dimen/vertical_margin_small"
+                app:endIconDrawable="@drawable/ic_action_camera"
+                app:endIconMode="custom"
+                app:endIconTint="@color/white"
+                app:counterEnabled="true"
+                app:counterMaxLength="@integer/imei_length"
+                app:counterTextColor="@color/white"
+                app:cursorColor="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:textColor="@color/white"
+                    android:textColorHighlight="@color/white_30"
+                    android:theme="@style/EditTextTheme" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_next"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/first_momo_button_height"
+        android:backgroundTint="@color/button_onboarding_enabled"
+        android:elevation="@dimen/card_elevation"
+        android:fontFamily="@font/poppins"
+        android:text="@string/button_next"
+        android:textSize="@dimen/add_watch_button_text_size"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+        android:layout_marginVertical="@dimen/vertical_margin"
+        app:cornerRadius="@dimen/first_momo_button_border"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sv_enter_imei" />
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_indicator"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:elevation="16dp"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/colorPrimaryDark"
+        app:indicatorColor="@color/white"
+        app:trackColor="@color/colorPrimaryDark"
+        app:layout_constraintTop_toTopOf="@id/button_next"
+        app:layout_constraintStart_toStartOf="@id/button_next"
+        app:layout_constraintEnd_toEndOf="@id/button_next"
+        app:layout_constraintBottom_toBottomOf="@id/button_next"
+        android:visibility="invisible"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

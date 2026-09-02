@@ -1,0 +1,202 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+plugins {
+    id 'com.android.application'
+    id 'kotlin-parcelize'
+    id 'com.google.devtools.ksp'
+    id 'com.google.gms.google-services'
+    id 'androidx.navigation.safeargs.kotlin'
+    id 'com.google.firebase.crashlytics'
+    id 'com.google.firebase.firebase-perf'
+    id 'dagger.hilt.android.plugin'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+}
+
+Properties properties = new Properties()
+if (rootProject.file("local.properties").exists()) {
+    properties.load(rootProject.file("local.properties").newDataInputStream())
+}
+
+android {
+    namespace 'com.sosmartlabs.momotabletpadres'
+    compileSdk = 37
+
+    defaultConfig {
+        applicationId "com.sosmartlabs.momotabletpadres"
+        minSdkVersion 28
+        targetSdkVersion 37
+        versionCode 106
+        multiDexEnabled true
+        versionName "5.8.2"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments['dagger.hilt.disableModulesHaveInstallInCheck'] = 'true'
+            }
+        }
+    }
+
+    signingConfigs {
+        release {
+            storeFile file(soymomoStoreFileLocal)
+            storePassword soymomoStorePasswordLocal
+            keyAlias soymomoTabletKeyAliasLocal
+            keyPassword soymomoTabletKeyPasswordLocal
+        }
+    }
+
+    buildFeatures {
+        viewBinding true
+        dataBinding true
+        buildConfig true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "parseApplicationId", "\"" + (System.getenv("SOYMOMO_TABLET_PARSE_APPLICATION_ID_PRODUCTION") ?: properties["SOYMOMO_TABLET_PARSE_APPLICATION_ID_PRODUCTION"]) + "\""
+            buildConfigField "String", "parseClientKey", "\"" + (System.getenv("SOYMOMO_TABLET_PARSE_CLIENT_KEY_PRODUCTION") ?: properties["SOYMOMO_TABLET_PARSE_CLIENT_KEY_PRODUCTION"]) + "\""
+            buildConfigField "String", "parseRequestUrl", "\"" + (System.getenv("SOYMOMO_TABLET_PARSE_REQUEST_URL_PRODUCTION") ?: properties["SOYMOMO_TABLET_PARSE_REQUEST_URL_PRODUCTION"]) + "\""
+            buildConfigField "String", "gcmSenderKey", "\"" + (System.getenv("SOYMOMO_TABLET_GCM_SENDER_KEY_PRODUCTION") ?: properties["SOYMOMO_TABLET_GCM_SENDER_KEY_PRODUCTION"]) + "\""
+            buildConfigField "String", "googleAuthKey", "\"" + (System.getenv("SOYMOMO_TABLET_GOOGLE_AUTH_KEY_PRODUCTION") ?: properties["SOYMOMO_TABLET_GOOGLE_AUTH_KEY_PRODUCTION"]) + "\""
+            buildConfigField "String", "googlePlacesApiKey", "\"$SoyMomoTabletGooglePlacesApiKey\""
+            signingConfig signingConfigs.release
+        }
+
+        debug {
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+            buildConfigField "String", "parseApplicationId", "\"" + (System.getenv("SOYMOMO_TABLET_PARSE_APPLICATION_ID_DEVELOPMENT") ?: properties["SOYMOMO_TABLET_PARSE_APPLICATION_ID_DEVELOPMENT"]) + "\""
+            buildConfigField "String", "parseClientKey", "\"" + (System.getenv("SOYMOMO_TABLET_PARSE_CLIENT_KEY_DEVELOPMENT") ?: properties["SOYMOMO_TABLET_PARSE_CLIENT_KEY_DEVELOPMENT"]) + "\""
+            buildConfigField "String", "parseRequestUrl", "\"" + (System.getenv("SOYMOMO_TABLET_PARSE_REQUEST_URL_DEVELOPMENT") ?: properties["SOYMOMO_TABLET_PARSE_REQUEST_URL_DEVELOPMENT"]) + "\""
+            buildConfigField "String", "gcmSenderKey", "\"" + (System.getenv("SOYMOMO_TABLET_GCM_SENDER_KEY_DEVELOPMENT") ?: properties["SOYMOMO_TABLET_GCM_SENDER_KEY_DEVELOPMENT"]) + "\""
+            buildConfigField "String", "googleAuthKey", "\"" + (System.getenv("SOYMOMO_TABLET_GOOGLE_AUTH_KEY_DEVELOPMENT") ?: properties["SOYMOMO_TABLET_GOOGLE_AUTH_KEY_DEVELOPMENT"]) + "\""
+            buildConfigField "String", "googlePlacesApiKey", "\"$SoyMomoTabletGooglePlacesApiKey\""
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/DEPENDENCIES']
+        }
+    }
+}
+
+base {
+    archivesName = "tablet-parent"
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
+    }
+}
+
+hilt {
+    enableAggregatingTask = true
+}
+
+ksp {
+    arg('dagger.hilt.disableModulesHaveInstallInCheck', 'true')
+}
+
+dependencies {
+    // Google
+    //noinspection LoginCredentials
+    implementation 'com.google.android.gms:play-services-auth:21.6.0'
+    implementation 'com.google.android.gms:play-services-maps:20.0.0'
+    implementation 'com.google.android.libraries.places:places:5.2.0'
+    implementation 'com.google.maps.android:android-maps-utils:4.4.0'
+    implementation 'com.google.android.play:review-ktx:2.0.2'
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
+
+    // Material Design
+    implementation 'com.google.android.material:material:1.14.0'
+
+    // Android Jetpack
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.10.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.10.0'
+    implementation 'androidx.activity:activity-ktx:1.13.0'
+    implementation 'androidx.fragment:fragment-ktx:1.8.9'
+    implementation 'androidx.paging:paging-runtime-ktx:3.5.0'
+    implementation 'androidx.work:work-runtime-ktx:2.11.2'
+    implementation 'androidx.security:security-crypto:1.1.0'
+    implementation 'androidx.core:core-splashscreen:1.2.0'
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:34.14.1')
+    implementation 'com.google.firebase:firebase-crashlytics'
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.firebase:firebase-perf'
+    implementation 'com.google.firebase:firebase-config'
+
+    // Hilt
+    implementation 'com.google.dagger:hilt-android:2.59.2'
+    implementation 'androidx.hilt:hilt-navigation-fragment:1.3.0'
+    implementation 'androidx.hilt:hilt-work:1.3.0'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.9.8'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.9.8'
+    ksp 'com.google.dagger:hilt-compiler:2.59.2'
+    ksp 'androidx.hilt:hilt-compiler:1.3.0'
+
+    // Parse
+    //noinspection GlobalOptionInConsumerRules
+    implementation 'com.github.parse-community.Parse-SDK-Android:parse:4.4.0'
+    implementation 'com.github.parse-community.Parse-SDK-Android:fcm:4.4.0'
+    implementation 'com.github.parse-community.Parse-SDK-Android:ktx:4.4.0'
+    implementation 'com.github.parse-community.Parse-SDK-Android:coroutines:4.4.0'
+    implementation 'com.github.parse-community:ParseLiveQuery-Android:1.2.2'
+
+    // ML Kit
+    implementation 'com.google.mlkit:barcode-scanning:17.3.0'
+
+    // Glide
+    implementation 'com.github.bumptech.glide:glide:5.0.7'
+    implementation 'com.github.firdausmaulan:GlideSlider:1.5.2'
+    ksp 'com.github.bumptech.glide:ksp:5.0.7'
+
+    // Other Libraries
+    implementation 'com.squareup.okhttp3:okhttp:5.3.2'
+    implementation 'com.jakewharton.timber:timber:5.0.1'
+    implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'
+    implementation 'com.airbnb.android:lottie:6.7.1'
+    implementation 'com.github.badoualy:stepper-indicator:1.0.7'
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    implementation 'com.androidplot:androidplot-core:1.5.11'
+    implementation "com.google.code.gson:gson:2.14.0"
+    implementation 'com.hbb20:ccp:2.7.3'
+    implementation 'com.tbuonomo:dotsindicator:5.1.0'
+    implementation 'com.vanniktech:android-image-cropper:4.7.0'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:2.3.10'
+    implementation 'com.github.stfalcon-studio:StfalconImageViewer:1.0.1'
+
+    implementation 'com.github.alexzhirkevich:custom-qr-generator:1.6.2'
+
+    // Debugging
+    implementation 'com.github.anrwatchdog:anrwatchdog:1.4.0'
+
+    // Testing
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:runner:1.7.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
+
+    // SoyMomo Libraries
+    implementation 'com.sosmartlab:momologin:2.16.0'
+
+    // Phone Verification
+    implementation 'com.googlecode.libphonenumber:libphonenumber:9.0.32'
+}
+
+apply plugin: 'com.google.gms.google-services'

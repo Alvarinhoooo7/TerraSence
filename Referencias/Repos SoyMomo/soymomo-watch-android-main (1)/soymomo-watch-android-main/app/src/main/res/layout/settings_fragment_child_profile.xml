@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/watch_settings_background">
+
+    <ImageView
+        android:id="@+id/child_profile_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_default="percent"
+        app:layout_constraintHeight_percent="0.25"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@drawable/child_profile_watch"
+        android:layout_marginTop="24dp"
+        android:layout_marginRight="12dp">
+
+    </ImageView>
+
+    <include
+        android:id="@+id/cardview_child_profile"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        layout="@layout/settings_cardview_child_profile"
+        app:layout_constraintTop_toBottomOf="@id/child_profile_logo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+    </include>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

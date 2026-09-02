@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="phoneContact"
+            type="com.sosmartlabs.momo.phonebook.model.phonecontact.PhoneContact" />
+    </data>
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/activity_vertical_margin"
+        app:cardCornerRadius="@dimen/corner_radius">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <View
+                android:id="@+id/phone_contact_top_background"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@color/background_sim_step_card_title"
+                app:layout_constraintDimensionRatio="W,1:5"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/image_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".31"/>
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/contact_image"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_margin="4dp"
+                app:srcCompat="@drawable/ic_default_avatar"
+                style="@style/contactImageView"
+                app:layout_constraintDimensionRatio="W,1:1"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/image_guideline"
+                app:image="@{phoneContact.image}"/>
+
+            <TextView
+                android:id="@+id/contact_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:text="@{phoneContact.name}"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                app:layout_constraintStart_toEndOf="@+id/image_guideline"
+                app:layout_constraintEnd_toStartOf="@+id/bookmark_icon"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/contact_phone"
+                app:layout_constraintVertical_chainStyle="packed"
+                tools:text="Usuario de prueba"/>
+
+            <TextView
+                android:id="@+id/contact_phone"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:text="@{phoneContact.phone}"
+                android:textColor="@color/colorPrimaryLight"
+                app:layout_constraintStart_toEndOf="@+id/image_guideline"
+                app:layout_constraintEnd_toStartOf="@id/bookmark_icon"
+                app:layout_constraintTop_toBottomOf="@id/contact_name"
+                app:layout_constraintBottom_toBottomOf="@+id/phone_contact_top_background"
+                app:layout_constraintVertical_chainStyle="packed"
+                tools:text="+56912345678"/>
+
+            <ImageView
+                android:id="@+id/bookmark_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:srcCompat="@drawable/ic_family_type"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/phone_contact_top_background"/>
+
+            <ImageButton
+                android:id="@+id/button_delete_contact"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_margin="4dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_eliminar"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/button_edit_contact"
+                app:layout_constraintStart_toEndOf="@+id/image_guideline"
+                app:layout_constraintTop_toBottomOf="@+id/phone_contact_top_background" />
+
+            <ImageButton
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:src="@drawable/ic_editar"
+                android:id="@+id/button_edit_contact"
+                android:background="@android:color/transparent"
+                android:layout_margin="4dp"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintStart_toEndOf="@id/button_delete_contact"
+                app:layout_constraintEnd_toStartOf="@+id/sos_label"
+                app:layout_constraintTop_toBottomOf="@+id/phone_contact_top_background"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <TextView
+                android:id="@+id/sos_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/sos_label"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:layout_margin="8dp"
+                android:text="@string/sos"
+                android:enabled="@{phoneContact.sos}"
+                android:textColor="@android:color/white"
+                app:layout_constraintTop_toBottomOf="@+id/phone_contact_top_background"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/watch_sos_switch"
+                android:layout_gravity="center"/>
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/watch_sos_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:checked="@{phoneContact.sos}"
+                android:layout_margin="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/sos_label"
+                app:layout_constraintBottom_toBottomOf="@+id/sos_label" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</layout>

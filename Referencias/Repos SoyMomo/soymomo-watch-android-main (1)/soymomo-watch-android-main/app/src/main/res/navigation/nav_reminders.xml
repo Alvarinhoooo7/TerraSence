@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_reminders"
+    app:startDestination="@id/remindersListFragment">
+
+    <fragment
+        android:id="@+id/remindersListFragment"
+        android:name="com.sosmartlabs.momo.reminders.ui.RemindersListFragment"
+        android:label="fragment_reminders_list"
+        tools:layout="@layout/fragment_reminders_list" >
+        <action
+            android:id="@+id/action_remindersListFragment_to_reminderDetailsFragment"
+            app:destination="@id/reminderDetailsFragment"
+            app:popUpTo="@id/reminderDetailsFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_remindersListFragment_to_editReminderDetailsFragment"
+            app:destination="@id/editReminderDetailsFragment"
+            app:popUpTo="@id/editReminderDetailsFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/reminderDetailsFragment"
+        android:name="com.sosmartlabs.momo.reminders.ui.ReminderDetailsFragment"
+        android:label="fragment_reminder_details"
+        tools:layout="@layout/fragment_reminder_details" >
+        <action
+            android:id="@+id/action_reminderDetailsFragment_to_remindersListFragment"
+            app:destination="@id/remindersListFragment"
+            app:popUpTo="@id/remindersListFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/reminderDeleteFragment"
+        android:name="com.sosmartlabs.momo.reminders.ui.ReminderDeleteFragment"
+        android:label="fragment_reminder_delete"
+        tools:layout="@layout/fragment_reminder_delete" >
+        <action
+            android:id="@+id/action_reminderDeleteFragment_to_remindersListFragment"
+            app:destination="@id/remindersListFragment"
+            app:popUpTo="@id/remindersListFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/editReminderDetailsFragment"
+        android:name="com.sosmartlabs.momo.reminders.ui.EditReminderDetailsFragment"
+        android:label="fragment_edit_reminder_details"
+        tools:layout="@layout/fragment_edit_reminder_details" >
+        <action
+            android:id="@+id/action_editReminderDetailsFragment_to_reminderDeleteFragment"
+            app:destination="@id/reminderDeleteFragment"
+            app:popUpTo="@id/reminderDeleteFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+</navigation>

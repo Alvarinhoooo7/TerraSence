@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    style="@style/Dug.CardItem">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:padding="8dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/app_icon"
+            android:layout_width="@dimen/mood_detection_app_icon_size"
+            android:layout_height="@dimen/mood_detection_app_icon_size"
+            style="@style/MoodDetectionItemIcon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:visibility="visible"
+            tools:srcCompat="@drawable/instagram_logo"/>
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/app_icon_alert_overlay"
+            android:layout_width="@dimen/mood_detection_app_icon_size"
+            android:layout_height="@dimen/mood_detection_app_icon_size"
+            android:background="@color/mood_detection_alert_overlay_color"
+            style="@style/MoodDetectionItemIcon.Overlay"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_exclamation_mark"
+            tools:visibility="visible"/>
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/risk_factor_chip_group"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/mood_detector_icon_end_margin"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/app_icon"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/app_name_limit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
+        <TextView
+            android:id="@+id/app_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="@dimen/mood_detector_icon_end_margin"
+            app:layout_constraintTop_toBottomOf="@+id/risk_factor_chip_group"
+            app:layout_constraintStart_toEndOf="@+id/app_icon"
+            app:layout_constraintEnd_toStartOf="@+id/app_name_limit"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintHorizontal_bias="0"
+            android:textColor="@color/black"
+            tools:text="Google Chrome: rápido y seguro"/>
+
+        <TextView
+            android:id="@+id/detection_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/risk_factor_chip_group"
+            app:layout_constraintStart_toEndOf="@+id/app_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Cómo cortarme las venas"
+            tools:textColor="@color/dug_profanity_level_high"/>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/date_barrier"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="app_name,detection_text"/>
+
+        <TextView
+            android:id="@+id/detection_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/mood_detector_icon_end_margin"
+            app:layout_constraintTop_toBottomOf="@+id/date_barrier"
+            app:layout_constraintStart_toEndOf="@+id/app_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Búsqueda detectada 24/01/2022 14:39"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

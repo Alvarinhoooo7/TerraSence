@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:elevation="@dimen/cardview_default_elevation"
+    tools:context=".main.ui.dialog.AddedSuccessNumberDialogFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="@color/colorPrimary"
+                android:scaleType="centerCrop"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_background_dialog_invalid_number" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/contact_image"
+                style="@style/contactImageView"
+                android:layout_width="125dp"
+                android:layout_height="125dp"
+                android:layout_margin="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_default_avatar" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/image_alert"
+                style="@style/Widget.Material3.FloatingActionButton.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                app:backgroundTint="@color/check_dialog_invalid_number"
+                app:layout_constraintCircle="@+id/contact_image"
+                app:layout_constraintCircleAngle="115"
+                app:layout_constraintCircleRadius="55dp"
+                app:srcCompat="@drawable/ic_check"
+                app:tint="@android:color/white"/>
+
+            <TextView
+                android:id="@+id/invalid_number"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/number_null_horizontal_margin_success"
+                android:layout_marginTop="@dimen/margin_top_input_user_profile"
+                android:gravity="center"
+                android:text="@string/invalid_number_succes_added"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/contact_image" />
+            <View
+                android:id="@+id/separator_one"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/dialogSeparator"
+                app:layout_columnSpan="2"
+                android:layout_marginTop="@dimen/number_null_vertical_Top"
+                app:layout_constraintTop_toBottomOf="@+id/invalid_number"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_acept"
+                style="@style/WhiteOutlinedButtonTransparent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_accept"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/separator_one" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

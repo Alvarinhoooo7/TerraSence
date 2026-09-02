@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_profile"
+        android:icon="@drawable/ic_person_outline_black_24dp"
+        android:title="@string/title_profile"/>
+    <item
+        android:id="@+id/navigation_tablets"
+        android:icon="@drawable/ic_tablet_android_black_24dp"
+        android:title="@string/title_my_tablets"/>
+    <item
+        android:id="@+id/navigation_add_tablet"
+        android:icon="@drawable/ic_qrcode_scan"
+        android:title="@string/title_add_tablet"/>
+</menu>

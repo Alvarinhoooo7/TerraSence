@@ -1,0 +1,2007 @@
+<resources>
+    <string name="button_tutorial_finish">Entendido</string>
+
+    <string name="tutorial_title_6">ALARMAS, APPS Y MUCHO MÁS</string>
+    <string name="tutorial_text_6">Nuevas aventuras te esperan en <u>www.soymomo.com</u> \n ¡Vamos!</string>
+    <string name="tutorial_title_5">VIDEOLLAMADAS</string>
+    <string name="tutorial_text_5">Podrás hacer videollamadas cuando desees con SoyMomo.</string>
+    <string name="tutorial_title_4">LLAMADAS Y MENSAJES</string>
+    <string name="tutorial_text_4">Comunícate solo con los contactos que autorices.</string>
+    <string name="tutorial_title_3">SOS Y ZONAS SEGURAS</string>
+    <string name="tutorial_text_3">Recibe notificaciones en caso que entre o salga de alguna zona segura que hayas establecido, también si llega a tener una emergencia.</string>
+    <string name="tutorial_title_2">GPS</string>
+    <string name="tutorial_text_2">Verifica la ubicación en todo momento, en tiempo real y su historial.</string>
+    <string name="tutorial_title_1">¡Hola!</string>
+    <string name="tutorial_text_1">Gracias por sumarte a este mundo de #TecnologíaSegura</string>
+    <string name="settings_profile_title">Perfil</string>
+    <string name="settings_find_title">Hacer Sonar</string>
+    <string name="settings_turn_off_title">Apagar</string>
+    <string name="settings_contacts_title">Guía telefónica</string>
+    <string name="settings_history_title">Historial de Posiciones</string>
+    <string name="settings_steps_title">Actividad Física</string>
+    <string name="settings_calendar_title">Calendario</string>
+    <string name="settings_reminders_title">Recordatorios</string>
+    <string name="settings_alarms_title">Alarmas</string>
+    <string name="settings_lock_title">Horarios de bloqueo</string>
+    <string name="settings_time_title">Hora</string>
+    <string name="settings_gps_title">GPS</string>
+    <string name="settings_auto_answer_text">Escucha el entorno del SoyMomo</string>
+    <string name="settings_sound_title">Sonido</string>
+    <string name="settings_new_owner_title">Cambiar Administrador</string>
+    <string name="settings_remove_title">Desvincular SoyMomo</string>
+    <string name="text_dialog_contact_request">Ingresa tus datos para agregarte como contacto en el SoyMomo de %s</string>
+    <string name="alarms_title">Alarmas</string>
+    <string name="alarms_empty_list">No tienes ninguna alarma. Puedes crear tu primera alarma presionando el botón.</string>
+    <string name="button_cancel">CANCELAR</string>
+    <string name="button_save">GUARDAR</string>
+    <string name="rewards_title">Recompensas</string>
+    <string name="rewards_info_text">Dale corazones a tu hij@ cada vez que realice una buena acción y crea recompensas con metas accesibles, así te ayudamos a reforzar los buenos comportamientos.</string>
+    <string name="rewards_info_text_space" translatable="false">Dale estrellas a tu hij@ cada vez que realice una buena acción y crea recompensas con metas accesibles, así te ayudamos a reforzar los buenos comportamientos.</string>
+    <string name="lock_title">Horarios de Bloqueo</string>
+    <string name="lock_empty_list">Cuando tu SoyMomo se encuentra en horario de bloqueo, se desactiva el uso de la pantalla y se rechazan las llamadas entrantes si no está en modo de contestado automático. Mensajes, eventos y alarmas seguirán funcionando normalmente. Configura uno presionando el botón \"+\".</string>
+    <string name="lock_empty_list_space3and4">Durante el horario de bloqueo, tu SoyMomo puede seguir haciendo y recibiendo llamadas, pero se bloquean las videollamadas, los mensajes y otras funciones que puedan distraer, ideal para la escuela. Configura uno presionando el botón \"+\".</string>
+    <string name="main_empty_list_title">¡Bienvenido a SoyMomo!</string>
+    <string name="main_empty_list_message">¡Vincula tu reloj SoyMomo para comenzar! Presiona \'Vincular\' para conectar tu dispositivo o \'Comprar\' para adquirir uno nuevo</string>
+    <string name="main_add">Vincular</string>
+    <string name="main_buy">Comprar</string>
+    <string name="main_waiting_for_network">Esperando red…</string>
+    <string name="messages_title">Mensajes</string>
+    <string name="messages_enter_text">Ingresa un mensaje</string>
+    <string name="messages_slide_to_cancel"><![CDATA[< Desliza para cancelar]]></string>
+    <string name="new_owner_text">Cada SoyMomo tiene un solo usuario administrador. Este es quien acepta o rechaza el acceso de terceros a este SoyMomo. En estos momentos eres tú, en caso de que quieras cambiarlo selecciona al usuario que te gustaría entregarle este poder:</string>
+    <string name="new_owner_empty_list">No hay más usuarios agregados al reloj, para poder eliminarlo debes dejar algún usuario a cargo.</string>
+    <string name="settings_rewards_title">Recompensas</string>
+    <string name="tutorial_buy">Compra tu SoyMomo</string>
+    <string name="first_name">Nombre</string>
+    <string name="last_name">Apellido</string>
+    <string name="birthday">Fecha de Nacimiento</string>
+    <string name="email">Email</string>
+    <string name="phone">Teléfono</string>
+    <string name="profile_button_change_email">Cambiar email</string>
+    <string name="profile_button_change_password">Cambiar Contraseña</string>
+    <string name="settings_section_location_safety">Ubicación y Seguridad</string>
+    <string name="settings_section_communication">Comunicación</string>
+    <string name="settings_section_tools_activity">Herramientas y Actividad</string>
+    <string name="settings_section_device_settings">Configuración del Dispositivo</string>
+    <string name="settings_section_administration">Administración</string>
+    <string name="settings_general">GENERALES</string>
+    <string name="settings_notifications">NOTIFICACIONES</string>
+    <string name="settings_general_title">Sistema de medición</string>
+    <string name="settings_general_imperial_text">Es un sistema para medir longitudes en los Estados Unidos se basa en la pulgada, el pie,  la yarda y la milla.</string>
+    <string name="settings_general_metric_text">Es un sistema de unidades basado en el metro como unidad fundamental de medida de longitud.</string>
+    <string name="settings_notification_sensor_title">Sensor SoyMomo</string>
+    <string name="settings_notification_sensor_text">Recibe una notificación cuando tu hijo se saque el SoyMomo (solo SoyMomo Original)</string>
+    <string name="settings_notification_geofences_text">Recibe una notificación cuando tu hijo entre y salga de una de las zonas seguras que tu configuraste.</string>
+    <string name="settings_notification_battery_title">Batería Baja</string>
+    <string name="settings_notification_battery_text">Recibe una notificación cuando tu SoyMomo tenga poca batería</string>
+    <string name="settings_notification_requests_title">Solicitudes</string>
+    <string name="settings_notification_requests_text">Recibe notificaciones cuando acepten o rechacen tus solicitudes para agregar un SoyMomo, cuando soliciten agregar un SoyMomo del que eres administrador o cuando te asignen administrador de un SoyMomo</string>
+    <string name="settings_notification_messages_title">Nuevos Mensajes</string>
+    <string name="settings_notification_messages_text">Recibe una notificación cuando tengas un nuevo mensaje</string>
+    <string name="settings_notification_other_title">Otras Notificaciones</string>
+    <string name="settings_notification_other_text">Recibe otras notificaciones de SoyMomo: anuncios, promociones, etc.</string>
+    <string name="contacts_add_from_contacts">Agregar desde contactos</string>
+    <string name="contacts_add_manual">Agregar manualmente</string>
+    <string name="profile_height_cm">Altura (cm)</string>
+    <string name="height_children_cm">%1$d </string>
+    <string name="profile_height_feet">Altura (ft)</string>
+    <string name="height_children_has_imperial">%1$d\' %2$d\" </string>
+    <string name="profile_weight_kg">Peso (kg)</string>
+    <string name="profile_weight_lbs">Peso (lbs)</string>
+    <string name="til_feet">Pies</string>
+    <string name="til_inches">Pulgadas</string>
+    <string name="til_height_dialog">Altura</string>
+    <string name="error_value">Valor incorrecto o campo vacío</string>
+    <string name="pending_requests_title">Solicitudes Pendientes</string>
+    <string name="pending_requests_empty_list">No tienes solicitudes pendientes</string>
+    <string name="pending_requests_linked_users_title">Usuarios Vinculados</string>
+    <string name="pending_requests_linked_users_empty_list">No tienes usuarios vinculados a este SoyMomo</string>
+    <string name="dialog_auto_answer_text">Al activar el contestado automático, el reloj no sonará al recibir una llamada.</string>
+    <string name="dialog_change_email_confirm">Confirmar email</string>
+    <string name="dialog_change_password_new">Nueva Contraseña</string>
+    <string name="dialog_change_password_confirm">Confirmar Contraseña</string>
+    <string name="dialog_contact_request_accepted">¡Solicitud Aceptada!</string>
+    <string name="button_accept">Aceptar</string>
+    <string name="dialog_reward_create">Crear recompensa</string>
+    <string name="dialog_reward_name">Nombre de la Recompensa</string>
+    <string name="dialog_feedback_title">Ayúdanos a Mejorar</string>
+    <string name="dialog_feedback_text">¿Cuál es la razón de tu evaluación?</string>
+    <string name="dialog_time_title">Hora</string>
+    <string name="dialog_time_momo">Hora de tu SoyMomo</string>
+    <string name="dialog_time_zone">Zona horaria</string>
+    <string name="dialog_sound_title">Sonido</string>
+    <string name="dialog_sound_sound_vibrate">Sonido y Vibración</string>
+    <string name="dialog_sound_sound">Sonido</string>
+    <string name="dialog_sound_vibrate">Vibración</string>
+    <string name="dialog_sound_silence">Silencio</string>
+    <string name="calendar_event_name">Nombre del Evento</string>
+    <string name="calendar_event_date">Fecha del Evento</string>
+    <string name="calendar_event_edit_date">EDITAR FECHA</string>
+    <string name="calendar_event_time">Hora del Evento</string>
+    <string name="calendar_event_edit_time">EDITAR HORA</string>
+    <string name="button_delete">Eliminar</string>
+    <string name="calendar_event_empty_list">Con el calendario, tus hijos podrán recibir un mensaje recordatorio en su SoyMomo el día y hora que tú elijas, para que nunca se les olvide estudiar o sacar a pasear al perro. Puedes crear tu primera tarea presionando el botón \"+\".</string>
+    <string name="geofence_name">Nombre del lugar</string>
+    <string name="geofence_text">Guarde sus lugares preferidos y reciba notificaciones cuando sus hijos lleguen y se retiren</string>
+    <string name="register">Registro</string>
+    <string name="login">Iniciar Sesión</string>
+    <string name="password">Contraseña</string>
+    <string name="login_create_account">Crear Cuenta</string>
+    <string name="login_forgot_password">¿Olvidaste tu Contraseña?</string>
+    <string name="login_forgot_user">¿Olvidaste tu usuario?</string>
+    <string name="forgot_password_title">Recuperar Contraseña</string>
+    <string name="forgot_password_text">¿Olvidaste tu contraseña? Ingresa tu correo electrónico para recuperarla</string>
+    <string name="infowindow_history_marker_time">Hora:</string>
+    <string name="sos">SOS</string>
+    <string name="item_reward_complete">Completar</string>
+    <string name="item_silence_time_start">Inicio</string>
+    <string name="item_silence_time_start_example">20:00</string>
+    <string name="item_silence_time_finish">Término</string>
+    <string name="item_silence_time_finish_example">21:00</string>
+    <string name="miprimermomo_first_time_text">Bienvenido a SoyMomo, para poder utilizar correctamente la app, debes agregar el SoyMomo de tu hijo a tu cuenta.\nSigue los siguientes pasos</string>
+    <string name="miprimermomo_first_time_add_now">Agregar mi primer SoyMomo</string>
+    <string name="miprimermomo_first_time_add_later">Agregar después</string>
+    <string name="miprimermomo_imei_title">Ingresa el IMEI</string>
+    <string name="miprimermomo_imei_text">Busca en la parte trasera de tu SoyMomo el código IMEI (15 dígitos) e ingrésalo a continuación o presiona el botón para escanear el código de barras</string>
+    <string name="miprimermomo_imei_hint">IMEI del SoyMomo</string>
+    <string name="miprimermomo_imei_add">Agregar SoyMomo</string>
+    <string name="miprimermomo_imei_scan">Escanear IMEI</string>
+    <string name="miprimermomo_admin_title">Padre Administrador</string>
+    <string name="miprimermomo_admin_text">Eres el padre administrador de este SoyMomo. Tu serás el encargado de aceptar o rechazar las solicitudes de otras personas que quieran interactuar con este SoyMomo a través de la aplicación.</string>
+    <string name="miprimermomo_admin_accept">Entendido</string>
+    <string name="miprimermomo_charge_title">Carga tu SoyMomo</string>
+    <string name="miprimermomo_charge_text">Carga tu SoyMomo por 4 horas, usando el cargador que viene en la caja. Asegúrate que en la pantalla aparezca la animación de carga de batería.</string>
+    <string name="miprimermomo_charge_next">Siguiente</string>
+
+    <!-- SoyMomo SIM -->
+    <string name="miprimermomo_get_sim_title">Consigue una tarjeta SIM</string>
+    <string name="miprimermomo_get_sim_text">Recuerda que para que puedas ver la ubicación de tu SoyMomo, es necesario que éste tenga una tarjeta SIM con datos móviles (internet).</string>
+    <string name="miprimermomo_get_sim_have_sim">Tengo tarjeta SIM</string>
+    <string name="miprimermomo_get_sim_no_sim">No tengo tarjeta SIM</string>
+    <string name="miprimermomo_activate_sim_title">Activa tu tarjeta SIM</string>
+    <string name="miprimermomo_activate_sim_text">Para que tu tarjeta SIM funcione correctamente, debes activarla siguiendo las instrucciones de tu compañía. No olvides anotar el número de teléfono, éste será el número del SoyMomo.</string>
+    <string name="miprimermomo_activate_sim_already_activated">Ya activé mi SIM</string>
+    <string name="miprimermomo_activate_sim_how_to">¿Cómo activo mi SIM?</string>
+    <string name="miprimermomo_insert_sim_title">Insertar tarjeta SIM</string>
+    <string name="miprimermomo_insert_sim_text">Asegúrate que tu tarjeta SIM esté en el tamaño MicroSIM (mediano) e insértala en el SoyMomo de la forma indicada.</string>
+    <string name="miprimermomo_insert_sim_ready">Listo</string>
+    <string name="subscription_unavailable_title">No disponibles en tu región</string>
+    <string name="subscription_unavailable_subtitle">Lo sentimos, las tarjetas SoyMomo SIM no están disponibles en tu región por el momento.</string>
+    <string name="subscription_unavailable_go_back">Volver</string>
+
+    <string name="miprimermomo_close_lid_title">Protección contra Agua</string>
+    <string name="miprimermomo_close_lid_text">Asegúrate que los sellos (interior y tornillos) estén puestos correctamente y cierra la tapa. Los tornillos no deben estar tan apretados ya que podrías romper la protección.</string>
+    <string name="miprimermomo_close_lid_no_screws_text">Afirma la bandeja, asegurándote de que queden al ras con la superficie, pero sin apretar demasiado, ya que esto puede dañar el sello de agua.</string>
+    <string name="miprimermomo_close_lid_next">Siguiente</string>
+    <string name="miprimermomo_momo_phone_title">Teléfono del SoyMomo</string>
+    <string name="miprimermomo_momo_phone_text">Ingresa el número telefónico que obtuviste al activar tu tarjeta SIM. Éste será el número del SoyMomo.</string>
+    <string name="miprimermomo_momo_phone_ready">Listo</string>
+    <string name="miprimermomo_momo_phone_get_number">¿No tienes el número?</string>
+    <string name="miprimermomo_momo_info_title">Datos del SoyMomo</string>
+    <string name="miprimermomo_momo_info_text">Ingresa los datos de tu hijo a continuación</string>
+    <string name="miprimermomo_momo_info_ready">Listo</string>
+    <string name="miprimermomo_first_contact_title">Primer Contacto</string>
+    <string name="miprimermomo_first_contact_text">Vamos a agregarte como contacto al SoyMomo. Necesitamos tu número de teléfono y como quieres que salga tu nombre en el SoyMomo (ej: Mamá)</string>
+    <string name="miprimermomo_first_contact_ready">Listo</string>
+    <string name="miprimermomo_finish_title">¡Felicitaciones!</string>
+    <string name="miprimermomo_finish_text">Ya estás listo para utilizar tu SoyMomo. Si tienes dudas, contáctanos a través del chat de soporte ubicado en el menú principal de la aplicación o escríbenos a contacto@soymomo.com</string>
+    <string name="miprimermomo_finish">Finalizar</string>
+    <string name="toast_error_deleting_user">Hubo un error al eliminar el usuario.</string>
+    <string name="toast_user_deleted">Usuario eliminado.</string>
+    <string name="alert_alarm_name">Ingrese el nombre de la alarma</string>
+    <string name="alarm_default_name">Alarma</string>
+    <string name="toast_alarm_deleted">Alarma eliminada exitosamente.</string>
+    <string name="toast_alarm_error_deleting">No se pudo eliminar la alarma.</string>
+    <string name="snackbar_sos_only_one_contact">Solo se puede tener un contacto SOS.</string>
+    <string name="snackbar_sos_contact_error_deleting">Para eliminar contacto, debes marcar otro contacto como SOS.</string>
+    <string name="snackbar_contact_error_deleting">No se pudo eliminar el contacto.</string>
+    <string name="snackbar_contact_deleted">Contacto eliminado exitosamente.</string>
+    <string name="edittext_error_invalid_phone">Ingrese un teléfono válido</string>
+    <string name="alert_contact_edit">Editar contacto</string>
+    <string name="edittext_error_enter_contact_name">Por favor ingrese un nombre de contacto</string>
+    <string name="progress_completing_reward">Completando recompensa…</string>
+    <string name="toast_error_completing_reward">No se pudo completar la recompensa</string>
+    <string name="toast_error_accepting_request">Hubo un error al aceptar la solicitud.</string>
+    <string name="toast_request_accepted">Solicitud aceptada.</string>
+    <string name="toast_error_rejecting_request">Hubo un error al rechazar la solicitud.</string>
+    <string name="toast_request_rejected">Solicitud rechazada.</string>
+    <string-array name="days_of_week_default">
+        <item>Lunes</item>
+        <item>Martes</item>
+        <item>Miércoles</item>
+        <item>Jueves</item>
+        <item>Viernes</item>
+        <item>Sábado</item>
+        <item>Domingo</item>
+    </string-array>
+    <string name="alert_new_admin_text">Ha seleccionado al usuario %1$s %2$s. ¿Está seguro?</string>
+    <string name="toast_new_admin_assigned">Usuario asignado correctamente.</string>
+    <string name="toast_error_assigning_new_admin">Hubo un error al asignar un usuario nuevo.</string>
+    <string name="watch_disconnected">SoyMomo desconectado. Haz click aquí para saber más.</string>
+    <string name="watch_unauthorized">No estás autorizado para usar este SoyMomo, debes esperar la aprobación del padre encargado</string>
+    <string name="waiting_for_authorization">Esperando Autorización</string>
+    <string name="toast_error_no_event_name">Por favor ingrese un nombre para el evento.</string>
+    <string name="toast_error_event_date">El evento no puede tener una fecha anterior al día de hoy.</string>
+    <string name="progress_saving_event">Guardando evento…</string>
+    <string name="toast_error_creating_event">Hubo un error al crear el evento.</string>
+    <string name="toast_error_editing_event">Hubo un error al guardar los cambios.</string>
+    <string name="toast_error_deleting_event">Hubo un error al eliminar el evento.</string>
+    <string name="progress_deleting_event">Eliminando evento…</string>
+    <string name="title_create_event">Crear Evento</string>
+    <string name="title_edit_event">Editar Evento</string>
+    <string name="title_calendar">Calendario</string>
+    <string name="progress_loading_events">Cargando eventos…</string>
+    <string name="toast_error_loading_calendar">Hubo un error al cargar el calendario, por favor intente nuevamente.</string>
+    <string name="toast_error_saving_geofence">Hubo un error al guardar la zona segura.</string>
+    <string name="geofence_radius_in_meters">%,.0f metros a la redonda.</string>
+    <string name="geofence_radius_in_yards">%,.2f yardas a la redonda.</string>
+    <string name="title_add_geofence">Agregar Zona Segura</string>
+    <string name="toast_error_no_location_permissions">No se obtuvieron permisos para mostrar la ubicación</string>
+    <string name="toast_error_too_many_geofences">No puedes tener más de 10 zonas seguras.</string>
+    <string name="title_geofences">Zonas Seguras</string>
+    <string name="alert_delete_geofence_text">¿Está seguro que desea eliminar %1$s?</string>
+    <string name="progress_logging_in">Iniciando sesión…</string>
+    <string name="toast_error_login_incomplete">Por favor complete todos los campos.</string>
+    <string name="toast_error_wrong_email_or_password">email o contraseña incorrectos.</string>
+    <string name="toast_error_logging_in">Hubo un error al iniciar sesión.</string>
+    <string name="toast_error_no_email">Por favor ingrese su correo electrónico.</string>
+    <string name="progress_resetting_password">Reestableciendo contraseña…</string>
+    <string name="toast_error_account_does_not_exist">No existe una cuenta con ese correo electrónico</string>
+    <string name="toast_error_recovering_password">No se pudo recuperar la contraseña</string>
+    <string name="toast_password_recovered_success">Contraseña recuperada exitosamente, revisa tu correo en unos minutos</string>
+    <string name="edittext_error_first_name">Por favor ingrese su nombre.</string>
+    <string name="edittext_error_last_name">Por favor ingrese su apellido.</string>
+    <string name="edittext_error_email">Por favor ingrese un email válido.</string>
+    <string name="edittext_error_password">Por favor ingrese una contraseña de al menos 6 caracteres</string>
+    <string name="progress_creating_account">Creando cuenta…</string>
+    <string name="toast_error_account_already_created">Ya existe una cuenta con ese correo, por favor inicie sesión.</string>
+    <string name="toast_error_creating_account">No se pudo completar el registro, por favor intente nuevamente.</string>
+    <string name="progress_saving_contact">Guardando contacto…</string>
+    <string name="toast_error_no_momo_profile">No se pudo guardar el perfil del SoyMomo, por favor configúrelo manualmente</string>
+    <string name="toast_error_saving_contact">Hubo un error al guardar el contacto, intente nuevamente.</string>
+    <string name="toast_error_saving_profile">Hubo un error al guardar el perfil del SoyMomo</string>
+    <string name="progress_sending_contact">Enviando contacto al SoyMomo…</string>
+    <string name="progress_saving_info">Guardando información…</string>
+    <string name="toast_error_saving_phone">Hubo un error al guardar el teléfono</string>
+    <string name="progress_saving_phone">Guardando teléfono…</string>
+    <string name="progress_finding_momo">Buscando SoyMomo…</string>
+    <string name="toast_error_imei_unknown">No existe un SoyMomo con ese IMEI.</string>
+    <string name="toast_error_momo_already_linked">Ya tienes ese SoyMomo agregado.</string>
+    <string name="toast_requesting_auth">El SoyMomo está asociado a un usuario, le hemos solicitado permiso.</string>
+    <string name="toast_error_loading_momo">Hubo un error al cargar el SoyMomo.</string>
+    <string name="progress_loading_momo">Cargando SoyMomo…</string>
+    <string name="toast_error_invalid_imei">IMEI inválido, por favor intente nuevamente.</string>
+    <string name="toast_error_finding_momo">Hubo un error al buscar el SoyMomo, por favor intente nuevamente.</string>
+    <string name="scan_imei">Escanea el IMEI de tu SoyMomo</string>
+    <string name="button_send">Enviar</string>
+    <string name="snackbar_momo_disconnected">SoyMomo desconectado, el comando no se enviará hasta que se conecte</string>
+    <string name="progress_loading_alarms">Cargando alarmas…</string>
+    <string name="snackbar_error_loading_alarms">Hubo un error al cargar las alarmas, por favor intente nuevamente.</string>
+    <string name="snackbar_error_max_alarms">No se pueden agregar más de 3 alarmas.</string>
+    <string name="toast_error_loading_image">Hubo un error al cargar la imagen</string>
+    <string name="toast_error_cropping_image">Hubo un error al cortar la imagen</string>
+    <string name="toast_error_could_not_load_settings">No se pudo encontrar las configuraciones del SoyMomo, intente nuevamente.</string>
+    <string name="progress_saving_changes">Guardando cambios…</string>
+    <string name="edittext_error_reward_name">Debes ingresar un nombre de recompensa</string>
+    <string name="toast_error_reward_no_hearts">La recompensa debe tener al menos un corazón</string>
+    <string name="toast_error_reward_no_hearts_space" translatable="false">La recompensa debe tener al menos un corazón</string>
+    <string name="toast_error_saving_reward">Hubo un error al guardar la recompensa</string>
+    <string name="toast_error_deleting_reward">No se pudo eliminar la recompensa</string>
+    <string name="toast_error_max_hearts">No se puede tener más de 200 corazones.</string>
+    <string name="toast_error_max_hearts_space" translatable="false">No se puede tener más de 200 estrellas.</string>
+    <string name="toast_error_min_hearts">No se puede tener menos de 0 corazones.</string>
+    <string name="toast_error_min_hearts_space" translatable="false">No se puede tener menos de 0 estrellas.</string>
+    <string name="toast_error_saving_hearts">Hubo un error al enviar corazones al SoyMomo</string>
+    <string name="toast_error_saving_hearts_space" translatable="false">Hubo un error al enviar estrellas al SoyMomo</string>
+    <string name="progress_saving_hearts">Guardando corazones…</string>
+    <string name="progress_saving_hearts_space" translatable="false">Guardando estrellas…</string>
+    <string name="progress_loading_rewards">Cargando recompensas…</string>
+    <string name="toast_error_loading_rewards">Hubo un error al cargar las recompensas del SoyMomo.</string>
+    <string name="title_location_history">Historial</string>
+    <string name="progress_loading_location_history">Cargando ubicaciones…</string>
+    <string name="toast_error_no_location_history_today">No hay ubicaciones para este día</string>
+    <string name="toast_error_loading_location_history">No se pudo cargar las ubicaciones en el mapa</string>
+    <string name="snackbar_error_loading_lock">Hubo un error al cargar los horarios de bloqueo, por favor intente nuevamente.</string>
+    <string name="progress_loading_lock">Cargando horarios de bloqueo…</string>
+    <string name="toast_error_log_in_again">Por favor inicia sesión nuevamente.</string>
+    <string name="toast_error_loading_momos">No se pudo obtener la lista de SoyMomos</string>
+    <string name="progress_logging_out">Cerrando sesión…</string>
+    <string name="drawer_profile">Perfil</string>
+    <string name="drawer_geofences">Agregar Zona Segura</string>
+    <string name="drawer_add_momo">Agregar SoyMomo</string>
+    <string name="drawer_videocall_history">Historial videollamadas</string>
+    <string name="drawer_store">Tienda</string>
+    <string name="drawer_subscription">SoyMomo SIM</string>
+    <string name="drawer_support">Soporte</string>
+    <string name="drawer_settings">Configuraciones</string>
+    <string name="drawer_log_out">Cerrar Sesión</string>
+    <string name="toast_error_opening_url">No se pudo abrir la URL</string>
+    <string name="alert_log_out_text">¿Estás seguro que deseas cerrar sesión?</string>
+    <string name="button_log_out">Cerrar Sesión</string>
+    <string name="toast_error_no_call_permissions">No se obtuvieron permisos para llamar</string>
+    <string name="snackbar_error_momo_no_phone">Este SoyMomo no tiene un número de teléfono asignado.</string>
+    <string name="snackbar_error_gps_mode_not_recommended">Modo GPS no recomendado. La batería podría durar menos.</string>
+    <string name="toast_error_could_not_send_message">No se pudo enviar el mensaje.</string>
+    <string name="toast_error_recording_audio">Hubo un error al grabar el audio</string>
+    <string name="toast_error_no_audio_permissions">No podemos grabar audio</string>
+    <string name="toast_error_press_to_record_release_to_send">Mantén presionado para grabar, suelta para enviar</string>
+    <string name="toast_error_loading_messages">No se pudo encontrar los mensajes del SoyMomo</string>
+    <string name="dialog_permission_location">Para una mejor experiencia SoyMomo, necesitamos que nos permitas usar tu ubicación.</string>
+    <string name="dialog_permission_calls">Para poder realizar llamadas desde la aplicación, necesitamos tu permiso.</string>
+    <string name="dialog_permission_contacts">Para poder acceder a tus libreta de contactos, necesitamos tu permiso.</string>
+    <string name="dialog_permission_audio">Para grabar un mensaje de voz, permite que SoyMomo pueda acceder al micrófono y a fotos, contenido multimedia y archivos de tu dispositivo.</string>
+    <string name="dialog_permission_storage">Para cambiar la foto, permite que SoyMomo pueda acceder a fotos, contenido multimedia y archivos de tu dispositivo.</string>
+    <string name="channel_notifications_name">Notificaciones</string>
+    <string name="channel_notifications_description">Notificaciones de tu SoyMomo</string>
+    <string name="channel_messages_name">Mensajes</string>
+    <string name="channel_messages_description">Mensajes de tu SoyMomo</string>
+    <string name="push_geofence_in_text">%1$s llegó a %2$s</string>
+    <string name="push_geofence_out_text">%1$s salió de %2$s</string>
+    <string name="push_geofence_title">Zona Segura</string>
+    <string name="push_sos_title">🆘 SOS 🆘</string>
+    <string name="push_sos_text">%1$s necesita ayuda</string>
+    <string name="push_sensor_text">%1$s se sacó el SoyMomo</string>
+    <string name="push_sensor_title">Sensor de Pulsera</string>
+    <string name="push_low_battery_title">Batería Baja</string>
+    <string name="push_low_battery_text">SoyMomo de %1$s tiene poca batería</string>
+    <string name="push_admin_title">Administrador</string>
+    <string name="push_admin_text">%1$s te ha asignado administrador del SoyMomo: %2$s</string>
+    <string name="push_new_request_text">%1$s solicita agregar el SoyMomo: %2$s</string>
+    <string name="push_new_request_title">Solicitud Nueva</string>
+    <string name="push_accepted_request_title">Solicitud Aceptada</string>
+    <string name="push_accepted_request_text">Ahora puedes interactuar con %1$s</string>
+    <string name="push_rejected_request_title">Solicitud Rechazada</string>
+    <string name="push_rejected_request_text">Tu solicitud para agregar el SoyMomo %1$s ha sido rechazada</string>
+    <string name="push_user_removed_title">Acceso a SoyMomo eliminado</string>
+    <string name="push_user_removed_text">%1$s ha eliminado tu acceso al dispositivo de %2$s</string>
+    <string name="push_new_message_title">Mensaje de voz</string>
+    <string name="push_new_message_text">Nuevo mensaje de %1$s</string>
+    <!-- Chat notification labels for MessagingStyle -->
+    <string name="notification_photo_label">Foto</string>
+    <string name="notification_voice_message_label">Mensaje de voz</string>
+    <string name="notification_video_label">Video</string>
+    <string name="notification_messages_summary">%1$d mensajes nuevos</string>
+    <string name="title_assign_new_admin">Asignar nuevo usuario</string>
+    <string name="progress_loading_users">Cargando usuarios…</string>
+    <string name="toast_error_loading_users">Hubo un error al cargar los usuarios, por favor intente nuevamente.</string>
+    <string name="loading">Cargando…</string>
+    <string name="snackbar_command_turn_off_sent">Comando Apagar enviado</string>
+    <string name="snackbar_command_find_sent">Comando Hacer Sonar enviado</string>
+    <string name="snackbar_error_sending_command">No se pudo comunicar con el SoyMomo</string>
+    <string name="alert_remove_momo_text">Vas a eliminar este SoyMomo de tu cuenta ¿Estás seguro?</string>
+    <string name="progress_removing_momo">Eliminando SoyMomo…</string>
+    <string name="snackbar_error_removing_momo">No se pudo eliminar el SoyMomo</string>
+    <string name="snackbar_momo_removed">SoyMomo eliminado con éxito.</string>
+    <string name="button_i_understand">Entendido</string>
+    <string name="alert_remove_momo_admin">Eres el usuario a cargo de este SoyMomo, para desvincularlo debes primero asignar otro usuario a cargo.</string>
+    <string name="snackbar_error_timezone">Hubo un error al tratar de configurar la zona horaria en tu SoyMomo</string>
+    <string name="snackbar_timezone_set">Zona horaria cambiada correctamente</string>
+    <string name="snackbar_error_sound">Hubo un error al tratar de configurar el sonido en tu SoyMomo.</string>
+    <string name="snackbar_sound">Sonido cambiado correctamente</string>
+    <string name="title_steps">Actividad Física</string>
+    <string name="progress_loading_steps">Cargando pasos…</string>
+    <string name="toast_error_loading_steps">Hubo un error al buscar los pasos.</string>
+    <string name="toast_error_no_steps">No se han encontrado conteos de pasos para tu SoyMomo.</string>
+    <string name="title_profile">Perfil</string>
+    <string name="alert_change_email_title">Cambiar email</string>
+    <string name="edittext_error_confirm_email">Por favor confirme su email</string>
+    <string name="edittext_error_emails_dont_match">Los email no coinciden</string>
+    <string name="progress_changing_email">Cambiando email…</string>
+    <string name="toast_email_changed">email cambiado exitosamente</string>
+    <string name="alert_title_change_password">Cambiar Contraseña</string>
+    <string name="edittext_error_confirm_password">Por favor confirme su contraseña</string>
+    <string name="edittext_error_passwords_dont_match">Las contraseñas no coinciden</string>
+    <string name="progress_changing_password">Cambiando contraseña…</string>
+    <string name="toast_error_changing_password">Hubo un error al cambiar la contraseña</string>
+    <string name="toast_password_changed">Contraseña cambiada exitosamente</string>
+    <string name="photo_delete">Eliminar foto</string>
+    <string name="photo_take_new">Tomar nueva foto</string>
+    <string name="photo_select_from_gallery">Seleccionar una foto nueva</string>
+    <string name="change_photo">Cambiar foto</string>
+    <string name="progress_deleting_photo">Eliminando foto…</string>
+    <string name="toast_error_deleting_photo">No se pudo eliminar la foto</string>
+    <string name="progress_saving_photo">Guardando foto…</string>
+    <string name="toast_error_saving_photo">Hubo un error al guardar la foto</string>
+    <string name="toast_photo_saved">Foto guardada exitosamente</string>
+    <string name="toast_error_no_photo_permissions">No podemos acceder a tus fotos</string>
+    <string name="toast_error_camera">No se pudo iniciar la cámara</string>
+    <string name="toast_error_invalid_email">El email ingresado es inválido</string>
+    <string name="toast_error_email_taken">Ya existe una cuenta con este email</string>
+    <string name="toast_error_changing_email">Hubo un error al cambiar el email</string>
+    <string name="settings_notification_text">¿No te llegan las notificaciones?\nRevisa nuestra página de soporte</string>
+    <string name="snackbar_error_max_contacts">No se pueden agregar más de 10 contactos.</string>
+    <string name="title_contacts">Contactos</string>
+    <string name="progress_loading_contacts">Cargando contactos…</string>
+    <string name="snackbar_error_loading_contacts">Hubo un error al cargar los contactos.</string>
+    <string name="snackbar_error_contact_has_no_phone">El contacto no tiene número de teléfono.</string>
+    <string name="alert_add_contact_title">Agregar contacto</string>
+    <string name="snackbar_error_saving_contact">Hubo un error al guardar el contacto, por favor intente nuevamente.</string>
+    <string name="snackbar_error_phone_number_already_exist">El número telefónico ya existe.</string>
+    <string name="snackbar_contact_added">Contacto agregado</string>
+    <string name="snackbar_error_no_contacts_permission">No se obtuvieron permisos para acceder a tus contactos.</string>
+    <string name="edittext_error_weight">Ingrese un peso válido</string>
+    <string name="edittext_error_height">Ingrese una altura válida</string>
+    <string name="contact_name">Nombre del contacto</string>
+    <string name="miprimermomo_unlock_sim_title">Desbloquea el PIN de tu tarjeta SIM</string>
+    <string name="miprimermomo_unlock_sim_text">Normalmente las tarjetas SIM vienen bloqueadas con un código PIN. Si tu SIM está bloqueada, debes desactivar el código PIN antes de usarla con tu SoyMomo.</string>
+    <string name="miprimermomo_unlock_sim_done">Mi SIM está desbloqueada</string>
+    <string name="miprimermomo_unlock_sim_how_to">¿Cómo desbloqueo el PIN de mi SIM?</string>
+    <string name="terms_and_conditions">Términos y Condiciones</string>
+    <string name="toast_must_accept_tos">Debes aceptar los términos y condiciones</string>
+    <string name="toast_tos_error">Hubo un error al aceptar los términos y condiciones</string>
+    <string name="tos_text">En Soymomo nos tomamos muy en serio la protección de tus datos, es por eso que te escribimos para informarte que hemos adaptado nuestra política de privacidad de datos al nuevo Reglamento Europeo 2016/679 del 27 de abril (RGPD) de Protección de Datos de Carácter Personal, que entró en vigor el pasado 25 de mayo. \n\nTe informamos que tus datos están almacenados en nuestra base de datos en EEUU, ya que con ellos podemos darte la mejor experiencia posible utilizando la App de Soymomo para mantenerte comunicado con tus hijos. Igualmente los utilizaremos para comunicarte de cualquier novedad con respecto a nuestros productos. \n\nAlmacenamos datos relacionados a tus hijos, como lo es su nombre, apellido y, en caso de que así lo decidas, una foto de perfil. Estos datos son utilizados para que puedas ver correctamente su SoyMomo en la App y puedas diferenciar entre distintos SoyMomos en la App, en caso de tener más de uno. Adicionalmente, almacenamos La fecha de nacimiento con la que podremos enviar un entretenido mensaje de cumpleaños al usuario del SoyMomo, además de ayudarnos a comprender mejor quienes son nuestros usuarios. \n\nSoyMomo tiene un GPS integrado, almacenamos las ubicaciones recibidas por medio del GPS de las últimas 72 horas para que puedas revisar el historial de ubicaciones de tu hijo/a. \n\nTambién mantenemos en nuestra base de datos los contactos que han sido agregado al momo, esto incluye el nombre y número telefónico, para que tú puedas consultar en línea y en todo momento quienes pueden llamar al SoyMomo de tu hijo. \n\nFinalmente, almacenamos la cantidad de pasos diarios para que puedas monitorear, desde la App, un estimado de la actividad física de tu hijo. \n\nTodos los datos relacionados al SoyMomo y tu cuenta, como ubicaciones, contactos de la guía telefónica del SoyMomo y correo del usuario, serán usados por el equipo de servicio de atención al cliente en caso de que solicites asistencia. \n\nQueremos que sepas que no utilizaremos tus datos para entregarlos a terceros ni para comerciar con ellos. \n\nSi decides que quieres que eliminemos todos los datos relacionados a ti, tomando en cuenta que esto significa que ya no podrás utilizar ningún producto Soymomo, puedes enviarnos un correo con tu solicitud a contacto@soymomo.com. \n\nDe igual manera si deseas no recibir ningún correo informativo de Soymomo, también puedes notificarnos a contacto@soymomo.com.</string>
+    <string name="check_accept_tos">Acepto los términos y condiciones</string>
+    <string name="support_site">página de soporte</string>
+    <string name="notification_play_voice_message_title">Mensaje de Voz</string>
+    <string name="channel_voice_messages_name">Mensajes de voz</string>
+    <string name="snackbar_action_learn_more">VER MÁS</string>
+    <string name="time_picker_end_title">Hora de Término</string>
+    <string name="time_picker_start_title">Hora de Inicio</string>
+    <string name="dialog_language">Idioma</string>
+    <string name="dialog_language_text">Selecciona el idioma de tu SoyMomo</string>
+    <string name="snackbar_language">Idioma cambiado correctamente</string>
+    <string name="snackbar_language_error">Hubo un error al cambiar el idioma</string>
+    <string name="settings_language_title">Idioma</string>
+    <string name="drawer_faq">Preguntas Frecuentes</string>
+    <string name="dialog_find_address_title">Buscar Dirección</string>
+    <string name="geocoder_error_unavailable">Geocoder no disponible</string>
+    <string name="progress_loading">Cargando…</string>
+    <string name="toast_error_loading_geofence">Hubo un error al cargar las zonas seguras</string>
+    <string name="toast_error_deleting_geofence">Hubo un error al eliminar la zona segura</string>
+    <string name="toast_error_searching_address">Hubo un error al buscar la dirección</string>
+    <string name="settings_time_text_am_pm">Configura la zona horaria y el formato de hora de tu SoyMomo</string>
+    <string name="text_time_format">Formato de Hora</string>
+    <string name="text_24_hours">24 Horas</string>
+    <string name="text_12_hours">12 Horas</string>
+    <string name="snackbar_too_many_lock_times">No se pueden agregar más de 4 horarios de bloqueo.</string>
+    <string name="messages_error">Error</string>
+    <string name="messages_tap_retry">Volver a intentar</string>
+    <string name="dialog_recover_last_session_title">Hemos detectado una sesión previa</string>
+    <string name="dialog_recover_last_session_description">¿Quieres iniciar sesión con el correo %1$s?</string>
+    <string name="dialog_recover_last_session_accept">Ingresar</string>
+    <string name="dialog_recover_last_session_decline">Cancelar</string>
+    <string name="push_new_message_image_title">Mensaje de imagen</string>
+    <string name="push_group_member_added_title">%3$s</string>
+    <string name="push_group_member_added_text">%1$s agregó a %2$s</string>
+    <string name="push_group_member_removed_title">%3$s</string>
+    <string name="push_group_member_removed_text">%1$s eliminó a %2$s</string>
+    <string name="push_group_member_left_title">%2$s</string>
+    <string name="push_group_member_left_text">%1$s salió del grupo</string>
+    <string name="push_group_role_changed_title">%2$s</string>
+    <string name="push_group_role_changed_text">%1$s ahora es %3$s</string>
+    <string name="push_group_owner_changed_title">%2$s</string>
+    <string name="push_group_owner_changed_text">%1$s es el nuevo dueño</string>
+    <string name="push_group_deleted_title">%2$s</string>
+    <string name="push_group_deleted_text">%1$s eliminó el grupo</string>
+    <string name="change">Cambiar</string>
+    <string name="dialpad_text">Permite escoger la opción de teclado libre en el SoyMomo Space, esto significa que tu hijo podrá <b>marcar el número telefónico de otras personas que no son parte de su guía telefónica</b>.
+Otorga este permiso, bajo tu criterio.</string>
+    <string name="dialpad_switch">Activar teclado</string>
+    <string name="snackbar_dialpad_mode_updated">Configuración teclado cambiada correctamente</string>
+    <string name="settings_dialpad_title">Teclado</string>
+    <string name="miprimermomo_insert_sim_text_space">Asegúrate que tu tarjeta SIM esté en el tamaño NanoSIM (pequeño) e insértala en el SoyMomo de la forma indicada.</string>
+
+    <string name="settings_battery_saving_title">Ahorro de batería</string>
+    <string name="snackbar_battery_saving_mode_updated">Ahorro de batería habilitado correctamente</string>
+    <string name="battery_saving_switch">Habilitar ahorro de batería</string>
+    <string name="battery_saving_text">Cuando la batería de tu SoyMomo tenga <b>menos de 15%</b>, el GPS se desactivará. Esto permitirá darle mayor tiempo de uso a tu SoyMomo, pero <b>la ubicación no será actualizada.</b></string>
+
+    <string name="snackbar_dialpad_error">There was an error while trying to configure the dialpad mode on your SoyMomo.</string>
+    <string name="snackbar_battery_saving_error">There was an error while trying to configure the battery saving mode on your SoyMomo.</string>
+
+    <string name="user_no_name">Usuario sin nombre</string>
+
+    <string name="pref_speakerphone_key">speakerphone_preference</string>
+    <string name="pref_speakerphone_default">auto</string>
+    <string name="push_battery_saving_title">Ahorro de batería activado</string>
+    <string name="push_battery_saving_text">El gps será deshabilitado para  %1$s</string>
+    <string name="push_videocall_title">📹 Videollamada entrante 📹</string>
+    <string name="push_videocall_text">%1$s está llamando</string>
+    <string name="videocall_connecting">Conectando…</string>
+    <string name="videocall_connected">Conectado</string>
+    <string name="videocall_network_problem">Conexión inestable</string>
+    <string name="button_answer">Contestar</string>
+    <string name="button_decline">Cortar</string>
+    <string name="videocall_title">📹 Videollamada 📹</string>
+    <string name="channel_videocall_name">Videollamada</string>
+    <string name="channel_videocall_description">La alerta de videollamada de tu SoyMomo</string>
+    <string name="videocall_ended">La Videollamada Terminó</string>
+    <string name="videocall_incoming">Videollamada entrante</string>
+    <string name="videocall_rate">¿Cómo calificarías esta videollamada?</string>
+    <string name="videocall_return_home">Volver al menú principal</string>
+    <string name="videocall_retry">Reintentar</string>
+    <string name="videocall_something_went_wrong">Algo salió mal,\n por favor intentalo nuevamente</string>
+    <string name="videocall_problems_tips_title">¿Sigues teniendo problemas?</string>
+    <string name="videocall_problems_tips">\u2022 Comprueba tu conexión a internet \n\u2022 Asegúrate de que tu reloj tiene datos móviles \n\u2022 Si los problemas persisten, contáctanos</string>
+
+    <string name="videocall_connecting_space3">Conectando al dispositivo…</string>
+    <string name="videocall_dialing">Dispositivo conectado. Marcando…</string>
+
+    <string name="network_disconnected">No tienes conexión</string>
+    <string name="videocall_fetching_data">Obteniendo datos</string>
+    <string name="dialog_review_feeling">¿Cómo ha sido tu experiencia con SoyMomo?</string>
+    <string name="dialog_feedback_thanks">Gracias por tu evaluación</string>
+    <string name="alert_dialog_cofirm_delete_contact">¿Estás seguro de eliminar este contacto?</string>
+
+    <string name="no_contacts_text">Agrega contactos presionando el botón \"+\".\n\nSólo aquellos contactos presentes en esta lista podrán llamar y
+        recibir llamadas con tu SoyMomo.</string>
+
+    <string name="unknown_error">Se produjo un error inesperado.</string>
+    <string name="settings_my_friends_title">Mis Amigos</string>
+    <string name="settings_pending_requests_title">Solicitudes pendientes</string>
+    <string name="pending_request_status_pending">Pendiente</string>
+    <string name="pending_request_status_linked">Vinculado</string>
+    <string name="title_activity_my_friends">Mis amigos</string>
+    <string name="my_friends_status_pending">Pendiente</string>
+    <string name="my_friends_status_waiting">Esperando aprobación</string>
+    <string name="my_friends_status_accepted">Aprobado</string>
+    <string name="my_friends_pending_friends_label">Amigos pendientes</string>
+    <string name="my_friends_accepted_friends_label">Amigos vinculados</string>
+    <string name="my_friends_pending_requests_empty_list">No hay solicitudes de amistad pendiente.</string>
+    <string name="my_friends_accepted_requests_empty_list">No hay amigos vinculados a tu SoyMomo.</string>
+    <string name="my_friends_no_friends_text">Tu SoyMomo no ha registrado ningún amigo.\n\nAprende a agregar nuevos amigos a tu SoyMomo revisando el siguiente artículo.</string>
+    <string name="my_friends_how_to_add_friends">¿Cómo agregar amigos?</string>
+    <string name="my_friends_confirm_delete_friend">¿Estás seguro de eliminar este amigo?</string>
+    <string name="my_friends_confirm_request">Aprobando solicitud</string>
+    <string name="my_friends_removing_friend">Eliminando amigo</string>
+    <string name="my_friends_request_approved">Solicitud de amigo aprobada</string>
+    <string name="my_friends_request_rejected">Solicitud de amigo rechazada</string>
+    <string name="my_friends_friend_removed">Amigo eliminado</string>
+    <string name="my_friends_loading_error">Error al cargar amigos</string>
+    <string name="my_friends_confirm_error">Error al aprobar solicitud de amigo</string>
+    <string name="my_friends_remove_error">Error al eliminar amigo</string>
+
+    <string name="miprimermomo_first_time_title">Mi primer SoyMomo</string>
+    <string name="settings_watch_info_title">Información de reloj</string>
+    <string name="installed_app_settings_title">Apps instaladas</string>
+    <string name="watch_info_loading_apps_error">Error cargando información de apps de reloj</string>
+    <string name="watch_info_loading_apps_empty">No hay aplicaciones instaladas en el reloj.</string>
+    <string name="watch_info_version">%s</string>
+    <string name="watch_info_device_id">Id del dispositivo: %s</string>
+    <string name="watch_info_compilation_number">Nº de compilación:\n%s</string>
+    <string name="watch_info_apps_list_title">Listado de aplicaciones</string>
+    <string name="watch_info_apps_list_description">Revisa todas las apliaciones instaladas en tu SoyMomo</string>
+    <string name="installed_app_list_title">Apps instaladas</string>
+    <string name="installed_app_list_empty_title">No se encontraron apps instaladas</string>
+    <string name="installed_app_list_empty_description">Aún no pudimos encontrar apps instaladas para este reloj. Asegúrate de que el dispositivo esté actualizado a la última versión y conectado a internet; luego, inténtalo nuevamente cuando se sincronice.</string>
+    <string name="installed_app_list_error_title">No se pudieron cargar las apps instaladas</string>
+    <string name="installed_app_list_error_description">Revisa tu conexión e inténtalo nuevamente.</string>
+    <string name="installed_app_status_allowed">Permitida</string>
+    <string name="installed_app_status_blocked">Bloqueada</string>
+    <string name="installed_app_duration_joined">%1$s %2$s</string>
+    <string name="installed_app_duration_joined_compact">%1$s %2$s</string>
+    <string name="installed_app_duration_detail_format">%1$s al día</string>
+    <string name="installed_app_detail_allow_title">Permitir app</string>
+    <string name="installed_app_detail_allow_description">Controla si esta app puede abrirse en el reloj.</string>
+    <string name="installed_app_detail_summary_title">Reglas actuales</string>
+    <string name="installed_app_detail_summary_status_allowed">Permitida en el reloj</string>
+    <string name="installed_app_detail_summary_status_blocked">Bloqueada en el reloj</string>
+    <string name="installed_app_detail_summary_limit_format">Límite diario: %1$s</string>
+    <string name="installed_app_detail_summary_limit_off">Sin límite diario</string>
+    <string name="installed_app_detail_summary_message_allowed">Tu hijo o hija puede usar esta app en el reloj.</string>
+    <string name="installed_app_detail_summary_message_blocked">Tu hijo o hija no puede abrir esta app en el reloj.</string>
+    <string name="installed_app_detail_daily_limit_title">Límite diario de tiempo</string>
+    <string name="installed_app_detail_daily_limit_description">Define cuánto tiempo puede usar tu hijo o hija esta app durante el día.</string>
+    <string name="installed_app_detail_limit_value_title">Límite diario seleccionado</string>
+    <string name="installed_app_detail_limit_value_description">Elige cuánto tiempo puede usar esta app cada día.</string>
+    <string name="installed_app_detail_limit_off">Sin límite diario</string>
+    <string name="installed_app_detail_save">Guardar cambios</string>
+    <string name="installed_app_detail_discard_title">¿Descartar cambios?</string>
+    <string name="installed_app_detail_discard_message">Tus cambios aún no se han guardado.</string>
+    <string name="installed_app_detail_discard_confirm">Descartar</string>
+    <string name="installed_app_detail_discard_cancel">Seguir editando</string>
+    <string name="installed_app_detail_update_error">No pudimos actualizar esta app ahora mismo.</string>
+    <string name="installed_app_detail_loading_error">No se pudieron cargar las apps instaladas.</string>
+    <plurals name="installed_app_duration_hours">
+        <item quantity="one">%d h</item>
+        <item quantity="other">%d h</item>
+    </plurals>
+    <plurals name="installed_app_duration_hours_compact">
+        <item quantity="one">%dh</item>
+        <item quantity="other">%dh</item>
+    </plurals>
+    <plurals name="installed_app_duration_minutes">
+        <item quantity="one">%d min</item>
+        <item quantity="other">%d min</item>
+    </plurals>
+    <plurals name="installed_app_duration_minutes_compact">
+        <item quantity="one">%dmin</item>
+        <item quantity="other">%dmin</item>
+    </plurals>
+    <string name="watch_info_loading_build_error">Error cargando información de compilación de reloj</string>
+    <string name="watch_info_activity_title">Infomación de reloj</string>
+    <string name="watch_info_last_update">Última actualización\n%s</string>
+    <string name="gps_icon">Icono de ubicación GPS</string>
+    <string name="safe_zone_format">Zona segura\n%s</string>
+    <string name="watch_info_activity_loading">Cargando información</string>
+
+    <string name="pending_request_confirm_delete">¿Estás seguro que quieres eliminar este usuario?</string>
+    <string name="pending_requests_loading">Cargando solicitudes pendientes</string>
+    <string name="my_friends_loading">Cargando amigos</string>
+
+
+    <string name="video_call_history_today">Hoy</string>
+    <string name="video_call_history_last_week">Última semana</string>
+    <string name="title_activity_video_call_history">Historial de videollamadas</string>
+    <string name="video_call_history_no_calls_text">El historial de videollamadas está vacío.\n\nCuando tus relojes vinculados realicen videollamadas a tu aplicación o viceversa, quedarán registradas en este historial, incluyendo aquellas que no se contestaron.</string>
+    <string name="video_call_history_missed">Perdida</string>
+    <string name="push_new_friend_title">SoyMomo Amigos</string>
+    <string name="push_new_friend_text">%1$s quiere agregar un nuevo amigo!</string>
+    <string name="soymomo_no_data_card">SoyMomo sin señal</string>
+    <string name="soymomo_no_data_help_card">¿Necesitas ayuda?</string>
+    <string name="soymomo_no_data_child_name">%s se ha quedado sin datos</string>
+    <string name="soymomo_no_data_charge_sim_card">Recuerda cargar tu tarjeta SIM con datos y minutos para disfrutar de tu SoyMomo</string>
+    <string name="soymomo_no_data_call_card">Llamar</string>
+    <string name="user_recover_scan_button">Escanear</string>
+    <string name="user_recover_manual_button">Introducción manual</string>
+    <string name="user_recover_send_button">Enviar</string>
+    <string name="user_recover_title">Escanea tu dispositivo</string>
+    <string name="user_found_title">¡Usuario encontrado!</string>
+    <string name="user_not_found_title">¡Usuario no encontrado!</string>
+    <string name="user_not_found_description">El reloj no se ha registrado, por favor, registre una nueva cuenta</string>
+    <string name="user_found_apple_description">El reloj se ha registrado previamente con tu cuenta de inicio de sesión de Apple</string>
+    <string name="user_found_email_description">El reloj se ha registrado previamente con el siguiente correo electrónico: %s</string>
+    <string name="confirm_email">Confirmar correo</string>
+    <string name="edittext_error_email_confirm">Los correos ingresados no son iguales</string>
+
+    <string name="before_you_continue">Antes de continuar,</string>
+    <string name="fill_in_your_data">Rellena tus datos</string>
+    <string name="complete_this_field">Complete este campo</string>
+    <string name="later_add_watch_number">Más Tarde</string>
+    <string name="add_it_here">Agrégalo aquí:</string>
+    <string name="the_soy_momo_not_have_number">¡El %s no tiene un numero configurado!</string>
+    <string name="invalid_number_succes_added">¡El número fue agregado exitosamente!</string>
+
+    <string name="select_date">Selecciona una fecha</string>
+    <string name="date">Fecha</string>
+    <string name="from">Desde</string>
+    <string name="to">Hasta</string>
+    <string name="to_from_incorrect">La hora establecidad en DESDE debe ser menor que HASTA.</string>
+    <string name="location_history_watch_range">Rango de tiempo de %s</string>
+    <string name="toast_error_no_locations">No se encontraron ubicaciones en el rango seleccionado</string>
+
+    <string name="no_reminders_text">No tienes recordatorios</string>
+    <string name="add_new_reminders_text">Agrega un nuevo recordatorio presionando \n en \'Añadir nueva alerta o tarea\'.</string>
+    <string name="add_new_alert_or_task">Añadir nueva alerta o tarea.</string>
+    <string name="notification_reminder">Notificar</string>
+    <string name="at_reminder">A las: %s</string>
+    <string name="from_task_reminder">De: %s</string>
+    <string name="to_task_reminder">A: %s</string>
+    <string name="postpone_alert">Posponer</string>
+    <string name="reminder_before_task">Recordar %d mins. antes</string>
+    <string name="repeat_reminder">Repetir</string>
+    <string name="vibration_reminder">Vibración</string>
+    <string name="validation_reminder">Validación</string>
+    <string name="reminder_app_bar_title">Recordatorios</string>
+    <string name="reminder_of_title_input">Ingrese el nombre del recordatorio</string>
+    <string name="reminder_delete_success">Tu recordatorio fue eliminada exitosamente</string>
+    <string name="button_back">Volver</string>
+    <string name="input_emoji">Seleccione un emoji</string>
+    <string name="alert_type">Alerta</string>
+    <string name="task_type">Tarea</string>
+    <string name="delete_reminder_title_dialog">Eliminar %s</string>
+    <string name="delete_reminder_message_dialog">¿ Estas seguro que deseas eliminar esta  %s ?</string>
+    <string-array name="emoji">
+        <item>😀</item>
+        <item>😄</item>
+        <item>😂</item>
+        <item>🤣</item>
+        <item>😃</item>
+        <item>😄</item>
+        <item>😅</item>
+        <item>😆</item>
+        <item>😉</item>
+        <item>😊</item>
+        <item>😋</item>
+        <item>😎</item>
+        <item>😍</item>
+        <item>😘</item>
+        <item>🥰</item>
+        <item>😗</item>
+        <item>😙</item>
+        <item>😚</item>
+        <item>🙂</item>
+        <item>🤗</item>
+        <item>🤩</item>
+        <item>🤔</item>
+        <item>🤨</item>
+        <item>😐</item>
+        <item>😑</item>
+        <item>😶</item>
+        <item>🙄</item>
+        <item>😏</item>
+        <item>😣</item>
+        <item>😥</item>
+        <item>😮</item>
+        <item>🤐</item>
+        <item>😯</item>
+        <item>😪</item>
+        <item>😫</item>
+        <item>😴</item>
+        <item>😌</item>
+        <item>😛</item>
+        <item>😜</item>
+        <item>😝</item>
+        <item>🤤</item>
+        <item>😒</item>
+        <item>😓</item>
+        <item>😔</item>
+        <item>😕</item>
+        <item>🙃</item>
+        <item>🤑</item>
+        <item>😲</item>
+        <item>🙁</item>
+        <item>😖</item>
+        <item>😞</item>
+        <item>😟</item>
+        <item>😤</item>
+        <item>😢</item>
+        <item>😭</item>
+        <item>😦</item>
+        <item>😧</item>
+        <item>😨</item>
+        <item>😩</item>
+        <item>🤯</item>
+        <item>😬</item>
+        <item>😰</item>
+        <item>😱</item>
+        <item>🥵</item>
+        <item>🥶</item>
+        <item>😳</item>
+        <item>🤪</item>
+        <item>😵</item>
+        <item>😡</item>
+        <item>😠</item>
+        <item>🤬</item>
+        <item>😷</item>
+        <item>🤒</item>
+        <item>🤕</item>
+        <item>🤢</item>
+        <item>🤮</item>
+        <item>🤧</item>
+        <item>😇</item>
+        <item>🤠</item>
+        <item>🤡</item>
+        <item>🥳</item>
+        <item>🥴</item>
+        <item>🥺</item>
+        <item>🤥</item>
+        <item>🤫</item>
+        <item>🤭</item>
+        <item>🧐</item>
+        <item>🤓</item>
+        <item>😈</item>
+        <item>👿</item>
+        <item>👹</item>
+        <item>👺</item>
+        <item>💀</item>
+        <item>👻</item>
+        <item>👽</item>
+        <item>🤖</item>
+        <item>💩</item>
+        <item>😺</item>
+        <item>😸</item>
+        <item>😹</item>
+        <item>😻</item>
+        <item>😼</item>
+        <item>😽</item>
+        <item>🙀</item>
+        <item>😿</item>
+        <item>😾</item>
+        <item>🙌</item>
+        <item>💅</item>
+        <item>🦶</item>
+        <item>👂</item>
+        <item>🦴</item>
+        <item>😇</item>
+        <item>🤵</item>
+        <item>👶</item>
+        <item>👵</item>
+        <item>👴</item>
+        <item>👨‍💻</item>
+        <item>👨‍🎤</item>
+        <item>🎅🏻</item>
+        <item>🤶🏻</item>
+        <item>🧚‍♀️</item>
+        <item>🧚‍♂️</item>
+        <item>🧞‍♂️</item>
+        <item>🧞‍♀️</item>
+        <item>🧛🏻‍♂️</item>
+        <item>🧛🏻‍♀️</item>
+        <item>💇🏻‍♂️</item>
+        <item>💇🏻‍♀️</item>
+        <item>🐥</item>
+        <item>🌷</item>
+        <item>🍊</item>
+        <item>🍇</item>
+        <item>🐑</item>
+        <item>🧘🏻‍♂️</item>
+        <item>🧘🏻‍♀️</item>
+        <item>🦄</item>
+        <item>🐶</item>
+        <item>🦎</item>
+        <item>🌞</item>
+        <item>☀️</item>
+        <item>🌙</item>
+        <item>🌛</item>
+        <item>☕</item>
+        <item>🧁</item>
+        <item>🥳</item>
+        <item>🎉</item>
+        <item>🌱</item>
+        <item>🍞</item>
+        <item>🥞</item>
+        <item>🏊</item>
+    </string-array>
+    <string name="postpone_10">10 mins</string>
+    <string name="postpone_20">20 mins</string>
+    <string name="postpone_30">30 mins</string>
+    <string name="postpone_60">60 mins</string>
+    <string name="lack_information_title_dialog">Falta información</string>
+    <string name="complete_lack_information_message_dialog">Revisa el nombre de la actividad, la imagen y los días de repetición</string>
+    <string name="progress_loading_save_reminder">Guardando recordatorio…</string>
+    <string name="error_save_reminder">Hubo un error al guardar el recordatorio, por favor intente nuevamente.</string>
+    <string name="progress_loading_reminder">Cargando recordatorios…</string>
+    <string name="error_loading_reminder">Hubo un error al cargar los recordatorios.</string>
+    <string name="edit_reminder_app_bar_title">Editar Recordatorio</string>
+    <string name="progress_removing_reminder">Eliminando Recordatorio…</string>
+    <string name="error_delete_reminder">Hubo un error al eliminar el recordatorio, por favor intente nuevamente.</string>
+    <string name="button_save_changes">Guardar Cambios</string>
+    <string name="button_delete_user">Eliminar Usuario</string>
+    <string name="permission_app_bar_title">Permisos</string>
+    <string name="accepted_users_title">Usuarios Aceptados</string>
+    <string name="request_and_permission_app_bar_title">Solicitudes y Permisos</string>
+    <string name="title_dialog_option_disable">Permiso denegado</string>
+    <string name="message_dialog_option_disabled">Contacta al administrador del dispositivo para habilitar esta función.</string>    <string name="title_video_calls_permission">Videollamadas</string>
+    <string name="title_calls_permission">Llamadas</string>
+    <string name="title_location_permission">Ubicación en tiempo real</string>
+    <string name="title_edit_permission">Editar y ver la información del reloj</string>
+    <string name="error_update_permissions">Hubo un error al actualizar los permisos, por favor intente nuevamente.</string>
+    <string name="toast_success_update_permission">Permisos actualizados</string>
+    <string name="application_reminder">Aplicación</string>
+    <string name="select_application_reminder">Seleccione una aplicación</string>
+    <string name="application_description">El recordatorio abrirá la aplicación seleccionada en el reloj</string>
+    <string name="validation_description">Se le notificará cada vez que el niño pulse el botón de validación del recordatorio</string>
+    <string name="imperial_system">Imperial</string>
+    <string name="metric_system">Métrico</string>
+    <string name="success_update_settings">Configuraciones actualizadas correctamente</string>
+    <string name="settings_support">SOPORTE</string>
+    <string name="FAQ">Preguntas Frecuentes</string>
+    <string name="settings_contact_us">Contáctanos</string>
+    <string name="settings_chat_with_us">Chatea con nosotros</string>
+    <string name="settings_about">ACERCA DE</string>
+    <string name="TAC">Términos y Condiciones</string>
+    <string name="PRIVACY">Políticas de Privacidad</string>
+    <string name="manage_notifications">Gestionar notificaciones</string>
+    <!-- Sim Onboarding -->
+    <string name="button_next">Siguiente</string>
+    <string name="first_contact_description">Podrás decidir quién interactua con tu hijo a través de esta aplicación. Ingresa tú nombre u apodo(ej: Mamá) junto a tu número de teléfono</string>
+    <string name="first_contact_button">Agregar primer contacto</string>
+    <string name="full_name_label">Nombre y Apellido</string>
+    <string name="button_get_soymomo_sim">Conseguir una SIM SoyMomo</string>
+    <string name="button_get_other_sim">SIM de otra compañía</string>
+    <string name="button_soymomo_sim">SoyMomo SIM</string>
+    <string name="configure_sim_description">Para utilizar tu SoyMomo es necesario que tengas una tarjeta SIM con datos móviles (internet) y saldo de minutos</string>
+    <string name="configure_sim_title">Configuremos tu tarjeta SIM</string>
+    <string name="configure_soymomo_sim_title">Vamos a configurar tu SIM SoyMomo</string>
+    <string name="configure_soymomo_sim_description">Suscríbete a los planes SoyMomo y obtén tu propia SIM Card, podrás llamar a tus amigos, bajar apps, y mucho más. ¡¿Qué esperas?!</string>
+    <string name="button_subscriptions">Ver suscripciones</string>
+    <string name="insert_sim_description">Introduce tu tarjeta SIM en la ranura del reloj ubicada en la parte trasera de este, asegurate de que quede bien puesta, para así proteger el reloj del agua</string>
+    <string name="insert_sim_title">Introduce la tarjeta SIM</string>
+    <string name="title_congrats">¡Felicitaciones!</string>
+    <string name="text_display_phone_number">Tu número de telefono es: +569 34154298</string>
+    <string name="kid_profile_description">Ingresa el número teléfonico que obtuviste al activar la tarjeta SIM e ingresa los datos del niño que usará el reloj.</string>
+    <string name="kid_profile_title">Datos de tu hijo</string>
+    <string name="title_height">Height</string>
+    <string name="height_hint">Height</string>
+    <string name="title_weight">Weight</string>
+    <string name="weight_hint">Weight</string>
+    <string name="button_how_activate_sim">Cómo activar mi tarjeta SIM</string>
+    <string name="button_configuration">Seguir la configuración</string>
+    <string name="configure_other_sim_description">Sigue las intrucciones para así activar tu tarjeta SIM SoyMomo. El número de teléfono será el número de tu SoyMomo</string>
+    <string name="configure_other_sim_title">Activa tu tarjeta SIM de otra compañía</string>
+    <string name="button_bind">Vincular</string>
+    <string name="enter_iccid_description">Ingresa el código verificador para así poder vincular la tarjeta SIM de tu SoyMomo a la aplicación de padres, de está forma podrás controlar los movimientos de tu hijo.</string>
+    <string name="enter_iccid_label">Ingresa código verificador</string>
+    <string name="enter_iccid_title">Vincula tu tarjeta SIM SoyMomo con tu suscripción</string>
+    <string name="need_tools_title">Vas a necesitar…</string>
+    <string name="need_tools_description">Más adelante vas a necesitar los siguientes articulos: tu tarjeta SIM, tu reloj SoyMomo y el adaptador de tu tarjeta SIM</string>
+    <string name="need_tools_description_2">Es importante que tu SoyMomo tenga al menos un 30% de batería para hacer las siguientes configuraciones</string>
+    <string name="subscriptions_title">Suscripciones</string>
+    <string name="subscription_form_subtitle">Formulario de suscripción</string>
+    <string name="button_i_want">Lo quiero</string>
+    <string name="title_terms_and_conditions">Términos y condiciones</string>
+    <string name="description_terms_and_conditions">Este documento se rige por todo el ordenamiento jurídico, especialmente las normas del Código Civil y el de Comercio, así como también por la Ley Sobre Protección de la Vida Privada y la Ley de Derechos del Consumidor. Adicionalmente, también se incorporan normas administrativas al texto, como lo es, por ejemplo, la Resolución Exenta N° 11 del 14/02/03 dictada por el SII.</string>
+    <string name="subtitle_terms_and_conditions">Acepto los términos y condiciones</string>
+    <string name="rut_label">Rut</string>
+    <string name="dialog_imei_error_title">¡Oh algo salió mal!</string>
+    <string name="dialog_imei_error_description">Este IMEI no existe, puede que estes digitando mal el código, intentalo otra vez.</string>
+    <string name="dialog_imei_request_title">¡Hey!</string>
+    <string name="dialog_imei_request_description">Enviamos tu solicitud, te contaremos cuando tengamos noticias</string>
+    <string name="imei_already_linked_description">Este IMEI ya ha sido registrado, debes pedir autoriación al administrador para realizar cambios</string>
+    <string name="button_back_menu">Volver al menú</string>
+    <string name="button_send_request">Enviar solicitud</string>
+    <string name="loading_title">Cargando…</string>
+    <string name="dialog_imei_already_linked_error_description">Ya has añadido este SoyMomo previamente, revisa la pantalla principal.</string>
+    <string name="mercado_pago_success_title">¡Suscripción realizada con éxito!</string>
+    <string name="mercado_pago_success_description">Transacción realizada gracias a mercado pago.</string>
+    <string name="mercado_pago_failure_description">Hubo un error con la transacción, inténtalo más tarde</string>
+    <string name="label_name">Name</string>
+    <string name="label_lastname">Lastname</string>
+    <string name="edittext_error_enter_contact_lastname">Please add a contact lastname</string>
+    <string name="edittext_error_birthday">Please enter a valid birthday date (yyyy-mm-dd)</string>
+    <string name="edittext_error_rut">Please enter a valid personal id</string>
+    <string name="city_label">City</string>
+    <string name="state_label">State</string>
+    <string name="address_label">Address</string>
+    <string name="dialog_imei_form_invalid_description">Rellena todos los campos del formulario y acepta los términos y condiciones para poder continuar</string>
+    <string name="dialog_imei_form_invalid_title">No lo olvides</string>
+    <string name="label_nickname">Apodo</string>
+    <string name="first_contact_title">Administrador</string>
+    <string name="add_photo">Agregar foto</string>
+    <string name="edittext_error_nickname_name">Please enter your nick name</string>
+    <string name="subtitle_norms_and_privacy">Acepto las normas de privacidad</string>
+    <string name="plan_payment_time">/mes</string>
+    <string name="congratulations_title">Congratulations!</string>
+    <string name="congratulations_description">Has terminado de configurar tu soymomo ahora tu hijo podrá usarlo.</string>
+    <string name="til_optional_address_hint">Apartment floor, unit, building (optional)</string>
+    <string name="til_address_hint">Name of the street</string>
+    <string name="nif_label">NIF</string>
+
+    <string name="subscription_empty_what_is_soymomo_sim">¿Qué es SoyMomo SIM?</string>
+    <string name="subscription_empty_soymomo_sim_explanation">Una SIM con datos móviles y minutos está incluida con tu SoyMomo, solo tienes que solicitar un plan.</string>
+    <string name="subscription_empty_plan_types">3 tipos de planes</string>
+    <string name="subscription_empty_soymomo_sim_subscribe">Suscríbete</string>
+    <string name="subscription_list_your_plans_title">Tus <b>planes SoyMomo</b>:</string>
+    <string name="subscription_list_subscription_associated_label">Dispositivo vinculado a SoyMomo SIM</string>
+    <string name="subscription_list_subscription_managed_label">SoyMomo SIM gestionada por</string>
+    <string name="subscription_list_subscription_settings_label">Gestionar suscripción</string>
+    <string name="subscription_list_subscription_information_label">Información de suscripción:</string>
+    <string name="subscription_list_subscription_label_icc_id">Sim: <b>%1$s</b></string>
+    <string name="subscription_list_subscription_label_data">Datos: <b>%1$s</b></string>
+    <string name="subscription_list_subscription_label_voice">Voz: <b>%1$s</b></string>
+    <string name="subscription_list_subscription_label_warranty">Garantía: <b>%1$s</b></string>
+    <string name="subscription_list_subscription_label_price">Precio: <b>%1$s</b></string>
+    <string name="subscription_list_subscription_label_coverage">Cobertura: <b>%1$s</b></string>
+    <string name="subscription_list_subscription_label_billing_period">Período de facturación: <b>%1$s</b></string>
+    <string name="subscription_list_whatsapp_preset_text">¡Hola! Tengo una consulta relacionada a mi SoyMomo SIM:\n\n- Suscripción: %1$s\n- Modelo de reloj: %2$s\n- ID del dispositivo: %3$s</string>
+    <string name="subscription_list_empty_card_label">Nueva suscripción</string>
+    <string name="subscription_list_empty_title">Configuremos tu SoyMomo SIM</string>
+    <string name="subscription_list_empty_subtitle">Con la suscripción de tu SoyMomo SIM, tendrás acceso a datos y voz para tu reloj</string>
+
+    <string name="subscription_alert_subscription_status_terminated_title">Finalizada</string>
+    <string name="subscription_alert_subscription_status_terminated_subtitle">La suscripción finalizó el %1$s.</string>
+    <string name="subscription_alert_payment_status_canceled_title">Pago cancelado</string>
+    <string name="subscription_alert_payment_status_canceled_subtitle">Tu SIM se desactivará. Contacta a soporte para obtener ayuda.</string>
+    <string name="subscription_alert_payment_status_failed_title">Pago fallido</string>
+    <string name="subscription_alert_payment_status_failed_subtitle">Tu SIM se desactivará.</string>
+    <string name="subscription_alert_payment_status_missing_payment_information_title">Faltan los datos de pago</string>
+    <string name="subscription_alert_payment_status_missing_payment_information_subtitle">Agrega los datos de pago para continuar con tu suscripción.</string>
+    <string name="subscription_alert_payment_button_reactivate">Reactivar</string>
+    <string name="subscription_alert_payment_button_restore">Restaurar</string>
+    <string name="subscription_alert_payment_button_pay_now">Pagar ahora</string>
+    <string name="subscription_alert_payment_button_fix">Corregir</string>
+
+    <string name="subscription_list_payment_status_activation_period">Completando configuración. Sincronizando información de pago y suscripción.</string>
+    <string name="subscription_details_status_terminated_title">Suscripción finalizada el %1$s</string>
+    <string name="subscription_details_status_terminated_subtitle">Para reactivar tu SIM SoyMomo, toca aquí.</string>
+    <string name="subscription_details_status_terminated_iccid_used_subtitle">Tienes una suscripción activa con esta SIM de SoyMomo</string>
+    <string name="subscription_details_payment_status_missing_payment_title">Problema con tu pago</string>
+    <string name="subscription_details_payment_status_missing_payment_subtitle">Por favor, revisa tu método de pago y evita perder la comunicación</string>
+    <string name="subscription_details_payment_status_missing_payment_information_title">Faltan detalles de pago</string>
+    <string name="subscription_details_payment_status_missing_payment_information_subtitle">Por favor, añade tu método de pago y evita perder la comunicación</string>
+    <string name="subscription_new_start_title">Para continuar debes tener una SoyMomo SIM</string>
+    <string name="subscription_new_start_subtitle">Las SoyMomo SIM vienen incluidas en las cajas de los relojes SoyMomo. Si no tienes una, solicitala en el siguiente botón</string>
+    <string name="subscription_new_link_sim_title">Escanear SIM</string>
+    <string name="subscription_new_link_sim_subtitle">Ingresa el código de 19/20 dígitos en la parte posterior de tu tarjeta SoyMomo SIM, o escanea el código de barras</string>
+    <string name="subscription_new_link_scan_icc_id">Escanea el código de barras de tu SoyMomo Sim</string>
+    <string name="subscription_new_link_icc_id_label_placeholder">Código SoyMomo SIM</string>
+    <string name="subscription_new_link_sim_error_title">Hubo un problema con tu SoyMomo SIM</string>
+    <string name="subscription_new_link_sim_error_not_found">Estás usando una tarjeta SIM inválida</string>
+    <string name="subscription_new_link_sim_error_length">El código ingresado no es de 19 dígitos</string>
+    <string name="subscription_new_link_sim_error_already_in_use">La tarjeta SoyMomo Sim ya está en uso</string>
+    <string name="subscription_new_link_sim_error_retired">Esta SIM de SoyMomo ya no está disponible. Contacta al soporte de SoyMomo para solicitar una nueva tarjeta SIM.</string>
+    <string name="subscription_new_link_request_new_physical_sim">Solicitar SoyMomo SIM física</string>
+    <string name="subscription_new_link_ask_new_sim_home">Pide SoyMomo SIM a casa</string>
+    <string name="subscription_new_link_now_select_plan">A continuación, <b>elige tu plan SoyMomo preferido</b>. ¡Empecemos!</string>
+    <string name="subscription_new_choose_watch_title">Vincular a Watch</string>
+    <string name="subscription_new_choose_watch_empty">No tienes relojes disponibles</string>
+    <string name="subscription_new_choose_no_watch_selected">Debes seleccionar un dispositivo</string>
+    <string name="subscription_plan_upgrade_title">Mejora tu plan</string>
+    <string name="subscription_plan_upgrade_entry_title">Mejora tu plan</string>
+    <string name="subscription_plan_upgrade_error_title">No pudimos cargar los planes</string>
+    <string name="subscription_plan_upgrade_empty_title">No hay mejoras disponibles</string>
+    <string name="subscription_plan_upgrade_empty_subtitle">No hay planes de mayor valor disponibles para esta suscripción por ahora.</string>
+    <string name="subscription_plan_upgrade_confirm_title">¿Confirmas tu cambio de plan?</string>
+    <string name="subscription_plan_upgrade_confirm_button">Confirmar</string>
+    <string name="subscription_plan_upgrade_success_message">Plan actualizado con éxito</string>
+    <string name="upgrade_plan_popup_title">¿Quieres más beneficios?</string>
+    <string name="upgrade_plan_popup_subtitle"><![CDATA[<b>Activa un plan superior</b> y accede a todo lo que te estás perdiendo.]]></string>
+    <string name="upgrade_plan_popup_bullet_starting_price">Planes desde los %1$s/ mes</string>
+    <string name="upgrade_plan_popup_bullet_data">Más datos</string>
+    <string name="upgrade_plan_popup_bullet_voice">Más minutos</string>
+    <string name="upgrade_plan_popup_bullet_warranty">Garantía extendida</string>
+    <string name="upgrade_plan_popup_button_label">Mejorar mi plan</string>
+    <string name="subscription_new_choose_plan_title">Planes disponibles</string>
+    <string name="subscription_new_choose_plan_no_wearer_title">Selecciona uno de nuestros planes:</string>
+    <string name="subscription_new_choose_plan_monthly_switch">Mensual</string>
+    <string name="subscription_new_choose_plan_yearly_switch">Anual</string>
+    <string name="subscription_new_choose_plan_discount_placeholder">%1$s%% dscto</string>
+    <string name="subscription_new_choose_plan_button_choose">Elegir %1$s/%2$s</string>
+    <string name="subscription_new_choose_plan_remember_can_cancel">Puedes cancelar tu suscripción en cualquier momento sin cargos adicionales.</string>
+    <string name="subscription_form_requesting_plan_label">Has seleccionado:</string>
+    <string name="subscription_form_button_continue">Continuar al pago</string>
+    <string name="subscription_form_title">Confirma tus datos</string>
+    <string name="subscription_form_label_name">Nombre</string>
+    <string name="subscription_form_label_last_name">Apellido</string>
+    <string name="subscription_form_label_birthday">Fecha de nacimiento</string>
+    <string name="subscription_form_label_personal_id">RUT</string>
+    <string name="request_sim_form_label_personal_id_rut">RUT (12345678–9)</string>
+    <string name="subscription_form_label_phone_number">Número de teléfono</string>
+    <string name="subscription_form_label_email">Correo electrónico</string>
+    <string name="subscription_form_label_address">Dirección</string>
+    <string name="subscription_form_label_city">Comuna</string>
+    <string name="subscription_form_label_state">Región</string>
+    <string name="subscription_form_label_postal_code">Código postal</string>
+    <string name="subscription_form_label_checkboxes">Para continuar, acepta nuestros términos y condiciones</string>
+    <string name="subscription_form_summary_title">Tus datos</string>
+    <string name="subscription_form_terms_notice">Al continuar aceptas los %1$s y la %2$s de SoyMomo.</string>
+    <string name="subscription_form_terms_link_tc">Términos y Condiciones</string>
+    <string name="subscription_form_terms_link_pc">Política de Privacidad</string>
+    <string name="subscription_form_email_warning">Tus boletas llegarán a este correo: usa el mismo con el que pagas.</string>
+    <string name="subscription_form_label_checkboxes_tc">Acepto los términos y condiciones de SoyMomo</string>
+    <string name="subscription_form_label_checkboxes_pc">Acepto la Política de privacidad de SoyMomo</string>
+    <string name="subscription_form_placeholder_address">Nombre y número de la calle</string>
+    <string name="subscription_form_placeholder_optional_address">Apartamento, unidad, edificio (opcional)</string>
+    <string name="subscription_form_placeholder_personal_id">Sin puntos, con guíon (ej: 12345678–5)</string>
+    <string name="subscription_form_placeholder_birthday">yyyy-mm-dd</string>
+    <string name="subscription_form_error_message">Campos faltantes o incorrectos</string>
+    <string name="subscription_form_error_title">Problema para completar el formulario</string>
+    <string name="subscription_form_error_personal_info">Consulta tu información personal</string>
+    <string name="subscription_form_error_email">Verifica el correo electrónico ingresado</string>
+    <string name="subscription_form_error_phone_number">Verifica tu número de teléfono</string>
+    <string name="subscription_form_error_address">Verifica la información de tu dirección</string>
+    <string name="subscription_form_error_checkbox">Debes aceptar los términos y condiciones de SoyMomo para continuar</string>
+    <string name="subscription_payment_apio_user_cards_title">Elige método de pago</string>
+    <string name="subscription_payment_apio_user_cards_add_title">Añadir nueva tarjeta</string>
+    <string name="subscription_payment_apio_user_cards_add_subtitle">Crédito o débito</string>
+    <string name="subscription_payment_apio_confirm_title">Confirmación de la orden</string>
+    <string name="subscription_payment_success_title">Transacción realizada con éxito</string>
+    <string name="subscription_payment_success_point_1">\u2022 Vincularemos el nuevo número de teléfono al reloj automáticamente</string>
+    <string name="subscription_payment_success_point_2">\u2022 Podrás gestionar el plan desde los ajustes de la aplicación</string>
+    <string name="subscription_payment_success_subtitle_mercado_pago">Esta transacción fue procesada de forma segura por Mercado Pago</string>
+    <string name="subscription_payment_success_subtitle_mercado_stripe">Esta transacción fue procesada de forma segura por Stripe</string>
+    <string name="subscription_payment_success_subtitle_receive_email">En los próximos 5 minutos, recibirás una confirmación por correo electrónico de tu transacción</string>
+    <string name="subscription_payment_success_card_activating_title">Activando SoyMomo SIM</string>
+    <string name="subscription_payment_success_card_activating_description">Por favor, espera mientras terminamos los últimos detalles</string>
+    <string name="subscription_payment_success_card_activated_title">SoyMomo SIM activada! Tu número de teléfono es:</string>
+    <string name="subscription_payment_success_card_finish_later_title">Terminando últimos detalles</string>
+    <string name="subscription_payment_success_card_finish_later_description">Te notificaremos cuando tu SoyMomo SIM esté lista. Puede tardar entre 5 y 15 minutos.</string>
+    <string name="subscription_payment_error_title">¡Ups! Hubo un problema con tu método de pago.</string>
+    <string name="subscription_payment_error_description">No pudimos añadir tu método de pago. Por favor, intenta de nuevo o usa un método de pago diferente si el problema persiste. Si necesitas ayuda para activar tu SIM de SoyMomo, no dudes en contactar al soporte de SoyMomo.</string>
+
+    <string name="subscription_new_end_title">¡Estás listo!</string>
+    <string name="subscription_new_end_subtitle">Inserta tu tarjeta SoyMomo SIM activada en tu reloj SoyMomo y explora el mundo de la tecnología segura</string>
+    <string name="subscription_new_end_label_congratulations">¡Felicidades!</string>
+    <string name="subscription_new_end_label_new_phone_number">El número de teléfono es:</string>
+    <string name="subscription_watch_card_model">Modelo: %1$s</string>
+    <string name="subscription_watch_card_imei">IMEI: %1$s</string>
+    <string name="subscription_watch_card_phone">Teléfono: %1$s</string>
+    <string name="subscription_button_dont_have_sim">No tengo</string>
+    <string name="subscription_button_have_sim">Ya tengo una</string>
+    <string name="subscription_button_next">Siguiente</string>
+    <string name="subscription_button_add_new">Agregar SoyMomo SIM</string>
+    <string name="subscription_button_link_soymomo_sim">Vincular SoyMomo SIM</string>
+    <string name="subscription_button_return_to_subscriptions">Regresar</string>
+    <string name="subscription_button_try_again">Intentar otra vez</string>
+    <string name="subscription_button_copy_content_clipboard">%1$s copiado a portapapeles</string>
+    <string name="subscription_button_finish">Finalizar</string>
+    <string name="subscription_button_confirm_subscription">Confirmar suscripción</string>
+    <string name="subscription_animation_hint"><b>Necesitas ayuda?</b>\nRevisa la animación o visita nuestra página de soporte</string>
+
+    <string name="subscription_cancel_title">¿Estás seguro?</string>
+    <string name="subscription_cancel_label">Perderás el acceso a tu conexión SIM SoyMomo y a los beneficios de la suscripción</string>
+    <string name="subscription_button_cancel_confirm">Cancelar suscripción</string>
+    <string name="subscription_button_cancel_maintain">Mantener suscripción</string>
+    <string name="subscription_cancel_toast_error">Error al cancelar suscripción. Contacte servicio al cliente.</string>
+    <string name="subscription_cancellation_title">Solicitud de cancelación</string>
+    <string name="subscription_cancellation_message">La cancelación se hará efectiva el %1$s. No se aplicarán cargos.</string>
+    <string name="subscription_restore_button">Restaurar</string>
+    <string name="subscription_restore_toast_error">Error al restaurar suscripción. Contacte servicio al cliente.</string>
+    <string name="subscription_restore_title">Restaura tu suscripción</string>
+    <string name="subscription_restore_description">No perderás el acceso a los beneficios de tu SoyMomo SIM</string>
+    <string name="subscription_restore_point_1">Configuraremos una nueva suscripción de la SIM de SoyMomo para tu <b>%1$s</b> utilizando la tarjeta SIM <b>%2$s</b>.</string>
+    <string name="subscription_restore_point_2">Puedes seleccionar un nuevo plan de SoyMomo para tu dispositivo.</string>
+    <string name="subscription_restore_point_3">Si has retirado la SIM de SoyMomo, por favor, insértala de nuevo en el reloj antes de continuar.</string>
+    <string name="subscription_button_information">Gestionar subscription</string>
+
+    <string name="add_watch_enter_imei_title">Vincula tu SoyMomo</string>
+    <string name="add_watch_enter_imei_description">Ingresa el código IMEI ubicado en la parte posterior del reloj o escanea con la cámara del teléfono</string>
+    <string name="add_watch_enter_imei_input_label">Código IMEI</string>
+    <string name="add_watch_enter_imei_error_invalid">El código IMEI ingresado no es válido</string>
+    <string name="add_watch_enter_imei_error_search">El código IMEI ingresado no es válido</string>
+    <string name="add_watch_enter_imei_already_linked_title">¡Todo Listo!</string>
+    <string name="add_watch_enter_imei_already_linked_description">Ya has vinculado el dispositivo</string>
+    <string name="add_watch_enter_imei_dialog_error_title">Algo salió mal</string>
+    <string name="add_watch_imei_has_admin_title">Este SoyMomo ya tiene un administrador</string>
+    <string name="add_watch_imei_has_admin_description">Para garantizar la seguridad de nuestros usuarios, cada SoyMomo solo puede tener un administrador principal. Hemos enviado una solicitud al administrador actual para que autorice tu cuenta. Puedes ver sus detalles a continuación.</string>
+    <string name="add_watch_imei_has_admin_authorization_requested_title">Solicitud de autorización enviada</string>
+    <string name="add_watch_imei_has_admin_authorization_requested_description">Te enviaremos una notificación cuando el administrador acepte o rechaze tu solicitud</string>
+    <string name="add_watch_imei_has_admin_current_admin">Administrador Actual</string>
+    <string name="add_watch_imei_has_admin_masked_info_email">Email: <b>%1$s</b></string>
+    <string name="add_watch_imei_has_admin_masked_info_name">Nombre: <b>%1$s</b></string>
+    <string name="add_watch_imei_has_admin_masked_info_phone">Teléfono: <b>%1$s</b></string>
+    <string name="add_watch_need_tools_title">Necesitarás:</string>
+    <string name="add_watch_need_tools_description_1">Para completar con éxito la configuración de su dispositivo, necesitarás: tu reloj SoyMomo, una tarjeta SIM y el adaptador de su tarjeta SIM</string>
+    <string name="add_watch_need_tools_description_2">Es importante que tu SoyMomo tenga al menos 30% de duración de la batería para evitar problemas de configuración</string>
+    <string name="add_watch_first_contact_add_picture">Agregar una imagen</string>
+    <string name="add_watch_first_contact_title">¡Eres el administrador!</string>
+    <string name="add_watch_first_contact_description">Como administrador, podrás decidir quién interactúa con tu hijo. Ingresa tu información para sincronizar tu contacto con tu reloj SoyMomo</string>
+    <string name="add_watch_first_contact_label_nickname">Apodo</string>
+    <string name="add_watch_first_contact_label_name">Nombre</string>
+    <string name="add_watch_first_contact_label_last_name">Apellido</string>
+    <string name="add_watch_first_contact_label_phone_number">Número de teléfono</string>
+    <string name="add_watch_first_contact_label_error_nickname">Ingresa un apodo válido</string>
+    <string name="add_watch_first_contact_label_error_name">Escribe tu nombre</string>
+    <string name="add_watch_first_contact_label_error_last_name">Escribe tu apellido</string>
+    <string name="add_watch_first_contact_label_error_phone_number">Ingresa un número de teléfono válido</string>
+    <string name="add_watch_first_contact_placeholder_nickname">Padre, madre, tía, etc…</string>
+    <string name="add_watch_first_contact_dialog_error_title">Ocurrió un problema</string>
+    <string name="add_watch_first_contact_dialog_error_description">Consulta la información proporcionada</string>
+    <string name="add_watch_configure_sim_title">Es hora de configurar tu tarjeta SIM</string>
+    <string name="add_watch_configure_sim_subtitle">¿Qué SIM deseas activar?</string>
+    <string name="add_watch_configure_sim_description">Para usar tu reloj SoyMomo, necesitas una tarjeta SIM con datos móviles y minutos.</string>
+    <string name="add_watch_configure_other_sim_title">Configura tu tarjeta SIM</string>
+    <string name="add_watch_configure_other_sim_description">Activa su SIM de acuerdo a las instrucciones de su empresa.\n\n Es importante que <b>anotes el número de teléfono asociado a tu SIM</b>, lo necesitaremos en los siguientes pasos.</string>
+    <string name="add_watch_configure_other_sim_how_to_configure">¿Cómo activar mi tarjeta SIM?</string>
+    <string name="add_watch_configure_choose_other_sim_title">Otra compañía de SIM</string>
+    <string name="add_watch_configure_soymomo_sim_title">SoyMomo SIM</string>
+    <string name="add_watch_configure_soymomo_sim_description">Con <b>SoyMomo SIM</b>, disfruta de una variedad de planes y una experiencia de usuario superior. ¡Únete hoy!</string>
+    <string name="add_watch_choose_mobile_network_operator_title">Elige tu proveedor de SIM</string>
+    <string name="add_watch_choose_mobile_network_operator_button_not_in_list">Mi SIM no está en la lista</string>
+    <string name="add_watch_insert_sim_title">Inserta tu tarjeta SIM</string>
+    <string name="add_watch_insert_sim_description">Abre la ranura de su reloj, inserta la tarjeta SIM en la posición correcta y asegúrate de cerrar la ranura con fuerza, para proteger el reloj del agua y las salpicaduras.</string>
+    <string name="add_watch_insert_sim_label_remember">Recuerda,</string>
+    <string name="add_watch_insert_sim_label_sim_phone">Debes tener el número de teléfono de tu tarjeta SIM a mano</string>
+    <string name="add_watch_insert_sim_first_interaction_waiting_title">Estableciendo la primera conexión…</string>
+    <string name="add_watch_insert_sim_first_interaction_waiting_description">• Inserta la tarjeta SIM en el dispositivo.\n• La conexión a la red puede tardar hasta 10 minutos.\n• Te notificaremos cuando esté listo.</string>
+    <string name="add_watch_insert_sim_with_pre_inserted_first_interaction_waiting_title">Estableciendo la primera conexión…</string>
+    <string name="add_watch_insert_sim_with_pre_inserted_first_interaction_waiting_description">• La conexión a la red puede tardar hasta 10 minutos.\n• Te notificaremos cuando esté listo.</string>
+    <string name="add_watch_insert_sim_first_interaction_success_title">¡Dispositivo conectado con éxito!</string>
+    <string name="add_watch_insert_sim_first_interaction_success_description">Tu dispositivo ahora está conectado y listo para usar. Puedes continuar con la configuración y disfrutar de todas sus funciones.</string>
+    <string name="add_watch_insert_sim_already_pre_inserted_title">Finalizando la configuración de red…</string>
+    <string name="add_watch_insert_sim_already_pre_inserted_description">Tu SoyMomo establecerá ahora su primera conexión a la red.\n\n <b>Por favor, continúa los pasos en pantalla del reloj para iniciar el proceso de conexión.</b></string>
+    <string name="add_watch_sim_extra_step_title">¡Pasos finales: casi listo!</string>
+    <string name="add_watch_sim_extra_step_description">Termina de configurar correctamente la tarjeta SIM de %1s con estos últimos pasos. Puedes consultar la imagen de arriba si es necesario.</string>
+    <string name="add_watch_kid_profile_add_picture">Agregar una imagen</string>
+    <string name="add_watch_kid_profile_title">Información de tu niñ@</string>
+    <string name="add_watch_kid_profile_description">Ingresa el número de teléfono que obtuviste al activar la tarjeta SIM e ingresa los datos del niño que usará el reloj</string>
+    <string name="add_watch_kid_profile_label_phone_number">Número de teléfono de la tarjeta SIM</string>
+    <string name="add_watch_kid_profile_label_name">Nombre</string>
+    <string name="add_watch_kid_profile_label_last_name">Apellido</string>
+    <string name="add_watch_kid_profile_label_birthday">Cumpleaños</string>
+    <string name="add_watch_kid_profile_label_height">Altura</string>
+    <string name="add_watch_kid_profile_label_weight">Peso</string>
+    <string name="add_watch_kid_profile_label_error_name">Escribe su nombre</string>
+    <string name="add_watch_kid_profile_label_error_last_name">Escribe su apellido</string>
+    <string name="add_watch_kid_profile_label_error_phone_number">Ingresa un número de teléfono válido</string>
+    <string name="add_watch_kid_profile_label_error_birthday">Ingresa un cumpleaños válido</string>
+    <string name="add_watch_kid_profile_label_error_height">Ingresa una altura válida</string>
+    <string name="add_watch_kid_profile_label_error_weight">Ingresa una peso válido</string>
+    <string name="add_watch_kid_profile_dialog_error_title">Ocurrió un problema</string>
+    <string name="add_watch_kid_profile_dialog_error_description">Consulta la información proporcionada</string>
+    <string name="add_watch_finish_title">¡Felicidades!</string>
+    <string name="add_watch_finish_description">Estás listo para usar tu dispositivo SoyMomo. Si tienes alguna duda, contáctanos a través del chat de soporte ubicado en el menú principal de la aplicación o escríbenos a contacto@soymomo.com</string>
+    <string name="add_watch_button_send_request">Enviar solicitud de autorización</string>
+    <string name="add_watch_button_back_menu">Volver al menú</string>
+    <string name="add_watch_button_soymomo_sim">SoyMomo SIM</string>
+    <string name="add_watch_button_sim_other_company">Otra compañía SIM</string>
+    <string name="add_watch_button_finish">Finalizar</string>
+    <string name="add_watch_kid_profile_subscription_no_phone_description">Introduce los datos del niño que utilizará el reloj. Actualizaremos el número de teléfono cuando la activación de tu SoyMomo SIM esté lista.</string>
+    <string name="add_watch_save_kid_contact_title">¿Guardar el número del reloj de %1$s?</string>
+    <string name="add_watch_save_kid_contact_description">Guarda este número para llamar al reloj de %1$s y reconocer sus llamadas entrantes. Podrás revisarlo antes de guardarlo.</string>
+    <string name="add_watch_save_kid_contact_save">Guardar contacto</string>
+    <string name="add_watch_save_kid_contact_skip">Ahora no</string>
+    <string name="add_watch_save_kid_contact_error">No hay una app de contactos disponible en este dispositivo.</string>
+    <string name="add_watch_has_pre_inserted_sim_title">Tu SoyMomo ya viene con SIM integrada! 🎉</string>
+    <string name="add_watch_has_pre_inserted_sim_description">👌 Tu SIM ya está instalada en tu reloj SoyMomo para que tú no tengas que preocuparte.\n\n Con una conexión de alta calidad gracias a nuestra <b>alianza con %1$s</b>, estarás listo para usarlo desde el primer instante.</string>
+    <string name="add_watch_has_pre_inserted_sim_button_next">Elegir tu plan SoyMomo by %1$s</string>
+    <string name="add_watch_has_pre_inserted_sim_button_other_sim"><u>¿Quieres usar otra sim? Haz click aquí</u></string>
+    <string name="add_watch_already_linked_title">¡Dispositivo vinculado con éxito!</string>
+    <string name="add_watch_already_linked_description">Ya eres el administrador de este dispositivo</string>
+    <string name="add_watch_already_linked_without_sim_description">Tu reloj ya está asociado a tu cuenta.\n\n Activa ahora tu SoyMomo SIM para finalizar la configuración y disfrutar todas las funciones del reloj.</string>
+    <string name="add_watch_already_linked_button_activate_soymomo_sim">Activa tu SoyMomo SIM</string>
+    <string name="subscription_activation_state_no_phone_title">Terminando los últimos detalles</string>
+    <string name="subscription_activation_state_no_phone_text">Te notificaremos cuando tu SoyMomo SIM esté lista. Puede tardar entre 5 y 10 minutos.</string>
+    <string name="subscription_activation_state_complete">Activación completa</string>
+    <string name="subscription_push_notification_activation_complete_title">¡Tu SoyMomo SIM está lista! 🎉</string>
+    <string name="subscription_push_notification_activation_complete_text">El número de tu hijo/a es %1$s — ¡todo listo para estar conectados! 📱🐼</string>
+    <string name="subscription_push_notification_payment_issue_title">⚠️ Problema con el pago</string>
+    <string name="subscription_push_notification_payment_issue_text">Actualiza tu método de pago para que tu hijo/a siga conectado/a 📱</string>
+    <string name="subscription_push_notification_terminated_title">Suscripción cancelada 😔</string>
+    <string name="subscription_push_notification_terminated_text">Reactívala cuando quieras para seguir conectados 🐼</string>
+    <string name="subscription_spinner_activating_sim">Activando SoyMomo SIM</string>
+    <string name="subscription_payment_skip_title">¡Felicidades por activar tu tarjeta SIM! 😁</string>
+    <string name="subscription_payment_skip_text">Los primeros 30 días son gratis, y te enviaremos un correo electrónico con los pasos para activar tu suscripción una semana antes de que expire. ¡Disfruta manteniendo la conexión con tu hijo usando SoyMomo! 📱🐼</string>
+    <string name="edittext_error_birthday_18">Tienes que tener 18 años o más para poder subscribirte</string>
+    <string name="check_android_permissions">Verificar permisos</string>
+    <string name="error_length_status">Imei must have 15 digits</string>
+    <string name="error_already_linked_status">The SoyMomo watch is already linked on your account. Please go back to the main menu!</string>
+
+    <!-- Strings from GPS settings -->
+    <string name="text_frequency_gps_mode">La frecuencia determina cuán a menudo enviamos actualizaciones de ubicación.\n\nTen en cuenta que las actualizaciones más frecuentes consumen la batería más rápido. Para un buen equilibrio, <b>te recomendamos configurarlo para actualizar cada 10 minutos.</b></string>
+    <string name="gps_minutes_title">Minutos</string>
+    <string name="gps_recommended_title">Recomendado</string>
+    <string name="gps_consumption_normal">Normal</string>
+    <string name="gps_consumption_high">Alto</string>
+    <string name="gps_minutes_text_information">Envía la ubicación cada %1$d minuto(s) \n Consumo de batería: %2$s</string>
+    <string name="gps_warning_battery_saving_title">El modo de ahorro de batería está activado</string>
+    <string name="gps_warning_battery_saving_text">El modo de GPS seleccionado se aplicará cuando la batería de SoyMomo sea superior al 15% o el modo de ahorro de batería se desactive</string>
+    <string name="gps_snackbar_error">Hubo un error al tratar de configurar el modo GPS en tu SoyMomo.</string>
+    <string name="gps_snackbar_mode_updated">Modo GPS cambiado correctamente</string>
+    <string name="subscription_button_information_description">Gestiona tu cuenta, métodos de pago e historial</string>
+    <string name="subscription_button_contact_us_description">Contacta a nuestro soporte técnico, disponible 24/7</string>
+    <string name="subscription_button_faq_description">Consulta información y guías sobre tu suscripción</string>
+
+    <!-- Battery Alerts -->
+    <string name="battery_alert_battery_off">Reloj apagado</string>
+    <string name="battery_alert_battery_save">Modo de ahorro de batería</string>
+    <string name="battery_alert_disconnected_watch">Tu SoyMomo está apagado, desconectado o sin señal</string>
+    <string name="battery_alert_low_battery">Batería baja</string>
+    <string name="battery_alert_gps_mode">Frecuencia GPS alta. Esto puede reducir la duración de la batería.</string>
+
+    <string name="main_prompt_device_disconnected_title">SoyMomo Desconectado</string>
+    <string name="main_prompt_device_disconnected_button">Haz clic para saber más</string>
+    <string name="main_prompt_device_disconnected_description">Desconectado o apagado, la ubicación y configuración del dispositivo son inaccesibles. En línea, todas las funciones están disponibles con datos móviles.</string>
+    <string name="main_prompt_device_disconnected_contact_us"><u>Contáctenos</u></string>
+    <string name="main_card_disconnected_message">Las funciones volverán una vez que se restauren los datos móviles o el dispositivo esté encendido.</string>
+
+    <!-- Main Card Auth -->
+    <string name="unauthorized_watch_imei">%1$s</string>
+    <string name="unauthorized_watch_message">Necesitas aprobación del admin para usar este reloj</string>
+
+    <string name="notification_channel_other_title">Otras notificaciones</string>
+    <string name="notification_channel_geofences_title">Zonas seguras</string>
+    <string name="notification_channel_watch_title">Acciones del dispositivo</string>
+    <string name="notification_channel_ownership_title">Administración del dispositivo</string>
+    <string name="notification_channel_messages_title">Chat</string>
+    <string name="notification_channel_group_membership_title">Actualizaciones de grupos</string>
+    <string name="notification_channel_videocall_title">Videollamadas</string>
+    <string name="notification_channel_subscription_title">SIM y suscripciones</string>
+    <string name="notification_channel_marketing_title">Noticias, descuentos e información</string>
+
+    <string name="main_perform_call_dialog_title">Selecciona el método de llamada:</string>
+    <string name="main_perform_call_dialog_phone">Teléfono</string>
+    <string name="main_perform_call_dialog_video">Video</string>
+
+    <string name="settings_app_edit">Editar</string>
+    <string name="settings_app_title">Configuraciones</string>
+    <string name="settings_app_geofences_title">Agregar Zonas Seguras</string>
+    <string name="settings_app_geofences_chip">%1$d guardadas</string>
+    <string name="settings_app_link_soymomo_title">Enlazar SoyMomo</string>
+    <string name="settings_app_my_linked_soymomo_title">Mis SoyMomo Enlazados</string>
+    <string name="settings_app_my_linked_soymomo_chip">%1$d enlazados</string>
+    <string name="settings_app_soymomo_sim_title">SoyMomo SIM</string>
+    <string name="settings_app_soymomo_sim_chip">%1$d activa(s)</string>
+    <string name="settings_app_store_title">Tienda</string>
+    <string name="settings_app_store_text">Ver más productos SoyMomo</string>
+    <string name="settings_app_support_title">Soporte</string>
+    <string name="settings_app_support_text">Contáctanos</string>
+    <string name="settings_app_settings_title">Configuración</string>
+    <string name="settings_app_settings_text">Administra tus preferencias</string>
+    <string name="settings_app_videocall_history_title">Videollamadas</string>
+    <string name="settings_app_videocall_history_text">Ver historial</string>
+    <string name="settings_app_faq_title">FAQ</string>
+    <string name="settings_app_faq_text">Preguntas frecuentes</string>
+    <string name="settings_app_log_out_title">Cerrar sesión</string>
+    <string name="settings_app_log_out_text" />
+    <string name="settings_app_terms">Términos</string>
+    <string name="settings_app_and_conditions">y Condiciones</string>
+    <string name="settings_app_privacy">Privacidad</string>
+    <string name="settings_app_privacy_policy">Política</string>
+
+
+    <string name="user_profile_title">Tu cuenta SoyMomo</string>
+    <string name="user_profile_main_title">Configuración de la cuenta</string>
+    <string name="user_profile_edit_profile_title">Editar perfil</string>
+    <string name="user_profile_edit_profile_text">Cambia tu información personal</string>
+    <string name="user_profile_change_email_title">Cambiar correo electrónico</string>
+    <string name="user_profile_change_email_text" />
+    <string name="user_profile_change_password_title">Cambiar contraseña</string>
+    <string name="user_profile_change_password_text" />
+    <string name="user_profile_erase_account_title">Eliminar tu cuenta</string>
+    <string name="user_profile_erase_account_text">Puedes eliminar tu cuenta SoyMomo en cualquier momento</string>
+    <string name="user_profile_social_media_title">Redes sociales vinculadas</string>
+    <string name="user_profile_social_media_text">Administra tus redes sociales vinculadas a tu cuenta SoyMomo</string>
+    <string name="user_profile_log_out_title">Cerrar sesión</string>
+    <string name="user_profile_log_out_text">Cerrar sesión en este dispositivo</string>
+    <string name="user_profile_save_changes">Guardar cambios</string>
+    <string name="user_profile_form_error_first_name_empty">Tu nombre no puede estar vacío</string>
+    <string name="user_profile_form_error_last_name_empty">Tu apellido no puede estar vacío</string>
+    <string name="user_profile_form_error_birthday">Verifica la fecha ingresada</string>
+    <string name="user_profile_form_error_phone_number_empty">Tu número de teléfono no puede estar vacío</string>
+    <string name="user_profile_form_error_phone_number">Verifica tu número de teléfono</string>
+    <string name="user_profile_form_changes_success">Tus cambios se han guardado correctamente</string>
+    <string name="user_profile_form_changes_error">Hemos encontrado un problema, por favor intenta nuevamente</string>
+    <string name="user_profile_email_current">Correo electrónico actual</string>
+    <string name="user_profile_email_new">Ingresa el nuevo correo electrónico</string>
+    <string name="user_profile_email_confirm_new">Confirma el nuevo correo electrónico</string>
+    <string name="user_profile_email_current_empty">No tienes un correo electrónico asociado</string>
+    <string name="user_profile_email_error_empty">No puedes tener un correo electrónico vacío</string>
+    <string name="user_profile_email_error_format">El formato del correo electrónico no es válido</string>
+    <string name="user_profile_email_error_confirm_email">El correo electrónico de confirmación es diferente</string>
+    <string name="user_profile_password_current">Contraseña actual</string>
+    <string name="user_profile_password_new">Ingresa la nueva contraseña</string>
+    <string name="user_profile_password_confirm_new">Confirma la nueva contraseña</string>
+    <string name="user_profile_password_error_current_not_match">Tu contraseña actual no es válida</string>
+    <string name="user_profile_password_error_empty">No puedes tener una contraseña vacía</string>
+    <string name="user_profile_password_error_format">La contraseña no cumple con las reglas de seguridad</string>
+    <string name="user_profile_password_error_confirm_password">La contraseña de confirmación es incorrecta</string>
+    <string name="user_profile_password_security_rules">La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número o un símbolo (como ., !, # o %), y debe tener al menos ocho caracteres de longitud.</string>
+    <string name="push_power_on_title">%1$s tiene su SoyMomo encendido ⚡️</string>
+    <string name="push_power_on_text">Tu dispositivo está ahora en funcionamiento. ¡Que continúen las aventuras! 🚀</string>
+    <string name="push_power_off_title">%1$s tiene su SoyMomo apagado ⛔️</string>
+    <string name="push_power_off_text">¡Recuerda cargar tu dispositivo! 👋</string>
+
+    <string name="select_tablet_string"><b>Selecciona</b> el color de tu reloj</string>
+    <string name="link_watch_title"><b>Vincular</b> \n Reloj SoyMomo</string>
+    <string name="link_watch_description_text">Debes completar los siguientes 4 <b>pasos</b> para vincular tu reloj SoyMomo</string>
+    <string name="link_watch_steps_title"><b>Pasos</b> para vincular SoyMomo</string>
+    <string name="link_step_description">Ingresa el código <b>IMEI</b> ubicado en la parte posterior del reloj o <b>escanéalo con la cámara</b> de un teléfono</string>
+    <string name="link_step_hint">¿No sabes cómo hacerlo? \nPuedes revisar la animación que se encuentra en la parte superior.</string>
+    <string name="select_color_link_step"><b>Selecciona</b> el color de tu SoyMomo</string>
+    <string name="imei_error_text">Este IMEI no existe. Es posible que estés ingresando incorrectamente el código. Por favor, inténtalo nuevamente.</string>
+    <string name="imei_textinput">Código IMEI</string>
+    <string name="add_soymomo_title">Agregar SoyMomo</string>
+    <string name="completed_string">Completado</string>
+    <string name="net_error_text">Hubo un error al cargar tu SoyMomo. Puede que haya fallado la conexión a internet.</string>
+    <string name="imei_ask_admin_description">Este IMEI ya ha sido registrado. Debes solicitar autorización al administrador para realizar cambios.</string>
+    <string name="imei_ask_admin_title">¡Este IMEI ya está vinculado!</string>
+    <string name="send_request">Enviar solicitud</string>
+    <string name="back">Volver</string>
+    <string name="link_step_dialog_title">¡Solicitud enviada!</string>
+    <string name="link_step_dialog_description">Te enviaremos una notificación cuando seas aceptado como usuario.</string>
+    <string name="link_step_dialog_button">Volver a configuración</string>
+    <string name="name">Nombre</string>
+    <string name="child_profile_title">Perfil de niño</string>
+    <string name="child_step_hint_linkwatch">Puedes cambiar la información en cualquier momento desde "Ajustes del reloj".</string>
+    <string name="admin_data">Datos del administrador</string>
+    <string name="number">Número</string>
+    <string name="admin_step_hint_title_linkwatch">¡Serás el primer contacto!</string>
+    <string name="admin_step_hint_description_linkwatch">Como primer contacto, puedes agregar y aceptar nuevos contactos. Recuerda que eres el administrador y esto te permite controlar con quién interactúa tu hijo.</string>
+    <string name="scan_watch_title">1 Escanear</string>
+    <string name="scanwatch_description">Reloj SoyMomo</string>
+
+    <string name="disconnection_info_title">SoyMomo Desconectado</string>
+    <string name="disconnection_info_reasons">La desconexión de tu Reloj SoyMomo puede deberse a los siguientes factores:</string>
+    <string name="disconnection_info_reason_1_title">1. La SIM no tiene datos:</string>
+    <string name="disconnection_info_reason_1_description">Verifica si la <b>SIM</b> tiene <b>datos</b>. El reloj podría haber agotado los gigas o no tener una bolsa o plan móvil activo.</string>
+    <string name="disconnection_info_reason_2_title">2. El reloj está apagado:</string>
+    <string name="disconnection_info_reason_2_description">Comprueba si el reloj está <b>apagado</b>, ya sea por batería agotada o apagado accidental.</string>
+    <string name="disconnection_info_reason_3_title">3. El reloj no reconoce la SIM:</string>
+    <string name="disconnection_info_reason_3_description">Confirma que el reloj <b>detecta</b> la <b>SIM</b> correctamente. Si se retiró o insertó mal la SIM, el reloj no se conectará. </string>
+    <string name="disconnection_info_reason_4_title">4. El reloj no tiene señal:</string>
+    <string name="disconnection_info_reason_4_description">Asegúrate que el reloj tiene <b>señal</b>. Puede perderla en ciertas zonas o edificios. Revisa las barritas de señal.</string>
+    <string name="disconnection_info_reason_5_title">5. Fecha y hora no sincronizadas</string>
+    <string name="disconnection_info_reason_5_description">Asegúrate de que la fecha y hora del reloj sean correctas. Abre <b>Ajustes › Fecha y hora</b> en el reloj y ajústalas manualmente.</string>
+    <string name="disconnection_info_measures">Para la <b>seguridad</b> de tu hij@, considera las siguientes <b>medidas</b>:</string>
+    <string name="disconnection_info_measure_1_title">Contacto de guardianes</string>
+    <string name="disconnection_info_measure_1_description">Mantén siempre a la mano el contacto de los responsables de tu hij@, en el colegio o alguna otra actividad.</string>
+    <string name="disconnection_info_measure_2_title">Plan de urgencia</string>
+    <string name="disconnection_info_measure_2_description">Enseña a tu hij@ qué hacer en casos de urgencia, con quién debe hablar, pedir que te llamen o dónde esperar.</string>
+    <string name="disconnection_info_measure_3_title">Realiza una llamada a tu SoyMomo</string>
+    <string name="disconnection_info_measure_3_description">Intenta llamar al reloj de todos modos, si se establece la llamada, es probable que el problema sean los datos.</string>
+    <string name="disconnection_info_problem_persist">Si verificaste todo y el problema persiste</string>
+    <string name="disconnection_info_button_contact_us">¡Contáctanos!</string>
+
+    <string name="videocall_notification_channel_disabled_title">¡Alerta de videollamadas perdidas!</string>
+    <string name="videocall_notification_channel_disabled_description">Activa las notificaciones en la configuración de tu dispositivo para asegurarte de no perder videollamadas de tu reloj.</string>
+    <string name="videocall_notification_channel_disabled_enable">Activar notificaciones</string>
+    <string name="videocall_notification_channel_disabled_dismiss">Descartar</string>
+
+    <!-- New Location History -->
+    <string name="location_history_select_date">Seleccionar fecha:</string>
+    <string name="location_history_start">Inicio</string>
+    <string name="location_history_end">Fin</string>
+    <string name="location_history_fast">Alta Velocidad</string>
+    <string name="location_history_medium">Velocidad Media</string>
+    <string name="location_history_slow">Baja Velocidad</string>
+    <string name="location_history_disconnected">Desconexión</string>
+    <string name="location_history_fast_text">Probablemente en auto, autobús o motocicleta</string>
+    <string name="location_history_medium_text">Probablemente en bicicleta o corriendo.</string>
+    <string name="location_history_slow_text">Probablemente caminando.</string>
+    <string name="location_history_disconnected_text">Reloj desconectado o pérdida de señal.</string>
+    <string name="location_history_no_locations">No hay registros de localizaciones en este día.</string>
+    <!-- Location History - Stop/Transit labels -->
+    <string name="location_history_stop">Parada</string>
+    <string name="location_history_transit">En movimiento</string>
+    <string name="location_history_moving">En movimiento</string>
+    <string name="location_history_duration">Duración: %s</string>
+    <string name="location_history_duration_format_hours">%1$dh %2$dm</string>
+    <string name="location_history_duration_format_minutes">%dm</string>
+    <string name="location_history_points">%d puntos de ubicación</string>
+    <string name="location_history_timeline">Línea de tiempo</string>
+    <string name="location_history_arrived_at">Llegó a las %s</string>
+    <string name="location_history_left_at">Salió a las %s</string>
+    <string name="location_history_unknown_location">Ubicación desconocida</string>
+
+    <!-- NPS -->
+    <string name="nps_title">¿Del 1 al 10, cuán probable es que recomiendes esta aplicación a un amigo?</string>
+    <string name="nps_comment">Escribe tu opinion aquí…</string>
+    <string name="nps_send">Enviar</string>
+    <string name="nps_end_message">¡Gracias por tu respuesta! Tu opinión nos ayuda mucho para seguir mejorando.</string>
+    <string name="nps_close">Cerrar</string>
+    <string name="nps_not_likely">Poco probable</string>
+    <string name="nps_very_likely">Muy probable</string>
+    <string name="nps_score_content_description">Puntuación %1$d de 10</string>
+
+    <!-- Subscription NPS -->
+    <string name="subscription_nps_intro">Lamentamos que hayas cancelado tu suscripción en SoyMomo. Tu opinión nos ayuda a mejorar el servicio y a ofrecerte una mejor experiencia, gracias por tomarte un momento para compartirla.</string>
+    <string name="subscription_nps_title">¿Cómo calificarías tu experiencia con la SIM de SoyMomo?</string>
+    <string name="subscription_nps_end_message">¡Gracias por tu opinión! Nos ayuda a mejorar nuestro servicio de suscripción.</string>
+    <string name="subscription_nps_cancellation_reason_label">¿Por qué cancelaste tu suscripción?</string>
+    <string name="subscription_nps_cancellation_reason_hint">Puedes elegir más de una opción</string>
+    <string name="subscription_nps_reason_too_expensive">Muy costoso</string>
+    <string name="subscription_nps_reason_coverage">Problemas de cobertura</string>
+    <string name="subscription_nps_reason_app_issues">Problemas con la app</string>
+    <string name="subscription_nps_reason_no_longer_needed">Ya no lo necesito</string>
+    <string name="subscription_nps_reason_watch_lost">Reloj perdido o dañado</string>
+    <string name="subscription_nps_reason_other">Otro</string>
+    <string name="subscription_nps_other_reason_hint">Cuéntanos más…</string>
+    <string name="subscription_nps_improvement_label">¿Qué podríamos haber hecho mejor?</string>
+    <string name="subscription_nps_improvement_hint">Tu respuesta aquí…</string>
+    <string name="subscription_nps_score_low">Muy insatisfecho</string>
+    <string name="subscription_nps_score_high">Muy satisfecho</string>
+    <string name="subscription_nps_submit_hint">Completa todos los campos para enviar</string>
+    <string name="subscription_nps_submit_error">No pudimos enviar tu opinión. Revisa tu conexión a internet e inténtalo de nuevo.</string>
+    <string name="add_sim_card_title">4 Tarjeta SIM</string>
+    <string name="add_sim_card_description">Agregar tarjeta SIM</string>
+
+    <!-- New Geofences -->
+    <string name="geofences_message_title">Crear Zona Segura</string>
+    <string name="geofences_message_description">Selecciona esta sección para crear zonas seguras</string>
+    <string name="geofences_save_error">Falta el nombre o la dirección para guardar la zona segura.</string>
+    <string name="geofences_title_edit">Editar Zona Segura</string>
+    <string name="geofences_title_create">Crear Zona Segura</string>
+    <string name="geofences_address_helper">Busca una dirección para establecer el centro de la zona segura.</string>
+    <string name="geofences_map_hint">El centro de la zona segura se establece con la dirección seleccionada.</string>
+    <string name="geofences_map_loading">Actualizando zona segura…</string>
+    <string name="geofences_address_required">Selecciona primero una dirección</string>
+
+    <!-- New Watch Settings -->
+    <string name="turn_off_watch_title">Apagar reloj</string>
+    <string name="turn_off_watch_text">¿Seguro que quieres apagar el reloj?</string>
+    <string name="settings_watch_from_user">de %1$s</string>
+
+    <!-- New Add SIM -->
+    <string name="add_sim_card_view_title">Agregar tarjeta SIM</string>
+
+    <!-- Configure SIM View -->
+    <string name="configure_sim_view_title">Configurar tarjeta SIM</string>
+    <string name="linkwatch_add_sim_description1"><b>Vas a necesitar los siguientes artículos:</b> Tu tarjeta SIM, el porta SIM, tu reloj SoyMomo y un destornillador.</string>
+    <string name="linkwatch_add_sim_card_description">Suscríbete a SoyMomo SIM; no tendrás que solicitar una SIM, ya que está incluida en la caja. \n<b>¿A qué esperas?!</b></string>
+    <string name="linkwatch_add_sim_description2">Recuerda que para hacer las configuraciones, <b>debes tener al menos un 30%</b> de batería en tu reloj SoyMomo.</string>
+    <string name="linkwatch_sim_soymomo_title">SIM SoyMomo</string>
+    <string name="linkwatch_sim_card_important">Importante</string>
+    <string name="linkwatch_sim_card_important_description">Debes seleccionar una de las dos opciones.</string>
+
+    <string name="linkwatch_install_sim1">Para configurar tu SIM, <b>completa los siguientes pasos:</b></string>
+    <string name="linkwatch_install_sim2"><b>Anota el número de celular</b>; es importante para los pasos a continuación:</string>
+    <string name="linkwatch_install_sim3">Verifica qué tamaño de SIM necesita tu modelo SoyMomo; <b>el modelo vinculado necesita el siguiente tamaño:</b></string>
+    <string name="linkwatch_install_sim4">Abre la ranura de tu reloj, inserta la tarjeta SIM y asegúrate de cerrar la ranura con fuerza para proteger el reloj del agua y las salpicaduras.</string>
+
+    <string name="push_validation_reminder_title">Recordatorio validado</string>
+    <string name="push_validation_reminder_text">El recordatorio %1$s ha sido validado por %2$s</string>
+
+    <string name="push_first_interaction_title">¡El reloj de tu hijo/a está en línea!</string>
+    <string name="push_first_interaction_text">¡%1$s está conectado/a! Ahora puedes mantenerte conectado/a y actualizado/a.</string>
+
+    <string name="subscription_link_available_sim_title">¡SIM SoyMomo encontrada!</string>
+    <string name="subscription_link_available_sim_subtitle">Este reloj tiene una SIM preinstalada. ¿Quieres activarla?</string>
+    <string name="subscription_link_available_sim_id">Sim: <b>%1$s</b></string>
+    <string name="button_activate_sim">Activar</string>
+    <string name="button_continue_without">Otra SIM</string>
+
+    <string name="subscription_button_transfer">Transferir suscripción</string>
+    <string name="subscription_button_transfer_description">Comienza a usar una nueva SoyMomo SIM o Reloj SoyMomo transfiriendo fácilmente tu suscripción</string>
+    <string name="subscription_detail_transfer_title">Transfiere tu Suscripción:</string>
+    <string name="subscription_detail_transfer_to_new_sim">A una Nueva SoyMomo SIM</string>
+    <string name="subscription_detail_transfer_to_new_sim_description">Escanea tu nueva SoyMomo SIM para transferir tu suscripción existente</string>
+    <string name="subscription_detail_transfer_to_new_watch">A un Nuevo Reloj SoyMomo</string>
+    <string name="subscription_detail_transfer_to_new_watch_description">Escanea tu nuevo Reloj SoyMomo para transferir tu suscripción de manera fluida</string>
+    <string name="subscription_transfer_to_new_sim_title">Transferir a nueva SoyMomo SIM</string>
+    <string name="subscription_transfer_to_new_sim_button">Transferir</string>
+    <string name="subscription_transfer_to_new_sim_description">Ingresa el código de 19/20 dígitos en el reverso de tu <b>nueva SoyMomo SIM</b>, o escanea el código de barras al lado</string>
+    <string name="subscription_transfer_to_new_sim_explanation">
+        Al tocar el botón <b>Transferir</b>, iniciarás el proceso de mover tu suscripción de tu SIM actual a una nueva. Esto es lo que realizaremos:\n\n
+        • <b>Activar la Nueva SIM</b>: Activaremos tu nueva SoyMomo SIM, lo cual incluye generar un nuevo número de teléfono para ti.\n
+        • <b>Actualizar Suscripción</b>: Las configuraciones de tu suscripción se actualizarán para vincularse con la nueva SoyMomo SIM.\n
+        • <b>Cambiar Números de Teléfono</b>: Sustituiremos tu antiguo número de teléfono con el nuevo en todos los dispositivos y servicios relacionados.\n\n
+        <b>Por Favor Nota</b>: Después de transferir, asegúrate de actualizar tus contactos con tu nuevo número de teléfono.
+    </string>
+    <string name="subscription_transfer_to_new_sim_error_title">Hubo un error al transferir la SoyMomo SIM</string>
+    <string name="subscription_transfer_to_new_sim_success_title">Transferencia completada</string>
+    <string name="subscription_transfer_to_new_sim_success_description">
+        Tu suscripción ha sido transferida exitosamente a tu nueva SoyMomo SIM. Esto es lo que ha cambiado:\n\n
+        • <b>Nueva SIM Activada</b>: Tu nueva SIM está ahora activo, y tu plan de servicio ha sido trasladado.\n
+        • <b>Nuevo Número de Teléfono</b>: Tu número de teléfono ha sido actualizado. Puede que necesites reiniciar tu dispositivo para que los cambios tomen efecto.
+    </string>
+
+    <string name="today">Hoy</string>
+    <string name="yesterday">Ayer</string>
+
+    <string name="dialog_alai_sim_title">El número de SIM insertado no es válido</string>
+    <string name="dialog_alai_sim_description">La SIM de SoyMomo ha expirado. Por favor, contacta al soporte de SoyMomo para solicitar una nueva tarjeta SIM y recibir un mes adicional en tu suscripción <b>¡gratis!</b></string>
+
+    <string name="title_heymomo">HeyMomo</string>
+    <string name="title_heymomo_history">HeyMomo History</string>
+    <string name="description_heymomo_history">Conversaciones</string>
+    <string name="text_heymomo_history_empty">¡Parece que aún no has iniciado una conversación con HeyMomo! 🤔 Pregunta lo que quieras a HeyMomo para descubrir cómo puede ayudarte con el reloj de tu hijo. Desde responder preguntas hasta ayudar a tu hijo a gestionar sus actividades, ¡HeyMomo está aquí para hacer que la crianza sea más inteligente y fácil! 🌟</string>
+    
+    <string name="title_facts">Facts</string>
+    <string name="description_facts">Agrega pequeños datos sobre tu hijo para que HeyMomo pueda conocerlo mejor y personalizar su experiencia</string>
+    <string name="facts_empty_title">Aún no hay facts</string>
+    <string name="facts_empty_description">¡Comienza a agregar facts sobre tu hijo para ayudar a HeyMomo a personalizar las respuestas!</string>
+    <string name="button_add_fact">Agregar Fact</string>
+    <string name="title_add_fact">Agregar Fact</string>
+    <string name="title_edit_fact">Editar Fact</string>
+    <string name="label_fact_type">Tipo de Fact</string>
+    <string name="hint_fact_value">Ingresa el valor</string>
+    <string name="error_empty_value">El valor no puede estar vacío</string>
+    <string name="delete_fact_title">Eliminar Fact</string>
+    <string name="delete_fact_message">¿Estás seguro de que deseas eliminar \"%1$s\"?</string>
+    <string name="delete">Eliminar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="dismiss">Cerrar</string>
+    <string name="save">Guardar</string>
+    <string name="button_edit">Editar</string>
+    <string name="fact_saved_successfully">Fact guardado exitosamente</string>
+    <string name="fact_deleted_successfully">Fact eliminado exitosamente</string>
+    <string name="error_loading_facts">Error al cargar los facts</string>
+    <string name="error_processing_fact">Error al procesar el fact</string>
+    
+    <!-- Fact Types - Display Names -->
+    <string name="fact_type_pet_name">Nombre de Mascota</string>
+    <string name="fact_type_favorite_color">Color Favorito</string>
+    <string name="fact_type_favorite_food">Comida Favorita</string>
+    <string name="fact_type_favorite_toy">Juguete o Juego Favorito</string>
+    <string name="fact_type_favorite_school_subject">Asignatura Escolar Favorita</string>
+    <string name="fact_type_favorite_activity">Actividad Favorita</string>
+    <string name="fact_type_friend_name">Nombre de Amigo</string>
+    <string name="fact_type_hobby">Pasatiempo</string>
+    
+    <!-- Fact Types - Predicates -->
+    <string name="fact_predicate_pet_name">el nombre de mascota es</string>
+    <string name="fact_predicate_favorite_color">el color favorito es</string>
+    <string name="fact_predicate_favorite_food">la comida favorita es</string>
+    <string name="fact_predicate_favorite_toy">el juguete o juego favorito es</string>
+    <string name="fact_predicate_favorite_school_subject">la asignatura escolar favorita es</string>
+    <string name="fact_predicate_favorite_activity">la actividad favorita es</string>
+    <string name="fact_predicate_friend_name">el nombre de amigo es</string>
+    <string name="fact_predicate_hobby">el pasatiempo es</string>
+    
+    <!-- Custom Fact Type -->
+    <string name="custom">Personalizado</string>
+    <string name="hint_custom_fact_type">Ingrese el nombre del tipo de dato personalizado</string>
+    <string name="error_empty_custom_type">Por favor ingrese un nombre de tipo de dato</string>
+
+    <string name="watch_waiting_first_interaction">Esperando la primera conexión de red…</string>
+
+    <string name="dialog_missing_first_interaction_title">El dispositivo aún no está conectado</string>
+    <string name="dialog_missing_first_interaction_message">Para usar este dispositivo, asegúrate de que la tarjeta SIM esté activa y tenga acceso a internet. En nuevas activaciones, la primera conexión puede tardar hasta 10 minutos.</string>
+
+    <string name="dialog_chat_audio_isolation_alert_title">🎧✨ Audio Mejorado por SoyMomo</string>
+    <string name="dialog_chat_audio_isolation_alert_message">Aplicamos nuestros avanzados algoritmos de inteligencia artificial 🧠🤖 para reducir el ruido ambiental y destacar la voz de tu hijo 🎙️.</string>
+
+    <!-- Toast and error messages -->
+    <string name="bluetooth_not_supported">Bluetooth no es compatible con este dispositivo.</string>
+    <string name="bluetooth_must_be_enabled">Debe activar el Bluetooth para continuar.</string>
+    <string name="bluetooth_permissions_granted">Permisos de Bluetooth concedidos.</string>
+    <string name="bluetooth_permissions_required">Se requieren permisos de Bluetooth.</string>
+    <string name="bluetooth_enabled">Bluetooth está activado.</string>
+    <string name="syncing_watch_message">Sincronizando el reloj… por favor espere</string>
+    <string name="sync_complete_message">Sincronización completa. Puede continuar.</string>
+
+    <string name="add_watch_power_on_watch_title">Enciende tu reloj</string>
+    <string name="add_watch_power_on_watch_description">Por favor, asegúrate de que tu reloj esté encendido para comenzar el proceso de vinculación.</string>
+    <string name="add_watch_power_on_watch_checkbox">Mi reloj está encendido</string>
+    <string name="add_watch_power_on_watch_button_text">Siguiente</string>
+
+    <string name="add_watch_enable_bluetooth_sync_title">Sincroniza tu reloj por Bluetooth</string>
+    <string name="add_watch_enable_bluetooth_sync_description">¡Preparemos todo! Estamos enlazando el reloj de tu hijo y sincronizando la configuración para que puedas comenzar.</string>
+    <string name="add_watch_enable_bluetooth_sync_button">Iniciar sincronización</string>
+    <string name="add_watch_enable_bluetooth_syncing_title">Sincronizando tu reloj</string>
+    <string name="add_watch_enable_bluetooth_syncing_description">Estamos conectándonos con el reloj de tu hijo para sincronizar datos y ajustes. Esto podría tardar unos momentos, mantén tu teléfono cerca del reloj. No te preocupes, tu información está segura.</string>
+    <string name="add_watch_enable_bluetooth_synced_title">¡Reloj sincronizado con éxito!</string>
+    <string name="add_watch_enable_bluetooth_synced_description">¡Excelente! El reloj de tu hijo ya está enlazado y listo para usar. Puedes administrar los ajustes y mantenerte conectado desde la aplicación.</string>
+    <string name="add_watch_enable_bluetooth_synced_button">Continuar</string>
+    <string name="add_watch_enable_bluetooth_not_supported_title">Bluetooth no disponible</string>
+    <string name="add_watch_enable_bluetooth_not_supported_description">Tu dispositivo no tiene Bluetooth, así que este paso no se puede completar. No te preocupes, puedes continuar sin sincronizar por Bluetooth.</string>
+
+    <string name="reminders">Recordatorios</string>
+    <string name="delete_reminder_title">¿Eliminar recordatorio?</string>
+    <string name="delete_reminder_description">Esta acción no se puede deshacer.</string>
+    <string name="swipe_left_to_delete">Desliza a la izquierda para eliminar</string>
+    <string name="create_reminder_title">Crear recordatorio</string>
+    <string name="chip_reminder">Recordatorio</string>
+    <string name="chip_task">Tarea</string>
+    <string name="create">Crear</string>
+
+    <string name="monday">Lunes</string>
+    <string name="tuesday">Martes</string>
+    <string name="wednesday">Miércoles</string>
+    <string name="thursday">Jueves</string>
+    <string name="friday">Viernes</string>
+    <string name="saturday">Sábado</string>
+    <string name="sunday">Domingo</string>
+
+    <string name="monday_initial">Lu</string>
+    <string name="tuesday_initial">Ma</string>
+    <string name="wednesday_initial">Mi</string>
+    <string name="thursday_initial">Ju</string>
+    <string name="friday_initial">Vi</string>
+    <string name="saturday_initial">Sa</string>
+    <string name="sunday_initial">Do</string>
+
+    <string name="settings_button_save">Guardar</string>
+    <string name="select_time_dialog_title">Hora</string>
+    <string name="time_range_title">Intervalo de tiempo</string>
+    <string name="select_emoji_title">Seleccionar emoji</string>
+
+    <string-array name="days_initial">
+        <item>Lu</item>
+        <item>Ma</item>
+        <item>Mi</item>
+        <item>Ju</item>
+        <item>Vi</item>
+        <item>Sa</item>
+        <item>Do</item>
+    </string-array>
+
+    <string-array name="days">
+        <item>@string/monday</item>
+        <item>@string/tuesday</item>
+        <item>@string/wednesday</item>
+        <item>@string/thursday</item>
+        <item>@string/friday</item>
+        <item>@string/saturday</item>
+        <item>@string/sunday</item>
+    </string-array>
+
+    <string name="time_label">Hora:</string>
+    <string name="range_label">Intervalo:</string>
+
+    <string name="time_single_format">^1 ^2</string>
+    <string name="time_range_format">^1 de ^2 a ^3</string>
+    <string name="title_data">Datos</string>
+    <string name="default_emoji">🔔</string>
+
+    <string name="steps_weight">Peso</string>
+    <string name="steps_kg">Kg</string>
+    <string name="steps_lbs">Libras</string>
+    <string name="steps_height">Altura</string>
+    <string name="steps_cm">cm</string>
+    <string name="steps_age">Edad</string>
+    <string name="steps_years">años</string>
+    <string name="steps_total">Pasos totales en los últimos 7 días</string>
+    <string name="steps_rewards">Recompensas de los últimos 7 días</string>
+    <string name="steps_rewards_subtitle">1 estrella por cada 1.000 pasos</string>
+    <string name="steps_encouragement">Motiva a tu hijo/a a caminar más y ganar estrellas!</string>
+    <string name="steps_not_set">Sin datos</string>
+    <string name="steps_today">Hoy</string>
+    <string name="steps_today_label">pasos hoy</string>
+    <string name="steps_empty_title">Aún no se han registrado pasos</string>
+    <string name="steps_empty_subtitle">Los pasos aparecerán aquí cuando tu hijo/a empiece a caminar con su SoyMomo</string>
+
+    <string name="last_update_unavailable">Última actualización: no disponible</string>
+    <string name="chat_no_wearer_found_error">No pudimos cargar el dispositivo</string>
+
+    <!-- Chat Group strings -->
+    <string name="chat_list_title">Chats</string>
+    <string name="chat_list_new_chat">Nuevo chat</string>
+    <string name="chat_list_new_group">Nuevo grupo</string>
+    <string name="chat_list_empty_title">Aún no hay conversaciones</string>
+    <string name="chat_list_empty_message">Inicia una conversación con tu reloj</string>
+    <string name="chat_list_search_placeholder">Buscar</string>
+    <string name="chat_list_new_chat_title">Nuevo chat</string>
+    <string name="chat_list_no_messages_yet">Aún no hay mensajes</string>
+    <string name="chat_relative_now">Ahora</string>
+    <string name="chat_relative_minutes_short">%1$dm</string>
+    <string name="chat_relative_hours_short">%1$dh</string>
+    <string name="chat_relative_days_short">%1$dd</string>
+    <string name="chat_contact_subtitle_device">Dispositivo: %1$s</string>
+    <string name="group_members_selected_header">Miembros: %1$d</string>
+    <string name="chat_error_with_reason">Error: %1$s</string>
+    <string name="error_group_not_found">Grupo no encontrado</string>
+    <string name="error_loading_group_with_reason">Error al cargar el grupo: %1$s</string>
+    <string name="group_update_success">Grupo actualizado correctamente</string>
+    <string name="error_group_update_failed">No se pudo actualizar el grupo</string>
+    <string name="error_add_members_failed">No se pudieron agregar los miembros</string>
+    <string name="error_update_admin_role_failed">No se pudo actualizar el rol de administrador</string>
+    <string name="error_loading_members">No se pudieron cargar los miembros</string>
+    <string name="error_group_not_loaded">No se cargó el grupo</string>
+    <string name="error_loading_member_details">No se pudieron cargar los detalles del miembro</string>
+    <string name="error_create_group_failed">No se pudo crear el grupo</string>
+    <string name="error_loading_chat">No se pudo cargar el chat</string>
+    <string name="error_refresh_chat_showing_cached">No se pudo actualizar el chat. Mostrando datos en caché.</string>
+    <string name="error_send_text_group_unavailable">No se pudo enviar el mensaje: la información del grupo no está disponible.</string>
+    <string name="error_send_text_failed_retry">No se pudo enviar el mensaje. Inténtalo de nuevo.</string>
+    <string name="error_send_image_group_unavailable">No se pudo enviar la imagen: la información del grupo no está disponible.</string>
+    <string name="error_send_image_failed_retry">No se pudo enviar la imagen. Inténtalo de nuevo.</string>
+    <string name="error_send_image_model_unsupported">Este modelo de reloj no admite mensajes con imagen.</string>
+    <string name="error_send_audio_group_unavailable">No se pudo enviar el audio: la información del grupo no está disponible.</string>
+    <string name="error_send_audio_failed_retry">No se pudo enviar el audio. Inténtalo de nuevo.</string>
+    <string name="error_retry_group_message_missing">No se pudo reintentar este mensaje.</string>
+    <string name="error_retry_group_media_missing">No se pudo reintentar porque el archivo multimedia local ya no está disponible.</string>
+    <string name="error_retry_group_message_unsupported">No se pudo reintentar este tipo de mensaje.</string>
+    <string name="chat_sender_you">Tú</string>
+    <string name="chat_list_group_message_with_sender">%1$s: %2$s</string>
+    <string name="chat_sender_watch">Reloj</string>
+    <string name="chat_fallback_unknown_user">Usuario desconocido</string>
+    <string name="chat_fallback_user">Usuario</string>
+    <string name="chat_fallback_wearer">Portador</string>
+    <string name="chat_fallback_unknown">Desconocido</string>
+    <string name="chat_notification_default_name">SoyMomo</string>
+    <string name="chat_time_placeholder">--:--</string>
+    <string name="group_chat_members">%d miembros</string>
+    <string name="group_create_title">Nuevo grupo</string>
+    <string name="group_name_hint">Nombre del grupo</string>
+    <string name="group_description_hint">Descripción (opcional)</string>
+    <string name="group_add_members_title">Agregar miembros</string>
+    <string name="group_members_title">Miembros del grupo</string>
+    <string name="group_member_role_admin">Administrador</string>
+    <string name="group_member_role_owner">Propietario</string>
+    <string name="group_member_type_parent">Adulto</string>
+    <string name="group_member_type_wearer">Reloj</string>
+    <string name="group_member_type_wearer_model">Reloj • %1$s</string>
+    <string name="member_section_watches">Relojes</string>
+    <string name="member_section_parents">Adultos</string>
+    <string name="group_member_row_content_description">%1$s, %2$s</string>
+    <string name="group_member_row_role_content_description">%1$s, %2$s, %3$s</string>
+    <string name="member_selection_state_selected">seleccionado</string>
+    <string name="member_selection_state_not_selected">no seleccionado</string>
+    <string name="member_selectable_row_content_description">%1$s, %2$s, %3$s</string>
+    <string name="error_cannot_remove_last_wearer">No se puede eliminar el último reloj del grupo</string>
+    <string name="error_group_min_members">Los grupos necesitan al menos 3 miembros activos.</string>
+    <string name="error_group_min_parents">Los grupos necesitan al menos 1 miembro adulto activo.</string>
+    <string name="error_group_min_wearers">Los grupos necesitan al menos 1 reloj activo.</string>
+    <string name="error_group_generic">Algo salió mal. Por favor, inténtalo de nuevo.</string>
+    <!-- Leave / delete group flow -->
+    <string name="action_leave_group">Salir del grupo</string>
+    <string name="action_delete_group">Eliminar grupo</string>
+    <string name="leave_group_dialog_title">¿Salir de %1$s?</string>
+    <string name="leave_group_dialog_message">No recibirás más mensajes de este grupo.</string>
+    <string name="leave_group_dialog_message_admin">No recibirás más mensajes de este grupo. Los permisos de administrador pasarán a otro miembro adulto.</string>
+    <string name="leave_group_dialog_confirm">Salir</string>
+    <string name="leave_group_dialog_cancel">Cancelar</string>
+    <string name="delete_group_dialog_title">¿Eliminar %1$s?</string>
+    <string name="delete_group_dialog_message">Se perderán todos los mensajes. Esta acción no se puede deshacer.</string>
+    <string name="delete_group_dialog_confirm">Eliminar</string>
+    <string name="delete_group_dialog_cancel">Cancelar</string>
+    <string name="leave_group_success_toast">Saliste del grupo.</string>
+    <string name="delete_group_success_toast">Grupo eliminado.</string>
+    <string name="group_deleted_while_open_toast">Este grupo fue eliminado.</string>
+    <string name="error_cannot_remove_yourself">No puedes eliminarte a ti mismo del grupo</string>
+    <string name="error_group_name_required">El nombre del grupo es obligatorio</string>
+    <string name="error_at_least_one_wearer">Debe seleccionarse al menos un reloj</string>
+    <string name="creating_group">Creando grupo…</string>
+    <string name="removed_group_alert_title">Eliminado del grupo</string>
+    <string name="removed_group_alert_message">Has sido eliminado de este grupo</string>
+    <string name="action_make_admin">Hacer administrador</string>
+    <string name="action_remove_admin">Quitar administrador</string>
+    <string name="action_remove_member">Eliminar del grupo</string>
+    <string name="button_create_group">Crear grupo</string>
+    <string name="button_ok">OK</string>
+    <string name="button_confirm">Confirmar</string>
+    <string name="button_remove">Eliminar</string>
+    <string name="button_buy_now">Comprar ahora</string>
+    <string name="error_group_feature_space4_only">Ups, esta función solo está disponible en nuestro último modelo SoyMomo Space 4</string>
+    <string name="message_type_image">🖼️ Imagen</string>
+    <string name="message_type_video">🎥 Video</string>
+    <string name="message_type_audio">🎤 Audio</string>
+    <string name="group_info_title">Información del grupo</string>
+    <string name="member_actions_subtitle">Gestionar este miembro</string>
+    <string name="make_admin_action">Hacer administrador del grupo</string>
+    <string name="remove_admin_action">Quitar rol de administrador</string>
+    <string name="remove_member_action">Eliminar del grupo</string>
+    <string name="member_action_disabled_content_description">%1$s no disponible. %2$s</string>
+    <string name="add_members_button">Agregar</string>
+    <string name="make_admin_title">Hacer administrador</string>
+    <string name="make_admin_message">¿Estás seguro de que quieres hacer administrador a este miembro?</string>
+    <string name="remove_admin_title">Quitar administrador</string>
+    <string name="remove_admin_message">¿Estás seguro de que quieres quitar el rol de administrador a este miembro?</string>
+    <string name="remove_member_title">Eliminar miembro</string>
+    <string name="remove_member_message">¿Estás seguro de que quieres eliminar este miembro del grupo?</string>
+    <plurals name="group_member_count">
+        <item quantity="one">%d MIEMBRO</item>
+        <item quantity="other">%d MIEMBROS</item>
+    </plurals>
+    <string name="edit_group_title">Editar grupo</string>
+    <string name="tap_to_change_photo">Toca para cambiar la foto</string>
+    <string name="no_members_available">No hay más miembros disponibles para agregar</string>
+    <string name="no_members_available_for_group">No hay miembros disponibles</string>
+    <string name="no_matching_members">No hay miembros coincidentes</string>
+    <string name="group_chat_requires_space4">Los chats grupales requieren SoyMomo Space 4.</string>
+    <string name="no_members_match">No hay miembros que coincidan con \"%1$s\"</string>
+    <string name="add_members_success">Miembros agregados con éxito</string>
+    <string name="selected_count">%d seleccionados</string>
+    <string name="selected_member_chip_content_description">%1$s seleccionado</string>
+    <string name="selected_member_remove_content_description">Eliminar %1$s</string>
+    <string name="error_loading_group">Error al cargar el grupo</string>
+    <string name="imei_copied_to_clipboard">ID copiado al portapapeles</string>
+    <string name="share_watch_link_message">¡Hola! Toca este enlace para agregar mi reloj SoyMomo a tu app:\nhttps://soymomo.com/link/watch/%1$s\n\nÁbrelo en el teléfono donde tengas SoyMomo Watch para Padres. El administrador del reloj deberá aprobar la solicitud 😊</string>
+    <string name="share_watch_link_chooser_title">Compartir mediante…</string>
+
+    <!-- Payment method not supported dialog -->
+    <string name="subscription_payment_method_mercado_pago_not_supported_title">Método de pago no soportado</string>
+    <string name="subscription_payment_method_mercado_pago_not_supported_message">Mercado Pago no está disponible actualmente. Por favor, elige otro método de pago.</string>
+
+    <!-- SIM request form / popup (kept in sync with iOS Localizable.xcstrings es-419) -->
+    <string name="request_sim_form_title">Solicita tu tarjeta\nSoyMomo SIM</string>
+    <string name="request_sim_form_description">Obtén un %1$d%% de descuento durante los primeros %2$d meses. Completa tus datos para solicitar tu tarjeta SIM.</string>
+    <string name="button_ready">Listo</string>
+    <string name="request_sim_popup_button_label">Solicitar mi SoyMomo SIM</string>
+    <string name="request_sim_popup_title">SoyMomo SIM \n¡Es un buen plan!</string>
+    <string name="request_sim_popup_discount_percentage">%1$d%% dscto</string>
+    <string name="request_sim_popup_discount_period">en los %1$d primeros meses</string>
+    <string name="request_sim_popup_coverage_label">Mayor cobertura y mejor señal</string>
+    <string name="request_sim_popup_location_label">Mejor precisión en el GPS</string>
+    <string name="request_sim_popup_battery_label">Mayor duración de la batería</string>
+    <string name="request_sim_popup_bottom_text">Pruébala sin complicaciones: activación fácil, sin recargas y cancela cuando quieras</string>
+    <string name="request_sim_form_error_message">Campos faltantes o incorrectos</string>
+    <string name="request_sim_form_submitted_error">Hubo un problema al enviar tu solicitud. Revisa tu conexión a internet e intenta nuevamente.</string>
+    <string name="request_sim_form_submitted_successfully">¡Solicitud enviada exitosamente!</string>
+    <string name="subscription_form_error_field_required">Campo requerido</string>
+    <string name="subscription_form_error_invalid_email">Por favor, introduzca un correo electrónico válido</string>
+    <string name="subscription_form_error_invalid_personal_id">Por favor, introduzca un número de identificación válido</string>
+    <string name="chat_photo_share_button_description">Compartir esta foto</string>
+    <string name="chat_photo_share_title">Compartir foto</string>
+    <string name="chat_photo_share_subtitle">Elige una plantilla y luego decide dónde enviarla.</string>
+    <string name="chat_photo_share_chooser_title">Compartir vía…</string>
+    <string name="chat_photo_share_targets_title">Compartir en</string>
+    <string name="chat_photo_share_action_share">Más apps</string>
+    <string name="chat_photo_share_action_instagram">Historia IG</string>
+    <string name="chat_photo_share_action_save">Guardar</string>
+    <string name="chat_photo_share_template_original_title">Foto</string>
+    <string name="chat_photo_share_template_original_description">La foto original.</string>
+    <string name="chat_photo_share_template_photo_card_title">Tarjeta</string>
+    <string name="chat_photo_share_template_photo_card_description">Tu foto en una tarjeta lista para compartir en historias o donde quieras.</string>
+    <string name="chat_photo_share_template_transparency_title">Transparente</string>
+    <string name="chat_photo_share_template_transparency_description">Una versión transparente para que la pongas sobre el fondo que quieras.</string>
+    <string name="chat_photo_share_preview_unavailable">Vista previa no disponible</string>
+    <string name="chat_photo_share_error_preview">No pudimos generar las vistas previas de esta foto en este momento.</string>
+    <string name="chat_photo_share_error_generic">No pudimos preparar esta foto para compartirla. Inténtalo de nuevo.</string>
+    <string name="chat_photo_share_error_instagram_unavailable">Instagram Stories no está disponible en este dispositivo.</string>
+    <string name="chat_photo_share_error_save">No pudimos guardar esta foto en tu galería.</string>
+    <string name="chat_photo_share_error_storage_permission">Se requiere permiso de almacenamiento para guardar fotos en esta versión de Android.</string>
+    <string name="chat_photo_share_saved_success">Guardado en tu galería.</string>
+    <string name="button_retry">Reintentar</string>
+    <string name="connection_error">Error de conexión</string>
+
+    <!-- Lingo Progress -->
+    <string name="s_lingo_progress_title">Progreso de MomoLingo</string>
+    <string name="s_lingo_progress_text">Mira cómo le va a tu hijo/a en MomoLingo</string>
+    <string name="s_lingo_progress_levels_tab">Niveles</string>
+    <string name="s_lingo_progress_timeline_tab">Historial</string>
+    <string name="s_lingo_progress_milestone_completed">Nivel completado</string>
+    <string name="s_lingo_progress_milestone_review">Repaso completado</string>
+    <string name="s_lingo_progress_milestone_challenge">Desafío completado</string>
+    <string name="s_lingo_progress_legend_completed_body">Completó el nivel respondiendo correctamente todas las palabras suficientes veces</string>
+    <string name="s_lingo_progress_legend_review_body">Repasó todas las palabras del nivel en modo de tarjetas</string>
+    <string name="s_lingo_progress_legend_challenge_body">Completó con éxito el desafío de deletreo del nivel</string>
+    <string name="s_lingo_progress_completed_label">Completadas:</string>
+    <string name="s_lingo_progress_learning_label">Aprendiendo:</string>
+    <string name="s_lingo_progress_words_label">palabras completadas</string>
+    <string name="s_lingo_progress_empty_title">¡Aún sin palabras!</string>
+    <string name="s_lingo_progress_empty_body">¡Aquí aparecerán las palabras que tu hijo/a va aprendiendo!</string>
+    <string name="s_lingo_progress_error_body">No se pudo cargar el progreso. Por favor, inténtalo de nuevo.</string>
+    <string name="s_lingo_progress_active_language">Idioma activo: %1$s</string>
+    <string name="s_lingo_progress_change_language">Cambiar idioma de MomoLingo</string>
+    <string name="s_lingo_progress_language_header">Progreso por idioma:</string>
+    <string name="s_lingo_progress_change_confirm_title">¿Cambiar el idioma de aprendizaje?</string>
+    <string name="s_lingo_progress_change_confirm_message">Tu hijo/a empezará a aprender %1$s en MomoLingo. Su progreso en los demás idiomas se conserva.</string>
+    <string name="s_lingo_progress_change_confirm_action">Cambiar</string>
+    <string name="s_lingo_progress_change_error">No pudimos cambiar el idioma. Inténtalo de nuevo.</string>
+    <string name="s_lingo_progress_view_language">Idioma</string>
+    <string name="s_lingo_progress_timeline_empty_title">¡Aún nada por aquí!</string>
+    <string name="s_lingo_progress_timeline_empty_body">¡Aquí se registrará cuando tu hijo/a complete un nivel, repaso o desafío!</string>
+    <string name="s_lingo_progress_image_retry">Recargar imagen</string>
+    <string name="pn_lingo_started_title">MomoLingo</string>
+    <string name="pn_lingo_started_en_text">¡%1$s ha empezado a aprender inglés con MomoLingo!</string>
+    <string name="pn_lingo_started_generic_text">¡%1$s ha empezado a aprender un nuevo idioma con MomoLingo!</string>
+    <string name="pn_lingo_started_es_text">¡%1$s ha empezado a aprender español con MomoLingo!</string>
+    <string name="pn_lingo_started_de_text">¡%1$s ha empezado a aprender alemán con MomoLingo!</string>
+    <string name="pn_lingo_started_fr_text">¡%1$s ha empezado a aprender francés con MomoLingo!</string>
+    <string name="pn_lingo_started_sv_text">¡%1$s ha empezado a aprender sueco con MomoLingo!</string>
+    <string name="pn_lingo_challenge_title">MomoLingo</string>
+    <string name="pn_lingo_challenge_text">¡Increíble! %1$s completó el desafío del nivel %2$s en MomoLingo. ¡Felicitaciones!</string>
+    <string name="button_close">Cerrar</string>
+    <string name="silence_time_create_title">Crear horario</string>
+    <string name="silence_time_edit_title">Editar horario</string>
+    <string name="silence_time_name_label">Nombre</string>
+    <string name="silence_time_name_placeholder">Ej. Colegio, Dormir (opcional)</string>
+    <string name="silence_time_from">desde</string>
+    <string name="silence_time_to">hasta</string>
+    <string name="silence_time_days_label">Días</string>
+    <string name="silence_time_every_day">Todos los días</string>
+    <string name="silence_time_select_days">Selecciona al menos un día</string>
+    <string name="silence_time_save_error">No se pudo guardar el horario</string>
+    <string name="silence_time_delete_confirm_title">¿Eliminar horario?</string>
+    <string name="silence_time_delete_confirm_message">¿Seguro que deseas eliminar este horario de bloqueo?</string>
+    <string name="silence_time_next_day">día siguiente</string>
+    <string name="lock_empty_title">Aún no hay horarios de bloqueo</string>
+    <string name="sim_filter_all">Todas</string>
+    <string name="sim_filter_active">Activas</string>
+    <string name="sim_filter_pending_payment">Pago pendiente</string>
+    <string name="sim_filter_terminated">Terminadas</string>
+    <string name="subscription_list_empty">Aún no tienes planes SIM</string>
+    <string name="subscription_list_empty_filtered">No hay planes que coincidan con este filtro</string>
+    <string name="subscription_alert_subscription_status_suspended_title">Servicio suspendido</string>
+    <string name="subscription_alert_subscription_status_suspended_subtitle">El servicio de este plan ha sido suspendido por un pago pendiente. Paga ahora para restablecerlo.</string>
+    <!-- Watch request / co-manager (revamp) -->
+    <string name="settings_admins_requests_title">Administradores y solicitudes</string>
+    <string name="watch_request_section_pending_subtitle">Personas que piden ayudar a gestionar este reloj</string>
+    <string name="watch_request_pending_subtitle">Quiere ayudar a gestionar este reloj</string>
+    <string name="watch_request_accept">Aceptar</string>
+    <string name="watch_request_reject">Rechazar</string>
+    <string name="watch_request_accept_description">Aceptar la solicitud de %1$s</string>
+    <string name="watch_request_reject_description">Rechazar la solicitud de %1$s</string>
+    <string name="watch_request_edit_description">Editar permisos de %1$s</string>
+    <string name="watch_request_accepted_hint">Toca a una persona para editar su acceso o quitarla</string>
+    <string name="watch_request_access_full">Acceso completo</string>
+    <string name="watch_request_access_limited">Acceso limitado</string>
+    <string name="watch_request_access_none">Sin acceso</string>
+    <string name="watch_request_remove_access">Quitar acceso</string>
+    <string name="watch_request_permissions_subtitle">Elige qué puede hacer esta persona en el reloj</string>
+    <string name="watch_request_perm_calls_desc">Hacer y recibir llamadas de voz</string>
+    <string name="watch_request_perm_videocalls_desc">Hacer y recibir videollamadas</string>
+    <string name="watch_request_perm_messages_desc">Enviar y recibir mensajes</string>
+    <string name="watch_request_perm_location_desc">Ver la ubicación en tiempo real del reloj</string>
+    <string name="watch_request_perm_edit_desc">Cambiar ajustes y ver información del reloj</string>
+    <string name="watch_request_discard_title">¿Descartar cambios?</string>
+    <string name="watch_request_discard_message">Tus cambios de permisos no se han guardado. Si sales ahora, se perderán.</string>
+    <string name="watch_request_discard_confirm">Descartar</string>
+    <string name="watch_request_discard_cancel">Seguir editando</string>
+    <string name="watch_request_remove_access_title">¿Quitar acceso?</string>
+    <string name="watch_request_remove_access_message">%1$s ya no podrá gestionar este reloj.</string>
+    <string name="watch_request_remove_access_confirm">Quitar</string>
+    <string name="watch_request_remove_access_cancel">Cancelar</string>
+    <string name="watch_request_accept_title">¿Aceptar solicitud?</string>
+    <string name="watch_request_accept_message">%1$s podrá gestionar este reloj con acceso completo. Podrás ajustar lo que puede hacer después.</string>
+    <string name="watch_request_accepted_full_access">Acceso completo concedido a %1$s</string>
+    <string name="watch_request_set_permissions">Editar acceso</string>
+    <string name="watch_request_reject_title">¿Rechazar solicitud?</string>
+    <string name="watch_request_reject_message">Se eliminará la solicitud de %1$s para gestionar este reloj.</string>
+    <string name="new_owner_subtitle">Elige quién será el nuevo administrador</string>
+    <string name="new_owner_confirm_title">¿Cambiar administrador?</string>
+    <string name="new_owner_confirm_message">%1$s pasará a ser el administrador de este SoyMomo. Ya no podrás gestionar a otros usuarios ni la configuración.</string>
+    <string name="new_owner_explainer_title">Lo que debes saber</string>
+    <string name="new_owner_explainer_point_1">Cada SoyMomo tiene <b>un solo administrador</b>: ahora mismo, eres tú.</string>
+    <string name="new_owner_explainer_point_2">Solo el administrador puede <b>agregar o eliminar</b> a las personas que ayudan a gestionarlo.</string>
+    <string name="new_owner_explainer_point_3">Elige a alguien de la lista para convertirlo en administrador. <b>No podrás deshacer este cambio</b> por tu cuenta.</string>
+    <!-- IoT/M2M number explainer (Spain and Sweden) -->
+    <string name="subscription_payment_success_phone_info_title">¿Un número más largo? ¡Es normal!</string>
+    <string name="subscription_payment_success_phone_info_text"><b>SoyMomo</b> utiliza <b>tarjetas SIM IoT</b>, hechas especialmente para dispositivos inteligentes como este reloj. Sus números más largos no suelen estar registrados por terceros malintencionados.\n\n✓  Funciona como un número de teléfono normal\n✓  <b>Sin llamadas de spam</b>\n✓  Solo los contactos que <b>tú apruebes</b> pueden llamar</string>
+    <string name="subscription_payment_success_phone_info_button">Información sobre el número de teléfono</string>
+    <string name="video_play">Reproducir video</string>
+    <string name="video_pause">Pausar video</string>
+    <string name="video_replay">Volver a reproducir</string>
+    <string name="video_mute">Silenciar</string>
+    <string name="video_unmute">Activar sonido</string>
+    <string name="video_error_message">No pudimos cargar este video</string>
+    <string name="video_retry">Reintentar</string>
+
+
+    <!-- Contextual status card on DisconnectionActivity -->
+    <string name="disconnection_status_title">Este SoyMomo</string>
+    <string name="disconnection_status_last_seen_label">Visto por última vez</string>
+    <string name="disconnection_status_position_recorded">Registrada: %1$s — no es su ubicación actual</string>
+    <string name="disconnection_status_position_none">Sin ubicación registrada</string>
+    <string name="disconnection_status_position_undated">Ubicación sin fecha conocida</string>
+    <string name="disconnection_status_call">Llamar</string>
+    <string name="disconnection_status_directions">Cómo llegar</string>
+    <string name="disconnection_status_position_title_fallback">Última ubicación conocida</string>
+    <string name="disconnection_status_position_not_shared">El compartir ubicación está desactivado para tu cuenta</string>
+    <string name="disconnection_status_last_seen_unknown">No disponible</string>
+    <string name="disconnection_status_open_position">Abrir última ubicación conocida</string>
+</resources>

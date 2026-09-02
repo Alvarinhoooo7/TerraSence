@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".sim.ui.fragments.payment.PaymentSuccessFragment"
+    android:background="@color/background_onboarding"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/payment_success_animation"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent=".3"
+        tools:src="@drawable/animation_placeholder_onboarding"
+        android:layout_marginTop="@dimen/vertical_margin_extra_large"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/payment_success_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+        android:layout_marginVertical="@dimen/vertical_margin_large"
+        android:fontFamily="@font/poppins"
+        android:text="@string/subscription_payment_success_title"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="@dimen/add_watch_title_text_size"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/payment_success_animation" />
+
+    <LinearLayout
+        android:id="@+id/steps_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginVertical="@dimen/vertical_margin"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+        app:layout_constraintTop_toBottomOf="@id/payment_success_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/payment_success_point_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins"
+            android:text="@string/subscription_payment_success_point_1"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="@dimen/add_watch_description_text_size"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/payment_success_point_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins"
+            android:text="@string/subscription_payment_success_point_2"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="@dimen/add_watch_description_text_size"/>
+
+    </LinearLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/subscription_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/vertical_margin"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+        app:cardBackgroundColor="@color/white"
+        style="@style/SimContentCardView"
+        app:layout_constraintBottom_toTopOf="@id/button_finish"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ViewFlipper
+            android:id="@+id/subscription_card_flipper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/subscription_card_activating_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" >
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/subscription_card_activating_progress"
+                    android:layout_width="@dimen/watch_card_profile_picture_size"
+                    android:layout_height="@dimen/watch_card_profile_picture_size"
+                    android:layout_marginStart="@dimen/horizontal_margin"
+                    android:layout_marginVertical="@dimen/vertical_margin"
+                    android:indeterminate="true"
+                    android:indeterminateTint="@color/colorPrimaryMedium"
+                    app:indicatorColor="@color/colorPrimaryDark"
+                    app:trackColor="@color/colorPrimaryMedium"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/subscription_card_activating_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/subscription_payment_success_card_activating_title"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorPrimary"
+                    style="@style/SimContentCardViewContent"
+                    app:layout_constraintTop_toTopOf="@id/subscription_card_activating_progress"
+                    app:layout_constraintStart_toEndOf="@+id/subscription_card_activating_progress"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/subscription_card_activating_description"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/subscription_payment_success_card_activating_description"
+                    style="@style/SimContentCardViewContent"
+                    android:textColor="@color/colorPrimary"
+                    app:layout_constraintTop_toBottomOf="@+id/subscription_card_activating_title"
+                    app:layout_constraintStart_toEndOf="@+id/subscription_card_activating_progress"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="@id/subscription_card_activating_progress"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/subscription_card_activated_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/subscription_card_activated_image"
+                    android:layout_width="@dimen/watch_card_profile_picture_size"
+                    android:layout_height="@dimen/watch_card_profile_picture_size"
+                    android:layout_marginStart="@dimen/horizontal_margin"
+                    android:layout_marginVertical="@dimen/vertical_margin"
+                    style="@style/contactImageView.noBorder"
+                    app:srcCompat="@drawable/ic_soymomo_sim"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/subscription_card_activated_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/subscription_payment_success_card_activated_title"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorPrimary"
+                    style="@style/SimContentCardViewContent"
+                    app:layout_constraintTop_toTopOf="@id/subscription_card_activated_image"
+                    app:layout_constraintStart_toEndOf="@+id/subscription_card_activated_image"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/subscription_card_activated_phone"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    style="@style/SimContentCardViewContent"
+                    android:textColor="@color/colorPrimary"
+                    app:layout_constraintTop_toBottomOf="@+id/subscription_card_activated_title"
+                    app:layout_constraintStart_toEndOf="@+id/subscription_card_activated_image"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="@id/subscription_card_activated_image"
+                    tools:text="+56989589426"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/subscription_card_finish_later_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/subscription_card_finish_later_image"
+                    android:layout_width="@dimen/watch_card_profile_picture_size"
+                    android:layout_height="@dimen/watch_card_profile_picture_size"
+                    android:layout_marginStart="@dimen/horizontal_margin"
+                    android:layout_marginVertical="@dimen/vertical_margin"
+                    style="@style/contactImageView.noBorder"
+                    app:srcCompat="@drawable/ic_soymomo_sim"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/subscription_card_finish_later_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/subscription_payment_success_card_finish_later_title"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorPrimary"
+                    style="@style/SimContentCardViewContent"
+                    app:layout_constraintTop_toTopOf="@id/subscription_card_finish_later_image"
+                    app:layout_constraintStart_toEndOf="@+id/subscription_card_finish_later_image"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/subscription_card_finish_later_description"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    style="@style/SimContentCardViewContent"
+                    android:textColor="@color/colorPrimary"
+                    android:text="@string/subscription_payment_success_card_finish_later_description"
+                    app:layout_constraintTop_toBottomOf="@+id/subscription_card_finish_later_title"
+                    app:layout_constraintStart_toEndOf="@+id/subscription_card_finish_later_image"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="@id/subscription_card_finish_later_image" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </ViewFlipper>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <ImageButton
+        android:id="@+id/phone_info_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/subscription_payment_success_phone_info_button"
+        android:padding="6dp"
+        android:scaleType="fitCenter"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/subscription_card"
+        app:layout_constraintEnd_toEndOf="@id/subscription_card"
+        app:srcCompat="@drawable/ic_help_outline_question"
+        app:tint="@color/white"
+        tools:visibility="visible" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_finish"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+        android:layout_marginVertical="@dimen/vertical_margin_large"
+        android:text="@string/subscription_button_finish"
+        style="@style/SimButton.Positive"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:enabled="false"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

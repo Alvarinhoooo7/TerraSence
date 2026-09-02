@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Grey-tinted variant of main_fragment_card, scoped to the sectioned
+    tablet settings list. The light-grey page makes the white section
+    MaterialCardViews read as distinct grouped containers (iOS grouped-list
+    style). Keeps the same 32dp top rounding as the shared main_fragment_card
+    so the content sheet still meets the purple header cleanly.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/tablet_settings_grouped_bg" />
+    <corners
+        android:topLeftRadius="32dp"
+        android:topRightRadius="32dp" />
+</shape>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="message"
+            type="com.sosmartlabs.momo.chat.data.local.entity.ChatEntity" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/messageBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="60dp"
+            android:layout_marginEnd="@dimen/horizontal_margin_smaller"
+            android:layout_marginVertical="@dimen/vertical_margin_smaller"
+            android:padding="4dp"
+            android:background="@drawable/background_message_to"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/contact_image"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                app:srcCompat="@drawable/ic_default_avatar"
+                style="@style/contactImageView"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/isolated_audio_image"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:visibility="@{message.isIsolatedAudio() ? View.VISIBLE : View.GONE}"
+                android:layout_marginHorizontal="@dimen/horizontal_margin_smaller"
+                android:layout_marginVertical="@dimen/vertical_margin_smaller"
+                app:layout_constraintBottom_toBottomOf="@id/contact_image"
+                app:layout_constraintStart_toStartOf="@id/contact_image"
+                app:srcCompat="@drawable/chat_microphone_stars" />
+
+            <ImageButton
+                android:id="@+id/messageAudioControlButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="4dp"
+                android:background="@android:color/transparent"
+                app:tint="@color/white"
+                android:contentDescription="@null"
+                android:scaleType="fitCenter"
+                android:visibility="@{message.audio != null ? View.VISIBLE : View.GONE}"
+                app:layout_constraintStart_toEndOf="@+id/contact_image"
+                app:layout_constraintEnd_toStartOf="@id/audioWaveform"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_chat_audio_play"/>
+
+            <com.sosmartlabs.momo.chat.presentation.view.AudioWaveformView
+                android:id="@+id/audioWaveform"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginHorizontal="4dp"
+                android:visibility="@{message.audio != null ? View.VISIBLE : View.GONE}"
+                app:layout_constraintTop_toTopOf="@+id/messageAudioControlButton"
+                app:layout_constraintBottom_toBottomOf="@+id/messageAudioControlButton"
+                app:layout_constraintEnd_toStartOf="@id/audio_time"
+                app:layout_constraintStart_toEndOf="@+id/messageAudioControlButton"/>
+
+            <TextView
+                android:id="@+id/audio_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="@dimen/chat_message_text_size"
+                android:layout_marginEnd="@dimen/horizontal_margin_medium"
+                app:layout_constraintTop_toTopOf="@+id/messageAudioControlButton"
+                app:layout_constraintBottom_toBottomOf="@+id/messageAudioControlButton"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:text="00:23"/>
+
+            <ProgressBar
+                android:id="@+id/messageAudioProgressBar"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="12dp"
+                android:indeterminateTint="@color/white"
+                android:visibility="@{message.audio == null ? View.VISIBLE : View.GONE}"
+                app:layout_constraintStart_toEndOf="@+id/contact_image"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/messageStateIcon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="@dimen/horizontal_margin"
+                android:layout_marginVertical="@dimen/vertical_margin_smallest"
+                android:visibility="visible"
+                android:contentDescription="@null"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:status="@{message.status}"
+                app:tint="@color/white"
+                tools:src="@drawable/ic_message_received"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/messageDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_margin_smallest"
+            android:layout_marginVertical="@dimen/vertical_margin_small"
+            android:textColor="@color/colorPrimary"
+            android:textSize="@dimen/chat_date_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/messageBox"
+            app:messageDate="@{message.createdAt}"
+            tools:text="11:30" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

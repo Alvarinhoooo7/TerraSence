@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bottom-up gradient so the playback controls (scrubber, time, play/pause)
+     stay readable over bright video frames. Dark at the bottom, fading up. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="90"
+        android:startColor="#B3000000"
+        android:centerColor="#59000000"
+        android:endColor="#00000000" />
+</shape>

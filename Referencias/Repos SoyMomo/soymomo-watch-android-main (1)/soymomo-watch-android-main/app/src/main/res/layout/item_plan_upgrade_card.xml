@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/plan_upgrade_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="@dimen/horizontal_margin"
+    android:layout_marginVertical="@dimen/vertical_margin_small"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="@dimen/card_elevation">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="164dp"
+        android:padding="16dp">
+
+        <FrameLayout
+            android:id="@+id/plan_logo_container"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@color/colorPrimary"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/plan_logo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="6dp"
+                app:srcCompat="@drawable/ic_soymomo_sim"
+                tools:ignore="ContentDescription" />
+
+        </FrameLayout>
+
+        <ImageView
+            android:id="@+id/plan_chevron"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/bg_plan_upgrade_chevron_circle"
+            android:padding="8dp"
+            android:src="@drawable/ic_chevron_right_v2"
+            android:tint="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/plan_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:fontFamily="@font/poppins_bold"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:textColor="@color/background_sim_step_card_title"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toStartOf="@id/plan_chevron"
+            app:layout_constraintStart_toEndOf="@id/plan_logo_container"
+            app:layout_constraintTop_toTopOf="@id/plan_logo_container"
+            tools:text="Smart Plan" />
+
+        <TextView
+            android:id="@+id/plan_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/robotomedium"
+            android:textColor="@color/background_sim_step_card_title"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/plan_logo_container"
+            app:layout_constraintTop_toBottomOf="@id/plan_title"
+            tools:text="$15.990" />
+
+        <TextView
+            android:id="@+id/plan_strike_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:fontFamily="@font/robotomedium"
+            android:textColor="@color/colorPrimaryLight"
+            android:textSize="12sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/plan_price"
+            app:layout_constraintStart_toEndOf="@id/plan_price"
+            tools:text="$19.990" />
+
+        <LinearLayout
+            android:id="@+id/bullet_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toStartOf="@id/plan_chevron"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/plan_logo_container">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_sim_data"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/plan_data"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/poppins"
+                    android:textColor="@color/background_sim_step_card_title"
+                    android:textSize="14sp"
+                    android:textStyle="normal"
+                    tools:text="• Data: 10 GB" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_sim_voice"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/plan_calls"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/poppins"
+                    android:textColor="@color/background_sim_step_card_title"
+                    android:textSize="14sp"
+                    android:textStyle="normal"
+                    tools:text="• Voice: Unlimited" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_sim_warranty"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/plan_warranty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/poppins"
+                    android:textColor="@color/background_sim_step_card_title"
+                    android:textSize="14sp"
+                    android:textStyle="normal"
+                    tools:text="• Warranty: Included" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

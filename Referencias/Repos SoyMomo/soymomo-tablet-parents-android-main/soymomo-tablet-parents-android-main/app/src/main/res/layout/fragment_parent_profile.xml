@@ -1,0 +1,622 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/app_bar_layout_blocks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/settings_header_logo"
+            android:layout_width="0dp"
+            android:layout_height="?attr/actionBarSize"
+            app:srcCompat="@drawable/ic_vector_logo_no_icon"
+            android:padding="@dimen/vertical_margin"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:visibility="invisible"/>
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:theme="@style/ToolbarTheme"
+            app:layout_collapseMode="pin"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/parent_constraint_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/app_bar_layout_blocks"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@color/colorPrimary">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/variable_image"
+            style="@style/profileImageView"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            app:layout_constraintDimensionRatio="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/variable_card"
+            android:src="@drawable/default_parent_profile_pic" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/star_background"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintDimensionRatio="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/variable_card"
+            android:src="@drawable/stars_background" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/white_image"
+            android:layout_width="0dp"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="1"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_default="percent"
+            app:layout_constraintHeight_percent="0.3"
+            android:src="@drawable/settings_card_half_radius_white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/variable_card"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_default="percent"
+            app:layout_constraintHeight_percent="0.75"
+            app:layout_constraintTop_toBottomOf="@id/variable_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@drawable/settings_card_design_white">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/back_arrow"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/variable_title"
+                app:layout_constraintBottom_toBottomOf="@+id/variable_title"
+                android:src="@drawable/ic_back_arrow"
+                android:layout_marginHorizontal="@dimen/horizontal_margin"
+                android:visibility="gone"/>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/variable_title"
+                style="@style/ParentControlVariableFragmentSubTitle"
+                android:textSize="16sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/horizontal_margin"
+                android:layout_marginVertical="16dp"
+                android:text="@string/tutor_profile"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/tutor_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:strokeWidth="1dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/black_10"
+                app:layout_constraintTop_toBottomOf="@id/variable_title"
+                app:layout_constraintBottom_toTopOf="@id/other_settings_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginHorizontal="@dimen/horizontal_margin"
+                android:layout_marginTop="@dimen/vertical_margin"
+                app:cardCornerRadius="24dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="@dimen/vertical_margin">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/tutor_ic"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        app:srcCompat="@drawable/ic_tutor_profile"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tutor_name"
+                        style="@style/ParentControlVariableFragmentSubTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="Thomas Pryce Jones"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toTopOf="@+id/tutor_email"
+                        app:layout_constraintStart_toEndOf="@+id/tutor_ic"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tutor_email"
+                        style="@style/ParentControlVariableFragmentDescription"
+                        android:textSize="13sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="thomas@soymomo.com"
+                        app:layout_constraintTop_toBottomOf="@+id/tutor_name"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/tutor_ic"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/other_settings_title"
+                style="@style/ParentControlVariableFragmentSubTitle"
+                android:textSize="15sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/horizontal_margin"
+                android:layout_marginVertical="16dp"
+                android:text="@string/tutor_other_settings"
+                app:layout_constraintTop_toBottomOf="@+id/tutor_card"
+                app:layout_constraintBottom_toTopOf="@+id/scroll_view"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ScrollView
+                android:id="@+id/scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toBottomOf="@id/other_settings_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/tutor_edit_profile_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:strokeWidth="1dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/black_10"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toTopOf="@+id/tutor_change_email_card"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_marginHorizontal="@dimen/horizontal_margin"
+                        app:cardCornerRadius="24dp">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="@dimen/vertical_margin_small">
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/tutor_edit_profile_ic"
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                app:srcCompat="@drawable/image_tutor_edit_profile"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/tutor_edit_profile_title"
+                                style="@style/ParentControlVariableFragmentSubTitle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="@string/tutor_edit_profile_title"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toTopOf="@+id/tutor_edit_profile_description"
+                                app:layout_constraintStart_toEndOf="@+id/tutor_edit_profile_ic"
+                                app:layout_constraintEnd_toStartOf="@+id/tutor_edit_profile_more_ic"
+                                android:layout_marginHorizontal="@dimen/vertical_margin" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/tutor_edit_profile_description"
+                                style="@style/ParentControlVariableFragmentDescription"
+                                android:textSize="13sp"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:textAlignment="textStart"
+                                android:text="@string/tutor_edit_profile_description"
+                                app:layout_constraintTop_toBottomOf="@+id/tutor_edit_profile_title"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/tutor_edit_profile_ic"
+                                app:layout_constraintEnd_toStartOf="@+id/tutor_edit_profile_more_ic"
+                                android:layout_marginHorizontal="@dimen/vertical_margin" />
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/tutor_edit_profile_more_ic"
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                app:srcCompat="@drawable/detail_arrow_right"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/tutor_change_email_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:strokeWidth="1dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/black_10"
+                        app:layout_constraintTop_toBottomOf="@id/tutor_edit_profile_card"
+                        app:layout_constraintBottom_toTopOf="@+id/tutor_delete_account_card"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_marginHorizontal="@dimen/horizontal_margin"
+                        android:layout_marginVertical="@dimen/vertical_margin_small"
+                        app:cardCornerRadius="24dp">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="@dimen/vertical_margin_small">
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/tutor_change_email_ic"
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                app:srcCompat="@drawable/image_tutor_change_email"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/tutor_change_email_title"
+                                style="@style/ParentControlVariableFragmentSubTitle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="@string/tutor_change_email_title"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toTopOf="@+id/tutor_change_email_description"
+                                app:layout_constraintStart_toEndOf="@+id/tutor_change_email_ic"
+                                app:layout_constraintEnd_toStartOf="@+id/tutor_change_email_more_ic"
+                                android:layout_marginHorizontal="@dimen/vertical_margin" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/tutor_change_email_description"
+                                style="@style/ParentControlVariableFragmentDescription"
+                                android:textSize="13dp"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:textAlignment="textStart"
+                                android:text="@string/tutor_change_email_description"
+                                app:layout_constraintTop_toBottomOf="@+id/tutor_change_email_title"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/tutor_change_email_ic"
+                                app:layout_constraintEnd_toStartOf="@+id/tutor_change_email_more_ic"
+                                android:layout_marginHorizontal="@dimen/vertical_margin" />
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/tutor_change_email_more_ic"
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                app:srcCompat="@drawable/detail_arrow_right"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/tutor_delete_account_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:strokeWidth="1dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/black_10"
+                        app:layout_constraintTop_toBottomOf="@id/tutor_change_email_card"
+                        app:layout_constraintBottom_toTopOf="@+id/tutor_link_accounts_card"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_marginHorizontal="@dimen/horizontal_margin"
+                        app:cardCornerRadius="24dp"
+                        android:visibility="gone">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="@dimen/vertical_margin_small">
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/tutor_delete_account_ic"
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                app:srcCompat="@drawable/image_tutor_delete_account"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/tutor_delete_account_title"
+                                style="@style/ParentControlVariableFragmentSubTitle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="@string/tutor_delete_account_title"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toTopOf="@+id/tutor_delete_account_description"
+                                app:layout_constraintStart_toEndOf="@+id/tutor_delete_account_ic"
+                                app:layout_constraintEnd_toStartOf="@+id/tutor_delete_account_more_ic"
+                                android:layout_marginHorizontal="@dimen/vertical_margin" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/tutor_delete_account_description"
+                                style="@style/ParentControlVariableFragmentDescription"
+                                android:textSize="13sp"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:textAlignment="textStart"
+                                android:text="@string/tutor_delete_account_description"
+                                app:layout_constraintTop_toBottomOf="@+id/tutor_delete_account_title"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/tutor_delete_account_ic"
+                                app:layout_constraintEnd_toStartOf="@+id/tutor_delete_account_more_ic"
+                                android:layout_marginHorizontal="@dimen/vertical_margin" />
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/tutor_delete_account_more_ic"
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                app:srcCompat="@drawable/detail_arrow_right"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/tutor_link_accounts_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:strokeWidth="1dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/black_10"
+                        app:layout_constraintTop_toBottomOf="@id/tutor_delete_account_card"
+                        app:layout_constraintBottom_toTopOf="@id/tutor_change_password_card"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_marginHorizontal="@dimen/horizontal_margin"
+                        android:layout_marginVertical="@dimen/vertical_margin_small"
+                        app:cardCornerRadius="24dp"
+                        android:visibility="gone">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="@dimen/vertical_margin_small">
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/tutor_link_accounts_ic"
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                app:srcCompat="@drawable/image_tutor_link_accounts"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/tutor_link_accounts_title"
+                                style="@style/ParentControlVariableFragmentSubTitle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="@string/tutor_link_accounts_title"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toTopOf="@+id/tutor_link_accounts_description"
+                                app:layout_constraintStart_toEndOf="@+id/tutor_link_accounts_ic"
+                                app:layout_constraintEnd_toStartOf="@+id/tutor_link_accounts_more_ic"
+                                android:layout_marginHorizontal="@dimen/vertical_margin" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/tutor_link_accounts_description"
+                                style="@style/ParentControlVariableFragmentDescription"
+                                android:textSize="13sp"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:textAlignment="textStart"
+                                android:text="@string/tutor_link_accounts_description"
+                                app:layout_constraintTop_toBottomOf="@+id/tutor_link_accounts_title"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/tutor_link_accounts_ic"
+                                app:layout_constraintEnd_toStartOf="@+id/tutor_link_accounts_more_ic"
+                                android:layout_marginHorizontal="@dimen/vertical_margin" />
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/tutor_link_accounts_more_ic"
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                app:srcCompat="@drawable/detail_arrow_right"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/tutor_change_password_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:strokeWidth="1dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/black_10"
+                        app:layout_constraintTop_toBottomOf="@id/tutor_link_accounts_card"
+                        app:layout_constraintBottom_toTopOf="@id/tutor_logout_card"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_marginHorizontal="@dimen/horizontal_margin"
+                        app:cardCornerRadius="24dp">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="@dimen/vertical_margin_small">
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/tutor_change_password_ic"
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                app:srcCompat="@drawable/image_tutor_change_password"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/tutor_change_password_title"
+                                style="@style/ParentControlVariableFragmentSubTitle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="@string/tutor_change_password_title"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toTopOf="@+id/tutor_change_password_description"
+                                app:layout_constraintStart_toEndOf="@+id/tutor_change_password_ic"
+                                app:layout_constraintEnd_toStartOf="@+id/tutor_change_password_more_ic"
+                                android:layout_marginHorizontal="@dimen/vertical_margin"
+                                />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/tutor_change_password_description"
+                                style="@style/ParentControlVariableFragmentDescription"
+                                android:textSize="13sp"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:textAlignment="textStart"
+                                android:text="@string/tutor_change_password_description"
+                                app:layout_constraintTop_toBottomOf="@+id/tutor_change_password_title"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/tutor_change_password_ic"
+                                app:layout_constraintEnd_toStartOf="@+id/tutor_change_password_more_ic"
+                                android:layout_marginHorizontal="@dimen/vertical_margin" />
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/tutor_change_password_more_ic"
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                app:srcCompat="@drawable/detail_arrow_right"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/tutor_logout_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:strokeWidth="1dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/black_10"
+                        app:layout_constraintTop_toBottomOf="@id/tutor_change_password_card"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_marginHorizontal="@dimen/horizontal_margin"
+                        android:layout_marginVertical="@dimen/vertical_margin_small"
+                        app:cardCornerRadius="24dp">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="@dimen/vertical_margin_small">
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/tutor_logout_ic"
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                app:srcCompat="@drawable/image_tutor_logout"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/tutor_logout_title"
+                                style="@style/ParentControlVariableFragmentSubTitle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="@string/tutor_logout_title"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toTopOf="@+id/tutor_logout_description"
+                                app:layout_constraintStart_toEndOf="@+id/tutor_logout_ic"
+                                app:layout_constraintEnd_toStartOf="@+id/tutor_logout_more_ic"
+                                android:layout_marginHorizontal="@dimen/vertical_margin" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/tutor_logout_description"
+                                style="@style/ParentControlVariableFragmentDescription"
+                                android:textSize="13sp"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:textAlignment="textStart"
+                                android:text="@string/tutor_logout_description"
+                                app:layout_constraintTop_toBottomOf="@+id/tutor_logout_title"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/tutor_logout_ic"
+                                app:layout_constraintEnd_toStartOf="@+id/tutor_logout_more_ic"
+                                android:layout_marginHorizontal="@dimen/vertical_margin" />
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/tutor_logout_more_ic"
+                                android:layout_width="wrap_content"
+                                android:layout_height="0dp"
+                                app:srcCompat="@drawable/detail_arrow_right"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </ScrollView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

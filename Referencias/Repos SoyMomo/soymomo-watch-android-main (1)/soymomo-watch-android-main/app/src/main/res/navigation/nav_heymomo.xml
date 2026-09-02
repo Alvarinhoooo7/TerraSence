@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_heymomo"
+    app:startDestination="@id/heyMomoMenuFragment">
+
+    <fragment
+        android:id="@+id/heyMomoMenuFragment"
+        android:name="com.sosmartlabs.momo.heymomohistory.ui.HeyMomoMenuFragment"
+        android:label="fragment_hey_momo_menu"
+        tools:layout="@layout/fragment_hey_momo_menu">
+        <action
+            android:id="@+id/action_heyMomoMenuFragment_to_heyMomoHistoryFragment"
+            app:destination="@id/heyMomoHistoryFragment" />
+        <action
+            android:id="@+id/action_heyMomoMenuFragment_to_heyMomoFactsFragment"
+            app:destination="@id/heyMomoFactsFragment" />
+        <argument
+            android:name="deviceId"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="wearerId"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/heyMomoHistoryFragment"
+        android:name="com.sosmartlabs.momo.heymomohistory.ui.HeyMomoHistoryFragment"
+        android:label="fragment_hey_momo_history"
+        tools:layout="@layout/fragment_hey_momo_history">
+        <argument
+            android:name="deviceId"
+            app:argType="string" />
+        <argument
+            android:name="wearerId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/heyMomoFactsFragment"
+        android:name="com.sosmartlabs.momo.heymomohistory.ui.HeyMomoFactsFragment"
+        android:label="fragment_hey_momo_facts"
+        tools:layout="@layout/fragment_hey_momo_facts">
+        <argument
+            android:name="deviceId"
+            app:argType="string" />
+        <argument
+            android:name="wearerId"
+            app:argType="string" />
+    </fragment>
+
+</navigation>

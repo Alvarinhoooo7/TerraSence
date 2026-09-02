@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/installed_app_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="@dimen/vertical_margin_small"
+    android:layout_marginHorizontal="@dimen/horizontal_margin"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/greySeparator"
+    app:strokeWidth="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/installed_app_icon"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/settings_app_videocalls"
+            app:shapeAppearanceOverlay="@style/roundedCornersImageView"
+            app:strokeColor="@color/greySeparator"
+            app:strokeWidth="1dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/settings_app_videocalls" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/installed_app_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/poppins_semibold"
+            android:maxLines="1"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@id/installed_app_arrow"
+            app:layout_constraintStart_toEndOf="@id/installed_app_icon"
+            app:layout_constraintTop_toTopOf="@id/installed_app_icon"
+            tools:text="Videocall" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/installed_app_status_chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            android:fontFamily="@font/poppins_semibold"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            app:chipBackgroundColor="@color/colorGreen"
+            app:chipEndPadding="8dp"
+            app:chipMinHeight="24dp"
+            app:chipStartPadding="8dp"
+            app:ensureMinTouchTargetSize="false"
+            app:layout_constraintStart_toStartOf="@id/installed_app_name"
+            app:layout_constraintBottom_toBottomOf="@id/installed_app_icon"
+            app:layout_constraintTop_toBottomOf="@id/installed_app_name"
+            tools:text="Allowed"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/installed_app_time_limit_chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:clickable="false"
+            android:focusable="false"
+            android:fontFamily="@font/poppins_semibold"
+            android:textColor="@color/colorPrimary"
+            android:textSize="11sp"
+            app:chipBackgroundColor="@color/greySeparator"
+            app:chipIconSize="16dp"
+            app:chipIcon="@drawable/ic_clock"
+            app:chipIconTint="@color/colorPrimary"
+            app:chipMinHeight="24dp"
+            app:chipStartPadding="8dp"
+            app:chipEndPadding="8dp"
+            app:ensureMinTouchTargetSize="false"
+            app:iconStartPadding="@dimen/horizontal_margin_smallest"
+            app:layout_constraintEnd_toStartOf="@id/installed_app_arrow"
+            app:layout_constraintStart_toEndOf="@id/installed_app_status_chip"
+            app:layout_constraintBottom_toBottomOf="@id/installed_app_status_chip"
+            app:layout_constraintTop_toTopOf="@id/installed_app_status_chip"
+            tools:text="1 hr 30 min/day"/>
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/installed_app_arrow"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@null"
+            android:layout_marginStart="8dp"
+            app:srcCompat="@drawable/ic_arrow_go"
+            app:tint="@color/colorPrimaryLight"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

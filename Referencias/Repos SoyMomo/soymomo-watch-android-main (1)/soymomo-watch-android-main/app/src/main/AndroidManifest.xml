@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-feature android:name="android.hardware.telephony" />
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE" />
+    <uses-permission
+        android:name="android.permission.WRITE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
+
+    <permission
+        android:name="${applicationId}.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <queries>
+        <package android:name="com.instagram.android" />
+        <intent>
+            <action android:name="com.instagram.share.ADD_TO_STORY" />
+        </intent>
+    </queries>
+
+    <application
+        android:name=".MomoApplication"
+        android:allowBackup="true"
+        android:fullBackupOnly="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:largeHeap="true"
+        android:requestLegacyExternalStorage="true"
+        android:supportsRtl="true"
+        android:theme="@style/MaterialAppTheme"
+        android:usesCleartextTraffic="true">
+        <!-- Most activities inherit MaterialAppTheme from the application.
+             Only keep explicit activity themes for real exceptions like splash routing
+             or phonebook-specific dialog styling. -->
+        <activity
+            android:name=".heymomohistory.HeyMomoHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".main.DisconnectionActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".main.LastKnownPositionActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".settingsapp.SettingsAppActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".userprofile.UserProfileActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".addfirstwatch.AddFirstMomoActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".sim.SimActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".reminders.RemindersActivity"
+            android:exported="false" />
+        <activity
+            android:name=".installedapp.InstalledAppActivity"
+            android:exported="false" />
+        <activity
+            android:name=".watchinfo.WatchInfoActivity"
+            android:label="@string/watch_info_activity_title"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".videocallhistory.VideoCallHistoryActivity"
+            android:label="@string/title_activity_video_call_history"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".myfriends.MyFriendsActivity"
+            android:label="@string/title_activity_my_friends"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".phonebook.PhoneBookActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/PhoneContactTheme" />
+        <activity
+            android:name=".dispatch.DispatchActivity"
+            android:exported="true"
+            android:noHistory="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Custom URL scheme registered by the iOS / Android watch
+                 parents apps. Namespaced per-app (soymomo-watch:// vs
+                 soymomo-tablet://) so the two apps never race for the same
+                 scheme on devices that have both installed. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="soymomo-watch"
+                    android:host="link" />
+            </intent-filter>
+
+            <!-- Android App Link: paired with /.well-known/assetlinks.json
+                 on soymomo.com, taps on https://soymomo.com/link/watch/<id>
+                 open the app directly without the disambiguation chooser.
+                 Until the assetlinks fingerprints are verified, the link
+                 falls through to the browser landing page which performs
+                 the custom-scheme handoff. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="soymomo.com" />
+                <data android:pathPrefix="/link/watch/" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".chat.presentation.activity.ChatListActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".batterysave.BatterySaveActivity"
+            android:screenOrientation="portrait" />
+        <!--
+            singleTop so a second call intent reaches onNewIntent instead of producing a second
+            live instance. The videocall notification launches with FLAG_ACTIVITY_CLEAR_TOP and no
+            SINGLE_TOP, which under the default "standard" mode finishes and RE-CREATES this
+            activity - and because finish() is asynchronous, the new instance's onCreate can run
+            while the old instance's onDestroy is still blocked tearing down the camera, leaving
+            two instances contending for the same camera device.
+        -->
+        <activity
+            android:name=".videocall.CallActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".usersettings.UserSettingsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".cropimage.CropImageActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".newowner.NewOwnerActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".steps.StepsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".lingo.ui.LingoProgressActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".watchprofile.WatchProfileActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".main.MainActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".barcodescanner.BarcodeScanningActivity" />
+        <activity
+            android:name=".watchlock.LockActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".alarms.AlarmsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".locationhistory.LocationHistoryActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".watchrequests.WatchRequestActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".calendarevent.CalendarEventActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".session.SessionActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".geofences.GeofenceActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".hearts.HeartsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".watchcontacts.WatchContactsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".watchsettings.WatchSettingsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".gpsmode.GPSModeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".dialpad.DialPadActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".onboarding.OnBoardingActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".linkwatch.LinkWatchActivity"
+            android:screenOrientation="portrait" />
+
+        <receiver
+            android:name=".pushnotifications.ui.PushNotificationReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.parse.push.intent.RECEIVE" />
+                <action android:name="com.parse.push.intent.DELETE" />
+                <action android:name="com.parse.push.intent.OPEN" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".videocall.receivers.NotifyEndVideocallReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.sosmartlabs.momo.videocall.receivers.NotifyEndVideocallReceiver" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="com.parse.fcm.ParseFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <meta-data
+            android:name="com.parse.push.gcm_sender_id"
+            android:value="id:813473697143" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+        <meta-data
+            android:name="com.parse.push.notification_icon"
+            android:resource="@drawable/ic_vector_notification" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="firebase_performance_logcat_enabled"
+            android:value="true" />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+        <uses-library android:name="com.google.android.maps" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            tools:replace="android:authorities">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- Disable default WorkManager initializer so the custom HiltWorkerFactory
+             (configured in MomoApplication.workManagerConfiguration) is used instead.
+             Required for @HiltWorker classes with injected dependencies. -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+    </application>
+
+</manifest>

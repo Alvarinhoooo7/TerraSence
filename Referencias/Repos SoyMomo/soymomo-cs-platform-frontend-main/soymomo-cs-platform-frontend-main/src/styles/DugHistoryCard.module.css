@@ -1,0 +1,24 @@
+/* DugHistoryCard.module.css */
+.generalContainer {
+  @apply max-w-[200px] m-auto p-4;
+}
+
+.imageContainer {
+  @apply relative rounded-lg overflow-hidden;
+}
+
+.image {
+  @apply w-full h-auto rounded-lg shadow-md;
+}
+
+.textContainer {
+  @apply p-4;
+}
+
+.category {
+  @apply m-0 font-bold;
+}
+
+.date {
+  @apply m-0 text-gray-500;
+}

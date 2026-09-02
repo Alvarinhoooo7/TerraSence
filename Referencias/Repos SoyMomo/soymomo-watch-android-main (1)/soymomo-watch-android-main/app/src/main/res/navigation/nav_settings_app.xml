@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_settings_app"
+    app:startDestination="@id/settingsAppMainFragment">
+
+    <fragment
+        android:id="@+id/settingsAppMainFragment"
+        android:name="com.sosmartlabs.momo.settingsapp.ui.fragment.SettingsAppMainFragment"
+        android:label="settings_app_main_fragment"
+        tools:layout="@layout/settings_app_main_fragment" >
+        <action
+            android:id="@+id/action_settingsAppMainFragment_to_linkedWatchesFragment"
+            app:destination="@id/linkedWatchesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/linkedWatchesFragment"
+        android:name="com.sosmartlabs.momo.settingsapp.ui.fragment.LinkedWatchesFragment"
+        android:label="settings_app_linked_watches_fragment"
+        tools:layout="@layout/settings_app_linked_watches_fragment" />
+</navigation>

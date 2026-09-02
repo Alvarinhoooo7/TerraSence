@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Full-screen last-known-position map. The map fills the screen; the staleness banner is
+     pinned between the toolbar and the map so it survives every pan and zoom. -->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_sim_step_card_title"
+    tools:context=".main.LastKnownPositionActivity">
+
+    <fragment
+        android:id="@+id/last_position_map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/vertical_margin"
+        app:layout_constraintTop_toBottomOf="@id/staleness_card"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:ignore="FragmentTagUsage" />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/background_sim_step_card_title"
+        android:theme="@style/ToolbarTheme"
+        app:titleTextColor="@color/white"
+        app:titleMarginStart="@dimen/horizontal_margin_small"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:title="aleksander beutsch" />
+
+    <!-- Undismissable. Not a bottom sheet (draggable shut), not a toast (expires), not the
+         marker info window (closes on the next map tap). -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/staleness_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/horizontal_margin"
+        android:layout_marginTop="@dimen/vertical_margin"
+        style="@style/SimContentCardView"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/horizontal_margin">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/staleness_relative"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="0dp"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                style="@style/SimContentCardViewContent"
+                tools:text="Recorded 3 days ago — not where it is now" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/staleness_absolute"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="0dp"
+                android:layout_marginTop="@dimen/vertical_margin_smallest"
+                android:textSize="12sp"
+                android:textColor="@color/grey_600"
+                style="@style/SimContentCardViewContent"
+                tools:text="25 Jul 4:46 p. m." />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_directions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/horizontal_margin"
+        android:layout_marginBottom="@dimen/gesture_navigation_margin"
+        android:text="@string/disconnection_status_directions"
+        style="@style/SimButton.Positive"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from './services/supabase';
 import { AuthScreen } from './components/AuthScreen';
-import { Dashboard } from './components/Dashboard';
 import { ResetPasswordScreen } from './components/ResetPasswordScreen';
+import { DashboardLayout } from './layouts/DashboardLayout';
+import { DashboardHome } from './pages/DashboardHome';
+import { DevicesPage } from './pages/DevicesPage';
+import { GisMapPage } from './pages/GisMapPage';
+import { ValidationPage } from './pages/ValidationPage';
+import { SupportPanelPage } from './pages/SupportPanelPage';
+import { SupportDeviceDetailPage } from './pages/SupportDeviceDetailPage';
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [checking, setChecking] = useState(true);
-  // true cuando Supabase notifica un evento PASSWORD_RECOVERY: el usuario llegó desde
-  // el enlace del correo de "olvidé mi contraseña" y debe elegir una nueva antes de
-  // poder ver el resto de la consola, aunque ya exista una sesión activa.
   const [recovering, setRecovering] = useState(false);
 
   useEffect(() => {
@@ -27,8 +31,9 @@ export default function App() {
 
   if (checking) {
     return (
-      <div className="min-h-full grid place-items-center text-[--color-terra-muted]">
-        Cargando…
+      <div className="min-h-screen flex flex-col items-center justify-center bg-terra-bg text-terra-primary">
+        <div className="h-12 w-12 border-4 border-terra-primary border-t-transparent rounded-full animate-spin mb-4" />
+        <span className="text-terra-muted animate-pulse">Iniciando plataforma...</span>
       </div>
     );
   }
@@ -37,5 +42,22 @@ export default function App() {
     return <ResetPasswordScreen onDone={() => setRecovering(false)} />;
   }
 
-  return session ? <Dashboard email={session.user.email ?? ''} /> : <AuthScreen />;
+  if (!session) {
+    return <AuthScreen />;
+  }
+
+  return (
+    <Routes>
+      <Route path="/" element={<DashboardLayout email={session.user.email ?? ''} />}>
+        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="dashboard" element={<DashboardHome />} />
+        <Route path="map" element={<GisMapPage />} />
+        <Route path="devices" element={<DevicesPage />} />
+        <Route path="validation" element={<ValidationPage />} />
+        <Route path="admin" element={<SupportPanelPage />} />
+        <Route path="admin/devices/:id" element={<SupportDeviceDetailPage />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Route>
+    </Routes>
+  );
 }

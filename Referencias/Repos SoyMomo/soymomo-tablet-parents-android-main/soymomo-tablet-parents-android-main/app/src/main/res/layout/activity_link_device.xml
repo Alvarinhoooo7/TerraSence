@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_sim_step_card_title"
+    tools:context=".link.LinkDeviceActivity">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary">
+
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:id="@+id/collapsing_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:collapsedTitleTextAppearance="@style/CollapsingToolbarCollapsed"
+                app:contentScrim="@color/colorPrimary"
+                app:expandedTitleTextAppearance="@style/CollapsingToolbarExpanded"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/header"
+                    style="@style/SimStepCardHeader.Over"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_collapseMode="parallax"
+                    app:layout_scrollFlags="scroll|enterAlwaysCollapsed">
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/app_bar_guide"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_begin="?attr/actionBarSize" />
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/header_image"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintHeight_percent=".4"
+                        app:srcCompat="@drawable/link_new_tablet_image"
+                        app:layout_constraintTop_toBottomOf="@id/app_bar_guide"
+                        app:layout_constraintBottom_toTopOf="@+id/header_title"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"/>
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/header_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+                        android:layout_marginVertical="@dimen/vertical_margin"
+                        android:fontFamily="@font/roboto_medium"
+                        android:text="@string/link_device_title"
+                        android:textAlignment="center"
+                        android:textColor="@color/white"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/header_image" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@color/background_sim_step_card_title"
+                    android:theme="@style/ToolbarTheme"
+                    app:layout_collapseMode="pin" />
+
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nested_scroll_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/sim_card_form_background"
+            android:transitionGroup="true"
+            android:fillViewport="true"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/link_title_textview"
+                    style="@style/LinkTabletDescriptionTextPurple"
+                    android:textSize="16sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/horizontal_margin"
+                    android:layout_marginVertical="16dp"
+                    android:text="@string/link_device_subtitle"
+                    app:layout_constraintBottom_toTopOf="@id/link_first_step_description_textview"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
+
+                <!-- Step 1 button, line and content !-->
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/link_first_step_status_circle"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_step_missing"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/link_first_step_description_textview"
+                    android:layout_marginHorizontal="@dimen/horizontal_margin"/>
+
+                <View
+                    android:id="@+id/link_first_step_status_line"
+                    android:layout_width="2dp"
+                    android:layout_height="0dp"
+                    android:background="@color/colorPrimary"
+                    app:layout_constraintStart_toStartOf="@id/link_first_step_status_circle"
+                    app:layout_constraintEnd_toEndOf="@id/link_first_step_status_circle"
+                    app:layout_constraintTop_toBottomOf="@id/link_first_step_status_circle"
+                    app:layout_constraintBottom_toTopOf="@id/link_second_step_status_circle"
+                    android:layout_marginVertical="@dimen/vertical_margin_small"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/link_first_step_description_textview"
+                    style="@style/LinkTabletDescriptionTextPurple"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/horizontal_margin"
+                    android:layout_marginVertical="@dimen/vertical_margin_small"
+                    android:text="@string/link_device_step_1_text"
+                    app:layout_constraintBottom_toTopOf="@id/device_id_text_input"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/link_first_step_status_circle"
+                    app:layout_constraintTop_toBottomOf="@+id/link_title_textview"
+                    android:visibility="visible"
+                    tools:visibility="visible"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/device_id_text_input"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.PurpleColoredBox"
+                    app:counterEnabled="true"
+                    app:counterMaxLength="10"
+                    app:counterTextColor="@color/colorPrimaryLight"
+                    app:boxCornerRadiusBottomEnd="@dimen/corner_radius"
+                    app:boxCornerRadiusBottomStart="@dimen/corner_radius"
+                    app:boxCornerRadiusTopEnd="@dimen/corner_radius"
+                    app:boxCornerRadiusTopStart="@dimen/corner_radius"
+                    app:layout_constraintTop_toBottomOf="@id/link_first_step_description_textview"
+                    app:layout_constraintStart_toStartOf="@+id/link_first_step_description_textview"
+                    app:layout_constraintEnd_toStartOf="@id/qr_code_scanner_button">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/device_id_text_input_field"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/link_tablet_background"
+                        android:maxLength="10"
+                        android:inputType="textNoSuggestions">
+
+                    </com.google.android.material.textfield.TextInputEditText>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/qr_code_scanner_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/vertical_margin_smallest"
+                    android:layout_marginStart="@dimen/horizontal_margin_small"
+                    android:layout_marginEnd="@dimen/horizontal_margin_medium"
+                    app:srcCompat="@drawable/qr_code_scanner_icon"
+                    app:backgroundTint="@color/button_positive"
+                    app:tint="@color/white"
+                    app:layout_constraintTop_toTopOf="@id/device_id_text_input"
+                    app:layout_constraintStart_toEndOf="@id/device_id_text_input"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:contentDescription="@null"/>
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/search_progress_bar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    app:layout_constraintTop_toTopOf="@id/qr_code_scanner_button"
+                    app:layout_constraintStart_toStartOf="@id/qr_code_scanner_button"
+                    app:layout_constraintEnd_toEndOf="@id/qr_code_scanner_button"
+                    app:layout_constraintBottom_toBottomOf="@id/qr_code_scanner_button"
+                    android:visibility="invisible"/>
+
+                <!-- Step 2 button, line and content !-->
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/link_second_step_status_circle"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_step_missing"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/select_device_color_title"
+                    android:layout_marginHorizontal="@dimen/horizontal_margin"
+                    android:visibility="invisible"
+                    tools:visibility="visible"/>
+
+                <View
+                    android:id="@+id/link_second_step_status_line"
+                    android:layout_width="2dp"
+                    android:layout_height="0dp"
+                    android:background="@color/colorPrimary"
+                    app:layout_constraintStart_toStartOf="@id/link_first_step_status_circle"
+                    app:layout_constraintEnd_toEndOf="@id/link_first_step_status_circle"
+                    app:layout_constraintTop_toBottomOf="@id/link_second_step_status_circle"
+                    app:layout_constraintBottom_toTopOf="@id/link_third_step_status_circle"
+                    android:layout_marginVertical="@dimen/vertical_margin_small"
+                    android:visibility="invisible"
+                    tools:visibility="visible"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/select_device_color_title"
+                    style="@style/LinkTabletDescriptionTextPurple"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/horizontal_margin"
+                    android:layout_marginVertical="@dimen/vertical_margin_small"
+                    android:text="@string/link_device_step_2_text"
+                    app:layout_constraintStart_toEndOf="@+id/link_second_step_status_circle"
+                    app:layout_constraintTop_toBottomOf="@id/device_id_text_input"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:visibility="invisible"
+                    tools:visibility="visible"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/device_select_color_recycler_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/vertical_margin_small"
+                    app:layout_constraintTop_toBottomOf="@id/select_device_color_title"
+                    app:layout_constraintStart_toStartOf="@id/select_device_color_title"
+                    tools:itemCount="7"
+                    tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/item_link_device_select_color"
+                    tools:orientation="horizontal"
+                    android:visibility="invisible"
+                    tools:visibility="visible"/>
+
+                <!-- Step 3 button, line and content !-->
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/link_third_step_status_circle"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_step_missing"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/link_device_title"
+                    android:layout_marginHorizontal="@dimen/horizontal_margin"
+                    android:visibility="invisible"
+                    tools:visibility="visible"/>
+
+                <View
+                    android:id="@+id/link_third_step_status_line"
+                    android:layout_width="2dp"
+                    android:layout_height="0dp"
+                    android:background="@color/colorPrimary"
+                    app:layout_constraintStart_toStartOf="@id/link_second_step_status_circle"
+                    app:layout_constraintEnd_toEndOf="@id/link_second_step_status_circle"
+                    app:layout_constraintTop_toBottomOf="@id/link_third_step_status_circle"
+                    app:layout_constraintBottom_toTopOf="@id/link_end_step_status_circle"
+                    android:layout_marginVertical="@dimen/vertical_margin_small"
+                    android:visibility="invisible"
+                    tools:visibility="visible"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/link_device_title"
+                    style="@style/LinkTabletDescriptionTextPurple"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/horizontal_margin"
+                    android:layout_marginVertical="@dimen/vertical_margin_medium"
+                    android:text="@string/link_device_step_3_text"
+                    app:layout_constraintStart_toEndOf="@+id/link_third_step_status_circle"
+                    app:layout_constraintTop_toBottomOf="@id/device_select_color_recycler_view"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:visibility="invisible"
+                    tools:visibility="visible"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/link_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/vertical_margin_small"
+                    android:layout_marginStart="@dimen/horizontal_margin"
+                    android:layout_marginEnd="@dimen/horizontal_margin_medium"
+                    android:textAllCaps="false"
+                    app:cornerRadius="32dp"
+                    android:fontFamily="@font/poppins"
+                    android:enabled="false"
+                    android:text="@string/link_device_step_3_link_button"
+                    android:backgroundTint="@color/not_available_button_color"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toBottomOf="@id/link_device_title"
+                    app:layout_constraintStart_toEndOf="@id/link_third_step_status_circle"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:visibility="invisible"
+                    tools:visibility="visible"/>
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/linking_progress_bar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    app:layout_constraintTop_toTopOf="@id/link_button"
+                    app:layout_constraintStart_toStartOf="@id/link_button"
+                    app:layout_constraintEnd_toEndOf="@id/link_button"
+                    app:layout_constraintBottom_toBottomOf="@id/link_button"
+                    android:visibility="invisible"
+                    tools:visibility="visible"/>
+
+                <!-- Step end button, line and content !-->
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/link_end_step_status_circle"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_step_missing"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/go_to_main_title"
+                    android:layout_marginHorizontal="@dimen/horizontal_margin"
+                    android:visibility="invisible"
+                    tools:visibility="visible"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/go_to_main_title"
+                    style="@style/LinkTabletDescriptionTextPurple"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/horizontal_margin"
+                    android:layout_marginVertical="@dimen/vertical_margin_medium"
+                    android:text="@string/link_device_step_end_text"
+                    android:textAlignment="center"
+                    android:visibility="invisible"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/link_button"
+                    tools:visibility="visible" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/go_to_main_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/vertical_margin_small"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginEnd="@dimen/horizontal_margin_medium"
+                    android:backgroundTint="@color/not_available_button_color"
+                    android:enabled="false"
+                    android:fontFamily="@font/poppins"
+                    android:text="@string/link_device_step_end_go_to_main_button"
+                    android:textAllCaps="false"
+                    android:textStyle="bold"
+                    android:visibility="invisible"
+                    app:cornerRadius="32dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/go_to_main_title"
+                    tools:visibility="visible" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

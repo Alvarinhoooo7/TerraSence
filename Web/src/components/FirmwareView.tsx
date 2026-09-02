@@ -81,12 +81,12 @@ export function FirmwareView({ devices }: { devices: Device[] }) {
     [devices, latestByTarget],
   );
 
-  if (loading) return <p className="text-[--color-terra-muted]">Cargando firmware…</p>;
+  if (loading) return <p className="text-terra-muted">Cargando firmware…</p>;
 
   return (
     <div className="space-y-6">
       {error && (
-        <p className="rounded-lg bg-[--color-verdict-red]/15 text-[--color-verdict-red] p-4 text-sm">
+        <p className="rounded-lg bg-verdict-red/15 text-verdict-red p-4 text-sm">
           {error}
         </p>
       )}
@@ -94,35 +94,35 @@ export function FirmwareView({ devices }: { devices: Device[] }) {
       {/* Estado del parque de equipos */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <Stat label="Versiones publicadas" value={releases.filter((r) => r.is_published).length} />
-        <Stat label="Equipos al día" value={devices.length - outdated.length} tone="text-[--color-verdict-green]" />
+        <Stat label="Equipos al día" value={devices.length - outdated.length} tone="text-verdict-green" />
         <Stat
           label="Equipos desactualizados"
           value={outdated.length}
-          tone={outdated.length > 0 ? 'text-[--color-verdict-amber]' : undefined}
+          tone={outdated.length > 0 ? 'text-verdict-amber' : undefined}
         />
       </div>
 
       {outdated.length > 0 && (
-        <div className="rounded-xl border border-[--color-verdict-amber]/40 bg-[--color-verdict-amber]/10 p-4">
-          <h3 className="font-semibold text-[--color-verdict-amber] mb-2">
+        <div className="rounded-xl border border-verdict-amber/40 bg-verdict-amber/10 p-4">
+          <h3 className="font-semibold text-verdict-amber mb-2">
             ! {outdated.length} equipo{outdated.length === 1 ? '' : 's'} por actualizar
           </h3>
           <ul className="text-sm space-y-1">
             {outdated.map((d) => {
               const latest = latestByTarget.get(d.hardware_version);
               return (
-                <li key={d.id} className="text-[--color-terra-muted]">
-                  <span className="text-[--color-terra-text]">{d.alias || d.name}</span> ·{' '}
+                <li key={d.id} className="text-terra-muted">
+                  <span className="text-terra-text">{d.alias || d.name}</span> ·{' '}
                   <span className="tabular">{d.firmware_version}</span> →{' '}
-                  <span className="tabular text-[--color-terra-primary]">{latest?.version}</span>
+                  <span className="tabular text-terra-primary">{latest?.version}</span>
                   {latest?.is_mandatory && (
-                    <span className="ml-2 text-[--color-verdict-red]">obligatoria</span>
+                    <span className="ml-2 text-verdict-red">obligatoria</span>
                   )}
                 </li>
               );
             })}
           </ul>
-          <p className="text-xs text-[--color-terra-muted] mt-3">
+          <p className="text-xs text-terra-muted mt-3">
             La actualización la inicia el equipo, no la consola: consulta{' '}
             <code>check_firmware_update()</code> y descarga sólo si hay versión superior.
           </p>
@@ -131,25 +131,25 @@ export function FirmwareView({ devices }: { devices: Device[] }) {
 
       {/* Catálogo */}
       {releases.length === 0 ? (
-        <div className="rounded-xl border border-[--color-terra-border] p-8 text-center">
-          <p className="text-[--color-terra-muted] mb-2">
+        <div className="rounded-xl border border-terra-border p-8 text-center">
+          <p className="text-terra-muted mb-2">
             Todavía no hay versiones de firmware publicadas.
           </p>
-          <p className="text-xs text-[--color-terra-muted] max-w-lg mx-auto">
+          <p className="text-xs text-terra-muted max-w-lg mx-auto">
             La publicación se hace con la clave de servicio, no desde esta consola: un binario que se
             instalará sin supervisión en equipos repartidos por el campo no debe poder publicarse con
             una sesión de navegador.
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-[--color-terra-border]">
+        <div className="overflow-x-auto rounded-xl border border-terra-border">
           <table className="w-full text-sm">
-            <thead className="bg-[--color-terra-surface]">
+            <thead className="bg-terra-surface">
               <tr>
                 {['Versión', 'Hardware', 'Estado', 'Tamaño', 'SHA-256', 'Publicada'].map((h) => (
                   <th
                     key={h}
-                    className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wide text-[--color-terra-muted] whitespace-nowrap"
+                    className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wide text-terra-muted whitespace-nowrap"
                   >
                     {h}
                   </th>
@@ -158,32 +158,32 @@ export function FirmwareView({ devices }: { devices: Device[] }) {
             </thead>
             <tbody>
               {releases.map((r) => (
-                <tr key={r.id} className="border-t border-[--color-terra-border]">
-                  <td className="px-4 py-3 tabular font-semibold text-[--color-terra-primary]">
+                <tr key={r.id} className="border-t border-terra-border">
+                  <td className="px-4 py-3 tabular font-semibold text-terra-primary">
                     {r.version}
                     {r.is_mandatory && (
-                      <span className="ml-2 text-xs text-[--color-verdict-red]">obligatoria</span>
+                      <span className="ml-2 text-xs text-verdict-red">obligatoria</span>
                     )}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">{r.hardware_target}</td>
                   <td className="px-4 py-3">
                     {r.is_published ? (
-                      <span className="text-[--color-verdict-green]">✓ Publicada</span>
+                      <span className="text-verdict-green">✓ Publicada</span>
                     ) : (
-                      <span className="text-[--color-terra-muted]">Borrador</span>
+                      <span className="text-terra-muted">Borrador</span>
                     )}
                   </td>
                   <td className="px-4 py-3 tabular">{humanSize(r.size_bytes)}</td>
                   <td className="px-4 py-3">
                     {r.sha256 ? (
-                      <code className="text-xs text-[--color-terra-muted]">
+                      <code className="text-xs text-terra-muted">
                         {r.sha256.slice(0, 12)}…
                       </code>
                     ) : (
-                      <span className="text-[--color-verdict-red] text-xs">sin firma</span>
+                      <span className="text-verdict-red text-xs">sin firma</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-[--color-terra-muted]">
+                  <td className="px-4 py-3 whitespace-nowrap text-terra-muted">
                     {relativeTime(r.published_at ?? r.created_at)}
                   </td>
                 </tr>
@@ -193,15 +193,15 @@ export function FirmwareView({ devices }: { devices: Device[] }) {
         </div>
       )}
 
-      <details className="rounded-xl border border-[--color-terra-border] bg-[--color-terra-surface] p-4">
+      <details className="rounded-xl border border-terra-border bg-terra-surface p-4">
         <summary className="cursor-pointer font-semibold text-sm">
           Cómo publicar una versión nueva
         </summary>
-        <p className="text-sm text-[--color-terra-muted] mt-3 mb-3">
+        <p className="text-sm text-terra-muted mt-3 mb-3">
           Se ejecuta con la clave de servicio. Entra como borrador: nadie la recibe hasta marcarla
           publicada, y sólo después de probarla en un equipo real.
         </p>
-        <pre className="text-xs bg-[--color-terra-bg] rounded-lg p-3 overflow-x-auto">{`insert into firmware_releases
+        <pre className="text-xs bg-terra-bg rounded-lg p-3 overflow-x-auto">{`insert into firmware_releases
   (version, hardware_target, binary_url, sha256, size_bytes, release_notes)
 values
   ('1.1.0', 'ESP32-WROOM-32',
@@ -213,7 +213,7 @@ values
 update firmware_releases
    set is_published = true, published_at = now()
  where version = '1.1.0';`}</pre>
-        <p className="text-xs text-[--color-verdict-amber] mt-3">
+        <p className="text-xs text-verdict-amber mt-3">
           El SHA-256 no es opcional: el equipo debe verificarlo antes de conmutar la partición. Un
           OTA sin verificación de integridad es un vector de ataque.
         </p>
@@ -224,8 +224,8 @@ update firmware_releases
 
 function Stat({ label, value, tone }: { label: string; value: number; tone?: string }) {
   return (
-    <div className="rounded-xl border border-[--color-terra-border] bg-[--color-terra-surface] p-4">
-      <div className="text-xs font-semibold tracking-wide text-[--color-terra-muted] uppercase">
+    <div className="rounded-xl border border-terra-border bg-terra-surface p-4">
+      <div className="text-xs font-semibold tracking-wide text-terra-muted uppercase">
         {label}
       </div>
       <div className={`text-3xl font-bold tabular mt-1 ${tone ?? ''}`}>{value}</div>

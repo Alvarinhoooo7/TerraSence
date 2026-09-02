@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:cardBackgroundColor="@color/transparent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_kid_profile_form"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/arrow_backwards"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_action_back_purple"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+        </ImageView>
+
+        <TextView
+            android:id="@+id/child_profile_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Perfil niño"
+            style="@style/SettingsTitleTextPurple"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        </TextView>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/child_profile_name_textinput"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_default="percent"
+            app:layout_constraintHeight_percent="0.1"
+            android:hint="Name"
+            style="@style/Widget.App.TextInputLayout.PurpleColoredBox"
+            app:layout_constraintTop_toBottomOf="@id/child_profile_title"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="textWebEditText" >
+
+            </com.google.android.material.textfield.TextInputEditText>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/child_profile_birthday_textinput"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_default="percent"
+            app:layout_constraintHeight_percent="0.1"
+            android:hint="Cumpleaños"
+            style="@style/Widget.App.TextInputLayout.PurpleColoredBox"
+            app:layout_constraintTop_toBottomOf="@id/child_profile_name_textinput"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="textWebEditText" >
+
+            </com.google.android.material.textfield.TextInputEditText>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/child_profile_number_textinput"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:hint="Número"
+            app:layout_constraintHeight_default="percent"
+            app:layout_constraintHeight_percent="0.1"
+            style="@style/Widget.App.TextInputLayout.PurpleColoredBox"
+            app:layout_constraintTop_toBottomOf="@id/child_profile_birthday_textinput"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="textWebEditText" >
+
+            </com.google.android.material.textfield.TextInputEditText>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/child_profile_height_textinput"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.45"
+            app:layout_constraintHeight_default="percent"
+            app:layout_constraintHeight_percent="0.1"
+            android:hint="Altura (cm)"
+            style="@style/Widget.App.TextInputLayout.PurpleColoredBox"
+            app:layout_constraintTop_toBottomOf="@id/child_profile_number_textinput"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="textWebEditText" >
+
+            </com.google.android.material.textfield.TextInputEditText>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/child_profile_weight_textinput"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.45"
+            app:layout_constraintHeight_default="percent"
+            app:layout_constraintHeight_percent="0.1"
+            android:hint="Peso (kg)"
+            style="@style/Widget.App.TextInputLayout.PurpleColoredBox"
+            app:layout_constraintTop_toBottomOf="@id/child_profile_number_textinput"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="textWebEditText" >
+
+            </com.google.android.material.textfield.TextInputEditText>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/select_tablet_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_tablet_string"
+            style="@style/SettingsDescriptionTextPurple"
+            app:layout_constraintTop_toBottomOf="@id/child_profile_height_textinput"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="12dp">
+
+        </TextView>
+
+        <include
+            android:id="@+id/red_tablet"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.25"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/select_tablet_textview"
+            layout="@layout/settings_cardview_child_profile_redtablet"
+            android:layout_marginTop="20dp">
+
+        </include>
+
+        <include
+            android:id="@+id/green_tablet"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.25"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/select_tablet_textview"
+            layout="@layout/settings_cardview_child_profile_greentablet"
+            android:layout_marginTop="20dp">
+
+        </include>
+
+        <include
+            android:id="@+id/purple_tablet"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.25"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/select_tablet_textview"
+            layout="@layout/settings_cardview_child_profile_purpletablet"
+            android:layout_marginTop="20dp">
+
+        </include>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/save_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/red_tablet"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:textAllCaps="false"
+            app:cornerRadius="32dp"
+            android:fontFamily="@font/poppins"
+            android:text="Guardar"
+            android:backgroundTint="@color/watch_settings_green_button"
+            android:layout_marginTop="12dp"
+            android:textStyle="bold">
+
+        </com.google.android.material.button.MaterialButton>
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* AppVersionCard */
+.softVerCont {
+  @apply flex flex-col bg-white rounded-md shadow-md p-4 mb-4 w-full
+}
+
+.text {
+    @apply text-sm text-start text-[#603BB0]
+}
+
+.bold {
+    @apply font-bold
+}
+
+.secondRow {
+  @apply flex space-x-2
+}
+
+.miniCard {
+  @apply flex bg-white rounded-md shadow-md p-4 my-2 w-full space-x-2
+}

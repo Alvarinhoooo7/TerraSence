@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AudioWaveformView">
+        <attr name="waveformBarWidth" format="dimension" />
+        <attr name="waveformBarGap" format="dimension" />
+        <attr name="waveformBarCornerRadius" format="dimension" />
+        <attr name="waveformFilledColor" format="color" />
+        <attr name="waveformUnfilledColor" format="color" />
+    </declare-styleable>
+</resources>

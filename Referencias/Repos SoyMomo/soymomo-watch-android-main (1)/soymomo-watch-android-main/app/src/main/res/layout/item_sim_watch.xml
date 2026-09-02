@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/watch_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/vertical_margin_small"
+        android:layout_marginHorizontal="@dimen/horizontal_margin"
+        style="@style/SimContentCardView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- Fully-qualified android.widget.RadioButton (NOT the bare
+                 <RadioButton> tag) so Theme.Material3's view-inflater does not
+                 auto-upgrade it to MaterialRadioButton and tint/box the custom
+                 selected/unselected drawable. -->
+            <android.widget.RadioButton
+                android:id="@+id/watch_radio_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/vertical_margin_small"
+                android:button="@drawable/watch_selected_radio_btn"
+                android:background="@null"
+                android:buttonTint="@null"
+                app:layout_constraintWidth_percent=".1"
+                app:layout_constraintDimensionRatio="1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:checked="true"/>
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/watch_profile_picture"
+                android:layout_width="@dimen/watch_card_profile_picture_size"
+                android:layout_height="@dimen/watch_card_profile_picture_size"
+                android:layout_marginHorizontal="@dimen/horizontal_margin"
+                android:layout_marginVertical="@dimen/vertical_margin"
+                style="@style/contactImageView.noBorder"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:srcCompat="@drawable/ic_momo_space"/>
+
+            <TextView
+                android:id="@+id/watch_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/vertical_margin"
+                style="@style/SimContentCardTargetViewTitle"
+                app:layout_constraintStart_toEndOf="@id/watch_profile_picture"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/watch_radio_button"
+                tools:text="José Feliú" />
+
+            <TextView
+                android:id="@+id/watch_model"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                style="@style/SimContentCardViewContent"
+                tools:text="Model: SoyMomo Space 2.0"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/watch_profile_picture"
+                app:layout_constraintTop_toBottomOf="@id/watch_name"
+                app:layout_constraintEnd_toStartOf="@+id/watch_radio_button"/>
+
+            <TextView
+                android:id="@+id/watch_imei"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                style="@style/SimContentCardViewContent"
+                tools:text="IMEI: 8696090349234"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/watch_profile_picture"
+                app:layout_constraintTop_toBottomOf="@id/watch_model"
+                app:layout_constraintEnd_toStartOf="@+id/watch_radio_button" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".addfirstwatch.ui.fragments.ChooseMobileNetworkOperatorFragment"
+    android:background="@color/background_onboarding"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/choose_mobile_network_operator_animation"
+        android:layout_width="@dimen/onboarding_animation_width_small"
+        android:layout_height="@dimen/onboarding_animation_height_small"
+        tools:src="@drawable/animation_placeholder_onboarding"
+        android:layout_marginTop="@dimen/vertical_margin"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/choose_mobile_network_operator_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+        android:textAlignment="center"
+        android:textSize="@dimen/add_watch_title_text_size"
+        android:fontFamily="@font/poppins"
+        android:textColor="@color/white"
+        android:layout_marginVertical="@dimen/vertical_margin_small"
+        android:textStyle="bold"
+        android:text="@string/add_watch_choose_mobile_network_operator_title"
+        app:layout_constraintTop_toBottomOf="@id/choose_mobile_network_operator_animation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/choose_mobile_network_operator_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/choose_mobile_network_operator_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/button_sim_not_in_list"
+        tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        tools:listitem="@layout/add_watch_choose_mobile_network_operator_item"
+        tools:itemCount="7"
+        tools:spanCount="2"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/button_sim_not_in_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/horizontal_margin_large"
+        android:layout_marginVertical="@dimen/vertical_margin"
+        android:background="@drawable/first_momo_borderless_button"
+        android:fontFamily="@font/poppins"
+        android:text="@string/add_watch_choose_mobile_network_operator_button_not_in_list"
+        android:textAllCaps="false"
+        android:textColor="@color/button_onboarding_enabled"
+        android:textSize="@dimen/add_watch_button_text_size"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

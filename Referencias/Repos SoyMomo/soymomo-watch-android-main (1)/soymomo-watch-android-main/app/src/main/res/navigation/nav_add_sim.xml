@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_add_sim"
+    app:startDestination="@id/newSubscriptionLinkSimFragment">
+
+    <fragment
+        android:id="@+id/newSubscriptionLinkSimFragment"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.newsubscription.NewSubscriptionLinkSimFragment"
+        android:label="fragment_new_subscription_link_sim"
+        tools:layout="@layout/subscription_new_link_sim_fragment" >
+        <action
+            android:id="@+id/action_add_sim_newSubscriptionLinkSimFragment_to_newSubscriptionChoosePlanFragment"
+            app:destination="@id/newSubscriptionChoosePlanFragment" />
+        <argument
+            android:name="prefilledIccId"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/newSubscriptionChoosePlanFragment"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.newsubscription.NewSubscriptionChoosePlanFragment"
+        android:label="fragment_new_subscription_choose_plan"
+        tools:layout="@layout/subscription_new_choose_plan_fragment" >
+        <action
+            android:id="@+id/action_add_sim_newSubscriptionChoosePlanFragment_to_newSubscriptionForm"
+            app:destination="@id/newSubscriptionForm" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/newSubscriptionForm"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.forms.SubscriptionFormFragment"
+        android:label="fragment_new_subscription_form"
+        tools:layout="@layout/subscription_new_form_fragment" >
+        <action
+            android:id="@+id/action_add_sim_newSubscriptionForm_to_subscriptionPaymentSkipFragment"
+            app:destination="@id/subscriptionPaymentSkipFragment" />
+        <action
+            android:id="@+id/action_add_sim_newSubscriptionForm_to_stripeWebViewFragment"
+            app:destination="@id/stripeWebViewFragment" />
+        <action
+            android:id="@+id/action_add_sim_newSubscriptionForm_to_apioUserCardsFragment"
+            app:destination="@id/apioUserCardsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/newSubscriptionPaymentSuccess"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.payment.PaymentSuccessFragment"
+        android:label="fragment_new_subscription_payment_success"
+        tools:layout="@layout/subscription_payment_success_fragment" >
+        <action
+            android:id="@+id/action_newSubscriptionPaymentSuccess_to_mainViewFragment"
+            app:destination="@id/action_newSubscriptionPaymentSuccess_to_mainViewFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/newSubscriptionPaymentError"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.payment.PaymentErrorFragment"
+        android:label="fragment_new_subscription_payment_error"
+        tools:layout="@layout/subscription_payment_error_fragment" >
+        <action
+            android:id="@+id/action_add_sim_newSubscriptionPaymentError_to_newSubscriptionPaymentSuccess"
+            app:destination="@id/newSubscriptionPaymentSuccess" />
+        <action
+            android:id="@+id/action_add_sim_newSubscriptionPaymentError_to_newSubscriptionChoosePlanFragment"
+            app:destination="@id/newSubscriptionChoosePlanFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/subscriptionPaymentSkipFragment"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.payment.PaymentSkipFragment"
+        android:label="subscription_payment_skip_fragment"
+        tools:layout="@layout/subscription_payment_skip_fragment" >
+
+        <action
+            android:id="@+id/action_add_sim_subscriptionPaymentSkipFragment_to_newSubscriptionPaymentSuccess"
+            app:destination="@id/newSubscriptionPaymentSuccess" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/apioWebViewFragment"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.payment.ApioWebViewFragment"
+        android:label="subscription_apio_webview_fragment"
+        tools:layout="@layout/subscription_apio_webview_fragment" >
+        <action
+            android:id="@+id/action_add_sim_apioWebViewFragment_to_newSubscriptionPaymentError"
+            app:destination="@id/newSubscriptionPaymentError" />
+        <action
+            android:id="@+id/action_add_sim_apioWebViewFragment_to_newSubscriptionPaymentSuccess"
+            app:destination="@id/newSubscriptionPaymentSuccess" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/stripeWebViewFragment"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.payment.StripeWebViewFragment"
+        android:label="subscription_stripe_webview_fragment"
+        tools:layout="@layout/subscription_stripe_webview_fragment" >
+        <action
+            android:id="@+id/action_add_sim_stripeWebViewFragment_to_newSubscriptionPaymentError"
+            app:destination="@id/newSubscriptionPaymentError" />
+        <action
+            android:id="@+id/action_add_sim_stripeWebViewFragment_to_newSubscriptionPaymentSuccess"
+            app:destination="@id/newSubscriptionPaymentSuccess" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/apioUserCardsFragment"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.payment.ApioUserCardsFragment"
+        android:label="subscription_apio_user_cards_fragment"
+        tools:layout="@layout/subscription_apio_user_cards_fragment" >
+        <action
+            android:id="@+id/action_add_sim_apioUserCardsFragment_to_apioWebViewFragment"
+            app:destination="@id/apioWebViewFragment" />
+        <action
+            android:id="@+id/action_add_sim_apioUserCardsFragment_to_apioConfirmSubscriptionFragment"
+            app:destination="@id/apioConfirmSubscriptionFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/apioConfirmSubscriptionFragment"
+        android:name="com.sosmartlabs.momo.sim.ui.fragments.payment.ApioConfirmSubscriptionFragment"
+        android:label="subscription_apio_confirm_subscription_fragment"
+        tools:layout="@layout/subscription_apio_confirm_subscription_fragment" >
+        <action
+            android:id="@+id/action_add_sim_apioConfirmSubscriptionFragment_to_newSubscriptionPaymentSuccess"
+            app:destination="@id/newSubscriptionPaymentSuccess" />
+        <action
+            android:id="@+id/TEST_action_add_sim_apioConfirmSubscriptionFragment_to_newSubscriptionPaymentError"
+            app:destination="@id/newSubscriptionPaymentError" />
+    </fragment>
+
+</navigation>

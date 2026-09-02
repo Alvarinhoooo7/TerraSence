@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nps_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:fillViewport="false"
+        android:overScrollMode="never"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingStart="16dp"
+            android:paddingTop="48dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="16dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/nps_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="56dp"
+                app:cardBackgroundColor="@color/momo_background"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="12dp"
+                app:contentPaddingBottom="20dp"
+                app:contentPaddingLeft="20dp"
+                app:contentPaddingRight="20dp"
+                app:contentPaddingTop="92dp">
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:orientation="vertical">
+
+                    <!-- Intro -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:lineSpacingExtra="3dp"
+                        android:text="@string/subscription_nps_intro"
+                        android:textColor="@color/white"
+                        android:textSize="13sp"
+                        android:alpha="0.85" />
+
+                    <!-- Score section -->
+                    <TextView
+                        android:id="@+id/nps_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:gravity="center"
+                        android:lineSpacingExtra="4dp"
+                        android:text="@string/subscription_nps_title"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <com.sosmartlabs.momo.nps.ExpandableHeightGridView
+                        android:id="@+id/grid_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:numColumns="5"
+                        android:stretchMode="columnWidth"
+                        android:verticalSpacing="8dp" />
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:alpha="0.7"
+                            android:text="@string/subscription_nps_score_low"
+                            android:textColor="@color/white"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:alpha="0.7"
+                            android:gravity="end"
+                            android:text="@string/subscription_nps_score_high"
+                            android:textColor="@color/white"
+                            android:textSize="11sp" />
+
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="20dp"
+                        android:alpha="0.2"
+                        android:background="@color/white" />
+
+                    <!-- Cancellation reason section -->
+                    <TextView
+                        android:id="@+id/cancellation_reason_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:text="@string/subscription_nps_cancellation_reason_label"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="@string/subscription_nps_cancellation_reason_hint"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        android:alpha="0.65" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/cancellation_reason_chips"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        app:chipSpacingVertical="8dp"
+                        app:singleSelection="false"
+                        app:selectionRequired="false">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_too_expensive"
+                            style="@style/NpsCancellationChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/subscription_nps_reason_too_expensive" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_coverage"
+                            style="@style/NpsCancellationChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/subscription_nps_reason_coverage" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_app_issues"
+                            style="@style/NpsCancellationChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/subscription_nps_reason_app_issues" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_no_longer_needed"
+                            style="@style/NpsCancellationChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/subscription_nps_reason_no_longer_needed" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_watch_lost"
+                            style="@style/NpsCancellationChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/subscription_nps_reason_watch_lost" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_other"
+                            style="@style/NpsCancellationChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/subscription_nps_reason_other" />
+
+                    </com.google.android.material.chip.ChipGroup>
+
+                    <!-- "Other" reason text field (hidden until chip_other is selected) -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/other_reason_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:visibility="gone"
+                        app:cardBackgroundColor="@color/white"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:contentPadding="12dp"
+                        app:strokeColor="@color/nps_comment_border"
+                        app:strokeWidth="1dp">
+
+                        <EditText
+                            android:id="@+id/other_reason_input"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:gravity="top|start"
+                            android:hint="@string/subscription_nps_other_reason_hint"
+                            android:importantForAutofill="no"
+                            android:inputType="textMultiLine|textCapSentences"
+                            android:lines="2"
+                            android:textColor="@color/momoFont"
+                            android:textColorHint="@color/momo_text_hint"
+                            android:textSize="14sp"
+                            tools:ignore="LabelFor" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="20dp"
+                        android:alpha="0.2"
+                        android:background="@color/white" />
+
+                    <!-- Improvement comment -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:text="@string/subscription_nps_improvement_label"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        app:cardBackgroundColor="@color/white"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:contentPadding="12dp"
+                        app:strokeColor="@color/nps_comment_border"
+                        app:strokeWidth="1dp">
+
+                        <EditText
+                            android:id="@+id/user_comment"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:gravity="top|start"
+                            android:hint="@string/subscription_nps_improvement_hint"
+                            android:importantForAutofill="no"
+                            android:inputType="textMultiLine|textCapSentences"
+                            android:lines="3"
+                            android:textColor="@color/momoFont"
+                            android:textColorHint="@color/momo_text_hint"
+                            android:textSize="14sp"
+                            tools:ignore="LabelFor" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/submit"
+                        style="@style/CyanButtonStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:enabled="false"
+                        android:text="@string/nps_send"
+                        android:textAllCaps="false"
+                        android:textColor="@color/subscription_nps_submit_text_tint"
+                        app:backgroundTint="@color/subscription_nps_submit_bg_tint" />
+
+                    <TextView
+                        android:id="@+id/submit_hint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:alpha="0.7"
+                        android:gravity="center"
+                        android:text="@string/subscription_nps_submit_hint"
+                        android:textColor="@color/white"
+                        android:textSize="12sp" />
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <ImageView
+                android:id="@+id/nps_image"
+                android:layout_width="130dp"
+                android:layout_height="140dp"
+                android:layout_gravity="center_horizontal|top"
+                android:adjustViewBounds="true"
+                android:elevation="24dp"
+                android:importantForAccessibility="no"
+                android:outlineAmbientShadowColor="@color/nps_shadow"
+                android:outlineSpotShadowColor="@color/nps_shadow"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_soymomo_sim_purple_crying"
+                tools:targetApi="p" />
+
+            <ImageView
+                android:id="@+id/close_nps"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="60dp"
+                android:layout_marginEnd="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/nps_close"
+                android:elevation="16dp"
+                android:padding="10dp"
+                android:src="@drawable/nps_close"
+                android:tint="#B3FFFFFF"
+                tools:ignore="UseAppTint" />
+
+        </FrameLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

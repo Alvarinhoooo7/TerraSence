@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/item_menu_generic_time_default"
+        android:title="@string/today_interval"
+        app:showAsAction="always"
+        android:visible="true">
+        <menu>
+            <!--
+            <item
+                android:id="@+id/item_menu_generic_time_hour"
+                android:title="@string/last_hour_interval"
+                app:showAsAction="ifRoom" />
+            -->
+
+            <item android:id="@+id/item_menu_generic_time_today"
+                app:showAsAction="ifRoom"
+                android:title="@string/today_interval" />
+
+
+            <item android:id="@+id/item_menu_generic_time_week"
+                app:showAsAction="ifRoom"
+                android:title="@string/this_week_interval" />
+
+            <item android:id="@+id/item_menu_generic_time_month"
+                app:showAsAction="ifRoom"
+                android:title="@string/this_month_interval" />
+
+            <item android:id="@+id/item_menu_generic_time_all_time"
+                app:showAsAction="ifRoom"
+                android:title="@string/all_time_interval" />
+        </menu>
+    </item>
+
+</menu>

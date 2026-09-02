@@ -1,0 +1,17 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+// Gradle 9 can manage the JVM used to run the Gradle daemon separately from
+// the Java level used to compile the app. This resolver lets Gradle honor the
+// checked-in daemon JVM criteria file and auto-download the matching JDK when
+// a machine does not already have it installed.
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+include ':app'
+rootProject.name = "SoyMomo Watch"

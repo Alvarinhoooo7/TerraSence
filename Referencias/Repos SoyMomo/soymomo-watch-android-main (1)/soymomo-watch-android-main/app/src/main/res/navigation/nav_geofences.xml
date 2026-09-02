@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_geofences"
+    app:startDestination="@id/geofencesFragment">
+
+    <fragment
+        android:id="@+id/geofencesFragment"
+        android:name="com.sosmartlabs.momo.geofences.ui.GeofencesFragment"
+        android:label="fragment_geofences"
+        tools:layout="@layout/fragment_geofences">
+        <action
+            android:id="@+id/action_geofencesFragment_to_geofenceViewFragment"
+            app:destination="@id/geofenceViewFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/geofenceViewFragment"
+        android:name="com.sosmartlabs.momo.geofences.ui.GeofenceViewFragment"
+        android:label="fragment_geofence_view"
+        tools:layout="@layout/fragment_geofence_view" />
+</navigation>
