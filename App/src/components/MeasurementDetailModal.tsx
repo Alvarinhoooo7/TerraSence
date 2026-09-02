@@ -64,6 +64,14 @@ export const MeasurementDetailModal: React.FC<Props> = ({ point, onClose }) => {
             {new Date(point.measuredAt).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' })}
           </Text>
 
+          {point.isPending && (
+            <View style={[styles.pendingBadge, { backgroundColor: colors.warning }]}>
+              <Text style={styles.pendingBadgeText}>
+                {t('Guardado localmente (Pendiente de sincronización)', 'Saved locally (Pending sync)')}
+              </Text>
+            </View>
+          )}
+
           <Text style={[styles.section, { color: colors.textMuted }]}>{t('LECTURAS REGISTRADAS', 'RECORDED READINGS')}</Text>
           <View style={styles.grid}>
             {metrics.map(([label, value]) => (
@@ -114,4 +122,6 @@ const styles = StyleSheet.create({
   actionText: { ...Typography.bodyRegular },
   location: { borderWidth: 1, borderRadius: Spacing.borderRadius, padding: Spacing.md },
   locationMeta: { ...Typography.caption, marginTop: 4 },
+  pendingBadge: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: Spacing.borderRadius, alignSelf: 'center', marginTop: Spacing.md },
+  pendingBadgeText: { ...Typography.badge, color: '#FFFFFF' },
 });

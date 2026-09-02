@@ -288,7 +288,17 @@ Este bloque está implementado y versionado para que la próxima sesión no teng
 - Verificación actual: pruebas unitarias, TypeScript, Expo Doctor, bundle Android y un E2E remoto
   que crea usuarios/equipo temporales, valida 12 invariantes de RLS/onboarding y limpia todo.
 
-### 11.2. P0 — bloqueantes antes de declarar el producto listo para terreno
+### 11.2. Actualización: UX Offline y Topografía (Septiembre 2026)
+
+Se implementaron mejoras enfocadas en la experiencia del usuario en terreno bajo el paradigma **Offline-First**:
+- **Store `useAuthStore`**: Migración de la sesión a Zustand con persistencia en AsyncStorage para carga inmediata sin red.
+- **Banner Offline Global**: Se integró `@react-native-community/netinfo` para informar sutilmente al usuario cuando está operando sin conexión.
+- **Topografía Inteligente**: El mapa (`MapScreen.tsx`) usa `fitToCoordinates` para encuadrar automáticamente las mediciones y perímetro en pantalla sin que los controles flotantes las tapen (Edge-to-Edge mediante `react-native-safe-area-context`).
+- **Estado de Sincronización**: Las lecturas locales pendientes de enviar a la nube muestran un badge de estado en el `MeasurementDetailModal`.
+- **UX Agronómica**: Modal de recordatorio amistoso para limpiar la sonda antes de cada nueva medición (`CalibrationReminderModal`).
+- **Onboarding Inmersivo**: Refactor de la pantalla de bienvenida con un carrusel moderno (preparado para `lottie-react-native`).
+
+### 11.3. P0 — bloqueantes antes de declarar el producto listo para terreno
 
 1. **Implementar o incorporar el firmware ESP32 real.** Este repositorio todavía no contiene un
    proyecto PlatformIO/Arduino que implemente los cuatro UUID GATT, ventana física de pairing,
@@ -326,7 +336,7 @@ Este bloque está implementado y versionado para que la próxima sesión no teng
    pero en esta máquina `GMAIL_APP_PASSWORD` no está exportada y el CLI avisa. No ejecutar
    `supabase config push` a ciegas: primero cargar el secreto y confirmar que el remoto conserva SMTP.
 
-### 11.3. P1 — administración operativa
+### 11.4. P1 — administración operativa
 
 - Administración de miembros implementada: owner/admin pueden listar operadores y revocar o
   restaurar acceso; el owner puede promover administradores y transferir propiedad. Las mutaciones
@@ -347,7 +357,7 @@ Este bloque está implementado y versionado para que la próxima sesión no teng
 - Sustituir datos simulados por una bandera de compilación: permitidos en demo/desarrollo y
   imposibles en una build productiva aunque el banner exista.
 
-### 11.4. P2 — robustez, seguridad y calidad
+### 11.5. P2 — robustez, seguridad y calidad
 
 - Mover el código de vinculación/cache sensible desde AsyncStorage a SecureStore o cifrado local;
   `allowBackup=false` ya reduce exposición, pero no protege un teléfono rooteado.
@@ -363,7 +373,7 @@ Este bloque está implementado y versionado para que la próxima sesión no teng
 - Accesibilidad con TalkBack/VoiceOver, tamaño de fuente aumentado, contraste bajo sol y operación
   con guantes en un dispositivo físico.
 
-### 11.5. P3 — publicación y operación
+### 11.6. P3 — publicación y operación
 
 - Política de privacidad, consentimiento, eliminación/exportación de cuenta, retención de datos y
   revisión final bajo Ley chilena 21.719.
@@ -371,7 +381,7 @@ Este bloque está implementado y versionado para que la próxima sesión no teng
 - Pipeline CI: `npm ci`, tests, type-check, Expo export, build Web y dry-run de migraciones.
 - Despliegue en stores, capturas, ficha, canal beta, monitoreo de crashes y procedimiento de rollback.
 
-### 11.6. Orden recomendado para retomar
+### 11.7. Orden recomendado para retomar
 
 1. Firmware mínimo con identidad/provisionamiento/telemetría.
 2. Development build Android + prueba de pairing y una medición real.

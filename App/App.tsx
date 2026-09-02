@@ -9,8 +9,9 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import type { Session } from '@supabase/supabase-js';
 
+import { useAuthStore } from './src/store/useAuthStore';
+import { OfflineBanner } from './src/components/OfflineBanner';
 import { supabase } from './src/services/supabase';
 import { registerPushToken } from './src/services/notifications';
 import { AuthScreen } from './src/screens/AuthScreen';
@@ -39,7 +40,7 @@ export default function App() {
   const { isDark, colors } = useAppTheme();
   const { t } = useTranslation();
 
-  const [session, setSession] = useState<Session | null>(null);
+  const { session, setSession, isHydrated } = useAuthStore();
   const [checking, setChecking] = useState(true);
   const [recovering, setRecovering] = useState(false);
   const [checkingOnboarding, setCheckingOnboarding] = useState(false);
@@ -138,18 +139,24 @@ export default function App() {
     setDetailPoint(p);
   }, []);
 
-  let content: React.ReactNode;
+  let content;
 
-  if (recovering) {
+  if (checking || !isHydrated) {
+    content = (
+      <View style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  } else if (recovering) {
     content = <ResetPasswordScreen onDone={() => setRecovering(false)} />;
-  } else if (checking || (session && checkingOnboarding)) {
+  } else if (!session) {
+    content = <AuthScreen onAuthenticated={() => setRoute('map')} />;
+  } else if (checkingOnboarding) {
     content = (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
-  } else if (!session) {
-    content = <AuthScreen onAuthenticated={() => setRoute('map')} />;
   } else if (onboardingError) {
     content = (
       <View
@@ -237,6 +244,7 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <StatusBar style={isDark ? 'light' : 'dark'} />
+        <OfflineBanner />
         {content}
         <MeasurementDetailModal point={detailPoint} onClose={() => setDetailPoint(null)} />
       </SafeAreaProvider>
