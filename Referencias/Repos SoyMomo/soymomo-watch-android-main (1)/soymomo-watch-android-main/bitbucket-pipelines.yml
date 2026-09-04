@@ -1,9 +1,0 @@
-image: atlassian/default-image:3
-
-pipelines:
-  default:
-    - parallel:
-      - step:
-          name: 'Hello Pipeline'
-          script:
-            - echo "Hello Pipeline, we will update you soon..."

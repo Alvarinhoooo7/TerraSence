@@ -1,4 +1,0 @@
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_selected="true"  android:drawable="@color/button_neutral"/>
-    <item android:drawable="@color/button_positive"/>
-</selector>

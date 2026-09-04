@@ -2569,6 +2569,12 @@ $$\text{Punto de equilibrio} = \frac{\text{Gastos fijos} + \text{Depreciación} 
 >
 > **El CAC del Año 1 ($6.000) es artificialmente bajo** porque no incluye el costo de una agencia — es trabajo directo de los socios, no una eficiencia replicable. El CAC "real" de régimen, una vez con agencia (Año 2 en adelante), se estabiliza entre $17.000 y $21.000, todavía una fracción sana del precio de venta.
 
+> [!NOTE]
+> ### 📊 Validación de Mercado del Gasto Contable: Outsourcing Pyme vs. Nómina Interna Indefinida
+> * **Por qué no se contrata un contador interno indefinido:** Según datos consolidados de portales de empleo en Chile (Indeed, Computrabajo, Talent.com) y las Guías Salariales 2024-2025 de Robert Half y Michael Page, el sueldo bruto de mercado de un Contador General junior/egresado oscila entre **$850.000 y $1.300.000 CLP/mes**. Al sumar la gratificación legal (Art. 50 Código del Trabajo, 25%) y las cargas patronales obligatorias (SIS 1,49%, AFC empleador 2,4%, Mutual de Seguridad 1,83%), el costo empresa real asciende a **$1.150.000 a $1.350.000 CLP/mes ($13,8M a $16,2M anuales)**. Para una microempresa en su primer año con 200 unidades vendidas (~17 facturas de venta y ~8 compras al mes), la carga contable efectiva es de apenas **3 a 4 horas al mes**. Pagar una nómina completa de $15M anuales consumiría el **36 % de toda la facturación neta anual de TerraSense ($42M)**, tornando el negocio inviable.
+> * **La práctica real en Chile (Outsourcing Contable):** Plataformas y estudios tributarios como *Contabilizate.cl, TuContador.cl, ChileContador.cl, DeNegocios.cl y Contable.app* cobran entre **1,5 UF y 2,5 UF mensuales** ($57.000 a $95.000 CLP/mes) para Pymes en Régimen Pro Pyme (Art. 14 D3 y 14 D8) con hasta 50 documentos mensuales, incluyendo F29 mensual, Registro Electrónico de Compras/Ventas, liquidaciones de sueldo de socios en Previred y Declaración de Renta anual.
+> * **Alineación con el modelo:** TerraSense presupuesta **$70.000 CLP/mes ($840.000/año = ~1,84 UF/mes)** el Año 1, escalando a **$80.000/mes** el Año 2 (primer operario a medio tiempo), **$140.000/mes** los Años 3-4 (al arrendar taller formal se incorpora la Patente Comercial Municipal semestral) y **$165.000/mes** el Año 5.
+
 ---
 
 ## XII.5. CUADRO N° 3 — Estado de resultados proyectado a 5 años
@@ -2601,6 +2607,35 @@ $$\text{Punto de equilibrio} = \frac{\text{Gastos fijos} + \text{Depreciación} 
 > **El Año 1 es el único con flujo negativo — y es un resultado esperado, no una señal de alarma.** La utilidad neta del Año 1 es positiva ($2.985.381: los dos socios ya se están pagando el mínimo legal), pero el flujo de caja se vuelve negativo porque ese mismo año hay que pagar de golpe **$7.071.792 de capital** (la línea de corto plazo completa más la primera cuota del crédito largo). El capital de trabajo está dimensionado para absorberlo.
 >
 > **El Año 1 es el más ajustado en términos relativos**. Desde el Año 2 la dotación de ensamblaje se dimensiona según 2,25 h por unidad y 1.800 h productivas por FTE; aun incorporando el taller desde el Año 3, la utilidad se mantiene positiva y el crecimiento se acelera desde el Año 4.
+
+### XII.5.1. Remuneraciones, Retiro de Utilidades y Retorno por Socio Fundador (Álvaro y Alan)
+
+El modelo financiero explicita la retribución económica para ambos socios fundadores (**reparto igualitario 50 % Álvaro Villena y 50 % Alan**) combinando **Sueldo Empresarial Fijo Mensual** (gasto operacional aceptado tributariamente por el SII según el Art. 31 N° 6 de la Ley de la Renta) y **Reparto de Dividendos del Flujo de Caja Libre**:
+
+| Concepto Financiero | Año 0 | Año 1 | Año 2 | Año 3 | Año 4 | Año 5 | TOTAL 5 AÑOS |
+| :--- | :---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| **Sueldo Empresarial Bruto por socio (anual)** | $0 | **$6.642.636** | **$7.200.000** | **$10.800.000** | **$12.000.000** | **$14.400.000** | **$51.042.636** |
+| *→ Sueldo mensual bruto por socio* | *$0* | *$553.553 (IMM)* | *$600.000* | *$900.000* | *$1.000.000* | *$1.200.000* | *—* |
+| *→ Sueldo mensual líquido estimado en bolsillo* | *$0* | *~$450.000* | *~$490.000* | *~$735.000* | *~$815.000* | *~$975.000* | *—* |
+| **Flujo de fondos libre de caja de la empresa** | −$26.548.500 | −$3.275.221 | $8.265.898 | $7.650.848 | $19.583.527 | $30.491.963 | $62.717.014 |
+| **Reparto de Dividendos por socio (50 % flujo libre)** | $0 | **$0** *(paga deuda)* | **$4.132.949** | **$3.825.424** | **$9.791.763** | **$15.245.981** | **$32.996.118** |
+| **TOTAL INGRESOS PERCIBIDOS POR SOCIO** | **$0** | **$6.642.636** | **$11.332.949** | **$14.625.424** | **$21.791.763** | **$29.645.981** | **$84.038.754** |
+| *(−) Aporte de capital propio inicial (Pie por socio)* | −$4.450.000 | $0 | $0 | $0 | $0 | $0 | −$4.450.000 |
+| **(=) RETORNO NETO LIMPIO EN EL BOLSILLO POR SOCIO** | | | | | | | **+$79.588.754 CLP** |
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                         BALANCE PATRIMONIAL DEL SOCIO AL CIERRE DEL AÑO 5                      │
+├───────────────────────────────────────────────────────┬────────────────────────────────────────┤
+│ Capital Propio Invertido (Pie Inicial en el Banco)    │ −$4.450.000 CLP                        │
+│ Total Sueldos Empresariales Percibidos (5 años)       │ +$51.042.636 CLP                       │
+│ Total Dividendos de Caja Retirados (50 % del flujo)   │ +$32.996.118 CLP                       │
+│ Retorno Neto Acumulado en el Bolsillo por Socio       │ +$79.588.754 CLP limpios               │
+│ Multiplicador sobre el Capital Propio Aportado        │ 17,9x veces la inversión inicial       │
+│ Activo Patrimonial Adicional al Año 5                 │ Dueño del 50 % de TerraSense SpA,      │
+│                                                       │ libre de deudas y con 850 u/año ventas │
+└───────────────────────────────────────────────────────┴────────────────────────────────────────┘
+```
 
 ---
 

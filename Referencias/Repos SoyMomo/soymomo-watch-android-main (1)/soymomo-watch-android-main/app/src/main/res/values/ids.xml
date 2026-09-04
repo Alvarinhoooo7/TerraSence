@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Per-ImageView generation token used by loadLingoSvg() to discard stale
-         async SVG results when a RecyclerView row is recycled. -->
-    <item name="lingo_svg_token" type="id" />
-</resources>

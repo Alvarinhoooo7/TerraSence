@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- When switch is checked -->
-    <item android:color="@color/colorPrimary" android:state_checked="true"/>
-    <!-- When switch is unchecked -->
-    <item android:color="@color/colorPrimary" android:alpha="0.5" android:state_checked="false"/>
-    <!-- Default state -->
-    <item android:color="@color/colorPrimary" android:alpha="0.5"/>
-</selector>

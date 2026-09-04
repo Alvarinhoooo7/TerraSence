@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Translucent-white capsule behind the connection-status pill, matching the
-     iOS pill (white at ~14% opacity) on the purple hero card. -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="#24FFFFFF" />
-    <corners android:radius="100dp" />
-</shape>

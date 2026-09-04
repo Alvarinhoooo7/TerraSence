@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Checked state uses the same color as the enabled button -->
-    <item android:state_checked="true" android:color="@color/button_onboarding_enabled" />
-    <!-- Otherwise, use the default control color -->
-    <item android:color="@color/white" />
-</selector>

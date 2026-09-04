@@ -212,7 +212,62 @@ A partir del segundo año, con el producto validado en terreno y flujo de caja o
 
 ---
 
-### 4.4. Indicadores de Evaluación Económica y Flujo de Fondos a 5 Años
+### 4.4. Estructura de Dotación y Validación de Costos Contables en Chile (Mercado 2024-2026)
+
+La estructura de personal y servicios profesionales de TerraSense responde estrictamente a la realidad operacional de una microempresa tecnológica en Chile:
+
+#### 1. Validación de Mercado del Servicio Contable: Outsourcing vs. Nómina Indefinida
+* **Inviabilidad de contratar un contador interno indefinido en el Año 1:**
+  * **Sueldo Bruto de Mercado (Fuentes: Indeed Chile, Talent.com, Computrabajo, Guías Salariales Robert Half y Michael Page 2024-2025):** Un Contador General o Auditor recién egresado o junior en Chile percibe entre **$850.000 y $1.300.000 CLP brutos mensuales**; para profesionales con dominio de ERPs o tributaria supera los **$1.600.000 CLP**.
+  * **Costo Real Empleador (Cargas Patronales y Gratificación Legal):** Considerando sueldo base de $900.000 CLP + gratificación legal (Art. 50 Código del Trabajo, 25% con tope de 4,75 IMM) + aportes patronales obligatorios (SIS 1,49%, AFC empleador 2,4%, Mutual de Seguridad 1,83%), el costo empresa asciende a **$1.150.000 a $1.350.000 CLP mensuales** (**$13.800.000 a $16.200.000 CLP anuales**).
+  * **Diagnóstico Operacional:** En el Año 1 la empresa emite apenas 16-17 facturas de venta al mes, registra ~8 facturas de compras y liquida 2 sueldos de socios (carga real: 3 a 4 horas de trabajo al mes). Pagar $15M/año representaría el **36% de las ventas netas totales del Año 1 ($42M)**, quebrando la empresa de inmediato.
+* **Modelo Adoptado: Outsourcing Contable Especializado para PYMEs:**
+  * **Tarifas Reales de Mercado (Fuentes: Contabilizate.cl, TuContador.cl, ChileContador.cl, DeNegocios.cl, Contable.app):** Los planes mensuales de abono contable para microempresas bajo Régimen Pro Pyme (Art. 14 D3 y 14 D8) con hasta 50 documentos mensuales oscilan entre **1,5 UF y 2,5 UF/mes** ($57.000 a $95.000 CLP mensuales).
+  * **Asignación en el Modelo de TerraSense (`GASTOS FIJOS 5 AÑOS`, Fila 12):**
+    * **Año 1:** **$70.000 CLP/mes ($840.000 CLP/año = ~1,84 UF/mes):** Calce exacto de mercado para F29 mensual, Registro Centralizado de Compras/Ventas, Previred y DJ/Renta anual.
+    * **Año 2:** **$80.000 CLP/mes ($960.000 CLP/año = ~2,1 UF/mes):** Sube al incorporar el primer técnico a medio tiempo.
+    * **Años 3 y 4:** **$140.000 CLP/mes ($1.680.000 CLP/año = ~3,7 UF/mes):** Escala por arriendo de taller físico formal (tramitación y pago semestral de Patente Comercial Municipal + nómina ampliada).
+    * **Año 5:** **$165.000 CLP/mes ($1.980.000 CLP/año = ~4,3 UF/mes):** Soporte tributario y laboral para 850 u/año.
+
+#### 2. Dotación de Operarios y Ensamblaje
+* **Año 1 (200 unidades):** Los fundadores absorben el ensamble (300 horas anuales totales = 6 horas/semana entre ambos, 3 h/sem c/u). Costo externo: $0.
+* **Año 2 en adelante:** Contratación de técnicos egresados de liceos industriales o centros de formación técnica a sueldo de Ingreso Mínimo Mensual cargado (+5% costo patronal), dimensionado según las horas efectivas requeridas (2,25 h/unidad para ensamble, calibración, QA y embalaje):
+  * **Año 2:** 0,5 FTE ($3.490.000 CLP/año).
+  * **Años 3 y 4:** 1,0 FTE ($6.980.000 CLP/año).
+  * **Año 5:** 1,5 FTE ($10.460.000 CLP/año).
+
+---
+
+### 4.5. Retorno Financiero y Ganancias de los Socios Fundadores (Álvaro y Alan)
+
+El modelo financiero oficial estipula con total transparencia cuánto percibe cada uno de los socios fundadores (**reparto igualitario 50% Álvaro Villena y 50% Alan**) a través de dos mecanismos complementarios: **Sueldo Empresarial Fijo Mensual** (Art. 31 N° 6 LIR) y **Reparto de Dividendos / Excedentes de Caja Libre**.
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                        RESUMEN DE INGRESOS POR SOCIO (ÁLVARO Y ALAN) AÑO A AÑO                         │
+├───────┬───────────────────────────────┬───────────────────────────────┬────────────────────────────────┤
+│  Año  │  Sueldo Bruto por Socio       │  Dividendo Disponible (50%)   │  TOTAL ANUAL POR SOCIO         │
+├───────┼───────────────────────────────┼───────────────────────────────┼────────────────────────────────┤
+│ Año 1 │ $553.553/mes ($6.642.636/año) │ $0 (Caja paga deuda bancaria) │ $6.642.636 (~$553.553/mes)     │
+│ Año 2 │ $600.000/mes ($7.200.000/año) │ +$4.132.949 al año            │ $11.332.949 (~$944.412/mes)    │
+│ Año 3 │ $900.000/mes ($10.800.000/a)  │ +$3.825.424 al año            │ $14.625.424 (~$1.218.785/mes)  │
+│ Año 4 │ $1.000.000/m ($12.000.000/a)  │ +$9.791.763 al año            │ $21.791.763 (~$1.815.980/mes)  │
+│ Año 5 │ $1.200.000/m ($14.400.000/a)  │ +$15.245.981 al año           │ $29.645.981 (~$2.470.498/mes)  │
+├───────┴───────────────────────────────┴───────────────────────────────┴────────────────────────────────┤
+│ TOTAL ACUMULADO POR SOCIO A 5 AÑOS (Sueldos + Dividendos): $84.038.754 CLP                             │
+│ RETORNO NETO REAL (Descontando el pie inicial de -$4.450.000): +$79.588.754 CLP limpios                │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Dinámica de los Retiros
+1. **Año 1 ($6.642.636 por socio):** Viven exclusivamente de su sueldo empresarial mensual ($553.553 bruto, ~$450.000 líquido c/u). No hay reparto de dividendos porque la caja absorbe la devolución íntegra de la línea de crédito de corto plazo ($5.000.000) y la primera cuota de amortización bancaria ($2.071.792).
+2. **Años 2 y 3 ($11.3M a $14.6M/año por socio):** Sueldo mensual sube a $600.000 y $900.000 brutos. Con la deuda corta saldada, la empresa genera entre $7,6M y $8,2M de flujo libre al año, permitiendo retirar ~$3,8M a $4,1M anuales en dividendos por socio.
+3. **Años 4 y 5 ($21.8M a $29.6M/año por socio):** Con ventas de 650 a 850 unidades, el sueldo asciende a $1.000.000 y $1.200.000 brutos mensuales, y los dividendos anuales escalan a $9,8M (Año 4) y $15,2M (Año 5) para cada fundador.
+4. **Balance Global:** Tras 5 años, cada socio recupera con creces sus **$4.450.000 de pie aportado**, percibiendo **+$79.588.754 CLP limpios** en su bolsillo (multiplicador de 17,9x sobre el capital invertido) y manteniendo el 50% de la propiedad de una empresa consolidada, sin pasivos financieros y operando a escala multirregional.
+
+---
+
+### 4.6. Indicadores de Evaluación Económica y Flujo de Fondos a 5 Años
 
 El modelo económico maestro (`Flujo de caja y financiamiento - TerraSense.xlsx`) arroja los siguientes resultados auditados:
 
@@ -229,6 +284,7 @@ El modelo económico maestro (`Flujo de caja y financiamiento - TerraSense.xlsx`
 | **Utilidad Neta Año 1** | **+$2.985.381 CLP** | Sueldo de ambos socios pagado | ✔ **Sin años de pérdida contable** |
 | **Utilidad Neta Año 5** | **+$32.714.084 CLP** | Crecimiento de 10x en 5 años | ✔ **Escalabilidad probada** |
 | **Flujo de Fondos Acumulado al Año 5** | **+$36.168.514 CLP** | Caja neta generada | ✔ **Solvencia comprobada** |
+| **Retorno Neto Limpio por Socio (5 Años)** | **+$79.588.754 CLP** | Descontado el pie inicial ($4,45M) | ✔ **Multiplicador de 17,9x** |
 
 ---
 
