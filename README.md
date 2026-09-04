@@ -2219,10 +2219,39 @@ Predio representativo de 3 ha con 20 mediciones por temporada.
 
 | Canal | Cómo opera | Cuándo se activa | Consideración de precio |
 | :--- | :--- | :---: | :--- |
-| **B2C directo** | Venta online con despacho nacional; demostraciones en ferias | Año 1 | Precio de lista completo |
+| **B2C directo digital (Shopify + Ads)** | Tienda online propia con pasarelas de pago en cuotas, emisión de factura y pauta directa a WhatsApp | Año 1 | Precio de lista completo ($249.990 con IVA) |
 | **B2G / institucional (INDAP, PRODESAL)** | El agricultor postula al Programa de Desarrollo de Inversiones. INDAP cofinancia **hasta el 60 % del valor bruto de la inversión, y hasta el 90 %** para proyectos de sustentabilidad o presentados por jóvenes, mujeres y pueblos originarios, con tope de $7.500.000 por productor al año <sup>[43][44]</sup> | Año 2 | **El precio deja de ser la barrera**: el desembolso efectivo del productor cae al 10–40 % |
 | **B2B distribuidores de insumos** | Venta a través de casas comerciales agrícolas | Año 3 | Exige margen de canal del 15–20 %: **debe salir de un precio de lista superior, no del margen del fabricante** |
 | **Cooperativas y asociaciones** | Compra colectiva con descuento por volumen | Año 4 | Descuento por volumen acotado al 10 % |
+
+### XI.5.1. Estrategia Go-To-Market Año 1: Shopify, Pauta Digital Autogestionada y Embudo WhatsApp
+
+El primer año no contempla contratación de agencias ni distribuidores intermediarios. Los dos socios fundadores gestionan directamente la venta bajo un modelo digital conversacional:
+
+1. **Tienda E-Commerce en Shopify como Ancla de Confianza:**
+   * **Facturación Electrónica Automática:** Los agricultores y administradores de fundos operan con RUT de empresa y exigen Factura con IVA para descontar el 19 % de crédito fiscal y registrar el equipo como gasto deducible. La integración con facturación electrónica chilena entrega seriedad inmediata.
+   * **Facilidades de Pago en Cuotas:** Integración con pasarelas Transbank Webpay Plus y Mercado Pago, permitiendo pagar los **$297.488 CLP (IVA incluido)** en **3 ó 6 cuotas sin interés de ~$50.000 CLP/mes**, volviendo el equipo accesible de inmediato para un agrónomo o productor mediano.
+   * **Señales de Confianza (*Trust Signals*):** RUT visible, garantía técnica por escrito de 1 año, especificaciones detalladas y convenios de despacho trazable con Bluexpress y Starken.
+2. **Pauta Digital Directa en Meta Ads y Google Ads ($1.200.000 CLP en Año 1):**
+   * Presupuesto asignado de ~$100.000 CLP mensuales administrado directamente por los fundadores.
+   * **Meta Ads (Facebook e Instagram):** Anuncios en formato de video grabado en terreno real (clavado de la lanza en suelo pedregoso y visualización instantánea en la app de la recomendación de riego/nutrición).
+   * **Google Ads (Búsqueda):** Captura de demanda activa que ya busca términos como *"sensor de humedad suelo chile"*, *"medidor de ph suelo precio"*, *"analisis de suelo portatil"*.
+3. **Embudo Conversacional (Click-to-WhatsApp):**
+   * En el sector agrícola chileno, la conversión no ocurre en un carrito frío: el anuncio conduce a un botón flotante de WhatsApp.
+   * Los propios fundadores responden de inmediato las consultas técnicas del cultivo (ej. cerezos, uva de mesa, hortalizas), generando confianza y cerrando la venta con despacho coordinado.
+4. **Enfoque en el Recambio Generacional (0,17 % al 0,44 % del Mercado):**
+   * No se gasta presupuesto publicitario en intentar digitalizar al agricultor tradicional de 70 años sin smartphone.
+   * La campaña se enfoca en el **recambio generacional** (hijos o hijas de agricultores de 28 a 45 años que administran el campo), administradores de fundos tecnificados y agrónomos asesores independientes.
+   * Vender 200 unidades el primer año representa apenas el **0,11 % del TAM censal** (175.556 explotaciones) o el **0,17 % del SAM**, demostrando que la meta es comercialmente ultra-conservadora y alcanzable.
+
+### XI.5.2. Escalamiento Comercial Año 2 en Adelante: Agencia de Marketing Externa
+
+A partir del segundo año, con el producto probado en terreno y flujo de caja operacional validado, la comercialización se profesionaliza:
+
+* **Contratación de Agencia de Marketing Externa:**
+  * Presupuesto de comercialización: **$7.080.000 CLP (Año 2)**, **$10.680.000 CLP (Año 3)**, **$12.000.000 CLP (Año 4)** y **$14.400.000 CLP (Año 5)**.
+  * **Ventaja frente a equipo interno:** Contratar un especialista de marketing full-time significaría un costo cargado de ~$12M a $14M anuales más presupuesto de pauta aparte. La agencia externa por *retainer* mensual incluye diseño, analítica y optimización de pauta a escala de forma flexible.
+* Esto permite elevar las ventas de **200 a 350 unidades en el Año 2**, 500 en el Año 3 y hasta 850 en el Año 5, complementándose con los canales institucionales de INDAP y distribuidores de insumos.
 
 > [!WARNING]
 > **Implicancia directa sobre el precio.** Si el canal B2B exige un 15–20 % de margen y el precio de lista es $249.990, el fabricante recibiría entre $199.992 y $212.492 brutos, es decir, entre $168.061 y $178.564 netos por unidad — **todavía por encima del costo variable unitario ($91.309)**, pero con un margen de contribución bastante más ajustado que en venta directa. **El descuento de canal debe salir del precio de lista, no del margen del fabricante**: es una razón adicional para no bajar el precio de lista por debajo de $249.990 una vez que el canal B2B esté activo (Año 3).

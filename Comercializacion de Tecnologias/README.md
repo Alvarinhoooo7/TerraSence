@@ -238,8 +238,12 @@ $$\textbf{Inversión Inicial Total: } \mathbf{\$26.548.500\text{ CLP}}$$
 **Diferenciadores:** interpretación, contexto, uso sin conexión, georreferenciación, historial y sin suscripción.
 
 **Canales y escalamiento comercial:**
-- **Año 1 (200 u):** Venta directa por los socios, demostraciones en terreno y pauta digital directa ($100.000/mes, presupuesto anual $1,2M, CAC $6.000).
-- **Año 2 (350 u):** Activación de canal INDAP/PRODESAL y contratación de primera agencia digital ($7,08M marketing, CAC $20.229).
+- **Año 1 (200 u — Meta 0,17 % SAM / 0,11 % TAM):** Venta directa digital autogestionada por los socios:
+  - **Tienda Shopify institucional:** Plataforma confiable con emisión automática de Factura Electrónica con IVA (crédito fiscal indispensable para el agricultor), pasarela Webpay Plus / Mercado Pago con opción de 3 a 6 cuotas sin interés (~$50.000/mes) y despachos trazables con Bluexpress/Starken.
+  - **Pauta digital autogestionada ($100.000/mes = $1,2M/año, CAC $6.000):** Campañas en Meta Ads (Facebook/Instagram) con videos en terreno real y Google Ads con términos de alta intención.
+  - **Embudo Click-to-WhatsApp:** El anuncio conduce a WhatsApp directo donde los socios fundadores resuelven dudas agronómicas y cierran la venta.
+  - **Target de recambio generacional:** Dirigido a hijos de agricultores (28 a 45 años), administradores de fundos tecnificados y agrónomos asesores independientes.
+- **Año 2 (350 u):** Activación de canal INDAP/PRODESAL y contratación de primera **agencia de marketing digital externa** ($7,08M marketing, CAC $20.229) para profesionalizar la adquisición sin incurrir en sueldos fijos internos de marketing.
 - **Año 3 (500 u):** Convenio con distribuidores de insumos agrícolas, arriendo de primer taller ($4,2M) y 1 FTE de ensamble ($10,68M marketing, CAC $21.360).
 - **Año 4 (650 u):** Consolidación B2B y compras institucionales / cooperativas ($12,0M marketing, CAC $18.462).
 - **Año 5 (850 u):** Cobertura multirregional con base instalada de ~1.700 equipos en campo ($14,4M marketing, CAC $16.941).

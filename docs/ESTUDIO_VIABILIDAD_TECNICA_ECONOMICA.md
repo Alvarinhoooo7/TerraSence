@@ -19,7 +19,11 @@
    - [3.2. Curva de Costo Marginal por Medición ($1, 10, 50, 200\text{ Muestras}$)](#32-curva-de-costo-marginal-por-medición-1-10-50-200text-muestras)
    - [3.3. Proyección de Costo Total de Propiedad (TCO a 1, 3 y 5 Años)](#33-proyección-de-costo-total-de-propiedad-tco-a-1-3-y-5-años)
    - [3.4. Análisis de Sensibilidad y Mitigación de Pérdidas Productivas](#34-análisis-de-sensibilidad-y-mitigación-de-pérdidas-productivas)
-4. [Mecanismos de Financiamiento y Adopción en la AFC (INDAP / CORFO / FIA)](#4-mecanismos-de-financiamiento-y-adopción-en-la-afc-indap--corfo--fia)
+4. [Estructura de Financiamiento, Estrategia Comercial Go-To-Market y Evaluación de Rentabilidad](#4-estructura-de-financiamiento-estrategia-comercial-go-to-market-y-evaluación-de-rentabilidad)
+   - [4.1. Estructura de Financiamiento: Capital Propio y Deuda Bancaria ($0 Subsidio Estatal)](#41-estructura-de-financiamiento-capital-propio-y-deuda-bancaria-0-subsidio-estatal)
+   - [4.2. Estrategia Comercial Año 1: E-commerce Shopify, Pauta Digital Autogestionada y Cierre en WhatsApp](#42-estrategia-comercial-año-1-e-commerce-shopify-pauta-digital-autogestionada-y-cierre-en-whatsapp)
+   - [4.3. Escalamiento Comercial Año 2 en Adelante: Agencia de Marketing Externa](#43-escalamiento-comercial-año-2-en-adelante-agencia-de-marketing-externa)
+   - [4.4. Indicadores de Evaluación Económica y Flujo de Fondos a 5 Años](#44-indicadores-de-evaluación-económica-y-flujo-de-fondos-a-5-años)
 5. [Veredicto y Conclusiones del Estudio de Viabilidad](#5-veredicto-y-conclusiones-del-estudio-de-viabilidad)
 
 ---
@@ -42,7 +46,7 @@ El presente estudio tiene por objeto evaluar de forma cuantitativa y rigurosa la
 | **Nitrógeno, Fósforo y Potasio**| ❌ No mide | ❌ No mide | $\pm 1\%\text{ ppm}$ (ICP-OES) | Visual (Deficiencia) | **$\pm 5\%\text{ mg/kg}$ (Reactividad CA)**|
 | **Variables Ambientales (Aire)**| ❌ No mide | ❌ No mide | ❌ No mide | Termómetro de mano | **$\pm 0.5^\circ\text{C} / \pm 3\%\text{ HR}$ (BME280)**|
 
-* **Conclusión Metrológica:** Aunque el laboratorio tradicional ofrece la máxima exactitud analítica de referencia, **TerraSense entrega una precisión operativa de $\ge 95\%$ en campo**, holgadamente suficiente para la toma de decisiones agronómicas diarias de riego, encalado y fertilización.
+* **Conclusión Metrológica:** Aunque el laboratorio tradicional ofrece la máxima exactitud analítica de referencia, **TerraSense entrega una precisión operativa de $\ge 95\%$ en campo**, holgadamente suficiente para la toma de decisiones agronómicas diarias de siembra, riego y fertilización.
 
 ---
 
@@ -65,14 +69,14 @@ EVALUACIÓN DE ROBUSTEZ Y VULNERABILIDAD MECÁNICA EN CAMPO:
 ```
 
 * **Cuerpo de Acero Inoxidable 316L:** Las varillas de sensado resisten suelos compactados, pedregosos y salinos sin fractura mecánica ni corrosión galvánica.
-* **Hermeticidad IP67:** Gabinete de ABS reforzado con sellos de elastómero y membrana de ventilación hidrofóbica ePTFE para el sensor BME280.
+* **Hermeticidad IP67:** Gabinete de ABS/PETG reforzado con sellos de elastómero y prensaestopas M12 para garantizar estanqueidad total.
 
 ---
 
 ### 2.3. Disponibilidad Operativa, Tiempo de Respuesta e Inferencia Offline
 
-* **Operación Sin Cobertura (Offline-First):** TerraSense ejecuta su motor agronómico de 4 capas directamente en el microprocesador del teléfono móvil (SQLite local), garantizando **100% de disponibilidad en quebradas o valles cordilleranos sin señal 4G**.
-* **Latencia de Veredicto:** $\le 5\text{ segundos}$ frente a los **15 a 30 días** del laboratorio químico tradicional.
+* **Operación Sin Cobertura (Offline-First):** TerraSense ejecuta su motor agronómico determinista directamente en el teléfono móvil del agricultor (Zustand + SQLite local), garantizando **100% de disponibilidad en quebradas o valles cordilleranos sin señal 4G**.
+* **Latencia de Veredicto:** $\le 5\text{ segundos}$ frente a los **15 a 30 días** de espera del laboratorio químico tradicional.
 
 ---
 
@@ -83,8 +87,8 @@ EVALUACIÓN DE ROBUSTEZ Y VULNERABILIDAD MECÁNICA EN CAMPO:
 | Exactitud y Metrología (25%) | 4.0 | 7.5 | **10.0** | 5.0 | **8.5** |
 | Velocidad de Veredicto (25%) | 7.0 | 6.0 | 1.0 | 3.0 | **10.0** |
 | Robustez de Campo IP67 (20%) | 3.5 | 5.0 | N/A | N/A | **9.5** |
-| Capacidad Prescriptiva IA (15%)| 1.0 | 1.0 | 6.0 | 8.5 | **9.5** |
-| Georreferenciación GIS (15%) | 1.0 | 2.0 | 1.0 | 2.0 | **9.5** |
+| Capacidad Prescriptiva Local (15%)| 1.0 | 1.0 | 6.0 | 8.5 | **9.5** |
+| Georreferenciación en Siembra (15%)| 1.0 | 2.0 | 1.0 | 2.0 | **9.5** |
 | **PUNTAJE TÉCNICO PONDERADO (10.0)** | **3.50** | **4.75** | **4.05** | **3.85** | **🏆 9.35** |
 
 ---
@@ -95,7 +99,7 @@ EVALUACIÓN DE ROBUSTEZ Y VULNERABILIDAD MECÁNICA EN CAMPO:
 
 $$\begin{aligned}
 \text{CAPEX (TerraSense):} & \quad \mathbf{\$249.990\text{ CLP}}\quad(\text{Precio con IVA, \$210.076 CLP neto, pago único de por vida}) \\
-\text{OPEX (TerraSense):} & \quad \mathbf{\$0\text{ CLP/año}}\quad(\text{Sin suscripciones, software local offline, recarga USB-C}) \\
+\text{OPEX (TerraSense):} & \quad \mathbf{\$0\text{ CLP/año}}\quad(\text{Sin suscripciones recurrentes, software local offline, recarga USB-C}) \\
 \text{Costo Marginal:} & \quad \mathbf{\$0\text{ CLP por cada medición adicional}}
 \end{aligned}$$
 
@@ -128,9 +132,7 @@ $1.000.000 │                                             /
 
 ### 3.3. Proyección de Costo Total de Propiedad (TCO a 1, 3 y 5 Años)
 
-Para un predio representativo de 3 hectáreas de hortalizas con un régimen de monitoreo estándar (20 mediciones de suelo por temporada):
-
-$$\text{TCO} = \text{CAPEX} + \sum_{t=1}^{n} (\text{OPEX}_t + \text{Mantenimiento}_t + \text{Costos Ocultos}_t)$$
+Para un predio representativo de 3 hectáreas con un régimen de monitoreo estándar (20 mediciones de suelo por temporada):
 
 | Solución Tecnológica | TCO Año 1 | TCO Año 3 (Acumulado) | TCO Año 5 (Acumulado) |
 | :--- | :---: | :---: | :---: |
@@ -141,15 +143,11 @@ $$\text{TCO} = \text{CAPEX} + \sum_{t=1}^{n} (\text{OPEX}_t + \text{Mantenimient
 | **TerraSense IoT (Kit Completo)** | **$249.990 CLP** | **$265.000 CLP** *(Buffers)* | **$285.000 CLP** *(Baterías)*|
 
 > [!IMPORTANT]
-> **Ahorro Financiero a 5 Años:** TerraSense representa un **ahorro de más del 94 %** en comparación con el monitoreo tradicional por laboratorio químico y un **63 % de ahorro** frente a combos comerciales importados sin prescripción ni inteligencia.
+> **Ahorro Financiero a 5 Años:** TerraSense representa un **ahorro de más del 94 %** frente al laboratorio químico y un **63 % de ahorro** frente a combos comerciales importados sin prescripción agronómica.
 
 ---
 
 ### 3.4. Análisis de Sensibilidad y Mitigación de Pérdidas Productivas
-
-El retorno de inversión no solo proviene del ahorro de muestras de laboratorio, sino de la **evitación de pérdidas catastróficas de cultivo**:
-
-$$\text{Beneficio Neto Anual} = \Delta \text{Fertilizante Optimizado} + \Delta \text{Pérdida de Semilla Evitada} + \Delta \text{Ahorro Hídrico} - \text{CAPEX}$$
 
 * **Caso Real en Hortalizas (Tomate / Maíz Dulce en 1 ha):**
   * Evitar 2 sacos de urea/potasio bloqueados por acidez: $\$100.000\text{ CLP}$.
@@ -161,27 +159,86 @@ $$\text{Beneficio Neto Anual} = \Delta \text{Fertilizante Optimizado} + \Delta \
 
 ---
 
-## 4. Mecanismos de Financiamiento y Adopción en la AFC (INDAP / CORFO / FIA)
+## 4. Estructura de Financiamiento, Estrategia Comercial Go-To-Market y Evaluación de Rentabilidad
 
-Para facilitar la adopción masiva sin que el agricultor desembolse el 100 % de su bolsillo, TerraSense califica directamente en los instrumentos de fomento del Estado de Chile:
+### 4.1. Estructura de Financiamiento: Capital Propio y Deuda Bancaria ($0 Subsidio Estatal)
 
-1. **INDAP — Programa de Desarrollo de Inversiones (PDI):**
-   * Cofinancia hasta el **60 % del valor total bruto de la inversión**, y hasta el **90 %** para proyectos presentados por jóvenes, mujeres y pueblos originarios, o de sustentabilidad ambiental.
-   * Copago efectivo del agricultor: entre **~$25.000 y $100.000 CLP** según tramo de beneficio.
-2. **CORFO / FIA — Proyectos de Innovación Agraria:**
-   * Financiamiento para compras colectivas de cooperativas campesinas (lotes de 20 a 100 unidades).
-3. **Comisión Nacional de Riego (CNR) — Ley N° 18.450:**
-   * Bonificación para instrumentos de gestión y eficiencia del recurso hídrico predial.
+El proyecto se estructura bajo un principio de **autosuficiencia financiera absoluta**, sin depender de fondos concursables del Estado (CORFO, Sercotec, FIA = $0):
+
+$$\textbf{Inversión Inicial Total: } \mathbf{\$26.548.500\text{ CLP}}$$
+
+| Componente | Monto ($ CLP) | % del Total | Naturaleza Financiera |
+| :--- | ---:|:---:| :--- |
+| **Capital Propio (Pie de los 2 Socios)** | **$8.900.000** | **33,52 %** | **$4.450.000 CLP por socio**. Depósito líquido directo en la cuenta de la SpA. Es el respaldo de patrimonio que la banca exige ver para cursar financiamiento. |
+| **Crédito Bancario de Largo Plazo** | **$12.648.500** | **47,64 %** | Crédito comercial a **5 años (60 meses)**, tasa **10 % anual**, amortización en sistema francés (cuota anual de $3.336.642 CLP = ~$278.000 CLP/mes). Respaldado con garantía FOGAPE y aval de los socios. |
+| **Línea de Crédito de Corto Plazo** | **$5.000.000** | **18,83 %** | Línea de capital de trabajo a **1 año, 15 % anual**. Destinada a cubrir el desfase de caja del primer lote de importación de sensores y componentes. |
+| **Financiamiento Estatal (CORFO / Subsidios)**| **$0** | **0,0 %** | Cero por decisión estratégica: el proyecto debe ser rentable por sus propios méritos desde el día 1. |
+| **TOTAL FINANCIAMIENTO** | **$26.548.500** | **100,0 %** | Calce exacto con la inversión inicial clasificada. |
+
+---
+
+### 4.2. Estrategia Comercial Año 1: E-commerce Shopify, Pauta Digital Autogestionada y Cierre en WhatsApp
+
+Para el primer año (meta de **200 unidades vendidas = 16 a 17 unidades mensuales**), la empresa no contrata agencias ni distribuidores intermediarios:
+
+1. **Tienda E-commerce en Shopify como Ancla de Confianza:**
+   * **Facturación Electrónica Oficial:** Conexión con facturador chileno para emisión automática de Factura con IVA. El productor o empresa agrícola descuenta el 19% de crédito fiscal y registra la sonda como gasto de la explotación.
+   * **Pasarelas de Pago en Cuotas:** Integración con Transbank Webpay Plus y Mercado Pago, permitiendo a agrónomos y administradores pagar los $297.488 CLP (IVA incl.) en **3 ó 6 cuotas sin interés** (~$50.000 CLP/mes).
+   * **Señales de Confianza (*Trust Signals*):** RUT visible, garantía técnica por escrito de 1 año, manuales descargables y convenios de despacho trazable con Bluexpress y Starken.
+2. **Pauta Digital Directa en Meta Ads y Google Ads ($1.200.000 CLP/año):**
+   * Presupuesto mensual de ~$100.000 CLP gestionado directamente por los fundadores.
+   * **Meta Ads (Facebook / Instagram):** Videos grabados en terreno real mostrando la inserción de la lanza en el suelo pedregoso y el veredicto en la app en 5 segundos.
+   * **Google Ads (Búsqueda):** Captura de demanda activa con palabras clave de alta intención (*"sensor ph suelo chile"*, *"medidor humedad suelo precio"*, *"analisis npk portatil"*).
+3. **Embudo Conversacional (Click-to-WhatsApp):**
+   * El agricultor chileno no compra tecnología de $250.000 CLP en un carrito frío: hace clic en el anuncio y va directo al WhatsApp de la empresa.
+   * Los socios fundadores brindan asesoría técnica en vivo, resuelven dudas agronómicas específicas de su cultivo (ej. cerezos, paltos, viñas) y coordinan el pago y despacho.
+4. **Público Objetivo Ultra-Conservador (0,17 % al 0,44 % del Mercado):**
+   * No se gasta presupuesto en agricultores tradicionales de 70 años sin smartphone.
+   * La pauta se dirige quirúrgicamente al **recambio generacional** (hijos de agricultores de 28 a 45 años que administran el campo), administradores de fundos tecnificados y agrónomos asesores independientes. Vender 200 unidades representa apenas el **0,11 % del TAM censal** (175.556 explotaciones) o el **0,17 % del SAM**.
+
+---
+
+### 4.3. Escalamiento Comercial Año 2 en Adelante: Agencia de Marketing Externa
+
+A partir del segundo año, con el producto validado en terreno y flujo de caja operativo positivo, la empresa profesionaliza su tracción comercial:
+
+* **Contratación de Agencia de Marketing Externa:**
+  * Presupuesto de comercialización: **$7.080.000 CLP (Año 2)**, **$10.680.000 CLP (Año 3)**, **$12.000.000 CLP (Año 4)** y **$14.400.000 CLP (Año 5)**.
+  * **Eficiencia frente a equipo interno:** Contratar un ingeniero de marketing full-time significaría un sueldo cargado de ~$12M a $14M anuales más el costo de pauta publicitaria aparte. La agencia externa por retainer mensual incluye diseño, optimización de campañas y pauta a escala de manera mucho más flexible.
+* **Apertura de Canales Institucionales y Distribuidores:**
+  * Año 2: Postulación de agricultores a fondos de cofinanciamiento INDAP (PDI cofinancia 60% a 90%).
+  * Año 3: Convenios con distribuidores de insumos agrícolas y arriendo del primer taller formal.
+  * Años 4 y 5: Compras colectivas con cooperativas agrícolas y venta multirregional (850 u/año).
+
+---
+
+### 4.4. Indicadores de Evaluación Económica y Flujo de Fondos a 5 Años
+
+El modelo económico maestro (`Flujo de caja y financiamiento - TerraSense.xlsx`) arroja los siguientes resultados auditados:
+
+| Indicador Financiero | Valor Oficial | Criterio de Aceptación | Veredicto del Proyecto |
+| :--- | ---:|:---:|:---:|
+| **Precio de Venta Neto (sin IVA)** | **$210.076 CLP** | Techo de negocio $249.990 con IVA | ✔ Óptimo |
+| **Costo Variable Unitario Entregado** | **$91.309 CLP** | BOM $70.656 + flete + mano de obra | ✔ 71,7 % margen sobre BOM |
+| **Margen de Contribución Unitario** | **$118.767 CLP** | Margen del 56,5 % sobre precio neto | ✔ Cubre estructura fija |
+| **Punto de Equilibrio Contable (Año 1)**| **166 unidades** | < 200 unidades planificadas | ✔ **Holgura de seguridad de 20,5 %** |
+| **V.A.N. (Tasa de Descuento 20 % anual)**| **+$2.588.182 CLP** | VAN > 0 (Crea valor económico) | ✔ **Proyecto Rentable** |
+| **V.A.N. (Tasa de Descuento 15 % anual)**| **+$8.241.084 CLP** | Tasa bancaria estándar PYME | ✔ **Crecimiento Sólido** |
+| **T.I.R. (Tasa Interna de Retorno)** | **22,72 %** | TIR > 20 % exigido | ✔ **Supera Tasa de Corte** |
+| **Pay Back (Plazo de Recuperación)** | **3,71 años** | Recuperación antes de 5 años | ✔ **Cruza a positivo en Año 4** |
+| **Utilidad Neta Año 1** | **+$2.985.381 CLP** | Sueldo de ambos socios pagado | ✔ **Sin años de pérdida contable** |
+| **Utilidad Neta Año 5** | **+$32.714.084 CLP** | Crecimiento de 10x en 5 años | ✔ **Escalabilidad probada** |
+| **Flujo de Fondos Acumulado al Año 5** | **+$36.168.514 CLP** | Caja neta generada | ✔ **Solvencia comprobada** |
 
 ---
 
 ## 5. Veredicto y Conclusiones del Estudio de Viabilidad
 
-1. **Viabilidad Técnica Insuperable:** TerraSense es la única solución que reúne 9 variables físicas y ambientales, inferencia determinística en $\le 5\text{ segundos}$, cartografía satelital GIS y operación 100 % desconectada en un chasis resistente IP67.
-2. **Viabilidad Económica Sobresaliente:** Con una lista de materiales industrial (BOM) de **$70.656 CLP** (incluyendo sonda RS-485 a precio de mercado de $48.000 CLP), un costo variable entregado de **$91.309 CLP** y un precio de venta de **$249.990 CLP con IVA** ($210.076 CLP netos), la empresa alcanza un margen de contribución del **56,5 % ($118.767 CLP)**.
-3. **Factibilidad Financiera de la Empresa:** La evaluación económica a 5 años arroja un **VAN positivo de $2.588.182 CLP** a una tasa de descuento exigida del **20 %**, una **TIR de 22,72 %** y un **Pay Back de 3,71 años**, con una inversión inicial de **$26.548.500 CLP** financiada en un 33,5 % por capital propio de los dos socios y 66,5 % por crédito bancario con garantía FOGAPE (sin dependencia de subsidios estatales). El punto de equilibrio del primer año se sitúa en **166 unidades** frente a 200 planificadas (+20,5 % de holgura).
-4. **Impacto Social y Productivo:** Democratiza el acceso a la agronomía de precisión para las más de **175.556 explotaciones agrícolas censadas en Chile** (Censo Agropecuario 2021 INE), cerrando la brecha de desigualdad técnica en el campo.
+1. **Viabilidad Técnica Comprobada:** TerraSense reúne 7 variables edafológicas directas más 2 ambientales en un chasis resistente de acero inoxidable 316L, con inferencia agronómica instantánea en $\le 5\text{ segundos}$ y operación 100% offline-first.
+2. **Estructura Financiera Realista y Autofinanciada:** El negocio no requiere subsidios estatales ($0 CORFO). Se financia mediante un **pie de capital propio de $8.900.000 CLP ($4.450.000 por socio)** y un crédito bancario a 5 años por **$12.648.500 CLP**, respaldado por una cuota mensual fácilmente absorbible con la venta de apenas 2 a 3 sondas al mes.
+3. **Estrategia Comercial Go-To-Market Coherente:** El Año 1 combina la seriedad de una tienda **Shopify** (con facturación electrónica y pago en cuotas) con pauta digital focalizada (**Meta Ads / Google Ads**) y cierre en **WhatsApp**, dirigida al 0,17% - 0,44% del mercado representado por el recambio generacional de agricultores y agrónomos jóvenes. Desde el Año 2, el traspaso a una **agencia de marketing externa** asegura la escala hasta 850 unidades anuales.
+4. **Rentabilidad Privada Sobresaliente:** Con un **VAN de +$2.588.182 CLP al 20% (+$8.241.084 CLP al 15%)**, una **TIR de 22,72%** y un punto de equilibrio de **166 unidades**, TerraSense demuestra ser una empresa sustentable, financieramente sólida y con un retorno probado de inversión.
 
 ---
 
-*Documento técnico elaborado para el proyecto TerraSense — INACAP 2026.*
+*Documento técnico y financiero actualizado para el proyecto TerraSense — INACAP 2026.*
