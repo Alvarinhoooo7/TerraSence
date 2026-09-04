@@ -301,6 +301,17 @@ Porque satisfacen necesidades diferentes y complementarias. El laboratorio ofrec
 ### 9. ¿El equipo realmente mide N, P y K?
 No por electrodos químicos ion-selectivos: la sonda mide conductividad eléctrica (EC) y temperatura, aplicando un modelo empírico de correlación. TerraSense lo asume con transparencia: la aplicación presenta el NPK en **clases ordinales (bajo / medio / óptimo)**, nunca emite dosis de fertilizante químico a partir de esa lectura, veta la estimación si la salinidad supera 1.000 µS/cm y advierte al usuario que contraste con laboratorio.
 
+### 10. ¿Cuánto ganan los fundadores (Álvaro y Alan) año a año y cuál es su retorno financiero?
+Ambos socios fundadores (**reparto igualitario 50 % Álvaro Villena y 50 % Alan**) perciben ingresos por dos vías formales:
+1. **Sueldo Empresarial Mensual (Art. 31 N° 6 LIR):** Pagado como gasto fijo de la empresa desde el mes 1. Año 1: **$553.553/mes bruto** (~$450.000 líquido c/u, Ingreso Mínimo Mensual); Año 2: **$600.000/mes**; Año 3: **$900.000/mes**; Año 4: **$1.000.000/mes**; Año 5: **$1.200.000/mes**. Total acumulado en sueldos por socio a 5 años: **$51.042.636 CLP**.
+2. **Reparto de Dividendos (50 % del flujo de caja libre):** Año 1: **$0** (la caja amortiza la deuda corta y la cuota bancaria); Año 2: **+$4.132.949**; Año 3: **+$3.825.424**; Año 4: **+$9.791.763**; Año 5: **+$15.245.981**. Total acumulado en dividendos por socio: **$32.996.118 CLP**.
+* **Retorno Neto Total por Socio:** Tras descontar el pie inicial de -$4.450.000 CLP aportado al banco, cada socio percibe **+$79.588.754 CLP limpios en su bolsillo** (multiplicador de 17,9x sobre el capital propio invertido) y conserva el 50 % de propiedad de una empresa sin deudas que factura $178,5 M netos anuales.
+
+### 11. ¿Por qué se presupuestan solo $70.000/mes en contabilidad y no se contrata un contador interno?
+Por estricta prudencia financiera y dimensionamiento operativo:
+1. **Inviabilidad de un contador interno:** Según portales de empleo chilenos (Indeed, Talent.com) y guías salariales (Robert Half, Michael Page 2024-2025), un contador general junior percibe entre $850.000 y $1.300.000 brutos. Con gratificación legal (Art. 50 Código del Trabajo) y cargas patronales (SIS, AFC, Mutual), el costo empresa es de **$1,15 M a $1,35 M mensual ($13,8 M a $16,2 M al año)**. En el Año 1 con 200 unidades vendidas (~17 facturas/mes y 2 liquidaciones de sueldo), el trabajo real es de apenas **3 a 4 horas mensuales**. Pagar $15M anuales consumiría el 36 % de todas las ventas netas de TerraSense ($42M), quebrando la empresa.
+2. **Outsourcing contable PYME:** Estudios contables y plataformas especializadas en Chile (Contabilizate.cl, TuContador.cl, ChileContador.cl, DeNegocios.cl) cobran planes para microempresas Pro Pyme de **1,5 UF a 2,5 UF/mes ($57.000 a $95.000 CLP/mes)** para F29, Previred y Renta. TerraSense asigna **$70.000/mes el Año 1** (~1,84 UF/mes), escalando a $80.000/mes (Año 2), $140.000/mes (Años 3-4, al sumar la Patente Comercial Municipal del taller) y $165.000/mes (Año 5).
+
 ---
 
 # Fuentes y Resumen de Cifras Vigentes
@@ -333,4 +344,7 @@ No por electrodos químicos ion-selectivos: la sonda mide conductividad eléctri
 | | T.I.R. (Tasa Interna de Retorno) | **22,72 %** | Supera la tasa exigida del 20 % |
 | | Pay Back (Plazo de recuperación) | **3,71 años** | 3 años y 9 meses (dentro del horizonte de 5 años) |
 | | Utilidad neta Año 1 a Año 5 | **$2,99 M → $32,71 M** | Positiva todos los años sin excepción |
+| **Socios y Equipo** | Sueldo empresarial por socio | **$553.553 → $1.200.000/mes** | Sueldo fijo legal desde el mes 1 ($51,04 M acum. c/u) |
+| | Retorno neto limpio por socio (5 años)| **+$79.588.754 CLP** | Sueldos + dividendos − pie inicial (17,9x retorno) |
+| | Servicio contable externo | **$70.000 → $165.000/mes** | Outsourcing PYME (1,8 a 4,3 UF/mes para F29/Renta) |
 
