@@ -1,12 +1,12 @@
-# 🖥️ TerraSense · Consola Web de Administración y Backoffice de Flota
+# 🖥️ TerraSense · Consola Web de Administración y Backoffice
 
-Consola central de operaciones, aprovisionamiento de hardware, soporte técnico y distribución de firmware desarrollada en **React 19 + Vite 6 + Tailwind CSS v4 + TypeScript + React Router v7**. 
-Es la **herramienta de backoffice del creador/administrador (Álvaro)** para supervisar el parque de sondas TerraSense en terreno, auditar el estado técnico del hardware, gestionar miembros y desplegar actualizaciones de firmware OTA (masivas e individuales).
+Consola central de operaciones técnicas, gestión de flota por soporte y distribución de firmware desarrollada en **React 19 + Vite 6 + Tailwind CSS v4 + TypeScript + React Router v7**. 
+Es la **herramienta de backoffice del creador/administrador (Álvaro)** para supervisar las sondas TerraSense en terreno, auditar la salud técnica del hardware, gestionar miembros, resolver casos de soporte y desplegar actualizaciones de firmware OTA (tanto de forma individual desde la ficha de cada equipo como de manera masiva para toda la flota).
 
 > [!IMPORTANT]
 > **Propósito Exclusivo de Backoffice:**
-> * **No es un portal de agricultores ni una plataforma SaaS con suscripciones.** En TerraSense, el agricultor opera de forma 100% autónoma en terreno mediante la **App Móvil** (offline-first, sin planes mensuales ni cobros recurrentes).
-> * **La Consola Web es estrictamente un Backoffice Operativo:** Su alcance se enfoca en aprovisionamiento de códigos de serie, auditoría de salud de batería de las sondas, soporte técnico reactivo, gestión de membresías/roles, reseteos de fábrica y gestión/carga de binarios de firmware OTA.
+> * **No es un portal de agricultores ni un SaaS con suscripciones.** En TerraSense, el agricultor opera de forma 100% autónoma en terreno mediante la **App Móvil** (offline-first, sin planes mensuales ni cobros recurrentes).
+> * **La Consola Web es estrictamente un Backoffice Operativo:** Concentra la gestión de equipos a través del **Panel de Soporte Técnico** y el catálogo central de **Firmware OTA**.
 > * **Despliegue en Producción:** La consola se encuentra desplegada y operativa en **https://terrasense-web.vercel.app**.
 
 ---
@@ -14,12 +14,10 @@ Es la **herramienta de backoffice del creador/administrador (Álvaro)** para sup
 ## 📑 Contenido
 
 - [1. Alcance Operativo del Backoffice](#1-alcance-operativo-del-backoffice)
-- [2. Módulos y Enrutamiento](#2-módulos-y-enrutamiento)
-  - [2.1. Gestión de Flota (`/devices`)](#21-gestión-de-flota-devices)
-  - [2.2. Panel de Soporte Técnico (`/admin`)](#22-panel-de-soporte-técnico-admin)
-  - [2.3. Ficha Detallada de Sonda (`/admin/devices/:id`)](#23-ficha-detallada-de-sonda-admindevicesid)
-  - [2.4. Reseteo de Fábrica Seguro (`FactoryResetModal`)](#24-reseteo-de-fábrica-seguro-factoryresetmodal)
-  - [2.5. Gestión y Carga de Firmware OTA (Masiva e Individual)](#25-gestión-y-carga-de-firmware-ota-masiva-e-individual)
+- [2. Módulos y Enrutamiento Central](#2-módulos-y-enrutamiento-central)
+  - [2.1. Panel de Soporte y Gestión de Equipos (`/admin`)](#21-panel-de-soporte-y-gestión-de-equipos-admin)
+  - [2.2. Ficha Técnica, Telemetría y Acciones Individuales (`/admin/devices/:id`)](#22-ficha-técnica-telemetría-y-acciones-individuales-admindevicesid)
+  - [2.3. Distribución de Firmware OTA Masiva (`/firmware`)](#23-distribución-de-firmware-ota-masiva-firmware)
 - [3. Sistema de Diseño y Modo Claro/Oscuro](#3-sistema-de-diseño-y-modo-clarooscuro)
 - [4. Estructura de carpetas](#4-estructura-de-carpetas)
 - [5. Capa Backend y Funciones RPC](#5-capa-backend-y-funciones-rpc)
@@ -33,85 +31,77 @@ Es la **herramienta de backoffice del creador/administrador (Álvaro)** para sup
 
 ## 1. Alcance Operativo del Backoffice
 
-Esta consola resuelve de forma centralizada las necesidades operativas y de soporte post-venta del hardware TerraSense:
+Esta consola resuelve de forma unificada las necesidades de post-venta, soporte y mantenimiento técnico de TerraSense:
 
-1. **Aprovisionamiento y Control de Inventario:** Generación, auditoría y control de los códigos de vinculación únicos de 15 dígitos (*Pairing Codes*) asignados a cada sonda fabricada.
-2. **Monitoreo de Salud del Parque de Sondas:** Supervisión en tiempo real del nivel de batería (voltaje Li-Ion 18650), última fecha/hora de sincronización, versión de firmware activa y estado de conexión de cada equipo.
-3. **Buscador de Soporte Técnico Multicriterio:** Localización instantánea de equipos por código de 15 dígitos, alias de la sonda o correo electrónico de cualquiera de los usuarios vinculados (dueño, admin u operador).
-4. **Gestión de Membresías y Roles:** Capacidad para autorizar, suspender o reasignar roles de usuarios vinculados a una sonda, así como desvincular cuentas de forma limpia.
-5. **Reseteo de Fábrica (Factory Reset):** Proceso seguro para limpiar la membresía y los datos privados de un equipo ante ventas o transferencias entre agricultores, preservando la identidad de hardware de la sonda.
-6. **Gestión y Carga de Firmware OTA:** Repositorio de binarios compilados de ESP32 para empujar actualizaciones inalámbricas por WiFi de forma masiva o dirigida a un equipo específico.
+1. **Gestión de Flota Centralizada en Soporte:** Todo el parque de sondas se administra directamente a través del buscador inteligente del panel de soporte (por código de 15 dígitos, alias o correo del usuario).
+2. **Diagnóstico Técnico y Salud de la Sonda:** Supervisión en tiempo real de curvas de voltaje de batería Li-Ion 18650, última señal y registro de últimas mediciones para diagnosticar el comportamiento de sensores en terreno.
+3. **Administración de Membresías y Roles:** Capacidad para autorizar, suspender o reasignar roles de miembros vinculados a una sonda (`owner`, `admin`, `operator`), o desvincular usuarios.
+4. **Reseteo de Fábrica (Factory Reset):** Proceso seguro para desvincular a todos los miembros y limpiar mediciones privadas ante ventas o transferencias entre agricultores, preservando la identidad de hardware de la sonda.
+5. **Firmware OTA Dual (Individual y Masivo):** Capacidad para forzar la actualización inalámbrica de un equipo puntual desde su ficha técnica, o publicar releases obligatorios globales para toda la flota.
 
 ---
 
-## 2. Módulos y Enrutamiento
+## 2. Módulos y Enrutamiento Central
 
-La aplicación utiliza **React Router DOM v7** con un layout administrativo unificado (`DashboardLayout.tsx`) que gestiona la sesión, la cabecera y el conmutador de tema.
+La plataforma se organiza en torno a dos ejes operativos bien diferenciados:
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                       TERRASENSE · BACKOFFICE WEB                           │
-├──────────────────────────┬──────────────────────────┬───────────────────────┤
-│ 📡 GESTIÓN DE FLOTA      │ 🛡️ PANEL DE SOPORTE      │ ⚡ FIRMWARE OTA       │
-│ /devices                 │ /admin                   │ /firmware             │
-│ Inventario, Batería, IDs │ Búsqueda, Ficha, Reset   │ Carga Masiva/Sonda    │
-└──────────────────────────┴──────────────────────────┴───────────────────────┘
+├─────────────────────────────────────────────┬───────────────────────────────┤
+│ 🛡️ PANEL DE SOPORTE Y GESTIÓN DE EQUIPOS    │ ⚡ DISTRIBUCIÓN FIRMWARE OTA  │
+│ /admin  &  /admin/devices/:id               │ /firmware                     │
+│ Búsqueda por ID/Email, Batería, Mediciones, │ Carga de Binarios ESP32       │
+│ Roles, Reset y Firmware Individual          │ Lanzamientos Masivos Globales │
+└─────────────────────────────────────────────┴───────────────────────────────┘
 ```
 
-### 2.1. Gestión de Flota (`/devices`)
-* Muestra el listado completo de dispositivos registrados en el sistema.
-* Tarjetas técnicas con alias, código de 15 dígitos formateado (`XXX-XXX-XXX-XXX-XXX`), versión de firmware actual y badge de conectividad en tiempo real (activo/inactivo, online si se comunicó en la última hora).
-* Monitoreo del porcentaje y voltaje de la celda Li-Ion 18650 para detección proactiva de equipos descargados en terreno.
+### 2.1. Panel de Soporte y Gestión de Equipos (`/admin`)
+* **Acceso Restringido:** Protegido a nivel de base de datos mediante la función `is_support_staff()`. Si el usuario no pertenece a la tabla `admin_support_users`, Postgres bloquea la llamada con código de error `42501`.
+* **Buscador Multicriterio (`admin_search`):** Permite localizar instantáneamente cualquier sonda de la flota introduciendo:
+  - El código numérico único de 15 dígitos del hardware.
+  - El alias o nombre asignado al equipo.
+  - El correo electrónico de cualquier usuario vinculado (dueño, administrador u operador).
+* **Resultados en Tiempo Real:** Muestra tarjetas interactivas con badges de rol, motivo de coincidencia (`device_code`, `member_email`, `alias`), estado de conectividad en vivo y enlace directo a la ficha del equipo.
 
-### 2.2. Panel de Soporte Técnico (`/admin`)
-* **Acceso Restringido:** Gateado mediante la RPC `is_support_staff()`. Si el usuario autenticado no pertenece a la tabla `admin_support_users`, Postgres responde con error `42501`.
-* **Buscador Multicriterio:** Invoca `admin_search(p_query)` para buscar indistintamente por:
-  - Código numérico de 15 dígitos del equipo.
-  - Nombre o alias asignado por el agricultor.
-  - Correo electrónico de cualquier usuario vinculado (propietario, admin u operador).
-* **Resultados en Tiempo Real:** Tarjetas con badges de rol, motivo de coincidencia (`member_email`, `device_code`, `alias`), estado de conectividad e ingreso directo a la ficha del equipo.
-
-### 2.3. Ficha Detallada de Sonda (`/admin/devices/:id`)
-Página de diagnóstico exhaustivo alimentada por la RPC `admin_get_device_detail(p_device_id)`:
-1. **Identidad de Hardware:** Código de vinculación, hardware target, versión de firmware instalada vs. última versión publicada y última señal.
-2. **Gestión de Usuarios y Roles:**
-   - Lista todos los miembros enlazados con su correo y rol (`owner`, `admin`, `operator`).
-   - Selector en línea para cambiar rol (`setMemberRole`). Al promover a un nuevo `owner`, el dueño anterior pasa automáticamente a `admin`.
-   - Toggle para habilitar/suspender acceso sin romper el vínculo (`setMemberAuthorized`).
+### 2.2. Ficha Técnica, Telemetría y Acciones Individuales (`/admin/devices/:id`)
+Página de control exhaustivo para un equipo seleccionado, alimentada por la RPC `admin_get_device_detail(p_device_id)`:
+1. **Identidad del Hardware:** Código de vinculación formateado (`XXX-XXX-XXX-XXX-XXX`), target de hardware, versión de firmware activa vs. catálogo publicado y última señal registrada.
+2. **Telemetría de Batería Li-Ion:**
+   - Historial de hasta 100 lecturas con porcentaje, voltaje y estado de carga.
+   - Filtro interactivo por rango de fechas (`Desde` / `Hasta`) para examinar curvas de descarga en terreno y diagnosticar problemas energéticos.
+3. **Historial de Mediciones Agronómicas:**
+   - Acceso a las últimas 50 lecturas tomadas por el equipo (humedad, temperatura, CE, pH, N, P, K) para verificar el funcionamiento de los sensores.
+4. **Gestión de Miembros y Roles:**
+   - Visualización de todos los usuarios asociados a la sonda con sus respectivos correos y roles.
+   - Selector en línea para reasignar rol (`setMemberRole`), transfiriendo la propiedad automáticamente si se designa un nuevo `owner`.
+   - Toggle para autorizar o suspender acceso sin romper el vínculo (`setMemberAuthorized`).
    - Desvinculación definitiva de miembros individuales (`removeMember`).
-3. **Telemetría de Batería:**
-   - Historial de hasta 100 lecturas de voltaje, porcentaje y estado de carga.
-   - Filtro por rango de fechas (`Desde` / `Hasta`) para examinar curvas de descarga en terreno.
-4. **Registro de Últimas Mediciones:**
-   - Consulta de las últimas 50 lecturas sincronizadas por el equipo para soporte técnico y diagnóstico de funcionamiento de sensores.
+5. **Actualización de Firmware Individual (`admin_push_firmware_update`):**
+   - Selector de versión para empujar una actualización OTA específicamente a esta sonda mediante una alerta push, ideal para pruebas de soporte o parches específicos.
+6. **Reseteo de Fábrica Seguro (`FactoryResetModal`):**
+   - Permite restablecer la sonda a valores de fábrica cuando un agricultor vende o regala su equipo.
+   - **Confirmación Estricta:** Exige reescribir manualmente el código de 15 dígitos del equipo para desbloquear el botón.
+   - **Ejecución Atómica (`admin_factory_reset_device`):** Desvincula a todos los miembros y elimina el historial privado de mediciones, alertas y cuadrantes, manteniendo intactos el `device_code` y los números de serie de hardware para que un nuevo agricultor lo vincule como primer dueño.
 
-### 2.4. Reseteo de Fábrica Seguro (`FactoryResetModal`)
-* Herramienta crítica de soporte disponible en la ficha del equipo ante venta o traspaso de la sonda:
-* **Confirmación Estricta:** El operador de soporte debe reescribir manualmente el código de 15 dígitos del equipo antes de habilitar la acción.
-* **Ejecución Atómica (`admin_factory_reset_device`):**
-  - Desvincula a **todos** los usuarios enlazados (dueño, administradores, operadores).
-  - Elimina el historial privado de mediciones, cuadrantes y alertas asociadas al usuario anterior.
-  - **Preserva el hardware intacto:** el `device_code`, `firmware_version` y `hardware_version` se mantienen en la base de datos, permitiendo que un nuevo comprador vincule la sonda desde cero como primer propietario.
-
-### 2.5. Gestión y Carga de Firmware OTA (Masiva e Individual)
-* Catálogo centralizado de binarios `.bin` de ESP32 con versionado semántico (`v1.2.0`, `v1.3.1`, etc.).
-* Carga de nuevos binarios y especificación de notas de release (`release_notes`).
-* **Actualización Masiva:** Marcado de releases como obligatorios (`is_mandatory`) para que todas las sondas activas que se conecten actualicen su firmware automáticamente.
-* **Actualización Individual (`admin_push_firmware_update`):** Disparo de una alerta push dirigida a un equipo específico para forzar la actualización OTA de una unidad en soporte sin afectar al resto de la flota.
+### 2.3. Distribución de Firmware OTA Masiva (`/firmware`)
+* Repositorio central de binarios `.bin` compilados para microcontroladores ESP32.
+* Registro de nuevas versiones con versionado semántico (`v1.2.0`, `v1.3.1`, etc.) y notas de versión (`release_notes`).
+* **Despliegue Masivo:** Opción de marcar releases como obligatorios (`is_mandatory`) para que todas las sondas activas que se comuniquen inicien su actualización OTA automáticamente.
 
 ---
 
 ## 3. Sistema de Diseño y Modo Claro/Oscuro
 
-El backoffice implementa una interfaz moderna y pulida con soporte para **Modo Oscuro y Modo Claro**:
+El backoffice cuenta con soporte completo para **Modo Oscuro y Modo Claro**:
 
 * **Tokens Semánticos:** Definidos en `Web/src/index.css` mediante la directiva `@theme` de Tailwind CSS v4.
   - `bg-terra-bg` / `bg-terra-surface`: Fondos oscuros profundos (`#070B0E` / `#0E171E`) o fondos claros limpios (`#F3F5F4` / `#FFFFFF`).
-  - `text-terra-text` / `text-terra-muted`: Contraste tipográfico equilibrado para jornadas largas de soporte.
-  - `border-terra-border`: Delimitación sutil y definida de tablas y tarjetas.
+  - `text-terra-text` / `text-terra-muted`: Contraste tipográfico adaptado para sesiones operativas prolongadas.
+  - `border-terra-border`: Bordes sutiles y definidos para tablas y formularios.
   - `text-terra-primary`: Verde agronómico de acento (`#10B981` / `#059669`).
 * **Conmutador `ThemeToggle`:** Alterna el tema instantáneamente con animación suave.
-* **Persistencia:** Guarda la preferencia en `localStorage` bajo la clave `terra-theme` y aplica el atributo `data-theme="light"` o `data-theme="dark"` en `<html>`.
+* **Persistencia:** Guarda la preferencia en `localStorage` bajo la clave `terra-theme` y aplica el atributo `data-theme="light"` o `data-theme="dark"` en la etiqueta raíz `<html>`.
 * **Panel de Vidrio (`.glass-panel`):** Efecto de desenfoque de fondo y bordes adaptativos de alto contraste.
 
 ---
@@ -131,22 +121,21 @@ Web/
 │   └── types.ts                    # Tipos para respuestas y entidades de soporte
 └── src/
     ├── main.tsx                    # Montaje de React con ThemeProvider y BrowserRouter
-    ├── App.tsx                     # Enrutador de sesión (Auth, Reset, Rutas /devices y /admin)
+    ├── App.tsx                     # Enrutador de sesión (Auth, Reset, Rutas /admin y /firmware)
     ├── index.css                   # Tokens de diseño Tailwind 4 (@theme) y clases de vidrio
-    ├── types.ts                    # Tipos de entidades frontend (flota, telemetría, batería)
+    ├── types.ts                    # Tipos de entidades frontend (soporte, telemetría, batería)
     ├── contexts/
     │   └── ThemeContext.tsx        # Contexto para cambio de tema Claro/Oscuro
     ├── layouts/
     │   └── DashboardLayout.tsx     # Shell principal con barra superior, navegación y tema
     ├── pages/
-    │   ├── DevicesPage.tsx         # /devices - Vista de flota y salud de sondas
     │   ├── SupportPanelPage.tsx    # /admin - Buscador global y panel de soporte técnico
-    │   └── SupportDeviceDetailPage.tsx # /admin/devices/:id - Ficha, telemetría y membresías
+    │   └── SupportDeviceDetailPage.tsx # /admin/devices/:id - Ficha, telemetría, miembros y reset
     ├── components/
     │   ├── AuthScreen.tsx          # Pantalla de acceso de administradores
     │   ├── ResetPasswordScreen.tsx # Formulario de restablecimiento de contraseña
     │   ├── ThemeToggle.tsx         # Conmutador animado Sol / Luna
-    │   ├── FirmwareView.tsx        # Módulo de administración y subida de binarios OTA
+    │   ├── FirmwareView.tsx        # Módulo de administración y subida masiva de binarios OTA
     │   └── admin/
     │       └── FactoryResetModal.tsx # Modal crítico de reseteo de fábrica
     ├── services/
@@ -220,7 +209,7 @@ npm run preview
 ## 9. Despliegue en Vercel
 
 * **URL Activa de Producción:** **https://terrasense-web.vercel.app**
-* **Configuración SPA:** `Web/vercel.json` asegura que cualquier ruta directa (ej. `/devices` o `/admin`) cargue correctamente `index.html`.
+* **Configuración SPA:** `Web/vercel.json` asegura que cualquier ruta directa (ej. `/admin` o `/admin/devices/:id`) cargue correctamente `index.html`.
 
 Para desplegar una nueva versión a producción:
 
