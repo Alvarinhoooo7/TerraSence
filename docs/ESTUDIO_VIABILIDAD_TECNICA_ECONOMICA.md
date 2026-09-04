@@ -94,8 +94,8 @@ EVALUACIÓN DE ROBUSTEZ Y VULNERABILIDAD MECÁNICA EN CAMPO:
 ### 3.1. Estructura de Costos de Adquisición (CAPEX) y Operación (OPEX)
 
 $$\begin{aligned}
-\text{CAPEX (TerraSense):} & \quad \mathbf{\$179.990\text{ CLP}}\quad(\text{Pago único de por vida}) \\
-\text{OPEX (TerraSense):} & \quad \mathbf{\$0\text{ CLP/año}}\quad(\text{Sin suscripciones, software libre, recarga USB-C}) \\
+\text{CAPEX (TerraSense):} & \quad \mathbf{\$249.990\text{ CLP}}\quad(\text{Precio con IVA, \$210.076 CLP neto, pago único de por vida}) \\
+\text{OPEX (TerraSense):} & \quad \mathbf{\$0\text{ CLP/año}}\quad(\text{Sin suscripciones, software local offline, recarga USB-C}) \\
 \text{Costo Marginal:} & \quad \mathbf{\$0\text{ CLP por cada medición adicional}}
 \end{aligned}$$
 
@@ -111,18 +111,18 @@ $2.000.000 │                                                 / ($50.000 CLP / 
 $1.500.000 │                                               /
 $1.000.000 │                                             / 
   $500.000 │                          /─────────────────  Bluelab Combo ($500.000 CLP)
-  $179.990 │ ═══════════════════════════════════════════  TerraSense IoT ($179.990 ÚNICO)
+  $249.990 │ ═══════════════════════════════════════════  TerraSense IoT ($249.990 ÚNICO)
         $0 └───────┬───────────────┬───────────────┬───────────────► N° Muestras
                   10              50             100             200
 ```
 
 | Volumen de Muestreos Anuales | Costo Laboratorio ($50K/u) | Costo Asesor ($120K/visita) | Costo Bluelab + pH | **Costo TerraSense IoT** |
 | :--- | :---: | :---: | :---: | :---: |
-| **1 Medición** | $50.000 CLP | $120.000 CLP | $500.000 CLP | **$179.990 CLP** |
-| **5 Mediciones** | $250.000 CLP | $600.000 CLP | $500.000 CLP | **$179.990 CLP** |
-| **10 Mediciones (Mapeo Predio)** | $500.000 CLP | $1.200.000 CLP | $500.000 CLP | **$179.990 CLP** |
-| **50 Mediciones (Monitoreo Riego)**| $2.500.000 CLP | $6.000.000 CLP | $500.000 CLP | **$179.990 CLP** |
-| **200 Mediciones (Temporada)** | $10.000.000 CLP | Inviable | $500.000 CLP | **$179.990 CLP** |
+| **1 Medición** | $50.000 CLP | $120.000 CLP | $500.000 CLP | **$249.990 CLP** |
+| **5 Mediciones** | $250.000 CLP | $600.000 CLP | $500.000 CLP | **$249.990 CLP** |
+| **10 Mediciones (Mapeo Predio)** | $500.000 CLP | $1.200.000 CLP | $500.000 CLP | **$249.990 CLP** |
+| **50 Mediciones (Monitoreo Riego)**| $2.500.000 CLP | $6.000.000 CLP | $500.000 CLP | **$249.990 CLP** |
+| **200 Mediciones (Temporada)** | $10.000.000 CLP | Inviable | $500.000 CLP | **$249.990 CLP** |
 
 ---
 
@@ -138,10 +138,10 @@ $$\text{TCO} = \text{CAPEX} + \sum_{t=1}^{n} (\text{OPEX}_t + \text{Mantenimient
 | **Asesor Agronómico (6 visitas/año)** | $720.000 CLP | $2.160.000 CLP | $3.600.000 CLP |
 | **Bluelab Pulse + Soil pH Pen** | $520.000 CLP | $640.000 CLP *(Sondas rep.)*| $780.000 CLP |
 | **Spectrum TDR 350 + Suscripción** | $1.950.000 CLP | $2.550.000 CLP | $3.150.000 CLP |
-| **TerraSense IoT (Kit Completo)** | **$179.990 CLP** | **$195.000 CLP** *(Buffers)* | **$215.000 CLP** *(Baterías)*|
+| **TerraSense IoT (Kit Completo)** | **$249.990 CLP** | **$265.000 CLP** *(Buffers)* | **$285.000 CLP** *(Baterías)*|
 
 > [!IMPORTANT]
-> **Ahorro Financiero a 5 Años:** TerraSense representa un **ahorro de más del 95%** en comparación con el monitoreo tradicional por laboratorio químico y un **72% de ahorro** frente a combos comerciales importados sin inteligencia.
+> **Ahorro Financiero a 5 Años:** TerraSense representa un **ahorro de más del 94 %** en comparación con el monitoreo tradicional por laboratorio químico y un **63 % de ahorro** frente a combos comerciales importados sin prescripción ni inteligencia.
 
 ---
 
@@ -157,17 +157,17 @@ $$\text{Beneficio Neto Anual} = \Delta \text{Fertilizante Optimizado} + \Delta \
   * Ahorro de 15 horas de motobomba de riego por monitoreo de VWC: $\$45.000\text{ CLP}$.
   * **Beneficio directo generado en Temporada 1:** **$495.000 CLP**.
   * **Retorno sobre la Inversión (ROI):**
-    $$\text{ROI} = \frac{\$495.000 - \$179.990}{\$179.990} \times 100 = \mathbf{+175.0\% \text{ en menos de 4 meses}}$$
+    $$\text{ROI} = \frac{\$495.000 - \$249.990}{\$249.990} \times 100 = \mathbf{+98,0\% \text{ en menos de 6 meses (1 temporada)}}$$
 
 ---
 
 ## 4. Mecanismos de Financiamiento y Adopción en la AFC (INDAP / CORFO / FIA)
 
-Para facilitar la adopción masiva sin que el agricultor desembolse el 100% de su bolsillo, TerraSense califica directamente en los instrumentos de fomento del Estado de Chile:
+Para facilitar la adopción masiva sin que el agricultor desembolse el 100 % de su bolsillo, TerraSense califica directamente en los instrumentos de fomento del Estado de Chile:
 
 1. **INDAP — Programa de Desarrollo de Inversiones (PDI):**
-   * Cofinancia hasta el **80% de inversiones tecnológicas** en modernización intrapredial para usuarios de PRODESAL.
-   * Copago del agricultor: **~$36.000 CLP**.
+   * Cofinancia hasta el **60 % del valor total bruto de la inversión**, y hasta el **90 %** para proyectos presentados por jóvenes, mujeres y pueblos originarios, o de sustentabilidad ambiental.
+   * Copago efectivo del agricultor: entre **~$25.000 y $100.000 CLP** según tramo de beneficio.
 2. **CORFO / FIA — Proyectos de Innovación Agraria:**
    * Financiamiento para compras colectivas de cooperativas campesinas (lotes de 20 a 100 unidades).
 3. **Comisión Nacional de Riego (CNR) — Ley N° 18.450:**
@@ -177,9 +177,10 @@ Para facilitar la adopción masiva sin que el agricultor desembolse el 100% de s
 
 ## 5. Veredicto y Conclusiones del Estudio de Viabilidad
 
-1. **Viabilidad Técnica Insuperable:** TerraSense es la única solución que reúne 9 variables físicas y ambientales, inferencia determinística en $\le 5\text{ segundos}$, cartografía satelital GIS y operación 100% desconectada en un chasis resistente IP67.
-2. **Viabilidad Económica Sobresaliente:** Con un costo de fabricación industrial (BOM) de **$42.000 CLP** y un precio de venta de **$179.990 CLP**, la empresa alcanza un margen bruto del **76.6%** y el agricultor recupera su inversión en **menos de 4 meses (0.5 temporadas)**.
-3. **Impacto Social y Productivo:** Democratiza el acceso a la agronomía de precisión para los más de **278.000 agricultores de Chile**, cerrando la brecha de desigualdad técnica en el campo.
+1. **Viabilidad Técnica Insuperable:** TerraSense es la única solución que reúne 9 variables físicas y ambientales, inferencia determinística en $\le 5\text{ segundos}$, cartografía satelital GIS y operación 100 % desconectada en un chasis resistente IP67.
+2. **Viabilidad Económica Sobresaliente:** Con una lista de materiales industrial (BOM) de **$70.656 CLP** (incluyendo sonda RS-485 a precio de mercado de $48.000 CLP), un costo variable entregado de **$91.309 CLP** y un precio de venta de **$249.990 CLP con IVA** ($210.076 CLP netos), la empresa alcanza un margen de contribución del **56,5 % ($118.767 CLP)**.
+3. **Factibilidad Financiera de la Empresa:** La evaluación económica a 5 años arroja un **VAN positivo de $2.588.182 CLP** a una tasa de descuento exigida del **20 %**, una **TIR de 22,72 %** y un **Pay Back de 3,71 años**, con una inversión inicial de **$26.548.500 CLP** financiada en un 33,5 % por capital propio de los dos socios y 66,5 % por crédito bancario con garantía FOGAPE (sin dependencia de subsidios estatales). El punto de equilibrio del primer año se sitúa en **166 unidades** frente a 200 planificadas (+20,5 % de holgura).
+4. **Impacto Social y Productivo:** Democratiza el acceso a la agronomía de precisión para las más de **175.556 explotaciones agrícolas censadas en Chile** (Censo Agropecuario 2021 INE), cerrando la brecha de desigualdad técnica en el campo.
 
 ---
 

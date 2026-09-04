@@ -1,84 +1,69 @@
-# 📱 TerraSense · Aplicación Móvil
+# 📱 TerraSense · Aplicación Móvil de Terreno
 
-Aplicación de campo en **React Native + Expo 54 + TypeScript**. Es la herramienta que el agricultor
-lleva al potrero: conecta la sonda de forma automática, permite elegir la fase productiva, explica
-cada lectura y formula una recomendación contextual **sin depender de la nube**. El mapa es una
-función secundaria reservada a mediciones de pre-siembra.
+Aplicación móvil de terreno desarrollada en **React Native 0.81 + React 19 + Expo 54 + TypeScript + Zustand**. 
+Es la herramienta central que el agricultor y los operadores llevan al potrero: se conecta de forma automática a la lanza sensor TerraSense vía **Bluetooth Low Energy (BLE)**, evalúa el suelo localmente en cuatro etapas productivas, delimita perímetros prediales mediante GPS y formula recomendaciones agronómicas contextuales **sin requerir conexión a internet**.
 
-> Este documento cubre **sólo la carpeta `App/`**. La especificación del producto está en el
-> [README raíz](../README.md); el backend, en [`supabase/README.md`](../supabase/README.md); la
-> consola web, en [`Web/README.md`](../Web/README.md).
+> [!IMPORTANT]
+> **Documentación del Repositorio:**
+> * Este documento describe en profundidad la aplicación móvil (`App/`).
+> * La arquitectura global y el modelo de negocio están en el [README raíz](../README.md).
+> * La base de datos, políticas RLS y RPCs viven en [`supabase/README.md`](../supabase/README.md).
+> * La consola web de administración y soporte técnico se detalla en [`Web/README.md`](../Web/README.md).
 
 ---
 
 ## 📑 Contenido
 
-- [1. Qué hace](#1-qué-hace)
-- [2. Principio rector: la nube nunca bloquea la medición](#2-principio-rector-la-nube-nunca-bloquea-la-medición)
+- [1. Flujo de Usuario y Capacidades Clave](#1-flujo-de-usuario-y-capacidades-clave)
+- [2. Principio Rector: Offline-First](#2-principio-rector-offline-first)
 - [3. Estructura de carpetas](#3-estructura-de-carpetas)
-- [4. Pantallas y navegación](#4-pantallas-y-navegación)
-- [5. Motor agronómico](#5-motor-agronómico)
-- [6. Enlace BLE con la sonda](#6-enlace-ble-con-la-sonda)
-- [7. Sincronización offline](#7-sincronización-offline)
-- [8. Variables de entorno](#8-variables-de-entorno)
-- [9. Comandos de desarrollo](#9-comandos-de-desarrollo)
-- [10. Decisiones que conviene no deshacer](#10-decisiones-que-conviene-no-deshacer)
-- [11. Pendientes conocidos](#11-pendientes-conocidos)
-- [12. 🛠️ Manual de instalación de herramientas](#12-️-manual-de-instalación-de-herramientas)
+- [4. Pantallas y Navegación](#4-pantallas-y-navegación)
+  - [4.1. Bienvenida y Autenticación](#41-bienvenida-y-autenticación)
+  - [4.2. Onboarding y Gobernanza de Equipos](#42-onboarding-y-gobernanza-de-equipos)
+  - [4.3. Medición y Decodificación BLE](#43-medición-y-decodificación-ble)
+  - [4.4. Perímetros Prediales y Topografía](#44-perímetros-prediales-y-topografía)
+  - [4.5. Historial y Detalle de Medición](#45-historial-y-detalle-de-medición)
+- [5. Motor Agronómico y Reglas de Decisión](#5-motor-agronómico-y-reglas-de-decisión)
+  - [5.1. Etapas Fenológicas](#51-etapas-fenológicas)
+  - [5.2. Regla de Veto Cruzado por Salinidad](#52-regla-de-veto-cruzado-por-salinidad)
+  - [5.3. Modelo Verbal de Comunicación (Sin Semáforo Simplista)](#53-modelo-verbal-de-comunicación-sin-semáforo-simplista)
+- [6. Enlace BLE con la Sonda (Protocolo GATT)](#6-enlace-ble-con-la-sonda-protocolo-gatt)
+- [7. Sincronización Idempotente en Cola](#7-sincronización-idempotente-en-cola)
+- [8. Variables de Entorno](#8-variables-de-entorno)
+- [9. Comandos de Desarrollo y Pruebas](#9-comandos-de-desarrollo-y-pruebas)
+- [10. Decisiones Arquitectónicas que Conviene Preservar](#10-decisiones-arquitectónicas-que-conviene-preservar)
+- [11. 🛠️ Manual de Instalación de Herramientas](#11-️-manual-de-instalación-de-herramientas)
 
 ---
 
-## 1. Qué hace
+## 1. Flujo de Usuario y Capacidades Clave
 
-1. Antes del acceso muestra un carrusel de tres páginas: **quiénes somos**, **qué hacemos** y
-   **por qué/cómo lo hacemos**. No incluye una guía de uso.
-2. Tras iniciar sesión llega a un dashboard cuya acción principal es **Iniciar medición**.
-3. Al comenzar, busca la sonda **automáticamente por BLE**. La interfaz sólo interviene si falla:
-   explica que el equipo debe estar encendido y ofrece reintentar.
-4. Con el equipo disponible, solicita la fase: **pre-siembra, vegetativo, floración o cosecha**.
-5. Captura sonda, clima disponible y GPS; luego evalúa localmente según la fase elegida.
-6. Presenta nueve tarjetas en una cuadrícula 3×3. Cada tarjeta abre una explicación y un consejo.
-7. Construye una recomendación integral con lecturas, fase y clima. En pre-siembra añade mejoras
-   del suelo, advertencias antes de sembrar y cultivos compatibles.
-8. Sólo una medición de **pre-siembra** puede guardarse y visualizarse como burbuja tonal en mapa.
-   Las demás fases permanecen en el historial, sin representación cartográfica.
-9. Sincroniza con Supabase cuando hay señal; si no la hay, encola.
-
-El contexto meteorológico se consulta en la API de pronóstico de
-[Open-Meteo](https://open-meteo.com/en/docs) usando ubicación, temperatura a 2 m, viento a 10 m y
-pronóstico diario de precipitación y temperaturas. Tiene un límite de espera corto: si no responde,
-la medición local continúa y el consejo declara que no pudo incorporar clima.
-
-### Modelo de comunicación del resultado
-
-La UI nueva **no usa una señal global de tres luces** como protagonista. El motor conserva internamente los
-estados `GREEN`, `AMBER` y `RED` por compatibilidad con datos históricos, reglas y base de datos,
-pero la interfaz los traduce a lenguaje de decisión:
-
-- **Condición favorable**: no requiere corrección inmediata.
-- **Requiere atención**: conviene ajustar antes de continuar.
-- **Condición limitante**: existe un riesgo concreto que debe corregirse.
-
-El color es sólo una tonalidad de apoyo. Toda tarjeta y burbuja debe incluir texto o icono; nunca
-se comunica un resultado únicamente por verde/amarillo/rojo.
+1. **Carrusel de Bienvenida (`WelcomeCarouselScreen`):** Tres tarjetas introductorias (*Quiénes somos*, *Qué hacemos* y *Por qué lo hacemos*) antes de ingresar a la cuenta.
+2. **Acceso y Recuperación:** Login, registro y recuperación de contraseña con deep link `terrasense://reset-password` y pantalla interactiva `ResetPasswordScreen`.
+3. **Onboarding Dual de Equipos:**
+   - **Primer Propietario (Owner):** Vinculación física por BLE con provisión del código de 15 dígitos en la memoria NVS del ESP32 y registro atómico en Supabase (`register_paired_device`).
+   - **Operadores de Campo:** Escaneo de código QR generado por el administrador o ingreso manual del código para obtener membresía `operator`.
+4. **Dashboard Principal:** Punto de inicio rápido para disparar una medición, seleccionar predio/cultivo o revisar el perímetro.
+5. **Medición Guiada y Limpieza de Electrodos:** Modal recordatorio (`CalibrationReminderModal`) que sugiere limpiar y secar las puntas de acero inoxidable antes de insertar la lanza.
+6. **Captura BLE Instantánea:** Detección automática por BLE mediante el anuncio `TerraSense-<device_code>`, recepción de la trama GATT de 16 bytes y captura de coordenadas GPS.
+7. **Motor Experto Local:** Clasificación en 4 etapas fenológicas (*Pre-siembra*, *Vegetativo*, *Floración*, *Cosecha*), evaluando 7 parámetros (pH, CE, humedad VWC, temperatura, N, P, K) con regla de veto cruzado por salinidad.
+8. **Recomendación Agronómica Contextual:** Consejos accionables en lenguaje natural acompañados de las condiciones meteorológicas locales (vía Open-Meteo).
+9. **Delimitación de Perímetros (`PerimeterScreen`):** Registro de polígonos prediales en terreno por GPS o marcadores, cálculo automático de superficie en hectáreas y guardado local/PostGIS.
+10. **Visor Cartográfico Dinámico (`MapScreen`):** Ajuste de encuadre inteligente (`fitToCoordinates`) respetando safe-areas y superponiendo los puntos de muestreo sobre el polígono del predio.
 
 ---
 
-## 2. Principio rector: la nube nunca bloquea la medición
+## 2. Principio Rector: Offline-First
 
-Todo el diseño se deriva de esto. El agricultor mide en un potrero sin cobertura, y ahí es donde la
-herramienta tiene que funcionar.
+El productor agrícola trabaja habitualmente en sectores rurales sin cobertura celular ni señal 4G/5G. La aplicación fue diseñada para que **ninguna operación crítica de terreno dependa de la nube**:
 
-| Situación | Comportamiento |
+| Escenario en Terreno | Comportamiento del Sistema |
 | :--- | :--- |
-| Sin internet | Mide, diagnostica y guarda. La medición entra en cola |
-| Sin teselas de mapa | El mapa pasa a fondo neutro; los círculos y la escala siguen visibles |
-| Sin GPS | Avisa, pero no impide medir |
-| Sin sonda emparejada | Datos simulados **con bandera visible en pantalla** |
-
-> [!IMPORTANT]
-> **La bandera de simulación no se puede ocultar.** Una demostración no debe poder confundirse con
-> una medición real de campo. Si tocas `MeasureScreen`, conserva ese banner.
+| **Sin Conexión a Internet** | La app inicia desde la caché local de Zustand/AsyncStorage (`useAuthStore`). Mide por BLE, ejecuta el motor agronómico, guarda la lectura localmente y la encola con un `client_uuid` único. |
+| **Sin Descarga de Teselas de Mapa** | El mapa degrada elegantemente a un lienzo de coordenadas neutro; los polígonos del predio, los puntos de muestreo y la escala permanecen 100% visibles e interactivos. |
+| **Sin Señal de Satélites GPS** | Emite un aviso no bloqueante al usuario, permitiendo registrar la medición asociada al predio sin coordenadas geográficas exactas. |
+| **Sin Sonda Física Presente (Demo/Prueba)** | Habilita datos de prueba con una **bandera visual permanente e inamovible** en la pantalla para evitar que datos simulados se confundan con lecturas reales. |
+| **Recuperación de Cobertura** | El componente `OfflineBanner` detecta el retorno de conectividad y el servicio `measurementsService` vacía la cola en segundo plano mediante upsert idempotente. |
 
 ---
 
@@ -86,500 +71,308 @@ herramienta tiene que funcionar.
 
 ```text
 App/
-├── App.tsx                     Raíz: autenticación, onboarding y enrutado
-├── index.ts                    Punto de entrada de Expo
-├── app.config.js               Permisos y claves por variable de entorno
+├── App.tsx                             # Enrutador de estado raíz (Auth, Onboarding, Navegación)
+├── index.ts                            # Punto de entrada de Expo
+├── app.config.js                       # Configuración Expo, permisos nativos y deep linking
+├── package.json                        # Dependencias (React Native 0.81, Expo 54, Zustand)
+├── tsconfig.json                       # Configuración TypeScript estricta
 ├── src/
+│   ├── constants/
+│   │   └── theme.ts                    # Paleta de colores, tipografía Spacing y touch targets
+│   ├── types/
+│   │   ├── agronomy.ts                 # Tipos del motor biofísico, cultivos y etapas fenológicas
+│   │   ├── app.ts                      # Interfaces de estado global, mediciones y sincronización
+│   │   └── preferences.ts              # Preferencias de usuario (tema, idioma, unidades)
 │   ├── engine/
-│   │   ├── agronomyEngine.ts   Motor de reglas: 8 cultivos, 4 texturas de suelo
-│   │   └── stageEvaluator.ts   Capa de etapa fenológica sobre el motor base
+│   │   ├── agronomyEngine.ts           # Motor de reglas biofísicas (8 cultivos, 4 texturas)
+│   │   ├── stageEvaluator.ts           # Reponderación de umbrales según la etapa fenológica
+│   │   └── contextualAdvice.ts         # Generador de recomendaciones en lenguaje de decisión
+│   ├── store/
+│   │   ├── useAppStore.ts              # Estado global de la aplicación (Zustand)
+│   │   └── useAuthStore.ts             # Estado de autenticación con caché persistente offline
+│   ├── hooks/
+│   │   ├── useAppTheme.ts              # Gancho para tema dinámico (Sistema / Claro / Oscuro)
+│   │   └── useTranslation.ts           # Soporte multilingüe (Español / Inglés)
 │   ├── screens/
-│   │   ├── WelcomeCarouselScreen.tsx Carrusel público previo al acceso
-│   │   ├── DashboardScreen.tsx PANTALLA PRINCIPAL y punto de entrada a medición
-│   │   ├── MapScreen.tsx       Mapa secundario, sólo pre-siembra
-│   │   ├── MeasureScreen.tsx   Conexión → fase → captura → grid 3×3 → consejo
-│   │   ├── AuthScreen.tsx      Registro, sesión y recuperación de contraseña
-│   │   ├── OnboardingScreen.tsx QR de administrador o pairing del propietario
-│   │   ├── HistoryScreen.tsx   Mediciones en lista, por día y etapa
-│   │   ├── DevicesScreen.tsx   Alta de equipo y código de 15 dígitos
-│   │   └── FieldSettingsScreen.tsx  Predio, cultivo y textura
+│   │   ├── WelcomeCarouselScreen.tsx   # Carrusel informativo público antes del acceso
+│   │   ├── AuthScreen.tsx              # Inicio de sesión, registro y solicitud de recuperación
+│   │   ├── ResetPasswordScreen.tsx     # Establecimiento de nueva clave tras abrir el deep link
+│   │   ├── OnboardingScreen.tsx        # Provisión BLE del dueño o escaneo QR de operador
+│   │   ├── DashboardScreen.tsx         # Pantalla principal: estado, resumen y botón medir
+│   │   ├── MeasureScreen.tsx           # Conexión BLE → captura 16B → grid 3×3 → recomendación
+│   │   ├── PerimeterScreen.tsx         # Marcado y recorrido GPS de perímetros prediales
+│   │   ├── MapScreen.tsx               # Cartografía predial, encuadre dinámico y polígonos
+│   │   ├── HistoryScreen.tsx           # Historial cronológico filtrable con estado de sincronización
+│   │   ├── DevicesScreen.tsx           # Lista de equipos, vinculación por código y roles
+│   │   └── FieldSettingsScreen.tsx     # Configuración de predios, texturas y cultivos
 │   ├── components/
-│   │   ├── StageSelector.tsx   Etapa fenológica
-│   │   ├── FieldPicker.tsx     Selección y alta de predios
-│   │   ├── ScreenGuide.tsx     Guía contextual persistente por pantalla
-│   │   ├── MeasurementDetailModal.tsx  Detalle completo de una medición
-│   │   └── MeasurementBottomSheet.tsx  Burbuja de detalle
+│   │   ├── CalibrationReminderModal.tsx # Modal para recordar limpieza de electrodos de la sonda
+│   │   ├── OfflineBanner.tsx           # Aviso superior discreto ante pérdida de conectividad
+│   │   ├── ScreenGuide.tsx             # Botón '?' con guía de uso contextual por pantalla
+│   │   ├── StageSelector.tsx           # Selector visual de etapa fenológica
+│   │   ├── FieldPicker.tsx             # Selector y modal de creación de predios
+│   │   ├── MeasurementBottomSheet.tsx  # Ficha deslizable de lectura sobre el mapa
+│   │   └── MeasurementDetailModal.tsx  # Modal detallado con métricas y badge de sincronización
 │   ├── services/
-│   │   ├── bleService.ts       Enlace BLE
-│   │   ├── probeService.ts     Decodificación de la trama de 16 bytes
-│   │   ├── measurementsService.ts  Cola offline idempotente
-│   │   ├── deviceService.ts    Equipos y vinculación por código
-│   │   ├── onboardingService.ts Estado persistente del onboarding en Supabase
-│   │   ├── preferencesService.ts Preferencias por cuenta y caché local
-│   │   ├── fieldsService.ts    Predios
-│   │   ├── notifications.ts    Token de notificaciones
-│   │   └── supabase.ts         Cliente
-│   ├── store/useAppStore.ts    Estado global (Zustand)
-│   ├── types/                  Tipos alineados con el esquema real
-│   └── utils/                  Device ID/QR, unidades y estado de onboarding
-├── tests/                      Pruebas unitarias Node ejecutables
-├── scripts/verify-supabase-onboarding.mjs  Prueba E2E remota con limpieza
-└── plugins/withAndroidSecurity.js
+│   │   ├── bleService.ts               # Conexión BLE, escaneo y recepción GATT notify
+│   │   ├── probeService.ts             # Decodificación de la trama de 16 bytes (Modbus/Big-Endian)
+│   │   ├── measurementsService.ts      # Cola offline en AsyncStorage y sincronización Supabase
+│   │   ├── perimeterService.ts         # Almacenamiento local y sincronización PostGIS de polígonos
+│   │   ├── deviceService.ts            # Registro y consulta de membresías de equipos
+│   │   ├── onboardingService.ts        # Persistencia de estado de onboarding en Supabase
+│   │   ├── preferencesService.ts       # Preferencias de usuario locales y en la nube
+│   │   ├── fieldsService.ts            # CRUD de predios agrícolas
+│   │   ├── weatherService.ts           # Consulta meteorológica resiliente a Open-Meteo
+│   │   ├── authDeepLink.ts             # Gestor de deep links para recuperación de contraseña
+│   │   ├── authDeepLinkParser.ts       # Parser de parámetros de fragmento/query de auth
+│   │   ├── notifications.ts            # Manejo de tokens de Expo Notifications
+│   │   └── supabase.ts                 # Cliente Supabase inicializado con storage adaptado
+│   └── utils/
+│       ├── deviceCode.ts               # Formateo y validación del código numérico de 15 dígitos
+│       ├── deviceId.ts                 # Generación y validación de identificadores de sonda
+│       ├── onboardingState.ts          # Máquina de estados para control de onboarding
+│       └── units.ts                    # Conversión de unidades métricas e imperiales
+├── tests/                              # 18 pruebas unitarias automatizadas con Node tsx
+│   ├── authDeepLink.test.ts
+│   ├── deviceId.test.ts
+│   ├── onboardingState.test.ts
+│   ├── preferences.test.ts
+│   └── probeTelemetry.test.ts
+└── scripts/
+    └── verify-supabase-onboarding.mjs  # Prueba de integración E2E remota contra Supabase
 ```
 
 ---
 
-## 4. Pantallas y navegación
+## 4. Pantallas y Navegación
 
-Enrutado propio por estado en `App.tsx`, sin librería de navegación. El onboarding de marca es
-local y anterior a la cuenta; el onboarding de equipo sólo aparece cuando la cuenta todavía no
-tiene una sonda vinculada.
+La aplicación utiliza un enrutador basado en máquina de estados en `App.tsx`, eliminando sobrecostos de navegadores pesados y garantizando transiciones instantáneas en dispositivos de gama de entrada.
 
 ```text
-             primera apertura
-                    ┌─────────────────────────┐
-                    │ WelcomeCarouselScreen   │
-                    │ Quiénes / Qué / Por qué │
-                    └───────────┬─────────────┘
-                                ▼
-                    ┌──────────────┐
-      sin sesión ──►│  AuthScreen  │
-                    └──────┬───────┘
-                           ▼ cuenta nueva
-                    ┌──────────────────┐
-                    │ OnboardingScreen │── QR de administrador
-                    │  (sólo una vez)  │── pairing primer propietario
-                    └────────┬─────────┘
-                             ▼ cuenta vinculada
-                    ┌─────────────────┐
-        ┌───────────┤ DashboardScreen ├───────────┐
-        │           └────────┬────────┘           │
-        ▼                    ▼                    ▼
-┌───────────────┐   ┌──────────────┐    ┌─────────────────┐
-│ MeasureScreen │   │ HistoryScreen│    │ FieldSettings   │
-│ conexión auto │   └──────────────┘    └─────────────────┘
-│ elegir fase   │            │
-│ grid + consejo│            └── mapa sólo si pre-siembra
-└───────────────┘
+              [Primera Apertura]
+                      │
+                      ▼
+          ┌───────────────────────┐
+          │ WelcomeCarouselScreen │
+          │ Quiénes / Qué / Cómo  │
+          └───────────┬───────────┘
+                      │
+                      ▼
+          ┌───────────────────────┐   Deep Link (terrasense://reset-password)
+          │      AuthScreen       │ ──────────────────────────────────────────► ┌─────────────────────┐
+          │   Login / Registro    │                                             │ ResetPasswordScreen │
+          └───────────┬───────────┘                                             └─────────────────────┘
+                      │ (Sesión iniciada)
+                      ▼
+           ¿Tiene equipo vinculado?
+               ├── NO ──► ┌──────────────────┐
+               │          │ OnboardingScreen │ ── Modo Propietario (BLE Pairing)
+               │          │  (Paso único)    │ ── Modo Operador (Escaneo QR / Código)
+               │          └────────┬─────────┘
+               │                   │
+               └── SÍ ─────────────┘
+                      ▼
+          ┌───────────────────────┐
+          │    DashboardScreen    │ ◄── Home Central
+          └───────────┬───────────┘
+     ┌────────────────┼────────────────┬────────────────┐
+     ▼                ▼                ▼                ▼
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌───────────────┐
+│MeasureScreen│ │  MapScreen  │ │HistoryScreen│ │PerimeterScreen│
+│Conexión BLE │ │Encuadre auto│ │Cola offline │ │GPS / Polígono │
+│Fase fenológ.│ │Burbujas IDW │ │Badges sync  │ │Cálculo Has    │
+└─────────────┘ └─────────────┘ └─────────────┘ └───────────────┘
 ```
 
+### 4.1. Bienvenida y Autenticación
+* **`WelcomeCarouselScreen`**: Tres diapositivas diseñadas con branding TerraSense que presentan la propuesta de valor. Se salta automáticamente si ya existe una sesión activa.
+* **`AuthScreen`**: Permite login con correo/contraseña, creación de cuenta y solicitud de restablecimiento. Soporta modo offline accediendo a las credenciales locales de `useAuthStore`.
+* **`ResetPasswordScreen`**: Recibe el token del deep link `terrasense://reset-password`, valida que la sesión de recuperación sea auténtica y permite escribir la nueva clave de forma segura.
+
+### 4.2. Onboarding y Gobernanza de Equipos
+* **`OnboardingScreen`**: Detecta automáticamente si el usuario es un agricultor que compró su sonda o un trabajador invitado al predio:
+  1. **Primer Dueño (Owner):** Enciende el Bluetooth, busca la sonda física, graba el código de 15 dígitos en la memoria no volátil (NVS) del ESP32 y llama a `register_paired_device` para quedar como dueño oficial.
+  2. **Operador de Campo:** Abre la cámara para escanear el QR compartido por el dueño o permite ingresar el código de 15 dígitos. Se le otorga el rol `operator` mediante `claim_operator_membership`.
+* **Persistencia del Estado:** Una vez completado, se registra la marca temporal en `profiles.onboarding_completed_at`.
+
+### 4.3. Medición y Decodificación BLE
+* **`MeasureScreen`**:
+  - Abre el modal `CalibrationReminderModal` con un clic para recordar la limpieza de la sonda.
+  - Escanea y filtra por el UUID de servicio y el nombre anunciado `TerraSense-<device_code>`.
+  - Conecta y activa la notificación GATT sobre la característica de telemetría.
+  - Al recibir los 16 bytes, desconecta de inmediato el BLE para que el ESP32 vuelva a entrar en *Deep Sleep*.
+  - Despliega un panel 3×3 con las lecturas (Humedad, Temperatura, CE, pH, Nitrógeno, Fósforo, Potasio).
+  - Al pulsar cada tarjeta, abre una explicación agronómica de por qué el valor está en ese rango y qué hacer.
+
+### 4.4. Perímetros Prediales y Topografía
+* **`PerimeterScreen`**:
+  - Permite al agricultor caminar por el lindero del potrero grabando puntos GPS en tiempo real, o tocar en el mapa satelital para trazar el perímetro.
+  - Calcula automáticamente el área encerrada en hectáreas utilizando el algoritmo de Gauss (Shoelace formula sobre coordenadas geodésicas).
+  - Guarda la geometría GeoJSON tanto en el almacenamiento local como en la columna `geometry` de PostGIS en Supabase.
+* **`MapScreen`**:
+  - Muestra el polígono delimitado del predio y las mediciones georreferenciadas.
+  - Usa `fitToCoordinates` con padding adaptado a la barra superior y botones flotantes para garantizar que ningún elemento tape el predio.
+
+### 4.5. Historial y Detalle de Medición
+* **`HistoryScreen`**: Lista cronológica de todas las mediciones realizadas. Muestra fecha, hora, cultivo, etapa fenológica y un badge indicador de sincronización (sincronizada vs. guardada localmente).
+* **`MeasurementDetailModal`**: Ficha técnica completa con todas las variables, datos de clima asociados y botón de reintento manual si la medición sigue en cola.
+
 ---
 
-## 5. Motor agronómico
+## 5. Motor Agronómico y Reglas de Decisión
 
-Dos capas. **No es un modelo entrenado**: es un sistema experto de reglas biofísicas explícitas, y
-esa es una decisión deliberada — en agronomía la explicabilidad es requisito de adopción y de
-responsabilidad legal.
+El motor agronómico es un **sistema experto determinista basado en reglas biofísicas explícitas** (`agronomyEngine.ts`), complementado por un evaluador de etapas (`stageEvaluator.ts`) y un redactor de consejos (`contextualAdvice.ts`).
 
-**`agronomyEngine.ts`** — evalúa humedad, temperatura, CE, pH y NPK contra los umbrales del cultivo
-y la textura del suelo. Define 8 cultivos y 4 texturas.
+### 5.1. Etapas Fenológicas
+El mismo suelo presenta implicancias agronómicas completamente diferentes según la fase del cultivo:
 
-**`stageEvaluator.ts`** — repondera la condición interna según la etapa activa, porque el mismo suelo exige
-respuestas distintas:
+| Etapa Fenológica | Variables Críticas | Comportamiento del Motor |
+| :--- | :--- | :--- |
+| **Pre-siembra** | Temperatura, CE, pH, Humedad | Evalúa aptitud de cama de siembra; alerta si el suelo está demasiado frío para germinar o si la salinidad dañará la plántula. Permite proyectar el mapa de variabilidad. |
+| **Vegetativo** | Nitrógeno (N), Humedad, CE | Monitorea la disponibilidad de N para el desarrollo foliar y la actividad fotosintética; alerta sobre excesos que promuevan enfermedades. |
+| **Floración** | CE, Fósforo (P), Potasio (K) | El límite de salinidad máxima tolerable se reduce automáticamente al **80% del umbral estándar**, dado que el estrés osmótico provoca aborto floral masivo. |
+| **Cosecha** | Humedad VWC, Potasio (K) | Evalúa la transitabilidad de maquinaria pesada para evitar compactación severa del suelo y verifica madurez de fruto según niveles de potasio. |
 
-| Etapa | Qué gobierna la recomendación |
-| :--- | :--- |
-| `pre_siembra` | Temperatura, CE, pH, humedad |
-| `vegetativo` | Nitrógeno, humedad, pH, CE |
-| `floracion` | CE, humedad, potasio, pH |
-| `cosecha` | Humedad (transitabilidad), potasio, nitrógeno, CE |
+### 5.2. Regla de Veto Cruzado por Salinidad
+Las sondas agrícolas 7-en-1 estiman el NPK mediante relaciones de conductividad iónica aparente en la solución del suelo. Si la **Conductividad Eléctrica (CE)** supera el umbral crítico de salinidad del cultivo:
+1. Las concentraciones de sales libres (cloruros, sulfatos, sodio) distorsionan por completo la estimación de iones nitrato, fosfato y potasio.
+2. El motor activa una **regla de veto cruzado**: oculta o marca como "estimación distorsionada por salinidad" los valores numéricos de N-P-K, alertando al productor que debe corregir el lavado de sales antes de fertilizar.
 
-Añade además dos reglas propias: **compactación en cosecha** y **salinidad en floración** (donde el
-límite del cultivo se recorta al 80 %, porque el estrés osmótico aborta la flor).
-
-> [!NOTE]
-> Cada diagnóstico persiste `engine_version` y `crop_catalog_version`. Es un requisito probatorio:
-> permite reproducir una recomendación de hace dos temporadas si un agricultor reclama.
+### 5.3. Modelo Verbal de Comunicación (Sin Semáforo Simplista)
+Para evitar diagnósticos superficiales, el motor traduce los estados técnicos internos a tres niveles de decisión verbal:
+* **🟢 Condición Favorable:** Los parámetros se encuentran dentro del rango óptimo para la fenología activa. No se requiere intervención correctiva.
+* **🟡 Requiere Atención:** Uno o más parámetros se aproximan a los límites de estrés. Se sugiere planificar ajustes de fertirriego o manejo agronómico.
+* **🔴 Condición Limitante:** Existe una barrera biofísica concreta (estrés hídrico severo, fitotoxicidad por pH, salinidad crítica) que causará pérdidas si no se corrige de inmediato.
 
 ---
 
-## 6. Enlace BLE con la sonda
+## 6. Enlace BLE con la Sonda (Protocolo GATT)
 
 ```text
-Sonda 7-en-1 ──RS-485 Modbus──► ESP32 ──BLE GATT notify (16 B)──► Teléfono
+┌─────────────────┐       RS-485 Modbus RTU       ┌───────────────┐
+│ Sonda 7-en-1    ├──────────────────────────────►│ Micro ESP32   │
+│ Acero Inox      │                               │ Con Batería   │
+└─────────────────┘                               └───────┬───────┘
+                                                          │ BLE GATT Notify
+                                                          │ (Trama de 16 Bytes)
+                                                          ▼
+                                                  ┌───────────────┐
+                                                  │ App Móvil     │
+                                                  │ React Native  │
+                                                  └───────────────┘
 ```
 
-- Servicio: `00000001-5e4e-4c69-6d61-746572726101`
-- Telemetría *notify*: `00000002-5e4e-4c69-6d61-746572726102`
-- Identidad *read*: `00000003-5e4e-4c69-6d61-746572726103`
-- Provisionamiento *write with response*: `00000004-5e4e-4c69-6d61-746572726104`
+* **Servicio Principal:** `00000001-5e4e-4c69-6d61-746572726101`
+* **Telemetría (Notify):** `00000002-5e4e-4c69-6d61-746572726102`
+* **Identidad (Read):** `00000003-5e4e-4c69-6d61-746572726103`
+* **Provisionamiento (Write):** `00000004-5e4e-4c69-6d61-746572726104`
 
-Se usa **notify y no read** porque la sonda tarda en estabilizarse: el firmware avisa cuando el dato
-ya es válido, en vez de devolver una lectura prematura.
-
-> [!WARNING]
-> **`react-native-ble-plx` no funciona en Expo Go**, que no incluye código nativo. Allí la lectura
-> degrada a datos simulados. Para probar contra la sonda real hace falta una *development build*:
-> `npx expo run:android`.
+### Estructura de la Trama de Telemetría (16 Bytes Big-Endian):
+```text
+[0..1]  Humedad Volumétrica (VWC × 10)       -> uint16
+[2..3]  Temperatura del Suelo (°C × 10)      -> int16 (con signo)
+[4..5]  Conductividad Eléctrica (µS/cm)      -> uint16
+[6..7]  Potencial Hidrógeno (pH × 10)        -> uint16
+[8..9]  Nitrógeno Disponible (mg/kg)         -> uint16
+[10..11] Fósforo Disponible (mg/kg)          -> uint16
+[12..13] Potasio Disponible (mg/kg)          -> uint16
+[14..15] Estado de Batería (Voltaje mV)      -> uint16
+```
 
 > [!CAUTION]
-> **Nunca quites el `cancelConnection()` del bloque `finally` de `bleService.ts`.** Si la conexión
-> queda abierta, la sonda no vuelve a sueño profundo y la batería se agota en días en vez de meses.
+> **Ahorro Energético Crítico:** El método `bleService.ts` siempre desconecta el enlace BLE dentro de un bloque `finally`. Si la conexión BLE permaneciera abierta, el microcontrolador ESP32 no podría entrar en modo *Deep Sleep*, agotando la batería Li-Ion 18650 en menos de 48 horas en lugar de durar 6 a 8 meses.
 
 ---
 
-## 7. Sincronización offline
+## 7. Sincronización Idempotente en Cola
 
-Cola *store & forward* **idempotente**: cada medición lleva un `client_uuid` generado en el teléfono
-*antes* de intentar el envío. El índice único parcial de Supabase hace que un reintento actualice la
-fila en lugar de duplicarla.
+El servicio `measurementsService.ts` implementa un patrón **Store & Forward** con garantía de idempotencia:
 
-```text
-Medición ──► ¿hay red? ──sí──► upsert por client_uuid ──► ✅ sincronizada
-                 │
-                 no
-                 ▼
-          AsyncStorage (cola) ──► al recuperar señal: flushQueue()
-```
-
-La cola se escribe **antes** del intento de red, se separa por cuenta y sólo elimina lo que el
-servidor confirmó. Lo que falla se conserva para el siguiente intento y vuelve a aparecer en mapa
-e historial después de reiniciar la app.
+1. **Generación Local de Identificador:** Al completarse la medición, el teléfono genera un `client_uuid` criptográfico mediante `expo-crypto` antes de cualquier intento de red.
+2. **Escritura Inmediata en Caché:** La medición se almacena primero en `AsyncStorage` en la cola local de la cuenta activa.
+3. **Intento de Envío:** Si hay cobertura, se realiza una llamada `upsert` a Supabase vinculando el `client_uuid`.
+4. **Manejo de Reintentos:** Si la conexión falla o el teléfono se apaga, la medición permanece intacta en la cola local. Cuando el componente `OfflineBanner` detecta el retorno de internet, `flushQueue()` reenvía los datos pendientes.
+5. **Aislamiento Multicuenta:** Las colas se almacenan con claves separadas por ID de usuario (`@terrasense_queue_<uid>`), evitando mezclar datos si dos operarios comparten el mismo terminal.
 
 ---
 
-## 8. Variables de entorno
+## 8. Variables de Entorno
 
-Se admite `App/.env` **o** un `.env` en la raíz del repositorio (`app.config.js` carga el segundo
-como respaldo). `App/.env` tiene prioridad.
+Crear el archivo `App/.env` basándose en el ejemplo:
 
 ```bash
 EXPO_PUBLIC_SUPABASE_URL=https://bjmhjatykqccksddgtmo.supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=
-EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=
+EXPO_PUBLIC_SUPABASE_ANON_KEY=tu_clave_anonima_publica
+EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=tu_clave_restringida_de_google_maps
 ```
-
-| Variable | Dónde obtenerla |
-| :--- | :--- |
-| `SUPABASE_URL` / `ANON_KEY` | Panel de Supabase → *Project Settings* → *API* |
-| `GOOGLE_MAPS_API_KEY` | Google Cloud Console → *Credentials*. Restringir por paquete `cl.terrasense.app` + huella SHA-1, y sólo *Maps SDK for Android* |
-
-> [!CAUTION]
-> **No reutilizar la clave de Google Maps del proyecto Akura.** Quedó expuesta en un repositorio
-> público y debe considerarse comprometida.
 
 ---
 
-## 9. Comandos de desarrollo
+## 9. Comandos de Desarrollo y Pruebas
 
 ```bash
-npm install                            # dependencias
-npx expo start                         # servidor de desarrollo
-npx expo run:android                   # development build (necesaria para BLE)
+# Entrar a la carpeta
+cd App
 
-npm run type-check                     # tsc --noEmit
-npm test                               # 16 pruebas unitarias del contrato
-npm run test:supabase-onboarding       # E2E remoto; necesita service role local
-npx expo export --platform android     # verifica que el paquete COMPILA de verdad
-npx expo install --fix                 # realinea dependencias al SDK
+# Instalar dependencias
+npm install
+
+# Iniciar servidor Metro de Expo
+npm run start
+
+# Ejecución en Android (Development Build con módulos nativos BLE)
+npm run android
+
+# Verificación de tipos TypeScript estricta
+npm run type-check
+
+# Ejecutar las 18 pruebas unitarias automatizadas (tsx / node test runner)
+npm test
+
+# Verificación E2E remota contra Supabase (creación/borrado temporal)
+npm run test:supabase-onboarding
+
+# Compilación de prueba para verificar bundling Android real
+npx expo export --platform android
 ```
 
-> [!TIP]
-> `npm run type-check` no basta. `expo export` es el que detecta errores reales de empaquetado
-> —presets de Babel ausentes, incompatibilidades de Hermes— que TypeScript no ve.
+---
+
+## 10. Decisiones Arquitectónicas que Conviene Preservar
+
+* **Áreas Táctiles Mínimas de 48 dp:** Los botones y selectores están dimensionados para operarse con manos mojadas o guantes de faena agrícola.
+* **Sin Ubicación en Segundo Plano (`ACCESS_BACKGROUND_LOCATION`):** La app solo solicita ubicación precisa mientras el agricultor está activamente midiendo o delimitando el perímetro. Esto evita consumo de batería innecesario y cumple con los estándares de privacidad de la Ley 21.719.
+* **Degradación de Mapas sin Bloqueo:** La falta de conexión satelital o de datos nunca impide registrar y evaluar las propiedades del suelo.
+* **Gobernanza Estricta de Membresías:** Los operarios no pueden modificar nombres ni parámetros de sondas; esas facultades corresponden exclusivamente a roles `owner` y `admin`.
 
 ---
 
-## 10. Decisiones que conviene no deshacer
+## 11. 🛠️ Manual de Instalación de Herramientas
 
-| Decisión | Motivo |
-| :--- | :--- |
-| **Sin `ACCESS_BACKGROUND_LOCATION`** | La app mide bajo demanda. Pedirlo dispara revisión manual en Google Play y contradice el principio de proporcionalidad de la Ley 21.719 |
-| **Resultado explicado, no reducido a un color** | La clasificación histórica se traduce a condición favorable, requiere atención o condición limitante. La tonalidad es secundaria y siempre lleva texto/icono |
-| **Áreas táctiles de 48 dp** | Se opera con guantes de trabajo |
-| **No se precargan teselas** | Los Términos de Google Maps Platform lo prohíben. Se degrada a fondo neutro |
-| **`Spacing.touchTarget` y tipografía ≥ 16 sp** | Legibilidad en terreno, no estética |
-| **Un Device ID une hardware y nube** | En pairing la app genera el código, lo confirma en la NVS del ESP32 y la RPC `register_paired_device` registra exactamente el mismo valor junto con la membresía owner. El índice `UNIQUE` sigue siendo la autoridad final |
-| **Onboarding persistido en Supabase** | `profiles.onboarding_completed_at` y la membresía del equipo sobreviven a reinstalaciones y cambios de teléfono |
-| **Reapertura offline segura** | Una cuenta ya verificada conserva localmente su estado y equipo; una cuenta nunca verificada no puede saltarse el onboarding sin consultar al servidor |
-| **La medición busca el código seleccionado** | El firmware anuncia `TerraSense-<device_code>` y la app filtra por ese valor; nunca asigna al equipo activo la lectura de otra sonda cercana |
-| **Preferencias por cuenta** | Tema, idioma, sistema métrico/imperial, categorías de notificación y guías vistas viven en `profiles.app_preferences` y también tienen caché local |
-| **Guía independiente en cada pantalla** | El botón `?` reabre la ayuda; su apertura automática ocurre sólo la primera vez por cuenta |
-| **Cola offline por cuenta** | Evita cruzar mediciones cuando distintas personas usan el mismo teléfono y mantiene visibles los puntos pendientes tras reiniciar |
+Para levantar el entorno móvil desde una máquina limpia:
 
----
-
-## 11. Pendientes conocidos
-
-### 11.1. Estado exacto entregado el 30 de agosto de 2026
-
-Este bloque está implementado y versionado para que la próxima sesión no tenga que redescubrirlo:
-
-- Onboarding con **sólo dos rutas**: QR/código del administrador y pairing BLE del primer owner.
-- El alta física provisiona el mismo código de 15 dígitos en NVS y Supabase mediante
-  `register_paired_device`; el INSERT directo de `devices` está cerrado por RLS.
-- El QR crea y autoriza la membresía `operator`, persiste el onboarding dentro de la misma
-  transacción y limita a diez los códigos inexistentes por cuenta/hora.
-- Operadores no pueden autopromoverse ni modificar metadatos globales del equipo. Sólo
-  `owner`/`admin` puede hacerlo.
-- `profiles.onboarding_*`, la membresía y una caché local por UID permiten reinstalar/iniciar
-  sesión sin repetir pasos. Un sello huérfano sin equipo accesible **no** permite saltar el flujo.
-- Preferencias por cuenta: tema sistema/claro/oscuro, español/inglés, métrico/imperial,
-  categorías de notificación y guías vistas.
-- Guía `?` independiente en las ocho pantallas; detalle completo de mediciones; mapa e historial
-  filtrados por equipo; cola offline escrita primero, separada por cuenta y restaurable al reinicio.
-- Supabase tiene **18 migraciones alineadas local/remoto** y `send-push-alert` está desplegada.
-- Verificación actual: pruebas unitarias, TypeScript, Expo Doctor, bundle Android y un E2E remoto
-  que crea usuarios/equipo temporales, valida 12 invariantes de RLS/onboarding y limpia todo.
-
-### 11.2. Actualización: UX Offline y Topografía (Septiembre 2026)
-
-Se implementaron mejoras enfocadas en la experiencia del usuario en terreno bajo el paradigma **Offline-First**:
-- **Store `useAuthStore`**: Migración de la sesión a Zustand con persistencia en AsyncStorage para carga inmediata sin red.
-- **Banner Offline Global**: comprueba conectividad al volver a primer plano y de forma periódica, sin depender de un módulo nativo adicional.
-- **Topografía Inteligente**: El mapa (`MapScreen.tsx`) usa `fitToCoordinates` para encuadrar automáticamente las mediciones y perímetro en pantalla sin que los controles flotantes las tapen (Edge-to-Edge mediante `react-native-safe-area-context`).
-- **Estado de Sincronización**: Las lecturas locales pendientes de enviar a la nube muestran un badge de estado en el `MeasurementDetailModal`.
-- **UX Agronómica**: Modal de recordatorio amistoso para limpiar la sonda antes de cada nueva medición (`CalibrationReminderModal`).
-- **Bienvenida pública**: carrusel de tres pantallas antes del acceso; no incluye guía de uso ni depende de una cuenta.
-
-### 11.3. P0 — bloqueantes antes de declarar el producto listo para terreno
-
-1. **Implementar o incorporar el firmware ESP32 real.** Este repositorio todavía no contiene un
-   proyecto PlatformIO/Arduino que implemente los cuatro UUID GATT, ventana física de pairing,
-   NVS, anuncio `TerraSense-<device_code>`, Modbus RTU, telemetría y retorno a *deep sleep*.
-2. **Probar BLE contra hardware**, no sólo bundle: Android físico y luego iPhone; pairing nuevo,
-   reintento tras corte de red, sonda ya provisionada, dos sondas cercanas, timeouts, desconexión
-   y consumo de batería. Expo Go no sirve; usar `npx expo run:android` o EAS development build.
-3. **Confirmar el mapa Modbus con la ficha o banco del proveedor.** Verificar dirección, orden,
-   escala, signo y CRC de los siete registros. Temperatura negativa ya se decodifica como `int16`,
-   pero la trama completa sigue pendiente de contraste con una sonda real.
-4. **Configurar EAS de producción — PENDIENTE, avanzado hasta acá (2026-08-30):**
-   - ✅ Proyecto Firebase `terrasense-app` creado (cuenta `akurasoporte@gmail.com`), con apps
-     Android e iOS registradas bajo `cl.terrasense.app`.
-   - ✅ `App/google-services.json` y `App/GoogleService-Info.plist` descargados y conectados en
-     `app.config.js` (`android.googleServicesFile` / `ios.googleServicesFile`). Ambos ignorados
-     por git.
-   - ✅ Clave de servicio de Firebase Admin SDK (rol de envío FCM) ya descargada:
-     `terrasense-app-firebase-adminsdk-fbsvc-ea0846aefa.json` en la raíz del repo — **ya está en
-     `.gitignore`** (patrón `*firebase-adminsdk*.json`), pero no la muevas a ningún sitio público.
-   - ⬜ Falta correr (dentro de `App/`), en este orden:
-     ```bash
-     eas login                 # sesión de la cuenta Expo/EAS del proyecto
-     eas init                  # vincula el proyecto y escribe extra.eas.projectId
-     eas credentials           # Android → Push Notifications → Google Service Account →
-                                # subir terrasense-app-firebase-adminsdk-fbsvc-ea0846aefa.json
-     ```
-   - ⬜ Falta también: firma de release, perfiles de build (`eas.json` ya tiene development/
-     preview/production) y un `eas build` de prueba con instalación limpia en un equipo físico
-     para confirmar que llega un push real de punta a punta.
-5. **Validar recuperación de contraseña móvil en hardware.** La pantalla
-   `ResetPasswordScreen`, el evento `PASSWORD_RECOVERY` y el deep link
-   `terrasense://reset-password` ya están implementados. Falta aplicar el redirect al Auth remoto
-   mediante `supabase config push` y probar el enlace con el build instalado.
-6. **Validar SMTP móvil de extremo a extremo.** El backend y las plantillas fueron configurados,
-   pero en esta máquina `GMAIL_APP_PASSWORD` no está exportada y el CLI avisa. No ejecutar
-   `supabase config push` a ciegas: primero cargar el secreto y confirmar que el remoto conserva SMTP.
-
-### 11.4. P1 — administración operativa
-
-- Administración de miembros implementada: owner/admin pueden listar operadores y revocar o
-  restaurar acceso; el owner puede promover administradores y transferir propiedad. Las mutaciones
-  pasan por RPCs validadas y dejan trazabilidad en `device_member_audit`.
-- Desafío criptográfico de pairing firmado por el firmware. La UI exige presencia BLE, pero una
-  llamada API fabricada aún podría invocar `register_paired_device` con un código aleatorio; el
-  desafío es lo que convertiría presencia física en prueba verificable por el servidor.
-- Historial avanzado: rango de fechas, búsqueda, notas/cuadrante, edición controlada, eliminación,
-  exportación CSV/PDF y comparación temporal por punto/predio.
-- Mapa con clustering al superar ~50 puntos, leyenda visible, heatmap/IDW opcional y selector claro
-  del equipo activo. No prometer teselas Google offline; cambiar de proveedor si eso se exige.
-- Productores reales para notificaciones `device`, `weather` y `sync`. Los toggles y el filtrado
-  remoto existen, pero hoy el productor automático principal es la alerta `agronomic`.
-- Receipts de Expo Push, limpieza de tokens inválidos, navegación al detalle al tocar una alerta y
-  prueba en Android 13+/iOS con permisos denegados/revocados.
-- Traducir `metric.msg`, nombres internos restantes y payloads históricos. Navegación, controles,
-  veredictos, alertas y acciones nuevas ya son bilingües.
-- Sustituir datos simulados por una bandera de compilación: permitidos en demo/desarrollo y
-  imposibles en una build productiva aunque el banner exista.
-
-### 11.5. P2 — robustez, seguridad y calidad
-
-- Mover el código de vinculación/cache sensible desde AsyncStorage a SecureStore o cifrado local;
-  `allowBackup=false` ya reduce exposición, pero no protege un teléfono rooteado.
-- Pruebas UI/E2E con Maestro/Detox para cámara, permisos, onboarding, cambio de idioma/tema,
-  medición offline, reinicio y sincronización. Mantener el verificador remoto actual en CI con un
-  proyecto Supabase de staging, nunca con producción.
-- Añadir pruebas SQL de políticas y triggers con Supabase local. Requiere Docker Desktop, que no
-  estaba disponible en esta sesión.
-- Revisar las 17 vulnerabilidades transitivas reportadas por `npm audit` (Expo/Metro). No ejecutar
-  `npm audit fix --force`: hoy propone saltos incompatibles; resolver al migrar a un SDK soportado.
-- Observabilidad: reporte de fallos BLE/sync sin datos agronómicos sensibles, métricas de cola y
-  trazabilidad de versión de firmware/motor.
-- Accesibilidad con TalkBack/VoiceOver, tamaño de fuente aumentado, contraste bajo sol y operación
-  con guantes en un dispositivo físico.
-
-### 11.6. P3 — publicación y operación
-
-- Política de privacidad, consentimiento, eliminación/exportación de cuenta, retención de datos y
-  revisión final bajo Ley chilena 21.719.
-- Rotar/restringir claves de Google Maps, configurar SHA-1/bundle ID y separar staging/producción.
-- Pipeline CI: `npm ci`, tests, type-check, Expo export, build Web y dry-run de migraciones.
-- Despliegue en stores, capturas, ficha, canal beta, monitoreo de crashes y procedimiento de rollback.
-
-### 11.7. Orden recomendado para retomar
-
-1. Firmware mínimo con identidad/provisionamiento/telemetría.
-2. Development build Android + prueba de pairing y una medición real.
-3. Recuperación de contraseña móvil.
-4. Administración de miembros y desafío firmado de pairing.
-5. Historial/mapa avanzados y notificaciones restantes.
-6. Automatización CI, seguridad final y publicación.
-
-El estado completo y ordenado está en [`MIGRACION_AKURA.md`](../MIGRACION_AKURA.md).
-
----
-
-## 12. 🛠️ Manual de Instalación de Herramientas
-
-Desde una máquina limpia hasta poder ejecutar la app.
-
-### 12.1. Node.js y npm
-
-Expo 54 pide **Node 20 o 22 LTS**.
-
-```bash
-node -v     # debe ser v20.x o v22.x
-npm -v
-```
-
-> [!WARNING]
-> Las versiones impares de Node (21, 23, 25) **no son LTS** y provocan fallos difíciles de
-> diagnosticar en Metro. Si tienes una, instala una LTS con un gestor de versiones.
-
-<details>
-<summary><b>Windows</b></summary>
+### 11.1. Node.js y JDK
+* **Node.js:** Versión 20 o 22 LTS (evitar versiones impares como 21 o 23).
+* **JDK:** OpenJDK 17 (obligatorio para la compilación de librerías nativas en Android).
 
 ```powershell
+# Windows (PowerShell)
 winget install OpenJS.NodeJS.LTS
-# o con gestor de versiones (recomendado si necesitas varias):
-winget install CoreyButler.NVMforWindows
-nvm install 22
-nvm use 22
-```
-</details>
-
-<details>
-<summary><b>macOS</b></summary>
-
-```bash
-brew install node@22
-# o con nvm:
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-nvm install 22 && nvm use 22
-```
-</details>
-
-<details>
-<summary><b>Linux (Debian / Ubuntu)</b></summary>
-
-```bash
-curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-sudo apt-get install -y nodejs
-```
-</details>
-
-### 12.2. Git
-
-```bash
-git --version
+winget install Microsoft.OpenJDK.17
 ```
 
+### 11.2. Android Studio y SDK
+1. Instalar **Android Studio**.
+2. En *SDK Manager*, verificar que estén instalados:
+   - **Android SDK Platform 35**
+   - **Android SDK Build-Tools**
+   - **Android SDK Platform-Tools**
+3. Configurar variables de entorno permanentes:
 ```powershell
-winget install Git.Git          # Windows
-```
-```bash
-brew install git                # macOS
-sudo apt-get install -y git     # Linux
-```
-
-### 12.3. Expo CLI
-
-**No se instala globalmente.** Se invoca con `npx`, que usa la versión fijada en `package.json` y
-evita desajustes entre máquinas.
-
-```bash
-npx expo --version
-npm install -g eas-cli          # sólo si vas a generar builds en la nube
-```
-
-### 12.4. Android Studio y JDK — necesarios para BLE
-
-Sólo hace falta si vas a compilar la *development build*. Con Expo Go no.
-
-1. Descargar **Android Studio**: <https://developer.android.com/studio>
-2. En *SDK Manager* instalar: **Android SDK Platform 35**, **Android SDK Build-Tools**,
-   **Android SDK Platform-Tools** y **Android Emulator**.
-3. Instalar **JDK 17**:
-
-```powershell
-winget install Microsoft.OpenJDK.17     # Windows
-```
-```bash
-brew install --cask temurin@17          # macOS
-sudo apt-get install -y openjdk-17-jdk  # Linux
-```
-
-4. Variables de entorno:
-
-```powershell
-# Windows (PowerShell, permanentes)
 setx ANDROID_HOME "$env:LOCALAPPDATA\Android\Sdk"
 setx JAVA_HOME "C:\Program Files\Microsoft\jdk-17"
 ```
-```bash
-# macOS / Linux — añadir a ~/.zshrc o ~/.bashrc
-export ANDROID_HOME=$HOME/Library/Android/sdk    # Linux: $HOME/Android/Sdk
-export JAVA_HOME=$(/usr/libexec/java_home -v 17) # Linux: /usr/lib/jvm/java-17-openjdk-amd64
-export PATH=$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator
-```
 
-5. Comprobación:
-
-```bash
-java -version      # 17.x
-adb --version
-```
-
-### 12.5. Dispositivo físico — imprescindible para probar la sonda
-
-El Bluetooth y las notificaciones push **no funcionan en emulador**.
-
-1. En el teléfono: *Ajustes → Acerca del teléfono* → pulsar 7 veces en *Número de compilación*.
-2. *Opciones de desarrollador* → activar **Depuración por USB**.
-3. Conectar por USB y aceptar la huella RSA.
-
-```bash
-adb devices        # debe listar tu teléfono como "device"
-```
-
-### 12.6. Puesta en marcha del proyecto
-
-```bash
-git clone https://github.com/Alvarinhoooo7/TerraSence.git
-cd TerraSence/App
-npm install
-
-cp .env.example .env      # y rellenar las tres claves (§8)
-
-npx expo start            # desarrollo con Expo Go (sonda simulada)
-npx expo run:android      # development build (sonda real por BLE)
-```
-
-### 12.7. Verificación de que todo quedó bien
-
-```bash
-npm run type-check                     # sin salida = 0 errores
-npx expo export --platform android     # debe terminar en "Exported:"
-```
-
-### 12.8. Resumen de versiones
-
-| Herramienta | Versión | ¿Obligatoria? |
-| :--- | :--- | :--- |
-| Node.js | 20 o 22 LTS | Sí |
-| npm | 10+ | Sí |
-| Git | 2.40+ | Sí |
-| Expo CLI | vía `npx` | Sí |
-| JDK | 17 | Sólo para BLE |
-| Android Studio | Iguana+ con SDK 35 | Sólo para BLE |
-| Dispositivo Android físico | Android 8+ | Sólo para BLE y push |
-| EAS CLI | última | Sólo para builds en la nube |
+### 11.3. Dispositivo Físico para Pruebas BLE
+> [!IMPORTANT]
+> El emulador de Android **no soporta emulación de hardware Bluetooth Low Energy (BLE)** ni cámara física para escanear QR. Las pruebas de enlace con la sonda deben realizarse en un dispositivo Android físico conectado por USB con el modo de **Depuración por USB** activado.

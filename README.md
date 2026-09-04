@@ -340,7 +340,7 @@ El instrumento va a caerse sobre gravilla, va a quedar bajo la lluvia, se va a m
 
 El agricultor paga una vez. Sus mediciones son suyas y son exportables. No hay una cuota anual sin la cual el instrumento deja de servir, como ocurre con las plataformas satelitales de los equipos de investigación.
 
-**Consecuencia de diseño:** el motor corre local, la app funciona sin cuenta activa y sin red, y la infraestructura cloud se dimensiona para que su costo se cubra con el margen de la venta única. La [Sección XII](#xii-evaluación-económica-flujo-de-caja-van-y-tir) verifica que esto es financieramente sostenible: el costo anual de nube y tiendas de aplicaciones es de **$818.705 CLP**, cubierto por el margen de **10 unidades**.
+**Consecuencia de diseño:** el motor corre local, la app funciona sin cuenta activa y sin red, y la infraestructura cloud se dimensiona para que su costo se cubra con el margen de la venta única. La [Sección XII](#xii-evaluación-económica-flujo-de-caja-van-y-tir) verifica que esto es financieramente sostenible: el costo anual de nube y tiendas de aplicaciones es de **$841.580 CLP**, cubierto por el margen de **8 unidades** (margen de contribución unitario de $118.767 CLP).
 
 ## III.3. Beneficiarios
 
@@ -471,12 +471,12 @@ ACTIVIDAD                               S1 S2 S3 S4  S5 S6 S7 S8  S9 10 11 12  1
 | :--- | :---: | :---: | :---: | :--- | :---: |
 | **El mapa de registros Modbus de la sonda difiere del documentado** | Alta | Alto | 🔴 | Confirmar con el proveedor antes de comprar el lote; escribir el driver con mapa parametrizable en NVS, no cableado | Abierto |
 | **La envolvente FDM no supera el ensayo IP67** por porosidad intercapa | Media | Alto | 🔴 | Sellado intercapa, ≥ 4 perímetros, O-ring, y plan B: sobremoldeo con resina o vulcanizado de junta | Abierto |
-| **Retraso o alza de precio en la importación** (tipo de cambio, aduana) | Media | Medio | 🟡 | Cotizar dos proveedores; el modelo económico soporta +20 % de costo variable (ver [XII.8](#xii8-análisis-de-sensibilidad-y-punto-de-quiebre)) | Vigilado |
-| **Adopción menor a la proyectada** (< 96 unidades el Año 1) | Media | Alto | 🔴 | Precio de lista superior al de lanzamiento; canal B2G con INDAP; el quiebre está en −20 % de volumen | Vigilado |
+| **Retraso o alza de precio en la importación** (tipo de cambio, aduana) | Media | Medio | 🟡 | Cotizar dos proveedores; el modelo económico soporta +15 % de costo variable (ver [XII.8](#xii8-análisis-de-sensibilidad-y-punto-de-quiebre)) | Vigilado |
+| **Adopción menor a la proyectada** (< 166 unidades el Año 1) | Media | Alto | 🔴 | Precio de lista superior al de lanzamiento; canal B2G con INDAP; el umbral de equilibrio está en 166 unidades (−17 % de volumen frente a 200 planificadas) | Vigilado |
 | **Deriva de calibración del pH de estado sólido en el tiempo** | Media | Medio | 🟡 | Rutina de recalibración semestral guiada con buffers; offset persistido en NVS | Mitigado |
 | **Google modifica precios o términos de Maps Platform** | Media | Bajo | 🟢 | Capa de mapas abstraída tras una interfaz; el veredicto nunca depende del mapa | Mitigado |
 | **Copia del hardware por un competidor asiático** | Alta | Bajo | 🟢 | El hardware es genérico por diseño; la barrera es el motor agronómico local y la base de datos georreferenciada | Aceptado |
-| **Agotamiento de caja en el mes 6 del Año 1** | Alta | Medio | 🟡 | Detectado en el flujo mensual de [XII.6](#xii6-prueba-de-caja-flujo-mensual-del-año-1); se fracciona el segundo lote | Mitigado |
+| **Agotamiento de caja en el mes 6 del Año 1** | Alta | Medio | 🟡 | Detectado en la prueba de caja de [XII.6](#xii6-prueba-de-caja-el-mes-crítico-del-año-1); se fracciona el segundo lote | Mitigado |
 
 ---
 # VI. Ingeniería conceptual: alternativas de arquitectura y decisión
@@ -1475,7 +1475,7 @@ Este es el resultado más contraintuitivo del análisis energético:
 | :--- | :---: |
 | Celda 18650 3.000 mAh adicional | $3.800 CLP |
 | Portacelda, cableado y fusible | $600 CLP |
-| Amortización del rediseño de carcasa (lote 120) | $1.200 CLP |
+| Amortización del rediseño de carcasa (lote 200) | $720 CLP |
 | **Costo variable incremental** | **$5.600 CLP** |
 | **Impacto en el precio de venta** (manteniendo margen) | **~$14.550 CLP** |
 | Masa adicional | +47 g |
@@ -1564,7 +1564,7 @@ La [Sección VI](#vi-ingeniería-conceptual-alternativas-de-arquitectura-y-decis
 | **Eficiencia energética** | Consumo en operación y, sobre todo, **en reposo** | El equipo pasa el 99,9 % del tiempo sin medir. La corriente de reposo determina la autonomía ([IX.1](#ix1-criterios-de-eficiencia-energética)) |
 | **Versatilidad** | Cuánto del problema resuelve un solo componente | Cada componente adicional es un punto de falla, área de PCB y coste de ensamblaje |
 | **Exactitud / desempeño** | Cumplimiento de la especificación funcional | Sin exactitud operativa el motor agronómico infiere sobre ruido |
-| **Costo en el volumen real** | Precio unitario **a 120–840 unidades**, no a 100.000 | Un componente óptimo a escala de millones puede ser inviable a 120 |
+| **Costo en el volumen real** | Precio unitario **a 200–850 unidades**, no a 100.000 | Un componente óptimo a escala de millones puede ser inviable a 200 |
 | **Robustez ambiental** | Rango térmico, humedad, vibración | Condiciones de campo declaradas en [X.3](#x3-aptitud-para-condiciones-de-campo-el-caso-ip67) |
 | **Disponibilidad y riesgo de suministro** | Cadena de abastecimiento, alternativas *pin-compatible* | Un componente sin segunda fuente es un riesgo de continuidad |
 | **Madurez del ecosistema** | Herramientas, documentación, comunidad | Determina el tiempo de desarrollo, que en un proyecto de título es el recurso más escaso |
@@ -1640,7 +1640,7 @@ Aplicando el modelo de autonomía de [IX.1.4](#ix14-modelo-de-autonomía-de-camp
 | Ventaja del ESP32 sobre el nRF52840 | Valor concreto para el proyecto |
 | :--- | :--- |
 | **Wi-Fi integrado** | Permite actualización OTA de firmware descargando el binario por red local. Con nRF52840 la única vía es **DFU sobre BLE**, que exige implementar el transporte y la gestión de bloques dentro de la app móvil — desarrollo adicional en el componente de software más crítico y peor probado del sistema |
-| **Costo del chip** | US$2–5 frente a US$5–8 <sup>[63]</sup>. Sobre un lote de 120 unidades la diferencia es acotada; sobre 840 unidades al Año 5, del orden de $2 a $3 millones CLP acumulados |
+| **Costo del chip** | US$2–5 frente a US$5–8 <sup>[63]</sup>. Sobre un lote de 200 unidades la diferencia es acotada; sobre 850 unidades al Año 5, del orden de $2 a $3 millones CLP acumulados |
 | **Doble núcleo real** | Permite aislar la pila de radio de la temporización Modbus. El nRF52840 es un solo Cortex-M4 y exige mayor cuidado en la planificación de tareas para no perder el silencio entre tramas |
 | **Madurez del ecosistema** | ESP-IDF, Arduino y PlatformIO con documentación y ejemplos abundantes. Reduce el tiempo de desarrollo, que en un proyecto de título es el recurso más escaso |
 | **Segunda fuente inmediata** | ESP32-C3, C6, S3 y WROVER son sustituibles con cambios menores. Reduce el riesgo de suministro |
@@ -1653,7 +1653,7 @@ Aplicando el modelo de autonomía de [IX.1.4](#ix14-modelo-de-autonomía-de-camp
 | Eficiencia energética | 20 % | 6 | 7 | **10** | **10** | 3 |
 | Capacidad de actualización remota | 15 % | **10** | **10** | 7 | 6 | 1 |
 | Memoria y capacidad de cómputo | 12 % | **10** | 9 | 8 | 8 | 1 |
-| Costo en el volumen real (120–840 u) | 15 % | 9 | **10** | 5 | 5 | 7 |
+| Costo en el volumen real (200–850 u) | 15 % | 9 | **10** | 5 | 5 | 7 |
 | Madurez de ecosistema y tiempo de desarrollo | 12 % | **10** | 9 | 8 | 6 | 9 |
 | Riesgo de suministro y segunda fuente | 8 % | **10** | **10** | 7 | 7 | 8 |
 | **PUNTAJE PONDERADO** | **100 %** | **🏆 8,98** | **9,16** | 8,10 | 7,72 | 4,03 |
@@ -1724,7 +1724,7 @@ Antes de comparar productos hay que comparar principios de medición, porque cad
 
 | Producto | Variables | Exactitud declarada | Inserción directa | Interfaz | Costo aprox. | Fuente |
 | :--- | :---: | :--- | :---: | :---: | ---: | :---: |
-| **Sonda 7-en-1 RS-485 inox 316L** ✅ | **7** | VWC ±2 % · T ±0,3 °C · EC ±3 % · pH ±0,1 · NPK ±5 % *(declarado por el fabricante)* | ✅ | Modbus RTU | **$16.500** | Ficha del proveedor |
+| **Sonda 7-en-1 RS-485 inox 316L** ✅ | **7** | VWC ±2 % · T ±0,3 °C · EC ±3 % · pH ±0,1 · NPK ±5 % *(declarado por el fabricante)* | ✅ | Modbus RTU | **$48.000** | Cotización de mercado |
 | **METER TEROS 12** | 3 (VWC, T, EC) | VWC **±0,03 m³/m³** con calibración genérica en suelos minerales con EC < 8.000 µS/cm; **±0,01–0,02** con calibración específica del medio. T ±0,3 °C (0–60 °C). Capacitancia a **70 MHz**, que minimiza los efectos de textura y salinidad. Volumen de influencia 1.010 mL | ✅ | SDI-12 / Modbus | ~$250.000 | <sup>[73]</sup> |
 | **Delta-T WET150** | 3 (VWC, T, EC) + **ECp** | Exactitud de grado investigación con estabilidad frente a salinidad y temperatura; calibraciones de fábrica para suelos minerales, orgánicos, fibra de coco, turba y lana mineral. Calcula **conductividad del agua de poro (ECp)**, que es el ion disponible para la planta | ✅ | SDI-12 | ~$400.000 | <sup>[74]</sup> |
 | **Stevens HydraProbe** | 3 + derivadas (21 parámetros) | **±1,5 %** o 0,2, el mayor de ambos. Reflectometría dieléctrica de impedancia coaxial; mide constante dieléctrica y conductividad **simultáneamente**; rango dieléctrico 1–80 | ✅ | SDI-12 / RS-485 | ~$450.000 | <sup>[75]</sup> |
@@ -1777,7 +1777,7 @@ Una objeción razonable es: *«usa un TEROS 12 para humedad, temperatura y EC, y
 | :--- | :---: | ---: | :--- |
 | TEROS 12 + sensor de pH de estado sólido | 4 de 7 | > $300.000 | **Sigue sin medir N, P ni K**, que es la categoría que ningún instrumento portátil del mercado resuelve. Multiplica el BOM por siete |
 | TEROS 12 + electrodo de pH + estimación NPK por EC | 7 de 7 | > $320.000 | Hereda **exactamente la misma debilidad de NPK** que la sonda económica, a un costo veinte veces mayor |
-| Sonda 7-en-1 + contraste periódico de laboratorio | 7 de 7 + validación | $16.500 + análisis bianual | ✅ **Configuración adoptada** — ver [X.2.2.6](#x226-consecuencias-vinculantes-sobre-el-diseño-del-sistema) |
+| Sonda 7-en-1 + contraste periódico de laboratorio | 7 de 7 + validación | $48.000 + análisis bianual | ✅ **Configuración adoptada** — ver [X.2.2.6](#x226-consecuencias-vinculantes-sobre-el-diseño-del-sistema) |
 
 **El resultado es incómodo pero claro:** pagar veinte veces más no resuelve el problema del NPK, porque **el problema del NPK no es de precio, es de física**.
 
@@ -1983,7 +1983,7 @@ Para no dejar una impresión desbalanceada, conviene separar con claridad qué v
 | Alternativa | Costo fijo | Costo por unidad | Estanqueidad | Veredicto |
 | :--- | :---: | :---: | :---: | :--- |
 | **PETG impreso por FDM** ✅ | **$0 de molde** | ~$2.300 (material + energía) | ⚠️ Exige sellado intercapa | **Elegido.** Sin costo de molde, iterable entre versiones y resistente a UV y humedad, a diferencia del PLA |
-| ABS inyectado | Millones de CLP en molde | Muy bajo (< $1.000) | ✅ Excelente | Costo por unidad imbatible, pero **el molde sólo se amortiza con miles de unidades**. Con 120 el primer año es económicamente inviable ([XII](#xii-evaluación-económica-flujo-de-caja-van-y-tir)) |
+| ABS inyectado | Millones de CLP en molde | Muy bajo (< $1.000) | ✅ Excelente | Costo por unidad imbatible, pero **el molde sólo se amortiza con miles de unidades**. Con 200 el primer año es económicamente inviable ([XII](#xii-evaluación-económica-flujo-de-caja-van-y-tir)) |
 | ASA impreso por FDM | $0 | Similar al PETG | Similar | **Mejor resistencia UV que el PETG**, pero requiere cámara cerrada y emite compuestos que exigen ventilación |
 | Nylon / PA-CF | $0 | Superior | Buena | Muy resistente mecánicamente, higroscópico y más difícil de imprimir |
 | Caja comercial IP67 de policarbonato | $0 | $6.000 – $12.000 | ✅ **Certificada por el fabricante** | **Elimina de raíz el riesgo de estanqueidad** ([X.3](#x3-aptitud-para-condiciones-de-campo-el-caso-ip67)), a cambio de mayor costo, ergonomía genérica y ninguna diferenciación de producto |
@@ -1992,7 +1992,7 @@ Para no dejar una impresión desbalanceada, conviene separar con claridad qué v
 > [!IMPORTANT]
 > **La caja comercial certificada IP67 merece una consideración seria, no un descarte rápido.** El riesgo abierto más importante del proyecto es que la envolvente FDM **no supere el ensayo de inmersión** ([V.4](#v4-matriz-de-riesgos-del-proyecto)). Una caja comercial de policarbonato con grado IP67 certificado por su fabricante **elimina ese riesgo por completo**, a un sobrecosto de entre $4.000 y $10.000 por unidad.
 >
-> Se mantiene el FDM por tres razones: permite iterar la ergonomía tras las primeras pruebas de campo sin costo de rehacer utillaje, la geometría propia es parte de la identidad del producto, y el sobrecosto acumulado sobre el plan de 2.220 unidades a cinco años sería del orden de $9 a $22 millones CLP — comparable al VAN del escenario base.
+> Se mantiene el FDM por tres razones: permite iterar la ergonomía tras las primeras pruebas de campo sin costo de rehacer utillaje, la geometría propia es parte de la identidad del producto, y el sobrecosto acumulado sobre el plan de 2.550 unidades a cinco años sería del orden de $10 a $25 millones CLP — comparable al VAN del escenario base.
 >
 > **Compromiso explícito: la caja comercial certificada es el plan B formal del riesgo de estanqueidad.** Si el ensayo del hito H6 falla y el sellado intercapa no lo resuelve, **no se insiste con el FDM: se migra a caja comercial**, absorbiendo el sobrecosto en el precio de lista. Un producto que entra agua no es un producto.
 
@@ -2251,10 +2251,10 @@ Los cuellos de botella reales son otros tres, y conviene nombrarlos:
 | :--- | :--- | :--- |
 | **Plazo de importación de componentes** (~45–60 días entre pedido y bodega) | Logístico | Planificación por lotes semestrales; stock de seguridad incluido en el capital de trabajo |
 | **Capacidad comercial**: colocar las unidades, no fabricarlas | Comercial | Es la verdadera restricción del modelo. Por eso el presupuesto de marketing crece más rápido que el de producción |
-| **Caja disponible al momento de comprar el lote** | Financiero | Detectado y resuelto en [XII.6](#xii6-prueba-de-caja-flujo-mensual-del-año-1) |
+| **Caja disponible al momento de comprar el lote** | Financiero | Detectado y resuelto en [XII.6](#xii6-prueba-de-caja-el-mes-crítico-del-año-1) |
 
 > [!IMPORTANT]
-> **Este resultado tiene una consecuencia estratégica que conviene declarar:** con la máquina al 7,5 % de uso el primer año, la impresora secundaria **no se compra por capacidad, sino por redundancia**. Si la impresora principal falla en mitad de un lote, sin respaldo se detiene la producción completa. Es una decisión de continuidad operacional, no de volumen, y así se justifica en el CAPEX.
+> **Este resultado tiene una consecuencia estratégica que conviene declarar:** con la máquina al 12,5 % de uso el primer año, la impresora secundaria **no se compra por capacidad, sino por redundancia**. Si la impresora principal falla en mitad de un lote, sin respaldo se detiene la producción completa. Es una decisión de continuidad operacional, no de volumen, y así se justifica en el CAPEX.
 
 ---
 

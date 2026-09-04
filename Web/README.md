@@ -1,28 +1,36 @@
 # 🖥️ TerraSense · Consola Web de Administración y Gestión de Flota
 
-Consola central de operaciones y administración en **React 19 + Vite 6 + Tailwind 4 + TypeScript**. 
-Es la **herramienta de control, aprovisionamiento de hardware y soporte técnico del administrador del proyecto (Álvaro)** para gestionar el parque de dispositivos TerraSense, supervisar la telemetría en terreno, publicar firmware OTA y auditar la validación metrológica.
+Consola central de operaciones, aprovisionamiento y soporte técnico desarrollada en **React 19 + Vite 6 + Tailwind CSS v4 + TypeScript + React Router v7**. 
+Es la **herramienta de control, aprovisionamiento de hardware, telemetría y soporte técnico del administrador del proyecto (Álvaro)** para supervisar la flota de sondas TerraSense en terreno, gestionar inventario, publicar actualizaciones de firmware OTA, auditar miembros y respaldar la validación metrológica.
 
 > [!IMPORTANT]
 > **Propósito y Arquitectura:**
 > * **No es un portal de agricultores ni una plataforma SaaS con suscripciones.** En TerraSense, el agricultor opera de forma 100% autónoma en terreno mediante la **App Móvil** (offline-first, sin planes mensuales ni pagos recurrentes).
-> * **La Consola Web es el Backoffice Central del Creador/Administrador** para administrar el hardware vendido, dar de alta números de serie, monitorear la salud de la batería de las sondas, gestionar actualizaciones de firmware y brindar soporte agronómico avanzado.
+> * **La Consola Web es el Backoffice Central del Creador/Soporte Técnico:** Permite administrar el hardware fabricado, supervisar la salud de la batería Li-Ion de las sondas, gestionar permisos/roles de miembros, realizar reseteos de fábrica controlados, publicar binarios OTA de ESP32 y brindar soporte agronómico avanzado.
+> * **Despliegue en Producción:** La consola se encuentra desplegada y operativa en **https://terrasense-web.vercel.app** (conectada al proyecto de Supabase en producción).
 
 ---
 
 ## 📑 Contenido
 
 - [1. Para quién es y qué resuelve](#1-para-quién-es-y-qué-resuelve)
-- [2. Módulos y Pestañas de la Consola](#2-módulos-y-pestañas-de-la-consola)
-- [3. Estructura de carpetas](#3-estructura-de-carpetas)
-- [4. El Visor GIS: por qué IDW y no Kriging](#4-el-visor-gis-por-qué-idw-y-no-kriging)
-- [5. Seguridad y Aislamiento (Postgres RLS)](#5-seguridad-y-aislamiento-postgres-rls)
-- [6. Variables de entorno](#6-variables-de-entorno)
-- [7. Comandos de desarrollo](#7-comandos-de-desarrollo)
-- [8. Despliegue en Vercel](#8-despliegue-en-vercel)
-- [9. 🛠️ Manual de instalación y puesta en marcha](#9-️-manual-de-instalación-y-puesta-en-marcha)
-- [10. Correos transaccionales: recuperación, confirmación y aviso de cambio](#10-correos-transaccionales-recuperación-confirmación-y-aviso-de-cambio)
-- [11. Recuperación de acceso en la App móvil (completada)](#11-recuperación-de-acceso-en-la-app-móvil-completada)
+- [2. Módulos y Enrutamiento de la Consola](#2-módulos-y-enrutamiento-de-la-consola)
+  - [2.1. Gestión de Flota (`/devices`)](#21-gestión-de-flota-devices)
+  - [2.2. Panel de Soporte Técnico (`/admin`)](#22-panel-de-soporte-técnico-admin)
+  - [2.3. Ficha Detallada de Sonda (`/admin/devices/:id`)](#23-ficha-detallada-de-sonda-admindevicesid)
+  - [2.4. Reseteo de Fábrica Seguro (`FactoryResetModal`)](#24-reseteo-de-fábrica-seguro-factoryresetmodal)
+  - [2.5. Gestión y Publicación de Firmware OTA](#25-gestión-y-publicación-de-firmware-ota)
+  - [2.6. Visor Geoespacial IDW](#26-visor-geoespacial-idw)
+  - [2.7. Corpus de Validación Metrológica](#27-corpus-de-validación-metrológica)
+- [3. Sistema de Diseño y Modo Claro/Oscuro](#3-sistema-de-diseño-y-modo-clarooscuro)
+- [4. Estructura de carpetas](#4-estructura-de-carpetas)
+- [5. Capa Backend y Funciones RPC](#5-capa-backend-y-funciones-rpc)
+- [6. El Visor GIS: por qué IDW y no Kriging](#6-el-visor-gis-por-qué-idw-y-no-kriging)
+- [7. Seguridad y Aislamiento (Postgres RLS)](#7-seguridad-y-aislamiento-postgres-rls)
+- [8. Variables de entorno](#8-variables-de-entorno)
+- [9. Comandos de desarrollo](#9-comandos-de-desarrollo)
+- [10. Despliegue en Vercel](#10-despliegue-en-vercel)
+- [11. Correos transaccionales y recuperación de acceso](#11-correos-transaccionales-y-recuperación-de-acceso)
 
 ---
 
@@ -30,85 +38,165 @@ Es la **herramienta de control, aprovisionamiento de hardware y soporte técnico
 
 Esta consola resuelve la administración integral del ciclo de vida del hardware de TerraSense:
 
-1. **Aprovisionamiento y Control de Inventario:** Generación y registro de códigos de vinculación únicos de 15 dígitos (*Pairing Codes*) para cada sonda fabricada antes de su entrega al cliente.
+1. **Aprovisionamiento y Control de Inventario:** Generación, auditoría y control de los códigos únicos de 15 dígitos (*Pairing Codes*) de cada sonda fabricada antes de su entrega al cliente.
 2. **Monitoreo Técnico de Salud de la Flota:** Supervisión en tiempo real del estado de batería (voltaje Li-Ion), última fecha/hora de conexión, versión de firmware activa y estado de enlace de cada equipo en terreno.
-3. **Gestión y Publicación de Firmware OTA:** Repositorio de binarios compilados de ESP32 para desplegar actualizaciones de firmware Over-The-Air vía WiFi.
-4. **Supervisión Global de Mediciones y Soporte:** Vista agregada de todas las mediciones sincronizadas con búsqueda multicriterio (por predio, cultivo, fecha o equipo) para auditoría agronómica y soporte técnico al productor.
-5. **Corpus de Validación Metrológica:** Registro y análisis comparativo de muestras de campo contrastadas contra laboratorios químicos acreditados (evidencia empírica para la defensa de título y control de calidad).
+3. **Panel de Soporte Técnico Multicriterio:** Búsqueda rápida de equipos por código de 15 dígitos, alias o correo electrónico de cualquiera de los usuarios enlazados (dueño, admin u operador).
+4. **Auditoría y Gestión de Miembros:** Capacidad para autorizar, revocar o reasignar roles de usuarios vinculados a una sonda, así como desvincular cuentas huérfanas.
+5. **Reseteo de Fábrica (Factory Reset):** Proceso seguro para limpiar completamente la membresía y mediciones privadas de un equipo vendido o transferido, conservando su hardware y número de serie intactos.
+6. **Gestión y Publicación de Firmware OTA:** Repositorio de binarios compilados de ESP32 para desplegar actualizaciones de firmware inalámbricas vía WiFi/OTA.
+7. **Corpus de Validación Metrológica:** Registro y contraste estadístico de muestras de campo contrastadas contra laboratorios químicos acreditados (evidencia empírica para la defensa de título y control de calidad).
 
 ---
 
-## 2. Módulos y Pestañas de la Consola
+## 2. Módulos y Enrutamiento de la Consola
+
+La aplicación utiliza **React Router DOM v7** con un layout unificado (`DashboardLayout.tsx`) que gestiona la sesión, la cabecera del usuario y el conmutador de tema.
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                       TERRASENSE · ADMIN CONSOLA WEB                        │
-├──────────────┬──────────────┬──────────────┬──────────────┬─────────────────┤
-│ 📊 MEDICIONES│ 🗺️ MAPA GIS  │ 📡 EQUIPOS   │ ⚡ FIRMWARE  │ 🔬 VALIDACIÓN   │
-│ Telemetría   │ Interpolación│ Salud Flota, │ Releases OTA │ Contraste Lab   │
-│ y Semáforo   │ IDW predial  │ Batería, IDs │ Binarios ESP │ vs Sonda Inox   │
-└──────────────┴──────────────┴──────────────┴──────────────┴─────────────────┘
+├──────────────┬──────────────────┬──────────────┬──────────────┬─────────────┤
+│ 📡 FLOTA     │ 🛡️ SOPORTE       │ 🗺️ MAPA GIS  │ ⚡ FIRMWARE  │ 🔬 LAB      │
+│ /devices     │ /admin           │ /gis         │ /firmware    │ /validation │
+│ Mis Equipos  │ Búsqueda global, │ Interpolación│ Releases OTA │ Contraste   │
+│ y Telemetría │ Ficha y Reset    │ IDW 7 capas  │ Binarios ESP │ vs Sonda    │
+└──────────────┴──────────────────┴──────────────┴──────────────┴─────────────┘
 ```
 
-| Pestaña | Propósito Operacional | Funcionalidad Clave |
-| :--- | :--- | :--- |
-| **📊 Mediciones** | Auditoría y soporte agronómico | Tabla global de mediciones sincronizadas, filtrable por predio, cultivo, fecha y semáforo. |
-| **🗺️ Mapa GIS** | Análisis geoespacial de variabilidad | Mapa de calor predial con interpolación IDW sobre 7 variables (pH, CE, VWC, Temp, N, P, K). |
-| **📡 Equipos (Flota)** | Gestión y salud del parque de sondas | Inventario de equipos, códigos de 15 dígitos, nivel de batería Li-Ion, firmware actual y última señal. |
-| **⚡ Firmware OTA** | Despliegue inalámbrico de software | Carga de binarios `.bin` de ESP32, versionado semántico y activación de releases OTA. |
-| **🔬 Validación Lab** | Respaldo metrológico y defensa | Comparación estadística de lecturas TerraSense vs Laboratorio Acreditado (cálculo de concordancia %). |
+### 2.1. Gestión de Flota (`/devices`)
+* Lista todos los dispositivos accesibles para la sesión autenticada.
+* Tarjetas de estado con alias, código formateado de 15 dígitos (`XXX-XXX-XXX-XXX-XXX`), versión de firmware y badge de conectividad en tiempo real (activo/inactivo, online si se conectó en la última hora).
+* Muestra el porcentaje y voltaje de la batería Li-Ion 18650 para detectar sondas con necesidad de recarga.
+
+### 2.2. Panel de Soporte Técnico (`/admin`)
+* **Acceso Restringido:** Protegido por la RPC `is_support_staff()`. Si el usuario no pertenece a la tabla `admin_support_users` activa, la base de datos rechaza la llamada con error Postgres `42501`.
+* **Buscador Multicriterio:** Invoca el RPC `admin_search(p_query)`. Permite buscar ingresando:
+  - Código numérico de 15 dígitos (con o sin espacios/guiones).
+  - Nombre o alias asignado a la sonda.
+  - Correo electrónico de cualquier usuario vinculado (dueño, administrador u operador).
+* **Resultados en Tiempo Real:** Renderiza tarjetas interactivas con badges de rol, motivo de coincidencia (`member_email`, `device_code`, `alias`), estado de conectividad e ingreso directo a la ficha del equipo.
+* Incluye botón de limpieza rápida (`X`) y diseño en panel de vidrio (*glass-panel*).
+
+### 2.3. Ficha Detallada de Sonda (`/admin/devices/:id`)
+Página de diagnóstico exhaustivo que reúne toda la información técnica mediante la RPC `admin_get_device_detail(p_device_id)`:
+1. **Metadatos de Hardware:** Código de vinculación, versión de firmware actual vs. catálogo publicado, versión de hardware, fecha de registro y última señal.
+2. **Gestión de Membresías y Roles:**
+   - Visualiza todos los usuarios vinculados con sus correos y roles (`owner`, `admin`, `operator`).
+   - Selector en línea para cambiar rol (`setMemberRole`). Al promover a un nuevo `owner`, el dueño anterior pasa automáticamente a `admin`.
+   - Toggle para autorizar o suspender acceso sin romper el vínculo (`setMemberAuthorized`).
+   - Desvinculación definitiva de miembros individuales (`removeMember`).
+3. **Telemetría de Batería:**
+   - Historial de hasta 100 lecturas recientes de voltaje, porcentaje y estado de carga.
+   - Filtros por rango de fecha (`Desde` / `Hasta`) para analizar curvas de descarga.
+4. **Registro de Mediciones Agronómicas:**
+   - Últimas 50 lecturas sincronizadas en terreno (humedad, temperatura, conductividad eléctrica, pH, nitrógeno, fósforo, potasio).
+   - Acceso a coordenadas GPS para verificar en qué potrero se utilizó.
+
+### 2.4. Reseteo de Fábrica Seguro (`FactoryResetModal`)
+* Ubicado en la ficha de soporte de la sonda para casos donde el agricultor vendió el equipo o transfirió la propiedad.
+* **Confirmación Estricta:** Exige escribir de manera manual y exacta el código de 15 dígitos del equipo antes de habilitar el botón de reseteo.
+* **Ejecución Atómica (`admin_factory_reset_device`):**
+  - Desvincula a **todos** los usuarios enlazados (dueño, administradores, operadores).
+  - Elimina el historial privado de mediciones, cuadrantes y alertas del usuario anterior.
+  - **Conserva el hardware intacto:** el `device_code`, `firmware_version` y `hardware_version` no se borran, permitiendo que un nuevo agricultor lo vincule inmediatamente como primer dueño.
+
+### 2.5. Gestión y Publicación de Firmware OTA
+* Repositorio de binarios compilados `.bin` para ESP32 con versionado semántico (`v1.2.0`, `v1.3.1`, etc.).
+* Marcado de actualizaciones críticas/obligatorias (`is_mandatory`).
+* Disparo de notificaciones push a través de la cola `push_alerts` para avisar a la app móvil de los equipos afectados que existe una nueva versión disponible para flashear vía OTA.
+
+### 2.6. Visor Geoespacial IDW
+* Renderizado de mapas de variabilidad predial sobre un elemento `<canvas>` HTML5 de alto rendimiento.
+* Interpolación espacial por Distancia Inversa Ponderada (IDW, exponente $p = 2$) sobre las 7 variables del sensor (pH, CE, VWC, Temperatura, N, P, K).
+* Independiente de servidores cartográficos comerciales: opera localmente en el navegador.
+
+### 2.7. Corpus de Validación Metrológica
+* Módulo de respaldo científico y metrológico para la defensa de título y control de calidad.
+* Permite cargar resultados certificados de laboratorio químico de suelos (ej. INIA / laboratorios acreditados) y contrastarlos contra las lecturas tomadas por las sondas TerraSense en el mismo lote y fecha.
+* Calcula automáticamente el porcentaje de concordancia ($R^2$ / error relativo %) para pH, CE y macronutrientes.
 
 ---
 
-## 2.1. Panel de Soporte (`/admin`) — interno, no para agricultores
+## 3. Sistema de Diseño y Modo Claro/Oscuro
 
-Consola aparte dentro de la misma app, sólo visible para cuentas en `admin_support_users`
-(tabla gateada por `is_support_staff()`, ver `Web/backend/`). Busca un equipo por código,
-alias o correo de un usuario enlazado, y desde ahí administra sus miembros, ve su historial
-de batería/mediciones y dispara el reseteo de fábrica. Detalle completo de las funciones RPC
-en `supabase/README.md` §2.1.
+La consola implementa una estética de alta gama con soporte completo para **Modo Oscuro y Modo Claro**:
 
-**Para probar el buscador** hay un equipo y un usuario de prueba sembrados directo en el
-proyecto Supabase (no vienen de una migración versionada — se insertaron a mano contra el
-remoto compartido, así que están disponibles para cualquiera que tenga acceso al panel):
-
-| Campo | Valor |
-| :--- | :--- |
-| Código de equipo | `465719423880094` |
-| Correo del usuario enlazado (owner) | `demo.agricultor@terrasense.cl` |
-
-Busca cualquiera de los dos en `/admin` — ambos deben devolver el mismo equipo
-("🧪 Sonda DEMO"), con ~4 lecturas de batería simuladas y una medición de ejemplo para
-probar también la ficha de detalle. Es data desechable: bórrala cuando ya no la necesites
-(pide que se quite en cascada — equipo, membresía, mediciones, histórico y el usuario).
+* **Tokens de Color Semánticos:** Definidos en `Web/src/index.css` mediante la directiva `@theme` de Tailwind CSS v4.
+  - `bg-terra-bg` / `bg-terra-surface`: Fondos oscuros profundos (`#070B0E` / `#0E171E`) o fondos claros limpios (`#F3F5F4` / `#FFFFFF`).
+  - `text-terra-text` / `text-terra-muted`: Contraste tipográfico optimizado en ambos modos.
+  - `border-terra-border`: Delimitación sutil y elegante de componentes.
+  - `text-terra-primary`: Verde esmeralda agronómico de alto impacto (`#10B981` / `#059669`).
+  - `verdict-green`, `verdict-amber`, `verdict-red`: Colores de estado técnico y agronómico.
+* **Componente `ThemeToggle`:** Permite alternar el tema instantáneamente con animación suave.
+* **Persistencia:** Guarda la preferencia en `localStorage` bajo la clave `terra-theme` y aplica el atributo `data-theme="light"` o `data-theme="dark"` en el elemento raíz `<html>`.
+* **Efecto Glassmorphism:** Clase utilitaria `.glass-panel` configurada con `backdrop-blur-md` y bordes adaptativos que garantizan legibilidad bajo sol brillante o en sala de control oscura.
 
 ---
 
-## 3. Estructura de carpetas
+## 4. Estructura de carpetas
 
 ```text
 Web/
-├── index.html                  Punto de entrada HTML5
-├── vite.config.ts              Vite 6 + React 19 + Tailwind 4
-├── vercel.json                 Configuración de despliegue SPA
-├── src/
-│   ├── main.tsx                Punto de montaje de React
-│   ├── App.tsx                 Enrutador de sesión: Login vs Dashboard
-│   ├── index.css               Design System (Tokens Tailwind 4 @theme)
-│   ├── types.ts                Tipos TypeScript alineados con el esquema Supabase
-│   ├── services/supabase.ts    Cliente de conexión Supabase
-│   ├── utils/verdict.ts        Utilidades de semáforo, formateo de IDs y concordancia
-│   └── components/
-│       ├── LoginScreen.tsx     Acceso administrativo seguro
-│       ├── Dashboard.tsx       Contenedor principal con navegación por pestañas
-│       ├── GisHeatmap.tsx      Renderizador de mapas de calor por IDW en Canvas
-│       └── FirmwareView.tsx    Módulo de administración y subida de binarios OTA
-└── package.json
+├── index.html                      # Documento HTML5 raíz con fuentes Inter / Outfit
+├── vite.config.ts                  # Configuración de Vite 6 + React 19 + Tailwind CSS v4
+├── vercel.json                     # Configuración de rewrite SPA para Vercel
+├── package.json                    # Dependencias y scripts de construcción
+├── backend/                        # Capa de integración RPC para administración
+│   ├── adminApi.ts                 # Funciones tipadas para soporte, miembros, firmware y reset
+│   ├── database.types.ts           # Definiciones de tipos generadas desde PostgreSQL
+│   ├── supabaseAdmin.ts            # Cliente Supabase tipado para el backoffice
+│   └── types.ts                    # Interfaces de datos para respuestas y entidades de soporte
+└── src/
+    ├── main.tsx                    # Montaje de React con ThemeProvider y BrowserRouter
+    ├── App.tsx                     # Enrutador principal de sesión (Auth, Reset, Rutas)
+    ├── index.css                   # Tokens de diseño Tailwind 4 (@theme) y estilos glassmorphism
+    ├── types.ts                    # Tipos de entidades frontend (mediciones, flota, telemetría)
+    ├── contexts/
+    │   └── ThemeContext.tsx        # Contexto de React para cambio de tema Claro/Oscuro
+    ├── layouts/
+    │   └── DashboardLayout.tsx     # Shell principal con barra superior, navegación y tema
+    ├── pages/
+    │   ├── DevicesPage.tsx         # /devices - Vista de flota y salud de sondas
+    │   ├── SupportPanelPage.tsx    # /admin - Buscador global y panel de soporte técnico
+    │   ├── SupportDeviceDetailPage.tsx # /admin/devices/:id - Ficha, telemetría y membresías
+    │   ├── DashboardHome.tsx       # Resumen general y métricas operativas
+    │   ├── GisMapPage.tsx          # Visor geoespacial con selector de capas
+    │   └── ValidationPage.tsx      # Módulo de contraste metrológico contra laboratorio
+    ├── components/
+    │   ├── AuthScreen.tsx          # Pantalla de inicio de sesión administrativo
+    │   ├── ResetPasswordScreen.tsx # Formulario de nueva contraseña (recuperación)
+    │   ├── ThemeToggle.tsx         # Conmutador animado Sol / Luna
+    │   ├── Dashboard.tsx           # Contenedor de módulos tradicionales
+    │   ├── GisHeatmap.tsx          # Motor de interpolación espacial IDW en Canvas
+    │   ├── FirmwareView.tsx        # Subida y catálogo de binarios OTA
+    │   └── admin/
+    │       └── FactoryResetModal.tsx # Modal de confirmación crítica de reseteo de fábrica
+    ├── services/
+    │   └── supabase.ts             # Cliente de Supabase del frontend
+    └── utils/
+        └── verdict.ts              # Formateo de códigos de 15 dígitos, fechas y semáforos
 ```
 
 ---
 
-## 4. El Visor GIS: por qué IDW y no Kriging
+## 5. Capa Backend y Funciones RPC
+
+Toda la lógica de soporte y administración sensible se ejecuta en la base de datos PostgreSQL mediante **Remote Procedure Calls (RPCs)** definidas en `supabase/migrations/20260902120000_panel_soporte_backend.sql`. El frontend web las consume a través de `Web/backend/adminApi.ts`:
+
+| Función en `adminApi.ts` | RPC en Postgres | Parámetros Clave | Qué hace |
+| :--- | :--- | :--- | :--- |
+| `isSupportStaff()` | `is_support_staff` | — | Comprueba si el usuario autenticado tiene rol de soporte activo. |
+| `searchDevices()` | `admin_search` | `p_query: text` | Búsqueda multicriterio (código 15 dígitos, alias, email de miembro). |
+| `getDeviceDetail()` | `admin_get_device_detail` | `p_device_id: uuid` | Obtiene equipo, firmware, última señal, miembros, 100 baterías y 50 mediciones. |
+| `setMemberAuthorized()`| `admin_set_member_authorized` | `p_device_id`, `p_user_id`, `p_authorized` | Activa o suspende el acceso de un usuario al equipo. |
+| `setMemberRole()` | `admin_set_member_role` | `p_device_id`, `p_user_id`, `p_role` | Cambia el rol (`owner`, `admin`, `operator`). Traspasa la propiedad automáticamente si es `owner`. |
+| `removeMember()` | `admin_unbind_user_device`| `p_device_id`, `p_user_id` | Desvincula totalmente a un usuario del equipo. |
+| `factoryResetDevice()` | `admin_factory_reset_device`| `p_device_id`, `p_confirm_device_code` | Borra membresías y mediciones privadas; exige código de 15 dígitos. |
+| `pushFirmwareUpdate()` | `admin_push_firmware_update`| `p_device_id`, `p_firmware_release_id` | Genera alerta push para avisar a la sonda de una actualización OTA. |
+
+---
+
+## 6. El Visor GIS: por qué IDW y no Kriging
 
 En la consola web, el mapa predial de calor utiliza el algoritmo **IDW (Inverse Distance Weighting)** con exponente $p = 2$:
 
@@ -125,15 +213,16 @@ $$\hat{z}(x) = \frac{\sum_{i=1}^n \frac{z_i}{d_i^p}}{\sum_{i=1}^n \frac{1}{d_i^p
 
 ---
 
-## 5. Seguridad y Aislamiento (Postgres RLS)
+## 7. Seguridad y Aislamiento (Postgres RLS)
 
 La seguridad de la consola reside íntegramente en la base de datos PostgreSQL mediante **Row Level Security (RLS)**:
-* La aplicación cliente no filtra datos por software: las políticas de base de datos (`has_device_access`) determinan exactamente qué filas puede leer o modificar el usuario autenticado.
+* La aplicación cliente no filtra datos por software: las políticas de base de datos determinan exactamente qué filas puede leer o modificar el usuario autenticado.
+* Para el panel de soporte, cada RPC valida explícitamente `is_support_staff()`; ningún usuario común puede invocar estas funciones.
 * **Nunca exponer la clave `service_role`** en el frontend: la aplicación web opera exclusivamente con `VITE_SUPABASE_ANON_KEY`.
 
 ---
 
-## 6. Variables de entorno
+## 8. Variables de entorno
 
 Crear el archivo `Web/.env` basándose en `Web/.env.example`:
 
@@ -144,9 +233,12 @@ VITE_SUPABASE_ANON_KEY=tu_clave_anonima_publica
 
 ---
 
-## 7. Comandos de desarrollo
+## 9. Comandos de desarrollo
 
 ```bash
+# Entrar al directorio
+cd Web
+
 # Instalación de dependencias
 npm install
 
@@ -156,139 +248,43 @@ npm run dev
 # Verificación estricta de tipos TypeScript
 npm run type-check
 
-# Compilación de producción optimizada
+# Compilación de producción optimizada (genera dist/)
 npm run build
 
-# Vista previa local del build de producción
+# Vista previa local del build compilado
 npm run preview
 ```
 
 ---
 
-## 8. Despliegue en Vercel
+## 10. Despliegue en Vercel
 
 > [!IMPORTANT]
-> **Estado real — desplegada y verificada.**
-> **URL de producción: https://terrasense-web.vercel.app**
-> Proyecto Vercel: `akura3/terrasense-web` (vinculado desde `Web/` como raíz, usando `Web/vercel.json`).
-> Variables de entorno `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` ya configuradas en producción.
-> El dominio es el gratuito `*.vercel.app`; no se ha comprado un dominio propio. Si se agrega uno,
-> hay que sumarlo también a `additional_redirect_urls` en `supabase/config.toml` y volver a
-> `supabase config push` (ver sección 10).
+> **Estado en Producción:**
+> * **URL Activa:** **https://terrasense-web.vercel.app**
+> * **Proyecto Vercel:** `akura3/terrasense-web`
+> * **Configuración SPA:** `Web/vercel.json` gestiona el reenvío de todas las rutas a `index.html` para permitir navegación directa a `/devices` o `/admin`.
 
-La consola está configurada para despliegue continuo en Vercel mediante `vercel.json`. Para desplegar desde cero en otra cuenta, o para redeploy manual:
+Para desplegar actualizaciones o configurar una nueva instancia:
 
 ```bash
 cd Web
-
-# Iniciar sesión en Vercel CLI (una vez)
-vercel login
-
-# Vincular el proyecto (usa Web/vercel.json como configuración del proyecto)
-vercel link --yes --project terrasense-web
-
-# Configurar variables de entorno en producción (una vez)
-vercel env add VITE_SUPABASE_URL production
-vercel env add VITE_SUPABASE_ANON_KEY production
 
 # Desplegar a producción
 vercel --prod --yes
 ```
 
-Cada `vercel --prod` desde `Web/` construye con `npm install && npm run build` y publica el contenido de `dist/` — no depende de que exista un `vercel.json` en la raíz del repositorio ni de configurar un *Root Directory* en el panel de Vercel, porque se despliega directamente desde la subcarpeta.
-
 ---
 
-## 9. 🛠️ Manual de Instalación y Puesta en Marcha
+## 11. Correos transaccionales y recuperación de acceso
 
-### 9.1. Requisitos de Entorno
-* **Node.js:** Versión 20 o 22 LTS
-* **npm:** Versión 10+
-* **Git:** Versión 2.40+
+El proyecto cuenta con un servidor SMTP propio de Gmail configurado en Supabase (`[auth.email.smtp]`) y plantillas HTML personalizadas con la identidad gráfica de TerraSense:
 
-### 9.2. Instalación Paso a Paso
+| Correo | Cuándo se dispara | Plantilla | Estado |
+| :--- | :--- | :--- | :---: |
+| **Recuperación de contraseña** | «Olvidé mi contraseña» en `AuthScreen.tsx` | `supabase/templates/recovery.html` | 🟢 En producción |
+| **Confirmación de registro** | Alta de un nuevo usuario administrador | `supabase/templates/confirmation.html` | 🟢 En producción |
+| **Aviso de cambio de clave** | Tras actualizar contraseña en `ResetPasswordScreen.tsx` | `supabase/templates/password_changed.html` | 🟢 En producción |
 
-```bash
-# 1. Clonar el repositorio
-git clone https://github.com/Alvarinhoooo7/TerraSence.git
-
-# 2. Entrar a la carpeta web
-cd TerraSence/Web
-
-# 3. Instalar paquetes
-npm install
-
-# 4. Crear archivo de variables de entorno
-cp .env.example .env
-
-# 5. Iniciar servidor de desarrollo
-npm run dev
-```
-
-### 9.3. Verificación de Compilación Correcta
-
-```bash
-npm run type-check   # Debe retornar 0 errores
-npm run build        # Debe generar la carpeta dist/ sin advertencias
-```
-
----
-
-## 10. Correos transaccionales: recuperación, confirmación y aviso de cambio
-
-> [!IMPORTANT]
-> **Estado real — activo en producción desde el 30 de agosto de 2026.** Los tres correos usan SMTP propio de Gmail y las tres plantillas con marca TerraSense ya están en el proyecto Supabase remoto. No queda ninguna acción manual pendiente en este punto.
-
-| Correo | Cuándo se dispara | Plantilla propia | Estado |
-| :--- | :--- | :---: | :---: |
-| **Recuperar contraseña** | El usuario pulsa «Olvidé mi contraseña» en `LoginScreen.tsx` | `supabase/templates/recovery.html` | 🟢 Activo, con plantilla y remitente propios |
-| **Confirmar registro** | Se crea una cuenta nueva (alta de un administrador/operador) | `supabase/templates/confirmation.html` | 🟢 Activo (`enable_confirmations = true`), con plantilla propia |
-| **Aviso de contraseña cambiada** | Justo después de que `ResetPasswordScreen.tsx` llama a `updateUser({ password })` | `supabase/templates/password_changed.html` | 🟢 Activo (`[auth.email.notification.password_changed]`, notificación nativa de Supabase Auth — no requiere ninguna llamada extra desde el código) |
-
-### 10.1. Qué se hizo, en orden
-
-1. **Se corrigió un bug real de flujo**, no solo de correo: el enlace de recuperación dejaba al usuario directo en el Dashboard sin ninguna pantalla para escribir la contraseña nueva. `App.tsx` ahora detecta el evento `PASSWORD_RECOVERY` de Supabase y muestra `ResetPasswordScreen.tsx` antes de dejar entrar a la consola.
-2. `resetPasswordForEmail` en `LoginScreen.tsx` ahora envía `redirectTo: window.location.origin`, y `site_url` / `additional_redirect_urls` en `supabase/config.toml` apuntan a `https://terrasense-web.vercel.app` (además de `localhost` para desarrollo).
-3. Se habilitó `enable_confirmations = true` para que el alta de una cuenta exija confirmar el correo.
-4. Se configuró SMTP propio con una cuenta de Gmail (`smtp.gmail.com:587`, con contraseña de aplicación) en `[auth.email.smtp]` — esto es lo que permite usar plantillas personalizadas en el plan gratuito de Supabase, que las rechaza si se depende del proveedor de correo por defecto.
-5. Se activaron las tres plantillas propias: `[auth.email.template.recovery]`, `[auth.email.template.confirmation]` y `[auth.email.notification.password_changed]` (esta última, nueva: se creó `supabase/templates/password_changed.html`, con el mismo estilo visual que las otras dos).
-6. Todo lo anterior está aplicado en el proyecto Supabase remoto (`supabase config push`), verificado con `supabase config push` mostrando *"Remote Auth config is up to date"*.
-
-### 10.2. Detalle técnico que vale la pena dejar anotado: rutas de `content_path`
-
-> [!WARNING]
-> El CLI de Supabase resuelve `content_path` **de forma distinta según la sección**, algo no documentado y que costó varios intentos fallidos (`open supabase\supabase\templates\...`, `open templates\...: no encontrado`) hasta dar con el patrón correcto, corriendo siempre `supabase config push` desde la raíz del repo:
->
-> | Sección | Base de resolución | Ejemplo correcto |
-> | :--- | :--- | :--- |
-> | `[auth.email.template.*]` | Raíz del repositorio | `content_path = "./supabase/templates/recovery.html"` |
-> | `[auth.email.notification.*]` | Carpeta `supabase/` (donde vive `config.toml`) | `content_path = "./templates/password_changed.html"` |
->
-> Si en el futuro se agrega una cuarta plantilla y `supabase config push` falla con `"the system cannot find the path specified"`, es casi seguro este mismo problema — probar el patrón de la sección equivalente en la tabla de arriba antes de sospechar de otra cosa.
-
-### 10.3. Único límite operativo a tener presente
-
-Gmail limita el envío por SMTP a **500 correos/día** por cuenta — muy por encima de cualquier volumen realista de esta consola (uso administrativo, no masivo de agricultores), pero conviene declararlo. Si el volumen de correos de confirmación crece de forma relevante (por ejemplo, si la app móvil empieza a registrar agricultores en masa contra el mismo proyecto Supabase), la recomendación que ya dejaba `MIGRACION_AKURA.md` (sección A5) sigue siendo migrar a un proveedor transaccional dedicado (Resend o SendGrid, ambos con plan gratuito) — la migración es solo cambiar el bloque `[auth.email.smtp]`, las plantillas no cambian.
-
-> [!NOTE]
-> Gmail limita el envío por SMTP a **500 correos/día** por cuenta — muy por encima de cualquier volumen realista de administradores de esta consola, pero conviene declararlo. Si el proyecto crece a nivel de agricultores usando la app con confirmación de correo masiva, la recomendación del propio proyecto (ver `MIGRACION_AKURA.md`, sección A5) sigue siendo migrar a un proveedor transaccional dedicado (Resend o SendGrid, ambos con plan gratuito).
-
----
-
-## 11. Recuperación de acceso en la App móvil (completada)
-
-> [!NOTE]
-> **Estado actual:** la app ya implementa el flujo completo descrito originalmente en esta sección.
-
-La app móvil (`App/src/screens/AuthScreen.tsx`) ya invoca `supabase.auth.resetPasswordForEmail(...)` para la recuperación de contraseña (ver `App/README.md`), y comparte exactamente el mismo backend de Auth que esta consola — por lo tanto, **con el SMTP de Gmail y las tres plantillas ya activas (sección 10), un agricultor que pida recuperar su contraseña desde la app ya recibe hoy el correo con la marca TerraSense**, sin ningún cambio de código adicional: la plantilla vive en Supabase, no en el cliente.
-
-La app registra `terrasense://reset-password`, solicita ese `redirectTo`, crea la sesión desde los
-tokens del enlace y muestra `ResetPasswordScreen.tsx` antes de volver al contenido autenticado.
-
-- **Problema esperado:** un enlace de recuperación de contraseña en un correo, en el contexto de una app móvil, no puede simplemente abrir `window.location.origin` — Supabase necesita un **deep link** de la app (esquema `terrasense://reset-password` o un *Universal Link*/*App Link*) configurado como `redirectTo` y dado de alta en `additional_redirect_urls`.
-- **Implementación terminada:**
-  1. Registrar un esquema de deep link en `App/app.config.js` (Expo ya soporta esto vía `scheme`).
-  2. Pasar `redirectTo: 'terrasense://reset-password'` (o el esquema elegido) en la llamada a `resetPasswordForEmail` de `AuthScreen.tsx`.
-  3. Sumar ese esquema a `additional_redirect_urls` en `supabase/config.toml` y hacer `supabase config push`.
-  4. Crear una pantalla `ResetPasswordScreen.tsx` en `App/src/screens/`, equivalente a la de esta consola, que capture el evento `PASSWORD_RECOVERY` (Supabase JS emite el mismo evento en React Native) y muestre un formulario de contraseña nueva antes de dejar entrar al Dashboard de la app.
-- **Lo que NO hay que rehacer:** el correo de confirmación de registro y el aviso de "contraseña cambiada" no requieren ningún trabajo adicional en la app — son responsabilidad exclusiva del backend de Auth y llegan igual de personalizados en cuanto el SMTP esté activo.
+* **Flujo Web:** Supabase envía el correo de recuperación con `redirectTo` a `https://terrasense-web.vercel.app`. Al pulsar el enlace, `App.tsx` detecta el evento `PASSWORD_RECOVERY` y presenta la pantalla interactiva `ResetPasswordScreen.tsx` para definir la nueva contraseña.
+* **Flujo Móvil:** La app móvil comparte exactamente la misma infraestructura SMTP y despacha el correo solicitando el deep link `terrasense://reset-password`.

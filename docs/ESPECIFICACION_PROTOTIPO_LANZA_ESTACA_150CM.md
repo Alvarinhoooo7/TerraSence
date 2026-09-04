@@ -203,7 +203,7 @@ sequenceDiagram
 
 | Componente / Subsistema | Especificación Técnica | Costo (CLP) | Costo (USD) |
 | :--- | :--- | :---: | :---: |
-| **Sonda Suelo 7-en-1 Modbus** | Sonda RS-485 Inox 316L (VWC, T, EC, pH, N, P, K) | $16.500 | $17.20 |
+| **Sonda Suelo 7-en-1 Modbus** | Sonda RS-485 Inox 316L (VWC, T, EC, pH, N, P, K) | $48.000 | $52.45 |
 | **Tubo Estructural Aluminio 6061-T6** | Tubo 1.2 m, Ø ext 28mm, espesor 1.8mm anodizado | $5.500 | $5.70 |
 | **Empuñadura T & Cono Inferior PETG** | Piezas 3D/Inyección alta resistencia + insertos M3/M4 | $5.200 | $5.40 |
 | **Microcontrolador ESP32-WROOM-32** | SoC Dual-Core, BLE 5.0 + WiFi | $2.900 | $3.00 |
@@ -212,10 +212,10 @@ sequenceDiagram
 | **Baterías 2× 18650 & Módulo BMS** | 6.000 mAh Li-Ion + TP5100 carga 2A USB-C | $9.100 | $9.50 |
 | **Pedalín / Estribo de penetración** | Pieza abatible aluminio/acero con traba | $3.200 | $3.35 |
 | **Cable industrial apantallado + Conectores** | Cable 4×26 AWG siliconado con malla + sellos IP67 | $1.800 | $1.90 |
-| **TOTAL COSTO INDUSTRIAL FABRICACIÓN (BOM)** | | **$48.500 CLP** | **$50.50 USD** |
+| **TOTAL COSTO INDUSTRIAL FABRICACIÓN (BOM)** | | **$80.000 CLP** | **$87.40 USD** |
 
-* **PVP Recomendado de Venta:** **$199.990 CLP** ($\approx \$208\text{ USD}$).
-* **Margen Bruto de Contribución:** **$151.490 CLP (75.7%)**.
+* **PVP Recomendado de Venta:** **$249.990 CLP** ($\approx \$273\text{ USD}$).
+* **Margen Bruto de Contribución:** **$169.990 CLP (68.0%)**.
 
 ---
 

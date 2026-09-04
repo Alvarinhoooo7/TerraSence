@@ -285,7 +285,7 @@ flowchart TD
 ## 5. Conclusiones del Análisis de Alternativas
 
 1. **La Parálisis por Análisis es el Rival Real:** Ninguno de los instrumentos de medición física comerciales (< $400 USD) interpreta los datos para el agricultor. TerraSense no compite en "mostrar números más bonitos", sino en **automatizar el juicio agronómico**.
-2. **Eficiencia Arquitectónica:** Al desacoplar la pantalla y el módem (aprovechando el smartphone que el agricultor ya posee), TerraSense reduce el costo del hardware a **$42.000 CLP (BOM)**, entregando capacidades superiores a sistemas científicos de $2.000 USD.
+2. **Eficiencia Arquitectónica:** Al desacoplar la pantalla y el módem (aprovechando el smartphone que el agricultor ya posee), TerraSense reduce el costo del hardware a **$70.656 CLP (BOM)**, entregando capacidades superiores a sistemas científicos de $2.000 USD.
 3. **Complementariedad con el Laboratorio:** TerraSense no pretende eliminar el laboratorio químico acreditado (necesario cada 3 años para micronutrientes y metales pesados), sino proveer la herramienta de **decisión operativa diaria** a costo cero.
 
 ---
