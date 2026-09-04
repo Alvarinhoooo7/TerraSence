@@ -229,3 +229,21 @@ El proyecto utiliza un servidor SMTP propio de Gmail en Supabase (`[auth.email.s
 | **Recuperación de contraseña** | «Olvidé mi contraseña» en `AuthScreen.tsx` | `supabase/templates/recovery.html` | 🟢 En producción |
 | **Confirmación de registro** | Alta de un nuevo usuario administrador | `supabase/templates/confirmation.html` | 🟢 En producción |
 | **Aviso de cambio de clave** | Tras actualizar contraseña en `ResetPasswordScreen.tsx` | `supabase/templates/password_changed.html` | 🟢 En producción |
+
+---
+
+## 11. Estado de Implementación y Roadmap Futuro del Backoffice
+
+### 11.1. Módulos Operativos al 100 % en Producción
+* ✅ **Panel de Soporte Técnico (`/admin`):** Buscador multi-criterio en tiempo real (por ID de hardware de 15 dígitos, alias o correo del usuario) con listado dinámico de flota.
+* ✅ **Ficha Técnica y Diagnóstico Individual (`/admin/devices/:id`):** Visualización de curvas de batería Li-Ion 18650, versión de firmware activa, tabla de miembros vinculados y últimas mediciones edafológicas reportadas.
+* ✅ **Gobernanza de Membresías:** Reasignación de roles (`owner`, `admin`, `operator`) y revocación de permisos de acceso.
+* ✅ **Factory Reset Remoto Seguro:** Desvinculación atómica de miembros y purga de mediciones privadas ante reventa o traspaso entre agricultores.
+* ✅ **Gestor de Firmware OTA Masivo (`/firmware`):** Catálogo centralizado con subida de binarios `.bin`, cálculo SHA-256, marcado de versiones obligatorias y despliegue global a toda la flota.
+* ✅ **Despliegue Continuo Vercel:** Integración SPA activa en `https://terrasense-web.vercel.app`.
+
+### 11.2. Roadmap y Funcionalidades Pendientes por Implementar
+* ⏳ **Exportación Forense de Telemetría (CSV / Excel):** Botón de descarga de registros históricos de lecturas por sonda para peritajes agronómicos y soporte técnico avanzado.
+* ⏳ **Sistema de Tickets de Soporte Integrado:** Bandeja interna de solicitudes de asistencia vinculadas al correo del agricultor y al ID de la sonda para trazabilidad de fallas de hardware.
+* ⏳ **Monitor de Salud Preventiva de Flota:** Disparador automático de alertas cuando una sonda reporte voltajes inferiores a 3.4V o fallas repetidas de CRC en el bus RS-485.
+* ⏳ **Despliegue OTA Escalonado (Canary Releases):** Capacidad de programar actualizaciones graduales de firmware (10 % $\rightarrow$ 50 % $\rightarrow$ 100 % de las sondas activas) para mitigar riesgos en campo antes de un lanzamiento general.
