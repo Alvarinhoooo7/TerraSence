@@ -74,23 +74,23 @@ El agricultor es dueño irrevocable de su equipo físico y de su información ge
 │                                                                             │
 │   ┌─────────────────────────────────────────────────────────────────────┐   │
 │   │                      SISTEMA DE ALIMENTACIÓN                        │   │
-│   │  2x Celdas Li-Ion 18650 (3.7V / 6.000 mAh en Paralelo)              │   │
-│   │  Módulo TP5100 (BMS Integrado + Carga Rápida USB-C @ 2A)            │   │
-│   │  Interruptor Rocker Switch Físico de Aislamiento Total              │   │
+│   │  Batería LiPo Convencional (3.7V / 2.000 mAh)                       │   │
+│   │  Módulo Combo TP4056 + Step-Up 5V (BMS + Carga USB-C @ 1A)          │   │
+│   │  Interruptor Físico de Aislamiento Total                            │   │
 │   └──────────────────────────────────┬──────────────────────────────────┘   │
-│                                      │ Bus 3.7V - 4.2V                      │
+│                                      │ Bus 5.0V Regulado                    │
 │                                      ▼                                       │
 │   ┌─────────────────────────────────────────────────────────────────────┐   │
 │   │                 ETAPA DE CONTROL DE POTENCIA                        │   │
-│   │  MOSFET Power Gating (GPIO 4 ESP32) ──► Corte a 0.0 µA en reposo    │   │
-│   │  Elevador Boost Step-Up MT3608 (3.7V ──► 12V DC Regulado)           │   │
+│   │  P-MOSFET Power Gating (GPIO 5 ESP32) ──► Corte a 0.0 µA en reposo  │   │
+│   │  Línea de 5.0V Conmutada directa a Sonda (Rango DC 4.5V–30V)        │   │
 │   └──────────────────────────────────┬──────────────────────────────────┘   │
-│                                      │ Línea 12V DC Conmutada               │
+│                                      │ Línea 5V DC Conmutada                │
 │                                      ▼                                       │
 │   ┌─────────────────────────────────────────────────────────────────────┐   │
 │   │                 SISTEMA DE SENSADO DUAL                             │   │
 │   │  1. Sonda Suelo 7-en-1 (Inox 316L): VWC, Temp, EC, pH, N, P, K      │   │
-│   │     Transceptor RS-485 MAX485 (Half-Duplex @ 115.200 bps)           │   │
+│   │     Transceptor RS-485 SP3485 (Half-Duplex @ 9.600 bps)             │   │
 │   │  2. Sensor Ambiental I2C Bosch BME280: T° Aire, HR %, Presión Bar.  │   │
 │   └──────────────────────────────────┬──────────────────────────────────┘   │
 │                                      │ UART2 (GPIO 16/17) + I2C (GPIO 21/22)│
@@ -100,7 +100,7 @@ El agricultor es dueño irrevocable de su equipo físico y de su información ge
 │   │  ESP32-WROOM-32 (Xtensa Dual-Core 32-bit @ 160/240 MHz)             │   │
 │   │  Radio BLE 5.0 (Potencia TX: +9 dBm, Antena PCB Integrada)          │   │
 │   │  Memoria Flash 4 MB (Partición NVS para Bonding y Calibración)      │   │
-│   │  3 LEDs SMD (GPIO 25/26/27) + Pulsador Táctil de Pairing (GPIO 0)   │   │
+│   │  Micro-LEDs SMD + Pulsador Táctil de Muestreo (GPIO 0)              │   │
 │   └─────────────────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -112,21 +112,22 @@ El agricultor es dueño irrevocable de su equipo físico y de su información ge
 
 ### 2.2. Subsistema de Sensado Dual (Suelo 7-en-1 + Ambiente I2C)
 * **Sonda Edafológica 7-en-1:**
-  * Electrodo: 3 varillas de acero inoxidable quirúrgico 316L (resistente a cloruros y ácidos).
+  * Electrodo: Varillas de acero inoxidable quirúrgico 316L (resistente a cloruros y ácidos).
   * Comunicación: Interfaz diferencial industrial RS-485 bajo protocolo Modbus RTU.
+  * Tensión de Operación: **5,0V DC** (rango admisible de sonda 4.5V–30V).
   * Variables Sensadas: Humedad Volumétrica (VWC %), Temperatura del Suelo (°C), Conductividad Eléctrica (EC en $\mu\text{S/cm}$), pH del Suelo, Nitrógeno (N en $\text{mg/kg}$), Fósforo (P en $\text{mg/kg}$) y Potasio (K en $\text{mg/kg}$).
 * **Sensor Agroclimático I2C (Bosch BME280):**
   * Montado en cámara de ventilación con membrana hidrofóbica ePTFE.
   * Variables Sensadas: Temperatura del Aire (°C), Humedad Relativa Ambiental (% HR) y Presión Barométrica (hPa) para el cálculo dinámico del Déficit de Presión de Vapor (VPD).
 
 ### 2.3. Subsistema de Potencia y Eficiencia Energética (Power Gating)
-* **Batería:** 2 celdas de Ion-Litio 18650 conectadas en paralelo ($3.7\text{V nominal} / 6.000\text{ mAh} / 22.2\text{ Wh}$).
-* **Cargador Inteligente:** CI TP5100 con perfil de carga CC/CV a $2.0\text{ A}$ vía puerto USB-C con protección contra sobretensión, subtensión y cortocircuito.
-* **Power Gating:** Transistor MOSFET canal P controlado por el ESP32 que desenergiza por completo la sonda 7-en-1, el transceptor MAX485 y el convertidor Boost 12V en estado de reposo, logrando un consumo residual de **$0.0\,\mu\text{A}$** en la etapa de potencia.
+* **Batería:** Batería convencional de polímero de litio (LiPo) de celda única ($3.7\text{V nominal} / 2.000\text{ mAh} / 7.4\text{ Wh}$).
+* **Módulo de Carga y Elevación:** Módulo integrado TP4056 + Step-Up con perfil de carga CC/CV a $1.0\text{ A}$ vía USB-C y circuito BMS de protección.
+* **Power Gating:** Transistor P-MOSFET controlado por el ESP32 (`GPIO5`) que desenergiza por completo la sonda 7-en-1 y el transceptor RS-485 en estado de reposo, logrando un consumo residual de **$0.0\,\mu\text{A}$** en la etapa de sensado.
 
 ### 2.4. Subsistema Mecánico y Envolvente Industrial IP67
-* **Carcasa:** Gabinete ergonómico de ABS de alto impacto con sello de silicona perimetral.
-* **Prensaestopas:** Conector glándula IP68 de compresión helicoidal para el cable blindado de la sonda.
+* **Carcasa:** Gabinete ergonómico compacto de mano en PETG técnico con sello de silicona perimetral (peso total < 280 g).
+* **Inserción Directa:** Electrodos de acero 316L montados directamente en la base portasonda para inserción manual en terreno.
 * **Grado de Protección:** Certificación de estanqueidad **IP67 según IEC 60529** (inmersión temporal en agua a 1 metro de profundidad durante 30 minutos y hermeticidad total frente al polvo de campo).
 
 ---

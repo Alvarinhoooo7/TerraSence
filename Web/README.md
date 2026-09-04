@@ -34,7 +34,7 @@ Es la **herramienta de backoffice del creador/administrador (Álvaro)** para sup
 Esta consola resuelve de forma unificada las necesidades de post-venta, soporte y mantenimiento técnico de TerraSense:
 
 1. **Gestión de Flota Centralizada en Soporte:** Todo el parque de sondas se administra directamente a través del buscador inteligente del panel de soporte (por código de 15 dígitos, alias o correo del usuario).
-2. **Diagnóstico Técnico y Salud de la Sonda:** Supervisión en tiempo real de curvas de voltaje de batería Li-Ion 18650, última señal y registro de últimas mediciones para diagnosticar el comportamiento de sensores en terreno.
+2. **Diagnóstico Técnico y Salud de la Sonda:** Supervisión en tiempo real de curvas de voltaje de batería de litio recargable, última señal y registro de últimas mediciones para diagnosticar el comportamiento de sensores en terreno.
 3. **Administración de Membresías y Roles:** Capacidad para autorizar, suspender o reasignar roles de miembros vinculados a una sonda (`owner`, `admin`, `operator`), o desvincular usuarios.
 4. **Reseteo de Fábrica (Factory Reset):** Proceso seguro para desvincular a todos los miembros y limpiar mediciones privadas ante ventas o transferencias entre agricultores, preservando la identidad de hardware de la sonda.
 5. **Firmware OTA Dual (Individual y Masivo):** Capacidad para forzar la actualización inalámbrica de un equipo puntual desde su ficha técnica, o publicar releases obligatorios globales para toda la flota.
@@ -236,7 +236,7 @@ El proyecto utiliza un servidor SMTP propio de Gmail en Supabase (`[auth.email.s
 
 ### 11.1. Módulos Operativos al 100 % en Producción
 * ✅ **Panel de Soporte Técnico (`/admin`):** Buscador multi-criterio en tiempo real (por ID de hardware de 15 dígitos, alias o correo del usuario) con listado dinámico de flota.
-* ✅ **Ficha Técnica y Diagnóstico Individual (`/admin/devices/:id`):** Visualización de curvas de batería Li-Ion 18650, versión de firmware activa, tabla de miembros vinculados y últimas mediciones edafológicas reportadas.
+* ✅ **Ficha Técnica y Diagnóstico Individual (`/admin/devices/:id`):** Visualización de curvas de batería de litio, versión de firmware activa, tabla de miembros vinculados y últimas mediciones edafológicas reportadas.
 * ✅ **Gobernanza de Membresías:** Reasignación de roles (`owner`, `admin`, `operator`) y revocación de permisos de acceso.
 * ✅ **Factory Reset Remoto Seguro:** Desvinculación atómica de miembros y purga de mediciones privadas ante reventa o traspaso entre agricultores.
 * ✅ **Gestor de Firmware OTA Masivo (`/firmware`):** Catálogo centralizado con subida de binarios `.bin`, cálculo SHA-256, marcado de versiones obligatorias y despliegue global a toda la flota.

@@ -183,11 +183,11 @@ Para el primer año (meta de **200 unidades vendidas = 16 a 17 unidades mensuale
 
 1. **Tienda E-commerce en Shopify como Ancla de Confianza:**
    * **Facturación Electrónica Oficial:** Conexión con facturador chileno para emisión automática de Factura con IVA. El productor o empresa agrícola descuenta el 19% de crédito fiscal y registra la sonda como gasto de la explotación.
-   * **Pasarelas de Pago en Cuotas:** Integración con Transbank Webpay Plus y Mercado Pago, permitiendo a agrónomos y administradores pagar los $297.488 CLP (IVA incl.) en **3 ó 6 cuotas sin interés** (~$50.000 CLP/mes).
+   * **Pasarelas de Pago en Cuotas:** Integración con Transbank Webpay Plus y Mercado Pago, permitiendo a agrónomos y administradores pagar los $249.990 CLP (IVA incl.) en **3 ó 6 cuotas sin interés** (~$41.600 a $50.000 CLP/mes).
    * **Señales de Confianza (*Trust Signals*):** RUT visible, garantía técnica por escrito de 1 año, manuales descargables y convenios de despacho trazable con Bluexpress y Starken.
 2. **Pauta Digital Directa en Meta Ads y Google Ads ($1.200.000 CLP/año):**
    * Presupuesto mensual de ~$100.000 CLP gestionado directamente por los fundadores.
-   * **Meta Ads (Facebook / Instagram):** Videos grabados en terreno real mostrando la inserción de la lanza en el suelo pedregoso y el veredicto en la app en 5 segundos.
+   * **Meta Ads (Facebook / Instagram):** Videos grabados en terreno real mostrando la inserción del sensor portátil de mano en el suelo y el veredicto en la app en 5 segundos.
    * **Google Ads (Búsqueda):** Captura de demanda activa con palabras clave de alta intención (*"sensor ph suelo chile"*, *"medidor humedad suelo precio"*, *"analisis npk portatil"*).
 3. **Embudo Conversacional (Click-to-WhatsApp):**
    * El agricultor chileno no compra tecnología de $250.000 CLP en un carrito frío: hace clic en el anuncio y va directo al WhatsApp de la empresa.

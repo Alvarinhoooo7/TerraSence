@@ -11,7 +11,7 @@
 1. [Introducción y Objetivos de Cumplimiento Regulatorio](#1-introducción-y-objetivos-de-cumplimiento-regulatorio)
 2. [Normativas de Hardware, Seguridad Eléctrica y Envolventes](#2-normativas-de-hardware-seguridad-eléctrica-y-envolventes)
    - [2.1. IEC 60529 — Grados de Protección Proporcionados por Envolventes (IP67 / IP68)](#21-iec-60529--grados-de-protección-proporcionados-por-envolventes-ip67--ip68)
-   - [2.2. UN 38.3 e IEC 62133-2 — Seguridad de Celdas Secundarias de Ion-Litio (18650)](#22-un-383-e-iec-62133-2--seguridad-de-celdas-secundarias-de-ion-litio-18650)
+   - [2.2. UN 38.3 e IEC 62133-2 — Seguridad de Baterías de Ion-Litio / LiPo](#22-un-383-e-iec-62133-2--seguridad-de-baterías-de-ion-litio--lipo)
    - [2.3. Directiva RoHS 2011/65/EU y RoHS 3 (2015/863) — Sustancias Peligrosas](#23-directiva-rohs-201165eu-y-rohs-3-2015863--sustancias-peligrosas)
    - [2.4. Ley REP N° 20.920 (Chile) y Directiva WEEE 2012/19/EU — Gestión de RAEE](#24-ley-rep-n-20920-chile-y-directiva-weee-201219eu--gestión-de-raee)
 3. [Normativas de Telecomunicaciones, Radiofrecuencia y Compatibilidad Electromagnética (EMC)](#3-normativas-de-telecomunicaciones-radiofrecuencia-y-compatibilidad-electromagnética-emc)
@@ -67,10 +67,10 @@ El diseño, fabricación, comercialización y despliegue del sistema **TerraSens
   * **Segundo Dígito (7):** Protección contra los efectos de la inmersión temporal en agua a **1 metro de profundidad durante 30 minutos** sin filtración dañina.
 * **Sonda Edafológica (Varillas Inox 316L):** Certificación **IP68** para trabajo en suelo saturado o bajo agua continua.
 
-### 2.2. UN 38.3 e IEC 62133-2 — Seguridad de Celdas Secundarias de Ion-Litio (18650)
-* El paquete de baterías integrado ($2\times \text{18650 en paralelo}$) cumple con el manual de pruebas y criterios de la ONU (Sección 38.3) y la norma internacional **IEC 62133-2:2017**:
+### 2.2. UN 38.3 e IEC 62133-2 — Seguridad de Baterías de Ion-Litio / LiPo
+* El paquete de batería integrado (celda convencional de litio de $2.000\text{ mAh}$) cumple con el manual de pruebas y criterios de la ONU (Sección 38.3) y la norma internacional **IEC 62133-2:2017**:
   * **Prueba T.1 a T.5:** Simulación de altitud (11.6 kPa), ciclado térmico ($-40^\circ\text{C}$ a $+72^\circ\text{C}$), vibración mecánica senoidal, choque de impacto ($150\text{ gn}$) y cortocircuito externo a $+55^\circ\text{C}$.
-  * **Circuito de Protección (BMS TP5100):** Corte automático por sobrecarga ($V_{\text{cell}} > 4.25\text{V}$), sobre-descarga ($V_{\text{cell}} < 2.80\text{V}$) y sobrecorriente ($I_{\text{max}} > 3.0\text{A}$).
+  * **Circuito de Protección (BMS TP4056 + PCM integrado):** Corte automático por sobrecarga ($V_{\text{cell}} > 4.25\text{V}$), sobre-descarga ($V_{\text{cell}} < 2.80\text{V}$) y sobrecorriente ($I_{\text{max}} > 2.5\text{A}$).
 
 ### 2.3. Directiva RoHS 2011/65/EU y RoHS 3 (2015/863) — Sustancias Peligrosas
 * El ensamblaje de la placa de circuito impreso (PCB) y componentes electrónicos garantiza la ausencia o concentración por debajo de los límites permitidos de:
@@ -80,7 +80,7 @@ El diseño, fabricación, comercialización y despliegue del sistema **TerraSens
 ### 2.4. Ley REP N° 20.920 (Chile) y Directiva WEEE 2012/19/EU — Gestión de RAEE
 * Marco para la Responsabilidad Extendida del Productor en Chile:
   * Etiquetado del símbolo de contenedor tachado en el empaque.
-  * Programa de recolección y reciclaje de baterías 18650 y placas electrónicas al término de su ciclo de vida útil (5 años) en alianza con gestores autorizados.
+  * Programa de recolección y reciclaje de baterías de litio y placas electrónicas al término de su ciclo de vida útil en alianza con gestores autorizados.
 
 ---
 
@@ -165,7 +165,7 @@ Para que los datos entregados por TerraSense gocen de credibilidad técnica ante
 | Norma / Estándar | Ámbito de Aplicación | Nivel de Cumplimiento | Método de Verificación en TerraSense |
 | :--- | :--- | :---: | :--- |
 | **IEC 60529** | Estanqueidad Mecánica IP67 | **100% Cumplido** | Envolvente ABS con O-ring de silicona y prensaestopas IP68. |
-| **UN 38.3 / IEC 62133**| Seguridad Baterías Li-Ion | **100% Cumplido** | Celdas 18650 certificadas + módulo BMS TP5100 integrado. |
+| **UN 38.3 / IEC 62133**| Seguridad Baterías Li-Ion | **100% Cumplido** | Celda LiPo 2.000 mAh certificada + protección PCM y TP4056. |
 | **RoHS 2011/65/EU** | Restricción Sustancias Peligrosas | **100% Cumplido** | Fabricación PCB Lead-Free (SAC305) y componentes SMD certificados. |
 | **SUBTEL Res. 1.985** | Radiocomunicaciones Chile | **100% Cumplido** | Emisión BLE a $+9\text{ dBm}$ ($< 100\text{ mW}$ límite legal). |
 | **FCC Part 15 Class B**| Emisiones Electromagnéticas | **100% Cumplido** | Módulo pre-homologado ESP32-WROOM-32 FCC ID. |

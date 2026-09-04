@@ -7,7 +7,7 @@
 
 | Dimensión | Especificación Oficial del Negocio |
 | :--- | :--- |
-| **Producto** | Lanza agronómica edafológica 7-en-1 con sensor ambiental BME280 y motor prescriptivo local en smartphone |
+| **Producto** | Instrumento agronómico portátil de diagnóstico edafológico 7-en-1 con sensor ambiental BME280 y motor prescriptivo local en smartphone |
 | **Pila Tecnológica** | ESP32-WROOM-32E · RS-485 Modbus RTU · BLE 5.0 · React Native (Expo/TS) · Supabase + PostGIS · Vite Backoffice |
 | **Mercado Objetivo** | Pequeño y mediano agricultor comercial (0,5 a 20 ha), asesores agronómicos y recambio generacional en Chile |
 | **Precio Oficial** | **$249.990 CLP con IVA** ($210.076 CLP valor neto de venta) |
@@ -32,10 +32,10 @@ El proyecto se encuentra modularizado con documentación técnica especializada 
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
 │                                 ARQUITECTURA DEL SISTEMA                                │
 ├────────────────────────────────────────────────────────┬────────────────────────────────┤
-│ 🔌 Hardware, PCB y Lanza Mecánica                      │ 📱 Aplicación Móvil de Campo   │
-│    Diseño KiCad 8.0, esquemáticos, elevador MT3608     │    React Native, Expo, BLE,    │
-│    12V, P-MOSFET (0 µA reposo), Li-Ion 18650, TP4056   │    4 etapas fenológicas,       │
-│    USB-C y lanza ergonómica de aluminio 1,5 metros.    │    carrusel de 3 páginas.      │
+│ 🔌 Hardware, PCB y Diseño Portátil                     │ 📱 Aplicación Móvil de Campo   │
+│    Diseño KiCad 8.0, módulo combo TP4056 + Step-Up     │    React Native, Expo, BLE,    │
+│    5V, P-MOSFET (0 µA reposo), LiPo 2.000 mAh, USB-C   │    4 etapas fenológicas,       │
+│    y chasis ergonómico compacto de mano IP67.          │    carrusel de 3 páginas.      │
 │    ➜ Ver: [PCB/README.md](PCB/README.md)               │    ➜ Ver: [App/README.md](App/README.md) │
 ├────────────────────────────────────────────────────────┼────────────────────────────────┤
 │ 🖥️ Consola Web de Soporte y Firmware                  │ 🗄️ Backend y Base de Datos     │
@@ -81,7 +81,7 @@ El proyecto se encuentra modularizado con documentación técnica especializada 
    - [5.8. Indicadores Oficiales de Rentabilidad: VAN, TIR y Pay Back](#58-indicadores-oficiales-de-rentabilidad-van-tir-y-pay-back)
    - [5.9. Retribución y Ganancias por Socio Fundador (Álvaro y Alan)](#59-retribución-y-ganancias-por-socio-fundador-álvaro-y-alan)
 6. [VI. Resumen de Módulos del Ecosistema Tecnológico](#vi-resumen-de-módulos-del-ecosistema-tecnológico)
-   - [6.1. Hardware Embarcado y Lanza Agronómica (PCB)](#61-hardware-embarcado-y-lanza-agronómica-pcb)
+   - [6.1. Hardware Embarcado y Sensor Portátil (PCB)](#61-hardware-embarcado-y-sensor-portátil-pcb)
    - [6.2. Aplicación Móvil de Campo (App)](#62-aplicación-móvil-de-campo-app)
    - [6.3. Consola Web de Soporte y Actualización (Web)](#63-consola-web-de-soporte-y-actualización-web)
    - [6.4. Backend y Seguridad de Datos (Supabase)](#64-backend-y-seguridad-de-datos-supabase)
@@ -94,7 +94,7 @@ El proyecto se encuentra modularizado con documentación técnica especializada 
 
 # I. Resumen Ejecutivo del Proyecto
 
-**TerraSense** es un instrumento agronómico portátil de diagnóstico edafológico prescriptivo. Integra una lanza de muestreo ergonómica de 1,5 metros con una sonda industrial de 7 parámetros (humedad volumétrica, temperatura de suelo, conductividad eléctrica, pH, nitrógeno, fósforo y potasio estimados por conductividad), un microcontrolador ESP32-WROOM-32E, un sensor ambiental de superficie Bosch BME280 y una aplicación móvil que procesa localmente un motor de inferencia agronómica de cuatro capas.
+**TerraSense** es un instrumento agronómico portátil de diagnóstico edafológico prescriptivo. Integra un chasis ergonómico compacto de mano con una sonda industrial 7-en-1 de inserción directa (humedad volumétrica, temperatura de suelo, conductividad eléctrica, pH, nitrógeno, fósforo y potasio estimados por conductividad), un microcontrolador ESP32-WROOM-32E, un sensor ambiental de superficie Bosch BME280 y una aplicación móvil que procesa localmente un motor de inferencia agronómica de cuatro capas.
 
 El sistema se diseñó bajo una premisa central: **el agricultor no necesita números crudos; necesita prescripciones inmediatas y comprensibles**. En menos de 5 segundos, sin requerir conexión a internet ni pagar suscripciones mensuales, la aplicación entrega un semáforo 3×3 de variables críticas, diagnóstico holístico contextualizado con el clima y recomendaciones concretas de labor, dosis y costos según la etapa fenológica del cultivo (pre-siembra, vegetativo, floración o cosecha).
 
@@ -151,10 +151,10 @@ TerraSense traslada la inteligencia al teléfono del agricultor:
  │                       FLUJO DE ADQUISICIÓN Y DECISIÓN                       │
  └─────────────────────────────────────────────────────────────────────────────┘
 
-  [ Lanza de Terreno 1,5 m ] ──(BLE 5.0 GATT)──► [ Smartphone (App Offline) ]
-    • 7 Variables de Suelo (Modbus 12V)            • Motor Inferencia 4 Capas
+  [ Sonda Portátil de Mano ] ──(BLE 5.0 GATT)──► [ Smartphone (App Offline) ]
+    • 7 Variables de Suelo (Modbus 5V)             • Motor Inferencia 4 Capas
     • 2 Variables Ambientales (BME280)             • Clima Local (Open-Meteo)
-    • Muestreo en 5 a 8 segundos                  • Prescripción y Dosis
+    • Muestreo en 3 a 5 segundos                   • Prescripción y Dosis
                                                            │
                                                            ▼ (Sincronización cuando hay red)
                                                  [ Nube Supabase + Backoffice Web ]
@@ -195,7 +195,7 @@ La aplicación ejecuta un algoritmo determinista calibrado para cultivos chileno
 ## 4.3. Estrategia Comercial Go-To-Market (Año 1)
 En el primer año, la venta es directa y digital, autogestionada por los socios fundadores con un presupuesto de marketing de **$1.200.000 CLP ($100.000/mes)**:
 1. **Tienda E-Commerce Shopify:** Plataforma formal con emisión automática de **Factura Electrónica con IVA** (crédito fiscal indispensable que recupera el agricultor), pasarela Webpay Plus / Mercado Pago en **3 a 6 cuotas sin interés de ~$41.600 a $50.000 CLP/mes**, y despachos trazables mediante Starken y Bluexpress.
-2. **Pauta Digital Directa (Meta & Google Ads):** Anuncios en video mostrando el uso real de la lanza en potreros con barro y el resultado instantáneo en la app, más campañas de búsqueda en Google para términos de alta intención (*"sensor ph suelo chile"*, *"medidor humedad agrícola"*).
+2. **Pauta Digital Directa (Meta & Google Ads):** Anuncios en video mostrando el uso real del sensor portátil de mano insertándose en potreros con barro y el resultado instantáneo en la app, más campañas de búsqueda en Google para términos de alta intención (*"sensor ph suelo chile"*, *"medidor humedad agrícola"*).
 3. **Embudo Click-to-WhatsApp:** Cada anuncio dirige a WhatsApp Business, donde los socios fundadores resuelven dudas agronómicas y cierran la venta en forma personalizada.
 4. **Público Objetivo (Recambio Generacional):** La pauta se segmenta quirúrgicamente hacia los hijos y administradores jóvenes de predios agrícolas (28 a 45 años) y agrónomos asesores independientes que gestionan múltiples campos.
 
@@ -213,29 +213,29 @@ El costo de fabricación unitario está auditado con proveedores industriales a 
 
 | Componente del Costo | Detalle Técnico / Proveedor | Monto $ CLP |
 | :--- | :--- | ---:|
-| **Electrónica SMD** | ESP32-WROOM-32E, BME280, SP3485, MT3608, TP4056, pasivos (LCSC) | $6.711 |
-| **Fabricación PCB** | Placa FR-4 de 2 capas + ensamblaje SMT turnkey (JLCPCB) | $2.229 |
-| **Flete y Arancel** | Courier consolidado internacional + arancel de importación 6 % | $1.183 |
-| **Batería y Potencia** | 2× celdas Li-Ion 18650 (3.000 mAh c/u) + portaceldas + protección | $4.510 |
-| **Conectores y Gabinete**| USB-C estanco, pulsador inox, rocker switch, prensaestopas PG-16 | $3.250 |
-| **Chasis e Impresión** | Filamento PETG técnico (118 g) + tubo de aluminio 6061-T6 + estribo | $2.273 |
-| **Empaque y Manual** | Caja serigrafiada, manual impreso, espuma troquelada y desecante | $2.500 |
-| **Sonda Industrial 7-en-1**| Sonda edafológica RS-485 Modbus RTU, resina y acero 316L | **$48.000** |
-| **TOTAL BOM INDUSTRIAL** | | **$70.656** |
+| **Electrónica SMD y Módulos** | ESP32-WROOM-32E, BME280, SP3485, combo TP4056 + Step-Up 5V, pasivos | $5.820 |
+| **Fabricación PCB** | Placa FR-4 de 2 capas compacta + ensamblaje SMT turnkey (JLCPCB) | $1.900 |
+| **Flete y Arancel** | Courier consolidado internacional + arancel de importación 6 % | $980 |
+| **Batería y Potencia** | Batería LiPo convencional 3.7V 2.000 mAh con PCM + cable JST | $3.800 |
+| **Conectores y Sellos** | USB-C estanco con tapón de silicona, pulsador táctil, junta tórica IP67 | $1.850 |
+| **Chasis Ergonómico de Mano** | Carcasa compacta PETG técnico grado agrícola (peso < 280 g, 0 tubo aluminio) | $1.800 |
+| **Empaque y Manual** | Caja serigrafiada, manual impreso, espuma troquelada y desecante | $2.100 |
+| **Sonda Industrial 7-en-1**| Sonda edafológica RS-485 Modbus RTU (4.5V–30V), resina y acero 316L | **$48.000** |
+| **TOTAL BOM INDUSTRIAL** | | **$66.250** |
 | (+) Flete nacional al cliente | Despacho a todo Chile vía Bluexpress (~$5.000 + IVA) | $6.000 |
-| (+) Merma y scrap (3 %) | Tolerancia por fallas de ensamble y pruebas de calidad | $2.120 |
-| (+) Garantía legal 6 meses (5 %) | Provisión técnica según Ley 21.398 del Consumidor | $3.533 |
+| (+) Merma y scrap (3 %) | Tolerancia por fallas de ensamble y pruebas de calidad | $1.988 |
+| (+) Garantía legal 6 meses (5 %) | Provisión técnica según Ley 21.398 del Consumidor | $3.313 |
 | (+) Mano de obra directa | 1,5 horas de ensamble, calibración y testeo @ $6.000/h | $9.000 |
-| **COSTO VARIABLE UNITARIO ENTREGADO (Año 1)** | | **$91.309** |
+| **COSTO VARIABLE UNITARIO ENTREGADO (Año 1)** | | **$86.551** |
 
-*Curva de escala por volumen:* Año 1: $91.309 CLP | Año 2: $88.570 CLP (factor 0,97) | Año 3: $85.830 CLP (factor 0,94) | Año 4: $84.004 CLP (factor 0,92) | Año 5: $82.178 CLP (factor 0,90).
+*Curva de escala por volumen:* Año 1: $86.551 CLP | Año 2: $83.954 CLP (factor 0,97) | Año 3: $81.358 CLP (factor 0,94) | Año 4: $79.627 CLP (factor 0,92) | Año 5: $77.896 CLP (factor 0,90).
 
 ## 5.2. Determinación del Precio Oficial ($249.990) y Margen
 * **Precio de Venta con IVA:** **$249.990 CLP**
 * **Precio de Venta Neto (sin IVA):** **$210.076 CLP** ($249.990 ÷ 1,19)
-* **Costo Variable Unitario:** **$91.309 CLP**
-* **Margen de Contribución Unitario:** **$118.767 CLP** por sonda vendida.
-* **Margen de Contribución Porcentual:** **56,53 %** sobre el valor neto de venta (71,7 % sobre el BOM).
+* **Costo Variable Unitario:** **$86.551 CLP**
+* **Margen de Contribución Unitario:** **$123.525 CLP** por sonda vendida.
+* **Margen de Contribución Porcentual:** **58,80 %** sobre el valor neto de venta (86,4 % sobre el BOM).
 
 ## 5.3. Inversión Inicial y Estructura de Financiamiento 100 % Privado
 
@@ -360,8 +360,8 @@ El modelo financiero detalla los ingresos percibidos por cada socio (**50 % Álv
 
 Para mantener la documentación limpia y modular, el detalle de ingeniería profunda se gestiona en sus carpetas dedicadas:
 
-### 6.1. Hardware Embarcado y Lanza Agronómica (PCB)
-* **Contenido:** Esquemáticos KiCad 8.0, ruteo de 2 capas, pinout del ESP32-WROOM-32E, circuito elevador MT3608 (12V), conmutación por P-MOSFET para lograr **0,0 µA en reposo**, banco de baterías Li-Ion 18650 (6.000 mAh) con cargador TP4056 USB-C, estructura mecánica de la lanza de 1,5 metros en aluminio 6061-T6 con estribo de pie y trama binaria BLE GATT de 16 bytes.
+### 6.1. Hardware Embarcado y Sensor Portátil (PCB)
+* **Contenido:** Esquemáticos KiCad 8.0, ruteo de 2 capas, pinout del ESP32-WROOM-32E, módulo combo TP4056 con Step-Up 5V integrado, conmutación por P-MOSFET para lograr **0,0 µA en reposo**, batería convencional de litio de 2.000 mAh recargable por USB-C, chasis ergonómico compacto de mano IP67 e interfaz de muestreo directo en suelo con trama binaria BLE GATT de 16 bytes.
 * ➜ **Documentación completa:** [`PCB/README.md`](PCB/README.md)
 
 ### 6.2. Aplicación Móvil de Campo (App)
@@ -381,9 +381,9 @@ Para mantener la documentación limpia y modular, el detalle de ingeniería prof
 # VII. Condiciones Técnicas, Normativas y Metrología
 
 TerraSense cumple con el marco normativo chileno e internacional aplicable:
-* **Seguridad Eléctrica y Baterías:** Celdas Li-Ion con protección contra sobretensión, sobredescarga y cortocircuito (DW01A + FS8205A) según estándar IEC 62133-2. Tensión máxima en chasis de 12V DC (SELV - Muy Baja Tensión de Seguridad), exenta de certificación SEC de alta tensión.
+* **Seguridad Eléctrica y Baterías:** Celda Li-Ion / LiPo convencional de 2.000 mAh con circuito PCM de protección contra sobretensión, sobredescarga y cortocircuito complementado por el módulo TP4056 según estándar IEC 62133-2. Tensión máxima en chasis de 5V DC (SELV - Muy Baja Tensión de Seguridad), exenta de certificación SEC de alta tensión.
 * **Telecomunicaciones y Radiofrecuencia:** Módulo ESP32 con certificación internacional FCC/CE y cumplimiento de la Resolución Exenta 1.985 de SUBTEL para dispositivos de corto alcance en banda ISM de 2,4 GHz (potencia EIRP < 100 mW).
-* **Protección Mecánica y Ambiental:** Cabezal superior y uniones selladas diseñadas según estándar IP67 (protección total contra polvo e inmersión temporal). Sonda edafológica encapsulada en resina epóxica industrial bajo grado IP68.
+* **Protección Mecánica y Ambiental:** Chasis ergonómico compacto y sellado perimetral diseñado bajo estándar IP67 (protección total contra polvo e inmersión temporal). Sonda edafológica encapsulada en resina epóxica industrial bajo grado IP68.
 * **Metrología y Edafología:** Mediciones edafológicas alineadas con las guías de muestreo y fertilización de INIA (Instituto de Investigaciones Agropecuarias) y estándares ISO 11272 para humedad volumétrica de suelo.
 
 ➜ *Para el análisis normativo exhaustivo, consultar:* [`docs/MARCO_NORMATIVO_Y_ESTANDARES.md`](docs/MARCO_NORMATIVO_Y_ESTANDARES.md).
@@ -421,7 +421,7 @@ npm run type-check  # Validación estricta de tipos TypeScript
 
 # IX. Conclusiones y Defensa del Proyecto
 
-1. **Factibilidad Técnica Comprobada:** El prototipo reúne 7 variables de suelo y 2 atmosféricas mediante un enlace industrial RS-485 con aislamiento de potencia por MOSFET (0,0 µA en reposo), garantizando más de **2.000 mediciones efectivas** con 2 celdas 18650 recargables por USB-C. La lanza de 1,5 metros elimina la fatiga postural y permite muestreos rápidos asistidos por estribo de pie.
+1. **Factibilidad Técnica Comprobada:** El prototipo reúne 7 variables de suelo y 2 atmosféricas mediante un enlace industrial RS-485 con aislamiento de potencia por MOSFET (0,0 µA en reposo), garantizando más de **4.000 a 6.000 mediciones efectivas** con una batería de litio convencional de 2.000 mAh recargable por USB-C. El formato portátil de mano ultraliviano (< 280 g) permite muestreos rápidos e inserción directa en el suelo sin fatiga ni estructuras mecánicas pesadas.
 2. **Propuesta Prescriptiva Superior:** TerraSense no compite en exactitud de laboratorio ni satura al usuario con números crudos: entrega diagnósticos agronómicos holísticos y recomendaciones prácticas en menos de 5 segundos, de forma 100 % offline y sin costos recurrentes de suscripción.
 3. **Estructura Financiera Realista y Autofinanciada:** El modelo económico no depende de subsidios públicos ($0 CORFO). Se financia de forma privada mediante un **pie de socios de $8.900.000 CLP ($4.450.000 por socio)** y un crédito bancario a 5 años por **$12.648.500 CLP** respaldado por FOGAPE.
 4. **Rentabilidad y Retorno Probado:** A 5 años y bajo una tasa exigida del 20 %, el proyecto arroja un **VAN de +$2.588.182 CLP (+$8.241.084 CLP al 15 %)**, una **TIR de 22,72 %** y un Pay Back de **3,71 años**, garantizando sueldos formales desde el mes 1 y generando un **retorno acumulado de +$79.588.754 CLP netos para cada socio fundador**.

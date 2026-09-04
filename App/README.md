@@ -1,7 +1,7 @@
 # 📱 TerraSense · Aplicación Móvil de Terreno
 
 Aplicación móvil de terreno desarrollada en **React Native 0.81 + React 19 + Expo 54 + TypeScript + Zustand**. 
-Es la herramienta central que el agricultor y los operadores llevan al potrero: se conecta automáticamente a la lanza sensor TerraSense vía **Bluetooth Low Energy (BLE)**, evalúa el suelo localmente según la etapa fenológica elegida, entrega recomendaciones contextuales con clima (Open-Meteo) y proyecta exclusivamente las mediciones de **siembra** en un mapa con círculos de influencia agronómica de 20 metros **sin requerir conexión a internet**.
+Es la herramienta central que el agricultor y los operadores llevan al potrero: se conecta automáticamente a la sonda portátil TerraSense vía **Bluetooth Low Energy (BLE)**, evalúa el suelo localmente según la etapa fenológica elegida, entrega recomendaciones contextuales con clima (Open-Meteo) y proyecta exclusivamente las mediciones de **siembra** en un mapa con círculos de influencia agronómica de 20 metros **sin requerir conexión a internet**.
 
 > [!IMPORTANT]
 > **Documentación del Repositorio:**
@@ -308,7 +308,7 @@ El Grid 3×3 de la primera página del carrusel utiliza el código de colores un
 ```
 
 > [!CAUTION]
-> **Desconexión BLE Obligatoria:** `bleService.ts` siempre ejecuta `cancelConnection()` dentro de un bloque `finally`. Si la conexión quedara activa, el ESP32 no podría retornar a *Deep Sleep*, agotando la batería Li-Ion 18650 en un par de días en vez de ofrecer 6 a 8 meses de autonomía.
+> **Desconexión BLE Obligatoria:** `bleService.ts` siempre ejecuta `cancelConnection()` dentro de un bloque `finally`. Si la conexión quedara activa, el ESP32 no podría retornar a *Deep Sleep*, agotando la batería de litio de 2.000 mAh en un par de días en vez de ofrecer más de 12 a 18 meses de autonomía.
 
 ---
 
