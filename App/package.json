@@ -12,7 +12,7 @@
     "test:supabase-onboarding": "node scripts/verify-supabase-onboarding.mjs"
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-async-storage/async-storage": "3.1.1",
     "@supabase/supabase-js": "^2.45.4",
     "expo": "~54.0.37",
     "expo-camera": "~17.0.10",
