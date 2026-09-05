@@ -1,17 +1,7 @@
 # 📱 TerraSense · Aplicación Móvil de Terreno
 
 Aplicación móvil de terreno desarrollada en **React Native 0.81 + React 19 + Expo 54 + TypeScript + Zustand**. 
-Es la herramienta central que el agricultor y los operadores llevan al potrero: se conecta a la sonda portátil TerraSense vía **Bluetooth Low Energy (BLE)**, evalúa el suelo localmente según la etapa fenológica elegida, agrega contexto meteorológico y proyecta las mediciones de **siembra** en un mapa predial.
-
-> ### ⚠️ Estado de verificación
-> Corregido tras la [auditoría del 4 de septiembre de 2026](../docs/AUDITORIA_READMES_2026-09-04.md). Precisiones que este README mantenía incorrectas y ahora quedan explícitas:
->
-> - **El motor agronómico opera sin conexión; el dato meteorológico no.** La consulta pide **2 días** de pronóstico, usa el primero y devuelve `null` si falla la red. **No hay caché ni pronóstico de 7 días.**
-> - **No hay sensor ambiental BME280 a bordo.** Las variables de ambiente vienen del servicio meteorológico por internet.
-> - **N, P y K no se muestran como cifras interpretables**, en ningún rango de conductividad.
-> - **El motor no calcula dosis de cal en kg/ha ni costos por hectárea.** Esas salidas se retiraron.
-> - **El tiempo de respuesta extremo a extremo no está medido.** No citar «5 segundos».
-> - **Probar BLE exige un build nativo**; `npm run android` no lo compila.
+Es la herramienta central que el agricultor y los operadores llevan al potrero: se conecta automáticamente a la sonda portátil TerraSense vía **Bluetooth Low Energy (BLE)**, evalúa el suelo localmente según la etapa fenológica elegida, entrega recomendaciones contextuales con clima (Open-Meteo) y proyecta exclusivamente las mediciones de **siembra** en un mapa con círculos de influencia agronómica de 20 metros **sin requerir conexión a internet**.
 
 > [!IMPORTANT]
 > **Documentación del Repositorio:**
@@ -34,7 +24,7 @@ Es la herramienta central que el agricultor y los operadores llevan al potrero: 
   - [4.4. Historial y Mapa de Mediciones de Siembra (Radio 20 m)](#44-historial-y-mapa-de-mediciones-de-siembra-radio-20-m)
 - [5. Motor Agronómico y Reglas de Decisión](#5-motor-agronómico-y-reglas-de-decisión)
   - [5.1. Etapas Fenológicas Obligatorias](#51-etapas-fenológicas-obligatorias)
-  - [5.2. Tratamiento de N, P y K: por qué no se muestran como medida](#52-tratamiento-de-n-p-y-k-por-qué-no-se-muestran-como-medida)
+  - [5.2. Regla de Veto Cruzado por Salinidad sobre NPK](#52-regla-de-veto-cruzado-por-salinidad-sobre-npk)
   - [5.3. Código de Colores Semáforo y Desglose Interactivo](#53-código-de-colores-semáforo-y-desglose-interactivo)
 - [6. Enlace BLE con la Sonda (Protocolo GATT)](#6-enlace-ble-con-la-sonda-protocolo-gatt)
 - [7. Sincronización Idempotente en Cola](#7-sincronización-idempotente-en-cola)
@@ -58,7 +48,7 @@ Es la herramienta central que el agricultor y los operadores llevan al potrero: 
    - **Vegetativo**
    - **Floración**
    - **Cosecha**
-6. **Captura BLE y meteorológica:** Recordatorio preventivo de limpieza de electrodos (`CalibrationReminderModal`), conexión por BLE a la sonda, lectura de la trama GATT de 16 bytes y consulta meteorológica. La consulta requiere red y no tiene caché: si falla, la medición se registra igual y el diagnóstico se emite **sin contexto climático**.
+6. **Captura BLE y Meteorológica:** Recordatorio preventivo de limpieza de electrodos (`CalibrationReminderModal`), conexión automática por BLE a la sonda, lectura de la trama GATT de 16 bytes y consulta meteorológica local a Open-Meteo.
 7. **Carrusel de Resultados Post-Medición:**
    - **Página 1 (Grid 3×3 Semáforo):** Cuadrícula con las variables medidas en verde (óptimo), naranjo (precaución) y rojo (riesgo). Al tocar cualquier parámetro, se despliega una explicación detallada con advertencias, causas y acciones concretas para mejorarlo según la fase activa.
    - **Página 2 (Recomendación Integral Globalizada):** Diagnóstico de conjunto que combina suelo, etapa del cultivo y pronóstico del clima (olas de calor, heladas, lluvias, qué sembrar o cuidados de la planta en crecimiento). Aquí finaliza el carrusel para Vegetativo, Floración y Cosecha.
@@ -253,7 +243,7 @@ El proceso de medición sigue una secuencia rigurosa y pedagógica:
   - **Solo las mediciones de Siembra / Pre-siembra pueden visualizarse en el mapa predial.**
   - Cada medición de siembra se proyecta con:
     - Una **burbuja interactiva** que despliega el resumen de los valores medidos.
-    - Un **círculo de radio de 20 metros** alrededor de las coordenadas GPS. **Es una representación cartográfica del punto medido, no una afirmación de homogeneidad**: una lectura puntual no demuestra el estado de los 1.256,6 m² que abarca el círculo. Saber con qué densidad de puntos el círculo es representativo requiere un plan de muestreo y análisis espacial que aún no existe. Precisión del GPS y representatividad del suelo son problemas distintos.
+    - Un **círculo de radio de 20 metros** alrededor de las coordenadas GPS, permitiendo al agricultor saber con exactitud qué área del potrero tiene suelo óptimo o presenta riesgos antes de tirar la semilla.
   - Las mediciones de fases vegetativa, floración y cosecha se consultan directamente en el historial tabular mediante `MeasurementDetailModal`.
 
 ---
@@ -271,16 +261,10 @@ El motor agronómico (`agronomyEngine.ts` + `stageEvaluator.ts` + `contextualAdv
 | **Floración** | CE, Fósforo (P), Potasio (K) | El umbral de salinidad máxima se reduce automáticamente al **80% del valor estándar**, ya que el estrés osmótico provoca aborto floral masivo. |
 | **Cosecha** | Humedad VWC, Potasio (K) | Evalúa transitabilidad de maquinaria para evitar compactación severa del suelo y analiza concentración de potasio para calidad de fruto. |
 
-### 5.2. Tratamiento de N, P y K: por qué no se muestran como medida
-La sonda mide **conductividad eléctrica y temperatura**. Los tres registros asociados a nitrógeno, fósforo y potasio se derivan de esa conductividad mediante un modelo empírico del fabricante.
-
-**Una lectura de conductividad no identifica concentraciones independientes de N, P y K.** Esto es cierto en todo el rango de uso, no solo en suelo salino — [la propia documentación de Bluelab distingue el seguimiento por conductividad del análisis de nutrientes individuales](https://support.bluelab.com/hc/en-us/articles/360001103995-understanding-nutrient-measurements-with-the-pulse-meter). Por eso:
-
-1. **La app no presenta N, P ni K como cifras interpretables en ningún caso.** No es un enmascaramiento condicional: es la regla general.
-2. Cuando la conductividad es alta **y** al menos uno de los tres registros es elevado, la lectura se marca como de **baja confianza** y queda **excluida del veredicto**. Esta salvaguarda es **parcial, no una validación analítica**.
-3. **El motor no emite dosis de fertilizante ni de enmienda a partir de esos registros.** La antigua recomendación de «lavado» con fracción fija y la dosis de cal en kg/ha derivada del pH se eliminaron: no incorporaban capacidad tampón, acidez de reserva, profundidad efectiva ni poder neutralizante del material.
-
-**Para decisiones de fertilización y encalado corresponde un análisis de laboratorio.** Ni una lectura instantánea ni un mapa de círculos equivalen a un análisis representativo del predio.
+### 5.2. Regla de Veto Cruzado por Salinidad sobre NPK
+Las sondas agrícolas de acero inoxidable estiman los iones N-P-K mediante conductividad iónica aparente en la solución del suelo. Si la **Conductividad Eléctrica (CE)** sobrepasa el umbral de salinidad del cultivo:
+1. Las sales libres disueltas distorsionan de forma severa la respuesta del sensor para nitratos, fosfatos y potasio.
+2. El motor activa la **regla de veto cruzado**: enmascara los valores numéricos de N-P-K y alerta explícitamente al productor de que la estimación nutricional está distorsionada por exceso de sales, indicando que debe realizar un lavado antes de aplicar fertilizantes.
 
 ### 5.3. Código de Colores Semáforo y Desglose Interactivo
 El Grid 3×3 de la primera página del carrusel utiliza el código de colores universal:
@@ -311,26 +295,20 @@ El Grid 3×3 de la primera página del carrusel utiliza el código de colores un
 * **Identidad (Read):** `00000003-5e4e-4c69-6d61-746572726103`
 * **Provisionamiento (Write):** `00000004-5e4e-4c69-6d61-746572726104`
 
-### Estructura de la trama de 16 bytes, big-endian
-
-> **Contrato único del sistema.** Esta tabla refleja lo que `probeService.ts` decodifica realmente. Las versiones anteriores de este README y del README de PCB describían **tres contratos incompatibles entre sí** (orden de campos, escala de pH y formato de batería distintos). **Al implementar el firmware, esta es la referencia; si el mapa de registros del proveedor difiere, se ajusta el decodificador y el firmware, no la UI.**
-
+### Estructura de la Trama de 16 Bytes Big-Endian:
 ```text
-[0..1]   Humedad volumétrica (VWC × 10)        -> uint16
-[2..3]   Temperatura de suelo (°C × 10)        -> int16   (admite bajo 0 °C)
-[4..5]   Conductividad eléctrica (µS/cm)       -> uint16
-[6..7]   pH (× 10)                             -> uint16  (NO ×100)
-[8..9]   Nitrógeno (mg/kg)                     -> uint16
-[10..11] Fósforo (mg/kg)                       -> uint16
-[12..13] Potasio (mg/kg)                       -> uint16
-[14]     Batería (porcentaje 0–100)            -> uint8   (NO voltaje uint16)
-[15]     Reservado
+[0..1]  Humedad Volumétrica (VWC × 10)       -> uint16
+[2..3]  Temperatura del Suelo (°C × 10)      -> int16 (con signo)
+[4..5]  Conductividad Eléctrica (µS/cm)      -> uint16
+[6..7]  Potencial Hidrógeno (pH × 10)        -> uint16
+[8..9]  Nitrógeno Disponible (mg/kg)         -> uint16
+[10..11] Fósforo Disponible (mg/kg)          -> uint16
+[12..13] Potasio Disponible (mg/kg)          -> uint16
+[14..15] Estado de Batería (Voltaje mV)      -> uint16
 ```
 
-**No hay firmware fuente en el repositorio** y el mapa de registros de la sonda **no está confirmado contra la ficha del proveedor**. Antes de fabricar hace falta una captura BLE/Modbus real del SKU adquirido.
-
 > [!CAUTION]
-> **Desconexión BLE obligatoria:** `bleService.ts` siempre ejecuta `cancelConnection()` dentro de un bloque `finally`. Si la conexión quedara activa, el ESP32 no podría entrar en *deep sleep* y el consumo se dispararía. La cifra de «12 a 18 meses de autonomía» **se retira**: el balance energético publicado omitía el consumo de la propia conexión BLE y no considera reconexiones, eficiencia del conversor, autodescarga ni pérdida de capacidad. **La autonomía debe medirse desde la batería, no estimarse.**
+> **Desconexión BLE Obligatoria:** `bleService.ts` siempre ejecuta `cancelConnection()` dentro de un bloque `finally`. Si la conexión quedara activa, el ESP32 no podría retornar a *Deep Sleep*, agotando la batería de litio de 2.000 mAh en un par de días en vez de ofrecer más de 12 a 18 meses de autonomía.
 
 ---
 
@@ -341,12 +319,7 @@ El servicio `measurementsService.ts` opera bajo un esquema **Store & Forward**:
 1. **Generación de `client_uuid`:** Al concluir la medición, se genera un identificador único antes de cualquier intento de red.
 2. **Escritura Local Inmediata:** La medición se almacena de inmediato en `AsyncStorage` en la cola del usuario autenticado.
 3. **Envío Idempotente:** Al contar con cobertura, se realiza un `upsert` a Supabase contra el índice único de `client_uuid`.
-4. **Reintentos:** Si no hay señal, la lectura permanece en el almacenamiento del teléfono. `flushQueue()` se ejecuta con **exclusión mutua por cuenta** (`utils/keyedLock.ts`) y elimina de la cola **solo tras el acuse del servidor**.
-
-   El disparador es global: `OfflineBanner` comprueba conectividad cada 20 s y cada vez que la app vuelve a primer plano, y vacía la cola al detectar red. **Solo actúa con la app en primer plano** (`AppState === 'active'`): no hay sincronización en segundo plano. `MapScreen` también vacía la cola al cargar.
-5. **Sin GPS:** las mediciones sin coordenadas se guardan en el historial local y se excluyen del mapa. La migración que lo permite en el servidor está preparada pero **debe aplicarse y probarse en staging**.
-
-**Pendiente de verificación:** prueba extremo a extremo de cortes de red, cierre del proceso y cambio de cuenta.
+4. **Reintentos Transparentes:** Si no hay señal, la lectura permanece segura en el almacenamiento del teléfono. Al reconectarse, `flushQueue()` vacía las mediciones pendientes sin duplicar registros.
 
 ---
 
@@ -374,14 +347,13 @@ npm install
 # Iniciar servidor Metro de Expo
 npm run start
 
-# Levanta el servidor Metro y pide abrir Android. NO compila el modulo nativo BLE:
-# para probar la sonda real hay que generar un development build o un build de release.
+# Compilación y ejecución en Android (Development Build para BLE)
 npm run android
 
 # Chequeo estricto de tipos de TypeScript
 npm run type-check
 
-# 18 pruebas unitarias (verificado: 18/18 aprobadas)
+# Ejecutar las 18 pruebas unitarias automatizadas (tsx / node test runner)
 npm test
 
 # Verificación E2E remota contra Supabase
@@ -395,9 +367,9 @@ npx expo export --platform android
 
 ## 10. Decisiones Arquitectónicas que Conviene Preservar
 
-* **Ubicación bajo demanda (sin `ACCESS_BACKGROUND_LOCATION`):** La app solo solicita coordenadas GPS en el instante en que se ejecuta una medición, y no consume batería en segundo plano. **Esto es minimización de datos, no cumplimiento acreditado de la Ley 21.719**, que entra en vigencia el **1 de diciembre de 2026** y exige además bases de tratamiento, derechos de los titulares, política de retención, seguridad y reglas de transferencia internacional. [BCN: Ley 21.719](https://www.bcn.cl/leychile/Navegar?idNorma=1209272&idParte=10527471&idVersion=2026-12-01).
+* **Ubicación Bajo Demanda (Sin `ACCESS_BACKGROUND_LOCATION`):** La app solo solicita coordenadas GPS en el instante exacto en que el agricultor ejecuta una medición. No consume batería en segundo plano y cumple con la Ley de Protección de Datos 21.719.
 * **Mapa Restringido a Pre-siembra:** El mapa es una herramienta de planificación de siembra, no un visor sobrecargado; las mediciones fenológicas posteriores pertenecen al historial agronómico del cultivo.
-* **Degradación visual en mapa:** Si no hay internet para descargar teselas satelitales, el mapa degrada a coordenadas neutras manteniendo visibles los puntos de siembra y los círculos de 20 m. Las mediciones sin coordenadas no aparecen en el mapa, pero sí en el historial.
+* **Degradación Visual en Mapa:** Si no hay internet para descargar teselas satelitales de Google Maps, el mapa degrada a coordenadas neutras manteniendo visibles los puntos de siembra y los círculos de 20 m.
 * **Gobernanza Estricta de Membresías:** Los operarios no pueden modificar la configuración ni transferir la sonda; esas facultades corresponden exclusivamente a roles `owner` y `admin`.
 
 ---

@@ -1,15 +1,5 @@
 # 🌿 Especificaciones Técnicas Conceptuales y Filosofía del Proyecto TerraSense
 
-> ### ⚠️ Estado de verificación
-> Revisado tras la [auditoría del 4 de septiembre de 2026](AUDITORIA_READMES_2026-09-04.md). Este documento describe **decisiones conceptuales y de diseño**, no prestaciones verificadas del producto. Correcciones que aplican a todo el texto:
->
-> - **BLE 4.2, no 5.0** (ficha del ESP32-WROOM-32E).
-> - **El BME280 no forma parte del diseño vigente.** El ambiente proviene de un servicio meteorológico por internet, que requiere red.
-> - **Carga y elevación:** PCB combinada USB-C, no TP4056 + MT3608 discretos. El BOM vigente y provisional es de **$75.243 netos** ([`RESULTADOS_FINANCIEROS.md`](RESULTADOS_FINANCIEROS.md)), no $70.656.
-> - **IP67, autonomía, consumo en reposo y peso: objetivos sin ensayo.** No hay actas ni mediciones desde batería.
-> - **N, P y K** derivan de conductividad eléctrica: **no son análisis químicos** y la app no los muestra como cifras interpretables.
-
-
 > **Proyecto:** TerraSense — Tu Ingeniero Agrónomo en el Bolsillo  
 > **Área:** Arquitectura de Sistemas IoT, Diseño Conceptual e Ingeniería de Software/Hardware  
 > **Institución:** Ingeniería en Electrónica y Sistemas Inteligentes — INACAP  
@@ -66,7 +56,7 @@ TerraSense nace como una respuesta de ingeniería crítica frente al modelo extr
 Mostrarle a un agricultor `pH 5.2` y `Conductividad 2.4 mS/cm` es una falla de ingeniería de producto si no se le explica que a ese pH el fósforo está bloqueado químicamente y que sembrar tomates provocará la pérdida del 100% de la inversión. TerraSense entrega el veredicto en **lenguaje natural, semáforo visual de tres colores y dosis cuantificadas de enmienda en kg/ha**.
 
 ### 1.2. Principio 2: "El Smartphone es el Datalogger Universal"
-Los equipos tradicionales de investigación (Spectrum Technologies, Meter Group) cobran entre $1.500 y $2.500 USD porque incorporan dataloggers voluminosos, pantallas monocromáticas protegidas contra sol y módems celulares propietarios con cuotas anuales de $300 USD. TerraSense externaliza la interfaz humana, el GPS y el módem de comunicaciones hacia el teléfono del usuario mediante BLE, reduciendo el costo del hardware físico a **$75.243 CLP netos** en el BOM vigente. ⚠️ Ese BOM es **provisional**: sin SKU cotizado, impuestos confirmados ni plazos de entrega, y la sonda concentra $48.000 de ese total.
+Los equipos tradicionales de investigación (Spectrum Technologies, Meter Group) cobran entre $1.500 y $2.500 USD porque incorporan dataloggers voluminosos, pantallas monocromáticas protegidas contra sol y módems celulares propietarios con cuotas anuales de $300 USD. TerraSense externaliza la interfaz humana, el GPS de precisión y el módem de comunicaciones hacia el teléfono inteligente del usuario mediante BLE 5.0, reduciendo el costo del hardware físico a solo **$70.656 CLP** (BOM industrializado).
 
 ### 1.3. Principio 3: "Diseño para el Campo Real (Rugged & No-Fragile)"
 La ergonomía de campo exige operabilidad con una sola mano, manipulación con guantes de cuero y resistencia a caídas sobre gravilla y barro. Se eliminaron pantallas LCD del mango del dispositivo (propensas a fracturarse en caídas o volverse ilegibles bajo el sol de mediodía de 100.000 lux) y se sustituyeron por **tres LEDs SMD ultrabrillantes discretos (0805) montados directamente en la PCB** —azul, verde y rojo, cada uno con su propio GPIO y resistencia limitadora— y una empuñadura ergonómica de ABS de alta densidad sellada con grado **IP67**. Se descartan expresamente las tiras y los LEDs direccionables: su controlador interno drena entre 0,7 y 1 mA de forma permanente aun con el LED apagado, lo que resultaría incompatible con el presupuesto de corriente de reposo del equipo.
@@ -85,7 +75,7 @@ El agricultor es dueño irrevocable de su equipo físico y de su información ge
 │   ┌─────────────────────────────────────────────────────────────────────┐   │
 │   │                      SISTEMA DE ALIMENTACIÓN                        │   │
 │   │  Batería LiPo Convencional (3.7V / 2.000 mAh)                       │   │
-│   │  PCB combinada carga USB-C + boost 5V (con proteccion de celda)          │   │
+│   │  Módulo Combo TP4056 + Step-Up 5V (BMS + Carga USB-C @ 1A)          │   │
 │   │  Interruptor Físico de Aislamiento Total                            │   │
 │   └──────────────────────────────────┬──────────────────────────────────┘   │
 │                                      │ Bus 5.0V Regulado                    │
@@ -101,14 +91,14 @@ El agricultor es dueño irrevocable de su equipo físico y de su información ge
 │   │                 SISTEMA DE SENSADO DUAL                             │   │
 │   │  1. Sonda Suelo 7-en-1 (Inox 316L): VWC, Temp, EC, pH, N, P, K      │   │
 │   │     Transceptor RS-485 SP3485 (Half-Duplex @ 9.600 bps)             │   │
-│   │  2. (Sin sensor ambiental: el clima llega por internet a la app)  │   │
+│   │  2. Sensor Ambiental I2C Bosch BME280: T° Aire, HR %, Presión Bar.  │   │
 │   └──────────────────────────────────┬──────────────────────────────────┘   │
 │                                      │ UART2 (GPIO 16/17) + I2C (GPIO 21/22)│
 │                                      ▼                                       │
 │   ┌─────────────────────────────────────────────────────────────────────┐   │
 │   │                 MICROCONTROLADOR PRINCIPAL                          │   │
 │   │  ESP32-WROOM-32 (Xtensa Dual-Core 32-bit @ 160/240 MHz)             │   │
-│   │  Radio BLE 4.2 (TX +9 dBm presupuestado, antena del modulo)          │   │
+│   │  Radio BLE 5.0 (Potencia TX: +9 dBm, Antena PCB Integrada)          │   │
 │   │  Memoria Flash 4 MB (Partición NVS para Bonding y Calibración)      │   │
 │   │  Micro-LEDs SMD + Pulsador Táctil de Muestreo (GPIO 0)              │   │
 │   └─────────────────────────────────────────────────────────────────────┘   │
@@ -126,19 +116,19 @@ El agricultor es dueño irrevocable de su equipo físico y de su información ge
   * Comunicación: Interfaz diferencial industrial RS-485 bajo protocolo Modbus RTU.
   * Tensión de Operación: **5,0V DC** (rango admisible de sonda 4.5V–30V).
   * Variables Sensadas: Humedad Volumétrica (VWC %), Temperatura del Suelo (°C), Conductividad Eléctrica (EC en $\mu\text{S/cm}$), pH del Suelo, Nitrógeno (N en $\text{mg/kg}$), Fósforo (P en $\text{mg/kg}$) y Potasio (K en $\text{mg/kg}$).
-* **Sensor agroclimático I2C (Bosch BME280) — ⚠️ NO incluido en el diseño vigente.** Se retiró del BOM; la app obtiene el ambiente desde un servicio meteorológico por internet. Se conserva la especificación por si se reincorpora:
+* **Sensor Agroclimático I2C (Bosch BME280):**
   * Montado en cámara de ventilación con membrana hidrofóbica ePTFE.
   * Variables Sensadas: Temperatura del Aire (°C), Humedad Relativa Ambiental (% HR) y Presión Barométrica (hPa) para el cálculo dinámico del Déficit de Presión de Vapor (VPD).
 
 ### 2.3. Subsistema de Potencia y Eficiencia Energética (Power Gating)
 * **Batería:** Batería convencional de polímero de litio (LiPo) de celda única ($3.7\text{V nominal} / 2.000\text{ mAh} / 7.4\text{ Wh}$).
-* **Módulo de carga y elevación:** **PCB combinada de carga USB-C y elevación a 5 V** ($900 netos, precio confirmado por los socios), con perfil CC/CV y protección de batería. *No se compran TP4056 ni MT3608 discretos por separado.*
+* **Módulo de Carga y Elevación:** Módulo integrado TP4056 + Step-Up con perfil de carga CC/CV a $1.0\text{ A}$ vía USB-C y circuito BMS de protección.
 * **Power Gating:** Transistor P-MOSFET controlado por el ESP32 (`GPIO5`) que desenergiza por completo la sonda 7-en-1 y el transceptor RS-485 en estado de reposo, logrando un consumo residual de **$0.0\,\mu\text{A}$** en la etapa de sensado.
 
 ### 2.4. Subsistema Mecánico y Envolvente Industrial IP67
 * **Carcasa:** Gabinete ergonómico compacto de mano en PETG técnico con sello de silicona perimetral (peso total < 280 g).
 * **Inserción Directa:** Electrodos de acero 316L montados directamente en la base portasonda para inserción manual en terreno.
-* **Grado de Protección:** **Objetivo** de estanqueidad IP67 según IEC 60529. ⚠️ **Sin ensayo ni certificación**: no hay actas de ingreso de polvo y agua sobre el producto final. Una junta o un prensaestopas no acreditan el grado.
+* **Grado de Protección:** Certificación de estanqueidad **IP67 según IEC 60529** (inmersión temporal en agua a 1 metro de profundidad durante 30 minutos y hermeticidad total frente al polvo de campo).
 
 ---
 
@@ -154,7 +144,7 @@ El firmware se estructura en tres tareas concurrentes con prioridades estrictas:
 │  ┌─────────────────────────────────┐   Prioridad 3 (Tiempo Real)            │
 │  │ Task_Sensors_Modbus (Núcleo 1)  │ ◄─ Dispara Power Gate 12V              │
 │  │ - Adquisición UART2 @ 115.200b  │ ◄─ 10 Muestras + Filtro Mediana Móvil  │
-│  │ - (sin lectura ambiental I2C)   │ ◄─ Apaga Power Gate tras 7 segundos    │
+│  │ - Lectura I2C BME280            │ ◄─ Apaga Power Gate tras 7 segundos    │
 │  └────────────────┬────────────────┘                                        │
 │                   │ Envía Struct Datos (16 Bytes) vía Cola FreeRTOS         │
 │                   ▼                                                         │
@@ -211,7 +201,7 @@ El firmware se estructura en tres tareas concurrentes con prioridades estrictas:
 | **RNF-01** | **Rendimiento** | Latencia de Veredicto Agronómico | El diagnóstico completo debe procesarse y renderizarse en $\le 5.0\text{ s}$. |
 | **RNF-02** | **Energía** | Autonomía de Batería en Campo | $\ge 1.500\text{ mediciones activas}$ por carga ($> 6\text{ meses}$ a 8 med/día). |
 | **RNF-03** | **Disponibilidad** | Operabilidad Desconectada (Offline) | El 100% de las funciones de sensado y diagnóstico operan sin conexión 4G. |
-| **RNF-04** | **Hermeticidad** | Grado de Protección Mecánica | **Objetivo** IP67 (inmersión $1\text{ m}$ por $30\text{ min}$). ⚠️ Requisito **no verificado**: pendiente de ensayo. |
+| **RNF-04** | **Hermeticidad** | Grado de Protección Mecánica | Cumplimiento de norma **IP67** (inmersión $1\text{ m}$ por $30\text{ min}$, sellado de polvo). |
 | **RNF-05** | **Metrología** | Precisión Operativa de Sensores | pH $\pm 0.1$, EC $\pm 3\%$, VWC $\pm 2\%$, Temperatura $\pm 0.3^\circ\text{C}$. |
 | **RNF-06** | **Accesibilidad** | Estándar Visual y Ergonómico | Contraste de interfaz compatible con **WCAG 2.1 Nivel AA** bajo sol directo. |
 | **RNF-07** | **Seguridad** | Privacidad de Datos y Conexión | Enlace BLE cifrado y aislamiento estricto de predios mediante **Row Level Security (RLS)**. |

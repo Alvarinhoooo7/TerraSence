@@ -1,5 +1,13 @@
 # 📈 Estudio de Viabilidad Técnica y Económica de las Alternativas vs. TerraSense
 
+> ### ⚠️ Estado de verificación
+> Revisado tras la [auditoría del 4 de septiembre de 2026](AUDITORIA_READMES_2026-09-04.md). **TerraSense es un prototipo en validación: este documento no acredita viabilidad comprobada ni rentabilidad probada.**
+>
+> - **Cifras económicas:** la fuente única es [`RESULTADOS_FINANCIEROS.md`](RESULTADOS_FINANCIEROS.md), generado por `python finanzas/modelo.py`. Supuestos y límites en [`MODELO_ECONOMICO.md`](MODELO_ECONOMICO.md).
+> - **Prestaciones de hardware** (IP67, autonomía, consumo en reposo, peso, precisión): **objetivos de diseño sin ensayo**.
+> - **N, P y K:** derivados de conductividad eléctrica. **No son análisis químicos** y no sustentan decisiones de fertilización.
+> - **Comparaciones de competencia:** los precios de esta versión son los verificados el 04-09-2026; las capacidades de los competidores se corrigieron al alza.
+
 > **Proyecto:** TerraSense — Tu Ingeniero Agrónomo en el Bolsillo  
 > **Área:** Evaluación de Proyectos, Benchmarking Técnico-Financiero y Metrología Agrícola  
 > **Institución:** Ingeniería en Electrónica y Sistemas Inteligentes — INACAP  
@@ -44,13 +52,15 @@ El presente estudio tiene por objeto evaluar de forma cuantitativa y rigurosa la
 | **Conductividad (EC)** | $\pm 8\%$ | $\pm 2\%$ (Compensada T°) | $\pm 1\%$ (Extracto saturado)| No mide | **$\pm 3\%$ (Compensada T°)** |
 | **pH del Suelo** | $\pm 0.5\text{ pH}$ | $\pm 0.1\text{ pH}$ (Slurry) | $\pm 0.02\text{ pH}$ (Potenciom.)| No mide | **$\pm 0.1\text{ pH}$ (Estado Sólido)** |
 | **Nitrógeno, Fósforo y Potasio**| ❌ No mide | ❌ No mide | $\pm 1\%\text{ ppm}$ (ICP-OES) | Visual (Deficiencia) | **$\pm 5\%\text{ mg/kg}$ (Reactividad CA)**|
-| **Variables Ambientales (Aire)**| ❌ No mide | ❌ No mide | ❌ No mide | Termómetro de mano | **$\pm 0.5^\circ\text{C} / \pm 3\%\text{ HR}$ (BME280)**|
+| **Variables Ambientales (Aire)**| ❌ No mide | ❌ No mide | ❌ No mide | Termómetro de mano | ⚠️ **Sin sensor a bordo.** El BME280 no está en el diseño vigente; el ambiente proviene de un servicio meteorológico por internet |
 
 * **Conclusión Metrológica:** Aunque el laboratorio tradicional ofrece la máxima exactitud analítica de referencia, **TerraSense entrega una precisión operativa de $\ge 95\%$ en campo**, holgadamente suficiente para la toma de decisiones agronómicas diarias de siembra, riego y fertilización.
 
 ---
 
 ### 2.2. Robustez Mecánica y Resistencia a Condiciones Extremas de Campo (IP67)
+
+> ⚠️ **IP67 es un objetivo de diseño, no una prestación verificada.** No hay actas de ensayo de ingreso de polvo y agua, pesaje del conjunto ensamblado ni validación mecánica. Una junta, un prensaestopas o una resina **no constituyen certificación**. Lo que sigue describe el criterio de diseño; los puntajes de la matriz de §2.4 son **estimaciones internas, no resultados de ensayo**.
 
 ```text
 EVALUACIÓN DE ROBUSTEZ Y VULNERABILIDAD MECÁNICA EN CAMPO:
@@ -98,10 +108,14 @@ EVALUACIÓN DE ROBUSTEZ Y VULNERABILIDAD MECÁNICA EN CAMPO:
 ### 3.1. Estructura de Costos de Adquisición (CAPEX) y Operación (OPEX)
 
 $$\begin{aligned}
-\text{CAPEX (TerraSense):} & \quad \mathbf{\$249.990\text{ CLP}}\quad(\text{Precio con IVA, \$210.076 CLP neto, pago único de por vida}) \\
-\text{OPEX (TerraSense):} & \quad \mathbf{\$0\text{ CLP/año}}\quad(\text{Sin suscripciones recurrentes, software local offline, recarga USB-C}) \\
-\text{Costo Marginal:} & \quad \mathbf{\$0\text{ CLP por cada medición adicional}}
+\text{CAPEX (TerraSense):} & \quad \mathbf{\$349.990\text{ CLP}}\quad(\text{Precio con IVA, \$294.109 CLP neto, pago único}) \\
+\text{OPEX para el usuario:} & \quad \text{Sin suscripción; consumibles y recambios NO son cero} \\
+\text{Cobro por medición:} & \quad \mathbf{\$0}\quad(\text{no equivale a costo marginal cero})
 \end{aligned}$$
+
+> **Precisiones.** El precio de $349.990 es una **hipótesis comercial a validar con pilotos pagados**, no un precio demostrado; el anterior de $249.990 se conserva solo como sensibilidad en el modelo.
+>
+> **«OPEX $0» y «costo marginal cero» son formulaciones incorrectas.** No hay suscripción ni cobro por lectura —eso sí es cierto, y es el diferenciador—, pero el uso implica tiempo de muestreo, limpieza, calibración, energía, mantenimiento y desgaste, y el propio TCO de §3.3 incorpora buffers y baterías. Para la empresa, además, los servicios de nube tienen costo: **no se promete gratuidad perpetua**.
 
 ---
 
@@ -114,19 +128,21 @@ $2.500.000 │                                                   / Laboratorio T
 $2.000.000 │                                                 / ($50.000 CLP / muestra)
 $1.500.000 │                                               /
 $1.000.000 │                                             / 
-  $500.000 │                          /─────────────────  Bluelab Combo ($500.000 CLP)
-  $249.990 │ ═══════════════════════════════════════════  TerraSense IoT ($249.990 ÚNICO)
+  $500.000 │                          /─────────────────  Combo importado (referencial)
+  $349.990 │ ═══════════════════════════════════════════  TerraSense ($349.990 ÚNICO)
         $0 └───────┬───────────────┬───────────────┬───────────────► N° Muestras
                   10              50             100             200
 ```
 
 | Volumen de Muestreos Anuales | Costo Laboratorio ($50K/u) | Costo Asesor ($120K/visita) | Costo Bluelab + pH | **Costo TerraSense IoT** |
 | :--- | :---: | :---: | :---: | :---: |
-| **1 Medición** | $50.000 CLP | $120.000 CLP | $500.000 CLP | **$249.990 CLP** |
-| **5 Mediciones** | $250.000 CLP | $600.000 CLP | $500.000 CLP | **$249.990 CLP** |
-| **10 Mediciones (Mapeo Predio)** | $500.000 CLP | $1.200.000 CLP | $500.000 CLP | **$249.990 CLP** |
-| **50 Mediciones (Monitoreo Riego)**| $2.500.000 CLP | $6.000.000 CLP | $500.000 CLP | **$249.990 CLP** |
-| **200 Mediciones (Temporada)** | $10.000.000 CLP | Inviable | $500.000 CLP | **$249.990 CLP** |
+| **1 Medición** | $50.000 CLP | $120.000 CLP | $500.000 CLP | **$349.990 CLP** |
+| **5 Mediciones** | $250.000 CLP | $600.000 CLP | $500.000 CLP | **$349.990 CLP** |
+| **10 Mediciones (Mapeo Predio)** | $500.000 CLP | $1.200.000 CLP | $500.000 CLP | **$349.990 CLP** |
+| **50 Mediciones (Monitoreo Riego)**| $2.500.000 CLP | $6.000.000 CLP | $500.000 CLP | **$349.990 CLP** |
+| **200 Mediciones (Temporada)** | $10.000.000 CLP | Inviable | $500.000 CLP | **$349.990 CLP** |
+
+> **Cómo leer esta curva.** Muestra correctamente que **el costo por lectura baja con la frecuencia de uso**, porque no hay tarifa por medición. **No demuestra un ahorro:** una lectura de TerraSense no es un análisis de laboratorio evitado, y un muestreo compuesto bien diseñado no requiere un informe por punto. Los precios de las columnas de laboratorio y asesoría **no tienen cotización con fecha, IVA ni alcance declarado**.
 
 ---
 
@@ -140,161 +156,139 @@ Para un predio representativo de 3 hectáreas con un régimen de monitoreo está
 | **Asesor Agronómico (6 visitas/año)** | $720.000 CLP | $2.160.000 CLP | $3.600.000 CLP |
 | **Bluelab Pulse + Soil pH Pen** | $520.000 CLP | $640.000 CLP *(Sondas rep.)*| $780.000 CLP |
 | **Spectrum TDR 350 + Suscripción** | $1.950.000 CLP | $2.550.000 CLP | $3.150.000 CLP |
-| **TerraSense IoT (Kit Completo)** | **$249.990 CLP** | **$265.000 CLP** *(Buffers)* | **$285.000 CLP** *(Baterías)*|
+| **TerraSense (kit completo)** | **$349.990 CLP** | **$365.000 CLP** *(buffers)* | **$385.000 CLP** *(baterías)*|
 
-> [!IMPORTANT]
-> **Ahorro Financiero a 5 Años:** TerraSense representa un **ahorro de más del 94 %** frente al laboratorio químico y un **63 % de ahorro** frente a combos comerciales importados sin prescripción agronómica.
+> [!WARNING]
+> **Esta tabla no debe usarse como argumento de ahorro.** La auditoría identificó tres problemas:
+>
+> 1. **No es correcto monetizar cada lectura de TerraSense como un análisis de laboratorio evitado** mientras se declara —correctamente— que no son sustitutos analíticos. Comparan cosas distintas.
+> 2. El propio TCO incorpora buffers y baterías, lo que **contradice** la afirmación de «costo invariable de por vida» usada en otras secciones. La formulación defendible es **«sin cobro por lectura»**, no «costo marginal cero»: el uso implica tiempo de muestreo, limpieza, calibración, energía, mantenimiento y desgaste.
+> 3. Los precios de laboratorio, asesoría y equipos importados de esta tabla **no tienen cotización con fecha, IVA, despacho y accesorios**. El régimen de 20 mediciones/temporada es un supuesto, no un patrón de uso observado.
+>
+> Lo que sí puede afirmarse: **el pago es único y no hay tarifa por medición**, lo que hace que el costo por lectura baje con la frecuencia de uso. Cuánto ahorra un predio concreto depende de su manejo y **no se ha medido**.
 
 ---
 
 ### 3.4. Análisis de Sensibilidad y Mitigación de Pérdidas Productivas
 
-* **Caso Real en Hortalizas (Tomate / Maíz Dulce en 1 ha):**
-  * Evitar 2 sacos de urea/potasio bloqueados por acidez: $\$100.000\text{ CLP}$.
-  * Evitar resiembra de 0.5 ha por suelo frío ($< 10^\circ\text{C}$): $\$350.000\text{ CLP}$.
-  * Ahorro de 15 horas de motobomba de riego por monitoreo de VWC: $\$45.000\text{ CLP}$.
-  * **Beneficio directo generado en Temporada 1:** **$495.000 CLP**.
-  * **Retorno sobre la Inversión (ROI):**
-    $$\text{ROI} = \frac{\$495.000 - \$249.990}{\$249.990} \times 100 = \mathbf{+98,0\% \text{ en menos de 6 meses (1 temporada)}}$$
+> [!CAUTION]
+> **El «caso real» de $495.000 y el ROI de 98 % quedan retirados.**
+>
+> No era un caso real: **no hay predio, fecha, cultivo, control, registro de insumos ni ensayo** que lo respalde. La aritmética del ROI era correcta, pero **el beneficio causal nunca se demostró**, y un daño potencial evitable no equivale a un ahorro atribuible al producto.
+>
+> Lo mismo aplica a las magnitudes que circulaban en la documentación —30–50 % de emergencia, 60 % del fósforo inmovilizado, $350.000–$700.000 por hectárea—: requieren cultivo, dosis, suelo, temporada, fuente y cálculo identificados.
+
+**Qué haría falta para sostener un ROI:** un piloto con predio identificado, cultivo y superficie declarados, grupo de control o línea base, registro de insumos aplicados y rendimiento medido al cierre de temporada. Está en el [plan de validación](PLAN_VALIDACION.md) como trabajo pendiente, **no como resultado disponible**.
+
+Mientras tanto, el argumento defendible es cualitativo: **decidir sin datos tiene un costo, y el valor de medir crece con la incertidumbre**. No se cuantifica ese costo en la documentación comercial.
 
 ---
 
-## 4. Estructura de Financiamiento, Estrategia Comercial Go-To-Market y Evaluación de Rentabilidad
+## 4. Financiamiento, estrategia comercial y evaluación de rentabilidad
 
-### 4.1. Estructura de Financiamiento: Capital Propio y Deuda Bancaria ($0 Subsidio Estatal)
+> **Esta sección fue reemplazada tras la [auditoría del 4 de septiembre de 2026](AUDITORIA_READMES_2026-09-04.md).** La versión anterior mezclaba el flujo del proyecto con el del accionista, aplicaba una tasa de impuesto uniforme, omitía comisiones de canal y presentaba como «retorno del socio» la suma de su sueldo bruto más dividendos.
+>
+> **Fuente única de las cifras económicas:** [`RESULTADOS_FINANCIEROS.md`](RESULTADOS_FINANCIEROS.md), generado por `python finanzas/modelo.py` desde [`finanzas/supuestos.json`](../finanzas/supuestos.json). Los supuestos y sus límites están en [`MODELO_ECONOMICO.md`](MODELO_ECONOMICO.md). **Si una cifra de este documento no coincide con esa fuente, la correcta es la de la fuente.**
 
-El proyecto se estructura bajo un principio de **autosuficiencia financiera absoluta**, sin depender de fondos concursables del Estado (CORFO, Sercotec, FIA = $0):
+### 4.1. Financiamiento propuesto
 
-$$\textbf{Inversión Inicial Total: } \mathbf{\$26.548.500\text{ CLP}}$$
+| Concepto | Monto CLP |
+| :--- | ---: |
+| Desembolso inicial (activos, desarrollo, formalización e inventario, con IVA prudencial) | $11.248.388 |
+| Aporte de los socios ($4.500.000 cada uno) | $9.000.000 |
+| Crédito dimensionado — 10 años, 12 % efectivo anual **supuesto** | $27.700.000 |
+| Gastos de apertura presupuestados (2 %) | $554.000 |
+| Caja inicial, **con la reserva incluida** | $24.897.612 |
 
-| Componente | Monto ($ CLP) | % del Total | Naturaleza Financiera |
-| :--- | ---:|:---:| :--- |
-| **Capital Propio (Pie de los 2 Socios)** | **$8.900.000** | **33,52 %** | **$4.450.000 CLP por socio**. Depósito líquido directo en la cuenta de la SpA. Es el respaldo de patrimonio que la banca exige ver para cursar financiamiento. |
-| **Crédito Bancario de Largo Plazo** | **$12.648.500** | **47,64 %** | Crédito comercial a **5 años (60 meses)**, tasa **10 % anual**, amortización en sistema francés (cuota anual de $3.336.642 CLP = ~$278.000 CLP/mes). Respaldado con garantía FOGAPE y aval de los socios. |
-| **Línea de Crédito de Corto Plazo** | **$5.000.000** | **18,83 %** | Línea de capital de trabajo a **1 año, 15 % anual**. Destinada a cubrir el desfase de caja del primer lote de importación de sensores y componentes. |
-| **Financiamiento Estatal (CORFO / Subsidios)**| **$0** | **0,0 %** | Cero por decisión estratégica: el proyecto debe ser rentable por sus propios méritos desde el día 1. |
-| **TOTAL FINANCIAMIENTO** | **$26.548.500** | **100,0 %** | Calce exacto con la inversión inicial clasificada. |
+El crédito se dimensiona como el **mínimo, en tramos de $100.000, que mantiene la reserva objetivo durante los primeros 24 meses** del escenario base. La reserva son 3 meses de gastos fijos —marketing incluido— más la cuota, más un 10 % del desembolso inicial, y **está dentro de la caja**: no es un gasto adicional ni se suma dos veces a la inversión.
 
----
+> ⚠️ **No existe oferta bancaria.** El 12 % efectivo anual y el 2 % de apertura son presupuestos, **no un CAE cotizado**. FOGAPE es una **garantía estatal sujeta a evaluación**, no un subsidio, una condonación ni una aprobación previa. Una ficha comercial general no prueba el acceso de una empresa sin ventas. Si el banco no ofrece el plazo o exige garantías inaceptables, corresponde **reducir el lanzamiento y validar preventas**, no sustituirlo por un crédito personal.
 
-### 4.2. Estrategia Comercial Año 1: E-commerce Shopify, Pauta Digital Autogestionada y Cierre en WhatsApp
+### 4.2. Comparación de alternativas de deuda (mismo principal)
 
-Para el primer año (meta de **200 unidades vendidas = 16 a 17 unidades mensuales**), la empresa no contrata agencias ni distribuidores intermediarios:
+| Alternativa | Cuota mensual | Intereses totales | Saldo al año 5 | Mín. sobre reserva (24 m) | DSCR año 1 |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| 5 años | $607.619 | $8.757.127 | $0 | **−$4.525.964** | 0,66 |
+| **10 años (propuesta)** | **$387.654** | **$18.818.441** | **$17.672.276** | **$45.210** | **1,04** |
+| 15 años | $321.593 | $30.186.829 | $22.979.635 | $1.366.413 | 1,25 |
+| 5 años + $5 M al 15 % pagados en el mes 12 | $497.940 | $7.926.418 | $0 | **−$7.910.523** | 0,41 |
 
-1. **Tienda E-commerce en Shopify como Ancla de Confianza:**
-   * **Facturación Electrónica Oficial:** Conexión con facturador chileno para emisión automática de Factura con IVA. El productor o empresa agrícola descuenta el 19% de crédito fiscal y registra la sonda como gasto de la explotación.
-   * **Pasarelas de Pago en Cuotas:** Integración con Transbank Webpay Plus y Mercado Pago, permitiendo a agrónomos y administradores pagar los $249.990 CLP (IVA incl.) en **3 ó 6 cuotas sin interés** (~$41.600 a $50.000 CLP/mes).
-   * **Señales de Confianza (*Trust Signals*):** RUT visible, garantía técnica por escrito de 1 año, manuales descargables y convenios de despacho trazable con Bluexpress y Starken.
-2. **Pauta Digital Directa en Meta Ads y Google Ads ($1.200.000 CLP/año):**
-   * Presupuesto mensual de ~$100.000 CLP gestionado directamente por los fundadores.
-   * **Meta Ads (Facebook / Instagram):** Videos grabados en terreno real mostrando la inserción del sensor portátil de mano en el suelo y el veredicto en la app en 5 segundos.
-   * **Google Ads (Búsqueda):** Captura de demanda activa con palabras clave de alta intención (*"sensor ph suelo chile"*, *"medidor humedad suelo precio"*, *"analisis npk portatil"*).
-3. **Embudo Conversacional (Click-to-WhatsApp):**
-   * El agricultor chileno no compra tecnología de $250.000 CLP en un carrito frío: hace clic en el anuncio y va directo al WhatsApp de la empresa.
-   * Los socios fundadores brindan asesoría técnica en vivo, resuelven dudas agronómicas específicas de su cultivo (ej. cerezos, paltos, viñas) y coordinan el pago y despacho.
-4. **Público Objetivo Ultra-Conservador (0,17 % al 0,44 % del Mercado):**
-   * No se gasta presupuesto en agricultores tradicionales de 70 años sin smartphone.
-   * La pauta se dirige quirúrgicamente al **recambio generacional** (hijos de agricultores de 28 a 45 años que administran el campo), administradores de fundos tecnificados y agrónomos asesores independientes. Vender 200 unidades representa apenas el **0,11 % del TAM censal** (175.556 explotaciones) o el **0,17 % del SAM**.
+El esquema anterior de **dos créditos** exigía **$11.725.284 de servicio de deuda el primer año** y dejaba la caja **$7,9 millones bajo la reserva**: por eso se abandonó. Quince años mejora la cobertura, pero encarece los intereses en casi $11,4 millones frente a diez años y prolonga la exposición de un producto tecnológico no validado.
 
----
+### 4.3. Estrategia comercial
 
-### 4.3. Escalamiento Comercial Año 2 en Adelante: Agencia de Marketing Externa
+**Año 1:** venta directa digital autogestionada por los socios, con tienda formal y facturación electrónica. Presupuesto de marketing de **$6.000.000 anuales** ($30.000 por venta objetivo).
 
-A partir del segundo año, con el producto validado en terreno y flujo de caja operativo positivo, la empresa profesionaliza su tracción comercial:
+El embudo de referencia —60 % de ventas atribuibles a anuncios, CAC publicitario de $50.000, cierre del 5 % sobre contactos calificados, lo que exigiría 2.400 contactos y un CPL de $2.500 para 120 ventas— **son objetivos de trabajo, no conversiones observadas**. Las 80 ventas restantes provendrían de pilotos, recomendaciones y contacto directo, tampoco demostrados.
 
-* **Contratación de Agencia de Marketing Externa:**
-  * Presupuesto de comercialización: **$7.080.000 CLP (Año 2)**, **$10.680.000 CLP (Año 3)**, **$12.000.000 CLP (Año 4)** y **$14.400.000 CLP (Año 5)**.
-  * **Eficiencia frente a equipo interno:** Contratar un ingeniero de marketing full-time significaría un sueldo cargado de ~$12M a $14M anuales más el costo de pauta publicitaria aparte. La agencia externa por retainer mensual incluye diseño, optimización de campañas y pauta a escala de manera mucho más flexible.
-* **Apertura de Canales Institucionales y Distribuidores:**
-  * Año 2: Postulación de agricultores a fondos de cofinanciamiento INDAP (PDI cofinancia 60% a 90%).
-  * Año 3: Convenios con distribuidores de insumos agrícolas y arriendo del primer taller formal.
-  * Años 4 y 5: Compras colectivas con cooperativas agrícolas y venta multirregional (850 u/año).
+El modelo presupuesta un **5 % del precio bruto** como costo comercial agregado, que incluye el riesgo de la tarifa adicional por pagos externos. **No es una tarifa verificada de una pasarela**, y el modelo **no contempla ventas en cuotas, a crédito ni descuentos de distribuidor**: cada una de esas modalidades exige un escenario financiero propio y no puede financiarse con el margen de la venta directa.
 
----
+**Escalamiento:** la agencia externa ($250.000/mes de gestión, aparte de la pauta) se activa **solo al superar un objetivo de 650 ventas anuales** —año 4 en el escenario base—, no en el año 2. Los canales institucionales y de distribución están **fuera del modelo actual**.
 
-### 4.4. Estructura de Dotación y Validación de Costos Contables en Chile (Mercado 2024-2026)
+**Regla de gestión:** subir el presupuesto de adquisición **solo después** de medir CAC por cohorte, conversión, devoluciones, margen después de soporte y capacidad de entrega. Evaluar campañas en lotes pequeños y detener las que destruyen contribución. **Pagar más no garantiza vender más.**
 
-La estructura de personal y servicios profesionales de TerraSense responde estrictamente a la realidad operacional de una microempresa tecnológica en Chile:
+### 4.4. Dotación y contabilidad
 
-#### 1. Validación de Mercado del Servicio Contable: Outsourcing vs. Nómina Indefinida
-* **Inviabilidad de contratar un contador interno indefinido en el Año 1:**
-  * **Sueldo Bruto de Mercado (Fuentes: Indeed Chile, Talent.com, Computrabajo, Guías Salariales Robert Half y Michael Page 2024-2025):** Un Contador General o Auditor recién egresado o junior en Chile percibe entre **$850.000 y $1.300.000 CLP brutos mensuales**; para profesionales con dominio de ERPs o tributaria supera los **$1.600.000 CLP**.
-  * **Costo Real Empleador (Cargas Patronales y Gratificación Legal):** Considerando sueldo base de $900.000 CLP + gratificación legal (Art. 50 Código del Trabajo, 25% con tope de 4,75 IMM) + aportes patronales obligatorios (SIS 1,49%, AFC empleador 2,4%, Mutual de Seguridad 1,83%), el costo empresa asciende a **$1.150.000 a $1.350.000 CLP mensuales** (**$13.800.000 a $16.200.000 CLP anuales**).
-  * **Diagnóstico Operacional:** En el Año 1 la empresa emite apenas 16-17 facturas de venta al mes, registra ~8 facturas de compras y liquida 2 sueldos de socios (carga real: 3 a 4 horas de trabajo al mes). Pagar $15M/año representaría el **36% de las ventas netas totales del Año 1 ($42M)**, quebrando la empresa de inmediato.
-* **Modelo Adoptado: Outsourcing Contable Especializado para PYMEs:**
-  * **Tarifas Reales de Mercado (Fuentes: Contabilizate.cl, TuContador.cl, ChileContador.cl, DeNegocios.cl, Contable.app):** Los planes mensuales de abono contable para microempresas bajo Régimen Pro Pyme (Art. 14 D3 y 14 D8) con hasta 50 documentos mensuales oscilan entre **1,5 UF y 2,5 UF/mes** ($57.000 a $95.000 CLP mensuales).
-  * **Asignación en el Modelo de TerraSense (`GASTOS FIJOS 5 AÑOS`, Fila 12):**
-    * **Año 1:** **$70.000 CLP/mes ($840.000 CLP/año = ~1,84 UF/mes):** Calce exacto de mercado para F29 mensual, Registro Centralizado de Compras/Ventas, Previred y DJ/Renta anual.
-    * **Año 2:** **$80.000 CLP/mes ($960.000 CLP/año = ~2,1 UF/mes):** Sube al incorporar el primer técnico a medio tiempo.
-    * **Años 3 y 4:** **$140.000 CLP/mes ($1.680.000 CLP/año = ~3,7 UF/mes):** Escala por arriendo de taller físico formal (tramitación y pago semestral de Patente Comercial Municipal + nómina ampliada).
-    * **Año 5:** **$165.000 CLP/mes ($1.980.000 CLP/año = ~4,3 UF/mes):** Soporte tributario y laboral para 850 u/año.
+**Contador externo desde el mes 1** —antes incluso, para la apertura, el régimen tributario y el diseño de remuneraciones—: $120.000/mes de base más $20.000 por cada FTE contratado, reajustado. **No existe una regla que obligue a contratar un contador interno en un año determinado**; existen obligaciones tributarias desde el inicio y una necesidad operativa de asesoría.
 
-#### 2. Dotación de Operarios y Ensamblaje
-* **Año 1 (200 unidades):** Los fundadores absorben el ensamble (300 horas anuales totales = 6 horas/semana entre ambos, 3 h/sem c/u). Costo externo: $0.
-* **Año 2 en adelante:** Contratación de técnicos egresados de liceos industriales o centros de formación técnica a sueldo de Ingreso Mínimo Mensual cargado (+5% costo patronal), dimensionado según las horas efectivas requeridas (2,25 h/unidad para ensamble, calibración, QA y embalaje):
-  * **Año 2:** 0,5 FTE ($3.490.000 CLP/año).
-  * **Años 3 y 4:** 1,0 FTE ($6.980.000 CLP/año).
-  * **Año 5:** 1,5 FTE ($10.460.000 CLP/año).
+**Remuneración de los socios:** base mensual bruta de $600.000, $700.000, $850.000, $1.000.000 y $1.200.000 por socio en moneda del año inicial, más reajuste anual del 3 %. **No son sueldos líquidos.** El modelo reserva un **35 % sobre sueldos** para gratificación y cargas patronales: es un presupuesto, **no una tasa legal única** —el modelo anterior usaba 5 %, que no es defendible— y debe someterse también a un estrés de 45 %. La condición laboral y tributaria de socios con control de la empresa **debe revisarla el contador**.
 
----
+**Contratación por capacidad**, en escalones de 0,5 FTE sobre 1.400 horas productivas anuales por FTE:
 
-### 4.5. Retorno Financiero y Ganancias de los Socios Fundadores (Álvaro y Alan)
+| Año | 2027 | 2028 | 2029 | 2030 | 2031 |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| Técnicos FTE (2,25 h/equipo; socios aportan 500 h) | 0 | 0,5 | 0,5 | 1,0 | 1,5 |
+| Soporte/comercial FTE (2 h/venta + 0,5 h/equipo activo; socios aportan 900 h) | 0 | 0 | 0,5 | 1,0 | 1,5 |
 
-El modelo financiero oficial estipula con total transparencia cuánto percibe cada uno de los socios fundadores (**reparto igualitario 50% Álvaro Villena y 50% Alan**) a través de dos mecanismos complementarios: **Sueldo Empresarial Fijo Mensual** (Art. 31 N° 6 LIR) y **Reparto de Dividendos / Excedentes de Caja Libre**.
+FTE es **equivalente de jornada presupuestado, no número de contratos**. Los tiempos de ensamblaje, prueba y retrabajo son presupuestos por recalcular con datos reales.
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                        RESUMEN DE INGRESOS POR SOCIO (ÁLVARO Y ALAN) AÑO A AÑO                         │
-├───────┬───────────────────────────────┬───────────────────────────────┬────────────────────────────────┤
-│  Año  │  Sueldo Bruto por Socio       │  Dividendo Disponible (50%)   │  TOTAL ANUAL POR SOCIO         │
-├───────┼───────────────────────────────┼───────────────────────────────┼────────────────────────────────┤
-│ Año 1 │ $553.553/mes ($6.642.636/año) │ $0 (Caja paga deuda bancaria) │ $6.642.636 (~$553.553/mes)     │
-│ Año 2 │ $600.000/mes ($7.200.000/año) │ +$4.132.949 al año            │ $11.332.949 (~$944.412/mes)    │
-│ Año 3 │ $900.000/mes ($10.800.000/a)  │ +$3.825.424 al año            │ $14.625.424 (~$1.218.785/mes)  │
-│ Año 4 │ $1.000.000/m ($12.000.000/a)  │ +$9.791.763 al año            │ $21.791.763 (~$1.815.980/mes)  │
-│ Año 5 │ $1.200.000/m ($14.400.000/a)  │ +$15.245.981 al año           │ $29.645.981 (~$2.470.498/mes)  │
-├───────┴───────────────────────────────┴───────────────────────────────┴────────────────────────────────┤
-│ TOTAL ACUMULADO POR SOCIO A 5 AÑOS (Sueldos + Dividendos): $84.038.754 CLP                             │
-│ RETORNO NETO REAL (Descontando el pie inicial de -$4.450.000): +$79.588.754 CLP limpios                │
-└────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-```
+### 4.5. Retorno de los socios
 
-#### Dinámica de los Retiros
-1. **Año 1 ($6.642.636 por socio):** Viven exclusivamente de su sueldo empresarial mensual ($553.553 bruto, ~$450.000 líquido c/u). No hay reparto de dividendos porque la caja absorbe la devolución íntegra de la línea de crédito de corto plazo ($5.000.000) y la primera cuota de amortización bancaria ($2.071.792).
-2. **Años 2 y 3 ($11.3M a $14.6M/año por socio):** Sueldo mensual sube a $600.000 y $900.000 brutos. Con la deuda corta saldada, la empresa genera entre $7,6M y $8,2M de flujo libre al año, permitiendo retirar ~$3,8M a $4,1M anuales en dividendos por socio.
-3. **Años 4 y 5 ($21.8M a $29.6M/año por socio):** Con ventas de 650 a 850 unidades, el sueldo asciende a $1.000.000 y $1.200.000 brutos mensuales, y los dividendos anuales escalan a $9,8M (Año 4) y $15,2M (Año 5) para cada fundador.
-4. **Balance Global:** Tras 5 años, cada socio recupera con creces sus **$4.450.000 de pie aportado**, percibiendo **+$79.588.754 CLP limpios** en su bolsillo (multiplicador de 17,9x sobre el capital invertido) y manteniendo el 50% de la propiedad de una empresa consolidada, sin pasivos financieros y operando a escala multirregional.
+Hay que separar dos cosas que la versión anterior de este documento mezclaba:
+
+* **Remuneración por trabajar:** es **costo laboral de la empresa**, deducible y sujeto a revisión contable. Nunca es retorno del capital.
+* **Retorno del capital: no se publica.** No existe una política de dividendos definida, y el FCFE es generación de caja de la empresa, **no un depósito al socio**.
+
+La cifra de **«+$79.588.754 limpios en el bolsillo» queda retirada**: sumaba el sueldo bruto del socio al retorno de su inversión, lo que no tiene significado financiero. Tampoco se publica un multiplicador de 17,9×. Los dividendos y prepagos se decidirán anualmente con información real y con la reserva cubierta.
+
+### 4.6. Indicadores de evaluación y escenarios
+
+| Año | Ventas | EBITDA | Servicio deuda | Caja final | Reserva | DSCR | Equilibrio op./deuda |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 2027 | 200 | $5.709.528 | $4.651.844 | $25.061.618 | $10.327.800 | **1,04** | 170 / 195 |
+| 2028 | 350 | $21.324.647 | $4.651.844 | $39.526.551 | $14.033.662 | 4,11 | 241 / 265 |
+| 2029 | 500 | $35.078.302 | $4.651.844 | $61.191.779 | $18.646.878 | 5,66 | 326 / 349 |
+| 2030 | 650 | $40.278.414 | $4.651.844 | $85.276.292 | $25.866.117 | 6,18 | 456 / 478 |
+| 2031 | 850 | $56.043.380 | $4.651.844 | $123.092.636 | $33.596.641 | 9,13 | 588 / 610 |
+
+| Escenario | Ventas año 1 | Mín. caja libre 24 m | VAN proyecto 5 años al 20 % |
+| :--- | ---: | ---: | ---: |
+| **Base** | 200 | $45.210 | **+$21.874.878** |
+| **Estrés** (−35 % ventas, mismo marketing) | 130 | **−$19.803.623** | **−$47.949.651** |
+| **Crecimiento** (+50 % ventas y adquisición) | 300 | $824.154 | +$87.302.635 |
+
+**Perspectivas separadas:** el **FCFF** es el flujo del proyecto, con impuesto calculado **sin** deducir intereses; el **FCFE** es el flujo después de intereses, capital e impuesto con financiamiento. No se mezclan para el VAN. El VAN usa flujos mensuales, **sin valor de rescate, sin recuperación de reserva o inventario y sin valor terminal**; la reserva inicial se trata como capital comprometido y los gastos de apertura pertenecen al financiamiento, no al FCFF.
+
+**Impuestos:** aproximación de caja Pro Pyme con pérdidas arrastradas, con tasas de referencia de 12,5 % (2027), 15 % (2028) y 25 % en adelante según la [Circular SII 53/2025](https://www.sii.cl/normativa_legislacion/circulares/2025/circu53.pdf). **No reproduce F29, PPM ni la declaración de abril, y no debe usarse para declarar.** El modelo anterior aplicaba 25 % uniforme a todos los años, lo que no corresponde.
+
+**No se publican TIR ni Pay Back.** Faltan insumos que cambian materialmente esas respuestas.
 
 ---
 
-### 4.6. Indicadores de Evaluación Económica y Flujo de Fondos a 5 Años
+## 5. Veredicto y conclusiones del estudio de viabilidad
 
-El modelo económico maestro (`Flujo de caja y financiamiento - TerraSense.xlsx`) arroja los siguientes resultados auditados:
+1. **Viabilidad técnica: plausible en software, no comprobada en hardware.** El motor agronómico determinista funciona sin conexión, la app tiene 18 pruebas unitarias aprobadas y chequeo de tipos limpio, y la consola web compila. **No existe** PCB ruteada, firmware en el repositorio, cierre de ERC, medición de consumo desde batería ni ensayo de sellado. Las 7 variables provienen de la sonda; **las variables de ambiente vienen de un servicio meteorológico por internet, no de un sensor a bordo**, y el tiempo de respuesta extremo a extremo no está medido.
 
-| Indicador Financiero | Valor Oficial | Criterio de Aceptación | Veredicto del Proyecto |
-| :--- | ---:|:---:|:---:|
-| **Precio de Venta Neto (sin IVA)** | **$210.076 CLP** | Techo de negocio $249.990 con IVA | ✔ Óptimo |
-| **Costo Variable Unitario Entregado** | **$91.309 CLP** | BOM $70.656 + flete + mano de obra | ✔ 71,7 % margen sobre BOM |
-| **Margen de Contribución Unitario** | **$118.767 CLP** | Margen del 56,5 % sobre precio neto | ✔ Cubre estructura fija |
-| **Punto de Equilibrio Contable (Año 1)**| **166 unidades** | < 200 unidades planificadas | ✔ **Holgura de seguridad de 20,5 %** |
-| **V.A.N. (Tasa de Descuento 20 % anual)**| **+$2.588.182 CLP** | VAN > 0 (Crea valor económico) | ✔ **Proyecto Rentable** |
-| **V.A.N. (Tasa de Descuento 15 % anual)**| **+$8.241.084 CLP** | Tasa bancaria estándar PYME | ✔ **Crecimiento Sólido** |
-| **T.I.R. (Tasa Interna de Retorno)** | **22,72 %** | TIR > 20 % exigido | ✔ **Supera Tasa de Corte** |
-| **Pay Back (Plazo de Recuperación)** | **3,71 años** | Recuperación antes de 5 años | ✔ **Cruza a positivo en Año 4** |
-| **Utilidad Neta Año 1** | **+$2.985.381 CLP** | Sueldo de ambos socios pagado | ✔ **Sin años de pérdida contable** |
-| **Utilidad Neta Año 5** | **+$32.714.084 CLP** | Crecimiento de 10x en 5 años | ✔ **Escalabilidad probada** |
-| **Flujo de Fondos Acumulado al Año 5** | **+$36.168.514 CLP** | Caja neta generada | ✔ **Solvencia comprobada** |
-| **Retorno Neto Limpio por Socio (5 Años)** | **+$79.588.754 CLP** | Descontado el pie inicial ($4,45M) | ✔ **Multiplicador de 17,9x** |
+2. **Viabilidad económica: hipótesis defendible, rentabilidad no probada.** El caso base crea valor —VAN de **+$21.874.878** al 20 %— pero con **cobertura de deuda estrecha el primer año (DSCR 1,04, bajo el criterio interno de 1,3)** y un margen de solo 5 unidades sobre el equilibrio con deuda. El escenario de estrés destruye valor: **VAN de −$47.949.651** y caja **$19,8 millones bajo la reserva**.
+
+3. **El supuesto crítico sin resolver es el financiamiento.** El crédito de $27.700.000 a 10 años **no tiene oferta bancaria**. Sin ella, el resto del análisis es condicional.
+
+4. **La estrategia comercial es coherente pero no está validada.** Las metas de 200 a 850 unidades son objetivos de trabajo, no demanda observada ni preventas cerradas. El CAC, la conversión y las devoluciones no se han medido.
+
+5. **Lo que corresponde antes de comprometer dinero:** cotizar el BOM con SKU, moneda y vigencia; ensayar el instrumento en terreno y laboratorio; vender pilotos pagados con margen positivo; obtener una oferta bancaria efectiva; hacer revisar régimen tributario y remuneraciones por un contador; y cerrar las obligaciones ante SUBTEL, normativa de baterías, protección al consumidor y Ley 21.719. El detalle está en el [plan de validación](PLAN_VALIDACION.md).
+
+6. **Si las ventas del escenario de estrés se materializan, corresponde redimensionar el negocio**, no tapar una pérdida recurrente con un plazo de deuda más largo.
 
 ---
 
-## 5. Veredicto y Conclusiones del Estudio de Viabilidad
-
-1. **Viabilidad Técnica Comprobada:** TerraSense reúne 7 variables edafológicas directas más 2 ambientales en un chasis resistente de acero inoxidable 316L, con inferencia agronómica instantánea en $\le 5\text{ segundos}$ y operación 100% offline-first.
-2. **Estructura Financiera Realista y Autofinanciada:** El negocio no requiere subsidios estatales ($0 CORFO). Se financia mediante un **pie de capital propio de $8.900.000 CLP ($4.450.000 por socio)** y un crédito bancario a 5 años por **$12.648.500 CLP**, respaldado por una cuota mensual fácilmente absorbible con la venta de apenas 2 a 3 sondas al mes.
-3. **Estrategia Comercial Go-To-Market Coherente:** El Año 1 combina la seriedad de una tienda **Shopify** (con facturación electrónica y pago en cuotas) con pauta digital focalizada (**Meta Ads / Google Ads**) y cierre en **WhatsApp**, dirigida al 0,17% - 0,44% del mercado representado por el recambio generacional de agricultores y agrónomos jóvenes. Desde el Año 2, el traspaso a una **agencia de marketing externa** asegura la escala hasta 850 unidades anuales.
-4. **Rentabilidad Privada Sobresaliente:** Con un **VAN de +$2.588.182 CLP al 20% (+$8.241.084 CLP al 15%)**, una **TIR de 22,72%** y un punto de equilibrio de **166 unidades**, TerraSense demuestra ser una empresa sustentable, financieramente sólida y con un retorno probado de inversión.
-
----
-
-*Documento técnico y financiero actualizado para el proyecto TerraSense — INACAP 2026.*
+*Documento revisado el 4 de septiembre de 2026 tras la [auditoría de la documentación](AUDITORIA_READMES_2026-09-04.md). Las cifras económicas provienen de [`RESULTADOS_FINANCIEROS.md`](RESULTADOS_FINANCIEROS.md); no editarlas a mano.*

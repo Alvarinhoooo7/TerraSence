@@ -40,7 +40,7 @@ interface ResultCard {
   status: MetricDetail['status'] | 'INFO';
   explanation: string;
   tip: string;
-  source: 'Sonda' | 'Clima';
+  source: 'Sonda' | 'Clima' | 'Sonda (registro derivado de CE, sin validar)';
 }
 
 const STATUS_COPY = {
@@ -132,11 +132,11 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       return {
         key,
         label,
-        value: `${formatted.value.toFixed(1)} ${formatted.unit}`,
-        status: metric.status,
+        value: metric.derived ? 'Sin validar' : `${formatted.value.toFixed(1)} ${formatted.unit}`,
+        status: metric.derived ? 'INFO' : metric.status,
         explanation,
         tip: metric.confidenceNote ?? tip,
-        source: 'Sonda',
+        source: metric.derived ? 'Sonda (registro derivado de CE, sin validar)' : 'Sonda',
       };
     };
     return [
@@ -177,20 +177,21 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
 
   const save = useCallback(async () => {
     if (!evaluation || !raw) return;
-    if (!coords) {
-      Alert.alert('Sin ubicación', 'Activa la ubicación para guardar esta medición en el historial.');
+    if (demoMode) {
+      Alert.alert('Demostración', 'Los datos simulados no se guardan como mediciones reales.');
       return;
     }
     setPhase('saving');
+    try {
     const row: SoilMeasurementInsert = {
       device_id: device?.id ?? '',
       user_id: null,
       crop_id: cropId,
       field_name: fieldName,
       quadrant: null,
-      latitude: coords.latitude,
-      longitude: coords.longitude,
-      gps_accuracy_m: coords.accuracy ?? null,
+      latitude: coords?.latitude ?? null,
+      longitude: coords?.longitude ?? null,
+      gps_accuracy_m: coords?.accuracy ?? null,
       radius_m: 20,
       phenological_stage: stage,
       vwc_percent: raw.vwc,
@@ -214,7 +215,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       client_uuid: clientUuid.current,
     };
     const { synced, point } = await saveMeasurement(row);
-    if (stage === 'pre_siembra') {
+    {
       if (synced && point) addPoint(point);
       else {
         const localPoint = mapRowToPoint({
@@ -230,7 +231,12 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       setPendingCount(await pendingCount());
     }
     setShowCalibration(true);
-  }, [advice, addPoint, coords, cropId, device, evaluation, fieldName, raw, setPendingCount, stage, textureId, weather]);
+    } catch (error) {
+      Alert.alert('No se pudo confirmar el guardado', error instanceof Error ? error.message : 'Reintenta sin cerrar esta lectura.');
+    } finally {
+      setPhase('result');
+    }
+  }, [advice, addPoint, coords, cropId, demoMode, device, evaluation, fieldName, raw, setPendingCount, stage, textureId, weather]);
 
   const header = (
     <View style={styles.header}>

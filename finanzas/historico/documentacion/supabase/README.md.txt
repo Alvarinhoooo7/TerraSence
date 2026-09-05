@@ -312,10 +312,10 @@ modificar nada.
 - **Retención activa**: `purge_expired_operational_data()` elimina intentos de vinculación a los 30
   días y auditorías de membresía a los dos años. El respaldo diario la ejecuta después del *dump*,
   conservando las mediciones por su valor agronómico y probatorio.
-- **Copias de seguridad**: existe un *workflow* que genera un respaldo lógico privado con retención de siete días. **Que el workflow exista no prueba que se ejecute correctamente ni que el respaldo sea restaurable**: falta un ensayo de recuperación documentado.
+- **Copias de seguridad**: el flujo diario guarda un respaldo lógico privado durante siete días.
   El plan gratuito sigue sin ofrecer *Point-in-Time Recovery*.
 
-*(El documento `MIGRACION_AKURA.md` referenciado aquí **no existe en el repositorio**; el enlace se retira hasta que se agregue o se elimine la referencia.)*
+El estado completo está en [`MIGRACION_AKURA.md`](../MIGRACION_AKURA.md).
 
 ---
 
@@ -380,7 +380,7 @@ instalado.
 `psql` permite inspeccionar sin las vueltas de §9.
 
 ```powershell
-winget install PostgreSQL.PostgreSQL     # Windows: instala psql. NO usar psqlODBC: es un driver ODBC, no el cliente de consola
+winget install PostgreSQL.psqlODBC      # Windows: o instalar PostgreSQL completo
 ```
 ```bash
 brew install libpq && brew link --force libpq    # macOS
@@ -419,7 +419,7 @@ supabase migration list                          # local y remoto deben coincidi
 
 ```bash
 supabase migration list                 # sin huecos entre Local y Remote
-supabase inspect db table-stats --linked   # contrastar con las tablas descritas en este README
+supabase inspect db table-stats --linked   # deben aparecer las 8 tablas
 
 curl -s -o /dev/null -w "%{http_code}\n" \
   https://bjmhjatykqccksddgtmo.supabase.co/functions/v1/device-checkin

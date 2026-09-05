@@ -1,17 +1,5 @@
 # 📊 Diagramas de Flujo y Arquitectura de Bloques de las Alternativas de la Competencia vs. TerraSense
 
-> ### ⚠️ Estado de verificación
-> Revisado tras la [auditoría del 4 de septiembre de 2026](AUDITORIA_READMES_2026-09-04.md). Los diagramas de arquitectura de este documento describen una **intención de diseño**, no el equipo construido. Correcciones que aplican a todo el documento:
->
-> - **BLE 4.2, no 5.0.** El ESP32-WROOM-32E especifica Bluetooth 4.2 BR/EDR y BLE.
-> - **No hay BME280 en el diseño vigente**: las variables de ambiente vienen de un servicio meteorológico por internet.
-> - **La carga y elevación usa una PCB combinada USB-C**, no un TP4056 discreto ni un MT3608.
-> - **IP67 es un objetivo sin ensayo**, no una prestación verificada.
-> - **La PCB no está ruteada** (`PCB/terrasense.kicad_pcb` está vacío) y **no hay firmware** en el repositorio.
->
-> Las comparaciones de competencia se corrigieron: precios verificados el 04-09-2026 (Hanna HI9814 $491.827, Bluelab Pulse $538.990) y capacidades de los competidores al alza — el Pulse **sí** tiene Bluetooth, app, historial y uso sin internet, y el FieldScout TDR 350 **sí** tiene registro, GPS y Bluetooth.
-
-
 > **Proyecto:** TerraSense — Tu Ingeniero Agrónomo en el Bolsillo  
 > **Documento Técnico de Benchmarking:** Análisis Funcional, Operativo y Arquitectónico del Estado del Arte  
 > **Área:** Ingeniería en Electrónica y Sistemas Inteligentes — INACAP  
@@ -233,8 +221,8 @@ flowchart TD
 │ │                                                                         │ │
 │ │  ┌───────────────┐     ┌───────────────┐     ┌───────────────────────┐  │ │
 │ │  │ Batería LiPo  │────►│ Módulo Combo  │────►│ ESP32-WROOM-32        │  │ │
-│ │  │ 3.7V 2.000mAh │     │ PCB carga/boost│     │ Xtensa Dual-Core      │  │ │
-│ │  └───────────────┘     └───────┬───────┘     │ BLE 4.2 + Flash NVS   │  │ │
+│ │  │ 3.7V 2.000mAh │     │ TP4056+Boost5V│     │ Xtensa Dual-Core      │  │ │
+│ │  └───────────────┘     └───────┬───────┘     │ BLE 5.0 + Flash NVS   │  │ │
 │ │                                │             └───────┬───────────────┘  │ │
 │ │                                │  GPIO5 Gate         │ UART2 Modbus RTU │ │
 │ │                                └────────────┐        │                  │ │
@@ -245,11 +233,11 @@ flowchart TD
 │ │                                             └──────────┬───────┘        │ │
 │ │                                                        ▼ RS-485 5V      │ │
 │ │   ┌─────────────────┐                    ┌─────────────────┐            │ │
-│ │   │ (sin BME280)    │◄─── I2C libre ─────┤ Sonda Inox 316L │            │ │
+│ │   │ Bosch BME280    │◄─── I2C Bus ───────┤ Sonda Inox 316L │            │ │
 │ │   │ (T° + HR + Bar) │                    │ 7-en-1 NPK+pH+EC│            │ │
 │ │   └─────────────────┘                    └─────────────────┘            │ │
 │ └───────────────────────────────────────────────────┬─────────────────────┘ │
-│                                                     │ BLE 4.2 Telemetría    │
+│                                                     │ BLE 5.0 Telemetría    │
 │                                                     ▼ (GATT 16 Bytes)       │
 │ ┌─────────────────────────────────────────────────────────────────────────┐ │
 │ │ SMARTPHONE DEL AGRICULTOR (REACT NATIVE / EXPO / TYPESCRIPT)            │ │
@@ -297,7 +285,7 @@ flowchart TD
 ## 5. Conclusiones del Análisis de Alternativas
 
 1. **La Parálisis por Análisis es el Rival Real:** Ninguno de los instrumentos de medición física comerciales (< $400 USD) interpreta los datos para el agricultor. TerraSense no compite en "mostrar números más bonitos", sino en **automatizar el juicio agronómico**.
-2. **Eficiencia arquitectónica:** Al desacoplar la pantalla y el módem —aprovechando el smartphone que el agricultor ya posee—, el costo de materiales queda en **$75.243 CLP netos** en el BOM vigente y provisional. ⚠️ **No se afirma superioridad frente a instrumentos científicos:** no hay ensayos de precisión, repetibilidad ni incertidumbre que permitan comparar desempeño metrológico. La ventaja demostrable es de **costo y de interpretación en la app**, no de exactitud.
+2. **Eficiencia Arquitectónica:** Al desacoplar la pantalla y el módem (aprovechando el smartphone que el agricultor ya posee), TerraSense reduce el costo del hardware a **$70.656 CLP (BOM)**, entregando capacidades superiores a sistemas científicos de $2.000 USD.
 3. **Complementariedad con el Laboratorio:** TerraSense no pretende eliminar el laboratorio químico acreditado (necesario cada 3 años para micronutrientes y metales pesados), sino proveer la herramienta de **decisión operativa diaria** a costo cero.
 
 ---

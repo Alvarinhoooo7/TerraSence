@@ -10,6 +10,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Crypto from 'expo-crypto';
 import { supabase } from './supabase';
+import { createKeyedLock } from '../utils/keyedLock';
 import {
   mapRowToPoint,
   type MapMeasurementPoint,
@@ -18,6 +19,8 @@ import {
 } from '../types/app';
 
 const QUEUE_KEY = '@terrasense/pending_measurements';
+const locked = createKeyedLock();
+const flushing = new Map<string, Promise<{ sent: number; remaining: number }>>();
 
 interface QueuedMeasurement {
   row: SoilMeasurementInsert;
@@ -55,14 +58,15 @@ export async function fetchMeasurements(
 
 async function accountQueueKey(): Promise<string> {
   const { data } = await supabase.auth.getSession();
-  return `${QUEUE_KEY}/${data.session?.user.id ?? 'anonymous'}`;
+  if (!data.session) throw new Error('Inicia sesión para guardar o sincronizar mediciones.');
+  return `${QUEUE_KEY}/${data.session.user.id}`;
 }
 
-async function readQueue(): Promise<QueuedMeasurement[]> {
-  try {
-    const raw = await AsyncStorage.getItem(await accountQueueKey());
+async function readQueue(key: string): Promise<QueuedMeasurement[]> {
+    const raw = await AsyncStorage.getItem(key);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as unknown[];
+    if (!Array.isArray(parsed)) throw new Error('Cola local dañada: conservar datos y solicitar soporte.');
     return parsed.flatMap((item) => {
       if (!item || typeof item !== 'object') return [];
       if ('row' in item && 'queuedAt' in item) return [item as QueuedMeasurement];
@@ -70,17 +74,14 @@ async function readQueue(): Promise<QueuedMeasurement[]> {
       // clave. Las colas globales antiguas no se adoptan para no cruzar cuentas.
       return [{ row: item as SoilMeasurementInsert, queuedAt: new Date().toISOString() }];
     });
-  } catch {
-    return [];
-  }
 }
 
-async function writeQueue(items: QueuedMeasurement[]): Promise<void> {
-  await AsyncStorage.setItem(await accountQueueKey(), JSON.stringify(items));
+async function writeQueue(key: string, items: QueuedMeasurement[]): Promise<void> {
+  await AsyncStorage.setItem(key, JSON.stringify(items));
 }
 
 export async function pendingCount(): Promise<number> {
-  return (await readQueue()).length;
+  return (await readQueue(await accountQueueKey())).length;
 }
 
 /** Puntos locales que todavía no están en Supabase, para mapa e historial. */
@@ -88,7 +89,7 @@ export async function pendingMeasurementPoints(
   fieldName: string,
   deviceId?: string | null,
 ): Promise<MapMeasurementPoint[]> {
-  const queue = await readQueue();
+  const queue = await readQueue(await accountQueueKey());
   return queue
     .filter(({ row }) => row.field_name === fieldName && (!deviceId || row.device_id === deviceId))
     .map(({ row, queuedAt }) =>
@@ -110,13 +111,18 @@ export async function saveMeasurement(
 ): Promise<{ synced: boolean; point: MapMeasurementPoint | null }> {
   // Primero se confirma en almacenamiento local. Si Android cierra el proceso
   // durante la petición de red, la lectura sigue disponible para reintentar.
-  const queue = await readQueue();
-  if (!queue.some((item) => item.row.client_uuid === row.client_uuid)) {
-    queue.push({ row, queuedAt: new Date().toISOString() });
-    await writeQueue(queue);
-  }
+  const key = await accountQueueKey();
+  row = { ...row, user_id: key.slice(key.lastIndexOf('/') + 1) };
+  await locked(key, async () => {
+    const queue = await readQueue(key);
+    if (!queue.some((item) => item.row.client_uuid === row.client_uuid)) {
+      queue.push({ row, queuedAt: new Date().toISOString() });
+      await writeQueue(key, queue);
+    }
+  });
 
   try {
+    if (await accountQueueKey() !== key) return { synced: false, point: null };
     const { data, error } = await supabase
       .from('soil_measurements')
       .upsert(row, { onConflict: 'client_uuid' })
@@ -124,10 +130,10 @@ export async function saveMeasurement(
       .single();
 
     if (error) throw error;
-    const remaining = (await readQueue()).filter(
-      (item) => item.row.client_uuid !== row.client_uuid,
-    );
-    await writeQueue(remaining);
+    await locked(key, async () => {
+      const remaining = (await readQueue(key)).filter(item => item.row.client_uuid !== row.client_uuid);
+      await writeQueue(key, remaining);
+    });
     return { synced: true, point: mapRowToPoint(data as unknown as SoilMeasurementRow) };
   } catch {
     return { synced: false, point: null };
@@ -139,20 +145,33 @@ export async function saveMeasurement(
  * que el servidor confirmó; lo que falla se conserva para el siguiente intento.
  */
 export async function flushQueue(): Promise<{ sent: number; remaining: number }> {
-  const queue = await readQueue();
+  const key = await accountQueueKey();
+  const existing = flushing.get(key);
+  if (existing) return existing;
+  const work = flushAccount(key);
+  flushing.set(key, work);
+  try { return await work; } finally { if (flushing.get(key) === work) flushing.delete(key); }
+}
+
+async function flushAccount(key: string): Promise<{ sent: number; remaining: number }> {
+  const queue = await locked(key, () => readQueue(key));
   if (queue.length === 0) return { sent: 0, remaining: 0 };
 
-  const failed: QueuedMeasurement[] = [];
   let sent = 0;
 
   for (const item of queue) {
+    if (await accountQueueKey() !== key) break;
+    const row = { ...item.row, user_id: key.slice(key.lastIndexOf('/') + 1) };
     const { error } = await supabase
       .from('soil_measurements')
-      .upsert(item.row, { onConflict: 'client_uuid' });
-    if (error) failed.push(item);
-    else sent += 1;
+      .upsert(row, { onConflict: 'client_uuid' });
+    if (!error) {
+      await locked(key, async () => {
+        await writeQueue(key, (await readQueue(key)).filter(x => x.row.client_uuid !== item.row.client_uuid));
+      });
+      sent += 1;
+    }
   }
 
-  await writeQueue(failed);
-  return { sent, remaining: failed.length };
+  return { sent, remaining: (await readQueue(key)).length };
 }

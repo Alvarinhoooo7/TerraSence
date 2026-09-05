@@ -55,7 +55,7 @@ export const useAppStore = create<AppState>((set) => ({
   setFieldName: (fieldName) => set({ fieldName }),
   setDevice: (device) => set({ device }),
   setPoints: (points) => set({ points }),
-  addPoint: (p) => set((s) => ({ points: [p, ...s.points] })),
+  addPoint: (p) => set((s) => ({ points: [p, ...s.points.filter(item => item.id !== p.id)] })),
   selectPoint: (selectedPointId) => set({ selectedPointId }),
   setSyncing: (isSyncing) => set({ isSyncing }),
   setPendingCount: (pendingCount) => set({ pendingCount }),

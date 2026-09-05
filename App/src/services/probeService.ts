@@ -128,6 +128,7 @@ const PROBE_SETTLE_MS = 1200;
  */
 export async function readSoilProbe(deviceCode: string | null): Promise<ProbeReading> {
   if (!deviceCode) {
+    if (!__DEV__) throw new Error('No hay una sonda vinculada para medir.');
     await new Promise((r) => setTimeout(r, PROBE_SETTLE_MS));
     return { data: simulate(), simulated: true };
   }
@@ -149,7 +150,8 @@ export async function readSoilProbe(deviceCode: string | null): Promise<ProbeRea
   } catch (error) {
     // Un fallo de permisos o de conexión debe llegar al usuario como error,
     // no disfrazarse de medición simulada.
-    if (error instanceof Error && /permiso|Bluetooth|sonda|BLE/i.test(error.message)) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (!__DEV__ || !/native|module|Expo Go/i.test(message)) {
       throw error;
     }
     // El resto —típicamente ausencia de módulo nativo en Expo Go— degrada a

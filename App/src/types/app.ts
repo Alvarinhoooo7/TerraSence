@@ -67,8 +67,8 @@ export interface SoilMeasurementRow {
   field_name: string;
   quadrant: string | null;
 
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   gps_accuracy_m: number | null;
   radius_m: number;
 
@@ -159,8 +159,8 @@ export interface PredialQuadrantRow {
 /** Punto tal como lo consume el mapa. */
 export interface MapMeasurementPoint {
   id: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   radiusM: number;
   verdict: Verdict;
   stage: PhenologicalStage;

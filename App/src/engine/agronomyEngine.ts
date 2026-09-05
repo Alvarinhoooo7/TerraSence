@@ -145,7 +145,6 @@ export const SOIL_TEXTURES: Record<SoilTextureId, SoilTexture> = {
 export const EC_UMBRAL_CONFIANZA_NPK = 1000;
 
 /** Lecturas de NPK (mg/kg) a partir de las cuales el valor se considera "alto". */
-const NPK_REF_ALTO = { nitrogen: 100, phosphorus: 60, potassium: 200 };
 
 /**
  * Regla de veto cruzado por salinidad.
@@ -165,16 +164,11 @@ const NPK_REF_ALTO = { nitrogen: 100, phosphorus: 60, potassium: 200 };
  */
 export function vetoCruzadoSalinidad(
   ec: number,
-  nitrogen: number,
-  phosphorus: number,
-  potassium: number
+  _nitrogen: number,
+  _phosphorus: number,
+  _potassium: number
 ): { activo: boolean; nota: string } {
-  const npkAlto =
-    nitrogen >= NPK_REF_ALTO.nitrogen ||
-    phosphorus >= NPK_REF_ALTO.phosphorus ||
-    potassium >= NPK_REF_ALTO.potassium;
-
-  if (ec <= EC_UMBRAL_CONFIANZA_NPK || !npkAlto) {
+  if (ec <= EC_UMBRAL_CONFIANZA_NPK) {
     return { activo: false, nota: '' };
   }
 
@@ -244,12 +238,11 @@ export function evaluateAgronomicStatus(
       phStatus = 'CRITICAL';
       severityScore += 2;
       phMessage = `Suelo fuertemente ácido (pH ${ph.toFixed(1)})`;
-      const calKg = Math.round((crop.phMin - ph) * 800 + 400);
       alerts.push({
         type: 'danger',
         param: 'pH',
         title: '🧪 Suelo Ácido: Fósforo Bloqueado',
-        action: `Incorporar ${calKg} kg/ha de cal agrícola (Carbonato de Calcio) antes de sembrar. El fertilizante se perderá si no se enmienda el pH.`
+        action: 'Confirmar pH en laboratorio y solicitar requerimiento de encalado (capacidad tampón, profundidad y calidad de enmienda). Esta lectura no permite calcular kg/ha de cal.'
       });
     } else {
       phStatus = 'WARNING';
@@ -259,7 +252,7 @@ export function evaluateAgronomicStatus(
         type: 'warning',
         param: 'pH',
         title: '🧪 Ligera Acidez de Suelo',
-        action: 'Aplicar abono orgánico o dosis preventiva de cal dolomítica.'
+        action: 'Confirmar pH y requerimientos del cultivo con análisis de suelo antes de aplicar enmiendas.'
       });
     }
   } else if (ph > crop.phMax) {
@@ -270,7 +263,7 @@ export function evaluateAgronomicStatus(
       type: 'warning',
       param: 'pH',
       title: '🧂 Suelo Alcalino: Riesgo de Clorosis Férrica',
-      action: 'Aplicar materia orgánica compostada o azufre elemental.'
+      action: 'Confirmar pH y alcalinidad en laboratorio; solicitar asesoría antes de aplicar azufre u otras enmiendas.'
     });
   }
 
@@ -286,7 +279,7 @@ export function evaluateAgronomicStatus(
         type: 'danger',
         param: 'Salinidad (EC)',
         title: '⚠️ Exceso de Sales / Salinidad Tóxica',
-        action: 'Realizar un riego de lavado abundante (fracción de lavado > 25%) para desplazar sales antes de sembrar.'
+        action: 'Confirmar salinidad y calidad del agua. Evaluar drenaje y asesoría agronómica antes de diseñar un lavado; no aplicar una fracción fija con esta lectura.'
       });
     } else {
       ecStatus = 'WARNING';
@@ -311,7 +304,7 @@ export function evaluateAgronomicStatus(
       action:
         'La sonda estima los nutrientes a partir de la conductividad y no distingue el ' +
         'nitrógeno del sodio. Con esta salinidad, los valores altos de N-P-K pueden ser sal. ' +
-        'Aplique un riego de lavado y vuelva a medir antes de decidir la fertilización.'
+        'Confirme nutrientes y salinidad en laboratorio antes de decidir fertilización o lavado.'
     });
   }
 
@@ -389,10 +382,10 @@ export function evaluateAgronomicStatus(
   // N, P y K son siempre estimaciones derivadas de la conductividad, nunca medidas directas.
   const npkMeta = {
     derived: true,
-    confidence: (vetoNpk.activo ? 'LOW' : 'HIGH') as 'LOW' | 'HIGH',
+    confidence: 'LOW' as const,
     confidenceNote: vetoNpk.activo
       ? vetoNpk.nota
-      : 'Estimación derivada de la conductividad eléctrica. Úsela como referencia de fertilidad, no como análisis químico.'
+      : 'Registro NPK sin validación química independiente. Una CE baja no acredita exactitud ni permite dosificar fertilizantes.'
   };
 
   return {
@@ -407,9 +400,9 @@ export function evaluateAgronomicStatus(
       temp: { val: temp, unit: '°C', status: tempStatus, msg: tempMessage },
       ec: { val: ec, unit: 'µS/cm', status: ecStatus, msg: ecMessage },
       ph: { val: ph, unit: 'pH', status: phStatus, msg: phMessage },
-      nitrogen: { val: nitrogen, unit: 'mg/kg', status: 'OPTIMAL', msg: 'Nivel base para arranque', ...npkMeta },
-      phosphorus: { val: phosphorus, unit: 'mg/kg', status: phosphorus < 20 ? 'WARNING' : 'OPTIMAL', msg: 'Enraizamiento y energía inicial', ...npkMeta },
-      potassium: { val: potassium, unit: 'mg/kg', status: potassium < 40 ? 'WARNING' : 'OPTIMAL', msg: 'Vigor celular y estomas', ...npkMeta },
+      nitrogen: { val: nitrogen, unit: 'registro', status: 'WARNING', msg: 'Sin validar; no diagnostica nutrición', ...npkMeta },
+      phosphorus: { val: phosphorus, unit: 'registro', status: 'WARNING', msg: 'Sin validar; no diagnostica nutrición', ...npkMeta },
+      potassium: { val: potassium, unit: 'registro', status: 'WARNING', msg: 'Sin validar; no diagnostica nutrición', ...npkMeta },
       lux: { val: lux, unit: 'Lux', status: 'OPTIMAL', msg: lightMsg }
     }
   };

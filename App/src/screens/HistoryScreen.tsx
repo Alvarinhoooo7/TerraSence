@@ -4,7 +4,7 @@
 // y filtrables por etapa. Útil cuando el agricultor quiere revisar la evolución
 // de un potrero en vez de su distribución espacial.
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   SectionList,
   StyleSheet,
@@ -20,6 +20,7 @@ import { ScreenGuide } from '../components/ScreenGuide';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { PHENOLOGICAL_STAGES, type MapMeasurementPoint, type PhenologicalStage } from '../types/app';
+import { fetchMeasurements, pendingMeasurementPoints } from '../services/measurementsService';
 
 interface Props {
   onClose: () => void;
@@ -31,6 +32,7 @@ const dayKey = (iso: string, locale: string) =>
     weekday: 'long',
     day: 'numeric',
     month: 'long',
+    year: 'numeric',
   });
 
 const hourLabel = (iso: string, locale: string) =>
@@ -40,7 +42,23 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
   const { isDark, colors } = useAppTheme();
   const { language, locale, t } = useTranslation();
 
-  const { points, fieldName } = useAppStore();
+  const { points, fieldName, device, setPoints } = useAppStore();
+  const [loadError, setLoadError] = useState(false);
+  useEffect(() => {
+    let active = true;
+    setLoadError(false);
+    void (async () => {
+      const local = await pendingMeasurementPoints(fieldName, device?.id);
+      let remote: MapMeasurementPoint[] = [];
+      try { remote = await fetchMeasurements(fieldName, device?.id); }
+      catch { if (active) setLoadError(true); }
+      if (!active) return;
+      const ids = new Set(remote.map(p => p.id));
+      setPoints([...local.filter(p => !ids.has(p.id)).map(p => ({ ...p, isPending: true })), ...remote]
+        .sort((a,b) => Date.parse(b.measuredAt)-Date.parse(a.measuredAt)));
+    })().catch(() => { if (active) setLoadError(true); });
+    return () => { active = false; };
+  }, [fieldName, device?.id, setPoints]);
   const [filter, setFilter] = useState<PhenologicalStage | 'all'>('all');
 
   const sections = useMemo(() => {
@@ -130,6 +148,7 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
       </View>
 
       <SectionList
+        ListHeaderComponent={loadError ? <Text style={{ color: colors.warning }}>{t('Sin acceso al historial remoto; se muestran datos locales.', 'Remote history unavailable; showing local data.')}</Text> : null}
         sections={sections}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}

@@ -234,27 +234,15 @@ El proyecto utiliza un servidor SMTP propio de Gmail en Supabase (`[auth.email.s
 
 ## 11. Estado de Implementación y Roadmap Futuro del Backoffice
 
-> ### ⚠️ Estado de verificación
-> Corregido tras la [auditoría del 4 de septiembre de 2026](../docs/AUDITORIA_READMES_2026-09-04.md). El estado **remoto de producción no fue comprobado**; lo que sigue describe el código de este repositorio.
->
-> **Verificado localmente el 04-09-2026**, tras instalar dependencias (`npm install`, sin cambios en `package-lock.json`):
-> - `npm run type-check` (`tsc -b`) → **aprobado**
-> - `npm run build` → **aprobado**, 2.303 módulos transformados en 24 s
->
-> El build emite una advertencia de tamaño: el *chunk* principal pesa 654 kB (190 kB con gzip), sobre el umbral de 500 kB de Vite. No impide el despliegue; se resuelve con división de código si llega a molestar.
-
-### 11.1. Módulos implementados
+### 11.1. Módulos Operativos al 100 % en Producción
 * ✅ **Panel de Soporte Técnico (`/admin`):** Buscador multi-criterio en tiempo real (por ID de hardware de 15 dígitos, alias o correo del usuario) con listado dinámico de flota.
 * ✅ **Ficha Técnica y Diagnóstico Individual (`/admin/devices/:id`):** Visualización de curvas de batería de litio, versión de firmware activa, tabla de miembros vinculados y últimas mediciones edafológicas reportadas.
 * ✅ **Gobernanza de Membresías:** Reasignación de roles (`owner`, `admin`, `operator`) y revocación de permisos de acceso.
 * ✅ **Factory Reset Remoto Seguro:** Desvinculación atómica de miembros y purga de mediciones privadas ante reventa o traspaso entre agricultores.
-* ⚠️ **Catálogo de firmware (`/firmware`) — solo lectura.** `FirmwareView.tsx` **consulta** el catálogo y está definido expresamente como una vista de lectura. **No implementa carga de binarios `.bin`, cálculo de SHA-256 ni publicación OTA masiva.** La descripción anterior de este README era incorrecta.
+* ✅ **Gestor de Firmware OTA Masivo (`/firmware`):** Catálogo centralizado con subida de binarios `.bin`, cálculo SHA-256, marcado de versiones obligatorias y despliegue global a toda la flota.
+* ✅ **Despliegue Continuo Vercel:** Integración SPA activa en `https://terrasense-web.vercel.app`.
 
-  Hay que distinguir cinco cosas que no son equivalentes: **catálogo** (existe), **aviso** al dispositivo (la alerta `admin_push_firmware_update` existe), **descarga**, **verificación de integridad** e **instalación comprobada en hardware**. Solo la primera está implementada, y **no hay un binario validado contra hardware**.
-* ✅ **Despliegue continuo en Vercel:** Integración SPA activa en `https://terrasense-web.vercel.app`.
-
-### 11.2. Roadmap y funcionalidades pendientes
-* ⏳ **Publicación OTA real:** carga de binarios, cálculo y verificación de SHA-256, marcado de versión obligatoria y despliegue a la flota. Requiere además firmware de ESP32, que **no existe en el repositorio**.
+### 11.2. Roadmap y Funcionalidades Pendientes por Implementar
 * ⏳ **Exportación Forense de Telemetría (CSV / Excel):** Botón de descarga de registros históricos de lecturas por sonda para peritajes agronómicos y soporte técnico avanzado.
 * ⏳ **Sistema de Tickets de Soporte Integrado:** Bandeja interna de solicitudes de asistencia vinculadas al correo del agricultor y al ID de la sonda para trazabilidad de fallas de hardware.
 * ⏳ **Monitor de Salud Preventiva de Flota:** Disparador automático de alertas cuando una sonda reporte voltajes inferiores a 3.4V o fallas repetidas de CRC en el bus RS-485.

@@ -44,6 +44,8 @@ import type { MapMeasurementPoint } from '../types/app';
 
 /** Precisión GPS por encima de la cual se advierte antes de guardar. */
 const GPS_ACCURACY_WARN_M = 15;
+const hasCoordinates = (p: MapMeasurementPoint): p is MapMeasurementPoint & { latitude: number; longitude: number } =>
+  p.latitude != null && p.longitude != null && Number.isFinite(p.latitude) && Number.isFinite(p.longitude);
 
 const FALLBACK_REGION: Region = {
   // Valle Central, Región del Maule: encuadre por defecto sin ubicación aún.
@@ -170,7 +172,8 @@ export const MapScreen: React.FC<Props> = ({
   // ── Auto-Encuadre (Bounding Box) ────────────────────────────────────────
   useEffect(() => {
     if (perimeter.length > 0 || points.length > 0) {
-      const coords = [...perimeter, ...points.map((p) => ({ latitude: p.latitude, longitude: p.longitude }))];
+      const coords = [...perimeter, ...points.filter(hasCoordinates).filter(p => p.stage === 'pre_siembra').map((p) => ({ latitude: p.latitude, longitude: p.longitude }))];
+      if (coords.length === 0) return;
       if (coords.length > 0) {
         // Retraso ligero para permitir que el mapa termine de renderizarse
         setTimeout(() => {
@@ -229,7 +232,7 @@ export const MapScreen: React.FC<Props> = ({
           />
         )}
 
-        {points.filter((p) => p.stage === 'pre_siembra').map((p) => {
+        {points.filter(hasCoordinates).filter((p) => p.stage === 'pre_siembra').map((p) => {
           const meta = VERDICT_META[p.verdict];
           const fill = isDark ? meta.fillDark : meta.fillLight;
           const stroke = isDark ? meta.strokeDark : meta.strokeLight;

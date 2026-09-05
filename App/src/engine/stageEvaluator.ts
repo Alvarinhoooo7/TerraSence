@@ -32,11 +32,11 @@ export const STAGE_DRIVERS: Record<PhenologicalStage, (keyof AgronomicEvaluation
   // Germinación: si el suelo está frío o salino, la semilla se pierde.
   pre_siembra: ['temp', 'ec', 'ph', 'vwc'],
   // Máxima demanda fotosintética: nitrógeno y agua en zona radicular.
-  vegetativo: ['nitrogen', 'vwc', 'ph', 'ec'],
+  vegetativo: ['vwc', 'ph', 'ec'],
   // Etapa más delicada: el estrés salino e hídrico aborta la flor.
-  floracion: ['ec', 'vwc', 'potassium', 'ph'],
+  floracion: ['ec', 'vwc', 'ph'],
   // Ya no se corrige el cultivo: importa poder entrar con maquinaria.
-  cosecha: ['vwc', 'potassium', 'nitrogen', 'ec'],
+  cosecha: ['vwc', 'ec'],
 };
 
 const STAGE_TITLES: Record<PhenologicalStage, Record<Verdict, string>> = {
@@ -46,8 +46,8 @@ const STAGE_TITLES: Record<PhenologicalStage, Record<Verdict, string>> = {
     RED: 'No sembrar todavía',
   },
   vegetativo: {
-    GREEN: 'Nutrición y riego correctos',
-    AMBER: 'Ajustar nutrición o riego',
+    GREEN: 'Sin alertas físicas en estas reglas',
+    AMBER: 'Revisar condiciones del suelo',
     RED: 'Cultivo en riesgo',
   },
   floracion: {
@@ -64,7 +64,7 @@ const STAGE_TITLES: Record<PhenologicalStage, Record<Verdict, string>> = {
 
 const STAGE_TITLES_EN: Record<PhenologicalStage, Record<Verdict, string>> = {
   pre_siembra: { GREEN: 'Ready to plant', AMBER: 'Plant with corrections', RED: 'Do not plant yet' },
-  vegetativo: { GREEN: 'Nutrition and irrigation are adequate', AMBER: 'Adjust nutrition or irrigation', RED: 'Crop at risk' },
+  vegetativo: { GREEN: 'No physical alerts under these rules', AMBER: 'Review soil conditions', RED: 'Crop at risk' },
   floracion: { GREEN: 'Flowering without stress', AMBER: 'Flowering stress risk', RED: 'Flower abortion risk' },
   cosecha: { GREEN: 'Soil is trafficable', AMBER: 'Enter with caution', RED: 'Do not enter with machinery' },
 };
@@ -82,14 +82,13 @@ const translateBaseAlert = (
   }
   if (title.includes('Temperatura Marginal')) return { ...alert, title: '🌡️ Marginal germination temperature', action: 'Germination will be slow and uneven. Wait 2 or 3 sunny days, or plant more shallowly to use warmer surface soil.' };
   if (title.includes('Suelo Ácido')) {
-    const limeKg = Math.round((crop.phMin - sensor.ph) * 800 + 400);
-    return { ...alert, title: '🧪 Acid soil: phosphorus is locked', action: `Incorporate ${limeKg} kg/ha of agricultural lime (calcium carbonate) before planting. Fertilizer will be wasted unless pH is corrected.` };
+    return { ...alert, title: '🧪 Acid soil: verify in a laboratory', action: 'Request a laboratory lime requirement including buffer capacity, depth and amendment quality. This reading cannot determine a lime dose.' };
   }
-  if (title.includes('Ligera Acidez')) return { ...alert, title: '🧪 Slight soil acidity', action: 'Apply organic amendment or a preventive dose of dolomitic lime.' };
-  if (title.includes('Suelo Alcalino')) return { ...alert, title: '🧂 Alkaline soil: iron chlorosis risk', action: 'Apply composted organic matter or elemental sulfur.' };
-  if (title.includes('Exceso de Sales')) return { ...alert, title: '⚠️ Excess salts / Toxic salinity', action: 'Apply abundant leaching irrigation (leaching fraction above 25%) to displace salts before planting.' };
+  if (title.includes('Ligera Acidez')) return { ...alert, title: '🧪 Slight soil acidity', action: 'Confirm soil pH and crop needs in a laboratory before applying amendments.' };
+  if (title.includes('Suelo Alcalino')) return { ...alert, title: '🧂 Alkaline soil: iron chlorosis risk', action: 'Confirm pH and alkalinity in a laboratory; consult an agronomist before applying sulfur.' };
+  if (title.includes('Exceso de Sales')) return { ...alert, title: '⚠️ Excess salts / Toxic salinity', action: 'Confirm salinity, irrigation water quality and drainage before designing any leaching irrigation.' };
   if (title.includes('Salinidad Moderada')) return { ...alert, title: '⚠️ Moderate salinity', action: 'Avoid fertilizers with a high salt index and maintain steady moisture.' };
-  if (title.includes('Falso Positivo')) return { ...alert, title: '⚠️ Possible salinity false positive', action: 'The probe estimates nutrients from electrical conductivity and cannot distinguish nitrogen from sodium. At this salinity, high N-P-K values may actually be salts. Leach the soil and measure again before deciding on fertilization.' };
+  if (title.includes('Falso Positivo')) return { ...alert, title: '⚠️ Possible salinity false positive', action: 'NPK registers are unvalidated. Confirm nutrients and salinity in a laboratory before fertilization or leaching.' };
   if (title.includes('Déficit Hídrico')) return { ...alert, title: '🏜️ Severe water deficit', action: 'Urgent irrigation is required before planting. Seeds will not absorb enough water to sprout.' };
   if (title.includes('Asfixia Radicular')) return { ...alert, title: '🌊 Root oxygen deprivation from excess water', action: 'Wait 48 to 72 hours for the soil to drain back to field capacity.' };
   if (title.includes('Umbral de Riego')) return { ...alert, title: '💧 Irrigation threshold reached', action: `Schedule irrigation within 24 to 48 hours. Below ${texture.ur}% the plant spends energy extracting water instead of growing.` };
@@ -98,8 +97,6 @@ const translateBaseAlert = (
 };
 
 /** Umbrales de humedad para transitabilidad de maquinaria en cosecha. */
-const VWC_COMPACTION_RISK = 32;
-const VWC_COMPACTION_CRITICAL = 40;
 
 export interface StageAwareEvaluation extends AgronomicEvaluation {
   stage: PhenologicalStage;
@@ -152,7 +149,7 @@ export function evaluateForStage(
   // es justamente el criterio que decide si entra el tractor.
   if (stage === 'cosecha') {
     const vwc = base.metrics.vwc.val;
-    if (vwc >= VWC_COMPACTION_CRITICAL) {
+    if (vwc >= base.texture.sat) {
       verdict = 'RED';
       driverLabels.push('vwc');
       alerts.unshift({
@@ -163,7 +160,7 @@ export function evaluateForStage(
           ? `Moisture is ${vwc.toFixed(0)}%, above field capacity. Heavy machinery will compact the profile and damage soil structure for the next season. Wait for drainage.`
           : `Humedad de ${vwc.toFixed(0)} % sobre capacidad de campo. El ingreso de maquinaria pesada compactará el perfil y dañará la estructura del suelo para la próxima temporada. Esperar a que el suelo drene.`,
       });
-    } else if (vwc >= VWC_COMPACTION_RISK) {
+    } else if (vwc >= base.texture.cc) {
       verdict = worst(verdict, 'AMBER');
       driverLabels.push('vwc');
       alerts.unshift({
@@ -190,8 +187,8 @@ export function evaluateForStage(
         param: 'ec',
         title: language === 'en' ? 'High salinity during flowering' : 'Salinidad elevada en floración',
         action: language === 'en'
-          ? `EC of ${Math.round(ec)} µS/cm exceeds 80% of the crop limit. During flowering, osmotic stress can abort flowers and directly reduce yield. Apply leaching irrigation before fruit set.`
-          : `CE de ${Math.round(ec)} µS/cm supera el 80 % del límite del cultivo. En floración el estrés osmótico provoca aborto floral y merma directa de rendimiento. Aplicar riego de lavado antes del cuaje.`,
+          ? `EC of ${Math.round(ec)} µS/cm triggers a provisional 80% screening threshold. Confirm salinity and drainage with an agronomist before treatment.`
+          : `CE de ${Math.round(ec)} µS/cm activa el umbral orientativo del 80 %, aún no validado en campo. Confirmar salinidad y drenaje con asesoría antes de intervenir.`,
       });
     }
   }
@@ -203,8 +200,8 @@ export function evaluateForStage(
   const actionSummary =
     verdict === 'GREEN'
       ? language === 'en'
-        ? 'No corrective actions are pending for this stage.'
-        : 'Sin acciones correctivas pendientes para esta etapa.'
+        ? 'No alerts under these provisional physical rules. This does not validate nutrition or replace laboratory analysis.'
+        : 'Sin alertas bajo estas reglas físicas provisionales. No valida nutrición ni reemplaza análisis de laboratorio.'
       : relevantAlert?.action ?? (language === 'en' ? 'Review the highlighted conditions before continuing.' : base.verdictSummary);
 
   return {
