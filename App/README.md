@@ -4,10 +4,10 @@ Aplicación móvil de terreno desarrollada en **React Native 0.81 + React 19 + E
 Es la herramienta central que el agricultor y los operadores llevan al potrero: se conecta a la sonda portátil TerraSense vía **Bluetooth Low Energy (BLE)**, evalúa el suelo localmente según la etapa fenológica elegida, agrega contexto meteorológico y proyecta las mediciones de **siembra** en un mapa predial.
 
 > ### ⚠️ Estado de verificación
-> Corregido tras la [auditoría del 4 de septiembre de 2026](../docs/AUDITORIA_READMES_2026-09-04.md). Precisiones que este README mantenía incorrectas y ahora quedan explícitas:
+> Corregido tras la [auditoría del 4 de septiembre de 2026](../finanzas/historico/documentacion/docs/AUDITORIA_READMES_2026-09-04.md). Precisiones que este README mantenía incorrectas y ahora quedan explícitas:
 >
-> - **El motor agronómico opera sin conexión; el dato meteorológico no.** La consulta pide **2 días** de pronóstico, usa el primero y devuelve `null` si falla la red. **No hay caché ni pronóstico de 7 días.**
-> - **No hay sensor ambiental BME280 a bordo.** Las variables de ambiente vienen del servicio meteorológico por internet.
+> - **El motor agronómico opera sin conexión; el dato meteorológico no.** La consulta actual pide **2 días** de pronóstico, usa el primero y devuelve `null` si falla la red. El requisito actualizado es consultar **los próximos 5 días**; su integración está descrita en `docs/INFORME%201%20.docx.md#integracion-bme280`.
+> - **BME280 incluido y obligatorio:** temperatura del aire, humedad relativa y presión local para tres celdas del grid 3×3. La API gratuita complementa la lectura con el pronóstico de cinco días. Ver [contrato y estado de integración](../docs/INFORME%201%20.docx.md#integracion-bme280). El decodificador actual de suelo aún debe ampliarse para recibir esas variables.
 > - **N, P y K no se muestran como cifras interpretables**, en ningún rango de conductividad.
 > - **El motor no calcula dosis de cal en kg/ha ni costos por hectárea.** Esas salidas se retiraron.
 > - **El tiempo de respuesta extremo a extremo no está medido.** No citar «5 segundos».
@@ -41,7 +41,7 @@ Es la herramienta central que el agricultor y los operadores llevan al potrero: 
 - [8. Variables de Entorno](#8-variables-de-entorno)
 - [9. Comandos de Desarrollo y Pruebas](#9-comandos-de-desarrollo-y-pruebas)
 - [10. Decisiones Arquitectónicas que Conviene Preservar](#10-decisiones-arquitectónicas-que-conviene-preservar)
-- [11. 🛠️ Manual de Instalación de Herramientas](#11-️-manual-de-instalación-de-herramientas)
+- [11. 🛠️ Manual de Instalación de Herramientas](#manual-instalacion-herramientas)
 
 ---
 
@@ -417,6 +417,7 @@ Los cuatro primeros dependen además de que la migración de [`supabase/`](../su
 
 ---
 
+<a id="manual-instalacion-herramientas"></a>
 ## 11. 🛠️ Manual de Instalación de Herramientas
 
 ### 11.1. Node.js y JDK

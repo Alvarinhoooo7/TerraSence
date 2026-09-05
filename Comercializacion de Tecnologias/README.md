@@ -92,7 +92,7 @@ TerraSense renuncia a competir en exactitud analítica. A cambio entrega **conte
 - **Oferta:** equipos que TerraSense puede fabricar y vender rentablemente.
 - Precio de lista propuesto: **$349.990 con IVA** ($294.109 neto).
 - Meta Año 1: **200 unidades**.
-- Equilibrio operativo: **170 unidades**; incluyendo servicio de deuda: **195 unidades**.
+- Equilibrio operativo: **176 unidades**; incluyendo servicio de deuda: **205 unidades**.
 
 **Gráfico:** oferta ascendente, demanda descendente y equilibrio ilustrativo. El precio y las 200 unidades son un **plan financiero, no un equilibrio econométrico observado** ni demanda validada.
 
@@ -111,91 +111,22 @@ TerraSense renuncia a competir en exactitud analítica. A cambio entrega **conte
 
 | Variación | Causa | Movimiento | Efecto |
 |---|---|---|---|
-| O1: alza de USD o insumos | La sonda es el 64 % del BOM y casi todo es importado | Oferta a la izquierda | Sube costo y baja margen |
+| O1: alza de USD o insumos | La sonda es el 59 % del BOM y casi todo es importado | Oferta a la izquierda | Sube costo y baja margen |
 | O2: tecnología productiva | Impresión 3D y montaje SMT externo evitan matricería | Oferta a la derecha | Menor inversión inicial y lotes pequeños |
 
-**No citar un porcentaje exacto de exposición al dólar:** el 88,6 % anterior no tiene respaldo por SKU, moneda y vigencia. Lo que sí puede afirmarse es que la sonda 7-en-1 representa **$48.000 de los $75.243 del BOM** y que la mayor parte de los componentes son importados. El efecto de un alza se evalúa cambiando el BOM en `supuestos.json` y regenerando el modelo.
+**No citar un porcentaje exacto de exposición al dólar:** el 88,6 % anterior no tiene respaldo por SKU, moneda y vigencia. Lo que sí puede afirmarse es que la sonda 7-en-1 representa **$48.000 de los $81.184 del BOM** y que la mayor parte de los componentes son importados. El efecto de un alza se evalúa cambiando el BOM en `supuestos.json` y regenerando el modelo.
 
-## 9. Business Intelligence: economía unitaria y punto de equilibrio
+## 9. Business Intelligence: economía unitaria y equilibrio
 
-| Indicador año 1 (2027) | Resultado | Origen / detalle |
-|---|---:|---|
-| Precio de lista con IVA | $349.990 | **Hipótesis comercial**, no precio validado |
-| Ingreso neto (sin IVA) | $294.109 | Precio con IVA ÷ 1,19 |
-| Costo de materiales (BOM) | $75.243 | **Provisional**: sin SKU cotizado ni lead time |
-| Costo variable adicional | $29.519 | Merma 3 % + garantía 5 % del BOM, envío $6.000, comisión 5 % del bruto |
-| Margen de contribución unitario | **$189.347** | Ingreso neto − costo de materiales − costo variable |
-| Margen sobre ingreso neto | **64,4 %** | |
-| Gastos fijos 2027 | $32.160.000 | Nómina $19,44 M + marketing $6,0 M + admin. $3,36 M + servicios $1,92 M + contador $1,44 M |
-| Servicio de deuda 2027 | $4.651.844 | Capital e intereses del crédito propuesto |
-| **Equilibrio operativo** | **170 unidades** | Gastos fijos ÷ margen de contribución |
-| **Equilibrio con servicio de deuda** | **195 unidades** | (Gastos fijos + servicio de deuda) ÷ margen |
-| Meta de ventas | **200 unidades** | Margen de solo **5 unidades** sobre el equilibrio con deuda |
+**En pantalla:** precio de venta, BOM completa con BME280 y carcasa 3D, margen de contribución y equilibrio operativo/con deuda del año 1. Usar la [tabla económica vigente](../README.md#finanzas-y-modelo-económico).
 
-**Gráficos:** barra apilada 35,6 % costo / 64,4 % margen; barra con 170 / 195 / 200 unidades.
+**Defensa:** el BME280 aporta tres lecturas ambientales locales de la grilla. La API gratuita agrega el pronóstico de cinco días después de medir. Su costo directo es cero; el sensor y la impresión 3D se pagan por cada equipo. La nómina incluye el ensamblaje final.
 
-**Interpretación honesta:** cada unidad aporta $189.347 a la estructura fija, pero **el margen sobre el equilibrio con deuda es de apenas 5 unidades**. El equilibrio con deuda no incluye impuesto ni acumulación de inventario: **la prueba real de solvencia es la caja mensual y el DSCR**, no el punto de equilibrio. No hay «holgura del 20,5 %».
+## 10. BI: inversión, financiamiento y evaluación
 
----
+**En pantalla:** aporte de socios de $9.000.000, crédito dimensionado, caja anual, **VAN, TIR y payback** del caso base. Todas las cifras se obtienen de [RESULTADOS_FINANCIEROS.md](../docs/RESULTADOS_FINANCIEROS.md) y del Excel maestro.
 
-## 10. BI: inversión, financiamiento, caja y evaluación
-
-> **Todas las cifras de esta sección se generan con `python finanzas/modelo.py`** desde [`finanzas/supuestos.json`](../finanzas/supuestos.json). La versión vigente está en [`docs/RESULTADOS_FINANCIEROS.md`](../docs/RESULTADOS_FINANCIEROS.md) y los supuestos con sus límites en [`docs/MODELO_ECONOMICO.md`](../docs/MODELO_ECONOMICO.md). **No copiar cifras de versiones anteriores del guion.**
-
-### 10.1. Desembolso inicial y financiamiento propuesto
-
-| Concepto | Monto CLP | Nota para la defensa |
-|---|---:|---|
-| Activos, desarrollo/validación y formalización (IVA prudencial) | $10.353.100 | No se usa recuperación inicial de IVA: criterio conservador |
-| Inventario inicial (IVA prudencial) | $895.288 | Solo el lote de los dos primeros meses, no 100 unidades por adelantado |
-| **Desembolso inicial** | **$11.248.388** | |
-| Aporte de los socios ($4.500.000 c/u) | $9.000.000 | Disponibilidad **confirmada por los socios** |
-| Crédito dimensionado (10 años, 12 % e.a. **supuesto**) | $27.700.000 | Mínimo que sostiene la reserva durante 24 meses |
-| Gastos de apertura presupuestados (2 %) | $554.000 | Presupuesto por cotizar, **no es un CAE** |
-| **Caja inicial (la reserva está dentro)** | **$24.897.612** | No sumar la reserva otra vez a la inversión |
-
-**Reserva objetivo:** 3 meses de gastos fijos (marketing incluido) más la cuota, más un 10 % del desembolso inicial.
-
-> **Si preguntan por FOGAPE:** es una **garantía estatal, no un subsidio ni una condonación**. La ficha de BancoEstado menciona plazos de hasta diez años **sujetos a evaluación**; una ficha general **no prueba el acceso** de una empresa sin ventas. **No tenemos oferta bancaria**: el 12 % es un presupuesto.
-
-### 10.2. Comparación de alternativas de deuda (mismo principal)
-
-| Alternativa | Cuota mensual | Intereses totales | Saldo al año 5 | Mínimo sobre reserva, 24 m |
-|---|---:|---:|---:|---:|
-| 5 años | $607.619 | $8.757.127 | $0 | **−$4.525.964** |
-| **10 años (propuesta)** | **$387.654** | **$18.818.441** | **$17.672.276** | **$45.210** |
-| 15 años | $321.593 | $30.186.829 | $22.979.635 | $1.366.413 |
-| 5 años + $5 M al 15 % pagados en el mes 12 | — | — | — | **−$7.910.523** |
-
-**Defensa del cambio de estructura:** el esquema anterior de dos créditos exigía **$11.725.284 de servicio de deuda el primer año** y dejaba la caja **$7,9 millones bajo la reserva**. Por eso se propone **un solo crédito a 10 años**. Quince años ahorra poco al mes y encarece mucho los intereses para un producto no validado.
-
-### 10.3. Resultados anuales del modelo
-
-| Año | Ventas | EBITDA | Servicio deuda | Caja final | Reserva | DSCR | Equilibrio op./deuda |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| 2027 | 200 | $5.709.528 | $4.651.844 | $25.061.618 | $10.327.800 | **1,04** | 170 / 195 |
-| 2028 | 350 | $21.324.647 | $4.651.844 | $39.526.551 | $14.033.662 | 4,11 | 241 / 265 |
-| 2029 | 500 | $35.078.302 | $4.651.844 | $61.191.779 | $18.646.878 | 5,66 | 326 / 349 |
-| 2030 | 650 | $40.278.414 | $4.651.844 | $85.276.292 | $25.866.117 | 6,18 | 456 / 478 |
-| 2031 | 850 | $56.043.380 | $4.651.844 | $123.092.636 | $33.596.641 | 9,13 | 588 / 610 |
-
-**Gráfico sugerido:** columnas de EBITDA con una línea de DSCR y una banda de referencia en 1,3.
-
-### 10.4. Evaluación y escenarios
-
-| Escenario | Ventas año 1 | Mínimo de caja libre a 24 m | VAN proyecto 5 años al 20 % |
-|---|---:|---:|---:|
-| **Base** | 200 | $45.210 | **+$21.874.878** |
-| **Estrés** (−35 % ventas, mismo marketing) | 130 | **−$19.803.623** | **−$47.949.651** |
-| **Crecimiento** (+50 % ventas y adquisición) | 300 | $824.154 | +$87.302.635 |
-
-Las perspectivas se mantienen separadas: **FCFF** es el flujo del proyecto (impuesto calculado sin deducir intereses) y **FCFE** el flujo después de la deuda. El VAN se calcula con flujos mensuales, **sin valor de rescate ni valor terminal**, y la reserva inicial se trata como capital comprometido.
-
-**No se presentan TIR, Pay Back ni «retorno por socio».** El sueldo del socio es costo laboral de la empresa, no retorno del capital; sumarlos produce una cifra sin significado financiero. No existe política de dividendos definida.
-
-**Conclusión BI y Finanzas para la defensa:** *«El caso base crea valor, pero con una cobertura de deuda estrecha el primer año — DSCR 1,04, bajo nuestro criterio interno de 1,3 — y el escenario de estrés destruye valor. Presentamos una hipótesis financiera sometida a validación, no una rentabilidad probada. Lo que decide si el proyecto va es cotizar el BOM, ensayar el equipo, conseguir una oferta bancaria real y vender pilotos pagados.»*
-
----
+**Defensa:** evaluamos el proyecto durante cinco años con flujos mensuales. VAN al 20 %, TIR efectiva anual y payback usan el mismo capital inicial y flujo económico. El préstamo se revisa por separado mediante cuotas, caja y DSCR. El sueldo de los socios se incluye como costo laboral. El escenario de estrés reduce 35 % las ventas manteniendo marketing; crecimiento aumenta 50 % ventas y adquisición, recalculando personal e inventario.
 
 ## 11. Mercado objetivo y necesidades
 
@@ -216,7 +147,7 @@ Las perspectivas se mantienen separadas: **FCFF** es el flujo del proyecto (impu
 
 **Gráfico:** embudo TAM → SAM → SOM.
 
-**Lectura crítica:** el TAM tiene fuente censal ([INE, resultados finales](https://www.ine.gob.cl/censoagropecuario/resultados-finales/graficas-nacionales)); **el SAM y el SOM son supuestos internos**. Las 200 ventas nacen de superar el equilibrio con deuda (195 u), no de demanda observada, y deben validarse en terreno. Una explotación censada tampoco equivale a un cliente ni a un equipo.
+**Lectura crítica:** el TAM tiene fuente censal ([INE, resultados finales](https://www.ine.gob.cl/censoagropecuario/resultados-finales/graficas-nacionales)); **el SAM y el SOM son supuestos internos**. Las 200 ventas nacen de superar el equilibrio con deuda (205 u), no de demanda observada, y deben validarse en terreno. Una explotación censada tampoco equivale a un cliente ni a un equipo.
 
 ## 13. Competencia y oportunidad
 
@@ -253,9 +184,9 @@ Precios exhibidos consultados el **04-09-2026**. **No comparar cantidad de varia
 |---|---|---|
 | No competir en exactitud | El valor está en frecuencia e interpretación | Posicionamiento complementario al laboratorio |
 | N/P/K derivados de conductividad | La conductividad no identifica los tres nutrientes por separado | No mostrarlos como cifras interpretables, excluirlos del veredicto con baja confianza y mantener el laboratorio |
-| Exposición cambiaria del BOM | La sonda es el 64 % del costo de materiales y casi todo es importado | Cotizar SKU con moneda y vigencia; lotes fraccionados y proveedores alternativos **por validar** |
+| Exposición cambiaria del BOM | La sonda es el 59 % del costo de materiales y casi todo es importado | Cotizar SKU con moneda y vigencia; lotes fraccionados y proveedores alternativos **por validar** |
 | Precio $349.990 sin validar | No hay ventas pagadas que lo confirmen | Pilotos pagados antes de comprar volumen; sensibilidades a $249.990–$329.990 en el modelo |
-| **Cobertura de deuda estrecha el año 1** | **DSCR 1,04, bajo el criterio interno de 1,3** | Un solo crédito a 10 años, reserva dimensionada y cotización completa antes de firmar |
+| **Cobertura de deuda estrecha el año 1** | **DSCR 0,69, bajo el criterio interno de 1,3** | Un solo crédito a 10 años, reserva dimensionada y cotización completa antes de firmar |
 | Metas de venta no validadas | Son metas financieras, no preventas cerradas | Escenario de estrés a 130 u en el modelo; preventas y piloto antes de comprometer inventario |
 | **Hardware sin ensayar** | PCB sin rutear, sin firmware en el repositorio, sin ensayos de autonomía ni sellado | No fabricar desde el archivo actual; rediseño, ERC/DRC y ensayos antes de comercializar |
 | **Cumplimiento normativo abierto** | SUBTEL, baterías, consumidor y Ley 21.719 (vigente 01-12-2026) | Revisar expediente del producto terminado antes de vender, no del módulo |
@@ -264,9 +195,9 @@ Precios exhibidos consultados el **04-09-2026**. **No comparar cantidad de varia
 
 1. TerraSense opera en una economía de mercado bajo competencia monopolística, con libertad de precio y sustitutos reales.
 2. Su costo de oportunidad está declarado: renuncia a precisión de laboratorio para ganar inmediatez, frecuencia, portabilidad y prescripción.
-3. La oferta es sensible al tipo de cambio: la sonda concentra el 64 % del costo de materiales y casi todo el BOM es importado. La demanda crece con la escasez hídrica y con el costo de decidir a ciegas.
-4. **El modelo financiero es una hipótesis, no una rentabilidad probada.** Con un aporte de $9.000.000 y un crédito propuesto de $27.700.000 a 10 años, el caso base da un VAN de **+$21.874.878** al 20 %, con equilibrio en 170 u operativas y 195 u con deuda. **No presentamos TIR, Pay Back ni retorno por socio.**
-5. **El primer año es el riesgo.** El DSCR de 2027 es **1,04**, bajo nuestro criterio interno de 1,3, y el escenario de estrés (−35 % de ventas) da un VAN de **−$47.949.651**. Si ese escenario se materializa, corresponde **redimensionar el negocio**, no estirar el plazo de la deuda.
+3. La oferta es sensible al tipo de cambio: la sonda concentra el 59 % del costo de materiales y casi todo el BOM es importado. La demanda crece con la escasez hídrica y con el costo de decidir a ciegas.
+4. La evaluación incluye **VAN, TIR efectiva anual y payback del proyecto**, con flujos mensuales a cinco años. Consultar la tabla de [resultados financieros](../docs/RESULTADOS_FINANCIEROS.md). La remuneración de los socios ya está incluida en nómina.
+5. **El primer año es el riesgo.** El DSCR de 2027 es **0,69**, bajo nuestro criterio interno de 1,3, y el escenario de estrés (−35 % de ventas) da un VAN de **−$50.774.058**. Si ese escenario se materializa, corresponde **redimensionar el negocio**, no estirar el plazo de la deuda.
 6. La oportunidad radica en **transformar datos agronómicos en decisiones ejecutables sin pretender reemplazar al laboratorio químico** — y en decirlo con los límites explícitos, que es lo que hace defendible el trabajo.
 
 > “TerraSense no promete saber más que un laboratorio; promete ayudar al agricultor a decidir mejor entre un análisis y el siguiente”.
@@ -276,7 +207,7 @@ Precios exhibidos consultados el **04-09-2026**. **No comparar cantidad de varia
 # Preguntas de defensa (Batería Completa)
 
 ### 1. ¿Cómo se financia el desembolso inicial y por qué un banco prestaría a una empresa recién creada?
-El desembolso inicial es de **$11.248.388**, financiado con un aporte de los socios de **$9.000.000** ($4.500.000 cada uno, disponibilidad confirmada) y un crédito dimensionado en **$27.700.000 a 10 años**. El crédito es mayor que el desembolso porque también financia la **reserva de liquidez** que sostiene los primeros 24 meses.
+El desembolso inicial es de **$11.317.378**, financiado con un aporte de los socios de **$9.000.000** ($4.500.000 cada uno, disponibilidad confirmada) y un crédito dimensionado en **$31.000.000 a 10 años**. El crédito es mayor que el desembolso porque también financia la **reserva de liquidez** que sostiene los primeros 24 meses.
 
 **La respuesta honesta a la segunda parte: todavía no sabemos si un banco prestaría.** No tenemos oferta bancaria. La tasa del 12 % efectivo anual y el 2 % de gastos de apertura son presupuestos, no un CAE cotizado. FOGAPE es una garantía estatal sujeta a evaluación, no un subsidio ni una aprobación automática. Si el banco no ofrece el plazo o exige garantías inaceptables, **reducimos el lanzamiento y validamos preventas**; no lo sustituimos por un crédito personal.
 
@@ -284,27 +215,27 @@ El desembolso inicial es de **$11.248.388**, financiado con un aporte de los soc
 Porque el proyecto debe poder nacer y pagar sus deudas por sí mismo. Postular sigue siendo una opción abierta y beneficiosa: si se adjudica, sustituye deuda cara y mejora el resultado. El modelo no lo supone.
 
 ### 3. ¿Cómo se ve la caja del primer año?
-El EBITDA de 2027 es de **$5.709.528** y el servicio de deuda de **$4.651.844**, lo que deja un **DSCR de 1,04**: por cada peso de deuda que hay que pagar, la operación genera 1,04. **Está por debajo de nuestro criterio interno de 1,3 veces.** El mínimo de caja libre sobre la reserva en 24 meses es de apenas **$45.210**.
+El EBITDA de 2027 es de **$4.426.234** y el servicio de deuda de **$5.206.035**, lo que deja un **DSCR de 0,69**: por cada peso de deuda que hay que pagar, la operación genera 0,69. **Está por debajo de nuestro criterio interno de 1,3 veces.** El mínimo de caja libre sobre la reserva en 24 meses es de apenas **$56.737**.
 
 Esto es una advertencia, no un adorno: el primer año no tiene holgura. Por eso el crédito se dimensionó al mínimo que sostiene la reserva, y por eso pedimos cotización completa y probamos meses débiles antes de firmar. **La reserva financia transitorios, no pérdidas permanentes.**
 
 ### 4. ¿Cómo se dimensionó la reserva y qué cubre?
-Tres meses de gastos fijos —incluido marketing— más la cuota del crédito, más un 10 % del desembolso inicial. **La reserva está dentro de la caja**: no es un gasto ni se suma dos veces a la inversión. El inventario inicial cubre solo los dos primeros meses de ventas, redondeado a lotes de 10 equipos; el lote de 10 es una **política de simulación, no un mínimo de compra del proveedor**. Con lead times reales habrá que recalcularlo.
+Tres meses de gastos fijos —incluido marketing— y tres cuotas del crédito, más un 10 % del desembolso inicial. **La reserva está dentro de la caja**: no es un gasto ni se suma dos veces a la inversión. El inventario inicial cubre solo los dos primeros meses de ventas, redondeado a lotes de 10 equipos; el lote de 10 es una **política de simulación, no un mínimo de compra del proveedor**. Con lead times reales habrá que recalcularlo.
 
 ### 5. ¿Por qué $349.990 y no un precio menor?
 Porque el precio anterior de $249.990 se sostenía sobre una economía unitaria incompleta: no incluía comisiones de canal, contabilizaba una mano de obra directa que ya estaba en la nómina y usaba una carga patronal del 5 % que no es defendible.
 
-Con el costo de materiales presupuestado en **$75.243** y un costo variable adicional de **$29.519** por unidad, a $349.990 con IVA ($294.109 neto) el margen de contribución es de **$189.347 (64,4 %)**. Frente a las referencias consultadas el 04-09-2026 — **Hanna HI9814 a $491.827** y **Bluelab Pulse a $538.990** — quedamos aproximadamente 29 % y 35 % por debajo.
+Con el costo de materiales presupuestado en **$81.184** y un costo variable adicional de **$29.994** por unidad, a $349.990 con IVA ($294.109 neto) el margen de contribución es de **$182.931 (62,2 %)**. Frente a las referencias consultadas el 04-09-2026 — **Hanna HI9814 a $491.827** y **Bluelab Pulse a $538.990** — quedamos aproximadamente 29 % y 35 % por debajo.
 
 **Pero es una hipótesis, no un precio demostrado.** No hay ventas pagadas que lo validen. Los $249.990 se conservan solo como sensibilidad en el modelo.
 
 ### 6. ¿De dónde salen las 200 unidades del año 1?
-Es una **meta**, no una proyección de demanda. El equilibrio operativo del año 1 está en 170 unidades y el equilibrio incluyendo servicio de deuda en 195: las 200 unidades dejan un margen de apenas 5 unidades sobre el equilibrio con deuda.
+Las 200 unidades son la meta comercial del primer año, repartida por una estacionalidad mensual explícita. El equilibrio operativo es de 176 equipos y el equilibrio con servicio de deuda es de 205 equipos.
 
 No las llamamos «conservadoras» por ser un número pequeño: **vender 200 unidades de un producto nuevo puede ser difícil**. La distribución mensual del modelo, concentrada en el segundo semestre, es estacionalidad hipotética. Por eso corremos un escenario de estrés a 130 unidades — que da VAN negativo.
 
 ### 7. ¿Qué pasa si el tipo de cambio sube fuertemente?
-La sonda 7-en-1 representa **$48.000 de los $75.243 del BOM (64 %)** y la mayoría de los componentes son importados, de modo que la exposición cambiaria es alta. **No damos un porcentaje exacto de exposición al dólar porque aún no tenemos SKU cotizados con moneda y vigencia**; cuantificarlo es parte de la cotización pendiente.
+La sonda 7-en-1 representa **$48.000 de los $81.184 del BOM (59 %)** y la mayoría de los componentes son importados, de modo que la exposición cambiaria es alta. **No damos un porcentaje exacto de exposición al dólar porque aún no tenemos SKU cotizados con moneda y vigencia**; cuantificarlo es parte de la cotización pendiente.
 
 El modelo permite evaluar el efecto cambiando el BOM en `supuestos.json` y regenerando. La mitigación planteada es compra fraccionada, proveedores alternativos y stock de seguridad, pero **ninguna está probada con un proveedor real**.
 
@@ -348,38 +279,12 @@ El modelo presupuesta **contador externo desde el mes 1** — antes incluso, par
 - **[Modelo económico: supuestos y límites](../docs/MODELO_ECONOMICO.md)**
 - **[Resultados financieros vigentes](../docs/RESULTADOS_FINANCIEROS.md)** — fuente de todas las cifras de este guion
 - **[Plan de validación](../docs/PLAN_VALIDACION.md)** — qué falta para cerrar cada hallazgo
-- **[Auditoría del 04-09-2026](../docs/AUDITORIA_READMES_2026-09-04.md)** — origen de estas correcciones
+- **[Auditoría del 04-09-2026](../finanzas/historico/documentacion/docs/AUDITORIA_READMES_2026-09-04.md)** — origen de estas correcciones
 - [Flujo de caja y financiamiento](../Flujo%20de%20caja%20y%20financiamiento%20-%20TerraSense.xlsx) — generado por `finanzas/modelo.py`
-- [Estudio de viabilidad](../docs/ESTUDIO_VIABILIDAD_TECNICA_ECONOMICA.md)
-- [Especificaciones y filosofía](../docs/ESPECIFICACIONES_CONCEPTUALES_Y_FILOSOFIA.md)
-- [Comparativa competitiva](../docs/DIAGRAMAS_ALTERNATIVAS_COMPETENCIA.md)
+- [Estudio de viabilidad](../docs/INFORME%201%20.docx.md#analisis-economico)
+- [Especificaciones y filosofía](../docs/INFORME%201%20.docx.md#propuesta)
+- [Comparativa competitiva](../docs/INFORME%201%20.docx.md#viabilidad-tecnica)
 
 ## Cuadro Maestro de Cifras Vigentes
 
-> Generado por `python finanzas/modelo.py`. **Si una cifra de este cuadro no coincide con [`docs/RESULTADOS_FINANCIEROS.md`](../docs/RESULTADOS_FINANCIEROS.md), la correcta es la de ese archivo.**
-
-| Dimensión | Indicador | Valor | Estado |
-|---|---|---:|---|
-| **Precio y margen** | Precio de lista con IVA | **$349.990** | Hipótesis a validar con pilotos pagados |
-| | Precio neto de venta | **$294.109** | |
-| | Costo de materiales (BOM) | **$75.243** | **Provisional**: sin SKU, impuestos ni lead time cotizados |
-| | Costo variable adicional por unidad | **$29.519** | Merma 3 %, garantía 5 %, envío $6.000, comisión 5 % |
-| | Margen de contribución unitario | **$189.347** | 64,4 % sobre venta neta |
-| **Inversión y deuda** | Desembolso inicial | **$11.248.388** | |
-| | Aporte de los socios | **$9.000.000** | Disponibilidad confirmada por los socios |
-| | Crédito dimensionado | **$27.700.000** | 10 años, 12 % e.a. **supuesto — sin oferta bancaria** |
-| | Cuota mensual | **$387.654** | |
-| | Caja inicial (reserva incluida) | **$24.897.612** | No sumar la reserva por separado |
-| **Volumen** | Equilibrio operativo año 1 | **170 u** | |
-| | Equilibrio con servicio de deuda año 1 | **195 u** | Margen de solo 5 u sobre la meta |
-| | Meta de ventas año 1 | **200 u** | **Meta, no demanda validada** |
-| | Proyección quinquenal | **200 / 350 / 500 / 650 / 850** | Metas de trabajo |
-| **Resultado** | EBITDA 2027 | **$5.709.528** | |
-| | DSCR 2027 | **1,04** | **Bajo el criterio interno de 1,3** |
-| | VAN proyecto 5 años al 20 % (base) | **+$21.874.878** | Sin valor terminal ni rescate |
-| | VAN escenario de estrés | **−$47.949.651** | −35 % ventas sin recortar marketing |
-| | TIR / Pay Back / retorno por socio | **No se publican** | Faltan política de dividendos y datos reales |
-| **Personas** | Remuneración bruta por socio | **$600.000 → $1.200.000/mes** | Costo laboral, **no retorno del capital** |
-| | Sobrecosto laboral presupuestado | **35 %** | Presupuesto, **no una tasa legal única** |
-| | Contabilidad externa | **$120.000/mes + $20.000 por FTE** | Desde el mes 1 |
-| | Técnicos / soporte FTE (2027→2031) | **0→1,5 / 0→1,5** | Equivalente de jornada, no número de contratos |
+Consultar el [resumen económico del README](../README.md#finanzas-y-modelo-económico) y los [resultados financieros generados](../docs/RESULTADOS_FINANCIEROS.md): BOM por componente, margen, inversión, crédito, flujo anual, VAN, TIR y payback. Estas tablas se actualizan con `python finanzas/modelo.py`.

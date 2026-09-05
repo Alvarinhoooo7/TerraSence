@@ -3,7 +3,7 @@
 Documentación técnica del hardware embarcado, diseño en KiCad, arquitectura de potencia a 5 V, PCB combinada de carga y elevación por USB-C, batería de litio de 2.000 mAh y chasis portátil de mano (**Handheld Agro-Sensor**).
 
 > ### 🛑 Estado de verificación — leer antes de usar este documento
-> Corregido tras la [auditoría del 4 de septiembre de 2026](../docs/AUDITORIA_READMES_2026-09-04.md). **Este documento describe un diseño en curso, no un producto verificado. No fabricar a partir de los archivos actuales.**
+> Corregido tras la [auditoría del 4 de septiembre de 2026](../finanzas/historico/documentacion/docs/AUDITORIA_READMES_2026-09-04.md). **Este documento describe un diseño en curso, no un producto verificado. No fabricar a partir de los archivos actuales.**
 >
 > | Afirmación anterior | Estado real |
 > |---|---|
@@ -14,7 +14,7 @@ Documentación técnica del hardware embarcado, diseño en KiCad, arquitectura d
 > | «≥ 4.000 mediciones / > 18 meses» | El balance **omitía el consumo de la conexión BLE**. Ver §3.5 |
 > | «IP67, peso < 280 g» | **Objetivos de diseño sin ensayo.** No hay actas, pesaje del conjunto ni validación mecánica |
 > | «Sonda 7-en-1 opera a 5 V» | Solo puede afirmarse del **SKU y variante validados**, que aún no se han adquirido |
-> | Sensor ambiental BME280 | **No forma parte del BOM vigente.** El ambiente en la app viene de un servicio meteorológico |
+> | Sensor ambiental BME280 | **BME280 incluido y obligatorio:** temperatura del aire, humedad relativa y presión local para tres celdas del grid 3×3. La API gratuita complementa la lectura con el pronóstico de cinco días. Ver [contrato y estado de integración](../docs/INFORME%201%20.docx.md#integracion-bme280). |
 > | Módulo TP4056 + Step-Up discreto | Sustituido por una **PCB combinada de carga/boost USB-C** ($900 confirmados por los socios) |
 >
 > El BOM vigente y provisional está en [`BOM_TerraSense.xlsx`](BOM_TerraSense.xlsx), generado desde [`finanzas/supuestos.json`](../finanzas/supuestos.json). Las secciones que siguen se conservan como **memoria de diseño**; donde contradigan esta tabla, manda esta tabla.
@@ -26,7 +26,7 @@ Documentación técnica del hardware embarcado, diseño en KiCad, arquitectura d
 - [1. Especificaciones Generales de Hardware](#1-especificaciones-generales-de-hardware)
 - [2. Arquitectura Electrónica y Diagrama de Bloques](#2-arquitectura-electrónica-y-diagrama-de-bloques)
   - [2.1. Microcontrolador Central (ESP32-WROOM-32E)](#21-microcontrolador-central-esp32-wroom-32e)
-  - [2.2. Sensor ambiental BME280 — retirado del diseño vigente](#22-sensor-ambiental-bme280--retirado-del-diseño-vigente)
+  - [2.2. Sensor ambiental BME280 — lectura local obligatoria](#22-sensor-ambiental-bme280--lectura-local-obligatoria)
   - [2.3. Interfaz de Comunicación Industrial RS-485](#23-interfaz-de-comunicación-industrial-rs-485)
 - [3. Sistema de Gestión de Potencia y Alimentación](#3-sistema-de-gestión-de-potencia-y-alimentación)
   - [3.1. Operación de la Sonda NPK a 5V DC](#31-operación-de-la-sonda-npk-a-5v-dc)
@@ -55,7 +55,7 @@ Documentación técnica del hardware embarcado, diseño en KiCad, arquitectura d
 | **MCU Principal** | ESP32-WROOM-32 en placa de desarrollo | Doble núcleo 240 MHz. [Ficha Espressif](https://documentation.espressif.com/esp32-wroom-32e_esp32-wroom-32ue_datasheet_en.html): **Bluetooth 4.2 BR/EDR y BLE**, no 5.0. La certificación del módulo **no acredita** el cumplimiento del equipo terminado |
 | **Sonda de Suelo** | Sonda industrial 7-en-1 RS-485 Modbus RTU | Rango de alimentación **DC 4.5V–30V**, electrodos acero inox 316L |
 | **Alimentación Sonda**| **5,0V DC** (suministrados por Step-Up) | Operación directa sin requerir 12V; menor estrés y menor consumo |
-| **Sensor Ambiental** | ❌ **No incluido en la versión actual** | El BME280 se retiró del BOM. Las variables de ambiente que muestra la app provienen de un servicio meteorológico por internet |
+| **Sensor Ambiental** | **BME280 I²C a 3,3 V** | Temperatura del aire, humedad relativa y presión en el punto de lectura |
 | **Transceptor Bus** | SP3485 / MAX3485 (3.3V) | Comunicación diferencial industrial semidúplex robusta |
 | **Batería** | 1× Polímero de Litio (LiPo / Li-Ion) 3.7V, **2.000 mAh** | Formato prismático convencional ultraligero (~35 g), sin portaceldas |
 | **Carga y Elevación**| **PCB combinada USB-C carga + boost** | Costo de $900 confirmado por los socios. **No se compran TP4056 ni MT3608 discretos por separado** |
@@ -117,9 +117,9 @@ Documentación técnica del hardware embarcado, diseño en KiCad, arquitectura d
   * `GPIO0`: Pulsador ergonómico de gatillo/pulgar para disparo de medición rápida.
   * `GPIO2 / GPIO15`: Micro-LEDs de estado (Azul: BLE / Verde: Lectura Exitosa).
 
-### 2.2. Sensor ambiental BME280 — retirado del diseño vigente
+### 2.2. Sensor ambiental BME280 — lectura local obligatoria
 
-> ❌ **El BME280 no forma parte del BOM ni del diseño vigente.** El presupuesto no lo compra y la app obtiene el contexto de ambiente desde un servicio meteorológico por internet. Lo que sigue se conserva como memoria de diseño por si se reincorpora; **no describe el equipo actual**.
+> **BME280 incluido y obligatorio:** temperatura del aire, humedad relativa y presión local para tres celdas del grid 3×3. La API gratuita complementa la lectura con el pronóstico de cinco días. Ver [contrato y estado de integración](../docs/INFORME%201%20.docx.md#integracion-bme280).
 Ubicado en la parte posterior del chasis, protegido por una membrana microporosa de PTFE permeable al vapor e impermeable al agua y polvo (IP67):
 * **Temperatura ambiental:** Rango −40 °C a +85 °C (exactitud ±0.5 °C).
 * **Humedad relativa:** Rango 0 % a 100 % RH (exactitud ±3 % RH).
@@ -224,10 +224,10 @@ El proyecto incluye el diseño completo en **KiCad 8.0** ubicado en la raíz de 
 
 | Ref | Componente | Encapsulado | Función | Costo Unitario |
 | :--- | :--- | :--- | :--- | ---: |
-> ⚠️ **Esta tabla es memoria de diseño de una arquitectura SMD discreta y NO es el BOM vigente.** El BOM que alimenta el modelo económico está en [`BOM_TerraSense.xlsx`](BOM_TerraSense.xlsx) y parte de una **placa de desarrollo ESP32** más una **PCB combinada de carga/boost**, sin BME280, TP4056 ni MT3608 discretos. Los precios de abajo **no están cotizados con SKU, moneda ni vigencia**.
+> ⚠️ **Esta tabla es memoria de diseño de una arquitectura SMD discreta y NO es el BOM vigente.** El BOM que alimenta el modelo económico está en [`BOM_TerraSense.xlsx`](BOM_TerraSense.xlsx) y parte de una **placa de desarrollo ESP32** más una **PCB combinada de carga/boost**, con BME280, sin TP4056 ni MT3608 discretos. Los precios de abajo **no están cotizados con SKU, moneda ni vigencia**.
 
 | **U1** | ESP32-WROOM-32E-N4 | SMD Module | MCU (BLE 4.2, no 5.0) / Procesamiento | $2.450 CLP |
-| **U2** | ~~Bosch BME280~~ | LGA-8 | ❌ **Retirado del diseño vigente** | — |
+| **U2** | Módulo Bosch BME280 | Breakout I²C | **Incluido en BOM vigente** | $3.500 final ($2.941,18 neto) |
 | **U3** | SP3485EN-L/TR | SOIC-8 | Transceptor RS-485 a 3.3V | $480 CLP |
 | **MOD1**| ~~Módulo TP4056 + Step-Up 5V~~ | Módulo | Sustituido por **PCB combinada carga/boost USB-C** | $900 CLP |
 | **U4** | AP2112K-3.3TRG1 | SOT-23-5 | Regulador LDO 3.3V 600mA para ESP32 | $190 CLP |
@@ -317,14 +317,14 @@ TerraSense adopta un diseño compacto de mano (*handheld*), optimizado para que 
 5. **Recepción y validación CRC16:** Se leen los 19 bytes de respuesta con las 7 variables de suelo:
    `[0x01 | 0x03 | 0x0E | Data_H | Data_L ... | CRC_L | CRC_H]`.
 6. **Power Gate OFF:** `GPIO5` pasa a nivel bajo $\rightarrow$ la línea de 5 V se corta inmediatamente. El consumo residual **no está medido**.
-7. ~~**Lectura ambiental I2C** con BME280.~~ ❌ **Este paso no existe en el diseño vigente:** no hay sensor ambiental a bordo. La app obtiene el contexto de ambiente desde un servicio meteorológico por internet, que requiere red.
+7. **Lectura ambiental I²C del BME280:** adquirir temperatura del aire, humedad relativa y presión junto con el suelo. Implementación y transporte BLE detallados en [integración](../docs/INFORME%201%20.docx.md#integracion-bme280).
 
 ### 6.2. Estructura binaria de la trama BLE (16 bytes)
 
 > ### 🛑 Contrato corregido
 > Las versiones anteriores de este README y del README de la App describían **tres contratos incompatibles**: distinto orden de campos, pH en centésimas frente a décimas, y batería como `uint16` de milivoltios frente a un solo byte de porcentaje.
 >
-> **El contrato válido es el que decodifica `App/src/services/probeService.ts`.** El firmware debe emitir exactamente esto. Los dos bytes ambientales del esquema anterior (`TA`/`HA`) **se eliminan: no hay BME280 en el diseño vigente**.
+> **El contrato válido es el que decodifica `App/src/services/probeService.ts`.** El firmware debe emitir exactamente esto. La trama de 16 bytes actual solo contiene suelo y batería. El BME280 está incluido en el diseño y la BOM; requiere extender/versionar el contrato o agregar una característica para las tres variables ambientales. No reusar dos bytes para tres magnitudes. Ver [integración](../docs/INFORME%201%20.docx.md#integracion-bme280).
 
 ```text
  ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐

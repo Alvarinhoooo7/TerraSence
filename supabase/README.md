@@ -20,8 +20,8 @@ Deno. Es la fuente única de verdad del sistema.
 - [7. Plantillas de correo](#7-plantillas-de-correo)
 - [8. Comandos habituales](#8-comandos-habituales)
 - [9. Diagnóstico sin Docker](#9-diagnóstico-sin-docker)
-- [10. Pendientes conocidos](#10-pendientes-conocidos)
-- [11. 🛠️ Manual de instalación de herramientas](#11-️-manual-de-instalación-de-herramientas)
+- [10. Pendientes conocidos](#10-pendientes-conocidos-y-tareas-operativas)
+- [11. 🛠️ Manual de instalación de herramientas](#manual-instalacion-herramientas)
 
 ---
 
@@ -351,6 +351,7 @@ No se ha auditado. Lo verificado es que el código local compila y pasa sus prue
 
 ---
 
+<a id="manual-instalacion-herramientas"></a>
 ## 11. 🛠️ Manual de Instalación de Herramientas
 
 ### 11.1. Supabase CLI

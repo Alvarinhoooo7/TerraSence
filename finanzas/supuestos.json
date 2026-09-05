@@ -1,5 +1,5 @@
 {
-  "fecha_revision": "2026-09-04",
+  "fecha_revision": "2026-09-05",
   "inicio": 2027,
   "horizonte": 15,
   "aporte_socios": 9000000,
@@ -42,6 +42,8 @@
   "contador_mensual": 120000,
   "contador_incremento_fte": 20000,
   "servicios_digitales_mensual": 150000,
+  "api_clima_mensual": 0,
+  "api_clima_nota": "API gratuita para pronóstico de próximos 5 días; proveedor y condiciones en docs/MODELO_ECONOMICO.md. No sustituye al BME280.",
   "servicios_por_equipo_activo_anio": 1200,
   "taller_servicios_mensual": 180000,
   "administracion_seguros_mensual": 100000,
@@ -51,6 +53,7 @@
   "bom": [
     ["Sonda RS485 7-en-1 (SKU pendiente de ficha)", 1, 48000, "Presupuesto neto puesto en taller; cotizar SKU y voltaje"],
     ["Placa de desarrollo ESP32-WROOM-32", 1, 6722.689075630252, "WROOM-32 confirmado por socios; referencia AFEL 8000 IVA incluido, variante de placa por confirmar"],
+    ["Módulo ambiental Bosch BME280 I2C", 1, 2941.176470588235, "Precio indicado por socio el 2026-09-05: 3500 CLP; interpretado como precio final con IVA 19%, neto 3500/1.19. Crédito IVA sujeto a factura. Temperatura, humedad relativa y presión locales; no BMP280."],
     ["PCB combinada USB-C carga + boost", 1, 900, "Precio confirmado por socios; sin crédito IVA hasta tener factura"],
     ["LiPo 2000 mAh protegida", 1, 4500, "Presupuesto neto; cotizar dimensiones, descarga y protección"],
     ["SP3485 transceptor RS485 3.3 V", 1, 900, "Presupuesto neto; definir IC o módulo, no ambos"],
@@ -59,7 +62,8 @@
     ["LED SMD", 3, 40, "Presupuesto; cantidad provisional"],
     ["Pasivos, protección y terminación RS485", 1, 1200, "Lote por equipo; revisar esquema/ESD"],
     ["PCB portadora y montaje externo SMD", 1, 2500, "No incluye ensamblaje final, ya en personal"],
-    ["Carcasa, prensa estopa, fijaciones y sellado", 1, 4500, "Prototipo; no acredita IP67"],
+    ["Carcasa impresa en 3D PETG (servicio externo)", 1, 6000, "Presupuesto neto por conjunto: material, máquina, energía y acabado incluidos; geometría y cotización pendientes. Sin compra de impresora ni duplicar MOD."],
+    ["Prensaestopas, fijaciones, juntas y respiradero BME280", 1, 1500, "Presupuesto neto; ventilación protegida para medir aire exterior, sin encapsular el sensor. No acredita IP67."],
     ["Cableado y conectores internos adicionales", 1, 700, "Presupuesto neto"],
     ["Embalaje, manual y etiqueta", 1, 2000, "Presupuesto neto"],
     ["Flete de insumos y contingencia importación", 1, 2500, "Reserva de costo neto adicional; no repetir IVA recuperable"]

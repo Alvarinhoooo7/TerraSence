@@ -1,10 +1,10 @@
-# Plan de validación — qué falta para poder comprometer dinero
+# Plan de integración y validación — TerraSense
 
-Revisión 04-09-2026. Este documento lista **lo que sigue pendiente**. Las correcciones ya aplicadas al repositorio están resumidas al final, en una sola sección.
+Revisión 05-09-2026. El [Informe 1](INFORME%201%20.docx.md) concentra arquitectura, operación y evaluación; este documento organiza las comprobaciones pendientes.
 
-La [auditoría del 04-09-2026](AUDITORIA_READMES_2026-09-04.md) es evidencia histórica, no la especificación vigente. Los documentos y planillas que reemplazó se conservan en `finanzas/historico/` y **no deben usarse para cotizar ni fabricar**.
+La [auditoría del 04-09-2026](../finanzas/historico/documentacion/docs/AUDITORIA_READMES_2026-09-04.md) es evidencia histórica, no la especificación vigente. Los documentos y planillas que reemplazó se conservan en `finanzas/historico/` y **no deben usarse para cotizar ni fabricar**.
 
-> **Nada de lo pendiente se resuelve dentro de este repositorio.** Todo requiere dinero, terceros, ensayos físicos o decisiones de los socios.
+La integración de datos y las pruebas de software se trabajan en el repositorio. Los ensayos del instrumento, las cotizaciones y la evaluación contable requieren el equipo o antecedentes externos.
 
 ---
 
@@ -12,14 +12,12 @@ La [auditoría del 04-09-2026](AUDITORIA_READMES_2026-09-04.md) es evidencia his
 
 | # | Pendiente | Por qué bloquea | Cómo se cierra |
 |:---:|---|---|---|
-| 1 | **Cotización real del BOM** | El costo de $75.243 es un presupuesto sin SKU. La sonda sola es el 64 % y define el margen | Cotizaciones con SKU, cantidad, precio neto y bruto, moneda, fecha, vigencia, lead time y costo puesto en taller |
-| 2 | **Oferta bancaria efectiva** | El crédito de $27.700.000 a 10 años y 12 % e.a. es un supuesto. **No hay oferta**. FOGAPE es garantía sujeta a evaluación, no aprobación | Cotización en CLP a tasa fija, a 5 y 10 años, con todos los cargos, garantías exigidas, gracia y comisión de prepago |
+| 1 | **Cotización real del BOM** | El costo de $81.184 es un presupuesto sin SKU. La sonda es aproximadamente el 59 % y define el margen | Cotizaciones con SKU, cantidad, precio neto y bruto, moneda, fecha, vigencia, lead time y costo puesto en taller |
+| 2 | **Oferta bancaria efectiva** | El crédito de $31.000.000 a 10 años y 12 % e.a. es un supuesto. **No hay oferta**. FOGAPE es garantía sujeta a evaluación, no aprobación | Cotización en CLP a tasa fija, a 5 y 10 años, con todos los cargos, garantías exigidas, gracia y comisión de prepago |
 | 3 | **Ventas piloto pagadas** | Las metas de 200–850 unidades son objetivos, no demanda. El precio de $349.990 no lo validó ningún cliente | Pilotos pagados con margen positivo: precio efectivamente pagado, CAC por cohorte, devoluciones y horas de soporte |
 | 4 | **Revisión contable independiente** | El impuesto es una aproximación de caja Pro Pyme; no reproduce F29, PPM ni la declaración de abril | Contador revisa régimen, calificación Pro Pyme, remuneración de socios con control, PPM, IVA efectivo y deducibilidad |
 
-**Cobertura de deuda del primer año: DSCR 1,04**, bajo el criterio interno de 1,3. Con el mismo principal, 5 años da 0,66 y 15 años 1,25: **ninguna alternativa alcanza 1,3 en 2027**. No firmar sin probar meses débiles.
-
-Si se materializa el escenario de estrés (−35 % de ventas, VAN **−$47.949.651**), corresponde **redimensionar el negocio**, no estirar el plazo de la deuda.
+Los resultados de DSCR, VAN y caja libre por escenario se consultan en [RESULTADOS_FINANCIEROS.md](RESULTADOS_FINANCIEROS.md). La comparación de plazos utiliza el mismo principal; no reutilizar ratios de versiones anteriores de la BOM.
 
 ---
 
@@ -54,25 +52,17 @@ Si se materializa el escenario de estrés (−35 % de ventas, VAN **−$47.949.6
 
 | # | Pendiente | Estado actual |
 |:---:|---|---|
-| 16 | **Backend meteorológico comercial** | [Open-Meteo reserva su modalidad gratuita al uso no comercial](https://open-meteo.com/en/pricing). Antes de vender hay que contratar acceso comercial o montar un proxy propio, y no exponer la clave en la app. La caché y el pronóstico de 7 días **no están implementados**: hoy la consulta pide 2 días, requiere red y devuelve nulo si falla |
+| 16 | **Pronóstico gratuito e integración ambiental** | El requisito es cubrir los próximos cinco días; hoy la consulta pide dos y utiliza el primero. Seleccionar una API gratuita con licencia y cupo adecuados al uso. Open-Meteo gratuito sirve para el estudio no comercial; un proxy no cambia su licencia. Completar también adquisición, BLE, guardado y grilla BME280 conforme al [Informe 1](INFORME%201%20.docx.md#integracion-bme280) |
 
-Es el único pendiente de backend que **bloquea la venta**: usar el plan gratuito en un producto comercial incumpliría los términos del proveedor.
+La temperatura observada por BME280 debe guardarse separada de la temperatura del servicio meteorológico, junto con humedad relativa, presión local, instante y estado de captura.
 
 Las tareas **operativas** de despliegue —aplicar la migración en staging, exportar el esquema, ensayar la restauración del respaldo y auditar el estado de producción— viven en [`supabase/README.md` §10](../supabase/README.md), que es donde están los comandos. La verificación en dispositivo de la cola offline y del enlace BLE está en [`App/README.md`](../App/README.md). La publicación OTA real figura en el roadmap de [`Web/README.md` §11.2](../Web/README.md).
 
 ---
 
-## 5. Seguridad de dependencias
+## 5. Dependencias y comprobaciones de software
 
-| Aviso | Estado |
-|---|---|
-| **`image-size` ≤ 2.0.2** — GHSA-w3rx-r6r6-pgpr / CVE-2025-71330: denegación de servicio por bucle infinito en el parser ICNS | ⚠️ **Sin parche disponible.** La última versión publicada (2.0.2) es la vulnerable: no hay a qué actualizar |
-
-**Evaluación de exposición.** Es una dependencia **transitiva del bundler**: `expo → @expo/metro → metro → image-size`, usada en `metro/src/Assets.js` para leer dimensiones de imágenes **al empaquetar**. No se ejecuta en el teléfono del usuario ni procesa entrada de terceros: para dispararla habría que agregar un archivo `.icns` malicioso a los assets del propio proyecto. **El repositorio no contiene ningún `.icns`.** El impacto sería colgar el bundler en la máquina del desarrollador.
-
-**Decisión:** aceptar y vigilar. Revisar cuando `image-size` publique una versión corregida o cuando Expo/Metro cambie de dependencia. `npm audit` sobre `Web/` reporta 0 vulnerabilidades.
-
-**Los 10 PR abiertos de Dependabot no son de seguridad**, sino saltos de versión mayor (TypeScript 5→7, Vite 6→8, `expo-constants` 18→57, `expo-location` 19→57). Los saltos de los paquetes `expo-*` corresponden a otra versión del SDK y romperían el proyecto: no fusionarlos sin migrar el SDK completo y volver a probar.
+Los resultados de auditoría y pruebas del 4 de septiembre se conservan en el archivo histórico. Antes de una entrega se ejecutan las pruebas y compilaciones de los módulos modificados; la integración BLE y el guardado sin red requieren también ensayo en teléfono. No se reutilizan conteos antiguos de vulnerabilidades o PR como estado actual.
 
 ---
 
@@ -89,22 +79,20 @@ Las tareas **operativas** de despliegue —aplicar la migración en staging, exp
 
 ---
 
-## Cifras vigentes al 04-09-2026
+## Cifras vigentes
 
-Precio **$349.990** con IVA · BOM **$75.243** neto · aporte **$9.000.000** · crédito **$27.700.000** a 10 años · cuota **$387.654** · DSCR 2027 **1,04** · VAN base **+$21.874.878** · VAN estrés **−$47.949.651** · equilibrio 2027 **170 u operativas / 195 u con deuda**.
+Las cifras vigentes de BOM, crédito, cuota, DSCR, VAN, TIR, payback y equilibrio se regeneran en [RESULTADOS_FINANCIEROS.md](RESULTADOS_FINANCIEROS.md).
 
 Generadas con `python finanzas/modelo.py` desde `finanzas/supuestos.json`. **Regenerar siempre tras editar supuestos; no editar resultados a mano.** La fuente publicada es [`RESULTADOS_FINANCIEROS.md`](RESULTADOS_FINANCIEROS.md).
 
 ---
 
-## Ya cerrado en el repositorio (04-09-2026)
+## Revisión documental y financiera del 5 de septiembre
 
-Modelo económico reproducible con fuente única en JSON, FCFF y FCFE separados, deuda completa a 5/10/15 años y bullet, reserva explícita, tasas Pro Pyme por año, comisiones de canal y nómina sin mano de obra duplicada. Excel regenerado con **5.415 fórmulas, todas con resultado en caché** (la auditoría halló 577 sin ninguno) y sin la copia duplicada de `outputs/`.
+La BOM contiene BME280 a $3.500 finales y carcasa impresa en 3D. El modelo calcula VAN, TIR y payback con la misma serie mensual, separa financiación de inversión económica y aprovecha el IVA de inventario inicial. Las tablas del Informe 1 se generan desde el modelo para mantener una sola fuente de cifras.
 
-Documentación sincronizada: los seis README y los cuatro documentos de apoyo declaran estado explícito —implementado, probado localmente u objetivo sin ensayo— y citan `RESULTADOS_FINANCIEROS.md` como fuente única. Se retiraron TIR, Pay Back, «retorno por socio», el ROI del 98 %, la matriz de «100 % Cumplido» normativo, IP67 y autonomía como prestaciones, y el badge MIT sin archivo de licencia.
+El Informe 1 incorpora once diagramas, el funcionamiento de la app contrastado con código, el balance energético para LiPo de 2.000 mAh y la comparación de batería recargable con pilas de referencias concretas. Los documentos conceptuales duplicados se consolidaron allí; el índice vigente está en [docs/README.md](README.md).
 
-En código: N/P/K sin cifras interpretables y excluidos del veredicto, dosis de cal y lavado eliminadas, mediciones sin GPS admitidas en el historial, cola con exclusión mutua por cuenta y borrado solo tras acuse, sincronización al recuperar red en primer plano, simulación restringida a desarrollo y contrato BLE unificado.
+## Integración BME280 y clima — actualización 5 de septiembre
 
-**Comprobado:** modelo reproducible en dos corridas idénticas · App **25/25 pruebas** —incluidas 7 nuevas sobre la exclusión mutua de la cola offline— y `tsc --noEmit` limpio · Web `type-check` y `build` aprobados sin cambiar `package-lock.json` · 0 enlaces internos rotos · 0 cifras obsoletas sin retractar.
-
-**No se ejecutó:** ningún ensayo físico, despliegue SQL, envío de notificaciones, cambio de credenciales ni contratación de servicios.
+El BME280 vuelve al diseño obligatorio y la BOM, junto con carcasa 3D explícita. Completar adquisición I²C, transporte BLE de tres variables, guardado/grilla y pronóstico de cinco días según [contrato de integración](INFORME%201%20.docx.md#integracion-bme280). La revisión económica no implica que esa integración de firmware/app esté terminada.

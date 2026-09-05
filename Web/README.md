@@ -235,7 +235,7 @@ El proyecto utiliza un servidor SMTP propio de Gmail en Supabase (`[auth.email.s
 ## 11. Estado de Implementación y Roadmap Futuro del Backoffice
 
 > ### ⚠️ Estado de verificación
-> Corregido tras la [auditoría del 4 de septiembre de 2026](../docs/AUDITORIA_READMES_2026-09-04.md). El estado **remoto de producción no fue comprobado**; lo que sigue describe el código de este repositorio.
+> Corregido tras la [auditoría del 4 de septiembre de 2026](../finanzas/historico/documentacion/docs/AUDITORIA_READMES_2026-09-04.md). El estado **remoto de producción no fue comprobado**; lo que sigue describe el código de este repositorio.
 >
 > **Verificado localmente el 04-09-2026**, tras instalar dependencias (`npm install`, sin cambios en `package-lock.json`):
 > - `npm run type-check` (`tsc -b`) → **aprobado**

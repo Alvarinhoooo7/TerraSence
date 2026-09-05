@@ -7,7 +7,7 @@
 ---
 
 > ### 🛑 Estado de verificación — leer antes de citar este documento
-> Revisado tras la [auditoría del 4 de septiembre de 2026](AUDITORIA_READMES_2026-09-04.md).
+> Revisado tras la [auditoría del 4 de septiembre de 2026](../finanzas/historico/documentacion/docs/AUDITORIA_READMES_2026-09-04.md).
 >
 > **TerraSense no tiene ninguna certificación obtenida.** Este documento identifica el marco normativo **aplicable** y describe atributos de diseño orientados a cumplirlo. **No acredita cumplimiento**: no hay ensayos, actas, expedientes presentados ni evaluaciones de conformidad. La matriz de §7 fue corregida: los antiguos «100 % Cumplido» eran afirmaciones sin respaldo.
 >
@@ -38,7 +38,7 @@
    - [6.2. ISO/IEC 27001:2022 — Seguridad de la Información y Cifrado de Datos](#62-isoiec-270012022--seguridad-de-la-información-y-cifrado-de-datos)
    - [6.3. ISO/IEC 25010:2011 — Modelo de Calidad del Producto de Software](#63-isoiec-250102011--modelo-de-calidad-del-producto-de-software)
    - [6.4. WCAG 2.1 Nivel AA — Accesibilidad Web y Móvil para Entornos Rurales](#64-wcag-21-nivel-aa--accesibilidad-web-y-móvil-para-entornos-rurales)
-7. [Matriz de Cumplimiento Normativo Consolidada](#7-matriz-de-cumplimiento-normativo-consolidada)
+7. [Matriz de Cumplimiento Normativo Consolidada](#matriz-cumplimiento)
 
 ---
 
@@ -167,6 +167,7 @@ Para que los datos entregados por TerraSense gocen de credibilidad técnica ante
 
 ---
 
+<a id="matriz-cumplimiento"></a>
 ## 7. Matriz de cumplimiento normativo — estado real
 
 > **Ninguna fila dice «cumplido».** Todas describen obligaciones identificadas y el trabajo que falta. Esta tabla reemplaza la anterior, que declaraba «100 % Cumplido» en las nueve filas sin ensayo ni expediente alguno.

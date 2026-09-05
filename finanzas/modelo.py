@@ -11,6 +11,7 @@ import math
 import shutil
 from pathlib import Path
 import xlsxwriter
+import numpy as np
 from xlsxwriter.utility import xl_col_to_name
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -47,7 +48,9 @@ def simulate(s=S, principal=0, term=10, factor=1, marketing_factor=1, bullet=0):
     setup = (s['activos_iniciales_netos'] + s['desarrollo_validacion_neto'] + s['formalizacion_neto']) * (1+s['iva'])
     stock = initial_inventory
     inventory_value = stock * bom
-    initial_uses = setup + inventory_value * (1+s['iva'])
+    no_vat_bom = sum(q*p for name,q,p,_ in s['bom'] if name == 'PCB combinada USB-C carga + boost')
+    initial_vat = initial_inventory * (bom-no_vat_bom) * s['iva']
+    initial_uses = setup + inventory_value + initial_vat
     fees = principal * s['gastos_credito_fraccion']
     cash = s['aporte_socios'] + principal - initial_uses - fees
     initial_cash = cash
@@ -58,7 +61,7 @@ def simulate(s=S, principal=0, term=10, factor=1, marketing_factor=1, bullet=0):
     year_taxable = year_project_taxable = 0
     cum = 0
     rows = []
-    prev_vat = 0
+    prev_vat = initial_vat  # compra en mes 0: crédito disponible en mes 1
     # 10% del desembolso no financiero, además de 3 meses de costos fijos y deuda.
     contingency = initial_uses * s['contingencia_inicial']
     for m, sold in enumerate(units):
@@ -70,7 +73,7 @@ def simulate(s=S, principal=0, term=10, factor=1, marketing_factor=1, bullet=0):
         founder_salary = s['sueldos_socios_base_por_anio'][min(y,len(s['sueldos_socios_base_por_anio'])-1)]
         payroll = (2*founder_salary + technician*s['sueldo_bruto_tecnico'] + support*s['sueldo_bruto_soporte']) * (1+s['sobrecosto_laboral_presupuesto']) * inflation
         accountant = (s['contador_mensual']+(technician+support)*s['contador_incremento_fte'])*inflation
-        digital = (s['servicios_digitales_mensual']+active*s['servicios_por_equipo_activo_anio']/12)*inflation
+        digital = (s['servicios_digitales_mensual']+s['api_clima_mensual']+active*s['servicios_por_equipo_activo_anio']/12)*inflation
         agency = s['agencia_mensual']*inflation if targets[y]>=s['agencia_desde_ventas_anuales'] else 0
         admin = (s['taller_servicios_mensual']+s['administracion_seguros_mensual'])*inflation
         marketing = targets[y]*s['marketing_venta_objetivo']*inflation/12
@@ -103,8 +106,8 @@ def simulate(s=S, principal=0, term=10, factor=1, marketing_factor=1, bullet=0):
         taxable = revenue-purchases-variable-fixed-capex-interest
         project_taxable = taxable+interest
         if m==0:
-            taxable -= initial_uses
-            project_taxable -= initial_uses
+            taxable -= initial_uses-initial_vat
+            project_taxable -= initial_uses-initial_vat
         year_taxable += taxable
         year_project_taxable += project_taxable
         tax_rate = 0.125 if s['inicio']+y<=2027 else 0.15 if s['inicio']+y==2028 else 0.25
@@ -118,7 +121,7 @@ def simulate(s=S, principal=0, term=10, factor=1, marketing_factor=1, bullet=0):
         # IVA de ventas se inmoviliza en el mismo mes. Crédito de compras a mes siguiente.
         # Sin crédito de servicios/capex ni de carga PCB900: prudente, no declaración F29.
         vat_output = gross-revenue
-        vat_input = purchases * s['iva'] - purchase_units*900*inflation*s['iva']
+        vat_input = purchase_units*(bom-no_vat_bom)*inflation*s['iva']
         vat_usable = min(vat_output, prev_vat)
         prev_vat = prev_vat-vat_usable+vat_input
         vat_cash = vat_input-vat_usable
@@ -127,7 +130,7 @@ def simulate(s=S, principal=0, term=10, factor=1, marketing_factor=1, bullet=0):
         fcff = revenue-purchases-variable-fixed-capex-project_tax-vat_cash
         fcfe = revenue-purchases-variable-fixed-capex-tax-vat_cash-debt
         cash += fcfe
-        reserve = s['reserva_meses']*(fixed+payment)+contingency
+        reserve = s['reserva_meses']*(fixed+(payment if m < term*12 else 0))+contingency
         available = cash-reserve
         cum += sold
         rows.append(dict(mes=m+1,anio=s['inicio']+y,unidades=sold,precio_bruto=s['precio_iva']*inflation,ventas_brutas=gross,ventas_netas=revenue,
@@ -138,7 +141,8 @@ def simulate(s=S, principal=0, term=10, factor=1, marketing_factor=1, bullet=0):
             capex=capex,impuesto_reservado=tax,impuesto_proyecto=project_tax,iva_inmovilizado=vat_cash,credito_iva=prev_vat,
             fcff=fcff,fcfe=fcfe,caja=cash,reserva=reserve,caja_libre=available,tasa_impuesto=tax_rate))
     return dict(rows=rows,initial_uses=initial_uses,initial_cash=initial_cash,setup=setup,initial_inventory=initial_inventory,
-                bom=bom,fees=fees,principal=principal,payment=payment,contingency=contingency,annual=annual)
+                bom=bom,fees=fees,principal=principal,payment=payment,contingency=contingency,annual=annual,
+                initial_vat=initial_vat,reserve_months=s['reserva_meses'])
 
 
 def funding(s=S, term=10):
@@ -159,14 +163,75 @@ def yearly(result):
             row[k]=group[-1][k]
         row['dscr']=(row['ebitda']-row['impuesto_reservado']-row['capex']-(group[-1]['inventario_neto']-(result['initial_inventory']*result['bom'] if y==0 else result['rows'][y*12-1]['inventario_neto']))-row['iva_inmovilizado'])/row['servicio_deuda'] if row['servicio_deuda'] else 0
         row['min_caja_libre']=min(r['caja_libre'] for r in group)
-        row['equilibrio_operativo']=math.ceil(row['fijos']/((row['ventas_netas']-row['costo_vendido']-row['variables'])/row['unidades']))
-        row['equilibrio_con_deuda']=math.ceil((row['fijos']+row['servicio_deuda'])/((row['ventas_netas']-row['costo_vendido']-row['variables'])/row['unidades']))
+        margin=(row['ventas_netas']-row['costo_vendido']-row['variables'])/row['unidades'] if row['unidades'] else 0
+        row['equilibrio_operativo']=math.ceil(row['fijos']/margin) if margin>0 else None
+        row['equilibrio_con_deuda']=math.ceil((row['fijos']+row['servicio_deuda'])/margin) if margin>0 else None
         answer.append(row)
     return answer
 
 
 def npv_monthly(initial, rows, column, discount, months=60):
     return initial+sum(r[column]/(1+discount)**(r['mes']/12) for r in rows[:months])
+
+
+def project_flows(result, months=60):
+    """FCFF con caja mínima operativa como capital de trabajo, independiente de deuda.
+
+    La reserva financiera sigue dentro de caja/FCFE. Aquí se comprometen tres
+    meses de fijos y contingencia, y luego sus variaciones; sin recuperación final.
+    """
+    reserves=[result['reserve_months']*r['fijos']+result['contingency'] for r in result['rows'][:months]]
+    flows=[-result['initial_uses']-reserves[0]]
+    previous=reserves[0]
+    for row,reserve in zip(result['rows'][:months],reserves):
+        flows.append(row['fcff']-(reserve-previous))
+        previous=reserve
+    return flows
+
+
+def irr_monthly(flows):
+    """Resuelve todas las raíces; solo publica TIR si hay una única tasa real > -1.
+
+    Los impuestos y la reinversión pueden generar varios cambios de signo.
+    Se resuelve en x=1/(1+r), se comprueba residuo y no se elige una raíz arbitraria.
+    """
+    scale=max(abs(f) for f in flows)
+    if not scale or not any(f>0 for f in flows) or not any(f<0 for f in flows):
+        return None
+    coefficients=np.asarray(flows,dtype=float)/scale
+    roots=np.polynomial.polynomial.polyroots(coefficients)
+    candidates=[]
+    for root in roots:
+        if abs(root.imag)<1e-8 and root.real>0:
+            x=float(root.real)
+            residual=abs(np.polynomial.polynomial.polyval(x,coefficients))
+            magnitude=np.polynomial.polynomial.polyval(x,np.abs(coefficients))
+            if residual<=1e-8*max(1,magnitude):
+                rate=1/x-1
+                if not any(abs(rate-r)<1e-7 for r in candidates):
+                    candidates.append(rate)
+    return candidates[0] if len(candidates)==1 else None
+
+
+def payback_months(flows, discount=0):
+    """Primera recuperación acumulada, interpolada dentro del mes."""
+    balance=flows[0]
+    if balance>=0:
+        return 0.0
+    for month,flow in enumerate(flows[1:],1):
+        discounted=flow/(1+discount)**(month/12)
+        if balance+discounted>=0:
+            return month-1+(-balance)/discounted
+        balance+=discounted
+    return None
+
+
+def indicators(result, discount, months=60):
+    flows=project_flows(result,months)
+    rate=irr_monthly(flows)
+    return dict(inversion=-flows[0],van=sum(f/(1+discount)**(m/12) for m,f in enumerate(flows)),
+                tir_anual=(1+rate)**12-1 if rate is not None else None,
+                payback=payback_months(flows),payback_descontado=payback_months(flows,discount))
 
 
 def archive(path):
@@ -181,7 +246,7 @@ def workbook(path, base, variants):
     archive(path)
     path.parent.mkdir(parents=True,exist_ok=True)
     with xlsxwriter.Workbook(path) as wb:
-        wb.set_properties({'title':'TerraSense — modelo financiero auditable 2026-09-04','comments':'Editar finanzas/supuestos.json y regenerar. No editar resultados aislados.'})
+        wb.set_properties({'title':'TerraSense — modelo financiero auditable '+S['fecha_revision'],'comments':'Editar finanzas/supuestos.json y regenerar. No editar resultados aislados.'})
         header=wb.add_format({'bold':True,'bg_color':'#174B40','font_color':'white','text_wrap':True})
         money=wb.add_format({'num_format':'#,##0;[Red]-#,##0'})
         decimal=wb.add_format({'num_format':'0.00'})
@@ -202,7 +267,7 @@ def workbook(path, base, variants):
             'IVA: crédito compras con factura se usa desde mes siguiente; inversión/servicios iniciales sin recuperación: prudente.',
             'Impuesto estimado caja Pro Pyme con pérdidas; se inmoviliza al cierre anual. No reproduce F29/PPM/abril; no usar para declarar.',
             'FCFF antes de financiamiento con impuesto sin intereses; FCFE después de deuda. No mezclar para VAN.',
-            'VAN proyecto incluye desembolso inicial y reserva inicial como capital comprometido; sin liquidación/rescate terminal.',
+            'VAN/TIR/payback: FCFF y variación de reserva operativa sin deuda; mes 0 incluye desembolso y reserva operativa. Sin rescate terminal.',
             'No hay dividendos automáticos. FCFE es generación de caja, no depósito al socio. VAN de socios no se presenta sin política de salida.',
             'Ventas cobradas mismo mes, sin crédito a clientes ni mayoristas. Comisiones 5% sobre precio bruto presupuestadas.',
             'Validar SKU, IVA facturado, plazos de importación, CAC, contratación, impuestos y crédito antes de comprometer dinero.',
@@ -260,8 +325,37 @@ def workbook(path, base, variants):
         ],1):
             s=copy.deepcopy(S);s['precio_iva']=price;s['tasa_credito_efectiva_anual']=rate
             r=simulate(s,base['principal'],10,factor)
-            committed=r['initial_uses']+base['initial_cash']
-            sens.write_row(i,0,[label,yearly(r)[0]['unidades'],yearly(r)[0]['ebitda'],min(x['caja_libre'] for x in r['rows'][:24]),npv_monthly(-committed,r['rows'],'fcff',.20)],money)
+            sens.write_row(i,0,[label,yearly(r)[0]['unidades'],yearly(r)[0]['ebitda'],min(x['caja_libre'] for x in r['rows'][:24]),indicators(r,S['tasa_descuento_proyecto'])['van']],money)
+        evaluation=wb.add_worksheet('Evaluacion proyecto')
+        evaluation.set_column(0,0,20);evaluation.set_column(1,6,25)
+        evaluation.write_row(0,0,['Escenario','Inversión mes 0','VAN 60 meses','TIR efectiva anual','Payback meses','Payback descontado meses','Tasa descuento anual'],header)
+        percent=wb.add_format({'num_format':'0.00%'})
+        for i,(name,result) in enumerate(variants.items(),1):
+            flow_sheet=wb.add_worksheet(name+'_evaluacion')
+            flow_sheet.set_column(0,4,25)
+            flow_sheet.write_row(0,0,['Mes','FCFF evaluación','FCFF descontado','Acumulado simple','Acumulado descontado'],header)
+            flows=project_flows(result)
+            accumulated=discounted_accumulated=0
+            for m,f in enumerate(flows):
+                n=m+2
+                df=f/(1+S['tasa_descuento_proyecto'])**(m/12)
+                accumulated+=f;discounted_accumulated+=df
+                flow_sheet.write_row(m+1,0,[m,f],money)
+                flow_sheet.write_formula(m+1,2,f'=B{n}/(1+\'Evaluacion proyecto\'!G{i+1})^(A{n}/12)',money,df)
+                flow_sheet.write_formula(m+1,3,f'=SUM(B$2:B{n})',money,accumulated)
+                flow_sheet.write_formula(m+1,4,f'=SUM(C$2:C{n})',money,discounted_accumulated)
+            k=indicators(result,S['tasa_descuento_proyecto'])
+            evaluation.write(i,0,name)
+            evaluation.write_formula(i,1,f"=-'{name}_evaluacion'!B2",money,k['inversion'])
+            evaluation.write_formula(i,2,f"=SUM('{name}_evaluacion'!C2:C62)",money,k['van'])
+            if k['tir_anual'] is not None:
+                evaluation.write_formula(i,3,f"=(1+IRR('{name}_evaluacion'!B2:B62))^12-1",percent,k['tir_anual'])
+            else:
+                evaluation.write(i,3,'Sin TIR única')
+            for col,key in ((4,'payback'),(5,'payback_descontado')):
+                evaluation.write(i,col,k[key] if k[key] is not None else 'No recupera en 60 meses',decimal)
+            evaluation.write(i,6,S['tasa_descuento_proyecto'],percent)
+        evaluation.write(6,0,'Payback simple y descontado: primera recuperación, interpolación mensual. Sin recuperación terminal de inventario/reserva.')
 
 
 def write_summary(base, variants):
@@ -280,11 +374,23 @@ def write_summary(base, variants):
         lines.append(f'| {term} años | {currency(r["payment"])} | {currency(sum(x["interes"] for x in r["rows"]))} | {currency(yearly(r)[4]["saldo_deuda"])} | {currency(min(x["caja_libre"] for x in r["rows"][:24]))} |')
     two=simulate(S,base['principal'],5,bullet=5000000)
     lines+=['',f'Dos créditos (resto a 5 años y $5 millones al 15% pagados íntegros mes 12): servicio del primer año **{currency(yearly(two)[0]["servicio_deuda"])}**, mínimo sobre reserva **{currency(min(x["caja_libre"] for x in two["rows"][:24]))}**.', '', '| Escenario | Ventas año 1 | Mínimo caja libre 24m | VAN proyecto 5 años / 20% |', '|---|---:|---:|---:|']
-    committed=base['initial_uses']+base['initial_cash']
     for name,r in variants.items():
-        lines.append(f'| {name} | {yearly(r)[0]["unidades"]} | {currency(min(x["caja_libre"] for x in r["rows"][:24]))} | {currency(npv_monthly(-committed,r["rows"],"fcff",S["tasa_descuento_proyecto"]))} |')
-    lines+=['','VAN sin rescate, recuperación de reserva/inventario ni valor terminal. La reserva inicial se trata como capital comprometido. Los gastos de apertura son del financiamiento, no del FCFF. El FCFE no se distribuye automáticamente; no se publica una falsa TIR del socio sumando su sueldo.', '', 'Los años 6–15 son extensión mecánica para mostrar toda la deuda; no evidencia de demanda, supervivencia, precio ni rentabilidad futura.']
+        lines.append(f'| {name} | {yearly(r)[0]["unidades"]} | {currency(min(x["caja_libre"] for x in r["rows"][:24]))} | {currency(indicators(r,S["tasa_descuento_proyecto"])["van"])} |')
+    lines+=['',evaluation_markdown(variants),'','VAN, TIR y payback usan los mismos 60 flujos mensuales y mes 0. Caja operativa mínima: tres meses de fijos más contingencia; se descuentan sus aumentos del FCFF. Sin rescate, recuperación de reserva/inventario ni valor terminal. Deuda y gastos de apertura solo afectan el financiamiento. Sueldos incluidos en nómina; no se suman como retorno del capital.', '', 'Los años 6–15 extienden la operación para mostrar toda la deuda; la evaluación publicada comprende 2027–2031.']
     (ROOT/'docs/RESULTADOS_FINANCIEROS.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
+
+
+def evaluation_markdown(variants):
+    money=lambda v: ('−' if v<0 else '')+'$'+f'{abs(v):,.0f}'.replace(',','.')
+    duration=lambda v: f'{v:.2f} meses ({v/12:.2f} años)'.replace('.',',') if v is not None else 'No recupera en 60 meses'
+    lines=['| Escenario | Inversión económica mes 0 | VAN al 20 % | TIR efectiva anual | Payback simple | Payback descontado al 20 % |',
+           '|---|---:|---:|---:|---:|---:|']
+    for name,result in variants.items():
+        k=indicators(result,S['tasa_descuento_proyecto'])
+        rate=f'{k["tir_anual"]*100:.2f} %'.replace('.',',') if k['tir_anual'] is not None else 'Sin TIR única'
+        label='Estrés' if name=='Estres' else name
+        lines.append(f'| {label} | {money(k["inversion"])} | {money(k["van"])} | {rate} | {duration(k["payback"])} | {duration(k["payback_descontado"])} |')
+    return '\n'.join(lines)
 
 
 def main():
@@ -304,6 +410,17 @@ def main():
         ws.write(len(S['bom'])+1,0,'TOTAL NETO PROVISIONAL');ws.write_formula(len(S['bom'])+1,3,f'=SUM(D2:D{len(S["bom"])+1})',None,base['bom'])
         ws.write(len(S['bom'])+3,0,'No es lista liberada a fabricación. ESP32 devkit + LiPo2000 + carga/boost900. Sin CH340/TP4056/MT3608 separados.')
     write_summary(base,variants)
+    if __package__:
+        from .documentacion import update_readme
+    else:
+        from documentacion import update_readme
+    update_readme(base,variants,S,yearly,evaluation_markdown)
+    import sys
+    if __package__:
+        from .informe import update_report
+    else:
+        from informe import update_report
+    update_report(base,variants,sys.modules[__name__])
     print(json.dumps({'credito':base['principal'],'cuota':base['payment'],'bom':base['bom'],'anio1':yearly(base)[0]},ensure_ascii=False,indent=2))
 
 
