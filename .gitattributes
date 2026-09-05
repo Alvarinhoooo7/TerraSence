@@ -1,0 +1,9 @@
+# El archivo historico son copias textuales de los documentos que se
+# reemplazaron el 04-09-2026. Deben conservarse byte a byte, incluido el
+# espaciado final que Markdown usa como salto de linea, asi que quedan
+# excluidas de la comprobacion de espacios en blanco de guardian.yml
+# (paso "Validate Git whitespace", que ejecuta git diff --check).
+finanzas/historico/** -whitespace
+
+# Los binarios de Excel no se diffean ni se normalizan saltos de linea.
+*.xlsx binary
