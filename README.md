@@ -1,43 +1,113 @@
-# 🌱 TerraSense — Diagnóstico agronómico de suelo y microclima
+<div align="center">
+  
+  # 🌱 TerraSense
+  **Diagnóstico agronómico de suelo y microclima impulsado por IoT**
 
-**Proyecto de Título — Ingeniería en Electrónica y Sistemas Inteligentes, INACAP**  
-**Autores:** Álvaro Villena y Alan · **Versión:** 5 de septiembre de 2026
+  [![Estado](https://img.shields.io/badge/Estado-En_desarrollo-blue.svg)](#)
+  [![Hardware](https://img.shields.io/badge/Hardware-ESP32-green.svg)](#)
+  [![App](https://img.shields.io/badge/App-React_Native-61DAFB.svg)](#)
+  [![Backend](https://img.shields.io/badge/Backend-Supabase-3ECF8E.svg)](#)
+  [![Institución](https://img.shields.io/badge/Proyecto_de_T%C3%ADtulo-INACAP-red.svg)](#)
 
-[Informe 1 completo](docs/INFORME%201%20.docx.md) · [Índice de documentación](docs/README.md)
+  *Convirtiendo lecturas de terreno en recomendaciones prácticas de siembra, riego y manejo de cultivos.*
 
-TerraSense combina una sonda de suelo 7-en-1, un **sensor ambiental BME280**, un ESP32 y una aplicación móvil para convertir lecturas de terreno en recomendaciones de siembra, riego y manejo del cultivo. El equipo utiliza una **carcasa portátil impresa en 3D**.
+  [Informe Completo](docs/INFORME%201%20.docx.md) · [Índice de Documentación](docs/README.md) · [Arquitectura](#arquitectura-del-sistema)
 
-El agricultor obtiene un diagnóstico del punto de muestreo según la etapa del cultivo: pre-siembra, vegetativo, floración o cosecha. La lectura local y el pronóstico meteorológico cumplen funciones distintas dentro del sistema.
+</div>
 
-## Lectura local y grilla 3×3
+---
 
-El **BME280 es parte esencial del instrumento**: mide la temperatura del aire, la humedad relativa y la presión barométrica en el punto de lectura. Esas tres variables forman el **tercio ambiental de la grilla 3×3**. Sin ellas, la lectura ambiental queda incompleta.
+## 📖 Descripción General
 
-| Fuente | Información | Función |
-|---|---|---|
-| Sonda RS-485 de suelo | Humedad, temperatura del suelo, conductividad, pH y registros N/P/K | Diagnóstico edafológico |
-| BME280 local por I²C | Temperatura del aire, humedad relativa y presión barométrica | Tres celdas ambientales de la grilla |
-| API gratuita de clima | Pronóstico de los próximos cinco días | Complemento para planificar labores después de medir |
+**TerraSense** es una herramienta portátil diseñada para pequeños y medianos agricultores, asesores agronómicos y administradores de predios. Combina una sonda de suelo 7-en-1 de nivel industrial, un sensor ambiental local (BME280), y un cerebro procesador ESP32 integrado en una carcasa portátil impresa en 3D.
 
-La temperatura y humedad del aire se distinguen de las mediciones del suelo. Los registros N/P/K requieren interpretación según la sonda y el método; el análisis de laboratorio sustenta las decisiones de fertilización. La grilla organiza la información del diagnóstico; no equivale a mostrar todos los registros de la sonda como mediciones independientes.
+El objetivo principal no es solo mostrar números crudos, sino entregar un **diagnóstico prescriptivo** del punto de muestreo según la etapa del cultivo (pre-siembra, vegetativo, floración o cosecha) sin requerir conexión a internet durante la medición. La nube interviene solo para el respaldo diferido, la gestión de cuentas y el pronóstico climático.
 
-El sensor ambiental debe comunicarse con el aire exterior mediante una abertura protegida y ubicarse separado del calor del ESP32, del cargador y de la mano. La carcasa incorpora este requisito junto con las juntas y fijaciones. [Ficha del BME280, Bosch](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf).
+## ✨ Características Principales
 
-## Pronóstico y recomendaciones
+* 📡 **Medición Integral (Grilla 3x3):** Diagnóstico edafológico (humedad, temperatura del suelo, conductividad, pH, y registros N/P/K) mediante sonda RS-485.
+* 🌦️ **Microclima Local + Pronóstico:** El sensor **BME280** lee temperatura, humedad relativa y presión en el lugar físico de la medición. Como **apoyo y complemento**, una API gratuita de clima aporta el pronóstico de los próximos 5 días, permitiendo planificar labores a futuro (ej. posponer siembra si hay riesgo de lluvias intensas).
+* 🔋 **Diseño de Bajo Consumo:** La rama de medición se corta por MOSFET fuera del instante de lectura y la batería LiPo se recarga por USB-C, sin pilas desechables. El reposo total del equipo y la autonomía **están pendientes de medición desde batería**; no se declara una cifra hasta ensayarla.
+* 📱 **Ecosistema Interconectado:** Comunicación Bluetooth Low Energy (BLE) hacia la App móvil que no requiere internet para diagnosticar, respaldado por una plataforma Web y base de datos.
 
-Después de la lectura, la API gratuita aporta el pronóstico para los **próximos cinco días**. Permite recomendar posponer una labor aunque el suelo presente condiciones favorables en ese instante. Por ejemplo:
+---
 
-- **Lluvias intensas previstas:** recomendar aplazar la siembra ante riesgo de saturación del suelo y problemas de germinación.
-- **Ola de calor prevista:** advertir del riesgo para la emergencia del cultivo y ajustar la fecha de siembra o el manejo del riego.
-- **Sin conexión:** conservar la medición local y presentar el diagnóstico sin pronóstico disponible.
+## 🧩 Módulos del Proyecto
 
-La arquitectura reserva las tres celdas ambientales para el BME280. El pronóstico se presenta como contexto de planificación, con fecha y horizonte propios. El contrato de integración y su estado se detallan en [docs/INFORME%201%20.docx.md#integracion-bme280](docs/INFORME%201%20.docx.md#integracion-bme280).
+El repositorio está dividido en áreas de dominio específicas, cada una con su propia documentación detallada:
 
-## Modelo comercial
+| Directorio | Descripción | Tecnologías |
+|:---|:---|:---|
+| 🪛 [**`/PCB`**](PCB/README.md) | Esquemáticos KiCad, arquitectura de potencia, contrato de trama BLE y diseño de carcasa 3D. | ESP32, BME280, RS-485 |
+| 📱 [**`/App`**](App/README.md) | Aplicación móvil que recibe las lecturas vía BLE y genera el diagnóstico agronómico. | React Native, Expo, BLE |
+| 💻 [**`/Web`**](Web/README.md) | Consola de administración y soporte web para gestión del sistema. | React, Vite, TypeScript |
+| ☁️ [**`/supabase`**](supabase/README.md) | Funciones de backend (RPC), políticas RLS, migraciones y PostGIS. | PostgreSQL, Edge Functions |
+| 📄 [**`/docs`**](docs/README.md) | Informes formales del proyecto de título, manuales, normativas y planes de validación. | Markdown, Documentación |
+| 📈 [**`/finanzas`**](docs/MODELO_ECONOMICO.md) | Estudio de viabilidad, cálculo de costos (BOM) y simulador de flujo de caja. | Python, Excel |
 
-Venta directa del instrumento a pequeños y medianos agricultores, asesores agronómicos y administradores de predios. El equipo se ofrece con aplicación móvil y sin cobro por lectura.
+---
 
-La estrategia combina tienda, pauta digital, demostraciones y atención por WhatsApp. El plan comercial contempla 200, 350, 500, 650 y 850 equipos anuales durante los primeros cinco años. El presupuesto de adquisición es de $30.000 por venta objetivo; la gestión de agencia se incorpora desde 650 ventas anuales.
+<a id="arquitectura-del-sistema"></a>
+
+## ⚙️ Arquitectura del Sistema
+
+```mermaid
+graph TD;
+    A[Sonda Suelo 7-en-1] <-->|RS-485| B(ESP32-WROOM-32);
+    C[Sensor BME280] <-->|I2C| B;
+    B <-->|Bluetooth LE| D{App Móvil TerraSense};
+    E[API Clima 5 Días] -.->|Internet| D;
+    D <-->|Sincronización| F[(Supabase Backend)];
+    G[Consola Web] <-->|Gestión| F;
+```
+
+---
+
+## 🚀 Ejecución Local Rápida
+
+### 1. Variables de Entorno
+La App utiliza el archivo `.env` en la raíz del proyecto. La consola web utiliza el suyo propio en `Web/.env`.
+```env
+# .env (Raíz)
+EXPO_PUBLIC_SUPABASE_URL=https://<proyecto>.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon_key>
+```
+
+### 2. Aplicación Móvil (App)
+> **Nota:** La conexión real por BLE requiere un build nativo en el teléfono físico. La simulación está disponible en desarrollo.
+```bash
+cd App
+npm install
+npm test            # Ejecutar pruebas unitarias
+npx tsc --noEmit    # Chequeo de tipos
+npx expo start      # Servidor de desarrollo
+```
+
+### 3. Consola Administrativa (Web)
+```bash
+cd Web
+npm install
+npm run dev         # Servidor en http://localhost:5173
+```
+
+### 4. Modelo Financiero (Scripts de simulación)
+Desde la raíz del proyecto:
+```bash
+python -m pip install -r finanzas/requirements.txt
+python finanzas/modelo.py
+```
+
+---
+
+## 📊 Viabilidad y Modelo Comercial
+
+TerraSense está planteado como un proyecto económicamente sustentable y escalable:
+- **Modelo de Ingreso:** Venta directa del hardware con IVA incluido. La app y el diagnóstico local no tienen costos de suscripción mensual.
+- **Costos y Margen:** La sonda RS-485 concentra la mayor parte de la BOM; el ensamblaje final se paga en la nómina y no se duplica como costo variable.
+- **Financiamiento:** Aporte de socios más crédito de largo plazo, dimensionado para sostener la reserva de los primeros 24 meses.
+- **Evaluación:** Flujos mensuales sobre 60 meses, sin valor terminal, distinguiendo el retorno económico del proyecto de la cobertura de deuda (DSCR).
+
+> 💡 Las cifras del bloque siguiente se generan desde `finanzas/supuestos.json`. **No editar a mano:** ejecutar `python finanzas/modelo.py`.
 
 <!-- FINANZAS:INICIO -->
 
@@ -116,47 +186,11 @@ Actualizar cifras: `python finanzas/modelo.py`.
 
 <!-- FINANZAS:FIN -->
 
-## Módulos del proyecto
+Para un desglose completo, revisa el [Modelo Económico](docs/MODELO_ECONOMICO.md), el [Informe 1](docs/INFORME%201%20.docx.md#analisis-economico), la [Planilla de Flujo de Caja](Flujo%20de%20caja%20y%20financiamiento%20-%20TerraSense.xlsx), y la [BOM de Componentes](PCB/BOM_TerraSense.xlsx).
 
-| Módulo | Contenido |
-|---|---|
-| [PCB](PCB/README.md) | ESP32-WROOM-32, sonda RS-485, BME280 I²C, alimentación y carcasa 3D |
-| [App](App/README.md) | React Native/Expo, BLE, grilla 3×3, diagnóstico e historial de terreno |
-| [Web](Web/README.md) | Consola de soporte y catálogo de firmware |
-| [Supabase](supabase/README.md) | Datos, autenticación, PostGIS y funciones de backend |
-| [Comercialización](Comercializacion%20de%20Tecnologias/README.md) | Guion de presentación y defensa del modelo comercial |
-| [Documentación](docs/MODELO_ECONOMICO.md) | Estudio económico, supuestos, alcance y plan de integración |
+---
 
-## Ejecución local
-
-La App utiliza el `.env` de la raíz con `EXPO_PUBLIC_SUPABASE_URL` y `EXPO_PUBLIC_SUPABASE_ANON_KEY`. La consola Web utiliza su propio `Web/.env`, según [Web/.env.example](Web/.env.example).
-
-```bash
-cd App
-npm install
-npm test
-npx tsc --noEmit
-npx expo start
-```
-
-La conexión BLE requiere un build nativo instalado en el teléfono.
-
-```bash
-cd Web
-npm install
-npm run dev
-npm run build
-npm run type-check
-```
-
-Desde la raíz, para regenerar la BOM, el flujo de caja y las tablas económicas:
-
-```bash
-python -m pip install -r finanzas/requirements.txt
-python finanzas/modelo.py
-python -m unittest discover -s finanzas -p "test_*.py"
-```
-
-## Documentación del estudio
-
-[Metodología económica](docs/MODELO_ECONOMICO.md) · [Estudio de viabilidad](docs/INFORME%201%20.docx.md#analisis-economico) · [Plan técnico](docs/PLAN_VALIDACION.md) · [Marco normativo](docs/MARCO_NORMATIVO_Y_ESTANDARES.md) · [Revisión de cálculos](docs/MODELO_ECONOMICO.md#correcciones-del-calculo)
+<div align="center">
+  <b>Autores:</b> Álvaro Villena y Alan <br>
+  Proyecto de Ingeniería en Electrónica y Sistemas Inteligentes - INACAP (2026)
+</div>

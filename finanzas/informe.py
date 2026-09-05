@@ -19,6 +19,31 @@ def table(headers, rows):
                       *['| ' + ' | '.join(str(v) for v in row) + ' |' for row in rows]])
 
 
+CAPTIONS = {
+    'VENTAS': ['Tabla 2.1 “Plan de Ventas y Recursos Comerciales”'],
+    'BOM': ['Tabla 2.2 “Estructura de Costos y Producción (BOM)”', 'Tabla 2.3 “Economía Unitaria del Año 1”'],
+    'FIJOS': ['Tabla 2.4 “Estructura de Gastos Fijos”', 'Tabla 2.5 “Punto de Equilibrio Operativo y con Deuda”'],
+    'INVERSION': [None, 'Tabla 2.6 “Financiamiento del Proyecto: Origen y Destino de Fondos”', 'Tabla 2.7 “Alternativas de Plazo del Crédito”'],
+    'FLUJOS': ['Tabla 2.8 “Proyección Anual de Resultados y Caja”', 'Tabla 2.9 “Flujo Económico para la Evaluación”'],
+    'INDICADORES': ['Tabla 3.0 “Indicadores de Evaluación por Escenario”'],
+    'SENSIBILIDAD': ['Tabla 3.1 “Análisis de Sensibilidad”'],
+    'DESCUENTO': ['Tabla 3.2 “Análisis del VAN”'],
+}
+
+
+def with_captions(name, block):
+    """Intercala los pies de tabla del Informe 1 tras cada tabla generada."""
+    captions = list(CAPTIONS.get(name, []))
+    out = []
+    for segment in block.split('\n\n'):
+        out.append(segment)
+        if segment.lstrip().startswith('|') and captions:
+            caption = captions.pop(0)
+            if caption:
+                out.append('###### **' + caption + '**')
+    return '\n\n'.join(out)
+
+
 def report_blocks(base, variants, model):
     s = model.S
     annual = model.yearly(base)[:5]
@@ -96,7 +121,7 @@ def report_blocks(base, variants, model):
     blocks['DESCUENTO']=table(['Tasa efectiva anual','VAN','Interpretación'],rows)
     blocks['DESCUENTO'] += '\n\nTodas las filas descuentan exactamente la misma serie mensual. En este caso el VAN disminuye al elevar la tasa y cruza cero en la TIR. Esto corrige la tabla anterior, que mezclaba resultados de distintos modelos y mostraba un aumento del VAN al pasar de 15 % a 20 % sin cambiar los flujos.'
     blocks['CIERRE']=f'En el escenario base, el proyecto presenta **VAN de {money(k["van"])}**, **TIR efectiva anual de {decimal(k["tir_anual"]*100)} %** y **payback simple de {decimal(k["payback"])} meses**. La BOM completa asciende a **{money(base["bom"])} netos por equipo**, con BME280 y carcasa 3D. El análisis mensual identifica el financiamiento de arranque y permite relacionar margen, producción, inventario y pagos de deuda con las decisiones comerciales.'
-    return blocks
+    return {name: with_captions(name, content) for name, content in blocks.items()}
 
 
 def update_report(base, variants, model):
