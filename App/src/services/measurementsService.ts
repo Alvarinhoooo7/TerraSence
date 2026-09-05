@@ -3,9 +3,10 @@
 // Lectura de mediciones para el mapa y cola offline-first (store & forward).
 //
 // La cola es IDEMPOTENTE: cada medición lleva un `client_uuid` generado en el
-// teléfono ANTES de intentar el envío. El índice único parcial de Supabase
-// (idx_soil_measurements_client_uuid) hace que un reintento tras recuperar
-// cobertura actualice la fila en lugar de duplicarla.
+// teléfono ANTES de intentar el envío. El índice único NO parcial
+// (soil_measurements_client_uuid_upsert) hace que un reintento tras recuperar
+// cobertura actualice la fila en lugar de duplicarla. Debe ser no parcial:
+// PostgREST no puede inferir un índice parcial para ON CONFLICT(client_uuid).
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Crypto from 'expo-crypto';

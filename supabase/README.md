@@ -304,7 +304,39 @@ modificar nada.
 
 ---
 
-## 10. Pendientes conocidos
+## 10. Pendientes conocidos y tareas operativas
+
+> Estas tareas requieren credenciales del proyecto Supabase. **Ninguna está hecha.** Se listan aquí, y no en el plan de validación, porque es aquí donde están los comandos para ejecutarlas.
+
+### 10.1. Aplicar y probar la migración de mediciones sin GPS
+
+`migrations/20260904120000_mediciones_sin_gps_idempotencia.sql` **está escrita pero no desplegada**. Hace dos cosas: admite `latitude`/`longitude` nulas —para que una medición sin señal GPS se guarde igual— y crea un índice único **no parcial** sobre `client_uuid`, necesario porque PostgREST no puede inferir un índice parcial para `ON CONFLICT(client_uuid)`.
+
+```bash
+supabase db push --linked                    # aplicar en staging primero
+supabase inspect db table-stats --linked     # contrastar con las tablas descritas arriba
+```
+
+Después de aplicarla hay que **auditar los registros históricos** y validar la restricción por separado (se crea `NOT VALID` a propósito), y comprobar que el upsert de la app resuelve contra el índice nuevo y no contra el parcial antiguo.
+
+### 10.2. Esquema reproducible desde cero
+
+Las migraciones baseline (`20260825000000`, `20260825020000`) son **marcadores**: no reconstruyen el esquema original. Hasta exportar un esquema versionado y probar una restauración limpia, **no puede afirmarse que el backend sea reproducible**.
+
+```bash
+supabase db dump --linked -f supabase/schema.sql --schema public
+```
+
+### 10.3. Ensayo de recuperación del respaldo
+
+Existe un *workflow* que genera un respaldo lógico privado con retención de siete días. **Que el workflow exista no prueba que se ejecute correctamente ni que el respaldo sea restaurable.** Falta restaurar un *dump* en un proyecto desechable y verificar tablas, políticas RLS, funciones y datos. El plan gratuito no ofrece *Point-in-Time Recovery*.
+
+### 10.4. Estado del despliegue remoto
+
+No se ha auditado. Lo verificado es que el código local compila y pasa sus pruebas; **producción no se revisó**: ni configuración SMTP efectiva, ni políticas RLS activas, ni límites de tasa, ni el estado real de las Edge Functions.
+
+### 10.5. Otros pendientes
+
 
 - **SMTP propio**, para activar las plantillas de correo (§7).
 - **Firmware físico y publicación OTA**: el catálogo `firmware_releases`, su RPC de consulta y la

@@ -277,7 +277,7 @@ La cifra de **«+$79.588.754 limpios en el bolsillo» queda retirada**: sumaba e
 
 ## 5. Veredicto y conclusiones del estudio de viabilidad
 
-1. **Viabilidad técnica: plausible en software, no comprobada en hardware.** El motor agronómico determinista funciona sin conexión, la app tiene 18 pruebas unitarias aprobadas y chequeo de tipos limpio, y la consola web compila. **No existe** PCB ruteada, firmware en el repositorio, cierre de ERC, medición de consumo desde batería ni ensayo de sellado. Las 7 variables provienen de la sonda; **las variables de ambiente vienen de un servicio meteorológico por internet, no de un sensor a bordo**, y el tiempo de respuesta extremo a extremo no está medido.
+1. **Viabilidad técnica: plausible en software, no comprobada en hardware.** El motor agronómico determinista funciona sin conexión, la app tiene 25 pruebas unitarias aprobadas y chequeo de tipos limpio, y la consola web compila. **No existe** PCB ruteada, firmware en el repositorio, cierre de ERC, medición de consumo desde batería ni ensayo de sellado. Las 7 variables provienen de la sonda; **las variables de ambiente vienen de un servicio meteorológico por internet, no de un sensor a bordo**, y el tiempo de respuesta extremo a extremo no está medido.
 
 2. **Viabilidad económica: hipótesis defendible, rentabilidad no probada.** El caso base crea valor —VAN de **+$21.874.878** al 20 %— pero con **cobertura de deuda estrecha el primer año (DSCR 1,04, bajo el criterio interno de 1,3)** y un margen de solo 5 unidades sobre el equilibrio con deuda. El escenario de estrés destruye valor: **VAN de −$47.949.651** y caja **$19,8 millones bajo la reserva**.
 

@@ -8,7 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "type-check": "tsc --noEmit",
-    "test": "tsx --test tests/authDeepLink.test.ts tests/deviceId.test.ts tests/onboardingState.test.ts tests/preferences.test.ts tests/probeTelemetry.test.ts",
+    "test": "tsx --test tests/authDeepLink.test.ts tests/deviceId.test.ts tests/onboardingState.test.ts tests/preferences.test.ts tests/probeTelemetry.test.ts tests/keyedLock.test.ts",
     "test:supabase-onboarding": "node scripts/verify-supabase-onboarding.mjs"
   },
   "dependencies": {

@@ -437,7 +437,7 @@ VITE_SUPABASE_ANON_KEY=<anon key>
 ```bash
 cd App
 npm install
-npm test            # 18 pruebas unitarias (verificadas: 18/18 aprobadas)
+npm test            # 25 pruebas unitarias (verificadas: 25/25 aprobadas)
 npx tsc --noEmit    # Chequeo de tipos (verificado: aprobado)
 npx expo start      # Servidor de desarrollo Expo
 ```
@@ -459,7 +459,7 @@ npm run type-check  # Chequeo de tipos por proyecto (tsc -b)
 
 # IX. Conclusiones y Defensa del Proyecto
 
-1. **Trabajo de ingeniería real, factibilidad aún no comprobada.** Existe un motor agronómico determinista funcionando sin conexión, una app con 18 pruebas unitarias aprobadas y chequeo de tipos limpio, un backend con RLS y RPC, y una consola de soporte operativa. **No existe todavía** una PCB ruteada, firmware en el repositorio, un ensayo de autonomía, un cierre de ERC ni una medición de consumo desde batería. La factibilidad técnica es **plausible y parcialmente demostrada en software**, no comprobada en hardware.
+1. **Trabajo de ingeniería real, factibilidad aún no comprobada.** Existe un motor agronómico determinista funcionando sin conexión, una app con 25 pruebas unitarias aprobadas y chequeo de tipos limpio, un backend con RLS y RPC, y una consola de soporte operativa. **No existe todavía** una PCB ruteada, firmware en el repositorio, un ensayo de autonomía, un cierre de ERC ni una medición de consumo desde batería. La factibilidad técnica es **plausible y parcialmente demostrada en software**, no comprobada en hardware.
 
 2. **La propuesta de valor es la prescripción, y sus límites son parte de la propuesta.** TerraSense convierte lecturas de terreno en decisiones de manejo sin cobro por lectura. No compite en exactitud de laboratorio y **no lo reemplaza**: los registros N/P/K derivan de conductividad y no son análisis químicos, por lo que ninguna decisión de fertilización debe basarse en ellos. Mantener el análisis de laboratorio para decisiones de fertilización y encalado.
 

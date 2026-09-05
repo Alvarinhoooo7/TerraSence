@@ -144,7 +144,7 @@ App/
 │       ├── deviceId.ts                 # Identificadores canónicos de hardware
 │       ├── onboardingState.ts          # Máquina de estados para control de onboarding
 │       └── units.ts                    # Conversión de unidades métricas e imperiales
-├── tests/                              # 18 pruebas unitarias automatizadas con Node tsx
+├── tests/                              # 25 pruebas unitarias automatizadas con Node tsx
 │   ├── authDeepLink.test.ts
 │   ├── deviceId.test.ts
 │   ├── onboardingState.test.ts
@@ -381,7 +381,7 @@ npm run android
 # Chequeo estricto de tipos de TypeScript
 npm run type-check
 
-# 18 pruebas unitarias (verificado: 18/18 aprobadas)
+# 25 pruebas unitarias (verificado: 25/25 aprobadas)
 npm test
 
 # Verificación E2E remota contra Supabase
@@ -390,6 +390,21 @@ npm run test:supabase-onboarding
 # Compilación de prueba para verificar empaquetado Android
 npx expo export --platform android
 ```
+
+### Verificación en dispositivo — pendiente
+
+Las 25 pruebas automatizadas cubren lógica pura: decodificación de la trama BLE, exclusión mutua de la cola offline, estado de onboarding y preferencias. **Lo siguiente solo puede comprobarse en un teléfono físico con la sonda, y aún no se ha hecho:**
+
+| Escenario | Qué debe ocurrir |
+| :--- | :--- |
+| Corte de red durante el guardado | La medición queda en la cola local y el banner indica trabajo sin conexión |
+| Recuperación de cobertura | La cola se vacía sin duplicar filas y el contador de pendientes baja |
+| Cierre del proceso por Android con cola pendiente | Al reabrir, las mediciones siguen en la cola y se envían |
+| Cambio de cuenta con cola pendiente | La cola de la cuenta anterior **no** se envía con el usuario nuevo |
+| Medición sin señal GPS | Se guarda en el historial y **no** aparece en el mapa |
+| Enlace BLE con la sonda real | La trama de 16 bytes decodifica los valores esperados del SKU adquirido |
+
+Los cuatro primeros dependen además de que la migración de [`supabase/`](../supabase/README.md) esté aplicada en staging.
 
 ---
 

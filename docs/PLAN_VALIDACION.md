@@ -50,30 +50,42 @@ Si se materializa el escenario de estrés (−35 % de ventas, VAN **−$47.949.6
 
 ---
 
-## 4. Backend, despliegue y datos
+## 4. Backend y servicios
 
 | # | Pendiente | Estado actual |
 |:---:|---|---|
-| 16 | **Aplicar y probar la migración en staging** | `20260904120000_mediciones_sin_gps_idempotencia.sql` está escrita pero **no desplegada**. Validar constraints heredadas y PostgREST con `ON CONFLICT(client_uuid)` |
-| 17 | **Esquema reproducible desde cero** | Las migraciones baseline son marcadores que no reconstruyen el esquema. Falta exportación versionada y prueba de restauración |
-| 18 | **Ensayo de recuperación de respaldo** | El workflow diario existe; **que exista no prueba que restaure** |
-| 19 | **Prueba e2e de la cola offline** | Cortes de red, cierre del proceso y cambio de cuenta |
-| 20 | **Publicación OTA real** | `/firmware` es catálogo de solo lectura. Faltan carga de binarios, SHA-256, verificación e instalación comprobada — y el firmware mismo |
-| 21 | **Backend meteorológico comercial** | [Open-Meteo reserva su modalidad gratuita al uso no comercial](https://open-meteo.com/en/pricing). Antes de vender hay que contratar acceso comercial o un proxy, y no exponer la clave en la app. La caché y el pronóstico de 7 días **no están implementados** |
-| 22 | **Estado del despliegue remoto** | No se comprobó. El código local compila; producción no se auditó |
+| 16 | **Backend meteorológico comercial** | [Open-Meteo reserva su modalidad gratuita al uso no comercial](https://open-meteo.com/en/pricing). Antes de vender hay que contratar acceso comercial o montar un proxy propio, y no exponer la clave en la app. La caché y el pronóstico de 7 días **no están implementados**: hoy la consulta pide 2 días, requiere red y devuelve nulo si falla |
+
+Es el único pendiente de backend que **bloquea la venta**: usar el plan gratuito en un producto comercial incumpliría los términos del proveedor.
+
+Las tareas **operativas** de despliegue —aplicar la migración en staging, exportar el esquema, ensayar la restauración del respaldo y auditar el estado de producción— viven en [`supabase/README.md` §10](../supabase/README.md), que es donde están los comandos. La verificación en dispositivo de la cola offline y del enlace BLE está en [`App/README.md`](../App/README.md). La publicación OTA real figura en el roadmap de [`Web/README.md` §11.2](../Web/README.md).
 
 ---
 
-## 5. Obligaciones legales antes de comercializar
+## 5. Seguridad de dependencias
+
+| Aviso | Estado |
+|---|---|
+| **`image-size` ≤ 2.0.2** — GHSA-w3rx-r6r6-pgpr / CVE-2025-71330: denegación de servicio por bucle infinito en el parser ICNS | ⚠️ **Sin parche disponible.** La última versión publicada (2.0.2) es la vulnerable: no hay a qué actualizar |
+
+**Evaluación de exposición.** Es una dependencia **transitiva del bundler**: `expo → @expo/metro → metro → image-size`, usada en `metro/src/Assets.js` para leer dimensiones de imágenes **al empaquetar**. No se ejecuta en el teléfono del usuario ni procesa entrada de terceros: para dispararla habría que agregar un archivo `.icns` malicioso a los assets del propio proyecto. **El repositorio no contiene ningún `.icns`.** El impacto sería colgar el bundler en la máquina del desarrollador.
+
+**Decisión:** aceptar y vigilar. Revisar cuando `image-size` publique una versión corregida o cuando Expo/Metro cambie de dependencia. `npm audit` sobre `Web/` reporta 0 vulnerabilidades.
+
+**Los 10 PR abiertos de Dependabot no son de seguridad**, sino saltos de versión mayor (TypeScript 5→7, Vite 6→8, `expo-constants` 18→57, `expo-location` 19→57). Los saltos de los paquetes `expo-*` corresponden a otra versión del SDK y romperían el proyecto: no fusionarlos sin migrar el SDK completo y volver a probar.
+
+---
+
+## 6. Obligaciones legales antes de comercializar
 
 | # | Pendiente | Estado actual |
 |:---:|---|---|
-| 23 | **SUBTEL — equipos de alcance reducido** | Régimen actualizado vigente desde febrero de 2026. Las obligaciones aplican al **producto terminado**; la homologación FCC/CE del módulo no basta |
-| 24 | **Batería: UN 38.3 / IEC 62133-2** | Sin celda definitiva adquirida ni expediente de ensayos y transporte |
-| 25 | **Seguridad eléctrica (SEC)** | Definir qué se entrega, incluido cargador o adaptador. SELV a 5 V es atributo de diseño, no exención demostrada |
-| 26 | **Ley 21.719 de datos personales** | Vigente desde el **1 de diciembre de 2026**. Faltan bases de tratamiento, derechos, retención, seguridad y transferencia internacional. Alojar en Brasil no las resuelve |
-| 27 | **Protección al consumidor y garantía** | Definir política de garantía real frente al 5 % presupuestado en el modelo |
-| 28 | **Decisión de licencia del repositorio** | **Sin `LICENSE`: todos los derechos reservados por defecto.** Decisión tomada el 04-09-2026 de no publicar licencia abierta mientras se evalúa comercializar. Revisable |
+| 17 | **SUBTEL — equipos de alcance reducido** | Régimen actualizado vigente desde febrero de 2026. Las obligaciones aplican al **producto terminado**; la homologación FCC/CE del módulo no basta |
+| 18 | **Batería: UN 38.3 / IEC 62133-2** | Sin celda definitiva adquirida ni expediente de ensayos y transporte |
+| 19 | **Seguridad eléctrica (SEC)** | Definir qué se entrega, incluido cargador o adaptador. SELV a 5 V es atributo de diseño, no exención demostrada |
+| 20 | **Ley 21.719 de datos personales** | Vigente desde el **1 de diciembre de 2026**. Faltan bases de tratamiento, derechos, retención, seguridad y transferencia internacional. Alojar en Brasil no las resuelve |
+| 21 | **Protección al consumidor y garantía** | Definir política de garantía real frente al 5 % presupuestado en el modelo |
+| 22 | **Decisión de licencia del repositorio** | **Sin `LICENSE`: todos los derechos reservados por defecto.** Decisión tomada el 04-09-2026 de no publicar licencia abierta mientras se evalúa comercializar. Revisable |
 
 ---
 
@@ -93,6 +105,6 @@ Documentación sincronizada: los seis README y los cuatro documentos de apoyo de
 
 En código: N/P/K sin cifras interpretables y excluidos del veredicto, dosis de cal y lavado eliminadas, mediciones sin GPS admitidas en el historial, cola con exclusión mutua por cuenta y borrado solo tras acuse, sincronización al recuperar red en primer plano, simulación restringida a desarrollo y contrato BLE unificado.
 
-**Comprobado:** modelo reproducible en dos corridas idénticas · App 18/18 pruebas y `tsc --noEmit` limpio · Web `type-check` y `build` aprobados sin cambiar `package-lock.json` · 0 enlaces internos rotos · 0 cifras obsoletas sin retractar.
+**Comprobado:** modelo reproducible en dos corridas idénticas · App **25/25 pruebas** —incluidas 7 nuevas sobre la exclusión mutua de la cola offline— y `tsc --noEmit` limpio · Web `type-check` y `build` aprobados sin cambiar `package-lock.json` · 0 enlaces internos rotos · 0 cifras obsoletas sin retractar.
 
 **No se ejecutó:** ningún ensayo físico, despliegue SQL, envío de notificaciones, cambio de credenciales ni contratación de servicios.
