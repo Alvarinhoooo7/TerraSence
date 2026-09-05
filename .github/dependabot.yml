@@ -1,15 +1,79 @@
 version: 2
+
+# Criterio de las exclusiones (04-09-2026)
+#
+# Se ignoran solo los saltos de version MAYOR, nunca los parches. Asi siguen
+# llegando las correcciones de seguridad y las actualizaciones menores, que es
+# lo que interesa mantener al dia, y no se vuelven a abrir los PR que ya se
+# cerraron por incompatibles.
+#
+# Motivo por dependencia:
+#   expo / expo-* / react-native  Suben JUNTO con el SDK de Expo, nunca sueltos.
+#                                 Hoy: SDK 54 con React Native 0.81.5. Un PR que
+#                                 lleve expo-constants de 18 a 57 rompe el
+#                                 proyecto porque el 57 pertenece al SDK 57.
+#                                 En react-native, ademas, los saltos 0.x menores
+#                                 son incompatibles: por eso se ignora minor.
+#   typescript                    Se mantiene la misma version en /App y /Web.
+#                                 Una version mayor puede introducir errores por
+#                                 reglas mas estrictas y exige revision propia.
+#   vite / @vitejs/plugin-react   Deben subir en la MISMA rama y con el build
+#                                 verificado; por separado dejan combinaciones
+#                                 no probadas.
+#
+# Ver docs/PLAN_VALIDACION.md, seccion 5, y la estimacion de la migracion de SDK.
+
 updates:
   - package-ecosystem: npm
     directory: /App
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      # Las actualizaciones menores dentro del SDK actual llegan en un solo PR,
+      # que es como deben probarse: juntas y con un build.
+      expo-sdk:
+        patterns:
+          - expo
+          - expo-*
+          - '@expo/*'
+        update-types:
+          - minor
+          - patch
+    ignore:
+      - dependency-name: expo
+        update-types: [version-update:semver-major]
+      - dependency-name: expo-*
+        update-types: [version-update:semver-major]
+      - dependency-name: '@expo/*'
+        update-types: [version-update:semver-major]
+      - dependency-name: react-native
+        update-types: [version-update:semver-major, version-update:semver-minor]
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+
   - package-ecosystem: npm
     directory: /Web
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      # Vite y su plugin de React se prueban juntos o no se prueban.
+      vite:
+        patterns:
+          - vite
+          - '@vitejs/*'
+        update-types:
+          - minor
+          - patch
+    ignore:
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+      - dependency-name: vite
+        update-types: [version-update:semver-major]
+      - dependency-name: '@vitejs/plugin-react'
+        update-types: [version-update:semver-major]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
