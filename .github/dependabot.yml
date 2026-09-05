@@ -8,12 +8,17 @@ version: 2
 # cerraron por incompatibles.
 #
 # Motivo por dependencia:
-#   expo / expo-* / react-native  Suben JUNTO con el SDK de Expo, nunca sueltos.
-#                                 Hoy: SDK 54 con React Native 0.81.5. Un PR que
-#                                 lleve expo-constants de 18 a 57 rompe el
-#                                 proyecto porque el 57 pertenece al SDK 57.
-#                                 En react-native, ademas, los saltos 0.x menores
-#                                 son incompatibles: por eso se ignora minor.
+#   expo, expo-*, @expo/*,        Suben JUNTO con el SDK de Expo, nunca sueltos.
+#   babel-preset-expo,            Hoy: SDK 54 con React Native 0.81.5. Un PR que
+#   react-native                  lleve expo-constants de 18 a 57 rompe el
+#                                 proyecto, porque el 57 pertenece al SDK 57.
+#
+#                                 Dos que hay que listar aparte:
+#                                 - babel-preset-expo esta atado al SDK, pero el
+#                                   patron expo-* NO lo captura: su nombre no
+#                                   empieza por "expo".
+#                                 - react-native ignora tambien minor, porque en
+#                                   versiones 0.x los saltos menores rompen.
 #   typescript                    Se mantiene la misma version en /App y /Web.
 #                                 Una version mayor puede introducir errores por
 #                                 reglas mas estrictas y exige revision propia.
@@ -37,6 +42,7 @@ updates:
           - expo
           - expo-*
           - '@expo/*'
+          - babel-preset-expo
         update-types:
           - minor
           - patch
@@ -46,6 +52,8 @@ updates:
       - dependency-name: expo-*
         update-types: [version-update:semver-major]
       - dependency-name: '@expo/*'
+        update-types: [version-update:semver-major]
+      - dependency-name: babel-preset-expo
         update-types: [version-update:semver-major]
       - dependency-name: react-native
         update-types: [version-update:semver-major, version-update:semver-minor]
