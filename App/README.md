@@ -42,6 +42,7 @@ Es la herramienta central que el agricultor y los operadores llevan al potrero: 
 - [9. Comandos de Desarrollo y Pruebas](#9-comandos-de-desarrollo-y-pruebas)
 - [10. Decisiones Arquitectónicas que Conviene Preservar](#10-decisiones-arquitectónicas-que-conviene-preservar)
 - [11. 🛠️ Manual de Instalación de Herramientas](#manual-instalacion-herramientas)
+- [12. Pendientes abiertos](#12-pendientes-abiertos)
 
 ---
 
@@ -563,3 +564,57 @@ setx JAVA_HOME "C:\Program Files\Microsoft\jdk-17"
 ### 11.3. Dispositivo Físico para Pruebas BLE
 > [!IMPORTANT]
 > Los emuladores de Android **no emulan hardware Bluetooth Low Energy (BLE)** ni cámara física para escanear QR. Las pruebas de enlace con la sonda deben realizarse en un dispositivo Android físico conectado por USB con el modo de **Depuración por USB** activado.
+
+---
+
+## 12. Pendientes abiertos
+
+Estado al **6 de septiembre de 2026**. Ninguno bloquea el desarrollo; los tres bloquean tener la app
+lista para usuarios reales.
+
+### 12.1. SMTP propio — los correos caen en spam
+
+**Sin hacer.** Los correos de confirmación de cuenta y de recuperación de contraseña llegan a la
+carpeta de spam. No es un fallo del código ni de las plantillas: el remitente por defecto de Supabase
+es compartido, tiene mala reputación de dominio y un límite de envíos bajo.
+
+Mientras siga así, el registro está roto en la práctica aunque funcione técnicamente — un agricultor
+que no encuentra el correo no confirma la cuenta y no entra.
+
+Se resuelve configurando un servidor SMTP propio en *Authentication → SMTP Settings* del dashboard de
+Supabase. Resend y SendGrid tienen plan gratuito suficiente para este volumen. Requiere verificar el
+dominio remitente (registros SPF y DKIM), que es justamente lo que hace que el correo deje de
+parecer sospechoso.
+
+Efecto secundario útil: con SMTP propio se pueden activar las plantillas de correo con la marca
+TerraSense que ya existen en `supabase/templates/`.
+
+### 12.2. Rediseño de las pantallas del agricultor
+
+**A medias.** Lo hecho es el pulido y los cimientos:
+
+* `RadarScan` para la búsqueda por Bluetooth, en la medición y en el emparejamiento.
+* `PasswordChecklist`, con las casillas que se marcan al escribir.
+* `FadeIn` como primitiva de entrada compartida, aplicada de momento sólo a la cabecera de
+  `AuthScreen`.
+
+Los tres respetan la preferencia de *reducir movimiento* del sistema.
+
+**Lo que falta** es el repaso visual propiamente dicho, sobre `OnboardingScreen`, `DevicesScreen`,
+`MeasureScreen` y `DashboardScreen`: jerarquía tipográfica, ritmo de espaciados, y estados vacíos —
+hoy son un párrafo de texto centrado donde debería haber una indicación de qué hacer a continuación.
+Queda pendiente también extender `FadeIn` al resto de pantallas para que la transición entre ellas
+sea coherente.
+
+No se tocó la consola web: el rediseño acordado cubre sólo la app del agricultor.
+
+### 12.3. Despliegue de la página de confirmación
+
+**Sin hacer.** Detallado más arriba, en «Confirmación de cuenta: qué falta desplegar». En una línea:
+
+```bash
+cd Web && vercel --prod --yes
+```
+
+Hasta que ocurra, el enlace del correo de confirmación apunta a una ruta que todavía no existe en
+producción.
