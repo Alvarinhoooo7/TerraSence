@@ -15,23 +15,17 @@ export const isValidDeviceId = (raw?: string): boolean =>
   /^[1-9]\d{14}$/.test(normalizeDeviceId(raw));
 
 export const buildDeviceQrPayload = (raw?: string): string =>
-  `terrasense://join?code=${normalizeDeviceId(raw)}`;
+  `terrasense://join?token=${raw ?? ''}`;
 
-/** Acepta el URI TerraSense canónico o un código legado crudo/con guiones. */
+/** El ID permanente nunca sirve como invitación de acceso. */
 export const parseDeviceQrPayload = (payload?: string): string | null => {
   const raw = payload?.trim() ?? '';
-  let candidate = raw;
-
   try {
     const parsed = new URL(raw);
     if (parsed.protocol !== 'terrasense:' || parsed.hostname !== 'join') return null;
-    candidate = parsed.searchParams.get('code') ?? '';
+    const token = parsed.searchParams.get('token') ?? '';
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(token) ? token : null;
   } catch {
-    // Los QR antiguos pueden contener únicamente 48213-90574-16628.
+    return null;
   }
-
-  const digits = candidate.replace(/\D/g, '');
-  if (digits.length !== DEVICE_ID_LENGTH) return null;
-  const code = normalizeDeviceId(candidate);
-  return isValidDeviceId(code) ? code : null;
 };

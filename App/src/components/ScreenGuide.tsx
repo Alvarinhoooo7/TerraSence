@@ -85,9 +85,9 @@ const COPY: Record<AppLanguage, Record<GuideId, GuideCopy>> = {
       title: 'Guía de equipos',
       intro: 'Cada sonda posee un código estable de 15 dígitos.',
       steps: [
-        'El administrador comparte el QR o código con operadores autorizados.',
-        'Vincular un código no cambia la identidad física de la sonda.',
-        '“Registrar equipo” se usa al configurar una sonda nueva como primer propietario.',
+        'Cualquier miembro aprobado puede mostrar el QR, que cambia cada 15 minutos.',
+        'Al escanear el QR, el nuevo usuario espera la aprobación del administrador.',
+        '“Registrar equipo” se usa al configurar una sonda nueva como primer administrador.',
       ],
     },
     perimeter: {
@@ -162,9 +162,9 @@ const COPY: Record<AppLanguage, Record<GuideId, GuideCopy>> = {
       title: 'Devices guide',
       intro: 'Each probe has a stable 15-digit code.',
       steps: [
-        'The administrator shares the QR or code with authorized operators.',
+        'Any approved member can show the QR, which changes every 15 minutes.',
         'Linking a code does not change the physical probe identity.',
-        'Use “Register device” when setting up a new probe as its first owner.',
+        'Use “Register device” when setting up a new probe as its first administrator.',
       ],
     },
     perimeter: {

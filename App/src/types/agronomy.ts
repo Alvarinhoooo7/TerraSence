@@ -12,6 +12,14 @@ export interface SoilMeasurement {
   potassium: number;    // mg/kg
   lux: number;          // Radiación solar incidente (Lux)
   battery: number;      // Porcentaje de batería (%)
+
+  // Ambiente medido por el BME280 del equipo (trama BLE v1, bytes 16-19).
+  // null en la trama v0, que no los transporta, y cuando el sensor no responde.
+  // No confundir con la API del clima: esa da pronóstico de días para complementar
+  // la recomendación, no una medición del punto de lectura. No debe escribirse aquí.
+  airTemp: number | null;      // Temperatura del aire (°C), resolución 0,1
+  airHumidity: number | null;  // Humedad relativa (%), resolución 0,5
+  airPressure: number | null;  // Presión atmosférica (hPa), resolución 1
 }
 
 export type CropId = 'maiz' | 'tomate' | 'papa' | 'trigo' | 'lechuga' | 'palto' | 'vid' | 'arandano';

@@ -1,6 +1,6 @@
 # 📱 TerraSense · Aplicación Móvil de Terreno
 
-Aplicación móvil de terreno desarrollada en **React Native 0.81 + React 19 + Expo 54 + TypeScript + Zustand**. 
+Aplicación móvil de terreno desarrollada en **React Native 0.86 + React 19.2 + Expo SDK 57 + TypeScript 6 + Zustand**. 
 Es la herramienta central que el agricultor y los operadores llevan al potrero: se conecta a la sonda portátil TerraSense vía **Bluetooth Low Energy (BLE)**, evalúa el suelo localmente según la etapa fenológica elegida, agrega contexto meteorológico y proyecta las mediciones de **siembra** en un mapa predial.
 
 > ### ⚠️ Estado de verificación
@@ -51,14 +51,14 @@ Es la herramienta central que el agricultor y los operadores llevan al potrero: 
 2. **Acceso y Recuperación de Clave:** Inicio de sesión, registro y flujo de recuperación de contraseña vía deep link nativo `terrasense://reset-password` y formulario interactivo `ResetPasswordScreen`.
 3. **Onboarding Dual de Equipos:**
    - **Primer Propietario (Owner):** Vinculación física por BLE con grabación del código de 15 dígitos en la memoria NVS del ESP32 y registro atómico en Supabase (`register_paired_device`).
-   - **Operadores de Campo:** Escaneo de código QR generado por el dueño o ingreso manual del código para obtener membresía `operator` (`claim_operator_membership`).
+   - **Usuarios:** escanean el QR temporal mostrado por cualquier miembro aprobado. Quedan en una pantalla de espera hasta que el administrador apruebe su ingreso. El QR cambia cada 15 minutos; el ID permanente no concede acceso.
 4. **Dashboard Principal:** Punto de inicio rápido con botón destacado **Iniciar Medición** y acceso al historial.
 5. **Selección Obligatoria de Fase Fenológica:** Al pulsar medir, el usuario debe seleccionar una de las 4 etapas productivas:
    - **Pre-siembra (Siembra)**
    - **Vegetativo**
    - **Floración**
    - **Cosecha**
-6. **Captura BLE y meteorológica:** Recordatorio preventivo de limpieza de electrodos (`CalibrationReminderModal`), conexión por BLE a la sonda, lectura de la trama GATT de 16 bytes y consulta meteorológica. La consulta requiere red y no tiene caché: si falla, la medición se registra igual y el diagnóstico se emite **sin contexto climático**.
+6. **Captura BLE y meteorológica:** Recordatorio preventivo de limpieza de electrodos (`CalibrationReminderModal`), conexión por BLE a la sonda, lectura de la trama GATT (16 o 20 bytes según su versión) y consulta meteorológica. La consulta requiere red y no tiene caché: si falla, la medición se registra igual y el diagnóstico se emite **sin contexto climático**.
 7. **Carrusel de Resultados Post-Medición:**
    - **Página 1 (Grid 3×3 Semáforo):** Cuadrícula con las variables medidas en verde (óptimo), naranjo (precaución) y rojo (riesgo). Al tocar cualquier parámetro, se despliega una explicación detallada con advertencias, causas y acciones concretas para mejorarlo según la fase activa.
    - **Página 2 (Recomendación Integral Globalizada):** Diagnóstico de conjunto que combina suelo, etapa del cultivo y pronóstico del clima (olas de calor, heladas, lluvias, qué sembrar o cuidados de la planta en crecimiento). Aquí finaliza el carrusel para Vegetativo, Floración y Cosecha.
@@ -88,7 +88,7 @@ App/
 ├── App.tsx                             # Enrutador de estado raíz (Auth, Onboarding, Navegación)
 ├── index.ts                            # Punto de entrada de Expo
 ├── app.config.js                       # Configuración Expo, permisos nativos y deep linking
-├── package.json                        # Dependencias (React Native 0.81, Expo 54, Zustand)
+├── package.json                        # Dependencias (React Native 0.86, Expo SDK 57, Zustand)
 ├── tsconfig.json                       # Configuración TypeScript estricta
 ├── src/
 │   ├── constants/
@@ -111,7 +111,7 @@ App/
 │   │   ├── WelcomeCarouselScreen.tsx   # Carrusel informativo inicial
 │   │   ├── AuthScreen.tsx              # Inicio de sesión, registro y solicitud de clave
 │   │   ├── ResetPasswordScreen.tsx     # Formulario de nueva contraseña tras deep link
-│   │   ├── OnboardingScreen.tsx        # Provisión BLE de dueño o escaneo QR de operador
+│   │   ├── OnboardingScreen.tsx        # Alta BLE de administrador o solicitud mediante QR
 │   │   ├── DashboardScreen.tsx         # Pantalla principal con botón central "Medir"
 │   │   ├── MeasureScreen.tsx           # Selección de fase → BLE → Carrusel de 2 ó 3 páginas
 │   │   ├── MapScreen.tsx               # Mapa predial para mediciones de siembra (círculos 20 m)
@@ -128,7 +128,7 @@ App/
 │   │   └── MeasurementDetailModal.tsx  # Modal detallado con badge de sincronización
 │   ├── services/
 │   │   ├── bleService.ts               # Escaneo BLE, conexión GATT notify y desconexión segura
-│   │   ├── probeService.ts             # Decodificación de trama de 16 bytes Big-Endian
+│   │   ├── probeService.ts             # Decodificación de trama BLE v0/v1 Big-Endian
 │   │   ├── measurementsService.ts      # Cola offline en AsyncStorage y sincronización Supabase
 │   │   ├── deviceService.ts            # Registro y gestión de membresías de equipos
 │   │   ├── onboardingService.ts        # Persistencia de estado de onboarding en Supabase
@@ -170,9 +170,51 @@ App/
 
 **Validación pendiente en dispositivo:** aspecto visual, lectores de pantalla, tamaños de letra ampliados, navegación Android y conexión BLE física. El BME280, el pronóstico de cinco días y el carrusel de resultados descritos más abajo siguen siendo requisitos por completar; esta entrega no los declara implementados.
 
-**Comprobaciones de esta entrega:** TypeScript sin errores y 28 pruebas aprobadas. El runner habitual encontró `spawn EPERM` en el entorno restringido; se ejecutaron las mismas pruebas en un único proceso con transpilación TypeScript. La generación de bytecode Hermes también encontró `spawn EPERM`; esto no valida un APK ni sustituye las pruebas físicas.
+**Comprobaciones al 6 de septiembre de 2026, sobre Expo SDK 57:** TypeScript 6 sin errores, 44 pruebas aprobadas y exportación Android completa (1600 módulos, 3,3 MB).
+
+**Comprobaciones de la entrega anterior, sobre SDK 54:** TypeScript sin errores y 28 pruebas aprobadas. El runner habitual encontró `spawn EPERM` en el entorno restringido; se ejecutaron las mismas pruebas en un único proceso con transpilación TypeScript. La generación de bytecode Hermes también encontró `spawn EPERM`; esto no valida un APK ni sustituye las pruebas físicas.
 
 La exportación JavaScript Android de diagnóstico sí finalizó correctamente (1600 módulos): `node node_modules/expo/bin/cli export --platform android --output-dir dist-review --max-workers 1 --no-bytecode`. El resultado local está en `App/dist-review`; no es un instalador.
+
+### Metro dice que un archivo «no existe» y el archivo está ahí
+
+Síntoma: `expo start` o `expo export` fallan con `Unable to resolve module ./src/hooks/useAppTheme`
+y, debajo, `None of these files exist: src\hooks\useAppTheme(.ts|.tsx|…)`. El archivo existe, se abre
+en el editor y `tsc` lo compila sin quejarse. Puede señalar a un archivo propio o a uno de
+`node_modules`, y cada vez que se arregla uno aparece el siguiente.
+
+**Causa: el repositorio vive dentro de OneDrive.** Los archivos sincronizados llevan un *reparse
+point* de Windows, y `fs.readdir(…, {withFileTypes: true})` los reporta como enlaces simbólicos
+aunque `lstat` diga que son archivos normales:
+
+```text
+useAppTheme.ts             isFile: false | isSymbolicLink: true
+useMeasurementHistory.ts   isFile: true  | isSymbolicLink: false
+```
+
+El rastreador de Metro se guía por `readdir`, los toma por enlaces, intenta resolver un destino que
+no existe y los deja fuera de su mapa de archivos. Node, TypeScript y el explorador de Windows usan
+`stat` y no ven ningún problema, y de ahí que el error parezca imposible. El archivo que se salva en
+el ejemplo —`useMeasurementHistory.ts`— es simplemente el que se editó hace poco: al reescribirlo
+dejó de tener el *reparse point*.
+
+**Solución inmediata:** reescribir los archivos afectados byte a byte, lo que los devuelve a ser
+archivos planos. Desde `App/`:
+
+```bash
+node -e "const fs=require('fs'),path=require('path');(function r(d){for(const e of fs.readdirSync(d,{withFileTypes:true})){const p=path.join(d,e.name);if(e.isDirectory()){if(e.name!=='node_modules'&&e.name!=='.git')r(p);continue}if(!e.isSymbolicLink()||!fs.lstatSync(p).isFile())continue;const b=fs.readFileSync(p);fs.writeFileSync(p+'.tmp',b);fs.rmSync(p);fs.renameSync(p+'.tmp',p)}})('.')"
+npx expo export --platform android --output-dir dist-review --no-bytecode --clear
+```
+
+Si el archivo que falla está en `node_modules`, basta `rm -rf node_modules && npm install`: los que
+npm acaba de escribir nacen planos.
+
+> [!IMPORTANT]
+> **Esto vuelve a ocurrir.** OneDrive rehace los marcadores cuando le conviene, así que el fallo
+> reaparece sin que nadie toque el código y siempre en un archivo distinto. La única solución estable
+> es **sacar el repositorio de la carpeta de OneDrive** —por ejemplo a `C:\dev\`— o excluir esa
+> carpeta de la sincronización. Mientras siga dentro, conviene al menos reconocer el síntoma: si
+> Metro no encuentra un archivo que existe, no es un problema del SDK ni del código.
 
 El flujo de pantallas se articula a través de un enrutador liviano en `App.tsx` que garantiza respuesta inmediata en terreno:
 
@@ -195,7 +237,7 @@ El flujo de pantallas se articula a través de un enrutador liviano en `App.tsx`
            ¿Tiene equipo vinculado?
                ├── NO ──► ┌──────────────────┐
                │          │ OnboardingScreen │ ── Modo Propietario (BLE Pairing)
-               │          │  (Paso único)    │ ── Modo Operador (Escaneo QR / Código)
+               │          │  (Paso único)    │ ── Usuario (QR temporal y aprobación)
                │          └────────┬─────────┘
                │                   │
                └── SÍ ─────────────┘
@@ -228,8 +270,10 @@ El flujo de pantallas se articula a través de un enrutador liviano en `App.tsx`
 
 ### 4.2. Onboarding y Gobernanza de Equipos
 * **`OnboardingScreen`**: Detecta automáticamente el tipo de usuario:
-  1. **Primer Dueño (`owner`):** Busca la sonda por BLE, graba el código de 15 dígitos en la NVS del ESP32 y registra la propiedad en Supabase con `register_paired_device`.
-  2. **Operador de Campo (`operator`):** Escanea el código QR generado por el dueño o introduce el código manualmente, vinculándose mediante `claim_operator_membership`.
+  1. **Primer administrador (`admin`):** empareja la sonda por BLE y registra el ID con `register_paired_device`. Sólo obtiene administración si ese equipo no tiene miembros.
+  2. **Usuario (`user`):** escanea un QR temporal y queda pendiente. El administrador recibe un aviso push para revisar la solicitud en **Ajustes → Administración**. La espera muestra sus iniciales de nombre/correo censuradas desde el servidor.
+
+Ambos roles pueden operar el equipo y mostrar el QR. Sólo el administrador ve Administración, donde aprueba, elimina o delega; al delegar pasa a usuario. [Contrato y despliegue de administración](../supabase/ADMINISTRACION.md).
 
 ### 4.3. Flujo de Medición: Selección de Fase y Carrusel Post-Medición
 
@@ -242,7 +286,7 @@ El proceso de medición sigue una secuencia rigurosa y pedagógica:
    - **Cosecha**
 2. **Preparación y Captura Física:**
    - Se muestra el modal recordatorio `CalibrationReminderModal` sugiriendo limpiar y secar los electrodos de acero inoxidable.
-   - La app escanea el anuncio `TerraSense-<device_code>`, conecta vía BLE, captura la trama de 16 bytes y consulta el clima en Open-Meteo.
+   - La app escanea el anuncio `TerraSense-<device_code>`, conecta vía BLE, captura la trama BLE y consulta el clima en Open-Meteo.
    - Desconecta inmediatamente el enlace BLE para proteger la batería del ESP32.
 3. **Página 1 del Carrusel · Grid 3×3 Semáforo Interactivo:**
    - Muestra cada una de las variables medidas con su valor numérico y el color de semáforo correspondiente:
@@ -327,9 +371,9 @@ El Grid 3×3 de la primera página del carrusel utiliza el código de colores un
 * **Identidad (Read):** `00000003-5e4e-4c69-6d61-746572726103`
 * **Provisionamiento (Write):** `00000004-5e4e-4c69-6d61-746572726104`
 
-### Estructura de la trama de 16 bytes, big-endian
+### Estructura de la trama BLE, big-endian
 
-> **Contrato único del sistema.** Esta tabla refleja lo que `probeService.ts` decodifica realmente. Las versiones anteriores de este README y del README de PCB describían **tres contratos incompatibles entre sí** (orden de campos, escala de pH y formato de batería distintos). **Al implementar el firmware, esta es la referencia; si el mapa de registros del proveedor difiere, se ajusta el decodificador y el firmware, no la UI.**
+Esta tabla refleja lo que `probeService.ts` decodifica realmente. El aviso anterior se refería a diferencias entre documentos, no a un error inevitable del envío BLE. Si el sensor usa otro mapa o escala, el firmware debe convertirlo a este contrato. La trama Modbus de la sonda y la notificación BLE del teléfono son diferentes: [explicación byte a byte y ejemplo completo](../docs/CONTRATO_BLE.md).
 
 ```text
 [0..1]   Humedad volumétrica (VWC × 10)        -> uint16
@@ -340,7 +384,12 @@ El Grid 3×3 de la primera página del carrusel utiliza el código de colores un
 [10..11] Fósforo (mg/kg)                       -> uint16
 [12..13] Potasio (mg/kg)                       -> uint16
 [14]     Batería (porcentaje 0–100)            -> uint8   (NO voltaje uint16)
-[15]     Reservado
+[15]     Version de trama: 0 = 16 bytes, 1 = 20 bytes; otro valor se rechaza
+[16..19] Solo en v1 - ambiente BME280 en 32 bits empaquetados:
+         temperatura del aire  12 bits  (C x 10) + 400   -> -40,0 a +125,0 C
+         presion               12 bits  hPa - 300        -> 300 a 1100 hPa
+         humedad relativa       8 bits  % x 2            -> 0 a 100,0 %
+         Todos los bits a uno = el sensor no entrego dato -> NULL en la base
 ```
 
 **No hay firmware fuente en el repositorio** y el mapa de registros de la sonda **no está confirmado contra la ficha del proveedor**. Antes de fabricar hace falta una captura BLE/Modbus real del SKU adquirido.
@@ -418,7 +467,7 @@ Las 25 pruebas automatizadas cubren lógica pura: decodificación de la trama BL
 | Cierre del proceso por Android con cola pendiente | Al reabrir, las mediciones siguen en la cola y se envían |
 | Cambio de cuenta con cola pendiente | La cola de la cuenta anterior **no** se envía con el usuario nuevo |
 | Medición sin señal GPS | Se guarda en el historial y **no** aparece en el mapa |
-| Enlace BLE con la sonda real | La trama de 16 bytes decodifica los valores esperados del SKU adquirido |
+| Enlace BLE con la sonda real | La trama decodifica los valores esperados del SKU adquirido, y la v1 el ambiente del BME280 |
 
 Los cuatro primeros dependen además de que la migración de [`supabase/`](../supabase/README.md) esté aplicada en staging.
 
@@ -429,7 +478,7 @@ Los cuatro primeros dependen además de que la migración de [`supabase/`](../su
 * **Ubicación bajo demanda (sin `ACCESS_BACKGROUND_LOCATION`):** La app solo solicita coordenadas GPS en el instante en que se ejecuta una medición, y no consume batería en segundo plano. **Esto es minimización de datos, no cumplimiento acreditado de la Ley 21.719**, que entra en vigencia el **1 de diciembre de 2026** y exige además bases de tratamiento, derechos de los titulares, política de retención, seguridad y reglas de transferencia internacional. [BCN: Ley 21.719](https://www.bcn.cl/leychile/Navegar?idNorma=1209272&idParte=10527471&idVersion=2026-12-01).
 * **Mapa Restringido a Pre-siembra:** El mapa es una herramienta de planificación de siembra, no un visor sobrecargado; las mediciones fenológicas posteriores pertenecen al historial agronómico del cultivo.
 * **Degradación visual en mapa:** Si no hay internet para descargar teselas satelitales, el mapa degrada a coordenadas neutras manteniendo visibles los puntos de siembra y los círculos de 20 m. Las mediciones sin coordenadas no aparecen en el mapa, pero sí en el historial.
-* **Gobernanza Estricta de Membresías:** Los operarios no pueden modificar la configuración ni transferir la sonda; esas facultades corresponden exclusivamente a roles `owner` y `admin`.
+* **Administración por equipo:** `admin` y `user` comparten las funciones normales de la app. Sólo `admin` administra membresías; al delegar pierde ese permiso. El acceso web depende exclusivamente de `admin_support_users`.
 
 ---
 

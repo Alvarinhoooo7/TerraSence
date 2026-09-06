@@ -2,9 +2,11 @@
 //
 // Lectura de la sonda de suelo 7-en-1 (SKU AliExpress 1005005697940574).
 //
-// El ESP32 hace de puente: consulta la sonda por RS-485 Modbus RTU y expone el
-// resultado ya decodificado en una característica BLE de 16 bytes, para no
-// obligar al teléfono a hablar Modbus.
+// El ESP32 hace de puente: consulta la sonda por RS-485 Modbus RTU, lee su propio
+// BME280 por I2C, y expone todo ya decodificado en una característica BLE, para no
+// obligar al teléfono a hablar Modbus. La trama tiene versión en el byte 15:
+// v0 son 16 bytes (sólo suelo y batería) y v1 son 20 (añade el ambiente del BME280).
+// Contrato completo en docs/CONTRATO_BLE.md.
 //
 // Trama Modbus que emite el firmware (documentada en README §5.5):
 //   Consulta : 01 03 00 00 00 07 04 08     (8 bytes, CRC16 verificado)
@@ -65,23 +67,111 @@ export async function verifySoilProbe(deviceCode: string | null): Promise<ProbeC
   }
 }
 
+/** Longitud de la trama v0: sólo suelo y batería. */
+export const TELEMETRY_V0_BYTES = 16;
+/** Longitud de la trama v1: v0 + las tres magnitudes del BME280 empaquetadas en 4 bytes. */
+export const TELEMETRY_V1_BYTES = 20;
+
 /**
- * Decodifica el paquete binario de 16 bytes que emite el ESP32.
+ * Centinelas de "el sensor no entregó dato": todos los bits a uno.
+ * Existen para que un BME280 que no responde produzca NULL en la base, y no un
+ * valor plausible pero inventado.
+ */
+const AIR_TEMP_AUSENTE = 0xfff;
+const AIR_PRESION_AUSENTE = 0xfff;
+const AIR_HUMEDAD_AUSENTE = 0xff;
+
+/** Máximos del BME280 según su hoja de datos, en unidades ya empaquetadas. */
+const AIR_TEMP_MAX = 1250;   // +85,0 °C
+const AIR_PRESION_MAX = 800; // 1100 hPa
+const AIR_HUMEDAD_MAX = 200; // 100,0 %
+
+interface AmbienteBme280 {
+  airTemp: number | null;
+  airHumidity: number | null;
+  airPressure: number | null;
+}
+
+/**
+ * Desempaqueta los bytes 16-19 de la trama v1.
  *
- * Los 7 primeros valores replican el orden de los registros Modbus de la sonda;
- * los factores de escala son los del fabricante.
+ * Los tres valores no caben en cuatro bytes alineados, así que van en bits. El MTU
+ * por defecto de BLE deja 20 bytes de carga útil por notificación, y ése es el
+ * techo que respeta este contrato: así no hace falta negociar MTU en Android ni
+ * partir la lectura en dos notificaciones que luego habría que emparejar.
+ *
+ *   byte 16 : TTTT TTTT          8 bits altos de la temperatura
+ *   byte 17 : TTTT PPPP          4 bits bajos de temperatura + 4 altos de presión
+ *   byte 18 : PPPP PPPP          8 bits bajos de la presión
+ *   byte 19 : HHHH HHHH          humedad relativa
+ *
+ * Temperatura: 12 bits, décimas de °C desplazadas +400 → -40,0 a +125,0 °C.
+ * Presión: 12 bits, hPa enteros desplazados +300 → 300 a 1100 hPa.
+ * Humedad: 8 bits, medios puntos porcentuales → 0 a 100,0 %.
+ */
+function decodeAmbiente(bytes: Uint8Array): AmbienteBme280 {
+  const temp12 = (bytes[16] << 4) | (bytes[17] >> 4);
+  const presion12 = ((bytes[17] & 0x0f) << 8) | bytes[18];
+  const humedad8 = bytes[19];
+
+  if (temp12 !== AIR_TEMP_AUSENTE && temp12 > AIR_TEMP_MAX) {
+    throw new Error('Temperatura del aire fuera del rango del BME280 (-40 a 85 °C).');
+  }
+  if (presion12 !== AIR_PRESION_AUSENTE && presion12 > AIR_PRESION_MAX) {
+    throw new Error('Presión fuera del rango del BME280 (300 a 1100 hPa).');
+  }
+  if (humedad8 !== AIR_HUMEDAD_AUSENTE && humedad8 > AIR_HUMEDAD_MAX) {
+    throw new Error('Humedad relativa BLE inválida: debe ser un porcentaje de 0 a 100.');
+  }
+
+  return {
+    airTemp: temp12 === AIR_TEMP_AUSENTE ? null : (temp12 - 400) / 10,
+    airPressure: presion12 === AIR_PRESION_AUSENTE ? null : presion12 + 300,
+    airHumidity: humedad8 === AIR_HUMEDAD_AUSENTE ? null : humedad8 / 2,
+  };
+}
+
+/**
+ * Decodifica el paquete binario que emite el ESP32.
+ *
+ * Contrato propio TerraSense, documentado en `docs/CONTRATO_BLE.md`. El firmware debe
+ * convertir el mapa y las escalas reales del fabricante a este formato; no debe copiar
+ * registros a ciegas.
+ *
+ * El byte 15 es la versión de trama y decide la longitud:
+ *   v0 = 16 bytes, sólo suelo y batería. Los campos de aire quedan en null.
+ *   v1 = 20 bytes, añade temperatura, humedad y presión del BME280.
+ * Los bytes 0-14 son idénticos en ambas, así que un equipo con firmware antiguo
+ * sigue siendo legible sin ramas especiales.
  *
  * ⚠️ Pendiente de confirmar contra la ficha del vendedor (README §5.3.1): si el
- * mapa de registros difiere, hay que ajustar ESTA función y el driver del
- * firmware, no la UI.
+ * mapa de registros difiere, se ajusta la conversión en el driver Modbus del
+ * firmware, conservando este contrato de la app.
  */
 export function decodeTelemetry(bytes: Uint8Array): SoilMeasurement {
-  if (bytes.length < 16) {
+  if (bytes.length < TELEMETRY_V0_BYTES) {
     throw new Error(`Paquete BLE incompleto: ${bytes.length} bytes de 16 esperados.`);
   }
+
+  const version = bytes[15];
+  if (version !== 0 && version !== 1) {
+    throw new Error(`Versión de trama BLE no compatible: ${version}. Esta app entiende 0 y 1.`);
+  }
+
+  const esperados = version === 0 ? TELEMETRY_V0_BYTES : TELEMETRY_V1_BYTES;
+  if (bytes.length !== esperados) {
+    throw new Error(
+      `Trama BLE incompatible: ${bytes.length} bytes; la versión ${version} requiere exactamente ${esperados}.`,
+    );
+  }
+  if (bytes[14] > 100) throw new Error('Batería BLE inválida: debe ser un porcentaje de 0 a 100.');
+
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const u16 = (offset: number) => view.getUint16(offset, false); // big-endian, como Modbus
   const i16 = (offset: number) => view.getInt16(offset, false);
+
+  const ambiente: AmbienteBme280 =
+    version === 1 ? decodeAmbiente(bytes) : { airTemp: null, airHumidity: null, airPressure: null };
 
   return {
     vwc: u16(0) / 10,        // 0x015E = 350 -> 35,0 %
@@ -93,6 +183,7 @@ export function decodeTelemetry(bytes: Uint8Array): SoilMeasurement {
     potassium: u16(12),      // mg/kg
     lux: 0,                  // no lo entrega esta sonda
     battery: bytes[14],      // porcentaje
+    ...ambiente,
   };
 }
 
@@ -111,6 +202,9 @@ function simulate(): SoilMeasurement {
     potassium: Math.round(jitter(120, 130)),
     lux: 0,
     battery: 94,
+    airTemp: jitter(19, 10),
+    airHumidity: Math.round(jitter(62, 30) * 2) / 2,
+    airPressure: Math.round(jitter(1005, 20)),
   };
 }
 

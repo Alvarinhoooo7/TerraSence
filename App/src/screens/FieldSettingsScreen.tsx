@@ -6,7 +6,7 @@
 // y la capacidad de campo con los que el motor juzga la humedad. Un 25 % de
 // humedad es sequía en un suelo arcilloso y holgura en uno arenoso.
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -23,6 +23,7 @@ import { useAppTheme } from '../hooks/useAppTheme';
 import { ScreenGuide } from '../components/ScreenGuide';
 import { useAppStore } from '../store/useAppStore';
 import { CROPS_DB, SOIL_TEXTURES } from '../engine/agronomyEngine';
+import { listMyDeviceMemberships } from '../services/deviceService';
 import { supabase } from '../services/supabase';
 import { clearPushToken } from '../services/notifications';
 import { reconcileNotificationRegistration } from '../services/notifications';
@@ -58,9 +59,10 @@ const TEXTURE_NAMES_EN: Record<SoilTextureId, string> = {
 interface Props {
   onClose: () => void;
   onOpenDevices: () => void;
+  onOpenAdministration: () => void;
 }
 
-export const FieldSettingsScreen: React.FC<Props> = ({ onClose, onOpenDevices }) => {
+export const FieldSettingsScreen: React.FC<Props> = ({ onClose, onOpenDevices, onOpenAdministration }) => {
   const { colors } = useAppTheme();
 
   const {
@@ -74,6 +76,16 @@ export const FieldSettingsScreen: React.FC<Props> = ({ onClose, onOpenDevices })
     setPreferences,
   } = useAppStore();
   const [name, setName] = useState(fieldName);
+  const [canAdminister, setCanAdminister] = useState(false);
+  useEffect(() => {
+    let active = true;
+    const refresh = () => void listMyDeviceMemberships().then(rows => {
+      if (active) setCanAdminister(rows.some(m => m.role === 'admin' && m.is_authorized));
+    }).catch(() => { if (active) setCanAdminister(false); });
+    refresh();
+    const timer = setInterval(refresh, 10000);
+    return () => { active = false; clearInterval(timer); };
+  }, []);
   const en = preferences.language === 'en';
 
   const applyPreferences = (next: AppPreferences, reconcilePush = false) => {
@@ -231,6 +243,9 @@ export const FieldSettingsScreen: React.FC<Props> = ({ onClose, onOpenDevices })
         <Text style={[styles.section, { color: colors.textMuted }]}>
           {en ? 'FIELD AND EQUIPMENT' : 'PREDIO Y EQUIPO'}
         </Text>
+        {canAdminister && <TouchableOpacity onPress={onOpenAdministration} style={[styles.option, { backgroundColor: colors.card }]}>
+          <Text style={[styles.optionTitle, { color: colors.primary }]}>{en ? 'Administration' : 'Administración'}</Text>
+        </TouchableOpacity>}
         <TouchableOpacity
           onPress={onOpenDevices}
           style={[styles.option, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}
@@ -242,8 +257,8 @@ export const FieldSettingsScreen: React.FC<Props> = ({ onClose, onOpenDevices })
             </Text>
             <Text style={[styles.optionMeta, { color: colors.textSecondary }]}>
               {en
-                ? 'Register a probe, view its 15-digit code and link operators'
-                : 'Registrar sonda, ver código de 15 dígitos y vincular operadores'}
+                ? 'Register probes and share a temporary access QR'
+                : 'Registrar sondas y mostrar el QR temporal de acceso'}
             </Text>
           </View>
           <Text style={{ color: colors.textMuted, fontSize: 20 }}>›</Text>

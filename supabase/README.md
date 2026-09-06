@@ -240,36 +240,42 @@ forma de auditar las políticas sin Docker ni `psql`, y se conservan como consta
 
 ### 6.1. Desfase entre el historial local y el remoto
 
-`supabase migration list --linked`, ejecutado el **5 de septiembre de 2026**, devuelve tres
+`supabase migration list --linked`, ejecutado el **6 de septiembre de 2026**, devuelve tres
 discrepancias. El resto de versiones coincide:
 
 | Versión | Local | Remoto | Qué implica |
 | :--- | :---: | :---: | :--- |
-| `20260902180000` | ausente | **aplicada** | El archivo no está en el repositorio |
-| `20260902210000` | ausente | **aplicada** | El archivo no está en el repositorio |
+| `20260902180000` | ausente | **aplicada** | Migración `*.local.sql`, excluida de git a propósito |
+| `20260902210000` | ausente | **aplicada** | Migración `*.local.sql`, excluida de git a propósito |
 | `20260904120000` | presente | **pendiente** | Escrita, sin desplegar. Ver §10.1 |
 
-**Las dos ausentes no son un agujero de esquema, sino de contabilidad.** La comprobación del
-5 de septiembre contrastó el esquema remoto real —los tipos de
-[`Web/backend/database.types.ts`](../Web/backend/database.types.ts), generados con
-`supabase gen types --linked`— contra todo lo que invoca el código:
+**Las dos ausentes no son un fallo: están fuera del repositorio a propósito.** El 6 de septiembre se
+recuperó su contenido real desde `supabase_migrations.schema_migrations`, la tabla donde Supabase
+guarda el SQL de cada migración aplicada. Se leyó **sin escribir nada en remoto**:
 
-* **16 RPCs** llamadas desde `App/src` y `Web/` → las 16 existen en remoto.
-* **8 tablas** consultadas → las 8 existen.
-* **18 columnas** de `soil_measurements` que pide la app → todas existen.
-* Los únicos objetos remotos sin rastro en las migraciones locales son `geography_columns`,
-  `geometry_columns` y `spatial_ref_sys`: tablas de sistema de PostGIS.
+```bash
+supabase db dump --linked --data-only --schema supabase_migrations -f <fuera-del-repo>.sql
+```
 
-Además, las cuatro migraciones vecinas de esa misma tanda (`170000`, `190000`, `200000`, `220000`)
-contienen **cero DDL**: son bloques `DO $$ … RAISE NOTICE` de auditoría, el mismo patrón descrito
-arriba. Todo indica que `180000` y `210000` eran del mismo tipo.
+| Versión | Nombre en remoto | Qué contiene |
+| :--- | :--- | :--- |
+| `20260902180000` | `alta_usuario_alvaro.local` | Alta directa de la cuenta de soporte en `auth.users` + `auth.identities` + `admin_support_users` |
+| `20260902210000` | `dispositivo_demo.local` | *Fixture* desechable: usuario y equipo de prueba con histórico de batería y una medición |
 
-> [!WARNING]
-> Esto explica el desfase, **no lo cierra**. Mientras los dos archivos falten, el historial local no
-> reconstruye el remoto y `db push` puede comportarse de forma inesperada. Recupéralos con
-> `supabase db pull` —que **exige Docker**, ver §9— antes de empujar nada nuevo. **No los
-> sustituyas por marcadores vacíos ni fuerces su estado con `migration repair`:** eso deja el
-> historial cuadrado en apariencia y el esquema sin reconstruir.
+Ninguna de las dos contiene DDL: son bloques `DO $$ … $$` que insertan **datos**. `.gitignore:71`
+excluye `supabase/migrations/*.local.sql`, y el encabezado de ambas lo dice explícitamente —
+*"sólo local, NUNCA se sube a git"*—: la primera porque lleva una contraseña en texto plano, la
+segunda porque es data de un solo uso.
+
+> [!NOTE]
+> **El desfase está explicado y no hay que cerrarlo.** No falta esquema —lo confirma
+> [`schema.sql`](schema.sql), §10.2— y volver a añadir esos archivos al repositorio sería
+> exactamente lo que su patrón `*.local.sql` existe para impedir. `supabase db pull` tampoco los
+> habría recuperado: compara esquemas, y aquí no hay diferencia de esquema que capturar.
+> La hipótesis anterior —que eran bloques de auditoría `RAISE NOTICE`— **era incorrecta**.
+
+Lo que sí queda abierto son dos consecuencias de haberlas aplicado, ambas en §10.5: la contraseña en
+texto plano que quedó guardada en el historial remoto, y el equipo de prueba que sigue en producción.
 
 La primera constancia de este desfase, junto con el contrato de la app que depende de él, está en
 [`APP_COMPATIBILITY_20260905.md`](APP_COMPATIBILITY_20260905.md).
@@ -322,20 +328,27 @@ supabase config push                          # configuración de auth y storage
 
 ## 9. Docker y diagnóstico sin Docker
 
-> [!IMPORTANT]
-> **Docker Desktop está en el camino crítico y hoy no lo está.** El 5 de septiembre de 2026,
-> `supabase db dump --schema public` falló con
-> `failed to inspect docker image: … open //./pipe/docker_engine: The system cannot find the file specified`,
-> es decir, Docker Desktop no estaba corriendo.
+> [!NOTE]
+> **Docker Desktop quedó instalado y operativo el 6 de septiembre de 2026** en el equipo de
+> desarrollo: versión 4.89.0, motor 29.7.2, sobre WSL 2.7.13. Con eso se desbloquearon las dos
+> tareas que antes no tenían alternativa: la exportación del esquema (§10.2, ya hecha) y la lectura
+> del historial remoto que explicó el desfase de §6.1.
 >
-> Esto bloquea dos tareas que **no tienen alternativa**:
-> * **Recuperar las dos migraciones remotas ausentes** (§6.1) con `supabase db pull`.
-> * **Exportar un esquema versionado** para poder afirmar que el backend es reproducible (§10.2).
+> Instalación reproducible, en este orden (ambos pasos piden UAC):
 >
-> Instálalo y arráncalo antes de la próxima sesión de base de datos: sin él, el desfase del
-> historial no se puede cerrar y la migración pendiente de §10.1 no debería empujarse.
+> ```powershell
+> winget install --id Docker.DockerDesktop -e --accept-package-agreements --accept-source-agreements
+> wsl --install --no-distribution        # Docker Desktop no arranca sin el backend WSL2
+> ```
+>
+> Sin el segundo paso el motor muere al arrancar con
+> `engine linux/wsl failed to start: checking WSL version: wsl is not installed`. No hace falta
+> cuenta de Docker Hub: las imágenes que usa el CLI de Supabase son públicas. El `docker` de línea
+> de comandos vive en `C:\Program Files\Docker\Docker\resources\bin`, que no entra en el `PATH`
+> de las sesiones ya abiertas.
 
-Lo que **sí** funciona sin Docker, porque el CLI habla directo con la base:
+Aun así conviene saber qué **no** necesita Docker, porque el CLI habla directo con la base y esos
+comandos siguen siendo la vía más rápida de diagnóstico:
 
 ```bash
 # Historial de migraciones: local frente a remoto
@@ -361,7 +374,9 @@ modificar nada.
 
 ## 10. Pendientes conocidos y tareas operativas
 
-> Estas tareas requieren credenciales del proyecto Supabase. **Ninguna está hecha.** Se listan aquí, y no en el plan de validación, porque es aquí donde están los comandos para ejecutarlas.
+> Estas tareas requieren credenciales del proyecto Supabase. Se listan aquí, y no en el plan de
+> validación, porque es aquí donde están los comandos para ejecutarlas. **Estado al 6 de septiembre
+> de 2026:** §10.2 hecha a medias (esquema exportado, restauración sin ensayar); el resto sin hacer.
 
 ### 10.1. Aplicar y probar la migración de mediciones sin GPS
 
@@ -376,28 +391,61 @@ modificar nada.
 
 El segundo es especialmente sensible: guardar una lectura sin cobertura GPS es justo lo que el Informe 1 promete, y hoy la base la rechaza.
 
-**Orden correcto, no negociable:**
+Ambos fallos **siguen activos el 6 de septiembre de 2026**, verificados contra
+[`schema.sql`](schema.sql) recién exportado del remoto: `latitude` y `longitude` siguen declaradas
+`NOT NULL` en `soil_measurements`, el único índice sobre `client_uuid` sigue siendo
+`idx_soil_measurements_client_uuid … WHERE (client_uuid IS NOT NULL)`, y la restricción
+`soil_measurements_coordinates_pair` no existe en remoto.
 
-1. **Arrancar Docker Desktop** y recuperar las dos migraciones remotas ausentes (§6.1 y §9). Empujar sobre un historial descuadrado es lo que hay que evitar.
-2. Probar en staging, no directo en producción.
+Volver `latitude`/`longitude` nulas es seguro para `geom`, que es
+`GENERATED ALWAYS AS st_setsrid(st_makepoint(longitude, latitude), 4326) STORED` y **no** es
+`NOT NULL`: sin coordenadas queda nulo en vez de fallar.
+
+**Orden correcto:**
+
+1. ~~Arrancar Docker y recuperar las dos migraciones remotas ausentes~~ — **resuelto el 6-sep**.
+   Docker está operativo (§9) y el desfase quedó explicado: las dos ausentes son `*.local.sql`
+   intencionales, sin DDL (§6.1). No hay historial que recuperar antes de empujar.
+2. **Comprobar qué arrastra el `push`.** `db push` no sabe aplicar una sola migración: aplica todas
+   las locales que falten en el historial remoto. El 6-sep el árbol de trabajo tenía además
+   `20260906120000_dos_roles_y_aprobacion.sql` y `20260906130000_qr_temporal_y_solicitudes.sql`, en
+   desarrollo; un `db push` se las habría llevado a producción junto con ésta. Si hay migraciones a
+   medio escribir, sácalas de `supabase/migrations/` mientras dura el `push` y devuélvelas después.
 3. Aplicar y verificar.
 
 ```bash
-supabase migration list --linked             # 0. confirmar el desfase de §6.1
-supabase db pull                             # 1. recuperar lo ausente (requiere Docker)
-supabase db push --linked                    # 2. aplicar en staging primero
-supabase inspect db table-stats --linked     # 3. contrastar con las tablas descritas arriba
+supabase migration list --linked          # 0. confirmar qué está pendiente ahora mismo
+supabase db push --linked --dry-run       # 1. imprime lo que aplicaría, sin aplicarlo
+supabase db push --linked                 # 2. aplicar
+supabase inspect db table-stats --linked  # 3. contrastar con las tablas descritas arriba
 ```
+
+> [!WARNING]
+> **No hay proyecto de *staging*.** `--linked` apunta a `terrasense`, que es producción. El ensayo
+> previo en un proyecto desechable sigue sin hacerse; mientras no exista, cada `db push` es un
+> cambio en vivo.
+
+El `CREATE UNIQUE INDEX` sobre `client_uuid` no puede chocar con datos históricos: el índice parcial
+actual ya impide duplicados no nulos, y en un índice único normal los `NULL` son distintos entre sí.
+El `CHECK` se crea `NOT VALID`, así que tampoco escanea las filas existentes.
 
 Después de aplicarla hay que **auditar los registros históricos** y validar la restricción por separado (se crea `NOT VALID` a propósito), y comprobar que el upsert de la app resuelve contra el índice nuevo y no contra el parcial antiguo. Conviene además regenerar `Web/backend/database.types.ts` (`supabase gen types typescript --linked`), porque hoy declara `latitude: number` no nulo y quedará desactualizado.
 
 ### 10.2. Esquema reproducible desde cero
 
-Las migraciones baseline (`20260825000000`, `20260825020000`) son **marcadores**: no reconstruyen el esquema original. Hasta exportar un esquema versionado y probar una restauración limpia, **no puede afirmarse que el backend sea reproducible**.
+Las migraciones baseline (`20260825000000`, `20260825020000`) son **marcadores** en el repositorio:
+no reconstruyen el esquema original.
+
+**Exportado el 6 de septiembre de 2026** a [`schema.sql`](schema.sql) —2 425 líneas, 96 objetos
+`CREATE`, solo esquema `public`, sin datos ni secretos:
 
 ```bash
 supabase db dump --linked -f supabase/schema.sql --schema public
 ```
+
+Con eso ya existe un esquema versionado. **Falta todavía la otra mitad**: restaurarlo en un proyecto
+limpio y comprobar que reconstruye la base. Hasta ese ensayo no puede afirmarse que el backend sea
+reproducible.
 
 ### 10.3. Ensayo de recuperación del respaldo
 
@@ -407,14 +455,30 @@ Existe un *workflow* que genera un respaldo lógico privado con retención de si
 
 No se ha auditado. Lo verificado es que el código local compila y pasa sus pruebas; **producción no se revisó**: ni configuración SMTP efectiva, ni políticas RLS activas, ni límites de tasa, ni el estado real de las Edge Functions.
 
-Lo único comprobado contra remoto, el 5 de septiembre de 2026, es **la existencia de los objetos que el código invoca** (§6.1): 16 RPCs, 8 tablas y las 18 columnas de `soil_measurements` que consulta la app. Eso confirma que las llamadas resuelven; **no** dice nada sobre si las políticas RLS se comportan como se documenta, que sigue siendo una auditoría pendiente y distinta.
+Lo comprobado contra remoto, el 5 y el 6 de septiembre de 2026, es **la existencia de los objetos que el código invoca**, y desde el 6-sep el esquema `public` completo está exportado en [`schema.sql`](schema.sql) (§10.2): 16 RPCs, 8 tablas y las 18 columnas de `soil_measurements` que consulta la app. Eso confirma que las llamadas resuelven; **no** dice nada sobre si las políticas RLS se comportan como se documenta, que sigue siendo una auditoría pendiente y distinta.
 
 ### 10.5. Otros pendientes
 
 
-- **Docker Desktop**: no está operativo en el equipo de desarrollo (comprobado el 5-sep-2026).
-  Bloquea `db dump` y `db pull`, y con ellos la recuperación del historial (§6.1) y el esquema
-  reproducible (§10.2). Instalación en §11.
+- ⚠️ **Contraseña en texto plano en el historial remoto.** La migración `20260902180000`
+  (`alta_usuario_alvaro.local`, §6.1) creó la cuenta de soporte con la contraseña escrita literal en
+  el SQL. Supabase guarda el cuerpo de cada migración en `supabase_migrations.schema_migrations`, así
+  que esa contraseña **sigue legible en producción** para cualquiera con acceso a la base: se leyó
+  tal cual el 6-sep-2026 durante el diagnóstico de §6.1. Dos acciones, en este orden: cambiar la
+  contraseña de esa cuenta, y sólo después limpiar la columna `statements` de esa fila. El patrón a
+  evitar en adelante es crear cuentas desde SQL con la contraseña incrustada, aunque el archivo esté
+  en `.gitignore`: el archivo no se sube, pero su contenido viaja igual al historial remoto.
+- ⚠️ **Datos de prueba en producción.** La migración `20260902210000` (`dispositivo_demo.local`,
+  §6.1) sembró un usuario `demo.agricultor@terrasense.cl` y un equipo `🧪 Sonda DEMO` con histórico
+  de batería y una medición en la Región de O'Higgins. Su propio encabezado pide borrarlo al terminar
+  las pruebas. **Comprobado el 6-sep-2026: sigue en producción** —`device_id`
+  `fd3668be-f527-4766-8d50-f6eb8f938d05`, `device_code` `465719423880094`, `is_active = true`— con
+  4 filas en `device_status_log`, 1 en `device_members` y 1 en `soil_measurements`. Y ahí está el
+  problema de fondo: esa **es la única fila de `soil_measurements` de toda la base**. De 3 equipos
+  registrados, uno es este. Cualquier cifra de uso que se cite hoy está midiendo el *fixture*, no el
+  producto. Eliminarlo en cascada por su `device_id` cuando ya no haga falta para probar el panel.
+- **Ensayo de restauración del esquema exportado** (§10.2): `schema.sql` ya existe, falta probarlo
+  en un proyecto limpio.
 - **SMTP propio**, para activar las plantillas de correo (§7).
 - **Firmware físico y publicación OTA**: el catálogo `firmware_releases`, su RPC de consulta y la
   vista web existen; falta publicar un binario validado contra hardware real.
@@ -470,20 +534,32 @@ supabase --version    # 2.90 o superior
 > **No instales el CLI con `npm install -g supabase`.** No está soportado y da errores confusos al
 > desplegar funciones.
 
-### 11.2. Docker Desktop — opcional
+### 11.2. Docker Desktop
 
-Sólo hace falta para desarrollo **local** (`supabase start`, `db dump`, `db pull`). Todo lo de este
-proyecto se hizo contra el proyecto remoto **sin Docker**.
+Hace falta para desarrollo **local** (`supabase start`) y para `db dump` / `db pull`, que ejecutan
+`pg_dump` dentro de un contenedor. **Instalado y verificado en el equipo de desarrollo el 6 de
+septiembre de 2026**: Docker Desktop 4.89.0, motor 29.7.2, backend WSL 2.7.13.
+
+En Windows son **dos pasos**, y ambos piden UAC:
 
 ```powershell
-winget install Docker.DockerDesktop     # Windows
+winget install --id Docker.DockerDesktop -e --accept-package-agreements --accept-source-agreements
+wsl --install --no-distribution         # sin el backend WSL2, el motor no arranca
 ```
 ```bash
 brew install --cask docker              # macOS
 ```
 
-Si lo instalas en Windows, **debe estar en ejecución** antes de usar el CLI: no basta con tenerlo
-instalado.
+Detalles que cuestan tiempo si no se saben:
+
+* **No hace falta cuenta de Docker Hub.** Las imágenes que baja el CLI de Supabase son públicas; el
+  diálogo de inicio de sesión se puede cerrar.
+* Sin `wsl --install`, Docker Desktop arranca y se cierra solo con
+  `engine linux/wsl failed to start: checking WSL version: wsl is not installed` en
+  `%LOCALAPPDATA%\Docker\log\host\com.docker.backend.exe.log`.
+* El ejecutable `docker` queda en `C:\Program Files\Docker\Docker\resources\bin`, que **no**
+  entra en el `PATH` de las terminales ya abiertas: hay que abrir una nueva o añadirlo a mano.
+* **Debe estar en ejecución** antes de usar el CLI: no basta con tenerlo instalado.
 
 ### 11.3. Cliente PostgreSQL — opcional pero recomendable
 
@@ -540,8 +616,9 @@ curl -s -o /dev/null -w "%{http_code}\n" \
 
 | Herramienta | Versión | ¿Obligatoria? |
 | :--- | :--- | :--- |
-| Supabase CLI | 2.90+ | Sí |
+| Supabase CLI | 2.90+ (instalada: 2.101.0) | Sí |
 | Git | 2.40+ | Sí |
-| Docker Desktop | última | No — sólo desarrollo local |
+| Docker Desktop | 4.89.0, motor 29.7.2 | Sí para `db dump` / `db pull` / `supabase start` |
+| WSL2 (Windows) | 2.7.13 | Sí — es el backend de Docker Desktop |
 | `psql` | 15+ | No — recomendable |
 | Deno | 1.40+ | No — sólo para editar funciones |

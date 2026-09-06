@@ -84,9 +84,11 @@ export interface SoilMeasurementRow {
   potassium: number;
   soil_texture: string;
 
-  // Ambiente (BME280)
+  // Ambiente (BME280). Nunca de la API del clima: esa complementa la recomendación,
+  // no la medición. NULL cuando el sensor no entregó dato.
   canopy_temp_c: number | null;
   canopy_humidity_pct: number | null;
+  air_pressure_hpa: number | null;
   vpd_kpa: number | null;
 
   verdict: Verdict;
@@ -127,7 +129,7 @@ export interface DeviceRow {
 
 export interface DeviceMembershipRow {
   device_id: string;
-  role: 'owner' | 'admin' | 'operator' | string;
+  role: 'admin' | 'user';
   is_authorized: boolean;
 }
 
@@ -135,7 +137,7 @@ export interface ManagedDeviceMember {
   user_id: string;
   full_name: string;
   email: string;
-  role: 'owner' | 'admin' | 'operator';
+  role: 'admin' | 'user';
   is_authorized: boolean;
 }
 

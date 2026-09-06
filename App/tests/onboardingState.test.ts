@@ -5,7 +5,7 @@ import { deriveOnboardingState } from '../src/utils/onboardingState';
 import type { DeviceMembershipRow, DeviceRow } from '../src/types/app';
 
 const device = { id: 'device-1' } as DeviceRow;
-const membership = (role: string): DeviceMembershipRow => ({
+const membership = (role: DeviceMembershipRow['role']): DeviceMembershipRow => ({
   device_id: device.id,
   role,
   is_authorized: true,
@@ -19,16 +19,16 @@ test('una cuenta nueva sin membresía debe ver onboarding', () => {
   });
 });
 
-test('una membresía de operador migra y salta onboarding por la ruta QR', () => {
-  assert.deepEqual(deriveOnboardingState(null, [device], [membership('operator')]), {
+test('una membresía de usuario migra y salta onboarding por la ruta QR', () => {
+  assert.deepEqual(deriveOnboardingState(null, [device], [membership('user')]), {
     completed: true,
     method: 'qr',
     needsProfileRepair: true,
   });
 });
 
-test('una membresía owner migra y se identifica como pairing', () => {
-  assert.deepEqual(deriveOnboardingState(null, [device], [membership('owner')]), {
+test('una membresía admin migra y se identifica como pairing', () => {
+  assert.deepEqual(deriveOnboardingState(null, [device], [membership('admin')]), {
     completed: true,
     method: 'pairing',
     needsProfileRepair: true,
@@ -48,7 +48,7 @@ test('una cuenta completa conserva el método persistido y no repara', () => {
     onboarding_completed_at: '2026-08-30T10:00:00.000Z',
     onboarding_method: 'qr' as const,
   };
-  assert.deepEqual(deriveOnboardingState(profile, [device], [membership('operator')]), {
+  assert.deepEqual(deriveOnboardingState(profile, [device], [membership('user')]), {
     completed: true,
     method: 'qr',
     needsProfileRepair: false,

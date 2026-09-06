@@ -16,6 +16,7 @@ import { useAppTheme } from '../hooks/useAppTheme';
 import { useAppStore } from '../store/useAppStore';
 import { evaluateForStage, type StageAwareEvaluation } from '../engine/stageEvaluator';
 import { buildContextualAdvice, type ContextualAdvice } from '../engine/contextualAdvice';
+import { computeVpdKpa } from '../engine/agronomyEngine';
 import { readSoilProbe, verifySoilProbe } from '../services/probeService';
 import { fetchCurrentWeather, type CurrentWeather } from '../services/weatherService';
 import { newClientUuid, saveMeasurement } from '../services/measurementsService';
@@ -202,9 +203,13 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       phosphorus: raw.phosphorus,
       potassium: raw.potassium,
       soil_texture: textureId,
-      canopy_temp_c: weather?.temperatureC ?? null,
-      canopy_humidity_pct: null,
-      vpd_kpa: null,
+      // Ambiente del BME280 del equipo, no de la API del clima: esa da pronóstico de
+      // días para complementar la recomendación, no una medición de este punto y este
+      // instante. Si el sensor no entregó dato, va NULL y no se rellena con nada.
+      canopy_temp_c: raw.airTemp,
+      canopy_humidity_pct: raw.airHumidity,
+      air_pressure_hpa: raw.airPressure,
+      vpd_kpa: computeVpdKpa(raw.airTemp, raw.airHumidity),
       verdict: evaluation.verdict,
       verdict_title: evaluation.verdictTitle,
       action_summary: advice?.summary ?? evaluation.actionSummary,

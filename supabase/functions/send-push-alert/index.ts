@@ -89,7 +89,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   // Sólo alertas no leídas: `is_read` hace de marca de despacho.
   let query = supabase
     .from('push_alerts')
-    .select('id,title,body,severity,category,user_id,device_id')
+    .select('id,title,body,severity,category,user_id,device_id,event_type,requester_user_id')
     .eq('is_read', false)
     .order('created_at', { ascending: true })
     .limit(Math.min(payload.limit ?? 50, 100));
@@ -110,7 +110,17 @@ Deno.serve(async (req: Request): Promise<Response> => {
   for (const alert of alerts) {
     const userIds: string[] = [];
 
-    if (alert.user_id) {
+    if (alert.event_type === 'access_request' && alert.device_id) {
+      const { data: pending, error: pendingError } = await supabase.from('device_members')
+        .select('user_id').eq('device_id', alert.device_id)
+        .eq('user_id', alert.requester_user_id).eq('is_authorized', false).maybeSingle();
+      if (pendingError) continue;
+      if (!pending) { skippedByPreference.push(alert.id); continue; }
+      // La administración pudo delegarse desde que se creó la solicitud.
+      const { data: admins } = await supabase.from('device_members').select('user_id')
+        .eq('device_id', alert.device_id).eq('role', 'admin').eq('is_authorized', true);
+      for (const admin of admins ?? []) userIds.push(admin.user_id);
+    } else if (alert.user_id) {
       userIds.push(alert.user_id);
     } else if (alert.device_id) {
       const { data: members } = await supabase
@@ -147,7 +157,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
         body: alert.body,
         sound: 'default',
         priority: alert.severity === 'critical' ? 'high' : 'normal',
-        data: { alert_id: alert.id, category: alert.category, device_id: alert.device_id },
+        data: { alert_id: alert.id, category: alert.category, device_id: alert.device_id, event_type: alert.event_type },
         channelId: category,
       });
     }
@@ -175,6 +185,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   // Expo acepta lotes de hasta 100 mensajes por petición.
   let sent = 0;
   const failures: string[] = [];
+  const acceptedByAlert = new Map<string, number>();
 
   for (let i = 0; i < messages.length; i += 100) {
     const batch = messages.slice(i, i + 100);
@@ -184,8 +195,17 @@ Deno.serve(async (req: Request): Promise<Response> => {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(batch),
       });
-      if (res.ok) sent += batch.length;
-      else failures.push(`HTTP ${res.status}`);
+      if (res.ok) {
+        const response = await res.json();
+        const tickets = Array.isArray(response.data) ? response.data : [];
+        batch.forEach((message, index) => {
+          if (tickets[index]?.status === 'ok') {
+            sent += 1;
+            const id = String(message.data.alert_id);
+            acceptedByAlert.set(id, (acceptedByAlert.get(id) ?? 0) + 1);
+          } else failures.push('Expo no aceptó una notificación; la alerta queda pendiente.');
+        });
+      } else failures.push(`HTTP ${res.status}`);
     } catch (e) {
       failures.push(e instanceof Error ? e.message : String(e));
     }
@@ -193,8 +213,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   // Sólo se marcan como despachadas si algo llegó a salir. Marcarlas siempre
   // haría que un fallo de Expo silenciara la alerta para siempre.
-  if (sent > 0 && dispatched.length > 0) {
-    await supabase.from('push_alerts').update({ is_read: true }).in('id', dispatched);
+  const completed = dispatched.filter(id => acceptedByAlert.get(id) === messages.filter(m => m.data.alert_id === id).length);
+  const resolved = [...completed, ...skippedByPreference];
+  if (resolved.length > 0) {
+    await supabase.from('push_alerts').update({ is_read: true }).in('id', resolved);
   }
 
   return json({

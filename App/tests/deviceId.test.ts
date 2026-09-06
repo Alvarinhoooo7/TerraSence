@@ -10,6 +10,7 @@ import {
 } from '../src/utils/deviceCode';
 
 const CODE = '482139057416628';
+const TOKEN = 'a54aadab-0505-4bda-8c8c-b606072ac342';
 
 test('normaliza y presenta el Device ID canónico', () => {
   assert.equal(normalizeDeviceId('48213-90574-16628'), CODE);
@@ -20,20 +21,24 @@ test('normaliza y presenta el Device ID canónico', () => {
 });
 
 test('el QR canónico hace round-trip', () => {
-  const payload = buildDeviceQrPayload(CODE);
-  assert.equal(payload, `terrasense://join?code=${CODE}`);
-  assert.equal(parseDeviceQrPayload(payload), CODE);
+  const payload = buildDeviceQrPayload(TOKEN);
+  assert.equal(payload, `terrasense://join?token=${TOKEN}`);
+  assert.equal(parseDeviceQrPayload(payload), TOKEN);
 });
 
-test('acepta códigos legados crudos o con guiones', () => {
-  assert.equal(parseDeviceQrPayload(CODE), CODE);
-  assert.equal(parseDeviceQrPayload('48213-90574-16628'), CODE);
+test('rechaza IDs permanentes que permitirían saltar el QR temporal', () => {
+  assert.equal(parseDeviceQrPayload(CODE), null);
+  assert.equal(parseDeviceQrPayload('48213-90574-16628'), null);
+  assert.equal(parseDeviceQrPayload(`terrasense://join?code=${CODE}`), null);
+  assert.equal(parseDeviceQrPayload(`terrasense://join?token=${CODE}`), null);
 });
 
 test('rechaza URLs ajenas aunque contengan un código válido', () => {
   assert.equal(parseDeviceQrPayload(`https://example.com/?code=${CODE}`), null);
   assert.equal(parseDeviceQrPayload(`otherapp://join?code=${CODE}`), null);
   assert.equal(parseDeviceQrPayload(`terrasense://other?code=${CODE}`), null);
+  assert.equal(parseDeviceQrPayload(`https://example.com/?token=${TOKEN}`), null);
+  assert.equal(parseDeviceQrPayload(`terrasense://join?token=${TOKEN.slice(1)}`), null);
 });
 
 test('rechaza códigos ambiguos, truncados o con dígito inicial cero', () => {

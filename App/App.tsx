@@ -11,6 +11,7 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
 
 import { useAuthStore } from './src/store/useAuthStore';
 import { OfflineBanner } from './src/components/OfflineBanner';
@@ -20,6 +21,8 @@ import { AuthScreen } from './src/screens/AuthScreen';
 import { MapScreen } from './src/screens/MapScreen';
 import { MeasureScreen } from './src/screens/MeasureScreen';
 import { FieldSettingsScreen } from './src/screens/FieldSettingsScreen';
+import { AdministrationScreen } from './src/screens/AdministrationScreen';
+import { WaitingApprovalScreen } from './src/screens/WaitingApprovalScreen';
 import { DevicesScreen } from './src/screens/DevicesScreen';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { HistoryScreen } from './src/screens/HistoryScreen';
@@ -39,7 +42,7 @@ import { WelcomeCarouselScreen } from './src/screens/WelcomeCarouselScreen';
 import { DashboardScreen } from './src/screens/DashboardScreen';
 import { BottomNavigation } from './src/components/BottomNavigation';
 
-type Route = 'dashboard' | 'map' | 'measure' | 'settings' | 'devices' | 'history' | 'perimeter';
+type Route = 'dashboard' | 'map' | 'measure' | 'settings' | 'devices' | 'history' | 'perimeter' | 'administration';
 const WELCOME_KEY = '@terrasense/welcome-complete-v1';
 
 export default function App() {
@@ -53,9 +56,31 @@ export default function App() {
   const [recovering, setRecovering] = useState(false);
   const [checkingOnboarding, setCheckingOnboarding] = useState(false);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
+  const [awaitingDeviceApproval, setAwaitingDeviceApproval] = useState(false);
   const [onboardingError, setOnboardingError] = useState<string | null>(null);
   const [onboardingRetry, setOnboardingRetry] = useState(0);
   const [route, setRoute] = useState<Route>('dashboard');
+  const [notificationDeviceId, setNotificationDeviceId] = useState<string | null>(null);
+  const [openAdminNotification, setOpenAdminNotification] = useState(false);
+  useEffect(() => {
+    const openRequest = (response: Notifications.NotificationResponse | null) => {
+      const data = response?.notification.request.content.data;
+      if (data?.event_type === 'access_request') {
+        setNotificationDeviceId(typeof data.device_id === 'string' ? data.device_id : null);
+        setOpenAdminNotification(true);
+        void Notifications.clearLastNotificationResponseAsync();
+      }
+    };
+    void Notifications.getLastNotificationResponseAsync().then(openRequest).catch(() => undefined);
+    const listener = Notifications.addNotificationResponseReceivedListener(openRequest);
+    return () => listener.remove();
+  }, []);
+  useEffect(() => {
+    if (session && onboardingComplete && openAdminNotification) {
+      setRoute('administration');
+      setOpenAdminNotification(false);
+    }
+  }, [session, onboardingComplete, openAdminNotification]);
   const [detailPoint, setDetailPoint] = useState<MapMeasurementPoint | null>(null);
   const setDevice = useAppStore((state) => state.setDevice);
   const setPreferences = useAppStore((state) => state.setPreferences);
@@ -112,6 +137,7 @@ export default function App() {
     if (!session) {
       setCheckingOnboarding(false);
       setOnboardingComplete(false);
+      setAwaitingDeviceApproval(false);
       setOnboardingError(null);
       setDevice(null);
       useAppStore.getState().setPoints([]);
@@ -134,6 +160,7 @@ export default function App() {
         setPreferencesLoaded(true);
         if (state.devices[0]) setDevice(state.devices[0]);
         setOnboardingComplete(state.completed);
+        setAwaitingDeviceApproval(state.hasPendingRequests ?? false);
       })
       .catch((error) => {
         if (!active) return;
@@ -241,6 +268,10 @@ export default function App() {
         )}
       </View>
     );
+  } else if (awaitingDeviceApproval) {
+    content = <WaitingApprovalScreen onApproved={device => {
+      setDevice(device); setOnboardingComplete(true); setAwaitingDeviceApproval(false); setRoute('dashboard');
+    }} onDismiss={() => { setAwaitingDeviceApproval(false); setOnboardingRetry(value => value + 1); }} />;
   } else if (!onboardingComplete) {
     content = (
       <OnboardingScreen
@@ -252,7 +283,9 @@ export default function App() {
       />
     );
   } else if (route === 'settings') {
-    content = <FieldSettingsScreen onClose={() => setRoute('dashboard')} onOpenDevices={() => setRoute('devices')} />;
+    content = <FieldSettingsScreen onClose={() => setRoute('dashboard')} onOpenDevices={() => setRoute('devices')} onOpenAdministration={() => setRoute('administration')} />;
+  } else if (route === 'administration') {
+    content = <AdministrationScreen initialDeviceId={notificationDeviceId} onClose={() => { setNotificationDeviceId(null); setRoute('settings'); }} />;
   } else if (route === 'history') {
     content = (
       <HistoryScreen onClose={() => setRoute('dashboard')} onOpenDetail={handleOpenDetail} />
@@ -294,7 +327,7 @@ export default function App() {
         <StatusBar style={isDark ? 'light' : 'dark'} />
         <OfflineBanner />
         {content}
-        {session && onboardingComplete && !checkingOnboarding && !onboardingError && !recovering && welcomeComplete && !checking && ['dashboard', 'history', 'map', 'settings'].includes(route) && (
+        {session && onboardingComplete && !awaitingDeviceApproval && !checkingOnboarding && !onboardingError && !recovering && welcomeComplete && !checking && ['dashboard', 'history', 'map', 'settings'].includes(route) && (
           <BottomNavigation route={route} onNavigate={setRoute} />
         )}
         <MeasurementDetailModal point={detailPoint} onClose={() => setDetailPoint(null)} />

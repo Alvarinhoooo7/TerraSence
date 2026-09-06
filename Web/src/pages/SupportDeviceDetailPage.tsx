@@ -54,6 +54,7 @@ export function SupportDeviceDetailPage() {
   // Confirmaciones y avisos en pantalla (nada de alert()/confirm(): bloquean
   // el hilo del navegador y no dejan rastro de lo ocurrido).
   const [feedback, setFeedback] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
+  const [pendingTransfer, setPendingTransfer] = useState<string | null>(null);
   const [pendingRemoval, setPendingRemoval] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -438,36 +439,37 @@ export function SupportDeviceDetailPage() {
               </thead>
               <tbody className="divide-y divide-terra-border/30">
                 {members.map((m) => {
-                  const isAdmin = m.role === 'owner' || m.role === 'admin';
+                  const isAdmin = m.role === 'admin';
                   return (
                     <tr key={m.user_id} className="hover:bg-terra-surface/40 transition-colors">
                       <td className="px-6 py-4 text-left font-bold text-terra-text">{m.full_name}</td>
                       <td className="px-6 py-4 text-terra-muted">{m.email}</td>
                       <td className="px-6 py-4">
-                        <select
-                          value={m.role}
-                          onChange={(e) => void handleRoleChange(m.user_id, e.target.value as DeviceMemberRole)}
-                          className={`bg-terra-surface border rounded-lg px-2 py-1.5 text-xs font-bold outline-none focus:border-terra-primary transition-colors ${isAdmin ? 'border-terra-primary/40 text-terra-primary' : 'border-terra-border text-terra-muted'}`}
-                          title="Asignar dueño traspasa la propiedad: el dueño anterior pasa a admin"
-                        >
-                          <option value="owner">Dueño</option>
-                          <option value="admin">Admin</option>
-                          <option value="operator">Operador</option>
-                        </select>
+                        <span>{isAdmin ? 'Administrador' : 'Usuario'}</span>
+                        {!isAdmin && m.is_authorized && <button
+                          onClick={() => setPendingTransfer(m.user_id)}
+                          className="ml-2 text-terra-primary text-xs font-bold"
+                        >Delegar administración</button>}
+                        {pendingTransfer === m.user_id && <div className="mt-2 text-xs">
+                          <p>El administrador actual pasará a ser usuario.</p>
+                          <button onClick={() => { setPendingTransfer(null); void handleRoleChange(m.user_id, 'admin'); }} className="mr-3 text-terra-primary">Confirmar</button>
+                          <button onClick={() => setPendingTransfer(null)}>Cancelar</button>
+                        </div>}
                       </td>
                       <td className="px-6 py-4 font-bold text-xs">
                         {m.is_authorized ? (
                           <span className="text-terra-primary uppercase">Autorizado</span>
                         ) : (
-                          <span className="text-verdict-amber uppercase">Suspendido</span>
+                          <span className="text-verdict-amber uppercase">Pendiente de aprobación</span>
                         )}
                       </td>
                       <td className="px-6 py-4">
                         <button
-                          onClick={() => handleAuthChange(m.user_id, !m.is_authorized)}
+                          disabled={m.is_authorized}
+                          onClick={() => handleAuthChange(m.user_id, true)}
                           className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${m.is_authorized ? 'bg-verdict-amber/10 text-verdict-amber hover:bg-verdict-amber/20' : 'bg-terra-primary/10 text-terra-primary hover:bg-terra-primary/20'}`}
                         >
-                          {m.is_authorized ? 'Suspender' : 'Autorizar'}
+                          {m.is_authorized ? 'Aprobado' : 'Aprobar'}
                         </button>
                       </td>
                       <td className="px-6 py-4">
@@ -488,9 +490,10 @@ export function SupportDeviceDetailPage() {
                           </div>
                         ) : (
                           <button
+                            disabled={isAdmin || members.length <= 1}
                             onClick={() => setPendingRemoval(m.user_id)}
                             className="p-2 rounded-full text-terra-muted hover:text-verdict-red hover:bg-verdict-red/10 transition-colors mx-auto block"
-                            title="Desvincular del equipo"
+                            title={isAdmin ? "Delega la administración antes de eliminar este usuario" : members.length <= 1 ? "Debe quedar al menos un usuario" : "Eliminar usuario del equipo"}
                           >
                             <Trash2 size={16} />
                           </button>

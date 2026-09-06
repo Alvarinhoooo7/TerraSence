@@ -649,14 +649,16 @@ El proyecto resulta altamente rentable en el escenario base, generando un retorn
 
 | Función del Circuito | Pin ESP32 | Conexión / Periférico Asociado |
 |:---|:---:|:---|
-| **RS-485 UART2 RX** | GPIO 16 | Pin RO del transceptor SP3485 |
-| **RS-485 UART2 TX** | GPIO 17 | Pin DI del transceptor SP3485 |
-| **Control Transmisión RS-485 (DE/RE)**| GPIO 18 | Habilitación de driver/receptor SP3485 |
-| **Power Gating (Corte Sonda + Step-Up)**| GPIO 4 | Compuerta (Gate) de transistor MOSFET P-Channel |
+| **RS-485 UART2 RX** | GPIO 16 | Pin RO (Pin 1) del transceptor SP3485 |
+| **RS-485 UART2 TX** | GPIO 17 | Pin DI (Pin 4) del transceptor SP3485 |
+| **Control Dirección RS-485 (RE/DE)** | GPIO 4 | Pines 2 y 3 (RE/DE) del SP3485 (1=Tx, 0=Rx) |
+| **Power Gating (Corte Sonda + Step-Up)** | GPIO 5 | Compuerta (Gate) del MOSFET (1=On, 0=Off) |
 | **I²C SDA (Sensor BME280)** | GPIO 21 | Línea de datos bidireccional I²C |
 | **I²C SCL (Sensor BME280)** | GPIO 22 | Línea de reloj serie I²C |
-| **Pulsador de Emparejamiento / Despertar**| GPIO 0 / 34 | Pulsador frontal con resistencia de pull-up |
-| **LED Indicador de Estado (STATUS)** | GPIO 2 | Diodo LED bicolor (azul = BLE / blanco = listo) |
+| **Monitoreo de Batería (ADC1)** | GPIO 34 | Divisor de tensión 100 kΩ / 100 kΩ a VBAT |
+| **Pulsador de Muestreo / Despertar** | GPIO 0 | Pulsador frontal a masa con pull-up |
+| **LED Indicador de Medición / Batería** | GPIO 2 | Micro-LED verde de estado |
+| **LED Indicador de Enlace BLE** | GPIO 15 | Micro-LED azul de conexión inalámbrica |
 
 ###### **Tabla 3.4 “Mapeo de Pines y Conexiones del Hardware”**
 

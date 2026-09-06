@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -83,6 +83,32 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      device_access_invites: {
+        Row: {
+          device_id: string
+          expires_at: string
+          token: string
+        }
+        Insert: {
+          device_id: string
+          expires_at: string
+          token?: string
+        }
+        Update: {
+          device_id?: string
+          expires_at?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_access_invites_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: true
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       device_join_attempts: {
         Row: {
@@ -540,8 +566,10 @@ export type Database = {
           category: string
           created_at: string | null
           device_id: string | null
+          event_type: string | null
           id: string
           is_read: boolean
+          requester_user_id: string | null
           severity: string
           title: string
           user_id: string | null
@@ -551,8 +579,10 @@ export type Database = {
           category: string
           created_at?: string | null
           device_id?: string | null
+          event_type?: string | null
           id?: string
           is_read?: boolean
+          requester_user_id?: string | null
           severity?: string
           title: string
           user_id?: string | null
@@ -562,8 +592,10 @@ export type Database = {
           category?: string
           created_at?: string | null
           device_id?: string | null
+          event_type?: string | null
           id?: string
           is_read?: boolean
+          requester_user_id?: string | null
           severity?: string
           title?: string
           user_id?: string | null
@@ -588,6 +620,7 @@ export type Database = {
       soil_measurements: {
         Row: {
           action_summary: string | null
+          air_pressure_hpa: number | null
           canopy_humidity_pct: number | null
           canopy_temp_c: number | null
           client_uuid: string | null
@@ -602,8 +635,8 @@ export type Database = {
           geom: unknown
           gps_accuracy_m: number | null
           id: string
-          latitude: number
-          longitude: number
+          latitude: number | null
+          longitude: number | null
           measured_at: string | null
           nitrogen: number
           ph: number
@@ -622,6 +655,7 @@ export type Database = {
         }
         Insert: {
           action_summary?: string | null
+          air_pressure_hpa?: number | null
           canopy_humidity_pct?: number | null
           canopy_temp_c?: number | null
           client_uuid?: string | null
@@ -636,8 +670,8 @@ export type Database = {
           geom?: unknown
           gps_accuracy_m?: number | null
           id?: string
-          latitude: number
-          longitude: number
+          latitude?: number | null
+          longitude?: number | null
           measured_at?: string | null
           nitrogen?: number
           ph: number
@@ -656,6 +690,7 @@ export type Database = {
         }
         Update: {
           action_summary?: string | null
+          air_pressure_hpa?: number | null
           canopy_humidity_pct?: number | null
           canopy_temp_c?: number | null
           client_uuid?: string | null
@@ -670,8 +705,8 @@ export type Database = {
           geom?: unknown
           gps_accuracy_m?: number | null
           id?: string
-          latitude?: number
-          longitude?: number
+          latitude?: number | null
+          longitude?: number | null
           measured_at?: string | null
           nitrogen?: number
           ph?: number
@@ -971,6 +1006,10 @@ export type Database = {
         Args: { p_device_id: string; p_user_id: string }
         Returns: Json
       }
+      change_device_membership: {
+        Args: { p_action: string; p_device_id: string; p_user_id: string }
+        Returns: undefined
+      }
       check_firmware_update: {
         Args: { p_device_id: string }
         Returns: {
@@ -1116,6 +1155,13 @@ export type Database = {
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
       get_admin_dashboard_full_data: { Args: never; Returns: Json }
+      get_device_access_qr: {
+        Args: { p_device_id: string }
+        Returns: {
+          expires_at: string
+          token: string
+        }[]
+      }
       gettransactionid: { Args: never; Returns: unknown }
       has_device_access: { Args: { p_device_id: string }; Returns: boolean }
       has_device_admin_access: {
@@ -1128,6 +1174,18 @@ export type Database = {
         Returns: {
           device_id: string
           device_name: string
+          is_authorized: boolean
+          role: string
+        }[]
+      }
+      join_device_by_invite: {
+        Args: { p_token: string }
+        Returns: {
+          alert_id: string
+          device_id: string
+          device_name: string
+          is_authorized: boolean
+          role: string
         }[]
       }
       list_device_members: {
@@ -1138,6 +1196,14 @@ export type Database = {
           is_authorized: boolean
           role: string
           user_id: string
+        }[]
+      }
+      list_my_pending_device_requests: {
+        Args: never
+        Returns: {
+          administrator_email: string
+          administrator_name: string
+          device_id: string
         }[]
       }
       longtransactionsenabled: { Args: never; Returns: boolean }

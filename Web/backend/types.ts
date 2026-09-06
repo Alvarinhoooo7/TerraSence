@@ -6,7 +6,7 @@
 // Reflejan exactamente lo que devuelven las funciones RPC de
 // `20260902120000_panel_soporte_backend.sql`.
 
-export type DeviceMemberRole = 'owner' | 'admin' | 'operator';
+export type DeviceMemberRole = 'admin' | 'user';
 
 /** Fila de public.devices, tal cual la expone `admin_get_device_detail`. */
 export interface AdminDeviceRow {

@@ -49,7 +49,9 @@ export async function selfRegisterSupportStaff(
     p_invite_code: inviteCode,
   });
   if (error) throw error;
-  return data as unknown as RpcResult;
+  const result = data as unknown as RpcResult;
+  if (result.success === false) throw new Error(result.message ?? 'No se pudo completar la operación.');
+  return result;
 }
 
 /**
@@ -73,7 +75,9 @@ export async function rotateInviteCode(newCode: string): Promise<RpcResult> {
     p_new_code: newCode,
   });
   if (error) throw error;
-  return data as unknown as RpcResult;
+  const result = data as unknown as RpcResult;
+  if (result.success === false) throw new Error(result.message ?? 'No se pudo completar la operación.');
+  return result;
 }
 
 /** Activa/desactiva a otro miembro del equipo de soporte. No permite auto-desactivarse. */
@@ -83,7 +87,9 @@ export async function setStaffActive(userId: string, active: boolean): Promise<R
     p_active: active,
   });
   if (error) throw error;
-  return data as unknown as RpcResult;
+  const result = data as unknown as RpcResult;
+  if (result.success === false) throw new Error(result.message ?? 'No se pudo completar la operación.');
+  return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -135,13 +141,12 @@ export async function setMemberAuthorized(
     p_authorized: authorized,
   });
   if (error) throw error;
-  return data as unknown as RpcResult;
+  const result = data as unknown as RpcResult;
+  if (result.success === false) throw new Error(result.message ?? 'No se pudo completar la operación.');
+  return result;
 }
 
-/**
- * Cambia el rol de un miembro. Si `role` es 'owner', el dueño anterior baja
- * automáticamente a 'admin' — sólo puede haber un dueño por equipo.
- */
+/** Delega en otro usuario aprobado; el administrador anterior pasa a usuario. */
 export async function setMemberRole(
   deviceId: string,
   userId: string,
@@ -153,7 +158,9 @@ export async function setMemberRole(
     p_role: role,
   });
   if (error) throw error;
-  return data as unknown as RpcResult;
+  const result = data as unknown as RpcResult;
+  if (result.success === false) throw new Error(result.message ?? 'No se pudo completar la operación.');
+  return result;
 }
 
 /** Desvincula por completo a un usuario de un equipo (elimina la membresía, no la cuenta). */
@@ -163,7 +170,9 @@ export async function removeMember(deviceId: string, userId: string): Promise<Rp
     p_user_id: userId,
   });
   if (error) throw error;
-  return data as unknown as RpcResult;
+  const result = data as unknown as RpcResult;
+  if (result.success === false) throw new Error(result.message ?? 'No se pudo completar la operación.');
+  return result;
 }
 
 /**
@@ -228,5 +237,7 @@ export async function pushFirmwareUpdate(
     p_firmware_release_id: firmwareReleaseId,
   });
   if (error) throw error;
-  return data as unknown as RpcResult;
+  const result = data as unknown as RpcResult;
+  if (result.success === false) throw new Error(result.message ?? 'No se pudo completar la operación.');
+  return result;
 }

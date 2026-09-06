@@ -36,7 +36,7 @@ Esta consola resuelve de forma unificada las necesidades de post-venta, soporte 
 
 1. **Gestión de Flota Centralizada en Soporte:** Todo el parque de sondas se administra directamente a través del buscador inteligente del panel de soporte (por código de 15 dígitos, alias o correo del usuario).
 2. **Diagnóstico Técnico y Salud de la Sonda:** Supervisión en tiempo real de curvas de voltaje de batería de litio recargable, última señal y registro de últimas mediciones para diagnosticar el comportamiento de sensores en terreno.
-3. **Administración de Membresías y Roles:** Capacidad para autorizar, suspender o reasignar roles de miembros vinculados a una sonda (`owner`, `admin`, `operator`), o desvincular usuarios.
+3. **Administración de Membresías:** aprobar pendientes, delegar el único administrador (`admin`) y eliminar usuarios (`user`). Al delegar, el administrador anterior pasa a usuario. Debe conservarse al menos un miembro; sólo el reset elimina todos. El acceso al backoffice se controla en `admin_support_users`, independientemente de los roles de equipo. [Contrato, reset y despliegue](../supabase/ADMINISTRACION.md).
 4. **Reseteo de Fábrica (Factory Reset):** Proceso seguro para desvincular a todos los miembros y limpiar mediciones privadas ante ventas o transferencias entre agricultores, preservando la identidad de hardware de la sonda.
 5. **Firmware OTA Dual (Individual y Masivo):** Capacidad para forzar la actualización inalámbrica de un equipo puntual desde su ficha técnica, o publicar releases obligatorios globales para toda la flota.
 
@@ -77,9 +77,9 @@ Página de control exhaustivo para un equipo seleccionado, alimentada por la RPC
    - Los valores N/P/K se muestran agrupados y con una advertencia en pantalla: se derivan de la conductividad eléctrica, no de electrodos ion-selectivos, así que sirven para comprobar que el sensor responde, no para calcular dosis.
 4. **Gestión de Miembros y Roles:**
    - Visualización de todos los usuarios asociados a la sonda con sus respectivos correos y roles.
-   - Selector en línea de tres opciones (`owner`, `admin`, `operator`) para reasignar rol (`setMemberRole`), transfiriendo la propiedad automáticamente si se designa un nuevo `owner`: el dueño anterior baja a `admin`, porque sólo puede haber uno.
+   - Botón para delegar en otro usuario aprobado (`setMemberRole`). El administrador anterior pasa a `user` y el destinatario a `admin`.
    - La desvinculación pide confirmación en la propia fila. La consola no usa `alert()` ni `confirm()`: un diálogo modal del navegador bloquea el hilo, no deja rastro de lo ocurrido y no se puede leer después; los resultados se muestran como aviso en pantalla.
-   - Toggle para autorizar o suspender acceso sin romper el vínculo (`setMemberAuthorized`).
+   - Botón para aprobar solicitudes pendientes (`setMemberAuthorized`).
    - Desvinculación definitiva de miembros individuales (`removeMember`).
 5. **Actualización de Firmware Individual (`admin_push_firmware_update`):**
    - Selector de versión, alimentado por `listPublishedFirmware()`, para avisar de una actualización OTA específicamente a esta sonda mediante una alerta push, ideal para pruebas de soporte o parches puntuales.
@@ -180,7 +180,7 @@ Las operaciones sensibles del backoffice se ejecutan mediante **Remote Procedure
 | `searchDevices()` | `admin_search` | `p_query: text` | Búsqueda multicriterio (código 15 dígitos, alias, email). |
 | `getDeviceDetail()` | `admin_get_device_detail` | `p_device_id: uuid` | Retorna equipo, firmware, miembros, 100 baterías y 50 mediciones. |
 | `setMemberAuthorized()`| `admin_set_member_authorized` | `p_device_id`, `p_user_id`, `p_authorized` | Habilita o suspende el acceso de un miembro al equipo. |
-| `setMemberRole()` | `admin_set_member_role` | `p_device_id`, `p_user_id`, `p_role` | Modifica rol (`owner`, `admin`, `operator`) con traspaso automático. |
+| `setMemberRole()` | `admin_set_member_role` | `p_device_id`, `p_user_id`, `p_role` | Delega `admin` en otro usuario aprobado; el anterior pasa a `user`. |
 | `removeMember()` | `admin_unbind_user_device`| `p_device_id`, `p_user_id` | Desvincula totalmente a un usuario del equipo. |
 | `factoryResetDevice()` | `admin_factory_reset_device`| `p_device_id`, `p_confirm_device_code` | Borra membresías y mediciones privadas exigiendo el código. |
 | `listPublishedFirmware()` | — (SELECT con RLS) | `hardwareTarget?` | Catálogo publicado, para el selector de versión de la ficha. |
@@ -281,7 +281,7 @@ El proyecto utiliza un servidor SMTP propio de Gmail en Supabase (`[auth.email.s
 ### 11.1. Módulos implementados
 * ✅ **Panel de Soporte Técnico (`/admin`):** Buscador multi-criterio en tiempo real (por ID de hardware de 15 dígitos, alias o correo del usuario) con listado dinámico de flota.
 * ✅ **Ficha Técnica y Diagnóstico Individual (`/admin/devices/:id`):** Visualización de curvas de batería de litio, versión de firmware activa, tabla de miembros vinculados y últimas mediciones edafológicas reportadas.
-* ✅ **Gobernanza de Membresías:** Reasignación de roles (`owner`, `admin`, `operator`) y revocación de permisos de acceso.
+* ✅ **Gobernanza de Membresías:** Dos roles (`admin`, `user`), aprobación, delegación y eliminación de miembros.
 * ✅ **Factory Reset Remoto Seguro:** Desvinculación atómica de miembros y purga de mediciones privadas ante reventa o traspaso entre agricultores.
 * ✅ **Historial de Mediciones Agronómicas:** tabla de las últimas 50 lecturas con veredicto, predio y etapa. El dato ya venía en `admin_get_device_detail`; hasta ahora la ficha lo descartaba sin mostrarlo.
 * ✅ **Aviso de Firmware OTA Individual:** selector de versión publicada y envío de la alerta push desde la ficha del equipo (`listPublishedFirmware` + `admin_push_firmware_update`). Ambas funciones existían en `adminApi.ts` sin ninguna pantalla que las invocara.

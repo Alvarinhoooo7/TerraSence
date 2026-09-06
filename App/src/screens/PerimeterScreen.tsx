@@ -160,7 +160,7 @@ export const PerimeterScreen: React.FC<Props> = ({ onClose }) => {
     <View style={styles.root}>
       <MapView
         provider={PROVIDER_GOOGLE}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
         initialRegion={region}
         mapType="hybrid"
         showsUserLocation

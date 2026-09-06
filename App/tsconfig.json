@@ -13,6 +13,9 @@
     "strict": true,
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
+    "types": [
+      "node"
+    ],
     "skipLibCheck": true,
     "paths": {
       "@/*": [

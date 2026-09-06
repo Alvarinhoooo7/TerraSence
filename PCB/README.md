@@ -44,7 +44,7 @@ Documentación técnica del hardware embarcado, diseño en KiCad, arquitectura d
   - [5.3. Interfaz de Usuario y Puerto USB-C](#53-interfaz-de-usuario-y-puerto-usb-c)
 - [6. Protocolo Firmware y Trama BLE GATT](#6-protocolo-firmware-y-trama-ble-gatt)
   - [6.1. Ciclo de Adquisición Modbus RTU](#61-ciclo-de-adquisición-modbus-rtu)
-  - [6.2. Estructura binaria de la trama BLE (16 bytes)](#62-estructura-binaria-de-la-trama-ble-16-bytes)
+  - [6.2. Estructura binaria de la trama BLE (16 o 20 bytes)](#62-estructura-binaria-de-la-trama-ble-16-o-20-bytes)
 
 ---
 
@@ -319,12 +319,11 @@ TerraSense adopta un diseño compacto de mano (*handheld*), optimizado para que 
 6. **Power Gate OFF:** `GPIO5` pasa a nivel bajo $\rightarrow$ la línea de 5 V se corta inmediatamente. El consumo residual **no está medido**.
 7. **Lectura ambiental I²C del BME280:** adquirir temperatura del aire, humedad relativa y presión junto con el suelo. Implementación y transporte BLE detallados en [integración](../docs/INFORME%201%20.docx.md#integracion-bme280).
 
-### 6.2. Estructura binaria de la trama BLE (16 bytes)
+### 6.2. Estructura binaria de la trama BLE (16 o 20 bytes)
 
-> ### 🛑 Contrato corregido
-> Las versiones anteriores de este README y del README de la App describían **tres contratos incompatibles**: distinto orden de campos, pH en centésimas frente a décimas, y batería como `uint16` de milivoltios frente a un solo byte de porcentaje.
+> El aviso de incompatibilidad corresponde a documentos antiguos: describían distinto orden de campos, escala de pH y formato de batería. La tabla siguiente coincide con el decodificador actual. Consulta la [explicación byte a byte, separación Modbus/BLE y ejemplo hexadecimal completo](../docs/CONTRATO_BLE.md).
 >
-> **El contrato válido es el que decodifica `App/src/services/probeService.ts`.** El firmware debe emitir exactamente esto. La trama de 16 bytes actual solo contiene suelo y batería. El BME280 está incluido en el diseño y la BOM; requiere extender/versionar el contrato o agregar una característica para las tres variables ambientales. No reusar dos bytes para tres magnitudes. Ver [integración](../docs/INFORME%201%20.docx.md#integracion-bme280).
+> **El contrato válido es el que decodifica `App/src/services/probeService.ts`.** El firmware debe emitir exactamente esto. El byte 15 es la **versión de trama**: `0` son 16 bytes con sólo suelo y batería, y `1` son 20 bytes que añaden las tres magnitudes del BME280 empaquetadas en bits. Veinte bytes es el máximo que cabe en una notificación con el MTU por defecto de BLE, así que no hace falta negociar MTU ni partir la lectura en dos paquetes. Ver [integración](../docs/INFORME%201%20.docx.md#integracion-bme280).
 
 ```text
  ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
@@ -346,6 +345,7 @@ Todos los campos multibyte son **big-endian**, igual que Modbus.
 | 10–11 | Fósforo | `uint16` | mg/kg |
 | 12–13 | Potasio | `uint16` | mg/kg |
 | 14 | Batería | **`uint8`** | **porcentaje 0–100**, no milivoltios |
-| 15 | Reservado | — | — |
+| 15 | **Versión de trama** | `uint8` | `0` = 16 bytes; `1` = 20 bytes con ambiente; otro valor se rechaza |
+| 16–19 | **Ambiente BME280** (sólo v1) | 32 bits | Temperatura 12 bits `(°C × 10) + 400`; presión 12 bits `hPa − 300`; humedad 8 bits `% × 2`. Todos los bits a uno = sin dato → `NULL` |
 
 **Estado:** no hay firmware fuente en el repositorio y el mapa de registros de la sonda **no está confirmado contra la ficha del proveedor**. Antes de fabricar hace falta una **captura BLE/Modbus real del SKU adquirido** y la ficha técnica del vendedor.

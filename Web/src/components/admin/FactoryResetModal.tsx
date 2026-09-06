@@ -73,9 +73,10 @@ export function FactoryResetModal({ deviceId, expectedCode, onClose, onSuccess }
             </p>
           </div>
 
+          <p className="text-sm text-terra-muted mb-4">Este reset borra datos y configuración de la nube. El borrado de la memoria del equipo físico requiere soporte del firmware.</p>
           <div className="bg-terra-bg p-4 rounded-xl border border-terra-border mb-6">
             <label className="block text-xs font-bold tracking-widest text-terra-muted uppercase mb-2">
-              Confirmar Código UUID
+              Confirmar ID del equipo
             </label>
             <p className="text-xs text-terra-muted mb-3">
               Para confirmar que realmente quieres resetear este equipo, escribe su código exacto de 15 dígitos.

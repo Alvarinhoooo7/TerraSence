@@ -211,7 +211,7 @@ export const MapScreen: React.FC<Props> = ({
       <MapView
         ref={mapRef}
         provider={PROVIDER_GOOGLE}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
         initialRegion={FALLBACK_REGION}
         // Sin cobertura se renuncia a la imagen satelital y se conserva la capa
         // vectorial, que sí funciona offline. No se cachea nada por nuestra cuenta.

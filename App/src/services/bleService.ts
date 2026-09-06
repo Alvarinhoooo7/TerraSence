@@ -3,7 +3,7 @@
 // Enlace BLE con la sonda TerraSense mediante `react-native-ble-plx`.
 //
 // El ESP32 hace de puente: consulta la sonda por RS-485 Modbus RTU y publica
-// el resultado ya decodificado en una característica GATT de 16 bytes, para no
+// el resultado ya decodificado en una característica GATT de 16 o 20 bytes, para no
 // obligar al teléfono a hablar Modbus.
 //
 // Decisiones de diseño:

@@ -25,7 +25,7 @@ export function deriveOnboardingState(
   }
 
   const inferredMethod: OnboardingMethod = memberships.some(
-    (membership) => membership.is_authorized && membership.role === 'owner',
+    (membership) => membership.is_authorized && membership.role === 'admin',
   )
     ? 'pairing'
     : 'qr';

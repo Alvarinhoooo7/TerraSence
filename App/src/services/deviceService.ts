@@ -3,7 +3,7 @@
 // Alta y vinculación de equipos.
 //
 // El alta de una sonda físicamente emparejada usa una RPC atómica que crea el
-// equipo y la membresía owner. El código debe coincidir con el provisionado en
+// equipo y la membresía de administrador. El código debe coincidir con el provisionado en
 // NVS y su unicidad continúa respaldada por el índice UNIQUE de Postgres.
 
 import { supabase } from './supabase';
@@ -28,9 +28,12 @@ export async function listMyDevices(): Promise<DeviceRow[]> {
 
 /** Roles del usuario actual, usados para mostrar acciones de administración. */
 export async function listMyDeviceMemberships(): Promise<DeviceMembershipRow[]> {
+  const { data: session } = await supabase.auth.getSession();
+  if (!session.session) return [];
   const { data, error } = await supabase
     .from('device_members')
-    .select('device_id,role,is_authorized');
+    .select('device_id,role,is_authorized')
+    .eq('user_id', session.session.user.id);
 
   if (error) throw error;
   return (data ?? []) as unknown as DeviceMembershipRow[];
@@ -59,7 +62,7 @@ export async function registerDevice(name: string, pairedCode: string): Promise<
   if (error) {
     if (error.code === '23505') {
       throw new Error(
-        'Esta sonda ya tiene propietario. Pídele al administrador que te muestre su QR.',
+        'Esta sonda ya tiene usuarios. Pide a un miembro aprobado que te muestre el QR temporal.',
       );
     }
     throw error;
@@ -77,38 +80,45 @@ export async function registerDevice(name: string, pairedCode: string): Promise<
   return data as unknown as DeviceRow;
 }
 
-/**
- * Vincula al usuario con un equipo existente a partir de su código de 15
- * dígitos: el caso del operador que se suma a la cuadrilla de otro.
- *
- * Va por la RPC `join_device_by_code` en lugar de consultar `devices`
- * directamente. La política SELECT sólo deja ver los equipos de los que ya se
- * es miembro, y relajarla para permitir la búsqueda por código convertiría la
- * tabla en enumerable. La función valida el código en el servidor, limita los
- * intentos por fuerza bruta y devuelve sólo lo imprescindible.
- */
-export async function joinDeviceByCode(rawCode: string): Promise<DeviceRow> {
-  const code = normalizeDeviceId(rawCode);
-  if (!isValidDeviceId(code)) {
-    throw new Error('El código debe tener 15 dígitos y no empezar por cero.');
+/** Solicita acceso con el token temporal del QR. null significa pendiente. */
+export async function requestDeviceAccess(token: string): Promise<DeviceRow | null> {
+  const { data, error } = await supabase.functions.invoke('request-device-access', { body: { token } });
+  if (error) {
+    const context = error.context as Response | undefined;
+    const body = await context?.json().catch(() => null);
+    throw new Error(body?.message ?? error.message);
   }
-
-  const { data: joined, error } = await supabase.rpc('join_device_by_code', { p_code: code });
-  if (error) throw new Error(error.message);
-  const result = joined as { device_id: string; device_name: string }[] | null;
-  if (!result?.[0]?.device_id) {
-    throw new Error('No se pudo vincular con ese código.');
-  }
+  const result = data as { device_id: string; is_authorized: boolean } | null;
+  if (!result?.device_id) throw new Error('No se pudo solicitar acceso.');
+  if (!result.is_authorized) return null;
 
   // Tras la vinculación el equipo ya es visible para la política SELECT.
-  const { data, error: readError } = await supabase
+  const { data: device, error: readError } = await supabase
     .from('devices')
     .select(DEVICE_COLUMNS)
-    .eq('id', result[0].device_id)
+    .eq('id', result.device_id)
     .single();
 
   if (readError) throw readError;
-  return data as unknown as DeviceRow;
+  return device as unknown as DeviceRow;
+}
+
+export interface DeviceAccessQr { token: string; expires_at: string }
+export interface PendingDeviceRequest {
+  device_id: string;
+  administrator_name: string;
+  administrator_email: string;
+}
+export async function getDeviceAccessQr(deviceId: string): Promise<DeviceAccessQr> {
+  const { data, error } = await supabase.rpc('get_device_access_qr', { p_device_id: deviceId });
+  if (error) throw error;
+  if (!data?.[0]) throw new Error('No se pudo generar el QR.');
+  return data[0] as DeviceAccessQr;
+}
+export async function listPendingDeviceRequests(): Promise<PendingDeviceRequest[]> {
+  const { data, error } = await supabase.rpc('list_my_pending_device_requests');
+  if (error) throw error;
+  return (data ?? []) as PendingDeviceRequest[];
 }
 
 export async function listDeviceMembers(deviceId: string): Promise<ManagedDeviceMember[]> {
@@ -120,11 +130,10 @@ export async function listDeviceMembers(deviceId: string): Promise<ManagedDevice
 export async function manageDeviceMember(
   deviceId: string,
   userId: string,
-  action: 'authorize' | 'revoke' | 'set_role' | 'transfer_owner',
-  role?: 'admin' | 'operator',
+  action: 'authorize' | 'remove' | 'transfer_owner',
 ): Promise<void> {
   const { error } = await supabase.rpc('manage_device_member', {
-    p_device_id: deviceId, p_target_user_id: userId, p_action: action, p_role: role ?? null,
+    p_device_id: deviceId, p_target_user_id: userId, p_action: action, p_role: null,
   });
   if (error) throw error;
 }

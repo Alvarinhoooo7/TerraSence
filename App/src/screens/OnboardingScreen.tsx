@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -16,7 +16,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Spacing, Typography } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
-import { joinDeviceByCode, registerDevice } from '../services/deviceService';
+import { requestDeviceAccess, registerDevice, listMyDevices, listMyDeviceMemberships } from '../services/deviceService';
+import { WaitingApprovalScreen } from './WaitingApprovalScreen';
 import { completeOnboarding } from '../services/onboardingService';
 import { useAppStore } from '../store/useAppStore';
 import {
@@ -44,8 +45,10 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
   const { t } = useTranslation();
   const setDevice = useAppStore((state) => state.setDevice);
 
+  const [checkingRequests, setCheckingRequests] = useState(true);
   const [step, setStep] = useState<Step>('choice');
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [pending, setPending] = useState(false);
   const [joining, setJoining] = useState(false);
   const [scanned, setScanned] = useState(false);
   const [pairingState, setPairingState] = useState<PairingState>('idle');
@@ -77,6 +80,25 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
     },
     [onComplete, setDevice],
   );
+
+  useEffect(() => {
+    let active = true;
+    const check = async () => {
+      try {
+        const memberships = await listMyDeviceMemberships();
+        if (!active) return;
+        setPending(memberships.some(m => !m.is_authorized));
+        if (memberships.some(m => m.is_authorized)) {
+          const devices = await listMyDevices();
+          if (active && devices[0]) await finish('qr', devices[0]);
+        }
+      } catch { /* La consulta se reintenta al recuperar la conexion. */ }
+      finally { if (active) setCheckingRequests(false); }
+    };
+    void check();
+    const timer = setInterval(() => void check(), 10000);
+    return () => { active = false; clearInterval(timer); };
+  }, [finish]);
 
   const openQr = useCallback(async () => {
     if (!cameraPermission?.granted) {
@@ -114,8 +136,9 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
 
       setJoining(true);
       try {
-        const device = await joinDeviceByCode(code);
-        await finish('qr', device);
+        const device = await requestDeviceAccess(code);
+        if (device) await finish('qr', device);
+        else { setPending(true); setStep('choice'); }
       } catch (error) {
         Alert.alert(t('No se pudo vincular', 'Could not link'), friendlyError(error), [
           { text: t('Reintentar', 'Try again'), onPress: () => setScanned(false) },
@@ -161,7 +184,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
       }
 
       // El mismo código queda en NVS y en Supabase. El trigger convierte a
-      // este usuario en owner y la restricción UNIQUE impide doble propiedad.
+      // este usuario en administrador y la restricción UNIQUE impide doble propiedad.
       const device = await registerDevice(deviceName, code);
       await finish('pairing', device);
     } catch (error) {
@@ -177,6 +200,9 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
     setPairingState('idle');
     setProbe(null);
   }, [joining, pairingState]);
+
+  if (pending) return <WaitingApprovalScreen onApproved={device => void finish('qr', device)} onDismiss={() => setPending(false)} />;
+  if (checkingRequests) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center' }}><ActivityIndicator color={colors.primary} /></SafeAreaView>;
 
   if (step === 'qr') {
     return (
@@ -208,7 +234,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
         <View style={styles.explanation}>
           <Text style={[styles.explanationTitle, { color: colors.text }]}>{t('Pídeselo al administrador', 'Ask the administrator')}</Text>
           <Text style={[styles.explanationText, { color: colors.textSecondary }]}>
-            {t('La persona que administra la sonda debe abrir “Mis equipos” en su app y mostrarte el QR. Al escanearlo quedarás vinculado como operador.', 'The probe administrator must open “My devices” in their app and show you the QR. Scanning it links you as an operator.')}
+            {t('La persona que administra la sonda debe abrir “Mis equipos” en su app y mostrarte el QR. Al escanearlo solicitarás acceso al administrador.', 'The probe administrator must open “My devices” in their app and show you the QR. Scanning it requests administrator approval.')}
           </Text>
         </View>
       </SafeAreaView>
@@ -227,7 +253,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
           <View style={styles.headerButton} />
         </View>
 
-        <ScrollView contentContainerStyle={styles.pairingContent}>
+      <ScrollView contentContainerStyle={styles.pairingContent}>
           <View style={[styles.pairIcon, { backgroundColor: colors.card }]}>
             <Text style={styles.pairIconText}>{probe ? '✓' : '◉'}</Text>
           </View>
@@ -305,7 +331,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
           <View style={styles.optionCopy}>
             <Text style={[styles.optionTitle, { color: colors.text }]}>{t('Escanear QR', 'Scan QR')}</Text>
             <Text style={[styles.optionText, { color: colors.textSecondary }]}>
-              {t('Ya existe un administrador del equipo. Pídele que te muestre su QR para entrar como operador.', 'The device already has an administrator. Ask them to show you the QR to join as an operator.')}
+              {t('Ya existe un administrador del equipo. Pídele que te muestre su QR para solicitar acceso.', 'The device already has an administrator. Ask them to show you the QR to request access.')}
             </Text>
           </View>
           <Text style={[styles.chevron, { color: colors.primary }]}>›</Text>
@@ -322,7 +348,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
           <View style={styles.optionCopy}>
             <Text style={[styles.optionTitle, { color: colors.text }]}>{t('Configurar equipo nuevo', 'Set up new device')}</Text>
             <Text style={[styles.optionText, { color: colors.textSecondary }]}>
-              {t('Eres el primer usuario de la sonda. Conéctala por Bluetooth para quedar como propietario.', 'You are the probe’s first user. Connect it by Bluetooth to become its owner.')}
+              {t('Eres el primer usuario de la sonda. Conéctala por Bluetooth para quedar como administrador.', 'You are the probe’s first user. Connect it by Bluetooth to become its administrator.')}
             </Text>
           </View>
           <Text style={[styles.chevron, { color: colors.primary }]}>›</Text>
@@ -365,7 +391,7 @@ const styles = StyleSheet.create({
   chevron: { fontSize: 34, marginLeft: Spacing.sm },
   cameraWrap: { flex: 1, margin: Spacing.md, borderRadius: Spacing.cardRadius, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' },
   scannerFrame: { width: 242, height: 242, borderWidth: 3, borderColor: '#FFFFFF', borderRadius: 24 },
-  cameraBusy: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,.62)', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm },
+  cameraBusy: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,.62)', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm },
   cameraBusyText: { ...Typography.bodyBold, color: '#FFFFFF' },
   explanation: { paddingHorizontal: Spacing.lg, paddingBottom: Spacing.xl },
   explanationTitle: { ...Typography.titleMedium, marginBottom: Spacing.xs },

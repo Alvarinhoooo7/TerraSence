@@ -27,7 +27,7 @@ Los resultados de DSCR, VAN y caja libre por escenario se consultan en [RESULTAD
 |:---:|---|---|
 | 5 | **Rediseño de esquema y ruteo de PCB** | `PCB/terrasense.kicad_pcb` está **vacío**: sin componentes, pistas ni contorno. **No fabricar desde ese archivo** |
 | 6 | **Cierre de ERC/DRC** | `ERC.rpt` registra errores de conexión y alimentación sin cierre documentado |
-| 7 | **Firmware del ESP32** | **No existe en el repositorio.** El contrato BLE de 16 bytes está documentado según el decodificador de la app; el firmware debe implementarlo |
+| 7 | **Firmware del ESP32** | **No existe en el repositorio.** El contrato BLE está documentado según el decodificador de la app —v0 de 16 bytes y v1 de 20 con el ambiente del BME280—; el firmware debe implementarlo |
 | 8 | **Captura BLE/Modbus real** | El mapa de registros de la sonda no está confirmado contra la ficha del proveedor. Requiere el SKU adquirido |
 | 9 | **Consumo y autonomía** | Sin medir desde batería. Hay que distinguir reposo total del reposo de la rama de sonda; el divisor 100 k+100 k consume ~18,5 µA por sí solo |
 | 10 | **Sellado, peso y robustez** | IP67, peso < 280 g y resistencia mecánica son **objetivos sin ensayo**. No hay actas ni pesaje del conjunto |

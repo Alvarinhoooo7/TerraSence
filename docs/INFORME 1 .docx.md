@@ -118,7 +118,7 @@ AÑO 2026
 
 [Tabla 3.5 “Especificaciones Técnicas Sonda”	55](#tabla-35-especificaciones-técnicas-sonda)
 
-[Tabla 3.6 “Contrato de Datos BLE (16 bytes)”	56](#tabla-36-contrato-de-datos-ble-16-bytes)
+[Tabla 3.6 “Contrato de Datos BLE (16 o 20 bytes)”	56](#tabla-36-contrato-de-datos-ble-16-o-20-bytes)
 
 [Tabla 3.7 “Mapeo de Pines del Instrumento”	56](#tabla-37-mapeo-de-pines-del-instrumento)
 
@@ -547,7 +547,7 @@ flowchart LR
 
 ##### **Figura 1.9 “Arquitectura Objetivo de TerraSense y Origen de Cada Dato”**
 
-La figura expresa el diseño objetivo completo. El decodificador de la trama de suelo y el guardado local ya existen en el repositorio del proyecto; la incorporación de las tres variables del BME280 al contrato BLE y la consulta de cinco días son trabajos de integración identificados más adelante en este mismo capítulo. No debe inferirse del diagrama que exista ya firmware terminado para todos los bloques.
+La figura expresa el diseño objetivo completo. El decodificador de la trama, el guardado local y el transporte de las tres variables del BME280 ya existen en el repositorio del proyecto; la adquisición I²C en el firmware y la consulta de cinco días son trabajos de integración identificados más adelante en este mismo capítulo. No debe inferirse del diagrama que exista ya firmware terminado para todos los bloques.
 
 **Arquitectura de Conectividad:**  
 
@@ -555,7 +555,7 @@ La estrategia de comunicación del sistema se divide en distintas etapas, cada u
 
 *  **Sonda de Suelo → ESP32 (Bus RS-485 Modbus RTU):** Se eligió esta interfaz frente a alternativas más simples (como UART directo) porque transmite una señal diferencial robusta e inmune al ruido electromagnético en campo abierto. Además, al ser el estándar universal para instrumentación industrial, permite intercambiar sondas de distintos fabricantes en el futuro sin necesidad de rediseñar la placa base del equipo. Conviene separar las dos capas involucradas: RS-485 define la capa eléctrica diferencial, mientras Modbus define la estructura de los mensajes; en su implementación serial RTU se verifican longitud, dirección, función, CRC-16 y temporización entre tramas.  
 * **Sensor Ambiental BME280 → ESP32 (Bus I2C):** Para la captura de datos atmosféricos (temperatura del aire, humedad relativa y presión barométrica), se utiliza una comunicación serie de dos hilos (I²C). Al estar el sensor integrado para lectura ambiental local, directamente en la placa o a muy corta distancia del microcontrolador, el protocolo I²C es el estándar ideal por su simplicidad técnica y bajo consumo, sin verse afectado por las limitaciones de distancia que sufriría en campo abierto.  
-* **ESP32 → Smartphone (Bluetooth Low Energy):** Se optó por un enlace BLE puntual debido a su bajo consumo energético. El equipo envía paquetes de datos muy pequeños (tramas de 16 bytes en el contrato vigente) y se conecta solo durante los segundos que dura la medición. Al utilizar BLE se evita la barrera de certificación MFi que afecta al perfil serial de Bluetooth Classic en iOS, habilitando compatibilidad con Android y Apple sin costos de hardware adicionales. Corresponde precisar que disponer de BLE no constituye por sí solo una prueba de compatibilidad terminada: el enlace requiere una compilación nativa de la aplicación (Expo Go no sustituye un build que incluya la biblioteca BLE) y debe comprobarse con permisos, reconexiones y versiones reales de sistema operativo en ambas plataformas.  
+* **ESP32 → Smartphone (Bluetooth Low Energy):** Se optó por un enlace BLE puntual debido a su bajo consumo energético. El equipo envía paquetes de datos muy pequeños (tramas de 16 o 20 bytes según la versión del contrato vigente) y se conecta solo durante los segundos que dura la medición. Al utilizar BLE se evita la barrera de certificación MFi que afecta al perfil serial de Bluetooth Classic en iOS, habilitando compatibilidad con Android y Apple sin costos de hardware adicionales. Corresponde precisar que disponer de BLE no constituye por sí solo una prueba de compatibilidad terminada: el enlace requiere una compilación nativa de la aplicación (Expo Go no sustituye un build que incluya la biblioteca BLE) y debe comprobarse con permisos, reconexiones y versiones reales de sistema operativo en ambas plataformas.  
 * **Smartphone → Nube (HTTPS / Supabase):** El sistema implementa una arquitectura estrictamente *offline-first*. La falta de cobertura en zonas rurales es la principal causa de fallo en agrotecnología, por lo que el motor de interpretación agronómica corre localmente en el teléfono sobre almacenamiento local persistente. La conexión a la nube ocurre de manera diferida y en segundo plano, interviniendo únicamente para sincronizar historiales y respaldar información cuando el teléfono detecta señal de internet. Esta independencia tiene un límite honesto: crear una cuenta, registrar un equipo nuevo o recuperar credenciales sí requieren conexión; lo que no la requiere es medir, diagnosticar y guardar.
 
 Se adjunta un diagrama de flujo para comprender de manera visual la ruta de la información, desde la captura en terreno hasta el almacenamiento diferido en la nube:   
@@ -1012,11 +1012,12 @@ Estas cifras corresponden a lo declarado por el fabricante y deben verificarse c
 | 10–11 | Fósforo (P) | `uint16` | mg/kg, presentado como clase ordinal |
 | 12–13 | Potasio (K) | `uint16` | mg/kg, presentado como clase ordinal |
 | 14 | Batería | **`uint8`** | **Porcentaje 0–100, no milivoltios** |
-| 15 | Reservado | — | Sin magnitud ambiental asignada |
+| 15 | Versión de trama | `uint8` | `0` = 16 bytes, sólo suelo y batería; `1` = 20 bytes, con ambiente |
+| 16–19 | Ambiente BME280, sólo en la versión 1 | 32 bits empaquetados | Temperatura del aire (12 bits), presión (12 bits) y humedad relativa (8 bits) |
 
-###### **Tabla 3.6 “Contrato de Datos BLE (16 bytes)”**
+###### **Tabla 3.6 “Contrato de Datos BLE (16 o 20 bytes)”**
 
-Este nivel de detalle no es ornamental. Un cambio de orden de bytes o de escala puede producir cifras plausibles pero incorrectas, mucho más difíciles de detectar que una desconexión visible: una humedad de 35,0 % leída como 8.960 se advierte de inmediato, pero un pH mal escalado que arroje 6,5 en lugar de 5,6 puede pasar inadvertido y provocar una recomendación equivocada. Del contrato se desprende además una consecuencia de diseño explícita: **los tres datos ambientales del BME280 no caben en el byte reservado ni pueden colocarse sobre los registros existentes**. La integración requiere una trama versionada o una característica ambiental adicional; en ambos casos, suelo y ambiente deben asociarse a la misma captura mediante identificador, instante y estado de validez, y la versión permite conservar compatibilidad con equipos que solo entreguen la trama antigua, mostrando explícitamente que la lectura ambiental está incompleta.
+Este nivel de detalle no es ornamental. Un cambio de orden de bytes o de escala puede producir cifras plausibles pero incorrectas, mucho más difíciles de detectar que una desconexión visible: una humedad de 35,0 % leída como 8.960 se advierte de inmediato, pero un pH mal escalado que arroje 6,5 en lugar de 5,6 puede pasar inadvertido y provocar una recomendación equivocada. Del contrato se desprende además una consecuencia de diseño explícita: **los tres datos ambientales del BME280 no caben en el byte reservado ni pueden colocarse sobre los registros existentes**. La solución adoptada es una **trama versionada**, no una característica adicional: el antiguo byte reservado pasa a declarar la versión, y la versión 1 añade cuatro bytes en los que las tres magnitudes viajan empaquetadas en bits —temperatura en 12, presión en 12 y humedad relativa en 8—. Los veinte bytes resultantes son el máximo que cabe en una notificación BLE con el MTU por defecto, de modo que suelo y ambiente pertenecen por construcción a la misma captura, sin necesidad de emparejar dos paquetes ni de negociar MTU. Los quince primeros bytes no cambian, así que un equipo con firmware antiguo sigue siendo legible y su lectura ambiental se marca explícitamente como ausente en lugar de rellenarse.
 
 **Mapeo de Pines:** La asignación de puertos del microcontrolador queda definida como sigue:
 
@@ -1149,10 +1150,10 @@ Corresponde declarar con precisión qué parte de esta arquitectura está constr
 
 | Función | Estado en el código revisado | Integración requerida |
 | :---- | :---- | :---- |
-| Suelo por BLE | Decodificador de 16 bytes implementado | Contrastar con el firmware y la ficha de la sonda adquirida |
-| Ambiente local | La trama actual no contiene los tres campos | Adquisición I²C, versión e identidad de captura, y transporte BLE |
+| Suelo por BLE | Decodificador implementado, con versión de trama | Contrastar con el firmware y la ficha de la sonda adquirida |
+| Ambiente local | Transporte resuelto: la trama versión 1 lleva las tres magnitudes y el decodificador las lee | Adquisición I²C en el firmware y captura real contra el sensor físico |
 | Grilla 3×3 | Siete registros de suelo, temperatura de API y lluvia del día | Reorganizar según la Tabla 1.1, agrupando N/P/K y reservando tres celdas al BME280 |
-| Guardado ambiental | La temperatura procede del servicio climático; la humedad queda nula | Separar el origen de la temperatura, añadir presión y persistir validez y fecha |
+| Guardado ambiental | Resuelto: las tres magnitudes se guardan desde el BME280 y el VPD se deriva de ellas; sin sensor queda `NULL` | Verificar contra hardware real que los valores persistidos coinciden con el sensor |
 | Pronóstico | Solicita `forecast_days=2` y utiliza el primer elemento diario | Consumir los cinco días siguientes con fechas locales y datos completos |
 | Fallo de red | El servicio devuelve valor nulo | Mantener la lectura local y distinguir "pronóstico no disponible" de "sin dato" |
 
