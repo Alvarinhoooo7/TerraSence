@@ -10,7 +10,7 @@
     "type-check": "tsc -b"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.45.4",
+    "@supabase/supabase-js": "^2.114.0",
     "@tailwindcss/vite": "^4.0.0",
     "clsx": "^2.1.1",
     "framer-motion": "^13.1.1",
