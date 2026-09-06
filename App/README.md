@@ -158,6 +158,22 @@ App/
 
 ## 4. Pantallas y Navegación
 
+### Avance de interfaz y datos · 5 de septiembre de 2026
+
+- Inicio renovado con última lectura real, acceso a equipos, estado de respaldo y acceso al mapa; sin métricas de ejemplo. Se adapta a tema claro/oscuro y español/inglés.
+- Navegación inferior persistente entre Inicio, Historial, Mapa y Ajustes. Se oculta durante la medición y el onboarding.
+- Historial con actualización al deslizar, estados de carga/error, filtros táctiles de 48 dp y etiqueta de respaldo por lectura.
+- Caché del historial consultado (hasta 200 lecturas por consulta), aislada por cuenta, predio y equipo. Sin red se combina con la cola pendiente; los registros confirmados se identifican también por `client_uuid` para evitar duplicados visuales. No equivale a descargar todo el historial.
+- Bienvenida desplazable en pantallas pequeñas y selector de etapa en tarjetas de ancho completo con estado accesible.
+
+**Compatibilidad con Supabase:** estos cambios reutilizan columnas existentes; no agregan migraciones. La consulta incluye `client_uuid`. La revisión remota mediante `supabase migration list --linked` confirmó dos versiones solo remotas (`20260902180000`, `20260902210000`) y la versión `20260904120000` solo local. Antes de desplegar esta última hay que recuperar el SQL original de las versiones remotas, revisar el historial y probar la migración en staging. No se reparó ni alteró el historial remoto.
+
+**Validación pendiente en dispositivo:** aspecto visual, lectores de pantalla, tamaños de letra ampliados, navegación Android y conexión BLE física. El BME280, el pronóstico de cinco días y el carrusel de resultados descritos más abajo siguen siendo requisitos por completar; esta entrega no los declara implementados.
+
+**Comprobaciones de esta entrega:** TypeScript sin errores y 28 pruebas aprobadas. El runner habitual encontró `spawn EPERM` en el entorno restringido; se ejecutaron las mismas pruebas en un único proceso con transpilación TypeScript. La generación de bytecode Hermes también encontró `spawn EPERM`; esto no valida un APK ni sustituye las pruebas físicas.
+
+La exportación JavaScript Android de diagnóstico sí finalizó correctamente (1600 módulos): `node node_modules/expo/bin/cli export --platform android --output-dir dist-review --max-workers 1 --no-bytecode`. El resultado local está en `App/dist-review`; no es un instalador.
+
 El flujo de pantallas se articula a través de un enrutador liviano en `App.tsx` que garantiza respuesta inmediata en terreno:
 
 ```text

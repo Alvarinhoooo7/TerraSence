@@ -1,130 +1,147 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { Spacing, Typography } from '../constants/theme';
+import { Typography, VERDICT_META } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
+import { useTranslation } from '../hooks/useTranslation';
+import { useMeasurementHistory } from '../hooks/useMeasurementHistory';
 import { useAppStore } from '../store/useAppStore';
+import { AppIcon } from '../components/AppIcon';
+import type { MapMeasurementPoint } from '../types/app';
 
 interface Props {
   onStartMeasurement: () => void;
   onOpenMap: () => void;
   onOpenHistory: () => void;
   onOpenSettings: () => void;
+  onOpenDevices: () => void;
+  onOpenDetail: (point: MapMeasurementPoint) => void;
 }
 
-export const DashboardScreen: React.FC<Props> = ({
-  onStartMeasurement,
-  onOpenMap,
-  onOpenHistory,
-  onOpenSettings,
-}) => {
+export const DashboardScreen: React.FC<Props> = (props) => {
   const { colors } = useAppTheme();
-  const { fieldName, device, pendingCount } = useAppStore();
-
-  return (
-    <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.header}>
-          <View>
-            <Text style={[styles.brand, { color: colors.primary }]}>TerraSense</Text>
-            <Text style={[styles.field, { color: colors.textSecondary }]}>{fieldName}</Text>
+  const { t, locale } = useTranslation();
+  const { fieldName, device, pendingCount, isSyncing } = useAppStore();
+  const { points, loading, offline, error, refresh } = useMeasurementHistory();
+  const latest = points[0];
+  const action = (label: string, onPress: () => void) => <TouchableOpacity accessibilityRole="button" onPress={onPress} style={styles.textButton}>
+    <Text style={[styles.actionText, { color: colors.primary }]}>{label}</Text>
+    <AppIcon name="arrow" color={colors.primary} size={18} />
+  </TouchableOpacity>;
+  return <SafeAreaView edges={['top', 'left', 'right']} style={[styles.root, { backgroundColor: colors.background }]}>
+    <ScrollView contentContainerStyle={styles.scroll} refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} tintColor={colors.primary} />}>
+      <View style={styles.header}>
+        <View style={styles.brandRow}>
+          <View style={[styles.brandIcon, { backgroundColor: colors.primaryDark }]}>
+            <AppIcon name="leaf" color="#BDE6A5" size={22} />
           </View>
-          <TouchableOpacity onPress={onOpenSettings} style={[styles.settings, { borderColor: colors.border }]}>
-            <Text style={[styles.settingsText, { color: colors.text }]}>⚙</Text>
-          </TouchableOpacity>
+          <Text style={[styles.brand, { color: colors.text }]}>TerraSense</Text>
         </View>
-
-        <View style={[styles.hero, { backgroundColor: colors.primaryDark }]}>
-          <Text style={styles.heroEyebrow}>NUEVA LECTURA</Text>
-          <Text style={styles.heroTitle}>Conoce el estado actual de tu suelo</Text>
-          <Text style={styles.heroBody}>
-            Enciende TerraSense. La conexión se realizará automáticamente al comenzar.
-          </Text>
-          <TouchableOpacity onPress={onStartMeasurement} style={styles.measureButton}>
-            <Text style={[styles.measureButtonText, { color: colors.primaryDark }]}>Iniciar medición</Text>
-            <Text style={[styles.measureArrow, { color: colors.primaryDark }]}>→</Text>
-          </TouchableOpacity>
-        </View>
-
-        <Text style={[styles.section, { color: colors.textMuted }]}>ESTADO</Text>
-        <View style={styles.statusRow}>
-          <View style={[styles.statusCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <Text style={[styles.statusValue, { color: colors.text }]}>{device ? 'Vinculado' : 'Sin equipo'}</Text>
-            <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>Equipo</Text>
-          </View>
-          <View style={[styles.statusCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <Text style={[styles.statusValue, { color: colors.text }]}>{pendingCount}</Text>
-            <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>Por sincronizar</Text>
-          </View>
-        </View>
-
-        <Text style={[styles.section, { color: colors.textMuted }]}>CONSULTAR</Text>
-        <TouchableOpacity
-          onPress={onOpenHistory}
-          style={[styles.linkCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-        >
-          <View>
-            <Text style={[styles.linkTitle, { color: colors.text }]}>Historial de mediciones</Text>
-            <Text style={[styles.linkBody, { color: colors.textSecondary }]}>Todas las fases y registros guardados</Text>
-          </View>
-          <Text style={[styles.chevron, { color: colors.primary }]}>›</Text>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={t('Configurar predio', 'Field settings')} onPress={props.onOpenSettings} style={[styles.iconButton, { borderColor: colors.border, backgroundColor: colors.card }]}>
+          <AppIcon name="settings" color={colors.text} />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onOpenMap}
-          style={[styles.linkCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-        >
-          <View>
-            <Text style={[styles.linkTitle, { color: colors.text }]}>Mapa de pre-siembra</Text>
-            <Text style={[styles.linkBody, { color: colors.textSecondary }]}>Burbujas tonales de aptitud del suelo</Text>
+      </View>
+      <Text style={[styles.eyebrow, { color: colors.textSecondary }]}>{t('TU JORNADA EN TERRENO', 'YOUR DAY IN THE FIELD')}</Text>
+      <Text style={[styles.pageTitle, { color: colors.text }]}>{fieldName}</Text>
+      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('Cada lectura, una mejor decisión.', 'Every reading, a better decision.')}</Text>
+
+      <View style={[styles.hero, { backgroundColor: colors.primaryDark }]}>
+        <View style={styles.heroTop}>
+          <View style={styles.heroBadge}>
+            <AppIcon name="probe" color="#C5E8AF" size={18} />
+            <Text style={styles.heroEyebrow}>{t('DIAGNÓSTICO DE SUELO', 'SOIL DIAGNOSIS')}</Text>
           </View>
-          <Text style={[styles.chevron, { color: colors.primary }]}>›</Text>
+          <Text style={styles.step}>01 / 03</Text>
+        </View>
+        <Text style={styles.heroTitle}>{t('Tu suelo tiene mucho que decir.', 'Your soil has a story to tell.')}</Text>
+        <Text style={styles.heroBody}>{t('Elige la etapa del cultivo, conecta tu sonda y descubre qué necesita tu terreno.', 'Choose your crop stage, connect your probe and learn what your field needs.')}</Text>
+        <TouchableOpacity accessibilityRole="button" onPress={device ? props.onStartMeasurement : props.onOpenDevices} style={styles.measureButton}>
+          <Text style={styles.measureButtonText}>{device ? t('Iniciar medición', 'Start measurement') : t('Vincular un equipo', 'Link a device')}</Text>
+          <AppIcon name="arrow" color="#183D2B" />
         </TouchableOpacity>
-      </ScrollView>
-    </SafeAreaView>
-  );
+        <Text style={styles.heroFoot}>{t('Diagnóstico local · Respaldo al recuperar conexión', 'Local diagnosis · Backup when connected')}</Text>
+      </View>
+
+      <View style={styles.statusRow}>
+        <TouchableOpacity accessibilityRole="button" onPress={props.onOpenDevices} style={[styles.statusCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <AppIcon name="probe" color={colors.primary} />
+          <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>{t('TU EQUIPO', 'YOUR DEVICE')}</Text>
+          <Text style={[styles.statusValue, { color: colors.text }]} numberOfLines={2}>{device ? device.alias || device.name : t('Sin vincular', 'Not linked')}</Text>
+          <Text style={[styles.caption, { color: colors.textSecondary }]}>{device ? t('Vinculado a tu cuenta', 'Linked to your account') : t('Configura tu sonda', 'Set up your probe')}</Text>
+        </TouchableOpacity>
+        <View style={[styles.statusCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <AppIcon name="sync" color={pendingCount ? colors.warning : colors.primary} />
+          <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>{t('RESPALDO', 'BACKUP')}</Text>
+          <Text style={[styles.statusValue, { color: colors.text }]}>{isSyncing ? t('Sincronizando', 'Syncing') : pendingCount ? `${pendingCount} ${t('pendientes', 'pending')}` : t('Sin pendientes', 'Nothing pending')}</Text>
+          <Text style={[styles.caption, { color: colors.textSecondary }]}>{t('Respaldo de lecturas en la nube', 'Cloud backup for readings')}</Text>
+        </View>
+      </View>
+
+      <View style={styles.sectionHeading}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('Última lectura', 'Latest reading')}</Text>{action(t('Ver historial', 'View history'), props.onOpenHistory)}</View>
+      {(offline || error) && <Text accessibilityLiveRegion="polite" style={[styles.notice, { color: colors.warning }]}>{error ? t('No pudimos cargar las lecturas. Desliza hacia abajo para reintentar.', 'Could not load readings. Pull down to retry.') : t('Mostrando el historial guardado en este teléfono.', 'Showing history saved on this phone.')}</Text>}
+      {latest ? <TouchableOpacity accessibilityRole="button" onPress={() => props.onOpenDetail(latest)} style={[styles.latest, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <View style={styles.sectionHeading}>
+          <Text style={[styles.statusLabel, { color: latest.verdict === 'RED' ? colors.danger : latest.verdict === 'AMBER' ? colors.warning : colors.success }]}>{VERDICT_META[latest.verdict].icon} {latest.title}</Text>
+          <AppIcon name="arrow" color={colors.textSecondary} size={18} />
+        </View>
+        <Text style={[styles.caption, { color: colors.textSecondary }]}>{new Date(latest.measuredAt).toLocaleString(locale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} · {latest.isPending ? t('Pendiente de respaldo', 'Backup pending') : t('Respaldada', 'Backed up')}</Text>
+        <View style={styles.metrics}>{[[latest.ph.toFixed(1), 'pH'], [`${latest.vwcPercent.toFixed(0)}%`, t('Humedad', 'Moisture')], [`${Math.round(latest.ecUsCm)}`, 'CE · µS/cm']].map(([value, label]) => <View key={label} style={styles.metric}>
+          <Text style={[styles.metricValue, { color: colors.text }]}>{value}</Text>
+          <Text style={[styles.caption, { color: colors.textSecondary }]}>{label}</Text>
+        </View>)}</View>
+      </TouchableOpacity> : <View style={[styles.empty, { borderColor: colors.border, backgroundColor: colors.card }]}>
+        <AppIcon name="leaf" color={colors.primary} size={30} />
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>{loading ? t('Cargando lecturas…', 'Loading readings…') : t('Tu próxima decisión empieza aquí', 'Your next decision starts here')}</Text>
+        <Text style={[styles.emptyBody, { color: colors.textSecondary }]}>{t('Después de medir podrás revisar el estado del suelo y sus recomendaciones en este espacio.', 'After measuring, review soil conditions and recommendations here.')}</Text>
+      </View>}
+      <TouchableOpacity accessibilityRole="button" onPress={props.onOpenMap} style={[styles.mapCard, { backgroundColor: colors.bubbleInactive }]}>
+        <AppIcon name="map" color={colors.primary} size={30} />
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('Explora tu predio', 'Explore your field')}</Text>
+          <Text style={[styles.caption, { color: colors.textSecondary }]}>{t('Puntos de pre-siembra · Radio de 20 m', 'Pre-planting points · 20 m radius')}</Text>
+        </View>
+        <AppIcon name="arrow" color={colors.primary} />
+      </TouchableOpacity>
+    </ScrollView>
+  </SafeAreaView>;
 };
-
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  scroll: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.lg },
-  brand: { ...Typography.titleLarge },
-  field: { ...Typography.caption, marginTop: 2 },
-  settings: { width: 48, height: 48, borderRadius: 16, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-  settingsText: { fontSize: 21 },
-  hero: { borderRadius: 28, padding: Spacing.lg, marginBottom: Spacing.xl },
-  heroEyebrow: { ...Typography.badge, color: '#9EE2BD', marginBottom: Spacing.sm },
-  heroTitle: { ...Typography.titleLarge, color: '#FFFFFF', fontSize: 29, lineHeight: 35 },
-  heroBody: { ...Typography.bodyRegular, color: '#D7E7DE', marginTop: Spacing.sm },
-  measureButton: {
-    minHeight: 58,
-    marginTop: Spacing.lg,
-    paddingHorizontal: Spacing.md,
-    borderRadius: Spacing.borderRadius,
-    backgroundColor: '#FFFFFF',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  measureButtonText: { ...Typography.button, fontSize: 17 },
-  measureArrow: { fontSize: 24 },
-  section: { ...Typography.badge, marginTop: Spacing.sm, marginBottom: Spacing.sm },
-  statusRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg },
-  statusCard: { flex: 1, borderRadius: Spacing.borderRadius, borderWidth: 1, padding: Spacing.md },
+  scroll: { padding: 24, paddingBottom: 32, width: '100%', maxWidth: 720, alignSelf: 'center' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 30 },
+  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  brandIcon: { width: 38, height: 38, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
+  brand: { fontSize: 22, fontWeight: '700', letterSpacing: -0.8 },
+  iconButton: { width: 48, height: 48, borderRadius: 16, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  eyebrow: { ...Typography.badge, letterSpacing: 1.5 },
+  pageTitle: { fontSize: 34, fontWeight: '700', letterSpacing: -1.2, marginTop: 6 },
+  subtitle: { ...Typography.bodyRegular, marginTop: 5, marginBottom: 24 },
+  hero: { borderRadius: 26, padding: 24, overflow: 'hidden' },
+  heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  heroBadge: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 },
+  heroEyebrow: { ...Typography.badge, color: '#C5E8AF', flexShrink: 1 },
+  step: { fontSize: 12, color: '#BED0C3' },
+  heroTitle: { fontSize: 30, lineHeight: 36, fontWeight: '600', letterSpacing: -0.7, color: '#FFFFFF', marginTop: 22 },
+  heroBody: { ...Typography.bodyRegular, color: '#D0DFD5', marginTop: 12 },
+  measureButton: { minHeight: 58, borderRadius: 16, paddingHorizontal: 18, paddingVertical: 12, marginTop: 24, backgroundColor: '#C5E8AF', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  measureButtonText: { ...Typography.button, color: '#183D2B', flexShrink: 1 },
+  heroFoot: { fontSize: 12, lineHeight: 18, color: '#BED0C3', marginTop: 14 },
+  statusRow: { flexDirection: 'row', gap: 12, marginVertical: 20 },
+  statusCard: { flex: 1, borderWidth: 1, borderRadius: 20, padding: 16, gap: 8 },
+  statusLabel: { ...Typography.badge, flexShrink: 1 },
   statusValue: { ...Typography.titleMedium },
-  statusLabel: { ...Typography.caption, marginTop: 3 },
-  linkCard: {
-    minHeight: 82,
-    borderRadius: Spacing.borderRadius,
-    borderWidth: 1,
-    padding: Spacing.md,
-    marginBottom: Spacing.sm,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  linkTitle: { ...Typography.bodyBold },
-  linkBody: { ...Typography.caption, marginTop: 3 },
-  chevron: { fontSize: 32 },
+  caption: { ...Typography.caption },
+  sectionHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  sectionTitle: { ...Typography.titleMedium, flexShrink: 1 },
+  textButton: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 5 },
+  actionText: { ...Typography.captionBold },
+  latest: { padding: 18, borderWidth: 1, borderRadius: 20, marginTop: 6 },
+  metrics: { flexDirection: 'row', marginTop: 22, gap: 12 },
+  metric: { flex: 1, gap: 4 },
+  metricValue: { fontSize: 26, fontWeight: '600', fontVariant: ['tabular-nums'] },
+  empty: { borderWidth: 1, borderStyle: 'dashed', borderRadius: 20, padding: 24, alignItems: 'center', gap: 12 },
+  emptyBody: { ...Typography.bodyRegular, textAlign: 'center' },
+  notice: { ...Typography.caption, marginBottom: 12 },
+  mapCard: { flexDirection: 'row', alignItems: 'center', gap: 14, borderRadius: 20, padding: 20, marginTop: 20 },
 });

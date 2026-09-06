@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import {
   FlatList,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -12,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Spacing, Typography } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
+import { AppIcon } from '../components/AppIcon';
 
 const PAGES = [
   {
@@ -80,14 +82,14 @@ export const WelcomeCarouselScreen: React.FC<Props> = ({ onComplete }) => {
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={{ itemVisiblePercentThreshold: 60 }}
         renderItem={({ item }) => (
-          <View style={[styles.page, { width }]}>
+          <ScrollView style={{ width }} contentContainerStyle={styles.page}>
             <View style={[styles.visual, { backgroundColor: colors.primaryDark }]}>
-              <Text style={styles.visualIcon}>{item.icon}</Text>
+              <View style={styles.orbitOuter}><View style={styles.orbitInner}><AppIcon name={item === PAGES[0] ? 'leaf' : item === PAGES[1] ? 'probe' : 'map'} color="#C5E8AF" size={76} /></View></View>
             </View>
             <Text style={[styles.eyebrow, { color: colors.primary }]}>{item.eyebrow}</Text>
             <Text style={[styles.title, { color: colors.text }]}>{item.title}</Text>
             <Text style={[styles.body, { color: colors.textSecondary }]}>{item.body}</Text>
-          </View>
+          </ScrollView>
         )}
       />
 
@@ -141,6 +143,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xl,
   },
   visualIcon: { color: '#FFFFFF', fontSize: 88, fontWeight: '300' },
+  orbitOuter: { width: 210, height: 210, borderRadius: 105, borderWidth: 1, borderColor: '#42614E', alignItems: 'center', justifyContent: 'center' },
+  orbitInner: { width: 155, height: 155, borderRadius: 78, borderWidth: 1, borderColor: '#648267', backgroundColor: '#203E2D', alignItems: 'center', justifyContent: 'center' },
   eyebrow: { ...Typography.badge, letterSpacing: 1.2, marginBottom: Spacing.sm },
   title: { ...Typography.titleLarge, fontSize: 30, lineHeight: 36, marginBottom: Spacing.md },
   body: { ...Typography.bodyRegular, fontSize: 17, lineHeight: 25 },

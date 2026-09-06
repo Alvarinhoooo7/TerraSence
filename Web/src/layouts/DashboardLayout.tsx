@@ -1,28 +1,28 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { supabase } from '../services/supabase';
-import { isSupportStaff } from '../../backend/adminApi';
-import { useEffect, useState } from 'react';
-import { Leaf, Cpu, LogOut, ShieldAlert } from 'lucide-react';
+import { Leaf, Cpu, LogOut, ShieldAlert, HardDriveDownload, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ThemeToggle } from '../components/ThemeToggle';
 
+// El layout sólo se monta para personal de soporte: App.tsx ya resolvió
+// `is_support_staff()` y desvía al alta de soporte a quien no lo sea. Repetir
+// la comprobación aquí añadía una llamada a Postgres por cada montaje del
+// shell sin decidir nada nuevo.
 const NAV_ITEMS = [
-  { path: '/devices', label: 'Equipos', icon: Cpu },
+  { path: '/admin', label: 'Panel de Soporte', icon: ShieldAlert, accent: true },
+  { path: '/firmware', label: 'Firmware OTA', icon: HardDriveDownload },
+  { path: '/admin/staff', label: 'Equipo de soporte', icon: Users },
+  { path: '/devices', label: 'Mis equipos', icon: Cpu },
 ];
 
 export function DashboardLayout({ email }: { email: string }) {
   const location = useLocation();
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    isSupportStaff().then(setIsAdmin).catch(() => setIsAdmin(false));
-  }, []);
 
   return (
     <div className="flex h-screen w-full bg-terra-bg overflow-hidden text-terra-text">
-      
+
       {/* Sidebar */}
-      <motion.aside 
+      <motion.aside
         initial={{ x: -250 }}
         animate={{ x: 0 }}
         className="w-64 glass-panel border-r border-terra-border flex flex-col z-20 shrink-0"
@@ -39,11 +39,16 @@ export function DashboardLayout({ email }: { email: string }) {
             <NavLink
               key={item.path}
               to={item.path}
+              end={item.path === '/admin'}
               className={({ isActive }) => `
                 flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300
-                ${isActive 
-                  ? 'bg-terra-primary/15 text-terra-primary border border-terra-primary/30 shadow-[0_0_15px_rgba(18,210,113,0.1)]' 
-                  : 'text-terra-muted hover:text-terra-text hover:bg-terra-surface hover:border-transparent border border-transparent'
+                ${isActive
+                  ? item.accent
+                    ? 'bg-verdict-amber/15 text-verdict-amber border border-verdict-amber/30 shadow-[0_0_15px_rgba(242,169,59,0.1)] font-bold'
+                    : 'bg-terra-primary/15 text-terra-primary border border-terra-primary/30 shadow-[0_0_15px_rgba(18,210,113,0.1)]'
+                  : item.accent
+                    ? 'text-verdict-amber/70 hover:text-verdict-amber hover:bg-terra-surface hover:border-transparent border border-transparent'
+                    : 'text-terra-muted hover:text-terra-text hover:bg-terra-surface hover:border-transparent border border-transparent'
                 }
               `}
             >
@@ -51,25 +56,6 @@ export function DashboardLayout({ email }: { email: string }) {
               <span className="font-medium text-sm">{item.label}</span>
             </NavLink>
           ))}
-
-          {isAdmin && (
-            <>
-              <div className="my-2 border-t border-terra-border/50" />
-              <NavLink
-                to="/admin"
-                className={({ isActive }) => `
-                  flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-bold
-                  ${isActive 
-                    ? 'bg-verdict-amber/15 text-verdict-amber border border-verdict-amber/30 shadow-[0_0_15px_rgba(242,169,59,0.1)]' 
-                    : 'text-verdict-amber/70 hover:text-verdict-amber hover:bg-terra-surface hover:border-transparent border border-transparent'
-                  }
-                `}
-              >
-                <ShieldAlert size={20} />
-                <span className="font-medium text-sm">Panel de Soporte</span>
-              </NavLink>
-            </>
-          )}
         </nav>
 
         <div className="p-4 border-t border-terra-border">

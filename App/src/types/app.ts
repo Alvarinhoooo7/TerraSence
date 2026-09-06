@@ -159,6 +159,7 @@ export interface PredialQuadrantRow {
 /** Punto tal como lo consume el mapa. */
 export interface MapMeasurementPoint {
   id: string;
+  clientUuid?: string | null;
   latitude: number | null;
   longitude: number | null;
   radiusM: number;
@@ -180,6 +181,7 @@ export interface MapMeasurementPoint {
 
 export const mapRowToPoint = (r: SoilMeasurementRow): MapMeasurementPoint => ({
   id: r.id,
+  clientUuid: r.client_uuid,
   latitude: r.latitude,
   longitude: r.longitude,
   radiusM: r.radius_m ?? 20,

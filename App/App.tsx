@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  BackHandler,
   Linking,
   Text,
   TouchableOpacity,
@@ -36,6 +37,7 @@ import { ResetPasswordScreen } from './src/screens/ResetPasswordScreen';
 import { createRecoverySession } from './src/services/authDeepLink';
 import { WelcomeCarouselScreen } from './src/screens/WelcomeCarouselScreen';
 import { DashboardScreen } from './src/screens/DashboardScreen';
+import { BottomNavigation } from './src/components/BottomNavigation';
 
 type Route = 'dashboard' | 'map' | 'measure' | 'settings' | 'devices' | 'history' | 'perimeter';
 const WELCOME_KEY = '@terrasense/welcome-complete-v1';
@@ -60,6 +62,16 @@ export default function App() {
   const setPreferencesLoaded = useAppStore((state) => state.setPreferencesLoaded);
   const preferences = useAppStore((state) => state.preferences);
   const preferencesLoaded = useAppStore((state) => state.preferencesLoaded);
+
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (detailPoint) { setDetailPoint(null); return true; }
+      if (route === 'measure') return false;
+      if (route !== 'dashboard') { setRoute(route === 'perimeter' ? 'map' : 'dashboard'); return true; }
+      return false;
+    });
+    return () => subscription.remove();
+  }, [route, detailPoint]);
 
   useEffect(() => {
     AsyncStorage.getItem(WELCOME_KEY)
@@ -102,6 +114,10 @@ export default function App() {
       setOnboardingComplete(false);
       setOnboardingError(null);
       setDevice(null);
+      useAppStore.getState().setPoints([]);
+      useAppStore.getState().setPendingCount(0);
+      setDetailPoint(null);
+      setRoute('dashboard');
       setPreferences(DEFAULT_APP_PREFERENCES);
       setPreferencesLoaded(false);
       return () => {
@@ -266,6 +282,8 @@ export default function App() {
         onOpenMap={() => setRoute('map')}
         onOpenHistory={() => setRoute('history')}
         onOpenSettings={() => setRoute('settings')}
+        onOpenDevices={() => setRoute('devices')}
+        onOpenDetail={handleOpenDetail}
       />
     );
   }
@@ -276,6 +294,9 @@ export default function App() {
         <StatusBar style={isDark ? 'light' : 'dark'} />
         <OfflineBanner />
         {content}
+        {session && onboardingComplete && !checkingOnboarding && !onboardingError && !recovering && welcomeComplete && !checking && ['dashboard', 'history', 'map', 'settings'].includes(route) && (
+          <BottomNavigation route={route} onNavigate={setRoute} />
+        )}
         <MeasurementDetailModal point={detailPoint} onClose={() => setDetailPoint(null)} />
       </SafeAreaProvider>
     </GestureHandlerRootView>

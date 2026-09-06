@@ -17,7 +17,8 @@ Es la **herramienta de backoffice del creador/administrador (Álvaro)** para sup
 - [2. Módulos y Enrutamiento Central](#2-módulos-y-enrutamiento-central)
   - [2.1. Panel de Soporte y Gestión de Equipos (`/admin`)](#21-panel-de-soporte-y-gestión-de-equipos-admin)
   - [2.2. Ficha Técnica, Telemetría y Acciones Individuales (`/admin/devices/:id`)](#22-ficha-técnica-telemetría-y-acciones-individuales-admindevicesid)
-  - [2.3. Distribución de Firmware OTA Masiva (`/firmware`)](#23-distribución-de-firmware-ota-masiva-firmware)
+  - [2.3. Catálogo de Firmware OTA (`/firmware`)](#23-catálogo-de-firmware-ota-firmware)
+  - [2.4. Gobernanza del Equipo de Soporte (`/admin/staff`)](#24-gobernanza-del-equipo-de-soporte-adminstaff)
 - [3. Sistema de Diseño y Modo Claro/Oscuro](#3-sistema-de-diseño-y-modo-clarooscuro)
 - [4. Estructura de carpetas](#4-estructura-de-carpetas)
 - [5. Capa Backend y Funciones RPC](#5-capa-backend-y-funciones-rpc)
@@ -49,10 +50,11 @@ La plataforma se organiza en torno a dos ejes operativos bien diferenciados:
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                       TERRASENSE · BACKOFFICE WEB                           │
 ├─────────────────────────────────────────────┬───────────────────────────────┤
-│ 🛡️ PANEL DE SOPORTE Y GESTIÓN DE EQUIPOS    │ ⚡ DISTRIBUCIÓN FIRMWARE OTA  │
+│ 🛡️ PANEL DE SOPORTE Y GESTIÓN DE EQUIPOS    │ ⚡ CATÁLOGO FIRMWARE OTA       │
 │ /admin  &  /admin/devices/:id               │ /firmware                     │
-│ Búsqueda por ID/Email, Batería, Mediciones, │ Carga de Binarios ESP32       │
-│ Roles, Reset y Firmware Individual          │ Lanzamientos Masivos Globales │
+│ Búsqueda por ID/Email, batería, mediciones, │ Versiones publicadas, SHA-256 │
+│ roles, reset, OTA individual y CSV          │ y equipos desactualizados     │
+│ /admin/staff · alta y baja de personal      │ (solo lectura)                │
 └─────────────────────────────────────────────┴───────────────────────────────┘
 ```
 
@@ -71,23 +73,36 @@ Página de control exhaustivo para un equipo seleccionado, alimentada por la RPC
    - Historial de hasta 100 lecturas con porcentaje, voltaje y estado de carga.
    - Filtro interactivo por rango de fechas (`Desde` / `Hasta`) para examinar curvas de descarga en terreno y diagnosticar problemas energéticos.
 3. **Historial de Mediciones Agronómicas:**
-   - Acceso a las últimas 50 lecturas tomadas por el equipo (humedad, temperatura, CE, pH, N, P, K) para verificar el funcionamiento de los sensores.
+   - Tabla de las últimas 50 lecturas tomadas por el equipo (humedad, temperatura de suelo, CE, pH, N, P, K) con su veredicto, predio y etapa fenológica, para verificar el funcionamiento de los sensores.
+   - Los valores N/P/K se muestran agrupados y con una advertencia en pantalla: se derivan de la conductividad eléctrica, no de electrodos ion-selectivos, así que sirven para comprobar que el sensor responde, no para calcular dosis.
 4. **Gestión de Miembros y Roles:**
    - Visualización de todos los usuarios asociados a la sonda con sus respectivos correos y roles.
-   - Selector en línea para reasignar rol (`setMemberRole`), transfiriendo la propiedad automáticamente si se designa un nuevo `owner`.
+   - Selector en línea de tres opciones (`owner`, `admin`, `operator`) para reasignar rol (`setMemberRole`), transfiriendo la propiedad automáticamente si se designa un nuevo `owner`: el dueño anterior baja a `admin`, porque sólo puede haber uno.
+   - La desvinculación pide confirmación en la propia fila. La consola no usa `alert()` ni `confirm()`: un diálogo modal del navegador bloquea el hilo, no deja rastro de lo ocurrido y no se puede leer después; los resultados se muestran como aviso en pantalla.
    - Toggle para autorizar o suspender acceso sin romper el vínculo (`setMemberAuthorized`).
    - Desvinculación definitiva de miembros individuales (`removeMember`).
 5. **Actualización de Firmware Individual (`admin_push_firmware_update`):**
-   - Selector de versión para empujar una actualización OTA específicamente a esta sonda mediante una alerta push, ideal para pruebas de soporte o parches específicos.
+   - Selector de versión, alimentado por `listPublishedFirmware()`, para avisar de una actualización OTA específicamente a esta sonda mediante una alerta push, ideal para pruebas de soporte o parches puntuales.
+   - El selector muestra el `hardware_target` de cada versión y no filtra por el `hardware_version` del equipo: ambas columnas no siempre usan la misma nomenclatura, y un desplegable vacío por un desajuste de cadenas sería peor que dejar elegir con criterio.
+   - **Lo que hace y lo que no:** encola una alerta push. No transfiere el binario, no verifica el SHA-256 y no instala nada; eso lo resuelve la sonda contra `check_firmware_update()`.
+7. **Exportación de Telemetría (CSV):** Tanto el rango de batería visible como las mediciones agronómicas se descargan en CSV con separador `;` y BOM UTF-8, para que Excel en configuración regional española los abra en columnas y sin romper los acentos.
 6. **Reseteo de Fábrica Seguro (`FactoryResetModal`):**
    - Permite restablecer la sonda a valores de fábrica cuando un agricultor vende o regala su equipo.
    - **Confirmación Estricta:** Exige reescribir manualmente el código de 15 dígitos del equipo para desbloquear el botón.
    - **Ejecución Atómica (`admin_factory_reset_device`):** Desvincula a todos los miembros y elimina el historial privado de mediciones, alertas y cuadrantes, manteniendo intactos el `device_code` y los números de serie de hardware para que un nuevo agricultor lo vincule como primer dueño.
 
-### 2.3. Distribución de Firmware OTA Masiva (`/firmware`)
-* Repositorio central de binarios `.bin` compilados para microcontroladores ESP32.
-* Registro de nuevas versiones con versionado semántico (`v1.2.0`, `v1.3.1`, etc.) y notas de versión (`release_notes`).
-* **Despliegue Masivo:** Opción de marcar releases como obligatorios (`is_mandatory`) para que todas las sondas activas que se comuniquen inicien su actualización OTA automáticamente.
+### 2.3. Catálogo de Firmware OTA (`/firmware`)
+* **Solo lectura, a propósito.** La política RLS de `firmware_releases` sólo expone las versiones publicadas y reserva la escritura al rol de servicio: publicar un binario que se instalará sin supervisión en equipos repartidos por el campo no debe poder hacerse con una sesión de navegador.
+* Lista cada versión con su `hardware_target`, estado (publicada o borrador), tamaño, SHA-256 y fecha, marcando en rojo las que no traen firma.
+* **Contraste de flota:** compara la versión instalada de cada equipo contra la última publicada para su plataforma. Ese contraste se alimenta de la tabla `devices`, acotada por RLS a los equipos donde la sesión es miembro: una cuenta de soporte pura no es miembro de ninguno y verá cero. La página lo advierte en pantalla en lugar de dar a entender que la flota está al día; para el firmware de una sonda concreta, la fuente correcta es su ficha en el panel de soporte.
+* La publicación de una versión nueva se documenta en la propia página, con el SQL que se ejecuta con la clave de servicio.
+
+### 2.4. Gobernanza del Equipo de Soporte (`/admin/staff`)
+Pantalla para decidir quién entra al backoffice, apoyada en `admin_support_users`:
+* **Listado del equipo:** nombre, correo y estado de cada persona, distinguiendo tres situaciones —activo, suspendido e *invitado sin registrar* (fila creada con el correo pero sin `user_id` porque todavía no completó el alta)—. La lectura no necesita RPC: la política `support_select_staff` ya deja ver la tabla completa a quien pertenece al panel, y sólo su propia fila a quien no.
+* **Suspender y reactivar (`admin_set_staff_active`):** el servidor rechaza la autodesactivación, y la interfaz además no ofrece el botón sobre la propia fila.
+* **Rotación del código de invitación (`admin_rotate_invite_code`):** exige un mínimo de 8 caracteres y confirmación por duplicado. Postgres guarda sólo el hash bcrypt, de modo que el código vigente no se puede consultar desde aquí: si se pierde, se rota.
+* **Alta autoservicio (`support_self_register`):** una sesión válida que todavía no pertenece al equipo no aterriza en un inventario vacío, sino en un formulario de alta con nombre y código de invitación. Es el control que impide que llegar a la URL del panel baste para entrar, dado que `auth.users` se comparte con la app de agricultores. Cinco intentos fallidos en una hora bloquean el alta desde la base de datos.
 
 ---
 
@@ -130,18 +145,23 @@ Web/
     │   └── DashboardLayout.tsx     # Shell principal con barra superior, navegación y tema
     ├── pages/
     │   ├── SupportPanelPage.tsx    # /admin - Buscador global y panel de soporte técnico
-    │   └── SupportDeviceDetailPage.tsx # /admin/devices/:id - Ficha, telemetría, miembros y reset
+    │   ├── SupportDeviceDetailPage.tsx # /admin/devices/:id - Ficha, telemetría, miembros, OTA y reset
+    │   ├── SupportStaffPage.tsx    # /admin/staff - Personal de soporte y código de invitación
+    │   ├── FirmwarePage.tsx        # /firmware - Catálogo de versiones publicadas
+    │   └── DevicesPage.tsx         # /devices - Inventario propio (acotado por RLS)
     ├── components/
     │   ├── AuthScreen.tsx          # Pantalla de acceso de administradores
     │   ├── ResetPasswordScreen.tsx # Formulario de restablecimiento de contraseña
+    │   ├── SupportOnboarding.tsx   # Alta de personal con código de invitación
     │   ├── ThemeToggle.tsx         # Conmutador animado Sol / Luna
-    │   ├── FirmwareView.tsx        # Módulo de administración y subida masiva de binarios OTA
+    │   ├── FirmwareView.tsx        # Catálogo OTA de solo lectura y contraste de flota
     │   └── admin/
     │       └── FactoryResetModal.tsx # Modal crítico de reseteo de fábrica
     ├── services/
-    │   └── supabase.ts             # Cliente frontend de Supabase
+    │   └── supabase.ts             # Cliente frontend de Supabase (instancia única de GoTrue)
     └── utils/
-        └── verdict.ts              # Formateo de códigos de 15 dígitos y tiempos relativos
+        ├── verdict.ts              # Formateo de códigos de 15 dígitos y tiempos relativos
+        └── csv.ts                  # Exportación CSV con separador ; y BOM UTF-8
 ```
 
 ---
@@ -153,13 +173,25 @@ Las operaciones sensibles del backoffice se ejecutan mediante **Remote Procedure
 | Función en `adminApi.ts` | RPC en Postgres | Parámetros | Propósito |
 | :--- | :--- | :--- | :--- |
 | `isSupportStaff()` | `is_support_staff` | — | Valida si la sesión pertenece al personal de soporte activo. |
+| `selfRegisterSupportStaff()` | `support_self_register` | `p_full_name`, `p_invite_code` | Alta autoservicio contra el hash del código de invitación. |
+| `listSupportStaff()` | — (SELECT con RLS) | — | Lee `admin_support_users`; la política `support_select_staff` hace de filtro. |
+| `setStaffActive()` | `admin_set_staff_active` | `p_user_id`, `p_active` | Suspende o reactiva a otro miembro; rechaza la autodesactivación. |
+| `rotateInviteCode()` | `admin_rotate_invite_code` | `p_new_code` | Sustituye el código de invitación (mínimo 8 caracteres). |
 | `searchDevices()` | `admin_search` | `p_query: text` | Búsqueda multicriterio (código 15 dígitos, alias, email). |
 | `getDeviceDetail()` | `admin_get_device_detail` | `p_device_id: uuid` | Retorna equipo, firmware, miembros, 100 baterías y 50 mediciones. |
 | `setMemberAuthorized()`| `admin_set_member_authorized` | `p_device_id`, `p_user_id`, `p_authorized` | Habilita o suspende el acceso de un miembro al equipo. |
 | `setMemberRole()` | `admin_set_member_role` | `p_device_id`, `p_user_id`, `p_role` | Modifica rol (`owner`, `admin`, `operator`) con traspaso automático. |
 | `removeMember()` | `admin_unbind_user_device`| `p_device_id`, `p_user_id` | Desvincula totalmente a un usuario del equipo. |
 | `factoryResetDevice()` | `admin_factory_reset_device`| `p_device_id`, `p_confirm_device_code` | Borra membresías y mediciones privadas exigiendo el código. |
-| `pushFirmwareUpdate()` | `admin_push_firmware_update`| `p_device_id`, `p_firmware_release_id` | Genera alerta push individual para forzar actualización OTA. |
+| `listPublishedFirmware()` | — (SELECT con RLS) | `hardwareTarget?` | Catálogo publicado, para el selector de versión de la ficha. |
+| `pushFirmwareUpdate()` | `admin_push_firmware_update`| `p_device_id`, `p_firmware_release_id` | Genera alerta push individual avisando de una actualización OTA. |
+
+`Web/backend/supabaseAdmin.ts` **no crea un segundo cliente**: reexporta el de
+`src/services/supabase.ts` con los tipos generados. Dos `createClient` en la
+misma pestaña levantan dos instancias de GoTrue compitiendo por la misma clave
+de `localStorage`, y un refresco de token disparado por una puede dejar a la
+otra con una sesión obsoleta — que en el panel se manifiesta como un `42501`
+espurio a mitad de sesión.
 
 ---
 
@@ -237,25 +269,32 @@ El proyecto utiliza un servidor SMTP propio de Gmail en Supabase (`[auth.email.s
 > ### ⚠️ Estado de verificación
 > Corregido tras la [auditoría del 4 de septiembre de 2026](../finanzas/historico/documentacion/docs/AUDITORIA_READMES_2026-09-04.md). El estado **remoto de producción no fue comprobado**; lo que sigue describe el código de este repositorio.
 >
-> **Verificado localmente el 04-09-2026**, tras instalar dependencias (`npm install`, sin cambios en `package-lock.json`):
+> **Verificado localmente el 05-09-2026**, sobre las dependencias ya instaladas:
 > - `npm run type-check` (`tsc -b`) → **aprobado**
-> - `npm run build` → **aprobado**, 2.303 módulos transformados en 24 s
+> - `npm run build` → **aprobado**, 2.307 módulos transformados en 9 s
+> - Servidor de desarrollo levantado y cada módulo nuevo solicitado a Vite para comprobar que transforma sin error
 >
-> El build emite una advertencia de tamaño: el *chunk* principal pesa 654 kB (190 kB con gzip), sobre el umbral de 500 kB de Vite. No impide el despliegue; se resuelve con división de código si llega a molestar.
+> La advertencia de tamaño **ya no aparece**: `vite.config.ts` divide las dependencias en tres grupos (`react`, `supabase`, `ui`) y ninguno supera el umbral de 500 kB. El reparto queda en 50 / 220 / 148 kB de dependencias más 261 kB de código propio (195 kB en total con gzip), y un despliegue normal sólo invalida el último.
+>
+> **No se ejecutó DDL ni se aplicó ninguna migración.** Todo lo añadido en esta entrega consume funciones que ya existían en `supabase/migrations/20260902120000_panel_soporte_backend.sql` y que están presentes en `Web/backend/database.types.ts`, generado contra el proyecto remoto. Ver [`supabase/APP_COMPATIBILITY_20260905.md`](../supabase/APP_COMPATIBILITY_20260905.md) para el estado del historial de migraciones, que incluye dos versiones remotas ausentes en local y una local pendiente de aplicar.
 
 ### 11.1. Módulos implementados
 * ✅ **Panel de Soporte Técnico (`/admin`):** Buscador multi-criterio en tiempo real (por ID de hardware de 15 dígitos, alias o correo del usuario) con listado dinámico de flota.
 * ✅ **Ficha Técnica y Diagnóstico Individual (`/admin/devices/:id`):** Visualización de curvas de batería de litio, versión de firmware activa, tabla de miembros vinculados y últimas mediciones edafológicas reportadas.
 * ✅ **Gobernanza de Membresías:** Reasignación de roles (`owner`, `admin`, `operator`) y revocación de permisos de acceso.
 * ✅ **Factory Reset Remoto Seguro:** Desvinculación atómica de miembros y purga de mediciones privadas ante reventa o traspaso entre agricultores.
-* ⚠️ **Catálogo de firmware (`/firmware`) — solo lectura.** `FirmwareView.tsx` **consulta** el catálogo y está definido expresamente como una vista de lectura. **No implementa carga de binarios `.bin`, cálculo de SHA-256 ni publicación OTA masiva.** La descripción anterior de este README era incorrecta.
+* ✅ **Historial de Mediciones Agronómicas:** tabla de las últimas 50 lecturas con veredicto, predio y etapa. El dato ya venía en `admin_get_device_detail`; hasta ahora la ficha lo descartaba sin mostrarlo.
+* ✅ **Aviso de Firmware OTA Individual:** selector de versión publicada y envío de la alerta push desde la ficha del equipo (`listPublishedFirmware` + `admin_push_firmware_update`). Ambas funciones existían en `adminApi.ts` sin ninguna pantalla que las invocara.
+* ✅ **Gobernanza del Equipo de Soporte (`/admin/staff`) y alta autoservicio:** `support_self_register`, `admin_set_staff_active` y `admin_rotate_invite_code` pasan de estar sólo declaradas en `adminApi.ts` a tener interfaz. Antes, una cuenta nueva sin pertenencia al panel aterrizaba en un inventario vacío sin ninguna vía de acceso.
+* ✅ **Exportación de Telemetría (CSV):** batería y mediciones descargables desde la ficha del equipo.
+* ⚠️ **Catálogo de firmware (`/firmware`) — solo lectura.** `FirmwareView.tsx` **consulta** el catálogo y está definido expresamente como una vista de lectura. **No implementa carga de binarios `.bin`, cálculo de SHA-256 ni publicación OTA masiva.** La ruta `/firmware` ahora existe en el enrutador (antes el catálogo sólo se alcanzaba desde una pestaña interna de `/devices`), pero su alcance no ha cambiado.
 
-  Hay que distinguir cinco cosas que no son equivalentes: **catálogo** (existe), **aviso** al dispositivo (la alerta `admin_push_firmware_update` existe), **descarga**, **verificación de integridad** e **instalación comprobada en hardware**. Solo la primera está implementada, y **no hay un binario validado contra hardware**.
+  Hay que distinguir cinco cosas que no son equivalentes: **catálogo** (existe), **aviso** al dispositivo (la alerta `admin_push_firmware_update` existe y ya tiene interfaz), **descarga**, **verificación de integridad** e **instalación comprobada en hardware**. Sólo las dos primeras están implementadas, y **no hay un binario validado contra hardware**.
+* ⚠️ **Inventario propio (`/devices`) — vacío para una cuenta de soporte.** La tabla `devices` está acotada por RLS a los equipos donde la sesión es miembro, y una cuenta de backoffice no lo es de ninguno. Se conserva en la navegación porque un operador puede tener su propia sonda de pruebas, pero la vía correcta para la flota es el panel de soporte. Por eso la raíz `/` redirige a `/admin` y no a `/devices`.
 * ✅ **Despliegue continuo en Vercel:** Integración SPA activa en `https://terrasense-web.vercel.app`.
 
 ### 11.2. Roadmap y funcionalidades pendientes
 * ⏳ **Publicación OTA real:** carga de binarios, cálculo y verificación de SHA-256, marcado de versión obligatoria y despliegue a la flota. Requiere además firmware de ESP32, que **no existe en el repositorio**.
-* ⏳ **Exportación Forense de Telemetría (CSV / Excel):** Botón de descarga de registros históricos de lecturas por sonda para peritajes agronómicos y soporte técnico avanzado.
 * ⏳ **Sistema de Tickets de Soporte Integrado:** Bandeja interna de solicitudes de asistencia vinculadas al correo del agricultor y al ID de la sonda para trazabilidad de fallas de hardware.
 * ⏳ **Monitor de Salud Preventiva de Flota:** Disparador automático de alertas cuando una sonda reporte voltajes inferiores a 3.4V o fallas repetidas de CRC en el bus RS-485.
 * ⏳ **Despliegue OTA Escalonado (Canary Releases):** Capacidad de programar actualizaciones graduales de firmware (10 % $\rightarrow$ 50 % $\rightarrow$ 100 % de las sondas activas) para mitigar riesgos en campo antes de un lanzamiento general.

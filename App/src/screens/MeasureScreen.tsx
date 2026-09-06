@@ -294,6 +294,8 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
               return (
                 <TouchableOpacity
                   key={item.id}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected }}
                   onPress={() => setStage(item.id)}
                   style={[
                     styles.stageCard,
@@ -304,8 +306,11 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
                   ]}
                 >
                   <Text style={styles.stageEmoji}>{item.emoji}</Text>
-                  <Text style={[styles.stageTitle, { color: selected ? '#FFFFFF' : colors.text }]}>{item.label}</Text>
-                  <Text style={[styles.stageFocus, { color: selected ? '#D8E8DF' : colors.textSecondary }]}>{item.focus}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.stageTitle, { color: selected ? '#FFFFFF' : colors.text }]}>{item.label}</Text>
+                    <Text style={[styles.stageFocus, { color: selected ? '#D8E8DF' : colors.textSecondary }]}>{item.focus}</Text>
+                  </View>
+                  <Text style={{ color: selected ? '#C5E8AF' : colors.textMuted, fontSize: 22 }}>{selected ? '●' : '○'}</Text>
                 </TouchableOpacity>
               );
             })}
@@ -347,6 +352,8 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
           {cards.map((card, index) => (
             <TouchableOpacity
               key={card.key}
+              accessibilityRole="button"
+              accessibilityState={{ selected: detailIndex === index }}
               onPress={() => setDetailIndex(index)}
               style={[
                 styles.resultCard,
@@ -446,10 +453,10 @@ const styles = StyleSheet.create({
   pageTitle: { ...Typography.titleLarge, fontSize: 28 },
   pageBody: { ...Typography.bodyRegular, marginTop: Spacing.sm, marginBottom: Spacing.lg },
   stageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
-  stageCard: { width: '48.5%', minHeight: 178, borderRadius: Spacing.cardRadius, borderWidth: 1, padding: Spacing.md },
+  stageCard: { width: '100%', flexDirection: 'row', alignItems: 'center', gap: 16, minHeight: 110, borderRadius: Spacing.cardRadius, borderWidth: 1, padding: 20 },
   stageEmoji: { fontSize: 31, marginBottom: Spacing.sm },
   stageTitle: { ...Typography.titleMedium },
-  stageFocus: { ...Typography.caption, marginTop: Spacing.sm },
+  stageFocus: { ...Typography.bodyRegular, marginTop: Spacing.sm },
   cta: { minHeight: 56, borderRadius: Spacing.borderRadius, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.md, marginTop: Spacing.lg },
   ctaText: { ...Typography.button, color: '#FFFFFF', fontSize: 17 },
   resultGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs, marginBottom: Spacing.lg },

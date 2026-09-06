@@ -10,17 +10,18 @@
 // Nunca uses aquí la service_role key: este archivo se empaqueta para el
 // navegador. Todo lo que expone este panel pasa por RPC SECURITY DEFINER que
 // comprueban is_support_staff() en el servidor.
+//
+// IMPORTANTE — una sola instancia de GoTrue:
+// Este módulo NO crea un segundo cliente. Dos `createClient` en la misma
+// pestaña levantan dos instancias de GoTrue compitiendo por la misma clave de
+// `localStorage`; Supabase avisa de ello por consola y el resultado es que un
+// refresco de token disparado por una instancia puede dejar a la otra con una
+// sesión obsoleta, lo que en el panel se manifiesta como un `42501` espurio a
+// mitad de sesión. Reutilizamos el cliente de la consola y sólo le aplicamos
+// los tipos generados de la base.
 
-import { createClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { supabase } from '../src/services/supabase';
 import type { Database } from './database.types';
 
-const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-
-if (!url || !key) {
-  console.warn(
-    '[TerraSense · Soporte] Falta VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY.',
-  );
-}
-
-export const supabaseAdmin = createClient<Database>(url ?? '', key ?? '');
+export const supabaseAdmin = supabase as unknown as SupabaseClient<Database>;

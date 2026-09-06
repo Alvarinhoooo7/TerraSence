@@ -19,6 +19,7 @@ import type {
   FirmwareReleaseRow,
   RpcResult,
   FactoryResetResult,
+  SupportStaffRow,
 } from './types';
 
 // ---------------------------------------------------------------------------
@@ -49,6 +50,21 @@ export async function selfRegisterSupportStaff(
   });
   if (error) throw error;
   return data as unknown as RpcResult;
+}
+
+/**
+ * Equipo de soporte completo. No necesita RPC: la política RLS
+ * `support_select_staff` de `admin_support_users` ya deja leer la tabla a
+ * quien pertenece al panel (y sólo su propia fila a quien no). Un usuario sin
+ * acceso recibe una lista vacía o su fila, nunca la de los demás.
+ */
+export async function listSupportStaff(): Promise<SupportStaffRow[]> {
+  const { data, error } = await supabase
+    .from('admin_support_users')
+    .select('id,user_id,email,full_name,is_active,created_at')
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as unknown as SupportStaffRow[];
 }
 
 /** Cambia el código de invitación. Sólo para quien ya está dentro del panel. */

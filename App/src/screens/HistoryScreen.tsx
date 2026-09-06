@@ -4,9 +4,11 @@
 // y filtrables por etapa. Útil cuando el agricultor quiere revisar la evolución
 // de un potrero en vez de su distribución espacial.
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   SectionList,
+  ActivityIndicator,
+  RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -20,7 +22,7 @@ import { ScreenGuide } from '../components/ScreenGuide';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { PHENOLOGICAL_STAGES, type MapMeasurementPoint, type PhenologicalStage } from '../types/app';
-import { fetchMeasurements, pendingMeasurementPoints } from '../services/measurementsService';
+import { useMeasurementHistory } from '../hooks/useMeasurementHistory';
 
 interface Props {
   onClose: () => void;
@@ -42,23 +44,8 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
   const { isDark, colors } = useAppTheme();
   const { language, locale, t } = useTranslation();
 
-  const { points, fieldName, device, setPoints } = useAppStore();
-  const [loadError, setLoadError] = useState(false);
-  useEffect(() => {
-    let active = true;
-    setLoadError(false);
-    void (async () => {
-      const local = await pendingMeasurementPoints(fieldName, device?.id);
-      let remote: MapMeasurementPoint[] = [];
-      try { remote = await fetchMeasurements(fieldName, device?.id); }
-      catch { if (active) setLoadError(true); }
-      if (!active) return;
-      const ids = new Set(remote.map(p => p.id));
-      setPoints([...local.filter(p => !ids.has(p.id)).map(p => ({ ...p, isPending: true })), ...remote]
-        .sort((a,b) => Date.parse(b.measuredAt)-Date.parse(a.measuredAt)));
-    })().catch(() => { if (active) setLoadError(true); });
-    return () => { active = false; };
-  }, [fieldName, device?.id, setPoints]);
+  const fieldName = useAppStore(s => s.fieldName);
+  const { points, loading, offline, error, refresh } = useMeasurementHistory();
   const [filter, setFilter] = useState<PhenologicalStage | 'all'>('all');
 
   const sections = useMemo(() => {
@@ -80,10 +67,10 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
   }, [points]);
 
   return (
-    <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={[styles.root, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onClose} hitSlop={12} style={styles.headerBtn}>
-          <Text style={{ color: colors.primary, ...Typography.bodyBold }}>‹ {t('Mapa', 'Map')}</Text>
+          <Text style={{ color: colors.primary, ...Typography.bodyBold }}>‹ {t('Inicio', 'Home')}</Text>
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
           {fieldName}
@@ -91,6 +78,7 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
         <View style={styles.headerBtn} />
       </View>
 
+      <View style={{ paddingHorizontal: 20, marginBottom: 20 }}><Text style={{ ...Typography.titleLarge, fontSize: 32, color: colors.text }}>{t('Historial', 'History')}</Text><Text style={{ ...Typography.bodyRegular, color: colors.textSecondary, marginTop: 6 }}>{t('Cada lectura cuenta la historia de tu suelo.', 'Every reading tells the story of your soil.')}</Text></View>
       {/* Resumen del predio de un vistazo */}
       <View style={styles.summary}>
         {(['GREEN', 'AMBER', 'RED'] as const).map((v) => {
@@ -148,11 +136,12 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
       </View>
 
       <SectionList
-        ListHeaderComponent={loadError ? <Text style={{ color: colors.warning }}>{t('Sin acceso al historial remoto; se muestran datos locales.', 'Remote history unavailable; showing local data.')}</Text> : null}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} tintColor={colors.primary} />}
+        ListHeaderComponent={offline || error ? <Text style={{ color: colors.warning }}>{error ? t('No pudimos cargar el historial. Desliza para reintentar.', 'Could not load history. Pull to retry.') : t('Sin acceso al historial remoto; se muestran datos locales.', 'Remote history unavailable; showing local data.')}</Text> : null}
         sections={sections}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
-        ListEmptyComponent={
+        ListEmptyComponent={loading ? <ActivityIndicator color={colors.primary} style={{ marginTop: 32 }} /> :
           <Text style={[styles.empty, { color: colors.textSecondary }]}>
             {points.length === 0
               ? t('Todavía no hay mediciones en este predio.', 'There are no readings in this field yet.')
@@ -170,6 +159,7 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
           const stage = PHENOLOGICAL_STAGES.find((s) => s.id === item.stage);
           return (
             <TouchableOpacity
+              accessibilityRole="button"
               onPress={() => onOpenDetail(item)}
               style={[
                 styles.row,
@@ -183,6 +173,7 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
                 <Text style={[styles.rowTitle, { color: colors.text }]} numberOfLines={1}>
                   {item.title}
                 </Text>
+                <Text style={{ ...Typography.captionBold, color: item.isPending ? colors.warning : colors.primary, marginTop: 4 }}>{item.isPending ? t('Guardada en el teléfono · Pendiente', 'Saved on phone · Pending') : t('Respaldada en la nube', 'Backed up to cloud')}</Text>
                 <Text style={[styles.rowMeta, { color: colors.textSecondary }]}>
                   {hourLabel(item.measuredAt, locale)} · {stage?.emoji}{' '}
                   {stage ? (language === 'en' ? stage.labelEn : stage.label) : ''} · pH{' '}
@@ -220,7 +211,7 @@ const styles = StyleSheet.create({
   },
   summaryIcon: { fontSize: 18, fontWeight: '700' },
   summaryCount: { ...Typography.titleLarge },
-  summaryLabel: { ...Typography.badge },
+  summaryLabel: { ...Typography.badge, textAlign: 'center', paddingHorizontal: 6 },
   filters: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -229,9 +220,9 @@ const styles = StyleSheet.create({
   },
   filterChip: {
     paddingHorizontal: Spacing.md,
-    height: 38,
+    minHeight: 48,
     justifyContent: 'center',
-    borderRadius: 19,
+    borderRadius: 24,
     borderWidth: 1,
   },
   filterText: { ...Typography.captionBold },
@@ -244,8 +235,8 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.borderRadius,
     borderWidth: 1,
     borderLeftWidth: 4,
-    padding: Spacing.sm + 2,
-    marginBottom: Spacing.xs,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
     minHeight: Spacing.touchTarget + 12,
   },
   rowBadge: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },

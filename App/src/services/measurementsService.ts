@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Crypto from 'expo-crypto';
 import { supabase } from './supabase';
 import { createKeyedLock } from '../utils/keyedLock';
+import { mergeMeasurementHistory } from '../utils/measurementHistory';
 import {
   mapRowToPoint,
   type MapMeasurementPoint,
@@ -30,10 +31,33 @@ interface QueuedMeasurement {
 
 /** Columnas que necesita el mapa. Se piden explícitas para no traer de más. */
 const MAP_COLUMNS =
-  'id,latitude,longitude,radius_m,gps_accuracy_m,verdict,verdict_title,action_summary,' +
+  'id,client_uuid,latitude,longitude,radius_m,gps_accuracy_m,verdict,verdict_title,action_summary,' +
   'phenological_stage,measured_at,ph,ec_us_cm,vwc_percent,soil_temp_c,nitrogen,phosphorus,potassium';
 
 export const newClientUuid = (): string => Crypto.randomUUID();
+
+/** Cache is isolated by account, field and device, just like the remote query. */
+export async function loadMeasurementHistory(fieldName: string, deviceId?: string | null) {
+  const account = await accountQueueKey();
+  const key = `${account}/history/${JSON.stringify([fieldName, deviceId ?? null])}`;
+  const pending = await pendingMeasurementPoints(fieldName, deviceId);
+  let points: MapMeasurementPoint[];
+  let offline = false;
+  try {
+    points = await fetchMeasurements(fieldName, deviceId);
+  } catch {
+    offline = true;
+    const raw = await AsyncStorage.getItem(key);
+    points = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(points)) throw new Error('No se pudo leer el historial local.');
+  }
+  if (await accountQueueKey() !== account) throw new Error('La cuenta ha cambiado.');
+  if (!offline) {
+    // A cache write failure must not hide successfully fetched measurements.
+    await AsyncStorage.setItem(key, JSON.stringify(points)).catch(() => undefined);
+  }
+  return { points: mergeMeasurementHistory(points, pending), offline };
+}
 
 /** Mediciones de un predio, más recientes primero. */
 export async function fetchMeasurements(
@@ -97,7 +121,7 @@ export async function pendingMeasurementPoints(
       mapRowToPoint({
         ...row,
         id: row.client_uuid,
-        measured_at: queuedAt,
+        measured_at: row.measured_at ?? queuedAt,
       } as SoilMeasurementRow),
     );
 }

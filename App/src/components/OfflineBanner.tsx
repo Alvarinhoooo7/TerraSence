@@ -6,12 +6,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from '../hooks/useTranslation';
 import { flushQueue, pendingCount } from '../services/measurementsService';
 import { useAppStore } from '../store/useAppStore';
+import { useAuthStore } from '../store/useAuthStore';
 
 export const OfflineBanner = () => {
   const [isConnected, setIsConnected] = useState<boolean | null>(true);
   const { colors } = useAppTheme();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+  const accountId = useAuthStore(s => s.session?.user.id);
 
   useEffect(() => {
     let active = true;
@@ -22,13 +24,19 @@ export const OfflineBanner = () => {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 5000);
       try {
+        if (accountId) {
+          const count = await pendingCount();
+          if (active) useAppStore.getState().setPendingCount(count);
+        }
         const response = await fetch('https://www.google.com/generate_204', { signal: controller.signal });
         if (active) setIsConnected(response.ok);
-        if (response.ok) {
+        if (response.ok && accountId && active) {
           try {
+            useAppStore.getState().setSyncing(true);
             await flushQueue();
             if (active) useAppStore.getState().setPendingCount(await pendingCount());
           } catch { /* Sin sesión o servidor no disponible: conservar la cola. */ }
+          finally { if (active) useAppStore.getState().setSyncing(false); }
         }
       } catch {
         if (active) setIsConnected(false);
@@ -41,10 +49,11 @@ export const OfflineBanner = () => {
     });
     return () => {
       active = false;
+      useAppStore.getState().setSyncing(false);
       clearInterval(timer);
       subscription.remove();
     };
-  }, []);
+  }, [accountId]);
 
   if (isConnected !== false) {
     return null; // Don't show if connected or unknown
