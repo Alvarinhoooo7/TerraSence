@@ -19,7 +19,7 @@ Deno. Es la fuente única de verdad del sistema.
 - [6. Migraciones](#6-migraciones)
 - [7. Plantillas de correo](#7-plantillas-de-correo)
 - [8. Comandos habituales](#8-comandos-habituales)
-- [9. Diagnóstico sin Docker](#9-diagnóstico-sin-docker)
+- [9. Docker y diagnóstico sin Docker](#9-docker-y-diagnóstico-sin-docker)
 - [10. Pendientes conocidos](#10-pendientes-conocidos-y-tareas-operativas)
 - [11. 🛠️ Manual de instalación de herramientas](#manual-instalacion-herramientas)
 
@@ -238,6 +238,42 @@ curl -X POST https://bjmhjatykqccksddgtmo.supabase.co/functions/v1/device-checki
 Las migraciones `130000` y `150000` **no contienen DDL**: sólo emiten `RAISE NOTICE`. Fueron la única
 forma de auditar las políticas sin Docker ni `psql`, y se conservan como constancia.
 
+### 6.1. Desfase entre el historial local y el remoto
+
+`supabase migration list --linked`, ejecutado el **5 de septiembre de 2026**, devuelve tres
+discrepancias. El resto de versiones coincide:
+
+| Versión | Local | Remoto | Qué implica |
+| :--- | :---: | :---: | :--- |
+| `20260902180000` | ausente | **aplicada** | El archivo no está en el repositorio |
+| `20260902210000` | ausente | **aplicada** | El archivo no está en el repositorio |
+| `20260904120000` | presente | **pendiente** | Escrita, sin desplegar. Ver §10.1 |
+
+**Las dos ausentes no son un agujero de esquema, sino de contabilidad.** La comprobación del
+5 de septiembre contrastó el esquema remoto real —los tipos de
+[`Web/backend/database.types.ts`](../Web/backend/database.types.ts), generados con
+`supabase gen types --linked`— contra todo lo que invoca el código:
+
+* **16 RPCs** llamadas desde `App/src` y `Web/` → las 16 existen en remoto.
+* **8 tablas** consultadas → las 8 existen.
+* **18 columnas** de `soil_measurements` que pide la app → todas existen.
+* Los únicos objetos remotos sin rastro en las migraciones locales son `geography_columns`,
+  `geometry_columns` y `spatial_ref_sys`: tablas de sistema de PostGIS.
+
+Además, las cuatro migraciones vecinas de esa misma tanda (`170000`, `190000`, `200000`, `220000`)
+contienen **cero DDL**: son bloques `DO $$ … RAISE NOTICE` de auditoría, el mismo patrón descrito
+arriba. Todo indica que `180000` y `210000` eran del mismo tipo.
+
+> [!WARNING]
+> Esto explica el desfase, **no lo cierra**. Mientras los dos archivos falten, el historial local no
+> reconstruye el remoto y `db push` puede comportarse de forma inesperada. Recupéralos con
+> `supabase db pull` —que **exige Docker**, ver §9— antes de empujar nada nuevo. **No los
+> sustituyas por marcadores vacíos ni fuerces su estado con `migration repair`:** eso deja el
+> historial cuadrado en apariencia y el esquema sin reconstruir.
+
+La primera constancia de este desfase, junto con el contrato de la app que depende de él, está en
+[`APP_COMPATIBILITY_20260905.md`](APP_COMPATIBILITY_20260905.md).
+
 ---
 
 ## 7. Plantillas de correo
@@ -284,10 +320,29 @@ supabase config push                          # configuración de auth y storage
 
 ---
 
-## 9. Diagnóstico sin Docker
+## 9. Docker y diagnóstico sin Docker
 
-`supabase db dump` y `db pull` **exigen Docker**. Si no lo tienes, hay dos vías que sí funcionan
-porque el CLI habla directo con la base:
+> [!IMPORTANT]
+> **Docker Desktop está en el camino crítico y hoy no lo está.** El 5 de septiembre de 2026,
+> `supabase db dump --schema public` falló con
+> `failed to inspect docker image: … open //./pipe/docker_engine: The system cannot find the file specified`,
+> es decir, Docker Desktop no estaba corriendo.
+>
+> Esto bloquea dos tareas que **no tienen alternativa**:
+> * **Recuperar las dos migraciones remotas ausentes** (§6.1) con `supabase db pull`.
+> * **Exportar un esquema versionado** para poder afirmar que el backend es reproducible (§10.2).
+>
+> Instálalo y arráncalo antes de la próxima sesión de base de datos: sin él, el desfase del
+> historial no se puede cerrar y la migración pendiente de §10.1 no debería empujarse.
+
+Lo que **sí** funciona sin Docker, porque el CLI habla directo con la base:
+
+```bash
+# Historial de migraciones: local frente a remoto
+supabase migration list --linked
+```
+
+Y para el esquema:
 
 ```bash
 # Esquema completo: nombres de tabla, columnas y tipos
@@ -312,12 +367,29 @@ modificar nada.
 
 `migrations/20260904120000_mediciones_sin_gps_idempotencia.sql` **está escrita pero no desplegada**. Hace dos cosas: admite `latitude`/`longitude` nulas —para que una medición sin señal GPS se guarde igual— y crea un índice único **no parcial** sobre `client_uuid`, necesario porque PostgREST no puede inferir un índice parcial para `ON CONFLICT(client_uuid)`.
 
+**No es una mejora pendiente: son dos fallos activos contra producción.** Verificado el 5 de septiembre de 2026 contra el esquema remoto:
+
+| Fallo | Causa en remoto | Dónde revienta | Desde |
+| :--- | :--- | :--- | :--- |
+| Upsert idempotente inoperante (`42P10`) | Sólo existe `idx_soil_measurements_client_uuid`, único pero **parcial** (`WHERE client_uuid IS NOT NULL`) | `App/src/services/measurementsService.ts` — `.upsert(row, { onConflict: 'client_uuid' })` | commit `7c65672`, 27-ago-2026 |
+| Medición sin GPS rechazada (`23502`) | `latitude` y `longitude` siguen siendo `NOT NULL` | `App/src/screens/MeasureScreen.tsx` — `coords?.latitude ?? null` | commit `9bd4a79`, 04-sep-2026 |
+
+El segundo es especialmente sensible: guardar una lectura sin cobertura GPS es justo lo que el Informe 1 promete, y hoy la base la rechaza.
+
+**Orden correcto, no negociable:**
+
+1. **Arrancar Docker Desktop** y recuperar las dos migraciones remotas ausentes (§6.1 y §9). Empujar sobre un historial descuadrado es lo que hay que evitar.
+2. Probar en staging, no directo en producción.
+3. Aplicar y verificar.
+
 ```bash
-supabase db push --linked                    # aplicar en staging primero
-supabase inspect db table-stats --linked     # contrastar con las tablas descritas arriba
+supabase migration list --linked             # 0. confirmar el desfase de §6.1
+supabase db pull                             # 1. recuperar lo ausente (requiere Docker)
+supabase db push --linked                    # 2. aplicar en staging primero
+supabase inspect db table-stats --linked     # 3. contrastar con las tablas descritas arriba
 ```
 
-Después de aplicarla hay que **auditar los registros históricos** y validar la restricción por separado (se crea `NOT VALID` a propósito), y comprobar que el upsert de la app resuelve contra el índice nuevo y no contra el parcial antiguo.
+Después de aplicarla hay que **auditar los registros históricos** y validar la restricción por separado (se crea `NOT VALID` a propósito), y comprobar que el upsert de la app resuelve contra el índice nuevo y no contra el parcial antiguo. Conviene además regenerar `Web/backend/database.types.ts` (`supabase gen types typescript --linked`), porque hoy declara `latitude: number` no nulo y quedará desactualizado.
 
 ### 10.2. Esquema reproducible desde cero
 
@@ -335,9 +407,14 @@ Existe un *workflow* que genera un respaldo lógico privado con retención de si
 
 No se ha auditado. Lo verificado es que el código local compila y pasa sus pruebas; **producción no se revisó**: ni configuración SMTP efectiva, ni políticas RLS activas, ni límites de tasa, ni el estado real de las Edge Functions.
 
+Lo único comprobado contra remoto, el 5 de septiembre de 2026, es **la existencia de los objetos que el código invoca** (§6.1): 16 RPCs, 8 tablas y las 18 columnas de `soil_measurements` que consulta la app. Eso confirma que las llamadas resuelven; **no** dice nada sobre si las políticas RLS se comportan como se documenta, que sigue siendo una auditoría pendiente y distinta.
+
 ### 10.5. Otros pendientes
 
 
+- **Docker Desktop**: no está operativo en el equipo de desarrollo (comprobado el 5-sep-2026).
+  Bloquea `db dump` y `db pull`, y con ellos la recuperación del historial (§6.1) y el esquema
+  reproducible (§10.2). Instalación en §11.
 - **SMTP propio**, para activar las plantillas de correo (§7).
 - **Firmware físico y publicación OTA**: el catálogo `firmware_releases`, su RPC de consulta y la
   vista web existen; falta publicar un binario validado contra hardware real.
