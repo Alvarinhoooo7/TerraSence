@@ -29,6 +29,7 @@ import { HistoryScreen } from './src/screens/HistoryScreen';
 import { PerimeterScreen } from './src/screens/PerimeterScreen';
 import { Typography } from './src/constants/theme';
 import { getOnboardingState } from './src/services/onboardingService';
+import { clearDevSkip, isDevSkipEnabled } from './src/utils/devSkipOnboarding';
 import { loadPreferences } from './src/services/preferencesService';
 import { useAppStore } from './src/store/useAppStore';
 import { useAppTheme } from './src/hooks/useAppTheme';
@@ -105,7 +106,25 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(async ({ data }) => {
+      // `getSession` sólo lee el token guardado en el dispositivo: no pregunta al
+      // servidor. Si la cuenta se borró en Supabase, el JWT sigue firmado y válido
+      // hasta que caduque, así que la app arrancaba con una sesión fantasma: las
+      // consultas corrían con un `uid` inexistente, devolvían cero equipos y el
+      // onboarding no se pasaba nunca. `getUser` sí contrasta contra el servidor.
+      if (data.session) {
+        const { error } = await supabase.auth.getUser();
+        // Sólo se cierra sesión cuando el servidor responde que la cuenta ya no
+        // vale. Un fallo de red no debe expulsar a nadie en terreno.
+        const cuentaInvalida = !!error && !/network|fetch|timeout/i.test(error.message);
+        if (cuentaInvalida) {
+          await clearDevSkip();
+          await supabase.auth.signOut().catch(() => undefined);
+          setSession(null);
+          setChecking(false);
+          return;
+        }
+      }
       setSession(data.session);
       setChecking(false);
     });
@@ -153,13 +172,13 @@ export default function App() {
 
     setCheckingOnboarding(true);
     setOnboardingError(null);
-    Promise.all([getOnboardingState(), loadPreferences()])
-      .then(([state, preferences]) => {
+    Promise.all([getOnboardingState(), loadPreferences(), isDevSkipEnabled()])
+      .then(([state, preferences, devSkip]) => {
         if (!active) return;
         setPreferences(preferences);
         setPreferencesLoaded(true);
         if (state.devices[0]) setDevice(state.devices[0]);
-        setOnboardingComplete(state.completed);
+        setOnboardingComplete(state.completed || devSkip);
         setAwaitingDeviceApproval(state.hasPendingRequests ?? false);
       })
       .catch((error) => {
@@ -277,6 +296,11 @@ export default function App() {
       <OnboardingScreen
         onComplete={(device) => {
           setDevice(device);
+          setOnboardingComplete(true);
+          setRoute('dashboard');
+        }}
+        onDevSkip={() => {
+          // Sin equipo: la app entra en modo demostración, con su cartel.
           setOnboardingComplete(true);
           setRoute('dashboard');
         }}

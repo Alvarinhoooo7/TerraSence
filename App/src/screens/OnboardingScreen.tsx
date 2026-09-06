@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -16,6 +16,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Spacing, Typography } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
+import { RadarScan } from '../components/RadarScan';
+import { enableDevSkip } from '../utils/devSkipOnboarding';
 import { requestDeviceAccess, registerDevice, listMyDevices, listMyDeviceMemberships } from '../services/deviceService';
 import { WaitingApprovalScreen } from './WaitingApprovalScreen';
 import { completeOnboarding } from '../services/onboardingService';
@@ -38,9 +40,11 @@ interface ProbeIdentity {
 
 interface Props {
   onComplete: (device: DeviceRow) => void;
+  /** Solo desarrollo: entra sin equipo, en modo demostracion. */
+  onDevSkip?: () => void;
 }
 
-export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
+export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => {
   const { colors } = useAppTheme();
   const { t } = useTranslation();
   const setDevice = useAppStore((state) => state.setDevice);
@@ -51,6 +55,18 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
   const [pending, setPending] = useState(false);
   const [joining, setJoining] = useState(false);
   const [scanned, setScanned] = useState(false);
+  // `scanned` gobierna el render, pero no sirve como guard: `setScanned` es
+  // asíncrono y `onBarcodeScanned` dispara varias veces por segundo, así que las
+  // lecturas encoladas antes del re-render pasaban todas y apilaban alertas. El
+  // pestillo síncrono corta en la misma vuelta del bucle de eventos.
+  const scanLatch = useRef(false);
+  // Reabrir el escáner sobre el mismo QR incorrecto no vuelve a avisar.
+  const rejectedPayload = useRef<string | null>(null);
+
+  const rearmScanner = useCallback(() => {
+    scanLatch.current = false;
+    setScanned(false);
+  }, []);
   const [pairingState, setPairingState] = useState<PairingState>('idle');
   const [probe, setProbe] = useState<ProbeIdentity | null>(null);
   const [deviceName, setDeviceName] = useState(() => t('Mi sonda TerraSense', 'My TerraSense probe'));
@@ -115,21 +131,26 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
         return;
       }
     }
+    scanLatch.current = false;
+    rejectedPayload.current = null;
     setScanned(false);
     setStep('qr');
   }, [cameraPermission?.granted, requestCameraPermission, t]);
 
   const handleBarcode = useCallback(
     async ({ data }: BarcodeScanningResult) => {
-      if (scanned || joining) return;
+      if (scanLatch.current || joining) return;
+      if (rejectedPayload.current === data) return;
+      scanLatch.current = true;
       setScanned(true);
 
       const code = parseDeviceQrPayload(data);
       if (!code) {
+        rejectedPayload.current = data;
         Alert.alert(
           t('QR no reconocido', 'QR not recognized'),
           t('Este código no pertenece a un equipo TerraSense. Pide al administrador que abra “Mis equipos” y muestre el QR de la sonda.', 'This code does not belong to a TerraSense device. Ask the administrator to open “My devices” and show the probe QR.'),
-          [{ text: t('Escanear otra vez', 'Scan again'), onPress: () => setScanned(false) }],
+          [{ text: t('Escanear otra vez', 'Scan again'), onPress: rearmScanner }],
         );
         return;
       }
@@ -141,7 +162,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
         else { setPending(true); setStep('choice'); }
       } catch (error) {
         Alert.alert(t('No se pudo vincular', 'Could not link'), friendlyError(error), [
-          { text: t('Reintentar', 'Try again'), onPress: () => setScanned(false) },
+          { text: t('Reintentar', 'Try again'), onPress: rearmScanner },
         ]);
       } finally {
         setJoining(false);
@@ -196,6 +217,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
   const backToChoice = useCallback(() => {
     if (joining || pairingState === 'saving') return;
     setStep('choice');
+    scanLatch.current = false;
     setScanned(false);
     setPairingState('idle');
     setProbe(null);
@@ -203,6 +225,21 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
 
   if (pending) return <WaitingApprovalScreen onApproved={device => void finish('qr', device)} onDismiss={() => setPending(false)} />;
   if (checkingRequests) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center' }}><ActivityIndicator color={colors.primary} /></SafeAreaView>;
+
+  // `__DEV__` es una constante que el empaquetador sustituye por false en
+  // producción, así que este bloque entero desaparece del bundle: no es un botón
+  // oculto, es código que no viaja.
+  const devSkipButton = __DEV__ && onDevSkip ? (
+    <TouchableOpacity
+      onPress={() => { void enableDevSkip(); onDevSkip(); }}
+      style={[styles.devSkip, { borderColor: colors.primary, backgroundColor: colors.card }]}
+      hitSlop={16}
+      accessibilityRole="button"
+      accessibilityLabel="Saltar vinculacion (solo desarrollo)"
+    >
+      <Text style={[styles.devSkipText, { color: colors.primary }]}>⏭ SALTAR · DEV</Text>
+    </TouchableOpacity>
+  ) : null;
 
   if (step === 'qr') {
     return (
@@ -215,6 +252,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
           <View style={styles.headerButton} />
         </View>
 
+        {devSkipButton}
         <View style={styles.cameraWrap}>
           <CameraView
             style={StyleSheet.absoluteFill}
@@ -252,11 +290,18 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
           <Text style={[styles.headerTitle, { color: colors.text }]}>{t('Configurar sonda', 'Set up probe')}</Text>
           <View style={styles.headerButton} />
         </View>
+        {devSkipButton}
 
       <ScrollView contentContainerStyle={styles.pairingContent}>
-          <View style={[styles.pairIcon, { backgroundColor: colors.card }]}>
-            <Text style={styles.pairIconText}>{probe ? '✓' : '◉'}</Text>
-          </View>
+          {pairingState === 'scanning' && !probe ? (
+            <RadarScan size={168}>
+              <Text style={[styles.pairIconText, { color: '#FFFFFF' }]}>◉</Text>
+            </RadarScan>
+          ) : (
+            <View style={[styles.pairIcon, { backgroundColor: colors.card }]}>
+              <Text style={styles.pairIconText}>{probe ? '✓' : '◉'}</Text>
+            </View>
+          )}
           <Text style={[styles.pairingTitle, { color: colors.text }]}>{t('Eres el primer usuario', 'You are the first user')}</Text>
           <Text style={[styles.pairingText, { color: colors.textSecondary }]}>
             {t('Enciende la sonda y mantén presionado el botón PAIR durante 3 segundos. Acércala a menos de 2 metros del teléfono.', 'Turn on the probe and hold the PAIR button for 3 seconds. Keep it within 2 meters of the phone.')}
@@ -296,10 +341,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
               style={[styles.primaryButton, { backgroundColor: colors.primary, opacity: waiting ? 0.65 : 1 }]}
             >
               {pairingState === 'scanning' ? (
-                <View style={styles.inlineBusy}>
-                  <ActivityIndicator color="#FFFFFF" />
-                  <Text style={styles.primaryButtonText}>{t('Buscando sonda…', 'Searching for probe…')}</Text>
-                </View>
+                <Text style={styles.primaryButtonText}>{t('Buscando sonda…', 'Searching for probe…')}</Text>
               ) : (
                 <Text style={styles.primaryButtonText}>{t('Buscar mi sonda', 'Find my probe')}</Text>
               )}
@@ -312,6 +354,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
+      {devSkipButton}
       <ScrollView contentContainerStyle={styles.choiceContent}>
         <Text style={styles.logo}>🌱</Text>
         <Text style={[styles.eyebrow, { color: colors.primary }]}>{t('BIENVENIDO A TERRASENSE', 'WELCOME TO TERRASENSE')}</Text>
@@ -359,6 +402,19 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete }) => {
 };
 
 const styles = StyleSheet.create({
+  // Sólo se usa dentro de un bloque `__DEV__`; en producción queda como estilo huérfano.
+  devSkip: {
+    position: 'absolute',
+    top: Spacing.xxl,
+    right: Spacing.md,
+    zIndex: 10,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: 8,
+    borderWidth: 1,
+    opacity: 0.7,
+  },
+  devSkipText: { fontSize: 11, fontWeight: '700' },
   root: { flex: 1 },
   header: {
     height: 60,

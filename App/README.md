@@ -176,6 +176,62 @@ App/
 
 La exportación JavaScript Android de diagnóstico sí finalizó correctamente (1600 módulos): `node node_modules/expo/bin/cli export --platform android --output-dir dist-review --max-workers 1 --no-bytecode`. El resultado local está en `App/dist-review`; no es un instalador.
 
+### Confirmación de cuenta: qué falta desplegar
+
+El correo de confirmación llevaba al agricultor **al backoffice de soporte**. `signUp()` no fijaba
+`emailRedirectTo`, así que Supabase usaba el `site_url` del proyecto, que es la consola web; y allí,
+con sesión válida y sin pertenecer a `admin_support_users`, lo que aparecía era el formulario para
+darse de alta como personal de soporte con un código de invitación. La cuenta se confirmaba, pero el
+destino no era el suyo.
+
+Corregido en tres piezas: `AuthScreen.tsx` fija `emailRedirectTo`, `Web/src/components/AccountConfirmed.tsx`
+es la página de aterrizaje, y `Web/src/App.tsx` la resuelve **antes** de mirar la sesión.
+
+| Paso | Estado |
+| :--- | :--- |
+| URL en `additional_redirect_urls` de `supabase/config.toml` | ✅ Aplicada en remoto con `supabase config push` (6-sep-2026) |
+| Página `/cuenta-confirmada` desplegada en Vercel | ⏳ **Pendiente** |
+| SMTP propio para que el correo no caiga en spam | ⏳ **Pendiente** |
+
+**Lo que falta hacer:**
+
+```bash
+cd Web && vercel --prod --yes
+```
+
+Hasta que ese despliegue ocurra, el enlace del correo apunta a una ruta que todavía no existe en
+producción. El *rewrite* de SPA ya está en `Web/vercel.json`, así que no hace falta tocar nada más.
+
+**El correo llega a spam** porque el remitente por defecto de Supabase tiene mala entregabilidad y un
+límite de envíos bajo. Se arregla configurando SMTP propio en *Authentication → SMTP Settings*
+(Resend y SendGrid tienen plan gratuito). No es código.
+
+> [!NOTE]
+> `supabase/README.md §7` afirma que tener las plantillas de correo activas en `config.toml` hace
+> fallar cualquier `supabase config push` en plan gratuito. **El 6-sep-2026 eso ya no ocurre:** el
+> push se aplicó con las plantillas activas. Ese aviso está desactualizado. En el mismo push se
+> corrigieron de paso el remitente y el correo de administración, que seguían apuntando a Akura.
+
+### Atajo de desarrollo: entrar sin vincular sonda
+
+`deriveOnboardingState` decide el acceso con una regla simple: **la membresía visible manda**. Sin
+equipos no se pasa del onboarding. Es lo correcto en producción, pero en desarrollo obliga a
+emparejar una sonda física sólo para ver una pantalla.
+
+En el paso de elección del onboarding hay un botón `⏭ dev` arriba a la derecha que levanta esa
+compuerta. **No inventa un equipo:** la app entra con `device` en `null`, que es el caso que
+`probeService` ya cubre con datos simulados, así que todo queda marcado con el cartel de MODO
+DEMOSTRACIÓN y el guardado de mediciones sigue bloqueado. El atajo no puede confundirse con una
+lectura real.
+
+Para volver al flujo normal, **cerrar sesión**: `clearDevSkip()` corre ahí.
+
+> [!WARNING]
+> Es temporal. Las tres funciones de `src/utils/devSkipOnboarding.ts` comprueban `__DEV__` por
+> separado, y el botón vive dentro de un bloque `__DEV__` que el empaquetador elimina del *bundle* de
+> producción — no es un botón oculto, es código que no viaja. Aun así, **retirarlo** cuando el
+> emparejamiento pueda probarse contra hardware real.
+
 ### Metro dice que un archivo «no existe» y el archivo está ahí
 
 Síntoma: `expo start` o `expo export` fallan con `Unable to resolve module ./src/hooks/useAppTheme`

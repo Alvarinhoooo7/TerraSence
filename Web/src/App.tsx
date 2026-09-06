@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from './services/supabase';
 import { isSupportStaff } from '../backend/adminApi';
+import { AccountConfirmed } from './components/AccountConfirmed';
 import { AuthScreen } from './components/AuthScreen';
 import { ResetPasswordScreen } from './components/ResetPasswordScreen';
 import { SupportOnboarding } from './components/SupportOnboarding';
@@ -12,6 +13,11 @@ import { FirmwarePage } from './pages/FirmwarePage';
 import { SupportPanelPage } from './pages/SupportPanelPage';
 import { SupportStaffPage } from './pages/SupportStaffPage';
 import { SupportDeviceDetailPage } from './pages/SupportDeviceDetailPage';
+
+/** Aterrizaje del enlace de confirmacion. Debe coincidir con `emailRedirectTo`
+ *  de `App/src/screens/AuthScreen.tsx` y con `additional_redirect_urls` de
+ *  `supabase/config.toml`. */
+const CONFIRMED_PATH = '/cuenta-confirmada';
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -48,6 +54,14 @@ export default function App() {
   useEffect(() => {
     refreshStaff();
   }, [refreshStaff]);
+
+  // Ruta publica de aterrizaje del correo de confirmacion. Va antes que
+  // `checking`, `recovering` y la comprobacion de soporte a proposito: quien
+  // llega aqui es un agricultor, no personal del backoffice, y cualquiera de
+  // esas ramas lo llevaria a una pantalla que no le corresponde.
+  if (window.location.pathname === CONFIRMED_PATH) {
+    return <AccountConfirmed />;
+  }
 
   if (checking) {
     return (

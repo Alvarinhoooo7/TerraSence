@@ -4,7 +4,7 @@
 // El alta nueva exige presencia BLE y provisiona el mismo Device ID en la
 // NVS de la sonda y en Supabase; un código existente sólo vincula operadores.
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -96,11 +96,48 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
     }
   }, [newName, setDevice, refresh, t]);
 
+  // `onBarcodeScanned` dispara varias veces por segundo y `setState` es asíncrono,
+  // así que un guard por estado deja pasar todas las lecturas ya encoladas antes
+  // del re-render. Con un QR que no es de TerraSense eso encadenaba varias alertas
+  // seguidas: el bucle de fallos. El pestillo es una ref porque hace falta que se
+  // cierre en la misma vuelta del bucle de eventos.
+  const scanLatch = useRef(false);
+  // Un payload ya rechazado no vuelve a avisar mientras la cámara siga abierta,
+  // para no repetir el mismo mensaje si el usuario deja el QR incorrecto encuadrado.
+  const rejectedPayload = useRef<string | null>(null);
+
+  const openScanner = () => {
+    scanLatch.current = false;
+    rejectedPayload.current = null;
+    setScanner(true);
+  };
+
+  const closeScanner = () => {
+    scanLatch.current = false;
+    setScanner(false);
+  };
+
+  const handleScan = (payload: string) => {
+    if (scanLatch.current) return;
+    if (rejectedPayload.current === payload) return;
+    scanLatch.current = true;
+    void handleJoin(payload);
+  };
+
   const handleJoin = async (payload: string) => {
     if (busy) return;
     const token = parseDeviceQrPayload(payload);
     setScanner(false);
-    if (!token) { Alert.alert(t('QR no reconocido', 'Unrecognized QR')); return; }
+    if (!token) {
+      // Se recuerda para que reabrir la cámara sobre el mismo QR no repita el aviso.
+      rejectedPayload.current = payload;
+      Alert.alert(
+        t('QR no reconocido', 'Unrecognized QR'),
+        t('Ese código no es de un equipo TerraSense. Pide al administrador que te muestre el QR desde su app.',
+          'That code is not from a TerraSense device. Ask the administrator to show you the QR from their app.'),
+      );
+      return;
+    }
     setBusy(true);
     try {
       const device = await requestDeviceAccess(token);
@@ -204,7 +241,7 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
 
         <TouchableOpacity disabled={busy} style={[styles.ctaSecondary, { borderColor: colors.primary }]} onPress={async () => {
           const permission = cameraPermission?.granted || (await requestCameraPermission()).granted;
-          if (permission) setScanner(true);
+          if (permission) openScanner();
           else Alert.alert(t('Activa el permiso de camara en Ajustes.', 'Enable camera permission in Settings.'));
         }}>
           <Text style={{ color: colors.primary }}>{t('Escanear QR para solicitar acceso', 'Scan QR to request access')}</Text>
@@ -236,10 +273,10 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
           </View>
         </View>
       </Modal>
-      <Modal visible={scanner} onRequestClose={() => setScanner(false)}>
+      <Modal visible={scanner} onRequestClose={closeScanner}>
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-          <TouchableOpacity onPress={() => setScanner(false)} style={{ padding: 20 }}><Text style={{ color: colors.primary }}>{t('Cerrar', 'Close')}</Text></TouchableOpacity>
-          <CameraView style={{ flex: 1 }} barcodeScannerSettings={{ barcodeTypes: ['qr'] }} onBarcodeScanned={scanner && !busy ? event => void handleJoin(event.data) : undefined} />
+          <TouchableOpacity onPress={closeScanner} style={{ padding: 20 }}><Text style={{ color: colors.primary }}>{t('Cerrar', 'Close')}</Text></TouchableOpacity>
+          <CameraView style={{ flex: 1 }} barcodeScannerSettings={{ barcodeTypes: ['qr'] }} onBarcodeScanned={scanner && !busy ? event => handleScan(event.data) : undefined} />
         </SafeAreaView>
       </Modal>
       <ScreenGuide guideId="devices" />

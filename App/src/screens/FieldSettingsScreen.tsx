@@ -25,6 +25,7 @@ import { useAppStore } from '../store/useAppStore';
 import { CROPS_DB, SOIL_TEXTURES } from '../engine/agronomyEngine';
 import { listMyDeviceMemberships } from '../services/deviceService';
 import { supabase } from '../services/supabase';
+import { clearDevSkip } from '../utils/devSkipOnboarding';
 import { clearPushToken } from '../services/notifications';
 import { reconcileNotificationRegistration } from '../services/notifications';
 import { savePreferences } from '../services/preferencesService';
@@ -361,6 +362,9 @@ export const FieldSettingsScreen: React.FC<Props> = ({ onClose, onOpenDevices, o
         <TouchableOpacity
           onPress={async () => {
             await clearPushToken();
+            // El atajo de desarrollo no debe sobrevivir a un cambio de cuenta:
+            // es la única forma de volver al flujo de vinculación real.
+            await clearDevSkip();
             await supabase.auth.signOut();
           }}
           style={[styles.signOut, { borderColor: colors.border }]}

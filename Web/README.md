@@ -23,6 +23,7 @@ Es la **herramienta de backoffice del creador/administrador (Álvaro)** para sup
 - [4. Estructura de carpetas](#4-estructura-de-carpetas)
 - [5. Capa Backend y Funciones RPC](#5-capa-backend-y-funciones-rpc)
 - [6. Seguridad y Aislamiento (Postgres RLS)](#6-seguridad-y-aislamiento-postgres-rls)
+  - [6.1. ⚠️ Pendiente: contraseña de soporte en texto plano](#61--pendiente-contraseña-de-soporte-en-texto-plano-en-producción)
 - [7. Variables de entorno](#7-variables-de-entorno)
 - [8. Comandos de desarrollo](#8-comandos-de-desarrollo)
 - [9. Despliegue en Vercel](#9-despliegue-en-vercel)
@@ -200,6 +201,38 @@ espurio a mitad de sesión.
 La seguridad reside en la base de datos PostgreSQL mediante **Row Level Security (RLS)**:
 * Cada RPC de administración ejecuta internamente `is_support_staff()`. Si el usuario no tiene permisos, Postgres bloquea la llamada inmediatamente.
 * **Nunca exponer la clave `service_role`** en el frontend: la aplicación web opera exclusivamente con `VITE_SUPABASE_ANON_KEY`.
+
+### 6.1. ⚠️ Pendiente: contraseña de soporte en texto plano en producción
+
+**Detectado el 6 de septiembre de 2026. Sin corregir.**
+
+La cuenta de acceso a este panel (`alvarovillena8@gmail.com`) se creó desde SQL, con la contraseña
+escrita literal dentro de la migración `20260902180000_alta_usuario_alvaro.local.sql`. El archivo
+está excluido de git por el patrón `*.local.sql`, pero **eso no evitó la exposición**: Supabase
+guarda el cuerpo completo de cada migración aplicada en `supabase_migrations.schema_migrations`, así
+que la contraseña sigue legible dentro de la base de producción.
+
+Alcance real, para dimensionarlo sin exagerarlo:
+
+* **No** está en el repositorio, ni viaja por la red, ni la expone el frontend.
+* **Sí** la puede leer cualquiera con acceso a la base: la `service_role_key`, el dashboard del
+  proyecto, o un volcado o respaldo de la base.
+* Autentica contra `auth.users`, que es **única por proyecto** y compartida con la app móvil. Lo que
+  abre en cada sitio es distinto: aquí concede soporte completo vía `admin_support_users`, y en la
+  app dependería de `profiles` y `device_members`. El daño serio es este panel.
+
+**Corrección, en este orden — el inverso no sirve de nada:**
+
+1. Cambiar la contraseña de esa cuenta, en *Authentication → Users* del dashboard de Supabase o por
+   correo de recuperación. Mientras la antigua siga siendo válida, limpiar el historial no aporta.
+2. Vaciar la columna `statements` de esa fila en `supabase_migrations.schema_migrations`,
+   conservando el registro de que la migración se aplicó.
+
+> [!IMPORTANT]
+> **La regla que se incumplió:** no crear cuentas desde SQL con la contraseña incrustada, aunque el
+> archivo esté en `.gitignore`. El archivo no se sube, pero su contenido viaja igual al historial
+> remoto en cuanto se hace `db push`. Para altas manuales, usar el dashboard o `auth.admin`, que no
+> dejan rastro del secreto. Ver [`supabase/README.md` §10.5](../supabase/README.md).
 
 ---
 

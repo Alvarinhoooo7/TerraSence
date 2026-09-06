@@ -24,6 +24,15 @@ import { Spacing, Typography } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
+import { PasswordChecklist } from '../components/PasswordChecklist';
+import { FadeIn } from '../components/FadeIn';
+import { isPasswordAcceptable, PASSWORD_MIN_LENGTH } from '../utils/passwordRules';
+
+/** Aterrizaje del correo de confirmacion. Debe coincidir con `CONFIRMED_PATH` de
+ *  `Web/src/App.tsx` y estar en `additional_redirect_urls` de `supabase/config.toml`.
+ *  Sin esto, Supabase cae al `site_url` del proyecto —el backoffice de soporte— y el
+ *  agricultor aterriza en una consola que no es la suya. */
+const CONFIRM_REDIRECT_URL = 'https://terrasense-web.vercel.app/cuenta-confirmada';
 
 type Mode = 'signin' | 'signup' | 'reset';
 
@@ -76,6 +85,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
   const [mode, setMode] = useState<Mode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -91,6 +101,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
       : { title: t(spanishCopy.title, 'Reset password'), cta: t(spanishCopy.cta, 'Send link'), hint: t(spanishCopy.hint, 'We will send you a link to choose a new password.') };
 
   const switchMode = useCallback((next: Mode) => {
+    setConfirmPassword('');
     setMode(next);
     setError(null);
     setNotice(null);
@@ -105,9 +116,22 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
       setError(t('Escribe un correo válido.', 'Enter a valid email address.'));
       return;
     }
-    if (mode !== 'reset' && password.length < 6) {
-      setError(t('La contraseña debe tener al menos 6 caracteres.', 'Password must be at least 6 characters long.'));
+    if (mode === 'signin' && password.length === 0) {
+      setError(t('Escribe tu contraseña.', 'Enter your password.'));
       return;
+    }
+    if (mode === 'signup') {
+      if (!isPasswordAcceptable(password)) {
+        setError(t(
+          `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres, con una letra, un número y un carácter especial.`,
+          `Password must be at least ${PASSWORD_MIN_LENGTH} characters and include a letter, a number and a special character.`,
+        ));
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError(t('Las contraseñas no coinciden.', 'Passwords do not match.'));
+        return;
+      }
     }
 
     setBusy(true);
@@ -126,13 +150,18 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
         const { error: e } = await supabase.auth.signUp({
           email: mail,
           password,
-          // El trigger handle_new_user copia full_name a public.profiles.
-          options: { data: { full_name: fullName.trim() } },
+          options: {
+            // El trigger handle_new_user copia full_name a public.profiles.
+            data: { full_name: fullName.trim() },
+            // Sin esto el enlace del correo lleva al backoffice de soporte.
+            emailRedirectTo: CONFIRM_REDIRECT_URL,
+          },
         });
         if (e) throw e;
         setNotice(
           t('Cuenta creada. Revisa tu correo y confirma la cuenta antes de entrar.', 'Account created. Check your email and confirm it before signing in.'),
         );
+        setConfirmPassword('');
         setMode('signin');
         return;
       }
@@ -148,7 +177,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
     } finally {
       setBusy(false);
     }
-  }, [email, password, fullName, mode, onAuthenticated, preferences.language, t]);
+  }, [email, password, confirmPassword, fullName, mode, onAuthenticated, preferences.language, t]);
 
   const inputStyle = [
     styles.input,
@@ -184,10 +213,12 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
               </TouchableOpacity>
             ))}
           </View>
-          <Text style={styles.logo}>🌱</Text>
-          <Text style={[styles.brand, { color: colors.primary }]}>TerraSense</Text>
-          <Text style={[styles.title, { color: colors.text }]}>{copy.title}</Text>
-          <Text style={[styles.hint, { color: colors.textSecondary }]}>{copy.hint}</Text>
+          <FadeIn style={{ gap: Spacing.sm }}>
+            <Text style={styles.logo}>🌱</Text>
+            <Text style={[styles.brand, { color: colors.primary }]}>TerraSense</Text>
+            <Text style={[styles.title, { color: colors.text }]}>{copy.title}</Text>
+            <Text style={[styles.hint, { color: colors.textSecondary }]}>{copy.hint}</Text>
+          </FadeIn>
 
           {mode === 'signup' && (
             <TextInput
@@ -222,8 +253,37 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
               value={password}
               onChangeText={setPassword}
               secureTextEntry
+              textContentType={mode === 'signup' ? 'newPassword' : 'password'}
               accessibilityLabel={t('Contraseña', 'Password')}
             />
+          )}
+
+          {mode === 'signup' && (
+            <>
+              <TextInput
+                style={[
+                  ...inputStyle,
+                  // Sólo se marca en rojo cuando ya hay algo escrito y no cuadra:
+                  // avisar mientras se teclea la primera letra sería ruido.
+                  confirmPassword.length > 0 && confirmPassword !== password
+                    ? { borderColor: colors.danger }
+                    : null,
+                ]}
+                placeholder={t('Repite la contraseña', 'Repeat password')}
+                placeholderTextColor={colors.textMuted}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry
+                textContentType="newPassword"
+                accessibilityLabel={t('Repite la contraseña', 'Repeat password')}
+              />
+              {confirmPassword.length > 0 && confirmPassword !== password && (
+                <Text style={[styles.mismatch, { color: colors.danger }]}>
+                  {t('Las contraseñas no coinciden.', 'Passwords do not match.')}
+                </Text>
+              )}
+              <PasswordChecklist password={password} />
+            </>
           )}
 
           {error && (
@@ -276,6 +336,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
 };
 
 const styles = StyleSheet.create({
+  mismatch: { ...Typography.caption, width: '100%', marginTop: -Spacing.xs, marginBottom: Spacing.sm },
   root: { flex: 1 },
   scroll: { padding: Spacing.lg, paddingTop: Spacing.xxl, gap: Spacing.sm },
   languageRow: { flexDirection: 'row', justifyContent: 'flex-end', gap: Spacing.xs },

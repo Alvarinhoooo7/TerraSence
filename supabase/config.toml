@@ -159,9 +159,14 @@ site_url = "https://terrasense-web.vercel.app"
 # `npm run dev` sin tener que editar este archivo cada vez.
 additional_redirect_urls = [
   "https://terrasense-web.vercel.app",
+  # Aterrizaje del correo de confirmacion del agricultor. Sin esta entrada,
+  # Supabase ignora el `emailRedirectTo` de la app y cae al `site_url`, que es
+  # el backoffice de soporte: destino equivocado para quien usa la app.
+  "https://terrasense-web.vercel.app/cuenta-confirmada",
   "terrasense://reset-password",
   "http://127.0.0.1:3000",
   "http://localhost:5173",
+  "http://localhost:5173/cuenta-confirmada",
 ]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600

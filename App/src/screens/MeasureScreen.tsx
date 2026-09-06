@@ -24,6 +24,7 @@ import { PHENOLOGICAL_STAGES, mapRowToPoint, type PhenologicalStage, type SoilMe
 import type { MetricDetail, SoilMeasurement } from '../types/agronomy';
 import { formatEngineMetric } from '../utils/units';
 import { CalibrationReminderModal } from '../components/CalibrationReminderModal';
+import { RadarScan } from '../components/RadarScan';
 
 const ENGINE_VERSION = '1.1.0';
 const CROP_CATALOG_VERSION = '1.0.0';
@@ -258,9 +259,10 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
         {header}
         <View style={styles.center}>
-          <View style={[styles.connectionIcon, { backgroundColor: colors.primaryDark }]}><Text style={styles.connectionGlyph}>⌁</Text></View>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.centerTitle, { color: colors.text }]}>Buscando TerraSense</Text>
+          <RadarScan size={180}>
+            <Text style={styles.connectionGlyph}>⌁</Text>
+          </RadarScan>
+          <Text style={[styles.centerTitle, { color: colors.text, marginTop: Spacing.lg }]}>Buscando TerraSense</Text>
           <Text style={[styles.centerBody, { color: colors.textSecondary }]}>La conexión es automática. Mantén el equipo encendido y cerca.</Text>
         </View>
       </SafeAreaView>
