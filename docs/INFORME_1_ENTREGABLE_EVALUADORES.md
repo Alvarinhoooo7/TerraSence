@@ -161,15 +161,20 @@ Este segmento productivo opera actualmente bajo una vulnerabilidad crítica orig
 * **Inflación en Costos de Insumos:** Las perturbaciones en las cadenas internacionales de suministro han elevado el costo de fertilizantes fosfatados y nitrogenados en más de un 70% durante el último lustro, haciendo que cada kilo de abono desperdiciado afecte directamente el margen neto de subsistencia del agricultor.
 
 ## 2.2. Definición del Problema Central
-El problema central radica en que **el agricultor carece de herramientas de diagnóstico en terreno que vinculen la medición física con la prescripción de manejo agronómico inmediato a un costo accesible**.
+La problemática real radica en que los pequeños y medianos agricultores carecen de herramientas tecnológicas accesibles y comprensibles para diagnosticar el estado de su suelo. En un contexto de sequía constante y alto costo de los insumos agrícolas, optimizar el uso del agua y los fertilizantes es vital para la supervivencia del cultivo.
 
-Frente a la necesidad de evaluar el suelo, las opciones vigentes imponen severas limitantes:
-* **Análisis Químico de Laboratorio:** Posee máxima exactitud analítica, pero impone costos de $35.000 a $60.000 CLP por muestra y un desfase temporal de entrega de **15 a 30 días hábiles**. La dinámica de humedad, temperatura y salinidad en la rizosfera cambia semanalmente; para cuando el agricultor recibe el informe en PDF, la ventana agronómica de intervención oportuna ya ha expirado.
-* **Instrumentos Comerciales Portátiles (Hanna, Bluelab, FieldScout):** Equipos de alto costo orientados a usuarios técnicos. Requieren preparación previa de pastas saturadas o entregan cifras crudas sin correlación biológica con el cultivo ni con el momento fenológico de la planta.
-* **Asesoría Técnica Presencial Externa:** Servicios agronómicos calificados con tarifas superiores a los $90.000 CLP por visita, resultando financieramente inasumibles para un régimen de seguimiento semanal en predios pequeños.
+El problema central es que el productor agrícola opera **"a ciegas"**. Carece de herramientas accesibles para diagnosticar el estado de su suelo y se ve obligado a tomar decisiones críticas basándose únicamente en la intuición. 
+
+Frente a la necesidad de evaluar el suelo, las opciones vigentes imponen severas limitantes, generando dos grandes barreras:
+* **Barrera Económica:** Los equipos de medición profesional son financieramente inalcanzables para la agricultura familiar (costos de $35.000 a $60.000 CLP por muestra de laboratorio o US$300-US$1.500 por equipos comerciales).
+* **Barrera de Interpretación:** Los instrumentos disponibles entregan datos técnicos crudos, incomprensibles sin estudios agronómicos avanzados, que no brindan el feedback necesario para ejecutar una acción concreta.
 
 ## 2.3. Impacto de las Decisiones Tradicionales ("Al Ojo") en el Ciclo Productivo
-Ante la falta de instrumental comprensible, el productor toma decisiones basadas en la tradición o en inspecciones sensoriales superficiales ("al ojo": tocar la tierra con la mano, observar el polvo en superficie o guiarse por el calendario astronómico). Este método empírico induce fallos agronómicos severos en los cuatro momentos clave del cultivo:
+Ante la falta de instrumental comprensible, el productor toma decisiones basadas en la tradición o en inspecciones sensoriales superficiales ("al ojo"). Este escenario genera un impacto negativo a lo largo de todo el ciclo de vida del cultivo:
+* **Pre-siembra:** Pérdida de semillas por siembra en suelos fríos o altamente salinos.
+* **Vegetativo:** Asfixia de raíces y pérdida de fertilizantes por riegos ineficientes.
+* **Floración:** Aborto floral masivo por estrés hídrico no detectado a tiempo.
+* **Cosecha:** Destrucción de la estructura del suelo por ingresar con exceso de humedad.
 
 ```mermaid
 flowchart TD

@@ -174,17 +174,21 @@ En este escenario de estrechez hídrica y alto costo de insumos, la eficiencia p
 
 **El Problema Central:**
 
-El problema radica en que el pequeño y mediano productor no tiene acceso a herramientas tecnológicas adaptadas a su realidad económica y técnica para tomar decisiones agronómicas. Si bien existen en el mercado instrumentos para medir parámetros vitales como la humedad, temperatura, pH y conductividad eléctrica (CE), estos presentan una doble barrera de entrada para la Agricultura Familiar Campesina:
+La problemática real radica en que los pequeños y medianos agricultores carecen de herramientas tecnológicas accesibles y comprensibles para diagnosticar el estado de su suelo. En un contexto de sequía constante y alto costo de los insumos agrícolas, optimizar el uso del agua y los fertilizantes es vital para la supervivencia del cultivo.
 
-* **La barrera económica:** Están diseñados para la agroindustria de gran escala, con costos prohibitivos que van desde los US$294 para un medidor portátil básico \[7\], hasta más de US$1.495 por sondas de precisión \[8\].  
-* **La barrera de interpretación:** Incluso si el agricultor logra adquirir uno de estos equipos, las herramientas actuales entregan "datos planos" (por ejemplo, un valor aislado de 2.500 µS/cm o un pH de 5.5). La mayoría de los pequeños productores no cuenta con la formación técnica especializada para interpretar si ese número es letal para su cultivo específico, ni saben cómo traducir ese dato crudo en una acción correctiva concreta (como calcular cuántos litros de agua aplicar para lavar las sales).
+El problema central es que el productor agrícola opera **"a ciegas"**. Carece de herramientas accesibles para diagnosticar el estado de su suelo y se ve obligado a tomar decisiones críticas basándose únicamente en la intuición. 
 
-Esta falta de herramientas accesibles e intuitivas obliga al agricultor a operar "a ciegas" durante todo el proceso productivo, asumiendo riesgos altísimos en cada etapa:
+Esta situación se fundamenta en dos grandes limitantes de la oferta actual:
 
-* **Preparación del suelo:** Sin medir ni entender la conductividad eléctrica, el agricultor desconoce el nivel de salinidad acumulada por la sequía. No sabe si el suelo requiere un lavado previo o si sus condiciones base quemarán las raíces del nuevo cultivo.  
-* **Siembra y Plantación:** Con la inversión ya comprometida, el productor siembra guiándose solo por el calendario tradicional, sin saber si el suelo tiene la temperatura mínima de germinación o si el pH bloqueará la absorción de los costosos fertilizantes aplicados.  
-* **Desarrollo (Riego y Fertilización):** Durante el crecimiento, la falta de monitoreo continuo impide ajustar el riego a la humedad real del terreno. Esto provoca estrés hídrico por falta de agua, o bien, el lavado y pérdida económica de fertilizantes por exceso de riego.  
-* **Cosecha:** El impacto acumulado de tomar decisiones por intuición o tradición durante las tres fases anteriores se traduce en mermas drásticas de rendimiento.
+* **Barrera Económica:** Los equipos de medición profesional son financieramente inalcanzables para la agricultura familiar (diseñados para la agroindustria de gran escala con costos prohibitivos).
+* **Barrera de Interpretación:** Los instrumentos disponibles entregan datos técnicos crudos, incomprensibles sin estudios agronómicos avanzados. No entregan el feedback necesario para ejecutar una acción concreta.
+
+Esta falta de herramientas accesibles e intuitivas tiene un impacto severo a lo largo de todo el ciclo de vida del cultivo:
+
+* **Pre-siembra:** Pérdida de semillas por siembra en suelos fríos o altamente salinos.
+* **Vegetativo:** Asfixia de raíces y pérdida de fertilizantes por riegos ineficientes.
+* **Floración:** Aborto floral masivo por estrés hídrico no detectado a tiempo.
+* **Cosecha:** Destrucción de la estructura del suelo por ingresar con exceso de humedad.
 
 **Relación con los Servicios Formales de Análisis y Asesoría:**
 

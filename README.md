@@ -23,6 +23,22 @@
 
 El objetivo principal no es solo mostrar números crudos, sino entregar un **diagnóstico prescriptivo** del punto de muestreo según la etapa del cultivo (pre-siembra, vegetativo, floración o cosecha) sin requerir conexión a internet durante la medición. La nube interviene solo para el respaldo diferido, la gestión de cuentas y el pronóstico climático.
 
+## 🚨 La Problemática
+
+La problemática real radica en que los pequeños y medianos agricultores carecen de herramientas tecnológicas accesibles y comprensibles para diagnosticar el estado de su suelo. En un contexto de sequía constante y alto costo de los insumos agrícolas, optimizar el uso del agua y los fertilizantes es vital para la supervivencia del cultivo.
+
+El problema central es que el productor agrícola opera **"a ciegas"**. Carece de herramientas accesibles para diagnosticar el estado de su suelo y se ve obligado a tomar decisiones críticas basándose únicamente en la intuición. 
+
+¿Por qué ocurre esto? Principalmente por dos barreras:
+*   **Barrera Económica:** Los equipos de medición profesional son financieramente inalcanzables para la agricultura familiar.
+*   **Barrera de Interpretación:** Los instrumentos disponibles entregan datos técnicos crudos, incomprensibles sin estudios agronómicos avanzados, que no brindan el feedback necesario para ejecutar una acción concreta.
+
+Este escenario genera un impacto negativo a lo largo de todo el ciclo de vida del cultivo:
+*   **Pre-siembra:** Pérdida de semillas por siembra en suelos fríos o altamente salinos.
+*   **Vegetativo:** Asfixia de raíces y pérdida de fertilizantes por riegos ineficientes.
+*   **Floración:** Aborto floral masivo por estrés hídrico no detectado a tiempo.
+*   **Cosecha:** Destrucción de la estructura del suelo por ingresar con exceso de humedad.
+
 ## ✨ Características Principales
 
 * 📡 **Medición Integral (Grilla 3x3):** Diagnóstico edafológico (humedad, temperatura del suelo, conductividad, pH, y registros N/P/K) mediante sonda RS-485.
