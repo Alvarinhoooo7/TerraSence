@@ -477,6 +477,18 @@ Lo comprobado contra remoto, el 5 y el 6 de septiembre de 2026, es **la existenc
   problema de fondo: esa **es la única fila de `soil_measurements` de toda la base**. De 3 equipos
   registrados, uno es este. Cualquier cifra de uso que se cite hoy está midiendo el *fixture*, no el
   producto. Eliminarlo en cascada por su `device_id` cuando ya no haga falta para probar el panel.
+- ⚠️ **Endurecimiento de Auth, pendiente en el panel.** La revisión de seguridad del 9-sep-2026
+  dejó los advisors sin hallazgos de nivel ERROR, pero siguen abiertos dos avisos que **no se
+  aplicaron a propósito**: `auth_leaked_password_protection` y `auth_insufficient_mfa_options`. La
+  vía por CLI sería `supabase config push`, y ahí está el problema: empuja la sección `[auth]`
+  completa de `config.toml`, donde `pass = "env(GMAIL_APP_PASSWORD)"` apunta a una variable que no
+  está definida en el entorno — le habría borrado la contraseña SMTP al proyecto (§7). De paso
+  arrastraría `minimum_password_length = 6` al remoto. Son dos interruptores en el panel:
+    - Authentication → Sign In / Up → Password security → *Prevent use of leaked passwords*
+    - Authentication → Multi-Factor Authentication → habilitar TOTP
+
+  Si se prefiere el CLI, antes hay que exportar `GMAIL_APP_PASSWORD` con el valor real y comprobar
+  que el resto de `[auth]` en `config.toml` coincide con lo que hay en producción.
 - **Ensayo de restauración del esquema exportado** (§10.2): `schema.sql` ya existe, falta probarlo
   en un proyecto limpio.
 - **SMTP propio**, para activar las plantillas de correo (§7).
