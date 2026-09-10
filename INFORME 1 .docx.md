@@ -102,7 +102,7 @@ AÑO 2026
 
 [Tabla 5.26 “Especificaciones Técnicas Sonda”	52](#tabla-3.2-“especificaciones-técnicas-sonda”)
 
-[Tabla 5.27 “Contrato de Datos BLE (16 bytes) ”	54](#tabla-3.3-“contrato-de-datos-ble-\(16-bytes\)-”)
+[Tabla 5.27 “Contrato de Datos BLE (16 o 20 bytes)”	54](#tabla-3.3-“contrato-de-datos-ble-\(16-bytes\)-”)
 
 [Tabla 5.28 “Gestión Energética”	55](#tabla-3.4-“gestión-energética”)
 
@@ -354,13 +354,15 @@ Se aplicó la misma disciplina: evaluación de candidatos reales, criterios decl
 | :---: | :---: | :---: | :---: | :---: | :---: |
 | **STM32WB55** | \~5-6 mA (Bajísimo) [\[9\]](#bookmark=id.stm32wb55-datasheet) | No | 2 | 7,72 | Descartado |
 | **nRF52840** | \~5-6 mA (Bajísimo) [\[10\]](#bookmark=id.nrf52840-datasheet) | No | 1 (ARM Cortex) | 8,10 | Descartado |
-| **ESP32** | **Más alto** | **Sí (Nativo)** | **2** | **8,98** |  **Seleccionado** |
+| **ESP32** | **\~95–130 mA** [\[21\]](#bookmark=id.esp32-datasheet) | **Sí (Nativo)** | **2** | **8,98** |  **Seleccionado** |
 
 ###### **Tabla 5.4 “Comparativa de Microcontroladores”**
 
+Las tres cifras de consumo se toman en el mismo régimen para que la comparación sea legítima: radio BLE activa y potencia de salida de 0 dBm. Para el ESP32, Espressif tabula 95–100 mA en recepción BT/BLE y 130 mA en transmisión BT/BLE a 0 dBm [\[21\]](#bookmark=id.esp32-datasheet); ese par de valores define el rango declarado. El contraste con los 5–6 mA de sus competidores no es un matiz sino un orden de magnitud, y es exactamente el costo que la siguiente justificación asume de forma explícita. Conviene precisar que los 150 mA empleados en la Fase 3 del ciclo de medición (Tabla 5.32) no contradicen los 130 mA de esta tabla: el enlace del proyecto transmite a \+9 dBm, no a 0 dBm, y ese valor superior es una estimación de diseño para la potencia de salida elegida, no un dato tabulado por el fabricante, por lo que queda sujeto a medición en banco junto con el resto del presupuesto energético.
+
 * **Justificación de la Selección:** Aunque los chips nRF52840 y STM32WB55 superan al ESP32 por un factor enorme en eficiencia de radio, al modelar el presupuesto energético completo del equipo, esa ventaja de radio solo se traduce en un \+34 % de autonomía total (la carga dominante es la sonda y la autodescarga de la batería). A cambio de resignar ese 34 %, el ESP32 aporta Wi-Fi integrado (vital para actualizar el firmware por aire sin complicaciones), doble núcleo (para sostener la temporización de la sonda sin perder el Bluetooth), y por último un extenso ecosistema de desarrollo y soporte global de la comunidad para proyectos basados en este microcontrolador.
 
-**Sonda de Suelo**: Aporta 7 de las 9 variables del sistema, siendo la decisión más crítica. Se comparó la Sonda 7-en-1 RS-485 contra instrumentos de grado de investigación (METER TEROS 12, Delta-T WET150, Stevens HydraProbe) [\[11\]](#bookmark=id.teros12-datasheet). 
+**Sonda de Suelo**: Aporta 7 de las 10 variables medidas del sistema, siendo la decisión más crítica. Se comparó la Sonda 7-en-1 RS-485 contra instrumentos de grado de investigación (METER TEROS 12, Delta-T WET150, Stevens HydraProbe) [\[11\]](#bookmark=id.teros12-datasheet). 
 
 | Sonda | Variables entregadas | Exactitud Pura | Viabilidad Económica | Puntaje Ponderado |
 | :---: | :---: | :---: | :---: | :---: |
@@ -391,7 +393,7 @@ La estrategia de comunicación del sistema se divide en distintas etapas, cada u
     
 * **Sensor Ambiental BME280 → ESP32 (Bus I2C):** Para la captura de datos atmosféricos (temperatura del aire, humedad relativa y presión barométrica), se utiliza una comunicación serie de dos hilos (I²C). Al estar el sensor integrado para lectura ambiental local, directamente en la placa o a muy corta distancia del microcontrolador, el protocolo I²C es el estándar ideal por su simplicidad técnica y bajo consumo, sin verse afectado por las limitaciones de distancia que sufriría en campo abierto.  
     
-* **ESP32 → Teléfono (Bluetooth Low Energy):** Se optó por un enlace BLE puntual debido a su bajo consumo energético. El equipo envía paquetes de datos muy pequeños (tramas de 16 bytes en el contrato vigente) y se conecta solo durante los segundos que dura la medición. Al utilizar BLE se evita la barrera de certificación MFi que afecta al perfil serial de Bluetooth Classic en iOS, habilitando compatibilidad con Android y Apple sin costos de hardware adicionales.   
+* **ESP32 → Teléfono (Bluetooth Low Energy):** Se optó por un enlace BLE puntual debido a su bajo consumo energético. El equipo envía paquetes de datos muy pequeños (tramas de 16 o 20 bytes según la versión del contrato vigente) y se conecta solo durante los segundos que dura la medición. Al utilizar BLE se evita la barrera de certificación MFi que afecta al perfil serial de Bluetooth Classic en iOS, habilitando compatibilidad con Android y Apple sin costos de hardware adicionales.   
     
     
     
@@ -736,11 +738,11 @@ La decisión económica del caso base es favorable. La planificación financiera
 
 La fuente de energía primaria es una celda LiPo protegida de 2.000 mAh a 3,7 V nominales, equivalente a una energía de referencia de aproximadamente 7,4 Wh. La tensión de la celda alimenta un bus principal regulado, del cual derivan tres subramas:
 
-* **Rama Digital Continua**: Un regulador LDO de baja corriente de reposo reduce la tensión a 3,3 V para alimentar el microcontrolador y el sensor ambiental.  
+* **Rama Digital Continua**: Un regulador LDO de baja corriente de reposo (HT7533-1, 2,5 µA típicos) reduce la tensión a 3,3 V para alimentar el microcontrolador y el sensor ambiental. La corriente de reposo del regulador es aquí un criterio de selección y no un detalle secundario: al permanecer alimentado de forma permanente, un LDO de propósito general con decenas de microamperios de quiescente pasaría a dominar por sí solo el presupuesto de reposo del equipo.  
 * **Rama de Medición Conmutada:** Un MOSFET controlado por GPIO habilita el paso de energía hacia el convertidor elevador que provee los 5 V DC necesarios para excitar la sonda de suelo RS-485.  
-* **Rama de Interfaz:** Lógica directa para los LEDs indicadores y un divisor resistivo (1 MΩ \+ 1 MΩ) para el muestreo del estado de batería por ADC. Este valor reemplaza a un divisor de 100 kΩ \+ 100 kΩ evaluado inicialmente: con 100 kΩ el divisor por sí solo consume 18,5 µA de forma permanente si queda conectado, una cifra que excede el presupuesto de reposo completo del resto del sistema; elevando la resistencia total a 2 MΩ, ese consumo baja a 1,85 µA (I \= V/R \= 3,7 V / 2 MΩ), sin afectar la resolución del ADC porque la lectura de batería no exige velocidad de muestreo alta.
+* **Rama de Interfaz:** Lógica directa para los LEDs indicadores y un divisor resistivo (1 MΩ \+ 1 MΩ) para el muestreo del estado de batería por ADC. El valor de las resistencias se dimensiona por consumo y no por comodidad de cálculo: un divisor de 100 kΩ \+ 100 kΩ drenaría 18,5 µA de forma permanente, cifra que por sí sola excede el presupuesto de reposo completo del resto del sistema; con una resistencia total de 2 MΩ ese drenaje baja a 1,85 µA (I \= V/R \= 3,7 V / 2 MΩ), sin afectar la resolución del ADC porque la lectura de batería no exige velocidad de muestreo alta.
 
-La carga y la elevación de tensión se resuelven mediante una PCB combinada USB-C de carga y boost. Esta decisión reemplaza a los módulos discretos TP4056/TP5100 y MT3608 que pueden cumplir la misma función independientemente.
+La carga y la elevación de tensión se resuelven mediante una PCB combinada USB-C de carga y *boost*, integrada como un único componente. Concentrar ambas funciones en un solo módulo reduce el número de referencias de la BOM, el área de placa portadora y los puntos de soldadura del ensamblaje, sin renunciar a las protecciones de sobrecarga, sobredescarga y cortocircuito que exige la celda de litio.
 
 **Sistema de Procesamiento y Conectividad:** El núcleo del procesamiento recae en el módulo ESP32-WROOM-32 [\[21\]](#bookmark=id.esp32-datasheet). La elección de este SoC específico sobre alternativas mononúcleo responde a una exigencia de estabilidad concurrente: el procesador Xtensa LX6 de 32 bits y doble núcleo permite dedicar un núcleo de forma exclusiva a mantener la pila de radio (Wi-Fi/Bluetooth) y el sistema operativo en tiempo real (FreeRTOS), mientras el segundo núcleo gestiona la temporización estricta del protocolo Modbus RTU hacia la sonda. Compartir estas tareas en un solo núcleo introduciría el riesgo inaceptable de perder la conexión inalámbrica o corromper tramas de datos durante la lectura. 
 
@@ -760,7 +762,7 @@ El rango de 95 a 380 mA describe el consumo del módulo medido en su propio pin 
 
 **Adquisición de Datos y Sensado:** 
 
-* **Sonda de Suelo 7-en-1 (RS-485 Modbus RTU):** El nodo extrae 7 de las 9 variables del sistema mediante una sonda multiparamétrica de grado industrial, construida en acero inoxidable 316L para prevenir la corrosión por picadura inducida por cloruros en el suelo.
+* **Sonda de Suelo 7-en-1 (RS-485 Modbus RTU):** El nodo extrae 7 de las 10 variables medidas del sistema mediante una sonda multiparamétrica de grado industrial, construida en acero inoxidable 316L para prevenir la corrosión por picadura inducida por cloruros en el suelo.
 
 | Parámetro | Rango de Operación | Exactitud Declarada |
 | :---: | :---: | :---: |
@@ -779,7 +781,7 @@ La comunicación se establece a 9600 baudios vía Modbus RTU. Para mitigar varia
 
 * **Sensor Ambiental (Bosch BME280):** Para las variables climáticas superficiales, se integra un sensor BME280 en el bus I2C. Este componente aporta mediciones de temperatura (±1,0 °C), humedad relativa (±3 % HR) y presión barométrica (±1,0 hPa) [\[14\]](#bookmark=id.bme280-datasheet). Dado que su consumo en reposo es de apenas 0,1 µA, una cifra inferior a la corriente de fuga intrínseca de los transistores convencionales, se prescinde de un circuito de corte dedicado. El sensor operará en *forced mode*, autogestionando su transición a reposo inmediatamente tras cada muestreo de 3,6 µA [\[14\]](#bookmark=id.bme280-datasheet). 
 
-**Trama de Datos BLE:** El instrumento actúa como puente entre dos entornos distintos: hacia la sonda ejecuta una consulta Modbus RTU y verifica la respuesta; hacia el teléfono publica los datos ya decodificados en una característica GATT. La aplicación no necesita generar señales RS-485 ni procesar el cableado industrial, sino consumir un contrato de datos de aplicación. El contrato vigente, implementado en el decodificador de la aplicación, es de 16 bytes con valores multibyte en formato big-endian:.
+**Trama de Datos BLE:** El instrumento actúa como puente entre dos entornos distintos: hacia la sonda ejecuta una consulta Modbus RTU y verifica la respuesta; hacia el teléfono publica los datos ya decodificados en una característica GATT. La aplicación no necesita generar señales RS-485 ni procesar el cableado industrial, sino consumir un contrato de datos de aplicación. El contrato vigente, implementado en el decodificador de la aplicación, es una notificación binaria de 16 o 20 bytes según la versión de trama declarada, con los valores multibyte en formato big-endian:
 
 | Bytes | Contenido | Tipo y escala | Interpretación en la App |
 | :---: | :---: | :---: | :---: |
@@ -791,11 +793,12 @@ La comunicación se establece a 9600 baudios vía Modbus RTU. Para mitigar varia
 | **10–11** | Fósforo (P) | uint16 | mg/kg, presentado como clase ordinal |
 | **12–13** | Potasio (K) | uint16 | mg/kg, presentado como clase ordinal |
 | **14** | Batería | **uint8** | **Porcentaje 0–100, no milivoltios** |
-| **15** | Reservado | — | Sin magnitud ambiental asignada |
+| **15** | Versión de trama | **uint8** | `0` \= 16 bytes, sólo suelo y batería; `1` \= 20 bytes, añade el ambiente |
+| **16–19** | Ambiente BME280 (sólo versión 1\) | 32 bits empaquetados | Temperatura del aire (12 bits, °C × 10 \+ 400), presión (12 bits, hPa − 300) y humedad relativa (8 bits, % × 2) |
 
-###### **Tabla 5.27 “Contrato de Datos BLE (16 bytes) ”**
+###### **Tabla 5.27 “Contrato de Datos BLE (16 o 20 bytes)”**
 
-Un cambio de orden de bytes o de escala puede producir cifras plausibles pero incorrectas, mucho más difíciles de detectar que una desconexión visible: una humedad de 35,0 % leída como 8.960 se advierte de inmediato, pero un pH mal escalado que arroje 6,5 en lugar de 5,6 puede pasar inadvertido y provocar una recomendación equivocada. Del contrato se desprende además una consecuencia de diseño explícita: los tres datos ambientales del BME280 no caben en el byte reservado ni pueden colocarse sobre los registros existentes. La integración requiere una trama versionada o una característica ambiental adicional; en ambos casos, suelo y ambiente deben asociarse a la misma captura mediante identificador, instante y estado de validez, y la versión permite conservar compatibilidad con equipos que solo entreguen la trama antigua, mostrando explícitamente que la lectura ambiental está incompleta.
+Un cambio de orden de bytes o de escala puede producir cifras plausibles pero incorrectas, mucho más difíciles de detectar que una desconexión visible: una humedad de 35,0 % leída como 8.960 se advierte de inmediato, pero un pH mal escalado que arroje 6,5 en lugar de 5,6 puede pasar inadvertido y provocar una recomendación equivocada. La integración de las tres magnitudes del BME280 se resuelve mediante una trama versionada y no mediante una característica GATT adicional: el byte 15 declara la versión y la versión 1 añade cuatro bytes en los que temperatura del aire, presión y humedad relativa viajan empaquetadas en bits (12, 12 y 8 respectivamente). Los 20 bytes resultantes son exactamente la carga útil que garantiza una notificación BLE con el MTU por defecto de 23 bytes, de modo que suelo y ambiente pertenecen por construcción a la misma captura, sin necesidad de emparejar dos paquetes ni de negociar un MTU mayor. Los quince primeros bytes son idénticos en ambas versiones, de manera que un equipo que declare la versión 0 se decodifica sin ramas especiales. Cuando el BME280 no responde, el firmware escribe un centinela de todos unos (0xFFF en cada campo de 12 bits, 0xFF en el de 8) y la aplicación almacena NULL: nunca se sustituye un dato ausente por un valor plausible.
 
 * **Gestión Energética:**
 
@@ -911,42 +914,44 @@ El equipo no tiene un único nivel de consumo, sino que transita entre estados b
 
 **Modelo de Autonomía en el Campo:**
 
-Cada vez que el usuario pulsa "Medir", se dispara una lectura y el equipo recorre tres fases consecutivas. El error metodológico más común al estimar autonomía es sumar corrientes de distintos nodos de tensión como si fueran directamente equivalentes; el cálculo que sigue lo evita refiriendo toda corriente a la batería antes de sumarla. La rama que cuelga del LDO (ESP32, BME280 y transceptor) no sufre conversión de corriente porque un regulador lineal no transforma corriente, solo disipa como calor la diferencia de tensión: su corriente en batería es, en la práctica, la misma que en el nodo de 3,3 V. La sonda, en cambio, cuelga de un elevador conmutado con eficiencia η ≈ 0,85 [\[23\]](#bookmark=id.ip5306-datasheet), y su corriente equivalente en batería se obtiene de la potencia, no de la corriente del nodo directamente: *corriente en batería \= (tensión del nodo × corriente del nodo) / (η × tensión de batería)*.
+Cada vez que el usuario pulsa "Medir", se dispara una lectura y el equipo recorre tres fases consecutivas. El error metodológico más común al estimar autonomía es sumar corrientes de distintos nodos de tensión como si fueran directamente equivalentes. El equipo no opera a una única tensión: la celda entrega 3,7 V nominales, la rama digital trabaja a 3,3 V detrás de un regulador lineal y la sonda a 5 V detrás de un elevador conmutado. Un miliamperio-hora no significa lo mismo en cada uno de esos tres nodos, de modo que **el balance completo se plantea en unidades de energía (mWh) y no de carga (mAh)**: la energía sí es aditiva entre nodos de distinta tensión, la carga no.
 
-| Fase | Componente | Nodo / tensión | Corriente en el nodo | Potencia | Corriente equivalente en batería (3,7 V) |
+La conversión desde cada nodo hacia la batería sigue dos reglas distintas. En la rama del LDO (ESP32, BME280 y transceptor) la corriente no se transforma —un regulador lineal entrega la misma corriente que consume—, pero la potencia sí: la batería aporta esa corriente a 3,7 V y el regulador disipa como calor la diferencia hasta 3,3 V, de manera que *potencia desde la batería \= corriente del nodo × tensión de batería*. Razonar esta rama en mAh oculta precisamente esa pérdida, que asciende al 10,8 % de la energía extraída. En la rama de la sonda, alimentada por un elevador de eficiencia η ≈ 0,85 [\[23\]](#bookmark=id.ip5306-datasheet), la conversión opera sobre la potencia: *potencia desde la batería \= (tensión del nodo × corriente del nodo) / η*.
+
+| Fase | Componente | Nodo / tensión | Corriente en el nodo | Potencia en el nodo | Potencia desde la batería (3,7 V) |
 | :---- | :---- | :---: | :---: | :---: | :---: |
-| **1\. Publicidad y conexión** | ESP32 en *advertising* BLE | 3,3 V (LDO) | 40 mA | 132 mW | ≈ 40 mA |
-| **2\. Adquisición del conjunto** | ESP32 (temporización Modbus) | 3,3 V (LDO) | 95 mA | 313,5 mW | ≈ 95 mA |
-|  | Transceptor SP3485 (driver activo) [\[26\]](#bookmark=id.sp3485-datasheet) | 3,3 V (LDO) | 2 mA | 6,6 mW | ≈ 2 mA |
-|  | BME280 (muestreo forced-mode) | 3,3 V (LDO) | 0,0036 mA | 0,012 mW | ≈ 0,0036 mA |
-|  | Sonda 7-en-1 (excitación y lectura) | 5 V (elevador, η≈0,85) | 30 mA | 150 mW | 150 mW / (0,85 × 3,7 V) ≈ **47,7 mA** |
-|  | **Subtotal Fase 2** |  |  |  | **≈ 144,7 mA** |
-| **3\. Envío del resultado** | ESP32 transmitiendo BLE | 3,3 V (LDO) | 150 mA | 495 mW | ≈ 150 mA |
+| **1\. Publicidad y conexión** | ESP32 en *advertising* BLE | 3,3 V (LDO) | 40 mA | 132 mW | **148 mW** |
+| **2\. Adquisición del conjunto** | ESP32 (temporización Modbus) | 3,3 V (LDO) | 95 mA | 313,5 mW | 351,5 mW |
+|  | Transceptor SP3485 (driver activo) [\[26\]](#bookmark=id.sp3485-datasheet) | 3,3 V (LDO) | 2 mA | 6,6 mW | 7,4 mW |
+|  | BME280 (muestreo forced-mode) | 3,3 V (LDO) | 0,0036 mA | 0,012 mW | 0,013 mW |
+|  | Sonda 7-en-1 (excitación y lectura) | 5 V (elevador, η≈0,85) | 30 mA | 150 mW | 150 mW / 0,85 ≈ **176,5 mW** |
+|  | **Subtotal Fase 2** |  |  | 470,1 mW | **535,4 mW** |
+| **3\. Envío del resultado** | ESP32 transmitiendo BLE | 3,3 V (LDO) | 150 mA | 495 mW | **555 mW** |
 
-| Fase Operativa | Corriente equivalente en batería | Duración | Carga por ciclo |
+| Fase Operativa | Potencia desde la batería | Duración | Energía por ciclo |
 | :---: | :---: | :---: | :---: |
-| **1\. Publicidad y conexión** | 40 mA | 12 s | 0,1333 mAh |
-| **2\. Adquisición del conjunto** | 144,7 mA | 3 s | 0,1206 mAh |
-| **3\. Envío del resultado** | 150 mA | 1 s | 0,0417 mAh |
-| **Total por ciclo** | Variable | **16 s** | **0,2956 mAh** |
+| **1\. Publicidad y conexión** | 148 mW | 12 s | 0,493 mWh |
+| **2\. Adquisición del conjunto** | 535,4 mW | 3 s | 0,446 mWh |
+| **3\. Envío del resultado** | 555 mW | 1 s | 0,154 mWh |
+| **Total por ciclo** | Variable | **16 s** | **1,094 mWh** |
 
 ###### **Tabla 5.32 “Balance Energético por Nodo y Fases de Operación”**
 
-Dos precisiones sostienen esta tabla frente a un cálculo por suma directa de corrientes. La corriente de la sonda referida a batería (47,7 mA) es 1,59 veces su corriente en el nodo de 5 V (30 mA), exactamente el factor 1/(η × V\_bat/V\_nodo) que impone el elevador: ignorar esa conversión subestima el consumo real de la Fase 2\. Y la corriente de transmisión del ESP32 en la Fase 3 se fija en 150 mA, valor que cae dentro del rango dinámico de 95–380 mA declarado en la Tabla 5.25.
+Tres precisiones sostienen esta tabla frente a un cálculo por suma directa de corrientes. La sonda toma 150 mW en su nodo de 5 V, pero exige 176,5 mW a la batería: el factor 1/η \= 1,176 que impone el elevador es energía perdida en la conversión, y omitirlo subestima la Fase 2\. La rama del LDO exhibe la pérdida simétrica: los 40 mA de la Fase 1 valen 132 mW en el nodo de 3,3 V pero cuestan 148 mW de batería, y esos 16 mW de diferencia son calor disipado en el regulador, no energía entregada a la carga. Sumar los tres nodos en mAh habría hecho desaparecer ambas pérdidas del balance. Por último, la corriente de transmisión del ESP32 en la Fase 3 se fija en 150 mA, valor que cae dentro del rango dinámico de 95–380 mA declarado en la Tabla 5.25.
 
 El consumo del transceptor SP3485 se toma del extremo superior de su hoja de datos (2 mA con el driver habilitado y sin carga) [\[26\]](#bookmark=id.sp3485-datasheet); el de la sonda, de una ficha técnica representativa de la familia de sondas 7-en-1 RS-485 [\[22\]](#bookmark=id.sonda-consumo), dado que el SKU final aún no cuenta con ficha propia, como ya se declara en el BOM.
 
-**El costo energético de la conexión:** de las 0,2956 mAh que consume un ciclo completo, 0,1333 mAh —el 45 %— se gastan en la Fase 1, antes de que el instrumento toque siquiera la tierra. Esto contradice, en la práctica, la regla declarada al inicio de esta sección: toda energía consumida fuera del instante de medición es energía desperdiciada. La causa es una ventana de *advertising* y conexión BLE de 12 segundos, dimensionada de forma conservadora para tolerar teléfonos lentos en reconectar. La optimización pendiente para la siguiente iteración de firmware es acortar esa ventana a un intervalo de *advertising* más agresivo (rango típico BLE de 20–100 ms en lugar de intervalos por encima de 1 s) y reducir la duración de la Fase 1 a un objetivo de 5 s; manteniendo igual el resto del ciclo, esa sola optimización bajaría el consumo por ciclo de 0,2956 a 0,2179 mAh, una reducción de 26 % que se traduce directamente en autonomía adicional.
+**El costo energético de la conexión:** de los 1,094 mWh que consume un ciclo completo, 0,493 mWh —el 45 %— se gastan en la Fase 1, antes de que el instrumento toque siquiera la tierra. Esto contradice, en la práctica, la regla declarada al inicio de esta sección: toda energía consumida fuera del instante de medición es energía desperdiciada. La causa es una ventana de *advertising* y conexión BLE de 12 segundos, dimensionada de forma conservadora para tolerar teléfonos lentos en reconectar. La optimización pendiente para la siguiente iteración de firmware es acortar esa ventana a un intervalo de *advertising* más agresivo (rango típico BLE de 20–100 ms en lugar de intervalos por encima de 1 s) y reducir la duración de la Fase 1 a un objetivo de 5 s; manteniendo igual el resto del ciclo, esa sola optimización bajaría el consumo por ciclo de 1,094 a 0,806 mWh, una reducción de 26 % que se traduce directamente en autonomía adicional.
 
 **Sensibilidad al Consumo de Reposo:**
 
-El ciclo de medición no es lo que determina la autonomía: la determina el consumo entre mediciones. El siguiente ejercicio utiliza diez capturas diarias con el ciclo de 0,2956 mAh, cinco minutos adicionales de espera BLE a 18 mA, una capacidad útil supuesta de 1.600 mAh y una pérdida diaria simplificada por autodescarga de 1,3333 mAh (2 % mensual sobre 2.000 mAh):
+El ciclo de medición no es lo que determina la autonomía: la determina el consumo entre mediciones. El siguiente ejercicio utiliza diez capturas diarias con el ciclo de 1,094 mWh, cinco minutos adicionales de espera BLE a 18 mA (66,6 mW desde la batería, 5,55 mWh), una capacidad útil supuesta de 1.600 mAh —equivalente a **5.920 mWh** a 3,7 V— y una pérdida diaria simplificada por autodescarga de 1,3333 mAh, es decir 4,93 mWh (2 % mensual sobre 2.000 mAh):
 
-| Escenario de reposo | Reposo total | Consumo diario calculado | Capacidad útil / consumo diario |
-| :---- | :---: | :---: | :---: |
-| **Diseño adoptado (divisor 1 MΩ+1 MΩ)** | 0,0194 mA (19,4 µA) | 6,25 mAh/día | 255,9 días (≈ 8,5 meses) |
-| **Diseño de partida (divisor 100 kΩ+100 kΩ)** | 0,036 mA (36,0 µA) | 6,65 mAh/día | 240,5 días (≈ 8,0 meses) |
-| **Fuga adicional no identificada (contingencia de validación)** | 1,0 mA | 29,79 mAh/día | 53,7 días (≈ 1,8 meses) |
+| Escenario de reposo | Reposo total | Potencia en reposo | Consumo diario calculado | Energía útil / consumo diario |
+| :---- | :---: | :---: | :---: | :---: |
+| **Diseño adoptado (divisor 1 MΩ+1 MΩ)** | 19,4 µA | 71,8 µW | **23,14 mWh/día** | 255,8 días (≈ 8,5 meses) |
+| **Alternativa con divisor de 100 kΩ+100 kΩ** | 36,0 µA | 133,2 µW | 24,62 mWh/día | 240,5 días (≈ 8,0 meses) |
+| **Fuga adicional no identificada (contingencia de validación)** | 1,0 mA | 3,7 mW | 110,22 mWh/día | 53,7 días (≈ 1,8 meses) |
 
 ###### **Tabla 5.33 “Efecto del Consumo de Reposo sobre la Autonomía”**
 
@@ -971,7 +976,7 @@ Finalmente, esta arquitectura se alinea orgánicamente con la normativa ambienta
 El diseño del sistema prioriza la autonomía como un atributo crítico de confiabilidad. Mediante el uso de *power gating* controlado por hardware y el dimensionamiento del divisor de batería en 1 MΩ \+ 1 MΩ, el consumo de reposo queda acotado a ~19,4 µA, lo que sostiene una autonomía estimada de aproximadamente 8,5 meses (256 días, equivalente a más de 2.500 mediciones) con una sola carga, según el balance energético por nodo detallado en la Tabla 5.32 y la Tabla 5.33. Esta eficiencia es fruto de tres pilares de diseño:
 
 * **Aislamiento Activo (Power Gating):** Utilización de MOSFETs para desconectar físicamente la sonda y el elevador de tensión durante los periodos de inactividad, eliminando el consumo pasivo innecesario.  
-* **Optimización de Radio:** Empleo de Bluetooth Low Energy (BLE) con tramas compactas de 16 bytes y tiempos de conexión acotados (\<16 segundos por ciclo), reduciendo drásticamente la carga energética.  
+* **Optimización de Radio:** Empleo de Bluetooth Low Energy (BLE) con tramas compactas de 20 bytes como máximo y tiempos de conexión acotados (\<16 segundos por ciclo), reduciendo drásticamente la carga energética.  
 * **Gestión Local:** El procesamiento *offline* en el teléfono libera al instrumento de tareas de cómputo intensivas y almacenamiento, permitiendo que el hardware solo ejecute las funciones esenciales de captura de datos.
 
 **Condiciones Técnicas y Normativas Respecto al Diseño:**
@@ -989,7 +994,7 @@ El marco regulatorio aplicable al proyecto TerraSense organiza su cumplimiento n
 
 * **SUBTEL, Resolución Exenta N° 1.985/2017 [\[31\]](#bookmark=id.24lmcdsgcsm1):** Norma técnica para equipos de alcance reducido en Chile.
 
-  *Precisión normativa:* Esta resolución eleva a 150 mW la potencia radiada permitida en la banda de 2,4 GHz, mientras que exige que la potencia consumida en bornes de batería no supere los 100 mW. El proyecto cumple ambos límites con holgura: el enlace Bluetooth opera a \+9 dBm (equivalentes a \~8 mW radiados), operando bajo un régimen exento de licencia.
+  *Precisión normativa:* Esta resolución eleva a 150 mW la potencia radiada permitida en la banda de 2,4 GHz, mientras que exige que la potencia de salida del transmisor en bornes de antena no supere los 100 mW. El proyecto cumple ambos límites con holgura: el enlace Bluetooth opera a \+9 dBm (equivalentes a \~8 mW radiados), operando bajo un régimen exento de licencia.
 
 
   

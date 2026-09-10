@@ -89,9 +89,9 @@ Documentación técnica del hardware embarcado, diseño en KiCad, arquitectura d
                       ▼ [ 5.0V Boost Out ]
        ┌──────────────┴──────────────────────────────┐
        ▼                                             ▼
- [ LDO AP2112K 3.3V ]                       [ P-MOSFET Power Gate ]
+ [ LDO HT7533-1 3.3V ]                       [ P-MOSFET Power Gate ]
        │                                    (Conmutado por GPIO5)
- ┌─────┴──────────────┐                              │ (0,0 µA en reposo)
+ ┌─────┴──────────────┐                              │ (rama cortada)
  ▼                    ▼                              ▼
 [ ESP32-WROOM ]  [ BME280 I2C ]              [ Línea VCC 5V Sonda & Bus ]
  (Core MCU)      (Ambiente Sup.)                     │
@@ -113,7 +113,7 @@ Documentación técnica del hardware embarcado, diseño en KiCad, arquitectura d
   * `I2C`: Pines GPIO21 (SDA) y GPIO22 (SCL) para el sensor ambiental BME280.
   * `GPIO4`: Control de dirección `DE`/`RE` del transceptor RS-485.
   * `GPIO5`: Control de compuerta (*Power Gate*) para habilitar los 5V hacia la sonda.
-  * `GPIO34 (ADC1_CH6)`: Divisor de voltaje resistivo (100k / 100k) para monitoreo del voltaje de batería.
+  * `GPIO34 (ADC1_CH6)`: Divisor de voltaje resistivo (R16/R17, 1M / 1M) para monitoreo del voltaje de batería.
   * `GPIO0`: Pulsador ergonómico de gatillo/pulgar para disparo de medición rápida.
   * `GPIO2 / GPIO15`: Micro-LEDs de estado (Azul: BLE / Verde: Lectura Exitosa).
 
@@ -229,8 +229,8 @@ El proyecto incluye el diseño completo en **KiCad 8.0** ubicado en la raíz de 
 | **U1** | ESP32-WROOM-32E-N4 | SMD Module | MCU (BLE 4.2, no 5.0) / Procesamiento | $2.450 CLP |
 | **U2** | Módulo Bosch BME280 | Breakout I²C | **Incluido en BOM vigente** | $3.500 final ($2.941,18 neto) |
 | **U3** | SP3485EN-L/TR | SOIC-8 | Transceptor RS-485 a 3.3V | $480 CLP |
-| **MOD1**| ~~Módulo TP4056 + Step-Up 5V~~ | Módulo | Sustituido por **PCB combinada carga/boost USB-C** | $900 CLP |
-| **U4** | AP2112K-3.3TRG1 | SOT-23-5 | Regulador LDO 3.3V 600mA para ESP32 | $190 CLP |
+| **MOD1**| PCB combinada carga/boost USB-C | Módulo | Carga de la celda con protecciones y elevación a 5V para la sonda | $900 CLP |
+| **U4** | HT7533-1 | SOT-89 | Regulador LDO 3.3V de baja corriente de reposo (2,5 µA típ.) | Cotización pendiente |
 | **Q1** | IRLML6402TRPBF | SOT-23 | P-MOSFET Power Gate (−20V, −3.7A) | $140 CLP |
 | **Q2** | 2N7002 | SOT-23 | N-MOSFET control de disparo | $45 CLP |
 | **D1** | SM712 | SOT-23 | Diodo TVS protección bus RS-485 | $180 CLP |
@@ -250,7 +250,7 @@ GPIO4        SP3485 Pines 2 y 3 (RE/DE)     Control dirección RS-485 (1=TX, 0=R
 GPIO5        2N7002 Gate                    Power Gating 5V Sonda (1=On, 0=Off)
 GPIO21       BME280 Pin 3 (SDA)             I2C Data Bus
 GPIO22       BME280 Pin 4 (SCL)             I2C Clock Bus
-GPIO34       Divisor 100k / 100k a VBAT     Monitoreo analógico de batería (ADC1)
+GPIO34       Divisor 1M / 1M a VBAT         Monitoreo analógico de batería (ADC1)
 GPIO0        Pulsador de Muestreo           Disparo de lectura rápida / Reset
 GPIO2        Micro-LED Verde                Indicador de medición y batería OK
 GPIO15       Micro-LED Azul                 Indicador de enlace BLE activo

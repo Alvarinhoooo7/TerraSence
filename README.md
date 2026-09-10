@@ -43,7 +43,7 @@ Este escenario genera un impacto negativo a lo largo de todo el ciclo de vida de
 
 * 📡 **Medición Integral (Grilla 3x3):** Diagnóstico edafológico (humedad, temperatura del suelo, conductividad, pH, y registros N/P/K) mediante sonda RS-485.
 * 🌦️ **Microclima Local + Pronóstico:** El sensor **BME280** lee temperatura, humedad relativa y presión en el lugar físico de la medición. Como **apoyo y complemento**, una API gratuita de clima aporta el pronóstico de los próximos 5 días, permitiendo planificar labores a futuro (ej. posponer siembra si hay riesgo de lluvias intensas).
-* 🔋 **Diseño de Bajo Consumo:** La rama de medición se corta por MOSFET fuera del instante de lectura y la batería LiPo se recarga por USB-C, sin pilas desechables. El reposo total del equipo y la autonomía **están pendientes de medición desde batería**; no se declara una cifra hasta ensayarla.
+* 🔋 **Diseño de Bajo Consumo:** La rama de medición se corta por MOSFET fuera del instante de lectura y la batería LiPo se recarga por USB-C, sin pilas desechables. Con el reposo acotado a ~19,4 µA, el balance energético por nodo proyecta una autonomía de **~8,5 meses (256 días, más de 2.500 mediciones)** por carga. Es una cifra calculada: **la medición desde batería en banco sigue pendiente**.
 * 📱 **Ecosistema Interconectado:** Comunicación Bluetooth Low Energy (BLE) hacia la App móvil que no requiere internet para diagnosticar, respaldado por una plataforma Web y base de datos.
 
 ---
