@@ -17,6 +17,7 @@ export function GisMapPage() {
       const { data, error: err } = await supabase
         .from('soil_measurements')
         .select('*')
+        .eq('phenological_stage', 'pre_siembra')
         .order('measured_at', { ascending: false })
         .limit(1000); // Traemos más datos para el mapa
       
@@ -38,7 +39,7 @@ export function GisMapPage() {
       <div className="flex justify-between items-center shrink-0">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Mapa GIS & Heatmaps</h1>
-          <p className="text-terra-muted text-sm mt-1">Visualización geoespacial interactiva de tus cultivos.</p>
+          <p className="text-terra-muted text-sm mt-1">Registro geoespacial exclusivo de mediciones de pre-siembra.</p>
         </div>
       </div>
 
@@ -68,7 +69,7 @@ export function GisMapPage() {
               <p>Aún no hay mediciones georreferenciadas.</p>
             </div>
           ) : (
-            <div className="absolute inset-0">
+            <div className="p-4 overflow-auto">
               <GisHeatmap measurements={measurements} />
             </div>
           )}

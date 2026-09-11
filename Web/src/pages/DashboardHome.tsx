@@ -5,6 +5,7 @@ import { STAGE_LABEL } from '../types';
 import { VERDICT_META, normalizeDeviceCode, relativeTime } from '../utils/verdict';
 import { Search } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { MeasurementGrid } from '../components/MeasurementGrid';
 
 export function DashboardHome() {
   const [devices, setDevices] = useState<Device[]>([]);
@@ -62,8 +63,8 @@ export function DashboardHome() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Resumen General</h1>
-          <p className="text-terra-muted text-sm mt-1">Monitorea el estado de todos tus predios en tiempo real.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Mis mediciones</h1>
+          <p className="text-terra-muted text-sm mt-1">Historial de los equipos donde eres miembro. Para la flota utiliza el panel de soporte.</p>
         </div>
         
         <div className="relative w-full sm:w-auto">
@@ -131,8 +132,9 @@ export function DashboardHome() {
                       <th className="px-6 py-4">pH</th>
                       <th className="px-6 py-4">CE (µS/cm)</th>
                       <th className="px-6 py-4">VWC %</th>
-                      <th className="px-6 py-4">N-P-K</th>
+                      <th className="px-6 py-4">N-P-K · Sin validar</th>
                       <th className="px-6 py-4 text-right">Tiempo</th>
+                      <th className="px-6 py-4">Detalle 2×5</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-terra-border/50">
@@ -157,6 +159,7 @@ export function DashboardHome() {
                             {`${m.nitrogen}-${m.phosphorus}-${m.potassium}`}
                           </td>
                           <td className="px-6 py-4 text-terra-muted text-right whitespace-nowrap">{relativeTime(m.measured_at)}</td>
+                          <td className="px-6 py-4"><details><summary className="cursor-pointer text-terra-primary">Ver diez variables</summary><MeasurementGrid reading={m} /></details></td>
                         </tr>
                       );
                     })}

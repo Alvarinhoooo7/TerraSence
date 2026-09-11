@@ -1,16 +1,29 @@
 # 🗄️ TerraSense · Backend Supabase
 
-> Revisión del 10-09-2026: [informe académico de la raíz](../INFORME%20antiguo%20.docx%20%281%29.md). Esta revisión documenta trabajo futuro; no modifica App, Web, Supabase o PCB ni acredita despliegues.
+<a id="persistencia-ambiental-y-bateria"></a>
+## Persistencia ambiental y batería — verificada el 11-09-2026
 
-## Pendientes de persistencia y verificación
+El esquema conserva diez variables locales: `vwc_percent`, `ec_us_cm`, `soil_temp_c`, `nitrogen`, `phosphorus`, `potassium`, `ph`, `canopy_temp_c`, `canopy_humidity_pct` y `air_pressure_hpa`. N/P/K son registros informativos sin validación química. La batería se guarda aparte en `battery_percent` y no constituye una undécima variable agronómica del Grid.
 
-El Grid 2×5 por sí sola no exige migración. Ya existe la migración 20260906140000_bme280_presion_y_sin_defaults.sql; su presencia local no demuestra despliegue remoto.
+La migración [20260911120000_support_environment_readings.sql](migrations/20260911120000_support_environment_readings.sql) quedó **aplicada al proyecto vinculado el 11-09-2026**. Añade `battery_percent` nullable con restricción de 0–100 y amplía `admin_get_device_detail` para devolver ambiente, batería y diagnóstico. Conserva `is_support_staff()`, los permisos del RPC y los roles; no borra registros. La migración ambiental `20260906140000_bme280_presion_y_sin_defaults.sql` ya estaba aplicada.
 
-- Verificar ida y vuelta de los siete registros de suelo y de canopy_temp_c, canopy_humidity_pct y air_pressure_hpa como lecturas locales.
-- Conservar NULL sin sensor; no rellenar ambiente con API. Revisar procedencia de filas antiguas antes de validar restricciones.
-- Probar permisos RLS, sincronización sin duplicados y exportación/eliminación.
-- Evaluar trazabilidad de calibración y versión de firmware; diseñar migración solo si faltan campos.
-- Preparar requisitos de tratamiento de datos para ley 21.719 y lanzamiento 2027.
+Los campos ambientales y de batería admiten `NULL`, sin defaults inventados. El ambiente se obtiene del BME280, nunca de la API del pronóstico. `diagnosis.localSource` identifica el nuevo flujo; los registros históricos sin origen verificado no se reclasifican automáticamente. `diagnosis` conserva el pronóstico y la recomendación disponibles al guardar, la fuente y la respuesta BLE en captura. `measured_at` conserva la recepción en el celular incluso si el envío ocurre después. `devices.last_seen_at` es un reporte remoto histórico, no una conexión BLE en vivo.
+
+La proyección móvil de consulta incluye ambiente, batería y diagnóstico, por lo que se mantienen en historial, caché y cola local. El RPC permite exportarlos en el CSV de soporte. El mapa filtra `pre_siembra` con coordenadas finitas; la base y el historial conservan las cuatro fases y admiten lecturas sin GPS.
+
+`schema.sql` refleja la nueva columna, restricción y respuesta del RPC. Los tipos de `Web/backend/database.types.ts` se regeneraron desde el esquema remoto y los tipos de dominio de App se alinearon. El tipo de entrada de `device-checkin` admite ambiente, batería y diagnóstico sin cambiar su comportamiento ni desplegar Edge Functions; la ruta normal de App sigue siendo BLE → teléfono → PostgREST.
+
+### Evidencia y verificación repetible
+
+Antes del despliegue se probó la migración en una transacción con rollback. El dry-run mostró una sola migración pendiente; después de aplicarla se verificaron las columnas y permisos con:
+
+```powershell
+supabase db query --linked --file supabase/verify_environment_migration.sql
+```
+
+[El verificador](verify_environment_migration.sql) no escribe datos: comprueba diez parámetros más batería, nulabilidad, ausencia de defaults ambientales y permisos del RPC. La consulta del historial remoto del 11-09-2026 confirmó también las versiones que el [registro del 05-09-2026](APP_COMPATIBILITY_20260905.md) describía como ausentes o pendientes; aquella observación es histórica y ya no representa el estado actual.
+
+Esta verificación del esquema no acredita ensayos físicos, publicación web/móvil ni una auditoría general de producción. Siguen pendientes SMTP/dominio, recuperación de respaldos, validación completa de RLS y sincronización en teléfono, trazabilidad de calibración y comprobaciones operativas de la sección 10.
 
 ---
 

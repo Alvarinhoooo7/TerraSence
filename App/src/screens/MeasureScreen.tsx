@@ -26,7 +26,7 @@ import { formatEngineMetric } from '../utils/units';
 import { CalibrationReminderModal } from '../components/CalibrationReminderModal';
 import { RadarScan } from '../components/RadarScan';
 
-const ENGINE_VERSION = '1.1.0';
+const ENGINE_VERSION = '1.2.0';
 const CROP_CATALOG_VERSION = '1.0.0';
 type Phase = 'connecting' | 'connection_error' | 'stage' | 'reading' | 'result' | 'saving';
 
@@ -42,7 +42,7 @@ interface ResultCard {
   status: MetricDetail['status'] | 'INFO';
   explanation: string;
   tip: string;
-  source: 'Sonda' | 'Clima' | 'Sonda (registro derivado de CE, sin validar)';
+  source: 'Sonda' | 'BME280' | 'Sonda (registro derivado de CE, sin validar)';
 }
 
 const STATUS_COPY = {
@@ -71,6 +71,10 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   const [demoMode, setDemoMode] = useState(false);
   const [raw, setRaw] = useState<SoilMeasurement | null>(null);
   const [evaluation, setEvaluation] = useState<StageAwareEvaluation | null>(null);
+  const [capturedAt, setCapturedAt] = useState<string | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+  const weatherRequest = useRef(0);
+  useEffect(() => () => { weatherRequest.current += 1; }, []);
   const [weather, setWeather] = useState<CurrentWeather | null>(null);
   const [coords, setCoords] = useState<Location.LocationObjectCoords | null>(null);
   const [advice, setAdvice] = useState<ContextualAdvice | null>(null);
@@ -97,15 +101,19 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
 
   const runMeasurement = useCallback(async () => {
     setPhase('reading');
+    clientUuid.current = newClientUuid();
+    const request = ++weatherRequest.current;
+    setWeather(null);
+    setWeatherLoading(false);
     try {
       const [position, probe] = await Promise.all([
-        Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation }).catch(() => null),
-        readSoilProbe(device?.device_code ?? null),
+        Promise.race([Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }).catch(() => null), new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000))]),
+        readSoilProbe(device?.device_code ?? null).then(probe => ({ ...probe, capturedAt: new Date().toISOString() })),
       ]);
       const nextCoords = position?.coords ?? null;
-      const nextWeather = nextCoords
-        ? await fetchCurrentWeather(nextCoords.latitude, nextCoords.longitude)
-        : null;
+      const nextWeather = null;
+      if (request !== weatherRequest.current) return;
+      setCapturedAt(probe.capturedAt);
       const nextEvaluation = evaluateForStage(probe.data, stage, cropId, textureId, preferences.language);
       setCoords(nextCoords);
       setRaw(probe.data);
@@ -115,6 +123,15 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       setAdvice(buildContextualAdvice(stage, nextEvaluation, probe.data, nextWeather));
       setDetailIndex(0);
       setPhase('result');
+      if (nextCoords) {
+        setWeatherLoading(true);
+        void fetchCurrentWeather(nextCoords.latitude, nextCoords.longitude).then((forecast) => {
+          if (request !== weatherRequest.current) return;
+          setWeather(forecast);
+          setAdvice(buildContextualAdvice(stage, nextEvaluation, probe.data, forecast));
+          setWeatherLoading(false);
+        });
+      }
     } catch (error) {
       setConnectionError(error instanceof Error ? error.message : 'No se pudo leer la sonda.');
       setPhase('connection_error');
@@ -130,45 +147,37 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       tip: string,
     ): ResultCard => {
       const metric = evaluation.metrics[key];
-      const formatted = formatEngineMetric(key, metric.val, metric.unit, preferences.measurementSystem);
+      const formatted = formatEngineMetric(key, metric.val, metric.derived ? 'mg/kg' : metric.unit, preferences.measurementSystem);
       return {
         key,
         label,
-        value: metric.derived ? 'Sin validar' : `${formatted.value.toFixed(1)} ${formatted.unit}`,
+        value: `${formatted.value.toFixed(1)} ${formatted.unit}${metric.derived ? ' · Sin validar' : ''}`,
         status: metric.derived ? 'INFO' : metric.status,
         explanation,
         tip: metric.confidenceNote ?? tip,
         source: metric.derived ? 'Sonda (registro derivado de CE, sin validar)' : 'Sonda',
       };
     };
+    const ambient = (key: 'airTemp' | 'airHumidity' | 'airPressure', label: string, unit: string): ResultCard => {
+      const value = raw[key];
+      const formatted = value == null ? null : formatEngineMetric(key, value, unit, preferences.measurementSystem);
+      return { key, label, value: formatted ? `${formatted.value.toFixed(1)} ${formatted.unit}` : 'Sin dato',
+        status: 'INFO', source: 'BME280', explanation: 'Lectura ambiental local del equipo en el instante de captura.',
+        tip: value == null ? 'El sensor no entregó esta variable. No se sustituye por datos de internet.' : 'Dato local informativo; su validación física sigue pendiente.' };
+    };
     return [
-      metricCard('vwc', 'Humedad', 'Cantidad de agua disponible en el volumen de suelo.', 'Evita corregir riego por una sola lectura; compara varios puntos.'),
-      metricCard('temp', 'Temp. suelo', 'Temperatura en la zona de contacto de la sonda.', 'En pre-siembra compárala con el mínimo de germinación del cultivo.'),
-      metricCard('ec', 'Conductividad', 'Concentración global de sales disueltas.', 'Una CE alta puede indicar salinidad, no necesariamente fertilidad.'),
-      metricCard('ph', 'pH', 'Nivel de acidez o alcalinidad que condiciona nutrientes.', 'Corrige de forma gradual y confirma cambios importantes con laboratorio.'),
-      metricCard('nitrogen', 'Nitrógeno', 'Estimación asociada al crecimiento vegetativo.', 'Esta sonda lo deriva de CE; úsalo como tendencia, no como análisis químico.'),
-      metricCard('phosphorus', 'Fósforo', 'Estimación vinculada a raíces, floración y energía.', 'Un pH fuera de rango puede bloquearlo aunque la lectura parezca suficiente.'),
-      metricCard('potassium', 'Potasio', 'Estimación relacionada con regulación hídrica y fruto.', 'Contrasta con laboratorio antes de una corrección de alto costo.'),
-      {
-        key: 'air_temperature',
-        label: 'Temp. ambiente',
-        value: weather ? `${weather.temperatureC.toFixed(1)} °C` : 'Sin conexión',
-        status: 'INFO',
-        explanation: 'Temperatura actual obtenida desde el servicio climático.',
-        tip: 'Compárala con la temperatura del suelo antes de sembrar o regar.',
-        source: 'Clima',
-      },
-      {
-        key: 'precipitation',
-        label: 'Lluvia 24 h',
-        value: weather?.dailyPrecipitationMm != null ? `${weather.dailyPrecipitationMm.toFixed(1)} mm` : 'Sin conexión',
-        status: weather && ((weather.rainProbabilityPct ?? 0) >= 60 || (weather.dailyPrecipitationMm ?? 0) >= 5) ? 'WARNING' : 'INFO',
-        explanation: 'Precipitación prevista para hoy en la ubicación.',
-        tip: 'Si hay lluvia relevante, posterga riego y evita compactar el suelo.',
-        source: 'Clima',
-      },
+      metricCard('vwc', 'Humedad del suelo', 'Agua en el volumen de suelo.', 'Compara varios puntos antes de ajustar riego.'),
+      metricCard('ec', 'Conductividad del suelo', 'Conductividad eléctrica del suelo.', 'No identifica nutrientes individuales.'),
+      metricCard('temp', 'Temperatura del suelo', 'Temperatura de contacto de la sonda.', 'Compara con el rango del cultivo.'),
+      metricCard('nitrogen', 'Nitrógeno (N)', 'Registro informativo derivado de CE, sin validación química.', 'No usar para dosificar fertilizantes.'),
+      metricCard('phosphorus', 'Fósforo (P)', 'Registro informativo derivado de CE, sin validación química.', 'No usar para dosificar fertilizantes.'),
+      metricCard('potassium', 'Potasio (K)', 'Registro informativo derivado de CE, sin validación química.', 'No usar para dosificar fertilizantes.'),
+      metricCard('ph', 'pH del suelo', 'Acidez o alcalinidad del suelo.', 'Confirma correcciones importantes con laboratorio.'),
+      ambient('airTemp', 'Temperatura ambiente', '°C'),
+      ambient('airHumidity', 'Humedad relativa ambiente', '%'),
+      ambient('airPressure', 'Presión atmosférica', 'hPa'),
     ];
-  }, [evaluation, preferences.measurementSystem, raw, weather]);
+  }, [evaluation, preferences.measurementSystem, raw]);
 
   const tone = (status: ResultCard['status']) => {
     if (status === 'CRITICAL') return colors.danger;
@@ -183,9 +192,12 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       Alert.alert('Demostración', 'Los datos simulados no se guardan como mediciones reales.');
       return;
     }
+    weatherRequest.current += 1;
+    setWeatherLoading(false);
     setPhase('saving');
     try {
     const row: SoilMeasurementInsert = {
+      measured_at: capturedAt ?? new Date().toISOString(),
       device_id: device?.id ?? '',
       user_id: null,
       crop_id: cropId,
@@ -203,6 +215,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       nitrogen: raw.nitrogen,
       phosphorus: raw.phosphorus,
       potassium: raw.potassium,
+      battery_percent: raw.battery,
       soil_texture: textureId,
       // Ambiente del BME280 del equipo, no de la API del clima: esa da pronóstico de
       // días para complementar la recomendación, no una medición de este punto y este
@@ -214,7 +227,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       verdict: evaluation.verdict,
       verdict_title: evaluation.verdictTitle,
       action_summary: advice?.summary ?? evaluation.actionSummary,
-      diagnosis: { alerts: evaluation.alerts, drivers: evaluation.drivers, advice, weather },
+      diagnosis: { localSource: 'probe-bme280-v1', capturedAt, connectionAtCapture: 'ble-response', alerts: evaluation.alerts, drivers: evaluation.drivers, advice, weather },
       engine_version: ENGINE_VERSION,
       crop_catalog_version: CROP_CATALOG_VERSION,
       firmware_version: device?.firmware_version ?? null,
@@ -227,7 +240,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
         const localPoint = mapRowToPoint({
           ...row,
           id: clientUuid.current,
-          measured_at: new Date().toISOString(),
+          measured_at: row.measured_at,
         } as never);
         addPoint({ ...localPoint, isPending: true });
       }
@@ -242,11 +255,11 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     } finally {
       setPhase('result');
     }
-  }, [advice, addPoint, coords, cropId, demoMode, device, evaluation, fieldName, raw, setPendingCount, stage, textureId, weather]);
+  }, [capturedAt, advice, addPoint, coords, cropId, demoMode, device, evaluation, fieldName, raw, setPendingCount, stage, textureId, weather]);
 
   const header = (
     <View style={styles.header}>
-      <TouchableOpacity onPress={onCancel} style={styles.headerSide}>
+      <TouchableOpacity disabled={phase === 'saving'} onPress={onCancel} style={styles.headerSide}>
         <Text style={[styles.backText, { color: colors.primary }]}>‹ Volver</Text>
       </TouchableOpacity>
       <Text style={[styles.headerTitle, { color: colors.text }]}>Nueva medición</Text>
@@ -355,6 +368,11 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
         <Text style={[styles.pageTitle, { color: colors.text }]}>Explora cada lectura</Text>
         <Text style={[styles.pageBody, { color: colors.textSecondary }]}>Toca una tarjeta para entender el dato y ver un consejo breve.</Text>
 
+        <Text style={[styles.source, { color: colors.textSecondary }]}>
+          {demoMode ? 'Conexión simulada' : 'Respuesta BLE recibida; conexión cerrada para reposo'}{'\n'}
+          Captura: {capturedAt ? new Date(capturedAt).toLocaleString() : 'Sin dato' } · Batería: {raw?.battery ?? '—'} %
+          {'\n'}Ambiente: {[raw?.airTemp, raw?.airHumidity, raw?.airPressure].filter(v => v != null).length}/3 variables · N/P/K sin validación química
+        </Text>
         <View style={styles.resultGrid}>
           {cards.map((card, index) => (
             <TouchableOpacity
@@ -371,8 +389,8 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
                 },
               ]}
             >
-              <Text style={[styles.resultLabel, { color: colors.textMuted }]} numberOfLines={1}>{card.label}</Text>
-              <Text style={[styles.resultValue, { color: colors.text }]} numberOfLines={2}>{card.value}</Text>
+              <Text style={[styles.resultLabel, { color: colors.textMuted }]}>{card.label}</Text>
+              <Text style={[styles.resultValue, { color: colors.text }]}>{card.value}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -429,10 +447,18 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
           </View>
         </View>
 
+        <View style={[styles.detailCard, { backgroundColor: colors.card, borderColor: colors.border, marginTop: Spacing.md }]}>
+          <Text style={[styles.detailTitle, { color: colors.text }]}>Pronóstico · próximos cinco días</Text>
+          <Text style={[styles.source, { color: colors.textSecondary }]}>{weatherLoading ? 'Consultando pronóstico; ya puedes guardar la lectura local.' : weather ? `Open-Meteo · ${weather.timezone} · ${new Date(weather.fetchedAt).toLocaleString()}` : 'Pronóstico no disponible. El diagnóstico local se conserva.'}</Text>
+          {weather?.forecast.map(day => {
+            const temp = (value: number | null) => { if (value == null) return 'Sin dato'; const f = formatEngineMetric('temp', value, '°C', preferences.measurementSystem); return `${f.value.toFixed(1)} ${f.unit}`; };
+            return <Text key={day.date} style={[styles.action, { color: colors.text }]}>{day.date}: {temp(day.minimumTemperatureC)} / {temp(day.maximumTemperatureC) } · Lluvia: {day.precipitationMm == null ? 'Sin dato' : `${day.precipitationMm} mm`}</Text>;
+          })}
+        </View>
         <TouchableOpacity onPress={save} disabled={phase === 'saving'} style={[styles.cta, { backgroundColor: colors.primary, opacity: phase === 'saving' ? 0.6 : 1 }]}>
           {phase === 'saving' ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.ctaText}>Guardar resultado</Text>}
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setPhase('stage')} style={styles.secondaryButton}>
+        <TouchableOpacity disabled={phase === 'saving'} onPress={() => { weatherRequest.current += 1; setPhase('stage'); }} style={styles.secondaryButton}>
           <Text style={[styles.secondaryText, { color: colors.primary }]}>Cambiar fase y volver a medir</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -467,7 +493,7 @@ const styles = StyleSheet.create({
   cta: { minHeight: 56, borderRadius: Spacing.borderRadius, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.md, marginTop: Spacing.lg },
   ctaText: { ...Typography.button, color: '#FFFFFF', fontSize: 17 },
   resultGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs, marginBottom: Spacing.lg },
-  resultCard: { width: '31.8%', minHeight: 96, borderRadius: 12, borderWidth: 1, borderTopWidth: 4, padding: Spacing.sm },
+  resultCard: { width: '48%', flexGrow: 1, minHeight: 96, borderRadius: 12, borderWidth: 1, borderTopWidth: 4, padding: Spacing.sm },
   resultLabel: { ...Typography.badge },
   resultValue: { ...Typography.bodyBold, marginTop: Spacing.sm },
   detailCard: { borderRadius: Spacing.cardRadius, borderWidth: 1, padding: Spacing.md },

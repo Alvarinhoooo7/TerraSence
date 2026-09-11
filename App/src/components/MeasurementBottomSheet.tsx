@@ -52,9 +52,9 @@ export const MeasurementBottomSheet: React.FC<Props> = ({
     { label: 'CE', value: `${Math.round(point.ecUsCm)} µS/cm` },
     { label: t('Humedad', 'Moisture'), value: `${point.vwcPercent.toFixed(0)} %` },
     { label: t('T° suelo', 'Soil temp.'), value: `${temperature.value.toFixed(1)} ${temperature.unit}` },
-    { label: 'N', value: `${Math.round(point.nitrogen)} ppm` },
-    { label: 'P', value: `${Math.round(point.phosphorus)} ppm` },
-    { label: 'K', value: `${Math.round(point.potassium)} ppm` },
+    { label: 'N', value: `${Math.round(point.nitrogen)} mg/kg · ${t('Sin validar', 'Unvalidated')}` },
+    { label: 'P', value: `${Math.round(point.phosphorus)} mg/kg · ${t('Sin validar', 'Unvalidated')}` },
+    { label: 'K', value: `${Math.round(point.potassium)} mg/kg · ${t('Sin validar', 'Unvalidated')}` },
   ];
 
   return (

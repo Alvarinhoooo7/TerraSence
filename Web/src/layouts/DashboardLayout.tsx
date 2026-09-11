@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { supabase } from '../services/supabase';
-import { Leaf, Cpu, LogOut, ShieldAlert, HardDriveDownload, Users } from 'lucide-react';
+import { Leaf, Cpu, LogOut, ShieldAlert, HardDriveDownload, Users, Map, List } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ThemeToggle } from '../components/ThemeToggle';
 
@@ -13,6 +13,8 @@ const NAV_ITEMS = [
   { path: '/firmware', label: 'Firmware OTA', icon: HardDriveDownload },
   { path: '/admin/staff', label: 'Equipo de soporte', icon: Users },
   { path: '/devices', label: 'Mis equipos', icon: Cpu },
+  { path: '/measurements', label: 'Mis mediciones', icon: List },
+  { path: '/map', label: 'Mapa de pre-siembra', icon: Map },
 ];
 
 export function DashboardLayout({ email }: { email: string }) {

@@ -23,8 +23,8 @@ export interface SoilMeasurement {
   device_id: string;
   field_name: string;
   crop_id: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   gps_accuracy_m: number | null;
   radius_m: number;
   phenological_stage: PhenologicalStage;
@@ -35,6 +35,11 @@ export interface SoilMeasurement {
   nitrogen: number;
   phosphorus: number;
   potassium: number;
+  canopy_temp_c?: number | null;
+  canopy_humidity_pct?: number | null;
+  air_pressure_hpa?: number | null;
+  diagnosis?: unknown;
+  battery_percent?: number | null;
   verdict: Verdict;
   verdict_title: string;
   action_summary: string | null;

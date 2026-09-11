@@ -30,14 +30,20 @@ export const MeasurementDetailModal: React.FC<Props> = ({ point, onClose }) => {
     : point.verdict === 'AMBER'
       ? t('ATENCIÓN', 'ATTENTION')
       : t('CRÍTICO', 'CRITICAL');
+  const ambientTemp = point.airTemp == null ? null : formatTemperature(point.airTemp, system);
+  const missing = t('Sin dato', 'No data');
+  const unvalidated = t('Sin validar', 'Unvalidated');
   const metrics = [
+    [t('Humedad del suelo', 'Soil moisture'), `${point.vwcPercent.toFixed(1)} %`],
+    [t('Conductividad del suelo', 'Soil conductivity'), `${point.ecUsCm.toFixed(1)} µS/cm`],
+    [t('Temperatura del suelo', 'Soil temperature'), `${temperature.value.toFixed(1)} ${temperature.unit}`],
+    ['N', `${point.nitrogen} mg/kg · ${unvalidated}`],
+    ['P', `${point.phosphorus} mg/kg · ${unvalidated}`],
+    ['K', `${point.potassium} mg/kg · ${unvalidated}`],
     ['pH', point.ph.toFixed(1)],
-    ['CE', `${Math.round(point.ecUsCm)} µS/cm`],
-    [t('Humedad', 'Moisture'), `${point.vwcPercent.toFixed(0)} %`],
-    [t('T° suelo', 'Soil temp.'), `${temperature.value.toFixed(1)} ${temperature.unit}`],
-    ['N', t('Sin validar', 'Unvalidated')],
-    ['P', t('Sin validar', 'Unvalidated')],
-    ['K', t('Sin validar', 'Unvalidated')],
+    [t('Temperatura ambiente', 'Ambient temperature'), ambientTemp ? `${ambientTemp.value.toFixed(1)} ${ambientTemp.unit}` : missing],
+    [t('Humedad relativa ambiente', 'Ambient relative humidity'), point.airHumidity == null ? missing : `${point.airHumidity.toFixed(1)} %`],
+    [t('Presión atmosférica', 'Atmospheric pressure'), point.airPressure == null ? missing : `${point.airPressure.toFixed(1)} hPa`],
   ];
 
   return (
@@ -73,6 +79,8 @@ export const MeasurementDetailModal: React.FC<Props> = ({ point, onClose }) => {
           )}
 
           <Text style={[styles.section, { color: colors.textMuted }]}>{t('LECTURAS REGISTRADAS', 'RECORDED READINGS')}</Text>
+          <Text style={[styles.meta, { color: colors.textSecondary }]}>{t('Suelo: sonda · Ambiente: registro local; las lecturas antiguas pueden carecer de origen verificado. N/P/K sin validación química.', 'Soil: probe · Environment: local record; older readings may lack verified provenance. N/P/K chemically unvalidated.')}</Text>
+          <Text style={[styles.meta, { color: colors.textSecondary }]}>{t('Batería en captura', 'Battery at capture')}: {point.batteryPercent == null ? missing : `${point.batteryPercent} %`}</Text>
           <View style={styles.grid}>
             {metrics.map(([label, value]) => (
               <View key={label} style={[styles.metric, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -115,7 +123,7 @@ const styles = StyleSheet.create({
   meta: { ...Typography.caption, textAlign: 'center', marginTop: Spacing.sm },
   section: { ...Typography.badge, marginTop: Spacing.lg, marginBottom: Spacing.xs },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs },
-  metric: { minWidth: 100, flexGrow: 1, borderRadius: 10, borderWidth: 1, padding: Spacing.sm },
+  metric: { width: '48%', flexGrow: 1, borderRadius: 10, borderWidth: 1, padding: Spacing.sm },
   metricLabel: { ...Typography.badge },
   metricValue: { ...Typography.bodyBold, marginTop: 2 },
   action: { borderWidth: 1, borderLeftWidth: 4, borderRadius: Spacing.borderRadius, padding: Spacing.md },

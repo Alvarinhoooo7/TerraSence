@@ -1,19 +1,23 @@
 # 🖥️ TerraSense · Consola Web de Administración y Backoffice
 
-> Revisión del 10-09-2026: [informe académico de la raíz](../INFORME%20antiguo%20.docx%20%281%29.md). Esta revisión documenta trabajo futuro; no modifica App, Web, Supabase o PCB ni acredita despliegues.
+> Documentación de la consola web. Incluye el detalle 2×5 en inventario y soporte, el ambiente y la batería en la exportación CSV, y el mapa reservado a las mediciones de pre-siembra.
 
-## Pendientes de vistas y documentación comercial
+## Mediciones y mapa — implementados el 11-09-2026
 
-- Alinear futuras vistas y exportaciones con diez registros locales; N/P/K separados e informativos.
-- Mantener pronóstico a cinco días fuera del Grid de mediciones, con fecha y caducidad.
-- Mostrar NULL como lectura ausente y verificar origen ambiental de Supabase.
-- Revisar autonomía, exactitud, IP67 y ahorro: son objetivos o supuestos pendientes, no prestaciones certificadas.
-- Preparar página técnica y QR según expediente SUBTEL, además de privacidad, permisos y accesibilidad.
+Las rutas `/measurements` (Mis mediciones) y `/map` (Mapa de pre-siembra) están conectadas a la navegación actual. Conservan la comprobación de acceso al backoffice y la membresía/RLS de los equipos; no conceden acceso a toda la flota. Para consultar equipos como personal de soporte se utiliza `/admin/devices/:id`.
+
+El historial y la ficha de soporte permiten expandir una lectura al Grid **2×5** de [App](../App/README.md#interfaz-e-integración-actualizadas-al-11-09-2026): humedad del suelo/CE, temperatura del suelo/N, P/K, pH/temperatura ambiente, humedad relativa/presión. Se indican unidades y datos ausentes; N/P/K quedan separados e informativos, sin validación química ni cálculo de dosis. Batería, fecha, completitud y estado se presentan aparte. `diagnosis.localSource` permite identificar las capturas del nuevo flujo; un histórico sin marca se muestra con origen ambiental no verificado.
+
+El CSV de soporte incluye las diez variables, batería en captura, fecha y diagnóstico con fuentes y pronóstico guardado. El pronóstico no sustituye a las tres variables BME280 ni ocupa tarjetas del Grid. El mapa sólo admite `pre_siembra` con coordenadas finitas; el filtro existe tanto en la consulta GIS como en el componente de interpolación. El historial conserva las cuatro fases y los registros sin ubicación.
+
+El panel muestra **Reporte reciente** en lugar de afirmar conexión permanente: `devices.last_seen_at` no verifica una conexión BLE activa. El esquema y `admin_get_device_detail` fueron actualizados mediante la [migración aplicada y verificada en Supabase](../supabase/README.md#persistencia-ambiental-y-bateria).
+
+Verificación de esta entrega: `npm test` pasó la prueba de fase/GPS (incluidos ceros válidos, nulos y valores no finitos); `npm run build` pasó TypeScript y generó el build Vite. Esto no publica ese build. Siguen pendientes pruebas visuales, accesibilidad y publicación web/móvil, además del roadmap de tickets, OTA real, alertas preventivas y canary. Autonomía, exactitud, IP67 y ahorro siguen sujetos a ensayos; la página técnica, QR y expediente comercial se validan por separado.
 
 ---
 
 Consola central de operaciones técnicas, gestión de flota por soporte y distribución de firmware desarrollada en **React 19 + Vite 6 + Tailwind CSS v4 + TypeScript + React Router v7**. 
-Es la **herramienta de backoffice del creador/administrador (Álvaro)** para supervisar las sondas TerraSense en terreno, auditar la salud técnica del hardware, gestionar miembros, resolver casos de soporte y desplegar actualizaciones de firmware OTA (tanto de forma individual desde la ficha de cada equipo como de manera masiva para toda la flota).
+Es la **herramienta de backoffice del creador/administrador (Álvaro)** para supervisar las sondas TerraSense en terreno, auditar la salud técnica del hardware, gestionar miembros, resolver casos de soporte y consultar el catálogo de firmware o enviar avisos individuales de actualización; la instalación OTA real y el despliegue masivo siguen pendientes.
 
 > [!IMPORTANT]
 > **Propósito Exclusivo de Backoffice:**
@@ -51,7 +55,7 @@ Esta consola resuelve de forma unificada las necesidades de post-venta, soporte 
 2. **Diagnóstico Técnico y Salud de la Sonda:** Supervisión en tiempo real de curvas de voltaje de batería de litio recargable, última señal y registro de últimas mediciones para diagnosticar el comportamiento de sensores en terreno.
 3. **Administración de Membresías:** aprobar pendientes, delegar el único administrador (`admin`) y eliminar usuarios (`user`). Al delegar, el administrador anterior pasa a usuario. Debe conservarse al menos un miembro; sólo el reset elimina todos. El acceso al backoffice se controla en `admin_support_users`, independientemente de los roles de equipo. [Contrato, reset y despliegue](../supabase/ADMINISTRACION.md).
 4. **Reseteo de Fábrica (Factory Reset):** Proceso seguro para desvincular a todos los miembros y limpiar mediciones privadas ante ventas o transferencias entre agricultores, preservando la identidad de hardware de la sonda.
-5. **Firmware OTA Dual (Individual y Masivo):** Capacidad para forzar la actualización inalámbrica de un equipo puntual desde su ficha técnica, o publicar releases obligatorios globales para toda la flota.
+5. **Firmware OTA:** catálogo de consulta y aviso individual por alerta push. La carga de binarios, su verificación, instalación y despliegue masivo siguen pendientes (§11.2).
 
 ---
 
@@ -86,7 +90,7 @@ Página de control exhaustivo para un equipo seleccionado, alimentada por la RPC
    - Historial de hasta 100 lecturas con porcentaje, voltaje y estado de carga.
    - Filtro interactivo por rango de fechas (`Desde` / `Hasta`) para examinar curvas de descarga en terreno y diagnosticar problemas energéticos.
 3. **Historial de Mediciones Agronómicas:**
-   - Tabla de las últimas 50 lecturas tomadas por el equipo (humedad, temperatura de suelo, CE, pH, N, P, K) con su veredicto, predio y etapa fenológica, para verificar el funcionamiento de los sensores.
+   - Tabla de las últimas 50 lecturas tomadas por el equipo (humedad, temperatura de suelo, CE, pH, N, P, K) con su veredicto, campo y etapa fenológica, para verificar el funcionamiento de los sensores.
    - Los valores N/P/K se muestran agrupados y con una advertencia en pantalla: se derivan de la conductividad eléctrica, no de electrodos ion-selectivos, así que sirven para comprobar que el sensor responde, no para calcular dosis.
 4. **Gestión de Miembros y Roles:**
    - Visualización de todos los usuarios asociados a la sonda con sus respectivos correos y roles.
@@ -321,14 +325,14 @@ El proyecto utiliza un servidor SMTP propio de Gmail en Supabase (`[auth.email.s
 >
 > La advertencia de tamaño **ya no aparece**: `vite.config.ts` divide las dependencias en tres grupos (`react`, `supabase`, `ui`) y ninguno supera el umbral de 500 kB. El reparto queda en 50 / 220 / 148 kB de dependencias más 261 kB de código propio (195 kB en total con gzip), y un despliegue normal sólo invalida el último.
 >
-> **No se ejecutó DDL ni se aplicó ninguna migración.** Todo lo añadido en esta entrega consume funciones que ya existían en `supabase/migrations/20260902120000_panel_soporte_backend.sql` y que están presentes en `Web/backend/database.types.ts`, generado contra el proyecto remoto. Ver [`supabase/APP_COMPATIBILITY_20260905.md`](../supabase/APP_COMPATIBILITY_20260905.md) para el estado del historial de migraciones, que incluye dos versiones remotas ausentes en local y una local pendiente de aplicar.
+> **Sobre el esquema de base de datos:** la consola web no ejecuta DDL propio. Todo lo que añade consume funciones que ya existían en `supabase/migrations/20260902120000_panel_soporte_backend.sql` y que están presentes en `Web/backend/database.types.ts`, generado contra el proyecto remoto. Ver [`supabase/APP_COMPATIBILITY_20260905.md`](../supabase/APP_COMPATIBILITY_20260905.md) para el estado del historial de migraciones, cuyas diferencias históricas ya no aparecen en la consulta del 11-09-2026.
 
 ### 11.1. Módulos implementados
 * ✅ **Panel de Soporte Técnico (`/admin`):** Buscador multi-criterio en tiempo real (por ID de hardware de 15 dígitos, alias o correo del usuario) con listado dinámico de flota.
 * ✅ **Ficha Técnica y Diagnóstico Individual (`/admin/devices/:id`):** Visualización de curvas de batería de litio, versión de firmware activa, tabla de miembros vinculados y últimas mediciones edafológicas reportadas.
 * ✅ **Gobernanza de Membresías:** Dos roles (`admin`, `user`), aprobación, delegación y eliminación de miembros.
 * ✅ **Factory Reset Remoto Seguro:** Desvinculación atómica de miembros y purga de mediciones privadas ante reventa o traspaso entre agricultores.
-* ✅ **Historial de Mediciones Agronómicas:** tabla de las últimas 50 lecturas con veredicto, predio y etapa. El dato ya venía en `admin_get_device_detail`; hasta ahora la ficha lo descartaba sin mostrarlo.
+* ✅ **Historial de Mediciones Agronómicas:** tabla de las últimas 50 lecturas con veredicto, campo y etapa. El dato ya venía en `admin_get_device_detail`; hasta ahora la ficha lo descartaba sin mostrarlo.
 * ✅ **Aviso de Firmware OTA Individual:** selector de versión publicada y envío de la alerta push desde la ficha del equipo (`listPublishedFirmware` + `admin_push_firmware_update`). Ambas funciones existían en `adminApi.ts` sin ninguna pantalla que las invocara.
 * ✅ **Gobernanza del Equipo de Soporte (`/admin/staff`) y alta autoservicio:** `support_self_register`, `admin_set_staff_active` y `admin_rotate_invite_code` pasan de estar sólo declaradas en `adminApi.ts` a tener interfaz. Antes, una cuenta nueva sin pertenencia al panel aterrizaba en un inventario vacío sin ninguna vía de acceso.
 * ✅ **Exportación de Telemetría (CSV):** batería y mediciones descargables desde la ficha del equipo.

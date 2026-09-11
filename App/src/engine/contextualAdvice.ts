@@ -22,13 +22,29 @@ export function buildContextualAdvice(
   const actions = evaluation.alerts.slice(0, 3).map((alert) => alert.action);
   if (actions.length === 0) actions.push('Mantén el manejo actual y repite la medición para observar la tendencia.');
 
+  const riskyDays = weather?.forecast.filter(day =>
+    (day.precipitationMm != null && day.precipitationMm >= 5) ||
+    (day.rainProbabilityPct != null && day.rainProbabilityPct >= 60) ||
+    (day.minimumTemperatureC != null && day.minimumTemperatureC <= 0) ||
+    (day.maximumTemperatureC != null && day.maximumTemperatureC >= 35),
+  ) ?? [];
+  if (riskyDays.length) actions.push(`Revisa la fecha de la labor por lluvia, helada o calor previstos: ${riskyDays.map(day => day.date).join(', ')}. Confirma las condiciones antes de ingresar al predio.`);
+
+  const completeForecast = weather?.forecast.every(day => day.precipitationMm != null && day.minimumTemperatureC != null && day.maximumTemperatureC != null);
   const weatherNote = !weather
-    ? 'No hubo conexión con el servicio climático. La recomendación usa sólo la lectura local.'
-    : (weather.rainProbabilityPct ?? 0) >= 60 || (weather.dailyPrecipitationMm ?? 0) >= 5
-      ? `Hay ${weather.rainProbabilityPct ?? 0} % de probabilidad de lluvia y ${(weather.dailyPrecipitationMm ?? 0).toFixed(1)} mm previstos: posterga labores que compacten el suelo y revisa el drenaje.`
-      : weather.windKmh >= 35
-        ? `Viento de ${weather.windKmh.toFixed(0)} km/h: evita aplicaciones foliares y labores expuestas.`
-        : `Clima sin alerta inmediata: ${weather.temperatureC.toFixed(1)} °C, viento ${weather.windKmh.toFixed(0)} km/h.`;
+    ? 'Pronóstico no disponible. La recomendación usa sólo la lectura local.'
+    : riskyDays.length
+      ? `Revisar la fecha de la labor: ${riskyDays.map(day => {
+          const risks = [
+            (day.precipitationMm ?? 0) >= 5 || (day.rainProbabilityPct ?? 0) >= 60 ? 'lluvia' : null,
+            day.minimumTemperatureC != null && day.minimumTemperatureC <= 0 ? 'helada' : null,
+            day.maximumTemperatureC != null && day.maximumTemperatureC >= 35 ? 'calor' : null,
+          ].filter(Boolean);
+          return `${day.date} (${risks.join(', ')})`;
+        }).join('; ')}. Umbrales orientativos; confirmar las condiciones en terreno.`
+      : completeForecast
+        ? 'Sin alertas de lluvia, helada o calor bajo estas reglas orientativas para los próximos cinco días.'
+        : 'Pronóstico incompleto: faltan datos para evaluar todos los próximos cinco días.';
 
   const suggestedCrops = stage === 'pre_siembra'
     ? Object.values(CROPS_DB)

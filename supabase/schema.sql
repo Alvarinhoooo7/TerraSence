@@ -173,6 +173,9 @@ BEGIN
                 'phenological_stage', m.phenological_stage, 'verdict', m.verdict,
                 'verdict_title', m.verdict_title, 'vwc_percent', m.vwc_percent,
                 'soil_temp_c', m.soil_temp_c, 'ec_us_cm', m.ec_us_cm, 'ph', m.ph,
+                'canopy_temp_c', m.canopy_temp_c, 'canopy_humidity_pct', m.canopy_humidity_pct,
+                'air_pressure_hpa', m.air_pressure_hpa, 'diagnosis', m.diagnosis,
+                'battery_percent', m.battery_percent,
                 'nitrogen', m.nitrogen, 'phosphorus', m.phosphorus, 'potassium', m.potassium,
                 'latitude', m.latitude, 'longitude', m.longitude
             ) ORDER BY m.measured_at DESC), '[]'::jsonb)
@@ -1548,6 +1551,8 @@ CREATE TABLE IF NOT EXISTS "public"."soil_measurements" (
     "diagnosis" "jsonb",
     "client_uuid" "uuid",
     "air_pressure_hpa" numeric(5,1),
+    "battery_percent" smallint,
+    CONSTRAINT "soil_measurements_battery_percent_check" CHECK (("battery_percent" >= 0) AND ("battery_percent" <= 100)),
     CONSTRAINT "soil_measurements_phenological_stage_check" CHECK (("phenological_stage" = ANY (ARRAY['pre_siembra'::"text", 'vegetativo'::"text", 'floracion'::"text", 'cosecha'::"text"]))),
     CONSTRAINT "soil_measurements_quadrant_check" CHECK ((("quadrant")::"text" = ANY ((ARRAY['NW'::character varying, 'NE'::character varying, 'SE'::character varying, 'SW'::character varying, 'CENTER'::character varying, 'FREE'::character varying])::"text"[]))),
     CONSTRAINT "soil_measurements_radius_m_check" CHECK ((("radius_m" >= 1) AND ("radius_m" <= 500))),
@@ -1587,6 +1592,8 @@ COMMENT ON COLUMN "public"."soil_measurements"."engine_version" IS 'Versión del
 
 
 COMMENT ON COLUMN "public"."soil_measurements"."air_pressure_hpa" IS 'Presión atmosférica medida por el BME280, resolución 1 hPa. NULL si el sensor no respondió.';
+
+COMMENT ON COLUMN "public"."soil_measurements"."battery_percent" IS 'Porcentaje recibido en el byte 14 de la misma trama BLE. NULL en registros anteriores.';
 
 
 

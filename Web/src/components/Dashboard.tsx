@@ -1,3 +1,4 @@
+import { MeasurementGrid } from './MeasurementGrid';
 // src/components/Dashboard.tsx
 //
 // Consola de administración central de TerraSense: gestión de flota de equipos,
@@ -141,7 +142,7 @@ export function Dashboard({ email }: { email: string }) {
             </div>
 
             <Table
-              head={['Veredicto', 'Predio', 'Etapa', 'pH', 'CE µS/cm', 'VWC %', 'T° °C', 'N-P-K', 'Cuándo']}
+              head={['Veredicto', 'Predio', 'Etapa', 'pH', 'CE µS/cm', 'VWC %', 'T° °C', 'N-P-K (sin validar)', 'Cuándo', 'Detalle 2×5']}
               rows={filtered.map((m) => {
                 const meta = VERDICT_META[m.verdict];
                 return [
@@ -159,6 +160,7 @@ export function Dashboard({ email }: { email: string }) {
                   m.soil_temp_c?.toFixed(1),
                   `${m.nitrogen}-${m.phosphorus}-${m.potassium}`,
                   relativeTime(m.measured_at),
+                  <details key="detail"><summary className="cursor-pointer text-terra-primary">Ver diez variables</summary><MeasurementGrid reading={m} /></details>,
                 ];
               })}
               empty="No hay mediciones que coincidan."

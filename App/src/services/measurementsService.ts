@@ -32,7 +32,7 @@ interface QueuedMeasurement {
 /** Columnas que necesita el mapa. Se piden explícitas para no traer de más. */
 const MAP_COLUMNS =
   'id,client_uuid,latitude,longitude,radius_m,gps_accuracy_m,verdict,verdict_title,action_summary,' +
-  'phenological_stage,measured_at,ph,ec_us_cm,vwc_percent,soil_temp_c,nitrogen,phosphorus,potassium';
+  'phenological_stage,measured_at,ph,ec_us_cm,vwc_percent,soil_temp_c,nitrogen,phosphorus,potassium,canopy_temp_c,canopy_humidity_pct,air_pressure_hpa,battery_percent,diagnosis';
 
 export const newClientUuid = (): string => Crypto.randomUUID();
 

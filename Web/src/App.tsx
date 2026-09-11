@@ -13,6 +13,8 @@ import { FirmwarePage } from './pages/FirmwarePage';
 import { SupportPanelPage } from './pages/SupportPanelPage';
 import { SupportStaffPage } from './pages/SupportStaffPage';
 import { SupportDeviceDetailPage } from './pages/SupportDeviceDetailPage';
+import { DashboardHome } from './pages/DashboardHome';
+import { GisMapPage } from './pages/GisMapPage';
 
 /** Aterrizaje del enlace de confirmacion. Debe coincidir con `emailRedirectTo`
  *  de `App/src/screens/AuthScreen.tsx` y con `additional_redirect_urls` de
@@ -110,6 +112,8 @@ export default function App() {
         <Route path="admin/staff" element={<SupportStaffPage />} />
         <Route path="firmware" element={<FirmwarePage />} />
         <Route path="devices" element={<DevicesPage />} />
+        <Route path="measurements" element={<DashboardHome />} />
+        <Route path="map" element={<GisMapPage />} />
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Route>
     </Routes>

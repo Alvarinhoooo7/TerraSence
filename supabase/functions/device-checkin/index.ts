@@ -31,8 +31,8 @@ interface CheckinRequest {
   firmware_version?: string;
   /** Medición opcional: si viene, se registra. */
   measurement?: {
-    latitude: number;
-    longitude: number;
+    latitude: number | null;
+    longitude: number | null;
     gps_accuracy_m?: number;
     phenological_stage: 'pre_siembra' | 'vegetativo' | 'floracion' | 'cosecha';
     crop_id: string;
@@ -45,6 +45,14 @@ interface CheckinRequest {
     nitrogen: number;
     phosphorus: number;
     potassium: number;
+    // La integración alternativa conserva los mismos campos que PostgREST.
+    // Opcionales para aceptar clientes anteriores; ausencia significa NULL.
+    canopy_temp_c?: number | null;
+    canopy_humidity_pct?: number | null;
+    air_pressure_hpa?: number | null;
+    battery_percent?: number | null;
+    vpd_kpa?: number | null;
+    diagnosis?: unknown;
     verdict: 'GREEN' | 'AMBER' | 'RED';
     verdict_title: string;
     action_summary?: string;

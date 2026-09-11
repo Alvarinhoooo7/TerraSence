@@ -105,7 +105,7 @@ interface AmbienteBme280 {
  *   byte 18 : PPPP PPPP          8 bits bajos de la presión
  *   byte 19 : HHHH HHHH          humedad relativa
  *
- * Temperatura: 12 bits, décimas de °C desplazadas +400 → -40,0 a +125,0 °C.
+ * Temperatura: 12 bits, décimas de °C desplazadas +400 → -40,0 a +85,0 °C.
  * Presión: 12 bits, hPa enteros desplazados +300 → 300 a 1100 hPa.
  * Humedad: 8 bits, medios puntos porcentuales → 0 a 100,0 %.
  */

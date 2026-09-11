@@ -1,8 +1,8 @@
 # 📱 TerraSense · Aplicación Móvil de Terreno
 
-> Revisión del 10-09-2026: [informe académico de la raíz](../INFORME%20antiguo%20.docx%20%281%29.md). Esta revisión documenta trabajo futuro; no modifica App, Web, Supabase o PCB ni acredita despliegues.
+> Documentación de la aplicación móvil. El [informe académico de la raíz](../INFORME%20antiguo%20.docx%20%281%29.md) contiene la ingeniería conceptual, la evaluación económica y el marco normativo del proyecto.
 
-## Pendientes de interfaz e integración
+## Interfaz e integración actualizadas al 11-09-2026
 
 El Grid **2×5 tiene dos columnas y cinco filas**, con una tarjeta por variable y diez registros locales en total.
 
@@ -14,28 +14,43 @@ El Grid **2×5 tiene dos columnas y cinco filas**, con una tarjeta por variable 
 | 4 | pH del suelo | Temperatura ambiente (BME280) |
 | 5 | Humedad relativa ambiente (BME280) | Presión atmosférica ambiente (BME280) |
 
-N, P y K se muestran por separado como registros informativos, sin atribuirles selectividad química o capacidad para prescribir dosis de fertilizante. Estado, batería y completitud van fuera de estas diez tarjetas. El pronóstico a cinco días se presenta aparte. Si falta una lectura ambiental, se indica su ausencia; no se sustituye por datos de internet. **El Grid es el diseño objetivo pendiente de implementar en la App.**
+N, P y K se muestran por separado como registros informativos, sin atribuirles selectividad química o capacidad para prescribir dosis de fertilizante. Estado, batería y completitud van fuera de estas diez tarjetas. El pronóstico a cinco días se presenta aparte. Si falta una lectura ambiental, se indica su ausencia; no se sustituye por datos de internet. **El Grid está implementado en la App y en el detalle web; la validación física sigue pendiente.**
 
-La vista actual conserva nueve tarjetas, dos con datos de API, y anchos de 31,8 %. Los tipos y el decodificador BLE ya incluyen soporte ambiental v1; falta alinear la vista y validar el recorrido completo con hardware.
+La captura y el historial muestran diez tarjetas en dos columnas. Las tres variables ambientales proceden del equipo; batería, fecha y completitud se muestran aparte. El pronóstico se consulta sin bloquear la presentación ni el guardado local.
 
-- Implementar el Grid objetivo y verificar unidades, NULL, origen y fecha de las diez variables.
+- Implementado: Grid, unidades, NULL, origen, fecha de captura, batería e historial de las diez variables.
 - Probar captura, diagnóstico y guardado en modo avión; no bloquear el resultado por la consulta meteorológica.
 - Probar sesión previa, falta de GPS, reinicio, sincronización y accesibilidad.
 - Mantener N/P/K informativos y el estado metrológico visible.
 
-Las demás menciones a Grid 2×5 describen el diseño objetivo, pendiente.
+Queda pendiente validar el recorrido completo con hardware.
+
+### Captura, historial y pronóstico: contrato implementado
+
+Las tarjetas conservan el orden de la tabla anterior: humedad (%), CE (µS/cm), temperatura de suelo, N, P, K, pH, temperatura ambiente, humedad relativa (%) y presión (hPa). Las temperaturas se muestran en °C o °F según la preferencia; los registros nominales N/P/K en mg/kg se rotulan **Sin validar**, sin prescribir dosis. Estado, batería, fecha y completitud se presentan fuera del Grid.
+
+Las tres magnitudes ambientales, `battery_percent`, `measured_at` y `diagnosis` sobreviven al guardado, consulta, caché, cola offline e historial. Los registros antiguos sin ambiente o batería siguen siendo legibles y muestran ausencia. `diagnosis.localSource = 'probe-bme280-v1'` identifica las capturas del nuevo flujo; no permite atribuir el mismo origen a históricos sin esa marca. `measured_at` conserva la recepción de la lectura en el celular, aunque la sincronización ocurra más tarde.
+
+El servicio consulta `forecast_days=6&timezone=auto` a Open-Meteo y presenta las **cinco fechas locales posteriores a hoy**, con temperaturas mínima/máxima y precipitación. Los valores faltantes se conservan como ausencia; las alertas por fecha de lluvia, helada o calor usan reglas orientativas aún no validadas en campo. La lectura y su diagnóstico se presentan antes de terminar esa consulta y pueden guardarse mientras carga. Al guardar, el pronóstico y la recomendación disponibles quedan congelados en `diagnosis`: una respuesta tardía no modifica ese registro ni otra medición.
+
+El GPS procede del celular y se espera como máximo cinco segundos. Si no entrega ubicación, se conserva la lectura sin coordenadas y sin pronóstico. Este límite **no es el tiempo total de medición**. Sólo `pre_siembra` con coordenadas finitas aparece en el mapa; las cuatro etapas permanecen en el historial.
+
+La trama de producto es de **20 bytes**, con diez variables, batería y formato. La trama de 16 bytes sólo se tolera para prototipos sin BME280. Una respuesta BLE válida confirma presencia en ese instante; el enlace se cierra después para permitir reposo y no se afirma conexión permanente ni internet del ESP32. Ver [contrato BLE](../docs/CONTRATO_BLE.md) y [persistencia en Supabase](../supabase/README.md#persistencia-ambiental-y-bateria).
+
+La entrega del 11-09-2026 pasó `npm run type-check` y las **55 pruebas** de `npm test`, incluidas `probeTelemetry`, `environmentHistory` y `weatherService`. Cubren v0/v1, centinelas, negativos, rangos, batería, BLE → fila → historial, históricos sin ambiente, cinco fechas con cambio de mes, pronóstico parcial y fallo de red. Son resultados de esa entrega, no una certificación física; [pruebas pendientes](../docs/PLAN_VALIDACION.md#5-dependencias-y-comprobaciones-de-software).
+
 
 ---
 
 Aplicación móvil de terreno desarrollada en **React Native 0.86 + React 19.2 + Expo SDK 57 + TypeScript 6 + Zustand**. 
-Es la herramienta central que el agricultor y los operadores llevan al campo: se conecta a la sonda portátil TerraSense vía **Bluetooth Low Energy (BLE)**, evalúa el suelo localmente según la etapa fenológica elegida, agrega contexto meteorológico y proyecta las mediciones de **siembra** en un mapa predial.
+Es la herramienta central que el agricultor y los operadores llevan al campo: se conecta a la sonda portátil TerraSense vía **Bluetooth Low Energy (BLE)**, evalúa el suelo localmente según la etapa fenológica elegida, agrega contexto meteorológico y proyecta las mediciones de **siembra** en un mapa del campo.
 
 > ### ⚠️ Estado de verificación
 > Corregido tras la [auditoría del 4 de septiembre de 2026](../finanzas/historico/documentacion/docs/AUDITORIA_READMES_2026-09-04.md). Precisiones que este README mantenía incorrectas y ahora quedan explícitas:
 >
-> - **El motor agronómico opera sin conexión; el dato meteorológico no.** La consulta actual pide **2 días** de pronóstico, usa el primero y devuelve `null` si falla la red. El requisito actualizado es consultar **los próximos 5 días**; su integración está descrita en `docs/INFORME%201%20.docx.md#integracion-bme280`.
-> - **BME280 incluido y obligatorio:** temperatura del aire, humedad relativa y presión local para tres celdas del grid 2×5. La API gratuita complementa la lectura con el pronóstico de cinco días. Ver [contrato y estado de integración](../docs/INFORME%201%20.docx.md#integracion-bme280). El decodificador incluye soporte v1; quedan pendientes el Grid y la validación física.
-> - **N, P y K no se muestran como cifras interpretables**, en ningún rango de conductividad.
+> - **El motor agronómico opera sin conexión; el dato meteorológico no.** La consulta pide seis fechas contando hoy y muestra **los cinco días posteriores**, con fechas locales y valores faltantes explícitos; devuelve `null` si falla la red; su integración está descrita en `docs/INFORME%201%20.docx.md#integracion-bme280`.
+> - **BME280 incluido y obligatorio:** temperatura del aire, humedad relativa y presión local para tres celdas del grid 2×5. La API gratuita complementa la lectura con el pronóstico de cinco días. Ver [contrato y estado de integración](../docs/INFORME%201%20.docx.md#integracion-bme280). El decodificador incluye soporte v1; el Grid está implementado y queda pendiente la validación física.
+> - **N, P y K se muestran como registros numéricos informativos sin validar**, sin prescribir fertilización ni afirmar selectividad química.
 > - **El motor no calcula dosis de cal en kg/ha ni costos por hectárea.** Esas salidas se retiraron.
 > - **El tiempo de respuesta extremo a extremo no está medido.** No citar «5 segundos».
 > - **Probar BLE exige un build nativo**; `npm run android` no lo compila.
@@ -90,7 +105,7 @@ Es la herramienta central que el agricultor y los operadores llevan al campo: se
 7. **Carrusel de Resultados Post-Medición:**
    - **Página 1 (Grid 2×5 Semáforo):** Cuadrícula con las variables medidas en verde (óptimo), naranjo (precaución) y rojo (riesgo). Al tocar cualquier parámetro, se despliega una explicación detallada con advertencias, causas y acciones concretas para mejorarlo según la fase activa.
    - **Página 2 (Recomendación Integral Globalizada):** Diagnóstico de conjunto que combina suelo, etapa del cultivo y pronóstico del clima (olas de calor, heladas, lluvias, qué sembrar o cuidados de la planta en crecimiento). Aquí finaliza el carrusel para Vegetativo, Floración y Cosecha.
-   - **Página 3 (Exclusiva para Fase Siembra):** Pestaña adicional donde la medición se plasma en el mapa predial georreferenciado con una burbuja de detalle y un **círculo de influencia de radio de 20 metros**.
+   - **Página 3 (Exclusiva para Fase Siembra):** Pestaña adicional donde la medición se plasma en el mapa del campo georreferenciado con una burbuja de detalle y un **círculo de influencia de radio de 20 metros**.
 8. **Historial de Mediciones (`HistoryScreen`):** Lista cronológica de todas las mediciones. Permite abrir el mapa satelital **únicamente para las mediciones de siembra** para ver los puntos y zonas de 20 m cubiertas. Las demás fases permanecen como registros de auditoría y seguimiento.
 
 ---
@@ -142,16 +157,16 @@ App/
 │   │   ├── OnboardingScreen.tsx        # Alta BLE de administrador o solicitud mediante QR
 │   │   ├── DashboardScreen.tsx         # Pantalla principal con botón central "Medir"
 │   │   ├── MeasureScreen.tsx           # Selección de fase → BLE → Carrusel de 2 ó 3 páginas
-│   │   ├── MapScreen.tsx               # Mapa predial para mediciones de siembra (círculos 20 m)
+│   │   ├── MapScreen.tsx               # Mapa del campo para mediciones de siembra (círculos 20 m)
 │   │   ├── HistoryScreen.tsx           # Historial cronológico con acceso a mapa para siembra
 │   │   ├── DevicesScreen.tsx           # Gestión de equipos vinculados y roles
-│   │   └── FieldSettingsScreen.tsx     # Configuración de predios, texturas y cultivos
+│   │   └── FieldSettingsScreen.tsx     # Configuración de campos, texturas y cultivos
 │   ├── components/
 │   │   ├── CalibrationReminderModal.tsx # Modal que recuerda limpiar electrodos de la sonda
 │   │   ├── OfflineBanner.tsx           # Barra discreta ante corte de internet
 │   │   ├── ScreenGuide.tsx             # Botón '?' con guía de uso por pantalla
 │   │   ├── StageSelector.tsx           # Selector visual de las 4 etapas fenológicas
-│   │   ├── FieldPicker.tsx             # Selector de predio activo
+│   │   ├── FieldPicker.tsx             # Selector de campo activo
 │   │   ├── MeasurementBottomSheet.tsx  # Ficha deslizable de lectura sobre el mapa
 │   │   └── MeasurementDetailModal.tsx  # Modal detallado con badge de sincronización
 │   ├── services/
@@ -161,7 +176,7 @@ App/
 │   │   ├── deviceService.ts            # Registro y gestión de membresías de equipos
 │   │   ├── onboardingService.ts        # Persistencia de estado de onboarding en Supabase
 │   │   ├── preferencesService.ts       # Preferencias de usuario locales y en la nube
-│   │   ├── fieldsService.ts            # Gestión de predios agrícolas
+│   │   ├── fieldsService.ts            # Gestión de campos agrícolas
 │   │   ├── weatherService.ts           # Consulta resiliente a la API de Open-Meteo
 │   │   ├── authDeepLink.ts             # Captura del esquema tierrasense://reset-password
 │   │   ├── authDeepLinkParser.ts       # Procesamiento de tokens del enlace de correo
@@ -191,12 +206,12 @@ App/
 - Inicio renovado con última lectura real, acceso a equipos, estado de respaldo y acceso al mapa; sin métricas de ejemplo. Se adapta a tema claro/oscuro y español/inglés.
 - Navegación inferior persistente entre Inicio, Historial, Mapa y Ajustes. Se oculta durante la medición y el onboarding.
 - Historial con actualización al deslizar, estados de carga/error, filtros táctiles de 48 dp y etiqueta de respaldo por lectura.
-- Caché del historial consultado (hasta 200 lecturas por consulta), aislada por cuenta, predio y equipo. Sin red se combina con la cola pendiente; los registros confirmados se identifican también por `client_uuid` para evitar duplicados visuales. No equivale a descargar todo el historial.
+- Caché del historial consultado (hasta 200 lecturas por consulta), aislada por cuenta, campo y equipo. Sin red se combina con la cola pendiente; los registros confirmados se identifican también por `client_uuid` para evitar duplicados visuales. No equivale a descargar todo el historial.
 - Bienvenida desplazable en pantallas pequeñas y selector de etapa en tarjetas de ancho completo con estado accesible.
 
 **Compatibilidad con Supabase:** estos cambios reutilizan columnas existentes; no agregan migraciones. La consulta incluye `client_uuid`. La revisión remota mediante `supabase migration list --linked` confirmó dos versiones solo remotas (`20260902180000`, `20260902210000`) y la versión `20260904120000` solo local. Antes de desplegar esta última hay que recuperar el SQL original de las versiones remotas, revisar el historial y probar la migración en staging. No se reparó ni alteró el historial remoto.
 
-**Validación pendiente en dispositivo:** aspecto visual, lectores de pantalla, tamaños de letra ampliados, navegación Android y conexión BLE física. El BME280, el pronóstico de cinco días y el carrusel de resultados descritos más abajo siguen siendo requisitos por completar; esta entrega no los declara implementados.
+**Validación pendiente en dispositivo:** aspecto visual, lectores de pantalla, tamaños de letra ampliados, navegación Android y conexión BLE física. La interfaz BME280 y el pronóstico de cinco días están implementados; la recepción física y el comportamiento Android/iOS requieren pruebas en terreno.
 
 **Comprobaciones al 6 de septiembre de 2026, sobre Expo SDK 57:** TypeScript 6 sin errores, 44 pruebas aprobadas y exportación Android completa (1600 módulos, 3,3 MB).
 
@@ -388,13 +403,13 @@ El proceso de medición sigue una secuencia rigurosa y pedagógica:
    - **Aquí concluye el carrusel para Vegetativo, Floración y Cosecha.**
 5. **Página 3 del Carrusel · Proyección en Mapa Predial (Exclusiva para Siembra):**
    - Si la medición fue realizada en fase de **Pre-siembra / Siembra**, se habilita esta tercera pestaña en el carrusel.
-   - Añade el punto georreferenciado en el mapa predial.
+   - Añade el punto georreferenciado en el mapa del campo.
    - El punto cuenta con su burbuja de detalles y está circunscrito en un **círculo de radio de 20 metros** para delimitar el área agronómica evaluada (mostrando si esa zona del terreno está en condición buena o en riesgo).
 
 ### 4.4. Historial y Mapa de Mediciones de Siembra (Radio 20 m)
 * **`HistoryScreen`**: Lista cronológica de todas las mediciones realizadas, con fecha, cultivo, etapa fenológica y badge de sincronización local/nube.
 * **Visualización Cartográfica Selectiva (`MapScreen`):**
-  - **Solo las mediciones de Siembra / Pre-siembra pueden visualizarse en el mapa predial.**
+  - **Solo las mediciones de Siembra / Pre-siembra pueden visualizarse en el mapa del campo.**
   - Cada medición de siembra se proyecta con:
     - Una **burbuja interactiva** que despliega el resumen de los valores medidos.
     - Un **círculo de radio de 20 metros** alrededor de las coordenadas GPS. **Es una representación cartográfica del punto medido, no una afirmación de homogeneidad**: una lectura puntual no demuestra el estado de los 1.256,6 m² que abarca el círculo. Saber con qué densidad de puntos el círculo es representativo requiere un plan de muestreo y análisis espacial que aún no existe. Precisión del GPS y representatividad del suelo son problemas distintos.
@@ -424,7 +439,7 @@ La sonda mide **conductividad eléctrica y temperatura**. Los tres registros aso
 2. Cuando la conductividad es alta **y** al menos uno de los tres registros es elevado, la lectura se marca como de **baja confianza** y queda **excluida del veredicto**. Esta salvaguarda es **parcial, no una validación analítica**.
 3. **El motor no emite dosis de fertilizante ni de enmienda a partir de esos registros.** La antigua recomendación de «lavado» con fracción fija y la dosis de cal en kg/ha derivada del pH se eliminaron: no incorporaban capacidad tampón, acidez de reserva, profundidad efectiva ni poder neutralizante del material.
 
-**Para decisiones de fertilización y encalado corresponde un análisis de laboratorio.** Ni una lectura instantánea ni un mapa de círculos equivalen a un análisis representativo del predio.
+**Para decisiones de fertilización y encalado corresponde un análisis de laboratorio.** Ni una lectura instantánea ni un mapa de círculos equivalen a un análisis representativo del campo.
 
 ### 5.3. Código de Colores Semáforo y Desglose Interactivo
 El Grid 2×5 de la primera página del carrusel utiliza el código de colores universal:
@@ -468,7 +483,7 @@ Esta tabla refleja lo que `probeService.ts` decodifica realmente. El aviso anter
 [10..11] Fósforo (mg/kg)                       -> uint16
 [12..13] Potasio (mg/kg)                       -> uint16
 [14]     Batería (porcentaje 0–100)            -> uint8   (NO voltaje uint16)
-[15]     Version de trama: 0 = 16 bytes, 1 = 20 bytes; otro valor se rechaza
+[15]     Identificador de formato: 1 = 20 bytes (producto); 0 = 16 bytes (prototipo sin BME280)
 [16..19] Solo en v1 - ambiente BME280 en 32 bits empaquetados:
          temperatura del aire  12 bits  (C x 10) + 400   -> -40,0 a +125,0 C
          presion               12 bits  hPa - 300        -> 300 a 1100 hPa

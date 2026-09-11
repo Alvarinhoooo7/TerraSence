@@ -1,3 +1,4 @@
+import { MeasurementGrid } from '../components/MeasurementGrid';
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -202,11 +203,12 @@ export function SupportDeviceDetailPage() {
     const ok = downloadCsv(
       `terrasense-mediciones-${device.device_code}-${fileStamp()}.csv`,
       ['Fecha', 'Predio', 'Etapa', 'Veredicto', 'Humedad (%)', 'Temp suelo (C)',
-       'CE (uS/cm)', 'pH', 'N (mg/kg)', 'P (mg/kg)', 'K (mg/kg)', 'Latitud', 'Longitud'],
+       'CE (uS/cm)', 'pH', 'N sin validar (mg/kg)', 'P sin validar (mg/kg)', 'K sin validar (mg/kg)', 'Latitud', 'Longitud', 'Temp ambiente (C)', 'HR ambiente (%)', 'Presion ambiente (hPa)', 'Bateria en captura (%)', 'Diagnostico y fuentes'],
       measurements.map((m) => [
         new Date(m.measured_at).toISOString(), m.field_name, m.phenological_stage,
         m.verdict, m.vwc_percent, m.soil_temp_c, m.ec_us_cm, m.ph,
         m.nitrogen, m.phosphorus, m.potassium, m.latitude, m.longitude,
+        m.canopy_temp_c ?? '', m.canopy_humidity_pct ?? '', m.air_pressure_hpa ?? '', m.battery_percent ?? '', JSON.stringify(m.diagnosis ?? null),
       ]),
     );
     if (!ok) setFeedback({ tone: 'error', text: 'El navegador bloqueó la descarga del CSV.' });
@@ -331,7 +333,7 @@ export function SupportDeviceDetailPage() {
                 <span className="font-bold text-sm uppercase tracking-wider">Estado de Red</span>
                 <span className="flex items-center gap-1.5 font-bold">
                   <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-terra-primary shadow-[0_0_8px_currentColor]' : 'bg-terra-muted'}`}></span>
-                  {isOnline ? 'Online' : 'Offline'}
+                  {isOnline ? 'Reporte reciente' : 'Sin reporte reciente'}
                 </span>
               </div>
               <p className="text-sm opacity-80">
@@ -561,7 +563,7 @@ export function SupportDeviceDetailPage() {
             <div className="flex flex-col items-center justify-center h-full text-terra-muted py-20">
               <BatteryMedium size={48} className="opacity-20 mb-4" />
               <p>No hay datos de batería cargados</p>
-              <p className="text-sm opacity-70">Selecciona un rango de fechas y haz clic en buscar</p>
+              <p className="text-sm opacity-70">Ajusta el rango de fechas o espera un nuevo reporte del equipo.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -638,7 +640,8 @@ export function SupportDeviceDetailPage() {
                   <th className="px-4 py-4 text-right">Temp.</th>
                   <th className="px-4 py-4 text-right">CE</th>
                   <th className="px-4 py-4 text-right">pH</th>
-                  <th className="px-4 py-4 text-right">N / P / K</th>
+                  <th className="px-4 py-4 text-right">N / P / K · Sin validar</th>
+                  <th className="px-4 py-4">Detalle 2×5</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-terra-border/30">
@@ -673,6 +676,7 @@ export function SupportDeviceDetailPage() {
                       <td className="px-4 py-3 text-right tabular text-terra-muted">
                         {m.nitrogen} / {m.phosphorus} / {m.potassium}
                       </td>
+                      <td className="px-4 py-3"><details><summary className="cursor-pointer text-terra-primary">Ver diez variables</summary><MeasurementGrid reading={m} /></details></td>
                     </tr>
                   );
                 })}

@@ -17,8 +17,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { SoilMeasurement } from '../types';
 import { VERDICT_META } from '../utils/verdict';
+import { isPlantingMapReading } from '../utils/measurementMap';
 
-type Variable = 'ph' | 'ec_us_cm' | 'vwc_percent' | 'soil_temp_c' | 'nitrogen' | 'phosphorus' | 'potassium';
+type Variable = 'ph' | 'ec_us_cm' | 'vwc_percent' | 'soil_temp_c' | 'nitrogen' | 'phosphorus' | 'potassium' | 'canopy_temp_c' | 'canopy_humidity_pct' | 'air_pressure_hpa';
 
 const VARIABLES: { id: Variable; label: string; unit: string }[] = [
   { id: 'ph', label: 'pH', unit: '' },
@@ -27,7 +28,10 @@ const VARIABLES: { id: Variable; label: string; unit: string }[] = [
   { id: 'soil_temp_c', label: 'Temperatura', unit: '°C' },
   { id: 'nitrogen', label: 'Nitrógeno', unit: 'mg/kg' },
   { id: 'phosphorus', label: 'Fósforo', unit: 'mg/kg' },
-  { id: 'potassium', label: 'Potasio', unit: 'mg/kg' },
+  { id: 'canopy_temp_c', label: 'Temperatura ambiente registrada', unit: '°C' },
+  { id: 'canopy_humidity_pct', label: 'HR ambiente registrada', unit: '%' },
+  { id: 'air_pressure_hpa', label: 'Presión ambiente registrada', unit: 'hPa' },
+  { id: 'potassium', label: 'Potasio (sin validar)', unit: 'mg/kg' },
 ];
 
 const IDW_POWER = 2;
@@ -52,10 +56,8 @@ export function GisHeatmap({ measurements }: { measurements: SoilMeasurement[] }
 
   const points = useMemo(
     () =>
-      measurements.filter(
+      measurements.filter(isPlantingMapReading).filter(
         (m) =>
-          Number.isFinite(m.latitude) &&
-          Number.isFinite(m.longitude) &&
           Number.isFinite(m[variable] as number),
       ),
     [measurements, variable],
@@ -167,6 +169,7 @@ export function GisHeatmap({ measurements }: { measurements: SoilMeasurement[] }
 
   return (
     <div>
+      <p className="text-xs text-terra-muted mb-3">N/P/K sin validación química. Los valores ambientales ausentes se excluyen; los registros históricos pueden carecer de origen verificado.</p>
       <div className="flex flex-wrap gap-2 mb-4">
         {VARIABLES.map((v) => (
           <button
@@ -185,7 +188,7 @@ export function GisHeatmap({ measurements }: { measurements: SoilMeasurement[] }
 
       {points.length < 3 ? (
         <p className="text-terra-muted py-10 text-center">
-          Hacen falta al menos 3 mediciones georreferenciadas para interpolar un mapa de calor.
+          Hacen falta al menos 3 mediciones de pre-siembra georreferenciadas para interpolar un mapa de calor.
           Hay {points.length}.
         </p>
       ) : (

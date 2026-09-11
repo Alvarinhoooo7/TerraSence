@@ -83,6 +83,7 @@ export interface SoilMeasurementRow {
   phosphorus: number;
   potassium: number;
   soil_texture: string;
+  battery_percent?: number | null;
 
   // Ambiente (BME280). Nunca de la API del clima: esa complementa la recomendación,
   // no la medición. NULL cuando el sensor no entregó dato.
@@ -177,6 +178,11 @@ export interface MapMeasurementPoint {
   nitrogen: number;
   phosphorus: number;
   potassium: number;
+  airTemp?: number | null;
+  batteryPercent?: number | null;
+  airHumidity?: number | null;
+  airPressure?: number | null;
+  diagnosis?: unknown;
   gpsAccuracyM: number | null;
   isPending?: boolean;
 }
@@ -199,5 +205,10 @@ export const mapRowToPoint = (r: SoilMeasurementRow): MapMeasurementPoint => ({
   nitrogen: r.nitrogen,
   phosphorus: r.phosphorus,
   potassium: r.potassium,
+  airTemp: r.canopy_temp_c ?? null,
+  batteryPercent: r.battery_percent ?? null,
+  airHumidity: r.canopy_humidity_pct ?? null,
+  airPressure: r.air_pressure_hpa ?? null,
+  diagnosis: r.diagnosis,
   gpsAccuracyM: r.gps_accuracy_m,
 });

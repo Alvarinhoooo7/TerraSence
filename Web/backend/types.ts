@@ -69,6 +69,11 @@ export interface MeasurementSummary {
   nitrogen: number;
   phosphorus: number;
   potassium: number;
+  canopy_temp_c?: number | null;
+  canopy_humidity_pct?: number | null;
+  air_pressure_hpa?: number | null;
+  diagnosis?: unknown;
+  battery_percent?: number | null;
   latitude: number;
   longitude: number;
 }
