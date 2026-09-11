@@ -19,7 +19,7 @@
 
 ## 📖 Descripción General
 
-**TerraSense** es una herramienta portátil diseñada para pequeños y medianos agricultores, asesores agronómicos y administradores de predios. Combina una sonda de suelo 7-en-1 de nivel industrial, un sensor ambiental local (BME280), y un cerebro procesador ESP32 integrado en una carcasa portátil impresa en 3D.
+**TerraSense** es una herramienta portátil diseñada para pequeños y medianos agricultores, asesores agronómicos y administradores de campos. Combina una sonda de suelo 7-en-1 de nivel industrial, un sensor ambiental local (BME280), y un cerebro procesador ESP32 integrado en una carcasa portátil impresa en 3D.
 
 El objetivo principal no es solo mostrar números crudos, sino entregar un **diagnóstico prescriptivo** del punto de muestreo según la etapa del cultivo (pre-siembra, vegetativo, floración o cosecha) sin requerir conexión a internet durante la medición. La nube interviene solo para el respaldo diferido, la gestión de cuentas y el pronóstico climático.
 
@@ -41,7 +41,7 @@ Este escenario genera un impacto negativo a lo largo de todo el ciclo de vida de
 
 ## ✨ Características Principales
 
-* 📡 **Medición Integral (Grid 2×5):** Diez variables: humedad del suelo, conductividad eléctrica, temperatura del suelo, nitrógeno, fósforo, potasio y pH de la sonda; temperatura ambiente, humedad relativa ambiente y presión atmosférica ambiente del BME280. Dos columnas y cinco filas; implementación pendiente en la App.
+* 📡 **Medición Integral (Grid 2×5):** Diez variables: humedad del suelo, conductividad eléctrica, temperatura del suelo, nitrógeno, fósforo, potasio y pH de la sonda; temperatura ambiente, humedad relativa ambiente y presión atmosférica ambiente del BME280. Dos columnas y cinco filas, implementadas en la App y en el detalle de la consola web.
 * 🌦️ **Microclima Local + Pronóstico:** El sensor **BME280** lee temperatura, humedad relativa y presión en el lugar físico de la medición. Como **apoyo y complemento**, una API gratuita de clima aporta el pronóstico de los próximos 5 días, permitiendo planificar labores a futuro (ej. posponer siembra si hay riesgo de lluvias intensas).
 * 🔋 **Diseño de Bajo Consumo:** La rama de medición se corta por MOSFET fuera del instante de lectura y la batería LiPo se recarga por USB-C, sin pilas desechables. Con reposo supuesto de ~19,4 µA, el balance en Wh da una referencia optimista de **~256 días**, antes de cerrar consumos auxiliares y condiciones reales. Es una cifra calculada: **la medición desde batería en banco sigue pendiente**.
 * 📱 **Ecosistema Interconectado:** Comunicación Bluetooth Low Energy (BLE) hacia la App móvil que no requiere internet para diagnosticar, respaldado por una plataforma Web y base de datos.
@@ -164,28 +164,28 @@ Merma (3 %), reposiciones (5 %), envío y comisión suman **$29.994 por equipo**
 | Activos, desarrollo y formalización | $10.353.000 |
 | Inventario inicial, IVA incluido | $964.378 |
 | **Desembolso inicial** | **$11.317.378** |
-| Pie / aporte propio de socios | $9.000.000 |
-| Crédito a 10 años, 12 % efectivo anual | $31.000.000 |
-| Gastos de apertura | $620.000 |
-| Caja inicial, reserva incluida | $28.062.622 |
-| Cuota mensual | $433.836 |
+| Pie propio de socios ($4.500.000 cada uno) | $9.000.000 |
+| Crédito bancario a 10 años, 12 % efectivo anual | $30.000.000 |
+| Gastos de apertura | $600.000 |
+| Caja inicial, reserva incluida | $27.082.622 |
+| Cuota mensual | $419.842 |
 
-Los $9 millones propios son el pie; el crédito cubre el saldo del desembolso y las necesidades de caja estacionales. El pie no se resta otra vez del principal. Diez años y 12 % son supuestos por cotizar, no una oferta de consumo. Se dimensiona en tramos de $100.000 para mantener, durante los primeros 24 meses, una reserva de tres meses de gastos fijos y cuotas más 10 % del desembolso inicial.
+Los $9 millones propios son el **pie** de los socios, $4.500.000 cada uno (50 % y 50 %), equivalentes al **30 % del crédito**: es el capital propio que el banco exige antes de desembolsar el suyo. No se descuenta del principal ni se devuelve al banco. El crédito de $30.000.000 cubre el saldo del desembolso y la caja de arranque; se toma a 10 años y 12 % efectivo anual, con cuota fija de $419.842 e intereses totales de $20.380.983. La reserva objetivo es de tres meses de gastos fijos y cuotas más 10 % del desembolso inicial; con este principal queda $615.379 corta en su punto más bajo (mes 19), sin que la caja baje de $13.521.745 en los primeros 24 meses.
 
 ### Flujo de caja anual
 
 | Año | Equipos vendidos | EBITDA | Servicio deuda | Caja final | DSCR | Equilibrio operativo / con deuda |
 |---|---:|---:|---:|---:|---:|---:|
-| 2027 | 200 | $4.426.234 | $5.206.035 | $26.470.982 | 0.69 | 176 / 205 |
-| 2028 | 350 | $19.015.320 | $5.206.035 | $38.647.148 | 3.34 | 250 / 277 |
-| 2029 | 500 | $31.680.620 | $5.206.035 | $57.237.408 | 4.57 | 337 / 364 |
-| 2030 | 650 | $35.729.124 | $5.206.035 | $77.360.857 | 4.87 | 472 / 498 |
-| 2031 | 850 | $49.915.370 | $5.206.035 | $110.083.164 | 7.29 | 608 / 634 |
-| 2032 | 892 | $50.743.843 | $5.206.035 | $143.657.986 | 7.45 | 653 / 678 |
-| 2033 | 937 | $59.668.629 | $5.206.035 | $181.777.382 | 8.32 | 665 / 688 |
-| 2034 | 984 | $62.009.246 | $5.206.035 | $222.826.660 | 8.88 | 709 / 732 |
-| 2035 | 1033 | $72.836.612 | $5.206.035 | $271.578.201 | 10.36 | 719 / 742 |
-| 2036 | 1085 | $85.094.046 | $5.206.035 | $329.226.698 | 12.07 | 729 / 751 |
+| 2027 | 200 | $4.426.234 | $5.038.098 | $25.658.919 | 0.72 | 176 / 204 |
+| 2028 | 350 | $19.015.320 | $5.038.098 | $37.970.762 | 3.44 | 250 / 276 |
+| 2029 | 500 | $31.680.620 | $5.038.098 | $56.704.844 | 4.72 | 337 / 363 |
+| 2030 | 650 | $35.729.124 | $5.038.098 | $76.974.260 | 5.02 | 472 / 497 |
+| 2031 | 850 | $49.915.370 | $5.038.098 | $109.844.935 | 7.52 | 608 / 633 |
+| 2032 | 892 | $50.743.843 | $5.038.098 | $143.570.816 | 7.69 | 653 / 677 |
+| 2033 | 937 | $59.668.629 | $5.038.098 | $181.844.284 | 8.60 | 665 / 688 |
+| 2034 | 984 | $62.009.246 | $5.038.098 | $223.051.008 | 9.18 | 709 / 731 |
+| 2035 | 1033 | $72.836.612 | $5.038.098 | $271.963.774 | 10.71 | 719 / 741 |
+| 2036 | 1085 | $85.094.046 | $5.038.098 | $329.777.729 | 12.48 | 729 / 750 |
 
 La nómina incluye socios, producción y soporte. La contabilidad externa se incorpora desde el primer mes; la contratación aumenta con las horas de trabajo y la base de equipos activos. El DSCR compara la caja disponible para deuda con capital e intereses.
 

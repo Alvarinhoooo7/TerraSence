@@ -146,12 +146,21 @@ def simulate(s=S, principal=0, term=10, factor=1, marketing_factor=1, bullet=0):
 
 
 def funding(s=S, term=10):
-    # Mínimo préstamo en incrementos de 100 mil que mantiene reserva primeros 24 meses.
-    for p in range(0,150000001,100000):
-        result=simulate(s,p,term)
-        if min(r['caja_libre'] for r in result['rows'][:24])>=0 and result['initial_cash']>=result['rows'][0]['reserva']:
-            return result
-    raise ValueError('No se financia la reserva con hasta CLP150 millones; revisar viabilidad')
+    """Estructura definida: pie propio de los socios y crédito bancario de monto fijo.
+
+    El principal no lo dimensiona el modelo: es el préstamo que se solicita al banco
+    (credito_principal) y el pie que los socios entregan como garantía propia para
+    obtenerlo (aporte_socios). Se devuelve además el diagnóstico de reserva de los
+    primeros 24 meses, que ahora es un resultado a informar y no una restricción que
+    mueva el monto del crédito.
+    """
+    result=simulate(s,s['credito_principal'],term)
+    result['pie']=s['aporte_socios']
+    result['pie_sobre_credito']=s['aporte_socios']/s['credito_principal']
+    result['minimo_sobre_reserva_24m']=min(r['caja_libre'] for r in result['rows'][:24])
+    result['mes_minimo_reserva']=min(result['rows'][:24],key=lambda r: r['caja_libre'])['mes']
+    result['caja_minima_24m']=min(r['caja'] for r in result['rows'][:24])
+    return result
 
 
 def yearly(result):
@@ -249,7 +258,7 @@ def liquidity_markdown(result):
             recovery=r['mes']
     money=lambda x: ('−' if x<0 else '')+'$'+f'{abs(x):,.0f}'.replace(',','.')
     lines=['## Liquidez, retorno del pie y término de deuda','',
-        f'Pie propio: **{money(S["aporte_socios"])}**. Crédito: **{money(result["principal"])}**, contabilizado por separado.',
+        f'Pie propio de los socios: **{money(S["aporte_socios"])}** ({money(S["aporte_socios"]//2)} cada uno, 50 % y 50 %), equivalente al **{result["pie_sobre_credito"]*100:.0f} % del crédito**. Crédito bancario: **{money(result["principal"])}** a {S["plazo_base"]} años y {S["tasa_credito_efectiva_anual"]*100:.0f} % efectivo anual, contabilizado por separado.',
         f'Primer año con FCFE anual positivo y que permanece positivo en los años restantes del estudio: **{first if first else "no se alcanza"}**. Puede haber meses negativos por estacionalidad.',
         f'Cancelación contractual sin prepago: **mes {paid}** ({S["inicio"]+(paid-1)//12 if paid else "fuera de horizonte"}). La cuota del escenario base es {money(result["payment"])}.',
         f'La suma del FCFE generado desde la operación alcanza el equivalente al pie en el **mes {recovery}**.' if recovery else 'El FCFE acumulado de operación no alcanza el pie durante los 120 meses.',
@@ -281,17 +290,18 @@ def workbook(path, base, variants):
         notes=wb.add_worksheet('LEEME')
         notes.set_column(0,0,125)
         for i,line in enumerate([
-            'TerraSense: CLP nominales; año 1 = 2027. PIE propio de socios: 9 millones, separado del crédito. Precio con IVA.',
+            'TerraSense: CLP nominales; año 1 = 2027. Pie propio de socios: 9 millones (4,5 por socio), separado del crédito. Precio con IVA.',
             'Fuente única: finanzas/supuestos.json. Regenerar con python finanzas/modelo.py.',
             'Las hojas son resultados del modelo Python, no simulador interactivo completo. Fórmulas concilian totales y caja con caché.',
             'Base: 200/350/500/650/850 ventas; desde año 6 crecimiento 5% hipotético, no valor terminal automático.',
             'Estrés: 65% ventas, mismo marketing. Crecimiento: 150% ventas y marketing; personal e inventario se recalculan.',
-            'Crédito 12% efectivo anual es supuesto, no oferta. 2% de apertura/timbres/seguros es reserva por cotizar; no CAE.',
+            'Estructura fija: crédito bancario de 30 millones a 10 años, 12% efectivo anual (0,9489% mensual), cuota fija. Pie de 9 millones = 30% del crédito, entregado como garantía propia.',
+            'Gastos de apertura 2% del principal (600 mil), pagados al desembolso; no es CAE ni incluye seguros de desgravamen.',
             '5/10/15 años comparados con MISMO principal. 15 años no se presume elegible FOGAPE.',
-            'Reserva: 3 meses de fijos y cuota +10% de desembolso inicial. Incluida en caja, no gasto ni suma doble.',
+            'Reserva objetivo: 3 meses de fijos y cuota +10% de desembolso inicial. Incluida en caja, no gasto ni suma doble. Su déficit temporal del año 1 se informa, no se tapa subiendo el crédito.',
             'Sueldos socios son costo laboral, nunca retorno al capital. 35% sobre sueldo es presupuesto, no tasa legal única.',
             'Sin MOD variable: ensamblaje final incluido en nómina. 2.25 h/unidad, 1400 h productivas/FTE/año.',
-            'Contador externo desde mes 1. Agencia condicional desde objetivo 650/año. No obligaciones legales por año.',
+            'Contador externo por contrato de servicios desde mes 1 (contabilidad mensual, IVA, renta, remuneraciones). Agencia de marketing por retainer desde 650 ventas/año. Ninguno de los dos es planilla.',
             'IVA: crédito compras con factura se usa desde mes siguiente; inversión/servicios iniciales sin recuperación: prudente.',
             'Impuesto estimado caja Pro Pyme con pérdidas; se inmoviliza al cierre anual. No reproduce F29/PPM/abril; no usar para declarar.',
             'FCFF antes de financiamiento con impuesto sin intereses; FCFE después de deuda. No mezclar para VAN.',
@@ -336,16 +346,16 @@ def workbook(path, base, variants):
                             sheet.write_formula(i,j,'='+expression,fmt,row[k])
                         else: sheet.write(i,j,row[k],fmt)
         compare=wb.add_worksheet('Comparacion deuda');compare.set_column(0,12,23)
-        compare.write_row(0,0,['Alternativa','Principal','Cuota mensual tramo','Interés total','Deuda al año 5','Servicio año 1','Mín caja libre 24m','DSCR año 1','Crédito mínimo que sostiene la reserva a ese plazo'],header)
+        compare.write_row(0,0,['Alternativa','Principal','Cuota mensual tramo','Interés total','Deuda al año 5','Servicio año 1','Mín caja libre 24m','DSCR año 1','Caja mínima de los primeros 24 meses'],header)
         def compare_row(i,label,r,extra=None):
             a=yearly(r)
             compare.write_row(i,0,[label,base['principal'],r['payment'],sum(x['interes'] for x in r['rows']),a[4]['saldo_deuda'],a[0]['servicio_deuda'],min(x['caja_libre'] for x in r['rows'][:24])],money)
             compare.write(i,7,a[0]['dscr'],decimal)  # ratio, no moneda
             if extra is not None: compare.write(i,8,extra,money)
         for i,term in enumerate((5,10,15),1):
-            compare_row(i,f'{term} años',simulate(S,base['principal'],term),funding(S,term)['principal'])
-        compare_row(4,'5 años + bullet 5M',simulate(S,base['principal'],5,bullet=min(5000000,base['principal'])))
-        compare.write(6,0,'DSCR: caja operativa luego de impuesto, reinversión, inventario e IVA / servicio deuda; no EBITDA solo.')
+            compare_row(i,f'{term} años',simulate(S,base['principal'],term),min(x['caja'] for x in simulate(S,base['principal'],term)['rows'][:24]))
+        compare.write(5,0,'DSCR: caja operativa luego de impuesto, reinversión, inventario e IVA / servicio deuda; no EBITDA solo.')
+        compare.write(6,0,'El plazo adoptado es 10 años. Las otras dos filas comparan el mismo principal de 30 millones y la misma tasa, solo para justificar esa elección.')
         sens=wb.add_worksheet('Sensibilidades');sens.set_column(0,0,38);sens.set_column(1,5,24)
         sens.write_row(0,0,['Caso','Unidades año 1','EBITDA año 1','Mín caja libre 24m','VAN proyecto 10 años 20%'],header)
         for i,(label,price,factor,rate) in enumerate([
@@ -409,22 +419,22 @@ def workbook(path, base, variants):
 
 def write_summary(base, variants):
     currency=lambda v: '$'+f'{v:,.0f}'.replace(',','.')
+    mensual=f'{((1+S["tasa_credito_efectiva_anual"])**(1/12)-1)*100:.4f}'.replace('.',',')
     lines=['# Resultados financieros generados','', 'No editar a mano: `python finanzas/modelo.py`. Fuente: `finanzas/supuestos.json`.', '',
         f'Precio inicial con IVA: **{currency(S["precio_iva"])}**; neto: {currency(S["precio_iva"]/(1+S["iva"]))}. BOM neto provisional: **{currency(base["bom"])}**.',
-        f'Pie propio: **{currency(S["aporte_socios"])}**. Crédito base dimensionado: **{currency(base["principal"])}**, cuota {currency(base["payment"])} a 10 años y 12% efectivo anual hipotético.',
+        f'Pie propio de los socios: **{currency(S["aporte_socios"])}** ({currency(S["aporte_socios"]//2)} cada socio, 50 % y 50 %), equivalente al **{base["pie_sobre_credito"]*100:.0f} % del crédito**. Crédito bancario solicitado: **{currency(base["principal"])}** a {S["plazo_base"]} años, {S["tasa_credito_efectiva_anual"]*100:.0f} % efectivo anual ({mensual} % mensual), cuota fija de {currency(base["payment"])}. Total de fuentes: **{currency(S["aporte_socios"]+base["principal"])}**.',
         f'Desembolso inicial: {currency(base["initial_uses"])}; gastos crédito: {currency(base["fees"])}; caja inicial: {currency(base["initial_cash"])} (incluye reserva; no sumar otra vez).', '',
         '| Año | Ventas | EBITDA | Servicio deuda | Caja final | Reserva | DSCR | Técnicos FTE | Soporte FTE | Equilibrio operativo / con deuda |',
         '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
     for r in yearly(base)[:10]:
         lines.append(f'| {r["anio"]} | {r["unidades"]} | {currency(r["ebitda"])} | {currency(r["servicio_deuda"])} | {currency(r["caja"])} | {currency(r["reserva"])} | {r["dscr"]:.2f} | {r["tecnicos_fte"]:g} | {r["soporte_fte"]:g} | {r["equilibrio_operativo"]} / {r["equilibrio_con_deuda"]} |')
-    lines+=['','Equilibrio con deuda incluye capital e intereses, no impuesto ni acumulación de inventario: la prueba de liquidez es la caja mensual y el DSCR. FTE es equivalente de jornada presupuestado, no número de contratos.', '', '| Crédito (mismo principal) | Cuota | Intereses totales | Saldo año 5 | Mínimo sobre reserva, 24 meses |','|---|---:|---:|---:|---:|']
+    lines+=['','Equilibrio con deuda incluye capital e intereses, no impuesto ni acumulación de inventario: la prueba de liquidez es la caja mensual y el DSCR. FTE es equivalente de jornada presupuestado, no número de contratos.', '', '| Plazo del crédito (mismo principal de $30.000.000) | Cuota | Intereses totales | Saldo año 5 | Caja mínima, 24 meses |','|---|---:|---:|---:|---:|']
     for term in (5,10,15):
         r=simulate(S,base['principal'],term)
-        lines.append(f'| {term} años | {currency(r["payment"])} | {currency(sum(x["interes"] for x in r["rows"]))} | {currency(yearly(r)[4]["saldo_deuda"])} | {currency(min(x["caja_libre"] for x in r["rows"][:24]))} |')
-    two=simulate(S,base['principal'],5,bullet=5000000)
-    lines+=['',f'Dos créditos (resto a 5 años y $5 millones al 15% pagados íntegros mes 12): servicio del primer año **{currency(yearly(two)[0]["servicio_deuda"])}**, mínimo sobre reserva **{currency(min(x["caja_libre"] for x in two["rows"][:24]))}**.', '', '| Escenario | Ventas año 1 | Mínimo caja libre 24m | VAN proyecto 10 años / 20% |', '|---|---:|---:|---:|']
+        lines.append(f'| {term} años{" (adoptado)" if term==S["plazo_base"] else ""} | {currency(r["payment"])} | {currency(sum(x["interes"] for x in r["rows"]))} | {currency(yearly(r)[4]["saldo_deuda"])} | {currency(min(x["caja"] for x in r["rows"][:24]))} |')
+    lines+=['','| Escenario | Ventas año 1 | Caja mínima 24m | VAN proyecto 10 años / 20% |', '|---|---:|---:|---:|']
     for name,r in variants.items():
-        lines.append(f'| {name} | {yearly(r)[0]["unidades"]} | {currency(min(x["caja_libre"] for x in r["rows"][:24]))} | {currency(indicators(r,S["tasa_descuento_proyecto"])["van"])} |')
+        lines.append(f'| {name} | {yearly(r)[0]["unidades"]} | {currency(min(x["caja"] for x in r["rows"][:24]))} | {currency(indicators(r,S["tasa_descuento_proyecto"])["van"])} |')
     lines+=['',evaluation_markdown(variants),'','VAN, TIR y payback usan los mismos 120 flujos mensuales y mes 0. Caja operativa mínima: tres meses de fijos más contingencia; se descuentan sus aumentos del FCFF. Sin rescate, recuperación de reserva/inventario ni valor terminal. Deuda y gastos de apertura solo afectan el financiamiento. Sueldos incluidos en nómina; no se suman como retorno del capital.', '', 'Evaluación principal: diez años (2027–2036); comparación a cinco años (2027–2031). Los años 6–10 usan crecimiento hipotético de 5 %; años 11–15 solo ilustran deuda alternativa y operación posterior, sin incorporarse al VAN principal.']
     lines += ['', '## Comparación a cinco años', '', evaluation_markdown(variants,60), '', liquidity_markdown(base)]
     (ROOT/'docs/RESULTADOS_FINANCIEROS.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')

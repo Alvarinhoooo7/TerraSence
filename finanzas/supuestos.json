@@ -3,6 +3,8 @@
   "inicio": 2027,
   "horizonte": 15,
   "aporte_socios": 9000000,
+  "credito_principal": 30000000,
+  "pie_sobre_credito": 0.30,
   "precio_iva": 349990,
   "iva": 0.19,
   "inflacion": 0.03,
@@ -51,7 +53,8 @@
   "agencia_mensual": 250000,
   "reinversion_activos_cada_3_anios": 1500000,
   "evaluacion_anios": 10,
-  "aporte_socios_nota": "PIE propio: 9000000 CLP, 4500000 por socio; separado del saldo financiado con crédito bancario.",
+  "aporte_socios_nota": "Pie de los socios: 9000000 CLP, 4500000 cada uno (50 % y 50 %). Equivale al 30 % del crédito de 30000000 CLP y es la garantía propia que se entrega al banco para acceder a ese préstamo. No se descuenta del principal ni se devuelve al banco.",
+  "credito_principal_nota": "Préstamo bancario solicitado: 30000000 CLP fijos, a 10 años y 12 % efectivo anual (1,0 % mensual equivalente compuesto: (1,12)^(1/12)-1 = 0,9489 % mensual), cuota fija en pesos nominales. Gastos de apertura de 2 % sobre el principal.",
   "sonda_fuente": "https://es.aliexpress.com/item/1005005548177699.html",
   "sonda_fuente_nota": "Descripción transcrita por el usuario el 10-09-2026; variante, precio final y ficha de fabricante pendientes. 4,5-30 V; 0,5 W a 24 V; 45x15x123 mm.",
   "bom": [

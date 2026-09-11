@@ -74,29 +74,32 @@ def report_blocks(base, variants, model):
     blocks['FIJOS'] += '\n\n' + table(['Año','Equilibrio operativo','Equilibrio con deuda','Ventas planificadas'],
         [[r['anio'],r['equilibrio_operativo'],r['equilibrio_con_deuda'],r['unidades']] for r in annual])
     blocks['FIJOS'] += f'\n\nEn el primer año, {money(annual[0]["fijos"])} de gastos fijos se cubren con {annual[0]["equilibrio_operativo"]} unidades al margen calculado. Al añadir capital e intereses, el umbral sube a {annual[0]["equilibrio_con_deuda"]}. La meta de {annual[0]["unidades"]} unidades cubre la operación, pero queda por debajo del equilibrio con deuda. Esta diferencia explica el uso de liquidez inicial durante el arranque; no se confunde una venta con caja libre inmediatamente distribuible.'
+    blocks['FIJOS'] += f'\n\nDos partidas del cuadro son contratos con terceros y no sueldos. La **contabilidad externa** ({money(s["contador_mensual"])} mensuales el primer año) es un contrato de servicios con un estudio contable que cubre la contabilidad de la sociedad bajo el régimen Pro Pyme, el Formulario 29 mensual de IVA, los pagos provisionales, la declaración anual de renta, el procesamiento de remuneraciones y los estados financieros que exige el banco mientras el crédito esté vigente; su honorario sube {money(s["contador_incremento_fte"])} mensuales por trabajador adicional en nómina, porque esa es la parte del servicio que escala con la dotación. La **agencia de marketing** ({money(s["agencia_mensual"])} mensuales) es un retainer que se activa recién desde {s["agencia_desde_ventas_anuales"]} ventas anuales y cubre la gestión de la pauta digital, el material de demostración y las redes; no debe confundirse con la pauta misma, que es el dinero pagado a las plataformas y se presupuesta aparte a {money(s["marketing_venta_objetivo"])} por equipo vendido.'
     sources = s['aporte_socios']+base['principal']
-    blocks['INVERSION'] = table(['Origen de fondos','CLP','Participación'],[
-        ['Pie / aporte propio de socios',money(s['aporte_socios']),decimal(s['aporte_socios']/sources*100,1)+' %'],
-        ['Crédito',money(base['principal']),decimal(base['principal']/sources*100,1)+' %'],
-        ['**Total fuentes de financiamiento**',money(sources),'100 %']])
+    blocks['INVERSION'] = table(['Origen de fondos','CLP','Participación sobre el total','Relación con el crédito'],[
+        [f'Pie propio de los socios ({money(s["aporte_socios"]//2)} cada socio, 50 % y 50 %)',money(s['aporte_socios']),decimal(s['aporte_socios']/sources*100,1)+' %',decimal(s['aporte_socios']/base['principal']*100,0)+' % del crédito'],
+        ['Crédito bancario',money(base['principal']),decimal(base['principal']/sources*100,1)+' %','100 % del crédito'],
+        ['**Total fuentes de financiamiento**',money(sources),'100 %','—']])
     blocks['INVERSION'] += '\n\n' + table(['Destino de fondos','CLP'],[
         ['Activos, desarrollo y formalización, con IVA presupuestado',money(base['setup'])],
         ['Inventario inicial, IVA incluido',money(base['initial_uses']-base['setup'])],
-        ['Gastos de apertura del crédito',money(base['fees'])],
+        [f'Gastos de apertura del crédito ({decimal(s["gastos_credito_fraccion"]*100,0)} % de {money(base["principal"])})',money(base['fees'])],
         ['Caja inicial, con reserva incluida',money(base['initial_cash'])],
         ['**Total destinos**',money(base['initial_uses']+base['fees']+base['initial_cash'])]])
     blocks['INVERSION'] += f'\n\nEl desembolso de apertura es **{money(base["initial_uses"])}**. Los {money(sources)} son fuentes de financiamiento y no deben denominarse inversión económica consumida: una parte permanece en caja. Para VAN y TIR, el capital comprometido en mes 0 es **{money(k["inversion"])}**, compuesto por el desembolso y la caja mínima operativa independiente de la deuda.'
     debt_rows=[]
     for term in (5,10,15):
         r=model.simulate(s,base['principal'],term)
-        debt_rows.append([term,money(r['payment']),money(sum(x['interes'] for x in r['rows'])),money(model.yearly(r)[4]['saldo_deuda']),money(min(x['caja_libre'] for x in r['rows'][:24]))])
-    blocks['INVERSION'] += '\n\n' + table(['Plazo, años','Cuota mensual','Intereses totales','Saldo al año 5','Mínimo sobre reserva, 24 meses'],debt_rows)
-    blocks['INVERSION'] += '\n\nLa comparación utiliza el mismo principal y 12 % efectivo anual. Diez años reduce el servicio de arranque frente a cinco; quince reduce nuevamente la cuota pero aumenta intereses y exposición temporal. El crédito no desaparece al terminar el quinto año: el saldo pendiente de ese corte se muestra expresamente. La evaluación principal a diez años sí cubre el crédito completo, que se cancela en el mes 120, y el Excel prolonga la amortización alternativa hasta el año 15.'
+        interest=sum(x['interes'] for x in r['rows'])
+        debt_rows.append([term,money(r['payment']),money(interest),money(base['principal']+interest),money(model.yearly(r)[4]['saldo_deuda']),money(min(x['caja'] for x in r['rows'][:24]))])
+    blocks['INVERSION'] += '\n\n' + table(['Plazo, años','Cuota mensual','Intereses totales','Total pagado al banco','Saldo al año 5','Caja mínima de los primeros 24 meses'],debt_rows)
+    blocks['INVERSION'] += f'\n\nLas tres alternativas comparan el mismo principal de {money(base["principal"])} y la misma tasa de {decimal(s["tasa_credito_efectiva_anual"]*100,0)} % efectivo anual ({decimal(((1+s["tasa_credito_efectiva_anual"])**(1/12)-1)*100,4)} % mensual); lo único que cambia es el plazo. Cinco años es el plazo más barato en intereses pero deja la caja de arranque en el nivel más bajo de los tres; quince años alivia la cuota a costa de más intereses y de deuda viva cinco años después de terminado el estudio. Diez años es el plazo adoptado: coincide con el horizonte de evaluación y cancela el crédito en el mes 120.'
     blocks['FLUJOS'] = table(['Año','Venta neta','EBITDA','FCFF antes de caja mínima','FCFE','Caja final','DSCR'],
         [[r['anio'],money(r['ventas_netas']),money(r['ebitda']),money(r['fcff']),money(r['fcfe']),money(r['caja']),decimal(r['dscr'])] for r in annual])
     flows=model.project_flows(base)
     blocks['FLUJOS'] += '\n\n' + table(['Período','Flujo económico para evaluación','Acumulado sin descuento'],
         [['Mes 0',money(flows[0]),money(flows[0])]] + [[r['anio'],money(sum(flows[1+i*12:13+i*12])),money(sum(flows[:13+i*12]))] for i,r in enumerate(annual)])
+    blocks['FLUJOS'] += f'\n\nLas siglas del cuadro: **EBITDA** (utilidad antes de intereses, impuestos, depreciación y amortización), **FCFF** (flujo de caja libre de la empresa, antes de pagar al banco), **FCFE** (flujo de caja libre del accionista, después de pagar la cuota) y **DSCR** (razón de cobertura del servicio de la deuda: caja disponible dividida por la cuota anual; bajo 1,0 la operación no alcanza a cubrir el crédito por sí sola).'
     blocks['FLUJOS'] += f'\n\nEn {annual[0]["anio"]}, el EBITDA de {money(annual[0]["ebitda"])} se transforma en FCFE de {money(annual[0]["fcfe"])} después de compras, IVA, impuestos y deuda. La caja final sigue positiva porque parte de la caja inicial. El **DSCR de {decimal(annual[0]["dscr"])}** significa que la generación disponible para deuda no cubre por sí sola todo el servicio del primer año. Desde el año siguiente, el aumento de ventas mejora esa cobertura dentro del escenario base.'
     blocks['INDICADORES'] = model.evaluation_markdown(variants)
     blocks['INDICADORES'] += '\n\nComparación a cinco años, sin valor terminal:\n\n' + model.evaluation_markdown(variants,60)

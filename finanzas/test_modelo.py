@@ -89,10 +89,18 @@ class FinanceTests(unittest.TestCase):
         self.assertEqual(s['api_clima_mensual'],0)
         self.assertTrue(any('Carcasa impresa en 3D' in x[0] for x in s['bom']))
 
-    def test_funding_is_minimum_and_reserve_stops_debt(self):
-        self.assertGreaterEqual(min(x['caja_libre'] for x in self.base['rows'][:24]),0)
-        smaller=m.simulate(m.S,self.base['principal']-100000)
-        self.assertTrue(smaller['initial_cash']<smaller['rows'][0]['reserva'] or min(x['caja_libre'] for x in smaller['rows'][:24])<0)
+    def test_funding_uses_the_fixed_loan_and_reports_its_reserve(self):
+        # El principal es una decision del proyecto, no un monto que el modelo optimice.
+        self.assertEqual(self.base['principal'],m.S['credito_principal'])
+        self.assertEqual(self.base['principal'],30000000)
+        self.assertAlmostEqual(self.base['pie_sobre_credito'],m.S['pie_sobre_credito'])
+        self.assertAlmostEqual(self.base['fees'],self.base['principal']*m.S['gastos_credito_fraccion'])
+        # La caja se mantiene positiva con holgura durante los primeros 24 meses...
+        self.assertGreater(self.base['caja_minima_24m'],0)
+        self.assertEqual(self.base['caja_minima_24m'],min(x['caja'] for x in self.base['rows'][:24]))
+        # ...aunque la reserva objetivo quede corta: ese deficit se informa, no se tapa.
+        self.assertEqual(self.base['minimo_sobre_reserva_24m'],min(x['caja_libre'] for x in self.base['rows'][:24]))
+        self.assertIn(self.base['mes_minimo_reserva'],range(1,25))
         row=self.base['rows'][120]
         self.assertAlmostEqual(row['reserva'],3*row['fijos']+self.base['contingency'])
 
