@@ -48,7 +48,7 @@ El diseño, fabricación, comercialización y despliegue del sistema **TerraSens
 1. La **seguridad física y eléctrica del agricultor** durante la operación en terreno.
 2. La **confiabilidad metrológica y validez agronómica** de las mediciones y prescripciones de cultivo.
 3. La **compatibilidad electromagnética e inocuidad del espectro radioeléctrico**.
-4. La **privacidad, soberanía y confidencialidad de la información territorial y comercial** de los productores agrícolas.
+4. La **privacidad, soberanía y confidencialidad de la información territorial y comercial** de los agricultores agrícolas.
 
 ```text
                      ECOSISTEMA REGULATORIO TERRASENSE

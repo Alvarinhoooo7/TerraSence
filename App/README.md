@@ -1,13 +1,40 @@
 # 📱 TerraSense · Aplicación Móvil de Terreno
 
+> Revisión del 10-09-2026: [informe académico de la raíz](../INFORME%20antiguo%20.docx%20%281%29.md). Esta revisión documenta trabajo futuro; no modifica App, Web, Supabase o PCB ni acredita despliegues.
+
+## Pendientes de interfaz e integración
+
+El Grid **2×5 tiene dos columnas y cinco filas**, con una tarjeta por variable y diez registros locales en total.
+
+| Fila | Columna 1 | Columna 2 |
+|---|---|---|
+| 1 | Humedad del suelo | Conductividad eléctrica del suelo |
+| 2 | Temperatura del suelo | Nitrógeno (N) |
+| 3 | Fósforo (P) | Potasio (K) |
+| 4 | pH del suelo | Temperatura ambiente (BME280) |
+| 5 | Humedad relativa ambiente (BME280) | Presión atmosférica ambiente (BME280) |
+
+N, P y K se muestran por separado como registros informativos, sin atribuirles selectividad química o capacidad para prescribir dosis de fertilizante. Estado, batería y completitud van fuera de estas diez tarjetas. El pronóstico a cinco días se presenta aparte. Si falta una lectura ambiental, se indica su ausencia; no se sustituye por datos de internet. **El Grid es el diseño objetivo pendiente de implementar en la App.**
+
+La vista actual conserva nueve tarjetas, dos con datos de API, y anchos de 31,8 %. Los tipos y el decodificador BLE ya incluyen soporte ambiental v1; falta alinear la vista y validar el recorrido completo con hardware.
+
+- Implementar el Grid objetivo y verificar unidades, NULL, origen y fecha de las diez variables.
+- Probar captura, diagnóstico y guardado en modo avión; no bloquear el resultado por la consulta meteorológica.
+- Probar sesión previa, falta de GPS, reinicio, sincronización y accesibilidad.
+- Mantener N/P/K informativos y el estado metrológico visible.
+
+Las demás menciones a Grid 2×5 describen el diseño objetivo, pendiente.
+
+---
+
 Aplicación móvil de terreno desarrollada en **React Native 0.86 + React 19.2 + Expo SDK 57 + TypeScript 6 + Zustand**. 
-Es la herramienta central que el agricultor y los operadores llevan al potrero: se conecta a la sonda portátil TerraSense vía **Bluetooth Low Energy (BLE)**, evalúa el suelo localmente según la etapa fenológica elegida, agrega contexto meteorológico y proyecta las mediciones de **siembra** en un mapa predial.
+Es la herramienta central que el agricultor y los operadores llevan al campo: se conecta a la sonda portátil TerraSense vía **Bluetooth Low Energy (BLE)**, evalúa el suelo localmente según la etapa fenológica elegida, agrega contexto meteorológico y proyecta las mediciones de **siembra** en un mapa predial.
 
 > ### ⚠️ Estado de verificación
 > Corregido tras la [auditoría del 4 de septiembre de 2026](../finanzas/historico/documentacion/docs/AUDITORIA_READMES_2026-09-04.md). Precisiones que este README mantenía incorrectas y ahora quedan explícitas:
 >
 > - **El motor agronómico opera sin conexión; el dato meteorológico no.** La consulta actual pide **2 días** de pronóstico, usa el primero y devuelve `null` si falla la red. El requisito actualizado es consultar **los próximos 5 días**; su integración está descrita en `docs/INFORME%201%20.docx.md#integracion-bme280`.
-> - **BME280 incluido y obligatorio:** temperatura del aire, humedad relativa y presión local para tres celdas del grid 3×3. La API gratuita complementa la lectura con el pronóstico de cinco días. Ver [contrato y estado de integración](../docs/INFORME%201%20.docx.md#integracion-bme280). El decodificador actual de suelo aún debe ampliarse para recibir esas variables.
+> - **BME280 incluido y obligatorio:** temperatura del aire, humedad relativa y presión local para tres celdas del grid 2×5. La API gratuita complementa la lectura con el pronóstico de cinco días. Ver [contrato y estado de integración](../docs/INFORME%201%20.docx.md#integracion-bme280). El decodificador incluye soporte v1; quedan pendientes el Grid y la validación física.
 > - **N, P y K no se muestran como cifras interpretables**, en ningún rango de conductividad.
 > - **El motor no calcula dosis de cal en kg/ha ni costos por hectárea.** Esas salidas se retiraron.
 > - **El tiempo de respuesta extremo a extremo no está medido.** No citar «5 segundos».
@@ -61,7 +88,7 @@ Es la herramienta central que el agricultor y los operadores llevan al potrero: 
    - **Cosecha**
 6. **Captura BLE y meteorológica:** Recordatorio preventivo de limpieza de electrodos (`CalibrationReminderModal`), conexión por BLE a la sonda, lectura de la trama GATT (16 o 20 bytes según su versión) y consulta meteorológica. La consulta requiere red y no tiene caché: si falla, la medición se registra igual y el diagnóstico se emite **sin contexto climático**.
 7. **Carrusel de Resultados Post-Medición:**
-   - **Página 1 (Grid 3×3 Semáforo):** Cuadrícula con las variables medidas en verde (óptimo), naranjo (precaución) y rojo (riesgo). Al tocar cualquier parámetro, se despliega una explicación detallada con advertencias, causas y acciones concretas para mejorarlo según la fase activa.
+   - **Página 1 (Grid 2×5 Semáforo):** Cuadrícula con las variables medidas en verde (óptimo), naranjo (precaución) y rojo (riesgo). Al tocar cualquier parámetro, se despliega una explicación detallada con advertencias, causas y acciones concretas para mejorarlo según la fase activa.
    - **Página 2 (Recomendación Integral Globalizada):** Diagnóstico de conjunto que combina suelo, etapa del cultivo y pronóstico del clima (olas de calor, heladas, lluvias, qué sembrar o cuidados de la planta en crecimiento). Aquí finaliza el carrusel para Vegetativo, Floración y Cosecha.
    - **Página 3 (Exclusiva para Fase Siembra):** Pestaña adicional donde la medición se plasma en el mapa predial georreferenciado con una burbuja de detalle y un **círculo de influencia de radio de 20 metros**.
 8. **Historial de Mediciones (`HistoryScreen`):** Lista cronológica de todas las mediciones. Permite abrir el mapa satelital **únicamente para las mediciones de siembra** para ver los puntos y zonas de 20 m cubiertas. Las demás fases permanecen como registros de auditoría y seguimiento.
@@ -70,7 +97,7 @@ Es la herramienta central que el agricultor y los operadores llevan al potrero: 
 
 ## 2. Principio Rector: Offline-First
 
-El productor agrícola opera habitualmente en zonas rurales sin conectividad celular 4G/5G. La aplicación garantiza **total autonomía operativa en terreno**:
+El agricultor agrícola opera habitualmente en zonas rurales sin conectividad celular 4G/5G. La aplicación garantiza **total autonomía operativa en terreno**:
 
 | Escenario en Terreno | Comportamiento del Sistema |
 | :--- | :--- |
@@ -314,7 +341,7 @@ El flujo de pantallas se articula a través de un enrutador liviano en `App.tsx`
           │     MeasureScreen     │
           │  (Carrusel Resultados)│
           ├───────────────────────┤
-          │ Pág 1: Grid 3x3       │ (Semáforo interactivo con advertencias)
+          │ Pág 1: Grid 2×5       │ (Semáforo interactivo con advertencias)
           │ Pág 2: Recomendación  │ (Diagnóstico conjunto suelo + clima)
           │ Pág 3: Mapa Siembra   │ ◄── (SÓLO SI LA FASE FUE SIEMBRA)
           └───────────────────────┘
@@ -345,12 +372,12 @@ El proceso de medición sigue una secuencia rigurosa y pedagógica:
    - Se muestra el modal recordatorio `CalibrationReminderModal` sugiriendo limpiar y secar los electrodos de acero inoxidable.
    - La app escanea el anuncio `TerraSense-<device_code>`, conecta vía BLE, captura la trama BLE y consulta el clima en Open-Meteo.
    - Desconecta inmediatamente el enlace BLE para proteger la batería del ESP32.
-3. **Página 1 del Carrusel · Grid 3×3 Semáforo Interactivo:**
+3. **Página 1 del Carrusel · Grid 2×5 Semáforo Interactivo:**
    - Muestra cada una de las variables medidas con su valor numérico y el color de semáforo correspondiente:
      - **🟢 Verde:** Perfecto / Condición favorable.
      - **🟡 Naranjo:** Precaución / Requiere atención o ajuste preventivo.
      - **🔴 Rojo:** Riesgo / Condición limitante que puede generar daño o pérdida.
-   - **Interactividad al Tocar:** Al pulsar cualquier parámetro (por ejemplo, si el Nitrógeno está en naranjo o la Humedad en rojo), se abre una tarjeta modal con advertencias específicas:
+   - **Interactividad al Tocar:** Al pulsar cualquier parámetro (por ejemplo, si la humedad del suelo está en rojo), se abre una tarjeta modal con advertencias específicas:
      - Por qué el parámetro está en ese nivel.
      - Qué riesgos implica para la fase seleccionada.
      - Qué acciones de manejo o fertirriego realizar para mejorarlo.
@@ -400,7 +427,7 @@ La sonda mide **conductividad eléctrica y temperatura**. Los tres registros aso
 **Para decisiones de fertilización y encalado corresponde un análisis de laboratorio.** Ni una lectura instantánea ni un mapa de círculos equivalen a un análisis representativo del predio.
 
 ### 5.3. Código de Colores Semáforo y Desglose Interactivo
-El Grid 3×3 de la primera página del carrusel utiliza el código de colores universal:
+El Grid 2×5 de la primera página del carrusel utiliza el código de colores universal:
 * **🟢 Verde (Perfecto):** El parámetro está dentro del rango óptimo para el cultivo y la fase fenológica seleccionada.
 * **🟡 Naranjo (Precaución):** El valor se aproxima a los límites de estrés; requiere ajustes preventivos en el riego o nutrición.
 * **🔴 Rojo (Riesgo):** Condición limitante severa (estrés hídrico, acidez perjudicial o salinidad) que exige intervención correctiva inmediata.

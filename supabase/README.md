@@ -1,5 +1,19 @@
 # 🗄️ TerraSense · Backend Supabase
 
+> Revisión del 10-09-2026: [informe académico de la raíz](../INFORME%20antiguo%20.docx%20%281%29.md). Esta revisión documenta trabajo futuro; no modifica App, Web, Supabase o PCB ni acredita despliegues.
+
+## Pendientes de persistencia y verificación
+
+El Grid 2×5 por sí sola no exige migración. Ya existe la migración 20260906140000_bme280_presion_y_sin_defaults.sql; su presencia local no demuestra despliegue remoto.
+
+- Verificar ida y vuelta de los siete registros de suelo y de canopy_temp_c, canopy_humidity_pct y air_pressure_hpa como lecturas locales.
+- Conservar NULL sin sensor; no rellenar ambiente con API. Revisar procedencia de filas antiguas antes de validar restricciones.
+- Probar permisos RLS, sincronización sin duplicados y exportación/eliminación.
+- Evaluar trazabilidad de calibración y versión de firmware; diseñar migración solo si faltan campos.
+- Preparar requisitos de tratamiento de datos para ley 21.719 y lanzamiento 2027.
+
+---
+
 Base de datos PostgreSQL con PostGIS, políticas de seguridad a nivel de fila y Edge Functions en
 Deno. Es la fuente única de verdad del sistema.
 

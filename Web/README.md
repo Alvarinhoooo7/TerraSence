@@ -1,5 +1,17 @@
 # 🖥️ TerraSense · Consola Web de Administración y Backoffice
 
+> Revisión del 10-09-2026: [informe académico de la raíz](../INFORME%20antiguo%20.docx%20%281%29.md). Esta revisión documenta trabajo futuro; no modifica App, Web, Supabase o PCB ni acredita despliegues.
+
+## Pendientes de vistas y documentación comercial
+
+- Alinear futuras vistas y exportaciones con diez registros locales; N/P/K separados e informativos.
+- Mantener pronóstico a cinco días fuera del Grid de mediciones, con fecha y caducidad.
+- Mostrar NULL como lectura ausente y verificar origen ambiental de Supabase.
+- Revisar autonomía, exactitud, IP67 y ahorro: son objetivos o supuestos pendientes, no prestaciones certificadas.
+- Preparar página técnica y QR según expediente SUBTEL, además de privacidad, permisos y accesibilidad.
+
+---
+
 Consola central de operaciones técnicas, gestión de flota por soporte y distribución de firmware desarrollada en **React 19 + Vite 6 + Tailwind CSS v4 + TypeScript + React Router v7**. 
 Es la **herramienta de backoffice del creador/administrador (Álvaro)** para supervisar las sondas TerraSense en terreno, auditar la salud técnica del hardware, gestionar miembros, resolver casos de soporte y desplegar actualizaciones de firmware OTA (tanto de forma individual desde la ficha de cada equipo como de manera masiva para toda la flota).
 

@@ -52,7 +52,7 @@ Los resultados de DSCR, VAN y caja libre por escenario se consultan en [RESULTAD
 
 | # | Pendiente | Estado actual |
 |:---:|---|---|
-| 16 | **Pronóstico gratuito e integración ambiental** | El requisito es cubrir los próximos cinco días; hoy la consulta pide dos y utiliza el primero. Seleccionar una API gratuita con licencia y cupo adecuados al uso. Open-Meteo gratuito sirve para el estudio no comercial; un proxy no cambia su licencia. Completar también adquisición, BLE, guardado y grilla BME280 conforme al [Informe 1](INFORME%201%20.docx.md#integracion-bme280) |
+| 16 | **Pronóstico gratuito e integración ambiental** | El requisito es cubrir los próximos cinco días; hoy la consulta pide dos y utiliza el primero. Seleccionar una API gratuita con licencia y cupo adecuados al uso. Open-Meteo gratuito sirve para el estudio no comercial; un proxy no cambia su licencia. Completar también adquisición, BLE, guardado y Grid BME280 conforme al [Informe 1](INFORME%201%20.docx.md#integracion-bme280) |
 
 La temperatura observada por BME280 debe guardarse separada de la temperatura del servicio meteorológico, junto con humedad relativa, presión local, instante y estado de captura.
 
@@ -95,4 +95,4 @@ El Informe 1 incorpora once diagramas, el funcionamiento de la app contrastado c
 
 ## Integración BME280 y clima — actualización 5 de septiembre
 
-El BME280 vuelve al diseño obligatorio y la BOM, junto con carcasa 3D explícita. Completar adquisición I²C, transporte BLE de tres variables, guardado/grilla y pronóstico de cinco días según [contrato de integración](INFORME%201%20.docx.md#integracion-bme280). La revisión económica no implica que esa integración de firmware/app esté terminada.
+El BME280 vuelve al diseño obligatorio y la BOM, junto con carcasa 3D explícita. Completar adquisición I²C, transporte BLE de tres variables, guardado/Grid y pronóstico de cinco días según [contrato de integración](INFORME%201%20.docx.md#integracion-bme280). La revisión económica no implica que esa integración de firmware/app esté terminada.

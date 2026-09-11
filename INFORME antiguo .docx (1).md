@@ -26,118 +26,120 @@ AÑO 2026
 
 [VII. Referencias bibliográficas	82](#referencias-bibliográficas)
 
-**Índice de figura**
+**Índice de figuras**
 
-[Figura 1.0 “Diagrama de Decisiones y Consecuencias”.	9](#figura-1.0-“-diagrama-de-decisiones-y-consecuencias”.)
+[Figura 5.1 “Diagrama de Decisiones y Consecuencias”.	9](#figura-5.1-“-diagrama-de-decisiones-y-consecuencias”.)
 
-[Figura 1.1 “Diagrama de Flujo Arquitectura 8 Bits \+ Bluetooth Classic”	19](#figura-1.1-“-diagrama-de-flujo-arquitectura-8-bits-+-bluetooth-classic”)
+[Figura 5.2 “Diagrama de Flujo Arquitectura 8 Bits \+ Bluetooth Classic”	19](#figura-5.2-“-diagrama-de-flujo-arquitectura-8-bits-+-bluetooth-classic”)
 
-[Figura 1.2 “Diagrama de Flujo Arquitectura de Sistema Embebido y Pantalla”	20](#figura-1.2-“-diagrama-de-flujo-arquitectura-de-sistema-embebido-y-pantalla”)
+[Figura 5.3 “Diagrama de Flujo Arquitectura de Sistema Embebido y Pantalla”	20](#figura-5.3-“-diagrama-de-flujo-arquitectura-de-sistema-embebido-y-pantalla”)
 
-[Figura 1.3 “Diagrama de Flujo Arquitectura con Datalogger Estacionario”	21](#figura-1.3-“-diagrama-de-flujo-arquitectura-con-datalogger-estacionario”)
+[Figura 5.4 “Diagrama de Flujo Arquitectura con Datalogger Estacionario”	21](#figura-5.4-“-diagrama-de-flujo-arquitectura-con-datalogger-estacionario”)
 
-[Figura 1.4 “Diagrama de Flujo Arquitectura de Nodos con LoRaWAN”	22](#figura-1.4-“-diagrama-de-flujo-arquitectura-de-nodos-con-lorawan”)
+[Figura 5.5 “Diagrama de Flujo Arquitectura de Nodos con LoRaWAN”	22](#figura-5.5-“-diagrama-de-flujo-arquitectura-de-nodos-con-lorawan”)
 
-[Figura 1.5 “Diagrama de Flujo Arquitectura de Sonda conecta al Teléfono”	23](#figura-1.5-“-diagrama-de-flujo-arquitectura-de-sonda-conecta-al-teléfono”)
+[Figura 5.6 “Diagrama de Flujo Arquitectura de Sonda conecta al Teléfono”	23](#figura-5.6-“-diagrama-de-flujo-arquitectura-de-sonda-conecta-al-teléfono”)
 
-[Figura 1.6 “Diagrama de Flujo Arquitectura de Sistema Embebido de Bajo Consumo”	24](#figura-1.6-“-diagrama-de-flujo-arquitectura-de-sistema-embebido-de-bajo-consumo”)
+[Figura 5.7 “Diagrama de Flujo Arquitectura de Sistema Embebido de Bajo Consumo”	24](#figura-5.7-“-diagrama-de-flujo-arquitectura-de-sistema-embebido-de-bajo-consumo”)
 
-[Figura 1.7 “Diagrama de Flujo Arquitectura de Conectividad”	30](#figura-1.7-“-diagrama-de-flujo-arquitectura-de-conectividad”)
+[Figura 5.8 “Diagrama de Flujo Arquitectura de Conectividad”	30](#figura-5.8-“-diagrama-de-flujo-arquitectura-de-conectividad”)
 
-[Figura 1.8 “Árbol de Alimentación y Nodos de Tensión”	60](#figura-1.8-“-árbol-de-alimentación-y-nodos-de-tensión”)
+[Figura 5.9 “Árbol de Alimentación y Nodos de Tensión”	60](#figura-5.9-“-árbol-de-alimentación-y-nodos-de-tensión”)
 
-[Figura 1.9 “Representación Conceptual de Carcasa”	61](#figura-1.9-“-representación-conceptual-de-carcasa”)
+[Figura 5.10 “Representación Conceptual de Carcasa”	61](#figura-5.10-“-representación-conceptual-de-carcasa”)
 
 **Índice de tablas**
 
-[Tabla 1.0 “Distribución de Responsabilidades Funcionales del Sistema”	14](#tabla-1.0-“-distribución-de-responsabilidades-funcionales-del-sistema”)
+[Tabla 5.1 “Distribución de Responsabilidades Funcionales del Sistema”	14](#tabla-5.1-“-distribución-de-responsabilidades-funcionales-del-sistema”)
 
-[Tabla 1.1 “Filtro de Viabilidad”	18](#tabla-1.1-“-filtro-de-viabilidad”)
+[Tabla 5.2 “Filtro de Viabilidad”	18](#tabla-5.2-“-filtro-de-viabilidad”)
 
-[Tabla 1.2 “Matriz de Decisiones”	25](#tabla-1.2-“-matriz-de-decisiones”)
+[Tabla 5.3 “Matriz de Decisiones”	25](#tabla-5.3-“-matriz-de-decisiones”)
 
-[Tabla 1.3 “Comparativa de Microcontroladores”	26](#tabla-1.3-“-comparativa-de-microcontroladores”)
+[Tabla 5.4 “Comparativa de Microcontroladores”	26](#tabla-5.4-“-comparativa-de-microcontroladores”)
 
-[Tabla 1.4 “Comparativa de Sondas de Suelo”	27](#tabla-1.4-“-comparativa-de-sondas-de-suelo”)
+[Tabla 5.5 “Comparativa de Sondas de Suelo”	27](#tabla-5.5-“-comparativa-de-sondas-de-suelo”)
 
-[Tabla 1.5 “Comparativa de Sensores de Temperatura / Humedad / Presión Barométrica”	28](#tabla-1.5-“-comparativa-de-sensores-de-temperatura-/-humedad-/-presión-barométrica”)
+[Tabla 5.6 “Comparativa de Sensores de Temperatura / Humedad / Presión Barométrica”	28](#tabla-5.6-“-comparativa-de-sensores-de-temperatura-/-humedad-/-presión-barométrica”)
 
-[Tabla 1.6 “Dimensionamiento del Mercado”	31](#tabla-1.6-“-dimensionamiento-del-mercado”)
+[Tabla 5.7 “Dimensionamiento del Mercado”	31](#tabla-5.7-“-dimensionamiento-del-mercado”)
 
-[Tabla 1.7 “Cálculo del SAM por Filtros Sucesivos”	32](#tabla-1.7-“-cálculo-del-sam-por-filtros-sucesivos”)
+[Tabla 5.8 “Cálculo del Mercado Accesible por Filtros Sucesivos”	32](#tabla-5.8-“-cálculo-del-sam-por-filtros-sucesivos”)
 
-[Tabla 1.8 “Plan de Ventas y Asignación de Recursos Comerciales (5 Años)”	34](#tabla-1.8-“-plan-de-ventas-y-asignación-de-recursos-comerciales-\(5-años\)”)
+[Tabla 5.9 “Plan de Ventas y Asignación de Recursos Comerciales (5 Años)”	34](#tabla-5.9-“-plan-de-ventas-y-asignación-de-recursos-comerciales-\(5-años\)”)
 
-[Tabla 1.9 “Estructura de Costos de Fabricación (BOM)”	36](#tabla-1.9-“-estructura-de-costos-de-fabricación-\(bom\)”)
+[Tabla 5.10 “Estructura de Costos de Fabricación (BOM)”	36](#tabla-5.10-“-estructura-de-costos-de-fabricación-\(bom\)”)
 
-[Tabla 2.0 “Economía Unitaria del Primer Año”	37](#tabla-2.0-“-economía-unitaria-del-primer-año”)
+[Tabla 5.11 “Economía Unitaria del Primer Año”	37](#tabla-5.11-“-economía-unitaria-del-primer-año”)
 
-[Tabla 2.1 “Costo Total de Propiedad del Agricultor a 1, 3 y 5 Años”	39](#tabla-2.1-“-costo-total-de-propiedad-del-agricultor-a-1,-3-y-5-años”)
+[Tabla 5.12 “Costo Total de Propiedad del Agricultor a 1, 3 y 5 Años”	39](#tabla-5.12-“-costo-total-de-propiedad-del-agricultor-a-1,-3-y-5-años”)
 
-[Tabla 2.2 “Estructura de Gastos Fijos”	41](#tabla-2.2-“-estructura-de-gastos-fijos”)
+[Tabla 5.13 “Estructura de Gastos Fijos”	41](#tabla-5.13-“-estructura-de-gastos-fijos”)
 
-[Tabla 2.3 “Punto de Equilibrio Operativo y con Deuda”	42](#tabla-2.3-“-punto-de-equilibrio-operativo-y-con-deuda”)
+[Tabla 5.14 “Punto de Equilibrio Operativo y con Deuda”	42](#tabla-5.14-“-punto-de-equilibrio-operativo-y-con-deuda”)
 
-[Tabla 2.4 “Fuentes de Financiamiento”	43](#tabla-2.4-“-fuentes-de-financiamiento”)
+[Tabla 5.15 “Fuentes de Financiamiento”	43](#tabla-5.15-“-fuentes-de-financiamiento”)
 
-[Tabla 2.5 “Destino de Fondos”	43](#tabla-2.5-“-destino-de-fondos”)
+[Tabla 5.16 “Destino de Fondos”	43](#tabla-5.16-“-destino-de-fondos”)
 
-[Tabla 2.6 “Desglose de Activos, Desarrollo y Formalización”	44](#tabla-2.6-“-desglose-de-activos,-desarrollo-y-formalización”)
+[Tabla 5.17 “Desglose de Activos, Desarrollo y Formalización”	44](#tabla-5.17-“-desglose-de-activos,-desarrollo-y-formalización”)
 
-[Tabla 2.7 “Alternativas de Plazo del Crédito”	45](#tabla-2.7-“-alternativas-de-plazo-del-crédito”)
+[Tabla 5.18 “Alternativas de Plazo del Crédito”	45](#tabla-5.18-“-alternativas-de-plazo-del-crédito”)
 
-[Tabla 2.8 “Proyección Anual de Resultados”	46](#tabla-2.8-“-proyección-anual-de-resultados”)
+[Tabla 5.19 “Proyección Anual de Resultados”	46](#tabla-5.19-“-proyección-anual-de-resultados”)
 
-[Tabla 2.9 “Flujo Económico”	47](#tabla-2.9-“-flujo-económico”)
+[Tabla 5.20 “Flujo Económico”	47](#tabla-5.20-“-flujo-económico”)
 
-[Tabla 3.0 “Evaluación por Escenario”	48](#tabla-3.0-“-evaluación-por-escenario”)
+[Tabla 5.21 “Evaluación por Escenario”	48](#tabla-5.21-“-evaluación-por-escenario”)
 
-[Tabla 3.1 “Análisis de Sensibilidad y Punto de Quiebre”	49](#tabla-3.1-“-análisis-de-sensibilidad-y-punto-de-quiebre”)
+[Tabla 5.22 “Análisis de Sensibilidad y Punto de Quiebre”	49](#tabla-5.22-“-análisis-de-sensibilidad-y-punto-de-quiebre”)
 
-[Tabla 3.2 “Análisis del VAN”	51](#tabla-3.2-“-análisis-del-van”)
+[Tabla 5.23 “Análisis del VAN”	51](#tabla-5.23-“-análisis-del-van”)
 
-[Tabla 3.3 “Evaluación Financiera”	52](#tabla-3.3-“-evaluación-financiera”)
+[Tabla 5.24 “Evaluación Financiera”	52](#tabla-5.24-“-evaluación-financiera”)
 
-[Tabla 3.4 “Especificaciones Técnicas ESP32”	54](#tabla-3.4-“-especificaciones-técnicas-esp32”)
+[Tabla 5.25 “Especificaciones Técnicas ESP32”	54](#tabla-5.25-“-especificaciones-técnicas-esp32”)
 
-[Tabla 3.5 “Especificaciones Técnicas Sonda”	55](#tabla-3.5-“-especificaciones-técnicas-sonda”)
+[Tabla 5.26 “Especificaciones Técnicas Sonda”	55](#tabla-5.26-“-especificaciones-técnicas-sonda”)
 
-[Tabla 3.6 “Contrato de Datos BLE (16 o 20 bytes)”	58](#tabla-3.6-“-contrato-de-datos-ble-\(16-bytes\)-”)
+[Tabla 5.27 “Contrato de Datos BLE (16 o 20 bytes)”	58](#tabla-5.27-“-contrato-de-datos-ble-\(16-bytes\)-”)
 
-[Tabla 3.7 “Gestión Energética”	59](#tabla-3.7-“-gestión-energética”)
+[Tabla 5.28 “Gestión Energética”	59](#tabla-5.28-“-gestión-energética”)
 
-[Tabla 3.8 “Interfaz Hardware”	62](#tabla-3.8-“-interfaz-hardware”)
+[Tabla 5.29 “Interfaz Hardware”	62](#tabla-5.29-“-interfaz-hardware”)
 
-[Tabla 3.9 “Pilares de Digitalización del Proceso Agrícola”	65](#tabla-3.9-“-pilares-de-digitalización-del-proceso-agrícola”)
+[Tabla 5.30 “Pilares de Digitalización del Proceso Agrícola”	65](#tabla-5.30-“-pilares-de-digitalización-del-proceso-agrícola”)
 
-[Tabla 4.0 “Estados Energéticos y Medidas de Diseño”	67](#tabla-4.0-“-estados-energéticos-y-medidas-de-diseño”)
+[Tabla 5.31 “Estados Energéticos y Medidas de Diseño”	67](#tabla-5.31-“-estados-energéticos-y-medidas-de-diseño”)
 
 
-[Tabla 4.1 “Balance Energético por Nodo y Fases de Operación”	70](#tabla-4.1-“-fases-de-operación-y-consumo-energético”)
+[Tabla 5.32 “Balance Energético por Nodo y Fases de Operación”	70](#tabla-5.32-“-fases-de-operación-y-consumo-energético”)
 
-[Tabla 4.2 “Efecto del Consumo de Reposo sobre la Autonomía”	71](#tabla-4.2-“-efecto-del-consumo-de-reposo-sobre-la-autonomía”)
+[Tabla 5.33 “Efecto del Consumo de Reposo sobre la Autonomía”	71](#tabla-5.33-“-efecto-del-consumo-de-reposo-sobre-la-autonomía”)
 
-[Tabla 4.3 “Análisis Comparativo de Parámetros”	72](#tabla-4.3-“-análisis-comparativo-de-parámetros”)
+[Tabla 5.34 “Análisis Comparativo de Parámetros”	72](#tabla-5.34-“-análisis-comparativo-de-parámetros”)
 
-[Tabla 4.4 “Clasificación Normativa: Obligatoria, Voluntaria y de Mercado Futuro”	79](#tabla-4.4-“-clasificación-normativa:-obligatoria,-voluntaria-y-de-mercado-futuro”)
+[Tabla 5.35 “Clasificación Normativa: Obligatoria, Voluntaria y de Mercado Futuro”	79](#tabla-5.35-“-clasificación-normativa:-obligatoria,-voluntaria-y-de-mercado-futuro”)
 
-[Tabla 4.5 “Protocolo de Validación In Situ vs. Laboratorio de Referencia”	80](#tabla-4.5-“-protocolo-de-validación-in-situ-vs.-laboratorio-de-referencia”)
+[Tabla 5.36 “Protocolo de Validación In Situ vs. Laboratorio de Referencia”	80](#tabla-5.36-“-protocolo-de-validación-in-situ-vs.-laboratorio-de-referencia”)
 
 1. #### **Introducción** {#introducción}
 
-La agricultura nacional enfrentó hasta hace muy poco tiempo un período decisivo marcado por la escasez hídrica persistente en la zona centro-sur y el encarecimiento de los insumos agroquímicos esenciales [\[1\]](#bookmark=id.9num1zj1gn0m) . En este contexto, optimizar el uso del agua y los nutrientes es un requisito estricto de supervivencia económica para el pequeño y mediano productor. Sin embargo, existe una profunda brecha tecnológica que margina a este sector: los instrumentos de medición disponibles son económicamente difíciles de adquirir además de que entregan datos crudos (como valores aislados de conductividad o pH) que resultan incomprensibles sin una formación técnica especializada.
+La agricultura nacional enfrentó hasta hace muy poco tiempo un período decisivo marcado por la escasez hídrica persistente en la zona centro-sur y el encarecimiento de los insumos agroquímicos esenciales [\[1\]](#bookmark=id.9num1zj1gn0m) . En este contexto, optimizar el uso del agua y los nutrientes es un requisito estricto de supervivencia económica para el pequeño y mediano agricultor. Sin embargo, existe una profunda brecha tecnológica que margina a este sector: los instrumentos de medición disponibles son económicamente difíciles de adquirir además de que entregan datos crudos (como valores aislados de conductividad o pH) que resultan incomprensibles sin una formación técnica especializada.
 
 Para dar respuesta a esta problemática, el presente informe detallado sobre el desarrollo y evaluación de TerraSense, un sistema integral de apoyo a la decisión sobre el terreno. Más que un simple sensor, la propuesta se basa en una arquitectura de bajo consumo que captura las variables físicas del suelo (mediante bus RS-485 con protocolo Modbus RTU) y del ambiente inmediato del punto de muestreo (mediante el sensor BME280 en bus I²C). Su innovación radica en delegar el procesamiento complejo al teléfono del agricultor vía Bluetooth Low Energy (BLE), transformando datos crudos en recomendaciones agronómicas accionables de forma inmediata, sin necesidad de conexión a internet durante la medición ni de suscripciones de pago. A lo largo de este documento se expone la ingeniería conceptual del sistema, justificando la selección de componentes, el diseño de gestión energética, el cumplimiento del marco regulatorio y la evaluación económica que respalda su viabilidad técnica y financiera.
 
-En el teléfono una aplicación con motor agronómico determinista opera de manera estrictamente offline, interpretando las variables en menos de 5 segundos y presentándolas bajo un Grid 3×3 de fácil asimilación, categorizada por código de colores tipo semáforo y enriquecida con recomendaciones directas de labor según el cultivo, el tipo de suelo y la etapa fenológica (Pre-siembra, Vegetativo, Floración o Cosecha). Como complemento a la lectura local, el sistema consulta un pronóstico meteorológico a 5 días que contextualiza la labor a mediano plazo (evitando, por ejemplo, sembrar antes de un pronóstico temporal).
+En el teléfono una aplicación con motor agronómico determinista opera de manera estrictamente offline, interpretando las variables en menos de 5 segundos y presentándolas bajo un Grid 2×5 de fácil asimilación, categorizado por código de colores tipo semáforo y enriquecido con recomendaciones directas de labor según el cultivo, el tipo de suelo y la etapa fenológica (Pre-siembra, Vegetativo, Floración o Cosecha). Como complemento a la lectura local, el sistema consulta un pronóstico meteorológico a 5 días que contextualiza la labor a mediano plazo (evitando, por ejemplo, sembrar antes de un pronóstico temporal).
 
-La ingeniería conceptual que fundamenta el proyecto se desarrolla en las siguientes secciones: la evaluación de alternativas, el dimensionamiento de mercado, el diseño electrónico y mecánico, el modelo financiero de rentabilidad a cinco años, el marco normativo regulatorio y el protocolo de validación experimental que sustenta su factibilidad técnica y económica.
+El Grid **2×5 tiene dos columnas y cinco filas**, con una tarjeta por variable y diez registros locales en total: humedad del suelo y conductividad eléctrica del suelo en la primera fila; temperatura del suelo y nitrógeno (N) en la segunda; fósforo (P) y potasio (K) en la tercera; pH del suelo y temperatura ambiente del BME280 en la cuarta; humedad relativa y presión atmosférica ambiente del BME280 en la quinta. N, P y K se muestran por separado como registros informativos, sin atribuirles selectividad química ni capacidad para prescribir dosis de fertilizante. Estado, batería y completitud de la captura quedan fuera de esas diez tarjetas, y el pronóstico a cinco días se presenta aparte. Si falta una lectura ambiental se indica su ausencia y no se sustituye por datos de internet. El Grid 2×5 es el diseño objetivo de la aplicación y está pendiente de implementación.
+
+La ingeniería conceptual que fundamenta el proyecto se desarrolla en las siguientes secciones: la evaluación de alternativas, el dimensionamiento de mercado, el diseño electrónico y mecánico, el modelo financiero de rentabilidad a diez años con comparación a cinco, el marco normativo regulatorio y el protocolo de validación experimental que sustenta su factibilidad técnica y económica.
 
 2. #### **Descripción de la Problemática** {#descripción-de-la-problemática}
 
 **Contexto del Sector Agrícola Nacional:**
 
-La agricultura chilena es un pilar fundamental para la seguridad alimentaria y el desarrollo rural del país. Según el último Censo Agropecuario y Forestal, el cual se realiza cada 10 años, existen más de 175.000 unidades productivas a nivel nacional [\[2](#bookmark=id.yf0cz452ejtl), [3\]](#bookmark=id.qub6dchoyp8u) . Dentro de este universo, la Agricultura Familiar Campesina (AFC) y los productores pequeños (con campos de 0,5 a 20 hectáreas) representan la base productiva del mercado interno [\[4\]](#bookmark=id.ygpqoodekwbb) . Sin embargo, este sector se encuentra actualmente en un punto de vulnerabilidad histórica debido a la convergencia de dos factores extremos:
+La agricultura chilena es un pilar fundamental para la seguridad alimentaria y el desarrollo rural del país. Según el último Censo Agropecuario y Forestal, el cual se realiza cada 10 años, existen más de 175.000 unidades productivas a nivel nacional [\[2](#bookmark=id.yf0cz452ejtl), [3\]](#bookmark=id.qub6dchoyp8u) . Dentro de este universo, la Agricultura Familiar Campesina (AFC) y los agricultores pequeños (con campos de 0,5 a 20 hectáreas) representan la base productiva del mercado interno [\[4\]](#bookmark=id.ygpqoodekwbb) . Sin embargo, este sector se encuentra actualmente en un punto de vulnerabilidad histórica debido a la convergencia de dos factores extremos:
 
 En primer lugar, el país atravesó una “mega sequía” ininterrumpida desde 2010, con un déficit de precipitaciones cercano al 30% en la zona centro-sur [\[1\]](#bookmark=id.9num1zj1gn0m) . Esta crisis hídrica no solo limita el riego, sino que altera las condiciones físico-químicas del terreno, promoviendo la salinización y degradación del suelo.
 
@@ -151,14 +153,14 @@ El problema radica en que el pequeño y mediano agricultor no tiene acceso a her
 
 **La Barrera Económica:** El problema no es únicamente que estos instrumentos tengan una etiqueta de precio alto en términos absolutos, sino que entregan poca capacidad de medición e interpretación por cada peso invertido, y que esa inversión debe repetirse porque la alternativa formal es un servicio, no un activo. Un medidor portátil básico como el Hanna HI9814 cuesta US$294 [\[6\]](#bookmark=id.e6x78fxco0to) y mide únicamente 4 variables (pH, CE, TDS y temperatura) en soluciones hidropónicas, sin ninguna capa de interpretación agronómica; las sondas de precisión de grado investigación superan los US$1.495 [\[7\]](#bookmark=id.abolvmmaqulu) . La alternativa formal, el análisis de laboratorio acreditado, cuesta en Chile en torno a $50.000 por muestra fija en terreno : a ese costo, siete muestras ya igualan el precio completo de un instrumento propio, sin que el agricultor pueda repetir la medición al día siguiente sin costo marginal, ni reciba una recomendación de manejo lista para aplicar en el momento. La barrera real, entonces, no es el precio de compra aislado, sino la relación entre lo que el instrumento mide, interpreta y permite repetir en el tiempo, frente a lo que cuesta sostener esa misma información por la vía del servicio. Esa es la relación que este proyecto reformula, y su comparación completa de costo total de propiedad para el agricultor se desarrolla también en este informe, junto con la estrategia de precios.
 
-**La Barrera de Interpretación:** Incluso si el agricultor logra adquirir uno de estos equipos, las herramientas actuales entregan “datos planos” (por ejemplo, un valor aislado de 2.500 µS/cm o un pH de 5.5). La mayoría de los pequeños productores no cuenta con la formación técnica especializada para interpretar si ese número es letal para su cultivo específico, ni saben cómo traducir ese dato crudo en una acción correctiva concreta (como calcular cuántos litros de agua aplicar para lavar las sales).
+**La Barrera de Interpretación:** Incluso si el agricultor logra adquirir uno de estos equipos, las herramientas actuales entregan “datos planos” (por ejemplo, un valor aislado de 2.500 µS/cm o un pH de 5.5). La mayoría de los pequeños agricultores no cuenta con la formación técnica especializada para interpretar si ese número es letal para su cultivo específico, ni saben cómo traducir ese dato crudo en una acción correctiva concreta (como calcular cuántos litros de agua aplicar para lavar las sales).
 
 Esta falta de herramientas accesibles e intuitivas obliga al agricultor a operar “a ciegas” durante todo el proceso productivo. El costo de esa ceguera no se reparte de manera pareja a lo largo de la temporada: se concentra en cuatro momentos en los que la decisión, una vez tomada, ya no se puede deshacer. Son las mismas cuatro etapas fenológicas sobre las que opera la solución propuesta.
 
-* **Pre-siembra:** Sin medir la conductividad eléctrica, el productor desconoce cuánta sal dejó acumulada la sequía en su terreno; sin medir la temperatura del suelo, no sabe si la tierra alcanzó el mínimo que exige la germinación. Siembra igual, guiado por el calendario heredado. La semilla se pierde en un suelo frío o demasiado salino, y esa pérdida sólo se vuelve visible varias semanas más tarde, cuando ya no queda ventana para resembrar.
+* **Pre-siembra:** Sin medir la conductividad eléctrica, el agricultor desconoce cuánta sal dejó acumulada la sequía en su terreno; sin medir la temperatura del suelo, no sabe si la tierra alcanzó el mínimo que exige la germinación. Siembra igual, guiado por el calendario heredado. La semilla se pierde en un suelo frío o demasiado salino, y esa pérdida sólo se vuelve visible varias semanas más tarde, cuando ya no queda ventana para resembrar.
 
 
-* **Vegetativo:** Con la inversión ya comprometida, el riego se ajusta por costumbre y no por la humedad real del terreno. El exceso de agua desplaza el aire del suelo y asfixia las raíces, y de paso arrastra hacia abajo el fertilizante recién aplicado, que el cultivo ya no alcanza a absorber; la falta de agua, en el otro extremo, frena el desarrollo. En ambos casos el productor paga dos veces: el insumo perdido y el crecimiento que no ocurrió.
+* **Vegetativo:** Con la inversión ya comprometida, el riego se ajusta por costumbre y no por la humedad real del terreno. El exceso de agua desplaza el aire del suelo y asfixia las raíces, y de paso arrastra hacia abajo el fertilizante recién aplicado, que el cultivo ya no alcanza a absorber; la falta de agua, en el otro extremo, frena el desarrollo. En ambos casos el agricultor paga dos veces: el insumo perdido y el crecimiento que no ocurrió.
 
 
 * **Floración:** Es la ventana más corta y la más cara de todas. Un estrés hídrico que pase inadvertido durante esos días provoca aborto floral masivo, y con él se pierde el rendimiento de la temporada completa aunque la planta siga verde y aparentemente sana. Es exactamente el tipo de daño que la inspección visual no alcanza a detectar a tiempo, porque cuando se hace evidente ya está consumado.
@@ -168,11 +170,11 @@ Esta falta de herramientas accesibles e intuitivas obliga al agricultor a operar
 
 **Impacto de las Decisiones Tradicionales:**
 
-Ante la falta de instrumental comprensible, el productor toma decisiones basadas en la tradición o en inspecciones sensoriales superficiales (“al ojo”: tocar la tierra con la mano, observar el polvo en superficie o guiarse por el calendario astronómico). Este método empírico induce fallos agronómicos severos en los cuatro momentos clave del cultivo:
+Ante la falta de instrumental comprensible, el agricultor toma decisiones basadas en la tradición o en inspecciones sensoriales superficiales (“al ojo”: tocar la tierra con la mano, observar el polvo en superficie o guiarse por el calendario astronómico). Este método empírico induce fallos agronómicos severos en los cuatro momentos clave del cultivo:
 
 **![][image1]**
 
-##### **Figura 1.0 “Diagrama de Decisiones y Consecuencias”.** {#figura-1.0-“-diagrama-de-decisiones-y-consecuencias”.}
+##### **Figura 5.1 “Diagrama de Decisiones y Consecuencias”.** {#figura-5.1-“-diagrama-de-decisiones-y-consecuencias”.}
 
 **Relación con los Servicios Formales de Análisis y Asesoría:**
 
@@ -180,14 +182,14 @@ Actualmente, las alternativas formales como los análisis de laboratorio son len
 
 Corresponde precisar el alcance exacto de esta brecha, porque el proyecto no se plantea como un reemplazo del laboratorio. Un análisis acreditado determina propiedades químicas mediante extracción y método normalizado; un instrumento de terreno entrega una lectura directa, en un punto y en un instante. Son procedimientos distintos que responden preguntas distintas, y confundirlos sería el error de fondo más grave que podría cometer este proyecto. TerraSense apunta al vacío que existe entre dos análisis de laboratorio: las decenas de decisiones de riego, siembra y manejo que el agricultor toma cada semana y que hoy resuelve por intuición, porque no existe ninguna herramienta que las acompañe con un dato propio de su predio. Los servicios de laboratorio y de asesoría conservan íntegramente su función en las decisiones que exigen determinaciones específicas, en particular las de fertilización.
 
-En síntesis, el pequeño productor queda atrapado entre una crisis climática que le exige más precisión que nunca, un mercado de instrumentación que lo deja fuera por la relación entre lo que cobra y lo que entrega, y equipos que, cuando los alcanza, le devuelven un número que no sabe leer. Las dos barreras se refuerzan entre sí: la económica le impide comprar el instrumento, y la de interpretación vuelve inútil el instrumento que sí lograra comprar. El resultado es un productor que decide a ciegas y descubre sus errores al final de la temporada, cuando la pérdida de la cosecha y el endeudamiento del año ya son irreversibles.
+En síntesis, el pequeño agricultor queda atrapado entre una crisis climática que le exige más precisión que nunca, un mercado de instrumentación que lo deja fuera por la relación entre lo que cobra y lo que entrega, y equipos que, cuando los alcanza, le devuelven un número que no sabe leer. Las dos barreras se refuerzan entre sí: la económica le impide comprar el instrumento, y la de interpretación vuelve inútil el instrumento que sí lograra comprar. El resultado es un agricultor que decide a ciegas y descubre sus errores al final de la temporada, cuando la pérdida de la cosecha y el endeudamiento del año ya son irreversibles.
 
 3. #### **Propuesta de Solución Tecnológica.** {#ingeniería-conceptual}
 
 **Filosofía del Proyecto:**  
 Antes de cualquier decisión técnica o de diseño más focalizado, el proyecto responde a una pregunta fundamental: ¿Para qué existe esta herramienta? La respuesta no es "para cuidar plantas", sino para proteger el patrimonio de una familia que se juega el año entero en cada siembra.
 
-Esta distinción no es un matiz retórico; cambia el criterio con el que se evalúa cada decisión de desarrollo. El fin último no es el predio productivo, sino el ser humano cuyo sustento familiar depende de él. Un cultivo que se pierde por acidez o salinidad es, en el fondo, un problema agronómico menor comparado con lo que realmente está en juego, una familia que queda endeudada durante un año entero por tomar una decisión sin la información adecuada. Ese es el problema social y económico que TerraSense ataca. Por ello, toda decisión de diseño se resuelve preguntando cuál alternativa reduce más el riesgo económico del productor, no cuál es la más sofisticada desde el punto de vista técnico. De esta premisa central se desprenden cuatro principios que gobiernan el diseño del sistema:
+Esta distinción no es un matiz retórico; cambia el criterio con el que se evalúa cada decisión de desarrollo. El fin último no es el predio productivo, sino el ser humano cuyo sustento familiar depende de él. Un cultivo que se pierde por acidez o salinidad es, en el fondo, un problema agronómico menor comparado con lo que realmente está en juego, una familia que queda endeudada durante un año entero por tomar una decisión sin la información adecuada. Ese es el problema social y económico que TerraSense ataca. Por ello, toda decisión de diseño se resuelve preguntando cuál alternativa reduce más el riesgo económico del agricultor, no cuál es la más sofisticada desde el punto de vista técnico. De esta premisa central se desprenden cuatro principios que gobiernan el diseño del sistema:
 
 * **No Entregamos Datos, Entregamos Respuestas:** Un dato aislado, un valor de pH o una lectura de conductividad no es información útil para quien no sabe interpretarlo. Un dato sin contexto es, en la práctica, “un vacío” con unidades. TerraSense no entrega la medición en bruto, sino la cadena completa: desde la captura de la variable física hasta una recomendación concreta de manejo (qué hacer, cuánto y por qué).
 
@@ -197,7 +199,7 @@ Esta distinción no es un matiz retórico; cambia el criterio con el que se eval
 
 **Beneficiarios de la Solución:**
 
-El beneficiario directo y principal es el pequeño y mediano productor comercial (Agricultura Familiar Campesina), quien hoy queda fuera de toda la oferta de instrumentación profesional. Sin embargo, el diseño contempla un impacto expansivo hacia otros actores:
+El beneficiario directo y principal es el pequeño y mediano agricultor comercial (Agricultura Familiar Campesina), quien hoy queda fuera de toda la oferta de instrumentación profesional. Sin embargo, el diseño contempla un impacto expansivo hacia otros actores:
 
 **La Familia y el Equipo de Trabajo:** El sistema está diseñado para que cualquier persona en el predio pueda tomar una medición sin necesitar formación técnica previa.
 
@@ -220,10 +222,10 @@ Para optimizar costos de manufactura y maximizar la durabilidad en terreno, las 
 | Capa del Sistema | Componente Físico | Responsabilidad Asignada | Lo que Deliberadamente NO Realiza |
 | :---: | :---: | :---: | :---: |
 | **1\. Instrumento de Captura** | ESP32-WROOM-32E \+ Sonda 7-en-1 \+ BME280 | Excitar sensores, leer buses RS-485 e I²C, verificar checksums y transmitir trama BLE. | No procesa algoritmos agronómicos, no almacena historial ni requiere pantalla gráfica propia. |
-| **2\. Inteligencia Local** | App Móvil (React Native / SQLite) | Ejecutar motor agronómico determinista, georreferenciar puntos con GPS del teléfono, desplegar Grid 3×3 y almacenar histórico local. | No genera voltajes de excitación industrial ni depende de servidores externos para evaluar. |
+| **2\. Inteligencia Local** | App Móvil (React Native / SQLite) | Ejecutar motor agronómico determinista, georreferenciar puntos con GPS del teléfono, desplegar el Grid 2×5 y almacenar histórico local. | No genera voltajes de excitación industrial ni depende de servidores externos para evaluar. |
 | **3\. Respaldo y Flota** | Supabase (PostgreSQL \+ PostGIS) \+ Consola Web | Respaldar mediciones al detectar red, control de cuentas, soporte posventa y analítica multitemporal. | No bloquea la operación en campo en ausencia de conectividad. |
 
-###### **Tabla 1.0 “Distribución de Responsabilidades Funcionales del Sistema”** {#tabla-1.0-“-distribución-de-responsabilidades-funcionales-del-sistema”}
+###### **Tabla 5.1 “Distribución de Responsabilidades Funcionales del Sistema”** {#tabla-5.1-“-distribución-de-responsabilidades-funcionales-del-sistema”}
 
 4. #### **Objetivos del Proyecto.** {#ingeniería-conceptual}
 
@@ -284,7 +286,7 @@ Antes de comparar cualquier alternativa, el proyecto fija dos capas de exigencia
 | **RO-4** | Muestrear múltiples puntos | Permitir recorrer y medir distintos puntos de un mismo predio en una jornada. |
 | **RO-5** | Ser físicamente realizable | Construirse con componentes de catálogo real, no con tecnología hipotética. |
 
-###### **Tabla 1.1 “Filtro de Viabilidad”** {#tabla-1.1-“-filtro-de-viabilidad”}
+###### **Tabla 5.2 “Filtro de Viabilidad”** {#tabla-5.2-“-filtro-de-viabilidad”}
 
 **Criterios Ponderados:** Solo entre las arquitecturas que sobreviven el filtro se aplica una matriz de puntuación (escala 1 a 10\) sobre ocho criterios: cobertura espacial (15 %), calidad de interfaz (13 %), capacidad de interpretación (15 %), autonomía energética (14 %), costo total a cinco años para el agricultor (16 %), robustez mecánica y ambiental (10 %), facilidad de actualizar el conocimiento agronómico (9 %) e independencia de infraestructura externa (8 %).
 
@@ -296,7 +298,7 @@ Esta separación en dos capas evita "aprobar" una arquitectura inviable con un b
 
 ![][image2]
 
-##### **Figura 1.1 “Diagrama de Flujo Arquitectura 8 Bits \+ Bluetooth Classic”** {#figura-1.1-“-diagrama-de-flujo-arquitectura-8-bits-+-bluetooth-classic”}
+##### **Figura 5.2 “Diagrama de Flujo Arquitectura 8 Bits \+ Bluetooth Classic”** {#figura-5.2-“-diagrama-de-flujo-arquitectura-8-bits-+-bluetooth-classic”}
 
 *Evaluación:* Los módulos Bluetooth Classic más usados implementan un perfil de comunicación que iOS no permite usar sin certificación MFi de Apple. Adoptarla significa renunciar a la mitad del mercado de teléfonos. Además, la memoria disponible no alcanza para el motor de interpretación y no hay forma de actualizar el firmware de forma remota. Incumple el filtro de viabilidad y queda eliminada.
 
@@ -304,7 +306,7 @@ Esta separación en dos capas evita "aprobar" una arquitectura inviable con un b
 
 ![][image3]
 
-##### **Figura 1.2 “Diagrama de Flujo Arquitectura de Sistema Embebido y Pantalla”** {#figura-1.2-“-diagrama-de-flujo-arquitectura-de-sistema-embebido-y-pantalla”}
+##### **Figura 5.3 “Diagrama de Flujo Arquitectura de Sistema Embebido y Pantalla”** {#figura-5.3-“-diagrama-de-flujo-arquitectura-de-sistema-embebido-y-pantalla”}
 
 *Evaluación:* Incorporar una pantalla activa y el motor de interpretación agronómica reduce la autonomía en más de tres cuartas partes; la ventana de la pantalla es un riesgo de estanqueidad frente a la humedad; sin GPS ni conectividad, se pierde la capa del motor que cruza la medición con el clima previsto; y corregir el conocimiento agronómico exigiría publicar un nuevo firmware y forzar al usuario a instalarlo. Sí supera el filtro de viabilidad y llega a la etapa de puntuación. 
 
@@ -312,7 +314,7 @@ Esta separación en dos capas evita "aprobar" una arquitectura inviable con un b
 
 ![][image4]
 
-##### **Figura 1.3 “Diagrama de Flujo Arquitectura con Datalogger Estacionario”** {#figura-1.3-“-diagrama-de-flujo-arquitectura-con-datalogger-estacionario”}
+##### **Figura 5.4 “Diagrama de Flujo Arquitectura con Datalogger Estacionario”** {#figura-5.4-“-diagrama-de-flujo-arquitectura-con-datalogger-estacionario”}
 
 *Evaluación:* Resuelve bien un problema distinto. La variabilidad de un campo es espacial; mapear veinte puntos exigiría veinte equipos. Requiere cobertura celular exacta en el punto de instalación e impone una suscripción recurrente (incompatible con el proyecto). Incumple RO-3 y RO-4 y queda eliminada.
 
@@ -320,7 +322,7 @@ Esta separación en dos capas evita "aprobar" una arquitectura inviable con un b
 
 ![][image5]
 
-##### **Figura 1.4 “Diagrama de Flujo Arquitectura de Nodos con LoRaWAN”** {#figura-1.4-“-diagrama-de-flujo-arquitectura-de-nodos-con-lorawan”}
+##### **Figura 5.5 “Diagrama de Flujo Arquitectura de Nodos con LoRaWAN”** {#figura-5.5-“-diagrama-de-flujo-arquitectura-de-nodos-con-lorawan”}
 
 *Evaluación:* Es la alternativa técnicamente más elegante entre las descartadas, pero medir 20 puntos exigiría 20 nodos a un costo prohibitivo, y exige instalar infraestructura propia (la estación). Además, no resuelve el caso de uso real: el agricultor está de pie sobre el punto cuando necesita la decisión, no a distancia. Cumple los requisitos y pasa a puntuar con esa reserva.
 
@@ -328,7 +330,7 @@ Esta separación en dos capas evita "aprobar" una arquitectura inviable con un b
 
 ![][image6]
 
-##### **Figura 1.5 “Diagrama de Flujo Arquitectura de Sonda conecta al Teléfono”** {#figura-1.5-“-diagrama-de-flujo-arquitectura-de-sonda-conecta-al-teléfono”}
+##### **Figura 5.6 “Diagrama de Flujo Arquitectura de Sonda conecta al Teléfono”** {#figura-5.6-“-diagrama-de-flujo-arquitectura-de-sonda-conecta-al-teléfono”}
 
 *Evaluación:* Si se puntuará, obtendría el segundo mejor resultado al heredar gratis todas las capacidades del teléfono. Sin embargo, es físicamente irrealizable: aunque la sonda opera en un rango de 5 a 24 V DC que técnicamente incluye los 5 V que entrega un puerto USB, el puerto del teléfono en modo host no puede sostener la corriente de excitación que exige la sonda industrial durante la medición, y ningún teléfono comercial genera de forma nativa la señalización diferencial RS-485 que el protocolo exige. El límite no es de tensión sino de corriente entregable y de capa física. Incumple RO-1 y RO-5 y queda eliminada sin puntuar.
 
@@ -336,7 +338,7 @@ Esta separación en dos capas evita "aprobar" una arquitectura inviable con un b
 
 ![][image7]
 
-##### **Figura 1.6 “Diagrama de Flujo Arquitectura de Sistema Embebido de Bajo Consumo”** {#figura-1.6-“-diagrama-de-flujo-arquitectura-de-sistema-embebido-de-bajo-consumo”}
+##### **Figura 5.7 “Diagrama de Flujo Arquitectura de Sistema Embebido de Bajo Consumo”** {#figura-5.7-“-diagrama-de-flujo-arquitectura-de-sistema-embebido-de-bajo-consumo”}
 
 *Evaluación:* El teléfono reúne capacidades que duplicar en el instrumento sería un gasto innecesario. Asume que el usuario dispone de un teléfono (respaldado por conectividad rural). Cumple la totalidad de los requisitos y pasa a puntuar.
 
@@ -356,7 +358,7 @@ Esta separación en dos capas evita "aprobar" una arquitectura inviable con un b
 
 ###### 
 
-###### **Tabla 1.2 “Matriz de Decisiones”** {#tabla-1.2-“-matriz-de-decisiones”}
+###### **Tabla 5.3 “Matriz de Decisiones”** {#tabla-5.3-“-matriz-de-decisiones”}
 
 * **Conclusión y Sensibilidad:** La arquitectura de un instrumento portátil inalámbrico de bajo consumo, con el teléfono como intérprete gana con margen amplio por su ventaja insuperable en cobertura espacial ilimitada, capacidad de interpretación y facilidad de actualización del software. Tras un análisis de sensibilidad elevando los pesos de distintos criterios, esta arquitectura  mantiene su ventaja.
 
@@ -371,7 +373,7 @@ Se aplicó la misma disciplina: evaluación de candidatos reales, criterios decl
 | **nRF52840** | \~5-6 mA [\[10\]](#bookmark=id.nrf52840-datasheet) | No | 1 (ARM Cortex) | 8,10 | Descartado |
 | **ESP32** | \~95–130 mA [\[21\]](#bookmark=id.esp32-datasheet) | **Sí (Nativo)** | **2** | **8,98** |  **Seleccionado** |
 
-###### **Tabla 1.3 “Comparativa de Microcontroladores”** {#tabla-1.3-“-comparativa-de-microcontroladores”}
+###### **Tabla 5.4 “Comparativa de Microcontroladores”** {#tabla-5.4-“-comparativa-de-microcontroladores”}
 
 * **Justificación de la Selección:** Aunque los chips nRF52840 y STM32WB55 superan al ESP32 por un factor enorme en eficiencia de radio, al modelar el presupuesto energético completo del equipo, esa ventaja de radio solo se traduce en un ínfimo de autonomía total (la carga dominante es la sonda y la autodescarga de la batería). A cambio de resignar ese porcentaje el ESP32 aporta Wi-Fi integrado (vital para actualizar el firmware por aire sin complicaciones), doble núcleo (para sostener la temporización de la sonda sin perder el Bluetooth), y por último un extenso ecosistema de desarrollo y soporte global de la comunidad para proyectos basados en este microcontrolador.
 
@@ -382,7 +384,7 @@ Se aplicó la misma disciplina: evaluación de candidatos reales, criterios decl
 | **Grado Investigación (TEROS 12, etc.)** | 3 a 4 variables | 10 / 10 | Muy Baja (Costo x20) | 6,46 |
 | **Sonda 7-en-1 RS-485** | 7 variables | 7 / 10 | Alta | 8,87 |
 
-###### **Tabla 1.4 “Comparativa de Sondas de Suelo”** {#tabla-1.4-“-comparativa-de-sondas-de-suelo”}
+###### **Tabla 5.5 “Comparativa de Sondas de Suelo”** {#tabla-5.5-“-comparativa-de-sondas-de-suelo”}
 
 * **Justificación:** Se sacrifica exactitud absoluta a cambio de viabilidad. Obtener las siete variables con sensores de investigación multiplicaría el costo del producto por veinte, lo que contradice el objetivo mismo del proyecto. La limitación técnica más importante se declara explícitamente: la estimación de N, P y K no se mide por electrodo ion-selectivo, sino que se deriva de la conductividad eléctrica. En suelo salino puede leer erróneamente un estado “fértil”. Para mitigarlo, la App presenta el N/P/K como clase ordinal agrupada (bajo/medio/óptimo/excesivo), nunca para calcular dosis exactas, y levanta una alerta de baja confianza cuando la conductividad supera los 1.000 µS/cm.
 
@@ -394,9 +396,9 @@ Se aplicó la misma disciplina: evaluación de candidatos reales, criterios decl
 | **Bosch BMP280** | ±1,0 °C [\[13\]](#bookmark=id.bmp280-datasheet)  | No | Sí | Descartado por función |
 | **Bosch BME280** | ±1,0 °C [\[14\]](#bookmark=id.bme280-datasheet)  | Sí (±3 % HR) | Sí (±1,0 hPa) | **Seleccionado** |
 
-###### **Tabla 1.5 “Comparativa de Sensores de Temperatura / Humedad / Presión Barométrica”** {#tabla-1.5-“-comparativa-de-sensores-de-temperatura-/-humedad-/-presión-barométrica”}
+###### **Tabla 5.6 “Comparativa de Sensores de Temperatura / Humedad / Presión Barométrica”** {#tabla-5.6-“-comparativa-de-sensores-de-temperatura-/-humedad-/-presión-barométrica”}
 
-* **Justificación:** Se elige por una razón funcional, no de desempeño. El BME280 es el único de los tres candidatos que entrega simultáneamente las tres magnitudes que el grid 3×3 reserva al ambiente local. El SHT40 es más exacto en temperatura pero no mide presión; el BMP280, frecuentemente confundido con el BME280 por su encapsulado casi idéntico, no aporta humedad relativa y por lo tanto no constituye un reemplazo funcional. La presión barométrica se utiliza además para corregir el cálculo de evapotranspiración por altitud [\[15\]](#bookmark=id.fao56-evapotranspiracion). Cabe precisar que la temperatura del BME280 se emplea también en la compensación interna del propio sensor, y su correspondencia con el aire exterior depende críticamente de su ubicación física dentro de la carcasa, requisito que se aborda en el diseño mecánico.
+* **Justificación:** Se elige por una razón funcional, no de desempeño. El BME280 es el único de los tres candidatos que entrega simultáneamente las tres magnitudes que el Grid 2×5 reserva al ambiente local. El SHT40 es más exacto en temperatura pero no mide presión; el BMP280, frecuentemente confundido con el BME280 por su encapsulado casi idéntico, no aporta humedad relativa y por lo tanto no constituye un reemplazo funcional. La presión barométrica se utiliza además para corregir el cálculo de evapotranspiración por altitud [\[15\]](#bookmark=id.fao56-evapotranspiracion). Cabe precisar que la temperatura del BME280 se emplea también en la compensación interna del propio sensor, y su correspondencia con el aire exterior depende críticamente de su ubicación física dentro de la carcasa, requisito que se aborda en el diseño mecánico.
 
 **Arquitectura de Conectividad:**  
 
@@ -415,13 +417,13 @@ La estrategia de comunicación del sistema se divide en distintas etapas, cada u
     
     
     
-* **Teléfono → Nube (HTTPS / Supabase):** El sistema implementa una arquitectura estrictamente offline-first. La falta de cobertura en zonas rurales es la principal causa de fallo en agrotecnología, por lo que el motor de interpretación agronómica corre localmente en el teléfono sobre almacenamiento local persistente. La conexión a la nube ocurre de manera diferida y en segundo plano, interviniendo únicamente para sincronizar historiales y respaldar información cuando el teléfono detecta señal de internet. Esta independencia tiene un límite honesto: crear una cuenta, registrar un equipo nuevo o recuperar credenciales sí requieren conexión; lo que no la requiere es medir, diagnosticar y guardar.
+* **Teléfono → Nube (HTTPS / Supabase):** El sistema implementa una arquitectura estrictamente offline-first. La falta de cobertura en zonas rurales es la principal causa de fallo en agrotecnología, por lo que el motor de interpretación agronómica corre localmente en el teléfono sobre almacenamiento local persistente. La conexión a la nube ocurre de manera diferida y en segundo plano, interviniendo únicamente para sincronizar historiales y respaldar información cuando el teléfono detecta señal de internet. Esta independencia tiene un límite honesto, y conviene declarar la frontera función por función. **Operan sin conexión a internet:** el emparejamiento y la lectura BLE del instrumento, la validación de tramas y el marcado de lecturas ausentes, el motor agronómico determinista que produce el diagnóstico y la recomendación de labor, la georreferenciación mediante el GPS del teléfono, el guardado en la base local del teléfono y la consulta del histórico ya almacenado. **Requieren conexión a internet:** la creación de cuenta, el inicio de sesión inicial, la recuperación de credenciales, el registro de un equipo nuevo, la sincronización y el respaldo del histórico hacia la nube, la consola web de flota y el pronóstico meteorológico a cinco días. La consecuencia práctica es que medir, diagnosticar y guardar nunca dependen de la cobertura; lo que depende de ella es administrar la cuenta, respaldar y contextualizar con el clima previsto. Cuando el pronóstico no está disponible, la aplicación indica su ausencia y no sustituye el dato por un valor estimado.
 
 
 Se adjunta un diagrama de flujo para comprender de manera visual la ruta de la información, desde la captura en terreno hasta el almacenamiento diferido en la nube:   
 **![][image8]**
 
-##### **Figura 1.7 “Diagrama de Flujo Arquitectura de Conectividad”** {#figura-1.7-“-diagrama-de-flujo-arquitectura-de-conectividad”}
+##### **Figura 5.8 “Diagrama de Flujo Arquitectura de Conectividad”** {#figura-5.8-“-diagrama-de-flujo-arquitectura-de-conectividad”}
 
 **Análisis de Viabilidad Económica:**
 
@@ -433,13 +435,13 @@ Antes de proyectar una sola unidad vendida es necesario acotar el universo sobre
 
 | Nivel | Definición y filtros aplicados | Universo | Uso dentro del estudio |
 | :---: | :---: | :---: | :---: |
-| **TAM (universo de contexto)** | Unidades productivas censadas (138.628 UPA \+ 36.928 UAC) | 175.556 u | Dimensionar el sector; **no convierte cada unidad en una venta** |
-| **SAM (servible)** | Productores y asesores con orientación comercial, teléfono y acceso al canal | A cuantificar por cultivo, región y canal | Acotar el mercado direccionable con cruces explícitos, no por atribución directa al censo |
-| **SOM (meta 5 años)** | Equipos que el plan comercial propone vender en cinco años | 2.550 u | Meta derivada del presupuesto de ventas y de la capacidad productiva |
+| **Mercado Total (universo de contexto)** | Unidades productivas censadas (138.628 UPA \+ 36.928 UAC) | 175.556 u | Dimensionar el sector; **no convierte cada unidad en una venta** |
+| **Mercado Accesible (servible)** | Agricultores y asesores con orientación comercial, teléfono y acceso al canal | A cuantificar por cultivo, región y canal | Acotar el mercado direccionable con cruces explícitos, no por atribución directa al censo |
+| **Mercado Objetivo (meta 5 años)** | Equipos que el plan comercial propone vender en cinco años | 2.550 u | Meta derivada del presupuesto de ventas y de la capacidad productiva |
 
-###### **Tabla 1.6 “Dimensionamiento del Mercado”** {#tabla-1.6-“-dimensionamiento-del-mercado”}
+###### **Tabla 5.7 “Dimensionamiento del Mercado”** {#tabla-5.7-“-dimensionamiento-del-mercado”}
 
-El SAM excluye deliberadamente las 36.928 unidades de autoconsumo (UAC): son unidades sin orientación comercial hacia el mercado, y mantenerlas dentro del universo direccionable de un instrumento de $349.990 infla artificialmente el mercado servible. El cálculo parte entonces exclusivamente de las 138.628 UPA y aplica tres filtros sucesivos, declarados como supuestos a afinar con una encuesta primaria del canal comercial una vez iniciada la operación:
+El Mercado Accesible excluye deliberadamente las 36.928 unidades de autoconsumo (UAC): son unidades sin orientación comercial hacia el mercado, y mantenerlas dentro del universo direccionable de un instrumento de $349.990 infla artificialmente el mercado servible. El cálculo parte entonces exclusivamente de las 138.628 UPA y aplica tres filtros sucesivos, declarados como supuestos a afinar con una encuesta primaria del canal comercial una vez iniciada la operación:
 
 | Filtro aplicado | Criterio | Retención estimada | Universo resultante |
 | :---: | :---: | :---: | :---: |
@@ -448,11 +450,11 @@ El SAM excluye deliberadamente las 36.928 unidades de autoconsumo (UAC): son uni
 | **2\. Orientación comercial** | Producción destinada mayoritariamente al mercado, no a subsistencia dentro del propio segmento de 0,5–20 ha | 75 % | 72.780 u |
 | **3\. Acceso al canal** | Tenencia de teléfono inteligente y acceso a compra por venta directa, distribuidor regional o cooperativa | 65 % | ≈ 47.300 u |
 
-###### **Tabla 1.7 “Cálculo del SAM por Filtros Sucesivos”** {#tabla-1.7-“-cálculo-del-sam-por-filtros-sucesivos”}
+###### **Tabla 5.8 “Cálculo del Mercado Accesible por Filtros Sucesivos”** {#tabla-5.8-“-cálculo-del-sam-por-filtros-sucesivos”}
 
 ###### 
 
-Bajo estos tres filtros, el mercado servible se estima en aproximadamente 47.300 unidades productivas. Es una cifra defendible por su método, no una cifra censal exacta: los tres porcentajes son supuestos declarados a partir del perfil conocido de la Agricultura Familiar Campesina [\[4\]](#bookmark=id.qub6dchoyp8u) y de la penetración de smartphones en zonas rurales de Chile (88,5 % de uso habitual declarado) [\[16\]](#bookmark=id.subtel-smartphone-rural), y quedan explícitamente abiertos a corrección con datos primarios de campo. Sobre ese universo, las 2.550 unidades del SOM a cinco años representan una penetración de 5,4 %, una meta ambiciosa pero no descabellada para un instrumento nuevo dentro de un horizonte de cinco años.
+Bajo estos tres filtros, el mercado servible se estima en aproximadamente 47.300 unidades productivas. Es una cifra defendible por su método, no una cifra censal exacta: los tres porcentajes son supuestos declarados a partir del perfil conocido de la Agricultura Familiar Campesina [\[4\]](#bookmark=id.qub6dchoyp8u) y de la penetración de smartphones en zonas rurales de Chile (88,5 % de uso habitual declarado) [\[16\]](#bookmark=id.subtel-smartphone-rural), y quedan explícitamente abiertos a corrección con datos primarios de campo. Sobre ese universo, las 2.550 unidades del Mercado Objetivo a cinco años representan una penetración de 5,4 %, una meta ambiciosa pero no descabellada para un instrumento nuevo dentro de un horizonte de cinco años.
 
 **Plan de Ventas y Motor de Crecimiento:**
 
@@ -468,6 +470,8 @@ Toda esta evaluación económica se ha construido sobre un escenario base conser
     
 * **Año 5 (850 unidades):** Cobertura multirregional apalancada por la base instalada y las recomendaciones.
 
+* **Años 6 a 10 (892, 937, 984, 1.033 y 1.085 unidades):** Extensión del plan bajo un supuesto uniforme de 5 % de crecimiento anual en unidades, sin acciones comerciales nuevas presupuestadas. A diferencia de los cinco primeros años, este tramo no responde a un plan detallado sino a una hipótesis de continuidad: se incluye para evaluar el proyecto sobre el mismo horizonte que el crédito, y su verificación exige comprobar antes la demanda de los años iniciales.
+
 | Año | Equipos | Pauta anual | Técnico Ensamblador | Soporte Tecnico | Agencia Marketing anual |
 | :---: | :---: | :---: | :---: | :---: | :---: |
 | **2027** | 200 | $6.000.000 | 0,0 | 0,0 | $0 |
@@ -475,10 +479,15 @@ Toda esta evaluación económica se ha construido sobre un escenario base conser
 | **2029** | 500 | $15.913.500 | 0,5 FTE | 0,5 FTE | $0 |
 | **2030** | 650 | $21.308.176 | 1,0 FTE | 1,0 FTE | $3.278.181 |
 | **2031** | 850 | $28.700.475 | 1,5 FTE | 1,5 FTE | $3.376.526 |
+| **2032** | 892 | $31.022.174 | 1,5 FTE | 2,0 FTE | $3.477.822 |
+| **2033** | 937 | $33.564.810 | 1,5 FTE | 2,0 FTE | $3.582.157 |
+| **2034** | 984 | $36.305.877 | 1,5 FTE | 2,5 FTE | $3.689.622 |
+| **2035** | 1.033 | $39.257.205 | 1,5 FTE | 2,5 FTE | $3.800.310 |
+| **2036** | 1.085 | $42.470.367 | 1,5 FTE | 2,5 FTE | $3.914.320 |
 
-###### **Tabla 1.8 “Plan de Ventas y Asignación de Recursos Comerciales (5 Años)”** {#tabla-1.8-“-plan-de-ventas-y-asignación-de-recursos-comerciales-(5-años)”}
+###### **Tabla 5.9 “Plan de Ventas y Asignación de Recursos Comerciales (10 Años)”** {#tabla-5.9-“-plan-de-ventas-y-asignación-de-recursos-comerciales-(5-años)”}
 
-El plan suma 2.550 equipos en cinco años. A precio inicial constante, representa $892.474.500 brutos; el flujo nominal incorpora reajustes anuales. El SOM es una meta de ventas, no una cifra censal de compradores. La pauta del primer año es $6.000.000 y la agencia aparece con 650 ventas anuales.
+Los primeros cinco años suman 2.550 equipos, que a precio inicial constante representan $892.474.500 brutos y constituyen la meta del Mercado Objetivo. El plan completo a diez años suma **7.481 equipos**, equivalentes a $2.618.275.190 brutos a precio inicial constante; el flujo nominal incorpora reajustes anuales. Los años 6 a 10 aplican un crecimiento hipotético de 5 % anual en unidades y no constituyen ventas comprometidas ni un plan comercial detallado como el de los cinco primeros. El Mercado Objetivo es una meta de ventas, no una cifra censal de compradores. La pauta del primer año es $6.000.000 y la agencia aparece desde 650 ventas anuales.
 
 La estrategia base utiliza venta directa, pauta digital, demostraciones y atención comercial de los socios; la distribución mayorista, el crédito a clientes y los convenios institucionales se consideran expansiones posibles, pero no se contabilizan como ventas comprometidas ni con el mismo margen de la venta directa.
 
@@ -489,7 +498,7 @@ $48.000, equivalente al 59,1 % del costo de materiales, lo que justifica la deci
 
 | Material o servicio por equipo | Cantidad | Neto unitario CLP | Subtotal CLP |
 | :---: | :---: | :---: | :---: |
-| **Sonda RS485 7-en-1 (SKU pendiente de ficha)** | 1 | $48.000 | $48.000 |
+| **Sonda RS485 7-en-1 (AliExpress 1005005548177699; variante pendiente)** | 1 | $48.000 | $48.000 |
 | **Placa de desarrollo ESP32-WROOM-32** | 1 | $6.723 | $6.723 |
 | **Módulo ambiental Bosch BME280 I2C** | 1 | $2.941 | $2.941 |
 | **PCB combinada USB-C carga \+ boost** | 1 | $900 | $900 |
@@ -507,7 +516,9 @@ $48.000, equivalente al 59,1 % del costo de materiales, lo que justifica la deci
 | **Flete de insumos y contingencia importación** | 1 | $2.500 | $2.500 |
 | **Total BOM** |  |  | **$81.184** |
 
-###### **Tabla 1.9 “Estructura de Costos de Fabricación (BOM)”** {#tabla-1.9-“-estructura-de-costos-de-fabricación-(bom)”}
+###### **Tabla 5.10 “Estructura de Costos de Fabricación (BOM)”** {#tabla-5.10-“-estructura-de-costos-de-fabricación-(bom)”}
+
+Los valores de esta tabla son presupuestos netos puestos en taller y no precios validados con orden de compra. La fuente interna reproducible de todos ellos es [supuestos.json](finanzas/supuestos.json). El componente que concentra el costo, la sonda RS-485 7-en-1, corresponde a la referencia de catálogo [AliExpress 1005005548177699](https://es.aliexpress.com/item/1005005548177699.html); su descripción de vendedor declara 4,5 a 30 V de alimentación, 0,5 W de consumo a 24 V y dimensiones de 45 × 15 × 123 mm, pero la variante exacta, el precio final puesto en Chile y la ficha del fabricante siguen pendientes de confirmación, por lo que el enlace no sustituye a una cotización y no modifica la BOM mientras no exista un precio comprobado con proveedor, fecha, moneda, impuestos, flete y vigencia. El ensamblaje se remunera en la nómina de la empresa y por eso no se duplica como partida de la BOM. Esta distinción importa para la comparación de consumo energético de la Sección correspondiente: la sonda se alimenta desde el nodo de 5 V del elevador y su consumo debe medirse a la tensión finalmente adoptada, no al valor de catálogo de 24 V.
 
 | Economía unitaria, año 1 | CLP |
 | :---: | :---: |
@@ -522,7 +533,7 @@ $48.000, equivalente al 59,1 % del costo de materiales, lo que justifica la deci
 | **Margen de contribución** | **$182.931** |
 | **Margen / ingreso neto** | 62,2 % |
 
-###### **Tabla 2.0 “Economía Unitaria del Primer Año”** {#tabla-2.0-“-economía-unitaria-del-primer-año”}
+###### **Tabla 5.11 “Economía Unitaria del Primer Año”** {#tabla-5.11-“-economía-unitaria-del-primer-año”}
 
 **Estrategia de Precios y Posicionamiento Competitivo:**
 
@@ -536,13 +547,19 @@ La pregunta que un agricultor se hace antes de comprar no es cuánto cuesta el i
 
 | Alternativa | Año 1 | Acumulado a 3 años | Acumulado a 5 años | Qué entrega |
 | :---: | :---: | :---: | :---: | :---: |
-| TerraSense (pago único; incluye reemplazo de batería sin coste al año 3\) | $349.990 | $360.490 | $360.490 | 7 variables de suelo \+ 3 ambientales, interpretación agronómica en segundos, mediciones ilimitadas sin costo marginal, sin suscripción |
+| TerraSense (pago único más reemplazo de batería al año 3, $12.495) | $349.990 | $362.485 | $362.485 | 7 variables de suelo \+ 3 ambientales, interpretación agronómica en segundos, mediciones ilimitadas sin costo marginal, sin suscripción |
 | Análisis de laboratorio (20 muestras/año a $50.000 c/u [\[8\]](#bookmark=id.lab-costo-muestra)) | $1.000.000 | $3.000.000 | $5.000.000 | Determinación química de referencia, resultado en 15 a 30 días, sin lectura in situ ni recomendación de manejo |
 | Asesoría agronómica externa (12 visitas/año a $60.000 [\[18\]](#bookmark=id.asesoria-costo-visita)) | $720.000 | $2.160.000 | $3.600.000 | Interpretación profesional periódica, sin instrumento propio ni dato in situ entre visitas |
 
-###### **Tabla 2.1 “Costo Total de Propiedad del Agricultor a 1, 3 y 5 Años”** {#tabla-2.1-“-costo-total-de-propiedad-del-agricultor-a-1,-3-y-5-años”}
+###### **Tabla 5.12 “Costo Total de Propiedad del Agricultor a 1, 3 y 5 Años”** {#tabla-5.12-“-costo-total-de-propiedad-del-agricultor-a-1,-3-y-5-años”}
 
-A un año, TerraSense ya cuesta menos de la mitad que la asesoría externa y una fracción del gasto en laboratorio equivalente; a cinco años, la diferencia se mide en millones de pesos porque el instrumento no vuelve a generar un desembolso relevante, mientras que laboratorio y asesoría son costos que se repiten cada temporada sin que el agricultor termine siendo dueño de nada. Esta comparación no invalida al laboratorio ni a la asesoría, que siguen siendo insustituibles para determinaciones específicas de fertilización; muestra, en cambio, por qué para el seguimiento rutinario semana a semana el costo total de propiedad favorece de forma aplastante al instrumento propio.
+Los supuestos que sostienen esta comparación se declaran de forma explícita. Las tres alternativas se expresan en pesos constantes de la fecha del presupuesto, sin inflación ni descuento. El reemplazo de batería del año 3 se valoriza con el costo neto de la BOM ($4.500) más el envío neto ($6.000), con IVA: $12.495 finales, sin margen comercial ni mano de obra; tanto el año de reposición como los cinco años de vida útil del instrumento son hipótesis de diseño, no datos de campo. Los $50.000 por muestra de laboratorio y los $60.000 por visita de asesoría, así como sus frecuencias, son supuestos de mercado declarados [\[8\]](#bookmark=id.lab-costo-muestra) [\[18\]](#bookmark=id.asesoria-costo-visita) pendientes de respaldo con ofertas fechadas. Se supone además que el agricultor ya dispone de teléfono inteligente.
+
+Por esa razón la cifra de $362.485 debe leerse como un subtotal y no como el costo total de propiedad completo: aún falta presupuestar mantenimiento, calibración periódica, fallos fuera de garantía, recarga y transporte o servicio técnico, partidas que **no se consideran gratuitas**. La comparación tampoco se extiende a diez años sin presupuestar renovaciones y servicio. De forma general, TCO(n) = compra + repuestos + mantenimiento y calibración + energía + conectividad incremental + transporte y servicio.
+
+Con esas reservas, a un año TerraSense cuesta menos de la mitad que la asesoría externa y una fracción del gasto en laboratorio equivalente, y a cinco años la diferencia acumulada se mide en millones de pesos, porque el instrumento no vuelve a generar un desembolso relevante mientras laboratorio y asesoría se repiten cada temporada. Esta comparación no invalida al laboratorio ni a la asesoría: los tres caminos tienen alcances distintos y complementarios, y no se presupone que comprar el instrumento elimine los análisis de referencia necesarios para determinaciones químicas de fertilización. Lo que muestra el ejercicio, dentro de su alcance parcial, es que para el seguimiento rutinario entre temporadas el costo por medición favorece al instrumento propio. El ahorro efectivo de cada cliente debe calcularse sobre el gasto realmente evitable en su caso, preservando las asesorías y análisis que siga necesitando; los efectos sobre agua, fertilizante y rendimiento requieren pilotos comparables antes de afirmarse.
+
+Conviene distinguir aquí tres economías que este informe mantiene separadas y que no deben sumarse entre sí. La **economía del proyecto** es la inversión de desarrollo y puesta en marcha, evaluada con VAN y TIR sobre el flujo antes de financiamiento. La **economía del negocio** es el costo de fabricar cada equipo y de operar la empresa, que determina el margen y el punto de equilibrio. La **economía del cliente** es el gasto del agricultor comparado en esta sección. El ahorro eventual del agricultor no constituye ingreso de TerraSense y no aparece en ninguna línea del flujo de la empresa; se presenta únicamente como argumento de adopción.
 
 **Capacidad Productiva, Gastos Fijos y Punto de Equilibrio:**
 
@@ -552,17 +569,21 @@ Conviene precisar que FTE representa capacidad equivalente y no medio contrato n
 
 Para garantizar el realismo de la evaluación, los gastos fijos asumen una formalización inmediata. Los socios perciben remuneración bruta presupuestada por su trabajo desde el mes 1, con escalones base de $600.000, $700.000, $850.000, $1.000.000 y $1.200.000 mensuales por persona, más reajuste; el 35 % adicional es una reserva de sobrecosto laboral y no una tasa legal única ni un sueldo líquido. Se incorpora contabilidad externa desde el primer mes, junto con taller, administración y seguros. Evaluar este proyecto asumiendo un “costo cero” para el trabajo de los socios sería un autoengaño; por ello se integran como gasto fijo real.
 
-| Concepto | 2027 | 2028 | 2029 | 2030 | 2031 |
-| :---: | :---: | :---: | :---: | :---: | :---: |
-| **Nómina y cargas** | $19.440.000 | $28.783.350 | $41.247.792 | $60.187.403 | $82.049.592 |
-| **Contabilidad** | $1.440.000 | $1.606.800 | $1.782.312 | $2.098.036 | $2.431.099 |
-| **Servicios digitales** | $1.920.000 | $2.317.500 | $2.928.084 | $3.769.908 | $4.895.963 |
-| **Gestión de agencia de Marketing** | $0 | $0 | $0 | $3.278.181 | $3.376.526 |
-| **Taller, administración y seguros** | $3.360.000 | $3.460.800 | $3.564.624 | $3.671.563 | $3.781.710 |
-| **Pauta comercial** | $6.000.000 | $10.815.000 | $15.913.500 | $21.308.176 | $28.700.475 |
-| **Total gastos fijos** | $32.160.000 | $46.983.450 | $65.436.312 | $94.313.267 | $125.235.365 |
+| Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Nómina y cargas** | $19.440.000 | $28.783.350 | $41.247.792 | $60.187.403 | $82.049.592 | $91.553.670 | $94.300.280 | $104.600.772 | $107.738.795 | $110.970.959 |
+| **Contabilidad** | $1.440.000 | $1.606.800 | $1.782.312 | $2.098.036 | $2.431.099 | $2.643.145 | $2.722.439 | $2.951.697 | $3.040.248 | $3.131.456 |
+| **Servicios digitales** | $1.920.000 | $2.317.500 | $2.928.084 | $3.769.908 | $4.895.963 | $5.976.290 | $6.964.429 | $7.852.991 | $8.633.545 | $9.219.788 |
+| **Gestión de agencia de Marketing** | $0 | $0 | $0 | $3.278.181 | $3.376.526 | $3.477.822 | $3.582.157 | $3.689.622 | $3.800.310 | $3.914.320 |
+| **Taller, administración y seguros** | $3.360.000 | $3.460.800 | $3.564.624 | $3.671.563 | $3.781.710 | $3.895.161 | $4.012.016 | $4.132.376 | $4.256.347 | $4.384.038 |
+| **Pauta comercial** | $6.000.000 | $10.815.000 | $15.913.500 | $21.308.176 | $28.700.475 | $31.022.174 | $33.564.810 | $36.305.877 | $39.257.205 | $42.470.367 |
+| **Total gastos fijos** | $32.160.000 | $46.983.450 | $65.436.312 | $94.313.267 | $125.235.365 | $138.568.262 | $145.146.131 | $159.533.334 | $166.726.451 | $174.090.928 |
 
-###### **Tabla 2.2 “Estructura de Gastos Fijos”** {#tabla-2.2-“-estructura-de-gastos-fijos”}
+###### **Tabla 5.13 “Estructura de Gastos Fijos”** {#tabla-5.13-“-estructura-de-gastos-fijos”}
+
+El presupuesto operativo del primer año asciende a **$32.160.000** y se concilia partida por partida con los parámetros de [supuestos.json](finanzas/supuestos.json): nómina, 2 socios × $600.000 × 12 meses × 1,35 = $19.440.000; contabilidad externa, $120.000 × 12 = $1.440.000; servicios digitales, $150.000 × 12 más 200 equipos activos × $1.200 = $1.920.000; taller, administración y seguros, ($180.000 + $100.000) × 12 = $3.360.000; y pauta comercial, 200 ventas × $30.000 = $6.000.000. La API de pronóstico tiene presupuesto directo de $0 por tratarse de un servicio gratuito. El 35 % aplicado sobre la remuneración bruta es una provisión de sobrecosto laboral por validar con contador, no una tasa legal única.
+
+Dos precisiones sobre esta estructura. La primera es de denominación: el modelo agrupa el bloque como “gastos fijos”, pero los servicios digitales y la pauta comercial escalan con el volumen de operación, de modo que no todos son costos estrictamente fijos. La segunda es de estatus probatorio: estas cifras provienen del archivo de supuestos y no de contratos firmados ni de cotizaciones recibidas; los servicios deben cotizarse y el costo de adquisición de clientes, el montaje, el soporte y la capacidad instalada deben validarse con pilotos antes de tratarse como gasto comprometido.
 
 | Año | Equilibrio operativo | Equilibrio con deuda | Ventas planificadas |
 | :---: | :---: | :---: | :---: |
@@ -571,10 +592,15 @@ Para garantizar el realismo de la evaluación, los gastos fijos asumen una forma
 | **2029** | 337 | 364 | 500 |
 | **2030** | 472 | 498 | 650 |
 | **2031** | 608 | 634 | 850 |
+| **2032** | 653 | 678 | 892 |
+| **2033** | 665 | 688 | 937 |
+| **2034** | 709 | 732 | 984 |
+| **2035** | 719 | 742 | 1.033 |
+| **2036** | 729 | 751 | 1.085 |
 
 ###### 
 
-###### **Tabla 2.3 “Punto de Equilibrio Operativo y con Deuda”** {#tabla-2.3-“-punto-de-equilibrio-operativo-y-con-deuda”}
+###### **Tabla 5.14 “Punto de Equilibrio Operativo y con Deuda”** {#tabla-5.14-“-punto-de-equilibrio-operativo-y-con-deuda”}
 
 En el primer año, los $32.160.000 de gastos fijos se cubren con 176 unidades al margen calculado, de modo que la meta de 200 unidades deja un margen de seguridad del 12 % sobre el equilibrio operativo. Al añadir capital e intereses del crédito, sin embargo, el umbral sube a 205 unidades: la meta del Año 1 cubre la operación pero queda cinco unidades por debajo del equilibrio con deuda. Esta diferencia no es un defecto oculto del modelo sino su hallazgo más útil, porque explica exactamente por qué el proyecto necesita liquidez inicial durante el arranque y por qué una venta no equivale a caja libre inmediatamente distribuible.
 
@@ -586,13 +612,17 @@ La puesta en marcha se estructura sobre fuentes de financiamiento por $40.000.00
 
 | Origen de fondos | CLP | Participación |
 | :---: | :---: | :---: |
-| **Aporte socios** | $9.000.000 (50% cada socio) | 22,5 % |
-| **Crédito** | $31.000.000 | 77,5 % |
+| **Pie propio de los socios** | $9.000.000 ($4.500.000 cada socio) | 22,5 % |
+| **Crédito bancario** | $31.000.000 | 77,5 % |
 | **Total fuentes de financiamiento** | $40.000.000 | 100 % |
 
 ###### 
 
-###### **Tabla 2.4 “Fuentes de Financiamiento”** {#tabla-2.4-“-fuentes-de-financiamiento”}
+###### **Tabla 5.15 “Fuentes de Financiamiento”** {#tabla-5.15-“-fuentes-de-financiamiento”}
+
+Los $9.000.000 de los socios constituyen el **pie propio** de la operación, aportado en partes iguales ($4.500.000 por socio), y equivalen al 22,5 % de los fondos totales. El saldo de $31.000.000, es decir el 77,5 %, se financia con **crédito bancario**. El pie se contabiliza una sola vez como capital propio: no vuelve a restarse del principal del crédito, no constituye gasto de apertura y no es un préstamo que deba devolverse al banco. En este informe “pie” designa la participación propia comprometida en el proyecto, sin suponer que el producto bancario que finalmente se contrate exija un pie contractual.
+
+El saldo puede tomarse como crédito empresarial o como crédito de consumo de los socios; en ambos casos debe identificarse quién es el deudor y documentarse cómo ingresa ese dinero a la empresa y cómo se reembolsa, manteniendo los fondos prestados separados del capital propio. [BancoEstado publica plazos de 12 a 120 meses para pequeña empresa](https://nwm.bancoestado.cl/content/bancoestado-public/cl/es/home/inicio---bancoestado-pequena-empresa/productos/financiamiento---bancoestado-pequena-empresa/financiamiento-pequeno-empresario---bancoestado-pequenas-empresa.html), mientras que su [simulador de crédito de consumo publica 6 a 60 meses](https://nwm.bancoestado.cl/content/bancoestado-public/cl/es/home/home/productos-/creditos/credito-de-consumo---bancoestado-personas.html) (consulta del 10-09-2026). Cambiar de producto obliga a recalcular cuota, cargos y caja: el plazo de diez años que usa este estudio corresponde al tramo empresarial y no se traslada automáticamente a un crédito de consumo. El plazo de diez años, la tasa de 12 % efectivo anual y el 2 % de gastos de apertura son supuestos del estudio y no una aprobación bancaria obtenida.
 
 | Destino de fondos | CLP |
 | :---: | :---: |
@@ -602,25 +632,22 @@ La puesta en marcha se estructura sobre fuentes de financiamiento por $40.000.00
 | **Caja inicial, con reserva incluida** | $28.062.622 |
 | **Total destinos** | $40.000.000 |
 
-###### **Tabla 2.5 “Destino de Fondos”** {#tabla-2.5-“-destino-de-fondos”}
+###### **Tabla 5.16 “Destino de Fondos”** {#tabla-5.16-“-destino-de-fondos”}
 
 El rubro “Activos, desarrollo y formalización” agrupa conceptos de naturaleza distinta que conviene abrir, porque incluye tanto costos de desarrollo de hardware y software como obligaciones regulatorias que quedan pendientes de ejecución antes del lanzamiento comercial (Resolución SUBTEL N° 737/2025 [\[19\]](#bookmark=id.subtel-737), ensayo IP67):
 
-| Concepto | CLP |
-| :---: | :---: |
-| **Herramientas y equipamiento de taller (soldadura, instrumental de prueba, banco de trabajo)** | $2.500.000 |
-| **Impresora 3D y consumibles iniciales de carcasa** | $1.200.000 |
-| **Rondas de prototipado (placas de desarrollo, sondas y sensores de prueba)** | $1.800.000 |
-| **Constitución de sociedad y trámites legales de formalización** | $600.000 |
-| **Licencias de software (CAD, cuentas de desarrollador móvil, dominio y hosting)** | $453.000 |
-| **Ensayos y certificación (IP67 en laboratorio acreditado \+ verificación SUBTEL, Resolución N° 737/2025)** | $800.000 |
-| **Marca, sitio web y material gráfico inicial** | $500.000 |
-| **Capital de trabajo adicional e imprevistos de formalización** | $2.500.000 |
-| **Total** | **$10.353.000** |
+| Rubro | Neto CLP | IVA presupuestado | Total CLP |
+| :---: | :---: | :---: | :---: |
+| **Activos y herramientas de taller** (soldadura, instrumental de prueba, banco de trabajo) | $3.500.000 | $665.000 | $4.165.000 |
+| **Desarrollo y validación** (rondas de prototipado, firmware, App y Web, metrología y ensayos normativos) | $4.500.000 | $855.000 | $5.355.000 |
+| **Formalización** (constitución de sociedad, trámites legales, marca y licencias) | $700.000 | $133.000 | $833.000 |
+| **Total** | **$8.700.000** | **$1.653.000** | **$10.353.000** |
 
-###### **Tabla 2.6 “Desglose de Activos, Desarrollo y Formalización”** {#tabla-2.6-“-desglose-de-activos,-desarrollo-y-formalización”}
+###### **Tabla 5.17 “Desglose de Activos, Desarrollo y Formalización”** {#tabla-5.17-“-desglose-de-activos,-desarrollo-y-formalización”}
 
-La certificación deja de ser una obligación regulatoria sin costo asignado: los $800.000 destinados a ensayos IP67 y a la verificación de la Resolución SUBTEL N° 737/2025 se ejecutan antes del lanzamiento comercial, consistente con la condición de “diseñado conforme a IP67” declarada en la sección de Protección al Consumidor mientras esos ensayos no se completen.
+Los tres rubros provienen directamente de [supuestos.json](finanzas/supuestos.json) y son presupuestos del estudio, no cotizaciones recibidas. El IVA se mantiene presupuestado por prudencia; su recuperación efectiva depende de la factura y del servicio contratado. La impresión de la carcasa es un servicio externo pagado por unidad y ya contabilizado en la BOM: **el proyecto no compra impresora 3D**. Tampoco se agrega aquí capital de trabajo, porque ya está contado en la caja inicial de la Tabla 5.16 y sumarlo de nuevo duplicaría fondos.
+
+El presupuesto de $4.500.000 de desarrollo y validación debe distribuirse entre prototipos, firmware, App y Web, metrología y ensayos normativos mediante cotizaciones fechadas. La certificación deja de ser una obligación regulatoria sin costo asignado —los ensayos IP67 en laboratorio acreditado y la verificación de la Resolución SUBTEL N° 737/2025 se ejecutan con cargo a este rubro antes del lanzamiento comercial—, pero no se afirma que una asignación puntual alcance a cubrir la totalidad de los ensayos: esa distribución se cierra con las ofertas de los laboratorios. Mientras esos ensayos no se completen se mantiene la condición de “diseñado conforme a IP67” declarada en la sección de Protección al Consumidor. Si las ofertas superan el presupuesto, corresponde recalcular el saldo bancario manteniendo el pie propio de $9.000.000.
 
 El desembolso de apertura es de $11.317.378. Los $40.000.000 son fuentes de financiamiento y no deben denominarse inversión económica consumida: una parte permanece en caja. Para VAN y TIR, el capital comprometido en mes 0 es $20.489.116, compuesto por el desembolso y la caja mínima operativa independiente de la deuda.
 
@@ -630,13 +657,13 @@ El desembolso de apertura es de $11.317.378. Los $40.000.000 son fuentes de fina
 | **10** | $433.836 | $21.060.349 | $19.777.637 | $56.737 |
 | **15** | $359.906 | $33.783.094 | $25.717.281 | $1.683.200 |
 
-###### **Tabla 2.7 “Alternativas de Plazo del Crédito”** {#tabla-2.7-“-alternativas-de-plazo-del-crédito”}
+###### **Tabla 5.18 “Alternativas de Plazo del Crédito”** {#tabla-5.18-“-alternativas-de-plazo-del-crédito”}
 
 La comparación utiliza el mismo principal y 12 % efectivo anual. Diez años reduce el servicio de arranque frente a cinco; quince reduce nuevamente la cuota pero aumenta intereses y exposición temporal.
 
 El tamaño de la estructura responde a un factor logístico y financiero concreto: el proyecto requiere liquidez para sostener el desfase entre compras, gastos y cobros durante el arranque. El modelo dimensiona el crédito en tramos de $100.000 hasta mantener, durante los primeros 24 meses, una reserva equivalente a tres meses de gastos fijos y tres cuotas, más un 10 % del desembolso inicial. Esa reserva está dentro de la caja y no se descuenta como un gasto adicional ni se suma dos veces al total. La política de inventario cubre dos meses de ventas, supuesto que debe ajustarse según el plazo real de entrega del proveedor de sondas. La elección del plazo del crédito, comparada en la tercera tabla del bloque anterior sobre el mismo principal y la misma tasa, no es indiferente.
 
-El plazo de cinco años sería preferible por costo financiero total, pero su cuota deja la reserva en terreno negativo durante los primeros 24 meses: el proyecto simplemente no sobreviviría al arranque. Quince años alivia aún más la cuota pero incrementa los intereses en más de $12 millones adicionales y prolonga la exposición. Diez años es el punto donde la reserva se mantiene positiva con el menor costo financiero posible. Se declara expresamente que el crédito no desaparece al terminar la evaluación de cinco años: quedan $19.777.637 de saldo pendiente.  
+El plazo de cinco años sería preferible por costo financiero total, pero su cuota deja la reserva en terreno negativo durante los primeros 24 meses: el proyecto simplemente no sobreviviría al arranque. Quince años alivia aún más la cuota pero incrementa los intereses en más de $12 millones adicionales y prolonga la exposición. Diez años es el punto donde la reserva se mantiene positiva con el menor costo financiero posible. Se declara expresamente que el crédito no desaparece al terminar el quinto año: en ese momento quedan $19.777.637 de saldo pendiente. La evaluación principal a diez años sí cubre el crédito completo, que se cancela contractualmente en el mes 120 (2036) sin prepagos; el modelo no habilita prepagos ni reparto de dividendos automáticos.  
 **Inventario, Impuestos y Construcción del Flujo de Caja:**
 
 Las ventas se cobran en el mes de entrega. Las compras cubren las ventas del mes y de los dos siguientes, redondeadas a lotes de diez unidades, y el inventario inicial cubre los dos primeros meses. El modelo concilia unidades y valor mediante promedio ponderado. La consecuencia es que la compra consume caja antes de que todo el lote se venda, mientras el costo de venta solo reconoce las unidades entregadas: esta diferencia es la razón por la cual EBITDA y caja no coinciden, y por la cual una utilidad contable no puede presentarse como efectivo disponible.
@@ -652,8 +679,13 @@ El IVA se trata separado del ingreso neto. El stock comprado en el mes 0 genera 
 | 2029 | $156.010.248 | $31.680.620 | $23.048.763 | $18.590.260 | $57.237.408 | 4,57 |
 | 2030 | $208.897.722 | $35.729.124 | $24.648.429 | $20.123.449 | $77.360.857 | 4,87 |
 | 2031 | $281.369.163 | $49.915.370 | $37.321.742 | $32.722.306 | $110.083.164 | 7,29 |
+| 2032 | $304.130.273 | $50.743.843 | $38.257.646 | $33.574.822 | $143.657.986 | 7,45 |
+| 2033 | $329.057.363 | $59.668.629 | $42.895.616 | $38.119.396 | $181.777.382 | 8,32 |
+| 2034 | $355.929.796 | $62.009.246 | $45.930.101 | $41.049.278 | $222.826.660 | 8,88 |
+| 2035 | $384.863.561 | $72.836.612 | $53.749.520 | $48.751.541 | $271.578.201 | 10,36 |
+| 2036 | $416.364.252 | $85.094.046 | $62.777.691 | $57.648.498 | $329.226.698 | 12,07 |
 
-###### **Tabla 2.8 “Proyección Anual de Resultados”** {#tabla-2.8-“-proyección-anual-de-resultados”}
+###### **Tabla 5.19 “Proyección Anual de Resultados”** {#tabla-5.19-“-proyección-anual-de-resultados”}
 
 | Período | Flujo económico para evaluación | Acumulado sin descuento |
 | :---: | :---: | :---: |
@@ -663,8 +695,13 @@ El IVA se trata separado del ingreso neto. El stock comprado en el mes 0 genera 
 | **2029** | $18.435.548 | $14.237.105 |
 | **2030** | $17.429.191 | $31.666.296 |
 | **2031** | $29.591.217 | $61.257.513 |
+| **2032** | $34.924.422 | $96.181.935 |
+| **2033** | $41.251.149 | $137.433.084 |
+| **2034** | $42.333.301 | $179.766.384 |
+| **2035** | $51.951.241 | $231.717.625 |
+| **2036** | $60.936.572 | $292.654.197 |
 
-###### **Tabla 2.9 “Flujo Económico”** {#tabla-2.9-“-flujo-económico”}
+###### **Tabla 5.20 “Flujo Económico”** {#tabla-5.20-“-flujo-económico”}
 
 En 2027, el EBITDA de $4.426.234 se transforma en FCFE de −$1.591.640 después de compras, IVA, impuestos y deuda. La caja final sigue positiva porque parte de la caja inicial. El DSCR de 0,69 significa que la generación disponible para deuda no cubre por sí sola todo el servicio del primer año. Desde el año siguiente, el aumento de ventas mejora esa cobertura dentro del escenario base.
 
@@ -678,38 +715,45 @@ El flujo del proyecto se evalúa antes del financiamiento, utilizando impuesto c
 
 Aplicando esta metodología sobre los tres escenarios de actividad definidos por base, estrés (ventas reducidas un 35 %, recalculando personal, inventario y servicios según actividad) y crecimiento (ventas y adquisición aumentadas un 50 %, ajustando capacidad) se obtienen los siguientes indicadores:
 
-| Escenario | Inversión económica mes 0 | VAN al 20 % | TIR efectiva anual | Payback simple | Payback descontado al 20 % |
-| :---: | :---: | :---: | :---: | :---: | :---: |
-| **Base** | $20.489.116 | $15.504.053 | 35,43 % | 34,61 meses (2,88 años) | 47,15 meses (3,93 años) |
-| **Estrés** | $20.478.616 | −$50.774.058 | \-30,28 % | No recupera en 60 meses | No recupera en 60 meses |
-| **Crecimiento** | $23.661.182 | $69.653.316 | 76,70 % | 22,54 meses (1,88 años) | 23,30 meses (1,94 años) |
+| Escenario | Horizonte | Inversión económica mes 0 | VAN al 20 % | TIR efectiva anual | Payback simple | Payback descontado al 20 % |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Base** | 10 años (120 meses) | $20.489.116 | $63.717.893 | 48,94 % | 34,61 meses (2,88 años) | 47,15 meses (3,93 años) |
+| **Estrés** | 10 años (120 meses) | $20.478.616 | −$50.865.171 | \-3,81 % | No recupera en 120 meses | No recupera en 120 meses |
+| **Crecimiento** | 10 años (120 meses) | $23.661.182 | $166.848.598 | 84,86 % | 22,54 meses (1,88 años) | 23,30 meses (1,94 años) |
+| **Base** | 5 años (60 meses) | $20.489.116 | $15.504.053 | 35,43 % | 34,61 meses (2,88 años) | 47,15 meses (3,93 años) |
+| **Estrés** | 5 años (60 meses) | $20.478.616 | −$50.774.058 | \-30,28 % | No recupera en 60 meses | No recupera en 60 meses |
+| **Crecimiento** | 5 años (60 meses) | $23.661.182 | $69.653.316 | 76,70 % | 22,54 meses (1,88 años) | 23,30 meses (1,94 años) |
 
 ###### 
 
-###### **Tabla 3.0 “Evaluación por Escenario”** {#tabla-3.0-“-evaluación-por-escenario”}
+###### **Tabla 5.21 “Evaluación por Escenario”** {#tabla-5.21-“-evaluación-por-escenario”}
 
-El VAN base de $15.504.053 indica excedente económico después de remunerar el capital al 20 % anual. La TIR de 35,43 % supera esa tasa en 15,43 puntos porcentuales. El payback simple de 34,61 meses mide recuperación nominal; al reconocer el valor temporal del dinero se amplía a 47,15 meses. Son preguntas distintas y por ello los dos plazos no deben mezclarse.  
+El VAN base de $63.717.893 a diez años indica excedente económico después de remunerar el capital al 20 % anual. La TIR de 48,94 % supera esa tasa en 28,94 puntos porcentuales. El payback simple de 34,61 meses mide recuperación nominal; al reconocer el valor temporal del dinero se amplía a 47,15 meses. Son preguntas distintas y por ello los dos plazos no deben mezclarse.
+
+La comparación entre ambos horizontes es informativa por sí misma: a cinco años el VAN base es de $15.504.053 y la TIR de 35,43 %, mientras que a diez años ascienden a $63.717.893 y 48,94 %. La diferencia muestra cuánto del retorno depende de la demanda posterior al quinto año, es decir del tramo sostenido por el supuesto de crecimiento de 5 % anual y no por un plan comercial detallado. Ambos horizontes descuentan la misma serie mensual y ninguno incorpora valor terminal. El payback no cambia entre horizontes porque se alcanza dentro de los primeros sesenta meses en los escenarios base y de crecimiento.  
 Los tres escenarios muestran que el margen técnico del equipo, el costo comercial y el ritmo de ventas deben analizarse en conjunto: una mayor capacidad de lectura o una BOM reducida no compensan por sí solas una estructura de adquisición de clientes ineficiente.
 
 **Análisis de Sensibilidad y Punto de Quiebre:**
 
 Los indicadores anteriores corresponden al escenario base. Para verificar la robustez del modelo frente a desviaciones razonables, se recalculó el resultado del Año 1 y el VAN bajo variaciones individuales de las variables más frágiles, modificando una condición a la vez y manteniendo el principal del crédito:
 
-| Caso | Ventas año 1 | EBITDA año 1 | DSCR año 1 | VAN 5 años | Mínimo sobre reserva 24 meses |
+| Caso | Ventas año 1 | EBITDA año 1 | DSCR año 1 | VAN 10 años | Mínimo sobre reserva 24 meses |
 | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Base** | 200 | $4.426.234 | 0,69 | $15.504.053 | $56.737 |
-| **Ventas −10 %** | 180 | $779.610 | \-0,01 | −$3.191.068 | −$5.634.752 |
-| **Ventas −25 %** | 150 | −$4.690.325 | \-1,06 | −$26.358.684 | −$13.602.239 |
-| **Ventas −35 %** | 130 | −$8.336.948 | \-1,76 | −$50.774.058 | −$19.433.131 |
-| **Precio $299.990** | 200 | −$3.477.128 | \-0,82 | −$32.232.090 | −$13.484.007 |
-| **BOM \+15 %** | 200 | $1.795.877 | 0,17 | −$1.396.878 | −$5.307.551 |
-| **Tasa crédito 18 %** | 200 | $4.426.234 | 0,57 | $15.504.053 | −$2.107.969 |
+| **Base** | 200 | $4.426.234 | 0,69 | $63.717.893 | $56.737 |
+| **Ventas −10 %** | 180 | $779.610 | \-0,01 | $31.147.090 | −$5.634.752 |
+| **Ventas −25 %** | 150 | −$4.690.325 | \-1,06 | −$12.452.408 | −$13.602.239 |
+| **Ventas −35 %** | 130 | −$8.336.948 | \-1,76 | −$50.865.171 | −$19.433.131 |
+| **Precio $299.990** | 200 | −$3.477.128 | \-0,82 | −$29.441.688 | −$13.484.007 |
+| **BOM \+15 %** | 200 | $1.795.877 | 0,17 | $31.249.254 | −$5.307.551 |
+| **Tasa crédito 18 %** | 200 | $4.426.234 | 0,57 | $63.717.893 | −$2.107.969 |
 
 ###### 
 
-###### **Tabla 3.1 “Análisis de Sensibilidad y Punto de Quiebre”** {#tabla-3.1-“-análisis-de-sensibilidad-y-punto-de-quiebre”}
+###### **Tabla 5.22 “Análisis de Sensibilidad y Punto de Quiebre”** {#tabla-5.22-“-análisis-de-sensibilidad-y-punto-de-quiebre”}
 
-En estas sensibilidades se modifica una condición a la vez y se mantiene el principal del caso base. Menores ventas no reducen automáticamente la pauta. El caso BOM \+15 % afecta materiales, inventario, merma y reposiciones; no equivale a aumentar todos los gastos de la empresa un 15 %. El alza de tasa altera deuda y caja del accionista, pero conserva el VAN del proyecto porque su FCFF se calcula antes del financiamiento. El proyecto tolera desviaciones, pero su holgura es acotada: una caída del 10 % en el volumen ya lleva el VAN a terreno negativo y el DSCR prácticamente a cero. No existe holgura alguna sobre el precio: rebajarlo a $299.990 destruye el resultado con más severidad que perder un cuarto de las ventas, lo que confirma que $349.990 es un techo estratégico y no un punto de negociación. Un alza del 15 % en la BOM afecta materiales, inventario, merma y reposiciones, no equivale a subir todos los gastos de la empresa y deja el VAN levemente negativo, señalando que el margen técnico del equipo no admite descuido en la cotización del SKU de sonda. Finalmente, el alza de tasa al 18 % altera la caja del accionista y la reserva pero conserva el VAN del proyecto, porque el FCFF se calcula antes del financiamiento: es la verificación de que la metodología está correctamente separada.
+En estas sensibilidades se modifica una condición a la vez y se mantiene el principal del caso base. Menores ventas no reducen automáticamente la pauta. El caso BOM \+15 % afecta materiales, inventario, merma y reposiciones; no equivale a aumentar todos los gastos de la empresa un 15 %. El alza de tasa altera deuda y caja del accionista, pero conserva el VAN del proyecto porque su FCFF se calcula antes del financiamiento. Sobre el horizonte de diez años conviene separar dos preguntas que estas sensibilidades responden de manera distinta. El VAN tolera desviaciones moderadas: una caída del 10 % en el volumen lo mantiene positivo en $31.147.090 y un alza del 15 % en la BOM lo deja en $31.249.254, ambos aproximadamente a la mitad del caso base. El VAN se vuelve negativo recién con una caída del 25 % en las ventas (−$12.452.408) y se deteriora hasta −$50.865.171 con una caída del 35 %. La liquidez del arranque, en cambio, es mucho menos tolerante: en todos los casos adversos, incluido el alza de tasa al 18 %, el mínimo sobre reserva de los primeros 24 meses cae por debajo de cero. La restricción que decide la supervivencia del proyecto en los escenarios desfavorables es la caja de los dos primeros años, no el valor presente del decenio.
+
+El precio es la variable más sensible del modelo: rebajarlo a $299.990 deja el VAN en −$29.441.688, un deterioro mayor que el de perder un cuarto de las ventas. Ese resultado sostiene el tratamiento de $349.990 como techo estratégico y no como punto de negociación. El alza del 15 % en la BOM, que afecta materiales, inventario, merma y reposiciones sin equivaler a subir todos los gastos de la empresa, reduce el VAN a la mitad y presiona la reserva, lo que indica que el margen técnico del equipo no admite descuido en la cotización de la sonda. Finalmente, el alza de tasa al 18 % altera la caja del accionista y la reserva pero conserva el VAN del proyecto, porque el FCFF se calcula antes del financiamiento: es la verificación de que la metodología está correctamente separada.
 
 Estas sensibilidades orientan medidas de gestión concretas: revisar el costo del SKU que concentra los materiales, comparar canales por margen después de comisión, contratar según horas efectivas y observar la caja antes de ampliar compras.
 
@@ -717,32 +761,35 @@ Adicionalmente, se recalculó el VAN ante distintas tasas de descuento, para ver
 
 | Tasa efectiva anual | VAN | Interpretación |
 | :---: | :---: | :---: |
-| **5 %** | $45.227.279 | Positivo |
-| **8 %** | $37.433.974 | Positivo |
-| **10 %** | $32.854.239 | Positivo |
-| **15 %** | $23.173.329 | Positivo |
-| **20 %** | $15.504.053 | Positivo |
-| **30 %** | $4.382.470 | Positivo |
-| **40 %** | −$3.043.155 | Negativo |
-| **TIR: 35,43 %** | $0 | VAN aproximadamente cero |
+| **5 %** | $196.834.564 | Positivo |
+| **8 %** | $156.331.189 | Positivo |
+| **10 %** | $134.386.003 | Positivo |
+| **15 %** | $92.521.585 | Positivo |
+| **20 %** | $63.717.893 | Positivo |
+| **30 %** | $28.796.371 | Positivo |
+| **40 %** | $9.986.673 | Positivo |
+| **TIR: 48,94 %** | $0 | VAN aproximadamente cero |
 
-###### **Tabla 3.2 “Análisis del VAN”** {#tabla-3.2-“-análisis-del-van”}
+###### **Tabla 5.23 “Análisis del VAN”** {#tabla-5.23-“-análisis-del-van”}
 
 Todas las filas descuentan exactamente la misma serie mensual de flujos. El VAN disminuye monótonamente al elevar la tasa de descuento y cruza cero exactamente en la TIR, tal como exige la definición de ambos indicadores, y se mantiene positivo hasta exigencias de rentabilidad muy superiores al 20 % de referencia.
 
-Con el análisis de sensibilidad la viabilidad económica del proyecto queda confirmada en su escenario base y bajo variaciones moderadas de tasa de descuento, con las condiciones de verificación señaladas. Bajo un horizonte de evaluación de 5 años y una Tasa de Descuento del 20 %, los resultados del negocio son los siguientes
+Bajo el horizonte principal de evaluación de 10 años y una tasa de descuento del 20 %, los resultados del negocio son los siguientes:
 
-| Indicador | Valor Proyectado | Criterio de Éxito (5 años, 20 %) | Veredicto |
+| Indicador | Valor Proyectado | Criterio de Éxito (10 años, 20 %) | Veredicto |
 | :---: | :---: | :---: | :---: |
-| **VAN (20 %)** | $15.504.053 | VAN \> 0 | Cumple |
-| **TIR** | 35,43 % | TIR \> 20 % | Cumple |
+| **VAN (20 %)** | $63.717.893 | VAN \> 0 | Cumple |
+| **TIR** | 48,94 % | TIR \> 20 % | Cumple |
 | **Pay Back simple** | 34,61 meses (2,88 años) | ≤ 5 años | Cumple |
 | **Pay Back descontado (20 %)** | 47,15 meses (3,93 años) | ≤ 5 años | Cumple |
+| **VAN (20 %) a 5 años** | $15.504.053 | VAN \> 0 | Cumple |
 | **DSCR Año 1** | 0,69 | ≥ 1,0 | No cumple en el primer Año |
 
-###### **Tabla 3.3 “Evaluación Financiera”** {#tabla-3.3-“-evaluación-financiera”}
+###### **Tabla 5.24 “Evaluación Financiera”** {#tabla-5.24-“-evaluación-financiera”}
 
-La decisión económica del caso base es favorable. La planificación financiera añade, sin embargo, una segunda pregunta: cómo pagar los meses iniciales antes de alcanzar la escala proyectada. De ahí que se publiquen también el DSCR, la reserva y la caja mensual. Retorno económico y cobertura temprana de deuda describen aspectos diferentes del mismo proyecto, y ninguno de los dos basta por sí solo para decidir.
+La decisión económica del caso base es favorable bajo los supuestos declarados. Conviene precisar el alcance de esa afirmación: los indicadores anteriores describen un modelo construido sobre precios presupuestados y no cotizados, un plan de ventas sin demanda comprobada y una estructura de financiamiento sin aprobación bancaria. El resultado sostiene la decisión de continuar el desarrollo, no acredita una viabilidad verificada. Esa verificación exige cotizaciones fechadas de la sonda y de los ensayos normativos, evidencia de demanda en los primeros pilotos y una oferta bancaria concreta.
+
+La planificación financiera añade, además, una segunda pregunta: cómo pagar los meses iniciales antes de alcanzar la escala proyectada. De ahí que se publiquen también el DSCR, la reserva y la caja mensual. Retorno económico y cobertura temprana de deuda describen aspectos diferentes del mismo proyecto, y ninguno de los dos basta por sí solo para decidir.
 
 **Especificaciones Técnicas del Proyecto:**
 
@@ -770,7 +817,7 @@ La carga y la elevación de tensión se resuelven mediante una PCB combinada USB
 | **Consumo Deep-Sleep** | 10 µA (reteniendo RTC y memoria RTC) / 5 µA en hibernación |
 | **Certificación RF** | Módulo pre-certificado FCC ID 2AC7Z-ESPWROOM32 |
 
-###### **Tabla 3.4 “Especificaciones Técnicas ESP32”** {#tabla-3.4-“-especificaciones-técnicas-esp32”}
+###### **Tabla 5.25 “Especificaciones Técnicas ESP32”** {#tabla-5.25-“-especificaciones-técnicas-esp32”}
 
 El rango de 95 a 380 mA describe el consumo del módulo medido en su propio pin de alimentación de 3,3 V, no el consumo del sistema completo: el extremo inferior corresponde a CPU activa con radio en reposo (el estado que domina durante la fase de adquisición Modbus) y el extremo superior a un pico instantáneo de transmisión Wi-Fi a máxima potencia, que este proyecto no utiliza porque toda la comunicación con el teléfono ocurre por BLE. Durante el advertising BLE de bajo duty cycle, el consumo promedio del módulo es menor que ese piso de 95 mA porque la radio se activa en pulsos breves y espaciados; el valor de 40 mA usado en la Fase 1 del ciclo de medición corresponde a ese promedio y no contradice el rango declarado, que describe el consumo en los instantes en que el núcleo de radio está activo.
 
@@ -786,7 +833,7 @@ El rango de 95 a 380 mA describe el consumo del módulo medido en su propio pin 
 | **pH** | 3,0 – 9,0 | ±0,1 |
 | **Macronutrientes (N, P, K)** | 1 – 1.999 mg/kg c/u | ±5 % (según fabricante) |
 
-###### **Tabla 3.5 “Especificaciones Técnicas Sonda”** {#tabla-3.5-“-especificaciones-técnicas-sonda”}
+###### **Tabla 5.26 “Especificaciones Técnicas Sonda”** {#tabla-5.26-“-especificaciones-técnicas-sonda”}
 
 El rango de alimentación de 5 a 24 V DC es representativo de la familia de sondas 7-en-1 RS-485 industriales [\[22\]](#bookmark=id.sonda-consumo); dentro de ese rango, el proyecto opera la sonda en su extremo inferior (5 V, entregados por el elevador de tensión descrito más adelante) porque coincide con el nivel que ya requiere el transceptor RS-485 y evita añadir un segundo convertidor. Esta decisión se declara explícitamente como una condición de diseño a validar contra la ficha técnica definitiva del SKU adquirido (pendiente de ficha, según se indica en el BOM), dado que otras sondas de la misma familia solo alcanzan su exactitud declarada operando a 12 V o más; si la validación en laboratorio mostrara desviación en la lectura al operar a 5 V, la contingencia de diseño es reemplazar el elevador actual por uno de 12 V, lo que no altera la arquitectura general pero sí el consumo de la Rama de Medición Conmutada.
 
@@ -809,7 +856,7 @@ La comunicación se establece a 9600 baudios vía Modbus RTU. Para mitigar varia
 | **15** | Versión de trama | uint8 | 0 \= 16 bytes, sólo suelo y batería; 1 \= 20 bytes, añade el ambiente |
 | **16–19** | Ambiente BME280 (sólo versión 1\) | 32 bits empaquetados | Temperatura del aire (12 bits, °C × 10 \+ 400), presión (12 bits, hPa − 300\) y humedad relativa (8 bits, % × 2\) |
 
-###### **Tabla 3.6 “Contrato de Datos BLE (16 o 20 bytes)”** {#tabla-3.6-“-contrato-de-datos-ble-(16-bytes)-”}
+###### **Tabla 5.27 “Contrato de Datos BLE (16 o 20 bytes)”** {#tabla-5.27-“-contrato-de-datos-ble-(16-bytes)-”}
 
 Un cambio de orden de bytes o de escala puede producir cifras plausibles pero incorrectas, mucho más difíciles de detectar que una desconexión visible: una humedad de 35,0 % leída como 8.960 se advierte de inmediato, pero un pH mal escalado que arroje 6,5 en lugar de 5,6 puede pasar inadvertido y provocar una recomendación equivocada. La integración de las tres magnitudes del BME280 se resuelve mediante una trama versionada y no mediante una característica GATT adicional: el byte 15 declara la versión y la versión 1 añade cuatro bytes en los que temperatura del aire, presión y humedad relativa viajan empaquetadas en bits (12, 12 y 8 respectivamente). Los 20 bytes resultantes son exactamente la carga útil que garantiza una notificación BLE con el MTU por defecto de 23 bytes, de modo que suelo y ambiente pertenecen por construcción a la misma captura, sin necesidad de emparejar dos paquetes ni de negociar un MTU mayor. Los quince primeros bytes son idénticos en ambas versiones, de manera que un equipo que declare la versión 0 se decodifica sin ramas especiales. Cuando el BME280 no responde, el firmware escribe un centinela de todos unos (0xFFF en cada campo de 12 bits, 0xFF en el de 8\) y la aplicación almacena NULL: nunca se sustituye un dato ausente por un valor plausible.
 
@@ -826,7 +873,7 @@ La viabilidad del dispositivo depende del esquema de power gating controlado por
 
 ###### 
 
-###### **Tabla 3.7 “Gestión Energética”** {#tabla-3.7-“-gestión-energética”}
+###### **Tabla 5.28 “Gestión Energética”** {#tabla-5.28-“-gestión-energética”}
 
 El convertidor DC-DC presenta una corriente de pérdida (corriente quiescente) de entre 30 y 100 µA incluso sin carga, según el modo de reposo del propio integrado [\[23\]](#bookmark=id.ip5306-datasheet). Si permaneciera conectado al bus de forma continua, excedería por sí solo el presupuesto energético total de reposo del sistema. Por ello el microcontrolador secciona físicamente esa rama, energizando solo durante los segundos que dura la rutina de lectura Modbus. Cortar la rama de la sonda no equivale, sin embargo, a un consumo total de 0 µA del equipo: el corte anula el consumo de esa rama, pero permanecen activos el ESP32 en deep-sleep (10 µA, Tabla 5.25), el regulador LDO (2,5 µA de quiescente típico, dato de hoja de datos) [\[24\]](#bookmark=id.ht7533-datasheet), el circuito cargador/protección de la celda en su modo de vigilancia (≈5 µA, estimación conservadora de diseño a confirmar en banco de pruebas sobre el SKU final) y el divisor de batería, que con el valor adoptado de 1 MΩ \+ 1 MΩ consume 1,85 µA de forma permanente. El presupuesto de reposo del sistema completo queda entonces fijado en aproximadamente 19,4 µA (10 \+ 2,5 \+ 5 \+ 1,85 µA), la cifra que se usa de forma consistente en el resto de esta sección para calcular la autonomía.
 
@@ -834,7 +881,7 @@ A modo de referencia del árbol de alimentación completo, incluyendo el punto d
 
 ![][image9]
 
-##### **Figura 1.8 “Árbol de Alimentación y Nodos de Tensión”** {#figura-1.8-“-árbol-de-alimentación-y-nodos-de-tensión”}
+##### **Figura 5.9 “Árbol de Alimentación y Nodos de Tensión”** {#figura-5.9-“-árbol-de-alimentación-y-nodos-de-tensión”}
 
 El diagrama hace explícito lo que la Tabla “Balance Energético por Nodo” cuantifica más adelante: los componentes de la rama LDO comparten un mismo nodo de 3,3 V y su corriente se suma directamente, mientras que la sonda cuelga de un nodo de 5 V detrás de un conversor con pérdidas, por lo que su corriente no puede sumarse directamente a las demás sin antes referirla a la batería.
 
@@ -842,7 +889,7 @@ El diagrama hace explícito lo que la Tabla “Balance Energético por Nodo” c
 
 ![][image10]
 
-##### **Figura 1.9 “Representación Conceptual de Carcasa”** {#figura-1.9-“-representación-conceptual-de-carcasa”}
+##### **Figura 5.10 “Representación Conceptual de Carcasa”** {#figura-5.10-“-representación-conceptual-de-carcasa”}
 
 La interfaz consta de tres luces indicadoras, un botón de emparejamiento, un puerto USB-C de carga y un interruptor mecánico de encendido dimensionado para ser accionable incluso con guantes de trabajo pesados.
 
@@ -857,7 +904,7 @@ Las tres luces comunican, mediante distintos patrones de encendido, la totalidad
 | **Batería baja** | 🔴 Rojo | Pulso lento (0,5 Hz) | Tensión de batería bajo el umbral de aviso; requiere recarga por USB-C. |
 | **Error de sonda** | 🔴 Rojo | Parpadeo rápido (2 Hz) | Fallo o tiempo de espera agotado en la comunicación Modbus. |
 
-###### **Tabla 3.8 “Interfaz Hardware”** {#tabla-3.8-“-interfaz-hardware”}
+###### **Tabla 5.29 “Interfaz Hardware”** {#tabla-5.29-“-interfaz-hardware”}
 
 **Carcasa del Dispositivo:**
 
@@ -889,7 +936,7 @@ Esta regla es la que explica, con hilo conductor, las decisiones de hardware ado
 | **Interoperabilidad institucional** | Los reportes se exportan en formatos estandarizados (CSV/PDF georreferenciado) pensados para alimentar programas de fomento de INDAP, fiscalización del SAG o estudios de la Comisión Nacional de Riego (CNR), sin requerir una integración de sistemas previa a la primera exportación. |
 | **Accesibilidad digital (WCAG 2.1 AA) [\[25\]](#bookmark=id.5z6kdvpxitq0)** | Área táctil mínima de 48×48 dp, contraste mínimo 4,5:1 y prohibición del color como único portador de información (ver sección normativa), pensado para usuarios de distintos niveles de alfabetización digital en zonas rurales. |
 
-###### **Tabla 3.9 “Pilares de Digitalización del Proceso Agrícola”** {#tabla-3.9-“-pilares-de-digitalización-del-proceso-agrícola”}
+###### **Tabla 5.30 “Pilares de Digitalización del Proceso Agrícola”** {#tabla-5.30-“-pilares-de-digitalización-del-proceso-agrícola”}
 
 Esta digitalización habilita capacidades imposibles bajo el modelo análogo: comparar la evolución de un mismo punto del predio entre temporadas, generar mapas agregados de salud edáfica por cooperativa o territorio, y exportar reportes estandarizados para asesorías técnicas o postulaciones a programas de fomento.
 
@@ -912,7 +959,7 @@ El equipo no tiene un único nivel de consumo, sino que transita entre estados b
 | **Entrega y espera** | Comunicación y procesamiento | Confirmar envío y regresar al estado de menor consumo |
 | **Carga** | Circuito USB-C y celda | Verificar corriente, temperatura y efecto del calor sobre la lectura ambiental |
 
-###### **Tabla 4.0 “Estados Energéticos y Medidas de Diseño”** {#tabla-4.0-“-estados-energéticos-y-medidas-de-diseño”}
+###### **Tabla 5.31 “Estados Energéticos y Medidas de Diseño”** {#tabla-5.31-“-estados-energéticos-y-medidas-de-diseño”}
 
 **Modelo de Autonomía en el Campo:**
 
@@ -937,7 +984,7 @@ La conversión desde cada nodo hacia la batería sigue dos reglas distintas. En 
 | **3\. Envío del resultado** | 555 mW | 1 s | 0,154 mWh |
 | **Total por ciclo** | **Variable** | **16 s** | **1,094 mWh** |
 
-###### **Tabla 4.1 “Balance Energético por Nodo y Fases de Operación”** {#tabla-4.1-“-fases-de-operación-y-consumo-energético”}
+###### **Tabla 5.32 “Balance Energético por Nodo y Fases de Operación”** {#tabla-5.32-“-fases-de-operación-y-consumo-energético”}
 
 Tres precisiones sostienen esta tabla frente a un cálculo por suma directa de corrientes. La sonda toma 150 mW en su nodo de 5 V, pero exige 176,5 mW a la batería: el factor 1/η \= 1,176 que impone el elevador es energía perdida en la conversión, y omitirlo subestima la Fase 2\. La rama del LDO exhibe la pérdida simétrica: los 40 mA de la Fase 1 valen 132 mW en el nodo de 3,3 V pero cuestan 148 mW de batería, y esos 16 mW de diferencia son calor disipado en el regulador, no energía entregada a la carga. Sumar los tres nodos en mAh habría hecho desaparecer ambas pérdidas del balance. Por último, la corriente de transmisión del ESP32 en la Fase 3 se fija en 150 mA, valor que cae dentro del rango dinámico de 95–380 mA declarado en la Tabla 5.25.
 
@@ -953,7 +1000,7 @@ El ciclo de medición no es lo que determina la autonomía: la determina el cons
 | **Alternativa con divisor de 100 kΩ+100 kΩ** | 36,0 µA | 133,2 µW | 24,62 mWh/día | 240,5 días (≈ 8,0 meses) |
 | **Fuga adicional no identificada (contingencia de validación)** | 1,0 mA | 3,7 mW | 110,22 mWh/día | 53,7 días (≈ 1,8 meses) |
 
-###### **Tabla 4.2 “Efecto del Consumo de Reposo sobre la Autonomía”** {#tabla-4.2-“-efecto-del-consumo-de-reposo-sobre-la-autonomía”}
+###### **Tabla 5.33 “Efecto del Consumo de Reposo sobre la Autonomía”** {#tabla-5.33-“-efecto-del-consumo-de-reposo-sobre-la-autonomía”}
 
 La comparación muestra por qué el reposo de la placa completa es decisivo: pasar del diseño adoptado a una fuga de reposo no identificada de 1 mA reduce la autonomía en un factor de casi cinco. La cifra de referencia que se sostiene de aquí en adelante, de forma consistente en Síntesis y Conclusiones, es la del diseño adoptado: aproximadamente 8,5 meses (256 días, más de 2.500 mediciones) con una sola carga, con un piso de 1,8 meses si se materializara la fuga de contingencia antes de validarse en laboratorio.
 
@@ -966,7 +1013,7 @@ Al comparar el sistema contra los estándares de la industria, el proyecto enfre
 | **Hanna HI9814** [\[6\]](#bookmark=id.abolvmmaqulu) | 3 pilas AAA de 1,5 V | Sustituir el juego completo; \~600 horas de uso continuo declaradas | 4 (pH, EC, TDS y temperatura), en soluciones hidropónicas |
 | **TerraSense** | 1 celda LiPo recargable de 2.000 mAh, carga USB-C | Recargar la misma celda; sustituirla al degradarse | 7 registros de suelo \+ 3 ambientales, con interpretación agronómica móvil |
 
-###### **Tabla 4.3 “Análisis Comparativo de Parámetros”** {#tabla-4.3-“-análisis-comparativo-de-parámetros”}
+###### **Tabla 5.34 “Análisis Comparativo de Parámetros”** {#tabla-5.34-“-análisis-comparativo-de-parámetros”}
 
 TerraSense busca reducir el recambio habitual de pilas primarias al recuperar la carga de la misma celda durante muchos ciclos de uso, lo que para el agricultor significa menos compras de repuestos y la posibilidad de cargar el equipo antes de una jornada mediante USB-C. Conviene reconocer, sin embargo, la ventaja operativa que conservan las pilas intercambiables: permiten reanudar el trabajo de inmediato con un repuesto, mientras que la batería integrada obliga a planificar la carga y a asegurar acceso a energía
 
@@ -1061,25 +1108,25 @@ El marco regulatorio aplicable al proyecto TerraSense organiza su cumplimiento n
 
 El listado anterior mezcla, deliberadamente, normas de cumplimiento legal ineludible en Chile con estándares técnicos adoptados de forma voluntaria como buena práctica de ingeniería y con referencias pensadas para una eventual exportación futura. Presentarlas todas al mismo nivel sin distinguir su carácter sería engañoso, así que se clasifican aquí explícitamente:
 
-| Norma | Carácter | Evidencia de cumplimiento en el proyecto |
-| :---: | :---: | :---: |
-| **Ley N° 20.920 (Ley REP)** | Obligatoria (Chile) | Diseño desmontable con celdas extraíbles y canal de recepción al fin de vida útil |
-| **SUBTEL, Res. Exenta N° 1.985/2017** | Obligatoria (Chile) | Enlace BLE a \+9 dBm (\~8 mW radiados), bajo el límite de 150 mW radiados |
-| **SUBTEL, Resolución N° 737/2025** | Obligatoria (Chile) | Verificación formal presupuestada ($800.000, Tabla 5.17 “Desglose de Activos, Desarrollo y Formalización”), pendiente antes del lanzamiento |
-| **UN 38.3 / IEC 62133-2** | Obligatoria (transporte y comercialización de celdas de litio) | Celdas comerciales con certificación de origen y protección electrónica del cargador |
-| **Ley N° 19.628 / 21.719 (Protección de Datos)** | Obligatoria (Chile) | Row Level Security por predio y rol; datos exportables por el titular |
-| **Ley N° 21.398 ("Pro Consumidor")** | Obligatoria (Chile) | Garantía legal de 6 meses \+ provisión del 5 % de BOM para atenderla |
-| **Ley N° 19.496 (Protección al Consumidor)** | Obligatoria (Chile) | Declaración comercial como "diseñado conforme a IP67" hasta contar con ensayo de laboratorio |
-| **Métodos oficiales SAG / INIA** | Obligatoria (referencia agronómica nacional) | Umbrales de la matriz de cultivos calibrados contra estos criterios oficiales |
-| **IEC 60529 (grado IP67)** | Voluntaria (estándar internacional de diseño) | Envolvente PETG con *O-ring*, sellado intercapa y prensaestopas M12 |
-| **RoHS 2011/65/EU y RoHS 3** | Voluntaria en Chile / referencia de mercado futuro | Soldadura SAC305 y declaración de conformidad de proveedores |
-| **FCC, Título 47 CFR Parte 15** | Referencia de mercado futuro (EE. UU., no exigible en Chile) | Cubierto de forma incidental por el módulo ESP32 pre-certificado (FCC ID 2AC7Z-ESPWROOM32) |
-| **TIA/EIA-485-A y Modbus V1.1b3** | Voluntaria (estándares técnicos abiertos) | Base de diseño del bus RS-485 y la trama Modbus RTU hacia la sonda |
-| **ISO 10390, ISO 11265, ISO 11277** | Voluntaria (métodos de referencia de laboratorio) | Umbral de aceptación del protocolo de validación in situ descrito a continuación |
-| **ISO/IEC 27001:2022 e ISO/IEC 25010** | Voluntaria (certificación de gestión y calidad de software) | Cifrado en tránsito y reposo, control de acceso segmentado |
-| **WCAG 2.1, nivel AA** | Voluntaria (no exigida por ley a aplicaciones privadas en Chile) | Área táctil ≥ 48×48 dp, contraste ≥ 4,5:1, color no exclusivo como portador de información |
+| Norma | Carácter | Requisito de diseño derivado | Método de verificación, criterio de aceptación y evidencia | Estado |
+| :---: | :---: | :---: | :---: | :---: |
+| **Ley N° 20.920 (Ley REP)** | Obligatoria (Chile) | Diseño desmontable con celdas extraíbles y canal de recepción al fin de vida útil | Ensayo funcional de desmontaje sin herramientas especiales y convenio escrito con gestor autorizado; criterio: celda extraíble y punto de recepción operativo. Evidencia: procedimiento de desmontaje y convenio firmado | Pendiente |
+| **SUBTEL, Res. Exenta N° 1.985/2017** | Obligatoria (Chile) | Enlace BLE a \+9 dBm (\~8 mW radiados), bajo el límite de 150 mW radiados | Medición de potencia radiada en banda 2,4 GHz; criterio: ≤ 150 mW radiados. Evidencia: informe de medición sobre la unidad ensamblada | Pendiente |
+| **SUBTEL, Resolución N° 737/2025** | Obligatoria (Chile) | Verificación formal con cargo al rubro de desarrollo y validación (Tabla 5.17 “Desglose de Activos, Desarrollo y Formalización”), pendiente de cotizar y de ejecutar antes del lanzamiento | Trámite formal de verificación ante SUBTEL; criterio: resolución favorable previa a la comercialización. Evidencia: expediente y resolución | Pendiente |
+| **UN 38.3 / IEC 62133-2** | Obligatoria (transporte y comercialización de celdas de litio) | Celdas comerciales con certificación de origen y protección electrónica del cargador | Solicitud de certificados al proveedor de celdas y ensayo de las protecciones del cargador; criterio: certificados vigentes y corte por sobrecarga, sobredescarga y cortocircuito. Evidencia: certificados y acta de ensayo | Pendiente |
+| **Ley N° 19.628 / 21.719 (Protección de Datos)** | Obligatoria (Chile) | Row Level Security por predio y rol; datos exportables por el titular | Pruebas de acceso cruzado entre cuentas y verificación de exportación; criterio: cero lecturas de predios ajenos y exportación completa a solicitud del titular. Evidencia: batería de pruebas de Row Level Security | Parcial |
+| **Ley N° 21.398 ("Pro Consumidor")** | Obligatoria (Chile) | Garantía legal de 6 meses \+ provisión del 5 % de BOM para atenderla | Revisión legal de las condiciones de garantía y provisión contable; criterio: cobertura ≥ 6 meses y provisión del 5 % de BOM reservada. Evidencia: texto de garantía y asiento de provisión | Parcial |
+| **Ley N° 19.496 (Protección al Consumidor)** | Obligatoria (Chile) | Declaración comercial como "diseñado conforme a IP67" hasta contar con ensayo de laboratorio | Auditoría del material comercial; criterio: ninguna pieza declara IP67 certificado mientras no exista ensayo. Evidencia: material revisado y aprobado | Cumple |
+| **Métodos oficiales SAG / INIA** | Obligatoria (referencia agronómica nacional) | Umbrales de la matriz de cultivos calibrados contra estos criterios oficiales | Contraste de los umbrales de la matriz de cultivos con los criterios oficiales publicados; criterio: trazabilidad documental de cada umbral. Evidencia: tabla de umbrales con su fuente | Pendiente |
+| **IEC 60529 (grado IP67)** | Voluntaria (estándar internacional de diseño) | Envolvente PETG con *O-ring*, sellado intercapa y prensaestopas M12 | Ensayo IP67 en laboratorio acreditado sobre el conjunto ensamblado; criterio: sin ingreso de agua tras 30 min a 1 m. Evidencia: informe de ensayo | Pendiente |
+| **RoHS 2011/65/EU y RoHS 3** | Voluntaria en Chile / referencia de mercado futuro | Soldadura SAC305 y declaración de conformidad de proveedores | Recopilación de declaraciones de conformidad de proveedores; criterio: cobertura documental de los componentes de la BOM. Evidencia: carpeta de declaraciones | Pendiente |
+| **FCC, Título 47 CFR Parte 15** | Referencia de mercado futuro (EE. UU., no exigible en Chile) | Cubierto de forma incidental por el módulo ESP32 pre-certificado (FCC ID 2AC7Z-ESPWROOM32) | Verificación del FCC ID del módulo y de las condiciones de uso del certificado modular; criterio: integración dentro del alcance declarado. Evidencia: ficha del módulo | No aplica en Chile |
+| **TIA/EIA-485-A y Modbus V1.1b3** | Voluntaria (estándares técnicos abiertos) | Base de diseño del bus RS-485 y la trama Modbus RTU hacia la sonda | Prueba de bus con analizador lógico sobre la trama Modbus RTU; criterio: terminación correcta y cero errores de CRC en 1.000 lecturas consecutivas. Evidencia: captura y registro de errores | Parcial |
+| **ISO 10390, ISO 11265, ISO 11277** | Voluntaria (métodos de referencia de laboratorio) | Umbral de aceptación del protocolo de validación in situ descrito a continuación | Protocolo de validación in situ contra laboratorio de referencia descrito en la Tabla 5.36; criterio: R² ≥ 0,80 y RMSE ≤ 1 vez la exactitud declarada. Evidencia: informe de correlación y gráficos de Bland-Altman | Pendiente |
+| **ISO/IEC 27001:2022 e ISO/IEC 25010** | Voluntaria (certificación de gestión y calidad de software) | Cifrado en tránsito y reposo, control de acceso segmentado | Revisión de configuración de cifrado en tránsito y reposo y de segmentación de accesos; criterio: TLS vigente y ausencia de credenciales embebidas. Evidencia: informe de revisión | Parcial |
+| **WCAG 2.1, nivel AA** | Voluntaria (no exigida por ley a aplicaciones privadas en Chile) | Área táctil ≥ 48×48 dp, contraste ≥ 4,5:1, color no exclusivo como portador de información | Auditoría de accesibilidad sobre las pantallas de la aplicación; criterio: área táctil ≥ 48×48 dp, contraste ≥ 4,5:1 y ninguna información transmitida solo por color. Evidencia: informe de auditoría | Pendiente |
 
-###### **Tabla 4.4 “Clasificación Normativa: Obligatoria, Voluntaria y de Mercado Futuro”** {#tabla-4.4-“-clasificación-normativa:-obligatoria,-voluntaria-y-de-mercado-futuro”}
+###### **Tabla 5.35 “Clasificación Normativa: Obligatoria, Voluntaria y de Mercado Futuro”** {#tabla-5.35-“-clasificación-normativa:-obligatoria,-voluntaria-y-de-mercado-futuro”}
 
 **Protocolo de Validación de la Medición In Situ contra Laboratorio de Referencia:**
 
@@ -1094,13 +1141,13 @@ El objetivo específico de "validar la precisión instrumental" exige un protoco
 | **Umbral de aceptación** | R² ≥ 0,80 y RMSE ≤ 1 vez la exactitud declarada por el fabricante para esa variable (Tabla 5.26); sin sesgo proporcional significativo (p \< 0,05) en Bland-Altman |
 | **Acción si no se cumple el umbral** | La variable se marca como “referencial” en la app (no apta para prescripción cuantitativa de dosis) hasta recalibrar el coeficiente de compensación o sustituir el sensor asociado |
 
-###### **Tabla 4.5 “Protocolo de Validación In Situ vs. Laboratorio de Referencia”** {#tabla-4.5-“-protocolo-de-validación-in-situ-vs.-laboratorio-de-referencia”}
+###### **Tabla 5.36 “Protocolo de Validación In Situ vs. Laboratorio de Referencia”** {#tabla-5.36-“-protocolo-de-validación-in-situ-vs.-laboratorio-de-referencia”}
 
 6. #### **Conclusiones** {#conclusiones}
 
 El desarrollo conceptual y la evaluación del proyecto TerraSense demuestran que es factible democratizar la tecnología agrícola sin sacrificar precisión técnica ni rentabilidad comercial. Desde la perspectiva ingenieril, la selección de una arquitectura descentralizada donde un nodo portátil de captura (ESP32, sensores industriales y baterías de ion-litio) transfiere los datos al teléfono del usuario, resuelve de forma efectiva la barrera de adopción tecnológica. La implementación de un diseño energético estricto, basado en power gating para cortar físicamente la alimentación de los sensores en reposo, otorga al equipo una autonomía estimada de aproximadamente 8,5 meses (256 días, más de 2.500 mediciones) con una sola carga, superando la autonomía de los dos equipos de referencia comparados en la Tabla 5.34 y eliminando la contaminación por recambio constante de pilas primarias.
 
-En síntesis, TerraSense cumple con éxito su objetivo general: lograr que una medición física se convierta, en el mismo lugar, en una decisión agronómica correcta. Al eliminar los costos recurrentes y transformar valores numéricos planos en instrucciones de manejo claras, el proyecto mitiga el riesgo de pérdida de cosechas, protege el patrimonio familiar del pequeño productor y fomenta la resiliencia hídrica del sector agrícola nacional. El resultado económico y el diseño técnico convergen en una misma decisión: construir una herramienta útil que pueda fabricarse, mantenerse y respaldarse con el margen presupuestado. Los próximos cierres se concentran en la integración ambiental de extremo a extremo, en la consulta del horizonte climático correcto y en los ensayos del conjunto ensamblado, trabajos que quedan identificados con su evidencia esperada y su criterio de aceptación.
+En síntesis, TerraSense cumple con éxito su objetivo general: lograr que una medición física se convierta, en el mismo lugar, en una decisión agronómica correcta. Al eliminar los costos recurrentes y transformar valores numéricos planos en instrucciones de manejo claras, el proyecto mitiga el riesgo de pérdida de cosechas, protege el patrimonio familiar del pequeño agricultor y fomenta la resiliencia hídrica del sector agrícola nacional. El resultado económico y el diseño técnico convergen en una misma decisión: construir una herramienta útil que pueda fabricarse, mantenerse y respaldarse con el margen presupuestado. Los próximos cierres se concentran en la integración ambiental de extremo a extremo, en la consulta del horizonte climático correcto y en los ensayos del conjunto ensamblado, trabajos que quedan identificados con su evidencia esperada y su criterio de aceptación.
 
 7. #### **Referencias bibliográficas** {#referencias-bibliográficas}
 

@@ -15,7 +15,7 @@ Este README está ordenado como **guion para crear el PPT**. No se deben copiar 
 | 1.1.1 Economía y modelos — 9 pts | 4–5 | Economía de mercado, competencia monopolística y costo de oportunidad |
 | 1.1.2 Oferta y demanda — 12 pts | 6–8 | Situación base y dos variaciones de cada curva |
 | 1.1.3 BI / datos — 12 pts | 9–10 | Economía unitaria, equilibrio, escenarios, VAN y DSCR |
-| 1.1.4 Mercado — 12 pts | 2–3 y 11–13 | Producto, cliente, necesidad, TAM/SAM/SOM y competencia |
+| 1.1.4 Mercado — 12 pts | 2–3 y 11–13 | Producto, cliente, necesidad, Mercado Total/Mercado Accesible/Mercado Objetivo y competencia |
 | 1.1.5 Pensamiento crítico — 6 pts | 14 y preguntas | Límites, decisiones, riesgos y mitigaciones |
 | Comunicación y tiempo — 9 pts | Toda la presentación | Guion, reparto y ensayo |
 
@@ -35,7 +35,7 @@ Este README está ordenado como **guion para crear el PPT**. No se deben copiar 
 
 **En pantalla**
 
-- El productor decide sobre riego y fertilización con información insuficiente o tardía.
+- El agricultor decide sobre riego y fertilización con información insuficiente o tardía.
 - El laboratorio es preciso, pero requiere muestra, espera y pago por análisis.
 - Los medidores portátiles suelen entregar números sin explicar qué hacer.
 - Se necesita contexto inmediato, acciones comprensibles e historial.
@@ -88,7 +88,7 @@ TerraSense renuncia a competir en exactitud analítica. A cambio entrega **conte
 
 ## 6. Oferta y demanda: base
 
-- **Demanda:** productores, cooperativas e instituciones que valoran decisiones rápidas.
+- **Demanda:** agricultores, cooperativas e instituciones que valoran decisiones rápidas.
 - **Oferta:** equipos que TerraSense puede fabricar y vender rentablemente.
 - Precio de lista propuesto: **$349.990 con IVA** ($294.109 neto).
 - Meta Año 1: **200 unidades**.
@@ -120,7 +120,7 @@ TerraSense renuncia a competir en exactitud analítica. A cambio entrega **conte
 
 **En pantalla:** precio de venta, BOM completa con BME280 y carcasa 3D, margen de contribución y equilibrio operativo/con deuda del año 1. Usar la [tabla económica vigente](../README.md#finanzas-y-modelo-económico).
 
-**Defensa:** el BME280 aporta tres lecturas ambientales locales de la grilla. La API gratuita agrega el pronóstico de cinco días después de medir. Su costo directo es cero; el sensor y la impresión 3D se pagan por cada equipo. La nómina incluye el ensamblaje final.
+**Defensa:** el BME280 aporta tres lecturas ambientales locales del Grid. La API gratuita agrega el pronóstico de cinco días después de medir. Su costo directo es cero; el sensor y la impresión 3D se pagan por cada equipo. La nómina incluye el ensamblaje final.
 
 ## 10. BI: inversión, financiamiento y evaluación
 
@@ -130,24 +130,24 @@ TerraSense renuncia a competir en exactitud analítica. A cambio entrega **conte
 
 ## 11. Mercado objetivo y necesidades
 
-**Cliente inicial:** pequeños y medianos productores chilenos; decisiones frecuentes de riego y fertilización; conectividad irregular; sensibilidad a análisis recurrentes, asesorías o suscripciones.
+**Cliente inicial:** pequeños y medianos agricultores chilenos; decisiones frecuentes de riego y fertilización; conectividad irregular; sensibilidad a análisis recurrentes, asesorías o suscripciones.
 
 **Necesidades:** diagnóstico rápido, explicación sencilla, acciones, historial, portabilidad, uso sin internet, pago único y soporte local.
 
-**Adopción inicial:** cultivos de mayor valor y productores con smartphone, disposición digital y compra directa o cofinanciada.
+**Adopción inicial:** cultivos de mayor valor y agricultores con smartphone, disposición digital y compra directa o cofinanciada.
 
-## 12. TAM, SAM y SOM
+## 12. Mercado Total, Mercado Accesible y Mercado Objetivo
 
 | Nivel | Tamaño | Significado |
 |---|---:|---|
-| TAM | 175.556 explotaciones | Universo censal teórico (VIII Censo Agropecuario y Forestal 2021, INE) |
-| SAM | ~120.000 | **Supuesto sin tabla de respaldo**: no aplica región, superficie, rubro ni disposición a pagar |
-| SOM Año 1 | 200 | Meta comercial: 0,17 % del SAM |
-| SOM acumulado 5 años | 2.550 | 2,13 % del SAM (200 + 350 + 500 + 650 + 850) |
+| Mercado Total | 175.556 explotaciones | Universo censal teórico (VIII Censo Agropecuario y Forestal 2021, INE) |
+| Mercado Accesible | ~120.000 | **Supuesto sin tabla de respaldo**: no aplica región, superficie, rubro ni disposición a pagar |
+| Mercado Objetivo Año 1 | 200 | Meta comercial: 0,17 % del Mercado Accesible |
+| Mercado Objetivo acumulado 5 años | 2.550 | 2,13 % del Mercado Accesible (200 + 350 + 500 + 650 + 850) |
 
-**Gráfico:** embudo TAM → SAM → SOM.
+**Gráfico:** embudo Mercado Total → Mercado Accesible → Mercado Objetivo.
 
-**Lectura crítica:** el TAM tiene fuente censal ([INE, resultados finales](https://www.ine.gob.cl/censoagropecuario/resultados-finales/graficas-nacionales)); **el SAM y el SOM son supuestos internos**. Las 200 ventas nacen de superar el equilibrio con deuda (205 u), no de demanda observada, y deben validarse en terreno. Una explotación censada tampoco equivale a un cliente ni a un equipo.
+**Lectura crítica:** el Mercado Total tiene fuente censal ([INE, resultados finales](https://www.ine.gob.cl/censoagropecuario/resultados-finales/graficas-nacionales)); **el Mercado Accesible y el Mercado Objetivo son supuestos internos**. Las 200 ventas nacen de superar el equilibrio con deuda (205 u), no de demanda observada, y deben validarse en terreno. Una explotación censada tampoco equivale a un cliente ni a un equipo.
 
 ## 13. Competencia y oportunidad
 
@@ -168,7 +168,7 @@ Precios exhibidos consultados el **04-09-2026**. **No comparar cantidad de varia
 **Diferenciador que sí podemos sostener:** la **interpretación agronómica contextualizada por etapa fenológica** y la ausencia de suscripción. El uso sin conexión y la georreferenciación **no son exclusivos** de TerraSense.
 
 **Canales y escalamiento comercial:**
-- **Año 1 (200 u — Meta 0,17 % SAM / 0,11 % TAM):** Venta directa digital autogestionada por los socios:
+- **Año 1 (200 u — Meta 0,17 % Mercado Accesible / 0,11 % Mercado Total):** Venta directa digital autogestionada por los socios:
   - **Tienda Shopify institucional:** Plataforma confiable con emisión automática de Factura Electrónica con IVA (crédito fiscal indispensable para el agricultor), pasarela Webpay Plus / Mercado Pago con opción de 3 a 6 cuotas sin interés (~$50.000/mes) y despachos trazables con Bluexpress/Starken.
   - **Pauta digital autogestionada ($6.000.000/año = $30.000 por venta objetivo):** Meta Ads y Google Ads. El embudo de ejemplo — 60 % de ventas atribuibles a anuncios, CAC publicitario de $50.000, cierre de 5 % sobre contactos calificados, lo que exigiría 2.400 contactos y un CPL de $2.500 para 120 ventas — **son objetivos, no conversiones observadas**. El CAC de $6.000 del guion anterior no es sostenible.
   - **Embudo Click-to-WhatsApp:** El anuncio conduce a WhatsApp directo donde los socios fundadores resuelven dudas agronómicas y cierran la venta.

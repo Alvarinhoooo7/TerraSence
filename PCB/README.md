@@ -1,5 +1,18 @@
 # 🔌 TerraSense · Hardware, Electrónica y Diseño del Instrumento Portátil Compacto
 
+> Revisión del 10-09-2026: [informe académico de la raíz](../INFORME%20antiguo%20.docx%20%281%29.md). Esta revisión documenta trabajo futuro; no modifica App, Web, Supabase o PCB ni acredita despliegues.
+
+## Pendientes de hardware y ensayos
+
+- Confirmar variante de la sonda AliExpress 1005005548177699: 4,5–30 V, RS485 y 45×15×123 mm incluyendo electrodos. Los 0,5 W publicados corresponden a 24 V; medir consumo a la tensión elegida.
+- Cerrar fichas de devkit ESP32, BME280, carga/boost, LDO, batería y mapa Modbus. SP3485 trabaja a 3,3 V.
+- Validar captura de siete registros de suelo y tres del BME280, trama BLE, centinelas y firmware real.
+- Medir energía en Wh desde batería, reposo de placa, eficiencia, bus terminado y reintentos. La autonomía es provisional.
+- Ejecutar el plan metrológico del informe y los ensayos de radio, batería y carcasa. IP68 anunciado para la sonda no certifica la carcasa del equipo.
+- Carcasa mediante impresión externa: no presupuestar compra de impresora.
+
+---
+
 Documentación técnica del hardware embarcado, diseño en KiCad, arquitectura de potencia a 5 V, PCB combinada de carga y elevación por USB-C, batería de litio de 2.000 mAh y chasis portátil de mano (**Handheld Agro-Sensor**).
 
 > ### 🛑 Estado de verificación — leer antes de usar este documento
@@ -14,7 +27,7 @@ Documentación técnica del hardware embarcado, diseño en KiCad, arquitectura d
 > | «≥ 4.000 mediciones / > 18 meses» | El balance **omitía el consumo de la conexión BLE**. Ver §3.5 |
 > | «IP67, peso < 280 g» | **Objetivos de diseño sin ensayo.** No hay actas, pesaje del conjunto ni validación mecánica |
 > | «Sonda 7-en-1 opera a 5 V» | Solo puede afirmarse del **SKU y variante validados**, que aún no se han adquirido |
-> | Sensor ambiental BME280 | **BME280 incluido y obligatorio:** temperatura del aire, humedad relativa y presión local para tres celdas del grid 3×3. La API gratuita complementa la lectura con el pronóstico de cinco días. Ver [contrato y estado de integración](../docs/INFORME%201%20.docx.md#integracion-bme280). |
+> | Sensor ambiental BME280 | **BME280 incluido y obligatorio:** temperatura del aire, humedad relativa y presión local para tres celdas del grid 2×5. La API gratuita complementa la lectura con el pronóstico de cinco días. Ver [contrato y estado de integración](../docs/INFORME%201%20.docx.md#integracion-bme280). |
 > | Módulo TP4056 + Step-Up discreto | Sustituido por una **PCB combinada de carga/boost USB-C** ($900 confirmados por los socios) |
 >
 > El BOM vigente y provisional está en [`BOM_TerraSense.xlsx`](BOM_TerraSense.xlsx), generado desde [`finanzas/supuestos.json`](../finanzas/supuestos.json). Las secciones que siguen se conservan como **memoria de diseño**; donde contradigan esta tabla, manda esta tabla.
@@ -40,7 +53,7 @@ Documentación técnica del hardware embarcado, diseño en KiCad, arquitectura d
   - [4.3. Mapeo de Pines (Pinout)](#43-mapeo-de-pines-pinout)
 - [5. Diseño Mecánico del Instrumento Portátil de Mano (Handheld)](#5-diseño-mecánico-del-instrumento-portátil-de-mano-handheld)
   - [5.1. Chasis compacto ergonómico — objetivo IP67, sin ensayo](#51-chasis-compacto-ergonómico--objetivo-ip67-sin-ensayo)
-  - [5.2. Montaje Directo de Electrodos Inox 316L](#52-montaje-directo-de-electrodos-inox-316l)
+  - [5.2. Montaje Directo de Electrodos de Aleación](#52-montaje-directo-de-electrodos-de-aleación)
   - [5.3. Interfaz de Usuario y Puerto USB-C](#53-interfaz-de-usuario-y-puerto-usb-c)
 - [6. Protocolo Firmware y Trama BLE GATT](#6-protocolo-firmware-y-trama-ble-gatt)
   - [6.1. Ciclo de Adquisición Modbus RTU](#61-ciclo-de-adquisición-modbus-rtu)
@@ -53,7 +66,7 @@ Documentación técnica del hardware embarcado, diseño en KiCad, arquitectura d
 | Parámetro | Valor de Diseño | Justificación Técnica |
 | :--- | :--- | :--- |
 | **MCU Principal** | ESP32-WROOM-32 en placa de desarrollo | Doble núcleo 240 MHz. [Ficha Espressif](https://documentation.espressif.com/esp32-wroom-32e_esp32-wroom-32ue_datasheet_en.html): **Bluetooth 4.2 BR/EDR y BLE**, no 5.0. La certificación del módulo **no acredita** el cumplimiento del equipo terminado |
-| **Sonda de Suelo** | Sonda industrial 7-en-1 RS-485 Modbus RTU | Rango de alimentación **DC 4.5V–30V**, electrodos acero inox 316L |
+| **Sonda de Suelo** | Sonda industrial 7-en-1 RS-485 Modbus RTU | Rango de alimentación **DC 4.5V–30V**, electrodos de aleación anticorrosión, grado de acero por confirmar |
 | **Alimentación Sonda**| **5,0V DC** (suministrados por Step-Up) | Operación directa sin requerir 12V; menor estrés y menor consumo |
 | **Sensor Ambiental** | **BME280 I²C a 3,3 V** | Temperatura del aire, humedad relativa y presión en el punto de lectura |
 | **Transceptor Bus** | SP3485 / MAX3485 (3.3V) | Comunicación diferencial industrial semidúplex robusta |
@@ -119,7 +132,7 @@ Documentación técnica del hardware embarcado, diseño en KiCad, arquitectura d
 
 ### 2.2. Sensor ambiental BME280 — lectura local obligatoria
 
-> **BME280 incluido y obligatorio:** temperatura del aire, humedad relativa y presión local para tres celdas del grid 3×3. La API gratuita complementa la lectura con el pronóstico de cinco días. Ver [contrato y estado de integración](../docs/INFORME%201%20.docx.md#integracion-bme280).
+> **BME280 incluido y obligatorio:** temperatura del aire, humedad relativa y presión local para tres celdas del grid 2×5. La API gratuita complementa la lectura con el pronóstico de cinco días. Ver [contrato y estado de integración](../docs/INFORME%201%20.docx.md#integracion-bme280).
 Ubicado en la parte posterior del chasis, protegido por una membrana microporosa de PTFE permeable al vapor e impermeable al agua y polvo (IP67):
 * **Temperatura ambiental:** Rango −40 °C a +85 °C (exactitud ±0.5 °C).
 * **Humedad relativa:** Rango 0 % a 100 % RH (exactitud ±3 % RH).
@@ -272,7 +285,7 @@ TerraSense adopta un diseño compacto de mano (*handheld*), optimizado para que 
                     │ [•] Micro-LEDs      │
                     │ [O] USB-C Sellado   │
                     │                     │  ◄── CHASSIS ERGONÓMICO DE MANO
-                    │ [🔘 Botón Disparo]  │      (PETG Técnico IP67, 140 mm alto)
+                    │ [🔘 Botón Disparo]  │      (PETG, objetivo IP67 sin ensayo, 140 mm)
                     │                     │      Aloja la PCB, Batería 2.000 mAh
                     │   TerraSense Core   │      y sensor ambiental BME280
                     │                     │
@@ -282,7 +295,7 @@ TerraSense adopta un diseño compacto de mano (*handheld*), optimizado para que 
                         /─────────────\      ◄── BASE PORTASONDA ROBUSTA
                        │  Cuerpo Sonda │          Epoxi industrial antichoque
                         \──┬──┬──┬──┬─/
-                           │  │  │  │        ◄── PUNTAS DE ACERO INOX 316L (70 mm)
+                           │  │  │  │        ◄── ELECTRODOS: largo individual por confirmar
                            ▼  ▼  ▼  ▼            Inserción directa manual en el suelo
 ```
 
@@ -291,11 +304,14 @@ TerraSense adopta un diseño compacto de mano (*handheld*), optimizado para que 
 * **Forma:** Agarre contorneado para operar con una sola mano, incluso con guantes agrícolas.
 * **Dimensiones exteriores:** $140\text{ mm (alto)} \times 75\text{ mm (ancho)} \times 38\text{ mm (profundidad)}$.
 * **Peso total del equipo:** **Menos de 280 gramos** (incluyendo batería, electrónica y sonda).
-* **Hermeticidad:** Cierre mediante junta perimetral tórica de silicona (O-ring) con grado de protección **IP67**.
+* **Hermeticidad:** Cierre mediante junta perimetral tórica de silicona (O-ring) con **objetivo IP67, sin ensayo del conjunto**.
 
-### 5.2. Montaje Directo de Electrodos Inox 316L
+### 5.2. Montaje Directo de Electrodos de Aleación
+
+**Sonda candidata:** 45 mm de ancho × 15 mm de grosor × 123 mm totales incluidos los electrodos. El cable de 2 m es la configuración publicada; verificar variante y montaje real. Las cotas del gabinete y diagrama son objetivos de diseño, no planos liberados.
+
 * La base inferior del gabinete abraza firmemente la sonda edafológica comercial mediante encastre mecánico con relleno de uretano elástico.
-* Las agujas de acero inoxidable **grado 316L** sobresalen directamente hacia abajo para insertarse en el suelo con la presión natural de la mano, alcanzando la zona radicular activa del cultivo sin requerir palancas ni estribos mecánicos.
+* Los electrodos de aleación anticorrosión (sin grado 316L confirmado) se proponen hacia abajo para insertarse en el suelo con la presión natural de la mano, alcanzando la zona radicular activa del cultivo sin requerir palancas ni estribos mecánicos.
 
 ### 5.3. Interfaz de Usuario y Puerto USB-C
 * **Pulsador de Muestreo:** Botón táctil industrial ubicado en la posición natural del pulgar para disparar la medición en 3 segundos (*One-Click Sampling*).

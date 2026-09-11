@@ -35,7 +35,7 @@ class FinanceTests(unittest.TestCase):
         # La inversión y variaciones de caja operativa se comprometen una sola vez.
         r=self.base
         terminal_reserve=r['reserve_months']*r['rows'][59]['fijos']+r['contingency']
-        self.assertAlmostEqual(sum(m.project_flows(r)),
+        self.assertAlmostEqual(sum(m.project_flows(r,60)),
             -r['initial_uses']+sum(row['fcff'] for row in r['rows'][:60])-terminal_reserve,places=6)
 
     def test_scenario_irr_residual(self):
@@ -138,13 +138,50 @@ class FinanceTests(unittest.TestCase):
             self.assertEqual(actual,expected)
 
     def test_report_energy_example_units(self):
-        cycle=(40*12+95*3+60)/3600
-        self.assertAlmostEqual(cycle,.22916666666666666)
+        # LDO and boost loads are referred to battery energy, not summed as mAh.
+        cycle=(3.7*40*12 + (3.7*(95+2)+5*30/.85)*3 + 3.7*150)/3600
+        self.assertAlmostEqual(cycle,1.093642156862745)
         remaining=24-(10*16+5*60)/3600
-        for standby,expected_daily,expected_days in ((.1,7.51,213.0),(1,29.00,55.2),(5,124.49,12.9)):
-            daily=cycle*10+18*5/60+standby*remaining+2000*.02/30
-            self.assertAlmostEqual(daily,expected_daily,delta=.005)
-            self.assertAlmostEqual(1600/daily,expected_days,delta=.05)
+        for standby,expected_daily,expected_days in ((.0194,23.133,255.9),(.036,24.599,240.7),(1,109.746,53.9)):
+            daily=cycle*10+3.7*18*5/60+3.7*standby*remaining+3.7*2000*.02/30
+            self.assertAlmostEqual(daily,expected_daily,delta=.001)
+            self.assertAlmostEqual(5920/daily,expected_days,delta=.05)
+
+    def test_ten_year_horizon_and_five_year_comparison(self):
+        self.assertEqual(m.S['aporte_socios'],9000000)
+        self.assertEqual(len(m.project_flows(self.base)),121)
+        self.assertEqual(len(m.project_flows(self.base,60)),61)
+        five=m.indicators(self.base,.2,60)
+        ten=m.indicators(self.base,.2,120)
+        incremental=sum(f/1.2**(i/12) for i,f in enumerate(m.project_flows(self.base)) if i>60)
+        self.assertAlmostEqual(ten['van']-five['van'],incremental,places=6)
+        self.assertAlmostEqual(ten['inversion'],five['inversion'])
+        self.assertGreater(self.base['rows'][118]['saldo_deuda'],0)
+        self.assertAlmostEqual(self.base['rows'][119]['saldo_deuda'],0,places=5)
+        with self.assertRaises(ValueError):
+            m.project_flows(self.base,181)
+
+    def test_workbook_horizons_and_liquidity(self):
+        path=m.ROOT/'Flujo de caja y financiamiento - TerraSense.xlsx'
+        formulas=openpyxl.load_workbook(path,data_only=False,read_only=True)
+        try:
+            self.assertEqual(formulas['Base_evaluacion'].max_row,122)
+            self.assertIn('C2:C122',formulas['Evaluacion proyecto']['C2'].value)
+            self.assertIn('B2:B122',formulas['Evaluacion proyecto']['D2'].value)
+        finally:
+            formulas.close()
+        values=openpyxl.load_workbook(path,data_only=True,read_only=True)
+        try:
+            rows=list(values['Comparacion 5 y 10'].values)
+            for row,months in ((rows[1],60),(rows[2],120)):
+                self.assertEqual(row[1],months//12)
+                self.assertAlmostEqual(row[3],m.indicators(self.base,.2,months)['van'],places=5)
+            liquid=list(values['Liquidez y deuda'].values)
+            self.assertLess(liquid[1][1],0)
+            self.assertGreater(liquid[2][1],0)
+            self.assertAlmostEqual(liquid[10][6],0,places=5)
+        finally:
+            values.close()
 
 
 if __name__=='__main__':

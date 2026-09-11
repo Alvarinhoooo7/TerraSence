@@ -174,12 +174,15 @@ def npv_monthly(initial, rows, column, discount, months=60):
     return initial+sum(r[column]/(1+discount)**(r['mes']/12) for r in rows[:months])
 
 
-def project_flows(result, months=60):
+def project_flows(result, months=None):
     """FCFF con caja mínima operativa como capital de trabajo, independiente de deuda.
 
     La reserva financiera sigue dentro de caja/FCFE. Aquí se comprometen tres
     meses de fijos y contingencia, y luego sus variaciones; sin recuperación final.
     """
+    months = S.get('evaluacion_anios', 10)*12 if months is None else months
+    if months < 1 or months > len(result['rows']):
+        raise ValueError('Horizonte de evaluación fuera de los flujos disponibles')
     reserves=[result['reserve_months']*r['fijos']+result['contingency'] for r in result['rows'][:months]]
     flows=[-result['initial_uses']-reserves[0]]
     previous=reserves[0]
@@ -226,12 +229,37 @@ def payback_months(flows, discount=0):
     return None
 
 
-def indicators(result, discount, months=60):
+def indicators(result, discount, months=None):
     flows=project_flows(result,months)
     rate=irr_monthly(flows)
     return dict(inversion=-flows[0],van=sum(f/(1+discount)**(m/12) for m,f in enumerate(flows)),
                 tir_anual=(1+rate)**12-1 if rate is not None else None,
                 payback=payback_months(flows),payback_descontado=payback_months(flows,discount))
+
+
+def liquidity_markdown(result):
+    years=yearly(result)[:10]
+    first=next((r['anio'] for i,r in enumerate(years) if all(x['fcfe']>0 for x in years[i:])),None)
+    paid=next((r['mes'] for r in result['rows'] if r['saldo_deuda']<0.01),None)
+    cumulative=0
+    recovery=None
+    for r in result['rows'][:120]:
+        cumulative+=r['fcfe']
+        if recovery is None and cumulative>=S['aporte_socios']:
+            recovery=r['mes']
+    money=lambda x: ('−' if x<0 else '')+'$'+f'{abs(x):,.0f}'.replace(',','.')
+    lines=['## Liquidez, retorno del pie y término de deuda','',
+        f'Pie propio: **{money(S["aporte_socios"])}**. Crédito: **{money(result["principal"])}**, contabilizado por separado.',
+        f'Primer año con FCFE anual positivo y que permanece positivo en los años restantes del estudio: **{first if first else "no se alcanza"}**. Puede haber meses negativos por estacionalidad.',
+        f'Cancelación contractual sin prepago: **mes {paid}** ({S["inicio"]+(paid-1)//12 if paid else "fuera de horizonte"}). La cuota del escenario base es {money(result["payment"])}.',
+        f'La suma del FCFE generado desde la operación alcanza el equivalente al pie en el **mes {recovery}**.' if recovery else 'El FCFE acumulado de operación no alcanza el pie durante los 120 meses.',
+        'Este último hito es capacidad acumulada de generación, no devolución efectiva del aporte ni payback económico. No se distribuyen dividendos en el modelo; la caja incluye crédito y reservas. No se considera el préstamo recibido como utilidad.',
+        'Caja positiva, FCFE positivo, VAN positivo y deuda saldada son criterios distintos. La reinversión, los impuestos y el servicio de deuda ya se descuentan del FCFE; confirmar el calendario tributario real y conservar reservas antes de distribuir.',
+        '', '| Año | FCFE anual | Caja final | Reserva | Caja sobre reserva | Deuda pendiente |',
+        '|---|---:|---:|---:|---:|---:|']
+    for r in years:
+        lines.append(f'| {r["anio"]} | {money(r["fcfe"])} | {money(r["caja"])} | {money(r["reserva"])} | {money(r["caja_libre"])} | {money(r["saldo_deuda"])} |')
+    return '\n'.join(lines)
 
 
 def archive(path):
@@ -253,7 +281,7 @@ def workbook(path, base, variants):
         notes=wb.add_worksheet('LEEME')
         notes.set_column(0,0,125)
         for i,line in enumerate([
-            'TerraSense: CLP nominales; año 1 = 2027. Aporte socios 9 millones. Precio con IVA.',
+            'TerraSense: CLP nominales; año 1 = 2027. PIE propio de socios: 9 millones, separado del crédito. Precio con IVA.',
             'Fuente única: finanzas/supuestos.json. Regenerar con python finanzas/modelo.py.',
             'Las hojas son resultados del modelo Python, no simulador interactivo completo. Fórmulas concilian totales y caja con caché.',
             'Base: 200/350/500/650/850 ventas; desde año 6 crecimiento 5% hipotético, no valor terminal automático.',
@@ -282,7 +310,7 @@ def workbook(path, base, variants):
             bom.write_row(i,0,[name,q,p]);bom.write_formula(i,3,f'=B{i+1}*C{i+1}',money,q*p);bom.write(i,4,note)
         bom.write(len(S['bom'])+1,0,'TOTAL BOM NETO');bom.write_formula(len(S['bom'])+1,3,f'=SUM(D2:D{len(S["bom"])+1})',money,base['bom'])
         startup=wb.add_worksheet('Origen y usos');startup.set_column(0,0,55);startup.set_column(1,1,22)
-        for i,(k,v) in enumerate({'Aporte socios':S['aporte_socios'],'Crédito bruto':base['principal'],'Activos/desarrollo/formalización con IVA prudencial':base['setup'],'Inventario inicial con IVA prudencial':base['initial_uses']-base['setup'],'Gastos de apertura presupuestados':base['fees'],'Caja inicial (incluye reserva)':base['initial_cash'],'Reserva inicial objetivo':base['rows'][0]['reserva']}.items()): startup.write_row(i,0,[k,v],money)
+        for i,(k,v) in enumerate({'Pie propio socios':S['aporte_socios'],'Crédito bruto':base['principal'],'Activos/desarrollo/formalización con IVA prudencial':base['setup'],'Inventario inicial con IVA prudencial':base['initial_uses']-base['setup'],'Gastos de apertura presupuestados':base['fees'],'Caja inicial (incluye reserva)':base['initial_cash'],'Reserva inicial objetivo':base['rows'][0]['reserva']}.items()): startup.write_row(i,0,[k,v],money)
         for name,result in variants.items():
             monthly=wb.add_worksheet(name+'_mensual'); yearly_sheet=wb.add_worksheet(name+'_anual')
             for sheet,data in ((monthly,result['rows']),(yearly_sheet,yearly(result))):
@@ -319,7 +347,7 @@ def workbook(path, base, variants):
         compare_row(4,'5 años + bullet 5M',simulate(S,base['principal'],5,bullet=min(5000000,base['principal'])))
         compare.write(6,0,'DSCR: caja operativa luego de impuesto, reinversión, inventario e IVA / servicio deuda; no EBITDA solo.')
         sens=wb.add_worksheet('Sensibilidades');sens.set_column(0,0,38);sens.set_column(1,5,24)
-        sens.write_row(0,0,['Caso','Unidades año 1','EBITDA año 1','Mín caja libre 24m','VAN proyecto 5 años 20%'],header)
+        sens.write_row(0,0,['Caso','Unidades año 1','EBITDA año 1','Mín caja libre 24m','VAN proyecto 10 años 20%'],header)
         for i,(label,price,factor,rate) in enumerate([
             ('Base',349990,1,.12),('Precio anterior',249990,1,.12),('Precio 299990',299990,1,.12),('Precio 329990',329990,1,.12),('Ventas -35%, mismo marketing',349990,.65,.12),('Tasa 18%',349990,1,.18)
         ],1):
@@ -328,7 +356,7 @@ def workbook(path, base, variants):
             sens.write_row(i,0,[label,yearly(r)[0]['unidades'],yearly(r)[0]['ebitda'],min(x['caja_libre'] for x in r['rows'][:24]),indicators(r,S['tasa_descuento_proyecto'])['van']],money)
         evaluation=wb.add_worksheet('Evaluacion proyecto')
         evaluation.set_column(0,0,20);evaluation.set_column(1,6,25)
-        evaluation.write_row(0,0,['Escenario','Inversión mes 0','VAN 60 meses','TIR efectiva anual','Payback meses','Payback descontado meses','Tasa descuento anual'],header)
+        evaluation.write_row(0,0,['Escenario','Inversión mes 0','VAN 120 meses','TIR efectiva anual','Payback meses','Payback descontado meses','Tasa descuento anual'],header)
         percent=wb.add_format({'num_format':'0.00%'})
         for i,(name,result) in enumerate(variants.items(),1):
             flow_sheet=wb.add_worksheet(name+'_evaluacion')
@@ -347,14 +375,35 @@ def workbook(path, base, variants):
             k=indicators(result,S['tasa_descuento_proyecto'])
             evaluation.write(i,0,name)
             evaluation.write_formula(i,1,f"=-'{name}_evaluacion'!B2",money,k['inversion'])
-            evaluation.write_formula(i,2,f"=SUM('{name}_evaluacion'!C2:C62)",money,k['van'])
+            evaluation.write_formula(i,2,f"=SUM('{name}_evaluacion'!C2:C122)",money,k['van'])
             if k['tir_anual'] is not None:
-                evaluation.write_formula(i,3,f"=(1+IRR('{name}_evaluacion'!B2:B62))^12-1",percent,k['tir_anual'])
+                evaluation.write_formula(i,3,f"=(1+IRR('{name}_evaluacion'!B2:B122))^12-1",percent,k['tir_anual'])
             else:
                 evaluation.write(i,3,'Sin TIR única')
             for col,key in ((4,'payback'),(5,'payback_descontado')):
-                evaluation.write(i,col,k[key] if k[key] is not None else 'No recupera en 60 meses',decimal)
+                evaluation.write(i,col,k[key] if k[key] is not None else 'No recupera en 120 meses',decimal)
             evaluation.write(i,6,S['tasa_descuento_proyecto'],percent)
+        comparison=wb.add_worksheet('Comparacion 5 y 10')
+        comparison.set_column(0,7,24)
+        comparison.write_row(0,0,['Escenario','Años','Inversión mes 0','VAN','TIR anual','Payback meses','Payback descontado','Saldo deuda final'],header)
+        n=1
+        for label,result in variants.items():
+            for months in (60,120):
+                k=indicators(result,S['tasa_descuento_proyecto'],months)
+                comparison.write_row(n,0,[label,months//12,k['inversion'],k['van'],k['tir_anual'],k['payback'],k['payback_descontado'],result['rows'][months-1]['saldo_deuda']])
+                comparison.set_row(n,None,money)
+                if k['tir_anual'] is not None: comparison.write(n,4,k['tir_anual'],percent)
+                n+=1
+        liquid=wb.add_worksheet('Liquidez y deuda')
+        liquid.set_column(0,8,24)
+        liquid.write_row(0,0,['Año','FCFE anual','FCFE acumulado desde inicio','Caja final','Reserva final','Caja sobre reserva','Deuda final','Meses FCFE negativo','DSCR'],header)
+        accumulated=0
+        for i,r in enumerate(yearly(base)[:10],1):
+            accumulated+=r['fcfe']
+            negatives=sum(x['fcfe']<0 for x in base['rows'][(i-1)*12:i*12])
+            liquid.write_row(i,0,[r['anio'],r['fcfe'],accumulated,r['caja'],r['reserva'],r['caja_libre'],r['saldo_deuda'],negatives,r['dscr']],money)
+        for i,line in enumerate(liquidity_markdown(base).splitlines(),13):
+            liquid.write(i,0,line)
         evaluation.write(6,0,'Payback simple y descontado: primera recuperación, interpolación mensual. Sin recuperación terminal de inventario/reserva.')
 
 
@@ -362,31 +411,33 @@ def write_summary(base, variants):
     currency=lambda v: '$'+f'{v:,.0f}'.replace(',','.')
     lines=['# Resultados financieros generados','', 'No editar a mano: `python finanzas/modelo.py`. Fuente: `finanzas/supuestos.json`.', '',
         f'Precio inicial con IVA: **{currency(S["precio_iva"])}**; neto: {currency(S["precio_iva"]/(1+S["iva"]))}. BOM neto provisional: **{currency(base["bom"])}**.',
-        f'Aporte: **{currency(S["aporte_socios"])}**. Crédito base dimensionado: **{currency(base["principal"])}**, cuota {currency(base["payment"])} a 10 años y 12% efectivo anual hipotético.',
+        f'Pie propio: **{currency(S["aporte_socios"])}**. Crédito base dimensionado: **{currency(base["principal"])}**, cuota {currency(base["payment"])} a 10 años y 12% efectivo anual hipotético.',
         f'Desembolso inicial: {currency(base["initial_uses"])}; gastos crédito: {currency(base["fees"])}; caja inicial: {currency(base["initial_cash"])} (incluye reserva; no sumar otra vez).', '',
         '| Año | Ventas | EBITDA | Servicio deuda | Caja final | Reserva | DSCR | Técnicos FTE | Soporte FTE | Equilibrio operativo / con deuda |',
         '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
-    for r in yearly(base)[:5]:
+    for r in yearly(base)[:10]:
         lines.append(f'| {r["anio"]} | {r["unidades"]} | {currency(r["ebitda"])} | {currency(r["servicio_deuda"])} | {currency(r["caja"])} | {currency(r["reserva"])} | {r["dscr"]:.2f} | {r["tecnicos_fte"]:g} | {r["soporte_fte"]:g} | {r["equilibrio_operativo"]} / {r["equilibrio_con_deuda"]} |')
     lines+=['','Equilibrio con deuda incluye capital e intereses, no impuesto ni acumulación de inventario: la prueba de liquidez es la caja mensual y el DSCR. FTE es equivalente de jornada presupuestado, no número de contratos.', '', '| Crédito (mismo principal) | Cuota | Intereses totales | Saldo año 5 | Mínimo sobre reserva, 24 meses |','|---|---:|---:|---:|---:|']
     for term in (5,10,15):
         r=simulate(S,base['principal'],term)
         lines.append(f'| {term} años | {currency(r["payment"])} | {currency(sum(x["interes"] for x in r["rows"]))} | {currency(yearly(r)[4]["saldo_deuda"])} | {currency(min(x["caja_libre"] for x in r["rows"][:24]))} |')
     two=simulate(S,base['principal'],5,bullet=5000000)
-    lines+=['',f'Dos créditos (resto a 5 años y $5 millones al 15% pagados íntegros mes 12): servicio del primer año **{currency(yearly(two)[0]["servicio_deuda"])}**, mínimo sobre reserva **{currency(min(x["caja_libre"] for x in two["rows"][:24]))}**.', '', '| Escenario | Ventas año 1 | Mínimo caja libre 24m | VAN proyecto 5 años / 20% |', '|---|---:|---:|---:|']
+    lines+=['',f'Dos créditos (resto a 5 años y $5 millones al 15% pagados íntegros mes 12): servicio del primer año **{currency(yearly(two)[0]["servicio_deuda"])}**, mínimo sobre reserva **{currency(min(x["caja_libre"] for x in two["rows"][:24]))}**.', '', '| Escenario | Ventas año 1 | Mínimo caja libre 24m | VAN proyecto 10 años / 20% |', '|---|---:|---:|---:|']
     for name,r in variants.items():
         lines.append(f'| {name} | {yearly(r)[0]["unidades"]} | {currency(min(x["caja_libre"] for x in r["rows"][:24]))} | {currency(indicators(r,S["tasa_descuento_proyecto"])["van"])} |')
-    lines+=['',evaluation_markdown(variants),'','VAN, TIR y payback usan los mismos 60 flujos mensuales y mes 0. Caja operativa mínima: tres meses de fijos más contingencia; se descuentan sus aumentos del FCFF. Sin rescate, recuperación de reserva/inventario ni valor terminal. Deuda y gastos de apertura solo afectan el financiamiento. Sueldos incluidos en nómina; no se suman como retorno del capital.', '', 'Los años 6–15 extienden la operación para mostrar toda la deuda; la evaluación publicada comprende 2027–2031.']
+    lines+=['',evaluation_markdown(variants),'','VAN, TIR y payback usan los mismos 120 flujos mensuales y mes 0. Caja operativa mínima: tres meses de fijos más contingencia; se descuentan sus aumentos del FCFF. Sin rescate, recuperación de reserva/inventario ni valor terminal. Deuda y gastos de apertura solo afectan el financiamiento. Sueldos incluidos en nómina; no se suman como retorno del capital.', '', 'Evaluación principal: diez años (2027–2036); comparación a cinco años (2027–2031). Los años 6–10 usan crecimiento hipotético de 5 %; años 11–15 solo ilustran deuda alternativa y operación posterior, sin incorporarse al VAN principal.']
+    lines += ['', '## Comparación a cinco años', '', evaluation_markdown(variants,60), '', liquidity_markdown(base)]
     (ROOT/'docs/RESULTADOS_FINANCIEROS.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
 
 
-def evaluation_markdown(variants):
+def evaluation_markdown(variants, months=None):
+    months = S.get('evaluacion_anios', 10)*12 if months is None else months
     money=lambda v: ('−' if v<0 else '')+'$'+f'{abs(v):,.0f}'.replace(',','.')
-    duration=lambda v: f'{v:.2f} meses ({v/12:.2f} años)'.replace('.',',') if v is not None else 'No recupera en 60 meses'
+    duration=lambda v: f'{v:.2f} meses ({v/12:.2f} años)'.replace('.',',') if v is not None else f'No recupera en {months} meses'
     lines=['| Escenario | Inversión económica mes 0 | VAN al 20 % | TIR efectiva anual | Payback simple | Payback descontado al 20 % |',
            '|---|---:|---:|---:|---:|---:|']
     for name,result in variants.items():
-        k=indicators(result,S['tasa_descuento_proyecto'])
+        k=indicators(result,S['tasa_descuento_proyecto'],months)
         rate=f'{k["tir_anual"]*100:.2f} %'.replace('.',',') if k['tir_anual'] is not None else 'Sin TIR única'
         label='Estrés' if name=='Estres' else name
         lines.append(f'| {label} | {money(k["inversion"])} | {money(k["van"])} | {rate} | {duration(k["payback"])} | {duration(k["payback_descontado"])} |')

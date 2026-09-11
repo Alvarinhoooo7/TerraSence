@@ -46,7 +46,7 @@ def with_captions(name, block):
 
 def report_blocks(base, variants, model):
     s = model.S
-    annual = model.yearly(base)[:5]
+    annual = model.yearly(base)[:10]
     k = model.indicators(base, s['tasa_descuento_proyecto'])
     net = s['precio_iva'] / (1 + s['iva'])
     extra = base['bom'] * (s['merma_fraccion_bom'] + s['garantia_fraccion_bom']) + s['envio_neto'] + s['precio_iva'] * s['comision_sobre_bruto']
@@ -55,7 +55,7 @@ def report_blocks(base, variants, model):
     blocks['VENTAS'] = table(['Año', 'Equipos', 'Pauta anual', 'Técnicos FTE', 'Soporte FTE', 'Agencia anual'],
         [[r['anio'], r['unidades'], money(r['marketing']), decimal(r['tecnicos_fte'],1), decimal(r['soporte_fte'],1), money(r['agencia'])] for r in annual])
     total_units = sum(r['unidades'] for r in annual)
-    blocks['VENTAS'] += f'\n\nEl plan suma **{total_units:,} equipos en cinco años**. A precio inicial constante, representa {money(total_units*s["precio_iva"])} brutos; el flujo nominal incorpora reajustes anuales. El SOM es una meta de ventas, no una cifra censal de compradores. La pauta del primer año es {money(annual[0]["marketing"])} y la agencia aparece desde {s["agencia_desde_ventas_anuales"]} ventas anuales.'.replace(f'{total_units:,}', f'{total_units:,}'.replace(',','.'))
+    blocks['VENTAS'] += f'\n\nEl plan suma **{total_units:,} equipos en diez años**. A precio inicial constante, representa {money(total_units*s["precio_iva"])} brutos; el flujo nominal incorpora reajustes anuales. El Mercado Objetivo es una meta de ventas, no una cifra censal de compradores. La pauta del primer año es {money(annual[0]["marketing"])} y la agencia aparece desde {s["agencia_desde_ventas_anuales"]} ventas anuales.'.replace(f'{total_units:,}', f'{total_units:,}'.replace(',','.'))
     blocks['BOM'] = table(['Material o servicio por equipo', 'Cantidad', 'Neto unitario CLP', 'Subtotal CLP'],
         [[name, q, money(p), money(q*p)] for name,q,p,_ in s['bom']] + [['**Total BOM**', '', '', '**'+money(base['bom'])+'**']])
     blocks['BOM'] += '\n\n' + table(['Economía unitaria, año 1', 'CLP'], [
@@ -76,7 +76,7 @@ def report_blocks(base, variants, model):
     blocks['FIJOS'] += f'\n\nEn el primer año, {money(annual[0]["fijos"])} de gastos fijos se cubren con {annual[0]["equilibrio_operativo"]} unidades al margen calculado. Al añadir capital e intereses, el umbral sube a {annual[0]["equilibrio_con_deuda"]}. La meta de {annual[0]["unidades"]} unidades cubre la operación, pero queda por debajo del equilibrio con deuda. Esta diferencia explica el uso de liquidez inicial durante el arranque; no se confunde una venta con caja libre inmediatamente distribuible.'
     sources = s['aporte_socios']+base['principal']
     blocks['INVERSION'] = table(['Origen de fondos','CLP','Participación'],[
-        ['Aporte socios',money(s['aporte_socios']),decimal(s['aporte_socios']/sources*100,1)+' %'],
+        ['Pie / aporte propio de socios',money(s['aporte_socios']),decimal(s['aporte_socios']/sources*100,1)+' %'],
         ['Crédito',money(base['principal']),decimal(base['principal']/sources*100,1)+' %'],
         ['**Total fuentes de financiamiento**',money(sources),'100 %']])
     blocks['INVERSION'] += '\n\n' + table(['Destino de fondos','CLP'],[
@@ -91,7 +91,7 @@ def report_blocks(base, variants, model):
         r=model.simulate(s,base['principal'],term)
         debt_rows.append([term,money(r['payment']),money(sum(x['interes'] for x in r['rows'])),money(model.yearly(r)[4]['saldo_deuda']),money(min(x['caja_libre'] for x in r['rows'][:24]))])
     blocks['INVERSION'] += '\n\n' + table(['Plazo, años','Cuota mensual','Intereses totales','Saldo al año 5','Mínimo sobre reserva, 24 meses'],debt_rows)
-    blocks['INVERSION'] += '\n\nLa comparación utiliza el mismo principal y 12 % efectivo anual. Diez años reduce el servicio de arranque frente a cinco; quince reduce nuevamente la cuota pero aumenta intereses y exposición temporal. El crédito no desaparece al terminar la evaluación de cinco años: el saldo pendiente se muestra expresamente, y el Excel prolonga la amortización completa.'
+    blocks['INVERSION'] += '\n\nLa comparación utiliza el mismo principal y 12 % efectivo anual. Diez años reduce el servicio de arranque frente a cinco; quince reduce nuevamente la cuota pero aumenta intereses y exposición temporal. El crédito no desaparece al terminar el quinto año: el saldo pendiente de ese corte se muestra expresamente. La evaluación principal a diez años sí cubre el crédito completo, que se cancela en el mes 120, y el Excel prolonga la amortización alternativa hasta el año 15.'
     blocks['FLUJOS'] = table(['Año','Venta neta','EBITDA','FCFF antes de caja mínima','FCFE','Caja final','DSCR'],
         [[r['anio'],money(r['ventas_netas']),money(r['ebitda']),money(r['fcff']),money(r['fcfe']),money(r['caja']),decimal(r['dscr'])] for r in annual])
     flows=model.project_flows(base)
@@ -99,6 +99,7 @@ def report_blocks(base, variants, model):
         [['Mes 0',money(flows[0]),money(flows[0])]] + [[r['anio'],money(sum(flows[1+i*12:13+i*12])),money(sum(flows[:13+i*12]))] for i,r in enumerate(annual)])
     blocks['FLUJOS'] += f'\n\nEn {annual[0]["anio"]}, el EBITDA de {money(annual[0]["ebitda"])} se transforma en FCFE de {money(annual[0]["fcfe"])} después de compras, IVA, impuestos y deuda. La caja final sigue positiva porque parte de la caja inicial. El **DSCR de {decimal(annual[0]["dscr"])}** significa que la generación disponible para deuda no cubre por sí sola todo el servicio del primer año. Desde el año siguiente, el aumento de ventas mejora esa cobertura dentro del escenario base.'
     blocks['INDICADORES'] = model.evaluation_markdown(variants)
+    blocks['INDICADORES'] += '\n\nComparación a cinco años, sin valor terminal:\n\n' + model.evaluation_markdown(variants,60)
     blocks['INDICADORES'] += f'\n\nEl **VAN base de {money(k["van"])}** indica excedente económico después de remunerar el capital al 20 % anual. La **TIR de {decimal(k["tir_anual"]*100)} %** supera esa tasa en {decimal(k["tir_anual"]*100-20)} puntos porcentuales. El **payback simple de {decimal(k["payback"])} meses** mide recuperación nominal; al reconocer el valor temporal del dinero se amplía a **{decimal(k["payback_descontado"])} meses**. Son preguntas distintas y por ello los dos plazos no deben mezclarse.'
     cases=[('Base',{},1),('Ventas −10 %',{},.9),('Ventas −25 %',{},.75),('Ventas −35 %',{},.65),('Precio $299.990',{'precio_iva':299990},1),('BOM +15 %',{'bom_factor':1.15},1),('Tasa crédito 18 %',{'tasa_credito_efectiva_anual':.18},1)]
     rows=[]
@@ -111,7 +112,7 @@ def report_blocks(base, variants, model):
         r=model.simulate(assumptions,base['principal'],s['plazo_base'],factor)
         a=model.yearly(r)[0]
         rows.append([label,a['unidades'],money(a['ebitda']),decimal(a['dscr']),money(model.indicators(r,.2)['van']),money(min(x['caja_libre'] for x in r['rows'][:24]))])
-    blocks['SENSIBILIDAD'] = table(['Caso','Ventas año 1','EBITDA año 1','DSCR año 1','VAN 5 años','Mínimo sobre reserva 24 meses'],rows)
+    blocks['SENSIBILIDAD'] = table(['Caso','Ventas año 1','EBITDA año 1','DSCR año 1','VAN 10 años','Mínimo sobre reserva 24 meses'],rows)
     blocks['SENSIBILIDAD'] += '\n\nEn estas sensibilidades se modifica una condición a la vez y se mantiene el principal del caso base. Menores ventas no reducen automáticamente la pauta. El caso BOM +15 % afecta materiales, inventario, merma y reposiciones; no equivale a aumentar todos los gastos de la empresa un 15 %. El alza de tasa altera deuda y caja del accionista, pero conserva el VAN del proyecto porque su FCFF se calcula antes del financiamiento.'
     rows=[]
     for rate in (.05,.08,.10,.15,.20,.30,.40):
@@ -119,7 +120,7 @@ def report_blocks(base, variants, model):
         rows.append([decimal(rate*100,0)+' %',money(value),'Positivo' if value>0 else 'Negativo'])
     rows.append([f'TIR: {decimal(k["tir_anual"]*100)} %',money(sum(f/(1+k['tir_anual'])**(i/12) for i,f in enumerate(flows))),'VAN aproximadamente cero'])
     blocks['DESCUENTO']=table(['Tasa efectiva anual','VAN','Interpretación'],rows)
-    blocks['DESCUENTO'] += '\n\nTodas las filas descuentan exactamente la misma serie mensual. En este caso el VAN disminuye al elevar la tasa y cruza cero en la TIR. Esto corrige la tabla anterior, que mezclaba resultados de distintos modelos y mostraba un aumento del VAN al pasar de 15 % a 20 % sin cambiar los flujos.'
+    blocks['DESCUENTO'] += '\n\nTodas las filas descuentan exactamente la misma serie mensual, sin modificar ventas ni costos. El VAN disminuye monótonamente al elevar la tasa de descuento y cruza cero en la TIR, tal como exige la definición de ambos indicadores.'
     blocks['CIERRE']=f'En el escenario base, el proyecto presenta **VAN de {money(k["van"])}**, **TIR efectiva anual de {decimal(k["tir_anual"]*100)} %** y **payback simple de {decimal(k["payback"])} meses**. La BOM completa asciende a **{money(base["bom"])} netos por equipo**, con BME280 y carcasa 3D. El análisis mensual identifica el financiamiento de arranque y permite relacionar margen, producción, inventario y pagos de deuda con las decisiones comerciales.'
     return {name: with_captions(name, content) for name, content in blocks.items()}
 
