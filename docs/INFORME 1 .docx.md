@@ -1,4 +1,34 @@
-> Documento de trabajo del proyecto TerraSense. Sus bloques económicos se generan con `finanzas/informe.py` sobre `finanzas/supuestos.json`, con evaluación principal a diez años. El Grid 2×5 descrito para la aplicación es diseño objetivo y está pendiente de implementación.
+> **Documento de trabajo interno del proyecto TerraSense.** A diferencia del informe entregable de la raíz, este documento sí cita los archivos del repositorio que son fuente de verdad de cada cifra y cada especificación, de modo que al cambiar el código o los parámetros baste con regenerar o releer, sin reescribir prosa. El mapa completo de esa trazabilidad está en la sección siguiente.
+>
+> El informe entregable del proyecto es `INFORME antiguo .docx (1).md`, en la raíz del repositorio, y **no debe contener ninguna referencia a rutas, scripts ni archivos internos**: es un documento académico autocontenido. Este documento es su contraparte técnica.
+
+## Trazabilidad al repositorio
+
+Cada bloque de este informe tiene un origen verificable en el repositorio. La tabla indica de dónde sale cada cosa y cómo se actualiza:
+
+| Contenido del informe | Fuente de verdad en el repositorio | Cómo se mantiene al día |
+| --- | --- | --- |
+| Todas las tablas y cifras económicas | `finanzas/supuestos.json` (parámetros) y `finanzas/modelo.py` (modelo mensual) | `python finanzas/modelo.py`: reescribe los bloques marcados `<!-- INFORME:*:INICIO/FIN -->` de este archivo, el bloque `<!-- FINANZAS:* -->` del README, `docs/RESULTADOS_FINANCIEROS.md`, el Excel de la raíz y `PCB/BOM_TerraSense.xlsx`. **No editar esas tablas a mano** |
+| Redacción de los bloques generados | `finanzas/informe.py` (este documento) y `finanzas/documentacion.py` (README) | Editar el generador, no el resultado |
+| Verificación del modelo financiero | `finanzas/test_modelo.py` | `python -m unittest discover -s finanzas -p "test_*.py"` |
+| Estructura de costos (BOM) | Lista `bom` dentro de `finanzas/supuestos.json` | Cambiar el precio ahí y regenerar; el BOM en Excel sale de la misma lista |
+| Financiamiento: pie, crédito, tasa y plazo | Claves `aporte_socios`, `credito_principal`, `tasa_credito_efectiva_anual` y `plazo_base` de `finanzas/supuestos.json` | El principal es un monto fijo de decisión, no lo dimensiona el modelo |
+| Metodología, límites y supuestos económicos | `docs/MODELO_ECONOMICO.md` | Documento redactado a mano; actualizar al cambiar criterios |
+| Contrato de datos BLE | `App/src/services/probeService.ts` (decodificador real) y `docs/CONTRATO_BLE.md` | El decodificador manda: si cambia, se actualizan el contrato y `PCB/README.md` |
+| Transporte BLE y notificaciones | `App/src/services/bleService.ts` | — |
+| Motor agronómico y recomendaciones | `App/src/engine/agronomyEngine.ts`, `stageEvaluator.ts` y `contextualAdvice.ts` | Los umbrales del informe deben coincidir con estos archivos |
+| Pronóstico meteorológico y su degradación sin red | `App/src/services/weatherService.ts` | — |
+| Grid 2×5, pantallas y flujo de la app | `App/README.md` | — |
+| Consola web, inventario y soporte | `Web/README.md` | — |
+| Esquema de base de datos, RLS y perímetros | `supabase/migrations/*.sql`, `supabase/README.md` y `supabase/ADMINISTRACION.md` | Las migraciones son la fuente; el README describe el esquema vigente |
+| Hardware, árbol de alimentación y BOM física | `PCB/README.md` | — |
+| Marco normativo y estándares | `docs/MARCO_NORMATIVO_Y_ESTANDARES.md` | — |
+| Comprobaciones físicas pendientes | `docs/PLAN_VALIDACION.md` | — |
+| Integridad de enlaces y diagramas de toda la documentación | `docs/verificar_documentacion.py` | `python docs/verificar_documentacion.py` |
+
+Regla de oro para no duplicar verdades: **una cifra vive en un solo lugar**. Si aparece en dos documentos, uno de los dos la genera y el otro la enlaza. El informe entregable de la raíz es la única excepción deliberada: replica las cifras ya cerradas porque debe leerse sin acceso al repositorio, de modo que tras cada `python finanzas/modelo.py` corresponde verificar que sus tablas económicas sigan coincidiendo con `docs/RESULTADOS_FINANCIEROS.md`.
+
+El Grid 2×5 está implementado en la aplicación; las comprobaciones físicas pendientes se organizan en el [plan de validación](PLAN_VALIDACION.md).
 
 **TERRASENSE**
 
@@ -196,7 +226,7 @@ Esta falta de herramientas accesibles e intuitivas tiene un impacto severo a lo 
 
 Actualmente, las alternativas formales como los análisis de laboratorio son lentas (15 a 30 días) y costosas, entregando resultados cuando la fase crítica ya pasó. Por otro lado, pagar asesorías agronómicas continuas para que un profesional interprete los datos escapa del presupuesto operativo.
 
-Corresponde precisar el alcance exacto de esta brecha, porque el proyecto no se plantea como un reemplazo del laboratorio. Un análisis acreditado determina propiedades químicas mediante extracción y método normalizado; un instrumento de terreno entrega una lectura directa, en un punto y en un instante. Son procedimientos distintos que responden preguntas distintas, y confundirlos sería el error de fondo más grave que podría cometer este proyecto. TerraSense apunta al vacío que existe **entre** dos análisis de laboratorio: las decenas de decisiones de riego, siembra y manejo que el agricultor toma cada semana y que hoy resuelve por intuición, porque no existe ninguna herramienta que las acompañe con un dato propio de su predio. Los servicios de laboratorio y de asesoría conservan íntegramente su función en las decisiones que exigen determinaciones específicas, en particular las de fertilización.
+Corresponde precisar el alcance exacto de esta brecha, porque el proyecto no se plantea como un reemplazo del laboratorio. Un análisis acreditado determina propiedades químicas mediante extracción y método normalizado; un instrumento de terreno entrega una lectura directa, en un punto y en un instante. Son procedimientos distintos que responden preguntas distintas, y confundirlos sería el error de fondo más grave que podría cometer este proyecto. TerraSense apunta al vacío que existe **entre** dos análisis de laboratorio: las decenas de decisiones de riego, siembra y manejo que el agricultor toma cada semana y que hoy resuelve por intuición, porque no existe ninguna herramienta que las acompañe con un dato propio de su campo. Los servicios de laboratorio y de asesoría conservan íntegramente su función en las decisiones que exigen determinaciones específicas, en particular las de fertilización.
 
 En síntesis, el pequeño agricultor está atrapado entre una crisis climática que exige precisión, un mercado tecnológico que lo excluye por precio, y equipos que le entregan datos incomprensibles. Esto lo obliga a tomar decisiones a ciegas, descubriendo sus errores solo al final de la temporada, cuando la pérdida de la cosecha y el endeudamiento ya son irreversibles.
 
@@ -212,7 +242,7 @@ El proyecto TerraSense no se concibe como "un medidor más" que compite únicame
 
 * **El Instrumento Físico (Sonda y Sensores):** Un dispositivo portátil y robusto que se inserta directamente en el suelo. Su función es tomar el pulso físico-químico del terreno como también ambiental para luego transmitir esta información de forma inalámbrica.
 * **El Celular del Agricultor (Interfaz y Procesamiento):** La aplicación móvil actúa como el cerebro del sistema. Recibe los datos crudos del sistema y los convierte, en tiempo real y en el mismo lugar de la medición, en recomendaciones de manejo agronómico claras, interpretables y accionables.
-* **La Nube (Respaldo y Trazabilidad):** Una base de datos que resguarda el historial de mediciones, permite visualizar la evolución de los predios y mantiene el sistema actualizado. Opera en segundo plano: sincroniza cuando hay conexión a internet, pero su ausencia nunca bloquea la entrega de recomendaciones en terreno.
+* **La Nube (Respaldo y Trazabilidad):** Una base de datos que resguarda el historial de mediciones, permite visualizar la evolución de los campos y mantiene el sistema actualizado. Opera en segundo plano: sincroniza cuando hay conexión a internet, pero su ausencia nunca bloquea la entrega de recomendaciones en terreno.
 
 El instrumento y el teléfono forman una unidad funcional, no dos productos independientes. La siguiente tabla precisa qué resuelve cada bloque, para evitar la lectura equivocada de que "el teléfono hace todo" o de que "el instrumento mide todo":
 
@@ -221,7 +251,7 @@ El instrumento y el teléfono forman una unidad funcional, no dos productos inde
 | **Instrumento (ESP32)** | Alimentar y excitar la sonda, ejecutar la consulta Modbus RTU, leer el BME280, verificar la validez de la trama y transmitirla por BLE. | No interpreta agronómicamente, no almacena historial de usuario ni resuelve la posición geográfica. |
 | **Aplicación móvil** | Interpretar según cultivo, textura y etapa fenológica; presentar el diagnóstico; georreferenciar y conservar el registro localmente. | No genera señales RS-485 ni sustituye la medición física del suelo. |
 | **Supabase (backend)** | Identidad, permisos, persistencia remota y consulta geográfica del historial. | No participa en la entrega del diagnóstico en terreno; su ausencia no bloquea la medición. |
-| **Consola web** | Soporte técnico, catálogo de firmware y gestión del fabricante. | No es una herramienta de uso del agricultor en el predio. |
+| **Consola web** | Soporte técnico, catálogo de firmware y gestión del fabricante. | No es una herramienta de uso del agricultor en el campo. |
 
 ###### **Tabla 1.0 “Distribución de Funciones del Sistema”**
 
@@ -241,7 +271,7 @@ El Grid **2×5 tiene dos columnas y cinco filas**, con una tarjeta por variable 
 | 4 | pH del suelo | Temperatura ambiente (BME280) |
 | 5 | Humedad relativa ambiente (BME280) | Presión atmosférica ambiente (BME280) |
 
-N, P y K se muestran por separado como registros informativos, sin atribuirles selectividad química o capacidad para prescribir dosis de fertilizante. Estado, batería y completitud van fuera de estas diez tarjetas. El pronóstico a cinco días se presenta aparte. Si falta una lectura ambiental, se indica su ausencia; no se sustituye por datos de internet. **El Grid es el diseño objetivo pendiente de implementar en la App.**
+N, P y K se muestran por separado como registros informativos, sin atribuirles selectividad química o capacidad para prescribir dosis de fertilizante. Estado, batería y completitud van fuera de estas diez tarjetas. El pronóstico a cinco días se presenta aparte. Si falta una lectura ambiental, se indica su ausencia; no se sustituye por datos de internet. **El Grid está implementado en la App y en el detalle web; la validación física sigue pendiente.**
 
 ###### **Tabla 1.1 “Organización del Grid 2×5”**
 
@@ -257,7 +287,7 @@ La formulación de estas advertencias expresa riesgo, no certeza: «Se prevén l
 
 Antes de cualquier decisión técnica o de diseño más focalizado, el proyecto responde a una pregunta fundamental: *¿Para qué existe esta herramienta?* La respuesta no es "para cuidar plantas", sino para proteger el patrimonio de una familia que se juega el año entero en cada siembra.
 
-Esta distinción no es un matiz retórico; cambia el criterio con el que se evalúa cada decisión de desarrollo. El fin último no es el predio productivo, sino el ser humano cuyo sustento familiar depende de él. Un cultivo que se pierde por acidez o salinidad es, en el fondo, un problema agronómico menor comparado con lo que realmente está en juego: una familia que queda endeudada durante un año entero por tomar una decisión sin la información adecuada. Ese es el problema social y económico que TerraSense ataca. Por ello, toda decisión de diseño se resuelve preguntando cuál alternativa reduce más el riesgo económico del agricultor, no cuál es la más sofisticada desde el punto de vista técnico.
+Esta distinción no es un matiz retórico; cambia el criterio con el que se evalúa cada decisión de desarrollo. El fin último no es el campo productivo, sino el ser humano cuyo sustento familiar depende de él. Un cultivo que se pierde por acidez o salinidad es, en el fondo, un problema agronómico menor comparado con lo que realmente está en juego: una familia que queda endeudada durante un año entero por tomar una decisión sin la información adecuada. Ese es el problema social y económico que TerraSense ataca. Por ello, toda decisión de diseño se resuelve preguntando cuál alternativa reduce más el riesgo económico del agricultor, no cuál es la más sofisticada desde el punto de vista técnico.
 
 De esta premisa central se desprenden cuatro principios que gobiernan el diseño del sistema:
 
@@ -270,10 +300,10 @@ De esta premisa central se desprenden cuatro principios que gobiernan el diseño
 
 El beneficiario directo y principal es el pequeño y mediano agricultor comercial (Agricultura Familiar Campesina), quien hoy queda fuera de toda la oferta de instrumentación profesional. Sin embargo, el diseño contempla un impacto expansivo hacia otros actores:
 
-* **La familia y el equipo de trabajo:** El sistema está diseñado para que cualquier persona en el predio pueda tomar una medición sin necesitar formación técnica previa.
-* **Asesores técnicos y extensionistas:** Quienes hoy deben estimar las condiciones del suelo a través de la observación, podrán pasar de "estimar" a "medir", dejando un registro histórico y georreferenciado de cada visita. Cabe precisar, para efectos del dimensionamiento comercial, que la cantidad de predios visitados por un asesor no equivale a la cantidad de equipos comprados.
+* **La familia y el equipo de trabajo:** El sistema está diseñado para que cualquier persona del campo pueda tomar una medición sin necesitar formación técnica previa.
+* **Asesores técnicos y extensionistas:** Quienes hoy deben estimar las condiciones del suelo a través de la observación, podrán pasar de "estimar" a "medir", dejando un registro histórico y georreferenciado de cada visita. Cabe precisar, para efectos del dimensionamiento comercial, que la cantidad de campos visitados por un asesor no equivale a la cantidad de equipos comprados.
 * **Cooperativas y asociaciones:** Podrán utilizar la herramienta para construir mapas de salud edáfica de todo el territorio que administran, mejorando las compras conjuntas de insumos.
-* **Instituciones públicas:** Podrían apoyarse en esta información agregada para focalizar sus programas de fomento, paliando la actual falta de datos de suelo georreferenciados a escala de predio individual.
+* **Instituciones públicas:** Podrían apoyarse en esta información agregada para focalizar sus programas de fomento, paliando la actual falta de datos de suelo georreferenciados a escala de campo individual.
 * **El medio ambiente:** Una fertilización y riego ajustados a la necesidad real del cultivo en lugar de aplicaciones preventivas por exceso de precaución reduce el desperdicio hídrico y la contaminación de napas por lixiviación.
 
 **La Propuesta de Valor:**
@@ -346,7 +376,7 @@ Antes de comparar cualquier alternativa, el proyecto fija dos capas de exigencia
 | RO-2 | Medir el ambiente local del punto | Capturar temperatura del aire, humedad relativa y presión en el punto de muestreo. | Incluir el BME280, ventilarlo y transportar sus tres datos hasta la aplicación. |
 | RO-3 | Interpretar, no solo mostrar | Entregar un veredicto interpretado, no una lectura plana. | Disponer de reglas agronómicas locales y de una interfaz comprensible. |
 | RO-4 | Operar sin cobertura celular | Completar la medición y su diagnóstico en el momento, sin depender de señal de datos. | Persistencia local y estado de sincronización explícito. |
-| RO-5 | Muestrear múltiples puntos | Permitir recorrer y medir distintos puntos de un mismo predio en una jornada. | Portabilidad y un ciclo de operación repetible y breve. |
+| RO-5 | Muestrear múltiples puntos | Permitir recorrer y medir distintos puntos de un mismo campo en una jornada. | Portabilidad y un ciclo de operación repetible y breve. |
 | RO-6 | Ser físicamente realizable y mantenible | Construirse con componentes de catálogo real y poder repararse por piezas. | Disponibilidad de componentes, carcasa desmontable y documentación de montaje. |
 
 ###### **Tabla 1.3 “Filtro de Viabilidad”**
@@ -381,7 +411,7 @@ Esta separación en dos capas evita "aprobar" una arquitectura inviable con un b
 
 ##### **Figura 1.2 “ Diagrama de Flujo Arquitectura con Datalogger Estacionario”**
 
-* **Red de nodos LoRaWAN con estación concentradora predial:** Reemplaza el módem celular por una radio de largo alcance y bajísimo consumo hacia una estación concentradora en el predio.
+* **Red de nodos LoRaWAN con estación concentradora en el campo:** Reemplaza el módem celular por una radio de largo alcance y bajísimo consumo hacia una estación concentradora en el campo.
 
   *Evaluación:* Es la alternativa técnicamente más elegante entre las descartadas y la que mejor resuelve el monitoreo distribuido y simultáneo. Su limitación para este proyecto es económica y operativa: la cantidad de nodos depende de la resolución espacial y temporal buscada, y alcanzar una cobertura comparable al recorrido de un operador exigiría un número de nodos con costo prohibitivo para la AFC, además de instalar infraestructura propia. Tampoco resuelve el caso de uso central: el agricultor está de pie sobre el punto cuando necesita la decisión, no a distancia. Cumple los requisitos y pasa a puntuar con esa reserva.
 
@@ -391,7 +421,7 @@ Esta separación en dos capas evita "aprobar" una arquitectura inviable con un b
 
 * **Sonda conectada directo al teléfono (electrónica intermedia):** La alternativa más radical: eliminar la radio del medio y conectar la sonda al teléfono por cable, mediante un adaptador USB–RS-485 con fuente de alimentación propia.
 
-  *Evaluación:* Es técnicamente realizable y hereda gratis todas las capacidades del teléfono, por lo que si se puntuara obtendría un resultado alto. Su costo está en la operación real: el teléfono no puede entregar por sí solo la tensión y corriente que exige la sonda industrial ni generar la señal diferencial, de modo que el cable exige igualmente un adaptador y una fuente externa; a eso se suman la compatibilidad del modo host USB entre modelos y fabricantes, y una ergonomía de trabajo peor, con el teléfono cableado al instrumento mientras el operador camina por el predio con guantes. Se conserva como alternativa viable a prototipar, no como arquitectura seleccionada.
+  *Evaluación:* Es técnicamente realizable y hereda gratis todas las capacidades del teléfono, por lo que si se puntuara obtendría un resultado alto. Su costo está en la operación real: el teléfono no puede entregar por sí solo la tensión y corriente que exige la sonda industrial ni generar la señal diferencial, de modo que el cable exige igualmente un adaptador y una fuente externa; a eso se suman la compatibilidad del modo host USB entre modelos y fabricantes, y una ergonomía de trabajo peor, con el teléfono cableado al instrumento mientras el operador camina por el campo con guantes. Se conserva como alternativa viable a prototipar, no como arquitectura seleccionada.
 
 ![Diagrama de flujo: sonda conectada al celular](img/figura-1-4-sonda-conectada-celular.png)
 
@@ -440,7 +470,7 @@ flowchart LR
 
 **Matriz de Decisión:** Puntuando sólo a las arquitecturas que superaron el filtro.
 
-| Criterio | Peso | Instrumento autónomo con inferencia embebida y pantalla | Red de nodos LoRaWAN con estación concentradora predial | Instrumento portátil inalámbrico de bajo consumo, con el teléfono como intérprete |
+| Criterio | Peso | Instrumento autónomo con inferencia embebida y pantalla | Red de nodos LoRaWAN con concentradora en el campo | Instrumento portátil inalámbrico de bajo consumo, con el teléfono como intérprete |
 | :---: | :---: | :---: | :---: | :---: |
 | **Cobertura espacial** | 15 % | 8 | 5 | 10 |
 | **Calidad de interfaz** | 13 % | 4 | 7 | 10 |
@@ -509,7 +539,7 @@ Se aplicó la misma disciplina: evaluación de candidatos reales, criterios decl
 
 ###### **Tabla 1.7 “Comparativa de Sondas de Suelo”**
 
-* **Justificación:** Se sacrifica exactitud absoluta a cambio de viabilidad. Obtener las siete variables con sensores de investigación multiplicaría el costo del producto por veinte, lo que contradice el objetivo mismo del proyecto. La limitación técnica más importante se declara explícitamente: la estimación de N, P y K no se mide por electrodo ion-selectivo, sino que se deriva de la conductividad eléctrica. En suelo salino puede leer erróneamente un estado "fértil". Para mitigarlo, la App presenta el N/P/K como *clase ordinal* agrupada (bajo/medio/óptimo/excesivo), nunca para calcular dosis exactas, y levanta una alerta de baja confianza cuando la conductividad supera los 1.000 µS/cm. Ni una CE baja ni una tendencia estable prueban selectividad química de la sonda, y el informe no lo presenta como si lo hicieran.
+* **Justificación:** Se sacrifica exactitud absoluta a cambio de viabilidad. Obtener las siete variables con sensores de investigación multiplicaría el costo del producto por veinte, lo que contradice el objetivo mismo del proyecto. La limitación técnica más importante se declara explícitamente: la estimación de N, P y K no se mide por electrodo ion-selectivo, sino que se deriva de la conductividad eléctrica. En suelo salino puede leer erróneamente un estado "fértil". Para mitigarlo, la App presenta N, P y K por separado como registros informativos sin validación química, nunca para calcular dosis, independientemente de la conductividad. Ni una CE baja ni una tendencia estable prueban selectividad química de la sonda, y el informe no lo presenta como si lo hicieran.
 
 **Sensor Ambiental:** Compite el Bosch BME280 contra el Sensirion SHT40 y contra el Bosch BMP280.
 
@@ -618,7 +648,7 @@ Antes de proyectar una sola unidad vendida es necesario acotar el universo sobre
 
 ###### **Tabla 2.0 “Dimensionamiento del Mercado”**
 
-Esta tabla incorpora una corrección metodológica importante respecto de versiones anteriores del estudio. El total censal describe el sector, pero **no equivale a clientes con intención de compra**, y por lo tanto no respalda por sí solo una cifra de mercado servible expresada en pesos. El segmento inicial se orienta al pequeño y mediano agricultor comercial, aproximadamente de 0,5 a 20 hectáreas, además de los asesores que utilizan el instrumento en más de un predio. La existencia de smartphone importa para la adopción, pero la cobertura permanente de internet no es un requisito para cada lectura local, precisamente por el diseño *offline-first*. El Mercado Objetivo, en consecuencia, se presenta como lo que es: una meta de ventas sostenida por un presupuesto comercial, no una fracción de una cifra censal.
+Esta tabla incorpora una corrección metodológica importante respecto de versiones anteriores del estudio. El total censal describe el sector, pero **no equivale a clientes con intención de compra**, y por lo tanto no respalda por sí solo una cifra de mercado servible expresada en pesos. El segmento inicial se orienta al pequeño y mediano agricultor comercial, aproximadamente de 0,5 a 20 hectáreas, además de los asesores que utilizan el instrumento en más de un campo. La existencia de smartphone importa para la adopción, pero la cobertura permanente de internet no es un requisito para cada lectura local, precisamente por el diseño *offline-first*. El Mercado Objetivo, en consecuencia, se presenta como lo que es: una meta de ventas sostenida por un presupuesto comercial, no una fracción de una cifra censal.
 
 **Plan de Ventas y Motor de Crecimiento:**
 
@@ -743,72 +773,74 @@ Para garantizar el realismo de la evaluación, los gastos fijos asumen una forma
 
 | Año | Equilibrio operativo | Equilibrio con deuda | Ventas planificadas |
 |---|---|---|---|
-| 2027 | 176 | 205 | 200 |
-| 2028 | 250 | 277 | 350 |
-| 2029 | 337 | 364 | 500 |
-| 2030 | 472 | 498 | 650 |
-| 2031 | 608 | 634 | 850 |
-| 2032 | 653 | 678 | 892 |
+| 2027 | 176 | 204 | 200 |
+| 2028 | 250 | 276 | 350 |
+| 2029 | 337 | 363 | 500 |
+| 2030 | 472 | 497 | 650 |
+| 2031 | 608 | 633 | 850 |
+| 2032 | 653 | 677 | 892 |
 | 2033 | 665 | 688 | 937 |
-| 2034 | 709 | 732 | 984 |
-| 2035 | 719 | 742 | 1033 |
-| 2036 | 729 | 751 | 1085 |
+| 2034 | 709 | 731 | 984 |
+| 2035 | 719 | 741 | 1033 |
+| 2036 | 729 | 750 | 1085 |
 
 ###### **Tabla 2.5 “Punto de Equilibrio Operativo y con Deuda”**
 
-En el primer año, $32.160.000 de gastos fijos se cubren con 176 unidades al margen calculado. Al añadir capital e intereses, el umbral sube a 205. La meta de 200 unidades cubre la operación, pero queda por debajo del equilibrio con deuda. Esta diferencia explica el uso de liquidez inicial durante el arranque; no se confunde una venta con caja libre inmediatamente distribuible.
+En el primer año, $32.160.000 de gastos fijos se cubren con 176 unidades al margen calculado. Al añadir capital e intereses, el umbral sube a 204. La meta de 200 unidades cubre la operación, pero queda por debajo del equilibrio con deuda. Esta diferencia explica el uso de liquidez inicial durante el arranque; no se confunde una venta con caja libre inmediatamente distribuible.
+
+Dos partidas del cuadro son contratos con terceros y no sueldos. La **contabilidad externa** ($120.000 mensuales el primer año) es un contrato de servicios con un estudio contable que cubre la contabilidad de la sociedad bajo el régimen Pro Pyme, el Formulario 29 mensual de IVA, los pagos provisionales, la declaración anual de renta, el procesamiento de remuneraciones y los estados financieros que exige el banco mientras el crédito esté vigente; su honorario sube $20.000 mensuales por trabajador adicional en nómina, porque esa es la parte del servicio que escala con la dotación. La **agencia de marketing** ($250.000 mensuales) es un retainer que se activa recién desde 650 ventas anuales y cubre la gestión de la pauta digital, el material de demostración y las redes; no debe confundirse con la pauta misma, que es el dinero pagado a las plataformas y se presupuesta aparte a $30.000 por equipo vendido.
 
 <!-- INFORME:FIJOS:FIN -->
 
-En el primer año, los $32.160.000 de gastos fijos se cubren con 176 unidades al margen calculado, de modo que la meta de 200 unidades deja un margen de seguridad del 12 % sobre el equilibrio operativo. Al añadir capital e intereses del crédito, sin embargo, el umbral sube a 205 unidades: **la meta del Año 1 cubre la operación pero queda cinco unidades por debajo del equilibrio con deuda**. Esta diferencia no es un defecto oculto del modelo sino su hallazgo más útil, porque explica exactamente por qué el proyecto necesita liquidez inicial durante el arranque y por qué una venta no equivale a caja libre inmediatamente distribuible.
+En el primer año, los $32.160.000 de gastos fijos se cubren con 176 unidades al margen calculado, de modo que la meta de 200 unidades deja un margen de seguridad del 12 % sobre el equilibrio operativo. Al añadir capital e intereses del crédito, sin embargo, el umbral sube a 204 unidades: **la meta del Año 1 cubre la operación pero queda cuatro unidades por debajo del equilibrio con deuda**. Esta diferencia no es un defecto oculto del modelo sino su hallazgo más útil, porque explica exactamente por qué el proyecto necesita liquidez inicial durante el arranque y por qué una venta no equivale a caja libre inmediatamente distribuible.
 
 El equilibrio operativo se calcula como gastos fijos divididos por el margen unitario, redondeado hacia arriba; el equilibrio con deuda añade capital e intereses al numerador. Este segundo umbral no incluye por sí solo el impuesto ni la acumulación de inventario, por lo que complementa —pero no sustituye— el análisis de flujo mensual y el indicador de cobertura de deuda (DSCR).
 
 **Inversión Inicial y Estructura de Financiamiento:**
 
-La puesta en marcha se estructura sobre fuentes de financiamiento por **$40.000.000 CLP**, distribuidas de la siguiente manera:
+La puesta en marcha se estructura sobre fuentes de financiamiento por **$39.000.000 CLP**: un pie propio de los socios de **$9.000.000** ($4.500.000 cada uno, 50 % y 50 %) y un crédito bancario de **$30.000.000**. El pie equivale al **30 % del crédito** y es el capital propio que el banco exige antes de desembolsar el suyo; se registra una sola vez como aporte de los socios, no se descuenta del principal y no se devuelve al banco.
 
 <!-- INFORME:INVERSION:INICIO -->
 
-| Origen de fondos | CLP | Participación |
-|---|---|---|
-| Pie / aporte propio de socios | $9.000.000 | 22,5 % |
-| Crédito | $31.000.000 | 77,5 % |
-| **Total fuentes de financiamiento** | $40.000.000 | 100 % |
+| Origen de fondos | CLP | Participación sobre el total | Relación con el crédito |
+|---|---|---|---|
+| Pie propio de los socios ($4.500.000 cada socio, 50 % y 50 %) | $9.000.000 | 23,1 % | 30 % del crédito |
+| Crédito bancario | $30.000.000 | 76,9 % | 100 % del crédito |
+| **Total fuentes de financiamiento** | $39.000.000 | 100 % | — |
 
 | Destino de fondos | CLP |
 |---|---|
 | Activos, desarrollo y formalización, con IVA presupuestado | $10.353.000 |
 | Inventario inicial, IVA incluido | $964.378 |
-| Gastos de apertura del crédito | $620.000 |
-| Caja inicial, con reserva incluida | $28.062.622 |
-| **Total destinos** | $40.000.000 |
+| Gastos de apertura del crédito (2 % de $30.000.000) | $600.000 |
+| Caja inicial, con reserva incluida | $27.082.622 |
+| **Total destinos** | $39.000.000 |
 
 ###### **Tabla 2.6 “Financiamiento del Proyecto: Origen y Destino de Fondos”**
 
-El desembolso de apertura es **$11.317.378**. Los $40.000.000 son fuentes de financiamiento y no deben denominarse inversión económica consumida: una parte permanece en caja. Para VAN y TIR, el capital comprometido en mes 0 es **$20.489.116**, compuesto por el desembolso y la caja mínima operativa independiente de la deuda.
+El desembolso de apertura es **$11.317.378**. Los $39.000.000 son fuentes de financiamiento y no deben denominarse inversión económica consumida: una parte permanece en caja. Para VAN y TIR, el capital comprometido en mes 0 es **$20.489.116**, compuesto por el desembolso y la caja mínima operativa independiente de la deuda.
 
-| Plazo, años | Cuota mensual | Intereses totales | Saldo al año 5 | Mínimo sobre reserva, 24 meses |
-|---|---|---|---|---|
-| 5 | $680.007 | $9.800.394 | $0 | −$5.359.010 |
-| 10 | $433.836 | $21.060.349 | $19.777.637 | $56.737 |
-| 15 | $359.906 | $33.783.094 | $25.717.281 | $1.683.200 |
+| Plazo, años | Cuota mensual | Intereses totales | Total pagado al banco | Saldo al año 5 | Caja mínima de los primeros 24 meses |
+|---|---|---|---|---|---|
+| 5 | $658.071 | $9.484.253 | $39.484.253 | $0 | $8.995.388 |
+| 10 | $419.842 | $20.380.983 | $50.380.983 | $19.139.649 | $13.521.745 |
+| 15 | $348.296 | $32.693.316 | $62.693.316 | $24.887.691 | $14.881.107 |
 
 ###### **Tabla 2.7 “Alternativas de Plazo del Crédito”**
 
-La comparación utiliza el mismo principal y 12 % efectivo anual. Diez años reduce el servicio de arranque frente a cinco; quince reduce nuevamente la cuota pero aumenta intereses y exposición temporal. El crédito no desaparece al terminar el quinto año: el saldo pendiente de ese corte se muestra expresamente. La evaluación principal a diez años sí cubre el crédito completo, que se cancela en el mes 120, y el Excel prolonga la amortización alternativa hasta el año 15.
+Las tres alternativas comparan el mismo principal de $30.000.000 y la misma tasa de 12 % efectivo anual (0,9489 % mensual); lo único que cambia es el plazo. Cinco años es el plazo más barato en intereses pero deja la caja de arranque en el nivel más bajo de los tres; quince años alivia la cuota a costa de más intereses y de deuda viva cinco años después de terminado el estudio. Diez años es el plazo adoptado: coincide con el horizonte de evaluación y cancela el crédito en el mes 120.
 
 <!-- INFORME:INVERSION:FIN -->
 
-Conviene precisar una distinción decisiva en evaluaciones de este tipo: **los $40.000.000 son fuentes de financiamiento, no inversión económica consumida**. El desembolso efectivo de apertura es de **$11.317.378**; el resto permanece en caja como capital de trabajo y reserva. Para el cálculo de VAN y TIR, el capital comprometido en el mes 0 es de **$20.489.116**, compuesto por ese desembolso más la caja mínima operativa que la actividad requiere con independencia de cómo se financie.
+Conviene precisar una distinción decisiva en evaluaciones de este tipo: **los $39.000.000 son fuentes de financiamiento, no inversión económica consumida**. El desembolso efectivo de apertura es de **$11.317.378**; el resto permanece en caja como capital de trabajo y reserva. Para el cálculo de VAN y TIR, el capital comprometido en el mes 0 es de **$20.489.116**, compuesto por ese desembolso más la caja mínima operativa que la actividad requiere con independencia de cómo se financie.
 
-El tamaño de la estructura responde a un factor logístico y financiero concreto: el proyecto requiere liquidez para sostener el desfase entre compras, gastos y cobros durante el arranque. El modelo dimensiona el crédito en tramos de $100.000 hasta mantener, durante los primeros 24 meses, una reserva equivalente a tres meses de gastos fijos y tres cuotas, más un 10 % del desembolso inicial. Esa reserva está *dentro* de la caja y no se descuenta como un gasto adicional ni se suma dos veces al total. La política de inventario cubre dos meses de ventas, supuesto que debe ajustarse según el plazo real de entrega del proveedor de sondas.
+El tamaño de la estructura responde a un factor logístico y financiero concreto: el proyecto requiere liquidez para sostener el desfase entre compras, gastos y cobros durante el arranque. Con el crédito fijado en $30.000.000, la caja no baja de $13.521.745 en los primeros 24 meses; la reserva objetivo —tres meses de gastos fijos y tres cuotas más un 10 % del desembolso inicial— queda $615.379 corta en su punto más bajo (mes 19), diferencia que se informa en lugar de corregirse ampliando el préstamo. Esa reserva está *dentro* de la caja y no se descuenta como un gasto adicional ni se suma dos veces al total. La política de inventario cubre dos meses de ventas, supuesto que debe ajustarse según el plazo real de entrega del proveedor de sondas.
 
 La elección del plazo del crédito, comparada en la tercera tabla del bloque anterior sobre el mismo principal y la misma tasa, no es indiferente.
 
-El plazo de cinco años sería preferible por costo financiero total, pero su cuota deja la reserva en terreno negativo durante los primeros 24 meses: el proyecto simplemente no sobreviviría al arranque. Quince años alivia aún más la cuota pero incrementa los intereses en más de $12 millones adicionales y prolonga la exposición. Diez años es el punto donde la reserva se mantiene positiva con el menor costo financiero posible. Se declara expresamente que **el crédito no desaparece al terminar el quinto año**: en ese corte quedan $19.777.637 de saldo pendiente, cifra que se muestra en su propia tabla. La evaluación principal a diez años sí cubre el crédito completo, que se cancela en el mes 120, mientras que el modelo extendido en Excel amortiza la alternativa hasta el año 15.
+El plazo de cinco años sería preferible por costo financiero total ($9.484.253 de intereses contra $20.380.983 a diez años), pero su cuota de $658.071 deja la caja de arranque en $8.995.388 y la reserva objetivo $5.856.425 bajo su nivel: el proyecto quedaría sin colchón para el arranque. Quince años alivia aún más la cuota, pero incrementa los intereses en más de $12 millones adicionales y prolonga la exposición cinco años más allá del estudio. Diez años equilibra ambos efectos con el menor costo financiero tolerable. Se declara expresamente que **el crédito no desaparece al terminar el quinto año**: en ese corte quedan $19.139.649 de saldo pendiente, cifra que se muestra en su propia tabla. La evaluación principal a diez años sí cubre el crédito completo, que se cancela en el mes 120, mientras que el modelo extendido en Excel amortiza la alternativa hasta el año 15.
 
-La tasa se convierte a período mensual mediante la expresión `r_m = (1 + 0,12)^(1/12) − 1`, y no dividiendo simplemente por doce, porque está definida como efectiva anual. Con cuotas constantes, cada pago se separa en intereses y amortización: la cuota no es un gasto operativo completo, ya que el capital reduce la deuda mientras los intereses tienen tratamiento de financiamiento y tributario propio.
+La tasa se convierte a período mensual mediante la expresión `r_m = (1 + 0,12)^(1/12) − 1 = 0,9489 %`, y no dividiendo simplemente por doce, porque está definida como efectiva anual. Sobre esa base, la cuota fija es de $419.842 durante 120 meses y el total pagado al banco asciende a $50.380.983. Con cuotas constantes, cada pago se separa en intereses y amortización: la cuota no es un gasto operativo completo, ya que el capital reduce la deuda mientras los intereses tienen tratamiento de financiamiento y tributario propio.
 
 **Inventario, Impuestos y Construcción del Flujo de Caja:**
 
@@ -837,16 +869,16 @@ flowchart TD
 
 | Año | Venta neta | EBITDA | FCFF antes de caja mínima | FCFE | Caja final | DSCR |
 |---|---|---|---|---|---|---|
-| 2027 | $58.821.849 | $4.426.234 | $3.614.395 | −$1.591.640 | $26.470.982 | 0,69 |
-| 2028 | $106.026.382 | $19.015.320 | $16.382.140 | $12.176.166 | $38.647.148 | 3,34 |
-| 2029 | $156.010.248 | $31.680.620 | $23.048.763 | $18.590.260 | $57.237.408 | 4,57 |
-| 2030 | $208.897.722 | $35.729.124 | $24.648.429 | $20.123.449 | $77.360.857 | 4,87 |
-| 2031 | $281.369.163 | $49.915.370 | $37.321.742 | $32.722.306 | $110.083.164 | 7,29 |
-| 2032 | $304.130.273 | $50.743.843 | $38.257.646 | $33.574.822 | $143.657.986 | 7,45 |
-| 2033 | $329.057.363 | $59.668.629 | $42.895.616 | $38.119.396 | $181.777.382 | 8,32 |
-| 2034 | $355.929.796 | $62.009.246 | $45.930.101 | $41.049.278 | $222.826.660 | 8,88 |
-| 2035 | $384.863.561 | $72.836.612 | $53.749.520 | $48.751.541 | $271.578.201 | 10,36 |
-| 2036 | $416.364.252 | $85.094.046 | $62.777.691 | $57.648.498 | $329.226.698 | 12,07 |
+| 2027 | $58.821.849 | $4.426.234 | $3.614.395 | −$1.423.703 | $25.658.919 | 0,72 |
+| 2028 | $106.026.382 | $19.015.320 | $16.382.140 | $12.311.843 | $37.970.762 | 3,44 |
+| 2029 | $156.010.248 | $31.680.620 | $23.048.763 | $18.734.083 | $56.704.844 | 4,72 |
+| 2030 | $208.897.722 | $35.729.124 | $24.648.429 | $20.269.416 | $76.974.260 | 5,02 |
+| 2031 | $281.369.163 | $49.915.370 | $37.321.742 | $32.870.675 | $109.844.935 | 7,52 |
+| 2032 | $304.130.273 | $50.743.843 | $38.257.646 | $33.725.881 | $143.570.816 | 7,69 |
+| 2033 | $329.057.363 | $59.668.629 | $42.895.616 | $38.273.467 | $181.844.284 | 8,60 |
+| 2034 | $355.929.796 | $62.009.246 | $45.930.101 | $41.206.724 | $223.051.008 | 9,18 |
+| 2035 | $384.863.561 | $72.836.612 | $53.749.520 | $48.912.766 | $271.963.774 | 10,71 |
+| 2036 | $416.364.252 | $85.094.046 | $62.777.691 | $57.813.955 | $329.777.729 | 12,48 |
 
 ###### **Tabla 2.8 “Proyección Anual de Resultados y Caja”**
 
@@ -866,11 +898,13 @@ flowchart TD
 
 ###### **Tabla 2.9 “Flujo Económico para la Evaluación”**
 
-En 2027, el EBITDA de $4.426.234 se transforma en FCFE de −$1.591.640 después de compras, IVA, impuestos y deuda. La caja final sigue positiva porque parte de la caja inicial. El **DSCR de 0,69** significa que la generación disponible para deuda no cubre por sí sola todo el servicio del primer año. Desde el año siguiente, el aumento de ventas mejora esa cobertura dentro del escenario base.
+Las siglas del cuadro: **EBITDA** (utilidad antes de intereses, impuestos, depreciación y amortización), **FCFF** (flujo de caja libre de la empresa, antes de pagar al banco), **FCFE** (flujo de caja libre del accionista, después de pagar la cuota) y **DSCR** (razón de cobertura del servicio de la deuda: caja disponible dividida por la cuota anual; bajo 1,0 la operación no alcanza a cubrir el crédito por sí sola).
+
+En 2027, el EBITDA de $4.426.234 se transforma en FCFE de −$1.423.703 después de compras, IVA, impuestos y deuda. La caja final sigue positiva porque parte de la caja inicial. El **DSCR de 0,72** significa que la generación disponible para deuda no cubre por sí sola todo el servicio del primer año. Desde el año siguiente, el aumento de ventas mejora esa cobertura dentro del escenario base.
 
 <!-- INFORME:FLUJOS:FIN -->
 
-El resultado del primer ejercicio merece lectura detenida, porque es donde el proyecto muestra tanto su solidez como su punto de tensión. El EBITDA de 2027 es positivo ($4.426.234), pero se transforma en un FCFE de **−$1.591.640** después de compras de inventario, IVA, impuestos y servicio de deuda. La caja final permanece positiva ($26.470.982) porque parte de la caja inicial constituida con el financiamiento. El **DSCR de 0,69** significa que la generación disponible para deuda no cubre por sí sola todo el servicio del primer año; desde 2028 esa cobertura mejora sustancialmente hasta 3,34 y sigue creciendo. Presentar este dato es preferible a ocultarlo: identifica con precisión qué debe financiarse y durante cuánto tiempo.
+El resultado del primer ejercicio merece lectura detenida, porque es donde el proyecto muestra tanto su solidez como su punto de tensión. El EBITDA de 2027 es positivo ($4.426.234), pero se transforma en un FCFE de **−$1.423.703** después de compras de inventario, IVA, impuestos y servicio de deuda. La caja final permanece positiva ($25.658.919) porque parte de la caja inicial constituida con el pie y el crédito. El **DSCR de 0,72** significa que la generación disponible para deuda cubre el 72 % del servicio del primer año y el resto sale de la caja de arranque; desde 2028 esa cobertura sube a 3,44 y sigue creciendo hasta 12,48 en 2036. Presentar este dato es preferible a ocultarlo: identifica con precisión qué debe financiarse y durante cuánto tiempo.
 
 **Metodología de VAN, TIR y Payback:**
 
@@ -919,13 +953,13 @@ Los tres escenarios muestran que el margen técnico del equipo, el costo comerci
 
 | Caso | Ventas año 1 | EBITDA año 1 | DSCR año 1 | VAN 10 años | Mínimo sobre reserva 24 meses |
 |---|---|---|---|---|---|
-| Base | 200 | $4.426.234 | 0,69 | $63.717.893 | $56.737 |
-| Ventas −10 % | 180 | $779.610 | -0,01 | $31.147.090 | −$5.634.752 |
-| Ventas −25 % | 150 | −$4.690.325 | -1,06 | −$12.452.408 | −$13.602.239 |
-| Ventas −35 % | 130 | −$8.336.948 | -1,76 | −$50.865.171 | −$19.433.131 |
-| Precio $299.990 | 200 | −$3.477.128 | -0,82 | −$29.441.688 | −$13.484.007 |
-| BOM +15 % | 200 | $1.795.877 | 0,17 | $31.249.254 | −$5.307.551 |
-| Tasa crédito 18 % | 200 | $4.426.234 | 0,57 | $63.717.893 | −$2.107.969 |
+| Base | 200 | $4.426.234 | 0,72 | $63.717.893 | −$615.379 |
+| Ventas −10 % | 180 | $779.610 | -0,01 | $31.147.090 | −$6.320.863 |
+| Ventas −25 % | 150 | −$4.690.325 | -1,09 | −$12.452.408 | −$14.274.356 |
+| Ventas −35 % | 130 | −$8.336.948 | -1,82 | −$50.865.171 | −$20.077.258 |
+| Precio $299.990 | 200 | −$3.477.128 | -0,85 | −$29.441.688 | −$14.142.128 |
+| BOM +15 % | 200 | $1.795.877 | 0,17 | $31.249.254 | −$5.979.667 |
+| Tasa crédito 18 % | 200 | $4.426.234 | 0,58 | $63.717.893 | −$2.710.256 |
 
 ###### **Tabla 3.1 “Análisis de Sensibilidad”**
 
@@ -950,7 +984,7 @@ Adicionalmente, se recalculó el VAN ante distintas tasas de descuento, para ver
 | 20 % | $63.717.893 | Positivo |
 | 30 % | $28.796.371 | Positivo |
 | 40 % | $9.986.673 | Positivo |
-| TIR: 48,94 % | −$0 | VAN aproximadamente cero |
+| TIR: 48,94 % | $0 | VAN aproximadamente cero |
 
 ###### **Tabla 3.2 “Análisis del VAN”**
 
@@ -973,7 +1007,7 @@ Todas las filas de la tabla descuentan la misma serie mensual de flujos, sin mod
 
 * **Riesgo cambiario:** al importar componentes críticos, una devaluación del peso incrementa el Costo Variable Unitario. El análisis de sensibilidad muestra que un alza del 15 % en la BOM reduce el VAN; consultar la sensibilidad a diez años, por lo que este riesgo exige cobertura activa y no simple monitoreo.
 * **Riesgo de acceso a financiamiento:** la estructura de capital depende de obtener el crédito de largo plazo en condiciones cercanas al 12 % efectivo anual y a diez años de plazo. *Condición de mitigación:* confirmar con al menos dos o tres entidades bancarias la disponibilidad real de esta tasa y plazo antes de comprometer la inversión, considerando el uso de garantías estatales tipo FOGAPE.
-* **Riesgo de cobertura de deuda en el arranque:** el DSCR del Año 1 es de 0,69 y el equilibrio con deuda (205 unidades) supera la meta de ventas (200 unidades). *Condición de mitigación:* mantener íntegra la reserva de los primeros 24 meses y no distribuir utilidades durante ese período.
+* **Riesgo de cobertura de deuda en el arranque:** el DSCR del Año 1 es de 0,72 y el equilibrio con deuda (204 unidades) supera la meta de ventas (200 unidades). *Condición de mitigación:* mantener íntegra la reserva de los primeros 24 meses y no distribuir utilidades durante ese período.
 * **Riesgo de dotación operativa:** la proyección asume una dotación reducida (según los escalones de técnicos y soporte de las tablas anuales, complementada por horas de los socios). *Condición de mitigación:* validar operativamente que esta dotación sea suficiente antes de escalar la producción del Año 2.
 * **Riesgo de demanda:** el escenario base es deliberadamente conservador, pero la sensibilidad muestra que la holgura frente a una caída de ventas es menor que la supuesta en versiones anteriores del estudio. Toda la estrategia comercial inicial debe orientarse a proteger el volumen del primer año.
 * **Riesgo de licencia del servicio de pronóstico:** la aplicación utiliza actualmente un proveedor cuya modalidad gratuita está destinada a uso no comercial. *Condición de mitigación:* comprobar licencia, cupo y cobertura antes del lanzamiento, o presupuestar un plan pagado que hoy no está contratado.
@@ -988,13 +1022,15 @@ Con el análisis de sensibilidad y de riesgos expuesto, la evaluación del escen
 | **TIR** | 35,43 % | TIR \> 20 % | **Cumple** |
 | **Pay Back simple** | 34,61 meses (2,88 años) | ≤ 5 años | **Cumple** |
 | **Pay Back descontado (20 %)** | 47,15 meses (3,93 años) | ≤ 5 años | **Cumple** |
-| **DSCR Año 1** | 0,69 | ≥ 1,0 | **No cumple en Año 1** |
+| **DSCR Año 1** | 0,72 | ≥ 1,0 | **No cumple en Año 1** |
 
 ###### **Tabla 3.3 “Evaluación Financiera”**
 
 La decisión económica del caso base es favorable. La planificación financiera añade, sin embargo, una segunda pregunta que este informe responde en lugar de evitar: cómo pagar los meses iniciales antes de alcanzar la escala proyectada. Por eso se publican también el DSCR, la reserva y la caja mensual. Retorno económico y cobertura temprana de deuda describen aspectos diferentes del mismo proyecto, y solo presentando ambos el estudio puede defenderse.
 
 **Especificaciones Técnicas del Proyecto:**
+
+> **Fuente de verdad de esta sección:** el detalle de esquemático, huellas, árbol de alimentación y lista de materiales física está en [`PCB/README.md`](../PCB/README.md); los costos de cada componente, en la lista `bom` de `finanzas/supuestos.json`.
 
 **Arquitectura General y Estrategia de Hardware:** El diseño de hardware se articula en torno a una topología de bajo consumo, orientada a maximizar la autonomía del equipo en jornadas de terreno. La arquitectura separa lógicamente el sistema en un dominio de control digital (siempre energizado, pero capaz de entrar en reposo profundo) y un dominio de potencia analógico/periférico que se aísla mediante *power gating* cuando no está en ciclo de medición.
 
@@ -1040,7 +1076,9 @@ Estas cifras corresponden a lo declarado por el fabricante y deben verificarse c
 
 * **Sensor Ambiental (Bosch BME280):** Para las variables climáticas del punto de muestreo se integra un BME280 en el bus I²C a 3,3 V, aportando temperatura del aire (±1,0 °C), humedad relativa (±3 % HR) y presión barométrica (±1,0 hPa). El sensor opera en *forced mode*, realizando una adquisición y regresando por sí solo al reposo. Bosch especifica aproximadamente 3,6 µA de consumo promedio a una tasa de una actualización por segundo midiendo las tres magnitudes, y 0,1 µA en reposo del sensor; conviene precisar que el primer valor **es un promedio a esa configuración de muestreo específica** y no una corriente instantánea aplicable a cualquier régimen, y que a ambos debe sumarse el consumo del módulo *breakout* que aloja el chip.
 
-**Contrato de Datos BLE:** El instrumento actúa como puente entre dos entornos distintos: hacia la sonda ejecuta una consulta Modbus RTU y verifica la respuesta; hacia el teléfono publica los datos ya decodificados en una característica GATT. La aplicación no necesita generar señales RS-485 ni procesar el cableado industrial, sino consumir un contrato de datos de aplicación. El contrato vigente, implementado en el decodificador de la aplicación, es de 16 bytes con valores multibyte en formato *big-endian*:
+**Contrato de Datos BLE:** El instrumento actúa como puente entre dos entornos distintos: hacia la sonda ejecuta una consulta Modbus RTU y verifica la respuesta; hacia el teléfono publica los datos ya decodificados en una característica GATT. La aplicación no necesita generar señales RS-485 ni procesar el cableado industrial, sino consumir un contrato de datos de aplicación. El contrato del producto es de **20 bytes** con valores multibyte en formato *big-endian*, e incluye siempre las siete variables de suelo, las tres de ambiente y la batería en una sola notificación.
+
+> **Fuente de verdad:** el decodificador real es `App/src/services/probeService.ts`; el transporte y la suscripción a la característica, `App/src/services/bleService.ts`. La descripción byte a byte para quien escriba el firmware está en [`docs/CONTRATO_BLE.md`](CONTRATO_BLE.md) y se replica en `PCB/README.md`. Si el decodificador cambia, esos tres documentos se actualizan desde él y no al revés.
 
 | Bytes | Contenido | Tipo y escala | Interpretación en la App |
 | :---: | :---- | :---: | :---- |
@@ -1052,8 +1090,8 @@ Estas cifras corresponden a lo declarado por el fabricante y deben verificarse c
 | 10–11 | Fósforo (P) | `uint16` | mg/kg, presentado como clase ordinal |
 | 12–13 | Potasio (K) | `uint16` | mg/kg, presentado como clase ordinal |
 | 14 | Batería | **`uint8`** | **Porcentaje 0–100, no milivoltios** |
-| 15 | Versión de trama | `uint8` | `0` = 16 bytes, sólo suelo y batería; `1` = 20 bytes, con ambiente |
-| 16–19 | Ambiente BME280, sólo en la versión 1 | 32 bits empaquetados | Temperatura del aire (12 bits), presión (12 bits) y humedad relativa (8 bits) |
+| 15 | Identificador de formato | `uint8` | `1` = 20 bytes con ambiente, el formato del producto; `0` = 16 bytes, tolerado sólo para prototipos sin BME280 |
+| 16–19 | Ambiente BME280 | 32 bits empaquetados | Temperatura del aire (12 bits), presión (12 bits) y humedad relativa (8 bits) |
 
 ###### **Tabla 3.6 “Contrato de Datos BLE (16 o 20 bytes)”**
 
@@ -1112,6 +1150,8 @@ Nótese que el patrón de error de sonda es distinto de cualquier indicación de
 
 **Aplicación Móvil y Motor de Razonamiento Agronómico:**
 
+> **Fuente de verdad de esta sección:** el motor agronómico vive en `App/src/engine/` (`agronomyEngine.ts` para el diagnóstico por variable, `stageEvaluator.ts` para la etapa fenológica y `contextualAdvice.ts` para la recomendación de labor); el pronóstico y su degradación sin red, en `App/src/services/weatherService.ts`; la persistencia y la cola local, en `App/src/services/measurementsService.ts`. Los umbrales que aparecen en la matriz de cultivos de este informe deben coincidir con los de esos archivos: si difieren, mandan los archivos. La descripción funcional completa de pantallas y flujos está en [`App/README.md`](../App/README.md).
+
 La aplicación está desarrollada con React Native, Expo y TypeScript. El motor agronómico y las definiciones de cultivos residen en código local; la persistencia utiliza almacenamiento local del dispositivo con estado administrado mediante Zustand. Corresponde precisar, frente a versiones anteriores del informe, que **no se implementa una base SQLite** en la versión revisada: la persistencia local existe y funciona, pero mediante otro mecanismo. Esta distinción importa porque describe con exactitud qué parte del sistema interpreta, cuál conserva una lectura y cuál solicita datos remotos.
 
 El motor evalúa la medición contra una matriz de cultivos con umbrales declarados por especie:
@@ -1141,7 +1181,7 @@ Sobre esta base, la evaluación se ajusta además a una de las cuatro etapas fen
 
 ```mermaid
 flowchart TD
-    A[Seleccionar equipo y predio] --> B[Elegir cultivo, textura y etapa]
+    A[Seleccionar equipo y campo] --> B[Elegir cultivo, textura y etapa]
     B --> C[Revisar limpieza e insertar la sonda]
     C --> D[Iniciar captura]
     D --> E{Hay datos utilizables}
@@ -1190,11 +1230,11 @@ Corresponde declarar con precisión qué parte de esta arquitectura está constr
 
 | Función | Estado en el código revisado | Integración requerida |
 | :---- | :---- | :---- |
-| Suelo por BLE | Decodificador implementado, con versión de trama | Contrastar con el firmware y la ficha de la sonda adquirida |
-| Ambiente local | Transporte resuelto: la trama versión 1 lleva las tres magnitudes y el decodificador las lee | Adquisición I²C en el firmware y captura real contra el sensor físico |
-| Grid 2×5 | Siete registros de suelo, temperatura de API y lluvia del día | Reorganizar según la Tabla 1.1, con N/P/K separados y tres celdas del BME280 |
+| Suelo por BLE | Decodificador implementado, con identificador de formato | Contrastar con el firmware y la ficha de la sonda adquirida |
+| Ambiente local | Transporte resuelto: la trama de 20 bytes lleva las tres magnitudes y el decodificador las lee | Adquisición I²C en el firmware y captura real contra el sensor físico |
+| Grid 2×5 | Diez tarjetas locales en App y detalle web; N/P/K separados e informativos | Validar interfaz en dispositivo físico |
 | Guardado ambiental | Resuelto: las tres magnitudes se guardan desde el BME280 y el VPD se deriva de ellas; sin sensor queda `NULL` | Verificar contra hardware real que los valores persistidos coinciden con el sensor |
-| Pronóstico | Solicita `forecast_days=2` y utiliza el primer elemento diario | Consumir los cinco días siguientes con fechas locales y datos completos |
+| Pronóstico | Solicita `forecast_days=6`; presenta las cinco fechas locales posteriores al día actual, con ausencias explícitas | Validar en campo; el resultado local no espera al pronóstico |
 | Fallo de red | El servicio devuelve valor nulo | Mantener la lectura local y distinguir "pronóstico no disponible" de "sin dato" |
 
 ###### **Tabla 4.2 “Estado de Integración del BME280 y del Pronóstico”**
@@ -1266,7 +1306,7 @@ Toda la ingeniería de energía del equipo se reduce a una sola regla, declarada
 
 Esta regla es la que explica, con hilo conductor, las decisiones de hardware adoptadas: por qué el equipo no lleva pantalla, por qué existe un MOSFET dedicado solo a cortar la alimentación de la sonda y por qué se prefirieron LEDs por sobre otros métodos de alerta o guía para el usuario.
 
-**Digitalización del Proceso Agrícola:** El segundo eje de este criterio es la digitalización del proceso de toma de decisiones en terreno. TerraSense transforma un proceso hoy manual y no trazable —la estimación visual, la memoria del agricultor o, en el mejor de los casos, un cuaderno de papel— en un flujo digital estructurado: cada medición queda georreferenciada, con marca de tiempo y sincronizada a una base histórica consultable. Esta digitalización habilita capacidades imposibles bajo el modelo análogo: comparar la evolución de un mismo punto del predio entre temporadas, generar mapas de salud edáfica agregados por cooperativa o territorio, y exportar reportes estandarizados para asesorías técnicas o postulaciones a programas de fomento. El agricultor pasa de "estimar" a "medir y registrar", cerrando la brecha de datos que hoy impide a instituciones públicas y privadas focalizar sus políticas de apoyo al sector.
+**Digitalización del Proceso Agrícola:** El segundo eje de este criterio es la digitalización del proceso de toma de decisiones en terreno. TerraSense transforma un proceso hoy manual y no trazable —la estimación visual, la memoria del agricultor o, en el mejor de los casos, un cuaderno de papel— en un flujo digital estructurado: cada medición queda georreferenciada, con marca de tiempo y sincronizada a una base histórica consultable. Esta digitalización habilita capacidades imposibles bajo el modelo análogo: comparar la evolución de un mismo punto del campo entre temporadas, generar mapas de salud edáfica agregados por cooperativa o territorio, y exportar reportes estandarizados para asesorías técnicas o postulaciones a programas de fomento. El agricultor pasa de "estimar" a "medir y registrar", cerrando la brecha de datos que hoy impide a instituciones públicas y privadas focalizar sus políticas de apoyo al sector.
 
 **Arquitectura de la Gestión Eficiente de Energía:**
 
@@ -1397,9 +1437,9 @@ El marco regulatorio aplicable al proyecto TerraSense organiza su cumplimiento n
 
 **Datos, Seguridad de la Información y Accesibilidad:**
 
-* **Ley N° 19.628 y Ley N° 21.719 (Protección de Datos Personales, Chile) \[19\]:** Exigen consentimiento y garantizan derechos del titular. La **Ley N° 21.719 entra en vigor el 1 de diciembre de 2026**, por lo que el proyecto debe diseñarse directamente bajo ese marco y no bajo el régimen anterior. A nivel de arquitectura se aplica Seguridad a Nivel de Fila (*Row Level Security*) en la base de datos, garantizando aislamiento estricto por predio y rol, y los datos son exportables por el usuario. Corresponde precisar que el uso de RLS y autenticación ayuda a controlar accesos pero **no resuelve por sí solo todas las obligaciones de tratamiento**: deben definirse finalidad, información al titular, plazos de conservación, ejercicio de derechos y alojamiento de datos, con especial atención a la georreferenciación de predios, que constituye información sensible para el agricultor.
+* **Ley N° 19.628 y Ley N° 21.719 (Protección de Datos Personales, Chile) \[19\]:** Exigen consentimiento y garantizan derechos del titular. La **Ley N° 21.719 entra en vigor el 1 de diciembre de 2026**, por lo que el proyecto debe diseñarse directamente bajo ese marco y no bajo el régimen anterior. A nivel de arquitectura se aplica Seguridad a Nivel de Fila (*Row Level Security*) en la base de datos, garantizando aislamiento estricto por campo y rol, y los datos son exportables por el usuario. Corresponde precisar que el uso de RLS y autenticación ayuda a controlar accesos pero **no resuelve por sí solo todas las obligaciones de tratamiento**: deben definirse finalidad, información al titular, plazos de conservación, ejercicio de derechos y alojamiento de datos, con especial atención a la georreferenciación de campos, que constituye información sensible para el agricultor.
 * **ISO/IEC 27001:2022 e ISO/IEC 25010 \[20\]:** El desarrollo de la plataforma se rige por cifrado en tránsito (TLS) y en reposo, control de acceso segmentado y criterios internacionales de fiabilidad, usabilidad y mantenibilidad de software.
-* **WCAG 2.1, nivel AA \[21\]:** Pautas de accesibilidad digital implementadas en la app: área táctil mínima de 48×48 dp, contraste mínimo de 4,5:1 y prohibición del uso del color como único portador de información, razón por la cual el semáforo de diagnóstico siempre se acompaña de texto explicativo.
+* **WCAG 2.1, nivel AA \[21\]:** Pautas de accesibilidad digital implementadas en la app: contraste mínimo de 4,5:1 y prohibición del uso del color como único portador de información, razón por la cual el semáforo de diagnóstico siempre se acompaña de texto explicativo.
 
 **Protección al Consumidor:**
 
@@ -1441,7 +1481,7 @@ En el escenario base, el proyecto presenta **VAN de $63.717.893**, **TIR efectiv
 
 <!-- INFORME:CIERRE:FIN -->
 
-Ese nivel de detalle mensual, que una proyección anual agregada no habría revelado, expone las dos tensiones que el proyecto debe administrar y que este informe no oculta: el DSCR del primer año es de 0,69 y el equilibrio con deuda (205 unidades) supera ligeramente la meta de ventas, de modo que el arranque exige mantener íntegra la reserva de liquidez; y la sensibilidad muestra que no existe holgura alguna sobre el precio de venta, que constituye un techo estratégico y no un punto de negociación.
+Ese nivel de detalle mensual, que una proyección anual agregada no habría revelado, expone las dos tensiones que el proyecto debe administrar y que este informe no oculta: el DSCR del primer año es de 0,72 y el equilibrio con deuda (204 unidades) supera ligeramente la meta de ventas, de modo que el arranque exige mantener íntegra la reserva de liquidez; y la sensibilidad muestra que no existe holgura alguna sobre el precio de venta, que constituye un techo estratégico y no un punto de negociación.
 
 En síntesis, TerraSense cumple con éxito su objetivo general: lograr que una medición física se convierta, en el mismo lugar, en una decisión agronómica correcta. Al eliminar los costos recurrentes y transformar valores numéricos planos en instrucciones de manejo claras, el proyecto mitiga el riesgo de pérdida de cosechas, protege el patrimonio familiar del pequeño agricultor y fomenta la resiliencia hídrica del sector agrícola nacional. El resultado económico y el diseño técnico convergen en una misma decisión: construir una herramienta útil que pueda fabricarse, mantenerse y respaldarse con el margen presupuestado. Los próximos cierres se concentran en la integración ambiental de extremo a extremo, en la consulta del horizonte climático correcto y en los ensayos del conjunto ensamblado, trabajos que este informe deja identificados con su evidencia esperada precisamente para que puedan ejecutarse y defenderse.
 

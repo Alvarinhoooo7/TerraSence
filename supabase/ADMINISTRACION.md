@@ -24,7 +24,7 @@ La Edge Function intenta despachar la push al confirmar la solicitud. El despach
 
 El backoffice busca por UUID/ID estable del equipo o correo actual de un miembro. Puede aprobar pendientes, delegar y eliminar miembros con las mismas restricciones. El reset exige repetir el ID y borra todas las membresías, mediciones, cuadrantes, alertas e historial de estado; invalida los QR y restablece nombre/configuración de la nube. Conserva la identidad estable y las versiones reales del hardware. El siguiente emparejamiento obtiene administración.
 
-**El reset físico no está implementado:** no hay firmware fuente en este repositorio ni protocolo para ordenar y confirmar el borrado de NVS. El backoffice muestra esta limitación; borrar datos en Supabase no confirma que la memoria física se haya limpiado. Los perímetros son datos de cuenta/predio, no del equipo, y no se eliminan al resetear una sonda.
+**El reset físico no está implementado:** no hay firmware fuente en este repositorio ni protocolo para ordenar y confirmar el borrado de NVS. El backoffice muestra esta limitación; borrar datos en Supabase no confirma que la memoria física se haya limpiado. Los perímetros son datos de cuenta/campo, no del equipo, y no se eliminan al resetear una sonda.
 
 ## Despliegue y verificación
 

@@ -1,6 +1,6 @@
 # Plan de integración y validación — TerraSense
 
-Revisión 05-09-2026. El [Informe 1](INFORME%201%20.docx.md) concentra arquitectura, operación y evaluación; este documento organiza las comprobaciones pendientes.
+El [Informe 1](INFORME%201%20.docx.md) concentra arquitectura, operación y evaluación; este documento organiza las comprobaciones que siguen pendientes.
 
 La [auditoría del 04-09-2026](../finanzas/historico/documentacion/docs/AUDITORIA_READMES_2026-09-04.md) es evidencia histórica, no la especificación vigente. Los documentos y planillas que reemplazó se conservan en `finanzas/historico/` y **no deben usarse para cotizar ni fabricar**.
 
@@ -13,7 +13,7 @@ La integración de datos y las pruebas de software se trabajan en el repositorio
 | # | Pendiente | Por qué bloquea | Cómo se cierra |
 |:---:|---|---|---|
 | 1 | **Cotización real del BOM** | El costo de $81.184 es un presupuesto sin SKU. La sonda es aproximadamente el 59 % y define el margen | Cotizaciones con SKU, cantidad, precio neto y bruto, moneda, fecha, vigencia, lead time y costo puesto en taller |
-| 2 | **Oferta bancaria efectiva** | El crédito de $31.000.000 a 10 años y 12 % e.a. es un supuesto. **No hay oferta**. FOGAPE es garantía sujeta a evaluación, no aprobación | Cotización en CLP a tasa fija, a 5 y 10 años, con todos los cargos, garantías exigidas, gracia y comisión de prepago |
+| 2 | **Oferta bancaria efectiva** | El crédito definido es de $30.000.000 a 10 años y 12 % efectivo anual, con pie propio de $9.000.000 (30 % del crédito). **Falta la oferta bancaria formal**. FOGAPE es garantía sujeta a evaluación, no aprobación | Cotización en CLP a tasa fija, a 5 y 10 años, con todos los cargos, garantías exigidas, gracia y comisión de prepago |
 | 3 | **Ventas piloto pagadas** | Las metas de 200–850 unidades son objetivos, no demanda. El precio de $349.990 no lo validó ningún cliente | Pilotos pagados con margen positivo: precio efectivamente pagado, CAC por cohorte, devoluciones y horas de soporte |
 | 4 | **Revisión contable independiente** | El impuesto es una aproximación de caja Pro Pyme; no reproduce F29, PPM ni la declaración de abril | Contador revisa régimen, calificación Pro Pyme, remuneración de socios con control, PPM, IVA efectivo y deducibilidad |
 
@@ -27,7 +27,7 @@ Los resultados de DSCR, VAN y caja libre por escenario se consultan en [RESULTAD
 |:---:|---|---|
 | 5 | **Rediseño de esquema y ruteo de PCB** | `PCB/terrasense.kicad_pcb` está **vacío**: sin componentes, pistas ni contorno. **No fabricar desde ese archivo** |
 | 6 | **Cierre de ERC/DRC** | `ERC.rpt` registra errores de conexión y alimentación sin cierre documentado |
-| 7 | **Firmware del ESP32** | **No existe en el repositorio.** El contrato BLE está documentado según el decodificador de la app —v0 de 16 bytes y v1 de 20 con el ambiente del BME280—; el firmware debe implementarlo |
+| 7 | **Firmware del ESP32** | **No existe en el repositorio.** El contrato BLE está documentado según el decodificador de la app —20 bytes con el ambiente del BME280, más una trama reducida de 16 bytes tolerada sólo para prototipos—; el firmware debe emitir el formato de 20 bytes |
 | 8 | **Captura BLE/Modbus real** | El mapa de registros de la sonda no está confirmado contra la ficha del proveedor. Requiere el SKU adquirido |
 | 9 | **Consumo y autonomía** | Sin medir desde batería. Hay que distinguir reposo total del reposo de la rama de sonda; el divisor 100 k+100 k consume ~18,5 µA por sí solo |
 | 10 | **Sellado, peso y robustez** | IP67, peso < 280 g y resistencia mecánica son **objetivos sin ensayo**. No hay actas ni pesaje del conjunto |
@@ -42,9 +42,9 @@ Los resultados de DSCR, VAN y caja libre por escenario se consultan en [RESULTAD
 | 12 | **Ensayos de precisión por variable** | Sin incertidumbre, sesgo ni repetibilidad medidos, en distintos suelos, salinidades y humedades |
 | 13 | **Revisión por agrónomo** | Se eliminaron la dosis de cal en kg/ha y la fracción fija de lavado. Las reglas que quedan siguen siendo **orientativas** |
 | 14 | **Representatividad del círculo de 20 m** | Una lectura puntual no demuestra el estado de 1.256,6 m². Requiere plan de muestreo y análisis espacial |
-| 15 | **Cuantificar el beneficio para el agricultor** | El «caso real» de $495.000 y el ROI de 98 % se retiraron por no tener predio, control ni registro. Requiere piloto con línea base |
+| 15 | **Cuantificar el beneficio para el agricultor** | El «caso real» de $495.000 y el ROI de 98 % se retiraron por no tener campo, control ni registro. Requiere piloto con línea base |
 
-**Los registros N/P/K derivan de conductividad eléctrica y no se validan aquí.** Mantener el análisis de laboratorio para decisiones de fertilización y encalado: ni una lectura instantánea ni un mapa de círculos equivalen a un análisis representativo del predio.
+**Los registros N/P/K derivan de conductividad eléctrica y no se validan aquí.** Mantener el análisis de laboratorio para decisiones de fertilización y encalado: ni una lectura instantánea ni un mapa de círculos equivalen a un análisis representativo del campo.
 
 ---
 
@@ -52,7 +52,7 @@ Los resultados de DSCR, VAN y caja libre por escenario se consultan en [RESULTAD
 
 | # | Pendiente | Estado actual |
 |:---:|---|---|
-| 16 | **Pronóstico gratuito e integración ambiental** | El requisito es cubrir los próximos cinco días; hoy la consulta pide dos y utiliza el primero. Seleccionar una API gratuita con licencia y cupo adecuados al uso. Open-Meteo gratuito sirve para el estudio no comercial; un proxy no cambia su licencia. Completar también adquisición, BLE, guardado y Grid BME280 conforme al [Informe 1](INFORME%201%20.docx.md#integracion-bme280) |
+| 16 | **Validación física y servicio meteorológico** | El Grid 2×5, el guardado ambiental y el pronóstico de cinco fechas posteriores están implementados; se solicita `forecast_days=6&timezone=auto`. La migración 20260911120000 está aplicada y verificada. Falta validar adquisición I²C/firmware, BLE real y operación en teléfono; confirmar licencia y cupo del proveedor para el uso comercial. Ver [App](../App/README.md) y [Supabase](../supabase/README.md#persistencia-ambiental-y-bateria) |
 
 La temperatura observada por BME280 debe guardarse separada de la temperatura del servicio meteorológico, junto con humedad relativa, presión local, instante y estado de captura.
 
@@ -61,6 +61,17 @@ Las tareas **operativas** de despliegue —aplicar la migración en staging, exp
 ---
 
 ## 5. Dependencias y comprobaciones de software
+
+### Evidencia de la entrega del 11-09-2026
+
+- **App:** `npm run type-check` y 55 pruebas de `npm test` aprobadas. Cobertura nueva: diez variables y batería desde BLE a fila e historial, históricos sin ambiente, pronóstico con cambio de mes, cinco fechas locales, datos parciales y fallo de red. La suite incluye v0/v1, negativos, centinelas y rangos de telemetría.
+- **Web:** prueba de filtro exclusivo `pre_siembra`/GPS aprobada y `npm run build` completado (TypeScript + Vite).
+- **Supabase:** migración probada con rollback, dry-run de una sola migración, aplicación remota y verificación posterior sin escrituras. [Contrato y comando repetible](../supabase/README.md#persistencia-ambiental-y-bateria).
+
+Los conteos son evidencia de esa entrega. No se declara publicación de los nuevos builds ni despliegue de Edge Functions. Quedan pruebas con ESP32/BME280 reales, interfaz y accesibilidad en teléfonos, modo avión, ausencia de GPS, cierre/reinicio y recuperación de cobertura sin duplicados. La trama v1 no incluye reloj del sensor ni contador: el firmware debe enviar una lectura nueva al suscribirse, y eso debe comprobarse en hardware.
+
+Los roadmaps de SMTP/dominio, tickets de soporte, OTA real, alertas preventivas, canary y repaso visual completo conservan sus pendientes en los README de cada módulo; no se consideran cerrados por aprobar estas pruebas.
+
 
 Los resultados de auditoría y pruebas del 4 de septiembre se conservan en el archivo histórico. Antes de una entrega se ejecutan las pruebas y compilaciones de los módulos modificados; la integración BLE y el guardado sin red requieren también ensayo en teléfono. No se reutilizan conteos antiguos de vulnerabilidades o PR como estado actual.
 
@@ -95,4 +106,4 @@ El Informe 1 incorpora once diagramas, el funcionamiento de la app contrastado c
 
 ## Integración BME280 y clima — actualización 5 de septiembre
 
-El BME280 vuelve al diseño obligatorio y la BOM, junto con carcasa 3D explícita. Completar adquisición I²C, transporte BLE de tres variables, guardado/Grid y pronóstico de cinco días según [contrato de integración](INFORME%201%20.docx.md#integracion-bme280). La revisión económica no implica que esa integración de firmware/app esté terminada.
+El BME280 vuelve al diseño obligatorio y la BOM, junto con carcasa 3D explícita. Actualización funcional del 11-09-2026: el decodificador BLE, guardado/Grid y pronóstico de cinco días están implementados. Queda completar el firmware y verificar adquisición I²C y recepción física según el [contrato BLE](CONTRATO_BLE.md). La revisión económica no acredita ensayos del instrumento.

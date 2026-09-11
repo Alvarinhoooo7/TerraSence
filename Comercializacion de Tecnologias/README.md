@@ -92,7 +92,7 @@ TerraSense renuncia a competir en exactitud analítica. A cambio entrega **conte
 - **Oferta:** equipos que TerraSense puede fabricar y vender rentablemente.
 - Precio de lista propuesto: **$349.990 con IVA** ($294.109 neto).
 - Meta Año 1: **200 unidades**.
-- Equilibrio operativo: **176 unidades**; incluyendo servicio de deuda: **205 unidades**.
+- Equilibrio operativo: **176 unidades**; incluyendo servicio de deuda: **204 unidades**.
 
 **Gráfico:** oferta ascendente, demanda descendente y equilibrio ilustrativo. El precio y las 200 unidades son un **plan financiero, no un equilibrio econométrico observado** ni demanda validada.
 
@@ -186,7 +186,7 @@ Precios exhibidos consultados el **04-09-2026**. **No comparar cantidad de varia
 | N/P/K derivados de conductividad | La conductividad no identifica los tres nutrientes por separado | No mostrarlos como cifras interpretables, excluirlos del veredicto con baja confianza y mantener el laboratorio |
 | Exposición cambiaria del BOM | La sonda es el 59 % del costo de materiales y casi todo es importado | Cotizar SKU con moneda y vigencia; lotes fraccionados y proveedores alternativos **por validar** |
 | Precio $349.990 sin validar | No hay ventas pagadas que lo confirmen | Pilotos pagados antes de comprar volumen; sensibilidades a $249.990–$329.990 en el modelo |
-| **Cobertura de deuda estrecha el año 1** | **DSCR 0,69, bajo el criterio interno de 1,3** | Un solo crédito a 10 años, reserva dimensionada y cotización completa antes de firmar |
+| **Cobertura de deuda estrecha el año 1** | **DSCR 0,72, bajo el criterio interno de 1,3** | Un solo crédito a 10 años, reserva dimensionada y cotización completa antes de firmar |
 | Metas de venta no validadas | Son metas financieras, no preventas cerradas | Escenario de estrés a 130 u en el modelo; preventas y piloto antes de comprometer inventario |
 | **Hardware sin ensayar** | PCB sin rutear, sin firmware en el repositorio, sin ensayos de autonomía ni sellado | No fabricar desde el archivo actual; rediseño, ERC/DRC y ensayos antes de comercializar |
 | **Cumplimiento normativo abierto** | SUBTEL, baterías, consumidor y Ley 21.719 (vigente 01-12-2026) | Revisar expediente del producto terminado antes de vender, no del módulo |
@@ -197,7 +197,7 @@ Precios exhibidos consultados el **04-09-2026**. **No comparar cantidad de varia
 2. Su costo de oportunidad está declarado: renuncia a precisión de laboratorio para ganar inmediatez, frecuencia, portabilidad y prescripción.
 3. La oferta es sensible al tipo de cambio: la sonda concentra el 59 % del costo de materiales y casi todo el BOM es importado. La demanda crece con la escasez hídrica y con el costo de decidir a ciegas.
 4. La evaluación incluye **VAN, TIR efectiva anual y payback del proyecto**, con flujos mensuales a cinco años. Consultar la tabla de [resultados financieros](../docs/RESULTADOS_FINANCIEROS.md). La remuneración de los socios ya está incluida en nómina.
-5. **El primer año es el riesgo.** El DSCR de 2027 es **0,69**, bajo nuestro criterio interno de 1,3, y el escenario de estrés (−35 % de ventas) da un VAN de **−$50.774.058**. Si ese escenario se materializa, corresponde **redimensionar el negocio**, no estirar el plazo de la deuda.
+5. **El primer año es el riesgo.** El DSCR de 2027 es **0,72**, bajo nuestro criterio interno de 1,3, y el escenario de estrés (−35 % de ventas) da un VAN de **−$50.774.058**. Si ese escenario se materializa, corresponde **redimensionar el negocio**, no estirar el plazo de la deuda.
 6. La oportunidad radica en **transformar datos agronómicos en decisiones ejecutables sin pretender reemplazar al laboratorio químico** — y en decirlo con los límites explícitos, que es lo que hace defendible el trabajo.
 
 > “TerraSense no promete saber más que un laboratorio; promete ayudar al agricultor a decidir mejor entre un análisis y el siguiente”.
@@ -207,7 +207,7 @@ Precios exhibidos consultados el **04-09-2026**. **No comparar cantidad de varia
 # Preguntas de defensa (Batería Completa)
 
 ### 1. ¿Cómo se financia el desembolso inicial y por qué un banco prestaría a una empresa recién creada?
-El desembolso inicial es de **$11.317.378**, financiado con un aporte de los socios de **$9.000.000** ($4.500.000 cada uno, disponibilidad confirmada) y un crédito dimensionado en **$31.000.000 a 10 años**. El crédito es mayor que el desembolso porque también financia la **reserva de liquidez** que sostiene los primeros 24 meses.
+El desembolso inicial es de **$11.317.378**, financiado con un **pie propio de los socios de $9.000.000** ($4.500.000 cada uno, 50 % y 50 %) y un **crédito bancario de $30.000.000 a 10 años**, con cuota fija de $419.842 al 12 % efectivo anual. El pie equivale al **30 % del crédito**: es el capital propio que el banco exige antes de desembolsar el suyo, no se descuenta del principal y no se devuelve. El crédito es mayor que el desembolso porque también financia la **caja de arranque** que sostiene los primeros 24 meses, durante los cuales la caja no baja de $13.521.745.
 
 **La respuesta honesta a la segunda parte: todavía no sabemos si un banco prestaría.** No tenemos oferta bancaria. La tasa del 12 % efectivo anual y el 2 % de gastos de apertura son presupuestos, no un CAE cotizado. FOGAPE es una garantía estatal sujeta a evaluación, no un subsidio ni una aprobación automática. Si el banco no ofrece el plazo o exige garantías inaceptables, **reducimos el lanzamiento y validamos preventas**; no lo sustituimos por un crédito personal.
 
@@ -215,7 +215,7 @@ El desembolso inicial es de **$11.317.378**, financiado con un aporte de los soc
 Porque el proyecto debe poder nacer y pagar sus deudas por sí mismo. Postular sigue siendo una opción abierta y beneficiosa: si se adjudica, sustituye deuda cara y mejora el resultado. El modelo no lo supone.
 
 ### 3. ¿Cómo se ve la caja del primer año?
-El EBITDA de 2027 es de **$4.426.234** y el servicio de deuda de **$5.206.035**, lo que deja un **DSCR de 0,69**: por cada peso de deuda que hay que pagar, la operación genera 0,69. **Está por debajo de nuestro criterio interno de 1,3 veces.** El mínimo de caja libre sobre la reserva en 24 meses es de apenas **$56.737**.
+El EBITDA de 2027 es de **$4.426.234** y el servicio de deuda de **$5.038.098**, lo que deja un **DSCR de 0,72**: por cada peso de deuda que hay que pagar, la operación genera 0,72 y el resto sale de la caja de arranque. **Está por debajo de nuestro criterio interno de 1,3 veces.** La caja nunca baja de **$13.521.745** en los primeros 24 meses, pero la reserva objetivo queda **$615.379** corta en su punto más bajo, el mes 19.
 
 Esto es una advertencia, no un adorno: el primer año no tiene holgura. Por eso el crédito se dimensionó al mínimo que sostiene la reserva, y por eso pedimos cotización completa y probamos meses débiles antes de firmar. **La reserva financia transitorios, no pérdidas permanentes.**
 

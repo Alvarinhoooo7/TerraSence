@@ -1,6 +1,6 @@
 # Bytes entre el ESP32 y el teléfono
 
-El formato que entiende la app es **una notificación BLE binaria**, de 16 o de 20 bytes según la versión de trama. No se envía texto hexadecimal ni JSON. El hexadecimal de este documento es una forma legible de representar esos bytes.
+El formato del producto es **una notificación BLE binaria de 20 bytes**, con las siete variables de suelo, las tres de ambiente y el estado de batería en una sola captura. El decodificador acepta además una trama reducida de 16 bytes, que existe únicamente como tolerancia hacia el firmware de prototipo anterior al BME280 y no es un modo de operación del equipo terminado. No se envía texto hexadecimal ni JSON. El hexadecimal de este documento es una forma legible de representar esos bytes.
 
 El aviso de los README se refería a documentos antiguos que describían formatos distintos. La tabla siguiente coincide con `decodeTelemetry` y sus pruebas. Falta comprobarla con el firmware y la sonda física: este repositorio no contiene el firmware ni una captura real del sensor adquirido.
 
@@ -13,22 +13,22 @@ El servicio es `00000001-5e4e-4c69-6d61-746572726101` y la característica de te
 
 ## Por qué 20 bytes y no dos paquetes
 
-El MTU por defecto de BLE es de 23 bytes y una notificación gasta 3 en su cabecera: quedan **20 bytes de carga útil garantizados** sin negociar nada. Android se queda en ese MTU mientras nadie llame a `requestMTU`, cosa que `bleService.ts` no hace; iOS negocia más por su cuenta. Veinte bytes es, por tanto, el paquete más grande que funciona igual en las dos plataformas.
+El MTU por defecto de BLE es de 23 bytes y una notificación gasta 3 en su cabecera: quedan **20 bytes de carga útil garantizados** sin negociar nada. El contrato usa ese mínimo común y no depende de que el sistema negocie un MTU mayor. Ver [ATT, notificaciones](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-54/out/en/host/attribute-protocol--att-.html) y [GATT, MTU mínimo](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-54/out/en/host/generic-attribute-profile--gatt-.html).
 
-Partir la lectura en dos notificaciones de 16 bytes costaría emparejarlas —¿son de la misma medición?—, tratar el caso de que llegue una y no la otra, y ordenarlas; hoy `bleService.ts` resuelve con la primera notificación y se desuscribe. Todo eso para resolver un problema de espacio que no existe: las tres magnitudes del BME280 caben en los cuatro bytes que sobran.
+Partir la lectura en dos notificaciones costaría emparejarlas —¿son de la misma medición?—, tratar el caso de que llegue una y no la otra, y ordenarlas; hoy `bleService.ts` resuelve con la primera notificación y se desuscribe. Todo eso para resolver un problema de espacio que no existe: las tres magnitudes del BME280 caben en los cuatro bytes que sobran.
 
 ## Orden y escalas
 
 Un byte tiene ocho bits. Cada valor de dos bytes usa **big-endian**: primero el byte alto y luego el bajo. Por ejemplo, `01 5E` representa `1 × 256 + 94 = 350`; al dividir por diez, la app obtiene `35,0 %`.
 
-El **byte 15 es la versión de trama** y decide la longitud del paquete:
+El **byte 15 identifica el formato** y decide la longitud del paquete:
 
-| Versión | Longitud | Contenido |
-| :---: | :---: | :--- |
-| `0` | 16 bytes | Sólo suelo y batería. Los campos de aire quedan en `null`. |
-| `1` | 20 bytes | Añade temperatura, humedad y presión del BME280. |
+| Valor | Longitud | Contenido | Estado |
+| :---: | :---: | :--- | :--- |
+| `1` | 20 bytes | Suelo, batería y el ambiente del BME280 | **Formato del producto.** Es el que debe emitir el firmware del equipo. |
+| `0` | 16 bytes | Sólo suelo y batería; los campos de aire quedan en `null` | Tolerancia del decodificador para firmware de prototipo sin BME280. No es un modo de operación comercial. |
 
-Los bytes 0 a 14 son **idénticos en las dos**, así que un equipo con firmware antiguo se sigue leyendo sin ramas especiales. Cualquier otro valor en el byte 15 se rechaza.
+Los bytes 0 a 14 son **idénticos en ambos**, así que un prototipo antiguo se sigue leyendo sin ramas especiales. Cualquier otro valor en el byte 15 se rechaza. Un equipo terminado que emita `0` se considera defectuoso, no configurado en modo reducido.
 
 | Posiciones, contando desde 0 | Valor | Tipo | Conversión al enviar | Ejemplo |
 | --- | --- | --- | --- | --- |
@@ -40,7 +40,7 @@ Los bytes 0 a 14 son **idénticos en las dos**, así que un equipo con firmware 
 | 10–11 | Fósforo | `uint16` | mg/kg, entero | 30 → `00 1E` |
 | 12–13 | Potasio | `uint16` | mg/kg, entero | 80 → `00 50` |
 | 14 | Batería | `uint8` | Porcentaje entre 0 y 100 | 87 % → `57` |
-| 15 | **Versión de trama** | `uint8` | `00` = 16 bytes, `01` = 20 bytes | `01` |
+| 15 | **Identificador de formato** | `uint8` | `01` = 20 bytes (producto); `00` = 16 bytes (prototipo sin BME280) | `01` |
 | 16–19 | **Ambiente BME280** | 32 bits empaquetados | Ver abajo | `26 52 C0 7D` |
 
 ### Los cuatro bytes del BME280
@@ -55,11 +55,11 @@ TTTTTTTT   TTTTPPPP   PPPPPPPP   HHHHHHHH
 
 | Magnitud | Bits | Conversión al enviar | Rango que cubre | Resolución |
 | :--- | :---: | :--- | :--- | :--- |
-| Temperatura del aire | 12 | `(°C × 10) + 400` | −40,0 a +125,0 °C | 0,1 °C |
+| Temperatura del aire | 12 | `(°C × 10) + 400` | −40,0 a +85,0 °C | 0,1 °C |
 | Presión | 12 | `hPa − 300` | 300 a 1100 hPa | 1 hPa |
 | Humedad relativa | 8 | `% × 2` | 0 a 100,0 % | 0,5 % |
 
-Los rangos cubren la hoja de datos completa del BME280 y la resolución iguala o supera su exactitud (±1 °C, ±3 % HR, ±1 hPa), así que el empaquetado no pierde nada aprovechable. La app rechaza además valores por encima del máximo del sensor: temperatura sobre 85 °C, presión sobre 1100 hPa o humedad sobre 100 %.
+El empaquetado define resoluciones de transporte; no acredita exactitud ni calibración del conjunto. La app rechaza además valores por encima del máximo del sensor: temperatura sobre 85 °C, presión sobre 1100 hPa o humedad sobre 100 %.
 
 **Si el BME280 no responde, el firmware pone a uno todos los bits de esa magnitud** y la app guarda `null`:
 
@@ -119,7 +119,7 @@ packet[19] = hum8;
 // Pasar packet y sizeof(packet) a la caracteristica GATT y notificar.
 ```
 
-Para seguir emitiendo la trama antigua basta con `packet[15] = 0` y notificar sólo los primeros 16 bytes; la app lo acepta y deja el ambiente en `null`.
+Un prototipo sin BME280 puede emitir `packet[15] = 0` y notificar sólo los primeros 16 bytes; la app lo acepta y deja el ambiente en `null`. El firmware de producción emite siempre los 20 bytes.
 
 Este fragmento ilustra el empaquetado; no es un firmware completo. El ID del equipo se comunica en otra característica, no dentro de estas mediciones. El QR temporal se gestiona entre la app y Supabase y tampoco ocupa bytes de esta trama.
 
@@ -142,3 +142,14 @@ El VPD no viaja en la trama: lo calcula la app con `computeVpdKpa` (ecuación de
 
 > [!IMPORTANT]
 > **La API del clima no alimenta ninguna de estas columnas.** Es pronóstico de varios días y sirve para complementar la recomendación *después* de la medición, no para describir el punto y el instante en que se midió. Hasta la migración `20260906140000`, `canopy_temp_c` se rellenaba con la temperatura de esa API, y las tres columnas tenían valores por defecto inventados (`22.4`, `55.0`, `1.25`) que se guardaban solos en cuanto un `INSERT` las omitía. Las dos cosas están corregidas: sin sensor, `NULL`.
+
+
+## Conexión, batería, captura y mapa (11-09-2026)
+
+La trama v1 transporta **diez variables + batería + versión en 20 bytes**: 14 bytes de suelo, 1 de batería, 1 de versión y 4 de ambiente. No necesita añadir coordenadas: las obtiene el teléfono. El orden binario no cambia para seguir el orden visual del Grid.
+
+La condición «respondió» se verifica mediante una conexión GATT y la recepción de la notificación válida dentro del timeout de 15 segundos. El escaneo previo sólo verifica presencia anunciada. Si el equipo no responde, la app muestra un error; ningún bit recibido puede demostrar que un equipo ausente está desconectado. Tras recibir, la app cierra la conexión para permitir reposo: el resultado muestra **respuesta recibida**, no promete conexión permanente ni acceso a internet del ESP32. No hay un bit de conectividad a internet en v1.
+
+La batería del byte 14 se guarda en `soil_measurements.battery_percent` (0–100, NULL en históricos). `measured_at` conserva la fecha de recepción en el teléfono, incluso si la sincronización ocurre más tarde. No es un reloj del sensor ni una prueba criptográfica de frescura: el firmware debe adquirir una lectura nueva al suscribirse y no repetir la última. `diagnosis` conserva fuente local, respuesta BLE y el pronóstico disponible al guardar. El estado remoto `devices.last_seen_at` no equivale a una conexión BLE activa.
+
+App y web sólo proyectan al mapa la etapa `pre_siembra` con coordenadas finitas. Todas las etapas se guardan en el historial. El firmware real y las pruebas de recepción siguen pendientes.

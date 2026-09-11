@@ -149,7 +149,7 @@ Para que los datos entregados por TerraSense gocen de credibilidad técnica ante
 
 ### 6.1. Ley N° 19.628 y Nueva Ley de Protección de Datos Personales en Chile (Alineada con RGPD / GDPR)
 * **Principio de Minimización y Consentimiento:** La app solo recopila los datos estrictamente necesarios para el diagnóstico agronómico (coordenadas GPS del punto de muestreo y lecturas físicas).
-* **Aislamiento Multi-Predio con RLS:** La base de datos Supabase implementa **Row Level Security (RLS)** en PostgreSQL, garantizando que ningún agricultor o cooperativa pueda visualizar las coordenadas, rendimientos o datos de fertilidad de otro predio.
+* **Aislamiento Multi-Campo con RLS:** La base de datos Supabase implementa **Row Level Security (RLS)** en PostgreSQL, garantizando que ningún agricultor o cooperativa pueda visualizar las coordenadas, rendimientos o datos de fertilidad de otro campo.
 * **Derechos ARCO:** El usuario cuenta con la facultad de solicitar la exportación completa de sus registros históricos o el borrado permanente de su cuenta en cualquier momento.
 
 ### 6.2. ISO/IEC 27001:2022 — Seguridad de la Información y Cifrado de Datos

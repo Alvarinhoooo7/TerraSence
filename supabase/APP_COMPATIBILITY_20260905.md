@@ -1,8 +1,11 @@
 # Compatibilidad de la app · 2026-09-05
 
+> Registro histórico. La consulta remota del **11-09-2026** confirmó que las versiones 20260902180000, 20260902210000 y 20260904120000 ya coinciden entre local y remoto. También se aplicó y verificó 20260911120000 para ambiente y batería en soporte. Ver [estado vigente y verificador](README.md#persistencia-ambiental-y-bateria). Las observaciones siguientes describen exclusivamente el 5 de septiembre.
+
+
 La mejora de inicio e historial usa el esquema existente de `soil_measurements`. Se agrega `client_uuid` a la proyección de lectura del cliente móvil para reconciliar la cola local con el ID generado por PostgreSQL. No cambia el payload compartido con la web ni las políticas RLS.
 
-La caché local se separa por usuario autenticado, nombre de predio y equipo; contiene la última consulta de hasta 200 registros y conserva el indicador de lectura pendiente al combinarse con la cola.
+La caché local se separa por usuario autenticado, nombre de campo y equipo; contiene la última consulta de hasta 200 registros y conserva el indicador de lectura pendiente al combinarse con la cola.
 
 ## Comprobación remota
 
