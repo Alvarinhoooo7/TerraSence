@@ -98,8 +98,9 @@ La V2 es una **placa portadora**: no integra el silicio, sino que sostiene y con
           ▼
   ┌───────────────────────────────┐        ┌──────────────────────────┐
   │  MOD1  PCB combinada USB-C    │◄───────┤ BT1 LiPo 1S 2000 mAh     │
-  │  • Cargador con protecciones  │  VBAT  │ J1 JST 3 pines (pin3 NC) │
-  │  • Elevador 3,7 V ──► 5,0 V   │────────┤ F1 PTC  ·  D1 polaridad  │
+  │  • Cargador con protecciones  │  VBAT  │ P1 / P2 pads soldados    │
+  │  • Elevador 3,7 V ──► 5,0 V   │────────┤ F1 fusible 1 A · JP1     │
+  │                               │        │ D1 M7 crowbar a GND      │
   └───────────────┬───────────────┘        └──────────────────────────┘
                   │ 5 V
                   ▼
@@ -132,8 +133,9 @@ Nombrar las redes antes de dibujar evita la mitad de los errores de ERC:
 
 | Net | Tensión | Origen |
 | :--- | :--- | :--- |
-| `VBAT` | 3,0 – 4,2 V | Celda LiPo, pin 1 de `J1` |
-| `VBAT_PROT` | 3,0 – 4,2 V | Después de `F1` y `D1` |
+| `VBAT_RAW` | 3,0 – 4,2 V | Celda LiPo, pad `P1` |
+| `VBAT_F` | 3,0 – 4,2 V | Después de `F1` |
+| `VBAT_PROT` | 3,0 – 4,2 V | Después de `JP1`; nodo protegido por `D1` |
 | `+5V` | 5,0 V | Salida de `MOD1`, después de `SW1` |
 | `+3V3` | 3,3 V | Pin `3V3` de la DevKit |
 | `5V_SONDA` | 5,0 V conmutados | Después de `Q1` |
@@ -150,91 +152,164 @@ Lleva la energía desde la celda hasta un riel de 5 V protegido y conmutable, y 
 
 | Ref | Componente | Encapsulado | Pines |
 | :--- | :--- | :--- | :--- |
-| `BT1` | LiPo 1S 2.000 mAh con PCM | Celda plana | 2 cables |
-| `J1` | Conector JST-PH 2,0 mm | 3 vías | 3 |
+| `BT1` | LiPo 1S 2.000 mAh con PCM | Celda plana, fuera de placa | 2 cables |
+| `P1` | Pad de soldadura `BAT+` | Isla de cobre | 1 |
+| `P2` | Pad de soldadura `BAT−` | Isla de cobre | 1 |
+| `F1` | Fusible de cartucho **1 A rápido** | Cartucho 5 × 20 mm sobre pads | 2 |
 | `JP1` | Puente de medición de corriente | 2 islas | 2 |
-| `F1` | PTC rearmable | 1206 | 2 |
-| `Q4` | P-MOSFET `AO3401A` | SOT-23 | G, D, S |
-| `R15` | 100 kΩ | 0805 | 2 |
+| `D1` | **`M7`**, rectificador de silicio | SMA / DO-214AC | Á, K |
 | `MOD1` | PCB combinada USB-C, carga y elevación | Placa hija | `B+`, `B−`, `OUT+`, `OUT−` |
 | `SW1` | Interruptor rocker SPST | Panel | 2 |
 | `C1` | 100 µF, 10 V | Electrolítico o tántalo | 2 |
 | `C2` | 100 nF, X7R | 0805 | 2 |
 
+> **`F1` y `D1` trabajan juntos.** No son dos protecciones independientes: el diodo detecta la inversión y el fusible es quien corta. Uno sin el otro no protege.
+
 ### 4.2. Esquema
 
 ```text
-   BT1 (+) ──► J1.1 ──► JP1 ──► F1 ──┐
-                                      │  VBAT_F
-   BT1 (−) ──► J1.2 ──► GND           │
-                                      ▼
-   J1.3 ── NC                    ┌─────────┐
-                                 │  D   Q4 │  P-MOSFET de polaridad inversa
-                                 │  G   S  │  G a GND por R15
-                                 └──┬───┬──┘
-                                    │   │
-                                   GND  ▼ VBAT_PROT
-                                        │
-                        ┌───────────────┴──────────────┐
-                        │                              │
-                        ▼                              ▼
-                  ┌──────────┐                   R9 (divisor,
-                  │ MOD1  B+ │                    etapa 2)
-                  │       B− │── GND
-   USB-C ────────►│     OUT+ │──► SW1 ──► +5V ──► C1, C2
-                  │     OUT− │── GND
-                  └──────────┘
+   BT1 (+) ── cable ──► P1 ──► F1 (1 A) ──► JP1 ──┬──► VBAT_PROT ──► MOD1.B+
+                                                   │                  │
+                                                   │                  ├──► R9 (divisor)
+                                                   │                  └──► TP1
+                                                   │
+                                                  ─┴─ K
+                                                  /_\  D1   en inversa: no conduce
+                                                   │  Á
+                                                   │
+   BT1 (−) ── cable ──► P2 ─────────────────────── ┴──► GND
+
+
+                     ┌──────────────┐
+                     │ MOD1         │
+   USB-C exterior ──►│ B+      OUT+ │──► SW1 ──► +5V ──┬── C1 ── GND
+                     │ B−      OUT− │──► GND           ├── C2 ── GND
+                     └──────────────┘                  ├──► U1.VIN
+                                                       ├──► Q1.S
+                                                       └──► TP2
 ```
 
 ### 4.3. Conexiones
 
 | Desde | Hasta | Net |
 | :--- | :--- | :--- |
-| `BT1` positivo | `J1` pin 1 | `VBAT_RAW` |
-| `BT1` negativo | `J1` pin 2 | `GND` |
-| `J1` pin 1 | `JP1` isla 1 | `VBAT_RAW` |
-| `J1` pin 2 | `GND` | `GND` |
-| `J1` pin 3 | **sin conectar** | `NC` |
-| `JP1` isla 2 | `F1` pin 1 | `VBAT` |
-| `F1` pin 2 | `Q4` drenador | `VBAT_F` |
-| `Q4` compuerta | `R15` pin 1 | `Q4_G` |
-| `R15` pin 2 | `GND` | `GND` |
-| `Q4` fuente | `MOD1` `B+`, `R9` pin 1, `TP1` | `VBAT_PROT` |
+| `BT1` positivo | `P1` | `VBAT_RAW` |
+| `BT1` negativo | `P2` | `GND` |
+| `P1` | `F1` pin 1 | `VBAT_RAW` |
+| `F1` pin 2 | `JP1` isla 1 | `VBAT_F` |
+| `JP1` isla 2 | `D1` cátodo, `MOD1` `B+`, `R9` pin 1, `TP1` | `VBAT_PROT` |
+| `D1` ánodo | `GND` | `GND` |
+| `P2` | `GND` | `GND` |
 | `MOD1` `B−` | `GND` | `GND` |
 | `MOD1` `OUT+` | `SW1` pin 1 | `+5V_RAW` |
 | `MOD1` `OUT−` | `GND` | `GND` |
 | `SW1` pin 2 | `C1` pin 1, `C2` pin 1, `U1` `VIN`, `C3` pin 1, `C4` pin 1, `Q1` fuente, `R4` pin 1, `TP2` | `+5V` |
 | `C1` pin 2, `C2` pin 2 | `GND` | `GND` |
 
-### 4.4. Protección contra cortocircuito — `F1`
+### 4.4. Pads de batería `P1` y `P2`
 
-Un **PTC rearmable** en serie con el positivo de la batería. Ante un corto su resistencia sube bruscamente y limita la corriente; al desaparecer la falla vuelve solo, sin reemplazo.
+La celda se suelda directamente a la placa; no hay conector.
 
-**Dimensionar después de medir el consumo real de la sonda a 5 V.** La corriente de retención debe quedar sobre el peak de medición y bajo la corriente de falla. Los 0,5 W publicados por el vendedor corresponden a 24 V y no sirven para dimensionar a 5 V.
+| Aspecto | Especificación |
+| :--- | :--- |
+| Tamaño | 2,5 × 3,0 mm de cobre expuesto, suficiente para cable de 22 AWG |
+| Separación | Al menos 3 mm entre `P1` y `P2`, para que una gota de estaño no los puentee |
+| Alivio de tracción | Dos perforaciones de 1,5 mm junto a los pads, para amarrar el cable y que el tirón no levante la isla |
+| Serigrafía | `BAT+` y `BAT−` en texto, no solo símbolos. El `+` y el `−` solos se confunden bajo estaño |
+| Ubicación | En el borde de la placa, del lado donde queda la celda en la carcasa |
 
-### 4.5. Protección contra polaridad inversa — `Q4`
+**Ventaja frente al conector:** desaparece el conector JST, su contraparte, el cable armado y la duda sobre el tercer pin. Menos costo y menos altura.
 
-Protege de conectar la batería al revés, que destruiría `MOD1` y la DevKit.
+**Desventaja, y por eso existe `D1`:** un conector polarizado solo entra de una forma; dos pads aceptan el cable al revés. **La inversión de polaridad deja de ser improbable y pasa a ser un error de ensamblaje perfectamente posible.**
 
-**La orientación importa y es contraintuitiva: el drenador va al lado de la batería y la fuente al lado de la carga.** El diodo de cuerpo de un P-MOSFET conduce de drenador a fuente, así que en esa posición conduce en el sentido normal de la corriente.
+> **Procedimiento de primera energización:** antes de soldar, medir con multímetro la tensión entre los cables de la celda e identificar el positivo. No confiar en el color del aislante: en celdas económicas el rojo y el negro se invierten más seguido de lo que uno esperaría.
 
-| Terminal de `Q4` | Va a | Por qué |
+### 4.5. Protección de polaridad inversa — `D1` en configuración crowbar
+
+`D1` va **en paralelo** entre `VBAT_PROT` y `GND`, con el **cátodo al positivo**.
+
+| Situación | Qué hace `D1` |
+| :--- | :--- |
+| Celda bien conectada | Polarizado en inversa. **No conduce y no introduce caída de tensión** |
+| Celda invertida | Queda en directa, conduce como un corto y fuerza la apertura de `F1` |
+
+Esta es la razón de usar crowbar en vez de un diodo en serie: **sobre una celda que termina en 3,0 V, la caída de 0,3 a 0,4 V de un Schottky en serie es cara.** El crowbar no cuesta nada en operación normal.
+
+#### El `M7` es la elección correcta, y no por casualidad
+
+El `M7` es el `1N4007` en encapsulado SMA. Para este puesto es mejor que un Schottky, aunque suene al revés:
+
+| | Caída en directa | Fuga en inversa | Sobrecarga |
+| :--- | :--- | :--- | :--- |
+| Schottky `SS34` | ~0,4 V | Decenas de µA, y crece con la temperatura | 100 A / 8,3 ms |
+| **`M7` silicio** | ~1,0 V | **Nanoamperios** | 30 A / 8,3 ms |
+
+El crowbar vive permanentemente polarizado en inversa sobre la batería, así que **su corriente de fuga es un consumo parásito que nunca se apaga**, ni siquiera con `SW1` abierto. En cambio la caída en directa **solo existe durante la falla**, cuando ya da lo mismo.
+
+Por eso aquí gana el silicio: la fuga es lo que importa y el `M7` la tiene tres órdenes de magnitud más baja.
+
+Sus 1000 V de tensión inversa son un exceso enorme frente a los 4,2 V de la celda, pero no molesta. Que sea de recuperación lenta tampoco importa: la falla es continua, no conmutada.
+
+**Los 30 A durante 8,3 ms son el dato que decide**, y alcanzan con margen para los ~13 A de la falla.
+
+#### Corriente de falla estimada
+
+Con la celda invertida, la tensión disponible menos la caída del diodo se reparte entre la resistencia interna de la celda, la del fusible y la del cobre:
+
+$$I_{falla} \approx \frac{3{,}7 - 1{,}0}{0{,}1 + 0{,}1} \approx 13\ \text{A}$$
+
+Trece amperios abren un fusible de 1 A en milisegundos, muy dentro de lo que `D1` tolera. El PCM de la celda también reacciona, pero **no se diseña contando con él**: es la última línea, no la primera.
+
+### 4.6. Protección de cortocircuito — `F1`
+
+Un **fusible rápido de 1 A** en serie con el positivo. Cumple dos funciones:
+
+1. **Corta la corriente de falla cuando `D1` detecta la inversión.** Esta es su función principal.
+2. Protege contra un cortocircuito aguas abajo, en la sonda o en el cableado.
+
+#### Por qué rápido y de un disparo, no PTC
+
+Esto cambia respecto de lo que se había planteado antes. Un PTC rearmable **no sirve acompañando a un crowbar**:
+
+| Tipo | Tiempo de corte | ¿Sobrevive `D1`? |
 | :--- | :--- | :--- |
-| Drenador | `VBAT_F`, lado batería | El diodo de cuerpo conduce hacia la carga al conectar |
-| Fuente | `VBAT_PROT`, lado carga | Referencia de la compuerta |
-| Compuerta | `GND` a través de `R15` | |
+| PTC rearmable | Desde 10 ms hasta varios segundos | **No.** El diodo se destruye esperando |
+| **Fusible rápido de un disparo** | Milisegundos | **Sí** |
 
-Con la batería bien puesta, la fuente sube a la tensión de celda y la compuerta queda en cero: $V_{GS}$ resulta negativo y el P-MOSFET conduce por completo, cayendo milivoltios. Con la batería invertida, $V_{GS}$ se vuelve positivo, el transistor corta y el diodo de cuerpo queda en inversa.
+El PTC limita corriente calentándose, y ese proceso es lento comparado con lo que aguanta un diodo conduciendo 13 A. Con crowbar, el fusible tiene que abrir de verdad y rápido.
 
-**Conduce en ambos sentidos cuando está encendido**, así que la carga de la celda a través de `MOD1` funciona igual.
+#### Verificar el valor de 1 A contra el consumo real
 
-`R15` solo limita corriente de ESD hacia la compuerta; no hace falta zener porque $V_{GS}$ máximo del `AO3401A` es ±12 V y la celda nunca pasa de 4,2 V.
+**1 A es el valor de partida, no un resultado medido.** El consumo máximo desde la celda todavía no se conoce: depende del peak de la sonda a 5 V, del rendimiento del elevador y del peak de la radio BLE. La estimación de diseño ronda los 600 mA, lo que deja un margen ajustado.
 
-> **Alternativa:** un Schottky `SS34` en serie, con el ánodo en `VBAT_F` y el cátodo en `VBAT_PROT`. Es más simple pero cae 0,3 – 0,4 V, mucho sobre una celda que termina en 3,0 V.
+Medir con `JP1` antes de congelar el valor. Si el peak real supera ~700 mA, subir a 1,5 A o pasar a un fusible lento, aceptando que tarda más en abrir.
 
-> **Fusible y diodo no son lo mismo.** `F1` protege contra cortocircuito y sobrecorriente; `Q4` protege contra inversión de polaridad. Son fallas distintas y hacen falta los dos: un diodo no salva de un corto, y un fusible no salva de una batería al revés.
+La corriente de arranque al cerrar `SW1`, cargando `C1` de 100 µF, es un pulso de microsegundos: su energía es demasiado baja para abrir el fusible.
 
-### 4.6. Interruptor `SW1`
+#### Formato: cartucho convencional sobre pads
+
+Se usa **fusible de cartucho de 5 × 20 mm**, montado sobre dos pads separados a la distancia del cuerpo.
+
+| Aspecto | Especificación |
+| :--- | :--- |
+| Cartucho | 5 × 20 mm, 1 A, acción rápida (`F`) |
+| Separación entre centros de pad | **20,5 a 22 mm.** Medir el cartucho real antes de fijar la huella: la tolerancia de largo entre fabricantes llega a 0,5 mm |
+| Ancho de pad | 4 a 5 mm, para apoyar la tapa metálica completa |
+| Montaje | Clips portafusible soldados a los pads, o el cartucho soldado directo a las tapas |
+
+**La diferencia entre las dos formas de montaje importa:**
+
+| | Clips portafusible | Cartucho soldado directo |
+| :--- | :--- | :--- |
+| Reemplazo | Se saca con los dedos | Hay que desoldar las dos tapas |
+| Altura sobre la placa | Mayor | Menor |
+| Contacto | Puede aflojarse con vibración en terreno | Firme |
+
+Con la celda soldada a pads, **los clips tienen más sentido de lo que parece**: si alguien invierte la polaridad en el taller, se cambia el fusible con la mano y la placa se salva. Soldado, cada error de polaridad obliga a sacar el cautín.
+
+> **Ojo con el espacio.** Un cartucho de 5 × 20 mm ocupa más de 20 mm de largo en una placa de **70 × 40 mm**: es la mitad del ancho. Conviene ubicarlo paralelo al borde largo, en la zona de alimentación, y verificar temprano en el ruteo que no choque con `MOD1` ni con la celda. Si el espacio aprieta, la alternativa es un fusible SMD 1206, que ocupa casi nada pero solo se cambia con cautín.
+
+### 4.7. Interruptor `SW1`
 
 `SW1` va **después de `MOD1`, del lado de los 5 V**. Ponerlo en serie con la celda cortaría también al cargador y el equipo no podría cargar apagado.
 
@@ -246,16 +321,6 @@ Con la batería bien puesta, la fuente sube a la tensión de celda y la compuert
 | Carga apagado | Sí | Sí |
 
 Dibujar con la **A**, que es la que aparece en la tabla de conexiones, y dejar el pad `EN` accesible con una isla puenteable para poder migrar sin rehacer la placa.
-
-### 4.7. Conector de batería `J1`
-
-| Pin | Señal |
-| :--- | :--- |
-| 1 | `VBAT_RAW` |
-| 2 | `GND` |
-| 3 | **NC** |
-
-Se rotula `NC` explícitamente en el esquemático y en la serigrafía: un pin sin conexión declarada es indistinguible de un olvido. Si la celda trae termistor NTC ahí, queda sin usar. **Nunca puentearlo a masa.**
 
 ### 4.8. Carga por USB-C
 
@@ -270,6 +335,20 @@ Con `SW1` cerrado se puede cargar y operar a la vez. **Definir en firmware** si 
 Con `SW1` cerrado, los 5 V del elevador llegan a `VIN` al mismo tiempo que el USB de la DevKit inyecta los suyos: dos fuentes empujando el mismo nodo. Con `SW1` abierto, `VIN` queda aislado y la DevKit se alimenta sola por USB. El BME280 y el transceptor siguen alimentados por `3V3`, así que se depura todo salvo la sonda.
 
 Por esto **no hace falta un diodo de aislamiento** entre `+5V` y `VIN`.
+
+### 4.10. Orden de la cadena, y por qué no se puede alterar
+
+```text
+   P1 ──► F1 ──► JP1 ──► [ nodo VBAT_PROT con D1 en paralelo ] ──► MOD1.B+
+```
+
+**`F1` va antes del nodo donde cuelga `D1`.** Es el punto crítico de toda la etapa.
+
+Si el diodo quedara antes del fusible, al invertir la celda `D1` la cortocircuitaría **sin ningún fusible en el camino de esa corriente**: el fusible ni se entera, y la energía la absorben el diodo y la propia celda hasta que algo se destruye o el PCM interviene.
+
+Con el fusible primero, la corriente de falla obligatoriamente lo atraviesa y lo abre. **Invertir estos dos componentes convierte la protección en un cortocircuito deliberado.**
+
+`JP1` queda después de `F1` para que el amperímetro también esté protegido durante las mediciones.
 
 ---
 
@@ -690,7 +769,7 @@ Sin esto no se puede ejecutar el plan de medición de consumo. Van en el esquem�
 
 Un punto de prueba deja ver una tensión, pero para medir **corriente** hay que **abrir el circuito** e intercalar el amperímetro. Con la batería soldada en firme no hay dónde hacerlo sin cortar una pista.
 
-`JP1` es un puente de dos islas en serie con `VBAT`, entre `J1` pin 1 y `F1`, fabricado unido por una pista fina:
+`JP1` es un puente de dos islas en serie con `VBAT`, entre `F1` y el nodo `VBAT_PROT`, fabricado unido por una pista fina:
 
 - **Uso normal:** la pista los une, no hay que hacer nada.
 - **Para medir:** se corta la pista y se sueldan dos cables al amperímetro. Al terminar se restablece con una gota de estaño.
@@ -816,11 +895,9 @@ Cada net con **todos** los pines que van unidos a ella. Si un pin no aparece aqu
 
 | Net | Pines conectados |
 | :--- | :--- |
-| `VBAT_RAW` | `J1`.1 · `JP1`.1 |
-| `VBAT` | `JP1`.2 · `F1`.1 |
-| `VBAT_F` | `F1`.2 · `Q4`.D |
-| `Q4_G` | `Q4`.G · `R15`.1 |
-| `VBAT_PROT` | `Q4`.S · `MOD1`.B+ · `R9`.1 · `TP1` |
+| `VBAT_RAW` | `P1` · `F1`.1 |
+| `VBAT_F` | `F1`.2 · `JP1`.1 |
+| `VBAT_PROT` | `JP1`.2 · `D1`.cátodo · `MOD1`.B+ · `R9`.1 · `TP1` |
 | `+5V_RAW` | `MOD1`.OUT+ · `SW1`.1 |
 | `+5V` | `SW1`.2 · `C1`.1 · `C2`.1 · `U1`.VIN · `C3`.1 · `C4`.1 · `Q1`.S · `R4`.1 · `TP2` |
 | `+3V3` | `U1`.3V3 · `C5`.1 · `C6`.1 · `U2`.8 · `C8`.1 · `U3`.VCC · `U3`.CSB · `R1`.1 · `R7`.1 · `R8`.1 · `R12`.1 · `TP3` |
@@ -843,18 +920,18 @@ Cada net con **todos** los pines que van unidos a ella. Si un pin no aparece aqu
 | `DE_RE` | `U1`.GPIO4 · `U2`.2 · `U2`.3 |
 | `RS485_A` | `U2`.6 · `R11`.1 · `R12`.2 · `D4`.A · `J2`.3 · `TP5` |
 | `RS485_B` | `U2`.7 · `R11`.2 · `R13`.1 · `D4`.B · `J2`.4 · `TP6` |
-| `GND` | `J1`.2 · `R15`.2 · `MOD1`.B− · `MOD1`.OUT− · `C1`.2 · `C2`.2 · `U1`.GND · `C3`.2 · `C4`.2 · `C5`.2 · `C6`.2 · `SW2`.2 · `C7`.2 · `D2`.cátodo · `D3`.cátodo · `Q2`.S · `R6`.2 · `Q3`.S · `R14`.2 · `C9`.2 · `U2`.5 · `C8`.2 · `U3`.GND · `U3`.SDO · `R13`.2 · `D4`.masa · `J2`.2 · `TP7` · `TP8` |
-| `NC` | `J1`.3, sin conectar y rotulado |
+| `GND` | `P2` · `D1`.ánodo · `MOD1`.B− · `MOD1`.OUT− · `C1`.2 · `C2`.2 · `U1`.GND · `C3`.2 · `C4`.2 · `C5`.2 · `C6`.2 · `SW2`.2 · `C7`.2 · `D2`.cátodo · `D3`.cátodo · `Q2`.S · `R6`.2 · `Q3`.S · `R14`.2 · `C9`.2 · `U2`.5 · `C8`.2 · `U3`.GND · `U3`.SDO · `R13`.2 · `D4`.masa · `J2`.2 · `TP7` · `TP8` |
+
 
 ### 11.1. Resumen por componente
 
 | Ref | Pin | Net |
 | :--- | :--- | :--- |
-| `J1` | 1 / 2 / 3 | `VBAT_RAW` / `GND` / `NC` |
-| `JP1` | 1 / 2 | `VBAT_RAW` / `VBAT` |
-| `F1` | 1 / 2 | `VBAT` / `VBAT_F` |
-| `Q4` | D / G / S | `VBAT_F` / `Q4_G` / `VBAT_PROT` |
-| `R15` | 1 / 2 | `Q4_G` / `GND` |
+| `P1` | 1 | `VBAT_RAW` |
+| `P2` | 1 | `GND` |
+| `F1` | 1 / 2 | `VBAT_RAW` / `VBAT_F` |
+| `JP1` | 1 / 2 | `VBAT_F` / `VBAT_PROT` |
+| `D1` | ánodo / cátodo | `GND` / `VBAT_PROT` |
 | `MOD1` | B+ / B− / OUT+ / OUT− | `VBAT_PROT` / `GND` / `+5V_RAW` / `GND` |
 | `SW1` | 1 / 2 | `+5V_RAW` / `+5V` |
 | `C1`, `C2` | 1 / 2 | `+5V` / `GND` |
@@ -896,10 +973,10 @@ Cada net con **todos** los pines que van unidos a ella. Si un pin no aparece aqu
 | `GND` es **una sola net**, no varias con nombres parecidos | Es el error más común al dibujar por hojas |
 | `U1`.3V3 tiene `PWR_FLAG` o está declarado como salida de potencia | Si no, KiCad reclama que `+3V3` no tiene fuente |
 | `MOD1`.OUT+ declarado como salida de potencia | Igual que el anterior, para `+5V` |
-| `J1`.3 rotulado con símbolo de no conectado | Evita el aviso de pin sin conexión y deja constancia de que es deliberado |
 | `U2`.2 y `U2`.3 realmente unidos | Si quedan separados, el transceptor no cambia de dirección |
 | `Q1` con fuente a `+5V`, no al revés | Invertido, el diodo de cuerpo alimenta la sonda aunque el gate esté cortado |
-| `Q4` con drenador al lado batería | Invertido, no protege |
+| `D1` con **cátodo** a `VBAT_PROT` | Al revés queda en directa permanente: cortocircuita la celda apenas se conecta |
+| `F1` **antes** del nodo de `D1` | Invertidos, la corriente de falla no pasa por el fusible y la protección no existe |
 | Ningún GPIO de la lista 5.8 usado | |
 | Cada integrado con su condensador de desacoplo | `C4` para `U1`, `C8` para `U2`, `C6` para el riel de 3,3 V |
 
