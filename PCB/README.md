@@ -20,8 +20,8 @@ Documentación técnica del hardware embarcado, diseño en KiCad, arquitectura d
 >
 > | Afirmación anterior | Estado real |
 > |---|---|
-> | «Ruteo físico de 2 capas» | **`terrasense.kicad_pcb` no contiene componentes, pistas ni contorno.** No hay placa ruteada. El archivo declara generador KiCad 10.0, no 8.0 |
-> | «Factibilidad técnica comprobada» | `ERC.rpt` registra errores de conexión y alimentación **sin cierre limpio documentado** |
+> | «Ruteo físico de 2 capas» | **`V1/terrasense.kicad_pcb` no contiene componentes, pistas ni contorno.** No hay placa ruteada. El archivo declara generador KiCad 10.0, no 8.0 |
+> | «Factibilidad técnica comprobada» | `V1/ERC.rpt` registra errores de conexión y alimentación **sin cierre limpio documentado** |
 > | «BLE 5.0» | El ESP32-WROOM-32E especifica **Bluetooth 4.2 BR/EDR y BLE** |
 > | «Consumo en reposo 0,0 µA» | Se refiere solo a la **rama de la sonda**. El reposo total del equipo **no se ha medido desde batería** |
 > | «≥ 4.000 mediciones / > 18 meses» | El balance **omitía el consumo de la conexión BLE**. Ver §3.5 |
@@ -34,8 +34,80 @@ Documentación técnica del hardware embarcado, diseño en KiCad, arquitectura d
 
 ---
 
+## 0. Estructura de la carpeta y estado de versiones
+
+Esta carpeta separa el **prototipo congelado (V1)** del **diseño de producción (V2)**, que todavía no existe.
+
+| Ruta | Qué es | Estado |
+| :--- | :--- | :--- |
+| `README.md` | Este documento: especificación de hardware, árbol de alimentación, pinout y contrato de trama | **Vivo.** Es el único documento editable de la carpeta |
+| `BOM_TerraSense.xlsx` | Lista de materiales que alimenta el modelo económico | **Generado.** Lo reescribe `python finanzas/modelo.py` desde `finanzas/supuestos.json`; no se edita a mano |
+| [`V1/`](V1/) | Prototipo académico: esquemático KiCad, reporte ERC, planos y archivo de placa | **Congelado.** Memoria de diseño; no se edita |
+| `V2/` | Diseño de producción | **No existe todavía** |
+
+### 0.1. Inventario verificado de V1
+
+Comprobado sobre los archivos, no sobre la memoria de diseño:
+
+| Archivo | Contenido real |
+| :--- | :--- |
+| `V1/terrasense.kicad_sch` | Esquemático de **66 símbolos**, generador **KiCad 10.0** |
+| `V1/terrasense.kicad_pcb` | **Vacío: 2 líneas, 80 bytes.** Solo cabecera y cierre, sin componentes, pistas ni contorno |
+| `V1/ERC.rpt` | Corrida del 30-08-2026 con **38 incidencias abiertas**: 27 `pin_not_connected`, 5 `pin_not_driven`, 3 `power_pin_not_driven`, 2 `multiple_net_names`, 1 `label_dangling` |
+| `V1/terrasense.pdf` | Planos exportados del esquemático |
+| `V1/terrasense.kicad_pro` | Proyecto maestro |
+| `V1/terrasense.kicad_sch.bak` | Respaldo automático de KiCad |
+
+### 0.2. La V1 no implementa la arquitectura vigente
+
+**Este es el hallazgo que define el alcance de la V2.** El esquemático de V1 monta una arquitectura SMD discreta que el BOM vigente ya sustituyó:
+
+| Bloque | Esquemático V1 | BOM vigente (ver sección 4.2) |
+| :--- | :--- | :--- |
+| MCU | `RF_Module:ESP32-WROOM-32E` (módulo desnudo) | Placa de desarrollo ESP32 |
+| Carga | `Battery_Management:TP4056-42-ESOP8` discreto | PCB combinada carga/boost USB-C |
+| Elevación | `Regulator_Switching:MT3608` + `L1` + `Diode:SS34` | PCB combinada carga/boost USB-C |
+| USB-UART | `Interface_USB:CH340C` | Incluido en la placa de desarrollo; no se compra |
+| Sensor ambiental | `Sensor:BME280` | BME280 — coincide |
+| Bus RS-485 | `Interface_UART:MAX3485` | SP3485 / MAX3485 — coincide |
+
+Rehacer el esquemático para la arquitectura vigente **no es un ajuste, es un rediseño** de las ramas de carga, elevación y programación.
+
+### 0.3. Contradicciones abiertas
+
+Entre este README y el esquemático de V1:
+
+| Tema | Dice este README | Dice `V1/terrasense.kicad_sch` |
+| :--- | :--- | :--- |
+| Regulador LDO 3,3 V | HT7533-1 en SOT-89 | `Regulator_Linear:AP2112K-3.3` |
+| Driver de compuerta | 2N7002 (N-MOSFET) | `Transistor_BJT:MMBT3904` (BJT) |
+| P-MOSFET power gate | IRLML6402 / SI2301 | `Transistor_FET:AO3401A` |
+| TVS del bus RS-485 | SM712 | `Device:D_TVS_Dual_ACA` (genérico, sin SKU) |
+
+Y una contradicción interna del propio README:
+
+| Tema | Secciones 1 y 3.3 | Secciones 2.1 y 4.3 |
+| :--- | :--- | :--- |
+| Divisor de medición de batería | 100 k + 100 k (~18,5 µA a 3,7 V) | R16 / R17 de 1 M + 1 M (~1,85 µA) |
+
+El presupuesto de reposo de 12 µA de la sección 3.5 solo es alcanzable con la segunda. **Hay que fijar el valor antes de cerrar el árbol de alimentación de la V2.**
+
+### 0.4. Puertas que la V2 debe cruzar
+
+Ninguna está cerrada hoy:
+
+1. Esquemático rehecho sobre la arquitectura vigente y **ERC en cero**.
+2. **Ruteo real de la placa:** hoy el archivo de PCB está vacío.
+3. **SKU de sonda adquirido** y su mapa de registros Modbus confirmado contra la ficha del proveedor.
+4. **Firmware del ESP32:** no existe en este repositorio. Debe emitir la trama de 20 bytes que decodifica el decodificador de la app.
+5. **Medición de consumo desde batería**, separando reposo total de reposo de la rama de sonda.
+6. **Ensayos de sellado, caída y peso** del conjunto: hoy IP67 y < 280 g son objetivos sin acta.
+
+---
+
 ## 📑 Tabla de Contenidos
 
+- [0. Estructura de la carpeta y estado de versiones](#0-estructura-de-la-carpeta-y-estado-de-versiones)
 - [1. Especificaciones Generales de Hardware](#1-especificaciones-generales-de-hardware)
 - [2. Arquitectura Electrónica y Diagrama de Bloques](#2-arquitectura-electrónica-y-diagrama-de-bloques)
   - [2.1. Microcontrolador Central (ESP32-WROOM-32E)](#21-microcontrolador-central-esp32-wroom-32e)
@@ -57,7 +129,7 @@ Documentación técnica del hardware embarcado, diseño en KiCad, arquitectura d
   - [5.3. Interfaz de Usuario y Puerto USB-C](#53-interfaz-de-usuario-y-puerto-usb-c)
 - [6. Protocolo Firmware y Trama BLE GATT](#6-protocolo-firmware-y-trama-ble-gatt)
   - [6.1. Ciclo de Adquisición Modbus RTU](#61-ciclo-de-adquisición-modbus-rtu)
-  - [6.2. Estructura binaria de la trama BLE (16 o 20 bytes)](#62-estructura-binaria-de-la-trama-ble-16-o-20-bytes)
+  - [6.2. Estructura binaria de la trama BLE (20 bytes)](#62-estructura-binaria-de-la-trama-ble-20-bytes)
 
 ---
 
@@ -219,11 +291,11 @@ Se descarta el uso de dos pesadas celdas cilíndricas 18650 (que requerían port
 
 ## 4. Diseño de PCB y Archivos KiCad
 
-El proyecto incluye el diseño completo en **KiCad 8.0** ubicado en la raíz de esta carpeta:
-* [`terrasense.kicad_pro`](terrasense.kicad_pro): Proyecto maestro.
-* [`terrasense.kicad_sch`](terrasense.kicad_sch): Esquemático jerárquico.
-* [`terrasense.kicad_pcb`](terrasense.kicad_pcb): ⚠️ **Vacío.** Contiene únicamente la cabecera y el cierre del formato: **sin componentes, pistas ni contorno de placa**. La cabecera declara generador **KiCad 10.0**, no 8.0. **No enviar a fabricación.**
-* [`terrasense.pdf`](terrasense.pdf): Planos exportados para fabricación.
+Los archivos de la **V1 (prototipo, congelada)** viven en [`V1/`](V1/). No se editan: cualquier trabajo nuevo pertenece a la V2. Ver [estructura de la carpeta](#0-estructura-de-la-carpeta-y-estado-de-versiones).
+* [`V1/terrasense.kicad_pro`](V1/terrasense.kicad_pro): Proyecto maestro.
+* [`V1/terrasense.kicad_sch`](V1/terrasense.kicad_sch): Esquemático jerárquico.
+* [`V1/terrasense.kicad_pcb`](V1/terrasense.kicad_pcb): ⚠️ **Vacío.** Contiene únicamente la cabecera y el cierre del formato: **sin componentes, pistas ni contorno de placa**. La cabecera declara generador **KiCad 10.0**, no 8.0. **No enviar a fabricación.**
+* [`V1/terrasense.pdf`](V1/terrasense.pdf): Planos exportados para fabricación.
 * [`BOM_TerraSense.xlsx`](BOM_TerraSense.xlsx): Lista formal de componentes.
 
 ### 4.1. Parámetros de Fabricación JLCPCB (2 Capas)
@@ -335,7 +407,7 @@ TerraSense adopta un diseño compacto de mano (*handheld*), optimizado para que 
 6. **Power Gate OFF:** `GPIO5` pasa a nivel bajo $\rightarrow$ la línea de 5 V se corta inmediatamente. El consumo residual **no está medido**.
 7. **Lectura ambiental I²C del BME280:** adquirir temperatura del aire, humedad relativa y presión junto con el suelo. Implementación y transporte BLE detallados en [integración](../docs/INFORME%201%20.docx.md#integracion-bme280).
 
-### 6.2. Estructura binaria de la trama BLE (16 o 20 bytes)
+### 6.2. Estructura binaria de la trama BLE (20 bytes)
 
 La integración de software del 11-09-2026 conserva este formato: **14 bytes de suelo + 1 de batería + 1 de identificador + 4 de ambiente = 20 bytes** para diez variables y batería. El orden de las tarjetas 2×5 no cambia el orden binario. La localización y fecha de recepción proceden del celular. El firmware de producto debe adquirir y notificar una lectura nueva al suscribirse: v1 no transporta contador ni reloj del sensor. Los centinelas ambientales indican ausencia por magnitud; no se reemplazan con ceros ni con la última lectura buena.
 
