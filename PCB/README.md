@@ -114,6 +114,8 @@ Ninguna se puede resolver dibujando: cada una cambia qué bloques existen en la 
 
 #### D1 — ¿Módulo WROOM-32 desnudo o placa de desarrollo?
 
+> **Cerrada para la V2: se usa DevKit.** Decisión acotada a esa versión; el proyecto sigue definido sobre el módulo desnudo, que es lo que costea el BOM. Ver [sección 7](#7-esquemático-de-la-v2--especificación-por-etapas). La tabla siguiente queda como registro de lo que arrastra la decisión cuando se vuelva al módulo desnudo.
+
 Es la decisión raíz: define si la placa portadora lleva tres bloques más o ninguno.
 
 | | Módulo desnudo | Placa de desarrollo |
@@ -155,7 +157,7 @@ El mapa de registros Modbus de la sonda **no está confirmado contra la ficha de
 
 ### 0.6. Orden de trabajo de la V2
 
-1. Cerrar D1, que arrastra a todo lo demás.
+1. ~~Cerrar D1~~: cerrada para la V2 con DevKit.
 2. Cerrar D2, D3 y D4, y reflejarlas en `finanzas/supuestos.json` si agregan o quitan líneas de compra.
 3. Dibujar el esquemático en `PCB/V2/` y dejar el ERC en cero.
 4. Asignar huellas y recién ahí rutear la placa.
@@ -192,6 +194,8 @@ El mapa de registros Modbus de la sonda **no está confirmado contra la ficha de
   - [6.2. Estructura binaria de la trama BLE (20 bytes)](#62-estructura-binaria-de-la-trama-ble-20-bytes)
 
 Las secciones 1 a 6 documentan la V1. Para la V2, partir por [0.5. Decisiones que bloquean el esquemático](#05-decisiones-que-bloquean-el-esquemático-de-la-v2) y [0.6. Orden de trabajo](#06-orden-de-trabajo-de-la-v2).
+
+- [7. Esquemático de la V2 — especificación por etapas](#7-esquemático-de-la-v2--especificación-por-etapas)
 
 ---
 
@@ -504,3 +508,183 @@ Todos los campos multibyte son **big-endian**, igual que Modbus.
 | 16–19 | **Ambiente BME280** (sólo v1) | 32 bits | Temperatura 12 bits `(°C × 10) + 400`; presión 12 bits `hPa − 300`; humedad 8 bits `% × 2`. Todos los bits a uno = sin dato → `NULL` |
 
 **Estado:** no hay firmware fuente en el repositorio y el mapa de registros de la sonda **no está confirmado contra la ficha del proveedor**. Antes de fabricar hace falta una **captura BLE/Modbus real del SKU adquirido** y la ficha técnica del vendedor.
+
+
+---
+
+## 7. Esquemático de la V2 — especificación por etapas
+
+> **Decisión de versión, acotada a la V2.** Esta versión usa una **placa de desarrollo ESP32-WROOM-32 (DevKit)**. El proyecto sigue definido sobre el **módulo WROOM-32 desnudo**, que es lo que costea la línea del BOM; la DevKit es una elección de prototipo para llegar antes a una placa funcional. La versión de producción vuelve al módulo desnudo, y entonces hay que agregar a la portadora el LDO de 3,3 V, el USB-UART y el circuito de auto-reset que hoy aporta la DevKit. **Esto cierra la decisión D1 solo para la V2.**
+
+### 7.0. Nets del sistema
+
+Nombrar las redes antes de dibujar evita la mitad de los errores de ERC:
+
+| Net | Tensión | Origen |
+| :--- | :--- | :--- |
+| `VBAT` | 3,0 – 4,2 V | Celda LiPo, pin 1 del JST |
+| `VBAT_PROT` | 3,0 – 4,2 V | Después del fusible y la protección de polaridad |
+| `+5V` | 5,0 V | Salida del módulo combinado, después del interruptor |
+| `+3V3` | 3,3 V | Pin `3V3` de la DevKit, de su regulador interno |
+| `5V_SONDA` | 5,0 V conmutados | Después del P-MOSFET de corte |
+| `GND` | 0 V | Masa única, común a sonda y placa |
+
+### 7.1. Etapa 1 — Alimentación
+
+| Ref | Componente | Función |
+| :--- | :--- | :--- |
+| `BT1` | LiPo 1S 2000 mAh con PCM | Fuente de energía |
+| `J1` | JST-PH 2,0 mm, 3 pines | Conector de batería |
+| `F1` | PTC rearmable | Protección de **cortocircuito y sobrecorriente** |
+| `D1` | Protección de **polaridad inversa** | Schottky en serie o P-MOSFET tipo diodo ideal |
+| `MOD1` | PCB combinada USB-C: carga más elevación a 5 V | Carga la celda y genera los 5 V |
+| `SW1` | Interruptor rocker SPST | Corta el consumo del equipo |
+| `C1` | 100 µF electrolítico o tántalo | Reserva en `+5V` para los picos de la sonda |
+| `C2` | 100 nF cerámico | Desacoplo de alta frecuencia en `+5V` |
+
+**Cadena:** `BT1` → `J1` → `F1` → `D1` → `VBAT_PROT` → `MOD1` (`B+` / `B−`) → salida de 5 V → `SW1` → `+5V`.
+
+#### Fusible y diodo no son lo mismo
+
+La lista de partida pedía «algún diodo de protección de cortocircuito». Son dos protecciones distintas y hacen falta las dos:
+
+| Componente | Protege contra | Qué pasa si falta |
+| :--- | :--- | :--- |
+| `F1` PTC rearmable | Cortocircuito y sobrecorriente | Un corto en la sonda descarga la celda a través de las pistas |
+| `D1` Schottky o P-MOSFET | Conectar la batería al revés | Se destruyen `MOD1` y la DevKit |
+
+El Schottky en serie es barato pero cae 0,3 – 0,4 V, y sobre una celda que termina en 3,0 V eso es mucho. **La alternativa recomendada es un P-MOSFET en configuración de diodo ideal**, que cae milivoltios. Dimensionar el PTC después de medir el consumo real de la sonda a 5 V: la corriente de retención debe quedar sobre el peak de medición y bajo la corriente de falla.
+
+#### Dónde va el interruptor — decisión abierta
+
+| Opción | Ventaja | Costo |
+| :--- | :--- | :--- |
+| **A.** En la salida de 5 V de `MOD1` | Se puede cargar con el equipo apagado | El elevador de `MOD1` sigue consumiendo en vacío |
+| **B.** En serie con la batería, antes de `MOD1` | Corte total, consumo cero | **No carga con el equipo apagado** |
+
+Recomendación: partir por la **A** y medir el consumo en vacío de `MOD1`. Si resulta alto, la **B** es preferible aunque obligue a encender para cargar.
+
+#### El tercer pin del JST
+
+El BOM registra «pinout/tercer pin por verificar». En un conector de 3 pines lo habitual es `+`, `−` y **NTC**, el termistor de temperatura de la celda. La mayoría de las PCB combinadas económicas **no tienen entrada de NTC**. Verificar con el multímetro antes de soldar: si el tercer pin es NTC y `MOD1` no lo usa, se deja sin conectar y se documenta. Nunca puentearlo a masa a ciegas.
+
+### 7.2. Etapa 2 — Control
+
+| Ref | Componente | Función |
+| :--- | :--- | :--- |
+| `U1` | DevKit ESP32-WROOM-32 | Control, BLE y adquisición |
+| `C3` | 100 µF | Reserva en `VIN` de la DevKit |
+| `C4` | 100 nF | Desacoplo en `VIN` |
+| `C5`, `C6` | 10 µF y 100 nF | Desacoplo en `+3V3` |
+| `SW2` | Pulsador táctil | Disparo de medición y despertar |
+| `R1` | 10 kΩ | Pull-up del pulsador |
+| `C7` | 100 nF | Antirrebote del pulsador |
+| `D2`, `D3` | LED verde y azul | Estado de lectura y de enlace |
+| `R2`, `R3` | Limitadoras de LED | Ver cálculo más abajo |
+| `Q1` | P-MOSFET `AO3401A` o `IRLML6402` | Corte de `5V_SONDA` |
+| `Q2` | N-MOSFET `2N7002` | Adapta el nivel del GPIO a la compuerta de `Q1` |
+| `R4` | 100 kΩ | Pull-up de compuerta de `Q1` hacia `+5V` |
+| `R5` | 1 kΩ | Serie en la compuerta de `Q2` |
+| `R6` | 100 kΩ | **Pull-down de la compuerta de `Q2`** |
+| `U3` | Módulo BME280 I²C | Temperatura, humedad y presión |
+| `R7`, `R8` | 4,7 kΩ | Pull-ups de `SDA` y `SCL` |
+| `R9`, `R10` | Divisor de batería | Ver decisión D2 |
+
+**`R6` no es opcional.** Sin el pull-down, la compuerta de `Q2` queda flotando durante el arranque del ESP32 y **la sonda puede alimentarse sola antes de que el firmware tome control del pin**. Lo mismo vale para `R4`: mantiene `Q1` cortado por defecto.
+
+#### Alimentación de la DevKit
+
+`+5V` entra por `VIN`. El regulador interno de la DevKit genera `+3V3`, que alimenta al BME280 y al transceptor. **No conectar nunca `+5V` al pin `3V3`.**
+
+Los capacitores van en `VIN`: `C3` de 100 µF absorbe el escalón de corriente cuando arranca la radio BLE, y `C4` de 100 nF va lo más cerca posible del pin.
+
+#### Cálculo de las limitadoras de LED
+
+La resistencia sale de la tensión sobrante dividida por la corriente deseada:
+
+| LED | Caída típica | Corriente | Resistencia |
+| :--- | :--- | :--- | :--- |
+| Verde | 2,0 V | 5 mA | 260 Ω, se usa **270 Ω** |
+| Azul | 3,0 V | 3 mA | 100 Ω, se usa **120 Ω** |
+
+El azul queda muy justo: con 3,3 V de alimentación y 3,0 V de caída apenas hay margen, y el brillo varía mucho entre lotes. Si hace falta verlo bajo sol directo, conviene alimentarlo desde `+5V` con su propio transistor, o elegir un LED azul de alta eficiencia. **El BOM compra tres LED y el diseño usa dos**: decidir si se agrega un tercero de carga o se corrige la cantidad comprada.
+
+### 7.3. Etapa 3 — Periféricos
+
+| Ref | Componente | Función |
+| :--- | :--- | :--- |
+| `U2` | `SP3485` SOIC-8 | Transceptor RS-485 a 3,3 V |
+| `C8` | 100 nF | Desacoplo de `U2` |
+| `J2` | Borne de tornillo o JST de 4 vías | Conexión de la sonda |
+| `R11` | 120 Ω | Terminación del bus |
+| `R12`, `R13` | 4,7 kΩ | Polarización *fail-safe* |
+| `D4` | `SM712` SOT-23 | TVS específico para RS-485 |
+
+**Conexionado de `U2`:**
+
+| Pin | Señal | Va a |
+| :--- | :--- | :--- |
+| 1 | `RO` | `GPIO16`, RX2 |
+| 2 | `/RE` | Unido al pin 3 |
+| 3 | `DE` | `GPIO4` |
+| 4 | `DI` | `GPIO17`, TX2 |
+| 5 | `GND` | `GND` |
+| 6 | `A` | `J2` pin 3 |
+| 7 | `B` | `J2` pin 4 |
+| 8 | `VCC` | `+3V3`, con `C8` al lado |
+
+**Conector de la sonda `J2`:** pin 1 `5V_SONDA`, pin 2 `GND`, pin 3 `A`, pin 4 `B`. Los 5 V salen del elevador **después** del corte por `Q1`.
+
+#### La terminación de 120 Ω probablemente sobra
+
+`R11` existe para evitar reflexiones en buses largos. Con **2 m de cable y 9600 baudios** no hay reflexión que corregir, y en cambio la terminación **consume del orden de 25 mA extra mientras el transceptor transmite**. Conviene dejarla como huella sin montar, con dos islas puenteables, y montarla solo si aparecen errores de CRC.
+
+La polarización *fail-safe* `R12` y `R13` sí conviene: define el estado del bus cuando nadie transmite. Consume alrededor de 350 µA de forma permanente mientras haya `+3V3`.
+
+#### ¿Se corta también el transceptor?
+
+El diagrama de la V1 habla de cortar «sonda y bus», pero `U2` se alimenta de `+3V3` y `Q1` corta `+5V`. **Tal como está dibujado, el transceptor queda siempre alimentado.** Hay que decidir: dejarlo permanente y aceptar su consumo más el de la polarización, o agregar un segundo MOSFET en `+3V3`. Con el interruptor rocker de la etapa 1 el punto pierde urgencia para la V2.
+
+### 7.4. Lo que faltaba en la lista de partida
+
+Nada de esto estaba enumerado y va al esquemático:
+
+1. **Divisor de batería** `R9` y `R10` hacia `GPIO34`: sin él no hay indicación de carga, y el byte 14 de la trama BLE la transporta.
+2. **`R4` y `R6`**, las resistencias que mantienen la sonda apagada durante el arranque.
+3. **Pull-ups de I²C** `R7` y `R8`: muchos módulos BME280 ya los traen. Verificar antes de duplicarlos.
+4. **Limitadoras de LED** `R2` y `R3`.
+5. **Desacoplos** `C5` a `C8`, uno por integrado.
+6. **Polarización *fail-safe* y terminación** del bus.
+7. **TVS con SKU**, `SM712`, no un símbolo genérico.
+8. **Puntos de prueba** en `VBAT`, `+5V`, `+3V3`, `A`, `B` y `5V_SONDA`: sin ellos no se puede ejecutar el plan de medición de consumo.
+9. **Agujeros de montaje** acotados contra la carcasa.
+10. **Los dos conectores USB.** `MOD1` trae USB-C de carga y la DevKit trae su propio micro-USB de programación: son dos puertos físicos distintos. Decidir si ambos salen a la carcasa, si se programa antes de cerrar el equipo, o si el de la DevKit se lleva a un conector de panel.
+11. **Comportamiento al cargar y medir a la vez:** definir si se permite o si el firmware lo bloquea.
+
+### 7.5. Trampas del ESP32 que condicionan este pinout
+
+| Pin | Problema |
+| :--- | :--- |
+| `GPIO0` | Pin de *strapping*. En la DevKit **ya está cableado al botón BOOT**. Si se le cuelga además el pulsador de medición, una pulsación durante el arranque entra en modo programación. **Conviene mover `SW2` a `GPIO33` o `GPIO27`**, que son RTC y despiertan del sueño profundo |
+| `GPIO2` | *Strapping*. Un LED a masa lo deja en nivel bajo, que es el estado válido. Tolerable |
+| `GPIO15` | *Strapping*. En bajo durante el arranque silencia el registro de inicio. Arranca igual, pero se pierde diagnóstico |
+| `GPIO5` | *Strapping*, debe estar alto al arrancar. `R4` y `R6` lo dejan en un estado definido |
+| `GPIO12` | **No usar.** En alto durante el arranque cambia la tensión de flash y puede dejar la placa sin arrancar |
+| `GPIO6` a `GPIO11` | **No usar.** Van a la memoria flash del módulo |
+| `GPIO34` | Solo entrada, sin pull interno. Correcto para el divisor: pertenece a `ADC1`, el único que funciona con la radio encendida |
+| `GPIO16` y `GPIO17` | Libres en WROOM-32. **En WROVER los ocupa la PSRAM.** Confirmar que la DevKit monta WROOM y no WROVER |
+
+#### El consumo en reposo de la DevKit
+
+Esto obliga a retirar una cifra: **el presupuesto de 12 µA de la sección 3.5 es inalcanzable con una DevKit.** Su regulador `AMS1117` consume del orden de 5 a 10 mA en vacío, y el conversor USB-serie agrega lo suyo. El sueño profundo en una DevKit típica queda en **decenas de miliamperios**, no en microamperios: unas mil veces más.
+
+Por eso `SW1` deja de ser un accesorio y pasa a ser **la única razón por la que la DevKit es viable en la V2**: el equipo se apaga físicamente entre usos y el consumo en reposo se vuelve irrelevante. El presupuesto de 12 µA vuelve a la conversación recién con el módulo desnudo.
+
+### 7.6. Orden sugerido para dibujar
+
+1. Hoja de alimentación completa, con sus nets nombradas.
+2. DevKit con sus desacoplos y los puntos de prueba.
+3. Power gate `Q1` y `Q2` con `R4` y `R6`, que es donde más se equivoca uno.
+4. Transceptor y conector de sonda.
+5. BME280, pulsador y LED.
+6. ERC en cero **antes** de asignar una sola huella.
