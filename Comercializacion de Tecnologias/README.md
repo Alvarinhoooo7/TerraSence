@@ -69,7 +69,7 @@ En nuestro modelo económico, las fuerzas de mercado interactúan de la siguient
 **Gráfico Conceptual de Equilibrio:**
 ```mermaid
 graph LR
-    subgraph Dinámica de Equilibrio
+    subgraph Equilibrio ["Dinámica de Equilibrio"]
         P(Precio: $349.990) --> E{Equilibrio<br>Meta: 200 un.}
         Q(Cantidad: 200 un.) --> E
         D[Curva de Demanda<br>Valoración del agricultor] --> E
@@ -93,7 +93,7 @@ Factores exógenos alteran la disposición a pagar del mercado, desplazando toda
 
 ```mermaid
 graph TD
-    subgraph Aumento de Demanda D -> D'
+    subgraph Aumento_Demanda ["Aumento de Demanda D -> D'"]
         E1((Equilibrio Inicial)) -->|Factor externo: Escasez hídrica| D_NEW[Nueva Demanda D']
         D_NEW --> E2((Nuevo Equilibrio))
         E2 -->|Efecto| P_UP[Mayor cantidad dispuesta<br>Mayor presión de precio]
@@ -116,7 +116,7 @@ Del mismo modo, factores ligados a los costos de producción y tecnología despl
 
 ```mermaid
 graph TD
-    subgraph Contracción de Oferta O -> O'
+    subgraph Contraccion_Oferta ["Contracción de Oferta O -> O'"]
         E1((Equilibrio Inicial)) -->|Factor externo: Alza del USD| O_NEW[Nueva Oferta O']
         O_NEW --> E2((Nuevo Equilibrio))
         E2 -->|Efecto| P_UP[Mayor costo de producción<br>Menor cantidad ofrecida]
