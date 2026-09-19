@@ -16,10 +16,13 @@ import { SupportDeviceDetailPage } from './pages/SupportDeviceDetailPage';
 import { DashboardHome } from './pages/DashboardHome';
 import { GisMapPage } from './pages/GisMapPage';
 
-/** Aterrizaje del enlace de confirmacion. Debe coincidir con `emailRedirectTo`
- *  de `App/src/screens/AuthScreen.tsx` y con `additional_redirect_urls` de
- *  `supabase/config.toml`. */
+/** Compatibilidad temporal con correos de confirmación enviados antes de usar códigos. */
 const CONFIRMED_PATH = '/cuenta-confirmada';
+const RECOVERY_KEY = 'terrasense-recovery-user';
+const recoveryUser = () => { try { return localStorage.getItem(RECOVERY_KEY); } catch { return null; } };
+const saveRecoveryUser = (id: string | null) => {
+  try { if (id) localStorage.setItem(RECOVERY_KEY, id); else localStorage.removeItem(RECOVERY_KEY); } catch { /* Almacenamiento no disponible. */ }
+};
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -33,11 +36,15 @@ export default function App() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
+      if (data.session && recoveryUser() === data.session.user.id) setRecovering(true);
       setSession(data.session);
       setChecking(false);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
-      if (event === 'PASSWORD_RECOVERY') setRecovering(true);
+      if (event === 'PASSWORD_RECOVERY') {
+        saveRecoveryUser(s?.user.id ?? null);
+        setRecovering(true);
+      } else if (event === 'SIGNED_OUT') saveRecoveryUser(null);
       setSession(s);
     });
     return () => sub.subscription.unsubscribe();
@@ -75,7 +82,7 @@ export default function App() {
   }
 
   if (recovering) {
-    return <ResetPasswordScreen onDone={() => setRecovering(false)} />;
+    return <ResetPasswordScreen onDone={() => { saveRecoveryUser(null); setRecovering(false); }} />;
   }
 
   if (!session) {

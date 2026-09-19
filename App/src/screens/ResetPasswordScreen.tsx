@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -14,6 +15,8 @@ import { supabase } from '../services/supabase';
 import { Spacing, Typography } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
+import { isPasswordAcceptable, PASSWORD_MIN_LENGTH } from '../utils/passwordRules';
+import { PasswordChecklist } from '../components/PasswordChecklist';
 
 export const ResetPasswordScreen = ({ onDone }: { onDone: () => void }) => {
   const { colors } = useAppTheme();
@@ -23,11 +26,14 @@ export const ResetPasswordScreen = ({ onDone }: { onDone: () => void }) => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const locked = useRef(false);
+  const passwordSaved = useRef(false);
 
   const submit = async () => {
+    if (locked.current) return;
     setError(null);
-    if (password.length < 6) {
-      setError(t('La contraseña debe tener al menos 6 caracteres.', 'Password must be at least 6 characters long.'));
+    if (!isPasswordAcceptable(password)) {
+      setError(t(`Usa al menos ${PASSWORD_MIN_LENGTH} caracteres, una letra, un número y un carácter especial.`, `Use at least ${PASSWORD_MIN_LENGTH} characters, a letter, a number and a special character.`));
       return;
     }
     if (password !== confirm) {
@@ -35,21 +41,28 @@ export const ResetPasswordScreen = ({ onDone }: { onDone: () => void }) => {
       return;
     }
 
-    setBusy(true);
-    const { error: updateError } = await supabase.auth.updateUser({ password });
-    if (updateError) {
-      setError(updateError.message);
-      setBusy(false);
-      return;
-    }
-    await supabase.auth.signOut();
-    setSuccess(true);
-    setBusy(false);
+    locked.current = true; setBusy(true);
+    try {
+      if (!passwordSaved.current) {
+        const { error: updateError } = await supabase.auth.updateUser({ password });
+        if (updateError) throw updateError;
+        passwordSaved.current = true;
+      }
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) {
+        const { error: localError } = await supabase.auth.signOut({ scope: 'local' });
+        if (localError) throw localError;
+      }
+      setSuccess(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t('No pudimos actualizar la contraseña. Inténtalo otra vez.', 'Could not update your password. Try again.'));
+    } finally { locked.current = false; setBusy(false); }
   };
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.center}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.root}>
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.center}>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Text style={styles.icon}>{success ? '✅' : '🔑'}</Text>
           <Text style={[Typography.titleLarge, styles.title, { color: colors.text }]}>
@@ -73,6 +86,7 @@ export const ResetPasswordScreen = ({ onDone }: { onDone: () => void }) => {
                 placeholder={t('Contraseña nueva', 'New password')}
                 placeholderTextColor={colors.textMuted}
                 value={password}
+                editable={!busy && !passwordSaved.current}
                 onChangeText={setPassword}
                 secureTextEntry
                 autoComplete="new-password"
@@ -82,21 +96,24 @@ export const ResetPasswordScreen = ({ onDone }: { onDone: () => void }) => {
                 placeholder={t('Confirmar contraseña', 'Confirm password')}
                 placeholderTextColor={colors.textMuted}
                 value={confirm}
+                editable={!busy && !passwordSaved.current}
                 onChangeText={setConfirm}
                 secureTextEntry
                 autoComplete="new-password"
               />
               {error && <Text style={[styles.error, { color: colors.danger }]}>{error}</Text>}
+              <PasswordChecklist password={password} />
               <TouchableOpacity
                 style={[styles.button, { backgroundColor: colors.primary, opacity: busy ? 0.6 : 1 }]}
                 onPress={() => void submit()}
                 disabled={busy}
               >
-                {busy ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.buttonText}>{t('Guardar contraseña', 'Save password')}</Text>}
+                {busy ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.buttonText}>{passwordSaved.current ? t('Finalizar recuperación', 'Finish recovery') : t('Guardar contraseña', 'Save password')}</Text>}
               </TouchableOpacity>
             </>
           )}
         </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -104,7 +121,7 @@ export const ResetPasswordScreen = ({ onDone }: { onDone: () => void }) => {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  center: { flex: 1, justifyContent: 'center', padding: Spacing.lg },
+  center: { flexGrow: 1, justifyContent: 'center', padding: Spacing.lg },
   card: { borderWidth: 1, borderRadius: Spacing.cardRadius, padding: Spacing.lg, gap: Spacing.md },
   icon: { fontSize: 46, textAlign: 'center' },
   title: { textAlign: 'center' },

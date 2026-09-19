@@ -43,6 +43,41 @@ La entrega del 11-09-2026 pasó `npm run type-check` y las **55 pruebas** de `np
 ---
 
 Aplicación móvil de terreno desarrollada en **React Native 0.86 + React 19.2 + Expo SDK 57 + TypeScript 6 + Zustand**. 
+
+### Aceptación previa al registro móvil
+
+Al enviar un formulario de registro válido se abre el
+[panel de términos y privacidad](src/components/RegistrationConsentModal.tsx).
+La solicitud de creación de cuenta se realiza únicamente después de llegar al final
+del contenido, marcar las dos casillas y pulsar «Continuar». El botón permanece
+visible en la parte inferior. Cancelar vuelve al formulario sin enviar la solicitud;
+al reabrir, las casillas vuelven a estar vacías. Si todo el contenido cabe en pantalla,
+no se exige un desplazamiento imposible. El inicio de sesión, la recuperación y la
+consola web no incorporan este paso.
+
+El texto es **preliminar**, identificado como tal en el panel: falta definir el
+responsable, el contacto para ejercer derechos y los plazos de conservación antes
+de publicarlo. Describe las finalidades, la ubicación opcional, Open-Meteo y el
+alojamiento en Brasil. Distingue la [Ley 19.628](https://www.bcn.cl/leychile/Navegar?idNorma=141599)
+de la [Ley 21.719](https://www.bcn.cl/leychile/Navegar?idNorma=1209272), cuya entrada
+en vigor es el 1 de diciembre de 2026; no acredita por sí solo cumplimiento legal.
+
+La [versión de aceptación](src/utils/registrationConsent.ts), las dos confirmaciones,
+el idioma y la fecha del dispositivo se envían en `options.data.registration_consent`
+durante `signUp`. Supabase los conserva como metadatos del usuario si crea la cuenta;
+**no constituyen una auditoría inmutable ni una validación de consentimiento en el
+servidor**, porque esos metadatos y la hora proceden del cliente. El panel protege
+el recorrido de esta app; no impide un registro directo por la API.
+
+Este paso precede a la confirmación por código implementada en
+[EmailCodeScreen](src/screens/EmailCodeScreen.tsx). La recuperación usa la misma pantalla
+con propósito distinto y luego abre el formulario de nueva contraseña. Una cuenta sin
+confirmar puede retomar la verificación desde el inicio de sesión; no necesita registrarse
+otra vez. Se conserva el estado de recuperación asociado a la cuenta al reiniciar la app.
+La activación remota de plantillas y vencimiento está descrita en
+[Supabase](../supabase/README.md#7-plantillas-de-correo).
+Las pruebas de lectura y aceptación están en [registrationConsent.test.ts](tests/registrationConsent.test.ts)
+y las del protocolo de códigos en [emailOtp.test.ts](tests/emailOtp.test.ts).
 Es la herramienta central que el agricultor y los operadores llevan al campo: se conecta a la sonda portátil TerraSense vía **Bluetooth Low Energy (BLE)**, evalúa el suelo localmente según la etapa fenológica elegida, agrega contexto meteorológico y proyecta las mediciones de **siembra** en un mapa del campo.
 
 > ### ⚠️ Estado de verificación
@@ -91,7 +126,7 @@ Es la herramienta central que el agricultor y los operadores llevan al campo: se
 ## 1. Flujo de Usuario y Capacidades Clave
 
 1. **Carrusel de Bienvenida (`WelcomeCarouselScreen`):** Tres tarjetas informativas (*Quiénes somos*, *Qué hacemos* y *Por qué lo hacemos*) antes de ingresar a la cuenta.
-2. **Acceso y Recuperación de Clave:** Inicio de sesión, registro y flujo de recuperación de contraseña vía deep link nativo `terrasense://reset-password` y formulario interactivo `ResetPasswordScreen`.
+2. **Acceso y Recuperación de Clave:** Inicio de sesión, registro y recuperación por código de correo, con `EmailCodeScreen` y `ResetPasswordScreen`. El deep link nativo se conserva para correos antiguos.
 3. **Onboarding Dual de Equipos:**
    - **Primer Propietario (Owner):** Vinculación física por BLE con grabación del código de 15 dígitos en la memoria NVS del ESP32 y registro atómico en Supabase (`register_paired_device`).
    - **Usuarios:** escanean el QR temporal mostrado por cualquier miembro aprobado. Quedan en una pantalla de espera hasta que el administrador apruebe su ingreso. El QR cambia cada 15 minutos; el ID permanente no concede acceso.
@@ -221,33 +256,12 @@ La exportación JavaScript Android de diagnóstico sí finalizó correctamente (
 
 ### Confirmación de cuenta: qué falta desplegar
 
-El correo de confirmación llevaba al agricultor **al backoffice de soporte**. `signUp()` no fijaba
-`emailRedirectTo`, así que Supabase usaba el `site_url` del proyecto, que es la consola web; y allí,
-con sesión válida y sin pertenecer a `admin_support_users`, lo que aparecía era el formulario para
-darse de alta como personal de soporte con un código de invitación. La cuenta se confirmaba, pero el
-destino no era el suyo.
-
-Corregido en tres piezas: `AuthScreen.tsx` fija `emailRedirectTo`, `Web/src/components/AccountConfirmed.tsx`
-es la página de aterrizaje, y `Web/src/App.tsx` la resuelve **antes** de mirar la sesión.
-
-| Paso | Estado |
-| :--- | :--- |
-| URL en `additional_redirect_urls` de `supabase/config.toml` | ✅ Aplicada en remoto con `supabase config push` (6-sep-2026) |
-| Página `/cuenta-confirmada` desplegada en Vercel | ⏳ **Pendiente** |
-| SMTP propio para que el correo no caiga en spam | ⏳ **Pendiente** |
-
-**Lo que falta hacer:**
-
-```bash
-cd Web && vercel --prod --yes
-```
-
-Hasta que ese despliegue ocurra, el enlace del correo apunta a una ruta que todavía no existe en
-producción. El *rewrite* de SPA ya está en `Web/vercel.json`, así que no hace falta tocar nada más.
-
-**El correo llega a spam** porque el remitente por defecto de Supabase tiene mala entregabilidad y un
-límite de envíos bajo. Se arregla configurando SMTP propio en *Authentication → SMTP Settings*
-(Resend y SendGrid tienen plan gratuito). No es código.
+El registro y la recuperación solicitan correos cuyo código se ingresa en la app.
+Primero hay que distribuir los clientes compatibles y después aplicar las
+[plantillas y límites de Supabase](../supabase/README.md#7-plantillas-de-correo).
+La página web `/cuenta-confirmada` y el deep link de recuperación se conservan solo
+para enlaces antiguos; los correos nuevos ya no los incluyen. La entrega real de
+correo y el recorrido en un teléfono deben verificarse contra el proyecto remoto.
 
 > [!NOTE]
 > `supabase/README.md §7` afirma que tener las plantillas de correo activas en `config.toml` hace
@@ -616,20 +630,9 @@ lista para usuarios reales.
 
 ### 12.1. SMTP propio — los correos caen en spam
 
-**Sin hacer.** Los correos de confirmación de cuenta y de recuperación de contraseña llegan a la
-carpeta de spam. No es un fallo del código ni de las plantillas: el remitente por defecto de Supabase
-es compartido, tiene mala reputación de dominio y un límite de envíos bajo.
-
-Mientras siga así, el registro está roto en la práctica aunque funcione técnicamente — un agricultor
-que no encuentra el correo no confirma la cuenta y no entra.
-
-Se resuelve configurando un servidor SMTP propio en *Authentication → SMTP Settings* del dashboard de
-Supabase. Resend y SendGrid tienen plan gratuito suficiente para este volumen. Requiere verificar el
-dominio remitente (registros SPF y DKIM), que es justamente lo que hace que el correo deje de
-parecer sospechoso.
-
-Efecto secundario útil: con SMTP propio se pueden activar las plantillas de correo con la marca
-TerraSense que ya existen en `supabase/templates/`.
+La configuración local declara SMTP propio. Su estado remoto y la entrega a bandeja
+de entrada deben comprobarse; no se puede atribuir un problema de spam sin inspeccionar
+el remitente y las cabeceras reales. Ver [configuración de correo](../supabase/README.md#7-plantillas-de-correo).
 
 ### 12.2. Rediseño de las pantallas del agricultor
 
@@ -652,11 +655,6 @@ No se tocó la consola web: el rediseño acordado cubre sólo la app del agricul
 
 ### 12.3. Despliegue de la página de confirmación
 
-**Sin hacer.** Detallado más arriba, en «Confirmación de cuenta: qué falta desplegar». En una línea:
-
-```bash
-cd Web && vercel --prod --yes
-```
-
-Hasta que ocurra, el enlace del correo de confirmación apunta a una ruta que todavía no existe en
-producción.
+La página se mantiene para compatibilidad con enlaces antiguos. El flujo vigente usa
+códigos; falta publicar los clientes y verificar la configuración y el envío remoto,
+según «Confirmación de cuenta: qué falta desplegar».

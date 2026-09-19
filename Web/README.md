@@ -303,13 +303,17 @@ vercel --prod --yes
 
 ## 10. Correos transaccionales y recuperación de acceso
 
-El proyecto utiliza un servidor SMTP propio de Gmail en Supabase (`[auth.email.smtp]`) y plantillas HTML oficiales con la identidad gráfica de TerraSense:
+El registro y la recuperación muestran [EmailCodeForm](src/components/EmailCodeForm.tsx).
+La verificación del código establece una sesión; en recuperación se muestra primero
+`ResetPasswordScreen` para elegir una nueva contraseña. El estado de recuperación se
+conserva al recargar el navegador y se limpia al cerrar sesión. Los permisos de soporte
+y la invitación se mantienen: confirmar el correo no concede acceso administrativo.
 
-| Correo | Cuándo se dispara | Plantilla | Estado |
-| :--- | :--- | :--- | :---: |
-| **Recuperación de contraseña** | «Olvidé mi contraseña» en `AuthScreen.tsx` | `supabase/templates/recovery.html` | 🟢 En producción |
-| **Confirmación de registro** | Alta de un nuevo usuario administrador | `supabase/templates/confirmation.html` | 🟢 En producción |
-| **Aviso de cambio de clave** | Tras actualizar contraseña en `ResetPasswordScreen.tsx` | `supabase/templates/password_changed.html` | 🟢 En producción |
+Las [plantillas, parámetros y activación remota](../supabase/README.md#7-plantillas-de-correo)
+se comparten con la app. La configuración local declara SMTP propio, pero su estado
+remoto y la entrega real no fueron verificados en este cambio. `/cuenta-confirmada`
+se conserva para correos antiguos. El panel de términos previo al registro es exclusivo
+de la app móvil.
 
 ---
 

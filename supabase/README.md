@@ -351,22 +351,41 @@ La primera constancia de este desfase, junto con el contrato de la app que depen
 
 ## 7. Plantillas de correo
 
-`templates/recovery.html` y `templates/confirmation.html` están escritas con la marca TerraSense,
-pero **desactivadas en `config.toml`**:
+Las plantillas de [confirmación](templates/confirmation.html) y
+[recuperación](templates/recovery.html) muestran `{{ .Token }}` sin enlaces de acción.
+Supabase genera y valida los códigos; no se crean tablas ni funciones propias.
+[config.toml](config.toml), sección `auth.email`, define longitud, vencimiento y
+espera entre envíos. El cambio está preparado localmente; **su aplicación remota
+no está verificada**. El CLI está vinculado al proyecto, pero el proxy del entorno
+rechaza la conexión a la API de administración.
 
+La app y la web verifican con `verifyOtp`: `type: 'email'` para confirmar el registro
+y `type: 'recovery'` para recuperar. Esta última emite `PASSWORD_RECOVERY` y muestra
+el formulario de nueva contraseña antes de entrar. Reenviar usa `resend` de tipo
+`signup` o `resetPasswordForEmail`, respectivamente. El vencimiento y los límites
+efectivos los impone Supabase, no el contador del cliente.
+
+Para activar, publicar primero la app y la web compatibles. Después, desde una terminal
+con red y Python 3.11+, usar [configurar_codigos.py](scripts/configurar_codigos.py):
+
+```powershell
+python supabase/scripts/configurar_codigos.py
+python supabase/scripts/configurar_codigos.py --apply
 ```
-400: Email template modification is not available for free tier projects
-     using the default email provider.
-```
 
-Dejarlas activas hace fallar **cualquier** `supabase config push` posterior. Para usarlas:
+El script requiere `SUPABASE_ACCESS_TOKEN` en el entorno, o el archivo de token del CLI
+si contiene un token personal legible. Una sesión del CLI almacenada en el gestor de
+credenciales del sistema no basta para este script. No usar claves `anon` ni `service_role`.
+La primera ejecución solo compara; la segunda aplica un PATCH limitado a plantillas,
+asuntos, confirmación obligatoria y parámetros de códigos, y vuelve a leer para verificar.
+No envía contraseñas SMTP ni reemplaza la configuración completa. Se detiene si hay
+un hook de correo activo o no se detecta SMTP propio. **No ejecutar `supabase config push`
+para este cambio**: la variable local de contraseña SMTP puede estar ausente.
 
-1. Configurar SMTP propio (Resend o SendGrid tienen plan gratuito) en *Authentication → SMTP
-   Settings* y descomentar el bloque de `config.toml`; **o**
-2. Pegar el HTML a mano en *Authentication → Email Templates*.
-
-Recomendada la primera: el remitente por defecto de Supabase tiene límite de envíos y baja
-entregabilidad, lo que en producción significa correos de recuperación que no le llegan al agricultor.
+Verificar en una cuenta de prueba: registro, código incorrecto, código vencido, reenvío,
+código ya usado, recuperación y entrada con la contraseña nueva, tanto en app como en web.
+Conservar temporalmente las URLs autorizadas para correos antiguos. Cambiar a códigos
+no valida por sí solo entregabilidad ni configuración SMTP.
 
 ---
 

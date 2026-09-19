@@ -1,11 +1,8 @@
 // src/components/ResetPasswordScreen.tsx — Pantalla para elegir una contraseña nueva.
 //
-// Se muestra cuando Supabase entrega una sesión de tipo `PASSWORD_RECOVERY` (el usuario
-// llegó desde el enlace del correo de recuperación). Sin esta pantalla, el enlace del correo
-// dejaba al usuario directamente en el Dashboard sin haber cambiado nada — un enlace de
-// "recuperar contraseña" que en realidad no permitía recuperar la contraseña.
+// Se muestra tras validar el código de recuperación (o un enlace antiguo).
 
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { supabase } from '../services/supabase';
 
 const humanize = (message: string): string => {
@@ -25,9 +22,12 @@ export function ResetPasswordScreen({ onDone }: { onDone: () => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const locked = useRef(false);
+  const passwordSaved = useRef(false);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
+    if (locked.current) return;
     setError(null);
 
     if (password.length < 6) {
@@ -39,19 +39,21 @@ export function ResetPasswordScreen({ onDone }: { onDone: () => void }) {
       return;
     }
 
-    setBusy(true);
-    const { error: err } = await supabase.auth.updateUser({ password });
-    setBusy(false);
-
-    if (err) {
-      setError(humanize(err.message));
-      return;
-    }
-
-    // Cierra la sesión de recuperación: el usuario debe volver a entrar con la
-    // contraseña nueva, como corresponde tras un cambio de credenciales.
-    setSuccess(true);
-    await supabase.auth.signOut();
+    locked.current = true; setBusy(true);
+    try {
+      if (!passwordSaved.current) {
+        const { error: err } = await supabase.auth.updateUser({ password });
+        if (err) throw err;
+        passwordSaved.current = true;
+      }
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) {
+        const { error: localError } = await supabase.auth.signOut({ scope: 'local' });
+        if (localError) throw localError;
+      }
+      setSuccess(true);
+    } catch (e) { setError(humanize(e instanceof Error ? e.message : String(e))); }
+    finally { locked.current = false; setBusy(false); }
   };
 
   if (success) {
@@ -88,7 +90,7 @@ export function ResetPasswordScreen({ onDone }: { onDone: () => void }) {
           Elige tu contraseña nueva
         </h1>
         <p className="text-sm text-center text-terra-muted mb-6">
-          Llegaste desde el enlace de recuperación de TerraSense.
+          Tu correo fue verificado. Ahora elige una contraseña nueva.
         </p>
 
         <label className="block text-xs font-semibold tracking-wide text-terra-muted mb-1">
@@ -97,6 +99,7 @@ export function ResetPasswordScreen({ onDone }: { onDone: () => void }) {
         <input
           type="password"
           value={password}
+          disabled={busy || passwordSaved.current}
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="new-password"
           className="w-full h-12 rounded-lg border border-terra-border bg-terra-bg px-3 mb-4 outline-none focus:border-terra-primary"
@@ -108,6 +111,7 @@ export function ResetPasswordScreen({ onDone }: { onDone: () => void }) {
         <input
           type="password"
           value={confirm}
+          disabled={busy || passwordSaved.current}
           onChange={(e) => setConfirm(e.target.value)}
           autoComplete="new-password"
           className="w-full h-12 rounded-lg border border-terra-border bg-terra-bg px-3 mb-4 outline-none focus:border-terra-primary"
@@ -124,7 +128,7 @@ export function ResetPasswordScreen({ onDone }: { onDone: () => void }) {
           disabled={busy}
           className="w-full h-12 rounded-lg bg-terra-primary text-[#0d1512] font-semibold disabled:opacity-60"
         >
-          {busy ? 'Guardando…' : 'Guardar contraseña nueva'}
+          {busy ? 'Guardando…' : passwordSaved.current ? 'Finalizar recuperación' : 'Guardar contraseña nueva'}
         </button>
       </form>
     </div>

@@ -1,8 +1,9 @@
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { supabase } from '../services/supabase';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Leaf } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
+import { EmailCodeForm, type EmailChallenge } from './EmailCodeForm';
 
 type Mode = 'login' | 'signup' | 'forgot';
 
@@ -77,10 +78,11 @@ export function AuthScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [forgotSent, setForgotSent] = useState(false);
-  const [signupSent, setSignupSent] = useState(false);
+  const [challenge, setChallenge] = useState<EmailChallenge | null>(null);
+  const locked = useRef(false);
 
   const switchMode = (next: Mode) => {
+    if (locked.current) return;
     setMode(next);
     setPassword('');
     setConfirm('');
@@ -90,18 +92,20 @@ export function AuthScreen() {
 
   const submitLogin = async (e: FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setBusy(true);
-    const { error: err } = await supabase.auth.signInWithPassword({
-      email: email.trim().toLowerCase(),
-      password,
-    });
-    if (err) setError(humanize(err.message));
-    setBusy(false);
+    if (locked.current) return;
+    locked.current = true; setError(null); setBusy(true);
+    try {
+      const mail = email.trim().toLowerCase();
+      const { error: err } = await supabase.auth.signInWithPassword({ email: mail, password });
+      if (err?.code === 'email_not_confirmed') setChallenge({ email: mail, purpose: 'signup', sentAt: 0 });
+      else if (err) throw err;
+    } catch (e) { setError(humanize(e instanceof Error ? e.message : String(e))); }
+    finally { locked.current = false; setBusy(false); }
   };
 
   const submitSignup = async (e: FormEvent) => {
     e.preventDefault();
+    if (locked.current) return;
     setError(null);
 
     if (!email.includes('@')) {
@@ -117,40 +121,41 @@ export function AuthScreen() {
       return;
     }
 
-    setBusy(true);
-    const { data, error: err } = await supabase.auth.signUp({
-      email: email.trim().toLowerCase(),
-      password,
-      options: { emailRedirectTo: window.location.origin },
-    });
-    setBusy(false);
-
-    if (err) {
-      setError(humanize(err.message));
-      return;
-    }
-    if (data.user && data.user.identities?.length === 0) {
-      setError('Ya existe una cuenta con ese correo. Inicia sesión o recupera tu contraseña.');
-      return;
-    }
-    setSignupSent(true);
+    locked.current = true; setBusy(true);
+    try {
+      const mail = email.trim().toLowerCase();
+      const { data, error: err } = await supabase.auth.signUp({ email: mail, password });
+      if (err) throw err;
+      setPassword(''); setConfirm('');
+      if (!data.session) setChallenge({ email: mail, purpose: 'signup', sentAt: Date.now() });
+    } catch (e) { setError(humanize(e instanceof Error ? e.message : String(e))); }
+    finally { locked.current = false; setBusy(false); }
   };
 
   const submitForgot = async (e: FormEvent) => {
     e.preventDefault();
+    if (locked.current) return;
     if (!email.includes('@')) {
-      setError('Escribe tu correo para enviarte el enlace de recuperación.');
+      setError('Escribe tu correo para enviarte el código de recuperación.');
       return;
     }
-    setError(null);
-    setBusy(true);
-    const { error: err } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
-      redirectTo: window.location.origin,
-    });
-    setBusy(false);
-    if (err) setError(humanize(err.message));
-    else setForgotSent(true);
+    locked.current = true; setError(null); setBusy(true);
+    try {
+      const mail = email.trim().toLowerCase();
+      const { error: err } = await supabase.auth.resetPasswordForEmail(mail);
+      if (err) throw err;
+      setChallenge({ email: mail, purpose: 'recovery', sentAt: Date.now() });
+    } catch (e) { setError(humanize(e instanceof Error ? e.message : String(e))); }
+    finally { locked.current = false; setBusy(false); }
   };
+
+  if (challenge) return <div className="min-h-screen grid place-items-center p-6 bg-terra-bg">
+    <div className="w-full max-w-md rounded-2xl border border-terra-border bg-terra-surface p-8">
+      <EmailCodeForm {...challenge} onBack={() => {
+        setChallenge(null); switchMode(challenge.purpose === 'signup' ? 'login' : 'forgot');
+      }} />
+    </div>
+  </div>;
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-terra-bg relative overflow-hidden transition-colors duration-500">
@@ -178,7 +183,7 @@ export function AuthScreen() {
             <p className="text-terra-muted text-sm font-medium transition-colors duration-500">Plataforma de Servicio</p>
           </div>
 
-          {mode !== 'forgot' && !signupSent && (
+          {mode !== 'forgot' && (
             <div className="flex p-1 mb-8 rounded-xl bg-terra-surface/50 border border-terra-border backdrop-blur-md transition-colors duration-500">
               <button
                 type="button"
@@ -204,7 +209,7 @@ export function AuthScreen() {
           )}
 
           {/* ── Iniciar sesión ─────────────────────────────────────────────── */}
-          {mode === 'login' && !signupSent && (
+          {mode === 'login' && (
             <motion.form key="login" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} onSubmit={submitLogin}>
               <div className="mb-5">
                 <label className="block text-xs font-bold tracking-widest text-terra-muted uppercase mb-1.5 transition-colors">
@@ -252,28 +257,6 @@ export function AuthScreen() {
 
           {/* ── Crear cuenta ───────────────────────────────────────────────── */}
           {mode === 'signup' && (
-            signupSent ? (
-              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-4">
-                <div className="mx-auto w-16 h-16 bg-terra-primary/20 rounded-full flex items-center justify-center mb-6 text-3xl">
-                  📩
-                </div>
-                <h2 className="text-2xl font-bold text-terra-text mb-3">Confirma tu correo</h2>
-                <p className="text-terra-muted mb-8 leading-relaxed">
-                  Te hemos enviado un enlace mágico a <strong className="text-terra-text">{email}</strong>.
-                  Haz clic en él para activar tu cuenta agrícola.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSignupSent(false);
-                    switchMode('login');
-                  }}
-                  className="w-full h-12 rounded-xl border border-terra-border bg-terra-surface hover:bg-terra-border text-terra-text font-semibold transition-colors"
-                >
-                  Volver al inicio
-                </button>
-              </motion.div>
-            ) : (
               <motion.form key="signup" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} onSubmit={submitSignup}>
                 <div className="mb-5">
                   <label className="block text-xs font-bold tracking-widest text-terra-muted uppercase mb-1.5 transition-colors">
@@ -313,37 +296,15 @@ export function AuthScreen() {
                   {busy ? 'Creando cuenta...' : 'Crear Cuenta'}
                 </button>
               </motion.form>
-            )
           )}
 
           {/* ── Olvidé mi contraseña ───────────────────────────────────────── */}
           {mode === 'forgot' && (
-            forgotSent ? (
-              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-4">
-                <div className="mx-auto w-16 h-16 bg-terra-primary/20 rounded-full flex items-center justify-center mb-6 text-3xl">
-                  📨
-                </div>
-                <h2 className="text-2xl font-bold text-terra-text mb-3">Revisa tu bandeja</h2>
-                <p className="text-terra-muted mb-8 leading-relaxed">
-                  Si <strong>{email}</strong> está registrado, te hemos enviado instrucciones para recuperar el acceso a tu consola.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setForgotSent(false);
-                    switchMode('login');
-                  }}
-                  className="w-full h-12 rounded-xl border border-terra-border bg-terra-surface hover:bg-terra-border text-terra-text font-semibold transition-colors"
-                >
-                  Volver al inicio
-                </button>
-              </motion.div>
-            ) : (
               <motion.form key="forgot" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} onSubmit={submitForgot}>
                 <div className="text-center mb-8">
                   <h2 className="text-xl font-bold text-terra-text mb-2">Recuperar Acceso</h2>
                   <p className="text-sm text-terra-muted">
-                    Ingresa tu correo para recibir un enlace de recuperación seguro.
+                    Ingresa tu correo para recibir un código de recuperación.
                   </p>
                 </div>
 
@@ -369,7 +330,7 @@ export function AuthScreen() {
                   disabled={busy}
                   className="w-full h-12 rounded-xl bg-gradient-to-r from-terra-primary to-terra-primary-hover text-terra-bg font-extrabold text-[15px] shadow-[0_0_20px_rgba(18,210,113,0.4)] hover:shadow-[0_0_25px_rgba(18,210,113,0.6)] transition-all disabled:opacity-50 disabled:shadow-none mt-4"
                 >
-                  {busy ? 'Procesando...' : 'Enviar Enlace'}
+                  {busy ? 'Procesando...' : 'Enviar código'}
                 </button>
 
                 <div className="text-center mt-6">
@@ -382,7 +343,6 @@ export function AuthScreen() {
                   </button>
                 </div>
               </motion.form>
-            )
           )}
         </div>
       </motion.div>

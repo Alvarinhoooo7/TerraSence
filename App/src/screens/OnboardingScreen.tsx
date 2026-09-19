@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
   chevron: { fontSize: 34, marginLeft: Spacing.sm },
   cameraWrap: { flex: 1, margin: Spacing.md, borderRadius: Spacing.cardRadius, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' },
   scannerFrame: { width: 242, height: 242, borderWidth: 3, borderColor: '#FFFFFF', borderRadius: 24 },
-  cameraBusy: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,.62)', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm },
+  cameraBusy: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(0,0,0,.62)', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm },
   cameraBusyText: { ...Typography.bodyBold, color: '#FFFFFF' },
   explanation: { paddingHorizontal: Spacing.lg, paddingBottom: Spacing.xl },
   explanationTitle: { ...Typography.titleMedium, marginBottom: Spacing.xs },

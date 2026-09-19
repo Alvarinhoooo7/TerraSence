@@ -29,7 +29,7 @@ const COPY: Record<AppLanguage, Record<GuideId, GuideCopy>> = {
       intro: 'Tu cuenta conserva equipos, preferencias y progreso aunque reinstales la app.',
       steps: [
         'Crea una cuenta si es tu primera vez o inicia sesión con la cuenta existente.',
-        'Usa “Olvidé mi contraseña” para recibir un enlace de recuperación.',
+        'Usa “Olvidé mi contraseña” para recibir un código de recuperación de seis dígitos.',
         'No compartas tu contraseña: para compartir una sonda se utiliza su QR de vinculación.',
       ],
     },
@@ -106,7 +106,7 @@ const COPY: Record<AppLanguage, Record<GuideId, GuideCopy>> = {
       intro: 'Your account keeps devices, preferences and progress even after reinstalling the app.',
       steps: [
         'Create an account the first time, or sign in with your existing account.',
-        'Use “Forgot password” to receive a recovery link.',
+        'Use “Forgot password” to receive a six-digit recovery code.',
         'Do not share passwords: use the device linking QR to share a probe.',
       ],
     },

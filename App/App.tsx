@@ -50,11 +50,12 @@ export default function App() {
   const { isDark, colors } = useAppTheme();
   const { t } = useTranslation();
 
-  const { session, setSession, isHydrated } = useAuthStore();
+  const { session, setSession, isHydrated, recoveryUserId, setRecoveryUserId } = useAuthStore();
   const [checking, setChecking] = useState(true);
   const [checkingWelcome, setCheckingWelcome] = useState(true);
   const [welcomeComplete, setWelcomeComplete] = useState(false);
   const [recovering, setRecovering] = useState(false);
+  const recoveryActive = recovering || (!!session && session.user.id === recoveryUserId);
   const [checkingOnboarding, setCheckingOnboarding] = useState(false);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [awaitingDeviceApproval, setAwaitingDeviceApproval] = useState(false);
@@ -129,7 +130,12 @@ export default function App() {
       setChecking(false);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
-      if (event === 'PASSWORD_RECOVERY') setRecovering(true);
+      if (event === 'PASSWORD_RECOVERY') {
+        setRecoveryUserId(s?.user.id ?? null);
+        setRecovering(true);
+      } else if (event === 'SIGNED_OUT') {
+        setRecoveryUserId(null);
+      }
       setSession(s);
     });
 
@@ -230,8 +236,8 @@ export default function App() {
         }}
       />
     );
-  } else if (recovering) {
-    content = <ResetPasswordScreen onDone={() => setRecovering(false)} />;
+  } else if (recoveryActive) {
+    content = <ResetPasswordScreen onDone={() => { setRecoveryUserId(null); setRecovering(false); }} />;
   } else if (!session) {
     content = <AuthScreen onAuthenticated={() => setRoute('dashboard')} />;
   } else if (checkingOnboarding) {
@@ -351,7 +357,7 @@ export default function App() {
         <StatusBar style={isDark ? 'light' : 'dark'} />
         <OfflineBanner />
         {content}
-        {session && onboardingComplete && !awaitingDeviceApproval && !checkingOnboarding && !onboardingError && !recovering && welcomeComplete && !checking && ['dashboard', 'history', 'map', 'settings'].includes(route) && (
+        {session && onboardingComplete && !awaitingDeviceApproval && !checkingOnboarding && !onboardingError && !recoveryActive && welcomeComplete && !checking && ['dashboard', 'history', 'map', 'settings'].includes(route) && (
           <BottomNavigation route={route} onNavigate={setRoute} />
         )}
         <MeasurementDetailModal point={detailPoint} onClose={() => setDetailPoint(null)} />
