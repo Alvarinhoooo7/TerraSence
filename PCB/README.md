@@ -1,6 +1,6 @@
 # 🔌 TerraSense · Hardware, Electrónica y Diseño del Instrumento Portátil Compacto
 
-> Revisión del 10-09-2026: [informe académico de la raíz](../INFORME%20antiguo%20.docx%20%281%29.md). Esta revisión documenta trabajo futuro; no modifica App, Web, Supabase o PCB ni acredita despliegues.
+> Revisión del 10-09-2026: informe académico de la raíz. Esta revisión documenta trabajo futuro; no modifica App, Web, Supabase o PCB ni acredita despliegues.
 
 ## Pendientes de hardware y ensayos
 

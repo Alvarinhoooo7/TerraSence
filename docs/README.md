@@ -2,7 +2,7 @@
 
 | Documento | Función |
 |---|---|
-| [Informe académico revisado](../INFORME%20antiguo%20.docx%20%281%29.md) | Feedback del 10-09-2026: problemática, solución, arquitectura, app, energía, sostenibilidad y evaluación económica |
+| Informe académico revisado | Feedback del 10-09-2026: problemática, solución, arquitectura, app, energía, sostenibilidad y evaluación económica |
 | [Modelo económico](MODELO_ECONOMICO.md) | Supuestos, convenciones y fuentes del cálculo |
 | [Resultados financieros](RESULTADOS_FINANCIEROS.md) | Tablas generadas con la BOM y el flujo vigente |
 | [Plan de validación](PLAN_VALIDACION.md) | Trabajo de integración, ensayos y comprobaciones pendientes |

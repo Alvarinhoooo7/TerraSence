@@ -1,6 +1,6 @@
 # 📱 TerraSense · Aplicación Móvil de Terreno
 
-> Documentación de la aplicación móvil. El [informe académico de la raíz](../INFORME%20antiguo%20.docx%20%281%29.md) contiene la ingeniería conceptual, la evaluación económica y el marco normativo del proyecto.
+> Documentación de la aplicación móvil. El informe académico de la raíz contiene la ingeniería conceptual, la evaluación económica y el marco normativo del proyecto.
 
 ## Interfaz e integración actualizadas al 11-09-2026
 

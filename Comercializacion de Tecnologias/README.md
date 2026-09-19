@@ -59,62 +59,70 @@ El universo censal usado en el repositorio es de **175.556 explotaciones** (VIII
 
 **Límite obligatorio:** N, P y K derivan de conductividad eléctrica y **no son mediciones equivalentes a laboratorio**. Una lectura de conductividad no identifica concentraciones independientes de esos tres nutrientes, ni siquiera bajo el umbral de salinidad. La app **no los muestra como cifras interpretables** y los excluye del veredicto cuando la confianza es baja. Ninguna decisión de fertilización debe basarse en ellos.
 
-## 4. Economía de mercado
+## 4. Economía de mercado y Asignación de Recursos
 
-TerraSense pertenece a una **economía de mercado** porque:
+TerraSense opera y se justifica dentro de una **economía de mercado**, modelo donde la interacción libre entre oferta y demanda determina la asignación de los recursos escasos. Se fundamenta en:
 
-- una empresa privada decide qué producir y cómo usar recursos;
-- el precio considera costos, clientes y competidores;
-- el consumidor elige libremente entre sustitutos;
-- la competencia obliga a diferenciarse;
-- oferta y demanda condicionan las ventas.
+- **Asignación eficiente de recursos privados:** una empresa privada decide qué producir (equipos de medición) y cómo usar su capital, trabajo y tecnología para maximizar valor, respondiendo a una necesidad real del agro.
+- **Formación libre de precios:** el precio ($349.990) no es fijado centralizadamente, sino que considera la estructura de costos (BOM de $81.184, importación, mano de obra), la disposición a pagar de los clientes y los sustitutos.
+- **Soberanía del consumidor y bienes sustitutos:** el agricultor elige libremente cómo resolver su necesidad de información, ponderando sustitutos como medidores básicos (Bluelab, Hanna), laboratorios químicos o la asesoría empírica.
+- **Incentivos y diferenciación:** la competencia obliga a la innovación continua para diferenciarse. TerraSense no compite por vender hardware crudo, sino por entregar valor a través de "decisiones" interpretadas agronómicamente.
 
-**Modelo:** competencia monopolística. Laboratorios, medidores y asesorías satisfacen necesidades relacionadas, pero difieren en precisión, rapidez, precio e interpretación.
+**Estructura de Mercado:** **Competencia monopolística**.
+Existen múltiples oferentes (fabricantes de sensores, laboratorios, asesores) que satisfacen necesidades similares (información de suelo), pero los productos están **diferenciados**. Cada actor tiene cierto poder de mercado sobre su nicho (TerraSense lo tiene gracias a su motor agronómico sin conexión y soporte local), pero el precio de equilibrio a largo plazo sigue disciplinado por la disponibilidad de sustitutos cercanos. Las barreras de entrada son moderadas (requiere integración de hardware y desarrollo de software), pero existe libre entrada y salida.
 
-**Defensa:** “La aplicación, el modo sin conexión y el soporte local permiten diferenciarnos, aunque el precio sigue limitado por los sustitutos”.
+**Defensa:** “Operamos en competencia monopolística: la aplicación, el modo sin conexión y el diagnóstico agronómico local nos diferencian de un sensor genérico, pero nuestro precio está limitado por la existencia de medidores alternativos y los servicios de laboratorio”.
 
-## 5. Principio económico: costo de oportunidad
+## 5. Principio económico: Costo de oportunidad y Trade-offs
 
-> **El costo de una cosa es aquello a lo que se renuncia para obtenerla.**
+> **El costo de oportunidad de una decisión es el valor de la mejor alternativa a la que se renuncia.**
 
-| Alternativa | Se obtiene | Se renuncia a |
+En una economía de mercado, los recursos son escasos (tiempo, dinero, esfuerzo) y elegir implica siempre un *trade-off*. Para la decisión de compra del agricultor:
+
+| Alternativa | Beneficio Obtenido | Costo de Oportunidad (A lo que se renuncia) |
 |---|---|---|
-| Laboratorio | Exactitud, más analitos y respaldo técnico | Inmediatez, frecuencia y bajo costo por nueva lectura |
-| TerraSense | Resultado inmediato, repetición e interpretación | Exactitud analítica y validez de laboratorio |
+| Laboratorio Químico | Máxima exactitud analítica, mayor número de analitos y certificación oficial. | Inmediatez (demora 15-30 días), medición frecuente y bajo costo por nuevo muestreo. |
+| TerraSense | Diagnóstico inmediato en el campo, alta frecuencia de medición y prescripción. | La exactitud analítica y la validez química certificada del laboratorio. |
+| No medir (Intuición) | Ahorro del costo del equipo o del servicio ($0 inicial). | La seguridad en la decisión; riesgo de pérdida de cultivo por estrés hídrico o sobre-fertilización. |
 
-TerraSense renuncia a competir en exactitud analítica. A cambio entrega **contexto, alertas, historial y acciones sugeridas**. El usuario elige entre esperar mayor precisión o disponer ahora de información orientativa para decisiones frecuentes.
+**Trade-off estratégico de la empresa:** TerraSense renuncia deliberadamente a competir en exactitud analítica. A cambio, provee **contexto, alertas, historial y acciones sugeridas**. Optimiza el recurso más crítico del agricultor: la oportunidad de tomar a tiempo una decisión de riego o fertilización.
 
-**Conclusión:** “TerraSense sirve para monitoreo frecuente y el laboratorio como referencia periódica. Son complementarios”.
+**Conclusión:** “TerraSense sirve para el monitoreo frecuente y el laboratorio como referencia periódica y comprobación. Son bienes complementarios”.
 
-## 6. Oferta y demanda: base
+## 6. Oferta y demanda: Equilibrio y Elasticidad
 
-- **Demanda:** agricultores, cooperativas e instituciones que valoran decisiones rápidas.
-- **Oferta:** equipos que TerraSense puede fabricar y vender rentablemente.
+- **Demanda:** Agricultores, cooperativas e instituciones que valoran las decisiones rápidas en terreno. Esta demanda es **relativamente elástica frente al precio** de los bienes sustitutos (si un medidor de la competencia baja su precio agresivamente, perdemos tracción), pero **tiende a ser inelástica ante contingencias climáticas** (en extrema sequía, conocer la humedad del suelo pasa de ser un lujo a una necesidad operativa ineludible).
+- **Oferta:** Equipos fabricados que TerraSense puede ensamblar, soportar y vender de forma rentable en Chile.
 - Precio de lista propuesto: **$349.990 con IVA** ($294.109 neto).
 - Meta Año 1: **200 unidades**.
 - Equilibrio operativo: **176 unidades**; incluyendo servicio de deuda: **204 unidades**.
 
-**Gráfico:** oferta ascendente, demanda descendente y equilibrio ilustrativo. El precio y las 200 unidades son un **plan financiero, no un equilibrio econométrico observado** ni demanda validada.
+**Gráfico:** Oferta de pendiente positiva, demanda de pendiente negativa y equilibrio ilustrativo.
+**Nota metodológica:** El precio y las 200 unidades son una **meta comercial y un plan financiero**, no un punto de equilibrio econométrico ya observado experimentalmente ni una demanda real ya validada.
 
-## 7. Dos variaciones de demanda
+## 7. Dos variaciones de demanda (Desplazamientos de la curva)
 
-| Variación | Causa | Movimiento | Efecto |
+Factores exógenos alteran la disposición a pagar del mercado, desplazando toda la curva de demanda (ceteris paribus):
+
+| Variación | Causa o Factor | Movimiento de la Curva | Efecto Económico |
 |---|---|---|---|
-| D1: urgencia hídrica y salina | Mayor necesidad de revisar humedad y EC | Demanda a la derecha | El monitoreo inmediato gana valor |
-| D2: costo percibido de decidir sin datos | Riesgo de regar o fertilizar mal | Demanda a la derecha | Sube disposición a pagar |
+| D1: Escasez hídrica y salinidad | Mayor urgencia por revisar humedad y conductividad eléctrica (CE) | Demanda se desplaza a la **derecha** | Aumenta la demanda; el monitoreo inmediato y la preservación del cultivo ganan valor. |
+| D2: Aumento en el costo de fertilizantes | Sube el riesgo y costo de aplicar abono ciegamente | Demanda se desplaza a la **derecha** | Incrementa la disposición a pagar por certidumbre; medir para no desperdiciar fertilizante. |
 
-**Visual:** dos gráficos D → D’.
+**Visual:** Dos gráficos D → D’.
 
-**No usar cifras de pérdida por hectárea en la defensa.** Las magnitudes que circulaban en el repositorio ($350.000–$1.400.000/ha) no tienen cultivo, dosis, suelo, temporada ni fuente identificados: describen un daño potencial genérico, no un ahorro atribuible al producto. El argumento defendible es cualitativo: decidir sin datos tiene un costo, y el valor de medir crece con la incertidumbre.
+**No usar cifras genéricas de pérdida por hectárea en la defensa.** Las magnitudes que circulaban en versiones previas del proyecto ($350.000–$1.400.000/ha) carecen de respaldo identificable (cultivo, temporada, región). El argumento defendible en economía de mercado es conceptual: decidir a ciegas conlleva un riesgo asimétrico, y la certidumbre marginal (el valor de medir) crece directamente con la incertidumbre del entorno climático y de los precios de los insumos.
 
-## 8. Dos variaciones de oferta
+## 8. Dos variaciones de oferta (Desplazamientos de la curva)
 
-| Variación | Causa | Movimiento | Efecto |
+Del mismo modo, factores ligados a los costos de producción y tecnología desplazan la curva de oferta:
+
+| Variación | Causa o Factor | Movimiento de la Curva | Efecto Económico |
 |---|---|---|---|
-| O1: alza de USD o insumos | La sonda es el 59 % del BOM y casi todo es importado | Oferta a la izquierda | Sube costo y baja margen |
-| O2: tecnología productiva | Impresión 3D y montaje SMT externo evitan matricería | Oferta a la derecha | Menor inversión inicial y lotes pequeños |
+| O1: Alza del tipo de cambio (USD) o de fletes | Aumento en el costo de importación de la sonda (representa el 59% del BOM) | Oferta se desplaza a la **izquierda** | Contracción de oferta; aumentan los costos marginales de producción, reduciendo el margen de contribución. |
+| O2: Innovación tecnológica productiva | Impresión 3D optimizada y ensamble PCBA externo evitan altos costos fijos de matricería | Oferta se desplaza a la **derecha** | Expansión de oferta; baja la inversión de capital (CAPEX) inicial, permitiendo lotes pequeños rentables. |
 
-**No citar un porcentaje exacto de exposición al dólar:** el 88,6 % anterior no tiene respaldo por SKU, moneda y vigencia. Lo que sí puede afirmarse es que la sonda 7-en-1 representa **$48.000 de los $81.184 del BOM** y que la mayor parte de los componentes son importados. El efecto de un alza se evalúa cambiando el BOM en `supuestos.json` y regenerando el modelo.
+**Precisión sobre la exposición cambiaria:** El porcentaje de exposición del 88,6% fue descartado por falta de respaldo. Lo que sí es defendible: la sonda 7-en-1 concentra **$48.000 de los $81.184 del Costo de Materiales (BOM)** y la mayoría de los componentes son de importación directa. El impacto en la oferta por fluctuaciones de la divisa se proyecta ajustando el modelo financiero en `supuestos.json`.
 
 ## 9. Business Intelligence: economía unitaria y equilibrio
 

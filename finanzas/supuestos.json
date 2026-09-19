@@ -59,7 +59,7 @@
   "sonda_fuente_nota": "Descripción transcrita por el usuario el 10-09-2026; variante, precio final y ficha de fabricante pendientes. 4,5-30 V; 0,5 W a 24 V; 45x15x123 mm.",
   "bom": [
     ["Sonda RS485 7-en-1 (AliExpress 1005005548177699; variante pendiente)", 1, 48000, "Presupuesto neto puesto en taller, no precio validado del enlace. Descripción del vendedor aportada por usuario: 4,5-30 V, 0,5 W a 24 V; medir a tensión elegida."],
-    ["Placa de desarrollo ESP32-WROOM-32", 1, 6722.689075630252, "WROOM-32 confirmado por socios; referencia AFEL 8000 IVA incluido, variante de placa por confirmar"],
+    ["Módulo ESP32-WROOM-32 desnudo", 1, 2300, "WROOM-32 confirmado por socios; referencia AFEL 8000 IVA incluido, variante de placa por confirmar"],
     ["Módulo ambiental Bosch BME280 I2C", 1, 2941.176470588235, "Precio indicado por socio el 2026-09-05: 3500 CLP; interpretado como precio final con IVA 19%, neto 3500/1.19. Crédito IVA sujeto a factura. Temperatura, humedad relativa y presión locales; no BMP280."],
     ["PCB combinada USB-C carga + boost", 1, 900, "Precio confirmado por socios; sin crédito IVA hasta tener factura"],
     ["LiPo 2000 mAh protegida", 1, 4500, "Presupuesto neto; cotizar dimensiones, descarga y protección"],

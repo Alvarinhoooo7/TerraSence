@@ -52,6 +52,46 @@ Deno. Es la fuente única de verdad del sistema.
 
 ---
 
+## Disponibilidad y pausa por inactividad
+
+El [workflow de disponibilidad](../.github/workflows/supabase-health.yml) ejecuta el
+[comprobador](scripts/check-health.mjs) diariamente a las 12:23 UTC y permite ejecución
+manual. Verifica Auth y consulta `firmware_releases` por PostgREST, con un máximo de una
+fila y sin imprimir su contenido. Usa la clave pública y respeta las políticas de
+seguridad a nivel de fila (RLS): una respuesta vacía es válida para el rol anónimo.
+No crea usuarios ni mediciones, no requiere migraciones y funciona con la app cerrada.
+Cada servicio tiene tres intentos y un límite de veinte segundos por solicitud;
+si cualquiera falla, la ejecución termina con error.
+
+**Activación pendiente:** tener estos archivos localmente no activa el cron remoto.
+
+1. Publicar el workflow y el script en la rama predeterminada de GitHub.
+2. En Settings → Secrets and variables → Actions, crear la variable `SUPABASE_URL`
+   con la URL del proyecto indicada abajo y el secreto `SUPABASE_ANON_KEY` con la
+   clave pública `anon` o `publishable`. No usar `service_role` ni una clave `secret`.
+3. En Actions → Disponibilidad de Supabase → Run workflow, ejecutar y comprobar
+   que aparezcan `Auth: OK` y `Base de datos: OK`.
+4. Habilitar las notificaciones de fallos de Actions en la cuenta responsable y
+   comprobar que aparezcan ejecuciones programadas. Un cron que deja de ejecutarse
+   no genera por sí solo una alerta de fallo.
+
+Comprobación local con Node 24, desde la raíz, usando las variables públicas de App:
+
+```bash
+node --env-file=App/.env supabase/scripts/check-health.mjs
+node --test supabase/scripts/check-health.test.mjs
+```
+
+Supabase puede pausar proyectos gratuitos con poca actividad durante siete días.
+Esta consulta periódica genera actividad y comprueba disponibilidad, pero Supabase
+no garantiza que una frecuencia de pings evite la pausa; la garantía corresponde al
+[plan Pro](https://supabase.com/docs/guides/deployment/going-into-prod).
+Si el proyecto ya está pausado, hay que restaurarlo desde el panel.
+[GitHub](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)
+puede retrasar u omitir ejecuciones programadas y, en repositorios públicos, las
+desactiva tras sesenta días sin actividad del repositorio. Este mecanismo requiere
+supervisión y no constituye un respaldo de la base de datos.
+
 ## 1. Proyecto y región
 
 | Campo | Valor |

@@ -11,7 +11,7 @@
 
   *Convirtiendo lecturas de terreno en recomendaciones prácticas de siembra, riego y manejo de cultivos.*
 
-  [Informe revisado](INFORME%20antiguo%20.docx%20%281%29.md) · [Índice de Documentación](docs/README.md) · [Arquitectura](#arquitectura-del-sistema)
+  [Índice de Documentación](docs/README.md) · [Arquitectura](#arquitectura-del-sistema)
 
 </div>
 
@@ -136,7 +136,7 @@ Precio de venta: **$349.990 CLP con IVA** ($294.109 netos). Evaluación del proy
 | Componente | Cantidad | Costo unitario neto CLP | Subtotal CLP |
 |---|---:|---:|---:|
 | Sonda RS485 7-en-1 (AliExpress 1005005548177699; variante pendiente) | 1 | $48.000 | $48.000 |
-| Placa de desarrollo ESP32-WROOM-32 | 1 | $6.723 | $6.723 |
+| Módulo ESP32-WROOM-32 desnudo | 1 | $2.300 | $2.300 |
 | Módulo ambiental Bosch BME280 I2C | 1 | $2.941 | $2.941 |
 | PCB combinada USB-C carga + boost | 1 | $900 | $900 |
 | LiPo 2000 mAh protegida | 1 | $4.500 | $4.500 |
@@ -151,41 +151,41 @@ Precio de venta: **$349.990 CLP con IVA** ($294.109 netos). Evaluación del proy
 | Cableado y conectores internos adicionales | 1 | $700 | $700 |
 | Embalaje, manual y etiqueta | 1 | $2.000 | $2.000 |
 | Flete de insumos y contingencia importación | 1 | $2.500 | $2.500 |
-| **Total BOM** | | | **$81.184** |
+| **Total BOM** | | | **$76.761** |
 
 El **BME280 cuesta $3.500 con IVA** por equipo. La **carcasa impresa en 3D** se incluye como servicio externo a $6.000 netos, con material, impresión, energía y acabado. Las fijaciones, juntas y ventilación protegida del sensor se contabilizan aparte a $1.500 netos.
 
-Merma (3 %), reposiciones (5 %), envío y comisión suman **$29.994 por equipo**. El costo variable total es **$111.178** y el margen de contribución es **$182.931 (62.2% de la venta neta)**. El ensamblaje final se paga en la nómina. La API de pronóstico tiene costo directo de **$0**; los servicios digitales restantes conservan su presupuesto.
+Merma (3 %), reposiciones (5 %), envío y comisión suman **$29.640 por equipo**. El costo variable total es **$106.402** y el margen de contribución es **$187.708 (63.8% de la venta neta)**. El ensamblaje final se paga en la nómina. La API de pronóstico tiene costo directo de **$0**; los servicios digitales restantes conservan su presupuesto.
 
 ### Inversión y financiamiento
 
 | Concepto | CLP |
 |---|---:|
 | Activos, desarrollo y formalización | $10.353.000 |
-| Inventario inicial, IVA incluido | $964.378 |
-| **Desembolso inicial** | **$11.317.378** |
+| Inventario inicial, IVA incluido | $911.748 |
+| **Desembolso inicial** | **$11.264.748** |
 | Pie propio de socios ($4.500.000 cada uno) | $9.000.000 |
 | Crédito bancario a 10 años, 12 % efectivo anual | $30.000.000 |
 | Gastos de apertura | $600.000 |
-| Caja inicial, reserva incluida | $27.082.622 |
+| Caja inicial, reserva incluida | $27.135.252 |
 | Cuota mensual | $419.842 |
 
-Los $9 millones propios son el **pie** de los socios, $4.500.000 cada uno (50 % y 50 %), equivalentes al **30 % del crédito**: es el capital propio que el banco exige antes de desembolsar el suyo. No se descuenta del principal ni se devuelve al banco. El crédito de $30.000.000 cubre el saldo del desembolso y la caja de arranque; se toma a 10 años y 12 % efectivo anual, con cuota fija de $419.842 e intereses totales de $20.380.983. La reserva objetivo es de tres meses de gastos fijos y cuotas más 10 % del desembolso inicial; con este principal queda $615.379 corta en su punto más bajo (mes 19), sin que la caja baje de $13.521.745 en los primeros 24 meses.
+Los $9 millones propios son el **pie** de los socios, $4.500.000 cada uno (50 % y 50 %), equivalentes al **30 % del crédito**: es el capital propio que el banco exige antes de desembolsar el suyo. No se descuenta del principal ni se devuelve al banco. El crédito de $30.000.000 cubre el saldo del desembolso y la caja de arranque; se toma a 10 años y 12 % efectivo anual, con cuota fija de $419.842 e intereses totales de $20.380.983. La reserva objetivo es de tres meses de gastos fijos y cuotas más 10 % del desembolso inicial; con este principal queda $1.248.625 corta en su punto más bajo (mes 17), sin que la caja baje de $15.217.179 en los primeros 24 meses.
 
 ### Flujo de caja anual
 
 | Año | Equipos vendidos | EBITDA | Servicio deuda | Caja final | DSCR | Equilibrio operativo / con deuda |
 |---|---:|---:|---:|---:|---:|---:|
-| 2027 | 200 | $4.426.234 | $5.038.098 | $25.658.919 | 0.72 | 176 / 204 |
-| 2028 | 350 | $19.015.320 | $5.038.098 | $37.970.762 | 3.44 | 250 / 276 |
-| 2029 | 500 | $31.680.620 | $5.038.098 | $56.704.844 | 4.72 | 337 / 363 |
-| 2030 | 650 | $35.729.124 | $5.038.098 | $76.974.260 | 5.02 | 472 / 497 |
-| 2031 | 850 | $49.915.370 | $5.038.098 | $109.844.935 | 7.52 | 608 / 633 |
-| 2032 | 892 | $50.743.843 | $5.038.098 | $143.570.816 | 7.69 | 653 / 677 |
-| 2033 | 937 | $59.668.629 | $5.038.098 | $181.844.284 | 8.60 | 665 / 688 |
-| 2034 | 984 | $62.009.246 | $5.038.098 | $223.051.008 | 9.18 | 709 / 731 |
-| 2035 | 1033 | $72.836.612 | $5.038.098 | $271.963.774 | 10.71 | 719 / 741 |
-| 2036 | 1085 | $85.094.046 | $5.038.098 | $329.777.729 | 12.48 | 729 / 750 |
+| 2027 | 200 | $5.381.535 | $5.038.098 | $26.711.077 | 0.92 | 172 / 199 |
+| 2028 | 350 | $20.734.413 | $5.038.098 | $40.377.446 | 3.71 | 243 / 269 |
+| 2029 | 500 | $34.209.899 | $5.038.098 | $61.047.265 | 5.10 | 329 / 354 |
+| 2030 | 650 | $39.115.675 | $5.038.098 | $83.906.772 | 5.54 | 460 / 484 |
+| 2031 | 850 | $54.477.140 | $5.038.098 | $120.205.037 | 8.20 | 593 / 617 |
+| 2032 | 892 | $55.675.031 | $5.038.098 | $157.618.328 | 8.43 | 637 / 660 |
+| 2033 | 937 | $65.004.734 | $5.038.098 | $199.921.914 | 9.40 | 648 / 670 |
+| 2034 | 984 | $67.781.034 | $5.038.098 | $245.488.913 | 10.04 | 691 / 713 |
+| 2035 | 1033 | $79.076.985 | $5.038.098 | $299.129.915 | 11.65 | 701 / 722 |
+| 2036 | 1085 | $91.844.429 | $5.038.098 | $361.983.396 | 13.48 | 711 / 731 |
 
 La nómina incluye socios, producción y soporte. La contabilidad externa se incorpora desde el primer mes; la contratación aumenta con las horas de trabajo y la base de equipos activos. El DSCR compara la caja disponible para deuda con capital e intereses.
 
@@ -193,9 +193,9 @@ La nómina incluye socios, producción y soporte. La contabilidad externa se inc
 
 | Escenario | Inversión económica mes 0 | VAN al 20 % | TIR efectiva anual | Payback simple | Payback descontado al 20 % |
 |---|---:|---:|---:|---:|---:|
-| Base | $20.489.116 | $63.717.893 | 48,94 % | 34,61 meses (2,88 años) | 47,15 meses (3,93 años) |
-| Estrés | $20.478.616 | −$50.865.171 | -3,81 % | No recupera en 120 meses | No recupera en 120 meses |
-| Crecimiento | $23.661.182 | $166.848.598 | 84,86 % | 22,54 meses (1,88 años) | 23,30 meses (1,94 años) |
+| Base | $20.431.223 | $75.510.458 | 54,42 % | 34,25 meses (2,85 años) | 35,61 meses (2,97 años) |
+| Estrés | $20.420.723 | −$42.507.593 | -0,02 % | No recupera en 120 meses | No recupera en 120 meses |
+| Crecimiento | $23.545.396 | $184.538.801 | 92,45 % | 22,29 meses (1,86 años) | 22,92 meses (1,91 años) |
 
 Los tres indicadores se calculan sobre el flujo del proyecto: inversión inicial, operación, impuestos, inventario, reinversión y variaciones de caja mínima operativa. La TIR se expresa como tasa efectiva anual y el payback interpola el mes de recuperación. El horizonte de evaluación es de 120 meses, sin valor terminal.
 
