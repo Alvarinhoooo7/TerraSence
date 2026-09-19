@@ -309,7 +309,76 @@ Con la celda soldada a pads, **los clips tienen más sentido de lo que parece**:
 
 > **Ojo con el espacio.** Un cartucho de 5 × 20 mm ocupa más de 20 mm de largo en una placa de **70 × 40 mm**: es la mitad del ancho. Conviene ubicarlo paralelo al borde largo, en la zona de alimentación, y verificar temprano en el ruteo que no choque con `MOD1` ni con la celda. Si el espacio aprieta, la alternativa es un fusible SMD 1206, que ocupa casi nada pero solo se cambia con cautín.
 
-### 4.7. Interruptor `SW1`
+### 4.7. El módulo de carga y elevación `MOD1`
+
+Después de la protección viene `MOD1`, y esta es la parte donde más se confunde el paso del diagrama de bloques al esquemático.
+
+#### No se dibuja el circuito interno
+
+`MOD1` es una **placa comprada**. En el esquemático se representa como un símbolo con sus pines de conexión, no como el circuito que lleva adentro.
+
+| Lo que **no** se dibuja | Lo que **sí** se dibuja |
+| :--- | :--- |
+| Controlador de carga, protección de celda, MOSFET dual, bobina, diodo Schottky, elevador, conector USB-C | Un rectángulo con `B+`, `B−`, `OUT+`, `OUT−` y, si existe, `EN` |
+
+Es el mismo criterio que se aplica a `U1` y a `U3`: la DevKit no se dibuja con su cristal, su flash y su regulador, sino como un bloque con pines. **El esquemático documenta lo que conecta esta placa, no lo que el fabricante ya resolvió dentro de la suya.**
+
+#### Los 5 V no son una alimentación externa
+
+Hay un solo camino de energía, y pasa entero por `MOD1`:
+
+```text
+   celda ──► B+ ──► [ elevador interno ] ──► OUT+ ──► SW1 ──► +5V
+```
+
+El elevador existe, pero está **dentro del módulo**. Desde el esquemático de esta placa, los 5 V simplemente aparecen en el pin `OUT+`. No hay que dibujar bobina, diodo ni realimentación: nada de eso vive en esta PCB.
+
+#### `B+` es bidireccional
+
+Este pin **no es solo una entrada**:
+
+| Situación | Sentido de la corriente en `B+` |
+| :--- | :--- |
+| Cargando por USB-C | Del módulo **hacia** la celda |
+| Operando | De la celda **hacia** el módulo |
+
+Por eso `F1` y `D1` van entre la celda y `B+`: quedan en el camino en **ambos sentidos** y protegen tanto al cargar como al descargar.
+
+También por eso `JP1` mide **corriente neta**: si se mide con el USB-C conectado, lo que se lee es la carga menos el consumo, no el consumo. **Para medir consumo hay que desconectar el USB-C.**
+
+#### El USB-C está en el módulo, no en esta placa
+
+Consecuencia directa y fácil de pasar por alto al rutear: **esta PCB no lleva ninguna pista de USB.** El conector está físicamente montado sobre `MOD1`.
+
+| Opción | Qué implica |
+| :--- | :--- |
+| **A.** `MOD1` en el borde, con su USB-C asomando por la carcasa | No hay cable extra. Obliga a ubicar el módulo en una posición fija y a que la abertura de la carcasa calce con su conector |
+| **B.** `MOD1` donde convenga y un USB-C de panel cableado a él | Libera el ruteo, pero agrega un conector, dos cables soldados al módulo y un punto de falla mecánica |
+
+La **A** es preferible por costo y fiabilidad. Fijar la posición de `MOD1` **antes** de repartir el resto de los componentes, porque su conector manda sobre la geometría de la carcasa.
+
+#### Huella y montaje
+
+La huella es un conjunto de pads al paso del módulo real. **Medir el módulo físico antes de dibujarla**; el paso habitual es 2,54 mm, pero la distribución de `B+`, `B−`, `OUT+` y `OUT−` varía entre fabricantes.
+
+| Montaje | Ventaja | Costo |
+| :--- | :--- | :--- |
+| Tiras de pines hembra | El módulo se cambia sin cautín | Mayor altura, peor para una carcasa de 38 mm |
+| Soldado directo a los pads | Mínima altura y contacto firme | Reemplazarlo exige desoldar |
+
+Si el módulo trae orificios almenados, se suelda por el borde y queda más bajo aún.
+
+#### El pin `EN`
+
+Si el módulo expone `EN`, `KEY` o `SHDN`, **sacarlo a una isla puenteable** aunque la V2 no lo use. Es lo que permite migrar `SW1` a la variante **B** de la sección 4.8 sin rehacer la placa.
+
+#### Símbolo en KiCad
+
+No existe en las librerías estándar: hay que crearlo. Un rectángulo con cuatro pines, o cinco con `EN`.
+
+**Declarar `OUT+` como salida de potencia** (*power output*). Si queda como pasivo, el ERC reclamará que la net `+5V` no tiene fuente que la alimente. Lo mismo aplica al pin `3V3` de la DevKit.
+
+### 4.8. Interruptor `SW1`
 
 `SW1` va **después de `MOD1`, del lado de los 5 V**. Ponerlo en serie con la celda cortaría también al cargador y el equipo no podría cargar apagado.
 
@@ -322,13 +391,13 @@ Con la celda soldada a pads, **los clips tienen más sentido de lo que parece**:
 
 Dibujar con la **A**, que es la que aparece en la tabla de conexiones, y dejar el pad `EN` accesible con una isla puenteable para poder migrar sin rehacer la placa.
 
-### 4.8. Carga por USB-C
+### 4.9. Carga por USB-C
 
 El USB-C de `MOD1` es **el único conector que sale al exterior**, con tapa de silicona cautiva.
 
 Con `SW1` cerrado se puede cargar y operar a la vez. **Definir en firmware** si se permite: durante la carga la tensión de celda sube hasta 4,2 V y el porcentaje informado deja de reflejar la carga real.
 
-### 4.9. Regla de programación
+### 4.10. Regla de programación
 
 **`SW1` en OFF antes de conectar el USB de la DevKit.**
 
@@ -336,11 +405,22 @@ Con `SW1` cerrado, los 5 V del elevador llegan a `VIN` al mismo tiempo que el US
 
 Por esto **no hace falta un diodo de aislamiento** entre `+5V` y `VIN`.
 
-### 4.10. Orden de la cadena, y por qué no se puede alterar
+### 4.11. Orden de la cadena, y por qué no se puede alterar
 
 ```text
-   P1 ──► F1 ──► JP1 ──► [ nodo VBAT_PROT con D1 en paralelo ] ──► MOD1.B+
+   1. Celda        BT1 ──► P1 / P2              pads soldados
+   2. Fusible      P1  ──► F1                   1 A rápido
+   3. Medición     F1  ──► JP1                  puente de corriente
+   4. Protección   JP1 ──► nodo VBAT_PROT       D1 (M7) en paralelo a GND
+   5. Carga/boost  VBAT_PROT ──► MOD1.B+        el módulo eleva a 5 V
+   6. Salida       MOD1.OUT+ ──► SW1            encendido del equipo
+   7. Riel         SW1 ──► +5V                  con C1 y C2, y TP2
+                                                 │
+                                                 ├──► U1.VIN   (etapa 2)
+                                                 └──► Q1.S     (power gate)
 ```
+
+El paso 5 **no se salta ni se dibuja por dentro**: `MOD1` entra al esquemático como el símbolo de cuatro pines de la sección 4.7.
 
 **`F1` va antes del nodo donde cuelga `D1`.** Es el punto crítico de toda la etapa.
 
