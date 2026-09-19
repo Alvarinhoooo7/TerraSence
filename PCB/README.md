@@ -43,7 +43,7 @@ La V2 es una **placa portadora**: no integra el silicio, sino que sostiene y con
 | Módulo | Qué aporta |
 | :--- | :--- |
 | DevKit ESP32-WROOM-32 | Microcontrolador, radio BLE, regulador de 3,3 V y USB-UART |
-| PCB combinada USB-C | Carga de la celda con sus protecciones y elevación a 5,0 V |
+| **`LX-LCBST`**, PCB combinada USB-C | Carga de la celda con sus protecciones y elevación a 5,0 V |
 | Módulo BME280 I²C | Temperatura del aire, humedad relativa y presión |
 
 ### 1.1. Decisiones cerradas
@@ -80,7 +80,7 @@ La V2 es una **placa portadora**: no integra el silicio, sino que sostiene y con
 | **Sensor ambiental** | BME280 I²C a 3,3 V | Temperatura del aire, humedad relativa y presión en el punto de lectura |
 | **Transceptor de bus** | SP3485 a 3,3 V | Diferencial industrial semidúplex, sin desplazadores de nivel |
 | **Batería** | LiPo 1S 3,7 V, 2.000 mAh con PCM | Formato prismático plano, ~35 g, sin portaceldas |
-| **Carga y elevación** | PCB combinada USB-C | Resuelve carga, protección y elevación a 5 V en un submódulo |
+| **Carga y elevación** | Módulo **`LX-LCBST`** | Resuelve carga, protección y elevación a 5 V en un submódulo |
 | **Encendido** | Interruptor rocker SPST | Corta el consumo entre usos |
 | **Formato** | Instrumento portátil de mano | Inserción manual directa en el suelo |
 
@@ -97,7 +97,7 @@ La V2 es una **placa portadora**: no integra el silicio, sino que sostiene y con
           │
           ▼
   ┌───────────────────────────────┐        ┌──────────────────────────┐
-  │  MOD1  PCB combinada USB-C    │◄───────┤ BT1 LiPo 1S 2000 mAh     │
+  │  MOD1  LX-LCBST carga+boost   │◄───────┤ BT1 LiPo 1S 2000 mAh     │
   │  • Cargador con protecciones  │  VBAT  │ P1 / P2 pads soldados    │
   │  • Elevador 3,7 V ──► 5,0 V   │────────┤ F1 fusible 1 A · JP1     │
   │                               │        │ D1 M7 crowbar a GND      │
@@ -158,7 +158,7 @@ Lleva la energía desde la celda hasta un riel de 5 V protegido y conmutable, y 
 | `F1` | Fusible de cartucho **1 A rápido** | Cartucho 5 × 20 mm sobre pads | 2 |
 | `JP1` | Puente de medición de corriente | 2 islas | 2 |
 | `D1` | **`M7`**, rectificador de silicio | SMA / DO-214AC | Á, K |
-| `MOD1` | PCB combinada USB-C, carga y elevación | Placa hija | `B+`, `B−`, `OUT+`, `OUT−` |
+| `MOD1` | Módulo **`LX-LCBST`**, carga USB-C y elevación | Placa hija | `B+`, `B−`, `OUT+`, `OUT−` |
 | `SW1` | Interruptor rocker SPST | Panel | 2 |
 | `C1` | 100 µF, 10 V | Electrolítico o tántalo | 2 |
 | `C2` | 100 nF, X7R | 0805 | 2 |
@@ -181,7 +181,7 @@ Lleva la energía desde la celda hasta un riel de 5 V protegido y conmutable, y 
 
 
                      ┌──────────────┐
-                     │ MOD1         │
+                     │ MOD1 LX-LCBST│
    USB-C exterior ──►│ B+      OUT+ │──► SW1 ──► +5V ──┬── C1 ── GND
                      │ B−      OUT− │──► GND           ├── C2 ── GND
                      └──────────────┘                  ├──► U1.VIN
@@ -309,9 +309,11 @@ Con la celda soldada a pads, **los clips tienen más sentido de lo que parece**:
 
 > **Ojo con el espacio.** Un cartucho de 5 × 20 mm ocupa más de 20 mm de largo en una placa de **70 × 40 mm**: es la mitad del ancho. Conviene ubicarlo paralelo al borde largo, en la zona de alimentación, y verificar temprano en el ruteo que no choque con `MOD1` ni con la celda. Si el espacio aprieta, la alternativa es un fusible SMD 1206, que ocupa casi nada pero solo se cambia con cautín.
 
-### 4.7. El módulo de carga y elevación `MOD1`
+### 4.7. El módulo de carga y elevación `MOD1` — `LX-LCBST`
 
-Después de la protección viene `MOD1`, y esta es la parte donde más se confunde el paso del diagrama de bloques al esquemático.
+Después de la protección viene `MOD1`, el módulo **`LX-LCBST`**. Esta es la parte donde más se confunde el paso del diagrama de bloques al esquemático.
+
+> **`LX-LCBST` es la designación del módulo adquirido** y es el nombre que debe aparecer en el símbolo, en la serigrafía y en la lista de materiales. Las secciones que siguen describen cómo se conecta; **su distribución de pines, la existencia del pad `EN` y su consumo en vacío se verifican sobre el módulo físico**, no se dan por supuestos aquí.
 
 #### No se dibuja el circuito interno
 
@@ -950,7 +952,7 @@ Instrumento compacto de mano, para llevar en la mano, mochila o bolsillo de trab
 
 | Qué | Por qué bloquea |
 | :--- | :--- |
-| ¿`MOD1` expone pad `EN` o `KEY`? | Decide la variante de `SW1` de la sección 4.5 |
+| ¿El `LX-LCBST` expone pad `EN` o `KEY`? | Decide la variante de `SW1` de la sección 4.8 |
 | ¿El módulo BME280 trae pull-ups I²C montados? | Evita duplicar `R7` y `R8` |
 | ¿La DevKit monta WROOM o WROVER? | En WROVER, `GPIO16` y `GPIO17` están ocupados por la PSRAM |
 | Consumo real de la sonda a 5 V | Dimensiona `F1`, `Q1` y `C1` |
