@@ -32,6 +32,7 @@ Especificación del hardware del instrumento portátil de medición de suelo: pl
 - [8. Fabricación de la PCB](#8-fabricación-de-la-pcb)
 - [9. Diseño mecánico](#9-diseño-mecánico)
 - [10. Orden de trabajo y pendientes](#10-orden-de-trabajo-y-pendientes)
+- [11. Netlist completa](#11-netlist-completa)
 
 ---
 
@@ -143,56 +144,99 @@ Nombrar las redes antes de dibujar evita la mitad de los errores de ERC:
 
 ## 4. Etapa 1 — Alimentación
 
-Lleva la energía desde la celda hasta un riel de 5 V estable, protegido y conmutable, y permite cargar con el equipo apagado.
+Lleva la energía desde la celda hasta un riel de 5 V protegido y conmutable, y permite cargar con el equipo apagado.
 
 ### 4.1. Componentes
 
-| Ref | Componente | Función |
-| :--- | :--- | :--- |
-| `BT1` | LiPo 1S 2.000 mAh con PCM | Fuente de energía |
-| `J1` | JST-PH 2,0 mm, 3 pines | Conector de batería |
-| `F1` | PTC rearmable | Protección de **cortocircuito y sobrecorriente** |
-| `D1` | Schottky o P-MOSFET tipo diodo ideal | Protección de **polaridad inversa** |
-| `MOD1` | PCB combinada USB-C, carga más elevación a 5 V | Carga la celda y genera los 5 V |
-| `SW1` | Interruptor rocker SPST | Enciende y apaga el equipo |
-| `C1` | 100 µF electrolítico o tántalo | Reserva en `+5V` para los picos de la sonda |
-| `C2` | 100 nF cerámico | Desacoplo de alta frecuencia en `+5V` |
-| `JP1` | Puente de dos islas | Corte para medir corriente; ver sección 7.2 |
+| Ref | Componente | Encapsulado | Pines |
+| :--- | :--- | :--- | :--- |
+| `BT1` | LiPo 1S 2.000 mAh con PCM | Celda plana | 2 cables |
+| `J1` | Conector JST-PH 2,0 mm | 3 vías | 3 |
+| `JP1` | Puente de medición de corriente | 2 islas | 2 |
+| `F1` | PTC rearmable | 1206 | 2 |
+| `Q4` | P-MOSFET `AO3401A` | SOT-23 | G, D, S |
+| `R15` | 100 kΩ | 0805 | 2 |
+| `MOD1` | PCB combinada USB-C, carga y elevación | Placa hija | `B+`, `B−`, `OUT+`, `OUT−` |
+| `SW1` | Interruptor rocker SPST | Panel | 2 |
+| `C1` | 100 µF, 10 V | Electrolítico o tántalo | 2 |
+| `C2` | 100 nF, X7R | 0805 | 2 |
 
-### 4.2. Cadena de alimentación
+### 4.2. Esquema
 
 ```text
-BT1 ──► J1 ──► JP1 ──► F1 ──► D1 ──► VBAT_PROT ──► MOD1 (B+ / B−)
-                                                      │
-                                              salida 5 V
-                                                      │
-                                                    SW1 ──► +5V ──► C1, C2
+   BT1 (+) ──► J1.1 ──► JP1 ──► F1 ──┐
+                                      │  VBAT_F
+   BT1 (−) ──► J1.2 ──► GND           │
+                                      ▼
+   J1.3 ── NC                    ┌─────────┐
+                                 │  D   Q4 │  P-MOSFET de polaridad inversa
+                                 │  G   S  │  G a GND por R15
+                                 └──┬───┬──┘
+                                    │   │
+                                   GND  ▼ VBAT_PROT
+                                        │
+                        ┌───────────────┴──────────────┐
+                        │                              │
+                        ▼                              ▼
+                  ┌──────────┐                   R9 (divisor,
+                  │ MOD1  B+ │                    etapa 2)
+                  │       B− │── GND
+   USB-C ────────►│     OUT+ │──► SW1 ──► +5V ──► C1, C2
+                  │     OUT− │── GND
+                  └──────────┘
 ```
 
-El cargador de `MOD1` queda conectado a la celda de forma permanente. Por eso **el equipo carga estando apagado**: `SW1` interrumpe los 5 V de salida, no la batería.
+### 4.3. Conexiones
 
-### 4.3. Protección contra cortocircuito — `F1`
+| Desde | Hasta | Net |
+| :--- | :--- | :--- |
+| `BT1` positivo | `J1` pin 1 | `VBAT_RAW` |
+| `BT1` negativo | `J1` pin 2 | `GND` |
+| `J1` pin 1 | `JP1` isla 1 | `VBAT_RAW` |
+| `J1` pin 2 | `GND` | `GND` |
+| `J1` pin 3 | **sin conectar** | `NC` |
+| `JP1` isla 2 | `F1` pin 1 | `VBAT` |
+| `F1` pin 2 | `Q4` drenador | `VBAT_F` |
+| `Q4` compuerta | `R15` pin 1 | `Q4_G` |
+| `R15` pin 2 | `GND` | `GND` |
+| `Q4` fuente | `MOD1` `B+`, `R9` pin 1, `TP1` | `VBAT_PROT` |
+| `MOD1` `B−` | `GND` | `GND` |
+| `MOD1` `OUT+` | `SW1` pin 1 | `+5V_RAW` |
+| `MOD1` `OUT−` | `GND` | `GND` |
+| `SW1` pin 2 | `C1` pin 1, `C2` pin 1, `U1` `VIN`, `C3` pin 1, `C4` pin 1, `Q1` fuente, `R4` pin 1, `TP2` | `+5V` |
+| `C1` pin 2, `C2` pin 2 | `GND` | `GND` |
 
-Un **PTC rearmable** en serie con el positivo de la batería. Ante un corto, su resistencia sube bruscamente y limita la corriente; al desaparecer la falla vuelve solo, sin reemplazo.
+### 4.4. Protección contra cortocircuito — `F1`
 
-**Dimensionar después de medir el consumo real de la sonda a 5 V.** La corriente de retención debe quedar por sobre el peak de medición y por debajo de la corriente de falla. Los 0,5 W publicados por el vendedor corresponden a 24 V y no sirven para dimensionar a 5 V.
+Un **PTC rearmable** en serie con el positivo de la batería. Ante un corto su resistencia sube bruscamente y limita la corriente; al desaparecer la falla vuelve solo, sin reemplazo.
 
-### 4.4. Protección contra polaridad inversa — `D1`
+**Dimensionar después de medir el consumo real de la sonda a 5 V.** La corriente de retención debe quedar sobre el peak de medición y bajo la corriente de falla. Los 0,5 W publicados por el vendedor corresponden a 24 V y no sirven para dimensionar a 5 V.
+
+### 4.5. Protección contra polaridad inversa — `Q4`
 
 Protege de conectar la batería al revés, que destruiría `MOD1` y la DevKit.
 
-| Opción | Caída | Observación |
+**La orientación importa y es contraintuitiva: el drenador va al lado de la batería y la fuente al lado de la carga.** El diodo de cuerpo de un P-MOSFET conduce de drenador a fuente, así que en esa posición conduce en el sentido normal de la corriente.
+
+| Terminal de `Q4` | Va a | Por qué |
 | :--- | :--- | :--- |
-| Schottky en serie | 0,3 – 0,4 V | Barato, pero sobre una celda que termina en 3,0 V esa caída es mucha |
-| **P-MOSFET tipo diodo ideal** | Milivoltios | **Recomendado.** Un P-MOSFET con la fuente al positivo de la celda |
+| Drenador | `VBAT_F`, lado batería | El diodo de cuerpo conduce hacia la carga al conectar |
+| Fuente | `VBAT_PROT`, lado carga | Referencia de la compuerta |
+| Compuerta | `GND` a través de `R15` | |
 
-> **Fusible y diodo no son lo mismo.** `F1` protege contra cortocircuito y sobrecorriente; `D1` protege contra inversión de polaridad. Son fallas distintas y hacen falta los dos componentes: un diodo no salva de un corto, y un fusible no salva de una batería al revés.
+Con la batería bien puesta, la fuente sube a la tensión de celda y la compuerta queda en cero: $V_{GS}$ resulta negativo y el P-MOSFET conduce por completo, cayendo milivoltios. Con la batería invertida, $V_{GS}$ se vuelve positivo, el transistor corta y el diodo de cuerpo queda en inversa.
 
-### 4.5. Interruptor `SW1`
+**Conduce en ambos sentidos cuando está encendido**, así que la carga de la celda a través de `MOD1` funciona igual.
+
+`R15` solo limita corriente de ESD hacia la compuerta; no hace falta zener porque $V_{GS}$ máximo del `AO3401A` es ±12 V y la celda nunca pasa de 4,2 V.
+
+> **Alternativa:** un Schottky `SS34` en serie, con el ánodo en `VBAT_F` y el cátodo en `VBAT_PROT`. Es más simple pero cae 0,3 – 0,4 V, mucho sobre una celda que termina en 3,0 V.
+
+> **Fusible y diodo no son lo mismo.** `F1` protege contra cortocircuito y sobrecorriente; `Q4` protege contra inversión de polaridad. Son fallas distintas y hacen falta los dos: un diodo no salva de un corto, y un fusible no salva de una batería al revés.
+
+### 4.6. Interruptor `SW1`
 
 `SW1` va **después de `MOD1`, del lado de los 5 V**. Ponerlo en serie con la celda cortaría también al cargador y el equipo no podría cargar apagado.
-
-Quedan dos formas de hacerlo, y cuál se usa depende de una verificación sobre el módulo físico:
 
 | | **A. En serie con `OUT+`** | **B. Sobre el pin `EN` del elevador** |
 | :--- | :--- | :--- |
@@ -201,137 +245,202 @@ Quedan dos formas de hacerlo, y cuál se usa depende de una verificación sobre 
 | Con el equipo apagado | El elevador sigue consumiendo en vacío | Elevador deshabilitado |
 | Carga apagado | Sí | Sí |
 
-**Verificar si `MOD1` tiene pad `EN` o `KEY`.** Si lo tiene, la **B** es mejor: el elevador se apaga de verdad y el contacto no conduce corriente de carga, así que dura más. Si no lo tiene, va la **A**.
+Dibujar con la **A**, que es la que aparece en la tabla de conexiones, y dejar el pad `EN` accesible con una isla puenteable para poder migrar sin rehacer la placa.
 
-Dibujar con la **A** y dejar el pad `EN` accesible mediante una isla puenteable, para poder migrar a la **B** sin rehacer la placa.
-
-### 4.6. Conector de batería `J1`
+### 4.7. Conector de batería `J1`
 
 | Pin | Señal |
 | :--- | :--- |
-| 1 | `VBAT` |
+| 1 | `VBAT_RAW` |
 | 2 | `GND` |
 | 3 | **NC** |
 
-**El tercer pin queda sin conectar.** Se rotula `NC` de forma explícita en el esquemático y en la serigrafía: un pin sin conexión declarada es indistinguible de un olvido cuando alguien revise la hoja. Si la celda trae un termistor NTC en ese pin, queda sin usar; **nunca puentearlo a masa**.
+Se rotula `NC` explícitamente en el esquemático y en la serigrafía: un pin sin conexión declarada es indistinguible de un olvido. Si la celda trae termistor NTC ahí, queda sin usar. **Nunca puentearlo a masa.**
 
-### 4.7. Carga por USB-C
+### 4.8. Carga por USB-C
 
-El USB-C de `MOD1` es **el único conector que sale al exterior**. Entra por la carcasa con tapa de silicona cautiva.
+El USB-C de `MOD1` es **el único conector que sale al exterior**, con tapa de silicona cautiva.
 
-Con `SW1` cerrado se puede cargar y operar a la vez. **Definir en firmware** si se permite medir mientras carga o si se bloquea: durante la carga la tensión de celda sube hasta 4,2 V y el porcentaje de batería informado deja de reflejar la carga real.
+Con `SW1` cerrado se puede cargar y operar a la vez. **Definir en firmware** si se permite: durante la carga la tensión de celda sube hasta 4,2 V y el porcentaje informado deja de reflejar la carga real.
 
-### 4.8. Regla de programación
+### 4.9. Regla de programación
 
-**`SW1` se pone en OFF antes de conectar el USB de la DevKit.**
+**`SW1` en OFF antes de conectar el USB de la DevKit.**
 
-Con `SW1` cerrado, los 5 V del elevador llegan a `VIN` al mismo tiempo que el USB de la DevKit inyecta los suyos: dos fuentes empujando el mismo nodo. Con `SW1` abierto, `VIN` queda aislado y la DevKit se alimenta sola por USB. El BME280 y el transceptor siguen alimentados desde el pin `3V3`, así que se puede depurar todo salvo la sonda.
+Con `SW1` cerrado, los 5 V del elevador llegan a `VIN` al mismo tiempo que el USB de la DevKit inyecta los suyos: dos fuentes empujando el mismo nodo. Con `SW1` abierto, `VIN` queda aislado y la DevKit se alimenta sola por USB. El BME280 y el transceptor siguen alimentados por `3V3`, así que se depura todo salvo la sonda.
 
-Esta regla es la razón por la que **no hace falta un diodo de aislamiento** entre `+5V` y `VIN`.
+Por esto **no hace falta un diodo de aislamiento** entre `+5V` y `VIN`.
 
 ---
 
 ## 5. Etapa 2 — Control
 
-Es el ruteo hacia el microcontrolador: alimentación limpia a la DevKit, interfaz de usuario y los dos circuitos de conmutación que gobiernan la sonda y la medición de batería.
+Ruteo hacia el microcontrolador: alimentación a la DevKit, interfaz de usuario y los dos circuitos de conmutación que gobiernan la sonda y la medición de batería.
 
 ### 5.1. Componentes
 
-| Ref | Componente | Función |
+| Ref | Componente | Encapsulado | Pines |
+| :--- | :--- | :--- | :--- |
+| `U1` | DevKit ESP32-WROOM-32 | Placa hija, zócalos | 30 o 38 |
+| `C3` | 100 µF, 10 V | Electrolítico | 2 |
+| `C4` | 100 nF, X7R | 0805 | 2 |
+| `C5` | 10 µF, X7R | 0805 | 2 |
+| `C6` | 100 nF, X7R | 0805 | 2 |
+| `SW2` | Pulsador táctil | THT o SMD | 2 nets |
+| `R1` | 10 kΩ | 0805 | 2 |
+| `C7` | 100 nF | 0805 | 2 |
+| `D2` | LED verde | 0805 | Á, K |
+| `D3` | LED azul | 0805 | Á, K |
+| `R2` | 270 Ω | 0805 | 2 |
+| `R3` | 120 Ω | 0805 | 2 |
+| `Q1` | P-MOSFET `AO3401A` | SOT-23 | G, D, S |
+| `Q2` | N-MOSFET `2N7002` | SOT-23 | G, D, S |
+| `R4` | 100 kΩ | 0805 | 2 |
+| `R5` | 1 kΩ | 0805 | 2 |
+| `R6` | 100 kΩ | 0805 | 2 |
+| `R9` | 100 kΩ 1 % | 0805 | 2 |
+| `R10` | 100 kΩ 1 % | 0805 | 2 |
+| `Q3` | N-MOSFET `2N7002` | SOT-23 | G, D, S |
+| `R14` | 100 kΩ | 0805 | 2 |
+| `C9` | 100 nF | 0805 | 2 |
+
+### 5.2. Conexiones de alimentación de la DevKit
+
+| Desde | Hasta | Net |
 | :--- | :--- | :--- |
-| `U1` | DevKit ESP32-WROOM-32 | Control, BLE y adquisición |
-| `C3` | 100 µF | Reserva en `VIN` |
-| `C4` | 100 nF | Desacoplo en `VIN` |
-| `C5`, `C6` | 10 µF y 100 nF | Desacoplo en `+3V3` |
-| `SW2` | Pulsador táctil | Disparo de medición y despertar |
-| `R1` | 10 kΩ | Pull-up del pulsador |
-| `C7` | 100 nF | Antirrebote |
-| `D2`, `D3` | LED verde y azul | Estado de lectura y de enlace |
-| `R2` | 270 Ω | Limitadora del LED verde |
-| `R3` | 120 Ω | Limitadora del LED azul |
-| `Q1` | P-MOSFET `AO3401A` o `IRLML6402` | Corte de `5V_SONDA` |
-| `Q2` | N-MOSFET `2N7002` | Adapta el nivel del GPIO a la compuerta de `Q1` |
-| `R4` | 100 kΩ | Pull-up de compuerta de `Q1` hacia `+5V` |
-| `R5` | 1 kΩ | Serie en la compuerta de `Q2` |
-| `R6` | 100 kΩ | Pull-down de compuerta de `Q2` |
-| `R9`, `R10` | 100 kΩ y 100 kΩ | Divisor de medición de batería |
-| `Q3` | N-MOSFET `2N7002` | Conmuta el divisor |
-| `R14` | 100 kΩ | Pull-down de compuerta de `Q3` |
-| `C9` | 100 nF | Reserva de carga en el nodo del ADC |
+| `+5V` | `U1` `VIN` | `+5V` |
+| `+5V` | `C3` pin 1, `C4` pin 1 | `+5V` |
+| `C3` pin 2, `C4` pin 2 | `GND` | `GND` |
+| `U1` `GND` | `GND` | `GND` |
+| `U1` `3V3` | `C5` pin 1, `C6` pin 1, `TP3` | `+3V3` |
+| `C5` pin 2, `C6` pin 2 | `GND` | `GND` |
 
-### 5.2. Alimentación de la DevKit
-
-`+5V` entra por `VIN`. El regulador interno de la DevKit genera `+3V3`, que alimenta al BME280 y al transceptor.
+`+3V3` alimenta además a `U2`, `U3`, `R1`, `R7`, `R8` y `R12`, detallados en la etapa 3.
 
 **No conectar nunca `+5V` al pin `3V3`.**
 
-`C3` de 100 µF absorbe el escalón de corriente cuando arranca la radio BLE; `C4` de 100 nF va lo más cerca posible del pin. En el lado de 3,3 V, `C5` y `C6` estabilizan el riel que comparten los dos periféricos.
-
 ### 5.3. Pulsador `SW2`
 
-Pulsador a masa con `R1` de 10 kΩ como pull-up hacia `+3V3` y `C7` de 100 nF en paralelo como antirrebote. En reposo el pin queda alto; al pulsar cae a cero.
+```text
+   +3V3 ──── R1 10k ────┬──── GPIO33
+                        │
+                        ├──── C7 100nF ──── GND
+                        │
+                        └──── SW2 ──── GND
+```
 
-Va en **`GPIO33`**, no en `GPIO0`. En la DevKit, `GPIO0` **ya está cableado al botón BOOT de la placa**: dejar ahí el pulsador de medición significa que apretarlo durante el arranque mete al ESP32 en modo programación en vez de tomar una lectura. `GPIO33` es RTC, así que sirve para despertar del sueño profundo, y no es pin de *strapping*.
+| Desde | Hasta | Net |
+| :--- | :--- | :--- |
+| `+3V3` | `R1` pin 1 | `+3V3` |
+| `R1` pin 2 | `U1` `GPIO33`, `SW2` pin 1, `C7` pin 1 | `BTN` |
+| `SW2` pin 2 | `GND` | `GND` |
+| `C7` pin 2 | `GND` | `GND` |
+
+En reposo el pin queda alto por `R1`; al pulsar cae a cero. `C7` filtra el rebote del contacto.
+
+**Va en `GPIO33`, no en `GPIO0`.** En la DevKit, `GPIO0` ya está cableado al botón BOOT: dejar ahí el pulsador significa que apretarlo durante el arranque mete al ESP32 en modo programación en vez de medir. `GPIO33` es RTC, así que despierta del sueño profundo, y no es pin de *strapping*.
 
 ### 5.4. LED de estado
 
-Dos LED con su resistencia en serie desde `+3V3`:
+```text
+   GPIO2  ──── R2 270Ω ────►|──── GND      D2 verde
+   GPIO15 ──── R3 120Ω ────►|──── GND      D3 azul
+```
 
-| LED | Color | Función | Caída típica | Corriente | Resistencia |
+| Desde | Hasta | Net |
+| :--- | :--- | :--- |
+| `U1` `GPIO2` | `R2` pin 1 | `GPIO2` |
+| `R2` pin 2 | `D2` ánodo | `LED_V` |
+| `D2` cátodo | `GND` | `GND` |
+| `U1` `GPIO15` | `R3` pin 1 | `GPIO15` |
+| `R3` pin 2 | `D3` ánodo | `LED_A` |
+| `D3` cátodo | `GND` | `GND` |
+
+| LED | Color | Función | Caída | Corriente | Resistencia |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `D2` | Verde | Lectura exitosa y batería correcta | 2,0 V | 5 mA | **270 Ω** |
 | `D3` | Azul | Enlace BLE activo | 3,0 V | 3 mA | **120 Ω** |
 
-El azul queda muy justo: con 3,3 V de alimentación y 3,0 V de caída apenas hay margen y el brillo varía mucho entre lotes. Si hace falta verlo bajo sol directo, conviene alimentarlo desde `+5V` con su propio transistor, o usar un LED azul de alta eficiencia.
+El azul queda justo: con 3,3 V de riel y 3,0 V de caída hay poco margen y el brillo varía entre lotes. Si hace falta verlo bajo sol directo, alimentarlo desde `+5V` con su propio transistor o usar un LED de alta eficiencia.
 
-> **El BOM compra tres LED y el diseño usa dos.** Decidir si se agrega un tercero de indicación de carga o se corrige la cantidad comprada.
+> **El BOM compra tres LED y el diseño usa dos.** Decidir si se agrega un tercero de carga o se corrige la compra.
 
 ### 5.5. Power gate de la sonda
 
-Corta la alimentación de la sonda y del bus mientras no se mide.
-
 ```text
-+5V ──┬──────────────[ Q1 P-MOSFET ]────────► 5V_SONDA
-      │               S          D
-      │               └──┬──G
-      └── R4 100k ───────┘
-                         │
-                    [ Q2 N-MOSFET ]
-   GPIO5 ── R5 1k ──G    D ── a compuerta de Q1
-                    │    S ── GND
-              R6 100k
-                    │
-                   GND
+                    +5V ──────┬─────────────┬───────────────┐
+                              │             │               │
+                            R4 100k      S ─┴─ Q1           │ (a U1 VIN)
+                              │        ┌────────┐           │
+                              ├────────┤ G      │ P-MOSFET  │
+                              │        └────┬───┘           │
+                              │           D │               │
+                              │             ▼ 5V_SONDA ──► J2.1, TP4
+                              │
+                              │  D
+                          ┌───┴───┐
+   GPIO5 ── R5 1k ────────┤ G  Q2 │ N-MOSFET
+                    │     └───┬───┘
+                 R6 100k      │ S
+                    │         │
+                   GND ───────┴──── GND
 ```
 
-`GPIO5` en alto satura `Q2`, que tira la compuerta de `Q1` a masa y lo hace conducir: la sonda recibe 5 V. En bajo, `R4` devuelve la compuerta a `+5V` y `Q1` corta.
+| Desde | Hasta | Net |
+| :--- | :--- | :--- |
+| `U1` `GPIO5` | `R5` pin 1 | `GPIO5` |
+| `R5` pin 2 | `Q2` compuerta, `R6` pin 1 | `Q2_G` |
+| `R6` pin 2 | `GND` | `GND` |
+| `Q2` fuente | `GND` | `GND` |
+| `Q2` drenador | `Q1` compuerta, `R4` pin 2 | `Q1_G` |
+| `R4` pin 1 | `+5V` | `+5V` |
+| `Q1` fuente | `+5V` | `+5V` |
+| `Q1` drenador | `J2` pin 1, `TP4` | `5V_SONDA` |
 
-> **`R4` y `R6` no son opcionales.** Sin `R6`, la compuerta de `Q2` queda flotando durante el arranque del ESP32 y **la sonda puede alimentarse sola antes de que el firmware tome control del pin**. `R4` cumple lo mismo del lado de `Q1`: lo mantiene cortado por defecto.
+**Funcionamiento:** `GPIO5` en alto satura `Q2`, que tira la compuerta de `Q1` a masa; con $V_{GS}$ de −5 V el P-MOSFET conduce y la sonda recibe 5 V. En bajo, `R4` devuelve la compuerta a `+5V`, $V_{GS}$ queda en cero y `Q1` corta.
+
+**Orientación de `Q1`:** fuente a `+5V` y drenador a la carga. Así el diodo de cuerpo queda en inversa respecto del sentido de la corriente y el corte es real.
+
+> **`R4` y `R6` no son opcionales.** Sin `R6`, la compuerta de `Q2` queda flotando durante el arranque del ESP32 y **la sonda puede alimentarse sola antes de que el firmware tome control del pin**. `R4` hace lo mismo del lado de `Q1`: lo mantiene cortado por defecto.
+
+> Si `Q2` no satura bien con 3,3 V, reemplazar el `2N7002` por un `BSS138`, de umbral más bajo.
 
 ### 5.6. Divisor de medición de batería
 
-Alimenta el byte 14 de la trama BLE, el porcentaje de batería.
-
 ```text
-VBAT_PROT ── R9 100k ──┬── VBAT_SENSE ──► GPIO34
-                       │
-                    R10 100k
-                       │
-                 [ Q3 N-MOSFET ]  ◄── GPIO25, con R14 100k a GND
-                       │
-                      GND
-
-C9 100 nF entre VBAT_SENSE y GND
+   VBAT_PROT ──── R9 100k ────┬──── GPIO34
+                              │
+                              ├──── C9 100nF ──── GND
+                              │                   (TP9 aquí)
+                           R10 100k
+                              │
+                              │ D
+                          ┌───┴───┐
+   GPIO25 ────────────────┤ G  Q3 │ N-MOSFET
+                    │     └───┬───┘
+                R14 100k      │ S
+                    │         │
+                   GND ───────┴──── GND
 ```
+
+| Desde | Hasta | Net |
+| :--- | :--- | :--- |
+| `VBAT_PROT` | `R9` pin 1 | `VBAT_PROT` |
+| `R9` pin 2 | `R10` pin 1, `C9` pin 1, `U1` `GPIO34`, `TP9` | `VBAT_SENSE` |
+| `R10` pin 2 | `Q3` drenador | `DIV_LOW` |
+| `Q3` fuente | `GND` | `GND` |
+| `Q3` compuerta | `U1` `GPIO25`, `R14` pin 1 | `GPIO25` |
+| `R14` pin 2 | `GND` | `GND` |
+| `C9` pin 2 | `GND` | `GND` |
 
 **Por qué conmutado y no fijo.** Un divisor permanente tiene dos problemas, y el segundo es de corrección, no de consumo:
 
-1. Drena ~18,5 µA sin parar, que se arrastraría a la versión con módulo desnudo.
-2. **Con el equipo apagado por `SW1`, el ESP32 queda sin alimentación mientras el divisor sigue aplicando ~2,1 V sobre `GPIO34`.** Eso inyecta corriente por los diodos de protección de una entrada sin alimentar.
+1. Drena ~18,5 µA sin parar.
+2. **Con el equipo apagado por `SW1`, el ESP32 queda sin alimentación mientras el divisor sigue aplicando ~2,1 V sobre `GPIO34`**, inyectando corriente por los diodos de protección de una entrada sin alimentar.
 
 Con `Q3`, al apagarse el equipo la compuerta cae por `R14`, el MOSFET corta y el nodo del ADC queda en cero. El firmware sube `GPIO25`, espera a que `C9` se estabilice, lee y vuelve a bajarlo.
 
-**Escalado:** a 4,2 V de celda el nodo entrega 2,10 V; a 3,0 V entrega 1,50 V. Ambos caen dentro del rango utilizable de `ADC1` con atenuación de 11 dB.
+**Escalado:** a 4,2 V de celda el nodo entrega 2,10 V; a 3,0 V entrega 1,50 V. Ambos dentro del rango utilizable de `ADC1` con atenuación de 11 dB. Usar `R9` y `R10` al 1 % para que la razón sea repetible entre unidades.
 
 `C9` es necesario porque el ADC del ESP32 muestrea sobre un condensador interno y una impedancia de fuente de 50 kΩ no alcanza a recargarlo entre muestras.
 
@@ -345,11 +454,11 @@ Con `Q3`, al apagarse el equipo la compuerta cae por `R14`, el MOSFET corta y el
 | `GPIO17` | `TX2` | `U2` pin 4, `DI` | Libre en WROOM-32 |
 | `GPIO4` | `DE` y `/RE` | `U2` pines 2 y 3, unidos | Alto transmite, bajo recibe |
 | `GPIO5` | Power gate | `R5` hacia compuerta de `Q2` | *Strapping*; `R6` lo define al arrancar |
-| `GPIO21` | `SDA` | `U3` y `R7` | |
-| `GPIO22` | `SCL` | `U3` y `R8` | |
+| `GPIO21` | `SDA` | `U3` `SDA` y `R7` | |
+| `GPIO22` | `SCL` | `U3` `SCL` y `R8` | |
 | `GPIO34` | `VBAT_SENSE` | Nodo de `R9`, `R10` y `C9` | Solo entrada, `ADC1_CH6` |
-| `GPIO25` | Habilitación del divisor | Compuerta de `Q3` con `R14` | RTC libre |
-| `GPIO33` | Pulsador | `SW2` y `R1` | RTC, despierta del sueño profundo |
+| `GPIO25` | Habilitación del divisor | Compuerta de `Q3` y `R14` | RTC libre |
+| `GPIO33` | Pulsador | `SW2`, `R1` y `C7` | RTC, despierta del sueño profundo |
 | `GPIO2` | LED verde | `R2` | *Strapping* tolerable |
 | `GPIO15` | LED azul | `R3` | *Strapping*; en bajo silencia el log de arranque |
 
@@ -367,11 +476,9 @@ Con `Q3`, al apagarse el equipo la compuerta cae por `R14`, el MOSFET corta y el
 
 **La V2 no declara autonomía ni consumo en reposo.**
 
-El regulador `AMS1117` de la DevKit consume del orden de 5 a 10 mA en vacío, y el conversor USB-serie agrega lo suyo. El sueño profundo en una DevKit típica queda en **decenas de miliamperios**, no en microamperios.
+El regulador `AMS1117` de la DevKit consume del orden de 5 a 10 mA en vacío y el conversor USB-serie agrega lo suyo. El sueño profundo en una DevKit típica queda en **decenas de miliamperios**, no en microamperios.
 
-Esto está **aceptado para esta versión**. Por eso `SW1` no es un accesorio sino la pieza que hace viable la DevKit: el equipo se apaga físicamente entre usos y el consumo en reposo deja de importar. Un presupuesto de reposo en microamperios solo tiene sentido con el módulo desnudo.
-
-La medición de consumo se hace igual, con `JP1`, para tener el dato real antes de pasar al módulo desnudo.
+Está **aceptado para esta versión**. Por eso `SW1` no es un accesorio: el equipo se apaga físicamente entre usos y el consumo en reposo deja de importar. La medición se hace igual, con `JP1`, para tener el dato real.
 
 ---
 
@@ -379,20 +486,38 @@ La medición de consumo se hace igual, con `JP1`, para tener el dato real antes 
 
 ### 6.1. Componentes
 
-| Ref | Componente | Función |
-| :--- | :--- | :--- |
-| `U3` | Módulo BME280 I²C | Temperatura, humedad relativa y presión |
-| `R7`, `R8` | 4,7 kΩ | Pull-ups de `SDA` y `SCL` |
-| `U2` | `SP3485` SOIC-8 | Transceptor RS-485 a 3,3 V |
-| `C8` | 100 nF | Desacoplo de `U2` |
-| `J2` | Borne de tornillo o JST de 4 vías | Conexión de la sonda |
-| `R11` | 120 Ω | Terminación del bus |
-| `R12`, `R13` | 4,7 kΩ | Polarización *fail-safe* |
-| `D4` | `SM712` SOT-23 | TVS específico para RS-485 |
+| Ref | Componente | Encapsulado | Pines |
+| :--- | :--- | :--- | :--- |
+| `U3` | Módulo BME280 I²C | Placa hija | `VCC`, `GND`, `SCL`, `SDA`, `CSB`, `SDO` |
+| `R7` | 4,7 kΩ | 0805 | 2 |
+| `R8` | 4,7 kΩ | 0805 | 2 |
+| `U2` | `SP3485` | SOIC-8 | 8 |
+| `C8` | 100 nF | 0805 | 2 |
+| `J2` | Borne de tornillo o JST | 4 vías | 4 |
+| `R11` | 120 Ω | 0805 | 2 |
+| `R12` | 4,7 kΩ | 0805 | 2 |
+| `R13` | 4,7 kΩ | 0805 | 2 |
+| `D4` | `SM712` | SOT-23 | 3 |
 
 ### 6.2. Sensor ambiental BME280
 
-Alimentado desde `+3V3`, en `SDA` = `GPIO21` y `SCL` = `GPIO22`.
+```text
+   +3V3 ──┬──── U3.VCC
+          ├──── U3.CSB            (fuerza modo I2C)
+          ├──── R7 4k7 ──┬──── U3.SDA ──── GPIO21
+          └──── R8 4k7 ──│─┬── U3.SCL ──── GPIO22
+                         │ │
+   GND ──┬──── U3.GND    │ │
+         └──── U3.SDO    (dirección 0x76)
+```
+
+| Desde | Hasta | Net |
+| :--- | :--- | :--- |
+| `+3V3` | `U3` `VCC`, `U3` `CSB`, `R7` pin 1, `R8` pin 1 | `+3V3` |
+| `U3` `GND` | `GND` | `GND` |
+| `U3` `SDO` | `GND` | `GND` |
+| `U3` `SDA` | `R7` pin 2, `U1` `GPIO21` | `SDA` |
+| `U3` `SCL` | `R8` pin 2, `U1` `GPIO22` | `SCL` |
 
 | Magnitud | Rango | Exactitud |
 | :--- | :--- | :--- |
@@ -400,81 +525,112 @@ Alimentado desde `+3V3`, en `SDA` = `GPIO21` y `SCL` = `GPIO22`.
 | Humedad relativa | 0 a 100 % | ±3 % |
 | Presión atmosférica | 300 a 1100 hPa | ±1 hPa |
 
-**Lectura local obligatoria:** la app usa estas tres magnitudes para tres celdas del grid 2×5; el pronóstico de la API solo las complementa. Los centinelas de ausencia se declaran por magnitud y **no se reemplazan con ceros ni con la última lectura buena**.
+Detalles que deciden el dibujo:
 
-Detalles a cerrar en el esquemático:
-
-- `R7` y `R8` de 4,7 kΩ hacia `+3V3`. **Muchos módulos BME280 ya los traen montados**: verificar antes de duplicarlos, porque en paralelo bajan demasiado la resistencia de pull-up.
-- Dirección I²C: `SDO` a masa da `0x76`, a `+3V3` da `0x77`. Fijarla por hardware y documentarla.
-- `CSB` a `+3V3` para forzar modo I²C.
+- **`SDO` a masa fija la dirección `0x76`.** A `+3V3` daría `0x77`. Fijarla por hardware y documentarla; no dejar el pin al aire.
+- **`CSB` a `+3V3` fuerza modo I²C.** Al aire, el sensor puede entrar en modo SPI.
+- **Muchos módulos BME280 ya traen `R7` y `R8` montados.** Verificar antes de duplicarlos: en paralelo la resistencia de pull-up baja a la mitad y carga el bus de más.
 - Es **BME280**, no BMP280: el BMP no mide humedad.
 
-El sensor va en la parte posterior del chasis, tras una membrana microporosa de PTFE permeable al vapor. **Debe medir aire exterior**: no encapsularlo ni sellarlo contra la carcasa.
+**Lectura local obligatoria:** la app usa estas tres magnitudes para tres celdas del grid 2×5; el pronóstico de la API solo las complementa. Los centinelas de ausencia se declaran por magnitud y **no se reemplazan con ceros ni con la última lectura buena**.
+
+El sensor va en la parte posterior del chasis, tras una membrana microporosa de PTFE. **Debe ver aire exterior**: no encapsularlo.
 
 ### 6.3. Transceptor RS-485
 
-| Pin `U2` | Señal | Va a |
-| :--- | :--- | :--- |
-| 1 | `RO` | `GPIO16`, RX2 |
-| 2 | `/RE` | Unido al pin 3 |
-| 3 | `DE` | `GPIO4` |
-| 4 | `DI` | `GPIO17`, TX2 |
-| 5 | `GND` | `GND` |
-| 6 | `A` | `J2` pin 3 |
-| 7 | `B` | `J2` pin 4 |
-| 8 | `VCC` | `+3V3`, con `C8` al lado |
+```text
+   GPIO16 ──── U2.1 RO          U2.8 VCC ──── +3V3 ──── C8 ──── GND
+                                U2.6 A ──┬──── J2.3
+   GPIO4  ──┬─ U2.2 /RE                  ├──── R11 120Ω ──┐
+            └─ U2.3 DE                   ├──── R12 4k7 ──── +3V3
+                                         └──── D4 (A)
+   GPIO17 ──── U2.4 DI          U2.7 B ──┬──── J2.4
+                                         ├──── R11 ────────┘
+   GND ─────── U2.5 GND                  ├──── R13 4k7 ──── GND
+                                         └──── D4 (B)
+```
 
-Los pines 2 y 3 van unidos y mandados por un solo GPIO: alto transmite, bajo recibe. Trabaja a 3,3 V directo con el ESP32, sin desplazadores de nivel.
+| Pin `U2` | Señal | Conecta a | Net |
+| :--- | :--- | :--- | :--- |
+| 1 | `RO` | `U1` `GPIO16` | `RX2` |
+| 2 | `/RE` | Unido al pin 3 y a `U1` `GPIO4` | `DE_RE` |
+| 3 | `DE` | Unido al pin 2 y a `U1` `GPIO4` | `DE_RE` |
+| 4 | `DI` | `U1` `GPIO17` | `TX2` |
+| 5 | `GND` | `GND` | `GND` |
+| 6 | `A` | `J2` pin 3, `R11` pin 1, `R12` pin 2, `D4`, `TP5` | `RS485_A` |
+| 7 | `B` | `J2` pin 4, `R11` pin 2, `R13` pin 1, `D4`, `TP6` | `RS485_B` |
+| 8 | `VCC` | `+3V3`, con `C8` al lado | `+3V3` |
 
-> **El BOM pide «definir IC o módulo, no ambos».** Este documento especifica el **integrado SOIC-8**, que obliga a rutear alrededor la terminación, la polarización y el TVS. Si se prefiere un módulo, esos tres componentes ya vienen incluidos y hay que quitarlos del esquemático.
+Los pines 2 y 3 van **unidos y mandados por un solo GPIO**: alto transmite, bajo recibe. Trabaja a 3,3 V directo con el ESP32, sin desplazadores de nivel.
+
+> **El BOM pide «definir IC o módulo, no ambos».** Aquí se especifica el **integrado SOIC-8**, que obliga a rutear alrededor la terminación, la polarización y el TVS. Con un módulo esos tres ya vienen incluidos y salen del esquemático.
 
 ### 6.4. Conector de la sonda `J2`
 
-| Pin | Señal |
-| :--- | :--- |
-| 1 | `5V_SONDA` |
-| 2 | `GND` |
-| 3 | `A` |
-| 4 | `B` |
+| Pin | Señal | Viene de |
+| :--- | :--- | :--- |
+| 1 | `5V_SONDA` | `Q1` drenador |
+| 2 | `GND` | `GND` |
+| 3 | `A` | `U2` pin 6 |
+| 4 | `B` | `U2` pin 7 |
 
-Los 5 V salen del elevador **después** del corte de `Q1`, de modo que la sonda queda sin alimentación mientras no se mide. La sonda trae cable de 2 m y masa común con la placa.
+Los 5 V salen **después** del corte de `Q1`, de modo que la sonda queda sin alimentación mientras no se mide. La sonda trae cable de 2 m y comparte masa con la placa.
 
 ### 6.5. Terminación y polarización
 
-**La terminación de 120 Ω probablemente sobra.** `R11` existe para evitar reflexiones en buses largos; con **2 m de cable y 9600 baudios** no hay reflexión que corregir, y en cambio **consume del orden de 25 mA extra mientras el transceptor transmite**.
+| Desde | Hasta | Net |
+| :--- | :--- | :--- |
+| `R11` pin 1 | `RS485_A` | `RS485_A` |
+| `R11` pin 2 | `RS485_B` | `RS485_B` |
+| `R12` pin 1 | `+3V3` | `+3V3` |
+| `R12` pin 2 | `RS485_A` | `RS485_A` |
+| `R13` pin 1 | `RS485_B` | `RS485_B` |
+| `R13` pin 2 | `GND` | `GND` |
 
-Dejarla como huella sin montar, con dos islas puenteables, y montarla solo si aparecen errores de CRC.
+**La terminación de 120 Ω probablemente sobra.** `R11` evita reflexiones en buses largos; con **2 m de cable y 9600 baudios** no hay reflexión que corregir, y **consume del orden de 25 mA extra mientras el transceptor transmite**. Dejarla como huella sin montar, con dos islas puenteables, y montarla solo si aparecen errores de CRC.
 
-La polarización *fail-safe* sí conviene: `R12` de 4,7 kΩ desde `A` hacia `+3V3` y `R13` de 4,7 kΩ desde `B` hacia `GND`. Definen el estado del bus cuando nadie transmite y evitan que el receptor lea ruido como datos. Consumen alrededor de 350 µA mientras haya `+3V3`.
+La polarización *fail-safe* `R12` y `R13` sí conviene: define el estado del bus cuando nadie transmite y evita que el receptor lea ruido como datos. Consume unos 350 µA mientras haya `+3V3`.
 
-### 6.6. Protección del bus
+### 6.6. Protección del bus — `D4`
 
-`D4`, un TVS bidireccional **`SM712`** en SOT-23, entre `A`, `B` y masa. Es un TVS específico para RS-485: sus tensiones de trabajo están pensadas para el rango de modo común del estándar, a diferencia de un TVS genérico.
+| Pin `D4` | Conecta a |
+| :--- | :--- |
+| A | `RS485_A` |
+| B | `RS485_B` |
+| Masa | `GND` |
+
+`SM712` es un TVS bidireccional **específico para RS-485**: sus tensiones de trabajo están pensadas para el rango de modo común del estándar, a diferencia de un TVS genérico.
+
+**Va entre `J2` y `U2`, nunca después:** debe interceptar el transitorio antes de que llegue al transceptor.
 
 ### 6.7. El transceptor no queda cortado
 
-`U2` se alimenta de `+3V3` y `Q1` corta `+5V`. **Tal como está especificado, el transceptor queda alimentado siempre que el equipo esté encendido**, junto con el consumo de la polarización *fail-safe*.
+`U2` se alimenta de `+3V3` y `Q1` corta `+5V`. **Tal como está especificado, el transceptor queda alimentado siempre que el equipo esté encendido**, junto con el consumo de la polarización.
 
-Se puede dejar así en la V2, porque `SW1` corta todo entre usos. Si más adelante se persigue un presupuesto de reposo en microamperios, hay que agregar un segundo MOSFET en la rama de `+3V3` que alimenta a `U2`.
+Se deja así en la V2, porque `SW1` corta todo entre usos. Si más adelante se persigue un reposo en microamperios, hay que agregar un segundo MOSFET en la rama de `+3V3` que alimenta a `U2`.
 
 ### 6.8. Ciclo de adquisición Modbus RTU
 
 1. **Despertar:** por pulsación en `GPIO33` o por solicitud BLE desde la app.
 2. **Power gate ON:** `GPIO5` en alto, la sonda recibe 5,0 V.
-3. **Estabilización:** 100 ms de espera para el oscilador interno de la sonda.
-4. **Comando, UART2 a 9600 baudios, 8N1:**
+3. **Estabilización:** 100 ms para el oscilador interno de la sonda.
+4. **Comando, UART2 a 9600 baudios, 8N1**, con `GPIO4` en alto:
    ```text
    0x01 (dirección) 0x03 (leer holding) 0x00 0x00 (registro inicial) 0x00 0x07 (7 registros) 0x04 0x08 (CRC16)
    ```
-5. **Recepción y validación CRC16:** 19 bytes con las siete variables de suelo.
-6. **Power gate OFF:** `GPIO5` en bajo, la línea de 5 V se corta.
-7. **Lectura ambiental I²C del BME280:** temperatura, humedad y presión.
+5. **`GPIO4` a bajo** y recepción de 19 bytes con validación CRC16.
+6. **Power gate OFF:** `GPIO5` en bajo.
+7. **Lectura ambiental I²C** del BME280.
 8. **Lectura de batería:** `GPIO25` en alto, muestreo de `GPIO34`, `GPIO25` en bajo.
 9. **Notificación BLE** de los 20 bytes.
 
 > El mapa de registros **no está confirmado** contra la ficha del proveedor. Antes de fabricar hace falta una captura Modbus real del SKU adquirido.
 
+---
+
 ### 6.9. Estructura binaria de la trama BLE (20 bytes)
+
+No condiciona el esquemático, pero sí el firmware que correrá sobre esta placa.
 
 **Formato único de 20 bytes:** 14 de suelo, 1 de batería, 1 de identificador y 4 de ambiente, para diez variables más batería. Es el máximo que cabe en una notificación con el MTU por defecto de BLE, así que no hace falta negociar MTU ni partir la lectura en dos paquetes.
 
@@ -486,9 +642,9 @@ Se puede dejar así en la V2, porque `SW1` corta todo entre usos. Si más adelan
  ├───┴───┼───┴───┼───┴───┼───┴───┼───┴───┼───┴───┼───┴───┼───┼───┤
  │ HumS  │ TempS │  EC   │  pH   │   N   │   P   │   K   │Bat│fmt│
  └───────┴───────┴───────┴───────┴───────┴───────┴───────┴───┴───┘
- ┌────────────────────┐
- │ 16 │ 17 │ 18 │ 19  │  Ambiente BME280 empaquetado en 32 bits
- └────────────────────┘
+ ┌────┬────┬────┬────┐
+ │ 16 │ 17 │ 18 │ 19 │   Ambiente BME280 empaquetado en 32 bits
+ └────┴────┴────┴────┘
 ```
 
 Todos los campos multibyte son **big-endian**, igual que Modbus.
@@ -502,7 +658,7 @@ Todos los campos multibyte son **big-endian**, igual que Modbus.
 | 8–9 | Nitrógeno | `uint16` | mg/kg |
 | 10–11 | Fósforo | `uint16` | mg/kg |
 | 12–13 | Potasio | `uint16` | mg/kg |
-| 14 | Batería | **`uint8`** | **porcentaje 0–100**, no milivoltios |
+| 14 | Batería | **`uint8`** | **porcentaje 0–100**, no milivoltios. Sale del divisor de la sección 5.6 |
 | 15 | Identificador de formato | `uint8` | `1` = 20 bytes con ambiente, el formato del producto. `0` = 16 bytes, tolerado solo para prototipos sin BME280. Otro valor se rechaza |
 | 16–19 | Ambiente BME280 | 32 bits | Temperatura 12 bits `(°C × 10) + 400`; presión 12 bits `hPa − 300`; humedad 8 bits `% × 2`. Todos los bits a uno = sin dato → `NULL` |
 
@@ -651,3 +807,99 @@ Instrumento compacto de mano, para llevar en la mano, mochila o bolsillo de trab
 - Ensayos de radio, batería y carcasa. El IP68 de la sonda no acredita el equipo.
 - Resolver los tres LED del BOM contra los dos del diseño.
 - Definir si se permite medir mientras carga.
+
+---
+
+## 11. Netlist completa
+
+Cada net con **todos** los pines que van unidos a ella. Si un pin no aparece aquí, no está conectado. Al terminar el esquemático, esta tabla es la lista de comprobación: recorrer net por net y confirmar que KiCad muestra exactamente los mismos nodos.
+
+| Net | Pines conectados |
+| :--- | :--- |
+| `VBAT_RAW` | `J1`.1 · `JP1`.1 |
+| `VBAT` | `JP1`.2 · `F1`.1 |
+| `VBAT_F` | `F1`.2 · `Q4`.D |
+| `Q4_G` | `Q4`.G · `R15`.1 |
+| `VBAT_PROT` | `Q4`.S · `MOD1`.B+ · `R9`.1 · `TP1` |
+| `+5V_RAW` | `MOD1`.OUT+ · `SW1`.1 |
+| `+5V` | `SW1`.2 · `C1`.1 · `C2`.1 · `U1`.VIN · `C3`.1 · `C4`.1 · `Q1`.S · `R4`.1 · `TP2` |
+| `+3V3` | `U1`.3V3 · `C5`.1 · `C6`.1 · `U2`.8 · `C8`.1 · `U3`.VCC · `U3`.CSB · `R1`.1 · `R7`.1 · `R8`.1 · `R12`.1 · `TP3` |
+| `Q1_G` | `Q1`.G · `R4`.2 · `Q2`.D |
+| `Q2_G` | `Q2`.G · `R5`.2 · `R6`.1 |
+| `GPIO5` | `U1`.GPIO5 · `R5`.1 |
+| `5V_SONDA` | `Q1`.D · `J2`.1 · `TP4` |
+| `VBAT_SENSE` | `R9`.2 · `R10`.1 · `C9`.1 · `U1`.GPIO34 · `TP9` |
+| `DIV_LOW` | `R10`.2 · `Q3`.D |
+| `GPIO25` | `U1`.GPIO25 · `Q3`.G · `R14`.1 |
+| `BTN` | `U1`.GPIO33 · `R1`.2 · `SW2`.1 · `C7`.1 |
+| `GPIO2` | `U1`.GPIO2 · `R2`.1 |
+| `LED_V` | `R2`.2 · `D2`.ánodo |
+| `GPIO15` | `U1`.GPIO15 · `R3`.1 |
+| `LED_A` | `R3`.2 · `D3`.ánodo |
+| `SDA` | `U1`.GPIO21 · `U3`.SDA · `R7`.2 |
+| `SCL` | `U1`.GPIO22 · `U3`.SCL · `R8`.2 |
+| `RX2` | `U1`.GPIO16 · `U2`.1 |
+| `TX2` | `U1`.GPIO17 · `U2`.4 |
+| `DE_RE` | `U1`.GPIO4 · `U2`.2 · `U2`.3 |
+| `RS485_A` | `U2`.6 · `R11`.1 · `R12`.2 · `D4`.A · `J2`.3 · `TP5` |
+| `RS485_B` | `U2`.7 · `R11`.2 · `R13`.1 · `D4`.B · `J2`.4 · `TP6` |
+| `GND` | `J1`.2 · `R15`.2 · `MOD1`.B− · `MOD1`.OUT− · `C1`.2 · `C2`.2 · `U1`.GND · `C3`.2 · `C4`.2 · `C5`.2 · `C6`.2 · `SW2`.2 · `C7`.2 · `D2`.cátodo · `D3`.cátodo · `Q2`.S · `R6`.2 · `Q3`.S · `R14`.2 · `C9`.2 · `U2`.5 · `C8`.2 · `U3`.GND · `U3`.SDO · `R13`.2 · `D4`.masa · `J2`.2 · `TP7` · `TP8` |
+| `NC` | `J1`.3, sin conectar y rotulado |
+
+### 11.1. Resumen por componente
+
+| Ref | Pin | Net |
+| :--- | :--- | :--- |
+| `J1` | 1 / 2 / 3 | `VBAT_RAW` / `GND` / `NC` |
+| `JP1` | 1 / 2 | `VBAT_RAW` / `VBAT` |
+| `F1` | 1 / 2 | `VBAT` / `VBAT_F` |
+| `Q4` | D / G / S | `VBAT_F` / `Q4_G` / `VBAT_PROT` |
+| `R15` | 1 / 2 | `Q4_G` / `GND` |
+| `MOD1` | B+ / B− / OUT+ / OUT− | `VBAT_PROT` / `GND` / `+5V_RAW` / `GND` |
+| `SW1` | 1 / 2 | `+5V_RAW` / `+5V` |
+| `C1`, `C2` | 1 / 2 | `+5V` / `GND` |
+| `U1` | VIN / GND / 3V3 | `+5V` / `GND` / `+3V3` |
+| `C3`, `C4` | 1 / 2 | `+5V` / `GND` |
+| `C5`, `C6` | 1 / 2 | `+3V3` / `GND` |
+| `R1` | 1 / 2 | `+3V3` / `BTN` |
+| `SW2` | 1 / 2 | `BTN` / `GND` |
+| `C7` | 1 / 2 | `BTN` / `GND` |
+| `R2` | 1 / 2 | `GPIO2` / `LED_V` |
+| `D2` | ánodo / cátodo | `LED_V` / `GND` |
+| `R3` | 1 / 2 | `GPIO15` / `LED_A` |
+| `D3` | ánodo / cátodo | `LED_A` / `GND` |
+| `Q1` | S / G / D | `+5V` / `Q1_G` / `5V_SONDA` |
+| `R4` | 1 / 2 | `+5V` / `Q1_G` |
+| `Q2` | D / G / S | `Q1_G` / `Q2_G` / `GND` |
+| `R5` | 1 / 2 | `GPIO5` / `Q2_G` |
+| `R6` | 1 / 2 | `Q2_G` / `GND` |
+| `R9` | 1 / 2 | `VBAT_PROT` / `VBAT_SENSE` |
+| `R10` | 1 / 2 | `VBAT_SENSE` / `DIV_LOW` |
+| `Q3` | D / G / S | `DIV_LOW` / `GPIO25` / `GND` |
+| `R14` | 1 / 2 | `GPIO25` / `GND` |
+| `C9` | 1 / 2 | `VBAT_SENSE` / `GND` |
+| `U3` | VCC / GND / SDA / SCL / CSB / SDO | `+3V3` / `GND` / `SDA` / `SCL` / `+3V3` / `GND` |
+| `R7` | 1 / 2 | `+3V3` / `SDA` |
+| `R8` | 1 / 2 | `+3V3` / `SCL` |
+| `U2` | 1 / 2 / 3 / 4 / 5 / 6 / 7 / 8 | `RX2` / `DE_RE` / `DE_RE` / `TX2` / `GND` / `RS485_A` / `RS485_B` / `+3V3` |
+| `C8` | 1 / 2 | `+3V3` / `GND` |
+| `R11` | 1 / 2 | `RS485_A` / `RS485_B` |
+| `R12` | 1 / 2 | `+3V3` / `RS485_A` |
+| `R13` | 1 / 2 | `RS485_B` / `GND` |
+| `D4` | A / B / masa | `RS485_A` / `RS485_B` / `GND` |
+| `J2` | 1 / 2 / 3 / 4 | `5V_SONDA` / `GND` / `RS485_A` / `RS485_B` |
+
+### 11.2. Comprobaciones antes de cerrar el ERC
+
+| Comprobación | Por qué |
+| :--- | :--- |
+| `GND` es **una sola net**, no varias con nombres parecidos | Es el error más común al dibujar por hojas |
+| `U1`.3V3 tiene `PWR_FLAG` o está declarado como salida de potencia | Si no, KiCad reclama que `+3V3` no tiene fuente |
+| `MOD1`.OUT+ declarado como salida de potencia | Igual que el anterior, para `+5V` |
+| `J1`.3 rotulado con símbolo de no conectado | Evita el aviso de pin sin conexión y deja constancia de que es deliberado |
+| `U2`.2 y `U2`.3 realmente unidos | Si quedan separados, el transceptor no cambia de dirección |
+| `Q1` con fuente a `+5V`, no al revés | Invertido, el diodo de cuerpo alimenta la sonda aunque el gate esté cortado |
+| `Q4` con drenador al lado batería | Invertido, no protege |
+| Ningún GPIO de la lista 5.8 usado | |
+| Cada integrado con su condensador de desacoplo | `C4` para `U1`, `C8` para `U2`, `C6` para el riel de 3,3 V |
+
