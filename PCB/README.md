@@ -58,20 +58,23 @@ Comprobado sobre los archivos, no sobre la memoria de diseño:
 | `V1/terrasense.kicad_pro` | Proyecto maestro |
 | `V1/terrasense.kicad_sch.bak` | Respaldo automático de KiCad |
 
-### 0.2. La V1 no implementa la arquitectura vigente
+### 0.2. Qué separa a la V1 del BOM vigente
 
-**Este es el hallazgo que define el alcance de la V2.** El esquemático de V1 monta una arquitectura SMD discreta que el BOM vigente ya sustituyó:
+La fuente de verdad de los componentes es la lista `bom` de [`finanzas/supuestos.json`](../finanzas/supuestos.json), no las tablas de memoria de este README. Comparada contra el esquemático de V1:
 
-| Bloque | Esquemático V1 | BOM vigente (ver sección 4.2) |
-| :--- | :--- | :--- |
-| MCU | `RF_Module:ESP32-WROOM-32E` (módulo desnudo) | Placa de desarrollo ESP32 |
-| Carga | `Battery_Management:TP4056-42-ESOP8` discreto | PCB combinada carga/boost USB-C |
-| Elevación | `Regulator_Switching:MT3608` + `L1` + `Diode:SS34` | PCB combinada carga/boost USB-C |
-| USB-UART | `Interface_USB:CH340C` | Incluido en la placa de desarrollo; no se compra |
-| Sensor ambiental | `Sensor:BME280` | BME280 — coincide |
-| Bus RS-485 | `Interface_UART:MAX3485` | SP3485 / MAX3485 — coincide |
+| Bloque | Esquemático V1 | Línea del BOM vigente | ¿Coincide? |
+| :--- | :--- | :--- | :--- |
+| MCU | `RF_Module:ESP32-WROOM-32E` | «Módulo ESP32-WROOM-32 desnudo» | Sí, pero la variante está **por confirmar** |
+| Carga | `Battery_Management:TP4056-42-ESOP8` | «PCB combinada USB-C carga + boost» | **No.** Sustituido |
+| Elevación | `Regulator_Switching:MT3608` + `L1` + `Diode:SS34` | «PCB combinada USB-C carga + boost» | **No.** Sustituido |
+| USB-UART | `Interface_USB:CH340C` | **Sin línea en el BOM** | **Indefinido** |
+| Regulador 3,3 V | `Regulator_Linear:AP2112K-3.3` | **Sin línea en el BOM** | **Indefinido** |
+| MOSFET del power gate | `Transistor_FET:AO3401A` + `MMBT3904` | Dentro del lote «Pasivos, protección y terminación RS485» | Sin desglosar |
+| Sensor ambiental | `Sensor:BME280` | «Módulo ambiental Bosch BME280 I2C» | Sí |
+| Bus RS-485 | `Interface_UART:MAX3485` | «SP3485 transceptor RS485 3.3 V» | Sí, pero falta **definir IC o módulo** |
+| LEDs | 2 (`GPIO2` verde, `GPIO15` azul) | «LED SMD» ×3 | **No.** El BOM compra tres, el diseño usa dos |
 
-Rehacer el esquemático para la arquitectura vigente **no es un ajuste, es un rediseño** de las ramas de carga, elevación y programación.
+El rediseño obligado y acotado es el de **carga y elevación**: la PCB combinada reemplaza al TP4056, al MT3608, a la bobina y al Schottky. El resto del esquemático de V1 es reutilizable como punto de partida, siempre que se cierren antes las decisiones de la sección 0.5.
 
 ### 0.3. Contradicciones abiertas
 
@@ -105,6 +108,63 @@ Ninguna está cerrada hoy:
 
 ---
 
+### 0.5. Decisiones que bloquean el esquemático de la V2
+
+Ninguna se puede resolver dibujando: cada una cambia qué bloques existen en la hoja. Están ordenadas por cuánto arrastran.
+
+#### D1 — ¿Módulo WROOM-32 desnudo o placa de desarrollo?
+
+Es la decisión raíz: define si la placa portadora lleva tres bloques más o ninguno.
+
+| | Módulo desnudo | Placa de desarrollo |
+| :--- | :--- | :--- |
+| Qué dice el BOM | «Módulo ESP32-WROOM-32 desnudo», variante por confirmar | — |
+| Qué dice este README | — | Secciones 1 y 3.2: «en placa de desarrollo», «el USB-UART va incluido» |
+| La portadora necesita | LDO 3,3 V, USB-UART, auto-reset (DTR/RTS), resistencias de arranque y `EN` | Nada: solo zócalos |
+| Programación | Requiere el USB-UART de la portadora | Por el USB de la placa |
+| Consumo en reposo | Menor: sin LED de encendido ni reguladores extra | Mayor, y casi ninguna devkit lo documenta |
+
+El BOM **no tiene línea** de LDO, USB-UART ni cristal. Eso es coherente con una placa de desarrollo e incoherente con un módulo desnudo: si se confirma «desnudo», hay que agregar esas líneas al BOM antes de cerrar el costo.
+
+#### D2 — Divisor de medición de batería
+
+Decide si el presupuesto de reposo es alcanzable.
+
+| Opción | Consumo permanente a 3,7 V | Problema |
+| :--- | :--- | :--- |
+| 100 k + 100 k | ~18,5 µA | Excede por sí solo el presupuesto de 12 µA de la sección 3.5 |
+| 1 M + 1 M | ~1,85 µA | Impedancia de fuente demasiado alta para el ADC del ESP32: la lectura se degrada |
+| Divisor conmutado por MOSFET | ~0 µA en reposo | Cuesta un MOSFET y un GPIO más; es la práctica habitual |
+
+#### D3 — SP3485: ¿integrado o módulo?
+
+El BOM lo deja explícito: «definir IC o módulo, no ambos». Un SOIC-8 se rutea en la portadora y obliga a poner la terminación de 120 Ω, la polarización *fail-safe* y el TVS alrededor. Un módulo ya los trae, ocupa más alto y encarece la línea.
+
+#### D4 — Componentes sin cerrar
+
+| Tema | Estado |
+| :--- | :--- |
+| TVS del bus RS-485 | El esquemático usa un símbolo genérico sin SKU; este README propone SM712 |
+| Conector JST de batería | El BOM dice 3 pines con «pinout/tercer pin por verificar»: probablemente un termistor NTC |
+| Cantidad de LEDs | El BOM compra tres, el pinout define dos |
+| Conector de la sonda | El esquemático de V1 usa un borne de tornillo de 4 vías, sin sellado definido |
+
+#### D5 — Lo que no se decide en el esquemático pero lo condiciona
+
+El mapa de registros Modbus de la sonda **no está confirmado contra la ficha del proveedor** y el SKU no se ha adquirido. Eso no cambia el dibujo, pero sí la alimentación: los 0,5 W publicados corresponden a 24 V y hay que medir el consumo real a 5 V antes de dimensionar el elevador y el MOSFET de corte.
+
+### 0.6. Orden de trabajo de la V2
+
+1. Cerrar D1, que arrastra a todo lo demás.
+2. Cerrar D2, D3 y D4, y reflejarlas en `finanzas/supuestos.json` si agregan o quitan líneas de compra.
+3. Dibujar el esquemático en `PCB/V2/` y dejar el ERC en cero.
+4. Asignar huellas y recién ahí rutear la placa.
+5. Reemplazar las secciones 1 a 6 de este README, que hoy describen la V1, por la especificación de lo que se dibujó.
+
+> Las secciones 1 a 6 siguientes son **memoria de diseño de la V1**. Donde contradigan a las secciones 0.2 a 0.5, mandan estas últimas.
+
+---
+
 ## 📑 Tabla de Contenidos
 
 - [0. Estructura de la carpeta y estado de versiones](#0-estructura-de-la-carpeta-y-estado-de-versiones)
@@ -130,6 +190,8 @@ Ninguna está cerrada hoy:
 - [6. Protocolo Firmware y Trama BLE GATT](#6-protocolo-firmware-y-trama-ble-gatt)
   - [6.1. Ciclo de Adquisición Modbus RTU](#61-ciclo-de-adquisición-modbus-rtu)
   - [6.2. Estructura binaria de la trama BLE (20 bytes)](#62-estructura-binaria-de-la-trama-ble-20-bytes)
+
+Las secciones 1 a 6 documentan la V1. Para la V2, partir por [0.5. Decisiones que bloquean el esquemático](#05-decisiones-que-bloquean-el-esquemático-de-la-v2) y [0.6. Orden de trabajo](#06-orden-de-trabajo-de-la-v2).
 
 ---
 
