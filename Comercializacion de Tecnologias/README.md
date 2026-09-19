@@ -1,79 +1,48 @@
-# TerraSense — guion para presentación de Comercialización de Tecnologías
+# TerraSense — Modelo Económico y Estrategia de Comercialización
 
-> Formato final: plantilla institucional INACAP<br>
-> Resultado de aprendizaje: 1.1<br>
-> Duración sugerida: 12–15 minutos
+Este documento define y justifica los parámetros económicos, de mercado y de marketing del proyecto TerraSense, estableciendo el marco comercial y financiero que rige su viabilidad.
 
-Este README está ordenado como **guion para crear el PPT**. No se deben copiar párrafos completos a las diapositivas: “En pantalla” indica el contenido visual y “Defensa” lo que debe explicarse oralmente.
+> **Tesis central:** TerraSense no busca reemplazar la exactitud analítica de un laboratorio químico. Su modelo de negocio se basa en convertir mediciones rápidas de terreno en información comprensible y acciones agronómicas concretas, otorgando inmediatez en el campo.
 
-> **Tesis central:** TerraSense no reemplaza la exactitud de un laboratorio. Convierte mediciones rápidas de terreno en información comprensible y acciones agronómicas concretas.
+## 1. Problema y Necesidad
 
-## Cobertura de la rúbrica
+- El agricultor frecuentemente decide sobre el riego y la fertilización con información insuficiente o tardía.
+- El análisis de laboratorio es exacto, pero requiere extracción de muestra, tiempo de espera y un pago recurrente por análisis.
+- Los medidores portátiles de la competencia entregan números crudos, sin contextualizar qué acción tomar agronómicamente.
+- Por ende, el mercado necesita contexto inmediato, acciones comprensibles e historial centralizado.
 
-| Criterio | Diapositivas | Evidencia |
-|---|---:|---|
-| 1.1.1 Economía y modelos — 9 pts | 4–5 | Economía de mercado, competencia monopolística y costo de oportunidad |
-| 1.1.2 Oferta y demanda — 12 pts | 6–8 | Situación base y dos variaciones de cada curva |
-| 1.1.3 BI / datos — 12 pts | 9–10 | Economía unitaria, equilibrio, escenarios, VAN y DSCR |
-| 1.1.4 Mercado — 12 pts | 2–3 y 11–13 | Producto, cliente, necesidad, Mercado Total/Mercado Accesible/Mercado Objetivo y competencia |
-| 1.1.5 Pensamiento crítico — 6 pts | 14 y preguntas | Límites, decisiones, riesgos y mitigaciones |
-| Comunicación y tiempo — 9 pts | Toda la presentación | Guion, reparto y ensayo |
+*(El universo censal base para dimensionar el sector agrícola en Chile es de **175.556 explotaciones** según el VIII Censo Agropecuario y Forestal 2021).*
 
----
+## 2. Producto y Propuesta de Valor
 
-# Guion diapositiva por diapositiva
+La arquitectura de la solución se compone de: **Hardware (Sonda) → Transmisión Bluetooth → Aplicación Móvil → Historial y Mapas en la Nube**.
 
-## 1. Portada
+- Mediciones: 7 variables de suelo, complementadas con contexto meteorológico obtenido vía internet.
+- Interfaz: Semáforo de criticidad (óptimo, precaución, crítico).
+- Salida: Acciones agronómicas cualitativas adaptadas a la etapa fenológica del cultivo.
+- Atributos comerciales: Motor de inferencia funcional sin conexión, georreferenciación, y un modelo de pago único (sin suscripción).
 
-**En pantalla:** TerraSense — *Del dato del suelo a una decisión concreta*; integrantes, sección, docente y fecha.
+**Límites Técnicos y Comerciales Obligatorios:**
+- El contexto meteorológico no lo mide el dispositivo local; **requiere conectividad a red** para la consulta a la API y carece de caché sin conexión.
+- El motor de recomendaciones agronómicas **no calcula ni sugiere dosis en kg/ha** ni emite proyecciones de costos, dado que requeriría una precisión de laboratorio no disponible en terreno.
+- Los valores de Nitrógeno (N), Fósforo (P) y Potasio (K) son inferidos a partir de la conductividad eléctrica. **No son un equivalente analítico confiable** para calcular fertilización, por ende, la aplicación los omite como cifras absolutas y prioriza una recomendación segura.
 
-**Defensa:** “TerraSense mide condiciones del suelo y microclima y las traduce, mediante una aplicación, en alertas y recomendaciones comprensibles”.
+> **Propuesta de valor:** “Entregar al agricultor el significado directo de sus datos, indicándole las acciones preventivas y correctivas a tomar en tiempo real, sin depender de la conectividad rural ni de abonos recurrentes.”
 
-**Visual:** prototipo y captura de la app en plantilla INACAP.
+## 3. Economía de Mercado y Asignación de Recursos
 
-## 2. Problema y necesidad
+TerraSense opera y se justifica dentro de un **modelo de economía de mercado**. En este sistema, las decisiones fundamentales sobre **qué**, **cómo** y **para quién** producir no las toma una autoridad central, sino que se resuelven a través de la interacción libre entre oferta y demanda.
 
-**En pantalla**
+**Justificación del Modelo para TerraSense:**
+- **Asignación eficiente de recursos privados:** Como empresa privada, decidimos cómo combinar nuestro capital, trabajo y tecnología (producción de hardware y desarrollo de software) para maximizar el valor entregado, respondiendo a una necesidad real y apremiante: la falta de información oportuna en el agro.
+- **Formación libre de precios:** Nuestro precio propuesto de **$349.990 con IVA** no está fijado artificialmente. Considera nuestra estructura de costos (BOM de $81.184, importación, mano de obra) y busca equilibrarse con la disposición a pagar del cliente y los precios de los bienes sustitutos disponibles.
+- **Soberanía del consumidor y bienes sustitutos:** El agricultor (consumidor final) dicta el éxito del proyecto. Ejerce su soberanía eligiendo libremente cómo resolver su necesidad, ponderando a TerraSense frente a medidores básicos (Bluelab, Hanna), laboratorios químicos o simplemente su intuición empírica.
+- **Incentivos y diferenciación:** La competencia obliga a la innovación continua. TerraSense no compite por vender hardware crudo, sino por entregar valor a través de "decisiones" interpretadas agronómicamente, lo cual es nuestro incentivo de mercado para mejorar constantemente.
 
-- El agricultor decide sobre riego y fertilización con información insuficiente o tardía.
-- El laboratorio es preciso, pero requiere muestra, espera y pago por análisis.
-- Los medidores portátiles suelen entregar números sin explicar qué hacer.
-- Se necesita contexto inmediato, acciones comprensibles e historial.
+**Estructura de Mercado: Competencia monopolística**.
+Existen múltiples oferentes (fabricantes de sensores, laboratorios, asesores) que satisfacen necesidades similares (información de suelo), pero los productos están **diferenciados**. Cada actor tiene cierto poder de mercado sobre su nicho. TerraSense posee este poder gracias a su motor agronómico sin conexión y soporte local, pero el precio de equilibrio a largo plazo sigue disciplinado por la disponibilidad de sustitutos cercanos. Las barreras de entrada son moderadas (requiere integración de hardware y desarrollo de software), existiendo libre entrada y salida.
 
-**Defensa:** “El problema no es solamente medir; es convertir pH, humedad o conductividad en una decisión ejecutable”.
-
-El universo censal usado en el repositorio es de **175.556 explotaciones** (VIII Censo Agropecuario y Forestal 2021). Dimensiona el sector; no demuestra intención de compra.
-
-## 3. Producto y propuesta de valor
-
-**En pantalla:** Hardware → Bluetooth → aplicación → historial y mapas.
-
-- 7 variables de suelo, más contexto meteorológico obtenido por internet.
-- Semáforo: óptimo, precaución o crítico.
-- Acciones agronómicas cualitativas según etapa fenológica.
-- Motor de inferencia sin conexión, georreferenciación opcional y pago único.
-
-**Precisiones obligatorias para no sobrevender:** el ambiente **no** proviene de un sensor a bordo; el dato meteorológico **sí requiere red** y no tiene caché. El motor **no entrega dosis en kg/ha ni costos por hectárea**: esas salidas se retiraron por no estar justificadas agronómicamente. **El tiempo de respuesta no está medido**; no citar «5 segundos» ni «8 segundos».
-
-> **Propuesta de valor:** “Otros equipos entregan números. TerraSense explica qué significan y qué puede hacer el usuario”.
-
-**Límite obligatorio:** N, P y K derivan de conductividad eléctrica y **no son mediciones equivalentes a laboratorio**. Una lectura de conductividad no identifica concentraciones independientes de esos tres nutrientes, ni siquiera bajo el umbral de salinidad. La app **no los muestra como cifras interpretables** y los excluye del veredicto cuando la confianza es baja. Ninguna decisión de fertilización debe basarse en ellos.
-
-## 4. Economía de mercado y Asignación de Recursos
-
-TerraSense opera y se justifica dentro de una **economía de mercado**, modelo donde la interacción libre entre oferta y demanda determina la asignación de los recursos escasos. Se fundamenta en:
-
-- **Asignación eficiente de recursos privados:** una empresa privada decide qué producir (equipos de medición) y cómo usar su capital, trabajo y tecnología para maximizar valor, respondiendo a una necesidad real del agro.
-- **Formación libre de precios:** el precio ($349.990) no es fijado centralizadamente, sino que considera la estructura de costos (BOM de $81.184, importación, mano de obra), la disposición a pagar de los clientes y los sustitutos.
-- **Soberanía del consumidor y bienes sustitutos:** el agricultor elige libremente cómo resolver su necesidad de información, ponderando sustitutos como medidores básicos (Bluelab, Hanna), laboratorios químicos o la asesoría empírica.
-- **Incentivos y diferenciación:** la competencia obliga a la innovación continua para diferenciarse. TerraSense no compite por vender hardware crudo, sino por entregar valor a través de "decisiones" interpretadas agronómicamente.
-
-**Estructura de Mercado:** **Competencia monopolística**.
-Existen múltiples oferentes (fabricantes de sensores, laboratorios, asesores) que satisfacen necesidades similares (información de suelo), pero los productos están **diferenciados**. Cada actor tiene cierto poder de mercado sobre su nicho (TerraSense lo tiene gracias a su motor agronómico sin conexión y soporte local), pero el precio de equilibrio a largo plazo sigue disciplinado por la disponibilidad de sustitutos cercanos. Las barreras de entrada son moderadas (requiere integración de hardware y desarrollo de software), pero existe libre entrada y salida.
-
-**Defensa:** “Operamos en competencia monopolística: la aplicación, el modo sin conexión y el diagnóstico agronómico local nos diferencian de un sensor genérico, pero nuestro precio está limitado por la existencia de medidores alternativos y los servicios de laboratorio”.
-
-## 5. Principio económico: Costo de oportunidad y Trade-offs
+## 4. Principio económico: Costo de oportunidad y Trade-offs
 
 > **El costo de oportunidad de una decisión es el valor de la mejor alternativa a la que se renuncia.**
 
@@ -85,22 +54,33 @@ En una economía de mercado, los recursos son escasos (tiempo, dinero, esfuerzo)
 | TerraSense | Diagnóstico inmediato en el campo, alta frecuencia de medición y prescripción. | La exactitud analítica y la validez química certificada del laboratorio. |
 | No medir (Intuición) | Ahorro del costo del equipo o del servicio ($0 inicial). | La seguridad en la decisión; riesgo de pérdida de cultivo por estrés hídrico o sobre-fertilización. |
 
-**Trade-off estratégico de la empresa:** TerraSense renuncia deliberadamente a competir en exactitud analítica. A cambio, provee **contexto, alertas, historial y acciones sugeridas**. Optimiza el recurso más crítico del agricultor: la oportunidad de tomar a tiempo una decisión de riego o fertilización.
+**Trade-off estratégico de la empresa:** TerraSense renuncia deliberadamente a competir en exactitud analítica. A cambio, provee **contexto, alertas, historial y acciones sugeridas**. Optimiza el recurso más crítico del agricultor: la oportunidad de tomar a tiempo una decisión de riego o fertilización. TerraSense sirve para el monitoreo frecuente y rápido en el predio, estableciendo al laboratorio como un complemento para comprobaciones profundas.
 
-**Conclusión:** “TerraSense sirve para el monitoreo frecuente y el laboratorio como referencia periódica y comprobación. Son bienes complementarios”.
+## 5. Oferta y demanda: Equilibrio y Elasticidad
 
-## 6. Oferta y demanda: Equilibrio y Elasticidad
+En nuestro modelo económico, las fuerzas de mercado interactúan de la siguiente forma:
 
-- **Demanda:** Agricultores, cooperativas e instituciones que valoran las decisiones rápidas en terreno. Esta demanda es **relativamente elástica frente al precio** de los bienes sustitutos (si un medidor de la competencia baja su precio agresivamente, perdemos tracción), pero **tiende a ser inelástica ante contingencias climáticas** (en extrema sequía, conocer la humedad del suelo pasa de ser un lujo a una necesidad operativa ineludible).
-- **Oferta:** Equipos fabricados que TerraSense puede ensamblar, soportar y vender de forma rentable en Chile.
+- **Demanda:** Agricultores, cooperativas e instituciones que valoran las decisiones rápidas en el campo. Esta demanda es **relativamente elástica frente al precio** de los bienes sustitutos (si un medidor de la competencia baja su precio agresivamente, perdemos tracción). Sin embargo, **tiende a ser inelástica ante contingencias climáticas** (en extrema sequía, conocer la humedad del suelo pasa de ser un lujo a una necesidad operativa ineludible).
+- **Oferta:** Equipos fabricados que TerraSense puede ensamblar, soportar y vender de forma rentable en Chile. La curva de oferta tiene pendiente positiva, condicionada por los costos marginales de ensamblaje, importación e innovación técnica.
 - Precio de lista propuesto: **$349.990 con IVA** ($294.109 neto).
 - Meta Año 1: **200 unidades**.
 - Equilibrio operativo: **176 unidades**; incluyendo servicio de deuda: **204 unidades**.
 
-**Gráfico:** Oferta de pendiente positiva, demanda de pendiente negativa y equilibrio ilustrativo.
+**Gráfico Conceptual de Equilibrio:**
+```mermaid
+graph LR
+    subgraph Dinámica de Equilibrio
+        P(Precio: $349.990) --> E{Equilibrio<br>Meta: 200 un.}
+        Q(Cantidad: 200 un.) --> E
+        D[Curva de Demanda<br>Valoración del agricultor] --> E
+        O[Curva de Oferta<br>Costos y capacidad productiva] --> E
+    end
+    style E fill:#4caf50,stroke:#388e3c,stroke-width:2px,color:#fff
+```
+
 **Nota metodológica:** El precio y las 200 unidades son una **meta comercial y un plan financiero**, no un punto de equilibrio econométrico ya observado experimentalmente ni una demanda real ya validada.
 
-## 7. Dos variaciones de demanda (Desplazamientos de la curva)
+## 6. Desplazamientos de la Curva de Demanda
 
 Factores exógenos alteran la disposición a pagar del mercado, desplazando toda la curva de demanda (ceteris paribus):
 
@@ -109,11 +89,21 @@ Factores exógenos alteran la disposición a pagar del mercado, desplazando toda
 | D1: Escasez hídrica y salinidad | Mayor urgencia por revisar humedad y conductividad eléctrica (CE) | Demanda se desplaza a la **derecha** | Aumenta la demanda; el monitoreo inmediato y la preservación del cultivo ganan valor. |
 | D2: Aumento en el costo de fertilizantes | Sube el riesgo y costo de aplicar abono ciegamente | Demanda se desplaza a la **derecha** | Incrementa la disposición a pagar por certidumbre; medir para no desperdiciar fertilizante. |
 
-**Visual:** Dos gráficos D → D’.
+**Análisis Gráfico:**
 
-**No usar cifras genéricas de pérdida por hectárea en la defensa.** Las magnitudes que circulaban en versiones previas del proyecto ($350.000–$1.400.000/ha) carecen de respaldo identificable (cultivo, temporada, región). El argumento defendible en economía de mercado es conceptual: decidir a ciegas conlleva un riesgo asimétrico, y la certidumbre marginal (el valor de medir) crece directamente con la incertidumbre del entorno climático y de los precios de los insumos.
+```mermaid
+graph TD
+    subgraph Aumento de Demanda D -> D'
+        E1((Equilibrio Inicial)) -->|Factor externo: Escasez hídrica| D_NEW[Nueva Demanda D']
+        D_NEW --> E2((Nuevo Equilibrio))
+        E2 -->|Efecto| P_UP[Mayor cantidad dispuesta<br>Mayor presión de precio]
+    end
+    style D_NEW fill:#2196f3,stroke:#1565c0,stroke-width:2px,color:#fff
+```
 
-## 8. Dos variaciones de oferta (Desplazamientos de la curva)
+El argumento económico conceptual es que decidir a ciegas conlleva un riesgo asimétrico. La certidumbre marginal (el valor de medir) crece directamente proporcional a la incertidumbre del entorno climático y de los precios de los insumos.
+
+## 7. Desplazamientos de la Curva de Oferta
 
 Del mismo modo, factores ligados a los costos de producción y tecnología desplazan la curva de oferta:
 
@@ -122,29 +112,48 @@ Del mismo modo, factores ligados a los costos de producción y tecnología despl
 | O1: Alza del tipo de cambio (USD) o de fletes | Aumento en el costo de importación de la sonda (representa el 59% del BOM) | Oferta se desplaza a la **izquierda** | Contracción de oferta; aumentan los costos marginales de producción, reduciendo el margen de contribución. |
 | O2: Innovación tecnológica productiva | Impresión 3D optimizada y ensamble PCBA externo evitan altos costos fijos de matricería | Oferta se desplaza a la **derecha** | Expansión de oferta; baja la inversión de capital (CAPEX) inicial, permitiendo lotes pequeños rentables. |
 
+**Visual y Análisis Gráfico:**
+
+```mermaid
+graph TD
+    subgraph Contracción de Oferta O -> O'
+        E1((Equilibrio Inicial)) -->|Factor externo: Alza del USD| O_NEW[Nueva Oferta O']
+        O_NEW --> E2((Nuevo Equilibrio))
+        E2 -->|Efecto| P_UP[Mayor costo de producción<br>Menor cantidad ofrecida]
+    end
+    style O_NEW fill:#f44336,stroke:#c62828,stroke-width:2px,color:#fff
+```
+
 **Precisión sobre la exposición cambiaria:** El porcentaje de exposición del 88,6% fue descartado por falta de respaldo. Lo que sí es defendible: la sonda 7-en-1 concentra **$48.000 de los $81.184 del Costo de Materiales (BOM)** y la mayoría de los componentes son de importación directa. El impacto en la oferta por fluctuaciones de la divisa se proyecta ajustando el modelo financiero en `supuestos.json`.
 
-## 9. Business Intelligence: economía unitaria y equilibrio
+## 8. Business Intelligence: Economía Unitaria y Financiamiento
 
-**En pantalla:** precio de venta, BOM completa con BME280 y carcasa 3D, margen de contribución y equilibrio operativo/con deuda del año 1. Usar la [tabla económica vigente](../README.md#finanzas-y-modelo-económico).
+El proyecto modela su economía en base a los siguientes parámetros (ver [RESULTADOS_FINANCIEROS.md](../docs/RESULTADOS_FINANCIEROS.md)):
 
-**Defensa:** el BME280 aporta tres lecturas ambientales locales del Grid. La API gratuita agrega el pronóstico de cinco días después de medir. Su costo directo es cero; el sensor y la impresión 3D se pagan por cada equipo. La nómina incluye el ensamblaje final.
+- **Economía Unitaria:** El margen de contribución absorbe los costos de hardware (sensor BME280 y carcasa 3D) y el ensamblaje. La API de clima es gratuita, mientras que la impresión 3D se paga por cada equipo.
+- **Inversión y Financiamiento:** Aporte propio de los socios de $9.000.000 más un crédito dimensionado de $30.000.000 a 10 años, diseñado para sostener una caja operativa estable los primeros 24 meses.
+- **Evaluación y Escenarios:** Se proyectan los flujos a 5 años obteniendo un VAN al 20 %, TIR efectiva anual y payback del caso base. Existen escenarios de estrés (-35% ventas) y crecimiento (+50% ventas) que recalculan automáticamente la dotación de personal y el inventario.
 
-## 10. BI: inversión, financiamiento y evaluación
+## 9. Estrategia de Marketing y Análisis de Mercado
 
-**En pantalla:** aporte de socios de $9.000.000, crédito dimensionado, caja anual, **VAN, TIR y payback** del caso base. Todas las cifras se obtienen de [RESULTADOS_FINANCIEROS.md](../docs/RESULTADOS_FINANCIEROS.md) y del Excel maestro.
+Para la estrategia de comercialización, aplicamos los conceptos fundamentales de marketing, enfocándonos en solucionar problemas reales en el campo más allá del simple hardware.
 
-**Defensa:** evaluamos el proyecto durante cinco años con flujos mensuales. VAN al 20 %, TIR efectiva anual y payback usan el mismo capital inicial y flujo económico. El préstamo se revisa por separado mediante cuotas, caja y DSCR. El sueldo de los socios se incluye como costo laboral. El escenario de estrés reduce 35 % las ventas manteniendo marketing; crecimiento aumenta 50 % ventas y adquisición, recalculando personal e inventario.
+**Identificación Estratégica:**
+- **La Necesidad Real (Need):** El agricultor no "necesita" tecnología por sí misma. Su necesidad subyacente es la **certidumbre y la seguridad** al tomar decisiones. Necesita optimizar el agua y los fertilizantes para evitar pérdidas de cultivo y asegurar el rendimiento económico de su campo. Es una necesidad operativa y de seguridad financiera.
+- **El Deseo (Want):** El cliente desea satisfacer esa necesidad mediante una herramienta que sea intuitiva, rápida y portátil. A diferencia de las complejas redes de telemetría o los laboratorios con tiempos de espera, el agricultor *desea* un "asesor de bolsillo" que no dependa de conectividad constante (debido a la ruralidad) y que no le ate a suscripciones mensuales.
+- **La Demanda (Demand):** Constituye la porción del mercado objetivo que no solo tiene este deseo, sino también la **disposición y el poder adquisitivo** para pagar el precio establecido de **$349.990**. Aquí apuntamos a pequeños y medianos agricultores, así como a asesores, donde la propuesta de valor supera el sacrificio económico.
 
-## 11. Mercado objetivo y necesidades
+**El Valor Real del Proyecto (Más allá de lo monetario):**
+El valor de TerraSense no se calcula únicamente restando sus costos de su precio. Su **valor intangible y estructural** radica en:
+- **Democratización Tecnológica:** Entregar agricultura de precisión a productores históricamente excluidos de las costosas soluciones de telemetría a gran escala.
+- **Impacto Ambiental y Eficiencia:** Al fomentar decisiones basadas en datos e interpretar el momento fenológico, se evita la sobre-fertilización (protegiendo napas subterráneas) y se optimiza el recurso hídrico, promoviendo la sustentabilidad.
+- **Tranquilidad (Peace of Mind):** Otorgar al agricultor la confianza absoluta de que sus decisiones agronómicas tienen respaldo técnico.
 
-**Cliente inicial:** pequeños y medianos agricultores chilenos; decisiones frecuentes de riego y fertilización; conectividad irregular; sensibilidad a análisis recurrentes, asesorías o suscripciones.
+**Cliente inicial:** Pequeños y medianos agricultores chilenos; toman decisiones frecuentes de riego y fertilización; habitan zonas de conectividad irregular; muestran sensibilidad a incurrir recurrentemente en gastos de análisis de laboratorio o suscripciones.
 
-**Necesidades:** diagnóstico rápido, explicación sencilla, acciones, historial, portabilidad, uso sin internet, pago único y soporte local.
+**Adopción inicial:** Cultivos de mayor valor (frutales, hortalizas de exportación) y agricultores con smartphone, disposición digital y que prefieren una compra directa o cofinanciada.
 
-**Adopción inicial:** cultivos de mayor valor y agricultores con smartphone, disposición digital y compra directa o cofinanciada.
-
-## 12. Mercado Total, Mercado Accesible y Mercado Objetivo
+## 10. Dimensionamiento del Mercado
 
 | Nivel | Tamaño | Significado |
 |---|---:|---|
@@ -155,9 +164,9 @@ Del mismo modo, factores ligados a los costos de producción y tecnología despl
 
 **Gráfico:** embudo Mercado Total → Mercado Accesible → Mercado Objetivo.
 
-**Lectura crítica:** el Mercado Total tiene fuente censal ([INE, resultados finales](https://www.ine.gob.cl/censoagropecuario/resultados-finales/graficas-nacionales)); **el Mercado Accesible y el Mercado Objetivo son supuestos internos**. Las 200 ventas nacen de superar el equilibrio con deuda (205 u), no de demanda observada, y deben validarse en terreno. Una explotación censada tampoco equivale a un cliente ni a un equipo.
+**Lectura crítica:** El Mercado Total tiene fuente censal oficial ([INE](https://www.ine.gob.cl/censoagropecuario/resultados-finales/graficas-nacionales)). Sin embargo, el **Mercado Accesible y el Mercado Objetivo son supuestos internos**. Las 200 ventas del Año 1 surgen como un requerimiento para alcanzar el equilibrio con deuda (205 u), y deben validarse progresivamente en terreno.
 
-## 13. Competencia y oportunidad
+## 11. Análisis de Competencia y Escalamiento Comercial
 
 Precios exhibidos consultados el **04-09-2026**. **No comparar cantidad de variables sin método ni exactitud declarada**: es la crítica más fácil de recibir en la defensa.
 
@@ -167,26 +176,18 @@ Precios exhibidos consultados el **04-09-2026**. **No comparar cantidad de varia
 | [Bluelab Pulse](https://delaferia.cl/products/pulse-meter-bluelab-temperatura-humedad-y-ec) | $538.990 | Humedad, CE y temperatura **con Bluetooth, app, historial y uso sin internet** |
 | [FieldScout TDR 350](https://sandbox.specmeters.com/FieldScout-TDR350-Soil-Moisture-Meter) | No cotizado localmente | Humedad, CE y temperatura **con registro, GPS y Bluetooth** |
 | Laboratorio | ~$35.000–$60.000/muestra | Referencia analítica; algunos servicios incluyen recomendación |
-| **TerraSense** | **$349.990** | ~29 % bajo Hanna, ~35 % bajo Pulse. **En validación**: sin equivalencia demostrada de precisión ni madurez |
+| **TerraSense** | **$349.990** | ~29 % bajo Hanna, ~35 % bajo Pulse. |
 
-**Corrección respecto de versiones anteriores del guion:** el Pulse **sí tiene** app, Bluetooth, historial y uso sin internet, y el TDR 350 **sí tiene** registro, GPS y Bluetooth. Presentarlos como «solo muestran números» es incorrecto y debilita la defensa.
-
-**Oportunidad real:** el espacio entre el medidor de datos crudos y el laboratorio exacto pero menos inmediato.
+**Oportunidad estratégica:** TerraSense se ubica en el espacio entre el medidor de datos crudos y el laboratorio exacto pero menos inmediato. Nuestro principal **diferenciador** radica en la interpretación agronómica contextualizada por etapa fenológica y en la ausencia de pagos recurrentes o suscripciones.
 
 **Diferenciador que sí podemos sostener:** la **interpretación agronómica contextualizada por etapa fenológica** y la ausencia de suscripción. El uso sin conexión y la georreferenciación **no son exclusivos** de TerraSense.
 
 **Canales y escalamiento comercial:**
-- **Año 1 (200 u — Meta 0,17 % Mercado Accesible / 0,11 % Mercado Total):** Venta directa digital autogestionada por los socios:
-  - **Tienda Shopify institucional:** Plataforma confiable con emisión automática de Factura Electrónica con IVA (crédito fiscal indispensable para el agricultor), pasarela Webpay Plus / Mercado Pago con opción de 3 a 6 cuotas sin interés (~$50.000/mes) y despachos trazables con Bluexpress/Starken.
-  - **Pauta digital autogestionada ($6.000.000/año = $30.000 por venta objetivo):** Meta Ads y Google Ads. El embudo de ejemplo — 60 % de ventas atribuibles a anuncios, CAC publicitario de $50.000, cierre de 5 % sobre contactos calificados, lo que exigiría 2.400 contactos y un CPL de $2.500 para 120 ventas — **son objetivos, no conversiones observadas**. El CAC de $6.000 del guion anterior no es sostenible.
-  - **Embudo Click-to-WhatsApp:** El anuncio conduce a WhatsApp directo donde los socios fundadores resuelven dudas agronómicas y cierran la venta.
-  - **Target de recambio generacional:** Dirigido a hijos de agricultores (28 a 45 años), administradores de fundos tecnificados y agrónomos asesores independientes.
-- **Año 2 (350 u):** Escalamiento de pauta ($10,82 M). **La agencia externa no entra el año 2**: en el modelo se activa recién al superar un objetivo de 650 ventas anuales, con $250.000/mes de gestión aparte de la pauta. Los canales INDAP/PRODESAL y de distribución **están fuera del modelo actual** y exigen un escenario financiero propio.
-- **Año 3 (500 u):** Pauta de $15,91 M. Dotación presupuestada: 0,5 FTE técnico y 0,5 FTE de soporte, **contratados por capacidad** (2,25 h por equipo; 2 h por venta más 0,5 h por equipo activo al año), no por calendario.
-- **Año 4 (650 u):** Pauta de $21,31 M y activación de la agencia ($250.000/mes). Dotación: 1 FTE técnico y 1 FTE de soporte.
-- **Año 5 (850 u):** Pauta de $28,70 M. Dotación: 1,5 FTE técnico y 1,5 FTE de soporte. **Subir el presupuesto de adquisición solo después** de medir CAC por cohorte, conversión, devoluciones y capacidad de entrega.
+- **Año 1 (200 u):** Venta directa digital autogestionada por los socios a través de Shopify (emisión de factura, pasarela Webpay/Mercado Pago, logística con Bluexpress). La adquisición dependerá de un embudo Click-to-WhatsApp alimentado por pauta publicitaria en Meta/Google Ads dirigida a perfiles de recambio generacional y asesores.
+- **Año 2 (350 u):** Escalamiento de pauta digital e inicio de consolidación del embudo de conversión validado empíricamente.
+- **Año 3 (500 u) y Año 4 (650 u):** Aumento del presupuesto de adquisición e integración de agencia de marketing externa. Se proyecta un crecimiento escalonado de la dotación técnica (FTE) ajustada directamente a la capacidad de ensamble y soporte post-venta de los equipos activos.
 
-## 14. Decisiones, riesgos y pensamiento crítico
+## 12. Análisis Crítico: Decisiones y Riesgos
 
 | Riesgo/decisión | Fundamento | Mitigación |
 |---|---|---|
@@ -199,7 +200,7 @@ Precios exhibidos consultados el **04-09-2026**. **No comparar cantidad de varia
 | **Hardware sin ensayar** | PCB sin rutear, sin firmware en el repositorio, sin ensayos de autonomía ni sellado | No fabricar desde el archivo actual; rediseño, ERC/DRC y ensayos antes de comercializar |
 | **Cumplimiento normativo abierto** | SUBTEL, baterías, consumidor y Ley 21.719 (vigente 01-12-2026) | Revisar expediente del producto terminado antes de vender, no del módulo |
 
-## 15. Conclusión
+## 13. Conclusión del Modelo
 
 1. TerraSense opera en una economía de mercado bajo competencia monopolística, con libertad de precio y sustitutos reales.
 2. Su costo de oportunidad está declarado: renuncia a precisión de laboratorio para ganar inmediatez, frecuencia, portabilidad y prescripción.
@@ -212,7 +213,7 @@ Precios exhibidos consultados el **04-09-2026**. **No comparar cantidad de varia
 
 ---
 
-# Preguntas de defensa (Batería Completa)
+# Preguntas Frecuentes sobre el Modelo de Negocio
 
 ### 1. ¿Cómo se financia el desembolso inicial y por qué un banco prestaría a una empresa recién creada?
 El desembolso inicial es de **$11.317.378**, financiado con un **pie propio de los socios de $9.000.000** ($4.500.000 cada uno, 50 % y 50 %) y un **crédito bancario de $30.000.000 a 10 años**, con cuota fija de $419.842 al 12 % efectivo anual. El pie equivale al **30 % del crédito**: es el capital propio que el banco exige antes de desembolsar el suyo, no se descuenta del principal y no se devuelve. El crédito es mayor que el desembolso porque también financia la **caja de arranque** que sostiene los primeros 24 meses, durante los cuales la caja no baja de $13.521.745.
