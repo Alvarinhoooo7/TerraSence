@@ -555,18 +555,44 @@ La lista de partida pedía «algún diodo de protección de cortocircuito». Son
 
 El Schottky en serie es barato pero cae 0,3 – 0,4 V, y sobre una celda que termina en 3,0 V eso es mucho. **La alternativa recomendada es un P-MOSFET en configuración de diodo ideal**, que cae milivoltios. Dimensionar el PTC después de medir el consumo real de la sonda a 5 V: la corriente de retención debe quedar sobre el peak de medición y bajo la corriente de falla.
 
-#### Dónde va el interruptor — decisión abierta
+#### Dónde va `SW1` — decisión cerrada
 
-| Opción | Ventaja | Costo |
+**Requisito:** el equipo debe cargar la batería estando completamente apagado.
+
+Eso descarta poner `SW1` en serie con la batería: cortaría la celda antes de `MOD1` y dejaría sin alimentación también al cargador. **`SW1` va después de `MOD1`, del lado de los 5 V.** El cargador queda siempre conectado a la celda y carga con el equipo apagado.
+
+Quedan dos formas de hacerlo, y cuál se usa depende de una verificación sobre el módulo físico:
+
+| | **A. En serie con `OUT+`** | **B. Sobre el pin `EN` del elevador** |
 | :--- | :--- | :--- |
-| **A.** En la salida de 5 V de `MOD1` | Se puede cargar con el equipo apagado | El elevador de `MOD1` sigue consumiendo en vacío |
-| **B.** En serie con la batería, antes de `MOD1` | Corte total, consumo cero | **No carga con el equipo apagado** |
+| Condición | Siempre posible | Solo si `MOD1` expone `EN`, `KEY` o `SHDN` |
+| Corriente por el contacto | Toda la carga, picos de ~300 mA | Microamperios |
+| Consumo con el equipo apagado | El elevador sigue en vacío | Elevador deshabilitado |
+| Carga apagado | Sí | Sí |
 
-Recomendación: partir por la **A** y medir el consumo en vacío de `MOD1`. Si resulta alto, la **B** es preferible aunque obligue a encender para cargar.
+**Verificar primero si `MOD1` tiene pad `EN` o `KEY`.** Si lo tiene, la opción **B** es mejor: el elevador se apaga de verdad y el interruptor no conduce corriente de carga, así que dura más. Si no lo tiene, va la **A**, que siempre funciona.
 
-#### El tercer pin del JST
+Dibujar el esquemático con la **A** y dejar el pad `EN` accesible con una isla puenteable: así se puede migrar a la **B** sin rehacer la placa.
 
-El BOM registra «pinout/tercer pin por verificar». En un conector de 3 pines lo habitual es `+`, `−` y **NTC**, el termistor de temperatura de la celda. La mayoría de las PCB combinadas económicas **no tienen entrada de NTC**. Verificar con el multímetro antes de soldar: si el tercer pin es NTC y `MOD1` no lo usa, se deja sin conectar y se documenta. Nunca puentearlo a masa a ciegas.
+#### Regla de programación
+
+`SW1` se pone en **OFF antes de conectar el USB de la DevKit**.
+
+Con `SW1` cerrado, los 5 V del elevador llegan a `VIN` al mismo tiempo que el USB de la DevKit inyecta sus propios 5 V: dos fuentes empujando el mismo nodo. Con `SW1` abierto, `VIN` queda aislado y la DevKit se alimenta sola por USB, que es lo correcto. El BME280 y el transceptor siguen alimentados desde el pin `3V3`, así que se puede depurar todo salvo la sonda.
+
+Esta regla es la razón por la que **no hace falta un diodo de aislamiento** entre `+5V` y `VIN`.
+
+#### El tercer pin del JST — decisión cerrada
+
+**El tercer pin queda como NC, no conectado.** No se rutea a ninguna parte y se documenta en el esquemático con una etiqueta `NC` explícita, no dejándolo suelto sin comentario: un pin sin conexión declarada es indistinguible de un olvido cuando alguien revise la hoja.
+
+| Pin `J1` | Señal |
+| :--- | :--- |
+| 1 | `VBAT` |
+| 2 | `GND` |
+| 3 | **NC** |
+
+Si la celda que se compre trae NTC en ese pin, queda sin usar. Conviene anotarlo también en la serigrafía, junto al conector, para que nadie lo puentee a masa durante un ensamblaje posterior.
 
 ### 7.2. Etapa 2 — Control
 
@@ -588,7 +614,10 @@ El BOM registra «pinout/tercer pin por verificar». En un conector de 3 pines l
 | `R6` | 100 kΩ | **Pull-down de la compuerta de `Q2`** |
 | `U3` | Módulo BME280 I²C | Temperatura, humedad y presión |
 | `R7`, `R8` | 4,7 kΩ | Pull-ups de `SDA` y `SCL` |
-| `R9`, `R10` | Divisor de batería | Ver decisión D2 |
+| `R9`, `R10` | 100 kΩ y 100 kΩ | Divisor de medición de batería |
+| `Q3` | N-MOSFET `2N7002` | Conmuta el divisor, ver más abajo |
+| `R14` | 100 kΩ | Pull-down de compuerta de `Q3` |
+| `C9` | 100 nF | Reserva de carga en el nodo del ADC |
 
 **`R6` no es opcional.** Sin el pull-down, la compuerta de `Q2` queda flotando durante el arranque del ESP32 y **la sonda puede alimentarse sola antes de que el firmware tome control del pin**. Lo mismo vale para `R4`: mantiene `Q1` cortado por defecto.
 
@@ -608,6 +637,23 @@ La resistencia sale de la tensión sobrante dividida por la corriente deseada:
 | Azul | 3,0 V | 3 mA | 100 Ω, se usa **120 Ω** |
 
 El azul queda muy justo: con 3,3 V de alimentación y 3,0 V de caída apenas hay margen, y el brillo varía mucho entre lotes. Si hace falta verlo bajo sol directo, conviene alimentarlo desde `+5V` con su propio transistor, o elegir un LED azul de alta eficiencia. **El BOM compra tres LED y el diseño usa dos**: decidir si se agrega un tercero de carga o se corrige la cantidad comprada.
+
+#### Divisor de medición de batería — decisión cerrada
+
+Es lo que alimenta el byte 14 de la trama BLE, el porcentaje de batería.
+
+**Topología:** `VBAT_PROT` → `R9` 100 kΩ → nodo `VBAT_SENSE` → `R10` 100 kΩ → drenador de `Q3` → `GND`. El nodo `VBAT_SENSE` va a `GPIO34` y lleva `C9` de 100 nF a masa. La compuerta de `Q3` va a un GPIO libre, `GPIO25`, con `R14` de 100 kΩ como pull-down.
+
+**Por qué conmutado y no un divisor fijo.** Un divisor permanente de 100 k + 100 k tiene dos problemas, y el segundo es de corrección, no de consumo:
+
+1. Drena ~18,5 µA sin parar. Irrelevante frente a los miliamperios de la DevKit, pero se arrastra a la versión con módulo desnudo.
+2. **Con el equipo apagado por `SW1`, el ESP32 queda sin alimentación mientras el divisor sigue aplicando ~2,1 V a `GPIO34`.** Eso inyecta corriente por los diodos de protección de una entrada sin alimentar. Con 100 kΩ la corriente es pequeña y no rompe nada, pero es una condición que conviene no dejar puesta.
+
+Con `Q3`, al estar el ESP32 apagado la compuerta cae por `R14`, el MOSFET corta y el nodo del ADC queda en cero. El firmware sube `GPIO25`, espera a que `C9` se estabilice, lee y vuelve a bajarlo.
+
+**Escalado:** a 4,2 V de celda el nodo entrega 2,10 V, y a 3,0 V entrega 1,50 V. Ambos caen dentro del rango utilizable de `ADC1` con atenuación de 11 dB. `C9` es necesario porque el ADC del ESP32 muestrea sobre un condensador interno y una impedancia de fuente de 50 kΩ no alcanza a recargarlo entre muestras.
+
+**Calibración:** el ADC del ESP32 no es lineal en los extremos. Medir con multímetro en `TP1` y en `TP9` y ajustar en firmware, no asumir la razón teórica de 0,5.
 
 ### 7.3. Etapa 3 — Periféricos
 
@@ -656,9 +702,9 @@ Nada de esto estaba enumerado y va al esquemático:
 5. **Desacoplos** `C5` a `C8`, uno por integrado.
 6. **Polarización *fail-safe* y terminación** del bus.
 7. **TVS con SKU**, `SM712`, no un símbolo genérico.
-8. **Puntos de prueba** en `VBAT`, `+5V`, `+3V3`, `A`, `B` y `5V_SONDA`: sin ellos no se puede ejecutar el plan de medición de consumo.
+8. **Puntos de prueba y puente de medición de corriente:** ver la sección 7.6. Sin ellos no se puede ejecutar el plan de medición de consumo.
 9. **Agujeros de montaje** acotados contra la carcasa.
-10. **Los dos conectores USB.** `MOD1` trae USB-C de carga y la DevKit trae su propio micro-USB de programación: son dos puertos físicos distintos. Decidir si ambos salen a la carcasa, si se programa antes de cerrar el equipo, o si el de la DevKit se lleva a un conector de panel.
+10. **Los dos conectores USB. Resuelto:** al exterior sale solo el USB-C de `MOD1`, el de carga. El de la DevKit queda interno y se usa abriendo la carcasa, siempre con `SW1` en OFF. Conviene además sacar un header de 4 pines con `GND`, `TX0`, `RX0` y `EN` junto a la DevKit, para poder reprogramar con un adaptador externo sin depender del micro-USB si este se daña.
 11. **Comportamiento al cargar y medir a la vez:** definir si se permite o si el firmware lo bloquea.
 
 ### 7.5. Trampas del ESP32 que condicionan este pinout
@@ -680,11 +726,90 @@ Esto obliga a retirar una cifra: **el presupuesto de 12 µA de la sección 3.5 e
 
 Por eso `SW1` deja de ser un accesorio y pasa a ser **la única razón por la que la DevKit es viable en la V2**: el equipo se apaga físicamente entre usos y el consumo en reposo se vuelve irrelevante. El presupuesto de 12 µA vuelve a la conversación recién con el módulo desnudo.
 
-### 7.6. Orden sugerido para dibujar
+### 7.6. Puntos de prueba y medición
+
+Sin esto no se puede ejecutar el plan de medición de consumo, que es una de las puertas de la sección 0.4. Van en el esquemático como símbolos `TestPoint`, aunque su valor real aparezca recién en el ruteo.
+
+| Ref | Nodo | Para qué |
+| :--- | :--- | :--- |
+| `TP1` | `VBAT_PROT` | Tensión real de celda; calibrar el divisor |
+| `TP2` | `+5V` | Salida del elevador después de `SW1` |
+| `TP3` | `+3V3` | Regulador de la DevKit bajo carga |
+| `TP4` | `5V_SONDA` | Verificar que el power gate abre y cierra |
+| `TP5` | `A` | Bus RS-485, línea A |
+| `TP6` | `B` | Bus RS-485, línea B |
+| `TP7` | `GND` | Retorno, junto a `TP1` y `TP2` |
+| `TP8` | `GND` | Retorno, junto a `TP5` y `TP6`, para sonda diferencial |
+| `TP9` | `VBAT_SENSE` | Nodo del divisor; comparar contra `TP1` al calibrar |
+
+#### `JP1`, el puente que hace medible el consumo
+
+**Este es el más importante y el que más se olvida.** Un punto de prueba deja ver una tensión, pero para medir corriente hay que **abrir el circuito** e intercalar el amperímetro. Si la batería está soldada en firme, no hay dónde hacerlo sin cortar una pista.
+
+`JP1` es un puente de dos islas en serie con `VBAT`, entre `J1` pin 1 y `F1`. Se fabrica unido por una pista fina entre ambas islas:
+
+- **Uso normal:** la pista los une, no hay que hacer nada.
+- **Para medir:** se corta la pista y se sueldan dos cables al amperímetro. Al terminar se restablece con una gota de estaño.
+
+Separación recomendada de 2,54 mm, con las islas lo bastante grandes para soldar cable, no solo para una punta.
+
+#### Dónde ubicarlos físicamente
+
+La carcasa se abre para programar, así que los puntos de prueba **no necesitan salir al exterior**, pero sí quedar accesibles con la placa montada y la tapa abierta:
+
+1. **Agrupar `TP1`, `TP2`, `TP3`, `TP7` y `JP1` en un solo borde**, el de alimentación, en una fila. Así se mide todo el árbol sin mover la punta de sitio.
+2. **`TP5`, `TP6` y `TP8` van juntos y cerca de `J2`**, el conector de la sonda, para enganchar una sonda diferencial sin cables largos que capten ruido.
+3. **`TP4` cerca de `Q1`**, para ver el corte del power gate en el mismo punto donde ocurre.
+4. **`TP9` junto al divisor**, al lado de `R9` y `R10`.
+5. **No ubicar ninguno bajo la DevKit ni bajo `MOD1`:** quedarían tapados por la placa hija y son inalcanzables sin desoldar.
+6. **Ningún punto de prueba dentro del área libre de cobre de la antena**, los 15 × 10 mm de la sección 4.1.
+
+Islas de 1,5 a 2,0 mm de cobre expuesto, o perforadas de 1,0 mm si se prefiere enganchar pinzas. Todas rotuladas en serigrafía con el nombre del net, no con el número de referencia: en terreno sirve leer `+3V3`, no `TP3`.
+
+### 7.7. Mapa de pines de la V2
+
+**Este mapa reemplaza al de la sección 4.3**, que corresponde a la V1. Cambian dos asignaciones y se agrega una tercera.
+
+| GPIO | Señal | Va a | Nota |
+| :--- | :--- | :--- | :--- |
+| `GPIO16` | `RX2` | `U2` pin 1, `RO` | Libre en WROOM-32 |
+| `GPIO17` | `TX2` | `U2` pin 4, `DI` | Libre en WROOM-32 |
+| `GPIO4` | `DE` y `/RE` | `U2` pines 2 y 3, unidos | Alto transmite, bajo recibe |
+| `GPIO5` | Power gate | `R5` hacia compuerta de `Q2` | *Strapping*; `R6` lo define al arrancar |
+| `GPIO21` | `SDA` | `U3` y `R7` | |
+| `GPIO22` | `SCL` | `U3` y `R8` | |
+| `GPIO34` | `VBAT_SENSE` | Nodo de `R9`, `R10` y `C9` | Solo entrada, `ADC1_CH6` |
+| `GPIO25` | Habilitación del divisor | Compuerta de `Q3` con `R14` | **Nuevo respecto de la V1** |
+| `GPIO33` | Pulsador | `SW2` y `R1` | **Cambia:** la V1 usaba `GPIO0` |
+| `GPIO2` | LED verde | `R2` | *Strapping* tolerable |
+| `GPIO15` | LED azul | `R3` | *Strapping*; en bajo silencia el log de arranque |
+
+#### Los dos cambios respecto de la V1, y por qué
+
+**El pulsador se va de `GPIO0` a `GPIO33`.** En la DevKit, `GPIO0` **ya está cableado al botón BOOT de la placa**. Dejar ahí el pulsador de medición significa que apretarlo durante el arranque mete al ESP32 en modo programación en vez de tomar una lectura. `GPIO33` es RTC, así que sirve para despertar del sueño profundo, y no es pin de *strapping*.
+
+**`GPIO25` es nuevo** y habilita el divisor de batería. También es RTC y queda libre.
+
+#### Pines que no se pueden usar
+
+| GPIO | Motivo |
+| :--- | :--- |
+| `GPIO6` a `GPIO11` | Conectados a la memoria flash del módulo. Usarlos cuelga la placa |
+| `GPIO12` | *Strapping* de tensión de flash. En alto al arrancar puede dejar la placa sin iniciar |
+| `GPIO0` | Ya ocupado por el botón BOOT de la DevKit |
+| `ADC2` completo | No funciona con la radio encendida. Por eso la batería se lee en `GPIO34`, que es `ADC1` |
+
+#### Consumo declarado de la V2
+
+Para que no se arrastre una cifra equivocada: **la V2 no declara autonomía ni consumo en reposo.** La DevKit consume miliamperios en vacío y eso está aceptado para esta versión. El equipo se apaga con `SW1` entre usos, y la medición de consumo que exige la sección 0.4 se hace igual, con `JP1`, para tener el dato real antes de la versión con módulo desnudo.
+
+### 7.8. Orden sugerido para dibujar
 
 1. Hoja de alimentación completa, con sus nets nombradas.
 2. DevKit con sus desacoplos y los puntos de prueba.
 3. Power gate `Q1` y `Q2` con `R4` y `R6`, que es donde más se equivoca uno.
-4. Transceptor y conector de sonda.
-5. BME280, pulsador y LED.
-6. ERC en cero **antes** de asignar una sola huella.
+4. Divisor conmutado `R9`, `R10`, `Q3`, `R14` y `C9`.
+5. Transceptor, conector de sonda, terminación y TVS.
+6. BME280, pulsador y LED.
+7. Puntos de prueba y `JP1`.
+8. ERC en cero **antes** de asignar una sola huella.
