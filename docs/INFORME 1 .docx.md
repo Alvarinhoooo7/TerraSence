@@ -1,6 +1,6 @@
 > **Documento de trabajo interno del proyecto TerraSense.** A diferencia del informe entregable de la raíz, este documento sí cita los archivos del repositorio que son fuente de verdad de cada cifra y cada especificación, de modo que al cambiar el código o los parámetros baste con regenerar o releer, sin reescribir prosa. El mapa completo de esa trazabilidad está en la sección siguiente.
 >
-> El informe entregable del proyecto es `INFORME antiguo .docx (1).md`, en la raíz del repositorio, y **no debe contener ninguna referencia a rutas, scripts ni archivos internos**: es un documento académico autocontenido. Este documento es su contraparte técnica.
+> El informe entregable del proyecto es `INFORME_ENTREGABLE.md`, en la raíz del repositorio, y **no debe contener ninguna referencia a rutas, scripts ni archivos internos**: es un documento académico autocontenido. Este documento es su contraparte técnica.
 
 ## Trazabilidad al repositorio
 
@@ -25,6 +25,8 @@ Cada bloque de este informe tiene un origen verificable en el repositorio. La ta
 | Marco normativo y estándares | `docs/MARCO_NORMATIVO_Y_ESTANDARES.md` | — |
 | Comprobaciones físicas pendientes | `docs/PLAN_VALIDACION.md` | — |
 | Integridad de enlaces y diagramas de toda la documentación | `docs/verificar_documentacion.py` | `python docs/verificar_documentacion.py` |
+
+**Numeración de tablas.** Las series 1.x a 4.x conservan su numeración histórica porque los bloques generados por `finanzas/modelo.py` llevan sus pies de tabla fijados en `finanzas/informe.py` (diccionario `CAPTIONS`): renumerarlas obligaría a editar el generador y a revisar cada ancla del índice. El material incorporado en la revisión vigente —frontera offline/online, tres economías, costo total de propiedad, supuestos de mercado, estado probatorio, matriz normativa, protocolo de validación y plan de calibración— usa por eso la serie **5.x**, numerada en orden de lectura. Si en algún momento se renumera todo, hay que actualizar `CAPTIONS` en el mismo cambio.
 
 Regla de oro para no duplicar verdades: **una cifra vive en un solo lugar**. Si aparece en dos documentos, uno de los dos la genera y el otro la enlaza. El informe entregable de la raíz es la única excepción deliberada: replica las cifras ya cerradas porque debe leerse sin acceso al repositorio, de modo que tras cada `python finanzas/modelo.py` corresponde verificar que sus tablas económicas sigan coincidiendo con `docs/RESULTADOS_FINANCIEROS.md`.
 
@@ -150,7 +152,7 @@ AÑO 2026
 
 [Tabla 3.5 “Especificaciones Técnicas Sonda”	55](#tabla-35-especificaciones-técnicas-sonda)
 
-[Tabla 3.6 “Contrato de Datos BLE (16 o 20 bytes)”	56](#tabla-36-contrato-de-datos-ble-16-o-20-bytes)
+[Tabla 3.6 “Contrato de Datos BLE (20 bytes)”	56](#tabla-36-contrato-de-datos-ble-20-bytes)
 
 [Tabla 3.7 “Mapeo de Pines del Instrumento”	56](#tabla-37-mapeo-de-pines-del-instrumento)
 
@@ -168,13 +170,31 @@ AÑO 2026
 
 [Tabla 4.4 “Fases de Operación y Consumo Energético”	66](#tabla-44-fases-de-operación-y-consumo-energético)
 
-[Tabla 4.5 “Efecto del Consumo de Reposo sobre la Autonomía”	67](#tabla-45-efecto-del-consumo-de-reposo-sobre-la-autonomía)
+[Tabla 4.5 “Energía por Ciclo de Medición”	66](#tabla-45-energía-por-ciclo-de-medición)
 
-[Tabla 4.6 “Análisis Comparativo de Parámetros”	68](#tabla-46-análisis-comparativo-de-parámetros)
+[Tabla 4.6 “Efecto del Consumo de Reposo sobre la Autonomía”	67](#tabla-46-efecto-del-consumo-de-reposo-sobre-la-autonomía)
 
-[Tabla 4.7 “Indicadores Ambientales y de Servicio a Medir”	69](#tabla-47-indicadores-ambientales-y-de-servicio-a-medir)
+[Tabla 4.7 “Análisis Comparativo de Parámetros”	68](#tabla-47-análisis-comparativo-de-parámetros)
 
-[Tabla 4.8 “Criterios de Cierre Técnico y Evidencia”	70](#tabla-48-criterios-de-cierre-técnico-y-evidencia)
+[Tabla 4.8 “Indicadores Ambientales y de Servicio a Medir”	69](#tabla-48-indicadores-ambientales-y-de-servicio-a-medir)
+
+[Tabla 4.9 “Criterios de Cierre Técnico y Evidencia”	70](#tabla-49-criterios-de-cierre-técnico-y-evidencia)
+
+[Tabla 5.0 “Frontera Offline / Online del Sistema”	31](#tabla-50-frontera-offline--online-del-sistema)
+
+[Tabla 5.1 “Separación de las Tres Economías del Análisis”	33](#tabla-51-separación-de-las-tres-economías-del-análisis)
+
+[Tabla 5.2 “Costo Total de Propiedad del Agricultor a 1, 3, 5 y 10 Años”	43](#tabla-52-costo-total-de-propiedad-del-agricultor-a-1-3-5-y-10-años)
+
+[Tabla 5.3 “Supuestos de Mercado Declarados”	44](#tabla-53-supuestos-de-mercado-declarados)
+
+[Tabla 5.4 “Estado Probatorio de las Especificaciones de Hardware”	74](#tabla-54-estado-probatorio-de-las-especificaciones-de-hardware)
+
+[Tabla 5.5 “Clasificación Normativa: Obligatoria, Voluntaria y de Mercado Futuro”	95](#tabla-55-clasificación-normativa-obligatoria-voluntaria-y-de-mercado-futuro)
+
+[Tabla 5.6 “Protocolo de Validación In Situ vs. Laboratorio de Referencia”	99](#tabla-56-protocolo-de-validación-in-situ-vs-laboratorio-de-referencia)
+
+[Tabla 5.7 “Plan de Calibración y Control de Deriva”	101](#tabla-57-plan-de-calibración-y-control-de-deriva)
 
 
 
@@ -628,6 +648,32 @@ flowchart TD
 
 <a id="analisis-economico"></a>
 
+**Frontera Offline / Online del Sistema:**
+
+Afirmar genéricamente que el sistema “funciona offline” no es verificable. La tabla siguiente es la definición operativa de esa frontera, función por función, con la columna de estado que distingue lo implementado de lo comprometido.
+
+> **Fuente de verdad:** el motor agronómico y sus umbrales están en `App/src/engine/agronomyEngine.ts`, `stageEvaluator.ts` y `contextualAdvice.ts`; la cola local y la sincronización diferida, en `App/src/services/measurementsService.ts`; la degradación del pronóstico sin red, en `App/src/services/weatherService.ts`; los perímetros de acceso, en `supabase/migrations/*.sql`.
+
+| Función del sistema | Conectividad requerida | Comportamiento sin cobertura | Estado |
+| :---- | :---: | :---- | :---: |
+| Emparejamiento y lectura BLE del instrumento | Ninguna | Funciona íntegramente; el enlace es punto a punto entre equipo y teléfono | Implementado |
+| Validación de la trama y marcado de lecturas ausentes | Ninguna | Una variable no recibida se almacena como ausente, nunca se estima | Implementado |
+| Motor agronómico: diagnóstico y recomendación de labor | Ninguna | Las reglas y umbrales residen en el código de la aplicación, no en un servidor | Implementado |
+| Georreferenciación de la medición | Ninguna | Funciona con el GPS satelital del teléfono, que no requiere datos móviles | Implementado |
+| Guardado local y consulta del histórico ya almacenado | Ninguna | Funciona sobre el almacenamiento persistente del teléfono | Implementado |
+| Exportación del histórico local a archivo | Ninguna por diseño | El archivo se generaría en el propio teléfono, sin consultar ningún servidor | **Comprometida, no implementada** |
+| Creación de cuenta, inicio de sesión y recuperación de credenciales | Requiere internet | No disponible; la sesión ya iniciada permanece válida y permite seguir midiendo | Implementado |
+| Registro de un equipo nuevo en la cuenta | Requiere internet | No disponible; se completa al recuperar cobertura | Implementado |
+| Sincronización y respaldo del histórico hacia la nube | Requiere internet | Las mediciones se encolan localmente y se envían al recuperar señal; no se pierde ninguna | Implementado |
+| Consola web de flota para asesores y cooperativas | Requiere internet | No disponible; es una herramienta de escritorio, no de terreno | Implementado |
+| Pronóstico meteorológico a cinco días | Requiere internet | La aplicación indica expresamente que el pronóstico no está disponible y no lo sustituye por un valor estimado | Implementado |
+
+###### **Tabla 5.0 “Frontera Offline / Online del Sistema”**
+
+La regla que resume la tabla define el diseño completo: medir, diagnosticar, georreferenciar y guardar no dependen jamás de la cobertura; administrar la cuenta, respaldar y contextualizar con el clima previsto sí, y son funciones que el agricultor ejecuta antes o después de la jornada, no durante.
+
+Una sola fila no está implementada: la exportación del histórico a archivo. Se declara con su estado real porque el principio de soberanía del dato la compromete y porque la matriz normativa la utiliza como uno de los mecanismos con que se atiende el derecho del titular bajo la Ley N° 21.719. Su diseño no depende de la red, de modo que su columna de conectividad dice “ninguna por diseño”, pero mientras no exista no se cuenta entre las funciones disponibles. Queda registrada como pendiente en el [plan de validación](PLAN_VALIDACION.md).
+
 **Análisis de Viabilidad Económica:**
 
 El siguiente análisis detalla el dimensionamiento del mercado, la estructura de costos, la estrategia de precios, el plan operativo y las proyecciones financieras del proyecto TerraSense, dando respuesta a los objetivos específicos de evaluar la viabilidad económica y de dimensionar el mercado y la capacidad productiva.
@@ -635,6 +681,53 @@ El siguiente análisis detalla el dimensionamiento del mercado, la estructura de
 El estudio vincula explícitamente las decisiones técnicas con la operación de una empresa. Cada instrumento necesita sonda, sensor ambiental, electrónica, carcasa, montaje, pruebas, embalaje y entrega; a ello se agregan adquisición de clientes, personal, contabilidad, soporte y servicios digitales. Un margen calculado solo como precio menos sonda no permitiría financiar estas actividades ni explicar la caja necesaria para iniciar la operación.
 
 Las convenciones del modelo son las siguientes: la moneda es CLP nominal, el primer año operativo es **2027**, se aplica un reajuste general del **3 % anual**, el precio inicial es de **$349.990 con IVA** y el horizonte económico de evaluación es de **diez años** con flujos calculados mes a mes. La fuente editable de costos y operación reside en un archivo de supuestos único (`finanzas/supuestos.json`), desde el cual se regeneran todas las tablas de este capítulo, el flujo de caja en Excel y la BOM. Esto significa que un cambio en el precio del sensor ambiental, en la carcasa o en el precio de venta se propaga automáticamente a inventario, caja e indicadores, sin posibilidad de que dos secciones del informe se contradigan entre sí.
+
+**Las Tres Economías del Análisis:**
+
+Antes de la primera cifra conviene fijar una separación que este informe mantiene en todo su desarrollo, porque mezclarlas es el error que vuelve incomparable cualquier evaluación de este tipo.
+
+| Economía | Qué mide | Con qué se evalúa | Dónde se desarrolla |
+| :---- | :---- | :---- | :---- |
+| Economía del proyecto | La inversión de desarrollo y puesta en marcha frente a los flujos que genera la actividad, antes de decidir cómo se financia | VAN, TIR y payback sobre el FCFF de 120 meses | Metodología de VAN, TIR y payback, y Tabla 3.0 |
+| Economía del negocio | Cuánto cuesta fabricar cada equipo y operar la empresa, y qué margen deja cada venta | BOM, margen de contribución, punto de equilibrio, EBITDA y DSCR | Tablas 2.2 a 2.5 y 2.8 |
+| Economía del cliente | Cuánto gasta el agricultor para resolver el mismo problema con TerraSense o sin él | TCO comparado a 1, 3, 5 y 10 años | Tabla 5.1 |
+
+###### **Tabla 5.1 “Separación de las Tres Economías del Análisis”**
+
+La consecuencia práctica de esta separación es una sola y se aplica sin excepción: **el ahorro del agricultor no es ingreso del proyecto**. Los pesos que un cliente deja de gastar en laboratorio o asesoría no aparecen en ninguna línea del flujo de caja de la empresa —no existe ninguna clave en `finanzas/supuestos.json` que los recoja, ni podría existir— y se presentan únicamente como argumento de adopción. Del mismo modo, el margen de la empresa no mide la rentabilidad del proyecto, que se calcula antes de financiamiento y sobre la inversión total.
+
+**Costo Total de Propiedad para el Agricultor (TCO):**
+
+La comparación depende críticamente de una variable que no puede darse por supuesta: con qué frecuencia el agricultor recurre hoy al laboratorio o a la asesoría. Presentar una sola frecuencia construiría el argumento sobre un supuesto cómodo, de modo que el cuadro se desarrolla sobre dos intensidades declaradas: **uso habitual** (4 muestras y 2 visitas al año), que es el caso base y corresponde razonablemente a un productor de 0,5 a 20 ha con orientación comercial, y **uso intensivo** (20 muestras y 12 visitas al año), que marca el techo del beneficio posible.
+
+| Alternativa | Intensidad | Año 1 | Acumulado a 3 años | Acumulado a 5 años | Acumulado a 10 años |
+| :---- | :---: | ---: | ---: | ---: | ---: |
+| **TerraSense** (equipo, kit de batería en años 3 y 8, segundo equipo en año 6, a precio de lista) | Mediciones ilimitadas | $349.990 | $374.980 | $374.980 | $749.960 |
+| Análisis de laboratorio (S1) | 4 muestras/año | $200.000 | $600.000 | $1.000.000 | $2.000.000 |
+| Análisis de laboratorio (S1) | 20 muestras/año | $1.000.000 | $3.000.000 | $5.000.000 | $10.000.000 |
+| Asesoría agronómica externa (S2) | 2 visitas/año | $120.000 | $360.000 | $600.000 | $1.200.000 |
+| Asesoría agronómica externa (S2) | 12 visitas/año | $720.000 | $2.160.000 | $3.600.000 | $7.200.000 |
+
+###### **Tabla 5.2 “Costo Total de Propiedad del Agricultor a 1, 3, 5 y 10 Años”**
+
+> **Nota de mantenimiento:** esta tabla **no** la genera `finanzas/modelo.py` y por eso no está dentro de marcadores `<!-- INFORME:*:INICIO/FIN -->`. El precio de $349.990 y el precio del kit de batería de $24.990 sí provienen de `finanzas/supuestos.json` y de la política de repuestos descrita en [`docs/MODELO_ECONOMICO.md`](MODELO_ECONOMICO.md); si cambian allí, esta tabla se actualiza a mano. Los valores S1 y S2 son supuestos declarados y no parámetros del modelo.
+
+Todas las partidas de la fila de TerraSense son desembolsos del agricultor a precio de lista: el proyecto no bonifica repuestos ni entrega equipos de reposición, y ninguna constituye un costo absorbido por la empresa. La vida útil del instrumento se fija en cinco años, de modo que el corte a diez incorpora la compra íntegra de un segundo equipo en el año 6, sin descuento de renovación: esa segunda compra es una venta más y no una concesión.
+
+**Lectura del resultado.** Bajo la intensidad habitual el instrumento **no se paga el primer año**: $349.990 contra $200.000 de laboratorio o $120.000 de asesoría. El cruce ocurre durante el segundo año frente al laboratorio y durante el tercero frente a la asesoría, y a diez años la ventaja es de 2,7 y 1,6 veces respectivamente. Bajo uso intensivo llega a más de trece y casi diez veces. Declarar el caso base en la intensidad menor es deliberado: es el que resiste la pregunta directa y el que muestra dónde está realmente el argumento, que **no es el ahorro nominal sino el costo marginal cero de la medición repetida**. A cien mediciones anuales, cada lectura cuesta $750 frente a los $50.000 de una muestra de laboratorio, relación que no depende de ningún supuesto de frecuencia porque el instrumento se paga una vez y cada lectura adicional no cuesta nada.
+
+**Supuestos de Mercado Declarados:**
+
+Dos cifras que sostienen la comparación anterior no provienen de una fuente bibliográfica publicable, sino de consultas de mercado del equipo. Incluirlas en la lista de referencias induciría a error sobre su naturaleza, de modo que se declaran aparte:
+
+| Id. | Supuesto | Valor adoptado | Cómo se obtuvo | Qué falta para confirmarlo |
+| :---: | :---- | ---: | :---- | :---- |
+| S1 | Análisis de suelo en laboratorio acreditado en Chile | $50.000 por muestra | Consulta de tarifarios de laboratorios de suelos universitarios y comerciales, sin fuente única | Cotización formal y fechada del laboratorio que se adopte en la campaña de validación |
+| S2 | Visita de asesoría agronómica externa en Chile | $60.000 por visita | Consulta de tarifarios de consultores agronómicos independientes, sin fuente única | Cotización formal y fechada de al menos dos consultores de la zona de operación |
+
+###### **Tabla 5.3 “Supuestos de Mercado Declarados”**
+
+Ambos valores se utilizan exclusivamente como término de comparación en la economía del cliente y no intervienen en ninguna línea del flujo de caja, de modo que una desviación en ellos altera el argumento de adopción pero no el VAN, la TIR ni la caja de la empresa.
 
 **Dimensionamiento del Mercado:**
 
@@ -696,7 +789,7 @@ El costo de capital de cada unidad se optimiza para mantener el equilibrio entre
 | Material o servicio por equipo | Cantidad | Neto unitario CLP | Subtotal CLP |
 |---|---|---|---|
 | Sonda RS485 7-en-1 (AliExpress 1005005548177699; variante pendiente) | 1 | $48.000 | $48.000 |
-| Placa de desarrollo ESP32-WROOM-32 | 1 | $6.723 | $6.723 |
+| Módulo ESP32-WROOM-32 desnudo | 1 | $2.300 | $2.300 |
 | Módulo ambiental Bosch BME280 I2C | 1 | $2.941 | $2.941 |
 | PCB combinada USB-C carga + boost | 1 | $900 | $900 |
 | LiPo 2000 mAh protegida | 1 | $4.500 | $4.500 |
@@ -711,7 +804,7 @@ El costo de capital de cada unidad se optimiza para mantener el equilibrio entre
 | Cableado y conectores internos adicionales | 1 | $700 | $700 |
 | Embalaje, manual y etiqueta | 1 | $2.000 | $2.000 |
 | Flete de insumos y contingencia importación | 1 | $2.500 | $2.500 |
-| **Total BOM** |  |  | **$81.184** |
+| **Total BOM** |  |  | **$76.761** |
 
 ###### **Tabla 2.2 “Estructura de Costos y Producción (BOM)”**
 
@@ -719,18 +812,18 @@ El costo de capital de cada unidad se optimiza para mantener el equilibrio entre
 |---|---|
 | Precio con IVA | $349.990 |
 | Ingreso neto de IVA | $294.109 |
-| Materiales y servicios incluidos en BOM | $81.184 |
-| Merma, 3 % de BOM | $2.436 |
-| Reposiciones y garantía, 5 % de BOM | $4.059 |
+| Materiales y servicios incluidos en BOM | $76.761 |
+| Merma, 3 % de BOM | $2.303 |
+| Reposiciones y garantía, 5 % de BOM | $3.838 |
 | Envío | $6.000 |
 | Comisión comercial, 5 % del bruto | $17.500 |
-| **Costo variable total** | **$111.178** |
-| **Margen de contribución** | **$182.931** |
-| Margen / ingreso neto | 62,2 % |
+| **Costo variable total** | **$106.402** |
+| **Margen de contribución** | **$187.708** |
+| Margen / ingreso neto | 63,8 % |
 
 ###### **Tabla 2.3 “Economía Unitaria del Año 1”**
 
-La sonda concentra **59,1 %** de los materiales. El BME280 cuesta **$3.500 finales**, equivalentes a $2.941,18 netos bajo el supuesto de IVA del 19 %. La carcasa 3D cuesta $6.000 netos y sus fijaciones, juntas y respiradero suman $1.500. Los subtotales se calculan antes de redondear; la presentación en pesos enteros puede producir diferencias de un peso al sumar visualmente las filas.
+La sonda concentra **62,5 %** de los materiales. El BME280 cuesta **$3.500 finales**, equivalentes a $2.941,18 netos bajo el supuesto de IVA del 19 %. La carcasa 3D cuesta $6.000 netos y sus fijaciones, juntas y respiradero suman $1.500. Los subtotales se calculan antes de redondear; la presentación en pesos enteros puede producir diferencias de un peso al sumar visualmente las filas.
 
 <!-- INFORME:BOM:FIN -->
 
@@ -773,20 +866,20 @@ Para garantizar el realismo de la evaluación, los gastos fijos asumen una forma
 
 | Año | Equilibrio operativo | Equilibrio con deuda | Ventas planificadas |
 |---|---|---|---|
-| 2027 | 176 | 204 | 200 |
-| 2028 | 250 | 276 | 350 |
-| 2029 | 337 | 363 | 500 |
-| 2030 | 472 | 497 | 650 |
-| 2031 | 608 | 633 | 850 |
-| 2032 | 653 | 677 | 892 |
-| 2033 | 665 | 688 | 937 |
-| 2034 | 709 | 731 | 984 |
-| 2035 | 719 | 741 | 1033 |
-| 2036 | 729 | 750 | 1085 |
+| 2027 | 172 | 199 | 200 |
+| 2028 | 243 | 269 | 350 |
+| 2029 | 329 | 354 | 500 |
+| 2030 | 460 | 484 | 650 |
+| 2031 | 593 | 617 | 850 |
+| 2032 | 637 | 660 | 892 |
+| 2033 | 648 | 670 | 937 |
+| 2034 | 691 | 713 | 984 |
+| 2035 | 701 | 722 | 1033 |
+| 2036 | 711 | 731 | 1085 |
 
 ###### **Tabla 2.5 “Punto de Equilibrio Operativo y con Deuda”**
 
-En el primer año, $32.160.000 de gastos fijos se cubren con 176 unidades al margen calculado. Al añadir capital e intereses, el umbral sube a 204. La meta de 200 unidades cubre la operación, pero queda por debajo del equilibrio con deuda. Esta diferencia explica el uso de liquidez inicial durante el arranque; no se confunde una venta con caja libre inmediatamente distribuible.
+En el primer año, $32.160.000 de gastos fijos se cubren con 172 unidades al margen calculado. Al añadir capital e intereses, el umbral sube a 199. La meta de 200 unidades cubre la operación, pero queda por debajo del equilibrio con deuda. Esta diferencia explica el uso de liquidez inicial durante el arranque; no se confunde una venta con caja libre inmediatamente distribuible.
 
 Dos partidas del cuadro son contratos con terceros y no sueldos. La **contabilidad externa** ($120.000 mensuales el primer año) es un contrato de servicios con un estudio contable que cubre la contabilidad de la sociedad bajo el régimen Pro Pyme, el Formulario 29 mensual de IVA, los pagos provisionales, la declaración anual de renta, el procesamiento de remuneraciones y los estados financieros que exige el banco mientras el crédito esté vigente; su honorario sube $20.000 mensuales por trabajador adicional en nómina, porque esa es la parte del servicio que escala con la dotación. La **agencia de marketing** ($250.000 mensuales) es un retainer que se activa recién desde 650 ventas anuales y cubre la gestión de la pauta digital, el material de demostración y las redes; no debe confundirse con la pauta misma, que es el dinero pagado a las plataformas y se presupuesta aparte a $30.000 por equipo vendido.
 
@@ -811,20 +904,20 @@ La puesta en marcha se estructura sobre fuentes de financiamiento por **$39.000.
 | Destino de fondos | CLP |
 |---|---|
 | Activos, desarrollo y formalización, con IVA presupuestado | $10.353.000 |
-| Inventario inicial, IVA incluido | $964.378 |
+| Inventario inicial, IVA incluido | $911.748 |
 | Gastos de apertura del crédito (2 % de $30.000.000) | $600.000 |
-| Caja inicial, con reserva incluida | $27.082.622 |
+| Caja inicial, con reserva incluida | $27.135.252 |
 | **Total destinos** | $39.000.000 |
 
 ###### **Tabla 2.6 “Financiamiento del Proyecto: Origen y Destino de Fondos”**
 
-El desembolso de apertura es **$11.317.378**. Los $39.000.000 son fuentes de financiamiento y no deben denominarse inversión económica consumida: una parte permanece en caja. Para VAN y TIR, el capital comprometido en mes 0 es **$20.489.116**, compuesto por el desembolso y la caja mínima operativa independiente de la deuda.
+El desembolso de apertura es **$11.264.748**. Los $39.000.000 son fuentes de financiamiento y no deben denominarse inversión económica consumida: una parte permanece en caja. Para VAN y TIR, el capital comprometido en mes 0 es **$20.431.223**, compuesto por el desembolso y la caja mínima operativa independiente de la deuda.
 
 | Plazo, años | Cuota mensual | Intereses totales | Total pagado al banco | Saldo al año 5 | Caja mínima de los primeros 24 meses |
 |---|---|---|---|---|---|
-| 5 | $658.071 | $9.484.253 | $39.484.253 | $0 | $8.995.388 |
-| 10 | $419.842 | $20.380.983 | $50.380.983 | $19.139.649 | $13.521.745 |
-| 15 | $348.296 | $32.693.316 | $62.693.316 | $24.887.691 | $14.881.107 |
+| 5 | $658.071 | $9.484.253 | $39.484.253 | $0 | $10.938.735 |
+| 10 | $419.842 | $20.380.983 | $50.380.983 | $19.139.649 | $15.217.179 |
+| 15 | $348.296 | $32.693.316 | $62.693.316 | $24.887.691 | $15.717.996 |
 
 ###### **Tabla 2.7 “Alternativas de Plazo del Crédito”**
 
@@ -869,38 +962,38 @@ flowchart TD
 
 | Año | Venta neta | EBITDA | FCFF antes de caja mínima | FCFE | Caja final | DSCR |
 |---|---|---|---|---|---|---|
-| 2027 | $58.821.849 | $4.426.234 | $3.614.395 | −$1.423.703 | $25.658.919 | 0,72 |
-| 2028 | $106.026.382 | $19.015.320 | $16.382.140 | $12.311.843 | $37.970.762 | 3,44 |
-| 2029 | $156.010.248 | $31.680.620 | $23.048.763 | $18.734.083 | $56.704.844 | 4,72 |
-| 2030 | $208.897.722 | $35.729.124 | $24.648.429 | $20.269.416 | $76.974.260 | 5,02 |
-| 2031 | $281.369.163 | $49.915.370 | $37.321.742 | $32.870.675 | $109.844.935 | 7,52 |
-| 2032 | $304.130.273 | $50.743.843 | $38.257.646 | $33.725.881 | $143.570.816 | 7,69 |
-| 2033 | $329.057.363 | $59.668.629 | $42.895.616 | $38.273.467 | $181.844.284 | 8,60 |
-| 2034 | $355.929.796 | $62.009.246 | $45.930.101 | $41.206.724 | $223.051.008 | 9,18 |
-| 2035 | $384.863.561 | $72.836.612 | $53.749.520 | $48.912.766 | $271.963.774 | 10,71 |
-| 2036 | $416.364.252 | $85.094.046 | $62.777.691 | $57.813.955 | $329.777.729 | 12,48 |
+| 2027 | $58.821.849 | $5.381.535 | $4.613.923 | −$424.175 | $26.711.077 | 0,92 |
+| 2028 | $106.026.382 | $20.734.413 | $17.736.667 | $13.666.369 | $40.377.446 | 3,71 |
+| 2029 | $156.010.248 | $34.209.899 | $24.984.500 | $20.669.819 | $61.047.265 | 5,10 |
+| 2030 | $208.897.722 | $39.115.675 | $27.238.520 | $22.859.507 | $83.906.772 | 5,54 |
+| 2031 | $281.369.163 | $54.477.140 | $40.749.332 | $36.298.265 | $120.205.037 | 8,20 |
+| 2032 | $304.130.273 | $55.675.031 | $41.945.056 | $37.413.291 | $157.618.328 | 8,43 |
+| 2033 | $329.057.363 | $65.004.734 | $46.925.734 | $42.303.586 | $199.921.914 | 9,40 |
+| 2034 | $355.929.796 | $67.781.034 | $50.290.376 | $45.566.999 | $245.488.913 | 10,04 |
+| 2035 | $384.863.561 | $79.076.985 | $58.477.756 | $53.641.002 | $299.129.915 | 11,65 |
+| 2036 | $416.364.252 | $91.844.429 | $67.817.216 | $62.853.481 | $361.983.396 | 13,48 |
 
 ###### **Tabla 2.8 “Proyección Anual de Resultados y Caja”**
 
 | Período | Flujo económico para evaluación | Acumulado sin descuento |
 |---|---|---|
-| Mes 0 | −$20.489.116 | −$20.489.116 |
-| 2027 | $3.614.395 | −$16.874.721 |
-| 2028 | $12.676.278 | −$4.198.443 |
-| 2029 | $18.435.548 | $14.237.105 |
-| 2030 | $17.429.191 | $31.666.296 |
-| 2031 | $29.591.217 | $61.257.513 |
-| 2032 | $34.924.422 | $96.181.935 |
-| 2033 | $41.251.149 | $137.433.084 |
-| 2034 | $42.333.301 | $179.766.384 |
-| 2035 | $51.951.241 | $231.717.625 |
-| 2036 | $60.936.572 | $292.654.197 |
+| Mes 0 | −$20.431.223 | −$20.431.223 |
+| 2027 | $4.613.923 | −$15.817.300 |
+| 2028 | $14.030.804 | −$1.786.496 |
+| 2029 | $20.371.285 | $18.584.789 |
+| 2030 | $20.019.281 | $38.604.070 |
+| 2031 | $33.018.807 | $71.622.877 |
+| 2032 | $38.611.832 | $110.234.709 |
+| 2033 | $45.281.267 | $155.515.977 |
+| 2034 | $46.693.576 | $202.209.552 |
+| 2035 | $56.679.477 | $258.889.029 |
+| 2036 | $65.976.097 | $324.865.126 |
 
 ###### **Tabla 2.9 “Flujo Económico para la Evaluación”**
 
 Las siglas del cuadro: **EBITDA** (utilidad antes de intereses, impuestos, depreciación y amortización), **FCFF** (flujo de caja libre de la empresa, antes de pagar al banco), **FCFE** (flujo de caja libre del accionista, después de pagar la cuota) y **DSCR** (razón de cobertura del servicio de la deuda: caja disponible dividida por la cuota anual; bajo 1,0 la operación no alcanza a cubrir el crédito por sí sola).
 
-En 2027, el EBITDA de $4.426.234 se transforma en FCFE de −$1.423.703 después de compras, IVA, impuestos y deuda. La caja final sigue positiva porque parte de la caja inicial. El **DSCR de 0,72** significa que la generación disponible para deuda no cubre por sí sola todo el servicio del primer año. Desde el año siguiente, el aumento de ventas mejora esa cobertura dentro del escenario base.
+En 2027, el EBITDA de $5.381.535 se transforma en FCFE de −$424.175 después de compras, IVA, impuestos y deuda. La caja final sigue positiva porque parte de la caja inicial. El **DSCR de 0,92** significa que la generación disponible para deuda no cubre por sí sola todo el servicio del primer año. Desde el año siguiente, el aumento de ventas mejora esa cobertura dentro del escenario base.
 
 <!-- INFORME:FLUJOS:FIN -->
 
@@ -927,9 +1020,9 @@ Aplicando esta metodología sobre los tres escenarios de actividad definidos —
 
 | Escenario | Inversión económica mes 0 | VAN al 20 % | TIR efectiva anual | Payback simple | Payback descontado al 20 % |
 |---|---:|---:|---:|---:|---:|
-| Base | $20.489.116 | $63.717.893 | 48,94 % | 34,61 meses (2,88 años) | 47,15 meses (3,93 años) |
-| Estrés | $20.478.616 | −$50.865.171 | -3,81 % | No recupera en 120 meses | No recupera en 120 meses |
-| Crecimiento | $23.661.182 | $166.848.598 | 84,86 % | 22,54 meses (1,88 años) | 23,30 meses (1,94 años) |
+| Base | $20.431.223 | $75.510.458 | 54,42 % | 34,25 meses (2,85 años) | 35,61 meses (2,97 años) |
+| Estrés | $20.420.723 | −$42.507.593 | -0,02 % | No recupera en 120 meses | No recupera en 120 meses |
+| Crecimiento | $23.545.396 | $184.538.801 | 92,45 % | 22,29 meses (1,86 años) | 22,92 meses (1,91 años) |
 
 ###### **Tabla 3.0 “Indicadores de Evaluación por Escenario”**
 
@@ -937,11 +1030,11 @@ Comparación a cinco años, sin valor terminal:
 
 | Escenario | Inversión económica mes 0 | VAN al 20 % | TIR efectiva anual | Payback simple | Payback descontado al 20 % |
 |---|---:|---:|---:|---:|---:|
-| Base | $20.489.116 | $15.504.053 | 35,43 % | 34,61 meses (2,88 años) | 47,15 meses (3,93 años) |
-| Estrés | $20.478.616 | −$50.774.058 | -30,28 % | No recupera en 60 meses | No recupera en 60 meses |
-| Crecimiento | $23.661.182 | $69.653.316 | 76,70 % | 22,54 meses (1,88 años) | 23,30 meses (1,94 años) |
+| Base | $20.431.223 | $21.642.542 | 41,66 % | 34,25 meses (2,85 años) | 35,61 meses (2,97 años) |
+| Estrés | $20.420.723 | −$45.775.634 | -25,16 % | No recupera en 60 meses | No recupera en 60 meses |
+| Crecimiento | $23.545.396 | $78.861.115 | 84,90 % | 22,29 meses (1,86 años) | 22,92 meses (1,91 años) |
 
-El **VAN base de $63.717.893** indica excedente económico después de remunerar el capital al 20 % anual. La **TIR de 48,94 %** supera esa tasa en 28,94 puntos porcentuales. El **payback simple de 34,61 meses** mide recuperación nominal; al reconocer el valor temporal del dinero se amplía a **47,15 meses**. Son preguntas distintas y por ello los dos plazos no deben mezclarse.
+El **VAN base de $75.510.458** indica excedente económico después de remunerar el capital al 20 % anual. La **TIR de 54,42 %** supera esa tasa en 34,42 puntos porcentuales. El **payback simple de 34,25 meses** mide recuperación nominal; al reconocer el valor temporal del dinero se amplía a **35,61 meses**. Son preguntas distintas y por ello los dos plazos no deben mezclarse.
 
 <!-- INFORME:INDICADORES:FIN -->
 
@@ -953,13 +1046,13 @@ Los tres escenarios muestran que el margen técnico del equipo, el costo comerci
 
 | Caso | Ventas año 1 | EBITDA año 1 | DSCR año 1 | VAN 10 años | Mínimo sobre reserva 24 meses |
 |---|---|---|---|---|---|
-| Base | 200 | $4.426.234 | 0,72 | $63.717.893 | −$615.379 |
-| Ventas −10 % | 180 | $779.610 | -0,01 | $31.147.090 | −$6.320.863 |
-| Ventas −25 % | 150 | −$4.690.325 | -1,09 | −$12.452.408 | −$14.274.356 |
-| Ventas −35 % | 130 | −$8.336.948 | -1,82 | −$50.865.171 | −$20.077.258 |
-| Precio $299.990 | 200 | −$3.477.128 | -0,85 | −$29.441.688 | −$14.142.128 |
-| BOM +15 % | 200 | $1.795.877 | 0,17 | $31.249.254 | −$5.979.667 |
-| Tasa crédito 18 % | 200 | $4.426.234 | 0,58 | $63.717.893 | −$2.710.256 |
+| Base | 200 | $5.381.535 | 0,92 | $75.510.458 | $1.248.625 |
+| Ventas −10 % | 180 | $1.639.381 | 0,17 | $41.766.371 | −$4.709.751 |
+| Ventas −25 % | 150 | −$3.973.849 | -0,94 | −$3.582.168 | −$12.813.017 |
+| Ventas −35 % | 130 | −$7.716.002 | -1,68 | −$42.507.593 | −$18.632.762 |
+| Precio $299.990 | 200 | −$2.521.827 | -0,65 | −$17.719.928 | −$11.944.347 |
+| BOM +15 % | 200 | $2.894.473 | 0,40 | $44.810.703 | −$3.738.764 |
+| Tasa crédito 18 % | 200 | $5.381.535 | 0,75 | $75.510.458 | −$761.645 |
 
 ###### **Tabla 3.1 “Análisis de Sensibilidad”**
 
@@ -977,14 +1070,14 @@ Adicionalmente, se recalculó el VAN ante distintas tasas de descuento, para ver
 
 | Tasa efectiva anual | VAN | Interpretación |
 |---|---|---|
-| 5 % | $196.834.564 | Positivo |
-| 8 % | $156.331.189 | Positivo |
-| 10 % | $134.386.003 | Positivo |
-| 15 % | $92.521.585 | Positivo |
-| 20 % | $63.717.893 | Positivo |
-| 30 % | $28.796.371 | Positivo |
-| 40 % | $9.986.673 | Positivo |
-| TIR: 48,94 % | $0 | VAN aproximadamente cero |
+| 5 % | $220.907.880 | Positivo |
+| 8 % | $176.827.199 | Positivo |
+| 10 % | $152.897.181 | Positivo |
+| 15 % | $107.126.504 | Positivo |
+| 20 % | $75.510.458 | Positivo |
+| 30 % | $36.959.523 | Positivo |
+| 40 % | $16.023.381 | Positivo |
+| TIR: 54,42 % | $0 | VAN aproximadamente cero |
 
 ###### **Tabla 3.2 “Análisis del VAN”**
 
@@ -1086,14 +1179,14 @@ Estas cifras corresponden a lo declarado por el fabricante y deben verificarse c
 | 2–3 | Temperatura de suelo | **`int16` con signo**, ÷10 | Grados Celsius, admite valores bajo cero |
 | 4–5 | Conductividad eléctrica | `uint16` | µS/cm directo |
 | 6–7 | pH | `uint16`, ÷10 | Unidades de pH con un decimal |
-| 8–9 | Nitrógeno (N) | `uint16` | mg/kg, presentado como clase ordinal |
-| 10–11 | Fósforo (P) | `uint16` | mg/kg, presentado como clase ordinal |
-| 12–13 | Potasio (K) | `uint16` | mg/kg, presentado como clase ordinal |
+| 8–9 | Nitrógeno (N) | `uint16` | mg/kg, presentado como **registro informativo** con advertencia permanente |
+| 10–11 | Fósforo (P) | `uint16` | mg/kg, presentado como **registro informativo** con advertencia permanente |
+| 12–13 | Potasio (K) | `uint16` | mg/kg, presentado como **registro informativo** con advertencia permanente |
 | 14 | Batería | **`uint8`** | **Porcentaje 0–100, no milivoltios** |
 | 15 | Identificador de formato | `uint8` | `1` = 20 bytes con ambiente, el formato del producto; `0` = 16 bytes, tolerado sólo para prototipos sin BME280 |
 | 16–19 | Ambiente BME280 | 32 bits empaquetados | Temperatura del aire (12 bits), presión (12 bits) y humedad relativa (8 bits) |
 
-###### **Tabla 3.6 “Contrato de Datos BLE (16 o 20 bytes)”**
+###### **Tabla 3.6 “Contrato de Datos BLE (20 bytes)”**
 
 Este nivel de detalle no es ornamental. Un cambio de orden de bytes o de escala puede producir cifras plausibles pero incorrectas, mucho más difíciles de detectar que una desconexión visible: una humedad de 35,0 % leída como 8.960 se advierte de inmediato, pero un pH mal escalado que arroje 6,5 en lugar de 5,6 puede pasar inadvertido y provocar una recomendación equivocada. Del contrato se desprende además una consecuencia de diseño explícita: **los tres datos ambientales del BME280 no caben en el byte reservado ni pueden colocarse sobre los registros existentes**. La solución adoptada es una **trama versionada**, no una característica adicional: el antiguo byte reservado pasa a declarar la versión, y la versión 1 añade cuatro bytes en los que las tres magnitudes viajan empaquetadas en bits —temperatura en 12, presión en 12 y humedad relativa en 8—. Los veinte bytes resultantes son el máximo que cabe en una notificación BLE con el MTU por defecto, de modo que suelo y ambiente pertenecen por construcción a la misma captura, sin necesidad de emparejar dos paquetes ni de negociar MTU. Los quince primeros bytes no cambian, así que un equipo con firmware antiguo sigue siendo legible y su lectura ambiental se marca explícitamente como ausente en lugar de rellenarse.
 
@@ -1348,32 +1441,58 @@ stateDiagram-v2
 
 **Modelo de Consumo por Ciclo de Medición:**
 
-Cada vez que el usuario dispara una lectura, el equipo recorre tres fases consecutivas. Las corrientes que siguen son **valores supuestos en batería para explicar el método**, no resultados de ensayo sobre la placa de desarrollo:
+Cada vez que el usuario dispara una lectura, el equipo recorre tres fases consecutivas. El error metodológico que arrastraban las versiones anteriores de este capítulo era sumar corrientes de distintos nodos de tensión como si fueran directamente equivalentes. El equipo no opera a una única tensión: la celda entrega 3,7 V nominales, la rama digital trabaja a 3,3 V detrás de un regulador lineal y la sonda a 5 V detrás de un elevador conmutado. Un miliamperio-hora no significa lo mismo en cada uno de esos tres nodos, de modo que el balance se plantea en unidades de **energía (mWh)** y no de carga (mAh): la energía sí es aditiva entre nodos de distinta tensión, la carga no.
 
-| Fase Operativa | Sistemas Activos | Corriente | Duración | Carga por ciclo |
-| :---: | :---- | :---: | :---: | :---: |
-| **1. Publicidad y conexión** | Radio BLE y control | 40 mA | 12 s | 0,1333 mAh |
-| **2. Adquisición del conjunto** | Elevador \+ sonda \+ transceptor \+ BME280 \+ ESP32 | 95 mA | 3 s | 0,0792 mAh |
-| **3. Envío del resultado** | ESP32 transmitiendo | 60 mA | 1 s | 0,0167 mAh |
-| **Total por ciclo** | — | Variable | **16 s** | **0,2292 mAh** |
+La conversión desde cada nodo hacia la batería sigue dos reglas distintas. En la rama del LDO (ESP32, BME280 y transceptor) la corriente no se transforma —un regulador lineal entrega la misma corriente que consume— pero la potencia sí: `P_batería = I_nodo × V_batería`, y la diferencia hasta 3,3 V se disipa como calor, lo que representa el 10,8 % de la energía extraída. En la rama de la sonda, alimentada por un elevador de eficiencia η ≈ 0,85, la conversión opera sobre la potencia: `P_batería = (V_nodo × I_nodo) / η`.
+
+> **Fuente de verdad:** el árbol de alimentación, los nodos de tensión y los componentes de cada rama están descritos en [`PCB/README.md`](../PCB/README.md). Las corrientes de hoja de datos corresponden al ESP32-WROOM-32, al SP3485, al HT7533-1 y al BME280; la eficiencia del elevador y el consumo de vigilancia del cargador son estimaciones de diseño no medidas, y así se declaran en la tabla de estado probatorio.
+
+| Fase | Componente | Nodo / tensión | Corriente en el nodo | Potencia en el nodo | Potencia desde la batería (3,7 V) |
+| :---- | :---- | :---: | ---: | ---: | ---: |
+| 1. Publicidad y conexión | ESP32 en advertising BLE | 3,3 V (LDO) | 40 mA | 132 mW | 148 mW |
+| 2. Adquisición del conjunto | ESP32 (temporización Modbus) | 3,3 V (LDO) | 95 mA | 313,5 mW | 351,5 mW |
+| | Transceptor SP3485 (driver activo) | 3,3 V (LDO) | 2 mA | 6,6 mW | 7,4 mW |
+| | BME280 (muestreo *forced mode*) | 3,3 V (LDO) | 0,0036 mA | 0,012 mW | 0,013 mW |
+| | Sonda 7-en-1 (excitación y lectura) | 5 V (elevador, η ≈ 0,85) | 30 mA | 150 mW | ≈ 176,5 mW |
+| | **Subtotal Fase 2** | | | **470,1 mW** | **535,4 mW** |
+| 3. Envío del resultado | ESP32 transmitiendo BLE | 3,3 V (LDO) | 150 mA | 495 mW | 555 mW |
 
 ###### **Tabla 4.4 “Fases de Operación y Consumo Energético”**
 
-La relación utilizada es `Q_ciclo = Σ(I_mA × t_s) / 3.600`. A 3,7 V nominales, ese ciclo equivale a unos 0,848 mWh. Debe señalarse que la duración real de estabilización de la sonda y del sensor ambiental se determina experimentalmente: una lectura de tres segundos no garantiza por sí sola el equilibrio térmico del BME280. También conviene precisar que, al medir en batería, no debe volver a añadirse la eficiencia de conversión, pues ya está reflejada en la corriente registrada; si se parte de consumos por riel, en cambio, deben convertirse mediante `I_batería = Σ(V_riel × I_riel / eficiencia) / V_batería`.
+| Fase operativa | Potencia desde la batería | Duración | Energía por ciclo |
+| :---- | ---: | :---: | ---: |
+| 1. Publicidad y conexión | 148 mW | 12 s | 0,493 mWh |
+| 2. Adquisición del conjunto | 535,4 mW | 3 s | 0,446 mWh |
+| 3. Envío del resultado | 555 mW | 1 s | 0,154 mWh |
+| **Total por ciclo** | Variable | **16 s** | **1,094 mWh** |
+
+###### **Tabla 4.5 “Energía por Ciclo de Medición”**
+
+Tres precisiones sostienen estas tablas frente a un cálculo por suma directa de corrientes. La sonda toma 150 mW en su nodo de 5 V pero exige 176,5 mW a la batería: el factor `1/η = 1,176` es energía perdida en la conversión, y omitirlo subestima la Fase 2. La rama del LDO exhibe la pérdida simétrica: los 40 mA de la Fase 1 valen 132 mW en el nodo de 3,3 V pero cuestan 148 mW de batería. Sumar los tres nodos en mAh habría hecho desaparecer ambas pérdidas. Por último, el consumo de la sonda a 5 V es un **supuesto de potencia constante**: la descripción del vendedor declara 0,15 W a 12 V y 0,5 W a 24 V, de modo que la potencia no es constante con la tensión y la extrapolación al extremo inferior debe medirse en banco antes de comprometer volumen de compra.
 
 **Sensibilidad al Consumo de Reposo:**
 
-Aquí está la corrección más importante de este capítulo respecto de versiones anteriores del informe. El ciclo de medición no es lo que determina la autonomía: la determina el consumo entre mediciones. El siguiente ejercicio utiliza diez capturas diarias, cinco minutos adicionales de espera BLE a 18 mA, una capacidad útil supuesta de 1.600 mAh y una pérdida diaria simplificada por autodescarga de 1,3333 mAh (2 % mensual sobre 2.000 mAh):
+El ciclo de medición no es lo que determina la autonomía: la determina el consumo entre mediciones. El presupuesto de reposo del sistema suma el ESP32 en reposo profundo (10 µA), el regulador LDO (2,5 µA), el circuito cargador/protección en vigilancia (≈5 µA, estimación de diseño) y el divisor de batería de 1 MΩ + 1 MΩ (1,85 µA), es decir **≈19,4 µA**. El ejercicio siguiente utiliza diez capturas diarias con el ciclo de 1,094 mWh, cinco minutos adicionales de espera BLE a 18 mA (66,6 mW desde la batería, 5,55 mWh), una capacidad útil supuesta de 1.600 mAh equivalente a 5.920 mWh a 3,7 V y una pérdida diaria simplificada por autodescarga de 1,3333 mAh, es decir 4,93 mWh (2 % mensual sobre 2.000 mAh):
 
-| Reposo total supuesto | Consumo diario calculado | Cociente capacidad útil / consumo diario |
-| :---: | :---: | :---: |
-| **0,1 mA** | 7,51 mAh/día | 213,0 días |
-| **1,0 mA** | 29,00 mAh/día | 55,2 días |
-| **5,0 mA** | 124,49 mAh/día | 12,9 días |
+| Escenario de reposo | Reposo total | Potencia en reposo | Consumo diario calculado | Energía útil / consumo diario |
+| :---- | :---: | ---: | ---: | :---: |
+| **Diseño adoptado** (placa intervenida, divisor 1 MΩ + 1 MΩ) | 19,4 µA | 71,8 µW | 23,14 mWh/día | **255,8 días (≈ 8,5 meses)** |
+| Alternativa con divisor de 100 kΩ + 100 kΩ | 36,0 µA | 133,2 µW | 24,62 mWh/día | 240,5 días (≈ 8,0 meses) |
+| Fuga adicional no identificada (contingencia de validación) | 1,0 mA | 3,7 mW | 110,22 mWh/día | 53,7 días (≈ 1,8 meses) |
+| **Placa de desarrollo sin intervenir** (LED de alimentación conectado) | ≈ 2,0 mA | 7,4 mW | 199,02 mWh/día | **29,7 días (≈ 1,0 mes)** |
 
-###### **Tabla 4.5 “Efecto del Consumo de Reposo sobre la Autonomía”**
+###### **Tabla 4.6 “Efecto del Consumo de Reposo sobre la Autonomía”**
 
-La comparación muestra por qué el reposo de la placa completa es decisivo: el mismo ciclo de lectura produce resultados que difieren en un factor de dieciséis al cambiar únicamente la corriente entre capturas. Por esta razón **se retiran expresamente de este informe las autonomías declaradas en versiones anteriores** —784 días en régimen estándar, 8 a 12 meses comerciales y "más de 2.000 mediciones reales"—. Aquellas cifras procedían de un banco de 6.000 mAh que ya no forma parte del diseño y de un presupuesto de reposo que nunca se midió sobre el conjunto ensamblado. La autonomía se publicará después de integrar el consumo medido con perfiles de uso, temperatura y reconexión, y no antes; declararla ahora sería exactamente el tipo de afirmación que este informe se propone evitar y que, además, expondría al proyecto a un incumplimiento frente a la normativa de publicidad no engañosa.
+**La condición que hace válido este presupuesto, y que la BOM obliga a declarar.** La lista de materiales compra una **placa de desarrollo** ESP32-WROOM-32, no el módulo desnudo: la línea del BOM dice literalmente «Placa de desarrollo ESP32-WROOM-32» y el precio de referencia corresponde a un devkit de catálogo. Un devkit mantiene alimentados un regulador de propósito general, un puente USB-UART y un LED de alimentación que **no se apagan con el modo de reposo profundo del microcontrolador**, y cuyo consumo conjunto se sitúa en el orden de los miliamperios. Los 10 µA de la hoja de datos son una cifra del módulo, no de la placa. Sin intervención, la autonomía cae a la última fila de la tabla: un mes escaso en lugar de ocho meses y medio.
+
+El diseño resuelve esto con dos operaciones de taller sobre cada unidad, contenidas en las 2,25 horas de montaje y prueba que la nómina ya presupuesta y sin costo adicional de materiales:
+
+1. **Alimentar la placa por su riel de 3,3 V** desde el LDO del instrumento, dejando sin tensión de entrada al regulador propio de la placa. El puente USB-UART, alimentado desde el bus de 5 V del conector USB, queda igualmente sin energía cuando el equipo opera con batería.
+2. **Retirar el LED de alimentación**, único de los tres elementos que cuelga del riel de 3,3 V y que drenaría del orden de 2 mA de forma permanente.
+
+La cifra de referencia que este informe sostiene de aquí en adelante es la del diseño adoptado —aproximadamente **8,5 meses (256 días, más de 2.500 mediciones)** con una sola carga— con un piso de 1,8 meses si se materializara la fuga de contingencia. Es un **resultado calculado, no medido**: procede del balance energético por nodo con las eficiencias declaradas, y su confirmación exige medir el consumo de reposo de la placa ensamblada e intervenida. Esa medición encabeza las comprobaciones físicas pendientes del [plan de validación](PLAN_VALIDACION.md).
+
+Sobre el corte de la rama de la sonda, el mismo criterio aplica con cifras propias: sin el MOSFET, el elevador aportaría entre 30 y 100 µA según su modo de reposo y el transceptor SP3485, con el driver deshabilitado pero el integrado energizado, del orden de 300 a 400 µA según su hoja de datos. La suma, entre 330 y 500 µA, excede en más de un orden de magnitud el presupuesto de reposo del resto del sistema, y ambas cifras deben confirmarse sobre el conjunto ensamblado.
 
 **Sostenibilidad Ambiental y Análisis Competitivo:**
 Al comparar el sistema contra los estándares de la industria, el proyecto enfrenta con honestidad las diferencias de arquitectura. Las referencias siguientes son dos casos puntuales documentados y no una descripción exhaustiva del mercado:
@@ -1384,7 +1503,7 @@ Al comparar el sistema contra los estándares de la industria, el proyecto enfre
 | **Hanna HI9814** | 3 pilas AAA de 1,5 V | Sustituir el juego completo; ~600 horas de uso continuo declaradas | 4 (pH, EC, TDS y temperatura), en soluciones hidropónicas |
 | **TerraSense**  | 1 celda LiPo recargable de 2.000 mAh, carga USB-C | Recargar la misma celda; sustituirla al degradarse | 7 registros de suelo \+ 3 ambientales, con interpretación agronómica móvil |
 
-###### **Tabla 4.6 “Análisis Comparativo de Parámetros”**
+###### **Tabla 4.7 “Análisis Comparativo de Parámetros”**
 
 TerraSense busca reducir el recambio habitual de pilas primarias al recuperar la carga de la misma celda durante muchos ciclos de uso, lo que para el agricultor significa menos compras de repuestos y la posibilidad de cargar el equipo antes de una jornada mediante USB-C. Conviene reconocer, sin embargo, la ventaja operativa que conservan las pilas intercambiables: permiten reanudar el trabajo de inmediato con un repuesto, mientras que la batería integrada obliga a planificar la carga y a asegurar acceso a energía.
 
@@ -1402,9 +1521,36 @@ Para sostener estas afirmaciones con evidencia en lugar de con declaraciones, se
 | Rechazo de impresión 3D | Masa de material y piezas fallidas por lote | Ajustar diseño y proceso de carcasa |
 | Gestión al final de la vida útil | Baterías y electrónica recibidas y derivadas | Respaldar el compromiso ambiental con datos |
 
-###### **Tabla 4.7 “Indicadores Ambientales y de Servicio a Medir”**
+###### **Tabla 4.8 “Indicadores Ambientales y de Servicio a Medir”**
 
 <a id="condiciones"></a>
+
+**Estado Probatorio de las Especificaciones Declaradas:**
+
+Las tablas de esta sección mezclan, inevitablemente, cifras de distinta solidez: algunas provienen de la hoja de datos del componente exacto, otras de una ficha representativa de la familia mientras no se cierre el SKU, y otras son estimaciones de diseño aún no medidas. Presentarlas con el mismo peso sería engañoso, de modo que se clasifican explícitamente.
+
+> **Fuente de verdad:** la lista de componentes y sus notas de procedencia están en la clave `bom` de `finanzas/supuestos.json`, cuyos comentarios por línea registran qué está confirmado por socios, qué es presupuesto y qué falta cotizar. El árbol de alimentación está en [`PCB/README.md`](../PCB/README.md) y las comprobaciones físicas pendientes, en el [plan de validación](PLAN_VALIDACION.md).
+
+| Especificación declarada | Origen de la cifra | Nivel de evidencia | Qué falta para confirmar |
+| :---- | :---- | :---- | :---- |
+| ESP32-WROOM-32: procesamiento, memoria y radio | Hoja de datos del módulo | Confirmada por hoja de datos del componente seleccionado | Nada |
+| ESP32: reposo profundo 10 µA | Hoja de datos del módulo | **Confirmada para el módulo, no para la placa de desarrollo que adquiere la BOM** | Medir el reposo de la placa efectivamente montada, ya intervenida en taller |
+| Intervención de taller sobre la placa de desarrollo | Decisión de diseño de este informe | Procedimiento definido, no ejecutado | Ejecutarlo sobre unidades piloto y medir antes y después |
+| ESP32: FCC ID 2AC7Z-ESPWROOM32 | Certificado modular del fabricante | Confirmada | Verificar que la integración respeta las condiciones del certificado modular |
+| BME280: ±1,0 °C, ±3 % HR, ±1,0 hPa, 0,1 µA en reposo | Hoja de datos Bosch del componente exacto | Confirmada por hoja de datos del componente seleccionado | Verificar la respuesta térmica montado tras el respiradero |
+| SP3485: 2 mA con driver habilitado | Hoja de datos del transceptor exacto | Confirmada por hoja de datos del componente seleccionado | Nada |
+| HT7533-1: 2,5 µA de quiescente | Hoja de datos del regulador exacto | Confirmada por hoja de datos del componente seleccionado | Nada |
+| Sonda 7-en-1: rangos y exactitudes de las 7 variables | Ficha de una sonda representativa de la familia; el SKU de `supuestos.json` no tiene ficha propia publicada | Representativa de la familia, no del SKU | Exigir la ficha del SKU al proveedor antes de la orden de compra y contrastar con la campaña de 30 muestras |
+| Sonda: alimentación 5–24 V DC y consumo 30 mA a 5 V | Descripción del vendedor (4,5–30 V; 0,15 W a 12 V; 0,5 W a 24 V) más supuesto propio de potencia constante | Supuesto de diseño sobre declaración del vendedor | Medir consumo y exactitud a 5 V; si la exactitud se degradara, elevar a 12 V |
+| Sonda: acero inoxidable 316L | Descripción del vendedor | Declaración del vendedor | Certificado de material o ensayo; afecta la vida útil en suelos salinos |
+| Circuito cargador/protección: ≈5 µA en vigilancia | Estimación conservadora de diseño | Estimación de diseño, no medida | Medir en banco sobre el módulo finalmente adquirido |
+| Elevador: eficiencia η ≈ 0,85 | Valor típico de convertidores de esta clase y corriente | Estimación de diseño, no medida | Medir la eficiencia real a la corriente de excitación de la sonda |
+| Divisor de batería: 1,85 µA | Cálculo directo (3,7 V / 2 MΩ) | Calculada a partir de una decisión de diseño | Verificar con las resistencias reales y su tolerancia |
+| Reposo del sistema ≈19,4 µA y autonomía de 8,5 meses | Suma de las líneas anteriores referida a la batería, **sobre la placa ya intervenida** | Calculada; hereda la incertidumbre de las estimaciones y de la intervención | Medición del reposo de la placa completa; la Tabla 4.6 acota el peor caso |
+
+###### **Tabla 5.4 “Estado Probatorio de las Especificaciones de Hardware”**
+
+La conclusión de esta clasificación define la prioridad de la etapa siguiente: toda la electrónica de control está confirmada por hojas de datos de componentes exactos, y la incertidumbre relevante se concentra en dos puntos —la sonda, que además concentra el 59,1 % del costo de materiales, y el reposo de la placa de desarrollo una vez intervenida—. Ambas se atacan con el mismo gasto y en el mismo mes, y ambas preceden a cualquier compromiso de volumen de compra.
 
 **Condiciones Técnicas y Normativas Respecto al Diseño:**
 
@@ -1444,7 +1590,76 @@ El marco regulatorio aplicable al proyecto TerraSense organiza su cumplimiento n
 **Protección al Consumidor:**
 
 * **Ley N° 21.398 ("Pro Consumidor") \[22\]:** Extiende la garantía legal a 6 meses y obliga a informar la vida útil y la disponibilidad de repuestos. A nivel de negocio, el proyecto incorpora una provisión del 5 % del costo de materiales para atender esta garantía —cuantificada en $4.059 por unidad en la Tabla 2.3— y asume el compromiso de mantener *stock* de partes, coherente con el diseño desmontable de la carcasa.
-* **Ley N° 19.496 \[23\]:** Prohíbe la publicidad engañosa. Constituye la barrera normativa formal por la cual el proyecto declara el equipo comercialmente como "diseñado conforme a IP67" en lugar de "certificado IP67" hasta que los laboratorios documenten el ensayo final, y por la cual **no se publicará cifra alguna de autonomía** hasta disponer de la medición sobre el equipo completo. Ambas restricciones son, antes que una exigencia legal, una decisión de honestidad técnica del proyecto.
+* **Ley N° 19.496 \[23\]:** Prohíbe la publicidad engañosa. Constituye la barrera normativa formal por la cual el proyecto declara el equipo comercialmente como "diseñado conforme a IP67" en lugar de "certificado IP67" hasta que los laboratorios documenten el ensayo final, y por la cual toda cifra de autonomía se publica **identificada como valor calculado** mientras no exista la medición sobre el equipo completo e intervenido. Ambas restricciones son, antes que una exigencia legal, una decisión de honestidad técnica del proyecto.
+
+**Clasificación Normativa y Requisitos Verificables:**
+
+El listado anterior mezcla normas de cumplimiento legal ineludible en Chile con estándares adoptados voluntariamente y con referencias pensadas para una eventual exportación. Presentarlas al mismo nivel sería engañoso, de modo que se clasifican aquí y, sobre todo, se expresan como requisitos de diseño con método de verificación, criterio de aceptación y evidencia archivable.
+
+> **Fuente de verdad:** el desarrollo normativo completo, con el detalle de cada norma y su alcance, está en [`docs/MARCO_NORMATIVO_Y_ESTANDARES.md`](MARCO_NORMATIVO_Y_ESTANDARES.md). El estado de cada comprobación física se lleva en el [plan de validación](PLAN_VALIDACION.md); los perímetros de acceso que sustentan las filas de protección de datos están en `supabase/migrations/*.sql`.
+
+| Norma | Carácter | Requisito de diseño derivado | Método de verificación, criterio y evidencia | Estado |
+| :---- | :---- | :---- | :---- | :---: |
+| Ley N° 20.920 (REP) | Obligatoria (Chile) | Diseño desmontable con celdas extraíbles y canal de recepción al fin de vida útil | Ensayo de desmontaje sin herramientas especiales y convenio con gestor autorizado. Criterio: celda extraíble y punto de recepción operativo. Evidencia: procedimiento y convenio firmado | Pendiente |
+| SUBTEL, Res. Exenta N° 1.985/2017 | Obligatoria (Chile) | Enlace BLE a +9 dBm (≈8 mW), con margen frente al límite aplicable | Medición en banda 2,4 GHz sobre la unidad ensamblada, **previa confirmación documental de cuál es el límite vigente y sobre qué magnitud se mide**. Criterio: cumplir el límite acreditado con margen. Evidencia: extracto de la resolución e informe de medición | Pendiente |
+| SUBTEL, Resolución N° 737/2025 | Obligatoria (Chile) | Verificación formal del producto terminado, con cargo al rubro de desarrollo y validación | Trámite ante la autoridad sectorial. Criterio: resolución favorable previa a la comercialización. Evidencia: expediente y resolución | Pendiente |
+| UN 38.3 / IEC 62133-2 | Obligatoria (transporte y comercialización de celdas de litio) | Celdas comerciales con certificación de origen y protección electrónica del cargador | Certificados del proveedor y ensayo de las protecciones. Criterio: certificados vigentes y corte por sobrecarga, sobredescarga y cortocircuito. Evidencia: certificados y acta de ensayo | Pendiente |
+| Ley N° 19.628 | Obligatoria (Chile) | Aislamiento por campo y rol; datos exportables por el titular | Pruebas de acceso cruzado entre cuentas y verificación de exportación. Criterio: cero lecturas de campos ajenos y exportación completa a solicitud. Evidencia: batería de pruebas de Row Level Security | Parcial: aislamiento implementado, exportación no implementada |
+| Ley N° 21.719 | Obligatoria (Chile) | Registro de actividades de tratamiento y procedimiento escrito de notificación de vulneraciones | Revisión documental antes de abrir la primera cuenta comercial. Criterio: registro y procedimiento redactados con responsable designado. Evidencia: documentos firmados | Pendiente |
+| Ley N° 21.398 (“Pro Consumidor”) | Obligatoria (Chile) | Garantía legal de 6 meses más provisión del 5 % de BOM | Revisión legal de las condiciones y provisión contable. Criterio: cobertura ≥ 6 meses y provisión reservada. Evidencia: texto de garantía y asiento de provisión | Parcial |
+| Ley N° 19.496 | Obligatoria (Chile) | Declaración comercial como “diseñado conforme a IP67” hasta contar con ensayo | Auditoría del material comercial. Criterio: ninguna pieza declara IP67 certificado sin ensayo. Evidencia: material revisado y aprobado | Cumple |
+| Alimentación sin adaptador de red | Obligatoria si cambiara (Chile) | El equipo se vende con cable USB-C y sin fuente conectada a la red domiciliaria | Verificación del contenido del empaque. Criterio: ningún adaptador de red incluido; si se incluyera, exigir su protocolo de aprobación SEC. Evidencia: lista de empaque aprobada | Cumple |
+| IEC 60529 (IP67) | Voluntaria como estándar; **exigible como declaración** una vez publicada, por efecto de la Ley N° 19.496 | Envolvente PETG con O-ring, sellado intercapa, prensaestopas M12 y respiradero protegido | Ensayo IP67 en laboratorio acreditado sobre el conjunto ensamblado, incluido el respiradero. Criterio: sin ingreso de agua tras 30 min a 1 m. Evidencia: informe de ensayo | Pendiente |
+| Métodos oficiales SAG / INIA | Voluntaria (referencia técnica nacional adoptada) | Umbrales de la matriz de cultivos trazables a criterios oficiales publicados | Contraste de cada umbral de `App/src/engine/agronomyEngine.ts` con su fuente oficial. Criterio: trazabilidad documental de cada umbral. Evidencia: tabla umbral–fuente con fecha de consulta | Pendiente |
+| RoHS 2011/65/EU y RoHS 3 | Voluntaria en Chile / referencia de mercado futuro | Soldadura SAC305 y declaración de conformidad de proveedores | Recopilación de declaraciones. Criterio: cobertura documental de la BOM. Evidencia: carpeta de declaraciones | Pendiente |
+| FCC, Título 47 CFR Parte 15 | Referencia de mercado futuro (EE. UU., no exigible en Chile) | Cubierto de forma incidental por el módulo pre-certificado | Verificación del FCC ID y de las condiciones del certificado modular. Criterio: integración dentro del alcance declarado. Evidencia: ficha del módulo | No aplica en Chile |
+| TIA/EIA-485-A y Modbus V1.1b3 | Voluntaria (estándares técnicos abiertos) | Base de diseño del bus RS-485 y de la trama Modbus RTU | Prueba de bus con analizador lógico. Criterio: terminación correcta y cero errores de CRC en 1.000 lecturas consecutivas. Evidencia: captura y registro de errores | Parcial |
+| ISO 10390, ISO 11265, ISO 11277, ISO 11465 | Voluntaria (métodos de referencia de laboratorio) | Métodos de contraste del protocolo de validación in situ | Protocolo de la Tabla 5.6 contra laboratorio **acreditado bajo ISO/IEC 17025**. Criterio: el fijado en el propio protocolo. Evidencia: informes de laboratorio y análisis de concordancia | Pendiente |
+| ISO/IEC 27001:2022 e ISO/IEC 25010 | Voluntaria (gestión y calidad de software) | Cifrado en tránsito y reposo, control de acceso segmentado | Revisión de configuración y segmentación. Criterio: TLS vigente y ausencia de credenciales embebidas. Evidencia: informe de revisión | Parcial |
+| WCAG 2.1, nivel AA | Voluntaria (no exigida por ley a aplicaciones privadas en Chile) | Contraste ≥ 4,5:1, área táctil ≥ 48×48 dp y color no exclusivo | Auditoría de accesibilidad sobre las pantallas de la App. Criterio: contraste ≥ 4,5:1 y ninguna información solo por color. Evidencia: informe de auditoría | Pendiente |
+
+###### **Tabla 5.5 “Clasificación Normativa: Obligatoria, Voluntaria y de Mercado Futuro”**
+
+Dos filas merecen comentario porque corrigen clasificaciones habituales. Los **métodos SAG / INIA** no son una obligación legal sobre un instrumento privado: son criterios de interpretación agronómica que el proyecto adopta voluntariamente, y clasificarlos como obligatorios debilitaría la propia matriz. La **IEC 60529** sí es un estándar voluntario, pero desde el momento en que el material comercial declara “diseñado conforme a IP67” la afirmación queda sujeta a la Ley N° 19.496 y deja de ser voluntaria en sus efectos; por eso su carácter se enuncia en dos partes.
+
+**Protocolo de Validación de la Medición In Situ contra Laboratorio de Referencia:**
+
+El objetivo específico de validar la precisión instrumental exige un protocolo concreto. Antes del detalle corresponde una decisión de alcance: **la campaña valida cuatro de las diez variables del sistema**. Se validan humedad volumétrica, pH, conductividad eléctrica y textura, porque las tres primeras sustentan las recomendaciones de riego, encalado y lavado de sales que produce `App/src/engine/agronomyEngine.ts`, y la cuarta es el parámetro que el usuario declara y que modula los umbrales. Quedan fuera la temperatura de suelo, resuelta con termómetro patrón en la calibración de fábrica, y las tres magnitudes del BME280, confirmadas por hoja de datos del componente exacto y cuyo riesgo real es de montaje.
+
+Quedan fuera también, y esto es lo más importante, **N, P y K**. La exclusión es deliberada y coherente con el resto del sistema: esos tres valores no son determinaciones químicas independientes sino derivaciones de la conductividad eléctrica, de modo que contrastarlos contra laboratorio mediría la correlación entre salinidad y fertilidad de los suelos muestreados, no la exactitud del instrumento. Validarlos sugeriría una capacidad analítica que la sonda no tiene. Por esa misma razón el motor los devuelve como registros informativos con advertencia permanente y con veto de confianza sobre `EC_UMBRAL_CONFIANZA_NPK`: la limitación se resuelve en la interfaz, no en la campaña de laboratorio.
+
+| Elemento del protocolo | Especificación |
+| :---- | :---- |
+| Variables validadas | Humedad volumétrica, pH, conductividad eléctrica y textura |
+| Variables excluidas y motivo | N, P y K, por ser derivaciones de la conductividad y no determinaciones independientes; temperatura de suelo, resuelta con termómetro patrón; magnitudes del BME280, confirmadas por hoja de datos |
+| Tamaño de muestra | N ≥ 30 puntos en total y **no menos de 10 por clase textural**, submuestreados el mismo día para envío a laboratorio |
+| Diversidad de suelos | Al menos 3 clases texturales (franco, arcilloso, arenoso), cubriendo el rango útil de pH (4,5–8,5) y de CE (0–5.000 µS/cm), que es donde se toman las decisiones agronómicas reales |
+| Referencia de laboratorio | pH según ISO 10390; CE según ISO 11265; textura según ISO 11277; humedad volumétrica por gravimetría según ISO 11465. Laboratorio **acreditado bajo ISO/IEC 17025** para los ensayos solicitados |
+| Estadístico de concordancia | R² entre lectura in situ y laboratorio; RMSE en la unidad nativa de cada variable; Bland-Altman para detectar sesgo sistemático |
+| Umbral de aceptación | Umbral agronómico propio: pH, RMSE ≤ 0,3 unidades; CE, RMSE ≤ 10 % de la lectura o 200 µS/cm, el mayor; humedad volumétrica, RMSE ≤ 4 puntos porcentuales. Además R² ≥ 0,80 y ausencia de sesgo proporcional significativo (p < 0,05) |
+| Alcance del resultado | La campaña detecta sesgo grueso y desviación sistemática. El ajuste fino de coeficientes requiere una segunda campaña sobre la base instalada |
+| Acción si no se cumple | La variable se marca como “referencial” en la App y deja de sustentar prescripción cuantitativa hasta recalibrar el coeficiente o sustituir el sensor |
+
+###### **Tabla 5.6 “Protocolo de Validación In Situ vs. Laboratorio de Referencia”**
+
+**Por qué un umbral propio y no el del fabricante.** Una formulación aparentemente más rigurosa sería exigir que el error no supere la exactitud declarada por el fabricante, es decir ±0,1 unidades de pH. No se adopta, por dos razones. La primera es de evidencia: esa exactitud proviene de una ficha de familia y no del SKU, como declara la Tabla 5.4, de modo que sería medirse contra un número que el propio proyecto reconoce no tener verificado. La segunda es de pertinencia: ±0,1 unidades es una exigencia de laboratorio, y el producto de este instrumento no es una cifra sino una decisión de manejo. Un error de 0,3 unidades de pH no cambia la recomendación de encalado de ningún cultivo de la matriz; uno de 0,8 sí. El umbral debe fijarse donde la decisión cambia.
+
+**Plan de Calibración y Control de Deriva:**
+
+La validación anterior responde si el instrumento concuerda con el laboratorio en un momento dado. No responde cómo se calibra cada equipo antes de salir de taller ni cómo se detecta la deriva con el uso. La calibración no se ejecuta reescribiendo el firmware sino ajustando coeficientes residentes en la memoria no volátil del ESP32, actualizables de forma remota; esa decisión de arquitectura es la que hace viable corregir un equipo en terreno sin recuperarlo.
+
+| Etapa | Qué se hace | Periodicidad | Criterio de aceptación | Evidencia que queda |
+| :---- | :---- | :---- | :---- | :---- |
+| Calibración de fábrica | Verificación contra soluciones patrón de pH (4,00 y 7,00) y de CE (1.413 y 12.880 µS/cm), contraste de temperatura contra termómetro patrón y ajuste de coeficientes en memoria no volátil | Una vez por equipo, antes del despacho | Desviación dentro del umbral agronómico de la Tabla 5.6 | Certificado de calibración individual con número de serie, fecha y valores medidos |
+| Compensación térmica de la CE | Verificación de la normalización a 25 °C con el coeficiente de 2 %/°C exigido por ISO 11265 | Una vez por equipo, dentro de la calibración de fábrica | Error ≤ 3 % entre 5 °C y 35 °C | Registro de la curva de verificación térmica |
+| Verificación periódica por el usuario | Comprobación con solución patrón de pH 7,00 mediante rutina guiada de la App | Al inicio de cada temporada, o cada 6 meses | Desviación ≤ 0,3 unidades de pH | Registro en el histórico del equipo, con fecha y resultado |
+| Recalibración correctiva | Ajuste remoto de coeficientes sobre el equipo específico, sin recuperarlo ni reemplazar el firmware | Cuando la verificación periódica excede el umbral | La verificación posterior vuelve a cumplir | Registro del coeficiente anterior y del nuevo, con justificación |
+| Retiro de la variable | La variable se marca como “referencial” y deja de sustentar recomendaciones cuantitativas | Cuando la recalibración no recupera el criterio | — | Aviso en la pantalla de la variable y en el histórico |
+| Control de deriva de la flota | Seguimiento agregado de las verificaciones sincronizadas, para distinguir un equipo desviado de un patrón de lote | Revisión semestral | Ningún lote con desviación media creciente y sostenida | Informe de deriva por lote de fabricación |
+
+###### **Tabla 5.7 “Plan de Calibración y Control de Deriva”**
+
+Tres precisiones. La primera es de alcance: la verificación del usuario emplea solución patrón de pH, barata y de uso corriente en agricultura, y su función es detectar que algo se desvió, no cuantificarlo con precisión metrológica. La segunda es de costo: la calibración de fábrica es trabajo de taller contenido en las 2,25 horas por equipo que `finanzas/supuestos.json` presupuesta en `horas_unidad`, mientras las soluciones patrón y el instrumental se cargan a la partida de metrología del rubro de desarrollo y validación. La tercera es de honestidad: la periodicidad semestral y los umbrales se fijan sobre el comportamiento típico de electrodos de pH y sondas de conductividad, y deben confirmarse con la deriva real del SKU adquirido durante la primera temporada.
 
 **Criterios de Cierre Técnico:**
 
@@ -1461,7 +1676,7 @@ Para cerrar este capítulo corresponde declarar con precisión qué separa el di
 | **Carcasa** | Montaje, acceso, ventilación, caída y sellado | CAD, proceso, fotografías y resultados de ensayo |
 | **Producción** | Montaje y pruebas repetibles por equipo | Tiempo por operación, rechazo y retrabajo |
 
-###### **Tabla 4.8 “Criterios de Cierre Técnico y Evidencia”**
+###### **Tabla 4.9 “Criterios de Cierre Técnico y Evidencia”**
 
 <a id="conclusiones"></a>
 
@@ -1471,19 +1686,19 @@ El desarrollo conceptual y la evaluación del proyecto TerraSense plantean la po
 
 El sensor ambiental BME280 ocupa una función central y claramente distinta de la API meteorológica. Temperatura del aire, humedad relativa y presión barométrica completan las tres tarjetas ambientales locales del Grid 2×5, mientras el pronóstico de cinco días complementa la planificación posterior y permite recomendar la revisión de una fecha de siembra ante lluvia o calor previstos. La reorganización propuesta del Grid presenta diez tarjetas para diez registros de sensores y conserva el carácter estrictamente informativo de los valores N/P/K, que se derivan de la conductividad eléctrica y no de una determinación química independiente.
 
-La implementación de un diseño energético estricto, basado en *power gating* para cortar físicamente la alimentación de la rama de medición en reposo, sigue siendo la decisión correcta y la de mejor relación costo-beneficio del hardware. Corresponde sin embargo declarar con claridad lo que este informe corrige: la autonomía del equipo **no se declara** hasta medirla desde la batería con el conjunto completo, incluyendo el reposo real de la placa de desarrollo. Las cifras anteriores de 784 días y de 8 a 12 meses fueron calculadas sobre un banco de 6.000 mAh que ya no forma parte del diseño y sobre un presupuesto de reposo nunca ensayado. La ventaja ambiental frente a los instrumentos alimentados por pilas primarias es real —recarga de la misma celda por USB-C, carcasa desmontable y reparación por módulos— pero se sostiene en esas características concretas y en los indicadores comprometidos para medirlas, no en la eliminación total del impacto.
+La implementación de un diseño energético estricto, basado en *power gating* para cortar físicamente la alimentación de la rama de medición en reposo, sigue siendo la decisión correcta y la de mejor relación costo-beneficio del hardware. El balance energético se plantea ahora **por nodo de tensión y en unidades de energía (mWh)**, con la eficiencia del elevador y la pérdida del regulador lineal explícitas, y arroja una autonomía de aproximadamente **8,5 meses (256 días, más de 2.500 mediciones)** con una sola carga. Corresponde declarar con la misma claridad qué tipo de cifra es esa: un **resultado calculado, no medido**, condicionado además a que cada placa de desarrollo se intervenga en taller según el procedimiento descrito junto a la Tabla 4.6. Sin esa intervención la autonomía cae a un mes escaso, y con una fuga no identificada de 1 mA, a 1,8 meses. Las cifras anteriores de 784 días y de 8 a 12 meses quedan retiradas: fueron calculadas sobre un banco de 6.000 mAh que ya no forma parte del diseño. La ventaja ambiental frente a los instrumentos alimentados por pilas primarias es real —recarga de la misma celda por USB-C, carcasa desmontable y reparación por módulos— pero se enuncia con precisión: **reduce** el flujo de residuos a una celda por ciclo de vida, no lo elimina, porque una celda de litio recargable es igualmente un residuo prioritario bajo la Ley N° 20.920.
 
 Desde el punto de vista financiero, el proyecto se sostiene como un modelo de negocio viable y auditable, aun proyectando un escenario de introducción de mercado conservador de 200 unidades el primer año.
 
 <!-- INFORME:CIERRE:INICIO -->
 
-En el escenario base, el proyecto presenta **VAN de $63.717.893**, **TIR efectiva anual de 48,94 %** y **payback simple de 34,61 meses**. La BOM completa asciende a **$81.184 netos por equipo**, con BME280 y carcasa 3D. El análisis mensual identifica el financiamiento de arranque y permite relacionar margen, producción, inventario y pagos de deuda con las decisiones comerciales.
+En el escenario base, el proyecto presenta **VAN de $75.510.458**, **TIR efectiva anual de 54,42 %** y **payback simple de 34,25 meses**. La BOM completa asciende a **$76.761 netos por equipo**, con BME280 y carcasa 3D. El análisis mensual identifica el financiamiento de arranque y permite relacionar margen, producción, inventario y pagos de deuda con las decisiones comerciales.
 
 <!-- INFORME:CIERRE:FIN -->
 
 Ese nivel de detalle mensual, que una proyección anual agregada no habría revelado, expone las dos tensiones que el proyecto debe administrar y que este informe no oculta: el DSCR del primer año es de 0,72 y el equilibrio con deuda (204 unidades) supera ligeramente la meta de ventas, de modo que el arranque exige mantener íntegra la reserva de liquidez; y la sensibilidad muestra que no existe holgura alguna sobre el precio de venta, que constituye un techo estratégico y no un punto de negociación.
 
-En síntesis, TerraSense cumple con éxito su objetivo general: lograr que una medición física se convierta, en el mismo lugar, en una decisión agronómica correcta. Al eliminar los costos recurrentes y transformar valores numéricos planos en instrucciones de manejo claras, el proyecto mitiga el riesgo de pérdida de cosechas, protege el patrimonio familiar del pequeño agricultor y fomenta la resiliencia hídrica del sector agrícola nacional. El resultado económico y el diseño técnico convergen en una misma decisión: construir una herramienta útil que pueda fabricarse, mantenerse y respaldarse con el margen presupuestado. Los próximos cierres se concentran en la integración ambiental de extremo a extremo, en la consulta del horizonte climático correcto y en los ensayos del conjunto ensamblado, trabajos que este informe deja identificados con su evidencia esperada precisamente para que puedan ejecutarse y defenderse.
+En síntesis, TerraSense cumple con éxito su objetivo general: lograr que una medición física se convierta, en el mismo lugar, en una decisión agronómica correcta. Al eliminar los costos recurrentes y transformar valores numéricos planos en instrucciones de manejo claras, el proyecto mitiga el riesgo de pérdida de cosechas, protege el patrimonio familiar del pequeño agricultor y fomenta la resiliencia hídrica del sector agrícola nacional. El resultado económico y el diseño técnico convergen en una misma decisión: construir una herramienta útil que pueda fabricarse, mantenerse y respaldarse con el margen presupuestado. Los próximos cierres se concentran en la medición del consumo de reposo de la placa ensamblada e intervenida, en la ficha técnica del SKU de sonda, en la integración ambiental de extremo a extremo y en los ensayos del equipo terminado, trabajos que este informe deja identificados con su evidencia esperada y su criterio de aceptación precisamente para que puedan ejecutarse y defenderse.
 
 <a id="referencias"></a>
 
