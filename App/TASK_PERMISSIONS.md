@@ -2,7 +2,76 @@
 
 ## Estado y alcance vigente
 
-### Etapa vigente: marca, pantallas principales y guías interactivas
+### Etapa vigente: correo funcional y pulido del flujo inicial
+
+Plan aprobado por el usuario tras probar la app en teléfono. El correo era lo que rompía
+todo: sin código de confirmación no hay cuenta, y sin cuenta las políticas RLS bloquean la
+app entera.
+
+**Correo.** El remitente es `akurasoporte@gmail.com`, decisión del usuario, enviado por el
+SMTP de Gmail de esa misma cuenta. Se descartaron Resend (exige dominio propio verificado;
+sin él sólo entrega al correo del titular de la cuenta) y Brevo (no puede autenticar
+`gmail.com` y reescribe el remitente). El límite de envíos pasó de 2 a 30 por hora, que es
+lo que agotaba la cuota en cada prueba.
+
+- [x] Dejar `supabase/config.toml` con la cuenta, el límite y la plantilla de contraseña
+  cambiada enlazada a su archivo real.
+- [x] Contraseña de aplicación generada y SMTP cargado en el panel remoto por el usuario.
+      Comprobado contra remoto el 20-09-2026 en modo lectura: `smtp.gmail.com:587`,
+      usuario y remitente `akurasoporte@gmail.com`, nombre `TerraSense`, sin hook de correo,
+      confirmación obligatoria activa, código de 6 dígitos con 600 s de vencimiento y 60 s
+      entre envíos. La contraseña no se leyó ni se imprimió en ningún momento.
+- [x] Límite de correos subido de 2 a 30 por hora en remoto, con la API de administración
+      y un PATCH de ese único campo. Verificado después que SMTP, `site_url`, URLs
+      autorizadas y parámetros del código quedaron intactos.
+- [x] Plantillas publicadas el 20-09-2026. Confirmación y recuperación con
+      `configurar_codigos.py --apply`; la notificación de contraseña cambiada con un PATCH
+      de su único campo, porque ese script no la gestiona. Las tres verificadas carácter a
+      carácter contra el archivo local, con SMTP, URLs y límites intactos.
+      Corrección aplicada antes de publicar: la cabecera usaba sólo `linear-gradient`, que
+      Gmail descarta, y dejaba el texto blanco sobre fondo blanco. Ahora lleva
+      `background-color:#1F5B3F` delante como respaldo.
+- [ ] Probar en teléfono: registro, código incorrecto, código vencido, reenvío antes y
+  después de los 60 s, recuperación y correo de contraseña cambiada.
+
+**Interfaz del flujo inicial.** Implementado localmente; falta validación en dispositivo.
+
+- [x] Bienvenida con el logo de la empresa en lugar del icono y el texto, y las tres
+  láminas con el texto centrado.
+- [x] Encabezados de acceso centrados y flecha retirada de todos los botones primarios.
+- [x] Movimiento sin rebote en todo el flujo inicial, con los tokens de
+  `App/src/constants/motion.ts`: los muelles sobrepasaban el valor final y volvían.
+- [x] Términos: título centrado, entrada de la hoja regulada, sin el aviso de versión
+  preliminar ni la instrucción de deslizar, y «Continuar» baja el texto hasta el final
+  antes de exigir las dos casillas.
+- [x] Texto legal completo: responsable Akura, `akurasoporte@gmail.com` para ejercer
+  derechos y conservación de un mes tras cerrar la cuenta. Versión `2026-09-20-1`.
+- [x] Confirmación de cuenta sin logo ni flecha, con seis casillas enmascaradas y
+  verificación automática al sexto dígito.
+- [ ] **Borrado real al mes.** El texto legal ya promete que el perfil y los datos
+  personales se eliminan dentro del mes siguiente al cierre de la cuenta, y hoy el servidor
+  no lo hace: `purge_expired_operational_data()` sólo limpia intentos de vinculación y
+  auditorías. Es una migración pendiente, no una mejora opcional: mientras no exista, el
+  texto promete algo que el sistema no cumple.
+- [x] Marca del proyecto nativo corregida. `App/assets/` ya venía bien, pero
+      `App/android/` conservaba el icono del proyecto Akura —un escudo turquesa con un
+      visto bueno— del 19-09-2026: los PNG de `assets/` sólo llegan al teléfono cuando se
+      regenera el nativo. `npx expo prebuild --platform android` lo rehace; esa carpeta
+      está completa en `.gitignore` y no tiene archivos versionados, así que regenerarla
+      no pisa trabajo de nadie.
+- [x] Pantalla de arranque corregida. Desde SDK 52 la clave `splash:` suelta ya no aplica
+      el color de fondo: quedaba `#FFFFFF` y el logotipo, casi blanco por diseño,
+      desaparecía. Ahora se declara por el plugin `expo-splash-screen` con `#12281F`.
+- [x] Pantalla de carga con la marca (`App/src/components/LoadingScreen.tsx`): fondo verde
+      de arranque, logotipo y ruedita. Comparte color con la pantalla nativa, así que el
+      arranque no muestra un destello claro al montar la app. Los estratos grises del
+      logotipo pasan a verdes sobre fondo oscuro; la paleta vive en `BrandLogo` y su
+      equivalente en el generador, que produce el PNG nativo.
+- [ ] Validar en teléfono el flujo completo con las transiciones nuevas, el icono del
+      lanzador, la pantalla de arranque y la de carga. **Exige reinstalar la app**: el
+      icono y el arranque se compilan en el APK, no se recargan con Metro.
+
+### Etapa anterior: marca, pantallas principales y guías interactivas
 
 Plan aprobado por el usuario. Marca oficial: **TerraSense**. Conservar cambios locales
 de retirada de mapas y datos; bienvenida y autenticación quedan fuera de las guías.
@@ -323,4 +392,5 @@ Retomar con:
    se convirtieron a UTF-8 conservando el contenido; el verificador estándar vuelve a pasar.
 
 No marcar instalación ESP32, borrado físico, migración desplegada ni pruebas en teléfono
-como completados. Los textos legales siguen siendo preliminares, compartidos con registro.
+como completados. Los textos legales ya identifican responsable, contacto y plazo de
+conservación, pero el borrado automático al mes que anuncian sigue sin implementarse.

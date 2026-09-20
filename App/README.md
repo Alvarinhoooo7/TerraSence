@@ -58,15 +58,16 @@ Al enviar un formulario de registro válido se abre el
 [panel de términos y privacidad](src/components/RegistrationConsentModal.tsx).
 La solicitud de creación de cuenta se realiza únicamente después de llegar al final
 del contenido, marcar las dos casillas y pulsar «Continuar». El botón permanece
-visible en la parte inferior. Cancelar vuelve al formulario sin enviar la solicitud;
-al reabrir, las casillas vuelven a estar vacías. Si todo el contenido cabe en pantalla,
-no se exige un desplazamiento imposible. El inicio de sesión, la recuperación y la
-consola web no incorporan este paso.
+visible en la parte inferior. Antes de llegar al final, «Continuar» no está bloqueado:
+desplaza el texto hasta el final a una velocidad legible, y sólo entonces se habilitan
+las casillas. Arrastrar el texto interrumpe ese desplazamiento asistido. Cancelar vuelve
+al formulario sin enviar la solicitud; al reabrir, las casillas vuelven a estar vacías.
+Si todo el contenido cabe en pantalla, no se exige un desplazamiento imposible. El inicio
+de sesión, la recuperación y la consola web no incorporan este paso.
 
-El texto es **preliminar**, identificado como tal en el panel: falta definir el
-responsable, el contacto para ejercer derechos y los plazos de conservación antes
-de publicarlo. Describe las finalidades, la ubicación opcional, Open-Meteo y el
-alojamiento en Brasil. Distingue la [Ley 19.628](https://www.bcn.cl/leychile/Navegar?idNorma=141599)
+El texto identifica al responsable del tratamiento, el correo para ejercer derechos y el
+plazo de conservación tras cerrar la cuenta. Describe las finalidades, la ubicación
+opcional, Open-Meteo y el alojamiento en Brasil. Distingue la [Ley 19.628](https://www.bcn.cl/leychile/Navegar?idNorma=141599)
 de la [Ley 21.719](https://www.bcn.cl/leychile/Navegar?idNorma=1209272), cuya entrada
 en vigor es el 1 de diciembre de 2026; no acredita por sí solo cumplimiento legal.
 
@@ -398,8 +399,12 @@ una sesión de recuperación no abre permisos ni la aplicación operativa.
 - **Acceso y registro:** [AuthScreen](src/screens/AuthScreen.tsx) valida los campos,
   bloquea envíos duplicados y solicita el consentimiento antes de crear la cuenta.
   Una cuenta sin confirmar abre [EmailCodeScreen](src/screens/EmailCodeScreen.tsx),
-  que verifica el código y permite reenviarlo con espera. Registro y verificación
-  requieren conexión; la sesión previamente restaurada permite continuidad sin red.
+  que verifica el código y permite reenviarlo con espera. El código se escribe en seis
+  casillas que sólo admiten dígitos: cada uno queda enmascarado tras verse un instante,
+  y al completar el sexto la verificación se dispara sola, sin repetir un código que el
+  servidor acaba de rechazar. El botón «Verificar código» se conserva para reintentar.
+  Registro y verificación requieren conexión; la sesión previamente restaurada permite
+  continuidad sin red.
 - **Recuperación:** el código de propósito `recovery` o un enlace antiguo válido
   conduce a [ResetPasswordScreen](src/screens/ResetPasswordScreen.tsx). Se valida la
   sesión del enlace antes de habilitar el cambio, se conserva la cuenta en recuperación
@@ -542,8 +547,8 @@ separada al final, en rojo, con aviso si quedan mediciones pendientes.
 - **Contacto:** `mailto:akurasoporte@gmail.com`, asunto «Soporte TerraSense» y cuerpo editable;
   alternativa para copiar el correo. El usuario envía el mensaje desde su cliente de correo.
 - **Privacidad:** versión de la app y los mismos textos del registro, sin exigir aceptarlos
-  otra vez. El texto legal conserva su condición preliminar; faltan datos del responsable
-  y plazos de conservación antes de publicación.
+  otra vez. El texto ya identifica al responsable, el correo para ejercer derechos y el plazo
+  de conservación; el borrado automático al mes todavía no está implementado en el servidor.
 
 Se conserva la paleta verde/tierra del tema existente. Las pantallas usan tarjetas de
 18 px de radio, títulos de 30 px, espacio horizontal de 24 px y acciones de al menos 48 px.
@@ -774,6 +779,23 @@ winget install Microsoft.OpenJDK.17
 setx ANDROID_HOME "$env:LOCALAPPDATA\Android\Sdk"
 setx JAVA_HOME "C:\Program Files\Microsoft\jdk-17"
 ```
+`setx` sólo afecta a las consolas que se abran **después**; hay que cerrar y reabrir la terminal,
+y Android Studio, para que las vean.
+
+4. Crear `App/android/local.properties` con la ruta del SDK:
+```properties
+sdk.dir=C\:\\Users\\<usuario>\\AppData\\Local\\Android\\Sdk
+```
+Las barras invertidas y los dos puntos van escapados: es un archivo de propiedades de Java, no una
+ruta normal. Este archivo está en `.gitignore` a propósito, porque la ruta cambia en cada equipo,
+así que **no viene en el repositorio y hay que crearlo tras cada clonado**. Sin él, y sin
+`ANDROID_HOME` en el entorno, Gradle falla al configurar el proyecto con
+`SDK location not found`, antes de compilar nada.
+
+> [!NOTE]
+> Ese fallo **no aparece** en `App/android/build/reports/problems/problems-report.html`: ese
+> informe sólo recoge advertencias de deprecación de Gradle. El error real se lee en la salida de
+> compilación, bajo `* What went wrong`.
 
 ### 11.3. Dispositivo Físico para Pruebas BLE
 > [!IMPORTANT]
