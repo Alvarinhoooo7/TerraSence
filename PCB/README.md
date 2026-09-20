@@ -159,7 +159,8 @@ Lleva la energía desde la celda hasta un riel de 5 V protegido y conmutable, y 
 | `JP1` | Puente de medición de corriente | 2 islas | 2 |
 | `D1` | **`M7`**, rectificador de silicio | SMA / DO-214AC | Á, K |
 | `MOD1` | Módulo **`LX-LCBST`**, carga USB-C y elevación | Placa hija | `B+`, `B−`, `OUT+`, `OUT−` |
-| `SW1` | Interruptor rocker SPST | Panel | 2 |
+| `J3` | Terminal block 2 vías, salida al interruptor | THT | 2 |
+| `SW1` | Interruptor rocker SPST | Panel, fuera de placa | 2 |
 | `C1` | 100 µF, 35 V, aluminio **polarizado** | Lata SMD ~8 mm | 2 |
 | `C2` | 100 nF `104K`, 50 V, cerámico X7R | 1206 | 2 |
 
@@ -201,9 +202,11 @@ Lleva la energía desde la celda hasta un riel de 5 V protegido y conmutable, y 
 | `D1` ánodo | `GND` | `GND` |
 | `P2` | `GND` | `GND` |
 | `MOD1` `B−` | `GND` | `GND` |
-| `MOD1` `OUT+` | `SW1` pin 1 | `+5V_RAW` |
-| `MOD1` `OUT−` | `GND` | `GND` |
-| `SW1` pin 2 | `C1` pin 1, `C2` pin 1, `U1` `VIN`, `C3` pin 1, `C4` pin 1, `Q1` fuente, `R4` pin 1, `TP2` | `+5V` |
+| `MOD1` `Vo+` | `J3` pin 1, `TP11` | `+5V_RAW` |
+| `MOD1` `Vo−` | `GND`, `TP12` | `GND` |
+| `J3` pin 1 | `SW1` pin 1, por cable | `+5V_RAW` |
+| `SW1` pin 2 | `J3` pin 2, por cable | `+5V` |
+| `J3` pin 2 | `C1` pin 1, `C2` pin 1, `U1` `VIN`, `C3` pin 1, `C4` pin 1, `Q1` fuente, `R4` pin 1, `TP2` | `+5V` |
 | `C1` pin 2, `C2` pin 2 | `GND` | `GND` |
 
 ### 4.4. Pads de batería `P1` y `P2`
@@ -427,7 +430,9 @@ Con 50 V nominales sobre 5 V aplicados, la pérdida por tensión aplicada es des
 | Con el equipo apagado | El elevador sigue consumiendo en vacío | Elevador deshabilitado |
 | Carga apagado | Sí | Sí |
 
-Dibujar con la **A**, que es la que aparece en la tabla de conexiones, y dejar el pad `EN` accesible con una isla puenteable para poder migrar sin rehacer la placa.
+**Decidido: variante A.** El `LX-LCBST` expone únicamente cuatro pines conectables —`Vo+`, `Vo−`, `Bat+`, `Bat−`— y no tiene pad `EN`, `KEY` ni `SHDN`, así que la variante B no es posible con este módulo.
+
+El interruptor es de panel y se conecta por **terminal block `J3` de 2 vías**: `MOD1` `Vo+` sale por `J3` pin 1, va por cable al rocker, y vuelve por `J3` pin 2 al riel `+5V`.
 
 ### 4.10. Carga por USB-C
 
@@ -495,11 +500,9 @@ Ruteo hacia el microcontrolador: alimentación a la DevKit, interfaz de usuario 
 | `R4` | 100 kΩ | 0805 | 2 |
 | `R5` | 1 kΩ | 0805 | 2 |
 | `R6` | 100 kΩ | 0805 | 2 |
-| `R9` | 100 kΩ 1 % | 0805 | 2 |
-| `R10` | 100 kΩ 1 % | 0805 | 2 |
-| `Q3` | N-MOSFET `2N7002` | SOT-23 | G, D, S |
-| `R14` | 100 kΩ | 0805 | 2 |
-| `C9` | 100 nF | 0805 | 2 |
+| `R9` | 100 kΩ, 1 % | 1206 | 2 |
+| `R10` | 100 kΩ, 1 % | 1206 | 2 |
+| `C9` | 100 nF `104K`, 50 V, X7R | 1206 | 2 |
 
 ### 5.2. Conexiones de alimentación de la DevKit
 
@@ -604,44 +607,69 @@ El azul queda justo: con 3,3 V de riel y 3,0 V de caída hay poco margen y el br
 
 ### 5.6. Divisor de medición de batería
 
+Alimenta el byte 14 de la trama BLE, el porcentaje de batería.
+
 ```text
    VBAT_PROT ──── R9 100k ────┬──── GPIO34
                               │
-                              ├──── C9 100nF ──── GND
-                              │                   (TP9 aquí)
+                              ├──── C9 100nF ──── GND   (TP9 aquí)
+                              │
                            R10 100k
                               │
-                              │ D
-                          ┌───┴───┐
-   GPIO25 ────────────────┤ G  Q3 │ N-MOSFET
-                    │     └───┬───┘
-                R14 100k      │ S
-                    │         │
-                   GND ───────┴──── GND
+                             GND
 ```
 
 | Desde | Hasta | Net |
 | :--- | :--- | :--- |
 | `VBAT_PROT` | `R9` pin 1 | `VBAT_PROT` |
 | `R9` pin 2 | `R10` pin 1, `C9` pin 1, `U1` `GPIO34`, `TP9` | `VBAT_SENSE` |
-| `R10` pin 2 | `Q3` drenador | `DIV_LOW` |
-| `Q3` fuente | `GND` | `GND` |
-| `Q3` compuerta | `U1` `GPIO25`, `R14` pin 1 | `GPIO25` |
-| `R14` pin 2 | `GND` | `GND` |
+| `R10` pin 2 | `GND` | `GND` |
 | `C9` pin 2 | `GND` | `GND` |
 
-**Por qué conmutado y no fijo.** Un divisor permanente tiene dos problemas, y el segundo es de corrección, no de consumo:
+| Ref | Valor | Tolerancia | Encapsulado |
+| :--- | :--- | :--- | :--- |
+| `R9` | 100 kΩ | 1 % | 1206 |
+| `R10` | 100 kΩ | 1 % | 1206 |
+| `C9` | 100 nF `104K`, 50 V, X7R | — | 1206 |
 
-1. Drena ~18,5 µA sin parar.
-2. **Con el equipo apagado por `SW1`, el ESP32 queda sin alimentación mientras el divisor sigue aplicando ~2,1 V sobre `GPIO34`**, inyectando corriente por los diodos de protección de una entrada sin alimentar.
+#### Escalado
 
-Con `Q3`, al apagarse el equipo la compuerta cae por `R14`, el MOSFET corta y el nodo del ADC queda en cero. El firmware sube `GPIO25`, espera a que `C9` se estabilice, lee y vuelve a bajarlo.
+| Tensión de celda | En `GPIO34` |
+| :--- | :--- |
+| 4,2 V, llena | 2,100 V |
+| 3,7 V, nominal | 1,850 V |
+| 3,0 V, corte | 1,500 V |
 
-**Escalado:** a 4,2 V de celda el nodo entrega 2,10 V; a 3,0 V entrega 1,50 V. Ambos dentro del rango utilizable de `ADC1` con atenuación de 11 dB. Usar `R9` y `R10` al 1 % para que la razón sea repetible entre unidades.
+La razón 1:2 deja el máximo en 2,1 V. Con atenuación de 11 dB el `ADC1` se mantiene lineal hasta cerca de 2,45 V, así que el rango completo de la celda cae en la zona útil y sobra margen.
 
-`C9` es necesario porque el ADC del ESP32 muestrea sobre un condensador interno y una impedancia de fuente de 50 kΩ no alcanza a recargarlo entre muestras.
+#### Por qué 100 kΩ
 
-**Calibración:** el ADC del ESP32 no es lineal en los extremos. Medir con multímetro en `TP1` y `TP9` y ajustar en firmware; no asumir la razón teórica de 0,5.
+- **Consumo:** 21 µA permanentes, unos 15 mAh al mes sobre una celda de 2.000 mAh. Menos del 1 %.
+- **Impedancia de fuente:** 50 kΩ. Es alta para el ADC del ESP32 y por eso **`C9` no es opcional**: el conversor muestrea sobre un condensador interno y necesita que alguien le entregue esa carga.
+- **Tolerancia 1 %** en ambas para que la razón sea repetible entre unidades. La disipación es de 88 µW, así que el encapsulado es indiferente; 1206 por comodidad de soldadura.
+
+#### Por qué el divisor es fijo y no conmutado
+
+Un divisor conmutado por MOSFET **en el lado bajo no funciona**, aunque parezca la solución evidente:
+
+```text
+   VBAT_PROT ── R9 ──┬── VBAT_SENSE ──► GPIO34
+                     R10
+                     │
+                    Q3 apagado    ← camino a masa interrumpido
+                     │
+                    GND
+```
+
+Con el MOSFET cortado, el nodo de medición **no tiene camino a masa** y sube hasta la tensión de celda: 4,2 V aplicados sobre `GPIO34`, que tolera 3,3 V. Es peor que el consumo que se pretendía evitar.
+
+Para cortar de verdad, el interruptor tiene que ir **arriba**, entre `VBAT_PROT` y `R9`, lo que exige un P-MOSFET más un N-MOSFET de mando, igual que el power gate. Cuatro componentes para ahorrar 21 µA.
+
+**No se justifica en la V2:** `SW1` corta los 5 V, no la batería, así que la celda queda conectada al divisor con el equipo apagado de todas formas.
+
+#### Calibración
+
+`V_bat = V_adc × 2` es la razón teórica, pero **el ADC del ESP32 no es lineal en los extremos y su referencia varía entre chips**. Medir con multímetro en `TP1` y `TP9` y ajustar en firmware. Promediar varias muestras: el nodo tiene impedancia alta y capta ruido.
 
 ### 5.7. Mapa de pines
 
@@ -654,7 +682,6 @@ Con `Q3`, al apagarse el equipo la compuerta cae por `R14`, el MOSFET corta y el
 | `GPIO21` | `SDA` | `U3` `SDA` y `R7` | |
 | `GPIO22` | `SCL` | `U3` `SCL` y `R8` | |
 | `GPIO34` | `VBAT_SENSE` | Nodo de `R9`, `R10` y `C9` | Solo entrada, `ADC1_CH6` |
-| `GPIO25` | Habilitación del divisor | Compuerta de `Q3` y `R14` | RTC libre |
 | `GPIO33` | Pulsador | `SW2`, `R1` y `C7` | RTC, despierta del sueño profundo |
 | `GPIO2` | LED verde | `R2` | *Strapping* tolerable |
 | `GPIO15` | LED azul | `R3` | *Strapping*; en bajo silencia el log de arranque |
@@ -818,7 +845,7 @@ Se deja así en la V2, porque `SW1` corta todo entre usos. Si más adelante se p
 5. **`GPIO4` a bajo** y recepción de 19 bytes con validación CRC16.
 6. **Power gate OFF:** `GPIO5` en bajo.
 7. **Lectura ambiental I²C** del BME280.
-8. **Lectura de batería:** `GPIO25` en alto, muestreo de `GPIO34`, `GPIO25` en bajo.
+8. **Lectura de batería:** muestreo de `GPIO34`, promediando varias tomas.
 9. **Notificación BLE** de los 20 bytes.
 
 > El mapa de registros **no está confirmado** contra la ficha del proveedor. Antes de fabricar hace falta una captura Modbus real del SKU adquirido.
@@ -882,6 +909,9 @@ Sin esto no se puede ejecutar el plan de medición de consumo. Van en el esquem�
 | `TP7` | `GND` | Retorno, junto a `TP1` y `TP2` |
 | `TP8` | `GND` | Retorno, junto a `TP5` y `TP6`, para sonda diferencial |
 | `TP9` | `VBAT_SENSE` | Nodo del divisor; comparar contra `TP1` al calibrar |
+| `TP10` | `VBAT_RAW` | Entrada de los pads de batería, **antes** de la protección |
+| `TP11` | `+5V_RAW` | `Vo+` del módulo, antes del interruptor |
+| `TP12` | `GND` | Junto a `Vo−`, retorno de las dos medidas anteriores |
 
 ### 7.2. `JP1`, el puente que hace medible el consumo
 
@@ -1013,19 +1043,17 @@ Cada net con **todos** los pines que van unidos a ella. Si un pin no aparece aqu
 
 | Net | Pines conectados |
 | :--- | :--- |
-| `VBAT_RAW` | `P1` · `F1`.1 |
+| `VBAT_RAW` | `P1` · `F1`.1 · `TP10` |
 | `VBAT_F` | `F1`.2 · `JP1`.1 |
-| `VBAT_PROT` | `JP1`.2 · `D1`.cátodo · `MOD1`.B+ · `R9`.1 · `TP1` |
-| `+5V_RAW` | `MOD1`.OUT+ · `SW1`.1 |
-| `+5V` | `SW1`.2 · `C1`.1 · `C2`.1 · `U1`.VIN · `C3`.1 · `C4`.1 · `Q1`.S · `R4`.1 · `TP2` |
+| `VBAT_PROT` | `JP1`.2 · `D1`.cátodo · `MOD1`.Bat+ · `R9`.1 · `TP1` |
+| `+5V_RAW` | `MOD1`.Vo+ · `J3`.1 · `TP11` |
+| `+5V` | `J3`.2 · `C1`.1 · `C2`.1 · `U1`.VIN · `C3`.1 · `C4`.1 · `Q1`.S · `R4`.1 · `TP2` |
 | `+3V3` | `U1`.3V3 · `C5`.1 · `C6`.1 · `U2`.8 · `C8`.1 · `U3`.VCC · `U3`.CSB · `R1`.1 · `R7`.1 · `R8`.1 · `R12`.1 · `TP3` |
 | `Q1_G` | `Q1`.G · `R4`.2 · `Q2`.D |
 | `Q2_G` | `Q2`.G · `R5`.2 · `R6`.1 |
 | `GPIO5` | `U1`.GPIO5 · `R5`.1 |
 | `5V_SONDA` | `Q1`.D · `J2`.1 · `TP4` |
 | `VBAT_SENSE` | `R9`.2 · `R10`.1 · `C9`.1 · `U1`.GPIO34 · `TP9` |
-| `DIV_LOW` | `R10`.2 · `Q3`.D |
-| `GPIO25` | `U1`.GPIO25 · `Q3`.G · `R14`.1 |
 | `BTN` | `U1`.GPIO33 · `R1`.2 · `SW2`.1 · `C7`.1 |
 | `GPIO2` | `U1`.GPIO2 · `R2`.1 |
 | `LED_V` | `R2`.2 · `D2`.ánodo |
@@ -1038,7 +1066,7 @@ Cada net con **todos** los pines que van unidos a ella. Si un pin no aparece aqu
 | `DE_RE` | `U1`.GPIO4 · `U2`.2 · `U2`.3 |
 | `RS485_A` | `U2`.6 · `R11`.1 · `R12`.2 · `D4`.A · `J2`.3 · `TP5` |
 | `RS485_B` | `U2`.7 · `R11`.2 · `R13`.1 · `D4`.B · `J2`.4 · `TP6` |
-| `GND` | `P2` · `D1`.ánodo · `MOD1`.B− · `MOD1`.OUT− · `C1`.2 · `C2`.2 · `U1`.GND · `C3`.2 · `C4`.2 · `C5`.2 · `C6`.2 · `SW2`.2 · `C7`.2 · `D2`.cátodo · `D3`.cátodo · `Q2`.S · `R6`.2 · `Q3`.S · `R14`.2 · `C9`.2 · `U2`.5 · `C8`.2 · `U3`.GND · `U3`.SDO · `R13`.2 · `D4`.masa · `J2`.2 · `TP7` · `TP8` |
+| `GND` | `P2` · `D1`.ánodo · `MOD1`.Bat− · `MOD1`.Vo− · `C1`.2 · `C2`.2 · `U1`.GND · `C3`.2 · `C4`.2 · `C5`.2 · `C6`.2 · `SW2`.2 · `C7`.2 · `D2`.cátodo · `D3`.cátodo · `Q2`.S · `R6`.2 · `R10`.2 · `C9`.2 · `U2`.5 · `C8`.2 · `U3`.GND · `U3`.SDO · `R13`.2 · `D4`.masa · `J2`.2 · `TP7` · `TP8` · `TP12` |
 
 
 ### 11.1. Resumen por componente
@@ -1050,8 +1078,9 @@ Cada net con **todos** los pines que van unidos a ella. Si un pin no aparece aqu
 | `F1` | 1 / 2 | `VBAT_RAW` / `VBAT_F` |
 | `JP1` | 1 / 2 | `VBAT_F` / `VBAT_PROT` |
 | `D1` | ánodo / cátodo | `GND` / `VBAT_PROT` |
-| `MOD1` | B+ / B− / OUT+ / OUT− | `VBAT_PROT` / `GND` / `+5V_RAW` / `GND` |
-| `SW1` | 1 / 2 | `+5V_RAW` / `+5V` |
+| `MOD1` | Bat+ / Bat− / Vo+ / Vo− | `VBAT_PROT` / `GND` / `+5V_RAW` / `GND` |
+| `J3` | 1 / 2 | `+5V_RAW` / `+5V` |
+| `SW1` | 1 / 2 | `+5V_RAW` / `+5V` — fuera de placa, cableado a `J3` |
 | `C1`, `C2` | 1 / 2 | `+5V` / `GND` |
 | `U1` | VIN / GND / 3V3 | `+5V` / `GND` / `+3V3` |
 | `C3`, `C4` | 1 / 2 | `+5V` / `GND` |
@@ -1069,9 +1098,7 @@ Cada net con **todos** los pines que van unidos a ella. Si un pin no aparece aqu
 | `R5` | 1 / 2 | `GPIO5` / `Q2_G` |
 | `R6` | 1 / 2 | `Q2_G` / `GND` |
 | `R9` | 1 / 2 | `VBAT_PROT` / `VBAT_SENSE` |
-| `R10` | 1 / 2 | `VBAT_SENSE` / `DIV_LOW` |
-| `Q3` | D / G / S | `DIV_LOW` / `GPIO25` / `GND` |
-| `R14` | 1 / 2 | `GPIO25` / `GND` |
+| `R10` | 1 / 2 | `VBAT_SENSE` / `GND` |
 | `C9` | 1 / 2 | `VBAT_SENSE` / `GND` |
 | `U3` | VCC / GND / SDA / SCL / CSB / SDO | `+3V3` / `GND` / `SDA` / `SCL` / `+3V3` / `GND` |
 | `R7` | 1 / 2 | `+3V3` / `SDA` |
