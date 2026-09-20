@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { BackHandler, View } from 'react-native';
-import Animated, { LinearTransition } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+import { layoutFlow } from '../constants/motion';
 import { supabase } from '../services/supabase';
 import { AuthLayout, AuthHeading, AuthField, AuthButton, AuthMessage, authStyles } from '../components/auth/AuthUI';
 import { useTranslation } from '../hooks/useTranslation';
@@ -68,7 +69,7 @@ export const ResetPasswordScreen = ({ onDone }: { onDone: () => void }) => {
     <AuthHeading eyebrow={success ? t('TODO LISTO', 'ALL SET') : t('UNA NUEVA CONTRASEÑA', 'A NEW PASSWORD')}
       title={success ? t('Vuelve a tu campo.', 'Back to your field.') : t('Un nuevo comienzo.', 'A fresh start.')}
       description={success ? t('Tu contraseña se actualizó. Inicia sesión con la nueva para continuar.', 'Your password was updated. Sign in with your new password to continue.') : t('Elige una contraseña que uses solo para TerraSense.', 'Choose a password you only use for TerraSense.')} />
-    {success ? <AuthButton label={t('Ir a iniciar sesión', 'Go to sign in')} onPress={onDone} /> : <Animated.View layout={LinearTransition.springify().damping(14)} style={authStyles.form}>
+    {success ? <AuthButton label={t('Ir a iniciar sesión', 'Go to sign in')} onPress={onDone} /> : <Animated.View layout={layoutFlow()} style={authStyles.form}>
       <AuthField label={t('Contraseña nueva', 'New password')} secret value={password} onChangeText={setPassword}
         editable={!busy && !passwordSaved.current} autoComplete="new-password" textContentType="newPassword" />
       <PasswordChecklist password={password} />

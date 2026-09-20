@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { isEmailCodeValid, normalizeEmailCode, resendEmailCode, resendSecondsRemaining, verifyEmailCode } from '../src/services/emailOtp';
+import { emailCodeCells, isEmailCodeValid, normalizeEmailCode, resendEmailCode, resendSecondsRemaining, sanitizeCodeInput, shouldAutoVerify, verifyEmailCode } from '../src/services/emailOtp';
 
 type Auth = Parameters<typeof verifyEmailCode>[0];
 function fakeAuth() {
@@ -61,4 +61,29 @@ test('el reenvío propaga el límite del servidor y el contador usa tiempo real 
   assert.equal(resendSecondsRemaining(60_000, 0), 60);
   assert.equal(resendSecondsRemaining(60_000, 59_500), 1);
   assert.equal(resendSecondsRemaining(60_000, 180_000), 0);
+});
+
+test('el campo acepta solo dígitos y nunca más de seis, sin relajar la validación', () => {
+  assert.equal(sanitizeCodeInput('0a1 2-3b4/5'), '012345');
+  assert.equal(sanitizeCodeInput('1234567890'), '123456');
+  assert.equal(sanitizeCodeInput(''), '');
+  // Recortar es cosa del campo; validar no: un código de siete dígitos sigue siendo inválido.
+  assert.equal(isEmailCodeValid('1234567'), false);
+});
+
+test('las casillas enmascaran lo escrito y sólo muestran el dígito recién tecleado', () => {
+  assert.deepEqual(emailCodeCells(''), ['', '', '', '', '', '']);
+  assert.deepEqual(emailCodeCells('012'), ['*', '*', '*', '', '', '']);
+  assert.deepEqual(emailCodeCells('012', 2), ['*', '*', '2', '', '', '']);
+  assert.deepEqual(emailCodeCells('012345', 5), ['*', '*', '*', '*', '*', '5']);
+  // Un índice fuera del código no revela nada.
+  assert.deepEqual(emailCodeCells('01', 4), ['*', '*', '', '', '', '']);
+});
+
+test('la verificación automática espera los seis dígitos y no repite un código rechazado', () => {
+  assert.equal(shouldAutoVerify('01234', null, false), false);
+  assert.equal(shouldAutoVerify('012345', null, false), true);
+  assert.equal(shouldAutoVerify('012345', null, true), false, 'no dispara mientras hay una solicitud en curso');
+  assert.equal(shouldAutoVerify('012345', '012345', false), false, 'no reintenta el mismo código');
+  assert.equal(shouldAutoVerify('012345', '999999', false), true);
 });

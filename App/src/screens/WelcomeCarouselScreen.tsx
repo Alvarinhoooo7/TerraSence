@@ -2,10 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, FlatList, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View, type ViewToken } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import Animated, { FadeInDown, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
-import { AppIcon } from '../components/AppIcon';
+import { BrandLogo } from '../components/BrandLogo';
+import { enterDown, motionTiming, Motion } from '../constants/motion';
 import { AuthButton, SoilArtwork, authStyles } from '../components/auth/AuthUI';
 
 const PAGES = [
@@ -17,7 +18,7 @@ const PAGES = [
 function PaginationDot({ isActive, primaryColor, borderActiveColor }: { isActive: boolean, primaryColor: string, borderActiveColor: string }) {
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      width: withSpring(isActive ? 32 : 12, { damping: 12, stiffness: 150 }),
+      width: motionTiming(isActive ? 32 : 12, Motion.layout),
       backgroundColor: isActive ? primaryColor : borderActiveColor,
     };
   });
@@ -54,8 +55,8 @@ export function WelcomeCarouselScreen({ onComplete }: { onComplete: () => void }
   const config = useRef({ itemVisiblePercentThreshold: 60 }).current;
 
   return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-    <Animated.View entering={FadeInDown.duration(600).springify()} style={styles.top}>
-      <View style={authStyles.brand}><AppIcon name="leaf" size={24} color={colors.primary} /><Text style={[authStyles.brandText, { color: colors.text }]}>TerraSense</Text></View>
+    <Animated.View entering={enterDown()} style={styles.top}>
+      <BrandLogo width={140} />
       <Pressable accessibilityRole="button" onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>null); onComplete(); }} style={authStyles.link}>
         <Text style={[authStyles.label, { color: colors.textSecondary }]}>{t('Saltar', 'Skip')}</Text>
       </Pressable>
@@ -69,13 +70,13 @@ export function WelcomeCarouselScreen({ onComplete }: { onComplete: () => void }
         accessibilityElementsHidden={page !== index} importantForAccessibility={page === index ? 'auto' : 'no-hide-descendants'}>
         <SoilArtwork variant={page} />
         <View style={{ gap: 16, paddingTop: 32 }}>
-          <Animated.Text entering={FadeInDown.delay(100).duration(500).springify()} style={[authStyles.eyebrow, { color: colors.primary }]}>{t(item.eyebrow[0], item.eyebrow[1])}</Animated.Text>
-          <Animated.Text entering={FadeInDown.delay(200).duration(500).springify()} accessibilityRole="header" style={[authStyles.title, { fontSize: 36, lineHeight: 42, color: colors.text }]}>{t(item.title[0], item.title[1])}</Animated.Text>
-          <Animated.Text entering={FadeInDown.delay(300).duration(500).springify()} style={[authStyles.body, { color: colors.textSecondary }]}>{t(item.body[0], item.body[1])}</Animated.Text>
+          <Animated.Text entering={enterDown(80)} style={[authStyles.eyebrow, authStyles.centered, { color: colors.primary }]}>{t(item.eyebrow[0], item.eyebrow[1])}</Animated.Text>
+          <Animated.Text entering={enterDown(160)} accessibilityRole="header" style={[authStyles.title, authStyles.centered, { fontSize: 36, lineHeight: 42, color: colors.text }]}>{t(item.title[0], item.title[1])}</Animated.Text>
+          <Animated.Text entering={enterDown(240)} style={[authStyles.body, authStyles.centered, { color: colors.textSecondary }]}>{t(item.body[0], item.body[1])}</Animated.Text>
         </View>
       </ScrollView>} />
 
-    <Animated.View entering={FadeInDown.delay(400).duration(600).springify()} style={styles.footer}>
+    <Animated.View entering={enterDown(320)} style={styles.footer}>
       <View style={styles.progress} accessibilityLabel={t(`Página ${index + 1} de 3`, `Page ${index + 1} of 3`)}>
         <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
           {PAGES.map((_, page) => (

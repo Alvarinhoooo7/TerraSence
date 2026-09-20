@@ -5,21 +5,23 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet, Text, Vi
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import * as Haptics from 'expo-haptics';
-import Animated, { Easing, FadeInDown, interpolate, interpolateColor, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, interpolate, interpolateColor, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useTranslation } from '../../hooks/useTranslation';
-import { AppIcon } from '../AppIcon';
+import { enterDown, motionTiming } from '../../constants/motion';
 
 /** Componentes exclusivos del acceso. No cambian los tokens de otras pantallas. */
-export function AuthLayout({ children, toolbar }: React.PropsWithChildren<{ toolbar?: React.ReactNode }>) {
+export function AuthLayout({ children, toolbar, brand = true }: React.PropsWithChildren<{ toolbar?: React.ReactNode; brand?: boolean }>) {
   const { colors } = useAppTheme();
+  // `brand={false}` en la verificación del código: sin la marca el texto sube y la
+  // pantalla queda en lo único que importa ahí, que son los seis dígitos.
   return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={authStyles.layout}>
-        <View style={authStyles.top}>
-          <BrandLogo width={172} />
+        {(brand || toolbar) && <View style={authStyles.top}>
+          {brand ? <BrandLogo width={172} /> : <View />}
           {toolbar}
-        </View>
+        </View>}
         {children}
       </ScrollView>
     </KeyboardAvoidingView>
@@ -28,10 +30,10 @@ export function AuthLayout({ children, toolbar }: React.PropsWithChildren<{ tool
 
 export function AuthHeading({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
   const { colors } = useAppTheme();
-  return <Animated.View entering={FadeInDown.duration(600).springify()} style={authStyles.heading}>
-    <Text style={[authStyles.eyebrow, { color: colors.primary }]}>{eyebrow}</Text>
-    <Text accessibilityRole="header" style={[authStyles.title, { color: colors.text }]}>{title}</Text>
-    <Text style={[authStyles.body, { color: colors.textSecondary }]}>{description}</Text>
+  return <Animated.View entering={enterDown()} style={authStyles.heading}>
+    <Text style={[authStyles.eyebrow, authStyles.centered, { color: colors.primary }]}>{eyebrow}</Text>
+    <Text accessibilityRole="header" style={[authStyles.title, authStyles.centered, { color: colors.text }]}>{title}</Text>
+    <Text style={[authStyles.body, authStyles.centered, { color: colors.textSecondary }]}>{description}</Text>
   </Animated.View>;
 }
 
@@ -56,7 +58,7 @@ export function AuthField({ label, secret = false, ...props }: TextInputProps & 
     };
   });
 
-  return <Animated.View entering={FadeInDown.duration(500).delay(100).springify()} style={authStyles.field}>
+  return <Animated.View entering={enterDown(100)} style={authStyles.field}>
     <Text style={[authStyles.label, { color: colors.text }]}>{label}</Text>
     <Animated.View style={[authStyles.inputWrap, { backgroundColor: colors.card, opacity: props.editable === false ? 0.65 : 1 }, animatedBorderStyle]}>
       <TextInput {...props} accessibilityLabel={label} placeholderTextColor={colors.textSecondary}
@@ -72,8 +74,8 @@ export function AuthField({ label, secret = false, ...props }: TextInputProps & 
   </Animated.View>;
 }
 
-export function AuthButton({ label, guide, guideTitle, onPress, busy = false, disabled = false, secondary = false }: {
-  label: string; guide?: string; guideTitle?: string; onPress: () => void; busy?: boolean; disabled?: boolean; secondary?: boolean;
+export function AuthButton({ label, hint, guide, guideTitle, onPress, busy = false, disabled = false, secondary = false }: {
+  label: string; hint?: string; guide?: string; guideTitle?: string; onPress: () => void; busy?: boolean; disabled?: boolean; secondary?: boolean;
 }) {
   const { colors, isDark } = useAppTheme();
   const ink = secondary ? colors.primary : isDark ? colors.background : '#FFFFFF';
@@ -81,8 +83,8 @@ export function AuthButton({ label, guide, guideTitle, onPress, busy = false, di
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
-  const handlePressIn = () => { scale.value = withSpring(0.96, { damping: 12, stiffness: 200 }); };
-  const handlePressOut = () => { scale.value = withSpring(1, { damping: 12, stiffness: 200 }); };
+  const handlePressIn = () => { scale.value = motionTiming(0.97); };
+  const handlePressOut = () => { scale.value = motionTiming(1); };
   const handlePress = () => {
     if (!disabled && !busy) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
@@ -91,20 +93,20 @@ export function AuthButton({ label, guide, guideTitle, onPress, busy = false, di
   };
 
   return <Animated.View style={animatedStyle}>
-    <Pressable guide={guide} guideTitle={guideTitle} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: disabled || busy, busy }}
+    <Pressable guide={guide} guideTitle={guideTitle} accessibilityRole="button" accessibilityLabel={label} accessibilityHint={hint} accessibilityState={{ disabled: disabled || busy, busy }}
       disabled={disabled || busy} onPress={handlePress} onPressIn={handlePressIn} onPressOut={handlePressOut}
       style={({ pressed }) => [authStyles.button, { backgroundColor: secondary ? colors.card : colors.primary,
         borderColor: secondary ? colors.border : colors.primary, opacity: disabled || busy ? 0.55 : 1 },
         !secondary && { shadowColor: colors.primary, shadowOpacity: isDark ? 0.4 : 0.2, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 4 }
       ]}>
-      {busy ? <ActivityIndicator color={ink} /> : <><Text style={[authStyles.buttonText, { color: ink }]}>{label}</Text>{!secondary && <AppIcon name="arrow" size={20} color={ink} />}</>}
+      {busy ? <ActivityIndicator color={ink} /> : <Text style={[authStyles.buttonText, { color: ink }]}>{label}</Text>}
     </Pressable>
   </Animated.View>;
 }
 
 export function AuthMessage({ children, error = false }: React.PropsWithChildren<{ error?: boolean }>) {
   const { colors } = useAppTheme();
-  return <Animated.View entering={FadeInDown.duration(400).springify()} style={[authStyles.message, { borderColor: error ? colors.danger : colors.border, backgroundColor: colors.card }]}>
+  return <Animated.View entering={enterDown()} style={[authStyles.message, { borderColor: error ? colors.danger : colors.border, backgroundColor: colors.card }]}>
     <Text accessibilityRole={error ? 'alert' : undefined} accessibilityLiveRegion="polite" style={[authStyles.body, { color: error ? colors.danger : colors.textSecondary }]}>{children}</Text>
   </Animated.View>;
 }
@@ -122,7 +124,7 @@ export function SoilArtwork({ variant = 0, compact = false }: { variant?: number
     transform: [{ translateY: interpolate(floatAnim.value, [0, 1], [0, -6]) }]
   }));
 
-  return <Animated.View entering={FadeInDown.duration(800).springify()} style={animatedStyle}>
+  return <Animated.View entering={enterDown()} style={animatedStyle}>
     <View accessible={false} importantForAccessibility="no-hide-descendants" style={{ height: compact ? 120 : 248, backgroundColor: colors.primaryDark, borderRadius: 24, overflow: 'hidden' }}>
       <Svg width="100%" height="100%" viewBox="0 0 360 248" preserveAspectRatio="xMidYMid slice">
         <Circle cx="286" cy="53" r="94" fill="none" stroke="#42614E" strokeWidth="0.8" />
@@ -150,9 +152,8 @@ export function SoilArtwork({ variant = 0, compact = false }: { variant?: number
 export const authStyles = StyleSheet.create({
   layout: { flexGrow: 1, width: '100%', maxWidth: 520, alignSelf: 'center', padding: 24, paddingBottom: 40, gap: 24 },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 48, gap: 8, flexWrap: "wrap", paddingRight: 44 },
-  brand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  brandText: { fontSize: 20, fontWeight: '700', letterSpacing: -0.5 },
   heading: { gap: 12 },
+  centered: { textAlign: 'center' },
   eyebrow: { fontSize: 12, fontWeight: '700', letterSpacing: 1.6 },
   title: { fontSize: 34, lineHeight: 40, fontWeight: '700', letterSpacing: -1.2 },
   body: { fontSize: 16, lineHeight: 24 },

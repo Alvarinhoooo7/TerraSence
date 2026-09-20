@@ -13,7 +13,8 @@ import {
 import { useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
 import { GuideCamera as CameraView } from '../components/guide/GuideCamera';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeInDown, LinearTransition, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+import { enterDown, layoutFlow } from '../constants/motion';
 import * as Haptics from 'expo-haptics';
 
 import { Typography } from '../constants/theme';
@@ -307,11 +308,11 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
     </TouchableOpacity>}>
       <AuthHeading eyebrow={t('VINCULA TU SONDA', 'PAIR YOUR PROBE')} title={probe ? t('La encontramos.', 'There it is.') : t('Acerca tu sonda.', 'Bring your probe closer.')}
         description={probe ? t('Dale un nombre para reconocerla cuando trabajes en el campo.', 'Give it a name you will recognize when working in the field.') : t('Enciéndela, mantén PAIR por 3 segundos y acércala a menos de 2 metros del teléfono.', 'Turn it on, hold PAIR for 3 seconds and keep it within 2 meters of your phone.')} />
-      {pairingState === 'scanning' ? <Animated.View entering={FadeInDown} layout={LinearTransition} accessibilityLiveRegion="polite" style={{ alignItems: 'center', paddingVertical: 24 }}>
+      {pairingState === 'scanning' ? <Animated.View entering={enterDown()} layout={layoutFlow()} accessibilityLiveRegion="polite" style={{ alignItems: 'center', paddingVertical: 24 }}>
         <AppIcon name="probe" color={colors.primary} size={64} />
         <ActivityIndicator color={colors.primary} style={{ marginTop: 24 }} />
       </Animated.View> : <SoilArtwork variant={1} />}
-      {probe ? <Animated.View entering={FadeInDown} layout={LinearTransition.springify().damping(14)} style={authStyles.form}>
+      {probe ? <Animated.View entering={enterDown()} layout={layoutFlow()} style={authStyles.form}>
         <View style={{ borderLeftWidth: 3, borderColor: colors.primary, paddingLeft: 16, gap: 8 }}>
           <Text style={[authStyles.eyebrow, { color: colors.primary }]}>{t('SONDA ENCONTRADA', 'PROBE FOUND')}</Text>
           <Text style={[authStyles.body, { color: colors.text }]}>{probe.name}</Text>
@@ -327,8 +328,8 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
     <AuthHeading eyebrow={t('TU CUENTA ESTÁ LISTA', 'YOUR ACCOUNT IS READY')} title={t('Ahora, tu sonda.', 'Now, your probe.')}
       description={t('Vincula un equipo para comenzar. Elige cómo te vas a conectar.', 'Link a device to get started. Choose how you will connect.')} />
     <SoilArtwork variant={1} compact />
-    <Animated.View layout={LinearTransition.springify().damping(14)} style={{ gap: 16 }}>
-      <Animated.View entering={FadeInDown.delay(100).duration(500).springify()}>
+    <Animated.View layout={layoutFlow()} style={{ gap: 16 }}>
+      <Animated.View entering={enterDown(100)}>
         <Pressable guideTitle={t("Escanear invitación", "Scan invitation")} guide={t("Abre la cámara para solicitar acceso con el QR temporal de otro miembro del equipo.", "Opens the camera to request access using another member’s temporary QR.")} onPress={() => { void openQr(); }} accessibilityRole="button"
           onPressIn={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
           style={({ pressed }) => [
@@ -350,7 +351,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
           </View>
         </Pressable>
       </Animated.View>
-      <Animated.View entering={FadeInDown.delay(200).duration(500).springify()}>
+      <Animated.View entering={enterDown(200)}>
         <Pressable guideTitle={t("Configurar equipo nuevo", "Set up new device")} guide={t("Inicia la vinculación Bluetooth de una sonda nueva para registrarte como administrador.", "Starts Bluetooth pairing of a new probe to register you as administrator.")} onPress={() => { if (!operation.current) setStep('pairing'); }} accessibilityRole="button"
           onPressIn={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
           style={({ pressed }) => [

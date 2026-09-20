@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, BackHandler, Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
-import Animated, { FadeInDown, LinearTransition, ReduceMotion } from 'react-native-reanimated';
+import Animated, { FadeInDown, ReduceMotion } from 'react-native-reanimated';
+import { layoutFlow } from '../constants/motion';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { AuthButton, AuthHeading, AuthLayout, AuthMessage, authStyles } from '../components/auth/AuthUI';
@@ -117,7 +118,7 @@ export function PermissionsScreen({ userId, onComplete }: { userId: string; onCo
   return <AuthLayout>
     <AuthHeading eyebrow={t('PASO 3 · PERMISOS', 'STEP 3 · PERMISSIONS')} title={t('Prepara tu teléfono.', 'Get your phone ready.')}
       description={t('Tú decides qué permitir. Te contamos para qué sirve cada permiso antes de pedírtelo.', 'You choose what to allow. Here is why each permission helps before we ask for it.')} />
-    <Animated.View layout={LinearTransition.springify().damping(14).reduceMotion(ReduceMotion.System)} style={{ gap: 16 }}>
+    <Animated.View layout={layoutFlow()} style={{ gap: 16 }}>
       {PERMISSION_KINDS.map((kind, index) => {
         const state = permissions?.[kind];
         const card = copy[kind];
@@ -138,7 +139,7 @@ export function PermissionsScreen({ userId, onComplete }: { userId: string; onCo
       })}
     </Animated.View>
     {error && <AuthMessage error>{error}</AuthMessage>}
-    <Animated.View layout={LinearTransition.springify().damping(14).reduceMotion(ReduceMotion.System)}>
+    <Animated.View layout={layoutFlow()}>
       <AuthButton label={saveFailed ? t('Continuar sin guardar', 'Continue without saving') : t('Continuar', 'Continue')}
         busy={busy === 'continue'} disabled={!!busy || !permissions} onPress={() => { void finish(); }} />
       <Text style={[authStyles.body, { color: colors.textSecondary, marginTop: 16 }]}>

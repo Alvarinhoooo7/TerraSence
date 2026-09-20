@@ -8,7 +8,8 @@
 
 import React, { useCallback, useRef, useState } from 'react';
 import { BackHandler, Keyboard, Pressable, Text, View } from 'react-native';
-import Animated, { LinearTransition } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+import { layoutFlow } from '../constants/motion';
 import { supabase } from '../services/supabase';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
@@ -213,7 +214,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
       {mode === 'signin' && <SoilArtwork compact />}
       <AuthHeading eyebrow={mode === 'signin' ? t('TU CAMPO, MÁS CLARO', 'A CLEARER VIEW OF YOUR FIELD') : mode === 'signup' ? t('COMIENZA AQUÍ', 'START HERE') : t('RECUPERA EL ACCESO', 'RESTORE ACCESS')}
         title={mode === 'signin' ? t('Qué bueno verte.', 'Welcome back.') : copy.title} description={copy.hint} />
-      <Animated.View layout={LinearTransition.springify().damping(14)} style={authStyles.form}>
+      <Animated.View layout={layoutFlow()} style={authStyles.form}>
         {mode === 'signup' && <AuthField label={t('Tu nombre', 'Your name')} placeholder={t('Nombre y apellido', 'Full name')}
           value={fullName} onChangeText={setFullName} autoCapitalize="words" autoComplete="name" textContentType="name" editable={!busy} />}
         <AuthField label={t('Correo electrónico', 'Email address')} placeholder="nombre@ejemplo.cl" value={email}
@@ -233,7 +234,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
         {error && <AuthMessage error>{error}</AuthMessage>}
         <AuthButton label={copy.cta} busy={busy} onPress={() => { void submit(); }} />
       </Animated.View>
-      <Animated.View layout={LinearTransition.springify().damping(14)} style={{ gap: 12, borderTopWidth: 1, borderColor: colors.border, paddingTop: 24 }}>
+      <Animated.View layout={layoutFlow()} style={{ gap: 12, borderTopWidth: 1, borderColor: colors.border, paddingTop: 24 }}>
         <Text style={[authStyles.body, { color: colors.textSecondary, textAlign: 'center' }]}>
           {mode === 'signin' ? t('¿Primera vez en TerraSense?', 'New to TerraSense?') : t('¿Ya tienes una cuenta?', 'Already have an account?')}
         </Text>

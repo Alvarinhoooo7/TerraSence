@@ -1,6 +1,7 @@
-// Cambiar la versión cada vez que cambie el texto presentado al usuario.
-// Versión preliminar: falta confirmar responsable, contacto y política de conservación.
-export const REGISTRATION_LEGAL_VERSION = '2026-09-18-draft-1';
+// Cambiar la versión cada vez que cambie el texto presentado al usuario: es lo que
+// queda registrado en la aceptación de cada cuenta y lo que permite saber qué leyó.
+// 2026-09-20-1 incorpora responsable, contacto de derechos y plazo de conservación.
+export const REGISTRATION_LEGAL_VERSION = '2026-09-20-1';
 
 export interface ConsentState {
   reachedEnd: boolean;
