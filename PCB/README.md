@@ -160,8 +160,8 @@ Lleva la energía desde la celda hasta un riel de 5 V protegido y conmutable, y 
 | `D1` | **`M7`**, rectificador de silicio | SMA / DO-214AC | Á, K |
 | `MOD1` | Módulo **`LX-LCBST`**, carga USB-C y elevación | Placa hija | `B+`, `B−`, `OUT+`, `OUT−` |
 | `SW1` | Interruptor rocker SPST | Panel | 2 |
-| `C1` | 100 µF, 10 V | Electrolítico o tántalo | 2 |
-| `C2` | 100 nF, X7R | 0805 | 2 |
+| `C1` | 100 µF, **16 V**, electrolítico de aluminio | Lata SMD 6,3 × 5,4 mm | 2 |
+| `C2` | 100 nF, **50 V**, X7R | 1206 | 2 |
 
 > **`F1` y `D1` trabajan juntos.** No son dos protecciones independientes: el diodo detecta la inversión y el fusible es quien corta. Uno sin el otro no protege.
 
@@ -372,7 +372,7 @@ Si el módulo trae orificios almenados, se suelda por el borde y queda más bajo
 
 #### El pin `EN`
 
-Si el módulo expone `EN`, `KEY` o `SHDN`, **sacarlo a una isla puenteable** aunque la V2 no lo use. Es lo que permite migrar `SW1` a la variante **B** de la sección 4.8 sin rehacer la placa.
+Si el módulo expone `EN`, `KEY` o `SHDN`, **sacarlo a una isla puenteable** aunque la V2 no lo use. Es lo que permite migrar `SW1` a la variante **B** de la sección 4.9 sin rehacer la placa.
 
 #### Símbolo en KiCad
 
@@ -380,7 +380,46 @@ No existe en las librerías estándar: hay que crearlo. Un rectángulo con cuatr
 
 **Declarar `OUT+` como salida de potencia** (*power output*). Si queda como pasivo, el ERC reclamará que la net `+5V` no tiene fuente que la alimente. Lo mismo aplica al pin `3V3` de la DevKit.
 
-### 4.8. Interruptor `SW1`
+### 4.8. Criterio de los condensadores
+
+Aplica a `C1` y `C2` de esta etapa, y al par equivalente `C3` y `C4` de la etapa 2.
+
+| Ref | Valor | Tensión | Tecnología | Encapsulado |
+| :--- | :--- | :--- | :--- | :--- |
+| `C1`, `C3` | 100 µF | **16 V** | Electrolítico de aluminio | Lata SMD 6,3 × 5,4 mm |
+| `C2`, `C4` | 100 nF | **50 V** | Cerámico X7R | 1206 |
+
+#### Por qué los 100 µF no van en cerámico 1206
+
+Un MLCC de 100 µF en 1206 casi no existe en el mercado, y cuando aparece suele ser de 6,3 V. Peor aún: **los cerámicos pierden capacidad cuando se les aplica tensión**, un efecto llamado *DC bias* que no es tolerancia de fabricación sino comportamiento del dieléctrico.
+
+| Componente | Nominal | Capacidad real sobre un riel de 5 V |
+| :--- | :--- | :--- |
+| 100 µF 6,3 V X5R 1206 | 100 µF | **~25 a 35 µF** |
+| 22 µF 16 V X7R 1206 | 22 µF | ~17 µF |
+| 100 µF 16 V electrolítico | 100 µF | **100 µF** |
+
+Un cerámico de 6,3 V en este riel puede entregar **un tercio** de lo que dice la serigrafía. El electrolítico de aluminio no sufre este efecto: entrega su valor nominal dentro de la tolerancia.
+
+Los 5,4 mm de alto de la lata SMD caben de sobra en una carcasa de 38 mm de profundidad.
+
+> Si en algún momento hiciera falta un perfil más bajo, la alternativa es poner **varios cerámicos en paralelo con tensión holgada** — por ejemplo cuatro de 22 µF y 16 V — y no uno solo de 100 µF y 6,3 V.
+
+#### Por qué los 100 nF van de 50 V
+
+Por el mismo efecto, al revés: cuanto mayor es el margen entre la tensión nominal del condensador y la que se le aplica, menos capacidad pierde. **Un 100 nF de 50 V cuesta lo mismo que uno de 10 V** y se comporta bastante mejor. No hay razón para pedir el de menor tensión.
+
+#### Encapsulado 1206 para los cerámicos
+
+1206 es más grande de lo que un 100 nF necesita —bastaría 0603— pero **se suelda a mano con mucha más comodidad**, que es una ventaja real en una placa de prototipo. Se mantiene 1206 a propósito.
+
+#### Nada de tántalo
+
+**Los condensadores de tantalio fallan en cortocircuito.** Un corto permanente colgado de una celda LiPo es un riesgo de incendio, y no es un modo de falla que convenga introducir deliberadamente en un equipo a batería. `F1` cortaría, pero la primera línea de defensa es no ponerlo.
+
+El electrolítico de aluminio se degrada perdiendo capacidad y aumentando su resistencia interna, es decir, **falla abriéndose**. Es el modo de falla correcto para este puesto.
+
+### 4.9. Interruptor `SW1`
 
 `SW1` va **después de `MOD1`, del lado de los 5 V**. Ponerlo en serie con la celda cortaría también al cargador y el equipo no podría cargar apagado.
 
@@ -393,13 +432,13 @@ No existe en las librerías estándar: hay que crearlo. Un rectángulo con cuatr
 
 Dibujar con la **A**, que es la que aparece en la tabla de conexiones, y dejar el pad `EN` accesible con una isla puenteable para poder migrar sin rehacer la placa.
 
-### 4.9. Carga por USB-C
+### 4.10. Carga por USB-C
 
 El USB-C de `MOD1` es **el único conector que sale al exterior**, con tapa de silicona cautiva.
 
 Con `SW1` cerrado se puede cargar y operar a la vez. **Definir en firmware** si se permite: durante la carga la tensión de celda sube hasta 4,2 V y el porcentaje informado deja de reflejar la carga real.
 
-### 4.10. Regla de programación
+### 4.11. Regla de programación
 
 **`SW1` en OFF antes de conectar el USB de la DevKit.**
 
@@ -407,7 +446,7 @@ Con `SW1` cerrado, los 5 V del elevador llegan a `VIN` al mismo tiempo que el US
 
 Por esto **no hace falta un diodo de aislamiento** entre `+5V` y `VIN`.
 
-### 4.11. Orden de la cadena, y por qué no se puede alterar
+### 4.12. Orden de la cadena, y por qué no se puede alterar
 
 ```text
    1. Celda        BT1 ──► P1 / P2              pads soldados
@@ -443,8 +482,8 @@ Ruteo hacia el microcontrolador: alimentación a la DevKit, interfaz de usuario 
 | Ref | Componente | Encapsulado | Pines |
 | :--- | :--- | :--- | :--- |
 | `U1` | DevKit ESP32-WROOM-32 | Placa hija, zócalos | 30 o 38 |
-| `C3` | 100 µF, 10 V | Electrolítico | 2 |
-| `C4` | 100 nF, X7R | 0805 | 2 |
+| `C3` | 100 µF, **16 V**, electrolítico de aluminio | Lata SMD 6,3 × 5,4 mm | 2 |
+| `C4` | 100 nF, **50 V**, X7R | 1206 | 2 |
 | `C5` | 10 µF, X7R | 0805 | 2 |
 | `C6` | 100 nF, X7R | 0805 | 2 |
 | `SW2` | Pulsador táctil | THT o SMD | 2 nets |
@@ -952,7 +991,7 @@ Instrumento compacto de mano, para llevar en la mano, mochila o bolsillo de trab
 
 | Qué | Por qué bloquea |
 | :--- | :--- |
-| ¿El `LX-LCBST` expone pad `EN` o `KEY`? | Decide la variante de `SW1` de la sección 4.8 |
+| ¿El `LX-LCBST` expone pad `EN` o `KEY`? | Decide la variante de `SW1` de la sección 4.9 |
 | ¿El módulo BME280 trae pull-ups I²C montados? | Evita duplicar `R7` y `R8` |
 | ¿La DevKit monta WROOM o WROVER? | En WROVER, `GPIO16` y `GPIO17` están ocupados por la PSRAM |
 | Consumo real de la sonda a 5 V | Dimensiona `F1`, `Q1` y `C1` |
