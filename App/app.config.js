@@ -20,11 +20,6 @@ export default () => ({
     icon: './assets/icon.png',
     userInterfaceStyle: 'automatic',
     scheme: 'terrasense',
-    splash: {
-      image: './assets/splash.png',
-      resizeMode: 'contain',
-      backgroundColor: '#12281F',
-    },
     assetBundlePatterns: ['**/*'],
 
     ios: {
@@ -66,6 +61,16 @@ export default () => ({
     },
 
     plugins: [
+      // Desde SDK 52 la clave `splash` suelta ya no aplica el color de fondo: quedaba
+      // blanco y el logotipo, que es casi blanco por diseño, desaparecía en el arranque.
+      [
+        'expo-splash-screen',
+        {
+          image: './assets/splash.png',
+          resizeMode: 'contain',
+          backgroundColor: '#12281F',
+        },
+      ],
       './plugins/withAndroidSecurity',
       [
         'react-native-ble-plx',

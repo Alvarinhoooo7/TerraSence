@@ -1,7 +1,6 @@
 import { ScreenGuide } from './src/components/ScreenGuide';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   BackHandler,
   Linking,
   Text,
@@ -16,6 +15,7 @@ import * as Notifications from 'expo-notifications';
 
 import { useAuthStore } from './src/store/useAuthStore';
 import { OfflineBanner } from './src/components/OfflineBanner';
+import { LoadingScreen } from './src/components/LoadingScreen';
 import { supabase } from './src/services/supabase';
 import { registerPushToken } from './src/services/notifications';
 import { AuthScreen } from './src/screens/AuthScreen';
@@ -293,11 +293,7 @@ export default function App() {
   });
 
   if (entry === 'loading') {
-    content = (
-      <View style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
+    content = <LoadingScreen />;
   } else if (recoveryLinkError) {
     content = <AuthLayout>
       <AuthHeading eyebrow={t('RECUPERACIÓN DE CUENTA', 'ACCOUNT RECOVERY')}
@@ -418,7 +414,7 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <StatusBar style={isDark ? 'light' : 'dark'} />
+        <StatusBar style={entry === 'loading' || isDark ? 'light' : 'dark'} />
         <OfflineBanner />
         <ScreenGuide enabled={!recoveryLinkError && ['app', 'permissions', 'onboarding', 'approval'].includes(entry)} scope={`${entry}:${route}`}>
         {content}

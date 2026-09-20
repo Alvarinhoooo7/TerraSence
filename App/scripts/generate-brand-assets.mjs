@@ -32,13 +32,15 @@ await writeFile(join(root, 'Web/public/favicon.svg'), asset);
 await writeFile(join(root, 'App/src/components/brandAsset.ts'), '// Generado desde Logo/Logo/code.html por scripts/generate-brand-assets.mjs.\nexport const brandSvg = '+JSON.stringify(logo)+';\n');
 
 // Renderizador local Skia: no requiere navegador, red ni captura de pantalla.
-const render = async (svg, file, size, transparent = false) => {
-  const canvas = createCanvas(size, size);
+// `height` distinto del ancho para la marca apaisada: en un lienzo cuadrado el logotipo
+// queda rodeado de vacío y la pantalla de arranque lo centra descolocado.
+const render = async (svg, file, size, transparent = false, height = size) => {
+  const canvas = createCanvas(size, height);
   const ctx = canvas.getContext('2d');
-  if (!transparent) { ctx.fillStyle = '#052e16'; ctx.fillRect(0, 0, size, size); }
-  const source = svg.replace('width="100%" height="100%"', `width="${size}" height="${size}"`);
+  if (!transparent) { ctx.fillStyle = '#052e16'; ctx.fillRect(0, 0, size, height); }
+  const source = svg.replace('width="100%" height="100%"', `width="${size}" height="${height}"`);
   const image = await loadImage(Buffer.from(source));
-  ctx.drawImage(image, 0, 0, size, size);
+  ctx.drawImage(image, 0, 0, size, height);
   await writeFile(join(root, file), await canvas.encode('png'));
 };
 const square = outline(assetSource.replace('x="56" y="56" width="400" height="400" rx="92"', 'x="0" y="0" width="512" height="512" rx="0"'));
@@ -48,5 +50,10 @@ const foreground = outline(assetSource.replace(/<rect x="56"[^>]+\/>/, '').repla
 await render(square, 'App/assets/icon.png', 1024);
 await render(foreground, 'App/assets/adaptive-icon.png', 1024, true);
 await render(asset, 'App/assets/favicon.png', 64, true);
-await render(logo.replaceAll('#0f2e22', '#ECFDF5'), 'App/assets/splash.png', 1024, true);
+// La pantalla de arranque va sobre verde oscuro: el logotipo se aclara y los estratos
+// grises pasan a verdes, porque sobre ese fondo el gris se apaga. Misma paleta que
+// `ON_DARK` en App/src/components/BrandLogo.tsx, que dibuja la pantalla de carga.
+const onDark = logo.replaceAll('#0f2e22', '#ECFDF5').replaceAll('#94A3B8', '#6EE7B7')
+  .replaceAll('#CBD5E1', '#34D399').replaceAll('#E2E8F0', '#A7F3D0');
+await render(onDark, 'App/assets/splash.png', 1024, true, Math.round(1024 * 235 / 590));
 console.log('Marca vectorial, favicon e íconos Expo generados desde Logo/.');
