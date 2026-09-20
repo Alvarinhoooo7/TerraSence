@@ -27,8 +27,11 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'auth-storage',
       storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({ session: state.session, recoveryUserId: state.recoveryUserId }),
       onRehydrateStorage: () => (state) => {
-        state?.setHydrated();
+        // También libera el arranque si el almacenamiento está dañado/no disponible.
+        if (state) state.setHydrated();
+        else queueMicrotask(() => useAuthStore.setState({ isHydrated: true }));
       },
     }
   )

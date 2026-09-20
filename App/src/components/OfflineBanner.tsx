@@ -1,3 +1,4 @@
+import { syncPendingPreferences } from '../services/preferencesService';
 import React, { useEffect, useState } from 'react';
 import { AppState, View, Text, StyleSheet } from 'react-native';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -33,6 +34,7 @@ export const OfflineBanner = () => {
         if (response.ok && accountId && active) {
           try {
             useAppStore.getState().setSyncing(true);
+            await syncPendingPreferences().catch(() => undefined);
             await flushQueue();
             if (active) useAppStore.getState().setPendingCount(await pendingCount());
           } catch { /* Sin sesión o servidor no disponible: conservar la cola. */ }

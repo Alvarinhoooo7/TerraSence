@@ -1,8 +1,7 @@
+import { FieldPicker } from '../components/FieldPicker';
 // src/screens/HistoryScreen.tsx
 //
-// Vista alternativa al mapa: las mismas mediciones en lista, agrupadas por día
-// y filtrables por etapa. Útil cuando el agricultor quiere revisar la evolución
-// de un potrero en vez de su distribución espacial.
+// Mediciones en lista, agrupadas por día y filtrables por etapa y campo.
 
 import React, { useMemo, useState } from 'react';
 import {
@@ -45,6 +44,7 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
   const { language, locale, t } = useTranslation();
 
   const fieldName = useAppStore(s => s.fieldName);
+  const setFieldName = useAppStore(s => s.setFieldName);
   const { points, loading, offline, error, refresh } = useMeasurementHistory();
   const [filter, setFilter] = useState<PhenologicalStage | 'all'>('all');
 
@@ -79,7 +79,8 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
       </View>
 
       <View style={{ paddingHorizontal: 20, marginBottom: 20 }}><Text style={{ ...Typography.titleLarge, fontSize: 32, color: colors.text }}>{t('Historial', 'History')}</Text><Text style={{ ...Typography.bodyRegular, color: colors.textSecondary, marginTop: 6 }}>{t('Cada lectura cuenta la historia de tu suelo.', 'Every reading tells the story of your soil.')}</Text></View>
-      {/* Resumen del predio de un vistazo */}
+      <View style={{ paddingHorizontal: 20, marginBottom: 16 }}><FieldPicker value={fieldName} onChange={setFieldName} colors={colors} /></View>
+      {/* Resumen del campo de un vistazo */}
       <View style={styles.summary}>
         {(['GREEN', 'AMBER', 'RED'] as const).map((v) => {
           const meta = VERDICT_META[v];
@@ -144,7 +145,7 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
         ListEmptyComponent={loading ? <ActivityIndicator color={colors.primary} style={{ marginTop: 32 }} /> :
           <Text style={[styles.empty, { color: colors.textSecondary }]}>
             {points.length === 0
-              ? t('Todavía no hay mediciones en este predio.', 'There are no readings in this field yet.')
+              ? t('Todavía no hay mediciones en este campo.', 'There are no readings in this field yet.')
               : t('No hay mediciones en la etapa seleccionada.', 'There are no readings for the selected stage.')}
           </Text>
         }

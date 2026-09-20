@@ -60,6 +60,7 @@ export const PHENOLOGICAL_STAGES: {
 
 /** Fila de `public.soil_measurements`. */
 export interface SoilMeasurementRow {
+  data_generation?: number;
   id: string;
   device_id: string;
   user_id: string | null;
@@ -113,6 +114,7 @@ export type SoilMeasurementInsert = Omit<SoilMeasurementRow, 'id' | 'measured_at
 
 /** Fila de `public.devices`. */
 export interface DeviceRow {
+  data_generation?: number;
   id: string;
   device_code: string;          // 15 dígitos
   name: string;
@@ -159,7 +161,7 @@ export interface PredialQuadrantRow {
   action_summary: string | null;
 }
 
-/** Punto tal como lo consume el mapa. */
+/** Lectura resumida para historial y diagnóstico. Nombre heredado para compatibilidad. */
 export interface MapMeasurementPoint {
   id: string;
   clientUuid?: string | null;

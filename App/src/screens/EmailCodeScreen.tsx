@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { BackHandler, Text, View } from 'react-native';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 import { supabase } from '../services/supabase';
 import { EmailOtpPurpose, isEmailCodeValid, normalizeEmailCode, OTP_RESEND_SECONDS, resendEmailCode, resendSecondsRemaining, verifyEmailCode } from '../services/emailOtp';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
-import { Typography } from '../constants/theme';
+import { AuthLayout, AuthHeading, AuthField, AuthButton, AuthMessage, authStyles } from '../components/auth/AuthUI';
+import { AppIcon } from '../components/AppIcon';
 
 interface Props { email: string; purpose: EmailOtpPurpose; sentAt: number; onBack: () => void }
 
@@ -21,6 +22,10 @@ export function EmailCodeScreen({ email, purpose, sentAt, onBack }: Props) {
   const [now, setNow] = useState(Date.now());
   const remaining = resendSecondsRemaining(availableAt, now);
   useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer); }, []);
+  useEffect(() => {
+    const listener = BackHandler.addEventListener('hardwareBackPress', () => { if (!locked.current) onBack(); return true; });
+    return () => listener.remove();
+  }, [onBack]);
 
   const run = async (resend: boolean) => {
     if (locked.current || (resend && resendSecondsRemaining(availableAt) > 0)) return;
@@ -47,35 +52,27 @@ export function EmailCodeScreen({ email, purpose, sentAt, onBack }: Props) {
     } finally { locked.current = false; setBusy(false); }
   };
 
-  return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 24, gap: 20 }}>
-        <Text accessibilityRole="header" style={[Typography.titleLarge, { color: colors.text }]}>
-          {purpose === 'signup' ? t('Confirma tu correo', 'Confirm your email') : t('Recupera tu contraseña', 'Recover your password')}
-        </Text>
-        <Text style={[Typography.bodyRegular, { color: colors.textSecondary }]}>
-          {t('Si la solicitud corresponde a tu cuenta, recibirás un código en:', 'If the request applies to your account, you will receive a code at:')} {email}
-        </Text>
-        <Text style={[Typography.bodyRegular, { color: colors.textSecondary }]}>
-          {t('Ingresa los seis dígitos. El código vence a los 10 minutos de su envío.', 'Enter the six digits. The code expires 10 minutes after it is sent.')}
-        </Text>
-        <TextInput value={code} onChangeText={value => setCode(normalizeEmailCode(value))} editable={!busy}
-          keyboardType="number-pad" inputMode="numeric" textContentType="oneTimeCode" autoComplete="one-time-code"
-          accessibilityLabel={t('Código de seis dígitos', 'Six-digit code')} autoFocus
-          style={{ borderWidth: 1, borderColor: colors.border, color: colors.text, backgroundColor: colors.card, borderRadius: 12, padding: 16, fontSize: 28, letterSpacing: 8, textAlign: 'center' }} />
-        {error && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text>}
-        {notice && <Text accessibilityLiveRegion="polite" style={{ color: colors.textSecondary }}>{notice}</Text>}
-        <TouchableOpacity accessibilityRole="button" disabled={busy || !isEmailCodeValid(code)} onPress={() => { void run(false); }}
-          style={{ minHeight: 56, backgroundColor: colors.primary, borderRadius: 8, alignItems: 'center', justifyContent: 'center', opacity: busy || !isEmailCodeValid(code) ? 0.5 : 1 }}>
-          {busy ? <ActivityIndicator color="#FFFFFF" /> : <Text style={[Typography.button, { color: '#FFFFFF' }]}>{t('Verificar código', 'Verify code')}</Text>}
-        </TouchableOpacity>
-        <TouchableOpacity accessibilityRole="button" disabled={busy || remaining > 0} onPress={() => { void run(true); }} style={{ minHeight: 48, justifyContent: 'center', opacity: busy || remaining > 0 ? 0.5 : 1 }}>
-          <Text style={{ color: colors.primary }}>{remaining > 0 ? t(`Reenviar en ${remaining} s`, `Resend in ${remaining}s`) : t('Reenviar código', 'Resend code')}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity accessibilityRole="button" disabled={busy} onPress={onBack} style={{ minHeight: 48, justifyContent: 'center' }}>
-          <Text style={{ color: colors.textSecondary }}>{t('Volver al formulario', 'Back to form')}</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </KeyboardAvoidingView>
-  </SafeAreaView>;
+  return <AuthLayout>
+    <View style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' }}>
+      <AppIcon name="arrow" color={colors.primary} size={28} />
+    </View>
+    <AuthHeading eyebrow={t('REVISA TU CORREO', 'CHECK YOUR EMAIL')}
+      title={purpose === 'signup' ? t('Un paso más.\nTu cuenta está cerca.', 'One more step.\nYour account awaits.') : t('Volvamos a entrar.', 'Let’s get you back in.')}
+      description={t('Si la solicitud corresponde a tu cuenta, recibirás un código en:', 'If the request applies to your account, you will receive a code at:')} />
+    <Text selectable style={[authStyles.body, { fontWeight: '600', color: colors.text, marginTop: -12 }]}>{email}</Text>
+    <Animated.View layout={LinearTransition.springify().damping(14)} style={authStyles.form}>
+      <AuthField label={t('Código de verificación', 'Verification code')} value={code} onChangeText={value => setCode(normalizeEmailCode(value))}
+        editable={!busy} keyboardType="number-pad" inputMode="numeric" textContentType="oneTimeCode" autoComplete="one-time-code"
+        placeholder="000000" style={{ fontSize: 28, letterSpacing: 8, textAlign: 'center', fontVariant: ['tabular-nums'] }}
+        onSubmitEditing={() => { void run(false); }} />
+      <Text style={[authStyles.body, { color: colors.textSecondary }]}>{t('Ingresa los seis dígitos del correo. Si el código venció, solicita uno nuevo.', 'Enter the six digits from your email. If the code expired, request a new one.')}</Text>
+      {error && <AuthMessage error>{error}</AuthMessage>}
+      {notice && <AuthMessage>{notice}</AuthMessage>}
+      <AuthButton label={t('Verificar código', 'Verify code')} busy={busy} disabled={!isEmailCodeValid(code)} onPress={() => { void run(false); }} />
+      <AuthButton secondary disabled={busy || remaining > 0} label={remaining > 0 ? t(`Reenviar en ${remaining} s`, `Resend in ${remaining}s`) : t('Reenviar código', 'Resend code')}
+        onPress={() => { void run(true); }} />
+    </Animated.View>
+    <Text style={[authStyles.body, { color: colors.textSecondary }]}>{t('¿No lo encuentras? Revisa la carpeta de spam o comprueba el correo que escribiste.', 'Can’t find it? Check spam or make sure your email address is correct.')}</Text>
+    <AuthButton secondary disabled={busy} label={t('Volver al formulario', 'Back to form')} onPress={onBack} />
+  </AuthLayout>;
 }

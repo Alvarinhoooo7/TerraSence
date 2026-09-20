@@ -1,445 +1,81 @@
-// src/screens/FieldSettingsScreen.tsx
-//
-// Contexto de la medición: predio, cultivo objetivo y textura del suelo.
-//
-// La textura NO es un adorno: define el punto de marchitez, el umbral de riego
-// y la capacidad de campo con los que el motor juzga la humedad. Un 25 % de
-// humedad es sequía en un suelo arcilloso y holgura en uno arenoso.
-
-import React, { useEffect, useState } from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { Spacing, Typography } from '../constants/theme';
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, BackHandler, Switch, View } from 'react-native';
+import { SettingsPage, SettingsText, SettingsRow, SettingsCard } from '../components/SettingsUI';
 import { useAppTheme } from '../hooks/useAppTheme';
-import { ScreenGuide } from '../components/ScreenGuide';
+import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
-import { CROPS_DB, SOIL_TEXTURES } from '../engine/agronomyEngine';
 import { listMyDeviceMemberships } from '../services/deviceService';
 import { supabase } from '../services/supabase';
 import { clearDevSkip } from '../utils/devSkipOnboarding';
-import { clearPushToken } from '../services/notifications';
-import { reconcileNotificationRegistration } from '../services/notifications';
+import { clearPushToken, registerPushToken } from '../services/notifications';
 import { savePreferences } from '../services/preferencesService';
-import type { CropId, SoilTextureId } from '../types/agronomy';
-import type {
-  AppLanguage,
-  AppPreferences,
-  AppThemePreference,
-  MeasurementSystem,
-  NotificationCategory,
-} from '../types/preferences';
-import { formatTemperature } from '../utils/units';
+import { pendingCount } from '../services/measurementsService';
+import type { AppPreferences, NotificationCategory } from '../types/preferences';
+import { ProfileScreen } from './ProfileScreen';
+import { AboutSettings, ContactSettings, FirmwareSettings, PhonePermissions, SyncSettings } from './SettingsDetails';
 
-const CROP_NAMES_EN: Record<CropId, string> = {
-  maiz: 'Grain corn / Sweet corn',
-  tomate: 'Field / Greenhouse tomato',
-  papa: 'Potato (Tuber)',
-  trigo: 'Wheat / Winter cereals',
-  lechuga: 'Lettuce / Leafy greens',
-  palto: 'Avocado (Hass)',
-  vid: 'Wine / Table grape',
-  arandano: 'Blueberry (Berries)',
-};
-
-const TEXTURE_NAMES_EN: Record<SoilTextureId, string> = {
-  arenoso: 'Sandy (Loose / Light)',
-  franco: 'Loam (Balanced / Ideal)',
-  franco_arcilloso: 'Clay loam (Heavy)',
-  arcilloso: 'Clay (Very heavy / Slow drainage)',
-};
-
-interface Props {
-  onClose: () => void;
-  onOpenDevices: () => void;
-  onOpenAdministration: () => void;
+type Page = 'index' | 'profile' | 'notifications' | 'firmware' | 'language' | 'theme' | 'permissions' | 'sync' | 'about' | 'contact';
+interface Props { onClose: () => void; onOpenDevices: () => void; onOpenAdministration: () => void }
+export function FieldSettingsScreen({ onClose, onOpenDevices, onOpenAdministration }: Props) {
+  const { colors } = useAppTheme(); const { t } = useTranslation();
+  const preferences = useAppStore(s => s.preferences); const [page, setPage] = useState<Page>('index');
+  const [canAdminister, setCanAdminister] = useState(false); const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const lock = useRef(false);
+  useEffect(() => { let active = true; const refresh = () => void listMyDeviceMemberships().then(rows => { if (active) setCanAdminister(rows.some(m => m.role === 'admin' && m.is_authorized)); }).catch(() => { if (active) setCanAdminister(false); }); refresh(); const timer = setInterval(refresh, 10000); return () => { active = false; clearInterval(timer); }; }, []);
+  useEffect(() => { const sub = BackHandler.addEventListener('hardwareBackPress', () => { if (busy) return true; if (page === 'index') return false; setPage('index'); return true; }); return () => sub.remove(); }, [page, busy]);
+  const back = () => { if (!busy) { setError(''); setPage('index'); } };
+  const apply = async (next: AppPreferences) => {
+    if (lock.current) return; lock.current = true; setBusy(true); setError('');
+    const previous = useAppStore.getState().preferences;
+    useAppStore.getState().setPreferences(next);
+    try { await savePreferences(next); await registerPushToken(next, { requestPermission: false }); }
+    catch { useAppStore.getState().setPreferences(previous); setError(t('No se pudo guardar el cambio. Inténtalo nuevamente.', 'Could not save the change. Please retry.')); }
+    finally { lock.current = false; setBusy(false); }
+  };
+  const signOut = async () => {
+    if (lock.current) return; lock.current = true; setBusy(true); setError('');
+    try { await clearPushToken(); await clearDevSkip(); const { error: failure } = await supabase.auth.signOut(); if (failure) throw failure; }
+    catch { setError(t('No se pudo cerrar sesión. Revisa la conexión y vuelve a intentarlo.', 'Could not sign out. Check connectivity and retry.')); }
+    finally { lock.current = false; setBusy(false); }
+  };
+  const confirmSignOut = async () => {
+    try { const count = await pendingCount(); Alert.alert(t('Cerrar sesión', 'Sign out'), count ? t(`Hay ${count} mediciones pendientes. Se conservarán en este teléfono para esta cuenta. Sincroniza antes si no volverás a usarla.`, `There are ${count} pending readings. They remain on this phone for this account. Sync first if you will not use it again.`) : t('¿Quieres cerrar tu sesión?', 'Do you want to sign out?'), [{ text: t('Cancelar', 'Cancel'), style: 'cancel' }, { text: t('Cerrar sesión', 'Sign out'), style: 'destructive', onPress: () => void signOut() }]); }
+    catch { setError(t('No pudimos comprobar tus pendientes. Revisa Datos y sincronización.', 'Could not check pending readings. Review Data and synchronization.')); }
+  };
+  if (page === 'profile') return <ProfileScreen onBack={back} />;
+  if (page === 'permissions') return <PhonePermissions onBack={back} />;
+  if (page === 'sync') return <SyncSettings onBack={back} />;
+  if (page === 'firmware') return <FirmwareSettings onBack={back} />;
+  if (page === 'about') return <AboutSettings onBack={back} />;
+  if (page === 'contact') return <ContactSettings onBack={back} />;
+  const title = { index: t('Ajustes', 'Settings'), notifications: t('Notificaciones', 'Notifications'), language: t('Idioma', 'Language'), theme: t('Apariencia', 'Appearance') }[page];
+  return <SettingsPage title={title} description={page === 'index' ? t('Tu cuenta, tus equipos y tus preferencias.', 'Your account, devices and preferences.') : undefined} onBack={page === 'index' ? onClose : back}>
+    {!!error && <SettingsText danger>{error}</SettingsText>}
+    {page === 'index' && <>
+      <SettingsRow title={t('Mi perfil', 'My profile')} subtitle={t('Nombre, correo y contraseña', 'Name, email and password')} onPress={() => setPage('profile')} />
+      <SettingsRow title={t('Mis dispositivos', 'My devices')} subtitle={t('Equipos vinculados y acceso compartido', 'Linked devices and shared access')} onPress={onOpenDevices} />
+      {canAdminister && <SettingsRow title={t('Administración del equipo', 'Device administration')} subtitle={t('Miembros, solicitudes y propiedad', 'Members, requests and ownership')} onPress={onOpenAdministration} />}
+      <SettingsRow title={t('Notificaciones', 'Notifications')} onPress={() => setPage('notifications')} />
+      <SettingsRow title={t('Actualizaciones', 'Updates')} subtitle={t('Firmware del ESP32', 'ESP32 firmware')} onPress={() => setPage('firmware')} />
+      <SettingsRow title={t('Idioma', 'Language')} subtitle={preferences.language === 'es' ? 'Español' : 'English'} onPress={() => setPage('language')} />
+      <SettingsRow title={t('Apariencia', 'Appearance')} onPress={() => setPage('theme')} />
+      <SettingsRow title={t('Permisos del teléfono', 'Phone permissions')} onPress={() => setPage('permissions')} />
+      <SettingsRow title={t('Datos y sincronización', 'Data and synchronization')} onPress={() => setPage('sync')} />
+      <SettingsRow title={t('Contacto', 'Contact')} onPress={() => setPage('contact')} />
+      <SettingsRow title={t('Acerca de y privacidad', 'About and privacy')} onPress={() => setPage('about')} />
+      <View style={{ height: 12 }} /><SettingsRow title={t('Cerrar sesión', 'Sign out')} danger disabled={busy} onPress={() => void confirmSignOut()} />
+    </>}
+    {page === 'language' && <>{(['es', 'en'] as const).map(language => <SettingsRow key={language} title={language === 'es' ? 'Español' : 'English'} selected={language === preferences.language} disabled={busy} onPress={() => void apply({ ...preferences, language })} />)}
+      <SettingsText>{t('Unidades de medida', 'Measurement units')}</SettingsText>{(['metric', 'imperial'] as const).map(measurementSystem => <SettingsRow key={measurementSystem} title={measurementSystem === 'metric' ? t('Métrico · °C, ha', 'Metric · °C, ha') : t('Imperial · °F, ac', 'Imperial · °F, ac')} selected={preferences.measurementSystem === measurementSystem} disabled={busy} onPress={() => void apply({ ...preferences, measurementSystem })} />)}</>}
+    {page === 'theme' && (['system', 'light', 'dark'] as const).map(theme => <SettingsRow key={theme} title={theme === 'system' ? t('Seguir el sistema', 'Follow system') : theme === 'light' ? t('Claro', 'Light') : t('Oscuro', 'Dark')} selected={preferences.theme === theme} disabled={busy} onPress={() => void apply({ ...preferences, theme })} />)}
+    {page === 'notifications' && <>
+      <SettingsText>{t('Elige qué avisos quieres recibir. El permiso del teléfono se gestiona por separado. Los cambios sin conexión se enviarán cuando vuelvas a conectarte.', 'Choose which alerts to receive. Phone permission is managed separately. Offline changes will be sent when you reconnect.')}</SettingsText>
+      {([
+        ['agronomic', t('Alertas del suelo', 'Soil alerts'), t('Riesgos de pH, salinidad, agua y cultivo.', 'pH, salinity, water and crop risks.')],
+        ['device', t('Estado del equipo', 'Device status'), t('Batería, conexión y solicitudes de acceso.', 'Battery, connectivity and access requests.')],
+        ['weather', t('Riesgos meteorológicos', 'Weather risks'), t('Lluvia, heladas y ventanas de riego.', 'Rain, frost and irrigation windows.')],
+        ['sync', t('Sincronización', 'Synchronization'), t('Avisos sobre el respaldo de lecturas.', 'Reading backup alerts.')],
+      ] as [NotificationCategory, string, string][]).map(([category, label, description]) => <SettingsCard key={category}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}><View style={{ flex: 1 }}><SettingsText>{label}</SettingsText><SettingsText>{description}</SettingsText></View><Switch accessibilityLabel={label} disabled={busy} value={preferences.notifications[category]} onValueChange={enabled => void apply({ ...preferences, notifications: { ...preferences.notifications, [category]: enabled } })} trackColor={{ false: colors.border, true: colors.primary }} /></View></SettingsCard>)}
+      <SettingsRow title={t('Revisar permiso del teléfono', 'Review phone permission')} onPress={() => setPage('permissions')} />
+    </>}
+  </SettingsPage>;
 }
-
-export const FieldSettingsScreen: React.FC<Props> = ({ onClose, onOpenDevices, onOpenAdministration }) => {
-  const { colors } = useAppTheme();
-
-  const {
-    fieldName,
-    setFieldName,
-    cropId,
-    setCrop,
-    textureId,
-    setTexture,
-    preferences,
-    setPreferences,
-  } = useAppStore();
-  const [name, setName] = useState(fieldName);
-  const [canAdminister, setCanAdminister] = useState(false);
-  useEffect(() => {
-    let active = true;
-    const refresh = () => void listMyDeviceMemberships().then(rows => {
-      if (active) setCanAdminister(rows.some(m => m.role === 'admin' && m.is_authorized));
-    }).catch(() => { if (active) setCanAdminister(false); });
-    refresh();
-    const timer = setInterval(refresh, 10000);
-    return () => { active = false; clearInterval(timer); };
-  }, []);
-  const en = preferences.language === 'en';
-
-  const applyPreferences = (next: AppPreferences, reconcilePush = false) => {
-    setPreferences(next);
-    void savePreferences(next);
-    if (reconcilePush) void reconcileNotificationRegistration(next);
-  };
-
-  const setTheme = (theme: AppThemePreference) =>
-    applyPreferences({ ...preferences, theme });
-  const setLanguage = (language: AppLanguage) =>
-    applyPreferences({ ...preferences, language }, true);
-  const setMeasurementSystem = (measurementSystem: MeasurementSystem) =>
-    applyPreferences({ ...preferences, measurementSystem });
-  const setNotification = (category: NotificationCategory, enabled: boolean) =>
-    applyPreferences(
-      {
-        ...preferences,
-        notifications: { ...preferences.notifications, [category]: enabled },
-      },
-      true,
-    );
-
-  const commit = () => {
-    const clean = name.trim();
-    if (clean) setFieldName(clean);
-    onClose();
-  };
-
-  return (
-    <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={commit} hitSlop={12} style={styles.headerBtn}>
-          <Text style={{ color: colors.primary, ...Typography.bodyBold }}>‹ Volver</Text>
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>
-          {en ? 'Settings' : 'Configuración'}
-        </Text>
-        <View style={styles.headerBtn} />
-      </View>
-
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        <Text style={[styles.section, { color: colors.textMuted }]}>
-          {en ? 'APPEARANCE' : 'APARIENCIA'}
-        </Text>
-        <Text style={[styles.sectionHint, { color: colors.textSecondary }]}>
-          {en ? 'Choose how TerraSense looks on this device.' : 'Elige cómo se ve TerraSense en este dispositivo.'}
-        </Text>
-        <View style={[styles.segment, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          {([
-            ['system', en ? 'System' : 'Sistema'],
-            ['light', en ? 'Light' : 'Claro'],
-            ['dark', en ? 'Dark' : 'Oscuro'],
-          ] as [AppThemePreference, string][]).map(([value, label]) => (
-            <TouchableOpacity
-              key={value}
-              onPress={() => setTheme(value)}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: preferences.theme === value }}
-              style={[
-                styles.segmentItem,
-                preferences.theme === value && { backgroundColor: colors.primary },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  { color: preferences.theme === value ? '#FFFFFF' : colors.textSecondary },
-                ]}
-              >
-                {label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <Text style={[styles.section, { color: colors.textMuted }]}>
-          {en ? 'LANGUAGE' : 'IDIOMA'}
-        </Text>
-        <View style={[styles.segment, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          {([
-            ['es', 'Español'],
-            ['en', 'English'],
-          ] as [AppLanguage, string][]).map(([value, label]) => (
-            <TouchableOpacity
-              key={value}
-              onPress={() => setLanguage(value)}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: preferences.language === value }}
-              style={[
-                styles.segmentItem,
-                preferences.language === value && { backgroundColor: colors.primary },
-              ]}
-            >
-              <Text style={[styles.segmentText, { color: preferences.language === value ? '#FFFFFF' : colors.textSecondary }]}>
-                {label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <Text style={[styles.section, { color: colors.textMuted }]}>
-          {en ? 'MEASUREMENT SYSTEM' : 'SISTEMA DE MEDICIÓN'}
-        </Text>
-        <View style={[styles.segment, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          {([
-            ['metric', en ? 'Metric · °C, ha' : 'Métrico · °C, ha'],
-            ['imperial', en ? 'Imperial · °F, ac' : 'Imperial · °F, ac'],
-          ] as [MeasurementSystem, string][]).map(([value, label]) => (
-            <TouchableOpacity
-              key={value}
-              onPress={() => setMeasurementSystem(value)}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: preferences.measurementSystem === value }}
-              style={[
-                styles.segmentItem,
-                preferences.measurementSystem === value && { backgroundColor: colors.primary },
-              ]}
-            >
-              <Text style={[styles.segmentText, { color: preferences.measurementSystem === value ? '#FFFFFF' : colors.textSecondary }]}>
-                {label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <Text style={[styles.section, { color: colors.textMuted }]}>
-          {en ? 'NOTIFICATIONS' : 'NOTIFICACIONES'}
-        </Text>
-        <Text style={[styles.sectionHint, { color: colors.textSecondary }]}>
-          {en ? 'Choose which alerts can reach this account.' : 'Elige qué avisos pueden llegar a esta cuenta.'}
-        </Text>
-        {([
-          ['agronomic', '🚨', en ? 'Critical soil alerts' : 'Alertas críticas del suelo', en ? 'Salinity, pH, water and crop risks.' : 'Riesgos de salinidad, pH, agua y cultivo.'],
-          ['device', '🔋', en ? 'Device status' : 'Estado del equipo', en ? 'Low battery, connection and firmware.' : 'Batería baja, conexión y firmware.'],
-          ['weather', '🌦️', en ? 'Weather risks' : 'Riesgos meteorológicos', en ? 'Rain, frost and irrigation windows.' : 'Lluvia, heladas y ventanas de riego.'],
-          ['sync', '☁️', en ? 'Synchronization' : 'Sincronización', en ? 'Pending or completed cloud uploads.' : 'Cargas pendientes o completadas en la nube.'],
-        ] as [NotificationCategory, string, string, string][]).map(([category, icon, title, description]) => (
-          <View key={category} style={[styles.toggleRow, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <Text style={styles.optionEmoji}>{icon}</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.optionTitle, { color: colors.text }]}>{title}</Text>
-              <Text style={[styles.optionMeta, { color: colors.textSecondary }]}>{description}</Text>
-            </View>
-            <Switch
-              value={preferences.notifications[category]}
-              onValueChange={(enabled) => setNotification(category, enabled)}
-              trackColor={{ false: colors.border, true: colors.primaryLight }}
-              thumbColor={preferences.notifications[category] ? colors.primary : colors.textMuted}
-              accessibilityLabel={title}
-            />
-          </View>
-        ))}
-
-        <Text style={[styles.section, { color: colors.textMuted }]}>
-          {en ? 'FIELD AND EQUIPMENT' : 'PREDIO Y EQUIPO'}
-        </Text>
-        {canAdminister && <TouchableOpacity onPress={onOpenAdministration} style={[styles.option, { backgroundColor: colors.card }]}>
-          <Text style={[styles.optionTitle, { color: colors.primary }]}>{en ? 'Administration' : 'Administración'}</Text>
-        </TouchableOpacity>}
-        <TouchableOpacity
-          onPress={onOpenDevices}
-          style={[styles.option, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}
-        >
-          <Text style={styles.optionEmoji}>📡</Text>
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.optionTitle, { color: colors.text }]}>
-              {en ? 'My devices' : 'Mis equipos'}
-            </Text>
-            <Text style={[styles.optionMeta, { color: colors.textSecondary }]}>
-              {en
-                ? 'Register probes and share a temporary access QR'
-                : 'Registrar sondas y mostrar el QR temporal de acceso'}
-            </Text>
-          </View>
-          <Text style={{ color: colors.textMuted, fontSize: 20 }}>›</Text>
-        </TouchableOpacity>
-
-        <Text style={[styles.section, { color: colors.textMuted }]}>
-          {en ? 'FIELD NAME' : 'NOMBRE DEL PREDIO'}
-        </Text>
-        <TextInput
-          value={name}
-          onChangeText={setName}
-          onBlur={commit}
-          placeholder="Potrero Bajo"
-          placeholderTextColor={colors.textMuted}
-          accessibilityLabel={en ? 'Field name' : 'Nombre del predio'}
-          style={[
-            styles.input,
-            { backgroundColor: colors.card, borderColor: colors.border, color: colors.text },
-          ]}
-        />
-
-        <Text style={[styles.section, { color: colors.textMuted }]}>
-          {en ? 'TARGET CROP' : 'CULTIVO OBJETIVO'}
-        </Text>
-        {(Object.keys(CROPS_DB) as CropId[]).map((id) => {
-          const c = CROPS_DB[id];
-          const active = id === cropId;
-          return (
-            <TouchableOpacity
-              key={id}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: active }}
-              onPress={() => setCrop(id)}
-              style={[
-                styles.option,
-                {
-                  backgroundColor: colors.card,
-                  borderColor: active ? colors.primary : colors.border,
-                  borderWidth: active ? 2 : 1,
-                },
-              ]}
-            >
-              <Text style={styles.optionEmoji}>{c.emoji}</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.optionTitle, { color: colors.text }]}>
-                  {en ? CROP_NAMES_EN[id] : c.name}
-                  {active ? '  ✓' : ''}
-                </Text>
-                <Text style={[styles.optionMeta, { color: colors.textSecondary }]}>
-                  pH {c.phMin}–{c.phMax} · {en ? 'Min. temp.' : 'T° mín'}{' '}
-                  {formatTemperature(c.tempMin, preferences.measurementSystem).value.toFixed(0)}{' '}
-                  {formatTemperature(c.tempMin, preferences.measurementSystem).unit} ·{' '}
-                  {en ? 'Max. EC' : 'CE máx'} {c.ecMax} µS/cm
-                </Text>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-
-        <Text style={[styles.section, { color: colors.textMuted }]}>
-          {en ? 'SOIL TEXTURE' : 'TEXTURA DEL SUELO'}
-        </Text>
-        <Text style={[styles.sectionHint, { color: colors.textSecondary }]}>
-          {en
-            ? 'Defines the thresholds used to assess moisture. If unsure, choose Loam.'
-            : 'Define con qué umbrales se juzga la humedad. Si dudas, elige Franco.'}
-        </Text>
-        {(Object.keys(SOIL_TEXTURES) as SoilTextureId[]).map((id) => {
-          const t = SOIL_TEXTURES[id];
-          const active = id === textureId;
-          return (
-            <TouchableOpacity
-              key={id}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: active }}
-              onPress={() => setTexture(id)}
-              style={[
-                styles.option,
-                {
-                  backgroundColor: colors.card,
-                  borderColor: active ? colors.primary : colors.border,
-                  borderWidth: active ? 2 : 1,
-                },
-              ]}
-            >
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.optionTitle, { color: colors.text }]}>
-                  {en ? TEXTURE_NAMES_EN[id] : t.name}
-                  {active ? '  ✓' : ''}
-                </Text>
-                <Text style={[styles.optionMeta, { color: colors.textSecondary }]}>
-                  {en ? 'Wilting' : 'Marchitez'} {t.pmp}% · {en ? 'Irrigation' : 'Riego'} {t.ur}% ·{' '}
-                  {en ? 'Field capacity' : 'Capacidad de campo'} {t.cc}% · {en ? 'Saturation' : 'Saturación'} {t.sat}%
-                </Text>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-
-        <TouchableOpacity
-          onPress={async () => {
-            await clearPushToken();
-            // El atajo de desarrollo no debe sobrevivir a un cambio de cuenta:
-            // es la única forma de volver al flujo de vinculación real.
-            await clearDevSkip();
-            await supabase.auth.signOut();
-          }}
-          style={[styles.signOut, { borderColor: colors.border }]}
-        >
-          <Text style={[styles.signOutText, { color: colors.danger }]}>{en ? 'Sign out' : 'Cerrar sesión'}</Text>
-        </TouchableOpacity>
-      </ScrollView>
-      <ScreenGuide guideId="settings" />
-    </SafeAreaView>
-  );
-};
-
-const styles = StyleSheet.create({
-  root: { flex: 1 },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.md,
-    height: Spacing.touchTarget + 8,
-  },
-  headerBtn: { minWidth: 80, minHeight: Spacing.touchTarget, justifyContent: 'center' },
-  headerTitle: { ...Typography.titleMedium },
-  scroll: { padding: Spacing.md, paddingBottom: Spacing.xxl, gap: Spacing.xs },
-  section: { ...Typography.badge, marginTop: Spacing.lg },
-  sectionHint: { ...Typography.caption, marginBottom: Spacing.xs },
-  segment: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderRadius: Spacing.borderRadius,
-    padding: 3,
-  },
-  segmentItem: {
-    flex: 1,
-    minHeight: Spacing.touchTarget,
-    borderRadius: 13,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: Spacing.xs,
-  },
-  segmentText: { ...Typography.captionBold, textAlign: 'center' },
-  toggleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    borderRadius: Spacing.borderRadius,
-    borderWidth: 1,
-    padding: Spacing.md,
-    minHeight: 76,
-  },
-  input: {
-    height: 54,
-    borderRadius: Spacing.borderRadius,
-    borderWidth: 1,
-    paddingHorizontal: Spacing.md,
-    ...Typography.bodyRegular,
-  },
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    borderRadius: Spacing.borderRadius,
-    padding: Spacing.md,
-    minHeight: Spacing.touchTarget + 12,
-  },
-  optionEmoji: { fontSize: 26 },
-  optionTitle: { ...Typography.bodyBold },
-  optionMeta: { ...Typography.caption, marginTop: 2 },
-  signOut: {
-    marginTop: Spacing.xl,
-    height: Spacing.touchTarget,
-    borderRadius: Spacing.borderRadius,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  signOutText: { ...Typography.bodyBold },
-});

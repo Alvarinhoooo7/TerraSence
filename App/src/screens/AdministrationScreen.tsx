@@ -1,5 +1,6 @@
+import { PrepareDevicePanel } from '../components/PrepareDevicePanel';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, BackHandler, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
@@ -15,8 +16,11 @@ export function AdministrationScreen({ onClose, initialDeviceId }: { onClose: ()
   const requestVersion = useRef(0);
   const [members, setMembers] = useState<ManagedDeviceMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const operation = useRef(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => { const sub = BackHandler.addEventListener('hardwareBackPress', () => operation.current); return () => sub.remove(); }, []);
 
   const refresh = useCallback(async () => {
     const version = ++requestVersion.current;
@@ -33,17 +37,17 @@ export function AdministrationScreen({ onClose, initialDeviceId }: { onClose: ()
 
   useEffect(() => {
     let active = true;
-    const reload = () => void refresh().catch(e => {
+    const reload = () => { if (operation.current) return; void refresh().catch(e => {
       if (active) { setMembers([]); setError(e instanceof Error ? e.message : String(e)); }
-    }).finally(() => { if (active) setLoading(false); });
+    }).finally(() => { if (active) setLoading(false); }); };
     reload();
     const timer = setInterval(reload, 10000);
     return () => { active = false; requestVersion.current += 1; clearInterval(timer); };
   }, [refresh]);
 
   const change = async (member: ManagedDeviceMember, action: 'authorize' | 'remove' | 'transfer_owner') => {
-    if (!selected || busy) return;
-    setBusy(true);
+    if (!selected || operation.current) return;
+    operation.current = true; setBusy(true);
     try {
       await manageDeviceMember(selected, member.user_id, action);
       // Después de delegar no se consulta la lista protegida del equipo anterior.
@@ -52,7 +56,7 @@ export function AdministrationScreen({ onClose, initialDeviceId }: { onClose: ()
     } catch (e) {
       await refresh().catch(() => setMembers([]));
       setError(e instanceof Error ? e.message : String(e));
-    } finally { setBusy(false); }
+    } finally { operation.current = false; setBusy(false); }
   };
 
   // Sólo se censura a quien está pendiente de aprobación: el administrador todavía no
@@ -73,7 +77,7 @@ export function AdministrationScreen({ onClose, initialDeviceId }: { onClose: ()
   );
 
   return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-    <TouchableOpacity onPress={onClose} style={{ padding: 20 }}><Text style={{ color: colors.primary }}>{t('‹ Ajustes', '‹ Settings')}</Text></TouchableOpacity>
+    <TouchableOpacity disabled={busy} onPress={onClose} style={{ padding: 20 }}><Text style={{ color: colors.primary }}>{t('‹ Ajustes', '‹ Settings')}</Text></TouchableOpacity>
     <ScrollView contentContainerStyle={{ padding: 20, gap: 16 }}>
       <Text style={{ color: colors.text, fontSize: 24, fontWeight: '700' }}>{t('Administración', 'Administration')}</Text>
       {loading && <ActivityIndicator color={colors.primary} />}
@@ -82,7 +86,7 @@ export function AdministrationScreen({ onClose, initialDeviceId }: { onClose: ()
       {devices.map(d => <TouchableOpacity key={d.id} disabled={busy} onPress={() => { requestVersion.current += 1; setMembers([]); setSelected(d.id); }} style={{ padding: 16, backgroundColor: colors.card, borderWidth: 1, borderColor: d.id === selected ? colors.primary : colors.border }}>
         <Text style={{ color: colors.text }}>{d.alias || d.name} · {d.device_code}</Text>
       </TouchableOpacity>)}
-      {members.map(m => <View key={m.user_id} style={{ padding: 16, gap: 12, backgroundColor: colors.card }}>
+      {members.map(m => <View key={m.user_id} style={{ padding: 16, gap: 12, backgroundColor: colors.card, borderRadius: 18 }}>
         <Text style={{ color: colors.text, fontWeight: '700' }}>{shownName(m)}</Text>
         <Text style={{ color: colors.textSecondary }}>{shownEmail(m)}</Text>
         <Text style={{ color: colors.textSecondary }}>{m.role === 'admin' ? t('Administrador', 'Administrator') : m.is_authorized ? t('Usuario', 'User') : t('Pendiente de aprobación', 'Awaiting approval')}</Text>
@@ -92,6 +96,7 @@ export function AdministrationScreen({ onClose, initialDeviceId }: { onClose: ()
           <TouchableOpacity disabled={busy} onPress={() => confirm(m, 'remove')}><Text style={{ paddingVertical: 12, color: colors.danger }}>{t('Eliminar usuario', 'Remove user')}</Text></TouchableOpacity>
         </>}
       </View>)}
+      {!loading && !error && devices.find(d => d.id === selected) && <PrepareDevicePanel key={selected} device={devices.find(d => d.id === selected)!} onComplete={onClose} onBusyChange={value => { operation.current = value; setBusy(value); }} />}
     </ScrollView>
   </SafeAreaView>;
 }

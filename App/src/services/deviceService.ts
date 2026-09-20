@@ -11,7 +11,7 @@ import { normalizeDeviceId, isValidDeviceId } from '../utils/deviceId';
 import type { DeviceMembershipRow, DeviceRow, ManagedDeviceMember } from '../types/app';
 
 const DEVICE_COLUMNS =
-  'id,device_code,name,alias,battery_level,firmware_version,hardware_version,' +
+  'id,data_generation,device_code,name,alias,battery_level,firmware_version,hardware_version,' +
   'microclimate_sensor_type,is_active,pairing_mode_active,' +
   'transmission_interval_seconds,last_seen_at,last_measurement_at';
 
@@ -136,4 +136,10 @@ export async function manageDeviceMember(
     p_device_id: deviceId, p_target_user_id: userId, p_action: action, p_role: null,
   });
   if (error) throw error;
+}
+
+export async function prepareDeviceForOwner(deviceId: string, code: string): Promise<void> {
+  const { data, error } = await supabase.rpc('prepare_device_for_owner', { p_device_id: deviceId, p_confirm_device_code: code });
+  if (error) throw error;
+  if (data?.success !== true) throw new Error('No se confirmó el restablecimiento.');
 }

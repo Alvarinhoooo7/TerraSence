@@ -1,11 +1,12 @@
 // src/components/FieldPicker.tsx
 //
-// Selector de predio del mapa. Permite cambiar de potrero y crear uno nuevo
+// Selector del historial. Permite cambiar de campo y crear uno nuevo
 // sin salir de la pantalla principal ni necesitar cobertura.
 
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Modal,
   Pressable,
   ScrollView,
@@ -43,9 +44,10 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
 
   const refresh = useCallback(async () => {
     setLoading(true);
-    setFields(await listFields());
-    setLoading(false);
-  }, []);
+    try { setFields(await listFields()); }
+    catch { Alert.alert(t('No se pudieron cargar los campos.', 'Could not load fields.')); }
+    finally { setLoading(false); }
+  }, [t]);
 
   useEffect(() => {
     if (open) void refresh();
@@ -54,17 +56,16 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
   const create = useCallback(async () => {
     const clean = newName.trim();
     if (!clean) return;
-    await addLocalField(clean);
-    setNewName('');
-    onChange(clean);
-    setOpen(false);
-  }, [newName, onChange]);
+    try {
+      await addLocalField(clean); setNewName(''); onChange(clean); setOpen(false);
+    } catch { Alert.alert(t('No se pudo guardar el campo.', 'Could not save the field.')); }
+  }, [newName, onChange, t]);
 
   return (
     <>
       <TouchableOpacity
         accessibilityRole="button"
-        accessibilityLabel={t(`Predio actual: ${value}. Toca para cambiar.`, `Current field: ${value}. Tap to change.`)}
+        accessibilityLabel={t(`Campo actual: ${value}. Toca para cambiar.`, `Current field: ${value}. Tap to change.`)}
         onPress={() => setOpen(true)}
         style={[styles.pill, { backgroundColor: colors.mapOverlay, borderColor: colors.border }]}
       >
@@ -81,7 +82,7 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
             onPress={(e) => e.stopPropagation()}
           >
             <View style={[styles.grabber, { backgroundColor: colors.textMuted }]} />
-            <Text style={[styles.title, { color: colors.text }]}>{t('Predios', 'Fields')}</Text>
+            <Text style={[styles.title, { color: colors.text }]}>{t('Campos', 'Fields')}</Text>
 
             {loading ? (
               <ActivityIndicator color={colors.primary} style={{ marginVertical: Spacing.lg }} />
@@ -89,7 +90,7 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
               <ScrollView style={{ maxHeight: 320 }}>
                 {fields.length === 0 && (
                   <Text style={[styles.empty, { color: colors.textSecondary }]}>
-                    {t('Todavía no hay predios. Crea el primero abajo.', 'There are no fields yet. Create the first one below.')}
+                    {t('Todavía no hay campos. Crea el primero abajo.', 'There are no fields yet. Create the first one below.')}
                   </Text>
                 )}
                 {fields.map((f) => {
@@ -136,9 +137,9 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
                 value={newName}
                 onChangeText={setNewName}
                 onSubmitEditing={create}
-                placeholder="Potrero Bajo"
+                placeholder="Campo Bajo"
                 placeholderTextColor={colors.textMuted}
-                accessibilityLabel={t('Nombre del predio nuevo', 'New field name')}
+                accessibilityLabel={t('Nombre del campo nuevo', 'New field name')}
                 style={[
                   styles.input,
                   { backgroundColor: colors.background, borderColor: colors.border, color: colors.text },
@@ -147,7 +148,7 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
               <TouchableOpacity
                 onPress={create}
                 accessibilityRole="button"
-                accessibilityLabel={t('Crear predio', 'Create field')}
+                accessibilityLabel={t('Crear campo', 'Create field')}
                 style={[styles.addBtn, { backgroundColor: colors.primary }]}
               >
                 <Text style={styles.addBtnText}>{t('Crear', 'Create')}</Text>

@@ -11,7 +11,6 @@ import type { MapMeasurementPoint } from '../types/app';
 
 interface Props {
   onStartMeasurement: () => void;
-  onOpenMap: () => void;
   onOpenHistory: () => void;
   onOpenSettings: () => void;
   onOpenDevices: () => void;
@@ -95,14 +94,6 @@ export const DashboardScreen: React.FC<Props> = (props) => {
         <Text style={[styles.sectionTitle, { color: colors.text }]}>{loading ? t('Cargando lecturas…', 'Loading readings…') : t('Tu próxima decisión empieza aquí', 'Your next decision starts here')}</Text>
         <Text style={[styles.emptyBody, { color: colors.textSecondary }]}>{t('Después de medir podrás revisar el estado del suelo y sus recomendaciones en este espacio.', 'After measuring, review soil conditions and recommendations here.')}</Text>
       </View>}
-      <TouchableOpacity accessibilityRole="button" onPress={props.onOpenMap} style={[styles.mapCard, { backgroundColor: colors.bubbleInactive }]}>
-        <AppIcon name="map" color={colors.primary} size={30} />
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('Explora tu predio', 'Explore your field')}</Text>
-          <Text style={[styles.caption, { color: colors.textSecondary }]}>{t('Puntos de pre-siembra · Radio de 20 m', 'Pre-planting points · 20 m radius')}</Text>
-        </View>
-        <AppIcon name="arrow" color={colors.primary} />
-      </TouchableOpacity>
     </ScrollView>
   </SafeAreaView>;
 };
@@ -143,5 +134,4 @@ const styles = StyleSheet.create({
   empty: { borderWidth: 1, borderStyle: 'dashed', borderRadius: 20, padding: 24, alignItems: 'center', gap: 12 },
   emptyBody: { ...Typography.bodyRegular, textAlign: 'center' },
   notice: { ...Typography.caption, marginBottom: 12 },
-  mapCard: { flexDirection: 'row', alignItems: 'center', gap: 14, borderRadius: 20, padding: 20, marginTop: 20 },
 });

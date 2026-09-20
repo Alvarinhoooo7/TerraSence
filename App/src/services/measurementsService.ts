@@ -1,6 +1,7 @@
+import { belongsToRetiredGeneration, historyCacheAffected } from '../utils/deviceReset';
 // src/services/measurementsService.ts
 //
-// Lectura de mediciones para el mapa y cola offline-first (store & forward).
+// Lectura de mediciones para el historial y cola offline-first (store & forward).
 //
 // La cola es IDEMPOTENTE: cada medición lleva un `client_uuid` generado en el
 // teléfono ANTES de intentar el envío. El índice único NO parcial
@@ -12,6 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Crypto from 'expo-crypto';
 import { supabase } from './supabase';
 import { createKeyedLock } from '../utils/keyedLock';
+import { useAppStore } from '../store/useAppStore';
 import { mergeMeasurementHistory } from '../utils/measurementHistory';
 import {
   mapRowToPoint,
@@ -22,6 +24,7 @@ import {
 
 const QUEUE_KEY = '@terrasense/pending_measurements';
 const locked = createKeyedLock();
+let resetRevision = 0;
 const flushing = new Map<string, Promise<{ sent: number; remaining: number }>>();
 
 interface QueuedMeasurement {
@@ -29,7 +32,7 @@ interface QueuedMeasurement {
   queuedAt: string;
 }
 
-/** Columnas que necesita el mapa. Se piden explícitas para no traer de más. */
+/** Columnas que necesita el historial. Se piden explícitas para no traer de más. */
 const MAP_COLUMNS =
   'id,client_uuid,latitude,longitude,radius_m,gps_accuracy_m,verdict,verdict_title,action_summary,' +
   'phenological_stage,measured_at,ph,ec_us_cm,vwc_percent,soil_temp_c,nitrogen,phosphorus,potassium,canopy_temp_c,canopy_humidity_pct,air_pressure_hpa,battery_percent,diagnosis';
@@ -40,6 +43,8 @@ export const newClientUuid = (): string => Crypto.randomUUID();
 export async function loadMeasurementHistory(fieldName: string, deviceId?: string | null) {
   const account = await accountQueueKey();
   const key = `${account}/history/${JSON.stringify([fieldName, deviceId ?? null])}`;
+  await reconcileDeviceResets().catch(() => undefined);
+  const revision = resetRevision;
   const pending = await pendingMeasurementPoints(fieldName, deviceId);
   let points: MapMeasurementPoint[];
   let offline = false;
@@ -54,12 +59,14 @@ export async function loadMeasurementHistory(fieldName: string, deviceId?: strin
   if (await accountQueueKey() !== account) throw new Error('La cuenta ha cambiado.');
   if (!offline) {
     // A cache write failure must not hide successfully fetched measurements.
-    await AsyncStorage.setItem(key, JSON.stringify(points)).catch(() => undefined);
+    await locked(account, async () => {
+      if (revision === resetRevision) await AsyncStorage.setItem(key, JSON.stringify(points));
+    }).catch(() => undefined);
   }
-  return { points: mergeMeasurementHistory(points, pending), offline };
+  return { points: revision === resetRevision ? mergeMeasurementHistory(points, pending) : [], offline };
 }
 
-/** Mediciones de un predio, más recientes primero. */
+/** Mediciones de un campo, más recientes primero. */
 export async function fetchMeasurements(
   fieldName: string,
   deviceId?: string | null,
@@ -109,7 +116,7 @@ export async function pendingCount(): Promise<number> {
   return (await readQueue(await accountQueueKey())).length;
 }
 
-/** Puntos locales que todavía no están en Supabase, para mapa e historial. */
+/** Puntos locales que todavía no están en Supabase, para el historial. */
 export async function pendingMeasurementPoints(
   fieldName: string,
   deviceId?: string | null,
@@ -159,6 +166,7 @@ export async function saveMeasurement(
       const remaining = (await readQueue(key)).filter(item => item.row.client_uuid !== row.client_uuid);
       await writeQueue(key, remaining);
     });
+    await AsyncStorage.setItem(`${key}/lastSentAt`, new Date().toISOString()).catch(() => undefined);
     return { synced: true, point: mapRowToPoint(data as unknown as SoilMeasurementRow) };
   } catch {
     return { synced: false, point: null };
@@ -173,7 +181,7 @@ export async function flushQueue(): Promise<{ sent: number; remaining: number }>
   const key = await accountQueueKey();
   const existing = flushing.get(key);
   if (existing) return existing;
-  const work = flushAccount(key);
+  const work = reconcileDeviceResets().then(() => flushAccount(key));
   flushing.set(key, work);
   try { return await work; } finally { if (flushing.get(key) === work) flushing.delete(key); }
 }
@@ -194,9 +202,52 @@ async function flushAccount(key: string): Promise<{ sent: number; remaining: num
       await locked(key, async () => {
         await writeQueue(key, (await readQueue(key)).filter(x => x.row.client_uuid !== item.row.client_uuid));
       });
+      await AsyncStorage.setItem(`${key}/lastSentAt`, new Date().toISOString()).catch(() => undefined);
       sent += 1;
     }
   }
 
   return { sent, remaining: (await readQueue(key)).length };
+}
+
+export async function syncStatus() {
+  const key = await accountQueueKey();
+  return { pending: (await readQueue(key)).length, lastSentAt: await AsyncStorage.getItem(`${key}/lastSentAt`) };
+}
+
+/** Purga las copias de un equipo restablecido al reconectar, sin cruzar cuentas. */
+export async function reconcileDeviceResets(): Promise<void> {
+  const key = await accountQueueKey();
+  const { data, error } = await supabase.from('device_data_resets').select('device_id,generation');
+  if (error) throw error;
+  if (await accountQueueKey() !== key) return;
+  await locked(key, async () => {
+    for (const reset of data ?? []) {
+      const marker = `${key}/reset/${reset.device_id}`;
+      if (Number(await AsyncStorage.getItem(marker)) >= reset.generation) continue;
+      resetRevision++;
+      await writeQueue(key, (await readQueue(key)).filter(item => !belongsToRetiredGeneration(item.row, reset)));
+      const caches = (await AsyncStorage.getAllKeys()).filter(k => historyCacheAffected(k, key, reset.device_id));
+      if (caches.length) await AsyncStorage.multiRemove(caches);
+      const uid = key.slice(key.lastIndexOf('/') + 1);
+      const onboardingKey = `@terrasense/onboarding/${uid}`;
+      const cached = await AsyncStorage.getItem(onboardingKey);
+      if (cached) {
+        try {
+          const onboarding = JSON.parse(cached);
+          onboarding.devices = (onboarding.devices ?? []).filter((d: { id: string; data_generation?: number }) => d.id !== reset.device_id || (d.data_generation ?? 0) >= reset.generation);
+          await AsyncStorage.setItem(onboardingKey, JSON.stringify(onboarding));
+        } catch { await AsyncStorage.removeItem(onboardingKey); }
+      }
+      if (await accountQueueKey() === key) {
+        const store = useAppStore.getState();
+        store.invalidateData();
+        if (!store.device || store.device.id === reset.device_id) {
+          store.setPoints([]); store.selectPoint(null);
+          if (store.device && (store.device.data_generation ?? 0) < reset.generation) store.setDevice(null);
+        }
+      }
+      await AsyncStorage.setItem(marker, String(reset.generation));
+    }
+  });
 }

@@ -42,23 +42,13 @@ const COPY: Record<AppLanguage, Record<GuideId, GuideCopy>> = {
         'La finalización queda guardada en tu cuenta y no reaparece al reinstalar.',
       ],
     },
-    map: {
-      title: 'Guía del mapa',
-      intro: 'El mapa reúne posición, estado agronómico y evolución del predio.',
-      steps: [
-        'Elige predio y etapa fenológica antes de medir.',
-        'Cada círculo es una medición; su icono y color indican el veredicto. Tócalo para ver datos.',
-        'Usa “Medir ahora” para registrar un punto y la carpeta para abrir el historial.',
-        'Sin señal, las mediciones quedan pendientes y se sincronizan al recuperar conexión.',
-      ],
-    },
     measure: {
       title: 'Guía de medición',
       intro: 'Una lectura estable comienza con una sonda bien instalada.',
       steps: [
         'Inserta completamente la sonda en suelo representativo, sin piedras ni bolsas de aire.',
         'Mantenla quieta mientras se leen sensores y GPS.',
-        'Revisa veredicto, alertas y acción sugerida; luego guarda para agregar el punto al mapa.',
+        'Revisa veredicto, alertas y acción sugerida; luego guarda para conservar la lectura en el historial.',
         'Si aparece “datos simulados”, el valor sirve para demostración y no para decisiones de campo.',
       ],
     },
@@ -77,7 +67,7 @@ const COPY: Record<AppLanguage, Record<GuideId, GuideCopy>> = {
       steps: [
         'Elige tema, idioma y sistema de medición; el cambio se aplica inmediatamente.',
         'Activa sólo las categorías de notificaciones que quieras recibir.',
-        'Cultivo y textura modifican los umbrales del motor agronómico: selecciónalos con cuidado.',
+        'Revisa los permisos del teléfono y el estado de sincronización.',
         'En “Mis equipos” puedes administrar sondas y compartir el QR si tienes permisos.',
       ],
     },
@@ -88,15 +78,6 @@ const COPY: Record<AppLanguage, Record<GuideId, GuideCopy>> = {
         'Cualquier miembro aprobado puede mostrar el QR, que cambia cada 15 minutos.',
         'Al escanear el QR, el nuevo usuario espera la aprobación del administrador.',
         '“Registrar equipo” se usa al configurar una sonda nueva como primer administrador.',
-      ],
-    },
-    perimeter: {
-      title: 'Guía del perímetro',
-      intro: 'Delimita el predio para dar contexto espacial a sus mediciones.',
-      steps: [
-        'Toca cada esquina visible en el mapa o camina el borde y pulsa “Estoy aquí”.',
-        'Agrega al menos tres puntos; usa “Deshacer” si una esquina quedó mal.',
-        'Guarda para calcular la superficie y mostrar el polígono en el mapa de pre-siembra.',
       ],
     },
   },
@@ -119,23 +100,13 @@ const COPY: Record<AppLanguage, Record<GuideId, GuideCopy>> = {
         'Completion is saved to your account and will not reappear after reinstalling.',
       ],
     },
-    map: {
-      title: 'Map guide',
-      intro: 'The map combines location, agronomic status and field evolution.',
-      steps: [
-        'Choose the field and crop stage before measuring.',
-        'Each circle is a reading; its icon and color show the verdict. Tap it for details.',
-        'Use “Measure now” to add a point and the folder button to open history.',
-        'While offline, readings remain pending and sync when connectivity returns.',
-      ],
-    },
     measure: {
       title: 'Measurement guide',
       intro: 'A stable reading starts with a correctly installed probe.',
       steps: [
         'Insert the probe fully in representative soil, avoiding stones and air gaps.',
         'Keep it still while sensors and GPS are read.',
-        'Review the verdict, alerts and suggested action, then save it to the map.',
+        'Review the verdict, alerts and suggested action, then save it to history.',
         'If “simulated data” appears, use the reading only for demonstration.',
       ],
     },
@@ -154,7 +125,7 @@ const COPY: Record<AppLanguage, Record<GuideId, GuideCopy>> = {
       steps: [
         'Choose theme, language and measurement system; changes apply immediately.',
         'Enable only the notification categories you want to receive.',
-        'Crop and soil texture change agronomic thresholds, so select them carefully.',
+        'Review phone permissions and synchronization status.',
         'Use “My devices” to manage probes and share their QR when authorized.',
       ],
     },
@@ -165,15 +136,6 @@ const COPY: Record<AppLanguage, Record<GuideId, GuideCopy>> = {
         'Any approved member can show the QR, which changes every 15 minutes.',
         'Linking a code does not change the physical probe identity.',
         'Use “Register device” when setting up a new probe as its first administrator.',
-      ],
-    },
-    perimeter: {
-      title: 'Perimeter guide',
-      intro: 'Outline the field to give spatial context to its readings.',
-      steps: [
-        'Tap every visible corner, or walk the boundary and press “I am here”.',
-        'Add at least three points; use “Undo” when a corner is misplaced.',
-        'Save to calculate area and show the polygon on the main map.',
       ],
     },
   },

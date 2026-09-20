@@ -13,3 +13,11 @@ test('ignora enlaces ajenos o incompletos', () => {
   assert.equal(parseRecoveryTokens('terrasense://reset-password#type=signup&access_token=a&refresh_token=r'), null);
   assert.equal(parseRecoveryTokens('terrasense://reset-password#type=recovery&access_token=a'), null);
 });
+
+test('no acepta credenciales desde un esquema, host o ruta ajenos', () => {
+  const tokens = '#type=recovery&access_token=a&refresh_token=r';
+  for (const route of ['https://example.com/reset-password', 'terrasense://other', 'terrasense://reset-password/other', 'terrasense://user@reset-password', 'not a url']) {
+    assert.equal(parseRecoveryTokens(route + tokens), null);
+  }
+  assert.deepEqual(parseRecoveryTokens('terrasense://reset-password?type=recovery&access_token=a&refresh_token=r'), { accessToken: 'a', refreshToken: 'r' });
+});

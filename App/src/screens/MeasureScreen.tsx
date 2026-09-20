@@ -199,6 +199,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     const row: SoilMeasurementInsert = {
       measured_at: capturedAt ?? new Date().toISOString(),
       device_id: device?.id ?? '',
+      data_generation: device?.data_generation ?? 0,
       user_id: null,
       crop_id: cropId,
       field_name: fieldName,
@@ -414,9 +415,6 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
                   <Text style={[styles.cropNames, { color: colors.text }]}>{advice.suggestedCrops.join('   ') || 'No hay coincidencias claras; corrige primero el suelo.'}</Text>
                 </View>
               )}
-              <Text style={[styles.mapNote, { color: colors.textSecondary }]}>
-                {advice.mapEligible ? 'Esta medición puede aparecer como burbuja tonal en el mapa de pre-siembra.' : 'Esta fase se guarda en el historial y no genera una burbuja en el mapa.'}
-              </Text>
             </>
           ) : (
             <>
@@ -511,7 +509,6 @@ const styles = StyleSheet.create({
   cropBox: { borderRadius: 12, padding: Spacing.md, marginTop: Spacing.md },
   cropLabel: { ...Typography.badge, marginBottom: Spacing.sm },
   cropNames: { ...Typography.bodyBold },
-  mapNote: { ...Typography.caption, marginTop: Spacing.md },
   carouselActions: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.lg },
   carouselButton: { flex: 1, minHeight: Spacing.touchTarget, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   carouselText: { ...Typography.bodyBold },

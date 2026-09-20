@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import type { MapMeasurementPoint } from '../types/app';
 
 export function useMeasurementHistory() {
+  const dataRevision = useAppStore(s => s.dataRevision);
   const fieldName = useAppStore(s => s.fieldName);
   const deviceId = useAppStore(s => s.device?.id);
   const accountId = useAuthStore(s => s.session?.user.id);
@@ -27,7 +28,7 @@ export function useMeasurementHistory() {
     } finally {
       if (request === generation.current) setLoading(false);
     }
-  }, [fieldName, deviceId, accountId]);
+  }, [fieldName, deviceId, accountId, dataRevision]);
   useEffect(() => {
     setPoints([]);
     setOffline(false);

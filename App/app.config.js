@@ -1,11 +1,3 @@
-// app.config.js — sustituye a app.json para poder inyectar la clave de Google
-// Maps desde variable de entorno. NUNCA versionar la clave en el repositorio.
-//
-// Requiere App/.env con:
-//   EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=...
-//   EXPO_PUBLIC_SUPABASE_URL=...
-//   EXPO_PUBLIC_SUPABASE_ANON_KEY=...
-
 const path = require('path');
 
 // Expo sólo carga automáticamente el .env que esté junto a este archivo
@@ -41,14 +33,11 @@ export default () => ({
       googleServicesFile: './GoogleService-Info.plist',
       infoPlist: {
         NSLocationWhenInUseUsageDescription:
-          'TerraSense usa tu ubicación para georreferenciar cada medición de suelo en el mapa de tu predio.',
+          'TerraSense usa tu ubicación mientras usas la app para asociar coordenadas a tus mediciones y consultar el pronóstico.',
         NSBluetoothAlwaysUsageDescription:
           'TerraSense usa Bluetooth para comunicarse con la sonda de suelo.',
         NSCameraUsageDescription:
           'TerraSense usa la cámara para escanear el código QR de vinculación del equipo.',
-      },
-      config: {
-        googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
       },
     },
 
@@ -60,9 +49,6 @@ export default () => ({
         backgroundColor: '#12281F',
       },
       allowBackup: false,
-      config: {
-        googleMaps: { apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY },
-      },
       // NOTA: se omite deliberadamente ACCESS_BACKGROUND_LOCATION.
       // TerraSense mide bajo demanda con la app en primer plano; no rastrea.
       // Pedirlo dispararía revisión manual en Google Play y contradiría el
@@ -94,18 +80,19 @@ export default () => ({
         'expo-location',
         {
           locationWhenInUsePermission:
-            'Permite georreferenciar cada medición en el mapa de tu predio.',
+            'Permite asociar coordenadas a tus mediciones y consultar el pronóstico mientras usas la app.',
           isAndroidBackgroundLocationEnabled: false,
         },
       ],
       [
         'expo-camera',
-        { cameraPermission: 'Permite escanear el QR de vinculación del equipo.' },
+        { cameraPermission: 'Permite escanear el QR de vinculación del equipo.', recordAudioAndroid: false, microphonePermission: false },
       ],
       [
         'expo-notifications',
         { icon: './assets/icon.png', color: '#1F5B3F' },
       ],
+      './plugins/withStartupPermissions',
     ],
 
     extra: {

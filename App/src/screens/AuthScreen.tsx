@@ -7,31 +7,20 @@
 // escritura, así que esta pantalla es la puerta de entrada real de la app.
 
 import React, { useCallback, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { BackHandler, Keyboard, Pressable, Text, View } from 'react-native';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 import { supabase } from '../services/supabase';
-import { Spacing, Typography } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { PasswordChecklist } from '../components/PasswordChecklist';
-import { FadeIn } from '../components/FadeIn';
 import { RegistrationConsentModal } from '../components/RegistrationConsentModal';
 import { REGISTRATION_LEGAL_VERSION, RegistrationConsent } from '../utils/registrationConsent';
 import { EmailCodeScreen } from './EmailCodeScreen';
 import type { EmailOtpPurpose } from '../services/emailOtp';
 import { isPasswordAcceptable, PASSWORD_MIN_LENGTH } from '../utils/passwordRules';
+import { isEmailValid } from '../utils/authValidation';
+import { AuthLayout, AuthHeading, AuthField, AuthButton, AuthMessage, SoilArtwork, authStyles } from '../components/auth/AuthUI';
 
 type Mode = 'signin' | 'signup' | 'reset';
 
@@ -39,7 +28,7 @@ const MODE_COPY: Record<Mode, { title: string; cta: string; hint: string }> = {
   signin: {
     title: 'Entrar a TerraSense',
     cta: 'Entrar',
-    hint: 'Usa el correo con el que registraste tu equipo.',
+    hint: 'Ingresa a tu cuenta para continuar con tu campo.',
   },
   signup: {
     title: 'Crear cuenta',
@@ -66,12 +55,13 @@ const humanizeError = (message: string, en: boolean): string => {
     return en ? 'An account already exists for this email. Sign in or reset your password.' : 'Ya existe una cuenta con ese correo. Entra o recupera tu contraseña.';
   }
   if (m.includes('password should be at least')) {
-    return en ? 'Password must be at least 6 characters long.' : 'La contraseña debe tener al menos 6 caracteres.';
+    return en ? `Use at least ${PASSWORD_MIN_LENGTH} characters, a letter, a number and a special character.` : `Usa al menos ${PASSWORD_MIN_LENGTH} caracteres, una letra, un número y un carácter especial.`;
   }
   if (m.includes('network') || m.includes('fetch')) {
-    return en ? 'No connection. Connect to the internet for your first sign-in.' : 'Sin conexión. Conéctate a internet para entrar la primera vez.';
+    return en ? 'No connection. Check your internet and try again.' : 'Sin conexión. Revisa tu internet e inténtalo otra vez.';
   }
-  return message;
+  if (/rate|too many|seconds|429/.test(m)) return en ? 'Please wait before trying again.' : 'Espera un momento antes de volver a intentarlo.';
+  return en ? 'We could not complete the request. Please try again.' : 'No pudimos completar la solicitud. Inténtalo otra vez.';
 };
 
 interface Props {
@@ -88,7 +78,6 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
   const [fullName, setFullName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const [showConsent, setShowConsent] = useState(false);
   const requestInFlight = useRef(false);
   const [challenge, setChallenge] = useState<{ email: string; purpose: EmailOtpPurpose; sentAt: number } | null>(null);
@@ -97,7 +86,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
   const { preferences, setPreferences } = useAppStore();
   const spanishCopy = MODE_COPY[mode];
   const copy = mode === 'signin'
-    ? { title: t(spanishCopy.title, 'Sign in to TerraSense'), cta: t(spanishCopy.cta, 'Sign in'), hint: t(spanishCopy.hint, 'Use the email associated with your device.') }
+    ? { title: t(spanishCopy.title, 'Sign in to TerraSense'), cta: t(spanishCopy.cta, 'Sign in'), hint: t(spanishCopy.hint, 'Sign in to pick up where you left off in your field.') }
     : mode === 'signup'
       ? { title: t(spanishCopy.title, 'Create account'), cta: t(spanishCopy.cta, 'Create account'), hint: t(spanishCopy.hint, 'We will email you to confirm your account.') }
       : { title: t(spanishCopy.title, 'Reset password'), cta: t(spanishCopy.cta, 'Send code'), hint: t(spanishCopy.hint, 'We will send you a code to choose a new password.') };
@@ -106,18 +95,17 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
     if (requestInFlight.current) return;
     setShowConsent(false);
     setConfirmPassword('');
+    setPassword('');
     setMode(next);
     setError(null);
-    setNotice(null);
   }, []);
 
   const submit = useCallback(async (consent?: RegistrationConsent) => {
     if (requestInFlight.current) return;
     setError(null);
-    setNotice(null);
 
     const mail = email.trim().toLowerCase();
-    if (!mail.includes('@')) {
+    if (!isEmailValid(mail)) {
       setError(t('Escribe un correo válido.', 'Enter a valid email address.'));
       return;
     }
@@ -126,6 +114,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
       return;
     }
     if (mode === 'signup') {
+      if (!fullName.trim()) { setError(t('Escribe tu nombre.', 'Enter your name.')); return; }
       if (!isPasswordAcceptable(password)) {
         setError(t(
           `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres, con una letra, un número y un carácter especial.`,
@@ -146,6 +135,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
       }
     }
 
+    Keyboard.dismiss();
     requestInFlight.current = true;
     setBusy(true);
     try {
@@ -195,211 +185,64 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
     }
   }, [email, password, confirmPassword, fullName, mode, onAuthenticated, preferences.language, t]);
 
-  const inputStyle = [
-    styles.input,
-    { backgroundColor: colors.card, borderColor: colors.border, color: colors.text },
-  ];
+  React.useEffect(() => {
+    const listener = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (requestInFlight.current || challenge) return !!requestInFlight.current;
+      if (mode !== 'signin') { switchMode('signin'); return true; }
+      return false;
+    });
+    return () => listener.remove();
+  }, [mode, challenge, switchMode]);
 
   if (challenge) return <EmailCodeScreen {...challenge} onBack={() => {
     setChallenge(null); setPassword(''); setConfirmPassword(''); setError(null);
     setMode(challenge.purpose === 'signup' ? 'signin' : 'reset');
   }} />;
 
-  return (
-    <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.languageRow}>
-            {(['es', 'en'] as const).map((language) => (
-              <TouchableOpacity
-                key={language}
-                onPress={() => setPreferences({ ...preferences, language })}
-                style={[
-                  styles.languageButton,
-                  {
-                    backgroundColor: preferences.language === language ? colors.primary : colors.card,
-                    borderColor: colors.border,
-                  },
-                ]}
-              >
-                <Text style={{ color: preferences.language === language ? '#FFFFFF' : colors.textSecondary, ...Typography.badge }}>
-                  {language.toUpperCase()}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <FadeIn style={{ gap: Spacing.sm }}>
-            <Text style={styles.logo}>🌱</Text>
-            <Text style={[styles.brand, { color: colors.primary }]}>TerraSense</Text>
-            <Text style={[styles.title, { color: colors.text }]}>{copy.title}</Text>
-            <Text style={[styles.hint, { color: colors.textSecondary }]}>{copy.hint}</Text>
-          </FadeIn>
-
-          {mode === 'signup' && (
-            <TextInput
-              style={inputStyle}
-              placeholder={t('Tu nombre', 'Your name')}
-              placeholderTextColor={colors.textMuted}
-              value={fullName}
-              onChangeText={setFullName}
-              autoCapitalize="words"
-              accessibilityLabel={t('Nombre completo', 'Full name')}
-            />
-          )}
-
-          <TextInput
-            style={inputStyle}
-            placeholder={t('Correo', 'Email')}
-            placeholderTextColor={colors.textMuted}
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="email-address"
-            inputMode="email"
-            accessibilityLabel={t('Correo electrónico', 'Email address')}
-          />
-
-          {mode !== 'reset' && (
-            <TextInput
-              style={inputStyle}
-              placeholder={t('Contraseña', 'Password')}
-              placeholderTextColor={colors.textMuted}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              textContentType={mode === 'signup' ? 'newPassword' : 'password'}
-              accessibilityLabel={t('Contraseña', 'Password')}
-            />
-          )}
-
-          {mode === 'signup' && (
-            <>
-              <TextInput
-                style={[
-                  ...inputStyle,
-                  // Sólo se marca en rojo cuando ya hay algo escrito y no cuadra:
-                  // avisar mientras se teclea la primera letra sería ruido.
-                  confirmPassword.length > 0 && confirmPassword !== password
-                    ? { borderColor: colors.danger }
-                    : null,
-                ]}
-                placeholder={t('Repite la contraseña', 'Repeat password')}
-                placeholderTextColor={colors.textMuted}
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry
-                textContentType="newPassword"
-                accessibilityLabel={t('Repite la contraseña', 'Repeat password')}
-              />
-              {confirmPassword.length > 0 && confirmPassword !== password && (
-                <Text style={[styles.mismatch, { color: colors.danger }]}>
-                  {t('Las contraseñas no coinciden.', 'Passwords do not match.')}
-                </Text>
-              )}
-              <PasswordChecklist password={password} />
-            </>
-          )}
-
-          {error && (
-            <View style={[styles.banner, { backgroundColor: colors.danger }]}>
-              <Text style={styles.bannerText}>{error}</Text>
-            </View>
-          )}
-          {notice && (
-            <View style={[styles.banner, { backgroundColor: colors.success }]}>
-              <Text style={styles.bannerText}>{notice}</Text>
-            </View>
-          )}
-
-          <TouchableOpacity
-            accessibilityRole="button"
-            onPress={() => { void submit(); }}
-            disabled={busy}
-            style={[styles.cta, { backgroundColor: colors.primary, opacity: busy ? 0.6 : 1 }]}
-          >
-            {busy ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text style={styles.ctaText}>{copy.cta}</Text>
-            )}
-          </TouchableOpacity>
-
-          <View style={styles.links}>
-            {mode !== 'signin' && (
-              <TouchableOpacity onPress={() => switchMode('signin')} style={styles.link}>
-                <Text style={[styles.linkText, { color: colors.primary }]}>{t('Ya tengo cuenta', 'I already have an account')}</Text>
-              </TouchableOpacity>
-            )}
-            {mode !== 'signup' && (
-              <TouchableOpacity onPress={() => switchMode('signup')} style={styles.link}>
-                <Text style={[styles.linkText, { color: colors.primary }]}>{t('Crear cuenta', 'Create account')}</Text>
-              </TouchableOpacity>
-            )}
-            {mode !== 'reset' && (
-              <TouchableOpacity onPress={() => switchMode('reset')} style={styles.link}>
-                <Text style={[styles.linkText, { color: colors.textSecondary }]}>
-                  {t('Olvidé mi contraseña', 'Forgot my password')}
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-      {showConsent && (
-        <RegistrationConsentModal
-          busy={busy}
-          error={error}
-          onCancel={() => { if (!requestInFlight.current) { setShowConsent(false); setError(null); } }}
-          onContinue={consent => { void submit(consent); }}
-        />
-      )}
-    </SafeAreaView>
-  );
+  return <>
+    <AuthLayout toolbar={<View style={{ flexDirection: 'row' }}>
+      {(['es', 'en'] as const).map(language => <Pressable key={language} disabled={busy}
+        accessibilityRole="button" accessibilityLabel={language === 'es' ? 'Español' : 'English'}
+        accessibilityState={{ selected: preferences.language === language, disabled: busy }}
+        onPress={() => setPreferences({ ...preferences, language })}
+        style={({ pressed }) => ({ minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1,
+          borderBottomWidth: preferences.language === language ? 2 : 0, borderColor: colors.primary })}>
+        <Text style={[authStyles.label, { color: preferences.language === language ? colors.primary : colors.textSecondary }]}>{language.toUpperCase()}</Text>
+      </Pressable>)}
+    </View>}>
+      {mode === 'signin' && <SoilArtwork compact />}
+      <AuthHeading eyebrow={mode === 'signin' ? t('TU CAMPO, MÁS CLARO', 'A CLEARER VIEW OF YOUR FIELD') : mode === 'signup' ? t('COMIENZA AQUÍ', 'START HERE') : t('RECUPERA EL ACCESO', 'RESTORE ACCESS')}
+        title={mode === 'signin' ? t('Qué bueno verte.', 'Welcome back.') : copy.title} description={copy.hint} />
+      <Animated.View layout={LinearTransition.springify().damping(14)} style={authStyles.form}>
+        {mode === 'signup' && <AuthField label={t('Tu nombre', 'Your name')} placeholder={t('Nombre y apellido', 'Full name')}
+          value={fullName} onChangeText={setFullName} autoCapitalize="words" autoComplete="name" textContentType="name" editable={!busy} />}
+        <AuthField label={t('Correo electrónico', 'Email address')} placeholder="nombre@ejemplo.cl" value={email}
+          onChangeText={setEmail} keyboardType="email-address" inputMode="email" autoComplete="email" textContentType="emailAddress" editable={!busy} />
+        {mode !== 'reset' && <AuthField key={mode} label={t('Contraseña', 'Password')} secret value={password} onChangeText={setPassword}
+          autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} textContentType={mode === 'signup' ? 'newPassword' : 'password'}
+          editable={!busy} returnKeyType="go" onSubmitEditing={() => { if (mode === 'signin') void submit(); }} />}
+        {mode === 'signin' && <Pressable accessibilityRole="button" disabled={busy} onPress={() => switchMode('reset')} style={[authStyles.link, { alignSelf: 'flex-end', marginTop: -12 }]}>
+          <Text style={[authStyles.label, { color: colors.primary }]}>{t('Olvidé mi contraseña', 'Forgot my password')}</Text>
+        </Pressable>}
+        {mode === 'signup' && <>
+          <PasswordChecklist password={password} />
+          <AuthField label={t('Confirmar contraseña', 'Confirm password')} secret value={confirmPassword} onChangeText={setConfirmPassword}
+            autoComplete="new-password" textContentType="newPassword" editable={!busy} />
+          {confirmPassword.length > 0 && confirmPassword !== password && <Text accessibilityLiveRegion="polite" style={{ color: colors.danger }}>{t('Las contraseñas no coinciden.', 'Passwords do not match.')}</Text>}
+        </>}
+        {error && <AuthMessage error>{error}</AuthMessage>}
+        <AuthButton label={copy.cta} busy={busy} onPress={() => { void submit(); }} />
+      </Animated.View>
+      <Animated.View layout={LinearTransition.springify().damping(14)} style={{ gap: 12, borderTopWidth: 1, borderColor: colors.border, paddingTop: 24 }}>
+        <Text style={[authStyles.body, { color: colors.textSecondary, textAlign: 'center' }]}>
+          {mode === 'signin' ? t('¿Primera vez en TerraSense?', 'New to TerraSense?') : t('¿Ya tienes una cuenta?', 'Already have an account?')}
+        </Text>
+        <AuthButton secondary disabled={busy} label={mode === 'signin' ? t('Crear mi cuenta', 'Create my account') : t('Volver a iniciar sesión', 'Back to sign in')}
+          onPress={() => switchMode(mode === 'signin' ? 'signup' : 'signin')} />
+      </Animated.View>
+    </AuthLayout>
+    {showConsent && <RegistrationConsentModal busy={busy} error={error}
+      onCancel={() => { if (!requestInFlight.current) { setShowConsent(false); setError(null); } }}
+      onContinue={consent => { void submit(consent); }} />}
+  </>;
 };
-
-const styles = StyleSheet.create({
-  mismatch: { ...Typography.caption, width: '100%', marginTop: -Spacing.xs, marginBottom: Spacing.sm },
-  root: { flex: 1 },
-  scroll: { padding: Spacing.lg, paddingTop: Spacing.xxl, gap: Spacing.sm },
-  languageRow: { flexDirection: 'row', justifyContent: 'flex-end', gap: Spacing.xs },
-  languageButton: { borderWidth: 1, borderRadius: 14, paddingHorizontal: 10, paddingVertical: 6 },
-  logo: { fontSize: 48, textAlign: 'center' },
-  brand: { ...Typography.titleLarge, textAlign: 'center', marginBottom: Spacing.lg },
-  title: { ...Typography.titleLarge, marginBottom: Spacing.xs },
-  hint: { ...Typography.caption, marginBottom: Spacing.md },
-  input: {
-    height: 54,
-    borderRadius: Spacing.borderRadius,
-    borderWidth: 1,
-    paddingHorizontal: Spacing.md,
-    ...Typography.bodyRegular,
-  },
-  banner: {
-    borderRadius: Spacing.borderRadius,
-    padding: Spacing.md,
-    marginTop: Spacing.xs,
-  },
-  bannerText: { ...Typography.caption, color: '#FFFFFF' },
-  cta: {
-    height: 56,
-    borderRadius: Spacing.borderRadius,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: Spacing.md,
-  },
-  ctaText: { ...Typography.button, color: '#FFFFFF', fontSize: 17 },
-  links: {
-    marginTop: Spacing.lg,
-    gap: Spacing.sm,
-    alignItems: 'center',
-  },
-  link: { minHeight: Spacing.touchTarget, justifyContent: 'center' },
-  linkText: { ...Typography.bodyBold },
-});

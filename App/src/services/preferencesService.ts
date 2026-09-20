@@ -8,6 +8,9 @@ import {
   type AppPreferences,
 } from '../types/preferences';
 
+import { createKeyedLock } from '../utils/keyedLock';
+const preferenceLock = createKeyedLock();
+
 const keyFor = (uid: string) => `@terrasense/preferences/${uid}`;
 const dirtyKeyFor = (uid: string) => `@terrasense/preferences_dirty/${uid}`;
 
@@ -37,8 +40,7 @@ async function writeRemote(uid: string, preferences: AppPreferences): Promise<vo
 }
 
 /** Carga remota con caché local y reintento de cambios hechos sin cobertura. */
-export async function loadPreferences(): Promise<AppPreferences> {
-  const uid = await currentUserId();
+async function loadPreferencesUnlocked(uid: string | null): Promise<AppPreferences> {
   if (!uid) return DEFAULT_APP_PREFERENCES;
 
   const local = await readLocal(uid);
@@ -69,16 +71,29 @@ export async function loadPreferences(): Promise<AppPreferences> {
 }
 
 /** Guarda primero en el teléfono; la nube se sincroniza cuando haya cobertura. */
-export async function savePreferences(preferences: AppPreferences): Promise<void> {
-  const uid = await currentUserId();
+async function savePreferencesUnlocked(preferences: AppPreferences, uid: string | null): Promise<void> {
   if (!uid) throw new Error('La sesión expiró. Vuelve a iniciar sesión.');
 
-  await AsyncStorage.setItem(keyFor(uid), JSON.stringify(preferences));
-  await AsyncStorage.setItem(dirtyKeyFor(uid), '1');
+  await AsyncStorage.multiSet([[keyFor(uid), JSON.stringify(preferences)], [dirtyKeyFor(uid), '1']]);
   try {
     await writeRemote(uid, preferences);
     await AsyncStorage.removeItem(dirtyKeyFor(uid));
   } catch {
     // El cambio ya está aplicado localmente y se reenviará al cargar la cuenta.
   }
+}
+
+export async function loadPreferences(): Promise<AppPreferences> { const uid = await currentUserId(); return preferenceLock('preferences', () => loadPreferencesUnlocked(uid)); }
+export async function savePreferences(preferences: AppPreferences): Promise<void> { const uid = await currentUserId(); return preferenceLock('preferences', () => savePreferencesUnlocked(preferences, uid)); }
+
+export async function syncPendingPreferences(): Promise<void> {
+  const uid = await currentUserId();
+  if (!uid) return;
+  await preferenceLock('preferences', async () => {
+    if (await AsyncStorage.getItem(dirtyKeyFor(uid)) !== '1') return;
+    const local = await readLocal(uid);
+    if (!local) return;
+    await writeRemote(uid, local);
+    await AsyncStorage.removeItem(dirtyKeyFor(uid));
+  });
 }

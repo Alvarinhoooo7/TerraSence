@@ -7,6 +7,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  BackHandler,
+  Linking,
   Alert,
   Modal,
   ScrollView,
@@ -29,11 +31,12 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import {
   listMyDevices,
+  listMyDeviceMemberships,
   registerDevice,
   requestDeviceAccess,
 } from '../services/deviceService';
 import { parseDeviceQrPayload, formatDeviceId, generateDeviceId } from '../utils/deviceId';
-import type { DeviceRow } from '../types/app';
+import type { DeviceMembershipRow, DeviceRow } from '../types/app';
 
 interface Props {
   onClose: () => void;
@@ -44,6 +47,11 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
   const { t } = useTranslation();
 
   const { device: selected, setDevice } = useAppStore();
+  const alive = useRef(true);
+  const operation = useRef(false);
+  const revision = useRef(0);
+  const [memberships, setMemberships] = useState<DeviceMembershipRow[]>([]);
+  const [loadError, setLoadError] = useState(false);
   const [devices, setDevices] = useState<DeviceRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -53,21 +61,29 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [qrDevice, setQrDevice] = useState<DeviceRow | null>(null);
   const refresh = useCallback(async () => {
-    setLoading(true);
+    const version = ++revision.current;
+    setLoading(true); setLoadError(false);
     try {
-      setDevices(await listMyDevices());
+      const [rows, roles] = await Promise.all([listMyDevices(), listMyDeviceMemberships()]);
+      if (!alive.current || revision.current !== version) return;
+      setDevices(rows); setMemberships(roles);
+      const current = useAppStore.getState().device;
+      if (current) setDevice(rows.find(d => d.id === current.id) ?? null);
     } catch (e) {
-      Alert.alert(t('No se pudieron cargar los equipos', 'Could not load devices'), String(e));
+      if (alive.current) setLoadError(true);
     } finally {
-      setLoading(false);
+      if (alive.current && revision.current === version) setLoading(false);
     }
   }, [t]);
 
   useEffect(() => {
-    void refresh();
+    alive.current = true; void refresh();
+    return () => { alive.current = false; revision.current++; };
   }, [refresh]);
+  useEffect(() => { const sub = BackHandler.addEventListener('hardwareBackPress', () => operation.current); return () => sub.remove(); }, []);
 
   const handleRegister = useCallback(async () => {
+    if (operation.current) return; operation.current = true;
     setBusy(true);
     try {
       const ble = await import('../services/bleService');
@@ -85,14 +101,14 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
       Alert.alert(
         t('Equipo registrado', 'Device registered'),
         t(
-          `Su código es ${formatDeviceId(d.device_code)}.\n\nCompártelo con quien deba operar este equipo.`,
-          `Its code is ${formatDeviceId(d.device_code)}.\n\nShare it with anyone who should operate this device.`,
+          `Su código es ${formatDeviceId(d.device_code)}.\n\nPara invitar a otra persona, muéstrale el QR temporal desde Mis dispositivos.`,
+          `Its code is ${formatDeviceId(d.device_code)}.\n\nTo invite someone, show the temporary QR from My devices.`,
         ),
       );
     } catch (e) {
       Alert.alert(t('No se pudo registrar', 'Could not register'), String(e));
     } finally {
-      setBusy(false);
+      operation.current = false; if (alive.current) setBusy(false);
     }
   }, [newName, setDevice, refresh, t]);
 
@@ -125,7 +141,7 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
   };
 
   const handleJoin = async (payload: string) => {
-    if (busy) return;
+    if (operation.current) return;
     const token = parseDeviceQrPayload(payload);
     setScanner(false);
     if (!token) {
@@ -138,13 +154,13 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
       );
       return;
     }
-    setBusy(true);
+    operation.current = true; setBusy(true);
     try {
       const device = await requestDeviceAccess(token);
       if (device) { setDevice(device); await refresh(); }
       else setPending(true);
     } catch (e) { Alert.alert(t('No se pudo solicitar acceso', 'Could not request access'), e instanceof Error ? e.message : String(e)); }
-    finally { setBusy(false); }
+    finally { operation.current = false; if (alive.current) setBusy(false); }
   };
 
   if (pending) return <WaitingApprovalScreen onApproved={device => { setDevice(device); setPending(false); void refresh(); }} onDismiss={() => setPending(false)} />;
@@ -157,14 +173,15 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={onClose} hitSlop={12} style={styles.headerBtn}>
+        <TouchableOpacity disabled={busy} onPress={onClose} hitSlop={12} style={styles.headerBtn}>
           <Text style={{ color: colors.primary, ...Typography.bodyBold }}>‹ {t('Volver', 'Back')}</Text>
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>{t('Mis equipos', 'My devices')}</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>{t('Mis dispositivos', 'My devices')}</Text>
         <View style={styles.headerBtn} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        {loadError && <View style={{ gap: 12 }}><Text style={{ color: colors.danger }}>{t('No se pudieron cargar los equipos.', 'Could not load devices.')}</Text><TouchableOpacity accessibilityRole="button" onPress={() => void refresh()} style={{ minHeight: 48, justifyContent: 'center' }}><Text style={{ color: colors.primary }}>{t('Reintentar', 'Retry')}</Text></TouchableOpacity></View>}
         {loading ? (
           <ActivityIndicator color={colors.primary} style={{ marginTop: Spacing.xl }} />
         ) : devices.length === 0 ? (
@@ -177,6 +194,7 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
             return (
               <TouchableOpacity
                 key={d.id}
+                disabled={busy}
                 onPress={() => setDevice(d)}
                 onLongPress={() => {
                   void Clipboard.setStringAsync(d.device_code);
@@ -201,14 +219,20 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
                   {formatDeviceId(d.device_code)}
                 </Text>
                 <Text style={[styles.deviceMeta, { color: colors.textSecondary }]}>
-                  🔋 {d.battery_level}% · fw {d.firmware_version} · {d.hardware_version}
+                  {t('Batería', 'Battery')}: {d.battery_level == null ? '—' : `${d.battery_level}%`} · Firmware {d.firmware_version || '—'}
+                </Text>
+                <Text style={[styles.deviceMeta, { color: colors.textSecondary }]}>
+                  {memberships.find(m => m.device_id === d.id)?.role === 'admin' ? t('Administrador', 'Administrator') : t('Usuario', 'User')} · {d.hardware_version || t('Hardware no informado', 'Hardware not reported')}
+                </Text>
+                <Text style={[styles.deviceMeta, { color: colors.textSecondary }]}>
+                  {t('Última conexión', 'Last seen')}: {d.last_seen_at ? new Date(d.last_seen_at).toLocaleString() : t('Sin registro', 'No record')}
                 </Text>
                 <Text style={[styles.hint, { color: colors.textMuted }]}>
                   {t('Mantén pulsado para copiar el código', 'Press and hold to copy the code')}
                 </Text>
                 {(
                   <View style={styles.adminActions}>
-                    <TouchableOpacity onPress={() => setQrDevice(d)} style={[styles.qrButton, { borderColor: colors.primary }]}>
+                    <TouchableOpacity disabled={busy} onPress={() => setQrDevice(d)} style={[styles.qrButton, { borderColor: colors.primary }]}>
                       <Text style={[styles.qrButtonText, { color: colors.primary }]}>▦ {t('Mostrar QR', 'Show QR')}</Text>
                     </TouchableOpacity>
 
@@ -221,12 +245,12 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
 
         <Text style={[styles.section, { color: colors.textMuted }]}>{t('REGISTRAR EQUIPO NUEVO', 'REGISTER NEW DEVICE')}</Text>
         <Text style={[styles.hint, { color: colors.textSecondary }]}>
-          {t('Enciende la sonda y mantén PAIR durante 3 segundos. El alta comprueba presencia física y guarda el mismo código en el ESP32 y en Supabase.', 'Turn on the probe and hold PAIR for 3 seconds. Registration verifies physical presence and stores the same code on the ESP32 and in Supabase.')}
+          {t('Enciende la sonda y mantén PAIR durante 3 segundos. Mantén el teléfono cerca hasta terminar la vinculación.', 'Turn on the probe and hold PAIR for 3 seconds. Keep your phone nearby until pairing finishes.')}
         </Text>
         <TextInput
           value={newName}
           onChangeText={setNewName}
-          placeholder={t('Nombre del equipo (ej. Sonda Potrero Bajo)', 'Device name (e.g. Lower Field Probe)')}
+          placeholder={t('Nombre del equipo (ej. Sonda Campo Norte)', 'Device name (e.g. Lower Field Probe)')}
           placeholderTextColor={colors.textMuted}
           style={inputStyle}
           accessibilityLabel={t('Nombre del equipo nuevo', 'New device name')}
@@ -240,9 +264,11 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
         </TouchableOpacity>
 
         <TouchableOpacity disabled={busy} style={[styles.ctaSecondary, { borderColor: colors.primary }]} onPress={async () => {
+          try {
           const permission = cameraPermission?.granted || (await requestCameraPermission()).granted;
           if (permission) openScanner();
-          else Alert.alert(t('Activa el permiso de camara en Ajustes.', 'Enable camera permission in Settings.'));
+          else Alert.alert(t('Activa el permiso de cámara en Ajustes.', 'Enable camera permission in Settings.'), '', [{ text: t('Cancelar', 'Cancel'), style: 'cancel' }, { text: t('Abrir Ajustes', 'Open Settings'), onPress: () => void Linking.openSettings().catch(() => undefined) }]);
+          } catch { Alert.alert(t('No se pudo abrir la cámara.', 'Could not open camera.')); }
         }}>
           <Text style={{ color: colors.primary }}>{t('Escanear QR para solicitar acceso', 'Scan QR to request access')}</Text>
         </TouchableOpacity>

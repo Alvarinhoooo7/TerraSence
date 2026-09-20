@@ -1,3 +1,4 @@
+import { useAppStore } from '../store/useAppStore';
 // src/services/notifications.ts
 //
 // Registro del token de notificaciones. Adaptado de `notifications.ts` de Akura.
@@ -15,13 +16,39 @@ import { loadPreferences } from './preferencesService';
 import type { AppPreferences } from '../types/preferences';
 
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
+  handleNotification: async notification => {
+    const raw = notification.request.content.data?.category;
+    const category = raw === 'device' || raw === 'weather' || raw === 'sync' ? raw : 'agronomic';
+    const allowed = useAppStore.getState().preferences.notifications[category] && notification.request.content.data?.event_type !== 'firmware_update';
+    return { shouldShowBanner: allowed, shouldShowList: allowed, shouldPlaySound: allowed, shouldSetBadge: false };
+  },
 });
+
+/** Android 13 requiere un canal antes de presentar el permiso de notificaciones. */
+export async function prepareNotificationChannels(language: 'es' | 'en'): Promise<void> {
+  if (Platform.OS === 'android') {
+    const en = language === 'en';
+    await Promise.all([
+      Notifications.setNotificationChannelAsync('agronomic', {
+        name: en ? 'Agronomic alerts' : 'Alertas agronómicas',
+        importance: Notifications.AndroidImportance.HIGH,
+        vibrationPattern: [0, 250, 250, 250],
+      }),
+      Notifications.setNotificationChannelAsync('device', {
+        name: en ? 'Device status' : 'Estado del equipo',
+        importance: Notifications.AndroidImportance.DEFAULT,
+      }),
+      Notifications.setNotificationChannelAsync('weather', {
+        name: en ? 'Weather risks' : 'Riesgos meteorológicos',
+        importance: Notifications.AndroidImportance.HIGH,
+      }),
+      Notifications.setNotificationChannelAsync('sync', {
+        name: en ? 'Synchronization' : 'Sincronización',
+        importance: Notifications.AndroidImportance.LOW,
+      }),
+    ]);
+  }
+}
 
 /**
  * Pide permiso, obtiene el token de Expo y lo guarda en el perfil.
@@ -32,6 +59,7 @@ Notifications.setNotificationHandler({
  */
 export async function registerPushToken(
   preferencesOverride?: AppPreferences,
+  options: { requestPermission?: boolean } = {},
 ): Promise<string | null> {
   try {
     const preferences = preferencesOverride ?? (await loadPreferences());
@@ -44,36 +72,19 @@ export async function registerPushToken(
     if (!Device.isDevice) return null;
 
     const existing = await Notifications.getPermissionsAsync();
-    let status = existing.status;
-
-    if (status !== 'granted') {
-      const asked = await Notifications.requestPermissionsAsync();
-      status = asked.status;
+    const permitted = (value: Notifications.NotificationPermissionsStatus) => value.granted ||
+      value.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL ||
+      value.ios?.status === Notifications.IosAuthorizationStatus.EPHEMERAL;
+    let permission = existing;
+    if (!permitted(permission)) {
+      // El arranque sólo registra permisos ya concedidos. Ajustes conserva su solicitud explícita.
+      if (options.requestPermission === false || !permission.canAskAgain) return null;
+      await prepareNotificationChannels(preferences.language);
+      permission = await Notifications.requestPermissionsAsync();
     }
-    if (status !== 'granted') return null;
+    if (!permitted(permission)) return null;
 
-    if (Platform.OS === 'android') {
-      const en = preferences.language === 'en';
-      await Promise.all([
-        Notifications.setNotificationChannelAsync('agronomic', {
-          name: en ? 'Agronomic alerts' : 'Alertas agronómicas',
-          importance: Notifications.AndroidImportance.HIGH,
-          vibrationPattern: [0, 250, 250, 250],
-        }),
-        Notifications.setNotificationChannelAsync('device', {
-          name: en ? 'Device status' : 'Estado del equipo',
-          importance: Notifications.AndroidImportance.DEFAULT,
-        }),
-        Notifications.setNotificationChannelAsync('weather', {
-          name: en ? 'Weather risks' : 'Riesgos meteorológicos',
-          importance: Notifications.AndroidImportance.HIGH,
-        }),
-        Notifications.setNotificationChannelAsync('sync', {
-          name: en ? 'Synchronization' : 'Sincronización',
-          importance: Notifications.AndroidImportance.LOW,
-        }),
-      ]);
-    }
+    await prepareNotificationChannels(preferences.language);
 
     const projectId =
       Constants.expoConfig?.extra?.eas?.projectId ??
@@ -117,11 +128,10 @@ export async function reconcileNotificationRegistration(
 
 /** Borra el token al cerrar sesión: si no, el equipo sigue recibiendo avisos ajenos. */
 export async function clearPushToken(): Promise<void> {
-  try {
-    const { data } = await supabase.auth.getUser();
-    const uid = data.user?.id;
-    if (uid) await supabase.from('profiles').update({ push_token: null }).eq('id', uid);
-  } catch {
-    // Sin conexión al cerrar sesión: el token caducará por su cuenta.
-  }
+  const { data, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) throw sessionError;
+  const uid = data.session?.user.id;
+  if (!uid) return;
+  const { error } = await supabase.from('profiles').update({ push_token: null }).eq('id', uid);
+  if (error) throw error;
 }

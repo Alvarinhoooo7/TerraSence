@@ -6,12 +6,10 @@ export type NotificationCategory = 'agronomic' | 'device' | 'weather' | 'sync';
 export type GuideId =
   | 'auth'
   | 'onboarding'
-  | 'map'
   | 'measure'
   | 'history'
   | 'settings'
-  | 'devices'
-  | 'perimeter';
+  | 'devices';
 
 export interface AppPreferences {
   language: AppLanguage;

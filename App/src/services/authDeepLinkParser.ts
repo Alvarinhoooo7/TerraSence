@@ -4,6 +4,12 @@ export type RecoveryTokens = {
 };
 
 export const parseRecoveryTokens = (url: string): RecoveryTokens | null => {
+  // Sólo la ruta nativa registrada puede introducir credenciales de recuperación.
+  try {
+    const target = new URL(url);
+    if (target.protocol !== 'terrasense:' || target.hostname !== 'reset-password' ||
+        (target.pathname !== '' && target.pathname !== '/') || target.username || target.password || target.port) return null;
+  } catch { return null; }
   const [, fragment = ''] = url.split('#', 2);
   const query = url.includes('?') ? url.slice(url.indexOf('?') + 1).split('#', 1)[0] : '';
   const params = new URLSearchParams(fragment || query);

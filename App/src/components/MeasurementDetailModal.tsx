@@ -99,7 +99,7 @@ export const MeasurementDetailModal: React.FC<Props> = ({ point, onClose }) => {
 
           <Text style={[styles.section, { color: colors.textMuted }]}>{t('UBICACIÓN', 'LOCATION')}</Text>
           <View style={[styles.location, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <Text style={[styles.actionText, { color: colors.text }]}>{point.latitude != null && point.longitude != null ? `📍 ${point.latitude.toFixed(6)}, ${point.longitude.toFixed(6)}` : t('Sin ubicación: disponible en historial, no en mapa.', 'No location: available in history, not on the map.')}</Text>
+            <Text style={[styles.actionText, { color: colors.text }]}>{point.latitude != null && point.longitude != null ? `📍 ${point.latitude.toFixed(6)}, ${point.longitude.toFixed(6)}` : t('Medición guardada sin coordenadas.', 'Reading saved without coordinates.')}</Text>
             <Text style={[styles.locationMeta, { color: colors.textSecondary }]}>
               {t('Precisión GPS', 'GPS accuracy')}: {point.gpsAccuracyM == null ? t('sin dato', 'not available') : `±${Math.round(point.gpsAccuracyM)} m`}
             </Text>

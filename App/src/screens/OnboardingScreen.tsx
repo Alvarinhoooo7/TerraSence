@@ -2,28 +2,31 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  BackHandler,
   Linking,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, { FadeInDown, LinearTransition, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 
-import { Spacing, Typography } from '../constants/theme';
+import { Typography } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
-import { RadarScan } from '../components/RadarScan';
+import { AppIcon } from '../components/AppIcon';
+import { AuthLayout, AuthHeading, AuthButton, AuthField, SoilArtwork, authStyles } from '../components/auth/AuthUI';
 import { enableDevSkip } from '../utils/devSkipOnboarding';
 import { requestDeviceAccess, registerDevice, listMyDevices, listMyDeviceMemberships } from '../services/deviceService';
 import { WaitingApprovalScreen } from './WaitingApprovalScreen';
 import { completeOnboarding } from '../services/onboardingService';
 import { useAppStore } from '../store/useAppStore';
 import {
-  formatDeviceId,
   generateDeviceId,
   parseDeviceQrPayload,
 } from '../utils/deviceId';
@@ -45,7 +48,7 @@ interface Props {
 }
 
 export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => {
-  const { colors } = useAppTheme();
+  const { colors, isDark } = useAppTheme();
   const { t } = useTranslation();
   const setDevice = useAppStore((state) => state.setDevice);
 
@@ -55,12 +58,11 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
   const [pending, setPending] = useState(false);
   const [joining, setJoining] = useState(false);
   const [scanned, setScanned] = useState(false);
-  // `scanned` gobierna el render, pero no sirve como guard: `setScanned` es
-  // asíncrono y `onBarcodeScanned` dispara varias veces por segundo, así que las
-  // lecturas encoladas antes del re-render pasaban todas y apilaban alertas. El
-  // pestillo síncrono corta en la misma vuelta del bucle de eventos.
   const scanLatch = useRef(false);
-  // Reabrir el escáner sobre el mismo QR incorrecto no vuelve a avisar.
+  const operation = useRef(false);
+  const mounted = useRef(true);
+  const finished = useRef(false);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const rejectedPayload = useRef<string | null>(null);
 
   const rearmScanner = useCallback(() => {
@@ -84,32 +86,35 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
 
   const finish = useCallback(
     async (method: OnboardingMethod, device: DeviceRow) => {
+      if (!mounted.current || finished.current) return;
+      finished.current = true;
       setDevice(device);
       try {
         await completeOnboarding(method, device);
       } catch (error) {
-        // La membresía recién creada también es persistente y el router la usa
-        // como respaldo. No dejamos al usuario atrapado por un perfil antiguo.
         console.warn('[TerraSense] No se pudo guardar el sello de onboarding:', error);
       }
-      onComplete(device);
+      if (mounted.current) onComplete(device);
     },
     [onComplete, setDevice],
   );
 
   useEffect(() => {
     let active = true;
+    let polling = false;
     const check = async () => {
+      if (polling || operation.current || finished.current) return;
+      polling = true;
       try {
         const memberships = await listMyDeviceMemberships();
-        if (!active) return;
-        setPending(memberships.some(m => !m.is_authorized));
+        if (!active || operation.current || finished.current) return;
+        setPending(!memberships.some(m => m.is_authorized) && memberships.some(m => !m.is_authorized));
         if (memberships.some(m => m.is_authorized)) {
           const devices = await listMyDevices();
-          if (active && devices[0]) await finish('qr', devices[0]);
+          if (active && !operation.current && devices[0]) await finish('qr', devices[0]);
         }
-      } catch { /* La consulta se reintenta al recuperar la conexion. */ }
-      finally { if (active) setCheckingRequests(false); }
+      } catch { }
+      finally { polling = false; if (active) setCheckingRequests(false); }
     };
     void check();
     const timer = setInterval(() => void check(), 10000);
@@ -117,32 +122,40 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
   }, [finish]);
 
   const openQr = useCallback(async () => {
-    if (!cameraPermission?.granted) {
-      const result = await requestCameraPermission();
-      if (!result.granted) {
-        Alert.alert(
-          t('La cámara está desactivada', 'Camera is disabled'),
-          t('Activa el permiso de cámara en los ajustes del teléfono para escanear el QR del equipo.', 'Enable camera permission in phone settings to scan the device QR.'),
-          [
-            { text: t('Ahora no', 'Not now'), style: 'cancel' },
-            { text: t('Abrir ajustes', 'Open settings'), onPress: () => void Linking.openSettings() },
-          ],
-        );
-        return;
+    if (operation.current) return;
+    operation.current = true;
+    try {
+      if (!cameraPermission?.granted) {
+        const result = await requestCameraPermission();
+        if (!mounted.current) return;
+        if (!result.granted) {
+          Alert.alert(
+            t('La cámara está desactivada', 'Camera is disabled'),
+            t('Activa el permiso de cámara en los ajustes del teléfono para escanear el QR del equipo.', 'Enable camera permission in phone settings to scan the device QR.'),
+            [
+              { text: t('Ahora no', 'Not now'), style: 'cancel' },
+              { text: t('Abrir ajustes', 'Open settings'), onPress: () => void Linking.openSettings().catch(() => undefined) },
+            ],
+          );
+          return;
+        }
       }
-    }
-    scanLatch.current = false;
-    rejectedPayload.current = null;
-    setScanned(false);
-    setStep('qr');
+      scanLatch.current = false;
+      rejectedPayload.current = null;
+      setScanned(false);
+      setStep('qr');
+    } catch {
+      if (mounted.current) Alert.alert(t('No pudimos abrir la cámara', 'Could not open camera'), t('Revisa los permisos del teléfono e inténtalo otra vez.', 'Check phone permissions and try again.'));
+    } finally { operation.current = false; }
   }, [cameraPermission?.granted, requestCameraPermission, t]);
 
   const handleBarcode = useCallback(
     async ({ data }: BarcodeScanningResult) => {
-      if (scanLatch.current || joining) return;
+      if (!mounted.current || scanLatch.current || operation.current) return;
       if (rejectedPayload.current === data) return;
       scanLatch.current = true;
       setScanned(true);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
 
       const code = parseDeviceQrPayload(data);
       if (!code) {
@@ -155,43 +168,57 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
         return;
       }
 
+      operation.current = true;
       setJoining(true);
       try {
         const device = await requestDeviceAccess(code);
+        if (!mounted.current) return;
         if (device) await finish('qr', device);
         else { setPending(true); setStep('choice'); }
       } catch (error) {
+        if (!mounted.current) return;
         Alert.alert(t('No se pudo vincular', 'Could not link'), friendlyError(error), [
           { text: t('Reintentar', 'Try again'), onPress: rearmScanner },
         ]);
       } finally {
-        setJoining(false);
+        operation.current = false;
+        if (mounted.current) setJoining(false);
       }
     },
-    [finish, friendlyError, joining, scanned, t],
+    [finish, friendlyError, rearmScanner, t],
   );
 
   const startPairing = useCallback(async () => {
+    if (operation.current) return;
+    operation.current = true;
     setPairingState('scanning');
     try {
-      // Importación diferida: Expo Go no incluye el módulo nativo de BLE.
       const ble = await import('../services/bleService');
       const granted = await ble.requestBlePermissions();
+      if (!mounted.current) return;
       if (!granted) {
         throw new Error(t('Necesitamos permiso de Bluetooth para encontrar la sonda cercana.', 'Bluetooth permission is required to find the nearby probe.'));
       }
       const found = await ble.pairWithNearbyProbe();
+      if (!mounted.current) return;
       setProbe(found);
       setDeviceName(found.name);
       setPairingState('found');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     } catch (error) {
+      if (!mounted.current) return;
       setPairingState('idle');
       Alert.alert(t('No encontramos la sonda', 'Probe not found'), friendlyError(error));
-    }
+    } finally { operation.current = false; }
   }, [friendlyError, t]);
 
   const savePairedProbe = useCallback(async () => {
-    if (!probe) return;
+    if (!probe || operation.current) return;
+    if (!deviceName.trim()) {
+      Alert.alert(t('Nombre de la sonda', 'Probe name'), t('Escribe un nombre para reconocer tu equipo.', 'Enter a name to identify your probe.'));
+      return;
+    }
+    operation.current = true;
     setPairingState('saving');
     try {
       const code = probe.assignedCode ?? generateDeviceId();
@@ -199,23 +226,21 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
       if (!probe.assignedCode) {
         const ble = await import('../services/bleService');
         await ble.provisionProbe(probe.bleId, code);
-        // Conserva el código para que un fallo de red posterior sea reintentable
-        // sin volver a provisionar ni crear otra identidad.
+        if (!mounted.current) return;
         setProbe((current) => (current ? { ...current, assignedCode: code } : current));
       }
 
-      // El mismo código queda en NVS y en Supabase. El trigger convierte a
-      // este usuario en administrador y la restricción UNIQUE impide doble propiedad.
-      const device = await registerDevice(deviceName, code);
+      const device = await registerDevice(deviceName.trim(), code);
       await finish('pairing', device);
     } catch (error) {
+      if (!mounted.current) return;
       setPairingState('found');
       Alert.alert(t('No se pudo registrar el equipo', 'Could not register device'), friendlyError(error));
-    }
+    } finally { operation.current = false; }
   }, [deviceName, finish, friendlyError, probe, t]);
 
   const backToChoice = useCallback(() => {
-    if (joining || pairingState === 'saving') return;
+    if (joining || operation.current) return;
     setStep('choice');
     scanLatch.current = false;
     setScanned(false);
@@ -223,36 +248,30 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
     setProbe(null);
   }, [joining, pairingState]);
 
+  useEffect(() => {
+    const listener = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (operation.current || joining) return true;
+      if (step !== 'choice') { backToChoice(); return true; }
+      return false;
+    });
+    return () => listener.remove();
+  }, [step, joining, backToChoice]);
+
   if (pending) return <WaitingApprovalScreen onApproved={device => void finish('qr', device)} onDismiss={() => setPending(false)} />;
   if (checkingRequests) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center' }}><ActivityIndicator color={colors.primary} /></SafeAreaView>;
-
-  // `__DEV__` es una constante que el empaquetador sustituye por false en
-  // producción, así que este bloque entero desaparece del bundle: no es un botón
-  // oculto, es código que no viaja.
-  const devSkipButton = __DEV__ && onDevSkip ? (
-    <TouchableOpacity
-      onPress={() => { void enableDevSkip(); onDevSkip(); }}
-      style={[styles.devSkip, { borderColor: colors.primary, backgroundColor: colors.card }]}
-      hitSlop={16}
-      accessibilityRole="button"
-      accessibilityLabel="Saltar vinculacion (solo desarrollo)"
-    >
-      <Text style={[styles.devSkipText, { color: colors.primary }]}>⏭ SALTAR · DEV</Text>
-    </TouchableOpacity>
-  ) : null;
 
   if (step === 'qr') {
     return (
       <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, width: '100%', maxWidth: 520, alignSelf: 'center' }}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={backToChoice} style={styles.headerButton} hitSlop={12}>
+          <TouchableOpacity accessibilityRole="button" disabled={joining} onPress={backToChoice} style={styles.headerButton} hitSlop={12}>
             <Text style={[Typography.bodyBold, { color: colors.primary }]}>‹ {t('Volver', 'Back')}</Text>
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: colors.text }]}>{t('Escanear QR', 'Scan QR')}</Text>
           <View style={styles.headerButton} />
         </View>
 
-        {devSkipButton}
         <View style={styles.cameraWrap}>
           <CameraView
             style={StyleSheet.absoluteFill}
@@ -275,200 +294,101 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
             {t('La persona que administra la sonda debe abrir “Mis equipos” en su app y mostrarte el QR. Al escanearlo solicitarás acceso al administrador.', 'The probe administrator must open “My devices” in their app and show you the QR. Scanning it requests administrator approval.')}
           </Text>
         </View>
+        </ScrollView>
       </SafeAreaView>
     );
   }
 
   if (step === 'pairing') {
     const waiting = pairingState === 'scanning' || pairingState === 'saving';
-    return (
-      <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={backToChoice} style={styles.headerButton} hitSlop={12}>
-            <Text style={[Typography.bodyBold, { color: colors.primary }]}>‹ {t('Volver', 'Back')}</Text>
-          </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>{t('Configurar sonda', 'Set up probe')}</Text>
-          <View style={styles.headerButton} />
+    return <AuthLayout toolbar={<TouchableOpacity accessibilityRole="button" disabled={waiting} onPress={backToChoice} style={authStyles.link}>
+      <Text style={{ color: colors.primary }}>{t('Volver', 'Back')}</Text>
+    </TouchableOpacity>}>
+      <AuthHeading eyebrow={t('VINCULA TU SONDA', 'PAIR YOUR PROBE')} title={probe ? t('La encontramos.', 'There it is.') : t('Acerca tu sonda.', 'Bring your probe closer.')}
+        description={probe ? t('Dale un nombre para reconocerla cuando trabajes en el campo.', 'Give it a name you will recognize when working in the field.') : t('Enciéndela, mantén PAIR por 3 segundos y acércala a menos de 2 metros del teléfono.', 'Turn it on, hold PAIR for 3 seconds and keep it within 2 meters of your phone.')} />
+      {pairingState === 'scanning' ? <Animated.View entering={FadeInDown} layout={LinearTransition} accessibilityLiveRegion="polite" style={{ alignItems: 'center', paddingVertical: 24 }}>
+        <AppIcon name="probe" color={colors.primary} size={64} />
+        <ActivityIndicator color={colors.primary} style={{ marginTop: 24 }} />
+      </Animated.View> : <SoilArtwork variant={1} />}
+      {probe ? <Animated.View entering={FadeInDown} layout={LinearTransition.springify().damping(14)} style={authStyles.form}>
+        <View style={{ borderLeftWidth: 3, borderColor: colors.primary, paddingLeft: 16, gap: 8 }}>
+          <Text style={[authStyles.eyebrow, { color: colors.primary }]}>{t('SONDA ENCONTRADA', 'PROBE FOUND')}</Text>
+          <Text style={[authStyles.body, { color: colors.text }]}>{probe.name}</Text>
         </View>
-        {devSkipButton}
-
-      <ScrollView contentContainerStyle={styles.pairingContent}>
-          {pairingState === 'scanning' && !probe ? (
-            <RadarScan size={168}>
-              <Text style={[styles.pairIconText, { color: '#FFFFFF' }]}>◉</Text>
-            </RadarScan>
-          ) : (
-            <View style={[styles.pairIcon, { backgroundColor: colors.card }]}>
-              <Text style={styles.pairIconText}>{probe ? '✓' : '◉'}</Text>
-            </View>
-          )}
-          <Text style={[styles.pairingTitle, { color: colors.text }]}>{t('Eres el primer usuario', 'You are the first user')}</Text>
-          <Text style={[styles.pairingText, { color: colors.textSecondary }]}>
-            {t('Enciende la sonda y mantén presionado el botón PAIR durante 3 segundos. Acércala a menos de 2 metros del teléfono.', 'Turn on the probe and hold the PAIR button for 3 seconds. Keep it within 2 meters of the phone.')}
-          </Text>
-
-          {probe ? (
-            <View style={[styles.foundCard, { backgroundColor: colors.card, borderColor: colors.primary }]}>
-              <Text style={[styles.foundLabel, { color: colors.primary }]}>{t('SONDA ENCONTRADA', 'PROBE FOUND')}</Text>
-              <Text style={[styles.foundName, { color: colors.text }]}>{probe.name}</Text>
-              <Text style={[styles.bleId, { color: colors.textMuted }]} numberOfLines={1}>
-                Bluetooth: {probe.bleId}
-              </Text>
-              <TextInput
-                value={deviceName}
-                onChangeText={setDeviceName}
-                placeholder={t('Nombre de la sonda', 'Probe name')}
-                placeholderTextColor={colors.textMuted}
-                style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
-                accessibilityLabel={t('Nombre de la sonda', 'Probe name')}
-              />
-              <TouchableOpacity
-                onPress={savePairedProbe}
-                disabled={waiting}
-                style={[styles.primaryButton, { backgroundColor: colors.primary, opacity: waiting ? 0.65 : 1 }]}
-              >
-                {pairingState === 'saving' ? (
-                  <ActivityIndicator color="#FFFFFF" />
-                ) : (
-                  <Text style={styles.primaryButtonText}>{t('Terminar configuración', 'Finish setup')}</Text>
-                )}
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity
-              onPress={startPairing}
-              disabled={waiting}
-              style={[styles.primaryButton, { backgroundColor: colors.primary, opacity: waiting ? 0.65 : 1 }]}
-            >
-              {pairingState === 'scanning' ? (
-                <Text style={styles.primaryButtonText}>{t('Buscando sonda…', 'Searching for probe…')}</Text>
-              ) : (
-                <Text style={styles.primaryButtonText}>{t('Buscar mi sonda', 'Find my probe')}</Text>
-              )}
-            </TouchableOpacity>
-          )}
-        </ScrollView>
-      </SafeAreaView>
-    );
+        <AuthField label={t('Nombre de la sonda', 'Probe name')} value={deviceName} onChangeText={setDeviceName} editable={!waiting} autoCapitalize="sentences" maxLength={80} />
+        <AuthButton label={t('Terminar configuración', 'Finish setup')} busy={waiting} onPress={() => { void savePairedProbe(); }} />
+      </Animated.View> : <AuthButton label={pairingState === 'scanning' ? t('Buscando sonda…', 'Searching for probe…') : t('Buscar mi sonda', 'Find my probe')} busy={waiting} onPress={() => { void startPairing(); }} />}
+      <Text style={[authStyles.body, { color: colors.textSecondary }]}>{t('Si es un equipo nuevo, tu cuenta quedará como administradora.', 'If this is a new device, your account will become its administrator.')}</Text>
+    </AuthLayout>;
   }
 
-  return (
-    <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
-      {devSkipButton}
-      <ScrollView contentContainerStyle={styles.choiceContent}>
-        <Text style={styles.logo}>🌱</Text>
-        <Text style={[styles.eyebrow, { color: colors.primary }]}>{t('BIENVENIDO A TERRASENSE', 'WELCOME TO TERRASENSE')}</Text>
-        <Text style={[styles.title, { color: colors.text }]}>{t('Conecta tu primera sonda', 'Connect your first probe')}</Text>
-        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          {t('Elige la opción que corresponda. Sólo tendrás que hacerlo una vez con esta cuenta.', 'Choose the option that applies. You only need to do this once for this account.')}
-        </Text>
+  return <AuthLayout>
+    <AuthHeading eyebrow={t('TU CUENTA ESTÁ LISTA', 'YOUR ACCOUNT IS READY')} title={t('Ahora, tu sonda.', 'Now, your probe.')}
+      description={t('Vincula un equipo para comenzar. Elige cómo te vas a conectar.', 'Link a device to get started. Choose how you will connect.')} />
+    <SoilArtwork variant={1} compact />
+    <Animated.View layout={LinearTransition.springify().damping(14)} style={{ gap: 16 }}>
+      <Animated.View entering={FadeInDown.delay(100).duration(500).springify()}>
+        <Pressable onPress={() => { void openQr(); }} accessibilityRole="button"
+          onPressIn={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+          style={({ pressed }) => [
+            styles.optionCard,
+            {
+              backgroundColor: isDark ? colors.card : colors.background,
+              borderColor: pressed ? colors.primary : colors.border,
+              opacity: pressed ? 0.8 : 1,
+              transform: [{ scale: pressed ? 0.98 : 1 }],
+            }
+          ]}>
+          <View style={{ gap: 16, flex: 1 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text style={[authStyles.eyebrow, { color: colors.primary }]}>{t('EQUIPO COMPARTIDO', 'SHARED DEVICE')}</Text>
+              <AppIcon name="arrow" color={colors.primary} size={20} />
+            </View>
+            <Text style={[styles.optionTitle, { color: colors.text }]}>{t('Tengo una invitación', 'I have an invitation')}</Text>
+            <Text style={[authStyles.body, { color: colors.textSecondary }]}>{t('Escanea el QR de un miembro del equipo. El administrador revisará tu solicitud.', 'Scan a team member’s QR code. The administrator will review your request.')}</Text>
+          </View>
+        </Pressable>
+      </Animated.View>
+      <Animated.View entering={FadeInDown.delay(200).duration(500).springify()}>
+        <Pressable onPress={() => { if (!operation.current) setStep('pairing'); }} accessibilityRole="button"
+          onPressIn={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+          style={({ pressed }) => [
+            styles.optionCard,
+            {
+              backgroundColor: isDark ? colors.card : colors.background,
+              borderColor: pressed ? colors.primary : colors.border,
+              opacity: pressed ? 0.8 : 1,
+              transform: [{ scale: pressed ? 0.98 : 1 }],
+            }
+          ]}>
+          <View style={{ gap: 16, flex: 1 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text style={[authStyles.eyebrow, { color: colors.primary }]}>{t('EQUIPO NUEVO', 'NEW DEVICE')}</Text>
+              <AppIcon name="probe" color={colors.primary} size={20} />
+            </View>
+            <Text style={[styles.optionTitle, { color: colors.text }]}>{t('Configurar mi sonda', 'Set up my probe')}</Text>
+            <Text style={[authStyles.body, { color: colors.textSecondary }]}>{t('Conéctala por Bluetooth para registrar el equipo y comenzar a usarlo.', 'Connect over Bluetooth to register the device and start using it.')}</Text>
+          </View>
+        </Pressable>
+      </Animated.View>
+    </Animated.View>
+    {__DEV__ && onDevSkip && <AuthButton secondary label={t('Saltar vinculación · Desarrollo', 'Skip pairing · Development')} onPress={() => { void enableDevSkip().then(() => { if (mounted.current) onDevSkip(); }).catch(() => Alert.alert(t('No pudimos continuar', 'Could not continue'))); }} />}
+  </AuthLayout>;
 
-        <TouchableOpacity
-          onPress={openQr}
-          style={[styles.optionCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-          accessibilityRole="button"
-        >
-          <View style={[styles.optionIcon, { backgroundColor: colors.primaryDark }]}>
-            <Text style={styles.optionIconText}>▦</Text>
-          </View>
-          <View style={styles.optionCopy}>
-            <Text style={[styles.optionTitle, { color: colors.text }]}>{t('Escanear QR', 'Scan QR')}</Text>
-            <Text style={[styles.optionText, { color: colors.textSecondary }]}>
-              {t('Ya existe un administrador del equipo. Pídele que te muestre su QR para solicitar acceso.', 'The device already has an administrator. Ask them to show you the QR to request access.')}
-            </Text>
-          </View>
-          <Text style={[styles.chevron, { color: colors.primary }]}>›</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => setStep('pairing')}
-          style={[styles.optionCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-          accessibilityRole="button"
-        >
-          <View style={[styles.optionIcon, { backgroundColor: colors.primaryDark }]}>
-            <Text style={styles.optionIconText}>⌁</Text>
-          </View>
-          <View style={styles.optionCopy}>
-            <Text style={[styles.optionTitle, { color: colors.text }]}>{t('Configurar equipo nuevo', 'Set up new device')}</Text>
-            <Text style={[styles.optionText, { color: colors.textSecondary }]}>
-              {t('Eres el primer usuario de la sonda. Conéctala por Bluetooth para quedar como administrador.', 'You are the probe’s first user. Connect it by Bluetooth to become its administrator.')}
-            </Text>
-          </View>
-          <Text style={[styles.chevron, { color: colors.primary }]}>›</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </SafeAreaView>
-  );
 };
 
 const styles = StyleSheet.create({
-  // Sólo se usa dentro de un bloque `__DEV__`; en producción queda como estilo huérfano.
-  devSkip: {
-    position: 'absolute',
-    top: Spacing.xxl,
-    right: Spacing.md,
-    zIndex: 10,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-    borderRadius: 8,
-    borderWidth: 1,
-    opacity: 0.7,
-  },
-  devSkipText: { fontSize: 11, fontWeight: '700' },
   root: { flex: 1 },
-  header: {
-    height: 60,
-    paddingHorizontal: Spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerButton: { width: 82, minHeight: Spacing.touchTarget, justifyContent: 'center' },
-  headerTitle: { ...Typography.titleMedium },
-  choiceContent: { padding: Spacing.lg, paddingTop: Spacing.xl, paddingBottom: Spacing.xxl },
-  logo: { fontSize: 48, textAlign: 'center', marginBottom: Spacing.md },
-  eyebrow: { ...Typography.badge, textAlign: 'center', letterSpacing: 1.4 },
-  title: { ...Typography.titleLarge, fontSize: 30, textAlign: 'center', marginTop: Spacing.sm },
-  subtitle: { ...Typography.bodyRegular, textAlign: 'center', marginTop: Spacing.sm, marginBottom: Spacing.xl },
-  optionCard: {
-    minHeight: 142,
-    borderRadius: Spacing.cardRadius,
-    borderWidth: 1,
-    padding: Spacing.md,
-    marginBottom: Spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  optionIcon: { width: 54, height: 54, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  optionIconText: { color: '#FFFFFF', fontSize: 28, fontWeight: '700' },
-  optionCopy: { flex: 1, marginLeft: Spacing.md },
-  optionTitle: { ...Typography.titleMedium, marginBottom: Spacing.xs },
-  optionText: { ...Typography.caption },
-  chevron: { fontSize: 34, marginLeft: Spacing.sm },
-  cameraWrap: { flex: 1, margin: Spacing.md, borderRadius: Spacing.cardRadius, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' },
-  scannerFrame: { width: 242, height: 242, borderWidth: 3, borderColor: '#FFFFFF', borderRadius: 24 },
-  cameraBusy: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(0,0,0,.62)', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm },
+  header: { minHeight: 64, paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  headerButton: { width: 72, minHeight: 48, justifyContent: 'center' },
+  headerTitle: { ...Typography.titleMedium, flexShrink: 1 },
+  optionCard: { minHeight: 160, borderRadius: 20, borderWidth: 1.5, padding: 24, flexDirection: 'row', alignItems: 'center' },
+  optionTitle: { fontSize: 22, lineHeight: 28, fontWeight: '600', letterSpacing: -0.5 },
+  cameraWrap: { flex: 1, minHeight: 240, margin: 24, borderRadius: 24, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' },
+  scannerFrame: { width: '75%', aspectRatio: 1, maxWidth: 260, borderWidth: 2, borderColor: '#FFFFFF', borderRadius: 24 },
+  cameraBusy: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(18,40,31,.8)', alignItems: 'center', justifyContent: 'center', gap: 16 },
   cameraBusyText: { ...Typography.bodyBold, color: '#FFFFFF' },
-  explanation: { paddingHorizontal: Spacing.lg, paddingBottom: Spacing.xl },
-  explanationTitle: { ...Typography.titleMedium, marginBottom: Spacing.xs },
-  explanationText: { ...Typography.bodyRegular },
-  pairingContent: { padding: Spacing.lg, alignItems: 'stretch', paddingBottom: Spacing.xxl },
-  pairIcon: { width: 92, height: 92, borderRadius: 46, alignItems: 'center', justifyContent: 'center', alignSelf: 'center', marginTop: Spacing.lg },
-  pairIconText: { fontSize: 44, color: '#2E8B5A', fontWeight: '700' },
-  pairingTitle: { ...Typography.titleLarge, textAlign: 'center', marginTop: Spacing.lg },
-  pairingText: { ...Typography.bodyRegular, textAlign: 'center', marginTop: Spacing.sm, marginBottom: Spacing.xl },
-  primaryButton: { minHeight: 56, borderRadius: Spacing.borderRadius, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.md },
-  primaryButtonText: { ...Typography.button, color: '#FFFFFF' },
-  inlineBusy: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
-  foundCard: { borderWidth: 2, borderRadius: Spacing.cardRadius, padding: Spacing.md },
-  foundLabel: { ...Typography.badge },
-  foundName: { ...Typography.titleMedium, marginTop: Spacing.xs },
-  bleId: { ...Typography.caption, marginTop: 2, marginBottom: Spacing.md },
-  input: { height: 54, borderWidth: 1, borderRadius: Spacing.borderRadius, paddingHorizontal: Spacing.md, ...Typography.bodyRegular, marginBottom: Spacing.md },
-  introContent: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: Spacing.xl },
-  introTitle: { ...Typography.titleLarge, fontSize: 32, textAlign: 'center', marginBottom: Spacing.md },
-  introBody: { ...Typography.bodyRegular, textAlign: 'center', marginBottom: Spacing.xxl },
-  dotsRow: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.lg },
-  dot: { width: 10, height: 10, borderRadius: 5 },
-  introFooter: { padding: Spacing.xl, paddingBottom: Spacing.xxl },
+  explanation: { paddingHorizontal: 24, paddingBottom: 32, maxWidth: 520, alignSelf: 'center' },
+  explanationTitle: { fontSize: 24, fontWeight: '600', marginBottom: 12 },
+  explanationText: { ...Typography.bodyRegular, lineHeight: 24 },
 });

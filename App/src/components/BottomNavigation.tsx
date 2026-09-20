@@ -5,7 +5,7 @@ import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { AppIcon, type IconName } from './AppIcon';
 
-export type TabRoute = 'dashboard' | 'history' | 'map' | 'settings';
+export type TabRoute = 'dashboard' | 'history' | 'settings';
 export function BottomNavigation({ route, onNavigate }: { route: string; onNavigate: (route: TabRoute) => void }) {
   const { colors } = useAppTheme();
   const { t } = useTranslation();
@@ -13,7 +13,6 @@ export function BottomNavigation({ route, onNavigate }: { route: string; onNavig
   const tabs: { route: TabRoute; icon: IconName; label: string }[] = [
     { route: 'dashboard', icon: 'home', label: t('Inicio', 'Home') },
     { route: 'history', icon: 'history', label: t('Historial', 'History') },
-    { route: 'map', icon: 'map', label: t('Mapa', 'Map') },
     { route: 'settings', icon: 'settings', label: t('Ajustes', 'Settings') },
   ];
   return <View style={[styles.bar, { backgroundColor: colors.card, borderColor: colors.border, paddingBottom: Math.max(insets.bottom, 8) }]}>

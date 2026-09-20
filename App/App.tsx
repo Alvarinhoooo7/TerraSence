@@ -18,7 +18,6 @@ import { OfflineBanner } from './src/components/OfflineBanner';
 import { supabase } from './src/services/supabase';
 import { registerPushToken } from './src/services/notifications';
 import { AuthScreen } from './src/screens/AuthScreen';
-import { MapScreen } from './src/screens/MapScreen';
 import { MeasureScreen } from './src/screens/MeasureScreen';
 import { FieldSettingsScreen } from './src/screens/FieldSettingsScreen';
 import { AdministrationScreen } from './src/screens/AdministrationScreen';
@@ -26,7 +25,6 @@ import { WaitingApprovalScreen } from './src/screens/WaitingApprovalScreen';
 import { DevicesScreen } from './src/screens/DevicesScreen';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { HistoryScreen } from './src/screens/HistoryScreen';
-import { PerimeterScreen } from './src/screens/PerimeterScreen';
 import { Typography } from './src/constants/theme';
 import { getOnboardingState } from './src/services/onboardingService';
 import { clearDevSkip, isDevSkipEnabled } from './src/utils/devSkipOnboarding';
@@ -39,11 +37,17 @@ import type { MapMeasurementPoint } from './src/types/app';
 import { MeasurementDetailModal } from './src/components/MeasurementDetailModal';
 import { ResetPasswordScreen } from './src/screens/ResetPasswordScreen';
 import { createRecoverySession } from './src/services/authDeepLink';
+import { parseRecoveryTokens } from './src/services/authDeepLinkParser';
+import { isInvalidSessionError } from './src/utils/authValidation';
+import { resolveEntryRoute } from './src/utils/authFlow';
+import { AuthLayout, AuthHeading, AuthButton } from './src/components/auth/AuthUI';
 import { WelcomeCarouselScreen } from './src/screens/WelcomeCarouselScreen';
+import { PermissionsScreen } from './src/screens/PermissionsScreen';
+import { hasReviewedPermissions } from './src/utils/permissionState';
 import { DashboardScreen } from './src/screens/DashboardScreen';
 import { BottomNavigation } from './src/components/BottomNavigation';
 
-type Route = 'dashboard' | 'map' | 'measure' | 'settings' | 'devices' | 'history' | 'perimeter' | 'administration';
+type Route = 'dashboard' | 'measure' | 'settings' | 'devices' | 'history' | 'administration';
 const WELCOME_KEY = '@terrasense/welcome-complete-v1';
 
 export default function App() {
@@ -55,13 +59,19 @@ export default function App() {
   const [checkingWelcome, setCheckingWelcome] = useState(true);
   const [welcomeComplete, setWelcomeComplete] = useState(false);
   const [recovering, setRecovering] = useState(false);
-  const recoveryActive = recovering || (!!session && session.user.id === recoveryUserId);
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
+  const [checkingRecoveryLink, setCheckingRecoveryLink] = useState(true);
+  const [recoveryLinkError, setRecoveryLinkError] = useState(false);
+  const recoveryActive = recoveryLoading || (!session && recovering) || (!!session && session.user.id === recoveryUserId);
+  const [permissionsReview, setPermissionsReview] = useState<{ userId: string; reviewed: boolean } | null>(null);
   const [checkingOnboarding, setCheckingOnboarding] = useState(false);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
+  const [onboardingUserId, setOnboardingUserId] = useState<string | null>(null);
   const [awaitingDeviceApproval, setAwaitingDeviceApproval] = useState(false);
   const [onboardingError, setOnboardingError] = useState<string | null>(null);
   const [onboardingRetry, setOnboardingRetry] = useState(0);
   const [route, setRoute] = useState<Route>('dashboard');
+  const [devicesOrigin, setDevicesOrigin] = useState<'dashboard' | 'settings'>('dashboard');
   const [notificationDeviceId, setNotificationDeviceId] = useState<string | null>(null);
   const [openAdminNotification, setOpenAdminNotification] = useState(false);
   useEffect(() => {
@@ -83,6 +93,8 @@ export default function App() {
       setOpenAdminNotification(false);
     }
   }, [session, onboardingComplete, openAdminNotification]);
+  const dataRevision = useAppStore(s => s.dataRevision);
+  useEffect(() => { setDetailPoint(null); }, [dataRevision]);
   const [detailPoint, setDetailPoint] = useState<MapMeasurementPoint | null>(null);
   const setDevice = useAppStore((state) => state.setDevice);
   const setPreferences = useAppStore((state) => state.setPreferences);
@@ -94,20 +106,27 @@ export default function App() {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
       if (detailPoint) { setDetailPoint(null); return true; }
       if (route === 'measure') return false;
-      if (route !== 'dashboard') { setRoute(route === 'perimeter' ? 'map' : 'dashboard'); return true; }
+      if (route !== 'dashboard') { setRoute(route === 'devices' ? devicesOrigin : route === 'administration' ? 'settings' : 'dashboard'); return true; }
       return false;
     });
     return () => subscription.remove();
-  }, [route, detailPoint]);
+  }, [route, detailPoint, devicesOrigin]);
 
   useEffect(() => {
     AsyncStorage.getItem(WELCOME_KEY)
       .then((value) => setWelcomeComplete(value === 'true'))
+      .catch(() => setWelcomeComplete(false))
       .finally(() => setCheckingWelcome(false));
   }, []);
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
+    if (!isHydrated) return;
+    let active = true;
+    let authRevision = 0;
+    let linkInFlight = false;
+    const initialRevision = authRevision;
+    supabase.auth.getSession().then(async ({ data, error: sessionError }) => {
+      if (sessionError) throw sessionError;
       // `getSession` sólo lee el token guardado en el dispositivo: no pregunta al
       // servidor. Si la cuenta se borró en Supabase, el JWT sigue firmado y válido
       // hasta que caduque, así que la app arrancaba con una sesión fantasma: las
@@ -117,50 +136,84 @@ export default function App() {
         const { error } = await supabase.auth.getUser();
         // Sólo se cierra sesión cuando el servidor responde que la cuenta ya no
         // vale. Un fallo de red no debe expulsar a nadie en terreno.
-        const cuentaInvalida = !!error && !/network|fetch|timeout/i.test(error.message);
+        if (!active || authRevision !== initialRevision) return;
+        const cuentaInvalida = isInvalidSessionError(error);
         if (cuentaInvalida) {
-          await clearDevSkip();
-          await supabase.auth.signOut().catch(() => undefined);
-          setSession(null);
-          setChecking(false);
+          await clearDevSkip().catch(() => undefined);
+          if (!active || authRevision !== initialRevision) return;
+          await supabase.auth.signOut({ scope: 'local' }).catch(() => undefined);
+          if (active && authRevision === initialRevision) setSession(null);
           return;
         }
       }
-      setSession(data.session);
-      setChecking(false);
-    });
+      if (active && authRevision === initialRevision) setSession(data.session);
+    }).catch((error) => {
+      if (active && authRevision === initialRevision && isInvalidSessionError(error)) setSession(null);
+    }).finally(() => { if (active) setChecking(false); });
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
+      if (!active) return;
+      // INITIAL_SESSION es la misma lectura local; no invalida getUser pendiente.
+      if (event === 'INITIAL_SESSION') return;
+      authRevision += 1;
       if (event === 'PASSWORD_RECOVERY') {
         setRecoveryUserId(s?.user.id ?? null);
         setRecovering(true);
       } else if (event === 'SIGNED_OUT') {
+        // Conserva la confirmación de cambio incluso tras restaurar una recuperación.
+        if (useAuthStore.getState().recoveryUserId) setRecovering(true);
+        setRecoveryUserId(null);
+      } else if (event === 'SIGNED_IN' && !linkInFlight && s?.user.id !== useAuthStore.getState().recoveryUserId) {
+        setRecovering(false);
         setRecoveryUserId(null);
       }
       setSession(s);
     });
 
     const handleUrl = (url: string) => {
+      if (!active || linkInFlight || !parseRecoveryTokens(url)) return;
+      linkInFlight = true;
+      // Bloquea navegación antes de que setSession emita SIGNED_IN.
+      setRecovering(true);
+      setRecoveryLoading(true);
+      setRecoveryLinkError(false);
       void createRecoverySession(url)
         .then((isRecovery) => {
-          if (isRecovery) setRecovering(true);
+          if (active && isRecovery) setRecovering(true);
         })
-        .catch((error) => console.warn('[TerraSense] Enlace de recuperación inválido:', error));
+        .catch(() => { if (active) { setRecovering(false); setRecoveryLinkError(true); } })
+        .finally(() => { linkInFlight = false; if (active) setRecoveryLoading(false); });
     };
     void Linking.getInitialURL().then((url) => {
       if (url) handleUrl(url);
-    });
+    }).catch(() => undefined).finally(() => { if (active) setCheckingRecoveryLink(false); });
     const linkSubscription = Linking.addEventListener('url', ({ url }) => handleUrl(url));
     return () => {
+      active = false;
       sub.subscription.unsubscribe();
       linkSubscription.remove();
     };
-  }, []);
+  }, [isHydrated]);
+
+  useEffect(() => {
+    let active = true;
+    const userId = session?.user.id;
+    if (!userId) { setPermissionsReview(null); return; }
+    if (checking || checkingRecoveryLink || !isHydrated || recoveryActive) return;
+    setPermissionsReview(null);
+    void hasReviewedPermissions(AsyncStorage, userId)
+      .then(reviewed => { if (active) setPermissionsReview({ userId, reviewed }); })
+      .catch(() => { if (active) setPermissionsReview({ userId, reviewed: false }); });
+    return () => { active = false; };
+  }, [session?.user.id, checking, checkingRecoveryLink, isHydrated, recoveryActive]);
 
   useEffect(() => {
     let active = true;
 
+    if (recoveryActive || checking || checkingRecoveryLink || !isHydrated) return;
+
     if (!session) {
       setCheckingOnboarding(false);
+      setOnboardingUserId(null);
       setOnboardingComplete(false);
       setAwaitingDeviceApproval(false);
       setOnboardingError(null);
@@ -177,6 +230,8 @@ export default function App() {
     }
 
     setCheckingOnboarding(true);
+    setOnboardingComplete(false);
+    setAwaitingDeviceApproval(false);
     setOnboardingError(null);
     Promise.all([getOnboardingState(), loadPreferences(), isDevSkipEnabled()])
       .then(([state, preferences, devSkip]) => {
@@ -185,7 +240,7 @@ export default function App() {
         setPreferencesLoaded(true);
         if (state.devices[0]) setDevice(state.devices[0]);
         setOnboardingComplete(state.completed || devSkip);
-        setAwaitingDeviceApproval(state.hasPendingRequests ?? false);
+        setAwaitingDeviceApproval(!state.completed && (state.hasPendingRequests ?? false));
       })
       .catch((error) => {
         if (!active) return;
@@ -195,13 +250,17 @@ export default function App() {
         setOnboardingError(error instanceof Error ? error.message : String(error));
       })
       .finally(() => {
-        if (active) setCheckingOnboarding(false);
+        if (active) { setOnboardingUserId(session.user.id); setCheckingOnboarding(false); }
       });
 
     return () => {
       active = false;
     };
   }, [
+    recoveryActive,
+    checking,
+    checkingRecoveryLink,
+    isHydrated,
     onboardingRetry,
     session?.user.id,
     setDevice,
@@ -209,44 +268,61 @@ export default function App() {
     setPreferencesLoaded,
   ]);
 
-  // El token se registra tras iniciar sesión, no al arrancar: antes no hay
-  // perfil donde guardarlo y la petición de permiso llegaría sin contexto.
+  // Sólo registra autorizaciones existentes, después de revisar la explicación.
+  // Incluye cuentas esperando aprobación; nunca vuelve a solicitar al omitir permisos.
   useEffect(() => {
-    if (session && onboardingComplete && preferencesLoaded) void registerPushToken(preferences);
-  }, [session, onboardingComplete, preferences, preferencesLoaded]);
+    if (session && permissionsReview?.userId === session.user.id && permissionsReview.reviewed &&
+        onboardingUserId === session.user.id && preferencesLoaded && !recoveryActive) {
+      void registerPushToken(preferences, { requestPermission: false });
+    }
+  }, [session, permissionsReview, onboardingUserId, preferences, preferencesLoaded, recoveryActive]);
 
   const handleOpenDetail = useCallback((p: MapMeasurementPoint) => {
     setDetailPoint(p);
   }, []);
 
   let content;
+  const entry = resolveEntryRoute({
+    loading: checkingWelcome || checking || !isHydrated || recoveryLoading || checkingRecoveryLink,
+    recovery: recoveryActive, welcomeComplete, userId: session?.user.id ?? null,
+    permissionsUserId: permissionsReview?.userId ?? null,
+    permissionsReviewed: permissionsReview?.reviewed ?? false,
+    onboardingUserId, checkingOnboarding, onboardingError: !!onboardingError,
+    onboardingComplete, awaitingApproval: awaitingDeviceApproval,
+  });
 
-  if (checkingWelcome || checking || !isHydrated) {
+  if (entry === 'loading') {
     content = (
       <View style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
-  } else if (!welcomeComplete) {
+  } else if (recoveryLinkError) {
+    content = <AuthLayout>
+      <AuthHeading eyebrow={t('RECUPERACIÓN DE CUENTA', 'ACCOUNT RECOVERY')}
+        title={t('El enlace no está disponible.', 'This link is unavailable.')}
+        description={t('Puede haber vencido o faltar conexión. Revisa tu internet y abre el correo de nuevo, o solicita otro código desde «Olvidé mi contraseña».', 'It may have expired or you may be offline. Check your connection and open the email again, or request a new code from “Forgot my password”.')} />
+      <AuthButton label={t('Continuar', 'Continue')} onPress={() => setRecoveryLinkError(false)} />
+    </AuthLayout>;
+  } else if (entry === 'recovery') {
+    content = <ResetPasswordScreen onDone={() => { setRecoveryUserId(null); setRecovering(false); }} />;
+  } else if (entry === 'welcome') {
     content = (
       <WelcomeCarouselScreen
         onComplete={() => {
           setWelcomeComplete(true);
-          void AsyncStorage.setItem(WELCOME_KEY, 'true');
+          void AsyncStorage.setItem(WELCOME_KEY, 'true').catch(() => undefined);
         }}
       />
     );
-  } else if (recoveryActive) {
-    content = <ResetPasswordScreen onDone={() => { setRecoveryUserId(null); setRecovering(false); }} />;
-  } else if (!session) {
+  } else if (entry === 'auth') {
     content = <AuthScreen onAuthenticated={() => setRoute('dashboard')} />;
-  } else if (checkingOnboarding) {
-    content = (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
-  } else if (onboardingError) {
+  } else if (entry === 'permissions' && session) {
+    const userId = session.user.id;
+    content = <PermissionsScreen key={userId} userId={userId} onComplete={() => {
+      if (useAuthStore.getState().session?.user.id === userId) setPermissionsReview({ userId, reviewed: true });
+    }} />;
+  } else if (entry === 'onboarding-error') {
     content = (
       <View
         style={{
@@ -293,11 +369,11 @@ export default function App() {
         )}
       </View>
     );
-  } else if (awaitingDeviceApproval) {
+  } else if (entry === 'approval') {
     content = <WaitingApprovalScreen onApproved={device => {
       setDevice(device); setOnboardingComplete(true); setAwaitingDeviceApproval(false); setRoute('dashboard');
     }} onDismiss={() => { setAwaitingDeviceApproval(false); setOnboardingRetry(value => value + 1); }} />;
-  } else if (!onboardingComplete) {
+  } else if (entry === 'onboarding') {
     content = (
       <OnboardingScreen
         onComplete={(device) => {
@@ -313,39 +389,26 @@ export default function App() {
       />
     );
   } else if (route === 'settings') {
-    content = <FieldSettingsScreen onClose={() => setRoute('dashboard')} onOpenDevices={() => setRoute('devices')} onOpenAdministration={() => setRoute('administration')} />;
+    content = <FieldSettingsScreen onClose={() => setRoute('dashboard')} onOpenDevices={() => { setDevicesOrigin('settings'); setRoute('devices'); }} onOpenAdministration={() => setRoute('administration')} />;
   } else if (route === 'administration') {
     content = <AdministrationScreen initialDeviceId={notificationDeviceId} onClose={() => { setNotificationDeviceId(null); setRoute('settings'); }} />;
   } else if (route === 'history') {
     content = (
       <HistoryScreen onClose={() => setRoute('dashboard')} onOpenDetail={handleOpenDetail} />
     );
-  } else if (route === 'perimeter') {
-    content = <PerimeterScreen onClose={() => setRoute('map')} />;
   } else if (route === 'devices') {
-    content = <DevicesScreen onClose={() => setRoute('dashboard')} />;
+    content = <DevicesScreen onClose={() => setRoute(devicesOrigin)} />;
   } else if (route === 'measure') {
     content = (
       <MeasureScreen onDone={() => setRoute('dashboard')} onCancel={() => setRoute('dashboard')} />
-    );
-  } else if (route === 'map') {
-    content = (
-      <MapScreen
-        onOpenPerimeter={() => setRoute('perimeter')}
-        onStartMeasurement={() => setRoute('measure')}
-        onOpenList={() => setRoute('history')}
-        onOpenDetail={handleOpenDetail}
-        onClose={() => setRoute('dashboard')}
-      />
     );
   } else {
     content = (
       <DashboardScreen
         onStartMeasurement={() => setRoute('measure')}
-        onOpenMap={() => setRoute('map')}
         onOpenHistory={() => setRoute('history')}
         onOpenSettings={() => setRoute('settings')}
-        onOpenDevices={() => setRoute('devices')}
+        onOpenDevices={() => { setDevicesOrigin('dashboard'); setRoute('devices'); }}
         onOpenDetail={handleOpenDetail}
       />
     );
@@ -357,7 +420,7 @@ export default function App() {
         <StatusBar style={isDark ? 'light' : 'dark'} />
         <OfflineBanner />
         {content}
-        {session && onboardingComplete && !awaitingDeviceApproval && !checkingOnboarding && !onboardingError && !recoveryActive && welcomeComplete && !checking && ['dashboard', 'history', 'map', 'settings'].includes(route) && (
+        {entry === 'app' && !recoveryLinkError && ['dashboard', 'history', 'settings'].includes(route) && (
           <BottomNavigation route={route} onNavigate={setRoute} />
         )}
         <MeasurementDetailModal point={detailPoint} onClose={() => setDetailPoint(null)} />

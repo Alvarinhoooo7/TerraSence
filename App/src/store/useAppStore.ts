@@ -17,6 +17,8 @@ interface AppState {
 
   isSyncing: boolean;
   pendingCount: number;
+  dataRevision: number;
+  invalidateData: () => void;
   preferences: AppPreferences;
   preferencesLoaded: boolean;
 
@@ -46,6 +48,8 @@ export const useAppStore = create<AppState>((set) => ({
 
   isSyncing: false,
   pendingCount: 0,
+  dataRevision: 0,
+  invalidateData: () => set(s => ({ dataRevision: s.dataRevision + 1 })),
   preferences: DEFAULT_APP_PREFERENCES,
   preferencesLoaded: false,
 

@@ -1,0 +1,24 @@
+export function legalSections(t: (es: string, en: string) => string) {
+  return [
+    [t('1. Términos de uso', '1. Terms of use'), t(
+      'TerraSense permite vincular una sonda, consultar mediciones de suelo y ambiente y organizar información de tu campo. Sus recomendaciones son orientativas y dependen de la calidad de las lecturas y del contexto registrado. No sustituyen el análisis de laboratorio ni la evaluación de un profesional agronómico. Las lecturas de nitrógeno, fósforo y potasio son informativas y no deben usarse por sí solas para determinar dosis de fertilización.',
+      'TerraSense lets you pair a probe, view soil and environmental measurements, and organize information about your field. Recommendations are guidance based on measurement quality and the recorded context. They do not replace laboratory analysis or professional agronomic assessment. Nitrogen, phosphorus and potassium readings are informational and must not be used alone to determine fertilizer doses.',
+    )],
+    [t('2. Tu cuenta y tus equipos', '2. Your account and devices'), t(
+      'Debes proporcionar un correo que controles y proteger tu contraseña y tus códigos de verificación. Vincula y administra únicamente equipos y campos para los que tengas autorización. La confirmación del correo no te convierte en administrador de otros equipos. Puedes cancelar este registro si no aceptas estas condiciones; no se solicitará la creación de tu cuenta.',
+      'Provide an email address you control and protect your password and verification codes. Only pair and manage devices and fields you are authorized to access. Confirming your email does not make you an administrator of other devices. You can cancel registration if you do not accept these terms; account creation will not be requested.',
+    )],
+    [t('3. Datos personales y finalidad', '3. Personal data and purpose'), t(
+      'Para gestionar tu cuenta se utiliza tu nombre y correo electrónico. Al usar el servicio se procesan las asociaciones con equipos, los campos que registres, mediciones, fechas y diagnósticos para mostrar tu historial, sincronizar información y gestionar accesos y soporte. La aceptación de este registro se envía junto con la versión del texto y la fecha indicada por tu dispositivo. Esta autorización se refiere a estas finalidades de funcionamiento del servicio, no a publicidad.',
+      'Your name and email address are used to manage your account. Device memberships, fields you register, measurements, dates and diagnoses are processed to display history, synchronize information, manage access and provide support. Your acceptance is sent with the text version and the date reported by your device. This authorization covers these service purposes, not advertising.',
+    )],
+    [t('4. Ubicación y proveedores', '4. Location and providers'), t(
+      'Cuando autorizas la ubicación, se pueden asociar coordenadas a las mediciones y enviarlas a Open-Meteo para consultar el pronóstico. El permiso de ubicación se solicita por separado en tu teléfono; aceptar este aviso no lo concede. La información sincronizada se aloja en Supabase, en la región São Paulo, Brasil, lo que supone tratamiento fuera de Chile. La app también conserva información local para trabajar sin conexión. El acceso remoto depende de los permisos de cada usuario y del personal de soporte autorizado.',
+      'When you allow location access, coordinates may be associated with measurements and sent to Open-Meteo for weather forecasts. Your phone requests location permission separately; accepting this notice does not grant it. Synchronized information is hosted by Supabase in São Paulo, Brazil, which involves processing outside Chile. The app also keeps local information for offline use. Remote access depends on user permissions and authorized support staff.',
+    )],
+    [t('5. Protección de datos en Chile', '5. Data protection in Chile'), t(
+      'La Ley N° 19.628 regula actualmente la protección de datos personales. La Ley N° 21.719 modifica este marco y entra en vigor el 1 de diciembre de 2026. Puedes ejercer los derechos que correspondan conforme a la normativa aplicable, incluidos acceso, rectificación y eliminación, y revocar tu consentimiento en los casos previstos por la ley. Aceptar este aviso no implica renunciar a esos derechos.',
+      'Law No. 19,628 currently regulates personal data protection in Chile. Law No. 21,719 amends this framework and takes effect on December 1, 2026. You may exercise applicable statutory rights, including access, correction and deletion, and withdraw consent as provided by law. Accepting this notice does not waive those rights.',
+    )],
+  ];
+}
