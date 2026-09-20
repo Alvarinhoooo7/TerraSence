@@ -8,7 +8,7 @@ Lo que sigue no se puede deducir leyendo el código. Léelo antes de editar.
 
 ## 1. El entregable no lleva referencias al repositorio
 
-`INFORME antiguo .docx (1).md` (raíz) es **el informe académico que se entrega**. Debe leerse sin acceso al repositorio: **nunca** insertes en él rutas de archivos, nombres de scripts, enlaces locales, identificadores de código ni comandos. Sus cifras están cerradas y replicadas a propósito.
+`INFORME 1 .docx.pdf` (raíz) es **el informe académico que se entrega**. Es una exportación binaria: no se edita desde el repositorio. La regla vale para cualquier versión editable de ese documento que vuelva a existir, porque debe leerse sin acceso al repositorio: **nunca** insertes en ella rutas de archivos, nombres de scripts, enlaces locales, identificadores de código ni comandos, y consérvale el CRLF al editarla. Sus cifras están cerradas y replicadas a propósito.
 
 `docs/INFORME 1 .docx.md` es su contraparte **interna**: ahí sí van todas las referencias al repo. Tiene un mapa de trazabilidad al inicio; consúltalo para saber qué archivo es fuente de verdad de cada tema.
 
@@ -73,5 +73,4 @@ Si tocas cifras económicas, ejecuta los tres primeros. Si tocas documentación,
 ## 7. Convenciones
 
 - Documentación y mensajes de commit en español.
-- El informe entregable usa CRLF; consérvalo al editarlo.
 - Puede haber varios agentes trabajando en paralelo. Antes de borrar o reescribir algo que no creaste tú, verifica si es trabajo en curso de otro.
