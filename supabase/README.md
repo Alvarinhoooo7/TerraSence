@@ -300,14 +300,15 @@ forma de auditar las políticas sin Docker ni `psql`, y se conservan como consta
 
 ### 6.1. Desfase entre el historial local y el remoto
 
-`supabase migration list --linked`, ejecutado el **6 de septiembre de 2026**, devuelve tres
+`supabase migration list --linked`, ejecutado el **20 de septiembre de 2026**, devuelve cuatro
 discrepancias. El resto de versiones coincide:
 
 | Versión | Local | Remoto | Qué implica |
 | :--- | :---: | :---: | :--- |
 | `20260902180000` | ausente | **aplicada** | Migración `*.local.sql`, excluida de git a propósito |
 | `20260902210000` | ausente | **aplicada** | Migración `*.local.sql`, excluida de git a propósito |
-| `20260904120000` | presente | **pendiente** | Escrita, sin desplegar. Ver §10.1 |
+| `20260920120000` | presente | **pendiente** | Preparación del equipo por su administrador. Ver §10.1 |
+| `20260920140000` | presente | **pendiente** | Retirada del mapa. Depende de la anterior. Ver §10.1 |
 
 **Las dos ausentes no son un fallo: están fuera del repositorio a propósito.** El 6 de septiembre se
 recuperó su contenido real desde `supabase_migrations.schema_migrations`, la tabla donde Supabase
@@ -454,42 +455,44 @@ modificar nada.
 ## 10. Pendientes conocidos y tareas operativas
 
 > Estas tareas requieren credenciales del proyecto Supabase. Se listan aquí, y no en el plan de
-> validación, porque es aquí donde están los comandos para ejecutarlas. **Estado al 6 de septiembre
-> de 2026:** §10.2 hecha a medias (esquema exportado, restauración sin ensayar); el resto sin hacer.
+> validación, porque es aquí donde están los comandos para ejecutarlas. **Estado al 20 de septiembre
+> de 2026:** §10.2 sigue hecha a medias (esquema exportado, restauración sin ensayar).
 
-### 10.1. Aplicar y probar la migración de mediciones sin GPS
+### 10.1. Aplicar las dos migraciones pendientes
 
-`migrations/20260904120000_mediciones_sin_gps_idempotencia.sql` **está escrita pero no desplegada**. Hace dos cosas: admite `latitude`/`longitude` nulas —para que una medición sin señal GPS se guarde igual— y crea un índice único **no parcial** sobre `client_uuid`, necesario porque PostgREST no puede inferir un índice parcial para `ON CONFLICT(client_uuid)`.
+El **20 de septiembre de 2026** quedan dos migraciones locales sin aplicar en remoto:
 
-**No es una mejora pendiente: son dos fallos activos contra producción.** Verificado el 5 de septiembre de 2026 contra el esquema remoto:
+| Versión | Qué hace | Estado |
+| :--- | :--- | :--- |
+| `20260920120000_preparar_equipo_propietario.sql` | Generación de datos, invalidación de copias y preparación del equipo por su administrador | Verificada contra PostgreSQL 17.6 en contenedor |
+| `20260920140000_retirar_mapa_y_postgis.sql` | Retira `geom`, `radius_m`, `predial_quadrants`, `field_perimeters` y la extensión PostGIS | Escrita; verificación en contenedor pendiente |
 
-| Fallo | Causa en remoto | Dónde revienta | Desde |
-| :--- | :--- | :--- | :--- |
-| Upsert idempotente inoperante (`42P10`) | Sólo existe `idx_soil_measurements_client_uuid`, único pero **parcial** (`WHERE client_uuid IS NOT NULL`) | `App/src/services/measurementsService.ts` — `.upsert(row, { onConflict: 'client_uuid' })` | commit `7c65672`, 27-ago-2026 |
-| Medición sin GPS rechazada (`23502`) | `latitude` y `longitude` siguen siendo `NOT NULL` | `App/src/screens/MeasureScreen.tsx` — `coords?.latitude ?? null` | commit `9bd4a79`, 04-sep-2026 |
+**No pueden separarse.** La segunda rehace `prepare_device_for_owner`, que referencia
+`device_data_resets` y `devices.data_generation`: objetos que crea la primera.
 
-El segundo es especialmente sensible: guardar una lectura sin cobertura GPS es justo lo que el Informe 1 promete, y hoy la base la rechaza.
+El borrado no destruye datos. Consultado ese mismo día contra remoto, `predial_quadrants` y
+`field_perimeters` tienen **cero filas**, y la migración va envuelta en `BEGIN`/`COMMIT`, de modo
+que un fallo la revierte entera.
 
-Ambos fallos **siguen activos el 6 de septiembre de 2026**, verificados contra
-[`schema.sql`](schema.sql) recién exportado del remoto: `latitude` y `longitude` siguen declaradas
-`NOT NULL` en `soil_measurements`, el único índice sobre `client_uuid` sigue siendo
-`idx_soil_measurements_client_uuid … WHERE (client_uuid IS NOT NULL)`, y la restricción
-`soil_measurements_coordinates_pair` no existe en remoto.
-
-Volver `latitude`/`longitude` nulas ya no arrastra ninguna columna derivada: la geometría generada
-se eliminó junto con el mapa.
+~~Migración de mediciones sin GPS (`20260904120000`)~~: **aplicada**. Comprobado el 20 de
+septiembre contra el esquema vivo: `latitude` y `longitude` ya no figuran entre los campos
+obligatorios de `soil_measurements`. Los dos fallos que esta sección describía como activos contra
+producción —upsert idempotente inoperante por índice parcial, y medición sin GPS rechazada por
+`NOT NULL`— están resueltos. La geometría generada que dependía de esas columnas desaparece con la
+retirada del mapa.
 
 **Orden correcto:**
 
 1. ~~Arrancar Docker y recuperar las dos migraciones remotas ausentes~~ — **resuelto el 6-sep**.
-   Docker está operativo (§9) y el desfase quedó explicado: las dos ausentes son `*.local.sql`
-   intencionales, sin DDL (§6.1). No hay historial que recuperar antes de empujar.
+   El desfase quedó explicado: las dos ausentes son `*.local.sql` intencionales, sin DDL (§6.1).
+   No hay historial que recuperar antes de empujar.
 2. **Comprobar qué arrastra el `push`.** `db push` no sabe aplicar una sola migración: aplica todas
-   las locales que falten en el historial remoto. El 6-sep el árbol de trabajo tenía además
-   `20260906120000_dos_roles_y_aprobacion.sql` y `20260906130000_qr_temporal_y_solicitudes.sql`, en
-   desarrollo; un `db push` se las habría llevado a producción junto con ésta. Si hay migraciones a
-   medio escribir, sácalas de `supabase/migrations/` mientras dura el `push` y devuélvelas después.
+   las locales que falten en el historial remoto. Si hay migraciones a medio escribir, sácalas de
+   `supabase/migrations/` mientras dura el `push` y devuélvelas después.
 3. Aplicar y verificar.
+4. **Regenerar los dos archivos generados.** Hasta ese momento siguen describiendo el esquema
+   antiguo, con geometría, cuadrantes y perímetros. El volcado necesita Docker en marcha; los
+   tipos de TypeScript, no.
 
 ```bash
 supabase migration list --linked          # 0. confirmar qué está pendiente ahora mismo
@@ -503,11 +506,9 @@ supabase inspect db table-stats --linked  # 3. contrastar con las tablas descrit
 > previo en un proyecto desechable sigue sin hacerse; mientras no exista, cada `db push` es un
 > cambio en vivo.
 
-El `CREATE UNIQUE INDEX` sobre `client_uuid` no puede chocar con datos históricos: el índice parcial
-actual ya impide duplicados no nulos, y en un índice único normal los `NULL` son distintos entre sí.
-El `CHECK` se crea `NOT VALID`, así que tampoco escanea las filas existentes.
-
-Después de aplicarla hay que **auditar los registros históricos** y validar la restricción por separado (se crea `NOT VALID` a propósito), y comprobar que el upsert de la app resuelve contra el índice nuevo y no contra el parcial antiguo. Conviene además regenerar `Web/backend/database.types.ts` (`supabase gen types typescript --linked`), porque hoy declara `latitude: number` no nulo y quedará desactualizado.
+Después de aplicarlas hay que comprobar que `soil_measurements` perdió `geom` y `radius_m`, que
+`predial_quadrants` y `field_perimeters` ya no existen, y que `admin_factory_reset_device` dejó de
+devolver `quadrants_deleted`. La consola web ya no lee ese campo.
 
 ### 10.2. Esquema reproducible desde cero
 

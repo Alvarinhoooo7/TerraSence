@@ -34,11 +34,18 @@ las tablas `predial_quadrants` y `field_perimeters`, y la extensión PostGIS; re
 `prepare_device_for_owner` y `admin_factory_reset_device` sin el borrado de cuadrantes, y
 esta última deja de devolver `quadrants_deleted`.
 
+Comprobado contra remoto el 20-09-2026, en modo lectura: sólo quedan dos migraciones sin
+aplicar, `20260920120000` y esta; `predial_quadrants` y `field_perimeters` tienen cero filas,
+así que el borrado no destruye datos; y `data_generation` todavía no existe en `devices`.
+Las dos migraciones no pueden separarse, porque ésta rehace `prepare_device_for_owner`, que
+referencia objetos creados por la anterior.
+
 - [ ] Verificar la migración contra PostgreSQL en contenedor, como se hizo con la anterior.
       Requiere Docker Desktop en marcha; el intento del 20-09-2026 no pudo conectar al demonio.
 - [ ] Aplicarla en remoto y regenerar después `supabase/schema.sql` y
       `Web/backend/database.types.ts`, que son archivos generados y todavía declaran
-      la geometría, los cuadrantes y los perímetros.
+      la geometría, los cuadrantes y los perímetros. El paso remoto se intentó el 20-09-2026
+      y quedó detenido: aplicar migraciones a producción exige autorización explícita.
 
 `latitude`, `longitude` y `gps_accuracy_m` se conservan y el detalle de cada lectura sigue
 mostrando las coordenadas como texto: quitar el mapa no es quitar la georreferenciación.

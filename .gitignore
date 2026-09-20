@@ -122,6 +122,16 @@ coverage/
 *.log
 tmp/
 
+# Espacios de trabajo temporales de los agentes: cachés, renders intermedios,
+# perfiles de navegador de vista previa y scripts de un solo uso. Nada de esto
+# es fuente: la marca vive en Logo/ y los recursos distribuibles los genera
+# `npm run assets:brand`.
+.tmp-*/
+.tmp_*.py
+.brand-preview/
+.brand-preview-*.txt
+.brand-browser-direct/
+
 PCB/.history/
 Referencias/
 scratch/
