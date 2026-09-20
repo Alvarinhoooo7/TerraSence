@@ -160,7 +160,7 @@ Lleva la energía desde la celda hasta un riel de 5 V protegido y conmutable, y 
 | `D1` | **`M7`**, rectificador de silicio | SMA / DO-214AC | Á, K |
 | `MOD1` | Módulo **`LX-LCBST`**, carga USB-C y elevación | Placa hija | `B+`, `B−`, `OUT+`, `OUT−` |
 | `SW1` | Interruptor rocker SPST | Panel | 2 |
-| `C1` | 100 µF, **16 V**, electrolítico de aluminio | Lata SMD 6,3 × 5,4 mm | 2 |
+| `C1A`–`C1D` | 22 µF ×4, **25 V**, X5R | 1210 | 2 c/u |
 | `C2` | 100 nF, **50 V**, X7R | 1206 | 2 |
 
 > **`F1` y `D1` trabajan juntos.** No son dos protecciones independientes: el diodo detecta la inversión y el fusible es quien corta. Uno sin el otro no protege.
@@ -182,7 +182,7 @@ Lleva la energía desde la celda hasta un riel de 5 V protegido y conmutable, y 
 
                      ┌──────────────┐
                      │ MOD1 LX-LCBST│
-   USB-C exterior ──►│ B+      OUT+ │──► SW1 ──► +5V ──┬── C1 ── GND
+   USB-C exterior ──►│ B+      OUT+ │──► SW1 ──► +5V ──┬── C1A..C1D ── GND
                      │ B−      OUT− │──► GND           ├── C2 ── GND
                      └──────────────┘                  ├──► U1.VIN
                                                        ├──► Q1.S
@@ -203,8 +203,8 @@ Lleva la energía desde la celda hasta un riel de 5 V protegido y conmutable, y 
 | `MOD1` `B−` | `GND` | `GND` |
 | `MOD1` `OUT+` | `SW1` pin 1 | `+5V_RAW` |
 | `MOD1` `OUT−` | `GND` | `GND` |
-| `SW1` pin 2 | `C1` pin 1, `C2` pin 1, `U1` `VIN`, `C3` pin 1, `C4` pin 1, `Q1` fuente, `R4` pin 1, `TP2` | `+5V` |
-| `C1` pin 2, `C2` pin 2 | `GND` | `GND` |
+| `SW1` pin 2 | `C1A`–`C1D` pin 1, `C2` pin 1, `U1` `VIN`, `C3` pin 1, `C4` pin 1, `Q1` fuente, `R4` pin 1, `TP2` | `+5V` |
+| `C1A`–`C1D` pin 2, `C2` pin 2 | `GND` | `GND` |
 
 ### 4.4. Pads de batería `P1` y `P2`
 
@@ -284,7 +284,7 @@ El PTC limita corriente calentándose, y ese proceso es lento comparado con lo q
 
 Medir con `JP1` antes de congelar el valor. Si el peak real supera ~700 mA, subir a 1,5 A o pasar a un fusible lento, aceptando que tarda más en abrir.
 
-La corriente de arranque al cerrar `SW1`, cargando `C1` de 100 µF, es un pulso de microsegundos: su energía es demasiado baja para abrir el fusible.
+La corriente de arranque al cerrar `SW1`, cargando el banco `C1A`–`C1D`, es un pulso de microsegundos: su energía es demasiado baja para abrir el fusible.
 
 #### Formato: cartucho convencional sobre pads
 
@@ -382,42 +382,60 @@ No existe en las librerías estándar: hay que crearlo. Un rectángulo con cuatr
 
 ### 4.8. Criterio de los condensadores
 
-Aplica a `C1` y `C2` de esta etapa, y al par equivalente `C3` y `C4` de la etapa 2.
+**Todos los condensadores de la placa son SMD cerámicos.** No se usan electrolíticos ni tantalio.
 
-| Ref | Valor | Tensión | Tecnología | Encapsulado |
-| :--- | :--- | :--- | :--- | :--- |
-| `C1`, `C3` | 100 µF | **16 V** | Electrolítico de aluminio | Lata SMD 6,3 × 5,4 mm |
-| `C2`, `C4` | 100 nF | **50 V** | Cerámico X7R | 1206 |
+| Ref | Valor | Tensión | Dieléctrico | Encapsulado | Va junto a |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `C1A` a `C1D` | 22 µF ×4 | **25 V** | X5R | 1210 | `Q1` y `J2` |
+| `C2` | 100 nF | 50 V | X7R | 1206 | `Q1` |
+| `C3` | 22 µF | **25 V** | X5R | 1210 | `U1` `VIN` |
+| `C4` | 100 nF | 50 V | X7R | 1206 | `U1` `VIN` |
 
-#### Por qué los 100 µF no van en cerámico 1206
+#### El requisito real no es «100 µF», es capacidad efectiva
 
-Un MLCC de 100 µF en 1206 casi no existe en el mercado, y cuando aparece suele ser de 6,3 V. Peor aún: **los cerámicos pierden capacidad cuando se les aplica tensión**, un efecto llamado *DC bias* que no es tolerancia de fabricación sino comportamiento del dieléctrico.
+**Requisito del riel `+5V`: no menos de 60 µF efectivos a 5 V.**
 
-| Componente | Nominal | Capacidad real sobre un riel de 5 V |
+Se especifica así, y no como un valor nominal, porque los cerámicos **pierden capacidad cuando se les aplica tensión**. El efecto se llama *DC bias* y no es tolerancia de fabricación: es el dieléctrico de clase 2 perdiendo permitividad bajo campo eléctrico. Un condensador rotulado 100 µF puede entregar 35 µF en el circuito y estar perfectamente dentro de especificación.
+
+Lo que gobierna la pérdida es la **razón entre la tensión nominal y la aplicada**:
+
+| Tensión nominal | Razón sobre 5 V | Pérdida típica X5R/X7R | De 22 µF quedan |
+| :--- | :--- | :--- | :--- |
+| 10 V | 2× | 40 a 55 % | ~10 µF |
+| 16 V | 3,2× | 30 a 40 % | ~14 µF |
+| **25 V** | **5×** | **10 a 20 %** | **~18 µF** |
+
+> **Por eso 10 V es el piso, no el objetivo.** Cumple la condición de no usar 6,3 V, pero a 10 V todavía se pierde cerca de la mitad. **A 25 V la pérdida se vuelve marginal** y el condensador entrega casi lo que dice.
+
+Estas cifras son órdenes de magnitud típicos. **La curva de DC bias real la publica cada fabricante para cada referencia**; conviene mirarla antes de cerrar la compra, porque entre dos piezas del mismo valor y encapsulado la diferencia puede ser grande.
+
+#### Por qué cuatro en paralelo y no uno grande
+
+| | Uno de 100 µF / 10 V | Cuatro de 22 µF / 25 V |
 | :--- | :--- | :--- |
-| 100 µF 6,3 V X5R 1206 | 100 µF | **~25 a 35 µF** |
-| 22 µF 16 V X7R 1206 | 22 µF | ~17 µF |
-| 100 µF 16 V electrolítico | 100 µF | **100 µF** |
+| Nominal | 100 µF | 88 µF |
+| **Efectivo a 5 V** | **~45 µF** | **~72 µF** |
+| Disponibilidad | Escasa, encapsulados grandes | Referencia corriente |
+| Resistencia y inductancia serie | La de una pieza | **Se dividen entre cuatro** |
+| Falla de una pieza | Se pierde todo el banco | Quedan tres cuartos |
 
-Un cerámico de 6,3 V en este riel puede entregar **un tercio** de lo que dice la serigrafía. El electrolítico de aluminio no sufre este efecto: entrega su valor nominal dentro de la tolerancia.
+Cuatro piezas de valor moderado y tensión holgada entregan **más capacidad efectiva que una sola de valor alto y tensión ajustada**, y encima con menor impedancia. Es el resultado contraintuitivo que hace que repartir sea mejor que concentrar.
 
-Los 5,4 mm de alto de la lata SMD caben de sobra en una carcasa de 38 mm de profundidad.
+#### Encapsulados
 
-> Si en algún momento hiciera falta un perfil más bajo, la alternativa es poner **varios cerámicos en paralelo con tensión holgada** — por ejemplo cuatro de 22 µF y 16 V — y no uno solo de 100 µF y 6,3 V.
+**1210** para los 22 µF: es el tamaño donde esa capacidad existe a 25 V como referencia corriente. Mide 3,2 × 2,5 mm, así que las cinco piezas ocupan poco en una placa de 70 × 40 mm.
 
-#### Por qué los 100 nF van de 50 V
+**1206** para los 100 nF: más grande de lo que el valor necesita —bastaría 0603— pero **se suelda a mano con mucha más comodidad**, que en un prototipo vale más que el espacio ahorrado. Se mantiene a propósito.
 
-Por el mismo efecto, al revés: cuanto mayor es el margen entre la tensión nominal del condensador y la que se le aplica, menos capacidad pierde. **Un 100 nF de 50 V cuesta lo mismo que uno de 10 V** y se comporta bastante mejor. No hay razón para pedir el de menor tensión.
+#### Nada de tantalio
 
-#### Encapsulado 1206 para los cerámicos
+**Los condensadores de tantalio fallan en cortocircuito.** Un corto permanente colgado de una celda LiPo es un riesgo de incendio y no es un modo de falla que convenga introducir a propósito en un equipo a batería. `F1` cortaría, pero la primera línea de defensa es no ponerlo. Los cerámicos fallan raramente y, cuando lo hacen, no sostienen un corto franco como el tantalio.
 
-1206 es más grande de lo que un 100 nF necesita —bastaría 0603— pero **se suelda a mano con mucha más comodidad**, que es una ventaja real en una placa de prototipo. Se mantiene 1206 a propósito.
+#### Si el 22 µF / 25 V no se consigue
 
-#### Nada de tántalo
+Alternativa equivalente: **seis de 10 µF / 25 V / X7R en 1206**, que es una de las referencias más comunes y baratas del mercado. Nominal 60 µF, efectivo del orden de 50 µF. Cumple el requisito con menos margen, pero en 1206 y fácil de conseguir.
 
-**Los condensadores de tantalio fallan en cortocircuito.** Un corto permanente colgado de una celda LiPo es un riesgo de incendio, y no es un modo de falla que convenga introducir deliberadamente en un equipo a batería. `F1` cortaría, pero la primera línea de defensa es no ponerlo.
-
-El electrolítico de aluminio se degrada perdiendo capacidad y aumentando su resistencia interna, es decir, **falla abriéndose**. Es el modo de falla correcto para este puesto.
+**Lo que no se acepta:** cualquier cerámico de 6,3 V, y un único 100 µF de 10 V como bulk exclusivo del riel.
 
 ### 4.9. Interruptor `SW1`
 
@@ -455,7 +473,7 @@ Por esto **no hace falta un diodo de aislamiento** entre `+5V` y `VIN`.
    4. Protección   JP1 ──► nodo VBAT_PROT       D1 (M7) en paralelo a GND
    5. Carga/boost  VBAT_PROT ──► MOD1.B+        el módulo eleva a 5 V
    6. Salida       MOD1.OUT+ ──► SW1            encendido del equipo
-   7. Riel         SW1 ──► +5V                  con C1 y C2, y TP2
+   7. Riel         SW1 ──► +5V                  banco C1A-C1D, C2, TP2
                                                  │
                                                  ├──► U1.VIN   (etapa 2)
                                                  └──► Q1.S     (power gate)
@@ -482,7 +500,7 @@ Ruteo hacia el microcontrolador: alimentación a la DevKit, interfaz de usuario 
 | Ref | Componente | Encapsulado | Pines |
 | :--- | :--- | :--- | :--- |
 | `U1` | DevKit ESP32-WROOM-32 | Placa hija, zócalos | 30 o 38 |
-| `C3` | 100 µF, **16 V**, electrolítico de aluminio | Lata SMD 6,3 × 5,4 mm | 2 |
+| `C3` | 22 µF, **25 V**, X5R | 1210 | 2 |
 | `C4` | 100 nF, **50 V**, X7R | 1206 | 2 |
 | `C5` | 10 µF, X7R | 0805 | 2 |
 | `C6` | 100 nF, X7R | 0805 | 2 |
@@ -1020,7 +1038,7 @@ Cada net con **todos** los pines que van unidos a ella. Si un pin no aparece aqu
 | `VBAT_F` | `F1`.2 · `JP1`.1 |
 | `VBAT_PROT` | `JP1`.2 · `D1`.cátodo · `MOD1`.B+ · `R9`.1 · `TP1` |
 | `+5V_RAW` | `MOD1`.OUT+ · `SW1`.1 |
-| `+5V` | `SW1`.2 · `C1`.1 · `C2`.1 · `U1`.VIN · `C3`.1 · `C4`.1 · `Q1`.S · `R4`.1 · `TP2` |
+| `+5V` | `SW1`.2 · `C1A`.1 · `C1B`.1 · `C1C`.1 · `C1D`.1 · `C2`.1 · `U1`.VIN · `C3`.1 · `C4`.1 · `Q1`.S · `R4`.1 · `TP2` |
 | `+3V3` | `U1`.3V3 · `C5`.1 · `C6`.1 · `U2`.8 · `C8`.1 · `U3`.VCC · `U3`.CSB · `R1`.1 · `R7`.1 · `R8`.1 · `R12`.1 · `TP3` |
 | `Q1_G` | `Q1`.G · `R4`.2 · `Q2`.D |
 | `Q2_G` | `Q2`.G · `R5`.2 · `R6`.1 |
@@ -1041,7 +1059,7 @@ Cada net con **todos** los pines que van unidos a ella. Si un pin no aparece aqu
 | `DE_RE` | `U1`.GPIO4 · `U2`.2 · `U2`.3 |
 | `RS485_A` | `U2`.6 · `R11`.1 · `R12`.2 · `D4`.A · `J2`.3 · `TP5` |
 | `RS485_B` | `U2`.7 · `R11`.2 · `R13`.1 · `D4`.B · `J2`.4 · `TP6` |
-| `GND` | `P2` · `D1`.ánodo · `MOD1`.B− · `MOD1`.OUT− · `C1`.2 · `C2`.2 · `U1`.GND · `C3`.2 · `C4`.2 · `C5`.2 · `C6`.2 · `SW2`.2 · `C7`.2 · `D2`.cátodo · `D3`.cátodo · `Q2`.S · `R6`.2 · `Q3`.S · `R14`.2 · `C9`.2 · `U2`.5 · `C8`.2 · `U3`.GND · `U3`.SDO · `R13`.2 · `D4`.masa · `J2`.2 · `TP7` · `TP8` |
+| `GND` | `P2` · `D1`.ánodo · `MOD1`.B− · `MOD1`.OUT− · `C1A`.2 · `C1B`.2 · `C1C`.2 · `C1D`.2 · `C2`.2 · `U1`.GND · `C3`.2 · `C4`.2 · `C5`.2 · `C6`.2 · `SW2`.2 · `C7`.2 · `D2`.cátodo · `D3`.cátodo · `Q2`.S · `R6`.2 · `Q3`.S · `R14`.2 · `C9`.2 · `U2`.5 · `C8`.2 · `U3`.GND · `U3`.SDO · `R13`.2 · `D4`.masa · `J2`.2 · `TP7` · `TP8` |
 
 
 ### 11.1. Resumen por componente
@@ -1055,7 +1073,7 @@ Cada net con **todos** los pines que van unidos a ella. Si un pin no aparece aqu
 | `D1` | ánodo / cátodo | `GND` / `VBAT_PROT` |
 | `MOD1` | B+ / B− / OUT+ / OUT− | `VBAT_PROT` / `GND` / `+5V_RAW` / `GND` |
 | `SW1` | 1 / 2 | `+5V_RAW` / `+5V` |
-| `C1`, `C2` | 1 / 2 | `+5V` / `GND` |
+| `C1A`–`C1D`, `C2` | 1 / 2 | `+5V` / `GND` |
 | `U1` | VIN / GND / 3V3 | `+5V` / `GND` / `+3V3` |
 | `C3`, `C4` | 1 / 2 | `+5V` / `GND` |
 | `C5`, `C6` | 1 / 2 | `+3V3` / `GND` |
