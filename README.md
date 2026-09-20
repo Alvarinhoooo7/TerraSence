@@ -1,6 +1,11 @@
 <div align="center">
   
-  # 🌱 TerraSense
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="Logo/Logo/terrasense-dark.svg" />
+    <img src="Logo/Logo/terrasense.svg" alt="TerraSense · Soil Technologies" width="380" />
+  </picture>
+
+  # TerraSense
   **Diagnóstico agronómico de suelo y microclima impulsado por IoT**
 
   [![Estado](https://img.shields.io/badge/Estado-En_desarrollo-blue.svg)](#)
@@ -57,7 +62,7 @@ El repositorio está dividido en áreas de dominio específicas, cada una con su
 | 🪛 [**`/PCB`**](PCB/README.md) | Esquemáticos KiCad, arquitectura de potencia, contrato de trama BLE y diseño de carcasa 3D. | ESP32, BME280, RS-485 |
 | 📱 [**`/App`**](App/README.md) | Aplicación móvil que recibe las lecturas vía BLE y genera el diagnóstico agronómico. | React Native, Expo, BLE |
 | 💻 [**`/Web`**](Web/README.md) | Consola de administración y soporte web para gestión del sistema. | React, Vite, TypeScript |
-| ☁️ [**`/supabase`**](supabase/README.md) | Funciones de backend (RPC), políticas RLS, migraciones y PostGIS. | PostgreSQL, Edge Functions |
+| ☁️ [**`/supabase`**](supabase/README.md) | Funciones de backend (RPC), políticas RLS y migraciones. | PostgreSQL, Edge Functions |
 | 📄 [**`/docs`**](docs/README.md) | Informes formales del proyecto de título, manuales, normativas y planes de validación. | Markdown, Documentación |
 | 📈 [**`/finanzas`**](docs/MODELO_ECONOMICO.md) | Estudio de viabilidad, cálculo de costos (BOM) y simulador de flujo de caja. | Python, Excel |
 

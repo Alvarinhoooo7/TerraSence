@@ -129,7 +129,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
         {
           ...m,
           device_id: device.id,
-          radius_m: 20,
           measured_at: now,
           firmware_version: body.firmware_version ?? null,
         },

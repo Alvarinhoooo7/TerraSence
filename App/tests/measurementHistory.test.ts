@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { mergeMeasurementHistory } from '../src/utils/measurementHistory';
-import type { MapMeasurementPoint } from '../src/types/app';
+import type { MeasurementPoint } from '../src/types/app';
 
-const point = (id: string, clientUuid: string, measuredAt = '2026-09-05T12:00:00Z'): MapMeasurementPoint => ({
-  id, clientUuid, measuredAt, latitude: null, longitude: null, radiusM: 20,
+const point = (id: string, clientUuid: string, measuredAt = '2026-09-05T12:00:00Z'): MeasurementPoint => ({
+  id, clientUuid, measuredAt, latitude: null, longitude: null,
   verdict: 'GREEN', stage: 'pre_siembra', title: 'Favorable', action: null,
   ph: 6.5, ecUsCm: 200, vwcPercent: 30, soilTempC: 18,
   nitrogen: 0, phosphorus: 0, potassium: 0, gpsAccuracyM: null,

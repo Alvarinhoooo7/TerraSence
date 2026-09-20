@@ -2,14 +2,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { loadMeasurementHistory } from '../services/measurementsService';
 import { useAppStore } from '../store/useAppStore';
 import { useAuthStore } from '../store/useAuthStore';
-import type { MapMeasurementPoint } from '../types/app';
+import type { MeasurementPoint } from '../types/app';
 
 export function useMeasurementHistory() {
   const dataRevision = useAppStore(s => s.dataRevision);
   const fieldName = useAppStore(s => s.fieldName);
   const deviceId = useAppStore(s => s.device?.id);
   const accountId = useAuthStore(s => s.session?.user.id);
-  const [points, setPoints] = useState<MapMeasurementPoint[]>([]);
+  const [points, setPoints] = useState<MeasurementPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [offline, setOffline] = useState(false);
   const [error, setError] = useState(false);

@@ -46,7 +46,7 @@ export default () => ({
       googleServicesFile: './google-services.json',
       adaptiveIcon: {
         foregroundImage: './assets/adaptive-icon.png',
-        backgroundColor: '#12281F',
+        backgroundColor: '#052e16',
       },
       allowBackup: false,
       // NOTA: se omite deliberadamente ACCESS_BACKGROUND_LOCATION.

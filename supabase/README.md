@@ -9,7 +9,7 @@ La migración [20260911120000_support_environment_readings.sql](migrations/20260
 
 Los campos ambientales y de batería admiten `NULL`, sin defaults inventados. El ambiente se obtiene del BME280, nunca de la API del pronóstico. `diagnosis.localSource` identifica el nuevo flujo; los registros históricos sin origen verificado no se reclasifican automáticamente. `diagnosis` conserva el pronóstico y la recomendación disponibles al guardar, la fuente y la respuesta BLE en captura. `measured_at` conserva la recepción en el celular incluso si el envío ocurre después. `devices.last_seen_at` es un reporte remoto histórico, no una conexión BLE en vivo.
 
-La proyección móvil de consulta incluye ambiente, batería y diagnóstico, por lo que se mantienen en historial, caché y cola local. El RPC permite exportarlos en el CSV de soporte. El mapa filtra `pre_siembra` con coordenadas finitas; la base y el historial conservan las cuatro fases y admiten lecturas sin GPS.
+La proyección móvil de consulta incluye ambiente, batería y diagnóstico, por lo que se mantienen en historial, caché y cola local. El RPC permite exportarlos en el CSV de soporte. La base y el historial conservan las cuatro fases y admiten lecturas sin GPS; las coordenadas se guardan y se consultan como números, sin geometría asociada.
 
 `schema.sql` refleja la nueva columna, restricción y respuesta del RPC. Los tipos de `Web/backend/database.types.ts` se regeneraron desde el esquema remoto y los tipos de dominio de App se alinearon. El tipo de entrada de `device-checkin` admite ambiente, batería y diagnóstico sin cambiar su comportamiento ni desplegar Edge Functions; la ruta normal de App sigue siendo BLE → teléfono → PostgREST.
 
@@ -27,7 +27,7 @@ Esta verificación del esquema no acredita ensayos físicos, publicación web/m�
 
 ---
 
-Base de datos PostgreSQL con PostGIS, políticas de seguridad a nivel de fila y Edge Functions en
+Base de datos PostgreSQL con políticas de seguridad a nivel de fila y Edge Functions en
 Deno. Es la fuente única de verdad del sistema.
 
 > Este documento cubre **sólo la carpeta `supabase/`**. La especificación del producto está en el
@@ -99,7 +99,7 @@ supervisión y no constituye un respaldo de la base de datos.
 | Referencia | `bjmhjatykqccksddgtmo` |
 | URL | `https://bjmhjatykqccksddgtmo.supabase.co` |
 | Región | **South America (São Paulo)** |
-| Extensiones | `postgis`, `uuid-ossp`, `pgcrypto` |
+| Extensiones | `uuid-ossp`, `pgcrypto` |
 
 **Por qué São Paulo.** Por latencia —Santiago–São Paulo son ~2.600 km frente a ~9.000 km a
 Virginia— y porque ayuda al argumento de transferencia internacional de la **Ley 21.719**: es la
@@ -122,9 +122,7 @@ auth.users
                 ▼
              devices ──1:N──► soil_measurements ──► push_alerts
                 │                    │
-                │                    ├── geom (PostGIS, generada) + índice GiST
                 │                    └──1:N──► device_status_log (histórico de batería/conexión, por trigger)
-                └──1:N──► predial_quadrants
 
  lab_validation_records   (corpus de contraste metrológico, sin dueño)
  admin_support_users      (soporte — ligada a auth.users vía user_id desde 02-09-2026)
@@ -150,7 +148,7 @@ migración, en `20260902120000_panel_soporte_backend.sql`. Resumen:
   `admin_factory_reset_device` — nuevas.
 - **Reseteo de fábrica** (`admin_factory_reset_device`): para cuando el
   cliente vende o regala su sonda. Desvincula a todos los miembros y borra
-  mediciones/cuadrantes/alertas de ese equipo; NO toca `device_code` (grabado
+  mediciones/alertas de ese equipo; NO toca `device_code` (grabado
   en la NVS del hardware) ni `firmware_version`/`hardware_version` (el
   firmware real instalado). Exige repetir el `device_code` como confirmación.
   De paso se corrigió `register_paired_device()`: antes rechazaba cualquier
@@ -170,17 +168,10 @@ migración, en `20260902120000_panel_soporte_backend.sql`. Resumen:
 | Tabla | Columna | Para qué |
 | :--- | :--- | :--- |
 | `soil_measurements` | `phenological_stage` | Las 4 etapas del ciclo. TerraSense no es sólo de siembra |
-| `soil_measurements` | `radius_m` | Radio del círculo en el mapa (20 m por defecto) |
 | `soil_measurements` | `gps_accuracy_m` | Precisión del punto; la app avisa si supera 15 m |
-| `soil_measurements` | `geom` | Punto PostGIS **generado**, con índice GiST |
 | `soil_measurements` | `engine_version`, `crop_catalog_version` | Trazabilidad probatoria |
 | `soil_measurements` | `client_uuid` | Idempotencia de la cola offline |
-| `predial_quadrants` | `phenological_stage`, `radius_m`, `geom` | Íd. |
 | `devices` | `device_code` con `DEFAULT` y `CHECK` | 15 dígitos aleatorios |
-
-> [!NOTE]
-> `geom` es **columna generada**: se calcula sola a partir de `latitude` y `longitude`. No intentes
-> escribirla; Postgres lo rechaza.
 
 ---
 
@@ -288,12 +279,14 @@ curl -X POST https://bjmhjatykqccksddgtmo.supabase.co/functions/v1/device-checki
 ```text
 20260825000000_remote_baseline.sql          Marcador: migración ya aplicada antes de vincular
 20260825020000_remote_baseline.sql          Marcador
-20260827100000_etapa_fenologica_geo_...     Columnas nuevas, PostGIS e índices
+20260827100000_etapa_fenologica_geo_...     Columnas nuevas, PostGIS e índices (revertido después)
 20260827120000_asegurar_rls_defensivo.sql   Comprueba y sólo actúa si falta RLS
 20260827130000_auditoria_politicas_rls.sql  Sólo NOTICE: deja constancia del estado previo
 20260827140000_cerrar_rls_abierto.sql       ⚠️ Corrección crítica de seguridad
 20260827150000_verificacion_rls_final.sql   Sólo NOTICE: constancia del estado posterior
 20260827160000_rpc_vincular_equipo_...      RPC de vinculación por código
+...
+20260920140000_retirar_mapa_y_postgis.sql   Retira geometría, cuadrantes, perímetros y PostGIS
 ```
 
 > [!WARNING]
@@ -483,9 +476,8 @@ Ambos fallos **siguen activos el 6 de septiembre de 2026**, verificados contra
 `idx_soil_measurements_client_uuid … WHERE (client_uuid IS NOT NULL)`, y la restricción
 `soil_measurements_coordinates_pair` no existe en remoto.
 
-Volver `latitude`/`longitude` nulas es seguro para `geom`, que es
-`GENERATED ALWAYS AS st_setsrid(st_makepoint(longitude, latitude), 4326) STORED` y **no** es
-`NOT NULL`: sin coordenadas queda nulo en vez de fallar.
+Volver `latitude`/`longitude` nulas ya no arrastra ninguna columna derivada: la geometría generada
+se eliminó junto con el mapa.
 
 **Orden correcto:**
 
@@ -691,8 +683,8 @@ En VS Code, extensión **Deno** activada sólo para `supabase/functions/`.
 ### 11.5. Puesta en marcha
 
 ```bash
-git clone https://github.com/Alvarinhoooo7/TerraSence.git
-cd TerraSence
+git clone https://github.com/Alvarinhoooo7/TerraSense.git
+cd TerraSense
 
 supabase login                                   # abre el navegador
 supabase link --project-ref bjmhjatykqccksddgtmo

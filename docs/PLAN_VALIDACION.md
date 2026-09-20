@@ -44,7 +44,7 @@ Los resultados de DSCR, VAN y caja libre por escenario se consultan en [RESULTAD
 | 14 | **Representatividad del círculo de 20 m** | Una lectura puntual no demuestra el estado de 1.256,6 m². Requiere plan de muestreo y análisis espacial |
 | 15 | **Cuantificar el beneficio para el agricultor** | El «caso real» de $495.000 y el ROI de 98 % se retiraron por no tener campo, control ni registro. Requiere piloto con línea base |
 
-**Los registros N/P/K derivan de conductividad eléctrica y no se validan aquí.** Mantener el análisis de laboratorio para decisiones de fertilización y encalado: ni una lectura instantánea ni un mapa de círculos equivalen a un análisis representativo del campo.
+**Los registros N/P/K derivan de conductividad eléctrica y no se validan aquí.** Mantener el análisis de laboratorio para decisiones de fertilización y encalado: una lectura instantánea no equivale a un análisis representativo del campo.
 
 ---
 

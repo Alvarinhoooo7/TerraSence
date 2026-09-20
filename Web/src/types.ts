@@ -26,7 +26,6 @@ export interface SoilMeasurement {
   latitude: number | null;
   longitude: number | null;
   gps_accuracy_m: number | null;
-  radius_m: number;
   phenological_stage: PhenologicalStage;
   vwc_percent: number;
   soil_temp_c: number;

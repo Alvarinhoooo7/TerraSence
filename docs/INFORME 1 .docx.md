@@ -322,7 +322,7 @@ El beneficiario directo y principal es el pequeño y mediano agricultor comercia
 
 * **La familia y el equipo de trabajo:** El sistema está diseñado para que cualquier persona del campo pueda tomar una medición sin necesitar formación técnica previa.
 * **Asesores técnicos y extensionistas:** Quienes hoy deben estimar las condiciones del suelo a través de la observación, podrán pasar de "estimar" a "medir", dejando un registro histórico y georreferenciado de cada visita. Cabe precisar, para efectos del dimensionamiento comercial, que la cantidad de campos visitados por un asesor no equivale a la cantidad de equipos comprados.
-* **Cooperativas y asociaciones:** Podrán utilizar la herramienta para construir mapas de salud edáfica de todo el territorio que administran, mejorando las compras conjuntas de insumos.
+* **Cooperativas y asociaciones:** Podrán utilizar la herramienta para reunir un registro de salud edáfica de todo el territorio que administran, mejorando las compras conjuntas de insumos.
 * **Instituciones públicas:** Podrían apoyarse en esta información agregada para focalizar sus programas de fomento, paliando la actual falta de datos de suelo georreferenciados a escala de campo individual.
 * **El medio ambiente:** Una fertilización y riego ajustados a la necesidad real del cultivo en lugar de aplicaciones preventivas por exceso de precaución reduce el desperdicio hídrico y la contaminación de napas por lixiviación.
 
@@ -600,7 +600,7 @@ flowchart LR
     E <-->|BLE GATT| A[Aplicacion movil]
     A --> M[Motor local por cultivo y etapa]
     A --> L[Historial y cola local]
-    A -.->|HTTPS con conexion| C[Supabase y PostGIS]
+    A -.->|HTTPS con conexion| C[Supabase]
     W[API gratuita de pronostico] -.->|Proximos cinco dias| A
     C <-->|Gestion y soporte| V[Consola web]
 ```
@@ -1284,7 +1284,7 @@ flowchart TD
     H --> I[Consultar recomendacion y contexto climatico]
     I --> J[Guardar lectura con fecha y contexto]
     J --> K{Ubicacion disponible}
-    K -->|Si| L[Mostrar punto en mapa]
+    K -->|Si| L[Guardar coordenadas con la lectura]
     K -->|No| M[Conservar en historial sin ubicacion]
     L --> N[Continuar recorrido]
     M --> N
@@ -1292,9 +1292,9 @@ flowchart TD
 
 ##### **Figura 2.4 “Recorrido de Uso en Campo y Presentación del Diagnóstico”**
 
-La presentación se organiza en tres páginas: Grid, diagnóstico y mapa. El Grid permite revisar las variables; el diagnóstico ordena los factores que explican el resultado y las recomendaciones; el mapa relaciona las lecturas georreferenciadas del recorrido. El semáforo se acompaña siempre de texto y explicación, de modo que el color no sea el único medio de comunicación, en línea con las pautas de accesibilidad adoptadas. Las decisiones se formulan como orientaciones cualitativas y cuantificadas hasta donde la evidencia lo permite: la aplicación **no** determina por sí sola litros exactos de lavado ni dosis de cal en kg/ha, porque hacerlo excedería lo que un instrumento de terreno puede sostener.
+La presentación se organiza en dos páginas: Grid y diagnóstico. El Grid permite revisar las variables; el diagnóstico ordena los factores que explican el resultado y las recomendaciones. La aplicación no representa las lecturas sobre un mapa. El semáforo se acompaña siempre de texto y explicación, de modo que el color no sea el único medio de comunicación, en línea con las pautas de accesibilidad adoptadas. Las decisiones se formulan como orientaciones cualitativas y cuantificadas hasta donde la evidencia lo permite: la aplicación **no** determina por sí sola litros exactos de lavado ni dosis de cal en kg/ha, porque hacerlo excedería lo que un instrumento de terreno puede sostener.
 
-La ubicación es una ayuda para trazar el recorrido y no debe impedir guardar información útil: la app conserva también lecturas sin GPS, que quedan fuera de la representación cartográfica. Asimismo, el círculo dibujado alrededor de un punto en el mapa es un recurso de visualización y no demuestra que toda esa superficie tenga las mismas propiedades; debe diferenciarse del alcance físico de la sonda.
+La ubicación es una ayuda para reconstruir el recorrido y no debe impedir guardar información útil: la app conserva también lecturas sin GPS y las muestra en el historial junto a las demás. Las coordenadas se registran y se consultan como dato numérico. Conviene subrayar el límite que de ahí se sigue: una medición describe el punto en que se insertó la sonda y no autoriza a extender esa lectura a la superficie que la rodea.
 
 El guardado local antecede siempre al intento de envío. Cada medición recibe un identificador único de cliente (`client_uuid`) que se conserva al reintentar, y la cola se separa por cuenta de usuario. La operación remota utiliza ese identificador para evitar duplicación:
 
@@ -1332,7 +1332,7 @@ Corresponde declarar con precisión qué parte de esta arquitectura está constr
 
 ###### **Tabla 4.2 “Estado de Integración del BME280 y del Pronóstico”**
 
-El contrato ambiental deberá representar temperatura con signo, humedad relativa, presión local, instante de captura y estado del sensor. La estructura de almacenamiento debe mantener el origen del dato: el campo ambiental de una medición no puede conservar indistintamente un valor del BME280 y uno de un modelo meteorológico sin informar esa diferencia, y también deben revisarse exportación, historial y mapa para que la distinción sobreviva al guardado. Respecto del horizonte, la integración debe verificar si el proveedor incluye el día actual en su respuesta y solicitar suficientes fechas para completar los cinco días posteriores a la lectura; para cada día se necesitan fecha, precipitación prevista y temperaturas extremas, mostrando como no disponibles los valores faltantes. La recomendación debe conservar qué pronóstico se utilizó, evitando que una actualización futura cambie el significado histórico de una lectura guardada.
+El contrato ambiental deberá representar temperatura con signo, humedad relativa, presión local, instante de captura y estado del sensor. La estructura de almacenamiento debe mantener el origen del dato: el campo ambiental de una medición no puede conservar indistintamente un valor del BME280 y uno de un modelo meteorológico sin informar esa diferencia, y también deben revisarse exportación e historial para que la distinción sobreviva al guardado. Respecto del horizonte, la integración debe verificar si el proveedor incluye el día actual en su respuesta y solicitar suficientes fechas para completar los cinco días posteriores a la lectura; para cada día se necesitan fecha, precipitación prevista y temperaturas extremas, mostrando como no disponibles los valores faltantes. La recomendación debe conservar qué pronóstico se utilizó, evitando que una actualización futura cambie el significado histórico de una lectura guardada.
 
 ```mermaid
 flowchart TD
@@ -1399,7 +1399,7 @@ Toda la ingeniería de energía del equipo se reduce a una sola regla, declarada
 
 Esta regla es la que explica, con hilo conductor, las decisiones de hardware adoptadas: por qué el equipo no lleva pantalla, por qué existe un MOSFET dedicado solo a cortar la alimentación de la sonda y por qué se prefirieron LEDs por sobre otros métodos de alerta o guía para el usuario.
 
-**Digitalización del Proceso Agrícola:** El segundo eje de este criterio es la digitalización del proceso de toma de decisiones en terreno. TerraSense transforma un proceso hoy manual y no trazable —la estimación visual, la memoria del agricultor o, en el mejor de los casos, un cuaderno de papel— en un flujo digital estructurado: cada medición queda georreferenciada, con marca de tiempo y sincronizada a una base histórica consultable. Esta digitalización habilita capacidades imposibles bajo el modelo análogo: comparar la evolución de un mismo punto del campo entre temporadas, generar mapas de salud edáfica agregados por cooperativa o territorio, y exportar reportes estandarizados para asesorías técnicas o postulaciones a programas de fomento. El agricultor pasa de "estimar" a "medir y registrar", cerrando la brecha de datos que hoy impide a instituciones públicas y privadas focalizar sus políticas de apoyo al sector.
+**Digitalización del Proceso Agrícola:** El segundo eje de este criterio es la digitalización del proceso de toma de decisiones en terreno. TerraSense transforma un proceso hoy manual y no trazable —la estimación visual, la memoria del agricultor o, en el mejor de los casos, un cuaderno de papel— en un flujo digital estructurado: cada medición queda georreferenciada, con marca de tiempo y sincronizada a una base histórica consultable. Esta digitalización habilita capacidades imposibles bajo el modelo análogo: comparar la evolución de un mismo punto del campo entre temporadas, agregar indicadores de salud edáfica por cooperativa o territorio, y exportar reportes estandarizados para asesorías técnicas o postulaciones a programas de fomento. El agricultor pasa de "estimar" a "medir y registrar", cerrando la brecha de datos que hoy impide a instituciones públicas y privadas focalizar sus políticas de apoyo al sector.
 
 **Arquitectura de la Gestión Eficiente de Energía:**
 

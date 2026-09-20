@@ -57,7 +57,7 @@ Contratar por capacidad antes de incumplir entregas:
 - Los socios conservan aproximadamente 1.400 horas combinadas de estas tareas más tiempo de desarrollo, dirección, contabilidad operativa y marketing. El modelo no supone producción ilimitada gratis. Si soporte o CAC consumen más horas, adelantar contratación.
 - Agencia: $250.000/mes de gestión desde objetivo de 650 ventas/año (año 4 base), aparte de pauta. Es una opción de organización, no obligación legal; comparar con una persona interna y honorarios reales.
 
-Servicios digitales: $150.000/mes más $1.200 por equipo activo/año para capacidad y mantenimiento operativo. Cubre tienda, backend, correo, mapas y mantenimiento operativo. El costo directo de **API de clima se separa en $0/mes**, usando una API gratuita para cinco días de pronóstico. La selección y las condiciones del proveedor se describen en [integración climática](INFORME%201%20.docx.md#integracion-bme280). No prometer servicio de nube gratuito «para siempre»; definir duración contractual, exportación de datos y funcionamiento local.
+Servicios digitales: $150.000/mes más $1.200 por equipo activo/año para capacidad y mantenimiento operativo. Cubre tienda, backend, correo y mantenimiento operativo. El costo directo de **API de clima se separa en $0/mes**, usando una API gratuita para cinco días de pronóstico. La selección y las condiciones del proveedor se describen en [integración climática](INFORME%201%20.docx.md#integracion-bme280). No prometer servicio de nube gratuito «para siempre»; definir duración contractual, exportación de datos y funcionamiento local.
 
 ## Caja, impuestos y financiamiento
 

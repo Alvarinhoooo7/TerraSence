@@ -407,8 +407,8 @@ En VS Code, extensión **Deno** activada sólo para `supabase/functions/`.
 ### 11.5. Puesta en marcha
 
 ```bash
-git clone https://github.com/Alvarinhoooo7/TerraSence.git
-cd TerraSence
+git clone https://github.com/Alvarinhoooo7/TerraSense.git
+cd TerraSense
 
 supabase login                                   # abre el navegador
 supabase link --project-ref bjmhjatykqccksddgtmo

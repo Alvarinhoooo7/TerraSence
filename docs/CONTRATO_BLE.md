@@ -144,7 +144,7 @@ El VPD no viaja en la trama: lo calcula la app con `computeVpdKpa` (ecuación de
 > **La API del clima no alimenta ninguna de estas columnas.** Es pronóstico de varios días y sirve para complementar la recomendación *después* de la medición, no para describir el punto y el instante en que se midió. Hasta la migración `20260906140000`, `canopy_temp_c` se rellenaba con la temperatura de esa API, y las tres columnas tenían valores por defecto inventados (`22.4`, `55.0`, `1.25`) que se guardaban solos en cuanto un `INSERT` las omitía. Las dos cosas están corregidas: sin sensor, `NULL`.
 
 
-## Conexión, batería, captura y mapa (11-09-2026)
+## Conexión, batería y captura (11-09-2026)
 
 La trama v1 transporta **diez variables + batería + versión en 20 bytes**: 14 bytes de suelo, 1 de batería, 1 de versión y 4 de ambiente. No necesita añadir coordenadas: las obtiene el teléfono. El orden binario no cambia para seguir el orden visual del Grid.
 
@@ -152,4 +152,4 @@ La condición «respondió» se verifica mediante una conexión GATT y la recepc
 
 La batería del byte 14 se guarda en `soil_measurements.battery_percent` (0–100, NULL en históricos). `measured_at` conserva la fecha de recepción en el teléfono, incluso si la sincronización ocurre más tarde. No es un reloj del sensor ni una prueba criptográfica de frescura: el firmware debe adquirir una lectura nueva al suscribirse y no repetir la última. `diagnosis` conserva fuente local, respuesta BLE y el pronóstico disponible al guardar. El estado remoto `devices.last_seen_at` no equivale a una conexión BLE activa.
 
-App y web sólo proyectan al mapa la etapa `pre_siembra` con coordenadas finitas. Todas las etapas se guardan en el historial. El firmware real y las pruebas de recepción siguen pendientes.
+Todas las etapas se guardan en el historial, con o sin coordenadas. Ni la app ni la consola web proyectan las lecturas sobre un mapa. El firmware real y las pruebas de recepción siguen pendientes.

@@ -1,5 +1,7 @@
+import { GuideModal as Modal } from './guide/GuideModal';
+import { GuideTouchable as TouchableOpacity } from './guide/GuideControls';
 import React from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, } from 'react-native';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { Typography, Spacing } from '../constants/theme';
 import { useTranslation } from '../hooks/useTranslation';
@@ -14,7 +16,8 @@ export const CalibrationReminderModal: React.FC<Props> = ({ visible, onClose }) 
   const { t } = useTranslation();
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+
       <View style={[styles.overlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.5)' }]}>
         <View style={[styles.card, { backgroundColor: colors.background }]}>
           <Text style={{ fontSize: 40, textAlign: 'center', marginBottom: Spacing.sm }}>🧽</Text>
@@ -35,6 +38,7 @@ export const CalibrationReminderModal: React.FC<Props> = ({ visible, onClose }) 
           </TouchableOpacity>
         </View>
       </View>
+    
     </Modal>
   );
 };

@@ -1,6 +1,7 @@
+import { GuideTouchable as TouchableOpacity, GuideScrollView as ScrollView } from '../components/guide/GuideControls';
 import { PrepareDevicePanel } from '../components/PrepareDevicePanel';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, BackHandler, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, BackHandler, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
@@ -83,7 +84,7 @@ export function AdministrationScreen({ onClose, initialDeviceId }: { onClose: ()
       {loading && <ActivityIndicator color={colors.primary} />}
       {!!error && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text>}
       {!loading && !devices.length && <Text style={{ color: colors.text }}>{t('Ya no administras ningún equipo.', 'You do not administer any devices.')}</Text>}
-      {devices.map(d => <TouchableOpacity key={d.id} disabled={busy} onPress={() => { requestVersion.current += 1; setMembers([]); setSelected(d.id); }} style={{ padding: 16, backgroundColor: colors.card, borderWidth: 1, borderColor: d.id === selected ? colors.primary : colors.border }}>
+      {devices.map(d => <TouchableOpacity guideTitle={d.alias || d.name} guide={t("Muestra los miembros y solicitudes de este equipo. Las acciones siguientes afectan únicamente al seleccionado.", "Shows this device’s members and requests. The following actions affect only the selected device.")} key={d.id} disabled={busy} onPress={() => { requestVersion.current += 1; setMembers([]); setSelected(d.id); }} style={{ padding: 16, backgroundColor: colors.card, borderWidth: 1, borderColor: d.id === selected ? colors.primary : colors.border }}>
         <Text style={{ color: colors.text }}>{d.alias || d.name} · {d.device_code}</Text>
       </TouchableOpacity>)}
       {members.map(m => <View key={m.user_id} style={{ padding: 16, gap: 12, backgroundColor: colors.card, borderRadius: 18 }}>

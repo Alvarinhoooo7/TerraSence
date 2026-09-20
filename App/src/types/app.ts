@@ -71,7 +71,6 @@ export interface SoilMeasurementRow {
   latitude: number | null;
   longitude: number | null;
   gps_accuracy_m: number | null;
-  radius_m: number;
 
   phenological_stage: PhenologicalStage;
 
@@ -144,30 +143,12 @@ export interface ManagedDeviceMember {
   is_authorized: boolean;
 }
 
-/** Fila de `public.predial_quadrants`. */
-export interface PredialQuadrantRow {
-  id: string;
-  device_id: string | null;
-  quadrant_code: string;
-  latitude: number;
-  longitude: number;
-  radius_m: number;
-  phenological_stage: PhenologicalStage;
-  ph: number;
-  ec_us_cm: number;
-  vwc_percent: number;
-  soil_temp_c: number;
-  verdict: Verdict;
-  action_summary: string | null;
-}
-
 /** Lectura resumida para historial y diagnóstico. Nombre heredado para compatibilidad. */
-export interface MapMeasurementPoint {
+export interface MeasurementPoint {
   id: string;
   clientUuid?: string | null;
   latitude: number | null;
   longitude: number | null;
-  radiusM: number;
   verdict: Verdict;
   stage: PhenologicalStage;
   title: string;
@@ -189,12 +170,11 @@ export interface MapMeasurementPoint {
   isPending?: boolean;
 }
 
-export const mapRowToPoint = (r: SoilMeasurementRow): MapMeasurementPoint => ({
+export const mapRowToPoint = (r: SoilMeasurementRow): MeasurementPoint => ({
   id: r.id,
   clientUuid: r.client_uuid,
   latitude: r.latitude,
   longitude: r.longitude,
-  radiusM: r.radius_m ?? 20,
   verdict: r.verdict,
   stage: r.phenological_stage,
   title: r.verdict_title,

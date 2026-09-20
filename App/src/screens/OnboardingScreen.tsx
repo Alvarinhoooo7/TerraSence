@@ -1,17 +1,17 @@
+import { useResetGuide } from '../components/guide/GuideContext';
+import { GuideTouchable as TouchableOpacity, GuidePressable as Pressable, GuideScrollView as ScrollView } from '../components/guide/GuideControls';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   BackHandler,
   Linking,
-  Pressable,
-  ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
-import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
+import { useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
+import { GuideCamera as CameraView } from '../components/guide/GuideCamera';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInDown, LinearTransition, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
@@ -70,6 +70,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
     setScanned(false);
   }, []);
   const [pairingState, setPairingState] = useState<PairingState>('idle');
+  useResetGuide(`${step}:${pairingState}`);
   const [probe, setProbe] = useState<ProbeIdentity | null>(null);
   const [deviceName, setDeviceName] = useState(() => t('Mi sonda TerraSense', 'My TerraSense probe'));
 
@@ -328,7 +329,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
     <SoilArtwork variant={1} compact />
     <Animated.View layout={LinearTransition.springify().damping(14)} style={{ gap: 16 }}>
       <Animated.View entering={FadeInDown.delay(100).duration(500).springify()}>
-        <Pressable onPress={() => { void openQr(); }} accessibilityRole="button"
+        <Pressable guideTitle={t("Escanear invitación", "Scan invitation")} guide={t("Abre la cámara para solicitar acceso con el QR temporal de otro miembro del equipo.", "Opens the camera to request access using another member’s temporary QR.")} onPress={() => { void openQr(); }} accessibilityRole="button"
           onPressIn={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
           style={({ pressed }) => [
             styles.optionCard,
@@ -350,7 +351,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
         </Pressable>
       </Animated.View>
       <Animated.View entering={FadeInDown.delay(200).duration(500).springify()}>
-        <Pressable onPress={() => { if (!operation.current) setStep('pairing'); }} accessibilityRole="button"
+        <Pressable guideTitle={t("Configurar equipo nuevo", "Set up new device")} guide={t("Inicia la vinculación Bluetooth de una sonda nueva para registrarte como administrador.", "Starts Bluetooth pairing of a new probe to register you as administrator.")} onPress={() => { if (!operation.current) setStep('pairing'); }} accessibilityRole="button"
           onPressIn={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
           style={({ pressed }) => [
             styles.optionCard,

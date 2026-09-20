@@ -243,7 +243,7 @@ App/
 ### Avance de interfaz y datos · 5 de septiembre de 2026
 
 - Inicio renovado con última lectura real, acceso a equipos, estado de respaldo y acceso al historial; sin métricas de ejemplo. Se adapta a tema claro/oscuro y español/inglés.
-- Navegación inferior persistente entre Inicio, Historial, Mapa y Ajustes. Se oculta durante la medición y el onboarding.
+- Navegación inferior persistente entre Inicio, Historial y Ajustes. Se oculta durante la medición y el onboarding.
 - Historial con actualización al deslizar, estados de carga/error, filtros táctiles de 48 dp y etiqueta de respaldo por lectura.
 - Caché del historial consultado (hasta 200 lecturas por consulta), aislada por cuenta, campo y equipo. Sin red se combina con la cola pendiente; los registros confirmados se identifican también por `client_uuid` para evitar duplicados visuales. No equivale a descargar todo el historial.
 - Bienvenida desplazable en pantallas pequeñas y selector de etapa en tarjetas de ancho completo con estado accesible.
@@ -382,7 +382,6 @@ El flujo de pantallas se articula a través de un enrutador liviano en `App.tsx`
           ├───────────────────────┤
           │ Pág 1: Grid 2×5       │ (Semáforo interactivo con advertencias)
           │ Pág 2: Recomendación  │ (Diagnóstico conjunto suelo + clima)
-          │ Pág 3: Mapa Siembra   │ ◄── (SÓLO SI LA FASE FUE SIEMBRA)
           └───────────────────────┘
 ```
 
@@ -508,8 +507,7 @@ El proceso de medición sigue una secuencia rigurosa y pedagógica:
    - Entrega un diagnóstico agronómico de conjunto combinando todos los parámetros del suelo, la fase elegida y el pronóstico del tiempo (alertas de lluvias, olas de calor o heladas).
    - En **Siembra**: Detalla qué cultivos conviene sembrar y cuáles no, y precauciones ante eventos climáticos inmediatos.
    - En **Vegetativo / Floración / Cosecha**: Alertas climáticas de apoyo y cuidados específicos para la planta en desarrollo.
-   - **Aquí concluye el carrusel para Vegetativo, Floración y Cosecha.**
-<a id="44-historial-y-mapa-de-mediciones-de-siembra-radio-20-m"></a>
+   - **Aquí concluye el carrusel en las cuatro fases.** No hay una tercera página: la app no dibuja mapas.
 ### 4.4. Historial de mediciones
 
 `HistoryScreen` conserva las cuatro etapas, fechas, valores, diagnóstico y estado local/nube.
@@ -698,7 +696,6 @@ Crear el archivo `App/.env`:
 ```bash
 EXPO_PUBLIC_SUPABASE_URL=https://bjmhjatykqccksddgtmo.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=tu_clave_anonima_publica
-EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=tu_clave_restringida_de_google_maps
 ```
 
 ---

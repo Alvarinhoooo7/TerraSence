@@ -1,7 +1,8 @@
+import { BrandLogo } from './BrandLogo';
 import { useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { supabase } from '../services/supabase';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Leaf } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { EmailCodeForm, type EmailChallenge } from './EmailCodeForm';
 
@@ -176,10 +177,7 @@ export function AuthScreen() {
         <div className="bg-terra-surface/80 backdrop-blur-xl p-8 sm:p-10 rounded-[2rem] shadow-2xl border border-terra-border transition-colors duration-500">
 
           <div className="flex flex-col items-center mb-8">
-            <div className="bg-gradient-to-br from-terra-primary to-terra-primary-hover p-3 rounded-2xl shadow-lg mb-4">
-              <Leaf size={32} className="text-terra-bg" />
-            </div>
-            <h1 className="text-3xl font-bold tracking-tight text-terra-text mb-1 transition-colors duration-500">TerraSense</h1>
+            <h1><BrandLogo className="w-60 h-28 mb-2" /></h1>
             <p className="text-terra-muted text-sm font-medium transition-colors duration-500">Plataforma de Servicio</p>
           </div>
 

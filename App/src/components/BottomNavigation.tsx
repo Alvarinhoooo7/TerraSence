@@ -1,5 +1,6 @@
+import { GuideTouchable as TouchableOpacity } from './guide/GuideControls';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
@@ -19,7 +20,7 @@ export function BottomNavigation({ route, onNavigate }: { route: string; onNavig
     {tabs.map(tab => {
       const selected = route === tab.route;
       const color = selected ? colors.primary : colors.textSecondary;
-      return <TouchableOpacity key={tab.route} accessibilityRole="tab" accessibilityState={{ selected }} onPress={() => onNavigate(tab.route)} style={styles.tab}>
+      return <TouchableOpacity guideTitle={tab.label} guide={tab.route === "dashboard" ? t("Abre el resumen del campo y el acceso a una nueva medición.", "Opens the field summary and the new measurement action.") : tab.route === "history" ? t("Abre las lecturas guardadas, sus filtros y sus detalles.", "Opens saved readings, filters and details.") : t("Abre tu cuenta, los equipos y las preferencias de la app.", "Opens your account, devices and app preferences.")} key={tab.route} accessibilityRole="tab" accessibilityState={{ selected }} onPress={() => onNavigate(tab.route)} style={styles.tab}>
         <View style={[styles.icon, { backgroundColor: selected ? colors.bubbleInactive : 'transparent' }]}>
           <AppIcon name={tab.icon} color={color} size={22} />
         </View>

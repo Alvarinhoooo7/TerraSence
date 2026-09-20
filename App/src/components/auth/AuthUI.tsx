@@ -1,5 +1,7 @@
+import { BrandLogo } from '../BrandLogo';
+import { GuidePressable as Pressable, GuideScrollView as ScrollView, GuideInput as TextInput } from '../guide/GuideControls';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet, Text, View, type TextInputProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import * as Haptics from 'expo-haptics';
@@ -15,7 +17,7 @@ export function AuthLayout({ children, toolbar }: React.PropsWithChildren<{ tool
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={authStyles.layout}>
         <View style={authStyles.top}>
-          <View style={authStyles.brand}><AppIcon name="leaf" size={24} color={colors.primary} /><Text style={[authStyles.brandText, { color: colors.text }]}>TerraSense</Text></View>
+          <BrandLogo width={172} />
           {toolbar}
         </View>
         {children}
@@ -70,8 +72,8 @@ export function AuthField({ label, secret = false, ...props }: TextInputProps & 
   </Animated.View>;
 }
 
-export function AuthButton({ label, onPress, busy = false, disabled = false, secondary = false }: {
-  label: string; onPress: () => void; busy?: boolean; disabled?: boolean; secondary?: boolean;
+export function AuthButton({ label, guide, guideTitle, onPress, busy = false, disabled = false, secondary = false }: {
+  label: string; guide?: string; guideTitle?: string; onPress: () => void; busy?: boolean; disabled?: boolean; secondary?: boolean;
 }) {
   const { colors, isDark } = useAppTheme();
   const ink = secondary ? colors.primary : isDark ? colors.background : '#FFFFFF';
@@ -89,7 +91,7 @@ export function AuthButton({ label, onPress, busy = false, disabled = false, sec
   };
 
   return <Animated.View style={animatedStyle}>
-    <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: disabled || busy, busy }}
+    <Pressable guide={guide} guideTitle={guideTitle} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: disabled || busy, busy }}
       disabled={disabled || busy} onPress={handlePress} onPressIn={handlePressIn} onPressOut={handlePressOut}
       style={({ pressed }) => [authStyles.button, { backgroundColor: secondary ? colors.card : colors.primary,
         borderColor: secondary ? colors.border : colors.primary, opacity: disabled || busy ? 0.55 : 1 },
@@ -147,7 +149,7 @@ export function SoilArtwork({ variant = 0, compact = false }: { variant?: number
 
 export const authStyles = StyleSheet.create({
   layout: { flexGrow: 1, width: '100%', maxWidth: 520, alignSelf: 'center', padding: 24, paddingBottom: 40, gap: 24 },
-  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 48, gap: 8 },
+  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 48, gap: 8, flexWrap: "wrap", paddingRight: 44 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   brandText: { fontSize: 20, fontWeight: '700', letterSpacing: -0.5 },
   heading: { gap: 12 },

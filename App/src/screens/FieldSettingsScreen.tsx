@@ -1,5 +1,6 @@
+import { GuideSwitch as Switch } from '../components/guide/GuideControls';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, BackHandler, Switch, View } from 'react-native';
+import { Alert, BackHandler, View } from 'react-native';
 import { SettingsPage, SettingsText, SettingsRow, SettingsCard } from '../components/SettingsUI';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';

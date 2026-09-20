@@ -1,6 +1,6 @@
 // src/store/useAppStore.ts
 import { create } from 'zustand';
-import type { PhenologicalStage, MapMeasurementPoint, DeviceRow } from '../types/app';
+import type { PhenologicalStage, MeasurementPoint, DeviceRow } from '../types/app';
 import type { CropId, SoilTextureId } from '../types/agronomy';
 import { DEFAULT_APP_PREFERENCES, type AppPreferences } from '../types/preferences';
 
@@ -12,7 +12,7 @@ interface AppState {
   fieldName: string;
 
   device: DeviceRow | null;
-  points: MapMeasurementPoint[];
+  points: MeasurementPoint[];
   selectedPointId: string | null;
 
   isSyncing: boolean;
@@ -27,8 +27,8 @@ interface AppState {
   setTexture: (t: SoilTextureId) => void;
   setFieldName: (n: string) => void;
   setDevice: (d: DeviceRow | null) => void;
-  setPoints: (p: MapMeasurementPoint[]) => void;
-  addPoint: (p: MapMeasurementPoint) => void;
+  setPoints: (p: MeasurementPoint[]) => void;
+  addPoint: (p: MeasurementPoint) => void;
   selectPoint: (id: string | null) => void;
   setSyncing: (v: boolean) => void;
   setPendingCount: (n: number) => void;

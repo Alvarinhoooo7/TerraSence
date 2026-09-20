@@ -1,11 +1,12 @@
+import { useResetGuide } from '../components/guide/GuideContext';
+import { useTranslation } from '../hooks/useTranslation';
+import { GuideTouchable as TouchableOpacity, GuideScrollView as ScrollView } from '../components/guide/GuideControls';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -54,6 +55,7 @@ const STATUS_COPY = {
 
 export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   const { colors } = useAppTheme();
+  const { t, language } = useTranslation();
   const {
     stage,
     setStage,
@@ -67,6 +69,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   } = useAppStore();
 
   const [phase, setPhase] = useState<Phase>('connecting');
+  useResetGuide(phase);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [demoMode, setDemoMode] = useState(false);
   const [raw, setRaw] = useState<SoilMeasurement | null>(null);
@@ -207,7 +210,6 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       latitude: coords?.latitude ?? null,
       longitude: coords?.longitude ?? null,
       gps_accuracy_m: coords?.accuracy ?? null,
-      radius_m: 20,
       phenological_stage: stage,
       vwc_percent: raw.vwc,
       soil_temp_c: raw.temp,
@@ -290,7 +292,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
         <View style={styles.center}>
           <View style={[styles.connectionIcon, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}><Text style={[styles.connectionGlyph, { color: colors.primary }]}>!</Text></View>
           <Text style={[styles.centerTitle, { color: colors.text }]}>No encontramos el equipo</Text>
-          <Text style={[styles.centerBody, { color: colors.textSecondary }]}>Comprueba que esté encendido, con batería y a menos de 30 metros.</Text>
+          <Text style={[styles.centerBody, { color: colors.textSecondary }]}>Comprueba que esté encendido, con batería y cerca del teléfono.</Text>
           {connectionError && <Text style={[styles.errorDetail, { color: colors.textMuted }]}>{connectionError}</Text>}
           <TouchableOpacity onPress={connect} style={[styles.cta, { backgroundColor: colors.primary }]}>
             <Text style={styles.ctaText}>Reintentar conexión</Text>
@@ -315,6 +317,8 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
               return (
                 <TouchableOpacity
                   key={item.id}
+                  guideTitle={language === "en" ? item.labelEn : item.label}
+                  guide={t("Selecciona esta etapa para interpretar la lectura según el desarrollo del cultivo. No cambia los valores medidos.", "Selects this stage to interpret readings for crop development. Does not change measured values.")}
                   accessibilityRole="radio"
                   accessibilityState={{ selected }}
                   onPress={() => setStage(item.id)}
@@ -328,13 +332,18 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
                 >
                   <Text style={styles.stageEmoji}>{item.emoji}</Text>
                   <View style={{ flex: 1 }}>
-                    <Text style={[styles.stageTitle, { color: selected ? '#FFFFFF' : colors.text }]}>{item.label}</Text>
+                    <Text style={[styles.stageTitle, { color: selected ? '#FFFFFF' : colors.text }]}>{language === "en" ? item.labelEn : item.label}</Text>
                     <Text style={[styles.stageFocus, { color: selected ? '#D8E8DF' : colors.textSecondary }]}>{item.focus}</Text>
                   </View>
                   <Text style={{ color: selected ? '#C5E8AF' : colors.textMuted, fontSize: 22 }}>{selected ? '●' : '○'}</Text>
                 </TouchableOpacity>
               );
             })}
+          </View>
+          <View style={[styles.detailCard, { backgroundColor: colors.card, borderColor: colors.border, marginTop: Spacing.md }]}>
+            <Text style={[styles.detailTitle, { color: colors.text }]}>{t('Antes de medir', 'Before measuring')}</Text>
+            <Text style={[styles.detailBody, { color: colors.textSecondary }]}>{t('Inserta la sonda en suelo representativo, evitando piedras y bolsas de aire. Mantén el equipo quieto durante la lectura.', 'Insert the probe into representative soil, avoiding stones and air pockets. Keep it still during the reading.')}</Text>
+            <Text style={[styles.source, { color: colors.textSecondary }]}>{device?.alias || device?.name || t('Demostración sin equipo', 'Demo without device')} · {t('El guardado se realiza después de revisar el resultado.', 'Save after reviewing the result.')}</Text>
           </View>
           <TouchableOpacity onPress={runMeasurement} style={[styles.cta, { backgroundColor: colors.primary }]}>
             <Text style={styles.ctaText}>Medir en esta fase</Text>
@@ -378,6 +387,8 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
           {cards.map((card, index) => (
             <TouchableOpacity
               key={card.key}
+              guideTitle={card.label}
+              guide={t("Muestra el valor, su origen y una explicación con consejos para interpretarlo. No inicia otra lectura.", "Shows the value, its source and advice for interpretation. Does not start another reading.")}
               accessibilityRole="button"
               accessibilityState={{ selected: detailIndex === index }}
               onPress={() => setDetailIndex(index)}

@@ -1,18 +1,18 @@
 # 🖥️ TerraSense · Consola Web de Administración y Backoffice
 
-> Documentación de la consola web. Incluye el detalle 2×5 en inventario y soporte, el ambiente y la batería en la exportación CSV, y el mapa reservado a las mediciones de pre-siembra.
+> Documentación de la consola web. Incluye el detalle 2×5 en inventario y soporte, y el ambiente y la batería en la exportación CSV. La consola no dibuja mapas.
 
-## Mediciones y mapa — implementados el 11-09-2026
+## Mediciones e inventario
 
-Las rutas `/measurements` (Mis mediciones) y `/map` (Mapa de pre-siembra) están conectadas a la navegación actual. Conservan la comprobación de acceso al backoffice y la membresía/RLS de los equipos; no conceden acceso a toda la flota. Para consultar equipos como personal de soporte se utiliza `/admin/devices/:id`.
+La ruta `/measurements` (Mis mediciones) está conectada a la navegación actual. Conserva la comprobación de acceso al backoffice y la membresía/RLS de los equipos; no concede acceso a toda la flota. Para consultar equipos como personal de soporte se utiliza `/admin/devices/:id`.
 
 El historial y la ficha de soporte permiten expandir una lectura al Grid **2×5** de [App](../App/README.md#interfaz-e-integración-actualizadas-al-11-09-2026): humedad del suelo/CE, temperatura del suelo/N, P/K, pH/temperatura ambiente, humedad relativa/presión. Se indican unidades y datos ausentes; N/P/K quedan separados e informativos, sin validación química ni cálculo de dosis. Batería, fecha, completitud y estado se presentan aparte. `diagnosis.localSource` permite identificar las capturas del nuevo flujo; un histórico sin marca se muestra con origen ambiental no verificado.
 
-El CSV de soporte incluye las diez variables, batería en captura, fecha y diagnóstico con fuentes y pronóstico guardado. El pronóstico no sustituye a las tres variables BME280 ni ocupa tarjetas del Grid. El mapa sólo admite `pre_siembra` con coordenadas finitas; el filtro existe tanto en la consulta GIS como en el componente de interpolación. El historial conserva las cuatro fases y los registros sin ubicación.
+El CSV de soporte incluye las diez variables, batería en captura, fecha y diagnóstico con fuentes y pronóstico guardado. El pronóstico no sustituye a las tres variables BME280 ni ocupa tarjetas del Grid. El historial conserva las cuatro fases y los registros sin ubicación; las coordenadas se exportan como números, no se proyectan.
 
 El panel muestra **Reporte reciente** en lugar de afirmar conexión permanente: `devices.last_seen_at` no verifica una conexión BLE activa. El esquema y `admin_get_device_detail` fueron actualizados mediante la [migración aplicada y verificada en Supabase](../supabase/README.md#persistencia-ambiental-y-bateria).
 
-Verificación de esta entrega: `npm test` pasó la prueba de fase/GPS (incluidos ceros válidos, nulos y valores no finitos); `npm run build` pasó TypeScript y generó el build Vite. Esto no publica ese build. Siguen pendientes pruebas visuales, accesibilidad y publicación web/móvil, además del roadmap de tickets, OTA real, alertas preventivas y canary. Autonomía, exactitud, IP67 y ahorro siguen sujetos a ensayos; la página técnica, QR y expediente comercial se validan por separado.
+Verificación de esta entrega: `npm test` pasó las pruebas de exportación CSV; `npm run build` pasó TypeScript y generó el build Vite. Esto no publica ese build. Siguen pendientes pruebas visuales, accesibilidad y publicación web/móvil, además del roadmap de tickets, OTA real, alertas preventivas y canary. Autonomía, exactitud, IP67 y ahorro siguen sujetos a ensayos; la página técnica, QR y expediente comercial se validan por separado.
 
 ---
 
@@ -106,7 +106,7 @@ Página de control exhaustivo para un equipo seleccionado, alimentada por la RPC
 6. **Reseteo de Fábrica Seguro (`FactoryResetModal`):**
    - Permite restablecer la sonda a valores de fábrica cuando un agricultor vende o regala su equipo.
    - **Confirmación Estricta:** Exige reescribir manualmente el código de 15 dígitos del equipo para desbloquear el botón.
-   - **Ejecución Atómica (`admin_factory_reset_device`):** Desvincula a todos los miembros y elimina el historial privado de mediciones, alertas y cuadrantes, manteniendo intactos el `device_code` y los números de serie de hardware para que un nuevo agricultor lo vincule como primer dueño.
+   - **Ejecución Atómica (`admin_factory_reset_device`):** Desvincula a todos los miembros y elimina el historial privado de mediciones y alertas, manteniendo intactos el `device_code` y los números de serie de hardware para que un nuevo agricultor lo vincule como primer dueño.
 
 ### 2.3. Catálogo de Firmware OTA (`/firmware`)
 * **Solo lectura, a propósito.** La política RLS de `firmware_releases` sólo expone las versiones publicadas y reserva la escritura al rol de servicio: publicar un binario que se instalará sin supervisión en equipos repartidos por el campo no debe poder hacerse con una sesión de navegador.

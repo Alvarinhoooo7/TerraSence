@@ -1,15 +1,15 @@
 import { MeasurementGrid } from './MeasurementGrid';
+import { BrandLogo } from './BrandLogo';
 // src/components/Dashboard.tsx
 //
 // Consola de administración central de TerraSense: gestión de flota de equipos,
-// telemetría, mapas GIS, firmware OTA y validación metrológica.
+// telemetría, firmware OTA y validación metrológica.
 //
 // Lo que se ve aquí lo acota RLS en el servidor: la consola no aplica filtros
 // de seguridad propios, porque un filtro en el cliente no es una defensa.
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '../services/supabase';
-import { GisHeatmap } from './GisHeatmap';
 import { FirmwareView } from './FirmwareView';
 import type { Device, LabValidationRecord, SoilMeasurement, Verdict } from '../types';
 import { STAGE_LABEL } from '../types';
@@ -21,7 +21,7 @@ import {
   relativeTime,
 } from '../utils/verdict';
 
-type Tab = 'mediciones' | 'mapa' | 'equipos' | 'firmware' | 'validacion';
+type Tab = 'mediciones' | 'equipos' | 'firmware' | 'validacion';
 
 export function Dashboard({ email }: { email: string }) {
   const [tab, setTab] = useState<Tab>('mediciones');
@@ -84,12 +84,12 @@ export function Dashboard({ email }: { email: string }) {
     <div className="min-h-full">
       <header className="border-b border-terra-border bg-terra-surface">
         <div className="mx-auto max-w-7xl px-6 py-4 flex flex-wrap items-center gap-4">
-          <span className="text-2xl">🌱</span>
-          <h1 className="text-lg font-bold">TerraSense · Consola</h1>
+          <BrandLogo className="w-40 h-16" />
+          <h1 className="text-lg font-bold">Consola</h1>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por predio, cultivo o código de equipo…"
+            placeholder="Buscar por campo, cultivo o código de equipo…"
             className="flex-1 min-w-[220px] h-10 rounded-lg border border-terra-border bg-terra-bg px-3 text-sm outline-none focus:border-terra-primary"
           />
           <span className="text-sm text-terra-muted">{email}</span>
@@ -102,7 +102,7 @@ export function Dashboard({ email }: { email: string }) {
         </div>
 
         <nav className="mx-auto max-w-7xl px-6 flex gap-1">
-          {(['mediciones', 'mapa', 'equipos', 'firmware', 'validacion'] as Tab[]).map((t) => (
+          {(['mediciones', 'equipos', 'firmware', 'validacion'] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -112,7 +112,7 @@ export function Dashboard({ email }: { email: string }) {
                   : 'border-transparent text-terra-muted hover:text-terra-text'
               }`}
             >
-              {t === 'validacion' ? 'Validación de laboratorio' : t === 'mapa' ? 'Mapa GIS' : t}
+              {t === 'validacion' ? 'Validación de laboratorio' : t}
             </button>
           ))}
         </nav>
@@ -167,8 +167,6 @@ export function Dashboard({ email }: { email: string }) {
             />
           </>
         )}
-
-        {!loading && tab === 'mapa' && <GisHeatmap measurements={filtered} />}
 
         {!loading && tab === 'equipos' && (
           <Table

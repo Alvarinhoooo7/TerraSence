@@ -131,7 +131,7 @@ export function PermissionsScreen({ userId, onComplete }: { userId: string; onCo
           <Text style={[authStyles.label, { color: colors.primary }]}>{card.requirement}</Text>
           <Text style={[authStyles.body, { color: colors.textSecondary }]}>{card.detail}</Text>
           <Text accessibilityLiveRegion="polite" style={[authStyles.label, { color: colors.textSecondary }]}>{statusLabel(state)}</Text>
-          {!isGranted && state?.status !== 'unavailable' && <AuthButton secondary
+          {!isGranted && state?.status !== 'unavailable' && <AuthButton secondary guideTitle={card.title} guide={card.detail}
             label={state && !state.canAskAgain ? t('Abrir ajustes', 'Open settings') : t('Permitir', 'Allow')}
             busy={busy === kind} disabled={!!busy || !permissions} onPress={() => { void ask(kind); }} />}
         </Animated.View>;

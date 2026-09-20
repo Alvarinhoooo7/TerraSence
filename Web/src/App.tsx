@@ -14,7 +14,6 @@ import { SupportPanelPage } from './pages/SupportPanelPage';
 import { SupportStaffPage } from './pages/SupportStaffPage';
 import { SupportDeviceDetailPage } from './pages/SupportDeviceDetailPage';
 import { DashboardHome } from './pages/DashboardHome';
-import { GisMapPage } from './pages/GisMapPage';
 
 /** Compatibilidad temporal con correos de confirmación enviados antes de usar códigos. */
 const CONFIRMED_PATH = '/cuenta-confirmada';
@@ -120,7 +119,6 @@ export default function App() {
         <Route path="firmware" element={<FirmwarePage />} />
         <Route path="devices" element={<DevicesPage />} />
         <Route path="measurements" element={<DashboardHome />} />
-        <Route path="map" element={<GisMapPage />} />
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Route>
     </Routes>

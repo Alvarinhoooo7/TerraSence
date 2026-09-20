@@ -1,16 +1,18 @@
+import { GuideModal as Modal } from './guide/GuideModal';
+import { GuideTouchable as TouchableOpacity, GuideScrollView as ScrollView } from './guide/GuideControls';
 import React from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Spacing, Typography, VERDICT_META } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
-import { PHENOLOGICAL_STAGES, type MapMeasurementPoint } from '../types/app';
+import { PHENOLOGICAL_STAGES, type MeasurementPoint } from '../types/app';
 import { formatTemperature } from '../utils/units';
 
 interface Props {
-  point: MapMeasurementPoint | null;
+  point: MeasurementPoint | null;
   onClose: () => void;
 }
 
@@ -48,6 +50,7 @@ export const MeasurementDetailModal: React.FC<Props> = ({ point, onClose }) => {
 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
+
       <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} style={styles.headerButton}>
@@ -106,6 +109,7 @@ export const MeasurementDetailModal: React.FC<Props> = ({ point, onClose }) => {
           </View>
         </ScrollView>
       </SafeAreaView>
+    
     </Modal>
   );
 };

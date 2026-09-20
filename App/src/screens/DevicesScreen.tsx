@@ -1,3 +1,6 @@
+import { useResetGuide } from '../components/guide/GuideContext';
+import { GuideModal as Modal } from '../components/guide/GuideModal';
+import { GuideTouchable as TouchableOpacity, GuideScrollView as ScrollView, GuideInput as TextInput } from '../components/guide/GuideControls';
 // src/screens/DevicesScreen.tsx
 //
 // Alta y selección de equipos. Adaptado de DevicePairingScreen.tsx de Akura.
@@ -10,23 +13,19 @@ import {
   BackHandler,
   Linking,
   Alert,
-  Modal,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useCameraPermissions } from 'expo-camera';
+import { GuideCamera as CameraView } from '../components/guide/GuideCamera';
 import { RotatingDeviceQr } from '../components/RotatingDeviceQr';
 import { WaitingApprovalScreen } from './WaitingApprovalScreen';
 
 import { Spacing, Typography } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
-import { ScreenGuide } from '../components/ScreenGuide';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import {
@@ -58,6 +57,7 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
   const [newName, setNewName] = useState('');
   const [scanner, setScanner] = useState(false);
   const [pending, setPending] = useState(false);
+  useResetGuide(String(pending));
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [qrDevice, setQrDevice] = useState<DeviceRow | null>(null);
   const refresh = useCallback(async () => {
@@ -181,6 +181,8 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <Text style={[styles.deviceName, { color: colors.text }]}>{t('Tus sondas, listas para el campo', 'Your probes, ready for the field')}</Text>
+        <Text style={[styles.deviceMeta, { color: colors.textSecondary, marginBottom: Spacing.md }]}>{t('Selecciona el equipo que usarás. La conexión Bluetooth se comprueba al iniciar una medición; los datos de batería y última conexión corresponden al último registro disponible.', 'Select the device you will use. Bluetooth is checked when starting a measurement; battery and last connection reflect the latest available record.')}</Text>
         {loadError && <View style={{ gap: 12 }}><Text style={{ color: colors.danger }}>{t('No se pudieron cargar los equipos.', 'Could not load devices.')}</Text><TouchableOpacity accessibilityRole="button" onPress={() => void refresh()} style={{ minHeight: 48, justifyContent: 'center' }}><Text style={{ color: colors.primary }}>{t('Reintentar', 'Retry')}</Text></TouchableOpacity></View>}
         {loading ? (
           <ActivityIndicator color={colors.primary} style={{ marginTop: Spacing.xl }} />
@@ -194,6 +196,8 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
             return (
               <TouchableOpacity
                 key={d.id}
+                guideTitle={d.alias || d.name}
+                guide={t("Selecciona esta sonda para medir. Mantener pulsado copia su código; no inicia una conexión Bluetooth.", "Selects this probe for measurement. Long press copies its code; does not start a Bluetooth connection.")}
                 disabled={busy}
                 onPress={() => setDevice(d)}
                 onLongPress={() => {
@@ -232,7 +236,7 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
                 </Text>
                 {(
                   <View style={styles.adminActions}>
-                    <TouchableOpacity disabled={busy} onPress={() => setQrDevice(d)} style={[styles.qrButton, { borderColor: colors.primary }]}>
+                    <TouchableOpacity guideTitle={t("Mostrar QR", "Show QR")} disabled={busy} onPress={() => setQrDevice(d)} style={[styles.qrButton, { borderColor: colors.primary }]}>
                       <Text style={[styles.qrButtonText, { color: colors.primary }]}>▦ {t('Mostrar QR', 'Show QR')}</Text>
                     </TouchableOpacity>
 
@@ -260,7 +264,7 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
           disabled={busy}
           style={[styles.cta, { backgroundColor: colors.primary, opacity: busy ? 0.6 : 1 }]}
         >
-          <Text style={styles.ctaText}>{t('Registrar equipo', 'Register device')}</Text>
+          {busy ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.ctaText}>{t('Registrar equipo', 'Register device')}</Text>}
         </TouchableOpacity>
 
         <TouchableOpacity disabled={busy} style={[styles.ctaSecondary, { borderColor: colors.primary }]} onPress={async () => {
@@ -280,6 +284,7 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
         animationType="fade"
         onRequestClose={() => setQrDevice(null)}
       >
+
         <View style={styles.modalBackdrop}>
           <View style={[styles.qrModal, { backgroundColor: colors.card }]}>
             <Text style={[styles.qrTitle, { color: colors.text }]}>{t('QR de vinculación', 'Linking QR')}</Text>
@@ -298,14 +303,16 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
             </TouchableOpacity>
           </View>
         </View>
-      </Modal>
+      
+    </Modal>
       <Modal visible={scanner} onRequestClose={closeScanner}>
+
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
           <TouchableOpacity onPress={closeScanner} style={{ padding: 20 }}><Text style={{ color: colors.primary }}>{t('Cerrar', 'Close')}</Text></TouchableOpacity>
           <CameraView style={{ flex: 1 }} barcodeScannerSettings={{ barcodeTypes: ['qr'] }} onBarcodeScanned={scanner && !busy ? event => handleScan(event.data) : undefined} />
         </SafeAreaView>
-      </Modal>
-      <ScreenGuide guideId="devices" />
+      
+    </Modal>
     </SafeAreaView>
   );
 };

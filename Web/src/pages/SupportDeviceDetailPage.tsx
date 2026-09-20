@@ -704,8 +704,8 @@ export function SupportDeviceDetailPage() {
               tone: 'ok',
               text:
                 `Reseteo completado: ${res.members_removed} miembro(s) desvinculado(s), ` +
-                `${res.measurements_deleted} medición(es), ${res.quadrants_deleted} cuadrante(s) y ` +
-                `${res.alerts_deleted} alerta(s) eliminadas. El código del equipo se conserva.`,
+                `${res.measurements_deleted} medición(es) y ${res.alerts_deleted} alerta(s) eliminadas. ` +
+                'El código del equipo se conserva.',
             });
             setShowResetModal(false);
             void load();

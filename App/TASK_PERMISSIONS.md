@@ -2,6 +2,66 @@
 
 ## Estado y alcance vigente
 
+### Etapa vigente: marca, pantallas principales y guías interactivas
+
+Plan aprobado por el usuario. Marca oficial: **TerraSense**. Conservar cambios locales
+de retirada de mapas y datos; bienvenida y autenticación quedan fuera de las guías.
+
+- [x] Revisar continuidad, recursos vectoriales y cambios locales antes de editar.
+- [x] Integrar logo vectorial en app, web y README; isotipo como favicon e íconos nativos.
+- [x] Implementar guía reutilizable con foco en cada control, fondo atenuado,
+  diálogo contextual, Atrás/Siguiente y X; desplazamiento y accesibilidad.
+- [x] Mejorar Dashboard, Medición, Historial y Dispositivos conservando estados reales.
+- [x] Cubrir permisos, vinculación, espera, Ajustes, submenús y detalles con guías.
+- [x] Ejecutar pruebas, TypeScript, compilación web y verificación documental.
+- [ ] Validar visualmente en dispositivo las guías, íconos y conexión BLE real.
+
+Los pendientes de firmware, despliegue remoto y pruebas de borrado de la etapa anterior
+siguen vigentes; esta etapa no los da por resueltos.
+
+Resultado de la verificación ejecutada: App 90 pruebas aprobadas y TypeScript sin errores;
+consola web 4 pruebas aprobadas y compilación Vite correcta; verificador documental con
+13 documentos, 308 enlaces y 11 diagramas, 0 errores; modelo financiero 14 pruebas
+aprobadas. Esto no sustituye la validación en dispositivo, que sigue pendiente.
+
+### Retirada del mapa en consola web y base de datos
+
+El mapa se retiró también fuera de la app, con el mismo criterio: desaparece la
+representación, se conserva la georreferenciación. La consola pierde la ruta del mapa,
+sus dos componentes y el ítem de navegación. La migración
+`20260920140000_retirar_mapa_y_postgis.sql` elimina `soil_measurements.geom` y `radius_m`,
+las tablas `predial_quadrants` y `field_perimeters`, y la extensión PostGIS; rehace
+`prepare_device_for_owner` y `admin_factory_reset_device` sin el borrado de cuadrantes, y
+esta última deja de devolver `quadrants_deleted`.
+
+- [ ] Verificar la migración contra PostgreSQL en contenedor, como se hizo con la anterior.
+      Requiere Docker Desktop en marcha; el intento del 20-09-2026 no pudo conectar al demonio.
+- [ ] Aplicarla en remoto y regenerar después `supabase/schema.sql` y
+      `Web/backend/database.types.ts`, que son archivos generados y todavía declaran
+      la geometría, los cuadrantes y los perímetros.
+
+`latitude`, `longitude` y `gps_accuracy_m` se conservan y el detalle de cada lectura sigue
+mostrando las coordenadas como texto: quitar el mapa no es quitar la georreferenciación.
+
+Implementación de esta etapa:
+
+- Los archivos `Logo/Logo/code.html` y `Logo/Asset/code.html` contienen SVG y son las
+  fuentes de marca. `npm run assets:brand` en App genera los SVG de distribución,
+  el módulo vectorial nativo, favicon y PNG de Expo. La tipografía queda trazada para
+  no depender de las fuentes del teléfono; los PNG se exportan desde el vector.
+- `ScreenGuide` presenta recorridos manuales desde `?`; no se abren al iniciar una
+  pantalla. Incluyen Atrás/Siguiente/Finalizar y X, fondo atenuado y desplazamiento.
+  Los controles aportan referencias y explicaciones; las filas del historial usan la
+  primera medición como ejemplo. El recorrido no ejecuta acciones y pausa la lectura
+  de QR. Los modales tienen su propio ámbito y Atrás cierra primero la guía.
+- Dashboard conserva resumen sin mapa; Medición añade preparación de la sonda;
+  Historial desplaza también cabecera y filtros; Dispositivos distingue vinculación
+  de conexión BLE y muestra el alcance del último registro de batería/conexión.
+- Pairing ya tenía cambios previos. Esta etapa añade guías a elección, búsqueda,
+  nombre, registro, QR y espera; no redefine el contrato BLE ni el firmware.
+- Verificación visual nativa pendiente: teléfonos pequeños, texto ampliado,
+  TalkBack/VoiceOver, máscaras del launcher, permisos reales y sonda física.
+
 Este archivo es el punto de continuidad del trabajo. Se conserva su nombre para mantener
 el enlace existente desde el README. Las casillas marcadas describen trabajo realizado;
 las pendientes son requisitos, no funciones disponibles.

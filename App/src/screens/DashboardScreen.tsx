@@ -1,5 +1,7 @@
+import { BrandLogo } from '../components/BrandLogo';
+import { GuideTouchable as TouchableOpacity, GuideScrollView as ScrollView } from '../components/guide/GuideControls';
 import React from 'react';
-import { RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Typography, VERDICT_META } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -7,14 +9,14 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useMeasurementHistory } from '../hooks/useMeasurementHistory';
 import { useAppStore } from '../store/useAppStore';
 import { AppIcon } from '../components/AppIcon';
-import type { MapMeasurementPoint } from '../types/app';
+import type { MeasurementPoint } from '../types/app';
 
 interface Props {
   onStartMeasurement: () => void;
   onOpenHistory: () => void;
   onOpenSettings: () => void;
   onOpenDevices: () => void;
-  onOpenDetail: (point: MapMeasurementPoint) => void;
+  onOpenDetail: (point: MeasurementPoint) => void;
 }
 
 export const DashboardScreen: React.FC<Props> = (props) => {
@@ -23,20 +25,15 @@ export const DashboardScreen: React.FC<Props> = (props) => {
   const { fieldName, device, pendingCount, isSyncing } = useAppStore();
   const { points, loading, offline, error, refresh } = useMeasurementHistory();
   const latest = points[0];
-  const action = (label: string, onPress: () => void) => <TouchableOpacity accessibilityRole="button" onPress={onPress} style={styles.textButton}>
+  const action = (label: string, onPress: () => void) => <TouchableOpacity accessibilityRole="button" guide={t("Abre todas las mediciones del campo con filtros y detalle.", "Opens all field readings with filters and details.")} onPress={onPress} style={styles.textButton}>
     <Text style={[styles.actionText, { color: colors.primary }]}>{label}</Text>
     <AppIcon name="arrow" color={colors.primary} size={18} />
   </TouchableOpacity>;
   return <SafeAreaView edges={['top', 'left', 'right']} style={[styles.root, { backgroundColor: colors.background }]}>
     <ScrollView contentContainerStyle={styles.scroll} refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} tintColor={colors.primary} />}>
       <View style={styles.header}>
-        <View style={styles.brandRow}>
-          <View style={[styles.brandIcon, { backgroundColor: colors.primaryDark }]}>
-            <AppIcon name="leaf" color="#BDE6A5" size={22} />
-          </View>
-          <Text style={[styles.brand, { color: colors.text }]}>TerraSense</Text>
-        </View>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel={t('Configurar predio', 'Field settings')} onPress={props.onOpenSettings} style={[styles.iconButton, { borderColor: colors.border, backgroundColor: colors.card }]}>
+        <BrandLogo width={160} />
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={t('Ajustes', 'Settings')} onPress={props.onOpenSettings} style={[styles.iconButton, { borderColor: colors.border, backgroundColor: colors.card }]}>
           <AppIcon name="settings" color={colors.text} />
         </TouchableOpacity>
       </View>
@@ -50,11 +47,11 @@ export const DashboardScreen: React.FC<Props> = (props) => {
             <AppIcon name="probe" color="#C5E8AF" size={18} />
             <Text style={styles.heroEyebrow}>{t('DIAGNÓSTICO DE SUELO', 'SOIL DIAGNOSIS')}</Text>
           </View>
-          <Text style={styles.step}>01 / 03</Text>
+          
         </View>
         <Text style={styles.heroTitle}>{t('Tu suelo tiene mucho que decir.', 'Your soil has a story to tell.')}</Text>
         <Text style={styles.heroBody}>{t('Elige la etapa del cultivo, conecta tu sonda y descubre qué necesita tu terreno.', 'Choose your crop stage, connect your probe and learn what your field needs.')}</Text>
-        <TouchableOpacity accessibilityRole="button" onPress={device ? props.onStartMeasurement : props.onOpenDevices} style={styles.measureButton}>
+        <TouchableOpacity guide={t("Con un equipo seleccionado inicia la preparación de una lectura; sin equipo abre la vinculación.", "With a selected device, starts reading preparation; otherwise opens pairing.")} accessibilityRole="button" onPress={device ? props.onStartMeasurement : props.onOpenDevices} style={styles.measureButton}>
           <Text style={styles.measureButtonText}>{device ? t('Iniciar medición', 'Start measurement') : t('Vincular un equipo', 'Link a device')}</Text>
           <AppIcon name="arrow" color="#183D2B" />
         </TouchableOpacity>
@@ -62,7 +59,7 @@ export const DashboardScreen: React.FC<Props> = (props) => {
       </View>
 
       <View style={styles.statusRow}>
-        <TouchableOpacity accessibilityRole="button" onPress={props.onOpenDevices} style={[styles.statusCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <TouchableOpacity guideTitle={t("Tu equipo", "Your device")} guide={t("Abre tus dispositivos para seleccionar o vincular una sonda. Estar vinculado no significa estar conectado por Bluetooth.", "Opens devices to select or link a probe. Being linked does not mean Bluetooth is connected.")} accessibilityRole="button" onPress={props.onOpenDevices} style={[styles.statusCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <AppIcon name="probe" color={colors.primary} />
           <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>{t('TU EQUIPO', 'YOUR DEVICE')}</Text>
           <Text style={[styles.statusValue, { color: colors.text }]} numberOfLines={2}>{device ? device.alias || device.name : t('Sin vincular', 'Not linked')}</Text>
@@ -79,7 +76,7 @@ export const DashboardScreen: React.FC<Props> = (props) => {
       <View style={styles.sectionHeading}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('Última lectura', 'Latest reading')}</Text>{action(t('Ver historial', 'View history'), props.onOpenHistory)}</View>
       {(offline || error) && <Text accessibilityLiveRegion="polite" style={[styles.notice, { color: colors.warning }]}>{error ? t('No pudimos cargar las lecturas. Desliza hacia abajo para reintentar.', 'Could not load readings. Pull down to retry.') : t('Mostrando el historial guardado en este teléfono.', 'Showing history saved on this phone.')}</Text>}
-      {latest ? <TouchableOpacity accessibilityRole="button" onPress={() => props.onOpenDetail(latest)} style={[styles.latest, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      {latest ? <TouchableOpacity guideTitle={t("Última lectura", "Latest reading")} guide={t("Abre los valores, recomendaciones y estado de respaldo de esta medición.", "Opens values, recommendations and backup status for this reading.")} accessibilityRole="button" onPress={() => props.onOpenDetail(latest)} style={[styles.latest, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <View style={styles.sectionHeading}>
           <Text style={[styles.statusLabel, { color: latest.verdict === 'RED' ? colors.danger : latest.verdict === 'AMBER' ? colors.warning : colors.success }]}>{VERDICT_META[latest.verdict].icon} {latest.title}</Text>
           <AppIcon name="arrow" color={colors.textSecondary} size={18} />
@@ -100,7 +97,7 @@ export const DashboardScreen: React.FC<Props> = (props) => {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   scroll: { padding: 24, paddingBottom: 32, width: '100%', maxWidth: 720, alignSelf: 'center' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 30 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 30, paddingRight: 52 },
   brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   brandIcon: { width: 38, height: 38, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   brand: { fontSize: 22, fontWeight: '700', letterSpacing: -0.8 },

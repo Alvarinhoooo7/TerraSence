@@ -1,5 +1,7 @@
+import { GuideTarget } from '../components/guide/GuideControls';
+import { GuideTouchable as TouchableOpacity } from '../components/guide/GuideControls';
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { listMyDevices, listPendingDeviceRequests, type PendingDeviceRequest } from '../services/deviceService';
 import type { DeviceRow } from '../types/app';
@@ -45,7 +47,7 @@ export function WaitingApprovalScreen({ onApproved, onDismiss }: { onApproved: (
   return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', padding: 28 }}>
     <View style={{ gap: 20, alignItems: 'center' }}>
       {!removed && <ActivityIndicator size="large" color={colors.primary} />}
-      <Text style={{ fontSize: 24, fontWeight: '700', color: colors.text, textAlign: 'center' }}>{removed ? t('Solicitud no disponible', 'Request unavailable') : t('Esperando aprobación', 'Awaiting approval')}</Text>
+      <GuideTarget title={t('Estado de la solicitud', 'Request status')} description={t('La aprobación se consulta automáticamente. Debes esperar a que el administrador autorice tu acceso; la guía no cambia ese estado.', 'Approval is checked automatically. Wait for the administrator to authorize access; this guide does not change that status.')}><Text style={{ fontSize: 24, fontWeight: '700', color: colors.text, textAlign: 'center' }}>{removed ? t('Solicitud no disponible', 'Request unavailable') : t('Esperando aprobación', 'Awaiting approval')}</Text></GuideTarget>
       <Text style={{ color: colors.textSecondary, textAlign: 'center' }}>{removed
         ? t('La solicitud fue eliminada o el equipo fue reseteado.', 'The request was removed or the device was reset.')
         : t('El administrador debe aprobar tu ingreso. Esta pantalla se actualizará automáticamente.', 'The administrator must approve your access. This screen will update automatically.')}</Text>

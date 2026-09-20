@@ -1,10 +1,13 @@
+import { GuideTouchable as TouchableOpacity, GuideScrollView as ScrollView, GuideInput as TextInput } from './guide/GuideControls';
 import React from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, type TextInputProps } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View, type TextInputProps } from 'react-native';
+import { useResetGuide } from './guide/GuideContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 
 export function SettingsPage({ title, description, onBack, children }: React.PropsWithChildren<{ title: string; description?: string; onBack: () => void }>) {
+  useResetGuide(title);
   const { colors } = useAppTheme(); const { t } = useTranslation();
   return <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1, backgroundColor: colors.background }}>
     <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={ui.page}>
@@ -25,14 +28,14 @@ export function SettingsCard({ children }: React.PropsWithChildren) {
 }
 export function SettingsRow({ title, subtitle, onPress, danger = false, disabled = false, selected }: { title: string; subtitle?: string; onPress: () => void; danger?: boolean; disabled?: boolean; selected?: boolean }) {
   const { colors } = useAppTheme();
-  return <TouchableOpacity accessibilityRole={selected === undefined ? 'button' : 'radio'} accessibilityState={{ disabled, selected }} disabled={disabled} onPress={onPress} style={[ui.row, { borderColor: selected ? colors.primary : colors.border, backgroundColor: colors.card, opacity: disabled ? 0.5 : 1 }]}>
+  return <TouchableOpacity guideTitle={title} accessibilityRole={selected === undefined ? 'button' : 'radio'} accessibilityState={{ disabled, selected }} disabled={disabled} onPress={onPress} style={[ui.row, { borderColor: selected ? colors.primary : colors.border, backgroundColor: colors.card, opacity: disabled ? 0.5 : 1 }]}>
     <View style={{ flex: 1, gap: 5 }}><Text style={{ color: danger ? colors.danger : colors.text, fontSize: 16, fontWeight: '600' }}>{title}</Text>{!!subtitle && <SettingsText>{subtitle}</SettingsText>}</View>
     <Text style={{ color: danger ? colors.danger : colors.primary, fontSize: 22 }}>{selected ? '✓' : '›'}</Text>
   </TouchableOpacity>;
 }
 export function SettingsButton({ title, onPress, busy = false, disabled = false, danger = false }: { title: string; onPress: () => void; busy?: boolean; disabled?: boolean; danger?: boolean }) {
   const { colors } = useAppTheme();
-  return <TouchableOpacity accessibilityRole="button" accessibilityState={{ disabled: disabled || busy, busy }} disabled={disabled || busy} onPress={onPress} style={[ui.button, { backgroundColor: danger ? colors.danger : colors.primary, opacity: disabled || busy ? 0.5 : 1 }]}>
+  return <TouchableOpacity guideTitle={title} accessibilityRole="button" accessibilityState={{ disabled: disabled || busy, busy }} disabled={disabled || busy} onPress={onPress} style={[ui.button, { backgroundColor: danger ? colors.danger : colors.primary, opacity: disabled || busy ? 0.5 : 1 }]}>
     {busy ? <ActivityIndicator color="#fff" /> : <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>{title}</Text>}
   </TouchableOpacity>;
 }
@@ -42,7 +45,7 @@ export function SettingsInput({ label, ...props }: TextInputProps & { label: str
 }
 const ui = StyleSheet.create({
   page: { paddingHorizontal: 24, paddingBottom: 36, gap: 12, width: '100%', maxWidth: 720, alignSelf: 'center' },
-  back: { minHeight: 48, justifyContent: 'center', alignSelf: 'flex-start', paddingRight: 24 },
+  back: { minHeight: 48, justifyContent: 'center', alignSelf: 'flex-start', paddingRight: 56 },
   title: { fontSize: 30, fontWeight: '700', letterSpacing: -0.7, marginBottom: 4 },
   card: { borderWidth: 1, borderRadius: 18, padding: 20, gap: 14 },
   row: { minHeight: 72, padding: 18, borderWidth: 1, borderRadius: 18, flexDirection: 'row', gap: 14, alignItems: 'center' },

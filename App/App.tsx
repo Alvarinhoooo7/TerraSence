@@ -1,3 +1,4 @@
+import { ScreenGuide } from './src/components/ScreenGuide';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -33,7 +34,7 @@ import { useAppStore } from './src/store/useAppStore';
 import { useAppTheme } from './src/hooks/useAppTheme';
 import { useTranslation } from './src/hooks/useTranslation';
 import { DEFAULT_APP_PREFERENCES } from './src/types/preferences';
-import type { MapMeasurementPoint } from './src/types/app';
+import type { MeasurementPoint } from './src/types/app';
 import { MeasurementDetailModal } from './src/components/MeasurementDetailModal';
 import { ResetPasswordScreen } from './src/screens/ResetPasswordScreen';
 import { createRecoverySession } from './src/services/authDeepLink';
@@ -95,7 +96,7 @@ export default function App() {
   }, [session, onboardingComplete, openAdminNotification]);
   const dataRevision = useAppStore(s => s.dataRevision);
   useEffect(() => { setDetailPoint(null); }, [dataRevision]);
-  const [detailPoint, setDetailPoint] = useState<MapMeasurementPoint | null>(null);
+  const [detailPoint, setDetailPoint] = useState<MeasurementPoint | null>(null);
   const setDevice = useAppStore((state) => state.setDevice);
   const setPreferences = useAppStore((state) => state.setPreferences);
   const setPreferencesLoaded = useAppStore((state) => state.setPreferencesLoaded);
@@ -277,7 +278,7 @@ export default function App() {
     }
   }, [session, permissionsReview, onboardingUserId, preferences, preferencesLoaded, recoveryActive]);
 
-  const handleOpenDetail = useCallback((p: MapMeasurementPoint) => {
+  const handleOpenDetail = useCallback((p: MeasurementPoint) => {
     setDetailPoint(p);
   }, []);
 
@@ -419,10 +420,12 @@ export default function App() {
       <SafeAreaProvider>
         <StatusBar style={isDark ? 'light' : 'dark'} />
         <OfflineBanner />
+        <ScreenGuide enabled={!recoveryLinkError && ['app', 'permissions', 'onboarding', 'approval'].includes(entry)} scope={`${entry}:${route}`}>
         {content}
         {entry === 'app' && !recoveryLinkError && ['dashboard', 'history', 'settings'].includes(route) && (
           <BottomNavigation route={route} onNavigate={setRoute} />
         )}
+        </ScreenGuide>
         <MeasurementDetailModal point={detailPoint} onClose={() => setDetailPoint(null)} />
       </SafeAreaProvider>
     </GestureHandlerRootView>

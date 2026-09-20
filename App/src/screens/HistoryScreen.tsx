@@ -1,3 +1,5 @@
+import { GuideSectionList as SectionList } from '../components/guide/GuideSectionList';
+import { GuideTouchable as TouchableOpacity } from '../components/guide/GuideControls';
 import { FieldPicker } from '../components/FieldPicker';
 // src/screens/HistoryScreen.tsx
 //
@@ -5,27 +7,24 @@ import { FieldPicker } from '../components/FieldPicker';
 
 import React, { useMemo, useState } from 'react';
 import {
-  SectionList,
   ActivityIndicator,
   RefreshControl,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Spacing, Typography, VERDICT_META } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
-import { ScreenGuide } from '../components/ScreenGuide';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
-import { PHENOLOGICAL_STAGES, type MapMeasurementPoint, type PhenologicalStage } from '../types/app';
+import { PHENOLOGICAL_STAGES, type MeasurementPoint, type PhenologicalStage } from '../types/app';
 import { useMeasurementHistory } from '../hooks/useMeasurementHistory';
 
 interface Props {
   onClose: () => void;
-  onOpenDetail: (p: MapMeasurementPoint) => void;
+  onOpenDetail: (p: MeasurementPoint) => void;
 }
 
 const dayKey = (iso: string, locale: string) =>
@@ -50,7 +49,7 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
 
   const sections = useMemo(() => {
     const filtered = filter === 'all' ? points : points.filter((p) => p.stage === filter);
-    const groups = new Map<string, MapMeasurementPoint[]>();
+    const groups = new Map<string, MeasurementPoint[]>();
     for (const p of filtered) {
       const k = dayKey(p.measuredAt, locale);
       const arr = groups.get(k);
@@ -68,7 +67,9 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={[styles.root, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
+      <SectionList
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} tintColor={colors.primary} />}
+        ListHeaderComponent={<>      <View style={styles.header}>
         <TouchableOpacity onPress={onClose} hitSlop={12} style={styles.headerBtn}>
           <Text style={{ color: colors.primary, ...Typography.bodyBold }}>‹ {t('Inicio', 'Home')}</Text>
         </TouchableOpacity>
@@ -112,6 +113,8 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
           return (
             <TouchableOpacity
               key={id}
+              guideTitle={label}
+              guide={t("Filtra el historial por esta etapa. Todas vuelve a mostrar el registro completo del campo.", "Filters history by this stage. All shows the complete field history again.")}
               onPress={() => setFilter(id as PhenologicalStage | 'all')}
               accessibilityRole="radio"
               accessibilityState={{ selected: active }}
@@ -136,9 +139,7 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
         })}
       </View>
 
-      <SectionList
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} tintColor={colors.primary} />}
-        ListHeaderComponent={offline || error ? <Text style={{ color: colors.warning }}>{error ? t('No pudimos cargar el historial. Desliza para reintentar.', 'Could not load history. Pull to retry.') : t('Sin acceso al historial remoto; se muestran datos locales.', 'Remote history unavailable; showing local data.')}</Text> : null}
+{(offline || error) && <Text style={{ color: colors.warning }}>{error ? t("No pudimos cargar el historial. Desliza para reintentar.", "Could not load history. Pull to retry.") : t("Mostrando el historial local.", "Showing local history.")}</Text>}</>}
         sections={sections}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
@@ -154,12 +155,14 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
             {section.title.toUpperCase()}
           </Text>
         )}
-        renderItem={({ item }) => {
+        renderItem={({ item, index, section }) => {
           const meta = VERDICT_META[item.verdict];
           const stroke = isDark ? meta.strokeDark : meta.strokeLight;
           const stage = PHENOLOGICAL_STAGES.find((s) => s.id === item.stage);
           return (
             <TouchableOpacity
+              guide={index === 0 && section === sections[0] ? t("Abre el detalle de esta lectura: valores, recomendación y respaldo. Las demás filas funcionan de la misma manera.", "Opens this reading’s values, recommendation and backup status. Other rows work the same way.") : false}
+              guideTitle={t("Detalle de una lectura", "Reading details")}
               accessibilityRole="button"
               onPress={() => onOpenDetail(item)}
               style={[
@@ -186,7 +189,6 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
           );
         }}
       />
-      <ScreenGuide guideId="history" />
     </SafeAreaView>
   );
 };

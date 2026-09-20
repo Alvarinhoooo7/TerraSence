@@ -1,3 +1,5 @@
+import { GuideModal as Modal } from './guide/GuideModal';
+import { GuideTouchable as TouchableOpacity, GuidePressable as Pressable, GuideScrollView as ScrollView, GuideInput as TextInput } from './guide/GuideControls';
 // src/components/FieldPicker.tsx
 //
 // Selector del historial. Permite cambiar de campo y crear uno nuevo
@@ -7,13 +9,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Modal,
-  Pressable,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { Spacing, Typography, type ThemeColors } from '../constants/theme';
@@ -65,6 +62,7 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
     <>
       <TouchableOpacity
         accessibilityRole="button"
+        guide={t("Cambia el campo cuyo historial revisas o crea uno nuevo. No elimina mediciones de otros campos.", "Changes the field shown in history or creates a new one. Does not delete other fields’ readings.")}
         accessibilityLabel={t(`Campo actual: ${value}. Toca para cambiar.`, `Current field: ${value}. Tap to change.`)}
         onPress={() => setOpen(true)}
         style={[styles.pill, { backgroundColor: colors.mapOverlay, borderColor: colors.border }]}
@@ -76,13 +74,18 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
       </TouchableOpacity>
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
-        <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
+
+        <Pressable guide={false} style={styles.backdrop} onPress={() => setOpen(false)}>
           <Pressable
+            guide={false}
             style={[styles.sheet, { backgroundColor: colors.card }]}
             onPress={(e) => e.stopPropagation()}
           >
             <View style={[styles.grabber, { backgroundColor: colors.textMuted }]} />
-            <Text style={[styles.title, { color: colors.text }]}>{t('Campos', 'Fields')}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text style={[styles.title, { color: colors.text }]}>{t('Campos', 'Fields')}</Text>
+              <TouchableOpacity accessibilityLabel={t('Cerrar', 'Close')} onPress={() => setOpen(false)} style={{ minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: colors.text, fontSize: 24 }}>×</Text></TouchableOpacity>
+            </View>
 
             {loading ? (
               <ActivityIndicator color={colors.primary} style={{ marginVertical: Spacing.lg }} />
@@ -98,6 +101,8 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
                   return (
                     <TouchableOpacity
                       key={f.name}
+                      guideTitle={f.name}
+                      guide={t("Selecciona este campo y muestra su historial de mediciones.", "Selects this field and shows its measurement history.")}
                       accessibilityRole="radio"
                       accessibilityState={{ selected: active }}
                       onPress={() => {
@@ -131,7 +136,7 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
               </ScrollView>
             )}
 
-            <Text style={[styles.section, { color: colors.textMuted }]}>{t('CREAR PREDIO', 'CREATE FIELD')}</Text>
+            <Text style={[styles.section, { color: colors.textMuted }]}>{t('CREAR CAMPO', 'CREATE FIELD')}</Text>
             <View style={styles.createRow}>
               <TextInput
                 value={newName}
@@ -146,6 +151,7 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
                 ]}
               />
               <TouchableOpacity
+                guide={t("Guarda el campo con el nombre escrito y lo selecciona. Puedes crearlo sin conexión.", "Saves and selects the named field. You can create it offline.")}
                 onPress={create}
                 accessibilityRole="button"
                 accessibilityLabel={t('Crear campo', 'Create field')}
@@ -156,7 +162,8 @@ export const FieldPicker: React.FC<Props> = ({ value, onChange, colors }) => {
             </View>
           </Pressable>
         </Pressable>
-      </Modal>
+      
+    </Modal>
     </>
   );
 };
@@ -166,11 +173,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    height: 36,
+    minHeight: 48,
     paddingHorizontal: Spacing.md,
     borderRadius: Spacing.borderRadius,
     borderWidth: 1,
-    maxWidth: '70%',
+    maxWidth: '100%',
   },
   pillText: { ...Typography.captionBold, flexShrink: 1 },
   chevron: { fontSize: 13 },

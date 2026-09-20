@@ -15,7 +15,7 @@ Este documento define y justifica los parámetros económicos, de mercado y de m
 
 ## 2. Producto y Propuesta de Valor
 
-La arquitectura de la solución se compone de: **Hardware (Sonda) → Transmisión Bluetooth → Aplicación Móvil → Historial y Mapas en la Nube**.
+La arquitectura de la solución se compone de: **Hardware (Sonda) → Transmisión Bluetooth → Aplicación Móvil → Historial en la Nube**.
 
 - Mediciones: 7 variables de suelo, complementadas con contexto meteorológico obtenido vía internet.
 - Interfaz: Semáforo de criticidad (óptimo, precaución, crítico).

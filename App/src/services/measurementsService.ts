@@ -17,7 +17,7 @@ import { useAppStore } from '../store/useAppStore';
 import { mergeMeasurementHistory } from '../utils/measurementHistory';
 import {
   mapRowToPoint,
-  type MapMeasurementPoint,
+  type MeasurementPoint,
   type SoilMeasurementInsert,
   type SoilMeasurementRow,
 } from '../types/app';
@@ -33,8 +33,8 @@ interface QueuedMeasurement {
 }
 
 /** Columnas que necesita el historial. Se piden explícitas para no traer de más. */
-const MAP_COLUMNS =
-  'id,client_uuid,latitude,longitude,radius_m,gps_accuracy_m,verdict,verdict_title,action_summary,' +
+const HISTORY_COLUMNS =
+  'id,client_uuid,latitude,longitude,gps_accuracy_m,verdict,verdict_title,action_summary,' +
   'phenological_stage,measured_at,ph,ec_us_cm,vwc_percent,soil_temp_c,nitrogen,phosphorus,potassium,canopy_temp_c,canopy_humidity_pct,air_pressure_hpa,battery_percent,diagnosis';
 
 export const newClientUuid = (): string => Crypto.randomUUID();
@@ -46,7 +46,7 @@ export async function loadMeasurementHistory(fieldName: string, deviceId?: strin
   await reconcileDeviceResets().catch(() => undefined);
   const revision = resetRevision;
   const pending = await pendingMeasurementPoints(fieldName, deviceId);
-  let points: MapMeasurementPoint[];
+  let points: MeasurementPoint[];
   let offline = false;
   try {
     points = await fetchMeasurements(fieldName, deviceId);
@@ -71,10 +71,10 @@ export async function fetchMeasurements(
   fieldName: string,
   deviceId?: string | null,
   limit = 200,
-): Promise<MapMeasurementPoint[]> {
+): Promise<MeasurementPoint[]> {
   let query = supabase
     .from('soil_measurements')
-    .select(MAP_COLUMNS)
+    .select(HISTORY_COLUMNS)
     .eq('field_name', fieldName)
     .order('measured_at', { ascending: false })
     .limit(limit);
@@ -120,7 +120,7 @@ export async function pendingCount(): Promise<number> {
 export async function pendingMeasurementPoints(
   fieldName: string,
   deviceId?: string | null,
-): Promise<MapMeasurementPoint[]> {
+): Promise<MeasurementPoint[]> {
   const queue = await readQueue(await accountQueueKey());
   return queue
     .filter(({ row }) => row.field_name === fieldName && (!deviceId || row.device_id === deviceId))
@@ -140,7 +140,7 @@ export async function pendingMeasurementPoints(
  */
 export async function saveMeasurement(
   row: SoilMeasurementInsert,
-): Promise<{ synced: boolean; point: MapMeasurementPoint | null }> {
+): Promise<{ synced: boolean; point: MeasurementPoint | null }> {
   // Primero se confirma en almacenamiento local. Si Android cierra el proceso
   // durante la petición de red, la lectura sigue disponible para reintentar.
   const key = await accountQueueKey();
@@ -158,7 +158,7 @@ export async function saveMeasurement(
     const { data, error } = await supabase
       .from('soil_measurements')
       .upsert(row, { onConflict: 'client_uuid' })
-      .select(MAP_COLUMNS)
+      .select(HISTORY_COLUMNS)
       .single();
 
     if (error) throw error;

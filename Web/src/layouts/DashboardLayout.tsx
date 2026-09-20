@@ -1,6 +1,7 @@
+import { BrandLogo } from '../components/BrandLogo';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { supabase } from '../services/supabase';
-import { Leaf, Cpu, LogOut, ShieldAlert, HardDriveDownload, Users, Map, List } from 'lucide-react';
+import { Cpu, LogOut, ShieldAlert, HardDriveDownload, Users, List } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ThemeToggle } from '../components/ThemeToggle';
 
@@ -14,7 +15,6 @@ const NAV_ITEMS = [
   { path: '/admin/staff', label: 'Equipo de soporte', icon: Users },
   { path: '/devices', label: 'Mis equipos', icon: Cpu },
   { path: '/measurements', label: 'Mis mediciones', icon: List },
-  { path: '/map', label: 'Mapa de pre-siembra', icon: Map },
 ];
 
 export function DashboardLayout({ email }: { email: string }) {
@@ -30,10 +30,7 @@ export function DashboardLayout({ email }: { email: string }) {
         className="w-64 glass-panel border-r border-terra-border flex flex-col z-20 shrink-0"
       >
         <div className="h-16 flex items-center px-6 gap-3 border-b border-terra-border">
-          <div className="bg-terra-primary/10 p-2 rounded-lg text-terra-primary">
-            <Leaf size={24} />
-          </div>
-          <span className="font-bold text-lg tracking-wide">TerraSense</span>
+          <BrandLogo className="w-44 h-16" />
         </div>
 
         <nav className="flex-1 py-6 px-4 flex flex-col gap-2">
