@@ -203,7 +203,8 @@ password_requirements = ""
 
 [auth.rate_limit]
 # Number of emails that can be sent per hour. Requires auth.email.smtp to be enabled.
-email_sent = 2
+# Con SMTP propio, dos por hora bloqueaba las pruebas de registro y recuperacion.
+email_sent = 30
 # Number of SMS messages that can be sent per hour. Requires auth.sms to be enabled.
 sms_sent = 30
 # Number of anonymous sign-ins that can be made per hour per IP address. Requires enable_anonymous_sign_ins = true.
@@ -245,9 +246,9 @@ otp_expiry = 600
 enabled = true
 host = "smtp.gmail.com"
 port = 587
-user = "alvarovillena8@gmail.com"
+user = "akurasoporte@gmail.com"
 pass = "env(GMAIL_APP_PASSWORD)"
-admin_email = "alvarovillena8@gmail.com"
+admin_email = "akurasoporte@gmail.com"
 sender_name = "TerraSense"
 
 # Uncomment to customize email template
@@ -449,4 +450,4 @@ content_path = "./supabase/templates/confirmation.html"
 [auth.email.notification.password_changed]
 enabled = true
 subject = "Tu contraseña de TerraSense fue cambiada"
-content_path = "./templates/password_changed.html"
+content_path = "./supabase/templates/password_changed.html"

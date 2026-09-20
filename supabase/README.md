@@ -353,6 +353,25 @@ espera entre envíos. El cambio está preparado localmente; **su aplicación rem
 no está verificada**. El CLI está vinculado al proyecto, pero el proxy del entorno
 rechaza la conexión a la API de administración.
 
+### Remitente y límite de envío
+
+El remitente acordado es `akurasoporte@gmail.com`, enviado por el SMTP de Gmail de esa
+misma cuenta con una contraseña de aplicación. Se descartó un proveedor externo porque
+ninguno puede autenticar `gmail.com`: con Resend o Brevo el correo saldría desde otro
+dominio y esa dirección exacta dejaría de ser el remitente. El precio de esta decisión es
+el límite de Gmail, del orden de 500 destinatarios diarios, y la ausencia de panel de
+envíos y rebotes: sirve para pruebas y piloto, no para producción con muchos usuarios.
+Con dominio propio, el reemplazo natural es un proveedor transaccional con SPF y DKIM.
+
+`[auth.rate_limit] email_sent` pasó de 2 a **30 por hora**. Dos envíos por hora agotaban
+la cuota durante las pruebas de registro y recuperación, y el usuario quedaba sin recibir
+el código. Es el valor que Supabase admite con SMTP propio configurado.
+
+La contraseña de aplicación **no se escribe en el repositorio**: se carga en el panel
+(Authentication → Emails → SMTP Settings) junto al host `smtp.gmail.com`, el puerto 587 y
+el nombre de remitente `TerraSense`. `config.toml` sólo declara `env(GMAIL_APP_PASSWORD)`
+para el entorno local.
+
 La app y la web verifican con `verifyOtp`: `type: 'email'` para confirmar el registro
 y `type: 'recovery'` para recuperar. Esta última emite `PASSWORD_RECOVERY` y muestra
 el formulario de nueva contraseña antes de entrar. Reenviar usa `resend` de tipo
@@ -570,7 +589,11 @@ Lo comprobado contra remoto, el 5 y el 6 de septiembre de 2026, es **la existenc
   que el resto de `[auth]` en `config.toml` coincide con lo que hay en producción.
 - **Ensayo de restauración del esquema exportado** (§10.2): `schema.sql` ya existe, falta probarlo
   en un proyecto limpio.
-- **SMTP propio**, para activar las plantillas de correo (§7).
+- **SMTP propio aplicado en el panel remoto** (§7): comprobado el 20-09-2026, el proyecto
+  envía por `smtp.gmail.com:587` como `akurasoporte@gmail.com`, con el límite en 30 correos
+  por hora, con las tres plantillas publicadas y verificadas contra los archivos locales.
+  Queda comprobar el envío real con una cuenta de prueba: la configuración correcta no
+  acredita entrega.
 - **Firmware físico y publicación OTA**: el catálogo `firmware_releases`, su RPC de consulta y la
   vista web existen; falta publicar un binario validado contra hardware real.
 - **Retención activa**: `purge_expired_operational_data()` elimina intentos de vinculación a los 30
