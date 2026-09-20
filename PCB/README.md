@@ -161,7 +161,7 @@ Lleva la energía desde la celda hasta un riel de 5 V protegido y conmutable, y 
 | `MOD1` | Módulo **`LX-LCBST`**, carga USB-C y elevación | Placa hija | `B+`, `B−`, `OUT+`, `OUT−` |
 | `SW1` | Interruptor rocker SPST | Panel | 2 |
 | `C1` | 100 µF, 35 V, aluminio **polarizado** | Lata SMD ~8 mm | 2 |
-| `C2` | 1 µF, 50 V, cerámico X7R | 1206 | 2 |
+| `C2` | 100 nF `104K`, 50 V, cerámico X7R | 1206 | 2 |
 
 > **`F1` y `D1` trabajan juntos.** No son dos protecciones independientes: el diodo detecta la inversión y el fusible es quien corta. Uno sin el otro no protege.
 
@@ -384,34 +384,35 @@ No existe en las librerías estándar: hay que crearlo. Un rectángulo con cuatr
 
 Todos SMD.
 
-| Ref | Valor | Tensión | Tecnología | Encapsulado | Va junto a |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `C1` | 100 µF | 35 V | Electrolítico de aluminio | Lata SMD, ~8 mm | `Q1` y `J2` |
-| `C2` | 1 µF | 50 V | **Cerámico X7R** | 1206 | `Q1` |
-| `C3` | 100 µF | 35 V | Electrolítico de aluminio | Lata SMD, ~8 mm | `U1` `VIN` |
-| `C4` | 1 µF | 50 V | **Cerámico X7R** | 1206 | `U1` `VIN` |
+| Ref | Valor | Marcado | Tensión | Tecnología | Encapsulado | Va junto a |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `C1` | 100 µF | — | 35 V | Electrolítico de aluminio | Lata SMD, ~8 mm | `Q1` y `J2` |
+| `C2` | 100 nF | `104K` | 50 V | Cerámico X7R | 1206 | `Q1` |
+| `C3` | 100 µF | — | 35 V | Electrolítico de aluminio | Lata SMD, ~8 mm | `U1` `VIN` |
+| `C4` | 100 nF | `104K` | 50 V | Cerámico X7R | 1206 | `U1` `VIN` |
 
-#### Los 100 µF: aluminio, y polarizados
+El marcado `104K` es la notación habitual: `10 × 10⁴ pF` igual a 100 nF, con `K` de tolerancia ±10 %.
+
+#### Los 100 µF: aluminio y polarizados
 
 Un 100 µF SMD es un electrolítico de aluminio en formato lata (*V-chip*). A 35 V el margen sobre un riel de 5 V es amplio, pero **la lata crece**: del orden de 8 mm de diámetro contra 6,3 mm de una de 16 V. Tenerlo presente al repartir, porque la placa además lleva el cartucho de 20 mm de `F1`.
 
-> **Son componentes polarizados.** Usar el símbolo de condensador polarizado en el esquemático, no el genérico, y marcar el positivo en la serigrafía. Un electrolítico montado al revés se calienta, se abomba y revienta.
+> **Son componentes polarizados.** Usar símbolo de condensador polarizado en el esquemático, no el genérico, y marcar el positivo en la serigrafía. Un electrolítico montado al revés se calienta, se abomba y revienta.
 
-#### Los 1 µF deben ser cerámicos, no de aluminio
+#### Los 100 nF: cerámicos, nunca electrolíticos
 
-Esta distinción importa más de lo que parece. La función de `C2` y `C4` **no es almacenar energía** —para eso están los 100 µF— sino **filtrar el rizado de conmutación**.
+Su función **no es almacenar energía** —para eso están los 100 µF— sino **filtrar el rizado de conmutación**. El elevador del `LX-LCBST` trabaja a cientos de kilohertz y ese rizado aparece en `+5V`.
 
-| | Electrolítico de aluminio 1 µF | Cerámico 1 µF |
+| | Electrolítico de aluminio | Cerámico |
 | :--- | :--- | :--- |
 | Resistencia serie | Varios ohms | Miliohms |
-| Comportamiento en alta frecuencia | Casi el de un cable con resistencia | Filtra |
-| Junto a un 100 µF de aluminio | **Redundante:** mismo comportamiento, cien veces menos capacidad | Complementario |
+| En alta frecuencia | Casi un cable con resistencia | Filtra |
 
-**El elevador del `LX-LCBST` conmuta a cientos de kilohertz** y ese rizado aparece en `+5V`. Es el motivo por el que hace falta un cerámico: un electrolítico de 1 µF no lo filtra, y puesto al lado de `C1` no aporta nada que `C1` no haga ya.
+Un electrolítico pequeño junto a `C1` sería redundante: mismo comportamiento y mucha menos capacidad. Por eso van cerámicos.
 
-Con 50 V nominales sobre 5 V aplicados el cerámico prácticamente no pierde capacidad por tensión aplicada, así que entrega 1 µF real.
+> **Verificar que sean X7R y no Y5V.** Ambos se venden como `104K` a 50 V en 1206 y cuestan casi lo mismo, pero el Y5V pierde hasta un 80 % de su capacidad en los extremos de temperatura, y este equipo trabaja a la intemperie. El X7R se mantiene dentro de ±15 %.
 
-> `C8`, junto al transceptor, se mantiene en 100 nF cerámico: ahí los flancos rápidos de las líneas `A` y `B` piden bypass de frecuencia más alta todavía.
+Con 50 V nominales sobre 5 V aplicados, la pérdida por tensión aplicada es despreciable: entregan sus 100 nF.
 
 **No usar tantalio.** Falla en cortocircuito, y un corto permanente sobre una celda LiPo es un riesgo que no conviene introducir a propósito.
 
@@ -479,7 +480,7 @@ Ruteo hacia el microcontrolador: alimentación a la DevKit, interfaz de usuario 
 | :--- | :--- | :--- | :--- |
 | `U1` | DevKit ESP32-WROOM-32 | Placa hija, zócalos | 30 o 38 |
 | `C3` | 100 µF, 35 V, aluminio **polarizado** | Lata SMD ~8 mm | 2 |
-| `C4` | 1 µF, 50 V, cerámico X7R | 1206 | 2 |
+| `C4` | 100 nF `104K`, 50 V, cerámico X7R | 1206 | 2 |
 | `C5` | 10 µF, X7R | 0805 | 2 |
 | `C6` | 100 nF, X7R | 0805 | 2 |
 | `SW2` | Pulsador táctil | THT o SMD | 2 nets |
