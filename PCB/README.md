@@ -160,8 +160,8 @@ Lleva la energía desde la celda hasta un riel de 5 V protegido y conmutable, y 
 | `D1` | **`M7`**, rectificador de silicio | SMA / DO-214AC | Á, K |
 | `MOD1` | Módulo **`LX-LCBST`**, carga USB-C y elevación | Placa hija | `B+`, `B−`, `OUT+`, `OUT−` |
 | `SW1` | Interruptor rocker SPST | Panel | 2 |
-| `C1` | 100 µF, 16 V | Lata SMD 6,3 × 5,4 mm | 2 |
-| `C2` | 100 nF, 16 V, X7R | 1206 | 2 |
+| `C1` | 100 µF, 35 V | Lata SMD ~8 mm | 2 |
+| `C2` | 1 µF, 50 V, X7R | 1206 | 2 |
 
 > **`F1` y `D1` trabajan juntos.** No son dos protecciones independientes: el diodo detecta la inversión y el fusible es quien corta. Uno sin el otro no protege.
 
@@ -386,14 +386,18 @@ Todos SMD.
 
 | Ref | Valor | Tensión | Encapsulado | Va junto a |
 | :--- | :--- | :--- | :--- | :--- |
-| `C1` | 100 µF | 16 V | Lata SMD 6,3 × 5,4 mm | `Q1` y `J2` |
-| `C2` | 100 nF | 16 V | 1206, X7R | `Q1` |
-| `C3` | 100 µF | 16 V | Lata SMD 6,3 × 5,4 mm | `U1` `VIN` |
-| `C4` | 100 nF | 16 V | 1206, X7R | `U1` `VIN` |
+| `C1` | 100 µF | 35 V | Lata SMD, ~8 mm de diámetro | `Q1` y `J2` |
+| `C2` | 1 µF | 50 V | 1206, X7R | `Q1` |
+| `C3` | 100 µF | 35 V | Lata SMD, ~8 mm de diámetro | `U1` `VIN` |
+| `C4` | 1 µF | 50 V | 1206, X7R | `U1` `VIN` |
 
-**Un 100 µF / 16 V SMD es, en la práctica, un electrolítico de aluminio en formato lata (*V-chip*)** — que es SMD, se monta con el resto y cuesta poco. En cerámico ese valor a 16 V existe pero es caro, grande y entrega bastante menos de lo rotulado por efecto de tensión aplicada.
+**Un 100 µF SMD es, en la práctica, un electrolítico de aluminio en formato lata (*V-chip*).** A 35 V el margen sobre un riel de 5 V es amplio y no hay reparo eléctrico, pero **la lata crece**: del orden de 8 mm de diámetro contra 6,3 mm de una de 16 V. Tenerlo presente al repartir componentes, porque la placa además lleva el cartucho de 20 mm de `F1`.
 
-Los 16 V del `C2` y `C4` están bien: en un condensador de desacoplo la pérdida por tensión aplicada es de orden 10 a 20 %, y 80 nF desacoplan igual que 100 nF.
+**El `C2` de 1 µF a 50 V es preferible a un 100 nF en este puesto.** Con 50 V nominales sobre 5 V aplicados la pérdida por tensión es despreciable, así que entrega 1 µF real, diez veces más energía en banda media que un 100 nF.
+
+El argumento clásico a favor del 100 nF es su bypass de muy alta frecuencia, pero **en este riel no hay nada conmutando rápido**: alimenta el `VIN` de la DevKit, que trae su propio regulador y sus propios condensadores, y la fuente de un MOSFET que conmuta en continua. Aquí pesa más la energía disponible que la frecuencia de resonancia.
+
+> El desacoplo de 100 nF sí se mantiene donde importa: `C8` junto al transceptor, que tiene flancos rápidos en las líneas `A` y `B`.
 
 **No usar tantalio.** Falla en cortocircuito, y un corto permanente sobre una celda LiPo es un riesgo que no conviene introducir a propósito.
 
@@ -460,8 +464,8 @@ Ruteo hacia el microcontrolador: alimentación a la DevKit, interfaz de usuario 
 | Ref | Componente | Encapsulado | Pines |
 | :--- | :--- | :--- | :--- |
 | `U1` | DevKit ESP32-WROOM-32 | Placa hija, zócalos | 30 o 38 |
-| `C3` | 100 µF, 16 V | Lata SMD 6,3 × 5,4 mm | 2 |
-| `C4` | 100 nF, 16 V, X7R | 1206 | 2 |
+| `C3` | 100 µF, 35 V | Lata SMD ~8 mm | 2 |
+| `C4` | 1 µF, 50 V, X7R | 1206 | 2 |
 | `C5` | 10 µF, X7R | 0805 | 2 |
 | `C6` | 100 nF, X7R | 0805 | 2 |
 | `SW2` | Pulsador táctil | THT o SMD | 2 nets |
