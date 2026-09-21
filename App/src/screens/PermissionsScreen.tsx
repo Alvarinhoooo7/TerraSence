@@ -56,7 +56,7 @@ export function PermissionsScreen({ userId, onComplete }: { userId: string; onCo
       if (active.current) setError(t('No pudimos completar la solicitud. Puedes reintentar o continuar y revisar los permisos después.', 'We could not complete the request. Try again or continue and review permissions later.'));
     } finally {
       locked.current = false;
-      if (active.current) setBusy(null);
+      if (active.current) { setBusy(null); void refresh(); }
     }
   };
 

@@ -1,16 +1,24 @@
-// src/components/ResetPasswordScreen.tsx — Pantalla para elegir una contraseña nueva.
+// src/components/ResetPasswordScreen.tsx — elegir una contraseña nueva.
 //
 // Se muestra tras validar el código de recuperación (o un enlace antiguo).
+// `passwordSaved` evita reescribir la contraseña si el cierre de sesión falla
+// y el operador vuelve a pulsar: el cambio ya se aplicó, lo que falta es
+// terminar de cerrar.
 
-import { useRef, useState, type FormEvent } from 'react';
+import { useRef, useState } from 'react';
+import type { FormEvent, ReactNode } from 'react';
+import { CheckCircle2, Eye, EyeOff, KeyRound } from 'lucide-react';
 import { supabase } from '../services/supabase';
+import { BrandLogo } from './BrandLogo';
+import { Button } from '../ui/Button';
+import { PasswordField } from '../ui/Form';
+import { Alert } from '../ui/Feedback';
 
 const humanize = (message: string): string => {
   const m = message.toLowerCase();
   if (m.includes('password') && m.includes('least'))
     return 'La contraseña debe tener al menos 6 caracteres.';
-  if (m.includes('network') || m.includes('fetch'))
-    return 'Sin conexión con el servidor.';
+  if (m.includes('network') || m.includes('fetch')) return 'Sin conexión con el servidor.';
   if (m.includes('same') || m.includes('different'))
     return 'La nueva contraseña debe ser distinta a la actual.';
   return message;
@@ -19,6 +27,7 @@ const humanize = (message: string): string => {
 export function ResetPasswordScreen({ onDone }: { onDone: () => void }) {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -30,16 +39,11 @@ export function ResetPasswordScreen({ onDone }: { onDone: () => void }) {
     if (locked.current) return;
     setError(null);
 
-    if (password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres.');
-      return;
-    }
-    if (password !== confirm) {
-      setError('Las contraseñas no coinciden.');
-      return;
-    }
+    if (password.length < 6) return setError('La contraseña debe tener al menos 6 caracteres.');
+    if (password !== confirm) return setError('Las contraseñas no coinciden.');
 
-    locked.current = true; setBusy(true);
+    locked.current = true;
+    setBusy(true);
     try {
       if (!passwordSaved.current) {
         const { error: err } = await supabase.auth.updateUser({ password });
@@ -52,85 +56,93 @@ export function ResetPasswordScreen({ onDone }: { onDone: () => void }) {
         if (localError) throw localError;
       }
       setSuccess(true);
-    } catch (e) { setError(humanize(e instanceof Error ? e.message : String(e))); }
-    finally { locked.current = false; setBusy(false); }
+    } catch (e2) {
+      setError(humanize(e2 instanceof Error ? e2.message : String(e2)));
+    } finally {
+      locked.current = false;
+      setBusy(false);
+    }
   };
 
-  if (success) {
-    return (
-      <div className="min-h-full grid place-items-center p-6">
-        <div className="w-full max-w-sm rounded-2xl border border-terra-border bg-terra-surface p-8 text-center">
-          <div className="text-5xl mb-2">✅</div>
-          <h1 className="text-xl font-bold text-terra-primary mb-2">
-            Contraseña actualizada
-          </h1>
-          <p className="text-sm text-terra-muted mb-6">
-            Tu contraseña se cambió correctamente. Inicia sesión con la nueva.
-          </p>
-          <button
-            type="button"
-            onClick={onDone}
-            className="w-full h-12 rounded-lg bg-terra-primary text-[#0d1512] font-semibold"
-          >
-            Ir a iniciar sesión
-          </button>
+  const shell = (children: ReactNode) => (
+    <div className="flex min-h-screen items-center justify-center bg-terra-bg p-6">
+      <div className="w-full max-w-sm">
+        <div className="mb-6 flex justify-center">
+          <BrandLogo className="h-14 w-48" title="" />
         </div>
+        <div className="panel p-6">{children}</div>
       </div>
+    </div>
+  );
+
+  if (success) {
+    return shell(
+      <div className="flex flex-col items-center gap-4 text-center">
+        <span className="grid h-12 w-12 place-items-center rounded-full bg-verdict-green-soft text-verdict-green">
+          <CheckCircle2 size={24} aria-hidden="true" />
+        </span>
+        <div>
+          <h1 className="font-semibold text-terra-text">Contraseña actualizada</h1>
+          <p className="mt-1 text-sm leading-relaxed text-terra-muted">
+            Por seguridad se cerró la sesión de este navegador. Inicia sesión con la contraseña
+            nueva.
+          </p>
+        </div>
+        <Button variant="primary" className="w-full" onClick={onDone}>
+          Ir a iniciar sesión
+        </Button>
+      </div>,
     );
   }
 
-  return (
-    <div className="min-h-full grid place-items-center p-6">
-      <form
-        onSubmit={submit}
-        className="w-full max-w-sm rounded-2xl border border-terra-border bg-terra-surface p-8"
+  return shell(
+    <form onSubmit={submit} className="flex flex-col gap-4">
+      <div className="flex items-center gap-3">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-terra-primary-soft text-terra-primary-ink">
+          <KeyRound size={18} aria-hidden="true" />
+        </span>
+        <div>
+          <h1 className="font-semibold text-terra-text">Elige tu contraseña nueva</h1>
+          <p className="text-xs text-terra-muted">Tu correo ya fue verificado.</p>
+        </div>
+      </div>
+
+      <PasswordField
+        label="Contraseña nueva"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        disabled={busy || passwordSaved.current}
+        autoComplete="new-password"
+        required
+        show={show}
+        onToggleShow={() => setShow((s) => !s)}
+        toggleIcon={show ? <EyeOff size={16} /> : <Eye size={16} />}
+        hint="Mínimo 6 caracteres."
+      />
+
+      <PasswordField
+        label="Confirma la contraseña"
+        value={confirm}
+        onChange={(e) => setConfirm(e.target.value)}
+        disabled={busy || passwordSaved.current}
+        autoComplete="new-password"
+        required
+        show={show}
+        onToggleShow={() => setShow((s) => !s)}
+        toggleIcon={show ? <EyeOff size={16} /> : <Eye size={16} />}
+      />
+
+      {error && <Alert tone="error">{error}</Alert>}
+
+      <Button
+        type="submit"
+        variant="primary"
+        busy={busy}
+        busyLabel="Guardando…"
+        className="w-full"
       >
-        <div className="text-5xl text-center mb-2">🔑</div>
-        <h1 className="text-2xl font-bold text-center text-terra-primary">
-          Elige tu contraseña nueva
-        </h1>
-        <p className="text-sm text-center text-terra-muted mb-6">
-          Tu correo fue verificado. Ahora elige una contraseña nueva.
-        </p>
-
-        <label className="block text-xs font-semibold tracking-wide text-terra-muted mb-1">
-          CONTRASEÑA NUEVA
-        </label>
-        <input
-          type="password"
-          value={password}
-          disabled={busy || passwordSaved.current}
-          onChange={(e) => setPassword(e.target.value)}
-          autoComplete="new-password"
-          className="w-full h-12 rounded-lg border border-terra-border bg-terra-bg px-3 mb-4 outline-none focus:border-terra-primary"
-        />
-
-        <label className="block text-xs font-semibold tracking-wide text-terra-muted mb-1">
-          CONFIRMA LA CONTRASEÑA
-        </label>
-        <input
-          type="password"
-          value={confirm}
-          disabled={busy || passwordSaved.current}
-          onChange={(e) => setConfirm(e.target.value)}
-          autoComplete="new-password"
-          className="w-full h-12 rounded-lg border border-terra-border bg-terra-bg px-3 mb-4 outline-none focus:border-terra-primary"
-        />
-
-        {error && (
-          <p className="text-sm rounded-lg bg-verdict-red/15 text-verdict-red p-3 mb-3">
-            {error}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={busy}
-          className="w-full h-12 rounded-lg bg-terra-primary text-[#0d1512] font-semibold disabled:opacity-60"
-        >
-          {busy ? 'Guardando…' : passwordSaved.current ? 'Finalizar recuperación' : 'Guardar contraseña nueva'}
-        </button>
-      </form>
-    </div>
+        {passwordSaved.current ? 'Finalizar recuperación' : 'Guardar contraseña nueva'}
+      </Button>
+    </form>,
   );
 }

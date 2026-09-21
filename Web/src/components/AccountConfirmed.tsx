@@ -15,9 +15,9 @@
 // puede no ser suyo.
 
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import { CheckCircle2, Smartphone } from 'lucide-react';
 import { supabase } from '../services/supabase';
+import { BrandLogo } from './BrandLogo';
 
 export function AccountConfirmed() {
   // La sesión del enlace se cierra en segundo plano; el mensaje no depende de
@@ -38,40 +38,37 @@ export function AccountConfirmed() {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-terra-bg px-6 transition-colors duration-500">
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: 'easeOut' }}
-        className="w-full max-w-md text-center"
-      >
-        <motion.div
-          initial={{ scale: 0.6, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.15, type: 'spring', stiffness: 220, damping: 18 }}
-          className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-terra-primary/10"
-        >
-          <CheckCircle2 className="h-11 w-11 text-terra-primary" strokeWidth={1.75} />
-        </motion.div>
-
-        <h1 className="text-2xl font-bold text-terra-text mb-3">Cuenta confirmada</h1>
-
-        <p className="text-terra-muted leading-relaxed mb-8">
-          Tu cuenta de TerraSense quedó activa. Ya puedes cerrar esta pestaña y volver a la
-          aplicación para iniciar sesión.
-        </p>
-
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-terra-border bg-terra-card px-4 py-3 text-sm text-terra-muted">
-          <Smartphone className="h-4 w-4 shrink-0" />
-          <span>Abre TerraSense en tu teléfono e inicia sesión con este correo.</span>
+    <div className="flex min-h-screen items-center justify-center bg-terra-bg p-6">
+      <div className="w-full max-w-sm text-center">
+        <div className="mb-6 flex justify-center">
+          <BrandLogo className="h-14 w-48" title="" />
         </div>
 
-        <p className="mt-6 text-xs text-terra-muted/70">
-          {signedOut
-            ? 'Por seguridad, la sesión de este navegador se cerró.'
-            : 'Cerrando la sesión de este navegador…'}
-        </p>
-      </motion.div>
+        <div className="panel flex flex-col items-center gap-4 p-7">
+          <span className="grid h-14 w-14 place-items-center rounded-full bg-verdict-green-soft text-verdict-green">
+            <CheckCircle2 size={28} strokeWidth={1.75} aria-hidden="true" />
+          </span>
+
+          <div>
+            <h1 className="text-lg font-semibold text-terra-text">Cuenta confirmada</h1>
+            <p className="mt-1.5 text-sm leading-relaxed text-terra-muted">
+              Tu cuenta de TerraSense quedó activa. Ya puedes cerrar esta pestaña y volver a la
+              aplicación para iniciar sesión.
+            </p>
+          </div>
+
+          <p className="flex items-center gap-2 rounded-md border border-terra-border bg-terra-raised px-3.5 py-2.5 text-sm text-terra-muted">
+            <Smartphone size={15} className="shrink-0" aria-hidden="true" />
+            <span>Abre TerraSense en tu teléfono e inicia sesión con este correo.</span>
+          </p>
+
+          <p className="text-xs text-terra-faint" role="status">
+            {signedOut
+              ? 'Por seguridad, la sesión de este navegador se cerró.'
+              : 'Cerrando la sesión de este navegador…'}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

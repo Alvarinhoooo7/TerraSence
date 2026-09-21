@@ -14,10 +14,16 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Linting */
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
+    /* Linting.
+       `strict` estaba apagado, y con él `strictNullChecks`: el compilador daba
+       por buenos `h.battery_level > 20` sobre un `number | null` y
+       `maps?q=${lat},${lng}` sobre coordenadas nulables. Los dos existían y los
+       dos salían en pantalla. */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src", "backend"]
 }

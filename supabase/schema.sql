@@ -131,8 +131,9 @@ CREATE OR REPLACE FUNCTION "public"."admin_get_device_detail"("p_device_id" "uui
     SET "search_path" TO 'public'
     AS $$
 DECLARE
-    v_device   public.devices;
-    v_latest   RECORD;
+    v_device public.devices;
+    v_latest RECORD;
+    v_status TEXT;
 BEGIN
     IF NOT public.is_support_staff() THEN
         RAISE EXCEPTION 'No tienes acceso al panel de soporte.' USING ERRCODE = '42501';
@@ -148,33 +149,48 @@ BEGIN
       FROM public.firmware_releases f
      WHERE f.is_published
        AND f.hardware_target = COALESCE(v_device.hardware_version, 'ESP32-WROOM-32')
-     ORDER BY string_to_array(f.version, '.')::int[] DESC
+     ORDER BY public.semver_parts(f.version) DESC NULLS LAST
      LIMIT 1;
+
+    v_status := CASE
+        WHEN v_latest.id IS NULL THEN 'sin_catalogo'
+        WHEN public.semver_parts(v_device.firmware_version) IS NULL THEN 'version_ilegible'
+        WHEN public.semver_parts(v_latest.version) > public.semver_parts(v_device.firmware_version)
+            THEN 'desactualizado'
+        ELSE 'al_dia'
+    END;
 
     RETURN jsonb_build_object(
         'device', to_jsonb(v_device),
         'latest_published_firmware', CASE WHEN v_latest.id IS NULL THEN NULL ELSE
             jsonb_build_object('id', v_latest.id, 'version', v_latest.version,
-                                'hardware_target', v_latest.hardware_target,
-                                'is_mandatory', v_latest.is_mandatory)
+                               'hardware_target', v_latest.hardware_target,
+                               'is_mandatory', v_latest.is_mandatory)
         END,
-        'is_up_to_date', (v_latest.id IS NULL OR v_latest.version = v_device.firmware_version),
+        'firmware_status', v_status,
+        -- Se conserva por compatibilidad con clientes que ya la leen; a partir
+        -- de aquí lo informativo es `firmware_status`.
+        'is_up_to_date', (v_status <> 'desactualizado'),
         'last_location', (
             SELECT jsonb_build_object('latitude', m.latitude, 'longitude', m.longitude,
-                                       'field_name', m.field_name, 'measured_at', m.measured_at)
+                                      'gps_accuracy_m', m.gps_accuracy_m,
+                                      'field_name', m.field_name, 'measured_at', m.measured_at)
               FROM public.soil_measurements m
              WHERE m.device_id = p_device_id
+               AND m.latitude IS NOT NULL
+               AND m.longitude IS NOT NULL
              ORDER BY m.measured_at DESC LIMIT 1
         ),
         'members', (
             SELECT COALESCE(jsonb_agg(jsonb_build_object(
                 'user_id', dm.user_id,
                 'email', p.email,
-                'full_name', TRIM(COALESCE(p.first_name, '') || ' ' || COALESCE(p.last_name, '')),
+                'full_name', NULLIF(TRIM(COALESCE(p.first_name, '') || ' ' || COALESCE(p.last_name, '')), ''),
                 'role', dm.role,
                 'is_authorized', dm.is_authorized,
+                'has_push_token', (p.push_token IS NOT NULL),
                 'created_at', dm.created_at
-            ) ORDER BY CASE dm.role WHEN 'owner' THEN 0 WHEN 'admin' THEN 1 ELSE 2 END), '[]'::jsonb)
+            ) ORDER BY CASE dm.role WHEN 'admin' THEN 0 ELSE 1 END, p.email), '[]'::jsonb)
               FROM public.device_members dm
               JOIN public.profiles p ON p.id = dm.user_id
              WHERE dm.device_id = p_device_id
@@ -191,6 +207,7 @@ BEGIN
         'measurements', (
             SELECT COALESCE(jsonb_agg(jsonb_build_object(
                 'id', m.id, 'measured_at', m.measured_at, 'field_name', m.field_name,
+                'crop_id', m.crop_id,
                 'phenological_stage', m.phenological_stage, 'verdict', m.verdict,
                 'verdict_title', m.verdict_title, 'vwc_percent', m.vwc_percent,
                 'soil_temp_c', m.soil_temp_c, 'ec_us_cm', m.ec_us_cm, 'ph', m.ph,
@@ -210,6 +227,119 @@ $$;
 
 
 ALTER FUNCTION "public"."admin_get_device_detail"("p_device_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_list_fleet"() RETURNS TABLE("device_id" "uuid", "device_code" "text", "name" "text", "alias" "text", "is_active" boolean, "battery_level" integer, "firmware_version" "text", "hardware_version" "text", "last_seen_at" timestamp with time zone, "last_measurement_at" timestamp with time zone, "created_at" timestamp with time zone, "member_count" integer, "pending_count" integer, "measurement_count" integer, "latest_version" "text", "firmware_status" "text")
+    LANGUAGE "plpgsql" STABLE SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+BEGIN
+    IF NOT public.is_support_staff() THEN
+        RAISE EXCEPTION 'No tienes acceso al panel de soporte.' USING ERRCODE = '42501';
+    END IF;
+
+    RETURN QUERY
+    SELECT d.id,
+           d.device_code::TEXT,
+           d.name::TEXT,
+           d.alias::TEXT,
+           d.is_active,
+           d.battery_level::INTEGER,
+           d.firmware_version::TEXT,
+           d.hardware_version::TEXT,
+           d.last_seen_at,
+           d.last_measurement_at,
+           d.created_at,
+           COALESCE(mem.total, 0)::INTEGER,
+           COALESCE(mem.pending, 0)::INTEGER,
+           COALESCE(mea.total, 0)::INTEGER,
+           latest.version,
+           CASE
+               WHEN latest.version IS NULL THEN 'sin_catalogo'
+               WHEN public.semver_parts(d.firmware_version) IS NULL THEN 'version_ilegible'
+               WHEN public.semver_parts(latest.version) > public.semver_parts(d.firmware_version)
+                   THEN 'desactualizado'
+               ELSE 'al_dia'
+           END
+      FROM public.devices d
+      LEFT JOIN LATERAL (
+          SELECT COUNT(*) AS total,
+                 COUNT(*) FILTER (WHERE NOT dm.is_authorized) AS pending
+            FROM public.device_members dm
+           WHERE dm.device_id = d.id
+      ) mem ON TRUE
+      LEFT JOIN LATERAL (
+          SELECT COUNT(*) AS total
+            FROM public.soil_measurements m
+           WHERE m.device_id = d.id
+      ) mea ON TRUE
+      LEFT JOIN LATERAL (
+          SELECT f.version
+            FROM public.firmware_releases f
+           WHERE f.is_published
+             AND f.hardware_target = COALESCE(d.hardware_version, 'ESP32-WROOM-32')
+           ORDER BY public.semver_parts(f.version) DESC NULLS LAST
+           LIMIT 1
+      ) latest ON TRUE
+     ORDER BY d.last_seen_at DESC NULLS LAST, d.created_at DESC;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."admin_list_fleet"() OWNER TO "postgres";
+
+
+COMMENT ON FUNCTION "public"."admin_list_fleet"() IS 'Inventario completo de sondas para el backoffice. RLS acota `devices` a los equipos donde la sesión es miembro, y una cuenta de soporte no lo es de ninguno: el perímetro aquí es is_support_staff(), igual que el resto del panel.';
+
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_list_recent_measurements"("p_limit" integer DEFAULT 200) RETURNS TABLE("id" "uuid", "device_id" "uuid", "device_code" "text", "device_label" "text", "measured_at" timestamp with time zone, "field_name" "text", "crop_id" "text", "phenological_stage" "text", "verdict" "text", "verdict_title" "text", "vwc_percent" numeric, "soil_temp_c" numeric, "ec_us_cm" integer, "ph" numeric, "nitrogen" integer, "phosphorus" integer, "potassium" integer, "canopy_temp_c" numeric, "canopy_humidity_pct" numeric, "air_pressure_hpa" numeric, "battery_percent" smallint, "latitude" numeric, "longitude" numeric, "diagnosis" "jsonb")
+    LANGUAGE "plpgsql" STABLE SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+BEGIN
+    IF NOT public.is_support_staff() THEN
+        RAISE EXCEPTION 'No tienes acceso al panel de soporte.' USING ERRCODE = '42501';
+    END IF;
+
+    RETURN QUERY
+    SELECT m.id,
+           m.device_id,
+           d.device_code::TEXT,
+           COALESCE(NULLIF(d.alias, ''), d.name)::TEXT,
+           m.measured_at,
+           m.field_name::TEXT,
+           m.crop_id::TEXT,
+           m.phenological_stage,
+           m.verdict::TEXT,
+           m.verdict_title,
+           m.vwc_percent,
+           m.soil_temp_c,
+           m.ec_us_cm,
+           m.ph,
+           m.nitrogen,
+           m.phosphorus,
+           m.potassium,
+           m.canopy_temp_c,
+           m.canopy_humidity_pct,
+           m.air_pressure_hpa,
+           m.battery_percent,
+           m.latitude,
+           m.longitude,
+           m.diagnosis
+      FROM public.soil_measurements m
+      JOIN public.devices d ON d.id = m.device_id
+     ORDER BY m.measured_at DESC
+     LIMIT LEAST(GREATEST(COALESCE(p_limit, 200), 1), 500);
+END;
+$$;
+
+
+ALTER FUNCTION "public"."admin_list_recent_measurements"("p_limit" integer) OWNER TO "postgres";
+
+
+COMMENT ON FUNCTION "public"."admin_list_recent_measurements"("p_limit" integer) IS 'Últimas mediciones de toda la flota para el backoffice, con el equipo ya resuelto. Tope de 500 filas: es una pantalla de diagnóstico, no un export.';
+
 
 
 CREATE OR REPLACE FUNCTION "public"."admin_push_firmware_update"("p_device_id" "uuid", "p_firmware_release_id" "uuid") RETURNS "jsonb"
@@ -477,18 +607,19 @@ CREATE OR REPLACE FUNCTION "public"."check_firmware_update"("p_device_id" "uuid"
     SET "search_path" TO 'public'
     AS $$
 DECLARE
-    v_current TEXT;
+    v_current INT[];
     v_target  TEXT;
 BEGIN
     IF NOT public.has_device_access(p_device_id) THEN
         RAISE EXCEPTION 'Sin acceso a este equipo.' USING ERRCODE = '42501';
     END IF;
 
-    SELECT d.firmware_version, d.hardware_version
+    SELECT public.semver_parts(d.firmware_version), d.hardware_version
       INTO v_current, v_target
       FROM public.devices d
      WHERE d.id = p_device_id;
 
+    -- Sin versión legible no se puede afirmar que exista una más reciente.
     IF v_current IS NULL THEN
         RETURN;
     END IF;
@@ -498,10 +629,11 @@ BEGIN
       FROM public.firmware_releases f
      WHERE f.is_published
        AND f.hardware_target = COALESCE(v_target, 'ESP32-WROOM-32')
-       AND string_to_array(f.version, '.')::int[] > string_to_array(v_current, '.')::int[]
-     ORDER BY string_to_array(f.version, '.')::int[] DESC
+       AND public.semver_parts(f.version) > v_current
+     ORDER BY public.semver_parts(f.version) DESC
      LIMIT 1;
-END; $$;
+END;
+$$;
 
 
 ALTER FUNCTION "public"."check_firmware_update"("p_device_id" "uuid") OWNER TO "postgres";
@@ -983,6 +1115,36 @@ COMMENT ON FUNCTION "public"."mark_onboarding_from_membership"() IS 'Persiste el
 
 
 
+CREATE OR REPLACE FUNCTION "public"."normalize_device_versions"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO ''
+    AS $_$
+BEGIN
+    IF NEW.hardware_version IS NULL OR NEW.hardware_version = 'v2.0-nRF52840' THEN
+        NEW.hardware_version := 'ESP32-WROOM-32';
+    END IF;
+
+    -- Si no hay tres números que extraer se deja tal cual: es preferible un
+    -- valor raro visible en la ficha a perder lo que informó el equipo.
+    IF NEW.firmware_version IS NOT NULL AND NEW.firmware_version !~ '^\d+\.\d+\.\d+$' THEN
+        NEW.firmware_version := COALESCE(
+            (regexp_match(NEW.firmware_version, '(\d+\.\d+\.\d+)'))[1],
+            NEW.firmware_version
+        );
+    END IF;
+
+    RETURN NEW;
+END;
+$_$;
+
+
+ALTER FUNCTION "public"."normalize_device_versions"() OWNER TO "postgres";
+
+
+COMMENT ON FUNCTION "public"."normalize_device_versions"() IS 'Deja hardware_version y firmware_version en la nomenclatura del catálogo. Hace falta porque la Edge Function device-checkin escribe lo que reporte el equipo, sin validar el formato.';
+
+
+
 CREATE OR REPLACE FUNCTION "public"."prepare_device_for_owner"("p_device_id" "uuid", "p_confirm_device_code" "text") RETURNS "jsonb"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO 'public'
@@ -1200,6 +1362,21 @@ $$;
 
 
 ALTER FUNCTION "public"."request_device_access_qr"("p_device_code" "text", "p_user_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."semver_parts"("p_version" "text") RETURNS integer[]
+    LANGUAGE "sql" IMMUTABLE PARALLEL SAFE
+    SET "search_path" TO ''
+    AS $$
+    SELECT string_to_array((regexp_match(p_version, '(\d+\.\d+\.\d+)'))[1], '.')::INT[];
+$$;
+
+
+ALTER FUNCTION "public"."semver_parts"("p_version" "text") OWNER TO "postgres";
+
+
+COMMENT ON FUNCTION "public"."semver_parts"("p_version" "text") IS 'Tres componentes numéricos de una cadena de versión, o NULL si no los tiene. Tolera prefijos y sufijos para que un firmware informado como v2.1.0-BLE siga siendo comparable con el catálogo, que exige 2.1.0.';
+
 
 
 CREATE OR REPLACE FUNCTION "public"."set_device_member_authorization_default"() RETURNS "trigger"
@@ -1440,8 +1617,8 @@ CREATE TABLE IF NOT EXISTS "public"."devices" (
     "device_code" character varying(20) DEFAULT "public"."generate_device_code"() NOT NULL,
     "name" character varying(100) DEFAULT 'TerraSense Sonda Pro'::character varying NOT NULL,
     "alias" character varying(100) DEFAULT 'Lote Principal'::character varying,
-    "hardware_version" character varying(20) DEFAULT 'v2.0-nRF52840'::character varying NOT NULL,
-    "firmware_version" character varying(20) DEFAULT 'v2.1.0-BLE'::character varying NOT NULL,
+    "hardware_version" character varying(20) DEFAULT 'ESP32-WROOM-32'::character varying NOT NULL,
+    "firmware_version" character varying(20) DEFAULT '2.1.0'::character varying NOT NULL,
     "battery_level" smallint DEFAULT 96 NOT NULL,
     "is_active" boolean DEFAULT true NOT NULL,
     "pairing_mode_active" boolean DEFAULT false NOT NULL,
@@ -1872,6 +2049,10 @@ CREATE OR REPLACE TRIGGER "trg_measurement_generation" BEFORE INSERT OR UPDATE O
 
 
 
+CREATE OR REPLACE TRIGGER "trg_normalize_device_versions" BEFORE INSERT OR UPDATE ON "public"."devices" FOR EACH ROW EXECUTE FUNCTION "public"."normalize_device_versions"();
+
+
+
 CREATE OR REPLACE TRIGGER "trg_protect_device_generation" BEFORE UPDATE ON "public"."devices" FOR EACH ROW EXECUTE FUNCTION "public"."protect_device_generation"();
 
 
@@ -2272,6 +2453,18 @@ GRANT ALL ON FUNCTION "public"."admin_get_device_detail"("p_device_id" "uuid") T
 
 
 
+REVOKE ALL ON FUNCTION "public"."admin_list_fleet"() FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_list_fleet"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_list_fleet"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."admin_list_recent_measurements"("p_limit" integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_list_recent_measurements"("p_limit" integer) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_list_recent_measurements"("p_limit" integer) TO "service_role";
+
+
+
 REVOKE ALL ON FUNCTION "public"."admin_push_firmware_update"("p_device_id" "uuid", "p_firmware_release_id" "uuid") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."admin_push_firmware_update"("p_device_id" "uuid", "p_firmware_release_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_push_firmware_update"("p_device_id" "uuid", "p_firmware_release_id" "uuid") TO "service_role";
@@ -2431,6 +2624,10 @@ REVOKE ALL ON FUNCTION "public"."mark_onboarding_from_membership"() FROM PUBLIC;
 
 
 
+REVOKE ALL ON FUNCTION "public"."normalize_device_versions"() FROM PUBLIC;
+
+
+
 REVOKE ALL ON FUNCTION "public"."prepare_device_for_owner"("p_device_id" "uuid", "p_confirm_device_code" "text") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."prepare_device_for_owner"("p_device_id" "uuid", "p_confirm_device_code" "text") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."prepare_device_for_owner"("p_device_id" "uuid", "p_confirm_device_code" "text") TO "service_role";
@@ -2467,6 +2664,12 @@ GRANT ALL ON FUNCTION "public"."register_paired_device"("p_code" "text", "p_name
 
 REVOKE ALL ON FUNCTION "public"."request_device_access_qr"("p_device_code" "text", "p_user_id" "uuid") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."request_device_access_qr"("p_device_code" "text", "p_user_id" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."semver_parts"("p_version" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."semver_parts"("p_version" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."semver_parts"("p_version" "text") TO "service_role";
 
 
 

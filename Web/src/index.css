@@ -1,85 +1,266 @@
 @import "tailwindcss";
+
+/* =============================================================================
+   Sistema de diseño de la consola TerraSense
+   =============================================================================
+   La paleta sale del logotipo oficial (`Logo/Logo/terrasense.svg`), no de un
+   verde inventado: tinta #0f2e22, verde de marca #16a34a, verde de sonda
+   #047857, hojas #15803d y #22c55e, bandas #10b981 y los grises pizarra de los
+   horizontes de suelo (#94a3b8 / #cbd5e1 / #e2e8f0).
+
+   Dos capas, y el orden importa:
+
+     1. `--ts-*` en `:root` — los valores crudos. Es la única capa que cambia
+        con el tema.
+     2. `@theme inline` — traduce esos valores a tokens de Tailwind. `inline`
+        es obligatorio: sin él Tailwind COPIA el valor en vez de emitir
+        `var(--ts-*)`, y el conmutador de tema dejaría de tener efecto.
+
+   El archivo anterior declaraba `@theme { --color-terra-bg: var(--color-terra-bg) }`
+   —una variable definida en términos de sí misma— y dejaba los colores del
+   semáforo (`verdict-*`) fuera de `@theme`. Tailwind v4 sólo genera utilidades
+   para lo que está declarado ahí, así que las 138 clases `text-verdict-red`,
+   `bg-verdict-amber/10`, `border-verdict-red/30`… no producían ni un byte de
+   CSS: el semáforo agronómico, los avisos de error y el botón de reseteo se
+   pintaban sin color.
+   ========================================================================== */
+
 :root {
-  --color-terra-bg: #050a07;
-  --color-terra-surface: #1e3326;
-  --color-terra-border: #335c45;
-  --color-terra-primary: #12d271;
-  --color-terra-primary-hover: #1ae580;
-  --color-terra-text: #ffffff;
-  --color-terra-muted: #b8d4c5;
-  --color-verdict-green: #12d271;
-  --color-verdict-amber: #ffc061;
-  --color-verdict-red: #ff6b6b;
-  --color-glass-panel: rgba(10, 20, 15, 0.6);
-  --color-glass-hover: rgba(20, 40, 30, 0.8);
+  color-scheme: light;
+
+  /* Superficies */
+  --ts-bg: #f4f7f5;
+  --ts-surface: #ffffff;
+  --ts-surface-2: #eef3f0;
+  --ts-overlay: rgba(15, 46, 34, 0.45);
+
+  /* Trazo */
+  --ts-border: #d9e3dd;
+  --ts-border-strong: #b9cbc1;
+
+  /* Tipografía */
+  --ts-text: #0f2e22;
+  --ts-muted: #4c6155;
+  --ts-faint: #6d8376;
+
+  /* Marca */
+  --ts-primary: #16a34a;        /* relleno y trazo: verde de marca */
+  --ts-primary-ink: #11713a;    /* el mismo verde, legible como texto */
+  --ts-primary-soft: #eef9f2;   /* fondo de realce */
+  --ts-on-primary: #ffffff;
+
+  /* Semáforo agronómico */
+  --ts-green: #15803d;
+  --ts-green-soft: #eef9f2;
+  --ts-amber: #a35a06;
+  --ts-amber-soft: #fbf0df;
+  --ts-red: #b3261e;
+  --ts-red-soft: #fbeae9;
+
+  /* Zona de soporte: ámbar de marca, para distinguirla del flujo normal */
+  --ts-support: #8a5a00;
+  --ts-support-soft: #f8efdc;
+
+  --ts-shadow-card: 0 1px 2px rgba(15, 46, 34, 0.06), 0 1px 3px rgba(15, 46, 34, 0.04);
+  --ts-shadow-pop: 0 10px 30px rgba(15, 46, 34, 0.14);
 }
 
-:root[data-theme='light'] {
-  --color-terra-bg: #f2f7f4;
-  --color-terra-surface: #ffffff;
-  --color-terra-border: #d1e3d9;
-  --color-terra-primary: #0ea759;
-  --color-terra-primary-hover: #12d271;
-  --color-terra-text: #050a07;
-  --color-terra-muted: #5a7364;
-  --color-verdict-green: #0ea759;
-  --color-verdict-amber: #e59e10;
-  --color-verdict-red: #e03131;
-  --color-glass-panel: rgba(255, 255, 255, 0.7);
-  --color-glass-hover: rgba(255, 255, 255, 0.9);
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --ts-bg: #071512;
+  --ts-surface: #0d2019;
+  --ts-surface-2: #142b21;
+  --ts-overlay: rgba(2, 8, 6, 0.7);
+
+  --ts-border: #1e3b2d;
+  --ts-border-strong: #2d5641;
+
+  --ts-text: #e7f1ea;
+  --ts-muted: #9db3a5;
+  --ts-faint: #7d9488;
+
+  --ts-primary: #22c55e;
+  --ts-primary-ink: #4ade80;
+  --ts-primary-soft: #11291c;
+  --ts-on-primary: #052e16;
+
+  --ts-green: #4ade80;
+  --ts-green-soft: #11291c;
+  --ts-amber: #fbbf24;
+  --ts-amber-soft: #2b2110;
+  --ts-red: #fb7185;
+  --ts-red-soft: #2c1417;
+
+  --ts-support: #fbbf24;
+  --ts-support-soft: #2b2110;
+
+  --ts-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --ts-shadow-pop: 0 16px 40px rgba(0, 0, 0, 0.5);
 }
 
-@theme {
-  --color-terra-bg: var(--color-terra-bg);
-  --color-terra-surface: var(--color-terra-surface);
-  --color-terra-border: var(--color-terra-border);
-  --color-terra-primary: var(--color-terra-primary);
-  --color-terra-primary-hover: var(--color-terra-primary-hover);
-  --color-terra-text: var(--color-terra-text);
-  --color-terra-muted: var(--color-terra-muted);
+@theme inline {
+  --color-terra-bg: var(--ts-bg);
+  --color-terra-surface: var(--ts-surface);
+  --color-terra-raised: var(--ts-surface-2);
+  --color-terra-border: var(--ts-border);
+  --color-terra-border-strong: var(--ts-border-strong);
+  --color-terra-text: var(--ts-text);
+  --color-terra-muted: var(--ts-muted);
+  --color-terra-faint: var(--ts-faint);
+
+  --color-terra-primary: var(--ts-primary);
+  --color-terra-primary-ink: var(--ts-primary-ink);
+  --color-terra-primary-soft: var(--ts-primary-soft);
+  --color-terra-on-primary: var(--ts-on-primary);
+
+  --color-verdict-green: var(--ts-green);
+  --color-verdict-green-soft: var(--ts-green-soft);
+  --color-verdict-amber: var(--ts-amber);
+  --color-verdict-amber-soft: var(--ts-amber-soft);
+  --color-verdict-red: var(--ts-red);
+  --color-verdict-red-soft: var(--ts-red-soft);
+
+  --color-support: var(--ts-support);
+  --color-support-soft: var(--ts-support-soft);
+
+  /* Escala de radios: los cuatro escalones se usan para cosas distintas —
+     chips, controles, tarjetas, modales— en vez de redondearlo todo igual. */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+
+  --shadow-card: var(--ts-shadow-card);
+  --shadow-pop: var(--ts-shadow-pop);
+
+  /* El logotipo oficial compone su wordmark con la pila del sistema; la
+     consola usa la misma, y de paso se ahorra una descarga bloqueante a
+     fonts.googleapis.com en cada carga del backoffice. */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
 }
 
-html, body, #root { height: 100%; }
+/* -----------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
-  background: var(--color-terra-bg);
-  color: var(--color-terra-text);
-  font-family: 'Outfit', ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  margin: 0;
+  background: var(--ts-bg);
+  color: var(--ts-text);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  background-image: radial-gradient(circle at top right, rgba(18, 210, 113, 0.05), transparent 600px),
-                    radial-gradient(circle at bottom left, rgba(18, 210, 113, 0.03), transparent 400px);
-  background-attachment: fixed;
-  transition: background-color 0.5s ease, color 0.5s ease;
+  text-rendering: optimizeLegibility;
 }
 
-/* Los números de las tablas deben alinearse en columna. */
-.tabular { font-variant-numeric: tabular-nums; }
-
-/* Utilidades adicionales UI */
-.glass-panel {
-  background: var(--color-glass-panel);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--color-terra-border);
-  transition: background-color 0.5s ease, border-color 0.5s ease;
+/* Las cifras de una tabla tienen que alinearse en columna. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 
-.hover-glass:hover {
-  background: var(--color-glass-hover);
-  border-color: rgba(18, 210, 113, 0.3);
+/* -----------------------------------------------------------------------------
+   Foco visible
+   -------------------------------------------------------------------------- */
+/* Casi todos los controles llevaban `outline-none` y confiaban el foco a un
+   cambio de color de borde: insuficiente para navegar con teclado, y en los
+   botones directamente invisible. Un anillo único para toda la consola. */
+
+:focus-visible {
+  outline: 2px solid var(--ts-primary);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
 }
 
-/* Custom scrollbar */
+/* -----------------------------------------------------------------------------
+   Superficies
+   -------------------------------------------------------------------------- */
+/* Antes cada tarjeta era un panel de vidrio con `backdrop-filter: blur(12px)`.
+   Sobre tablas densas el desenfoque degrada la legibilidad del texto pequeño y
+   obliga al compositor a repintar una capa entera en cada scroll. Una tarjeta
+   opaca con un borde definido es más legible y más barata. */
+
+.panel {
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--ts-shadow-card);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid var(--ts-border);
+}
+
+/* Cabecera de tabla fija: en un historial de 500 filas, perder los
+   encabezados al primer scroll obliga a subir para saber qué columna se lee. */
+.data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--ts-surface-2);
+  color: var(--ts-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.data-table tbody tr:hover {
+  background: var(--ts-surface-2);
+}
+
+/* -----------------------------------------------------------------------------
+   Barra de scroll
+   -------------------------------------------------------------------------- */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ts-border-strong) transparent;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: var(--color-terra-border);
-  border-radius: 4px;
+  background: var(--ts-border-strong);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-terra-muted);
+
+/* -----------------------------------------------------------------------------
+   Movimiento
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

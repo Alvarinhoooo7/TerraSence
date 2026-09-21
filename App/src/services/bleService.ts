@@ -3,7 +3,7 @@
 // Enlace BLE con la sonda TerraSense mediante `react-native-ble-plx`.
 //
 // El ESP32 hace de puente: consulta la sonda por RS-485 Modbus RTU y publica
-// el resultado ya decodificado en una característica GATT de 16 o 20 bytes, para no
+// el resultado ya decodificado en una característica GATT de 20 bytes, para no
 // obligar al teléfono a hablar Modbus.
 //
 // Decisiones de diseño:
@@ -24,10 +24,19 @@ import {
   TERRASENSE_TELEMETRY_UUID,
 } from './probeService';
 import { isValidDeviceId, normalizeDeviceId } from '../utils/deviceId';
+import { timedOperation } from '../utils/timedOperation';
 import type { SoilMeasurement } from '../types/agronomy';
 
 const SCAN_TIMEOUT_MS = 12_000;
 const NOTIFY_TIMEOUT_MS = 15_000;
+let transactionSequence = 0;
+
+function gattOperation<T>(work: (id: string) => Promise<T>): Promise<T> {
+  const id = `terrasense-${++transactionSequence}`;
+  return timedOperation(work(id), NOTIFY_TIMEOUT_MS,
+    () => { void getManager().cancelTransaction(id).catch(() => undefined); },
+    'La sonda no respondió a tiempo. Acércala y vuelve a activar el modo PAIR.');
+}
 
 let manager: BleManager | null = null;
 
@@ -45,10 +54,8 @@ export function destroyManager(): void {
 /**
  * Permisos de Android 12+.
  *
- * `BLUETOOTH_SCAN` se declara con `neverForLocation`, así que no hace falta
- * pedir ubicación para escanear. Se pide igualmente `ACCESS_FINE_LOCATION`
- * porque la medición sí necesita georreferenciarse, pero son cosas distintas
- * y conviene no confundirlas.
+ * `BLUETOOTH_SCAN` se declara con `neverForLocation`: desde Android 12 no se pide
+ * ubicación para escanear. En versiones anteriores sí la requiere el sistema.
  */
 export async function requestBlePermissions(): Promise<boolean> {
   if (Platform.OS !== 'android') return true;
@@ -74,18 +81,27 @@ async function waitForPoweredOn(timeoutMs = 6000): Promise<void> {
   if (state === 'PoweredOn') return;
 
   await new Promise<void>((resolve, reject) => {
+    let sub: Subscription | undefined;
+    let settled = false;
     const timer = setTimeout(() => {
-      sub.remove();
+      sub?.remove();
       reject(new Error('El Bluetooth está apagado. Actívalo para leer la sonda.'));
     }, timeoutMs);
 
-    const sub: Subscription = mgr.onStateChange((s) => {
+    sub = mgr.onStateChange((s) => {
       if (s === 'PoweredOn') {
+        settled = true;
         clearTimeout(timer);
-        sub.remove();
+        sub?.remove();
         resolve();
+      } else if (s === 'Unauthorized' || s === 'Unsupported') {
+        settled = true;
+        clearTimeout(timer);
+        sub?.remove();
+        reject(new Error(s === 'Unauthorized' ? 'Activa el permiso de Bluetooth en Ajustes.' : 'Bluetooth no está disponible en este dispositivo.'));
       }
     }, true);
+    if (settled) sub.remove();
   });
 }
 
@@ -124,9 +140,17 @@ export async function scanForProbe(expectedDeviceCode?: string): Promise<Device>
   const expected = expectedDeviceCode ? normalizeDeviceId(expectedDeviceCode) : null;
 
   return new Promise<Device>((resolve, reject) => {
+    let settled = false;
+    const finish = (error: Error | null, device?: Device) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      void mgr.stopDeviceScan().catch(() => undefined);
+      if (error) reject(error);
+      else if (device) resolve(device);
+    };
     const timer = setTimeout(() => {
-      mgr.stopDeviceScan();
-      reject(
+      finish(
         new Error(
           expected
             ? 'No se encontró la sonda seleccionada. Comprueba que esté encendida y que su código coincida con el equipo activo.'
@@ -135,19 +159,15 @@ export async function scanForProbe(expectedDeviceCode?: string): Promise<Device>
       );
     }, SCAN_TIMEOUT_MS);
 
-    mgr.startDeviceScan([TERRASENSE_SERVICE_UUID], { allowDuplicates: false }, (error, device) => {
+    void mgr.startDeviceScan([TERRASENSE_SERVICE_UUID], { allowDuplicates: false }, (error, device) => {
       if (error) {
-        clearTimeout(timer);
-        mgr.stopDeviceScan();
-        reject(new Error(`Fallo al buscar la sonda: ${error.message}`));
+        finish(new Error(`Fallo al buscar la sonda: ${error.message}`));
         return;
       }
       if (device && (!expected || advertisedDeviceCode(device) === expected)) {
-        clearTimeout(timer);
-        mgr.stopDeviceScan();
-        resolve(device);
+        finish(null, device);
       }
-    });
+    }).catch(error => finish(new Error(`No se pudo iniciar Bluetooth: ${String(error)}`)));
   });
 }
 
@@ -160,16 +180,15 @@ export interface PairedProbeIdentity {
 }
 
 async function readAssignedCode(device: Device): Promise<string | null> {
-  try {
-    const characteristic = await device.readCharacteristicForService(
-      TERRASENSE_SERVICE_UUID,
-      TERRASENSE_IDENTITY_UUID,
-    );
-    const code = normalizeDeviceId(decodeBase64Text(characteristic.value));
-    return isValidDeviceId(code) ? code : null;
-  } catch {
-    return null;
-  }
+  const characteristic = await gattOperation(id => device.readCharacteristicForService(
+    TERRASENSE_SERVICE_UUID,
+    TERRASENSE_IDENTITY_UUID,
+    id,
+  ));
+  if (characteristic.value === '') return null;
+  const code = decodeBase64Text(characteristic.value).trim();
+  if (!/^[1-9]\d{14}$/.test(code)) throw new Error('No se pudo verificar la identidad de la sonda. Reintenta la vinculación.');
+  return code;
 }
 
 /**
@@ -185,8 +204,9 @@ export async function pairWithNearbyProbe(): Promise<PairedProbeIdentity> {
   let connected: Device | null = null;
 
   try {
-    connected = await discovered.connect();
-    await connected.discoverAllServicesAndCharacteristics();
+    connected = await discovered.connect({ timeout: SCAN_TIMEOUT_MS });
+    const target = connected;
+    await gattOperation(id => target.discoverAllServicesAndCharacteristics(id));
     return {
       bleId: connected.id,
       name: connected.localName ?? connected.name ?? 'Sonda TerraSense',
@@ -212,13 +232,20 @@ export async function provisionProbe(bleId: string, rawCode: string): Promise<vo
   const mgr = getManager();
   let connected: Device | null = null;
   try {
-    connected = await mgr.connectToDevice(bleId);
-    await connected.discoverAllServicesAndCharacteristics();
-    await connected.writeCharacteristicWithResponseForService(
+    connected = await mgr.connectToDevice(bleId, { timeout: SCAN_TIMEOUT_MS });
+    const target = connected;
+    await gattOperation(id => target.discoverAllServicesAndCharacteristics(id));
+    // Relee la identidad antes de escribir: un intento anterior pudo haberla
+    // guardado aunque se perdiera la confirmación en el teléfono.
+    const assigned = await readAssignedCode(target);
+    if (assigned === code) return;
+    if (assigned) throw new Error('La sonda ya tiene un código. Vuelve a buscarla para recuperar su identidad.');
+    await gattOperation(id => target.writeCharacteristicWithResponseForService(
       TERRASENSE_SERVICE_UUID,
       TERRASENSE_PROVISIONING_UUID,
       encodeBase64Text(code),
-    );
+      id,
+    ));
 
     const confirmed = await readAssignedCode(connected);
     if (confirmed !== code) {
@@ -241,10 +268,10 @@ export async function readTelemetryOverBle(deviceCode?: string): Promise<SoilMea
   let connected: Device | null = null;
 
   try {
-    const target = await (await scanForProbe(deviceCode)).connect();
+    const target = await (await scanForProbe(deviceCode)).connect({ timeout: SCAN_TIMEOUT_MS });
     connected = target;
 
-    await target.discoverAllServicesAndCharacteristics();
+    await gattOperation(id => target.discoverAllServicesAndCharacteristics(id));
 
     const bytes = await new Promise<Uint8Array>((resolve, reject) => {
       const timer = setTimeout(() => {

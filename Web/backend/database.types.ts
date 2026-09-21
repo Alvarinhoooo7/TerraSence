@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       admin_support_invite: {
@@ -427,6 +452,7 @@ export type Database = {
           onboarding_method: string | null
           ph_alerts_enabled: boolean
           phone: string | null
+          push_token: string | null
           role: string
           salinity_alerts_enabled: boolean
           status: string
@@ -446,6 +472,7 @@ export type Database = {
           onboarding_method?: string | null
           ph_alerts_enabled?: boolean
           phone?: string | null
+          push_token?: string | null
           role?: string
           salinity_alerts_enabled?: boolean
           status?: string
@@ -465,6 +492,7 @@ export type Database = {
           onboarding_method?: string | null
           ph_alerts_enabled?: boolean
           phone?: string | null
+          push_token?: string | null
           role?: string
           salinity_alerts_enabled?: boolean
           status?: string
@@ -687,6 +715,56 @@ export type Database = {
         Returns: Json
       }
       admin_get_device_detail: { Args: { p_device_id: string }; Returns: Json }
+      admin_list_fleet: {
+        Args: never
+        Returns: {
+          alias: string
+          battery_level: number
+          created_at: string
+          device_code: string
+          device_id: string
+          firmware_status: string
+          firmware_version: string
+          hardware_version: string
+          is_active: boolean
+          last_measurement_at: string
+          last_seen_at: string
+          latest_version: string
+          measurement_count: number
+          member_count: number
+          name: string
+          pending_count: number
+        }[]
+      }
+      admin_list_recent_measurements: {
+        Args: { p_limit?: number }
+        Returns: {
+          air_pressure_hpa: number
+          battery_percent: number
+          canopy_humidity_pct: number
+          canopy_temp_c: number
+          crop_id: string
+          device_code: string
+          device_id: string
+          device_label: string
+          diagnosis: Json
+          ec_us_cm: number
+          field_name: string
+          id: string
+          latitude: number
+          longitude: number
+          measured_at: string
+          nitrogen: number
+          ph: number
+          phenological_stage: string
+          phosphorus: number
+          potassium: number
+          soil_temp_c: number
+          verdict: string
+          verdict_title: string
+          vwc_percent: number
+        }[]
+      }
       admin_push_firmware_update: {
         Args: { p_device_id: string; p_firmware_release_id: string }
         Returns: Json
@@ -833,6 +911,7 @@ export type Database = {
         Args: { p_device_code: string; p_user_id: string }
         Returns: Json
       }
+      semver_parts: { Args: { p_version: string }; Returns: number[] }
       support_self_register: {
         Args: { p_full_name: string; p_invite_code: string }
         Returns: Json
@@ -965,6 +1044,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

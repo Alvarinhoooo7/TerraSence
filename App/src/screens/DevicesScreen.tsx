@@ -286,22 +286,19 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
       >
 
         <View style={styles.modalBackdrop}>
-          <View style={[styles.qrModal, { backgroundColor: colors.card }]}>
+          <ScrollView style={[styles.qrModal, { backgroundColor: colors.card }]} contentContainerStyle={{ padding: Spacing.lg, alignItems: 'center' }}>
             <Text style={[styles.qrTitle, { color: colors.text }]}>{t('QR de vinculación', 'Linking QR')}</Text>
             <Text style={[styles.qrHelp, { color: colors.textSecondary }]}>
               {t('Al escanearlo se solicita acceso al administrador de', 'Scanning requests administrator approval for')} {qrDevice?.alias || qrDevice?.name}.
             </Text>
             {qrDevice && <RotatingDeviceQr deviceId={qrDevice.id} />}
-            <Text style={[styles.qrCode, { color: colors.primary }]}>
-              {formatDeviceId(qrDevice?.device_code)}
-            </Text>
             <TouchableOpacity
               onPress={() => setQrDevice(null)}
               style={[styles.cta, { backgroundColor: colors.primary, alignSelf: 'stretch' }]}
             >
               <Text style={styles.ctaText}>{t('Listo', 'Done')}</Text>
             </TouchableOpacity>
-          </View>
+          </ScrollView>
         </View>
       
     </Modal>
@@ -380,7 +377,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: Spacing.lg,
   },
-  qrModal: { width: '100%', maxWidth: 380, borderRadius: Spacing.cardRadius, padding: Spacing.lg, alignItems: 'center' },
+  qrModal: { width: '100%', maxWidth: 380, maxHeight: '90%', flexGrow: 0, borderRadius: Spacing.cardRadius },
   qrTitle: { ...Typography.titleLarge, textAlign: 'center' },
   qrHelp: { ...Typography.bodyRegular, textAlign: 'center', marginTop: Spacing.sm },
   qrCanvas: { padding: Spacing.sm, backgroundColor: '#FFFFFF', borderRadius: 16, marginTop: Spacing.lg },

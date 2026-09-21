@@ -23,17 +23,20 @@ import { useTranslation } from '../hooks/useTranslation';
 import { AppIcon } from '../components/AppIcon';
 import { AuthLayout, AuthHeading, AuthButton, AuthField, SoilArtwork, authStyles } from '../components/auth/AuthUI';
 import { enableDevSkip } from '../utils/devSkipOnboarding';
+import { createDeveloperTap } from '../utils/developerTap';
 import { requestDeviceAccess, registerDevice, listMyDevices, listMyDeviceMemberships } from '../services/deviceService';
 import { WaitingApprovalScreen } from './WaitingApprovalScreen';
 import { completeOnboarding } from '../services/onboardingService';
 import { useAppStore } from '../store/useAppStore';
+import { useAuthStore } from '../store/useAuthStore';
 import {
   generateDeviceId,
   parseDeviceQrPayload,
+  parseDeviceInvite,
 } from '../utils/deviceId';
 import type { DeviceRow, OnboardingMethod } from '../types/app';
 
-type Step = 'choice' | 'qr' | 'pairing';
+type Step = 'choice' | 'invite' | 'qr' | 'pairing';
 type PairingState = 'idle' | 'scanning' | 'found' | 'saving';
 
 interface ProbeIdentity {
@@ -44,7 +47,7 @@ interface ProbeIdentity {
 
 interface Props {
   onComplete: (device: DeviceRow) => void;
-  /** Solo desarrollo: entra sin equipo, en modo demostracion. */
+  /** Sólo desarrollo: entra a Dashboard sin equipo. */
   onDevSkip?: () => void;
 }
 
@@ -58,11 +61,22 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [pending, setPending] = useState(false);
   const [joining, setJoining] = useState(false);
+  const [inviteCode, setInviteCode] = useState('');
   const [scanned, setScanned] = useState(false);
   const scanLatch = useRef(false);
   const operation = useRef(false);
   const mounted = useRef(true);
   const finished = useRef(false);
+  const skipFromLogo = async () => {
+    if (!__DEV__ || !onDevSkip || operation.current || finished.current) return;
+    const userId = useAuthStore.getState().session?.user.id;
+    if (!userId) return;
+    operation.current = true;
+    finished.current = true;
+    await enableDevSkip(userId);
+    if (mounted.current) { setDevice(null); onDevSkip(); }
+  };
+  const logoTap = useRef(createDeveloperTap(__DEV__, () => { void skipFromLogo(); }));
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const rejectedPayload = useRef<string | null>(null);
 
@@ -164,7 +178,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
         rejectedPayload.current = data;
         Alert.alert(
           t('QR no reconocido', 'QR not recognized'),
-          t('Este código no pertenece a un equipo TerraSense. Pide al administrador que abra “Mis equipos” y muestre el QR de la sonda.', 'This code does not belong to a TerraSense device. Ask the administrator to open “My devices” and show the probe QR.'),
+          t('Este código no pertenece a un equipo TerraSense. Pide a un miembro aprobado que abra “Mis dispositivos” y muestre el QR de la sonda.', 'This code does not belong to a TerraSense device. Ask an approved member to open “My devices” and show the probe QR.'),
           [{ text: t('Escanear otra vez', 'Scan again'), onPress: rearmScanner }],
         );
         return;
@@ -189,6 +203,28 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
     },
     [finish, friendlyError, rearmScanner, t],
   );
+
+  const joinByCode = async () => {
+    if (operation.current || finished.current) return;
+    const token = parseDeviceInvite(inviteCode);
+    if (!token) {
+      Alert.alert(t('Código de invitación inválido', 'Invalid invitation code'), t('Copia el código temporal que aparece junto al QR. El número de serie de la sonda no sirve para solicitar acceso.', 'Copy the temporary code displayed beside the QR. The probe serial number cannot request access.'));
+      return;
+    }
+    operation.current = true;
+    setJoining(true);
+    try {
+      const device = await requestDeviceAccess(token);
+      if (!mounted.current) return;
+      if (device) await finish('qr', device);
+      else { setPending(true); setStep('choice'); }
+    } catch (error) {
+      if (mounted.current) Alert.alert(t('No se pudo solicitar acceso', 'Could not request access'), friendlyError(error));
+    } finally {
+      operation.current = false;
+      if (mounted.current) setJoining(false);
+    }
+  };
 
   const startPairing = useCallback(async () => {
     if (operation.current) return;
@@ -248,7 +284,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
     setScanned(false);
     setPairingState('idle');
     setProbe(null);
-  }, [joining, pairingState]);
+  }, [joining]);
 
   useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -261,6 +297,14 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
 
   if (pending) return <WaitingApprovalScreen onApproved={device => void finish('qr', device)} onDismiss={() => setPending(false)} />;
   if (checkingRequests) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center' }}><ActivityIndicator color={colors.primary} /></SafeAreaView>;
+
+  if (step === 'invite') return <AuthLayout toolbar={<TouchableOpacity accessibilityRole="button" disabled={joining} onPress={backToChoice} style={authStyles.link}><Text style={{ color: colors.primary }}>{t('Volver', 'Back')}</Text></TouchableOpacity>}>
+    <AuthHeading eyebrow={t('EQUIPO COMPARTIDO', 'SHARED DEVICE')} title={t('Usa tu invitación.', 'Use your invitation.')}
+      description={t('Pide a un miembro aprobado que abra el QR en Mis dispositivos. Puedes escanearlo o escribir el código temporal de esa pantalla. El administrador deberá aprobar tu solicitud.', 'Ask an approved member to open the QR in My devices. Scan it or enter the temporary code from that screen. The administrator must approve your request.')} />
+    <AuthButton secondary label={t('Escanear QR', 'Scan QR')} disabled={joining} onPress={() => { void openQr(); }} />
+    <AuthField label={t('Código de invitación', 'Invitation code')} value={inviteCode} onChangeText={setInviteCode} editable={!joining} maxLength={100} autoCapitalize="none" autoCorrect={false} />
+    <AuthButton label={t('Solicitar acceso', 'Request access')} busy={joining} disabled={!inviteCode.trim()} onPress={() => { void joinByCode(); }} />
+  </AuthLayout>;
 
   if (step === 'qr') {
     return (
@@ -291,9 +335,9 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
         </View>
 
         <View style={styles.explanation}>
-          <Text style={[styles.explanationTitle, { color: colors.text }]}>{t('Pídeselo al administrador', 'Ask the administrator')}</Text>
+          <Text style={[styles.explanationTitle, { color: colors.text }]}>{t('Pídeselo a un miembro del equipo', 'Ask a team member')}</Text>
           <Text style={[styles.explanationText, { color: colors.textSecondary }]}>
-            {t('La persona que administra la sonda debe abrir “Mis equipos” en su app y mostrarte el QR. Al escanearlo solicitarás acceso al administrador.', 'The probe administrator must open “My devices” in their app and show you the QR. Scanning it requests administrator approval.')}
+            {t('Un miembro aprobado debe abrir “Mis dispositivos” en su app y mostrarte el QR. Al escanearlo solicitarás acceso al administrador.', 'An approved member must open “My devices” in their app and show you the QR. Scanning it requests administrator approval.')}
           </Text>
         </View>
         </ScrollView>
@@ -324,14 +368,14 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
     </AuthLayout>;
   }
 
-  return <AuthLayout>
+  return <AuthLayout onBrandPress={__DEV__ && onDevSkip ? () => { if (!operation.current) logoTap.current(); } : undefined}>
     <AuthHeading eyebrow={t('TU CUENTA ESTÁ LISTA', 'YOUR ACCOUNT IS READY')} title={t('Ahora, tu sonda.', 'Now, your probe.')}
       description={t('Vincula un equipo para comenzar. Elige cómo te vas a conectar.', 'Link a device to get started. Choose how you will connect.')} />
     <SoilArtwork variant={1} compact />
     <Animated.View layout={layoutFlow()} style={{ gap: 16 }}>
       <Animated.View entering={enterDown(100)}>
-        <Pressable guideTitle={t("Escanear invitación", "Scan invitation")} guide={t("Abre la cámara para solicitar acceso con el QR temporal de otro miembro del equipo.", "Opens the camera to request access using another member’s temporary QR.")} onPress={() => { void openQr(); }} accessibilityRole="button"
-          onPressIn={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+        <Pressable guideTitle={t("Usar invitación", "Use invitation")} guide={t("Solicita acceso con el QR o el código temporal de otro miembro del equipo.", "Requests access using another member’s temporary QR or code.")} onPress={() => { if (!operation.current) setStep('invite'); }} accessibilityRole="button"
+          onPressIn={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); }}
           style={({ pressed }) => [
             styles.optionCard,
             {
@@ -347,13 +391,13 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
               <AppIcon name="arrow" color={colors.primary} size={20} />
             </View>
             <Text style={[styles.optionTitle, { color: colors.text }]}>{t('Tengo una invitación', 'I have an invitation')}</Text>
-            <Text style={[authStyles.body, { color: colors.textSecondary }]}>{t('Escanea el QR de un miembro del equipo. El administrador revisará tu solicitud.', 'Scan a team member’s QR code. The administrator will review your request.')}</Text>
+            <Text style={[authStyles.body, { color: colors.textSecondary }]}>{t('Escanea el QR o escribe el código temporal de un miembro del equipo. El administrador revisará tu solicitud.', 'Scan a team member’s QR or enter their temporary code. The administrator will review your request.')}</Text>
           </View>
         </Pressable>
       </Animated.View>
       <Animated.View entering={enterDown(200)}>
         <Pressable guideTitle={t("Configurar equipo nuevo", "Set up new device")} guide={t("Inicia la vinculación Bluetooth de una sonda nueva para registrarte como administrador.", "Starts Bluetooth pairing of a new probe to register you as administrator.")} onPress={() => { if (!operation.current) setStep('pairing'); }} accessibilityRole="button"
-          onPressIn={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+          onPressIn={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); }}
           style={({ pressed }) => [
             styles.optionCard,
             {
@@ -374,7 +418,6 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
         </Pressable>
       </Animated.View>
     </Animated.View>
-    {__DEV__ && onDevSkip && <AuthButton secondary label={t('Saltar vinculación · Desarrollo', 'Skip pairing · Development')} onPress={() => { void enableDevSkip().then(() => { if (mounted.current) onDevSkip(); }).catch(() => Alert.alert(t('No pudimos continuar', 'Could not continue'))); }} />}
   </AuthLayout>;
 
 };

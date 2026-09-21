@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { AppState } from 'react-native';
 import { loadMeasurementHistory } from '../services/measurementsService';
 import { useAppStore } from '../store/useAppStore';
 import { useAuthStore } from '../store/useAuthStore';
@@ -33,7 +34,8 @@ export function useMeasurementHistory() {
     setPoints([]);
     setOffline(false);
     void refresh();
-    return () => { generation.current += 1; };
+    const subscription = AppState.addEventListener('change', state => { if (state === 'active') void refresh(); });
+    return () => { generation.current += 1; subscription.remove(); };
   }, [refresh]);
   return { points, loading, offline, error, refresh };
 }

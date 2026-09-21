@@ -17,6 +17,13 @@ export const isValidDeviceId = (raw?: string): boolean =>
 export const buildDeviceQrPayload = (raw?: string): string =>
   `terrasense://join?token=${raw ?? ''}`;
 
+/** El código manual es la misma invitación temporal que contiene el QR. */
+export const parseDeviceInvite = (raw: string): string | null => {
+  const value = raw.trim();
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+    ? value.toLowerCase() : parseDeviceQrPayload(value);
+};
+
 /** El ID permanente nunca sirve como invitación de acceso. */
 export const parseDeviceQrPayload = (payload?: string): string | null => {
   const raw = payload?.trim() ?? '';

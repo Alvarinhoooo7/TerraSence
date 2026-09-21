@@ -2,7 +2,72 @@
 
 ## Estado y alcance vigente
 
-### Etapa vigente: correo funcional y pulido del flujo inicial
+### Etapa vigente: auditar Permisos, Vinculación y Dashboard
+
+Bienvenida y acceso ya fueron revisados con el usuario. El alcance actual termina en
+Dashboard; Medición queda como la siguiente etapa, después de validar estas pantallas.
+
+Implementado localmente:
+
+- [x] Permisos: conservar solicitudes explícitas y continuación sin concederlos;
+  refrescar el estado al terminar una solicitud y al regresar de Ajustes.
+- [x] Bluetooth iOS: admitir respuestas inmediatas del listener sin acceder a una
+  suscripción todavía no inicializada y liberarlo después de resolver.
+- [x] Vinculación: conservar dos opciones, sonda nueva por Bluetooth y equipo compartido.
+  La segunda permite escanear QR o ingresar/pegar su código temporal, sin exigir cámara
+  para la entrada manual. Ambas llaman a la misma solicitud de acceso y esperan aprobación.
+- [x] Mostrar y copiar la invitación temporal junto al QR en Mis dispositivos. Retirar
+  de ese diálogo el identificador permanente, que no sirve como invitación. Permitir
+  desplazar el diálogo para alcanzar sus controles en pantallas pequeñas.
+- [x] Reemplazar el botón visible de desarrollo por diez pulsaciones en el logo de
+  la pantalla de elección. Entra a Dashboard sin inventar un equipo; sólo funciona
+  en desarrollo, se guarda por cuenta y se limpia al cerrar sesión.
+- [x] Dashboard: aviso de desarrollo sin sonda, acción principal hacia vinculación,
+  recarga al volver al primer plano y actualización del historial tras respaldar la cola.
+  Una cuenta sin equipos no conserva un dispositivo seleccionado anteriormente.
+- [x] Pairing: límites de espera en conexión y operaciones de configuración; propagar
+  fallos del inicio de escaneo. Una lectura fallida o inválida de identidad ya no se
+  interpreta como sonda nueva. Releer antes de provisionar evita sobrescribir un código
+  que quedó guardado durante un intento anterior cuya confirmación se perdió.
+- [x] Revisar servicios de invitación, espera de aprobación, rutas de entrada, consulta
+  del historial, sincronización y migraciones que aplican autorización en el servidor.
+- [x] Agregar regresiones de invitación manual, gesto de desarrollo, aislamiento por
+  cuenta, listener iOS, fallos/tiempos límite e identidad BLE. Los dobles nativos prueban
+  el servicio real, pero no certifican el comportamiento del hardware.
+- [x] Pruebas de App: 109 aprobadas; TypeScript sin errores; exportación JavaScript
+  Android correcta; verificador documental con 0 errores. La exportación no equivale
+  a compilar ni probar un APK. `adb devices -l` no muestra dispositivos conectados.
+
+Validación pendiente antes de dar por funcional el recorrido completo:
+
+- [ ] Teléfono: conceder, rechazar y bloquear cada permiso; volver de Ajustes y continuar
+  sin permisos. Cubrir Android 12+, Android anterior e iOS según la matriz inferior.
+- [ ] Dos cuentas reales: QR y código manual vigentes, invitación vencida, código inválido,
+  solicitud repetida, aprobación/rechazo del administrador y recuperación tras perder red.
+- [ ] Sonda real: búsqueda, radio apagada, permiso bloqueado, desconexión, escritura,
+  confirmación e intento repetido. Confirmar cómo informa el firmware una identidad vacía:
+  el cliente sólo acepta una lectura vacía confirmada como equipo sin código.
+  **No hay firmware ESP32 en este repositorio.**
+- [ ] Diez pulsaciones: nueve no navegan, diez abren Dashboard; repetir después de reiniciar
+  y cambiar de cuenta. En producción el gesto y la marca guardada no habilitan el acceso.
+- [ ] Dashboard: estados sin sonda, sin lecturas, con última lectura y cola pendiente;
+  recuperar red y comprobar respaldo, refresco, detalle, historial, dispositivos y ajustes.
+- [ ] Validar disposición con teclado, texto ampliado, temas, idiomas y lector de pantalla.
+
+### Siguiente etapa pendiente: Medición, revisión completa
+
+Comenzar sólo después de validar Permisos, Vinculación y Dashboard con el usuario.
+
+- [ ] Auditar cada grid/bloque de la pantalla, valores, unidades, datos ausentes, estados
+  de carga/error y coherencia entre captura, diagnóstico, detalle y guardado.
+- [ ] Validar la API de clima: coordenadas, fechas/zona horaria, respuesta real, ausencia
+  de red, datos parciales y su representación sin inventar información.
+- [ ] Auditar el motor agronómico, umbrales, etapa del cultivo, recomendaciones y su
+  consistencia con las mediciones y el clima. Contrastar con las fuentes de verdad del código.
+- [ ] Probar el recorrido completo con sonda, datos simulados identificados, reintentos,
+  guardado local, sincronización y prevención de duplicados.
+
+### Correo funcional y pulido del flujo inicial
 
 Plan aprobado por el usuario tras probar la app en teléfono. El correo era lo que rompía
 todo: sin código de confirmación no hay cuenta, y sin cuenta las políticas RLS bloquean la

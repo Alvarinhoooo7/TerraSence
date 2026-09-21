@@ -8,13 +8,12 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "type-check": "tsc -b"
+    "type-check": "tsc -b",
+    "check-classes": "node scripts/verificar-clases.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
     "@tailwindcss/vite": "^4.0.0",
-    "clsx": "^2.1.1",
-    "framer-motion": "^13.1.1",
     "lucide-react": "^1.39.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

@@ -65,12 +65,21 @@ async function requestBluetooth(): Promise<PermissionState> {
   if (current.status !== 'undetermined') return current;
   // Espera acotada al diálogo/estado de CoreBluetooth, sin escanear equipos.
   return new Promise(resolve => {
-    const timer = setTimeout(() => { subscription.remove(); resolve({ status: 'undetermined', canAskAgain: true }); }, 20000);
-    const subscription = manager.onStateChange(state => {
+    let subscription: { remove: () => void } | undefined;
+    let settled = false;
+    const finish = (result: PermissionState) => {
+      settled = true;
+      clearTimeout(timer);
+      subscription?.remove();
+      resolve(result);
+    };
+    const timer = setTimeout(() => finish({ status: 'undetermined', canAskAgain: true }), 20000);
+    subscription = manager.onStateChange(state => {
       const result = bluetoothState(state);
       if (result.status === 'undetermined') return;
-      clearTimeout(timer); subscription.remove(); resolve(result);
+      finish(result);
     }, true);
+    if (settled) subscription.remove();
   });
 }
 

@@ -40,6 +40,7 @@ export const DashboardScreen: React.FC<Props> = (props) => {
       <Text style={[styles.eyebrow, { color: colors.textSecondary }]}>{t('TU JORNADA EN TERRENO', 'YOUR DAY IN THE FIELD')}</Text>
       <Text style={[styles.pageTitle, { color: colors.text }]}>{fieldName}</Text>
       <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('Cada lectura, una mejor decisión.', 'Every reading, a better decision.')}</Text>
+      {__DEV__ && !device && <Text accessibilityLiveRegion="polite" style={[styles.notice, { color: colors.warning }]}>{t('Desarrollo · Sin sonda vinculada. Vincula un equipo para realizar mediciones.', 'Development · No linked probe. Link a device to take readings.')}</Text>}
 
       <View style={[styles.hero, { backgroundColor: colors.primaryDark }]}>
         <View style={styles.heroTop}>

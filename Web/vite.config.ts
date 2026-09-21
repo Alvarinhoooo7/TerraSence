@@ -17,10 +17,15 @@ export default defineConfig({
         // y obligaba al navegador a volver a descargar React y supabase-js
         // completos por cada cambio de una pantalla. Con estos tres grupos, un
         // despliegue normal sólo invalida el chunk de la aplicación.
+        //
+        // `framer-motion` salió del grupo `ui` al salir del proyecto: el
+        // rediseño resolvió las transiciones con CSS, que respeta
+        // `prefers-reduced-motion` sin código y no obliga a descargar 130 kB
+        // para animar la entrada de una tabla.
         manualChunks: {
           react: ['react', 'react-dom', 'react-router-dom'],
           supabase: ['@supabase/supabase-js'],
-          ui: ['framer-motion', 'lucide-react'],
+          ui: ['lucide-react'],
         },
       },
     },

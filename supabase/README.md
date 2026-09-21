@@ -287,6 +287,8 @@ curl -X POST https://bjmhjatykqccksddgtmo.supabase.co/functions/v1/device-checki
 20260827160000_rpc_vincular_equipo_...      RPC de vinculación por código
 ...
 20260920140000_retirar_mapa_y_postgis.sql   Retira geometría, cuadrantes, perímetros y PostGIS
+20260920160000_token_de_notificaciones.sql  profiles.push_token para la cola de avisos
+20260921120000_flota_soporte_y_...          Versiones comparables y flota visible para soporte
 ```
 
 > [!WARNING]
@@ -307,8 +309,13 @@ discrepancias. El resto de versiones coincide:
 | :--- | :---: | :---: | :--- |
 | `20260902180000` | ausente | **aplicada** | Migración `*.local.sql`, excluida de git a propósito |
 | `20260902210000` | ausente | **aplicada** | Migración `*.local.sql`, excluida de git a propósito |
-| `20260920120000` | presente | **pendiente** | Preparación del equipo por su administrador. Ver §10.1 |
-| `20260920140000` | presente | **pendiente** | Retirada del mapa. Depende de la anterior. Ver §10.1 |
+| `20260920120000` | presente | **aplicada el 21-09-2026** | Preparación del equipo por su administrador |
+| `20260920140000` | presente | **aplicada el 21-09-2026** | Retirada del mapa. Dependía de la anterior |
+
+> [!NOTE]
+> **Al 21 de septiembre de 2026 el historial está alineado.** `supabase migration
+> list --linked` sólo distingue las dos migraciones `*.local.sql` excluidas de git
+> a propósito; todo lo demás, incluida `20260921120000`, figura aplicado en remoto.
 
 **Las dos ausentes no son un fallo: están fuera del repositorio a propósito.** El 6 de septiembre se
 recuperó su contenido real desde `supabase_migrations.schema_migrations`, la tabla donde Supabase
@@ -488,6 +495,49 @@ El **20 de septiembre de 2026** quedan dos migraciones locales sin aplicar en re
 
 **No pueden separarse.** La segunda rehace `prepare_device_for_owner`, que referencia
 `device_data_resets` y `devices.data_generation`: objetos que crea la primera.
+
+> [!IMPORTANT]
+> **Se les sumó una tercera el 21 de septiembre de 2026:**
+> `20260921120000_flota_soporte_y_versiones_normalizadas.sql`, escrita durante la
+> auditoría de la consola web ([`Web/TAREAS.md`](../Web/TAREAS.md)). **Va después de
+> las dos anteriores y de `20260920160000`**, porque reescribe
+> `admin_get_device_detail` sobre `profiles.push_token` y sobre una
+> `prepare_device_for_owner` que ya no conoce `predial_quadrants`.
+>
+> Qué corrige, y por qué no bastaba con tocar el cliente:
+>
+> * `devices.hardware_version` venía por defecto como `v2.0-nRF52840` mientras
+>   `firmware_releases.hardware_target` usa `ESP32-WROOM-32`. Las dos consultas que
+>   contrastan versión instalada contra publicada comparan ese par con igualdad
+>   exacta: **el aviso de firmware desactualizado no podía aparecer jamás**, ni en la
+>   app ni en la consola.
+> * `check_firmware_update` hace `string_to_array(v_current, '.')::int[]` sobre
+>   `devices.firmware_version`, que venía por defecto como `v2.1.0-BLE`. Eso lanza
+>   «invalid input syntax for type integer: "v2"». Hoy no estalla sólo porque el
+>   desajuste anterior descarta la fila antes; **corregido uno sin el otro, la
+>   pantalla de actualizaciones de la app empezaría a dar error**. Se reescribió con
+>   `semver_parts()`, que devuelve NULL en vez de abortar.
+> * La consola es un backoffice, pero dos de sus pantallas leían `devices` y
+>   `soil_measurements` desde el navegador. Ambas están acotadas por RLS a los equipos
+>   donde la sesión es miembro, y una cuenta de soporte no lo es de ninguno: salían
+>   siempre vacías. Se resuelve con `admin_list_fleet()` y
+>   `admin_list_recent_measurements()`, SECURITY DEFINER con perímetro
+>   `is_support_staff()`, **sin relajar ninguna política**.
+>
+> **Aplicada y verificada el 21 de septiembre de 2026.** `supabase db reset` no sirve
+> para validarla —los marcadores de línea base están vacíos y no recrean el esquema—,
+> así que se montó un proyecto local aparte con `schema.sql` como línea base y la
+> migración encima, y se ejercitó su comportamiento con datos y sesiones simuladas
+> antes de `db push`. El detalle de esas pruebas está en
+> [`Web/TAREAS.md` §1.3](../Web/TAREAS.md).
+>
+> **Lo que destapó al aplicarse:** dos de los tres equipos en producción arrastran un
+> `device_code` de 20 dígitos y la restricción `devices_device_code_15_digits`, añadida
+> NOT VALID en `20260827100000`, hace fallar **cualquier** escritura sobre ellos — la de
+> esta migración, pero también la de la Edge Function `device-checkin`. Son filas
+> congeladas desde el 25 de agosto. La migración se rehízo para saltarlas y avisar por
+> código en vez de abortar; qué hacer con ellas queda abierto en
+> [`Web/TAREAS.md` §1.4](../Web/TAREAS.md).
 
 El borrado no destruye datos. Consultado ese mismo día contra remoto, `predial_quadrants` y
 `field_perimeters` tienen **cero filas**, y la migración va envuelta en `BEGIN`/`COMMIT`, de modo

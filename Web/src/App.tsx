@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from './services/supabase';
 import { isSupportStaff } from '../backend/adminApi';
@@ -8,19 +8,34 @@ import { AuthScreen } from './components/AuthScreen';
 import { ResetPasswordScreen } from './components/ResetPasswordScreen';
 import { SupportOnboarding } from './components/SupportOnboarding';
 import { DashboardLayout } from './layouts/DashboardLayout';
-import { DevicesPage } from './pages/DevicesPage';
 import { FirmwarePage } from './pages/FirmwarePage';
+import { FleetPage } from './pages/FleetPage';
+import { MeasurementsPage } from './pages/MeasurementsPage';
+import { SupportDeviceDetailPage } from './pages/SupportDeviceDetailPage';
 import { SupportPanelPage } from './pages/SupportPanelPage';
 import { SupportStaffPage } from './pages/SupportStaffPage';
-import { SupportDeviceDetailPage } from './pages/SupportDeviceDetailPage';
-import { DashboardHome } from './pages/DashboardHome';
+import { ValidationPage } from './pages/ValidationPage';
+import { FullPageLoader } from './ui/Feedback';
 
 /** Compatibilidad temporal con correos de confirmación enviados antes de usar códigos. */
 const CONFIRMED_PATH = '/cuenta-confirmada';
 const RECOVERY_KEY = 'terrasense-recovery-user';
-const recoveryUser = () => { try { return localStorage.getItem(RECOVERY_KEY); } catch { return null; } };
+
+const recoveryUser = () => {
+  try {
+    return localStorage.getItem(RECOVERY_KEY);
+  } catch {
+    return null;
+  }
+};
+
 const saveRecoveryUser = (id: string | null) => {
-  try { if (id) localStorage.setItem(RECOVERY_KEY, id); else localStorage.removeItem(RECOVERY_KEY); } catch { /* Almacenamiento no disponible. */ }
+  try {
+    if (id) localStorage.setItem(RECOVERY_KEY, id);
+    else localStorage.removeItem(RECOVERY_KEY);
+  } catch {
+    /* Almacenamiento no disponible. */
+  }
 };
 
 export default function App() {
@@ -34,7 +49,7 @@ export default function App() {
   const [isStaff, setIsStaff] = useState<boolean | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
+    void supabase.auth.getSession().then(({ data }) => {
       if (data.session && recoveryUser() === data.session.user.id) setRecovering(true);
       setSession(data.session);
       setChecking(false);
@@ -43,7 +58,9 @@ export default function App() {
       if (event === 'PASSWORD_RECOVERY') {
         saveRecoveryUser(s?.user.id ?? null);
         setRecovering(true);
-      } else if (event === 'SIGNED_OUT') saveRecoveryUser(null);
+      } else if (event === 'SIGNED_OUT') {
+        saveRecoveryUser(null);
+      }
       setSession(s);
     });
     return () => sub.subscription.unsubscribe();
@@ -63,25 +80,27 @@ export default function App() {
     refreshStaff();
   }, [refreshStaff]);
 
-  // Ruta publica de aterrizaje del correo de confirmacion. Va antes que
-  // `checking`, `recovering` y la comprobacion de soporte a proposito: quien
-  // llega aqui es un agricultor, no personal del backoffice, y cualquiera de
-  // esas ramas lo llevaria a una pantalla que no le corresponde.
+  // Ruta pública de aterrizaje del correo de confirmación. Va antes que
+  // `checking`, `recovering` y la comprobación de soporte a propósito: quien
+  // llega aquí es un agricultor, no personal del backoffice, y cualquiera de
+  // esas ramas lo llevaría a una pantalla que no le corresponde.
   if (window.location.pathname === CONFIRMED_PATH) {
     return <AccountConfirmed />;
   }
 
   if (checking) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-terra-bg text-terra-primary transition-colors duration-500">
-        <div className="h-12 w-12 border-4 border-terra-primary border-t-transparent rounded-full animate-spin mb-4" />
-        <span className="text-terra-muted animate-pulse">Iniciando plataforma...</span>
-      </div>
-    );
+    return <FullPageLoader label="Iniciando la consola…" />;
   }
 
   if (recovering) {
-    return <ResetPasswordScreen onDone={() => { saveRecoveryUser(null); setRecovering(false); }} />;
+    return (
+      <ResetPasswordScreen
+        onDone={() => {
+          saveRecoveryUser(null);
+          setRecovering(false);
+        }}
+      />
+    );
   }
 
   if (!session) {
@@ -89,24 +108,14 @@ export default function App() {
   }
 
   if (isStaff === null) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-terra-bg text-terra-primary transition-colors duration-500">
-        <div className="h-12 w-12 border-4 border-terra-primary border-t-transparent rounded-full animate-spin mb-4" />
-        <span className="text-terra-muted animate-pulse">Comprobando permisos de soporte...</span>
-      </div>
-    );
+    return <FullPageLoader label="Comprobando permisos de soporte…" />;
   }
 
   // Sesión válida sin pertenencia al panel: la consola es exclusivamente un
   // backoffice, así que la alternativa útil es darse de alta con el código de
   // invitación, no aterrizar en un inventario vacío por RLS.
   if (!isStaff) {
-    return (
-      <SupportOnboarding
-        email={session.user.email ?? ''}
-        onActivated={refreshStaff}
-      />
-    );
+    return <SupportOnboarding email={session.user.email ?? ''} onActivated={refreshStaff} />;
   }
 
   return (
@@ -116,9 +125,13 @@ export default function App() {
         <Route path="admin" element={<SupportPanelPage />} />
         <Route path="admin/devices/:id" element={<SupportDeviceDetailPage />} />
         <Route path="admin/staff" element={<SupportStaffPage />} />
+        <Route path="fleet" element={<FleetPage />} />
+        <Route path="measurements" element={<MeasurementsPage />} />
         <Route path="firmware" element={<FirmwarePage />} />
-        <Route path="devices" element={<DevicesPage />} />
-        <Route path="measurements" element={<DashboardHome />} />
+        <Route path="validation" element={<ValidationPage />} />
+        {/* `/devices` fue el nombre anterior del inventario; los enlaces
+            guardados por el equipo de soporte siguen funcionando. */}
+        <Route path="devices" element={<Navigate to="/fleet" replace />} />
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Route>
     </Routes>

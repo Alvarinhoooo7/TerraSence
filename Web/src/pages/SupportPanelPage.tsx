@@ -1,10 +1,24 @@
+// src/pages/SupportPanelPage.tsx — el buscador, puerta de entrada del panel.
+//
+// `admin_search` acepta código de 15 dígitos, nombre o alias del equipo, y el
+// correo de cualquier usuario enlazado. Puede devolver varias filas del mismo
+// equipo si coincide por más de un motivo: por eso la clave del listado
+// combina `device_id` con el índice.
+
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ChevronRight, Cpu, Mail, Search, ShieldAlert, X } from 'lucide-react';
 import { searchDevices } from '../../backend/adminApi';
 import type { DeviceSearchResult } from '../../backend/types';
-import { formatDeviceCode, relativeTime } from '../utils/verdict';
-import { Search, ChevronRight, Cpu, Mail, AlertCircle, ShieldAlert, Wifi, WifiOff, X } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { PageHeader } from '../ui/PageHeader';
+import { Panel } from '../ui/Panel';
+import { Button } from '../ui/Button';
+import { Badge, BatteryBar, DeviceCode, ReportStatus } from '../ui/Data';
+import { Alert, EmptyState } from '../ui/Feedback';
+import { reportedRecently } from '../utils/format';
+
+const MIN_QUERY = 2;
 
 export function SupportPanelPage() {
   const [query, setQuery] = useState('');
@@ -14,15 +28,13 @@ export function SupportPanelPage() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleSearch = async (e: React.FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
-    if (query.trim().length < 2) return;
-
+    if (query.trim().length < MIN_QUERY) return;
     setSearching(true);
     setError(null);
     try {
-      const data = await searchDevices(query);
-      setResults(data);
+      setResults(await searchDevices(query));
       setSearched(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -31,134 +43,139 @@ export function SupportPanelPage() {
     }
   };
 
-  const handleClear = () => {
-    setResults([]);
+  const clear = () => {
     setQuery('');
+    setResults([]);
     setSearched(false);
     setError(null);
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-4xl mx-auto w-full">
-      {/* HEADER — mismo patrón tipográfico que el resto de la consola: nada
-          de títulos gigantes en color de acento, sólo un badge que marca la
-          zona como distinta (soporte, no el flujo normal del agricultor). */}
-      <div className="flex items-center gap-4 mt-2">
-        <div className="p-2.5 rounded-xl bg-verdict-amber/10 border border-verdict-amber/30 text-verdict-amber shrink-0">
-          <ShieldAlert size={24} />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-terra-text">Panel de Soporte</h1>
-          <p className="text-terra-muted text-sm mt-1">
-            Busca un equipo por su código, nombre, o el correo de un usuario enlazado.
-          </p>
-        </div>
-      </div>
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-5">
+      <PageHeader
+        title="Panel de soporte"
+        icon={ShieldAlert}
+        tone="support"
+        description="Busca un equipo por su código de 15 dígitos, su alias, o el correo de cualquier usuario enlazado."
+      />
 
-      {/* BUSCADOR — el botón ahora tiene borde propio (antes era invisible
-          hasta el hover, por eso "no se delimitaba"). */}
-      <form onSubmit={handleSearch} className="glass-panel rounded-2xl p-2 flex items-center gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-terra-muted" size={18} />
+      <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
+        <div className="relative min-w-[16rem] flex-1">
+          <label htmlFor="busqueda-soporte" className="sr-only">
+            Código de equipo, alias o correo del usuario
+          </label>
+          <Search
+            size={16}
+            className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-terra-faint"
+            aria-hidden="true"
+          />
           <input
+            id="busqueda-soporte"
+            type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Código de equipo, alias o correo del usuario..."
-            className="w-full h-12 rounded-xl border border-terra-border bg-terra-bg/40 pl-11 pr-4 text-sm outline-none focus:border-verdict-amber focus:ring-1 focus:ring-verdict-amber/40 transition-all text-terra-text placeholder:text-terra-muted/70"
+            placeholder="48213-90574-16628, «Lote norte» o correo@ejemplo.cl"
+            autoFocus
+            className="h-10 w-full rounded-md border border-terra-border bg-terra-surface pr-10 pl-9
+              text-sm text-terra-text placeholder:text-terra-faint hover:border-terra-border-strong
+              focus:border-terra-primary"
           />
+          {query && (
+            <button
+              type="button"
+              onClick={clear}
+              aria-label="Limpiar la búsqueda"
+              className="absolute top-1/2 right-2 -translate-y-1/2 text-terra-muted hover:text-terra-text"
+            >
+              <X size={16} />
+            </button>
+          )}
         </div>
-        {(query || results.length > 0) && (
-          <button
-            type="button"
-            onClick={handleClear}
-            title="Limpiar búsqueda"
-            className="h-12 w-12 shrink-0 rounded-xl border border-terra-border text-terra-muted hover:text-terra-text hover:bg-terra-surface transition-colors flex items-center justify-center"
-          >
-            <X size={18} />
-          </button>
-        )}
-        <button
+        <Button
           type="submit"
-          disabled={searching || query.trim().length < 2}
-          className="h-12 px-6 rounded-xl border border-verdict-amber/40 bg-verdict-amber/10 text-verdict-amber hover:bg-verdict-amber/20 hover:border-verdict-amber/60 font-semibold text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+          variant="primary"
+          icon={Search}
+          disabled={query.trim().length < MIN_QUERY}
+          busy={searching}
+          busyLabel="Buscando…"
         >
-          {searching ? 'Buscando…' : 'Buscar'}
-        </button>
+          Buscar
+        </Button>
       </form>
 
-      {error && (
-        <div className="rounded-xl bg-verdict-red/10 border border-verdict-red/30 text-verdict-red p-4 text-sm flex items-center gap-3">
-          <AlertCircle size={18} className="shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
+      {error && <Alert tone="error">{error}</Alert>}
 
       {results.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="glass-panel rounded-2xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-terra-border/50">
-            <h2 className="font-semibold text-sm text-terra-muted uppercase tracking-wider">
-              {results.length} {results.length === 1 ? 'resultado' : 'resultados'}
-            </h2>
-          </div>
-
-          <div className="divide-y divide-terra-border/40">
-            {results.map((r, i) => {
-              const isOnline = r.last_seen_at
-                ? Date.now() - new Date(r.last_seen_at).getTime() < 3600_000
-                : false;
-              return (
-                <motion.button
-                  key={`${r.device_id}-${i}`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: i * 0.03 }}
+        <Panel>
+          <h2 className="border-b border-terra-border px-5 py-3 text-xs font-semibold tracking-wide text-terra-muted uppercase">
+            {results.length} {results.length === 1 ? 'resultado' : 'resultados'}
+          </h2>
+          <ul className="divide-y divide-terra-border">
+            {results.map((r, i) => (
+              <li key={`${r.device_id}-${i}`}>
+                <button
+                  type="button"
                   onClick={() => navigate(`/admin/devices/${r.device_id}`)}
-                  className="w-full text-left px-6 py-4 flex items-center gap-4 border border-transparent hover:border-verdict-amber/30 hover:bg-terra-surface/60 transition-all group"
+                  className="group flex w-full items-center gap-3 px-5 py-3 text-left transition-colors hover:bg-terra-raised"
                 >
-                  <div className="w-11 h-11 rounded-xl bg-terra-surface border border-terra-border flex items-center justify-center text-terra-primary shrink-0">
-                    <Cpu size={20} />
-                  </div>
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-terra-primary-soft text-terra-primary-ink">
+                    <Cpu size={17} aria-hidden="true" />
+                  </span>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-terra-text truncate">{r.alias || r.name}</span>
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                          r.is_active
-                            ? 'bg-terra-primary/10 text-terra-primary border-terra-primary/30'
-                            : 'bg-terra-muted/10 text-terra-muted border-terra-muted/30'
-                        }`}
-                      >
+                  <span className="min-w-0 flex-1">
+                    <span className="flex flex-wrap items-center gap-2">
+                      <span className="truncate font-medium text-terra-text">
+                        {r.alias || r.name}
+                      </span>
+                      <Badge tone={r.is_active ? 'green' : 'neutral'}>
                         {r.is_active ? 'Activo' : 'Inactivo'}
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5 text-xs text-terra-muted">
-                      <span className="font-mono tabular">{formatDeviceCode(r.device_code)}</span>
-                      <span className="flex items-center gap-1">
-                        {isOnline ? <Wifi size={12} className="text-terra-primary" /> : <WifiOff size={12} />}
-                        {relativeTime(r.last_seen_at)}
-                      </span>
+                      </Badge>
                       {r.match_reason === 'member_email' && r.matched_member_email && (
-                        <span className="flex items-center gap-1 text-verdict-amber/80">
-                          <Mail size={12} /> {r.matched_member_email}
-                        </span>
+                        <Badge tone="support" icon={Mail}>
+                          {r.matched_member_email}
+                        </Badge>
                       )}
-                    </div>
-                  </div>
+                    </span>
+                    <span className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-terra-muted">
+                      <DeviceCode code={r.device_code} />
+                      <ReportStatus
+                        lastSeenAt={r.last_seen_at}
+                        online={reportedRecently(r.last_seen_at)}
+                        compact
+                      />
+                      <BatteryBar level={r.battery_level} />
+                    </span>
+                  </span>
 
-                  <ChevronRight size={20} className="text-terra-muted group-hover:text-verdict-amber transition-colors shrink-0" />
-                </motion.button>
-              );
-            })}
-          </div>
-        </motion.div>
+                  <ChevronRight
+                    size={16}
+                    className="shrink-0 text-terra-muted group-hover:text-terra-primary-ink"
+                    aria-hidden="true"
+                  />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </Panel>
       )}
 
       {!searching && searched && results.length === 0 && !error && (
-        <div className="glass-panel rounded-2xl py-16 text-center text-terra-muted">
-          <Search size={32} className="mx-auto mb-3 opacity-30" />
-          No se encontraron equipos que coincidan con la búsqueda.
-        </div>
+        <Panel>
+          <EmptyState icon={Search} title="Sin coincidencias">
+            No hay equipos que coincidan con «{query.trim()}». Revisa el código completo o prueba
+            con el correo del agricultor.
+          </EmptyState>
+        </Panel>
+      )}
+
+      {!searched && !error && (
+        <Panel>
+          <EmptyState icon={ShieldAlert} title="Empieza por una búsqueda">
+            Si prefieres recorrer el parque completo en vez de buscar un equipo concreto, la
+            sección <strong className="text-terra-text">Flota</strong> lista todas las sondas con
+            su estado.
+          </EmptyState>
+        </Panel>
       )}
     </div>
   );

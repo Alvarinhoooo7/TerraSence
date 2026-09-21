@@ -35,8 +35,11 @@ export const OfflineBanner = () => {
           try {
             useAppStore.getState().setSyncing(true);
             await syncPendingPreferences().catch(() => undefined);
-            await flushQueue();
-            if (active) useAppStore.getState().setPendingCount(await pendingCount());
+            const result = await flushQueue();
+            if (active) {
+              useAppStore.getState().setPendingCount(result.remaining);
+              if (result.sent > 0) useAppStore.getState().invalidateData();
+            }
           } catch { /* Sin sesión o servidor no disponible: conservar la cola. */ }
           finally { if (active) useAppStore.getState().setSyncing(false); }
         }

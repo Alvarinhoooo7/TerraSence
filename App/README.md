@@ -139,7 +139,7 @@ Es la herramienta central que el agricultor y los operadores llevan al campo: se
 3. **Permisos (`PermissionsScreen`):** Después de iniciar sesión o confirmar la cuenta y antes de vincular equipos, explica Bluetooth, ubicación, cámara y notificaciones. Cada solicitud es voluntaria y explícita; continuar registra la revisión, no concede permisos.
 4. **Onboarding Dual de Equipos:**
    - **Primer Propietario (Owner):** Vinculación física por BLE con grabación del código de 15 dígitos en la memoria NVS del ESP32 y registro atómico en Supabase (`register_paired_device`).
-   - **Usuarios:** escanean el QR temporal mostrado por cualquier miembro aprobado. Quedan en una pantalla de espera hasta que el administrador apruebe su ingreso. El QR cambia cada 15 minutos; el ID permanente no concede acceso.
+   - **Usuarios:** escanean el QR temporal mostrado por cualquier miembro aprobado o ingresan su código de invitación en el onboarding. Quedan en una pantalla de espera hasta que el administrador apruebe su ingreso. El QR y su código vencen juntos; el ID permanente no concede acceso.
 5. **Dashboard Principal:** Punto de inicio rápido con botón destacado **Iniciar Medición** y acceso al historial.
 6. **Selección Obligatoria de Fase Fenológica:** Al pulsar medir, el usuario debe seleccionar una de las 4 etapas productivas:
    - **Pre-siembra (Siembra)**
@@ -280,18 +280,17 @@ correo y el recorrido en un teléfono deben verificarse contra el proyecto remot
 equipos no se pasa del onboarding. Es lo correcto en producción, pero en desarrollo obliga a
 emparejar una sonda física sólo para ver una pantalla.
 
-En el paso de elección del onboarding hay un botón `⏭ dev` arriba a la derecha que levanta esa
-compuerta. **No inventa un equipo:** la app entra con `device` en `null`, que es el caso que
-`probeService` ya cubre con datos simulados, así que todo queda marcado con el cartel de MODO
-DEMOSTRACIÓN y el guardado de mediciones sigue bloqueado. El atajo no puede confundirse con una
-lectura real.
+En el paso de elección del onboarding, **diez pulsaciones en el logo TerraSense** permiten
+entrar a Dashboard. Sólo está habilitado en desarrollo y la activación se guarda por cuenta.
+**No inventa un equipo:** la app entra con `device` en `null`, muestra el aviso de desarrollo
+sin sonda y su acción principal lleva a vincular un equipo. No crea mediciones.
 
 Para volver al flujo normal, **cerrar sesión**: `clearDevSkip()` corre ahí.
 
 > [!WARNING]
-> Es temporal. Las tres funciones de `src/utils/devSkipOnboarding.ts` comprueban `__DEV__` por
-> separado, y el botón vive dentro de un bloque `__DEV__` que el empaquetador elimina del *bundle* de
-> producción — no es un botón oculto, es código que no viaja. Aun así, **retirarlo** cuando el
+> Es temporal. La lectura y activación de `src/utils/devSkipOnboarding.ts` comprueban `__DEV__`,
+> y el logo sólo recibe el gesto en desarrollo. Una marca guardada no habilita producción.
+> **Retirarlo** cuando el
 > emparejamiento pueda probarse contra hardware real.
 
 ### Metro dice que un archivo «no existe» y el archivo está ahí

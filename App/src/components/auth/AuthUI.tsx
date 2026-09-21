@@ -11,7 +11,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { enterDown, motionTiming } from '../../constants/motion';
 
 /** Componentes exclusivos del acceso. No cambian los tokens de otras pantallas. */
-export function AuthLayout({ children, toolbar, brand = true }: React.PropsWithChildren<{ toolbar?: React.ReactNode; brand?: boolean }>) {
+export function AuthLayout({ children, toolbar, brand = true, onBrandPress }: React.PropsWithChildren<{ toolbar?: React.ReactNode; brand?: boolean; onBrandPress?: () => void }>) {
   const { colors } = useAppTheme();
   // `brand={false}` en la verificación del código: sin la marca el texto sube y la
   // pantalla queda en lo único que importa ahí, que son los seis dígitos.
@@ -19,7 +19,7 @@ export function AuthLayout({ children, toolbar, brand = true }: React.PropsWithC
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={authStyles.layout}>
         {(brand || toolbar) && <View style={authStyles.top}>
-          {brand ? <BrandLogo width={172} /> : <View />}
+          {brand ? (onBrandPress ? <Pressable guide={false} onPress={onBrandPress} accessibilityRole="button" accessibilityLabel="TerraSense" style={{ minHeight: 48, justifyContent: 'center' }}><BrandLogo width={172} /></Pressable> : <BrandLogo width={172} />) : <View />}
           {toolbar}
         </View>}
         {children}

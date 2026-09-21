@@ -234,12 +234,19 @@ export default function App() {
     setOnboardingComplete(false);
     setAwaitingDeviceApproval(false);
     setOnboardingError(null);
-    Promise.all([getOnboardingState(), loadPreferences(), isDevSkipEnabled()])
+    isDevSkipEnabled(session.user.id).then(devSkip => Promise.all([
+      getOnboardingState().catch(error => {
+        if (!devSkip) throw error;
+        return { completed: false, hasPendingRequests: false, devices: [] };
+      }),
+      loadPreferences(),
+      devSkip,
+    ] as const))
       .then(([state, preferences, devSkip]) => {
         if (!active) return;
         setPreferences(preferences);
         setPreferencesLoaded(true);
-        if (state.devices[0]) setDevice(state.devices[0]);
+        setDevice(state.devices[0] ?? null);
         setOnboardingComplete(state.completed || devSkip);
         setAwaitingDeviceApproval(!state.completed && (state.hasPendingRequests ?? false));
       })
@@ -379,7 +386,8 @@ export default function App() {
           setRoute('dashboard');
         }}
         onDevSkip={() => {
-          // Sin equipo: la app entra en modo demostración, con su cartel.
+          if (!__DEV__) return;
+          setDevice(null);
           setOnboardingComplete(true);
           setRoute('dashboard');
         }}

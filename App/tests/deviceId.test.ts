@@ -7,10 +7,19 @@ import {
   isValidDeviceId,
   normalizeDeviceId,
   parseDeviceQrPayload,
+  parseDeviceInvite,
 } from '../src/utils/deviceCode';
 
 const CODE = '482139057416628';
 const TOKEN = 'a54aadab-0505-4bda-8c8c-b606072ac342';
+
+test('invitación manual acepta el token del QR y rechaza el número permanente', () => {
+  assert.equal(parseDeviceInvite(` ${TOKEN.toUpperCase()} `), TOKEN);
+  assert.equal(parseDeviceInvite(buildDeviceQrPayload(TOKEN)), TOKEN);
+  for (const value of [CODE, formatDeviceId(CODE), '', TOKEN.slice(1), `https://example.com/?token=${TOKEN}`]) {
+    assert.equal(parseDeviceInvite(value), null);
+  }
+});
 
 test('normaliza y presenta el Device ID canónico', () => {
   assert.equal(normalizeDeviceId('48213-90574-16628'), CODE);
