@@ -13,13 +13,35 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 
-CREATE SCHEMA IF NOT EXISTS "public";
-
-
-ALTER SCHEMA "public" OWNER TO "pg_database_owner";
-
-
 COMMENT ON SCHEMA "public" IS 'standard public schema';
+
+
+
+CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "extensions";
+
+
+
+
+
+
+CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA "extensions";
+
+
+
+
+
+
+CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
+
+
+
+
+
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
+
+
+
 
 
 
@@ -43,7 +65,6 @@ DECLARE
     v_device        public.devices;
     v_members_count INTEGER;
     v_meas_count    INTEGER;
-    v_quad_count    INTEGER;
     v_alert_count   INTEGER;
 BEGIN
     IF NOT public.is_support_staff() THEN
@@ -59,20 +80,21 @@ BEGIN
         RAISE EXCEPTION 'El código de confirmación no coincide con el del equipo.' USING ERRCODE = '22023';
     END IF;
 
-    SELECT COUNT(*) INTO v_members_count FROM public.device_members WHERE device_id = p_device_id;
-    SELECT COUNT(*) INTO v_meas_count FROM public.soil_measurements WHERE device_id = p_device_id;
-    SELECT COUNT(*) INTO v_quad_count FROM public.predial_quadrants WHERE device_id = p_device_id;
-    SELECT COUNT(*) INTO v_alert_count FROM public.push_alerts WHERE device_id = p_device_id;
+    SELECT COUNT(*) INTO v_members_count FROM public.device_members    WHERE device_id = p_device_id;
+    SELECT COUNT(*) INTO v_meas_count    FROM public.soil_measurements WHERE device_id = p_device_id;
+    SELECT COUNT(*) INTO v_alert_count   FROM public.push_alerts       WHERE device_id = p_device_id;
 
-    DELETE FROM public.device_members WHERE device_id = p_device_id;
+    INSERT INTO public.device_data_resets(user_id, device_id, generation)
+      SELECT user_id, device_id, v_device.data_generation + 1 FROM public.device_members WHERE device_id = p_device_id
+      ON CONFLICT (user_id, device_id) DO UPDATE SET generation = EXCLUDED.generation;
+    DELETE FROM public.device_members    WHERE device_id = p_device_id;
     DELETE FROM public.soil_measurements WHERE device_id = p_device_id;
-    DELETE FROM public.predial_quadrants WHERE device_id = p_device_id;
-    DELETE FROM public.push_alerts WHERE device_id = p_device_id;
-
+    DELETE FROM public.push_alerts       WHERE device_id = p_device_id;
 
     -- Conserva la identidad y las versiones reales del hardware.
     UPDATE public.devices
-       SET name = 'Sonda TerraSense',
+       SET data_generation = data_generation + 1,
+           name = 'Sonda TerraSense',
            alias = NULL,
            pairing_mode_active = FALSE,
            transmission_interval_seconds = 300,
@@ -91,7 +113,6 @@ BEGIN
         'message', 'Datos y configuración de la nube restablecidos. El borrado de memoria física requiere soporte del firmware.',
         'members_removed', v_members_count,
         'measurements_deleted', v_meas_count,
-        'quadrants_deleted', v_quad_count,
         'alerts_deleted', v_alert_count
     );
 END;
@@ -214,20 +235,9 @@ BEGIN
         RAISE EXCEPTION 'La versión de firmware indicada no existe o no está publicada.' USING ERRCODE = '22023';
     END IF;
 
-    INSERT INTO public.push_alerts (device_id, title, body, category, severity)
-    VALUES (
-        p_device_id,
-        'Actualización de firmware disponible',
-        'La sonda "' || COALESCE(v_device.alias, v_device.name) || '" tiene la versión ' ||
-            v_fw.version || ' disponible' ||
-            CASE WHEN v_fw.is_mandatory THEN ' (obligatoria)' ELSE '' END || '.',
-        'device',
-        CASE WHEN v_fw.is_mandatory THEN 'critical' ELSE 'warning' END
-    );
-
     RETURN jsonb_build_object(
         'success', true,
-        'message', 'Notificación enviada a los usuarios enlazados a este equipo.',
+        'message', 'La versión publicada está disponible en Ajustes > Actualizaciones. No se envió un aviso push.',
         'firmware_version', v_fw.version
     );
 END;
@@ -497,6 +507,23 @@ END; $$;
 ALTER FUNCTION "public"."check_firmware_update"("p_device_id" "uuid") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."check_measurement_generation"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+DECLARE v_generation INTEGER;
+BEGIN
+  SELECT data_generation INTO v_generation FROM public.devices WHERE id = NEW.device_id FOR SHARE;
+  IF NEW.data_generation IS DISTINCT FROM v_generation THEN
+    RAISE EXCEPTION 'La medición pertenece a una configuración anterior del equipo.' USING ERRCODE = 'TS001';
+  END IF;
+  RETURN NEW;
+END $$;
+
+
+ALTER FUNCTION "public"."check_measurement_generation"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."complete_my_onboarding"("p_method" "text") RETURNS timestamp with time zone
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO 'public'
@@ -551,6 +578,7 @@ COMMENT ON FUNCTION "public"."complete_my_onboarding"("p_method" "text") IS 'Fin
 
 CREATE OR REPLACE FUNCTION "public"."generate_device_code"() RETURNS "text"
     LANGUAGE "plpgsql"
+    SET "search_path" TO ''
     AS $$
 DECLARE
     candidate TEXT;
@@ -955,6 +983,58 @@ COMMENT ON FUNCTION "public"."mark_onboarding_from_membership"() IS 'Persiste el
 
 
 
+CREATE OR REPLACE FUNCTION "public"."prepare_device_for_owner"("p_device_id" "uuid", "p_confirm_device_code" "text") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+DECLARE v_device public.devices; v_recent_password BOOLEAN;
+BEGIN
+  IF auth.uid() IS NULL THEN RAISE EXCEPTION 'Autenticación requerida.' USING ERRCODE = '42501'; END IF;
+  SELECT * INTO v_device FROM public.devices WHERE id = p_device_id FOR UPDATE;
+  IF NOT FOUND OR NOT public.has_device_admin_access(p_device_id) THEN
+    RAISE EXCEPTION 'Sólo el administrador de este equipo puede prepararlo.' USING ERRCODE = '42501';
+  END IF;
+  SELECT EXISTS (SELECT 1 FROM jsonb_array_elements(COALESCE(auth.jwt()->'amr', '[]'::jsonb)) a
+    WHERE a->>'method' = 'password' AND (a->>'timestamp')::numeric >= extract(epoch FROM now() - interval '5 minutes')) INTO v_recent_password;
+  IF NOT v_recent_password THEN RAISE EXCEPTION 'Confirma nuevamente tu contraseña.' USING ERRCODE = '42501'; END IF;
+  IF v_device.device_code IS DISTINCT FROM regexp_replace(COALESCE(p_confirm_device_code, ''), '\D', '', 'g') THEN
+    RAISE EXCEPTION 'El código de confirmación no coincide.' USING ERRCODE = '22023';
+  END IF;
+  INSERT INTO public.device_data_resets(user_id, device_id, generation)
+    SELECT user_id, device_id, v_device.data_generation + 1 FROM public.device_members WHERE device_id = p_device_id
+    ON CONFLICT (user_id, device_id) DO UPDATE SET generation = EXCLUDED.generation;
+  DELETE FROM public.soil_measurements WHERE device_id = p_device_id;
+  DELETE FROM public.push_alerts WHERE device_id = p_device_id;
+  DELETE FROM public.device_access_invites WHERE device_id = p_device_id;
+  DELETE FROM public.device_status_log WHERE device_id = p_device_id;
+  DELETE FROM public.device_members WHERE device_id = p_device_id;
+  UPDATE public.devices SET name = 'Sonda TerraSense', alias = NULL,
+    pairing_mode_active = FALSE, transmission_interval_seconds = 300,
+    last_seen_at = NULL, last_measurement_at = NULL, data_generation = data_generation + 1
+    WHERE id = p_device_id;
+  INSERT INTO public.device_member_audit(device_id, actor_user_id, action) VALUES(p_device_id, auth.uid(), 'factory_reset');
+  RETURN jsonb_build_object('success', true, 'generation', v_device.data_generation + 1, 'physical_reset', false);
+END $$;
+
+
+ALTER FUNCTION "public"."prepare_device_for_owner"("p_device_id" "uuid", "p_confirm_device_code" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."protect_device_generation"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO 'public'
+    AS $$
+BEGIN
+  IF current_user IN ('authenticated', 'anon') AND NEW.data_generation IS DISTINCT FROM OLD.data_generation THEN
+    RAISE EXCEPTION 'Operación no permitida.' USING ERRCODE = '42501';
+  END IF;
+  RETURN NEW;
+END $$;
+
+
+ALTER FUNCTION "public"."protect_device_generation"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."protect_onboarding_fields"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     SET "search_path" TO 'public'
@@ -1065,6 +1145,9 @@ BEGIN
     RETURNING id INTO v_id;
   END IF;
   IF NOT EXISTS (SELECT 1 FROM public.device_members dm WHERE dm.device_id = v_id) THEN
+    IF EXISTS (SELECT 1 FROM public.devices WHERE id = v_id AND data_generation > 0) THEN
+      RAISE EXCEPTION 'Equipo preparado para otro propietario. Contacta a soporte para verificar la entrega y activar el nuevo acceso.' USING ERRCODE = '42501';
+    END IF;
     UPDATE public.devices SET name = COALESCE(NULLIF(trim(p_name), ''), name) WHERE id = v_id;
     INSERT INTO public.device_members(device_id, user_id, role, is_authorized) VALUES(v_id, v_uid, 'admin', TRUE);
   ELSIF NOT public.has_device_access(v_id) THEN
@@ -1139,6 +1222,7 @@ ALTER FUNCTION "public"."set_device_member_authorization_default"() OWNER TO "po
 
 CREATE OR REPLACE FUNCTION "public"."set_updated_at"() RETURNS "trigger"
     LANGUAGE "plpgsql"
+    SET "search_path" TO ''
     AS $$
 BEGIN
     NEW.updated_at = NOW();
@@ -1253,6 +1337,16 @@ CREATE TABLE IF NOT EXISTS "public"."device_access_invites" (
 ALTER TABLE "public"."device_access_invites" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."device_data_resets" (
+    "user_id" "uuid" NOT NULL,
+    "device_id" "uuid" NOT NULL,
+    "generation" integer NOT NULL
+);
+
+
+ALTER TABLE "public"."device_data_resets" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."device_join_attempts" (
     "id" bigint NOT NULL,
     "user_id" "uuid" NOT NULL,
@@ -1356,29 +1450,12 @@ CREATE TABLE IF NOT EXISTS "public"."devices" (
     "last_measurement_at" timestamp with time zone DEFAULT "now"(),
     "last_seen_at" timestamp with time zone DEFAULT "now"(),
     "created_at" timestamp with time zone DEFAULT "now"(),
+    "data_generation" integer DEFAULT 0 NOT NULL,
     CONSTRAINT "devices_battery_level_check" CHECK ((("battery_level" >= 0) AND ("battery_level" <= 100)))
 );
 
 
 ALTER TABLE "public"."devices" OWNER TO "postgres";
-
-
-CREATE TABLE IF NOT EXISTS "public"."field_perimeters" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "user_id" "uuid" NOT NULL,
-    "field_name" "text" NOT NULL,
-    "geom" "public"."geometry"(Polygon,4326) NOT NULL,
-    "area_ha" numeric(12,4) GENERATED ALWAYS AS ("round"((("public"."st_area"(("geom")::"public"."geography") / (10000.0)::double precision))::numeric, 4)) STORED,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
-);
-
-
-ALTER TABLE "public"."field_perimeters" OWNER TO "postgres";
-
-
-COMMENT ON TABLE "public"."field_perimeters" IS 'Polígono del predio, asociado por (usuario, nombre de predio). area_ha la calcula Postgres sobre el elipsoide, no el cliente.';
-
 
 
 CREATE TABLE IF NOT EXISTS "public"."firmware_releases" (
@@ -1433,30 +1510,6 @@ CREATE TABLE IF NOT EXISTS "public"."lab_validation_records" (
 ALTER TABLE "public"."lab_validation_records" OWNER TO "postgres";
 
 
-CREATE TABLE IF NOT EXISTS "public"."predial_quadrants" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "device_id" "uuid",
-    "quadrant_code" character varying(10) NOT NULL,
-    "latitude" numeric(10,7) NOT NULL,
-    "longitude" numeric(10,7) NOT NULL,
-    "verdict" character varying(10) NOT NULL,
-    "vwc_percent" numeric(5,2) NOT NULL,
-    "soil_temp_c" numeric(5,2) NOT NULL,
-    "ph" numeric(4,2) NOT NULL,
-    "ec_us_cm" integer NOT NULL,
-    "action_summary" "text",
-    "created_at" timestamp with time zone DEFAULT "now"(),
-    "phenological_stage" "text" DEFAULT 'pre_siembra'::"text" NOT NULL,
-    "radius_m" integer DEFAULT 20 NOT NULL,
-    "geom" "public"."geometry"(Point,4326) GENERATED ALWAYS AS ("public"."st_setsrid"("public"."st_makepoint"(("longitude")::double precision, ("latitude")::double precision), 4326)) STORED,
-    CONSTRAINT "predial_quadrants_phenological_stage_check" CHECK (("phenological_stage" = ANY (ARRAY['pre_siembra'::"text", 'vegetativo'::"text", 'floracion'::"text", 'cosecha'::"text"]))),
-    CONSTRAINT "predial_quadrants_verdict_check" CHECK ((("verdict")::"text" = ANY ((ARRAY['GREEN'::character varying, 'AMBER'::character varying, 'RED'::character varying])::"text"[])))
-);
-
-
-ALTER TABLE "public"."predial_quadrants" OWNER TO "postgres";
-
-
 CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "id" "uuid" NOT NULL,
     "first_name" "text" NOT NULL,
@@ -1475,6 +1528,7 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "onboarding_completed_at" timestamp with time zone,
     "onboarding_method" "text",
     "app_preferences" "jsonb" DEFAULT '{"theme": "system", "language": "es", "guides_seen": {}, "notifications": {"sync": false, "device": true, "weather": true, "agronomic": true}, "measurement_system": "metric"}'::"jsonb" NOT NULL,
+    "push_token" "text",
     CONSTRAINT "profiles_app_preferences_object_check" CHECK ((("jsonb_typeof"("app_preferences") = 'object'::"text") AND (COALESCE(("app_preferences" ->> 'language'::"text"), 'es'::"text") = ANY (ARRAY['es'::"text", 'en'::"text"])) AND (COALESCE(("app_preferences" ->> 'theme'::"text"), 'system'::"text") = ANY (ARRAY['system'::"text", 'light'::"text", 'dark'::"text"])) AND (COALESCE(("app_preferences" ->> 'measurement_system'::"text"), 'metric'::"text") = ANY (ARRAY['metric'::"text", 'imperial'::"text"])) AND ("jsonb_typeof"(COALESCE(("app_preferences" -> 'notifications'::"text"), '{}'::"jsonb")) = 'object'::"text") AND ("jsonb_typeof"(COALESCE(("app_preferences" -> 'guides_seen'::"text"), '{}'::"jsonb")) = 'object'::"text"))),
     CONSTRAINT "profiles_onboarding_method_check" CHECK ((("onboarding_method" IS NULL) OR ("onboarding_method" = ANY (ARRAY['qr'::"text", 'pairing'::"text"])))),
     CONSTRAINT "profiles_role_check" CHECK (("role" = ANY (ARRAY['admin'::"text", 'agronomist'::"text", 'operator'::"text"]))),
@@ -1494,6 +1548,10 @@ COMMENT ON COLUMN "public"."profiles"."onboarding_method" IS 'Ruta utilizada par
 
 
 COMMENT ON COLUMN "public"."profiles"."app_preferences" IS 'Preferencias multiplataforma de TerraSense: idioma, tema, sistema de medición, categorías de notificación y guías ya vistas.';
+
+
+
+COMMENT ON COLUMN "public"."profiles"."push_token" IS 'Token de Expo para notificaciones push. Lo escribe el dueño de la fila al conceder el permiso y se limpia al cerrar sesión. Nulo significa que no hay dispositivo registrado para avisos.';
 
 
 
@@ -1542,9 +1600,7 @@ CREATE TABLE IF NOT EXISTS "public"."soil_measurements" (
     "action_summary" "text",
     "measured_at" timestamp with time zone DEFAULT "now"(),
     "phenological_stage" "text" DEFAULT 'pre_siembra'::"text" NOT NULL,
-    "radius_m" integer DEFAULT 20 NOT NULL,
     "gps_accuracy_m" real,
-    "geom" "public"."geometry"(Point,4326) GENERATED ALWAYS AS ("public"."st_setsrid"("public"."st_makepoint"(("longitude")::double precision, ("latitude")::double precision), 4326)) STORED,
     "engine_version" "text" DEFAULT '0.0.0'::"text" NOT NULL,
     "crop_catalog_version" "text" DEFAULT '0.0.0'::"text" NOT NULL,
     "firmware_version" "text",
@@ -1552,10 +1608,10 @@ CREATE TABLE IF NOT EXISTS "public"."soil_measurements" (
     "client_uuid" "uuid",
     "air_pressure_hpa" numeric(5,1),
     "battery_percent" smallint,
-    CONSTRAINT "soil_measurements_battery_percent_check" CHECK (("battery_percent" >= 0) AND ("battery_percent" <= 100)),
+    "data_generation" integer DEFAULT 0 NOT NULL,
+    CONSTRAINT "soil_measurements_battery_percent_check" CHECK ((("battery_percent" >= 0) AND ("battery_percent" <= 100))),
     CONSTRAINT "soil_measurements_phenological_stage_check" CHECK (("phenological_stage" = ANY (ARRAY['pre_siembra'::"text", 'vegetativo'::"text", 'floracion'::"text", 'cosecha'::"text"]))),
     CONSTRAINT "soil_measurements_quadrant_check" CHECK ((("quadrant")::"text" = ANY ((ARRAY['NW'::character varying, 'NE'::character varying, 'SE'::character varying, 'SW'::character varying, 'CENTER'::character varying, 'FREE'::character varying])::"text"[]))),
-    CONSTRAINT "soil_measurements_radius_m_check" CHECK ((("radius_m" >= 1) AND ("radius_m" <= 500))),
     CONSTRAINT "soil_measurements_verdict_check" CHECK ((("verdict")::"text" = ANY ((ARRAY['GREEN'::character varying, 'AMBER'::character varying, 'RED'::character varying])::"text"[])))
 );
 
@@ -1579,10 +1635,6 @@ COMMENT ON COLUMN "public"."soil_measurements"."phenological_stage" IS 'Etapa de
 
 
 
-COMMENT ON COLUMN "public"."soil_measurements"."radius_m" IS 'Radio en metros del círculo que representa el área de influencia de la medición en el mapa. Por defecto 20 m, ajustable de 1 a 500.';
-
-
-
 COMMENT ON COLUMN "public"."soil_measurements"."gps_accuracy_m" IS 'Precisión reportada por el GPS al capturar el punto. La app advierte al usuario si supera los 15 m antes de guardar.';
 
 
@@ -1592,6 +1644,8 @@ COMMENT ON COLUMN "public"."soil_measurements"."engine_version" IS 'Versión del
 
 
 COMMENT ON COLUMN "public"."soil_measurements"."air_pressure_hpa" IS 'Presión atmosférica medida por el BME280, resolución 1 hPa. NULL si el sensor no respondió.';
+
+
 
 COMMENT ON COLUMN "public"."soil_measurements"."battery_percent" IS 'Porcentaje recibido en el byte 14 de la misma trama BLE. NULL en registros anteriores.';
 
@@ -1660,6 +1714,11 @@ ALTER TABLE ONLY "public"."device_access_invites"
 
 
 
+ALTER TABLE ONLY "public"."device_data_resets"
+    ADD CONSTRAINT "device_data_resets_pkey" PRIMARY KEY ("user_id", "device_id");
+
+
+
 ALTER TABLE ONLY "public"."device_join_attempts"
     ADD CONSTRAINT "device_join_attempts_pkey" PRIMARY KEY ("id");
 
@@ -1700,16 +1759,6 @@ ALTER TABLE ONLY "public"."devices"
 
 
 
-ALTER TABLE ONLY "public"."field_perimeters"
-    ADD CONSTRAINT "field_perimeters_pkey" PRIMARY KEY ("id");
-
-
-
-ALTER TABLE ONLY "public"."field_perimeters"
-    ADD CONSTRAINT "field_perimeters_user_id_field_name_key" UNIQUE ("user_id", "field_name");
-
-
-
 ALTER TABLE ONLY "public"."firmware_releases"
     ADD CONSTRAINT "firmware_releases_pkey" PRIMARY KEY ("id");
 
@@ -1722,11 +1771,6 @@ ALTER TABLE ONLY "public"."firmware_releases"
 
 ALTER TABLE ONLY "public"."lab_validation_records"
     ADD CONSTRAINT "lab_validation_records_pkey" PRIMARY KEY ("id");
-
-
-
-ALTER TABLE ONLY "public"."predial_quadrants"
-    ADD CONSTRAINT "predial_quadrants_pkey" PRIMARY KEY ("id");
 
 
 
@@ -1780,14 +1824,6 @@ CREATE UNIQUE INDEX "idx_devices_device_code" ON "public"."devices" USING "btree
 
 
 
-CREATE INDEX "idx_field_perimeters_geom_gist" ON "public"."field_perimeters" USING "gist" ("geom");
-
-
-
-CREATE INDEX "idx_field_perimeters_user" ON "public"."field_perimeters" USING "btree" ("user_id", "field_name");
-
-
-
 CREATE INDEX "idx_firmware_published" ON "public"."firmware_releases" USING "btree" ("hardware_target", "is_published", "created_at" DESC);
 
 
@@ -1796,19 +1832,11 @@ CREATE INDEX "idx_join_attempts_user_time" ON "public"."device_join_attempts" US
 
 
 
-CREATE INDEX "idx_predial_quadrants_geom_gist" ON "public"."predial_quadrants" USING "gist" ("geom");
-
-
-
 CREATE UNIQUE INDEX "idx_soil_measurements_client_uuid" ON "public"."soil_measurements" USING "btree" ("client_uuid") WHERE ("client_uuid" IS NOT NULL);
 
 
 
 CREATE INDEX "idx_soil_measurements_device_fecha" ON "public"."soil_measurements" USING "btree" ("device_id", "measured_at" DESC);
-
-
-
-CREATE INDEX "idx_soil_measurements_geom_gist" ON "public"."soil_measurements" USING "gist" ("geom");
 
 
 
@@ -1828,10 +1856,6 @@ CREATE OR REPLACE TRIGGER "trg_device_member_default_authorization" BEFORE INSER
 
 
 
-CREATE OR REPLACE TRIGGER "trg_field_perimeters_updated" BEFORE UPDATE ON "public"."field_perimeters" FOR EACH ROW EXECUTE FUNCTION "public"."set_updated_at"();
-
-
-
 CREATE OR REPLACE TRIGGER "trg_invalidate_empty_device_invite" AFTER DELETE ON "public"."device_members" FOR EACH ROW EXECUTE FUNCTION "public"."invalidate_empty_device_invite"();
 
 
@@ -1841,6 +1865,14 @@ CREATE OR REPLACE TRIGGER "trg_log_device_status_change" AFTER UPDATE ON "public
 
 
 CREATE OR REPLACE TRIGGER "trg_mark_onboarding_from_membership" AFTER INSERT OR UPDATE OF "role", "is_authorized" ON "public"."device_members" FOR EACH ROW EXECUTE FUNCTION "public"."mark_onboarding_from_membership"();
+
+
+
+CREATE OR REPLACE TRIGGER "trg_measurement_generation" BEFORE INSERT OR UPDATE ON "public"."soil_measurements" FOR EACH ROW EXECUTE FUNCTION "public"."check_measurement_generation"();
+
+
+
+CREATE OR REPLACE TRIGGER "trg_protect_device_generation" BEFORE UPDATE ON "public"."devices" FOR EACH ROW EXECUTE FUNCTION "public"."protect_device_generation"();
 
 
 
@@ -1855,6 +1887,16 @@ ALTER TABLE ONLY "public"."admin_support_users"
 
 ALTER TABLE ONLY "public"."device_access_invites"
     ADD CONSTRAINT "device_access_invites_device_id_fkey" FOREIGN KEY ("device_id") REFERENCES "public"."devices"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."device_data_resets"
+    ADD CONSTRAINT "device_data_resets_device_id_fkey" FOREIGN KEY ("device_id") REFERENCES "public"."devices"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."device_data_resets"
+    ADD CONSTRAINT "device_data_resets_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
 
 
@@ -1893,18 +1935,8 @@ ALTER TABLE ONLY "public"."device_status_log"
 
 
 
-ALTER TABLE ONLY "public"."field_perimeters"
-    ADD CONSTRAINT "field_perimeters_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
-
-
-
 ALTER TABLE ONLY "public"."firmware_releases"
     ADD CONSTRAINT "firmware_releases_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
-
-
-
-ALTER TABLE ONLY "public"."predial_quadrants"
-    ADD CONSTRAINT "predial_quadrants_device_id_fkey" FOREIGN KEY ("device_id") REFERENCES "public"."devices"("id") ON DELETE CASCADE;
 
 
 
@@ -1947,6 +1979,9 @@ ALTER TABLE "public"."admin_support_users" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."device_access_invites" ENABLE ROW LEVEL SECURITY;
 
 
+ALTER TABLE "public"."device_data_resets" ENABLE ROW LEVEL SECURITY;
+
+
 ALTER TABLE "public"."device_join_attempts" ENABLE ROW LEVEL SECURITY;
 
 
@@ -1960,17 +1995,10 @@ ALTER TABLE "public"."device_member_audit" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."device_members" ENABLE ROW LEVEL SECURITY;
 
 
-CREATE POLICY "device_quadrants_membership_required" ON "public"."predial_quadrants" AS RESTRICTIVE TO "authenticated" USING ((("device_id" IS NULL) OR "public"."has_device_access"("device_id"))) WITH CHECK ((("device_id" IS NULL) OR "public"."has_device_access"("device_id")));
-
-
-
 ALTER TABLE "public"."device_status_log" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."devices" ENABLE ROW LEVEL SECURITY;
-
-
-ALTER TABLE "public"."field_perimeters" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."firmware_releases" ENABLE ROW LEVEL SECURITY;
@@ -1979,7 +2007,8 @@ ALTER TABLE "public"."firmware_releases" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."lab_validation_records" ENABLE ROW LEVEL SECURITY;
 
 
-ALTER TABLE "public"."predial_quadrants" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "own_device_resets" ON "public"."device_data_resets" FOR SELECT TO "authenticated" USING (("user_id" = "auth"."uid"()));
+
 
 
 ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
@@ -2054,22 +2083,6 @@ CREATE POLICY "ts_member_audit_select_admin" ON "public"."device_member_audit" F
 
 
 
-CREATE POLICY "ts_perimeters_delete_own" ON "public"."field_perimeters" FOR DELETE TO "authenticated" USING (("user_id" = "auth"."uid"()));
-
-
-
-CREATE POLICY "ts_perimeters_insert_own" ON "public"."field_perimeters" FOR INSERT TO "authenticated" WITH CHECK (("user_id" = "auth"."uid"()));
-
-
-
-CREATE POLICY "ts_perimeters_select_own" ON "public"."field_perimeters" FOR SELECT TO "authenticated" USING (("user_id" = "auth"."uid"()));
-
-
-
-CREATE POLICY "ts_perimeters_update_own" ON "public"."field_perimeters" FOR UPDATE TO "authenticated" USING (("user_id" = "auth"."uid"()));
-
-
-
 CREATE POLICY "ts_profiles_insert_own" ON "public"."profiles" FOR INSERT TO "authenticated" WITH CHECK (("auth"."uid"() = "id"));
 
 
@@ -2082,22 +2095,162 @@ CREATE POLICY "ts_profiles_update_own" ON "public"."profiles" FOR UPDATE TO "aut
 
 
 
-CREATE POLICY "ts_quadrants_insert" ON "public"."predial_quadrants" FOR INSERT TO "authenticated" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
 
 
-
-CREATE POLICY "ts_quadrants_select" ON "public"."predial_quadrants" FOR SELECT TO "authenticated" USING ((("device_id" IS NULL) OR "public"."has_device_access"("device_id")));
-
-
-
-CREATE POLICY "ts_quadrants_update" ON "public"."predial_quadrants" FOR UPDATE TO "authenticated" USING ((("device_id" IS NULL) OR "public"."has_device_access"("device_id")));
-
+ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
 
 
 GRANT USAGE ON SCHEMA "public" TO "postgres";
 GRANT USAGE ON SCHEMA "public" TO "anon";
 GRANT USAGE ON SCHEMA "public" TO "authenticated";
 GRANT USAGE ON SCHEMA "public" TO "service_role";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2172,9 +2325,7 @@ GRANT ALL ON FUNCTION "public"."change_device_membership"("p_device_id" "uuid", 
 
 
 
-GRANT ALL ON FUNCTION "public"."check_device_administrator"() TO "anon";
-GRANT ALL ON FUNCTION "public"."check_device_administrator"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."check_device_administrator"() TO "service_role";
+REVOKE ALL ON FUNCTION "public"."check_device_administrator"() FROM PUBLIC;
 
 
 
@@ -2184,14 +2335,19 @@ GRANT ALL ON FUNCTION "public"."check_firmware_update"("p_device_id" "uuid") TO 
 
 
 
+GRANT ALL ON FUNCTION "public"."check_measurement_generation"() TO "anon";
+GRANT ALL ON FUNCTION "public"."check_measurement_generation"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."check_measurement_generation"() TO "service_role";
+
+
+
 REVOKE ALL ON FUNCTION "public"."complete_my_onboarding"("p_method" "text") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."complete_my_onboarding"("p_method" "text") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."complete_my_onboarding"("p_method" "text") TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."generate_device_code"() TO "anon";
-GRANT ALL ON FUNCTION "public"."generate_device_code"() TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."generate_device_code"() FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."generate_device_code"() TO "service_role";
 
 
@@ -2208,13 +2364,11 @@ GRANT ALL ON FUNCTION "public"."get_device_access_qr"("p_device_id" "uuid") TO "
 
 
 
-GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "anon";
-GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "service_role";
+REVOKE ALL ON FUNCTION "public"."handle_new_user"() FROM PUBLIC;
 
 
 
-GRANT ALL ON FUNCTION "public"."has_device_access"("p_device_id" "uuid") TO "anon";
+REVOKE ALL ON FUNCTION "public"."has_device_access"("p_device_id" "uuid") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."has_device_access"("p_device_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."has_device_access"("p_device_id" "uuid") TO "service_role";
 
@@ -2226,9 +2380,7 @@ GRANT ALL ON FUNCTION "public"."has_device_admin_access"("p_device_id" "uuid") T
 
 
 
-GRANT ALL ON FUNCTION "public"."invalidate_empty_device_invite"() TO "anon";
-GRANT ALL ON FUNCTION "public"."invalidate_empty_device_invite"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."invalidate_empty_device_invite"() TO "service_role";
+REVOKE ALL ON FUNCTION "public"."invalidate_empty_device_invite"() FROM PUBLIC;
 
 
 
@@ -2249,9 +2401,7 @@ GRANT ALL ON FUNCTION "public"."join_device_by_invite"("p_token" "uuid") TO "ser
 
 
 
-GRANT ALL ON FUNCTION "public"."link_device_creator"() TO "anon";
-GRANT ALL ON FUNCTION "public"."link_device_creator"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."link_device_creator"() TO "service_role";
+REVOKE ALL ON FUNCTION "public"."link_device_creator"() FROM PUBLIC;
 
 
 
@@ -2267,9 +2417,7 @@ GRANT ALL ON FUNCTION "public"."list_my_pending_device_requests"() TO "service_r
 
 
 
-GRANT ALL ON FUNCTION "public"."log_device_status_change"() TO "anon";
-GRANT ALL ON FUNCTION "public"."log_device_status_change"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."log_device_status_change"() TO "service_role";
+REVOKE ALL ON FUNCTION "public"."log_device_status_change"() FROM PUBLIC;
 
 
 
@@ -2279,9 +2427,19 @@ GRANT ALL ON FUNCTION "public"."manage_device_member"("p_device_id" "uuid", "p_t
 
 
 
-GRANT ALL ON FUNCTION "public"."mark_onboarding_from_membership"() TO "anon";
-GRANT ALL ON FUNCTION "public"."mark_onboarding_from_membership"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."mark_onboarding_from_membership"() TO "service_role";
+REVOKE ALL ON FUNCTION "public"."mark_onboarding_from_membership"() FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."prepare_device_for_owner"("p_device_id" "uuid", "p_confirm_device_code" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."prepare_device_for_owner"("p_device_id" "uuid", "p_confirm_device_code" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."prepare_device_for_owner"("p_device_id" "uuid", "p_confirm_device_code" "text") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."protect_device_generation"() TO "anon";
+GRANT ALL ON FUNCTION "public"."protect_device_generation"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."protect_device_generation"() TO "service_role";
 
 
 
@@ -2312,21 +2470,32 @@ GRANT ALL ON FUNCTION "public"."request_device_access_qr"("p_device_code" "text"
 
 
 
-GRANT ALL ON FUNCTION "public"."set_device_member_authorization_default"() TO "anon";
-GRANT ALL ON FUNCTION "public"."set_device_member_authorization_default"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."set_device_member_authorization_default"() TO "service_role";
+REVOKE ALL ON FUNCTION "public"."set_device_member_authorization_default"() FROM PUBLIC;
 
 
 
-GRANT ALL ON FUNCTION "public"."set_updated_at"() TO "anon";
-GRANT ALL ON FUNCTION "public"."set_updated_at"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."set_updated_at"() TO "service_role";
+REVOKE ALL ON FUNCTION "public"."set_updated_at"() FROM PUBLIC;
 
 
 
 REVOKE ALL ON FUNCTION "public"."support_self_register"("p_full_name" "text", "p_invite_code" "text") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."support_self_register"("p_full_name" "text", "p_invite_code" "text") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."support_self_register"("p_full_name" "text", "p_invite_code" "text") TO "service_role";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2343,6 +2512,11 @@ GRANT ALL ON TABLE "public"."admin_support_users" TO "service_role";
 
 
 GRANT ALL ON TABLE "public"."device_access_invites" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."device_data_resets" TO "service_role";
+GRANT SELECT ON TABLE "public"."device_data_resets" TO "authenticated";
 
 
 
@@ -2388,12 +2562,6 @@ GRANT ALL ON TABLE "public"."devices" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."field_perimeters" TO "anon";
-GRANT ALL ON TABLE "public"."field_perimeters" TO "authenticated";
-GRANT ALL ON TABLE "public"."field_perimeters" TO "service_role";
-
-
-
 GRANT ALL ON TABLE "public"."firmware_releases" TO "anon";
 GRANT ALL ON TABLE "public"."firmware_releases" TO "authenticated";
 GRANT ALL ON TABLE "public"."firmware_releases" TO "service_role";
@@ -2403,12 +2571,6 @@ GRANT ALL ON TABLE "public"."firmware_releases" TO "service_role";
 GRANT ALL ON TABLE "public"."lab_validation_records" TO "anon";
 GRANT ALL ON TABLE "public"."lab_validation_records" TO "authenticated";
 GRANT ALL ON TABLE "public"."lab_validation_records" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."predial_quadrants" TO "anon";
-GRANT ALL ON TABLE "public"."predial_quadrants" TO "authenticated";
-GRANT ALL ON TABLE "public"."predial_quadrants" TO "service_role";
 
 
 
@@ -2442,6 +2604,12 @@ GRANT ALL ON SEQUENCE "public"."support_register_attempts_id_seq" TO "service_ro
 
 
 
+
+
+
+
+
+
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "postgres";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "anon";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "authenticated";
@@ -2466,6 +2634,30 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "anon";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "authenticated";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "service_role";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -153,8 +153,12 @@ referencia objetos creados por la anterior.
       disparadores creados y los recuentos de filas intactos.
 - [x] `Web/backend/database.types.ts` regenerado desde el proyecto remoto. La consola
       compila y sus pruebas pasan.
-- [ ] Regenerar `supabase/schema.sql`. `supabase db dump` exige Docker Desktop en marcha y
-      no lo está; el volcado sigue declarando la geometría, los cuadrantes y los perímetros.
+- [x] `supabase/schema.sql` regenerado con Docker en marcha. Ya no declara PostGIS, la
+      geometría, el radio, los cuadrantes ni los perímetros, e incorpora `data_generation`,
+      `push_token` y la tabla `device_data_resets`. Al volcar, cuidado: `supabase db dump`
+      **trunca el archivo de salida antes** de comprobar que tiene Docker, así que si falla
+      deja el destino en cero bytes. Volcar a un temporal y copiar sólo si el resultado es
+      válido.
 
 `latitude`, `longitude` y `gps_accuracy_m` se conservan y el detalle de cada lectura sigue
 mostrando las coordenadas como texto: quitar el mapa no es quitar la georreferenciación.
