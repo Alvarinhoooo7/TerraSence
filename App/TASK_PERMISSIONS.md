@@ -81,6 +81,27 @@ lo que agotaba la cuota en cada prueba.
 - [x] `consentReducer` es idempotente al llegar al final: antes devolvía un objeto nuevo en
       cada evento de desplazamiento y re-renderizaba el texto legal completo mientras el
       dedo se movía.
+- [x] Auditoría del esquema: se contrastó cada tabla, columna y RPC que consultan la app,
+      la consola y las Edge Functions contra el esquema real en remoto. Aparece un segundo
+      desfase de la misma clase que `data_generation`: **`profiles.push_token` no existía**.
+      Ninguna migración lo declaraba. La app envuelve su escritura en un `catch` que
+      devuelve `null`, así que el fallo se perdía en silencio y `send-push-alert` se
+      quedaba sin destinatarios: el circuito de avisos push nunca llegó a cerrarse.
+      Lo crea `20260920160000_token_de_notificaciones.sql`, ya aplicada y verificada.
+- [x] Revisadas las tablas que ningún cliente consulta directamente
+      (`admin_support_invite`, `device_access_invites`, `device_join_attempts`,
+      `device_member_audit`, `device_status_log`, `support_register_attempts`).
+      **Ninguna sobra**: las seis las usan RPCs o disparadores del servidor. Retirarlas
+      rompería el QR de acceso, la unión por código, el alta de soporte, las auditorías,
+      el restablecimiento de fábrica y el detalle de equipo. Una tabla que nadie consulta
+      no provoca errores; los provoca lo contrario, una columna que el cliente pide y no
+      existe, que es lo que esta auditoría busca.
+- [x] Aviso de cuenta ya registrada. Supabase no devuelve error cuando el correo existe:
+      para no confirmarle a un extraño qué direcciones están registradas, responde con un
+      usuario sin identidades. La app lo reconoce y deja al agricultor en el inicio de
+      sesión con el aviso, en vez de mandarlo a esperar un código que nunca llega. Se
+      descartó una consulta directa a la base que respondiera sí o no: sería un padrón de
+      clientes sondeable, y el proyecto tiene el CAPTCHA desactivado.
 - [ ] Validar en teléfono el flujo completo con las transiciones nuevas, el icono del
       lanzador, la pantalla de arranque y la de carga. **Exige reinstalar la app**: el
       icono y el arranque se compilan en el APK, no se recargan con Metro.

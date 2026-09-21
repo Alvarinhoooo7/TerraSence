@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { resolveEntryRoute } from '../src/utils/authFlow';
-import { isEmailValid, isInvalidSessionError } from '../src/utils/authValidation';
+import { isEmailValid, isExistingAccountSignUp, isInvalidSessionError } from '../src/utils/authValidation';
 
 const ready = {
   loading: false, recovery: false, welcomeComplete: true, userId: 'account-a',
@@ -76,4 +76,18 @@ test('revisar permisos conduce a onboarding, aprobación o app según el estado 
   assert.equal(resolveEntryRoute({ ...ready, onboardingComplete: false }), 'onboarding');
   assert.equal(resolveEntryRoute({ ...ready, onboardingComplete: false, awaitingApproval: true }), 'approval');
   assert.equal(resolveEntryRoute(ready), 'app');
+});
+
+test('reconoce que el correo ya tenía cuenta por la respuesta ofuscada del registro', () => {
+  const nuevo = { user: { id: 'u1', identities: [{ provider: 'email' }] }, session: null };
+  const existente = { user: { id: 'u1', identities: [] }, session: null };
+  assert.equal(isExistingAccountSignUp(existente), true);
+  assert.equal(isExistingAccountSignUp(nuevo), false, 'un registro real trae su identidad');
+  assert.equal(isExistingAccountSignUp({ user: { id: 'u1', identities: [] }, session: { access_token: 'x' } }), false,
+    'con sesión activa el registro prosperó: no se avisa de cuenta previa');
+  // Ante respuestas que no traen el dato, no se afirma nada.
+  for (const dudosa of [null, {}, { user: null, session: null }, { user: { id: 'u1' }, session: null },
+                        { user: { id: 'u1', identities: null }, session: null }]) {
+    assert.equal(isExistingAccountSignUp(dudosa), false);
+  }
 });

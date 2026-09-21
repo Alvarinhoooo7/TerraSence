@@ -20,7 +20,7 @@ import { REGISTRATION_LEGAL_VERSION, RegistrationConsent } from '../utils/regist
 import { EmailCodeScreen } from './EmailCodeScreen';
 import type { EmailOtpPurpose } from '../services/emailOtp';
 import { isPasswordAcceptable, PASSWORD_MIN_LENGTH } from '../utils/passwordRules';
-import { isEmailValid } from '../utils/authValidation';
+import { isEmailValid, isExistingAccountSignUp } from '../utils/authValidation';
 import { AuthLayout, AuthHeading, AuthField, AuthButton, AuthMessage, SoilArtwork, authStyles } from '../components/auth/AuthUI';
 
 type Mode = 'signin' | 'signup' | 'reset';
@@ -177,6 +177,15 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
         setShowConsent(false);
         setPassword('');
         setConfirmPassword('');
+        // Supabase no falla cuando el correo ya tiene cuenta: devuelve un usuario sin
+        // identidades. Sin esto, el agricultor quedaba esperando un código que nunca
+        // iba a llegar. Se le deja en el inicio de sesión con el correo ya escrito.
+        if (isExistingAccountSignUp(data)) {
+          setMode('signin');
+          setError(t('Ya existe una cuenta con ese correo. Entra o recupera tu contraseña.',
+            'An account already exists for this email. Sign in or reset your password.'));
+          return;
+        }
         if (data.session) onAuthenticated();
         else setChallenge({ email: mail, purpose: 'signup', sentAt: Date.now() });
         return;
