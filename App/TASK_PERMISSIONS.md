@@ -67,6 +67,20 @@ lo que agotaba la cuota en cada prueba.
       arranque no muestra un destello claro al montar la app. Los estratos grises del
       logotipo pasan a verdes sobre fondo oscuro; la paleta vive en `BrandLogo` y su
       equivalente en el generador, que produce el PNG nativo.
+- [x] Corregido el error «No pudimos revisar tu cuenta» en cuentas nuevas. La causa no
+      estaba en la app: `listMyDevices` pedía `data_generation` y esa columna no existía en
+      producción, porque faltaban por aplicar las dos migraciones de arriba. PostgREST
+      respondía 42703, `getOnboardingState` lanzaba, y una cuenta recién creada no tiene
+      estado en caché al que caer. El guardado de mediciones fallaba por lo mismo.
+      Reproducido contra producción antes de tocar nada y verificado después.
+- [x] Continuar de los términos responde a la primera. La hoja legal ya no espera a que
+      termine la solicitud para cerrarse. Medido antes de cambiar: el endpoint de registro
+      responde en 0,1–0,8 s, así que no era latencia del envío de correo sino que la única
+      señal era una ruedita de medio segundo dentro del propio botón. La aceptación se
+      conserva si la creación falla, para no obligar a releer los términos al reintentar.
+- [x] `consentReducer` es idempotente al llegar al final: antes devolvía un objeto nuevo en
+      cada evento de desplazamiento y re-renderizaba el texto legal completo mientras el
+      dedo se movía.
 - [ ] Validar en teléfono el flujo completo con las transiciones nuevas, el icono del
       lanzador, la pantalla de arranque y la de carga. **Exige reinstalar la app**: el
       icono y el arranque se compilan en el APK, no se recargan con Metro.
@@ -109,12 +123,17 @@ así que el borrado no destruye datos; y `data_generation` todavía no existe en
 Las dos migraciones no pueden separarse, porque ésta rehace `prepare_device_for_owner`, que
 referencia objetos creados por la anterior.
 
-- [ ] Verificar la migración contra PostgreSQL en contenedor, como se hizo con la anterior.
-      Requiere Docker Desktop en marcha; el intento del 20-09-2026 no pudo conectar al demonio.
-- [ ] Aplicarla en remoto y regenerar después `supabase/schema.sql` y
-      `Web/backend/database.types.ts`, que son archivos generados y todavía declaran
-      la geometría, los cuadrantes y los perímetros. El paso remoto se intentó el 20-09-2026
-      y quedó detenido: aplicar migraciones a producción exige autorización explícita.
+- [x] Aplicada en remoto el 20-09-2026 con autorización explícita del usuario, junto con
+      `20260920120000`. Comprobado antes: `predial_quadrants` y `field_perimeters` con cero
+      filas, y la única medición georreferenciada tenía en `geom` el mismo punto que
+      `latitude`/`longitude`, que se conservan. Lo único que se perdió es su `radius_m`,
+      que la app ya no usa. Después: PostGIS y las dos tablas retiradas, `data_generation`
+      presente en `devices` y `soil_measurements` como `NOT NULL DEFAULT 0`, los dos
+      disparadores creados y los recuentos de filas intactos.
+- [x] `Web/backend/database.types.ts` regenerado desde el proyecto remoto. La consola
+      compila y sus pruebas pasan.
+- [ ] Regenerar `supabase/schema.sql`. `supabase db dump` exige Docker Desktop en marcha y
+      no lo está; el volcado sigue declarando la geometría, los cuadrantes y los perímetros.
 
 `latitude`, `longitude` y `gps_accuracy_m` se conservan y el detalle de cada lectura sigue
 mostrando las coordenadas como texto: quitar el mapa no es quitar la georreferenciación.

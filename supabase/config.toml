@@ -450,4 +450,4 @@ content_path = "./supabase/templates/confirmation.html"
 [auth.email.notification.password_changed]
 enabled = true
 subject = "Tu contraseña de TerraSense fue cambiada"
-content_path = "./supabase/templates/password_changed.html"
+content_path = "./templates/password_changed.html"

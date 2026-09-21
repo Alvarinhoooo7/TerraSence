@@ -80,6 +80,10 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showConsent, setShowConsent] = useState(false);
+  // La aceptación ya dada se conserva mientras dure este registro: si la creación
+  // falla por red, reintentar no obliga a releer y remarcar los términos. Las
+  // casillas nunca aparecen premarcadas; el panel se monta vacío cada vez.
+  const acceptedConsent = useRef<RegistrationConsent | null>(null);
   const requestInFlight = useRef(false);
   const [challenge, setChallenge] = useState<{ email: string; purpose: EmailOtpPurpose; sentAt: number } | null>(null);
 
@@ -95,15 +99,17 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
   const switchMode = useCallback((next: Mode) => {
     if (requestInFlight.current) return;
     setShowConsent(false);
+    acceptedConsent.current = null;
     setConfirmPassword('');
     setPassword('');
     setMode(next);
     setError(null);
   }, []);
 
-  const submit = useCallback(async (consent?: RegistrationConsent) => {
+  const submit = useCallback(async (given?: RegistrationConsent) => {
     if (requestInFlight.current) return;
     setError(null);
+    const consent = given ?? acceptedConsent.current ?? undefined;
 
     const mail = email.trim().toLowerCase();
     if (!isEmailValid(mail)) {
@@ -167,6 +173,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
           },
         });
         if (e) throw e;
+        acceptedConsent.current = null;
         setShowConsent(false);
         setPassword('');
         setConfirmPassword('');
@@ -244,6 +251,12 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
     </AuthLayout>
     {showConsent && <RegistrationConsentModal busy={busy} error={error}
       onCancel={() => { if (!requestInFlight.current) { setShowConsent(false); setError(null); } }}
-      onContinue={consent => { void submit(consent); }} />}
+      onContinue={consent => {
+        // Cerrar aquí y no al terminar la solicitud: así la primera pulsación
+        // produce un cambio visible en vez de medio segundo de hoja quieta.
+        acceptedConsent.current = consent;
+        setShowConsent(false);
+        void submit(consent);
+      }} />}
   </>;
 };

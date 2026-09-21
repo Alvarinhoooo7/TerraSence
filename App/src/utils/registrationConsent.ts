@@ -16,7 +16,10 @@ export const initialConsent: ConsentState = {
 export type ConsentAction = { type: 'read' | 'terms' | 'privacy' };
 
 export function consentReducer(state: ConsentState, action: ConsentAction): ConsentState {
-  if (action.type === 'read') return { ...state, reachedEnd: true };
+  // Idempotente a propósito: `onScroll` se dispara decenas de veces y antes devolvía
+  // un objeto nuevo en cada una, re-renderizando el texto legal completo mientras el
+  // dedo se movía. Ese trabajo de más es lo que se sentía como un tirón al continuar.
+  if (action.type === 'read') return state.reachedEnd ? state : { ...state, reachedEnd: true };
   if (!state.reachedEnd) return state;
   if (action.type === 'terms') return { ...state, termsAccepted: !state.termsAccepted };
   return { ...state, privacyAccepted: !state.privacyAccepted };

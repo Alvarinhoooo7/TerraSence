@@ -47,3 +47,13 @@ test('exige medidas reales de layout y permite el texto que cabe sin desplazamie
   assert.equal(hasReachedLegalEnd(-10, 1600, 1500), false);
   assert.equal(hasReachedLegalEnd(NaN, 500, 1500), false);
 });
+
+test('llegar al final es idempotente: no rehace el estado en cada evento de desplazamiento', () => {
+  const leido = consentReducer(initialConsent, { type: 'read' });
+  assert.equal(leido.reachedEnd, true);
+  // Misma referencia: sin objeto nuevo no hay re-render del texto legal.
+  assert.equal(consentReducer(leido, { type: 'read' }), leido);
+  const marcado = consentReducer(consentReducer(leido, { type: 'terms' }), { type: 'privacy' });
+  assert.equal(consentReducer(marcado, { type: 'read' }), marcado, 'no descarta lo ya marcado');
+  assert.equal(canAcceptRegistration(marcado), true);
+});

@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -11,31 +11,6 @@ export type Database = {
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
-  }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
   }
   public: {
     Tables: {
@@ -105,6 +80,32 @@ export type Database = {
             foreignKeyName: "device_access_invites_device_id_fkey"
             columns: ["device_id"]
             isOneToOne: true
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      device_data_resets: {
+        Row: {
+          device_id: string
+          generation: number
+          user_id: string
+        }
+        Insert: {
+          device_id: string
+          generation: number
+          user_id: string
+        }
+        Update: {
+          device_id?: string
+          generation?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_data_resets_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
             referencedRelation: "devices"
             referencedColumns: ["id"]
           },
@@ -251,6 +252,7 @@ export type Database = {
           alias: string | null
           battery_level: number
           created_at: string | null
+          data_generation: number
           device_code: string
           firmware_version: string
           hardware_version: string
@@ -267,6 +269,7 @@ export type Database = {
           alias?: string | null
           battery_level?: number
           created_at?: string | null
+          data_generation?: number
           device_code?: string
           firmware_version?: string
           hardware_version?: string
@@ -283,6 +286,7 @@ export type Database = {
           alias?: string | null
           battery_level?: number
           created_at?: string | null
+          data_generation?: number
           device_code?: string
           firmware_version?: string
           hardware_version?: string
@@ -294,36 +298,6 @@ export type Database = {
           name?: string
           pairing_mode_active?: boolean
           transmission_interval_seconds?: number
-        }
-        Relationships: []
-      }
-      field_perimeters: {
-        Row: {
-          area_ha: number | null
-          created_at: string
-          field_name: string
-          geom: unknown
-          id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          area_ha?: number | null
-          created_at?: string
-          field_name: string
-          geom: unknown
-          id?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          area_ha?: number | null
-          created_at?: string
-          field_name?: string
-          geom?: unknown
-          id?: string
-          updated_at?: string
-          user_id?: string
         }
         Relationships: []
       }
@@ -437,68 +411,6 @@ export type Database = {
           terrasense_vwc?: number
         }
         Relationships: []
-      }
-      predial_quadrants: {
-        Row: {
-          action_summary: string | null
-          created_at: string | null
-          device_id: string | null
-          ec_us_cm: number
-          geom: unknown
-          id: string
-          latitude: number
-          longitude: number
-          ph: number
-          phenological_stage: string
-          quadrant_code: string
-          radius_m: number
-          soil_temp_c: number
-          verdict: string
-          vwc_percent: number
-        }
-        Insert: {
-          action_summary?: string | null
-          created_at?: string | null
-          device_id?: string | null
-          ec_us_cm: number
-          geom?: unknown
-          id?: string
-          latitude: number
-          longitude: number
-          ph: number
-          phenological_stage?: string
-          quadrant_code: string
-          radius_m?: number
-          soil_temp_c: number
-          verdict: string
-          vwc_percent: number
-        }
-        Update: {
-          action_summary?: string | null
-          created_at?: string | null
-          device_id?: string | null
-          ec_us_cm?: number
-          geom?: unknown
-          id?: string
-          latitude?: number
-          longitude?: number
-          ph?: number
-          phenological_stage?: string
-          quadrant_code?: string
-          radius_m?: number
-          soil_temp_c?: number
-          verdict?: string
-          vwc_percent?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "predial_quadrants_device_id_fkey"
-            columns: ["device_id"]
-            isOneToOne: false
-            referencedRelation: "devices"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       profiles: {
         Row: {
@@ -627,13 +539,13 @@ export type Database = {
           client_uuid: string | null
           crop_catalog_version: string
           crop_id: string
+          data_generation: number
           device_id: string
           diagnosis: Json | null
           ec_us_cm: number
           engine_version: string
           field_name: string
           firmware_version: string | null
-          geom: unknown
           gps_accuracy_m: number | null
           id: string
           latitude: number | null
@@ -645,7 +557,6 @@ export type Database = {
           phosphorus: number
           potassium: number
           quadrant: string | null
-          radius_m: number
           soil_temp_c: number
           soil_texture: string
           user_id: string | null
@@ -663,13 +574,13 @@ export type Database = {
           client_uuid?: string | null
           crop_catalog_version?: string
           crop_id?: string
+          data_generation?: number
           device_id: string
           diagnosis?: Json | null
           ec_us_cm: number
           engine_version?: string
           field_name?: string
           firmware_version?: string | null
-          geom?: unknown
           gps_accuracy_m?: number | null
           id?: string
           latitude?: number | null
@@ -681,7 +592,6 @@ export type Database = {
           phosphorus?: number
           potassium?: number
           quadrant?: string | null
-          radius_m?: number
           soil_temp_c: number
           soil_texture?: string
           user_id?: string | null
@@ -699,13 +609,13 @@ export type Database = {
           client_uuid?: string | null
           crop_catalog_version?: string
           crop_id?: string
+          data_generation?: number
           device_id?: string
           diagnosis?: Json | null
           ec_us_cm?: number
           engine_version?: string
           field_name?: string
           firmware_version?: string | null
-          geom?: unknown
           gps_accuracy_m?: number | null
           id?: string
           latitude?: number | null
@@ -717,7 +627,6 @@ export type Database = {
           phosphorus?: number
           potassium?: number
           quadrant?: string | null
-          radius_m?: number
           soil_temp_c?: number
           soil_texture?: string
           user_id?: string | null
@@ -894,6 +803,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      prepare_device_for_owner: {
+        Args: { p_confirm_device_code: string; p_device_id: string }
+        Returns: Json
+      }
       purge_expired_operational_data: {
         Args: never
         Returns: {
@@ -1052,9 +965,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },
