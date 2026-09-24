@@ -43,6 +43,8 @@ El plan global conserva el punto de retorno. Atrás de Android sigue la misma na
 - [ ] Grid, detalle y plan comparten lectura; anterior/siguiente respetan límites.
 - [ ] Plan vuelve al mismo parámetro/página; Atrás protege resultados sin guardar.
 - [x] Ausencia de ambiente e histórico antiguo conservan datos honestos (pruebas unitarias).
+- [ ] Desplegar la función `measurement-recommendation` en Supabase
+  (`supabase functions deploy measurement-recommendation`); hoy solo existe en el repositorio.
 - [ ] Validar función remota desplegada: por ahora devuelve proveedor no configurado.
 - [ ] Reintentos no aceptan respuestas anteriores ni duplican guardados.
 - [x] Pruebas automatizadas y tipos aprobados; documentación sin errores.
