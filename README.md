@@ -48,7 +48,7 @@ Este escenario genera un impacto negativo a lo largo de todo el ciclo de vida de
 
 * 📡 **Medición Integral (Grid 2×5):** Diez variables: humedad del suelo, conductividad eléctrica, temperatura del suelo, nitrógeno, fósforo, potasio y pH de la sonda; temperatura ambiente, humedad relativa ambiente y presión atmosférica ambiente del BME280. Dos columnas y cinco filas, implementadas en la App y en el detalle de la consola web.
 * 🌦️ **Microclima Local + Pronóstico:** El sensor **BME280** lee temperatura, humedad relativa y presión en el lugar físico de la medición. Como **apoyo y complemento**, una API gratuita de clima aporta el pronóstico de los próximos 5 días, permitiendo planificar labores a futuro (ej. posponer siembra si hay riesgo de lluvias intensas).
-* 🔋 **Diseño de Bajo Consumo:** La rama de medición se corta por MOSFET fuera del instante de lectura y la batería LiPo se recarga por USB-C, sin pilas desechables. Con reposo supuesto de ~19,4 µA, el balance en Wh da una referencia optimista de **~256 días**, antes de cerrar consumos auxiliares y condiciones reales. Es una cifra calculada: **la medición desde batería en banco sigue pendiente**.
+* 🔋 **Diseño de Bajo Consumo:** La sonda se corta por MOSFET fuera del instante de lectura, el equipo se apaga con un interruptor entre jornadas y la batería LiPo se recarga por USB-C, sin pilas desechables. La autonomía por patrón de uso está calculada en el balance energético del [informe corregido](Evaluacion/Evaluacion%201/INFORME%201%20CORREGIDO.md): **la medición desde batería en banco sigue pendiente**.
 * 📱 **Ecosistema Interconectado:** Comunicación Bluetooth Low Energy (BLE) hacia la App móvil que no requiere internet para diagnosticar, respaldado por una plataforma Web y base de datos.
 
 ---
@@ -115,10 +115,8 @@ npm run dev         # Servidor en http://localhost:5173
 Desde la raíz del proyecto:
 ```bash
 python -m pip install -r finanzas/requirements.txt
-cd finanzas
-python seccion_economica.py        # cuadros y sección económica del informe
-python corregir_informe.py         # informe corregido completo
-python documentacion_reformulada.py  # bloque económico del README
+python finanzas/modelo.py          # cifras, planillas, sección económica, informe corregido y README
+python -m unittest discover -s finanzas -p "test_*.py"   # pruebas del modelo financiero
 ```
 
 ---
@@ -138,7 +136,7 @@ TerraSense está planteado como un proyecto económicamente sustentable y escala
 
 ## Finanzas y modelo económico
 
-**El precio no es un supuesto: es un resultado.** Se construye primero la estructura completa de costos e inversión y el precio se deriva de ella exigiendo un 30 % de utilidad sobre el costo total. Precio de lista resultante: **$449.337 CLP con IVA** ($377.594 netos). Evaluación a diez años, 2027–2036, con tasa de descuento del 20 % anual.
+**El precio no es un supuesto: es un resultado.** Se construye primero la estructura completa de costos e inversión y el precio se deriva de ella exigiendo un 30 % de utilidad sobre el costo total. Precio de lista resultante: **$449.409 CLP con IVA** ($377.655 netos). Evaluación a diez años, 2027–2036, con tasa de descuento del 20 % anual.
 
 ### BOM por equipo
 
@@ -146,31 +144,33 @@ TerraSense está planteado como un proyecto económicamente sustentable y escala
 |---|---:|---:|---:|
 | Sonda de suelo 7-en-1 RS-485 Modbus RTU | 1 | $48.000 | $48.000 |
 | Carcasa PETG impresa en taller propio | 1 | $6.900 | $6.900 |
-| ESP32 DevKit WROOM-32D | 1 | $4.800 | $4.800 |
-| Bateria LiPo 3,7 V 2.000 mAh con proteccion | 1 | $4.400 | $4.400 |
-| PCB portadora 2 capas, fabricacion y envio | 1 | $2.000 | $2.000 |
-| Modulo ambiental BME280 (I2C) | 1 | $1.050 | $1.050 |
-| Modulo de carga y elevacion LX-LCBST (Modulos:Modulo_LX-LCBST) | 1 | $900 | $900 |
-| Modulo transceptor SP3485 RS-485 3,3 V | 1 | $900 | $900 |
-| Terminal block 2 pines, paso 5 mm | 2 | $95 | $190 |
-| Terminal block 4 pines, paso 5 mm (TerminalBlock_MetzConnect Type055) | 1 | $190 | $190 |
-| Condensador electrolitico 100 uF 35 V (CP_Elec 6,3x7,7) | 2 | $29 | $58 |
-| Condensador ceramico 100 nF 50 V (1206) | 4 | $4 | $16 |
-| Resistencia 100 kOhm (1206) | 2 | $2 | $4 |
-| Resistencia 330 Ohm (1206) | 3 | $2 | $6 |
-| Resistencia 10 kOhm (1206) | 1 | $2 | $2 |
+| Placa de desarrollo ESP32 DevKit WROOM-32 | 1 | $4.800 | $4.800 |
+| Batería LiPo 3,7 V 2.000 mAh con protección | 1 | $4.400 | $4.400 |
+| PCB portadora de 2 capas, fabricación y envío | 1 | $2.000 | $2.000 |
+| Módulo ambiental BME280 (I²C) | 1 | $1.050 | $1.050 |
+| Módulo de carga USB-C y elevación a 5 V | 1 | $900 | $900 |
+| Módulo transceptor SP3485 RS-485 3,3 V | 1 | $900 | $900 |
+| MOSFET canal N AO3400A (control del corte de la sonda) | 1 | $19 | $19 |
+| MOSFET canal P AO3401A (interruptor de la rama de 5 V de la sonda) | 1 | $19 | $19 |
+| Bornera de 2 vías, paso 5 mm (batería e interruptor) | 2 | $95 | $190 |
+| Bornera de 4 vías, paso 5 mm (sonda) | 1 | $190 | $190 |
+| Condensador electrolítico 100 µF 35 V | 2 | $29 | $58 |
+| Condensador cerámico 100 nF 50 V (1206) | 4 | $4 | $16 |
+| Resistencia 100 kΩ (1206), divisor de batería | 2 | $2 | $4 |
+| Resistencia 330 Ω (1206), LED indicadores | 3 | $2 | $6 |
+| Resistencia 10 kΩ (1206), polarización del MOSFET y del pulsador | 2 | $2 | $4 |
 | LED 0603 azul, rojo y verde | 3 | $8 | $24 |
-| Pulsador SMD 4 mm (XKB TS-1187A) | 1 | $19 | $19 |
-| Fusible 0603 | 1 | $19 | $19 |
-| Diodo 1N4007 / M7 (SMA DO-214AC) | 1 | $4 | $4 |
-| Flete de discretos LCSC, prorrateado por equipo | 1 | $150 | $150 |
-| **Total BOM neto** | | | **$69.632** |
+| Pulsador SMD 4 mm | 1 | $19 | $19 |
+| Fusible 1 A (0603) | 1 | $19 | $19 |
+| Diodo rectificador M7 (SMA), protección contra inversión | 1 | $4 | $4 |
+| Flete de los componentes LCSC, prorrateado por equipo | 1 | $150 | $150 |
+| **Total BOM neto** | | | **$69.672** |
 
 La BOM contiene **exclusivamente los componentes presentes en el esquemático**. Los módulos y la batería se cotizaron en AliExpress con envío Choice a Chile; los discretos en LCSC. La sonda de suelo concentra el 68,9 % del costo de materiales y es la decisión de abastecimiento crítica del proyecto.
 
 > Quedan **fuera de la BOM** por no estar todavía en el esquemático ni en el diseño mecánico cerrado: prensaestopas M12, o-ring y respiradero del BME280, cableado interno, y embalaje con manual y etiqueta. Su orden de magnitud conjunto es de $4.000 a $5.000 por equipo.
 
-Sumando merma (3 %), provisión de reposiciones y garantía (5 %) y envío, el costo variable por equipo antes de comisión es **$81.203**. La carcasa se imprime en taller propio: las dos impresoras 3D están en el activo fijo y el filamento, la merma, la energía y la mantención se cargan al costo unitario.
+Sumando merma (3 %), provisión de reposiciones y garantía (5 %) y envío, el costo variable por equipo antes de comisión es **$81.246**. La carcasa se imprime en taller propio: las dos impresoras 3D están en el activo fijo y el filamento, la merma, la energía y la mantención se cargan al costo unitario.
 
 ### Inversión inicial y financiamiento
 
@@ -179,12 +179,12 @@ Sumando merma (3 %), provisión de reposiciones y garantía (5 %) y envío, el c
 | Equipamiento y activo fijo | $9.000.000 |
 | Activo nominal (puesta en marcha) | $5.200.000 |
 | Capital de trabajo (3,0 meses de estructura) | $12.819.160 |
-| Inventario inicial | $2.706.752 |
-| **Inversión inicial total** | **$29.725.912** |
-| Crédito bancario a 10 años, 12 % efectivo anual | $29.725.912 |
-| Pie propio exigido (30 % del crédito) | $8.917.774 |
-| Aporte por socio | $4.458.887 |
-| Cuota mensual (sistema francés) | $416.006 |
+| Inventario inicial | $2.708.192 |
+| **Inversión inicial total** | **$29.727.352** |
+| Crédito bancario a 10 años, 12 % efectivo anual | $29.727.352 |
+| Pie propio exigido (30 % del crédito) | $8.918.206 |
+| Aporte por socio | $4.459.103 |
+| Cuota mensual (sistema francés) | $416.026 |
 
 **El pie no es una fuente adicional de fondos.** Los socios lo entregan al banco como condición de entrada y es el crédito el que financia el 100 % de la inversión inicial; sumar pie más crédito cuenta dos veces el mismo dinero. El capital de trabajo no se fijó por regla sino iterando hasta que la caja nunca baje de un piso de seguridad, con un mínimo de política de 3 meses de estructura.
 
@@ -192,38 +192,36 @@ Sumando merma (3 %), provisión de reposiciones y garantía (5 %) y envío, el c
 
 | Año | Equipos | Ventas netas | Utilidad del ejercicio | Flujo de fondos | Caja acumulada |
 |---|---:|---:|---:|---:|---:|
-| 2027 | 200 | $75.518.744 | $-2.629.936 | $-1.483.842 | $11.335.318 |
-| 2028 | 350 | $136.122.536 | $-2.231.993 | $-1.289.168 | $10.046.151 |
-| 2029 | 500 | $200.294.589 | $12.285.748 | $13.000.912 | $23.047.062 |
-| 2030 | 650 | $268.194.455 | $28.265.507 | $28.725.690 | $51.772.752 |
-| 2031 | 850 | $361.237.300 | $66.479.770 | $66.654.376 | $118.427.128 |
-| 2032 | 892 | $390.459.273 | $66.811.342 | $65.912.794 | $184.339.922 |
-| 2033 | 937 | $422.462.050 | $78.624.599 | $77.430.423 | $261.770.345 |
-| 2034 | 984 | $456.962.366 | $91.896.208 | $90.365.294 | $352.135.639 |
-| 2035 | 1033 | $494.109.134 | $94.407.712 | $92.493.848 | $444.629.487 |
-| 2036 | 1085 | $534.551.465 | $110.047.734 | $107.698.991 | $552.328.478 |
+| 2027 | 200 | $75.530.918 | $-2.627.286 | $-1.481.275 | $11.337.885 |
+| 2028 | 350 | $136.144.479 | $-2.227.079 | $-1.284.346 | $10.053.540 |
+| 2029 | 500 | $200.326.877 | $12.289.341 | $13.004.402 | $23.057.942 |
+| 2030 | 650 | $268.237.688 | $28.272.894 | $28.732.963 | $51.790.905 |
+| 2031 | 850 | $361.295.532 | $66.489.764 | $66.664.241 | $118.455.145 |
+| 2032 | 892 | $390.522.215 | $66.822.163 | $55.490.003 | $173.945.149 |
+| 2033 | 937 | $422.530.151 | $78.683.277 | $77.426.337 | $251.371.486 |
+| 2034 | 984 | $457.036.029 | $92.004.221 | $90.346.046 | $341.717.532 |
+| 2035 | 1033 | $494.188.785 | $94.566.588 | $92.459.029 | $434.176.561 |
+| 2036 | 1085 | $534.637.635 | $110.259.061 | $107.648.192 | $541.824.753 |
 
-Los ejercicios 2027 y 2028 cierran con pérdida: con 200 y 350 equipos la estructura mínima para operar formalmente todavía no se cubre. Esa pérdida está financiada por el capital de trabajo y la caja nunca baja de $10.046.151.
+Los ejercicios 2027 y 2028 cierran con pérdida: con 200 y 350 equipos la estructura mínima para operar formalmente todavía no se cubre. Esa pérdida está financiada por el capital de trabajo y la caja nunca baja de $10.053.540.
 
 ### VAN, TIR y payback
 
 | Indicador | Valor | Criterio | Veredicto |
 |---|---:|---|---|
-| VAN al 20 % | $116.325.391 | VAN > 0 | Cumple |
-| TIR efectiva anual | 54,03 % | TIR > 20 % | Cumple |
+| VAN al 20 % | $112.827.790 | VAN > 0 | Cumple |
+| TIR efectiva anual | 53,35 % | TIR > 20 % | Cumple |
 | Payback simple | 3,68 años | ≤ 5 años | Cumple |
 | Payback descontado | 4,39 años | ≤ 5 años | Cumple |
 | Deuda al cierre de 2036 | $0 | Crédito saldado | Cumple |
 
-**Punto de quiebre del precio: cerca de $400.000.** Al precio de $349.990 que proponían versiones anteriores de este estudio, el proyecto arroja VAN negativo y caja que nunca se recupera. Ese resultado es la justificación numérica de derivar el precio del costo en lugar de fijarlo por aspiración comercial.
+**Punto de quiebre del precio.** Con el financiamiento dimensionado, la caja se vuelve negativa bajo un precio de lista de $426.714 y el proyecto deja de crear valor bajo $385.057. Ese resultado es la justificación numérica de derivar el precio del costo en lugar de fijarlo por aspiración comercial.
 
 [Informe 1 corregido](Evaluacion/Evaluacion%201/INFORME%201%20CORREGIDO.md) · [Sección económica](docs/SECCION_ECONOMICA_REFORMULADA.md) · [Metodología](docs/MODELO_ECONOMICO.md)
 
 Actualizar cifras: `python finanzas/modelo.py`.
 
 <!-- FINANZAS:FIN -->
-
-Para el desarrollo completo, revisa el [Informe 1 corregido](docs/INFORME_1_CORREGIDO.md) y la [sección económica generada](docs/SECCION_ECONOMICA_REFORMULADA.md).
 
 ---
 

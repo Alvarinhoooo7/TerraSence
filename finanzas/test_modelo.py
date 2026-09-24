@@ -121,6 +121,14 @@ class TestDepreciacion(unittest.TestCase):
     def test_activo_nominal_se_amortiza_en_cinco_anios(self):
         self.assertAlmostEqual(M.AMORT_NOMINAL_ANUAL * 5, M.NOMINAL_TOTAL, places=6)
 
+    def test_el_activo_que_se_deprecia_tras_su_vida_util_se_compra(self):
+        """Depreciar la renovacion sin pagarla inflaria el flujo de los anios 6 a 10."""
+        filas = M.dimensionar()["filas"]
+        renovacion = sum(f["reinversion"] for f in filas)
+        self.assertGreater(renovacion, 0)
+        depreciado = sum(f["deprec"] for f in filas[5:])
+        self.assertAlmostEqual(depreciado, renovacion, delta=1)
+
 
 if __name__ == "__main__":
     unittest.main()

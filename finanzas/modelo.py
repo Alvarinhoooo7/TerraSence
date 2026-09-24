@@ -184,7 +184,10 @@ def correr(unidades_por_anio=None, precio_forzado=None, factor_ventas=1.0, facto
         ventas_netas = precio_neto * q
         var_total = VAR_UNIT * f * q + S["comision_sobre_bruto"] * precio_neto * (1 + IVA) * q
         g = gastos_anio(a, q)
-        deprec = DEPREC_ANUAL * (f if idx >= 5 else 1) if idx < 10 else 0
+        deprec = DEPREC_ANUAL * (infl(ANIOS[5]) if idx >= 5 else 1) if idx < 10 else 0
+        # El activo fijo agota su vida util en cinco anios y se renueva al inicio
+        # del sexto, a precio reajustado: esa compra sale de la caja.
+        reinversion = EQUIP_TOTAL * f if idx == 5 else 0.0
         amort_nom = AMORT_NOMINAL_ANUAL if idx < 5 else 0
         interes = amort[idx]["interes"]
         util_antes = ventas_netas - var_total - g["total"] - deprec - amort_nom - interes
@@ -196,7 +199,7 @@ def correr(unidades_por_anio=None, precio_forzado=None, factor_ventas=1.0, facto
             imp = 0.0
             perdida_acum = base
         util_neta = util_antes - imp
-        flujo = util_neta + deprec + amort_nom - amort[idx]["capital"]
+        flujo = util_neta + deprec + amort_nom - amort[idx]["capital"] - reinversion
         caja += flujo
         filas.append({
             "caja": caja,
@@ -204,7 +207,7 @@ def correr(unidades_por_anio=None, precio_forzado=None, factor_ventas=1.0, facto
             "ventas": ventas_netas, "variables": var_total, "gastos": g,
             "deprec": deprec, "amort_nom": amort_nom, "interes": interes,
             "util_antes": util_antes, "impuesto": imp, "util_neta": util_neta,
-            "capital": amort[idx]["capital"], "flujo": flujo,
+            "capital": amort[idx]["capital"], "reinversion": reinversion, "flujo": flujo,
             "costo_total": var_total + g["total"],
         })
 
@@ -253,6 +256,31 @@ def resumen(r, etiqueta=""):
     pd = payback(inv, flujos, S["tasa_descuento"])
     return {"etiqueta": etiqueta, "precio": r["precio_lista"], "inversion": inv,
             "van": v, "tir": t, "payback": ps, "payback_desc": pd}
+
+
+def caja_minima(r):
+    return min(f["caja"] for f in r["filas"])
+
+
+def precio_de_quiebre(r_base, criterio, lo=250000.0, hi=None):
+    """Precio de lista en que el indicador pedido cruza cero, con el financiamiento congelado.
+
+    criterio: "van" (el proyecto deja de crear valor) o "caja" (la caja se vuelve negativa).
+    """
+    ct = r_base["inversion"]["capital_trabajo"]
+    hi = hi or r_base["precio_lista"] * 1.5
+
+    def valor(precio):
+        r = correr(precio_forzado=precio, capital_trabajo=ct)
+        return resumen(r)["van"] if criterio == "van" else caja_minima(r)
+
+    for _ in range(60):
+        mid = (lo + hi) / 2
+        if valor(mid) > 0:
+            hi = mid
+        else:
+            lo = mid
+    return (lo + hi) / 2
 
 
 def dimensionar(reserva_minima=5000000, **kw):
@@ -321,6 +349,7 @@ def planilla_flujo(r, ruta):
             ("(=) Utilidad del ejercicio", lambda f: f["util_neta"]),
             ("(+) Depreciacion y amortizacion", lambda f: f["deprec"] + f["amort_nom"]),
             ("(-) Cuota de capital", lambda f: f["capital"]),
+            ("(-) Reinversion en activo fijo", lambda f: f["reinversion"]),
             ("(=) Flujo de fondos", lambda f: f["flujo"]),
             ("Caja acumulada", lambda f: f["caja"]),
         ]

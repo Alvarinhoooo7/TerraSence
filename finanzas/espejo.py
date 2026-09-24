@@ -2,13 +2,16 @@
 """Genera un Markdown espejo del PDF del informe, conservando el orden de lectura,
 las tablas y los rotulos, para poder comparar ambos documentos lado a lado.
 """
+import os
 import re
 import sys
+import tempfile
 
 import pymupdf
 
-PDF = r"C:\dev\terrasense\Evaluacion\Evaluacion 1\INFORME 1 .docx.pdf"
-OUT = sys.argv[1] if len(sys.argv) > 1 else r"C:\dev\terrasense\docs\INFORME_1_ESPEJO.md"
+RAIZ = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+PDF = os.path.join(RAIZ, "Evaluacion", "Evaluacion 1", "INFORME 1 .docx.pdf")
+OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(tempfile.gettempdir(), "INFORME_1_ESPEJO.md")
 
 NBSP = "\u00a0"
 ZWSP = "\u200b"
@@ -64,8 +67,9 @@ def bloque_md(txt, tam, negrita):
         return "**" + t + "**"
     if es_titulo_seccion(t):
         return "## " + t
-    # Subtitulos: linea corta, en negrita, que suele terminar en dos puntos
-    if negrita and len(t) < 90 and not t.startswith("●"):
+    # Subtitulos: linea corta, en negrita, que suele terminar en dos puntos. Una linea
+    # que parte en minuscula es la cola de un parrafo cortado por el salto de pagina.
+    if negrita and len(t) < 90 and not t.startswith("●") and not t[0].islower():
         return "### " + t.rstrip(":") if t.endswith(":") else "### " + t
     # Vinetas
     if t.startswith("●"):
@@ -128,6 +132,9 @@ def render(flujo):
             continue
         # Un salto de pagina no corta un parrafo; cualquier otro elemento si.
         es_parrafo = not md.startswith(("#", "-", "**", ">"))
+        if es_parrafo and md[0].islower() and not buffer and salida and salida[-1].startswith("- "):
+            salida[-1] += " " + md     # la vineta venia cortada en dos lineas
+            continue
         continua = es_parrafo and buffer and not TERMINAL.search(buffer[-1])
         if continua:
             buffer.append(md)          # la linea anterior venia cortada

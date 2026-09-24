@@ -111,10 +111,10 @@ w("| Payback simple | %s años | ≤ 5 años | Cumple |" % num(IND["payback"]))
 w("| Payback descontado | %s años | ≤ 5 años | Cumple |" % num(IND["payback_desc"]))
 w("| Deuda al cierre de %d | %s | Crédito saldado | Cumple |" % (M.ANIOS[-1], p(0)))
 w("")
-w("**Punto de quiebre del precio: cerca de %s.** Al precio de $349.990 que proponían versiones "
-  "anteriores de este estudio, el proyecto arroja VAN negativo y caja que nunca se recupera. Ese "
-  "resultado es la justificación numérica de derivar el precio del costo en lugar de fijarlo por "
-  "aspiración comercial." % p(400000))
+w("**Punto de quiebre del precio.** Con el financiamiento dimensionado, la caja se vuelve negativa bajo "
+  "un precio de lista de %s y el proyecto deja de crear valor bajo %s. Ese resultado es la justificación "
+  "numérica de derivar el precio del costo en lugar de fijarlo por aspiración comercial."
+  % (p(M.precio_de_quiebre(R, "caja")), p(M.precio_de_quiebre(R, "van"))))
 w("")
 w("[Informe 1 corregido](%s) · "
   "[Sección económica](docs/SECCION_ECONOMICA_REFORMULADA.md) · "

@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Emite en Markdown todos los cuadros de la seccion de viabilidad economica."""
+"""Emite en Markdown todos los cuadros de la seccion de viabilidad economica.
+
+Los cuadros se numeran en el orden en que aparecen en el informe; cada uno abre
+con "### Cuadro N. Titulo" y `corregir_informe.py` lo convierte en rotulo de tabla.
+"""
 import modelo as M
 
 S = M.S
@@ -21,15 +25,44 @@ def num(x, d=2):
 R = M.dimensionar()
 FILAS = R["filas"]
 INV = R["inversion"]
+IND = M.resumen(R)
 OUT = []
+N = [0]
+
+# Datos del costo total de propiedad del agricultor (supuestos S1 y S2 del informe)
+KIT_BATERIA = 24990
+LAB_MUESTRA, ASESORIA_VISITA = 50000, 60000
 
 
 def w(*t):
     OUT.extend(t)
 
 
+def cuadro(titulo):
+    N[0] += 1
+    w("### Cuadro %d. %s\n" % (N[0], titulo))
+
+
+def fila(etq, f):
+    w("| %s | %s |" % (etq, " | ".join(p(f(x)) for x in FILAS)))
+
+
+def encabezado_anual():
+    w("| Concepto | " + " | ".join(str(a) for a in ANIOS) + " |")
+    w("|---" * (len(ANIOS) + 1) + "|")
+
+
+# ------------------------------------------------------ tres economias
+cuadro("Economías del análisis")
+w("| Economía | Qué mide | Con qué se evalúa |")
+w("|---|---|---|")
+w("| Economía del proyecto | La inversión de puesta en marcha frente a los flujos que genera la actividad | VAN, TIR y payback sobre el flujo de fondos |")
+w("| Economía del negocio | Cuánto cuesta fabricar cada equipo y operar la empresa, y qué margen deja cada venta | BOM, costo variable, estructura de costos y estado de resultados |")
+w("| Economía del cliente | Cuánto gasta el agricultor para resolver el mismo problema con TerraSense o sin él | Costo total de propiedad comparado a 1, 3, 5 y 10 años |")
+w("")
+
 # ---------------------------------------------------------------- BOM
-w("### Cuadro 1. Estructura de costos de fabricación (BOM) por equipo\n")
+cuadro("Estructura de costos de fabricación (BOM) por equipo")
 w("| Material o servicio por equipo | Cant. | Neto unitario | Subtotal | Origen del precio |")
 w("|---|---:|---:|---:|---|")
 for nom, c, pu, ev in S["bom"]:
@@ -37,7 +70,7 @@ for nom, c, pu, ev in S["bom"]:
 w("| **Total BOM neto por equipo** |  |  | **%s** |  |" % p(M.BOM))
 w("")
 
-w("### Cuadro 2. Costeo de la carcasa impresa en taller propio\n")
+cuadro("Costeo de la carcasa impresa en taller propio")
 w("| Concepto | Neto CLP | Base de cálculo |")
 w("|---|---:|---|")
 tot_c = 0
@@ -48,7 +81,7 @@ w("| **Total por carcasa** | **%s** |  |" % p(tot_c))
 w("")
 
 # ------------------------------------------------------- costo variable
-w("### Cuadro 3. Costo variable por equipo\n")
+cuadro("Costo variable por equipo")
 w("| Concepto | Neto CLP |")
 w("|---|---:|")
 w("| Materiales y servicios de la BOM | %s |" % p(M.BOM))
@@ -62,7 +95,7 @@ w("| **Costo variable total por equipo** | **%s** |" % p(M.VAR_UNIT + com))
 w("")
 
 # ---------------------------------------------------------- equipamiento
-w("### Cuadro 4. Equipamiento e inversión en activo fijo\n")
+cuadro("Equipamiento e inversión en activo fijo")
 w("| Componente del activo fijo | Cant. | Valor unitario | Valor total | Vida útil | Depreciación anual |")
 w("|---|---:|---:|---:|---:|---:|")
 for nom, c, v, vu in S["equipamiento"]:
@@ -70,7 +103,7 @@ for nom, c, v, vu in S["equipamiento"]:
 w("| **Total activo fijo** |  |  | **%s** |  | **%s** |" % (p(M.EQUIP_TOTAL), p(M.DEPREC_ANUAL)))
 w("")
 
-w("### Cuadro 5. Activo nominal (gastos de puesta en marcha)\n")
+cuadro("Activo nominal (gastos de puesta en marcha)")
 w("| Partida | Neto CLP |")
 w("|---|---:|")
 for nom, v in S["activo_nominal"]:
@@ -80,7 +113,7 @@ w("| Amortización anual (5 años) | %s |" % p(M.AMORT_NOMINAL_ANUAL))
 w("")
 
 # ------------------------------------------------------ inversion inicial
-w("### Cuadro 6. Inversión inicial total\n")
+cuadro("Inversión inicial total")
 w("| Destino | CLP | Participación |")
 w("|---|---:|---:|")
 for k, etq in (("equipamiento", "Equipamiento y activo fijo"),
@@ -92,7 +125,7 @@ w("| **Inversión inicial total** | **%s** | **100,0 %%** |" % p(INV["total"]))
 w("")
 
 # --------------------------------------------------------- financiamiento
-w("### Cuadro 7. Condiciones del financiamiento\n")
+cuadro("Condiciones del financiamiento")
 w("| Condición | Valor |")
 w("|---|---|")
 w("| Inversión inicial total del proyecto | %s |" % p(INV["total"]))
@@ -110,7 +143,7 @@ w("| Total intereses del crédito | %s |" % p(intereses))
 w("| Total pagado al banco | %s |" % p(R["credito"] + intereses))
 w("")
 
-w("### Cuadro 8. Tabla de amortización del crédito\n")
+cuadro("Tabla de amortización del crédito")
 w("| Periodo | Saldo inicial | Cuota de capital | Intereses | Cuota total | Saldo final |")
 w("|---|---:|---:|---:|---:|---:|")
 for a in R["amortizacion"]:
@@ -121,19 +154,35 @@ w("| **Total** |  | **%s** | **%s** | **%s** |  |" % (
 w("")
 
 # ----------------------------------------------------------- estructura
-w("### Cuadro 9. Dotación y sueldos brutos mensuales\n")
-w("| Año | Socios | Contador | Marketing | Ensambladores | Total personas | Sueldo socio | Oficina |")
-w("|---|---:|---:|---:|---:|---:|---:|---|")
+cuadro("Dotación por año")
+w("| Año | Socios | Contador | Marketing | Ensambladores | Total personas | Oficina |")
+w("|---|---:|---:|---:|---:|---:|---|")
 for a in ANIOS:
     d = S["dotacion_por_anio"][str(a)]
     tot = d["socios"] + d["contador"] + d["marketing"] + d["ensambladores"]
-    w("| %d | %d | %d | %d | %d | %d | %s | %s |" % (
+    w("| %d | %d | %d | %d | %d | %d | %s |" % (
         a, d["socios"], d["contador"], d["marketing"], d["ensambladores"], tot,
-        p(M.sueldo_socio(a)), "sí" if d["oficina"] else "no"))
+        "sí" if d["oficina"] else "no"))
 w("")
 
+cuadro("Sueldo bruto mensual por cargo y costo laboral anual")
+w("| Año | Socio (c/u) | Contador | Marketing | Ensamblador (c/u) | Masa salarial bruta mensual | Cargas del empleador y provisiones | Costo laboral anual |")
+w("|---|---:|---:|---:|---:|---:|---:|---:|")
+for a in ANIOS:
+    d = S["dotacion_por_anio"][str(a)]
+    f = M.infl(a)
+    costo, _, _, bruto = M.nomina(a)
 
-w("### Cuadro 9b. Desglose estimado de servicios básicos mensuales\n")
+    def cargo(clave, sueldo):
+        return p(sueldo * f) if d[clave] else "—"
+
+    w("| %d | %s | %s | %s | %s | %s | %s | %s |" % (
+        a, p(M.sueldo_socio(a)), cargo("contador", S["sueldo_contador"]),
+        cargo("marketing", S["sueldo_marketing"]), cargo("ensambladores", S["sueldo_ensamblador"]),
+        p(bruto), pct(M.factor_empleador(a) - 1), p(costo)))
+w("")
+
+cuadro("Desglose estimado de servicios básicos mensuales")
 w("| Concepto | Con oficina (desde 2028) | Sin oficina (2027) |")
 w("|---|---:|---:|")
 con = {n: v for n, v in S["_servicios_detalle_oficina"]}
@@ -150,11 +199,8 @@ for nom, a, b in filas_srv:
 w("| **Total mensual** | **%s** | **%s** |" % (p(sum(x[1] for x in filas_srv)), p(sum(x[2] for x in filas_srv))))
 w("")
 
-w("### Cuadro 10. Costos operacionales, de administración y de comercialización\n")
-w("| Concepto | " + " | ".join(str(a) for a in ANIOS) + " |")
-w("|---" * (len(ANIOS) + 1) + "|")
-def fila(etq, f):
-    w("| %s | %s |" % (etq, " | ".join(p(f(x)) for x in FILAS)))
+cuadro("Costos operacionales, de administración y de comercialización")
+encabezado_anual()
 fila("Materiales y costo variable", lambda x: x["variables"])
 fila("Nómina y cargas", lambda x: x["gastos"]["nomina"])
 fila("Colación y movilización", lambda x: x["gastos"]["beneficios"])
@@ -169,8 +215,7 @@ fila("**Costo y gasto total**", lambda x: x["costo_total"])
 w("")
 
 # --------------------------------------------------------------- precio
-w("### Cuadro 11. Determinación del precio de venta\n")
-U = R["unidades_ponderadas"]
+cuadro("Determinación del precio de venta")
 w("| Concepto | Valor |")
 w("|---|---:|")
 w("| Costo y gasto total de los %d años | %s |" % (len(ANIOS), p(sum(f["costo_total"] for f in FILAS))))
@@ -183,9 +228,8 @@ w("| **Precio de lista con IVA** | **%s** |" % p(R["precio_lista"]))
 w("")
 
 # ------------------------------------------------------ estado resultados
-w("### Cuadro 12. Estado de resultados proyectado\n")
-w("| Concepto | " + " | ".join(str(a) for a in ANIOS) + " |")
-w("|---" * (len(ANIOS) + 1) + "|")
+cuadro("Estado de resultados proyectado")
+encabezado_anual()
 fila("(+) Ventas netas", lambda x: x["ventas"])
 fila("(-) Costos operacionales", lambda x: x["variables"])
 fila("(-) Gastos de estructura", lambda x: x["gastos"]["total"])
@@ -197,41 +241,60 @@ fila("(-) Impuesto a la renta", lambda x: x["impuesto"])
 fila("**(=) Utilidad del ejercicio**", lambda x: x["util_neta"])
 w("")
 
-w("### Cuadro 13. Flujo de fondos para la evaluación del proyecto\n")
-w("| Concepto | " + " | ".join(str(a) for a in ANIOS) + " |")
-w("|---" * (len(ANIOS) + 1) + "|")
+cuadro("Flujo de fondos para la evaluación del proyecto")
+encabezado_anual()
 fila("Utilidad del ejercicio", lambda x: x["util_neta"])
-fila("(+) Depreciación y amortizacion", lambda x: x["deprec"] + x["amort_nom"])
+fila("(+) Depreciación y amortización", lambda x: x["deprec"] + x["amort_nom"])
 fila("(-) Cuota de capital del préstamo", lambda x: x["capital"])
+fila("(-) Reinversión en activo fijo", lambda x: x["reinversion"])
 fila("**(=) Flujo de fondos**", lambda x: x["flujo"])
 fila("Caja acumulada", lambda x: x["caja"])
 w("")
 
 # ---------------------------------------------------------- indicadores
-s = M.resumen(R)
-w("### Cuadro 14. Evaluación económica\n")
+def veredicto(ok):
+    return "Cumple" if ok else "No cumple"
+
+
+caja_min = M.caja_minima(R)
+cuadro("Evaluación económica")
 w("| Indicador | Valor | Criterio | Veredicto |")
 w("|---|---:|---|---|")
 w("| Inversión inicial | %s | — | — |" % p(INV["total"]))
-w("| VAN al %s | %s | VAN > 0 | Cumple |" % (pct(S["tasa_descuento"], 0), p(s["van"])))
-w("| TIR efectiva anual | %s | TIR > %s | Cumple |" % (pct(s["tir"], 2), pct(S["tasa_descuento"], 0)))
-w("| Payback simple | %s años | ≤ 5 años | Cumple |" % num(s["payback"]))
-w("| Payback descontado al %s | %s años | ≤ 5 años | Cumple |" % (pct(S["tasa_descuento"], 0), num(s["payback_desc"])))
-w("| Caja mínima del horizonte | %s | > 0 | Cumple |" % p(min(f["caja"] for f in FILAS)))
-w("| Deuda al cierre del horizonte | %s | Crédito saldado | Cumple |" % p(R["amortizacion"][-1]["saldo_final"]))
+w("| VAN al %s | %s | VAN > 0 | %s |" % (pct(S["tasa_descuento"], 0), p(IND["van"]), veredicto(IND["van"] > 0)))
+w("| TIR efectiva anual | %s | TIR > %s | %s |" % (pct(IND["tir"], 2), pct(S["tasa_descuento"], 0),
+                                                   veredicto(IND["tir"] > S["tasa_descuento"])))
+w("| Payback simple | %s años | ≤ 5 años | %s |" % (num(IND["payback"]), veredicto(IND["payback"] <= 5)))
+w("| Payback descontado al %s | %s años | ≤ 5 años | %s |" % (
+    pct(S["tasa_descuento"], 0), num(IND["payback_desc"]), veredicto(IND["payback_desc"] <= 5)))
+w("| Caja mínima del horizonte | %s | > 0 | %s |" % (p(caja_min), veredicto(caja_min > 0)))
+w("| Deuda al cierre del horizonte | %s | Crédito saldado | %s |" % (
+    p(R["amortizacion"][-1]["saldo_final"]), veredicto(R["amortizacion"][-1]["saldo_final"] < 1)))
 w("")
 
-w("### Cuadro 15. VAN ante distintas tasas de descuento\n")
 flujos = [f["flujo"] for f in FILAS]
+cuadro("Comparación del horizonte de evaluación: cinco y diez años")
+w("| Indicador | A 5 años (2027–2031) | A 10 años (2027–2036) |")
+w("|---|---:|---:|")
+w("| VAN al %s | %s | %s |" % (pct(S["tasa_descuento"], 0), p(M.van(INV["total"], flujos[:5], S["tasa_descuento"])),
+                             p(IND["van"])))
+w("| TIR efectiva anual | %s | %s |" % (pct(M.tir(INV["total"], flujos[:5]), 2), pct(IND["tir"], 2)))
+w("| Caja acumulada al cierre | %s | %s |" % (p(FILAS[4]["caja"]), p(FILAS[-1]["caja"])))
+w("| Deuda bancaria pendiente al cierre | %s | %s |" % (p(R["amortizacion"][4]["saldo_final"]),
+                                                      p(R["amortizacion"][-1]["saldo_final"])))
+w("")
+
+cuadro("VAN ante distintas tasas de descuento")
 w("| Tasa efectiva anual | VAN | Interpretación |")
 w("|---:|---:|---|")
 for t in (0.05, 0.08, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50):
-    w("| %s | %s | Positivo |" % (pct(t, 0), p(M.van(INV["total"], flujos, t))))
-w("| TIR: %s | $0 | VAN aproximadamente cero |" % pct(s["tir"], 2))
+    v = M.van(INV["total"], flujos, t)
+    w("| %s | %s | %s |" % (pct(t, 0), p(v), "Positivo" if v > 0 else "Negativo"))
+w("| TIR: %s | $0 | VAN aproximadamente cero |" % pct(IND["tir"], 2))
 w("")
 
 # --------------------------------------------------------- sensibilidad
-w("### Cuadro 16. Análisis de sensibilidad y punto de quiebre\n")
+cuadro("Análisis de sensibilidad y punto de quiebre")
 w("| Caso | Precio de lista | Utilidad del año 1 | VAN a 10 años | TIR | Caja mínima |")
 w("|---|---:|---:|---:|---:|---:|")
 P, CT = R["precio_lista"], INV["capital_trabajo"]
@@ -242,9 +305,15 @@ def sens(etq, **kw):
     ss = M.resumen(r)
     w("| %s | %s | %s | %s | %s | %s |" % (
         etq, p(r["precio_lista"]), p(r["filas"][0]["util_neta"]), p(ss["van"]),
-        pct(ss["tir"], 1), p(min(f["caja"] for f in r["filas"]))))
+        pct(ss["tir"], 1), p(M.caja_minima(r))))
 
 
+def precio_rebajado(fraccion):
+    """Precio de lista rebajado en la fraccion dada, redondeado a un valor comercial terminado en 990."""
+    return int(round(P * (1 - fraccion), -4)) - 10
+
+
+REBAJAS = (0.05, 0.10, 0.15, 0.20)
 sens("Caso base")
 sens("Ventas -10 %", factor_ventas=0.90)
 sens("Ventas -25 %", factor_ventas=0.75)
@@ -252,10 +321,30 @@ sens("Ventas -35 %", factor_ventas=0.65)
 sens("Ventas +20 %", factor_ventas=1.20)
 sens("BOM +15 %", factor_bom=1.15)
 sens("BOM +30 %", factor_bom=1.30)
-for pr in (449990, 424990, 399990, 349990):
-    sens("Precio rebajado a %s" % p(pr), precio=pr)
+for fr in REBAJAS:
+    pr = precio_rebajado(fr)
+    sens("Precio rebajado a %s (−%s)" % (p(pr), pct(1 - pr / P)), precio=pr)
+w("")
+
+# --------------------------------------------------- costo total del cliente
+PRECIO = R["precio_lista"]
+TCO = {  # acumulado a 1, 3, 5 y 10 años
+    "terrasense": (PRECIO, PRECIO + KIT_BATERIA, PRECIO + KIT_BATERIA, 2 * PRECIO + 2 * KIT_BATERIA),
+}
+cuadro("Costo total de propiedad para el agricultor")
+w("| Alternativa | Intensidad | Año 1 | Acumulado a 3 años | Acumulado a 5 años | Acumulado a 10 años |")
+w("|---|---|---:|---:|---:|---:|")
+w("| TerraSense (equipo, kit de batería en los años 3 y 8, segundo equipo en el año 6) | Mediciones ilimitadas | %s |"
+  % " | ".join(p(x) for x in TCO["terrasense"]))
+for etq, intensidad, unidades, costo in (
+        ("Análisis de laboratorio (S1)", "Uso habitual: 4 muestras/año", 4, LAB_MUESTRA),
+        ("Análisis de laboratorio (S1)", "Uso intensivo: 20 muestras/año", 20, LAB_MUESTRA),
+        ("Asesoría agronómica externa (S2)", "Uso habitual: 2 visitas/año", 2, ASESORIA_VISITA),
+        ("Asesoría agronómica externa (S2)", "Uso intensivo: 12 visitas/año", 12, ASESORIA_VISITA)):
+    anual = unidades * costo
+    w("| %s | %s | %s |" % (etq, intensidad, " | ".join(p(anual * n) for n in (1, 3, 5, 10))))
 w("")
 
 with open("../docs/_cuadros_economicos.md", "w", encoding="utf-8") as fh:
     fh.write("\n".join(OUT))
-print("Cuadros escritos:", len(OUT), "lineas")
+print("Cuadros escritos:", N[0], "cuadros,", len(OUT), "lineas")
