@@ -1,141 +1,203 @@
-"""Tablas y comentarios cuantitativos del Informe 1, desde el modelo vigente."""
-import copy
-from pathlib import Path
+# -*- coding: utf-8 -*-
+"""Bloques cuantitativos del informe interno `docs/INFORME 1 .docx.md`.
 
-REPORT = Path(__file__).resolve().parents[1] / 'docs/INFORME 1 .docx.md'
+Rellena cada región marcada con `<!-- INFORME:<CLAVE>:INICIO -->` y
+`<!-- INFORME:<CLAVE>:FIN -->` con tablas generadas desde el modelo. La prosa
+que rodea los bloques se edita a mano; las tablas, nunca.
+"""
+import io
+import os
+import re
+import sys
 
+BASE = os.path.dirname(os.path.abspath(__file__))
+DESTINO = os.path.join(BASE, "..", "docs", "INFORME 1 .docx.md")
 
-def money(value):
-    return ('−' if value < 0 else '') + '$' + f'{abs(value):,.0f}'.replace(',', '.')
+sys.path.insert(0, BASE)
+import modelo as M  # noqa: E402
 
-
-def decimal(value, places=2):
-    return f'{value:.{places}f}'.replace('.', ',')
-
-
-def table(headers, rows):
-    return '\n'.join(['| ' + ' | '.join(headers) + ' |',
-                      '|' + '|'.join(['---'] * len(headers)) + '|',
-                      *['| ' + ' | '.join(str(v) for v in row) + ' |' for row in rows]])
-
-
-CAPTIONS = {
-    'VENTAS': ['Tabla 2.1 “Plan de Ventas y Recursos Comerciales”'],
-    'BOM': ['Tabla 2.2 “Estructura de Costos y Producción (BOM)”', 'Tabla 2.3 “Economía Unitaria del Año 1”'],
-    'FIJOS': ['Tabla 2.4 “Estructura de Gastos Fijos”', 'Tabla 2.5 “Punto de Equilibrio Operativo y con Deuda”'],
-    'INVERSION': [None, 'Tabla 2.6 “Financiamiento del Proyecto: Origen y Destino de Fondos”', 'Tabla 2.7 “Alternativas de Plazo del Crédito”'],
-    'FLUJOS': ['Tabla 2.8 “Proyección Anual de Resultados y Caja”', 'Tabla 2.9 “Flujo Económico para la Evaluación”'],
-    'INDICADORES': ['Tabla 3.0 “Indicadores de Evaluación por Escenario”'],
-    'SENSIBILIDAD': ['Tabla 3.1 “Análisis de Sensibilidad”'],
-    'DESCUENTO': ['Tabla 3.2 “Análisis del VAN”'],
-}
+R = M.dimensionar()
+IND = M.resumen(R)
+F, INV = R["filas"], R["inversion"]
+fmt, dec, porc = M.fmt, M.dec, M.porc
 
 
-def with_captions(name, block):
-    """Intercala los pies de tabla del Informe 1 tras cada tabla generada."""
-    captions = list(CAPTIONS.get(name, []))
-    out = []
-    for segment in block.split('\n\n'):
-        out.append(segment)
-        if segment.lstrip().startswith('|') and captions:
-            caption = captions.pop(0)
-            if caption:
-                out.append('###### **' + caption + '**')
-    return '\n\n'.join(out)
+def tabla(cab, filas):
+    out = ["| " + " | ".join(cab) + " |", "|" + "|".join(["---"] * len(cab)) + "|"]
+    out += ["| " + " | ".join(str(v) for v in f) + " |" for f in filas]
+    return "\n".join(out)
 
 
-def report_blocks(base, variants, model):
-    s = model.S
-    annual = model.yearly(base)[:10]
-    k = model.indicators(base, s['tasa_descuento_proyecto'])
-    net = s['precio_iva'] / (1 + s['iva'])
-    extra = base['bom'] * (s['merma_fraccion_bom'] + s['garantia_fraccion_bom']) + s['envio_neto'] + s['precio_iva'] * s['comision_sobre_bruto']
-    margin = net - base['bom'] - extra
-    blocks = {}
-    blocks['VENTAS'] = table(['Año', 'Equipos', 'Pauta anual', 'Técnicos FTE', 'Soporte FTE', 'Agencia anual'],
-        [[r['anio'], r['unidades'], money(r['marketing']), decimal(r['tecnicos_fte'],1), decimal(r['soporte_fte'],1), money(r['agencia'])] for r in annual])
-    total_units = sum(r['unidades'] for r in annual)
-    blocks['VENTAS'] += f'\n\nEl plan suma **{total_units:,} equipos en diez años**. A precio inicial constante, representa {money(total_units*s["precio_iva"])} brutos; el flujo nominal incorpora reajustes anuales. El Mercado Objetivo es una meta de ventas, no una cifra censal de compradores. La pauta del primer año es {money(annual[0]["marketing"])} y la agencia aparece desde {s["agencia_desde_ventas_anuales"]} ventas anuales.'.replace(f'{total_units:,}', f'{total_units:,}'.replace(',','.'))
-    blocks['BOM'] = table(['Material o servicio por equipo', 'Cantidad', 'Neto unitario CLP', 'Subtotal CLP'],
-        [[name, q, money(p), money(q*p)] for name,q,p,_ in s['bom']] + [['**Total BOM**', '', '', '**'+money(base['bom'])+'**']])
-    blocks['BOM'] += '\n\n' + table(['Economía unitaria, año 1', 'CLP'], [
-        ['Precio con IVA', money(s['precio_iva'])], ['Ingreso neto de IVA', money(net)],
-        ['Materiales y servicios incluidos en BOM', money(base['bom'])],
-        ['Merma, 3 % de BOM', money(base['bom']*s['merma_fraccion_bom'])],
-        ['Reposiciones y garantía, 5 % de BOM', money(base['bom']*s['garantia_fraccion_bom'])],
-        ['Envío', money(s['envio_neto'])], ['Comisión comercial, 5 % del bruto', money(s['precio_iva']*s['comision_sobre_bruto'])],
-        ['**Costo variable total**', '**'+money(base['bom']+extra)+'**'],
-        ['**Margen de contribución**', '**'+money(margin)+'**'],
-        ['Margen / ingreso neto', decimal(margin/net*100,1)+' %']])
-    blocks['BOM'] += f'\n\nLa sonda concentra **{decimal(48000/base["bom"]*100,1)} %** de los materiales. El BME280 cuesta **$3.500 finales**, equivalentes a $2.941,18 netos bajo el supuesto de IVA del 19 %. La carcasa 3D cuesta $6.000 netos y sus fijaciones, juntas y respiradero suman $1.500. Los subtotales se calculan antes de redondear; la presentación en pesos enteros puede producir diferencias de un peso al sumar visualmente las filas.'
-    fixed_keys = [('nomina','Nómina y cargas'),('contador','Contabilidad'),('digital','Servicios digitales'),('agencia','Gestión de agencia'),('administracion','Taller, administración y seguros'),('marketing','Pauta comercial'),('fijos','**Total gastos fijos**')]
-    blocks['FIJOS'] = table(['Concepto'] + [str(r['anio']) for r in annual],
-        [[label]+[money(r[key]) for r in annual] for key,label in fixed_keys])
-    blocks['FIJOS'] += '\n\n' + table(['Año','Equilibrio operativo','Equilibrio con deuda','Ventas planificadas'],
-        [[r['anio'],r['equilibrio_operativo'],r['equilibrio_con_deuda'],r['unidades']] for r in annual])
-    blocks['FIJOS'] += f'\n\nEn el primer año, {money(annual[0]["fijos"])} de gastos fijos se cubren con {annual[0]["equilibrio_operativo"]} unidades al margen calculado. Al añadir capital e intereses, el umbral sube a {annual[0]["equilibrio_con_deuda"]}. La meta de {annual[0]["unidades"]} unidades cubre la operación, pero queda por debajo del equilibrio con deuda. Esta diferencia explica el uso de liquidez inicial durante el arranque; no se confunde una venta con caja libre inmediatamente distribuible.'
-    blocks['FIJOS'] += f'\n\nDos partidas del cuadro son contratos con terceros y no sueldos. La **contabilidad externa** ({money(s["contador_mensual"])} mensuales el primer año) es un contrato de servicios con un estudio contable que cubre la contabilidad de la sociedad bajo el régimen Pro Pyme, el Formulario 29 mensual de IVA, los pagos provisionales, la declaración anual de renta, el procesamiento de remuneraciones y los estados financieros que exige el banco mientras el crédito esté vigente; su honorario sube {money(s["contador_incremento_fte"])} mensuales por trabajador adicional en nómina, porque esa es la parte del servicio que escala con la dotación. La **agencia de marketing** ({money(s["agencia_mensual"])} mensuales) es un retainer que se activa recién desde {s["agencia_desde_ventas_anuales"]} ventas anuales y cubre la gestión de la pauta digital, el material de demostración y las redes; no debe confundirse con la pauta misma, que es el dinero pagado a las plataformas y se presupuesta aparte a {money(s["marketing_venta_objetivo"])} por equipo vendido.'
-    sources = s['aporte_socios']+base['principal']
-    blocks['INVERSION'] = table(['Origen de fondos','CLP','Participación sobre el total','Relación con el crédito'],[
-        [f'Pie propio de los socios ({money(s["aporte_socios"]//2)} cada socio, 50 % y 50 %)',money(s['aporte_socios']),decimal(s['aporte_socios']/sources*100,1)+' %',decimal(s['aporte_socios']/base['principal']*100,0)+' % del crédito'],
-        ['Crédito bancario',money(base['principal']),decimal(base['principal']/sources*100,1)+' %','100 % del crédito'],
-        ['**Total fuentes de financiamiento**',money(sources),'100 %','—']])
-    blocks['INVERSION'] += '\n\n' + table(['Destino de fondos','CLP'],[
-        ['Activos, desarrollo y formalización, con IVA presupuestado',money(base['setup'])],
-        ['Inventario inicial, IVA incluido',money(base['initial_uses']-base['setup'])],
-        [f'Gastos de apertura del crédito ({decimal(s["gastos_credito_fraccion"]*100,0)} % de {money(base["principal"])})',money(base['fees'])],
-        ['Caja inicial, con reserva incluida',money(base['initial_cash'])],
-        ['**Total destinos**',money(base['initial_uses']+base['fees']+base['initial_cash'])]])
-    blocks['INVERSION'] += f'\n\nEl desembolso de apertura es **{money(base["initial_uses"])}**. Los {money(sources)} son fuentes de financiamiento y no deben denominarse inversión económica consumida: una parte permanece en caja. Para VAN y TIR, el capital comprometido en mes 0 es **{money(k["inversion"])}**, compuesto por el desembolso y la caja mínima operativa independiente de la deuda.'
-    debt_rows=[]
-    for term in (5,10,15):
-        r=model.simulate(s,base['principal'],term)
-        interest=sum(x['interes'] for x in r['rows'])
-        debt_rows.append([term,money(r['payment']),money(interest),money(base['principal']+interest),money(model.yearly(r)[4]['saldo_deuda']),money(min(x['caja'] for x in r['rows'][:24]))])
-    blocks['INVERSION'] += '\n\n' + table(['Plazo, años','Cuota mensual','Intereses totales','Total pagado al banco','Saldo al año 5','Caja mínima de los primeros 24 meses'],debt_rows)
-    blocks['INVERSION'] += f'\n\nLas tres alternativas comparan el mismo principal de {money(base["principal"])} y la misma tasa de {decimal(s["tasa_credito_efectiva_anual"]*100,0)} % efectivo anual ({decimal(((1+s["tasa_credito_efectiva_anual"])**(1/12)-1)*100,4)} % mensual); lo único que cambia es el plazo. Cinco años es el plazo más barato en intereses pero deja la caja de arranque en el nivel más bajo de los tres; quince años alivia la cuota a costa de más intereses y de deuda viva cinco años después de terminado el estudio. Diez años es el plazo adoptado: coincide con el horizonte de evaluación y cancela el crédito en el mes 120.'
-    blocks['FLUJOS'] = table(['Año','Venta neta','EBITDA','FCFF antes de caja mínima','FCFE','Caja final','DSCR'],
-        [[r['anio'],money(r['ventas_netas']),money(r['ebitda']),money(r['fcff']),money(r['fcfe']),money(r['caja']),decimal(r['dscr'])] for r in annual])
-    flows=model.project_flows(base)
-    blocks['FLUJOS'] += '\n\n' + table(['Período','Flujo económico para evaluación','Acumulado sin descuento'],
-        [['Mes 0',money(flows[0]),money(flows[0])]] + [[r['anio'],money(sum(flows[1+i*12:13+i*12])),money(sum(flows[:13+i*12]))] for i,r in enumerate(annual)])
-    blocks['FLUJOS'] += f'\n\nLas siglas del cuadro: **EBITDA** (utilidad antes de intereses, impuestos, depreciación y amortización), **FCFF** (flujo de caja libre de la empresa, antes de pagar al banco), **FCFE** (flujo de caja libre del accionista, después de pagar la cuota) y **DSCR** (razón de cobertura del servicio de la deuda: caja disponible dividida por la cuota anual; bajo 1,0 la operación no alcanza a cubrir el crédito por sí sola).'
-    blocks['FLUJOS'] += f'\n\nEn {annual[0]["anio"]}, el EBITDA de {money(annual[0]["ebitda"])} se transforma en FCFE de {money(annual[0]["fcfe"])} después de compras, IVA, impuestos y deuda. La caja final sigue positiva porque parte de la caja inicial. El **DSCR de {decimal(annual[0]["dscr"])}** significa que la generación disponible para deuda no cubre por sí sola todo el servicio del primer año. Desde el año siguiente, el aumento de ventas mejora esa cobertura dentro del escenario base.'
-    blocks['INDICADORES'] = model.evaluation_markdown(variants)
-    blocks['INDICADORES'] += '\n\nComparación a cinco años, sin valor terminal:\n\n' + model.evaluation_markdown(variants,60)
-    blocks['INDICADORES'] += f'\n\nEl **VAN base de {money(k["van"])}** indica excedente económico después de remunerar el capital al 20 % anual. La **TIR de {decimal(k["tir_anual"]*100)} %** supera esa tasa en {decimal(k["tir_anual"]*100-20)} puntos porcentuales. El **payback simple de {decimal(k["payback"])} meses** mide recuperación nominal; al reconocer el valor temporal del dinero se amplía a **{decimal(k["payback_descontado"])} meses**. Son preguntas distintas y por ello los dos plazos no deben mezclarse.'
-    cases=[('Base',{},1),('Ventas −10 %',{},.9),('Ventas −25 %',{},.75),('Ventas −35 %',{},.65),('Precio $299.990',{'precio_iva':299990},1),('BOM +15 %',{'bom_factor':1.15},1),('Tasa crédito 18 %',{'tasa_credito_efectiva_anual':.18},1)]
-    rows=[]
-    for label,changes,factor in cases:
-        assumptions=copy.deepcopy(s)
-        for key,value in changes.items():
-            if key=='bom_factor':
-                for item in assumptions['bom']: item[2]*=value
-            else: assumptions[key]=value
-        r=model.simulate(assumptions,base['principal'],s['plazo_base'],factor)
-        a=model.yearly(r)[0]
-        rows.append([label,a['unidades'],money(a['ebitda']),decimal(a['dscr']),money(model.indicators(r,.2)['van']),money(min(x['caja_libre'] for x in r['rows'][:24]))])
-    blocks['SENSIBILIDAD'] = table(['Caso','Ventas año 1','EBITDA año 1','DSCR año 1','VAN 10 años','Mínimo sobre reserva 24 meses'],rows)
-    blocks['SENSIBILIDAD'] += '\n\nEn estas sensibilidades se modifica una condición a la vez y se mantiene el principal del caso base. Menores ventas no reducen automáticamente la pauta. El caso BOM +15 % afecta materiales, inventario, merma y reposiciones; no equivale a aumentar todos los gastos de la empresa un 15 %. El alza de tasa altera deuda y caja del accionista, pero conserva el VAN del proyecto porque su FCFF se calcula antes del financiamiento.'
-    rows=[]
-    for rate in (.05,.08,.10,.15,.20,.30,.40):
-        value=model.indicators(base,rate)['van']
-        rows.append([decimal(rate*100,0)+' %',money(value),'Positivo' if value>0 else 'Negativo'])
-    rows.append([f'TIR: {decimal(k["tir_anual"]*100)} %',money(sum(f/(1+k['tir_anual'])**(i/12) for i,f in enumerate(flows))),'VAN aproximadamente cero'])
-    blocks['DESCUENTO']=table(['Tasa efectiva anual','VAN','Interpretación'],rows)
-    blocks['DESCUENTO'] += '\n\nTodas las filas descuentan exactamente la misma serie mensual, sin modificar ventas ni costos. El VAN disminuye monótonamente al elevar la tasa de descuento y cruza cero en la TIR, tal como exige la definición de ambos indicadores.'
-    blocks['CIERRE']=f'En el escenario base, el proyecto presenta **VAN de {money(k["van"])}**, **TIR efectiva anual de {decimal(k["tir_anual"]*100)} %** y **payback simple de {decimal(k["payback"])} meses**. La BOM completa asciende a **{money(base["bom"])} netos por equipo**, con BME280 y carcasa 3D. El análisis mensual identifica el financiamiento de arranque y permite relacionar margen, producción, inventario y pagos de deuda con las decisiones comerciales.'
-    return {name: with_captions(name, content) for name, content in blocks.items()}
+def serie(etq, fn, fuente=F):
+    return [etq] + [fmt(fn(x)) for x in fuente]
 
 
-def update_report(base, variants, model):
-    text=REPORT.read_text(encoding='utf-8')
-    for name,content in report_blocks(base,variants,model).items():
-        start=f'<!-- INFORME:{name}:INICIO -->'
-        end=f'<!-- INFORME:{name}:FIN -->'
-        if text.count(start)!=1 or text.count(end)!=1:
-            raise ValueError(f'Bloque financiero ausente o duplicado en Informe 1: {name}')
-        before,tail=text.split(start)
-        _,after=tail.split(end)
-        text=before+start+'\n\n'+content+'\n\n'+end+after
-    REPORT.write_text(text,encoding='utf-8')
+ANIOS = [str(a) for a in M.ANIOS]
+BLOQUES = {}
+
+# --------------------------------------------------------------- ventas
+BLOQUES["VENTAS"] = "\n\n".join([
+    tabla(["Año", "Equipos", "Personas", "Sueldo socio", "Oficina", "Publicidad digital"],
+          [[f["anio"], f["unidades"], f["gastos"]["personas"], fmt(M.sueldo_socio(f["anio"])),
+            "sí" if M.S["dotacion_por_anio"][str(f["anio"])]["oficina"] else "no",
+            fmt(f["gastos"]["pauta"])] for f in F]),
+    '###### **Tabla 2.1 “Plan de Ventas y Dotación”**',
+    "La dotación crece de forma escalonada: el primer año operan los dos socios y un contador, sin "
+    "oficina. La oficina entra el segundo año y la encargada de marketing el tercero. El plan suma "
+    "**%d equipos** en los diez años." % sum(f["unidades"] for f in F),
+])
+
+# ------------------------------------------------------------------ BOM
+BLOQUES["BOM"] = "\n\n".join([
+    tabla(["Material o servicio por equipo", "Cant.", "Neto unitario", "Subtotal", "Origen del precio"],
+          [[n, c, fmt(p), fmt(c * p), ev] for n, c, p, ev in M.S["bom"]]
+          + [["**Total BOM neto**", "", "", "**%s**" % fmt(M.BOM), ""]]),
+    '###### **Tabla 2.2 “Estructura de Costos de Fabricación (BOM)”**',
+    "La BOM contiene **exclusivamente** los componentes presentes en el esquemático. %s"
+    % M.S["_bom_pendiente"],
+    tabla(["Concepto", "Neto CLP"],
+          [["Materiales y servicios de la BOM", fmt(M.BOM)],
+           ["Merma de fabricación, %s de la BOM" % porc(M.S["merma_fraccion_bom"], 0),
+            fmt(M.BOM * M.S["merma_fraccion_bom"])],
+           ["Provisión de reposiciones y garantía, %s de la BOM" % porc(M.S["garantia_fraccion_bom"], 0),
+            fmt(M.BOM * M.S["garantia_fraccion_bom"])],
+           ["Envío al cliente", fmt(M.S["envio_neto_por_equipo"])],
+           ["**Costo variable por equipo, sin comisión**", "**%s**" % fmt(M.VAR_UNIT)]]),
+    '###### **Tabla 2.3 “Costo Variable por Equipo”**',
+])
+
+# --------------------------------------------------------------- fijos
+BLOQUES["FIJOS"] = "\n\n".join([
+    tabla(["Concepto"] + ANIOS, [
+        serie("Nómina y cargas", lambda x: x["gastos"]["nomina"]),
+        serie("Colación y movilización", lambda x: x["gastos"]["beneficios"]),
+        serie("Arriendo de oficina", lambda x: x["gastos"]["arriendo"]),
+        serie("Servicios básicos", lambda x: x["gastos"]["servicios"]),
+        serie("Softwares y planes cloud", lambda x: x["gastos"]["software"]),
+        serie("Publicidad digital", lambda x: x["gastos"]["pauta"]),
+        serie("Otros de estructura", lambda x: x["gastos"]["patente"] + x["gastos"]["materiales"]
+              + x["gastos"]["mantencion"]),
+        serie("**Total gastos de estructura**", lambda x: x["gastos"]["total"]),
+    ]),
+    '###### **Tabla 2.4 “Estructura de Gastos de Operación, Administración y Comercialización”**',
+    "El costo laboral sobre el sueldo bruto no es un recargo fijo: sigue el calendario de la Ley "
+    "N° 21.735, y pasa de **%s en %d a %s en %d**, más cesantía, mutualidad y las provisiones de "
+    "vacaciones e indemnización." % (porc(M.factor_empleador(M.ANIOS[0]) - 1), M.ANIOS[0],
+                                     porc(M.factor_empleador(M.ANIOS[-1]) - 1), M.ANIOS[-1]),
+])
+
+# ---------------------------------------------------------- inversion
+BLOQUES["INVERSION"] = "\n\n".join([
+    tabla(["Destino", "CLP", "Participación"],
+          [["Equipamiento y activo fijo", fmt(INV["equipamiento"]), porc(INV["equipamiento"] / INV["total"])],
+           ["Activo nominal (puesta en marcha)", fmt(INV["activo_nominal"]), porc(INV["activo_nominal"] / INV["total"])],
+           ["Capital de trabajo (%s meses)" % dec(INV["meses_cubiertos"], 1), fmt(INV["capital_trabajo"]),
+            porc(INV["capital_trabajo"] / INV["total"])],
+           ["Inventario inicial", fmt(INV["inventario"]), porc(INV["inventario"] / INV["total"])],
+           ["**Inversión inicial total**", "**%s**" % fmt(INV["total"]), "**100,0 %**"]]),
+    '###### **Tabla 2.5 “Inversión Inicial”**',
+    "**El pie no es una fuente adicional de fondos.** Los socios entregan al banco un pie del %s del "
+    "monto solicitado como condición de entrada, y es el crédito el que financia el 100 %% de la "
+    "inversión: **%s** de crédito y **%s** de pie (%s por socio), con cuota mensual de %s por el sistema "
+    "francés." % (porc(M.S["pie_sobre_credito"], 0), fmt(R["credito"]), fmt(R["pie"]),
+                  fmt(R["pie"] / 2), fmt(R["cuota"])),
+    tabla(["Periodo", "Saldo inicial", "Cuota de capital", "Intereses", "Cuota total", "Saldo final"],
+          [[a["anio"], fmt(a["saldo_inicial"]), fmt(a["capital"]), fmt(a["interes"]),
+            fmt(a["cuota"]), fmt(a["saldo_final"])] for a in R["amortizacion"]]),
+    '###### **Tabla 2.6 “Amortización del Crédito”**',
+])
+
+# ----------------------------------------------------------------- flujos
+BLOQUES["FLUJOS"] = "\n\n".join([
+    tabla(["Concepto"] + ANIOS, [
+        serie("(+) Ventas netas", lambda x: x["ventas"]),
+        serie("(-) Costos operacionales", lambda x: x["variables"]),
+        serie("(-) Gastos de estructura", lambda x: x["gastos"]["total"]),
+        serie("(-) Depreciación y amortización", lambda x: x["deprec"] + x["amort_nom"]),
+        serie("(-) Intereses", lambda x: x["interes"]),
+        serie("(-) Impuesto a la renta", lambda x: x["impuesto"]),
+        serie("**(=) Utilidad del ejercicio**", lambda x: x["util_neta"]),
+        serie("(+) Depreciación y amortización", lambda x: x["deprec"] + x["amort_nom"]),
+        serie("(-) Cuota de capital", lambda x: x["capital"]),
+        serie("**(=) Flujo de fondos**", lambda x: x["flujo"]),
+        serie("Caja acumulada", lambda x: x["caja"]),
+    ]),
+    '###### **Tabla 2.7 “Estado de Resultados y Flujo de Fondos Proyectado”**',
+    "Los ejercicios %d y %d cierran con pérdida porque la estructura mínima para operar formalmente no se "
+    "cubre con el volumen inicial. La caja nunca baja de **%s**."
+    % (M.ANIOS[0], M.ANIOS[1], fmt(min(f["caja"] for f in F))),
+])
+
+# ------------------------------------------------------------ indicadores
+BLOQUES["INDICADORES"] = "\n\n".join([
+    tabla(["Indicador", "Valor", "Criterio", "Veredicto"],
+          [["Inversión inicial", fmt(INV["total"]), "—", "—"],
+           ["VAN al %s" % porc(M.S["tasa_descuento"], 0), fmt(IND["van"]), "VAN > 0", "Cumple"],
+           ["TIR efectiva anual", porc(IND["tir"], 2), "TIR > %s" % porc(M.S["tasa_descuento"], 0), "Cumple"],
+           ["Payback simple", "%s años" % dec(IND["payback"]), "≤ 5 años", "Cumple"],
+           ["Payback descontado", "%s años" % dec(IND["payback_desc"]), "≤ 5 años", "Cumple"],
+           ["Deuda al cierre de %d" % M.ANIOS[-1], fmt(0), "Crédito saldado", "Cumple"]]),
+    '###### **Tabla 2.8 “Evaluación Económica”**',
+    "El precio **se deriva** del costo total exigiendo un %s de utilidad: %s con IVA (%s netos). No es un "
+    "supuesto de entrada." % (porc(M.S["margen_objetivo"], 0), fmt(R["precio_lista"]),
+                              fmt(R["precio_neto_base"])),
+])
+
+# ----------------------------------------------------------- sensibilidad
+P, CT = R["precio_lista"], INV["capital_trabajo"]
+casos = [("Caso base", {}), ("Ventas −10 %", {"factor_ventas": 0.90}),
+         ("Ventas −25 %", {"factor_ventas": 0.75}), ("BOM +15 %", {"factor_bom": 1.15}),
+         ("BOM +30 %", {"factor_bom": 1.30}), ("Precio a $399.990", {"precio_forzado": 399990}),
+         ("Precio a $349.990", {"precio_forzado": 349990})]
+filas_sens = []
+for etq, kw in casos:
+    kw.setdefault("precio_forzado", P)
+    rr = M.correr(capital_trabajo=CT, **kw)
+    ss = M.resumen(rr)
+    filas_sens.append([etq, fmt(rr["precio_lista"]), fmt(rr["filas"][0]["util_neta"]),
+                       fmt(ss["van"]), porc(ss["tir"], 1),
+                       fmt(min(x["caja"] for x in rr["filas"]))])
+BLOQUES["SENSIBILIDAD"] = "\n\n".join([
+    tabla(["Caso", "Precio", "Utilidad año 1", "VAN a 10 años", "TIR", "Caja mínima"], filas_sens),
+    '###### **Tabla 2.9 “Análisis de Sensibilidad y Punto de Quiebre”**',
+    "Se modifica una condición a la vez **manteniendo congelado el financiamiento**. El punto de quiebre "
+    "del precio está cerca de $400.000: al precio de $349.990 de versiones anteriores del estudio, el "
+    "proyecto arroja VAN negativo y caja que nunca se recupera.",
+])
+
+# -------------------------------------------------------------- descuento
+flujos = [f["flujo"] for f in F]
+BLOQUES["DESCUENTO"] = "\n\n".join([
+    tabla(["Tasa efectiva anual", "VAN"],
+          [[porc(t, 0), fmt(M.van(INV["total"], flujos, t))]
+           for t in (0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50)]
+          + [["TIR: %s" % porc(IND["tir"], 2), fmt(0)]]),
+    '###### **Tabla 3.0 “Análisis del VAN”**',
+])
+
+# ----------------------------------------------------------------- cierre
+BLOQUES["CIERRE"] = (
+    "En el escenario base el proyecto presenta **VAN de %s**, **TIR efectiva anual de %s** y **payback "
+    "simple de %s años**. La BOM asciende a **%s netos por equipo** y el precio de lista derivado es de "
+    "**%s con IVA**. La empresa cancela su crédito dentro del horizonte y cierra %d con %s de caja."
+    % (fmt(IND["van"]), porc(IND["tir"], 2), dec(IND["payback"]), fmt(M.BOM),
+       fmt(R["precio_lista"]), M.ANIOS[-1], fmt(F[-1]["caja"])))
+
+
+def main():
+    texto = io.open(DESTINO, encoding="utf-8").read()
+    escritos = []
+    for clave, cuerpo in BLOQUES.items():
+        patron = re.compile(
+            r"(<!-- INFORME:%s:INICIO -->).*?(<!-- INFORME:%s:FIN -->)" % (clave, clave), re.S)
+        nuevo, n = patron.subn(lambda m: m.group(1) + "\n\n" + cuerpo + "\n\n" + m.group(2), texto)
+        if n:
+            texto = nuevo
+            escritos.append(clave)
+    with io.open(DESTINO, "w", encoding="utf-8", newline="\r\n") as fh:
+        fh.write(texto)
+    print("Bloques del informe interno actualizados:", ", ".join(escritos) or "ninguno")
+
+
+if __name__ == "__main__":
+    main()

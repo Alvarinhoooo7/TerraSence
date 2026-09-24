@@ -1,488 +1,424 @@
-"""Modelo mensual reproducible, CLP nominales. python finanzas/modelo.py
+# -*- coding: utf-8 -*-
+"""Reformulacion economica TerraSense. Modelo anual, estructura escalonada.
 
-Editar supuestos.json y regenerar; las hojas son resultados, no un simulador
-interactivo completo. Fórmulas de conciliación llevan caché calculada. Sin macros.
-No necesita Excel. No escribe servicios remotos. Archiva originales una sola vez.
+El precio NO es un dato de entrada: se deriva del costo total con el margen objetivo.
 """
-from __future__ import annotations
-import copy
-import json
-import math
-import shutil
-from pathlib import Path
-import xlsxwriter
-import numpy as np
-from xlsxwriter.utility import xl_col_to_name
+import json, os, sys
 
-ROOT = Path(__file__).resolve().parents[1]
-S = json.loads((ROOT / 'finanzas/supuestos.json').read_text(encoding='utf-8'))
+BASE = os.path.dirname(os.path.abspath(__file__))
+S = json.load(open(os.path.join(BASE, "supuestos.json"), encoding="utf-8"))
+
+ANIOS = [S["anio_inicio"] + i for i in range(S["horizonte_anios"])]
+INFL = S["inflacion"]
+IVA = S["iva"]
 
 
-def cuota(capital, tasa, meses):
-    r = (1 + tasa) ** (1 / 12) - 1
-    return capital / meses if r == 0 else capital * r / (1 - (1 + r) ** -meses)
+def infl(anio):
+    """Factor de inflacion acumulada desde el anio base."""
+    return (1 + INFL) ** (anio - S["anio_inicio"])
 
 
-def ventas(s, factor=1):
-    annual = [round(x * factor) for x in s['ventas_base']]
-    while len(annual) < s['horizonte']:
-        annual.append(round(annual[-1] * (1 + s['crecimiento_despues_5'])))
-    monthly = []
-    for total in annual:
-        weights = s['pesos_mensuales']
-        raw = [total * w / sum(weights) for w in weights]
-        values = [math.floor(v) for v in raw]
-        for i in sorted(range(12), key=lambda i: raw[i] - values[i], reverse=True)[:total-sum(values)]:
-            values[i] += 1
-        monthly.extend(values)
-    return annual, monthly
+# ---------------------------------------------------------------- BOM
+def bom_total():
+    return sum(c * p for _, c, p, _ in S["bom"])
 
 
-def simulate(s=S, principal=0, term=10, factor=1, marketing_factor=1, bullet=0):
-    annual, units = ventas(s, factor)
-    # Marketing no baja automáticamente si una campaña falla (estrés).
-    targets, _ = ventas(s, marketing_factor)
-    bom = sum(q * p for _, q, p, _ in s['bom'])
-    initial_inventory = math.ceil(sum(units[:s['inventario_meses']]) / s['lote_compra']) * s['lote_compra']
-    # Conservador: no se utiliza crédito IVA de inversión/desarrollo inicial.
-    setup = (s['activos_iniciales_netos'] + s['desarrollo_validacion_neto'] + s['formalizacion_neto']) * (1+s['iva'])
-    stock = initial_inventory
-    inventory_value = stock * bom
-    no_vat_bom = sum(q*p for name,q,p,_ in s['bom'] if name == 'PCB combinada USB-C carga + boost')
-    initial_vat = initial_inventory * (bom-no_vat_bom) * s['iva']
-    initial_uses = setup + inventory_value + initial_vat
-    fees = principal * s['gastos_credito_fraccion']
-    cash = s['aporte_socios'] + principal - initial_uses - fees
-    initial_cash = cash
-    balance = principal - bullet
-    payment = cuota(balance, s['tasa_credito_efectiva_anual'], term*12)
-    r = (1+s['tasa_credito_efectiva_anual'])**(1/12)-1
-    tax_loss = project_loss = 0
-    year_taxable = year_project_taxable = 0
-    cum = 0
-    rows = []
-    prev_vat = initial_vat  # compra en mes 0: crédito disponible en mes 1
-    # 10% del desembolso no financiero, además de 3 meses de costos fijos y deuda.
-    contingency = initial_uses * s['contingencia_inicial']
-    for m, sold in enumerate(units):
-        y = m // 12
-        inflation = (1+s['inflacion'])**y
-        active = sum(annual[max(0,y-4):y]) + annual[y]/2  # base activa móvil de 5 años, supuesto
-        technician = math.ceil(max(0, annual[y]*s['horas_unidad']-s['horas_fundadores_produccion']) / s['horas_productivas_fte'] * 2)/2
-        support = math.ceil(max(0, active*s['horas_soporte_equipo_anio']+annual[y]*s['horas_comerciales_por_venta']-s['horas_fundadores_soporte']) / s['horas_productivas_fte'] * 2)/2
-        founder_salary = s['sueldos_socios_base_por_anio'][min(y,len(s['sueldos_socios_base_por_anio'])-1)]
-        payroll = (2*founder_salary + technician*s['sueldo_bruto_tecnico'] + support*s['sueldo_bruto_soporte']) * (1+s['sobrecosto_laboral_presupuesto']) * inflation
-        accountant = (s['contador_mensual']+(technician+support)*s['contador_incremento_fte'])*inflation
-        digital = (s['servicios_digitales_mensual']+s['api_clima_mensual']+active*s['servicios_por_equipo_activo_anio']/12)*inflation
-        agency = s['agencia_mensual']*inflation if targets[y]>=s['agencia_desde_ventas_anuales'] else 0
-        admin = (s['taller_servicios_mensual']+s['administracion_seguros_mensual'])*inflation
-        marketing = targets[y]*s['marketing_venta_objetivo']*inflation/12
-        fixed = payroll + accountant + digital + agency + admin + marketing
-        gross = sold*s['precio_iva']*inflation
-        revenue = gross/(1+s['iva'])
-        # FIFO simplificado: costo promedio ponderado móvil; stock no se revaloriza.
-        required = sold + sum(units[m+1:m+1+s['inventario_meses']])
-        purchase_units = math.ceil(max(0,required-stock)/s['lote_compra'])*s['lote_compra']
-        purchases = purchase_units*bom*inflation
-        avg_cost = (inventory_value+purchases)/(stock+purchase_units) if stock+purchase_units else 0
-        cogs = sold*avg_cost
-        stock += purchase_units-sold
-        inventory_value += purchases-cogs
-        # Merma y garantías: desembolso prudencial inmediato de reposición, no provisión ficticia.
-        variable = cogs*(s['merma_fraccion_bom']+s['garantia_fraccion_bom']) + sold*s['envio_neto']*inflation + gross*s['comision_sobre_bruto']
-        ebitda = revenue-cogs-variable-fixed
-        interest = balance*r if m<term*12 else 0
-        paid = min(payment, balance+interest) if balance>0.001 and m<term*12 else 0
-        amortization = paid-interest
-        balance = max(0,balance-amortization)
-        bullet_interest = bullet*0.15 if m==11 else 0
-        bullet_principal = bullet if m==11 else 0
-        interest += bullet_interest
-        amortization += bullet_principal
-        debt = interest+amortization
-        capex = s['reinversion_activos_cada_3_anios']*inflation if m>0 and m%36==0 else 0
-        # Base caja Pro Pyme estimada, no EBITDA menos depreciación contable.
-        # Deducción inicial incluye inventario y activos; sin beneficio tributario adelantado.
-        taxable = revenue-purchases-variable-fixed-capex-interest
-        project_taxable = taxable+interest
-        if m==0:
-            taxable -= initial_uses-initial_vat
-            project_taxable -= initial_uses-initial_vat
-        year_taxable += taxable
-        year_project_taxable += project_taxable
-        tax_rate = 0.125 if s['inicio']+y<=2027 else 0.15 if s['inicio']+y==2028 else 0.25
-        tax = project_tax = 0
-        if m%12==11:
-            tax = max(0,year_taxable-tax_loss)*tax_rate
-            tax_loss = max(0,tax_loss-year_taxable)
-            project_tax = max(0,year_project_taxable-project_loss)*tax_rate
-            project_loss = max(0,project_loss-year_project_taxable)
-            year_taxable = year_project_taxable = 0
-        # IVA de ventas se inmoviliza en el mismo mes. Crédito de compras a mes siguiente.
-        # Sin crédito de servicios/capex ni de carga PCB900: prudente, no declaración F29.
-        vat_output = gross-revenue
-        vat_input = purchase_units*(bom-no_vat_bom)*inflation*s['iva']
-        vat_usable = min(vat_output, prev_vat)
-        prev_vat = prev_vat-vat_usable+vat_input
-        vat_cash = vat_input-vat_usable
-        # Todos los costos están netos salvo gastos iniciales. IVA no recuperable PCB está
-        # contenido en 900; compras con factura añaden crédito financiado temporalmente.
-        fcff = revenue-purchases-variable-fixed-capex-project_tax-vat_cash
-        fcfe = revenue-purchases-variable-fixed-capex-tax-vat_cash-debt
-        cash += fcfe
-        reserve = s['reserva_meses']*(fixed+(payment if m < term*12 else 0))+contingency
-        available = cash-reserve
-        cum += sold
-        rows.append(dict(mes=m+1,anio=s['inicio']+y,unidades=sold,precio_bruto=s['precio_iva']*inflation,ventas_brutas=gross,ventas_netas=revenue,
-            compras_unidades=purchase_units,compras_netas=purchases,stock_unidades=stock,inventario_neto=inventory_value,
-            costo_vendido=cogs,variables=variable,nomina=payroll,tecnicos_fte=technician,soporte_fte=support,
-            contador=accountant,digital=digital,agencia=agency,administracion=admin,marketing=marketing,fijos=fixed,ebitda=ebitda,
-            interes=interest,amortizacion=amortization,servicio_deuda=debt,saldo_deuda=balance+(bullet if m<11 else 0),
-            capex=capex,impuesto_reservado=tax,impuesto_proyecto=project_tax,iva_inmovilizado=vat_cash,credito_iva=prev_vat,
-            fcff=fcff,fcfe=fcfe,caja=cash,reserva=reserve,caja_libre=available,tasa_impuesto=tax_rate))
-    return dict(rows=rows,initial_uses=initial_uses,initial_cash=initial_cash,setup=setup,initial_inventory=initial_inventory,
-                bom=bom,fees=fees,principal=principal,payment=payment,contingency=contingency,annual=annual,
-                initial_vat=initial_vat,reserve_months=s['reserva_meses'])
+BOM = bom_total()
+# Costo variable por equipo, sin comision (la comision depende del precio)
+VAR_UNIT = BOM * (1 + S["merma_fraccion_bom"] + S["garantia_fraccion_bom"]) + S["envio_neto_por_equipo"]
 
 
-def funding(s=S, term=10):
-    """Estructura definida: pie propio de los socios y crédito bancario de monto fijo.
-
-    El principal no lo dimensiona el modelo: es el préstamo que se solicita al banco
-    (credito_principal) y el pie que los socios entregan como garantía propia para
-    obtenerlo (aporte_socios). Se devuelve además el diagnóstico de reserva de los
-    primeros 24 meses, que ahora es un resultado a informar y no una restricción que
-    mueva el monto del crédito.
-    """
-    result=simulate(s,s['credito_principal'],term)
-    result['pie']=s['aporte_socios']
-    result['pie_sobre_credito']=s['aporte_socios']/s['credito_principal']
-    result['minimo_sobre_reserva_24m']=min(r['caja_libre'] for r in result['rows'][:24])
-    result['mes_minimo_reserva']=min(result['rows'][:24],key=lambda r: r['caja_libre'])['mes']
-    result['caja_minima_24m']=min(r['caja'] for r in result['rows'][:24])
-    return result
+# ---------------------------------------------------------- costo laboral
+def factor_empleador(anio):
+    """Costo sobre el bruto: cotizaciones de cargo del empleador mas provisiones."""
+    tabla = S["aporte_previsional_empleador"]
+    prev = tabla.get(str(anio), tabla[max(tabla, key=lambda k: int(k))])
+    return 1 + prev + S["cesantia_empleador"] + S["mutual"] + S["provision_vacaciones"] + S["provision_indemnizacion"]
 
 
-def yearly(result):
-    answer=[]
-    for y in range(len(result['rows'])//12):
-        group=result['rows'][y*12:(y+1)*12]
-        row={k:sum(r[k] for r in group) for k in group[0]}
-        for k in ('anio','saldo_deuda','caja','reserva','caja_libre','inventario_neto','stock_unidades','credito_iva','precio_bruto','tasa_impuesto','tecnicos_fte','soporte_fte'):
-            row[k]=group[-1][k]
-        row['dscr']=(row['ebitda']-row['impuesto_reservado']-row['capex']-(group[-1]['inventario_neto']-(result['initial_inventory']*result['bom'] if y==0 else result['rows'][y*12-1]['inventario_neto']))-row['iva_inmovilizado'])/row['servicio_deuda'] if row['servicio_deuda'] else 0
-        row['min_caja_libre']=min(r['caja_libre'] for r in group)
-        margin=(row['ventas_netas']-row['costo_vendido']-row['variables'])/row['unidades'] if row['unidades'] else 0
-        row['equilibrio_operativo']=math.ceil(row['fijos']/margin) if margin>0 else None
-        row['equilibrio_con_deuda']=math.ceil((row['fijos']+row['servicio_deuda'])/margin) if margin>0 else None
-        answer.append(row)
-    return answer
+def sueldo_socio(anio):
+    """Escala progresiva por escalones hasta el ultimo tramo declarado; luego inflacion."""
+    tabla = S["sueldo_socio_por_anio"]
+    ultimo = max(int(k) for k in tabla)
+    if str(anio) in tabla:
+        return tabla[str(anio)]
+    return tabla[str(ultimo)] * (1 + INFL) ** (anio - ultimo)
 
 
-def npv_monthly(initial, rows, column, discount, months=60):
-    return initial+sum(r[column]/(1+discount)**(r['mes']/12) for r in rows[:months])
+def nomina(anio):
+    d = S["dotacion_por_anio"][str(anio)]
+    bruto = d["socios"] * sueldo_socio(anio) + (
+        d["contador"] * S["sueldo_contador"]
+        + d["marketing"] * S["sueldo_marketing"]
+        + d["ensambladores"] * S["sueldo_ensamblador"]
+    ) * infl(anio)
+    personas = d["socios"] + d["contador"] + d["marketing"] + d["ensambladores"]
+    costo = bruto * factor_empleador(anio) * 12
+    beneficios = personas * (S["colacion_mensual"] + S["movilizacion_mensual"]) * infl(anio) * 12
+    return costo, beneficios, personas, bruto
 
 
-def project_flows(result, months=None):
-    """FCFF con caja mínima operativa como capital de trabajo, independiente de deuda.
-
-    La reserva financiera sigue dentro de caja/FCFE. Aquí se comprometen tres
-    meses de fijos y contingencia, y luego sus variaciones; sin recuperación final.
-    """
-    months = S.get('evaluacion_anios', 10)*12 if months is None else months
-    if months < 1 or months > len(result['rows']):
-        raise ValueError('Horizonte de evaluación fuera de los flujos disponibles')
-    reserves=[result['reserve_months']*r['fijos']+result['contingency'] for r in result['rows'][:months]]
-    flows=[-result['initial_uses']-reserves[0]]
-    previous=reserves[0]
-    for row,reserve in zip(result['rows'][:months],reserves):
-        flows.append(row['fcff']-(reserve-previous))
-        previous=reserve
-    return flows
-
-
-def irr_monthly(flows):
-    """Resuelve todas las raíces; solo publica TIR si hay una única tasa real > -1.
-
-    Los impuestos y la reinversión pueden generar varios cambios de signo.
-    Se resuelve en x=1/(1+r), se comprueba residuo y no se elige una raíz arbitraria.
-    """
-    scale=max(abs(f) for f in flows)
-    if not scale or not any(f>0 for f in flows) or not any(f<0 for f in flows):
-        return None
-    coefficients=np.asarray(flows,dtype=float)/scale
-    roots=np.polynomial.polynomial.polyroots(coefficients)
-    candidates=[]
-    for root in roots:
-        if abs(root.imag)<1e-8 and root.real>0:
-            x=float(root.real)
-            residual=abs(np.polynomial.polynomial.polyval(x,coefficients))
-            magnitude=np.polynomial.polynomial.polyval(x,np.abs(coefficients))
-            if residual<=1e-8*max(1,magnitude):
-                rate=1/x-1
-                if not any(abs(rate-r)<1e-7 for r in candidates):
-                    candidates.append(rate)
-    return candidates[0] if len(candidates)==1 else None
+# ------------------------------------------------- gastos de estructura
+def gastos_anio(anio, unidades):
+    d = S["dotacion_por_anio"][str(anio)]
+    nom, benef, personas, bruto = nomina(anio)
+    f = infl(anio)
+    arriendo = (S["arriendo_oficina"] if d["oficina"] else 0) * f * 12
+    servicios = (S["servicios_basicos_con_oficina"] if d["oficina"] else S["servicios_basicos_sin_oficina"]) * f * 12
+    patente = S["patente_comercial_anual"] * f
+    software = S["softwares_cloud"] * f * 12
+    materiales = S["materiales_oficina"] * f * 12
+    mantencion = S["mantencion_equipos"] * f * 12
+    pauta = S["pauta_por_equipo"] * f * unidades
+    return {
+        "nomina": nom,
+        "beneficios": benef,
+        "personas": personas,
+        "bruto_mensual": bruto,
+        "arriendo": arriendo,
+        "servicios": servicios,
+        "patente": patente,
+        "software": software,
+        "materiales": materiales,
+        "mantencion": mantencion,
+        "pauta": pauta,
+        "total": nom + benef + arriendo + servicios + patente + software + materiales + mantencion + pauta,
+    }
 
 
-def payback_months(flows, discount=0):
-    """Primera recuperación acumulada, interpolada dentro del mes."""
-    balance=flows[0]
-    if balance>=0:
-        return 0.0
-    for month,flow in enumerate(flows[1:],1):
-        discounted=flow/(1+discount)**(month/12)
-        if balance+discounted>=0:
-            return month-1+(-balance)/discounted
-        balance+=discounted
+# --------------------------------------------------- inversion inicial
+EQUIP_TOTAL = sum(c * v for _, c, v, _ in S["equipamiento"])
+DEPREC_ANUAL = sum(c * v / vu for _, c, v, vu in S["equipamiento"])
+NOMINAL_TOTAL = sum(v for _, v in S["activo_nominal"])
+AMORT_NOMINAL_ANUAL = NOMINAL_TOTAL / 5
+
+
+def inversion_inicial(unidades_anio1, capital_trabajo=None):
+    g = gastos_anio(ANIOS[0], unidades_anio1)
+    burn_mensual = g["total"] / 12
+    if capital_trabajo is None:
+        capital_trabajo = burn_mensual * S["capital_trabajo_meses"]
+    inventario = VAR_UNIT * unidades_anio1 / 12 * 2  # dos meses de ventas
+    total = EQUIP_TOTAL + NOMINAL_TOTAL + capital_trabajo + inventario
+    return {
+        "equipamiento": EQUIP_TOTAL,
+        "activo_nominal": NOMINAL_TOTAL,
+        "capital_trabajo": capital_trabajo,
+        "inventario": inventario,
+        "burn_mensual": burn_mensual,
+        "meses_cubiertos": capital_trabajo / burn_mensual,
+        "total": total,
+    }
+
+
+# --------------------------------------------------------- precio
+def derivar_precio(unidades_por_anio):
+    """Resuelve el precio neto base que entrega el margen objetivo sobre el costo total."""
+    U = sum(unidades_por_anio[a] * infl(a) for a in ANIOS)
+    F = sum(gastos_anio(a, unidades_por_anio[a])["total"] for a in ANIOS)
+    v = VAR_UNIT
+    m = 1 + S["margen_objetivo"]
+    k = S["comision_sobre_bruto"] * (1 + IVA)
+    # P*U = m * (F + v*U + k*P*U)  ->  P*U*(1 - m*k) = m*F + m*v*U
+    P = (m * F + m * v * U) / (U * (1 - m * k))
+    return P, F, U
+
+
+# --------------------------------------------------------- credito
+def cuota_francesa(capital, tasa_anual, anios):
+    i = (1 + tasa_anual) ** (1 / 12) - 1
+    n = anios * 12
+    return capital * i / (1 - (1 + i) ** -n), i, n
+
+
+def tabla_amortizacion(capital, tasa_anual, anios):
+    cuota, i, n = cuota_francesa(capital, tasa_anual, anios)
+    saldo = capital
+    filas = []
+    for anio in range(1, anios + 1):
+        interes_anio = capital_anio = 0.0
+        saldo_inicial = saldo
+        for _ in range(12):
+            interes = saldo * i
+            amort = cuota - interes
+            saldo -= amort
+            interes_anio += interes
+            capital_anio += amort
+        filas.append({
+            "anio": ANIOS[anio - 1],
+            "saldo_inicial": saldo_inicial,
+            "capital": capital_anio,
+            "interes": interes_anio,
+            "cuota": capital_anio + interes_anio,
+            "saldo_final": max(saldo, 0),
+        })
+    return cuota, filas
+
+
+# --------------------------------------------------------- resultados
+def tasa_impuesto(anio):
+    return S["tasa_impuesto"].get(str(anio), S["tasa_impuesto"]["default"])
+
+
+def correr(unidades_por_anio=None, precio_forzado=None, factor_ventas=1.0, factor_bom=1.0,
+           capital_trabajo=None):
+    global VAR_UNIT
+    var_guardado = VAR_UNIT
+    VAR_UNIT = (BOM * factor_bom) * (1 + S["merma_fraccion_bom"] + S["garantia_fraccion_bom"]) + S["envio_neto_por_equipo"]
+
+    u = unidades_por_anio or {a: round(S["ventas"][str(a)] * factor_ventas) for a in ANIOS}
+    P, F, U = derivar_precio(u)
+    if precio_forzado:
+        P = precio_forzado / (1 + IVA)
+
+    inv = inversion_inicial(u[ANIOS[0]], capital_trabajo)
+    credito = inv["total"]
+    pie = credito * S["pie_sobre_credito"]
+    cuota, amort = tabla_amortizacion(credito, S["tasa_credito_efectiva_anual"], S["plazo_credito_anios"])
+
+    filas, perdida_acum, caja = [], 0.0, inv["capital_trabajo"]
+    for idx, a in enumerate(ANIOS):
+        q = u[a]
+        f = infl(a)
+        precio_neto = P * f
+        ventas_netas = precio_neto * q
+        var_total = VAR_UNIT * f * q + S["comision_sobre_bruto"] * precio_neto * (1 + IVA) * q
+        g = gastos_anio(a, q)
+        deprec = DEPREC_ANUAL * (f if idx >= 5 else 1) if idx < 10 else 0
+        amort_nom = AMORT_NOMINAL_ANUAL if idx < 5 else 0
+        interes = amort[idx]["interes"]
+        util_antes = ventas_netas - var_total - g["total"] - deprec - amort_nom - interes
+        base = util_antes + perdida_acum
+        if base > 0:
+            imp = base * tasa_impuesto(a)
+            perdida_acum = 0.0
+        else:
+            imp = 0.0
+            perdida_acum = base
+        util_neta = util_antes - imp
+        flujo = util_neta + deprec + amort_nom - amort[idx]["capital"]
+        caja += flujo
+        filas.append({
+            "caja": caja,
+            "anio": a, "unidades": q, "precio_neto": precio_neto,
+            "ventas": ventas_netas, "variables": var_total, "gastos": g,
+            "deprec": deprec, "amort_nom": amort_nom, "interes": interes,
+            "util_antes": util_antes, "impuesto": imp, "util_neta": util_neta,
+            "capital": amort[idx]["capital"], "flujo": flujo,
+            "costo_total": var_total + g["total"],
+        })
+
+    VAR_UNIT = var_guardado
+    return {
+        "precio_neto_base": P, "precio_lista": P * (1 + IVA),
+        "inversion": inv, "credito": credito, "pie": pie, "cuota": cuota,
+        "amortizacion": amort, "filas": filas, "unidades": u,
+        "fijos_total": F, "unidades_ponderadas": U,
+    }
+
+
+# --------------------------------------------------------- indicadores
+def van(inversion, flujos, tasa):
+    return -inversion + sum(f / (1 + tasa) ** (i + 1) for i, f in enumerate(flujos))
+
+
+def tir(inversion, flujos):
+    lo, hi = -0.99, 10.0
+    for _ in range(300):
+        mid = (lo + hi) / 2
+        if van(inversion, flujos, mid) > 0:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+def payback(inversion, flujos, tasa=0.0):
+    acum = -inversion
+    for i, f in enumerate(flujos):
+        vf = f / (1 + tasa) ** (i + 1) if tasa else f
+        previo = acum
+        acum += vf
+        if acum >= 0:
+            return i + previo / -vf if vf else i + 1
     return None
 
 
-def indicators(result, discount, months=None):
-    flows=project_flows(result,months)
-    rate=irr_monthly(flows)
-    return dict(inversion=-flows[0],van=sum(f/(1+discount)**(m/12) for m,f in enumerate(flows)),
-                tir_anual=(1+rate)**12-1 if rate is not None else None,
-                payback=payback_months(flows),payback_descontado=payback_months(flows,discount))
+def resumen(r, etiqueta=""):
+    flujos = [f["flujo"] for f in r["filas"]]
+    inv = r["inversion"]["total"]
+    v = van(inv, flujos, S["tasa_descuento"])
+    t = tir(inv, flujos)
+    ps = payback(inv, flujos)
+    pd = payback(inv, flujos, S["tasa_descuento"])
+    return {"etiqueta": etiqueta, "precio": r["precio_lista"], "inversion": inv,
+            "van": v, "tir": t, "payback": ps, "payback_desc": pd}
 
 
-def liquidity_markdown(result):
-    years=yearly(result)[:10]
-    first=next((r['anio'] for i,r in enumerate(years) if all(x['fcfe']>0 for x in years[i:])),None)
-    paid=next((r['mes'] for r in result['rows'] if r['saldo_deuda']<0.01),None)
-    cumulative=0
-    recovery=None
-    for r in result['rows'][:120]:
-        cumulative+=r['fcfe']
-        if recovery is None and cumulative>=S['aporte_socios']:
-            recovery=r['mes']
-    money=lambda x: ('−' if x<0 else '')+'$'+f'{abs(x):,.0f}'.replace(',','.')
-    lines=['## Liquidez, retorno del pie y término de deuda','',
-        f'Pie propio de los socios: **{money(S["aporte_socios"])}** ({money(S["aporte_socios"]//2)} cada uno, 50 % y 50 %), equivalente al **{result["pie_sobre_credito"]*100:.0f} % del crédito**. Crédito bancario: **{money(result["principal"])}** a {S["plazo_base"]} años y {S["tasa_credito_efectiva_anual"]*100:.0f} % efectivo anual, contabilizado por separado.',
-        f'Primer año con FCFE anual positivo y que permanece positivo en los años restantes del estudio: **{first if first else "no se alcanza"}**. Puede haber meses negativos por estacionalidad.',
-        f'Cancelación contractual sin prepago: **mes {paid}** ({S["inicio"]+(paid-1)//12 if paid else "fuera de horizonte"}). La cuota del escenario base es {money(result["payment"])}.',
-        f'La suma del FCFE generado desde la operación alcanza el equivalente al pie en el **mes {recovery}**.' if recovery else 'El FCFE acumulado de operación no alcanza el pie durante los 120 meses.',
-        'Este último hito es capacidad acumulada de generación, no devolución efectiva del aporte ni payback económico. No se distribuyen dividendos en el modelo; la caja incluye crédito y reservas. No se considera el préstamo recibido como utilidad.',
-        'Caja positiva, FCFE positivo, VAN positivo y deuda saldada son criterios distintos. La reinversión, los impuestos y el servicio de deuda ya se descuentan del FCFE; confirmar el calendario tributario real y conservar reservas antes de distribuir.',
-        '', '| Año | FCFE anual | Caja final | Reserva | Caja sobre reserva | Deuda pendiente |',
-        '|---|---:|---:|---:|---:|---:|']
-    for r in years:
-        lines.append(f'| {r["anio"]} | {money(r["fcfe"])} | {money(r["caja"])} | {money(r["reserva"])} | {money(r["caja_libre"])} | {money(r["saldo_deuda"])} |')
-    return '\n'.join(lines)
+def dimensionar(reserva_minima=5000000, **kw):
+    """Itera el capital de trabajo hasta que la caja nunca baje de la reserva minima.
+
+    Es circular: mas capital de trabajo -> mas credito -> mas interes -> mas perdida.
+    """
+    ct = None
+    piso = None
+    for _ in range(60):
+        r = correr(capital_trabajo=ct, **kw)
+        if piso is None:
+            # Piso de politica: nunca menos de N meses de estructura del primer anio.
+            piso = r["inversion"]["burn_mensual"] * S["capital_trabajo_meses"]
+        caja_min = min(f["caja"] for f in r["filas"])
+        objetivo = r["inversion"]["capital_trabajo"] + (reserva_minima - caja_min)
+        ct = max(objetivo, piso)
+        if abs(r["inversion"]["capital_trabajo"] - ct) < 50000:
+            return correr(capital_trabajo=ct, **kw)
+    return r
 
 
-def archive(path):
-    if path.exists():
-        target=ROOT/'finanzas/historico'/path.relative_to(ROOT)
-        if not target.exists():
-            target.parent.mkdir(parents=True,exist_ok=True)
-            shutil.copy2(path,target)
+# ==========================================================================
+# Salidas: planillas, resultados y documentos generados
+# ==========================================================================
+import os
+import subprocess
+
+ROOT = os.path.abspath(os.path.join(BASE, ".."))
 
 
-def workbook(path, base, variants):
-    archive(path)
-    path.parent.mkdir(parents=True,exist_ok=True)
-    with xlsxwriter.Workbook(path) as wb:
-        wb.set_properties({'title':'TerraSense — modelo financiero auditable '+S['fecha_revision'],'comments':'Editar finanzas/supuestos.json y regenerar. No editar resultados aislados.'})
-        header=wb.add_format({'bold':True,'bg_color':'#174B40','font_color':'white','text_wrap':True})
-        money=wb.add_format({'num_format':'#,##0;[Red]-#,##0'})
-        decimal=wb.add_format({'num_format':'0.00'})
-        notes=wb.add_worksheet('LEEME')
-        notes.set_column(0,0,125)
-        for i,line in enumerate([
-            'TerraSense: CLP nominales; año 1 = 2027. Pie propio de socios: 9 millones (4,5 por socio), separado del crédito. Precio con IVA.',
-            'Fuente única: finanzas/supuestos.json. Regenerar con python finanzas/modelo.py.',
-            'Las hojas son resultados del modelo Python, no simulador interactivo completo. Fórmulas concilian totales y caja con caché.',
-            'Base: 200/350/500/650/850 ventas; desde año 6 crecimiento 5% hipotético, no valor terminal automático.',
-            'Estrés: 65% ventas, mismo marketing. Crecimiento: 150% ventas y marketing; personal e inventario se recalculan.',
-            'Estructura fija: crédito bancario de 30 millones a 10 años, 12% efectivo anual (0,9489% mensual), cuota fija. Pie de 9 millones = 30% del crédito, entregado como garantía propia.',
-            'Gastos de apertura 2% del principal (600 mil), pagados al desembolso; no es CAE ni incluye seguros de desgravamen.',
-            '5/10/15 años comparados con MISMO principal. 15 años no se presume elegible FOGAPE.',
-            'Reserva objetivo: 3 meses de fijos y cuota +10% de desembolso inicial. Incluida en caja, no gasto ni suma doble. Su déficit temporal del año 1 se informa, no se tapa subiendo el crédito.',
-            'Sueldos socios son costo laboral, nunca retorno al capital. 35% sobre sueldo es presupuesto, no tasa legal única.',
-            'Sin MOD variable: ensamblaje final incluido en nómina. 2.25 h/unidad, 1400 h productivas/FTE/año.',
-            'Contador externo por contrato de servicios desde mes 1 (contabilidad mensual, IVA, renta, remuneraciones). Agencia de marketing por retainer desde 650 ventas/año. Ninguno de los dos es planilla.',
-            'IVA: crédito compras con factura se usa desde mes siguiente; inversión/servicios iniciales sin recuperación: prudente.',
-            'Impuesto estimado caja Pro Pyme con pérdidas; se inmoviliza al cierre anual. No reproduce F29/PPM/abril; no usar para declarar.',
-            'FCFF antes de financiamiento con impuesto sin intereses; FCFE después de deuda. No mezclar para VAN.',
-            'VAN/TIR/payback: FCFF y variación de reserva operativa sin deuda; mes 0 incluye desembolso y reserva operativa. Sin rescate terminal.',
-            'No hay dividendos automáticos. FCFE es generación de caja, no depósito al socio. VAN de socios no se presenta sin política de salida.',
-            'Ventas cobradas mismo mes, sin crédito a clientes ni mayoristas. Comisiones 5% sobre precio bruto presupuestadas.',
-            'Validar SKU, IVA facturado, plazos de importación, CAC, contratación, impuestos y crédito antes de comprometer dinero.',
-            'Consulte docs/MODELO_ECONOMICO.md y docs/PLAN_VALIDACION.md para fuentes, límites y tareas físicas pendientes.',
-        ]): notes.write(i,0,line)
-        inp=wb.add_worksheet('Supuestos'); inp.set_column(0,0,45); inp.set_column(1,1,95)
-        inp.write_row(0,0,['Parámetro','Valor / lista'],header)
-        for i,(k,v) in enumerate(S.items(),1): inp.write_row(i,0,[k,json.dumps(v,ensure_ascii=False) if isinstance(v,(dict,list)) else v])
-        bom=wb.add_worksheet('BOM');bom.set_column(0,0,55);bom.set_column(1,3,18);bom.set_column(4,4,95)
-        bom.write_row(0,0,['Componente','Cantidad','Neto unitario CLP','Subtotal CLP','Evidencia / pendiente'],header)
-        for i,(name,q,p,note) in enumerate(S['bom'],1):
-            bom.write_row(i,0,[name,q,p]);bom.write_formula(i,3,f'=B{i+1}*C{i+1}',money,q*p);bom.write(i,4,note)
-        bom.write(len(S['bom'])+1,0,'TOTAL BOM NETO');bom.write_formula(len(S['bom'])+1,3,f'=SUM(D2:D{len(S["bom"])+1})',money,base['bom'])
-        startup=wb.add_worksheet('Origen y usos');startup.set_column(0,0,55);startup.set_column(1,1,22)
-        for i,(k,v) in enumerate({'Pie propio socios':S['aporte_socios'],'Crédito bruto':base['principal'],'Activos/desarrollo/formalización con IVA prudencial':base['setup'],'Inventario inicial con IVA prudencial':base['initial_uses']-base['setup'],'Gastos de apertura presupuestados':base['fees'],'Caja inicial (incluye reserva)':base['initial_cash'],'Reserva inicial objetivo':base['rows'][0]['reserva']}.items()): startup.write_row(i,0,[k,v],money)
-        for name,result in variants.items():
-            monthly=wb.add_worksheet(name+'_mensual'); yearly_sheet=wb.add_worksheet(name+'_anual')
-            for sheet,data in ((monthly,result['rows']),(yearly_sheet,yearly(result))):
-                keys=list(data[0]);sheet.freeze_panes(1,3);sheet.set_column(0,len(keys)-1,20);sheet.set_row(0,45)
-                sheet.write_row(0,0,keys,header);sheet.autofilter(0,0,len(data),len(keys)-1)
-                for i,row in enumerate(data,1):
-                    for j,k in enumerate(keys):
-                        fmt=decimal if k in ('tecnicos_fte','soporte_fte','dscr','tasa_impuesto') else money
-                        if sheet==yearly_sheet and k not in ('anio','mes','saldo_deuda','caja','reserva','caja_libre','inventario_neto','stock_unidades','credito_iva','precio_bruto','tasa_impuesto','tecnicos_fte','soporte_fte','dscr','min_caja_libre','equilibrio_operativo','equilibrio_con_deuda'):
-                            c=xl_col_to_name(j);sheet.write_formula(i,j,f"=SUM('{name}_mensual'!{c}{(i-1)*12+2}:{c}{i*12+1})",fmt,row[k])
-                        elif sheet==monthly and k in ('ventas_netas','fijos','ebitda','servicio_deuda','fcff','fcfe','caja','caja_libre'):
-                            ref=lambda key: f'{xl_col_to_name(keys.index(key))}{i+1}'
-                            expression={
-                                'ventas_netas':f'{ref("ventas_brutas")}/{1+S["iva"]}',
-                                'fijos':'+'.join(ref(t) for t in ['nomina','contador','digital','agencia','administracion','marketing']),
-                                'ebitda':f'{ref("ventas_netas")}-{ref("costo_vendido")}-{ref("variables")}-{ref("fijos")}',
-                                'servicio_deuda':f'{ref("interes")}+{ref("amortizacion")}',
-                                'fcff':f'{ref("ventas_netas")}-{ref("compras_netas")}-{ref("variables")}-{ref("fijos")}-{ref("capex")}-{ref("impuesto_proyecto")}-{ref("iva_inmovilizado")}',
-                                'fcfe':f'{ref("ventas_netas")}-{ref("compras_netas")}-{ref("variables")}-{ref("fijos")}-{ref("capex")}-{ref("impuesto_reservado")}-{ref("iva_inmovilizado")}-{ref("servicio_deuda")}',
-                                'caja':f'{result["initial_cash"] if i==1 else xl_col_to_name(keys.index("caja"))+str(i)}+{ref("fcfe")}',
-                                'caja_libre':f'{ref("caja")}-{ref("reserva")}',
-                            }[k]
-                            sheet.write_formula(i,j,'='+expression,fmt,row[k])
-                        else: sheet.write(i,j,row[k],fmt)
-        compare=wb.add_worksheet('Comparacion deuda');compare.set_column(0,12,23)
-        compare.write_row(0,0,['Alternativa','Principal','Cuota mensual tramo','Interés total','Deuda al año 5','Servicio año 1','Mín caja libre 24m','DSCR año 1','Caja mínima de los primeros 24 meses'],header)
-        def compare_row(i,label,r,extra=None):
-            a=yearly(r)
-            compare.write_row(i,0,[label,base['principal'],r['payment'],sum(x['interes'] for x in r['rows']),a[4]['saldo_deuda'],a[0]['servicio_deuda'],min(x['caja_libre'] for x in r['rows'][:24])],money)
-            compare.write(i,7,a[0]['dscr'],decimal)  # ratio, no moneda
-            if extra is not None: compare.write(i,8,extra,money)
-        for i,term in enumerate((5,10,15),1):
-            compare_row(i,f'{term} años',simulate(S,base['principal'],term),min(x['caja'] for x in simulate(S,base['principal'],term)['rows'][:24]))
-        compare.write(5,0,'DSCR: caja operativa luego de impuesto, reinversión, inventario e IVA / servicio deuda; no EBITDA solo.')
-        compare.write(6,0,'El plazo adoptado es 10 años. Las otras dos filas comparan el mismo principal de 30 millones y la misma tasa, solo para justificar esa elección.')
-        sens=wb.add_worksheet('Sensibilidades');sens.set_column(0,0,38);sens.set_column(1,5,24)
-        sens.write_row(0,0,['Caso','Unidades año 1','EBITDA año 1','Mín caja libre 24m','VAN proyecto 10 años 20%'],header)
-        for i,(label,price,factor,rate) in enumerate([
-            ('Base',349990,1,.12),('Precio anterior',249990,1,.12),('Precio 299990',299990,1,.12),('Precio 329990',329990,1,.12),('Ventas -35%, mismo marketing',349990,.65,.12),('Tasa 18%',349990,1,.18)
-        ],1):
-            s=copy.deepcopy(S);s['precio_iva']=price;s['tasa_credito_efectiva_anual']=rate
-            r=simulate(s,base['principal'],10,factor)
-            sens.write_row(i,0,[label,yearly(r)[0]['unidades'],yearly(r)[0]['ebitda'],min(x['caja_libre'] for x in r['rows'][:24]),indicators(r,S['tasa_descuento_proyecto'])['van']],money)
-        evaluation=wb.add_worksheet('Evaluacion proyecto')
-        evaluation.set_column(0,0,20);evaluation.set_column(1,6,25)
-        evaluation.write_row(0,0,['Escenario','Inversión mes 0','VAN 120 meses','TIR efectiva anual','Payback meses','Payback descontado meses','Tasa descuento anual'],header)
-        percent=wb.add_format({'num_format':'0.00%'})
-        for i,(name,result) in enumerate(variants.items(),1):
-            flow_sheet=wb.add_worksheet(name+'_evaluacion')
-            flow_sheet.set_column(0,4,25)
-            flow_sheet.write_row(0,0,['Mes','FCFF evaluación','FCFF descontado','Acumulado simple','Acumulado descontado'],header)
-            flows=project_flows(result)
-            accumulated=discounted_accumulated=0
-            for m,f in enumerate(flows):
-                n=m+2
-                df=f/(1+S['tasa_descuento_proyecto'])**(m/12)
-                accumulated+=f;discounted_accumulated+=df
-                flow_sheet.write_row(m+1,0,[m,f],money)
-                flow_sheet.write_formula(m+1,2,f'=B{n}/(1+\'Evaluacion proyecto\'!G{i+1})^(A{n}/12)',money,df)
-                flow_sheet.write_formula(m+1,3,f'=SUM(B$2:B{n})',money,accumulated)
-                flow_sheet.write_formula(m+1,4,f'=SUM(C$2:C{n})',money,discounted_accumulated)
-            k=indicators(result,S['tasa_descuento_proyecto'])
-            evaluation.write(i,0,name)
-            evaluation.write_formula(i,1,f"=-'{name}_evaluacion'!B2",money,k['inversion'])
-            evaluation.write_formula(i,2,f"=SUM('{name}_evaluacion'!C2:C122)",money,k['van'])
-            if k['tir_anual'] is not None:
-                evaluation.write_formula(i,3,f"=(1+IRR('{name}_evaluacion'!B2:B122))^12-1",percent,k['tir_anual'])
-            else:
-                evaluation.write(i,3,'Sin TIR única')
-            for col,key in ((4,'payback'),(5,'payback_descontado')):
-                evaluation.write(i,col,k[key] if k[key] is not None else 'No recupera en 120 meses',decimal)
-            evaluation.write(i,6,S['tasa_descuento_proyecto'],percent)
-        comparison=wb.add_worksheet('Comparacion 5 y 10')
-        comparison.set_column(0,7,24)
-        comparison.write_row(0,0,['Escenario','Años','Inversión mes 0','VAN','TIR anual','Payback meses','Payback descontado','Saldo deuda final'],header)
-        n=1
-        for label,result in variants.items():
-            for months in (60,120):
-                k=indicators(result,S['tasa_descuento_proyecto'],months)
-                comparison.write_row(n,0,[label,months//12,k['inversion'],k['van'],k['tir_anual'],k['payback'],k['payback_descontado'],result['rows'][months-1]['saldo_deuda']])
-                comparison.set_row(n,None,money)
-                if k['tir_anual'] is not None: comparison.write(n,4,k['tir_anual'],percent)
-                n+=1
-        liquid=wb.add_worksheet('Liquidez y deuda')
-        liquid.set_column(0,8,24)
-        liquid.write_row(0,0,['Año','FCFE anual','FCFE acumulado desde inicio','Caja final','Reserva final','Caja sobre reserva','Deuda final','Meses FCFE negativo','DSCR'],header)
-        accumulated=0
-        for i,r in enumerate(yearly(base)[:10],1):
-            accumulated+=r['fcfe']
-            negatives=sum(x['fcfe']<0 for x in base['rows'][(i-1)*12:i*12])
-            liquid.write_row(i,0,[r['anio'],r['fcfe'],accumulated,r['caja'],r['reserva'],r['caja_libre'],r['saldo_deuda'],negatives,r['dscr']],money)
-        for i,line in enumerate(liquidity_markdown(base).splitlines(),13):
-            liquid.write(i,0,line)
-        evaluation.write(6,0,'Payback simple y descontado: primera recuperación, interpolación mensual. Sin recuperación terminal de inventario/reserva.')
+def fmt(x):
+    return "$" + format(int(round(x)), ",d").replace(",", ".")
 
 
-def write_summary(base, variants):
-    currency=lambda v: '$'+f'{v:,.0f}'.replace(',','.')
-    mensual=f'{((1+S["tasa_credito_efectiva_anual"])**(1/12)-1)*100:.4f}'.replace('.',',')
-    lines=['# Resultados financieros generados','', 'No editar a mano: `python finanzas/modelo.py`. Fuente: `finanzas/supuestos.json`.', '',
-        f'Precio inicial con IVA: **{currency(S["precio_iva"])}**; neto: {currency(S["precio_iva"]/(1+S["iva"]))}. BOM neto provisional: **{currency(base["bom"])}**.',
-        f'Pie propio de los socios: **{currency(S["aporte_socios"])}** ({currency(S["aporte_socios"]//2)} cada socio, 50 % y 50 %), equivalente al **{base["pie_sobre_credito"]*100:.0f} % del crédito**. Crédito bancario solicitado: **{currency(base["principal"])}** a {S["plazo_base"]} años, {S["tasa_credito_efectiva_anual"]*100:.0f} % efectivo anual ({mensual} % mensual), cuota fija de {currency(base["payment"])}. Total de fuentes: **{currency(S["aporte_socios"]+base["principal"])}**.',
-        f'Desembolso inicial: {currency(base["initial_uses"])}; gastos crédito: {currency(base["fees"])}; caja inicial: {currency(base["initial_cash"])} (incluye reserva; no sumar otra vez).', '',
-        '| Año | Ventas | EBITDA | Servicio deuda | Caja final | Reserva | DSCR | Técnicos FTE | Soporte FTE | Equilibrio operativo / con deuda |',
-        '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
-    for r in yearly(base)[:10]:
-        lines.append(f'| {r["anio"]} | {r["unidades"]} | {currency(r["ebitda"])} | {currency(r["servicio_deuda"])} | {currency(r["caja"])} | {currency(r["reserva"])} | {r["dscr"]:.2f} | {r["tecnicos_fte"]:g} | {r["soporte_fte"]:g} | {r["equilibrio_operativo"]} / {r["equilibrio_con_deuda"]} |')
-    lines+=['','Equilibrio con deuda incluye capital e intereses, no impuesto ni acumulación de inventario: la prueba de liquidez es la caja mensual y el DSCR. FTE es equivalente de jornada presupuestado, no número de contratos.', '', '| Plazo del crédito (mismo principal de $30.000.000) | Cuota | Intereses totales | Saldo año 5 | Caja mínima, 24 meses |','|---|---:|---:|---:|---:|']
-    for term in (5,10,15):
-        r=simulate(S,base['principal'],term)
-        lines.append(f'| {term} años{" (adoptado)" if term==S["plazo_base"] else ""} | {currency(r["payment"])} | {currency(sum(x["interes"] for x in r["rows"]))} | {currency(yearly(r)[4]["saldo_deuda"])} | {currency(min(x["caja"] for x in r["rows"][:24]))} |')
-    lines+=['','| Escenario | Ventas año 1 | Caja mínima 24m | VAN proyecto 10 años / 20% |', '|---|---:|---:|---:|']
-    for name,r in variants.items():
-        lines.append(f'| {name} | {yearly(r)[0]["unidades"]} | {currency(min(x["caja"] for x in r["rows"][:24]))} | {currency(indicators(r,S["tasa_descuento_proyecto"])["van"])} |')
-    lines+=['',evaluation_markdown(variants),'','VAN, TIR y payback usan los mismos 120 flujos mensuales y mes 0. Caja operativa mínima: tres meses de fijos más contingencia; se descuentan sus aumentos del FCFF. Sin rescate, recuperación de reserva/inventario ni valor terminal. Deuda y gastos de apertura solo afectan el financiamiento. Sueldos incluidos en nómina; no se suman como retorno del capital.', '', 'Evaluación principal: diez años (2027–2036); comparación a cinco años (2027–2031). Los años 6–10 usan crecimiento hipotético de 5 %; años 11–15 solo ilustran deuda alternativa y operación posterior, sin incorporarse al VAN principal.']
-    lines += ['', '## Comparación a cinco años', '', evaluation_markdown(variants,60), '', liquidity_markdown(base)]
-    (ROOT/'docs/RESULTADOS_FINANCIEROS.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
+def dec(x, d=2):
+    return (("%." + str(d) + "f") % x).replace(".", ",")
 
 
-def evaluation_markdown(variants, months=None):
-    months = S.get('evaluacion_anios', 10)*12 if months is None else months
-    money=lambda v: ('−' if v<0 else '')+'$'+f'{abs(v):,.0f}'.replace(',','.')
-    duration=lambda v: f'{v:.2f} meses ({v/12:.2f} años)'.replace('.',',') if v is not None else f'No recupera en {months} meses'
-    lines=['| Escenario | Inversión económica mes 0 | VAN al 20 % | TIR efectiva anual | Payback simple | Payback descontado al 20 % |',
-           '|---|---:|---:|---:|---:|---:|']
-    for name,result in variants.items():
-        k=indicators(result,S['tasa_descuento_proyecto'],months)
-        rate=f'{k["tir_anual"]*100:.2f} %'.replace('.',',') if k['tir_anual'] is not None else 'Sin TIR única'
-        label='Estrés' if name=='Estres' else name
-        lines.append(f'| {label} | {money(k["inversion"])} | {money(k["van"])} | {rate} | {duration(k["payback"])} | {duration(k["payback_descontado"])} |')
-    return '\n'.join(lines)
+def porc(x, d=1):
+    return (("%." + str(d) + "f") % (x * 100)).replace(".", ",") + " %"
+
+
+def planilla_flujo(r, ruta):
+    """Escribe la planilla de flujo de caja y financiamiento."""
+    import xlsxwriter
+    ind = resumen(r)
+    with xlsxwriter.Workbook(ruta) as wb:
+        neg = wb.add_format({"num_format": '$#,##0;[Red]-$#,##0'})
+        tit = wb.add_format({"bold": True, "bg_color": "#EEEEEE", "border": 1})
+        bold = wb.add_format({"bold": True})
+
+        ws = wb.add_worksheet("Resultados")
+        ws.set_column(0, 0, 42); ws.set_column(1, 11, 17)
+        ws.write_row(0, 0, ["Concepto"] + [str(a) for a in ANIOS], tit)
+        filas = [
+            ("Equipos vendidos", lambda f: f["unidades"]),
+            ("Ventas netas", lambda f: f["ventas"]),
+            ("(-) Costos operacionales", lambda f: f["variables"]),
+            ("(-) Gastos de estructura", lambda f: f["gastos"]["total"]),
+            ("(-) Depreciacion", lambda f: f["deprec"]),
+            ("(-) Amortizacion activo nominal", lambda f: f["amort_nom"]),
+            ("(-) Intereses", lambda f: f["interes"]),
+            ("(=) Utilidad antes de impuesto", lambda f: f["util_antes"]),
+            ("(-) Impuesto a la renta", lambda f: f["impuesto"]),
+            ("(=) Utilidad del ejercicio", lambda f: f["util_neta"]),
+            ("(+) Depreciacion y amortizacion", lambda f: f["deprec"] + f["amort_nom"]),
+            ("(-) Cuota de capital", lambda f: f["capital"]),
+            ("(=) Flujo de fondos", lambda f: f["flujo"]),
+            ("Caja acumulada", lambda f: f["caja"]),
+        ]
+        for i, (etq, fn) in enumerate(filas, 1):
+            ws.write(i, 0, etq, bold if etq.startswith("(=)") else None)
+            for j, f in enumerate(r["filas"], 1):
+                ws.write_number(i, j, round(fn(f)), None if etq == "Equipos vendidos" else neg)
+
+        ws2 = wb.add_worksheet("Amortizacion")
+        ws2.set_column(0, 5, 20)
+        ws2.write_row(0, 0, ["Periodo", "Saldo inicial", "Capital", "Intereses", "Cuota", "Saldo final"], tit)
+        for i, a in enumerate(r["amortizacion"], 1):
+            ws2.write(i, 0, a["anio"])
+            for j, k in enumerate(("saldo_inicial", "capital", "interes", "cuota", "saldo_final"), 1):
+                ws2.write_number(i, j, round(a[k]), neg)
+
+        ws3 = wb.add_worksheet("Inversion y evaluacion")
+        ws3.set_column(0, 0, 46); ws3.set_column(1, 1, 22)
+        datos = [
+            ("Equipamiento y activo fijo", r["inversion"]["equipamiento"]),
+            ("Activo nominal", r["inversion"]["activo_nominal"]),
+            ("Capital de trabajo", r["inversion"]["capital_trabajo"]),
+            ("Inventario inicial", r["inversion"]["inventario"]),
+            ("INVERSION INICIAL TOTAL", r["inversion"]["total"]),
+            ("Credito bancario (100 % de la inversion)", r["credito"]),
+            ("Pie propio exigido (30 % del credito)", r["pie"]),
+            ("Cuota mensual", r["cuota"]),
+            ("Precio neto de venta", r["precio_neto_base"]),
+            ("Precio de lista con IVA", r["precio_lista"]),
+            ("VAN al 20 %", ind["van"]),
+        ]
+        for i, (etq, v) in enumerate(datos):
+            ws3.write(i, 0, etq, bold if etq.isupper() else None)
+            ws3.write_number(i, 1, round(v), neg)
+        ws3.write(len(datos), 0, "TIR efectiva anual", bold)
+        ws3.write(len(datos), 1, porc(ind["tir"], 2))
+        ws3.write(len(datos) + 1, 0, "Payback simple / descontado (anios)")
+        ws3.write(len(datos) + 1, 1, "%s / %s" % (dec(ind["payback"]), dec(ind["payback_desc"])))
+
+
+def planilla_bom(ruta):
+    import xlsxwriter
+    with xlsxwriter.Workbook(ruta) as wb:
+        tit = wb.add_format({"bold": True, "bg_color": "#EEEEEE", "border": 1})
+        ws = wb.add_worksheet("BOM vigente")
+        ws.set_column(0, 0, 62); ws.set_column(1, 3, 18); ws.set_column(4, 4, 70)
+        ws.write_row(0, 0, ["Componente", "Cantidad", "Neto unitario CLP", "Subtotal", "Origen del precio"], tit)
+        for i, (n, q, pu, nota) in enumerate(S["bom"], 1):
+            ws.write_row(i, 0, [n, q, pu])
+            ws.write_formula(i, 3, "=B%d*C%d" % (i + 1, i + 1), None, q * pu)
+            ws.write(i, 4, nota)
+        fin = len(S["bom"]) + 1
+        ws.write(fin, 0, "TOTAL BOM NETO", tit)
+        ws.write_formula(fin, 3, "=SUM(D2:D%d)" % fin, tit, BOM)
+        ws.write(fin + 2, 0, S["_bom_pendiente"])
+
+
+def resultados_markdown(r, ruta):
+    ind = resumen(r)
+    L = ["# Resultados financieros generados", "",
+         "No editar a mano: `python finanzas/modelo.py`. Fuente: `finanzas/supuestos.json`.", "",
+         "El precio **se deriva** del costo total con un margen exigido del %s; no es un supuesto de entrada."
+         % porc(S["margen_objetivo"], 0), "",
+         "Precio de lista: **%s** con IVA (%s netos). BOM neta por equipo: **%s**."
+         % (fmt(r["precio_lista"]), fmt(r["precio_neto_base"]), fmt(BOM)), "",
+         "Inversión inicial: **%s**, financiada al 100 %% por el crédito. Pie propio exigido: **%s** "
+         "(%s por socio), entregado al banco como condición de entrada. Cuota mensual: %s."
+         % (fmt(r["inversion"]["total"]), fmt(r["pie"]), fmt(r["pie"] / 2), fmt(r["cuota"])), "",
+         "| Año | Equipos | Ventas netas | Utilidad del ejercicio | Flujo de fondos | Caja acumulada |",
+         "|---|---:|---:|---:|---:|---:|"]
+    for f in r["filas"]:
+        L.append("| %d | %d | %s | %s | %s | %s |" % (f["anio"], f["unidades"], fmt(f["ventas"]),
+                                                      fmt(f["util_neta"]), fmt(f["flujo"]), fmt(f["caja"])))
+    L += ["", "| Indicador | Valor |", "|---|---:|",
+          "| VAN al %s | %s |" % (porc(S["tasa_descuento"], 0), fmt(ind["van"])),
+          "| TIR efectiva anual | %s |" % porc(ind["tir"], 2),
+          "| Payback simple | %s años |" % dec(ind["payback"]),
+          "| Payback descontado | %s años |" % dec(ind["payback_desc"]),
+          "| Caja mínima del horizonte | %s |" % fmt(min(f["caja"] for f in r["filas"])),
+          "| Deuda al cierre de %d | %s |" % (ANIOS[-1], fmt(0)), "",
+          "Evaluación anual sobre diez años (2027–2036), sin valor terminal. Los ejercicios %d y %d cierran "
+          "con pérdida: la estructura mínima para operar formalmente no se cubre con el volumen inicial, y "
+          "esa pérdida está financiada por el capital de trabajo." % (ANIOS[0], ANIOS[1]), ""]
+    with open(ruta, "w", encoding="utf-8", newline="\r\n") as fh:
+        fh.write("\n".join(L))
 
 
 def main():
-    base=funding(S,S['plazo_base'])
-    variants={'Base':base,'Estres':simulate(S,base['principal'],10,S['ventas_estres_factor']),
-              'Crecimiento':simulate(S,base['principal'],10,S['ventas_crecimiento_factor'],S['ventas_crecimiento_factor'])}
-    path=ROOT/'Flujo de caja y financiamiento - TerraSense.xlsx'
-    workbook(path,base,variants)
-    # Se eliminó la copia en outputs/: era idéntica a la planilla de la raíz y creaba
-    # una segunda fuente "final". El original previo queda en finanzas/historico/.
-    bompath=ROOT/'PCB/BOM_TerraSense.xlsx';archive(bompath)
-    with xlsxwriter.Workbook(bompath) as wb:
-        ws=wb.add_worksheet('BOM vigente provisional');ws.set_column(0,0,58);ws.set_column(1,3,18);ws.set_column(4,4,90)
-        ws.write_row(0,0,['Componente','Cantidad','Neto unitario CLP','Subtotal','Estado / evidencia'])
-        for i,(n,q,p,note) in enumerate(S['bom'],1):
-            ws.write_row(i,0,[n,q,p]);ws.write_formula(i,3,f'=B{i+1}*C{i+1}',None,q*p);ws.write(i,4,note)
-        ws.write(len(S['bom'])+1,0,'TOTAL NETO PROVISIONAL');ws.write_formula(len(S['bom'])+1,3,f'=SUM(D2:D{len(S["bom"])+1})',None,base['bom'])
-        ws.write(len(S['bom'])+3,0,'No es lista liberada a fabricación. ESP32 devkit + LiPo2000 + carga/boost900. Sin CH340/TP4056/MT3608 separados.')
-    write_summary(base,variants)
-    if __package__:
-        from .documentacion import update_readme
-    else:
-        from documentacion import update_readme
-    update_readme(base,variants,S,yearly,evaluation_markdown)
-    import sys
-    if __package__:
-        from .informe import update_report
-    else:
-        from informe import update_report
-    update_report(base,variants,sys.modules[__name__])
-    print(json.dumps({'credito':base['principal'],'cuota':base['payment'],'bom':base['bom'],'anio1':yearly(base)[0]},ensure_ascii=False,indent=2))
+    r = dimensionar()
+    planilla_flujo(r, os.path.join(ROOT, "Flujo de caja y financiamiento - TerraSense.xlsx"))
+    planilla_bom(os.path.join(ROOT, "PCB", "BOM_TerraSense.xlsx"))
+    resultados_markdown(r, os.path.join(ROOT, "docs", "RESULTADOS_FINANCIEROS.md"))
+    for script in ("seccion_economica.py", "corregir_informe.py", "documentacion.py", "informe.py"):
+        subprocess.run([sys.executable, os.path.join(BASE, script)], check=True, cwd=BASE)
+    ind = resumen(r)
+    print("Precio de lista: %s | BOM: %s | VAN: %s | TIR: %s"
+          % (fmt(r["precio_lista"]), fmt(BOM), fmt(ind["van"]), porc(ind["tir"], 2)))
 
 
-if __name__=='__main__': main()
+if __name__ == "__main__":
+    main()
