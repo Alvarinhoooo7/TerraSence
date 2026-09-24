@@ -115,7 +115,10 @@ npm run dev         # Servidor en http://localhost:5173
 Desde la raíz del proyecto:
 ```bash
 python -m pip install -r finanzas/requirements.txt
-python finanzas/modelo.py
+cd finanzas
+python seccion_economica.py        # cuadros y sección económica del informe
+python corregir_informe.py         # informe corregido completo
+python documentacion_reformulada.py  # bloque económico del README
 ```
 
 ---
@@ -123,98 +126,104 @@ python finanzas/modelo.py
 ## 📊 Viabilidad y Modelo Comercial
 
 TerraSense está planteado como un proyecto económicamente sustentable y escalable:
-- **Modelo de Ingreso:** Venta directa del hardware con IVA incluido. La app y el diagnóstico local no tienen costos de suscripción mensual.
-- **Costos y Margen:** La sonda RS-485 concentra la mayor parte de la BOM; el ensamblaje final se paga en la nómina y no se duplica como costo variable.
-- **Financiamiento:** **$9.000.000 de los socios como PIE propio**, más crédito bancario para el saldo de inversión y capital de trabajo. El pie se cuenta una sola vez; modalidad, tasa y plazo requieren cotización.
-- **Evaluación:** Flujos mensuales sobre 120 meses, con comparación a 60 meses, sin valor terminal, distinguiendo el retorno económico del proyecto de la cobertura de deuda (DSCR).
+- **Modelo de ingreso:** venta directa del hardware con IVA incluido. La app y el diagnóstico local no tienen suscripción.
+- **Precio:** se **deriva** del costo total con un margen exigido del 30 %; no es un supuesto de entrada.
+- **Costos y margen:** la sonda RS-485 concentra el 68,9 % de la BOM. El ensamblaje se paga en la nómina y no se duplica como costo variable.
+- **Financiamiento:** el pie de los socios se entrega al banco como condición de entrada y el crédito financia el 100 % de la inversión inicial. Pie y crédito **no se suman** como fuentes.
+- **Evaluación:** flujos anuales sobre 10 años (2027–2036), sin valor terminal, con depreciación, amortización del activo nominal y tabla de amortización del crédito por sistema francés.
 
-> 💡 Las cifras del bloque siguiente se generan desde `finanzas/supuestos.json`. **No editar a mano:** ejecutar `python finanzas/modelo.py`.
+> 💡 Las cifras del bloque siguiente se generan desde `finanzas/supuestos_reformulado.json`. **No editar a mano:** ejecutar `python finanzas/documentacion_reformulada.py`.
 
 <!-- FINANZAS:INICIO -->
 
 ## Finanzas y modelo económico
 
-Precio de venta: **$349.990 CLP con IVA** ($294.109 netos). Evaluación del proyecto a diez años, 2027–2036, con flujos mensuales y tasa de descuento del 20 % anual.
+**El precio no es un supuesto: es un resultado.** Se construye primero la estructura completa de costos e inversión y el precio se deriva de ella exigiendo un 30 % de utilidad sobre el costo total. Precio de lista resultante: **$449.337 CLP con IVA** ($377.594 netos). Evaluación a diez años, 2027–2036, con tasa de descuento del 20 % anual.
 
-### BOM y margen por equipo
+### BOM por equipo
 
-| Componente | Cantidad | Costo unitario neto CLP | Subtotal CLP |
+| Componente | Cant. | Neto unitario | Subtotal |
 |---|---:|---:|---:|
-| Sonda RS485 7-en-1 (AliExpress 1005005548177699; variante pendiente) | 1 | $48.000 | $48.000 |
-| Módulo ESP32-WROOM-32 desnudo | 1 | $2.300 | $2.300 |
-| Módulo ambiental Bosch BME280 I2C | 1 | $2.941 | $2.941 |
-| PCB combinada USB-C carga + boost | 1 | $900 | $900 |
-| LiPo 2000 mAh protegida | 1 | $4.500 | $4.500 |
-| SP3485 transceptor RS485 3.3 V | 1 | $900 | $900 |
-| Conector JST batería 3 pines con contraparte/cable | 1 | $450 | $450 |
-| Pulsador | 1 | $250 | $250 |
-| LED SMD | 3 | $40 | $120 |
-| Pasivos, protección y terminación RS485 | 1 | $1.200 | $1.200 |
-| PCB portadora y montaje externo SMD | 1 | $2.500 | $2.500 |
-| Carcasa impresa en 3D PETG (servicio externo) | 1 | $6.000 | $6.000 |
-| Prensaestopas, fijaciones, juntas y respiradero BME280 | 1 | $1.500 | $1.500 |
-| Cableado y conectores internos adicionales | 1 | $700 | $700 |
-| Embalaje, manual y etiqueta | 1 | $2.000 | $2.000 |
-| Flete de insumos y contingencia importación | 1 | $2.500 | $2.500 |
-| **Total BOM** | | | **$76.761** |
+| Sonda de suelo 7-en-1 RS-485 Modbus RTU | 1 | $48.000 | $48.000 |
+| Carcasa PETG impresa en taller propio | 1 | $6.900 | $6.900 |
+| ESP32 DevKit WROOM-32D | 1 | $4.800 | $4.800 |
+| Bateria LiPo 3,7 V 2.000 mAh con proteccion | 1 | $4.400 | $4.400 |
+| PCB portadora 2 capas, fabricacion y envio | 1 | $2.000 | $2.000 |
+| Modulo ambiental BME280 (I2C) | 1 | $1.050 | $1.050 |
+| Modulo de carga y elevacion LX-LCBST (Modulos:Modulo_LX-LCBST) | 1 | $900 | $900 |
+| Modulo transceptor SP3485 RS-485 3,3 V | 1 | $900 | $900 |
+| Terminal block 2 pines, paso 5 mm | 2 | $95 | $190 |
+| Terminal block 4 pines, paso 5 mm (TerminalBlock_MetzConnect Type055) | 1 | $190 | $190 |
+| Condensador electrolitico 100 uF 35 V (CP_Elec 6,3x7,7) | 2 | $29 | $58 |
+| Condensador ceramico 100 nF 50 V (1206) | 4 | $4 | $16 |
+| Resistencia 100 kOhm (1206) | 2 | $2 | $4 |
+| Resistencia 330 Ohm (1206) | 3 | $2 | $6 |
+| Resistencia 10 kOhm (1206) | 1 | $2 | $2 |
+| LED 0603 azul, rojo y verde | 3 | $8 | $24 |
+| Pulsador SMD 4 mm (XKB TS-1187A) | 1 | $19 | $19 |
+| Fusible 0603 | 1 | $19 | $19 |
+| Diodo 1N4007 / M7 (SMA DO-214AC) | 1 | $4 | $4 |
+| Flete de discretos LCSC, prorrateado por equipo | 1 | $150 | $150 |
+| **Total BOM neto** | | | **$69.632** |
 
-El **BME280 cuesta $3.500 con IVA** por equipo. La **carcasa impresa en 3D** se incluye como servicio externo a $6.000 netos, con material, impresión, energía y acabado. Las fijaciones, juntas y ventilación protegida del sensor se contabilizan aparte a $1.500 netos.
+La BOM contiene **exclusivamente los componentes presentes en el esquemático**. Los módulos y la batería se cotizaron en AliExpress con envío Choice a Chile; los discretos en LCSC. La sonda de suelo concentra el 68,9 % del costo de materiales y es la decisión de abastecimiento crítica del proyecto.
 
-Merma (3 %), reposiciones (5 %), envío y comisión suman **$29.640 por equipo**. El costo variable total es **$106.402** y el margen de contribución es **$187.708 (63.8% de la venta neta)**. El ensamblaje final se paga en la nómina. La API de pronóstico tiene costo directo de **$0**; los servicios digitales restantes conservan su presupuesto.
+> Quedan **fuera de la BOM** por no estar todavía en el esquemático ni en el diseño mecánico cerrado: prensaestopas M12, o-ring y respiradero del BME280, cableado interno, y embalaje con manual y etiqueta. Su orden de magnitud conjunto es de $4.000 a $5.000 por equipo.
 
-### Inversión y financiamiento
+Sumando merma (3 %), provisión de reposiciones y garantía (5 %) y envío, el costo variable por equipo antes de comisión es **$81.203**. La carcasa se imprime en taller propio: las dos impresoras 3D están en el activo fijo y el filamento, la merma, la energía y la mantención se cargan al costo unitario.
+
+### Inversión inicial y financiamiento
 
 | Concepto | CLP |
 |---|---:|
-| Activos, desarrollo y formalización | $10.353.000 |
-| Inventario inicial, IVA incluido | $911.748 |
-| **Desembolso inicial** | **$11.264.748** |
-| Pie propio de socios ($4.500.000 cada uno) | $9.000.000 |
-| Crédito bancario a 10 años, 12 % efectivo anual | $30.000.000 |
-| Gastos de apertura | $600.000 |
-| Caja inicial, reserva incluida | $27.135.252 |
-| Cuota mensual | $419.842 |
+| Equipamiento y activo fijo | $9.000.000 |
+| Activo nominal (puesta en marcha) | $5.200.000 |
+| Capital de trabajo (3,0 meses de estructura) | $12.819.160 |
+| Inventario inicial | $2.706.752 |
+| **Inversión inicial total** | **$29.725.912** |
+| Crédito bancario a 10 años, 12 % efectivo anual | $29.725.912 |
+| Pie propio exigido (30 % del crédito) | $8.917.774 |
+| Aporte por socio | $4.458.887 |
+| Cuota mensual (sistema francés) | $416.006 |
 
-Los $9 millones propios son el **pie** de los socios, $4.500.000 cada uno (50 % y 50 %), equivalentes al **30 % del crédito**: es el capital propio que el banco exige antes de desembolsar el suyo. No se descuenta del principal ni se devuelve al banco. El crédito de $30.000.000 cubre el saldo del desembolso y la caja de arranque; se toma a 10 años y 12 % efectivo anual, con cuota fija de $419.842 e intereses totales de $20.380.983. La reserva objetivo es de tres meses de gastos fijos y cuotas más 10 % del desembolso inicial; con este principal queda $1.248.625 corta en su punto más bajo (mes 17), sin que la caja baje de $15.217.179 en los primeros 24 meses.
+**El pie no es una fuente adicional de fondos.** Los socios lo entregan al banco como condición de entrada y es el crédito el que financia el 100 % de la inversión inicial; sumar pie más crédito cuenta dos veces el mismo dinero. El capital de trabajo no se fijó por regla sino iterando hasta que la caja nunca baje de un piso de seguridad, con un mínimo de política de 3 meses de estructura.
 
 ### Flujo de caja anual
 
-| Año | Equipos vendidos | EBITDA | Servicio deuda | Caja final | DSCR | Equilibrio operativo / con deuda |
-|---|---:|---:|---:|---:|---:|---:|
-| 2027 | 200 | $5.381.535 | $5.038.098 | $26.711.077 | 0.92 | 172 / 199 |
-| 2028 | 350 | $20.734.413 | $5.038.098 | $40.377.446 | 3.71 | 243 / 269 |
-| 2029 | 500 | $34.209.899 | $5.038.098 | $61.047.265 | 5.10 | 329 / 354 |
-| 2030 | 650 | $39.115.675 | $5.038.098 | $83.906.772 | 5.54 | 460 / 484 |
-| 2031 | 850 | $54.477.140 | $5.038.098 | $120.205.037 | 8.20 | 593 / 617 |
-| 2032 | 892 | $55.675.031 | $5.038.098 | $157.618.328 | 8.43 | 637 / 660 |
-| 2033 | 937 | $65.004.734 | $5.038.098 | $199.921.914 | 9.40 | 648 / 670 |
-| 2034 | 984 | $67.781.034 | $5.038.098 | $245.488.913 | 10.04 | 691 / 713 |
-| 2035 | 1033 | $79.076.985 | $5.038.098 | $299.129.915 | 11.65 | 701 / 722 |
-| 2036 | 1085 | $91.844.429 | $5.038.098 | $361.983.396 | 13.48 | 711 / 731 |
+| Año | Equipos | Ventas netas | Utilidad del ejercicio | Flujo de fondos | Caja acumulada |
+|---|---:|---:|---:|---:|---:|
+| 2027 | 200 | $75.518.744 | $-2.629.936 | $-1.483.842 | $11.335.318 |
+| 2028 | 350 | $136.122.536 | $-2.231.993 | $-1.289.168 | $10.046.151 |
+| 2029 | 500 | $200.294.589 | $12.285.748 | $13.000.912 | $23.047.062 |
+| 2030 | 650 | $268.194.455 | $28.265.507 | $28.725.690 | $51.772.752 |
+| 2031 | 850 | $361.237.300 | $66.479.770 | $66.654.376 | $118.427.128 |
+| 2032 | 892 | $390.459.273 | $66.811.342 | $65.912.794 | $184.339.922 |
+| 2033 | 937 | $422.462.050 | $78.624.599 | $77.430.423 | $261.770.345 |
+| 2034 | 984 | $456.962.366 | $91.896.208 | $90.365.294 | $352.135.639 |
+| 2035 | 1033 | $494.109.134 | $94.407.712 | $92.493.848 | $444.629.487 |
+| 2036 | 1085 | $534.551.465 | $110.047.734 | $107.698.991 | $552.328.478 |
 
-La nómina incluye socios, producción y soporte. La contabilidad externa se incorpora desde el primer mes; la contratación aumenta con las horas de trabajo y la base de equipos activos. El DSCR compara la caja disponible para deuda con capital e intereses.
+Los ejercicios 2027 y 2028 cierran con pérdida: con 200 y 350 equipos la estructura mínima para operar formalmente todavía no se cubre. Esa pérdida está financiada por el capital de trabajo y la caja nunca baja de $10.046.151.
 
 ### VAN, TIR y payback
 
-| Escenario | Inversión económica mes 0 | VAN al 20 % | TIR efectiva anual | Payback simple | Payback descontado al 20 % |
-|---|---:|---:|---:|---:|---:|
-| Base | $20.431.223 | $75.510.458 | 54,42 % | 34,25 meses (2,85 años) | 35,61 meses (2,97 años) |
-| Estrés | $20.420.723 | −$42.507.593 | -0,02 % | No recupera en 120 meses | No recupera en 120 meses |
-| Crecimiento | $23.545.396 | $184.538.801 | 92,45 % | 22,29 meses (1,86 años) | 22,92 meses (1,91 años) |
+| Indicador | Valor | Criterio | Veredicto |
+|---|---:|---|---|
+| VAN al 20 % | $116.325.391 | VAN > 0 | Cumple |
+| TIR efectiva anual | 54,03 % | TIR > 20 % | Cumple |
+| Payback simple | 3,68 años | ≤ 5 años | Cumple |
+| Payback descontado | 4,39 años | ≤ 5 años | Cumple |
+| Deuda al cierre de 2036 | $0 | Crédito saldado | Cumple |
 
-Los tres indicadores se calculan sobre el flujo del proyecto: inversión inicial, operación, impuestos, inventario, reinversión y variaciones de caja mínima operativa. La TIR se expresa como tasa efectiva anual y el payback interpola el mes de recuperación. El horizonte de evaluación es de 120 meses, sin valor terminal.
+**Punto de quiebre del precio: cerca de $400.000.** Al precio de $349.990 que proponían versiones anteriores de este estudio, el proyecto arroja VAN negativo y caja que nunca se recupera. Ese resultado es la justificación numérica de derivar el precio del costo en lugar de fijarlo por aspiración comercial.
 
-La inversión económica incluye el desembolso inicial y la caja mínima operativa. El préstamo y sus cuotas se analizan en el flujo de financiamiento; los sueldos forman parte del costo de operación.
-
-[Flujo de caja Excel](Flujo%20de%20caja%20y%20financiamiento%20-%20TerraSense.xlsx) · [BOM Excel](PCB/BOM_TerraSense.xlsx) · [Resultados completos](docs/RESULTADOS_FINANCIEROS.md) · [Metodología y supuestos](docs/MODELO_ECONOMICO.md)
-
-La comparación a cinco años y los hitos de liquidez y deuda están en los resultados completos y en el Excel.
+[Informe 1 corregido](Evaluacion/Evaluacion%201/INFORME%201%20CORREGIDO.md) · [Sección económica](docs/SECCION_ECONOMICA_REFORMULADA.md) · [Metodología](docs/MODELO_ECONOMICO.md)
 
 Actualizar cifras: `python finanzas/modelo.py`.
 
 <!-- FINANZAS:FIN -->
 
-Para un desglose completo, revisa el [Modelo Económico](docs/MODELO_ECONOMICO.md), el [Informe 1](docs/INFORME%201%20.docx.md#analisis-economico), la [Planilla de Flujo de Caja](Flujo%20de%20caja%20y%20financiamiento%20-%20TerraSense.xlsx), y la [BOM de Componentes](PCB/BOM_TerraSense.xlsx).
+Para el desarrollo completo, revisa el [Informe 1 corregido](docs/INFORME_1_CORREGIDO.md) y la [sección económica generada](docs/SECCION_ECONOMICA_REFORMULADA.md).
 
 ---
 

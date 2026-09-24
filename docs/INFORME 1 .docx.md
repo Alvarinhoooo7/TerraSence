@@ -8,11 +8,11 @@ Cada bloque de este informe tiene un origen verificable en el repositorio. La ta
 
 | Contenido del informe | Fuente de verdad en el repositorio | Cómo se mantiene al día |
 | --- | --- | --- |
-| Todas las tablas y cifras económicas | `finanzas/supuestos.json` (parámetros) y `finanzas/modelo.py` (modelo mensual) | `python finanzas/modelo.py`: reescribe los bloques marcados `<!-- INFORME:*:INICIO/FIN -->` de este archivo, el bloque `<!-- FINANZAS:* -->` del README, `docs/RESULTADOS_FINANCIEROS.md`, el Excel de la raíz y `PCB/BOM_TerraSense.xlsx`. **No editar esas tablas a mano** |
+| Todas las tablas y cifras económicas | `finanzas/supuestos.json` (parámetros) y `finanzas/modelo.py` (modelo anual) | `python finanzas/modelo.py`: reescribe los bloques marcados `<!-- INFORME:*:INICIO/FIN -->` de este archivo, el bloque `<!-- FINANZAS:* -->` del README, `docs/RESULTADOS_FINANCIEROS.md`, el Excel de la raíz y `PCB/BOM_TerraSense.xlsx`. **No editar esas tablas a mano** |
 | Redacción de los bloques generados | `finanzas/informe.py` (este documento) y `finanzas/documentacion.py` (README) | Editar el generador, no el resultado |
 | Verificación del modelo financiero | `finanzas/test_modelo.py` | `python -m unittest discover -s finanzas -p "test_*.py"` |
 | Estructura de costos (BOM) | Lista `bom` dentro de `finanzas/supuestos.json` | Cambiar el precio ahí y regenerar; el BOM en Excel sale de la misma lista |
-| Financiamiento: pie, crédito, tasa y plazo | Claves `aporte_socios`, `credito_principal`, `tasa_credito_efectiva_anual` y `plazo_base` de `finanzas/supuestos.json` | El principal es un monto fijo de decisión, no lo dimensiona el modelo |
+| Financiamiento: pie, crédito, tasa y plazo | Claves `pie_sobre_credito`, `tasa_credito_efectiva_anual` y `plazo_credito_anios` de `finanzas/supuestos.json` | El crédito financia el 100 % de la inversión inicial, que el modelo sí dimensiona; el pie es el 30 % de ese crédito y se entrega al banco como condición de entrada |
 | Metodología, límites y supuestos económicos | `docs/MODELO_ECONOMICO.md` | Documento redactado a mano; actualizar al cambiar criterios |
 | Contrato de datos BLE | `App/src/services/probeService.ts` (decodificador real) y `docs/CONTRATO_BLE.md` | El decodificador manda: si cambia, se actualizan el contrato y `PCB/README.md` |
 | Transporte BLE y notificaciones | `App/src/services/bleService.ts` | — |
@@ -122,29 +122,29 @@ AÑO 2026
 
 [Tabla 2.0 “Dimensionamiento del Mercado”	35](#tabla-20-dimensionamiento-del-mercado)
 
-[Tabla 2.1 “Plan de Ventas y Recursos Comerciales”	36](#tabla-21-plan-de-ventas-y-recursos-comerciales)
+[Tabla 2.1 “Plan de Ventas y Dotación”	36](#tabla-21-plan-de-ventas-y-dotación)
 
-[Tabla 2.2 “Estructura de Costos y Producción (BOM)”	38](#tabla-22-estructura-de-costos-y-producción-bom)
+[Tabla 2.2 “Estructura de Costos de Fabricación (BOM)”	38](#tabla-22-estructura-de-costos-de-fabricación-bom)
 
-[Tabla 2.3 “Economía Unitaria del Año 1”	39](#tabla-23-economía-unitaria-del-año-1)
+[Tabla 2.3 “Costo Variable por Equipo”	39](#tabla-23-costo-variable-por-equipo)
 
-[Tabla 2.4 “Estructura de Gastos Fijos”	42](#tabla-24-estructura-de-gastos-fijos)
+[Tabla 2.4 “Estructura de Gastos de Operación, Administración y Comercialización”	42](#tabla-24-estructura-de-gastos-de-operación-administración-y-comercialización)
 
-[Tabla 2.5 “Punto de Equilibrio Operativo y con Deuda”	42](#tabla-25-punto-de-equilibrio-operativo-y-con-deuda)
+[Tabla 2.7 “Estado de Resultados y Flujo de Fondos Proyectado”	42](#tabla-27-estado-de-resultados-y-flujo-de-fondos-proyectado)
 
-[Tabla 2.6 “Financiamiento del Proyecto: Origen y Destino de Fondos”	44](#tabla-26-financiamiento-del-proyecto-origen-y-destino-de-fondos)
+[Tabla 2.5 “Inversión Inicial”	44](#tabla-25-inversión-inicial)
 
-[Tabla 2.7 “Alternativas de Plazo del Crédito”	45](#tabla-27-alternativas-de-plazo-del-crédito)
+[Tabla 2.6 “Amortización del Crédito”	45](#tabla-26-amortización-del-crédito)
 
-[Tabla 2.8 “Proyección Anual de Resultados y Caja”	48](#tabla-28-proyección-anual-de-resultados-y-caja)
+[Tabla 2.7 “Estado de Resultados y Flujo de Fondos Proyectado”	48](#tabla-27-estado-de-resultados-y-flujo-de-fondos-proyectado)
 
-[Tabla 2.9 “Flujo Económico para la Evaluación”	48](#tabla-29-flujo-económico-para-la-evaluación)
+[Tabla 2.7 “Estado de Resultados y Flujo de Fondos Proyectado”	48](#tabla-27-estado-de-resultados-y-flujo-de-fondos-proyectado)
 
-[Tabla 3.0 “Indicadores de Evaluación por Escenario”	49](#tabla-30-indicadores-de-evaluación-por-escenario)
+[Tabla 2.8 “Evaluación Económica”	49](#tabla-28-evaluación-económica)
 
-[Tabla 3.1 “Análisis de Sensibilidad”	50](#tabla-31-análisis-de-sensibilidad)
+[Tabla 2.9 “Análisis de Sensibilidad y Punto de Quiebre”	50](#tabla-29-análisis-de-sensibilidad-y-punto-de-quiebre)
 
-[Tabla 3.2 “Análisis del VAN”	52](#tabla-32-análisis-del-van)
+[Tabla 3.0 “Análisis del VAN”	52](#tabla-30-análisis-del-van)
 
 [Tabla 3.3 “Evaluación Financiera”	53](#tabla-33-evaluación-financiera)
 
@@ -680,7 +680,7 @@ El siguiente análisis detalla el dimensionamiento del mercado, la estructura de
 
 El estudio vincula explícitamente las decisiones técnicas con la operación de una empresa. Cada instrumento necesita sonda, sensor ambiental, electrónica, carcasa, montaje, pruebas, embalaje y entrega; a ello se agregan adquisición de clientes, personal, contabilidad, soporte y servicios digitales. Un margen calculado solo como precio menos sonda no permitiría financiar estas actividades ni explicar la caja necesaria para iniciar la operación.
 
-Las convenciones del modelo son las siguientes: la moneda es CLP nominal, el primer año operativo es **2027**, se aplica un reajuste general del **3 % anual**, el precio inicial es de **$349.990 con IVA** y el horizonte económico de evaluación es de **diez años** con flujos calculados mes a mes. La fuente editable de costos y operación reside en un archivo de supuestos único (`finanzas/supuestos.json`), desde el cual se regeneran todas las tablas de este capítulo, el flujo de caja en Excel y la BOM. Esto significa que un cambio en el precio del sensor ambiental, en la carcasa o en el precio de venta se propaga automáticamente a inventario, caja e indicadores, sin posibilidad de que dos secciones del informe se contradigan entre sí.
+Las convenciones del modelo son las siguientes: la moneda es CLP nominal, el primer año operativo es **2027**, se aplica un reajuste general del **3 % anual**, el precio inicial es de **$449.337 con IVA** y el horizonte económico de evaluación es de **diez años** con flujos calculados mes a mes. La fuente editable de costos y operación reside en un archivo de supuestos único (`finanzas/supuestos.json`), desde el cual se regeneran todas las tablas de este capítulo, el flujo de caja en Excel y la BOM. Esto significa que un cambio en el precio del sensor ambiental, en la carcasa o en el precio de venta se propaga automáticamente a inventario, caja e indicadores, sin posibilidad de que dos secciones del informe se contradigan entre sí.
 
 **Las Tres Economías del Análisis:**
 
@@ -688,8 +688,8 @@ Antes de la primera cifra conviene fijar una separación que este informe mantie
 
 | Economía | Qué mide | Con qué se evalúa | Dónde se desarrolla |
 | :---- | :---- | :---- | :---- |
-| Economía del proyecto | La inversión de desarrollo y puesta en marcha frente a los flujos que genera la actividad, antes de decidir cómo se financia | VAN, TIR y payback sobre el FCFF de 120 meses | Metodología de VAN, TIR y payback, y Tabla 3.0 |
-| Economía del negocio | Cuánto cuesta fabricar cada equipo y operar la empresa, y qué margen deja cada venta | BOM, margen de contribución, punto de equilibrio, EBITDA y DSCR | Tablas 2.2 a 2.5 y 2.8 |
+| Economía del proyecto | La inversión de desarrollo y puesta en marcha frente a los flujos que genera la actividad, antes de decidir cómo se financia | VAN, TIR y payback sobre el flujo de fondos anual | Metodología de VAN, TIR y payback, y Tabla 3.0 |
+| Economía del negocio | Cuánto cuesta fabricar cada equipo y operar la empresa, y qué margen deja cada venta | BOM, costo variable, estructura de costos y estado de resultados | Tablas 2.2 a 2.5 y 2.8 |
 | Economía del cliente | Cuánto gasta el agricultor para resolver el mismo problema con TerraSense o sin él | TCO comparado a 1, 3, 5 y 10 años | Tabla 5.1 |
 
 ###### **Tabla 5.1 “Separación de las Tres Economías del Análisis”**
@@ -702,7 +702,7 @@ La comparación depende críticamente de una variable que no puede darse por sup
 
 | Alternativa | Intensidad | Año 1 | Acumulado a 3 años | Acumulado a 5 años | Acumulado a 10 años |
 | :---- | :---: | ---: | ---: | ---: | ---: |
-| **TerraSense** (equipo, kit de batería en años 3 y 8, segundo equipo en año 6, a precio de lista) | Mediciones ilimitadas | $349.990 | $374.980 | $374.980 | $749.960 |
+| **TerraSense** (equipo, kit de batería en años 3 y 8, segundo equipo en año 6, a precio de lista) | Mediciones ilimitadas | $449.337 | $374.980 | $374.980 | $749.960 |
 | Análisis de laboratorio (S1) | 4 muestras/año | $200.000 | $600.000 | $1.000.000 | $2.000.000 |
 | Análisis de laboratorio (S1) | 20 muestras/año | $1.000.000 | $3.000.000 | $5.000.000 | $10.000.000 |
 | Asesoría agronómica externa (S2) | 2 visitas/año | $120.000 | $360.000 | $600.000 | $1.200.000 |
@@ -710,11 +710,11 @@ La comparación depende críticamente de una variable que no puede darse por sup
 
 ###### **Tabla 5.2 “Costo Total de Propiedad del Agricultor a 1, 3, 5 y 10 Años”**
 
-> **Nota de mantenimiento:** esta tabla **no** la genera `finanzas/modelo.py` y por eso no está dentro de marcadores `<!-- INFORME:*:INICIO/FIN -->`. El precio de $349.990 y el precio del kit de batería de $24.990 sí provienen de `finanzas/supuestos.json` y de la política de repuestos descrita en [`docs/MODELO_ECONOMICO.md`](MODELO_ECONOMICO.md); si cambian allí, esta tabla se actualiza a mano. Los valores S1 y S2 son supuestos declarados y no parámetros del modelo.
+> **Nota de mantenimiento:** esta tabla **no** la genera `finanzas/modelo.py` y por eso no está dentro de marcadores `<!-- INFORME:*:INICIO/FIN -->`. El precio de $449.337 y el precio del kit de batería de $24.990 sí provienen de `finanzas/supuestos.json` y de la política de repuestos descrita en [`docs/MODELO_ECONOMICO.md`](MODELO_ECONOMICO.md); si cambian allí, esta tabla se actualiza a mano. Los valores S1 y S2 son supuestos declarados y no parámetros del modelo.
 
 Todas las partidas de la fila de TerraSense son desembolsos del agricultor a precio de lista: el proyecto no bonifica repuestos ni entrega equipos de reposición, y ninguna constituye un costo absorbido por la empresa. La vida útil del instrumento se fija en cinco años, de modo que el corte a diez incorpora la compra íntegra de un segundo equipo en el año 6, sin descuento de renovación: esa segunda compra es una venta más y no una concesión.
 
-**Lectura del resultado.** Bajo la intensidad habitual el instrumento **no se paga el primer año**: $349.990 contra $200.000 de laboratorio o $120.000 de asesoría. El cruce ocurre durante el segundo año frente al laboratorio y durante el tercero frente a la asesoría, y a diez años la ventaja es de 2,7 y 1,6 veces respectivamente. Bajo uso intensivo llega a más de trece y casi diez veces. Declarar el caso base en la intensidad menor es deliberado: es el que resiste la pregunta directa y el que muestra dónde está realmente el argumento, que **no es el ahorro nominal sino el costo marginal cero de la medición repetida**. A cien mediciones anuales, cada lectura cuesta $750 frente a los $50.000 de una muestra de laboratorio, relación que no depende de ningún supuesto de frecuencia porque el instrumento se paga una vez y cada lectura adicional no cuesta nada.
+**Lectura del resultado.** Bajo la intensidad habitual el instrumento **no se paga el primer año**: $449.337 contra $200.000 de laboratorio o $120.000 de asesoría. El cruce ocurre durante el segundo año frente al laboratorio y durante el tercero frente a la asesoría, y a diez años la ventaja es de 2,7 y 1,6 veces respectivamente. Bajo uso intensivo llega a más de trece y casi diez veces. Declarar el caso base en la intensidad menor es deliberado: es el que resiste la pregunta directa y el que muestra dónde está realmente el argumento, que **no es el ahorro nominal sino el costo marginal cero de la medición repetida**. A cien mediciones anuales, cada lectura cuesta $750 frente a los $50.000 de una muestra de laboratorio, relación que no depende de ningún supuesto de frecuencia porque el instrumento se paga una vez y cada lectura adicional no cuesta nada.
 
 **Supuestos de Mercado Declarados:**
 
@@ -750,29 +750,29 @@ Toda esta evaluación económica se ha construido sobre un escenario base conser
 Cada salto de volumen responde a una causa presupuestada y a una inversión asociada. El crecimiento no es una extrapolación matemática, sino la consecuencia de acciones comerciales financiadas dentro del flujo, con la pauta publicitaria calculada a razón de **$30.000 por venta objetivo**:
 
 * **Año 1 (200 unidades):** Sin agencia. Los socios gestionan directamente anuncios y demostraciones para documentar los primeros casos de éxito.
-* **Año 2 (350 unidades):** Se incorpora capacidad técnica (0,5 FTE) y se activa el canal de asesores agronómicos.
+* **Año 2 (350 unidades):** Se incorpora el primer ensamblador y se activa el canal de asesores agronómicos.
 * **Año 3 (500 unidades):** Se suma soporte dedicado y se consolida la base instalada.
 * **Año 4 (650 unidades):** Se incorpora gestión de agencia y la primera postulación a compras institucionales.
 * **Año 5 (850 unidades):** Cobertura multirregional apalancada por la base instalada y las recomendaciones.
 
 <!-- INFORME:VENTAS:INICIO -->
 
-| Año | Equipos | Pauta anual | Técnicos FTE | Soporte FTE | Agencia anual |
+| Año | Equipos | Personas | Sueldo socio | Oficina | Publicidad digital |
 |---|---|---|---|---|---|
-| 2027 | 200 | $6.000.000 | 0,0 | 0,0 | $0 |
-| 2028 | 350 | $10.815.000 | 0,5 | 0,0 | $0 |
-| 2029 | 500 | $15.913.500 | 0,5 | 0,5 | $0 |
-| 2030 | 650 | $21.308.176 | 1,0 | 1,0 | $3.278.181 |
-| 2031 | 850 | $28.700.475 | 1,5 | 1,5 | $3.376.526 |
-| 2032 | 892 | $31.022.174 | 1,5 | 2,0 | $3.477.822 |
-| 2033 | 937 | $33.564.810 | 1,5 | 2,0 | $3.582.157 |
-| 2034 | 984 | $36.305.877 | 1,5 | 2,5 | $3.689.622 |
-| 2035 | 1033 | $39.257.205 | 1,5 | 2,5 | $3.800.310 |
-| 2036 | 1085 | $42.470.367 | 1,5 | 2,5 | $3.914.320 |
+| 2027 | 200 | 3 | $600.000 | no | $6.000.000 |
+| 2028 | 350 | 4 | $700.000 | sí | $10.815.000 |
+| 2029 | 500 | 5 | $850.000 | sí | $15.913.500 |
+| 2030 | 650 | 6 | $1.000.000 | sí | $21.308.176 |
+| 2031 | 850 | 6 | $1.200.000 | sí | $28.700.475 |
+| 2032 | 892 | 7 | $1.236.000 | sí | $31.022.174 |
+| 2033 | 937 | 7 | $1.273.080 | sí | $33.564.810 |
+| 2034 | 984 | 7 | $1.311.272 | sí | $36.305.877 |
+| 2035 | 1033 | 8 | $1.350.611 | sí | $39.257.205 |
+| 2036 | 1085 | 8 | $1.391.129 | sí | $42.470.367 |
 
-###### **Tabla 2.1 “Plan de Ventas y Recursos Comerciales”**
+###### **Tabla 2.1 “Plan de Ventas y Dotación”**
 
-El plan suma **7.481 equipos en diez años**. A precio inicial constante, representa $2.618.275.190 brutos; el flujo nominal incorpora reajustes anuales. El Mercado Objetivo es una meta de ventas, no una cifra censal de compradores. La pauta del primer año es $6.000.000 y la agencia aparece desde 650 ventas anuales.
+La dotación crece de forma escalonada: el primer año operan los dos socios y un contador, sin oficina. La oficina entra el segundo año y la encargada de marketing el tercero. El plan suma **7481 equipos** en los diez años.
 
 <!-- INFORME:VENTAS:FIN -->
 
@@ -786,44 +786,43 @@ El costo de capital de cada unidad se optimiza para mantener el equilibrio entre
 
 <!-- INFORME:BOM:INICIO -->
 
-| Material o servicio por equipo | Cantidad | Neto unitario CLP | Subtotal CLP |
-|---|---|---|---|
-| Sonda RS485 7-en-1 (AliExpress 1005005548177699; variante pendiente) | 1 | $48.000 | $48.000 |
-| Módulo ESP32-WROOM-32 desnudo | 1 | $2.300 | $2.300 |
-| Módulo ambiental Bosch BME280 I2C | 1 | $2.941 | $2.941 |
-| PCB combinada USB-C carga + boost | 1 | $900 | $900 |
-| LiPo 2000 mAh protegida | 1 | $4.500 | $4.500 |
-| SP3485 transceptor RS485 3.3 V | 1 | $900 | $900 |
-| Conector JST batería 3 pines con contraparte/cable | 1 | $450 | $450 |
-| Pulsador | 1 | $250 | $250 |
-| LED SMD | 3 | $40 | $120 |
-| Pasivos, protección y terminación RS485 | 1 | $1.200 | $1.200 |
-| PCB portadora y montaje externo SMD | 1 | $2.500 | $2.500 |
-| Carcasa impresa en 3D PETG (servicio externo) | 1 | $6.000 | $6.000 |
-| Prensaestopas, fijaciones, juntas y respiradero BME280 | 1 | $1.500 | $1.500 |
-| Cableado y conectores internos adicionales | 1 | $700 | $700 |
-| Embalaje, manual y etiqueta | 1 | $2.000 | $2.000 |
-| Flete de insumos y contingencia importación | 1 | $2.500 | $2.500 |
-| **Total BOM** |  |  | **$76.761** |
+| Material o servicio por equipo | Cant. | Neto unitario | Subtotal | Origen del precio |
+|---|---|---|---|---|
+| Sonda de suelo 7-en-1 RS-485 Modbus RTU | 1 | $48.000 | $48.000 | AliExpress; presupuesto conservador, el mercado va de $12.100 a $82.100 |
+| Carcasa PETG impresa en taller propio | 1 | $6.900 | $6.900 | costeo propio, ver cuadro siguiente |
+| ESP32 DevKit WROOM-32D | 1 | $4.800 | $4.800 | AliExpress Choice $3.506-$6.600; en Chile $8.148 c/IVA |
+| Bateria LiPo 3,7 V 2.000 mAh con proteccion | 1 | $4.400 | $4.400 | AliExpress: $4.784 unitaria, $4.350/u en pack de 10 |
+| PCB portadora 2 capas, fabricacion y envio | 1 | $2.000 | $2.000 | JLCPCB, estimacion propia a volumen de 200 u |
+| Modulo ambiental BME280 (I2C) | 1 | $1.050 | $1.050 | AliExpress Choice $990-$1.064 |
+| Modulo de carga y elevacion LX-LCBST (Modulos:Modulo_LX-LCBST) | 1 | $900 | $900 | AliExpress: equivalentes de carga+boost $703-$900 |
+| Modulo transceptor SP3485 RS-485 3,3 V | 1 | $900 | $900 | AliExpress: modulo $1.555; IC suelto $285/u en pack de 10 |
+| Terminal block 2 pines, paso 5 mm | 2 | $95 | $190 | LCSC, carrito pendiente |
+| Terminal block 4 pines, paso 5 mm (TerminalBlock_MetzConnect Type055) | 1 | $190 | $190 | LCSC, carrito pendiente |
+| Condensador electrolitico 100 uF 35 V (CP_Elec 6,3x7,7) | 2 | $29 | $58 | LCSC, carrito pendiente |
+| Condensador ceramico 100 nF 50 V (1206) | 4 | $4 | $16 | LCSC, carrito pendiente |
+| Resistencia 100 kOhm (1206) | 2 | $2 | $4 | LCSC, carrito pendiente |
+| Resistencia 330 Ohm (1206) | 3 | $2 | $6 | LCSC, carrito pendiente |
+| Resistencia 10 kOhm (1206) | 1 | $2 | $2 | LCSC, carrito pendiente |
+| LED 0603 azul, rojo y verde | 3 | $8 | $24 | LCSC, carrito pendiente |
+| Pulsador SMD 4 mm (XKB TS-1187A) | 1 | $19 | $19 | LCSC, carrito pendiente |
+| Fusible 0603 | 1 | $19 | $19 | LCSC, carrito pendiente |
+| Diodo 1N4007 / M7 (SMA DO-214AC) | 1 | $4 | $4 | LCSC C95872, verificado en US$0,0042 |
+| Flete de discretos LCSC, prorrateado por equipo | 1 | $150 | $150 | LCSC cobra envio; prorrateado a 200 u |
+| **Total BOM neto** |  |  | **$69.632** |  |
 
-###### **Tabla 2.2 “Estructura de Costos y Producción (BOM)”**
+###### **Tabla 2.2 “Estructura de Costos de Fabricación (BOM)”**
 
-| Economía unitaria, año 1 | CLP |
+La BOM contiene **exclusivamente** los componentes presentes en el esquemático. NO estan en la BOM porque todavia no figuran en el esquematico ni en el diseno mecanico cerrado: prensaestopas M12, o-ring y respiradero del BME280, cableado y conectores internos, y embalaje con manual y etiqueta. Se incorporaran cuando el diseno mecanico se cierre; su orden de magnitud conjunto es de $4.000 a $5.000 por equipo y elevaria la BOM en torno a un 6 %.
+
+| Concepto | Neto CLP |
 |---|---|
-| Precio con IVA | $349.990 |
-| Ingreso neto de IVA | $294.109 |
-| Materiales y servicios incluidos en BOM | $76.761 |
-| Merma, 3 % de BOM | $2.303 |
-| Reposiciones y garantía, 5 % de BOM | $3.838 |
-| Envío | $6.000 |
-| Comisión comercial, 5 % del bruto | $17.500 |
-| **Costo variable total** | **$106.402** |
-| **Margen de contribución** | **$187.708** |
-| Margen / ingreso neto | 63,8 % |
+| Materiales y servicios de la BOM | $69.632 |
+| Merma de fabricación, 3 % de la BOM | $2.089 |
+| Provisión de reposiciones y garantía, 5 % de la BOM | $3.482 |
+| Envío al cliente | $6.000 |
+| **Costo variable por equipo, sin comisión** | **$81.203** |
 
-###### **Tabla 2.3 “Economía Unitaria del Año 1”**
-
-La sonda concentra **62,5 %** de los materiales. El BME280 cuesta **$3.500 finales**, equivalentes a $2.941,18 netos bajo el supuesto de IVA del 19 %. La carcasa 3D cuesta $6.000 netos y sus fijaciones, juntas y respiradero suman $1.500. Los subtotales se calculan antes de redondear; la presentación en pesos enteros puede producir diferencias de un peso al sumar visualmente las filas.
+###### **Tabla 2.3 “Costo Variable por Equipo”**
 
 <!-- INFORME:BOM:FIN -->
 
@@ -838,15 +837,15 @@ La decisión de fabricar el gabinete mediante impresión 3D FDM, en lugar de iny
 
 **Estrategia de Precios y Posicionamiento Competitivo:**
 
-El precio de venta al público se ha fijado en **$349.990 CLP con IVA ($294.109 neto)**. Esta cifra no se calcula mediante un margen de adición estándar sobre el costo, sino que actúa como un techo estratégico declarado: es el máximo que el proyecto se permite cobrar para sostener su ventaja frente a la instrumentación importada, que parte en torno a US$294 por un medidor de tres o cuatro parámetros sin interpretación agronómica.
+El precio de venta al público se ha fijado en **$449.337 CLP con IVA ($377.594 neto)**. Esta cifra no se calcula mediante un margen de adición estándar sobre el costo, sino que actúa como un techo estratégico declarado: es el máximo que el proyecto se permite cobrar para sostener su ventaja frente a la instrumentación importada, que parte en torno a US$294 por un medidor de tres o cuatro parámetros sin interpretación agronómica.
 
 La consecuencia metodológica de este enfoque es fundamental: al estar el precio predefinido, la variable que el modelo debe resolver no es cuánto cobrar, sino cuántas unidades se deben vender para cubrir la estructura de costos completa. El precio se evalúa entonces por el margen que deja para sostener gastos fijos, soporte y capital de trabajo. El análisis de sensibilidad que se presenta más adelante demuestra por qué este techo no admite rebajas: a $299.990 el proyecto pasa a pérdida operacional en el primer año.
 
 **Capacidad Productiva, Gastos Fijos y Punto de Equilibrio:**
 
-La estructura de personal relaciona ventas con trabajo real, y no con una dotación fijada arbitrariamente. Se consideran 2,25 horas por equipo para ensamblaje y prueba final, 500 horas anuales combinadas aportadas por los socios a producción y 1.400 horas productivas anuales por cada equivalente de jornada completa contratado. Las funciones comercial y de soporte utilizan dos horas por venta más media hora anual por equipo activo, con 900 horas combinadas de los socios. La contratación aumenta en escalones de 0,5 FTE.
+La estructura de personal relaciona ventas con trabajo real, y no con una dotación fijada arbitrariamente. Se consideran 2,25 horas por equipo para ensamblaje y prueba final, 500 horas anuales combinadas aportadas por los socios a producción y 1.400 horas productivas anuales por cada equivalente de jornada completa contratado. Las funciones comercial y de soporte utilizan dos horas por venta más media hora anual por equipo activo, con 900 horas combinadas de los socios. La contratación aumenta en escalones de 0,5 personas.
 
-Conviene precisar que FTE representa capacidad equivalente y **no** medio contrato ni media persona; la forma de contratación y la distribución de tareas se resuelve al organizar la operación. Los tiempos incluyen una asignación de trabajo que debe comprobarse con el montaje completo, incluido el BME280: la lectura del sensor agrega poco material, pero el control de su ubicación, comunicación y respuesta térmica sí debe formar parte del procedimiento de calidad.
+La dotación se expresa en **personas contratadas**, no en equivalentes de jornada: el modelo cuenta cargos reales con su sueldo bruto y sus cotizaciones. Los tiempos incluyen una asignación de trabajo que debe comprobarse con el montaje completo, incluido el BME280: la lectura del sensor agrega poco material, pero el control de su ubicación, comunicación y respuesta térmica sí debe formar parte del procedimiento de calidad.
 
 Para garantizar el realismo de la evaluación, los gastos fijos asumen una formalización inmediata. Los socios perciben remuneración bruta presupuestada por su trabajo desde el mes 1, con escalones base de $600.000, $700.000, $850.000, $1.000.000 y $1.200.000 mensuales por persona, más reajuste; el 35 % adicional es una reserva de sobrecosto laboral y no una tasa legal única ni un sueldo líquido. Se incorpora contabilidad externa desde el primer mes, junto con taller, administración y seguros. Evaluar este proyecto asumiendo un "costo cero" para el trabajo de los socios sería un autoengaño; por ello se integran como gasto fijo real.
 
@@ -854,78 +853,61 @@ Para garantizar el realismo de la evaluación, los gastos fijos asumen una forma
 
 | Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Nómina y cargas | $19.440.000 | $28.783.350 | $41.247.792 | $60.187.403 | $82.049.592 | $91.553.670 | $94.300.280 | $104.600.772 | $107.738.795 | $110.970.959 |
-| Contabilidad | $1.440.000 | $1.606.800 | $1.782.312 | $2.098.036 | $2.431.099 | $2.643.145 | $2.722.439 | $2.951.697 | $3.040.248 | $3.131.456 |
-| Servicios digitales | $1.920.000 | $2.317.500 | $2.928.084 | $3.769.908 | $4.895.963 | $5.976.290 | $6.964.429 | $7.852.991 | $8.633.545 | $9.219.788 |
-| Gestión de agencia | $0 | $0 | $0 | $3.278.181 | $3.376.526 | $3.477.822 | $3.582.157 | $3.689.622 | $3.800.310 | $3.914.320 |
-| Taller, administración y seguros | $3.360.000 | $3.460.800 | $3.564.624 | $3.671.563 | $3.781.710 | $3.895.161 | $4.012.016 | $4.132.376 | $4.256.347 | $4.384.038 |
-| Pauta comercial | $6.000.000 | $10.815.000 | $15.913.500 | $21.308.176 | $28.700.475 | $31.022.174 | $33.564.810 | $36.305.877 | $39.257.205 | $42.470.367 |
-| **Total gastos fijos** | $32.160.000 | $46.983.450 | $65.436.312 | $94.313.267 | $125.235.365 | $138.568.262 | $145.146.131 | $159.533.334 | $166.726.451 | $174.090.928 |
+| Nómina y cargas | $32.606.640 | $47.079.721 | $68.745.793 | $86.764.684 | $94.902.837 | $110.985.034 | $114.761.092 | $118.203.924 | $135.424.622 | $139.487.361 |
+| Colación y movilización | $5.400.000 | $7.416.000 | $9.548.100 | $11.801.452 | $12.155.495 | $14.606.853 | $15.045.059 | $15.496.411 | $18.241.489 | $18.788.734 |
+| Arriendo de oficina | $0 | $18.540.000 | $19.096.200 | $19.669.086 | $20.259.159 | $20.866.933 | $21.492.941 | $22.137.730 | $22.801.861 | $23.485.917 |
+| Servicios básicos | $1.800.000 | $5.562.000 | $5.728.860 | $5.900.726 | $6.077.748 | $6.260.080 | $6.447.882 | $6.641.319 | $6.840.558 | $7.045.775 |
+| Softwares y planes cloud | $3.600.000 | $3.708.000 | $3.819.240 | $3.933.817 | $4.051.832 | $4.173.387 | $4.298.588 | $4.427.546 | $4.560.372 | $4.697.183 |
+| Publicidad digital | $6.000.000 | $10.815.000 | $15.913.500 | $21.308.176 | $28.700.475 | $31.022.174 | $33.564.810 | $36.305.877 | $39.257.205 | $42.470.367 |
+| Otros de estructura | $1.870.000 | $1.926.100 | $1.983.883 | $2.043.399 | $2.104.701 | $2.167.843 | $2.232.878 | $2.299.864 | $2.368.860 | $2.439.926 |
+| **Total gastos de estructura** | $51.276.640 | $95.046.821 | $124.835.576 | $151.421.341 | $168.252.246 | $190.082.304 | $197.843.250 | $205.512.670 | $229.494.969 | $238.415.264 |
 
-###### **Tabla 2.4 “Estructura de Gastos Fijos”**
+###### **Tabla 2.4 “Estructura de Gastos de Operación, Administración y Comercialización”**
 
-| Año | Equilibrio operativo | Equilibrio con deuda | Ventas planificadas |
-|---|---|---|---|
-| 2027 | 172 | 199 | 200 |
-| 2028 | 243 | 269 | 350 |
-| 2029 | 329 | 354 | 500 |
-| 2030 | 460 | 484 | 650 |
-| 2031 | 593 | 617 | 850 |
-| 2032 | 637 | 660 | 892 |
-| 2033 | 648 | 670 | 937 |
-| 2034 | 691 | 713 | 984 |
-| 2035 | 701 | 722 | 1033 |
-| 2036 | 711 | 731 | 1085 |
-
-###### **Tabla 2.5 “Punto de Equilibrio Operativo y con Deuda”**
-
-En el primer año, $32.160.000 de gastos fijos se cubren con 172 unidades al margen calculado. Al añadir capital e intereses, el umbral sube a 199. La meta de 200 unidades cubre la operación, pero queda por debajo del equilibrio con deuda. Esta diferencia explica el uso de liquidez inicial durante el arranque; no se confunde una venta con caja libre inmediatamente distribuible.
-
-Dos partidas del cuadro son contratos con terceros y no sueldos. La **contabilidad externa** ($120.000 mensuales el primer año) es un contrato de servicios con un estudio contable que cubre la contabilidad de la sociedad bajo el régimen Pro Pyme, el Formulario 29 mensual de IVA, los pagos provisionales, la declaración anual de renta, el procesamiento de remuneraciones y los estados financieros que exige el banco mientras el crédito esté vigente; su honorario sube $20.000 mensuales por trabajador adicional en nómina, porque esa es la parte del servicio que escala con la dotación. La **agencia de marketing** ($250.000 mensuales) es un retainer que se activa recién desde 650 ventas anuales y cubre la gestión de la pauta digital, el material de demostración y las redes; no debe confundirse con la pauta misma, que es el dinero pagado a las plataformas y se presupuesta aparte a $30.000 por equipo vendido.
+El costo laboral sobre el sueldo bruto no es un recargo fijo: sigue el calendario de la Ley N° 21.735, y pasa de **23,5 % en 2027 a 28,5 % en 2036**, más cesantía, mutualidad y las provisiones de vacaciones e indemnización.
 
 <!-- INFORME:FIJOS:FIN -->
 
 En el primer año, los $32.160.000 de gastos fijos se cubren con 176 unidades al margen calculado, de modo que la meta de 200 unidades deja un margen de seguridad del 12 % sobre el equilibrio operativo. Al añadir capital e intereses del crédito, sin embargo, el umbral sube a 204 unidades: **la meta del Año 1 cubre la operación pero queda cuatro unidades por debajo del equilibrio con deuda**. Esta diferencia no es un defecto oculto del modelo sino su hallazgo más útil, porque explica exactamente por qué el proyecto necesita liquidez inicial durante el arranque y por qué una venta no equivale a caja libre inmediatamente distribuible.
 
-El equilibrio operativo se calcula como gastos fijos divididos por el margen unitario, redondeado hacia arriba; el equilibrio con deuda añade capital e intereses al numerador. Este segundo umbral no incluye por sí solo el impuesto ni la acumulación de inventario, por lo que complementa —pero no sustituye— el análisis de flujo mensual y el indicador de cobertura de deuda (DSCR).
+El equilibrio operativo se calcula como gastos fijos divididos por el margen unitario, redondeado hacia arriba; el equilibrio con deuda añade capital e intereses al numerador. Este segundo umbral no incluye por sí solo el impuesto ni la acumulación de inventario, por lo que complementa —pero no sustituye— el flujo de fondos anual y la caja acumulada.
 
 **Inversión Inicial y Estructura de Financiamiento:**
 
-La puesta en marcha se estructura sobre fuentes de financiamiento por **$39.000.000 CLP**: un pie propio de los socios de **$9.000.000** ($4.500.000 cada uno, 50 % y 50 %) y un crédito bancario de **$30.000.000**. El pie equivale al **30 % del crédito** y es el capital propio que el banco exige antes de desembolsar el suyo; se registra una sola vez como aporte de los socios, no se descuenta del principal y no se devuelve al banco.
+La puesta en marcha se estructura sobre fuentes de financiamiento por **$29.725.912 CLP**: un pie propio de los socios de **$9.000.000** ($4.500.000 cada uno, 50 % y 50 %) y un crédito bancario de **$30.000.000**. El pie equivale al **30 % del crédito** y es el capital propio que el banco exige antes de desembolsar el suyo; se registra una sola vez como aporte de los socios, no se descuenta del principal y no se devuelve al banco.
 
 <!-- INFORME:INVERSION:INICIO -->
 
-| Origen de fondos | CLP | Participación sobre el total | Relación con el crédito |
-|---|---|---|---|
-| Pie propio de los socios ($4.500.000 cada socio, 50 % y 50 %) | $9.000.000 | 23,1 % | 30 % del crédito |
-| Crédito bancario | $30.000.000 | 76,9 % | 100 % del crédito |
-| **Total fuentes de financiamiento** | $39.000.000 | 100 % | — |
+| Destino | CLP | Participación |
+|---|---|---|
+| Equipamiento y activo fijo | $9.000.000 | 30,3 % |
+| Activo nominal (puesta en marcha) | $5.200.000 | 17,5 % |
+| Capital de trabajo (3,0 meses) | $12.819.160 | 43,1 % |
+| Inventario inicial | $2.706.752 | 9,1 % |
+| **Inversión inicial total** | **$29.725.912** | **100,0 %** |
 
-| Destino de fondos | CLP |
-|---|---|
-| Activos, desarrollo y formalización, con IVA presupuestado | $10.353.000 |
-| Inventario inicial, IVA incluido | $911.748 |
-| Gastos de apertura del crédito (2 % de $30.000.000) | $600.000 |
-| Caja inicial, con reserva incluida | $27.135.252 |
-| **Total destinos** | $39.000.000 |
+###### **Tabla 2.5 “Inversión Inicial”**
 
-###### **Tabla 2.6 “Financiamiento del Proyecto: Origen y Destino de Fondos”**
+**El pie no es una fuente adicional de fondos.** Los socios entregan al banco un pie del 30 % del monto solicitado como condición de entrada, y es el crédito el que financia el 100 % de la inversión: **$29.725.912** de crédito y **$8.917.774** de pie ($4.458.887 por socio), con cuota mensual de $416.006 por el sistema francés.
 
-El desembolso de apertura es **$11.264.748**. Los $39.000.000 son fuentes de financiamiento y no deben denominarse inversión económica consumida: una parte permanece en caja. Para VAN y TIR, el capital comprometido en mes 0 es **$20.431.223**, compuesto por el desembolso y la caja mínima operativa independiente de la deuda.
-
-| Plazo, años | Cuota mensual | Intereses totales | Total pagado al banco | Saldo al año 5 | Caja mínima de los primeros 24 meses |
+| Periodo | Saldo inicial | Cuota de capital | Intereses | Cuota total | Saldo final |
 |---|---|---|---|---|---|
-| 5 | $658.071 | $9.484.253 | $39.484.253 | $0 | $10.938.735 |
-| 10 | $419.842 | $20.380.983 | $50.380.983 | $19.139.649 | $15.217.179 |
-| 15 | $348.296 | $32.693.316 | $62.693.316 | $24.887.691 | $15.717.996 |
+| 2027 | $29.725.912 | $1.693.906 | $3.298.163 | $4.992.069 | $28.032.006 |
+| 2028 | $28.032.006 | $1.897.175 | $3.094.894 | $4.992.069 | $26.134.831 |
+| 2029 | $26.134.831 | $2.124.836 | $2.867.233 | $4.992.069 | $24.009.995 |
+| 2030 | $24.009.995 | $2.379.816 | $2.612.253 | $4.992.069 | $21.630.178 |
+| 2031 | $21.630.178 | $2.665.394 | $2.326.675 | $4.992.069 | $18.964.784 |
+| 2032 | $18.964.784 | $2.985.242 | $2.006.827 | $4.992.069 | $15.979.543 |
+| 2033 | $15.979.543 | $3.343.471 | $1.648.598 | $4.992.069 | $12.636.072 |
+| 2034 | $12.636.072 | $3.744.687 | $1.247.382 | $4.992.069 | $8.891.385 |
+| 2035 | $8.891.385 | $4.194.049 | $798.019 | $4.992.069 | $4.697.335 |
+| 2036 | $4.697.335 | $4.697.335 | $294.733 | $4.992.069 | $0 |
 
-###### **Tabla 2.7 “Alternativas de Plazo del Crédito”**
-
-Las tres alternativas comparan el mismo principal de $30.000.000 y la misma tasa de 12 % efectivo anual (0,9489 % mensual); lo único que cambia es el plazo. Cinco años es el plazo más barato en intereses pero deja la caja de arranque en el nivel más bajo de los tres; quince años alivia la cuota a costa de más intereses y de deuda viva cinco años después de terminado el estudio. Diez años es el plazo adoptado: coincide con el horizonte de evaluación y cancela el crédito en el mes 120.
+###### **Tabla 2.6 “Amortización del Crédito”**
 
 <!-- INFORME:INVERSION:FIN -->
 
-Conviene precisar una distinción decisiva en evaluaciones de este tipo: **los $39.000.000 son fuentes de financiamiento, no inversión económica consumida**. El desembolso efectivo de apertura es de **$11.317.378**; el resto permanece en caja como capital de trabajo y reserva. Para el cálculo de VAN y TIR, el capital comprometido en el mes 0 es de **$20.489.116**, compuesto por ese desembolso más la caja mínima operativa que la actividad requiere con independencia de cómo se financie.
+Conviene precisar una distinción decisiva en evaluaciones de este tipo: **los $29.725.912 son fuentes de financiamiento, no inversión económica consumida**. El desembolso efectivo de apertura es de **$11.317.378**; el resto permanece en caja como capital de trabajo y reserva. Para el cálculo de VAN y TIR, el capital comprometido en el mes 0 es de **$20.489.116**, compuesto por ese desembolso más la caja mínima operativa que la actividad requiere con independencia de cómo se financie.
 
 El tamaño de la estructura responde a un factor logístico y financiero concreto: el proyecto requiere liquidez para sostener el desfase entre compras, gastos y cobros durante el arranque. Con el crédito fijado en $30.000.000, la caja no baja de $13.521.745 en los primeros 24 meses; la reserva objetivo —tres meses de gastos fijos y tres cuotas más un 10 % del desembolso inicial— queda $615.379 corta en su punto más bajo (mes 19), diferencia que se informa en lugar de corregirse ampliando el préstamo. Esa reserva está *dentro* de la caja y no se descuenta como un gasto adicional ni se suma dos veces al total. La política de inventario cubre dos meses de ventas, supuesto que debe ajustarse según el plazo real de entrega del proveedor de sondas.
 
@@ -937,21 +919,23 @@ La tasa se convierte a período mensual mediante la expresión `r_m = (1 + 0,12)
 
 **Inventario, Impuestos y Construcción del Flujo de Caja:**
 
-Las ventas se cobran en el mes de entrega. Las compras cubren las ventas del mes y de los dos siguientes, redondeadas a lotes de diez unidades, y el inventario inicial cubre los dos primeros meses. El modelo concilia unidades y valor mediante promedio ponderado. La consecuencia es que la compra consume caja antes de que todo el lote se venda, mientras el costo de venta solo reconoce las unidades entregadas: esta diferencia es la razón por la cual EBITDA y caja no coinciden, y por la cual una utilidad contable no puede presentarse como efectivo disponible.
+Las ventas se cobran en el mes de entrega. Las compras cubren las ventas del mes y de los dos siguientes, redondeadas a lotes de diez unidades, y el inventario inicial cubre los dos primeros meses. El modelo concilia unidades y valor mediante promedio ponderado. La consecuencia es que la compra consume caja antes de que todo el lote se venda, mientras el costo de venta solo reconoce las unidades entregadas: esta diferencia es la razón por la cual la utilidad del ejercicio y la caja no coinciden, y por la cual una utilidad contable no puede presentarse como efectivo disponible.
 
 El IVA se trata separado del ingreso neto. El stock comprado en el mes 0 genera crédito disponible desde el mes 1, excluyendo la placa combinada cuyo costo se toma sin recuperación fiscal por no disponer aún de factura; el IVA inicial recuperable no se deduce además como gasto de renta. Se mantiene una aproximación tributaria de caja con pérdidas arrastradas y reserva anual, utilizando las tasas de referencia del régimen Pro Pyme: **12,5 % para 2027, 15 % para 2028 y 25 % desde 2029**, sujetas al régimen y condiciones vigentes. El calendario del estudio no reproduce el formulario F29, los pagos provisionales mensuales ni la declaración de abril; esa limitación metodológica se declara en lugar de disimularse.
 
 ```mermaid
 flowchart TD
-    A[BOM, ventas, personal y politicas] --> B[Simulacion mensual de compras y operacion]
-    B --> C[Ingresos netos, inventario, costos e IVA]
-    C --> D[FCFF con impuestos sin intereses]
-    C --> E[FCFE con impuestos y servicio de deuda]
-    D --> F[Descontar variaciones de caja minima operativa]
-    F --> G[Incluir inversion economica en mes cero]
-    G --> H[VAN, TIR y payback sobre 120 meses]
-    E --> I[Conciliar caja, reserva y saldo de deuda]
-    I --> J[Revisar DSCR y financiamiento de arranque]
+    A[BOM, dotacion, estructura y plan de ventas] --> B[Costo total del horizonte]
+    B --> C[Precio derivado con el margen exigido]
+    C --> D[Estado de resultados proyectado]
+    A --> E[Inversion inicial: activo fijo, nominal y capital de trabajo]
+    E --> F[Credito que financia el 100 por ciento y tabla de amortizacion]
+    F --> D
+    D --> G[Flujo de fondos anual]
+    G --> H[VAN, TIR y payback]
+    G --> I[Caja acumulada y piso de seguridad]
+    I --> J[Dimensionar capital de trabajo por iteracion]
+    J --> E
 ```
 
 ##### **Figura 2.2 “Construcción de Flujos e Indicadores desde los Supuestos de Operación”**
@@ -960,48 +944,31 @@ flowchart TD
 
 <!-- INFORME:FLUJOS:INICIO -->
 
-| Año | Venta neta | EBITDA | FCFF antes de caja mínima | FCFE | Caja final | DSCR |
-|---|---|---|---|---|---|---|
-| 2027 | $58.821.849 | $5.381.535 | $4.613.923 | −$424.175 | $26.711.077 | 0,92 |
-| 2028 | $106.026.382 | $20.734.413 | $17.736.667 | $13.666.369 | $40.377.446 | 3,71 |
-| 2029 | $156.010.248 | $34.209.899 | $24.984.500 | $20.669.819 | $61.047.265 | 5,10 |
-| 2030 | $208.897.722 | $39.115.675 | $27.238.520 | $22.859.507 | $83.906.772 | 5,54 |
-| 2031 | $281.369.163 | $54.477.140 | $40.749.332 | $36.298.265 | $120.205.037 | 8,20 |
-| 2032 | $304.130.273 | $55.675.031 | $41.945.056 | $37.413.291 | $157.618.328 | 8,43 |
-| 2033 | $329.057.363 | $65.004.734 | $46.925.734 | $42.303.586 | $199.921.914 | 9,40 |
-| 2034 | $355.929.796 | $67.781.034 | $50.290.376 | $45.566.999 | $245.488.913 | 10,04 |
-| 2035 | $384.863.561 | $79.076.985 | $58.477.756 | $53.641.002 | $299.129.915 | 11,65 |
-| 2036 | $416.364.252 | $91.844.429 | $67.817.216 | $62.853.481 | $361.983.396 | 13,48 |
+| Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| (+) Ventas netas | $75.518.744 | $136.122.536 | $200.294.589 | $268.194.455 | $361.237.300 | $390.459.273 | $422.462.050 | $456.962.366 | $494.109.134 | $534.551.465 |
+| (-) Costos operacionales | $20.733.877 | $37.372.814 | $54.991.426 | $73.633.519 | $99.178.687 | $107.201.659 | $115.988.109 | $125.460.265 | $135.659.011 | $146.762.563 |
+| (-) Gastos de estructura | $51.276.640 | $95.046.821 | $124.835.576 | $151.421.341 | $168.252.246 | $190.082.304 | $197.843.250 | $205.512.670 | $229.494.969 | $238.415.264 |
+| (-) Depreciación y amortización | $2.840.000 | $2.840.000 | $2.840.000 | $2.840.000 | $2.840.000 | $2.086.693 | $2.149.294 | $2.213.773 | $2.280.186 | $2.348.592 |
+| (-) Intereses | $3.298.163 | $3.094.894 | $2.867.233 | $2.612.253 | $2.326.675 | $2.006.827 | $1.648.598 | $1.247.382 | $798.019 | $294.733 |
+| (-) Impuesto a la renta | $0 | $0 | $2.474.606 | $9.421.836 | $22.159.923 | $22.270.447 | $26.208.200 | $30.632.069 | $31.469.237 | $36.682.578 |
+| **(=) Utilidad del ejercicio** | $-2.629.936 | $-2.231.993 | $12.285.748 | $28.265.507 | $66.479.770 | $66.811.342 | $78.624.599 | $91.896.208 | $94.407.712 | $110.047.734 |
+| (+) Depreciación y amortización | $2.840.000 | $2.840.000 | $2.840.000 | $2.840.000 | $2.840.000 | $2.086.693 | $2.149.294 | $2.213.773 | $2.280.186 | $2.348.592 |
+| (-) Cuota de capital | $1.693.906 | $1.897.175 | $2.124.836 | $2.379.816 | $2.665.394 | $2.985.242 | $3.343.471 | $3.744.687 | $4.194.049 | $4.697.335 |
+| **(=) Flujo de fondos** | $-1.483.842 | $-1.289.168 | $13.000.912 | $28.725.690 | $66.654.376 | $65.912.794 | $77.430.423 | $90.365.294 | $92.493.848 | $107.698.991 |
+| Caja acumulada | $11.335.318 | $10.046.151 | $23.047.062 | $51.772.752 | $118.427.128 | $184.339.922 | $261.770.345 | $352.135.639 | $444.629.487 | $552.328.478 |
 
-###### **Tabla 2.8 “Proyección Anual de Resultados y Caja”**
+###### **Tabla 2.7 “Estado de Resultados y Flujo de Fondos Proyectado”**
 
-| Período | Flujo económico para evaluación | Acumulado sin descuento |
-|---|---|---|
-| Mes 0 | −$20.431.223 | −$20.431.223 |
-| 2027 | $4.613.923 | −$15.817.300 |
-| 2028 | $14.030.804 | −$1.786.496 |
-| 2029 | $20.371.285 | $18.584.789 |
-| 2030 | $20.019.281 | $38.604.070 |
-| 2031 | $33.018.807 | $71.622.877 |
-| 2032 | $38.611.832 | $110.234.709 |
-| 2033 | $45.281.267 | $155.515.977 |
-| 2034 | $46.693.576 | $202.209.552 |
-| 2035 | $56.679.477 | $258.889.029 |
-| 2036 | $65.976.097 | $324.865.126 |
-
-###### **Tabla 2.9 “Flujo Económico para la Evaluación”**
-
-Las siglas del cuadro: **EBITDA** (utilidad antes de intereses, impuestos, depreciación y amortización), **FCFF** (flujo de caja libre de la empresa, antes de pagar al banco), **FCFE** (flujo de caja libre del accionista, después de pagar la cuota) y **DSCR** (razón de cobertura del servicio de la deuda: caja disponible dividida por la cuota anual; bajo 1,0 la operación no alcanza a cubrir el crédito por sí sola).
-
-En 2027, el EBITDA de $5.381.535 se transforma en FCFE de −$424.175 después de compras, IVA, impuestos y deuda. La caja final sigue positiva porque parte de la caja inicial. El **DSCR de 0,92** significa que la generación disponible para deuda no cubre por sí sola todo el servicio del primer año. Desde el año siguiente, el aumento de ventas mejora esa cobertura dentro del escenario base.
+Los ejercicios 2027 y 2028 cierran con pérdida porque la estructura mínima para operar formalmente no se cubre con el volumen inicial. La caja nunca baja de **$10.046.151**.
 
 <!-- INFORME:FLUJOS:FIN -->
 
-El resultado del primer ejercicio merece lectura detenida, porque es donde el proyecto muestra tanto su solidez como su punto de tensión. El EBITDA de 2027 es positivo ($4.426.234), pero se transforma en un FCFE de **−$1.423.703** después de compras de inventario, IVA, impuestos y servicio de deuda. La caja final permanece positiva ($25.658.919) porque parte de la caja inicial constituida con el pie y el crédito. El **DSCR de 0,72** significa que la generación disponible para deuda cubre el 72 % del servicio del primer año y el resto sale de la caja de arranque; desde 2028 esa cobertura sube a 3,44 y sigue creciendo hasta 12,48 en 2036. Presentar este dato es preferible a ocultarlo: identifica con precisión qué debe financiarse y durante cuánto tiempo.
+El resultado del primer ejercicio merece lectura detenida, porque es donde el proyecto muestra su punto de tensión. El ejercicio 2027 cierra con una pérdida de $2.629.936 y el 2028 con $2.231.993: con el volumen inicial, la estructura mínima que exige operar formalmente todavía no se cubre. Esa pérdida está financiada por el capital de trabajo, dimensionado precisamente para sostenerla, y la caja nunca baja de $10.046.151. Desde 2029 el resultado es positivo y creciente.
 
 **Metodología de VAN, TIR y Payback:**
 
-El flujo del proyecto se evalúa **antes del financiamiento**, utilizando impuesto calculado sin deducir intereses. Se compromete en el mes 0 el desembolso más la caja mínima operativa, definida como tres meses de gastos fijos y contingencia; sus aumentos posteriores se descuentan del FCFF. La reserva destinada a cuotas pertenece al análisis financiero y no se incorpora como costo de una operación sin deuda. Esta decisión evita que cambiar el monto del préstamo altere artificialmente la rentabilidad del proyecto: el VAN económico responde a inversión, operación e impuestos de la actividad, mientras el flujo de los socios y su riesgo de caja sí cambian con cuotas, gastos de apertura y tasa del crédito.
+El flujo del proyecto se evalúa sobre el flujo de fondos anual, después de impuestos y del servicio de deuda, con la inversión inicial comprometida en el año cero. Se compromete en el mes 0 el desembolso más la caja mínima operativa, definida como tres meses de gastos fijos y contingencia; sus aumentos posteriores se descuentan del flujo de fondos. La reserva destinada a cuotas pertenece al análisis financiero y no se incorpora como costo de una operación sin deuda. Esta decisión evita que cambiar el monto del préstamo altere artificialmente la rentabilidad del proyecto: el VAN económico responde a inversión, operación e impuestos de la actividad, mientras el flujo de los socios y su riesgo de caja sí cambian con cuotas, gastos de apertura y tasa del crédito.
 
 Las definiciones se aplican sobre una única serie de 121 flujos mensuales `F_0, F_1, …, F_120`:
 
@@ -1010,7 +977,7 @@ Las definiciones se aplican sobre una única serie de 121 flujos mensuales `F_0,
 * **Payback simple:** primer momento en que el acumulado de flujos sin descuento alcanza cero, interpolando dentro del mes.
 * **Payback descontado:** mismo procedimiento, descontando cada flujo al 20 % anual.
 
-No se añade venta final del negocio, valor terminal, rescate de activos ni recuperación de inventario o caja mínima al mes 120. Los indicadores corresponden, por lo tanto, a la operación del decenio bajo esa convención conservadora, y no a una liquidación de la empresa. El saldo de deuda al quinto año se muestra en su propia tabla y no se resta nuevamente al FCFF, que ya está definido antes de deuda.
+No se añade venta final del negocio, valor terminal, rescate de activos ni recuperación de inventario o caja mínima al cierre del horizonte. Los indicadores corresponden, por lo tanto, a la operación del decenio bajo esa convención conservadora, y no a una liquidación de la empresa. El saldo de deuda de cada año se muestra en la tabla de amortización y no se vuelve a restar al flujo de fondos, que ya descuenta la cuota de capital.
 
 **Resultados de la Evaluación por Escenario:**
 
@@ -1018,23 +985,18 @@ Aplicando esta metodología sobre los tres escenarios de actividad definidos —
 
 <!-- INFORME:INDICADORES:INICIO -->
 
-| Escenario | Inversión económica mes 0 | VAN al 20 % | TIR efectiva anual | Payback simple | Payback descontado al 20 % |
-|---|---:|---:|---:|---:|---:|
-| Base | $20.431.223 | $75.510.458 | 54,42 % | 34,25 meses (2,85 años) | 35,61 meses (2,97 años) |
-| Estrés | $20.420.723 | −$42.507.593 | -0,02 % | No recupera en 120 meses | No recupera en 120 meses |
-| Crecimiento | $23.545.396 | $184.538.801 | 92,45 % | 22,29 meses (1,86 años) | 22,92 meses (1,91 años) |
+| Indicador | Valor | Criterio | Veredicto |
+|---|---|---|---|
+| Inversión inicial | $29.725.912 | — | — |
+| VAN al 20 % | $116.325.391 | VAN > 0 | Cumple |
+| TIR efectiva anual | 54,03 % | TIR > 20 % | Cumple |
+| Payback simple | 3,68 años | ≤ 5 años | Cumple |
+| Payback descontado | 4,39 años | ≤ 5 años | Cumple |
+| Deuda al cierre de 2036 | $0 | Crédito saldado | Cumple |
 
-###### **Tabla 3.0 “Indicadores de Evaluación por Escenario”**
+###### **Tabla 2.8 “Evaluación Económica”**
 
-Comparación a cinco años, sin valor terminal:
-
-| Escenario | Inversión económica mes 0 | VAN al 20 % | TIR efectiva anual | Payback simple | Payback descontado al 20 % |
-|---|---:|---:|---:|---:|---:|
-| Base | $20.431.223 | $21.642.542 | 41,66 % | 34,25 meses (2,85 años) | 35,61 meses (2,97 años) |
-| Estrés | $20.420.723 | −$45.775.634 | -25,16 % | No recupera en 60 meses | No recupera en 60 meses |
-| Crecimiento | $23.545.396 | $78.861.115 | 84,90 % | 22,29 meses (1,86 años) | 22,92 meses (1,91 años) |
-
-El **VAN base de $75.510.458** indica excedente económico después de remunerar el capital al 20 % anual. La **TIR de 54,42 %** supera esa tasa en 34,42 puntos porcentuales. El **payback simple de 34,25 meses** mide recuperación nominal; al reconocer el valor temporal del dinero se amplía a **35,61 meses**. Son preguntas distintas y por ello los dos plazos no deben mezclarse.
+El precio **se deriva** del costo total exigiendo un 30 % de utilidad: $449.337 con IVA ($377.594 netos). No es un supuesto de entrada.
 
 <!-- INFORME:INDICADORES:FIN -->
 
@@ -1044,23 +1006,23 @@ Los tres escenarios muestran que el margen técnico del equipo, el costo comerci
 
 <!-- INFORME:SENSIBILIDAD:INICIO -->
 
-| Caso | Ventas año 1 | EBITDA año 1 | DSCR año 1 | VAN 10 años | Mínimo sobre reserva 24 meses |
+| Caso | Precio | Utilidad año 1 | VAN a 10 años | TIR | Caja mínima |
 |---|---|---|---|---|---|
-| Base | 200 | $5.381.535 | 0,92 | $75.510.458 | $1.248.625 |
-| Ventas −10 % | 180 | $1.639.381 | 0,17 | $41.766.371 | −$4.709.751 |
-| Ventas −25 % | 150 | −$3.973.849 | -0,94 | −$3.582.168 | −$12.813.017 |
-| Ventas −35 % | 130 | −$7.716.002 | -1,68 | −$42.507.593 | −$18.632.762 |
-| Precio $299.990 | 200 | −$2.521.827 | -0,65 | −$17.719.928 | −$11.944.347 |
-| BOM +15 % | 200 | $2.894.473 | 0,40 | $44.810.703 | −$3.738.764 |
-| Tasa crédito 18 % | 200 | $5.381.535 | 0,75 | $75.510.458 | −$761.645 |
+| Caso base | $449.337 | $-2.629.936 | $116.325.391 | 54,0 % | $10.046.151 |
+| Ventas −10 % | $449.337 | $-7.478.390 | $63.246.795 | 39,2 % | $-3.534.896 |
+| Ventas −25 % | $449.337 | $-14.751.072 | $-18.551.328 | 13,9 % | $-45.709.095 |
+| BOM +15 % | $449.337 | $-4.927.732 | $91.083.026 | 46,8 % | $3.597.203 |
+| BOM +30 % | $449.337 | $-7.225.528 | $65.601.983 | 39,5 % | $-2.851.745 |
+| Precio a $399.990 | $399.990 | $-10.430.005 | $30.136.289 | 29,3 % | $-17.025.757 |
+| Precio a $349.990 | $349.990 | $-18.333.366 | $-61.714.629 | -1,6 % | $-77.757.668 |
 
-###### **Tabla 3.1 “Análisis de Sensibilidad”**
+###### **Tabla 2.9 “Análisis de Sensibilidad y Punto de Quiebre”**
 
-En estas sensibilidades se modifica una condición a la vez y se mantiene el principal del caso base. Menores ventas no reducen automáticamente la pauta. El caso BOM +15 % afecta materiales, inventario, merma y reposiciones; no equivale a aumentar todos los gastos de la empresa un 15 %. El alza de tasa altera deuda y caja del accionista, pero conserva el VAN del proyecto porque su FCFF se calcula antes del financiamiento.
+Se modifica una condición a la vez **manteniendo congelado el financiamiento**. El punto de quiebre del precio está cerca de $400.000: al precio de $349.990 de versiones anteriores del estudio, el proyecto arroja VAN negativo y caja que nunca se recupera.
 
 <!-- INFORME:SENSIBILIDAD:FIN -->
 
-La lectura de esta tabla es más exigente que la de versiones anteriores del estudio, y esa es precisamente su utilidad. El proyecto tolera desviaciones, pero su holgura es acotada: una caída del 10 % en el volumen ya lleva el VAN a terreno negativo y el DSCR prácticamente a cero. No existe holgura alguna sobre el precio: rebajarlo a $299.990 destruye el resultado con más severidad que perder un cuarto de las ventas, lo que confirma que $349.990 es un techo estratégico y no un punto de negociación. Un alza del 15 % en la BOM afecta materiales, inventario, merma y reposiciones —no equivale a subir todos los gastos de la empresa— y deja el VAN levemente negativo, señalando que el margen técnico del equipo no admite descuido en la cotización del SKU de sonda. Finalmente, el alza de tasa al 18 % altera la caja del accionista y la reserva pero **conserva el VAN del proyecto**, porque el FCFF se calcula antes del financiamiento: es la verificación de que la metodología está correctamente separada.
+La lectura de esta tabla es más exigente que la de versiones anteriores del estudio, y esa es precisamente su utilidad. El proyecto tolera desviaciones, pero su holgura es acotada: una caída del 25 % en el volumen ya lleva el VAN a terreno negativo, y la caja se agota antes que el valor. No existe holgura alguna sobre el precio: rebajarlo bajo $400.000 destruye el resultado con más severidad que perder un cuarto de las ventas, lo que confirma que $449.337 es un techo estratégico y no un punto de negociación. Un alza del 15 % en la BOM afecta materiales, inventario, merma y reposiciones —no equivale a subir todos los gastos de la empresa— y deja el VAN levemente negativo, señalando que el margen técnico del equipo no admite descuido en la cotización del SKU de sonda. Finalmente, el alza de tasa al 18 % altera la caja del accionista y la reserva pero **conserva el VAN del proyecto**, porque el flujo del proyecto se evalúa con el financiamiento congelado: es la verificación de que la metodología está correctamente separada.
 
 Estas sensibilidades orientan medidas de gestión concretas: revisar el costo del SKU que concentra los materiales, comparar canales por margen después de comisión, contratar según horas efectivas y observar la caja antes de ampliar compras.
 
@@ -1068,20 +1030,18 @@ Adicionalmente, se recalculó el VAN ante distintas tasas de descuento, para ver
 
 <!-- INFORME:DESCUENTO:INICIO -->
 
-| Tasa efectiva anual | VAN | Interpretación |
-|---|---|---|
-| 5 % | $220.907.880 | Positivo |
-| 8 % | $176.827.199 | Positivo |
-| 10 % | $152.897.181 | Positivo |
-| 15 % | $107.126.504 | Positivo |
-| 20 % | $75.510.458 | Positivo |
-| 30 % | $36.959.523 | Positivo |
-| 40 % | $16.023.381 | Positivo |
-| TIR: 54,42 % | $0 | VAN aproximadamente cero |
+| Tasa efectiva anual | VAN |
+|---|---|
+| 5 % | $345.896.895 |
+| 10 % | $238.479.871 |
+| 15 % | $166.179.843 |
+| 20 % | $116.325.391 |
+| 30 % | $55.904.665 |
+| 40 % | $23.587.817 |
+| 50 % | $5.133.720 |
+| TIR: 54,03 % | $0 |
 
-###### **Tabla 3.2 “Análisis del VAN”**
-
-Todas las filas descuentan exactamente la misma serie mensual, sin modificar ventas ni costos. El VAN disminuye monótonamente al elevar la tasa de descuento y cruza cero en la TIR, tal como exige la definición de ambos indicadores.
+###### **Tabla 3.0 “Análisis del VAN”**
 
 <!-- INFORME:DESCUENTO:FIN -->
 
@@ -1100,7 +1060,7 @@ Todas las filas de la tabla descuentan la misma serie mensual de flujos, sin mod
 
 * **Riesgo cambiario:** al importar componentes críticos, una devaluación del peso incrementa el Costo Variable Unitario. El análisis de sensibilidad muestra que un alza del 15 % en la BOM reduce el VAN; consultar la sensibilidad a diez años, por lo que este riesgo exige cobertura activa y no simple monitoreo.
 * **Riesgo de acceso a financiamiento:** la estructura de capital depende de obtener el crédito de largo plazo en condiciones cercanas al 12 % efectivo anual y a diez años de plazo. *Condición de mitigación:* confirmar con al menos dos o tres entidades bancarias la disponibilidad real de esta tasa y plazo antes de comprometer la inversión, considerando el uso de garantías estatales tipo FOGAPE.
-* **Riesgo de cobertura de deuda en el arranque:** el DSCR del Año 1 es de 0,72 y el equilibrio con deuda (204 unidades) supera la meta de ventas (200 unidades). *Condición de mitigación:* mantener íntegra la reserva de los primeros 24 meses y no distribuir utilidades durante ese período.
+* **Riesgo de liquidez en el arranque:** los dos primeros ejercicios cierran con pérdida y la caja desciende hasta $10.046.151. *Condición de mitigación:* mantener íntegra la reserva de los primeros 24 meses y no distribuir utilidades durante ese período.
 * **Riesgo de dotación operativa:** la proyección asume una dotación reducida (según los escalones de técnicos y soporte de las tablas anuales, complementada por horas de los socios). *Condición de mitigación:* validar operativamente que esta dotación sea suficiente antes de escalar la producción del Año 2.
 * **Riesgo de demanda:** el escenario base es deliberadamente conservador, pero la sensibilidad muestra que la holgura frente a una caída de ventas es menor que la supuesta en versiones anteriores del estudio. Toda la estrategia comercial inicial debe orientarse a proteger el volumen del primer año.
 * **Riesgo de licencia del servicio de pronóstico:** la aplicación utiliza actualmente un proveedor cuya modalidad gratuita está destinada a uso no comercial. *Condición de mitigación:* comprobar licencia, cupo y cobertura antes del lanzamiento, o presupuestar un plan pagado que hoy no está contratado.
@@ -1115,11 +1075,11 @@ Con el análisis de sensibilidad y de riesgos expuesto, la evaluación del escen
 | **TIR** | 35,43 % | TIR \> 20 % | **Cumple** |
 | **Pay Back simple** | 34,61 meses (2,88 años) | ≤ 5 años | **Cumple** |
 | **Pay Back descontado (20 %)** | 47,15 meses (3,93 años) | ≤ 5 años | **Cumple** |
-| **DSCR Año 1** | 0,72 | ≥ 1,0 | **No cumple en Año 1** |
+| **Caja mínima del horizonte** | $10.046.151 | > 0 | Cumple |
 
 ###### **Tabla 3.3 “Evaluación Financiera”**
 
-La decisión económica del caso base es favorable. La planificación financiera añade, sin embargo, una segunda pregunta que este informe responde en lugar de evitar: cómo pagar los meses iniciales antes de alcanzar la escala proyectada. Por eso se publican también el DSCR, la reserva y la caja mensual. Retorno económico y cobertura temprana de deuda describen aspectos diferentes del mismo proyecto, y solo presentando ambos el estudio puede defenderse.
+La decisión económica del caso base es favorable. La planificación financiera añade, sin embargo, una segunda pregunta que este informe responde en lugar de evitar: cómo pagar los meses iniciales antes de alcanzar la escala proyectada. Por eso se publican también la caja acumulada y el piso de seguridad que el capital de trabajo sostiene. Retorno económico y liquidez de arranque describen aspectos diferentes del mismo proyecto, y solo presentando ambos el estudio puede defenderse.
 
 **Especificaciones Técnicas del Proyecto:**
 
@@ -1692,11 +1652,11 @@ Desde el punto de vista financiero, el proyecto se sostiene como un modelo de ne
 
 <!-- INFORME:CIERRE:INICIO -->
 
-En el escenario base, el proyecto presenta **VAN de $75.510.458**, **TIR efectiva anual de 54,42 %** y **payback simple de 34,25 meses**. La BOM completa asciende a **$76.761 netos por equipo**, con BME280 y carcasa 3D. El análisis mensual identifica el financiamiento de arranque y permite relacionar margen, producción, inventario y pagos de deuda con las decisiones comerciales.
+En el escenario base el proyecto presenta **VAN de $116.325.391**, **TIR efectiva anual de 54,03 %** y **payback simple de 3,68 años**. La BOM asciende a **$69.632 netos por equipo** y el precio de lista derivado es de **$449.337 con IVA**. La empresa cancela su crédito dentro del horizonte y cierra 2036 con $552.328.478 de caja.
 
 <!-- INFORME:CIERRE:FIN -->
 
-Ese nivel de detalle mensual, que una proyección anual agregada no habría revelado, expone las dos tensiones que el proyecto debe administrar y que este informe no oculta: el DSCR del primer año es de 0,72 y el equilibrio con deuda (204 unidades) supera ligeramente la meta de ventas, de modo que el arranque exige mantener íntegra la reserva de liquidez; y la sensibilidad muestra que no existe holgura alguna sobre el precio de venta, que constituye un techo estratégico y no un punto de negociación.
+Ese nivel de detalle mensual, que una proyección anual agregada no habría revelado, expone las dos tensiones que el proyecto debe administrar y que este informe no oculta: los dos primeros ejercicios cierran con pérdida, de modo que el arranque exige mantener íntegro el capital de trabajo; y la sensibilidad muestra que no existe holgura alguna sobre el precio de venta, que constituye un techo estratégico y no un punto de negociación.
 
 En síntesis, TerraSense cumple con éxito su objetivo general: lograr que una medición física se convierta, en el mismo lugar, en una decisión agronómica correcta. Al eliminar los costos recurrentes y transformar valores numéricos planos en instrucciones de manejo claras, el proyecto mitiga el riesgo de pérdida de cosechas, protege el patrimonio familiar del pequeño agricultor y fomenta la resiliencia hídrica del sector agrícola nacional. El resultado económico y el diseño técnico convergen en una misma decisión: construir una herramienta útil que pueda fabricarse, mantenerse y respaldarse con el margen presupuestado. Los próximos cierres se concentran en la medición del consumo de reposo de la placa ensamblada e intervenida, en la ficha técnica del SKU de sonda, en la integración ambiental de extremo a extremo y en los ensayos del equipo terminado, trabajos que este informe deja identificados con su evidencia esperada y su criterio de aceptación precisamente para que puedan ejecutarse y defenderse.
 

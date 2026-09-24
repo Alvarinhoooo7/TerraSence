@@ -12,12 +12,12 @@ La integración de datos y las pruebas de software se trabajan en el repositorio
 
 | # | Pendiente | Por qué bloquea | Cómo se cierra |
 |:---:|---|---|---|
-| 1 | **Cotización real del BOM** | El costo de $81.184 es un presupuesto sin SKU. La sonda es aproximadamente el 59 % y define el margen | Cotizaciones con SKU, cantidad, precio neto y bruto, moneda, fecha, vigencia, lead time y costo puesto en taller |
+| 1 | **Cotización real del BOM** | La BOM está cotizada en plataformas al detalle, no con SKU ni factura. La sonda es aproximadamente el 69 % del costo de materiales y define el margen | Cotizaciones con SKU, cantidad, precio neto y bruto, moneda, fecha, vigencia, lead time y costo puesto en taller |
 | 2 | **Oferta bancaria efectiva** | El crédito definido es de $30.000.000 a 10 años y 12 % efectivo anual, con pie propio de $9.000.000 (30 % del crédito). **Falta la oferta bancaria formal**. FOGAPE es garantía sujeta a evaluación, no aprobación | Cotización en CLP a tasa fija, a 5 y 10 años, con todos los cargos, garantías exigidas, gracia y comisión de prepago |
-| 3 | **Ventas piloto pagadas** | Las metas de 200–850 unidades son objetivos, no demanda. El precio de $349.990 no lo validó ningún cliente | Pilotos pagados con margen positivo: precio efectivamente pagado, CAC por cohorte, devoluciones y horas de soporte |
+| 3 | **Ventas piloto pagadas** | Las metas de 200–850 unidades son objetivos, no demanda. El precio derivado de $449.337 no lo validó ningún cliente | Pilotos pagados con margen positivo: precio efectivamente pagado, CAC por cohorte, devoluciones y horas de soporte |
 | 4 | **Revisión contable independiente** | El impuesto es una aproximación de caja Pro Pyme; no reproduce F29, PPM ni la declaración de abril | Contador revisa régimen, calificación Pro Pyme, remuneración de socios con control, PPM, IVA efectivo y deducibilidad |
 
-Los resultados de DSCR, VAN y caja libre por escenario se consultan en [RESULTADOS_FINANCIEROS.md](RESULTADOS_FINANCIEROS.md). La comparación de plazos utiliza el mismo principal; no reutilizar ratios de versiones anteriores de la BOM.
+Los resultados de VAN, TIR y caja por escenario se consultan en [RESULTADOS_FINANCIEROS.md](RESULTADOS_FINANCIEROS.md). La comparación de plazos utiliza el mismo principal; no reutilizar ratios de versiones anteriores de la BOM.
 
 ---
 
@@ -92,7 +92,7 @@ Los resultados de auditoría y pruebas del 4 de septiembre se conservan en el ar
 
 ## Cifras vigentes
 
-Las cifras vigentes de BOM, crédito, cuota, DSCR, VAN, TIR, payback y equilibrio se regeneran en [RESULTADOS_FINANCIEROS.md](RESULTADOS_FINANCIEROS.md).
+Las cifras vigentes de BOM, precio derivado, crédito, cuota, VAN, TIR y payback se regeneran en [RESULTADOS_FINANCIEROS.md](RESULTADOS_FINANCIEROS.md).
 
 Generadas con `python finanzas/modelo.py` desde `finanzas/supuestos.json`. **Regenerar siempre tras editar supuestos; no editar resultados a mano.** La fuente publicada es [`RESULTADOS_FINANCIEROS.md`](RESULTADOS_FINANCIEROS.md).
 

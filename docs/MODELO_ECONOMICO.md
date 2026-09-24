@@ -1,96 +1,70 @@
-# Modelo económico revisado — 10 de septiembre de 2026
+# Modelo económico: metodología, supuestos y límites
 
-Este documento reemplaza los supuestos económicos anteriores, no constituye una cotización bancaria ni una validación de demanda. Año 1: 2027. Moneda: CLP nominales, reajuste supuesto de 3% anual. Los **$9.000.000 aportados por los socios ($4.500.000 cada uno) son el PIE propio disponible**, según su confirmación; no se cuestiona su capacidad de aportarlos. Aportar dinero no asegura que un banco financie el saldo.
+Este documento explica **cómo** se calcula la evaluación económica de TerraSense y qué no acredita. No contiene cifras: todas viven en un solo lugar, [`finanzas/supuestos.json`](../finanzas/supuestos.json), y los resultados se publican generados en [RESULTADOS_FINANCIEROS.md](RESULTADOS_FINANCIEROS.md) y en la [sección económica del informe](SECCION_ECONOMICA_REFORMULADA.md).
 
-## Decisión propuesta
+No constituye una cotización bancaria ni una validación de demanda.
 
-Precio de lista de prueba **$349.990 IVA incluido** para venta directa del equipo, sin prometer NPK cuantitativos ni certificaciones no obtenidas. Es una hipótesis comercial defendible por costos y referencias, no el «precio correcto» demostrado. Validarlo con pilotos pagados antes de comprar volumen. No ofrecer descuentos permanentes, cuotas subsidiadas ni distribución mayorista utilizando el margen de venta directa.
+## 1. El precio es un resultado, no un supuesto
 
-Financiamiento definido: **pie propio de los socios de $9.000.000** ($4.500.000 cada uno, 50 % y 50 %, equivalente al 30 % del crédito) y **crédito bancario de $30.000.000 a 10 años en pesos y tasa fija** de 12 % efectivo anual (0,9489 % mensual), con cuota de $419.842 e intereses totales de $20.380.983. El principal es un monto fijo del estudio, no un valor que el modelo dimensione. Comparar también 5 años; 15 años ahorra relativamente poco al mes y aumenta mucho los intereses y la exposición de un producto tecnológico. El modelo usa 12% efectivo anual y 2% inicial para gastos de contratación: ambos son presupuestos, **no CAE ni tasa bancaria observada**. Si el banco no ofrece el plazo o pide garantías inaceptables, reducir el lanzamiento y validar preventas; no sustituir automáticamente por un crédito personal.
+Es la decisión metodológica que ordena todo el modelo, y corrige el error de versiones anteriores del estudio, que fijaban el precio primero y acomodaban el flujo después.
 
-Resultados, monto calculado, cuotas, saldo pendiente y mínimos de caja están en [RESULTADOS_FINANCIEROS.md](RESULTADOS_FINANCIEROS.md). El Excel contiene la misma información, 180 meses y tres escenarios. No se vende la recomendación de diez años como certeza: el primer año tiene cobertura de deuda estrecha. Exigir cotización total, revisar una cobertura de caja de al menos 1,3 veces como criterio interno y probar meses débiles antes de firmar. La reserva financia transitorios, no pérdidas permanentes.
+La secuencia es: se costea el equipo componente por componente, se dimensiona la inversión inicial y su financiamiento, se proyectan los costos de operación, administración y comercialización, y **solo entonces** se despeja el precio que cubre todo eso con el margen exigido.
 
-## Referencias de competencia
+El criterio es que las ventas del horizonte completo sean `(1 + margen)` veces el costo total, entendido como costos operacionales más gastos de administración y comercialización. La comisión comercial depende del precio, de modo que la ecuación es circular y se resuelve en forma cerrada, no por tanteo.
 
-Precios exhibidos consultados el 04-09-2026; confirmar despacho, factura, vigencia y condiciones al cotizar. No comparar una sonda suelta con un instrumento completo como si fueran equivalentes.
+Consecuencia que conviene tener presente: al ser un precio único sobre una estructura que se diluye con el volumen, **los primeros ejercicios quedan bajo el margen objetivo y los últimos sobre él**. El margen se cumple sobre el horizonte, no ejercicio por ejercicio. Por eso los dos primeros años cierran con pérdida, y eso es un hallazgo del modelo, no un defecto.
 
-| Referencia | Precio exhibido CLP | Alcance y limitación de comparación |
-|---|---:|---|
-| [Hanna Chile HI9814](https://hannachile.com/producto/medidor-portatil-e-impermeable-de-ph-ce-tds-temperatura-groline-hidroponia-hi9814/) | $491.827 | Instrumento pH/CE/TDS/temperatura para soluciones hidropónicas; no mide humedad directa del suelo. TDS no es otro sensor independiente. |
-| [Bluelab Pulse, distribuidor Delaferia](https://delaferia.cl/products/pulse-meter-bluelab-temperatura-humedad-y-ec) | $538.990 | Equipo con app para humedad, CE y temperatura; referencia funcional más cercana. No es prueba de NPK individuales. |
-| TerraSense, propuesta | $349.990 IVA incluido | Aprox. 29% bajo Hanna y 35% bajo Pulse. Producto aún en validación: no equivalencia de precisión, garantía técnica o madurez. |
+## 2. Estructura escalonada
 
-La [documentación de Bluelab](https://support.bluelab.com/bluelab-pulse-meter-faq) distingue el seguimiento mediante conductividad del análisis de nutrientes individuales. No justificar nuestro precio contando tres registros NPK como tres análisis químicos. El precio anterior de $249.990 se conserva únicamente como sensibilidad: con remuneraciones, comercialización y soporte completos no debe defenderse con la antigua utilidad inflada.
+La dotación no arranca completa. El primer año operan los dos socios y un contador, sin oficina y con la gestión comercial resuelta por los socios con publicidad digital. La oficina entra el segundo año, la encargada de marketing el tercero, y los ensambladores se incorporan a medida que el volumen los exige.
 
-## Costos y unidades
+Los sueldos de los socios siguen una **escala progresiva** que parte cerca del ingreso mínimo mientras la empresa no es rentable y sube por escalones. Los empleados no siguen esa escala: se pagan a valor de mercado desde el primer mes, porque a un trabajador contratado no se le puede diferir la remuneración como un socio difiere la suya.
 
-Fuente única editable: [supuestos.json](../finanzas/supuestos.json). [BOM](../PCB/BOM_TerraSense.xlsx) y flujo financiero se generan desde allí. Valores de compras presupuestados **netos** salvo indicación expresa. La placa de carga/boost cuesta $900 según socios; se presupuesta ese costo completo y no se inventa recuperación de IVA sin factura.
+El costo laboral sobre el sueldo bruto **no es un recargo fijo**. Sigue el calendario de la Ley N° 21.735 de reforma previsional, que introdujo una cotización de cargo del empleador gradual hasta completar 8,5 % en 2033 sumada al Seguro de Invalidez y Sobrevivencia, más el seguro de cesantía, la mutualidad y las provisiones de vacaciones e indemnización. El modelo lo aplica año a año.
 
-ESP32-WROOM-32 en placa de desarrollo, LiPo 2000 mAh, PCB USB-C carga/boost, SP3485, JST de batería de tres pines, pulsador y tres LED SMD provisionales están incluidos. No se agregan CH340, TP4056 ni MT3608 discretos por separado. El USB-UART incorporado en el devkit no es otra compra. El [precio de referencia AFEL de un devkit ESP32](https://afel.cl/collections/placas-esp32) es $8.000 exhibidos; el neto asumido es $8.000/1,19. No se presume un descuento por cientos de unidades sin cotización. El presupuesto incluye **un BME280 por equipo a $3.500 finales** (neto asumido $3.500/1,19, crédito sujeto a factura), según precio indicado por socio. Completa las tres tarjetas ambientales del Grid. La carcasa se imprime en 3D mediante servicio externo a **$6.000 netos** y se agregan **$1.500 netos** para fijaciones, juntas y respiradero. Impresión incluye material, energía, máquina y acabado; el montaje final permanece en nómina. Ver [alcance técnico y supuestos de carcasa](INFORME%201%20.docx.md#integracion-bme280).
+## 3. Financiamiento: el pie no es una fuente adicional
 
-El lote de reposición de 10 equipos es una **política de simulación**, no un MOQ del proveedor. El inventario cubre ventas del mes y los dos siguientes, se compra antes de vender y se redondea al lote; al comienzo solo se dispone del lote calculado para los primeros dos meses. Recalcular con lead times y mínimos reales. Las compras consumen caja; el costo vendido usa promedio ponderado y el stock se concilia, sin cargar dos veces todo el inventario como gasto.
+Los socios entregan al banco un pie equivalente al 30 % del monto solicitado **como condición de entrada**, y es el crédito el que financia el 100 % de la inversión inicial. Sumar pie más crédito como «fuentes» cuenta dos veces el mismo dinero: ese era otro error de versiones anteriores.
 
-Costos variables: BOM vendida, 3% de BOM por merma, 5% por reposiciones/garantía, envío neto de $6.000 y comisiones presupuestadas de 5% del precio bruto. Merma y garantía se tratan como desembolso prudencial del período, no como dinero ganado. No hay MOD de $9.000 adicional: el montaje final ya está en la nómina. El montaje externo SMD de la portadora es un servicio distinto incluido en BOM.
+La amortización usa el **sistema francés**, de cuota constante con interés decreciente y capital creciente, porque es el que la banca chilena aplica al crédito empresarial de largo plazo y porque la cuota fija facilita planificar la caja de una empresa que opera con holgura estrecha al arranque.
 
-El 5% comercial es un supuesto agregado, no una tarifa verificada de una pasarela: incluye el riesgo de la tarifa adicional del 2% por pagos externos en [Shopify Basic](https://www.shopify.com/cl/precios). Cotizar pasarela, IVA de comisiones, devoluciones y cuotas; si el costo efectivo supera el presupuesto, corregirlo. No se incluyen ventas a crédito ni descuentos de distribuidor. Ambas estrategias requieren un escenario nuevo.
+La tasa y los gastos de apertura son presupuestos del estudio: **no son CAE ni tasa bancaria observada**. Si el banco no ofrece el plazo o exige garantías inaceptables, corresponde reducir el lanzamiento y validar preventas, no sustituir automáticamente por un crédito de consumo.
 
-## Ventas, marketing y escalamiento
+## 4. Capital de trabajo: dimensionado, no supuesto
 
-Base de trabajo: 200, 350, 500, 650 y 850 unidades/año. No se las llama «conservadoras» porque sean números pequeños: 200 ventas de un producto nuevo pueden ser difíciles. Distribución mensual explícita en JSON, concentrada en el segundo semestre; **es estacionalidad hipotética que se repite**, no datos históricos ni pedidos firmados. Desde el sexto año se prolonga un 5% de crecimiento para visualizar deuda: esa extensión no valida quince años de negocio.
+No se fija por una regla de tantos meses. Se **itera** hasta que la caja no baje de un piso de seguridad durante todo el horizonte, con un mínimo de política de tres meses de estructura.
 
-Marketing: $30.000 por venta objetivo, comenzando con $6 millones anuales. Ejemplo de embudo a validar: 60% de ventas atribuibles a anuncios, CAC publicitario de $50.000; con cierre de 5% sobre contactos calificados se necesitarían 2.400 contactos y CPL de $2.500 para 120 ventas. Las otras 80 provendrían de pilotos, recomendaciones y contacto directo: tampoco están demostradas. No confundir objetivos del embudo con conversiones observadas.
+El cálculo es circular y conviene declararlo: más capital de trabajo exige más crédito, que genera más intereses, que profundizan la pérdida de los primeros años, que a su vez exigen más capital de trabajo. El modelo resuelve ese bucle por aproximaciones sucesivas.
 
-El escenario de estrés vende 35% menos **sin reducir marketing**. Crecimiento aumenta 50% ventas y gasto de adquisición, y recalcula personal, inventario y servicios; puede exigir más caja aun siendo rentable. Subir presupuesto solo después de medir CAC por cohorte, conversión, devoluciones, margen después de soporte y capacidad de entrega. Evaluar campañas en lotes pequeños, detener las que destruyen contribución; pagar más no garantiza más ventas.
+## 5. Qué se retiró deliberadamente
 
-## Personas: desde cuándo y por qué
+El estudio **no usa EBITDA, FCFF, FCFE, DSCR ni FTE**. Son indicadores válidos, pero exceden el nivel de una evaluación de viabilidad económica y el equipo no los maneja; presentarlos sin dominarlos es peor que omitirlos. La dotación se expresa en personas, no en equivalentes de jornada.
 
-Contador **externo desde mes 1**, incluso antes para apertura, régimen tributario y diseño de remuneraciones. $120.000/mes base más incremento por personal, reajustado. Hay ofertas públicas de servicios externos por volumen, pero no todos incluyen inventario, nómina y renta anual; [referencia de planes contables](https://www.contadoresdigitales.cl/planes-contables/). Solicitar propuesta completa. **No existe aquí una regla «en año X la ley obliga a contratar contador interno»**: existen obligaciones tributarias desde el inicio y una necesidad operativa de asesoría.
+Lo que sí se conserva, porque responde las preguntas que el proyecto debe responder: **VAN, TIR, payback** (simple y descontado), el **análisis de sensibilidad y punto de quiebre**, y el **costo total de propiedad** del agricultor.
 
-Los socios reciben remuneración económica por trabajar, separada del aporte. Base mensual por socio en moneda del año inicial: $600.000, $700.000, $850.000, $1.000.000 y $1.200.000, además del reajuste anual. No son sueldos líquidos. Desde año 6 se mantiene el último escalón real. La condición laboral/tributaria de socios con control de la empresa debe revisarla el contador; no se presume un contrato subordinado válido solo para obtener deducciones.
+## 6. Alcance de la BOM
 
-Se reserva 35% sobre sueldos para gratificación, cargas patronales y otros costos laborales. **No es una tasa legal única ni una liquidación salarial**. Revisar contratos, jornada, mutual, AFC, vacaciones, reemplazos y evolución previsional; someter también a estrés de 45%. El [ingreso mínimo informado por la Dirección del Trabajo](https://www.dt.gob.cl/portal/1626/w3-article-60141.html) y la [gratificación legal](https://dt.gob.cl/legislacion/1624/w3-article-106600.html) no deben sustituirse por una carga patronal fija del 5%. El mínimo aplicable a 2027 y cada año posterior debe actualizarse, no inferirse del valor de 2026.
+La BOM contiene **exclusivamente los componentes presentes en el esquemático**, itemizados uno por uno. Lo que todavía no está en el diseño no se incluye, y se declara aparte con su orden de magnitud: prensaestopas, o-ring y respiradero, cableado interno, y embalaje con manual y etiqueta.
 
-Contratar por capacidad antes de incumplir entregas:
+Los precios se cotizaron en el mercado efectivo de abastecimiento y **cada línea declara su origen**, para distinguir lo verificado de lo presupuestado. La sonda de suelo concentra la mayor parte del costo de materiales y es la decisión de abastecimiento crítica: el presupuesto la toma en el tramo alto de un mercado muy disperso, porque una sonda barata no sirve si no sostiene la exactitud que el protocolo de validación exige.
 
-- Producción: 2,25 horas por equipo; socios destinan 500 horas combinadas al año. Cada FTE contratado aporta 1.400 horas productivas presupuestadas. Contratación en escalones de 0,5 FTE, no personas fraccionarias. En base aparece ayuda técnica desde año 2; recalcular con el tiempo real de ensamblaje, pruebas y retrabajo.
-- Comercial/soporte: 2 horas por venta más 0,5 horas por equipo activo/año; socios disponen de 900 horas combinadas. La base activa supone cinco años de uso. Se contrata al exceder esa capacidad, en escalones de 0,5 FTE. Tiempo comercial incluye una asignación promedio a consultas no convertidas; validarlo con el embudo.
-- Los socios conservan aproximadamente 1.400 horas combinadas de estas tareas más tiempo de desarrollo, dirección, contabilidad operativa y marketing. El modelo no supone producción ilimitada gratis. Si soporte o CAC consumen más horas, adelantar contratación.
-- Agencia: $250.000/mes de gestión desde objetivo de 650 ventas/año (año 4 base), aparte de pauta. Es una opción de organización, no obligación legal; comparar con una persona interna y honorarios reales.
+Sobre el régimen tributario de las compras importadas: desde octubre de 2025 la Ley N° 21.713 eliminó la exención que liberaba de IVA a las importaciones bajo US$41. El IVA que las plataformas inscritas recaudan en el checkout **solo constituye crédito fiscal si la compra se formaliza como importación con Declaración de Ingreso**. El proyecto asume formalizar el abastecimiento antes de comprometer volumen; la sección económica cuantifica la exposición si no lo hace.
 
-Servicios digitales: $150.000/mes más $1.200 por equipo activo/año para capacidad y mantenimiento operativo. Cubre tienda, backend, correo y mantenimiento operativo. El costo directo de **API de clima se separa en $0/mes**, usando una API gratuita para cinco días de pronóstico. La selección y las condiciones del proveedor se describen en [integración climática](INFORME%201%20.docx.md#integracion-bme280). No prometer servicio de nube gratuito «para siempre»; definir duración contractual, exportación de datos y funcionamiento local.
+## 7. Lo que el modelo no acredita
 
-## Caja, impuestos y financiamiento
+- Que el precio de la sonda sea el presupuestado, porque no existe orden de compra ni ficha técnica del SKU.
+- Que la demanda responda como proyecta el plan comercial, porque no hay piloto pagado.
+- Que el banco otorgue el crédito en las condiciones supuestas, porque no hay oferta formal.
+- Que los precios cotizados se sostengan al volumen y con factura, porque son precios de plataforma al detalle.
 
-Se separan desembolso inicial, activos/reinversión, inventario, gasto operativo, IVA, impuesto y amortización. Reserva objetivo: **tres meses de gastos fijos (incluido marketing) y cuota, más 10% del desembolso inicial**. La reserva está dentro de la caja; no se vuelve a descontar como gasto ni se suma a la inversión dos veces. Con el crédito fijo de $30.000.000, la caja mínima de los primeros 24 meses es $13.521.745 y la reserva objetivo queda $615.379 corta en el mes 19; ese déficit se informa y no se corrige ampliando el préstamo. La reserva se verifica al inicio y a lo largo de los primeros 24 meses del escenario base. Una reserva mínima no es una garantía de supervivencia: cotizaciones e incertidumbre pueden exigir más margen.
+Ninguno de esos cuatro es un obstáculo oculto: están identificados con su método de verificación. La reserva de caja financia transitorios, no pérdidas permanentes.
 
-IVA: ventas netas de IVA; crédito de compras documentadas disponible desde el mes siguiente, incluido el stock de mes 0 desde mes 1. El IVA recuperable inicial no se deduce como gasto de renta. Se inmoviliza el débito en el mes de venta y no se utiliza recuperación inicial de activos/desarrollo/servicios; tratamiento prudente pero **no un calendario F29 exacto**. Impuesto: aproximación de caja Pro Pyme con pérdidas arrastradas; reserva anual al cierre, no pago legal en diciembre. Antes de operar, agregar PPM mensuales, declaración de abril, IVA efectivo y deducibilidad con contador. No se publica «flujo tributario definitivo» ni impuesto personal neto de los socios.
+## 8. Cómo se regenera
 
-Tasas empresariales de referencia: 12,5% para 2027, 15% para 2028 y 25% posteriormente bajo régimen/condiciones de la [Circular SII 53/2025](https://www.sii.cl/normativa_legislacion/circulares/2025/circu53.pdf). Comprobar que la empresa califica y actualizar legislación; el régimen transparente tendría otro tratamiento.
+```bash
+python finanzas/modelo.py                                  # toda la cadena
+python -m unittest discover -s finanzas -p "test_*.py"     # invariantes del modelo
+python docs/verificar_documentacion.py                     # enlaces y diagramas
+```
 
-El [FOGAPE para pequeña empresa publicado por BancoEstado](https://nwm.bancoestado.cl/content/bancoestado-public/cl/es/home/inicio---bancoestado-pequena-empresa/productos/garantias-estatales---bancoestado-pequenas-empresa/fogape-para-el-pequeno-empresario---bancoestado-pequenas-empresa.html) menciona hasta diez años, sujeto a evaluación. No extrapolar quince años a ese producto ni tratar FOGAPE como subsidio o condonación. Solicitar cotización CLP fija a 5 y 10 años con todos los cargos, garantías personales, gracia y comisión de prepago. La ficha general de crédito no prueba acceso de una empresa sin ventas.
-
-La hoja compara igual principal a 5/10/15 años y muestra toda su amortización, no solo cinco años con la deuda restante oculta. También muestra el esquema de dos préstamos: $5 millones al 15% pagados capital e interés al mes 12, resto amortizable a cinco años. No se mezclan cuotas anuales con mensuales. Un prepago futuro puede reducir intereses, pero no se da por hecho: realizarlo solo con caja excedente, inversión del siguiente período cubierta y condiciones cotizadas.
-
-FCFF = caja operativa después de impuestos calculados **sin** deducir intereses, menos reinversión e inventario/IVA. FCFE = caja luego de intereses, capital e impuesto con financiamiento. VAN del proyecto al 20%, TIR efectiva anual y payback se calculan con el mismo mes 0 y 120 flujos mensuales. El mes 0 incluye desembolso y reserva operativa sin cuotas; las variaciones posteriores de esa reserva se descuentan del FCFF. Sin valor terminal. La evaluación económica es independiente del préstamo; ver [correcciones y fórmulas](MODELO_ECONOMICO.md#correcciones-del-calculo). No hay dividendos automáticos ni «ganancia neta por socio» calculada desde remuneraciones brutas. Definir dividendos/prepago anualmente con información real y reservas antes de estimar TIR del capital propio.
-
-## Condiciones para pasar de plan a inversión
-
-Antes de crédito y producción: BOM cotizada, especificación energética comprobada, piloto técnico y ventas pagadas con margen positivo; contrato bancario efectivo; régimen y remuneraciones revisados; presupuesto de validación suficiente; obligaciones SUBTEL, batería, consumidores y datos revisadas. Si las ventas de estrés se materializan, redimensionar el negocio: no tapar pérdida recurrente con un plazo de quince años. El [plan de validación](PLAN_VALIDACION.md) distingue correcciones de repositorio de trabajo físico/regulatorio pendiente.
-
-<a id="correcciones-del-calculo"></a>
-## Correcciones y trazabilidad del cálculo
-
-La revisión del 5 de septiembre incorpora el BME280 a $3.500 finales y reemplaza la carcasa agrupada por impresión 3D externa ($6.000 netos) más fijaciones, juntas y ventilación ($1.500). Estos costos afectan compras, stock, merma, reposiciones, IVA, margen y financiamiento. La API de pronóstico conserva costo directo de $0. No se duplica el montaje final ni se compra una impresora en el escenario de servicio externo.
-
-Se corrigió el IVA inicial: el inventario comprado en mes 0 genera crédito desde mes 1, sin recuperación para la placa carga/boost de $900. El IVA recuperable tampoco se deduce como gasto de renta. La inversión económica dejó de depender de la caja resultante del préstamo: ahora incluye desembolso y caja mínima operativa sin cuotas. Sus aumentos se descuentan del FCFF; la reserva financiera se mantiene dentro de la caja del negocio.
-
-VAN, TIR y payback utilizan el mismo mes 0 y los mismos 120 flujos mensuales. La TIR mensual se anualiza como `(1 + tasa_mensual)^12 - 1`. El algoritmo comprueba las raíces reales admisibles y solo presenta una TIR si es única. El payback simple y descontado indican la primera recuperación con interpolación mensual; si no ocurre en los diez años, se informa expresamente. No se añade rescate, valor terminal ni liberación final de inventario o reserva. Al vencer la deuda, la reserva financiera deja de exigir cuotas futuras de ese préstamo.
-
-El Excel contiene la hoja **Evaluacion proyecto** y series por escenario con flujo, descuento y acumulados. Las fórmulas de conciliación llevan resultados cacheados: se modifica el JSON y se regenera, no se trata la planilla de resultados como un simulador interactivo completo. Las pruebas verifican casos analíticos, inventario, caja, amortización, IVA, raíces múltiples y consistencia con el Excel.
-
-El [Informe 1](INFORME%201%20.docx.md#analisis-economico) utiliza bloques generados con `finanzas/informe.py`. Las sensibilidades modifican una condición a la vez y mantienen el principal base. La tabla de tasas de descuento aplica siempre la misma serie; el escenario de tasa bancaria 18 % cambia la caja financiera, pero no el VAN económico antes de deuda.
-
-
-## Evaluación a diez años y comparación a cinco
-
-La evaluación principal usa 120 meses (2027–2036); los 60 meses se conservan como comparación sin valor terminal. El pie es de $9.000.000 y el crédito bancario de $30.000.000, ambos fijados como decisión del proyecto. Los años 6–10 suponen crecimiento anual de ventas de 5 %, sin demostrar demanda; años 11–15 se reservan para amortizaciones alternativas y operación posterior. El Excel incluye Comparacion 5 y 10 y Liquidez y deuda. FCFE anual positivo no implica dividendos; sin prepago, deuda cancelada en mes 120. Ver resultados generados para cifras y supuestos completos.
+Para cambiar una cifra se edita [`finanzas/supuestos.json`](../finanzas/supuestos.json) y se regenera. Para cambiar la redacción de un bloque generado se edita el generador correspondiente, nunca el resultado.
