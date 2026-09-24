@@ -10,7 +10,7 @@
 
 ### Álvaro Nicolás Villena Torrejón
 
-Alan Paul Escobar Rojas Académico guía: Carlos Alberto Castillo Torres Santiago − Chile AÑO 2026
+Alan Paul Escobar Rojas Académico guía: Carlos Alberto Castillo Torres Santiago − Chile AÑO 2026 1
 
 
 <!-- ===== PAGINA 2 ===== -->
@@ -22,7 +22,7 @@ Alan Paul Escobar Rojas Académico guía: Carlos Alberto Castillo Torres Santiag
 - II. Descripción de la Problemática
 - III. Propuesta de Solución Tecnológica
 - IV. Objetivos del Proyecto
-- V. Ingeniería conceptual
+- V. Ingeniería Conceptual
   - Análisis de Viabilidad Técnica
   - Arquitectura de Conectividad
   - Análisis de Viabilidad Económica
@@ -36,7 +36,7 @@ Alan Paul Escobar Rojas Académico guía: Carlos Alberto Castillo Torres Santiag
   - Plan de Calibración y Control de Deriva
   - Supuestos de Mercado
 - VI. Conclusiones
-- VII. Referencias bibliográficas
+- VII. Referencias Bibliográficas
 
 
 ### Índice de figuras
@@ -112,10 +112,10 @@ Para dar respuesta a esta problemática, el presente informe detalla el desarrol
 
 En el teléfono una aplicación con motor agronómico determinista opera de manera estrictamente offline, interpretando las variables y presentándolas bajo un Grid 2×5 de fácil asimilación, categorizada por código de colores tipo semáforo y enriquecida con recomendaciones directas de labor según el cultivo, el tipo de suelo y la etapa fenológica (Pre-siembra, Vegetativo, Floración o Cosecha). Como complemento a la lectura local, el sistema consulta un pronóstico meteorológico a 5 días que contextualiza la labor a mediano plazo (evitando, por ejemplo, sembrar antes de un pronóstico temporal).
 
-La ingeniería conceptual que fundamenta el proyecto se desarrolla en las siguientes secciones: la evaluación de alternativas, el dimensionamiento de mercado, el diseño electrónico y mecánico, el modelo financiero de rentabilidad a diez años, con comparación a cinco años, el marco normativo regulatorio y el protocolo de validación experimental que sustenta su factibilidad técnica y económica.
+La ingeniería conceptual que fundamenta el proyecto se desarrolla en las siguientes secciones: la evaluación de alternativas, el dimensionamiento de mercado, el diseño electrónico y mecánico, el modelo financiero de rentabilidad a diez años, con comparación a cinco años, el marco norm 6
 
 
-<!-- ===== PAGINA 6 ===== -->
+<!-- ===== PAGINA 7 ===== -->
 
 
 ## II. Descripción de la Problemática
@@ -132,8 +132,10 @@ En segundo lugar, el escenario económico ha provocado una escalada sostenida en
 
 En este escenario de estrechez hídrica y alto costo de insumos, la eficiencia productiva ya no es solo una oportunidad de mejora, sino un requisito estricto. La agricultura moderna exige optimizar cada gota de agua y cada gramo de nutriente aplicado. No obstante, para lograr esta eficiencia es imperativo contar con información precisa y en tiempo real sobre las condiciones del suelo, un requisito que choca frontalmente con la realidad tecnológica y económica del pequeño o mediano agricultor.
 
+7
 
-<!-- ===== PAGINA 7 ===== -->
+
+<!-- ===== PAGINA 8 ===== -->
 
 
 ### El Problema Central
@@ -148,8 +150,10 @@ La Barrera de Interpretación: Incluso si el agricultor logra adquirir uno de es
 
 Esta falta de herramientas accesibles e intuitivas obliga al agricultor a operar “a ciegas” durante todo el proceso productivo. El costo de esa ceguera no se reparte de manera pareja a lo largo de la temporada: se concentra en cuatro momentos en los que la decisión, una vez tomada, ya no se puede deshacer. Son las mismas cuatro etapas fenológicas sobre las que opera la solución propuesta.
 
+8
 
-<!-- ===== PAGINA 8 ===== -->
+
+<!-- ===== PAGINA 9 ===== -->
 
 
 - Pre-Siembra: Sin medir la conductividad eléctrica, el productor desconoce cuánta sal dejó acumulada la sequía en su terreno; sin medir la temperatura del suelo, no sabe si la tierra alcanzó el mínimo que exige la germinación. Siembra igual, guiado por el calendario heredado. La semilla se pierde en un suelo frío o demasiado salino, y esa pérdida sólo se vuelve visible varias semanas más tarde, cuando ya no queda ventana para resembrar.
@@ -160,8 +164,10 @@ Esta falta de herramientas accesibles e intuitivas obliga al agricultor a operar
 
 - Cosecha: Entrar al campo con maquinaria sobre un suelo con exceso de humedad compacta la tierra y destruye su estructura. El costo no se paga en la cosecha que se está levantando, sino en la siguiente: un suelo compactado infiltra peor, retiene menos agua y obliga a más labores de preparación. La decisión que hipoteca la temporada que viene se toma, sin saberlo, al cerrar la actual.
 
+9
 
-<!-- ===== PAGINA 9 ===== -->
+
+<!-- ===== PAGINA 10 ===== -->
 
 
 ### Impacto de las Decisiones Tradicionales
@@ -174,8 +180,10 @@ Ante la falta de instrumental comprensible, el productor toma decisiones basadas
 
 Diagrama que encadena, para cada una de las cuatro etapas fenológicas, la decisión tomada sin medición, el fallo agronómico que produce y la consecuencia económica en que termina.
 
+10
 
-<!-- ===== PAGINA 10 ===== -->
+
+<!-- ===== PAGINA 11 ===== -->
 
 
 ### Relación con los Servicios Formales de Análisis y Asesoría
@@ -188,8 +196,10 @@ Son procedimientos distintos que responden preguntas distintas, y confundirlos s
 
 En síntesis, el pequeño productor queda atrapado entre una crisis climática que le exige más precisión que nunca, un mercado de instrumentación que lo deja fuera por la relación entre lo que cobra y lo que entrega, y equipos que, cuando los alcanza, le devuelven un número que no sabe leer. Las dos barreras se refuerzan entre sí: la económica le impide comprar el instrumento, y la de interpretación vuelve inútil el instrumento que sí lograra comprar. El resultado es un productor que decide a ciegas y descubre sus errores al final de la temporada, cuando la pérdida de la cosecha y el endeudamiento del año ya son irreversibles.
 
+11
 
-<!-- ===== PAGINA 11 ===== -->
+
+<!-- ===== PAGINA 12 ===== -->
 
 
 ## III. Propuesta de Solución Tecnológica
@@ -210,9 +220,15 @@ Fabricar un instrumento nuevo que vuelva a incluir todas esas capacidades sería
 
 hacer lo único que el teléfono no puede hacer por sí solo (tomar contacto físico con la tierra y el ambiente). Todo el resto ocurre en el teléfono. Además de que el 100 % del procesamiento agronómico ocurre en el procesador del teléfono sin depender de cobertura de red móvil (3G/4G/5G). La nube actúa exclusivamente como respaldo posterior.
 
+12 Fabricar un instrumento nuevo que vuelva a incluir todas esas capacidades sería cobrarle dos veces al agricultor por algo que ya tiene. Por eso, el aparato físico se reduce a lo mínimo indispensable:
 
-<!-- ===== PAGINA 12 ===== -->
 
+<!-- ===== PAGINA 13 ===== -->
+
+
+hacer lo único que el teléfono no puede hacer por sí solo (tomar contacto físico con la tierra y el ambiente).
+
+Todo el resto ocurre en el teléfono. Además de que el 100 % del procesamiento agronómico ocurre en el procesador del teléfono sin depender de cobertura de red móvil (3G/4G/5G). La nube actúa exclusivamente como respaldo posterior.
 
 - Cero Suscripciones Recurrentes: El agricultor paga una vez por su instrumento y sus mediciones le pertenecen; puede consultarlas, exportarlas y usarlas libremente. A diferencia de la instrumentación importada que depende de plataformas por suscripción, aquí no existe una cuota mensual que condicione el funcionamiento del equipo. La tecnología no debe convertirse en una carga financiera mensual para quien ya enfrenta suficiente incertidumbre. Este principio tiene una consecuencia económica directa y asumida; los costos de soporte, servicios digitales, mantenimiento y reposición permanecen en el presupuesto de la empresa y están explícitamente cuantificados en la evaluación económica de este informe.
 
@@ -226,18 +242,20 @@ Asesores Técnicos y Extensionistas: Quienes hoy deben estimar las condiciones d
 
 Instituciones Públicas: Podrían apoyarse en esta información agregada para focalizar sus programas de fomento, paliando la actual falta de datos de suelo georreferenciados a escala de campo individual.
 
-El Medio Ambiente: Una fertilización y riego ajustados a la necesidad real del cultivo en lugar de aplicaciones preventivas por exceso de precaución reduce el desperdicio hídrico y la contaminación de napas por lixiviación.
+13 El Medio Ambiente: Una fertilización y riego ajustados a la necesidad real del cultivo en lugar de aplicaciones preventivas por exceso de precaución reduce el desperdicio hídrico y la contaminación de napas por lixiviación.
 
 
-<!-- ===== PAGINA 13 ===== -->
+<!-- ===== PAGINA 14 ===== -->
 
 
 ### La Propuesta de Valor
 
 TerraSense toma la información física del suelo y del aire, la cruza con el conocimiento agronómico del cultivo y con las condiciones climáticas del lugar exacto de la medición, entregando en segundos y sin necesidad de conexión a internet una recomendación concreta y accionable. Es, en esencia, la diferencia entre entregarle a alguien un termómetro y entregarle una orientación de manejo ya interpretada. El modelo comercial que sostiene esa promesa es la venta del instrumento con la aplicación incluida y sin cobro por lectura: el usuario dispone de una herramienta de seguimiento permanente, mientras los servicios de laboratorio y asesoría conservan su función en aquellas decisiones que requieren determinaciones específicas.
 
+14
 
-<!-- ===== PAGINA 14 ===== -->
+
+<!-- ===== PAGINA 15 ===== -->
 
 
 ### Estructura del Ecosistema
@@ -254,8 +272,10 @@ Para optimizar costos de manufactura y maximizar la durabilidad en terreno, las 
 
 Sobre la segunda fila conviene una precisión, porque de ella dependen las afirmaciones de operación sin red que el informe sostiene más adelante. La aplicación no utiliza un motor de base de datos embebido, conserva las mediciones en el almacenamiento persistente del propio teléfono y mantiene una cola de envío diferido, mientras el motor agronómico y las definiciones de cultivos residen en el código de la aplicación y no en un servidor. El efecto para el usuario de medir, diagnosticar y consultar sin cobertura es el mismo que ofrecería una base de datos local.
 
+15
 
-<!-- ===== PAGINA 15 ===== -->
+
+<!-- ===== PAGINA 16 ===== -->
 
 
 ## IV. Objetivos del Proyecto
@@ -276,8 +296,10 @@ Para materializar este objetivo general, el proyecto se estructura en los siguie
 
 - Optimizar la autonomía energética: Desarrollar un sistema de alimentación capaz de sostener un uso frecuente en terreno durante varios meses sin requerir recargas constantes ni mantenimiento especializado, garantizando su disponibilidad durante toda la temporada agrícola.
 
+16
 
-<!-- ===== PAGINA 16 ===== -->
+
+<!-- ===== PAGINA 17 ===== -->
 
 
 - Desarrollar el motor de razonamiento agronómico: Construir el algoritmo (el “corazón” del sistema) que convierta las variables físicas capturadas en orientaciones cualitativas ajustadas a la etapa fenológica específica del cultivo y su etapa (siembra, desarrollo, floración o cosecha).
@@ -292,18 +314,22 @@ Para materializar este objetivo general, el proyecto se estructura en los siguie
 
 - Evaluar la viabilidad económica y financiera: Estructurar el modelo de negocio, analizando rigurosamente la estructura de costos, proyecciones de flujo de caja y fuentes de financiamiento, para asegurar que la solución tecnológica sea sostenible como empresa en el tiempo.
 
+17
 
-<!-- ===== PAGINA 17 ===== -->
+
+<!-- ===== PAGINA 18 ===== -->
 
 
-## V. Ingeniería conceptual
+## V. Ingeniería Conceptual
 
 La ingeniería conceptual constituye el puente crítico entre la problemática diagnosticada y la materialización de la solución. En esta etapa, los principios filosóficos del proyecto, movilidad, independencia de red, bajo costo y el uso del teléfono como núcleo de procesamiento se traducen en requerimientos técnicos concretos. El objetivo de esta fase no es simplemente elegir componentes al azar, sino definir y justificar la arquitectura de hardware y software óptima que garantice la viabilidad del equipo en el mundo real, equilibrando rendimiento, robustez y usabilidad para el pequeño agricultor.
 
 A partir de estas premisas, se desarrolla el siguiente análisis de viabilidad técnica, como también viabilidad económica en donde se evalúan las distintas alternativas para materializar el sistema.
 
+18
 
-<!-- ===== PAGINA 18 ===== -->
+
+<!-- ===== PAGINA 19 ===== -->
 
 
 ### Análisis de Viabilidad Técnica
@@ -322,15 +348,21 @@ Antes de comparar cualquier alternativa, el proyecto fija dos capas de exigencia
 
 **Tabla 1.1 “Filtro de Viabilidad”**
 
+19 Criterios Ponderados: Solo entre las arquitecturas que sobreviven el filtro se aplica una matriz de puntuación (escala 1 a 10) sobre ocho criterios: cobertura espacial (15 %), calidad de interfaz (13 %), capacidad de interpretación (15 %), autonomía energética (14 %), costo total a cinco años para el agricultor (16 %), robustez mecánica y ambiental (10 %), facilidad de actualizar el conocimiento agronómico (9 %) e independencia de infraestructura externa (8 %).
 
-<!-- ===== PAGINA 19 ===== -->
 
+<!-- ===== PAGINA 20 ===== -->
 
-Criterios Ponderados: Solo entre las arquitecturas que sobreviven el filtro se aplica una matriz de puntuación (escala 1 a 10) sobre ocho criterios: cobertura espacial (15 %), calidad de interfaz (13 %), capacidad de interpretación (15 %), autonomía energética (14 %), costo total a cinco años para el agricultor (16 %), robustez mecánica y ambiental (10 %), facilidad de actualizar el conocimiento agronómico (9 %) e independencia de infraestructura externa (8 %).
 
 Esta separación en dos capas evita "aprobar" una arquitectura inviable con un buen puntaje ponderado, un caso real que aparece más adelante y que el propio proyecto descarta por honestidad tecnológica.
 
 Alternativas Evaluadas: Se compararon seis arquitecturas; ninguna es hipotética, las seis existen hoy como productos comerciales o como proyectos publicados en la literatura técnica.
+
+20
+
+
+<!-- ===== PAGINA 21 ===== -->
+
 
 - Instrumento autónomo (8 bits + pantalla + Bluetooth Classic): La arquitectura por defecto de la electrónica educativa y de buena parte de los medidores genéricos de importación: un microcontrolador simple, una pantalla LCD u OLED pequeña, y un módulo Bluetooth Classic para vinculación.
 
@@ -338,11 +370,13 @@ Alternativas Evaluadas: Se compararon seis arquitecturas; ninguna es hipotética
 
 **Figura 1.1 “Diagrama de Flujo Arquitectura 8 Bits + Bluetooth Classic”**
 
-
-<!-- ===== PAGINA 20 ===== -->
-
-
 Evaluación: Los módulos Bluetooth Classic más usados implementan un perfil de comunicación que iOS no permite usar sin certificación MFi de Apple. Adoptarla significa renunciar a la mitad del mercado de teléfonos. Además, la memoria disponible no alcanza para el motor de interpretación y no hay forma de actualizar el firmware de forma remota. Incumple el filtro de viabilidad y queda eliminada.
+
+21
+
+
+<!-- ===== PAGINA 22 ===== -->
+
 
 - Instrumento autónomo con inferencia embebida y pantalla: La versión seria de la alternativa anterior. Todo el sistema incluido el motor de interpretación agronómica viviría dentro del microcontrolador, sin depender de un teléfono.
 
@@ -352,8 +386,10 @@ Evaluación: Los módulos Bluetooth Classic más usados implementan un perfil de
 
 Evaluación: Incorporar una pantalla activa y el motor de interpretación agronómica reduce la autonomía en más de tres cuartas partes; la ventana de la pantalla es un riesgo de estanqueidad frente a la humedad; sin GPS ni conectividad, se pierde la capa del motor que cruza la medición con el clima previsto; y corregir el conocimiento agronómico exigiría publicar un nuevo firmware y forzar al usuario a instalarlo. Sí supera el filtro de viabilidad y llega a la etapa de puntuación.
 
+22
 
-<!-- ===== PAGINA 21 ===== -->
+
+<!-- ===== PAGINA 23 ===== -->
 
 
 - Datalogger estacionario con telemetría de red móvil: La arquitectura típica de las parcelas de investigación: equipo fijo, alimentado por panel solar, con una sonda enterrada en un único punto y un módem de red móvil que sube datos a una web por suscripción.
@@ -364,11 +400,13 @@ Evaluación: Incorporar una pantalla activa y el motor de interpretación agron�
 
 Evaluación: Resuelve bien un problema distinto. La variabilidad de un campo es espacial; mapear veinte puntos exigiría veinte equipos. Requiere cobertura celular exacta en el punto de instalación e impone una suscripción recurrente (incompatible con el proyecto). Incumple RO-3 y RO-4 y queda eliminada.
 
+23
 
-<!-- ===== PAGINA 22 ===== -->
+
+<!-- ===== PAGINA 24 ===== -->
 
 
-- Red de nodos LoRaWAN con estación concentradora en el campo: Reemplaza el módem de red móvil por una radio de largo alcance y bajísimo consumo hacia una estación concentradora en el campo.
+- Red de nodos LoRaWAN con estación controladora en el campo: Reemplaza el módem de red móvil por una radio de largo alcance y bajísimo consumo hacia una estación concentradora en el campo.
 
 > *[imagen del documento original]*
 
@@ -376,8 +414,10 @@ Evaluación: Resuelve bien un problema distinto. La variabilidad de un campo es 
 
 Evaluación: Es la alternativa técnicamente más elegante entre las descartadas, pero medir 20 puntos exigiría 20 nodos a un costo prohibitivo, y exige instalar infraestructura propia (la estación). Además, no resuelve el caso de uso real: el agricultor está de pie sobre el punto cuando necesita la decisión, no a distancia. Cumple los requisitos y pasa a puntuar con esa reserva.
 
+24
 
-<!-- ===== PAGINA 23 ===== -->
+
+<!-- ===== PAGINA 25 ===== -->
 
 
 - Sonda conectada directo al teléfono (electrónica intermedia): La alternativa más radical: eliminar la radio del medio y conectar la sonda al teléfono por cable.
@@ -388,8 +428,10 @@ Evaluación: Es la alternativa técnicamente más elegante entre las descartadas
 
 Evaluación: Si se puntuara, obtendría el segundo mejor resultado al heredar gratis todas las capacidades del teléfono. Sin embargo, es físicamente irrealizable: aunque la sonda opera en un rango de 5 a 24 V DC que técnicamente incluye los 5 V que entrega un puerto USB, el puerto del teléfono en modo host no puede sostener la corriente de excitación que exige la sonda industrial durante la medición, y ningún teléfono comercial genera de forma nativa la señalización diferencial RS-485 que el protocolo exige. El límite no es de tensión sino de corriente entregable y de capa física. Incumple RO-1 y RO-5 y queda eliminada sin puntuar.
 
+25
 
-<!-- ===== PAGINA 24 ===== -->
+
+<!-- ===== PAGINA 26 ===== -->
 
 
 - Instrumento portátil inalámbrico de bajo consumo, con el teléfono como intérprete: La síntesis de las lecciones anteriores: un equipo portátil mínimo que resuelve únicamente lo que el teléfono no puede hacer (proveer la tensión, protocolo y medición física), y delega en el teléfono la interpretación, posición geográfica, pantalla y almacenamiento mediante un enlace inalámbrico BLE
@@ -402,10 +444,10 @@ Evaluación: Si se puntuara, obtendría el segundo mejor resultado al heredar gr
 
 Evaluación: El teléfono reúne capacidades que duplicar en el instrumento sería un gasto innecesario. Asume que el usuario dispone de un teléfono, supuesto respaldado por la alta penetración del smartphone en zonas rurales [15].
 
-Cumple la totalidad de los requisitos y pasa a puntuar.
+26
 
 
-<!-- ===== PAGINA 25 ===== -->
+<!-- ===== PAGINA 27 ===== -->
 
 
 ### Matriz de Decisión: Puntuando sólo a las arquitecturas que superaron el filtro.
@@ -424,23 +466,25 @@ Cumple la totalidad de los requisitos y pasa a puntuar.
 
 **Tabla 1.2 “Matriz de Decisiones”**
 
+27 Conclusión y Sensibilidad: La arquitectura de un instrumento portátil inalámbrico de bajo consumo, con el teléfono como intérprete gana con margen amplio por su ventaja insuperable en cobertura espacial ilimitada, capacidad de interpretación y facilidad de actualización del software. Tras un análisis de sensibilidad elevando los pesos de distintos criterios, esta arquitectura mantiene su ventaja.
 
-<!-- ===== PAGINA 26 ===== -->
 
+<!-- ===== PAGINA 28 ===== -->
 
-Conclusión y Sensibilidad: La arquitectura de un instrumento portátil inalámbrico de bajo consumo, con el teléfono como intérprete gana con margen amplio por su ventaja insuperable en cobertura espacial ilimitada, capacidad de interpretación y facilidad de actualización del software. Tras un análisis de sensibilidad elevando los pesos de distintos criterios, esta arquitectura mantiene su ventaja.
 
 Selección de Componentes Base: Decidida la arquitectura general, la segunda capa de decisiones define con qué componente concreto se construye cada bloque.
 
-Se aplicó la misma disciplina: evaluación de candidatos reales, criterios declarados antes de comparar, y honestidad explícita cuando la alternativa descartada es superior en alguna dimensión. Sobre once subsistemas evaluados, en siete existe una alternativa técnicamente superior en alguna métrica, y el proyecto lo declara en lugar de presentar una selección irreal donde el componente elegido gane en todo.
-
-
-<!-- ===== PAGINA 27 ===== -->
-
+Se aplicó la misma disciplina, evaluación de candidatos reales, criterios declarados antes de comparar, y honestidad explícita cuando la alternativa descartada es superior en alguna dimensión. Sobre once subsistemas evaluados, en siete existe una alternativa técnicamente superior en alguna métrica, y el proyecto lo declara en lugar de presentar una selección irreal donde el componente elegido gane en todo.
 
 Microcontrolador: Se evaluaron cuatro candidatos: ESP32, nRF52840, STM32WB55 y ATmega328P + HC-05. Este último queda descartado de entrada: su módulo Bluetooth Classic sufre el mismo bloqueo de iOS (certificación MFi) visto en la evaluación de arquitecturas.
 
 Los tres restantes se puntúan sobre cinco criterios declarados antes de comparar, en la misma escala de 1 a 10 usada en la matriz de arquitecturas: consumo de radio en transmisión BLE (20 %), Wi-Fi integrado para actualización remota (20 %), concurrencia disponible para separar la pila de radio de la temporización Modbus (15 %), ecosistema y soporte de documentación (25 %) y disponibilidad y costo en el mercado local (20 %).
+
+28
+
+
+<!-- ===== PAGINA 29 ===== -->
+
 
 | Microcontrolador | Consumo de radio en Tx BLE | Wi-Fi / OTA | Núcleo s | Ecosiste ma | Disponibilida d y costo | Puntaje ponderad o | Veredicto |
 |---|---|---|---|---|---|---|---|
@@ -452,13 +496,13 @@ Los tres restantes se puntúan sobre cinco criterios declarados antes de compara
 
 Justificación de la Selección: Aunque los chips nRF52840 y STM32WB55 superan al ESP32 por un factor enorme en eficiencia de radio, al modelar el presupuesto energético completo del equipo esa ventaja de radio sólo se traduce en una fracción mínima de autonomía total, porque la carga dominante es el consumo propio de la placa de control mientras el equipo está encendido, no la radio. A cambio de resignar ese porcentaje, el ESP32 aporta Wi-Fi integrado (vital para actualizar el firmware por aire sin complicaciones), doble núcleo (para sostener la temporización de la sonda sin perder el Bluetooth) y, por último, un extenso ecosistema de desarrollo y soporte global de la comunidad para proyectos basados en este microcontrolador.
 
+Sobre la cifra de consumo conviene fijar una sola referencia, porque este informe la utiliza en dos lugares distintos, el módulo presenta un rango dinámico total de 95 a 380 mA medido en su propio pin de 3,3 V, dentro del cual la transmisión BLE se sitúa en el orden de 130 a 150 mA. El balance energético de este informe adopta 150 mA para la fase de envío, es decir el extremo superior de esa banda, por prudencia.
 
-<!-- ===== PAGINA 28 ===== -->
+29 Sonda de Suelo: Aporta 7 de las 10 variables del sistema, siendo la decisión más crítica. Se comparó la sonda 7-en-1 RS-485 contra instrumentos de grado de investigación (METER TEROS 12, Delta-T WET150, Stevens HydraProbe) [10].
 
 
-Sobre la cifra de consumo conviene fijar una sola referencia, porque este informe la utiliza en dos lugares distintos: el módulo presenta un rango dinámico total de 95 a 380 mA medido en su propio pin de 3,3 V, dentro del cual la transmisión BLE se sitúa en el orden de 130 a 150 mA. El balance energético de este informe adopta 150 mA para la fase de envío, es decir el extremo superior de esa banda, por prudencia.
+<!-- ===== PAGINA 30 ===== -->
 
-Sonda de Suelo: Aporta 7 de las 10 variables del sistema, siendo la decisión más crítica. Se comparó la sonda 7-en-1 RS-485 contra instrumentos de grado de investigación (METER TEROS 12, Delta-T WET150, Stevens HydraProbe) [10].
 
 Los criterios declarados y sus pesos son: número de variables entregadas (30 %), exactitud declarada (25 %), viabilidad económica medida como costo por variable (30 %) y robustez e idoneidad para uso portátil en terreno (15 %).
 
@@ -471,8 +515,10 @@ Los criterios declarados y sus pesos son: número de variables entregadas (30 %)
 
 Justificación de la Selección: Se sacrifica exactitud absoluta a cambio de viabilidad. Obtener las siete variables con sensores de investigación multiplicaría el costo del producto por veinte, lo que contradice el objetivo mismo del proyecto. La limitación técnica más importante se declara explícitamente: la estimación de N, P y K no se mide por electrodo ion-selectivo, sino que se deriva de la conductividad eléctrica. En suelo salino se puede leer erróneamente un estado “fértil”. Para mitigarlo, la aplicación presenta N, P y K como registros informativos, acompañados de forma permanente por una advertencia de que no constituyen un diagnóstico nutricional y no permiten prescribir dosis de fertilizante; además, cuando la conductividad eléctrica supera los 1.000 µS/cm se activa un veto de confianza que refuerza esa advertencia en pantalla. En ningún caso se presenta una clase agronómica ni una dosis derivada de estos tres valores.
 
+30
 
-<!-- ===== PAGINA 29 ===== -->
+
+<!-- ===== PAGINA 31 ===== -->
 
 
 ### Sensor Ambiental: Compite el Bosch BME280, BMP280 y el Sensirion SHT40.
@@ -487,8 +533,10 @@ Justificación de la Selección: Se sacrifica exactitud absoluta a cambio de via
 
 Justificación de la Selección: Se elige por una razón funcional, no de desempeño. El BME280 es el único de los tres candidatos que entrega simultáneamente las tres magnitudes que el Grid 2×5 reserva al ambiente local. El SHT40 es más exacto en temperatura pero no mide presión; el BMP280, frecuentemente confundido con el BME280 por su encapsulado casi idéntico, no aporta humedad relativa y por lo tanto no constituye un reemplazo funcional. La presión barométrica se utiliza además para corregir el cálculo de evapotranspiración por altitud [14]. Cabe precisar que la temperatura del BME280 se emplea también en la compensación interna del propio sensor, y su correspondencia con el aire exterior depende críticamente de su ubicación física dentro de la carcasa, requisito que se aborda en el diseño mecánico.
 
+31
 
-<!-- ===== PAGINA 30 ===== -->
+
+<!-- ===== PAGINA 32 ===== -->
 
 
 ### Arquitectura de Conectividad
@@ -507,8 +555,10 @@ en su implementación serial RTU se verifican longitud, dirección, función, CR
 
 - ESP32 → Teléfono (Bluetooth Low Energy): Se optó por un enlace BLE puntual debido a su bajo consumo energético. El equipo envía paquetes de datos muy pequeños (tramas de 20 bytes en el contrato vigente) y se conecta solo durante los segundos que dura la medición. Al utilizar BLE se evita la barrera de certificación MFi que afecta al perfil serial de Bluetooth Classic en iOS, habilitando compatibilidad con Android y Apple sin costos de hardware adicionales.
 
+32
 
-<!-- ===== PAGINA 31 ===== -->
+
+<!-- ===== PAGINA 33 ===== -->
 
 
 - Teléfono → Nube (HTTPS / Supabase): El sistema implementa una arquitectura estrictamente offline-first. La falta de cobertura en zonas rurales es la principal causa de fallo en agrotecnología, por lo que el motor de interpretación agronómica corre localmente en el teléfono sobre almacenamiento local persistente. La conexión a la nube ocurre de manera diferida y en segundo plano, interviniendo únicamente para sincronizar historiales y respaldar información cuando el teléfono detecta señal de internet.
@@ -524,13 +574,16 @@ Esta independencia tiene un límite preciso, y conviene declarar la frontera fun
 | Guardado en la base local y consulta del histórico ya almacenado | Ninguna | Funciona íntegramente sobre el almacenamiento del teléfono |
 | Exportación del histórico local | Ninguna | El archivo se genera en el propio teléfono, sin consultar ningún servidor |
 | Creación de cuenta, inicio de sesión inicial y recuperación de credenciales | Requiere internet | No disponible; la sesión ya iniciada permanece válida y permite seguir midiendo |
-
-
-<!-- ===== PAGINA 32 ===== -->
-
-
 | Registro de un equipo nuevo en la cuenta | Requiere internet | No disponible; se completa al recuperar cobertura |
+
+33
+
+
+<!-- ===== PAGINA 34 ===== -->
+
+
 | Sincronización y respaldo del histórico hacia la nube | Requiere internet | Las mediciones se encolan localmente y se envían solas al recuperar señal; no se pierde ninguna |
+|---|---|---|
 | Consola web de flota para asesores y cooperativas | Requiere internet | No disponible; es una herramienta de escritorio, no de terreno |
 | Pronóstico meteorológico a cinco días | Requiere internet | La aplicación indica expresamente que el pronóstico no está disponible y no lo sustituye por un valor estimado |
 
@@ -538,18 +591,20 @@ Esta independencia tiene un límite preciso, y conviene declarar la frontera fun
 
 La regla que resume la tabla es simple y define el diseño completo: medir, diagnosticar, georreferenciar y guardar no dependen jamás de la cobertura. Lo que sí depende de ella es administrar la cuenta, respaldar en la nube y contextualizar con el clima previsto, es decir, funciones que el agricultor ejecuta antes o después de la jornada de terreno, no durante. Un teléfono sin señal en medio del campo conserva la totalidad de la cadena que convierte una medición física en una decisión agronómica; lo único que posterga es el respaldo. Esta distinción también acota la promesa comercial: el sistema no ofrece pronóstico sin internet ni sincronización mágica, y ninguna de las dos carencias impide tomar la decisión en terreno.
 
+34 Se adjunta un diagrama de flujo para comprender de manera visual la ruta de la información, desde la captura en terreno hasta el almacenamiento diferido en la nube:
 
-<!-- ===== PAGINA 33 ===== -->
 
+<!-- ===== PAGINA 35 ===== -->
 
-Se adjunta un diagrama de flujo para comprender de manera visual la ruta de la información, desde la captura en terreno hasta el almacenamiento diferido en la nube:
 
 > *[imagen del documento original]*
 
 **Figura 1.7 “Diagrama de Flujo Arquitectura de Conectividad”**
 
+35
 
-<!-- ===== PAGINA 34 ===== -->
+
+<!-- ===== PAGINA 36 ===== -->
 
 
 ### Análisis de Viabilidad Económica
@@ -974,7 +1029,7 @@ El divisor drena de forma permanente 18,5 µA (I = V/R = 3,7 V / 200 kΩ), inclu
 La carga y la elevación de tensión se resuelven mediante una PCB combinada USB-C de carga y boost, integrada como un único componente. Concentrar ambas funciones en un solo módulo reduce el número de referencias de la BOM, el área de placa portadora y los puntos de soldadura del ensamblaje, sin renunciar a las protecciones de sobrecarga, sobredescarga y cortocircuito que exige la celda de litio.
 
 
-<!-- ===== PAGINA 57 ===== -->
+<!-- ===== PAGINA 63 ===== -->
 
 
 ### Sistema de Procesamiento y Conectividad
@@ -993,16 +1048,18 @@ El núcleo del procesamiento recae en el módulo ESP32-WROOM-32 [19]. La elecci�
 
 **Tabla 3.8 “Especificaciones Técnicas ESP32”**
 
+63 El rango de 95 a 380 mA describe el consumo del módulo medido en su propio pin de alimentación de 3,3 V, no el consumo del sistema completo: el extremo inferior corresponde a CPU activa con radio en reposo (el estado que domina durante la fase de adquisición Modbus) y el extremo superior a un pico instantáneo de transmisión Wi-Fi a máxima potencia, que este proyecto no utiliza porque toda la comunicación con el teléfono ocurre por BLE. Durante el advertising BLE de bajo duty cycle, el consumo promedio del módulo es menor que ese piso de 95 mA porque la radio se activa en pulsos breves y espaciados; el valor de 40 mA usado en la Fase 1 del ciclo de medición corresponde a ese promedio y no contradice el rango declarado, que describe el consumo en los instantes en que el núcleo de radio está activo.
 
-<!-- ===== PAGINA 58 ===== -->
 
+<!-- ===== PAGINA 64 ===== -->
 
-El rango de 95 a 380 mA describe el consumo del módulo medido en su propio pin de alimentación de 3,3 V, no el consumo del sistema completo: el extremo inferior corresponde a CPU activa con radio en reposo (el estado que domina durante la fase de adquisición Modbus) y el extremo superior a un pico instantáneo de transmisión Wi-Fi a máxima potencia, que este proyecto no utiliza porque toda la comunicación con el teléfono ocurre por BLE. Durante el advertising BLE de bajo duty cycle, el consumo promedio del módulo es menor que ese piso de 95 mA porque la radio se activa en pulsos breves y espaciados; el valor de 40 mA usado en la Fase 1 del ciclo de medición corresponde a ese promedio y no contradice el rango declarado, que describe el consumo en los instantes en que el núcleo de radio está activo.
 
 La última fila de la tabla es una cifra del módulo y no del equipo. La BOM adquiere una placa de desarrollo que mantiene alimentados su regulador y su LED de alimentación mientras recibe tensión, con un consumo propio del orden de 6 mA [48, 49], varios cientos de veces el reposo profundo del módulo. En esta placa, por lo tanto, la herramienta de ahorro no es el reposo profundo sino el interruptor, que corta la alimentación de la placa completa; la sección de gestión energética cuantifica el efecto.
 
+64
 
-<!-- ===== PAGINA 59 ===== -->
+
+<!-- ===== PAGINA 65 ===== -->
 
 
 ### Adquisición de Datos y Sensado
@@ -1023,23 +1080,23 @@ La última fila de la tabla es una cifra del módulo y no del equipo. La BOM adq
 
 Estas cifras provienen de la ficha de una sonda representativa de la familia [20] y no del SKU finalmente adquirido, que aún no cuenta con ficha propia publicada. La distinción no es formal: el protocolo de validación de este informe fija su criterio de aceptación sobre umbrales agronómicos propios precisamente porque la exactitud del fabricante no está verificada.
 
+65 El rango de alimentación de 5 a 24 V DC es representativo de la familia de sondas 7-en-1 RS-485 industriales [20]; dentro de ese rango, el proyecto opera la sonda en su extremo inferior (5 V, entregados por el elevador de tensión descrito más adelante) porque coincide con la tensión que el mismo elevador ya entrega a la placa de control y evita añadir un segundo convertidor.
 
-<!-- ===== PAGINA 60 ===== -->
 
+<!-- ===== PAGINA 66 ===== -->
 
-El rango de alimentación de 5 a 24 V DC es representativo de la familia de sondas 7-en-1 RS-485 industriales [20]; dentro de ese rango, el proyecto opera la sonda en su extremo inferior (5 V, entregados por el elevador de tensión descrito más adelante) porque coincide con la tensión que el mismo elevador ya entrega a la placa de control y evita añadir un segundo convertidor. Esta decisión se declara explícitamente como una condición de diseño a validar contra la ficha técnica definitiva del SKU adquirido, dado que otras sondas de la misma familia sólo alcanzan su exactitud declarada operando a 12 V o más; si la validación en laboratorio mostrara desviación en la lectura al operar a 5 V, la contingencia de diseño es agregar un elevador de 12 V dedicado a la sonda, detrás del mismo corte por MOSFET, lo que no altera la arquitectura general pero sí el consumo de la Rama de Medición Conmutada.
 
 Conviene además declarar el supuesto con que se estima el consumo de la sonda, porque no se lee directamente de ninguna ficha. La descripción del vendedor entrega 0,15W a 12 V y 0,5W a 24 V, de modo que la potencia no es constante con la tensión de alimentación. El balance energético de este informe adopta, a falta de dato a 5 V, un supuesto de potencia constante de 150 mW en el extremo inferior del rango, equivalente a 30 mA a 5 V. Ese supuesto se declara aquí como tal y figura entre las mediciones de banco que el plan de trabajo ejecuta antes de comprometer el volumen de compra. Su peso en el resultado es acotado, porque la fase de adquisición dura tres segundos, pero el método exige nombrarlo.
 
 La comunicación se establece a 9.600 baudios vía Modbus RTU. Para mitigar variaciones entre lotes de proveedores, el mapa de registros Modbus, la dirección del esclavo y los coeficientes de calibración no estarán fijados en el firmware, sino que residirán parametrizados en la memoria no volátil (NVS) del ESP32, permitiendo ajustes remotos por actualización remota.
 
-- Sensor Ambiental (Bosch BME280): Para las variables climáticas superficiales se integra un sensor BME280 en el bus I²C. Este componente aporta mediciones de temperatura (±1,0 °C), humedad relativa (±3 % HR) y presión barométrica (±1,0 hPa) [13]. Dado que su consumo en reposo es de apenas 0,1 µA, una cifra inferior a la corriente de fuga intrínseca de los transistores convencionales, se prescinde de un circuito de corte dedicado. El sensor operará en forced mode, autogestionando su transición a reposo tras cada muestreo; los 3,6 µA son el consumo medio a 1 Hz declarado en la hoja de datos, no la corriente instantánea durante la conversión [13], consumo medio a 1 Hz, no corriente instantánea durante la conversión.
+- Sensor Ambiental (Bosch BME280): Para las variables climáticas superficiales se integra un sensor BME280 en el bus I²C. Este componente aporta mediciones de temperatura (±1,0 °C), humedad relativa (±3 % HR) y presión barométrica (±1,0 hPa) [13]. Dado que su consumo en reposo es de apenas 0,1 µA, una cifra inferior a la corriente de fuga intrínseca de los transistores convencionales, se prescinde de un circuito de corte dedicado. El sensor operará en forced mode, autogestionando su transición a reposo tras cada muestreo; los 3,6 µA son el consumo medio a 1
+
+Hz declarado en la hoja de datos, no la corriente instantánea durante la conversión 66 Trama de Datos BLE: El instrumento actúa como puente entre dos entornos distintos: hacia la sonda ejecuta una consulta Modbus RTU y verifica la respuesta; hacia el teléfono publica los datos ya decodificados en una característica GATT. La aplicación no necesita generar señales RS-485 ni procesar el cableado industrial, sino consumir un contrato de datos de aplicación. El contrato es único y de longitud fija:
 
 
-<!-- ===== PAGINA 61 ===== -->
+<!-- ===== PAGINA 67 ===== -->
 
-
-Trama de Datos BLE: El instrumento actúa como puente entre dos entornos distintos: hacia la sonda ejecuta una consulta Modbus RTU y verifica la respuesta; hacia el teléfono publica los datos ya decodificados en una característica GATT. La aplicación no necesita generar señales RS-485 ni procesar el cableado industrial, sino consumir un contrato de datos de aplicación. El contrato es único y de longitud fija:
 
 20 bytes, con valores multibyte en formato big-endian. El equipo transmite siempre las diez variables (siete de suelo, tres de ambiente) más el estado de batería en una sola notificación; no existen tramas parciales ni modos reducidos.
 
@@ -1058,11 +1115,11 @@ Trama de Datos BLE: El instrumento actúa como puente entre dos entornos distint
 
 **Tabla 4.0 “Contrato de Datos BLE (20 bytes)”**
 
+67 Un cambio de orden de bytes o de escala puede producir cifras plausibles pero incorrectas, mucho más difíciles de detectar que una desconexión visible: una humedad de 35,0 % leída como 8.960 se advierte de inmediato, pero un pH mal escalado que arroje 6,5 en lugar de 5,6 puede pasar inadvertido y provocar una recomendación equivocada.
 
-<!-- ===== PAGINA 62 ===== -->
 
+<!-- ===== PAGINA 68 ===== -->
 
-Un cambio de orden de bytes o de escala puede producir cifras plausibles pero incorrectas, mucho más difíciles de detectar que una desconexión visible: una humedad de 35,0 % leída como 8.960 se advierte de inmediato, pero un pH mal escalado que arroje 6,5 en lugar de 5,6 puede pasar inadvertido y provocar una recomendación equivocada.
 
 Las tres magnitudes del BME280 viajan dentro de la misma trama y no en una característica GATT separada: los bytes 16 a 19 empaquetan temperatura del aire, presión y humedad relativa en 12, 12 y 8 bits respectivamente. La razón de ese empaquetado es exacta y no estética: 20 bytes es la carga útil máxima que cabe en una notificación BLE con el MTU por defecto de 23 bytes (20 de datos más 3 de cabecera del protocolo). Al caber entera en un solo paquete, la medición de suelo y la de ambiente pertenecen por construcción a la misma captura, sin necesidad de emparejar dos paquetes, sin riesgo de mezclar lecturas de instantes distintos y sin negociar un MTU mayor que algunos teléfonos Android no conceden.
 
@@ -1070,8 +1127,10 @@ El byte 15 no es un selector de funciones opcionales sino un identificador de fo
 
 Cuando el BME280 no responde, el firmware escribe un centinela de todos unos (0xFFF en cada campo de 12 bits, 0xFF en el de 8) y la aplicación almacena un valor nulo: la trama conserva su largo de 20 bytes, la ausencia queda marcada como tal y nunca se sustituye un dato faltante por un valor plausible.
 
+68
 
-<!-- ===== PAGINA 63 ===== -->
+
+<!-- ===== PAGINA 69 ===== -->
 
 
 ### Estado Probatorio de las Especificaciones Declaradas
@@ -1087,11 +1146,6 @@ Las tablas anteriores mezclan, inevitablemente, cifras de distinta solidez: algu
 | BME280: ±1,0 °C, ±3 % HR, ±1,0 hPa, 0,1 µA en reposo | Hoja de datos Bosch del componente exacto [13] | Confirmada por hoja de datos del componente seleccionado | Nada; verificar la respuesta térmica una vez montado tras el respiradero |
 | SP3485: 2 mA con driver habilitado | Hoja de datos del transceptor exacto [24] | Confirmada por hoja de datos del componente seleccionado | Nada |
 | Interruptor de encendido después del módulo de carga | Decisión de diseño del esquemático | Definida, no medida | Medir la corriente de la celda con el interruptor abierto, usando el puente soldable de medición |
-
-
-<!-- ===== PAGINA 64 ===== -->
-
-
 | Sonda 7-en-1: rangos y exactitudes de las 7 variables | Ficha de una sonda representativa de la familia [20]; el SKU no tiene ficha propia publicada | Representativa de la familia, no del SKU | Exigir la ficha técnica del SKU al proveedor antes de la orden de compra, y contrastar con la campaña de validación de 30 muestras |
 | Sonda: alimentación 5–24 V DC y consumo 30 mA a 5 V | Descripción del vendedor (4,5–30 V; 0,15 W a 12 V; 0,5 W a 24 V) más supuesto propio de potencia constante | Supuesto de diseño sobre declaración del vendedor | Medir consumo y exactitud operando a 5 V; si la exactitud se degradara, la contingencia es elevar a 12 V |
 | Sonda: acero inoxidable 316L | Descripción del vendedor | Declaración del vendedor | Certificado de material o ensayo; afecta la vida útil en suelos salinos |
@@ -1102,13 +1156,15 @@ Las tablas anteriores mezclan, inevitablemente, cifras de distinta solidez: algu
 
 **Tabla 4.1 “Estado Probatorio de las Especificaciones de Hardware”**
 
-
-<!-- ===== PAGINA 65 ===== -->
-
-
 La conclusión que se desprende de esta clasificación es concreta y define la prioridad de la etapa siguiente.
 
 La electrónica de control está confirmada por hojas de datos de los componentes exactos, y la incertidumbre relevante se concentra en dos puntos: la sonda de suelo, que concentra además el 68,9 % del costo de materiales, y el consumo propio de la placa de desarrollo y del módulo de carga, que en esta placa determinan la autonomía. De ahí que las dos primeras acciones del plan de trabajo sean exigir al proveedor la ficha del SKU específico junto a una unidad de muestra para medición en banco, y medir el consumo del conjunto ensamblado encendido y apagado, ambas antes de comprometer cualquier volumen de compra.
+
+70
+
+
+<!-- ===== PAGINA 71 ===== -->
+
 
 ### Gestión Energética
 
@@ -1135,27 +1191,31 @@ Esta arquitectura tiene un camino de mejora identificado para una versión de pr
 
 A modo de referencia del árbol de alimentación completo, incluyendo el punto de corte del MOSFET y los dos nodos de tensión regulada:
 
+
+<!-- ===== PAGINA 73 ===== -->
+
+
 > *[imagen del documento original]*
 
 **Figura 1.8 “Árbol de Alimentación y Nodos de Tensión”**
 
 El diagrama hace explícito lo que el balance energético por nodo cuantifica más adelante: toda la energía pasa primero por el elevador de 5 V, y la rama de 3,3 V cuelga de él a través del regulador lineal de la placa, de modo que ninguna corriente puede sumarse directamente a otra sin antes referirla a la batería.
 
+73 Interfaz Física de Usuario: El panel físico del equipo se reduce deliberadamente a lo mínimo indispensable para la operación en terreno. El panel frontal centraliza las interacciones físicas, aislando las entradas de cableado en la sección inferior:
 
-<!-- ===== PAGINA 68 ===== -->
 
+<!-- ===== PAGINA 74 ===== -->
 
-Interfaz Física de Usuario: El panel físico del equipo se reduce deliberadamente a lo mínimo indispensable para la operación en terreno. El panel frontal centraliza las interacciones físicas, aislando las entradas de cableado en la sección inferior:
 
 > *[imagen del documento original]*
 
 **Figura 1.9 “Representación Conceptual de Carcasa”**
 
+74 La interfaz consta de tres luces indicadoras, un botón de emparejamiento, un puerto USB-C de carga y un interruptor mecánico de encendido dimensionado para ser accionable incluso con guantes de trabajo pesados. Las tres luces comunican, mediante distintos patrones de encendido, la totalidad de los estados relevantes del equipo sin necesidad de abrir la aplicación:
 
-<!-- ===== PAGINA 69 ===== -->
 
+<!-- ===== PAGINA 75 ===== -->
 
-La interfaz consta de tres luces indicadoras, un botón de emparejamiento, un puerto USB-C de carga y un interruptor mecánico de encendido dimensionado para ser accionable incluso con guantes de trabajo pesados. Las tres luces comunican, mediante distintos patrones de encendido, la totalidad de los estados relevantes del equipo sin necesidad de abrir la aplicación:
 
 | Estado Operativo | Indicador Activo | Patrón de Señalización | Significado Técnico |
 |---|---|---|---|
@@ -1168,8 +1228,10 @@ La interfaz consta de tres luces indicadoras, un botón de emparejamiento, un pu
 
 **Tabla 4.3 “Interfaz Hardware”**
 
+75
 
-<!-- ===== PAGINA 70 ===== -->
+
+<!-- ===== PAGINA 76 ===== -->
 
 
 ### Carcasa del Dispositivo
@@ -1184,8 +1246,10 @@ Aislada de la interfaz de usuario, la envolvente física se enfoca exclusivament
 
 - Salida de Sonda: El cable hacia la sonda de suelo emplea un prensaestopas industrial M12 en la base. Actúa como sellado y alivio de tracción; sin él, cualquier tirón transmitirá el esfuerzo mecánico directo a las soldaduras de la PCB.
 
+76
 
-<!-- ===== PAGINA 71 ===== -->
+
+<!-- ===== PAGINA 77 ===== -->
 
 
 ### Criterios de Eficiencia Energética y Digitalización
@@ -1198,8 +1262,10 @@ Esta regla es la que explica, con hilo conductor, las decisiones de hardware ado
 
 Digitalización del Proceso Agrícola: El segundo eje, tan determinante como la eficiencia energética, es la digitalización del proceso de toma de decisiones en terreno. TerraSense transforma un proceso hoy manual y no trazable, la estimación visual, la memoria del agricultor o, en el mejor de los casos, un cuaderno de papel en un flujo digital estructurado: cada medición queda georreferenciada, con marca de tiempo y sincronizada a una base histórica consultable. El agricultor pasa de "estimar" a "medir y registrar", cerrando la brecha de datos que hoy impide a instituciones públicas y privadas focalizar sus políticas de apoyo al sector. Esta digitalización se sostiene sobre cuatro pilares técnicos:
 
+77
 
-<!-- ===== PAGINA 72 ===== -->
+
+<!-- ===== PAGINA 78 ===== -->
 
 
 | Pilar de digitalización | Cómo se implementa en TerraSense |
@@ -1213,8 +1279,10 @@ Digitalización del Proceso Agrícola: El segundo eje, tan determinante como la 
 
 Esta digitalización habilita capacidades imposibles bajo el modelo análogo, tales como comparar la evolución de un mismo punto del campo a lo largo de distintas temporadas y mantener un registro histórico respaldado. De este modo, el agricultor puede compartir información precisa con su asesor técnico sin depender de la memoria ni de anotaciones manuales.
 
+78
 
-<!-- ===== PAGINA 73 ===== -->
+
+<!-- ===== PAGINA 79 ===== -->
 
 
 ### Arquitectura de la Gestión Eficiente de Energía
@@ -1223,8 +1291,10 @@ El rendimiento real lo dictan componentes básicos implementados estratégicamen
 
 Sin embargo, el componente que más autonomía aporta no es electrónico, sino mecánico: el interruptor que permite al usuario apagar el equipo por completo en lugar de dejarlo emitiendo advertising Bluetooth de forma permanente. La diferencia entre un equipo apagado y uno en publicidad continua es de varios órdenes de magnitud en consumo, y la determina una pieza de menos de $1.000 CLP.
 
+79
 
-<!-- ===== PAGINA 74 ===== -->
+
+<!-- ===== PAGINA 80 ===== -->
 
 
 ### Los Estados de Consumo
@@ -1242,8 +1312,10 @@ El equipo no tiene un único nivel de consumo, sino que transita entre estados b
 
 **Tabla 4.5 “Estados Energéticos y Medidas de Diseño”**
 
+80
 
-<!-- ===== PAGINA 75 ===== -->
+
+<!-- ===== PAGINA 81 ===== -->
 
 
 ### Modelo de Autonomía en el Campo
@@ -1327,16 +1399,18 @@ Al comparar el sistema contra los estándares de la industria, el proyecto enfre
 
 **Tabla 5.0 “Análisis Comparativo de Parámetros”**
 
+85 TerraSense busca reducir el recambio habitual de pilas primarias al recuperar la carga de la misma celda durante muchos ciclos de uso, lo que para el agricultor significa menos compras de repuestos y la posibilidad de cargar el equipo antes de una jornada mediante USB-C. Conviene reconocer, sin embargo, la ventaja operativa que conservan las pilas intercambiables: permiten reanudar el trabajo de inmediato con un repuesto, mientras que la batería integrada obliga a planificar la carga y a asegurar acceso a energía.
 
-<!-- ===== PAGINA 80 ===== -->
 
+<!-- ===== PAGINA 86 ===== -->
 
-TerraSense busca reducir el recambio habitual de pilas primarias al recuperar la carga de la misma celda durante muchos ciclos de uso, lo que para el agricultor significa menos compras de repuestos y la posibilidad de cargar el equipo antes de una jornada mediante USB-C. Conviene reconocer, sin embargo, la ventaja operativa que conservan las pilas intercambiables: permiten reanudar el trabajo de inmediato con un repuesto, mientras que la batería integrada obliga a planificar la carga y a asegurar acceso a energía.
 
 Esta arquitectura se alinea además con la normativa ambiental, aunque conviene enunciar el alcance con precisión. Un instrumento dependiente de pilas primarias genera un flujo constante de residuos: un juego de pilas por temporada, o varios, durante toda la vida útil del equipo. El uso de una celda de litio recargable mediante USB-C reduce ese flujo a una celda por ciclo de vida del instrumento, es decir del orden de dos unidades en diez años según el propio cuadro de costo total de propiedad. Lo que no hace, y sería incorrecto afirmarlo, es eliminar el residuo: una celda de litio recargable es igualmente un residuo prioritario bajo la Ley REP N° 20.920 [26], y precisamente por eso el diseño contempla celdas extraíbles con herramientas comunes y la habilitación de un canal de recepción al fin de la vida útil, obligaciones que se detallan en la matriz normativa.
 
+86
 
-<!-- ===== PAGINA 81 ===== -->
+
+<!-- ===== PAGINA 87 ===== -->
 
 
 ### Síntesis de Eficiencia Energética
@@ -1366,11 +1440,13 @@ El proyecto exige el uso de soldadura sin plomo (aleación SAC305) y componentes
 
 - Ley N° 20.920 (Ley REP, Chile) [26]: Establece la responsabilidad extendida del productor sobre residuos prioritarios, incluyendo baterías. Se cumple mediante un diseño desmontable con herramientas comunes y celdas extraíbles, requiriendo habilitar un canal de recepción al fin de la vida útil del equipo.
 
+88
+
+
+<!-- ===== PAGINA 89 ===== -->
+
+
 - Alimentación y Aprobación Eléctrica: El equipo se comercializa sin adaptador de red: se entrega con cable USB-C y se carga desde un cargador de teléfono que el usuario ya posee. Esta decisión se declara expresamente porque delimita el alcance regulatorio: al no incluir el proyecto ninguna fuente de alimentación conectada a la red domiciliaria, no se configura la obligación de certificación de producto eléctrico ante la Superintendencia de Electricidad y Combustibles. Si en el futuro se decidiera incluir un adaptador en el empaque, ese adaptador deberá contar con el protocolo de aprobación correspondiente antes de su comercialización.
-
-
-<!-- ===== PAGINA 83 ===== -->
-
 
 ### Radiofrecuencia y Telecomunicaciones
 
@@ -1382,8 +1458,10 @@ El proyecto exige el uso de soldadura sin plomo (aleación SAC305) y componentes
 
 ESP32-WROOM-32, pre-certificado con FCC ID 2AC7Z-ESPWROOM32. No es exigible en Chile y se conserva como referencia de mercado futuro.
 
+89
 
-<!-- ===== PAGINA 84 ===== -->
+
+<!-- ===== PAGINA 90 ===== -->
 
 
 ### Buses Industriales
@@ -1408,8 +1486,10 @@ Fundamenta la normalización de la lectura de CE a 25 °C, aplicando un coeficie
 
 - ISO 11465 [36]: Método gravimétrico para la determinación del contenido de materia seca y de agua del suelo. Es el método de contraste para la humedad volumétrica, la variable de uso más frecuente del instrumento y la que sustenta las recomendaciones de riego.
 
+90
 
-<!-- ===== PAGINA 85 ===== -->
+
+<!-- ===== PAGINA 91 ===== -->
 
 
 - Métodos oficiales SAG / INIA: Criterios de interpretación agronómica nacional utilizados para calibrar los umbrales de la matriz de cultivos.
@@ -1426,8 +1506,10 @@ Ley N° 19.628, y su cumplimiento se organiza sobre tres frentes: la exportació
 
 - WCAG 2.1, nivel AA [23]: Pautas de accesibilidad digital implementadas en la app (área táctil mínima de 48×48 dp, contraste mínimo de 4,5:1, y prohibición del uso del color como único portador de información).
 
+91
 
-<!-- ===== PAGINA 86 ===== -->
+
+<!-- ===== PAGINA 92 ===== -->
 
 
 ### Obligaciones Tributarias y Laborales
@@ -1444,8 +1526,10 @@ Ley N° 19.628, y su cumplimiento se organiza sobre tres frentes: la exportació
 
 "certificado IP67", hasta que los laboratorios documenten el ensayo final.
 
+92
 
-<!-- ===== PAGINA 87 ===== -->
+
+<!-- ===== PAGINA 93 ===== -->
 
 
 ### Clasificación de Cumplimiento Obligatorio vs. Voluntario
@@ -1456,47 +1540,29 @@ El listado anterior mezcla, deliberadamente, normas de cumplimiento legal inelud
 |---|---|---|---|---|
 | Ley N° 20.920 (Ley REP) | Obligatoria (Chile) | Diseño desmontable con celdas extraíbles y canal de recepción al fin de vida útil | Ensayo funcional de desmontaje sin herramientas especiales y convenio escrito con gestor autorizado. Criterio: celda extraíble y punto de recepción operativo. Evidencia: procedimiento de desmontaje y convenio firmado | Pendiente |
 | SUBTEL, Res. Exenta N° 1.985/2017 | Obligatoria (Chile) | Enlace BLE a +9 dBm (≈8 mW), con margen frente al límite aplicable | Medición en banda 2,4 GHz sobre la unidad ensamblada, previa confirmación documental de cuál es el límite vigente y sobre qué magnitud se mide. Criterio: cumplir el límite acreditado con margen. Evidencia: extracto de la resolución vigente e informe de medición | Pendiente |
-
-
-<!-- ===== PAGINA 88 ===== -->
-
-
 | SUBTEL, Resolución N° 737/2025 | Obligatoria (Chile) | Verificación formal del producto terminado, con cargo al rubro de desarrollo y validación | Trámite formal de verificación ante la autoridad sectorial. Criterio: resolución favorable previa a la comercialización. Evidencia: expediente y resolución | Pendiente |
 | UN 38.3 / IEC 62133-2 | Obligatoria (transporte y comercialización de celdas de litio) | Celdas comerciales con certificación de origen y protección electrónica del cargador | Solicitud de certificados al proveedor de celdas y ensayo de las protecciones del cargador. Criterio: certificados vigentes y corte por sobrecarga, sobredescarga y cortocircuito. Evidencia: certificados y acta de ensayo | Pendiente |
 | Ley N° 19.628 (Protección de la Vida Privada) | Obligatoria (Chile) | Aislamiento por campo y rol; datos exportables por el titular | Pruebas de acceso cruzado entre cuentas y verificación de exportación. Criterio: cero lecturas de campos ajenos y exportación completa a solicitud del titular. Evidencia: batería de pruebas de aislamiento | Parcial: aislamiento implementado, exportación pendiente |
 | Ley N° 21.719 (Protección de Datos Personales) | Obligatoria (Chile) | Registro de actividades de tratamiento y procedimiento escrito de notificación de vulneraciones | Revisión documental antes de abrir la primera cuenta comercial. Criterio: registro y procedimiento redactados, con responsable designado. Evidencia: documentos firmados | Pendiente |
-
-
-<!-- ===== PAGINA 89 ===== -->
-
-
 | Ley N° 21.398 (“Pro Consumidor”) | Obligatoria (Chile) | Garantía legal de 6 meses más provisión del 5 % de BOM para atenderla | Revisión legal de las condiciones de garantía y provisión contable. Criterio: cobertura ≥ 6 meses y provisión del 5 % de BOM reservada. Evidencia: texto de garantía y asiento de provisión | Parcial |
 | Ley N° 19.496 (Protección al Consumidor) | Obligatoria (Chile) | Declaración comercial como “diseñado conforme a IP67” hasta contar con ensayo de laboratorio | Auditoría del material comercial. Criterio: ninguna pieza declara IP67 certificado mientras no exista ensayo. Evidencia: material revisado y aprobado | Cumple |
 | Ley N° 21.713 [42] (cumplimiento de obligaciones tributarias) | Obligatoria (Chile) | Abastecimiento formalizado como importación, con Declaración de Ingreso, para que el IVA de los insumos constituya crédito fiscal | Revisión de la carpeta tributaria de importación antes de la primera orden de volumen. Criterio: toda compra de insumos respaldada con DIN o factura nacional. Evidencia: declaraciones de ingreso y registro de crédito fiscal | Pendiente |
 | Ley N° 21.735 [43] (reforma previsional) | Obligatoria (Chile) | Cotización de cargo del empleador aplicada según el calendario gradual vigente, además de cesantía y mutualidad | Revisión de las declaraciones previsionales mensuales. Criterio: tasa del período correctamente aplicada sobre cada remuneración. Evidencia: certificados de pago previsional | Pendiente |
 | IEC 60529 (grado IP67) | Voluntaria como estándar; exigible como declaración una vez publicada, por efecto de la Ley N° 19.496 | Envolvente PETG con O-ring, sellado intercapa, prensaestopas M12 y respiradero protegido del sensor ambiental | Ensayo IP67 en laboratorio acreditado sobre el conjunto ensamblado, incluido el respiradero. Criterio: sin ingreso de agua tras 30 min a 1 m. Evidencia: informe de ensayo | Pendiente |
 | Métodos oficiales SAG / INIA | Voluntaria (referencia técnica nacional adoptada) | Umbrales de la matriz de cultivos trazables a criterios oficiales publicados | Contraste de cada umbral de la matriz de cultivos con su fuente oficial. Criterio: trazabilidad documental de cada umbral. Evidencia: tabla de correspondencia umbral–fuente, con fecha de consulta | Pendiente |
-
-
-<!-- ===== PAGINA 90 ===== -->
-
-
 | RoHS 2011/65/EU y RoHS 3 | Voluntaria en Chile / referencia de mercado futuro | Soldadura SAC305 y declaración de conformidad de proveedores | Recopilación de declaraciones de conformidad de proveedores. Criterio: cobertura documental de los componentes de la BOM. Evidencia: carpeta de declaraciones | Pendiente |
 | FCC, Título 47 CFR Parte 15 | Referencia de mercado futuro (EE. UU., no exigible en Chile) | Cubierto de forma incidental por el módulo ESP32 pre-certificado | Verificación del FCC ID del módulo y de las condiciones de uso del certificado modular. Criterio: integración dentro del alcance declarado. Evidencia: ficha del módulo | No aplica en Chile |
 | TIA/EIA-485-A y Modbus V1.1b3 | Voluntaria (estándares técnicos abiertos) | Base de diseño del bus RS-485 y la trama Modbus RTU hacia la sonda | Prueba de bus con analizador lógico sobre la trama Modbus RTU. Criterio: terminación correcta y cero errores de CRC en 1.000 lecturas consecutivas. Evidencia: captura y registro de errores | Parcial |
 | ISO 10390, ISO 11265, ISO 11277, ISO 11465 | Voluntaria (métodos de referencia de laboratorio) | Métodos de contraste del protocolo de validación in situ | Protocolo de validación in situ contra laboratorio acreditado bajo ISO/IEC 17025. Criterio: el fijado en el propio protocolo. Evidencia: informes de laboratorio y análisis de concordancia | Pendiente |
-
-
-<!-- ===== PAGINA 91 ===== -->
-
-
 | ISO/IEC 27001:2022 e ISO/IEC 25010 | Voluntaria (certificación de gestión y calidad de software) | Cifrado en tránsito y reposo, control de acceso segmentado | Revisión de configuración de cifrado y de segmentación de accesos. Criterio: TLS vigente y ausencia de credenciales embebidas. Evidencia: informe de revisión | Parcial |
 | WCAG 2.1, nivel AA | Voluntaria (no exigida por ley a aplicaciones privadas en Chile) | Contraste ≥ 4,5:1, área táctil ≥ 48×48 dp y color no exclusivo como portador de información | Auditoría de accesibilidad sobre las pantallas de la aplicación. Criterio: contraste ≥ 4,5:1 y ninguna información transmitida solo por color. Evidencia: informe de auditoría | Pendiente |
 
 **Tabla 5.1 “Clasificación Normativa: Obligatoria, Voluntaria y de Mercado Futuro”**
 
+97
 
-<!-- ===== PAGINA 92 ===== -->
+
+<!-- ===== PAGINA 98 ===== -->
 
 
 ### Protocolo de Validación de la Medición In Situ contra Laboratorio de Referencia
@@ -1507,8 +1573,10 @@ Antes del detalle corresponde una decisión de alcance que este informe declara 
 
 La exclusión de N, P y K es deliberada y coherente con el resto del informe: esos tres valores no son determinaciones químicas independientes sino derivaciones de la conductividad eléctrica, de modo que contrastarlos contra un método de laboratorio mediría la correlación entre salinidad y fertilidad de los suelos muestreados, no la exactitud del instrumento. Validarlos sugeriría una capacidad analítica que la sonda no tiene. Por esa misma razón la aplicación los presenta como registros informativos con advertencia permanente, no construye diagnóstico nutricional con ellos y no permite prescribir dosis: la limitación se resuelve en la interfaz, no en la campaña de laboratorio.
 
+98
 
-<!-- ===== PAGINA 93 ===== -->
+
+<!-- ===== PAGINA 99 ===== -->
 
 
 | Elemento del protocolo | Especificación |
@@ -1525,14 +1593,16 @@ La exclusión de N, P y K es deliberada y coherente con el resto del informe: es
 
 **Tabla 5.2 “Protocolo de Validación In Situ vs. Laboratorio de Referencia”**
 
-
-<!-- ===== PAGINA 94 ===== -->
-
-
-Por qué un umbral propio y no el del fabricante. Una formulación aparentemente más rigurosa sería exigir que el error del instrumento no supere la exactitud declarada por el fabricante de la sonda, es decir ±0,1 unidades de pH. Este informe no la adopta, por dos razones. La primera es de evidencia: esa exactitud proviene de la ficha de una sonda representativa de la familia y no del SKU adquirido, como declara la tabla de estado probatorio, de modo que fijar el criterio de aprobación contra ella significaría medirse contra un número que el propio proyecto reconoce no tener verificado. La segunda es de pertinencia: ±0,1 unidades de pH es una exigencia de laboratorio, y el producto de este instrumento no es una cifra sino una decisión de manejo. Un error de 0,3 unidades de pH no cambia la recomendación de encalado para ningún cultivo de la matriz; uno de 0,8 sí la cambia. El umbral debe fijarse donde la decisión cambia, y por eso se declara en términos agronómicos y no metrológicos. El mismo criterio explica los umbrales de conductividad y de humedad: un error de 4 puntos de humedad volumétrica no altera el veredicto de riego, mientras que uno de 10 puntos sí lo altera.
+99 Por qué un umbral propio y no el del fabricante. Una formulación aparentemente más rigurosa sería exigir que el error del instrumento no supere la exactitud declarada por el fabricante de la sonda, es decir ±0,1 unidades de pH. Este informe no la adopta, por dos razones. La primera es de evidencia: esa exactitud proviene de la ficha de una sonda representativa de la familia y no del SKU adquirido, como declara la tabla de estado probatorio, de modo que fijar el criterio de aprobación contra ella significaría medirse contra un número que el propio proyecto reconoce no tener verificado. La segunda es de pertinencia: ±0,1 unidades de pH es una exigencia de laboratorio, y el producto de este instrumento no es una cifra sino una decisión de manejo. Un error de 0,3 unidades de pH no cambia la recomendación de encalado para ningún cultivo de la matriz; uno de 0,8 sí la cambia. El umbral debe fijarse donde la decisión cambia, y por eso se declara en términos agronómicos y no metrológicos. El mismo criterio explica los umbrales de conductividad y de humedad: un error de 4 puntos de humedad volumétrica no altera el veredicto de riego, mientras que uno de 10 puntos sí lo altera.
 
 
-<!-- ===== PAGINA 95 ===== -->
+<!-- ===== PAGINA 100 ===== -->
+
+
+100
+
+
+<!-- ===== PAGINA 101 ===== -->
 
 
 ### Plan de Calibración y Control de Deriva
@@ -1546,13 +1616,15 @@ La calibración no se ejecuta reescribiendo el firmware, sino ajustando los coef
 | Calibración de fábrica | Verificación de cada unidad ensamblada contra soluciones patrón de pH (4,00 y 7,00) y de conductividad (1.413 µS/cm y 12.880 µS/cm), contraste de temperatura contra termómetro patrón, y ajuste de los coeficientes de compensación en memoria no volátil | Una vez por equipo, antes del despacho | Desviación dentro del umbral agronómico del protocolo de validación | Certificado de calibración individual con número de serie, fecha y valores medidos |
 | Compensación térmica de la conductividad | Verificación de la normalización de la lectura de CE a 25 °C con el coeficiente de 2 %/°C exigido por ISO 11265 | Una vez por equipo, dentro de la calibración de fábrica | Error ≤ 3 % entre 5 °C y 35 °C | Registro de la curva de verificación térmica |
 | Verificación periódica por el usuario | Comprobación con solución patrón de pH 7,00 mediante la rutina guiada de la aplicación, que compara la lectura con el valor esperado | Al inicio de cada temporada, o cada 6 meses | Desviación ≤ 0,3 unidades de pH | Registro guardado en el histórico del equipo, con fecha y resultado |
-| Recalibración correctiva | Ajuste remoto de los coeficientes sobre el equipo específico, sin | Cuando la verificación periódica excede el umbral | La verificación posterior vuelve a cumplir el criterio | Registro del coeficiente anterior y del |
+
+101
 
 
-<!-- ===== PAGINA 96 ===== -->
+<!-- ===== PAGINA 102 ===== -->
 
 
-|  | recuperarlo ni reemplazar el firmware |  |  | nuevo, con su justificación |
+| Recalibración correctiva | Ajuste remoto de los coeficientes sobre el equipo específico, sin recuperarlo ni reemplazar el firmware | Cuando la verificación periódica excede el umbral | La verificación posterior vuelve a cumplir el criterio | Registro del coeficiente anterior y del nuevo, con su justificación |
+|---|---|---|---|---|
 | Retiro de la variable | La variable afectada se marca como “referencial” en la aplicación y deja de sustentar recomendaciones cuantitativas | Cuando la recalibración no recupera el criterio | — | Aviso al usuario en la pantalla de la variable y en el histórico |
 | Control de deriva de la flota | Seguimiento agregado de las verificaciones periódicas sincronizadas, para detectar si la desviación es de un equipo o un patrón común del lote | Revisión semestral | Ningún lote con desviación media creciente y sostenida | Informe de deriva por lote de fabricación |
 
@@ -1560,8 +1632,10 @@ La calibración no se ejecuta reescribiendo el firmware, sino ajustando los coef
 
 Tres precisiones sobre este plan. La primera es de alcance: la verificación del usuario emplea solución patrón de pH, que es barata, estable y de uso corriente en agricultura, y no pretende reproducir un laboratorio; su función es detectar que algo se desvió, no cuantificar cuánto con precisión metrológica. La segunda es de costo, y se conecta con el desglose económico: la calibración de fábrica es trabajo de taller y está contenida en las 2,25 horas por equipo que la nómina ya presupuesta, mientras que las soluciones patrón y el instrumental de referencia se cargan a la partida de metrología del rubro de desarrollo y validación. La tercera es de honestidad: la periodicidad semestral y los umbrales de esta tabla se fijan a partir del comportamiento típico de los electrodos de pH y de las sondas de conductividad, y deben confirmarse con la deriva que efectivamente muestre el SKU adquirido durante la primera temporada de operación; si resultara más rápida, la periodicidad se acorta antes de que el dato equivocado llegue al agricultor.
 
+102
 
-<!-- ===== PAGINA 97 ===== -->
+
+<!-- ===== PAGINA 103 ===== -->
 
 
 ### Supuestos de Mercado
@@ -1577,8 +1651,10 @@ Dos cifras que sostienen la comparación de costo total de propiedad no proviene
 
 Ambos valores se utilizan exclusivamente como término de comparación en el costo total de propiedad del agricultor y no intervienen en ninguna línea del flujo de caja del proyecto, de modo que una desviación en ellos altera el argumento de adopción pero no el VAN, la TIR ni la caja de la empresa. La Tabla 3.7 presenta además dos intensidades de uso precisamente para que el lector pueda juzgar la sensibilidad del argumento frente a estos dos supuestos.
 
+103
 
-<!-- ===== PAGINA 98 ===== -->
+
+<!-- ===== PAGINA 104 ===== -->
 
 
 ## VI. Conclusiones
@@ -1587,10 +1663,12 @@ La ingeniería conceptual desarrollada en este informe sostiene que es técnica 
 
 Desde la perspectiva ingenieril, la arquitectura descentralizada un nodo portátil de captura (ESP32, sonda industrial y celda de ion-litio) que transfiere los datos al teléfono del usuario responde directamente a las dos barreras identificadas en la problemática, porque traslada al teléfono el costo de la pantalla, el cómputo y el almacenamiento, y con ello el precio del instrumento. El diseño energético corta la alimentación de la sonda fuera de cada lectura y apaga el equipo completo entre jornadas, y con ello sostiene aproximadamente 9 semanas de uso habitual (170 mediciones) con una sola carga, sin el recambio constante de pilas primarias de los dos equipos de referencia comparados. Esa cifra proviene del balance energético por nodo de tensión, con las eficiencias de conversión declaradas, y su confirmación exige medir el consumo de la placa ensamblada encendida y apagada: si apareciera una fuga no identificada de 1 mA con el equipo apagado, la autonomía caería a unas 5 semanas. Alcanzar autonomías de varios meses sin apagar el equipo exige reemplazar la placa de desarrollo por el módulo desnudo con un regulador de baja corriente de reposo, mejora que queda identificada para la versión de producción.
 
-Desde la perspectiva económica, la evaluación a diez años (2027–2036) entrega un resultado favorable bajo las condiciones declaradas, con cada partida abierta y trazable hasta su origen. **El precio es un resultado y no un supuesto**: se construyó primero la estructura completa de costos y el precio se derivó de ella exigiendo un 30 % de utilidad sobre el costo total, lo que arroja un precio de lista de $449.409 con IVA. Con una inversión inicial de $29.727.352 financiada íntegramente por un crédito de igual monto a diez años y 12 % efectivo anual, con cuota fija de $416.026, y un pie propio de $8.918.206 entregado al banco en partes iguales por los socios ($4.459.103 cada uno), el proyecto alcanza un VAN de $112.827.790 al 20 % de descuento, una TIR de 53,35 %, un payback simple de 3,68 años y uno descontado de 4,39 años. La empresa renueva su activo fijo en 2032, cancela la totalidad de su deuda dentro del horizonte evaluado y cierra 2036 con $541.824.753 de caja acumulada y sin pasivo bancario. El punto de tensión está identificado y es de arranque, no de rentabilidad: los ejercicios 2027 y 2028 cierran con pérdida porque la estructura mínima para operar formalmente no se cubre con 200 equipos, y esa pérdida se financia con el capital de trabajo dimensionado para ello. Las sensibilidades acotan el margen de error: el proyecto resiste un alza del 15 % en el costo de materiales, pero se queda sin caja si las ventas caen un 10 % o si el precio de lista baja de $426.714, y deja de crear valor si las ventas caen un 25 % o si el precio baja de $385.057.
+Desde la perspectiva económica, la evaluación a diez años (2027–2036) entrega un resultado favorable bajo las condiciones declaradas, con cada partida abierta y trazable hasta su origen. El precio es un resultado y no un supuesto: se construyó primero la estructura completa de costos y el precio se derivó de ella exigiendo un 30 % de utilidad sobre el costo total, lo que arroja un precio de lista de $449.409 con IVA.
+
+Con una inversión inicial de $29.727.352 financiada íntegramente por un crédito de igual monto a diez años y 12 % efectivo anual, con cuota fija de $416.026, y un pie propio de $8.918.206 entregado al banco en partes iguales por los socios ($4.459.103 cada uno), el proyecto alcanza un VAN de $112.827.790 al 20 % de descuento, una TIR de 53,35 %, un payback simple de 3,68 años y uno descontado de 4,39 años. La empresa renueva su activo fijo en 2032, cancela la totalidad de su deuda dentro del horizonte evaluado y cierra 2036 con $541.824.753 de caja acumulada y sin pasivo bancario. El punto de tensión está identificado y es de arranque, no de rentabilidad: los ejercicios 2027 y 2028 cierran con pérdida porque la estructura mínima para operar formalmente no se cubre con 200 equipos, y esa pérdida se financia con el capital de trabajo dimensionado para ello. Las sensibilidades acotan el margen de error: el proyecto resiste 104 un alza del 15 % en el costo de materiales, pero se queda sin caja si las ventas caen un 10 % o si el precio de lista baja de $426.714, y deja de crear valor si las ventas caen un 25 % o si el precio baja de $385.057.
 
 
-<!-- ===== PAGINA 99 ===== -->
+<!-- ===== PAGINA 105 ===== -->
 
 
 Desde la perspectiva del cliente, la comparación de costo total de propiedad se presenta sobre dos intensidades de uso declaradas, porque el resultado depende críticamente de con qué frecuencia el agricultor recurre hoy al laboratorio o a la asesoría. Bajo la intensidad habitual, que es el caso base, el instrumento no se paga el primer año; cruza a favor en el año 3 frente al laboratorio y en el año 4 frente a la asesoría, aunque frente a esta última la compra del segundo equipo lo deja atrás de forma transitoria, y acumula a diez años una ventaja de 2,1 y 1,3 veces respectivamente. El argumento estructural, sin embargo, no es el ahorro nominal sino el costo marginal cero de la medición repetida: a cien mediciones anuales, cada lectura cuesta $949 frente a los $50.000 de una muestra de laboratorio, y esa relación no depende de ningún supuesto de frecuencia. Corresponde insistir en que ese ahorro pertenece al agricultor y no aparece en ninguna línea del flujo de caja de la empresa.
@@ -1607,10 +1685,10 @@ Corresponde por eso precisar con exactitud qué acredita y qué no acredita este
 
 5. Que el equipo alcance IP67, porque el ensayo está presupuestado pero no ejecutado.
 
-6. Que la sonda concuerde con el laboratorio dentro del umbral agronómico fijado, porque la campaña de 30 muestras es un plan y no un resultado.
+105 6. Que la sonda concuerde con el laboratorio dentro del umbral agronómico fijado, porque la campaña de 30 muestras es un plan y no un resultado.
 
 
-<!-- ===== PAGINA 100 ===== -->
+<!-- ===== PAGINA 106 ===== -->
 
 
 Ninguna de esas seis verificaciones pendientes es un obstáculo oculto: todas están identificadas en este informe con su costo, su método y su criterio de aceptación, y ese es precisamente el aporte de la ingeniería conceptual. Las dos primeras concentran además el riesgo técnico y se atacan con el mismo gasto y en el mismo mes: pedir al proveedor la ficha del SKU y una unidad de muestra, e instrumentar una placa piloto, a través de su puente soldable de medición, para medir su consumo encendida y apagada.
@@ -1619,11 +1697,13 @@ La decisión que el estudio respalda es continuar el desarrollo y ejecutar esas 
 
 En síntesis, la ingeniería conceptual de TerraSense responde a su objetivo general: definir un sistema en el que una medición física se convierta, en el mismo lugar y sin conexión a internet, en una decisión agronómica accionable. Al eliminar los costos recurrentes y traducir valores numéricos planos en instrucciones de manejo, el diseño apunta a reducir el riesgo de pérdida de cosecha y a proteger el patrimonio familiar del pequeño agricultor; la magnitud efectiva de ese beneficio se medirá con los pilotos comparativos previstos, no se declara aquí. El resultado económico y el diseño técnico convergen en una misma decisión: construir una herramienta útil que pueda fabricarse, mantenerse y respaldarse con el margen presupuestado. Los próximos cierres se concentran en la medición del consumo de reposo del conjunto ensamblado, en la integración ambiental de extremo a extremo y en los ensayos del equipo terminado, trabajos que quedan identificados con su evidencia esperada y su criterio de aceptación.
 
+106
 
-<!-- ===== PAGINA 101 ===== -->
+
+<!-- ===== PAGINA 107 ===== -->
 
 
-## VII. Referencias bibliográficas
+## VII. Referencias Bibliográficas
 
 1. Centro de Ciencia del Clima y la Resiliencia (CR)². (s.f.). Informe a la Nación: La mega sequía 2010–2015, una lección para el futuro. Recuperado de https://www.cr2.cl/megasequia/
 2. Instituto Nacional de Estadísticas (INE), Chile. (2021). Censo Agropecuario y Forestal 2021. Resultados finales, gráficas nacionales. Recuperado de https://www.ine.gob.cl/censoagropecuario/resultados-finales/graficas-nacionales
@@ -1642,7 +1722,7 @@ Recuperado de https://www.st.com/resource/en/datasheet/stm32wb55rg.pdf
 
 Recuperado de https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp280-ds001.pdf
 13. Bosch Sensortec. (2024). BME280 Datasheet (exactitud ±1,0 °C / ±3 % HR / ±1,0 hPa; consumo 0,1 µA en reposo y 3,6 µA por muestreo en forced mode). Recuperado de https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf
-14. Food and Agriculture Organization (FAO). (1998). Crop Evapotranspiration – Guidelines for Computing Crop Water Requirements, FAO Irrigation and Drainage Paper 56 (corrección del cálculo de evapotranspiración por presión atmosférica/altitud). Recuperado de https://www.fao.org/4/x0490e/x0490e00.htm
+14. Food and Agriculture Organization (FAO). (1998). Crop Evapotranspiration – Guidelines for Computing Crop Water Requirements, FAO Irrigation and Drainage Paper 56 (corrección del cálculo de evapotranspiración por presión atmosférica/altitud). Recuperado de https://www.fao.org/4/x0490e/x0490e00.htm 107
 15. Subsecretaría de Telecomunicaciones (SUBTEL). (2024). X Encuesta de Acceso y Usos de Internet 2023: uso habitual de smartphone 88,5 % en zonas rurales. Recuperado de https://www.subtel.gob.cl/wp-content/uploads/2024/03/Informe_Final_Acceso_y_uso_Internet_2023_VF.pdf
 16. Banco Central de Chile. (s.f.). Dólar Observado — Base de Datos Estadísticos, tipo de cambio de referencia usado para la conversión CLP/US$. Recuperado de https://si3.bcentral.cl/indicadoressiete/secure/indicadoresdiarios.aspx
 17. Subsecretaría de Telecomunicaciones (SUBTEL). (2025). Resolución N° 737: Actualización del régimen de certificación de equipos de telecomunicaciones. Recuperado de https://www.subtel.gob.cl/
@@ -1653,7 +1733,7 @@ Recuperado de https://www.bosch-sensortec.com/media/boschsensortec/downloads/dat
 22. Holtek Semiconductor. (s.f.). HT75xx-3 100 mA TinyPower LDO (corriente de quiescente típica 2,5 µA).
 
 
-<!-- ===== PAGINA 102 ===== -->
+<!-- ===== PAGINA 108 ===== -->
 
 
 Recuperado de https://www.holtek.com/documents/10179/116711/HT75xx-3v140.pdf
@@ -1664,7 +1744,7 @@ Recuperado de https://www.w3.org/TR/WCAG21/
 25. Bluelab. (s.f.). Pulse Multimedia EC/MC Meter. Precio de lista US$339. Recuperado de https://bluelab.com/products/bluelab-pulse-multimedia-ec-mc-meter
 26. Ministerio del Medio Ambiente. (2016). Ley N° 20.920: Marco para la gestión de residuos, la responsabilidad extendida del productor y fomento al reciclaje (REP). Recuperado de https://www.bcn.cl/leychile/navegar?idNorma=1091081
 27. International Electrotechnical Commission (IEC). (s.f.). IEC 60529: Degrees of protection provided by enclosures (IP Code). Recuperado de https://webstore.iec.ch/publication/2452
-28. Organización de las Naciones Unidas (ONU) / IEC. (s.f.). UN 38.3 / IEC 62133-2: Ensayos y seguridad de celdas y baterías secundarias de ion-litio. Recuperado de https://webstore.iec.ch/publication/60070
+28. Organización de las Naciones Unidas (ONU) / IEC. (s.f.). UN 38.3 / IEC 62133-2: Ensayos y seguridad de celdas y baterías secundarias de ion-litio. Recuperado de https://webstore.iec.ch/publication/60070 108
 29. Subsecretaría de Telecomunicaciones (SUBTEL). (2017). Resolución Exenta N° 1.985: Fija norma técnica de equipos de alcance reducido. Recuperado de https://www.bcn.cl/leychile/navegar?idNorma=1109333
 30. Federal Communications Commission (FCC). (s.f.). Título 47 CFR Parte 15, subpartes B y C. Recuperado de https://www.ecfr.gov/current/title-47/chapter-I/subchapter-A/part-15
 31. Telecommunications Industry Association (TIA). (1998). Norma TIA/EIA-485-A: Características eléctricas de los generadores y receptores para su uso en sistemas multipunto digitales balanceados. Recuperado de https://global.ihs.com/
@@ -1676,7 +1756,7 @@ Recuperado de https://www.w3.org/TR/WCAG21/
 37. Ministerio Secretaría General de la Presidencia. (1999). Ley N° 19.628 sobre Protección de la Vida Privada.
 
 
-<!-- ===== PAGINA 103 ===== -->
+<!-- ===== PAGINA 109 ===== -->
 
 
 Recuperado de https://www.bcn.cl/leychile/navegar?idNorma=141599
@@ -1685,21 +1765,18 @@ Recuperado de https://www.bcn.cl/leychile/navegar?idNorma=141599
 40. Ministerio de Economía, Fomento y Turismo. (2021). Ley N° 21.398 (“Pro Consumidor”). Recuperado de https://www.bcn.cl/leychile/navegar?idNorma=1170464
 41. Ministerio de Economía, Fomento y Turismo. (1997). Ley N° 19.496: Establece normas sobre protección de los derechos de los consumidores. Recuperado de https://www.bcn.cl/leychile/navegar?idNorma=61438
 42. Servicio de Impuestos Internos (SII), Chile. (2025). Ley N° 21.713 sobre cumplimiento de las obligaciones tributarias: aplicación de IVA a bienes adquiridos en el extranjero por hasta US$500 y fin de la exención bajo US$41. Recuperado de https://www.sii.cl/
-43. Ministerio del Trabajo y Previsión Social / Superintendencia de Pensiones. (2025). Ley N° 21.735 de reforma previsional: cotización de cargo del empleador y su calendario gradual. Recuperado de https://www.spensiones.cl/portal/institucional/594/w3-propertyvalue-10906.html
+43. Ministerio del Trabajo y Previsión Social / Superintendencia de Pensiones. (2025). Ley N° 21.735 de reforma previsional: cotización de cargo del empleador y su calendario gradual. Recuperado de https://www.spensiones.cl/portal/institucional/594/w3-propertyvalue-10906.html 109
 44. Senado de la República de Chile. (2026). Reajuste del ingreso mínimo mensual. Recuperado de https://www.senado.cl/comunicaciones/noticias/ley-reajuste-al-ingreso-minimo-mensual
 45. LCSC Electronics. (2026). Catálogo de componentes electrónicos: precios unitarios por tramo de cantidad, empleados para los discretos de la lista de materiales. Recuperado de https://www.lcsc.com/
 46. AliExpress. (2026). Precios de referencia con envío Choice a Chile de los módulos, la sonda de suelo y la celda de litio de la lista de materiales. Recuperado de https://www.aliexpress.com/
 47. JLCPCB. (2026). Fabricación de circuito impreso de dos capas: precio según cantidad y envío a Chile.
 
 
-<!-- ===== PAGINA 104 ===== -->
+<!-- ===== PAGINA 110 ===== -->
 
 
-Recuperado de https://jlcpcb.com/ 48.
-
-
-<!-- ===== PAGINA 105 ===== -->
+Recuperado de https://jlcpcb.com/
 48. Advanced Monolithic Systems. (s.f.). AMS1117: 1A Low Dropout Voltage Regulator. Datasheet (corriente de reposo típica de 5 mA, representativa del regulador de las placas de desarrollo ESP32). Recuperado de http://www.advanced-monolithic.com/pdf/ds1117.pdf
 49. Espressif Systems. (s.f.). ESP32-DevKitC V4 Getting Started Guide: alimentación de la placa, regulador de 3,3 V y LED de alimentación. Recuperado de https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html
 
-Nota sobre los supuestos de mercado. Los costos de referencia del análisis de laboratorio y de la visita de asesoría agronómica no figuran en esta lista porque no provienen de una fuente bibliográfica publicable. Se declaran como supuestos de trabajo, identificados como S1 y S2, en la Tabla 5.4 “Supuestos de Mercado Declarados”, junto con su método de obtención y la cotización formal que los reemplazará.
+Nota sobre los supuestos de mercado. Los costos de referencia del análisis de laboratorio y de la visita de asesoría agronómica no figuran en esta lista porque no provienen de una fuente bibliográfica publicable. Se declaran como supuestos de trabajo, identificados como S1 y S2, en la Tabla 5.4 “Supuestos de Mercado Declarados”, junto con su método de obtención y la cotización formal que los reemplazará. 110

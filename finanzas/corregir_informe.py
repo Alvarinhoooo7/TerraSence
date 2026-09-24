@@ -65,8 +65,15 @@ def sub(patron, reemplazo, etiqueta, flags=0):
 
 
 def exigir(patron, reemplazo, etiqueta, flags=re.S):
-    """Correccion estructural: si el ancla no aparece, el espejo cambio y hay que revisar."""
-    if not sub(patron, reemplazo, etiqueta, flags):
+    """Correccion estructural. Si el ancla no aparece, basta con que el PDF ya traiga el texto
+    corregido; si tampoco lo trae, el espejo cambio y hay que revisar la correccion."""
+    if sub(patron, reemplazo, etiqueta, flags):
+        return
+
+    def plano(s):
+        return re.sub(r"[\s*|]", "", s)
+
+    if callable(reemplazo) or plano(reemplazo)[:60] not in plano(texto):
         raise SystemExit("No se encontró el ancla de la corrección «%s»" % etiqueta)
 
 
@@ -184,8 +191,33 @@ FILAS_PROBATORIO = [
      "anteriores | Calculada; hereda la incertidumbre de las estimaciones anteriores | Medir la energía de "
      "una jornada tipo y la corriente con el equipo apagado |" % num(SEMANAS_HABITUAL, 0)),
 ]
-for patron, fila_nueva in FILAS_PROBATORIO:
-    exigir(patron, fila_nueva, "estado probatorio: " + patron[4:40].replace("\\", ""), 0)
+# La tabla cruza un salto de página en el PDF, y editarla ahí suele dejarla incompleta: se reescribe
+# entera. Las filas que dependen de la placa real salen de FILAS_PROBATORIO, con sus cifras calculadas.
+TABLA_PROBATORIO = [
+    "| Especificación declarada | Origen de la cifra | Nivel de evidencia | Qué falta para confirmar |",
+    "| ESP32-WROOM-32: procesamiento, memoria, radio | Hoja de datos del módulo [19] | Confirmada por hoja de datos del componente seleccionado | Nada |",
+    FILAS_PROBATORIO[0][1],
+    FILAS_PROBATORIO[1][1],
+    "| ESP32: FCC ID 2AC7Z-ESPWROOM32 | Certificado modular del fabricante | Confirmada | Verificar que la integración respeta las condiciones del certificado modular |",
+    "| BME280: ±1,0 °C, ±3 % HR, ±1,0 hPa, 0,1 µA en reposo | Hoja de datos Bosch del componente exacto [13] | Confirmada por hoja de datos del componente seleccionado | Nada; verificar la respuesta térmica una vez montado tras el respiradero |",
+    "| SP3485: 2 mA con driver habilitado | Hoja de datos del transceptor exacto [24] | Confirmada por hoja de datos del componente seleccionado | Nada |",
+    FILAS_PROBATORIO[2][1],
+    "| Sonda 7-en-1: rangos y exactitudes de las 7 variables | Ficha de una sonda representativa de la familia [20]; el SKU no tiene ficha propia publicada | Representativa de la familia, no del SKU | Exigir la ficha técnica del SKU al proveedor antes de la orden de compra, y contrastar con la campaña de validación de 30 muestras |",
+    "| Sonda: alimentación 5–24 V DC y consumo 30 mA a 5 V | Descripción del vendedor (4,5–30 V; 0,15 W a 12 V; 0,5 W a 24 V) más supuesto propio de potencia constante | Supuesto de diseño sobre declaración del vendedor | Medir consumo y exactitud operando a 5 V; si la exactitud se degradara, la contingencia es elevar a 12 V |",
+    "| Sonda: acero inoxidable 316L | Descripción del vendedor | Declaración del vendedor | Certificado de material o ensayo; afecta la vida útil en suelos salinos |",
+    FILAS_PROBATORIO[3][1],
+    "| Elevador: eficiencia η ≈ 0,85 | Valor típico de convertidores elevadores de esta clase y corriente | Estimación de diseño, no medida | Medir la eficiencia real a la corriente de excitación de la sonda |",
+    FILAS_PROBATORIO[4][1],
+    FILAS_PROBATORIO[5][1],
+]
+
+
+def tabla_completa(filas):
+    return "\n".join([filas[0], "|" + "---|" * (filas[0].count("|") - 1)] + filas[1:]) + "\n\n"
+
+
+exigir(r"^\| Especificación declarada \| Origen de la cifra.*?(?=^\*\*Tabla \d\.\d “\s*Estado Probatorio)",
+       lambda m: tabla_completa(TABLA_PROBATORIO), "estado probatorio: tabla completa", re.S | re.M)
 
 exigir(r"Toda la electrónica de control está confirmada por hojas de datos.*?volumen de compra\.",
        "La electrónica de control está confirmada por hojas de datos de los componentes exactos, y la "
@@ -427,9 +459,32 @@ FILA_21735 = (
     "aplicada según el calendario gradual vigente, además de cesantía y mutualidad | Revisión de las "
     "declaraciones previsionales mensuales. Criterio: tasa del período correctamente aplicada sobre cada "
     "remuneración. Evidencia: certificados de pago previsional | Pendiente |")
-if "Ley N° 21.713 [42] (cumplimiento" not in texto:
-    sub(r"(\| IEC 60529 \(grado IP67\) \| Voluntaria como estándar)",
-        lambda m: FILA_21713 + "\n" + FILA_21735 + "\n" + m.group(1), "matriz normativa: leyes 21.713 y 21.735")
+# La matriz normativa cruza cuatro saltos de página: se reescribe completa, con las dos leyes que la
+# evaluación económica aplica.
+TABLA_NORMATIVA = [
+    "| Norma | Carácter | Requisito de diseño derivado | Método de verificación, criterio de aceptación y evidencia | Estado |",
+    "| Ley N° 20.920 (Ley REP) | Obligatoria (Chile) | Diseño desmontable con celdas extraíbles y canal de recepción al fin de vida útil | Ensayo funcional de desmontaje sin herramientas especiales y convenio escrito con gestor autorizado. Criterio: celda extraíble y punto de recepción operativo. Evidencia: procedimiento de desmontaje y convenio firmado | Pendiente |",
+    "| SUBTEL, Res. Exenta N° 1.985/2017 | Obligatoria (Chile) | Enlace BLE a +9 dBm (≈8 mW), con margen frente al límite aplicable | Medición en banda 2,4 GHz sobre la unidad ensamblada, previa confirmación documental de cuál es el límite vigente y sobre qué magnitud se mide. Criterio: cumplir el límite acreditado con margen. Evidencia: extracto de la resolución vigente e informe de medición | Pendiente |",
+    "| SUBTEL, Resolución N° 737/2025 | Obligatoria (Chile) | Verificación formal del producto terminado, con cargo al rubro de desarrollo y validación | Trámite formal de verificación ante la autoridad sectorial. Criterio: resolución favorable previa a la comercialización. Evidencia: expediente y resolución | Pendiente |",
+    "| UN 38.3 / IEC 62133-2 | Obligatoria (transporte y comercialización de celdas de litio) | Celdas comerciales con certificación de origen y protección electrónica del cargador | Solicitud de certificados al proveedor de celdas y ensayo de las protecciones del cargador. Criterio: certificados vigentes y corte por sobrecarga, sobredescarga y cortocircuito. Evidencia: certificados y acta de ensayo | Pendiente |",
+    "| Ley N° 19.628 (Protección de la Vida Privada) | Obligatoria (Chile) | Aislamiento por campo y rol; datos exportables por el titular | Pruebas de acceso cruzado entre cuentas y verificación de exportación. Criterio: cero lecturas de campos ajenos y exportación completa a solicitud del titular. Evidencia: batería de pruebas de aislamiento | Parcial: aislamiento implementado, exportación pendiente |",
+    "| Ley N° 21.719 (Protección de Datos Personales) | Obligatoria (Chile) | Registro de actividades de tratamiento y procedimiento escrito de notificación de vulneraciones | Revisión documental antes de abrir la primera cuenta comercial. Criterio: registro y procedimiento redactados, con responsable designado. Evidencia: documentos firmados | Pendiente |",
+    "| Ley N° 21.398 (“Pro Consumidor”) | Obligatoria (Chile) | Garantía legal de 6 meses más provisión del 5 % de BOM para atenderla | Revisión legal de las condiciones de garantía y provisión contable. Criterio: cobertura ≥ 6 meses y provisión del 5 % de BOM reservada. Evidencia: texto de garantía y asiento de provisión | Parcial |",
+    "| Ley N° 19.496 (Protección al Consumidor) | Obligatoria (Chile) | Declaración comercial como “diseñado conforme a IP67” hasta contar con ensayo de laboratorio | Auditoría del material comercial. Criterio: ninguna pieza declara IP67 certificado mientras no exista ensayo. Evidencia: material revisado y aprobado | Cumple |",
+    FILA_21713,
+    FILA_21735,
+    "| IEC 60529 (grado IP67) | Voluntaria como estándar; exigible como declaración una vez publicada, por efecto de la Ley N° 19.496 | Envolvente PETG con O-ring, sellado intercapa, prensaestopas M12 y respiradero protegido del sensor ambiental | Ensayo IP67 en laboratorio acreditado sobre el conjunto ensamblado, incluido el respiradero. Criterio: sin ingreso de agua tras 30 min a 1 m. Evidencia: informe de ensayo | Pendiente |",
+    "| Métodos oficiales SAG / INIA | Voluntaria (referencia técnica nacional adoptada) | Umbrales de la matriz de cultivos trazables a criterios oficiales publicados | Contraste de cada umbral de la matriz de cultivos con su fuente oficial. Criterio: trazabilidad documental de cada umbral. Evidencia: tabla de correspondencia umbral–fuente, con fecha de consulta | Pendiente |",
+    "| RoHS 2011/65/EU y RoHS 3 | Voluntaria en Chile / referencia de mercado futuro | Soldadura SAC305 y declaración de conformidad de proveedores | Recopilación de declaraciones de conformidad de proveedores. Criterio: cobertura documental de los componentes de la BOM. Evidencia: carpeta de declaraciones | Pendiente |",
+    "| FCC, Título 47 CFR Parte 15 | Referencia de mercado futuro (EE. UU., no exigible en Chile) | Cubierto de forma incidental por el módulo ESP32 pre-certificado | Verificación del FCC ID del módulo y de las condiciones de uso del certificado modular. Criterio: integración dentro del alcance declarado. Evidencia: ficha del módulo | No aplica en Chile |",
+    "| TIA/EIA-485-A y Modbus V1.1b3 | Voluntaria (estándares técnicos abiertos) | Base de diseño del bus RS-485 y la trama Modbus RTU hacia la sonda | Prueba de bus con analizador lógico sobre la trama Modbus RTU. Criterio: terminación correcta y cero errores de CRC en 1.000 lecturas consecutivas. Evidencia: captura y registro de errores | Parcial |",
+    "| ISO 10390, ISO 11265, ISO 11277, ISO 11465 | Voluntaria (métodos de referencia de laboratorio) | Métodos de contraste del protocolo de validación in situ | Protocolo de validación in situ contra laboratorio acreditado bajo ISO/IEC 17025. Criterio: el fijado en el propio protocolo. Evidencia: informes de laboratorio y análisis de concordancia | Pendiente |",
+    "| ISO/IEC 27001:2022 e ISO/IEC 25010 | Voluntaria (certificación de gestión y calidad de software) | Cifrado en tránsito y reposo, control de acceso segmentado | Revisión de configuración de cifrado y de segmentación de accesos. Criterio: TLS vigente y ausencia de credenciales embebidas. Evidencia: informe de revisión | Parcial |",
+    "| WCAG 2.1, nivel AA | Voluntaria (no exigida por ley a aplicaciones privadas en Chile) | Contraste ≥ 4,5:1, área táctil ≥ 48×48 dp y color no exclusivo como portador de información | Auditoría de accesibilidad sobre las pantallas de la aplicación. Criterio: contraste ≥ 4,5:1 y ninguna información transmitida solo por color. Evidencia: informe de auditoría | Pendiente |",
+]
+exigir(r"^\| Norma \| Carácter \| Requisito de diseño derivado.*?(?=^\*\*Tabla \d\.\d “\s*Clasificación Normativa)",
+       lambda m: tabla_completa(TABLA_NORMATIVA), "matriz normativa: tabla completa con leyes 21.713 y 21.735",
+       re.S | re.M)
 SECCION_TRIB = (
     "### Obligaciones Tributarias y Laborales\n\n"
     "- Ley N° 21.713 [42] (cumplimiento de obligaciones tributarias): desde octubre de 2025 eliminó la "
@@ -595,7 +650,7 @@ REFERENCIAS = {
         "regulador de 3,3 V y LED de alimentación. Recuperado de "
         "https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html",
 }
-inicio_refs = texto.rindex("Referencias bibliográficas")
+inicio_refs = [m.start() for m in re.finditer(r"Referencias bibliográficas", texto, re.I)][-1]
 cabecera, lista = texto[:inicio_refs], texto[inicio_refs:]
 lista, partidas = re.subn(r"(?<=[\S]) (\d{1,2})\. (?=[A-ZÁÉÍÓÚÑ(])", lambda m: "\n%s. " % m.group(1), lista)
 CAMBIOS.append(("lista de referencias separada en entradas", partidas))
@@ -609,6 +664,32 @@ if nota:
     lista += "\n" + re.sub(r"\s+", " ", nota.group(1)).strip() + "\n"
 texto = cabecera + lista
 CAMBIOS.append(("referencias agregadas a la lista", len(faltantes)))
+
+
+# --------------------------------------------------------------------------
+# 7. Tablas partidas por el salto de página del PDF: se unen en una sola
+# --------------------------------------------------------------------------
+def celdas(fila):
+    return [c.strip() for c in fila.strip().strip("|").split("|")]
+
+
+def unir(m):
+    anterior, siguiente = m.group(1), m.group(2)
+    a, s = celdas(anterior), celdas(siguiente)
+    # Una fila cuya primera celda viene vacía es la mitad inferior de la fila anterior
+    if len(a) == len(s) and not s[0]:
+        return "| " + " | ".join((x + " " + y).strip() for x, y in zip(a, s)) + " |\n"
+    return anterior + "\n" + siguiente + "\n"
+
+
+uniones = 0
+while True:
+    texto, n = re.subn(r"^(\|[^\n]*\|)\n+<!-- ===== PAGINA \d+ ===== -->\n+(\|[^\n]*\|)\n",
+                       unir, texto, count=1, flags=re.M)
+    if not n:
+        break
+    uniones += 1
+CAMBIOS.append(("tablas partidas por el salto de página, unidas", uniones))
 
 texto = re.sub(r"\n{4,}", "\n\n\n", texto)
 with io.open(SALIDA, "w", encoding="utf-8", newline="\r\n") as fh:
