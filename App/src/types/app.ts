@@ -37,8 +37,8 @@ export const PHENOLOGICAL_STAGES: {
     label: 'Vegetativo',
     labelEn: 'Vegetative',
     emoji: '🌿',
-    focus: 'Nitrógeno disponible, humedad radicular y riesgo de asfixia',
-    focusEn: 'Available nitrogen, root-zone moisture and waterlogging risk',
+    focus: 'Humedad radicular, pH y salinidad; los nutrientes requieren validación',
+    focusEn: 'Root-zone moisture, pH and salinity; nutrients require validation',
   },
   {
     id: 'floracion',
@@ -53,8 +53,8 @@ export const PHENOLOGICAL_STAGES: {
     label: 'Cosecha',
     labelEn: 'Harvest',
     emoji: '🌾',
-    focus: 'Secado superficial para transitabilidad y agotamiento de nutrientes',
-    focusEn: 'Surface drying for trafficability and nutrient depletion',
+    focus: 'Humedad del suelo y riesgo de compactación al ingresar al campo',
+    focusEn: 'Soil moisture and compaction risk when entering the field',
   },
 ];
 

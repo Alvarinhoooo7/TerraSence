@@ -1,3 +1,5 @@
+import { MeasurementExplorer } from '../components/MeasurementExplorer';
+import { presentationFromPoint } from '../engine/measurementPresentation';
 import { BrandLogo } from '../components/BrandLogo';
 import { GuideTouchable as TouchableOpacity, GuideScrollView as ScrollView } from '../components/guide/GuideControls';
 import React from 'react';
@@ -59,6 +61,8 @@ export const DashboardScreen: React.FC<Props> = (props) => {
         <Text style={styles.heroFoot}>{t('Diagnóstico local · Respaldo al recuperar conexión', 'Local diagnosis · Backup when connected')}</Text>
       </View>
 
+      {latest && <View style={{ marginTop: 20 }}><Text style={[styles.sectionTitle, { color: colors.text }]}>{t('Última medición', 'Latest reading')} · {new Date(latest.measuredAt).toLocaleDateString(locale)}</Text><MeasurementExplorer key={latest.id} presentation={presentationFromPoint(latest)} /></View>}
+
       <View style={styles.statusRow}>
         <TouchableOpacity guideTitle={t("Tu equipo", "Your device")} guide={t("Abre tus dispositivos para seleccionar o vincular una sonda. Estar vinculado no significa estar conectado por Bluetooth.", "Opens devices to select or link a probe. Being linked does not mean Bluetooth is connected.")} accessibilityRole="button" onPress={props.onOpenDevices} style={[styles.statusCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <AppIcon name="probe" color={colors.primary} />
@@ -83,10 +87,6 @@ export const DashboardScreen: React.FC<Props> = (props) => {
           <AppIcon name="arrow" color={colors.textSecondary} size={18} />
         </View>
         <Text style={[styles.caption, { color: colors.textSecondary }]}>{new Date(latest.measuredAt).toLocaleString(locale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} · {latest.isPending ? t('Pendiente de respaldo', 'Backup pending') : t('Respaldada', 'Backed up')}</Text>
-        <View style={styles.metrics}>{[[latest.ph.toFixed(1), 'pH'], [`${latest.vwcPercent.toFixed(0)}%`, t('Humedad', 'Moisture')], [`${Math.round(latest.ecUsCm)}`, 'CE · µS/cm']].map(([value, label]) => <View key={label} style={styles.metric}>
-          <Text style={[styles.metricValue, { color: colors.text }]}>{value}</Text>
-          <Text style={[styles.caption, { color: colors.textSecondary }]}>{label}</Text>
-        </View>)}</View>
       </TouchableOpacity> : <View style={[styles.empty, { borderColor: colors.border, backgroundColor: colors.card }]}>
         <AppIcon name="leaf" color={colors.primary} size={30} />
         <Text style={[styles.sectionTitle, { color: colors.text }]}>{loading ? t('Cargando lecturas…', 'Loading readings…') : t('Tu próxima decisión empieza aquí', 'Your next decision starts here')}</Text>
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   heroBadge: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 },
   heroEyebrow: { ...Typography.badge, color: '#C5E8AF', flexShrink: 1 },
   step: { fontSize: 12, color: '#BED0C3' },
-  heroTitle: { fontSize: 30, lineHeight: 36, fontWeight: '600', letterSpacing: -0.7, color: '#FFFFFF', marginTop: 22 },
+  heroTitle: { fontSize: 23, lineHeight: 29, fontWeight: '600', letterSpacing: -0.7, color: '#FFFFFF', marginTop: 12 },
   heroBody: { ...Typography.bodyRegular, color: '#D0DFD5', marginTop: 12 },
   measureButton: { minHeight: 58, borderRadius: 16, paddingHorizontal: 18, paddingVertical: 12, marginTop: 24, backgroundColor: '#C5E8AF', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   measureButtonText: { ...Typography.button, color: '#183D2B', flexShrink: 1 },

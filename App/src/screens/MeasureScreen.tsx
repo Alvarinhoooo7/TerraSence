@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
+  BackHandler,
   StyleSheet,
   Text,
   View,
@@ -17,13 +18,15 @@ import { useAppTheme } from '../hooks/useAppTheme';
 import { useAppStore } from '../store/useAppStore';
 import { evaluateForStage, type StageAwareEvaluation } from '../engine/stageEvaluator';
 import { buildContextualAdvice, type ContextualAdvice } from '../engine/contextualAdvice';
-import { computeVpdKpa } from '../engine/agronomyEngine';
+import { computeVpdKpa, CROPS_DB, SOIL_TEXTURES } from '../engine/agronomyEngine';
 import { readSoilProbe, verifySoilProbe } from '../services/probeService';
 import { fetchCurrentWeather, type CurrentWeather } from '../services/weatherService';
 import { newClientUuid, saveMeasurement } from '../services/measurementsService';
 import { PHENOLOGICAL_STAGES, mapRowToPoint, type PhenologicalStage, type SoilMeasurementInsert } from '../types/app';
-import type { MetricDetail, SoilMeasurement } from '../types/agronomy';
+import type { SoilMeasurement } from '../types/agronomy';
 import { formatEngineMetric } from '../utils/units';
+import { MeasurementExplorer } from '../components/MeasurementExplorer';
+import { buildMeasurementPresentation } from '../engine/measurementPresentation';
 import { CalibrationReminderModal } from '../components/CalibrationReminderModal';
 import { RadarScan } from '../components/RadarScan';
 
@@ -36,28 +39,10 @@ interface Props {
   onCancel: () => void;
 }
 
-interface ResultCard {
-  key: string;
-  label: string;
-  value: string;
-  status: MetricDetail['status'] | 'INFO';
-  explanation: string;
-  tip: string;
-  source: 'Sonda' | 'BME280' | 'Sonda (registro derivado de CE, sin validar)';
-}
-
-const STATUS_COPY = {
-  OPTIMAL: 'Condición favorable',
-  WARNING: 'Requiere atención',
-  CRITICAL: 'Condición limitante',
-  INFO: 'Dato de contexto',
-} as const;
-
 export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   const { colors } = useAppTheme();
   const { t, language } = useTranslation();
   const {
-    stage,
     setStage,
     cropId,
     textureId,
@@ -68,7 +53,12 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     setPendingCount,
   } = useAppStore();
 
-  const [phase, setPhase] = useState<Phase>('connecting');
+  const [phase, setPhase] = useState<Phase>('stage');
+  const [stage, selectStage] = useState<PhenologicalStage | null>(null);
+  const context = useRef({ cropId, textureId, fieldName, device });
+  const saving = useRef(false);
+  const reading = useRef(false);
+  const saved = useRef(false);
   useResetGuide(phase);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [demoMode, setDemoMode] = useState(false);
@@ -81,50 +71,53 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   const [weather, setWeather] = useState<CurrentWeather | null>(null);
   const [coords, setCoords] = useState<Location.LocationObjectCoords | null>(null);
   const [advice, setAdvice] = useState<ContextualAdvice | null>(null);
-  const [detailIndex, setDetailIndex] = useState(0);
   const [showCalibration, setShowCalibration] = useState(false);
   const clientUuid = useRef(newClientUuid());
 
-  const connect = useCallback(async () => {
-    setPhase('connecting');
-    setConnectionError(null);
-    const result = await verifySoilProbe(device?.device_code ?? null);
-    if (!result.connected) {
-      setConnectionError(result.message ?? 'No encontramos el equipo.');
-      setPhase('connection_error');
-      return;
-    }
-    setDemoMode(result.simulated);
-    setPhase('stage');
-  }, [device?.device_code]);
-
+  const cancel = useCallback(() => {
+    if (saving.current) return;
+    const leave = () => { weatherRequest.current += 1; onCancel(); };
+    if (raw && !saved.current) Alert.alert('Lectura sin guardar', '¿Descartar esta lectura y volver al dashboard?', [
+      { text: 'Seguir revisando', style: 'cancel' }, { text: 'Descartar', style: 'destructive', onPress: leave },
+    ]);
+    else leave();
+  }, [raw, onCancel]);
   useEffect(() => {
-    void connect();
-  }, [connect]);
+    const listener = BackHandler.addEventListener('hardwareBackPress', () => { cancel(); return true; });
+    return () => listener.remove();
+  }, [cancel]);
 
   const runMeasurement = useCallback(async () => {
-    setPhase('reading');
+    if (!stage || saving.current || reading.current) return;
+    reading.current = true;
+    context.current = { cropId, textureId, fieldName, device };
+    saved.current = false;
+    setPhase('connecting');
     clientUuid.current = newClientUuid();
     const request = ++weatherRequest.current;
     setWeather(null);
     setWeatherLoading(false);
     try {
+      const connection = await verifySoilProbe(context.current.device?.device_code ?? null);
+      if (request !== weatherRequest.current) return;
+      if (!connection.connected) throw new Error(connection.message ?? 'No se pudo conectar con la sonda.');
+      setDemoMode(connection.simulated);
+      setPhase('reading');
       const [position, probe] = await Promise.all([
         Promise.race([Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }).catch(() => null), new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000))]),
-        readSoilProbe(device?.device_code ?? null).then(probe => ({ ...probe, capturedAt: new Date().toISOString() })),
+        readSoilProbe(context.current.device?.device_code ?? null).then(probe => ({ ...probe, capturedAt: new Date().toISOString() })),
       ]);
       const nextCoords = position?.coords ?? null;
       const nextWeather = null;
       if (request !== weatherRequest.current) return;
       setCapturedAt(probe.capturedAt);
-      const nextEvaluation = evaluateForStage(probe.data, stage, cropId, textureId, preferences.language);
+      const nextEvaluation = evaluateForStage(probe.data, stage, context.current.cropId, context.current.textureId, preferences.language);
       setCoords(nextCoords);
       setRaw(probe.data);
       setDemoMode((current) => current || probe.simulated);
       setWeather(nextWeather);
       setEvaluation(nextEvaluation);
       setAdvice(buildContextualAdvice(stage, nextEvaluation, probe.data, nextWeather));
-      setDetailIndex(0);
       setPhase('result');
       if (nextCoords) {
         setWeatherLoading(true);
@@ -133,79 +126,37 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
           setWeather(forecast);
           setAdvice(buildContextualAdvice(stage, nextEvaluation, probe.data, forecast));
           setWeatherLoading(false);
-        });
+        }).catch(() => { if (request === weatherRequest.current) setWeatherLoading(false); });
       }
     } catch (error) {
+      if (request !== weatherRequest.current) return;
       setConnectionError(error instanceof Error ? error.message : 'No se pudo leer la sonda.');
       setPhase('connection_error');
+    } finally {
+      reading.current = false;
     }
-  }, [cropId, device?.device_code, preferences.language, stage, textureId]);
+  }, [cropId, device, fieldName, phase, preferences.language, stage, textureId]);
 
-  const cards = useMemo<ResultCard[]>(() => {
-    if (!evaluation || !raw) return [];
-    const metricCard = (
-      key: keyof StageAwareEvaluation['metrics'],
-      label: string,
-      explanation: string,
-      tip: string,
-    ): ResultCard => {
-      const metric = evaluation.metrics[key];
-      const formatted = formatEngineMetric(key, metric.val, metric.derived ? 'mg/kg' : metric.unit, preferences.measurementSystem);
-      return {
-        key,
-        label,
-        value: `${formatted.value.toFixed(1)} ${formatted.unit}${metric.derived ? ' · Sin validar' : ''}`,
-        status: metric.derived ? 'INFO' : metric.status,
-        explanation,
-        tip: metric.confidenceNote ?? tip,
-        source: metric.derived ? 'Sonda (registro derivado de CE, sin validar)' : 'Sonda',
-      };
-    };
-    const ambient = (key: 'airTemp' | 'airHumidity' | 'airPressure', label: string, unit: string): ResultCard => {
-      const value = raw[key];
-      const formatted = value == null ? null : formatEngineMetric(key, value, unit, preferences.measurementSystem);
-      return { key, label, value: formatted ? `${formatted.value.toFixed(1)} ${formatted.unit}` : 'Sin dato',
-        status: 'INFO', source: 'BME280', explanation: 'Lectura ambiental local del equipo en el instante de captura.',
-        tip: value == null ? 'El sensor no entregó esta variable. No se sustituye por datos de internet.' : 'Dato local informativo; su validación física sigue pendiente.' };
-    };
-    return [
-      metricCard('vwc', 'Humedad del suelo', 'Agua en el volumen de suelo.', 'Compara varios puntos antes de ajustar riego.'),
-      metricCard('ec', 'Conductividad del suelo', 'Conductividad eléctrica del suelo.', 'No identifica nutrientes individuales.'),
-      metricCard('temp', 'Temperatura del suelo', 'Temperatura de contacto de la sonda.', 'Compara con el rango del cultivo.'),
-      metricCard('nitrogen', 'Nitrógeno (N)', 'Registro informativo derivado de CE, sin validación química.', 'No usar para dosificar fertilizantes.'),
-      metricCard('phosphorus', 'Fósforo (P)', 'Registro informativo derivado de CE, sin validación química.', 'No usar para dosificar fertilizantes.'),
-      metricCard('potassium', 'Potasio (K)', 'Registro informativo derivado de CE, sin validación química.', 'No usar para dosificar fertilizantes.'),
-      metricCard('ph', 'pH del suelo', 'Acidez o alcalinidad del suelo.', 'Confirma correcciones importantes con laboratorio.'),
-      ambient('airTemp', 'Temperatura ambiente', '°C'),
-      ambient('airHumidity', 'Humedad relativa ambiente', '%'),
-      ambient('airPressure', 'Presión atmosférica', 'hPa'),
-    ];
-  }, [evaluation, preferences.measurementSystem, raw]);
-
-  const tone = (status: ResultCard['status']) => {
-    if (status === 'CRITICAL') return colors.danger;
-    if (status === 'WARNING') return colors.warning;
-    if (status === 'OPTIMAL') return colors.success;
-    return colors.primary;
-  };
+  const presentation = useMemo(() => raw && evaluation && advice ? buildMeasurementPresentation(raw, evaluation, advice) : null, [raw, evaluation, advice]);
 
   const save = useCallback(async () => {
-    if (!evaluation || !raw) return;
+    if (!evaluation || !raw || !stage || saving.current || saved.current) return;
     if (demoMode) {
       Alert.alert('Demostración', 'Los datos simulados no se guardan como mediciones reales.');
       return;
     }
+    saving.current = true;
     weatherRequest.current += 1;
     setWeatherLoading(false);
     setPhase('saving');
     try {
     const row: SoilMeasurementInsert = {
       measured_at: capturedAt ?? new Date().toISOString(),
-      device_id: device?.id ?? '',
-      data_generation: device?.data_generation ?? 0,
+      device_id: context.current.device?.id ?? '',
+      data_generation: context.current.device?.data_generation ?? 0,
       user_id: null,
-      crop_id: cropId,
-      field_name: fieldName,
+      crop_id: context.current.cropId,
+      field_name: context.current.fieldName,
       quadrant: null,
       latitude: coords?.latitude ?? null,
       longitude: coords?.longitude ?? null,
@@ -219,7 +170,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       phosphorus: raw.phosphorus,
       potassium: raw.potassium,
       battery_percent: raw.battery,
-      soil_texture: textureId,
+      soil_texture: context.current.textureId,
       // Ambiente del BME280 del equipo, no de la API del clima: esa da pronóstico de
       // días para complementar la recomendación, no una medición de este punto y este
       // instante. Si el sensor no entregó dato, va NULL y no se rellena con nada.
@@ -230,10 +181,10 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       verdict: evaluation.verdict,
       verdict_title: evaluation.verdictTitle,
       action_summary: advice?.summary ?? evaluation.actionSummary,
-      diagnosis: { localSource: 'probe-bme280-v1', capturedAt, connectionAtCapture: 'ble-response', alerts: evaluation.alerts, drivers: evaluation.drivers, advice, weather },
+      diagnosis: { presentation, localSource: 'probe-bme280-v1', capturedAt, connectionAtCapture: 'ble-response', alerts: evaluation.alerts, drivers: evaluation.drivers, advice, weather },
       engine_version: ENGINE_VERSION,
       crop_catalog_version: CROP_CATALOG_VERSION,
-      firmware_version: device?.firmware_version ?? null,
+      firmware_version: context.current.device?.firmware_version ?? null,
       client_uuid: clientUuid.current,
     };
     const { synced, point } = await saveMeasurement(row);
@@ -252,17 +203,19 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       const { pendingCount } = await import('../services/measurementsService');
       setPendingCount(await pendingCount());
     }
+    saved.current = true;
     setShowCalibration(true);
     } catch (error) {
       Alert.alert('No se pudo confirmar el guardado', error instanceof Error ? error.message : 'Reintenta sin cerrar esta lectura.');
     } finally {
+      saving.current = false;
       setPhase('result');
     }
-  }, [capturedAt, advice, addPoint, coords, cropId, demoMode, device, evaluation, fieldName, raw, setPendingCount, stage, textureId, weather]);
+  }, [capturedAt, advice, addPoint, coords, cropId, demoMode, device, evaluation, fieldName, raw, setPendingCount, stage, textureId, weather, presentation]);
 
   const header = (
     <View style={styles.header}>
-      <TouchableOpacity disabled={phase === 'saving'} onPress={onCancel} style={styles.headerSide}>
+      <TouchableOpacity disabled={phase === 'saving'} onPress={cancel} style={styles.headerSide}>
         <Text style={[styles.backText, { color: colors.primary }]}>‹ Volver</Text>
       </TouchableOpacity>
       <Text style={[styles.headerTitle, { color: colors.text }]}>Nueva medición</Text>
@@ -291,11 +244,11 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
         {header}
         <View style={styles.center}>
           <View style={[styles.connectionIcon, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}><Text style={[styles.connectionGlyph, { color: colors.primary }]}>!</Text></View>
-          <Text style={[styles.centerTitle, { color: colors.text }]}>No encontramos el equipo</Text>
+          <Text style={[styles.centerTitle, { color: colors.text }]}>No se pudo completar la medición</Text>
           <Text style={[styles.centerBody, { color: colors.textSecondary }]}>Comprueba que esté encendido, con batería y cerca del teléfono.</Text>
           {connectionError && <Text style={[styles.errorDetail, { color: colors.textMuted }]}>{connectionError}</Text>}
-          <TouchableOpacity onPress={connect} style={[styles.cta, { backgroundColor: colors.primary }]}>
-            <Text style={styles.ctaText}>Reintentar conexión</Text>
+          <TouchableOpacity disabled={!stage} onPress={runMeasurement} style={[styles.cta, { backgroundColor: colors.primary, opacity: stage ? 1 : 0.4 }]}>
+            <Text style={styles.ctaText}>Reintentar medición</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -308,7 +261,8 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
         {header}
         <ScrollView contentContainerStyle={styles.scroll}>
           {demoMode && <View style={[styles.demoBanner, { backgroundColor: colors.warning }]}><Text style={styles.demoText}>MODO DEMOSTRACIÓN · SIN SONDA REAL</Text></View>}
-          <Text style={[styles.eyebrow, { color: colors.primary }]}>EQUIPO DISPONIBLE</Text>
+          <Text style={[styles.eyebrow, { color: colors.primary }]}>PREPARAR MEDICIÓN</Text>
+          <Text style={[styles.source, { color: colors.textSecondary }]}>{fieldName} · {CROPS_DB[cropId].name} · {SOIL_TEXTURES[textureId].name}</Text>
           <Text style={[styles.pageTitle, { color: colors.text }]}>¿En qué fase quieres medir?</Text>
           <Text style={[styles.pageBody, { color: colors.textSecondary }]}>La fase cambia la interpretación y las recomendaciones, no los datos capturados.</Text>
           <View style={styles.stageGrid}>
@@ -321,7 +275,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
                   guide={t("Selecciona esta etapa para interpretar la lectura según el desarrollo del cultivo. No cambia los valores medidos.", "Selects this stage to interpret readings for crop development. Does not change measured values.")}
                   accessibilityRole="radio"
                   accessibilityState={{ selected }}
-                  onPress={() => setStage(item.id)}
+                  onPress={() => { selectStage(item.id); setStage(item.id); }}
                   style={[
                     styles.stageCard,
                     {
@@ -345,8 +299,8 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
             <Text style={[styles.detailBody, { color: colors.textSecondary }]}>{t('Inserta la sonda en suelo representativo, evitando piedras y bolsas de aire. Mantén el equipo quieto durante la lectura.', 'Insert the probe into representative soil, avoiding stones and air pockets. Keep it still during the reading.')}</Text>
             <Text style={[styles.source, { color: colors.textSecondary }]}>{device?.alias || device?.name || t('Demostración sin equipo', 'Demo without device')} · {t('El guardado se realiza después de revisar el resultado.', 'Save after reviewing the result.')}</Text>
           </View>
-          <TouchableOpacity onPress={runMeasurement} style={[styles.cta, { backgroundColor: colors.primary }]}>
-            <Text style={styles.ctaText}>Medir en esta fase</Text>
+          <TouchableOpacity disabled={!stage} onPress={runMeasurement} style={[styles.cta, { backgroundColor: colors.primary, opacity: stage ? 1 : 0.4 }]}>
+            <Text style={styles.ctaText}>{stage ? 'Medir en esta fase' : 'Selecciona una fase para continuar'}</Text>
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
@@ -357,17 +311,15 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     return (
       <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
         {header}
+        <Text style={{ textAlign: 'center', color: colors.textSecondary }}>{PHENOLOGICAL_STAGES.find(item => item.id === stage)?.label}</Text>
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[styles.centerTitle, { color: colors.text }]}>Leyendo el suelo</Text>
-          <Text style={[styles.centerBody, { color: colors.textSecondary }]}>Mantén la sonda insertada y quieta. También estamos consultando clima y ubicación.</Text>
+          <Text style={[styles.centerBody, { color: colors.textSecondary }]}>Mantén la sonda insertada y quieta. Buscando ubicación en paralelo; el pronóstico se consulta después.</Text>
         </View>
       </SafeAreaView>
     );
   }
-
-  const showingAdvice = detailIndex === cards.length;
-  const activeCard = cards[Math.min(detailIndex, cards.length - 1)];
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
@@ -383,78 +335,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
           Captura: {capturedAt ? new Date(capturedAt).toLocaleString() : 'Sin dato' } · Batería: {raw?.battery ?? '—'} %
           {'\n'}Ambiente: {[raw?.airTemp, raw?.airHumidity, raw?.airPressure].filter(v => v != null).length}/3 variables · N/P/K sin validación química
         </Text>
-        <View style={styles.resultGrid}>
-          {cards.map((card, index) => (
-            <TouchableOpacity
-              key={card.key}
-              guideTitle={card.label}
-              guide={t("Muestra el valor, su origen y una explicación con consejos para interpretarlo. No inicia otra lectura.", "Shows the value, its source and advice for interpretation. Does not start another reading.")}
-              accessibilityRole="button"
-              accessibilityState={{ selected: detailIndex === index }}
-              onPress={() => setDetailIndex(index)}
-              style={[
-                styles.resultCard,
-                {
-                  backgroundColor: colors.card,
-                  borderColor: detailIndex === index ? tone(card.status) : colors.border,
-                  borderTopColor: tone(card.status),
-                },
-              ]}
-            >
-              <Text style={[styles.resultLabel, { color: colors.textMuted }]}>{card.label}</Text>
-              <Text style={[styles.resultValue, { color: colors.text }]}>{card.value}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <View style={[styles.detailCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <View style={styles.detailHeader}>
-            <Text style={[styles.detailCounter, { color: colors.textMuted }]}>{detailIndex + 1} de {cards.length + 1}</Text>
-            <Text style={[styles.detailStatus, { color: showingAdvice ? colors.primary : tone(activeCard.status) }]}>
-              {showingAdvice ? 'RECOMENDACIÓN INTEGRAL' : STATUS_COPY[activeCard.status]}
-            </Text>
-          </View>
-          {showingAdvice && advice ? (
-            <>
-              <Text style={[styles.detailTitle, { color: colors.text }]}>{advice.title}</Text>
-              <Text style={[styles.detailBody, { color: colors.textSecondary }]}>{advice.summary}</Text>
-              {advice.actions.map((action, index) => <Text key={index} style={[styles.action, { color: colors.text }]}>• {action}</Text>)}
-              <Text style={[styles.weather, { color: colors.textSecondary }]}>Clima: {advice.weatherNote}</Text>
-              {stage === 'pre_siembra' && (
-                <View style={[styles.cropBox, { backgroundColor: colors.background }]}>
-                  <Text style={[styles.cropLabel, { color: colors.textMuted }]}>COMPATIBLES CON LA LECTURA ACTUAL</Text>
-                  <Text style={[styles.cropNames, { color: colors.text }]}>{advice.suggestedCrops.join('   ') || 'No hay coincidencias claras; corrige primero el suelo.'}</Text>
-                </View>
-              )}
-            </>
-          ) : (
-            <>
-              <Text style={[styles.detailTitle, { color: colors.text }]}>{activeCard.label} · {activeCard.value}</Text>
-              <Text style={[styles.source, { color: colors.textMuted }]}>Fuente: {activeCard.source}</Text>
-              <Text style={[styles.detailBody, { color: colors.textSecondary }]}>{activeCard.explanation}</Text>
-              <View style={[styles.tipBox, { backgroundColor: colors.background }]}>
-                <Text style={[styles.tipLabel, { color: colors.primary }]}>CONSEJO</Text>
-                <Text style={[styles.tipText, { color: colors.text }]}>{activeCard.tip}</Text>
-              </View>
-            </>
-          )}
-          <View style={styles.carouselActions}>
-            <TouchableOpacity
-              disabled={detailIndex === 0}
-              onPress={() => setDetailIndex((value) => Math.max(0, value - 1))}
-              style={[styles.carouselButton, { borderColor: colors.border, opacity: detailIndex === 0 ? 0.35 : 1 }]}
-            >
-              <Text style={[styles.carouselText, { color: colors.text }]}>‹ Anterior</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              disabled={showingAdvice}
-              onPress={() => setDetailIndex((value) => Math.min(cards.length, value + 1))}
-              style={[styles.carouselButton, { borderColor: colors.border, opacity: showingAdvice ? 0.35 : 1 }]}
-            >
-              <Text style={[styles.carouselText, { color: colors.text }]}>Siguiente ›</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        {presentation && <MeasurementExplorer presentation={presentation} />}
 
         <View style={[styles.detailCard, { backgroundColor: colors.card, borderColor: colors.border, marginTop: Spacing.md }]}>
           <Text style={[styles.detailTitle, { color: colors.text }]}>Pronóstico · próximos cinco días</Text>
@@ -467,7 +348,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
         <TouchableOpacity onPress={save} disabled={phase === 'saving'} style={[styles.cta, { backgroundColor: colors.primary, opacity: phase === 'saving' ? 0.6 : 1 }]}>
           {phase === 'saving' ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.ctaText}>Guardar resultado</Text>}
         </TouchableOpacity>
-        <TouchableOpacity disabled={phase === 'saving'} onPress={() => { weatherRequest.current += 1; setPhase('stage'); }} style={styles.secondaryButton}>
+        <TouchableOpacity disabled={phase === 'saving'} onPress={() => Alert.alert('Nueva medición', '¿Descartar esta lectura y elegir otra fase?', [{ text: 'Seguir revisando', style: 'cancel' }, { text: 'Continuar', onPress: () => { weatherRequest.current += 1; setRaw(null); selectStage(null); setPhase('stage'); } }])} style={styles.secondaryButton}>
           <Text style={[styles.secondaryText, { color: colors.primary }]}>Cambiar fase y volver a medir</Text>
         </TouchableOpacity>
       </ScrollView>

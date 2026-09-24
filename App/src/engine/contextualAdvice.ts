@@ -1,3 +1,4 @@
+import { applicableAlerts } from './measurementPresentation';
 import { CROPS_DB } from './agronomyEngine';
 import type { StageAwareEvaluation } from './stageEvaluator';
 import type { PhenologicalStage } from '../types/app';
@@ -19,8 +20,10 @@ export function buildContextualAdvice(
   reading: SoilMeasurement,
   weather: CurrentWeather | null,
 ): ContextualAdvice {
-  const actions = evaluation.alerts.slice(0, 3).map((alert) => alert.action);
-  if (actions.length === 0) actions.push('Mantén el manejo actual y repite la medición para observar la tendencia.');
+  const actions = [...new Set(applicableAlerts(evaluation).map((alert) => alert.action))];
+  if (actions.length === 0) actions.push(evaluation.verdict === 'GREEN'
+    ? 'Sin acciones correctivas bajo estas reglas. Mantén seguimiento y compara puntos representativos.'
+    : 'Revisa las condiciones destacadas con asesoría antes de intervenir. No hay una acción específica validada para esta fase.');
 
   const riskyDays = weather?.forecast.filter(day =>
     (day.precipitationMm != null && day.precipitationMm >= 5) ||
@@ -28,7 +31,7 @@ export function buildContextualAdvice(
     (day.minimumTemperatureC != null && day.minimumTemperatureC <= 0) ||
     (day.maximumTemperatureC != null && day.maximumTemperatureC >= 35),
   ) ?? [];
-  if (riskyDays.length) actions.push(`Revisa la fecha de la labor por lluvia, helada o calor previstos: ${riskyDays.map(day => day.date).join(', ')}. Confirma las condiciones antes de ingresar al predio.`);
+  if (riskyDays.length) actions.push(`Revisa la fecha de la labor por lluvia, helada o calor previstos: ${riskyDays.map(day => day.date).join(', ')}. Confirma las condiciones antes de ingresar al campo.`);
 
   const completeForecast = weather?.forecast.every(day => day.precipitationMm != null && day.minimumTemperatureC != null && day.maximumTemperatureC != null);
   const weatherNote = !weather
@@ -61,7 +64,7 @@ export function buildContextualAdvice(
   const copy: Record<PhenologicalStage, { title: string; summary: string }> = {
     pre_siembra: {
       title: 'Prepara el suelo antes de sembrar',
-      summary: 'Prioriza las correcciones que condicionan germinación y establecimiento. Luego confirma que el clima permita entrar al predio.',
+      summary: 'Prioriza las correcciones que condicionan germinación y establecimiento. Luego confirma que el clima permita entrar al campo.',
     },
     vegetativo: {
       title: 'Protege el crecimiento activo',

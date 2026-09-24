@@ -1,5 +1,78 @@
 # Plan de trabajo: permisos, ajustes y dispositivos
 
+## Implementación vigente: dashboard y medición
+
+El usuario autoriza implementar esta etapa. Sustituye la espera de aprobación de
+Medición descrita más abajo; los pendientes de hardware de etapas anteriores siguen abiertos.
+
+Flujo: Dashboard → preparación y selección explícita de fase → conexión y lectura →
+resumen con plan y grid → detalle de parámetro → guardado local y respaldo.
+El detalle tiene páginas Estado, Recomendación y Control con gesto horizontal y pestañas.
+Anterior/Siguiente parámetro cambian la tarjeta sin regresar al grid y reinician en Estado.
+El plan global conserva el punto de retorno. Atrás de Android sigue la misma navegación.
+
+### Secuencia y progreso
+
+- [x] Inspeccionar código, navegación, motor y persistencia; preservar cambios ajenos.
+- [x] Especificar el flujo y criterios de aceptación antes de implementar.
+- [x] Crear modelo compartido de presentación y recomendaciones por parámetro.
+- [x] Crear grid adaptable, mini carrusel y detalle con navegación interna.
+- [x] Integrar resultado, lectura guardada y dashboard con componentes compartidos.
+- [x] Exigir fase explícita, fijar contexto al iniciar y proteger cancelación/guardado.
+- [x] Preparar contrato remoto y función autenticada sin inventar un proveedor activo.
+- [x] Ejecutar pruebas de App, tipos y verificador documental; registrar límites reales.
+
+### Reglas de implementación
+
+- Orden: humedad, temperatura de suelo, pH, CE, N, P, K, temperatura ambiente,
+  humedad ambiente y presión. Dos columnas; una con espacio reducido/texto grande.
+- Recomendaciones: estado correcto, atención, crítico e informativo/sin dato.
+  Usar fase/cultivo/textura capturados; no inventar dosis, umbrales ni plazos.
+  N/P/K no validan nutrición; ambiente ausente no se completa desde internet.
+- El plan prioriza alertas aplicables a la fase y elimina duplicados.
+- Guardar la presentación del diagnóstico junto con su versión para no reinterpretar
+  una lectura histórica con preferencias nuevas. Lecturas antiguas muestran sólo lo registrado.
+- Cancelar invalida respuestas tardías. Guardar usa bloqueo inmediato y UUID estable.
+- API: entrada por identificador de medición guardada, autorización mediante RLS,
+  respuesta versionada y validada, espera limitada y respaldo local. Proveedor pendiente.
+- No desplegar servicios ni afirmar validación física; esta implementación es local.
+
+### Verificación de aceptación
+
+- [ ] Sin selección de fase no inicia; el contexto no cambia durante la captura.
+- [ ] Grid, detalle y plan comparten lectura; anterior/siguiente respetan límites.
+- [ ] Plan vuelve al mismo parámetro/página; Atrás protege resultados sin guardar.
+- [x] Ausencia de ambiente e histórico antiguo conservan datos honestos (pruebas unitarias).
+- [ ] Validar función remota desplegada: por ahora devuelve proveedor no configurado.
+- [ ] Reintentos no aceptan respuestas anteriores ni duplican guardados.
+- [x] Pruebas automatizadas y tipos aprobados; documentación sin errores.
+- [ ] Validación visual en teléfono, lector de pantalla, texto ampliado y sonda real.
+
+### Resultado local y puntos de conexión
+
+`src/engine/measurementPresentation.ts` construye diez parámetros con diagnóstico
+individual. `src/components/MeasurementExplorer.tsx` comparte grid, plan y navegación
+entre dashboard, resultado y detalle guardado. El JSON `diagnosis.presentation` conserva
+la versión mostrada al guardar, sin agregar columnas ni migraciones.
+
+El gesto horizontal recorre Estado/Recomendación/Control. Los botones inferiores cambian
+parámetro y reinician Estado. Abrir/cerrar el plan conserva parámetro y página interna.
+La confirmación de salida protege resultados; conexión/lectura ignoran respuestas tardías
+y tienen bloqueo inmediato. El guardado conserva UUID y bloqueo contra pulsaciones repetidas.
+
+`src/services/recommendationsService.ts` ofrece conexión opcional con tiempo máximo y
+validación de respuesta. No se llama automáticamente: falta elegir e integrar proveedor.
+`../supabase/functions/measurement-recommendation/index.ts` autentica, consulta una lectura
+guardada usando RLS y responde `PROVIDER_NOT_CONFIGURED`. No está desplegada; falta probarla
+con usuarios reales y conectar el adaptador, sus secretos y la persistencia del análisis remoto.
+No se envían datos a terceros ni se muestra análisis remoto ficticio.
+
+Comprobaciones locales: 114 pruebas aprobadas, TypeScript sin errores y verificador
+documental sin errores. Exportación JavaScript Android correcta (no equivale a APK).
+Expo avisó que faltan los archivos de configuración nativa de Google; no impidió exportar.
+No hay dispositivo conectado según ADB. Quedan pendientes pruebas de gestos, Atrás,
+texto grande, temas, idiomas, permisos, sonda real y escenarios de interrupción en teléfono.
+
 ## Estado y alcance vigente
 
 ### Etapa vigente: auditar Permisos, Vinculación y Dashboard

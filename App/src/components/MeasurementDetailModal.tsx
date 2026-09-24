@@ -1,3 +1,5 @@
+import { MeasurementExplorer } from './MeasurementExplorer';
+import { presentationFromPoint } from '../engine/measurementPresentation';
 import { GuideModal as Modal } from './guide/GuideModal';
 import { GuideTouchable as TouchableOpacity, GuideScrollView as ScrollView } from './guide/GuideControls';
 import React from 'react';
@@ -7,9 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Spacing, Typography, VERDICT_META } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
-import { useAppStore } from '../store/useAppStore';
 import { PHENOLOGICAL_STAGES, type MeasurementPoint } from '../types/app';
-import { formatTemperature } from '../utils/units';
 
 interface Props {
   point: MeasurementPoint | null;
@@ -19,34 +19,18 @@ interface Props {
 export const MeasurementDetailModal: React.FC<Props> = ({ point, onClose }) => {
   const { isDark, colors } = useAppTheme();
   const { language, locale, t } = useTranslation();
-  const system = useAppStore((state) => state.preferences.measurementSystem);
 
   if (!point) return null;
 
   const meta = VERDICT_META[point.verdict];
   const accent = isDark ? meta.strokeDark : meta.strokeLight;
   const stage = PHENOLOGICAL_STAGES.find((item) => item.id === point.stage);
-  const temperature = formatTemperature(point.soilTempC, system);
   const verdictLabel = point.verdict === 'GREEN'
     ? t('BIEN', 'HEALTHY')
     : point.verdict === 'AMBER'
       ? t('ATENCIÓN', 'ATTENTION')
       : t('CRÍTICO', 'CRITICAL');
-  const ambientTemp = point.airTemp == null ? null : formatTemperature(point.airTemp, system);
   const missing = t('Sin dato', 'No data');
-  const unvalidated = t('Sin validar', 'Unvalidated');
-  const metrics = [
-    [t('Humedad del suelo', 'Soil moisture'), `${point.vwcPercent.toFixed(1)} %`],
-    [t('Conductividad del suelo', 'Soil conductivity'), `${point.ecUsCm.toFixed(1)} µS/cm`],
-    [t('Temperatura del suelo', 'Soil temperature'), `${temperature.value.toFixed(1)} ${temperature.unit}`],
-    ['N', `${point.nitrogen} mg/kg · ${unvalidated}`],
-    ['P', `${point.phosphorus} mg/kg · ${unvalidated}`],
-    ['K', `${point.potassium} mg/kg · ${unvalidated}`],
-    ['pH', point.ph.toFixed(1)],
-    [t('Temperatura ambiente', 'Ambient temperature'), ambientTemp ? `${ambientTemp.value.toFixed(1)} ${ambientTemp.unit}` : missing],
-    [t('Humedad relativa ambiente', 'Ambient relative humidity'), point.airHumidity == null ? missing : `${point.airHumidity.toFixed(1)} %`],
-    [t('Presión atmosférica', 'Atmospheric pressure'), point.airPressure == null ? missing : `${point.airPressure.toFixed(1)} hPa`],
-  ];
 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
@@ -84,21 +68,7 @@ export const MeasurementDetailModal: React.FC<Props> = ({ point, onClose }) => {
           <Text style={[styles.section, { color: colors.textMuted }]}>{t('LECTURAS REGISTRADAS', 'RECORDED READINGS')}</Text>
           <Text style={[styles.meta, { color: colors.textSecondary }]}>{t('Suelo: sonda · Ambiente: registro local; las lecturas antiguas pueden carecer de origen verificado. N/P/K sin validación química.', 'Soil: probe · Environment: local record; older readings may lack verified provenance. N/P/K chemically unvalidated.')}</Text>
           <Text style={[styles.meta, { color: colors.textSecondary }]}>{t('Batería en captura', 'Battery at capture')}: {point.batteryPercent == null ? missing : `${point.batteryPercent} %`}</Text>
-          <View style={styles.grid}>
-            {metrics.map(([label, value]) => (
-              <View key={label} style={[styles.metric, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                <Text style={[styles.metricLabel, { color: colors.textMuted }]}>{label}</Text>
-                <Text style={[styles.metricValue, { color: colors.text }]}>{value}</Text>
-              </View>
-            ))}
-          </View>
-
-          <Text style={[styles.section, { color: colors.textMuted }]}>{t('ACCIÓN RECOMENDADA', 'RECOMMENDED ACTION')}</Text>
-          <View style={[styles.action, { backgroundColor: colors.card, borderColor: colors.border, borderLeftColor: accent }]}>
-            <Text style={[styles.actionText, { color: colors.text }]}>
-              {point.action ?? t('No se requieren acciones correctivas para esta medición.', 'No corrective action is required for this reading.')}
-            </Text>
-          </View>
+          <MeasurementExplorer key={point.id} presentation={presentationFromPoint(point)} />
 
           <Text style={[styles.section, { color: colors.textMuted }]}>{t('UBICACIÓN', 'LOCATION')}</Text>
           <View style={[styles.location, { backgroundColor: colors.card, borderColor: colors.border }]}>
