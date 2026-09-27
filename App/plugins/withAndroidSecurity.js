@@ -127,13 +127,19 @@ function withAndroidProGuardRules(config) {
           fs.mkdirSync(resXmlDir, { recursive: true });
         }
 
+        // Android exige un dominio por cada <exclude>: se excluyen todos para
+        // que ni la nube ni la transferencia entre equipos copien la sesión.
+        const excludeAll = [
+          'root', 'file', 'database', 'sharedpref', 'external',
+          'device_root', 'device_file', 'device_database', 'device_sharedpref',
+        ].map((domain) => `        <exclude domain="${domain}" path="." />`).join('\n');
         const dataExtractionRulesXml = `<?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
     <cloud-backup>
-        <exclude path="." />
+${excludeAll}
     </cloud-backup>
     <device-transfer>
-        <exclude path="." />
+${excludeAll}
     </device-transfer>
 </data-extraction-rules>
 `;
