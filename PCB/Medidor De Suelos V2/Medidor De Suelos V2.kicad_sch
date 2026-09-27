@@ -4503,12 +4503,6 @@
 		(uuid "5ba5666e-4c8b-4356-ae4e-c7b256145b53")
 	)
 	(junction
-		(at 39.37 222.25)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "62658642-938f-4f5a-b168-0cc7f10d7b48")
-	)
-	(junction
 		(at 177.8 100.33)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4625,6 +4619,10 @@
 		(uuid "2b99b5a6-e3ed-4c81-8784-c7cff4de0dde")
 	)
 	(no_connect
+		(at 274.32 199.39)
+		(uuid "30383ecf-9e34-4672-ba81-2d3222d6784b")
+	)
+	(no_connect
 		(at 287.02 83.82)
 		(uuid "3117d9c4-9eb7-464a-a635-eb6d1caf09be")
 	)
@@ -4671,6 +4669,10 @@
 	(no_connect
 		(at 332.74 78.74)
 		(uuid "c483036f-d96e-4c93-ba45-5f6f6fd0b904")
+	)
+	(no_connect
+		(at 274.32 217.17)
+		(uuid "c5206624-08ed-42b9-9dac-f1ca490e5217")
 	)
 	(no_connect
 		(at 332.74 83.82)
@@ -4828,16 +4830,6 @@
 	)
 	(wire
 		(pts
-			(xy 35.56 222.25) (xy 39.37 222.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "12678991-c385-416e-8c19-886c05d664b3")
-	)
-	(wire
-		(pts
 			(xy 173.99 40.64) (xy 177.8 40.64)
 		)
 		(stroke
@@ -4878,6 +4870,16 @@
 	)
 	(wire
 		(pts
+			(xy 274.32 217.17) (xy 276.86 217.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "195f965d-2d29-4663-8689-52e6e05cf90c")
+	)
+	(wire
+		(pts
 			(xy 137.16 229.87) (xy 137.16 224.79)
 		)
 		(stroke
@@ -4895,6 +4897,16 @@
 			(type default)
 		)
 		(uuid "1ba97049-4aae-431b-b7a2-a0fe1d89093c")
+	)
+	(wire
+		(pts
+			(xy 274.32 199.39) (xy 276.86 199.39)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1ca7efc2-f7ae-4698-931a-813a252c0c18")
 	)
 	(wire
 		(pts
@@ -5095,16 +5107,6 @@
 			(type default)
 		)
 		(uuid "365b84a3-bc13-4bdb-b012-e221ba1c7e8f")
-	)
-	(wire
-		(pts
-			(xy 276.86 199.39) (xy 274.32 199.39)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "372c4968-cb77-400d-9bcd-4d3c1f46bf93")
 	)
 	(wire
 		(pts
@@ -5928,16 +5930,6 @@
 	)
 	(wire
 		(pts
-			(xy 274.32 199.39) (xy 274.32 200.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a918dcaa-0678-49f3-986a-500526e501e7")
-	)
-	(wire
-		(pts
 			(xy 177.8 40.64) (xy 181.61 40.64)
 		)
 		(stroke
@@ -5985,16 +5977,6 @@
 			(type default)
 		)
 		(uuid "acc94a6d-cb46-4c0b-b258-417b49ad760b")
-	)
-	(wire
-		(pts
-			(xy 274.32 214.63) (xy 274.32 217.17)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ae69cfb7-6f12-4423-87ac-9c4ced692bbb")
 	)
 	(wire
 		(pts
@@ -6165,16 +6147,6 @@
 			(type default)
 		)
 		(uuid "cdcc7a36-a8b7-4f9e-a3e8-930f97d6a905")
-	)
-	(wire
-		(pts
-			(xy 276.86 217.17) (xy 274.32 217.17)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cddf7d7a-111d-48b0-b898-7d037f8ffe2e")
 	)
 	(wire
 		(pts
@@ -7885,70 +7857,6 @@
 			(project ""
 				(path "/01588d84-40d6-4b8a-b659-52ca9eb6a726"
 					(reference "MOD1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 35.56 222.25 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "196ce2fb-dbf2-4061-9524-8e441e31b248")
-		(property "Reference" "TP11"
-			(at 32.258 225.044 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 32.258 227.076 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Connector_Pin:Pin_D1.0mm_L10.0mm_LooseFit"
-			(at 35.56 217.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 35.56 217.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 35.56 222.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "06c2234a-f3e8-4c91-a899-43ed2585c507")
-		)
-		(instances
-			(project "Medidor De Suelos V2"
-				(path "/01588d84-40d6-4b8a-b659-52ca9eb6a726"
-					(reference "TP11")
 					(unit 1)
 				)
 			)
@@ -10655,71 +10563,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 274.32 200.66 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "9b2dd8cd-c8e3-4820-9ad6-9381ee852262")
-		(property "Reference" "#PWR023"
-			(at 274.32 207.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 274.32 204.978 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 274.32 200.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 274.32 200.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 274.32 200.66 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "ade55905-6ca1-410c-af6f-bf31e656dfe4")
-		)
-		(instances
-			(project "Medidor De Suelos V2"
-				(path "/01588d84-40d6-4b8a-b659-52ca9eb6a726"
-					(reference "#PWR023")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:+5V")
 		(at 251.46 190.5 0)
 		(unit 1)
@@ -11590,71 +11433,6 @@
 			(project "Medidor De Suelos V2"
 				(path "/01588d84-40d6-4b8a-b659-52ca9eb6a726"
 					(reference "#PWR07")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+5V")
-		(at 274.32 214.63 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "c8bfc717-bffc-44e0-9b4d-a1af029a4029")
-		(property "Reference" "#PWR025"
-			(at 274.32 218.44 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "3.3V"
-			(at 271.018 213.106 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 274.32 214.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 274.32 214.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 274.32 214.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "a9d34ac8-50f6-41b8-b02a-26a302b4e474")
-		)
-		(instances
-			(project "Medidor De Suelos V2"
-				(path "/01588d84-40d6-4b8a-b659-52ca9eb6a726"
-					(reference "#PWR025")
 					(unit 1)
 				)
 			)
