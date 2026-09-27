@@ -95,6 +95,15 @@ class TestEvaluacion(unittest.TestCase):
 
 
 class TestLaboral(unittest.TestCase):
+    def test_aporte_previsional_pondera_cambio_de_agosto(self):
+        """La nómina anual combina siete meses del tramo anterior y cinco del nuevo."""
+        tramos = {2026: .035, 2027: .0425, 2028: .05, 2029: .057,
+                  2030: .064, 2031: .071, 2032: .078, 2033: .085}
+        for anio in range(2027, 2034):
+            esperado = (7 * tramos[anio - 1] + 5 * tramos[anio]) / 12
+            self.assertAlmostEqual(M.S["aporte_previsional_empleador"][str(anio)], esperado)
+        self.assertEqual(M.S["aporte_previsional_empleador"]["2034"], .085)
+
     def test_costo_del_empleador_crece_con_la_reforma_previsional(self):
         primero = M.factor_empleador(M.ANIOS[0])
         ultimo = M.factor_empleador(M.ANIOS[-1])

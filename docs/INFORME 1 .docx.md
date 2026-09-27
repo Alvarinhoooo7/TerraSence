@@ -635,7 +635,7 @@ La comparación depende críticamente de una variable que no puede darse por sup
 
 | Alternativa | Intensidad | Año 1 | Acumulado a 3 años | Acumulado a 5 años | Acumulado a 10 años |
 |---|---|---|---|---|---|
-| **TerraSense** (equipo, kit de batería en años 3 y 8, segundo equipo en año 6) | Mediciones ilimitadas | $449.409 | $474.399 | $474.399 | $948.798 |
+| **TerraSense** (equipo, kit de batería en años 3 y 8, segundo equipo en año 6) | Mediciones ilimitadas | $449.129 | $474.119 | $474.119 | $948.237 |
 | Análisis de laboratorio (S1) | 4 muestras/año | $200.000 | $600.000 | $1.000.000 | $2.000.000 |
 | Análisis de laboratorio (S1) | 20 muestras/año | $1.000.000 | $3.000.000 | $5.000.000 | $10.000.000 |
 | Asesoría agronómica externa (S2) | 2 visitas/año | $120.000 | $360.000 | $600.000 | $1.200.000 |
@@ -643,7 +643,7 @@ La comparación depende críticamente de una variable que no puede darse por sup
 
 ###### **Tabla 2.2 “Costo Total de Propiedad del Agricultor a 1, 3, 5 y 10 Años”**
 
-**Lectura del resultado.** Bajo la intensidad habitual el instrumento **no se paga el primer año**: $449.409 contra $200.000 de laboratorio o $120.000 de asesoría. Frente al laboratorio el cruce ocurre en el año 3 y la ventaja se mantiene; frente a la asesoría ocurre en el año 4, se pierde de forma transitoria con la compra del segundo equipo y se recupera en el año 8. A diez años la ventaja es de 2,1 y 1,3 veces, y bajo uso intensivo de 10,5 y 7,6 veces. El argumento **no es el ahorro nominal sino el costo marginal cero de la medición repetida**: a cien mediciones anuales cada lectura cuesta $949 frente a los $50.000 de una muestra de laboratorio.
+**Lectura del resultado.** Bajo la intensidad habitual el instrumento **no se paga el primer año**: $449.129 contra $200.000 de laboratorio o $120.000 de asesoría. Frente al laboratorio el cruce ocurre en el año 3 y la ventaja se mantiene; frente a la asesoría ocurre en el año 4, se pierde de forma transitoria con la compra del segundo equipo y se recupera en el año 8. A diez años la ventaja es de 2,1 y 1,3 veces, y bajo uso intensivo de 10,5 y 7,6 veces. El argumento **no es el ahorro nominal sino el costo marginal cero de la medición repetida**: a cien mediciones anuales cada lectura cuesta $948 frente a los $50.000 de una muestra de laboratorio.
 
 <!-- INFORME:TCO:FIN -->
 
@@ -786,35 +786,35 @@ Los gastos fijos asumen formalización inmediata. Los socios perciben sueldo des
 
 | Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Nómina y cargas | $32.606.640 | $47.079.721 | $68.745.793 | $86.764.684 | $94.902.837 | $110.985.034 | $114.761.092 | $118.203.924 | $135.424.622 | $139.487.361 |
+| Nómina y cargas | $32.689.140 | $47.103.354 | $68.631.682 | $86.416.053 | $94.672.448 | $110.457.607 | $114.396.445 | $118.203.924 | $135.424.622 | $139.487.361 |
 | Colación y movilización | $5.400.000 | $7.416.000 | $9.548.100 | $11.801.452 | $12.155.495 | $14.606.853 | $15.045.059 | $15.496.411 | $18.241.489 | $18.788.734 |
 | Arriendo de oficina | $0 | $18.540.000 | $19.096.200 | $19.669.086 | $20.259.159 | $20.866.933 | $21.492.941 | $22.137.730 | $22.801.861 | $23.485.917 |
 | Servicios básicos | $1.800.000 | $5.562.000 | $5.728.860 | $5.900.726 | $6.077.748 | $6.260.080 | $6.447.882 | $6.641.319 | $6.840.558 | $7.045.775 |
 | Softwares y planes cloud | $3.600.000 | $3.708.000 | $3.819.240 | $3.933.817 | $4.051.832 | $4.173.387 | $4.298.588 | $4.427.546 | $4.560.372 | $4.697.183 |
 | Publicidad digital | $6.000.000 | $10.815.000 | $15.913.500 | $21.308.176 | $28.700.475 | $31.022.174 | $33.564.810 | $36.305.877 | $39.257.205 | $42.470.367 |
 | Otros de estructura | $1.870.000 | $1.926.100 | $1.983.883 | $2.043.399 | $2.104.701 | $2.167.843 | $2.232.878 | $2.299.864 | $2.368.860 | $2.439.926 |
-| **Total gastos de estructura** | $51.276.640 | $95.046.821 | $124.835.576 | $151.421.341 | $168.252.246 | $190.082.304 | $197.843.250 | $205.512.670 | $229.494.969 | $238.415.264 |
+| **Total gastos de estructura** | $51.359.140 | $95.070.454 | $124.721.465 | $151.072.709 | $168.021.857 | $189.554.877 | $197.478.603 | $205.512.670 | $229.494.969 | $238.415.264 |
 
 ###### **Tabla 2.8 “Estructura de Gastos de Operación, Administración y Comercialización”**
 
-El costo laboral sobre el sueldo bruto no es un recargo fijo: sigue el calendario de la Ley N° 21.735, y pasa de **23,5 % en 2027 a 28,5 % en 2036**, más cesantía, mutualidad y las provisiones de vacaciones e indemnización.
+El costo laboral sobre el sueldo bruto no es un recargo fijo: sigue el calendario de la Ley N° 21.735, y pasa de **23,8 % en 2027 a 28,5 % en 2036**, más cesantía, mutualidad y las provisiones de vacaciones e indemnización.
 
 | Año | Socio (c/u) | Contador | Marketing | Ensamblador (c/u) | Masa salarial bruta mensual | Cargas y provisiones | Costo laboral anual |
 |---|---|---|---|---|---|---|---|
-| 2027 | $600.000 | $1.000.000 | — | — | $2.200.000 | 23,5 % | $32.606.640 |
-| 2028 | $700.000 | $1.030.000 | — | $721.000 | $3.151.000 | 24,5 % | $47.079.721 |
-| 2029 | $850.000 | $1.060.900 | $1.060.900 | $742.630 | $4.564.430 | 25,5 % | $68.745.793 |
-| 2030 | $1.000.000 | $1.092.727 | $1.092.727 | $764.909 | $5.715.272 | 26,5 % | $86.764.684 |
-| 2031 | $1.200.000 | $1.125.509 | $1.125.509 | $787.856 | $6.226.730 | 27,0 % | $94.902.837 |
-| 2032 | $1.236.000 | $1.159.274 | $1.159.274 | $811.492 | $7.225.024 | 28,0 % | $110.985.034 |
-| 2033 | $1.273.080 | $1.194.052 | $1.194.052 | $835.837 | $7.441.774 | 28,5 % | $114.761.092 |
+| 2027 | $600.000 | $1.000.000 | — | — | $2.200.000 | 23,8 % | $32.689.140 |
+| 2028 | $700.000 | $1.030.000 | — | $721.000 | $3.151.000 | 24,6 % | $47.103.354 |
+| 2029 | $850.000 | $1.060.900 | $1.060.900 | $742.630 | $4.564.430 | 25,3 % | $68.631.682 |
+| 2030 | $1.000.000 | $1.092.727 | $1.092.727 | $764.909 | $5.715.272 | 26,0 % | $86.416.053 |
+| 2031 | $1.200.000 | $1.125.509 | $1.125.509 | $787.856 | $6.226.730 | 26,7 % | $94.672.448 |
+| 2032 | $1.236.000 | $1.159.274 | $1.159.274 | $811.492 | $7.225.024 | 27,4 % | $110.457.607 |
+| 2033 | $1.273.080 | $1.194.052 | $1.194.052 | $835.837 | $7.441.774 | 28,1 % | $114.396.445 |
 | 2034 | $1.311.272 | $1.229.874 | $1.229.874 | $860.912 | $7.665.028 | 28,5 % | $118.203.924 |
 | 2035 | $1.350.611 | $1.266.770 | $1.266.770 | $886.739 | $8.781.718 | 28,5 % | $135.424.622 |
 | 2036 | $1.391.129 | $1.304.773 | $1.304.773 | $913.341 | $9.045.169 | 28,5 % | $139.487.361 |
 
 ###### **Tabla 2.9 “Sueldo Bruto Mensual por Cargo y Costo Laboral Anual”**
 
-Los socios siguen una escala que parte cerca del ingreso mínimo y sube por escalones hasta $1.200.000 en 2031; desde ahí solo se reajustan por inflación. Contador y marketing parten en $1.000.000 brutos mensuales y el ensamblador en $700.000, en pesos de 2027 reajustados un 3 % anual; un guion indica que el cargo aún no existe ese año. Con el margen de contribución de $273.938 por equipo, la estructura de 2027 se cubre con **188 equipos** y, sumando la cuota anual del crédito, con **206**: la meta de 200 unidades queda por debajo de ese segundo umbral, y esa es la razón por la que el primer ejercicio cierra con pérdida.
+Los socios siguen una escala que parte cerca del ingreso mínimo y sube por escalones hasta $1.200.000 en 2031; desde ahí solo se reajustan por inflación. Contador y marketing parten en $1.000.000 brutos mensuales y el ensamblador en $700.000, en pesos de 2027 reajustados un 3 % anual; un guion indica que el cargo aún no existe ese año. Con el margen de contribución de $273.717 por equipo, la estructura de 2027 se cubre con **188 equipos** y, sumando la cuota anual del crédito, con **206**: la meta de 200 unidades queda por debajo de ese segundo umbral, y esa es la razón por la que el primer ejercicio cierra con pérdida.
 
 <!-- INFORME:FIJOS:FIN -->
 
@@ -830,26 +830,26 @@ La inversión inicial se construye de abajo hacia arriba —activo fijo, activo 
 |---|---|---|
 | Equipamiento y activo fijo | $9.000.000 | 30,3 % |
 | Activo nominal (puesta en marcha) | $5.200.000 | 17,5 % |
-| Capital de trabajo (3,0 meses) | $12.819.160 | 43,1 % |
+| Capital de trabajo (3,0 meses) | $12.839.785 | 43,2 % |
 | Inventario inicial | $2.708.192 | 9,1 % |
-| **Inversión inicial total** | **$29.727.352** | **100,0 %** |
+| **Inversión inicial total** | **$29.747.977** | **100,0 %** |
 
 ###### **Tabla 3.0 “Inversión Inicial”**
 
-**El pie no es una fuente adicional de fondos.** Los socios entregan al banco un pie del 30 % del monto solicitado como condición de entrada, y es el crédito el que financia el 100 % de la inversión: **$29.727.352** de crédito y **$8.918.206** de pie ($4.459.103 por socio), con cuota mensual de $416.026 por el sistema francés.
+**El pie no es una fuente adicional de fondos.** Los socios entregan al banco un pie del 30 % del monto solicitado como condición de entrada, y es el crédito el que financia el 100 % de la inversión: **$29.747.977** de crédito y **$8.924.393** de pie ($4.462.197 por socio), con cuota mensual de $416.315 por el sistema francés.
 
 | Periodo | Saldo inicial | Cuota de capital | Intereses | Cuota total | Saldo final |
 |---|---|---|---|---|---|
-| 2027 | $29.727.352 | $1.693.988 | $3.298.322 | $4.992.311 | $28.033.364 |
-| 2028 | $28.033.364 | $1.897.267 | $3.095.044 | $4.992.311 | $26.136.097 |
-| 2029 | $26.136.097 | $2.124.939 | $2.867.372 | $4.992.311 | $24.011.158 |
-| 2030 | $24.011.158 | $2.379.932 | $2.612.379 | $4.992.311 | $21.631.226 |
-| 2031 | $21.631.226 | $2.665.523 | $2.326.787 | $4.992.311 | $18.965.703 |
-| 2032 | $18.965.703 | $2.985.386 | $2.006.924 | $4.992.311 | $15.980.317 |
-| 2033 | $15.980.317 | $3.343.633 | $1.648.678 | $4.992.311 | $12.636.684 |
-| 2034 | $12.636.684 | $3.744.868 | $1.247.442 | $4.992.311 | $8.891.816 |
-| 2035 | $8.891.816 | $4.194.253 | $798.058 | $4.992.311 | $4.697.563 |
-| 2036 | $4.697.563 | $4.697.563 | $294.748 | $4.992.311 | $0 |
+| 2027 | $29.747.977 | $1.695.164 | $3.300.611 | $4.995.774 | $28.052.813 |
+| 2028 | $28.052.813 | $1.898.583 | $3.097.191 | $4.995.774 | $26.154.230 |
+| 2029 | $26.154.230 | $2.126.413 | $2.869.361 | $4.995.774 | $24.027.817 |
+| 2030 | $24.027.817 | $2.381.583 | $2.614.192 | $4.995.774 | $21.646.234 |
+| 2031 | $21.646.234 | $2.667.373 | $2.328.402 | $4.995.774 | $18.978.861 |
+| 2032 | $18.978.861 | $2.987.457 | $2.008.317 | $4.995.774 | $15.991.404 |
+| 2033 | $15.991.404 | $3.345.952 | $1.649.822 | $4.995.774 | $12.645.452 |
+| 2034 | $12.645.452 | $3.747.467 | $1.248.308 | $4.995.774 | $8.897.985 |
+| 2035 | $8.897.985 | $4.197.163 | $798.612 | $4.995.774 | $4.700.822 |
+| 2036 | $4.700.822 | $4.700.822 | $294.952 | $4.995.774 | $0 |
 
 ###### **Tabla 3.1 “Amortización del Crédito”**
 
@@ -857,13 +857,13 @@ La tasa efectiva anual se lleva a período mensual como `r_m = (1 + 0,12)^(1/12)
 
 | Plazo | Cuota mensual | Intereses totales | Saldo al cierre del año 5 |
 |---|---|---|---|
-| 5 años | $652.090 | $9.398.057 | $0 |
-| 10 años | $416.026 | $20.195.755 | $18.965.703 |
-| 15 años | $345.131 | $32.396.191 | $24.661.505 |
+| 5 años | $652.543 | $9.404.578 | $0 |
+| 10 años | $416.315 | $20.209.767 | $18.978.861 |
+| 15 años | $345.370 | $32.418.667 | $24.678.615 |
 
 ###### **Tabla 3.2 “Comparación de Plazos del Crédito”**
 
-El modelo evalúa el plazo de diez años. A cinco años los intereses bajan a $9.398.057, pero la cuota sube a $652.090 justo cuando los dos primeros ejercicios cierran con pérdida; a quince años la cuota baja a $345.131 a cambio de $32.396.191 de intereses y de una deuda que sobrevive al horizonte de evaluación.
+El modelo evalúa el plazo de diez años. A cinco años los intereses bajan a $9.404.578, pero la cuota sube a $652.543 justo cuando los dos primeros ejercicios cierran con pérdida; a quince años la cuota baja a $345.370 a cambio de $32.418.667 de intereses y de una deuda que sobrevive al horizonte de evaluación.
 
 <!-- INFORME:INVERSION:FIN -->
 
@@ -896,22 +896,22 @@ flowchart TD
 
 | Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| (+) Ventas netas | $75.530.918 | $136.144.479 | $200.326.877 | $268.237.688 | $361.295.532 | $390.522.215 | $422.530.151 | $457.036.029 | $494.188.785 | $534.637.635 |
-| (-) Costos operacionales | $20.743.242 | $37.389.693 | $55.016.263 | $73.666.776 | $99.223.480 | $107.250.076 | $116.040.494 | $125.516.928 | $135.720.281 | $146.828.848 |
-| (-) Gastos de estructura | $51.276.640 | $95.046.821 | $124.835.576 | $151.421.341 | $168.252.246 | $190.082.304 | $197.843.250 | $205.512.670 | $229.494.969 | $238.415.264 |
+| (+) Ventas netas | $75.483.797 | $136.059.543 | $200.201.900 | $268.070.344 | $361.070.132 | $390.278.582 | $422.266.550 | $456.750.900 | $493.880.478 | $534.304.093 |
+| (-) Costos operacionales | $20.740.438 | $37.384.639 | $55.008.826 | $73.656.819 | $99.210.069 | $107.235.580 | $116.024.810 | $125.499.963 | $135.701.936 | $146.809.002 |
+| (-) Gastos de estructura | $51.359.140 | $95.070.454 | $124.721.465 | $151.072.709 | $168.021.857 | $189.554.877 | $197.478.603 | $205.512.670 | $229.494.969 | $238.415.264 |
 | (-) Depreciación y amortización | $2.840.000 | $2.840.000 | $2.840.000 | $2.840.000 | $2.840.000 | $2.086.693 | $2.086.693 | $2.086.693 | $2.086.693 | $2.086.693 |
-| (-) Intereses | $3.298.322 | $3.095.044 | $2.867.372 | $2.612.379 | $2.326.787 | $2.006.924 | $1.648.678 | $1.247.442 | $798.058 | $294.748 |
-| (-) Impuesto a la renta | $0 | $0 | $2.478.325 | $9.424.298 | $22.163.255 | $22.274.054 | $26.227.759 | $30.668.074 | $31.522.196 | $36.753.020 |
-| **(=) Utilidad del ejercicio** | $-2.627.286 | $-2.227.079 | $12.289.341 | $28.272.894 | $66.489.764 | $66.822.163 | $78.683.277 | $92.004.221 | $94.566.588 | $110.259.061 |
+| (-) Intereses | $3.300.611 | $3.097.191 | $2.869.361 | $2.614.192 | $2.328.402 | $2.008.317 | $1.649.822 | $1.248.308 | $798.612 | $294.952 |
+| (-) Impuesto a la renta | $0 | $0 | $2.418.279 | $9.471.656 | $22.167.451 | $22.348.279 | $26.256.655 | $30.600.816 | $31.449.567 | $36.674.545 |
+| **(=) Utilidad del ejercicio** | $-2.756.392 | $-2.332.741 | $12.343.968 | $28.414.968 | $66.502.354 | $67.044.836 | $78.769.966 | $91.802.449 | $94.348.701 | $110.023.636 |
 | (+) Depreciación y amortización | $2.840.000 | $2.840.000 | $2.840.000 | $2.840.000 | $2.840.000 | $2.086.693 | $2.086.693 | $2.086.693 | $2.086.693 | $2.086.693 |
-| (-) Cuota de capital | $1.693.988 | $1.897.267 | $2.124.939 | $2.379.932 | $2.665.523 | $2.985.386 | $3.343.633 | $3.744.868 | $4.194.253 | $4.697.563 |
+| (-) Cuota de capital | $1.695.164 | $1.898.583 | $2.126.413 | $2.381.583 | $2.667.373 | $2.987.457 | $3.345.952 | $3.747.467 | $4.197.163 | $4.700.822 |
 | (-) Reinversión en activo fijo | $0 | $0 | $0 | $0 | $0 | $10.433.467 | $0 | $0 | $0 | $0 |
-| **(=) Flujo de fondos** | $-1.481.275 | $-1.284.346 | $13.004.402 | $28.732.963 | $66.664.241 | $55.490.003 | $77.426.337 | $90.346.046 | $92.459.029 | $107.648.192 |
-| Caja acumulada | $11.337.885 | $10.053.540 | $23.057.942 | $51.790.905 | $118.455.145 | $173.945.149 | $251.371.486 | $341.717.532 | $434.176.561 | $541.824.753 |
+| **(=) Flujo de fondos** | $-1.611.556 | $-1.391.324 | $13.057.555 | $28.873.385 | $66.674.981 | $55.710.605 | $77.510.707 | $90.141.676 | $92.238.231 | $107.409.507 |
+| Caja acumulada | $11.228.229 | $9.836.905 | $22.894.460 | $51.767.846 | $118.442.827 | $174.153.432 | $251.664.139 | $341.805.815 | $434.044.046 | $541.453.553 |
 
 ###### **Tabla 3.3 “Estado de Resultados y Flujo de Fondos Proyectado”**
 
-Los ejercicios 2027 y 2028 cierran con pérdida, de $2.627.286 y $2.227.079, porque la estructura mínima para operar formalmente no se cubre con el volumen inicial; desde 2029 el resultado es positivo y creciente. En 2032 el activo fijo agota su vida útil y se renueva por $10.433.467, compra que el flujo descuenta y que sostiene la depreciación de los años siguientes. La caja nunca baja de **$10.053.540**.
+Los ejercicios 2027 y 2028 cierran con pérdida, de $2.756.392 y $2.332.741, porque la estructura mínima para operar formalmente no se cubre con el volumen inicial; desde 2029 el resultado es positivo y creciente. En 2032 el activo fijo agota su vida útil y se renueva por $10.433.467, compra que el flujo descuenta y que sostiene la depreciación de los años siguientes. La caja nunca baja de **$9.836.905**.
 
 <!-- INFORME:FLUJOS:FIN -->
 
@@ -936,16 +936,16 @@ Aplicando esta metodología al escenario base se obtienen los siguientes indicad
 
 | Indicador | Valor | Criterio | Veredicto |
 |---|---|---|---|
-| Inversión inicial | $29.727.352 | — | — |
-| VAN al 20 % | $112.827.790 | VAN > 0 | Cumple |
-| TIR efectiva anual | 53,35 % | TIR > 20 % | Cumple |
+| Inversión inicial | $29.747.977 | — | — |
+| VAN al 20 % | $112.695.657 | VAN > 0 | Cumple |
+| TIR efectiva anual | 53,26 % | TIR > 20 % | Cumple |
 | Payback simple | 3,68 años | ≤ 5 años | Cumple |
 | Payback descontado | 4,39 años | ≤ 5 años | Cumple |
 | Deuda al cierre de 2036 | $0 | Crédito saldado | Cumple |
 
 ###### **Tabla 3.4 “Evaluación Económica”**
 
-El precio **se deriva** del costo total exigiendo un 30 % de utilidad: $449.409 con IVA ($377.655 netos). No es un supuesto de entrada.
+El precio **se deriva** del costo total exigiendo un 30 % de utilidad: $449.129 con IVA ($377.419 netos). No es un supuesto de entrada.
 
 <!-- INFORME:INDICADORES:FIN -->
 
@@ -957,17 +957,17 @@ El margen técnico del equipo, el costo comercial y el ritmo de ventas deben ana
 
 | Caso | Precio | Utilidad año 1 | VAN a 10 años | TIR | Caja mínima |
 |---|---|---|---|---|---|
-| Caso base | $449.409 | $-2.627.286 | $112.827.790 | 53,3 % | $10.053.540 |
-| Ventas −10 % | $449.409 | $-7.476.006 | $59.746.693 | 38,3 % | $-3.528.245 |
-| Ventas −25 % | $449.409 | $-14.749.085 | $-22.054.319 | 12,6 % | $-45.690.845 |
-| BOM +15 % | $449.409 | $-4.926.403 | $87.571.146 | 46,1 % | $3.600.887 |
-| BOM +30 % | $449.409 | $-7.225.519 | $62.075.466 | 38,6 % | $-2.851.765 |
-| Precio a $399.990 | $399.990 | $-10.438.804 | $26.511.277 | 28,3 % | $-17.073.611 |
-| Precio a $349.990 | $349.990 | $-18.342.166 | $-65.345.931 | -3,1 % | $-77.836.448 |
+| Caso base | $449.129 | $-2.756.392 | $112.695.657 | 53,3 % | $9.836.905 |
+| Ventas −10 % | $449.129 | $-7.600.680 | $59.657.604 | 38,3 % | $-3.732.460 |
+| Ventas −25 % | $449.129 | $-14.867.112 | $-22.060.606 | 12,6 % | $-45.626.817 |
+| BOM +15 % | $449.129 | $-5.055.508 | $87.433.221 | 46,0 % | $3.384.253 |
+| BOM +30 % | $449.129 | $-7.354.625 | $61.937.541 | 38,6 % | $-3.068.399 |
+| Precio a $399.990 | $399.990 | $-10.523.593 | $26.868.819 | 28,4 % | $-17.055.399 |
+| Precio a $349.990 | $349.990 | $-18.426.954 | $-64.920.240 | -3,0 % | $-77.473.068 |
 
 ###### **Tabla 3.5 “Análisis de Sensibilidad y Punto de Quiebre”**
 
-Se modifica una condición a la vez **manteniendo congelado el financiamiento**. La caja se vuelve negativa bajo un precio de lista de $426.714 y el proyecto deja de crear valor bajo $385.057.
+Se modifica una condición a la vez **manteniendo congelado el financiamiento**. La caja se vuelve negativa bajo un precio de lista de $426.923 y el proyecto deja de crear valor bajo $384.854.
 
 <!-- INFORME:SENSIBILIDAD:FIN -->
 
@@ -981,14 +981,14 @@ Adicionalmente, se recalculó el VAN ante distintas tasas de descuento, para ver
 
 | Tasa efectiva anual | VAN |
 |---|---|
-| 5 % | $338.071.793 |
-| 10 % | $232.569.644 |
-| 15 % | $161.659.297 |
-| 20 % | $112.827.790 |
-| 30 % | $53.745.512 |
-| 40 % | $22.206.283 |
-| 50 % | $4.222.095 |
-| TIR: 53,35 % | $0 |
+| 5 % | $337.797.306 |
+| 10 % | $232.371.499 |
+| 15 % | $161.503.586 |
+| 20 % | $112.695.657 |
+| 30 % | $53.633.582 |
+| 40 % | $22.100.455 |
+| 50 % | $4.118.420 |
+| TIR: 53,26 % | $0 |
 
 ###### **Tabla 3.6 “Análisis del VAN”**
 
@@ -1020,10 +1020,10 @@ Con el análisis de sensibilidad y de riesgos expuesto, la evaluación del escen
 
 | Indicador | A 5 años (2027–2031) | A 10 años (2027–2036) |
 |---|---|---|
-| VAN al 20 % | $16.319.465 | $112.827.790 |
-| TIR efectiva anual | 32,16 % | 53,35 % |
-| Caja acumulada al cierre | $118.455.145 | $541.824.753 |
-| Deuda bancaria pendiente al cierre | $18.965.703 | $0 |
+| VAN al 20 % | $16.218.777 | $112.695.657 |
+| TIR efectiva anual | 32,06 % | 53,26 % |
+| Caja acumulada al cierre | $118.442.827 | $541.453.553 |
+| Deuda bancaria pendiente al cierre | $18.978.861 | $0 |
 
 ###### **Tabla 3.7 “Comparación del Horizonte: Cinco y Diez Años”**
 
@@ -1405,7 +1405,7 @@ Con el equipo apagado quedan conectados a la celda el divisor de batería (18,5 
 | Consumo propio de la placa del doble de lo estimado (12 mA) | 49,6 días (≈ 7,1 semanas) | −16,9 % |
 | Fuga no identificada de 1 mA con el equipo apagado | 31,8 días (≈ 4,5 semanas) | −46,6 % |
 | Jornadas de 4 h en lugar de 2 h | 32,9 días (≈ 4,7 semanas) | −44,8 % |
-| Divisor de batería de 1 MΩ + 1 MΩ | 60,5 días (≈ 8,6 semanas) | 1,5 % |
+| Divisor de batería de 1 MΩ + 1 MΩ | 60,5 días (≈ 8,6 semanas) | +1,5 % |
 
 ###### **Tabla 5.1 “Sensibilidad de la Autonomía al Consumo y al Uso”**
 
@@ -1620,7 +1620,7 @@ Desde el punto de vista financiero, el proyecto se sostiene como un modelo de ne
 
 <!-- INFORME:CIERRE:INICIO -->
 
-En el escenario base el proyecto presenta **VAN de $112.827.790**, **TIR efectiva anual de 53,35 %** y **payback simple de 3,68 años**. La BOM asciende a **$69.672 netos por equipo** y el precio de lista derivado es de **$449.409 con IVA**. La empresa cancela su crédito dentro del horizonte y cierra 2036 con $541.824.753 de caja.
+En el escenario base el proyecto presenta **VAN de $112.695.657**, **TIR efectiva anual de 53,26 %** y **payback simple de 3,68 años**. La BOM asciende a **$69.672 netos por equipo** y el precio de lista derivado es de **$449.129 con IVA**. La empresa cancela su crédito dentro del horizonte y cierra 2036 con $541.453.553 de caja.
 
 <!-- INFORME:CIERRE:FIN -->
 

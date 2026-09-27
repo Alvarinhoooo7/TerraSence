@@ -127,4 +127,6 @@ SENSIBILIDAD = [
 ]
 filas_sens = [["Variación sobre el uso habitual", "Autonomía con una carga", "Cambio frente al diseño adoptado"]]
 for nombre, d in SENSIBILIDAD:
-    filas_sens.append([nombre, dias(d), "—" if d == DIAS_HABITUAL else pct(d / DIAS_HABITUAL - 1).replace("-", "−")])
+    cambio = d / DIAS_HABITUAL - 1
+    filas_sens.append([nombre, dias(d), "—" if d == DIAS_HABITUAL
+                       else ("+" if cambio > 0 else "") + pct(cambio).replace("-", "−")])

@@ -308,11 +308,12 @@ w()
 w("La masa salarial bruta pasa de %s mensuales en %d a %s en %d, porque se combinan tres efectos: más "
   "personas, la escala de los socios y la inflación. El costo laboral anual es mayor que doce veces la "
   "masa bruta porque le suma las cargas del empleador y las provisiones. Sobre ese costo, el modelo no "
-  "aplica un recargo fijo sino el calendario legal vigente. La Ley N° 21.735 [43] de reforma previsional "
-  "introdujo una cotización de cargo del empleador que parte en 3,5 %% desde agosto de 2026 y sube "
-  "gradualmente hasta completar 8,5 %% en 2033 sumada al Seguro de Invalidez y Sobrevivencia. A eso se "
+  "pondera los tramos legales por sus meses de vigencia: siete meses del tramo de enero y cinco del "
+  "tramo que comienza en agosto. La Ley N° 21.735 [43] establece 3,5 %% desde agosto de 2026, "
+  "4,25 %% desde agosto de 2027 y aumentos hasta 8,5 %% desde agosto de 2033; estos tramos ya "
+  "incluyen el Seguro de Invalidez y Sobrevivencia. A eso se "
   "agregan el seguro de cesantía (2,4 %% en contrato indefinido) y la cotización de la mutualidad, más las "
-  "provisiones de vacaciones e indemnización por años de servicio. La carga sobre el sueldo bruto pasa "
+  "provisiones presupuestarias de vacaciones e indemnización, que no son tasas legales de cotización. La carga sobre el sueldo bruto pasa "
   "así de **%s en %d a %s en %d**. Aparte de la remuneración, cada persona recibe %s mensuales de "
   "colación y movilización, que se registran en su propia línea de costos."
   % (p(masa_0), ANIOS[0], p(masa_N), ANIOS[-1], pct(M.factor_empleador(2027) - 1), 2027,
@@ -354,12 +355,14 @@ w("Con la estructura completa de costos ya construida, el precio deja de ser una
 w()
 w(cuadro("Determinación del precio de venta"))
 w()
-w("El precio de lista resultante es de **%s con IVA**. Conviene explicitar cómo se comporta ese margen en "
-  "el tiempo: al ser un precio único aplicado sobre una estructura que se diluye con el volumen, los "
+w("El precio de lista resultante es de **%s con IVA**, expresado en pesos de %d y reajustado cada año por "
+  "inflación, igual que los costos; por eso se obtiene dividiendo las ventas necesarias por los equipos "
+  "ponderados según ese reajuste, y no multiplicando un costo medio por el margen. Conviene explicitar "
+  "cómo se comporta ese margen en el tiempo: al ser un precio único aplicado sobre una estructura que se diluye con el volumen, los "
   "primeros ejercicios quedan por debajo del %s objetivo y los últimos por encima, de modo que el margen "
   "se cumple sobre el horizonte completo y no ejercicio por ejercicio. Esa es exactamente la razón por la "
   "que los años %d y %d arrojan pérdida: son los años en que se construye la empresa."
-  % (p(precio), pct(S["margen_objetivo"], 0), ANIOS[0], ANIOS[1]))
+  % (p(precio), ANIOS[0], pct(S["margen_objetivo"], 0), ANIOS[0], ANIOS[1]))
 w()
 w("Este resultado define el posicionamiento competitivo. A %s, TerraSense queda por encima del precio de "
   "un medidor básico de importación como el Hanna HI9814 (US$294) o el Bluelab Pulse (US$339). **El "

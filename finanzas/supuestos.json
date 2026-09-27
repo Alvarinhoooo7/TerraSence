@@ -19,8 +19,8 @@
   "_tributario": "Regimen Pro Pyme. Tasas de referencia con perdidas arrastradas.",
   "tasa_impuesto": {"2027": 0.125, "2028": 0.15, "default": 0.25},
 
-  "_laboral": "Ley 21.735: aporte previsional de cargo del empleador 3,5% desde ago-2026, gradual hasta 7% que sumado al 1,5% del SIS completa 8,5% en 2033. Mas cesantia 2,4% (indefinido) y mutual 0,95%. Mas provisiones de vacaciones (8,33%) e indemnizacion (8,33%).",
-  "aporte_previsional_empleador": {"2027": 0.035, "2028": 0.045, "2029": 0.055, "2030": 0.065, "2031": 0.070, "2032": 0.080, "2033": 0.085},
+  "_laboral": "Ley 21.735: tasa anual ponderada por 7 meses del tramo anterior y 5 meses del nuevo tramo de agosto, con remuneracion mensual uniforme. Tramos desde agosto: 2026 3,5%; 2027 4,25%; 2028 5%; 2029 5,7%; 2030 6,4%; 2031 7,1%; 2032 7,8%; 2033 8,5%, incluido SIS desde agosto de 2026. Fuente: Subsecretaria de Prevision Social, Nota Tecnica Reforma de Pensiones Ley 21.735, agosto 2025, tabla 1. Mas cesantia 2,4% (indefinido), mutual 0,95% y provisiones presupuestarias de vacaciones e indemnizacion (8,33% cada una); estas provisiones no son tasas legales de cotizacion.",
+  "aporte_previsional_empleador": {"2027": 0.038125, "2028": 0.045625, "2029": 0.05291666666666667, "2030": 0.059916666666666674, "2031": 0.06691666666666667, "2032": 0.07391666666666667, "2033": 0.08091666666666668, "2034": 0.085},
   "cesantia_empleador": 0.024,
   "mutual": 0.0095,
   "provision_vacaciones": 0.0833,

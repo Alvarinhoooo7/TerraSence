@@ -375,7 +375,7 @@ AUTONOMIA = ((
        pct(1 - autonomia(2, propio=2 * PROPIO_PLACA) / DIAS_HABITUAL, 0),
        pct(1 - autonomia(2, modulo=MODULO_VACIO + 1.0) / DIAS_HABITUAL, 0), pct(DIAS_1M / DIAS_HABITUAL - 1),
        num(SEMANAS_HABITUAL, 0), format(MEDICIONES_HABITUAL, ",d").replace(",", "."),
-       num(autonomia(2, modulo=MODULO_VACIO + 1.0) / 7, 0)))
+       num(autonomia(2, modulo=MODULO_VACIO + 1.0) / 7, 1)))
 bloque("### Modelo de Autonomía en el Campo", "### Sostenibilidad Ambiental", AUTONOMIA,
        "modelo de autonomía según el esquemático")
 
@@ -413,6 +413,40 @@ sub(r"Supabase \(PostgreSQL \+ PostGIS\) \+ Consola Web", "Supabase (PostgreSQL)
     "Tabla 1.0: PostGIS retirado del producto")
 sub(r"soporte posventa y analítica multitemporal\.", "soporte posventa y consulta del histórico de cada equipo.",
     "Tabla 1.0: analítica multitemporal")
+# Introduccion: el PDF corta la ultima oracion a mitad de palabra
+sub(r"con comparación a cinco años, el marco norm(?!ativo)\s*\d*",
+    "con comparación a cinco años, el marco normativo y el protocolo de validación experimental que "
+    "sustentan su factibilidad técnica y económica.", "introducción truncada")
+# Filosofia: el segundo principio se repite tras el salto de pagina y falta el tercero de los cuatro
+exigir(r"capacidad de cálculo y memoria,\s*Fabricar un instrumento nuevo.*?(?=^- Cero Suscripciones Recurrentes)",
+       "capacidad de cálculo y memoria. Fabricar un instrumento nuevo que vuelva a incluir todas esas "
+       "capacidades sería cobrarle dos veces al agricultor por algo que ya tiene. Por eso, el aparato físico se "
+       "reduce a lo mínimo indispensable: hacer lo único que el teléfono no puede hacer por sí solo (tomar "
+       "contacto físico con la tierra y el ambiente). Todo el resto ocurre en el teléfono. Además de que el "
+       "100 % del procesamiento agronómico ocurre en el procesador del teléfono sin depender de cobertura de "
+       "red móvil (3G/4G/5G). La nube actúa exclusivamente como respaldo posterior.\n\n"
+       "- Diseño para el Campo Real, no para el Laboratorio: El instrumento no vivirá sobre un escritorio; se "
+       "caerá sobre tierra y piedras, se mojará, viajará en la caja de una camioneta y será manipulado con "
+       "guantes de trabajo. Cada elección de materiales responde a esa realidad de uso, priorizando la "
+       "austeridad y la resistencia sobre la estética.\n\n",
+       "principios: párrafo duplicado y principio faltante", re.S | re.M)
+# Cifras que quedaron del precio antiguo o de modelos anteriores
+MUESTRAS = -(-int(round(PRECIO)) // 50000)
+PALABRAS = {8: "ocho", 9: "nueve", 10: "diez", 11: "once", 12: "doce"}
+sub(r"a ese costo, siete muestras ya igualan el precio completo",
+    "a ese costo, %s muestras ya cubren el precio completo" % PALABRAS.get(MUESTRAS, str(MUESTRAS)),
+    "muestras de laboratorio que cubren el precio")
+sub(r"está contenida en las 2,25 horas por equipo que la nómina ya presupuesta",
+    "está contenida en el trabajo de los ensambladores que la nómina ya presupuesta",
+    "calibración de fábrica: sin horas por equipo inexistentes")
+sub(r"reduce ese flujo a una celda por ciclo de vida del instrumento, es decir del orden de dos unidades en "
+    r"diez años según el propio cuadro de costo total de propiedad\.",
+    "reduce ese flujo a una celda cada varios años: del orden de cuatro en diez años según el propio cuadro "
+    "de costo total de propiedad (la original, las de los kits de batería de los años 3 y 8 y la del segundo "
+    "equipo del año 6).", "celdas en diez años según el costo total de propiedad")
+sub(r"la autonomía caería a unas 5 semanas\.",
+    "la autonomía caería a unas %s semanas." % num(autonomia(2, modulo=MODULO_VACIO + 1.0) / 7, 1),
+    "conclusión: autonomía con fuga de 1 mA")
 sub(r"Esta digitalización se sostiene sobre cinco pilares técnicos",
     "Esta digitalización se sostiene sobre cuatro pilares técnicos", "cinco pilares -> cuatro")
 sub(r"tramas compactas de 20\s+bytes como máximo", "tramas de 20 bytes de longitud fija",
@@ -494,8 +528,8 @@ SECCION_TRIB = (
     "técnica: ese IVA sólo constituye crédito fiscal si la compra se formaliza como importación con "
     "Declaración de Ingreso, de modo que el abastecimiento debe formalizarse antes de comprometer volumen.\n\n"
     "- Ley N° 21.735 [43] (reforma previsional): introdujo una cotización de cargo del empleador que parte "
-    "en 3,5 % y sube de forma gradual hasta completar 8,5 % junto con el Seguro de Invalidez y "
-    "Sobrevivencia. El proyecto la incorpora año a año en el costo laboral, porque sobre un horizonte de "
+    "en 3,5 % desde agosto de 2026 y sube de forma gradual hasta completar 8,5 % desde agosto de 2033, "
+    "incluido el Seguro de Invalidez y Sobrevivencia. El proyecto pondera cada tramo por sus meses de vigencia en el costo laboral, porque sobre un horizonte de "
     "diez años la diferencia frente a un recargo fijo es material.\n\n")
 if "### Obligaciones Tributarias y Laborales" not in texto:
     sub(r"(### Protección al Consumidor)", lambda m: SECCION_TRIB + m.group(1),
@@ -526,7 +560,7 @@ exigir(r"El diseño energético, basado en power gating.*?(?=\n)",
        "reemplazar la placa de desarrollo por el módulo desnudo con un regulador de baja corriente de "
        "reposo, mejora que queda identificada para la versión de producción."
        % (num(SEMANAS_HABITUAL, 0), format(MEDICIONES_HABITUAL, ",d").replace(",", "."),
-          num(autonomia(2, modulo=MODULO_VACIO + 1.0) / 7, 0)), "conclusión ingenieril: autonomía")
+          num(autonomia(2, modulo=MODULO_VACIO + 1.0) / 7, 1)), "conclusión ingenieril: autonomía")
 
 # En el PDF este párrafo está partido en dos; se reemplaza hasta su cierre real.
 exigir(r"Desde la perspectiva económica, la evaluación a diez años.*?\$[\d.]+ aproximadamente\.",

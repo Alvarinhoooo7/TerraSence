@@ -218,11 +218,17 @@ w("")
 cuadro("Determinación del precio de venta")
 w("| Concepto | Valor |")
 w("|---|---:|")
+# El costo total esta en pesos corrientes de cada anio y el precio en pesos del anio base, reajustado
+# cada anio: la tabla pasa por las ventas y por los equipos ponderados para que se pueda recalcular.
+EQUIPOS_PONDERADOS = sum(f["unidades"] * M.infl(f["anio"]) for f in FILAS)
 w("| Costo y gasto total de los %d años | %s |" % (len(ANIOS), p(sum(f["costo_total"] for f in FILAS))))
-w("| Equipos vendidos en los %d años | %s |" % (len(ANIOS), format(sum(f["unidades"] for f in FILAS), ",d").replace(",", ".")))
-w("| Costo medio por equipo | %s |" % p(sum(f["costo_total"] for f in FILAS) / sum(f["unidades"] for f in FILAS)))
 w("| Margen de utilidad exigido sobre el costo total | %s |" % pct(S["margen_objetivo"], 0))
-w("| **Precio neto de venta (año base)** | **%s** |" % p(R["precio_neto_base"]))
+w("| Ventas netas necesarias en los %d años (costo total + %s) | %s |"
+  % (len(ANIOS), pct(S["margen_objetivo"], 0), p(sum(f["ventas"] for f in FILAS))))
+w("| Equipos vendidos en los %d años | %s |" % (len(ANIOS), format(sum(f["unidades"] for f in FILAS), ",d").replace(",", ".")))
+w("| Equipos ponderados por el reajuste anual del precio (%s) | %s |"
+  % (pct(S["inflacion"], 0), format(EQUIPOS_PONDERADOS, ",.2f").replace(",", "_").replace(".", ",").replace("_", ".")))
+w("| **Precio neto de venta %d (ventas ÷ equipos ponderados)** | **%s** |" % (ANIOS[0], p(R["precio_neto_base"])))
 w("| IVA %s | %s |" % (pct(S["iva"], 0), p(R["precio_lista"] - R["precio_neto_base"])))
 w("| **Precio de lista con IVA** | **%s** |" % p(R["precio_lista"]))
 w("")

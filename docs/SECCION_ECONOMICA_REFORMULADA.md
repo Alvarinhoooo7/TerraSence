@@ -84,10 +84,10 @@ A los materiales se suman los costos que solo existen cuando hay una venta, y qu
 | Provisión de reposiciones y garantía, 5 % de la BOM | $3.484 |
 | Envío al cliente | $6.000 |
 | **Subtotal sin comisión** | **$81.246** |
-| Comisión comercial, 5 % sobre el precio bruto | $22.470 |
-| **Costo variable total por equipo** | **$103.716** |
+| Comisión comercial, 5 % sobre el precio bruto | $22.456 |
+| **Costo variable total por equipo** | **$103.702** |
 
-El costo variable total, $103.716 por equipo, equivale al 27,5 % del precio neto de venta. Cada unidad vendida deja por lo tanto un margen de contribución de $273.938, que es lo que queda disponible para cubrir la estructura fija de la empresa, los intereses y la utilidad. La comisión comercial es la única partida que depende del precio; todas las demás dependen de la BOM y del envío, y por eso una variación en el costo de la sonda se transmite casi íntegra al costo variable.
+El costo variable total, $103.702 por equipo, equivale al 27,5 % del precio neto de venta. Cada unidad vendida deja por lo tanto un margen de contribución de $273.717, que es lo que queda disponible para cubrir la estructura fija de la empresa, los intereses y la utilidad. La comisión comercial es la única partida que depende del precio; todas las demás dependen de la BOM y del envío, y por eso una variación en el costo de la sonda se transmite casi íntegra al costo variable.
 
 ### Inversión inicial
 
@@ -138,11 +138,11 @@ El capital de trabajo no se fijó por una regla de tantos meses, sino **iterando
 |---|---:|---:|
 | Equipamiento y activo fijo | $9.000.000 | 30,3 % |
 | Activo nominal (puesta en marcha) | $5.200.000 | 17,5 % |
-| Capital de trabajo (3,0 meses de estructura) | $12.819.160 | 43,1 % |
+| Capital de trabajo (3,0 meses de estructura) | $12.839.785 | 43,2 % |
 | Inventario inicial (2 meses de ventas) | $2.708.192 | 9,1 % |
-| **Inversión inicial total** | **$29.727.352** | **100,0 %** |
+| **Inversión inicial total** | **$29.747.977** | **100,0 %** |
 
-La partida más grande de la inversión no es un bien físico sino el capital de trabajo: $12.819.160, el 43,1 % del total. Es el dinero que financia la pérdida de los dos primeros ejercicios y los dos meses de inventario con que parte la producción. El equipamiento y el activo nominal, que son lo que habitualmente se asocia a «montar la empresa», representan juntos menos de la mitad.
+La partida más grande de la inversión no es un bien físico sino el capital de trabajo: $12.839.785, el 43,2 % del total. Es el dinero que financia la pérdida de los dos primeros ejercicios y los dos meses de inventario con que parte la producción. El equipamiento y el activo nominal, que son lo que habitualmente se asocia a «montar la empresa», representan juntos menos de la mitad.
 
 ### Financiamiento
 
@@ -152,37 +152,37 @@ El financiamiento se estructura de la forma en que opera la banca con una empres
 
 | Condición | Valor |
 |---|---|
-| Inversión inicial total del proyecto | $29.727.352 |
+| Inversión inicial total del proyecto | $29.747.977 |
 | Porcentaje financiado con préstamo bancario | 100,00 % |
-| Monto del préstamo (capital) | $29.727.352 |
-| Pie propio exigido por el banco (30 % del crédito) | $8.918.206 |
-| Aporte por socio (2 socios, partes iguales) | $4.459.103 |
+| Monto del préstamo (capital) | $29.747.977 |
+| Pie propio exigido por el banco (30 % del crédito) | $8.924.393 |
+| Aporte por socio (2 socios, partes iguales) | $4.462.197 |
 | Sistema de amortización | Francés: cuota constante, interés decreciente, capital creciente |
 | Tasa de interés | 12 % efectiva anual (0,9489 % mensual) |
 | Plazo | 10 años, 120 cuotas mensuales iguales |
-| Cuota mensual | $416.026 |
-| Total intereses del crédito | $20.195.755 |
-| Total pagado al banco | $49.923.107 |
+| Cuota mensual | $416.315 |
+| Total intereses del crédito | $20.209.767 |
+| Total pagado al banco | $49.957.744 |
 
-Sobre el sistema de amortización: se adopta el **francés**, de cuota constante con interés decreciente y capital creciente, porque es el que la banca chilena aplica al crédito empresarial de largo plazo. La cuota fija facilita además la planificación de caja de una empresa que en sus primeros ejercicios opera con holgura estrecha. La cuota anual, $4.992.311, equivale al 6,6 % de las ventas netas del primer año y al 0,9 % de las del último, de modo que su peso sobre la operación se diluye a medida que el negocio crece.
+Sobre el sistema de amortización: se adopta el **francés**, de cuota constante con interés decreciente y capital creciente, porque es el que la banca chilena aplica al crédito empresarial de largo plazo. La cuota fija facilita además la planificación de caja de una empresa que en sus primeros ejercicios opera con holgura estrecha. La cuota anual, $4.995.774, equivale al 6,6 % de las ventas netas del primer año y al 0,9 % de las del último, de modo que su peso sobre la operación se diluye a medida que el negocio crece.
 
 ### Cuadro 9. Tabla de amortización del crédito
 
 | Periodo | Saldo inicial | Cuota de capital | Intereses | Cuota total | Saldo final |
 |---|---:|---:|---:|---:|---:|
-| 2027 | $29.727.352 | $1.693.988 | $3.298.322 | $4.992.311 | $28.033.364 |
-| 2028 | $28.033.364 | $1.897.267 | $3.095.044 | $4.992.311 | $26.136.097 |
-| 2029 | $26.136.097 | $2.124.939 | $2.867.372 | $4.992.311 | $24.011.158 |
-| 2030 | $24.011.158 | $2.379.932 | $2.612.379 | $4.992.311 | $21.631.226 |
-| 2031 | $21.631.226 | $2.665.523 | $2.326.787 | $4.992.311 | $18.965.703 |
-| 2032 | $18.965.703 | $2.985.386 | $2.006.924 | $4.992.311 | $15.980.317 |
-| 2033 | $15.980.317 | $3.343.633 | $1.648.678 | $4.992.311 | $12.636.684 |
-| 2034 | $12.636.684 | $3.744.868 | $1.247.442 | $4.992.311 | $8.891.816 |
-| 2035 | $8.891.816 | $4.194.253 | $798.058 | $4.992.311 | $4.697.563 |
-| 2036 | $4.697.563 | $4.697.563 | $294.748 | $4.992.311 | $0 |
-| **Total** |  | **$29.727.352** | **$20.195.755** | **$49.923.107** |  |
+| 2027 | $29.747.977 | $1.695.164 | $3.300.611 | $4.995.774 | $28.052.813 |
+| 2028 | $28.052.813 | $1.898.583 | $3.097.191 | $4.995.774 | $26.154.230 |
+| 2029 | $26.154.230 | $2.126.413 | $2.869.361 | $4.995.774 | $24.027.817 |
+| 2030 | $24.027.817 | $2.381.583 | $2.614.192 | $4.995.774 | $21.646.234 |
+| 2031 | $21.646.234 | $2.667.373 | $2.328.402 | $4.995.774 | $18.978.861 |
+| 2032 | $18.978.861 | $2.987.457 | $2.008.317 | $4.995.774 | $15.991.404 |
+| 2033 | $15.991.404 | $3.345.952 | $1.649.822 | $4.995.774 | $12.645.452 |
+| 2034 | $12.645.452 | $3.747.467 | $1.248.308 | $4.995.774 | $8.897.985 |
+| 2035 | $8.897.985 | $4.197.163 | $798.612 | $4.995.774 | $4.700.822 |
+| 2036 | $4.700.822 | $4.700.822 | $294.952 | $4.995.774 | $0 |
+| **Total** |  | **$29.747.977** | **$20.209.767** | **$49.957.744** |  |
 
-El crédito se cancela íntegramente dentro del horizonte de evaluación: al cierre de 2036 la deuda es cero. Los $20.195.755 de intereses son el precio del financiamiento y están descontados en el estado de resultados de cada ejercicio.
+El crédito se cancela íntegramente dentro del horizonte de evaluación: al cierre de 2036 la deuda es cero. Los $20.209.767 de intereses son el precio del financiamiento y están descontados en el estado de resultados de cada ejercicio.
 
 ### Estructura de costos de operación
 
@@ -211,18 +211,18 @@ Cada cargo tiene su propio sueldo. Los socios siguen una escala progresiva que p
 
 | Año | Socio (c/u) | Contador | Marketing | Ensamblador (c/u) | Masa salarial bruta mensual | Cargas del empleador y provisiones | Costo laboral anual |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| 2027 | $600.000 | $1.000.000 | — | — | $2.200.000 | 23,5 % | $32.606.640 |
-| 2028 | $700.000 | $1.030.000 | — | $721.000 | $3.151.000 | 24,5 % | $47.079.721 |
-| 2029 | $850.000 | $1.060.900 | $1.060.900 | $742.630 | $4.564.430 | 25,5 % | $68.745.793 |
-| 2030 | $1.000.000 | $1.092.727 | $1.092.727 | $764.909 | $5.715.272 | 26,5 % | $86.764.684 |
-| 2031 | $1.200.000 | $1.125.509 | $1.125.509 | $787.856 | $6.226.730 | 27,0 % | $94.902.837 |
-| 2032 | $1.236.000 | $1.159.274 | $1.159.274 | $811.492 | $7.225.024 | 28,0 % | $110.985.034 |
-| 2033 | $1.273.080 | $1.194.052 | $1.194.052 | $835.837 | $7.441.774 | 28,5 % | $114.761.092 |
+| 2027 | $600.000 | $1.000.000 | — | — | $2.200.000 | 23,8 % | $32.689.140 |
+| 2028 | $700.000 | $1.030.000 | — | $721.000 | $3.151.000 | 24,6 % | $47.103.354 |
+| 2029 | $850.000 | $1.060.900 | $1.060.900 | $742.630 | $4.564.430 | 25,3 % | $68.631.682 |
+| 2030 | $1.000.000 | $1.092.727 | $1.092.727 | $764.909 | $5.715.272 | 26,0 % | $86.416.053 |
+| 2031 | $1.200.000 | $1.125.509 | $1.125.509 | $787.856 | $6.226.730 | 26,7 % | $94.672.448 |
+| 2032 | $1.236.000 | $1.159.274 | $1.159.274 | $811.492 | $7.225.024 | 27,4 % | $110.457.607 |
+| 2033 | $1.273.080 | $1.194.052 | $1.194.052 | $835.837 | $7.441.774 | 28,1 % | $114.396.445 |
 | 2034 | $1.311.272 | $1.229.874 | $1.229.874 | $860.912 | $7.665.028 | 28,5 % | $118.203.924 |
 | 2035 | $1.350.611 | $1.266.770 | $1.266.770 | $886.739 | $8.781.718 | 28,5 % | $135.424.622 |
 | 2036 | $1.391.129 | $1.304.773 | $1.304.773 | $913.341 | $9.045.169 | 28,5 % | $139.487.361 |
 
-La masa salarial bruta pasa de $2.200.000 mensuales en 2027 a $9.045.169 en 2036, porque se combinan tres efectos: más personas, la escala de los socios y la inflación. El costo laboral anual es mayor que doce veces la masa bruta porque le suma las cargas del empleador y las provisiones. Sobre ese costo, el modelo no aplica un recargo fijo sino el calendario legal vigente. La Ley N° 21.735 [43] de reforma previsional introdujo una cotización de cargo del empleador que parte en 3,5 % desde agosto de 2026 y sube gradualmente hasta completar 8,5 % en 2033 sumada al Seguro de Invalidez y Sobrevivencia. A eso se agregan el seguro de cesantía (2,4 % en contrato indefinido) y la cotización de la mutualidad, más las provisiones de vacaciones e indemnización por años de servicio. La carga sobre el sueldo bruto pasa así de **23,5 % en 2027 a 28,5 % en 2036**. Aparte de la remuneración, cada persona recibe $150.000 mensuales de colación y movilización, que se registran en su propia línea de costos.
+La masa salarial bruta pasa de $2.200.000 mensuales en 2027 a $9.045.169 en 2036, porque se combinan tres efectos: más personas, la escala de los socios y la inflación. El costo laboral anual es mayor que doce veces la masa bruta porque le suma las cargas del empleador y las provisiones. Sobre ese costo, el modelo no pondera los tramos legales por sus meses de vigencia: siete meses del tramo de enero y cinco del tramo que comienza en agosto. La Ley N° 21.735 [43] establece 3,5 % desde agosto de 2026, 4,25 % desde agosto de 2027 y aumentos hasta 8,5 % desde agosto de 2033; estos tramos ya incluyen el Seguro de Invalidez y Sobrevivencia. A eso se agregan el seguro de cesantía (2,4 % en contrato indefinido) y la cotización de la mutualidad, más las provisiones presupuestarias de vacaciones e indemnización, que no son tasas legales de cotización. La carga sobre el sueldo bruto pasa así de **23,8 % en 2027 a 28,5 % en 2036**. Aparte de la remuneración, cada persona recibe $150.000 mensuales de colación y movilización, que se registran en su propia línea de costos.
 
 Conviene verificar además que la escala salarial se mantenga sobre el piso legal durante todo el horizonte. El ingreso mínimo mensual quedó en $553.553 [44] desde mayo de 2026 y se reajusta por índice de precios; el cargo peor remunerado del proyecto, el de ensamblador, parte en $700.000 y termina el horizonte en $913.341, holgadamente por encima de la proyección del mínimo.
 
@@ -242,8 +242,8 @@ El primer año la empresa opera desde un taller domiciliario, y los servicios b�
 
 | Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Materiales y costo variable | $20.743.242 | $37.389.693 | $55.016.263 | $73.666.776 | $99.223.480 | $107.250.076 | $116.040.494 | $125.516.928 | $135.720.281 | $146.828.848 |
-| Nómina y cargas | $32.606.640 | $47.079.721 | $68.745.793 | $86.764.684 | $94.902.837 | $110.985.034 | $114.761.092 | $118.203.924 | $135.424.622 | $139.487.361 |
+| Materiales y costo variable | $20.740.438 | $37.384.639 | $55.008.826 | $73.656.819 | $99.210.069 | $107.235.580 | $116.024.810 | $125.499.963 | $135.701.936 | $146.809.002 |
+| Nómina y cargas | $32.689.140 | $47.103.354 | $68.631.682 | $86.416.053 | $94.672.448 | $110.457.607 | $114.396.445 | $118.203.924 | $135.424.622 | $139.487.361 |
 | Colación y movilización | $5.400.000 | $7.416.000 | $9.548.100 | $11.801.452 | $12.155.495 | $14.606.853 | $15.045.059 | $15.496.411 | $18.241.489 | $18.788.734 |
 | Arriendo de oficina | $0 | $18.540.000 | $19.096.200 | $19.669.086 | $20.259.159 | $20.866.933 | $21.492.941 | $22.137.730 | $22.801.861 | $23.485.917 |
 | Servicios básicos | $1.800.000 | $5.562.000 | $5.728.860 | $5.900.726 | $6.077.748 | $6.260.080 | $6.447.882 | $6.641.319 | $6.840.558 | $7.045.775 |
@@ -252,7 +252,7 @@ El primer año la empresa opera desde un taller domiciliario, y los servicios b�
 | Materiales de oficina | $600.000 | $618.000 | $636.540 | $655.636 | $675.305 | $695.564 | $716.431 | $737.924 | $760.062 | $782.864 |
 | Mantención de equipos | $1.200.000 | $1.236.000 | $1.273.080 | $1.311.272 | $1.350.611 | $1.391.129 | $1.432.863 | $1.475.849 | $1.520.124 | $1.565.728 |
 | Publicidad digital | $6.000.000 | $10.815.000 | $15.913.500 | $21.308.176 | $28.700.475 | $31.022.174 | $33.564.810 | $36.305.877 | $39.257.205 | $42.470.367 |
-| **Costo y gasto total** | $72.019.882 | $132.436.514 | $179.851.839 | $225.088.116 | $267.475.726 | $297.332.380 | $313.883.744 | $331.029.598 | $365.215.249 | $385.244.112 |
+| **Costo y gasto total** | $72.099.578 | $132.455.093 | $179.730.292 | $224.729.528 | $267.231.925 | $296.790.457 | $313.503.413 | $331.012.633 | $365.196.905 | $385.224.266 |
 
 La tabla muestra dónde está el costo de la empresa. En 2027 el personal, sumando nómina, cargas, colación y movilización, se lleva el 53 % del costo total y los materiales solo el 29 %: es una empresa que todavía paga más estructura de la que su volumen justifica. En 2036 la proporción se ha acercado (41 % el personal y 38 % los materiales), porque la estructura crece por escalones mientras las ventas crecen todos los años. La publicidad digital se presupuesta en $30.000 por equipo vendido, de modo que acompaña al volumen en lugar de ser un monto fijo.
 
@@ -264,17 +264,18 @@ Con la estructura completa de costos ya construida, el precio deja de ser una de
 
 | Concepto | Valor |
 |---|---:|
-| Costo y gasto total de los 10 años | $2.569.577.160 |
-| Equipos vendidos en los 10 años | 7.481 |
-| Costo medio por equipo | $343.480 |
+| Costo y gasto total de los 10 años | $2.567.974.090 |
 | Margen de utilidad exigido sobre el costo total | 30 % |
-| **Precio neto de venta (año base)** | **$377.655** |
-| IVA 19 % | $71.754 |
-| **Precio de lista con IVA** | **$449.409** |
+| Ventas netas necesarias en los 10 años (costo total + 30 %) | $3.338.366.318 |
+| Equipos vendidos en los 10 años | 7.481 |
+| Equipos ponderados por el reajuste anual del precio (3 %) | 8.845,25 |
+| **Precio neto de venta 2027 (ventas ÷ equipos ponderados)** | **$377.419** |
+| IVA 19 % | $71.710 |
+| **Precio de lista con IVA** | **$449.129** |
 
-El precio de lista resultante es de **$449.409 con IVA**. Conviene explicitar cómo se comporta ese margen en el tiempo: al ser un precio único aplicado sobre una estructura que se diluye con el volumen, los primeros ejercicios quedan por debajo del 30 % objetivo y los últimos por encima, de modo que el margen se cumple sobre el horizonte completo y no ejercicio por ejercicio. Esa es exactamente la razón por la que los años 2027 y 2028 arrojan pérdida: son los años en que se construye la empresa.
+El precio de lista resultante es de **$449.129 con IVA**, expresado en pesos de 2027 y reajustado cada año por inflación, igual que los costos; por eso se obtiene dividiendo las ventas necesarias por los equipos ponderados según ese reajuste, y no multiplicando un costo medio por el margen. Conviene explicitar cómo se comporta ese margen en el tiempo: al ser un precio único aplicado sobre una estructura que se diluye con el volumen, los primeros ejercicios quedan por debajo del 30 % objetivo y los últimos por encima, de modo que el margen se cumple sobre el horizonte completo y no ejercicio por ejercicio. Esa es exactamente la razón por la que los años 2027 y 2028 arrojan pérdida: son los años en que se construye la empresa.
 
-Este resultado define el posicionamiento competitivo. A $449.409, TerraSense queda por encima del precio de un medidor básico de importación como el Hanna HI9814 (US$294) o el Bluelab Pulse (US$339). **El argumento no es de etiqueta sino de capacidad y de costo de uso**: TerraSense entrega 7 variables de suelo más 3 ambientales con interpretación agronómica y mediciones ilimitadas sin costo marginal, frente a 3 o 4 variables sin interpretación de los equipos comparados, y cuesta menos que dos años y medio de análisis de laboratorio al ritmo habitual de cuatro muestras por año.
+Este resultado define el posicionamiento competitivo. A $449.129, TerraSense queda por encima del precio de un medidor básico de importación como el Hanna HI9814 (US$294) o el Bluelab Pulse (US$339). **El argumento no es de etiqueta sino de capacidad y de costo de uso**: TerraSense entrega 7 variables de suelo más 3 ambientales con interpretación agronómica y mediciones ilimitadas sin costo marginal, frente a 3 o 4 variables sin interpretación de los equipos comparados, y cuesta menos que dos años y medio de análisis de laboratorio al ritmo habitual de cuatro muestras por año.
 
 ### Estado de resultados proyectado
 
@@ -282,19 +283,19 @@ Este resultado define el posicionamiento competitivo. A $449.409, TerraSense que
 
 | Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| (+) Ventas netas | $75.530.918 | $136.144.479 | $200.326.877 | $268.237.688 | $361.295.532 | $390.522.215 | $422.530.151 | $457.036.029 | $494.188.785 | $534.637.635 |
-| (-) Costos operacionales | $20.743.242 | $37.389.693 | $55.016.263 | $73.666.776 | $99.223.480 | $107.250.076 | $116.040.494 | $125.516.928 | $135.720.281 | $146.828.848 |
-| (-) Gastos de estructura | $51.276.640 | $95.046.821 | $124.835.576 | $151.421.341 | $168.252.246 | $190.082.304 | $197.843.250 | $205.512.670 | $229.494.969 | $238.415.264 |
+| (+) Ventas netas | $75.483.797 | $136.059.543 | $200.201.900 | $268.070.344 | $361.070.132 | $390.278.582 | $422.266.550 | $456.750.900 | $493.880.478 | $534.304.093 |
+| (-) Costos operacionales | $20.740.438 | $37.384.639 | $55.008.826 | $73.656.819 | $99.210.069 | $107.235.580 | $116.024.810 | $125.499.963 | $135.701.936 | $146.809.002 |
+| (-) Gastos de estructura | $51.359.140 | $95.070.454 | $124.721.465 | $151.072.709 | $168.021.857 | $189.554.877 | $197.478.603 | $205.512.670 | $229.494.969 | $238.415.264 |
 | (-) Depreciación | $1.800.000 | $1.800.000 | $1.800.000 | $1.800.000 | $1.800.000 | $2.086.693 | $2.086.693 | $2.086.693 | $2.086.693 | $2.086.693 |
 | (-) Amortización del activo nominal | $1.040.000 | $1.040.000 | $1.040.000 | $1.040.000 | $1.040.000 | $0 | $0 | $0 | $0 | $0 |
-| (-) Costo financiero (intereses) | $3.298.322 | $3.095.044 | $2.867.372 | $2.612.379 | $2.326.787 | $2.006.924 | $1.648.678 | $1.247.442 | $798.058 | $294.748 |
-| **(=) Utilidad antes de impuesto** | $-2.627.286 | $-2.227.079 | $14.767.666 | $37.697.192 | $88.653.019 | $89.096.217 | $104.911.035 | $122.672.295 | $126.088.784 | $147.012.082 |
-| (-) Impuesto a la renta | $0 | $0 | $2.478.325 | $9.424.298 | $22.163.255 | $22.274.054 | $26.227.759 | $30.668.074 | $31.522.196 | $36.753.020 |
-| **(=) Utilidad del ejercicio** | $-2.627.286 | $-2.227.079 | $12.289.341 | $28.272.894 | $66.489.764 | $66.822.163 | $78.683.277 | $92.004.221 | $94.566.588 | $110.259.061 |
+| (-) Costo financiero (intereses) | $3.300.611 | $3.097.191 | $2.869.361 | $2.614.192 | $2.328.402 | $2.008.317 | $1.649.822 | $1.248.308 | $798.612 | $294.952 |
+| **(=) Utilidad antes de impuesto** | $-2.756.392 | $-2.332.741 | $14.762.247 | $37.886.624 | $88.669.805 | $89.393.114 | $105.026.621 | $122.403.266 | $125.798.268 | $146.698.181 |
+| (-) Impuesto a la renta | $0 | $0 | $2.418.279 | $9.471.656 | $22.167.451 | $22.348.279 | $26.256.655 | $30.600.816 | $31.449.567 | $36.674.545 |
+| **(=) Utilidad del ejercicio** | $-2.756.392 | $-2.332.741 | $12.343.968 | $28.414.968 | $66.502.354 | $67.044.836 | $78.769.966 | $91.802.449 | $94.348.701 | $110.023.636 |
 
-El primer ejercicio cierra con una pérdida de $2.627.286 y el segundo con $2.227.079. No es un defecto del modelo sino su hallazgo más útil: con 200 equipos vendidos, la estructura mínima que exige operar formalmente —dos socios, un contador, cotizaciones, servicios digitales y publicidad— no se cubre todavía. A partir de 2029 el resultado es positivo y creciente.
+El primer ejercicio cierra con una pérdida de $2.756.392 y el segundo con $2.332.741. No es un defecto del modelo sino su hallazgo más útil: con 200 equipos vendidos, la estructura mínima que exige operar formalmente —dos socios, un contador, cotizaciones, servicios digitales y publicidad— no se cubre todavía. A partir de 2029 el resultado es positivo y creciente.
 
-El impuesto a la renta se calcula bajo el régimen Pro Pyme [18], con las tasas de 12,5 % en 2027, 15 % en 2028 y 25 % desde 2029, y con arrastre de pérdidas: los $4.854.365 perdidos en los dos primeros ejercicios se descuentan de la base imponible de 2029, que por eso tributa sobre una utilidad menor que la contable. La depreciación y la amortización reducen el impuesto sin ser salidas de dinero, y por esa razón se suman de vuelta en el flujo de fondos.
+El impuesto a la renta se calcula bajo el régimen Pro Pyme [18], con las tasas de 12,5 % en 2027, 15 % en 2028 y 25 % desde 2029, y con arrastre de pérdidas: los $5.089.133 perdidos en los dos primeros ejercicios se descuentan de la base imponible de 2029, que por eso tributa sobre una utilidad menor que la contable. La depreciación y la amortización reducen el impuesto sin ser salidas de dinero, y por esa razón se suman de vuelta en el flujo de fondos.
 
 ### Flujo de fondos y evaluación
 
@@ -302,28 +303,28 @@ El impuesto a la renta se calcula bajo el régimen Pro Pyme [18], con las tasas 
 
 | Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Utilidad del ejercicio | $-2.627.286 | $-2.227.079 | $12.289.341 | $28.272.894 | $66.489.764 | $66.822.163 | $78.683.277 | $92.004.221 | $94.566.588 | $110.259.061 |
+| Utilidad del ejercicio | $-2.756.392 | $-2.332.741 | $12.343.968 | $28.414.968 | $66.502.354 | $67.044.836 | $78.769.966 | $91.802.449 | $94.348.701 | $110.023.636 |
 | (+) Depreciación y amortización | $2.840.000 | $2.840.000 | $2.840.000 | $2.840.000 | $2.840.000 | $2.086.693 | $2.086.693 | $2.086.693 | $2.086.693 | $2.086.693 |
-| (-) Cuota de capital del préstamo | $1.693.988 | $1.897.267 | $2.124.939 | $2.379.932 | $2.665.523 | $2.985.386 | $3.343.633 | $3.744.868 | $4.194.253 | $4.697.563 |
+| (-) Cuota de capital del préstamo | $1.695.164 | $1.898.583 | $2.126.413 | $2.381.583 | $2.667.373 | $2.987.457 | $3.345.952 | $3.747.467 | $4.197.163 | $4.700.822 |
 | (-) Reinversión en activo fijo | $0 | $0 | $0 | $0 | $0 | $10.433.467 | $0 | $0 | $0 | $0 |
-| **(=) Flujo de fondos** | $-1.481.275 | $-1.284.346 | $13.004.402 | $28.732.963 | $66.664.241 | $55.490.003 | $77.426.337 | $90.346.046 | $92.459.029 | $107.648.192 |
-| Caja acumulada | $11.337.885 | $10.053.540 | $23.057.942 | $51.790.905 | $118.455.145 | $173.945.149 | $251.371.486 | $341.717.532 | $434.176.561 | $541.824.753 |
+| **(=) Flujo de fondos** | $-1.611.556 | $-1.391.324 | $13.057.555 | $28.873.385 | $66.674.981 | $55.710.605 | $77.510.707 | $90.141.676 | $92.238.231 | $107.409.507 |
+| Caja acumulada | $11.228.229 | $9.836.905 | $22.894.460 | $51.767.846 | $118.442.827 | $174.153.432 | $251.664.139 | $341.805.815 | $434.044.046 | $541.453.553 |
 
-El flujo de fondos parte de la utilidad, le devuelve la depreciación y la amortización que no son salidas de caja, y le descuenta lo que sí sale de la empresa sin pasar por resultados: el capital del préstamo y, en 2032, la renovación del activo fijo. La caja nunca baja de $10.053.540, que ocurre en 2028. Ese es el piso que el capital de trabajo fue dimensionado para sostener.
+El flujo de fondos parte de la utilidad, le devuelve la depreciación y la amortización que no son salidas de caja, y le descuenta lo que sí sale de la empresa sin pasar por resultados: el capital del préstamo y, en 2032, la renovación del activo fijo. La caja nunca baja de $9.836.905, que ocurre en 2028. Ese es el piso que el capital de trabajo fue dimensionado para sostener.
 
 ### Cuadro 17. Evaluación económica
 
 | Indicador | Valor | Criterio | Veredicto |
 |---|---:|---|---|
-| Inversión inicial | $29.727.352 | — | — |
-| VAN al 20 % | $112.827.790 | VAN > 0 | Cumple |
-| TIR efectiva anual | 53,35 % | TIR > 20 % | Cumple |
+| Inversión inicial | $29.747.977 | — | — |
+| VAN al 20 % | $112.695.657 | VAN > 0 | Cumple |
+| TIR efectiva anual | 53,26 % | TIR > 20 % | Cumple |
 | Payback simple | 3,68 años | ≤ 5 años | Cumple |
 | Payback descontado al 20 % | 4,39 años | ≤ 5 años | Cumple |
-| Caja mínima del horizonte | $10.053.540 | > 0 | Cumple |
+| Caja mínima del horizonte | $9.836.905 | > 0 | Cumple |
 | Deuda al cierre del horizonte | $0 | Crédito saldado | Cumple |
 
-Todos los indicadores cumplen su criterio. El VAN de $112.827.790 indica excedente económico después de remunerar el capital al 20 % anual; la TIR de 53,35 % supera esa exigencia en 33,35 puntos porcentuales; y la inversión se recupera en 3,68 años nominales o 4,39 descontados, dentro del plazo de cinco años que el proyecto se fijó como criterio.
+Todos los indicadores cumplen su criterio. El VAN de $112.695.657 indica excedente económico después de remunerar el capital al 20 % anual; la TIR de 53,26 % supera esa exigencia en 33,26 puntos porcentuales; y la inversión se recupera en 3,68 años nominales o 4,39 descontados, dentro del plazo de cinco años que el proyecto se fijó como criterio.
 
 La evaluación principal es a diez años porque es el plazo del crédito y porque el equipo tiene una vida comercial que excede el lustro. La comparación con un horizonte de cinco años muestra qué parte del resultado depende de esa elección:
 
@@ -331,26 +332,26 @@ La evaluación principal es a diez años porque es el plazo del crédito y porqu
 
 | Indicador | A 5 años (2027–2031) | A 10 años (2027–2036) |
 |---|---:|---:|
-| VAN al 20 % | $16.319.465 | $112.827.790 |
-| TIR efectiva anual | 32,16 % | 53,35 % |
-| Caja acumulada al cierre | $118.455.145 | $541.824.753 |
-| Deuda bancaria pendiente al cierre | $18.965.703 | $0 |
+| VAN al 20 % | $16.218.777 | $112.695.657 |
+| TIR efectiva anual | 32,06 % | 53,26 % |
+| Caja acumulada al cierre | $118.442.827 | $541.453.553 |
+| Deuda bancaria pendiente al cierre | $18.978.861 | $0 |
 
-A cinco años el proyecto ya crea valor, con un VAN de $16.319.465, pero conserva una deuda bancaria de $18.965.703 que a diez años está saldada. El grueso del VAN se genera en la segunda mitad del horizonte, cuando la estructura ya está pagada y cada venta adicional aporta casi todo su margen de contribución: evaluar a cinco años subestimaría el negocio, pero no cambiaría la decisión.
+A cinco años el proyecto ya crea valor, con un VAN de $16.218.777, pero conserva una deuda bancaria de $18.978.861 que a diez años está saldada. El grueso del VAN se genera en la segunda mitad del horizonte, cuando la estructura ya está pagada y cada venta adicional aporta casi todo su margen de contribución: evaluar a cinco años subestimaría el negocio, pero no cambiaría la decisión.
 
 ### Cuadro 19. VAN ante distintas tasas de descuento
 
 | Tasa efectiva anual | VAN | Interpretación |
 |---:|---:|---|
-| 5 % | $338.071.793 | Positivo |
-| 8 % | $269.684.711 | Positivo |
-| 10 % | $232.569.644 | Positivo |
-| 15 % | $161.659.297 | Positivo |
-| 20 % | $112.827.790 | Positivo |
-| 30 % | $53.745.512 | Positivo |
-| 40 % | $22.206.283 | Positivo |
-| 50 % | $4.222.095 | Positivo |
-| TIR: 53,35 % | $0 | VAN aproximadamente cero |
+| 5 % | $337.797.306 | Positivo |
+| 8 % | $269.461.277 | Positivo |
+| 10 % | $232.371.499 | Positivo |
+| 15 % | $161.503.586 | Positivo |
+| 20 % | $112.695.657 | Positivo |
+| 30 % | $53.633.582 | Positivo |
+| 40 % | $22.100.455 | Positivo |
+| 50 % | $4.118.420 | Positivo |
+| TIR: 53,26 % | $0 | VAN aproximadamente cero |
 
 El VAN decrece monótonamente al subir la tasa de descuento y cruza cero exactamente en la TIR, tal como exige la definición de ambos indicadores, y se mantiene positivo hasta exigencias de rentabilidad muy superiores al 20 % de referencia.
 
@@ -362,23 +363,23 @@ Para verificar la robustez del resultado se recalculó el proyecto modificando u
 
 | Caso | Precio de lista | Utilidad del año 1 | VAN a 10 años | TIR | Caja mínima |
 |---|---:|---:|---:|---:|---:|
-| Caso base | $449.409 | $-2.627.286 | $112.827.790 | 53,3 % | $10.053.540 |
-| Ventas -10 % | $449.409 | $-7.476.006 | $59.746.693 | 38,3 % | $-3.528.245 |
-| Ventas -25 % | $449.409 | $-14.749.085 | $-22.054.319 | 12,6 % | $-45.690.845 |
-| Ventas -35 % | $449.409 | $-19.597.805 | $-82.056.548 | -11,0 % | $-92.601.298 |
-| Ventas +20 % | $449.409 | $6.186.384 | $219.092.838 | 81,5 % | $20.120.691 |
-| BOM +15 % | $449.409 | $-4.926.403 | $87.571.146 | 46,1 % | $3.600.887 |
-| BOM +30 % | $449.409 | $-7.225.519 | $62.075.466 | 38,6 % | $-2.851.765 |
-| Precio rebajado a $429.990 (−4,3 %) | $429.990 | $-5.696.787 | $79.234.766 | 43,9 % | $1.451.263 |
-| Precio rebajado a $399.990 (−11,0 %) | $399.990 | $-10.438.804 | $26.511.277 | 28,3 % | $-17.073.611 |
-| Precio rebajado a $379.990 (−15,4 %) | $379.990 | $-13.600.149 | $-9.157.143 | 17,0 % | $-35.129.310 |
-| Precio rebajado a $359.990 (−19,9 %) | $359.990 | $-16.761.493 | $-46.093.472 | 4,2 % | $-63.600.735 |
+| Caso base | $449.129 | $-2.756.392 | $112.695.657 | 53,3 % | $9.836.905 |
+| Ventas -10 % | $449.129 | $-7.600.680 | $59.657.604 | 38,3 % | $-3.732.460 |
+| Ventas -25 % | $449.129 | $-14.867.112 | $-22.060.606 | 12,6 % | $-45.626.817 |
+| Ventas -35 % | $449.129 | $-19.711.399 | $-81.985.514 | -11,0 % | $-92.033.114 |
+| Ventas +20 % | $449.129 | $6.065.661 | $218.853.683 | 81,4 % | $20.019.417 |
+| BOM +15 % | $449.129 | $-5.055.508 | $87.433.221 | 46,0 % | $3.384.253 |
+| BOM +30 % | $449.129 | $-7.354.625 | $61.937.541 | 38,6 % | $-3.068.399 |
+| Precio rebajado a $429.990 (−4,3 %) | $429.990 | $-5.781.576 | $79.585.308 | 43,9 % | $1.358.828 |
+| Precio rebajado a $399.990 (−10,9 %) | $399.990 | $-10.523.593 | $26.868.819 | 28,4 % | $-17.055.399 |
+| Precio rebajado a $379.990 (−15,4 %) | $379.990 | $-13.684.937 | $-8.789.937 | 17,1 % | $-34.765.930 |
+| Precio rebajado a $359.990 (−19,8 %) | $359.990 | $-16.846.282 | $-45.693.817 | 4,3 % | $-63.237.355 |
 
 Tres lecturas se desprenden de la tabla:
 
-- **El punto de quiebre del volumen está entre una caída del 10 % y una del 25 % en las ventas.** Con −10 % el VAN sigue positivo en $59.746.693 pero la caja se vuelve negativa, de modo que el proyecto destruiría liquidez antes de destruir valor: la restricción que aparece primero es de caja, no de rentabilidad.
-- **El costo de materiales admite desviación.** Un alza del 15 % en la BOM deja el VAN en $87.571.146 y la caja positiva; a +30 % el VAN sigue siendo de $62.075.466, pero la caja mínima cae a $-2.851.765. El margen resiste, pero confirma que la cotización de la sonda no admite descuido.
-- **El precio no admite rebaja.** Con el financiamiento dimensionado, la caja se vuelve negativa con cualquier precio de lista inferior a $426.714, apenas un 5,0 % bajo el precio calculado, y el proyecto deja de crear valor bajo $385.057. Ese resultado confirma que el precio debe derivarse del costo y no fijarse por aspiración comercial: un precio elegido para parecer competitivo, sin mirar la estructura, deja a la empresa sin caja en su segundo año.
+- **El punto de quiebre del volumen está entre una caída del 10 % y una del 25 % en las ventas.** Con −10 % el VAN sigue positivo en $59.657.604 pero la caja se vuelve negativa, de modo que el proyecto destruiría liquidez antes de destruir valor: la restricción que aparece primero es de caja, no de rentabilidad.
+- **El costo de materiales admite desviación.** Un alza del 15 % en la BOM deja el VAN en $87.433.221 y la caja positiva; a +30 % el VAN sigue siendo de $61.937.541, pero la caja mínima cae a $-3.068.399. El margen resiste, pero confirma que la cotización de la sonda no admite descuido.
+- **El precio no admite rebaja.** Con el financiamiento dimensionado, la caja se vuelve negativa con cualquier precio de lista inferior a $426.923, apenas un 4,9 % bajo el precio calculado, y el proyecto deja de crear valor bajo $384.854. Ese resultado confirma que el precio debe derivarse del costo y no fijarse por aspiración comercial: un precio elegido para parecer competitivo, sin mirar la estructura, deja a la empresa sin caja en su segundo año.
 
 ### Costo total de propiedad para el agricultor
 
@@ -388,7 +389,7 @@ La pregunta que un agricultor se hace antes de comprar no es cuánto cuesta el i
 
 | Alternativa | Intensidad | Año 1 | Acumulado a 3 años | Acumulado a 5 años | Acumulado a 10 años |
 |---|---|---:|---:|---:|---:|
-| TerraSense (equipo, kit de batería en los años 3 y 8, segundo equipo en el año 6) | Mediciones ilimitadas | $449.409 | $474.399 | $474.399 | $948.798 |
+| TerraSense (equipo, kit de batería en los años 3 y 8, segundo equipo en el año 6) | Mediciones ilimitadas | $449.129 | $474.119 | $474.119 | $948.237 |
 | Análisis de laboratorio (S1) | Uso habitual: 4 muestras/año | $200.000 | $600.000 | $1.000.000 | $2.000.000 |
 | Análisis de laboratorio (S1) | Uso intensivo: 20 muestras/año | $1.000.000 | $3.000.000 | $5.000.000 | $10.000.000 |
 | Asesoría agronómica externa (S2) | Uso habitual: 2 visitas/año | $120.000 | $360.000 | $600.000 | $1.200.000 |
@@ -396,7 +397,7 @@ La pregunta que un agricultor se hace antes de comprar no es cuánto cuesta el i
 
 Los valores S1 y S2 son supuestos de mercado declarados, no referencias bibliográficas, y figuran como tales en la tabla de supuestos de mercado al final del capítulo.
 
-Bajo la intensidad habitual, que es el caso base, el instrumento **no se paga el primer año**: $449.409 de compra frente a $200.000 de laboratorio. Frente al laboratorio el cruce ocurre en el año 3 y la ventaja se mantiene hasta el final: a diez años la diferencia es de $2.000.000 contra $948.798, 2,1 veces. Frente a la asesoría habitual el resultado es más estrecho y no es monótono: TerraSense pasa adelante en el año 4, la compra del segundo equipo en el año 6 lo deja atrás durante dos años, y recupera la ventaja en el año 8, para cerrar la década con una diferencia de 1,3 veces. Bajo uso intensivo las distancias se abren a 10,5 y 7,6 veces respectivamente.
+Bajo la intensidad habitual, que es el caso base, el instrumento **no se paga el primer año**: $449.129 de compra frente a $200.000 de laboratorio. Frente al laboratorio el cruce ocurre en el año 3 y la ventaja se mantiene hasta el final: a diez años la diferencia es de $2.000.000 contra $948.237, 2,1 veces. Frente a la asesoría habitual el resultado es más estrecho y no es monótono: TerraSense pasa adelante en el año 4, la compra del segundo equipo en el año 6 lo deja atrás durante dos años, y recupera la ventaja en el año 8, para cerrar la década con una diferencia de 1,3 veces. Bajo uso intensivo las distancias se abren a 10,5 y 7,6 veces respectivamente.
 
-El argumento estructural, en todo caso, no depende del precio: **el costo marginal de cada medición adicional es cero**. Un agricultor que tome cien mediciones al año acumula mil en diez años, de modo que cada una le cuesta $949 frente a los $50.000 de una muestra de laboratorio. El laboratorio y la asesoría conservan íntegramente su función en las determinaciones químicas que el instrumento no reemplaza; lo que el instrumento resuelve es el seguimiento rutinario entre temporadas, que hoy no tiene herramienta.
+El argumento estructural, en todo caso, no depende del precio: **el costo marginal de cada medición adicional es cero**. Un agricultor que tome cien mediciones al año acumula mil en diez años, de modo que cada una le cuesta $948 frente a los $50.000 de una muestra de laboratorio. El laboratorio y la asesoría conservan íntegramente su función en las determinaciones químicas que el instrumento no reemplaza; lo que el instrumento resuelve es el seguimiento rutinario entre temporadas, que hoy no tiene herramienta.
 

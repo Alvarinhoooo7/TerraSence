@@ -136,7 +136,7 @@ TerraSense está planteado como un proyecto económicamente sustentable y escala
 
 ## Finanzas y modelo económico
 
-**El precio no es un supuesto: es un resultado.** Se construye primero la estructura completa de costos e inversión y el precio se deriva de ella exigiendo un 30 % de utilidad sobre el costo total. Precio de lista resultante: **$449.409 CLP con IVA** ($377.655 netos). Evaluación a diez años, 2027–2036, con tasa de descuento del 20 % anual.
+**El precio no es un supuesto: es un resultado.** Se construye primero la estructura completa de costos e inversión y el precio se deriva de ella exigiendo un 30 % de utilidad sobre el costo total. Precio de lista resultante: **$449.129 CLP con IVA** ($377.419 netos). Evaluación a diez años, 2027–2036, con tasa de descuento del 20 % anual.
 
 ### BOM por equipo
 
@@ -178,13 +178,13 @@ Sumando merma (3 %), provisión de reposiciones y garantía (5 %) y envío, el c
 |---|---:|
 | Equipamiento y activo fijo | $9.000.000 |
 | Activo nominal (puesta en marcha) | $5.200.000 |
-| Capital de trabajo (3,0 meses de estructura) | $12.819.160 |
+| Capital de trabajo (3,0 meses de estructura) | $12.839.785 |
 | Inventario inicial | $2.708.192 |
-| **Inversión inicial total** | **$29.727.352** |
-| Crédito bancario a 10 años, 12 % efectivo anual | $29.727.352 |
-| Pie propio exigido (30 % del crédito) | $8.918.206 |
-| Aporte por socio | $4.459.103 |
-| Cuota mensual (sistema francés) | $416.026 |
+| **Inversión inicial total** | **$29.747.977** |
+| Crédito bancario a 10 años, 12 % efectivo anual | $29.747.977 |
+| Pie propio exigido (30 % del crédito) | $8.924.393 |
+| Aporte por socio | $4.462.197 |
+| Cuota mensual (sistema francés) | $416.315 |
 
 **El pie no es una fuente adicional de fondos.** Los socios lo entregan al banco como condición de entrada y es el crédito el que financia el 100 % de la inversión inicial; sumar pie más crédito cuenta dos veces el mismo dinero. El capital de trabajo no se fijó por regla sino iterando hasta que la caja nunca baje de un piso de seguridad, con un mínimo de política de 3 meses de estructura.
 
@@ -192,30 +192,30 @@ Sumando merma (3 %), provisión de reposiciones y garantía (5 %) y envío, el c
 
 | Año | Equipos | Ventas netas | Utilidad del ejercicio | Flujo de fondos | Caja acumulada |
 |---|---:|---:|---:|---:|---:|
-| 2027 | 200 | $75.530.918 | $-2.627.286 | $-1.481.275 | $11.337.885 |
-| 2028 | 350 | $136.144.479 | $-2.227.079 | $-1.284.346 | $10.053.540 |
-| 2029 | 500 | $200.326.877 | $12.289.341 | $13.004.402 | $23.057.942 |
-| 2030 | 650 | $268.237.688 | $28.272.894 | $28.732.963 | $51.790.905 |
-| 2031 | 850 | $361.295.532 | $66.489.764 | $66.664.241 | $118.455.145 |
-| 2032 | 892 | $390.522.215 | $66.822.163 | $55.490.003 | $173.945.149 |
-| 2033 | 937 | $422.530.151 | $78.683.277 | $77.426.337 | $251.371.486 |
-| 2034 | 984 | $457.036.029 | $92.004.221 | $90.346.046 | $341.717.532 |
-| 2035 | 1033 | $494.188.785 | $94.566.588 | $92.459.029 | $434.176.561 |
-| 2036 | 1085 | $534.637.635 | $110.259.061 | $107.648.192 | $541.824.753 |
+| 2027 | 200 | $75.483.797 | $-2.756.392 | $-1.611.556 | $11.228.229 |
+| 2028 | 350 | $136.059.543 | $-2.332.741 | $-1.391.324 | $9.836.905 |
+| 2029 | 500 | $200.201.900 | $12.343.968 | $13.057.555 | $22.894.460 |
+| 2030 | 650 | $268.070.344 | $28.414.968 | $28.873.385 | $51.767.846 |
+| 2031 | 850 | $361.070.132 | $66.502.354 | $66.674.981 | $118.442.827 |
+| 2032 | 892 | $390.278.582 | $67.044.836 | $55.710.605 | $174.153.432 |
+| 2033 | 937 | $422.266.550 | $78.769.966 | $77.510.707 | $251.664.139 |
+| 2034 | 984 | $456.750.900 | $91.802.449 | $90.141.676 | $341.805.815 |
+| 2035 | 1033 | $493.880.478 | $94.348.701 | $92.238.231 | $434.044.046 |
+| 2036 | 1085 | $534.304.093 | $110.023.636 | $107.409.507 | $541.453.553 |
 
-Los ejercicios 2027 y 2028 cierran con pérdida: con 200 y 350 equipos la estructura mínima para operar formalmente todavía no se cubre. Esa pérdida está financiada por el capital de trabajo y la caja nunca baja de $10.053.540.
+Los ejercicios 2027 y 2028 cierran con pérdida: con 200 y 350 equipos la estructura mínima para operar formalmente todavía no se cubre. Esa pérdida está financiada por el capital de trabajo y la caja nunca baja de $9.836.905.
 
 ### VAN, TIR y payback
 
 | Indicador | Valor | Criterio | Veredicto |
 |---|---:|---|---|
-| VAN al 20 % | $112.827.790 | VAN > 0 | Cumple |
-| TIR efectiva anual | 53,35 % | TIR > 20 % | Cumple |
+| VAN al 20 % | $112.695.657 | VAN > 0 | Cumple |
+| TIR efectiva anual | 53,26 % | TIR > 20 % | Cumple |
 | Payback simple | 3,68 años | ≤ 5 años | Cumple |
 | Payback descontado | 4,39 años | ≤ 5 años | Cumple |
 | Deuda al cierre de 2036 | $0 | Crédito saldado | Cumple |
 
-**Punto de quiebre del precio.** Con el financiamiento dimensionado, la caja se vuelve negativa bajo un precio de lista de $426.714 y el proyecto deja de crear valor bajo $385.057. Ese resultado es la justificación numérica de derivar el precio del costo en lugar de fijarlo por aspiración comercial.
+**Punto de quiebre del precio.** Con el financiamiento dimensionado, la caja se vuelve negativa bajo un precio de lista de $426.923 y el proyecto deja de crear valor bajo $384.854. Ese resultado es la justificación numérica de derivar el precio del costo en lugar de fijarlo por aspiración comercial.
 
 [Informe 1 corregido](Evaluacion/Evaluacion%201/INFORME%201%20CORREGIDO.md) · [Sección económica](docs/SECCION_ECONOMICA_REFORMULADA.md) · [Metodología](docs/MODELO_ECONOMICO.md)
 
