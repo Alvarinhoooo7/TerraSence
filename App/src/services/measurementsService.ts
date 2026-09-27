@@ -14,7 +14,7 @@ import * as Crypto from 'expo-crypto';
 import { supabase } from './supabase';
 import { createKeyedLock } from '../utils/keyedLock';
 import { useAppStore } from '../store/useAppStore';
-import { mergeMeasurementHistory } from '../utils/measurementHistory';
+import { mergeCachedHistories, mergeMeasurementHistory } from '../utils/measurementHistory';
 import {
   mapRowToPoint,
   type MeasurementPoint,
@@ -39,22 +39,41 @@ const HISTORY_COLUMNS =
 
 export const newClientUuid = (): string => Crypto.randomUUID();
 
-/** Cache is isolated by account, field and device, just like the remote query. */
-export async function loadMeasurementHistory(fieldName: string, deviceId?: string | null) {
+/** El historial se separa por cuenta y equipo, sin filtrar por nombres de campo. */
+export async function loadMeasurementHistory(deviceId?: string | null) {
   const account = await accountQueueKey();
-  const key = `${account}/history/${JSON.stringify([fieldName, deviceId ?? null])}`;
+  const key = `${account}/history/${JSON.stringify([null, deviceId ?? null])}`;
   await reconcileDeviceResets().catch(() => undefined);
   const revision = resetRevision;
-  const pending = await pendingMeasurementPoints(fieldName, deviceId);
+  const pending = await pendingMeasurementPoints(deviceId);
   let points: MeasurementPoint[];
   let offline = false;
   try {
-    points = await fetchMeasurements(fieldName, deviceId);
+    points = await fetchMeasurements(deviceId);
   } catch {
     offline = true;
     const raw = await AsyncStorage.getItem(key);
-    points = raw ? JSON.parse(raw) : [];
-    if (!Array.isArray(points)) throw new Error('No se pudo leer el historial local.');
+    if (raw !== null) {
+      points = JSON.parse(raw);
+      if (!Array.isArray(points)) throw new Error('No se pudo leer el historial local.');
+    } else {
+      // Recuperar los historiales por campo guardados antes de retirar el selector.
+      const keys = (await AsyncStorage.getAllKeys()).filter(candidate => {
+        const prefix = `${account}/history/`;
+        if (!candidate.startsWith(prefix)) return false;
+        try {
+          const scope = JSON.parse(candidate.slice(prefix.length));
+          return Array.isArray(scope) && scope.length === 2 && scope[1] === (deviceId ?? null);
+        } catch { return false; }
+      });
+      points = [];
+      for (const [, cached] of await AsyncStorage.multiGet(keys)) {
+        if (cached === null) continue;
+        const previous = JSON.parse(cached);
+        if (!Array.isArray(previous)) throw new Error('No se pudo leer el historial local.');
+        points = mergeCachedHistories([points, previous]);
+      }
+    }
   }
   if (await accountQueueKey() !== account) throw new Error('La cuenta ha cambiado.');
   if (!offline) {
@@ -66,16 +85,14 @@ export async function loadMeasurementHistory(fieldName: string, deviceId?: strin
   return { points: revision === resetRevision ? mergeMeasurementHistory(points, pending) : [], offline };
 }
 
-/** Mediciones de un campo, más recientes primero. */
+/** Mediciones del equipo, más recientes primero. */
 export async function fetchMeasurements(
-  fieldName: string,
   deviceId?: string | null,
   limit = 200,
 ): Promise<MeasurementPoint[]> {
   let query = supabase
     .from('soil_measurements')
     .select(HISTORY_COLUMNS)
-    .eq('field_name', fieldName)
     .order('measured_at', { ascending: false })
     .limit(limit);
 
@@ -118,12 +135,11 @@ export async function pendingCount(): Promise<number> {
 
 /** Puntos locales que todavía no están en Supabase, para el historial. */
 export async function pendingMeasurementPoints(
-  fieldName: string,
   deviceId?: string | null,
 ): Promise<MeasurementPoint[]> {
   const queue = await readQueue(await accountQueueKey());
   return queue
-    .filter(({ row }) => row.field_name === fieldName && (!deviceId || row.device_id === deviceId))
+    .filter(({ row }) => !deviceId || row.device_id === deviceId)
     .map(({ row, queuedAt }) =>
       mapRowToPoint({
         ...row,

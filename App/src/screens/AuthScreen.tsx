@@ -33,7 +33,7 @@ const MODE_COPY: Record<Mode, { title: string; cta: string; hint: string }> = {
   },
   signup: {
     title: 'Crear cuenta',
-    cta: 'Crear cuenta',
+    cta: 'Continuar',
     hint: 'Te enviaremos un correo para confirmar tu cuenta.',
   },
   reset: {
@@ -93,7 +93,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
   const copy = mode === 'signin'
     ? { title: t(spanishCopy.title, 'Sign in to TerraSense'), cta: t(spanishCopy.cta, 'Sign in'), hint: t(spanishCopy.hint, 'Sign in to pick up where you left off in your field.') }
     : mode === 'signup'
-      ? { title: t(spanishCopy.title, 'Create account'), cta: t(spanishCopy.cta, 'Create account'), hint: t(spanishCopy.hint, 'We will email you to confirm your account.') }
+      ? { title: t(spanishCopy.title, 'Create account'), cta: t(spanishCopy.cta, 'Continue'), hint: t(spanishCopy.hint, 'We will email you to confirm your account.') }
       : { title: t(spanishCopy.title, 'Reset password'), cta: t(spanishCopy.cta, 'Send code'), hint: t(spanishCopy.hint, 'We will send you a code to choose a new password.') };
 
   const switchMode = useCallback((next: Mode) => {
@@ -261,11 +261,11 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
     {showConsent && <RegistrationConsentModal busy={busy} error={error}
       onCancel={() => { if (!requestInFlight.current) { setShowConsent(false); setError(null); } }}
       onContinue={consent => {
-        // Cerrar aquí y no al terminar la solicitud: así la primera pulsación
-        // produce un cambio visible en vez de medio segundo de hoja quieta.
+        // Volver al formulario con el consentimiento guardado. Continuar desde
+        // el formulario inicia el registro y muestra su indicador de carga.
         acceptedConsent.current = consent;
         setShowConsent(false);
-        void submit(consent);
+        setError(null);
       }} />}
   </>;
 };

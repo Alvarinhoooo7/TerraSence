@@ -412,7 +412,6 @@ export default function App() {
       <DashboardScreen
         onStartMeasurement={() => setRoute('measure')}
         onOpenHistory={() => setRoute('history')}
-        onOpenSettings={() => setRoute('settings')}
         onOpenDevices={() => { setDevicesOrigin('dashboard'); setRoute('devices'); }}
         onOpenDetail={handleOpenDetail}
       />

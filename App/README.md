@@ -202,12 +202,11 @@ App/
 │   │   ├── MeasureScreen.tsx           # Selección de fase → BLE → Carrusel de 2 ó 3 páginas
 │   │   ├── HistoryScreen.tsx           # Historial cronológico y detalle de las cuatro etapas
 │   │   ├── DevicesScreen.tsx           # Gestión de equipos vinculados y roles
-│   │   └── FieldSettingsScreen.tsx     # Configuración de campos, texturas y cultivos
+│   │   └── FieldSettingsScreen.tsx     # Cuenta, equipos y preferencias
 │   ├── components/
 │   │   ├── CalibrationReminderModal.tsx # Modal que recuerda limpiar electrodos de la sonda
 │   │   ├── OfflineBanner.tsx           # Barra discreta ante corte de internet
 │   │   ├── ScreenGuide.tsx             # Botón '?' con guía de uso por pantalla
-│   │   ├── FieldPicker.tsx             # Selector de campo activo
 │   │   └── MeasurementDetailModal.tsx  # Modal detallado con badge de sincronización
 │   ├── services/
 │   │   ├── bleService.ts               # Escaneo BLE, conexión GATT notify y desconexión segura
@@ -216,7 +215,6 @@ App/
 │   │   ├── deviceService.ts            # Registro y gestión de membresías de equipos
 │   │   ├── onboardingService.ts        # Persistencia de estado de onboarding en Supabase
 │   │   ├── preferencesService.ts       # Preferencias de usuario locales y en la nube
-│   │   ├── fieldsService.ts            # Gestión de campos agrícolas
 │   │   ├── weatherService.ts           # Consulta resiliente a la API de Open-Meteo
 │   │   ├── authDeepLink.ts             # Captura del esquema tierrasense://reset-password
 │   │   ├── authDeepLinkParser.ts       # Procesamiento de tokens del enlace de correo
@@ -246,7 +244,7 @@ App/
 - Inicio renovado con última lectura real, acceso a equipos, estado de respaldo y acceso al historial; sin métricas de ejemplo. Se adapta a tema claro/oscuro y español/inglés.
 - Navegación inferior persistente entre Inicio, Historial y Ajustes. Se oculta durante la medición y el onboarding.
 - Historial con actualización al deslizar, estados de carga/error, filtros táctiles de 48 dp y etiqueta de respaldo por lectura.
-- Caché del historial consultado (hasta 200 lecturas por consulta), aislada por cuenta, campo y equipo. Sin red se combina con la cola pendiente; los registros confirmados se identifican también por `client_uuid` para evitar duplicados visuales. No equivale a descargar todo el historial.
+- Caché del historial consultado (hasta 200 lecturas por consulta), aislada por cuenta y equipo. Sin red se combina con la cola pendiente; los registros confirmados se identifican también por `client_uuid` para evitar duplicados visuales. No equivale a descargar todo el historial. La app no crea ni selecciona campos: consulta las lecturas sin filtrar por `field_name` y envía ese atributo vacío en nuevas mediciones por compatibilidad con el esquema. Los nombres de registros anteriores se conservan; los cachés antiguos por campo se recuperan cuando aún no existe el caché unificado del equipo.
 - Bienvenida desplazable en pantallas pequeñas y selector de etapa en tarjetas de ancho completo con estado accesible.
 
 **Compatibilidad con Supabase:** estos cambios reutilizan columnas existentes; no agregan migraciones. La consulta incluye `client_uuid`. La revisión remota mediante `supabase migration list --linked` confirmó dos versiones solo remotas (`20260902180000`, `20260902210000`) y la versión `20260904120000` solo local. Antes de desplegar esta última hay que recuperar el SQL original de las versiones remotas, revisar el historial y probar la migración en staging. No se reparó ni alteró el historial remoto.

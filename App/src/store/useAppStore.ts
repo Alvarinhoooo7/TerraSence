@@ -9,7 +9,6 @@ interface AppState {
   stage: PhenologicalStage;
   cropId: CropId;
   textureId: SoilTextureId;
-  fieldName: string;
 
   device: DeviceRow | null;
   points: MeasurementPoint[];
@@ -25,7 +24,6 @@ interface AppState {
   setStage: (s: PhenologicalStage) => void;
   setCrop: (c: CropId) => void;
   setTexture: (t: SoilTextureId) => void;
-  setFieldName: (n: string) => void;
   setDevice: (d: DeviceRow | null) => void;
   setPoints: (p: MeasurementPoint[]) => void;
   addPoint: (p: MeasurementPoint) => void;
@@ -40,7 +38,6 @@ export const useAppStore = create<AppState>((set) => ({
   stage: 'pre_siembra',
   cropId: 'maiz',
   textureId: 'franco',
-  fieldName: 'Mi predio',
 
   device: null,
   points: [],
@@ -56,7 +53,6 @@ export const useAppStore = create<AppState>((set) => ({
   setStage: (stage) => set({ stage }),
   setCrop: (cropId) => set({ cropId }),
   setTexture: (textureId) => set({ textureId }),
-  setFieldName: (fieldName) => set({ fieldName }),
   setDevice: (device) => set({ device }),
   setPoints: (points) => set({ points }),
   addPoint: (p) => set((s) => ({ points: [p, ...s.points.filter(item => item.id !== p.id)] })),

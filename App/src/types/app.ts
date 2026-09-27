@@ -20,7 +20,7 @@ export const PHENOLOGICAL_STAGES: {
   label: string;
   labelEn: string;
   emoji: string;
-  /** Qué evalúa prioritariamente la recomendación en esta fase. */
+  /** Explicación de la etapa para ayudar a elegirla. */
   focus: string;
   focusEn: string;
 }[] = [
@@ -29,32 +29,32 @@ export const PHENOLOGICAL_STAGES: {
     label: 'Pre-siembra',
     labelEn: 'Pre-planting',
     emoji: '🌱',
-    focus: 'Temperatura sobre el cero vegetativo, pH sin bloqueos y salinidad de germinación',
-    focusEn: 'Temperature above the growth threshold, available pH and germination salinity',
+    focus: 'Antes de sembrar, cuando preparas el suelo para las semillas.',
+    focusEn: 'Before planting, when you prepare the soil for seeds.',
   },
   {
     id: 'vegetativo',
     label: 'Vegetativo',
     labelEn: 'Vegetative',
     emoji: '🌿',
-    focus: 'Humedad radicular, pH y salinidad; los nutrientes requieren validación',
-    focusEn: 'Root-zone moisture, pH and salinity; nutrients require validation',
+    focus: 'La planta está creciendo y formando hojas, tallos y raíces.',
+    focusEn: 'The plant is growing and developing leaves, stems and roots.',
   },
   {
     id: 'floracion',
     label: 'Floración',
     labelEn: 'Flowering',
     emoji: '🌸',
-    focus: 'Estrés salino e hídrico: un exceso de sales provoca aborto floral',
-    focusEn: 'Salt and water stress: excessive salts can cause flower abortion',
+    focus: 'Aparecen las flores que darán paso a frutos o semillas.',
+    focusEn: 'Flowers appear and will develop into fruit or seeds.',
   },
   {
     id: 'cosecha',
     label: 'Cosecha',
     labelEn: 'Harvest',
     emoji: '🌾',
-    focus: 'Humedad del suelo y riesgo de compactación al ingresar al campo',
-    focusEn: 'Soil moisture and compaction risk when entering the field',
+    focus: 'El cultivo está listo o próximo a estar listo para recogerlo.',
+    focusEn: 'The crop is ready or nearly ready to be harvested.',
   },
 ];
 

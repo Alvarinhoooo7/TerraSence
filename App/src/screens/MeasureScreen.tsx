@@ -46,7 +46,6 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     setStage,
     cropId,
     textureId,
-    fieldName,
     device,
     preferences,
     addPoint,
@@ -55,7 +54,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
 
   const [phase, setPhase] = useState<Phase>('stage');
   const [stage, selectStage] = useState<PhenologicalStage | null>(null);
-  const context = useRef({ cropId, textureId, fieldName, device });
+  const context = useRef({ cropId, textureId, device });
   const saving = useRef(false);
   const reading = useRef(false);
   const saved = useRef(false);
@@ -90,7 +89,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   const runMeasurement = useCallback(async () => {
     if (!stage || saving.current || reading.current) return;
     reading.current = true;
-    context.current = { cropId, textureId, fieldName, device };
+    context.current = { cropId, textureId, device };
     saved.current = false;
     setPhase('connecting');
     clientUuid.current = newClientUuid();
@@ -135,7 +134,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     } finally {
       reading.current = false;
     }
-  }, [cropId, device, fieldName, phase, preferences.language, stage, textureId]);
+  }, [cropId, device, phase, preferences.language, stage, textureId]);
 
   const presentation = useMemo(() => raw && evaluation && advice ? buildMeasurementPresentation(raw, evaluation, advice) : null, [raw, evaluation, advice]);
 
@@ -156,7 +155,8 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       data_generation: context.current.device?.data_generation ?? 0,
       user_id: null,
       crop_id: context.current.cropId,
-      field_name: context.current.fieldName,
+      // Compatibilidad con el esquema existente; la app ya no agrupa por campo.
+      field_name: '',
       quadrant: null,
       latitude: coords?.latitude ?? null,
       longitude: coords?.longitude ?? null,
@@ -211,7 +211,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       saving.current = false;
       setPhase('result');
     }
-  }, [capturedAt, advice, addPoint, coords, cropId, demoMode, device, evaluation, fieldName, raw, setPendingCount, stage, textureId, weather, presentation]);
+  }, [capturedAt, advice, addPoint, coords, cropId, demoMode, device, evaluation, raw, setPendingCount, stage, textureId, weather, presentation]);
 
   const header = (
     <View style={styles.header}>
@@ -262,9 +262,9 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
         <ScrollView contentContainerStyle={styles.scroll}>
           {demoMode && <View style={[styles.demoBanner, { backgroundColor: colors.warning }]}><Text style={styles.demoText}>MODO DEMOSTRACIÓN · SIN SONDA REAL</Text></View>}
           <Text style={[styles.eyebrow, { color: colors.primary }]}>PREPARAR MEDICIÓN</Text>
-          <Text style={[styles.source, { color: colors.textSecondary }]}>{fieldName} · {CROPS_DB[cropId].name} · {SOIL_TEXTURES[textureId].name}</Text>
+          <Text style={[styles.source, { color: colors.textSecondary }]}>{CROPS_DB[cropId].name} · {SOIL_TEXTURES[textureId].name}</Text>
           <Text style={[styles.pageTitle, { color: colors.text }]}>¿En qué fase quieres medir?</Text>
-          <Text style={[styles.pageBody, { color: colors.textSecondary }]}>La fase cambia la interpretación y las recomendaciones, no los datos capturados.</Text>
+          <Text style={[styles.pageBody, { color: colors.textSecondary }]}>Elige la etapa en que se encuentra tu cultivo.</Text>
           <View style={styles.stageGrid}>
             {PHENOLOGICAL_STAGES.map((item) => {
               const selected = item.id === stage;
@@ -287,7 +287,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
                   <Text style={styles.stageEmoji}>{item.emoji}</Text>
                   <View style={{ flex: 1 }}>
                     <Text style={[styles.stageTitle, { color: selected ? '#FFFFFF' : colors.text }]}>{language === "en" ? item.labelEn : item.label}</Text>
-                    <Text style={[styles.stageFocus, { color: selected ? '#D8E8DF' : colors.textSecondary }]}>{item.focus}</Text>
+                    <Text style={[styles.stageFocus, { color: selected ? '#D8E8DF' : colors.textSecondary }]}>{language === "en" ? item.focusEn : item.focus}</Text>
                   </View>
                   <Text style={{ color: selected ? '#C5E8AF' : colors.textMuted, fontSize: 22 }}>{selected ? '●' : '○'}</Text>
                 </TouchableOpacity>
@@ -297,7 +297,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
           <View style={[styles.detailCard, { backgroundColor: colors.card, borderColor: colors.border, marginTop: Spacing.md }]}>
             <Text style={[styles.detailTitle, { color: colors.text }]}>{t('Antes de medir', 'Before measuring')}</Text>
             <Text style={[styles.detailBody, { color: colors.textSecondary }]}>{t('Inserta la sonda en suelo representativo, evitando piedras y bolsas de aire. Mantén el equipo quieto durante la lectura.', 'Insert the probe into representative soil, avoiding stones and air pockets. Keep it still during the reading.')}</Text>
-            <Text style={[styles.source, { color: colors.textSecondary }]}>{device?.alias || device?.name || t('Demostración sin equipo', 'Demo without device')} · {t('El guardado se realiza después de revisar el resultado.', 'Save after reviewing the result.')}</Text>
+            <Text style={[styles.source, { color: colors.textSecondary }]}>{device?.alias || device?.name || t('Demostración sin equipo', 'Demo without device')}</Text>
           </View>
           <TouchableOpacity disabled={!stage} onPress={runMeasurement} style={[styles.cta, { backgroundColor: colors.primary, opacity: stage ? 1 : 0.4 }]}>
             <Text style={styles.ctaText}>{stage ? 'Medir en esta fase' : 'Selecciona una fase para continuar'}</Text>

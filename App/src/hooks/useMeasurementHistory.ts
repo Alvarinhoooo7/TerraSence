@@ -7,7 +7,6 @@ import type { MeasurementPoint } from '../types/app';
 
 export function useMeasurementHistory() {
   const dataRevision = useAppStore(s => s.dataRevision);
-  const fieldName = useAppStore(s => s.fieldName);
   const deviceId = useAppStore(s => s.device?.id);
   const accountId = useAuthStore(s => s.session?.user.id);
   const [points, setPoints] = useState<MeasurementPoint[]>([]);
@@ -20,7 +19,7 @@ export function useMeasurementHistory() {
     setLoading(true);
     setError(false);
     try {
-      const result = await loadMeasurementHistory(fieldName, deviceId);
+      const result = await loadMeasurementHistory(deviceId);
       if (request !== generation.current) return;
       setPoints(result.points);
       setOffline(result.offline);
@@ -29,7 +28,7 @@ export function useMeasurementHistory() {
     } finally {
       if (request === generation.current) setLoading(false);
     }
-  }, [fieldName, deviceId, accountId, dataRevision]);
+  }, [deviceId, accountId, dataRevision]);
   useEffect(() => {
     setPoints([]);
     setOffline(false);

@@ -1,9 +1,8 @@
 import { GuideSectionList as SectionList } from '../components/guide/GuideSectionList';
 import { GuideTouchable as TouchableOpacity } from '../components/guide/GuideControls';
-import { FieldPicker } from '../components/FieldPicker';
 // src/screens/HistoryScreen.tsx
 //
-// Mediciones en lista, agrupadas por día y filtrables por etapa y campo.
+// Mediciones en lista, agrupadas por día y filtrables por etapa.
 
 import React, { useMemo, useState } from 'react';
 import {
@@ -18,7 +17,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Spacing, Typography, VERDICT_META } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
-import { useAppStore } from '../store/useAppStore';
 import { PHENOLOGICAL_STAGES, type MeasurementPoint, type PhenologicalStage } from '../types/app';
 import { useMeasurementHistory } from '../hooks/useMeasurementHistory';
 
@@ -42,8 +40,6 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
   const { isDark, colors } = useAppTheme();
   const { language, locale, t } = useTranslation();
 
-  const fieldName = useAppStore(s => s.fieldName);
-  const setFieldName = useAppStore(s => s.setFieldName);
   const { points, loading, offline, error, refresh } = useMeasurementHistory();
   const [filter, setFilter] = useState<PhenologicalStage | 'all'>('all');
 
@@ -74,14 +70,13 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
           <Text style={{ color: colors.primary, ...Typography.bodyBold }}>‹ {t('Inicio', 'Home')}</Text>
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
-          {fieldName}
+          {t('Mediciones', 'Readings')}
         </Text>
         <View style={styles.headerBtn} />
       </View>
 
       <View style={{ paddingHorizontal: 20, marginBottom: 20 }}><Text style={{ ...Typography.titleLarge, fontSize: 32, color: colors.text }}>{t('Historial', 'History')}</Text><Text style={{ ...Typography.bodyRegular, color: colors.textSecondary, marginTop: 6 }}>{t('Cada lectura cuenta la historia de tu suelo.', 'Every reading tells the story of your soil.')}</Text></View>
-      <View style={{ paddingHorizontal: 20, marginBottom: 16 }}><FieldPicker value={fieldName} onChange={setFieldName} colors={colors} /></View>
-      {/* Resumen del campo de un vistazo */}
+      {/* Resumen de las mediciones de un vistazo */}
       <View style={styles.summary}>
         {(['GREEN', 'AMBER', 'RED'] as const).map((v) => {
           const meta = VERDICT_META[v];
@@ -114,7 +109,7 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
             <TouchableOpacity
               key={id}
               guideTitle={label}
-              guide={t("Filtra el historial por esta etapa. Todas vuelve a mostrar el registro completo del campo.", "Filters history by this stage. All shows the complete field history again.")}
+              guide={t("Filtra el historial por esta etapa. Todas vuelve a mostrar el registro completo.", "Filters history by this stage. All shows the complete history again.")}
               onPress={() => setFilter(id as PhenologicalStage | 'all')}
               accessibilityRole="radio"
               accessibilityState={{ selected: active }}
@@ -146,7 +141,7 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
         ListEmptyComponent={loading ? <ActivityIndicator color={colors.primary} style={{ marginTop: 32 }} /> :
           <Text style={[styles.empty, { color: colors.textSecondary }]}>
             {points.length === 0
-              ? t('Todavía no hay mediciones en este campo.', 'There are no readings in this field yet.')
+              ? t('Todavía no hay mediciones.', 'There are no readings yet.')
               : t('No hay mediciones en la etapa seleccionada.', 'There are no readings for the selected stage.')}
           </Text>
         }

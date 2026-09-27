@@ -16,7 +16,6 @@ import type { MeasurementPoint } from '../types/app';
 interface Props {
   onStartMeasurement: () => void;
   onOpenHistory: () => void;
-  onOpenSettings: () => void;
   onOpenDevices: () => void;
   onOpenDetail: (point: MeasurementPoint) => void;
 }
@@ -24,7 +23,7 @@ interface Props {
 export const DashboardScreen: React.FC<Props> = (props) => {
   const { colors } = useAppTheme();
   const { t, locale } = useTranslation();
-  const { fieldName, device, pendingCount, isSyncing } = useAppStore();
+  const { device } = useAppStore();
   const { points, loading, offline, error, refresh } = useMeasurementHistory();
   const latest = points[0];
   const action = (label: string, onPress: () => void) => <TouchableOpacity accessibilityRole="button" guide={t("Abre todas las mediciones del campo con filtros y detalle.", "Opens all field readings with filters and details.")} onPress={onPress} style={styles.textButton}>
@@ -35,12 +34,9 @@ export const DashboardScreen: React.FC<Props> = (props) => {
     <ScrollView contentContainerStyle={styles.scroll} refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} tintColor={colors.primary} />}>
       <View style={styles.header}>
         <BrandLogo width={160} />
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel={t('Ajustes', 'Settings')} onPress={props.onOpenSettings} style={[styles.iconButton, { borderColor: colors.border, backgroundColor: colors.card }]}>
-          <AppIcon name="settings" color={colors.text} />
-        </TouchableOpacity>
       </View>
       <Text style={[styles.eyebrow, { color: colors.textSecondary }]}>{t('TU JORNADA EN TERRENO', 'YOUR DAY IN THE FIELD')}</Text>
-      <Text style={[styles.pageTitle, { color: colors.text }]}>{fieldName}</Text>
+      <Text style={[styles.pageTitle, { color: colors.text }]}>{t('Inicio', 'Home')}</Text>
       <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('Cada lectura, una mejor decisión.', 'Every reading, a better decision.')}</Text>
       {__DEV__ && !device && <Text accessibilityLiveRegion="polite" style={[styles.notice, { color: colors.warning }]}>{t('Desarrollo · Sin sonda vinculada. Vincula un equipo para realizar mediciones.', 'Development · No linked probe. Link a device to take readings.')}</Text>}
 
@@ -58,27 +54,11 @@ export const DashboardScreen: React.FC<Props> = (props) => {
           <Text style={styles.measureButtonText}>{device ? t('Iniciar medición', 'Start measurement') : t('Vincular un equipo', 'Link a device')}</Text>
           <AppIcon name="arrow" color="#183D2B" />
         </TouchableOpacity>
-        <Text style={styles.heroFoot}>{t('Diagnóstico local · Respaldo al recuperar conexión', 'Local diagnosis · Backup when connected')}</Text>
       </View>
 
       {latest && <View style={{ marginTop: 20 }}><Text style={[styles.sectionTitle, { color: colors.text }]}>{t('Última medición', 'Latest reading')} · {new Date(latest.measuredAt).toLocaleDateString(locale)}</Text><MeasurementExplorer key={latest.id} presentation={presentationFromPoint(latest)} /></View>}
 
-      <View style={styles.statusRow}>
-        <TouchableOpacity guideTitle={t("Tu equipo", "Your device")} guide={t("Abre tus dispositivos para seleccionar o vincular una sonda. Estar vinculado no significa estar conectado por Bluetooth.", "Opens devices to select or link a probe. Being linked does not mean Bluetooth is connected.")} accessibilityRole="button" onPress={props.onOpenDevices} style={[styles.statusCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <AppIcon name="probe" color={colors.primary} />
-          <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>{t('TU EQUIPO', 'YOUR DEVICE')}</Text>
-          <Text style={[styles.statusValue, { color: colors.text }]} numberOfLines={2}>{device ? device.alias || device.name : t('Sin vincular', 'Not linked')}</Text>
-          <Text style={[styles.caption, { color: colors.textSecondary }]}>{device ? t('Vinculado a tu cuenta', 'Linked to your account') : t('Configura tu sonda', 'Set up your probe')}</Text>
-        </TouchableOpacity>
-        <View style={[styles.statusCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <AppIcon name="sync" color={pendingCount ? colors.warning : colors.primary} />
-          <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>{t('RESPALDO', 'BACKUP')}</Text>
-          <Text style={[styles.statusValue, { color: colors.text }]}>{isSyncing ? t('Sincronizando', 'Syncing') : pendingCount ? `${pendingCount} ${t('pendientes', 'pending')}` : t('Sin pendientes', 'Nothing pending')}</Text>
-          <Text style={[styles.caption, { color: colors.textSecondary }]}>{t('Respaldo de lecturas en la nube', 'Cloud backup for readings')}</Text>
-        </View>
-      </View>
-
-      <View style={styles.sectionHeading}>
+      <View style={[styles.sectionHeading, { marginTop: 20 }]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('Última lectura', 'Latest reading')}</Text>{action(t('Ver historial', 'View history'), props.onOpenHistory)}</View>
       {(offline || error) && <Text accessibilityLiveRegion="polite" style={[styles.notice, { color: colors.warning }]}>{error ? t('No pudimos cargar las lecturas. Desliza hacia abajo para reintentar.', 'Could not load readings. Pull down to retry.') : t('Mostrando el historial guardado en este teléfono.', 'Showing history saved on this phone.')}</Text>}
       {latest ? <TouchableOpacity guideTitle={t("Última lectura", "Latest reading")} guide={t("Abre los valores, recomendaciones y estado de respaldo de esta medición.", "Opens values, recommendations and backup status for this reading.")} accessibilityRole="button" onPress={() => props.onOpenDetail(latest)} style={[styles.latest, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -102,7 +82,6 @@ const styles = StyleSheet.create({
   brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   brandIcon: { width: 38, height: 38, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   brand: { fontSize: 22, fontWeight: '700', letterSpacing: -0.8 },
-  iconButton: { width: 48, height: 48, borderRadius: 16, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   eyebrow: { ...Typography.badge, letterSpacing: 1.5 },
   pageTitle: { fontSize: 34, fontWeight: '700', letterSpacing: -1.2, marginTop: 6 },
   subtitle: { ...Typography.bodyRegular, marginTop: 5, marginBottom: 24 },
@@ -115,11 +94,7 @@ const styles = StyleSheet.create({
   heroBody: { ...Typography.bodyRegular, color: '#D0DFD5', marginTop: 12 },
   measureButton: { minHeight: 58, borderRadius: 16, paddingHorizontal: 18, paddingVertical: 12, marginTop: 24, backgroundColor: '#C5E8AF', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   measureButtonText: { ...Typography.button, color: '#183D2B', flexShrink: 1 },
-  heroFoot: { fontSize: 12, lineHeight: 18, color: '#BED0C3', marginTop: 14 },
-  statusRow: { flexDirection: 'row', gap: 12, marginVertical: 20 },
-  statusCard: { flex: 1, borderWidth: 1, borderRadius: 20, padding: 16, gap: 8 },
   statusLabel: { ...Typography.badge, flexShrink: 1 },
-  statusValue: { ...Typography.titleMedium },
   caption: { ...Typography.caption },
   sectionHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   sectionTitle: { ...Typography.titleMedium, flexShrink: 1 },
