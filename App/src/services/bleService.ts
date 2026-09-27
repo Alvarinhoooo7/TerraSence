@@ -194,8 +194,10 @@ async function readAssignedCode(device: Device): Promise<string | null> {
 /**
  * Comprueba presencia física de una sonda en modo pairing.
  *
- * El usuario debe mantener pulsado PAIR durante 3 segundos: sólo entonces el
- * firmware anuncia el UUID de TerraSense. Conectar y descubrir los servicios
+ * La sonda anuncia su servicio siempre que está encendida; mantener PAIR
+ * 3 segundos abre la ventana de 30 s durante la cual acepta grabar un código
+ * (`provisionProbe`). Sin esa ventana la vinculación falla al escribir el
+ * código, no al buscar. Conectar y descubrir los servicios
  * evita registrar por accidente un anuncio BLE incompleto o un dispositivo
  * que sólo suplante el nombre comercial.
  */

@@ -164,6 +164,13 @@ export function decodeTelemetry(bytes: Uint8Array): SoilMeasurement {
       `Trama BLE incompatible: ${bytes.length} bytes; la versión ${version} requiere exactamente ${esperados}.`,
     );
   }
+  // Bytes 0-14 todos en 0xFF: la sonda de suelo no entregó lectura (sensor
+  // desconectado, sin respuesta Modbus o CRC inválido). Es el centinela del
+  // contrato; se comprueba antes que la batería para dar el motivo real y no
+  // «batería inválida». Nunca se guarda como medición.
+  if (bytes.subarray(0, 15).every(b => b === 0xff)) {
+    throw new Error('La sonda no entregó lectura de suelo. Revisa que el sensor esté conectado y enterrado, y vuelve a medir.');
+  }
   if (bytes[14] > 100) throw new Error('Batería BLE inválida: debe ser un porcentaje de 0 a 100.');
 
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);

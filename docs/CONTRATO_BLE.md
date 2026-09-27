@@ -2,7 +2,7 @@
 
 El formato del producto es **una notificación BLE binaria de 20 bytes**, con las siete variables de suelo, las tres de ambiente y el estado de batería en una sola captura. El decodificador acepta además una trama reducida de 16 bytes, que existe únicamente como tolerancia hacia el firmware de prototipo anterior al BME280 y no es un modo de operación del equipo terminado. No se envía texto hexadecimal ni JSON. El hexadecimal de este documento es una forma legible de representar esos bytes.
 
-El aviso de los README se refería a documentos antiguos que describían formatos distintos. La tabla siguiente coincide con `decodeTelemetry` y sus pruebas. Falta comprobarla con el firmware y la sonda física: este repositorio no contiene el firmware ni una captura real del sensor adquirido.
+El aviso de los README se refería a documentos antiguos que describían formatos distintos. La tabla siguiente coincide con `decodeTelemetry` y sus pruebas, y con `armarTrama` en [`Firmware/trama.h`](../Firmware/trama.h). Falta comprobarla con la sonda física: el firmware aún no tiene el driver Modbus y no hay una captura real del sensor adquirido.
 
 ## Dos tramas diferentes
 
@@ -71,6 +71,14 @@ El empaquetado define resoluciones de transporte; no acredita exactitud ni calib
 
 Las tres a la vez son los cuatro bytes en `FF FF FF FF`. Pueden faltar por separado. **Nunca se envía un valor plausible en lugar de un dato ausente**: la base guarda `NULL` y quien lea la medición sabe que no se midió.
 
+### Sin lectura de suelo
+
+Si la sonda de suelo no responde (desconectada, sin respuesta Modbus o CRC inválido), **los bytes 0 a 14 van todos en `FF`**, batería incluida, y el resto de la trama se arma igual. La app lo reconoce como centinela y rechaza la captura con «La sonda no entregó lectura de suelo»; no guarda nada. A diferencia del ambiente, el suelo no tiene centinelas por campo: una medición sin suelo no tiene valor agronómico, así que se descarta entera. La batería no se informa sin suelo porque la trama no llega a guardarse.
+
+```text
+FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 01 FF FF FF FF
+```
+
 ## Ejemplo completo
 
 Suelo como antes, y aire a 21,3 °C, 62,5 % de humedad y 1004 hPa:
@@ -125,7 +133,7 @@ Este fragmento ilustra el empaquetado; no es un firmware completo. El ID del equ
 
 ## Qué pasa si el formato está mal
 
-La app rechaza paquetes incompletos, una longitud que no corresponde a la versión declarada, una versión distinta de 0 o 1, batería superior a 100 y valores de ambiente por encima del rango del BME280. No convierte un error de trama en una medición simulada. Las pruebas de [`App/tests/probeTelemetry.test.ts`](../App/tests/probeTelemetry.test.ts) cubren las dos versiones, la temperatura de aire y de suelo bajo cero, los centinelas por separado y juntos, cada límite de rango y vistas con desplazamiento dentro de un buffer.
+La app rechaza paquetes incompletos, una longitud que no corresponde a la versión declarada, una versión distinta de 0 o 1, una trama sin lectura de suelo, batería superior a 100 y valores de ambiente por encima del rango del BME280. No convierte un error de trama en una medición simulada. Las pruebas de [`App/tests/probeTelemetry.test.ts`](../App/tests/probeTelemetry.test.ts) cubren las dos versiones, la temperatura de aire y de suelo bajo cero, los centinelas por separado y juntos, cada límite de rango y vistas con desplazamiento dentro de un buffer.
 
 Una longitud correcta **no permite detectar por sí sola campos intercambiados o escalas erróneas**. Para validar el firmware hay que comparar una captura real con las unidades del sensor y con estos valores esperados. Si el proveedor usa otro mapa o escala, se corrige la conversión Modbus del ESP32 manteniendo el contrato BLE.
 

@@ -136,6 +136,21 @@ test('rechaza batería y ambiente fuera de rango', () => {
   assert.throws(() => decodeTelemetry(humedad), /Humedad relativa BLE inválida/);
 });
 
+test('una trama sin lectura de suelo (bytes 0-14 en FF) se rechaza con su motivo real', () => {
+  // Es exactamente lo que envía el firmware actual cuando la sonda no responde,
+  // con el BME280 presente o ausente.
+  const sinSuelo = new Uint8Array([...new Array(15).fill(0xff), 1, 0xff, 0xff, 0xff, 0xff]);
+  assert.throws(() => decodeTelemetry(sinSuelo), /no entregó lectura de suelo/);
+
+  const conAmbiente = new Uint8Array([...new Array(15).fill(0xff), 1, 0x26, 0x52, 0xc0, 0x7d]);
+  assert.throws(() => decodeTelemetry(conAmbiente), /no entregó lectura de suelo/);
+
+  // Un solo byte de suelo real ya no es el centinela: se decodifica o se
+  // rechaza por su propio motivo (aquí, la batería en FF).
+  const parcial = new Uint8Array([0x01, ...new Array(14).fill(0xff), 1, 0xff, 0xff, 0xff, 0xff]);
+  assert.throws(() => decodeTelemetry(parcial), /Batería BLE inválida/);
+});
+
 test('respeta el desplazamiento de una vista dentro de un buffer BLE', () => {
   const buffer = new Uint8Array(24);
   buffer[4] = 1; buffer[5] = 0x5e;
