@@ -200,8 +200,15 @@ Web/
     │   ├── MeasurementsPage.tsx    # /measurements - Últimas lecturas de la flota
     │   ├── FirmwarePage.tsx        # /firmware - Catálogo y contraste de versiones
     │   └── ValidationPage.tsx      # /validation - Contraste contra laboratorios
+    ├── auth/
+    │   ├── AuthLayout.tsx          # Armazón de las pantallas sin sesión (marca + formulario)
+    │   ├── LoginPage.tsx           # /ingresar - Iniciar sesión
+    │   ├── SignupPage.tsx          # /crear-cuenta - Cuenta de soporte con correo propio
+    │   ├── RecoverPage.tsx         # /recuperar-acceso - Código para una contraseña nueva
+    │   ├── PasswordChecklist.tsx   # Requisitos de contraseña (reglas de la app móvil)
+    │   ├── authErrors.ts           # Mensajes de Supabase Auth en español
+    │   └── paths.ts                # Rutas públicas del acceso
     ├── components/
-    │   ├── AuthScreen.tsx          # Acceso al backoffice
     │   ├── EmailCodeForm.tsx       # Código de seis dígitos (alta y recuperación)
     │   ├── ResetPasswordScreen.tsx # Elegir contraseña nueva
     │   ├── AccountConfirmed.tsx    # /cuenta-confirmada - Aterrizaje del correo del agricultor
@@ -352,6 +359,20 @@ vercel --prod --yes
 ---
 
 ## 10. Correos transaccionales y recuperación de acceso
+
+Sin sesión, la consola sólo expone tres rutas: `/ingresar`, `/crear-cuenta` y
+`/recuperar-acceso` ([src/auth/](src/auth/)). Cualquier otra lleva a `/ingresar` y, al
+entrar, se vuelve a la pantalla que se había pedido. El orden después de entrar es:
+sesión → `is_support_staff()` → código de invitación si la cuenta aún no es del equipo →
+panel de soporte.
+
+**La web y la app comparten la base de usuarios de Supabase: un correo es una sola
+cuenta.** El backoffice se usa con un correo propio, distinto al de la cuenta de la app,
+y `/crear-cuenta` lo advierte. Si el correo ya tiene cuenta, Supabase no devuelve error
+ni envía código (para no revelar qué correos existen); la pantalla lo detecta porque el
+usuario vuelve sin identidades y pide otro correo, en vez de dejar esperando un código.
+La contraseña cumple las mismas reglas que en la app
+([`App/src/utils/passwordRules.ts`](../App/src/utils/passwordRules.ts)).
 
 El registro y la recuperación muestran [EmailCodeForm](src/components/EmailCodeForm.tsx).
 La verificación del código establece una sesión; en recuperación se muestra primero

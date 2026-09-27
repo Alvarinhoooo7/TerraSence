@@ -124,6 +124,10 @@
   --color-support: var(--ts-support);
   --color-support-soft: var(--ts-support-soft);
 
+  /* Tinta de marca del logotipo. No cambia con el tema: el panel de marca del
+     acceso es oscuro en los dos, y así contrasta con el formulario claro. */
+  --color-brand-ink: #0f2e22;
+
   /* Escala de radios: los cuatro escalones se usan para cosas distintas —
      chips, controles, tarjetas, modales— en vez de redondearlo todo igual. */
   --radius-sm: 0.25rem;

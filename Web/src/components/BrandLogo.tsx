@@ -23,10 +23,13 @@ const MARK_VIEWBOX = '145 110 205 235';
 export function BrandLogo({
   variant = 'lockup',
   className = '',
+  inverse = false,
   title = 'TerraSense · Soil Technologies',
 }: {
   variant?: 'lockup' | 'mark';
   className?: string;
+  /** Wordmark en blanco, para superficies de tinta fijas que no siguen al tema. */
+  inverse?: boolean;
   /** Vacío lo marca como decorativo: úsalo cuando el nombre ya esté en texto. */
   title?: string;
 }) {
@@ -40,7 +43,7 @@ export function BrandLogo({
 
   return (
     <span
-      className={`inline-block text-terra-text ${className}`}
+      className={`inline-block ${inverse ? 'text-white' : 'text-terra-text'} ${className}`}
       role={title ? 'img' : 'presentation'}
       aria-label={title || undefined}
       aria-hidden={title ? undefined : true}

@@ -92,15 +92,12 @@ export function EmailCodeForm({
       }}
       className="flex flex-col gap-4"
     >
-      <div>
-        <h1 className="font-semibold text-terra-text">
-          {purpose === 'signup' ? 'Confirma tu correo' : 'Recupera tu contraseña'}
-        </h1>
-        <p className="mt-1 text-sm leading-relaxed text-terra-muted">
-          Si la solicitud corresponde a tu cuenta, recibirás un código en{' '}
-          <strong className="text-terra-text">{email}</strong>. Vence a los 10 minutos de su envío.
-        </p>
-      </div>
+      {/* El título lo pone AuthLayout; aquí sólo el destino del código. */}
+      <p className="text-sm leading-relaxed text-terra-muted">
+        Si la solicitud corresponde a tu cuenta, recibirás un código de seis dígitos en{' '}
+        <strong className="break-all text-terra-text">{email}</strong>. Vence a los 10 minutos de
+        su envío; revisa también la carpeta de spam.
+      </p>
 
       <TextField
         label="Código de verificación"

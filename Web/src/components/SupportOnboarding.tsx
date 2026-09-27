@@ -11,11 +11,10 @@
 
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { KeyRound, LogOut, RotateCcw, ShieldAlert } from 'lucide-react';
+import { KeyRound, LogOut, RotateCcw } from 'lucide-react';
 import { selfRegisterSupportStaff } from '../../backend/adminApi';
 import { supabase } from '../services/supabase';
-import { BrandLogo } from './BrandLogo';
-import { ThemeToggle } from './ThemeToggle';
+import { AuthLayout } from '../auth/AuthLayout';
 import { Button } from '../ui/Button';
 import { TextField } from '../ui/Form';
 import { Alert } from '../ui/Feedback';
@@ -51,82 +50,67 @@ export function SupportOnboarding({
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-terra-bg p-6">
-      <div className="absolute top-4 right-4">
-        <ThemeToggle />
-      </div>
-
-      <div className="w-full max-w-md">
-        <div className="mb-6 flex justify-center">
-          <BrandLogo className="h-14 w-48" title="" />
+    <AuthLayout
+      title="Activa tu acceso"
+      description={
+        <>
+          Sesión iniciada como <strong className="break-all text-terra-text">{email}</strong>. La
+          cuenta es válida, pero todavía no pertenece al equipo de soporte.
+        </>
+      }
+      footer={
+        <div className="flex items-center justify-between gap-2">
+          <Button variant="ghost" size="sm" icon={RotateCcw} onClick={onActivated}>
+            Ya soy del equipo
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={LogOut}
+            onClick={() => void supabase.auth.signOut()}
+          >
+            Cerrar sesión
+          </Button>
         </div>
+      }
+    >
+      <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
+        <TextField
+          label="Nombre completo"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          placeholder="Cómo aparecerás en el equipo"
+          hint="Opcional. Si lo dejas vacío se usa la parte del correo antes de la @."
+          autoComplete="name"
+          autoFocus
+          disabled={submitting}
+        />
 
-        <div className="panel">
-          <header className="panel-header">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-support-soft text-support">
-              <ShieldAlert size={18} aria-hidden="true" />
-            </span>
-            <div className="min-w-0">
-              <h1 className="font-semibold text-terra-text">Acceso al backoffice</h1>
-              <p className="truncate text-xs text-terra-muted">Sesión iniciada como {email}</p>
-            </div>
-          </header>
+        <TextField
+          label="Código de invitación"
+          type="password"
+          value={inviteCode}
+          onChange={(e) => setInviteCode(e.target.value)}
+          placeholder="Entregado por el equipo"
+          autoComplete="off"
+          className="font-mono"
+          disabled={submitting}
+          hint="Cinco intentos fallidos en una hora bloquean temporalmente el alta."
+        />
 
-          <form onSubmit={submit} className="flex flex-col gap-4 p-5">
-            <p className="text-sm leading-relaxed text-terra-muted">
-              Tu cuenta es válida, pero todavía no pertenece al equipo de soporte. Introduce el
-              código de invitación para activar el panel. Esta consola comparte usuarios con la app
-              de agricultores, así que llegar a esta URL no otorga permisos por sí solo.
-            </p>
+        {error && <Alert tone="error">{error}</Alert>}
 
-            <TextField
-              label="Nombre completo"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Cómo aparecerás en el equipo"
-              autoComplete="name"
-            />
-
-            <TextField
-              label="Código de invitación"
-              type="password"
-              value={inviteCode}
-              onChange={(e) => setInviteCode(e.target.value)}
-              placeholder="Entregado por el equipo"
-              autoComplete="off"
-              className="font-mono"
-              hint="Cinco intentos fallidos en una hora bloquean temporalmente el alta."
-            />
-
-            {error && <Alert tone="error">{error}</Alert>}
-
-            <Button
-              type="submit"
-              variant="primary"
-              icon={KeyRound}
-              busy={submitting}
-              busyLabel="Verificando…"
-              className="w-full"
-            >
-              Activar acceso
-            </Button>
-
-            <div className="flex items-center justify-between gap-2">
-              <Button variant="ghost" size="sm" icon={RotateCcw} onClick={onActivated}>
-                Ya soy del equipo
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                icon={LogOut}
-                onClick={() => void supabase.auth.signOut()}
-              >
-                Cerrar sesión
-              </Button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+        <Button
+          type="submit"
+          variant="primary"
+          icon={KeyRound}
+          busy={submitting}
+          busyLabel="Verificando…"
+          className="w-full"
+        >
+          Activar acceso
+        </Button>
+      </form>
+    </AuthLayout>
   );
 }

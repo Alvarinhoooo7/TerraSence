@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from './services/supabase';
 import { isSupportStaff } from '../backend/adminApi';
+import { LoginPage } from './auth/LoginPage';
+import { RecoverPage } from './auth/RecoverPage';
+import { SignupPage } from './auth/SignupPage';
+import { LOGIN_PATH, RECOVER_PATH, SIGNUP_PATH } from './auth/paths';
+import type { ReturnState } from './auth/paths';
 import { AccountConfirmed } from './components/AccountConfirmed';
-import { AuthScreen } from './components/AuthScreen';
 import { ResetPasswordScreen } from './components/ResetPasswordScreen';
 import { SupportOnboarding } from './components/SupportOnboarding';
 import { DashboardLayout } from './layouts/DashboardLayout';
@@ -38,7 +42,22 @@ const saveRecoveryUser = (id: string | null) => {
   }
 };
 
+/** Sin sesión, cualquier ruta del backoffice lleva a `/ingresar` recordando adónde iba. */
+function RequireLogin() {
+  const location = useLocation();
+  const state: ReturnState = { from: location.pathname + location.search };
+  return <Navigate to={LOGIN_PATH} replace state={state} />;
+}
+
+/** Con sesión, las rutas de acceso devuelven a la pantalla que se pidió antes de entrar. */
+function LeaveAuth() {
+  const from = (useLocation().state as ReturnState | null)?.from;
+  const target = from && !from.startsWith(LOGIN_PATH) ? from : '/admin';
+  return <Navigate to={target} replace />;
+}
+
 export default function App() {
+  const navigate = useNavigate();
   const [session, setSession] = useState<Session | null>(null);
   const [checking, setChecking] = useState(true);
   const [recovering, setRecovering] = useState(false);
@@ -98,13 +117,21 @@ export default function App() {
         onDone={() => {
           saveRecoveryUser(null);
           setRecovering(false);
+          navigate(LOGIN_PATH, { replace: true });
         }}
       />
     );
   }
 
   if (!session) {
-    return <AuthScreen />;
+    return (
+      <Routes>
+        <Route path={LOGIN_PATH} element={<LoginPage />} />
+        <Route path={SIGNUP_PATH} element={<SignupPage />} />
+        <Route path={RECOVER_PATH} element={<RecoverPage />} />
+        <Route path="*" element={<RequireLogin />} />
+      </Routes>
+    );
   }
 
   if (isStaff === null) {
@@ -120,6 +147,9 @@ export default function App() {
 
   return (
     <Routes>
+      <Route path={LOGIN_PATH} element={<LeaveAuth />} />
+      <Route path={SIGNUP_PATH} element={<Navigate to="/admin" replace />} />
+      <Route path={RECOVER_PATH} element={<Navigate to="/admin" replace />} />
       <Route path="/" element={<DashboardLayout email={session.user.email ?? ''} />}>
         <Route index element={<Navigate to="/admin" replace />} />
         <Route path="admin" element={<SupportPanelPage />} />
