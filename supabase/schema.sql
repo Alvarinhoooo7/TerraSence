@@ -13,537 +13,526 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 
+CREATE SCHEMA IF NOT EXISTS "public";
+
+
+ALTER SCHEMA "public" OWNER TO "pg_database_owner";
+
+
 COMMENT ON SCHEMA "public" IS 'standard public schema';
 
 
 
-CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "extensions";
-
-
-
-
-
-
-CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA "extensions";
-
-
-
-
-
-
-CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
-
-
-
-
-
-
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
-
-
-
-
-
-
-CREATE OR REPLACE FUNCTION "public"."admin_approve_device_member"("p_device_id" "uuid", "p_user_id" "uuid") RETURNS "jsonb"
-    LANGUAGE "sql" SECURITY DEFINER
+CREATE OR REPLACE FUNCTION "public"."admin_approve_member"("p_device_id" "uuid", "p_user_id" "uuid") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO 'public'
     AS $$
-  SELECT public.admin_set_member_authorized(p_device_id, p_user_id, TRUE);
-$$;
+BEGIN
+    PERFORM public.assert_support_staff();
+    IF NOT EXISTS (SELECT 1 FROM public.device_members
+                    WHERE device_id = p_device_id AND user_id = p_user_id AND is_authorized IS NOT TRUE) THEN
+        RAISE EXCEPTION 'No hay una solicitud pendiente de ese usuario.' USING ERRCODE = '22023';
+    END IF;
+    PERFORM public.change_device_membership(p_device_id, p_user_id, 'authorize');
+    UPDATE public.push_alerts SET is_read = TRUE
+     WHERE device_id = p_device_id AND requester_user_id = p_user_id AND event_type = 'access_request';
+END $$;
 
 
-ALTER FUNCTION "public"."admin_approve_device_member"("p_device_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
+ALTER FUNCTION "public"."admin_approve_member"("p_device_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."admin_factory_reset_device"("p_device_id" "uuid", "p_confirm_device_code" "text") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."admin_cancel_update"("p_device_id" "uuid") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+BEGIN
+    PERFORM public.assert_support_staff();
+    UPDATE public.device_firmware_updates SET status = 'cancelled', updated_at = now()
+     WHERE device_id = p_device_id AND status IN ('sent', 'postponed');
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'No hay una actualización que se pueda cancelar (si se está instalando, espera a que termine).'
+            USING ERRCODE = '22023';
+    END IF;
+    UPDATE public.push_alerts SET is_read = TRUE
+     WHERE device_id = p_device_id AND event_type = 'firmware_update' AND is_read IS NOT TRUE;
+END $$;
+
+
+ALTER FUNCTION "public"."admin_cancel_update"("p_device_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_create_release"("p_version" "text", "p_notes" "text", "p_sha256" "text", "p_size_bytes" integer, "p_storage_path" "text", "p_is_mandatory" boolean DEFAULT false) RETURNS "uuid"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $_$
+DECLARE
+    v_id UUID;
+BEGIN
+    PERFORM public.assert_support_staff();
+    IF p_version IS NULL OR p_version !~ '^\d{1,3}\.\d{1,3}\.\d{1,3}$' THEN
+        RAISE EXCEPTION 'La versión debe tener el formato X.Y.Z, por ejemplo 1.2.0.' USING ERRCODE = '22023';
+    END IF;
+    IF EXISTS (SELECT 1 FROM public.firmware_releases WHERE version = p_version) THEN
+        RAISE EXCEPTION 'Ya existe la versión %.', p_version USING ERRCODE = '22023';
+    END IF;
+    IF p_sha256 IS NULL OR p_sha256 !~ '^[a-f0-9]{64}$' OR COALESCE(p_size_bytes, 0) <= 0
+       OR p_storage_path IS NULL OR p_storage_path !~ '^releases/[0-9.]+\.bin$' THEN
+        RAISE EXCEPTION 'El binario no se registró bien. Vuelve a cargarlo.' USING ERRCODE = '22023';
+    END IF;
+    INSERT INTO public.firmware_releases
+        (version, hardware_target, sha256, size_bytes, storage_path, release_notes, is_mandatory, created_by)
+    VALUES (p_version, 'ESP32-WROOM-32', p_sha256, p_size_bytes, p_storage_path,
+            NULLIF(trim(p_notes), ''), COALESCE(p_is_mandatory, FALSE), auth.uid())
+    RETURNING id INTO v_id;
+    RETURN v_id;
+END $_$;
+
+
+ALTER FUNCTION "public"."admin_create_release"("p_version" "text", "p_notes" "text", "p_sha256" "text", "p_size_bytes" integer, "p_storage_path" "text", "p_is_mandatory" boolean) OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_delete_release"("p_release_id" "uuid") RETURNS "text"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO 'public'
     AS $$
 DECLARE
-    v_actor         UUID := auth.uid();
-    v_device        public.devices;
-    v_members_count INTEGER;
-    v_meas_count    INTEGER;
-    v_alert_count   INTEGER;
+    v_path TEXT;
 BEGIN
-    IF NOT public.is_support_staff() THEN
-        RAISE EXCEPTION 'No tienes acceso al panel de soporte.' USING ERRCODE = '42501';
+    PERFORM public.assert_support_staff();
+    DELETE FROM public.firmware_releases WHERE id = p_release_id AND is_published IS NOT TRUE
+    RETURNING storage_path INTO v_path;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Sólo se puede borrar una versión sin publicar.' USING ERRCODE = '22023';
     END IF;
+    RETURN v_path;
+END $$;
+
+
+ALTER FUNCTION "public"."admin_delete_release"("p_release_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer DEFAULT 5) RETURNS TABLE("id" "uuid", "measured_at" timestamp with time zone, "phenological_stage" "text", "vwc_percent" numeric, "soil_temp_c" numeric, "ec_us_cm" integer, "ph" numeric, "nitrogen" integer, "phosphorus" integer, "potassium" integer, "canopy_temp_c" numeric, "canopy_humidity_pct" numeric, "air_pressure_hpa" numeric, "battery_percent" integer, "weather" "jsonb", "verdict" "text", "verdict_title" "text", "action_summary" "text", "latitude" numeric, "longitude" numeric)
+    LANGUAGE "plpgsql" STABLE SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+BEGIN
+    PERFORM public.assert_support_staff();
+    RETURN QUERY
+    SELECT m.id, m.measured_at, m.phenological_stage, m.vwc_percent, m.soil_temp_c, m.ec_us_cm, m.ph,
+           m.nitrogen, m.phosphorus, m.potassium, m.canopy_temp_c, m.canopy_humidity_pct,
+           m.air_pressure_hpa, m.battery_percent::INTEGER,
+           NULLIF(m.diagnosis -> 'weather', 'null'::jsonb),
+           m.verdict::TEXT, m.verdict_title, m.action_summary, m.latitude, m.longitude
+      FROM public.soil_measurements m
+     WHERE m.device_id = p_device_id
+     ORDER BY m.measured_at DESC NULLS LAST
+     LIMIT LEAST(GREATEST(COALESCE(p_limit, 5), 1), 50);
+END $$;
+
+
+ALTER FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer) OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_device_members"("p_device_id" "uuid") RETURNS TABLE("user_id" "uuid", "first_name" "text", "last_name" "text", "email" "text", "role" "text", "is_authorized" boolean, "created_at" timestamp with time zone)
+    LANGUAGE "plpgsql" STABLE SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+BEGIN
+    PERFORM public.assert_support_staff();
+    RETURN QUERY
+    SELECT dm.user_id, p.first_name, p.last_name, u.email::TEXT, dm.role::TEXT, dm.is_authorized, dm.created_at
+      FROM public.device_members dm
+      JOIN auth.users u ON u.id = dm.user_id
+      LEFT JOIN public.profiles p ON p.id = dm.user_id
+     WHERE dm.device_id = p_device_id
+     ORDER BY (dm.role = 'admin') DESC, dm.is_authorized DESC, dm.created_at;
+END $$;
+
+
+ALTER FUNCTION "public"."admin_device_members"("p_device_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_device_status"("p_device_id" "uuid") RETURNS TABLE("device_id" "uuid", "device_code" "text", "battery_level" integer, "firmware_version" "text", "first_seen_at" timestamp with time zone, "last_seen_at" timestamp with time zone, "is_online" boolean)
+    LANGUAGE "plpgsql" STABLE SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+BEGIN
+    PERFORM public.assert_support_staff();
+    RETURN QUERY
+    SELECT d.id, d.device_code::TEXT, d.battery_level::INTEGER, d.firmware_version::TEXT,
+           d.first_seen_at, d.last_seen_at,
+           COALESCE(d.last_seen_at > now() - interval '15 minutes', FALSE)
+      FROM public.devices d
+     WHERE d.id = p_device_id;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Equipo no encontrado.' USING ERRCODE = 'P0002';
+    END IF;
+END $$;
+
+
+ALTER FUNCTION "public"."admin_device_status"("p_device_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_device_update"("p_device_id" "uuid") RETURNS TABLE("update_id" "uuid", "version" "text", "status" "text", "error" "text", "sent_at" timestamp with time zone, "updated_at" timestamp with time zone)
+    LANGUAGE "plpgsql" STABLE SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+BEGIN
+    PERFORM public.assert_support_staff();
+    RETURN QUERY
+    SELECT u.id, r.version, u.status, u.error, u.sent_at, u.updated_at
+      FROM public.device_firmware_updates u
+      JOIN public.firmware_releases r ON r.id = u.release_id
+     WHERE u.device_id = p_device_id
+     ORDER BY u.sent_at DESC
+     LIMIT 1;
+END $$;
+
+
+ALTER FUNCTION "public"."admin_device_update"("p_device_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_list_releases"() RETURNS TABLE("id" "uuid", "version" "text", "release_notes" "text", "sha256" "text", "size_bytes" integer, "storage_path" "text", "is_mandatory" boolean, "is_published" boolean, "published_at" timestamp with time zone, "created_at" timestamp with time zone, "pending" integer, "installing" integer, "installed" integer, "failed" integer)
+    LANGUAGE "plpgsql" STABLE SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+BEGIN
+    PERFORM public.assert_support_staff();
+    RETURN QUERY
+    SELECT r.id, r.version, r.release_notes, r.sha256, r.size_bytes, r.storage_path, r.is_mandatory,
+           r.is_published, r.published_at, r.created_at,
+           count(*) FILTER (WHERE u.status IN ('sent', 'postponed'))::INTEGER,
+           count(*) FILTER (WHERE u.status = 'installing')::INTEGER,
+           count(*) FILTER (WHERE u.status = 'installed')::INTEGER,
+           count(*) FILTER (WHERE u.status = 'failed')::INTEGER
+      FROM public.firmware_releases r
+      LEFT JOIN public.device_firmware_updates u ON u.release_id = r.id
+     GROUP BY r.id
+     ORDER BY public.semver_parts(r.version) DESC NULLS LAST, r.created_at DESC;
+END $$;
+
+
+ALTER FUNCTION "public"."admin_list_releases"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_make_admin"("p_device_id" "uuid", "p_user_id" "uuid") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+BEGIN
+    PERFORM public.assert_support_staff();
+    PERFORM public.change_device_membership(p_device_id, p_user_id, 'transfer_owner');
+END $$;
+
+
+ALTER FUNCTION "public"."admin_make_admin"("p_device_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_publish_release"("p_release_id" "uuid") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+BEGIN
+    PERFORM public.assert_support_staff();
+    UPDATE public.firmware_releases SET is_published = TRUE, published_at = now()
+     WHERE id = p_release_id AND is_published IS NOT TRUE AND storage_path IS NOT NULL;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'La versión no existe o ya está publicada.' USING ERRCODE = '22023';
+    END IF;
+END $$;
+
+
+ALTER FUNCTION "public"."admin_publish_release"("p_release_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_reject_member"("p_device_id" "uuid", "p_user_id" "uuid") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+BEGIN
+    PERFORM public.assert_support_staff();
+    IF NOT EXISTS (SELECT 1 FROM public.device_members
+                    WHERE device_id = p_device_id AND user_id = p_user_id AND is_authorized IS NOT TRUE) THEN
+        RAISE EXCEPTION 'No hay una solicitud pendiente de ese usuario.' USING ERRCODE = '22023';
+    END IF;
+    PERFORM public.change_device_membership(p_device_id, p_user_id, 'remove');
+    DELETE FROM public.push_alerts
+     WHERE device_id = p_device_id AND requester_user_id = p_user_id AND event_type = 'access_request';
+END $$;
+
+
+ALTER FUNCTION "public"."admin_reject_member"("p_device_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_release_devices"("p_release_id" "uuid") RETURNS TABLE("device_id" "uuid", "device_code" "text", "status" "text", "error" "text", "updated_at" timestamp with time zone)
+    LANGUAGE "plpgsql" STABLE SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+BEGIN
+    PERFORM public.assert_support_staff();
+    RETURN QUERY
+    SELECT u.device_id, d.device_code::TEXT, u.status, u.error, u.updated_at
+      FROM public.device_firmware_updates u
+      JOIN public.devices d ON d.id = u.device_id
+     WHERE u.release_id = p_release_id AND u.status <> 'cancelled'
+     ORDER BY CASE u.status WHEN 'failed' THEN 0 WHEN 'installing' THEN 1 WHEN 'postponed' THEN 2
+                            WHEN 'sent' THEN 3 ELSE 4 END, u.updated_at DESC;
+END $$;
+
+
+ALTER FUNCTION "public"."admin_release_devices"("p_release_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_reset_device"("p_device_id" "uuid") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+DECLARE
+    v_device  public.devices;
+    v_members INTEGER;
+    v_meas    INTEGER;
+BEGIN
+    PERFORM public.assert_support_staff();
 
     SELECT * INTO v_device FROM public.devices WHERE id = p_device_id FOR UPDATE;
     IF NOT FOUND THEN
         RAISE EXCEPTION 'Equipo no encontrado.' USING ERRCODE = 'P0002';
     END IF;
 
-    IF v_device.device_code IS DISTINCT FROM regexp_replace(COALESCE(p_confirm_device_code, ''), '\D', '', 'g') THEN
-        RAISE EXCEPTION 'El código de confirmación no coincide con el del equipo.' USING ERRCODE = '22023';
-    END IF;
+    SELECT count(*) INTO v_members FROM public.device_members WHERE device_id = p_device_id;
+    SELECT count(*) INTO v_meas FROM public.soil_measurements WHERE device_id = p_device_id;
 
-    SELECT COUNT(*) INTO v_members_count FROM public.device_members    WHERE device_id = p_device_id;
-    SELECT COUNT(*) INTO v_meas_count    FROM public.soil_measurements WHERE device_id = p_device_id;
-    SELECT COUNT(*) INTO v_alert_count   FROM public.push_alerts       WHERE device_id = p_device_id;
+    INSERT INTO public.device_data_resets (user_id, device_id, generation)
+    SELECT user_id, device_id, v_device.data_generation + 1 FROM public.device_members WHERE device_id = p_device_id
+    ON CONFLICT (user_id, device_id) DO UPDATE SET generation = EXCLUDED.generation;
 
-    INSERT INTO public.device_data_resets(user_id, device_id, generation)
-      SELECT user_id, device_id, v_device.data_generation + 1 FROM public.device_members WHERE device_id = p_device_id
-      ON CONFLICT (user_id, device_id) DO UPDATE SET generation = EXCLUDED.generation;
-    DELETE FROM public.device_members    WHERE device_id = p_device_id;
-    DELETE FROM public.soil_measurements WHERE device_id = p_device_id;
-    DELETE FROM public.push_alerts       WHERE device_id = p_device_id;
+    DELETE FROM public.device_members          WHERE device_id = p_device_id;
+    DELETE FROM public.soil_measurements       WHERE device_id = p_device_id;
+    DELETE FROM public.push_alerts             WHERE device_id = p_device_id;
+    DELETE FROM public.device_access_invites   WHERE device_id = p_device_id;
+    DELETE FROM public.device_firmware_updates WHERE device_id = p_device_id;
 
-    -- Conserva la identidad y las versiones reales del hardware.
     UPDATE public.devices
        SET data_generation = data_generation + 1,
            name = 'Sonda TerraSense',
            alias = NULL,
            pairing_mode_active = FALSE,
-           transmission_interval_seconds = 300,
-           microclimate_sensor_type = 'BME280',
+           battery_level = NULL,
+           first_seen_at = NULL,
            last_seen_at = NULL,
            last_measurement_at = NULL
      WHERE id = p_device_id;
-
+    -- Después del UPDATE: también se va la fila que el trigger acaba de registrar.
     DELETE FROM public.device_status_log WHERE device_id = p_device_id;
 
     INSERT INTO public.device_member_audit (device_id, actor_user_id, action)
-    VALUES (p_device_id, v_actor, 'factory_reset');
+    VALUES (p_device_id, auth.uid(), 'factory_reset');
 
-    RETURN jsonb_build_object(
-        'success', true,
-        'message', 'Datos y configuración de la nube restablecidos. El borrado de memoria física requiere soporte del firmware.',
-        'members_removed', v_members_count,
-        'measurements_deleted', v_meas_count,
-        'alerts_deleted', v_alert_count
-    );
-END;
-$$;
+    RETURN jsonb_build_object('members_removed', v_members, 'measurements_deleted', v_meas);
+END $$;
 
 
-ALTER FUNCTION "public"."admin_factory_reset_device"("p_device_id" "uuid", "p_confirm_device_code" "text") OWNER TO "postgres";
+ALTER FUNCTION "public"."admin_reset_device"("p_device_id" "uuid") OWNER TO "postgres";
 
 
-COMMENT ON FUNCTION "public"."admin_factory_reset_device"("p_device_id" "uuid", "p_confirm_device_code" "text") IS 'Desvincula a todos los miembros y borra el historial privado (mediciones, cuadrantes, alertas) de un equipo para que quede listo para vincularse con otra persona desde cero. Irreversible. Exige repetir el device_code como confirmación.';
-
-
-
-CREATE OR REPLACE FUNCTION "public"."admin_get_device_detail"("p_device_id" "uuid") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."admin_search"("p_query" "text") RETURNS TABLE("device_id" "uuid", "device_code" "text", "user_id" "uuid", "first_name" "text", "last_name" "text", "email" "text", "role" "text", "is_authorized" boolean)
     LANGUAGE "plpgsql" STABLE SECURITY DEFINER
     SET "search_path" TO 'public'
-    AS $$
+    AS $_$
 DECLARE
-    v_device public.devices;
-    v_latest RECORD;
-    v_status TEXT;
+    v_q      TEXT := lower(trim(COALESCE(p_query, '')));
+    v_digits TEXT := regexp_replace(COALESCE(p_query, ''), '\D', '', 'g');
 BEGIN
-    IF NOT public.is_support_staff() THEN
-        RAISE EXCEPTION 'No tienes acceso al panel de soporte.' USING ERRCODE = '42501';
-    END IF;
+    PERFORM public.assert_support_staff();
+    IF length(v_q) < 3 THEN RETURN; END IF;
 
-    SELECT * INTO v_device FROM public.devices WHERE id = p_device_id;
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'Equipo no encontrado.' USING ERRCODE = 'P0002';
-    END IF;
-
-    SELECT f.id, f.version, f.hardware_target, f.is_mandatory
-      INTO v_latest
-      FROM public.firmware_releases f
-     WHERE f.is_published
-       AND f.hardware_target = COALESCE(v_device.hardware_version, 'ESP32-WROOM-32')
-     ORDER BY public.semver_parts(f.version) DESC NULLS LAST
-     LIMIT 1;
-
-    v_status := CASE
-        WHEN v_latest.id IS NULL THEN 'sin_catalogo'
-        WHEN public.semver_parts(v_device.firmware_version) IS NULL THEN 'version_ilegible'
-        WHEN public.semver_parts(v_latest.version) > public.semver_parts(v_device.firmware_version)
-            THEN 'desactualizado'
-        ELSE 'al_dia'
-    END;
-
-    RETURN jsonb_build_object(
-        'device', to_jsonb(v_device),
-        'latest_published_firmware', CASE WHEN v_latest.id IS NULL THEN NULL ELSE
-            jsonb_build_object('id', v_latest.id, 'version', v_latest.version,
-                               'hardware_target', v_latest.hardware_target,
-                               'is_mandatory', v_latest.is_mandatory)
-        END,
-        'firmware_status', v_status,
-        -- Se conserva por compatibilidad con clientes que ya la leen; a partir
-        -- de aquí lo informativo es `firmware_status`.
-        'is_up_to_date', (v_status <> 'desactualizado'),
-        'last_location', (
-            SELECT jsonb_build_object('latitude', m.latitude, 'longitude', m.longitude,
-                                      'gps_accuracy_m', m.gps_accuracy_m,
-                                      'field_name', m.field_name, 'measured_at', m.measured_at)
-              FROM public.soil_measurements m
-             WHERE m.device_id = p_device_id
-               AND m.latitude IS NOT NULL
-               AND m.longitude IS NOT NULL
-             ORDER BY m.measured_at DESC LIMIT 1
-        ),
-        'members', (
-            SELECT COALESCE(jsonb_agg(jsonb_build_object(
-                'user_id', dm.user_id,
-                'email', p.email,
-                'full_name', NULLIF(TRIM(COALESCE(p.first_name, '') || ' ' || COALESCE(p.last_name, '')), ''),
-                'role', dm.role,
-                'is_authorized', dm.is_authorized,
-                'has_push_token', (p.push_token IS NOT NULL),
-                'created_at', dm.created_at
-            ) ORDER BY CASE dm.role WHEN 'admin' THEN 0 ELSE 1 END, p.email), '[]'::jsonb)
-              FROM public.device_members dm
-              JOIN public.profiles p ON p.id = dm.user_id
-             WHERE dm.device_id = p_device_id
-        ),
-        'battery_history', (
-            SELECT COALESCE(jsonb_agg(jsonb_build_object(
-                'battery_level', l.battery_level, 'firmware_version', l.firmware_version,
-                'recorded_at', l.recorded_at
-            ) ORDER BY l.recorded_at DESC), '[]'::jsonb)
-              FROM (SELECT * FROM public.device_status_log
-                     WHERE device_id = p_device_id
-                     ORDER BY recorded_at DESC LIMIT 100) l
-        ),
-        'measurements', (
-            SELECT COALESCE(jsonb_agg(jsonb_build_object(
-                'id', m.id, 'measured_at', m.measured_at, 'field_name', m.field_name,
-                'crop_id', m.crop_id,
-                'phenological_stage', m.phenological_stage, 'verdict', m.verdict,
-                'verdict_title', m.verdict_title, 'vwc_percent', m.vwc_percent,
-                'soil_temp_c', m.soil_temp_c, 'ec_us_cm', m.ec_us_cm, 'ph', m.ph,
-                'canopy_temp_c', m.canopy_temp_c, 'canopy_humidity_pct', m.canopy_humidity_pct,
-                'air_pressure_hpa', m.air_pressure_hpa, 'diagnosis', m.diagnosis,
-                'battery_percent', m.battery_percent,
-                'nitrogen', m.nitrogen, 'phosphorus', m.phosphorus, 'potassium', m.potassium,
-                'latitude', m.latitude, 'longitude', m.longitude
-            ) ORDER BY m.measured_at DESC), '[]'::jsonb)
-              FROM (SELECT * FROM public.soil_measurements
-                     WHERE device_id = p_device_id
-                     ORDER BY measured_at DESC LIMIT 50) m
-        )
-    );
-END;
-$$;
-
-
-ALTER FUNCTION "public"."admin_get_device_detail"("p_device_id" "uuid") OWNER TO "postgres";
-
-
-CREATE OR REPLACE FUNCTION "public"."admin_list_fleet"() RETURNS TABLE("device_id" "uuid", "device_code" "text", "name" "text", "alias" "text", "is_active" boolean, "battery_level" integer, "firmware_version" "text", "hardware_version" "text", "last_seen_at" timestamp with time zone, "last_measurement_at" timestamp with time zone, "created_at" timestamp with time zone, "member_count" integer, "pending_count" integer, "measurement_count" integer, "latest_version" "text", "firmware_status" "text")
-    LANGUAGE "plpgsql" STABLE SECURITY DEFINER
-    SET "search_path" TO 'public'
-    AS $$
-BEGIN
-    IF NOT public.is_support_staff() THEN
-        RAISE EXCEPTION 'No tienes acceso al panel de soporte.' USING ERRCODE = '42501';
-    END IF;
-
-    RETURN QUERY
-    SELECT d.id,
-           d.device_code::TEXT,
-           d.name::TEXT,
-           d.alias::TEXT,
-           d.is_active,
-           d.battery_level::INTEGER,
-           d.firmware_version::TEXT,
-           d.hardware_version::TEXT,
-           d.last_seen_at,
-           d.last_measurement_at,
-           d.created_at,
-           COALESCE(mem.total, 0)::INTEGER,
-           COALESCE(mem.pending, 0)::INTEGER,
-           COALESCE(mea.total, 0)::INTEGER,
-           latest.version,
-           CASE
-               WHEN latest.version IS NULL THEN 'sin_catalogo'
-               WHEN public.semver_parts(d.firmware_version) IS NULL THEN 'version_ilegible'
-               WHEN public.semver_parts(latest.version) > public.semver_parts(d.firmware_version)
-                   THEN 'desactualizado'
-               ELSE 'al_dia'
-           END
-      FROM public.devices d
-      LEFT JOIN LATERAL (
-          SELECT COUNT(*) AS total,
-                 COUNT(*) FILTER (WHERE NOT dm.is_authorized) AS pending
-            FROM public.device_members dm
-           WHERE dm.device_id = d.id
-      ) mem ON TRUE
-      LEFT JOIN LATERAL (
-          SELECT COUNT(*) AS total
-            FROM public.soil_measurements m
-           WHERE m.device_id = d.id
-      ) mea ON TRUE
-      LEFT JOIN LATERAL (
-          SELECT f.version
-            FROM public.firmware_releases f
-           WHERE f.is_published
-             AND f.hardware_target = COALESCE(d.hardware_version, 'ESP32-WROOM-32')
-           ORDER BY public.semver_parts(f.version) DESC NULLS LAST
-           LIMIT 1
-      ) latest ON TRUE
-     ORDER BY d.last_seen_at DESC NULLS LAST, d.created_at DESC;
-END;
-$$;
-
-
-ALTER FUNCTION "public"."admin_list_fleet"() OWNER TO "postgres";
-
-
-COMMENT ON FUNCTION "public"."admin_list_fleet"() IS 'Inventario completo de sondas para el backoffice. RLS acota `devices` a los equipos donde la sesión es miembro, y una cuenta de soporte no lo es de ninguno: el perímetro aquí es is_support_staff(), igual que el resto del panel.';
-
-
-
-CREATE OR REPLACE FUNCTION "public"."admin_list_recent_measurements"("p_limit" integer DEFAULT 200) RETURNS TABLE("id" "uuid", "device_id" "uuid", "device_code" "text", "device_label" "text", "measured_at" timestamp with time zone, "field_name" "text", "crop_id" "text", "phenological_stage" "text", "verdict" "text", "verdict_title" "text", "vwc_percent" numeric, "soil_temp_c" numeric, "ec_us_cm" integer, "ph" numeric, "nitrogen" integer, "phosphorus" integer, "potassium" integer, "canopy_temp_c" numeric, "canopy_humidity_pct" numeric, "air_pressure_hpa" numeric, "battery_percent" smallint, "latitude" numeric, "longitude" numeric, "diagnosis" "jsonb")
-    LANGUAGE "plpgsql" STABLE SECURITY DEFINER
-    SET "search_path" TO 'public'
-    AS $$
-BEGIN
-    IF NOT public.is_support_staff() THEN
-        RAISE EXCEPTION 'No tienes acceso al panel de soporte.' USING ERRCODE = '42501';
-    END IF;
-
-    RETURN QUERY
-    SELECT m.id,
-           m.device_id,
-           d.device_code::TEXT,
-           COALESCE(NULLIF(d.alias, ''), d.name)::TEXT,
-           m.measured_at,
-           m.field_name::TEXT,
-           m.crop_id::TEXT,
-           m.phenological_stage,
-           m.verdict::TEXT,
-           m.verdict_title,
-           m.vwc_percent,
-           m.soil_temp_c,
-           m.ec_us_cm,
-           m.ph,
-           m.nitrogen,
-           m.phosphorus,
-           m.potassium,
-           m.canopy_temp_c,
-           m.canopy_humidity_pct,
-           m.air_pressure_hpa,
-           m.battery_percent,
-           m.latitude,
-           m.longitude,
-           m.diagnosis
-      FROM public.soil_measurements m
-      JOIN public.devices d ON d.id = m.device_id
-     ORDER BY m.measured_at DESC
-     LIMIT LEAST(GREATEST(COALESCE(p_limit, 200), 1), 500);
-END;
-$$;
-
-
-ALTER FUNCTION "public"."admin_list_recent_measurements"("p_limit" integer) OWNER TO "postgres";
-
-
-COMMENT ON FUNCTION "public"."admin_list_recent_measurements"("p_limit" integer) IS 'Últimas mediciones de toda la flota para el backoffice, con el equipo ya resuelto. Tope de 500 filas: es una pantalla de diagnóstico, no un export.';
-
-
-
-CREATE OR REPLACE FUNCTION "public"."admin_push_firmware_update"("p_device_id" "uuid", "p_firmware_release_id" "uuid") RETURNS "jsonb"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public'
-    AS $$
-DECLARE
-    v_device public.devices;
-    v_fw     public.firmware_releases;
-BEGIN
-    IF NOT public.is_support_staff() THEN
-        RAISE EXCEPTION 'No tienes acceso al panel de soporte.' USING ERRCODE = '42501';
-    END IF;
-
-    SELECT * INTO v_device FROM public.devices WHERE id = p_device_id;
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'Equipo no encontrado.' USING ERRCODE = 'P0002';
-    END IF;
-
-    SELECT * INTO v_fw FROM public.firmware_releases
-     WHERE id = p_firmware_release_id AND is_published;
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'La versión de firmware indicada no existe o no está publicada.' USING ERRCODE = '22023';
-    END IF;
-
-    RETURN jsonb_build_object(
-        'success', true,
-        'message', 'La versión publicada está disponible en Ajustes > Actualizaciones. No se envió un aviso push.',
-        'firmware_version', v_fw.version
-    );
-END;
-$$;
-
-
-ALTER FUNCTION "public"."admin_push_firmware_update"("p_device_id" "uuid", "p_firmware_release_id" "uuid") OWNER TO "postgres";
-
-
-CREATE OR REPLACE FUNCTION "public"."admin_rotate_invite_code"("p_new_code" "text") RETURNS "jsonb"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public', 'extensions'
-    AS $$
-BEGIN
-    IF NOT public.is_support_staff() THEN
-        RAISE EXCEPTION 'No tienes acceso al panel de soporte.' USING ERRCODE = '42501';
-    END IF;
-    IF length(COALESCE(p_new_code, '')) < 8 THEN
-        RAISE EXCEPTION 'El código debe tener al menos 8 caracteres.' USING ERRCODE = '22023';
-    END IF;
-
-    UPDATE public.admin_support_invite
-       SET code_hash = extensions.crypt(p_new_code, extensions.gen_salt('bf')), updated_at = NOW()
-     WHERE id = 1;
-
-    RETURN jsonb_build_object('success', true);
-END;
-$$;
-
-
-ALTER FUNCTION "public"."admin_rotate_invite_code"("p_new_code" "text") OWNER TO "postgres";
-
-
-CREATE OR REPLACE FUNCTION "public"."admin_search"("p_query" "text") RETURNS TABLE("device_id" "uuid", "device_code" "text", "name" "text", "alias" "text", "is_active" boolean, "battery_level" integer, "last_seen_at" timestamp with time zone, "matched_member_email" "text", "match_reason" "text")
-    LANGUAGE "plpgsql" STABLE SECURITY DEFINER
-    SET "search_path" TO 'public'
-    AS $$
-DECLARE
-    v_clean TEXT := TRIM(COALESCE(p_query, ''));
-BEGIN
-    IF NOT public.is_support_staff() THEN
-        RAISE EXCEPTION 'No tienes acceso al panel de soporte.' USING ERRCODE = '42501';
-    END IF;
-
-    IF length(v_clean) < 2 THEN
-        RETURN;
-    END IF;
-
-    RETURN QUERY
-    SELECT s.device_id, s.device_code, s.name, s.alias, s.is_active, s.battery_level,
-           s.last_seen_at, s.matched_member_email, s.match_reason
-      FROM (
-        SELECT d.id AS device_id, d.device_code::TEXT, d.name::TEXT, d.alias::TEXT, d.is_active,
-               d.battery_level::INTEGER, d.last_seen_at,
-               NULL::TEXT AS matched_member_email, 'device'::TEXT AS match_reason
+    IF v_q ~ '^[0-9\s-]+$' THEN
+        IF length(v_digits) < 3 THEN RETURN; END IF;
+        RETURN QUERY
+        SELECT d.id, d.device_code::TEXT, u.id, p.first_name, p.last_name, u.email::TEXT,
+               dm.role::TEXT, dm.is_authorized
           FROM public.devices d
-         WHERE d.id::TEXT = v_clean OR d.device_code ILIKE '%' || v_clean || '%'
-            OR d.name ILIKE '%' || v_clean || '%'
-            OR COALESCE(d.alias, '') ILIKE '%' || v_clean || '%'
-
-        UNION
-
-        SELECT d.id, d.device_code::TEXT, d.name::TEXT, d.alias::TEXT, d.is_active,
-               d.battery_level::INTEGER, d.last_seen_at,
-               p.email::TEXT, 'member_email'::TEXT
+          LEFT JOIN public.device_members dm ON dm.device_id = d.id
+          LEFT JOIN auth.users u ON u.id = dm.user_id
+          LEFT JOIN public.profiles p ON p.id = dm.user_id
+         WHERE strpos(d.device_code, v_digits) > 0
+         ORDER BY d.device_code, (dm.role = 'admin') DESC NULLS LAST, dm.is_authorized DESC NULLS LAST,
+                  p.first_name, u.email
+         LIMIT 100;
+    ELSE
+        RETURN QUERY
+        SELECT d.id, d.device_code::TEXT, u.id, p.first_name, p.last_name, u.email::TEXT,
+               dm.role::TEXT, dm.is_authorized
           FROM public.device_members dm
           JOIN public.devices d ON d.id = dm.device_id
-          JOIN auth.users p ON p.id = dm.user_id
-         WHERE p.email ILIKE '%' || v_clean || '%'
-      ) s
-     ORDER BY s.last_seen_at DESC NULLS LAST
-     LIMIT 50;
-END;
-$$;
+          JOIN auth.users u ON u.id = dm.user_id
+          LEFT JOIN public.profiles p ON p.id = dm.user_id
+         WHERE strpos(lower(u.email), v_q) > 0
+         ORDER BY u.email, d.device_code
+         LIMIT 100;
+    END IF;
+END $_$;
 
 
 ALTER FUNCTION "public"."admin_search"("p_query" "text") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."admin_set_member_authorized"("p_device_id" "uuid", "p_user_id" "uuid", "p_authorized" boolean) RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."admin_send_update"("p_device_id" "uuid", "p_release_id" "uuid") RETURNS "uuid"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO 'public'
     AS $$
+DECLARE
+    v_release public.firmware_releases;
+    v_version TEXT;
+    v_alert   UUID;
 BEGIN
-  IF NOT public.is_support_staff() THEN RAISE EXCEPTION 'No tienes acceso al backoffice.' USING ERRCODE = '42501'; END IF;
-  IF p_authorized IS NOT TRUE THEN RAISE EXCEPTION 'Para quitar acceso elimina la vinculación.' USING ERRCODE = '22023'; END IF;
-  PERFORM public.change_device_membership(p_device_id, p_user_id, 'authorize');
-  RETURN jsonb_build_object('success', TRUE);
+    PERFORM public.assert_support_staff();
+    SELECT * INTO v_release FROM public.firmware_releases WHERE id = p_release_id AND is_published;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Esa versión no está publicada.' USING ERRCODE = '22023';
+    END IF;
+    SELECT firmware_version INTO v_version FROM public.devices WHERE id = p_device_id FOR UPDATE;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Equipo no encontrado.' USING ERRCODE = 'P0002';
+    END IF;
+    IF NOT public.firmware_is_newer(v_release.version, v_version) THEN
+        RAISE EXCEPTION 'El equipo ya tiene la versión % o una más nueva.', v_release.version USING ERRCODE = '22023';
+    END IF;
+    v_alert := public.assign_firmware_update(p_device_id, v_release);
+    IF v_alert IS NULL THEN
+        RAISE EXCEPTION 'El equipo no tiene un administrador que pueda aceptar la actualización.' USING ERRCODE = '22023';
+    END IF;
+    RETURN v_alert;
 END $$;
 
 
-ALTER FUNCTION "public"."admin_set_member_authorized"("p_device_id" "uuid", "p_user_id" "uuid", "p_authorized" boolean) OWNER TO "postgres";
+ALTER FUNCTION "public"."admin_send_update"("p_device_id" "uuid", "p_release_id" "uuid") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."admin_set_member_role"("p_device_id" "uuid", "p_user_id" "uuid", "p_role" "text") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."admin_send_update_all"("p_release_id" "uuid") RETURNS "jsonb"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO 'public'
     AS $$
+DECLARE
+    v_release public.firmware_releases;
+    v_device  RECORD;
+    v_alert   UUID;
+    v_alerts  UUID[] := '{}';
+    v_skipped INTEGER := 0;
 BEGIN
-  IF NOT public.is_support_staff() THEN RAISE EXCEPTION 'No tienes acceso al backoffice.' USING ERRCODE = '42501'; END IF;
-  IF p_role IS DISTINCT FROM 'admin' THEN RAISE EXCEPTION 'Sólo se permite delegar la administración.' USING ERRCODE = '22023'; END IF;
-  PERFORM public.change_device_membership(p_device_id, p_user_id, 'transfer_owner');
-  RETURN jsonb_build_object('success', TRUE);
+    PERFORM public.assert_support_staff();
+    SELECT * INTO v_release FROM public.firmware_releases WHERE id = p_release_id AND is_published;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Esa versión no está publicada.' USING ERRCODE = '22023';
+    END IF;
+
+    FOR v_device IN
+        SELECT d.id, d.firmware_version FROM public.devices d ORDER BY d.id FOR UPDATE
+    LOOP
+        IF NOT public.firmware_is_newer(v_release.version, v_device.firmware_version)
+           OR EXISTS (SELECT 1 FROM public.device_firmware_updates u
+                       WHERE u.device_id = v_device.id AND u.release_id = p_release_id
+                         AND u.status IN ('sent', 'postponed', 'installing', 'installed')) THEN
+            v_skipped := v_skipped + 1;
+            CONTINUE;
+        END IF;
+        v_alert := public.assign_firmware_update(v_device.id, v_release);
+        IF v_alert IS NULL THEN
+            v_skipped := v_skipped + 1;
+        ELSE
+            v_alerts := v_alerts || v_alert;
+        END IF;
+    END LOOP;
+
+    RETURN jsonb_build_object('sent', cardinality(v_alerts), 'skipped', v_skipped, 'alert_ids', to_jsonb(v_alerts));
 END $$;
 
 
-ALTER FUNCTION "public"."admin_set_member_role"("p_device_id" "uuid", "p_user_id" "uuid", "p_role" "text") OWNER TO "postgres";
+ALTER FUNCTION "public"."admin_send_update_all"("p_release_id" "uuid") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."admin_set_staff_active"("p_user_id" "uuid", "p_active" boolean) RETURNS "jsonb"
-    LANGUAGE "plpgsql" SECURITY DEFINER
+CREATE OR REPLACE FUNCTION "public"."assert_support_staff"() RETURNS "void"
+    LANGUAGE "plpgsql" STABLE SECURITY DEFINER
     SET "search_path" TO 'public'
     AS $$
 BEGIN
     IF NOT public.is_support_staff() THEN
-        RAISE EXCEPTION 'No tienes acceso al panel de soporte.' USING ERRCODE = '42501';
+        RAISE EXCEPTION 'Operación no permitida.' USING ERRCODE = '42501';
     END IF;
-    IF p_user_id = auth.uid() THEN
-        RAISE EXCEPTION 'No puedes desactivar tu propia cuenta de soporte.' USING ERRCODE = '22023';
-    END IF;
-
-    UPDATE public.admin_support_users SET is_active = p_active WHERE user_id = p_user_id;
-    IF NOT FOUND THEN
-        RETURN jsonb_build_object('success', false, 'message', 'No es parte del equipo de soporte.');
-    END IF;
-
-    RETURN jsonb_build_object('success', true);
-END;
-$$;
-
-
-ALTER FUNCTION "public"."admin_set_staff_active"("p_user_id" "uuid", "p_active" boolean) OWNER TO "postgres";
-
-
-CREATE OR REPLACE FUNCTION "public"."admin_toggle_user_status"("p_user_id" "uuid", "p_new_status" "text") RETURNS "jsonb"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public', 'auth'
-    AS $$
-BEGIN
-    IF NOT public.is_support_staff() THEN
-        RAISE EXCEPTION 'No tienes acceso al panel de soporte.' USING ERRCODE = '42501';
-    END IF;
-    IF p_new_status NOT IN ('active', 'pending', 'disabled') THEN
-        RETURN jsonb_build_object('success', false, 'message', 'Estado invalido');
-    END IF;
-
-    UPDATE public.profiles SET status = p_new_status, updated_at = NOW() WHERE id = p_user_id;
-    IF NOT FOUND THEN
-        RETURN jsonb_build_object('success', false, 'message', 'Usuario no encontrado.');
-    END IF;
-
-    RETURN jsonb_build_object(
-        'success', true,
-        'message', 'Estado de usuario actualizado a ' || p_new_status,
-        'user_id', p_user_id,
-        'status', p_new_status
-    );
-END;
-$$;
-
-
-ALTER FUNCTION "public"."admin_toggle_user_status"("p_user_id" "uuid", "p_new_status" "text") OWNER TO "postgres";
-
-
-CREATE OR REPLACE FUNCTION "public"."admin_unbind_user_device"("p_device_id" "uuid", "p_user_id" "uuid") RETURNS "jsonb"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public'
-    AS $$
-BEGIN
-  IF NOT public.is_support_staff() THEN RAISE EXCEPTION 'No tienes acceso al backoffice.' USING ERRCODE = '42501'; END IF;
-  PERFORM public.change_device_membership(p_device_id, p_user_id, 'remove');
-  RETURN jsonb_build_object('success', TRUE);
 END $$;
 
 
-ALTER FUNCTION "public"."admin_unbind_user_device"("p_device_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
+ALTER FUNCTION "public"."assert_support_staff"() OWNER TO "postgres";
+
+SET default_tablespace = '';
+
+SET default_table_access_method = "heap";
+
+
+CREATE TABLE IF NOT EXISTS "public"."firmware_releases" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "version" "text" NOT NULL,
+    "hardware_target" "text" DEFAULT 'ESP32-WROOM-32'::"text" NOT NULL,
+    "binary_url" "text",
+    "sha256" "text",
+    "size_bytes" integer,
+    "release_notes" "text",
+    "is_mandatory" boolean DEFAULT false NOT NULL,
+    "is_published" boolean DEFAULT false NOT NULL,
+    "published_at" timestamp with time zone,
+    "created_by" "uuid",
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "storage_path" "text",
+    CONSTRAINT "firmware_releases_sha256_check" CHECK ((("sha256" IS NULL) OR ("sha256" ~ '^[a-f0-9]{64}$'::"text"))),
+    CONSTRAINT "firmware_releases_size_bytes_check" CHECK ((("size_bytes" IS NULL) OR ("size_bytes" > 0))),
+    CONSTRAINT "firmware_releases_version_check" CHECK (("version" ~ '^\d+\.\d+\.\d+$'::"text"))
+);
+
+
+ALTER TABLE "public"."firmware_releases" OWNER TO "postgres";
+
+
+COMMENT ON TABLE "public"."firmware_releases" IS 'Catálogo de versiones de firmware para OTA. Sólo las publicadas son visibles; la escritura está reservada al rol de servicio.';
+
+
+
+COMMENT ON COLUMN "public"."firmware_releases"."storage_path" IS 'Ruta del binario en el bucket privado «firmware». La app lo descarga sólo mientras tenga una actualización activa de esa versión.';
+
+
+
+CREATE OR REPLACE FUNCTION "public"."assign_firmware_update"("p_device_id" "uuid", "p_release" "public"."firmware_releases") RETURNS "uuid"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+DECLARE
+    v_admin UUID;
+    v_code  TEXT;
+    v_alert UUID;
+BEGIN
+    SELECT dm.user_id INTO v_admin FROM public.device_members dm
+     WHERE dm.device_id = p_device_id AND dm.role = 'admin' AND dm.is_authorized IS TRUE;
+    IF v_admin IS NULL THEN RETURN NULL; END IF;
+    SELECT device_code INTO v_code FROM public.devices WHERE id = p_device_id;
+
+    UPDATE public.device_firmware_updates
+       SET status = 'cancelled', updated_at = now()
+     WHERE device_id = p_device_id AND status IN ('sent', 'postponed', 'installing');
+
+    INSERT INTO public.device_firmware_updates (device_id, release_id, sent_by)
+    VALUES (p_device_id, p_release.id, auth.uid());
+
+    INSERT INTO public.push_alerts (device_id, user_id, title, body, category, severity, event_type)
+    VALUES (p_device_id, v_admin, 'Actualización disponible',
+            format('La versión %s está lista para tu sonda %s. Abre TerraSense para instalarla.',
+                   p_release.version, v_code),
+            'device', 'medium', 'firmware_update')
+    RETURNING id INTO v_alert;
+    RETURN v_alert;
+END $$;
+
+
+ALTER FUNCTION "public"."assign_firmware_update"("p_device_id" "uuid", "p_release" "public"."firmware_releases") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."change_device_membership"("p_device_id" "uuid", "p_user_id" "uuid", "p_action" "text") RETURNS "void"
@@ -708,6 +697,57 @@ COMMENT ON FUNCTION "public"."complete_my_onboarding"("p_method" "text") IS 'Fin
 
 
 
+CREATE OR REPLACE FUNCTION "public"."firmware_is_newer"("p_release" "text", "p_installed" "text") RETURNS boolean
+    LANGUAGE "sql" IMMUTABLE
+    SET "search_path" TO 'public'
+    AS $$
+  SELECT p_installed IS NULL
+      OR public.semver_parts(p_installed) IS NULL
+      OR public.semver_parts(p_release) > public.semver_parts(p_installed);
+$$;
+
+
+ALTER FUNCTION "public"."firmware_is_newer"("p_release" "text", "p_installed" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."firmware_update_progress"("p_update_id" "uuid", "p_action" "text", "p_error" "text" DEFAULT NULL::"text") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+DECLARE
+    v_update public.device_firmware_updates;
+    v_next   TEXT;
+BEGIN
+    SELECT * INTO v_update FROM public.device_firmware_updates WHERE id = p_update_id FOR UPDATE;
+    IF NOT FOUND OR NOT public.has_device_admin_access(v_update.device_id) THEN
+        RAISE EXCEPTION 'Actualización no encontrada.' USING ERRCODE = '42501';
+    END IF;
+
+    v_next := CASE
+        WHEN p_action = 'postpone'  AND v_update.status IN ('sent', 'postponed')             THEN 'postponed'
+        WHEN p_action = 'start'     AND v_update.status IN ('sent', 'postponed', 'failed')   THEN 'installing'
+        WHEN p_action = 'installed' AND v_update.status = 'installing'                       THEN 'installed'
+        WHEN p_action = 'failed'    AND v_update.status = 'installing'                       THEN 'failed'
+    END;
+    IF v_next IS NULL THEN
+        RAISE EXCEPTION 'La actualización ya no admite ese paso.' USING ERRCODE = '22023';
+    END IF;
+
+    UPDATE public.device_firmware_updates
+       SET status = v_next,
+           error = CASE WHEN v_next = 'failed' THEN left(COALESCE(p_error, 'Falló sin detalle.'), 300) END,
+           updated_at = now()
+     WHERE id = p_update_id;
+    IF v_next IN ('installed', 'postponed') THEN
+        UPDATE public.push_alerts SET is_read = TRUE
+         WHERE device_id = v_update.device_id AND event_type = 'firmware_update' AND is_read IS NOT TRUE;
+    END IF;
+END $$;
+
+
+ALTER FUNCTION "public"."firmware_update_progress"("p_update_id" "uuid", "p_action" "text", "p_error" "text") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."generate_device_code"() RETURNS "text"
     LANGUAGE "plpgsql"
     SET "search_path" TO ''
@@ -740,65 +780,6 @@ ALTER FUNCTION "public"."generate_device_code"() OWNER TO "postgres";
 
 COMMENT ON FUNCTION "public"."generate_device_code"() IS 'Genera un código de dispositivo de 15 dígitos aleatorios, con reintento ante colisión. Debe mantenerse coherente con App/src/utils/deviceId.ts.';
 
-
-
-CREATE OR REPLACE FUNCTION "public"."get_admin_dashboard_full_data"() RETURNS "jsonb"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public', 'auth'
-    AS $$
-DECLARE
-    v_users   JSONB;
-    v_devices JSONB;
-    v_stats   JSONB;
-BEGIN
-    IF NOT public.is_support_staff() THEN
-        RAISE EXCEPTION 'No tienes acceso al panel de soporte.' USING ERRCODE = '42501';
-    END IF;
-
-    SELECT COALESCE(jsonb_agg(
-        jsonb_build_object(
-            'id', p.id, 'firstName', p.first_name, 'lastName', p.last_name,
-            'age', p.age, 'email', p.email, 'phone', p.phone, 'role', p.role,
-            'status', p.status, 'frostAlertsEnabled', p.frost_alerts_enabled,
-            'moistureAlertsEnabled', p.moisture_alerts_enabled, 'createdAt', p.created_at,
-            'pairedDevicesCount', (SELECT COUNT(*) FROM public.device_members dm WHERE dm.user_id = p.id)
-        ) ORDER BY p.created_at DESC
-    ), '[]'::jsonb) INTO v_users
-    FROM public.profiles p;
-
-    SELECT COALESCE(jsonb_agg(
-        jsonb_build_object(
-            'id', d.id, 'deviceCode', d.device_code, 'name', d.name, 'alias', d.alias,
-            'batteryLevel', d.battery_level, 'isActive', d.is_active,
-            'hardwareVersion', d.hardware_version, 'firmwareVersion', d.firmware_version,
-            'lastSeenAt', d.last_seen_at,
-            'members', (
-                SELECT COALESCE(jsonb_agg(jsonb_build_object(
-                    'userId', pr.id, 'name', pr.first_name || ' ' || pr.last_name,
-                    'email', pr.email, 'role', dm.role
-                )), '[]'::jsonb)
-                FROM public.device_members dm
-                JOIN public.profiles pr ON pr.id = dm.user_id
-                WHERE dm.device_id = d.id
-            )
-        ) ORDER BY d.last_seen_at DESC
-    ), '[]'::jsonb) INTO v_devices
-    FROM public.devices d;
-
-    SELECT jsonb_build_object(
-        'totalUsers', (SELECT COUNT(*) FROM public.profiles),
-        'activeUsers', (SELECT COUNT(*) FROM public.profiles WHERE status = 'active'),
-        'disabledUsers', (SELECT COUNT(*) FROM public.profiles WHERE status = 'disabled'),
-        'totalDevices', (SELECT COUNT(*) FROM public.devices),
-        'onlineDevices', (SELECT COUNT(*) FROM public.devices WHERE is_active = TRUE)
-    ) INTO v_stats;
-
-    RETURN jsonb_build_object('success', true, 'stats', v_stats, 'users', v_users, 'devices', v_devices);
-END;
-$$;
-
-
-ALTER FUNCTION "public"."get_admin_dashboard_full_data"() OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."get_device_access_qr"("p_device_id" "uuid") RETURNS TABLE("token" "uuid", "expires_at" timestamp with time zone)
@@ -910,18 +891,44 @@ END $$;
 ALTER FUNCTION "public"."invalidate_empty_device_invite"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."is_backoffice_email"("p_email" "text") RETURNS boolean
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+  SELECT EXISTS (
+    SELECT 1
+      FROM public.admin_support_users s
+      JOIN auth.users u ON u.id = s.user_id
+     WHERE s.is_active IS TRUE
+       AND lower(u.email) = 'akurasoporte@gmail.com'
+       AND lower(u.email) = lower(trim(COALESCE(p_email, '')))
+  );
+$$;
+
+
+ALTER FUNCTION "public"."is_backoffice_email"("p_email" "text") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."is_support_staff"() RETURNS boolean
     LANGUAGE "sql" STABLE SECURITY DEFINER
     SET "search_path" TO 'public'
     AS $$
-  SELECT EXISTS(SELECT 1 FROM public.admin_support_users WHERE user_id = auth.uid() AND is_active IS TRUE);
+  SELECT EXISTS (
+    SELECT 1
+      FROM public.admin_support_users s
+      JOIN auth.users u ON u.id = s.user_id
+     WHERE s.user_id = auth.uid()
+       AND s.is_active IS TRUE
+       AND lower(u.email) = 'akurasoporte@gmail.com'
+       AND u.email_confirmed_at IS NOT NULL
+  );
 $$;
 
 
 ALTER FUNCTION "public"."is_support_staff"() OWNER TO "postgres";
 
 
-COMMENT ON FUNCTION "public"."is_support_staff"() IS 'Puerta de entrada de TODO el panel de soporte: true sólo si auth.uid() tiene una fila activa en admin_support_users. SECURITY DEFINER a propósito, mismo patrón que has_device_access().';
+COMMENT ON FUNCTION "public"."is_support_staff"() IS 'Puerta de todo el backoffice: true sólo para la cuenta akurasoporte@gmail.com confirmada y activa en admin_support_users.';
 
 
 
@@ -1113,6 +1120,25 @@ ALTER FUNCTION "public"."mark_onboarding_from_membership"() OWNER TO "postgres";
 
 COMMENT ON FUNCTION "public"."mark_onboarding_from_membership"() IS 'Persiste el onboarding dentro de la misma transacción que autoriza una membresía: owner equivale a pairing y el resto a QR.';
 
+
+
+CREATE OR REPLACE FUNCTION "public"."my_firmware_updates"() RETURNS TABLE("update_id" "uuid", "device_id" "uuid", "device_code" "text", "device_name" "text", "status" "text", "version" "text", "release_notes" "text", "is_mandatory" boolean, "sha256" "text", "size_bytes" integer, "storage_path" "text", "sent_at" timestamp with time zone)
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+    SELECT u.id, d.id, d.device_code::TEXT, COALESCE(d.alias, d.name)::TEXT, u.status, r.version,
+           r.release_notes, r.is_mandatory, r.sha256, r.size_bytes, r.storage_path, u.sent_at
+      FROM public.device_firmware_updates u
+      JOIN public.devices d ON d.id = u.device_id
+      JOIN public.firmware_releases r ON r.id = u.release_id
+      JOIN public.device_members dm ON dm.device_id = u.device_id
+     WHERE dm.user_id = auth.uid() AND dm.role = 'admin' AND dm.is_authorized IS TRUE
+       AND u.status IN ('sent', 'postponed', 'installing')
+     ORDER BY u.sent_at;
+$$;
+
+
+ALTER FUNCTION "public"."my_firmware_updates"() OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."normalize_device_versions"() RETURNS "trigger"
@@ -1326,6 +1352,36 @@ COMMENT ON FUNCTION "public"."register_paired_device"("p_code" "text", "p_name" 
 
 
 
+CREATE OR REPLACE FUNCTION "public"."report_device_contact"("p_device_code" "text", "p_battery" integer DEFAULT NULL::integer, "p_firmware_version" "text" DEFAULT NULL::"text", "p_contacted_at" timestamp with time zone DEFAULT NULL::timestamp with time zone) RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $_$
+DECLARE
+    v_id      UUID;
+    v_at      TIMESTAMPTZ := LEAST(COALESCE(p_contacted_at, now()), now());
+    v_battery INTEGER := CASE WHEN p_battery BETWEEN 0 AND 100 THEN p_battery END;
+    v_version TEXT := CASE WHEN p_firmware_version ~ '^\d{1,3}\.\d{1,3}\.\d{1,3}$' THEN p_firmware_version END;
+BEGIN
+    SELECT id INTO v_id FROM public.devices
+     WHERE device_code = regexp_replace(COALESCE(p_device_code, ''), '\D', '', 'g');
+    IF v_id IS NULL OR NOT public.has_device_access(v_id) THEN
+        RAISE EXCEPTION 'No tienes acceso a este equipo.' USING ERRCODE = '42501';
+    END IF;
+
+    UPDATE public.devices d
+       SET first_seen_at    = LEAST(COALESCE(d.first_seen_at, v_at), v_at),
+           last_seen_at     = GREATEST(COALESCE(d.last_seen_at, v_at), v_at),
+           battery_level    = CASE WHEN d.last_seen_at IS NULL OR v_at >= d.last_seen_at
+                                   THEN COALESCE(v_battery, d.battery_level) ELSE d.battery_level END,
+           firmware_version = CASE WHEN d.last_seen_at IS NULL OR v_at >= d.last_seen_at
+                                   THEN COALESCE(v_version, d.firmware_version) ELSE d.firmware_version END
+     WHERE d.id = v_id;
+END $_$;
+
+
+ALTER FUNCTION "public"."report_device_contact"("p_device_code" "text", "p_battery" integer, "p_firmware_version" "text", "p_contacted_at" timestamp with time zone) OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."request_device_access_qr"("p_device_code" "text", "p_user_id" "uuid") RETURNS "jsonb"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO 'public', 'auth'
@@ -1410,87 +1466,6 @@ END; $$;
 ALTER FUNCTION "public"."set_updated_at"() OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."support_self_register"("p_full_name" "text", "p_invite_code" "text") RETURNS "jsonb"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public', 'auth', 'extensions'
-    AS $$
-DECLARE
-    v_uid         UUID := auth.uid();
-    v_email       TEXT;
-    v_existing_id UUID;
-    v_failures    INTEGER;
-BEGIN
-    IF v_uid IS NULL THEN
-        RAISE EXCEPTION 'Sesión no válida.' USING ERRCODE = '28000';
-    END IF;
-
-    IF EXISTS (SELECT 1 FROM public.admin_support_users WHERE user_id = v_uid) THEN
-        RETURN jsonb_build_object('success', true, 'message', 'Ya tienes acceso al panel.');
-    END IF;
-
-    DELETE FROM public.support_register_attempts
-     WHERE user_id = v_uid AND attempted_at < NOW() - INTERVAL '24 hours';
-
-    SELECT COUNT(*) INTO v_failures FROM public.support_register_attempts
-     WHERE user_id = v_uid AND NOT succeeded AND attempted_at > NOW() - INTERVAL '1 hour';
-
-    IF v_failures >= 5 THEN
-        RAISE EXCEPTION 'Demasiados intentos. Vuelve a intentarlo en una hora.' USING ERRCODE = '54000';
-    END IF;
-
-    IF NOT EXISTS (
-        SELECT 1 FROM public.admin_support_invite
-         WHERE id = 1 AND code_hash = extensions.crypt(COALESCE(p_invite_code, ''), code_hash)
-    ) THEN
-        INSERT INTO public.support_register_attempts (user_id, succeeded) VALUES (v_uid, FALSE);
-        RAISE EXCEPTION 'Código de invitación inválido.' USING ERRCODE = '28000';
-    END IF;
-
-    SELECT email INTO v_email FROM auth.users WHERE id = v_uid;
-
-    SELECT id INTO v_existing_id FROM public.admin_support_users
-     WHERE lower(email) = lower(v_email) AND user_id IS NULL
-     LIMIT 1;
-
-    IF v_existing_id IS NOT NULL THEN
-        UPDATE public.admin_support_users
-           SET user_id = v_uid, is_active = TRUE,
-               full_name = COALESCE(NULLIF(TRIM(p_full_name), ''), full_name)
-         WHERE id = v_existing_id;
-    ELSE
-        INSERT INTO public.admin_support_users (user_id, email, full_name, is_active)
-        VALUES (v_uid, v_email, COALESCE(NULLIF(TRIM(p_full_name), ''), split_part(v_email, '@', 1)), TRUE);
-    END IF;
-
-    INSERT INTO public.support_register_attempts (user_id, succeeded) VALUES (v_uid, TRUE);
-
-    RETURN jsonb_build_object('success', true, 'message', 'Acceso de soporte activado.');
-END;
-$$;
-
-
-ALTER FUNCTION "public"."support_self_register"("p_full_name" "text", "p_invite_code" "text") OWNER TO "postgres";
-
-
-COMMENT ON FUNCTION "public"."support_self_register"("p_full_name" "text", "p_invite_code" "text") IS 'Autoservicio de alta de personal de soporte. Exige sesión válida Y el código de admin_support_invite: la URL secreta no basta por sí sola porque auth.users se comparte con la app/consola de agricultores.';
-
-
-SET default_tablespace = '';
-
-SET default_table_access_method = "heap";
-
-
-CREATE TABLE IF NOT EXISTS "public"."admin_support_invite" (
-    "id" smallint DEFAULT 1 NOT NULL,
-    "code_hash" "text" NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    CONSTRAINT "admin_support_invite_id_check" CHECK (("id" = 1))
-);
-
-
-ALTER TABLE "public"."admin_support_invite" OWNER TO "postgres";
-
-
 CREATE TABLE IF NOT EXISTS "public"."admin_support_users" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "email" "text" NOT NULL,
@@ -1522,6 +1497,23 @@ CREATE TABLE IF NOT EXISTS "public"."device_data_resets" (
 
 
 ALTER TABLE "public"."device_data_resets" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."device_firmware_updates" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "device_id" "uuid" NOT NULL,
+    "release_id" "uuid" NOT NULL,
+    "status" "text" DEFAULT 'sent'::"text" NOT NULL,
+    "error" "text",
+    "sent_by" "uuid",
+    "sent_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "device_firmware_updates_error_check" CHECK ((("error" IS NULL) OR ("length"("error") <= 300))),
+    CONSTRAINT "device_firmware_updates_status_check" CHECK (("status" = ANY (ARRAY['sent'::"text", 'postponed'::"text", 'installing'::"text", 'installed'::"text", 'failed'::"text", 'cancelled'::"text"])))
+);
+
+
+ALTER TABLE "public"."device_firmware_updates" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."device_join_attempts" (
@@ -1618,16 +1610,17 @@ CREATE TABLE IF NOT EXISTS "public"."devices" (
     "name" character varying(100) DEFAULT 'TerraSense Sonda Pro'::character varying NOT NULL,
     "alias" character varying(100) DEFAULT 'Lote Principal'::character varying,
     "hardware_version" character varying(20) DEFAULT 'ESP32-WROOM-32'::character varying NOT NULL,
-    "firmware_version" character varying(20) DEFAULT '2.1.0'::character varying NOT NULL,
-    "battery_level" smallint DEFAULT 96 NOT NULL,
+    "firmware_version" character varying(20),
+    "battery_level" smallint,
     "is_active" boolean DEFAULT true NOT NULL,
     "pairing_mode_active" boolean DEFAULT false NOT NULL,
     "microclimate_sensor_type" character varying(50) DEFAULT 'SHT31_CANOPY'::character varying NOT NULL,
     "transmission_interval_seconds" integer DEFAULT 300 NOT NULL,
-    "last_measurement_at" timestamp with time zone DEFAULT "now"(),
-    "last_seen_at" timestamp with time zone DEFAULT "now"(),
+    "last_measurement_at" timestamp with time zone,
+    "last_seen_at" timestamp with time zone,
     "created_at" timestamp with time zone DEFAULT "now"(),
     "data_generation" integer DEFAULT 0 NOT NULL,
+    "first_seen_at" timestamp with time zone,
     CONSTRAINT "devices_battery_level_check" CHECK ((("battery_level" >= 0) AND ("battery_level" <= 100)))
 );
 
@@ -1635,29 +1628,11 @@ CREATE TABLE IF NOT EXISTS "public"."devices" (
 ALTER TABLE "public"."devices" OWNER TO "postgres";
 
 
-CREATE TABLE IF NOT EXISTS "public"."firmware_releases" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "version" "text" NOT NULL,
-    "hardware_target" "text" DEFAULT 'ESP32-WROOM-32'::"text" NOT NULL,
-    "binary_url" "text",
-    "sha256" "text",
-    "size_bytes" integer,
-    "release_notes" "text",
-    "is_mandatory" boolean DEFAULT false NOT NULL,
-    "is_published" boolean DEFAULT false NOT NULL,
-    "published_at" timestamp with time zone,
-    "created_by" "uuid",
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    CONSTRAINT "firmware_releases_sha256_check" CHECK ((("sha256" IS NULL) OR ("sha256" ~ '^[a-f0-9]{64}$'::"text"))),
-    CONSTRAINT "firmware_releases_size_bytes_check" CHECK ((("size_bytes" IS NULL) OR ("size_bytes" > 0))),
-    CONSTRAINT "firmware_releases_version_check" CHECK (("version" ~ '^\d+\.\d+\.\d+$'::"text"))
-);
+COMMENT ON COLUMN "public"."devices"."last_seen_at" IS 'Último contacto real de la sonda con un teléfono. La sonda no tiene internet: «online» significa que un teléfono habló con ella hace poco.';
 
 
-ALTER TABLE "public"."firmware_releases" OWNER TO "postgres";
 
-
-COMMENT ON TABLE "public"."firmware_releases" IS 'Catálogo de versiones de firmware para OTA. Sólo las publicadas son visibles; la escritura está reservada al rol de servicio.';
+COMMENT ON COLUMN "public"."devices"."first_seen_at" IS 'Primer contacto real de la sonda con un teléfono (report_device_contact). NULL hasta entonces y tras un reset.';
 
 
 
@@ -1744,8 +1719,8 @@ CREATE TABLE IF NOT EXISTS "public"."push_alerts" (
     "created_at" timestamp with time zone DEFAULT "now"(),
     "event_type" "text",
     "requester_user_id" "uuid",
-    CONSTRAINT "push_alerts_category_check" CHECK ((("category")::"text" = ANY ((ARRAY['MOISTURE_DROP'::character varying, 'FROST'::character varying, 'PH_DRIFT'::character varying, 'EC_SALINITY'::character varying, 'SYSTEM'::character varying])::"text"[]))),
-    CONSTRAINT "push_alerts_severity_check" CHECK ((("severity")::"text" = ANY ((ARRAY['high'::character varying, 'medium'::character varying, 'low'::character varying])::"text"[])))
+    CONSTRAINT "push_alerts_category_check" CHECK ((("category")::"text" = ANY ((ARRAY['MOISTURE_DROP'::character varying, 'FROST'::character varying, 'PH_DRIFT'::character varying, 'EC_SALINITY'::character varying, 'SYSTEM'::character varying, 'agronomic'::character varying, 'device'::character varying, 'weather'::character varying, 'sync'::character varying])::"text"[]))),
+    CONSTRAINT "push_alerts_severity_check" CHECK ((("severity")::"text" = ANY ((ARRAY['high'::character varying, 'medium'::character varying, 'low'::character varying, 'warning'::character varying])::"text"[])))
 );
 
 
@@ -1828,46 +1803,11 @@ COMMENT ON COLUMN "public"."soil_measurements"."battery_percent" IS 'Porcentaje 
 
 
 
-CREATE TABLE IF NOT EXISTS "public"."support_register_attempts" (
-    "id" bigint NOT NULL,
-    "user_id" "uuid" NOT NULL,
-    "succeeded" boolean NOT NULL,
-    "attempted_at" timestamp with time zone DEFAULT "now"() NOT NULL
-);
-
-
-ALTER TABLE "public"."support_register_attempts" OWNER TO "postgres";
-
-
-CREATE SEQUENCE IF NOT EXISTS "public"."support_register_attempts_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE "public"."support_register_attempts_id_seq" OWNER TO "postgres";
-
-
-ALTER SEQUENCE "public"."support_register_attempts_id_seq" OWNED BY "public"."support_register_attempts"."id";
-
-
-
 ALTER TABLE ONLY "public"."device_join_attempts" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."device_join_attempts_id_seq"'::"regclass");
 
 
 
 ALTER TABLE ONLY "public"."device_status_log" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."device_status_log_id_seq"'::"regclass");
-
-
-
-ALTER TABLE ONLY "public"."support_register_attempts" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."support_register_attempts_id_seq"'::"regclass");
-
-
-
-ALTER TABLE ONLY "public"."admin_support_invite"
-    ADD CONSTRAINT "admin_support_invite_pkey" PRIMARY KEY ("id");
 
 
 
@@ -1893,6 +1833,11 @@ ALTER TABLE ONLY "public"."device_access_invites"
 
 ALTER TABLE ONLY "public"."device_data_resets"
     ADD CONSTRAINT "device_data_resets_pkey" PRIMARY KEY ("user_id", "device_id");
+
+
+
+ALTER TABLE ONLY "public"."device_firmware_updates"
+    ADD CONSTRAINT "device_firmware_updates_pkey" PRIMARY KEY ("id");
 
 
 
@@ -1976,8 +1921,11 @@ ALTER TABLE ONLY "public"."soil_measurements"
 
 
 
-ALTER TABLE ONLY "public"."support_register_attempts"
-    ADD CONSTRAINT "support_register_attempts_pkey" PRIMARY KEY ("id");
+CREATE UNIQUE INDEX "device_firmware_updates_one_active" ON "public"."device_firmware_updates" USING "btree" ("device_id") WHERE ("status" = ANY (ARRAY['sent'::"text", 'postponed'::"text", 'installing'::"text"]));
+
+
+
+CREATE INDEX "device_firmware_updates_release" ON "public"."device_firmware_updates" USING "btree" ("release_id");
 
 
 
@@ -2081,6 +2029,21 @@ ALTER TABLE ONLY "public"."device_data_resets"
 
 
 
+ALTER TABLE ONLY "public"."device_firmware_updates"
+    ADD CONSTRAINT "device_firmware_updates_device_id_fkey" FOREIGN KEY ("device_id") REFERENCES "public"."devices"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."device_firmware_updates"
+    ADD CONSTRAINT "device_firmware_updates_release_id_fkey" FOREIGN KEY ("release_id") REFERENCES "public"."firmware_releases"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."device_firmware_updates"
+    ADD CONSTRAINT "device_firmware_updates_sent_by_fkey" FOREIGN KEY ("sent_by") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
+
+
+
 ALTER TABLE ONLY "public"."device_join_attempts"
     ADD CONSTRAINT "device_join_attempts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
@@ -2151,9 +2114,6 @@ ALTER TABLE ONLY "public"."soil_measurements"
 
 
 
-ALTER TABLE "public"."admin_support_invite" ENABLE ROW LEVEL SECURITY;
-
-
 ALTER TABLE "public"."admin_support_users" ENABLE ROW LEVEL SECURITY;
 
 
@@ -2161,6 +2121,9 @@ ALTER TABLE "public"."device_access_invites" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."device_data_resets" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."device_firmware_updates" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."device_join_attempts" ENABLE ROW LEVEL SECURITY;
@@ -2199,9 +2162,6 @@ ALTER TABLE "public"."push_alerts" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."soil_measurements" ENABLE ROW LEVEL SECURITY;
-
-
-ALTER TABLE "public"."support_register_attempts" ENABLE ROW LEVEL SECURITY;
 
 
 CREATE POLICY "support_select_staff" ON "public"."admin_support_users" FOR SELECT TO "authenticated" USING (("public"."is_support_staff"() OR ("user_id" = "auth"."uid"())));
@@ -2276,11 +2236,6 @@ CREATE POLICY "ts_profiles_update_own" ON "public"."profiles" FOR UPDATE TO "aut
 
 
 
-
-
-ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
-
-
 GRANT USAGE ON SCHEMA "public" TO "postgres";
 GRANT USAGE ON SCHEMA "public" TO "anon";
 GRANT USAGE ON SCHEMA "public" TO "authenticated";
@@ -2288,192 +2243,87 @@ GRANT USAGE ON SCHEMA "public" TO "service_role";
 
 
 
+REVOKE ALL ON FUNCTION "public"."admin_approve_member"("p_device_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_approve_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_approve_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "service_role";
 
 
 
+REVOKE ALL ON FUNCTION "public"."admin_cancel_update"("p_device_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_cancel_update"("p_device_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_cancel_update"("p_device_id" "uuid") TO "service_role";
 
 
 
+REVOKE ALL ON FUNCTION "public"."admin_create_release"("p_version" "text", "p_notes" "text", "p_sha256" "text", "p_size_bytes" integer, "p_storage_path" "text", "p_is_mandatory" boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_create_release"("p_version" "text", "p_notes" "text", "p_sha256" "text", "p_size_bytes" integer, "p_storage_path" "text", "p_is_mandatory" boolean) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_create_release"("p_version" "text", "p_notes" "text", "p_sha256" "text", "p_size_bytes" integer, "p_storage_path" "text", "p_is_mandatory" boolean) TO "service_role";
 
 
 
+REVOKE ALL ON FUNCTION "public"."admin_delete_release"("p_release_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_delete_release"("p_release_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_delete_release"("p_release_id" "uuid") TO "service_role";
 
 
 
+REVOKE ALL ON FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer) TO "service_role";
 
 
 
+REVOKE ALL ON FUNCTION "public"."admin_device_members"("p_device_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_device_members"("p_device_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_device_members"("p_device_id" "uuid") TO "service_role";
 
 
 
+REVOKE ALL ON FUNCTION "public"."admin_device_status"("p_device_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_device_status"("p_device_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_device_status"("p_device_id" "uuid") TO "service_role";
 
 
 
+REVOKE ALL ON FUNCTION "public"."admin_device_update"("p_device_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_device_update"("p_device_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_device_update"("p_device_id" "uuid") TO "service_role";
 
 
 
+REVOKE ALL ON FUNCTION "public"."admin_list_releases"() FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_list_releases"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_list_releases"() TO "service_role";
 
 
 
+REVOKE ALL ON FUNCTION "public"."admin_make_admin"("p_device_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_make_admin"("p_device_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_make_admin"("p_device_id" "uuid", "p_user_id" "uuid") TO "service_role";
 
 
 
+REVOKE ALL ON FUNCTION "public"."admin_publish_release"("p_release_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_publish_release"("p_release_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_publish_release"("p_release_id" "uuid") TO "service_role";
 
 
 
+REVOKE ALL ON FUNCTION "public"."admin_reject_member"("p_device_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_reject_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_reject_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "service_role";
 
 
 
+REVOKE ALL ON FUNCTION "public"."admin_release_devices"("p_release_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_release_devices"("p_release_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_release_devices"("p_release_id" "uuid") TO "service_role";
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-REVOKE ALL ON FUNCTION "public"."admin_approve_device_member"("p_device_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_approve_device_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "service_role";
-GRANT ALL ON FUNCTION "public"."admin_approve_device_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "authenticated";
-
-
-
-REVOKE ALL ON FUNCTION "public"."admin_factory_reset_device"("p_device_id" "uuid", "p_confirm_device_code" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_factory_reset_device"("p_device_id" "uuid", "p_confirm_device_code" "text") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."admin_factory_reset_device"("p_device_id" "uuid", "p_confirm_device_code" "text") TO "service_role";
-
-
-
-REVOKE ALL ON FUNCTION "public"."admin_get_device_detail"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_get_device_detail"("p_device_id" "uuid") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."admin_get_device_detail"("p_device_id" "uuid") TO "service_role";
-
-
-
-REVOKE ALL ON FUNCTION "public"."admin_list_fleet"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_list_fleet"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."admin_list_fleet"() TO "service_role";
-
-
-
-REVOKE ALL ON FUNCTION "public"."admin_list_recent_measurements"("p_limit" integer) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_list_recent_measurements"("p_limit" integer) TO "authenticated";
-GRANT ALL ON FUNCTION "public"."admin_list_recent_measurements"("p_limit" integer) TO "service_role";
-
-
-
-REVOKE ALL ON FUNCTION "public"."admin_push_firmware_update"("p_device_id" "uuid", "p_firmware_release_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_push_firmware_update"("p_device_id" "uuid", "p_firmware_release_id" "uuid") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."admin_push_firmware_update"("p_device_id" "uuid", "p_firmware_release_id" "uuid") TO "service_role";
-
-
-
-REVOKE ALL ON FUNCTION "public"."admin_rotate_invite_code"("p_new_code" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_rotate_invite_code"("p_new_code" "text") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."admin_rotate_invite_code"("p_new_code" "text") TO "service_role";
+REVOKE ALL ON FUNCTION "public"."admin_reset_device"("p_device_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_reset_device"("p_device_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_reset_device"("p_device_id" "uuid") TO "service_role";
 
 
 
@@ -2483,33 +2333,31 @@ GRANT ALL ON FUNCTION "public"."admin_search"("p_query" "text") TO "service_role
 
 
 
-REVOKE ALL ON FUNCTION "public"."admin_set_member_authorized"("p_device_id" "uuid", "p_user_id" "uuid", "p_authorized" boolean) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_set_member_authorized"("p_device_id" "uuid", "p_user_id" "uuid", "p_authorized" boolean) TO "authenticated";
-GRANT ALL ON FUNCTION "public"."admin_set_member_authorized"("p_device_id" "uuid", "p_user_id" "uuid", "p_authorized" boolean) TO "service_role";
+REVOKE ALL ON FUNCTION "public"."admin_send_update"("p_device_id" "uuid", "p_release_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_send_update"("p_device_id" "uuid", "p_release_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_send_update"("p_device_id" "uuid", "p_release_id" "uuid") TO "service_role";
 
 
 
-REVOKE ALL ON FUNCTION "public"."admin_set_member_role"("p_device_id" "uuid", "p_user_id" "uuid", "p_role" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_set_member_role"("p_device_id" "uuid", "p_user_id" "uuid", "p_role" "text") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."admin_set_member_role"("p_device_id" "uuid", "p_user_id" "uuid", "p_role" "text") TO "service_role";
+REVOKE ALL ON FUNCTION "public"."admin_send_update_all"("p_release_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_send_update_all"("p_release_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_send_update_all"("p_release_id" "uuid") TO "service_role";
 
 
 
-REVOKE ALL ON FUNCTION "public"."admin_set_staff_active"("p_user_id" "uuid", "p_active" boolean) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_set_staff_active"("p_user_id" "uuid", "p_active" boolean) TO "authenticated";
-GRANT ALL ON FUNCTION "public"."admin_set_staff_active"("p_user_id" "uuid", "p_active" boolean) TO "service_role";
+REVOKE ALL ON FUNCTION "public"."assert_support_staff"() FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."assert_support_staff"() TO "service_role";
 
 
 
-REVOKE ALL ON FUNCTION "public"."admin_toggle_user_status"("p_user_id" "uuid", "p_new_status" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_toggle_user_status"("p_user_id" "uuid", "p_new_status" "text") TO "service_role";
-GRANT ALL ON FUNCTION "public"."admin_toggle_user_status"("p_user_id" "uuid", "p_new_status" "text") TO "authenticated";
+GRANT ALL ON TABLE "public"."firmware_releases" TO "anon";
+GRANT ALL ON TABLE "public"."firmware_releases" TO "authenticated";
+GRANT ALL ON TABLE "public"."firmware_releases" TO "service_role";
 
 
 
-REVOKE ALL ON FUNCTION "public"."admin_unbind_user_device"("p_device_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_unbind_user_device"("p_device_id" "uuid", "p_user_id" "uuid") TO "service_role";
-GRANT ALL ON FUNCTION "public"."admin_unbind_user_device"("p_device_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."assign_firmware_update"("p_device_id" "uuid", "p_release" "public"."firmware_releases") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."assign_firmware_update"("p_device_id" "uuid", "p_release" "public"."firmware_releases") TO "service_role";
 
 
 
@@ -2540,14 +2388,20 @@ GRANT ALL ON FUNCTION "public"."complete_my_onboarding"("p_method" "text") TO "s
 
 
 
+REVOKE ALL ON FUNCTION "public"."firmware_is_newer"("p_release" "text", "p_installed" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."firmware_is_newer"("p_release" "text", "p_installed" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."firmware_is_newer"("p_release" "text", "p_installed" "text") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."firmware_update_progress"("p_update_id" "uuid", "p_action" "text", "p_error" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."firmware_update_progress"("p_update_id" "uuid", "p_action" "text", "p_error" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."firmware_update_progress"("p_update_id" "uuid", "p_action" "text", "p_error" "text") TO "service_role";
+
+
+
 REVOKE ALL ON FUNCTION "public"."generate_device_code"() FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."generate_device_code"() TO "service_role";
-
-
-
-REVOKE ALL ON FUNCTION "public"."get_admin_dashboard_full_data"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."get_admin_dashboard_full_data"() TO "service_role";
-GRANT ALL ON FUNCTION "public"."get_admin_dashboard_full_data"() TO "authenticated";
 
 
 
@@ -2574,6 +2428,11 @@ GRANT ALL ON FUNCTION "public"."has_device_admin_access"("p_device_id" "uuid") T
 
 
 REVOKE ALL ON FUNCTION "public"."invalidate_empty_device_invite"() FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."is_backoffice_email"("p_email" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."is_backoffice_email"("p_email" "text") TO "service_role";
 
 
 
@@ -2624,6 +2483,12 @@ REVOKE ALL ON FUNCTION "public"."mark_onboarding_from_membership"() FROM PUBLIC;
 
 
 
+REVOKE ALL ON FUNCTION "public"."my_firmware_updates"() FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."my_firmware_updates"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."my_firmware_updates"() TO "service_role";
+
+
+
 REVOKE ALL ON FUNCTION "public"."normalize_device_versions"() FROM PUBLIC;
 
 
@@ -2662,6 +2527,12 @@ GRANT ALL ON FUNCTION "public"."register_paired_device"("p_code" "text", "p_name
 
 
 
+REVOKE ALL ON FUNCTION "public"."report_device_contact"("p_device_code" "text", "p_battery" integer, "p_firmware_version" "text", "p_contacted_at" timestamp with time zone) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."report_device_contact"("p_device_code" "text", "p_battery" integer, "p_firmware_version" "text", "p_contacted_at" timestamp with time zone) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."report_device_contact"("p_device_code" "text", "p_battery" integer, "p_firmware_version" "text", "p_contacted_at" timestamp with time zone) TO "service_role";
+
+
+
 REVOKE ALL ON FUNCTION "public"."request_device_access_qr"("p_device_code" "text", "p_user_id" "uuid") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."request_device_access_qr"("p_device_code" "text", "p_user_id" "uuid") TO "service_role";
 
@@ -2681,33 +2552,6 @@ REVOKE ALL ON FUNCTION "public"."set_updated_at"() FROM PUBLIC;
 
 
 
-REVOKE ALL ON FUNCTION "public"."support_self_register"("p_full_name" "text", "p_invite_code" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."support_self_register"("p_full_name" "text", "p_invite_code" "text") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."support_self_register"("p_full_name" "text", "p_invite_code" "text") TO "service_role";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-GRANT ALL ON TABLE "public"."admin_support_invite" TO "anon";
-GRANT ALL ON TABLE "public"."admin_support_invite" TO "authenticated";
-GRANT ALL ON TABLE "public"."admin_support_invite" TO "service_role";
-
-
-
 GRANT ALL ON TABLE "public"."admin_support_users" TO "anon";
 GRANT ALL ON TABLE "public"."admin_support_users" TO "authenticated";
 GRANT ALL ON TABLE "public"."admin_support_users" TO "service_role";
@@ -2720,6 +2564,10 @@ GRANT ALL ON TABLE "public"."device_access_invites" TO "service_role";
 
 GRANT ALL ON TABLE "public"."device_data_resets" TO "service_role";
 GRANT SELECT ON TABLE "public"."device_data_resets" TO "authenticated";
+
+
+
+GRANT ALL ON TABLE "public"."device_firmware_updates" TO "service_role";
 
 
 
@@ -2765,12 +2613,6 @@ GRANT ALL ON TABLE "public"."devices" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."firmware_releases" TO "anon";
-GRANT ALL ON TABLE "public"."firmware_releases" TO "authenticated";
-GRANT ALL ON TABLE "public"."firmware_releases" TO "service_role";
-
-
-
 GRANT ALL ON TABLE "public"."lab_validation_records" TO "anon";
 GRANT ALL ON TABLE "public"."lab_validation_records" TO "authenticated";
 GRANT ALL ON TABLE "public"."lab_validation_records" TO "service_role";
@@ -2792,24 +2634,6 @@ GRANT ALL ON TABLE "public"."push_alerts" TO "service_role";
 GRANT ALL ON TABLE "public"."soil_measurements" TO "anon";
 GRANT ALL ON TABLE "public"."soil_measurements" TO "authenticated";
 GRANT ALL ON TABLE "public"."soil_measurements" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."support_register_attempts" TO "anon";
-GRANT ALL ON TABLE "public"."support_register_attempts" TO "authenticated";
-GRANT ALL ON TABLE "public"."support_register_attempts" TO "service_role";
-
-
-
-GRANT ALL ON SEQUENCE "public"."support_register_attempts_id_seq" TO "anon";
-GRANT ALL ON SEQUENCE "public"."support_register_attempts_id_seq" TO "authenticated";
-GRANT ALL ON SEQUENCE "public"."support_register_attempts_id_seq" TO "service_role";
-
-
-
-
-
-
 
 
 
@@ -2837,30 +2661,6 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "anon";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "authenticated";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "service_role";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

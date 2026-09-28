@@ -123,7 +123,7 @@ Contra una réplica local con Docker (esquema de `schema.sql` más las cuatro mi
 - Navegador (Playwright sobre Chrome): 21 comprobaciones del flujo completo, del login con otra cuenta al cierre de sesión.
 - `Web`: `npm test` (8), `npm run build`, `check-classes` (219 clases). `App`: `npm test` (121). Firmware: compila sin advertencias.
 
-**Nada de esto está aplicado en producción.** Pasos en [supabase/README.md §10.0](../supabase/README.md#100-aplicar-el-backoffice-de-cuenta-única-27-09-2026).
+**Aplicado en producción el 27-09-2026** (migraciones, funciones y URL de Auth); falta el primer ingreso por Recuperar acceso. Detalle en [supabase/README.md §10.0](../supabase/README.md#100-aplicar-el-backoffice-de-cuenta-única-27-09-2026).
 
 ## Pasos manuales en Supabase (producción)
 

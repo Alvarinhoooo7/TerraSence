@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
   public: {
     Tables: {
       admin_support_users: {
@@ -84,6 +89,54 @@ export type Database = {
             columns: ["device_id"]
             isOneToOne: false
             referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      device_firmware_updates: {
+        Row: {
+          device_id: string
+          error: string | null
+          id: string
+          release_id: string
+          sent_at: string
+          sent_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          device_id: string
+          error?: string | null
+          id?: string
+          release_id: string
+          sent_at?: string
+          sent_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          device_id?: string
+          error?: string | null
+          id?: string
+          release_id?: string
+          sent_at?: string
+          sent_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_firmware_updates_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "device_firmware_updates_release_id_fkey"
+            columns: ["release_id"]
+            isOneToOne: false
+            referencedRelation: "firmware_releases"
             referencedColumns: ["id"]
           },
         ]
@@ -294,6 +347,7 @@ export type Database = {
           release_notes: string | null
           sha256: string | null
           size_bytes: number | null
+          storage_path: string | null
           version: string
         }
         Insert: {
@@ -308,6 +362,7 @@ export type Database = {
           release_notes?: string | null
           sha256?: string | null
           size_bytes?: number | null
+          storage_path?: string | null
           version: string
         }
         Update: {
@@ -322,6 +377,7 @@ export type Database = {
           release_notes?: string | null
           sha256?: string | null
           size_bytes?: number | null
+          storage_path?: string | null
           version?: string
         }
         Relationships: []
@@ -644,6 +700,19 @@ export type Database = {
         Args: { p_device_id: string; p_user_id: string }
         Returns: undefined
       }
+      admin_cancel_update: { Args: { p_device_id: string }; Returns: undefined }
+      admin_create_release: {
+        Args: {
+          p_is_mandatory?: boolean
+          p_notes: string
+          p_sha256: string
+          p_size_bytes: number
+          p_storage_path: string
+          p_version: string
+        }
+        Returns: string
+      }
+      admin_delete_release: { Args: { p_release_id: string }; Returns: string }
       admin_device_measurements: {
         Args: { p_device_id: string; p_limit?: number }
         Returns: {
@@ -693,13 +762,57 @@ export type Database = {
           last_seen_at: string
         }[]
       }
+      admin_device_update: {
+        Args: { p_device_id: string }
+        Returns: {
+          error: string
+          sent_at: string
+          status: string
+          update_id: string
+          updated_at: string
+          version: string
+        }[]
+      }
+      admin_list_releases: {
+        Args: never
+        Returns: {
+          created_at: string
+          failed: number
+          id: string
+          installed: number
+          installing: number
+          is_mandatory: boolean
+          is_published: boolean
+          pending: number
+          published_at: string
+          release_notes: string
+          sha256: string
+          size_bytes: number
+          storage_path: string
+          version: string
+        }[]
+      }
       admin_make_admin: {
         Args: { p_device_id: string; p_user_id: string }
+        Returns: undefined
+      }
+      admin_publish_release: {
+        Args: { p_release_id: string }
         Returns: undefined
       }
       admin_reject_member: {
         Args: { p_device_id: string; p_user_id: string }
         Returns: undefined
+      }
+      admin_release_devices: {
+        Args: { p_release_id: string }
+        Returns: {
+          device_code: string
+          device_id: string
+          error: string
+          status: string
+          updated_at: string
+        }[]
       }
       admin_reset_device: { Args: { p_device_id: string }; Returns: Json }
       admin_search: {
@@ -715,7 +828,19 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_send_update: {
+        Args: { p_device_id: string; p_release_id: string }
+        Returns: string
+      }
+      admin_send_update_all: { Args: { p_release_id: string }; Returns: Json }
       assert_support_staff: { Args: never; Returns: undefined }
+      assign_firmware_update: {
+        Args: {
+          p_device_id: string
+          p_release: Database["public"]["Tables"]["firmware_releases"]["Row"]
+        }
+        Returns: string
+      }
       change_device_membership: {
         Args: { p_action: string; p_device_id: string; p_user_id: string }
         Returns: undefined
@@ -732,6 +857,14 @@ export type Database = {
         }[]
       }
       complete_my_onboarding: { Args: { p_method: string }; Returns: string }
+      firmware_is_newer: {
+        Args: { p_installed: string; p_release: string }
+        Returns: boolean
+      }
+      firmware_update_progress: {
+        Args: { p_action: string; p_error?: string; p_update_id: string }
+        Returns: undefined
+      }
       generate_device_code: { Args: never; Returns: string }
       get_device_access_qr: {
         Args: { p_device_id: string }
@@ -793,6 +926,23 @@ export type Database = {
         }
         Returns: undefined
       }
+      my_firmware_updates: {
+        Args: never
+        Returns: {
+          device_code: string
+          device_id: string
+          device_name: string
+          is_mandatory: boolean
+          release_notes: string
+          sent_at: string
+          sha256: string
+          size_bytes: number
+          status: string
+          storage_path: string
+          update_id: string
+          version: string
+        }[]
+      }
       prepare_device_for_owner: {
         Args: { p_confirm_device_code: string; p_device_id: string }
         Returns: Json
@@ -823,7 +973,7 @@ export type Database = {
         Args: {
           p_battery?: number
           p_contacted_at?: string
-          p_device_id: string
+          p_device_code: string
           p_firmware_version?: string
         }
         Returns: undefined
@@ -851,12 +1001,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -880,11 +1030,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -905,11 +1055,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -930,11 +1080,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -947,11 +1097,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -965,4 +1115,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-

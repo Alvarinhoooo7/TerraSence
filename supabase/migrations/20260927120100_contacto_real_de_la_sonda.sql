@@ -24,9 +24,12 @@ ALTER TABLE public.devices ALTER COLUMN last_measurement_at DROP DEFAULT;
 
 -- Los valores actuales son todos de relleno: ninguno vino de una sonda. Se
 -- borran sin pasar por el historial de batería, que registraría un cambio que
--- nunca ocurrió.
+-- nunca ocurrió. Los equipos antiguos con código de 20 dígitos no se tocan:
+-- la restricción devices_device_code_15_digits rechaza cualquier escritura
+-- sobre ellos (siguen pendientes de resolver).
 ALTER TABLE public.devices DISABLE TRIGGER trg_log_device_status_change;
-UPDATE public.devices SET battery_level = NULL, firmware_version = NULL, last_seen_at = NULL;
+UPDATE public.devices SET battery_level = NULL, firmware_version = NULL, last_seen_at = NULL
+ WHERE device_code ~ '^\d{15}$';
 ALTER TABLE public.devices ENABLE TRIGGER trg_log_device_status_change;
 
 COMMENT ON COLUMN public.devices.first_seen_at IS

@@ -142,7 +142,7 @@ Rediseñado el 27-09-2026 ([`Web/README.md`](../Web/README.md), [`Web/TAREAS.md`
 - **Actualizaciones de firmware** ([`20260927120300`](migrations/20260927120300_actualizaciones_firmware.sql)): bucket privado `firmware`, columna `firmware_releases.storage_path` y tabla `device_firmware_updates` (enviada → pendiente → instalando → instalada o fallida; cancelada). Backoffice: `admin_list_releases`, `admin_create_release`, `admin_publish_release`, `admin_delete_release`, `admin_send_update`, `admin_send_update_all`, `admin_cancel_update`, `admin_device_update`, `admin_release_devices`. App (administrador del equipo): `my_firmware_updates` y `firmware_update_progress(update, 'postpone' | 'start' | 'installed' | 'failed')`. Cada envío crea un aviso `event_type = 'firmware_update'` para el administrador.
 - **Corrección de `push_alerts`.** `join_device_by_invite` insertaba la alerta de solicitud con categoría `device` y severidad `warning`, que la restricción no admitía: **toda solicitud de acceso por QR fallaba** y nunca existía una pendiente que aprobar. La misma migración amplía ambas restricciones.
 
-Pruebas: los guiones SQL de verificación (soporte sí, agricultor, pendiente y `anon` no; hacer admin, aceptar, rechazar, reset; ciclo completo de una actualización) y la prueba de punta a punta en navegador se corrieron contra una réplica local con Docker el 27-09-2026. **No se han aplicado en remoto** (§10.0).
+Pruebas: los guiones SQL de verificación (soporte sí, agricultor, pendiente y `anon` no; hacer admin, aceptar, rechazar, reset; ciclo completo de una actualización) y la prueba de punta a punta en navegador se corrieron contra una réplica local con Docker el 27-09-2026. **Aplicadas en producción el mismo día** (§10.0).
 
 ### Columnas añadidas por este proyecto
 
@@ -472,9 +472,14 @@ modificar nada.
 > validación, porque es aquí donde están los comandos para ejecutarlas. **Estado al 20 de septiembre
 > de 2026:** §10.2 sigue hecha a medias (esquema exportado, restauración sin ensayar).
 
-### 10.0. Aplicar el backoffice de cuenta única (27-09-2026)
+### 10.0. Backoffice de cuenta única — aplicado el 27-09-2026
 
-En este orden, después de las de §10.1:
+**Hecho el 27-09-2026:** las cuatro migraciones aplicadas con `supabase db push`, las dos funciones desplegadas, *Site URL* = `terrasense://` y *Redirect URLs* = `terrasense://reset-password` configurados en el panel, y `schema.sql` y `database.types.ts` regenerados desde producción. Verificado en remoto: la cuenta de soporte existe, confirmada y sin contraseña, y es la única en `admin_support_users`; las 13 funciones nuevas existen y las retiradas no; `backoffice-recover` responde `200`. Falta el paso 4 (primer ingreso).
+
+> [!NOTE]
+> Los dos equipos antiguos con código de 20 dígitos siguen congelados: `devices_device_code_15_digits` rechaza cualquier escritura sobre ellos, así que conservan sus valores de relleno y **no se pueden resetear** desde el backoffice. Hay que decidir si se borran o se les asigna un código válido.
+
+Pasos, para repetirlos en otro entorno:
 
 1. `supabase db push`: aplica `20260927120000` a `20260927120300`. Van en ese orden (la tercera usa `first_seen_at`, la cuarta reescribe `admin_reset_device`).
 2. `supabase functions deploy backoffice-recover --no-verify-jwt` y `supabase functions deploy backoffice-send-update`.
