@@ -1,169 +1,45 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import type { Session } from '@supabase/supabase-js';
-import { supabase } from './services/supabase';
-import { isSupportStaff } from '../backend/adminApi';
-import { LoginPage } from './auth/LoginPage';
+// src/App.tsx — rutas según la sesión.
+//
+// Sin la sesión de soporte sólo existen /ingresar y /recuperar-acceso; toda
+// otra URL lleva a /ingresar. Con ella, el backoffice: Buscar, Equipo y Update.
+
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { LOGIN_PATH, LoginPage, RECOVER_PATH } from './auth/LoginPage';
 import { RecoverPage } from './auth/RecoverPage';
-import { SignupPage } from './auth/SignupPage';
-import { LOGIN_PATH, RECOVER_PATH, SIGNUP_PATH } from './auth/paths';
-import type { ReturnState } from './auth/paths';
-import { AccountConfirmed } from './components/AccountConfirmed';
-import { ResetPasswordScreen } from './components/ResetPasswordScreen';
-import { SupportOnboarding } from './components/SupportOnboarding';
-import { DashboardLayout } from './layouts/DashboardLayout';
-import { FirmwarePage } from './pages/FirmwarePage';
-import { FleetPage } from './pages/FleetPage';
-import { MeasurementsPage } from './pages/MeasurementsPage';
-import { SupportDeviceDetailPage } from './pages/SupportDeviceDetailPage';
-import { SupportPanelPage } from './pages/SupportPanelPage';
-import { SupportStaffPage } from './pages/SupportStaffPage';
-import { ValidationPage } from './pages/ValidationPage';
+import { useSession } from './auth/session';
+import { Shell } from './layout/Shell';
+import { DevicePage } from './pages/DevicePage';
+import { SearchPage } from './pages/SearchPage';
+import { UpdatePage } from './pages/UpdatePage';
 import { FullPageLoader } from './ui/Feedback';
 
-/** Compatibilidad temporal con correos de confirmación enviados antes de usar códigos. */
-const CONFIRMED_PATH = '/cuenta-confirmada';
-const RECOVERY_KEY = 'terrasense-recovery-user';
-
-const recoveryUser = () => {
-  try {
-    return localStorage.getItem(RECOVERY_KEY);
-  } catch {
-    return null;
-  }
-};
-
-const saveRecoveryUser = (id: string | null) => {
-  try {
-    if (id) localStorage.setItem(RECOVERY_KEY, id);
-    else localStorage.removeItem(RECOVERY_KEY);
-  } catch {
-    /* Almacenamiento no disponible. */
-  }
-};
-
-/** Sin sesión, cualquier ruta del backoffice lleva a `/ingresar` recordando adónde iba. */
-function RequireLogin() {
-  const location = useLocation();
-  const state: ReturnState = { from: location.pathname + location.search };
-  return <Navigate to={LOGIN_PATH} replace state={state} />;
-}
-
-/** Con sesión, las rutas de acceso devuelven a la pantalla que se pidió antes de entrar. */
-function LeaveAuth() {
-  const from = (useLocation().state as ReturnState | null)?.from;
-  const target = from && !from.startsWith(LOGIN_PATH) ? from : '/admin';
-  return <Navigate to={target} replace />;
-}
-
 export default function App() {
-  const navigate = useNavigate();
-  const [session, setSession] = useState<Session | null>(null);
-  const [checking, setChecking] = useState(true);
-  const [recovering, setRecovering] = useState(false);
+  const { status, recovering } = useSession();
 
-  // `null` mientras no se ha resuelto: distinguirlo de `false` evita mostrar
-  // la pantalla de alta de soporte durante el parpadeo inicial a quien sí
-  // tiene acceso.
-  const [isStaff, setIsStaff] = useState<boolean | null>(null);
+  // A mitad de la recuperación la sesión recién verificada aún no tiene
+  // contraseña: se queda en el flujo hasta elegirla. Ambas ramas comparten el
+  // mismo <Routes>, así la pantalla de recuperación no se vuelve a montar (y
+  // no pierde lo escrito) cuando `recovering` cambia.
+  if (status === 'checking' && !recovering) return <FullPageLoader />;
 
-  useEffect(() => {
-    void supabase.auth.getSession().then(({ data }) => {
-      if (data.session && recoveryUser() === data.session.user.id) setRecovering(true);
-      setSession(data.session);
-      setChecking(false);
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        saveRecoveryUser(s?.user.id ?? null);
-        setRecovering(true);
-      } else if (event === 'SIGNED_OUT') {
-        saveRecoveryUser(null);
-      }
-      setSession(s);
-    });
-    return () => sub.subscription.unsubscribe();
-  }, []);
-
-  const refreshStaff = useCallback(() => {
-    if (!session) {
-      setIsStaff(null);
-      return;
-    }
-    isSupportStaff()
-      .then(setIsStaff)
-      .catch(() => setIsStaff(false));
-  }, [session]);
-
-  useEffect(() => {
-    refreshStaff();
-  }, [refreshStaff]);
-
-  // Ruta pública de aterrizaje del correo de confirmación. Va antes que
-  // `checking`, `recovering` y la comprobación de soporte a propósito: quien
-  // llega aquí es un agricultor, no personal del backoffice, y cualquiera de
-  // esas ramas lo llevaría a una pantalla que no le corresponde.
-  if (window.location.pathname === CONFIRMED_PATH) {
-    return <AccountConfirmed />;
-  }
-
-  if (checking) {
-    return <FullPageLoader label="Iniciando la consola…" />;
-  }
-
-  if (recovering) {
-    return (
-      <ResetPasswordScreen
-        onDone={() => {
-          saveRecoveryUser(null);
-          setRecovering(false);
-          navigate(LOGIN_PATH, { replace: true });
-        }}
-      />
-    );
-  }
-
-  if (!session) {
+  if (status !== 'in' || recovering) {
     return (
       <Routes>
-        <Route path={LOGIN_PATH} element={<LoginPage />} />
-        <Route path={SIGNUP_PATH} element={<SignupPage />} />
+        <Route path={LOGIN_PATH} element={recovering ? <Navigate to={RECOVER_PATH} replace /> : <LoginPage />} />
         <Route path={RECOVER_PATH} element={<RecoverPage />} />
-        <Route path="*" element={<RequireLogin />} />
+        <Route path="*" element={<Navigate to={recovering ? RECOVER_PATH : LOGIN_PATH} replace />} />
       </Routes>
     );
   }
 
-  if (isStaff === null) {
-    return <FullPageLoader label="Comprobando permisos de soporte…" />;
-  }
-
-  // Sesión válida sin pertenencia al panel: la consola es exclusivamente un
-  // backoffice, así que la alternativa útil es darse de alta con el código de
-  // invitación, no aterrizar en un inventario vacío por RLS.
-  if (!isStaff) {
-    return <SupportOnboarding email={session.user.email ?? ''} onActivated={refreshStaff} />;
-  }
-
   return (
     <Routes>
-      <Route path={LOGIN_PATH} element={<LeaveAuth />} />
-      <Route path={SIGNUP_PATH} element={<Navigate to="/admin" replace />} />
-      <Route path={RECOVER_PATH} element={<Navigate to="/admin" replace />} />
-      <Route path="/" element={<DashboardLayout email={session.user.email ?? ''} />}>
-        <Route index element={<Navigate to="/admin" replace />} />
-        <Route path="admin" element={<SupportPanelPage />} />
-        <Route path="admin/devices/:id" element={<SupportDeviceDetailPage />} />
-        <Route path="admin/staff" element={<SupportStaffPage />} />
-        <Route path="fleet" element={<FleetPage />} />
-        <Route path="measurements" element={<MeasurementsPage />} />
-        <Route path="firmware" element={<FirmwarePage />} />
-        <Route path="validation" element={<ValidationPage />} />
-        {/* `/devices` fue el nombre anterior del inventario; los enlaces
-            guardados por el equipo de soporte siguen funcionando. */}
-        <Route path="devices" element={<Navigate to="/fleet" replace />} />
-        <Route path="*" element={<Navigate to="/admin" replace />} />
+      <Route element={<Shell />}>
+        <Route path="/buscar" element={<SearchPage />} />
+        <Route path="/equipo/:id" element={<DevicePage />} />
+        <Route path="/update" element={<UpdatePage />} />
       </Route>
+      <Route path="*" element={<Navigate to="/buscar" replace />} />
     </Routes>
   );
 }

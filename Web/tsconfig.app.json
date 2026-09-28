@@ -6,6 +6,9 @@
     "module": "esnext",
     "types": ["vite/client"],
     "allowArbitraryExtensions": true,
+    /* Las utilidades se importan con `.ts` para que las pruebas de Node
+       (`--experimental-strip-types`) las carguen sin compilar. */
+    "allowImportingTsExtensions": true,
     "skipLibCheck": true,
 
     /* Bundler mode */

@@ -118,13 +118,15 @@ export interface DeviceRow {
   device_code: string;          // 15 dígitos
   name: string;
   alias: string | null;
-  battery_level: number;
-  firmware_version: string;
+  /** NULL hasta que la app informa el primer contacto real con la sonda. */
+  battery_level: number | null;
+  firmware_version: string | null;
   hardware_version: string;
   microclimate_sensor_type: string;
   is_active: boolean;
   pairing_mode_active: boolean;
   transmission_interval_seconds: number;
+  first_seen_at?: string | null;
   last_seen_at: string | null;
   last_measurement_at: string | null;
 }

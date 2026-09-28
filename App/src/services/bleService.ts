@@ -17,12 +17,15 @@
 import { BleManager, type Device, type Subscription } from 'react-native-ble-plx';
 import { Platform, PermissionsAndroid } from 'react-native';
 import {
+  decodeProbeStatus,
   decodeTelemetry,
   TERRASENSE_IDENTITY_UUID,
   TERRASENSE_PROVISIONING_UUID,
   TERRASENSE_SERVICE_UUID,
+  TERRASENSE_STATUS_UUID,
   TERRASENSE_TELEMETRY_UUID,
 } from './probeService';
+import { recordProbeContact } from './contactService';
 import { isValidDeviceId, normalizeDeviceId } from '../utils/deviceId';
 import { timedOperation } from '../utils/timedOperation';
 import type { SoilMeasurement } from '../types/agronomy';
@@ -179,6 +182,32 @@ export interface PairedProbeIdentity {
   assignedCode: string | null;
 }
 
+/**
+ * Lee batería y versión (característica de estado) e informa el contacto a
+ * Supabase. Nunca lanza ni retiene el flujo: un firmware anterior sin esta
+ * característica sólo deja batería y versión vacías, y el contacto se informa
+ * igual.
+ */
+async function reportContact(device: Device, deviceCode: string | null): Promise<void> {
+  if (!deviceCode) return;
+  let battery: number | null = null;
+  let firmwareVersion: string | null = null;
+  try {
+    const characteristic = await gattOperation(id => device.readCharacteristicForService(
+      TERRASENSE_SERVICE_UUID,
+      TERRASENSE_STATUS_UUID,
+      id,
+    ));
+    if (characteristic.value) {
+      const binary = globalThis.atob(characteristic.value);
+      ({ battery, firmwareVersion } = decodeProbeStatus(Uint8Array.from(binary, c => c.charCodeAt(0))));
+    }
+  } catch {
+    /* Firmware sin característica de estado: se informa sólo la hora. */
+  }
+  void recordProbeContact({ deviceCode, battery, firmwareVersion }).catch(() => undefined);
+}
+
 async function readAssignedCode(device: Device): Promise<string | null> {
   const characteristic = await gattOperation(id => device.readCharacteristicForService(
     TERRASENSE_SERVICE_UUID,
@@ -209,10 +238,12 @@ export async function pairWithNearbyProbe(): Promise<PairedProbeIdentity> {
     connected = await discovered.connect({ timeout: SCAN_TIMEOUT_MS });
     const target = connected;
     await gattOperation(id => target.discoverAllServicesAndCharacteristics(id));
+    const assignedCode = await readAssignedCode(connected);
+    await reportContact(connected, assignedCode);
     return {
       bleId: connected.id,
       name: connected.localName ?? connected.name ?? 'Sonda TerraSense',
-      assignedCode: await readAssignedCode(connected),
+      assignedCode,
     };
   } finally {
     if (connected) await connected.cancelConnection().catch(() => undefined);
@@ -253,6 +284,9 @@ export async function provisionProbe(bleId: string, rawCode: string): Promise<vo
     if (confirmed !== code) {
       throw new Error('La sonda no confirmó el código. Mantén PAIR 3 segundos y reintenta.');
     }
+    // El equipo aún no está registrado: el contacto queda en cola y se envía
+    // en cuanto lo esté.
+    await reportContact(connected, code);
   } finally {
     if (connected) await connected.cancelConnection().catch(() => undefined);
   }
@@ -305,6 +339,9 @@ export async function readTelemetryOverBle(deviceCode?: string): Promise<SoilMea
       );
     });
 
+    // Antes de decodificar: una trama sin lectura de suelo se rechaza, pero la
+    // sonda igual conversó con el teléfono.
+    await reportContact(target, deviceCode ?? null);
     return decodeTelemetry(bytes);
   } finally {
     // Imprescindible: sin desconectar, la sonda no vuelve a sueño profundo.

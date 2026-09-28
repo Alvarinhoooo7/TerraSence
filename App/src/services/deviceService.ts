@@ -7,6 +7,7 @@
 // NVS y su unicidad continúa respaldada por el índice UNIQUE de Postgres.
 
 import { supabase } from './supabase';
+import { flushProbeContacts } from './contactService';
 import { normalizeDeviceId, isValidDeviceId } from '../utils/deviceId';
 import type { DeviceMembershipRow, DeviceRow, ManagedDeviceMember } from '../types/app';
 
@@ -70,6 +71,8 @@ export async function registerDevice(name: string, pairedCode: string): Promise<
 
   const result = registered as { device_id: string }[] | null;
   if (!result?.[0]?.device_id) throw new Error('Supabase no confirmó el registro del equipo.');
+  // El contacto de la vinculación quedó en cola porque el equipo aún no existía.
+  void flushProbeContacts().catch(() => undefined);
 
   const { data, error: readError } = await supabase
     .from('devices')

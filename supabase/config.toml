@@ -151,22 +151,17 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "https://terrasense-web.vercel.app"
+# No apunta a la web: el backoffice no debe aparecer en ningún correo ni
+# redirección. La app y la web usan códigos de 6 dígitos, no enlaces, así que
+# ninguna necesita aterrizar en una URL; el esquema de la app es el destino
+# neutro por defecto.
+site_url = "terrasense://"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-# Se mantiene localhost además del dominio de producción para poder seguir probando con
-# `npm run dev` sin tener que editar este archivo cada vez.
 additional_redirect_urls = [
-  "https://terrasense-web.vercel.app",
-  # Aterrizaje del correo de confirmacion del agricultor. Sin esta entrada,
-  # Supabase ignora el `emailRedirectTo` de la app y cae al `site_url`, que es
-  # el backoffice de soporte: destino equivocado para quien usa la app.
-  "https://terrasense-web.vercel.app/cuenta-confirmada",
   "terrasense://reset-password",
   "http://127.0.0.1:3000",
-  "http://localhost:5173",
-  "http://localhost:5173/cuenta-confirmada",
 ]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
@@ -451,3 +446,8 @@ content_path = "./supabase/templates/confirmation.html"
 enabled = true
 subject = "Tu contraseña de TerraSense fue cambiada"
 content_path = "./templates/password_changed.html"
+
+# «Recuperar acceso» del backoffice: la llama alguien sin sesión, y responde
+# igual para cualquier correo (ver el encabezado de la función).
+[functions.backoffice-recover]
+verify_jwt = false

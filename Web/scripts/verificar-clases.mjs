@@ -58,7 +58,7 @@ const sources = [];
 
 /** Utilidades que dependen de un token de color declarado en `@theme`. */
 const TOKEN_UTILITY =
-  /^(bg|text|border|ring|shadow|fill|stroke|divide|outline|from|to|via|placeholder|accent|caret|decoration)-(terra|verdict|support)-/;
+  /^(?:[a-z-]+:)*(bg|text|border|ring|shadow|fill|stroke|divide|outline|from|to|via|placeholder|accent|caret|decoration)-(ink|muted|faint|primary|danger|warning|offline|rail|line|surface|sunken|hover|overlay|focus)\b/;
 
 const missing = new Map();
 let checked = 0;
@@ -69,7 +69,7 @@ for (const file of sources) {
     const cls = token.replace(/^\$\{.*/, '').trim();
     if (!cls || !TOKEN_UTILITY.test(cls)) continue;
     checked += 1;
-    // `bg-terra-primary/15` se genera a partir de `bg-terra-primary`.
+    // `bg-primary/15` se genera a partir de `bg-primary`.
     const base = cls.split('/')[0];
     if (inCss.has(cls) || inCss.has(base)) continue;
     if (!missing.has(cls)) missing.set(cls, new Set());

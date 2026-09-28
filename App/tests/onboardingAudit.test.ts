@@ -82,6 +82,8 @@ loader._load = (id, ...args) => {
   if (id === 'expo-crypto') return {};
   if (id === 'expo-location' || id === 'expo-camera' || id === 'expo-notifications') return {};
   if (id === './notifications') return {};
+  // El informe de contactos habla con Supabase; aquí sólo importa el flujo BLE.
+  if (id === './contactService') return { recordProbeContact: async () => {} };
   if (id === '@react-native-async-storage/async-storage') return {
     getItem: async (key: string) => storage.get(key) ?? null,
     setItem: async (key: string, value: string) => { storage.set(key, value); },

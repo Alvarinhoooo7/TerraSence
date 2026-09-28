@@ -125,43 +125,24 @@ auth.users
                 │                    └──1:N──► device_status_log (histórico de batería/conexión, por trigger)
 
  lab_validation_records   (corpus de contraste metrológico, sin dueño)
- admin_support_users      (soporte — ligada a auth.users vía user_id desde 02-09-2026)
- admin_support_invite     (código de invitación para alta de personal de soporte)
+ admin_support_users      (una sola fila: la cuenta de soporte akurasoporte@gmail.com)
+ firmware_releases ──1:N──► device_firmware_updates ◄──N:1── devices
+                            (envíos de firmware al administrador de cada equipo)
  device_join_attempts     (freno de fuerza bruta del RPC de vinculación)
 ```
 
-### 2.1. Panel de soporte (Web/backend)
+### 2.1. Backoffice de cuenta única (Web/backend)
 
-Añadido el 02-09-2026: consola interna para buscar un equipo por código o por
-el correo de un usuario enlazado, ver su ficha completa y administrar sus
-miembros. Detalle completo, con el hallazgo de seguridad que motivó esta
-migración, en `20260902120000_panel_soporte_backend.sql`. Resumen:
+Rediseñado el 27-09-2026 ([`Web/README.md`](../Web/README.md), [`Web/TAREAS.md`](../Web/TAREAS.md)). Todo el backoffice pasa por funciones `SECURITY DEFINER` que llaman a `assert_support_staff()`; con cualquier otra sesión responden `42501`.
 
-- `is_support_staff()` — puerta de entrada: exige `admin_support_users.user_id
-  = auth.uid()` con `is_active`. La usan todas las funciones `admin_*`.
-- Alta de personal por autoservicio (`support_self_register`) con **código de
-  invitación** (`admin_support_invite`, hasheado con pgcrypto) como segundo
-  secreto — la URL del panel no basta sola porque `auth.users` se comparte
-  con la app y la consola de agricultores.
-- `admin_search`, `admin_get_device_detail`, `admin_set_member_authorized`,
-  `admin_set_member_role`, `admin_push_firmware_update`,
-  `admin_factory_reset_device` — nuevas.
-- **Reseteo de fábrica** (`admin_factory_reset_device`): para cuando el
-  cliente vende o regala su sonda. Desvincula a todos los miembros y borra
-  mediciones/alertas de ese equipo; NO toca `device_code` (grabado
-  en la NVS del hardware) ni `firmware_version`/`hardware_version` (el
-  firmware real instalado). Exige repetir el `device_code` como confirmación.
-  De paso se corrigió `register_paired_device()`: antes rechazaba cualquier
-  equipo con `device_code` ya existente aunque no tuviera ningún miembro —
-  dejaba un equipo reseteado (o huérfano) igual de atascado que uno con
-  dueño; ya había 2 así en el remoto antes de este cambio.
-- `admin_approve_device_member`, `admin_unbind_user_device`,
-  `admin_toggle_user_status`, `get_admin_dashboard_full_data` — ya existían en
-  el esquema base **sin ninguna comprobación de quién las llamaba** y con
-  `EXECUTE` concedido a `anon`. Corregido en la misma migración.
-- El contrato TypeScript para el frontend vive en `Web/backend/adminApi.ts`
-  (funciones tipadas) y `Web/backend/types.ts` (formas de datos); no hace
-  falta leer SQL para consumirlo.
+- **Una sola cuenta.** `is_support_staff()` exige la fila activa en `admin_support_users` **y** el correo `akurasoporte@gmail.com` confirmado. Se retiraron el alta por código de invitación (`support_self_register`, `admin_rotate_invite_code`, `admin_support_invite`, `support_register_attempts`) y `admin_set_staff_active`. La cuenta se crea en [`20260927120000`](migrations/20260927120000_backoffice_cuenta_unica.sql) **sin contraseña**: el primer ingreso es por «Recuperar acceso», así la contraseña no queda en el historial de migraciones.
+- **Recuperación oculta.** `is_backoffice_email()` (solo `service_role`) decide si la Edge Function `backoffice-recover` envía el código.
+- **Contacto real de la sonda.** `report_device_contact(device_code, batería, versión, hora)` la llama la app en cada conversación BLE (miembros aprobados). Mantiene `first_seen_at` (nueva), `last_seen_at`, `battery_level` y `firmware_version`; esas columnas quedaron sin valores de relleno y en `NULL` hasta el primer contacto ([`20260927120100`](migrations/20260927120100_contacto_real_de_la_sonda.sql)).
+- **Pantallas** ([`20260927120200`](migrations/20260927120200_funciones_backoffice.sql)): `admin_search` (ID o correo → filas equipo/cliente), `admin_device_status` (Online = contacto hace menos de 15 min, decidido por el servidor), `admin_device_members`, `admin_device_measurements` (últimas 5, con pronóstico y consejo desde `diagnosis`), `admin_make_admin`, `admin_approve_member`, `admin_reject_member` y `admin_reset_device` (reset global: usuarios, solicitudes, mediciones, alertas, invitaciones, historial y actualizaciones; conserva el ID). Se eliminaron las funciones de la consola anterior: `admin_get_device_detail`, `admin_list_fleet`, `admin_list_recent_measurements`, `admin_push_firmware_update`, `admin_set_member_role`, `admin_set_member_authorized`, `admin_approve_device_member`, `admin_unbind_user_device`, `admin_factory_reset_device`, `admin_toggle_user_status` y `get_admin_dashboard_full_data`.
+- **Actualizaciones de firmware** ([`20260927120300`](migrations/20260927120300_actualizaciones_firmware.sql)): bucket privado `firmware`, columna `firmware_releases.storage_path` y tabla `device_firmware_updates` (enviada → pendiente → instalando → instalada o fallida; cancelada). Backoffice: `admin_list_releases`, `admin_create_release`, `admin_publish_release`, `admin_delete_release`, `admin_send_update`, `admin_send_update_all`, `admin_cancel_update`, `admin_device_update`, `admin_release_devices`. App (administrador del equipo): `my_firmware_updates` y `firmware_update_progress(update, 'postpone' | 'start' | 'installed' | 'failed')`. Cada envío crea un aviso `event_type = 'firmware_update'` para el administrador.
+- **Corrección de `push_alerts`.** `join_device_by_invite` insertaba la alerta de solicitud con categoría `device` y severidad `warning`, que la restricción no admitía: **toda solicitud de acceso por QR fallaba** y nunca existía una pendiente que aprobar. La misma migración amplía ambas restricciones.
+
+Pruebas: los guiones SQL de verificación (soporte sí, agricultor, pendiente y `anon` no; hacer admin, aceptar, rechazar, reset; ciclo completo de una actualización) y la prueba de punta a punta en navegador se corrieron contra una réplica local con Docker el 27-09-2026. **No se han aplicado en remoto** (§10.0).
 
 ### Columnas añadidas por este proyecto
 
@@ -255,6 +236,9 @@ códigos. El RPC valida en el servidor e incluye tres defensas:
 | :--- | :--- | :--- |
 | `device-checkin` | Pública (`--no-verify-jwt`) | Recibe telemetría del equipo, actualiza su estado y genera alerta ante veredicto rojo |
 | `send-push-alert` | **Exige JWT** | Despacha por Expo Push las alertas pendientes |
+| `request-device-access` | Sesión del usuario | Solicitud de acceso por QR y aviso al administrador |
+| `backoffice-recover` | Pública (`verify_jwt = false`) | Envía el código de recuperación **solo** a la cuenta de soporte; responde igual a cualquier correo y antes de enviar |
+| `backoffice-send-update` | Sesión de soporte | Crea los envíos de firmware (uno o todos) y despierta a `send-push-alert` |
 
 Están **separadas a propósito**: el registro de la alerta no debe depender de que el envío funcione.
 Si Expo está caído, la alerta sigue existiendo y aparece en la app al abrirla. `send-push-alert`
@@ -289,6 +273,10 @@ curl -X POST https://bjmhjatykqccksddgtmo.supabase.co/functions/v1/device-checki
 20260920140000_retirar_mapa_y_postgis.sql   Retira geometría, cuadrantes, perímetros y PostGIS
 20260920160000_token_de_notificaciones.sql  profiles.push_token para la cola de avisos
 20260921120000_flota_soporte_y_...          Versiones comparables y flota visible para soporte
+20260927120000_backoffice_cuenta_unica.sql  Solo akurasoporte entra; alta de la cuenta sin contraseña
+20260927120100_contacto_real_de_la_sonda... first_seen_at y report_device_contact; fuera los valores de relleno
+20260927120200_funciones_backoffice.sql     Funciones de Buscar y Equipo; retira las de la consola anterior
+20260927120300_actualizaciones_firmware...  Bucket, envíos de firmware y corrección de push_alerts
 ```
 
 > [!WARNING]
@@ -484,6 +472,16 @@ modificar nada.
 > validación, porque es aquí donde están los comandos para ejecutarlas. **Estado al 20 de septiembre
 > de 2026:** §10.2 sigue hecha a medias (esquema exportado, restauración sin ensayar).
 
+### 10.0. Aplicar el backoffice de cuenta única (27-09-2026)
+
+En este orden, después de las de §10.1:
+
+1. `supabase db push`: aplica `20260927120000` a `20260927120300`. Van en ese orden (la tercera usa `first_seen_at`, la cuarta reescribe `admin_reset_device`).
+2. `supabase functions deploy backoffice-recover --no-verify-jwt` y `supabase functions deploy backoffice-send-update`.
+3. **Authentication → URL Configuration, en el panel:** *Site URL* = `terrasense://` y quitar de *Redirect URLs* todas las entradas de `terrasense-web.vercel.app` (incluida `/cuenta-confirmada`). La app y la web usan códigos de 6 dígitos, no enlaces. `config.toml` ya refleja este estado, pero **no uses `supabase config push`** para aplicarlo: por la advertencia de §10.5 borraría la contraseña SMTP.
+4. Primer ingreso: *Recuperar acceso* en la web con `akurasoporte@gmail.com`.
+5. Regenerar `schema.sql` (`supabase db dump --linked -f supabase/schema.sql --schema public`) y los tipos de `Web/backend/database.types.ts` contra el remoto.
+
 ### 10.1. Aplicar las dos migraciones pendientes
 
 El **20 de septiembre de 2026** quedan dos migraciones locales sin aplicar en remoto:
@@ -644,8 +642,9 @@ Lo comprobado contra remoto, el 5 y el 6 de septiembre de 2026, es **la existenc
   por hora, con las tres plantillas publicadas y verificadas contra los archivos locales.
   Queda comprobar el envío real con una cuenta de prueba: la configuración correcta no
   acredita entrega.
-- **Firmware físico y publicación OTA**: el catálogo `firmware_releases`, su RPC de consulta y la
-  vista web existen; falta publicar un binario validado contra hardware real.
+- **Firmware físico y actualización por BLE**: la carga, publicación y envío de binarios existen
+  (§2.1); faltan la ventana de instalación en la app y el protocolo OTA del firmware
+  ([`Firmware/PLAN.md`](../Firmware/PLAN.md)), y publicar un binario validado contra hardware real.
 - **Retención activa**: `purge_expired_operational_data()` elimina intentos de vinculación a los 30
   días y auditorías de membresía a los dos años. El respaldo diario la ejecuta después del *dump*,
   conservando las mediciones por su valor agronómico y probatorio.

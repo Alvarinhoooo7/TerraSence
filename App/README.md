@@ -576,9 +576,13 @@ La UI explica estos límites antes de la segunda confirmación.
 
 El centro consulta `check_firmware_update`, muestra la versión informada y las notas de
 la versión compatible publicada. No instala actualizaciones de la app.
-La instalación de firmware y su barra de progreso real quedan pendientes del protocolo
-ESP32: transporte, integridad, compatibilidad, batería y recuperación de interrupciones.
-La interfaz informa que no se ha descargado ni instalado un archivo; no simula progreso.
+
+**Desde el 27-09-2026 el backoffice envía actualizaciones** al administrador de cada equipo
+([`20260927120300`](../supabase/migrations/20260927120300_actualizaciones_firmware.sql)):
+llega un aviso push con `event_type = 'firmware_update'` y la asignación queda en
+`my_firmware_updates()`. **Falta implementar en la app** (§12.4): la ventana Actualizar /
+Cancelar, el estado pendiente y la instalación por BLE. Hasta entonces la interfaz no simula
+progreso ni afirma haber instalado nada.
 
 #### Despliegue y validación pendientes
 
@@ -634,7 +638,7 @@ El Grid 2×5 de la primera página del carrusel utiliza el código de colores un
 │ Acero Inox      │                               │ Con Batería   │
 └─────────────────┘                               └───────┬───────┘
                                                           │ BLE GATT Notify
-                                                          │ (Trama de 16 Bytes)
+                                                          │ (Trama de 20 Bytes)
                                                           ▼
                                                   ┌───────────────┐
                                                   │ App Móvil     │
@@ -646,6 +650,17 @@ El Grid 2×5 de la primera página del carrusel utiliza el código de colores un
 * **Telemetría (Notify):** `00000002-5e4e-4c69-6d61-746572726102`
 * **Identidad (Read):** `00000003-5e4e-4c69-6d61-746572726103`
 * **Provisionamiento (Write):** `00000004-5e4e-4c69-6d61-746572726104`
+* **Estado (Read):** `00000005-5e4e-4c69-6d61-746572726105`: batería en % (`FF` sin dato) y versión del firmware ([contrato](../docs/CONTRATO_BLE.md#característica-de-estado))
+
+### Informe de cada contacto con la sonda
+
+La sonda no tiene internet: la app es la única que puede contarle a Supabase que habló con ella. Tras cada conversación BLE (vincular con una sonda que ya tiene código, grabar el código y medir), [`bleService.ts`](src/services/bleService.ts) lee la característica de estado y [`contactService.ts`](src/services/contactService.ts) llama a `report_device_contact` con el ID de 15 dígitos, la batería, la versión y **la hora real del contacto**. Esto alimenta la primera y última conexión, el Online/Offline (menos de 15 min) y la batería del [backoffice](../Web/README.md#2-pantallas).
+
+- Nunca retiene ni rompe el flujo BLE: si falla, el contacto queda en cola (`@terrasense/pending_probe_contacts`) y se reintenta en el siguiente contacto y cuando `OfflineBanner` sincroniza.
+- La cola guarda por equipo solo el contacto más antiguo y el más reciente, y descarta los de más de una semana ([`contactQueue.ts`](src/utils/contactQueue.ts), probado en `tests/probeContact.test.ts`).
+- El contacto de una sonda recién vinculada espera en cola a que el equipo se registre; `registerDevice` vacía la cola en cuanto lo confirma.
+- Se informa también cuando la trama llega sin lectura de suelo: la sonda sí conversó.
+- Un firmware sin la característica de estado solo deja batería y versión vacías.
 
 ### Estructura de la trama BLE, big-endian
 
@@ -668,7 +683,7 @@ Esta tabla refleja lo que `probeService.ts` decodifica realmente. El aviso anter
          Todos los bits a uno = el sensor no entrego dato -> NULL en la base
 ```
 
-**No hay firmware fuente en el repositorio** y el mapa de registros de la sonda **no está confirmado contra la ficha del proveedor**. Antes de fabricar hace falta una captura BLE/Modbus real del SKU adquirido.
+El firmware vive en [`Firmware/`](../Firmware/README.md), pero aún no tiene el driver Modbus, y el mapa de registros de la sonda **no está confirmado contra la ficha del proveedor**. Antes de fabricar hace falta una captura BLE/Modbus real del SKU adquirido.
 
 > [!CAUTION]
 > **Desconexión BLE obligatoria:** `bleService.ts` siempre ejecuta `cancelConnection()` dentro de un bloque `finally`. Si la conexión quedara activa, el ESP32 no podría entrar en *deep sleep* y el consumo se dispararía. La cifra de «12 a 18 meses de autonomía» **se retira**: el balance energético publicado omitía el consumo de la propia conexión BLE y no considera reconexiones, eficiencia del conversor, autodescarga ni pérdida de capacidad. **La autonomía debe medirse desde la batería, no estimarse.**
@@ -830,8 +845,20 @@ sea coherente.
 
 No se tocó la consola web: el rediseño acordado cubre sólo la app del agricultor.
 
-### 12.3. Despliegue de la página de confirmación
+### 12.3. Página de confirmación retirada
 
-La página se mantiene para compatibilidad con enlaces antiguos. El flujo vigente usa
-códigos; falta publicar los clientes y verificar la configuración y el envío remoto,
-según «Confirmación de cuenta: qué falta desplegar».
+La web ya no tiene `/cuenta-confirmada`: el backoffice no debe aparecer en ningún correo ni
+redirección, y la confirmación usa códigos de 6 dígitos. Si queda algún correo antiguo con
+enlace, lleva al login neutro de la web. Falta aplicar el cambio de *Site URL* en Supabase
+([§10.0](../supabase/README.md#100-aplicar-el-backoffice-de-cuenta-única-27-09-2026)).
+
+### 12.4. Actualizaciones de firmware en la app
+
+Lo que el backoffice ya envía y la app todavía no atiende:
+
+| # | Tarea | Detalle |
+| :---: | :--- | :--- |
+| U1 | Ventana Actualizar / Cancelar | Al abrir la app y al llegar el aviso, si `my_firmware_updates()` trae algo, mostrarle al **administrador** la versión y sus notas. Cancelar llama `firmware_update_progress(id, 'postpone')` y la deja pendiente: aviso fijo en Dispositivos y la ventana vuelve a ofrecerse. |
+| U2 | Mostrar el aviso | `notifications.ts` oculta hoy los avisos con `event_type = 'firmware_update'`; hay que mostrarlos y abrir la ventana al tocarlos. |
+| U3 | Descarga y verificación | Descargar `storage_path` del bucket `firmware` (la política solo lo permite al administrador con la actualización activa) y comparar el SHA-256 antes de tocar la sonda. |
+| U4 | Transferencia BLE | `start` → «Mantén PAIR 3 s» → protocolo de [`Firmware/PLAN.md`](../Firmware/PLAN.md) (O2) con barra de progreso real → releer la versión en la característica de estado → `installed`, o `failed` con el motivo. Depende de que el firmware implemente O2. |

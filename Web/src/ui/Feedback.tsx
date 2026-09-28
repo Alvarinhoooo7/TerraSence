@@ -1,64 +1,41 @@
-// src/ui/Feedback.tsx — avisos, estados vacíos, errores y esqueletos de carga.
-//
-// Una pantalla de operación tiene cuatro estados y ninguno puede quedarse en
-// blanco: cargando, vacía, con error y con datos. Aquí viven los tres
-// primeros para que ninguna pantalla los improvise.
+// src/ui/Feedback.tsx — avisos, estados vacíos, esqueletos e insignias.
 
 import type { ComponentType, ReactNode } from 'react';
-import { AlertTriangle, CheckCircle2, Info, RefreshCw, XCircle } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
-import { Button } from './Button';
+import { CircleAlert, CircleCheck, X } from 'lucide-react';
 
-type Tone = 'ok' | 'error' | 'warning' | 'info';
+type Tone = 'success' | 'error';
 
-const TONE: Record<Tone, { cls: string; icon: ComponentType<LucideProps>; role: string }> = {
-  ok: {
-    cls: 'bg-verdict-green-soft text-verdict-green border-verdict-green/30',
-    icon: CheckCircle2,
-    role: 'status',
-  },
-  error: {
-    cls: 'bg-verdict-red-soft text-verdict-red border-verdict-red/30',
-    icon: XCircle,
-    role: 'alert',
-  },
-  warning: {
-    cls: 'bg-verdict-amber-soft text-verdict-amber border-verdict-amber/30',
-    icon: AlertTriangle,
-    role: 'status',
-  },
-  info: {
-    cls: 'bg-terra-raised text-terra-muted border-terra-border',
-    icon: Info,
-    role: 'status',
-  },
-};
-
-export function Alert({
-  tone = 'info',
+/** Aviso en línea tras una acción. `role` hace que el lector de pantalla lo lea. */
+export function Notice({
+  tone,
   children,
   onDismiss,
 }: {
-  tone?: Tone;
+  tone: Tone;
   children: ReactNode;
   onDismiss?: () => void;
 }) {
-  const { cls, icon: Icon, role } = TONE[tone];
+  const Icon = tone === 'success' ? CircleCheck : CircleAlert;
   return (
     <div
-      role={role}
-      aria-live={tone === 'error' ? 'assertive' : 'polite'}
-      className={`flex items-start gap-2.5 rounded-md border px-4 py-3 text-sm ${cls}`}
+      role={tone === 'error' ? 'alert' : 'status'}
+      className={`flex items-start gap-2.5 rounded-md border px-3.5 py-2.5 text-sm ${
+        tone === 'success'
+          ? 'border-primary/25 bg-primary-soft text-primary-ink'
+          : 'border-danger-line bg-danger-soft text-danger'
+      }`}
     >
-      <Icon size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
-      <div className="min-w-0 flex-1 leading-relaxed">{children}</div>
+      <Icon size={17} className="mt-px shrink-0" aria-hidden="true" />
+      <div className="min-w-0 flex-1">{children}</div>
       {onDismiss && (
         <button
           type="button"
           onClick={onDismiss}
-          className="shrink-0 text-xs font-semibold underline underline-offset-2 opacity-80 hover:opacity-100"
+          aria-label="Cerrar aviso"
+          className="shrink-0 opacity-70 hover:opacity-100"
         >
-          Cerrar
+          <X size={16} aria-hidden="true" />
         </button>
       )}
     </div>
@@ -69,81 +46,55 @@ export function EmptyState({
   icon: Icon,
   title,
   children,
-  action,
 }: {
-  icon?: ComponentType<LucideProps>;
+  icon: ComponentType<LucideProps>;
   title: string;
   children?: ReactNode;
-  action?: ReactNode;
 }) {
   return (
-    <div role="status" className="mx-auto max-w-md px-6 py-14 text-center">
-      {Icon && (
-        <Icon size={36} className="mx-auto mb-3 text-terra-border-strong" aria-hidden="true" />
-      )}
-      <p className="font-semibold text-terra-text">{title}</p>
-      {children && <p className="mt-1.5 text-sm leading-relaxed text-terra-muted">{children}</p>}
-      {action && <div className="mt-5 flex justify-center">{action}</div>}
+    <div className="flex flex-col items-center px-6 py-10 text-center">
+      <Icon size={22} className="text-faint" aria-hidden="true" />
+      <p className="mt-3 text-sm font-medium text-ink">{title}</p>
+      {children && <p className="mt-1 max-w-md text-[13px] text-muted">{children}</p>}
     </div>
   );
 }
 
-export function ErrorState({
-  title = 'No se pudo cargar',
-  message,
-  onRetry,
-}: {
-  title?: string;
-  message: string;
-  onRetry?: () => void;
-}) {
+export function SkeletonRows({ rows = 3, label }: { rows?: number; label: string }) {
   return (
-    <div role="alert" className="mx-auto max-w-md px-6 py-14 text-center">
-      <XCircle size={36} className="mx-auto mb-3 text-verdict-red" aria-hidden="true" />
-      <p className="font-semibold text-terra-text">{title}</p>
-      <p className="mt-1.5 text-sm leading-relaxed text-terra-muted">{message}</p>
-      {onRetry && (
-        <div className="mt-5 flex justify-center">
-          <Button icon={RefreshCw} onClick={onRetry}>
-            Reintentar
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/**
- * Esqueleto de tabla. Se prefiere a un spinner porque mantiene la altura del
- * contenido: la página no da un salto cuando llegan los datos, y quien mira
- * ya sabe qué forma tendrá lo que está esperando.
- */
-export function TableSkeleton({ rows = 6, label }: { rows?: number; label: string }) {
-  return (
-    <div className="space-y-2 p-5" aria-busy="true" aria-label={label}>
-      {Array.from({ length: rows }).map((_, i) => (
-        <div
-          key={i}
-          className="h-9 animate-pulse rounded-md bg-terra-raised"
-          style={{ opacity: 1 - i * 0.1 }}
-        />
+    <div aria-busy="true" aria-label={label} className="flex flex-col gap-2.5 px-5 py-4">
+      {Array.from({ length: rows }, (_, i) => (
+        <div key={i} className="h-9 animate-pulse rounded-md bg-sunken" />
       ))}
     </div>
   );
 }
 
-/** Carga de pantalla completa: sólo para el arranque de la sesión. */
-export function FullPageLoader({ label }: { label: string }) {
+type BadgeTone = 'neutral' | 'green' | 'amber' | 'red';
+
+const BADGE: Record<BadgeTone, string> = {
+  neutral: 'bg-sunken text-muted border-line',
+  green: 'bg-primary-soft text-primary-ink border-primary/25',
+  amber: 'bg-warning-soft text-warning border-warning/30',
+  red: 'bg-danger-soft text-danger border-danger-line',
+};
+
+export function Badge({ tone = 'neutral', children }: { tone?: BadgeTone; children: ReactNode }) {
   return (
-    <div
-      role="status"
-      className="flex min-h-screen flex-col items-center justify-center gap-4 bg-terra-bg text-terra-muted"
+    <span
+      className={`inline-flex items-center gap-1 rounded-sm border px-1.5 py-px text-xs font-medium whitespace-nowrap ${BADGE[tone]}`}
     >
-      <span
-        className="h-8 w-8 animate-spin rounded-full border-2 border-terra-border border-t-terra-primary"
-        aria-hidden="true"
-      />
-      <span className="text-sm">{label}</span>
+      {children}
+    </span>
+  );
+}
+
+export function FullPageLoader() {
+  return (
+    <div className="grid h-full place-items-center" aria-busy="true" aria-label="Cargando">
+      <div className="h-1 w-24 overflow-hidden rounded-full bg-line">
+        <div className="h-full w-1/2 animate-pulse rounded-full bg-primary" />
+      </div>
     </div>
   );
 }

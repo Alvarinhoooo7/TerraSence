@@ -25,7 +25,7 @@ Los reescribe `python finanzas/modelo.py`. Si los editas, tu cambio se pierde en
 Para cambiar una **cifra**, edita `finanzas/supuestos.json` y regenera.
 Para cambiar la **redacción** de un bloque generado, edita `finanzas/informe.py` (informe interno), `finanzas/documentacion.py` (README), `finanzas/cuadros.py` y `finanzas/seccion_economica.py` (sección económica) o `finanzas/corregir_informe.py` (informe corregido), nunca el resultado.
 
-`supabase/schema.sql` es un volcado de `pg_dump`, no una fuente: el esquema real son las 43 migraciones de `supabase/migrations/`.
+`supabase/schema.sql` es un volcado de `pg_dump`, no una fuente: el esquema real son las 49 migraciones de `supabase/migrations/` (más las `*.local.sql`, fuera de git).
 
 ## 3. Decisiones cerradas del proyecto
 
@@ -47,8 +47,9 @@ Manda el código:
 | Pronóstico y su degradación sin red | `App/src/services/weatherService.ts` |
 | Esquema, RLS y perímetros | `supabase/migrations/*.sql` |
 | Cifras económicas | `finanzas/supuestos.json` + `finanzas/modelo.py` |
+| Pines y comportamiento del equipo (LEDs, buzzer, PAIR) | `Firmware/pines.h`, `Firmware/Firmware.ino` y el esquemático KiCad |
 
-**No hay firmware del ESP32 en este repositorio.** Si un documento lo da por existente, el documento está equivocado.
+El firmware del ESP32 vive en `Firmware/` (Arduino IDE, núcleo esp32 3.x); su estado y pendientes están en `Firmware/TASK.md`. Aún no lee la sonda de suelo: no la simules. Pines: `Firmware/pines.h`, que debe coincidir con el esquemático de `PCB/Medidor De Suelos V2/`.
 
 ## 5. Documentación
 

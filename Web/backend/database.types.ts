@@ -7,56 +7,8 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5"
-  }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
-      admin_support_invite: {
-        Row: {
-          code_hash: string
-          id: number
-          updated_at: string
-        }
-        Insert: {
-          code_hash: string
-          id?: number
-          updated_at?: string
-        }
-        Update: {
-          code_hash?: string
-          id?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
       admin_support_users: {
         Row: {
           created_at: string | null
@@ -275,11 +227,12 @@ export type Database = {
       devices: {
         Row: {
           alias: string | null
-          battery_level: number
+          battery_level: number | null
           created_at: string | null
           data_generation: number
           device_code: string
-          firmware_version: string
+          firmware_version: string | null
+          first_seen_at: string | null
           hardware_version: string
           id: string
           is_active: boolean
@@ -292,11 +245,12 @@ export type Database = {
         }
         Insert: {
           alias?: string | null
-          battery_level?: number
+          battery_level?: number | null
           created_at?: string | null
           data_generation?: number
           device_code?: string
-          firmware_version?: string
+          firmware_version?: string | null
+          first_seen_at?: string | null
           hardware_version?: string
           id?: string
           is_active?: boolean
@@ -309,11 +263,12 @@ export type Database = {
         }
         Update: {
           alias?: string | null
-          battery_level?: number
+          battery_level?: number | null
           created_at?: string | null
           data_generation?: number
           device_code?: string
-          firmware_version?: string
+          firmware_version?: string | null
+          first_seen_at?: string | null
           hardware_version?: string
           id?: string
           is_active?: boolean
@@ -680,76 +635,24 @@ export type Database = {
           },
         ]
       }
-      support_register_attempts: {
-        Row: {
-          attempted_at: string
-          id: number
-          succeeded: boolean
-          user_id: string
-        }
-        Insert: {
-          attempted_at?: string
-          id?: number
-          succeeded: boolean
-          user_id: string
-        }
-        Update: {
-          attempted_at?: string
-          id?: number
-          succeeded?: boolean
-          user_id?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      admin_approve_device_member: {
+      admin_approve_member: {
         Args: { p_device_id: string; p_user_id: string }
-        Returns: Json
+        Returns: undefined
       }
-      admin_factory_reset_device: {
-        Args: { p_confirm_device_code: string; p_device_id: string }
-        Returns: Json
-      }
-      admin_get_device_detail: { Args: { p_device_id: string }; Returns: Json }
-      admin_list_fleet: {
-        Args: never
+      admin_device_measurements: {
+        Args: { p_device_id: string; p_limit?: number }
         Returns: {
-          alias: string
-          battery_level: number
-          created_at: string
-          device_code: string
-          device_id: string
-          firmware_status: string
-          firmware_version: string
-          hardware_version: string
-          is_active: boolean
-          last_measurement_at: string
-          last_seen_at: string
-          latest_version: string
-          measurement_count: number
-          member_count: number
-          name: string
-          pending_count: number
-        }[]
-      }
-      admin_list_recent_measurements: {
-        Args: { p_limit?: number }
-        Returns: {
+          action_summary: string
           air_pressure_hpa: number
           battery_percent: number
           canopy_humidity_pct: number
           canopy_temp_c: number
-          crop_id: string
-          device_code: string
-          device_id: string
-          device_label: string
-          diagnosis: Json
           ec_us_cm: number
-          field_name: string
           id: string
           latitude: number
           longitude: number
@@ -763,47 +666,56 @@ export type Database = {
           verdict: string
           verdict_title: string
           vwc_percent: number
+          weather: Json
         }[]
       }
-      admin_push_firmware_update: {
-        Args: { p_device_id: string; p_firmware_release_id: string }
-        Returns: Json
-      }
-      admin_rotate_invite_code: { Args: { p_new_code: string }; Returns: Json }
-      admin_search: {
-        Args: { p_query: string }
+      admin_device_members: {
+        Args: { p_device_id: string }
         Returns: {
-          alias: string
+          created_at: string
+          email: string
+          first_name: string
+          is_authorized: boolean
+          last_name: string
+          role: string
+          user_id: string
+        }[]
+      }
+      admin_device_status: {
+        Args: { p_device_id: string }
+        Returns: {
           battery_level: number
           device_code: string
           device_id: string
-          is_active: boolean
+          firmware_version: string
+          first_seen_at: string
+          is_online: boolean
           last_seen_at: string
-          match_reason: string
-          matched_member_email: string
-          name: string
         }[]
       }
-      admin_set_member_authorized: {
-        Args: { p_authorized: boolean; p_device_id: string; p_user_id: string }
-        Returns: Json
-      }
-      admin_set_member_role: {
-        Args: { p_device_id: string; p_role: string; p_user_id: string }
-        Returns: Json
-      }
-      admin_set_staff_active: {
-        Args: { p_active: boolean; p_user_id: string }
-        Returns: Json
-      }
-      admin_toggle_user_status: {
-        Args: { p_new_status: string; p_user_id: string }
-        Returns: Json
-      }
-      admin_unbind_user_device: {
+      admin_make_admin: {
         Args: { p_device_id: string; p_user_id: string }
-        Returns: Json
+        Returns: undefined
       }
+      admin_reject_member: {
+        Args: { p_device_id: string; p_user_id: string }
+        Returns: undefined
+      }
+      admin_reset_device: { Args: { p_device_id: string }; Returns: Json }
+      admin_search: {
+        Args: { p_query: string }
+        Returns: {
+          device_code: string
+          device_id: string
+          email: string
+          first_name: string
+          is_authorized: boolean
+          last_name: string
+          role: string
+          user_id: string
+        }[]
+      }
+      assert_support_staff: { Args: never; Returns: undefined }
       change_device_membership: {
         Args: { p_action: string; p_device_id: string; p_user_id: string }
         Returns: undefined
@@ -821,7 +733,6 @@ export type Database = {
       }
       complete_my_onboarding: { Args: { p_method: string }; Returns: string }
       generate_device_code: { Args: never; Returns: string }
-      get_admin_dashboard_full_data: { Args: never; Returns: Json }
       get_device_access_qr: {
         Args: { p_device_id: string }
         Returns: {
@@ -834,6 +745,7 @@ export type Database = {
         Args: { p_device_id: string }
         Returns: boolean
       }
+      is_backoffice_email: { Args: { p_email: string }; Returns: boolean }
       is_support_staff: { Args: never; Returns: boolean }
       join_device_by_code: {
         Args: { p_code: string }
@@ -907,15 +819,20 @@ export type Database = {
           device_id: string
         }[]
       }
+      report_device_contact: {
+        Args: {
+          p_battery?: number
+          p_contacted_at?: string
+          p_device_id: string
+          p_firmware_version?: string
+        }
+        Returns: undefined
+      }
       request_device_access_qr: {
         Args: { p_device_code: string; p_user_id: string }
         Returns: Json
       }
       semver_parts: { Args: { p_version: string }; Returns: number[] }
-      support_self_register: {
-        Args: { p_full_name: string; p_invite_code: string }
-        Returns: Json
-      }
     }
     Enums: {
       [_ in never]: never
@@ -934,12 +851,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -963,11 +880,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -988,11 +905,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1013,11 +930,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1030,11 +947,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never) = never,
+    : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1044,10 +961,8 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },
 } as const
+

@@ -1,3 +1,4 @@
+import { flushProbeContacts } from '../services/contactService';
 import { syncPendingPreferences } from '../services/preferencesService';
 import React, { useEffect, useState } from 'react';
 import { AppState, View, Text, StyleSheet } from 'react-native';
@@ -35,6 +36,7 @@ export const OfflineBanner = () => {
           try {
             useAppStore.getState().setSyncing(true);
             await syncPendingPreferences().catch(() => undefined);
+            await flushProbeContacts().catch(() => undefined);
             const result = await flushQueue();
             if (active) {
               useAppStore.getState().setPendingCount(result.remaining);

@@ -1,32 +1,21 @@
 <!doctype html>
-<html lang="es" data-theme="dark">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="color-scheme" content="dark light" />
-    <meta name="theme-color" content="#071512" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#f4f7f5" media="(prefers-color-scheme: light)" />
-    <meta name="robots" content="noindex, nofollow" />
-    <meta
-      name="description"
-      content="Backoffice de soporte técnico de TerraSense: flota de sondas, membresías, firmware y telemetría."
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f6f5f1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a120e" media="(prefers-color-scheme: dark)" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
     />
-    <title>TerraSense · Backoffice de Soporte</title>
-    <script>
-      // Fija el tema antes del primer pintado. Si React lo aplicara desde el
-      // efecto de ThemeProvider, una sesión en claro vería un destello oscuro
-      // en cada carga, porque el documento arranca con data-theme="dark".
-      try {
-        var t = localStorage.getItem('terra-theme');
-        if (t !== 'dark' && t !== 'light') {
-          t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-        }
-        document.documentElement.setAttribute('data-theme', t);
-      } catch (e) {
-        /* Almacenamiento no disponible: se queda con el oscuro del atributo. */
-      }
-    </script>
+    <title>TerraSense</title>
   </head>
   <body>
     <div id="root"></div>

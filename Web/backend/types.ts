@@ -1,241 +1,141 @@
 // Web/backend/types.ts
 //
-// Tipos de dominio del panel de soporte, más legibles que las filas crudas de
-// `database.types.ts` (que sí conviene regenerar tal cual con
-// `supabase gen types typescript --linked` cada vez que cambie el esquema).
-// Reflejan exactamente lo que devuelven las funciones RPC de
-// `20260902120000_panel_soporte_backend.sql` y
-// `20260921120000_flota_soporte_y_versiones_normalizadas.sql`.
-//
-// Regla al tocar este archivo: si una columna es nulable en Postgres, aquí es
-// nulable. Los tipos anteriores declaraban `latitude: number` sobre una
-// columna `numeric(10,7)` nulable, y como `tsconfig.app.json` tenía `strict`
-// apagado, la consola llegó a pintar un enlace a `maps?q=null,null`.
-//
-// Por qué estos tipos no se sustituyen por los de `database.types.ts`: una
-// función `RETURNS TABLE` no transmite la nulabilidad de sus columnas, así que
-// `supabase gen types` las declara todas no nulables. Para `admin_list_fleet`
-// eso significa `alias: string`, `last_seen_at: string` y
-// `latest_version: string`, y las tres pueden llegar nulas. El archivo
-// generado se conserva tal cual —es el contrato de la herramienta— y la
-// precisión vive aquí, que es lo que consumen las pantallas.
+// Tipos de dominio del backoffice, más precisos que los de `database.types.ts`:
+// una función `RETURNS TABLE` no transmite la nulabilidad de sus columnas y
+// `supabase gen types` las declara todas no nulables. Aquí, si la columna
+// puede llegar nula, el tipo es nulable.
 
-export type DeviceMemberRole = 'admin' | 'user';
+export type MemberRole = 'admin' | 'user';
 
-/**
- * Estado del firmware de un equipo frente al catálogo publicado.
- *
- * `al_dia` y `sin_catalogo` eran indistinguibles antes: la RPC devolvía
- * `is_up_to_date = true` en ambos casos y la ficha sólo podía decir «al día»
- * aunque no existiera ni una versión publicada para esa plataforma.
- */
-export type FirmwareStatus =
-  | 'al_dia'
-  | 'desactualizado'
-  | 'sin_catalogo'
-  | 'version_ilegible';
+export type PhenologicalStage = 'pre_siembra' | 'vegetativo' | 'floracion' | 'cosecha';
 
-export const FIRMWARE_STATUS_LABEL: Record<FirmwareStatus, string> = {
-  al_dia: 'Al día',
-  desactualizado: 'Desactualizado',
-  sin_catalogo: 'Sin catálogo',
-  version_ilegible: 'Versión ilegible',
-};
+export type Verdict = 'GREEN' | 'AMBER' | 'RED';
 
-/** Fila de public.devices, tal cual la expone `admin_get_device_detail`. */
-export interface AdminDeviceRow {
-  id: string;
-  device_code: string;
-  name: string;
-  alias: string | null;
-  battery_level: number;
-  firmware_version: string;
-  hardware_version: string;
-  microclimate_sensor_type: string;
-  is_active: boolean;
-  pairing_mode_active: boolean;
-  transmission_interval_seconds: number;
-  last_seen_at: string | null;
-  last_measurement_at: string | null;
-  created_at: string | null;
-  data_generation: number;
-}
-
-/** Un resultado de `admin_search` — puede haber más de uno para la misma búsqueda. */
-export interface DeviceSearchResult {
+/** Fila de `admin_search`: un par equipo–cliente. Sin cliente si el equipo está libre. */
+export interface SearchRow {
   device_id: string;
   device_code: string;
-  name: string;
-  alias: string | null;
-  is_active: boolean;
-  battery_level: number | null;
-  last_seen_at: string | null;
-  /** Sólo viene relleno cuando el resultado coincidió por correo de un miembro. */
-  matched_member_email: string | null;
-  match_reason: 'device' | 'member_email';
+  user_id: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+  role: MemberRole | null;
+  is_authorized: boolean | null;
 }
 
-/** Una fila de `admin_list_fleet`: el inventario que RLS le niega a soporte. */
-export interface FleetDevice {
+/** `admin_device_status`. `is_online` lo decide el servidor (15 min). */
+export interface DeviceStatus {
   device_id: string;
   device_code: string;
-  name: string;
-  alias: string | null;
-  is_active: boolean;
-  battery_level: number;
-  firmware_version: string;
-  hardware_version: string;
-  last_seen_at: string | null;
-  last_measurement_at: string | null;
-  created_at: string | null;
-  member_count: number;
-  /** Miembros con `is_authorized = false`, a la espera de aprobación. */
-  pending_count: number;
-  measurement_count: number;
-  latest_version: string | null;
-  firmware_status: FirmwareStatus;
-}
-
-/** Una fila de `admin_list_recent_measurements`, con el equipo ya resuelto. */
-export interface FleetMeasurement {
-  id: string;
-  device_id: string;
-  device_code: string;
-  device_label: string;
-  measured_at: string;
-  field_name: string;
-  crop_id: string;
-  phenological_stage: string;
-  verdict: 'GREEN' | 'AMBER' | 'RED';
-  verdict_title: string;
-  vwc_percent: number;
-  soil_temp_c: number;
-  ec_us_cm: number;
-  ph: number;
-  nitrogen: number;
-  phosphorus: number;
-  potassium: number;
-  canopy_temp_c: number | null;
-  canopy_humidity_pct: number | null;
-  air_pressure_hpa: number | null;
-  battery_percent: number | null;
-  latitude: number | null;
-  longitude: number | null;
-  diagnosis: unknown;
-}
-
-export interface DeviceMemberInfo {
-  user_id: string;
-  email: string;
-  /** Null cuando el perfil no tiene nombre ni apellido cargados. */
-  full_name: string | null;
-  role: DeviceMemberRole;
-  is_authorized: boolean;
-  /** `profiles.push_token IS NOT NULL`: si no, ningún aviso le llegaría. */
-  has_push_token: boolean;
-  created_at: string;
-}
-
-export interface BatteryLogEntry {
   battery_level: number | null;
   firmware_version: string | null;
-  recorded_at: string;
+  first_seen_at: string | null;
+  last_seen_at: string | null;
+  is_online: boolean;
 }
 
-export interface MeasurementSummary {
-  id: string;
-  measured_at: string;
-  field_name: string;
-  crop_id: string;
-  phenological_stage: string;
-  verdict: 'GREEN' | 'AMBER' | 'RED';
-  verdict_title: string;
-  vwc_percent: number;
-  soil_temp_c: number;
-  ec_us_cm: number;
-  ph: number;
-  nitrogen: number;
-  phosphorus: number;
-  potassium: number;
-  canopy_temp_c: number | null;
-  canopy_humidity_pct: number | null;
-  air_pressure_hpa: number | null;
-  battery_percent: number | null;
-  diagnosis: unknown;
-  latitude: number | null;
-  longitude: number | null;
-}
-
-export interface LatestPublishedFirmware {
-  id: string;
-  version: string;
-  hardware_target: string;
-  is_mandatory: boolean;
-}
-
-/**
- * Última posición conocida. La RPC sólo la devuelve cuando la medición más
- * reciente CON GPS existe: las mediciones sin ubicación son válidas desde la
- * idempotencia sin GPS y no deben producir un punto en el mapa.
- */
-export interface LastLocation {
-  latitude: number;
-  longitude: number;
-  gps_accuracy_m: number | null;
-  field_name: string;
-  measured_at: string;
-}
-
-/** Devuelto íntegro por `admin_get_device_detail(device_id)`: una sola
- * llamada trae todo lo que necesita la pestaña de detalle de un equipo. */
-export interface DeviceDetail {
-  device: AdminDeviceRow;
-  latest_published_firmware: LatestPublishedFirmware | null;
-  firmware_status: FirmwareStatus;
-  /** @deprecated Se conserva por compatibilidad; usa `firmware_status`. */
-  is_up_to_date: boolean;
-  last_location: LastLocation | null;
-  members: DeviceMemberInfo[];
-  battery_history: BatteryLogEntry[];
-  measurements: MeasurementSummary[];
-}
-
-export interface SupportStaffRow {
-  id: string;
-  user_id: string | null;
+export interface DeviceMember {
+  user_id: string;
+  first_name: string | null;
+  last_name: string | null;
   email: string;
-  full_name: string;
-  is_active: boolean;
+  role: MemberRole;
+  is_authorized: boolean;
   created_at: string | null;
 }
 
-export interface FirmwareReleaseRow {
+/** Un día del pronóstico de Open-Meteo, tal como lo guarda la app al medir. */
+export interface ForecastDay {
+  date: string;
+  minimumTemperatureC?: number | null;
+  maximumTemperatureC?: number | null;
+  precipitationMm?: number | null;
+  rainProbabilityPct?: number | null;
+}
+
+export interface MeasurementWeather {
+  forecast?: ForecastDay[];
+}
+
+/** `admin_device_measurements`. Los `numeric` pueden llegar como cadena. */
+export interface Measurement {
   id: string;
-  version: string;
-  hardware_target: string;
-  is_mandatory: boolean;
-  release_notes: string | null;
-  published_at: string | null;
+  measured_at: string;
+  phenological_stage: PhenologicalStage | string;
+  vwc_percent: number | string | null;
+  soil_temp_c: number | string | null;
+  ec_us_cm: number | null;
+  ph: number | string | null;
+  nitrogen: number | null;
+  phosphorus: number | null;
+  potassium: number | null;
+  canopy_temp_c: number | string | null;
+  canopy_humidity_pct: number | string | null;
+  air_pressure_hpa: number | string | null;
+  battery_percent: number | null;
+  weather: MeasurementWeather | null;
+  verdict: Verdict | string;
+  verdict_title: string;
+  action_summary: string | null;
+  latitude: number | string | null;
+  longitude: number | string | null;
 }
 
-/** Envoltorio común de las respuestas `jsonb_build_object('success', ...)`. */
-export interface RpcResult {
-  success: boolean;
-  message?: string;
-  [key: string]: unknown;
-}
-
-/** Respuesta de `admin_factory_reset_device`: cuánto se borró, para confirmar
- * en pantalla. No incluye `quadrants_deleted`: `predial_quadrants` se eliminó
- * con el mapa en la migración `20260920140000_retirar_mapa_y_postgis.sql`. */
-export interface FactoryResetResult extends RpcResult {
+export interface ResetResult {
   members_removed: number;
   measurements_deleted: number;
-  alerts_deleted: number;
 }
 
-/** Respuesta de `admin_push_firmware_update`. Comprueba que la versión esté
- * publicada y sea aplicable; **no envía ningún aviso**. */
-export interface FirmwareCheckResult extends RpcResult {
-  firmware_version?: string;
+export type UpdateStatus = 'sent' | 'postponed' | 'installing' | 'installed' | 'failed' | 'cancelled';
+
+export const UPDATE_STATUS_LABEL: Record<UpdateStatus, string> = {
+  sent: 'Enviada, sin respuesta',
+  postponed: 'Pendiente (el administrador la postergó)',
+  installing: 'Instalando',
+  installed: 'Instalada',
+  failed: 'Falló',
+  cancelled: 'Cancelada',
+};
+
+/** `admin_list_releases`. */
+export interface Release {
+  id: string;
+  version: string;
+  release_notes: string | null;
+  sha256: string | null;
+  size_bytes: number | null;
+  storage_path: string | null;
+  is_mandatory: boolean;
+  is_published: boolean;
+  published_at: string | null;
+  created_at: string;
+  pending: number;
+  installing: number;
+  installed: number;
+  failed: number;
+}
+
+/** `admin_device_update`: la asignación más reciente del equipo. */
+export interface DeviceUpdate {
+  update_id: string;
+  version: string;
+  status: UpdateStatus;
+  error: string | null;
+  sent_at: string;
+  updated_at: string;
+}
+
+/** `admin_release_devices`. */
+export interface ReleaseDevice {
+  device_id: string;
+  device_code: string;
+  status: UpdateStatus;
+  error: string | null;
+  updated_at: string;
+}
+
+export interface SendResult {
+  sent: number;
+  skipped: number;
+  queued: number;
 }

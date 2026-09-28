@@ -1,27 +1,32 @@
-// src/auth/authErrors.ts — mensajes de Supabase Auth en español.
+// src/auth/authErrors.ts — mensajes de acceso.
 //
-// Los textos no distinguen «el correo no existe» de «la contraseña no
-// coincide»: decirlo permitiría averiguar qué correos tienen cuenta.
+// El login nunca distingue «correo inexistente», «contraseña equivocada» o
+// «cuenta sin acceso al backoffice»: las tres dicen lo mismo. Decir cuál
+// permitiría averiguar qué cuentas existen y cuál es la de soporte.
 
-export const humanizeAuthError = (message: string): string => {
-  const m = message.toLowerCase();
-  if (m.includes('invalid login credentials')) return 'El correo o la contraseña no coinciden.';
-  if (m.includes('email not confirmed'))
-    return 'Esta cuenta aún no está confirmada. Revisa tu correo.';
-  if (m.includes('already registered') || m.includes('already exists'))
-    return 'Ya existe una cuenta con ese correo. Inicia sesión o usa otro correo.';
-  if (m.includes('same') || m.includes('different'))
-    return 'La contraseña nueva debe ser distinta a la actual.';
-  if (m.includes('password') && (m.includes('least') || m.includes('weak') || m.includes('short')))
+export const INVALID_CREDENTIALS = 'Correo o contraseña incorrectos.';
+
+export function loginErrorText(error: unknown): string {
+  const message = String((error as { message?: string } | null)?.message ?? error ?? '').toLowerCase();
+  if (/rate|too many|429/.test(message)) return 'Demasiados intentos. Espera un momento y vuelve a intentarlo.';
+  if (/fetch|network/.test(message)) return 'Sin conexión con el servidor. Revisa tu red y reintenta.';
+  return INVALID_CREDENTIALS;
+}
+
+export function codeErrorText(error: unknown): string {
+  const message = String((error as { message?: string } | null)?.message ?? error ?? '').toLowerCase();
+  if (/rate|too many|429|seconds/.test(message)) return 'Espera un momento antes de volver a intentarlo.';
+  if (/fetch|network/.test(message)) return 'Sin conexión con el servidor. Revisa tu red y reintenta.';
+  return 'El código no es válido o venció. Revisa el correo o pide uno nuevo.';
+}
+
+export function passwordErrorText(error: unknown): string {
+  const message = String((error as { message?: string } | null)?.message ?? error ?? '').toLowerCase();
+  if (message.includes('different') || message.includes('same')) return 'Elige una contraseña distinta a la anterior.';
+  if (message.includes('weak') || message.includes('least') || message.includes('short'))
     return 'La contraseña no cumple los requisitos.';
-  if (m.includes('invalid') && m.includes('email')) return 'Ese correo no es válido.';
-  if (/rate|too many|seconds|429/.test(m)) return 'Espera un momento antes de volver a intentarlo.';
-  if (m.includes('network') || m.includes('fetch')) return 'Sin conexión con el servidor.';
-  return message;
-};
+  if (/fetch|network/.test(message)) return 'Sin conexión con el servidor. Revisa tu red y reintenta.';
+  return 'No se pudo guardar la contraseña. Reintenta.';
+}
 
-export const errorText = (e: unknown) =>
-  humanizeAuthError(e instanceof Error ? e.message : String(e));
-
-/** Validación mínima del formato; el servidor tiene la última palabra. */
 export const looksLikeEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);

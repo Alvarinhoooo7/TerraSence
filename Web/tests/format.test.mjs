@@ -1,87 +1,90 @@
-// Pruebas de `src/utils/format.ts` y `src/utils/verdict.ts`.
-//
-// Cubren exactamente los casos que la auditoría encontró rotos en pantalla, no
-// el formateo en general: una versión con prefijo y sufijo, un `numeric` que
-// PostgREST entrega como cadena, coordenadas nulas y un veredicto fuera del
-// CHECK de la tabla.
+// Pruebas de las utilidades de presentación del backoffice.
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   digitsOnly,
+  exactDateTime,
+  formatCoordinate,
   formatDeviceCode,
-  formatVersion,
   num,
+  personName,
   relativeTime,
-  reportedRecently,
 } from '../src/utils/format.ts';
-import { concordance, verdictMeta } from '../src/utils/verdict.ts';
+import { stageLabel, verdictMeta } from '../src/utils/verdict.ts';
+import { summarizeForecast } from '../src/utils/weather.ts';
 
-test('el código de equipo se presenta en tres bloques de cinco', () => {
+test('el ID del equipo se presenta en tres bloques y se acepta con guiones', () => {
   assert.equal(formatDeviceCode('482139057416628'), '48213-90574-16628');
-});
-
-test('un código incompleto no se parte a medias', () => {
+  assert.equal(digitsOnly(' 48213-90574 16628 '), '482139057416628');
   assert.equal(formatDeviceCode('4821390'), '4821390');
-  assert.equal(formatDeviceCode(null), '');
 });
 
-test('digitsOnly acepta el código con guiones, que es como lo muestra la consola', () => {
-  assert.equal(digitsOnly('48213-90574-16628'), '482139057416628');
-  assert.equal(digitsOnly(' 48213 90574 16628 '), '482139057416628');
-});
-
-test('formatVersion no antepone una segunda v ni inventa una para el vacío', () => {
-  assert.equal(formatVersion('2.1.0'), 'v2.1.0');
-  assert.equal(formatVersion('v2.1.0-BLE'), 'v2.1.0-BLE');
-  assert.equal(formatVersion(null), '—');
-  assert.equal(formatVersion(''), '—');
-});
-
-test('num acepta los numeric que PostgREST entrega como cadena', () => {
-  assert.equal(num('6.52', 1), '6.5');
-  assert.equal(num(1234.6, 0, 'µS/cm'), '1235 µS/cm');
-});
-
-test('num distingue el cero del dato ausente', () => {
-  assert.equal(num(0, 1, '%'), '0.0 %');
+test('num usa coma decimal, acepta cadenas y distingue el cero del dato ausente', () => {
+  assert.equal(num('6.52', 1), '6,5');
+  assert.equal(num(0, 1, '%'), '0,0 %');
   assert.equal(num(null), '—');
-  assert.equal(num(undefined), '—');
   assert.equal(num(Number.NaN), '—');
 });
 
-test('relativeTime devuelve «nunca» sin fecha y no rompe con una inválida', () => {
-  assert.equal(relativeTime(null), 'nunca');
-  assert.equal(relativeTime('no es una fecha'), '—');
+test('la coordenada va en texto plano con seis decimales y punto y coma', () => {
+  assert.equal(formatCoordinate(-30.008954, '-71.482579'), '-30,008954 ; -71,482579');
+  assert.equal(formatCoordinate(null, -71.4), 'Sin GPS');
+});
+
+test('la fecha exacta incluye segundos', () => {
+  const iso = new Date(2026, 8, 28, 14, 3, 7).toISOString();
+  assert.equal(exactDateTime(iso), '28-09-2026 14:03:07');
+  assert.equal(exactDateTime(null), '—');
 });
 
 test('relativeTime escala de minutos a días', () => {
-  const hace = (ms) => new Date(Date.now() - ms).toISOString();
-  assert.equal(relativeTime(hace(10_000)), 'ahora');
-  assert.equal(relativeTime(hace(10 * 60_000)), 'hace 10 min');
-  assert.equal(relativeTime(hace(3 * 3_600_000)), 'hace 3 h');
-  assert.equal(relativeTime(hace(25 * 3_600_000)), 'ayer');
+  const now = Date.parse('2026-09-28T12:00:00Z');
+  const hace = (ms) => new Date(now - ms).toISOString();
+  assert.equal(relativeTime(hace(20_000), now), 'hace instantes');
+  assert.equal(relativeTime(hace(10 * 60_000), now), 'hace 10 min');
+  assert.equal(relativeTime(hace(3 * 3_600_000), now), 'hace 3 h');
+  assert.equal(relativeTime(hace(25 * 3_600_000), now), 'ayer');
+  assert.equal(relativeTime(null, now), '');
 });
 
-test('reportedRecently usa la ventana de una hora y no confía en un nulo', () => {
-  assert.equal(reportedRecently(null), false);
-  assert.equal(reportedRecently(new Date(Date.now() - 59 * 60_000).toISOString()), true);
-  assert.equal(reportedRecently(new Date(Date.now() - 61 * 60_000).toISOString()), false);
+test('personName junta nombre y apellido y cae al respaldo sin datos', () => {
+  assert.equal(personName('Ana', 'Soto'), 'Ana Soto');
+  assert.equal(personName(null, ' '), '—');
 });
 
-test('un veredicto fuera del CHECK no rompe la tabla', () => {
+test('un veredicto o una etapa desconocidos no rompen la fila', () => {
   assert.equal(verdictMeta('GREEN').label, 'Apto');
   assert.equal(verdictMeta('AZUL').label, 'Sin veredicto');
-  assert.equal(verdictMeta(null).label, 'Sin veredicto');
+  assert.equal(stageLabel('floracion'), 'Floración');
+  assert.equal(stageLabel('otra'), 'otra');
 });
 
-test('la concordancia es null cuando falta un valor, no 0 %', () => {
-  assert.equal(concordance(null, 6.5), null);
-  assert.equal(concordance(6.5, null), null);
-  assert.equal(concordance(0, 6.5), null);
-});
-
-test('la concordancia compara contra el valor de laboratorio', () => {
-  assert.equal(concordance(6.0, 6.0), 100);
-  assert.equal(concordance('6.0', '5.4'), 90);
+test('el pronóstico se resume en la racha de lluvia más larga', () => {
+  const day = (date, mm, pct = 0, min = 5) => ({
+    date,
+    precipitationMm: mm,
+    rainProbabilityPct: pct,
+    minimumTemperatureC: min,
+  });
+  assert.equal(
+    summarizeForecast({
+      forecast: [
+        day('2026-09-27', 0),
+        day('2026-09-28', 3),
+        day('2026-09-29', 0, 70),
+        day('2026-09-30', 5),
+        day('2026-10-01', 2),
+        day('2026-10-02', 1),
+        day('2026-10-03', 0),
+      ],
+    }),
+    'Lluvia 5 días consecutivos (28-09 a 02-10)',
+  );
+  assert.equal(summarizeForecast({ forecast: [day('2026-09-28', 0), day('2026-09-29', 0)] }), 'Sin lluvia en 2 días');
+  assert.equal(
+    summarizeForecast({ forecast: [day('2026-09-28', 4), day('2026-09-29', 0, 0, -1)] }),
+    'Lluvia el 28-09 · helada el 29-09',
+  );
+  assert.equal(summarizeForecast(null), 'Sin pronóstico');
 });
