@@ -99,11 +99,19 @@ try {
   const { data: invitations, error: invitationError } = await owner.client.rpc('get_device_access_qr', { p_device_id: device.id });
   if (invitationError) throw invitationError;
   const token = invitations[0].token;
-  const { data: joined, error: joinError } = await operator.client.rpc('join_device_by_invite', { p_token: token });
-  assert.equal(joinError, null);
-  assert.equal(joined?.[0]?.device_id, device.id);
-  assert.equal(joined?.[0]?.is_authorized, false);
-  assert.ok(joined?.[0]?.alert_id);
+  // Cada QR nuevo dura 5 minutos completos desde que se genera (20260928140000), sin
+  // alinearse al reloj. Se tolera un desfase de reloj de 30 s entre este equipo y el servidor.
+  const remaining = Date.parse(invitations[0].expires_at) - Date.now();
+  assert.ok(remaining > 270_000 && remaining <= 330_000, 'Un QR recién generado debe durar 5 minutos.');
+  // Igual que la app: el QR escaneado y el código escrito debajo son el mismo token,
+  // y los dos pasan por la Edge Function. Si no está desplegada, esto falla.
+  const { data: joined, error: joinError } = await operator.client.functions.invoke('request-device-access', { body: { token } });
+  assert.equal(joinError, null, 'request-device-access debe estar desplegada y aceptar el token.');
+  assert.equal(joined?.device_id, device.id);
+  assert.equal(joined?.is_authorized, false);
+  const { data: requestAlerts } = await admin.from('push_alerts').select('id')
+    .eq('device_id', device.id).eq('requester_user_id', operator.id).eq('event_type', 'access_request');
+  assert.equal(requestAlerts?.length, 1, 'La solicitud crea un aviso para el administrador.');
   const { data: repeated } = await operator.client.rpc('join_device_by_invite', { p_token: token });
   assert.equal(repeated[0].is_authorized, false);
   assert.equal(repeated[0].alert_id, null, 'Reescanear no debe duplicar notificaciones.');
@@ -228,41 +236,49 @@ try {
   assert.equal(rejoin[0].is_authorized, false, 'El exadministrador vuelve a quedar pendiente.');
   assert.equal(rejoin[0].role, 'user');
 
-  // Backoffice independiente: una cuenta sin membresia del equipo.
-  const { error: staffError } = await admin.from('admin_support_users').insert({
-    user_id: attacker.id, email: attacker.email, full_name: 'Integration Support', is_active: true,
-  });
-  if (staffError) throw staffError;
-  const { data: found } = await attacker.client.rpc('admin_search', { p_query: operator.email });
-  assert.ok(found.some(row => row.device_id === device.id));
-  const { error: lastAdminRemoval } = await attacker.client.rpc('admin_unbind_user_device', {
-    p_device_id: device.id, p_user_id: operator.id,
-  });
-  assert.equal(lastAdminRemoval?.code, '22023');
-  const { error: wrongReset } = await attacker.client.rpc('admin_factory_reset_device', {
-    p_device_id: device.id, p_confirm_device_code: '111111111111111',
-  });
-  assert.equal(wrongReset?.code, '22023');
-  const { data: reset, error: resetError } = await attacker.client.rpc('admin_factory_reset_device', {
+  // El reset desde la app se retiró (20260928130000): el único es el del backoffice,
+  // y ni el administrador del equipo ni otra cuenta pueden ejecutarlo.
+  const { error: appReset } = await operator.client.rpc('prepare_device_for_owner', {
     p_device_id: device.id, p_confirm_device_code: testDeviceCode,
   });
-  if (resetError) throw resetError;
-  assert.equal(reset.success, true);
-  const { data: remaining } = await admin.from('device_members').select('id').eq('device_id', device.id);
-  assert.deepEqual(remaining, []);
+  assert.equal(appReset?.code, 'PGRST202', 'El reset desde la app debe haber desaparecido.');
+  const { error: deniedReset } = await operator.client.rpc('admin_reset_device', { p_device_id: device.id });
+  assert.equal(deniedReset?.code, '42501', 'Sólo la cuenta de soporte resetea equipos.');
+
+  // Reset del backoffice. admin_reset_device exige la sesión de akurasoporte@gmail.com,
+  // que no tiene contraseña, así que el script reproduce con la clave de servicio lo que
+  // ese reset deja en el equipo: sin miembros, la generación siguiente y el aviso de
+  // invalidación para cada exmiembro.
+  const { data: beforeReset, error: beforeResetError } = await admin.from('devices').select('data_generation').eq('id', device.id).single();
+  if (beforeResetError) throw beforeResetError;
+  const generation = beforeReset.data_generation + 1;
+  const { data: formerMembers, error: formerMembersError } = await admin.from('device_members').select('user_id').eq('device_id', device.id);
+  if (formerMembersError) throw formerMembersError;
+  const { error: resetMarkError } = await admin.from('device_data_resets')
+    .upsert(formerMembers.map(m => ({ user_id: m.user_id, device_id: device.id, generation })));
+  if (resetMarkError) throw resetMarkError;
+  const { error: resetMembersError } = await admin.from('device_members').delete().eq('device_id', device.id);
+  if (resetMembersError) throw resetMembersError;
+  const { error: resetDeviceError } = await admin.from('devices').update({ data_generation: generation }).eq('id', device.id);
+  if (resetDeviceError) throw resetDeviceError;
+
   const { error: resetQr } = await owner.client.rpc('join_device_by_invite', { p_token: rotated[0].token });
   assert.equal(resetQr?.code, '22023');
+  // Tras el reset la sonda queda libre: la vincula quien la tenga con la ventana PAIR
+  // abierta (eso lo comprueba la app) y de dos intentos simultáneos gana uno solo.
   const claims = await Promise.all([owner, operator].map(user => user.client.rpc('register_paired_device', { p_code: testDeviceCode })));
   assert.equal(claims.filter(result => !result.error).length, 1, 'Solo uno gana el primer emparejamiento concurrente.');
   assert.equal(claims.filter(result => result.error?.code === '23505').length, 1);
   const { data: reclaimed } = await admin.from('device_members').select('role,is_authorized').eq('device_id', device.id);
   assert.deepEqual(reclaimed, [{ role: 'admin', is_authorized: true }]);
-  console.log('Supabase: roles, aprobacion, QR temporal, delegacion, aislamiento web y reset verificados.');
+  // La invalidación de copias antiguas sigue viva: cada exmiembro ve su aviso.
+  const { data: ownReset } = await owner.client.from('device_data_resets').select('generation').eq('device_id', device.id);
+  assert.deepEqual(ownReset, [{ generation }]);
+  console.log('Supabase: roles, aprobacion, QR temporal, delegacion, aislamiento web, reset solo del backoffice y revinculacion verificados.');
 } finally {
   if (testDeviceCode && /^[1-9]\d{14}$/.test(testDeviceCode)) {
     await admin.from('devices').delete().eq('device_code', testDeviceCode);
   }
-  if (createdUsers.length) await admin.from('admin_support_users').delete().in('user_id', createdUsers);
   for (const userId of createdUsers) {
     await admin.auth.admin.deleteUser(userId);
   }

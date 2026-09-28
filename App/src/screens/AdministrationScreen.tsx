@@ -1,5 +1,4 @@
 import { GuideTouchable as TouchableOpacity, GuideScrollView as ScrollView } from '../components/guide/GuideControls';
-import { PrepareDevicePanel } from '../components/PrepareDevicePanel';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, BackHandler, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -97,7 +96,6 @@ export function AdministrationScreen({ onClose, initialDeviceId }: { onClose: ()
           <TouchableOpacity disabled={busy} onPress={() => confirm(m, 'remove')}><Text style={{ paddingVertical: 12, color: colors.danger }}>{t('Eliminar usuario', 'Remove user')}</Text></TouchableOpacity>
         </>}
       </View>)}
-      {!loading && !error && devices.find(d => d.id === selected) && <PrepareDevicePanel key={selected} device={devices.find(d => d.id === selected)!} onComplete={onClose} onBusyChange={value => { operation.current = value; setBusy(value); }} />}
     </ScrollView>
   </SafeAreaView>;
 }

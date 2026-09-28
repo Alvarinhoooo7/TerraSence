@@ -51,7 +51,7 @@ export function ResetDialog({
       </ul>
       <p className="mt-3">
         El equipo desaparece de la app de todos sus usuarios. El ID no cambia (sale de la MAC de la sonda):
-        quien la vuelva a vincular quedará como administrador. <strong className="font-medium text-ink">No se puede deshacer.</strong>
+        quien la vuelva a vincular con el botón PAIR quedará como administrador. <strong className="font-medium text-ink">No se puede deshacer.</strong>
       </p>
     </ConfirmDialog>
   );

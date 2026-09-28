@@ -943,10 +943,6 @@ export type Database = {
           version: string
         }[]
       }
-      prepare_device_for_owner: {
-        Args: { p_confirm_device_code: string; p_device_id: string }
-        Returns: Json
-      }
       purge_expired_operational_data: {
         Args: never
         Returns: {

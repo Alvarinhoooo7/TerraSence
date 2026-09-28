@@ -40,7 +40,7 @@ export function RotatingDeviceQr({ deviceId }: { deviceId: string }) {
   const remaining = qr ? Math.max(0, Math.ceil((Date.parse(qr.expires_at) - now) / 1000)) : 0;
   return <View style={{ alignItems: 'center', gap: 12, padding: 16 }}>
     {qr && remaining > 0 ? <View style={{ padding: 12, backgroundColor: '#fff' }}><QRCode value={buildDeviceQrPayload(qr.token)} size={Math.min(220, Math.max(120, width - 160))} /></View> : <ActivityIndicator color={colors.primary} />}
-    <Text style={{ color: colors.textSecondary }}>{t('El QR cambia cada 15 minutos.', 'The QR changes every 15 minutes.')}</Text>
+    <Text style={{ color: colors.textSecondary }}>{t('Cada QR dura 5 minutos y luego se renueva.', 'Each QR lasts 5 minutes and then renews.')}</Text>
     {qr && remaining > 0 && <>
       <Text style={{ color: colors.textSecondary }}>{t('Código de invitación temporal', 'Temporary invitation code')}</Text>
       <Text selectable style={{ color: colors.text, textAlign: 'center' }}>{qr.token}</Text>

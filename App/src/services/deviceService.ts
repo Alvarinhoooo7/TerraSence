@@ -140,9 +140,3 @@ export async function manageDeviceMember(
   });
   if (error) throw error;
 }
-
-export async function prepareDeviceForOwner(deviceId: string, code: string): Promise<void> {
-  const { data, error } = await supabase.rpc('prepare_device_for_owner', { p_device_id: deviceId, p_confirm_device_code: code });
-  if (error) throw error;
-  if (data?.success !== true) throw new Error('No se confirmó el restablecimiento.');
-}

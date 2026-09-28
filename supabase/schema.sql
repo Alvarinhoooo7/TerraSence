@@ -786,14 +786,13 @@ CREATE OR REPLACE FUNCTION "public"."get_device_access_qr"("p_device_id" "uuid")
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO 'public'
     AS $$
-DECLARE v_expiry TIMESTAMPTZ;
 BEGIN
   PERFORM 1 FROM public.devices WHERE id = p_device_id FOR UPDATE;
   IF NOT public.has_device_access(p_device_id) THEN
     RAISE EXCEPTION 'Debes ser un miembro aprobado del equipo.' USING ERRCODE = '42501';
   END IF;
-  v_expiry := to_timestamp((floor(extract(epoch FROM clock_timestamp()) / 900) + 1) * 900);
-  INSERT INTO public.device_access_invites AS invitation(device_id, expires_at) VALUES(p_device_id, v_expiry)
+  INSERT INTO public.device_access_invites AS invitation(device_id, expires_at)
+    VALUES(p_device_id, clock_timestamp() + interval '5 minutes')
     ON CONFLICT (device_id) DO UPDATE SET token = gen_random_uuid(), expires_at = EXCLUDED.expires_at
     WHERE invitation.expires_at <= clock_timestamp();
   RETURN QUERY SELECT i.token, i.expires_at FROM public.device_access_invites i WHERE i.device_id = p_device_id;
@@ -1171,43 +1170,6 @@ COMMENT ON FUNCTION "public"."normalize_device_versions"() IS 'Deja hardware_ver
 
 
 
-CREATE OR REPLACE FUNCTION "public"."prepare_device_for_owner"("p_device_id" "uuid", "p_confirm_device_code" "text") RETURNS "jsonb"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public'
-    AS $$
-DECLARE v_device public.devices; v_recent_password BOOLEAN;
-BEGIN
-  IF auth.uid() IS NULL THEN RAISE EXCEPTION 'Autenticación requerida.' USING ERRCODE = '42501'; END IF;
-  SELECT * INTO v_device FROM public.devices WHERE id = p_device_id FOR UPDATE;
-  IF NOT FOUND OR NOT public.has_device_admin_access(p_device_id) THEN
-    RAISE EXCEPTION 'Sólo el administrador de este equipo puede prepararlo.' USING ERRCODE = '42501';
-  END IF;
-  SELECT EXISTS (SELECT 1 FROM jsonb_array_elements(COALESCE(auth.jwt()->'amr', '[]'::jsonb)) a
-    WHERE a->>'method' = 'password' AND (a->>'timestamp')::numeric >= extract(epoch FROM now() - interval '5 minutes')) INTO v_recent_password;
-  IF NOT v_recent_password THEN RAISE EXCEPTION 'Confirma nuevamente tu contraseña.' USING ERRCODE = '42501'; END IF;
-  IF v_device.device_code IS DISTINCT FROM regexp_replace(COALESCE(p_confirm_device_code, ''), '\D', '', 'g') THEN
-    RAISE EXCEPTION 'El código de confirmación no coincide.' USING ERRCODE = '22023';
-  END IF;
-  INSERT INTO public.device_data_resets(user_id, device_id, generation)
-    SELECT user_id, device_id, v_device.data_generation + 1 FROM public.device_members WHERE device_id = p_device_id
-    ON CONFLICT (user_id, device_id) DO UPDATE SET generation = EXCLUDED.generation;
-  DELETE FROM public.soil_measurements WHERE device_id = p_device_id;
-  DELETE FROM public.push_alerts WHERE device_id = p_device_id;
-  DELETE FROM public.device_access_invites WHERE device_id = p_device_id;
-  DELETE FROM public.device_status_log WHERE device_id = p_device_id;
-  DELETE FROM public.device_members WHERE device_id = p_device_id;
-  UPDATE public.devices SET name = 'Sonda TerraSense', alias = NULL,
-    pairing_mode_active = FALSE, transmission_interval_seconds = 300,
-    last_seen_at = NULL, last_measurement_at = NULL, data_generation = data_generation + 1
-    WHERE id = p_device_id;
-  INSERT INTO public.device_member_audit(device_id, actor_user_id, action) VALUES(p_device_id, auth.uid(), 'factory_reset');
-  RETURN jsonb_build_object('success', true, 'generation', v_device.data_generation + 1, 'physical_reset', false);
-END $$;
-
-
-ALTER FUNCTION "public"."prepare_device_for_owner"("p_device_id" "uuid", "p_confirm_device_code" "text") OWNER TO "postgres";
-
-
 CREATE OR REPLACE FUNCTION "public"."protect_device_generation"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     SET "search_path" TO 'public'
@@ -1332,10 +1294,9 @@ BEGIN
     VALUES(v_code, COALESCE(NULLIF(trim(p_name), ''), 'Sonda TerraSense'), 'ESP32-WROOM-32', 'BME280')
     RETURNING id INTO v_id;
   END IF;
+  -- Sin miembros (sonda nueva o reseteada por el backoffice): quien la registra
+  -- queda como administrador. La prueba física es la ventana PAIR, que exige la app.
   IF NOT EXISTS (SELECT 1 FROM public.device_members dm WHERE dm.device_id = v_id) THEN
-    IF EXISTS (SELECT 1 FROM public.devices WHERE id = v_id AND data_generation > 0) THEN
-      RAISE EXCEPTION 'Equipo preparado para otro propietario. Contacta a soporte para verificar la entrega y activar el nuevo acceso.' USING ERRCODE = '42501';
-    END IF;
     UPDATE public.devices SET name = COALESCE(NULLIF(trim(p_name), ''), name) WHERE id = v_id;
     INSERT INTO public.device_members(device_id, user_id, role, is_authorized) VALUES(v_id, v_uid, 'admin', TRUE);
   ELSIF NOT public.has_device_access(v_id) THEN
@@ -1348,7 +1309,7 @@ END $_$;
 ALTER FUNCTION "public"."register_paired_device"("p_code" "text", "p_name" "text") OWNER TO "postgres";
 
 
-COMMENT ON FUNCTION "public"."register_paired_device"("p_code" "text", "p_name" "text") IS 'Registra de forma atómica una sonda físicamente provisionada y crea la membresía owner. El INSERT directo de devices permanece cerrado por RLS.';
+COMMENT ON FUNCTION "public"."register_paired_device"("p_code" "text", "p_name" "text") IS 'Registra de forma atómica la sonda vinculada por BLE con la ventana PAIR abierta. Si el equipo no tiene miembros (nuevo o reseteado por el backoffice), quien lo registra queda como administrador. El INSERT directo de devices permanece cerrado por RLS.';
 
 
 
@@ -2490,12 +2451,6 @@ GRANT ALL ON FUNCTION "public"."my_firmware_updates"() TO "service_role";
 
 
 REVOKE ALL ON FUNCTION "public"."normalize_device_versions"() FROM PUBLIC;
-
-
-
-REVOKE ALL ON FUNCTION "public"."prepare_device_for_owner"("p_device_id" "uuid", "p_confirm_device_code" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."prepare_device_for_owner"("p_device_id" "uuid", "p_confirm_device_code" "text") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."prepare_device_for_owner"("p_device_id" "uuid", "p_confirm_device_code" "text") TO "service_role";
 
 
 
