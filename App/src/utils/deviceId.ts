@@ -1,10 +1,9 @@
 // src/utils/deviceId.ts
 //
 // ALGORITMO CANÓNICO DEL DEVICE ID — debe permanecer IDÉNTICO a la función
-// `public.generate_device_code()` de Supabase (migración 20260827100000) y a
-// `Web/src/utils/deviceId.ts`. Si se modifica en un sitio hay que replicarlo en
-// los otros, o los códigos que el agricultor copia desde la app dejarán de
-// encontrarse en la consola de soporte.
+// `public.generate_device_code()` de Supabase (migración 20260827100000). Si
+// se modifica en un sitio hay que replicarlo en el otro, o los códigos que el
+// agricultor copia desde la app dejarán de encontrarse en el backoffice.
 //
 // 15 dígitos ALEATORIOS, no derivados de un UUID por hash: un hash de 10
 // dígitos colisiona por la paradoja del cumpleaños a partir de unos pocos

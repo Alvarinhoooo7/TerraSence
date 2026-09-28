@@ -477,7 +477,7 @@ modificar nada.
 **Hecho el 27-09-2026:** las cuatro migraciones aplicadas con `supabase db push`, las dos funciones desplegadas, *Site URL* = `terrasense://` y *Redirect URLs* = `terrasense://reset-password` configurados en el panel, y `schema.sql` y `database.types.ts` regenerados desde producción. Verificado en remoto: la cuenta de soporte existe, confirmada y sin contraseña, y es la única en `admin_support_users`; las 13 funciones nuevas existen y las retiradas no; `backoffice-recover` responde `200`. Falta el paso 4 (primer ingreso).
 
 > [!NOTE]
-> Los dos equipos antiguos con código de 20 dígitos siguen congelados: `devices_device_code_15_digits` rechaza cualquier escritura sobre ellos, así que conservan sus valores de relleno y **no se pueden resetear** desde el backoffice. Hay que decidir si se borran o se les asigna un código válido.
+> Los dos equipos antiguos con código de 20 dígitos, sin usuarios ni datos, se borraron el mismo día: `devices_device_code_15_digits` rechazaba cualquier escritura sobre ellos.
 
 Pasos, para repetirlos en otro entorno:
 
@@ -619,15 +619,14 @@ Lo comprobado contra remoto, el 5 y el 6 de septiembre de 2026, es **la existenc
   contraseña de esa cuenta, y sólo después limpiar la columna `statements` de esa fila. El patrón a
   evitar en adelante es crear cuentas desde SQL con la contraseña incrustada, aunque el archivo esté
   en `.gitignore`: el archivo no se sube, pero su contenido viaja igual al historial remoto.
-- ⚠️ **Datos de prueba en producción.** La migración `20260902210000` (`dispositivo_demo.local`,
-  §6.1) sembró un usuario `demo.agricultor@terrasense.cl` y un equipo `🧪 Sonda DEMO` con histórico
-  de batería y una medición en la Región de O'Higgins. Su propio encabezado pide borrarlo al terminar
-  las pruebas. **Comprobado el 6-sep-2026: sigue en producción** —`device_id`
-  `fd3668be-f527-4766-8d50-f6eb8f938d05`, `device_code` `465719423880094`, `is_active = true`— con
-  4 filas en `device_status_log`, 1 en `device_members` y 1 en `soil_measurements`. Y ahí está el
-  problema de fondo: esa **es la única fila de `soil_measurements` de toda la base**. De 3 equipos
-  registrados, uno es este. Cualquier cifra de uso que se cite hoy está midiendo el *fixture*, no el
-  producto. Eliminarlo en cascada por su `device_id` cuando ya no haga falta para probar el panel.
+- **Datos de demostración en producción (27-09-2026).** El demo antiguo (`demo.agricultor@terrasense.cl`
+  y `🧪 Sonda DEMO`) se borró y se reemplazó por uno en el formato vigente, creado con un script de
+  datos y no con una migración: el equipo `99811-43486-90346` («Parcela demo · Rengo»), con
+  `demo.agricultor@example.com` como administradora aprobada, `demo.tecnico@example.com` con una
+  solicitud pendiente y 6 mediciones de las cuatro fases con ambiente, batería, pronóstico, consejo y
+  coordenada. Ambas cuentas **no tienen contraseña** y usan `example.com`, un dominio que no entrega
+  correo: sirven para probar el backoffice (búsqueda por correo, Aceptar/Rechazar, Hacer admin,
+  Reset), no para entrar a la app. **Cualquier cifra de uso debe excluir este equipo.**
 - ⚠️ **Endurecimiento de Auth, pendiente en el panel.** La revisión de seguridad del 9-sep-2026
   dejó los advisors sin hallazgos de nivel ERROR, pero siguen abiertos dos avisos que **no se
   aplicaron a propósito**: `auth_leaked_password_protection` y `auth_insufficient_mfa_options`. La
