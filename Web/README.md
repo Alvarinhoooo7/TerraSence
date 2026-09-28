@@ -50,7 +50,7 @@ Arriba, la búsqueda para saltar a otro equipo. Debajo, una tarjeta por tema; ca
 
 **Online** significa que un teléfono habló con la sonda hace menos de 15 minutos: la sonda no tiene internet. Lo decide el servidor con `devices.last_seen_at`, que la app actualiza en cada contacto BLE ([`contactService.ts`](../App/src/services/contactService.ts)).
 
-**Reset** abre un diálogo con la lista de lo que se borra (usuarios, solicitudes, mediciones, alertas, invitaciones, historial, actualizaciones) y dos botones: Cancelar y Resetear. Se conserva el ID grabado en la sonda; quien la vuelva a vincular queda como administrador.
+**Reset** abre un diálogo con la lista de lo que se borra (usuarios, solicitudes, mediciones, alertas, invitaciones, historial, actualizaciones) y dos botones: Cancelar y Resetear. El ID no cambia porque sale de la MAC de la sonda; quien la vuelva a vincular queda como administrador. **Es el único reset que existe**: la sonda no tiene pulsación de reset.
 
 ### Update (`/update`)
 

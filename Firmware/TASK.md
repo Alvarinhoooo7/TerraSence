@@ -6,15 +6,15 @@ Alcance vigente: **vinculación BLE con la app, pulsador PAIR, indicadores LED y
 
 | Bloque | Qué hace | Verificado |
 | :--- | :--- | :--- |
-| Pulsador PAIR (IO33) | Antirrebote de 30 ms sin bloquear el bucle. 3 s abren la ventana de 30 s; 10 s borran el código y reinician. | Compila. Falta en hardware. |
-| Anuncio BLE | Servicio `…6101` en el paquete principal y el nombre en la respuesta de escaneo: `TerraSense` sin código, `TerraSense-<código>` con código. Se reanuda tras cada desconexión. | Compila. Falta con la app. |
-| Identidad `…6103` | Lectura: código de 15 dígitos en ASCII, o valor vacío. | Compila. Falta con la app. |
-| Provisión `…6104` | Acepta el código sólo con la ventana abierta, sin código previo y con formato `^[1-9]\d{14}$`. Lo guarda en NVS, cierra la ventana y cambia el nombre anunciado. Si lo rechaza, lo ignora y lo informa por el monitor serie. | Compila. Falta con la app. |
+| Pulsador PAIR (IO33) | Antirrebote de 30 ms sin bloquear el bucle. 3 s abren la ventana de 30 s. **No hay pulsación de reset**: el único reset es el del backoffice. | Compila. Falta en hardware. |
+| Anuncio BLE | Servicio `…6101` en el paquete principal y el nombre `TerraSense-<ID>` en la respuesta de escaneo. Se reanuda tras cada desconexión. | Compila. Falta con la app. |
+| Identidad `…6103` | Lectura: el ID de 15 dígitos en ASCII, derivado de la MAC base del ESP32 (`esp_efuse_mac_get_default`, 48 bits en decimal con ceros a la izquierda). Siempre presente; no se guarda ni se borra. | Compila sin advertencias. Falta comparar con la MAC real en hardware. |
+| Confirmación `…6104` | La app escribe el ID tras registrar la sonda. Se acepta sólo con la ventana abierta y si coincide con el de la sonda: cierra la ventana y avisa con verde y buzzer. No guarda nada. | Compila. Falta con la app. |
 | Telemetría `…6102` | Al suscribirse la app arma una trama nueva de 20 bytes, versión 1, y la notifica una vez. | La app real rechaza las tramas `FF` («Batería BLE inválida») y no guarda nada: comprobado con `decodeTelemetry`. |
 | BME280 | Driver propio por I2C (0x76/0x77) en modo forzado, con la compensación de Bosch. Si no responde se envían centinelas; se vuelve a buscar en cada lectura. | Compila. Sin sensor para validarlo. |
 | LEDs | Apagados en reposo; sólo avisos breves y la ventana PAIR (tabla del README). Encendido/apagado simple, sin PWM. | Compila sin advertencias. Falta en hardware. |
 | Buzzer (IO19) | Tonos por LEDC con el mismo significado que los LEDs (tabla del README), en secuencias no bloqueantes. | Compila sin advertencias. Falta en hardware; ver H1. |
-| Característica de estado `…6105` | Batería en % (curva LiPo típica, sin calibrar) y versión `FIRMWARE_VERSION_*`, legible en cualquier momento. La app la lee en cada contacto y la informa a Supabase. | Compila sin advertencias. Falta leerla con nRF Connect en hardware. |
+| Característica de estado `…6105` | 5 bytes: batería en % (curva LiPo típica, sin calibrar), versión `FIRMWARE_VERSION_*` y banderas (bit 0 = ventana PAIR abierta), legible en cualquier momento. La app la lee en cada contacto y la informa a Supabase. | Compila sin advertencias. Falta leerla con nRF Connect en hardware. |
 | Batería (IO34) | Lectura calibrada del ADC, divisor ×2, aviso bajo 3,40 V con histéresis hasta 3,50 V; se ignora bajo 2,5 V (sin celda). No entra en la trama sin lectura de suelo. | Compila. Divisor y umbral sin confirmar. |
 
 Compilación: `arduino-cli` del Arduino IDE, núcleo esp32 3.3.0, placa ESP32 Dev Module, sin advertencias en los archivos del firmware. El programa ocupa el 88 % de la partición por defecto.
@@ -28,16 +28,15 @@ Requisitos:
 
 | Paso | Acción | Resultado esperado |
 | :---: | :--- | :--- |
-| 1 | Cargar el firmware y encender. | 🟢 fijo 1 s con un pitido corto y luego todo apagado. Serie: `Sin código`, `Anunciando como "TerraSense"`. |
-| 2 | Mantener PAIR 3 s. | 🔵 parpadeo 2 Hz y un pitido corto. Serie: `Ventana de vinculación abierta por 30 s`. |
-| 3 | En la app, Onboarding «Vincula tu sonda» o Mis dispositivos → registrar. | La app encuentra la sonda y se conecta. Serie: `conectado` / `desconectado`. App: «La encontramos.» |
-| 4 | Escribir el nombre y guardar **antes de que se cierre la ventana**. | 🟢 tres destellos con dos pitidos ascendentes y el azul se apaga. Serie: `Código … guardado; ventana cerrada` y `Anunciando como "TerraSense-…"`. La app registra el equipo con el mismo código que muestra el monitor serie. |
-| 4b | Si pasaron los 30 s. | 🔴 tres destellos y tono grave. App: «La sonda no confirmó el código. Mantén PAIR 3 segundos y reintenta». Serie: `Código rechazado: la ventana … está cerrada`. Mantener PAIR 3 s y volver a guardar. |
-| 5 | Reiniciar el ESP32. | Serie: `Código guardado: …`, igual que en el paso 4. Confirma que el código persiste en NVS. |
-| 6 | Medir desde la app. | Serie: `[TRAMA] FF … FF 01 FF FF FF FF (notificada)`. 🔴 tres destellos y tono grave. App: «La sonda no entregó lectura de suelo…». **Es el resultado correcto**: prueba que llegaron los 20 bytes con versión 1 y que no se guardó una medición inventada. El historial no debe tener mediciones nuevas. |
-| 7 | Mantener PAIR 10 s. | 🔵 parpadea desde los 3 s. A los 10 s, 🔴 fijo 1 s con tono grave y reinicia como `TerraSense` sin código. El equipo sigue registrado en Supabase con el código anterior: eliminarlo de la cuenta de prueba antes de repetir. |
+| 1 | Cargar el firmware y encender. | 🟢 fijo 1 s con un pitido corto y luego todo apagado. Serie: `ID de la sonda (desde la MAC): …` y `Anunciando como "TerraSense-…"` con ese mismo ID. |
+| 2 | En la app, Onboarding «Vincula tu sonda» o Mis dispositivos → registrar, **sin** tocar PAIR. | App: «Mantén el botón PAIR de la sonda 3 segundos…». No se registra nada. |
+| 3 | Mantener PAIR 3 s y volver a buscar desde la app. | 🔵 parpadeo 2 Hz y un pitido corto. La app encuentra la sonda. Serie: `conectado` / `desconectado`. |
+| 4 | Escribir el nombre y guardar. | La app registra el equipo con el ID del monitor serie. Si la ventana sigue abierta: 🟢 tres destellos con dos pitidos y el azul se apaga (serie: `Vinculación confirmada`). Si ya pasaron los 30 s, el equipo queda registrado igual y la sonda sólo avisa en rojo. |
+| 5 | Reiniciar el ESP32. | El mismo ID en el monitor serie: sale de la MAC, no de algo guardado. |
+| 6 | Medir desde la app. | Serie: `[TRAMA] FF … FF 01 FF FF FF FF (notificada)`. 🔴 tres destellos y tono grave. App: «La sonda no entregó lectura de suelo…». **Es el resultado correcto**: prueba que llegaron los 20 bytes con versión 1 y que no se guardó una medición inventada. |
+| 7 | Resetear el equipo desde el backoffice y volver a vincularlo (pasos 3 y 4). | Reaparece con el mismo ID y quien lo vincula queda como administrador. |
 
-El mensaje del paso 6 requiere una app compilada con el centinela de suelo; una versión anterior muestra «Batería BLE inválida», que también es correcto (no guarda nada). Si en el paso 3 la app muestra «No se pudo verificar la identidad de la sonda», ver el pendiente A2.
+El mensaje del paso 6 requiere una app compilada con el centinela de suelo; una versión anterior muestra «Batería BLE inválida», que también es correcto (no guarda nada). Si la app muestra «No se pudo verificar la identidad de la sonda», la sonda tiene un firmware anterior al ID por MAC: cargar este.
 
 ## Pendiente de implementación
 
@@ -66,9 +65,8 @@ El mensaje del paso 6 requiere una app compilada con el centinela de suelo; una 
 | # | Tarea | Detalle |
 | :---: | :--- | :--- |
 | A1 | Rangos de suelo | El centinela «sin lectura de suelo» (bytes 0-14 en `FF`) ya está en el contrato y en `decodeTelemetry`. Falta validar los rangos de cada campo de suelo (humedad ≤ 100 %, pH ≤ 14) cuando exista el driver Modbus. |
-| A2 | Identidad vacía | El firmware publica un valor de 0 bytes cuando no tiene código. `readAssignedCode` lo acepta sólo si llega como `''`; un `null` lo trata a propósito como lectura fallida (prueba en `App/tests/onboardingAudit.test.ts`), para no dar por nueva una sonda que sí tiene código. Comprobar en el teléfono qué entrega `react-native-ble-plx`: si en el paso 3 aparece «No se pudo verificar la identidad de la sonda» con una sonda recién borrada, la pila entrega `null` y hay que decidir cómo distinguirlo de un fallo. |
-| A3 | Ventana de 30 s y el nombre | En el Onboarding, el código se escribe después de que el usuario pone el nombre. Si tarda más de 30 s desde que soltó PAIR, falla y hay que repetir. Opciones: provisionar antes de pedir el nombre o alargar la ventana. |
-| A4 | Vincular sin pulsador | `pairWithNearbyProbe` acepta cualquier sonda que anuncie el servicio. Una sonda que ya tiene código y no está registrada en Supabase puede quedar vinculada sin tocar PAIR. Una sonda ya registrada está protegida: la base rechaza el código duplicado. |
+| A3 | Ventana de 30 s y el nombre | La ventana se comprueba al buscar la sonda, antes de pedir el nombre: registrar ya no depende de terminar dentro de los 30 s. Sólo el aviso verde de la sonda lo requiere. Resuelto. |
+| A4 | Vincular sin pulsador | Resuelto: la app sólo registra una sonda con la ventana PAIR abierta (byte de banderas de la característica de estado). Queda un límite de la base: `register_paired_device` acepta el ID de una sonda libre sin prueba física, así que alguien que conozca el ID (se anuncia por BLE) podría registrarla llamando a la API directamente. Una sonda con dueño está protegida. |
 
 ### Documentación
 

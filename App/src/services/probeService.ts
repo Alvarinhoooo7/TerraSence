@@ -22,7 +22,7 @@ import type { SoilMeasurement } from '../types/agronomy';
 /** Servicio y característica GATT de TerraSense (README §5.5). */
 export const TERRASENSE_SERVICE_UUID = '00000001-5e4e-4c69-6d61-746572726101';
 export const TERRASENSE_TELEMETRY_UUID = '00000002-5e4e-4c69-6d61-746572726102';
-/** Código estable de 15 dígitos guardado por el ESP32 en NVS. */
+/** ID de 15 dígitos que el ESP32 deriva de su MAC; nunca cambia. */
 export const TERRASENSE_IDENTITY_UUID = '00000003-5e4e-4c69-6d61-746572726103';
 /** Escritura permitida únicamente durante la ventana física de pairing. */
 export const TERRASENSE_PROVISIONING_UUID = '00000004-5e4e-4c69-6d61-746572726104';
@@ -34,18 +34,22 @@ export interface ProbeStatus {
   battery: number | null;
   /** «1.0.0», o null si la característica no trae los 3 bytes de versión. */
   firmwareVersion: string | null;
+  /** Ventana PAIR abierta (byte 4, bit 0). Sin ese byte, false. */
+  pairingOpen: boolean;
 }
 
 /**
  * Decodifica la característica de estado: byte 0 = batería en % (0xFF sin
- * dato), bytes 1–3 = versión mayor, menor y parche. Un valor fuera de rango
- * o incompleto se entrega como null, nunca como un número inventado.
+ * dato), bytes 1–3 = versión mayor, menor y parche, byte 4 = banderas (bit 0,
+ * ventana PAIR abierta). Un valor fuera de rango o incompleto se entrega como
+ * null, nunca como un número inventado.
  */
 export function decodeProbeStatus(bytes: Uint8Array): ProbeStatus {
   const raw = bytes.length >= 1 ? bytes[0]! : 0xff;
   return {
     battery: raw <= 100 ? raw : null,
     firmwareVersion: bytes.length >= 4 ? `${bytes[1]}.${bytes[2]}.${bytes[3]}` : null,
+    pairingOpen: bytes.length >= 5 && (bytes[4]! & 0x01) === 0x01,
   };
 }
 

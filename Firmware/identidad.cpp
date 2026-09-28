@@ -2,50 +2,35 @@
 
 #include "identidad.h"
 
-#include <Preferences.h>
+#include <esp_mac.h>
 
 namespace {
-constexpr const char *NVS_ESPACIO = "terrasense";
-constexpr const char *NVS_CLAVE = "codigo";
 constexpr size_t LARGO_CODIGO = 15;
-
-Preferences nvs;
 String codigoActual;
 }  // namespace
 
 namespace identidad {
 
 void begin() {
-  nvs.begin(NVS_ESPACIO, false);
-  const String guardado = nvs.getString(NVS_CLAVE, "");
-  // Un valor corrupto en NVS se trata como ausente: mejor pedir una nueva
-  // vinculación que anunciar un código que la app rechazará.
-  codigoActual = formatoValido(guardado) ? guardado : "";
-}
+  // MAC base de eFuse, en el orden canónico (mac[0] es el byte más alto).
+  uint8_t mac[6] = {0};
+  esp_efuse_mac_get_default(mac);
+  uint64_t valor = 0;
+  for (uint8_t byte : mac) valor = (valor << 8) | byte;
 
-bool provisionada() { return codigoActual.length() == LARGO_CODIGO; }
+  char texto[LARGO_CODIGO + 1];
+  snprintf(texto, sizeof(texto), "%015llu", static_cast<unsigned long long>(valor));
+  codigoActual = texto;
+}
 
 String codigo() { return codigoActual; }
 
 bool formatoValido(const String &valor) {
   if (valor.length() != LARGO_CODIGO) return false;
-  if (valor[0] < '1' || valor[0] > '9') return false;
-  for (size_t i = 1; i < LARGO_CODIGO; i++) {
+  for (size_t i = 0; i < LARGO_CODIGO; i++) {
     if (valor[i] < '0' || valor[i] > '9') return false;
   }
   return true;
-}
-
-bool guardar(const String &valor) {
-  if (provisionada() || !formatoValido(valor)) return false;
-  if (nvs.putString(NVS_CLAVE, valor) != valor.length()) return false;
-  codigoActual = valor;
-  return true;
-}
-
-void borrar() {
-  nvs.remove(NVS_CLAVE);
-  codigoActual = "";
 }
 
 }  // namespace identidad

@@ -13,7 +13,6 @@ const Nota VENTANA[]   = {{AGUDO, 60}};
 const Nota EXITO[]     = {{AGUDO, 70}, {0, 50}, {ALTO, 90}};
 const Nota FALLO[]     = {{GRAVE, 400}};
 const Nota BATERIA[]   = {{GRAVE, 120}, {0, 80}, {GRAVE, 120}};
-const Nota BORRADO[]   = {{GRAVE, 1000}};
 
 template <size_t N>
 constexpr uint8_t largo(const Nota (&)[N]) { return N; }
@@ -46,7 +45,6 @@ void Zumbador::reproducir(Sonido sonido, uint32_t ahora) {
     case Sonido::Exito:          notas_ = EXITO;     total_ = largo(EXITO);     break;
     case Sonido::Fallo:          notas_ = FALLO;     total_ = largo(FALLO);     break;
     case Sonido::BateriaBaja:    notas_ = BATERIA;   total_ = largo(BATERIA);   break;
-    case Sonido::Borrado:        notas_ = BORRADO;   total_ = largo(BORRADO);   break;
   }
   indice_ = 0;
   notaDesde_ = ahora;

@@ -4,8 +4,9 @@ import { GuideTouchable as TouchableOpacity, GuideScrollView as ScrollView, Guid
 // src/screens/DevicesScreen.tsx
 //
 // Alta y selección de equipos. Adaptado de DevicePairingScreen.tsx de Akura.
-// El alta nueva exige presencia BLE y provisiona el mismo Device ID en la
-// NVS de la sonda y en Supabase; un código existente sólo vincula operadores.
+// El alta nueva exige presencia BLE con la ventana PAIR abierta y registra
+// en Supabase el ID que la sonda deriva de su MAC; un código existente sólo
+// vincula operadores.
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -34,7 +35,7 @@ import {
   registerDevice,
   requestDeviceAccess,
 } from '../services/deviceService';
-import { parseDeviceQrPayload, formatDeviceId, generateDeviceId } from '../utils/deviceId';
+import { parseDeviceQrPayload, formatDeviceId } from '../utils/deviceId';
 import type { DeviceMembershipRow, DeviceRow } from '../types/app';
 
 interface Props {
@@ -92,9 +93,12 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
         throw new Error(t('Se necesita permiso de Bluetooth para registrar una sonda física.', 'Bluetooth permission is required to register a physical probe.'));
       }
       const probe = await ble.pairWithNearbyProbe();
-      const code = probe.assignedCode ?? generateDeviceId();
-      if (!probe.assignedCode) await ble.provisionProbe(probe.bleId, code);
-      const d = await registerDevice(newName.trim() || probe.name, code);
+      if (!probe.pairingOpen) {
+        throw new Error(t('Mantén el botón PAIR de la sonda 3 segundos, hasta que la luz azul parpadee, y vuelve a intentarlo.', 'Hold the probe PAIR button for 3 seconds, until the blue light blinks, and try again.'));
+      }
+      const d = await registerDevice(newName.trim() || probe.name, probe.deviceCode);
+      // Aviso en la sonda (verde y buzzer); no retiene ni deshace el registro.
+      void ble.confirmPairing(probe.bleId, probe.deviceCode);
       setNewName('');
       setDevice(d);
       await refresh();

@@ -1,8 +1,9 @@
 /*
  * Firmware TerraSense - ESP32 (Arduino IDE, núcleo esp32 3.x)
  *
- * Alcance actual: vinculación BLE con la app (pulsador PAIR + provisión del
- * código), indicadores LED y sonoros, y trama de telemetría de 20 bytes.
+ * Alcance actual: vinculación BLE con la app (pulsador PAIR y confirmación del
+ * ID, que sale de la MAC), indicadores LED y sonoros, y trama de telemetría de
+ * 20 bytes. No hay reset desde la sonda: el único reset es el del backoffice.
  * Sin lectura de suelo todavía: los campos sin lectura viajan en 0xFF y nunca
  * se simulan. Estado y pendientes en TASK.md.
  */
@@ -160,8 +161,7 @@ void setup() {
   else Serial.println("[BME280] No detectado: el ambiente viajará como centinela");
 
   identidad::begin();
-  if (identidad::provisionada()) Serial.printf("[PAIR] Código guardado: %s\n", identidad::codigo().c_str());
-  else Serial.println("[PAIR] Sin código: mantén PAIR 3 s y vincula desde la app");
+  Serial.printf("[PAIR] ID de la sonda (desde la MAC): %s\n", identidad::codigo().c_str());
 
   bleIniciar();
   // La única señal de «estoy encendida».
@@ -178,23 +178,6 @@ void loop() {
       bleAbrirVentana(ahora);
       zumbador.reproducir(Sonido::VentanaAbierta, ahora);
       Serial.printf("[PAIR] Ventana de vinculación abierta por %lu s\n", PAIR_VENTANA_MS / 1000UL);
-      break;
-    case EventoPulsador::ResetSolicitado:
-      Serial.println("[PAIR] Pulsación de 10 s: se borra el código y se reinicia");
-      identidad::borrar();
-      // Rojo fijo y tono grave durante 1 s: confirman el borrado antes de reiniciar.
-      ledAzul.apagar();
-      ledVerde.apagar();
-      ledRojo.apagar();
-      ledRojo.aviso(PatronLed::Encendido1s, millis());
-      ledRojo.actualizar(millis());
-      zumbador.reproducir(Sonido::Borrado, millis());
-      for (const uint32_t desde = millis(); millis() - desde < 1000;) {
-        zumbador.actualizar(millis());
-        delay(5);
-      }
-      zumbador.silenciar();
-      ESP.restart();
       break;
     case EventoPulsador::Ninguno:
       break;

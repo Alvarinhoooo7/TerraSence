@@ -30,7 +30,6 @@ import { completeOnboarding } from '../services/onboardingService';
 import { useAppStore } from '../store/useAppStore';
 import { useAuthStore } from '../store/useAuthStore';
 import {
-  generateDeviceId,
   parseDeviceQrPayload,
   parseDeviceInvite,
 } from '../utils/deviceId';
@@ -42,7 +41,7 @@ type PairingState = 'idle' | 'scanning' | 'found' | 'saving';
 interface ProbeIdentity {
   bleId: string;
   name: string;
-  assignedCode: string | null;
+  deviceCode: string;
 }
 
 interface Props {
@@ -239,6 +238,9 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
       }
       const found = await ble.pairWithNearbyProbe();
       if (!mounted.current) return;
+      if (!found.pairingOpen) {
+        throw new Error(t('Mantén el botón PAIR de la sonda 3 segundos, hasta que la luz azul parpadee, y vuelve a buscar.', 'Hold the probe PAIR button for 3 seconds, until the blue light blinks, and search again.'));
+      }
       setProbe(found);
       setDeviceName(found.name);
       setPairingState('found');
@@ -259,16 +261,9 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
     operation.current = true;
     setPairingState('saving');
     try {
-      const code = probe.assignedCode ?? generateDeviceId();
-
-      if (!probe.assignedCode) {
-        const ble = await import('../services/bleService');
-        await ble.provisionProbe(probe.bleId, code);
-        if (!mounted.current) return;
-        setProbe((current) => (current ? { ...current, assignedCode: code } : current));
-      }
-
-      const device = await registerDevice(deviceName.trim(), code);
+      const device = await registerDevice(deviceName.trim(), probe.deviceCode);
+      // Aviso en la sonda (verde y buzzer); no retiene ni deshace el registro.
+      void import('../services/bleService').then((ble) => ble.confirmPairing(probe.bleId, probe.deviceCode));
       await finish('pairing', device);
     } catch (error) {
       if (!mounted.current) return;

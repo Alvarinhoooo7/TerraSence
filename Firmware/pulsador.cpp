@@ -26,7 +26,6 @@ EventoPulsador Pulsador::actualizar(uint32_t ahora) {
     if (presionado_) {
       presionadoDesde_ = ahora;
       pairingEmitido_ = false;
-      resetEmitido_ = false;
     }
   }
 
@@ -38,10 +37,6 @@ EventoPulsador Pulsador::actualizar(uint32_t ahora) {
   if (!pairingEmitido_ && mantenido >= PAIR_PULSACION_MS) {
     pairingEmitido_ = true;
     return EventoPulsador::PairingActivado;
-  }
-  if (!resetEmitido_ && mantenido >= RESET_PULSACION_MS) {
-    resetEmitido_ = true;
-    return EventoPulsador::ResetSolicitado;
   }
   return EventoPulsador::Ninguno;
 }

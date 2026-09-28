@@ -3,8 +3,8 @@
 // Alta y vinculación de equipos.
 //
 // El alta de una sonda físicamente emparejada usa una RPC atómica que crea el
-// equipo y la membresía de administrador. El código debe coincidir con el provisionado en
-// NVS y su unicidad continúa respaldada por el índice UNIQUE de Postgres.
+// equipo y la membresía de administrador. El código es el que la sonda deriva
+// de su MAC; su unicidad continúa respaldada por el índice UNIQUE de Postgres.
 
 import { supabase } from './supabase';
 import { flushProbeContacts } from './contactService';
@@ -44,8 +44,8 @@ export async function listMyDeviceMemberships(): Promise<DeviceMembershipRow[]> 
  * Registra un equipo nuevo.
  *
  * Fuera del pairing no se envía `device_code`: lo genera la base. Durante el
- * pairing se envía el mismo código criptográfico que la app acaba de grabar
- * en la NVS del ESP32; el índice UNIQUE sigue siendo la autoridad final.
+ * pairing se envía el ID que la sonda deriva de su MAC y que la app acaba de
+ * leer por BLE; el índice UNIQUE sigue siendo la autoridad final.
  * El trigger `link_device_creator` inserta la membresía del creador justo
  * después, de modo que la política SELECT ya lo deja verlo al volver.
  */

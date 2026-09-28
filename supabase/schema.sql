@@ -940,7 +940,7 @@ DECLARE v_uid UUID := auth.uid(); v_code TEXT; v_device public.devices; v_first 
 BEGIN
   IF v_uid IS NULL THEN RAISE EXCEPTION 'Autenticación requerida.' USING ERRCODE = '42501'; END IF;
   v_code := regexp_replace(COALESCE(p_code, ''), '\D', '', 'g');
-  IF v_code !~ '^[1-9][0-9]{14}$' THEN RAISE EXCEPTION 'Código inválido.' USING ERRCODE = '22023'; END IF;
+  IF v_code !~ '^[0-9]{15}$' THEN RAISE EXCEPTION 'Código inválido.' USING ERRCODE = '22023'; END IF;
   IF (SELECT count(*) FROM public.device_join_attempts WHERE user_id = v_uid AND NOT succeeded
       AND attempted_at > NOW() - INTERVAL '1 hour') >= 10 THEN
     RAISE EXCEPTION 'Demasiados intentos. Inténtalo en una hora.' USING ERRCODE = '54000';
@@ -1323,7 +1323,7 @@ DECLARE v_uid UUID := auth.uid(); v_code TEXT; v_id UUID;
 BEGIN
   IF v_uid IS NULL THEN RAISE EXCEPTION 'Autenticación requerida.' USING ERRCODE = '42501'; END IF;
   v_code := regexp_replace(COALESCE(p_code, ''), '\D', '', 'g');
-  IF v_code !~ '^[1-9][0-9]{14}$' THEN RAISE EXCEPTION 'Código inválido.' USING ERRCODE = '22023'; END IF;
+  IF v_code !~ '^[0-9]{15}$' THEN RAISE EXCEPTION 'Código inválido.' USING ERRCODE = '22023'; END IF;
   -- Serializa también las altas cuando todavía no existe la fila del equipo.
   PERFORM pg_advisory_xact_lock(hashtextextended(v_code, 0));
   SELECT d.id INTO v_id FROM public.devices d WHERE d.device_code = v_code FOR UPDATE;
@@ -1621,11 +1621,16 @@ CREATE TABLE IF NOT EXISTS "public"."devices" (
     "created_at" timestamp with time zone DEFAULT "now"(),
     "data_generation" integer DEFAULT 0 NOT NULL,
     "first_seen_at" timestamp with time zone,
-    CONSTRAINT "devices_battery_level_check" CHECK ((("battery_level" >= 0) AND ("battery_level" <= 100)))
+    CONSTRAINT "devices_battery_level_check" CHECK ((("battery_level" >= 0) AND ("battery_level" <= 100))),
+    CONSTRAINT "devices_device_code_15_digits" CHECK ((("device_code")::"text" ~ '^[0-9]{15}$'::"text"))
 );
 
 
 ALTER TABLE "public"."devices" OWNER TO "postgres";
+
+
+COMMENT ON COLUMN "public"."devices"."device_code" IS 'ID de 15 dígitos derivado de la MAC del ESP32 (puede empezar con 0). Lo lee la app de la sonda al vincular; no cambia nunca.';
+
 
 
 COMMENT ON COLUMN "public"."devices"."last_seen_at" IS 'Último contacto real de la sonda con un teléfono. La sonda no tiene internet: «online» significa que un teléfono habló con ella hace poco.';
@@ -1863,11 +1868,6 @@ ALTER TABLE ONLY "public"."device_members"
 
 ALTER TABLE ONLY "public"."device_status_log"
     ADD CONSTRAINT "device_status_log_pkey" PRIMARY KEY ("id");
-
-
-
-ALTER TABLE "public"."devices"
-    ADD CONSTRAINT "devices_device_code_15_digits" CHECK ((("device_code")::"text" ~ '^[1-9][0-9]{14}$'::"text")) NOT VALID;
 
 
 

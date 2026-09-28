@@ -19,6 +19,7 @@ import { Platform, PermissionsAndroid } from 'react-native';
 import {
   decodeProbeStatus,
   decodeTelemetry,
+  type ProbeStatus,
   TERRASENSE_IDENTITY_UUID,
   TERRASENSE_PROVISIONING_UUID,
   TERRASENSE_SERVICE_UUID,
@@ -128,8 +129,9 @@ function advertisedDeviceCode(device: Device): string | null {
   ]
     .filter(Boolean)
     .join(' ');
-  const match = haystack.match(/[1-9]\d{14}/);
-  return match?.[0] ?? null;
+  // El ID puede empezar con 0: se exige que no esté pegado a otros dígitos.
+  const match = haystack.match(/(?:^|\D)(\d{15})(?!\d)/);
+  return match?.[1] ?? null;
 }
 
 /**
@@ -178,57 +180,63 @@ export interface PairedProbeIdentity {
   /** Identificador que entrega el sistema operativo para esta radio. */
   bleId: string;
   name: string;
-  /** Código ya provisionado, si el ESP32 conserva uno en NVS. */
-  assignedCode: string | null;
+  /** ID de 15 dígitos que la sonda deriva de su MAC. Nunca cambia. */
+  deviceCode: string;
+  /** La ventana PAIR estaba abierta al leerla: prueba de que la tienen en la mano. */
+  pairingOpen: boolean;
 }
 
-/**
- * Lee batería y versión (característica de estado) e informa el contacto a
- * Supabase. Nunca lanza ni retiene el flujo: un firmware anterior sin esta
- * característica sólo deja batería y versión vacías, y el contacto se informa
- * igual.
- */
-async function reportContact(device: Device, deviceCode: string | null): Promise<void> {
-  if (!deviceCode) return;
-  let battery: number | null = null;
-  let firmwareVersion: string | null = null;
+async function readProbeStatus(device: Device): Promise<ProbeStatus | null> {
   try {
     const characteristic = await gattOperation(id => device.readCharacteristicForService(
       TERRASENSE_SERVICE_UUID,
       TERRASENSE_STATUS_UUID,
       id,
     ));
-    if (characteristic.value) {
-      const binary = globalThis.atob(characteristic.value);
-      ({ battery, firmwareVersion } = decodeProbeStatus(Uint8Array.from(binary, c => c.charCodeAt(0))));
-    }
+    if (!characteristic.value) return null;
+    const binary = globalThis.atob(characteristic.value);
+    return decodeProbeStatus(Uint8Array.from(binary, c => c.charCodeAt(0)));
   } catch {
-    /* Firmware sin característica de estado: se informa sólo la hora. */
+    return null;  // firmware sin característica de estado
   }
-  void recordProbeContact({ deviceCode, battery, firmwareVersion }).catch(() => undefined);
 }
 
-async function readAssignedCode(device: Device): Promise<string | null> {
+/**
+ * Informa el contacto a Supabase con la batería y la versión de la
+ * característica de estado. Nunca lanza ni retiene el flujo: sin estado, se
+ * informa sólo la hora.
+ */
+async function reportContact(device: Device, deviceCode: string | null, known?: ProbeStatus | null): Promise<void> {
+  if (!deviceCode) return;
+  const status = known === undefined ? await readProbeStatus(device) : known;
+  void recordProbeContact({
+    deviceCode,
+    battery: status?.battery ?? null,
+    firmwareVersion: status?.firmwareVersion ?? null,
+  }).catch(() => undefined);
+}
+
+/** El ID que la sonda deriva de su MAC. Un firmware anterior lo dejaba vacío. */
+async function readDeviceCode(device: Device): Promise<string> {
   const characteristic = await gattOperation(id => device.readCharacteristicForService(
     TERRASENSE_SERVICE_UUID,
     TERRASENSE_IDENTITY_UUID,
     id,
   ));
-  if (characteristic.value === '') return null;
-  const code = decodeBase64Text(characteristic.value).trim();
-  if (!/^[1-9]\d{14}$/.test(code)) throw new Error('No se pudo verificar la identidad de la sonda. Reintenta la vinculación.');
+  const code = characteristic.value ? decodeBase64Text(characteristic.value).trim() : '';
+  if (!/^\d{15}$/.test(code)) {
+    throw new Error('No se pudo verificar la identidad de la sonda. Si es un equipo anterior, actualiza su firmware.');
+  }
   return code;
 }
 
 /**
- * Comprueba presencia física de una sonda en modo pairing.
+ * Busca la sonda cercana, lee su ID y si la ventana PAIR está abierta.
  *
- * La sonda anuncia su servicio siempre que está encendida; mantener PAIR
- * 3 segundos abre la ventana de 30 s durante la cual acepta grabar un código
- * (`provisionProbe`). Sin esa ventana la vinculación falla al escribir el
- * código, no al buscar. Conectar y descubrir los servicios
- * evita registrar por accidente un anuncio BLE incompleto o un dispositivo
- * que sólo suplante el nombre comercial.
+ * El ID no lo inventa la app: lo deriva el firmware de la MAC del ESP32, así
+ * que siempre es el mismo para la misma sonda. Vincular exige la ventana PAIR
+ * abierta (mantener el botón 3 s), que prueba que el usuario tiene la sonda en
+ * la mano; quien llama debe comprobar `pairingOpen` antes de registrarla.
  */
 export async function pairWithNearbyProbe(): Promise<PairedProbeIdentity> {
   const discovered = await scanForProbe();
@@ -238,12 +246,14 @@ export async function pairWithNearbyProbe(): Promise<PairedProbeIdentity> {
     connected = await discovered.connect({ timeout: SCAN_TIMEOUT_MS });
     const target = connected;
     await gattOperation(id => target.discoverAllServicesAndCharacteristics(id));
-    const assignedCode = await readAssignedCode(connected);
-    await reportContact(connected, assignedCode);
+    const deviceCode = await readDeviceCode(connected);
+    const status = await readProbeStatus(connected);
+    await reportContact(connected, deviceCode, status);
     return {
       bleId: connected.id,
       name: connected.localName ?? connected.name ?? 'Sonda TerraSense',
-      assignedCode,
+      deviceCode,
+      pairingOpen: status?.pairingOpen === true,
     };
   } finally {
     if (connected) await connected.cancelConnection().catch(() => undefined);
@@ -251,42 +261,31 @@ export async function pairWithNearbyProbe(): Promise<PairedProbeIdentity> {
 }
 
 /**
- * Graba el Device ID de Supabase en la NVS del ESP32.
- *
- * El firmware sólo debe aceptar esta característica durante los 30 segundos
- * posteriores a mantener PAIR por 3 s. Después anuncia `TerraSense-<código>`
- * para que otros teléfonos puedan identificar la misma sonda sin depender de
- * la MAC/UUID que asigna cada sistema operativo.
+ * Confirma a la sonda que quedó registrada: escribe su ID en la
+ * característica de confirmación. El firmware la acepta sólo con la ventana
+ * PAIR abierta, la cierra y avisa con luz verde y buzzer. Es aviso, no
+ * registro: el equipo ya quedó registrado en Supabase, así que un fallo aquí
+ * no deshace nada y sólo se informa como `false`.
  */
-export async function provisionProbe(bleId: string, rawCode: string): Promise<void> {
+export async function confirmPairing(bleId: string, rawCode: string): Promise<boolean> {
   const code = normalizeDeviceId(rawCode);
-  if (!isValidDeviceId(code)) throw new Error('El código de provisión no es válido.');
-
+  if (!isValidDeviceId(code)) return false;
   const mgr = getManager();
   let connected: Device | null = null;
   try {
     connected = await mgr.connectToDevice(bleId, { timeout: SCAN_TIMEOUT_MS });
     const target = connected;
     await gattOperation(id => target.discoverAllServicesAndCharacteristics(id));
-    // Relee la identidad antes de escribir: un intento anterior pudo haberla
-    // guardado aunque se perdiera la confirmación en el teléfono.
-    const assigned = await readAssignedCode(target);
-    if (assigned === code) return;
-    if (assigned) throw new Error('La sonda ya tiene un código. Vuelve a buscarla para recuperar su identidad.');
     await gattOperation(id => target.writeCharacteristicWithResponseForService(
       TERRASENSE_SERVICE_UUID,
       TERRASENSE_PROVISIONING_UUID,
       encodeBase64Text(code),
       id,
     ));
-
-    const confirmed = await readAssignedCode(connected);
-    if (confirmed !== code) {
-      throw new Error('La sonda no confirmó el código. Mantén PAIR 3 segundos y reintenta.');
-    }
-    // El equipo aún no está registrado: el contacto queda en cola y se envía
-    // en cuanto lo esté.
-    await reportContact(connected, code);
+    const status = await readProbeStatus(target);
+    return status?.pairingOpen === false;
+  } catch {
+    return false;
   } finally {
     if (connected) await connected.cancelConnection().catch(() => undefined);
   }

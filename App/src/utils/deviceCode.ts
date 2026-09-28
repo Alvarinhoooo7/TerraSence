@@ -11,8 +11,9 @@ export const formatDeviceId = (raw?: string): string => {
   return clean.replace(/(\d{5})(\d{5})(\d{5})/, '$1-$2-$3');
 };
 
+/** 15 dígitos derivados de la MAC del ESP32; puede empezar con 0. */
 export const isValidDeviceId = (raw?: string): boolean =>
-  /^[1-9]\d{14}$/.test(normalizeDeviceId(raw));
+  /^\d{15}$/.test(normalizeDeviceId(raw));
 
 export const buildDeviceQrPayload = (raw?: string): string =>
   `terrasense://join?token=${raw ?? ''}`;

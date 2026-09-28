@@ -44,6 +44,8 @@ const require = createRequire(import.meta.url);
 const loader = Module as unknown as { _load: (id: string, ...args: unknown[]) => unknown };
 const original = loader._load;
 let identity: string | null = '';
+/** Característica de estado: batería, versión y banderas (bit 0 = ventana PAIR). */
+let status: string | null = btoa(String.fromCharCode(80, 1, 0, 0, 1));
 let readFails = false;
 let writes = 0;
 let disconnects = 0;
@@ -55,11 +57,14 @@ const probe = {
   id: 'probe', name: 'TerraSense', localName: null,
   connect: async () => probe,
   discoverAllServicesAndCharacteristics: async () => probe,
-  readCharacteristicForService: async () => {
+  readCharacteristicForService: async (_service: string, characteristic: string) => {
     if (readFails) throw new Error('No se pudo leer');
-    return { value: identity };
+    return { value: characteristic.startsWith('00000005') ? status : identity };
   },
-  writeCharacteristicWithResponseForService: async (_service: string, _characteristic: string, value: string) => { writes++; identity = value; },
+  writeCharacteristicWithResponseForService: async () => {
+    writes++;
+    status = btoa(String.fromCharCode(80, 1, 0, 0, 0));  // el firmware cierra la ventana
+  },
   cancelConnection: async () => { disconnects++; },
 };
 class MockManager {
@@ -128,20 +133,30 @@ test('el atajo guardado se aísla por cuenta y queda inactivo en producción', a
   assert.equal(storage.size, 0);
 });
 
-test('pairing conserva la identidad y nunca considera nueva una sonda cuya lectura falló', async () => {
+test('pairing lee el ID de la MAC y nunca inventa uno', async () => {
   readFails = true;
   const before = disconnects;
   await assert.rejects(ble.pairWithNearbyProbe(), /No se pudo leer/);
   assert.equal(disconnects, before + 1);
   readFails = false;
-  for (const invalid of [null, btoa('datos inválidos'), btoa('123')]) {
+  // Un firmware anterior sin ID, o un valor corrupto, no se registra.
+  for (const invalid of [null, '', btoa('datos inválidos'), btoa('123')]) {
     identity = invalid;
     await assert.rejects(ble.pairWithNearbyProbe(), /identidad/);
   }
-  identity = '';
-  assert.equal((await ble.pairWithNearbyProbe()).assignedCode, null);
+  identity = btoa('008123456789012');
+  const found = await ble.pairWithNearbyProbe();
+  assert.equal(found.deviceCode, '008123456789012');
+  assert.equal(found.pairingOpen, true);
+});
+
+test('sin la ventana PAIR abierta la sonda no queda lista para vincular', async () => {
   identity = btoa('482139057416628');
-  assert.equal((await ble.pairWithNearbyProbe()).assignedCode, '482139057416628');
+  status = btoa(String.fromCharCode(80, 1, 0, 0, 0));
+  assert.equal((await ble.pairWithNearbyProbe()).pairingOpen, false);
+  status = null;  // firmware sin característica de estado
+  assert.equal((await ble.pairWithNearbyProbe()).pairingOpen, false);
+  status = btoa(String.fromCharCode(80, 1, 0, 0, 1));
 });
 
 test('un fallo al iniciar el escaneo se propaga sin dejar esperando la pantalla', async () => {
@@ -150,13 +165,16 @@ test('un fallo al iniciar el escaneo se propaga sin dejar esperando la pantalla'
   finally { scanFails = false; }
 });
 
-test('provisión confirma la escritura, tolera reintento y no pisa otro código', async () => {
-  identity = '';
+test('confirmar la vinculación escribe el ID una vez y no lanza', async () => {
+  identity = btoa('482139057416628');
+  status = btoa(String.fromCharCode(80, 1, 0, 0, 1));
   writes = 0;
-  await ble.provisionProbe('probe', '482139057416628');
+  assert.equal(await ble.confirmPairing('probe', '48213-90574-16628'), true);
   assert.equal(writes, 1);
-  await ble.provisionProbe('probe', '482139057416628');
+  // Un ID inválido no se escribe; un fallo de radio se informa como false.
+  assert.equal(await ble.confirmPairing('probe', '123'), false);
   assert.equal(writes, 1);
-  await assert.rejects(ble.provisionProbe('probe', '582139057416628'), /ya tiene un código/);
-  assert.equal(writes, 1);
+  readFails = true;
+  try { assert.equal(await ble.confirmPairing('probe', '482139057416628'), false); }
+  finally { readFails = false; }
 });

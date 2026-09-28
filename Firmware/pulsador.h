@@ -1,14 +1,15 @@
 // pulsador.h
 //
 // Pulsador PAIR (IO33, activo en LOW) con antirrebote no bloqueante.
-// Mantenerlo 3 s abre la ventana de vinculación; seguir hasta 10 s borra el
-// código guardado. Cada evento se emite una sola vez por pulsación.
+// Mantenerlo 3 s abre la ventana de vinculación; el evento se emite una sola
+// vez por pulsación. No hay pulsación de reset: el único reset de un equipo es
+// el del backoffice.
 
 #pragma once
 
 #include <Arduino.h>
 
-enum class EventoPulsador { Ninguno, PairingActivado, ResetSolicitado };
+enum class EventoPulsador { Ninguno, PairingActivado };
 
 class Pulsador {
 public:
@@ -23,5 +24,4 @@ private:
   uint32_t cambioCrudoEn_ = 0;
   uint32_t presionadoDesde_ = 0;
   bool     pairingEmitido_ = false;
-  bool     resetEmitido_ = false;
 };

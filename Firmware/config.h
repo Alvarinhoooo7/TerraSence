@@ -12,6 +12,8 @@
 #define TS_SERVICE_UUID      "00000001-5e4e-4c69-6d61-746572726101"
 #define TS_TELEMETRY_UUID    "00000002-5e4e-4c69-6d61-746572726102"
 #define TS_IDENTITY_UUID     "00000003-5e4e-4c69-6d61-746572726103"
+// Confirmación de vinculación: la app escribe el ID de la sonda tras
+// registrarla; se acepta sólo con la ventana PAIR abierta.
 #define TS_PROVISIONING_UUID "00000004-5e4e-4c69-6d61-746572726104"
 #define TS_STATUS_UUID       "00000005-5e4e-4c69-6d61-746572726105"
 
@@ -21,15 +23,14 @@ constexpr uint8_t FIRMWARE_VERSION_MAYOR = 1;
 constexpr uint8_t FIRMWARE_VERSION_MENOR = 0;
 constexpr uint8_t FIRMWARE_VERSION_PARCHE = 0;
 
-// Nombre anunciado. Sin código: "TerraSense". Con código: "TerraSense-<15 dígitos>",
-// del que la app extrae el código para reconocer su sonda al medir.
+// Nombre anunciado: "TerraSense-<ID de 15 dígitos>", del que la app extrae el
+// ID para reconocer su sonda al medir.
 #define TS_NOMBRE_BASE "TerraSense"
 
 // --- Pulsador PAIR ---
 constexpr uint32_t ANTIRREBOTE_MS     = 30;
 constexpr uint32_t PAIR_PULSACION_MS  = 3000;   // abre la ventana de vinculación
-constexpr uint32_t RESET_PULSACION_MS = 10000;  // borra el código guardado y reinicia
-constexpr uint32_t PAIR_VENTANA_MS    = 30000;  // la app sólo puede provisionar dentro de ella
+constexpr uint32_t PAIR_VENTANA_MS    = 30000;  // la app sólo puede vincular dentro de ella
 
 // --- Buzzer ---
 // Frecuencia de los tonos agudos; los graves usan la mitad. Ajustarla a la

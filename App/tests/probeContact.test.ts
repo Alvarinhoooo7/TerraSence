@@ -4,8 +4,11 @@ import test from 'node:test';
 import { decodeProbeStatus } from '../src/services/probeService';
 import { CONTACT_MAX_AGE_MS, mergeContact, type ProbeContact } from '../src/utils/contactQueue';
 
-test('la característica de estado entrega batería y versión', () => {
-  assert.deepEqual(decodeProbeStatus(new Uint8Array([87, 1, 2, 3])), { battery: 87, firmwareVersion: '1.2.3' });
+test('la característica de estado entrega batería, versión y ventana PAIR', () => {
+  assert.deepEqual(decodeProbeStatus(new Uint8Array([87, 1, 2, 3, 1])), { battery: 87, firmwareVersion: '1.2.3', pairingOpen: true });
+  assert.equal(decodeProbeStatus(new Uint8Array([87, 1, 2, 3, 0])).pairingOpen, false);
+  // Un firmware de 4 bytes no informa la ventana: se toma como cerrada.
+  assert.equal(decodeProbeStatus(new Uint8Array([87, 1, 2, 3])).pairingOpen, false);
 });
 
 test('0xFF o un valor fuera de rango es batería sin dato, no un número inventado', () => {
@@ -14,8 +17,8 @@ test('0xFF o un valor fuera de rango es batería sin dato, no un número inventa
 });
 
 test('una característica incompleta no inventa la versión', () => {
-  assert.deepEqual(decodeProbeStatus(new Uint8Array([40])), { battery: 40, firmwareVersion: null });
-  assert.deepEqual(decodeProbeStatus(new Uint8Array([])), { battery: null, firmwareVersion: null });
+  assert.deepEqual(decodeProbeStatus(new Uint8Array([40])), { battery: 40, firmwareVersion: null, pairingOpen: false });
+  assert.deepEqual(decodeProbeStatus(new Uint8Array([])), { battery: null, firmwareVersion: null, pairingOpen: false });
 });
 
 const now = Date.parse('2026-09-28T12:00:00Z');

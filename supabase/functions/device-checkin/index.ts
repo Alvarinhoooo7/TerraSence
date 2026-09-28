@@ -81,7 +81,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   }
 
   const code = String(body.device_code ?? '').replace(/\D/g, '');
-  if (!/^[1-9]\d{14}$/.test(code)) {
+  if (!/^\d{15}$/.test(code)) {
     return json({ success: false, message: 'device_code inválido' }, 400);
   }
 

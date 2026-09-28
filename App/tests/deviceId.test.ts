@@ -25,7 +25,10 @@ test('normaliza y presenta el Device ID canónico', () => {
   assert.equal(normalizeDeviceId('48213-90574-16628'), CODE);
   assert.equal(formatDeviceId(CODE), '48213-90574-16628');
   assert.equal(isValidDeviceId(CODE), true);
-  assert.equal(isValidDeviceId(`0${CODE.slice(1)}`), false);
+  // El ID sale de la MAC del ESP32 y puede empezar con 0.
+  assert.equal(isValidDeviceId(`0${CODE.slice(1)}`), true);
+  assert.equal(isValidDeviceId(`${CODE}1`), true);  // se normaliza a 15 dígitos
+  assert.equal(isValidDeviceId('48213 90574 1662'), false);
   assert.equal(isValidDeviceId('123'), false);
 });
 

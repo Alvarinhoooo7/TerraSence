@@ -1,6 +1,6 @@
 # Firmware TerraSense
 
-Código del ESP32 de TerraSense, compatible con **Arduino IDE** (núcleo `esp32 by Espressif Systems` 3.x, sin bibliotecas externas). Hoy cubre la vinculación BLE con la app, los indicadores LED y sonoros y la trama de telemetría de 20 bytes; la lectura de la sonda de suelo aún no está implementada. El estado detallado, lo pendiente y el procedimiento de prueba están en [TASK.md](TASK.md).
+Código del ESP32 de TerraSense, compatible con **Arduino IDE** (núcleo `esp32 by Espressif Systems` 3.x, sin bibliotecas externas). Hoy cubre la vinculación BLE con la app (el ID de la sonda sale de su MAC), los indicadores LED y sonoros y la trama de telemetría de 20 bytes; la lectura de la sonda de suelo aún no está implementada. El estado detallado, lo pendiente y el procedimiento de prueba están en [TASK.md](TASK.md).
 
 El contrato con la app lo fija el código de la app, no este firmware: [`App/src/services/bleService.ts`](../App/src/services/bleService.ts) (transporte y vinculación) y [`App/src/services/probeService.ts`](../App/src/services/probeService.ts) (UUID y decodificación). El formato de la trama está explicado en [docs/CONTRATO_BLE.md](../docs/CONTRATO_BLE.md).
 
@@ -12,11 +12,11 @@ El contrato con la app lo fija el código de la app, no este firmware: [`App/src
 | `pines.h` | Asignación de pines del esquemático. |
 | `config.h` | UUID del servicio, versión del firmware, tiempos del pulsador y umbrales de batería. |
 | `trama.h` | Empaquetado de la trama de 20 bytes. |
-| `ble_terrasense.*` | Servidor GATT, anuncio, identidad y provisión. |
-| `pulsador.*` | Pulsador PAIR con antirrebote y pulsación larga. |
+| `ble_terrasense.*` | Servidor GATT, anuncio, identidad, confirmación de vinculación y estado. |
+| `pulsador.*` | Pulsador PAIR con antirrebote y pulsación de 3 s. |
 | `leds.*` | Patrones de parpadeo y destellos, encendido/apagado sin PWM. |
 | `zumbador.*` | Secuencias de tonos del buzzer pasivo por LEDC, no bloqueantes. |
-| `identidad.*` | Código de 15 dígitos guardado en la memoria NVS. |
+| `identidad.*` | ID de 15 dígitos derivado de la MAC del ESP32. |
 | `bme280.*` | Driver mínimo del BME280 por I2C. |
 
 ## Distribución de pines
@@ -38,14 +38,21 @@ Según el esquemático «Medidor De Suelos V2», con un ESP32-DevKitC-32U (módu
 | **IO16** | `RX` | Recepción UART desde el RS-485. |
 | **IO4** | `RTS` | Dirección del transceptor RS-485. |
 
+## Identidad de la sonda
+
+El ID de 15 dígitos **sale de la MAC base del ESP32**, grabada de fábrica y única por chip: sus 48 bits leídos como un entero, en decimal y con ceros a la izquierda. El máximo, `FF:FF:FF:FF:FF:FF` = 281474976710655, tiene exactamente 15 dígitos, y el ID puede empezar con 0 (las MAC `08:3A:F2:…` dan números de 13 dígitos).
+
+Nada se guarda ni se borra: el ID es del hardware y no cambia nunca. La app lo lee por BLE al vincular; ya no lo inventa. La sonda se anuncia siempre como `TerraSense-<ID>` y el monitor serie lo muestra al arrancar.
+
+**No hay reset desde la sonda.** El único reset de un equipo es el del backoffice, que borra sus usuarios y su historial en la nube; la sonda conserva el mismo ID y el primero que la vuelva a vincular queda como administrador.
+
 ## Pulsador PAIR
 
 | Acción | Efecto |
 | :--- | :--- |
-| Mantener **3 s** | Abre la ventana de vinculación de **30 s**: sólo dentro de ella la sonda acepta el código que le envía la app. |
-| Mantener **10 s** | Borra el código guardado y reinicia. Sirve para volver a vincular; la base de datos no acepta registrar dos veces el mismo código. |
+| Mantener **3 s** | Abre la ventana de vinculación de **30 s**. La app sólo registra una sonda que tenga la ventana abierta: prueba que el usuario la tiene en la mano. |
 
-La ventana se abre al cumplir los 3 s, sin esperar a soltar. El parpadeo azul rápido indica que ya se puede soltar.
+La ventana se abre al cumplir los 3 s, sin esperar a soltar. El parpadeo azul rápido indica que ya se puede soltar. Tras registrar la sonda, la app le escribe su ID en la característica de confirmación; con la ventana abierta y el ID correcto, la sonda la cierra y avisa con verde y buzzer.
 
 ## Indicadores LED y sonoros
 
@@ -55,16 +62,15 @@ La ventana se abre al cumplir los 3 s, sin esperar a soltar. El parpadeo azul r�
 | :--- | :--- | :--- | :--- |
 | Al encender | 🟢 Verde | Fijo 1 s, una vez | Un pitido corto |
 | Ventana PAIR abierta (30 s) | 🔵 Azul | Parpadeo 2 Hz mientras dure | Un pitido corto al abrirse |
-| Código guardado | 🟢 Verde | Tres destellos | Dos pitidos ascendentes |
-| Código rechazado (ventana cerrada, ya tenía uno, formato inválido) | 🔴 Rojo | Tres destellos | Tono grave de 0,4 s |
+| Vinculación confirmada | 🟢 Verde | Tres destellos | Dos pitidos ascendentes |
+| Vinculación rechazada (ventana cerrada o ID que no es el de esta sonda) | 🔴 Rojo | Tres destellos | Tono grave de 0,4 s |
 | Medición enviada a la app | 🟢 Verde | Tres destellos | Dos pitidos ascendentes |
 | Medición enviada sin lectura de suelo | 🔴 Rojo | Tres destellos | Tono grave de 0,4 s |
 | Batería baja | 🔴 Rojo | Un destello corto cada 10 s | Dos tonos graves, sólo al entrar en batería baja |
-| Borrado con PAIR 10 s | 🔴 Rojo | Fijo 1 s y reinicia | Tono grave de 1 s |
 
 Los tonos agudos usan `BUZZER_FRECUENCIA_HZ` (2,7 kHz por defecto) y los graves la mitad; `BUZZER_HABILITADO = false` en `config.h` silencia todo. La batería baja suena una sola vez y no en cada latido, para no volver molesto un equipo que se usa horas en el campo.
 
-Los LEDs son independientes: el azul de la ventana PAIR puede coincidir con los tres destellos verdes del código guardado. En el rojo, los tres destellos se muestran encima del latido de batería baja y luego este sigue. Estar conectado al teléfono no enciende nada: la app se conecta sólo lo que dura cada operación.
+Los LEDs son independientes: el azul de la ventana PAIR puede coincidir con los tres destellos verdes de la vinculación confirmada. En el rojo, los tres destellos se muestran encima del latido de batería baja y luego este sigue. Estar conectado al teléfono no enciende nada: la app se conecta sólo lo que dura cada operación.
 
 Mientras no exista el driver Modbus, toda medición termina en tres destellos rojos y el tono grave: no hay lectura de suelo que capturar, y el firmware no la reemplaza por valores de ejemplo.
 
@@ -85,7 +91,7 @@ Los bytes 0 a 14 todos en `FF` son el centinela «sin lectura de suelo» del [co
 
 ## Característica de estado
 
-Además de la trama, el firmware publica una característica de lectura con 4 bytes: batería en % (`FF` sin dato) y la versión del firmware (`FIRMWARE_VERSION_*` en `config.h`). Se actualiza cada 5 s con la lectura del ADC. Detalle en el [contrato](../docs/CONTRATO_BLE.md#característica-de-estado); el trabajo pendiente de actualización por BLE está en [PLAN.md](PLAN.md).
+Además de la trama, el firmware publica una característica de lectura con 5 bytes: batería en % (`FF` sin dato), la versión del firmware (`FIRMWARE_VERSION_*` en `config.h`) y un byte de banderas (bit 0 = ventana PAIR abierta). Se actualiza cada 5 s con la lectura del ADC. Detalle en el [contrato](../docs/CONTRATO_BLE.md#característica-de-estado); el trabajo pendiente de actualización por BLE está en [PLAN.md](PLAN.md).
 
 ## Compilar y cargar
 

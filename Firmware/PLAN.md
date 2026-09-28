@@ -11,6 +11,7 @@ La app necesita batería y versión en **cada** contacto para informar a Supabas
 | UUID | `00000005-5e4e-4c69-6d61-746572726105`, lectura |
 | Byte 0 | Batería en % (0–100); `0xFF` = sin dato (sin celda o aún sin medir) |
 | Bytes 1–3 | Versión del firmware: mayor, menor, parche |
+| Byte 4 | Banderas: bit 0 = ventana PAIR abierta (la app la exige para vincular) |
 
 - [x] `FIRMWARE_VERSION_*` en `config.h` (1.0.0) y característica en `ble_terrasense.cpp`. Compila sin advertencias, 88 % de la partición.
 - [x] Porcentaje por curva LiPo típica, actualizado cada 5 s junto con la lectura del ADC.

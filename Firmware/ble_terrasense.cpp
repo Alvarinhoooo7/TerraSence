@@ -15,32 +15,42 @@ namespace {
 BLEServer         *servidor = nullptr;
 BLECharacteristic *telemetria = nullptr;
 BLECharacteristic *identidadChr = nullptr;
-BLECharacteristic *provision = nullptr;
+BLECharacteristic *confirmacion = nullptr;
 BLECharacteristic *estado = nullptr;
 
 // Compartidas entre la tarea BLE y loop(). Lecturas y escrituras de 32 bits
 // son atómicas en el ESP32.
 volatile bool     conectado = false;
 volatile bool     reanudarAnuncio = false;
-volatile bool     nombrePendiente = false;
 volatile bool     ventanaActiva = false;
 volatile uint32_t ventanaHasta = 0;
 volatile bool     solicitudLectura = false;
 volatile uint32_t solicitudEn = 0;
 volatile uint8_t  resultadoVinculacion = uint8_t(ResultadoVinculacion::Ninguno);
+volatile uint8_t  bateriaPublicada = 0xFF;
 uint32_t          desconectadoEn = 0;
 
 void rechazar(const char *motivo) {
   resultadoVinculacion = uint8_t(ResultadoVinculacion::Rechazado);
-  Serial.printf("[PAIR] Código rechazado: %s\n", motivo);
+  Serial.printf("[PAIR] Vinculación rechazada: %s\n", motivo);
 }
 
-String nombreAnunciado() {
-  return identidad::provisionada() ? String(TS_NOMBRE_BASE "-") + identidad::codigo() : String(TS_NOMBRE_BASE);
-}
+// El ID sale de la MAC y siempre existe: el nombre lo lleva desde el arranque.
+String nombreAnunciado() { return String(TS_NOMBRE_BASE "-") + identidad::codigo(); }
 
 bool ventanaVigente(uint32_t ahora) {
   return ventanaActiva && int32_t(ventanaHasta - ahora) > 0;
+}
+
+// Estado (5 bytes): batería, versión mayor/menor/parche y banderas. Bit 0 de
+// las banderas = ventana PAIR abierta: la app lo exige antes de registrar la
+// sonda, así vincular requiere tenerla en la mano.
+void publicarEstado() {
+  if (!estado) return;
+  const uint8_t banderas = ventanaVigente(millis()) ? 0x01 : 0x00;
+  uint8_t valor[5] = {bateriaPublicada, FIRMWARE_VERSION_MAYOR, FIRMWARE_VERSION_MENOR,
+                      FIRMWARE_VERSION_PARCHE, banderas};
+  estado->setValue(valor, sizeof(valor));
 }
 
 void configurarAnuncio() {
@@ -58,15 +68,6 @@ void configurarAnuncio() {
   Serial.printf("[BLE] Anunciando como \"%s\"\n", nombre.c_str());
 }
 
-void publicarIdentidad() {
-  const String codigo = identidad::codigo();
-  if (codigo.length() == 0) {
-    identidadChr->setValue(nullptr, 0);  // vacío = sonda sin código
-  } else {
-    identidadChr->setValue(codigo);
-  }
-}
-
 class CallbacksServidor : public BLEServerCallbacks {
   void onConnect(BLEServer *) override {
     conectado = true;
@@ -80,21 +81,22 @@ class CallbacksServidor : public BLEServerCallbacks {
   }
 };
 
-class CallbacksProvision : public BLECharacteristicCallbacks {
+// Confirmación de vinculación: tras registrar la sonda en Supabase, la app
+// escribe su ID. Se acepta sólo con la ventana PAIR abierta y si coincide con
+// el de esta sonda; entonces se cierra la ventana y se avisa con verde y
+// buzzer. No cambia ni guarda nada: el ID es el de la MAC.
+class CallbacksConfirmacion : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *chr) override {
     const String valor = chr->getValue();
     chr->setValue(nullptr, 0);  // la característica no guarda lo escrito
 
     if (!ventanaVigente(millis())) return rechazar("la ventana de vinculación está cerrada");
-    if (identidad::provisionada()) return rechazar("la sonda ya tiene uno");
-    if (!identidad::formatoValido(valor)) return rechazar("formato inválido");
-    if (!identidad::guardar(valor)) return rechazar("error al guardarlo en NVS");
+    if (valor != identidad::codigo()) return rechazar("el ID no es el de esta sonda");
 
-    publicarIdentidad();
-    ventanaActiva = false;  // un código por ventana
-    nombrePendiente = true;
+    ventanaActiva = false;
+    publicarEstado();
     resultadoVinculacion = uint8_t(ResultadoVinculacion::Aceptado);
-    Serial.printf("[PAIR] Código %s guardado; ventana cerrada\n", valor.c_str());
+    Serial.printf("[PAIR] Vinculación confirmada (%s); ventana cerrada\n", valor.c_str());
   }
 };
 
@@ -123,13 +125,13 @@ void bleIniciar() {
   telemetria->addDescriptor(cccd);
 
   identidadChr = servicio->createCharacteristic(TS_IDENTITY_UUID, BLECharacteristic::PROPERTY_READ);
-  publicarIdentidad();
+  identidadChr->setValue(identidad::codigo());
 
-  provision = servicio->createCharacteristic(TS_PROVISIONING_UUID, BLECharacteristic::PROPERTY_WRITE);
-  provision->setCallbacks(new CallbacksProvision());
+  confirmacion = servicio->createCharacteristic(TS_PROVISIONING_UUID, BLECharacteristic::PROPERTY_WRITE);
+  confirmacion->setCallbacks(new CallbacksConfirmacion());
 
   estado = servicio->createCharacteristic(TS_STATUS_UUID, BLECharacteristic::PROPERTY_READ);
-  bleActualizarEstado(0xFF);  // sin lectura de batería hasta la primera medición del ADC
+  publicarEstado();  // batería 0xFF hasta la primera medición del ADC
 
   servicio->start();
   configurarAnuncio();
@@ -139,13 +141,8 @@ void bleIniciar() {
 void bleActualizar(uint32_t ahora) {
   if (ventanaActiva && !ventanaVigente(ahora)) {
     ventanaActiva = false;
+    publicarEstado();
     Serial.println("[PAIR] Ventana de vinculación cerrada por tiempo");
-  }
-
-  // El nombre nuevo queda configurado; se emite al reanudar el anuncio.
-  if (nombrePendiente) {
-    nombrePendiente = false;
-    configurarAnuncio();
   }
 
   // Pequeña pausa tras desconectar para que la pila libere la conexión.
@@ -164,6 +161,7 @@ bool bleConectado() { return conectado; }
 void bleAbrirVentana(uint32_t ahora) {
   ventanaHasta = ahora + PAIR_VENTANA_MS;
   ventanaActiva = true;
+  publicarEstado();
 }
 
 bool bleVentanaAbierta(uint32_t ahora) { return ventanaVigente(ahora); }
@@ -189,7 +187,6 @@ bool bleNotificar(const uint8_t *datos, size_t largo) {
 }
 
 void bleActualizarEstado(uint8_t bateriaPct) {
-  if (!estado) return;
-  uint8_t valor[4] = {bateriaPct, FIRMWARE_VERSION_MAYOR, FIRMWARE_VERSION_MENOR, FIRMWARE_VERSION_PARCHE};
-  estado->setValue(valor, sizeof(valor));
+  bateriaPublicada = bateriaPct;
+  publicarEstado();
 }

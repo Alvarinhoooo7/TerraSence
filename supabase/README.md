@@ -277,6 +277,7 @@ curl -X POST https://bjmhjatykqccksddgtmo.supabase.co/functions/v1/device-checki
 20260927120100_contacto_real_de_la_sonda... first_seen_at y report_device_contact; fuera los valores de relleno
 20260927120200_funciones_backoffice.sql     Funciones de Buscar y Equipo; retira las de la consola anterior
 20260927120300_actualizaciones_firmware...  Bucket, envíos de firmware y corrección de push_alerts
+20260928120000_id_desde_la_mac.sql          El ID sale de la MAC del ESP32 y puede empezar con 0
 ```
 
 > [!WARNING]
@@ -471,6 +472,10 @@ modificar nada.
 > Estas tareas requieren credenciales del proyecto Supabase. Se listan aquí, y no en el plan de
 > validación, porque es aquí donde están los comandos para ejecutarlas. **Estado al 20 de septiembre
 > de 2026:** §10.2 sigue hecha a medias (esquema exportado, restauración sin ensayar).
+
+### 10.0.1. ID desde la MAC (28-09-2026)
+
+[`20260928120000_id_desde_la_mac.sql`](migrations/20260928120000_id_desde_la_mac.sql): el firmware deriva el ID de la MAC y puede empezar con 0, así que la restricción `devices_device_code_15_digits` y las funciones que validaban `^[1-9][0-9]{14}$` (`register_paired_device`, `join_device_by_code`) pasan a `^[0-9]{15}$`. Las funciones se reescriben desde su propia definición vigente, cambiando sólo el patrón. `device-checkin` se actualizó igual.
 
 ### 10.0. Backoffice de cuenta única — aplicado el 27-09-2026
 

@@ -14,10 +14,9 @@
 enum class Sonido : uint8_t {
   Encendido,        // un pitido corto
   VentanaAbierta,   // un pitido corto: ya se puede soltar PAIR
-  Exito,            // dos pitidos ascendentes: código guardado, medición enviada
-  Fallo,            // un tono grave largo: código rechazado, medición sin suelo
+  Exito,            // dos pitidos ascendentes: vinculación confirmada, medición enviada
+  Fallo,            // un tono grave largo: vinculación rechazada, medición sin suelo
   BateriaBaja,      // dos tonos graves, sólo al entrar en batería baja
-  Borrado,          // tono grave de 1 s antes de reiniciar
 };
 
 struct Nota {

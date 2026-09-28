@@ -138,7 +138,7 @@ Es la herramienta central que el agricultor y los operadores llevan al campo: se
 2. **Acceso y Recuperación de Clave:** Inicio de sesión, registro y recuperación por código de correo, con `EmailCodeScreen` y `ResetPasswordScreen`. El deep link nativo se conserva para correos antiguos.
 3. **Permisos (`PermissionsScreen`):** Después de iniciar sesión o confirmar la cuenta y antes de vincular equipos, explica Bluetooth, ubicación, cámara y notificaciones. Cada solicitud es voluntaria y explícita; continuar registra la revisión, no concede permisos.
 4. **Onboarding Dual de Equipos:**
-   - **Primer Propietario (Owner):** Vinculación física por BLE con grabación del código de 15 dígitos en la memoria NVS del ESP32 y registro atómico en Supabase (`register_paired_device`).
+   - **Primer Propietario (Owner):** Vinculación física por BLE: la app lee el ID de 15 dígitos que la sonda deriva de su MAC (con la ventana PAIR abierta) y registro atómico en Supabase (`register_paired_device`).
    - **Usuarios:** escanean el QR temporal mostrado por cualquier miembro aprobado o ingresan su código de invitación en el onboarding. Quedan en una pantalla de espera hasta que el administrador apruebe su ingreso. El QR y su código vencen juntos; el ID permanente no concede acceso.
 5. **Dashboard Principal:** Punto de inicio rápido con botón destacado **Iniciar Medición** y acceso al historial.
 6. **Selección Obligatoria de Fase Fenológica:** Al pulsar medir, el usuario debe seleccionar una de las 4 etapas productivas:
@@ -649,8 +649,12 @@ El Grid 2×5 de la primera página del carrusel utiliza el código de colores un
 * **Servicio Principal:** `00000001-5e4e-4c69-6d61-746572726101`
 * **Telemetría (Notify):** `00000002-5e4e-4c69-6d61-746572726102`
 * **Identidad (Read):** `00000003-5e4e-4c69-6d61-746572726103`
-* **Provisionamiento (Write):** `00000004-5e4e-4c69-6d61-746572726104`
-* **Estado (Read):** `00000005-5e4e-4c69-6d61-746572726105`: batería en % (`FF` sin dato) y versión del firmware ([contrato](../docs/CONTRATO_BLE.md#característica-de-estado))
+* **Confirmación de vinculación (Write):** `00000004-5e4e-4c69-6d61-746572726104`
+* **Estado (Read):** `00000005-5e4e-4c69-6d61-746572726105`: batería en % (`FF` sin dato), versión del firmware y ventana PAIR abierta ([contrato](../docs/CONTRATO_BLE.md#característica-de-estado))
+
+### Vincular una sonda
+
+El ID de la sonda **no lo genera la app**: el firmware lo deriva de la MAC del ESP32 (15 dígitos, puede empezar con 0) y nunca cambia. `pairWithNearbyProbe` lee el ID y la ventana PAIR; si la ventana está cerrada, la pantalla pide mantener PAIR 3 s y no registra nada. Con la ventana abierta, `registerDevice` registra el equipo con ese ID y `confirmPairing` se lo escribe a la sonda para que avise con verde y buzzer (un fallo de ese aviso no deshace el registro). No hay reset desde la sonda: el único es el del backoffice, y la sonda vuelve con el mismo ID.
 
 ### Informe de cada contacto con la sonda
 

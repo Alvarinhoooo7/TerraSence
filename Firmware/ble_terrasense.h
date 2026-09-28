@@ -5,16 +5,18 @@
 //   · Anuncio: UUID del servicio en el paquete principal y el nombre en la
 //     respuesta de escaneo (juntos no caben en 31 bytes). Se reanuda después
 //     de cada desconexión, porque la app se desconecta tras cada operación.
-//   · Identidad (lectura): código de 15 dígitos en ASCII, o vacío.
-//   · Provisión (escritura): acepta el código sólo con la ventana PAIR abierta
-//     y si no hay uno previo. Si no lo acepta, lo ignora: la app relee la
-//     identidad y avisa «Mantén PAIR 3 segundos y reintenta».
+//   · Identidad (lectura): el ID de 15 dígitos en ASCII, derivado de la MAC.
+//     Siempre presente; no se escribe ni se borra.
+//   · Confirmación (escritura, …6104): la app escribe el ID tras registrar la
+//     sonda. Se acepta sólo con la ventana PAIR abierta y si coincide; cierra
+//     la ventana y avisa con verde y buzzer.
+//   · Estado (lectura): batería, versión y ventana PAIR abierta.
 //   · Telemetría (notificación): al suscribirse la app, el bucle principal
 //     arma una trama nueva de 20 bytes y la notifica una vez.
 //
 // Los callbacks BLE corren en la tarea de Bluedroid; sólo marcan banderas que
-// el bucle principal consume, salvo la provisión, que se resuelve en el mismo
-// callback porque la app relee la identidad inmediatamente después de escribir.
+// el bucle principal consume, salvo la confirmación, que se resuelve en el
+// mismo callback.
 
 #pragma once
 
@@ -34,7 +36,8 @@ ResultadoVinculacion bleTomarResultadoVinculacion();
 // true una vez por suscripción, cuando ya pasó la espera configurada.
 bool bleTomarSolicitudLectura(uint32_t ahora);
 
-// Característica de estado (lectura, 4 bytes): batería en % (0xFF = sin dato)
-// y versión mayor, menor y parche del firmware. La app la lee en cada contacto.
+// Característica de estado (lectura, 5 bytes): batería en % (0xFF = sin dato),
+// versión mayor, menor y parche, y banderas (bit 0 = ventana PAIR abierta). La
+// app la lee en cada contacto.
 void bleActualizarEstado(uint8_t bateriaPct);
 bool bleNotificar(const uint8_t *datos, size_t largo);

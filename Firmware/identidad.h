@@ -1,7 +1,16 @@
 // identidad.h
 //
-// Código estable de 15 dígitos que la app provisiona y el ESP32 guarda en NVS.
-// Mismo formato que isValidDeviceId() de la app: ^[1-9]\d{14}$.
+// El ID de la sonda (15 dígitos) sale de la MAC base del ESP32, grabada de
+// fábrica en eFuse y única por chip: los 48 bits leídos como un entero sin
+// signo, en decimal y completados con ceros a la izquierda. El máximo,
+// FF:FF:FF:FF:FF:FF = 281474976710655, tiene exactamente 15 dígitos.
+//
+// Nada se guarda ni se borra: el ID es una propiedad del hardware. El único
+// reset de un equipo es el del backoffice, que limpia su historial en la nube
+// y deja este mismo ID.
+//
+// Puede empezar con 0 (por ejemplo, las MAC 08:3A:F2:…). Mismo formato que
+// isValidDeviceId() de la app: ^\d{15}$.
 
 #pragma once
 
@@ -10,10 +19,7 @@
 namespace identidad {
 
 void   begin();
-bool   provisionada();
-String codigo();  // "" si no hay código
+String codigo();  // siempre 15 dígitos
 bool   formatoValido(const String &valor);
-bool   guardar(const String &valor);  // sólo si no hay código previo
-void   borrar();
 
 }  // namespace identidad
