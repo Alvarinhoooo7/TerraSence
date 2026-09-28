@@ -850,7 +850,7 @@ No se tocó la consola web: el rediseño acordado cubre sólo la app del agricul
 La web ya no tiene `/cuenta-confirmada`: el backoffice no debe aparecer en ningún correo ni
 redirección, y la confirmación usa códigos de 6 dígitos. Si queda algún correo antiguo con
 enlace, lleva al login neutro de la web. Falta aplicar el cambio de *Site URL* en Supabase
-([§10.0](../supabase/README.md#100-aplicar-el-backoffice-de-cuenta-única-27-09-2026)).
+([§10.0](../supabase/README.md#100-backoffice-de-cuenta-única--aplicado-el-27-09-2026)).
 
 ### 12.4. Actualizaciones de firmware en la app
 
