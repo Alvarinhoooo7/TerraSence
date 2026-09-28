@@ -16,6 +16,7 @@ BLEServer         *servidor = nullptr;
 BLECharacteristic *telemetria = nullptr;
 BLECharacteristic *identidadChr = nullptr;
 BLECharacteristic *provision = nullptr;
+BLECharacteristic *estado = nullptr;
 
 // Compartidas entre la tarea BLE y loop(). Lecturas y escrituras de 32 bits
 // son atómicas en el ESP32.
@@ -127,6 +128,9 @@ void bleIniciar() {
   provision = servicio->createCharacteristic(TS_PROVISIONING_UUID, BLECharacteristic::PROPERTY_WRITE);
   provision->setCallbacks(new CallbacksProvision());
 
+  estado = servicio->createCharacteristic(TS_STATUS_UUID, BLECharacteristic::PROPERTY_READ);
+  bleActualizarEstado(0xFF);  // sin lectura de batería hasta la primera medición del ADC
+
   servicio->start();
   configurarAnuncio();
   BLEDevice::startAdvertising();
@@ -182,4 +186,10 @@ bool bleNotificar(const uint8_t *datos, size_t largo) {
   telemetria->setValue(const_cast<uint8_t *>(datos), largo);
   telemetria->notify();
   return true;
+}
+
+void bleActualizarEstado(uint8_t bateriaPct) {
+  if (!estado) return;
+  uint8_t valor[4] = {bateriaPct, FIRMWARE_VERSION_MAYOR, FIRMWARE_VERSION_MENOR, FIRMWARE_VERSION_PARCHE};
+  estado->setValue(valor, sizeof(valor));
 }

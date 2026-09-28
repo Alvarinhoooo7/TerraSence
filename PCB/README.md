@@ -4,12 +4,12 @@ Especificación del hardware del instrumento portátil de medición de suelo: pl
 
 > ### 🛑 Estado de verificación — leer antes de usar este documento
 >
-> **Describe un diseño en curso, no un producto verificado. No fabricar sin cerrar los pendientes de la sección 10.**
+> **Describe un diseño en curso, no un producto verificado.** Las secciones 4 a 9 se escribieron antes de dibujar el esquemático y conservan designadores y nets antiguos: **cuando difieran, mandan el esquemático de KiCad y [`Firmware/pines.h`](../Firmware/pines.h)**. El mapa de pines de la sección 5.7 ya está alineado con ambos.
 >
 > | Afirmación | Estado real |
 > | :--- | :--- |
-> | Placa ruteada | **No existe.** La V2 parte del esquemático; no hay ruteo |
-> | Firmware | **No existe en este repositorio.** El contrato que debe cumplir está en la sección 6.9 |
+> | Placa ruteada | **Sí.** Esquemático y ruteo en `Medidor De Suelos V2/`. Primer lote de 5 placas sin ensamblar pedido a JLCPCB; aún no se arma ni se prueba |
+> | Firmware | **Existe en [`Firmware/`](../Firmware/README.md)**: vinculación BLE, LEDs, buzzer y trama de 20 bytes. Falta el driver Modbus de la sonda |
 > | Mapa de registros de la sonda | **Sin confirmar** contra la ficha del proveedor. El SKU no se ha adquirido |
 > | BLE 5.0 | El ESP32-WROOM-32E especifica **Bluetooth 4.2 BR/EDR y BLE**. La certificación del módulo no acredita el equipo terminado |
 > | Consumo en reposo y autonomía | **No se declaran en la V2.** Ver sección 5.9 |
@@ -64,6 +64,7 @@ La V2 es una **placa portadora**: no integra el silicio, sino que sostiene y con
 | :--- | :--- |
 | `README.md` | Este documento |
 | `BOM_TerraSense.xlsx` | Lista de materiales, **generada**; no editar a mano |
+| `Medidor De Suelos V2/` | Proyecto KiCad de la V2: esquemático y ruteo. **Fuente de verdad del hardware** |
 | `V1/` | Prototipo anterior, congelado. No se edita ni se usa como referencia de diseño |
 
 ---
@@ -892,18 +893,28 @@ Con el fusible primero, la corriente de falla obligatoriamente lo atraviesa y lo
 
 ### 5.7. Mapa de pines
 
-| GPIO | Señal | Va a | Nota |
+Extraído de la netlist del esquemático de KiCad (designadores del esquemático, no los de las secciones anteriores). El firmware lo replica en [`Firmware/pines.h`](../Firmware/pines.h).
+
+| GPIO | Net | Va a | Nota |
 | :--- | :--- | :--- | :--- |
-| `GPIO16` | `RX2` | `U2` pin 1, `RO` | Libre en WROOM-32 |
-| `GPIO17` | `TX2` | `U2` pin 4, `DI` | Libre en WROOM-32 |
-| `GPIO4` | `DE` y `/RE` | `U2` pines 2 y 3, unidos | Alto transmite, bajo recibe |
-| `GPIO5` | Power gate | `R5` hacia compuerta de `Q2` | *Strapping*; `R6` lo define al arrancar |
-| `GPIO21` | `SDA` | `U3` `SDA` y `R7` | |
-| `GPIO22` | `SCL` | `U3` `SCL` y `R8` | |
-| `GPIO34` | `VBat_Sense` | Nodo de `R1`, `R2` y `C3` | Solo entrada, `ADC1_CH6` |
-| `GPIO33` | Pulsador | `SW2`, `R4` y `C6` | RTC, despierta del sueño profundo |
-| `GPIO2` | LED verde | `R5` | *Strapping* tolerable |
-| `GPIO15` | LED azul | `R6` | *Strapping*; en bajo silencia el log de arranque |
+| `IO16` | `RX` | `U3` (módulo S3485) `RX` | Libre en WROOM-32 |
+| `IO17` | `TX` | `U3` `TX` | Libre en WROOM-32 |
+| `IO4` | `RTS` | `U3` `RTS` | Dirección del transceptor |
+| `IO5` | `GATE` | Compuerta de `Q1` (AO3400A), `TP15` | *Strapping*; ver pendiente F5 del firmware |
+| `IO21` | `SDA` | `U2` (BME280) `SDA`, `TP9` | |
+| `IO22` | `SCL` | `U2` `SCL`, `TP10` | |
+| `IO34` | `VBat_Sense` | Divisor `R1`/`R2` y `C3`, `TP5` | Solo entrada, `ADC1_CH6` |
+| `IO33` | `Paring` | `SW1`, pull-up `R6`, `C6`, `TP6` | RTC, despierta del sueño profundo |
+| `IO25` | `BLUE` | `D2` y `R3`, `TP12` | LED azul |
+| `IO26` | `GREEN` | `D3` y `R4`, `TP13` | LED verde |
+| `IO27` | `RED` | `D4` y `R5`, `TP14` | LED rojo |
+| `IO19` | `Buzzer` | `BZ1` (+); el (−) va a `GND` | Buzzer pasivo 9042 excitado por LEDC. **Directo, sin transistor ni diodo**: ver sección 5.7.1 |
+
+#### 5.7.1. Buzzer `BZ1`
+
+Buzzer pasivo magnético 9042 (9 × 4,2 mm), huella `MagneticBuzzer_CUI_CST-931RP-A`. Da avisos sonoros además de los LEDs (encendido, ventana PAIR, vinculación, medición, batería baja); la tabla de sonidos está en [`Firmware/README.md`](../Firmware/README.md#indicadores-led-y-sonoros). Al ser pasivo necesita una onda cuadrada cerca de su frecuencia de resonancia; con un nivel fijo no suena.
+
+**Riesgo en esta revisión:** va directo entre `IO19` y `GND`. La bobina de un 9042 ronda 16 a 42 Ω, de modo que a 3,3 V puede exigir más que los 20 mA recomendados por pin del ESP32 (40 mA máximo absoluto) y devuelve picos inductivos al pin. En las placas del primer lote, medir la corriente con la hoja de datos del modelo comprado y, si excede, intercalar una resistencia de 47 a 100 Ω. En la siguiente revisión: excitarlo con un N-MOSFET o NPN desde `IO19` y un diodo 1N4148 en antiparalelo con el buzzer.
 
 ### 5.8. Pines que no se pueden usar
 
@@ -1033,7 +1044,8 @@ El firmware debe adquirir y notificar una lectura nueva al suscribirse: no trans
 - Confirmar la variante de sonda y **medir su consumo a la tensión elegida**. Los 0,5 W publicados corresponden a 24 V.
 - **Confirmar el mapa de registros Modbus** contra la ficha del proveedor, con captura real del SKU adquirido.
 - Cerrar fichas de DevKit, BME280, módulo de carga y elevación, y celda.
-- Escribir el firmware. **No existe en este repositorio**; debe cumplir el contrato de la sección 6.9.
+- Completar el firmware de [`Firmware/`](../Firmware/TASK.md): falta el driver Modbus de la sonda.
+- Medir la corriente de `BZ1` en `IO19` y decidir resistencia serie o transistor (sección 5.7.1).
 - **Medir energía desde la batería** con `JP1`, distinguiendo el consumo del equipo encendido del de la rama de sonda.
 - Ensayos de radio, batería y carcasa. El IP68 de la sonda no acredita el equipo.
 - Resolver los tres LED del BOM contra los dos del diseño.

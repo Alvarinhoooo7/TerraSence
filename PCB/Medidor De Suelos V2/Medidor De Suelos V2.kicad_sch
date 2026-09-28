@@ -748,6 +748,167 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Device:Buzzer"
+			(pin_names
+				(offset 0.0254)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "BZ"
+				(at 3.81 1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "Buzzer"
+				(at 3.81 -1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" ""
+				(at -0.635 2.54 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at -0.635 2.54 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Buzzer, polarized"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "quartz resonator ceramic"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "*Buzzer*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Buzzer_0_1"
+				(polyline
+					(pts
+						(xy -1.651 1.905) (xy -1.143 1.905)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.397 2.159) (xy -1.397 1.651)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0 3.175)
+					(mid 3.1612 0)
+					(end 0 -3.175)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 3.175) (xy 0 -3.175)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "Buzzer_1_1"
+				(pin passive line
+					(at -2.54 2.54 0)
+					(length 2.54)
+					(name "+"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -2.54 -2.54 0)
+					(length 2.54)
+					(name "-"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:C"
 			(pin_numbers
 				(hide yes)
@@ -4659,10 +4820,6 @@
 		(uuid "b4c69cf3-e0cb-4b03-acde-e69443e69870")
 	)
 	(no_connect
-		(at 332.74 58.42)
-		(uuid "bb9699d8-b7d8-4c5c-943d-9dd481b6cc6f")
-	)
-	(no_connect
 		(at 332.74 60.96)
 		(uuid "c3b76342-5a27-4c89-a0f7-833384b49eaa")
 	)
@@ -4840,6 +4997,16 @@
 	)
 	(wire
 		(pts
+			(xy 45.72 242.57) (xy 53.34 242.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "12ab4fce-814e-40bb-b33d-ccbbfedcc947")
+	)
+	(wire
+		(pts
 			(xy 242.57 213.36) (xy 245.11 213.36)
 		)
 		(stroke
@@ -4847,16 +5014,6 @@
 			(type default)
 		)
 		(uuid "152c4a65-09ac-49d5-9291-3bb657b72744")
-	)
-	(wire
-		(pts
-			(xy 199.39 85.09) (xy 209.55 85.09)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "15667124-e7a7-44d3-a5ed-0ba70728d6f2")
 	)
 	(wire
 		(pts
@@ -5420,6 +5577,16 @@
 	)
 	(wire
 		(pts
+			(xy 49.53 237.49) (xy 53.34 237.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6d59f397-de9a-4134-adef-aef8962c7565")
+	)
+	(wire
+		(pts
 			(xy 199.39 74.93) (xy 199.39 76.2)
 		)
 		(stroke
@@ -5797,6 +5964,16 @@
 			(type default)
 		)
 		(uuid "9b0beec6-4b3f-4ed3-a989-b32154a2ada5")
+	)
+	(wire
+		(pts
+			(xy 45.72 242.57) (xy 45.72 243.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9b4038a6-f248-4dde-a4ae-2a9305909ee8")
 	)
 	(wire
 		(pts
@@ -6510,6 +6687,50 @@
 			)
 		)
 	)
+	(global_label "Buzzer"
+		(shape output)
+		(at 332.74 58.42 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "0e7e8866-ad4a-4f59-939e-e0d37167b6b1")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 342.0752 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "Buzzer"
+		(shape input)
+		(at 49.53 237.49 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "11a1b18c-a8c4-4291-aedb-a5db22914095")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 40.1948 237.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "A"
 		(shape input)
 		(at 167.64 214.63 0)
@@ -7119,70 +7340,6 @@
 			(project "Medidor De Suelos V2"
 				(path "/01588d84-40d6-4b8a-b659-52ca9eb6a726"
 					(reference "TP7")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 209.55 85.09 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "0488fad2-1297-4a83-bd6c-2a3842a0a58d")
-		(property "Reference" "TP18"
-			(at 216.408 84.836 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GATE Q2"
-			(at 216.154 87.122 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Connector_Pin:Pin_D1.0mm_L10.0mm_LooseFit"
-			(at 209.55 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 209.55 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 209.55 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "7af9d262-40ca-41b2-a4e5-550dd5b79eaa")
-		)
-		(instances
-			(project "Medidor De Suelos V2"
-				(path "/01588d84-40d6-4b8a-b659-52ca9eb6a726"
-					(reference "TP18")
 					(unit 1)
 				)
 			)
@@ -8141,6 +8298,76 @@
 			(project "Medidor De Suelos V2"
 				(path "/01588d84-40d6-4b8a-b659-52ca9eb6a726"
 					(reference "TP12")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:Buzzer")
+		(at 55.88 240.03 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "241c3bef-a773-42b8-a31a-b30d28f0993d")
+		(property "Reference" "BZ1"
+			(at 59.69 238.7599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Buzzer 3.3V 9042 Passive"
+			(at 59.69 241.2999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Buzzer_Beeper:MagneticBuzzer_CUI_CST-931RP-A"
+			(at 55.245 237.49 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 55.245 237.49 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Buzzer, polarized"
+			(at 55.88 240.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "417d9ba6-4ae8-47c2-aba1-290e5c5e3b90")
+		)
+		(pin "2"
+			(uuid "193176d8-39b5-485f-80fe-81b1f1dd6ed7")
+		)
+		(instances
+			(project ""
+				(path "/01588d84-40d6-4b8a-b659-52ca9eb6a726"
+					(reference "BZ1")
 					(unit 1)
 				)
 			)
@@ -10002,6 +10229,72 @@
 			(project "Medidor De Suelos V2"
 				(path "/01588d84-40d6-4b8a-b659-52ca9eb6a726"
 					(reference "D4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 45.72 243.84 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "82788264-0300-465e-88cd-496324130fde")
+		(property "Reference" "#PWR023"
+			(at 45.72 250.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 45.72 248.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 45.72 243.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 45.72 243.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 45.72 243.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "3be92d46-6921-4cf8-8421-61616c82f8eb")
+		)
+		(instances
+			(project "Medidor De Suelos V2"
+				(path "/01588d84-40d6-4b8a-b659-52ca9eb6a726"
+					(reference "#PWR023")
 					(unit 1)
 				)
 			)

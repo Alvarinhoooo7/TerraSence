@@ -11,6 +11,17 @@ El aviso de los README se refería a documentos antiguos que describían formato
 
 El servicio es `00000001-5e4e-4c69-6d61-746572726101` y la característica de telemetría, `00000002-5e4e-4c69-6d61-746572726102`. La biblioteca del teléfono entrega su valor como Base64; `bleService.ts` lo convierte a bytes antes de decodificarlo. **El firmware debe enviar los bytes originales**, sin codificarlos a Base64.
 
+## Característica de estado
+
+Aparte de la trama, el servicio expone la característica de estado `00000005-5e4e-4c69-6d61-746572726105`, de **lectura**, con 4 bytes que la app lee en cada contacto para informar la batería y la versión del firmware aunque no haya lectura de suelo:
+
+| Byte | Valor |
+| :---: | :--- |
+| 0 | Batería en %, de 0 a 100. `FF` = sin dato (sin celda o aún sin medir) |
+| 1–3 | Versión del firmware: mayor, menor y parche. `01 00 00` = 1.0.0 |
+
+El porcentaje sale de una curva LiPo típica sin calibrar contra la celda real (pendiente F2 de [`Firmware/TASK.md`](../Firmware/TASK.md)). La trama de 20 bytes no cambia.
+
 ## Por qué 20 bytes y no dos paquetes
 
 El MTU por defecto de BLE es de 23 bytes y una notificación gasta 3 en su cabecera: quedan **20 bytes de carga útil garantizados** sin negociar nada. El contrato usa ese mínimo común y no depende de que el sistema negocie un MTU mayor. Ver [ATT, notificaciones](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-54/out/en/host/attribute-protocol--att-.html) y [GATT, MTU mínimo](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-54/out/en/host/generic-attribute-profile--gatt-.html).

@@ -13,6 +13,13 @@
 #define TS_TELEMETRY_UUID    "00000002-5e4e-4c69-6d61-746572726102"
 #define TS_IDENTITY_UUID     "00000003-5e4e-4c69-6d61-746572726103"
 #define TS_PROVISIONING_UUID "00000004-5e4e-4c69-6d61-746572726104"
+#define TS_STATUS_UUID       "00000005-5e4e-4c69-6d61-746572726105"
+
+// Versión del firmware (X.Y.Z). Viaja en la característica de estado y es la
+// que la app informa a Supabase: subirla en cada binario que se publique.
+constexpr uint8_t FIRMWARE_VERSION_MAYOR = 1;
+constexpr uint8_t FIRMWARE_VERSION_MENOR = 0;
+constexpr uint8_t FIRMWARE_VERSION_PARCHE = 0;
 
 // Nombre anunciado. Sin código: "TerraSense". Con código: "TerraSense-<15 dígitos>",
 // del que la app extrae el código para reconocer su sonda al medir.
@@ -23,6 +30,14 @@ constexpr uint32_t ANTIRREBOTE_MS     = 30;
 constexpr uint32_t PAIR_PULSACION_MS  = 3000;   // abre la ventana de vinculación
 constexpr uint32_t RESET_PULSACION_MS = 10000;  // borra el código guardado y reinicia
 constexpr uint32_t PAIR_VENTANA_MS    = 30000;  // la app sólo puede provisionar dentro de ella
+
+// --- Buzzer ---
+// Frecuencia de los tonos agudos; los graves usan la mitad. Ajustarla a la
+// resonancia de la hoja de datos del 9042 (suele estar entre 2,3 y 4 kHz), que
+// es donde suena más fuerte con la misma corriente.
+constexpr uint16_t BUZZER_FRECUENCIA_HZ = 2700;
+// false silencia todos los sonidos sin tocar el resto del firmware.
+constexpr bool     BUZZER_HABILITADO    = true;
 
 // --- Telemetría ---
 // Espera entre la suscripción de la app y la notificación, para que el

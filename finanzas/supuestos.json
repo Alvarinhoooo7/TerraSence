@@ -81,7 +81,7 @@
     ["Carcasa PETG impresa en taller propio", 1, 6900, "costeo propio, detallado en la tabla siguiente"],
     ["Placa de desarrollo ESP32 DevKit WROOM-32", 1, 4800, "AliExpress Choice $3.506-$6.600; en Chile $8.148 con IVA"],
     ["Batería LiPo 3,7 V 2.000 mAh con protección", 1, 4400, "AliExpress: $4.784 unitaria, $4.350 por unidad en pack de 10"],
-    ["PCB portadora de 2 capas, fabricación y envío", 1, 2000, "JLCPCB, estimación propia a volumen de 200 unidades"],
+    ["PCB portadora de 2 capas, fabricación y envío (sin ensamblar)", 1, 2854, "JLCPCB, compra real: lote de 5 placas por US$15,02 con envío e impuestos de aduana, US$3,00 por placa a $950/US$"],
     ["Módulo ambiental BME280 (I²C)", 1, 1050, "AliExpress Choice $990-$1.064"],
     ["Módulo de carga USB-C y elevación a 5 V", 1, 900, "AliExpress: equivalentes de carga y elevación $703-$900"],
     ["Módulo transceptor SP3485 RS-485 3,3 V", 1, 900, "AliExpress: módulo $1.555; integrado suelto $285 por unidad en pack de 10"],
@@ -96,6 +96,7 @@
     ["Resistencia 10 kΩ (1206), polarización del MOSFET y del pulsador", 2, 2, "LCSC, precio de catálogo por tramo; compra no realizada"],
     ["LED 0603 azul, rojo y verde", 3, 8, "LCSC, precio de catálogo por tramo; compra no realizada"],
     ["Pulsador SMD 4 mm", 1, 19, "LCSC, precio de catálogo por tramo; compra no realizada"],
+    ["Buzzer pasivo magnético 9042 (avisos sonoros, IO19)", 1, 140, "LCSC, estimación sobre catálogo de buzzers 9042 (US$0,10-0,20); compra no realizada"],
     ["Fusible 1 A (0603)", 1, 19, "LCSC, precio de catálogo por tramo; compra no realizada"],
     ["Diodo rectificador M7 (SMA), protección contra inversión", 1, 4, "LCSC, verificado en US$0,0042"],
     ["Flete de los componentes LCSC, prorrateado por equipo", 1, 150, "LCSC cobra el envío; prorrateado a 200 unidades"]

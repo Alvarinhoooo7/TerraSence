@@ -33,4 +33,8 @@ ResultadoVinculacion bleTomarResultadoVinculacion();
 
 // true una vez por suscripción, cuando ya pasó la espera configurada.
 bool bleTomarSolicitudLectura(uint32_t ahora);
+
+// Característica de estado (lectura, 4 bytes): batería en % (0xFF = sin dato)
+// y versión mayor, menor y parche del firmware. La app la lee en cada contacto.
+void bleActualizarEstado(uint8_t bateriaPct);
 bool bleNotificar(const uint8_t *datos, size_t largo);

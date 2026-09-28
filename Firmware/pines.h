@@ -15,6 +15,9 @@
 #define PIN_LED_GREEN  26
 #define PIN_LED_RED    27
 
+// Buzzer pasivo 9042 (BZ1), directo entre el pin y GND. Ver TASK.md, pendiente H1.
+#define PIN_BUZZER     19
+
 // Bus I2C (BME280)
 #define PIN_SCL        22
 #define PIN_SDA        21

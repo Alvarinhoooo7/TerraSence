@@ -1,6 +1,6 @@
 # Firmware TerraSense
 
-Código del ESP32 de TerraSense, compatible con **Arduino IDE** (núcleo `esp32 by Espressif Systems` 3.x, sin bibliotecas externas). Hoy cubre la vinculación BLE con la app, los indicadores LED y la trama de telemetría de 20 bytes; la lectura de la sonda de suelo aún no está implementada. El estado detallado, lo pendiente y el procedimiento de prueba están en [TASK.md](TASK.md).
+Código del ESP32 de TerraSense, compatible con **Arduino IDE** (núcleo `esp32 by Espressif Systems` 3.x, sin bibliotecas externas). Hoy cubre la vinculación BLE con la app, los indicadores LED y sonoros y la trama de telemetría de 20 bytes; la lectura de la sonda de suelo aún no está implementada. El estado detallado, lo pendiente y el procedimiento de prueba están en [TASK.md](TASK.md).
 
 El contrato con la app lo fija el código de la app, no este firmware: [`App/src/services/bleService.ts`](../App/src/services/bleService.ts) (transporte y vinculación) y [`App/src/services/probeService.ts`](../App/src/services/probeService.ts) (UUID y decodificación). El formato de la trama está explicado en [docs/CONTRATO_BLE.md](../docs/CONTRATO_BLE.md).
 
@@ -10,11 +10,12 @@ El contrato con la app lo fija el código de la app, no este firmware: [`App/src
 | :--- | :--- |
 | `Firmware.ino` | Arranque, bucle principal, batería y estado de los LEDs. |
 | `pines.h` | Asignación de pines del esquemático. |
-| `config.h` | UUID del servicio, tiempos del pulsador y umbrales de batería. |
+| `config.h` | UUID del servicio, versión del firmware, tiempos del pulsador y umbrales de batería. |
 | `trama.h` | Empaquetado de la trama de 20 bytes. |
 | `ble_terrasense.*` | Servidor GATT, anuncio, identidad y provisión. |
 | `pulsador.*` | Pulsador PAIR con antirrebote y pulsación larga. |
-| `leds.*` | Patrones de pulso, parpadeo y destellos por PWM. |
+| `leds.*` | Patrones de parpadeo y destellos, encendido/apagado sin PWM. |
+| `zumbador.*` | Secuencias de tonos del buzzer pasivo por LEDC, no bloqueantes. |
 | `identidad.*` | Código de 15 dígitos guardado en la memoria NVS. |
 | `bme280.*` | Driver mínimo del BME280 por I2C. |
 
@@ -29,6 +30,7 @@ Según el esquemático «Medidor De Suelos V2», con un ESP32-DevKitC-32U (módu
 | **IO25** | `LED_BLUE` | LED azul, activo en `HIGH`. |
 | **IO26** | `LED_GREEN` | LED verde, activo en `HIGH`. |
 | **IO27** | `LED_RED` | LED rojo, activo en `HIGH`. |
+| **IO19** | `Buzzer` | Buzzer pasivo 9042 (`BZ1`), directo a `GND`. Necesita onda cuadrada (LEDC). Ver pendiente H1 en [TASK.md](TASK.md). |
 | **IO22** | `SCL` | Reloj I2C (BME280). |
 | **IO21** | `SDA` | Datos I2C (BME280). |
 | **IO5** | `GATE_MOSFET` | Alimentación de la sonda. Pin de arranque: ver pendientes en [TASK.md](TASK.md). |
@@ -45,24 +47,26 @@ Según el esquemático «Medidor De Suelos V2», con un ESP32-DevKitC-32U (módu
 
 La ventana se abre al cumplir los 3 s, sin esperar a soltar. El parpadeo azul rápido indica que ya se puede soltar.
 
-## Indicadores LED
+## Indicadores LED y sonoros
 
-**En reposo los tres LEDs están apagados.** Sólo se encienden para decir algo, y cada color tiene un único significado: azul = vinculación, verde = salió bien, rojo = necesita atención.
+**En reposo los tres LEDs están apagados y el buzzer en silencio.** Sólo se activan para decir algo, y cada color tiene un único significado: azul = vinculación, verde = salió bien, rojo = necesita atención. El sonido sigue la misma regla: agudo y corto = salió bien, grave y largo = necesita atención.
 
-| Cuándo | LED | Patrón |
-| :--- | :--- | :--- |
-| Al encender | 🟢 Verde | Fijo 1 s, una vez |
-| Ventana PAIR abierta (30 s) | 🔵 Azul | Parpadeo 2 Hz mientras dure |
-| Código guardado | 🟢 Verde | Tres destellos |
-| Código rechazado (ventana cerrada, ya tenía uno, formato inválido) | 🔴 Rojo | Tres destellos |
-| Medición enviada a la app | 🟢 Verde | Tres destellos |
-| Medición enviada sin lectura de suelo | 🔴 Rojo | Tres destellos |
-| Batería baja | 🔴 Rojo | Un destello corto cada 10 s |
-| Borrado con PAIR 10 s | 🔴 Rojo | Fijo 1 s y reinicia |
+| Cuándo | LED | Patrón | Sonido |
+| :--- | :--- | :--- | :--- |
+| Al encender | 🟢 Verde | Fijo 1 s, una vez | Un pitido corto |
+| Ventana PAIR abierta (30 s) | 🔵 Azul | Parpadeo 2 Hz mientras dure | Un pitido corto al abrirse |
+| Código guardado | 🟢 Verde | Tres destellos | Dos pitidos ascendentes |
+| Código rechazado (ventana cerrada, ya tenía uno, formato inválido) | 🔴 Rojo | Tres destellos | Tono grave de 0,4 s |
+| Medición enviada a la app | 🟢 Verde | Tres destellos | Dos pitidos ascendentes |
+| Medición enviada sin lectura de suelo | 🔴 Rojo | Tres destellos | Tono grave de 0,4 s |
+| Batería baja | 🔴 Rojo | Un destello corto cada 10 s | Dos tonos graves, sólo al entrar en batería baja |
+| Borrado con PAIR 10 s | 🔴 Rojo | Fijo 1 s y reinicia | Tono grave de 1 s |
+
+Los tonos agudos usan `BUZZER_FRECUENCIA_HZ` (2,7 kHz por defecto) y los graves la mitad; `BUZZER_HABILITADO = false` en `config.h` silencia todo. La batería baja suena una sola vez y no en cada latido, para no volver molesto un equipo que se usa horas en el campo.
 
 Los LEDs son independientes: el azul de la ventana PAIR puede coincidir con los tres destellos verdes del código guardado. En el rojo, los tres destellos se muestran encima del latido de batería baja y luego este sigue. Estar conectado al teléfono no enciende nada: la app se conecta sólo lo que dura cada operación.
 
-Mientras no exista el driver Modbus, toda medición termina en tres destellos rojos: no hay lectura de suelo que capturar, y el firmware no la reemplaza por valores de ejemplo.
+Mientras no exista el driver Modbus, toda medición termina en tres destellos rojos y el tono grave: no hay lectura de suelo que capturar, y el firmware no la reemplaza por valores de ejemplo.
 
 Los LEDs ya no son el consumo que importa. El ESP32 despierto con la radio BLE anunciando consume decenas de mA de forma continua, muy por encima de un LED. Para que la batería dure hace falta el reposo profundo (pendiente F4 en [TASK.md](TASK.md)).
 
@@ -78,6 +82,10 @@ Al suscribirse la app, el firmware arma una trama **nueva** de 20 bytes, versió
 | 16–19 (BME280) | `FF FF FF FF` si el sensor no responde | Temperatura, presión y humedad empaquetadas. |
 
 Los bytes 0 a 14 todos en `FF` son el centinela «sin lectura de suelo» del [contrato](../docs/CONTRATO_BLE.md#sin-lectura-de-suelo). La app rechaza esa trama con «La sonda no entregó lectura de suelo» y no guarda nada. La batería va en `FF` junto con el suelo, porque una trama sin suelo no se guarda.
+
+## Característica de estado
+
+Además de la trama, el firmware publica una característica de lectura con 4 bytes: batería en % (`FF` sin dato) y la versión del firmware (`FIRMWARE_VERSION_*` en `config.h`). Se actualiza cada 5 s con la lectura del ADC. Detalle en el [contrato](../docs/CONTRATO_BLE.md#característica-de-estado); el trabajo pendiente de actualización por BLE está en [PLAN.md](PLAN.md).
 
 ## Compilar y cargar
 

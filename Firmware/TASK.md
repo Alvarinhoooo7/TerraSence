@@ -1,6 +1,6 @@
 # Firmware: estado, prueba y pendientes
 
-Alcance vigente: **vinculación BLE con la app, pulsador PAIR, indicadores LED y trama de 20 bytes activa**. La lectura de la sonda de suelo no está implementada y no se simula: todo campo sin lectura viaja en `0xFF`. Descripción del firmware en [README.md](README.md).
+Alcance vigente: **vinculación BLE con la app, pulsador PAIR, indicadores LED y sonoros y trama de 20 bytes activa**. La lectura de la sonda de suelo no está implementada y no se simula: todo campo sin lectura viaja en `0xFF`. Descripción del firmware en [README.md](README.md).
 
 ## Hecho
 
@@ -13,6 +13,8 @@ Alcance vigente: **vinculación BLE con la app, pulsador PAIR, indicadores LED y
 | Telemetría `…6102` | Al suscribirse la app arma una trama nueva de 20 bytes, versión 1, y la notifica una vez. | La app real rechaza las tramas `FF` («Batería BLE inválida») y no guarda nada: comprobado con `decodeTelemetry`. |
 | BME280 | Driver propio por I2C (0x76/0x77) en modo forzado, con la compensación de Bosch. Si no responde se envían centinelas; se vuelve a buscar en cada lectura. | Compila. Sin sensor para validarlo. |
 | LEDs | Apagados en reposo; sólo avisos breves y la ventana PAIR (tabla del README). Encendido/apagado simple, sin PWM. | Compila sin advertencias. Falta en hardware. |
+| Buzzer (IO19) | Tonos por LEDC con el mismo significado que los LEDs (tabla del README), en secuencias no bloqueantes. | Compila sin advertencias. Falta en hardware; ver H1. |
+| Característica de estado `…6105` | Batería en % (curva LiPo típica, sin calibrar) y versión `FIRMWARE_VERSION_*`, legible en cualquier momento. La app la lee en cada contacto y la informa a Supabase. | Compila sin advertencias. Falta leerla con nRF Connect en hardware. |
 | Batería (IO34) | Lectura calibrada del ADC, divisor ×2, aviso bajo 3,40 V con histéresis hasta 3,50 V; se ignora bajo 2,5 V (sin celda). No entra en la trama sin lectura de suelo. | Compila. Divisor y umbral sin confirmar. |
 
 Compilación: `arduino-cli` del Arduino IDE, núcleo esp32 3.3.0, placa ESP32 Dev Module, sin advertencias en los archivos del firmware. El programa ocupa el 88 % de la partición por defecto.
@@ -26,14 +28,14 @@ Requisitos:
 
 | Paso | Acción | Resultado esperado |
 | :---: | :--- | :--- |
-| 1 | Cargar el firmware y encender. | 🟢 fijo 1 s y luego todo apagado. Serie: `Sin código`, `Anunciando como "TerraSense"`. |
-| 2 | Mantener PAIR 3 s. | 🔵 parpadeo 2 Hz. Serie: `Ventana de vinculación abierta por 30 s`. |
+| 1 | Cargar el firmware y encender. | 🟢 fijo 1 s con un pitido corto y luego todo apagado. Serie: `Sin código`, `Anunciando como "TerraSense"`. |
+| 2 | Mantener PAIR 3 s. | 🔵 parpadeo 2 Hz y un pitido corto. Serie: `Ventana de vinculación abierta por 30 s`. |
 | 3 | En la app, Onboarding «Vincula tu sonda» o Mis dispositivos → registrar. | La app encuentra la sonda y se conecta. Serie: `conectado` / `desconectado`. App: «La encontramos.» |
-| 4 | Escribir el nombre y guardar **antes de que se cierre la ventana**. | 🟢 tres destellos y el azul se apaga. Serie: `Código … guardado; ventana cerrada` y `Anunciando como "TerraSense-…"`. La app registra el equipo con el mismo código que muestra el monitor serie. |
-| 4b | Si pasaron los 30 s. | 🔴 tres destellos. App: «La sonda no confirmó el código. Mantén PAIR 3 segundos y reintenta». Serie: `Código rechazado: la ventana … está cerrada`. Mantener PAIR 3 s y volver a guardar. |
+| 4 | Escribir el nombre y guardar **antes de que se cierre la ventana**. | 🟢 tres destellos con dos pitidos ascendentes y el azul se apaga. Serie: `Código … guardado; ventana cerrada` y `Anunciando como "TerraSense-…"`. La app registra el equipo con el mismo código que muestra el monitor serie. |
+| 4b | Si pasaron los 30 s. | 🔴 tres destellos y tono grave. App: «La sonda no confirmó el código. Mantén PAIR 3 segundos y reintenta». Serie: `Código rechazado: la ventana … está cerrada`. Mantener PAIR 3 s y volver a guardar. |
 | 5 | Reiniciar el ESP32. | Serie: `Código guardado: …`, igual que en el paso 4. Confirma que el código persiste en NVS. |
-| 6 | Medir desde la app. | Serie: `[TRAMA] FF … FF 01 FF FF FF FF (notificada)`. 🔴 tres destellos. App: «La sonda no entregó lectura de suelo…». **Es el resultado correcto**: prueba que llegaron los 20 bytes con versión 1 y que no se guardó una medición inventada. El historial no debe tener mediciones nuevas. |
-| 7 | Mantener PAIR 10 s. | 🔵 parpadea desde los 3 s. A los 10 s, 🔴 fijo 1 s y reinicia como `TerraSense` sin código. El equipo sigue registrado en Supabase con el código anterior: eliminarlo de la cuenta de prueba antes de repetir. |
+| 6 | Medir desde la app. | Serie: `[TRAMA] FF … FF 01 FF FF FF FF (notificada)`. 🔴 tres destellos y tono grave. App: «La sonda no entregó lectura de suelo…». **Es el resultado correcto**: prueba que llegaron los 20 bytes con versión 1 y que no se guardó una medición inventada. El historial no debe tener mediciones nuevas. |
+| 7 | Mantener PAIR 10 s. | 🔵 parpadea desde los 3 s. A los 10 s, 🔴 fijo 1 s con tono grave y reinicia como `TerraSense` sin código. El equipo sigue registrado en Supabase con el código anterior: eliminarlo de la cuenta de prueba antes de repetir. |
 
 El mensaje del paso 6 requiere una app compilada con el centinela de suelo; una versión anterior muestra «Batería BLE inválida», que también es correcto (no guarda nada). Si en el paso 3 la app muestra «No se pudo verificar la identidad de la sonda», ver el pendiente A2.
 
@@ -48,8 +50,16 @@ El mensaje del paso 6 requiere una app compilada con el centinela de suelo; una 
 | F3 | Validar el BME280 | Conectar el sensor y comparar temperatura, humedad y presión con una referencia antes de dar por buenos sus valores. |
 | F4 | Reposo profundo | Despertar por IO33 (ext0), dormir tras desconectar. Definir si la sonda anuncia siempre o sólo tras una pulsación; la app asume que vuelve a reposo después de cada lectura. |
 | F5 | IO5 como pin de arranque | Comprobar con osciloscopio que el MOSFET no se activa durante el reset; si lo hace, agregar un pull-down o mover GATE a otro pin. |
+| F8 | Actualización por BLE (OTA) | Protocolo, partición y arranque seguro en [PLAN.md](PLAN.md). El backoffice ya carga, publica y envía binarios; falta que el firmware los reciba. **Decidir la partición antes de repartir equipos**: sólo se cambia por USB. |
 | F6 | Seguridad BLE | No hay cifrado ni bonding: cualquier teléfono cercano puede leer la identidad y la telemetría. |
 | F7 | Prueba automatizada de `armarTrama` | Compararla en el host contra el vector de ejemplo de `docs/CONTRATO_BLE.md`. Hoy sólo está revisada contra el contrato; el equipo no tiene un compilador C++ para el host. |
+
+### Hardware (placa V2 fabricada)
+
+| # | Tarea | Detalle |
+| :---: | :--- | :--- |
+| H1 | Corriente del buzzer en IO19 | `BZ1` va directo entre IO19 y GND, sin transistor ni diodo de rueda libre. Un 9042 magnético tiene una bobina de 16 a 42 Ω: a 3,3 V puede pedir más de los 20 mA recomendados para un GPIO del ESP32 (40 mA máximo absoluto), y la bobina devuelve picos inductivos al pin. Con la hoja de datos del modelo comprado, medir la corriente con el multímetro en serie. Si supera ~20 mA: en esta placa, resistencia en serie de 47 a 100 Ω (cortando la pista o levantando una pata); en la siguiente revisión, excitarlo con un transistor (el AO3400A ya está en la BOM) y un diodo 1N4148 en antiparalelo con el buzzer. |
+| H2 | Frecuencia de resonancia | Ajustar `BUZZER_FRECUENCIA_HZ` a la resonancia de la hoja de datos y confirmar de oído que se escucha al aire libre. |
 
 ### App y contrato (fuera de este directorio)
 
@@ -64,4 +74,4 @@ El mensaje del paso 6 requiere una app compilada con el centinela de suelo; una 
 
 | # | Tarea |
 | :---: | :--- |
-| D1 | `CLAUDE.md` §4 dice «No hay firmware del ESP32 en este repositorio». Actualizarlo al versionar este directorio (`docs/CONTRATO_BLE.md` ya está corregido). |
+| D1 | `PCB/README.md` conserva designadores y nets de antes de dibujar el esquemático (por ejemplo, LEDs en `GPIO2` y `GPIO15`). Mientras no se reescriba, el esquemático de KiCad y `pines.h` mandan; su mapa de pines (5.7) ya está al día. |
