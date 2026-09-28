@@ -38,6 +38,7 @@ export default () => ({
 
     android: {
       package: 'cl.terrasense.app',
+      softwareKeyboardLayoutMode: 'resize',
       googleServicesFile: './google-services.json',
       adaptiveIcon: {
         foregroundImage: './assets/adaptive-icon.png',
@@ -67,6 +68,7 @@ export default () => ({
         'expo-splash-screen',
         {
           image: './assets/splash.png',
+          imageWidth: 240,
           resizeMode: 'contain',
           backgroundColor: '#12281F',
         },

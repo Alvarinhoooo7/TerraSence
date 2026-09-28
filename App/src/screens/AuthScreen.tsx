@@ -7,21 +7,21 @@
 // escritura, así que esta pantalla es la puerta de entrada real de la app.
 
 import React, { useCallback, useRef, useState } from 'react';
-import { BackHandler, Keyboard, Pressable, Text, View } from 'react-native';
-import Animated from 'react-native-reanimated';
-import { layoutFlow } from '../constants/motion';
+import { BackHandler, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { supabase } from '../services/supabase';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { PasswordChecklist } from '../components/PasswordChecklist';
+import { AccessField } from '../components/auth/AccessField';
+import { EntryLayout, EntryButton, EntryHeading } from '../components/entry/EntryUI';
 import { RegistrationConsentModal } from '../components/RegistrationConsentModal';
-import { REGISTRATION_LEGAL_VERSION, RegistrationConsent } from '../utils/registrationConsent';
+import { RegistrationConsent } from '../utils/registrationConsent';
 import { EmailCodeScreen } from './EmailCodeScreen';
 import type { EmailOtpPurpose } from '../services/emailOtp';
 import { isPasswordAcceptable, PASSWORD_MIN_LENGTH } from '../utils/passwordRules';
 import { isEmailValid, isExistingAccountSignUp } from '../utils/authValidation';
-import { AuthLayout, AuthHeading, AuthField, AuthButton, AuthMessage, SoilArtwork, authStyles } from '../components/auth/AuthUI';
+import { createSubmissionGate, registrationConsentValid, registrationIdentityValid, registrationNameMetadata, registrationPasswordValid, transitionRegistrationStep } from '../utils/accessRegistration';
 
 type Mode = 'signin' | 'signup' | 'reset';
 
@@ -67,12 +67,18 @@ const humanizeError = (message: string, en: boolean): string => {
 
 interface Props {
   onAuthenticated: () => void;
+  onChangeLanguage?: () => void;
 }
 
-export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
+export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage }) => {
   const { colors } = useAppTheme();
 
   const [mode, setMode] = useState<Mode>('signin');
+  const [signupStep, setSignupStep] = useState<1 | 2>(1);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<'name' | 'email' | 'password' | 'confirm', string>>>({});
+  const emailInput = useRef<TextInput>(null);
+  const passwordInput = useRef<TextInput>(null);
+  const confirmInput = useRef<TextInput>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -84,11 +90,11 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
   // falla por red, reintentar no obliga a releer y remarcar los términos. Las
   // casillas nunca aparecen premarcadas; el panel se monta vacío cada vez.
   const acceptedConsent = useRef<RegistrationConsent | null>(null);
-  const requestInFlight = useRef(false);
+  const requestGate = useRef(createSubmissionGate()).current;
   const [challenge, setChallenge] = useState<{ email: string; purpose: EmailOtpPurpose; sentAt: number } | null>(null);
 
   const { t } = useTranslation();
-  const { preferences, setPreferences } = useAppStore();
+  const { preferences } = useAppStore();
   const spanishCopy = MODE_COPY[mode];
   const copy = mode === 'signin'
     ? { title: t(spanishCopy.title, 'Sign in to TerraSense'), cta: t(spanishCopy.cta, 'Sign in'), hint: t(spanishCopy.hint, 'Sign in to pick up where you left off in your field.') }
@@ -97,45 +103,46 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
       : { title: t(spanishCopy.title, 'Reset password'), cta: t(spanishCopy.cta, 'Send code'), hint: t(spanishCopy.hint, 'We will send you a code to choose a new password.') };
 
   const switchMode = useCallback((next: Mode) => {
-    if (requestInFlight.current) return;
+    if (requestGate.active) return;
     setShowConsent(false);
     acceptedConsent.current = null;
     setConfirmPassword('');
     setPassword('');
     setMode(next);
+    setSignupStep(1);
+    setFieldErrors({});
     setError(null);
   }, []);
 
   const submit = useCallback(async (given?: RegistrationConsent) => {
-    if (requestInFlight.current) return;
+    if (requestGate.active) return;
     setError(null);
+    setFieldErrors({});
     const consent = given ?? acceptedConsent.current ?? undefined;
 
     const mail = email.trim().toLowerCase();
     if (!isEmailValid(mail)) {
-      setError(t('Escribe un correo válido.', 'Enter a valid email address.'));
+      setFieldErrors({ email: t('Escribe un correo válido.', 'Enter a valid email address.') });
       return;
     }
     if (mode === 'signin' && password.length === 0) {
-      setError(t('Escribe tu contraseña.', 'Enter your password.'));
+      setFieldErrors({ password: t('Escribe tu contraseña.', 'Enter your password.') });
       return;
     }
     if (mode === 'signup') {
-      if (!fullName.trim()) { setError(t('Escribe tu nombre.', 'Enter your name.')); return; }
+      if (fullName.trim().split(/\s+/u).length < 2) { setSignupStep(1); setFieldErrors({ name: t('Escribe tu nombre y apellido.', 'Enter your full name.') }); return; }
       if (!isPasswordAcceptable(password)) {
-        setError(t(
+        setFieldErrors({ password: t(
           `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres, con una letra, un número y un carácter especial.`,
           `Password must be at least ${PASSWORD_MIN_LENGTH} characters and include a letter, a number and a special character.`,
-        ));
+        ) });
         return;
       }
-      if (password !== confirmPassword) {
-        setError(t('Las contraseñas no coinciden.', 'Passwords do not match.'));
+      if (!registrationPasswordValid(password, confirmPassword)) {
+        setFieldErrors({ confirm: t('Las contraseñas no coinciden.', 'Passwords do not match.') });
         return;
       }
-      if (!consent?.terms_accepted || !consent.privacy_accepted ||
-          consent.terms_version !== REGISTRATION_LEGAL_VERSION ||
-          consent.privacy_version !== REGISTRATION_LEGAL_VERSION) {
+      if (!registrationConsentValid(consent)) {
         Keyboard.dismiss();
         setShowConsent(true);
         return;
@@ -143,7 +150,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
     }
 
     Keyboard.dismiss();
-    requestInFlight.current = true;
+    if (!requestGate.enter()) return;
     setBusy(true);
     try {
       if (mode === 'signin') {
@@ -153,6 +160,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
         });
         if (e) {
           if (e.code === 'email_not_confirmed') {
+            setPassword(''); setConfirmPassword('');
             setChallenge({ email: mail, purpose: 'signup', sentAt: 0 });
             return;
           }
@@ -167,9 +175,9 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
           email: mail,
           password,
           options: {
-            // El trigger handle_new_user copia full_name a public.profiles.
+            // El trigger usa nombre y apellidos explícitos para conservar nombres compuestos.
             // Registro declarado por el cliente; user_metadata no es una auditoría inmutable.
-            data: { full_name: fullName.trim(), registration_consent: consent },
+            data: { ...registrationNameMetadata(fullName), registration_consent: consent },
           },
         });
         if (e) throw e;
@@ -197,75 +205,97 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated }) => {
     } catch (err) {
       setError(humanizeError(err instanceof Error ? err.message : String(err), preferences.language === 'en'));
     } finally {
-      requestInFlight.current = false;
+      requestGate.leave();
       setBusy(false);
     }
   }, [email, password, confirmPassword, fullName, mode, onAuthenticated, preferences.language, t]);
 
   React.useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (requestInFlight.current || challenge) return !!requestInFlight.current;
+      if (requestGate.active || challenge) return requestGate.active;
+      if (mode === 'signup' && signupStep === 2) { setSignupStep(transitionRegistrationStep(signupStep, 'back', true)); return true; }
       if (mode !== 'signin') { switchMode('signin'); return true; }
       return false;
     });
     return () => listener.remove();
-  }, [mode, challenge, switchMode]);
+  }, [mode, signupStep, challenge, switchMode]);
 
   if (challenge) return <EmailCodeScreen {...challenge} onBack={() => {
     setChallenge(null); setPassword(''); setConfirmPassword(''); setError(null);
     setMode(challenge.purpose === 'signup' ? 'signin' : 'reset');
   }} />;
 
+  const advanceRegistration = () => {
+    const errors: typeof fieldErrors = {};
+    if (fullName.trim().split(/\s+/u).length < 2) errors.name = t('Escribe tu nombre y apellido.', 'Enter your full name.');
+    if (!isEmailValid(email)) errors.email = t('Escribe un correo válido.', 'Enter a valid email address.');
+    setFieldErrors(errors);
+    if (registrationIdentityValid(fullName, email)) { Keyboard.dismiss(); setSignupStep(transitionRegistrationStep(signupStep, 'next', true)); }
+  };
+
+  const footer = <View style={styles.footer}>
+    <EntryButton label={mode === 'signup' && signupStep === 1 ? t('Continuar', 'Continue') : mode === 'signup' ? acceptedConsent.current ? t('Crear cuenta', 'Create account') : t('Revisar y crear cuenta', 'Review and create account') : copy.cta}
+      busy={busy} onPress={() => mode === 'signup' && signupStep === 1 ? advanceRegistration() : void submit()} />
+    <Pressable accessibilityRole="button" disabled={busy}
+      onPress={() => mode === 'signup' && signupStep === 2 ? setSignupStep(transitionRegistrationStep(signupStep, 'back', true)) : switchMode(mode === 'signin' ? 'signup' : 'signin')}
+      style={styles.footerLink}>
+      <Text style={{ color: colors.primary, fontWeight: '700' }}>{mode === 'signup' && signupStep === 2 ? t('Volver a mis datos', 'Back to my details') : mode === 'signin' ? t('Crear cuenta', 'Create account') : t('Volver a iniciar sesión', 'Back to sign in')}</Text>
+    </Pressable>
+  </View>;
+
   return <>
-    <AuthLayout toolbar={<View style={{ flexDirection: 'row' }}>
-      {(['es', 'en'] as const).map(language => <Pressable key={language} disabled={busy}
-        accessibilityRole="button" accessibilityLabel={language === 'es' ? 'Español' : 'English'}
-        accessibilityState={{ selected: preferences.language === language, disabled: busy }}
-        onPress={() => setPreferences({ ...preferences, language })}
-        style={({ pressed }) => ({ minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1,
-          borderBottomWidth: preferences.language === language ? 2 : 0, borderColor: colors.primary })}>
-        <Text style={[authStyles.label, { color: preferences.language === language ? colors.primary : colors.textSecondary }]}>{language.toUpperCase()}</Text>
-      </Pressable>)}
-    </View>}>
-      {mode === 'signin' && <SoilArtwork compact />}
-      <AuthHeading eyebrow={mode === 'signin' ? t('TU CAMPO, MÁS CLARO', 'A CLEARER VIEW OF YOUR FIELD') : mode === 'signup' ? t('COMIENZA AQUÍ', 'START HERE') : t('RECUPERA EL ACCESO', 'RESTORE ACCESS')}
-        title={mode === 'signin' ? t('Qué bueno verte.', 'Welcome back.') : copy.title} description={copy.hint} />
-      <Animated.View layout={layoutFlow()} style={authStyles.form}>
-        {mode === 'signup' && <AuthField label={t('Tu nombre', 'Your name')} placeholder={t('Nombre y apellido', 'Full name')}
-          value={fullName} onChangeText={setFullName} autoCapitalize="words" autoComplete="name" textContentType="name" editable={!busy} />}
-        <AuthField label={t('Correo electrónico', 'Email address')} placeholder="nombre@ejemplo.cl" value={email}
-          onChangeText={setEmail} keyboardType="email-address" inputMode="email" autoComplete="email" textContentType="emailAddress" editable={!busy} />
-        {mode !== 'reset' && <AuthField key={mode} label={t('Contraseña', 'Password')} secret value={password} onChangeText={setPassword}
+    <EntryLayout keyboardAware header={<View style={styles.header}>
+      <Text style={[styles.wordmark, { color: colors.primary }]}>TERRA<Text style={{ color: colors.text }}>SENSE</Text></Text>
+      {!!onChangeLanguage && <Pressable accessibilityRole="button" accessibilityLabel={t('Cambiar idioma', 'Change language')}
+        disabled={busy} onPress={onChangeLanguage} style={styles.language}>
+        <Text style={{ color: colors.primary, fontWeight: '700' }}>{preferences.language.toUpperCase()} ▾</Text>
+      </Pressable>}
+    </View>} footer={footer}>
+      <View style={styles.body}>
+        <EntryHeading eyebrow={mode === 'signup' ? `${signupStep} / 2` : undefined}
+          title={mode === 'signin' ? t('Entra a tu cuenta', 'Sign in') : mode === 'signup' ? signupStep === 1 ? t('Crea tu cuenta', 'Create your account') : t('Protege tu cuenta', 'Secure your account') : t('Recupera tu acceso', 'Reset your password')}
+          description={mode === 'signin' ? t('Continúa con tu campo.', 'Continue with your field.') : mode === 'signup' ? signupStep === 1 ? t('Comencemos con tus datos.', 'Start with your details.') : t('Elige una contraseña segura.', 'Choose a secure password.') : t('Te enviaremos un código a tu correo.', 'We will send a code to your email.')} />
+        {mode === 'signup' && signupStep === 1 && <AccessField label={t('Nombre y apellido', 'Full name')} placeholder={t('Nombre y apellido', 'Full name')}
+          error={fieldErrors.name} value={fullName} onChangeText={value => { setFullName(value); acceptedConsent.current = null; setFieldErrors(e => ({ ...e, name: undefined })); }}
+          autoCapitalize="words" autoComplete="name" textContentType="name" editable={!busy} returnKeyType="next" onSubmitEditing={() => emailInput.current?.focus()} />}
+        {(mode !== 'signup' || signupStep === 1) && <AccessField ref={emailInput} label={t('Correo electrónico', 'Email address')} placeholder="nombre@ejemplo.cl"
+          error={fieldErrors.email} value={email} onChangeText={value => { setEmail(value); acceptedConsent.current = null; setFieldErrors(e => ({ ...e, email: undefined })); }}
+          keyboardType="email-address" inputMode="email" autoComplete="email" textContentType="emailAddress" editable={!busy}
+          returnKeyType={mode === 'signin' ? 'next' : 'done'} onSubmitEditing={() => mode === 'signin' ? passwordInput.current?.focus() : mode === 'signup' ? advanceRegistration() : void submit()} />}
+        {(mode === 'signin' || mode === 'signup' && signupStep === 2) && <AccessField ref={passwordInput} key={mode} label={t('Contraseña', 'Password')}
+          error={fieldErrors.password} secret value={password} onChangeText={value => { setPassword(value); setFieldErrors(e => ({ ...e, password: undefined })); }}
           autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} textContentType={mode === 'signup' ? 'newPassword' : 'password'}
-          editable={!busy} returnKeyType="go" onSubmitEditing={() => { if (mode === 'signin') void submit(); }} />}
-        {mode === 'signin' && <Pressable accessibilityRole="button" disabled={busy} onPress={() => switchMode('reset')} style={[authStyles.link, { alignSelf: 'flex-end', marginTop: -12 }]}>
-          <Text style={[authStyles.label, { color: colors.primary }]}>{t('Olvidé mi contraseña', 'Forgot my password')}</Text>
+          editable={!busy} returnKeyType={mode === 'signin' ? 'go' : 'next'} onSubmitEditing={() => mode === 'signin' ? void submit() : confirmInput.current?.focus()} />}
+        {mode === 'signin' && <Pressable accessibilityRole="button" disabled={busy} onPress={() => switchMode('reset')} style={styles.forgot}>
+          <Text style={{ color: colors.primary, fontWeight: '600' }}>{t('Olvidé mi contraseña', 'Forgot password')}</Text>
         </Pressable>}
-        {mode === 'signup' && <>
-          <PasswordChecklist password={password} />
-          <AuthField label={t('Confirmar contraseña', 'Confirm password')} secret value={confirmPassword} onChangeText={setConfirmPassword}
-            autoComplete="new-password" textContentType="newPassword" editable={!busy} />
-          {confirmPassword.length > 0 && confirmPassword !== password && <Text accessibilityLiveRegion="polite" style={{ color: colors.danger }}>{t('Las contraseñas no coinciden.', 'Passwords do not match.')}</Text>}
+        {mode === 'signup' && signupStep === 2 && <>
+          <PasswordChecklist password={password} compact />
+          <AccessField ref={confirmInput} label={t('Confirmar contraseña', 'Confirm password')} secret value={confirmPassword}
+            error={fieldErrors.confirm || (confirmPassword.length > 0 && confirmPassword !== password ? t('Las contraseñas no coinciden.', 'Passwords do not match.') : undefined)}
+            onChangeText={value => { setConfirmPassword(value); setFieldErrors(e => ({ ...e, confirm: undefined })); }}
+            autoComplete="new-password" textContentType="newPassword" editable={!busy} returnKeyType="go" onSubmitEditing={() => void submit()} />
         </>}
-        {error && <AuthMessage error>{error}</AuthMessage>}
-        <AuthButton label={copy.cta} busy={busy} onPress={() => { void submit(); }} />
-      </Animated.View>
-      <Animated.View layout={layoutFlow()} style={{ gap: 12, borderTopWidth: 1, borderColor: colors.border, paddingTop: 24 }}>
-        <Text style={[authStyles.body, { color: colors.textSecondary, textAlign: 'center' }]}>
-          {mode === 'signin' ? t('¿Primera vez en TerraSense?', 'New to TerraSense?') : t('¿Ya tienes una cuenta?', 'Already have an account?')}
-        </Text>
-        <AuthButton secondary disabled={busy} label={mode === 'signin' ? t('Crear mi cuenta', 'Create my account') : t('Volver a iniciar sesión', 'Back to sign in')}
-          onPress={() => switchMode(mode === 'signin' ? 'signup' : 'signin')} />
-      </Animated.View>
-    </AuthLayout>
+        {!!error && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text>}
+      </View>
+    </EntryLayout>
     {showConsent && <RegistrationConsentModal busy={busy} error={error}
-      onCancel={() => { if (!requestInFlight.current) { setShowConsent(false); setError(null); } }}
+      onCancel={() => { if (!requestGate.active) { setShowConsent(false); setError(null); } }}
       onContinue={consent => {
-        // Volver al formulario con el consentimiento guardado. Continuar desde
-        // el formulario inicia el registro y muestra su indicador de carga.
         acceptedConsent.current = consent;
         setShowConsent(false);
         setError(null);
+        void submit(consent);
       }} />}
   </>;
 };
+
+const styles = StyleSheet.create({
+  header: { width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 42 },
+  wordmark: { fontSize: 17, fontWeight: '800', letterSpacing: 2 },
+  language: { minHeight: 48, minWidth: 48, alignItems: 'center', justifyContent: 'center' },
+  body: { width: '100%', gap: 12 },
+  forgot: { alignSelf: 'flex-end', minHeight: 48, justifyContent: 'center' },
+  footer: { width: '100%', paddingTop: 8, gap: 2 },
+  footerLink: { minHeight: 48, alignItems: 'center', justifyContent: 'center' },
+});

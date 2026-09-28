@@ -1,15 +1,17 @@
 import React, { useRef, useState } from 'react';
-import { BackHandler, View } from 'react-native';
-import Animated from 'react-native-reanimated';
-import { layoutFlow } from '../constants/motion';
+import { BackHandler, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { supabase } from '../services/supabase';
-import { AuthLayout, AuthHeading, AuthField, AuthButton, AuthMessage, authStyles } from '../components/auth/AuthUI';
+import { EntryLayout, EntryHeading, EntryButton } from '../components/entry/EntryUI';
+import { AccessField } from '../components/auth/AccessField';
 import { useTranslation } from '../hooks/useTranslation';
 import { isPasswordAcceptable, PASSWORD_MIN_LENGTH } from '../utils/passwordRules';
 import { PasswordChecklist } from '../components/PasswordChecklist';
+import { useAppTheme } from '../hooks/useAppTheme';
 
 export const ResetPasswordScreen = ({ onDone }: { onDone: () => void }) => {
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
+  const confirmInput = useRef<TextInput>(null);
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [busy, setBusy] = useState(false);
@@ -24,6 +26,7 @@ export const ResetPasswordScreen = ({ onDone }: { onDone: () => void }) => {
 
   const cancel = async () => {
     if (locked.current) return;
+    Keyboard.dismiss();
     locked.current = true; setBusy(true); setError(null);
     try {
       const { error: signOutError } = await supabase.auth.signOut({ scope: 'local' });
@@ -37,21 +40,23 @@ export const ResetPasswordScreen = ({ onDone }: { onDone: () => void }) => {
   const submit = async () => {
     if (locked.current) return;
     setError(null);
-    if (!isPasswordAcceptable(password)) {
+    if (!passwordSaved.current && !isPasswordAcceptable(password)) {
       setError(t(`Usa al menos ${PASSWORD_MIN_LENGTH} caracteres, una letra, un número y un carácter especial.`, `Use at least ${PASSWORD_MIN_LENGTH} characters, a letter, a number and a special character.`));
       return;
     }
-    if (password !== confirm) {
+    if (!passwordSaved.current && password !== confirm) {
       setError(t('Las contraseñas no coinciden.', 'Passwords do not match.'));
       return;
     }
 
+    Keyboard.dismiss();
     locked.current = true; setBusy(true);
     try {
       if (!passwordSaved.current) {
         const { error: updateError } = await supabase.auth.updateUser({ password });
         if (updateError) throw updateError;
         passwordSaved.current = true;
+        setPassword(''); setConfirm('');
       }
       const { error: signOutError } = await supabase.auth.signOut();
       if (signOutError) {
@@ -65,19 +70,29 @@ export const ResetPasswordScreen = ({ onDone }: { onDone: () => void }) => {
     } finally { locked.current = false; setBusy(false); }
   };
 
-  return <AuthLayout>
-    <AuthHeading eyebrow={success ? t('TODO LISTO', 'ALL SET') : t('UNA NUEVA CONTRASEÑA', 'A NEW PASSWORD')}
-      title={success ? t('Vuelve a tu campo.', 'Back to your field.') : t('Un nuevo comienzo.', 'A fresh start.')}
-      description={success ? t('Tu contraseña se actualizó. Inicia sesión con la nueva para continuar.', 'Your password was updated. Sign in with your new password to continue.') : t('Elige una contraseña que uses solo para TerraSense.', 'Choose a password you only use for TerraSense.')} />
-    {success ? <AuthButton label={t('Ir a iniciar sesión', 'Go to sign in')} onPress={onDone} /> : <Animated.View layout={layoutFlow()} style={authStyles.form}>
-      <AuthField label={t('Contraseña nueva', 'New password')} secret value={password} onChangeText={setPassword}
-        editable={!busy && !passwordSaved.current} autoComplete="new-password" textContentType="newPassword" />
-      <PasswordChecklist password={password} />
-      <AuthField label={t('Confirmar contraseña', 'Confirm password')} secret value={confirm} onChangeText={setConfirm}
-        editable={!busy && !passwordSaved.current} autoComplete="new-password" textContentType="newPassword" />
-      {error && <AuthMessage error>{error}</AuthMessage>}
-      <AuthButton label={passwordSaved.current ? t('Finalizar recuperación', 'Finish recovery') : t('Guardar contraseña', 'Save password')} busy={busy} onPress={() => { void submit(); }} />
-      <AuthButton secondary disabled={busy} label={t('Volver al inicio de sesión', 'Back to sign in')} onPress={() => { void cancel(); }} />
-    </Animated.View>}
-  </AuthLayout>;
+  return <EntryLayout keyboardAware footer={<View style={styles.footer}>
+    <EntryButton label={success ? t('Ir a iniciar sesión', 'Go to sign in') : passwordSaved.current ? t('Finalizar recuperación', 'Finish recovery') : t('Guardar contraseña', 'Save password')}
+      busy={busy} onPress={() => success ? onDone() : void submit()} />
+    {!success && <Pressable accessibilityRole="button" disabled={busy} onPress={() => { void cancel(); }} style={styles.link}>
+      <Text style={{ color: colors.primary, fontWeight: '700' }}>{t('Cancelar recuperación', 'Cancel recovery')}</Text>
+    </Pressable>}
+  </View>}>
+    <View style={styles.body}>
+      <EntryHeading eyebrow={success ? t('TODO LISTO', 'ALL SET') : t('NUEVA CONTRASEÑA', 'NEW PASSWORD')}
+        title={passwordSaved.current ? t('Contraseña actualizada', 'Password updated') : t('Crea una contraseña', 'Create a password')}
+        description={success ? t('Entra con tu nueva contraseña.', 'Sign in with your new password.') : passwordSaved.current ? t('Finaliza la recuperación para volver al acceso.', 'Finish recovery to return to sign in.') : t('Usa una contraseña segura para tu cuenta.', 'Choose a secure password for your account.')} />
+      {!passwordSaved.current && <>
+        <AccessField label={t('Contraseña nueva', 'New password')} secret value={password} onChangeText={setPassword}
+          editable={!busy && !passwordSaved.current} autoComplete="new-password" textContentType="newPassword"
+          returnKeyType="next" onSubmitEditing={() => confirmInput.current?.focus()} />
+        <PasswordChecklist password={password} compact />
+        <AccessField ref={confirmInput} label={t('Confirmar contraseña', 'Confirm password')} secret value={confirm} onChangeText={setConfirm}
+          error={confirm.length > 0 && confirm !== password ? t('Las contraseñas no coinciden.', 'Passwords do not match.') : undefined}
+          editable={!busy && !passwordSaved.current} autoComplete="new-password" textContentType="newPassword" returnKeyType="go" onSubmitEditing={() => void submit()} />
+      </>}
+      {error && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text>}
+    </View>
+  </EntryLayout>;
 };
+
+const styles = StyleSheet.create({ body: { width: '100%', gap: 12 }, footer: { width: '100%' }, link: { minHeight: 48, alignItems: 'center', justifyContent: 'center' } });

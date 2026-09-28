@@ -1,8 +1,6 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import Animated from 'react-native-reanimated';
+import { ActivityIndicator, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { BrandLogo } from './BrandLogo';
-import { enterDown } from '../constants/motion';
 import { useTranslation } from '../hooks/useTranslation';
 
 /**
@@ -17,18 +15,22 @@ const SPINNER = '#6EE7B7';
 /** Pantalla de carga con la marca: se muestra mientras se resuelve la ruta de entrada. */
 export function LoadingScreen() {
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const logoWidth = Math.min(240, width - 48);
+  const logoHeight = logoWidth * 235 / 590;
   return (
     <View style={styles.screen} accessibilityLabel={t('Cargando TerraSense', 'Loading TerraSense')}
       accessibilityRole="progressbar" accessibilityState={{ busy: true }}>
-      <Animated.View entering={enterDown()} style={styles.stack}>
-        <BrandLogo width={240} onDark />
-        <ActivityIndicator size="large" color={SPINNER} />
-      </Animated.View>
+      <View style={[styles.logo, { transform: [{ translateY: -logoHeight / 2 }] }]}>
+        <BrandLogo width={logoWidth} onDark />
+      </View>
+      <ActivityIndicator size="large" color={SPINNER} style={[styles.spinner, { marginTop: logoHeight / 2 + 32 }]} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: SPLASH_BACKGROUND, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  stack: { alignItems: 'center', gap: 40, maxWidth: 360, width: '100%' },
+  logo: { position: 'absolute', top: '50%', alignItems: 'center' },
+  spinner: { position: 'absolute', top: '50%' },
 });

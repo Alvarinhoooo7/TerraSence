@@ -1,10 +1,11 @@
-export type EntryRoute = 'loading' | 'recovery' | 'welcome' | 'auth' | 'permissions' | 'onboarding-error' | 'approval' | 'onboarding' | 'app';
+export type EntryRoute = 'loading' | 'recovery' | 'language' | 'welcome' | 'auth' | 'permissions' | 'onboarding-error' | 'approval' | 'onboarding' | 'app';
 
 /** Precedencia única de las barreras de entrada, independiente de las pantallas internas. */
 export function resolveEntryRoute(state: {
   loading: boolean;
   recovery: boolean;
   welcomeComplete: boolean;
+  languageSelected?: boolean;
   userId: string | null;
   permissionsUserId: string | null;
   permissionsReviewed: boolean;
@@ -16,8 +17,11 @@ export function resolveEntryRoute(state: {
 }): EntryRoute {
   if (state.loading) return 'loading';
   if (state.recovery) return 'recovery';
-  if (!state.welcomeComplete) return 'welcome';
-  if (!state.userId) return 'auth';
+  if (!state.userId) {
+    if (state.languageSelected === false) return 'language';
+    if (!state.welcomeComplete) return 'welcome';
+    return 'auth';
+  }
   if (state.permissionsUserId !== state.userId) return 'loading';
   if (!state.permissionsReviewed) return 'permissions';
   if (state.checkingOnboarding || state.onboardingUserId !== state.userId) return 'loading';

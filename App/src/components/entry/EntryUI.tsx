@@ -1,0 +1,80 @@
+import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react';
+import { ActivityIndicator, findNodeHandle, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
+import { useAppTheme } from '../../hooks/useAppTheme';
+import { enterDown } from '../../constants/motion';
+
+const EntryFocus = createContext<(input: TextInput | null) => void>(() => {});
+export const useEntryFocus = () => useContext(EntryFocus);
+
+export function useEntryMetrics() {
+  const { width, height, fontScale } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const usableHeight = height - insets.top - insets.bottom;
+  const compact = usableHeight < 690 || fontScale > 1.15;
+  const veryCompact = usableHeight < 570 || fontScale > 1.35;
+  return { compact, veryCompact, usableHeight, width, contentMaxWidth: 520,
+    artworkHeight: veryCompact ? 112 : compact ? 160 : Math.min(230, usableHeight * .3),
+    spacing: veryCompact ? 12 : compact ? 18 : 24 };
+}
+
+export function EntryLayout({ header, children, footer, keyboardAware = false }: React.PropsWithChildren<{
+  header?: React.ReactNode; footer?: React.ReactNode; keyboardAware?: boolean;
+}>) {
+  const { colors } = useAppTheme();
+  const metrics = useEntryMetrics();
+  const scroll = useRef<ScrollView>(null);
+  const focused = useRef<TextInput | null>(null);
+  const revealFocus = useCallback(() => {
+    const handle = focused.current && findNodeHandle(focused.current);
+    if (handle) scroll.current?.scrollResponderScrollNativeHandleToKeyboard(handle, 12, true);
+  }, []);
+  const focus = useCallback((input: TextInput | null) => {
+    focused.current = input;
+    requestAnimationFrame(revealFocus);
+  }, [revealFocus]);
+  useEffect(() => {
+    if (!keyboardAware) return;
+    const listener = Keyboard.addListener('keyboardDidShow', revealFocus);
+    return () => listener.remove();
+  }, [keyboardAware, revealFocus]);
+  return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+    <EntryFocus.Provider value={focus}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={keyboardAware && Platform.OS === 'ios' ? 'padding' : undefined}>
+      {!!header && <View style={{ alignSelf: 'center', width: '100%', maxWidth: metrics.contentMaxWidth, paddingHorizontal: 24 }}>{header}</View>}
+      <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1, alignSelf: 'center', width: '100%', maxWidth: metrics.contentMaxWidth,
+          paddingHorizontal: 24, paddingTop: metrics.compact ? 8 : 16, paddingBottom: metrics.compact ? 8 : 16 }}>
+        <Animated.View entering={enterDown()} style={{ flexGrow: 1, justifyContent: 'center', minHeight: 0 }}>{children}</Animated.View>
+      </ScrollView>
+      {!!footer && <View style={{ alignSelf: 'center', width: '100%', maxWidth: metrics.contentMaxWidth, paddingHorizontal: 24, paddingBottom: 12 }}>{footer}</View>}
+    </KeyboardAvoidingView>
+    </EntryFocus.Provider>
+  </SafeAreaView>;
+}
+
+export function EntryHeading({ eyebrow, title, description }: { eyebrow?: string; title: string; description?: string }) {
+  const { colors } = useAppTheme();
+  const { compact } = useEntryMetrics();
+  return <View style={{ gap: compact ? 8 : 12 }}>
+    {!!eyebrow && <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.5 }}>{eyebrow}</Text>}
+    <Text accessibilityRole="header" style={{ color: colors.text, fontSize: compact ? 32 : 38, lineHeight: compact ? 38 : 44, fontWeight: '700', letterSpacing: -1.3 }}>{title}</Text>
+    {!!description && <Text style={{ color: colors.textSecondary, fontSize: 16, lineHeight: 24 }}>{description}</Text>}
+  </View>;
+}
+
+export function EntryButton({ label, onPress, disabled = false, busy = false, secondary = false }: {
+  label: string; onPress: () => void; disabled?: boolean; busy?: boolean; secondary?: boolean;
+}) {
+  const { colors, isDark } = useAppTheme();
+  const ink = secondary ? colors.primary : isDark ? colors.background : '#FFFFFF';
+  return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: disabled || busy, busy }}
+    disabled={disabled || busy} onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => undefined); onPress(); }} style={({ pressed }) => ({ minHeight: 54, borderRadius: 16, borderWidth: 1,
+      borderColor: secondary ? colors.border : colors.primary, backgroundColor: secondary ? colors.card : colors.primary,
+      alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18, paddingVertical: 12, opacity: disabled || busy ? .55 : pressed ? .8 : 1 })}>
+    {busy ? <ActivityIndicator color={ink} /> :
+      <Text style={{ color: ink, fontSize: 16, fontWeight: '700', textAlign: 'center' }}>{label}</Text>}
+  </Pressable>;
+}

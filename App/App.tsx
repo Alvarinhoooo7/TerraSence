@@ -1,8 +1,9 @@
 import { ScreenGuide } from './src/components/ScreenGuide';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   BackHandler,
   Linking,
+  Modal,
   Text,
   TouchableOpacity,
   View,
@@ -12,6 +13,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
+import * as SplashScreen from 'expo-splash-screen';
 
 import { useAuthStore } from './src/store/useAuthStore';
 import { OfflineBanner } from './src/components/OfflineBanner';
@@ -29,7 +31,7 @@ import { HistoryScreen } from './src/screens/HistoryScreen';
 import { Typography } from './src/constants/theme';
 import { getOnboardingState } from './src/services/onboardingService';
 import { clearDevSkip, isDevSkipEnabled } from './src/utils/devSkipOnboarding';
-import { loadPreferences } from './src/services/preferencesService';
+import { cachedAccountPreferences, chooseEntryLanguage, loadEntryLanguage, reconcileAccountLanguage } from './src/services/preferencesService';
 import { useAppStore } from './src/store/useAppStore';
 import { useAppTheme } from './src/hooks/useAppTheme';
 import { useTranslation } from './src/hooks/useTranslation';
@@ -41,15 +43,19 @@ import { createRecoverySession } from './src/services/authDeepLink';
 import { parseRecoveryTokens } from './src/services/authDeepLinkParser';
 import { isInvalidSessionError } from './src/utils/authValidation';
 import { resolveEntryRoute } from './src/utils/authFlow';
-import { AuthLayout, AuthHeading, AuthButton } from './src/components/auth/AuthUI';
+import { EntryLayout, EntryHeading, EntryButton } from './src/components/entry/EntryUI';
+import { timedOperation } from './src/utils/timedOperation';
 import { WelcomeCarouselScreen } from './src/screens/WelcomeCarouselScreen';
+import { LanguageScreen } from './src/screens/LanguageScreen';
 import { PermissionsScreen } from './src/screens/PermissionsScreen';
 import { hasReviewedPermissions } from './src/utils/permissionState';
 import { DashboardScreen } from './src/screens/DashboardScreen';
 import { BottomNavigation } from './src/components/BottomNavigation';
+import type { AppLanguage } from './src/types/preferences';
 
 type Route = 'dashboard' | 'measure' | 'settings' | 'devices' | 'history' | 'administration';
 const WELCOME_KEY = '@terrasense/welcome-complete-v1';
+void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 export default function App() {
   const { isDark, colors } = useAppTheme();
@@ -59,6 +65,12 @@ export default function App() {
   const [checking, setChecking] = useState(true);
   const [checkingWelcome, setCheckingWelcome] = useState(true);
   const [welcomeComplete, setWelcomeComplete] = useState(false);
+  const [languageSelected, setLanguageSelected] = useState(false);
+  const [languageSelectorOpen, setLanguageSelectorOpen] = useState(false);
+  const [savingLanguage, setSavingLanguage] = useState(false);
+  const languageSaveInFlight = useRef(false);
+  const [languageError, setLanguageError] = useState(false);
+  const [preferencesUserId, setPreferencesUserId] = useState<string | null>(null);
   const [recovering, setRecovering] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [checkingRecoveryLink, setCheckingRecoveryLink] = useState(true);
@@ -114,11 +126,16 @@ export default function App() {
   }, [route, detailPoint, devicesOrigin]);
 
   useEffect(() => {
-    AsyncStorage.getItem(WELCOME_KEY)
-      .then((value) => setWelcomeComplete(value === 'true'))
-      .catch(() => setWelcomeComplete(false))
+    Promise.all([AsyncStorage.getItem(WELCOME_KEY), loadEntryLanguage()])
+      .then(([welcome, entryLanguage]) => {
+        setWelcomeComplete(welcome === 'true');
+        // La bienvenida ya vista migra sin pedir una selección nueva.
+        setLanguageSelected(entryLanguage.selected || welcome === 'true');
+        setPreferences({ ...useAppStore.getState().preferences, language: entryLanguage.language });
+      })
+      .catch(() => { setWelcomeComplete(false); setLanguageSelected(false); })
       .finally(() => setCheckingWelcome(false));
-  }, []);
+  }, [setPreferences]);
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -134,7 +151,9 @@ export default function App() {
       // consultas corrían con un `uid` inexistente, devolvían cero equipos y el
       // onboarding no se pasaba nunca. `getUser` sí contrasta contra el servidor.
       if (data.session) {
-        const { error } = await supabase.auth.getUser();
+        const { error } = await timedOperation(
+          supabase.auth.getUser(data.session.access_token), 4000, () => {}, 'Sin respuesta del servidor',
+        ).catch(error => ({ error }));
         // Sólo se cierra sesión cuando el servidor responde que la cuenta ya no
         // vale. Un fallo de red no debe expulsar a nadie en terreno.
         if (!active || authRevision !== initialRevision) return;
@@ -197,6 +216,22 @@ export default function App() {
 
   useEffect(() => {
     let active = true;
+    const uid = session?.user.id;
+    if (!uid) { setPreferencesUserId(null); return; }
+    if (checking || checkingWelcome || checkingRecoveryLink || !isHydrated || recoveryActive) return;
+    setPreferencesLoaded(false);
+    void cachedAccountPreferences(uid)
+      .then(value => { if (active) setPreferences(value ?? { ...DEFAULT_APP_PREFERENCES, language: useAppStore.getState().preferences.language }); })
+      .catch(() => undefined)
+      .then(() => reconcileAccountLanguage(uid))
+      .then(value => { if (active) setPreferences(value); })
+      .catch(() => undefined)
+      .finally(() => { if (active) { setPreferencesUserId(uid); setPreferencesLoaded(true); } });
+    return () => { active = false; };
+  }, [session?.user.id, checking, checkingWelcome, checkingRecoveryLink, isHydrated, recoveryActive, setPreferences, setPreferencesLoaded]);
+
+  useEffect(() => {
+    let active = true;
     const userId = session?.user.id;
     if (!userId) { setPermissionsReview(null); return; }
     if (checking || checkingRecoveryLink || !isHydrated || recoveryActive) return;
@@ -210,7 +245,7 @@ export default function App() {
   useEffect(() => {
     let active = true;
 
-    if (recoveryActive || checking || checkingRecoveryLink || !isHydrated) return;
+    if (recoveryActive || checking || checkingRecoveryLink || checkingWelcome || !isHydrated) return;
 
     if (!session) {
       setCheckingOnboarding(false);
@@ -223,7 +258,8 @@ export default function App() {
       useAppStore.getState().setPendingCount(0);
       setDetailPoint(null);
       setRoute('dashboard');
-      setPreferences(DEFAULT_APP_PREFERENCES);
+      // Cerrar sesión conserva el idioma elegido para esta instalación.
+      setPreferences({ ...DEFAULT_APP_PREFERENCES, language: useAppStore.getState().preferences.language });
       setPreferencesLoaded(false);
       return () => {
         active = false;
@@ -239,13 +275,10 @@ export default function App() {
         if (!devSkip) throw error;
         return { completed: false, hasPendingRequests: false, devices: [] };
       }),
-      loadPreferences(),
       devSkip,
     ] as const))
-      .then(([state, preferences, devSkip]) => {
+      .then(([state, devSkip]) => {
         if (!active) return;
-        setPreferences(preferences);
-        setPreferencesLoaded(true);
         setDevice(state.devices[0] ?? null);
         setOnboardingComplete(state.completed || devSkip);
         setAwaitingDeviceApproval(!state.completed && (state.hasPendingRequests ?? false));
@@ -268,12 +301,11 @@ export default function App() {
     recoveryActive,
     checking,
     checkingRecoveryLink,
+    checkingWelcome,
     isHydrated,
     onboardingRetry,
     session?.user.id,
     setDevice,
-    setPreferences,
-    setPreferencesLoaded,
   ]);
 
   // Sólo registra autorizaciones existentes, después de revisar la explicación.
@@ -289,10 +321,25 @@ export default function App() {
     setDetailPoint(p);
   }, []);
 
+  const applyEntryLanguage = async (language: AppLanguage) => {
+    if (languageSaveInFlight.current) return;
+    languageSaveInFlight.current = true;
+    setLanguageError(false);
+    setSavingLanguage(true);
+    try {
+      await chooseEntryLanguage(language);
+      setPreferences({ ...useAppStore.getState().preferences, language });
+      setLanguageSelected(true);
+      setLanguageSelectorOpen(false);
+    } catch { setLanguageError(true); }
+    finally { languageSaveInFlight.current = false; setSavingLanguage(false); }
+  };
+
   let content;
   const entry = resolveEntryRoute({
-    loading: checkingWelcome || checking || !isHydrated || recoveryLoading || checkingRecoveryLink,
-    recovery: recoveryActive, welcomeComplete, userId: session?.user.id ?? null,
+    loading: checkingWelcome || checking || !isHydrated || recoveryLoading || checkingRecoveryLink ||
+      (!!session && !recoveryActive && (!preferencesLoaded || preferencesUserId !== session.user.id)),
+    recovery: recoveryActive, welcomeComplete, languageSelected, userId: session?.user.id ?? null,
     permissionsUserId: permissionsReview?.userId ?? null,
     permissionsReviewed: permissionsReview?.reviewed ?? false,
     onboardingUserId, checkingOnboarding, onboardingError: !!onboardingError,
@@ -302,17 +349,19 @@ export default function App() {
   if (entry === 'loading') {
     content = <LoadingScreen />;
   } else if (recoveryLinkError) {
-    content = <AuthLayout>
-      <AuthHeading eyebrow={t('RECUPERACIÓN DE CUENTA', 'ACCOUNT RECOVERY')}
+    content = <EntryLayout footer={<EntryButton label={t('Continuar', 'Continue')} onPress={() => setRecoveryLinkError(false)} />}>
+      <EntryHeading eyebrow={t('RECUPERACIÓN DE CUENTA', 'ACCOUNT RECOVERY')}
         title={t('El enlace no está disponible.', 'This link is unavailable.')}
         description={t('Puede haber vencido o faltar conexión. Revisa tu internet y abre el correo de nuevo, o solicita otro código desde «Olvidé mi contraseña».', 'It may have expired or you may be offline. Check your connection and open the email again, or request a new code from “Forgot my password”.')} />
-      <AuthButton label={t('Continuar', 'Continue')} onPress={() => setRecoveryLinkError(false)} />
-    </AuthLayout>;
+    </EntryLayout>;
   } else if (entry === 'recovery') {
     content = <ResetPasswordScreen onDone={() => { setRecoveryUserId(null); setRecovering(false); }} />;
+  } else if (entry === 'language') {
+    content = <LanguageScreen initialLanguage={preferences.language} onContinue={language => { void applyEntryLanguage(language); }} busy={savingLanguage} error={languageError} />;
   } else if (entry === 'welcome') {
     content = (
       <WelcomeCarouselScreen
+        onChangeLanguage={() => setLanguageSelectorOpen(true)}
         onComplete={() => {
           setWelcomeComplete(true);
           void AsyncStorage.setItem(WELCOME_KEY, 'true').catch(() => undefined);
@@ -320,7 +369,7 @@ export default function App() {
       />
     );
   } else if (entry === 'auth') {
-    content = <AuthScreen onAuthenticated={() => setRoute('dashboard')} />;
+    content = <AuthScreen onAuthenticated={() => setRoute('dashboard')} onChangeLanguage={() => setLanguageSelectorOpen(true)} />;
   } else if (entry === 'permissions' && session) {
     const userId = session.user.id;
     content = <PermissionsScreen key={userId} userId={userId} onComplete={() => {
@@ -419,10 +468,12 @@ export default function App() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1 }} onLayout={() => { void SplashScreen.hideAsync().catch(() => undefined); }}>
       <SafeAreaProvider>
         <StatusBar style={entry === 'loading' || isDark ? 'light' : 'dark'} />
-        <OfflineBanner />
+        <View style={{ display: ['loading', 'language', 'welcome', 'auth', 'recovery'].includes(entry) ? 'none' : 'flex' }}>
+          <OfflineBanner />
+        </View>
         <ScreenGuide enabled={!recoveryLinkError && ['app', 'permissions', 'onboarding', 'approval'].includes(entry)} scope={`${entry}:${route}`}>
         {content}
         {entry === 'app' && !recoveryLinkError && ['dashboard', 'history', 'settings'].includes(route) && (
@@ -430,6 +481,11 @@ export default function App() {
         )}
         </ScreenGuide>
         <MeasurementDetailModal point={detailPoint} onClose={() => setDetailPoint(null)} />
+        <Modal visible={languageSelectorOpen && (entry === 'welcome' || entry === 'auth')} animationType="none" presentationStyle="fullScreen"
+          onRequestClose={() => { if (!languageSaveInFlight.current) { setLanguageSelectorOpen(false); setLanguageError(false); } }}>
+          <SafeAreaProvider><LanguageScreen initialLanguage={preferences.language}
+            onClose={() => { setLanguageSelectorOpen(false); setLanguageError(false); }} onContinue={language => { void applyEntryLanguage(language); }} busy={savingLanguage} error={languageError} /></SafeAreaProvider>
+        </Modal>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

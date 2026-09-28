@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { BackHandler, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import Animated from 'react-native-reanimated';
-import { layoutFlow } from '../constants/motion';
 import { supabase } from '../services/supabase';
 import {
   EMAIL_CODE_LENGTH, EmailOtpPurpose, emailCodeCells, isEmailCodeValid, normalizeEmailCode,
@@ -9,7 +7,7 @@ import {
 } from '../services/emailOtp';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
-import { AuthLayout, AuthHeading, AuthButton, AuthMessage, authStyles } from '../components/auth/AuthUI';
+import { EntryLayout, EntryHeading, EntryButton, useEntryFocus } from '../components/entry/EntryUI';
 
 /** Tiempo que el último dígito queda a la vista antes de enmascararse. */
 const REVEAL_MS = 900;
@@ -24,6 +22,7 @@ function CodeCells({ value, onChange, editable, label }: {
 }) {
   const { colors } = useAppTheme();
   const field = useRef<TextInput>(null);
+  const revealFocus = useEntryFocus();
   const [focused, setFocused] = useState(false);
   const [reveal, setReveal] = useState(-1);
 
@@ -52,7 +51,7 @@ function CodeCells({ value, onChange, editable, label }: {
         setReveal(next.length > value.length ? next.length - 1 : -1);
         onChange(next);
       }}
-      onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+      onFocus={() => { setFocused(true); revealFocus(field.current); }} onBlur={() => { setFocused(false); revealFocus(null); }}
       autoFocus keyboardType="number-pad" inputMode="numeric" maxLength={EMAIL_CODE_LENGTH}
       textContentType="oneTimeCode" autoComplete="one-time-code" autoCorrect={false}
       style={styles.hiddenField} />
@@ -113,31 +112,44 @@ export function EmailCodeScreen({ email, purpose, sentAt, onBack }: Props) {
     if (shouldAutoVerify(code, lastAttempt.current, busy)) void run(false);
   }, [code, busy]);
 
-  return <AuthLayout brand={false}>
-    <AuthHeading eyebrow={t('REVISA TU CORREO', 'CHECK YOUR EMAIL')}
-      title={purpose === 'signup' ? t('Un paso más.\nTu cuenta está cerca.', 'One more step.\nYour account awaits.') : t('Volvamos a entrar.', 'Let’s get you back in.')}
-      description={t('Si la solicitud corresponde a tu cuenta, recibirás un código en:', 'If the request applies to your account, you will receive a code at:')} />
-    <Text selectable style={[authStyles.body, authStyles.centered, { fontWeight: '600', color: colors.text, marginTop: -12 }]}>{email}</Text>
-    <Animated.View layout={layoutFlow()} style={authStyles.form}>
-      <View style={authStyles.field}>
-        <Text style={[authStyles.label, authStyles.centered, { color: colors.text }]}>{t('Código de verificación', 'Verification code')}</Text>
+  return <EntryLayout keyboardAware footer={<View style={styles.footer}>
+    <EntryButton label={t('Verificar código', 'Verify code')} busy={busy} disabled={!isEmailCodeValid(code)} onPress={() => { void run(false); }} />
+    <Pressable accessibilityRole="button" disabled={busy || remaining > 0} onPress={() => { void run(true); }} style={styles.link}>
+      <Text style={{ color: busy || remaining > 0 ? colors.textSecondary : colors.primary, fontWeight: '700' }}>
+        {remaining > 0 ? t(`Reenviar en ${remaining} s`, `Resend in ${remaining}s`) : t('Reenviar código', 'Resend code')}
+      </Text>
+    </Pressable>
+    <Pressable accessibilityRole="button" disabled={busy} onPress={onBack} style={styles.link}>
+      <Text style={{ color: colors.primary, fontWeight: '700' }}>{t('Corregir correo', 'Edit email')}</Text>
+    </Pressable>
+  </View>}>
+    <View style={styles.body}>
+      <EntryHeading eyebrow={t('REVISA TU CORREO', 'CHECK YOUR EMAIL')}
+        title={purpose === 'signup' ? t('Confirma tu correo', 'Confirm your email') : t('Verifica tu código', 'Verify your code')}
+        description={purpose === 'recovery'
+          ? t('Si el correo tiene una cuenta, recibirá un código:', 'If this email has an account, it will receive a code:')
+          : t('Escribe los seis dígitos enviados a:', 'Enter the six digits sent to:')} />
+      <Text selectable style={[styles.email, { color: colors.text }]}>{email}</Text>
+      <View style={styles.body}>
+        <Text style={[styles.label, { color: colors.text }]}>{t('Código de verificación', 'Verification code')}</Text>
         <CodeCells value={code} onChange={setCode} editable={!busy} label={t('Código de verificación de seis dígitos', 'Six-digit verification code')} />
       </View>
-      <Text style={[authStyles.body, authStyles.centered, { color: colors.textSecondary }]}>{t('Ingresa los seis dígitos del correo. Si el código venció, solicita uno nuevo.', 'Enter the six digits from your email. If the code expired, request a new one.')}</Text>
-      {error && <AuthMessage error>{error}</AuthMessage>}
-      {notice && <AuthMessage>{notice}</AuthMessage>}
-      <AuthButton label={t('Verificar código', 'Verify code')} busy={busy} disabled={!isEmailCodeValid(code)} onPress={() => { void run(false); }} />
-      <AuthButton secondary disabled={busy || remaining > 0} label={remaining > 0 ? t(`Reenviar en ${remaining} s`, `Resend in ${remaining}s`) : t('Reenviar código', 'Resend code')}
-        onPress={() => { void run(true); }} />
-    </Animated.View>
-    <Text style={[authStyles.body, authStyles.centered, { color: colors.textSecondary }]}>{t('¿No lo encuentras? Revisa la carpeta de spam o comprueba el correo que escribiste.', 'Can’t find it? Check spam or make sure your email address is correct.')}</Text>
-    <AuthButton secondary disabled={busy} label={t('Volver', 'Back')} onPress={onBack} />
-  </AuthLayout>;
+      {error && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text>}
+      {notice && <Text accessibilityLiveRegion="polite" style={{ color: colors.textSecondary }}>{notice}</Text>}
+      <Text style={[styles.help, { color: colors.textSecondary }]}>{t('Revisa spam si aún no llega.', 'Check spam if it has not arrived.')}</Text>
+    </View>
+  </EntryLayout>;
 }
 
 const styles = StyleSheet.create({
-  cells: { flexDirection: 'row', justifyContent: 'center', gap: 10 },
-  cell: { flex: 1, maxWidth: 56, height: 62, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  body: { width: '100%', gap: 14 },
+  footer: { width: '100%' },
+  link: { minHeight: 48, alignItems: 'center', justifyContent: 'center' },
+  email: { fontSize: 16, textAlign: 'center', fontWeight: '700' },
+  label: { fontSize: 14, fontWeight: '600', textAlign: 'center' },
+  help: { fontSize: 13, textAlign: 'center' },
+  cells: { flexDirection: 'row', justifyContent: 'center', gap: 6 },
+  cell: { flex: 1, maxWidth: 48, height: 54, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   cellText: { fontSize: 26, lineHeight: 32, fontWeight: '700' },
   // El campo real cubre las casillas sin verse: conserva teclado y autorrelleno.
   hiddenField: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0, color: 'transparent' },

@@ -29,6 +29,7 @@ export function RegistrationConsentModal({ busy, error, onCancel, onContinue }: 
   const dimensions = useRef({ offset: 0, viewport: 0, content: 0 });
   const scroller = useRef<ScrollView>(null);
   const assist = useRef<ReturnType<typeof setInterval> | null>(null);
+  const submitted = useRef(false);
   const reducedMotion = useRef(false);
   const checkEnd = () => {
     const { offset, viewport, content } = dimensions.current;
@@ -41,7 +42,7 @@ export function RegistrationConsentModal({ busy, error, onCancel, onContinue }: 
     return stopAssist;
   }, []);
 
-  // «Continuar» antes de haber leído no deja el botón muerto: baja el texto hasta el
+  // La acción antes de haber leído no deja el botón muerto: baja el texto hasta el
   // final a una velocidad legible. La aceptación sigue exigiendo llegar abajo y marcar
   // las dos casillas; esto sólo evita que el usuario quede sin saber qué hacer.
   const assistScroll = () => {
@@ -117,11 +118,12 @@ export function RegistrationConsentModal({ busy, error, onCancel, onContinue }: 
                 {t('Marca ambas casillas para continuar.', 'Select both checkboxes to continue.')}
               </Text>}
               {error && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text>}
-              <AuthButton label={t('Continuar', 'Continue')} busy={busy} disabled={!assisting && !enabled}
+              <AuthButton label={assisting ? t('Leer hasta el final', 'Read to the end') : t('Aceptar y crear cuenta', 'Accept and create account')}
+                busy={busy} disabled={!assisting && !enabled}
                 hint={assisting ? t('Baja el texto hasta el final para poder aceptarlo.', 'Scrolls the text to the end so you can accept it.') : undefined}
                 onPress={() => {
                   if (assisting) assistScroll();
-                  else if (enabled) onContinue(createRegistrationConsent(state, language));
+                  else if (enabled && !submitted.current) { submitted.current = true; onContinue(createRegistrationConsent(state, language)); }
                 }} />
             </View>
           </SafeAreaView>
