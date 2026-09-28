@@ -28,9 +28,9 @@ test('el resaltado se recorta al área visible sin dimensiones negativas', () =>
     assert.ok(hole.x + hole.width <= 320 && hole.y + hole.height <= 552);
   }
 });
-test('guías de permisos, firmware y eliminación explican sus límites en ambos idiomas', () => {
+test('guías de permisos y firmware explican sus límites en ambos idiomas', () => {
   assert.match(controlDescription('Continuar', 'es')!, /No concede/);
   assert.match(controlDescription('Continue', 'en')!, /Does not automatically grant/);
   assert.match(controlDescription('Buscar actualizaciones', 'es')!, /no descarga ni instala/);
-  assert.match(controlDescription('Delete data and release device', 'en')!, /irreversible/);
+  assert.equal(controlDescription('Eliminar datos y liberar equipo', 'es'), undefined, 'El reset es sólo del backoffice.');
 });

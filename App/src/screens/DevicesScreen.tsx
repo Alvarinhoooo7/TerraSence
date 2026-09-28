@@ -12,7 +12,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   BackHandler,
-  Linking,
   Alert,
   StyleSheet,
   Text,
@@ -20,7 +19,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
-import { useCameraPermissions } from 'expo-camera';
 import { GuideCamera as CameraView } from '../components/guide/GuideCamera';
 import { RotatingDeviceQr } from '../components/RotatingDeviceQr';
 import { WaitingApprovalScreen } from './WaitingApprovalScreen';
@@ -35,7 +33,9 @@ import {
   registerDevice,
   requestDeviceAccess,
 } from '../services/deviceService';
-import { parseDeviceQrPayload, formatDeviceId } from '../utils/deviceId';
+import { parseDeviceInvite, formatDeviceId } from '../utils/deviceId';
+import { askForAccess } from '../components/permissionPrompt';
+import { PERMISSION_COPY, pick } from '../utils/permissionCopy';
 import type { DeviceMembershipRow, DeviceRow } from '../types/app';
 
 interface Props {
@@ -44,7 +44,7 @@ interface Props {
 
 export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
   const { colors } = useAppTheme();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
 
   const { device: selected, setDevice } = useAppStore();
   const alive = useRef(true);
@@ -59,7 +59,7 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
   const [scanner, setScanner] = useState(false);
   const [pending, setPending] = useState(false);
   useResetGuide(String(pending));
-  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [inviteCode, setInviteCode] = useState('');
   const [qrDevice, setQrDevice] = useState<DeviceRow | null>(null);
   const refresh = useCallback(async () => {
     const version = ++revision.current;
@@ -87,11 +87,13 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
     if (operation.current) return; operation.current = true;
     setBusy(true);
     try {
-      const ble = await import('../services/bleService');
-      const granted = await ble.requestBlePermissions();
-      if (!granted) {
-        throw new Error(t('Se necesita permiso de Bluetooth para registrar una sonda física.', 'Bluetooth permission is required to register a physical probe.'));
+      const access = await askForAccess('bluetooth', language);
+      // Un estado que no se pudo consultar no es un rechazo: la búsqueda informa el error real.
+      if (!access.ok && !access.unknown) {
+        if (access.deniedNow) Alert.alert(pick(PERMISSION_COPY.bluetooth.name, language), pick(PERMISSION_COPY.bluetooth.denied, language));
+        return;
       }
+      const ble = await import('../services/bleService');
       const probe = await ble.pairWithNearbyProbe();
       if (!probe.pairingOpen) {
         throw new Error(t('Mantén el botón PAIR de la sonda 3 segundos, hasta que la luz azul parpadee, y vuelve a intentarlo.', 'Hold the probe PAIR button for 3 seconds, until the blue light blinks, and try again.'));
@@ -114,7 +116,7 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
     } finally {
       operation.current = false; if (alive.current) setBusy(false);
     }
-  }, [newName, setDevice, refresh, t]);
+  }, [language, newName, setDevice, refresh, t]);
 
   // `onBarcodeScanned` dispara varias veces por segundo y `setState` es asíncrono,
   // así que un guard por estado deja pasar todas las lecturas ya encoladas antes
@@ -146,7 +148,8 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
 
   const handleJoin = async (payload: string) => {
     if (operation.current) return;
-    const token = parseDeviceQrPayload(payload);
+    // El QR y el código que aparece bajo él son la misma invitación temporal.
+    const token = parseDeviceInvite(payload);
     setScanner(false);
     if (!token) {
       // Se recuerda para que reabrir la cámara sobre el mismo QR no repita el aviso.
@@ -161,6 +164,7 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
     operation.current = true; setBusy(true);
     try {
       const device = await requestDeviceAccess(token);
+      setInviteCode('');
       if (device) { setDevice(device); await refresh(); }
       else setPending(true);
     } catch (e) { Alert.alert(t('No se pudo solicitar acceso', 'Could not request access'), e instanceof Error ? e.message : String(e)); }
@@ -272,13 +276,28 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
         </TouchableOpacity>
 
         <TouchableOpacity disabled={busy} style={[styles.ctaSecondary, { borderColor: colors.primary }]} onPress={async () => {
-          try {
-          const permission = cameraPermission?.granted || (await requestCameraPermission()).granted;
-          if (permission) openScanner();
-          else Alert.alert(t('Activa el permiso de cámara en Ajustes.', 'Enable camera permission in Settings.'), '', [{ text: t('Cancelar', 'Cancel'), style: 'cancel' }, { text: t('Abrir Ajustes', 'Open Settings'), onPress: () => void Linking.openSettings().catch(() => undefined) }]);
-          } catch { Alert.alert(t('No se pudo abrir la cámara.', 'Could not open camera.')); }
+          // Se pide al tocar este botón. Sin cámara queda el código de invitación de abajo.
+          const access = await askForAccess('camera', language);
+          if (access.ok) openScanner();
+          else if (access.deniedNow) Alert.alert(pick(PERMISSION_COPY.camera.name, language), pick(PERMISSION_COPY.camera.denied, language));
         }}>
           <Text style={{ color: colors.primary }}>{t('Escanear QR para solicitar acceso', 'Scan QR to request access')}</Text>
+        </TouchableOpacity>
+        <TextInput
+          value={inviteCode}
+          onChangeText={setInviteCode}
+          placeholder={t('Código de invitación', 'Invitation code')}
+          placeholderTextColor={colors.textMuted}
+          autoCapitalize="none"
+          autoCorrect={false}
+          maxLength={100}
+          editable={!busy}
+          style={inputStyle}
+          accessibilityLabel={t('Código de invitación que aparece bajo el QR', 'Invitation code shown below the QR')}
+        />
+        <TouchableOpacity disabled={busy || !inviteCode.trim()} style={[styles.ctaSecondary, { borderColor: colors.primary, opacity: busy || !inviteCode.trim() ? 0.5 : 1 }]}
+          onPress={() => { void handleJoin(inviteCode.trim()); }}>
+          <Text style={{ color: colors.primary }}>{t('Solicitar acceso con el código', 'Request access with the code')}</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -291,7 +310,7 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
 
         <View style={styles.modalBackdrop}>
           <ScrollView style={[styles.qrModal, { backgroundColor: colors.card }]} contentContainerStyle={{ padding: Spacing.lg, alignItems: 'center' }}>
-            <Text style={[styles.qrTitle, { color: colors.text }]}>{t('QR de vinculación', 'Linking QR')}</Text>
+            <Text style={[styles.qrTitle, { color: colors.text }]}>{t('QR de invitación', 'Invitation QR')}</Text>
             <Text style={[styles.qrHelp, { color: colors.textSecondary }]}>
               {t('Al escanearlo se solicita acceso al administrador de', 'Scanning requests administrator approval for')} {qrDevice?.alias || qrDevice?.name}.
             </Text>

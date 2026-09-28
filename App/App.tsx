@@ -474,7 +474,7 @@ export default function App() {
         <View style={{ display: ['loading', 'language', 'welcome', 'auth', 'recovery'].includes(entry) ? 'none' : 'flex' }}>
           <OfflineBanner />
         </View>
-        <ScreenGuide enabled={!recoveryLinkError && ['app', 'permissions', 'onboarding', 'approval'].includes(entry)} scope={`${entry}:${route}`}>
+        <ScreenGuide enabled={!recoveryLinkError && ['app', 'onboarding', 'approval'].includes(entry)} scope={`${entry}:${route}`}>
         {content}
         {entry === 'app' && !recoveryLinkError && ['dashboard', 'history', 'settings'].includes(route) && (
           <BottomNavigation route={route} onNavigate={setRoute} />

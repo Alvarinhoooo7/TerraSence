@@ -19,6 +19,18 @@
 
 import type { SoilMeasurement } from '../types/agronomy';
 
+/**
+ * Bluetooth autorizado, pedido por el coordinador de permisos (una solicitud a la vez,
+ * sin repetir el diálogo si ya se concedió). Un `error` al consultarlo se deja pasar:
+ * en Expo Go no existe el módulo BLE nativo y la lectura degrada después a simulación
+ * declarada, sólo en desarrollo.
+ */
+async function bluetoothReady(): Promise<boolean> {
+  const { requestPermission } = await import('./permissionsService');
+  const state = await requestPermission('bluetooth');
+  return state.status === 'granted' || state.status === 'error';
+}
+
 /** Servicio y característica GATT de TerraSense (README §5.5). */
 export const TERRASENSE_SERVICE_UUID = '00000001-5e4e-4c69-6d61-746572726101';
 export const TERRASENSE_TELEMETRY_UUID = '00000002-5e4e-4c69-6d61-746572726102';
@@ -77,10 +89,10 @@ export async function verifySoilProbe(deviceCode: string | null): Promise<ProbeC
     };
   }
   try {
-    const { requestBlePermissions, scanForProbe } = await import('./bleService');
-    if (!(await requestBlePermissions())) {
-      return { connected: false, simulated: false, message: 'Activa el permiso de Bluetooth para continuar.' };
+    if (!(await bluetoothReady())) {
+      return { connected: false, simulated: false, message: 'Sin acceso a Bluetooth no se puede buscar ni leer la sonda.' };
     }
+    const { scanForProbe } = await import('./bleService');
     await scanForProbe(deviceCode);
     return { connected: true, simulated: false };
   } catch (error) {
@@ -263,12 +275,10 @@ export async function readSoilProbe(deviceCode: string | null): Promise<ProbeRea
   try {
     // Importación diferida: cargar react-native-ble-plx en un entorno sin
     // módulo nativo revienta al arrancar la app, no al medir.
-    const { readTelemetryOverBle, requestBlePermissions } = await import('./bleService');
-
-    const allowed = await requestBlePermissions();
-    if (!allowed) {
-      throw new Error('Se necesita permiso de Bluetooth para leer la sonda.');
+    if (!(await bluetoothReady())) {
+      throw new Error('Sin acceso a Bluetooth no se puede buscar ni leer la sonda.');
     }
+    const { readTelemetryOverBle } = await import('./bleService');
 
     // El código estable identifica la sonda física seleccionada. Pasar el UUID
     // de la fila de Supabase aquí era incorrecto: no es una identidad BLE.

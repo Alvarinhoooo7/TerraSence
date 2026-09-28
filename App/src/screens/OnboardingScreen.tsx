@@ -5,12 +5,11 @@ import {
   ActivityIndicator,
   Alert,
   BackHandler,
-  Linking,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
-import { useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
+import type { BarcodeScanningResult } from 'expo-camera';
 import { GuideCamera as CameraView } from '../components/guide/GuideCamera';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated from 'react-native-reanimated';
@@ -24,6 +23,8 @@ import { AppIcon } from '../components/AppIcon';
 import { AuthLayout, AuthHeading, AuthButton, AuthField, SoilArtwork, authStyles } from '../components/auth/AuthUI';
 import { enableDevSkip } from '../utils/devSkipOnboarding';
 import { createDeveloperTap } from '../utils/developerTap';
+import { askForAccess } from '../components/permissionPrompt';
+import { PERMISSION_COPY, pick } from '../utils/permissionCopy';
 import { requestDeviceAccess, registerDevice, listMyDevices, listMyDeviceMemberships } from '../services/deviceService';
 import { WaitingApprovalScreen } from './WaitingApprovalScreen';
 import { completeOnboarding } from '../services/onboardingService';
@@ -52,12 +53,11 @@ interface Props {
 
 export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => {
   const { colors, isDark } = useAppTheme();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const setDevice = useAppStore((state) => state.setDevice);
 
   const [checkingRequests, setCheckingRequests] = useState(true);
   const [step, setStep] = useState<Step>('choice');
-  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [pending, setPending] = useState(false);
   const [joining, setJoining] = useState(false);
   const [inviteCode, setInviteCode] = useState('');
@@ -140,20 +140,13 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
     if (operation.current) return;
     operation.current = true;
     try {
-      if (!cameraPermission?.granted) {
-        const result = await requestCameraPermission();
-        if (!mounted.current) return;
-        if (!result.granted) {
-          Alert.alert(
-            t('La cámara está desactivada', 'Camera is disabled'),
-            t('Activa el permiso de cámara en los ajustes del teléfono para escanear el QR del equipo.', 'Enable camera permission in phone settings to scan the device QR.'),
-            [
-              { text: t('Ahora no', 'Not now'), style: 'cancel' },
-              { text: t('Abrir ajustes', 'Open settings'), onPress: () => void Linking.openSettings().catch(() => undefined) },
-            ],
-          );
-          return;
-        }
+      // Se pide al tocar «Escanear QR». Si no se concede, el código de invitación
+      // de esta misma pantalla sigue disponible: no se envía a Ajustes.
+      const access = await askForAccess('camera', language);
+      if (!mounted.current) return;
+      if (!access.ok) {
+        if (access.deniedNow) Alert.alert(pick(PERMISSION_COPY.camera.name, language), pick(PERMISSION_COPY.camera.denied, language));
+        return;
       }
       scanLatch.current = false;
       rejectedPayload.current = null;
@@ -162,7 +155,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
     } catch {
       if (mounted.current) Alert.alert(t('No pudimos abrir la cámara', 'Could not open camera'), t('Revisa los permisos del teléfono e inténtalo otra vez.', 'Check phone permissions and try again.'));
     } finally { operation.current = false; }
-  }, [cameraPermission?.granted, requestCameraPermission, t]);
+  }, [language, t]);
 
   const handleBarcode = useCallback(
     async ({ data }: BarcodeScanningResult) => {
@@ -228,14 +221,16 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
   const startPairing = useCallback(async () => {
     if (operation.current) return;
     operation.current = true;
-    setPairingState('scanning');
     try {
-      const ble = await import('../services/bleService');
-      const granted = await ble.requestBlePermissions();
+      const access = await askForAccess('bluetooth', language);
       if (!mounted.current) return;
-      if (!granted) {
-        throw new Error(t('Necesitamos permiso de Bluetooth para encontrar la sonda cercana.', 'Bluetooth permission is required to find the nearby probe.'));
+      // Un estado que no se pudo consultar no es un rechazo: la búsqueda informa el error real.
+      if (!access.ok && !access.unknown) {
+        if (access.deniedNow) Alert.alert(pick(PERMISSION_COPY.bluetooth.name, language), pick(PERMISSION_COPY.bluetooth.denied, language));
+        return;
       }
+      setPairingState('scanning');
+      const ble = await import('../services/bleService');
       const found = await ble.pairWithNearbyProbe();
       if (!mounted.current) return;
       if (!found.pairingOpen) {
@@ -250,7 +245,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
       setPairingState('idle');
       Alert.alert(t('No encontramos la sonda', 'Probe not found'), friendlyError(error));
     } finally { operation.current = false; }
-  }, [friendlyError, t]);
+  }, [friendlyError, language, t]);
 
   const savePairedProbe = useCallback(async () => {
     if (!probe || operation.current) return;

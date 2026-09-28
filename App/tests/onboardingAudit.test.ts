@@ -115,6 +115,17 @@ test('el permiso iOS tolera una respuesta inmediata del listener y lo libera', a
   } finally { radioState = 'PoweredOn'; }
 });
 
+test('tras reiniciar, la marca por instalación permite leer Bluetooth sin volver a pedirlo', async () => {
+  const key = '@terrasense/permission-asked-v1/bluetooth';
+  storage.delete(key);
+  assert.deepEqual(await permissions.readPermission('bluetooth'), { status: 'undetermined', canAskAgain: true });
+  storage.set(key, 'asked');
+  radioState = 'PoweredOff';
+  try {
+    assert.deepEqual(await permissions.readPermission('bluetooth'), { status: 'granted', canAskAgain: false, poweredOff: true });
+  } finally { radioState = 'PoweredOn'; }
+});
+
 test('el atajo guardado se aísla por cuenta y queda inactivo en producción', async () => {
   const globals = globalThis as typeof globalThis & { __DEV__: boolean };
   globals.__DEV__ = true;
@@ -130,7 +141,8 @@ test('el atajo guardado se aísla por cuenta y queda inactivo en producción', a
   assert.equal(await devSkip.isDevSkipEnabled('b'), false);
   await devSkip.clearDevSkip();
   assert.equal(await devSkip.isDevSkipEnabled('a'), false);
-  assert.equal(storage.size, 0);
+  // Sólo cuentan las claves del atajo: la marca de permisos por instalación es otra cosa.
+  assert.equal([...storage.keys()].filter(key => key.includes('skipOnboarding')).length, 0);
 });
 
 test('pairing lee el ID de la MAC y nunca inventa uno', async () => {

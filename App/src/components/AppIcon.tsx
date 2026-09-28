@@ -1,7 +1,8 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
 
-export type IconName = 'home' | 'map' | 'history' | 'settings' | 'leaf' | 'arrow' | 'probe' | 'sync';
+export type IconName = 'home' | 'map' | 'history' | 'settings' | 'leaf' | 'arrow' | 'probe' | 'sync'
+  | 'bluetooth' | 'location' | 'camera' | 'bell';
 
 /** Small, consistent outline icons; labels remain on their parent controls. */
 export function AppIcon({ name, color, size = 24 }: { name: IconName; color: string; size?: number }) {
@@ -14,6 +15,10 @@ export function AppIcon({ name, color, size = 24 }: { name: IconName; color: str
     arrow: 'M5 12H19M13 6 19 12 13 18',
     probe: 'M9 3H15V14H9ZM12 14V22M6 6H3M18 6H21M6 10H3M18 10H21',
     sync: 'M3 10A9 9 0 0 1 19 6L21 9M21 3V9H15M21 14A9 9 0 0 1 5 18L3 15M3 21V15H9',
+    bluetooth: 'M7 7 17 17 12 22V2L17 7 7 17',
+    location: 'M12 21C12 21 5 14.5 5 9.5A7 7 0 0 1 19 9.5C19 14.5 12 21 12 21ZM12 12A2.5 2.5 0 1 0 12 7 2.5 2.5 0 0 0 12 12Z',
+    camera: 'M3 8H7L9 5H15L17 8H21V19H3ZM12 16A3.5 3.5 0 1 0 12 9 3.5 3.5 0 0 0 12 16Z',
+    bell: 'M6 16V11A6 6 0 0 1 18 11V16L20 18H4ZM10 21H14',
   };
   return <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" accessible={false}>
     <Path d={paths[name]} />

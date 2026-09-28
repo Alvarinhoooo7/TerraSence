@@ -1,5 +1,28 @@
 const path = require('path');
 
+// Textos de los diálogos de permiso del sistema. Una sola fuente por finalidad: los
+// plugins los escriben en Info.plist (su valor pisa a `ios.infoPlist`) y `locales`
+// los traduce. Apple pide una oración completa, activa y específica, con punto final.
+const PERMISSION_TEXT = {
+  es: {
+    bluetooth: 'TerraSense usa Bluetooth para encontrar tu sonda de suelo, vincularla y recibir sus mediciones.',
+    location: 'TerraSense usa tu ubicación al medir, si lo eliges, para guardar las coordenadas de la lectura y consultar el pronóstico con Open-Meteo.',
+    camera: 'TerraSense usa la cámara para leer el QR con que otro miembro te invita a su equipo.',
+  },
+  en: {
+    bluetooth: 'TerraSense uses Bluetooth to find your soil probe, pair it and receive its readings.',
+    location: 'TerraSense uses your location when you measure, if you choose to, to save the reading coordinates and get the forecast from Open-Meteo.',
+    camera: 'TerraSense uses the camera to read the QR code another member uses to invite you to their device.',
+  },
+};
+const iosPermissionStrings = (lang) => ({
+  ios: {
+    NSBluetoothAlwaysUsageDescription: PERMISSION_TEXT[lang].bluetooth,
+    NSLocationWhenInUseUsageDescription: PERMISSION_TEXT[lang].location,
+    NSCameraUsageDescription: PERMISSION_TEXT[lang].camera,
+  },
+});
+
 // Expo sólo carga automáticamente el .env que esté junto a este archivo
 // (App/.env). Se admite además un .env en la raíz del repositorio, que es
 // donde resulta natural ponerlo cuando el mismo archivo sirve para la app, la
@@ -26,14 +49,16 @@ export default () => ({
       supportsTablet: false,
       bundleIdentifier: 'cl.terrasense.app',
       googleServicesFile: './GoogleService-Info.plist',
+      // Permite que iOS use las traducciones de `locales` aunque la app no declare
+      // cada idioma en el proyecto nativo. Los textos de permiso viven en los plugins.
       infoPlist: {
-        NSLocationWhenInUseUsageDescription:
-          'TerraSense usa tu ubicación mientras usas la app para asociar coordenadas a tus mediciones y consultar el pronóstico.',
-        NSBluetoothAlwaysUsageDescription:
-          'TerraSense usa Bluetooth para comunicarse con la sonda de suelo.',
-        NSCameraUsageDescription:
-          'TerraSense usa la cámara para escanear el código QR de vinculación del equipo.',
+        CFBundleAllowMixedLocalizations: true,
       },
+    },
+
+    locales: {
+      es: iosPermissionStrings('es'),
+      en: iosPermissionStrings('en'),
     },
 
     android: {
@@ -59,6 +84,13 @@ export default () => ({
         'android.permission.CAMERA',
         'android.permission.POST_NOTIFICATIONS',
       ],
+      // Declarados por dependencias y sin uso en TerraSense: la app no lee ni escribe
+      // archivos del almacenamiento compartido ni dibuja sobre otras apps.
+      blockedPermissions: [
+        'android.permission.SYSTEM_ALERT_WINDOW',
+        'android.permission.READ_EXTERNAL_STORAGE',
+        'android.permission.WRITE_EXTERNAL_STORAGE',
+      ],
     },
 
     plugins: [
@@ -77,23 +109,28 @@ export default () => ({
       [
         'react-native-ble-plx',
         {
+          // Sin `modes`: esa opción agrega `bluetooth-central` a UIBackgroundModes aunque
+          // isBackgroundEnabled sea false, y la app sólo usa Bluetooth en primer plano.
           isBackgroundEnabled: false,
-          modes: ['central'],
-          bluetoothAlwaysPermission:
-            'TerraSense usa Bluetooth para leer la sonda de suelo.',
+          bluetoothAlwaysPermission: PERMISSION_TEXT.es.bluetooth,
         },
       ],
       [
         'expo-location',
         {
-          locationWhenInUsePermission:
-            'Permite asociar coordenadas a tus mediciones y consultar el pronóstico mientras usas la app.',
+          locationWhenInUsePermission: PERMISSION_TEXT.es.location,
+          // `false` borra la clave: sin estos valores el plugin escribe textos por
+          // defecto en inglés para ubicación «Siempre» y actividad física.
+          locationAlwaysAndWhenInUsePermission: false,
+          locationAlwaysPermission: false,
+          motionUsagePermission: false,
+          isIosBackgroundLocationEnabled: false,
           isAndroidBackgroundLocationEnabled: false,
         },
       ],
       [
         'expo-camera',
-        { cameraPermission: 'Permite escanear el QR de vinculación del equipo.', recordAudioAndroid: false, microphonePermission: false },
+        { cameraPermission: PERMISSION_TEXT.es.camera, recordAudioAndroid: false, microphonePermission: false },
       ],
       [
         'expo-notifications',

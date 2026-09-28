@@ -7,10 +7,12 @@ import {
   Alert,
   BackHandler,
   StyleSheet,
+  Switch,
   Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 
 import { Spacing, Typography } from '../constants/theme';
@@ -29,6 +31,13 @@ import { MeasurementExplorer } from '../components/MeasurementExplorer';
 import { buildMeasurementPresentation } from '../engine/measurementPresentation';
 import { CalibrationReminderModal } from '../components/CalibrationReminderModal';
 import { RadarScan } from '../components/RadarScan';
+import { askForAccess } from '../components/permissionPrompt';
+import { isLegacyAndroidBluetooth, readPermission } from '../services/permissionsService';
+import { PERMISSION_COPY, pick } from '../utils/permissionCopy';
+
+// Elección de incluir coordenadas y pronóstico, por instalación. Es distinta del permiso:
+// en Android anterior a 12 la ubicación también se concede para buscar la sonda.
+const LOCATION_CHOICE_KEY = '@terrasense/measure-location-v1';
 
 const ENGINE_VERSION = '1.2.0';
 const CROP_CATALOG_VERSION = '1.0.0';
@@ -72,6 +81,44 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   const [advice, setAdvice] = useState<ContextualAdvice | null>(null);
   const [showCalibration, setShowCalibration] = useState(false);
   const clientUuid = useRef(newClientUuid());
+  const [includeLocation, setIncludeLocation] = useState(false);
+  const [locationBusy, setLocationBusy] = useState(false);
+  const [locationNote, setLocationNote] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void Promise.all([AsyncStorage.getItem(LOCATION_CHOICE_KEY).catch(() => null), readPermission('location')]).then(([choice, state]) => {
+      if (!active) return;
+      const granted = state.status === 'granted';
+      // Sin elección guardada se conserva lo anterior: coordenadas si la ubicación ya estaba
+      // autorizada, salvo en Android antiguo, donde ese permiso existe por el Bluetooth.
+      const wanted = choice === null ? granted && !isLegacyAndroidBluetooth() : choice === 'on';
+      setIncludeLocation(wanted && granted);
+    });
+    return () => { active = false; };
+  }, []);
+
+  const toggleLocation = useCallback(async (value: boolean) => {
+    if (locationBusy) return;
+    setLocationNote(null);
+    if (!value) {
+      setIncludeLocation(false);
+      AsyncStorage.setItem(LOCATION_CHOICE_KEY, 'off').catch(() => undefined);
+      return;
+    }
+    setLocationBusy(true);
+    try {
+      // El permiso se pide al activar esta opción, no al abrir la pantalla ni al medir.
+      const access = await askForAccess('location', language);
+      setIncludeLocation(access.ok);
+      if (access.ok) {
+        AsyncStorage.setItem(LOCATION_CHOICE_KEY, 'on').catch(() => undefined);
+        if (access.state.approximate) setLocationNote(t('Ubicación aproximada: las coordenadas serán menos precisas.', 'Approximate location: coordinates will be less precise.'));
+      } else if (access.deniedNow) {
+        setLocationNote(pick(PERMISSION_COPY.location.denied, language));
+      }
+    } finally { setLocationBusy(false); }
+  }, [language, locationBusy, t]);
 
   const cancel = useCallback(() => {
     if (saving.current) return;
@@ -89,6 +136,16 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   const runMeasurement = useCallback(async () => {
     if (!stage || saving.current || reading.current) return;
     reading.current = true;
+    if (device) {
+      // Bluetooth se pide al tocar «Medir». Un estado que no se pudo consultar no es un
+      // rechazo: la conexión informa el error real (o simula en desarrollo sin módulo nativo).
+      const access = await askForAccess('bluetooth', language);
+      if (!access.ok && !access.unknown) {
+        reading.current = false;
+        if (access.deniedNow) Alert.alert(pick(PERMISSION_COPY.bluetooth.name, language), pick(PERMISSION_COPY.bluetooth.denied, language));
+        return;
+      }
+    }
     context.current = { cropId, textureId, device };
     saved.current = false;
     setPhase('connecting');
@@ -103,7 +160,9 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       setDemoMode(connection.simulated);
       setPhase('reading');
       const [position, probe] = await Promise.all([
-        Promise.race([Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }).catch(() => null), new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000))]),
+        includeLocation
+          ? Promise.race([Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }).catch(() => null), new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000))])
+          : Promise.resolve(null),
         readSoilProbe(context.current.device?.device_code ?? null).then(probe => ({ ...probe, capturedAt: new Date().toISOString() })),
       ]);
       const nextCoords = position?.coords ?? null;
@@ -134,7 +193,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     } finally {
       reading.current = false;
     }
-  }, [cropId, device, phase, preferences.language, stage, textureId]);
+  }, [cropId, device, includeLocation, language, phase, preferences.language, stage, textureId]);
 
   const presentation = useMemo(() => raw && evaluation && advice ? buildMeasurementPresentation(raw, evaluation, advice) : null, [raw, evaluation, advice]);
 
@@ -298,6 +357,18 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
             <Text style={[styles.detailTitle, { color: colors.text }]}>{t('Antes de medir', 'Before measuring')}</Text>
             <Text style={[styles.detailBody, { color: colors.textSecondary }]}>{t('Inserta la sonda en suelo representativo, evitando piedras y bolsas de aire. Mantén el equipo quieto durante la lectura.', 'Insert the probe into representative soil, avoiding stones and air pockets. Keep it still during the reading.')}</Text>
             <Text style={[styles.source, { color: colors.textSecondary }]}>{device?.alias || device?.name || t('Demostración sin equipo', 'Demo without device')}</Text>
+          </View>
+          <View style={[styles.detailCard, { backgroundColor: colors.card, borderColor: colors.border, marginTop: Spacing.md }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md }}>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.detailTitle, { color: colors.text }]}>{t('Añadir ubicación y pronóstico', 'Add location and forecast')}</Text>
+                <Text style={[styles.detailBody, { color: colors.textSecondary }]}>{t('Guarda las coordenadas de la lectura y consulta el pronóstico con Open-Meteo. Sin esta opción, la lectura se guarda igual.', 'Saves the reading coordinates and gets the forecast from Open-Meteo. Without this option, the reading is saved anyway.')}</Text>
+              </View>
+              <Switch value={includeLocation} disabled={locationBusy} onValueChange={value => { void toggleLocation(value); }}
+                trackColor={{ true: colors.primary, false: colors.border }}
+                accessibilityLabel={t('Añadir ubicación y pronóstico', 'Add location and forecast')} />
+            </View>
+            {!!locationNote && <Text accessibilityLiveRegion="polite" style={[styles.source, { color: colors.textSecondary, marginTop: Spacing.sm }]}>{locationNote}</Text>}
           </View>
           <TouchableOpacity disabled={!stage} onPress={runMeasurement} style={[styles.cta, { backgroundColor: colors.primary, opacity: stage ? 1 : 0.4 }]}>
             <Text style={styles.ctaText}>{stage ? 'Medir en esta fase' : 'Selecciona una fase para continuar'}</Text>

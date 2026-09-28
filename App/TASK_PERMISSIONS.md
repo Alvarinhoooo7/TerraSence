@@ -1,4 +1,771 @@
-# Plan de trabajo: permisos, ajustes y dispositivos
+# Plan de implementación: permisos del teléfono
+
+## Alcance vigente y estado
+
+**Etapa actual: P1–P6 implementados el 28-09-2026; falta la matriz nativa (P7) y el módulo iOS de P1.**
+Resumen del resultado en [App/README.md §4.1](README.md#permisos-del-teléfono).
+Este bloque pasa a ser la referencia para la siguiente implementación. El seguimiento
+de carga, idioma y acceso se conserva más abajo, con sus pendientes nativos.
+
+Objetivo: rediseñar la explicación inicial de permisos y unificar sus solicitudes,
+estados y recuperación en Android/iOS. Mantener la dirección visual de la entrada:
+tipografía protagonista, naturaleza y tecnología sobrias, acciones visibles y adaptación
+a pantallas pequeñas. Cada solicitud debe corresponder a una función concreta.
+
+Incluye la pantalla inicial, los puntos que realmente abren diálogos en vinculación,
+medición y Ajustes, y la configuración nativa que los respalda. Esas integraciones son
+necesarias para que el comportamiento coincida con lo explicado. No incluye rediseñar
+esas otras pantallas completas, cambiar membresías, firmware, registro ni textos legales.
+
+- [x] Leer pantalla, servicio, estados, navegación y pruebas actuales.
+- [x] Localizar solicitudes adicionales de Bluetooth, cámara, ubicación y notificaciones.
+- [x] Consultar documentación oficial de Apple, Android, Google Play, React Native y Expo.
+- [x] Revisar el código de los plugins instalados, además de `app.config.js`.
+- [x] Documentar diferencias por plataforma, diseño, contratos y criterios de aceptación.
+- [x] Implementar P1–P6 (salvo el módulo iOS de autorización Bluetooth, ver P1).
+- [ ] Ejecutar la matriz nativa (P7).
+- [ ] Revisar el binario final y las declaraciones de privacidad antes de publicar.
+
+## 1. Qué dicen las guías y cómo aplicarlas
+
+Fuentes consultadas el **28 de septiembre de 2026**. Distinguir requisitos de revisión,
+recomendaciones de interfaz y decisiones propias del producto. Este plan no garantiza
+la aprobación de una tienda.
+
+### R1. Apple: pantalla explicativa inmediatamente anterior al diálogo
+
+Apple indica una sola acción que abra el diálogo, con un título como «Continuar»;
+desaconseja «Permitir» y acciones de cierre o cancelación en esa pantalla previa.
+Esta indicación se refiere a esa interfaz concreta, no a una prohibición general de
+posponer funciones opcionales ni al texto del botón nativo. El rechazo sigue disponible
+en el diálogo del sistema. Preferir que el contexto de la función ya explique el motivo.
+[Apple HIG: privacidad, sección de pantallas previas](https://developer.apple.com/design/human-interface-guidelines/privacy/).
+
+### R2. Android: explicación cancelable y solicitud contextual
+
+Android recomienda pedir acceso al iniciar la función que lo necesita, comprobarlo
+antes de usarla y permitir cancelar la explicación previa. Ante rechazo, conservar las
+funciones que no dependen de ese permiso. No abrir Ajustes inmediatamente para intentar
+cambiar la decisión de la persona.
+[Solicitudes en ejecución](https://developer.android.com/training/permissions/requesting).
+Evitar acumular todos los diálogos al iniciar la app.
+[Buenas prácticas](https://developer.android.com/training/permissions/usage-notes).
+
+### R3. Permisos opcionales y límites funcionales
+
+Apple exige respetar la decisión y evitar imponer acceso innecesario; la regla 4.5.4
+impide exigir notificaciones para que la app funcione. La regla 5.1.1(iv) pide ofrecer
+alternativas cuando sea posible. En TerraSense, Bluetooth es necesario para comunicarse
+con la sonda; cámara y notificaciones no deben bloquear otras funciones.
+[App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/#privacy).
+
+Google Play limita permisos a funciones existentes y finalidades informadas. La política
+anuncia un cambio sobre ubicación precisa, efectivo el **27 de enero de 2027**: revisarlo
+antes de una publicación posterior; no tratarlo como obligación ya vigente en esta auditoría.
+[Permisos y APIs sensibles](https://support.google.com/googleplay/android-developer/answer/16558241?hl=en).
+
+### R4. Consentimiento de datos y permiso del sistema son distintos
+
+La aceptación de términos del registro no autoriza cámara, Bluetooth, ubicación ni
+notificaciones. Tampoco un permiso del teléfono acredita por sí solo todos los usos
+de datos. Revisar la explicación de coordenadas enviadas a Open-Meteo y su respaldo
+en Supabase. Si un uso no fuera razonablemente esperable, evaluar la divulgación
+destacada antes de ese acceso; no trasladarla sólo a los términos generales.
+[Política de datos de Google Play](https://support.google.com/googleplay/android-developer/answer/10144311?hl=en-GB).
+
+**Conclusión para los textos:** no hay una lista universal de palabras prohibidas
+para toda la app. Importan la plataforma, la pantalla y la acción real.
+Las variantes de interfaz de R1 y R2 deben implementarse por separado.
+
+## 2. Hallazgos en la app actual
+
+| Prioridad | Evidencia inspeccionada | Corrección prevista |
+| --- | --- | --- |
+| P0 | [PermissionsScreen](src/screens/PermissionsScreen.tsx) presenta cuatro botones «Permitir» junto a «Continuar». | Reemplazar la mezcla de explicación general y solicitudes por el diseño de la sección 3. |
+| P0 | El logo, cuatro tarjetas extensas y el botón final están dentro de `AuthLayout`, que desplaza todo el contenido. | Cabecera compacta, filas breves y pie fijo; texto ampliado puede desplazarse. |
+| P0 | [permissionsService](src/services/permissionsService.ts) usa `iosBluetoothRequested`, `androidBluetoothDenied` y `androidBluetoothBlocked` en memoria. | Consultar estado real y representar la información desconocida; reiniciar no debe inventar una primera solicitud. |
+| P0 | [bleService](src/services/bleService.ts) también solicita permisos; [probeService](src/services/probeService.ts) lo invoca al verificar y leer. | Un único coordinador de solicitudes evita duplicaciones y resultados contradictorios. |
+| P0 | [OnboardingScreen](src/screens/OnboardingScreen.tsx) y [DevicesScreen](src/screens/DevicesScreen.tsx) ofrecen Ajustes inmediatamente después de rechazar cámara. | Respetar la respuesta, mantener la alternativa manual y reservar Ajustes para una acción posterior del usuario. |
+| P1 | El modelo actual no distingue autorización de radio apagada en Android, precisión de ubicación ni notificaciones provisionales. | Ampliar estados sin traducir todos a «Permitido». |
+| P1 | [MeasureScreen](src/screens/MeasureScreen.tsx) intenta obtener ubicación al medir, con espera acotada y captura de error, pero no ofrece una solicitud contextual propia. | Integrar elección de coordenadas/pronóstico sin bloquear la lectura de suelo. |
+| P1 | `app.config.js` contiene textos diferentes para una misma finalidad en `infoPlist` y plugins; no declara traducciones nativas es/en. | Unificar contenido y generar recursos nativos localizados. |
+| P1 | El plugin BLE instalado añade `bluetooth-central` a `UIBackgroundModes` cuando recibe `modes: ['central']`; `isBackgroundEnabled: false` no neutraliza ese camino iOS. | Retirar el modo de segundo plano si sólo se usa BLE con la app activa; inspeccionar el resultado generado. |
+| P1 | El plugin instalado de `expo-location` añade por defecto descripciones de ubicación Always y movimiento si no se desactivan explícitamente. | Desactivar esas claves innecesarias y verificar el `Info.plist` final. Declararlas no demuestra que se hayan solicitado. |
+| P1 | La guía flotante está habilitada en permisos desde [App.tsx](App.tsx). | Evitar guías y superposiciones en una solicitud explicativa; mantener ayuda fuera de ese estado. |
+| Preservar | La revisión de la etapa se guarda por cuenta; las autorizaciones las administra el sistema. La recuperación tiene prioridad de navegación. | Conservar ambos contratos y la continuidad sin red. |
+
+La introspección efectiva se obtiene con `node scripts/check-native-permissions.cjs`, que
+omite los archivos de Firebase ausentes del repositorio (sin ellos Expo se detenía). Confirmó
+`bluetooth-central`, las claves Always/movimiento en inglés, textos de plugin que pisaban a
+`infoPlist`, y además `SYSTEM_ALERT_WINDOW` y almacenamiento compartido declarados por dependencias.
+
+## 3. Diseño y recorrido propuestos
+
+### 3.1 Pantalla inicial informativa
+
+**Decisión de diseño recomendada:** conservar una pantalla breve después del acceso,
+con información sobre las cuatro capacidades. No iniciar solicitudes desde sus filas.
+Los diálogos se abren cuando la persona utiliza la función correspondiente.
+
+Así el recorrido queda: **acceso → explicación de capacidades → equipos/Inicio**.
+No es una pantalla previa que retenga un diálogo pendiente de autorización.
+
+- Título: **«Tu teléfono, listo para el campo»** / **“Your phone, ready for the field”**.
+- Bajada: «Te explicamos qué acceso usa cada función. El teléfono te pedirá autorización cuando la uses».
+- Cuatro filas con icono sencillo, nombre y una explicación de hasta dos líneas.
+- Sin logo grande, porcentaje completado, casillas de aceptación ni indicación de que
+  hacen falta cuatro autorizaciones para avanzar.
+- Pie fijo: **«Continuar» / “Continue”**. Guarda sólo la revisión de esta explicación.
+- No esperar a consultar permisos para habilitar ese pie. Si falla el almacenamiento,
+  explicar el fallo y permitir continuar en la sesión, conservando el comportamiento actual.
+- Composición de ancho máximo 520, márgenes adaptables y controles de al menos 48 unidades
+  lógicas. Reducir adornos y espacios antes que tipografía.
+- Objetivo sin scroll con texto normal en 360 × 640 y 375 × 667; con texto ampliado,
+  permitir desplazamiento manteniendo accesible el pie.
+- Evitar el rótulo fijo «Paso 3»: el acceso y registro tienen recorridos distintos.
+- Mantener claro/oscuro, es/en, VoiceOver/TalkBack y reducción de movimiento.
+
+| Fila | Texto propuesto en español | Texto propuesto en inglés |
+| --- | --- | --- |
+| Bluetooth | Conecta la sonda y recibe sus mediciones. | Connect the probe and receive its readings. |
+| Ubicación | Añade coordenadas y consulta el pronóstico con Open-Meteo. | Add coordinates and get forecasts from Open-Meteo. |
+| Cámara | Escanea invitaciones QR. También puedes escribir el código. | Scan QR invitations. You can also enter the code. |
+| Notificaciones | Recibe los avisos que elijas sobre tus equipos. | Receive the device alerts you choose. |
+
+En Android anterior a 12, si forma parte del rango soportado, añadir junto a Bluetooth
+la dependencia de ubicación para buscar equipos. El detalle completo se presenta al
+iniciar esa búsqueda, sin prometer que funcionará al rechazar ese permiso.
+
+### 3.2 Solicitudes desde funciones reales
+
+| Función iniciada por la persona | Acceso que se comprueba | Si no está concedido |
+| --- | --- | --- |
+| Buscar/vincular sonda o conectar para medir | Bluetooth; ubicación para escaneo sólo en Android que la requiera | Solicitud correspondiente; si se rechaza, conservar la navegación y explicar que esa conexión no puede realizarse. |
+| Añadir coordenadas y pronóstico a una medición | Ubicación en primer plano | Solicitud voluntaria; la medición puede continuar sin esos datos, salvo la dependencia BLE antigua ya explicada. |
+| Escanear una invitación | Cámara | Solicitud; si se rechaza, volver a la elección y conservar el ingreso manual del código. |
+| Activar avisos en Ajustes | Notificaciones | Solicitud y, si procede, registro del token. No solicitar al montar una pantalla o iniciar sesión. |
+| Revisar permisos en Ajustes de TerraSense | Consulta de estado | Mostrar el estado y ofrecer gestión explícita; consultar no abre diálogos. |
+
+Preferir petición nativa directa cuando la acción y su explicación ya dan contexto.
+Si hace falta una explicación adicional, aplicar la variante R1 en iOS y R2 en Android.
+Desmontar esa vista antes de abrir el diálogo y restaurar el foco al terminar.
+En iOS no convertirla en una hoja que se pueda cerrar por arrastre.
+
+No pedir cámara, ubicación y notificaciones automáticamente tras conceder Bluetooth.
+La guía de ayuda nunca ejecuta una solicitud ni resalta opciones del diálogo nativo.
+
+```mermaid
+flowchart TD
+    A[Acceso completado] --> B[Resumen informativo]
+    B --> C[Continuar guarda revision local]
+    C --> D[Equipos o Inicio segun la cuenta]
+    D --> E[Persona inicia una funcion]
+    E --> F[Consultar permiso actual]
+    F --> G{Acceso disponible}
+    G -->|Si| H[Ejecutar funcion]
+    G -->|No o desconocido| I[Solicitud contextual de esta capacidad]
+    I --> J[Dialogo del sistema cuando corresponda]
+    J -->|Concedido| H
+    J -->|Rechazado o cerrado| K[Volver y conservar funciones disponibles]
+    K --> L[Gestion voluntaria desde Ajustes]
+```
+
+### 3.3 Textos y estados de interacción
+
+| Situación | Presentación propuesta | Evitar |
+| --- | --- | --- |
+| Permiso sin comprobar | «Por comprobar» / “Not checked” | Afirmar que nunca se solicitó. |
+| Autorizado | «Autorizado» / “Allowed” | Confundirlo con radio encendida o entrega de push. |
+| Rechazado | «Sin acceso» / “No access” | Mensajes de culpa, insistencia automática o celebraciones por aceptar. |
+| Bloqueado para nuevas solicitudes | Explicar dónde se gestiona, al abrir gestión voluntaria | Abrir Ajustes automáticamente al rechazar. |
+| Restringido por el dispositivo | «Restringido en este teléfono» / “Restricted on this phone” | Prometer que el usuario podrá cambiarlo en Ajustes. |
+| Bluetooth apagado | «Bluetooth apagado» / “Bluetooth is off” | Volver a pedir autorización para encenderlo. |
+| Ubicación aproximada | «Ubicación aproximada» / “Approximate location” | Tratarla como rechazo o garantizar precisión de GPS. |
+| Notificaciones provisionales | «Avisos silenciosos» / “Quiet notifications” | Afirmar que mostrarán sonido y banners. |
+| Fallo de consulta | «No pudimos comprobar el estado» / “Could not check status” | Presentarlo como rechazo permanente. |
+
+Estos textos son propuestas de producto. La redacción y los botones del diálogo
+nativo pertenecen al sistema operativo; la app no los dibuja ni los modifica.
+
+## 4. Contrato técnico por plataforma
+
+### 4.1 Android
+
+- Android 12+: comprobar `BLUETOOTH_SCAN` y `BLUETOOTH_CONNECT` por separado.
+  Conservar `neverForLocation` porque el escaneo identifica sondas y no calcula su ubicación.
+  Esa bandera puede filtrar algunos anuncios BLE: probar la sonda física.
+- Revisar `maxSdkVersion=30` para las declaraciones antiguas `BLUETOOTH` y
+  `BLUETOOTH_ADMIN`. No aplicar ese límite a la ubicación de TerraSense: también
+  se usa para coordenadas y clima en Android moderno.
+  [Permisos Bluetooth](https://developer.android.com/develop/connectivity/bluetooth/bt-permissions).
+- Para ubicación, valorar el alcance mínimo y admitir aproximada. Si se solicita precisión,
+  pedir `ACCESS_FINE_LOCATION` y `ACCESS_COARSE_LOCATION` conjuntamente donde corresponde;
+  el rechazo de precisa con aproximada concedida sigue siendo un resultado utilizable.
+  [Ubicación en ejecución](https://developer.android.com/develop/sensors-and-location/location/permissions/runtime).
+- Android 13+: tratar `POST_NOTIFICATIONS` en ejecución; cerrar el diálogo sin elegir
+  no cambia su estado. En versiones anteriores no simular una solicitud que no existe.
+  Preparar canales antes del registro push y revisar también su habilitación.
+  [Notificaciones en Android](https://developer.android.com/develop/ui/compose/notifications/notification-permission).
+- `PermissionsAndroid.check` sólo devuelve si está concedido. Un `false` no distingue
+  primera solicitud, rechazo previo y bloqueo. Modelar esa incertidumbre; usar el resultado
+  de `request`/`requestMultiple` y una explicación cancelable cuando proceda.
+  [API de React Native](https://reactnative.dev/docs/0.86/permissionsandroid).
+- Reconsultar después de volver de Ajustes, reanudar y antes de cada uso protegido;
+  contemplar permisos temporales y revocación automática. Registrar la versión real
+  de Android del Motorola G55 y los SDK mínimo/objetivo del artefacto de prueba.
+
+### 4.2 iOS
+
+- Separar autorización Bluetooth del estado de radio. Leer
+  `CBManager.authorization` antes de crear un manager evita usar su inicialización
+  como consulta de autorización. La biblioteca BLE instalada no expone esa lectura
+  estática en su interfaz JS inspeccionada: prever un módulo Expo local pequeño,
+  sin escaneo, que la exponga. Verificarlo antes de conectar el nuevo servicio.
+  [CoreBluetooth: authorization](https://developer.apple.com/documentation/corebluetooth/cbmanager/authorization-swift.type.property).
+- Distinguir restricciones del sistema de un rechazo editable. Bajo restricciones,
+  no asegurar que Ajustes lo resolverá.
+  [CoreBluetooth: restricted](https://developer.apple.com/documentation/corebluetooth/cbmanagerauthorization/restricted).
+- Ubicación sólo `When In Use`, admitiendo precisión reducida.
+  [CoreLocation: reducedAccuracy](https://developer.apple.com/documentation/corelocation/claccuracyauthorization/reducedaccuracy).
+  Expo no distingue «una vez» de «al usar la app» en la autorización devuelta:
+  no inventar ese detalle ni persistirlo como permanente.
+  [Location de Expo](https://docs.expo.dev/versions/latest/sdk/location/).
+- Notificaciones: conservar `authorized`, `denied`, `notDetermined` y, si aparece,
+  `provisional` o `ephemeral`. Una autorización silenciosa no equivale a alertas completas.
+  No añadir un pedido provisional automático en esta etapa.
+  [UserNotifications](https://developer.apple.com/documentation/usernotifications/asking-permission-to-use-notifications),
+  [Notifications de Expo](https://docs.expo.dev/versions/latest/sdk/notifications/).
+- Localizar los mensajes de uso en recursos nativos es/en. El idioma seleccionado en
+  Zustand no cambia por sí solo el idioma de los diálogos de iOS; verificar idioma del
+  sistema, idioma de la app y fallback en una instalación.
+  [Localización de Info.plist](https://developer.apple.com/documentation/bundleresources/managing-your-app-s-information-property-list).
+- Conservar `NSBluetoothAlwaysUsageDescription`: su nombre no implica que TerraSense
+  necesite ubicación Always ni actividad BLE en segundo plano.
+
+### 4.3 Modelo común y almacenamiento
+
+Ampliar [permissionState](src/utils/permissionState.ts) para separar:
+
+| Dato | Contrato propuesto |
+| --- | --- |
+| Autorización | Concedida, no concedida, aún no determinada cuando la API lo acredita, restringida, no disponible o error. |
+| Posibilidad de solicitar | Sí, no o desconocida; no deducirla de una marca local. |
+| Disponibilidad del recurso | Radio apagada, servicios de ubicación desactivados, hardware ausente o estado desconocido. |
+| Alcance | Precisión de ubicación y modalidad de notificaciones cuando la API los exponga. |
+| Operación | Consulta, explicación, solicitud nativa, espera de retorno o finalización. |
+
+El sistema es la fuente de verdad de los permisos y estos pertenecen a la instalación
+de la app, no a una cuenta de TerraSense. Mantener `permissions-review-v1/<userId>`
+sólo para recordar la explicación. No invalidar revisiones existentes por este rediseño.
+Cambiar de cuenta no revoca ni vuelve a solicitar permisos del teléfono.
+
+Supabase conserva preferencias de avisos y `profiles.push_token`, no el consentimiento
+del sistema como si fuera una autorización reutilizable. En una medición sin ubicación,
+mantener `latitude`, `longitude` y `gps_accuracy_m` nulos; no usar coordenadas de otra
+lectura. No se prevé una migración de base de datos para esta etapa.
+
+## 5. Implementación por fases
+
+### P1. Configuración nativa y contratos — antes de cambiar la pantalla
+
+**Archivos:** [app.config.js](app.config.js), [withStartupPermissions](plugins/withStartupPermissions.js),
+`permissionState.ts`, `permissionsService.ts`; módulo nativo local y recursos de idioma a crear.
+
+- [x] Inventariar permisos, `uses-feature`, claves iOS y SDK efectivos de una compilación.
+- [x] Desactivar en expo-location `locationAlwaysPermission`,
+  `locationAlwaysAndWhenInUsePermission` y `motionUsagePermission` con `false`;
+  mantener ubicación When In Use y servicios de segundo plano desactivados.
+- [x] Retirar `modes: ['central']` del plugin BLE y comprobar la ausencia efectiva
+  de `bluetooth-central`; preservar otros modos sólo si una función vigente los necesita.
+- [x] Unificar textos de uso; excluir micrófono, galería, contactos y ubicación de fondo.
+- [x] Revisar declaraciones duplicadas en `uses-permission` y `uses-permission-sdk-23`.
+  Ajustar límites de los permisos BLE antiguos sin retirar georreferenciación.
+- [ ] Implementar lectura iOS de autorización Bluetooth sin crear `BleManager`. Provisorio:
+  marca por instalación tras la primera solicitud; falla sólo si se restablece la privacidad sin desinstalar.
+- [x] Definir tipos comunes y tests de mapeo antes de migrar consumidores.
+- [x] Generar localización nativa de forma reproducible mediante configuración/plugin;
+  no depender de editar a mano archivos que Expo regenerará.
+
+**Aceptación:** lectura de estado sin diálogos ni escaneo; manifiesto y plist acordes
+a las funciones actuales. Un archivo de configuración correcto no basta como prueba.
+
+### P2. Coordinador único de permisos — depende de P1
+
+**Archivos:** `permissionsService.ts`, `bleService.ts`, `probeService.ts`,
+`notifications.ts` y nueva lógica/componente específico si hace falta.
+
+- [x] Separar consultar, solicitar desde acción explícita y abrir gestión del sistema.
+- [x] Usar un bloqueo común para que exista como máximo una solicitud nativa activa.
+- [x] Revalidar antes de solicitar; una operación ya autorizada continúa sin repetir el diálogo.
+- [ ] Conservar la función pendiente para reanudarla exactamente una vez tras conceder.
+- [ ] Cancelar la continuación funcional si se desmonta la pantalla, cambia la cuenta
+  o se abandona la operación; una respuesta tardía no navega ni escribe para la cuenta anterior.
+- [ ] Evitar que `AppState` sobrescriba el resultado de una solicitud con una consulta anterior.
+- [ ] Un timeout produce estado desconocido/error, nunca autorización. Si puede seguir
+  abierto un diálogo del sistema, no liberar la cola para lanzar otro encima.
+- [x] Centralizar solicitudes BLE y quitar duplicación entre verificar/conectar/leer.
+- [x] Implementar las explicaciones R1/R2 sin convertir todo uso en una doble confirmación.
+
+**Aceptación:** tocar varias veces, regresar de Ajustes o alternar pantallas no duplica
+solicitudes ni ejecuta dos veces el escaneo, la captura o el registro push.
+
+### P3. Pantalla inicial — depende del contrato de P1; puede avanzar junto a P2
+
+**Archivos:** `PermissionsScreen.tsx`, [EntryUI](src/components/entry/EntryUI.tsx),
+[App.tsx](App.tsx), [authFlow](src/utils/authFlow.ts).
+
+- [x] Aplicar composición y textos de 3.1, retirando logo grande y las cuatro solicitudes.
+- [ ] Usar contenido flexible y pie visible; no alterar por defecto `AuthUI` de otras pantallas.
+- [x] Mantener la revisión por cuenta y continuar sin exigir ningún permiso concedido.
+- [ ] Preservar prioridad de recuperación, sesión restaurada y siguiente ruta existente.
+- [x] Tratar fallo de almacenamiento sin bloquear a la persona en esta etapa.
+- [ ] Revisar guía flotante y banner offline para que no reduzcan innecesariamente el espacio;
+  ninguna superposición debe interferir con solicitudes nativas.
+
+**Aceptación:** primera entrada, cuenta existente y cambio de cuenta navegan correctamente;
+pulsar Continuar no abre un diálogo de autorización.
+
+### P4. Integración con funciones — depende de P2 y P3
+
+**Archivos:** `OnboardingScreen.tsx`, `DevicesScreen.tsx`, `MeasureScreen.tsx`,
+`SettingsDetails.tsx`, `probeService.ts` y `notifications.ts`.
+
+- [x] Conectar búsqueda BLE al coordinador; explicar ubicación para escaneo antiguo
+  antes de solicitarla y distinguir permiso de radio apagada.
+- [x] Migrar ambos escáneres QR; conservar código manual cuando la cámara no se concede.
+- [x] Retirar el salto inmediato a Ajustes después de un rechazo nuevo.
+- [x] Ofrecer «Añadir ubicación y pronóstico» / “Add location and forecast” en la preparación
+  de medición. Activarlo comprueba/solicita; dejarlo sin activar conserva medición sin ubicación.
+- [x] Separar la preferencia de incluir coordenadas del permiso técnico usado por BLE antiguo:
+  poder buscar la sonda no debe activar por sí solo envío de coordenadas a Open-Meteo.
+- [ ] Cuando se incluya ubicación, leer la actual con espera acotada; usar la precisión real.
+  Un error, falta de servicios o revocación deja datos ausentes y conserva la medición.
+- [x] Hacer que activar avisos sea una acción explícita en Ajustes; montar pantallas,
+  sincronizar preferencias o restaurar sesión sólo registra autorizaciones existentes.
+- [ ] Diferenciar «permiso concedido» de «token registrado» y de «aviso entregado».
+  Falta de red o fallo de Supabase no debe volver a pedir el permiso.
+- [x] En Ajustes, reconsultar al regresar y mostrar restricciones/alcance; abrir la
+  configuración del teléfono sólo tras la acción de gestión correspondiente.
+- [ ] Comprobar el contexto de cuenta antes y después de las escrituras del token;
+  preservar limpieza al cerrar sesión y preferencias de categorías.
+
+**Aceptación:** cada función funciona con su permiso y ofrece una salida coherente
+cuando no lo tiene. No hay cadena automática de cuatro solicitudes.
+
+### P5. Textos finales y recursos es/en — junto con P3/P4
+
+Propuestas de mensajes nativos, con una fuente de texto por finalidad:
+
+| Recurso | Español | Inglés |
+| --- | --- | --- |
+| Bluetooth | TerraSense usa Bluetooth para encontrar tu sonda de suelo y recibir sus mediciones. | TerraSense uses Bluetooth to find your soil probe and receive its readings. |
+| Cámara | TerraSense usa la cámara para leer el QR de invitación a un equipo. | TerraSense uses the camera to read a device invitation QR code. |
+| Ubicación | TerraSense usa tu ubicación al medir para guardar coordenadas y consultar el pronóstico con Open-Meteo. | TerraSense uses your location when measuring to save coordinates and request forecasts from Open-Meteo. |
+
+- [ ] Revisar los textos junto al comportamiento efectivo de P4.
+- [ ] Comprobar traducciones del resumen, explicación contextual, errores y estados.
+- [x] No usar «obligatorio para usar TerraSense» para capacidades opcionales.
+- [ ] No prometer cifrado, anonimato, entrega de avisos o exactitud que esta pantalla no verifica.
+- [ ] Aceptación legal, permisos del teléfono y preferencias de avisos permanecen separados.
+- [ ] Revisar coherencia con la política de privacidad y fichas de tienda; preparar cambios
+  concretos de esas declaraciones sólo si la implementación cambia el uso de datos.
+
+### P6. Pruebas automatizadas — antes del cierre de P7
+
+Extender [permissions.test.ts](tests/permissions.test.ts) y
+[authFlow.test.ts](tests/authFlow.test.ts). Añadir pruebas del servicio con adaptadores
+simulados y pruebas de interacción para aquello que una función pura no comprueba.
+
+- [ ] Consultar/montar/resumir no llama a ninguna API de solicitud ni inicializa BLE iOS.
+- [ ] Conceder, rechazar, bloquear, restringir, cancelar y fallar conservan estados distintos.
+- [ ] BLE Android maneja concesión parcial de SCAN/CONNECT.
+- [ ] Reinicio con permiso denegado no se rotula como primera solicitud conocida.
+- [ ] Ubicación aproximada permite continuar; revocación elimina su uso siguiente.
+- [ ] Doble pulsación, cambio de cuenta y respuesta tardía no repiten acciones.
+- [ ] Timeout no se convierte en permiso y no permite superponer diálogos.
+- [ ] Continuar guarda revisión; su fallo no inventa permisos ni altera otra cuenta.
+- [ ] Cámara rechazada conserva alternativa manual; aceptar abre un solo escáner.
+- [ ] No incluir ubicación mantiene coordenadas nulas y omite consulta meteorológica.
+- [ ] Notificaciones denegadas no bloquean uso; provisionales mantienen su modalidad;
+  sincronización sin permiso no solicita ni registra token.
+- [ ] Errores al registrar token no se presentan como denegación del sistema.
+- [ ] Plugins son idempotentes y no agregan capacidades descartadas ni borran GPS moderno.
+- [ ] Ejecutar `npm test`, `npm run type-check` y exportación JS Android/iOS;
+  documentar por separado resultados locales y de instalación nativa.
+
+### P7. Matriz nativa y revisión final — depende de P1–P6
+
+| Caso | Evidencia exigida | Estado |
+| --- | --- | --- |
+| Motorola G55 | Versión Android, recorrido inicial sin diálogos, uso de cada función y pie visible | Pendiente |
+| Android 12+ y Android 13+ | BLE independiente de GPS; notificaciones según versión; rechazo/cierre del diálogo | Pendiente |
+| Android anterior a 12, si el SDK mínimo lo soporta | Dependencia real de ubicación para escaneo y servicios desactivados | Pendiente |
+| iPhone físico | Primera solicitud BLE/cámara/ubicación/avisos y lectura sin diálogo | Pendiente |
+| Rechazo y bloqueo | Funciones alternativas, gestión voluntaria y regreso de Ajustes | Pendiente |
+| Permiso temporal/revocación/reinicio | Nueva consulta de estado; sin autorización persistida ficticia | Pendiente |
+| Radio apagada y hardware ausente | Mensaje correcto, sin reabrir autorización | Pendiente |
+| Ubicación aproximada y sin señal | Precisión real o datos nulos; medición conservada | Pendiente |
+| Cambio de cuenta con solicitud abierta | Resultado tardío sin navegación ni token de la cuenta anterior | Pendiente |
+| Sin conexión | Explicación y permisos locales operables; token pendiente sin nueva solicitud | Pendiente |
+| Tamaños compactos, es/en, claro/oscuro | Sin recortes con texto normal; pie accesible con accesibilidad ampliada | Pendiente |
+| VoiceOver/TalkBack y movimiento reducido | Foco recuperado, estados leíbles y animaciones compatibles | Pendiente |
+| Binario de distribución | Manifest/plist/localizaciones revisados; sin permisos extra por dependencias | Pendiente |
+
+Las pruebas nativas requieren un cliente reconstruido: Expo Go y Metro no acreditan
+Bluetooth ni el manifiesto de TerraSense. Android emulado tampoco sustituye la sonda
+real; el simulador iOS no cubre toda la autorización BLE.
+
+## 6. Orden de trabajo y criterio de cierre
+
+**Orden:** P1 → P2; P3 puede avanzar tras fijar el contrato de estados.
+Integrar P4 con P5; ejecutar P6 y después P7. Si se delega la implementación, asignar
+un único editor de servicios/configuración nativa y otro de UI; el orquestador controla
+los puntos compartidos, resultados y pendientes. Este plan no lanza agentes.
+
+**Cierre:** resumen inicial sin solicitudes, permisos contextuales y variantes correctas
+por plataforma, negativas respetadas, configuración mínima verificada y matriz nativa
+resuelta en los dispositivos disponibles. Marcar explícitamente toda prueba que falte;
+compilar o cambiar el texto del botón no acredita ese cierre.
+
+**Estado de esta entrega:** auditoría y plan documentados. Las implementaciones P1–P7,
+el módulo iOS, los cambios visuales y las pruebas nativas siguen pendientes. El código
+de permisos no se modificó en esta etapa de planificación.
+
+---
+
+## Seguimiento anterior: carga, idioma, bienvenida y acceso
+
+### Alcance de la etapa de entrada
+
+Rediseñar el recorrido inicial de TerraSense hasta llegar a permisos:
+**carga → idioma → carrusel → acceso**. Incluye registro en dos pasos,
+verificación de correo, consentimiento y recuperación de contraseña.
+
+La pantalla de permisos y las etapas posteriores quedaron fuera de aquella implementación.
+Comprobar su punto de entrada sin cambiar su diseño, solicitudes ni comportamiento.
+Las tareas de otros ámbitos conservadas al final no amplían este alcance, aunque sus
+textos usen expresiones como «etapa vigente» o «siguiente etapa».
+
+Estado del rediseño: **código integrado y verificaciones locales aprobadas; validación nativa pendiente**.
+Participaron dos agentes en paralelo, ambos **`gpt-6-sol`** con razonamiento **`medium`**.
+El orquestador completó e integró sus aportes tras agotarse el límite de uso de los agentes.
+Las casillas de implementación certifican el código; las comprobaciones en teléfonos
+y con correo real se registran por separado y siguen abiertas.
+
+### Decisiones acordadas
+
+- Tecnología y naturaleza, composición sobria y tipografía protagonista.
+- Verde bosque, fondos claros cálidos, acentos de tierra y versión oscura coherente.
+- Logo completo protagonista en la carga; retirarlo del carrusel y formularios.
+- Tres páginas de bienvenida, conservando el formato de carrusel horizontal.
+- Español e inglés antes de la bienvenida, con persistencia local y por cuenta.
+- Registro en dos pasos: datos personales y contraseña.
+- Rediseñar inicio de sesión, verificación, recuperación y nueva contraseña.
+- Adaptación por espacio disponible en móviles Android e iOS, en vertical.
+- Motorola G55 como dispositivo real de referencia; validar también tamaños pequeños.
+- Botón principal visible y pantallas habituales completas sin desplazamiento vertical.
+- Con teclado, texto de accesibilidad grande o contenido legal extenso, mantener
+  accesibles el campo activo y la acción; permitir desplazamiento del contenido cuando
+  físicamente no quepa. No reducir la legibilidad ni recortar contenido para hacerlo caber.
+
+### Punto de partida verificado
+
+- [x] Revisar navegación, carga, carrusel, acceso, preferencias y migraciones relacionadas.
+- [x] Comprobar la base automatizada de App: 122 pruebas aprobadas y TypeScript sin errores.
+- [x] Identificar dependencias compartidas: `AuthUI.tsx` también afecta permisos y vinculación.
+- [x] Confirmar que `profiles.app_preferences` ya admite los idiomas `es` y `en`.
+- [x] Detectar que el idioma del login sólo se cambia en memoria y puede reemplazarse
+  al cargar la cuenta o perderse al reiniciar.
+- [x] Detectar la diferencia entre el ancho predeterminado del splash nativo y el logo
+  de la carga React; falta comprobar el resultado visual en una instalación real.
+- [x] Detectar la diferencia entre las reglas de contraseña de la app y la configuración
+  local de Supabase. Falta contrastarla con la configuración remota vigente.
+- [x] Implementar el nuevo recorrido descrito en este bloque.
+- [x] Contrastar en lectura el esquema remoto de perfiles, sus políticas y el trigger de alta.
+- [ ] Validar el resultado visual en Android e iOS y las operaciones reales de Auth.
+
+## Flujo y reglas de navegación
+
+```mermaid
+flowchart TD
+    A[Carga inicial] --> B[Seleccionar idioma]
+    B --> C[Carrusel de tres páginas]
+    C --> D[Iniciar sesión]
+    D --> E[Permisos: límite del alcance]
+    D --> F[Registro: datos personales]
+    F --> G[Registro: contraseña]
+    G --> H[Revisión y aceptación de términos]
+    H --> I[Verificar correo]
+    I --> E
+    D --> J[Recuperar contraseña]
+    J --> K[Verificar código]
+    K --> L[Nueva contraseña]
+    L --> D
+```
+
+El diagrama representa una instalación nueva. Aplicar además estas reglas:
+
+- Recordar idioma y bienvenida por instalación; cerrar sesión no reinicia esas elecciones.
+- Restaurar una sesión válida hacia la etapa que corresponda a esa cuenta.
+- Conservar la prioridad de recuperación sobre bienvenida, acceso y permisos.
+- Mantener el progreso de instalaciones existentes: migrar el estado conocido sin
+  obligar a repetir la bienvenida por la introducción de la pantalla de idioma.
+- Poder cambiar idioma desde bienvenida y acceso mediante una acción discreta que
+  abre el selector. Volver a la misma página o formulario conservando sus datos.
+- Conservar el aislamiento por cuenta, el regreso con Atrás y el manejo de respuestas tardías.
+- Distinguir sesión inválida de falta de conexión; la segunda no debe expulsar al usuario.
+
+## Orquestación de dos agentes
+
+El orquestador define contratos compartidos, asigna archivos, resuelve dependencias,
+revisa la integración y mantiene el resumen global. Los agentes implementan y verifican
+su parte, y actualizan exclusivamente su bloque de seguimiento en este TASK.
+
+| Responsable | Modelo y razonamiento | Trabajo y archivos a cargo |
+| --- | --- | --- |
+| Agente A: inicio e idioma | `gpt-6-sol`, `medium` | `App.tsx`, `app.config.js`, `LoadingScreen.tsx`, `WelcomeCarouselScreen.tsx`, nueva pantalla de idioma, `authFlow.ts`, persistencia del idioma previo al acceso, `preferencesService.ts`, pruebas de entrada/preferencias y componentes nuevos compartidos de entrada. |
+| Agente B: acceso y cuenta | `gpt-6-sol`, `medium` | `AuthScreen.tsx`, `EmailCodeScreen.tsx`, `ResetPasswordScreen.tsx`, `RegistrationConsentModal.tsx`, presentación de requisitos de contraseña, componentes exclusivos de acceso, pruebas de registro/verificación/recuperación y auditoría del contrato de Supabase Auth. |
+| Orquestador | Agente principal | Contratos entre A y B, revisión conjunta, resolución de conflictos, comprobaciones finales y resumen global de implementado/pendiente. |
+
+### Coordinación y dependencias
+
+1. Leer `AGENTS.md` y revisar `git status` antes de editar; conservar cambios ajenos.
+2. A y B acuerdan antes de integrar el contrato de selector de idioma y del contenedor
+   adaptable: cabecera, contenido, acciones y comportamiento con teclado.
+3. A publica la interfaz de los nuevos componentes compartidos. B puede avanzar en el
+   estado del registro y formularios mientras A implementa carga, idioma y carrusel.
+4. A es el único editor de navegación y preferencias compartidas. B solicita esos cambios
+   mediante el contrato acordado; no redefine el estado global ni edita `App.tsx` en paralelo.
+5. El diseño de acceso utiliza componentes nuevos o variantes explícitas. Mantener
+   el comportamiento predeterminado de `AuthUI.tsx`, sus estilos y los componentes que
+   consumen permisos y vinculación. Cualquier edición compartida tiene un único responsable.
+6. El orquestador incorpora las pruebas nuevas al comando de App cuando sea necesario,
+   revisa el conjunto y actualiza sólo la documentación existente que corresponda.
+7. Antes de escribir este TASK, releer el bloque propio y aplicar un cambio localizado.
+   No sobrescribir el documento completo con una copia anterior al trabajo del otro agente.
+8. La auditoría remota empieza en modo lectura. Una configuración local no demuestra el
+   estado remoto. Registrar por separado código listo, cambio desplegado y prueba real.
+
+## Trabajo del agente A: inicio, idioma y bienvenida
+
+### A1. Base adaptable del flujo
+
+- [x] Crear una composición con cabecera, contenido flexible y acciones visibles.
+- [x] Calcular espacio útil con ancho, altura, áreas seguras, escala de texto y teclado.
+- [x] Reducir primero espacios decorativos e ilustraciones; usar cabecera compacta
+  cuando falte altura, conservando lectura y áreas táctiles adecuadas.
+- [x] Definir tipografía, colores, espaciados y transiciones sólo para este tramo.
+- [x] Respetar tema claro/oscuro y reducción de movimiento del sistema.
+- [x] Acordar y comunicar a B las interfaces del contenedor y del cambio de idioma.
+
+### A2. Carga inicial
+
+- [x] Mostrar fondo verde oscuro, logo grande proporcionado y rueda debajo.
+- [x] Coordinar splash nativo y primer contenido React; ajustar encuadre por plataforma.
+- [x] Cargar preferencias locales antes de presentar textos y evitar cambios de idioma visibles.
+- [x] Separar la preparación local de consultas remotas que no necesitan bloquear la bienvenida.
+- [x] Revisar esperas, errores y reintentos; descartar resultados de una sesión anterior.
+- [x] La carga dura lo necesario para inicializar; no agregar una espera artificial de marca.
+- [ ] Comprobar el splash en una compilación instalada, además de la pantalla React.
+
+### A3. Idioma y persistencia
+
+- [x] Crear selector con título bilingüe, Español/English y selección reconocible
+  mediante texto, borde e icono; botón Continuar visible.
+- [x] Aplicar la selección inmediatamente y guardarla localmente antes de avanzar.
+- [x] Permitir elegir y completar la bienvenida sin conexión.
+- [x] Implementar apertura inicial y retorno al selector desde bienvenida o acceso.
+- [x] Resolver migración de instalaciones existentes y cierre de sesión.
+- [x] Sin sesión, usar la elección del teléfono; con sesión restaurada, usar la caché
+  de esa cuenta y reconciliarla con su perfil.
+- [x] Una elección explícita hecha antes del acceso prevalece en esa entrada y se
+  sincroniza con la cuenta autenticada; preservar las demás preferencias del perfil.
+- [x] Asociar cambios pendientes a la cuenta correspondiente; impedir cruces al cambiar usuario.
+- [x] Conservar elección local ante errores y comprobar reintento al recuperar conexión.
+- [x] Evitar que la llegada a permisos muestre primero un idioma y luego otro por una carrera.
+
+### A4. Carrusel
+
+- [x] Página 1: conocer el suelo; estratos y raíces, título protagonista y explicación breve.
+- [x] Página 2: conectar y medir; sonda y teléfono con composición propia.
+- [x] Página 3: interpretar con contexto; historial y orientación agronómica.
+- [x] Describir capacidades reales, sin inventar resultados, mapas ni lecturas de hardware.
+- [x] Conservar deslizamiento horizontal, indicadores, Saltar, Continuar y Comenzar.
+- [x] Permitir retroceder y mantener sincronizados página visible, indicador y botones.
+- [x] Reemplazar alturas rígidas por ilustraciones adaptables; retirar el logo completo.
+- [x] Animar sólo lo necesario en la página activa y conservar accesibilidad del carrusel.
+- [x] Revisar en código traducciones, persistencia al terminar y conservación de página
+  al abrir el selector de idioma. La interacción nativa se valida en la matriz inferior.
+
+### Verificación y resultado del agente A
+
+- [x] Pruebas del orden idioma/bienvenida/acceso y omisión con sesión restaurada; revisión
+  de la migración en `App.tsx`. Reinicio real y migración instalada pendientes en la matriz.
+- [x] Pruebas del servicio de preferencias con almacenamiento y servidor simulados:
+  idioma persistente, red ausente, sincronización, cambio de cuenta y respuestas tardías.
+- [x] Regresiones de prioridad de recuperación y entrada a permisos.
+- [ ] Revisión de tamaños, temas e idiomas de las pantallas a cargo.
+- [x] Integrar los archivos aportados por A y registrar comprobaciones y pendientes reales.
+
+**Implementado:** [EntryUI](src/components/entry/EntryUI.tsx),
+[carga con marca](src/components/LoadingScreen.tsx), [selector](src/screens/LanguageScreen.tsx),
+[carrusel SVG](src/screens/WelcomeCarouselScreen.tsx) y [navegación inicial](App.tsx).
+El pie mantiene la acción fuera del contenido desplazable; el carrusel mide el texto
+y reduce su ilustración al espacio disponible. Idioma por instalación y cuenta,
+reintentos, esperas remotas acotadas y protección ante cambios de sesión. El aviso de
+guardado offline no ocupa espacio durante la entrada; la sincronización sigue activa.
+
+**Verificado:** tipos, exportación JavaScript de Android/iOS,
+[rutas](tests/entryLanguage.test.ts) y [persistencia](tests/entryPreferencesService.test.ts).
+Las pruebas cubren conservación de ajustes editados sin red, actualización sin filas,
+aborto por espera excesiva y elección nueva mientras llega una respuesta de otra cuenta.
+
+**Restante:** splash instalado, regreso del selector, reinicio, accesibilidad y matriz visual nativa.
+
+## Trabajo del agente B: acceso, registro y recuperación
+
+### B1. Inicio de sesión
+
+- [x] Rediseñar con título directo, correo, contraseña y acción Entrar visible.
+- [x] Retirar logo completo e ilustración que reste espacio al formulario.
+- [x] Conservar mostrar/ocultar contraseña, autorrelleno y gestores de contraseñas.
+- [x] Ordenar el foco, permitir enviar desde teclado y ubicar errores junto a los campos.
+- [x] Conservar correo tras error, bloquear envíos repetidos y tratar cuenta no confirmada.
+- [x] Integrar Crear cuenta, Olvidé mi contraseña y acceso discreto al selector de idioma.
+- [ ] Verificar teclado en ambas plataformas con la estructura adaptable acordada con A.
+
+### B2. Registro en dos pasos y consentimiento
+
+- [x] Paso 1: nombre y apellido, correo, indicador 1 de 2 y validación local; no crear cuenta aún.
+- [x] Paso 2: contraseña, confirmación, requisitos compactos e indicador 2 de 2.
+- [x] Volver al primer paso conserva los datos; abandonar o terminar limpia contraseñas.
+- [x] Mantener contraseñas sólo en memoria y proteger contra pulsaciones duplicadas.
+- [x] Conservar textos legales, lectura y dos aceptaciones explícitas en su panel propio.
+- [x] Mostrar una acción inequívoca para crear la cuenta al finalizar la aceptación;
+  eliminar la doble confirmación involuntaria del formulario tras cerrar el panel.
+- [x] Un reintento de la misma operación conserva el consentimiento; revisar su vigencia
+  al cambiar de flujo o modificar la identidad del registro.
+- [x] Mantener metadatos de nombre y consentimiento y el tratamiento del correo ya registrado.
+- [x] Coordinar con A la preferencia de idioma al crear y confirmar la cuenta.
+
+### B3. Verificación por correo
+
+- [x] Diseñar título breve, destinatario visible y seis casillas adaptables.
+- [x] Conservar campo nativo, pegado, autorrelleno, enmascaramiento y verificación automática.
+- [x] Conservar verificación manual y bloqueo de reintentos automáticos del mismo código rechazado.
+- [x] Mostrar estados de solicitud, código inválido/vencido, límite y falta de conexión.
+- [x] Reenvío con cuenta regresiva coherente al volver del segundo plano.
+- [x] Volver o corregir el correo conserva el propósito: registro o recuperación.
+
+### B4. Recuperación y nueva contraseña
+
+- [x] Rediseñar correo → código → nueva contraseña con el mismo lenguaje visual.
+- [x] Compartir la experiencia de código respetando su propósito y reglas actuales.
+- [x] Nueva contraseña y confirmación con requisitos visibles y acciones accesibles.
+- [x] Mostrar confirmación final e Ir a iniciar sesión; limpiar el estado al terminar.
+- [x] Conservar el cierre de recuperación y la separación respecto de la sesión normal.
+- [ ] Revisar recuperación por enlace con app cerrada/abierta y respuestas tardías.
+
+### B5. Contrato de Supabase
+
+- [x] Contrastar código, migraciones y esquema desplegado de perfiles mediante consulta
+  de sólo lectura al proyecto vinculado.
+- [ ] Leer la configuración remota vigente de Auth; la configuración local no la demuestra.
+- [x] Comprobar en el servidor `profiles.app_preferences`, restricción de idiomas, RLS
+  y políticas del perfil propio, además de `on_auth_user_created` y `handle_new_user`.
+- [x] Corregir los metadatos del cliente: `full_name`, `first_name` y `last_name` explícitos
+  conservan nombres compuestos que el fallback del trigger truncaba.
+- [ ] Comparar reglas reales de contraseña con la app; preparar la corrección necesaria
+  para que servidor y cliente apliquen la política acordada, sin afirmar despliegues no hechos.
+- [x] Revisar configuración y plantillas locales: código de seis dígitos, vencimiento
+  de 600 segundos, reenvío de 60 segundos y enlaces de recuperación.
+- [ ] Confirmar esos valores en Auth remoto y comprobar entrega/validez del correo real.
+- [x] Integrar el guardado de idioma preservando las demás preferencias.
+- [ ] Probar operaciones autenticadas con cuentas de prueba; distinguir revisión de código,
+  verificación remota de lectura y operaciones comprobadas de extremo a extremo.
+- [x] Confirmar que este rediseño no requiere cambiar el esquema. No se aplicaron migraciones
+  ni cambios remotos de Auth para esta implementación.
+
+### Verificación y resultado del agente B
+
+- [x] Pruebas de validación de ambos pasos, retorno, metadatos completos, consentimiento
+  y bloqueo sincrónico de envíos. La creación real desde el panel sigue pendiente.
+- [x] Pruebas de correo existente, propósito del código, verificación, errores y reenvío;
+  revisión de la ruta de cuenta sin confirmar.
+- [x] Pruebas del propósito de recuperación, enlaces y prioridad de ruta; revisión de
+  guardado, limpieza de contraseña y cierre/cancelación de sesión.
+- [ ] Completar el recorrido de nueva contraseña y cancelación contra Auth real.
+- [ ] Revisión de teclado, temas, idiomas y tamaños de los formularios.
+- [x] Integrar los archivos aportados por B y registrar comprobaciones y pendientes reales.
+
+**Implementado:** [acceso y registro en dos pasos](src/screens/AuthScreen.tsx), campos con errores y foco, código y
+nueva contraseña con acciones visibles. Aceptar términos envía una sola solicitud;
+el consentimiento permite reintentos mientras no cambie la identidad. Las contraseñas
+se limpian tras el registro o cambio confirmado. Los controles conservan autorrelleno.
+
+**Verificado:** [pruebas de registro](tests/accessRegistration.test.ts), servicios, TypeScript, empaquetado y contrato remoto
+de perfiles en lectura. El nombre compuesto conserva todos sus componentes.
+
+**Restante:** teclado y autorrelleno reales, envío de correo, confirmación y recuperación
+con cuentas de prueba. La app exige ocho caracteres con letra, número y especial;
+`supabase/config.toml` declara seis y sin requisitos de composición. Falta leer la
+política remota y acordar su alineación antes de cambiar una regla global para todos
+los clientes. No se da por aplicada una configuración remota a partir del archivo local.
+
+## Integración y aceptación del orquestador
+
+- [x] Revisar ambos cambios y resolver dependencias sin ampliar el alcance a permisos.
+- [x] Integrar pruebas nuevas en el comando de App y ejecutar `npm test` desde `App/`.
+- [x] Ejecutar `npm run type-check` desde `App/`.
+- [x] Conservar `PermissionsScreen`, `AuthUI`, servicios de permisos y tokens globales.
+  La variante compacta de requisitos no cambia el comportamiento predeterminado.
+- [ ] Comprobar todo el recorrido nuevo, sesión restaurada, cambio de cuenta y recuperación.
+- [x] Actualizar documentación existente que corresponda al comportamiento implementado.
+- [x] Ejecutar `python docs/verificar_documentacion.py` desde la raíz; cero errores.
+- [x] Revisar directamente enlaces y diagrama de este TASK: el verificador estándar no lo incluye.
+- [x] Revisar diferencias y registrar aquí sólo resultados realmente observados.
+
+### Matriz visual y funcional
+
+| Caso | Resultado exigido | Estado |
+| --- | --- | --- |
+| Motorola G55 | Recorrido completo, botones visibles y teclado operable | Pendiente |
+| Android compacto, referencia lógica 360 × 640 | Pantallas habituales completas, sin desplazamiento vertical con texto normal y teclado cerrado | Pendiente |
+| iPhone compacto, referencia lógica 375 × 667 | Mismo criterio, respetando barras y áreas seguras | Pendiente |
+| Teléfonos grandes Android/iOS | Ancho de lectura limitado y distribución proporcionada | Pendiente |
+| Teclado abierto | Campo activo y acción accesibles, sin superposición | Pendiente |
+| Texto ampliado y lector de pantalla | Contenido completo, orden de foco y controles identificables | Pendiente |
+| Español/inglés y claro/oscuro | Traducción íntegra, contraste y composición sin recortes | Pendiente |
+| Movimiento reducido | Transiciones compatibles con la preferencia del sistema | Pendiente |
+| Sin conexión y reconexión | Idioma conservado, errores accionables y reintentos coherentes | Servicio cubierto con dobles; recorrido nativo pendiente |
+| Registro y recuperación | Correo/código reales con cuenta de prueba; transiciones correctas | Pendiente |
+| Arranque instalado | Splash y carga coherentes en compilación nativa; no basta Metro o exportación JS | Pendiente |
+
+Las pruebas automatizadas y capturas de diseño no certifican el resultado nativo.
+Si falta teléfono, simulador iOS o acceso remoto, dejar esa fila pendiente e indicar
+qué recurso falta. No marcarla completa por haber compilado o inspeccionado el código.
+
+### Resumen global de seguimiento
+
+- **Implementado:** carga → idioma → tres páginas → acceso, registro en dos pasos,
+  consentimiento, verificación y recuperación. Integración de preferencias y protección
+  contra respuestas tardías; permisos conserva su pantalla y sus solicitudes.
+- **Verificado:** `npm test` con **139 pruebas aprobadas**, TypeScript sin errores y
+  exportación JavaScript mediante Metro para Android e iOS. Consulta remota de perfiles
+  en transacción de sólo lectura; no se ejecutaron altas ni cambios de configuración Auth.
+- **Restante:** matriz nativa, política remota de contraseñas y operaciones con correo real.
+  No hay teléfono ni emulador conectado a ADB. La exportación avisó que no pudo resolver
+  `google-services.json` y `GoogleService-Info.plist` locales; la compilación nativa debe
+  recibir esa configuración. Los cambios de splash/teclado requieren reconstruir el cliente.
+  La exportación JavaScript no certifica un APK, iOS ni su comportamiento visual.
+- **Criterio de cierre:** recorrido coherente, idioma persistente por instalación/cuenta,
+  pantallas habituales completas y acciones accesibles, sin regresión en la entrada a permisos.
+
+## Seguimiento conservado de otros ámbitos
+
+Los bloques siguientes conservan implementaciones y pendientes de dashboard, medición,
+permisos, ajustes y dispositivos. Consultarlos como contexto; la implementación activa
+de este TASK está definida arriba. No marcar sus pendientes resueltos al cerrar el rediseño.
 
 ## Implementación vigente: dashboard y medición
 
@@ -426,6 +1193,11 @@ No adjuntar mediciones, credenciales ni datos personales automáticamente.
 
 ### Administración y preparación para otro propietario
 
+> **Retirada** (`20260928130000_reset_solo_desde_backoffice.sql`): la app ya no prepara
+> equipos. El único reset es el del backoffice y la sonda reseteada se revincula con la
+> ventana PAIR. Lo que sigue queda como antecedente de la invalidación por generación, que
+> se conserva.
+
 - La administración es por equipo. Transferirla elimina los privilegios del administrador
   anterior sobre ese equipo; la autorización debe aplicarse también en el servidor.
 - «Preparar equipo para otro propietario» será la última opción del submenú,
@@ -557,8 +1329,8 @@ campos al eliminar el mapa. Contacto usa el correo confirmado `akurasoporte@gmai
 
 La revisión independiente identificó y se corrigió el riesgo de reclamar un equipo borrado
 con su código permanente: la nueva migración bloquea esa reclamación y exige intervención
-de soporte hasta disponer de una prueba de posesión física del firmware. La app lo explica
-antes de borrar. El restablecimiento no modifica firmware ni limpia memoria física del ESP32.
+de soporte hasta disponer de una prueba de posesión física del firmware. Esa prueba es hoy la
+ventana PAIR, así que `20260928130000` quitó el bloqueo y retiró la preparación desde la app.
 
 Retomar con:
 1. ~~Aplicar y probar la migración en base de pruebas~~: hecho el 20-09-2026. Sigue

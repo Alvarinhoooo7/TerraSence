@@ -15,7 +15,6 @@
 //     no vuelve a sueño profundo y se agota la batería en días.
 
 import { BleManager, type Device, type Subscription } from 'react-native-ble-plx';
-import { Platform, PermissionsAndroid } from 'react-native';
 import {
   decodeProbeStatus,
   decodeTelemetry,
@@ -53,29 +52,6 @@ export function getManager(): BleManager {
 export function destroyManager(): void {
   manager?.destroy();
   manager = null;
-}
-
-/**
- * Permisos de Android 12+.
- *
- * `BLUETOOTH_SCAN` se declara con `neverForLocation`: desde Android 12 no se pide
- * ubicación para escanear. En versiones anteriores sí la requiere el sistema.
- */
-export async function requestBlePermissions(): Promise<boolean> {
-  if (Platform.OS !== 'android') return true;
-
-  const api = typeof Platform.Version === 'number' ? Platform.Version : parseInt(String(Platform.Version), 10);
-
-  const permissions =
-    api >= 31
-      ? [
-          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-          PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-        ]
-      : [PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION];
-
-  const granted = await PermissionsAndroid.requestMultiple(permissions);
-  return Object.values(granted).every((v) => v === PermissionsAndroid.RESULTS.GRANTED);
 }
 
 /** Espera a que la radio esté encendida antes de escanear. */
