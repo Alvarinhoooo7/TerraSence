@@ -2,10 +2,9 @@
 //
 // Mismo patrón que Web/src/services/supabase.ts: un único cliente, mismas
 // variables de entorno (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY) porque el
-// panel de soporte vive en el MISMO proyecto Supabase que la app y la consola
-// de agricultores — comparte auth.users, sólo cambia qué puede hacer cada
-// sesión una vez autenticada (ver is_support_staff() en la migración
-// 20260902120000_panel_soporte_backend.sql).
+// backoffice vive en el MISMO proyecto Supabase que la app — comparte
+// auth.users, sólo cambia qué puede hacer cada sesión una vez autenticada (ver
+// is_support_staff() en la migración 20260927120000_backoffice_cuenta_unica.sql).
 //
 // Nunca uses aquí la service_role key: este archivo se empaqueta para el
 // navegador. Todo lo que expone este panel pasa por RPC SECURITY DEFINER que

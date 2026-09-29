@@ -50,7 +50,7 @@ Arriba, la búsqueda para saltar a otro equipo. Debajo, una tarjeta por tema; ca
 
 **Online** significa que un teléfono habló con la sonda hace menos de 15 minutos: la sonda no tiene internet. Lo decide el servidor con `devices.last_seen_at`, que la app actualiza en cada contacto BLE ([`contactService.ts`](../App/src/services/contactService.ts)).
 
-**Reset** abre un diálogo con la lista de lo que se borra (usuarios, solicitudes, mediciones, alertas, invitaciones, historial, actualizaciones) y dos botones: Cancelar y Resetear. El ID no cambia porque sale de la MAC de la sonda; quien la vuelva a vincular queda como administrador. **Es el único reset que existe**: la sonda no tiene pulsación de reset.
+**Reset** abre un diálogo con la lista de lo que se borra (usuarios, solicitudes, mediciones, alertas, invitaciones, historial, actualizaciones) y dos botones: Cancelar y Resetear. El ID no cambia porque sale de la MAC de la sonda; quien la vuelva a vincular con la ventana PAIR abierta queda como administrador, sea un antiguo miembro o alguien nuevo. **Es el único reset que existe**: ni la sonda ni la app tienen reset.
 
 ### Update (`/update`)
 
@@ -80,8 +80,10 @@ Componentes base en [`src/ui/`](src/ui/): botón (principal, secundario, discret
 Web/
 ├── backend/            adminApi.ts (RPC), types.ts, database.types.ts, supabaseAdmin.ts
 ├── src/
+│   ├── main.tsx        punto de entrada
 │   ├── App.tsx         rutas según la sesión
-│   ├── auth/           session.tsx, LoginPage, RecoverPage, AuthLayout, mensajes
+│   ├── services/       supabase.ts (único cliente, clave pública)
+│   ├── auth/           session.tsx, LoginPage, RecoverPage, AuthLayout, PasswordChecklist, mensajes
 │   ├── layout/         Shell.tsx (barra lateral)
 │   ├── pages/          SearchPage, DevicePage, UpdatePage
 │   ├── components/     SearchBar, RoleBadge, device/ (tarjetas y diálogo de reset)

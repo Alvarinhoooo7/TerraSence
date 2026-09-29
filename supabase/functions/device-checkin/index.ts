@@ -4,9 +4,9 @@
 // Akura, que recibía estado de red celular; aquí recibe la trama de 7
 // parámetros de suelo más 3 de ambiente.
 //
-// Ruta prevista: el ESP32 no llega a internet por sí mismo. Esta función
-// existe para (a) el modo WiFi del equipo cuando lo hay, y (b) integraciones
-// de terceros. La vía normal sigue siendo BLE → teléfono → PostgREST.
+// Ruta prevista: el ESP32 no llega a internet por sí mismo (el firmware no usa
+// Wi-Fi) y ningún componente del producto llama a esta función. Queda para
+// integraciones de terceros. La vía normal es BLE → teléfono → PostgREST.
 //
 // Autenticación: por `device_code` de 15 dígitos. No es un secreto fuerte,
 // así que la función NO acepta escribir mediciones a ciegas: exige que el
