@@ -10,7 +10,7 @@ Alcance vigente: **vinculación BLE con la app, pulsador PAIR, indicadores LED y
 | Anuncio BLE | Servicio `…6101` en el paquete principal y el nombre `TerraSense-<ID>` en la respuesta de escaneo. Se reanuda tras cada desconexión. | Compila. Falta con la app. |
 | Identidad `…6103` | Lectura: el ID de 15 dígitos en ASCII, derivado de la MAC base del ESP32 (`esp_efuse_mac_get_default`, 48 bits en decimal con ceros a la izquierda). Siempre presente; no se guarda ni se borra. | Compila sin advertencias. Falta comparar con la MAC real en hardware. |
 | Confirmación `…6104` | La app escribe el ID tras registrar la sonda. Se acepta sólo con la ventana abierta y si coincide con el de la sonda: cierra la ventana y avisa con verde y buzzer. No guarda nada. | Compila. Falta con la app. |
-| Telemetría `…6102` | Al suscribirse la app arma una trama nueva de 20 bytes, versión 1, y la notifica una vez. | La app real rechaza las tramas `FF` («Batería BLE inválida») y no guarda nada: comprobado con `decodeTelemetry`. |
+| Telemetría `…6102` | Al suscribirse la app arma una trama nueva de 20 bytes, versión 1, y la notifica una vez. | La app rechaza la trama sin suelo («La sonda no entregó lectura de suelo») y no guarda nada: comprobado con `decodeTelemetry` y `App/tests/probeTelemetry.test.ts`. |
 | BME280 | Driver propio por I2C (0x76/0x77) en modo forzado, con la compensación de Bosch. Si no responde se envían centinelas; se vuelve a buscar en cada lectura. | Compila. Sin sensor para validarlo. |
 | LEDs | Apagados en reposo; sólo avisos breves y la ventana PAIR (tabla del README). Encendido/apagado simple, sin PWM. | Compila sin advertencias. Falta en hardware. |
 | Buzzer (IO19) | Tonos por LEDC con el mismo significado que los LEDs (tabla del README), en secuencias no bloqueantes. | Compila sin advertencias. Falta en hardware; ver H1. |
@@ -34,9 +34,9 @@ Requisitos:
 | 4 | Escribir el nombre y guardar. | La app registra el equipo con el ID del monitor serie. Si la ventana sigue abierta: 🟢 tres destellos con dos pitidos y el azul se apaga (serie: `Vinculación confirmada`). Si ya pasaron los 30 s, el equipo queda registrado igual y la sonda sólo avisa en rojo. |
 | 5 | Reiniciar el ESP32. | El mismo ID en el monitor serie: sale de la MAC, no de algo guardado. |
 | 6 | Medir desde la app. | Serie: `[TRAMA] FF … FF 01 FF FF FF FF (notificada)`. 🔴 tres destellos y tono grave. App: «La sonda no entregó lectura de suelo…». **Es el resultado correcto**: prueba que llegaron los 20 bytes con versión 1 y que no se guardó una medición inventada. |
-| 7 | Resetear el equipo desde el backoffice y volver a vincularlo (pasos 3 y 4). | Reaparece con el mismo ID y quien lo vincula queda como administrador. |
+| 7 | Resetear el equipo desde el backoffice y volver a vincularlo (pasos 3 y 4). | Reaparece con el mismo ID y quien lo vincula queda como administrador, aunque sea otra cuenta. Depende de la migración `20260928130000`, aplicada el 28-09-2026 ([supabase §10.0.2](../supabase/README.md#1002-reset-sólo-desde-el-backoffice-28-09-2026)). |
 
-El mensaje del paso 6 requiere una app compilada con el centinela de suelo; una versión anterior muestra «Batería BLE inválida», que también es correcto (no guarda nada). Si la app muestra «No se pudo verificar la identidad de la sonda», la sonda tiene un firmware anterior al ID por MAC: cargar este.
+Si la app muestra «No se pudo verificar la identidad de la sonda», la sonda tiene un firmware anterior al ID por MAC: cargar este.
 
 ## Pendiente de implementación
 
@@ -66,7 +66,7 @@ El mensaje del paso 6 requiere una app compilada con el centinela de suelo; una 
 | :---: | :--- | :--- |
 | A1 | Rangos de suelo | El centinela «sin lectura de suelo» (bytes 0-14 en `FF`) ya está en el contrato y en `decodeTelemetry`. Falta validar los rangos de cada campo de suelo (humedad ≤ 100 %, pH ≤ 14) cuando exista el driver Modbus. |
 | A3 | Ventana de 30 s y el nombre | La ventana se comprueba al buscar la sonda, antes de pedir el nombre: registrar ya no depende de terminar dentro de los 30 s. Sólo el aviso verde de la sonda lo requiere. Resuelto. |
-| A4 | Vincular sin pulsador | Resuelto: la app sólo registra una sonda con la ventana PAIR abierta (byte de banderas de la característica de estado). Queda un límite de la base: `register_paired_device` acepta el ID de una sonda libre sin prueba física, así que alguien que conozca el ID (se anuncia por BLE) podría registrarla llamando a la API directamente. Una sonda con dueño está protegida. |
+| A4 | Vincular sin pulsador | Resuelto: la app sólo registra una sonda con la ventana PAIR abierta (byte de banderas de la característica de estado). Queda un límite de la base, **aceptado**: `register_paired_device` acepta el ID de una sonda libre sin prueba física, así que alguien que conozca el ID (se anuncia por BLE) podría registrarla llamando a la API directamente. Vale para una sonda nueva y para una recién reseteada por el backoffice, que queda libre para revincularse. Una sonda con dueño está protegida. |
 
 ### Documentación
 

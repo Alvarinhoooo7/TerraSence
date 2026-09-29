@@ -18,6 +18,9 @@ El contrato con la app lo fija el código de la app, no este firmware: [`App/src
 | `zumbador.*` | Secuencias de tonos del buzzer pasivo por LEDC, no bloqueantes. |
 | `identidad.*` | ID de 15 dígitos derivado de la MAC del ESP32. |
 | `bme280.*` | Driver mínimo del BME280 por I2C. |
+| `platformio.ini` | Compilación alternativa con PlatformIO (pioarduino, mismo núcleo 3.3.0). |
+| `TASK.md` | Estado, procedimiento de prueba con la app y pendientes. |
+| `PLAN.md` | Trabajo en curso: característica de estado y actualización por BLE (OTA). |
 
 ## Distribución de pines
 
@@ -44,7 +47,7 @@ El ID de 15 dígitos **sale de la MAC base del ESP32**, grabada de fábrica y ú
 
 Nada se guarda ni se borra: el ID es del hardware y no cambia nunca. La app lo lee por BLE al vincular; ya no lo inventa. La sonda se anuncia siempre como `TerraSense-<ID>` y el monitor serie lo muestra al arrancar.
 
-**No hay reset desde la sonda.** El único reset de un equipo es el del backoffice, que borra sus usuarios y su historial en la nube; la sonda conserva el mismo ID y el primero que la vuelva a vincular queda como administrador.
+**No hay reset desde la sonda.** El único reset de un equipo es el del backoffice, que borra sus usuarios y su historial en la nube; la sonda conserva el mismo ID y el primero que la vuelva a vincular con la ventana PAIR abierta queda como administrador. La app tampoco tiene reset.
 
 ## Pulsador PAIR
 
@@ -99,3 +102,5 @@ Además de la trama, el firmware publica una característica de lectura con 5 by
 2. Abrir `Firmware/Firmware.ino`. El IDE carga los demás archivos como pestañas.
 3. Placa: **ESP32 Dev Module**. Esquema de particiones por defecto: el programa ocupa cerca del 88 % de la partición.
 4. Compilar y subir. Monitor serie a **115200 baudios**: muestra los eventos del pulsador, la vinculación y cada trama en hexadecimal.
+
+Con PlatformIO, desde `Firmware/`: `pio run -t upload` y `pio device monitor`. [`platformio.ini`](platformio.ini) usa la plataforma pioarduino porque la oficial trae el núcleo 2.x, y este firmware usa APIs del 3.x.

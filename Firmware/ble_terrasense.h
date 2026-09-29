@@ -23,13 +23,13 @@
 #include <Arduino.h>
 
 void bleIniciar();
-void bleActualizar(uint32_t ahora);  // reanuda el anuncio y aplica el nombre nuevo
+void bleActualizar(uint32_t ahora);  // cierra la ventana vencida y reanuda el anuncio
 
 bool bleConectado();
 void bleAbrirVentana(uint32_t ahora);
 bool bleVentanaAbierta(uint32_t ahora);
 
-// Resultado del último intento de grabar un código, entregado una sola vez.
+// Resultado del último intento de confirmar la vinculación, entregado una sola vez.
 enum class ResultadoVinculacion : uint8_t { Ninguno, Aceptado, Rechazado };
 ResultadoVinculacion bleTomarResultadoVinculacion();
 

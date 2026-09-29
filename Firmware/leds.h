@@ -5,7 +5,7 @@
 // cada color tiene un único significado:
 //
 //   · Azul  = vinculación (ventana PAIR abierta).
-//   · Verde = algo salió bien (encendido, código guardado, medición enviada).
+//   · Verde = algo salió bien (encendido, vinculación confirmada, medición enviada).
 //   · Rojo  = algo necesita atención (fallo, batería baja).
 //
 // Cada LED tiene un patrón de fondo, que dura mientras dura el estado (por
@@ -23,7 +23,7 @@ enum class PatronLed {
   Latido10s,     // rojo: batería baja (un destello corto cada 10 s)
   // Avisos: una sola vez, luego vuelve el fondo.
   TresDestellos, // verde = éxito; rojo = fallo
-  Encendido1s,   // verde: la sonda acaba de encender; rojo: borrado de fábrica
+  Encendido1s,   // verde: la sonda acaba de encender
 };
 
 class Led {
