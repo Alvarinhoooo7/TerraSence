@@ -18,6 +18,9 @@ import subprocess
 import sys
 import tempfile
 
+# La consola de Windows usa cp1252 y no imprime símbolos como «Ω»: el resumen sale en UTF-8.
+sys.stdout.reconfigure(encoding="utf-8")
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 DOCS = os.path.join(BASE, "..", "docs")
 SECCION = os.path.join(DOCS, "SECCION_ECONOMICA_REFORMULADA.md")
