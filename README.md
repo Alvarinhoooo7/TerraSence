@@ -46,7 +46,7 @@ Este escenario genera un impacto negativo a lo largo de todo el ciclo de vida de
 
 ## ✨ Características Principales
 
-* 📡 **Medición Integral (Grid 2×5):** Diez variables: humedad del suelo, conductividad eléctrica, temperatura del suelo, nitrógeno, fósforo, potasio y pH de la sonda; temperatura ambiente, humedad relativa ambiente y presión atmosférica ambiente del BME280. Dos columnas y cinco filas, implementadas en la App y en el detalle de la consola web.
+* 📡 **Medición Integral (Grid 2×5):** Diez variables: humedad del suelo, conductividad eléctrica, temperatura del suelo, nitrógeno, fósforo, potasio y pH de la sonda; temperatura ambiente, humedad relativa ambiente y presión atmosférica ambiente del BME280. En la App, un Grid de dos columnas y cinco filas; en el backoffice web, las mismas diez variables en filas desplegables.
 * 🌦️ **Microclima Local + Pronóstico:** El sensor **BME280** lee temperatura, humedad relativa y presión en el lugar físico de la medición. Como **apoyo y complemento**, una API gratuita de clima aporta el pronóstico de los próximos 5 días, permitiendo planificar labores a futuro (ej. posponer siembra si hay riesgo de lluvias intensas).
 * 🔋 **Diseño de Bajo Consumo:** La sonda se corta por MOSFET fuera del instante de lectura, el equipo se apaga con un interruptor entre jornadas y la batería LiPo se recarga por USB-C, sin pilas desechables. La autonomía por patrón de uso está calculada en el balance energético del [informe corregido](Evaluacion/Evaluacion%201/INFORME%201%20CORREGIDO.md): **la medición desde batería en banco sigue pendiente**.
 * 📱 **Ecosistema Interconectado:** Comunicación Bluetooth Low Energy (BLE) hacia la App móvil que no requiere internet para diagnosticar, respaldado por una plataforma Web y base de datos.
@@ -60,8 +60,9 @@ El repositorio está dividido en áreas de dominio específicas, cada una con su
 | Directorio | Descripción | Tecnologías |
 |:---|:---|:---|
 | 🪛 [**`/PCB`**](PCB/README.md) | Esquemáticos KiCad, arquitectura de potencia, contrato de trama BLE y diseño de carcasa 3D. | ESP32, BME280, RS-485 |
+| 🔌 [**`/Firmware`**](Firmware/README.md) | Firmware del ESP32: vinculación BLE con pulsador PAIR, LEDs, buzzer, BME280 y trama de 20 bytes. Aún no lee la sonda de suelo. | Arduino IDE, núcleo esp32 3.x |
 | 📱 [**`/App`**](App/README.md) | Aplicación móvil que recibe las lecturas vía BLE y genera el diagnóstico agronómico. | React Native, Expo, BLE |
-| 💻 [**`/Web`**](Web/README.md) | Consola de administración y soporte web para gestión del sistema. | React, Vite, TypeScript |
+| 💻 [**`/Web`**](Web/README.md) | Backoffice de soporte, de una sola cuenta: buscar equipos, administrar sus usuarios, resetearlos y enviarles actualizaciones de firmware. | React, Vite, TypeScript |
 | ☁️ [**`/supabase`**](supabase/README.md) | Funciones de backend (RPC), políticas RLS y migraciones. | PostgreSQL, Edge Functions |
 | 📄 [**`/docs`**](docs/README.md) | Informes formales del proyecto de título, manuales, normativas y planes de validación. | Markdown, Documentación |
 | 📈 [**`/finanzas`**](docs/MODELO_ECONOMICO.md) | Estudio de viabilidad, cálculo de costos (BOM) y simulador de flujo de caja. | Python, Excel |
@@ -79,7 +80,7 @@ graph TD;
     B <-->|Bluetooth LE| D{App Móvil TerraSense};
     E[API Clima 5 Días] -.->|Internet| D;
     D <-->|Sincronización| F[(Supabase Backend)];
-    G[Consola Web] <-->|Gestión| F;
+    G[Backoffice Web] <-->|Soporte| F;
 ```
 
 ---
@@ -87,7 +88,7 @@ graph TD;
 ## 🚀 Ejecución Local Rápida
 
 ### 1. Variables de Entorno
-La App utiliza el archivo `.env` en la raíz del proyecto. La consola web utiliza el suyo propio en `Web/.env`.
+La App lee `App/.env` y, como respaldo, el `.env` de la raíz (`App/.env` tiene prioridad). El backoffice web usa el suyo en `Web/.env`, con `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`.
 ```env
 # .env (Raíz)
 EXPO_PUBLIC_SUPABASE_URL=https://<proyecto>.supabase.co
@@ -104,7 +105,7 @@ npx tsc --noEmit    # Chequeo de tipos
 npx expo start      # Servidor de desarrollo
 ```
 
-### 3. Consola Administrativa (Web)
+### 3. Backoffice (Web)
 ```bash
 cd Web
 npm install

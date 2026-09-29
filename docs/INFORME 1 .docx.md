@@ -243,7 +243,7 @@ De esta premisa central se desprenden cuatro principios que gobiernan el diseño
 * **"No entregamos datos, entregamos respuestas":** Un dato aislado, un valor de pH o una lectura de conductividad no es información útil para quien no sabe interpretarlo. Un dato sin contexto es, en la práctica, “un vacío” con unidades. TerraSense no entrega la medición en bruto, sino la cadena completa: desde la captura de la variable física hasta una recomendación concreta de manejo (qué hacer, cuánto y por qué), formulada siempre dentro de lo que un instrumento de terreno puede sostener con evidencia.
 * **"El Celular es el cerebro del sistema":** La idea central que ordena todo el diseño es sencilla y radical en sus consecuencias: el teléfono que el agricultor ya posee es el instrumento de registro más potente que existe. Tiene pantalla legible, ubicación satelital, capacidad de cálculo y memoria. Fabricar un instrumento nuevo que vuelva a incluir todas esas capacidades sería cobrarle dos veces al agricultor por algo que ya tiene. Por eso, el aparato físico se reduce a lo mínimo indispensable: hacer lo único que el teléfono no puede hacer por sí solo (tomar contacto físico con la tierra y el ambiente). Todo el resto ocurre en el celular.
 * **"Diseño para el campo real, no para el laboratorio":** El instrumento no vivirá sobre un escritorio; se caerá sobre tierra y piedras, se mojará, viajará en la caja de una camioneta y será manipulado con guantes de trabajo. Cada elección de materiales responde a esa realidad de uso, priorizando la austeridad y la resistencia sobre la estética.
-* **"Soberanía del dato y cero suscripciones":** El agricultor paga una vez por su instrumento y sus mediciones le pertenecen; puede consultarlas, exportarlas y usarlas libremente. A diferencia de la instrumentación importada que depende de plataformas por suscripción, aquí no existe una cuota mensual que condicione el funcionamiento del equipo. La tecnología no debe convertirse en una carga financiera mensual para quien ya enfrenta suficiente incertidumbre. Este principio tiene una consecuencia económica directa y asumida: los costos de soporte, servicios digitales, mantenimiento y reposición permanecen en el presupuesto de la empresa y están explícitamente cuantificados en la evaluación económica de este informe.
+* **"Soberanía del dato y cero suscripciones":** El agricultor paga una vez por su instrumento y sus mediciones le pertenecen; puede consultarlas y usarlas libremente. A diferencia de la instrumentación importada que depende de plataformas por suscripción, aquí no existe una cuota mensual que condicione el funcionamiento del equipo. La tecnología no debe convertirse en una carga financiera mensual para quien ya enfrenta suficiente incertidumbre. Este principio tiene una consecuencia económica directa y asumida: los costos de soporte, servicios digitales, mantenimiento y reposición permanecen en el presupuesto de la empresa y están explícitamente cuantificados en la evaluación económica de este informe.
 
 **Beneficiarios de la Solución:**
 
@@ -467,17 +467,17 @@ flowchart TD
 **Selección de Componentes Base:** Decidida la arquitectura general, la segunda capa de decisiones define con qué componente concreto se construye cada bloque.
 Se aplicó la misma disciplina: evaluación de candidatos reales, criterios declarados antes de comparar, y honestidad explícita cuando la alternativa descartada es superior en alguna dimensión. Sobre once subsistemas evaluados, en siete existe una alternativa técnicamente superior en alguna métrica, y el proyecto lo declara en lugar de presentar una selección irreal donde el componente elegido gane en todo.
 
-**Microcontrolador:** Se evaluaron cuatro candidatos: ESP32, nRF52840, STM32WB55 y ATmega328P+HC-05. Este último queda descartado de entrada por el mismo problema de compatibilidad con iOS visto en la evaluación de arquitecturas. Los tres restantes se puntúan en la misma escala de 1 a 10 sobre cinco criterios declarados antes de comparar: consumo de radio en transmisión BLE (20 %), Wi-Fi integrado para actualización remota (20 %), concurrencia para separar la pila de radio de la temporización Modbus (15 %), ecosistema y documentación (25 %) y disponibilidad y costo en el mercado local (20 %).
+**Microcontrolador:** Se evaluaron cuatro candidatos: ESP32, nRF52840, STM32WB55 y ATmega328P+HC-05. Este último queda descartado de entrada por el mismo problema de compatibilidad con iOS visto en la evaluación de arquitecturas. Los tres restantes se puntúan en la misma escala de 1 a 10 sobre cinco criterios declarados antes de comparar: consumo de radio en transmisión BLE (20 %), actualización del firmware por Bluetooth (20 %), concurrencia para separar la pila de radio de la temporización Modbus (15 %), ecosistema y documentación (25 %) y disponibilidad y costo en el mercado local (20 %). Cada celda de la tabla es la nota del criterio y el puntaje ponderado, la suma de cada nota por su peso.
 
-| Microcontrolador | Consumo de radio en Tx BLE | Wi-Fi / OTA | Núcleos | Ecosistema | Disponibilidad y costo | Puntaje ponderado | Veredicto |
+| Microcontrolador | Consumo de radio en Tx BLE (20 %) | Actualización del firmware por Bluetooth (20 %) | Concurrencia (15 %) | Ecosistema y documentación (25 %) | Disponibilidad y costo (20 %) | Puntaje ponderado | Veredicto |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **STM32WB55** | ~5–6 mA | No | 2 | 5 | 4 | 5,65 | Descartado |
-| **nRF52840** | ~5–6 mA | No | 1 (ARM Cortex) | 7 | 5 | 5,90 | Descartado |
-| **ESP32-WROOM-32** | ~130–150 mA | **Sí (nativo)** | **2** | **10** | **10** | **8,80** | **Seleccionado** |
+| **STM32WB55** | 10 (~5–6 mA) | 8 | 8 (2 núcleos) | 5 | 4 | 6,85 | Descartado |
+| **nRF52840** | 10 (~5–6 mA) | 10 | 5 (1 núcleo) | 7 | 5 | 7,50 | Descartado |
+| **ESP32-WROOM-32** | 4 (~130–150 mA) | 7 | **10 (2 núcleos)** | **10** | **10** | **8,20** | **Seleccionado** |
 
 ###### **Tabla 1.6 “Comparativa de Microcontroladores”**
 
-* **Justificación de la Selección:** Los chips nRF52840 y STM32WB55 superan claramente al ESP32 en eficiencia de radio, y el proyecto lo reconoce. La elección del ESP32 se sostiene en tres razones prácticas: Wi-Fi integrado para actualizar el firmware por aire sin hardware adicional, una disponibilidad y un ecosistema de bibliotecas y documentación que reducen el riesgo y el plazo de desarrollo, y un costo de placa de desarrollo compatible con la BOM objetivo. Corresponde precisar dos límites de esta justificación. Primero, el doble núcleo es una capacidad útil para separar la pila de radio de la temporización Modbus, pero no es una condición necesaria: una implementación mononúcleo bien programada también puede sostener ambas tareas. Segundo, no se afirma una mejora porcentual de autonomía frente a nRF52840 o STM32WB55, porque una comparación así exigiría medir configuraciones completas de cada plataforma y no se ha realizado. El componente se utiliza en formato de placa de desarrollo, lo que facilita programación y montaje inicial, pero incorpora al balance energético el regulador, el LED de alimentación y el puente USB-UART de esa placa.
+* **Justificación de la Selección:** Los chips nRF52840 y STM32WB55 superan claramente al ESP32 en eficiencia de radio, y el proyecto lo reconoce. La elección del ESP32 se sostiene en los criterios de mayor peso: un ecosistema de bibliotecas y documentación que reduce el riesgo y el plazo de desarrollo, la disponibilidad en el mercado local y un costo de placa de desarrollo compatible con la BOM objetivo. En actualización del firmware por Bluetooth queda detrás del nRF52840, cuyo mecanismo de actualización por BLE es maduro: el ESP32 aporta las particiones y la API de actualización (`esp_ota_*`), pero el transporte por Bluetooth lo implementa el propio firmware ([`Firmware/PLAN.md`](../Firmware/PLAN.md)). El producto no usa el Wi-Fi integrado del ESP32. Corresponde precisar dos límites de esta justificación. Primero, el doble núcleo es una capacidad útil para separar la pila de radio de la temporización Modbus, pero no es una condición necesaria: una implementación mononúcleo bien programada también puede sostener ambas tareas. Segundo, no se afirma una mejora porcentual de autonomía frente a nRF52840 o STM32WB55, porque una comparación así exigiría medir configuraciones completas de cada plataforma y no se ha realizado. El componente se utiliza en formato de placa de desarrollo, lo que facilita programación y montaje inicial, pero incorpora al balance energético el regulador, el LED de alimentación y el puente USB-UART de esa placa.
 
 **Sonda de Suelo**: Aporta 7 de las 10 magnitudes del sistema, siendo la decisión más crítica y la línea de mayor peso del costo de materiales, más de dos tercios. Los criterios y sus pesos son: número de variables (30 %), exactitud declarada (25 %), viabilidad económica medida como costo por variable (30 %) y robustez para uso portátil (15 %). Se comparó la Sonda 7-en-1 RS-485 contra instrumentos de grado de investigación (METER TEROS 12, Delta-T WET150, Stevens HydraProbe).
 
@@ -506,7 +506,7 @@ Cerrando esta capa de decisiones, la siguiente tabla resume la selección vigent
 
 | Bloque | Selección vigente | Motivo e integración |
 | :---- | :---- | :---- |
-| Control | ESP32-WROOM-32 en placa de desarrollo | UART para Modbus, I²C ambiental, BLE hacia el teléfono, Wi-Fi para OTA |
+| Control | ESP32-WROOM-32 en placa de desarrollo | UART para Modbus, I²C ambiental y BLE hacia el teléfono, también para actualizar el firmware: el producto no usa Wi-Fi |
 | Suelo | Sonda 7-en-1 RS-485 Modbus RTU | Captura multiparamétrica; ficha, tensión y mapa de registros dependen del SKU |
 | Ambiente | Módulo Bosch BME280 I²C | Reúne temperatura del aire, humedad relativa y presión local |
 | Interfaz diferencial | SP3485 a 3,3 V | Adapta el UART del ESP32 al bus RS-485; requiere terminación y protección |
@@ -538,7 +538,7 @@ flowchart LR
 
 ##### **Figura 1.9 “Arquitectura Objetivo de TerraSense y Origen de Cada Dato”**
 
-La figura expresa el diseño objetivo completo. El decodificador de la trama, el guardado local y el transporte de las tres variables del BME280 ya existen en el repositorio del proyecto; la adquisición I²C en el firmware y la consulta de cinco días son trabajos de integración identificados más adelante en este mismo capítulo. No debe inferirse del diagrama que exista ya firmware terminado para todos los bloques.
+La figura expresa el diseño objetivo completo. El decodificador de la trama, el guardado local y el transporte de las tres variables del BME280 ya existen en el repositorio del proyecto, igual que la consulta de cinco días. El firmware del ESP32 ya arma la trama y lee el BME280, pero aún no lee la sonda de suelo y nada de él se ha probado en hardware. No debe inferirse del diagrama que exista ya firmware terminado para todos los bloques.
 
 **Arquitectura de Conectividad:**
 
@@ -592,18 +592,16 @@ Afirmar genéricamente que el sistema “funciona offline” no es verificable. 
 | Motor agronómico: diagnóstico y recomendación de labor | Ninguna | Las reglas y umbrales residen en el código de la aplicación, no en un servidor | Implementado |
 | Georreferenciación de la medición | Ninguna | Funciona con el GPS satelital del teléfono, que no requiere datos móviles | Implementado |
 | Guardado local y consulta del histórico ya almacenado | Ninguna | Funciona sobre el almacenamiento persistente del teléfono | Implementado |
-| Exportación del histórico local a archivo | Ninguna por diseño | El archivo se generaría en el propio teléfono, sin consultar ningún servidor | **Comprometida, no implementada** |
 | Creación de cuenta, inicio de sesión y recuperación de credenciales | Requiere internet | No disponible; la sesión ya iniciada permanece válida y permite seguir midiendo | Implementado |
-| Registro de un equipo nuevo en la cuenta | Requiere internet | No disponible; se completa al recuperar cobertura | Implementado |
+| Registro de un equipo nuevo en la cuenta | Requiere internet | No disponible; la vinculación se repite al recuperar cobertura | Implementado |
 | Sincronización y respaldo del histórico hacia la nube | Requiere internet | Las mediciones se encolan localmente y se envían al recuperar señal; no se pierde ninguna | Implementado |
-| Consola web de flota para asesores y cooperativas | Requiere internet | No disponible; es una herramienta de escritorio, no de terreno | Implementado |
 | Pronóstico meteorológico a cinco días | Requiere internet | La aplicación indica expresamente que el pronóstico no está disponible y no lo sustituye por un valor estimado | Implementado |
 
 ###### **Tabla 2.0 “Frontera Offline / Online del Sistema”**
 
 La regla que resume la tabla define el diseño completo: medir, diagnosticar, georreferenciar y guardar no dependen jamás de la cobertura; administrar la cuenta, respaldar y contextualizar con el clima previsto sí, y son funciones que el agricultor ejecuta antes o después de la jornada, no durante.
 
-Una sola fila no está implementada: la exportación del histórico a archivo. Se declara con su estado real porque el principio de soberanía del dato la compromete y porque la matriz normativa la utiliza como uno de los mecanismos con que se atiende el derecho del titular bajo la Ley N° 21.719. Su diseño no depende de la red, de modo que su columna de conectividad dice “ninguna por diseño”, pero mientras no exista no se cuenta entre las funciones disponibles. Queda registrada como pendiente en el [plan de validación](PLAN_VALIDACION.md).
+La tabla sólo lista funciones que existen. Ni la aplicación ni la consola web generan o exportan informes: el agricultor consulta su histórico en la aplicación, y la consola web es exclusiva del soporte técnico ([`Web/README.md`](../Web/README.md)).
 
 **Análisis de Viabilidad Económica:**
 
@@ -1117,7 +1115,7 @@ Este nivel de detalle no es ornamental. Un cambio de orden de bytes o de escala 
 | **GPIO21** | BME280 (SDA) | Bus de datos I²C |
 | **GPIO22** | BME280 (SCL) | Bus de reloj I²C |
 | **GPIO34** | Divisor R1/R2 100 kΩ / 100 kΩ, etiqueta VBat_Sense | Monitoreo analógico de batería (ADC1) |
-| **GPIO33** | Pulsador SW1 con resistencia de 10 kΩ | Emparejamiento y disparo de lectura |
+| **GPIO33** | Pulsador SW1 con resistencia de 10 kΩ | Abre la ventana de vinculación de 30 s (pulsación de 3 s) |
 | **GPIO25** | LED azul D2 (330 Ω) | Ventana de vinculación abierta |
 | **GPIO26** | LED verde D3 (330 Ω) | Encendido, vinculación y medición correctas |
 | **GPIO27** | LED rojo D4 (330 Ω) | Batería baja, vinculación rechazada y error de sonda |
@@ -1146,16 +1144,17 @@ Con el equipo encendido y el microcontrolador en reposo, el consumo no baja de l
 
 ##### **Figura 2.3 “Representación Conceptual de Carcasa”**
 
-La interfaz consta de luces indicadoras, un botón de muestreo y emparejamiento, un puerto USB-C de carga y un interruptor mecánico de encendido dimensionado para ser accionable incluso con guantes de trabajo pesados. Las luces comunican, mediante distintos patrones de encendido, los estados relevantes del equipo sin necesidad de abrir la aplicación:
+La interfaz consta de tres luces indicadoras, un zumbador, un botón de emparejamiento, un puerto USB-C de carga y un interruptor mecánico de encendido dimensionado para ser accionable incluso con guantes de trabajo pesados. El botón sólo abre la ventana de vinculación: la medición la pide la aplicación. Las luces y el zumbador comunican los estados relevantes del equipo sin necesidad de abrir la aplicación. En reposo permanecen apagados y en silencio, y cada color tiene un único significado: azul, vinculación; verde, operación correcta; rojo, necesita atención. La fuente de verdad de esta tabla es [`Firmware/README.md`](../Firmware/README.md#indicadores-led-y-sonoros):
 
-| Estado Operativo | Indicador Activo | Patrón de Señalización | Significado Técnico |
-| :---: | :---: | :---: | :---- |
-| **Buscando conexión** | 🔵 Azul | Pulso suave (1 Hz) | Encendido, emitiendo *advertising* a la espera de un enlace BLE. |
-| **Modo de emparejamiento** | 🔵 Azul | Parpadeo rápido (4 Hz) | Ventana de enlace abierta durante 30 s. |
-| **Enlazado y listo** | 🟢 Verde | Iluminación fija | Conexión BLE establecida correctamente con el teléfono. |
-| **Medición exitosa** | 🟢 Verde | Tres destellos rápidos | Lectura capturada y transmitida correctamente. |
-| **Batería baja** | 🔴 Rojo | Pulso lento (0,5 Hz) | Tensión de batería bajo el umbral de aviso; requiere recarga por USB-C. |
-| **Error de sonda** | 🔴 Rojo | Parpadeo rápido (2 Hz) | Fallo o tiempo de espera agotado en la comunicación Modbus. |
+| Estado Operativo | Indicador Activo | Patrón de Señalización | Sonido | Significado Técnico |
+| :---: | :---: | :---: | :---: | :---- |
+| **Encendido** | 🟢 Verde | Fijo durante 1 s, una vez | Un pitido corto | El equipo arrancó y está listo para vincularse o medir. |
+| **Ventana de vinculación** | 🔵 Azul | Parpadeo de 2 Hz durante 30 s | Un pitido corto al abrirse | Se mantuvo el botón 3 s; mientras dure, la aplicación puede vincular el equipo. |
+| **Vinculación confirmada** | 🟢 Verde | Tres destellos | Dos pitidos ascendentes | La aplicación registró el equipo y se lo confirmó. |
+| **Vinculación rechazada** | 🔴 Rojo | Tres destellos | Tono grave de 0,4 s | La ventana estaba cerrada o el identificador no corresponde al equipo. |
+| **Medición enviada** | 🟢 Verde | Tres destellos | Dos pitidos ascendentes | La lectura llegó al teléfono. |
+| **Error de sonda** | 🔴 Rojo | Tres destellos | Tono grave de 0,4 s | La lectura llegó sin datos de suelo: sonda desconectada, sin respuesta Modbus o con CRC inválido. |
+| **Batería baja** | 🔴 Rojo | Un destello corto cada 10 s | Dos tonos graves, sólo al entrar en batería baja | Tensión de batería bajo el umbral de aviso; requiere recarga por USB-C. |
 
 ###### **Tabla 4.3 “Interfaz Hardware”**
 
@@ -1244,8 +1243,8 @@ Corresponde declarar con precisión qué parte de esta arquitectura está constr
 | Función | Estado en el código revisado | Integración requerida |
 | :---- | :---- | :---- |
 | Suelo por BLE | Decodificador implementado, con identificador de formato | Contrastar con el firmware y la ficha de la sonda adquirida |
-| Ambiente local | Transporte resuelto: la trama de 20 bytes lleva las tres magnitudes y el decodificador las lee | Adquisición I²C en el firmware y captura real contra el sensor físico |
-| Grid 2×5 | Diez tarjetas locales en App y detalle web; N/P/K separados e informativos | Validar interfaz en dispositivo físico |
+| Ambiente local | Transporte resuelto: la trama de 20 bytes lleva las tres magnitudes y el decodificador las lee | Validar contra el sensor físico el driver I²C que ya tiene el firmware |
+| Grid 2×5 | Diez tarjetas locales en la App; el backoffice web muestra las mismas variables en filas desplegables; N/P/K separados e informativos | Validar interfaz en dispositivo físico |
 | Guardado ambiental | Resuelto: las tres magnitudes se guardan desde el BME280 y el VPD se deriva de ellas; sin sensor queda `NULL` | Verificar contra hardware real que los valores persistidos coinciden con el sensor |
 | Pronóstico | Solicita `forecast_days=6`; presenta las cinco fechas locales posteriores al día actual, con ausencias explícitas | Validar en campo; el resultado local no espera al pronóstico |
 | Fallo de red | El servicio devuelve valor nulo | Mantener la lectura local y distinguir "pronóstico no disponible" de "sin dato" |
@@ -1287,7 +1286,7 @@ Aislada de la interfaz de usuario, la envolvente física se enfoca en la estanqu
 ```mermaid
 flowchart TB
     subgraph C[Carcasa PETG impresa en 3D]
-        U[Pulsador y LED de estado]
+        U[Pulsador, LEDs y zumbador]
         E[ESP32 y placa portadora]
         P[PCB combinada USB-C carga y boost]
         L[LiPo protegida de 2000 mAh]
@@ -1506,7 +1505,7 @@ El marco regulatorio aplicable al proyecto TerraSense organiza su cumplimiento n
 
 **Datos, Seguridad de la Información y Accesibilidad:**
 
-* **Ley N° 19.628 y Ley N° 21.719 (Protección de Datos Personales, Chile) \[19\]:** Exigen consentimiento y garantizan derechos del titular. La **Ley N° 21.719 entra en vigor el 1 de diciembre de 2026**, por lo que el proyecto debe diseñarse directamente bajo ese marco y no bajo el régimen anterior. A nivel de arquitectura se aplica Seguridad a Nivel de Fila (*Row Level Security*) en la base de datos, garantizando aislamiento estricto por campo y rol, y los datos son exportables por el usuario. Corresponde precisar que el uso de RLS y autenticación ayuda a controlar accesos pero **no resuelve por sí solo todas las obligaciones de tratamiento**: deben definirse finalidad, información al titular, plazos de conservación, ejercicio de derechos y alojamiento de datos, con especial atención a la georreferenciación de campos, que constituye información sensible para el agricultor.
+* **Ley N° 19.628 y Ley N° 21.719 (Protección de Datos Personales, Chile) \[19\]:** Exigen consentimiento y garantizan derechos del titular. La **Ley N° 21.719 entra en vigor el 1 de diciembre de 2026**, por lo que el proyecto debe diseñarse directamente bajo ese marco y no bajo el régimen anterior. A nivel de arquitectura se aplica Seguridad a Nivel de Fila (*Row Level Security*) en la base de datos, garantizando aislamiento estricto por equipo y rol, y el titular ejerce sus derechos a través del correo de contacto que informa la aplicación. Corresponde precisar que el uso de RLS y autenticación ayuda a controlar accesos pero **no resuelve por sí solo todas las obligaciones de tratamiento**: deben definirse finalidad, información al titular, plazos de conservación, ejercicio de derechos y alojamiento de datos, con especial atención a la georreferenciación de campos, que constituye información sensible para el agricultor.
 * **ISO/IEC 27001:2022 e ISO/IEC 25010 \[20\]:** El desarrollo de la plataforma se rige por cifrado en tránsito (TLS) y en reposo, control de acceso segmentado y criterios internacionales de fiabilidad, usabilidad y mantenibilidad de software.
 * **WCAG 2.1, nivel AA \[21\]:** Pautas de accesibilidad digital implementadas en la app: contraste mínimo de 4,5:1 y prohibición del uso del color como único portador de información, razón por la cual el semáforo de diagnóstico siempre se acompaña de texto explicativo.
 
@@ -1532,7 +1531,7 @@ El listado anterior mezcla normas de cumplimiento legal ineludible en Chile con 
 | SUBTEL, Res. Exenta N° 1.985/2017 | Obligatoria (Chile) | Enlace BLE a +9 dBm (≈8 mW), con margen frente al límite aplicable | Medición en banda 2,4 GHz sobre la unidad ensamblada, **previa confirmación documental de cuál es el límite vigente y sobre qué magnitud se mide**. Criterio: cumplir el límite acreditado con margen. Evidencia: extracto de la resolución e informe de medición | Pendiente |
 | SUBTEL, Resolución N° 737/2025 | Obligatoria (Chile) | Verificación formal del producto terminado, con cargo al rubro de desarrollo y validación | Trámite ante la autoridad sectorial. Criterio: resolución favorable previa a la comercialización. Evidencia: expediente y resolución | Pendiente |
 | UN 38.3 / IEC 62133-2 | Obligatoria (transporte y comercialización de celdas de litio) | Celdas comerciales con certificación de origen y protección electrónica del cargador | Certificados del proveedor y ensayo de las protecciones. Criterio: certificados vigentes y corte por sobrecarga, sobredescarga y cortocircuito. Evidencia: certificados y acta de ensayo | Pendiente |
-| Ley N° 19.628 | Obligatoria (Chile) | Aislamiento por campo y rol; datos exportables por el titular | Pruebas de acceso cruzado entre cuentas y verificación de exportación. Criterio: cero lecturas de campos ajenos y exportación completa a solicitud. Evidencia: batería de pruebas de Row Level Security | Parcial: aislamiento implementado, exportación no implementada |
+| Ley N° 19.628 | Obligatoria (Chile) | Aislamiento por equipo y rol; derechos del titular atendidos a través del correo de contacto | Pruebas de acceso cruzado entre cuentas y registro de solicitudes. Criterio: cero lecturas de equipos ajenos y respuesta a cada solicitud del titular en el plazo legal. Evidencia: batería de pruebas de Row Level Security y registro de solicitudes | Parcial: aislamiento implementado, procedimiento de solicitudes pendiente |
 | Ley N° 21.719 | Obligatoria (Chile) | Registro de actividades de tratamiento y procedimiento escrito de notificación de vulneraciones | Revisión documental antes de abrir la primera cuenta comercial. Criterio: registro y procedimiento redactados con responsable designado. Evidencia: documentos firmados | Pendiente |
 | Ley N° 21.398 (“Pro Consumidor”) | Obligatoria (Chile) | Garantía legal de 6 meses más provisión del 5 % de BOM | Revisión legal de las condiciones y provisión contable. Criterio: cobertura ≥ 6 meses y provisión reservada. Evidencia: texto de garantía y asiento de provisión | Parcial |
 | Ley N° 19.496 | Obligatoria (Chile) | Declaración comercial como “diseñado conforme a IP67” hasta contar con ensayo | Auditoría del material comercial. Criterio: ninguna pieza declara IP67 certificado sin ensayo. Evidencia: material revisado y aprobado | Cumple |
@@ -1593,7 +1592,7 @@ Tres precisiones. La primera es de alcance: la verificación del usuario emplea 
 
 **Criterios de Cierre Técnico:**
 
-Para cerrar este capítulo corresponde declarar con precisión qué separa el diseño actual de un producto verificado. La PCB en KiCad tiene el ruteo iniciado pero no cerrado y el repositorio no incluye el código fuente del firmware del ESP32; la existencia de un esquema, de un decodificador o de un diagrama no sustituye el cierre técnico. Ese cierre requiere que la cadena completa produzca capturas verificables y que el montaje coincida con los componentes presupuestados:
+Para cerrar este capítulo corresponde declarar con precisión qué separa el diseño actual de un producto verificado. La PCB está ruteada y el primer lote pedido, pero no se ha armado ni probado, y el firmware del ESP32 aún no lee la sonda de suelo; la existencia de un esquema, de un decodificador o de un diagrama no sustituye el cierre técnico. Ese cierre requiere que la cadena completa produzca capturas verificables y que el montaje coincida con los componentes presupuestados:
 
 | Área | Comprobación propuesta | Evidencia que se conservará |
 | :---- | :---- | :---- |

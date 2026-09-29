@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Reescribe el bloque económico del README desde `modelo_reformulado.py`.
+"""Reescribe el bloque económico del README desde `modelo.py`.
 
 Sustituye tanto el bloque generado entre marcadores `<!-- FINANZAS:* -->` como
 el texto introductorio de viabilidad, para que el README no contradiga al informe.

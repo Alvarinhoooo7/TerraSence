@@ -413,6 +413,76 @@ sub(r"Supabase \(PostgreSQL \+ PostGIS\) \+ Consola Web", "Supabase (PostgreSQL)
     "Tabla 1.0: PostGIS retirado del producto")
 sub(r"soporte posventa y analítica multitemporal\.", "soporte posventa y consulta del histórico de cada equipo.",
     "Tabla 1.0: analítica multitemporal")
+# Producto vigente: no hay consola de flota ni perfiles de asesor o cooperativa, y ni la
+# aplicación ni la consola web generan o exportan informes. La consola web la usa sólo soporte.
+sub(r"Respaldo y Flota", "Respaldo y soporte", "Tabla 1.0: sin flota")
+sub(r"puede consultarlas, exportarlas y usarlas libremente", "puede consultarlas y usarlas libremente",
+    "principios: sin exportación")
+sub(r"^\| Exportación del histórico local \|[^\n]*\n", "", "frontera offline: sin exportación", re.M)
+sub(r"^\| Consola web de flota para asesores y cooperativas \|[^\n]*\n", "",
+    "frontera offline: sin consola de flota", re.M)
+sub(r"^\| Arquitectura multi-rol \|[^\n]*\|$",
+    "| Roles por equipo | Cada equipo tiene un administrador y usuarios aprobados por él; con seguridad a "
+    "nivel de fila, cada cuenta accede sólo a los equipos de los que es miembro. Los usuarios operan "
+    "únicamente desde la aplicación: la consola web es exclusiva del soporte técnico. |",
+    "digitalización: roles reales en lugar de multi-rol", re.M)
+sub(r"la exportación de datos por el titular, el aislamiento por rol ya implementado",
+    "la atención de los derechos del titular a través del correo de contacto que informa la aplicación, "
+    "el aislamiento por equipo y rol ya implementado", "Ley 19.628: sin exportación")
+# Interfaz del equipo segun el firmware vigente: tres luces y un zumbador, apagados en reposo.
+# El boton solo abre la ventana de vinculacion; la medicion la pide la aplicacion.
+sub(r"tres luces indicadoras, un botón de emparejamiento,", "tres luces indicadoras, un zumbador, un botón de emparejamiento,",
+    "interfaz: zumbador")
+sub(r"Las tres luces comunican, mediante distintos patrones de encendido, la totalidad de los estados relevantes "
+    r"del equipo sin necesidad de abrir la aplicación:",
+    "Las luces y el zumbador comunican los estados relevantes del equipo sin necesidad de abrir la aplicación. "
+    "En reposo permanecen apagados y en silencio, y cada color tiene un único significado: azul, vinculación; "
+    "verde, operación correcta; rojo, necesita atención:", "interfaz: reposo y significado de cada color")
+TABLA_INTERFAZ = [
+    "| Estado Operativo | Indicador Activo | Patrón de Señalización | Sonido | Significado Técnico |",
+    "| Encendido | 🟢 Verde | Fijo durante 1 s, una vez | Un pitido corto | El equipo arrancó y está listo para vincularse o medir. |",
+    "| Ventana de vinculación | 🔵 Azul | Parpadeo de 2 Hz durante 30 s | Un pitido corto al abrirse | Se mantuvo el botón 3 s; mientras dure, la aplicación puede vincular el equipo. |",
+    "| Vinculación confirmada | 🟢 Verde | Tres destellos | Dos pitidos ascendentes | La aplicación registró el equipo y se lo confirmó. |",
+    "| Vinculación rechazada | 🔴 Rojo | Tres destellos | Tono grave de 0,4 s | La ventana estaba cerrada o el identificador no corresponde al equipo. |",
+    "| Medición enviada | 🟢 Verde | Tres destellos | Dos pitidos ascendentes | La lectura llegó al teléfono. |",
+    "| Error de sonda | 🔴 Rojo | Tres destellos | Tono grave de 0,4 s | La lectura llegó sin datos de suelo: sonda desconectada, sin respuesta Modbus o con CRC inválido. |",
+    "| Batería baja | 🔴 Rojo | Un destello corto cada 10 s | Dos tonos graves, sólo al entrar en batería baja | Tensión de batería bajo el umbral de aviso; requiere recarga por USB-C. |",
+]
+exigir(r"^\| Estado Operativo \| Indicador Activo \|.*?(?=^\*\*Tabla \d+\.\d+ “\s*Interfaz Hardware)",
+       lambda m: tabla_completa(TABLA_INTERFAZ), "interfaz: tabla de luces y sonidos del firmware", re.S | re.M)
+# El firmware se actualiza por Bluetooth desde la aplicacion: el producto no usa Wi-Fi.
+sub(r"^\| Actualización remota \(OTA\) \|[^\n]*\|$",
+    "| Actualización remota (OTA) | El firmware se actualiza por Bluetooth desde la aplicación, sin Wi-Fi: la "
+    "consola web de soporte publica cada versión y la aplicación la transfiere al equipo. El mapa de registros "
+    "Modbus, la dirección del esclavo y los coeficientes de calibración se diseñan para residir en la memoria no "
+    "volátil del microcontrolador y ajustarse por esa misma vía, sin reemplazar el firmware completo; la app "
+    "móvil se distribuye por los canales estándar de actualización de cada tienda de aplicaciones. |",
+    "digitalización: OTA por Bluetooth, sin Wi-Fi", re.M)
+# Matriz de microcontroladores: el criterio de Wi-Fi para OTA pasa a actualizacion del firmware por
+# Bluetooth, porque el producto no usa Wi-Fi. La tabla muestra la nota de cada criterio; los demas
+# criterios conservan las notas con que se calcularon los puntajes originales.
+sub(r"Wi-Fi integrado para actualización remota \(20 %\)", "actualización del firmware por Bluetooth (20 %)",
+    "microcontroladores: criterio de actualización por Bluetooth")
+sub(r"disponibilidad y costo en el mercado local \(20 %\)\.",
+    "disponibilidad y costo en el mercado local (20 %). Cada celda de la tabla es la nota del criterio y el "
+    "puntaje ponderado, la suma de cada nota por su peso.", "microcontroladores: cómo leer la tabla")
+TABLA_MCU = [
+    "| Microcontrolador | Consumo de radio en Tx BLE (20 %) | Actualización del firmware por Bluetooth (20 %) | Concurrencia (15 %) | Ecosistema y documentación (25 %) | Disponibilidad y costo (20 %) | Puntaje ponderado | Veredicto |",
+    "| STM32WB55 | 10 (~5–6 mA [8]) | 8 | 8 (2 núcleos) | 5 | 4 | 6,85 | Descartado |",
+    "| nRF52840 | 10 (~5–6 mA [9]) | 10 | 5 (1 núcleo) | 7 | 5 | 7,50 | Descartado |",
+    "| ESP32 | 4 (~130–150 mA [19]) | 7 | 10 (2 núcleos) | 10 | 10 | 8,20 | Seleccionado |",
+]
+exigir(r"^\| Microcontrolador \| Consumo de radio en Tx BLE \|.*?(?=^\*\*Tabla \d+\.\d+ “\s*Comparativa de Microcontroladores)",
+       lambda m: tabla_completa(TABLA_MCU), "microcontroladores: tabla con la nota de cada criterio", re.S | re.M)
+sub(r"A cambio de resignar ese porcentaje, el ESP32 aporta Wi-Fi integrado.*?para proyectos basados en este "
+    r"microcontrolador\.",
+    "A cambio de resignar ese porcentaje, el ESP32 gana en los criterios de mayor peso: el ecosistema de "
+    "desarrollo y el soporte de la comunidad, la disponibilidad y el costo en el mercado local, y el doble núcleo "
+    "para sostener la temporización de la sonda sin perder el Bluetooth. En actualización del firmware por "
+    "Bluetooth queda detrás del nRF52840, cuyo mecanismo de actualización por BLE es maduro: el ESP32 aporta las "
+    "particiones y la interfaz de actualización, pero el transporte por Bluetooth lo implementa el propio "
+    "firmware. El producto no usa el Wi-Fi integrado del ESP32; el firmware se actualiza por Bluetooth desde la "
+    "aplicación.", "microcontroladores: justificación sin Wi-Fi", re.S)
 # Introduccion: el PDF corta la ultima oracion a mitad de palabra
 sub(r"con comparación a cinco años, el marco norm(?!ativo)\s*\d*",
     "con comparación a cinco años, el marco normativo y el protocolo de validación experimental que "
@@ -501,7 +571,7 @@ TABLA_NORMATIVA = [
     "| SUBTEL, Res. Exenta N° 1.985/2017 | Obligatoria (Chile) | Enlace BLE a +9 dBm (≈8 mW), con margen frente al límite aplicable | Medición en banda 2,4 GHz sobre la unidad ensamblada, previa confirmación documental de cuál es el límite vigente y sobre qué magnitud se mide. Criterio: cumplir el límite acreditado con margen. Evidencia: extracto de la resolución vigente e informe de medición | Pendiente |",
     "| SUBTEL, Resolución N° 737/2025 | Obligatoria (Chile) | Verificación formal del producto terminado, con cargo al rubro de desarrollo y validación | Trámite formal de verificación ante la autoridad sectorial. Criterio: resolución favorable previa a la comercialización. Evidencia: expediente y resolución | Pendiente |",
     "| UN 38.3 / IEC 62133-2 | Obligatoria (transporte y comercialización de celdas de litio) | Celdas comerciales con certificación de origen y protección electrónica del cargador | Solicitud de certificados al proveedor de celdas y ensayo de las protecciones del cargador. Criterio: certificados vigentes y corte por sobrecarga, sobredescarga y cortocircuito. Evidencia: certificados y acta de ensayo | Pendiente |",
-    "| Ley N° 19.628 (Protección de la Vida Privada) | Obligatoria (Chile) | Aislamiento por campo y rol; datos exportables por el titular | Pruebas de acceso cruzado entre cuentas y verificación de exportación. Criterio: cero lecturas de campos ajenos y exportación completa a solicitud del titular. Evidencia: batería de pruebas de aislamiento | Parcial: aislamiento implementado, exportación pendiente |",
+    "| Ley N° 19.628 (Protección de la Vida Privada) | Obligatoria (Chile) | Aislamiento por equipo y rol; derechos del titular atendidos a través del correo de contacto | Pruebas de acceso cruzado entre cuentas y registro de solicitudes. Criterio: cero lecturas de equipos ajenos y respuesta a cada solicitud del titular en el plazo legal. Evidencia: batería de pruebas de aislamiento y registro de solicitudes | Parcial: aislamiento implementado, procedimiento de solicitudes pendiente |",
     "| Ley N° 21.719 (Protección de Datos Personales) | Obligatoria (Chile) | Registro de actividades de tratamiento y procedimiento escrito de notificación de vulneraciones | Revisión documental antes de abrir la primera cuenta comercial. Criterio: registro y procedimiento redactados, con responsable designado. Evidencia: documentos firmados | Pendiente |",
     "| Ley N° 21.398 (“Pro Consumidor”) | Obligatoria (Chile) | Garantía legal de 6 meses más provisión del 5 % de BOM para atenderla | Revisión legal de las condiciones de garantía y provisión contable. Criterio: cobertura ≥ 6 meses y provisión del 5 % de BOM reservada. Evidencia: texto de garantía y asiento de provisión | Parcial |",
     "| Ley N° 19.496 (Protección al Consumidor) | Obligatoria (Chile) | Declaración comercial como “diseñado conforme a IP67” hasta contar con ensayo de laboratorio | Auditoría del material comercial. Criterio: ninguna pieza declara IP67 certificado mientras no exista ensayo. Evidencia: material revisado y aprobado | Cumple |",

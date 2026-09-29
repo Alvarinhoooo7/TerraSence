@@ -2,40 +2,39 @@
 
 > Documentación de la aplicación móvil. El informe académico de la raíz contiene la ingeniería conceptual, la evaluación económica y el marco normativo del proyecto.
 
-<a id="interfaz-e-integración-actualizadas-al-11-09-2026"></a>
+## Interfaz y captura
 
-## Interfaz e integración actualizadas al 19-09-2026
+**Interfaz:** el primer inicio sigue **carga → idioma → carrusel → acceso**. Combina tipografía protagonista, verde bosque e ilustraciones de suelo y tecnología, con versiones clara y oscura.
 
-**Mejoras Visuales (UI/UX Premium):**
-Se rediseñó el flujo completo de inicio (Onboarding, Login, Permisos, Recuperación) integrando animaciones fluidas con `react-native-reanimated` y feedback táctil con `expo-haptics`.
-- **Carrusel y Bienvenida:** Paginación suave, transiciones de entrada escalonadas y arte animado.
-- **Autenticación:** Formularios reactivos con `LinearTransition`, campos con validación visual y transiciones de estados limpias.
+- **Carga e idioma:** logo grande y rueda de carga; selección Español/English guardada antes de avanzar.
+- **Carrusel:** tres composiciones SVG adaptadas al espacio que deja el texto, navegación horizontal, indicadores y acciones visibles.
+- **Autenticación:** registro en dos pasos, campos con validación y acciones fuera del contenido desplazable. El contenedor contempla áreas seguras y teclado; conserva desplazamiento cuando el texto ampliado o el teclado reducen el espacio. Las transiciones respetan reducción de movimiento.
 - **Onboarding de Equipos y Permisos:** Separación visual clara mediante tarjetas interactivas que responden a la presión con feedback háptico y escalas sutiles.
 
-El Grid **2×5 tiene dos columnas y cinco filas**, con una tarjeta por variable y diez registros locales en total.
+El Grid **2×5** muestra una tarjeta por variable, diez en total, en dos columnas. En pantallas de
+menos de 360 px o con letra ampliada (escala sobre 1,3) pasa a una sola columna. El orden es el de
+`PARAMETER_KEYS` en [`measurementPresentation.ts`](src/engine/measurementPresentation.ts):
 
 | Fila | Columna 1 | Columna 2 |
 |---|---|---|
-| 1 | Humedad del suelo | Conductividad eléctrica del suelo |
-| 2 | Temperatura del suelo | Nitrógeno (N) |
-| 3 | Fósforo (P) | Potasio (K) |
-| 4 | pH del suelo | Temperatura ambiente (BME280) |
-| 5 | Humedad relativa ambiente (BME280) | Presión atmosférica ambiente (BME280) |
+| 1 | Humedad del suelo | Temperatura del suelo |
+| 2 | pH del suelo | Conductividad eléctrica |
+| 3 | Nitrógeno (N) | Fósforo (P) |
+| 4 | Potasio (K) | Temperatura ambiente (BME280) |
+| 5 | Humedad ambiente (BME280) | Presión atmosférica (BME280) |
 
-N, P y K se muestran por separado como registros informativos, sin atribuirles selectividad química o capacidad para prescribir dosis de fertilizante. Estado, batería y completitud van fuera de estas diez tarjetas. El pronóstico a cinco días se presenta aparte. Si falta una lectura ambiental, se indica su ausencia; no se sustituye por datos de internet. **El Grid está implementado en la App y en el detalle web; la validación física sigue pendiente.**
+N, P y K se muestran por separado como registros informativos rotulados **Sin validar**, sin atribuirles selectividad química ni prescribir dosis. Si falta una lectura ambiental, se indica su ausencia; no se sustituye por datos de internet. Batería, fecha de captura y completitud del ambiente van fuera de las tarjetas, y el pronóstico a cinco días aparte, sin bloquear la presentación ni el guardado local.
 
-La captura y el historial muestran diez tarjetas en dos columnas. Las tres variables ambientales proceden del equipo; batería, fecha y completitud se muestran aparte. El pronóstico se consulta sin bloquear la presentación ni el guardado local.
+El mismo explorador ([`MeasurementExplorer`](src/components/MeasurementExplorer.tsx)) se usa en la medición, en el Inicio y en el detalle del historial. La consola web muestra las mismas diez variables, pero como filas desplegables, no como Grid ([Web](../Web/README.md#2-pantallas)).
 
-- Implementado: Grid, unidades, NULL, origen, fecha de captura, batería e historial de las diez variables.
+- Implementado: Grid, unidades, ausencias, origen, fecha de captura, batería e historial de las diez variables.
 - Probar captura, diagnóstico y guardado en modo avión; no bloquear el resultado por la consulta meteorológica.
 - Probar sesión previa, falta de GPS, reinicio, sincronización y accesibilidad.
-- Mantener N/P/K informativos y el estado metrológico visible.
-
-Queda pendiente validar el recorrido completo con hardware.
+- Validar el recorrido completo con hardware.
 
 ### Captura, historial y pronóstico: contrato implementado
 
-Las tarjetas conservan el orden de la tabla anterior: humedad (%), CE (µS/cm), temperatura de suelo, N, P, K, pH, temperatura ambiente, humedad relativa (%) y presión (hPa). Las temperaturas se muestran en °C o °F según la preferencia; los registros nominales N/P/K en mg/kg se rotulan **Sin validar**, sin prescribir dosis. Estado, batería, fecha y completitud se presentan fuera del Grid.
+Las temperaturas se muestran en °C o °F según la preferencia.
 
 Las tres magnitudes ambientales, `battery_percent`, `measured_at` y `diagnosis` sobreviven al guardado, consulta, caché, cola offline e historial. Los registros antiguos sin ambiente o batería siguen siendo legibles y muestran ausencia. `diagnosis.localSource = 'probe-bme280-v1'` identifica las capturas del nuevo flujo; no permite atribuir el mismo origen a históricos sin esa marca. `measured_at` conserva la recepción de la lectura en el celular, aunque la sincronización ocurra más tarde.
 
@@ -45,7 +44,7 @@ El GPS procede del celular y se espera como máximo cinco segundos. Si no entreg
 
 La trama de producto es de **20 bytes**, con diez variables, batería y formato. La trama de 16 bytes sólo se tolera para prototipos sin BME280. Una respuesta BLE válida confirma presencia en ese instante; el enlace se cierra después para permitir reposo y no se afirma conexión permanente ni internet del ESP32. Ver [contrato BLE](../docs/CONTRATO_BLE.md) y [persistencia en Supabase](../supabase/README.md#persistencia-ambiental-y-bateria).
 
-La entrega del 11-09-2026 pasó `npm run type-check` y las **55 pruebas** de `npm test`, incluidas `probeTelemetry`, `environmentHistory` y `weatherService`. Cubren v0/v1, centinelas, negativos, rangos, batería, BLE → fila → historial, históricos sin ambiente, cinco fechas con cambio de mes, pronóstico parcial y fallo de red. Son resultados de esa entrega, no una certificación física; [pruebas pendientes](../docs/PLAN_VALIDACION.md#5-dependencias-y-comprobaciones-de-software).
+`probeTelemetry`, `environmentHistory` y `weatherService` (dentro de `npm test`, §9) cubren v0/v1, el centinela sin suelo y los de ambiente, negativos, rangos, batería, BLE → fila → historial, históricos sin ambiente, cinco fechas con cambio de mes, pronóstico parcial y fallo de red. Son pruebas de lógica, no una certificación física; [pruebas pendientes](../docs/PLAN_VALIDACION.md#5-dependencias-y-comprobaciones-de-software).
 
 
 ---
@@ -54,14 +53,18 @@ Aplicación móvil de terreno desarrollada en **React Native 0.86 + React 19.2 +
 
 ### Aceptación previa al registro móvil
 
-Al enviar un formulario de registro válido se abre el
+El registro pide nombre y correo en el primer paso, y contraseña y confirmación en el
+segundo. Al pulsar «Revisar y crear cuenta» con datos válidos se abre el
 [panel de términos y privacidad](src/components/RegistrationConsentModal.tsx).
 La solicitud de creación de cuenta se realiza únicamente después de llegar al final
-del contenido, marcar las dos casillas y pulsar «Continuar». El botón permanece
-visible en la parte inferior. Antes de llegar al final, «Continuar» no está bloqueado:
+del contenido, marcar las dos casillas y pulsar «Aceptar y crear cuenta». Esta acción
+envía el registro directamente. El botón permanece visible en la parte inferior.
+Antes de llegar al final, la acción se llama «Leer hasta el final»:
 desplaza el texto hasta el final a una velocidad legible, y sólo entonces se habilitan
 las casillas. Arrastrar el texto interrumpe ese desplazamiento asistido. Cancelar vuelve
 al formulario sin enviar la solicitud; al reabrir, las casillas vuelven a estar vacías.
+Una aceptación ya enviada se conserva para reintentar si falla la red; cambiar el
+nombre, el correo o el flujo obliga a revisarla de nuevo.
 Si todo el contenido cabe en pantalla, no se exige un desplazamiento imposible. El inicio
 de sesión, la recuperación y la consola web no incorporan este paso.
 
@@ -97,7 +100,7 @@ Es la herramienta central que el agricultor y los operadores llevan al campo: se
 > - **N, P y K se muestran como registros numéricos informativos sin validar**, sin prescribir fertilización ni afirmar selectividad química.
 > - **El motor no calcula dosis de cal en kg/ha ni costos por hectárea.** Esas salidas se retiraron.
 > - **El tiempo de respuesta extremo a extremo no está medido.** No citar «5 segundos».
-> - **Probar BLE exige un build nativo**; `npm run android` no lo compila.
+> - **Probar BLE exige un build nativo** (`npm run android`, que ejecuta `expo run:android`, o un build de EAS); Expo Go no trae el módulo BLE.
 
 > [!IMPORTANT]
 > **Documentación del Repositorio:**
@@ -116,7 +119,7 @@ Es la herramienta central que el agricultor y los operadores llevan al campo: se
 - [4. Pantallas y Navegación](#4-pantallas-y-navegación)
   - [4.1. Bienvenida y Autenticación](#41-bienvenida-y-autenticación)
   - [4.2. Onboarding y Gobernanza de Equipos](#42-onboarding-y-gobernanza-de-equipos)
-  - [4.3. Flujo de Medición: Selección de Fase y Carrusel Post-Medición](#43-flujo-de-medición-selección-de-fase-y-carrusel-post-medición)
+  - [4.3. Flujo de Medición: Selección de Fase y Resultados](#43-flujo-de-medición-selección-de-fase-y-resultados)
   - [4.4. Historial de mediciones](#44-historial-de-mediciones)
 - [5. Motor Agronómico y Reglas de Decisión](#5-motor-agronómico-y-reglas-de-decisión)
   - [5.1. Etapas Fenológicas Obligatorias](#51-etapas-fenológicas-obligatorias)
@@ -134,9 +137,9 @@ Es la herramienta central que el agricultor y los operadores llevan al campo: se
 
 ## 1. Flujo de Usuario y Capacidades Clave
 
-1. **Carrusel de Bienvenida (`WelcomeCarouselScreen`):** Tres tarjetas informativas (*Quiénes somos*, *Qué hacemos* y *Por qué lo hacemos*) antes de ingresar a la cuenta.
-2. **Acceso y Recuperación de Clave:** Inicio de sesión, registro y recuperación por código de correo, con `EmailCodeScreen` y `ResetPasswordScreen`. El deep link nativo se conserva para correos antiguos.
-3. **Permisos (`PermissionsScreen`):** Después de iniciar sesión o confirmar la cuenta y antes de vincular equipos, explica Bluetooth, ubicación, cámara y notificaciones. Cada solicitud es voluntaria y explícita; continuar registra la revisión, no concede permisos.
+1. **Carga, idioma y bienvenida:** `LoadingScreen`, `LanguageScreen` y tres páginas de `WelcomeCarouselScreen`: conocer el suelo, conectar y medir, e interpretar con contexto. Se recuerda el idioma y la bienvenida por instalación.
+2. **Acceso y Recuperación de Clave:** Inicio de sesión, registro en dos pasos y recuperación por código de correo, con `EmailCodeScreen` y `ResetPasswordScreen`. El deep link nativo se conserva para correos antiguos.
+3. **Permisos (`PermissionsScreen`):** Después de iniciar sesión o confirmar la cuenta y antes de vincular equipos, explica qué usa cada función (Bluetooth, ubicación, cámara y notificaciones) sin pedir nada. Cada permiso se pide al usar su función (§4.1).
 4. **Onboarding Dual de Equipos:**
    - **Primer Propietario (Owner):** Vinculación física por BLE: la app lee el ID de 15 dígitos que la sonda deriva de su MAC (con la ventana PAIR abierta) y registro atómico en Supabase (`register_paired_device`).
    - **Usuarios:** escanean el QR temporal mostrado por cualquier miembro aprobado o ingresan su código de invitación en el onboarding. Quedan en una pantalla de espera hasta que el administrador apruebe su ingreso. El QR y su código vencen juntos; el ID permanente no concede acceso.
@@ -146,10 +149,8 @@ Es la herramienta central que el agricultor y los operadores llevan al campo: se
    - **Vegetativo**
    - **Floración**
    - **Cosecha**
-7. **Captura BLE y meteorológica:** Recordatorio preventivo de limpieza de electrodos (`CalibrationReminderModal`), conexión por BLE a la sonda, lectura de la trama GATT (16 o 20 bytes según su versión) y consulta meteorológica. La consulta requiere red y no tiene caché: si falla, la medición se registra igual y el diagnóstico se emite **sin contexto climático**.
-8. **Carrusel de Resultados Post-Medición:**
-   - **Página 1 (Grid 2×5 Semáforo):** Cuadrícula con las variables medidas en verde (óptimo), naranjo (precaución) y rojo (riesgo). Al tocar cualquier parámetro, se despliega una explicación detallada con advertencias, causas y acciones concretas para mejorarlo según la fase activa.
-   - **Página 2 (Recomendación Integral Globalizada):** Diagnóstico de conjunto que combina suelo, etapa del cultivo y pronóstico del clima (olas de calor, heladas, lluvias, qué sembrar o cuidados de la planta en crecimiento). Aquí finaliza el carrusel para Vegetativo, Floración y Cosecha.
+7. **Captura BLE y meteorológica:** conexión por BLE a la sonda, lectura de la trama GATT de 20 bytes y consulta meteorológica. La consulta requiere red y no tiene caché: si falla, la medición se registra igual y el diagnóstico se emite **sin contexto climático**.
+8. **Resultados (una pantalla):** el veredicto de la fase; un resumen con pestañas *Resumen*, *Qué hacer* y *Qué revisar* y el **plan global**, que combina suelo, etapa y pronóstico; el Grid 2×5 con semáforo, donde cada tarjeta abre su detalle (*Estado*, *Recomendación*, *Control*); el pronóstico de cinco días; y **Guardar resultado**. Al guardar aparece el recordatorio de limpiar los electrodos (`CalibrationReminderModal`).
 9. **Historial de Mediciones (`HistoryScreen`):** Lista cronológica de todas las etapas, con filtros, estado de sincronización y detalle del diagnóstico. No incluye visualización cartográfica.
 
 ---
@@ -162,7 +163,7 @@ El agricultor agrícola opera habitualmente en zonas rurales sin conectividad ce
 | :--- | :--- |
 | **Sin Conexión a Internet** | La app inicia desde la caché persistente de Zustand/AsyncStorage (`useAuthStore`). Conecta por BLE, evalúa el suelo localmente, genera la recomendación, guarda la lectura y la encola con un `client_uuid` único. |
 | **Sin Señal de Satélites GPS** | Emite un aviso no bloqueante; la medición se registra con fecha, hora y cultivo, guardándose localmente sin coordenadas geográficas. |
-| **Sin Sonda Física Presente (Demo/Prueba)** | Permite simular lecturas con una **bandera visual visible y permanente** en pantalla para no confundir datos ficticios con mediciones reales. |
+| **Sin Sonda Física Presente (sólo en desarrollo)** | En un build de desarrollo sin equipo vinculado, o sin el módulo BLE nativo (Expo Go), simula lecturas con una **bandera visual visible y permanente**. En producción, medir sin sonda vinculada es un error (`readSoilProbe` en `probeService.ts`). |
 | **Recuperación de Cobertura** | El componente `OfflineBanner` detecta el regreso de internet y `measurementsService` vacía la cola en segundo plano mediante upsert idempotente. |
 
 ---
@@ -171,106 +172,86 @@ El agricultor agrícola opera habitualmente en zonas rurales sin conectividad ce
 
 ```text
 App/
-├── App.tsx                             # Enrutador de estado raíz (Auth, Onboarding, Navegación)
+├── App.tsx                             # Enrutador de estado raíz (idioma, bienvenida, acceso, permisos, onboarding, navegación)
 ├── index.ts                            # Punto de entrada de Expo
 ├── app.config.js                       # Configuración Expo, permisos nativos y deep linking
-├── package.json                        # Dependencias (React Native 0.86, Expo SDK 57, Zustand)
+├── package.json                        # Dependencias (React Native 0.86, Expo SDK 57, Zustand) y lista de pruebas
 ├── tsconfig.json                       # Configuración TypeScript estricta
+├── plugins/                            # Plugins de configuración nativa (permisos de arranque, seguridad Android)
+├── scripts/
+│   ├── verify-supabase-onboarding.mjs  # Verificación E2E remota contra Supabase
+│   ├── generate-brand-assets.mjs       # Genera src/components/brandAsset.ts desde el logo
+│   └── check-npm-audit.mjs             # Revisión de vulnerabilidades de dependencias
 ├── src/
-│   ├── constants/
-│   │   └── theme.ts                    # Paleta de colores semáforo, tipografía y estilos
-│   ├── types/
-│   │   ├── agronomy.ts                 # Tipos de fenología, 8 cultivos y umbrales biofísicos
-│   │   ├── app.ts                      # Interfaces de estado global, mediciones y sincronización
-│   │   └── preferences.ts              # Preferencias de usuario (tema, idioma, unidades)
+│   ├── constants/                      # theme.ts (paleta semáforo, tipografía) y motion.ts (animaciones)
+│   ├── types/                          # agronomy.ts, app.ts y preferences.ts
 │   ├── engine/
 │   │   ├── agronomyEngine.ts           # Motor de reglas biofísicas deterministas
 │   │   ├── stageEvaluator.ts           # Reponderación de umbrales según fase fenológica
-│   │   └── contextualAdvice.ts         # Generador de recomendaciones globales y por parámetro
-│   ├── store/
-│   │   ├── useAppStore.ts              # Estado global de la aplicación (Zustand)
-│   │   └── useAuthStore.ts             # Sesión de usuario con caché offline en AsyncStorage
-│   ├── hooks/
-│   │   ├── useAppTheme.ts              # Hook de tema (Sistema / Claro / Oscuro)
-│   │   └── useTranslation.ts           # Hook de idioma (Español / Inglés)
+│   │   ├── contextualAdvice.ts         # Recomendaciones globales y por parámetro
+│   │   └── measurementPresentation.ts  # Parámetros del Grid 2×5 y su presentación
+│   ├── store/                          # useAppStore.ts y useAuthStore.ts (sesión con caché offline)
+│   ├── hooks/                          # useAppTheme, useTranslation y useMeasurementHistory
 │   ├── screens/
+│   │   ├── LanguageScreen.tsx          # Selector de idioma inicial y desde bienvenida/acceso
 │   │   ├── WelcomeCarouselScreen.tsx   # Carrusel informativo inicial
 │   │   ├── AuthScreen.tsx              # Inicio de sesión, registro y solicitud de clave
-│   │   ├── ResetPasswordScreen.tsx     # Formulario de nueva contraseña tras deep link
-│   │   ├── OnboardingScreen.tsx        # Alta BLE de administrador o solicitud mediante QR
-│   │   ├── DashboardScreen.tsx         # Pantalla principal con botón central "Medir"
-│   │   ├── MeasureScreen.tsx           # Selección de fase → BLE → Carrusel de 2 ó 3 páginas
-│   │   ├── HistoryScreen.tsx           # Historial cronológico y detalle de las cuatro etapas
-│   │   ├── DevicesScreen.tsx           # Gestión de equipos vinculados y roles
-│   │   └── FieldSettingsScreen.tsx     # Cuenta, equipos y preferencias
-│   ├── components/
-│   │   ├── CalibrationReminderModal.tsx # Modal que recuerda limpiar electrodos de la sonda
-│   │   ├── OfflineBanner.tsx           # Barra discreta ante corte de internet
-│   │   ├── ScreenGuide.tsx             # Botón '?' con guía de uso por pantalla
-│   │   └── MeasurementDetailModal.tsx  # Modal detallado con badge de sincronización
+│   │   ├── EmailCodeScreen.tsx         # Código de 6 dígitos: confirmación y recuperación
+│   │   ├── ResetPasswordScreen.tsx     # Nueva contraseña
+│   │   ├── PermissionsScreen.tsx       # Explicación inicial de permisos (no solicita nada)
+│   │   ├── OnboardingScreen.tsx        # Vinculación BLE del primer administrador o ingreso por QR
+│   │   ├── WaitingApprovalScreen.tsx   # Espera de aprobación del administrador
+│   │   ├── DashboardScreen.tsx         # Inicio con el botón "Medir"
+│   │   ├── MeasureScreen.tsx           # Selección de fase → BLE → carrusel de resultados
+│   │   ├── HistoryScreen.tsx           # Historial de las cuatro etapas
+│   │   ├── FieldSettingsScreen.tsx     # Menú de Ajustes
+│   │   ├── SettingsDetails.tsx         # Submenús de Ajustes
+│   │   ├── ProfileScreen.tsx           # Perfil y cambio de contraseña
+│   │   ├── DevicesScreen.tsx           # Equipos, registro BLE y QR temporal
+│   │   └── AdministrationScreen.tsx    # Miembros: aprobación, delegación y eliminación
+│   ├── components/                     # Modales, banner offline, guía por pantalla, QR, radar BLE, UI de acceso y Ajustes
 │   ├── services/
-│   │   ├── bleService.ts               # Escaneo BLE, conexión GATT notify y desconexión segura
-│   │   ├── probeService.ts             # Decodificación de trama BLE v0/v1 Big-Endian
+│   │   ├── bleService.ts               # Escaneo, vinculación, confirmación y telemetría BLE
+│   │   ├── probeService.ts             # UUID GATT y decodificación de la trama y del estado
+│   │   ├── contactService.ts           # Informe de cada contacto con la sonda (report_device_contact)
 │   │   ├── measurementsService.ts      # Cola offline en AsyncStorage y sincronización Supabase
-│   │   ├── deviceService.ts            # Registro y gestión de membresías de equipos
-│   │   ├── onboardingService.ts        # Persistencia de estado de onboarding en Supabase
-│   │   ├── preferencesService.ts       # Preferencias de usuario locales y en la nube
-│   │   ├── weatherService.ts           # Consulta resiliente a la API de Open-Meteo
-│   │   ├── authDeepLink.ts             # Captura del esquema tierrasense://reset-password
-│   │   ├── authDeepLinkParser.ts       # Procesamiento de tokens del enlace de correo
-│   │   ├── notifications.ts            # Registro de tokens de notificaciones push
+│   │   ├── deviceService.ts            # Registro, membresías y preparación de equipos
+│   │   ├── onboardingService.ts        # Estado de onboarding en Supabase
+│   │   ├── permissionsService.ts       # Estado y solicitud de permisos del sistema
+│   │   ├── preferencesService.ts       # Preferencias locales y en la nube
+│   │   ├── weatherService.ts           # Pronóstico de Open-Meteo y su degradación sin red
+│   │   ├── emailOtp.ts                 # Códigos de correo de 6 dígitos
+│   │   ├── authDeepLink.ts / authDeepLinkParser.ts  # Enlaces de recuperación antiguos
+│   │   ├── notifications.ts            # Tokens y avisos push
+│   │   ├── recommendationsService.ts   # Punto de conexión opcional, sin proveedor configurado
 │   │   └── supabase.ts                 # Cliente Supabase tipado
-│   └── utils/
-│       ├── deviceCode.ts               # Validación y formato de códigos de 15 dígitos
-│       ├── deviceId.ts                 # Identificadores canónicos de hardware
-│       ├── onboardingState.ts          # Máquina de estados para control de onboarding
-│       └── units.ts                    # Conversión de unidades métricas e imperiales
-├── tests/                              # 25 pruebas unitarias automatizadas con Node tsx
-│   ├── authDeepLink.test.ts
-│   ├── deviceId.test.ts
-│   ├── onboardingState.test.ts
-│   ├── preferences.test.ts
-│   └── probeTelemetry.test.ts
-└── scripts/
-    └── verify-supabase-onboarding.mjs  # Verificación E2E remota contra Supabase
+│   └── utils/                          # Funciones puras: ID de 15 dígitos, cola de contactos, historial, reset, validaciones, unidades
+└── tests/                              # Pruebas con node:test + tsx (npm test); resultado vigente en TASK_PERMISSIONS.md
 ```
 
 ---
 
 ## 4. Pantallas y Navegación
 
-### Avance de interfaz y datos · 5 de septiembre de 2026
+### Inicio, navegación e historial
 
-- Inicio renovado con última lectura real, acceso a equipos, estado de respaldo y acceso al historial; sin métricas de ejemplo. Se adapta a tema claro/oscuro y español/inglés.
+- Inicio con la última lectura real, acceso a equipos, estado de respaldo y acceso al historial; sin métricas de ejemplo. Se adapta a tema claro/oscuro y español/inglés.
 - Navegación inferior persistente entre Inicio, Historial y Ajustes. Se oculta durante la medición y el onboarding.
 - Historial con actualización al deslizar, estados de carga/error, filtros táctiles de 48 dp y etiqueta de respaldo por lectura.
 - Caché del historial consultado (hasta 200 lecturas por consulta), aislada por cuenta y equipo. Sin red se combina con la cola pendiente; los registros confirmados se identifican también por `client_uuid` para evitar duplicados visuales. No equivale a descargar todo el historial. La app no crea ni selecciona campos: consulta las lecturas sin filtrar por `field_name` y envía ese atributo vacío en nuevas mediciones por compatibilidad con el esquema. Los nombres de registros anteriores se conservan; los cachés antiguos por campo se recuperan cuando aún no existe el caché unificado del equipo.
-- Bienvenida desplazable en pantallas pequeñas y selector de etapa en tarjetas de ancho completo con estado accesible.
-
-**Compatibilidad con Supabase:** estos cambios reutilizan columnas existentes; no agregan migraciones. La consulta incluye `client_uuid`. La revisión remota mediante `supabase migration list --linked` confirmó dos versiones solo remotas (`20260902180000`, `20260902210000`) y la versión `20260904120000` solo local. Antes de desplegar esta última hay que recuperar el SQL original de las versiones remotas, revisar el historial y probar la migración en staging. No se reparó ni alteró el historial remoto.
+- Bienvenida con ilustración ajustada al espacio disponible y acciones fijas; permite desplazar texto ampliado cuando no cabe. Selector de etapa en tarjetas de ancho completo con estado accesible.
 
 **Validación pendiente en dispositivo:** aspecto visual, lectores de pantalla, tamaños de letra ampliados, navegación Android y conexión BLE física. La interfaz BME280 y el pronóstico de cinco días están implementados; la recepción física y el comportamiento Android/iOS requieren pruebas en terreno.
 
-**Comprobaciones al 6 de septiembre de 2026, sobre Expo SDK 57:** TypeScript 6 sin errores, 44 pruebas aprobadas y exportación Android completa (1600 módulos, 3,3 MB).
+`npx expo export --platform android --output-dir dist-review --no-bytecode` genera una exportación JavaScript de diagnóstico en `App/dist-review`; no es un instalador.
 
-**Comprobaciones de la entrega anterior, sobre SDK 54:** TypeScript sin errores y 28 pruebas aprobadas. El runner habitual encontró `spawn EPERM` en el entorno restringido; se ejecutaron las mismas pruebas en un único proceso con transpilación TypeScript. La generación de bytecode Hermes también encontró `spawn EPERM`; esto no valida un APK ni sustituye las pruebas físicas.
+### Confirmación de cuenta
 
-La exportación JavaScript Android de diagnóstico sí finalizó correctamente (1600 módulos): `node node_modules/expo/bin/cli export --platform android --output-dir dist-review --max-workers 1 --no-bytecode`. El resultado local está en `App/dist-review`; no es un instalador.
-
-### Confirmación de cuenta: qué falta desplegar
-
-El registro y la recuperación solicitan correos cuyo código se ingresa en la app.
-Primero hay que distribuir los clientes compatibles y después aplicar las
-[plantillas y límites de Supabase](../supabase/README.md#7-plantillas-de-correo).
-La página web `/cuenta-confirmada` y el deep link de recuperación se conservan solo
-para enlaces antiguos; los correos nuevos ya no los incluyen. La entrega real de
-correo y el recorrido en un teléfono deben verificarse contra el proyecto remoto.
-
-> [!NOTE]
-> `supabase/README.md §7` afirma que tener las plantillas de correo activas en `config.toml` hace
-> fallar cualquier `supabase config push` en plan gratuito. **El 6-sep-2026 eso ya no ocurre:** el
-> push se aplicó con las plantillas activas. Ese aviso está desactualizado. En el mismo push se
-> corrigieron de paso el remitente y el correo de administración, que seguían apuntando a Akura.
+El registro y la recuperación envían correos con un código de 6 dígitos que se ingresa en la app
+([plantillas y límites de Supabase](../supabase/README.md#7-plantillas-de-correo)). El deep link
+de recuperación se conserva sólo para correos antiguos; la web ya no tiene `/cuenta-confirmada`
+(§12.3). La entrega real de correo y el recorrido en un teléfono deben verificarse contra el
+proyecto remoto.
 
 ### Atajo de desarrollo: entrar sin vincular sonda
 
@@ -376,25 +357,35 @@ El flujo de pantallas se articula a través de un enrutador liviano en `App.tsx`
                       ▼
           ┌───────────────────────┐
           │     MeasureScreen     │
-          │  (Carrusel Resultados)│
+          │  (Resultados)         │
           ├───────────────────────┤
-          │ Pág 1: Grid 2×5       │ (Semáforo interactivo con advertencias)
-          │ Pág 2: Recomendación  │ (Diagnóstico conjunto suelo + clima)
+          │ Resumen y plan global │ (Diagnóstico conjunto suelo + clima)
+          │ Grid 2×5              │ (Semáforo; detalle por tarjeta)
           └───────────────────────┘
 ```
 
 ### 4.1. Bienvenida y Autenticación
 
 [App.tsx](App.tsx) dirige el acceso mediante [resolveEntryRoute](src/utils/authFlow.ts).
-El orden normal es **bienvenida → acceso/confirmación → permisos (paso 3) → vinculación
-→ aplicación**. La recuperación de contraseña tiene prioridad sobre estos pasos:
+El orden de una instalación nueva es **carga → idioma → bienvenida → acceso/confirmación
+→ permisos → vinculación → aplicación**. La recuperación de contraseña tiene prioridad sobre estos pasos:
 una sesión de recuperación no abre permisos ni la aplicación operativa.
 
+- **Carga e idioma:** el splash nativo entrega el control a [LoadingScreen](src/components/LoadingScreen.tsx).
+  [LanguageScreen](src/screens/LanguageScreen.tsx) guarda la elección sin requerir conexión.
+  Desde bienvenida o acceso se abre como panel completo y conserva la página y los campos al volver.
+  [preferencesService](src/services/preferencesService.ts) asocia una elección explícita a la siguiente
+  cuenta autenticada, conserva el resto de su perfil y reintenta cambios pendientes al recuperar red.
+  Una sesión restaurada usa la caché de su cuenta y consulta el servidor con espera acotada.
+  Cerrar sesión conserva el idioma de la instalación. Las instalaciones con bienvenida ya completada
+  continúan sin repetirla ni exigir una nueva selección de idioma.
 - **Bienvenida:** [WelcomeCarouselScreen](src/screens/WelcomeCarouselScreen.tsx) muestra
   tres páginas. «Saltar» y «Comenzar» guardan su finalización en este dispositivo;
-  tener sesión no basta por sí solo para omitirla.
+  una sesión restaurada continúa hacia la etapa correspondiente a su cuenta.
 - **Acceso y registro:** [AuthScreen](src/screens/AuthScreen.tsx) valida los campos,
-  bloquea envíos duplicados y solicita el consentimiento antes de crear la cuenta.
+  separa datos personales y contraseña, bloquea envíos duplicados y solicita el consentimiento
+  antes de crear la cuenta. Envía nombre completo y sus partes explícitas para que el trigger
+  de perfiles conserve todos los nombres y apellidos.
   Una cuenta sin confirmar abre [EmailCodeScreen](src/screens/EmailCodeScreen.tsx),
   que verifica el código y permite reenviarlo con espera. El código se escribe en seis
   casillas que sólo admiten dígitos: cada uno queda enmascarado tras verse un instante,
@@ -408,82 +399,90 @@ una sesión de recuperación no abre permisos ni la aplicación operativa.
   al reiniciar y se cierra sesión al terminar o cancelar. Los fallos transitorios de
   red no equivalen a una cuenta eliminada.
 
-#### Paso 3: preparar permisos del teléfono
+#### Permisos del teléfono
 
-[PermissionsScreen](src/screens/PermissionsScreen.tsx) aparece tras el login o la
-confirmación de cuenta, antes de revisar el resultado del onboarding de equipos.
-También se muestra a cuentas existentes que aún no hayan revisado esta etapa en ese
-teléfono. Reutiliza la paleta y los componentes del flujo inicial.
+Diseño según las guías de [Apple](https://developer.apple.com/design/human-interface-guidelines/privacy/)
+y [Android](https://developer.android.com/training/permissions/requesting): cada permiso se pide
+**cuando la persona usa la función que lo necesita**, nunca en bloque al iniciar sesión. La auditoría
+y el plan completo están en [TASK_PERMISSIONS.md](TASK_PERMISSIONS.md#plan-de-implementación-permisos-del-teléfono).
 
-| Permiso | Para qué se utiliza | Si no se concede |
+**Pantalla inicial** ([PermissionsScreen](src/screens/PermissionsScreen.tsx)): aparece tras el acceso,
+una vez por cuenta y teléfono, con el mismo armazón de las pantallas de entrada (`EntryLayout`:
+ancho máximo 520, pie fijo, botón de 54). Es **sólo informativa**: explica en cuatro filas qué usa
+cada función y no abre ningún diálogo del sistema. Su única acción es «Continuar», que guarda
+`@terrasense/permissions-review-v1/<userId>`; si ese guardado falla, se continúa en la sesión.
+No lleva la guía flotante ni el rótulo «Paso 3».
+
+| Permiso | Se pide al… | Si no se concede |
 | --- | --- | --- |
-| Bluetooth / dispositivos cercanos | Encontrar y comunicarse con la sonda | Permite continuar, pero la búsqueda y las mediciones requieren habilitarlo. Autorizarlo no enciende la radio. |
-| Ubicación en primer plano | Coordenadas de las mediciones y pronóstico del campo | En Android 12+ e iOS, permite medir sin coordenadas ni pronóstico. Android anterior a 12 también la requiere para buscar la sonda por Bluetooth. |
-| Cámara | Escanear invitaciones QR a equipos compartidos | No se puede escanear; la configuración de una sonda nueva por Bluetooth sigue disponible. |
-| Notificaciones | Avisos de equipos, accesos y alertas habilitadas | La app sigue funcionando; no recibe esos avisos push. |
+| Bluetooth / dispositivos cercanos | Buscar la sonda (vincular o registrar) y tocar «Medir» | Se explica que la sonda no se puede buscar ni leer; el resto de la app sigue disponible. En Android anterior a 12 el escaneo usa la ubicación. |
+| Ubicación en primer plano | Activar «Añadir ubicación y pronóstico» al preparar una medición | La lectura se guarda sin coordenadas ni pronóstico. La elección se recuerda en el teléfono (`@terrasense/measure-location-v1`) y es distinta del permiso que Android antiguo usa para Bluetooth. La precisión aproximada se acepta y se avisa. |
+| Cámara | Tocar «Escanear QR» en el onboarding o en Mis dispositivos | Queda el código de invitación, que aparece bajo el QR y se puede escribir en las dos pantallas. |
+| Notificaciones | Solicitarlas en Ajustes → Permisos del teléfono | La app funciona igual. El inicio sólo registra una autorización ya concedida (`requestPermission: false`). |
 
-Los botones «Permitir» abren las solicitudes del sistema de una en una. Cuando el
-sistema impide volver a preguntar, la pantalla ofrece «Abrir ajustes» y vuelve a
-consultar al regresar. **«Continuar» no concede permisos ni exige autorizarlos todos**.
-No se solicita ubicación en segundo plano, micrófono, contactos ni acceso a archivos.
-La cámara se configura sin permiso de audio, porque el QR no lo utiliza.
+**Variantes por plataforma** ([permissionPrompt.ts](src/components/permissionPrompt.ts)):
 
-[permissionsService.ts](src/services/permissionsService.ts) consulta el estado real
-sin solicitar permisos al montar la pantalla. En iOS, inicializar Bluetooth puede
-mostrar el diálogo nativo; por eso su primera comprobación se hace al tocar el botón.
-Un estado apagado, rechazado o no disponible se presenta por separado. Las funciones
-que usan cámara, ubicación y sonda conservan sus comprobaciones al utilizarlas.
+- **Primera vez, iOS y Android:** diálogo del sistema directo. La acción que tocó la persona da el
+  contexto, así que no hay pantalla previa; si la hubiera, Apple la limita a una sola acción
+  «Continuar», sin «Permitir» ni forma de salir.
+- **Android, tras un rechazo que admite otra solicitud** (`shouldShowRequestPermissionRationale`):
+  explicación **cancelable**, con «Cancelar» y «Continuar».
+- **El sistema ya no preguntará:** al volver a intentar la función se explica dónde se cambia y se
+  ofrece «Abrir ajustes» o «Cancelar». Nunca se abre Ajustes automáticamente tras un rechazo nuevo.
+- **Restringido por el teléfono:** se informa sin prometer que Ajustes lo resuelva.
 
-La marca `@terrasense/permissions-review-v1/<userId>` sólo recuerda que se revisó la
-explicación **por cuenta y dispositivo**. No almacena ni sustituye autorizaciones del
-sistema. Cambiar de cuenta no hereda la revisión de otra persona. Si falla la lectura,
-se muestra la etapa; si falla el guardado, se permite continuar sólo en la sesión actual.
-Una revocación posterior se atiende cuando se vuelve a utilizar la función afectada.
+Los textos viven en [permissionCopy.ts](src/utils/permissionCopy.ts), en los dos idiomas. Ningún
+botón propio se titula «Permitir», «Ahora no» ni «Más tarde», y los estados dicen el hecho
+(«Sin acceso», «Ubicación aproximada», «Bluetooth apagado») sin culpa ni postergación. Una prueba lo
+exige.
 
-`resolveEntryRoute` mantiene esta precedencia: carga inicial → recuperación → bienvenida
-→ acceso → carga de la marca de permisos → permisos pendientes → resultado de onboarding.
-Una cuenta con equipo autorizado tampoco salta esta explicación la primera vez. Las
-solicitudes pendientes de otros equipos no bloquean uno ya autorizado.
+**Coordinador único** ([permissionsService.ts](src/services/permissionsService.ts)): consultar nunca
+abre diálogos, las solicitudes van de a una, se revalida antes de pedir y un permiso concedido no
+repite el diálogo. Onboarding, Mis dispositivos, la medición y `probeService` usan el mismo camino:
+ya no hay una segunda solicitud de Bluetooth en `bleService`. Android no informa si un permiso
+nunca se pidió o quedó bloqueado, así que se guarda por instalación que ya se pidió
+(`@terrasense/permission-asked-v1/<permiso>`). En iOS esa marca permite leer el estado de
+Bluetooth tras reiniciar sin crear el gestor antes de tiempo, que abriría el diálogo. Si alguien
+restablece la privacidad del teléfono sin desinstalar, esa lectura puede mostrar el diálogo del
+sistema: el plan prevé un módulo nativo que lea `CBManager.authorization`.
 
-El registro automático de push usa `requestPermission: false`: no vuelve a pedir
-notificaciones después de omitirlas. Sólo registra una autorización ya concedida y
-respeta las preferencias de avisos, incluso mientras se espera aprobación de un equipo.
-Los canales Android se preparan antes de una solicitud explícita, conforme a la
-[documentación de Expo Notifications](https://docs.expo.dev/versions/latest/sdk/notifications/).
-El plugin [withStartupPermissions](plugins/withStartupPermissions.js) declara el escaneo
-como `neverForLocation`, conservando ubicación para georreferenciar; ver el
-[contrato de permisos BLE](https://github.com/dotintent/react-native-ble-plx/blob/master/docs/GETTING_STARTED.md).
-**Los cambios de permisos nativos requieren reconstruir e instalar el cliente de desarrollo**;
-recargar JavaScript no actualiza el manifiesto ni los mensajes del sistema.
+**Configuración nativa** ([app.config.js](app.config.js), [withStartupPermissions](plugins/withStartupPermissions.js)):
 
-#### Continuidad visual y verificación
+- iOS: una sola fuente para cada texto de uso, en los plugins y traducida por `locales`. Sin
+  `bluetooth-central` en segundo plano (la opción `modes` del plugin BLE lo agregaba) y sin las
+  claves de ubicación «Siempre» ni de movimiento, que `expo-location` escribía en inglés por defecto.
+- Android: `BLUETOOTH` y `BLUETOOTH_ADMIN` limitados a la API 30, `BLUETOOTH_SCAN` con
+  `neverForLocation` y la ubicación sin límite, porque también la usa el GPS. Se eliminan
+  `SYSTEM_ALERT_WINDOW` y el almacenamiento compartido, que declaraban dependencias.
+- `node scripts/check-native-permissions.cjs` revisa el `Info.plist` y el manifiesto que quedan
+  tras todos los plugins. `NSLocalNetworkUsageDescription` viene de `expo-dev-client` y queda por
+  revisar en el binario de la tienda.
+- **Los cambios nativos requieren reconstruir e instalar el cliente de desarrollo**; recargar
+  JavaScript no actualiza el manifiesto ni los mensajes del sistema.
 
-Mantener los tokens de [theme.ts](src/constants/theme.ts) y reutilizar
-[AuthUI.tsx](src/components/auth/AuthUI.tsx): fondo suave, verde bosque, etiquetas
-permanentes, márgenes de 24, formularios de ancho máximo 520 y botones de altura mínima
-56. La pantalla conserva las animaciones y respuesta háptica incorporadas; sus
-transiciones respetan la preferencia del sistema para reducir movimiento. Estados
-concedidos/rechazados siempre incluyen texto y no dependen sólo del color.
+`resolveEntryRoute` mantiene esta precedencia: carga inicial → recuperación → idioma/bienvenida/acceso
+si no hay sesión → carga de la marca de permisos → permisos pendientes → resultado de onboarding.
 
-[authFlow.test.ts](tests/authFlow.test.ts) cubre la precedencia y el aislamiento entre
-cuentas; [permissions.test.ts](tests/permissions.test.ts) comprueba estados, persistencia,
-fallos de almacenamiento y configuración del escaneo. Ejecutar `npm test` y
-`npm run type-check` desde `App/`, además de `python docs/verificar_documentacion.py`
-desde la raíz. La lista de tareas y el punto para retomar están en
-[TASK_PERMISSIONS.md](TASK_PERMISSIONS.md).
+#### Verificación
 
-Los diálogos reales, rechazos definitivos, regreso desde Ajustes, Bluetooth apagado y
-ubicación aproximada requieren validación en un teléfono Android/iOS. Las pruebas
-locales no certifican esas interacciones ni el envío de correo/push del servicio desplegado.
+[permissions.test.ts](tests/permissions.test.ts) cubre estados de Android (nunca pedido, rechazo,
+bloqueo, concesión parcial), ubicación aproximada, avisos provisionales, vocabulario, textos en
+los dos idiomas y la configuración nativa. [onboardingAudit.test.ts](tests/onboardingAudit.test.ts)
+cubre la solicitud iOS de Bluetooth y la lectura tras reiniciar. Ejecutar `npm test` y
+`npm run type-check` desde `App/`.
+
+**Falta la matriz en teléfonos** (TASK_PERMISSIONS.md, P7): diálogos reales, rechazo y bloqueo,
+regreso desde Ajustes, Bluetooth apagado, ubicación aproximada, idioma de los diálogos y el Motorola
+G55. Las pruebas locales no certifican esas interacciones.
 
 ### 4.2. Onboarding y Gobernanza de Equipos
 * **`OnboardingScreen`**: Detecta automáticamente el tipo de usuario:
-  1. **Primer administrador (`admin`):** empareja la sonda por BLE y registra el ID con `register_paired_device`. Sólo obtiene administración si ese equipo no tiene miembros.
-  2. **Usuario (`user`):** escanea un QR temporal y queda pendiente. El administrador recibe un aviso push para revisar la solicitud en **Ajustes → Administración**. La espera muestra sus iniciales de nombre/correo censuradas desde el servidor.
+  1. **Primer administrador (`admin`):** empareja la sonda por BLE con la ventana PAIR abierta y registra el ID con `register_paired_device`. Sólo obtiene administración si ese equipo no tiene miembros.
+  2. **Usuario (`user`):** escanea el QR temporal de un miembro aprobado, o escribe el código de invitación que se muestra debajo (es el mismo token), y queda pendiente. El administrador recibe un aviso push para revisar la solicitud en **Ajustes → Administración**. La espera muestra sus iniciales de nombre/correo censuradas desde el servidor. Ambos caminos pasan por la Edge Function `request-device-access`. Cada QR dura 5 minutos desde que se genera y la app muestra el nuevo al vencer ([detalle](../supabase/ADMINISTRACION.md#qr-de-5-minutos)).
 
 Ambos roles pueden operar el equipo y mostrar el QR. Sólo el administrador ve Administración, donde aprueba, elimina o delega; al delegar pasa a usuario. [Contrato y despliegue de administración](../supabase/ADMINISTRACION.md).
 
-### 4.3. Flujo de Medición: Selección de Fase y Carrusel Post-Medición
+### 4.3. Flujo de Medición: Selección de Fase y Resultados
 
 El proceso de medición sigue una secuencia rigurosa y pedagógica:
 
@@ -492,24 +491,15 @@ El proceso de medición sigue una secuencia rigurosa y pedagógica:
    - **Vegetativo**
    - **Floración**
    - **Cosecha**
-2. **Preparación y Captura Física:**
-   - Se muestra el modal recordatorio `CalibrationReminderModal` sugiriendo limpiar y secar los electrodos de acero inoxidable.
-   - La app escanea el anuncio `TerraSense-<device_code>`, conecta vía BLE, captura la trama BLE y consulta el clima en Open-Meteo.
+2. **Captura física:**
+   - La app escanea el anuncio `TerraSense-<ID>`, conecta vía BLE, captura la trama y consulta el clima en Open-Meteo.
    - Desconecta inmediatamente el enlace BLE para proteger la batería del ESP32.
-3. **Página 1 del Carrusel · Grid 2×5 Semáforo Interactivo:**
-   - Muestra cada una de las variables medidas con su valor numérico y el color de semáforo correspondiente:
-     - **🟢 Verde:** Perfecto / Condición favorable.
-     - **🟡 Naranjo:** Precaución / Requiere atención o ajuste preventivo.
-     - **🔴 Rojo:** Riesgo / Condición limitante que puede generar daño o pérdida.
-   - **Interactividad al Tocar:** Al pulsar cualquier parámetro (por ejemplo, si la humedad del suelo está en rojo), se abre una tarjeta modal con advertencias específicas:
-     - Por qué el parámetro está en ese nivel.
-     - Qué riesgos implica para la fase seleccionada.
-     - Qué acciones de manejo o fertirriego realizar para mejorarlo.
-4. **Página 2 del Carrusel · Recomendación Integral Globalizada:**
-   - Entrega un diagnóstico agronómico de conjunto combinando todos los parámetros del suelo, la fase elegida y el pronóstico del tiempo (alertas de lluvias, olas de calor o heladas).
-   - En **Siembra**: Detalla qué cultivos conviene sembrar y cuáles no, y precauciones ante eventos climáticos inmediatos.
-   - En **Vegetativo / Floración / Cosecha**: Alertas climáticas de apoyo y cuidados específicos para la planta en desarrollo.
-   - **Aquí concluye el carrusel en las cuatro fases.** No hay una tercera página: la app no dibuja mapas.
+3. **Resultados, en una sola pantalla** ([`MeasurementExplorer`](src/components/MeasurementExplorer.tsx)):
+   - **Veredicto y resumen:** el título de la fase y un panel con pestañas *Resumen*, *Qué hacer* y *Qué revisar*. **Ver plan global** abre el diagnóstico de conjunto: suelo, fase elegida y pronóstico (lluvias, olas de calor o heladas). En **Pre-siembra** incluye qué cultivos conviene sembrar.
+   - **Grid 2×5 con semáforo** (§5.3). Al tocar una tarjeta se abre su detalle con pestañas *Estado*, *Recomendación* y *Control*, y botones para pasar al parámetro siguiente o anterior.
+   - **Pronóstico** de cinco días y **Guardar resultado**. La lectura puede guardarse mientras el pronóstico carga.
+4. **Después de guardar:** el recordatorio `CalibrationReminderModal` pide limpiar y secar los electrodos de acero inoxidable. No hay más pantallas: la app no dibuja mapas.
+
 ### 4.4. Historial de mediciones
 
 `HistoryScreen` conserva las cuatro etapas, fechas, valores, diagnóstico y estado local/nube.
@@ -535,7 +525,7 @@ separada al final, en rojo, con aviso si quedan mediciones pendientes.
   cuenta en el teléfono; los cambios remotos pendientes se reintentan al recuperar conexión.
 - **Notificaciones:** interruptores independientes de suelo, equipo, clima y sincronización.
   Cambiar idioma o una preferencia no abre diálogos del sistema. Los avisos de firmware
-  se consultan en Actualizaciones; la migración desactiva su emisión push desde soporte.
+  se consultan en Actualizaciones.
 - **Permisos:** estado y explicación de Bluetooth, ubicación, cámara y notificaciones;
   solicitud explícita o acceso a Ajustes del teléfono y actualización del estado al volver.
   La app no puede revocar permisos del sistema mediante un interruptor propio.
@@ -551,26 +541,23 @@ Se conserva la paleta verde/tierra del tema existente. Las pantallas usan tarjet
 18 px de radio, títulos de 30 px, espacio horizontal de 24 px y acciones de al menos 48 px.
 El color rojo identifica cierre de sesión y borrado; las acciones incluyen texto explícito.
 
-#### Preparar equipo para otro propietario
+#### Reset del equipo: sólo desde el backoffice
 
-Es la última opción de Administración. Primero muestra el alcance irreversible; después
-exige el código completo y reautenticación con contraseña. La RPC
-`prepare_device_for_owner` comprueba administración bajo bloqueo de fila y una autenticación
-con contraseña de los últimos cinco minutos. Borra mediciones, miembros, solicitudes,
-invitaciones, avisos y configuración remota del equipo; conserva identidad y firmware.
-La auditoría administrativa permanece separada del historial de mediciones.
+La app **no resetea equipos**. El único reset es el del [backoffice](../Web/README.md#2-pantallas)
+(`admin_reset_device`, sólo la cuenta de soporte): borra usuarios, solicitudes, mediciones,
+alertas, invitaciones, historial y actualizaciones, y conserva el ID, que sale de la MAC de la
+sonda. La sonda no se toca porque no guarda nada del propietario.
 
-Cada restablecimiento incrementa `data_generation`. El servidor rechaza lecturas de una
-generación anterior aunque un antiguo miembro vuelva a obtener acceso. El borrado del panel de soporte comparte la invalidación de generaciones. Los teléfonos
-eliminan colas antiguas y cachés afectadas al reconectar; no es posible borrar a distancia
-una copia en un teléfono que permanece sin conexión. Las cachés de otros equipos se
-conservan; la caché agregada se invalida para no mostrar lecturas del equipo borrado.
+Tras el reset la sonda queda **libre**: la vincula quien la tenga en la mano con la ventana
+PAIR abierta (§6) y queda como administrador, sea un antiguo miembro o alguien nuevo.
+La ventana la comprueba la app; la base no la ve (pendiente A4 de
+[`Firmware/TASK.md`](../Firmware/TASK.md), riesgo aceptado).
 
-**No es un borrado de la memoria física del ESP32.** Esa operación necesita un contrato
-del firmware que no está disponible. Además, tras el borrado la reclamación automática
-por código permanente queda bloqueada: soporte debe verificar la entrega y habilitar al
-nuevo propietario. El código conocido por un antiguo miembro no prueba posesión física.
-La UI explica estos límites antes de la segunda confirmación.
+Cada reset incrementa `data_generation`. El servidor rechaza lecturas de una generación
+anterior aunque un antiguo miembro vuelva a obtener acceso. Los teléfonos eliminan colas
+antiguas y cachés afectadas al reconectar (`reconcileDeviceResets`); no es posible borrar a
+distancia una copia en un teléfono que permanece sin conexión. Las cachés de otros equipos se
+conservan; la caché agregada se invalida para no mostrar lecturas del equipo reseteado.
 
 #### Actualizaciones del firmware ESP32
 
@@ -584,17 +571,16 @@ llega un aviso push con `event_type = 'firmware_update'` y la asignación queda 
 Cancelar, el estado pendiente y la instalación por BLE. Hasta entonces la interfaz no simula
 progreso ni afirma haber instalado nada.
 
-#### Despliegue y validación pendientes
+#### Validación pendiente
 
-Aplicar primero la migración
-[`20260920120000_preparar_equipo_propietario.sql`](../supabase/migrations/20260920120000_preparar_equipo_propietario.sql),
-que añade generaciones, avisos de invalidación, la RPC de preparación y protección de
-reclamación, además de retirar los pushes de firmware. Esta versión de la app consulta
-las columnas nuevas; requiere esa migración antes de distribuirse.
-La migración está preparada localmente, no aplicada al servidor. Falta validar en una
-base de pruebas sus permisos, concurrencia, rechazo de colas antiguas, transferencia,
-reclamación y restauración ante fallos. También falta probar los controles en Android/iOS.
-El seguimiento vigente está en [TASK_PERMISSIONS.md](TASK_PERMISSIONS.md).
+La invalidación por generación viene de
+[`20260920120000_preparar_equipo_propietario.sql`](../supabase/migrations/20260920120000_preparar_equipo_propietario.sql);
+[`20260928130000_reset_solo_desde_backoffice.sql`](../supabase/migrations/20260928130000_reset_solo_desde_backoffice.sql)
+retiró el reset desde la app y el bloqueo que impedía revincular una sonda reseteada.
+`npm run test:supabase-onboarding` (§9) cubre revinculación, concurrencia y aviso de
+invalidación. La migración está aplicada en producción desde el 28-09-2026. **Pendiente:** correr
+esa prueba contra una réplica y probar con la sonda ([Supabase §10.0.2](../supabase/README.md#1002-reset-sólo-desde-el-backoffice-28-09-2026)).
+Falta también probar en Android/iOS la limpieza de colas y cachés al reconectar.
 
 ---
 
@@ -604,12 +590,15 @@ El motor agronómico (`agronomyEngine.ts` + `stageEvaluator.ts` + `contextualAdv
 
 ### 5.1. Etapas Fenológicas Obligatorias
 
-| Etapa Fenológica | Variables Críticas | Comportamiento del Motor |
+| Etapa Fenológica | Variables que deciden el veredicto (`STAGE_DRIVERS`) | Comportamiento del Motor |
 | :--- | :--- | :--- |
-| **Pre-siembra (Siembra)** | Temperatura, CE, pH, Humedad | Evalúa aptitud de cama de siembra; alerta si el suelo está frío para germinar o si la salinidad dañará la plántula. |
-| **Vegetativo** | Nitrógeno (N), Humedad, CE | Monitorea la disponibilidad de N para el desarrollo foliar y la actividad fotosintética; alerta sobre excesos que promuevan hongos. |
-| **Floración** | CE, Fósforo (P), Potasio (K) | El umbral de salinidad máxima se reduce automáticamente al **80% del valor estándar**, ya que el estrés osmótico provoca aborto floral masivo. |
-| **Cosecha** | Humedad VWC, Potasio (K) | Evalúa transitabilidad de maquinaria para evitar compactación severa del suelo y analiza concentración de potasio para calidad de fruto. |
+| **Pre-siembra (Siembra)** | Temperatura del suelo, CE, pH, humedad | Evalúa la aptitud de la cama de siembra; alerta si el suelo está frío para germinar o si la salinidad dañará la plántula. |
+| **Vegetativo** | Humedad, pH, CE | Vigila agua en la zona radicular y condiciones que limitan la absorción durante el crecimiento foliar. |
+| **Floración** | CE, humedad, pH | El umbral de salinidad máxima se reduce al **80 % del valor del cultivo**, porque el estrés osmótico provoca aborto floral. |
+| **Cosecha** | Humedad, CE | Evalúa la transitabilidad del suelo para entrar con maquinaria sin compactarlo. |
+
+N, P y K no deciden el veredicto en ninguna etapa (§5.2); la fuente de verdad de esta tabla es
+[`stageEvaluator.ts`](src/engine/stageEvaluator.ts).
 
 ### 5.2. Tratamiento de N, P y K: por qué no se muestran como medida
 La sonda mide **conductividad eléctrica y temperatura**. Los tres registros asociados a nitrógeno, fósforo y potasio se derivan de esa conductividad mediante un modelo empírico del fabricante.
@@ -623,10 +612,11 @@ La sonda mide **conductividad eléctrica y temperatura**. Los tres registros aso
 **Para decisiones de fertilización y encalado corresponde un análisis de laboratorio.** Una lectura instantánea no equivale a un análisis representativo del campo.
 
 ### 5.3. Código de Colores Semáforo y Desglose Interactivo
-El Grid 2×5 de la primera página del carrusel utiliza el código de colores universal:
-* **🟢 Verde (Perfecto):** El parámetro está dentro del rango óptimo para el cultivo y la fase fenológica seleccionada.
-* **🟡 Naranjo (Precaución):** El valor se aproxima a los límites de estrés; requiere ajustes preventivos en el riego o nutrición.
-* **🔴 Rojo (Riesgo):** Condición limitante severa (estrés hídrico, acidez perjudicial o salinidad) que exige intervención correctiva inmediata.
+El Grid 2×5 de la pantalla de resultados usa el semáforo con estas etiquetas (N, P y K se rotulan siempre **Sin validar**):
+* **🟢 Condición favorable:** el parámetro está dentro del rango óptimo para el cultivo y la fase seleccionada.
+* **🟡 Requiere atención:** el valor se aproxima a los límites de estrés; conviene un ajuste preventivo de riego o manejo.
+* **🔴 Condición limitante:** estrés hídrico, acidez perjudicial o salinidad que exige intervención.
+* **⚪ Dato de contexto:** variable que no decide el veredicto de esa fase (no está en `STAGE_DRIVERS`, §5.1), las tres del ambiente o un dato ausente. Por ejemplo, la temperatura del suelo decide en pre-siembra y es contexto en las otras tres fases.
 
 ---
 
@@ -654,11 +644,11 @@ El Grid 2×5 de la primera página del carrusel utiliza el código de colores un
 
 ### Vincular una sonda
 
-El ID de la sonda **no lo genera la app**: el firmware lo deriva de la MAC del ESP32 (15 dígitos, puede empezar con 0) y nunca cambia. `pairWithNearbyProbe` lee el ID y la ventana PAIR; si la ventana está cerrada, la pantalla pide mantener PAIR 3 s y no registra nada. Con la ventana abierta, `registerDevice` registra el equipo con ese ID y `confirmPairing` se lo escribe a la sonda para que avise con verde y buzzer (un fallo de ese aviso no deshace el registro). No hay reset desde la sonda: el único es el del backoffice, y la sonda vuelve con el mismo ID.
+El ID de la sonda **no lo genera la app**: el firmware lo deriva de la MAC del ESP32 (15 dígitos, puede empezar con 0) y nunca cambia. `pairWithNearbyProbe` lee el ID y la ventana PAIR; si la ventana está cerrada, la pantalla pide mantener PAIR 3 s y no registra nada. Con la ventana abierta, `registerDevice` registra el equipo con ese ID y `confirmPairing` se lo escribe a la sonda para que avise con verde y buzzer (un fallo de ese aviso no deshace el registro). No hay reset desde la sonda ni desde la app: el único es el del backoffice, y la sonda vuelve con el mismo ID, libre para que la vincule quien abra su ventana PAIR.
 
 ### Informe de cada contacto con la sonda
 
-La sonda no tiene internet: la app es la única que puede contarle a Supabase que habló con ella. Tras cada conversación BLE (vincular con una sonda que ya tiene código, grabar el código y medir), [`bleService.ts`](src/services/bleService.ts) lee la característica de estado y [`contactService.ts`](src/services/contactService.ts) llama a `report_device_contact` con el ID de 15 dígitos, la batería, la versión y **la hora real del contacto**. Esto alimenta la primera y última conexión, el Online/Offline (menos de 15 min) y la batería del [backoffice](../Web/README.md#2-pantallas).
+La sonda no tiene internet: la app es la única que puede contarle a Supabase que habló con ella. Tras cada conversación BLE (vincular y medir), [`bleService.ts`](src/services/bleService.ts) lee la característica de estado y [`contactService.ts`](src/services/contactService.ts) llama a `report_device_contact` con el ID de 15 dígitos, la batería, la versión y **la hora real del contacto**. Esto alimenta la primera y última conexión, el Online/Offline (menos de 15 min) y la batería del [backoffice](../Web/README.md#2-pantallas).
 
 - Nunca retiene ni rompe el flujo BLE: si falla, el contacto queda en cola (`@terrasense/pending_probe_contacts`) y se reintenta en el siguiente contacto y cuando `OfflineBanner` sincroniza.
 - La cola guarda por equipo solo el contacto más antiguo y el más reciente, y descarta los de más de una semana ([`contactQueue.ts`](src/utils/contactQueue.ts), probado en `tests/probeContact.test.ts`).
@@ -681,7 +671,7 @@ Esta tabla refleja lo que `probeService.ts` decodifica realmente. El aviso anter
 [14]     Batería (porcentaje 0–100)            -> uint8   (NO voltaje uint16)
 [15]     Identificador de formato: 1 = 20 bytes (producto); 0 = 16 bytes (prototipo sin BME280)
 [16..19] Solo en v1 - ambiente BME280 en 32 bits empaquetados:
-         temperatura del aire  12 bits  (C x 10) + 400   -> -40,0 a +125,0 C
+         temperatura del aire  12 bits  (C x 10) + 400   -> -40,0 a +85,0 C (rango del BME280)
          presion               12 bits  hPa - 300        -> 300 a 1100 hPa
          humedad relativa       8 bits  % x 2            -> 0 a 100,0 %
          Todos los bits a uno = el sensor no entrego dato -> NULL en la base
@@ -704,7 +694,7 @@ El servicio `measurementsService.ts` opera bajo un esquema **Store & Forward**:
 4. **Reintentos:** Si no hay señal, la lectura permanece en el almacenamiento del teléfono. `flushQueue()` se ejecuta con **exclusión mutua por cuenta** (`utils/keyedLock.ts`) y elimina de la cola **solo tras el acuse del servidor**.
 
    El disparador es global: `OfflineBanner` comprueba conectividad cada 20 s y cada vez que la app vuelve a primer plano, y vacía la cola al detectar red. **Solo actúa con la app en primer plano** (`AppState === 'active'`): no hay sincronización en segundo plano.
-5. **Sin GPS:** las mediciones sin coordenadas se guardan en el historial local sin coordenadas. La migración que lo permite en el servidor está preparada pero **debe aplicarse y probarse en staging**.
+5. **Sin GPS:** las mediciones sin coordenadas se guardan en el historial local sin coordenadas. La migración que lo permite en el servidor (`20260904120000`) está aplicada; falta la prueba extremo a extremo.
 
 **Pendiente de verificación:** prueba extremo a extremo de cortes de red, cierre del proceso y cambio de cuenta.
 
@@ -712,7 +702,7 @@ El servicio `measurementsService.ts` opera bajo un esquema **Store & Forward**:
 
 ## 8. Variables de Entorno
 
-Crear el archivo `App/.env`:
+Crear `App/.env`. La app acepta también el `.env` de la raíz del repositorio; si existen los dos, manda `App/.env` (`app.config.js`):
 
 ```bash
 EXPO_PUBLIC_SUPABASE_URL=https://bjmhjatykqccksddgtmo.supabase.co
@@ -733,14 +723,14 @@ npm install
 # Iniciar servidor Metro de Expo
 npm run start
 
-# Levanta el servidor Metro y pide abrir Android. NO compila el modulo nativo BLE:
-# para probar la sonda real hay que generar un development build o un build de release.
+# Compila el proyecto nativo (expo run:android), con el modulo BLE, y lo instala en el
+# telefono conectado por USB. Es el camino para probar la sonda real; Expo Go no sirve.
 npm run android
 
 # Chequeo estricto de tipos de TypeScript
 npm run type-check
 
-# 25 pruebas unitarias (verificado: 25/25 aprobadas)
+# Pruebas unitarias (node:test + tsx): 21 archivos, 122 pruebas
 npm test
 
 # Verificación E2E remota contra Supabase
@@ -752,7 +742,7 @@ npx expo export --platform android
 
 ### Verificación en dispositivo — pendiente
 
-Las 25 pruebas automatizadas cubren lógica pura: decodificación de la trama BLE, exclusión mutua de la cola offline, estado de onboarding y preferencias. **Lo siguiente solo puede comprobarse en un teléfono físico con la sonda, y aún no se ha hecho:**
+Las pruebas automatizadas cubren lógica pura: decodificación de la trama BLE y del estado, vinculación, cola de contactos, exclusión mutua de la cola offline, historial, onboarding, permisos y preferencias. **Lo siguiente solo puede comprobarse en un teléfono físico con la sonda, y aún no se ha hecho:**
 
 | Escenario | Qué debe ocurrir |
 | :--- | :--- |
@@ -763,14 +753,14 @@ Las 25 pruebas automatizadas cubren lógica pura: decodificación de la trama BL
 | Medición sin señal GPS | Se guarda en el historial sin coordenadas |
 | Enlace BLE con la sonda real | La trama decodifica los valores esperados del SKU adquirido, y la v1 el ambiente del BME280 |
 
-Los cuatro primeros dependen además de que la migración de [`supabase/`](../supabase/README.md) esté aplicada en staging.
+Los cuatro primeros conviene probarlos contra una base de pruebas con las migraciones de [`supabase/`](../supabase/README.md), no contra producción.
 
 ---
 
 ## 10. Decisiones Arquitectónicas que Conviene Preservar
 
 * **Ubicación bajo demanda (sin `ACCESS_BACKGROUND_LOCATION`):** La app solo solicita coordenadas GPS en el instante en que se ejecuta una medición, y no consume batería en segundo plano. **Esto es minimización de datos, no cumplimiento acreditado de la Ley 21.719**, que entra en vigencia el **1 de diciembre de 2026** y exige además bases de tratamiento, derechos de los titulares, política de retención, seguridad y reglas de transferencia internacional. [BCN: Ley 21.719](https://www.bcn.cl/leychile/Navegar?idNorma=1209272&idParte=10527471&idVersion=2026-12-01).
-* **Administración por equipo:** `admin` y `user` comparten las funciones normales de la app. Sólo `admin` administra membresías; al delegar pierde ese permiso. El acceso web depende exclusivamente de `admin_support_users`.
+* **Administración por equipo:** `admin` y `user` comparten las funciones normales de la app. Sólo `admin` administra membresías; al delegar pierde ese permiso. Nadie resetea un equipo desde la app: eso es sólo del backoffice. El acceso web es sólo de la cuenta de soporte (`is_support_staff()`), no del administrador de un equipo.
 
 ---
 
@@ -821,8 +811,7 @@ así que **no viene en el repositorio y hay que crearlo tras cada clonado**. Sin
 
 ## 12. Pendientes abiertos
 
-Estado al **6 de septiembre de 2026**. Ninguno bloquea el desarrollo; los tres bloquean tener la app
-lista para usuarios reales.
+Ninguno bloquea el desarrollo; todos bloquean tener la app lista para usuarios reales.
 
 ### 12.1. SMTP propio — los correos caen en spam
 
@@ -834,10 +823,9 @@ el remitente y las cabeceras reales. Ver [configuración de correo](../supabase/
 
 **A medias.** Lo hecho es el pulido y los cimientos:
 
-* `RadarScan` para la búsqueda por Bluetooth, en la medición y en el emparejamiento.
+* `RadarScan` para la búsqueda por Bluetooth, de momento sólo en la medición.
 * `PasswordChecklist`, con las casillas que se marcan al escribir.
-* `FadeIn` como primitiva de entrada compartida, aplicada de momento sólo a la cabecera de
-  `AuthScreen`.
+* `FadeIn` como primitiva de entrada compartida, aplicada de momento sólo a `PermissionsScreen`.
 
 Los tres respetan la preferencia de *reducir movimiento* del sistema.
 
@@ -853,7 +841,7 @@ No se tocó la consola web: el rediseño acordado cubre sólo la app del agricul
 
 La web ya no tiene `/cuenta-confirmada`: el backoffice no debe aparecer en ningún correo ni
 redirección, y la confirmación usa códigos de 6 dígitos. Si queda algún correo antiguo con
-enlace, lleva al login neutro de la web. Falta aplicar el cambio de *Site URL* en Supabase
+enlace, lleva al login neutro de la web. *Site URL* ya apunta a `terrasense://`
 ([§10.0](../supabase/README.md#100-backoffice-de-cuenta-única--aplicado-el-27-09-2026)).
 
 ### 12.4. Actualizaciones de firmware en la app

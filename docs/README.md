@@ -2,15 +2,19 @@
 
 | Documento | Función |
 |---|---|
-| Informe académico revisado | Feedback del 10-09-2026: problemática, solución, arquitectura, app, energía, sostenibilidad y evaluación económica |
+| Informe académico entregado (`Evaluacion/Evaluacion 1/INFORME 1 .docx.pdf`) | El documento que se entrega. Exportación binaria cerrada: no se edita desde el repositorio |
+| [Informe corregido](../Evaluacion/Evaluacion%201/INFORME%201%20CORREGIDO.md) | El entregable con todas las correcciones aplicadas. Generado; sin referencias al repositorio |
+| [Informe interno](INFORME%201%20.docx.md) | Contraparte interna del informe, con el mapa de trazabilidad hacia el código |
+| [Contrato BLE](CONTRATO_BLE.md) | Bytes entre el ESP32 y el teléfono: trama, estado, identidad y vinculación |
 | [Modelo económico](MODELO_ECONOMICO.md) | Supuestos, convenciones y fuentes del cálculo |
 | [Resultados financieros](RESULTADOS_FINANCIEROS.md) | Tablas generadas con la BOM y el flujo vigente |
+| [Sección económica](SECCION_ECONOMICA_REFORMULADA.md) y [cuadros](_cuadros_economicos.md) | Análisis de viabilidad generado desde el modelo, tal como entra en el informe corregido |
 | [Plan de validación](PLAN_VALIDACION.md) | Trabajo de integración, ensayos y comprobaciones pendientes |
 | [Marco normativo](MARCO_NORMATIVO_Y_ESTANDARES.md) | Referencias y obligaciones relacionadas con el diseño |
 
-El Informe 1 reúne la explicación que antes estaba distribuida entre documentos de filosofía, comparación de alternativas, viabilidad e integración BME280. La metodología de la revisión financiera se conserva en el modelo económico y en el propio informe. Esos documentos separados se retiraron para mantener una sola explicación vigente.
+El informe reúne la explicación que antes estaba distribuida entre documentos de filosofía, comparación de alternativas, viabilidad e integración BME280; esos documentos se retiraron para mantener una sola explicación vigente. El [archivo histórico](../finanzas/historico/) conserva los antecedentes, incluida la auditoría de septiembre de 2026.
 
-El [archivo histórico](../finanzas/historico/) conserva los antecedentes, incluida la auditoría de septiembre de 2026. Las especificaciones de implementación permanecen en los README de [App](../App/README.md), [PCB](../PCB/README.md), [Web](../Web/README.md) y [Supabase](../supabase/README.md).
+Las especificaciones de implementación viven en los README de cada módulo: [Firmware](../Firmware/README.md), [App](../App/README.md), [Web](../Web/README.md), [Supabase](../supabase/README.md) y [PCB](../PCB/README.md). Por ejemplo: [App: captura, historial y pronóstico](../App/README.md#captura-historial-y-pronóstico-contrato-implementado), [Web: pantallas](../Web/README.md#2-pantallas), [Supabase: persistencia ambiental y batería](../supabase/README.md#persistencia-ambiental-y-bateria), [PCB: trama](../PCB/README.md#69-estructura-binaria-de-la-trama-ble-20-bytes) y [pruebas pendientes](PLAN_VALIDACION.md#5-dependencias-y-comprobaciones-de-software).
 
 ## Actualizar y verificar
 
@@ -22,16 +26,4 @@ python -m unittest discover -s finanzas -p "test_*.py"
 python docs/verificar_documentacion.py
 ```
 
-El primer comando actualiza Excel, BOM, resultados, README principal y bloques económicos del Informe 1. El texto analítico se edita en el informe; los bloques marcados `INFORME:...` se generan desde Python. Los diagramas Mermaid se editan dentro del informe.
-
-
-## Revisión del 10-09-2026
-
-El informe de la raíz concentra las correcciones de costos, pie, estudio de diez años y comparación de cinco, TCO parcial, energía en Wh, ficha de sonda, operación offline/online, metrología, matriz normativa y referencias. El Grid 2×5, el historial ambiental y el pronóstico están implementados en la App y en la consola web. Ninguna de las dos dibuja mapas.
-
-El modelo financiero regenera Excel, BOM, resultados y ambos informes. El bloque ECONOMIA_RAIZ del informe de la raíz procede de finanzas/informe_raiz.py; los bloques INFORME de la copia técnica proceden de finanzas/informe.py. El contenido técnico restante se edita en Markdown. Pendiente posterior: unificar las dos versiones técnicas y revisar documentos auxiliares antiguos contra el informe académico actualizado.
-
-
-## Documentación funcional por módulo
-
-El registro de integración del 11-09-2026 se consolidó en los documentos permanentes: [App: captura, historial y pronóstico](../App/README.md#captura-historial-y-pronóstico-contrato-implementado), [Web: pantallas](../Web/README.md#2-pantallas), [Supabase: migración aplicada y verificación](../supabase/README.md#persistencia-ambiental-y-bateria), [PCB: trama](../PCB/README.md#69-estructura-binaria-de-la-trama-ble-20-bytes), [contrato BLE](CONTRATO_BLE.md) y [pruebas y pendientes](PLAN_VALIDACION.md#5-dependencias-y-comprobaciones-de-software). El archivo temporal de integración no es necesario para consultar esos requisitos y evidencias.
+El primer comando regenera el Excel de flujo de caja, `PCB/BOM_TerraSense.xlsx`, los resultados financieros, la sección económica y sus cuadros, el informe corregido, el bloque `FINANZAS` del README principal y los bloques `INFORME:*` del informe interno. Esos archivos o bloques no se editan a mano: las cifras se cambian en `finanzas/supuestos.json` y la redacción en el script que los genera. El resto del informe interno, incluidos sus diagramas Mermaid, se edita en Markdown.

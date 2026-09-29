@@ -173,7 +173,7 @@ El VPD no viaja en la trama: lo calcula la app con `computeVpdKpa` (ecuación de
 > **La API del clima no alimenta ninguna de estas columnas.** Es pronóstico de varios días y sirve para complementar la recomendación *después* de la medición, no para describir el punto y el instante en que se midió. Hasta la migración `20260906140000`, `canopy_temp_c` se rellenaba con la temperatura de esa API, y las tres columnas tenían valores por defecto inventados (`22.4`, `55.0`, `1.25`) que se guardaban solos en cuanto un `INSERT` las omitía. Las dos cosas están corregidas: sin sensor, `NULL`.
 
 
-## Conexión, batería y captura (11-09-2026)
+## Conexión, batería y captura
 
 La trama v1 transporta **diez variables + batería + versión en 20 bytes**: 14 bytes de suelo, 1 de batería, 1 de versión y 4 de ambiente. No necesita añadir coordenadas: las obtiene el teléfono. El orden binario no cambia para seguir el orden visual del Grid.
 

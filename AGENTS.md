@@ -2,7 +2,7 @@
 
 Este archivo es el equivalente de `CLAUDE.md` para agentes que no lo leen por defecto. Su contenido es el mismo: si editas uno, actualiza el otro.
 
-Monorepo de un instrumento de medición de suelo: sonda RS-485 → ESP32 → BLE → app móvil → Supabase → consola web, más el modelo financiero del proyecto. `App/` (React Native + Expo), `Web/` (React + Vite), `supabase/` (PostgreSQL + RLS + Edge Functions), `PCB/` (KiCad), `finanzas/` (Python), `docs/`.
+Monorepo de un instrumento de medición de suelo: sonda RS-485 → ESP32 → BLE → app móvil → Supabase → backoffice web, más el modelo financiero del proyecto. `Firmware/` (ESP32, Arduino), `App/` (React Native + Expo), `Web/` (React + Vite), `supabase/` (PostgreSQL + RLS + Edge Functions), `PCB/` (KiCad), `finanzas/` (Python), `docs/`.
 
 Lo que sigue no se puede deducir leyendo el código. Léelo antes de editar.
 
@@ -27,7 +27,7 @@ Los reescribe `python finanzas/modelo.py`. Si los editas, tu cambio se pierde en
 Para cambiar una **cifra**, edita `finanzas/supuestos.json` y regenera.
 Para cambiar la **redacción** de un bloque generado, edita `finanzas/informe.py` (informe interno), `finanzas/documentacion.py` (README), `finanzas/cuadros.py` y `finanzas/seccion_economica.py` (sección económica) o `finanzas/corregir_informe.py` (informe corregido), nunca el resultado.
 
-`supabase/schema.sql` es un volcado de `pg_dump`, no una fuente: el esquema real son las 49 migraciones de `supabase/migrations/` (más las `*.local.sql`, fuera de git).
+`supabase/schema.sql` es un volcado de `pg_dump`, no una fuente: el esquema real son las migraciones de `supabase/migrations/` (más las `*.local.sql`, fuera de git).
 
 ## 3. Decisiones cerradas del proyecto
 
@@ -66,10 +66,10 @@ El firmware del ESP32 vive en `Firmware/` (Arduino IDE, núcleo esp32 3.x); su e
 
 ```bash
 python finanzas/modelo.py                                  # regenera cifras y planillas
-python -m unittest discover -s finanzas -p "test_*.py"     # 20 pruebas del modelo financiero
+python -m unittest discover -s finanzas -p "test_*.py"     # pruebas del modelo financiero
 python docs/verificar_documentacion.py                     # enlaces locales y diagramas: debe dar 0 errores
 cd App && npm test                                         # pruebas de la app
-cd Web && npm test                                         # pruebas de la consola web
+cd Web && npm test                                         # pruebas del backoffice web
 ```
 
 Si tocas cifras económicas, ejecuta los tres primeros. Si tocas documentación, el tercero. Estas comprobaciones son las que impiden que el repositorio se desincronice: valen más que cualquier descripción en prosa de la arquitectura.

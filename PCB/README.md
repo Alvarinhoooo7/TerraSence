@@ -296,7 +296,7 @@ En reposo el pin queda alto por `R4`; al pulsar cae a cero. `C6` filtra el rebot
 
 El azul queda justo: con 3,3 V de riel y 3,0 V de caída hay poco margen y el brillo varía entre lotes. Si hace falta verlo bajo sol directo, alimentarlo desde `+5V` con su propio transistor o usar un LED de alta eficiencia.
 
-> **El BOM compra tres LED y el diseño usa dos.** Decidir si se agrega un tercero de carga o se corrige la compra.
+> **Superado por el esquemático:** la V2 monta tres LED (azul, verde y rojo en `IO25`, `IO26` e `IO27`), igual que la BOM. Ver sección 5.7.
 
 ### 5.5. Power gate de la sonda
 
@@ -958,7 +958,7 @@ Se deja así en la V2, porque `SW1` corta todo entre usos. Si más adelante se p
 
 ### 6.8. Ciclo de adquisición Modbus RTU
 
-1. **Despertar:** por pulsación en `GPIO33` o por solicitud BLE desde la app.
+1. **Despertar:** por pulsación en `GPIO33` (pendiente F4 de [`Firmware/TASK.md`](../Firmware/TASK.md)); hoy el firmware no duerme y mide cuando la app se suscribe a la telemetría.
 2. **Power gate ON:** `GPIO5` en alto, la sonda recibe 5,0 V.
 3. **Estabilización:** 100 ms para el oscilador interno de la sonda.
 4. **Comando, UART2 a 9600 baudios, 8N1**, con `GPIO4` en alto:
@@ -1048,7 +1048,6 @@ El firmware debe adquirir y notificar una lectura nueva al suscribirse: no trans
 - Medir la corriente de `BZ1` en `IO19` y decidir resistencia serie o transistor (sección 5.7.1).
 - **Medir energía desde la batería** con `JP1`, distinguiendo el consumo del equipo encendido del de la rama de sonda.
 - Ensayos de radio, batería y carcasa. El IP68 de la sonda no acredita el equipo.
-- Resolver los tres LED del BOM contra los dos del diseño.
 - Definir si se permite medir mientras carga.
 
 ---

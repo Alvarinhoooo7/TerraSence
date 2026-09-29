@@ -12,8 +12,8 @@ La integración de datos y las pruebas de software se trabajan en el repositorio
 
 | # | Pendiente | Por qué bloquea | Cómo se cierra |
 |:---:|---|---|---|
-| 1 | **Cotización real del BOM** | La BOM está cotizada en plataformas al detalle, no con SKU ni factura. La sonda es aproximadamente el 69 % del costo de materiales y define el margen | Cotizaciones con SKU, cantidad, precio neto y bruto, moneda, fecha, vigencia, lead time y costo puesto en taller |
-| 2 | **Oferta bancaria efectiva** | El crédito definido es de $30.000.000 a 10 años y 12 % efectivo anual, con pie propio de $9.000.000 (30 % del crédito). **Falta la oferta bancaria formal**. FOGAPE es garantía sujeta a evaluación, no aprobación | Cotización en CLP a tasa fija, a 5 y 10 años, con todos los cargos, garantías exigidas, gracia y comisión de prepago |
+| 1 | **Cotización real del BOM** | La BOM está cotizada en plataformas al detalle, no con SKU ni factura. La sonda es cerca de dos tercios del costo de materiales ([resultados](RESULTADOS_FINANCIEROS.md)) y define el margen | Cotizaciones con SKU, cantidad, precio neto y bruto, moneda, fecha, vigencia, lead time y costo puesto en taller |
+| 2 | **Oferta bancaria efectiva** | El crédito financia el 100 % de la inversión inicial a 10 años, con un pie propio del 30 % del crédito entregado como condición de entrada; montos y cuota en [RESULTADOS_FINANCIEROS.md](RESULTADOS_FINANCIEROS.md). **Falta la oferta bancaria formal**. FOGAPE es garantía sujeta a evaluación, no aprobación | Cotización en CLP a tasa fija, a 5 y 10 años, con todos los cargos, garantías exigidas, gracia y comisión de prepago |
 | 3 | **Ventas piloto pagadas** | Las metas de 200–850 unidades son objetivos, no demanda. El precio derivado ([`RESULTADOS_FINANCIEROS.md`](RESULTADOS_FINANCIEROS.md)) no lo validó ningún cliente | Pilotos pagados con margen positivo: precio efectivamente pagado, CAC por cohorte, devoluciones y horas de soporte |
 | 4 | **Revisión contable independiente** | El impuesto es una aproximación de caja Pro Pyme; no reproduce F29, PPM ni la declaración de abril | Contador revisa régimen, calificación Pro Pyme, remuneración de socios con control, PPM, IVA efectivo y deducibilidad |
 
@@ -25,13 +25,13 @@ Los resultados de VAN, TIR y caja por escenario se consultan en [RESULTADOS_FINA
 
 | # | Pendiente | Estado actual |
 |:---:|---|---|
-| 5 | **Rediseño de esquema y ruteo de PCB** | `PCB/terrasense.kicad_pcb` está **vacío**: sin componentes, pistas ni contorno. **No fabricar desde ese archivo** |
-| 6 | **Cierre de ERC/DRC** | `ERC.rpt` registra errores de conexión y alimentación sin cierre documentado |
-| 7 | **Firmware del ESP32** | **No existe en el repositorio.** El contrato BLE está documentado según el decodificador de la app —20 bytes con el ambiente del BME280, más una trama reducida de 16 bytes tolerada sólo para prototipos—; el firmware debe emitir el formato de 20 bytes |
+| 5 | **Armar y probar la placa V2** | Esquemático y ruteo en [`PCB/Medidor De Suelos V2/`](../PCB/README.md); primer lote de 5 placas pedido, sin armar ni probar. `PCB/V1/` es la versión anterior: **no fabricar desde ella** |
+| 6 | **Cierre de ERC/DRC** | El único informe en el repositorio es `PCB/V1/ERC.rpt`, de la versión anterior. No hay informe ERC/DRC de la V2 documentado |
+| 7 | **Firmware del ESP32** | **Existe en [`Firmware/`](../Firmware/README.md)**: vinculación BLE, LEDs, buzzer, BME280 y trama de 20 bytes, compilado pero sin probar en hardware. Falta el driver Modbus de la sonda: sin él, toda trama sale con el centinela «sin lectura de suelo». Estado y prueba con la app en [`Firmware/TASK.md`](../Firmware/TASK.md) |
 | 8 | **Captura BLE/Modbus real** | El mapa de registros de la sonda no está confirmado contra la ficha del proveedor. Requiere el SKU adquirido |
 | 9 | **Consumo y autonomía** | Sin medir desde batería. Hay que distinguir reposo total del reposo de la rama de sonda; el divisor 100 k+100 k consume ~18,5 µA por sí solo |
 | 10 | **Sellado, peso y robustez** | IP67, peso < 280 g y resistencia mecánica son **objetivos sin ensayo**. No hay actas ni pesaje del conjunto |
-| 11 | **Build de release con BLE en teléfono** | `npm run android` no compila el módulo nativo. La simulación está restringida a desarrollo con guardado bloqueado |
+| 11 | **Build de release con BLE en teléfono** | `npm run android` (`expo run:android`) compila el módulo BLE para desarrollo; falta un build de release probado con la sonda. La simulación está restringida a desarrollo y no se guarda |
 
 ---
 
@@ -41,7 +41,7 @@ Los resultados de VAN, TIR y caja por escenario se consultan en [RESULTADOS_FINA
 |:---:|---|---|
 | 12 | **Ensayos de precisión por variable** | Sin incertidumbre, sesgo ni repetibilidad medidos, en distintos suelos, salinidades y humedades |
 | 13 | **Revisión por agrónomo** | Se eliminaron la dosis de cal en kg/ha y la fracción fija de lavado. Las reglas que quedan siguen siendo **orientativas** |
-| 14 | **Representatividad del círculo de 20 m** | Una lectura puntual no demuestra el estado de 1.256,6 m². Requiere plan de muestreo y análisis espacial |
+| 14 | **Representatividad de la lectura** | Una lectura puntual no demuestra el estado del campo. Requiere plan de muestreo: cuántos puntos, dónde y a qué profundidad |
 | 15 | **Cuantificar el beneficio para el agricultor** | El «caso real» de $495.000 y el ROI de 98 % se retiraron por no tener campo, control ni registro. Requiere piloto con línea base |
 
 **Los registros N/P/K derivan de conductividad eléctrica y no se validan aquí.** Mantener el análisis de laboratorio para decisiones de fertilización y encalado: una lectura instantánea no equivale a un análisis representativo del campo.
@@ -62,13 +62,11 @@ Las tareas **operativas** de despliegue —aplicar la migración en staging, exp
 
 ## 5. Dependencias y comprobaciones de software
 
-### Evidencia de la entrega del 11-09-2026
+### Comprobaciones automáticas
 
-- **App:** `npm run type-check` y 55 pruebas de `npm test` aprobadas. Cobertura nueva: diez variables y batería desde BLE a fila e historial, históricos sin ambiente, pronóstico con cambio de mes, cinco fechas locales, datos parciales y fallo de red. La suite incluye v0/v1, negativos, centinelas y rangos de telemetría.
-- **Web:** prueba de filtro exclusivo `pre_siembra`/GPS aprobada y `npm run build` completado (TypeScript + Vite).
-- **Supabase:** migración probada con rollback, dry-run de una sola migración, aplicación remota y verificación posterior sin escrituras. [Contrato y comando repetible](../supabase/README.md#persistencia-ambiental-y-bateria).
+Antes de dar un cambio por terminado se ejecutan las de [CLAUDE.md](../CLAUDE.md) §6: modelo financiero, verificación de documentación, `npm test` de App y Web, y `npm run type-check` en ambos. Las pruebas de App cubren la trama v0/v1, negativos, centinelas y rangos, el estado de la sonda, la vinculación, la cola de contactos, el historial ambiental y el pronóstico con fallo de red. `App/scripts/verify-supabase-onboarding.mjs` verifica contra una base los roles, el QR, el reset y la revinculación ([pendiente de correr](../supabase/README.md#1002-reset-sólo-desde-el-backoffice-28-09-2026)).
 
-Los conteos son evidencia de esa entrega. No se declara publicación de los nuevos builds ni despliegue de Edge Functions. Quedan pruebas con ESP32/BME280 reales, interfaz y accesibilidad en teléfonos, modo avión, ausencia de GPS, cierre/reinicio y recuperación de cobertura sin duplicados. La trama v1 no incluye reloj del sensor ni contador: el firmware debe enviar una lectura nueva al suscribirse, y eso debe comprobarse en hardware.
+Quedan pruebas con ESP32/BME280 reales, interfaz y accesibilidad en teléfonos, modo avión, ausencia de GPS, cierre/reinicio y recuperación de cobertura sin duplicados. La trama v1 no incluye reloj del sensor ni contador: el firmware debe enviar una lectura nueva al suscribirse, y eso debe comprobarse en hardware.
 
 Los roadmaps de SMTP/dominio, tickets de soporte, OTA real, alertas preventivas, canary y repaso visual completo conservan sus pendientes en los README de cada módulo; no se consideran cerrados por aprobar estas pruebas.
 
@@ -95,15 +93,3 @@ Los resultados de auditoría y pruebas del 4 de septiembre se conservan en el ar
 Las cifras vigentes de BOM, precio derivado, crédito, cuota, VAN, TIR y payback se regeneran en [RESULTADOS_FINANCIEROS.md](RESULTADOS_FINANCIEROS.md).
 
 Generadas con `python finanzas/modelo.py` desde `finanzas/supuestos.json`. **Regenerar siempre tras editar supuestos; no editar resultados a mano.** La fuente publicada es [`RESULTADOS_FINANCIEROS.md`](RESULTADOS_FINANCIEROS.md).
-
----
-
-## Revisión documental y financiera del 5 de septiembre
-
-La BOM contiene BME280 a $3.500 finales y carcasa impresa en 3D. El modelo calcula VAN, TIR y payback con la misma serie mensual, separa financiación de inversión económica y aprovecha el IVA de inventario inicial. Las tablas del Informe 1 se generan desde el modelo para mantener una sola fuente de cifras.
-
-El Informe 1 incorpora once diagramas, el funcionamiento de la app contrastado con código, el balance energético para LiPo de 2.000 mAh y la comparación de batería recargable con pilas de referencias concretas. Los documentos conceptuales duplicados se consolidaron allí; el índice vigente está en [docs/README.md](README.md).
-
-## Integración BME280 y clima — actualización 5 de septiembre
-
-El BME280 vuelve al diseño obligatorio y la BOM, junto con carcasa 3D explícita. Actualización funcional del 11-09-2026: el decodificador BLE, guardado/Grid y pronóstico de cinco días están implementados. Queda completar el firmware y verificar adquisición I²C y recepción física según el [contrato BLE](CONTRATO_BLE.md). La revisión económica no acredita ensayos del instrumento.
