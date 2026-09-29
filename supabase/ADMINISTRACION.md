@@ -12,7 +12,7 @@ Al migrar datos heredados, se conserva primero al `owner`, después a un `admin`
 
 ## QR de 5 minutos
 
-`get_device_access_qr` entrega a cualquier miembro aprobado un token aleatorio que dura **5 minutos completos desde que se genera**, sin alinearse al reloj del servidor ([`20260928140000`](migrations/20260928140000_qr_de_5_minutos.sql), aplicada el 28-09-2026). Mientras está vigente, todos los miembros ven el mismo; al vencer, la siguiente consulta genera otro con 5 minutos completos. La app lo vuelve a pedir al vencer, muestra la cuenta regresiva y oculta los vencidos. El token nunca es el ID permanente del equipo.
+`get_device_access_qr` entrega a cualquier miembro aprobado un token aleatorio que dura **5 minutos completos desde que se genera**, sin alinearse al reloj del servidor ([`20260928140000`](migrations_archivo/20260928140000_qr_de_5_minutos.sql), aplicada el 28-09-2026). Mientras está vigente, todos los miembros ven el mismo; al vencer, la siguiente consulta genera otro con 5 minutos completos. La app lo vuelve a pedir al vencer, muestra la cuenta regresiva y oculta los vencidos. El token nunca es el ID permanente del equipo.
 
 Debajo del QR la app muestra **el mismo token como código de invitación**, con un botón para copiarlo. Quien no puede escanear lo escribe o lo pega en «Usar invitación» del onboarding. El QR (`terrasense://join?token=…`) y el código siguen el mismo camino y vencen juntos (`parseDeviceInvite` en `App/src/utils/deviceCode.ts`).
 

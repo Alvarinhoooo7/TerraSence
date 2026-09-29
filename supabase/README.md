@@ -5,7 +5,7 @@
 
 El esquema conserva diez variables locales: `vwc_percent`, `ec_us_cm`, `soil_temp_c`, `nitrogen`, `phosphorus`, `potassium`, `ph`, `canopy_temp_c`, `canopy_humidity_pct` y `air_pressure_hpa`. N/P/K son registros informativos sin validación química. La batería se guarda aparte en `battery_percent` y no constituye una undécima variable agronómica del Grid.
 
-La migración [20260911120000_support_environment_readings.sql](migrations/20260911120000_support_environment_readings.sql) quedó **aplicada al proyecto vinculado el 11-09-2026**. Añade `battery_percent` nullable con restricción de 0–100 y amplía `admin_get_device_detail` para devolver ambiente, batería y diagnóstico. Conserva `is_support_staff()`, los permisos del RPC y los roles; no borra registros. La migración ambiental `20260906140000_bme280_presion_y_sin_defaults.sql` ya estaba aplicada.
+La migración [20260911120000_support_environment_readings.sql](migrations_archivo/20260911120000_support_environment_readings.sql) quedó **aplicada al proyecto vinculado el 11-09-2026**. Añade `battery_percent` nullable con restricción de 0–100 y amplía `admin_get_device_detail` para devolver ambiente, batería y diagnóstico. Conserva `is_support_staff()`, los permisos del RPC y los roles; no borra registros. La migración ambiental `20260906140000_bme280_presion_y_sin_defaults.sql` ya estaba aplicada.
 
 Los campos ambientales y de batería admiten `NULL`, sin defaults inventados. El ambiente se obtiene del BME280, nunca de la API del pronóstico. `diagnosis.localSource` identifica el nuevo flujo; los registros históricos sin origen verificado no se reclasifican automáticamente. `diagnosis` conserva el pronóstico y la recomendación disponibles al guardar, la fuente y la respuesta BLE en captura. `measured_at` conserva la recepción en el celular incluso si el envío ocurre después. `devices.last_seen_at` es un reporte remoto histórico, no una conexión BLE en vivo.
 
@@ -135,11 +135,11 @@ auth.users
 
 Rediseñado el 27-09-2026 ([`Web/README.md`](../Web/README.md), [`Web/TAREAS.md`](../Web/TAREAS.md)). Todo el backoffice pasa por funciones `SECURITY DEFINER` que llaman a `assert_support_staff()`; con cualquier otra sesión responden `42501`.
 
-- **Una sola cuenta.** `is_support_staff()` exige la fila activa en `admin_support_users` **y** el correo `akurasoporte@gmail.com` confirmado. Se retiraron el alta por código de invitación (`support_self_register`, `admin_rotate_invite_code`, `admin_support_invite`, `support_register_attempts`) y `admin_set_staff_active`. La cuenta se crea en [`20260927120000`](migrations/20260927120000_backoffice_cuenta_unica.sql) **sin contraseña**: el primer ingreso es por «Recuperar acceso», así la contraseña no queda en el historial de migraciones.
+- **Una sola cuenta.** `is_support_staff()` exige la fila activa en `admin_support_users` **y** el correo `akurasoporte@gmail.com` confirmado. Se retiraron el alta por código de invitación (`support_self_register`, `admin_rotate_invite_code`, `admin_support_invite`, `support_register_attempts`) y `admin_set_staff_active`. La cuenta se crea en [`20260927120000`](migrations_archivo/20260927120000_backoffice_cuenta_unica.sql) **sin contraseña**: el primer ingreso es por «Recuperar acceso», así la contraseña no queda en el historial de migraciones.
 - **Recuperación oculta.** `is_backoffice_email()` (solo `service_role`) decide si la Edge Function `backoffice-recover` envía el código.
-- **Contacto real de la sonda.** `report_device_contact(device_code, batería, versión, hora)` la llama la app en cada conversación BLE (miembros aprobados). Mantiene `first_seen_at` (nueva), `last_seen_at`, `battery_level` y `firmware_version`; esas columnas quedaron sin valores de relleno y en `NULL` hasta el primer contacto ([`20260927120100`](migrations/20260927120100_contacto_real_de_la_sonda.sql)).
-- **Pantallas** ([`20260927120200`](migrations/20260927120200_funciones_backoffice.sql)): `admin_search` (ID o correo → filas equipo/cliente), `admin_device_status` (Online = contacto hace menos de 15 min, decidido por el servidor), `admin_device_members`, `admin_device_measurements` (últimas 5, con pronóstico y consejo desde `diagnosis`), `admin_make_admin`, `admin_approve_member`, `admin_reject_member` y `admin_reset_device` (reset global: usuarios, solicitudes, mediciones, alertas, invitaciones, historial y actualizaciones; conserva el ID y deja la sonda libre para revincularla con PAIR, §10.0.2). Se eliminaron las funciones de la consola anterior: `admin_get_device_detail`, `admin_list_fleet`, `admin_list_recent_measurements`, `admin_push_firmware_update`, `admin_set_member_role`, `admin_set_member_authorized`, `admin_approve_device_member`, `admin_unbind_user_device`, `admin_factory_reset_device`, `admin_toggle_user_status` y `get_admin_dashboard_full_data`.
-- **Actualizaciones de firmware** ([`20260927120300`](migrations/20260927120300_actualizaciones_firmware.sql)): bucket privado `firmware`, columna `firmware_releases.storage_path` y tabla `device_firmware_updates` (enviada → pendiente → instalando → instalada o fallida; cancelada). Backoffice: `admin_list_releases`, `admin_create_release`, `admin_publish_release`, `admin_delete_release`, `admin_send_update`, `admin_send_update_all`, `admin_cancel_update`, `admin_device_update`, `admin_release_devices`. App (administrador del equipo): `my_firmware_updates` y `firmware_update_progress(update, 'postpone' | 'start' | 'installed' | 'failed')`. Cada envío crea un aviso `event_type = 'firmware_update'` para el administrador.
+- **Contacto real de la sonda.** `report_device_contact(device_code, batería, versión, hora)` la llama la app en cada conversación BLE (miembros aprobados). Mantiene `first_seen_at` (nueva), `last_seen_at`, `battery_level` y `firmware_version`; esas columnas quedaron sin valores de relleno y en `NULL` hasta el primer contacto ([`20260927120100`](migrations_archivo/20260927120100_contacto_real_de_la_sonda.sql)).
+- **Pantallas** ([`20260927120200`](migrations_archivo/20260927120200_funciones_backoffice.sql)): `admin_search` (ID o correo → filas equipo/cliente), `admin_device_status` (Online = contacto hace menos de 15 min, decidido por el servidor), `admin_device_members`, `admin_device_measurements` (últimas 5, con pronóstico y consejo desde `diagnosis`), `admin_make_admin`, `admin_approve_member`, `admin_reject_member` y `admin_reset_device` (reset global: usuarios, solicitudes, mediciones, alertas, invitaciones, historial y actualizaciones; conserva el ID y deja la sonda libre para revincularla con PAIR, §10.0.2). Se eliminaron las funciones de la consola anterior: `admin_get_device_detail`, `admin_list_fleet`, `admin_list_recent_measurements`, `admin_push_firmware_update`, `admin_set_member_role`, `admin_set_member_authorized`, `admin_approve_device_member`, `admin_unbind_user_device`, `admin_factory_reset_device`, `admin_toggle_user_status` y `get_admin_dashboard_full_data`.
+- **Actualizaciones de firmware** ([`20260927120300`](migrations_archivo/20260927120300_actualizaciones_firmware.sql)): bucket privado `firmware`, columna `firmware_releases.storage_path` y tabla `device_firmware_updates` (enviada → pendiente → instalando → instalada o fallida; cancelada). Backoffice: `admin_list_releases`, `admin_create_release`, `admin_publish_release`, `admin_delete_release`, `admin_send_update`, `admin_send_update_all`, `admin_cancel_update`, `admin_device_update`, `admin_release_devices`. App (administrador del equipo): `my_firmware_updates` y `firmware_update_progress(update, 'postpone' | 'start' | 'installed' | 'failed')`. Cada envío crea un aviso `event_type = 'firmware_update'` para el administrador.
 - **Corrección de `push_alerts`.** `join_device_by_invite` insertaba la alerta de solicitud con categoría `device` y severidad `warning`, que la restricción no admitía: **toda solicitud de acceso por QR fallaba** y nunca existía una pendiente que aprobar. La misma migración amplía ambas restricciones.
 
 Pruebas: los guiones SQL de verificación (soporte sí, agricultor, pendiente y `anon` no; hacer admin, aceptar, rechazar, reset; ciclo completo de una actualización) y la prueba de punta a punta en navegador se corrieron contra una réplica local con Docker el 27-09-2026. **Aplicadas en producción el mismo día** (§10.0).
@@ -442,17 +442,24 @@ borrar la contraseña SMTP. Los cambios de correo van con `scripts/configurar_co
 > de comandos vive en `C:\Program Files\Docker\Docker\resources\bin`, que no entra en el `PATH`
 > de las sesiones ya abiertas.
 >
-> **En el equipo actual (28-09-2026)** Docker Desktop 4.93.0 quedó instalado por usuario, con el
-> `docker` en `%LOCALAPPDATA%\Programs\DockerDesktop\resources\bin`, y WSL instalado. El motor
-> igual no arranca: su registro dice `Virtual Machine Platform not enabled`. La virtualización del
-> firmware ya está activa; falta el componente de Windows, en una PowerShell de administrador:
+> **En el equipo actual** Docker Desktop 4.93.0 está instalado por usuario, con el `docker` en
+> `%LOCALAPPDATA%\Programs\DockerDesktop\resources\bin`. Además de WSL necesita el componente
+> *Virtual Machine Platform* de Windows (si el registro dice `Virtual Machine Platform not enabled`):
 >
 > ```powershell
 > dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
 > dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
 > ```
 >
-> Después, reiniciar y abrir Docker Desktop. Sin Docker no hay réplica local ni `supabase db dump`.
+> **Réplica local (29-09-2026).** `supabase start` construye la base desde la línea base
+> [`20260929120000_baseline_produccion.sql`](migrations/20260929120000_baseline_produccion.sql):
+> el volcado de producción más el trigger `on_auth_user_created`, el bucket `firmware` con sus
+> políticas y los mismos permisos de tablas y funciones que producción (los privilegios por defecto
+> del entorno local son más amplios). `supabase db diff --linked -s public` sólo muestra cuatro
+> `CHECK` reescritos con otro formato, equivalentes. Las migraciones anteriores están en
+> [`migrations_archivo/`](migrations_archivo/): los marcadores `remote_baseline` no contenían DDL y
+> la base no podía reconstruirse desde cero. En el remoto se consolidó con
+> `supabase migration repair` (antiguas `reverted`, la base `applied`); no se ejecutó DDL.
 
 Aun así conviene saber qué **no** necesita Docker, porque el CLI habla directo con la base y esos
 comandos siguen siendo la vía más rápida de diagnóstico:
@@ -487,29 +494,28 @@ modificar nada.
 
 ### 10.0.3. QR de 5 minutos (28-09-2026)
 
-[`20260928140000_qr_de_5_minutos.sql`](migrations/20260928140000_qr_de_5_minutos.sql). **Aplicada el 28-09-2026**, junto con la de §10.0.2.
+[`20260928140000_qr_de_5_minutos.sql`](migrations_archivo/20260928140000_qr_de_5_minutos.sql). **Aplicada el 28-09-2026**, junto con la de §10.0.2.
 
 `get_device_access_qr` vencía el token en el siguiente cuarto de hora del reloj del servidor, de modo que un QR generado a las 10:14:50 duraba 10 s. Ahora cada token nuevo dura 5 minutos completos desde que se genera. Mientras está vigente, todos los miembros del equipo ven el mismo. La app dice «Cada QR dura 5 minutos»; las versiones anteriores decían 15, así que conviene publicar la nueva. La prueba E2E comprueba la duración.
 
 ### 10.0.2. Reset sólo desde el backoffice (28-09-2026)
 
-[`20260928130000_reset_solo_desde_backoffice.sql`](migrations/20260928130000_reset_solo_desde_backoffice.sql). **Aplicada el 28-09-2026.**
+[`20260928130000_reset_solo_desde_backoffice.sql`](migrations_archivo/20260928130000_reset_solo_desde_backoffice.sql). **Aplicada el 28-09-2026.**
 
 - `register_paired_device` ya no rechaza un equipo sin miembros con `data_generation > 0`. Esa regla, de `20260920120000`, dejaba una sonda reseteada sin forma de volver a vincularse: soporte nunca tuvo cómo habilitar al nuevo dueño. Ahora la vincula quien abra su ventana PAIR, que exige la app, y queda como administrador. La base no ve la ventana: una llamada directa a la API con el ID de una sonda sin dueño la registra igual. Es el pendiente A4 de [`Firmware/TASK.md`](../Firmware/TASK.md), aceptado.
 - Se elimina `prepare_device_for_owner`: el administrador ya no resetea desde la app. El único reset es `admin_reset_device`.
 - `data_generation` y `device_data_resets` siguen igual: los teléfonos de los antiguos miembros descartan sus colas y cachés anteriores al reset.
 - La migración se comprueba a sí misma: falla si queda el bloqueo, si la función retirada sigue existiendo o si cambian los permisos de `register_paired_device`.
 
-**Aplicación (28-09-2026):** `supabase db push` aplicó esta migración y la de §10.0.3, las únicas pendientes, sin probarlas antes en una réplica porque Docker no arrancaba (§9). Las comprobaciones de cada migración pasaron, y una consulta de solo lectura confirmó en producción que `register_paired_device` ya no bloquea, que `prepare_device_for_owner` no existe, que el QR dura 5 minutos y que los permisos de ambas funciones se mantienen. `Web/backend/database.types.ts` se regeneró. `schema.sql` no pudo volcarse, porque `supabase db dump` también usa Docker: se actualizó con los cuerpos exactos que devuelve producción para esas funciones y se retiró `prepare_device_for_owner`. Volver a volcarlo completo cuando Docker funcione.
+**Aplicación (28-09-2026):** `supabase db push` aplicó esta migración y la de §10.0.3, las únicas pendientes, sin probarlas antes en una réplica porque Docker no arrancaba (§9). Las comprobaciones de cada migración pasaron, y una consulta de solo lectura confirmó en producción que `register_paired_device` ya no bloquea, que `prepare_device_for_owner` no existe, que el QR dura 5 minutos y que los permisos de ambas funciones se mantienen. `Web/backend/database.types.ts` se regeneró. `schema.sql` no pudo volcarse, porque `supabase db dump` también usa Docker: se actualizó con los cuerpos exactos que devuelve producción para esas funciones y se retiró `prepare_device_for_owner`. Volcado completo de nuevo el 29-09-2026, y `npm run test:supabase-onboarding` pasó contra la réplica local (§9).
 
 **Pendiente:**
 
-1. **Docker operativo** (§9) y `npm run test:supabase-onboarding` desde `App/` contra una réplica, no contra producción.
-2. **Con la sonda real:** paso 7 de la prueba de [`Firmware/TASK.md`](../Firmware/TASK.md), vinculando con una cuenta distinta de la anterior.
+1. **Con la sonda real:** paso 7 de la prueba de [`Firmware/TASK.md`](../Firmware/TASK.md), vinculando con una cuenta distinta de la anterior.
 
 ### 10.0.1. ID desde la MAC (28-09-2026)
 
-[`20260928120000_id_desde_la_mac.sql`](migrations/20260928120000_id_desde_la_mac.sql): el firmware deriva el ID de la MAC y puede empezar con 0, así que la restricción `devices_device_code_15_digits` y las funciones que validaban `^[1-9][0-9]{14}$` (`register_paired_device`, `join_device_by_code`) pasan a `^[0-9]{15}$`. Las funciones se reescriben desde su propia definición vigente, cambiando sólo el patrón. `device-checkin` se actualizó igual.
+[`20260928120000_id_desde_la_mac.sql`](migrations_archivo/20260928120000_id_desde_la_mac.sql): el firmware deriva el ID de la MAC y puede empezar con 0, así que la restricción `devices_device_code_15_digits` y las funciones que validaban `^[1-9][0-9]{14}$` (`register_paired_device`, `join_device_by_code`) pasan a `^[0-9]{15}$`. Las funciones se reescriben desde su propia definición vigente, cambiando sólo el patrón. `device-checkin` se actualizó igual.
 
 ### 10.0. Backoffice de cuenta única — aplicado el 27-09-2026
 

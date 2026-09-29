@@ -25,7 +25,7 @@ El plan del rediseño y lo que falta están en [TAREAS.md](TAREAS.md).
 
 Sin sesión, cualquier otra URL lleva a `/ingresar`. Los textos antes de entrar son neutros: nada dice «backoffice» ni «soporte».
 
-**La decisión no está en la web.** `is_support_staff()` exige la fila activa en `admin_support_users` **y** el correo `akurasoporte@gmail.com` confirmado ([migración](../supabase/migrations/20260927120000_backoffice_cuenta_unica.sql)); cada función del backoffice la comprueba. El código de la web no contiene ese correo.
+**La decisión no está en la web.** `is_support_staff()` exige la fila activa en `admin_support_users` **y** el correo `akurasoporte@gmail.com` confirmado ([migración](../supabase/migrations_archivo/20260927120000_backoffice_cuenta_unica.sql)); cada función del backoffice la comprueba. El código de la web no contiene ese correo.
 
 **La recuperación tampoco delata la cuenta.** La Edge Function [`backoffice-recover`](../supabase/functions/backoffice-recover/index.ts) envía el código solo si el correo es el de soporte, responde `{ ok: true }` a cualquier correo y lo hace antes de enviar, para que el tiempo de respuesta no revele cuál sirve. Si otra cuenta llegara a verificar un código aquí, su sesión se cierra y la pantalla responde como a un código inválido.
 
@@ -63,7 +63,7 @@ Cada envío crea un aviso push para el **administrador** del equipo ([`backoffic
 
 ## 3. Datos y seguridad
 
-- Todo pasa por funciones `SECURITY DEFINER` que comprueban `is_support_staff()` ([funciones del backoffice](../supabase/migrations/20260927120200_funciones_backoffice.sql), [actualizaciones](../supabase/migrations/20260927120300_actualizaciones_firmware.sql)). La web usa solo la clave pública; **nunca** la `service_role`.
+- Todo pasa por funciones `SECURITY DEFINER` que comprueban `is_support_staff()` ([funciones del backoffice](../supabase/migrations_archivo/20260927120200_funciones_backoffice.sql), [actualizaciones](../supabase/migrations_archivo/20260927120300_actualizaciones_firmware.sql)). La web usa solo la clave pública; **nunca** la `service_role`.
 - Los tipos generados están en [`backend/database.types.ts`](backend/database.types.ts) (`supabase gen types typescript`); los de dominio, con la nulabilidad real, en [`backend/types.ts`](backend/types.ts).
 - El binario de firmware solo lo descarga la cuenta de soporte o el administrador de un equipo con esa actualización activa (políticas de `storage.objects`).
 - `index.html` pide no indexar ni archivar la página y no enviar el referente.
@@ -113,6 +113,6 @@ Despliegue: `vercel --prod --yes` desde `Web/`. `vercel.json` reescribe cualquie
 
 ## 7. Pendiente: contraseña de la cuenta anterior
 
-La cuenta que antes entraba al backoffice (`alvarovillena8@gmail.com`) se creó desde SQL con la contraseña escrita en `20260902180000_alta_usuario_alvaro.local.sql`. El archivo no está en git, pero Supabase guarda el cuerpo de cada migración aplicada en `supabase_migrations.schema_migrations`, así que la contraseña sigue legible en la base de producción. Desde [`20260927120000`](../supabase/migrations/20260927120000_backoffice_cuenta_unica.sql) esa cuenta ya no entra al backoffice, pero sigue siendo una cuenta de la app.
+La cuenta que antes entraba al backoffice (`alvarovillena8@gmail.com`) se creó desde SQL con la contraseña escrita en `20260902180000_alta_usuario_alvaro.local.sql`. El archivo no está en git, pero Supabase guarda el cuerpo de cada migración aplicada en `supabase_migrations.schema_migrations`, así que la contraseña sigue legible en la base de producción. Desde [`20260927120000`](../supabase/migrations_archivo/20260927120000_backoffice_cuenta_unica.sql) esa cuenta ya no entra al backoffice, pero sigue siendo una cuenta de la app.
 
 Corrección, en este orden: cambiar su contraseña (*Authentication → Users* o recuperación) y luego vaciar la columna `statements` de esa fila en `schema_migrations`. La cuenta de soporte nueva no repite el error: se creó sin contraseña.

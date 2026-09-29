@@ -565,7 +565,7 @@ El centro consulta `check_firmware_update`, muestra la versión informada y las 
 la versión compatible publicada. No instala actualizaciones de la app.
 
 **Desde el 27-09-2026 el backoffice envía actualizaciones** al administrador de cada equipo
-([`20260927120300`](../supabase/migrations/20260927120300_actualizaciones_firmware.sql)):
+([`20260927120300`](../supabase/migrations_archivo/20260927120300_actualizaciones_firmware.sql)):
 llega un aviso push con `event_type = 'firmware_update'` y la asignación queda en
 `my_firmware_updates()`. **Falta implementar en la app** (§12.4): la ventana Actualizar /
 Cancelar, el estado pendiente y la instalación por BLE. Hasta entonces la interfaz no simula
@@ -574,8 +574,8 @@ progreso ni afirma haber instalado nada.
 #### Validación pendiente
 
 La invalidación por generación viene de
-[`20260920120000_preparar_equipo_propietario.sql`](../supabase/migrations/20260920120000_preparar_equipo_propietario.sql);
-[`20260928130000_reset_solo_desde_backoffice.sql`](../supabase/migrations/20260928130000_reset_solo_desde_backoffice.sql)
+[`20260920120000_preparar_equipo_propietario.sql`](../supabase/migrations_archivo/20260920120000_preparar_equipo_propietario.sql);
+[`20260928130000_reset_solo_desde_backoffice.sql`](../supabase/migrations_archivo/20260928130000_reset_solo_desde_backoffice.sql)
 retiró el reset desde la app y el bloqueo que impedía revincular una sonda reseteada.
 `npm run test:supabase-onboarding` (§9) cubre revinculación, concurrencia y aviso de
 invalidación. La migración está aplicada en producción desde el 28-09-2026. **Pendiente:** correr

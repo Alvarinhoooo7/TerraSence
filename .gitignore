@@ -69,6 +69,7 @@ supabase/.env
 # cualquier otra, pero nunca deben llegar al remoto de git. Convención:
 # nombrarlas *.local.sql.
 supabase/migrations/*.local.sql
+supabase/migrations_archivo/*.local.sql
 
 # ─────────────────────────────────────────────────────────────
 # FIRMWARE ESP32  (PlatformIO / ESP-IDF)

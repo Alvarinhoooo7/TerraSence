@@ -25,7 +25,7 @@ Los reescribe `python finanzas/modelo.py`. Si los editas, tu cambio se pierde en
 Para cambiar una **cifra**, edita `finanzas/supuestos.json` y regenera.
 Para cambiar la **redacción** de un bloque generado, edita `finanzas/informe.py` (informe interno), `finanzas/documentacion.py` (README), `finanzas/cuadros.py` y `finanzas/seccion_economica.py` (sección económica) o `finanzas/corregir_informe.py` (informe corregido), nunca el resultado.
 
-`supabase/schema.sql` es un volcado de `pg_dump`, no una fuente: el esquema real son las migraciones de `supabase/migrations/` (más las `*.local.sql`, fuera de git).
+`supabase/schema.sql` es un volcado de `pg_dump`, no una fuente: el esquema real son las migraciones de `supabase/migrations/`, que parten de la línea base `20260929120000_baseline_produccion.sql` (esquema de producción consolidado). Las 54 migraciones anteriores quedan en `supabase/migrations_archivo/` sólo como historia: el CLI ya no las lee. Una migración nueva va en `supabase/migrations/` con versión posterior a la base; `supabase db reset` debe reconstruir la réplica local sin errores.
 
 ## 3. Decisiones cerradas del proyecto
 
@@ -45,7 +45,7 @@ Manda el código:
 | Decodificación BLE | `App/src/services/probeService.ts` (transporte: `bleService.ts`) |
 | Motor agronómico y umbrales | `App/src/engine/agronomyEngine.ts`, `stageEvaluator.ts`, `contextualAdvice.ts` |
 | Pronóstico y su degradación sin red | `App/src/services/weatherService.ts` |
-| Esquema, RLS y perímetros | `supabase/migrations/*.sql` |
+| Esquema y RLS | `supabase/migrations/*.sql` |
 | Cifras económicas | `finanzas/supuestos.json` + `finanzas/modelo.py` |
 | Pines y comportamiento del equipo (LEDs, buzzer, PAIR) | `Firmware/pines.h`, `Firmware/Firmware.ino` y el esquemático KiCad |
 
@@ -56,7 +56,7 @@ El firmware del ESP32 vive en `Firmware/` (Arduino IDE, núcleo esp32 3.x); su e
 - **No crear changelogs** ni archivos de registro fechados (`INTEGRACION_<fecha>.md`, `CAMBIOS_*.md`). La documentación describe el estado vigente, no su historia; para eso está git.
 - **Una cifra vive en un solo lugar.** Si aparece en dos documentos, uno la genera y el otro la enlaza. Única excepción deliberada: el informe entregable.
 - No agregues documentos nuevos salvo que se pidan; actualiza los existentes.
-- Español de Chile. Se dice **campo**, no "predio" ni "potrero". El mapa y la extensión PostGIS se retiraron del producto en la migración `20260920140000_retirar_mapa_y_postgis.sql`: ya no existen `predial_quadrants`, `field_perimeters` ni geometrías. La medición **sí** se sigue georreferenciando (`latitude`, `longitude`, `gps_accuracy_m` se conservan y se muestran como texto), así que no confundas «retirar el mapa» con «perder la georreferenciación».
+- Español de Chile. Se dice **campo**, no "predio" ni "potrero". El mapa y la extensión PostGIS se retiraron del producto en la migración `migrations_archivo/20260920140000_retirar_mapa_y_postgis.sql`: ya no existen `predial_quadrants`, `field_perimeters` ni geometrías. La medición **sí** se sigue georreferenciando (`latitude`, `longitude`, `gps_accuracy_m` se conservan y se muestran como texto), así que no confundas «retirar el mapa» con «perder la georreferenciación».
 - Al citar siglas económicas (TAM, SAM, SOM, VAN, TIR, TCO, BOM), explica su significado entre paréntesis la primera vez.
 - **No uses EBITDA, FCFF, FCFE, DSCR ni FTE.** Se retiraron deliberadamente del informe: son válidos pero exceden el nivel de una evaluación de viabilidad económica y el equipo no los maneja. La dotación se expresa en personas, no en FTE.
 

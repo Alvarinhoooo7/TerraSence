@@ -1,7 +1,7 @@
 // Web/backend/adminApi.ts
 //
 // Acceso a datos del backoffice. Cada función envuelve una RPC de
-// `supabase/migrations/20260927120200_funciones_backoffice.sql`. Todas exigen
+// `supabase/migrations_archivo/20260927120200_funciones_backoffice.sql`. Todas exigen
 // la sesión de la cuenta de soporte: con cualquier otra, Postgres responde
 // 42501 y aquí se propaga como excepción.
 
