@@ -2,7 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { evaluateForStage } from '../src/engine/stageEvaluator';
 import { buildContextualAdvice } from '../src/engine/contextualAdvice';
-import { buildMeasurementPresentation, isMeasurementPresentation, presentationFromPoint, PARAMETER_KEYS } from '../src/engine/measurementPresentation';
+import { buildMeasurementPresentation, isMeasurementPresentation, parameterLabel, presentationFromPoint, PARAMETER_KEYS } from '../src/engine/measurementPresentation';
+import { localizeProbeError } from '../src/utils/probeErrors';
+import { cropName, textureName } from '../src/engine/catalogNames';
+import { CROPS_DB, SOIL_TEXTURES } from '../src/engine/agronomyEngine';
 import type { SoilMeasurement } from '../src/types/agronomy';
 import type { MeasurementPoint, PhenologicalStage } from '../src/types/app';
 
@@ -41,4 +44,82 @@ test('Lectura guardada conserva diagnóstico y lectura antigua no se reevalúa',
   const legacy = presentationFromPoint({ ...point, diagnosis: null });
   assert.ok(legacy.parameters.every(m => m.status === 'INFO'));
   assert.equal(legacy.actions.length, 0);
+});
+
+const SPANISH = /[áéíóúñ¿¡]|(el|la|los|las|del|sin|para|con|datos?|lectura|medición)/i;
+test('D10: la presentación en inglés no contiene frases fijas en español', () => {
+  for (const stage of ['pre_siembra', 'vegetativo', 'floracion', 'cosecha'] as const) {
+    for (const reading of [raw, { ...raw, airTemp: 21, airHumidity: 55, airPressure: 1010 }]) {
+      const evaluation = evaluateForStage(reading, stage, 'maiz', 'franco', 'en');
+      const advice = buildContextualAdvice(stage, evaluation, reading, null, 'en');
+      const p = buildMeasurementPresentation(reading, evaluation, advice, 'en');
+      assert.equal(isMeasurementPresentation(p), true);
+      assert.doesNotMatch([advice.title, advice.summary, advice.weatherNote, ...advice.actions].join(' '), SPANISH, `consejo ${stage}`);
+      for (const m of p.parameters) {
+        assert.doesNotMatch(m.label, SPANISH);
+        // context lleva el nombre del cultivo y la textura, que son catálogo (D13).
+        assert.doesNotMatch([m.state, m.recommendation, m.control].join(' '), SPANISH, `${stage}/${m.key}`);
+      }
+    }
+  }
+  assert.equal(parameterLabel('vwc', 'en'), 'Soil moisture');
+  assert.equal(parameterLabel('vwc'), 'Humedad del suelo');
+});
+test('D10: ocho cultivos y cuatro texturas conservan claves y se muestran en ambos idiomas', () => {
+  for (const id of Object.keys(CROPS_DB) as Array<keyof typeof CROPS_DB>) {
+    assert.equal(cropName(id, 'es'), CROPS_DB[id].name);
+    assert.notEqual(cropName(id, 'en'), CROPS_DB[id].name);
+  }
+  for (const id of Object.keys(SOIL_TEXTURES) as Array<keyof typeof SOIL_TEXTURES>) {
+    assert.equal(textureName(id, 'es'), SOIL_TEXTURES[id].name);
+    assert.notEqual(textureName(id, 'en'), SOIL_TEXTURES[id].name);
+  }
+  const evaluation = evaluateForStage(raw, 'pre_siembra', 'maiz', 'franco', 'en');
+  const advice = buildContextualAdvice('pre_siembra', evaluation, raw, null, 'en');
+  const presentation = buildMeasurementPresentation(raw, evaluation, advice, 'en');
+  assert.match(presentation.context, /Grain corn.*Loam/);
+  assert.ok(advice.suggestedCrops.some(name => name.includes('Grain corn')));
+  assert.equal(evaluation.crop.id, 'maiz');
+});
+test('D10: el español se conserva tal cual y el pronóstico de riesgo también se traduce', () => {
+  const es = build('vegetativo');
+  assert.equal(es.parameters[0].label, 'Humedad del suelo');
+  const evaluation = evaluateForStage(raw, 'vegetativo', 'maiz', 'franco', 'en');
+  const weather = { timezone: 'UTC', fetchedAt: '2026-01-01T00:00:00Z', forecast: [
+    { date: '2026-01-02', precipitationMm: 12, rainProbabilityPct: 80, minimumTemperatureC: -1, maximumTemperatureC: 36 },
+  ] } as unknown as Parameters<typeof buildContextualAdvice>[3];
+  const en = buildContextualAdvice('vegetativo', evaluation, raw, weather, 'en');
+  assert.match(en.weatherNote, /rain, frost, heat/);
+  assert.doesNotMatch([en.weatherNote, ...en.actions].join(' '), /lluvia|helada|calor|labor/i);
+  const esAdvice = buildContextualAdvice('vegetativo', evaluation, raw, weather);
+  assert.match(esAdvice.weatherNote, /lluvia, helada, calor/);
+});
+test('D10: lecturas guardadas sin diagnóstico se presentan en el idioma de la app', () => {
+  const point = { stage: 'cosecha', title: 'Registro', action: null, diagnosis: null } as unknown as MeasurementPoint;
+  assert.match(presentationFromPoint(point).context, /Lectura guardada/);
+  const en = presentationFromPoint(point, 'en');
+  assert.equal(en.context, 'Saved reading');
+  assert.doesNotMatch([en.summary, en.weatherNote, ...en.parameters.flatMap(m => [m.label, m.state, m.recommendation, m.control])].join(' '), SPANISH);
+});
+test('D10: los errores de sonda y guardado se traducen o se reemplazan por un texto general, nunca en español', () => {
+  const fallback = 'Could not read the probe.';
+  assert.equal(localizeProbeError('El Bluetooth está apagado. Actívalo para leer la sonda.', 'es', fallback), 'El Bluetooth está apagado. Actívalo para leer la sonda.');
+  assert.match(localizeProbeError('El Bluetooth está apagado. Actívalo para leer la sonda.', 'en', fallback), /Bluetooth is off/);
+  assert.match(localizeProbeError('La sonda no entregó lectura de suelo. Revisa que…', 'en', fallback), /did not deliver a soil reading/);
+  assert.match(localizeProbeError('Paquete BLE incompleto: 3 bytes de 16 esperados.', 'en', fallback), /could not be interpreted/);
+  assert.match(localizeProbeError('Inicia sesión para guardar o sincronizar mediciones.', 'en', fallback), /Sign in/);
+  assert.equal(localizeProbeError('Un mensaje desconocido del servidor', 'en', fallback), fallback);
+  assert.equal(localizeProbeError(undefined, 'en', fallback), fallback);
+});
+test('D10: un barrido de lecturas extremas no deja mensajes del motor en español al usar inglés', () => {
+  for (const vwc of [3, 12, 22, 35, 48, 60]) for (const temp of [2, 9, 14, 20]) for (const ph of [4.5, 5.6, 6.5, 8.2]) for (const ec of [200, 900, 1700, 3500]) {
+    const reading = { ...raw, vwc, temp, ph, ec, nitrogen: 150, phosphorus: 90, potassium: 400, lux: 90000, airTemp: 20, airHumidity: 50, airPressure: 1000 };
+    for (const stage of ['pre_siembra', 'vegetativo', 'floracion', 'cosecha'] as const) {
+      const evaluation = evaluateForStage(reading, stage, 'tomate', 'arcilloso', 'en');
+      const p = buildMeasurementPresentation(reading, evaluation, buildContextualAdvice(stage, evaluation, reading, null, 'en'), 'en');
+      for (const m of p.parameters) {
+        assert.doesNotMatch([m.state, m.recommendation, m.control].join(' '), SPANISH, `${stage} vwc=${vwc} t=${temp} ph=${ph} ec=${ec} ${m.key}`);
+      }
+    }
+  }
 });

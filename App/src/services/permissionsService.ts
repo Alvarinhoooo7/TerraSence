@@ -50,12 +50,35 @@ async function readAndroidBluetooth(): Promise<PermissionState> {
   return androidRuntimeState({ granted, rationale, asked: await wasAsked('bluetooth') });
 }
 
+/**
+ * iOS: la autorización se lee de `CBManager.authorization` (módulo nativo propio), que no crea
+ * ningún gestor ni abre el diálogo, y sobrevive a restablecer la privacidad del teléfono.
+ * Con la autorización concedida, crear `BleManager` ya no muestra diálogo, así que se consulta
+ * la radio para distinguir «Bluetooth apagado» de «permiso denegado».
+ *
+ * Respaldo: si el módulo nativo no existe (binario sin recompilar, Expo Go), `requireNativeModule`
+ * lanza. Sólo en ese caso se vuelve al criterio anterior: sin la marca local de «ya se pidió» se
+ * responde «sin decidir» sin crear `BleManager` (crearlo abriría el diálogo antes de la primera
+ * solicitud); con la marca, se consulta el estado del gestor.
+ */
 async function readIosBluetooth(): Promise<PermissionState> {
-  // Crear el gestor de CoreBluetooth muestra el diálogo si aún no se decidió: sólo
-  // se consulta después de la primera solicitud, que deja la marca por instalación.
-  if (!(await wasAsked('bluetooth'))) return { status: 'undetermined', canAskAgain: true };
-  const { getManager } = await import('./bleService');
-  return bluetoothState(await getManager().state());
+  let authorization: PermissionState;
+  try {
+    const { readIosBluetoothAuthorization } = await import('./iosBluetoothAuthorization');
+    authorization = readIosBluetoothAuthorization();
+  } catch {
+    if (!(await wasAsked('bluetooth'))) return { status: 'undetermined', canAskAgain: true };
+    const { getManager } = await import('./bleService');
+    return bluetoothState(await getManager().state());
+  }
+  if (authorization.status !== 'granted') return authorization;
+  try {
+    const { getManager } = await import('./bleService');
+    const radio = bluetoothState(await getManager().state());
+    if (radio.status === 'unavailable') return radio;
+    if (radio.poweredOff) return { ...authorization, poweredOff: true };
+  } catch { /* sin estado de la radio: se informa la autorización, que es lo consultado */ }
+  return authorization;
 }
 
 function readNotificationResponse(response: Notifications.NotificationPermissionsStatus): PermissionState {
@@ -93,18 +116,39 @@ async function requestIosBluetooth(): Promise<PermissionState> {
   return new Promise(resolve => {
     let subscription: { remove: () => void } | undefined;
     let settled = false;
+    let dialogFinished = false;
+    let releaseDialog: (() => void) | undefined;
+    // El resultado puede vencer antes que el diálogo del sistema. La cola sigue
+    // bloqueada hasta que CoreBluetooth indique una decisión.
+    iosDialogBarrier = new Promise<void>(done => { releaseDialog = done; });
+    const release = () => {
+      if (dialogFinished) return;
+      dialogFinished = true;
+      clearInterval(poll);
+      subscription?.remove();
+      releaseDialog?.();
+      iosDialogBarrier = null;
+    };
     const finish = (result: PermissionState) => {
+      if (settled) return;
       settled = true;
       clearTimeout(timer);
-      subscription?.remove();
+      if (result.status !== 'undetermined') release();
       resolve(result);
     };
     const timer = setTimeout(() => finish({ status: 'undetermined', canAskAgain: true }), 20000);
+    const poll = setInterval(() => {
+      void readIosBluetooth().then(state => {
+        if (state.status === 'undetermined' || state.status === 'error') return;
+        finish(state);
+        release();
+      }).catch(() => undefined);
+    }, 750);
     subscription = manager.onStateChange(state => {
       const result = bluetoothState(state);
-      if (result.status !== 'undetermined') finish(result);
+      if (result.status !== 'undetermined') { finish(result); release(); }
     }, true);
-    if (settled) subscription.remove();
+    if (dialogFinished) subscription.remove();
   });
 }
 
@@ -126,9 +170,13 @@ async function nativeRequest(kind: PermissionKind, language: 'es' | 'en'): Promi
 
 // Una sola solicitud nativa activa: dos toques seguidos o dos pantallas no apilan diálogos.
 let queue: Promise<unknown> = Promise.resolve();
+let iosDialogBarrier: Promise<void> | null = null;
 function exclusive<T>(work: () => Promise<T>): Promise<T> {
-  const run = queue.then(work, work);
-  queue = run.catch(() => undefined);
+  const run = queue.then(async () => {
+    if (iosDialogBarrier) await iosDialogBarrier;
+    return work();
+  });
+  queue = run.then(async () => { if (iosDialogBarrier) await iosDialogBarrier; }, async () => { if (iosDialogBarrier) await iosDialogBarrier; });
   return run;
 }
 
@@ -136,9 +184,11 @@ function exclusive<T>(work: () => Promise<T>): Promise<T> {
  * Solicita el permiso desde una acción explícita. Revalida antes de pedir: si ya está
  * concedido o el sistema no volverá a preguntar, devuelve el estado sin abrir diálogos.
  */
-export function requestPermission(kind: PermissionKind, language: 'es' | 'en' = 'es'): Promise<PermissionState> {
+export function requestPermission(kind: PermissionKind, language: 'es' | 'en' = 'es', isActive: () => boolean = () => true): Promise<PermissionState> {
   return exclusive(async () => {
+    if (!isActive()) return { status: 'undetermined', canAskAgain: true };
     const current = await readPermission(kind);
+    if (!isActive()) return current;
     if (current.status === 'granted' || current.status === 'unavailable' || current.status === 'restricted' || !current.canAskAgain) {
       return current;
     }

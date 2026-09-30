@@ -89,7 +89,7 @@ export interface ResetResult {
 export type UpdateStatus = 'sent' | 'postponed' | 'installing' | 'installed' | 'failed' | 'cancelled';
 
 export const UPDATE_STATUS_LABEL: Record<UpdateStatus, string> = {
-  sent: 'Enviada, sin respuesta',
+  sent: 'Asignada, sin respuesta',
   postponed: 'Pendiente (el administrador la postergó)',
   installing: 'Instalando',
   installed: 'Instalada',

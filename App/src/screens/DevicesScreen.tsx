@@ -36,6 +36,8 @@ import {
 import { parseDeviceInvite, formatDeviceId } from '../utils/deviceId';
 import { askForAccess } from '../components/permissionPrompt';
 import { PERMISSION_COPY, pick } from '../utils/permissionCopy';
+import { createAccountOperation } from '../utils/accountOperation';
+import { useAuthStore } from '../store/useAuthStore';
 import type { DeviceMembershipRow, DeviceRow } from '../types/app';
 
 interface Props {
@@ -49,6 +51,8 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
   const { device: selected, setDevice } = useAppStore();
   const alive = useRef(true);
   const operation = useRef(false);
+  const scanRequest = useRef(false);
+  const accountOperation = useRef(createAccountOperation(useAuthStore.getState().session?.user.id, () => useAuthStore.getState().session?.user.id));
   const revision = useRef(0);
   const [memberships, setMemberships] = useState<DeviceMembershipRow[]>([]);
   const [loadError, setLoadError] = useState(false);
@@ -78,27 +82,32 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
   }, [t]);
 
   useEffect(() => {
-    alive.current = true; void refresh();
-    return () => { alive.current = false; revision.current++; };
+    alive.current = true; accountOperation.current.mount(); const unsubscribe = useAuthStore.subscribe(() => accountOperation.current.cancelIfAccountChanged()); void refresh();
+    return () => { alive.current = false; revision.current++; unsubscribe(); accountOperation.current.unmount(); };
   }, [refresh]);
-  useEffect(() => { const sub = BackHandler.addEventListener('hardwareBackPress', () => operation.current); return () => sub.remove(); }, []);
+  useEffect(() => { const sub = BackHandler.addEventListener('hardwareBackPress', () => { if (!operation.current) return false; accountOperation.current.cancel(); onClose(); return true; }); return () => sub.remove(); }, [onClose]);
 
   const handleRegister = useCallback(async () => {
     if (operation.current) return; operation.current = true;
+    const active = accountOperation.current.begin();
     setBusy(true);
     try {
-      const access = await askForAccess('bluetooth', language);
+      const access = await askForAccess('bluetooth', language, active);
+      if (!active()) return;
       // Un estado que no se pudo consultar no es un rechazo: la búsqueda informa el error real.
       if (!access.ok && !access.unknown) {
         if (access.deniedNow) Alert.alert(pick(PERMISSION_COPY.bluetooth.name, language), pick(PERMISSION_COPY.bluetooth.denied, language));
         return;
       }
       const ble = await import('../services/bleService');
-      const probe = await ble.pairWithNearbyProbe();
+      if (!active()) return;
+      const probe = await ble.pairWithNearbyProbe(active.signal);
+      if (!active()) return;
       if (!probe.pairingOpen) {
         throw new Error(t('Mantén el botón PAIR de la sonda 3 segundos, hasta que la luz azul parpadee, y vuelve a intentarlo.', 'Hold the probe PAIR button for 3 seconds, until the blue light blinks, and try again.'));
       }
       const d = await registerDevice(newName.trim() || probe.name, probe.deviceCode);
+      if (!active()) return;
       // Aviso en la sonda (verde y buzzer); no retiene ni deshace el registro.
       void ble.confirmPairing(probe.bleId, probe.deviceCode);
       setNewName('');
@@ -112,7 +121,7 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
         ),
       );
     } catch (e) {
-      Alert.alert(t('No se pudo registrar', 'Could not register'), String(e));
+      if (active()) Alert.alert(t('No se pudo registrar', 'Could not register'), String(e));
     } finally {
       operation.current = false; if (alive.current) setBusy(false);
     }
@@ -135,6 +144,7 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
   };
 
   const closeScanner = () => {
+    accountOperation.current.cancel();
     scanLatch.current = false;
     setScanner(false);
   };
@@ -162,12 +172,16 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
       return;
     }
     operation.current = true; setBusy(true);
+    // La solicitud pertenece a la cuenta que la inició: si se sale de la pantalla o cambia la
+    // cuenta mientras responde, no se selecciona un equipo ni se abre la espera para otra sesión.
+    const active = accountOperation.current.begin();
     try {
       const device = await requestDeviceAccess(token);
+      if (!active()) return;
       setInviteCode('');
       if (device) { setDevice(device); await refresh(); }
       else setPending(true);
-    } catch (e) { Alert.alert(t('No se pudo solicitar acceso', 'Could not request access'), e instanceof Error ? e.message : String(e)); }
+    } catch (e) { if (active()) Alert.alert(t('No se pudo solicitar acceso', 'Could not request access'), e instanceof Error ? e.message : String(e)); }
     finally { operation.current = false; if (alive.current) setBusy(false); }
   };
 
@@ -181,7 +195,7 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity disabled={busy} onPress={onClose} hitSlop={12} style={styles.headerBtn}>
+        <TouchableOpacity onPress={() => { accountOperation.current.cancel(); onClose(); }} hitSlop={12} style={styles.headerBtn}>
           <Text style={{ color: colors.primary, ...Typography.bodyBold }}>‹ {t('Volver', 'Back')}</Text>
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>{t('Mis dispositivos', 'My devices')}</Text>
@@ -276,10 +290,16 @@ export const DevicesScreen: React.FC<Props> = ({ onClose }) => {
         </TouchableOpacity>
 
         <TouchableOpacity disabled={busy} style={[styles.ctaSecondary, { borderColor: colors.primary }]} onPress={async () => {
+          if (scanRequest.current) return;
+          scanRequest.current = true;
+          const active = accountOperation.current.begin();
           // Se pide al tocar este botón. Sin cámara queda el código de invitación de abajo.
-          const access = await askForAccess('camera', language);
-          if (access.ok) openScanner();
-          else if (access.deniedNow) Alert.alert(pick(PERMISSION_COPY.camera.name, language), pick(PERMISSION_COPY.camera.denied, language));
+          try {
+            const access = await askForAccess('camera', language, active);
+            if (!active()) return;
+            if (access.ok) openScanner();
+            else if (access.deniedNow) Alert.alert(pick(PERMISSION_COPY.camera.name, language), pick(PERMISSION_COPY.camera.denied, language));
+          } finally { scanRequest.current = false; }
         }}>
           <Text style={{ color: colors.primary }}>{t('Escanear QR para solicitar acceso', 'Scan QR to request access')}</Text>
         </TouchableOpacity>

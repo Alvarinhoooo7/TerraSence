@@ -21,8 +21,8 @@ export function legalSections(t: (es: string, en: string) => string) {
       'Law No. 19,628 currently regulates personal data protection in Chile. Law No. 21,719 amends this framework and takes effect on December 1, 2026. You may exercise applicable statutory rights, including access, correction and deletion, and withdraw consent as provided by law. Accepting this notice does not waive those rights.',
     )],
     [t('6. Responsable y contacto', '6. Data controller and contact'), t(
-      'El responsable del tratamiento de tus datos es Akura. Para ejercer tus derechos de acceso, rectificación y eliminación, o para revocar tu consentimiento cuando la ley lo permita, escribe a akurasoporte@gmail.com. Si cierras tu cuenta, tu perfil y tus datos personales se eliminan dentro del mes siguiente; las mediciones asociadas al equipo se conservan disociadas de tu identidad por su valor agronómico. Solo se conserva por más tiempo aquello que la ley obligue a guardar.',
-      'Akura is the data controller for your information. To exercise your rights of access, correction and deletion, or to withdraw your consent where the law allows, write to akurasoporte@gmail.com. If you close your account, your profile and personal data are deleted within one month; measurements linked to the device are retained for their agronomic value and are no longer associated with your identity. Information is retained for longer only when required by law.',
+      'El responsable del tratamiento de tus datos es Akura. Para ejercer tus derechos de acceso, rectificación y eliminación, o para revocar tu consentimiento cuando la ley lo permita, escribe a akurasoporte@gmail.com.',
+      'Akura is the data controller for your information. To exercise your rights of access, correction and deletion, or to withdraw your consent where the law allows, write to akurasoporte@gmail.com.',
     )],
   ];
 }

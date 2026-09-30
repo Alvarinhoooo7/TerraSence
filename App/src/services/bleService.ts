@@ -27,18 +27,41 @@ import {
 } from './probeService';
 import { recordProbeContact } from './contactService';
 import { isValidDeviceId, normalizeDeviceId } from '../utils/deviceId';
-import { timedOperation } from '../utils/timedOperation';
 import type { SoilMeasurement } from '../types/agronomy';
 
 const SCAN_TIMEOUT_MS = 12_000;
 const NOTIFY_TIMEOUT_MS = 15_000;
 let transactionSequence = 0;
+const cancelled = () => new Error('Operación Bluetooth cancelada.');
+const ensureActive = (signal?: AbortSignal) => { if (signal?.aborted) throw cancelled(); };
 
-function gattOperation<T>(work: (id: string) => Promise<T>): Promise<T> {
+function gattOperation<T>(work: (id: string) => Promise<T>, signal?: AbortSignal): Promise<T> {
   const id = `terrasense-${++transactionSequence}`;
-  return timedOperation(work(id), NOTIFY_TIMEOUT_MS,
-    () => { void getManager().cancelTransaction(id).catch(() => undefined); },
-    'La sonda no respondió a tiempo. Acércala y vuelve a activar el modo PAIR.');
+  return new Promise<T>((resolve, reject) => {
+    let settled = false;
+    let started = false;
+    const finish = (error?: Error, value?: T) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      signal?.removeEventListener('abort', onAbort);
+      if (error) reject(error); else resolve(value as T);
+    };
+    const stop = (error: Error) => {
+      if (settled) return;
+      if (started) void getManager().cancelTransaction(id).catch(() => undefined);
+      finish(error);
+    };
+    const onAbort = () => stop(cancelled());
+    const timer = setTimeout(() => stop(new Error('La sonda no respondió a tiempo. Acércala y vuelve a activar el modo PAIR.')), NOTIFY_TIMEOUT_MS);
+    signal?.addEventListener('abort', onAbort, { once: true });
+    if (signal?.aborted) { onAbort(); return; }
+    Promise.resolve().then(() => {
+      if (settled || signal?.aborted) return;
+      started = true;
+      return work(id);
+    }).then(value => { if (!settled) finish(undefined, value as T); }, error => finish(error instanceof Error ? error : new Error(String(error))));
+  });
 }
 
 let manager: BleManager | null = null;
@@ -55,33 +78,38 @@ export function destroyManager(): void {
 }
 
 /** Espera a que la radio esté encendida antes de escanear. */
-async function waitForPoweredOn(timeoutMs = 6000): Promise<void> {
+async function waitForPoweredOn(timeoutMs = 6000, signal?: AbortSignal): Promise<void> {
+  ensureActive(signal);
   const mgr = getManager();
   const state = await mgr.state();
+  ensureActive(signal);
   if (state === 'PoweredOn') return;
 
   await new Promise<void>((resolve, reject) => {
     let sub: Subscription | undefined;
     let settled = false;
-    const timer = setTimeout(() => {
+    const finish = (error?: Error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
       sub?.remove();
-      reject(new Error('El Bluetooth está apagado. Actívalo para leer la sonda.'));
+      signal?.removeEventListener('abort', onAbort);
+      if (error) reject(error); else resolve();
+    };
+    const onAbort = () => finish(cancelled());
+    const timer = setTimeout(() => {
+      finish(new Error('El Bluetooth está apagado. Actívalo para leer la sonda.'));
     }, timeoutMs);
-
+    signal?.addEventListener('abort', onAbort, { once: true });
     sub = mgr.onStateChange((s) => {
       if (s === 'PoweredOn') {
-        settled = true;
-        clearTimeout(timer);
-        sub?.remove();
-        resolve();
+        finish();
       } else if (s === 'Unauthorized' || s === 'Unsupported') {
-        settled = true;
-        clearTimeout(timer);
-        sub?.remove();
-        reject(new Error(s === 'Unauthorized' ? 'Activa el permiso de Bluetooth en Ajustes.' : 'Bluetooth no está disponible en este dispositivo.'));
+        finish(new Error(s === 'Unauthorized' ? 'Activa el permiso de Bluetooth en Ajustes.' : 'Bluetooth no está disponible en este dispositivo.'));
       }
     }, true);
     if (settled) sub.remove();
+    if (signal?.aborted) onAbort();
   });
 }
 
@@ -115,21 +143,37 @@ function advertisedDeviceCode(device: Device): string | null {
  * acepta el anuncio de esa sonda; así una medición nunca termina asociada a
  * otro equipo cercano.
  */
-export async function scanForProbe(expectedDeviceCode?: string): Promise<Device> {
+let activeScan: { cancel: () => void } | null = null;
+// La API nativa comparte un solo escáner. Un stop anterior debe terminar antes del start siguiente.
+let scanTransition: Promise<void> = Promise.resolve();
+function enqueueScanTransition(action: () => Promise<void>): Promise<void> {
+  const next = scanTransition.then(action, action);
+  scanTransition = next.catch(() => undefined);
+  return next;
+}
+export async function scanForProbe(expectedDeviceCode?: string, signal?: AbortSignal): Promise<Device> {
+  ensureActive(signal);
   const mgr = getManager();
-  await waitForPoweredOn();
+  await waitForPoweredOn(6000, signal);
+  ensureActive(signal);
   const expected = expectedDeviceCode ? normalizeDeviceId(expectedDeviceCode) : null;
 
   return new Promise<Device>((resolve, reject) => {
     let settled = false;
+    const scan = { cancel: () => finish(cancelled()) };
     const finish = (error: Error | null, device?: Device) => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      void mgr.stopDeviceScan().catch(() => undefined);
+      signal?.removeEventListener('abort', onAbort);
+      if (activeScan === scan) {
+        activeScan = null;
+        void enqueueScanTransition(() => mgr.stopDeviceScan()).catch(() => undefined);
+      }
       if (error) reject(error);
       else if (device) resolve(device);
     };
+    const onAbort = () => finish(cancelled());
     const timer = setTimeout(() => {
       finish(
         new Error(
@@ -140,14 +184,22 @@ export async function scanForProbe(expectedDeviceCode?: string): Promise<Device>
       );
     }, SCAN_TIMEOUT_MS);
 
-    void mgr.startDeviceScan([TERRASENSE_SERVICE_UUID], { allowDuplicates: false }, (error, device) => {
-      if (error) {
-        finish(new Error(`Fallo al buscar la sonda: ${error.message}`));
-        return;
-      }
-      if (device && (!expected || advertisedDeviceCode(device) === expected)) {
-        finish(null, device);
-      }
+    activeScan?.cancel();
+    activeScan = scan;
+    signal?.addEventListener('abort', onAbort, { once: true });
+    if (signal?.aborted) { onAbort(); return; }
+    void enqueueScanTransition(() => {
+      if (settled || activeScan !== scan) return Promise.resolve();
+      return mgr.startDeviceScan([TERRASENSE_SERVICE_UUID], { allowDuplicates: false }, (error, device) => {
+        if (settled || activeScan !== scan) return;
+        if (error) {
+          finish(new Error(`Fallo al buscar la sonda: ${error.message}`));
+          return;
+        }
+        if (device && (!expected || advertisedDeviceCode(device) === expected)) {
+          finish(null, device);
+        }
+      });
     }).catch(error => finish(new Error(`No se pudo iniciar Bluetooth: ${String(error)}`)));
   });
 }
@@ -162,13 +214,13 @@ export interface PairedProbeIdentity {
   pairingOpen: boolean;
 }
 
-async function readProbeStatus(device: Device): Promise<ProbeStatus | null> {
+async function readProbeStatus(device: Device, signal?: AbortSignal): Promise<ProbeStatus | null> {
   try {
     const characteristic = await gattOperation(id => device.readCharacteristicForService(
       TERRASENSE_SERVICE_UUID,
       TERRASENSE_STATUS_UUID,
       id,
-    ));
+    ), signal);
     if (!characteristic.value) return null;
     const binary = globalThis.atob(characteristic.value);
     return decodeProbeStatus(Uint8Array.from(binary, c => c.charCodeAt(0)));
@@ -182,9 +234,10 @@ async function readProbeStatus(device: Device): Promise<ProbeStatus | null> {
  * característica de estado. Nunca lanza ni retiene el flujo: sin estado, se
  * informa sólo la hora.
  */
-async function reportContact(device: Device, deviceCode: string | null, known?: ProbeStatus | null): Promise<void> {
+async function reportContact(device: Device, deviceCode: string | null, known?: ProbeStatus | null, signal?: AbortSignal): Promise<void> {
   if (!deviceCode) return;
-  const status = known === undefined ? await readProbeStatus(device) : known;
+  const status = known === undefined ? await readProbeStatus(device, signal) : known;
+  ensureActive(signal);
   void recordProbeContact({
     deviceCode,
     battery: status?.battery ?? null,
@@ -193,12 +246,12 @@ async function reportContact(device: Device, deviceCode: string | null, known?: 
 }
 
 /** El ID que la sonda deriva de su MAC. Un firmware anterior lo dejaba vacío. */
-async function readDeviceCode(device: Device): Promise<string> {
+async function readDeviceCode(device: Device, signal?: AbortSignal): Promise<string> {
   const characteristic = await gattOperation(id => device.readCharacteristicForService(
     TERRASENSE_SERVICE_UUID,
     TERRASENSE_IDENTITY_UUID,
     id,
-  ));
+  ), signal);
   const code = characteristic.value ? decodeBase64Text(characteristic.value).trim() : '';
   if (!/^\d{15}$/.test(code)) {
     throw new Error('No se pudo verificar la identidad de la sonda. Si es un equipo anterior, actualiza su firmware.');
@@ -214,17 +267,22 @@ async function readDeviceCode(device: Device): Promise<string> {
  * abierta (mantener el botón 3 s), que prueba que el usuario tiene la sonda en
  * la mano; quien llama debe comprobar `pairingOpen` antes de registrarla.
  */
-export async function pairWithNearbyProbe(): Promise<PairedProbeIdentity> {
-  const discovered = await scanForProbe();
+export async function pairWithNearbyProbe(signal?: AbortSignal): Promise<PairedProbeIdentity> {
+  const discovered = await scanForProbe(undefined, signal);
+  ensureActive(signal);
   let connected: Device | null = null;
 
   try {
     connected = await discovered.connect({ timeout: SCAN_TIMEOUT_MS });
+    ensureActive(signal);
     const target = connected;
-    await gattOperation(id => target.discoverAllServicesAndCharacteristics(id));
-    const deviceCode = await readDeviceCode(connected);
-    const status = await readProbeStatus(connected);
-    await reportContact(connected, deviceCode, status);
+    await gattOperation(id => target.discoverAllServicesAndCharacteristics(id), signal);
+    ensureActive(signal);
+    const deviceCode = await readDeviceCode(connected, signal);
+    ensureActive(signal);
+    const status = await readProbeStatus(connected, signal);
+    ensureActive(signal);
+    await reportContact(connected, deviceCode, status, signal);
     return {
       bleId: connected.id,
       name: connected.localName ?? connected.name ?? 'Sonda TerraSense',
@@ -274,49 +332,63 @@ export async function confirmPairing(bleId: string, rawCode: string): Promise<bo
  * en estabilizarse: el firmware notifica cuando el dato es válido, en lugar de
  * devolver una lectura prematura.
  */
-export async function readTelemetryOverBle(deviceCode?: string): Promise<SoilMeasurement> {
+export async function readTelemetryOverBle(deviceCode?: string, signal?: AbortSignal): Promise<SoilMeasurement> {
   const mgr = getManager();
   let connected: Device | null = null;
 
   try {
-    const target = await (await scanForProbe(deviceCode)).connect({ timeout: SCAN_TIMEOUT_MS });
+    const discovered = await scanForProbe(deviceCode, signal);
+    ensureActive(signal);
+    const target = await discovered.connect({ timeout: SCAN_TIMEOUT_MS });
     connected = target;
+    ensureActive(signal);
 
-    await gattOperation(id => target.discoverAllServicesAndCharacteristics(id));
+    await gattOperation(id => target.discoverAllServicesAndCharacteristics(id), signal);
+    ensureActive(signal);
 
     const bytes = await new Promise<Uint8Array>((resolve, reject) => {
-      const timer = setTimeout(() => {
+      let settled = false;
+      let subscription: Subscription | undefined;
+      const finish = (error?: Error, value?: Uint8Array) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
         subscription?.remove();
-        reject(new Error('La sonda no respondió a tiempo. Reinserta la sonda y reintenta.'));
+        signal?.removeEventListener('abort', onAbort);
+        if (error) reject(error); else if (value) resolve(value);
+      };
+      const onAbort = () => finish(cancelled());
+      const timer = setTimeout(() => {
+        finish(new Error('La sonda no respondió a tiempo. Reinserta la sonda y reintenta.'));
       }, NOTIFY_TIMEOUT_MS);
-
-      const subscription = target.monitorCharacteristicForService(
+      signal?.addEventListener('abort', onAbort, { once: true });
+      if (signal?.aborted) { onAbort(); return; }
+      subscription = target.monitorCharacteristicForService(
         TERRASENSE_SERVICE_UUID,
         TERRASENSE_TELEMETRY_UUID,
         (error, characteristic) => {
+          if (settled) return;
           if (error) {
-            clearTimeout(timer);
-            subscription?.remove();
-            reject(new Error(`Fallo de lectura BLE: ${error.message}`));
+            finish(new Error(`Fallo de lectura BLE: ${error.message}`));
             return;
           }
           if (!characteristic?.value) return;
-
-          clearTimeout(timer);
-          subscription?.remove();
 
           // react-native-ble-plx entrega el valor en base64.
           const binary = globalThis.atob(characteristic.value);
           const out = new Uint8Array(binary.length);
           for (let i = 0; i < binary.length; i++) out[i] = binary.charCodeAt(i);
-          resolve(out);
+          finish(undefined, out);
         },
       );
+      if (settled) subscription.remove();
     });
+    ensureActive(signal);
 
     // Antes de decodificar: una trama sin lectura de suelo se rechaza, pero la
     // sonda igual conversó con el teléfono.
-    await reportContact(target, deviceCode ?? null);
+    await reportContact(target, deviceCode ?? null, undefined, signal);
+    ensureActive(signal);
     return decodeTelemetry(bytes);
   } finally {
     // Imprescindible: sin desconectar, la sonda no vuelve a sueño profundo.

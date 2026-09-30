@@ -28,6 +28,14 @@ export function bluetoothState(state: string): PermissionState {
   return { status: 'undetermined', canAskAgain: true };
 }
 
+export function iosBluetoothAuthorizationState(authorization: string): PermissionState {
+  if (authorization === 'granted') return { status: 'granted', canAskAgain: false };
+  if (authorization === 'denied') return { status: 'denied', canAskAgain: false };
+  if (authorization === 'restricted') return { status: 'restricted', canAskAgain: false };
+  if (authorization === 'undetermined') return { status: 'undetermined', canAskAgain: true };
+  return { status: 'error', canAskAgain: true };
+}
+
 /**
  * Android no informa directamente si un permiso nunca se pidió o quedó bloqueado:
  * `check` sólo dice si está concedido. `shouldShowRequestPermissionRationale` es

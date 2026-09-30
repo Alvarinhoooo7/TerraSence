@@ -56,10 +56,10 @@ Arriba, la búsqueda para saltar a otro equipo. Debajo, una tarjeta por tema; ca
 
 1. **Cargar versión:** el `.bin` de la aplicación que exporta Arduino IDE, su versión X.Y.Z y notas. El navegador comprueba que sea una imagen del ESP32 (primer byte `0xE9`), calcula el SHA-256 y sube el archivo al bucket privado `firmware`. Queda como borrador.
 2. **Publicar.** Conviene probar antes la versión en un equipo desde su tarjeta Actualización.
-3. **Enviar a todos:** a cada equipo con administrador y versión anterior o desconocida. Se omiten los que ya la tienen, los que tienen una más nueva y los que no tienen administrador.
+3. **Asignar a todos:** a cada equipo con administrador y versión anterior o desconocida. Se omiten los que ya la tienen, los que tienen una más nueva y los que no tienen administrador.
 4. **Seguimiento** por versión: pendientes, instalando, instaladas y fallidas, con la lista de equipos.
 
-Cada envío crea un aviso push para el **administrador** del equipo ([`backoffice-send-update`](../supabase/functions/backoffice-send-update/index.ts)). La ventana Actualizar/Cancelar de la app y la instalación por BLE son las fases 7 y 8 de [TAREAS.md](TAREAS.md).
+Cada envío asigna la versión al equipo mediante [`backoffice-send-update`](../supabase/functions/backoffice-send-update/index.ts). Los avisos push de firmware quedan desactivados mientras no exista una acción funcional para instalarla. La ventana Actualizar/Cancelar de la app y la instalación por BLE son las fases 7 y 8 de [TAREAS.md](TAREAS.md). El plan vigente de avisos de acceso está en [TASK_PERMISSIONS.md](../App/TASK_PERMISSIONS.md#implementación-vigente-notificaciones-de-equipos).
 
 ## 3. Datos y seguridad
 

@@ -22,7 +22,7 @@ interface Props {
 
 export const DashboardScreen: React.FC<Props> = (props) => {
   const { colors } = useAppTheme();
-  const { t, locale } = useTranslation();
+  const { t, locale, language } = useTranslation();
   const { device } = useAppStore();
   const { points, loading, offline, error, refresh } = useMeasurementHistory();
   const latest = points[0];
@@ -56,7 +56,7 @@ export const DashboardScreen: React.FC<Props> = (props) => {
         </TouchableOpacity>
       </View>
 
-      {latest && <View style={{ marginTop: 20 }}><Text style={[styles.sectionTitle, { color: colors.text }]}>{t('Última medición', 'Latest reading')} · {new Date(latest.measuredAt).toLocaleDateString(locale)}</Text><MeasurementExplorer key={latest.id} presentation={presentationFromPoint(latest)} /></View>}
+      {latest && <View style={{ marginTop: 20 }}><Text style={[styles.sectionTitle, { color: colors.text }]}>{t('Última medición', 'Latest reading')} · {new Date(latest.measuredAt).toLocaleDateString(locale)}</Text><MeasurementExplorer key={latest.id} presentation={presentationFromPoint(latest, language)} /></View>}
 
       <View style={[styles.sectionHeading, { marginTop: 20 }]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('Última lectura', 'Latest reading')}</Text>{action(t('Ver historial', 'View history'), props.onOpenHistory)}</View>

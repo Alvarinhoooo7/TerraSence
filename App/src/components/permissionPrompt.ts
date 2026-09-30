@@ -41,7 +41,7 @@ function notice(title: string, message: string, language: Language): Promise<voi
  * - El sistema ya no preguntará: se explica dónde se cambia y se ofrece abrir Ajustes,
  *   sólo porque la persona volvió a intentar la función.
  */
-export async function askForAccess(kind: PermissionKind, language: Language): Promise<AccessResult> {
+export async function askForAccess(kind: PermissionKind, language: Language, isActive: () => boolean = () => true): Promise<AccessResult> {
   const copy = PERMISSION_COPY[kind];
   const title = pick(copy.name, language);
   const done = (state: PermissionState, deniedNow = false): AccessResult => {
@@ -50,19 +50,20 @@ export async function askForAccess(kind: PermissionKind, language: Language): Pr
     return { ok, state, unknown, deniedNow: deniedNow && !unknown && state.status !== 'granted' };
   };
   const current = await readPermission(kind);
+  if (!isActive()) return done(current);
 
   if (current.status === 'granted') {
-    if (current.poweredOff) await notice(title, poweredOffMessage(language), language);
+    if (current.poweredOff && isActive()) await notice(title, poweredOffMessage(language), language);
     return done(current);
   }
   if (current.status === 'unavailable') {
-    await notice(title, unavailableMessage(kind, language), language);
+    if (isActive()) await notice(title, unavailableMessage(kind, language), language);
     return done(current);
   }
   if (current.status === 'restricted' || !current.canAskAgain) {
-    if (current.status === 'restricted') await notice(title, blockedMessage(kind, current, language), language);
+    if (current.status === 'restricted' && isActive()) await notice(title, blockedMessage(kind, current, language), language);
     else if (await choose(title, blockedMessage(kind, current, language), pick(PERMISSION_ACTIONS.cancel, language), pick(PERMISSION_ACTIONS.settings, language))) {
-      await openPermissionSettings().catch(() => undefined);
+      if (isActive()) await openPermissionSettings().catch(() => undefined);
     }
     return done(current);
   }
@@ -70,10 +71,10 @@ export async function askForAccess(kind: PermissionKind, language: Language): Pr
     const rationale = kind === 'bluetooth' && isLegacyAndroidBluetooth()
       ? `${pick(copy.rationale, language)} ${legacyBluetoothNote(language)}` : pick(copy.rationale, language);
     const proceed = await choose(title, rationale, pick(PERMISSION_ACTIONS.cancel, language), pick(PERMISSION_ACTIONS.continue, language));
-    if (!proceed) return done(current);
+    if (!proceed || !isActive()) return done(current);
   }
 
-  const result = await requestPermission(kind, language);
-  if (result.status === 'granted' && result.poweredOff) await notice(title, poweredOffMessage(language), language);
+  const result = await requestPermission(kind, language, isActive);
+  if (isActive() && result.status === 'granted' && result.poweredOff) await notice(title, poweredOffMessage(language), language);
   return done(result, true);
 }

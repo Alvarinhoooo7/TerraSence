@@ -19,7 +19,11 @@ import { useAuthStore } from './src/store/useAuthStore';
 import { OfflineBanner } from './src/components/OfflineBanner';
 import { LoadingScreen } from './src/components/LoadingScreen';
 import { supabase } from './src/services/supabase';
-import { registerPushToken } from './src/services/notifications';
+import { registerPushToken, resumePushRegistration, revokePushInstallationForSignOut, setPushRegistrationUser } from './src/services/notifications';
+import { listMyDevices, listMyDeviceMemberships } from './src/services/deviceService';
+import { InboxShortcut, NotificationInboxScreen } from './src/screens/NotificationInboxScreen';
+import { getMyNotification, type DeviceNotification } from './src/services/notificationInbox';
+import { NotificationUnavailableError, notificationDestination, parseNotificationPayload, resolvePendingAlert } from './src/utils/notificationRoute';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { MeasureScreen } from './src/screens/MeasureScreen';
 import { FieldSettingsScreen } from './src/screens/FieldSettingsScreen';
@@ -86,26 +90,42 @@ export default function App() {
   const [route, setRoute] = useState<Route>('dashboard');
   const [devicesOrigin, setDevicesOrigin] = useState<'dashboard' | 'settings'>('dashboard');
   const [notificationDeviceId, setNotificationDeviceId] = useState<string | null>(null);
-  const [openAdminNotification, setOpenAdminNotification] = useState(false);
+  const [inboxOpen, setInboxOpen] = useState(false);
+  const [pendingAlertId, setPendingAlertId] = useState<string | null>(null);
+  const previousSessionId = useRef<string | null>(null);
   useEffect(() => {
+    // Sólo recuerda el aviso: la bandeja se abre cuando la cuenta actual comprueba que es suyo.
     const openRequest = (response: Notifications.NotificationResponse | null) => {
-      const data = response?.notification.request.content.data;
-      if (data?.event_type === 'access_request') {
-        setNotificationDeviceId(typeof data.device_id === 'string' ? data.device_id : null);
-        setOpenAdminNotification(true);
-        void Notifications.clearLastNotificationResponseAsync();
-      }
+      const payload = parseNotificationPayload(response?.notification.request.content.data);
+      if (!payload) return;
+      setPendingAlertId(payload.alertId);
+      void Notifications.clearLastNotificationResponseAsync().catch(() => undefined);
     };
     void Notifications.getLastNotificationResponseAsync().then(openRequest).catch(() => undefined);
     const listener = Notifications.addNotificationResponseReceivedListener(openRequest);
     return () => listener.remove();
   }, []);
   useEffect(() => {
-    if (session && onboardingComplete && openAdminNotification) {
-      setRoute('administration');
-      setOpenAdminNotification(false);
+    const current = session?.user.id ?? null;
+    if (previousSessionId.current && previousSessionId.current !== current) {
+      setInboxOpen(false); setPendingAlertId(null);
     }
-  }, [session, onboardingComplete, openAdminNotification]);
+    previousSessionId.current = current;
+  }, [session?.user.id]);
+  // Una push (con la app en primer plano, en segundo plano o cerrada) sólo abre la bandeja si el
+  // aviso pertenece a la cuenta con sesión vigente. Una push de otra cuenta se descarta en silencio.
+  useEffect(() => {
+    const uid = session?.user.id;
+    if (!pendingAlertId || !uid || recoveryActive) return;
+    let active = true;
+    void resolvePendingAlert(() => getMyNotification(pendingAlertId), () => active && useAuthStore.getState().session?.user.id === uid)
+      .then(result => {
+        if (result === 'discard') setPendingAlertId(null);
+        // Con `error` (sin conexión) la bandeja muestra el estado y permite reintentar.
+        else if (result === 'open' || result === 'error') setInboxOpen(true);
+      });
+    return () => { active = false; };
+  }, [pendingAlertId, session?.user.id, recoveryActive]);
   const dataRevision = useAppStore(s => s.dataRevision);
   useEffect(() => { setDetailPoint(null); }, [dataRevision]);
   const [detailPoint, setDetailPoint] = useState<MeasurementPoint | null>(null);
@@ -118,12 +138,13 @@ export default function App() {
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
       if (detailPoint) { setDetailPoint(null); return true; }
+      if (inboxOpen && route !== 'measure') { setInboxOpen(false); setPendingAlertId(null); return true; }
       if (route === 'measure') return false;
       if (route !== 'dashboard') { setRoute(route === 'devices' ? devicesOrigin : route === 'administration' ? 'settings' : 'dashboard'); return true; }
       return false;
     });
     return () => subscription.remove();
-  }, [route, detailPoint, devicesOrigin]);
+  }, [route, detailPoint, devicesOrigin, inboxOpen]);
 
   useEffect(() => {
     Promise.all([AsyncStorage.getItem(WELCOME_KEY), loadEntryLanguage()])
@@ -161,6 +182,10 @@ export default function App() {
         if (cuentaInvalida) {
           await clearDevSkip().catch(() => undefined);
           if (!active || authRevision !== initialRevision) return;
+          // Cuenta inválida: la revocación usa el secreto de instalación, no la sesión; si no
+          // se confirma, queda pendiente y se reintenta al volver la red o el primer plano.
+          await revokePushInstallationForSignOut();
+          if (!active || authRevision !== initialRevision) { resumePushRegistration(); return; }
           await supabase.auth.signOut({ scope: 'local' }).catch(() => undefined);
           if (active && authRevision === initialRevision) setSession(null);
           return;
@@ -310,12 +335,32 @@ export default function App() {
 
   // Sólo registra autorizaciones existentes, después de revisar la explicación.
   // Incluye cuentas esperando aprobación; nunca vuelve a solicitar al omitir permisos.
+  const pushUserId = session?.user.id ?? null;
   useEffect(() => {
-    if (session && permissionsReview?.userId === session.user.id && permissionsReview.reviewed &&
-        onboardingUserId === session.user.id && preferencesLoaded && !recoveryActive) {
-      void registerPushToken(preferences, { requestPermission: false });
-    }
-  }, [session, permissionsReview, onboardingUserId, preferences, preferencesLoaded, recoveryActive]);
+    const eligible = !!pushUserId && permissionsReview?.userId === pushUserId && permissionsReview.reviewed &&
+      onboardingUserId === pushUserId && preferencesLoaded && !recoveryActive;
+    // El servicio respeta esta puerta también en los reintentos por red, primer plano y token.
+    setPushRegistrationUser(eligible ? pushUserId : null);
+    if (eligible) void registerPushToken(preferences).catch(() => undefined);
+  }, [pushUserId, permissionsReview, onboardingUserId, preferences.notifications.device, preferences.language, preferencesLoaded, recoveryActive]);
+
+  const openNotification = async (notification: DeviceNotification) => {
+    const uid = session?.user.id;
+    if (!uid || useAuthStore.getState().session?.user.id !== uid) return;
+    if (notification.event_type === 'access_rejected') return;
+    const [devices, memberships] = await Promise.all([listMyDevices(), listMyDeviceMemberships()]);
+    if (useAuthStore.getState().session?.user.id !== uid) return;
+    const member = memberships.find(row => row.device_id === notification.device_id && row.is_authorized);
+    const device = devices.find(row => row.id === notification.device_id);
+    const destination = notificationDestination({ event: notification.event_type, active: notification.status === 'active',
+      deviceId: notification.device_id, deviceVisible: !!device, authorized: !!member, role: member?.role ?? null, onboardingComplete });
+    const close = () => { setInboxOpen(false); setPendingAlertId(null); };
+    if (destination === 'administration' && device) { setNotificationDeviceId(device.id); setRoute('administration'); close(); return; }
+    if (destination === 'onboarding') { setOnboardingRetry(value => value + 1); close(); return; }
+    if (destination === 'devices' && device) { setDevice(device); setDevicesOrigin('dashboard'); setRoute('devices'); close(); return; }
+    if (destination === 'stay') return;
+    throw new NotificationUnavailableError();
+  };
 
   const handleOpenDetail = useCallback((p: MeasurementPoint) => {
     setDetailPoint(p);
@@ -422,6 +467,10 @@ export default function App() {
         )}
       </View>
     );
+  } else if (inboxOpen && session && ['approval', 'onboarding'].includes(entry) ||
+             inboxOpen && session && entry === 'app' && route !== 'measure') {
+    content = <NotificationInboxScreen key={session.user.id} initialAlertId={pendingAlertId} onInitialHandled={() => setPendingAlertId(null)}
+      onBack={() => { setInboxOpen(false); setPendingAlertId(null); }} onOpen={openNotification} />;
   } else if (entry === 'approval') {
     content = <WaitingApprovalScreen onApproved={device => {
       setDevice(device); setOnboardingComplete(true); setAwaitingDeviceApproval(false); setRoute('dashboard');
@@ -443,7 +492,7 @@ export default function App() {
       />
     );
   } else if (route === 'settings') {
-    content = <FieldSettingsScreen onClose={() => setRoute('dashboard')} onOpenDevices={() => { setDevicesOrigin('settings'); setRoute('devices'); }} onOpenAdministration={() => setRoute('administration')} />;
+    content = <FieldSettingsScreen onClose={() => setRoute('dashboard')} onOpenInbox={() => setInboxOpen(true)} onOpenDevices={() => { setDevicesOrigin('settings'); setRoute('devices'); }} onOpenAdministration={() => setRoute('administration')} />;
   } else if (route === 'administration') {
     content = <AdministrationScreen initialDeviceId={notificationDeviceId} onClose={() => { setNotificationDeviceId(null); setRoute('settings'); }} />;
   } else if (route === 'history') {
@@ -475,8 +524,9 @@ export default function App() {
           <OfflineBanner />
         </View>
         <ScreenGuide enabled={!recoveryLinkError && ['app', 'onboarding', 'approval'].includes(entry)} scope={`${entry}:${route}`}>
+        {session && !inboxOpen && ['approval', 'onboarding'].includes(entry) && <InboxShortcut onPress={() => setInboxOpen(true)} />}
         {content}
-        {entry === 'app' && !recoveryLinkError && ['dashboard', 'history', 'settings'].includes(route) && (
+        {entry === 'app' && !inboxOpen && !recoveryLinkError && ['dashboard', 'history', 'settings'].includes(route) && (
           <BottomNavigation route={route} onNavigate={setRoute} />
         )}
         </ScreenGuide>

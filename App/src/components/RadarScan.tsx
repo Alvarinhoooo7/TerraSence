@@ -18,6 +18,7 @@
 import React, { useEffect, useRef } from 'react';
 import { AccessibilityInfo, Animated, Easing, StyleSheet, View } from 'react-native';
 import { useAppTheme } from '../hooks/useAppTheme';
+import { useTranslation } from '../hooks/useTranslation';
 
 const ANILLOS = 3;
 const CICLO_MS = 2400;
@@ -68,6 +69,7 @@ export function RadarScan({
   children?: React.ReactNode;
 }) {
   const { colors } = useAppTheme();
+  const { t } = useTranslation();
   const pulso = useRef(new Animated.Value(0)).current;
   // Respetar «reducir movimiento» del sistema: con la preferencia activa se deja
   // el centro quieto y sin anillos, que es lo que el ajuste pide.
@@ -98,7 +100,7 @@ export function RadarScan({
     <View
       style={[styles.contenedor, { width: size, height: size }]}
       accessibilityRole="progressbar"
-      accessibilityLabel="Buscando la sonda por Bluetooth"
+      accessibilityLabel={t('Buscando la sonda por Bluetooth', 'Searching for the probe over Bluetooth')}
     >
       {!reducirMovimiento &&
         Array.from({ length: ANILLOS }, (_, i) => (

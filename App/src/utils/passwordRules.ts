@@ -12,7 +12,7 @@
 // una contraseña débil lo paga el agricultor, que guarda mediciones con valor
 // probatorio.
 
-/** Longitud mínima. Supabase acepta 6; aquí se pide más por decisión de producto. */
+/** Mínimo del formulario; Auth se configura con el mismo umbral. */
 export const PASSWORD_MIN_LENGTH = 8;
 
 export interface PasswordRule {
@@ -23,8 +23,8 @@ export interface PasswordRule {
   met: boolean;
 }
 
-/** Cualquier carácter que no sea letra ni dígito ni espacio cuenta como especial. */
-const SPECIAL = /[^\p{L}\p{N}\s]/u;
+/** Las marcas de acento combinadas pertenecen a la letra, no son símbolos. */
+const SPECIAL = /[^\p{L}\p{M}\p{N}\s]/u;
 
 /**
  * Evalúa la contraseña contra cada requisito por separado.
@@ -38,7 +38,9 @@ export function evaluatePassword(password: string): PasswordRule[] {
       id: 'length',
       es: `Al menos ${PASSWORD_MIN_LENGTH} caracteres`,
       en: `At least ${PASSWORD_MIN_LENGTH} characters`,
-      met: password.length >= PASSWORD_MIN_LENGTH,
+      // Cuenta puntos Unicode; un emoji no ocupa dos caracteres por usar UTF-16.
+      // No se normaliza ni modifica la contraseña que se envía a Auth.
+      met: Array.from(password).length >= PASSWORD_MIN_LENGTH,
     },
     {
       id: 'letter',

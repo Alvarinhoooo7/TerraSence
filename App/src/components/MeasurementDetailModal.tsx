@@ -68,7 +68,7 @@ export const MeasurementDetailModal: React.FC<Props> = ({ point, onClose }) => {
           <Text style={[styles.section, { color: colors.textMuted }]}>{t('LECTURAS REGISTRADAS', 'RECORDED READINGS')}</Text>
           <Text style={[styles.meta, { color: colors.textSecondary }]}>{t('Suelo: sonda · Ambiente: registro local; las lecturas antiguas pueden carecer de origen verificado. N/P/K sin validación química.', 'Soil: probe · Environment: local record; older readings may lack verified provenance. N/P/K chemically unvalidated.')}</Text>
           <Text style={[styles.meta, { color: colors.textSecondary }]}>{t('Batería en captura', 'Battery at capture')}: {point.batteryPercent == null ? missing : `${point.batteryPercent} %`}</Text>
-          <MeasurementExplorer key={point.id} presentation={presentationFromPoint(point)} />
+          <MeasurementExplorer key={point.id} presentation={presentationFromPoint(point, language)} />
 
           <Text style={[styles.section, { color: colors.textMuted }]}>{t('UBICACIÓN', 'LOCATION')}</Text>
           <View style={[styles.location, { backgroundColor: colors.card, borderColor: colors.border }]}>

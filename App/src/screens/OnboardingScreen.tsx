@@ -24,6 +24,7 @@ import { AuthLayout, AuthHeading, AuthButton, AuthField, SoilArtwork, authStyles
 import { enableDevSkip } from '../utils/devSkipOnboarding';
 import { createDeveloperTap } from '../utils/developerTap';
 import { askForAccess } from '../components/permissionPrompt';
+import { createAccountOperation } from '../utils/accountOperation';
 import { PERMISSION_COPY, pick } from '../utils/permissionCopy';
 import { requestDeviceAccess, registerDevice, listMyDevices, listMyDeviceMemberships } from '../services/deviceService';
 import { WaitingApprovalScreen } from './WaitingApprovalScreen';
@@ -65,6 +66,10 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
   const scanLatch = useRef(false);
   const operation = useRef(false);
   const mounted = useRef(true);
+  // Cuenta y generación de las operaciones que esperan un permiso: al desmontar o cambiar de cuenta
+  // ninguna continuación abre la cámara, inicia BLE ni escribe estado.
+  const accountOperation = useRef(createAccountOperation(useAuthStore.getState().session?.user.id, () => useAuthStore.getState().session?.user.id));
+  const pairingRun = useRef(0);
   const finished = useRef(false);
   const skipFromLogo = async () => {
     if (!__DEV__ || !onDevSkip || operation.current || finished.current) return;
@@ -76,7 +81,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
     if (mounted.current) { setDevice(null); onDevSkip(); }
   };
   const logoTap = useRef(createDeveloperTap(__DEV__, () => { void skipFromLogo(); }));
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  useEffect(() => { mounted.current = true; accountOperation.current.mount(); const unsubscribe = useAuthStore.subscribe(() => accountOperation.current.cancelIfAccountChanged()); return () => { mounted.current = false; unsubscribe(); accountOperation.current.unmount(); }; }, []);
   const rejectedPayload = useRef<string | null>(null);
 
   const rearmScanner = useCallback(() => {
@@ -139,11 +144,12 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
   const openQr = useCallback(async () => {
     if (operation.current) return;
     operation.current = true;
+    const active = accountOperation.current.begin();
     try {
       // Se pide al tocar «Escanear QR». Si no se concede, el código de invitación
       // de esta misma pantalla sigue disponible: no se envía a Ajustes.
-      const access = await askForAccess('camera', language);
-      if (!mounted.current) return;
+      const access = await askForAccess('camera', language, active);
+      if (!active()) return;
       if (!access.ok) {
         if (access.deniedNow) Alert.alert(pick(PERMISSION_COPY.camera.name, language), pick(PERMISSION_COPY.camera.denied, language));
         return;
@@ -153,7 +159,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
       setScanned(false);
       setStep('qr');
     } catch {
-      if (mounted.current) Alert.alert(t('No pudimos abrir la cámara', 'Could not open camera'), t('Revisa los permisos del teléfono e inténtalo otra vez.', 'Check phone permissions and try again.'));
+      if (active()) Alert.alert(t('No pudimos abrir la cámara', 'Could not open camera'), t('Revisa los permisos del teléfono e inténtalo otra vez.', 'Check phone permissions and try again.'));
     } finally { operation.current = false; }
   }, [language, t]);
 
@@ -220,10 +226,12 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
 
   const startPairing = useCallback(async () => {
     if (operation.current) return;
+    const run = ++pairingRun.current;
     operation.current = true;
+    const active = accountOperation.current.begin();
     try {
-      const access = await askForAccess('bluetooth', language);
-      if (!mounted.current) return;
+      const access = await askForAccess('bluetooth', language, active);
+      if (!active()) return;
       // Un estado que no se pudo consultar no es un rechazo: la búsqueda informa el error real.
       if (!access.ok && !access.unknown) {
         if (access.deniedNow) Alert.alert(pick(PERMISSION_COPY.bluetooth.name, language), pick(PERMISSION_COPY.bluetooth.denied, language));
@@ -231,8 +239,9 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
       }
       setPairingState('scanning');
       const ble = await import('../services/bleService');
-      const found = await ble.pairWithNearbyProbe();
-      if (!mounted.current) return;
+      if (!active()) { if (mounted.current && pairingRun.current === run) setPairingState('idle'); return; }
+      const found = await ble.pairWithNearbyProbe(active.signal);
+      if (!active()) { if (mounted.current && pairingRun.current === run) setPairingState('idle'); return; }
       if (!found.pairingOpen) {
         throw new Error(t('Mantén el botón PAIR de la sonda 3 segundos, hasta que la luz azul parpadee, y vuelve a buscar.', 'Hold the probe PAIR button for 3 seconds, until the blue light blinks, and search again.'));
       }
@@ -241,10 +250,10 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
       setPairingState('found');
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     } catch (error) {
-      if (!mounted.current) return;
+      if (!active()) { if (mounted.current && pairingRun.current === run) setPairingState('idle'); return; }
       setPairingState('idle');
       Alert.alert(t('No encontramos la sonda', 'Probe not found'), friendlyError(error));
-    } finally { operation.current = false; }
+    } finally { if (pairingRun.current === run) operation.current = false; }
   }, [friendlyError, language, t]);
 
   const savePairedProbe = useCallback(async () => {
@@ -268,22 +277,25 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
   }, [deviceName, finish, friendlyError, probe, t]);
 
   const backToChoice = useCallback(() => {
-    if (joining || operation.current) return;
+    if (joining || pairingState === 'saving') return;
+    pairingRun.current += 1;
+    accountOperation.current.cancel();
+    operation.current = false;
     setStep('choice');
     scanLatch.current = false;
     setScanned(false);
     setPairingState('idle');
     setProbe(null);
-  }, [joining]);
+  }, [joining, pairingState]);
 
   useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (operation.current || joining) return true;
+      if (joining || pairingState === 'saving' || (operation.current && step !== 'pairing')) return true;
       if (step !== 'choice') { backToChoice(); return true; }
       return false;
     });
     return () => listener.remove();
-  }, [step, joining, backToChoice]);
+  }, [step, joining, pairingState, backToChoice]);
 
   if (pending) return <WaitingApprovalScreen onApproved={device => void finish('qr', device)} onDismiss={() => setPending(false)} />;
   if (checkingRequests) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center' }}><ActivityIndicator color={colors.primary} /></SafeAreaView>;
@@ -337,7 +349,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
 
   if (step === 'pairing') {
     const waiting = pairingState === 'scanning' || pairingState === 'saving';
-    return <AuthLayout toolbar={<TouchableOpacity accessibilityRole="button" disabled={waiting} onPress={backToChoice} style={authStyles.link}>
+    return <AuthLayout toolbar={<TouchableOpacity accessibilityRole="button" disabled={pairingState === 'saving'} onPress={backToChoice} style={authStyles.link}>
       <Text style={{ color: colors.primary }}>{t('Volver', 'Back')}</Text>
     </TouchableOpacity>}>
       <AuthHeading eyebrow={t('VINCULA TU SONDA', 'PAIR YOUR PROBE')} title={probe ? t('La encontramos.', 'There it is.') : t('Acerca tu sonda.', 'Bring your probe closer.')}

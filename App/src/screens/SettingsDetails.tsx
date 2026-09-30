@@ -9,6 +9,9 @@ import { PERMISSION_KINDS, type PermissionKind, type PermissionSnapshot } from '
 import { PERMISSION_ACTIONS, PERMISSION_COPY, permissionStatusLabel, pick } from '../utils/permissionCopy';
 import { askForAccess } from '../components/permissionPrompt';
 import { registerPushToken } from '../services/notifications';
+import { createAccountOperation } from '../utils/accountOperation';
+import { createLatestOnly } from '../utils/latestOnly';
+import { useAuthStore } from '../store/useAuthStore';
 import { useAppStore } from '../store/useAppStore';
 import { flushQueue, syncStatus } from '../services/measurementsService';
 import { listMyDevices } from '../services/deviceService';
@@ -18,10 +21,13 @@ import { legalSections } from '../utils/legalSections';
 
 export function PhonePermissions({ onBack }: { onBack: () => void }) {
   const { t, language } = useTranslation(); const [snapshot, setSnapshot] = useState<PermissionSnapshot | null>(null);
-  const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const lock = useRef(false); const revision = useRef(0);
-  const refresh = useCallback(async () => { const version = ++revision.current; const next = await readPermissions(); if (version === revision.current) setSnapshot(next); }, []);
+  const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const lock = useRef(false); const latest = useRef(createLatestOnly());
+  // Una continuación tras el permiso no escribe si la pantalla se cerró o cambió la cuenta.
+  const accountOperation = useRef(createAccountOperation(useAuthStore.getState().session?.user.id, () => useAuthStore.getState().session?.user.id));
+  // Una consulta antigua (lenta) nunca pisa una más nueva ni una acción en curso.
+  const refresh = useCallback(() => latest.current.run(readPermissions, setSnapshot), []);
   // Consultar no abre diálogos. Se reconsulta al volver de los ajustes del teléfono.
-  useEffect(() => { void refresh(); const sub = AppState.addEventListener('change', s => { if (s === 'active' && !lock.current) void refresh(); }); return () => { revision.current++; sub.remove(); }; }, [refresh]);
+  useEffect(() => { accountOperation.current.mount(); void refresh(); const sub = AppState.addEventListener('change', s => { if (s === 'active' && !lock.current) void refresh(); }); return () => { latest.current.invalidate(); accountOperation.current.unmount(); sub.remove(); }; }, [refresh]);
   const descriptions: Record<PermissionKind, string> = {
     bluetooth: `${t('Conecta el teléfono con la sonda para vincularla y recibir mediciones. Se pide al buscar o medir con la sonda.', 'Connects your phone to the probe to pair it and receive readings. Requested when you search for or measure with the probe.')}${isLegacyAndroidBluetooth() ? ` ${t('En este Android, buscar la sonda también usa la ubicación.', 'On this Android version, finding the probe also uses location.')}` : ''}`,
     location: t('Añade coordenadas a la lectura y consulta el pronóstico en Open-Meteo, si activas esa opción al medir. Sólo mientras usas la app; no rastreamos tu recorrido.', 'Adds coordinates to readings and requests the forecast from Open-Meteo, if you turn that option on when measuring. Only while you use the app; we do not track your route.'),
@@ -29,18 +35,21 @@ export function PhonePermissions({ onBack }: { onBack: () => void }) {
     notifications: t('Recibe los avisos que elijas en Notificaciones. La app funciona igual sin este permiso.', 'Receives the alerts you choose in Notifications. The app works the same without this permission.'),
   };
   const act = async (kind: PermissionKind) => {
-    if (lock.current) return; lock.current = true; revision.current++; setBusy(true); setError('');
+    if (lock.current) return; lock.current = true; latest.current.invalidate(); setBusy(true); setError('');
+    const active = accountOperation.current.begin();
     try {
       const state = snapshot?.[kind];
       // Gestionar un permiso concedido o bloqueado es una acción voluntaria: abre los ajustes del teléfono.
       if (state && (state.status === 'granted' || (!state.canAskAgain && state.status !== 'restricted' && state.status !== 'unavailable'))) await openPermissionSettings();
       else {
-        const access = await askForAccess(kind, language);
-        if (access.ok && kind === 'notifications') await registerPushToken(useAppStore.getState().preferences, { requestPermission: false });
+        const access = await askForAccess(kind, language, active);
+        if (!active()) return;
+        // El permiso ya quedó decidido; registrar es aparte y su fallo no es un rechazo (Ajustes muestra el reintento).
+        if (access.ok && kind === 'notifications') void registerPushToken(useAppStore.getState().preferences).catch(() => undefined);
         if (access.deniedNow) setError(pick(PERMISSION_COPY[kind].denied, language));
       }
-      await refresh();
-    } catch { setError(t('No pudimos abrir los permisos. Inténtalo desde los ajustes del teléfono.', 'Could not open permissions. Try your phone settings.')); }
+      if (active()) await refresh();
+    } catch { if (active()) setError(t('No pudimos abrir los permisos. Inténtalo desde los ajustes del teléfono.', 'Could not open permissions. Try your phone settings.')); }
     finally { lock.current = false; setBusy(false); }
   };
   const manage = (kind: PermissionKind) => { const state = snapshot?.[kind]; return !!state && (state.status === 'granted' || !state.canAskAgain); };

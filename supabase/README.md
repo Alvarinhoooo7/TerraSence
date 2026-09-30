@@ -99,7 +99,7 @@ supervisión y no constituye un respaldo de la base de datos.
 | Referencia | `bjmhjatykqccksddgtmo` |
 | URL | `https://bjmhjatykqccksddgtmo.supabase.co` |
 | Región | **South America (São Paulo)** |
-| Extensiones | `uuid-ossp`, `pgcrypto` |
+| Extensiones | `uuid-ossp`, `pgcrypto`, `supabase_vault`, `pg_net`, `pg_cron` (despacho de avisos) |
 
 **Por qué São Paulo.** Por latencia —Santiago–São Paulo son ~2.600 km frente a ~9.000 km a
 Virginia— y porque ayuda al argumento de transferencia internacional de la **Ley 21.719**: es la
@@ -120,7 +120,7 @@ auth.users
  profiles ──────┐
                 │ N:M vía device_members (user_id, device_id, role, is_authorized)
                 ▼
-             devices ──1:N──► soil_measurements ──► push_alerts
+             devices ──1:N──► soil_measurements
                 │                    │
                 │                    └──1:N──► device_status_log (histórico de batería/conexión, por trigger)
 
@@ -129,6 +129,9 @@ auth.users
  firmware_releases ──1:N──► device_firmware_updates ◄──N:1── devices
                             (envíos de firmware al administrador de cada equipo)
  device_join_attempts     (freno de fuerza bruta del RPC de vinculación)
+
+ devices ──1:N──► push_alerts ──1:N──► notification_recipients ──1:N──► push_deliveries ◄──N:1── push_installations
+   (avisos de acceso a equipos: evento, destinatario y entrega por teléfono; ver ADMINISTRACION.md)
 ```
 
 ### 2.1. Backoffice de cuenta única (Web/backend)
@@ -139,7 +142,7 @@ Rediseñado el 27-09-2026 ([`Web/README.md`](../Web/README.md), [`Web/TAREAS.md`
 - **Recuperación oculta.** `is_backoffice_email()` (solo `service_role`) decide si la Edge Function `backoffice-recover` envía el código.
 - **Contacto real de la sonda.** `report_device_contact(device_code, batería, versión, hora)` la llama la app en cada conversación BLE (miembros aprobados). Mantiene `first_seen_at` (nueva), `last_seen_at`, `battery_level` y `firmware_version`; esas columnas quedaron sin valores de relleno y en `NULL` hasta el primer contacto ([`20260927120100`](migrations_archivo/20260927120100_contacto_real_de_la_sonda.sql)).
 - **Pantallas** ([`20260927120200`](migrations_archivo/20260927120200_funciones_backoffice.sql)): `admin_search` (ID o correo → filas equipo/cliente), `admin_device_status` (Online = contacto hace menos de 15 min, decidido por el servidor), `admin_device_members`, `admin_device_measurements` (últimas 5, con pronóstico y consejo desde `diagnosis`), `admin_make_admin`, `admin_approve_member`, `admin_reject_member` y `admin_reset_device` (reset global: usuarios, solicitudes, mediciones, alertas, invitaciones, historial y actualizaciones; conserva el ID y deja la sonda libre para revincularla con PAIR, §10.0.2). Se eliminaron las funciones de la consola anterior: `admin_get_device_detail`, `admin_list_fleet`, `admin_list_recent_measurements`, `admin_push_firmware_update`, `admin_set_member_role`, `admin_set_member_authorized`, `admin_approve_device_member`, `admin_unbind_user_device`, `admin_factory_reset_device`, `admin_toggle_user_status` y `get_admin_dashboard_full_data`.
-- **Actualizaciones de firmware** ([`20260927120300`](migrations_archivo/20260927120300_actualizaciones_firmware.sql)): bucket privado `firmware`, columna `firmware_releases.storage_path` y tabla `device_firmware_updates` (enviada → pendiente → instalando → instalada o fallida; cancelada). Backoffice: `admin_list_releases`, `admin_create_release`, `admin_publish_release`, `admin_delete_release`, `admin_send_update`, `admin_send_update_all`, `admin_cancel_update`, `admin_device_update`, `admin_release_devices`. App (administrador del equipo): `my_firmware_updates` y `firmware_update_progress(update, 'postpone' | 'start' | 'installed' | 'failed')`. Cada envío crea un aviso `event_type = 'firmware_update'` para el administrador.
+- **Actualizaciones de firmware** ([`20260927120300`](migrations_archivo/20260927120300_actualizaciones_firmware.sql)): bucket privado `firmware`, columna `firmware_releases.storage_path` y tabla `device_firmware_updates` (enviada → pendiente → instalando → instalada o fallida; cancelada). Backoffice: `admin_list_releases`, `admin_create_release`, `admin_publish_release`, `admin_delete_release`, `admin_send_update`, `admin_send_update_all`, `admin_cancel_update`, `admin_device_update`, `admin_release_devices`. App (administrador del equipo): `my_firmware_updates` y `firmware_update_progress(update, 'postpone' | 'start' | 'installed' | 'failed')`. La asignación no crea invitación push hasta que la instalación OTA funcione en la app.
 - **Corrección de `push_alerts`.** `join_device_by_invite` insertaba la alerta de solicitud con categoría `device` y severidad `warning`, que la restricción no admitía: **toda solicitud de acceso por QR fallaba** y nunca existía una pendiente que aprobar. La misma migración amplía ambas restricciones.
 
 Pruebas: los guiones SQL de verificación (soporte sí, agricultor, pendiente y `anon` no; hacer admin, aceptar, rechazar, reset; ciclo completo de una actualización) y la prueba de punta a punta en navegador se corrieron contra una réplica local con Docker el 27-09-2026. **Aplicadas en producción el mismo día** (§10.0).
@@ -211,6 +214,8 @@ Restos sin uso que siguen en la base: `generate_device_code()`, el `DEFAULT` ale
 `link_device_creator()`, sin trigger que la llame y con el rol `owner`, que ya no existe; y
 `join_device_by_code(text)`, revocada para clientes: el ID permanente no da acceso, se entra por QR.
 
+Los avisos de acceso (`push_alerts`, `notification_recipients`, `push_installations`, `push_deliveries`, el disparador `notify_device_membership` y las RPC `register_push_installation`, `revoke_push_installation`, `revoke_push_installation_by_secret`, `list_my_notifications`, `get_my_notification` y `mark_notification_read`) los introduce [`20260929130000_notificaciones_equipos.sql`](migrations/20260929130000_notificaciones_equipos.sql) y se describen en [`ADMINISTRACION.md`](ADMINISTRACION.md#avisos-de-acceso).
+
 ### De dónde sale el ID del equipo
 
 Lo deriva el firmware de la **MAC base del ESP32**, única por chip: sus 48 bits en decimal, con
@@ -226,17 +231,15 @@ igual que la restricción `devices_device_code_15_digits`. La unicidad la garant
 | Función | Autenticación | Qué hace | En producción (28-09-2026) |
 | :--- | :--- | :--- | :--- |
 | `request-device-access` | Sesión del usuario | Solicitud de acceso con el QR o con el código que se muestra debajo (el mismo token) y aviso al administrador. La app la llama en `requestDeviceAccess` | Desplegada el 28-09-2026 |
-| `send-push-alert` | **Exige JWT** | Despacha por Expo Push las alertas pendientes | Desplegada |
+| `send-push-alert` | Clave de servicio | Reserva entregas por instalación y procesa tickets y receipts de Expo | Nueva versión pendiente de despliegue |
 | `backoffice-recover` | Pública (`verify_jwt = false`) | Envía el código de recuperación **solo** a la cuenta de soporte; responde igual a cualquier correo y antes de enviar | Desplegada |
-| `backoffice-send-update` | Sesión de soporte | Crea los envíos de firmware (uno o todos) y despierta a `send-push-alert` | Desplegada |
-| `device-checkin` | Pública (`--no-verify-jwt`) | Recibe telemetría por HTTP, actualiza el estado del equipo y genera alerta ante veredicto rojo. **Nadie la llama:** el firmware no usa Wi-Fi y la app escribe por PostgREST. Queda para integraciones | Desplegada |
+| `backoffice-send-update` | Sesión de soporte | Crea los envíos de firmware (uno o todos) | Nueva versión pendiente de despliegue |
+| `device-checkin` | Pública (`--no-verify-jwt`) | Recibe telemetría por HTTP y actualiza el estado del equipo. **Nadie la llama:** el firmware no usa Wi-Fi y la app escribe por PostgREST. Queda para integraciones | Nueva versión pendiente de despliegue |
 | `measurement-recommendation` | Sesión del usuario | Contrato para un proveedor externo de recomendaciones. Sin adaptador; la app no la invoca automáticamente | No desplegada (sin uso) |
 
 `supabase functions list` da el estado real.
 
-Están **separadas a propósito**: el registro de la alerta no debe depender de que el envío funcione.
-Si Expo está caído, la alerta sigue existiendo y aparece en la app al abrirla. `send-push-alert`
-sólo marca `is_read` si algo llegó a salir, para que un fallo no silencie la alerta para siempre.
+Los eventos de acceso se crean en la misma transacción que el cambio de membresía. `notification_recipients.read_at` registra la lectura de cada usuario; `push_deliveries` registra cada intento por instalación. Un fallo de Expo conserva el evento y permite reintentar. El cron autenticado usa Vault; la configuración y los límites de entrega están en [Administración](ADMINISTRACION.md).
 
 `device-checkin` autentica por `device_code`, que **no es un secreto fuerte**. Por eso exige que el
 equipo exista y esté activo, y devuelve el mismo mensaje genérico tanto si el código no existe como
@@ -338,9 +341,19 @@ Las plantillas de [confirmación](templates/confirmation.html) y
 [recuperación](templates/recovery.html) muestran `{{ .Token }}` sin enlaces de acción.
 Supabase genera y valida los códigos; no se crean tablas ni funciones propias.
 [config.toml](config.toml), sección `auth.email`, define longitud, vencimiento y
-espera entre envíos. El cambio está preparado localmente; **su aplicación remota
-no está verificada**. El CLI está vinculado al proyecto, pero el proxy del entorno
-rechaza la conexión a la API de administración.
+espera entre envíos. Se consultó la configuración remota y los parámetros de códigos
+coinciden; la entrega de correo y las plantillas renderizadas requieren el recorrido
+con correo real descrito en [D09](../App/TASK_PERMISSIONS.md#d09-auth-y-correo-reales).
+
+### Política de contraseñas local y de producción
+
+[config.toml](config.toml) define el mínimo local y deja la composición de Auth sin
+exigencias ASCII para admitir ñ, tildes y símbolos. La política remota se alineó y se
+volvió a leer para verificarla, preservando SMTP y el resto de Auth. La regla adicional
+del formulario vive en [passwordRules.ts](../App/src/utils/passwordRules.ts), cuenta
+puntos Unicode y no modifica la contraseña. La composición se valida sólo en la app:
+una llamada directa a Auth puede omitirla. Auth conserva sus límites propios de
+longitud. Estado de verificación y pruebas en [D09](../App/TASK_PERMISSIONS.md#d09-auth-y-correo-reales).
 
 ### Remitente y límite de envío
 

@@ -2,9 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createRequire } from 'node:module';
 import {
-  androidRequestState, androidRuntimeState, bluetoothState, hasReviewedPermissions, locationState, markPermissionsReviewed,
+  androidRequestState, androidRuntimeState, bluetoothState, hasReviewedPermissions, iosBluetoothAuthorizationState, locationState, markPermissionsReviewed,
   notificationState, PERMISSION_KINDS, permissionAskedKey, permissionsReviewKey, toPermissionState,
 } from '../src/utils/permissionState';
+import { createAccountOperation } from '../src/utils/accountOperation';
+import { createLatestOnly } from '../src/utils/latestOnly';
 import { PERMISSION_ACTIONS, PERMISSION_COPY, permissionStatusLabel } from '../src/utils/permissionCopy';
 
 test('permiso concedido, rechazo definitivo y solicitud pendiente mantienen estados distintos', () => {
@@ -21,6 +23,60 @@ test('Bluetooth apagado sigue autorizado; rechazo y hardware no disponible no se
   assert.equal(bluetoothState('Unsupported').status, 'unavailable');
   assert.equal(bluetoothState('Resetting').status, 'undetermined');
   assert.equal(bluetoothState('Unknown').status, 'undetermined');
+});
+
+test('la autorización Bluetooth de iOS distingue concedido, rechazado, restringido y sin decidir', () => {
+  assert.deepEqual(iosBluetoothAuthorizationState('granted'), { status: 'granted', canAskAgain: false });
+  assert.deepEqual(iosBluetoothAuthorizationState('denied'), { status: 'denied', canAskAgain: false });
+  assert.deepEqual(iosBluetoothAuthorizationState('restricted'), { status: 'restricted', canAskAgain: false });
+  assert.deepEqual(iosBluetoothAuthorizationState('undetermined'), { status: 'undetermined', canAskAgain: true });
+  // Un valor que iOS agregue después no se confunde con «nunca pedido» ni con una concesión.
+  for (const desconocido of ['unknown', '', 'allowedAlways']) {
+    assert.deepEqual(iosBluetoothAuthorizationState(desconocido), { status: 'error', canAskAgain: true });
+  }
+});
+
+test('una operación con permiso deja de ser válida al cancelar, desmontar o cambiar de cuenta', () => {
+  let user: string | undefined = 'a';
+  const operation = createAccountOperation('a', () => user);
+  const active = operation.begin();
+  assert.equal(active(), true);
+  user = 'b';
+  assert.equal(active(), false, 'otra cuenta: no se continúa para la anterior');
+  user = 'a';
+  assert.equal(active(), true);
+  operation.cancel();
+  assert.equal(active(), false, 'cancelar invalida lo que ya esperaba');
+  const next = operation.begin();
+  assert.equal(next(), true, 'una operación nueva vuelve a estar activa');
+  operation.unmount();
+  assert.equal(next(), false);
+  assert.equal(operation.begin()(), false, 'desmontada, ninguna operación nueva arranca');
+  operation.mount();
+  assert.equal(operation.begin()(), true);
+  // Sin cuenta no hay a quién atribuir la continuación.
+  assert.equal(createAccountOperation(undefined, () => undefined).begin()(), false);
+});
+
+test('una consulta antigua no pisa una más nueva ni una acción en curso', async () => {
+  const latest = createLatestOnly();
+  const applied: string[] = [];
+  let releaseSlow = () => {};
+  const slow = new Promise<string>(resolve => { releaseSlow = () => resolve('antigua'); });
+  const first = latest.run(() => slow, value => applied.push(value));
+  const second = latest.run(async () => 'nueva', value => applied.push(value));
+  await second;
+  releaseSlow();
+  await first;
+  assert.deepEqual(applied, ['nueva'], 'la respuesta tardía se descarta');
+  // Una acción del usuario (invalidar) también descarta lo que venía en vuelo.
+  let releaseInFlight = () => {};
+  const inFlight = new Promise<string>(resolve => { releaseInFlight = () => resolve('en vuelo'); });
+  const pending = latest.run(() => inFlight, value => applied.push(value));
+  latest.invalidate();
+  releaseInFlight();
+  await pending;
+  assert.deepEqual(applied, ['nueva']);
 });
 
 test('continuar guarda sólo la revisión, aislada por cuenta y sin almacenar permisos reales', async () => {

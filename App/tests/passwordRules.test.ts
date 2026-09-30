@@ -51,3 +51,18 @@ test('acepta letras y dígitos no latinos, y acentos como letra', () => {
 test('rechaza una contraseña larga pero sin número ni especial', () => {
   assert.equal(isPasswordAcceptable('unacontrasenamuylarga'), false);
 });
+
+test('ñ y tildes satisfacen la letra aunque no haya letras ASCII', () => {
+  assert.equal(isPasswordAcceptable('ñáéíó123!'), true);
+  assert.equal(isPasswordAcceptable('ñáéíó١٢٣!'), true);
+});
+
+test('un emoji cuenta como un punto Unicode para la longitud', () => {
+  assert.equal(met('a1!🌱🌱🌱🌱').length, false);
+  assert.equal(met('a1!🌱🌱🌱🌱🌱').length, true);
+});
+
+test('una tilde combinada no satisface el requisito de símbolo', () => {
+  assert.equal(met('a\u0301bcde123').special, false);
+  assert.equal(isPasswordAcceptable('a\u0301bcde123!'), true);
+});

@@ -1,7 +1,7 @@
 export type AppLanguage = 'es' | 'en';
 export type AppThemePreference = 'system' | 'light' | 'dark';
 export type MeasurementSystem = 'metric' | 'imperial';
-export type NotificationCategory = 'agronomic' | 'device' | 'weather' | 'sync';
+export type NotificationCategory = 'device';
 
 export type GuideId =
   | 'auth'
@@ -24,10 +24,7 @@ export const DEFAULT_APP_PREFERENCES: AppPreferences = {
   theme: 'system',
   measurementSystem: 'metric',
   notifications: {
-    agronomic: true,
     device: true,
-    weather: true,
-    sync: false,
   },
   guidesSeen: {},
 };
@@ -53,10 +50,7 @@ export const normalizePreferences = (raw: unknown): AppPreferences => {
         ? 'imperial'
         : 'metric',
     notifications: {
-      agronomic: notifications.agronomic !== false,
       device: notifications.device !== false,
-      weather: notifications.weather !== false,
-      sync: notifications.sync === true,
     },
     guidesSeen: Object.fromEntries(
       Object.entries(guidesSeen).filter(([, seen]) => seen === true),

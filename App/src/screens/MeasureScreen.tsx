@@ -20,7 +20,8 @@ import { useAppTheme } from '../hooks/useAppTheme';
 import { useAppStore } from '../store/useAppStore';
 import { evaluateForStage, type StageAwareEvaluation } from '../engine/stageEvaluator';
 import { buildContextualAdvice, type ContextualAdvice } from '../engine/contextualAdvice';
-import { computeVpdKpa, CROPS_DB, SOIL_TEXTURES } from '../engine/agronomyEngine';
+import { computeVpdKpa } from '../engine/agronomyEngine';
+import { cropName, textureName } from '../engine/catalogNames';
 import { readSoilProbe, verifySoilProbe } from '../services/probeService';
 import { fetchCurrentWeather, type CurrentWeather } from '../services/weatherService';
 import { newClientUuid, saveMeasurement } from '../services/measurementsService';
@@ -34,6 +35,9 @@ import { RadarScan } from '../components/RadarScan';
 import { askForAccess } from '../components/permissionPrompt';
 import { isLegacyAndroidBluetooth, readPermission } from '../services/permissionsService';
 import { PERMISSION_COPY, pick } from '../utils/permissionCopy';
+import { createAccountOperation } from '../utils/accountOperation';
+import { useAuthStore } from '../store/useAuthStore';
+import { localizeProbeError } from '../utils/probeErrors';
 
 // Elección de incluir coordenadas y pronóstico, por instalación. Es distinta del permiso:
 // en Android anterior a 12 la ubicación también se concede para buscar la sonda.
@@ -50,7 +54,7 @@ interface Props {
 
 export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   const { colors } = useAppTheme();
-  const { t, language } = useTranslation();
+  const { t, language, locale } = useTranslation();
   const {
     setStage,
     cropId,
@@ -75,7 +79,10 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   const [capturedAt, setCapturedAt] = useState<string | null>(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
   const weatherRequest = useRef(0);
-  useEffect(() => () => { weatherRequest.current += 1; }, []);
+  // Cuenta y generación de lo que espera un permiso o la sonda: al salir, cancelar o cambiar de
+  // cuenta, ninguna continuación inicia BLE ni escribe estado, coordenadas o lecturas.
+  const accountOperation = useRef(createAccountOperation(useAuthStore.getState().session?.user.id, () => useAuthStore.getState().session?.user.id));
+  useEffect(() => { accountOperation.current.mount(); const unsubscribe = useAuthStore.subscribe(() => accountOperation.current.cancelIfAccountChanged()); return () => { weatherRequest.current += 1; unsubscribe(); accountOperation.current.unmount(); }; }, []);
   const [weather, setWeather] = useState<CurrentWeather | null>(null);
   const [coords, setCoords] = useState<Location.LocationObjectCoords | null>(null);
   const [advice, setAdvice] = useState<ContextualAdvice | null>(null);
@@ -107,9 +114,11 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       return;
     }
     setLocationBusy(true);
+    const active = accountOperation.current.begin();
     try {
       // El permiso se pide al activar esta opción, no al abrir la pantalla ni al medir.
-      const access = await askForAccess('location', language);
+      const access = await askForAccess('location', language, active);
+      if (!active()) return;
       setIncludeLocation(access.ok);
       if (access.ok) {
         AsyncStorage.setItem(LOCATION_CHOICE_KEY, 'on').catch(() => undefined);
@@ -122,12 +131,12 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
 
   const cancel = useCallback(() => {
     if (saving.current) return;
-    const leave = () => { weatherRequest.current += 1; onCancel(); };
-    if (raw && !saved.current) Alert.alert('Lectura sin guardar', '¿Descartar esta lectura y volver al dashboard?', [
-      { text: 'Seguir revisando', style: 'cancel' }, { text: 'Descartar', style: 'destructive', onPress: leave },
+    const leave = () => { weatherRequest.current += 1; accountOperation.current.cancel(); onCancel(); };
+    if (raw && !saved.current) Alert.alert(t('Lectura sin guardar', 'Unsaved reading'), t('¿Descartar esta lectura y volver al dashboard?', 'Discard this reading and go back to the dashboard?'), [
+      { text: t('Seguir revisando', 'Keep reviewing'), style: 'cancel' }, { text: t('Descartar', 'Discard'), style: 'destructive', onPress: leave },
     ]);
     else leave();
-  }, [raw, onCancel]);
+  }, [raw, onCancel, t]);
   useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => { cancel(); return true; });
     return () => listener.remove();
@@ -136,74 +145,85 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   const runMeasurement = useCallback(async () => {
     if (!stage || saving.current || reading.current) return;
     reading.current = true;
+    // El contexto se fija al tocar «Medir» y vale sólo para esta lectura: lo que cambie en el
+    // store mientras el permiso o la sonda responden no se mezcla con ella.
+    const snapshot = { cropId, textureId, device };
+    const active = accountOperation.current.begin();
     if (device) {
       // Bluetooth se pide al tocar «Medir». Un estado que no se pudo consultar no es un
       // rechazo: la conexión informa el error real (o simula en desarrollo sin módulo nativo).
-      const access = await askForAccess('bluetooth', language);
+      let access: Awaited<ReturnType<typeof askForAccess>>;
+      try { access = await askForAccess('bluetooth', language, active); }
+      catch (error) { reading.current = false; throw error; }
+      if (!active()) { reading.current = false; return; }
       if (!access.ok && !access.unknown) {
         reading.current = false;
         if (access.deniedNow) Alert.alert(pick(PERMISSION_COPY.bluetooth.name, language), pick(PERMISSION_COPY.bluetooth.denied, language));
         return;
       }
     }
-    context.current = { cropId, textureId, device };
+    context.current = snapshot;
     saved.current = false;
     setPhase('connecting');
     clientUuid.current = newClientUuid();
     const request = ++weatherRequest.current;
+    const current = () => request === weatherRequest.current && active();
     setWeather(null);
     setWeatherLoading(false);
     try {
-      const connection = await verifySoilProbe(context.current.device?.device_code ?? null);
-      if (request !== weatherRequest.current) return;
-      if (!connection.connected) throw new Error(connection.message ?? 'No se pudo conectar con la sonda.');
+      const connection = await verifySoilProbe(snapshot.device?.device_code ?? null, active, active.signal);
+      if (!current()) return;
+      if (!connection.connected) throw new Error(connection.message ?? t('No se pudo conectar con la sonda.', 'Could not connect to the probe.'));
       setDemoMode(connection.simulated);
       setPhase('reading');
       const [position, probe] = await Promise.all([
         includeLocation
           ? Promise.race([Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }).catch(() => null), new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000))])
           : Promise.resolve(null),
-        readSoilProbe(context.current.device?.device_code ?? null).then(probe => ({ ...probe, capturedAt: new Date().toISOString() })),
+        readSoilProbe(snapshot.device?.device_code ?? null, active, active.signal).then(probe => ({ ...probe, capturedAt: new Date().toISOString() })),
       ]);
       const nextCoords = position?.coords ?? null;
       const nextWeather = null;
-      if (request !== weatherRequest.current) return;
+      if (!current()) return;
       setCapturedAt(probe.capturedAt);
-      const nextEvaluation = evaluateForStage(probe.data, stage, context.current.cropId, context.current.textureId, preferences.language);
+      const nextEvaluation = evaluateForStage(probe.data, stage, snapshot.cropId, snapshot.textureId, preferences.language);
       setCoords(nextCoords);
       setRaw(probe.data);
       setDemoMode((current) => current || probe.simulated);
       setWeather(nextWeather);
       setEvaluation(nextEvaluation);
-      setAdvice(buildContextualAdvice(stage, nextEvaluation, probe.data, nextWeather));
+      setAdvice(buildContextualAdvice(stage, nextEvaluation, probe.data, nextWeather, preferences.language));
       setPhase('result');
       if (nextCoords) {
         setWeatherLoading(true);
         void fetchCurrentWeather(nextCoords.latitude, nextCoords.longitude).then((forecast) => {
-          if (request !== weatherRequest.current) return;
+          if (!current()) return;
           setWeather(forecast);
-          setAdvice(buildContextualAdvice(stage, nextEvaluation, probe.data, forecast));
+          setAdvice(buildContextualAdvice(stage, nextEvaluation, probe.data, forecast, preferences.language));
           setWeatherLoading(false);
-        }).catch(() => { if (request === weatherRequest.current) setWeatherLoading(false); });
+        }).catch(() => { if (current()) setWeatherLoading(false); });
       }
     } catch (error) {
-      if (request !== weatherRequest.current) return;
-      setConnectionError(error instanceof Error ? error.message : 'No se pudo leer la sonda.');
+      if (!current()) return;
+      const fallback = t('No se pudo leer la sonda.', 'Could not read the probe.');
+      setConnectionError(error instanceof Error ? localizeProbeError(error.message, language, fallback) : fallback);
       setPhase('connection_error');
     } finally {
       reading.current = false;
     }
-  }, [cropId, device, includeLocation, language, phase, preferences.language, stage, textureId]);
+  }, [cropId, device, includeLocation, language, preferences.language, stage, t, textureId]);
 
-  const presentation = useMemo(() => raw && evaluation && advice ? buildMeasurementPresentation(raw, evaluation, advice) : null, [raw, evaluation, advice]);
+  const presentation = useMemo(() => raw && evaluation && advice ? buildMeasurementPresentation(raw, evaluation, advice, language) : null, [raw, evaluation, advice, language]);
 
   const save = useCallback(async () => {
     if (!evaluation || !raw || !stage || saving.current || saved.current) return;
     if (demoMode) {
-      Alert.alert('Demostración', 'Los datos simulados no se guardan como mediciones reales.');
+      Alert.alert(t('Demostración', 'Demo'), t('Los datos simulados no se guardan como mediciones reales.', 'Simulated data is not saved as real readings.'));
       return;
     }
     saving.current = true;
+    // Cuenta de esta lectura: si cambia mientras se guarda, el resultado no se escribe en el store de otra.
+    const active = accountOperation.current.begin();
     weatherRequest.current += 1;
     setWeatherLoading(false);
     setPhase('saving');
@@ -247,6 +267,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       client_uuid: clientUuid.current,
     };
     const { synced, point } = await saveMeasurement(row);
+    if (!active()) return;
     {
       if (synced && point) addPoint(point);
       else {
@@ -260,24 +281,34 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     }
     if (!synced) {
       const { pendingCount } = await import('../services/measurementsService');
-      setPendingCount(await pendingCount());
+      const pending = await pendingCount();
+      if (!active()) return;
+      setPendingCount(pending);
     }
     saved.current = true;
     setShowCalibration(true);
     } catch (error) {
-      Alert.alert('No se pudo confirmar el guardado', error instanceof Error ? error.message : 'Reintenta sin cerrar esta lectura.');
+      if (active()) {
+        const fallback = t('Reintenta sin cerrar esta lectura.', 'Retry without closing this reading.');
+        Alert.alert(t('No se pudo confirmar el guardado', 'Could not confirm the save'), error instanceof Error ? localizeProbeError(error.message, language, fallback) : fallback);
+      }
     } finally {
       saving.current = false;
-      setPhase('result');
+      if (active()) setPhase('result');
     }
-  }, [capturedAt, advice, addPoint, coords, cropId, demoMode, device, evaluation, raw, setPendingCount, stage, textureId, weather, presentation]);
+  }, [capturedAt, advice, addPoint, coords, cropId, demoMode, device, evaluation, language, raw, setPendingCount, stage, t, textureId, weather, presentation]);
 
+  const stageLabel = (id: PhenologicalStage | null) => {
+    const item = PHENOLOGICAL_STAGES.find(candidate => candidate.id === id);
+    return item ? (language === 'en' ? item.labelEn : item.label) : '';
+  };
+  const noData = t('Sin dato', 'No data');
   const header = (
     <View style={styles.header}>
       <TouchableOpacity disabled={phase === 'saving'} onPress={cancel} style={styles.headerSide}>
-        <Text style={[styles.backText, { color: colors.primary }]}>‹ Volver</Text>
+        <Text style={[styles.backText, { color: colors.primary }]}>{t('‹ Volver', '‹ Back')}</Text>
       </TouchableOpacity>
-      <Text style={[styles.headerTitle, { color: colors.text }]}>Nueva medición</Text>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>{t('Nueva medición', 'New measurement')}</Text>
       <View style={styles.headerSide} />
     </View>
   );
@@ -290,8 +321,8 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
           <RadarScan size={180}>
             <Text style={styles.connectionGlyph}>⌁</Text>
           </RadarScan>
-          <Text style={[styles.centerTitle, { color: colors.text, marginTop: Spacing.lg }]}>Buscando TerraSense</Text>
-          <Text style={[styles.centerBody, { color: colors.textSecondary }]}>La conexión es automática. Mantén el equipo encendido y cerca.</Text>
+          <Text style={[styles.centerTitle, { color: colors.text, marginTop: Spacing.lg }]}>{t('Buscando TerraSense', 'Looking for TerraSense')}</Text>
+          <Text style={[styles.centerBody, { color: colors.textSecondary }]}>{t('La conexión es automática. Mantén el equipo encendido y cerca.', 'The connection is automatic. Keep the device on and nearby.')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -303,11 +334,11 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
         {header}
         <View style={styles.center}>
           <View style={[styles.connectionIcon, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}><Text style={[styles.connectionGlyph, { color: colors.primary }]}>!</Text></View>
-          <Text style={[styles.centerTitle, { color: colors.text }]}>No se pudo completar la medición</Text>
-          <Text style={[styles.centerBody, { color: colors.textSecondary }]}>Comprueba que esté encendido, con batería y cerca del teléfono.</Text>
+          <Text style={[styles.centerTitle, { color: colors.text }]}>{t('No se pudo completar la medición', 'Could not complete the measurement')}</Text>
+          <Text style={[styles.centerBody, { color: colors.textSecondary }]}>{t('Comprueba que esté encendido, con batería y cerca del teléfono.', 'Check that it is on, has battery and is near the phone.')}</Text>
           {connectionError && <Text style={[styles.errorDetail, { color: colors.textMuted }]}>{connectionError}</Text>}
           <TouchableOpacity disabled={!stage} onPress={runMeasurement} style={[styles.cta, { backgroundColor: colors.primary, opacity: stage ? 1 : 0.4 }]}>
-            <Text style={styles.ctaText}>Reintentar medición</Text>
+            <Text style={styles.ctaText}>{t('Reintentar medición', 'Retry measurement')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -319,11 +350,11 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
         {header}
         <ScrollView contentContainerStyle={styles.scroll}>
-          {demoMode && <View style={[styles.demoBanner, { backgroundColor: colors.warning }]}><Text style={styles.demoText}>MODO DEMOSTRACIÓN · SIN SONDA REAL</Text></View>}
-          <Text style={[styles.eyebrow, { color: colors.primary }]}>PREPARAR MEDICIÓN</Text>
-          <Text style={[styles.source, { color: colors.textSecondary }]}>{CROPS_DB[cropId].name} · {SOIL_TEXTURES[textureId].name}</Text>
-          <Text style={[styles.pageTitle, { color: colors.text }]}>¿En qué fase quieres medir?</Text>
-          <Text style={[styles.pageBody, { color: colors.textSecondary }]}>Elige la etapa en que se encuentra tu cultivo.</Text>
+          {demoMode && <View style={[styles.demoBanner, { backgroundColor: colors.warning }]}><Text style={styles.demoText}>{t('MODO DEMOSTRACIÓN · SIN SONDA REAL', 'DEMO MODE · NO REAL PROBE')}</Text></View>}
+          <Text style={[styles.eyebrow, { color: colors.primary }]}>{t('PREPARAR MEDICIÓN', 'PREPARE MEASUREMENT')}</Text>
+          <Text style={[styles.source, { color: colors.textSecondary }]}>{cropName(cropId, language)} · {textureName(textureId, language)}</Text>
+          <Text style={[styles.pageTitle, { color: colors.text }]}>{t('¿En qué fase quieres medir?', 'Which stage do you want to measure?')}</Text>
+          <Text style={[styles.pageBody, { color: colors.textSecondary }]}>{t('Elige la etapa en que se encuentra tu cultivo.', 'Choose the stage your crop is in.')}</Text>
           <View style={styles.stageGrid}>
             {PHENOLOGICAL_STAGES.map((item) => {
               const selected = item.id === stage;
@@ -371,7 +402,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
             {!!locationNote && <Text accessibilityLiveRegion="polite" style={[styles.source, { color: colors.textSecondary, marginTop: Spacing.sm }]}>{locationNote}</Text>}
           </View>
           <TouchableOpacity disabled={!stage} onPress={runMeasurement} style={[styles.cta, { backgroundColor: colors.primary, opacity: stage ? 1 : 0.4 }]}>
-            <Text style={styles.ctaText}>{stage ? 'Medir en esta fase' : 'Selecciona una fase para continuar'}</Text>
+            <Text style={styles.ctaText}>{stage ? t('Medir en esta fase', 'Measure at this stage') : t('Selecciona una fase para continuar', 'Select a stage to continue')}</Text>
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
@@ -382,11 +413,11 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     return (
       <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
         {header}
-        <Text style={{ textAlign: 'center', color: colors.textSecondary }}>{PHENOLOGICAL_STAGES.find(item => item.id === stage)?.label}</Text>
+        <Text style={{ textAlign: 'center', color: colors.textSecondary }}>{stageLabel(stage)}</Text>
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.centerTitle, { color: colors.text }]}>Leyendo el suelo</Text>
-          <Text style={[styles.centerBody, { color: colors.textSecondary }]}>Mantén la sonda insertada y quieta. Buscando ubicación en paralelo; el pronóstico se consulta después.</Text>
+          <Text style={[styles.centerTitle, { color: colors.text }]}>{t('Leyendo el suelo', 'Reading the soil')}</Text>
+          <Text style={[styles.centerBody, { color: colors.textSecondary }]}>{t('Mantén la sonda insertada y quieta. Buscando ubicación en paralelo; el pronóstico se consulta después.', 'Keep the probe inserted and still. Location is searched in parallel; the forecast is requested afterwards.')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -396,31 +427,31 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
       {header}
       <ScrollView contentContainerStyle={styles.scroll}>
-        {demoMode && <View style={[styles.demoBanner, { backgroundColor: colors.warning }]}><Text style={styles.demoText}>DATOS SIMULADOS · NO USAR PARA DECISIONES REALES</Text></View>}
-        <Text style={[styles.eyebrow, { color: colors.primary }]}>RESULTADOS · {PHENOLOGICAL_STAGES.find((item) => item.id === stage)?.label}</Text>
-        <Text style={[styles.pageTitle, { color: colors.text }]}>Explora cada lectura</Text>
-        <Text style={[styles.pageBody, { color: colors.textSecondary }]}>Toca una tarjeta para entender el dato y ver un consejo breve.</Text>
+        {demoMode && <View style={[styles.demoBanner, { backgroundColor: colors.warning }]}><Text style={styles.demoText}>{t('DATOS SIMULADOS · NO USAR PARA DECISIONES REALES', 'SIMULATED DATA · DO NOT USE FOR REAL DECISIONS')}</Text></View>}
+        <Text style={[styles.eyebrow, { color: colors.primary }]}>{t('RESULTADOS', 'RESULTS')} · {stageLabel(stage)}</Text>
+        <Text style={[styles.pageTitle, { color: colors.text }]}>{t('Explora cada lectura', 'Explore each reading')}</Text>
+        <Text style={[styles.pageBody, { color: colors.textSecondary }]}>{t('Toca una tarjeta para entender el dato y ver un consejo breve.', 'Tap a card to understand the value and see brief advice.')}</Text>
 
         <Text style={[styles.source, { color: colors.textSecondary }]}>
-          {demoMode ? 'Conexión simulada' : 'Respuesta BLE recibida; conexión cerrada para reposo'}{'\n'}
-          Captura: {capturedAt ? new Date(capturedAt).toLocaleString() : 'Sin dato' } · Batería: {raw?.battery ?? '—'} %
-          {'\n'}Ambiente: {[raw?.airTemp, raw?.airHumidity, raw?.airPressure].filter(v => v != null).length}/3 variables · N/P/K sin validación química
+          {demoMode ? t('Conexión simulada', 'Simulated connection') : t('Respuesta BLE recibida; conexión cerrada para reposo', 'BLE response received; connection closed to rest')}{'\n'}
+          {t('Captura', 'Captured')}: {capturedAt ? new Date(capturedAt).toLocaleString(locale) : noData} · {t('Batería', 'Battery')}: {raw?.battery ?? '—'} %
+          {'\n'}{t('Ambiente', 'Ambient')}: {[raw?.airTemp, raw?.airHumidity, raw?.airPressure].filter(v => v != null).length}/3 {t('variables · N/P/K sin validación química', 'variables · N/P/K without chemical validation')}
         </Text>
         {presentation && <MeasurementExplorer presentation={presentation} />}
 
         <View style={[styles.detailCard, { backgroundColor: colors.card, borderColor: colors.border, marginTop: Spacing.md }]}>
-          <Text style={[styles.detailTitle, { color: colors.text }]}>Pronóstico · próximos cinco días</Text>
-          <Text style={[styles.source, { color: colors.textSecondary }]}>{weatherLoading ? 'Consultando pronóstico; ya puedes guardar la lectura local.' : weather ? `Open-Meteo · ${weather.timezone} · ${new Date(weather.fetchedAt).toLocaleString()}` : 'Pronóstico no disponible. El diagnóstico local se conserva.'}</Text>
+          <Text style={[styles.detailTitle, { color: colors.text }]}>{t('Pronóstico · próximos cinco días', 'Forecast · next five days')}</Text>
+          <Text style={[styles.source, { color: colors.textSecondary }]}>{weatherLoading ? t('Consultando pronóstico; ya puedes guardar la lectura local.', 'Requesting the forecast; you can already save the local reading.') : weather ? `Open-Meteo · ${weather.timezone} · ${new Date(weather.fetchedAt).toLocaleString(locale)}` : t('Pronóstico no disponible. El diagnóstico local se conserva.', 'Forecast unavailable. The local diagnosis is kept.')}</Text>
           {weather?.forecast.map(day => {
-            const temp = (value: number | null) => { if (value == null) return 'Sin dato'; const f = formatEngineMetric('temp', value, '°C', preferences.measurementSystem); return `${f.value.toFixed(1)} ${f.unit}`; };
-            return <Text key={day.date} style={[styles.action, { color: colors.text }]}>{day.date}: {temp(day.minimumTemperatureC)} / {temp(day.maximumTemperatureC) } · Lluvia: {day.precipitationMm == null ? 'Sin dato' : `${day.precipitationMm} mm`}</Text>;
+            const temp = (value: number | null) => { if (value == null) return noData; const f = formatEngineMetric('temp', value, '°C', preferences.measurementSystem); return `${f.value.toFixed(1)} ${f.unit}`; };
+            return <Text key={day.date} style={[styles.action, { color: colors.text }]}>{day.date}: {temp(day.minimumTemperatureC)} / {temp(day.maximumTemperatureC) } · {t('Lluvia', 'Rain')}: {day.precipitationMm == null ? noData : `${day.precipitationMm} mm`}</Text>;
           })}
         </View>
         <TouchableOpacity onPress={save} disabled={phase === 'saving'} style={[styles.cta, { backgroundColor: colors.primary, opacity: phase === 'saving' ? 0.6 : 1 }]}>
-          {phase === 'saving' ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.ctaText}>Guardar resultado</Text>}
+          {phase === 'saving' ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.ctaText}>{t('Guardar resultado', 'Save result')}</Text>}
         </TouchableOpacity>
-        <TouchableOpacity disabled={phase === 'saving'} onPress={() => Alert.alert('Nueva medición', '¿Descartar esta lectura y elegir otra fase?', [{ text: 'Seguir revisando', style: 'cancel' }, { text: 'Continuar', onPress: () => { weatherRequest.current += 1; setRaw(null); selectStage(null); setPhase('stage'); } }])} style={styles.secondaryButton}>
-          <Text style={[styles.secondaryText, { color: colors.primary }]}>Cambiar fase y volver a medir</Text>
+        <TouchableOpacity disabled={phase === 'saving'} onPress={() => Alert.alert(t('Nueva medición', 'New measurement'), t('¿Descartar esta lectura y elegir otra fase?', 'Discard this reading and choose another stage?'), [{ text: t('Seguir revisando', 'Keep reviewing'), style: 'cancel' }, { text: t('Continuar', 'Continue'), onPress: () => { weatherRequest.current += 1; setRaw(null); selectStage(null); setPhase('stage'); } }])} style={styles.secondaryButton}>
+          <Text style={[styles.secondaryText, { color: colors.primary }]}>{t('Cambiar fase y volver a medir', 'Change stage and measure again')}</Text>
         </TouchableOpacity>
       </ScrollView>
       <CalibrationReminderModal visible={showCalibration} onClose={() => { setShowCalibration(false); onDone(); }} />

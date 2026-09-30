@@ -181,9 +181,17 @@ enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
 enable_manual_linking = false
 # Passwords shorter than this value will be rejected as weak. Minimum 6, recommended 8 or more.
-minimum_password_length = 6
+minimum_password_length = 8
 # Passwords that do not meet the following requirements will be rejected as weak. Supported values
 # are: `letters_digits`, `lower_upper_letters_digits`, `lower_upper_letters_digits_symbols`
+# La regla de la app (App/src/utils/passwordRules.ts) es: 8 o más caracteres, una letra, un
+# número y un carácter especial. Auth no ofrece «letras + dígitos + especial»: sólo
+# `letters_digits` o variantes que además exigen mayúscula y minúscula, y las que hay cuentan
+# letras y dígitos ASCII, de modo que rechazarían contraseñas que la app sí acepta (la app
+# usa \p{L} y \p{N}: por ejemplo «ñáéíó123!»). Se deja sin composición
+# para admitir esas letras y símbolos. Auth aplica su límite de longitud; el formulario
+# exige al menos 8 puntos Unicode y valida la composición sin alterar la contraseña.
+# Este archivo configura Auth local; el entorno remoto se comprueba por separado.
 password_requirements = ""
 
 # Configure passkey sign-ins.
@@ -450,4 +458,9 @@ content_path = "./templates/password_changed.html"
 # «Recuperar acceso» del backoffice: la llama alguien sin sesión, y responde
 # igual para cualquier correo (ver el encabezado de la función).
 [functions.backoffice-recover]
+verify_jwt = false
+
+# La ingesta del equipo valida DEVICE_INGEST_SECRET dentro de la función.
+# Conserva la configuración efectiva del endpoint remoto al desplegar.
+[functions.device-checkin]
 verify_jwt = false

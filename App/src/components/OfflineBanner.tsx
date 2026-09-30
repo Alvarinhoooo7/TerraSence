@@ -1,6 +1,7 @@
 import { flushProbeContacts } from '../services/contactService';
 import { syncPendingPreferences } from '../services/preferencesService';
-import React, { useEffect, useState } from 'react';
+import { flushPendingPushRevocation, getPushRegistrationStatus, registerPushToken } from '../services/notifications';
+import React, { useEffect, useRef, useState } from 'react';
 import { AppState, View, Text, StyleSheet } from 'react-native';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { Typography } from '../constants/theme';
@@ -16,6 +17,7 @@ export const OfflineBanner = () => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const accountId = useAuthStore(s => s.session?.user.id);
+  const wasOffline = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -31,8 +33,12 @@ export const OfflineBanner = () => {
           if (active) useAppStore.getState().setPendingCount(count);
         }
         const response = await fetch('https://www.google.com/generate_204', { signal: controller.signal });
-        if (active) setIsConnected(response.ok);
+        if (active) { setIsConnected(response.ok); if (!response.ok) wasOffline.current = true; }
+        // Una revocación que quedó pendiente al cerrar sesión sin red se confirma al volver la red.
+        if (response.ok) void flushPendingPushRevocation().catch(() => undefined);
         if (response.ok && accountId && active) {
+          // Recupera el registro push al volver la red o tras un fallo anterior, sin pedir permisos.
+          if (wasOffline.current || getPushRegistrationStatus() === 'error') { wasOffline.current = false; void registerPushToken().catch(() => { wasOffline.current = true; }); }
           try {
             useAppStore.getState().setSyncing(true);
             await syncPendingPreferences().catch(() => undefined);
@@ -46,7 +52,7 @@ export const OfflineBanner = () => {
           finally { if (active) useAppStore.getState().setSyncing(false); }
         }
       } catch {
-        if (active) setIsConnected(false);
+        if (active) { setIsConnected(false); wasOffline.current = true; }
       } finally { clearTimeout(timeout); checking = false; }
     };
     void check();

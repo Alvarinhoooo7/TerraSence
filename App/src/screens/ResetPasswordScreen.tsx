@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { BackHandler, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { supabase } from '../services/supabase';
+import { beginPasswordRecoveryClosure, cancelPasswordRecoveryClosure, finishPasswordRecoveryClosure } from '../services/notifications';
 import { EntryLayout, EntryHeading, EntryButton } from '../components/entry/EntryUI';
 import { AccessField } from '../components/auth/AccessField';
 import { useTranslation } from '../hooks/useTranslation';
@@ -29,8 +30,7 @@ export const ResetPasswordScreen = ({ onDone }: { onDone: () => void }) => {
     Keyboard.dismiss();
     locked.current = true; setBusy(true); setError(null);
     try {
-      const { error: signOutError } = await supabase.auth.signOut({ scope: 'local' });
-      if (signOutError) throw signOutError;
+      await cancelPasswordRecoveryClosure();
       onDone();
     } catch {
       setError(t('No pudimos cerrar la recuperación. Inténtalo otra vez.', 'Could not close recovery. Please try again.'));
@@ -53,16 +53,13 @@ export const ResetPasswordScreen = ({ onDone }: { onDone: () => void }) => {
     locked.current = true; setBusy(true);
     try {
       if (!passwordSaved.current) {
+        await beginPasswordRecoveryClosure();
         const { error: updateError } = await supabase.auth.updateUser({ password });
         if (updateError) throw updateError;
         passwordSaved.current = true;
         setPassword(''); setConfirm('');
       }
-      const { error: signOutError } = await supabase.auth.signOut();
-      if (signOutError) {
-        const { error: localError } = await supabase.auth.signOut({ scope: 'local' });
-        if (localError) throw localError;
-      }
+      await finishPasswordRecoveryClosure();
       setSuccess(true);
     } catch (e) {
       const samePassword = e instanceof Error && /same.password/i.test(e.message);

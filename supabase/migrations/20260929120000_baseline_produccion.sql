@@ -2888,8 +2888,8 @@ CREATE POLICY firmware_admin_download ON storage.objects FOR SELECT TO authentic
         )
     );
 
--- Permisos: producción no concede estas tablas a anon/authenticated (los
--- privilegios por defecto del entorno local sí lo harían).
+-- Permisos: producciÃ³n no concede estas tablas a anon/authenticated (los
+-- privilegios por defecto del entorno local sÃ­ lo harÃ­an).
 revoke delete on table "public"."device_access_invites" from "anon";
 revoke insert on table "public"."device_access_invites" from "anon";
 revoke references on table "public"."device_access_invites" from "anon";

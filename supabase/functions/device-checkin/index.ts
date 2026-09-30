@@ -20,8 +20,7 @@
 // AUDITORÍA 2026-08-30: antes este comentario prometía la validación de la
 // cabecera de servicio pero el código nunca la implementaba — cualquiera con
 // la clave `anon` (pública, va embebida en la app/web) y un device_code válido
-// podía insertar mediciones falsas y disparar alertas críticas reales a los
-// dueños del equipo. Corregido aquí.
+// podía insertar mediciones falsas. Corregido aquí.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.0';
 
@@ -142,16 +141,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
     measurementId = inserted.id;
     patch.last_measurement_at = now;
 
-    // Alerta agronómica automática ante veredicto rojo.
-    if (m.verdict === 'RED') {
-      await supabase.from('push_alerts').insert({
-        device_id: device.id,
-        title: m.verdict_title,
-        body: m.action_summary ?? 'Condición crítica detectada en el suelo.',
-        category: 'agronomic',
-        severity: 'critical',
-      });
-    }
   }
 
   const { error: updateError } = await supabase

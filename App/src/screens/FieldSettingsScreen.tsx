@@ -6,21 +6,22 @@ import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { listMyDeviceMemberships } from '../services/deviceService';
-import { supabase } from '../services/supabase';
 import { clearDevSkip } from '../utils/devSkipOnboarding';
-import { clearPushToken, registerPushToken } from '../services/notifications';
+import { getPushRegistrationStatus, registerPushToken, signOutThisPhone, subscribePushRegistration } from '../services/notifications';
 import { savePreferences } from '../services/preferencesService';
 import { pendingCount } from '../services/measurementsService';
-import type { AppPreferences, NotificationCategory } from '../types/preferences';
+import type { AppPreferences } from '../types/preferences';
 import { ProfileScreen } from './ProfileScreen';
 import { AboutSettings, ContactSettings, FirmwareSettings, PhonePermissions, SyncSettings } from './SettingsDetails';
 
 type Page = 'index' | 'profile' | 'notifications' | 'firmware' | 'language' | 'theme' | 'permissions' | 'sync' | 'about' | 'contact';
-interface Props { onClose: () => void; onOpenDevices: () => void; onOpenAdministration: () => void }
-export function FieldSettingsScreen({ onClose, onOpenDevices, onOpenAdministration }: Props) {
+interface Props { onClose: () => void; onOpenInbox: () => void; onOpenDevices: () => void; onOpenAdministration: () => void }
+export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenDevices, onOpenAdministration }: Props) {
   const { colors } = useAppTheme(); const { t } = useTranslation();
   const preferences = useAppStore(s => s.preferences); const [page, setPage] = useState<Page>('index');
   const [canAdminister, setCanAdminister] = useState(false); const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const lock = useRef(false);
+  const [pushStatus, setPushStatus] = useState(getPushRegistrationStatus);
+  useEffect(() => subscribePushRegistration(setPushStatus), []);
   useEffect(() => { let active = true; const refresh = () => void listMyDeviceMemberships().then(rows => { if (active) setCanAdminister(rows.some(m => m.role === 'admin' && m.is_authorized)); }).catch(() => { if (active) setCanAdminister(false); }); refresh(); const timer = setInterval(refresh, 10000); return () => { active = false; clearInterval(timer); }; }, []);
   useEffect(() => { const sub = BackHandler.addEventListener('hardwareBackPress', () => { if (busy) return true; if (page === 'index') return false; setPage('index'); return true; }); return () => sub.remove(); }, [page, busy]);
   const back = () => { if (!busy) { setError(''); setPage('index'); } };
@@ -28,13 +29,16 @@ export function FieldSettingsScreen({ onClose, onOpenDevices, onOpenAdministrati
     if (lock.current) return; lock.current = true; setBusy(true); setError('');
     const previous = useAppStore.getState().preferences;
     useAppStore.getState().setPreferences(next);
-    try { await savePreferences(next); await registerPushToken(next, { requestPermission: false }); }
+    try { await savePreferences(next); void registerPushToken(next).catch(() => undefined); }
     catch { useAppStore.getState().setPreferences(previous); setError(t('No se pudo guardar el cambio. Inténtalo nuevamente.', 'Could not save the change. Please retry.')); }
     finally { lock.current = false; setBusy(false); }
   };
   const signOut = async () => {
     if (lock.current) return; lock.current = true; setBusy(true); setError('');
-    try { await clearPushToken(); await clearDevSkip(); const { error: failure } = await supabase.auth.signOut(); if (failure) throw failure; }
+    try {
+      // Revoca esta instalación y cierra sólo en este teléfono (alcance local).
+      await signOutThisPhone(clearDevSkip);
+    }
     catch { setError(t('No se pudo cerrar sesión. Revisa la conexión y vuelve a intentarlo.', 'Could not sign out. Check connectivity and retry.')); }
     finally { lock.current = false; setBusy(false); }
   };
@@ -55,7 +59,8 @@ export function FieldSettingsScreen({ onClose, onOpenDevices, onOpenAdministrati
       <SettingsRow title={t('Mi perfil', 'My profile')} subtitle={t('Nombre, correo y contraseña', 'Name, email and password')} onPress={() => setPage('profile')} />
       <SettingsRow title={t('Mis dispositivos', 'My devices')} subtitle={t('Equipos vinculados y acceso compartido', 'Linked devices and shared access')} onPress={onOpenDevices} />
       {canAdminister && <SettingsRow title={t('Administración del equipo', 'Device administration')} subtitle={t('Miembros, solicitudes y propiedad', 'Members, requests and ownership')} onPress={onOpenAdministration} />}
-      <SettingsRow title={t('Notificaciones', 'Notifications')} onPress={() => setPage('notifications')} />
+      <SettingsRow title={t('Avisos', 'Alerts')} subtitle={t('Solicitudes y cambios de acceso', 'Requests and access changes')} onPress={onOpenInbox} />
+      <SettingsRow title={t('Notificaciones', 'Notifications')} subtitle={t('Avisos push de equipos', 'Device push alerts')} onPress={() => setPage('notifications')} />
       <SettingsRow title={t('Actualizaciones', 'Updates')} subtitle={t('Firmware del ESP32', 'ESP32 firmware')} onPress={() => setPage('firmware')} />
       <SettingsRow title={t('Idioma', 'Language')} subtitle={preferences.language === 'es' ? 'Español' : 'English'} onPress={() => setPage('language')} />
       <SettingsRow title={t('Apariencia', 'Appearance')} onPress={() => setPage('theme')} />
@@ -69,13 +74,9 @@ export function FieldSettingsScreen({ onClose, onOpenDevices, onOpenAdministrati
       <SettingsText>{t('Unidades de medida', 'Measurement units')}</SettingsText>{(['metric', 'imperial'] as const).map(measurementSystem => <SettingsRow key={measurementSystem} title={measurementSystem === 'metric' ? t('Métrico · °C, ha', 'Metric · °C, ha') : t('Imperial · °F, ac', 'Imperial · °F, ac')} selected={preferences.measurementSystem === measurementSystem} disabled={busy} onPress={() => void apply({ ...preferences, measurementSystem })} />)}</>}
     {page === 'theme' && (['system', 'light', 'dark'] as const).map(theme => <SettingsRow key={theme} title={theme === 'system' ? t('Seguir el sistema', 'Follow system') : theme === 'light' ? t('Claro', 'Light') : t('Oscuro', 'Dark')} selected={preferences.theme === theme} disabled={busy} onPress={() => void apply({ ...preferences, theme })} />)}
     {page === 'notifications' && <>
-      <SettingsText>{t('Elige qué avisos quieres recibir. El permiso del teléfono se gestiona por separado. Los cambios sin conexión se enviarán cuando vuelvas a conectarte.', 'Choose which alerts to receive. Phone permission is managed separately. Offline changes will be sent when you reconnect.')}</SettingsText>
-      {([
-        ['agronomic', t('Alertas del suelo', 'Soil alerts'), t('Riesgos de pH, salinidad, agua y cultivo.', 'pH, salinity, water and crop risks.')],
-        ['device', t('Estado del equipo', 'Device status'), t('Batería, conexión y solicitudes de acceso.', 'Battery, connectivity and access requests.')],
-        ['weather', t('Riesgos meteorológicos', 'Weather risks'), t('Lluvia, heladas y ventanas de riego.', 'Rain, frost and irrigation windows.')],
-        ['sync', t('Sincronización', 'Synchronization'), t('Avisos sobre el respaldo de lecturas.', 'Reading backup alerts.')],
-      ] as [NotificationCategory, string, string][]).map(([category, label, description]) => <SettingsCard key={category}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}><View style={{ flex: 1 }}><SettingsText>{label}</SettingsText><SettingsText>{description}</SettingsText></View><Switch accessibilityLabel={label} disabled={busy} value={preferences.notifications[category]} onValueChange={enabled => void apply({ ...preferences, notifications: { ...preferences.notifications, [category]: enabled } })} trackColor={{ false: colors.border, true: colors.primary }} /></View></SettingsCard>)}
+      <SettingsText>{t('Recibe solicitudes de acceso, aprobaciones, rechazos y cambios de administración. El permiso del teléfono se gestiona por separado. Los cambios sin conexión se enviarán cuando vuelvas a conectarte.', 'Receive access requests, approvals, rejections and administration changes. Phone permission is managed separately. Offline changes will sync when you reconnect.')}</SettingsText>
+      {pushStatus === 'error' && <SettingsCard><SettingsText danger>{t('No se pudo actualizar el registro de este teléfono. Reintenta con conexión.', 'Could not update this phone registration. Retry online.')}</SettingsText><SettingsRow title={t('Reintentar registro', 'Retry registration')} onPress={() => void registerPushToken().catch(() => undefined)} /></SettingsCard>}
+      <SettingsCard><View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}><View style={{ flex: 1 }}><SettingsText>{t('Acceso a equipos', 'Device access')}</SettingsText><SettingsText>{t('Avisos push sobre miembros y solicitudes.', 'Push alerts about members and requests.')}</SettingsText></View><Switch accessibilityLabel={t('Acceso a equipos', 'Device access')} disabled={busy} value={preferences.notifications.device} onValueChange={enabled => void apply({ ...preferences, notifications: { device: enabled } })} trackColor={{ false: colors.border, true: colors.primary }} /></View></SettingsCard>
       <SettingsRow title={t('Revisar permiso del teléfono', 'Review phone permission')} onPress={() => setPage('permissions')} />
     </>}
   </SettingsPage>;

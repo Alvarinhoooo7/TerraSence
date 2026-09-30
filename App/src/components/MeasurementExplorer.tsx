@@ -4,14 +4,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { GuideModal } from './guide/GuideModal';
 import { GuideTouchable as Button } from './guide/GuideControls';
 import { useAppTheme } from '../hooks/useAppTheme';
+import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { PHENOLOGICAL_STAGES } from '../types/app';
-import type { MeasurementPresentation, ParameterPresentation } from '../engine/measurementPresentation';
+import { parameterLabel, type MeasurementPresentation, type ParameterPresentation } from '../engine/measurementPresentation';
 import { formatEngineMetric } from '../utils/units';
 
 /** El gesto horizontal recorre información; los botones cambian de parámetro. */
 function Pages({ titles, pages, page, onPage }: { titles: string[]; pages: string[]; page: number; onPage: (page: number) => void }) {
   const { colors } = useAppTheme();
+  const { t } = useTranslation();
   const [width, setWidth] = useState(0);
   const scroll = useRef<ScrollView>(null);
   useEffect(() => { scroll.current?.scrollTo({ x: page * width, animated: false }); }, [page, width]);
@@ -22,12 +24,13 @@ function Pages({ titles, pages, page, onPage }: { titles: string[]; pages: strin
         {pages.map((body, i) => <View key={titles[i]} accessibilityElementsHidden={i !== page} importantForAccessibility={i === page ? 'auto' : 'no-hide-descendants'} style={{ width: width || 1, padding: 16 }}><Text style={[styles.body, { color: colors.text }]}>{body}</Text></View>)}
       </ScrollView>
     </View>
-    <Text accessibilityLabel={`${page + 1} de ${titles.length}`} style={[styles.dots, { color: colors.primary }]}>{titles.map((_, i) => i === page ? '●' : '○').join('  ')}</Text>
+    <Text accessibilityLabel={`${page + 1} ${t('de', 'of')} ${titles.length}`} style={[styles.dots, { color: colors.primary }]}>{titles.map((_, i) => i === page ? '●' : '○').join('  ')}</Text>
   </View>;
 }
 
 export function MeasurementExplorer({ presentation: p }: { presentation: MeasurementPresentation }) {
   const { colors } = useAppTheme();
+  const { t, language } = useTranslation();
   const { width, fontScale } = useWindowDimensions();
   const system = useAppStore(s => s.preferences.measurementSystem);
   const [index, setIndex] = useState<number | null>(null);
@@ -36,11 +39,15 @@ export function MeasurementExplorer({ presentation: p }: { presentation: Measure
   const [plan, setPlan] = useState(false);
   const detailScroll = useRef<ScrollView>(null);
   const parameter = index === null ? null : p.parameters[index];
-  const stage = PHENOLOGICAL_STAGES.find(s => s.id === p.stage)?.label;
-  const statusLabels = { OPTIMAL: 'Condición favorable', WARNING: 'Requiere atención', CRITICAL: 'Condición limitante', INFO: 'Dato de contexto' };
+  const stageItem = PHENOLOGICAL_STAGES.find(s => s.id === p.stage);
+  const stage = language === 'en' ? stageItem?.labelEn : stageItem?.label;
+  const statusLabels = {
+    OPTIMAL: t('Condición favorable', 'Favorable condition'), WARNING: t('Requiere atención', 'Needs attention'),
+    CRITICAL: t('Condición limitante', 'Limiting condition'), INFO: t('Dato de contexto', 'Context data'),
+  };
   const tone = (m: ParameterPresentation) => m.status === 'CRITICAL' ? colors.danger : m.status === 'WARNING' ? colors.warning : m.status === 'OPTIMAL' ? colors.success : colors.textSecondary;
   const value = (m: ParameterPresentation) => {
-    if (m.value == null) return 'Sin dato';
+    if (m.value == null) return t('Sin dato', 'No data');
     const f = formatEngineMetric(m.key, m.value, m.unit, system);
     return `${f.value.toFixed(1)} ${f.unit}`;
   };
@@ -50,30 +57,30 @@ export function MeasurementExplorer({ presentation: p }: { presentation: Measure
   return <View style={styles.container}>
     <Text style={[styles.context, { color: colors.textSecondary }]}>{stage} · {p.context}</Text>
     <Text style={[styles.title, { color: colors.text }]}>{p.title}</Text>
-    <Pages titles={['Resumen', 'Qué hacer', 'Qué revisar']} pages={[p.summary, p.actions.join('\n\n') || 'Sin acciones registradas.', p.weatherNote]} page={summaryPage} onPage={setSummaryPage} />
-    <Button onPress={() => setPlan(true)} style={styles.button}><Text style={{ color: colors.primary, fontWeight: '600' }}>Ver plan global ›</Text></Button>
-    <View style={styles.grid}>{p.parameters.map((m, i) => <Button key={m.key} onPress={() => move(i)} accessibilityLabel={`${m.label}, ${value(m)}, ${statusLabels[m.status]}. Abrir detalle.`} style={[styles.card, { width: width < 360 || fontScale > 1.3 ? '100%' : '48%', backgroundColor: colors.card, borderColor: colors.border, borderTopColor: tone(m) }]}>
-      <Text style={{ color: colors.textSecondary }}>{m.label}</Text>
+    <Pages titles={[t('Resumen', 'Summary'), t('Qué hacer', 'What to do'), t('Qué revisar', 'What to check')]} pages={[p.summary, p.actions.join('\n\n') || t('Sin acciones registradas.', 'No actions recorded.'), p.weatherNote]} page={summaryPage} onPage={setSummaryPage} />
+    <Button onPress={() => setPlan(true)} style={styles.button}><Text style={{ color: colors.primary, fontWeight: '600' }}>{t('Ver plan global ›', 'View global plan ›')}</Text></Button>
+    <View style={styles.grid}>{p.parameters.map((m, i) => <Button key={m.key} onPress={() => move(i)} accessibilityLabel={`${parameterLabel(m.key, language)}, ${value(m)}, ${statusLabels[m.status]}. ${t('Abrir detalle.', 'Open detail.')}`} style={[styles.card, { width: width < 360 || fontScale > 1.3 ? '100%' : '48%', backgroundColor: colors.card, borderColor: colors.border, borderTopColor: tone(m) }]}>
+      <Text style={{ color: colors.textSecondary }}>{parameterLabel(m.key, language)}</Text>
       <Text style={[styles.value, { color: colors.text }]}>{value(m)}</Text>
-      <Text style={{ color: tone(m), marginTop: 8 }}>{m.key === 'nitrogen' || m.key === 'phosphorus' || m.key === 'potassium' ? 'Sin validar' : statusLabels[m.status]}</Text>
-      <Text style={{ color: colors.primary, marginTop: 8 }}>Ver detalle ›</Text>
+      <Text style={{ color: tone(m), marginTop: 8 }}>{m.key === 'nitrogen' || m.key === 'phosphorus' || m.key === 'potassium' ? t('Sin validar', 'Not validated') : statusLabels[m.status]}</Text>
+      <Text style={{ color: colors.primary, marginTop: 8 }}>{t('Ver detalle ›', 'View detail ›')}</Text>
     </Button>)}</View>
     <GuideModal visible={index !== null || plan} animationType="slide" onRequestClose={close}>
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-        <Button onPress={close} style={styles.back}><Text style={{ color: colors.primary, fontWeight: '600' }}>‹ {plan && parameter ? 'Volver al parámetro' : 'Volver al resumen'}</Text></Button>
+        <Button onPress={close} style={styles.back}><Text style={{ color: colors.primary, fontWeight: '600' }}>‹ {plan && parameter ? t('Volver al parámetro', 'Back to parameter') : t('Volver al resumen', 'Back to summary')}</Text></Button>
         <ScrollView ref={detailScroll} contentContainerStyle={styles.detail}>
-          {plan ? <><Text style={[styles.title, { color: colors.text }]}>Plan global</Text><Text style={[styles.context, { color: colors.textSecondary }]}>{stage} · {p.context}</Text><Text style={[styles.body, { color: colors.text }]}>{planBody}</Text></> : parameter && <>
-            <Text style={[styles.context, { color: colors.textSecondary }]}>Parámetro {index! + 1} de {p.parameters.length} · {stage}</Text>
-            <Text style={[styles.title, { color: colors.text }]}>{parameter.label}</Text>
+          {plan ? <><Text style={[styles.title, { color: colors.text }]}>{t('Plan global', 'Global plan')}</Text><Text style={[styles.context, { color: colors.textSecondary }]}>{stage} · {p.context}</Text><Text style={[styles.body, { color: colors.text }]}>{planBody}</Text></> : parameter && <>
+            <Text style={[styles.context, { color: colors.textSecondary }]}>{t('Parámetro', 'Parameter')} {index! + 1} {t('de', 'of')} {p.parameters.length} · {stage}</Text>
+            <Text style={[styles.title, { color: colors.text }]}>{parameterLabel(parameter.key, language)}</Text>
             <Text style={[styles.value, { color: colors.text }]}>{value(parameter)}</Text>
             <Text style={[styles.context, { color: tone(parameter) }]}>{statusLabels[parameter.status]}</Text>
-            <Pages key={parameter.key} titles={['Estado', 'Recomendación', 'Control']} pages={[parameter.state, parameter.recommendation, parameter.control]} page={page} onPage={setPage} />
-            <Button onPress={() => setPlan(true)} style={styles.button}><Text style={{ color: colors.primary }}>Ver plan global ›</Text></Button>
+            <Pages key={parameter.key} titles={[t('Estado', 'Status'), t('Recomendación', 'Recommendation'), t('Control', 'Check')]} pages={[parameter.state, parameter.recommendation, parameter.control]} page={page} onPage={setPage} />
+            <Button onPress={() => setPlan(true)} style={styles.button}><Text style={{ color: colors.primary }}>{t('Ver plan global ›', 'View global plan ›')}</Text></Button>
           </>}
         </ScrollView>
         {!plan && parameter && <View style={[styles.row, styles.footer, { borderColor: colors.border }]}>
-          <Button disabled={index === 0} onPress={() => move(index! - 1)} style={[styles.nav, { opacity: index === 0 ? 0.35 : 1 }]}><Text style={{ color: colors.primary }}>‹ Parámetro anterior</Text></Button>
-          <Button disabled={index === p.parameters.length - 1} onPress={() => move(index! + 1)} style={[styles.nav, { opacity: index === p.parameters.length - 1 ? 0.35 : 1 }]}><Text style={{ color: colors.primary }}>Siguiente parámetro ›</Text></Button>
+          <Button disabled={index === 0} onPress={() => move(index! - 1)} style={[styles.nav, { opacity: index === 0 ? 0.35 : 1 }]}><Text style={{ color: colors.primary }}>{t('‹ Parámetro anterior', '‹ Previous parameter')}</Text></Button>
+          <Button disabled={index === p.parameters.length - 1} onPress={() => move(index! + 1)} style={[styles.nav, { opacity: index === p.parameters.length - 1 ? 0.35 : 1 }]}><Text style={{ color: colors.primary }}>{t('Siguiente parámetro ›', 'Next parameter ›')}</Text></Button>
         </View>}
       </SafeAreaView>
     </GuideModal>

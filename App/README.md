@@ -68,8 +68,9 @@ nombre, el correo o el flujo obliga a revisarla de nuevo.
 Si todo el contenido cabe en pantalla, no se exige un desplazamiento imposible. El inicio
 de sesión, la recuperación y la consola web no incorporan este paso.
 
-El texto identifica al responsable del tratamiento, el correo para ejercer derechos y el
-plazo de conservación tras cerrar la cuenta. Describe las finalidades, la ubicación
+El texto identifica al responsable del tratamiento y el correo para ejercer derechos.
+El cierre y borrado de cuenta queda fuera del alcance actual; el aviso no promete ese
+proceso ni un plazo de eliminación. Describe las finalidades, la ubicación
 opcional, Open-Meteo y el alojamiento en Brasil. Distingue la [Ley 19.628](https://www.bcn.cl/leychile/Navegar?idNorma=141599)
 de la [Ley 21.719](https://www.bcn.cl/leychile/Navegar?idNorma=1209272), cuya entrada
 en vigor es el 1 de diciembre de 2026; no acredita por sí solo cumplimiento legal.
@@ -222,7 +223,8 @@ App/
 │   │   ├── weatherService.ts           # Pronóstico de Open-Meteo y su degradación sin red
 │   │   ├── emailOtp.ts                 # Códigos de correo de 6 dígitos
 │   │   ├── authDeepLink.ts / authDeepLinkParser.ts  # Enlaces de recuperación antiguos
-│   │   ├── notifications.ts            # Tokens y avisos push
+│   │   ├── notifications.ts            # Instalación push: identidad, registro, revocación y aviso en primer plano
+│   │   ├── notificationInbox.ts        # Bandeja: lista con cursor, lectura y consulta de un aviso
 │   │   ├── recommendationsService.ts   # Punto de conexión opcional, sin proveedor configurado
 │   │   └── supabase.ts                 # Cliente Supabase tipado
 │   └── utils/                          # Funciones puras: ID de 15 dígitos, cola de contactos, historial, reset, validaciones, unidades
@@ -418,7 +420,7 @@ No lleva la guía flotante ni el rótulo «Paso 3».
 | Bluetooth / dispositivos cercanos | Buscar la sonda (vincular o registrar) y tocar «Medir» | Se explica que la sonda no se puede buscar ni leer; el resto de la app sigue disponible. En Android anterior a 12 el escaneo usa la ubicación. |
 | Ubicación en primer plano | Activar «Añadir ubicación y pronóstico» al preparar una medición | La lectura se guarda sin coordenadas ni pronóstico. La elección se recuerda en el teléfono (`@terrasense/measure-location-v1`) y es distinta del permiso que Android antiguo usa para Bluetooth. La precisión aproximada se acepta y se avisa. |
 | Cámara | Tocar «Escanear QR» en el onboarding o en Mis dispositivos | Queda el código de invitación, que aparece bajo el QR y se puede escribir en las dos pantallas. |
-| Notificaciones | Solicitarlas en Ajustes → Permisos del teléfono | La app funciona igual. El inicio sólo registra una autorización ya concedida (`requestPermission: false`). |
+| Notificaciones | Solicitarlas en Ajustes → Permisos del teléfono | La app funciona igual. El inicio y los reintentos sólo consultan el permiso y registran una autorización ya concedida: nunca abren el diálogo. |
 
 **Variantes por plataforma** ([permissionPrompt.ts](src/components/permissionPrompt.ts)):
 
@@ -510,7 +512,7 @@ La sincronización automática depende de `OfflineBanner`, no de abrir una panta
 
 ### 4.5. Ajustes, perfil y dispositivos
 
-Ajustes organiza las opciones en submenús: Mi perfil, Mis dispositivos, Notificaciones,
+Ajustes organiza las opciones en submenús: Mi perfil, Mis dispositivos, Avisos, Notificaciones,
 Actualizaciones, Idioma, Apariencia, Permisos del teléfono, Datos y sincronización,
 Contacto y Acerca de y privacidad. Administración del equipo sólo aparece para quien
 administra al menos un equipo; el servidor verifica el rol para cada operación.
@@ -523,9 +525,39 @@ separada al final, en rojo, con aviso si quedan mediciones pendientes.
   está disponible, registro BLE y QR temporal. El ID permanente no sustituye una invitación.
 - **Preferencias:** español/inglés, unidades y tema claro/oscuro/sistema. Se guardan por
   cuenta en el teléfono; los cambios remotos pendientes se reintentan al recuperar conexión.
-- **Notificaciones:** interruptores independientes de suelo, equipo, clima y sincronización.
-  Cambiar idioma o una preferencia no abre diálogos del sistema. Los avisos de firmware
-  se consultan en Actualizaciones.
+- **Avisos:** bandeja persistente por cuenta para solicitudes de acceso, aprobaciones,
+  rechazos y cambios de administración, con carga paginada (cursor por fecha e id), lectura
+  por usuario (se marca al abrir) y estados de carga, vacío, error y sin conexión. Los textos
+  se muestran en el idioma de la app. Una solicitud resuelta o vencida sigue visible, sin
+  acción; un rechazo sigue visible para quien lo solicitó. Al abrir un aviso, la app vuelve a
+  comprobar la sesión, que el aviso sea de la cuenta actual y el acceso vigente al equipo.
+  Una push que se toca con la app abierta, en segundo plano o cerrada abre la bandeja sólo si
+  el aviso es de la cuenta con sesión; la de otra cuenta se descarta sin abrir nada. Está
+  disponible durante la espera de aprobación y desde Ajustes, incluso si falta vincular.
+  Si se toca durante una medición, la bandeja se muestra al terminarla.
+- **Notificaciones:** un interruptor para los avisos push de acceso a equipos (la única
+  categoría; las preferencias antiguas de suelo, clima y sincronización se ignoran al leerlas).
+  Cada teléfono tiene su propia identidad de instalación (identificador y secreto aleatorio,
+  guardados en la app; el servidor sólo conserva el resumen del secreto) y las cuentas que
+  inician sesión en él la reutilizan. El registro se actualiza al cambiar de cuenta, el token,
+  el permiso (al volver a primer plano) o la conexión, y siempre consulta el permiso sin abrir
+  el diálogo, que sólo aparece en Permisos del teléfono. El cierre normal revoca antes
+  esa instalación con su secreto (no necesita sesión, así que también vale con la cuenta ya
+  inválida), con espera acotada: sin red, la sesión se cierra igual y la revocación queda
+  pendiente en el teléfono; se confirma al volver la red o el primer plano, salvo que antes
+  otra cuenta registre la instalación, lo que ya la reasocia. Si el registro falla,
+  Ajustes lo muestra y permite reintentar. La batería baja y los problemas de sincronización
+  son estados dentro de la app, no avisos push. El diagnóstico del suelo y el pronóstico son
+  parte de la medición. El firmware se consulta en Actualizaciones; su instalación todavía no
+  está habilitada y no genera avisos.
+  El registro de Expo Push requiere `EXPO_PUBLIC_EAS_PROJECT_ID` con el ID real del
+  proyecto EAS en `App/.env` o en el entorno de compilación. Si falta, Ajustes muestra
+  el registro pendiente y permite reintentarlo tras configurar un binario válido.
+  La recuperación de contraseña invalida las instalaciones de toda la cuenta antes de
+  guardar la contraseña y termina con cierre global. El servidor comprueba la sesión
+  asociada a cada instalación al registrarla y despachar; un token de sesión revocada no
+  permite reactivar push. Los reintentos conservan el cierre pendiente. Detalle y límites
+  en [D01](TASK_PERMISSIONS.md#d01-cierre-de-sesión-entre-teléfonos).
 - **Permisos:** estado y explicación de Bluetooth, ubicación, cámara y notificaciones;
   solicitud explícita o acceso a Ajustes del teléfono y actualización del estado al volver.
   La app no puede revocar permisos del sistema mediante un interruptor propio.
@@ -566,8 +598,8 @@ la versión compatible publicada. No instala actualizaciones de la app.
 
 **Desde el 27-09-2026 el backoffice envía actualizaciones** al administrador de cada equipo
 ([`20260927120300`](../supabase/migrations_archivo/20260927120300_actualizaciones_firmware.sql)):
-llega un aviso push con `event_type = 'firmware_update'` y la asignación queda en
-`my_firmware_updates()`. **Falta implementar en la app** (§12.4): la ventana Actualizar /
+la asignación queda en `my_firmware_updates()` y no se envía ningún aviso push mientras la
+instalación no esté habilitada. **Falta implementar en la app** (§12.4): la ventana Actualizar /
 Cancelar, el estado pendiente y la instalación por BLE. Hasta entonces la interfaz no simula
 progreso ni afirma haber instalado nada.
 
@@ -815,8 +847,8 @@ Ninguno bloquea el desarrollo; todos bloquean tener la app lista para usuarios r
 
 ### 12.1. SMTP propio — los correos caen en spam
 
-La configuración local declara SMTP propio. Su estado remoto y la entrega a bandeja
-de entrada deben comprobarse; no se puede atribuir un problema de spam sin inspeccionar
+La consulta remota confirma SMTP configurado. La entrega a bandeja
+de entrada debe comprobarse; no se puede atribuir un problema de spam sin inspeccionar
 el remitente y las cabeceras reales. Ver [configuración de correo](../supabase/README.md#7-plantillas-de-correo).
 
 ### 12.2. Rediseño de las pantallas del agricultor
@@ -850,7 +882,7 @@ Lo que el backoffice ya envía y la app todavía no atiende:
 
 | # | Tarea | Detalle |
 | :---: | :--- | :--- |
-| U1 | Ventana Actualizar / Cancelar | Al abrir la app y al llegar el aviso, si `my_firmware_updates()` trae algo, mostrarle al **administrador** la versión y sus notas. Cancelar llama `firmware_update_progress(id, 'postpone')` y la deja pendiente: aviso fijo en Dispositivos y la ventana vuelve a ofrecerse. |
-| U2 | Mostrar el aviso | `notifications.ts` oculta hoy los avisos con `event_type = 'firmware_update'`; hay que mostrarlos y abrir la ventana al tocarlos. |
+| U1 | Ventana Actualizar / Cancelar | Al abrir la app, si `my_firmware_updates()` trae algo, mostrarle al **administrador** la versión y sus notas. Cancelar llama `firmware_update_progress(id, 'postpone')` y la deja pendiente: aviso fijo en Dispositivos y la ventana vuelve a ofrecerse. |
+| U2 | Invitar a instalar | Sólo cuando exista la acción de instalación por BLE: añadir entonces el evento de firmware al contrato de avisos y a la bandeja. Hoy no hay push ni entrada de bandeja de firmware. |
 | U3 | Descarga y verificación | Descargar `storage_path` del bucket `firmware` (la política solo lo permite al administrador con la actualización activa) y comparar el SHA-256 antes de tocar la sonda. |
 | U4 | Transferencia BLE | `start` → «Mantén PAIR 3 s» → protocolo de [`Firmware/PLAN.md`](../Firmware/PLAN.md) (O2) con barra de progreso real → releer la versión en la característica de estado → `installed`, o `failed` con el motivo. Depende de que el firmware implemente O2. |

@@ -13,52 +13,28 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 
+CREATE SCHEMA IF NOT EXISTS "public";
+
+
+ALTER SCHEMA "public" OWNER TO "pg_database_owner";
+
+
 COMMENT ON SCHEMA "public" IS 'standard public schema';
-
-
-
-CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "extensions";
-
-
-
-
-
-
-CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA "extensions";
-
-
-
-
-
-
-CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
-
-
-
-
-
-
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
-
-
-
 
 
 
 CREATE OR REPLACE FUNCTION "public"."admin_approve_member"("p_device_id" "uuid", "p_user_id" "uuid") RETURNS "void"
     LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public'
+    SET "search_path" TO ''
     AS $$
-BEGIN
-    PERFORM public.assert_support_staff();
-    IF NOT EXISTS (SELECT 1 FROM public.device_members
-                    WHERE device_id = p_device_id AND user_id = p_user_id AND is_authorized IS NOT TRUE) THEN
-        RAISE EXCEPTION 'No hay una solicitud pendiente de ese usuario.' USING ERRCODE = '22023';
-    END IF;
-    PERFORM public.change_device_membership(p_device_id, p_user_id, 'authorize');
-    UPDATE public.push_alerts SET is_read = TRUE
-     WHERE device_id = p_device_id AND requester_user_id = p_user_id AND event_type = 'access_request';
-END $$;
+begin
+  perform public.assert_support_staff();
+  if not exists (select 1 from public.device_members
+                  where device_id = p_device_id and user_id = p_user_id and is_authorized is not true) then
+    raise exception 'No hay una solicitud pendiente de ese usuario.' using errcode = '22023';
+  end if;
+  perform public.change_device_membership(p_device_id, p_user_id, 'authorize');
+end $$;
 
 
 ALTER FUNCTION "public"."admin_approve_member"("p_device_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
@@ -66,19 +42,17 @@ ALTER FUNCTION "public"."admin_approve_member"("p_device_id" "uuid", "p_user_id"
 
 CREATE OR REPLACE FUNCTION "public"."admin_cancel_update"("p_device_id" "uuid") RETURNS "void"
     LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public'
+    SET "search_path" TO ''
     AS $$
-BEGIN
-    PERFORM public.assert_support_staff();
-    UPDATE public.device_firmware_updates SET status = 'cancelled', updated_at = now()
-     WHERE device_id = p_device_id AND status IN ('sent', 'postponed');
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'No hay una actualización que se pueda cancelar (si se está instalando, espera a que termine).'
-            USING ERRCODE = '22023';
-    END IF;
-    UPDATE public.push_alerts SET is_read = TRUE
-     WHERE device_id = p_device_id AND event_type = 'firmware_update' AND is_read IS NOT TRUE;
-END $$;
+begin
+  perform public.assert_support_staff();
+  update public.device_firmware_updates set status = 'cancelled', updated_at = now()
+    where device_id = p_device_id and status in ('sent', 'postponed');
+  if not found then
+    raise exception 'No hay una actualización que se pueda cancelar (si se está instalando, espera a que termine).'
+      using errcode = '22023';
+  end if;
+end $$;
 
 
 ALTER FUNCTION "public"."admin_cancel_update"("p_device_id" "uuid") OWNER TO "postgres";
@@ -270,18 +244,16 @@ ALTER FUNCTION "public"."admin_publish_release"("p_release_id" "uuid") OWNER TO 
 
 CREATE OR REPLACE FUNCTION "public"."admin_reject_member"("p_device_id" "uuid", "p_user_id" "uuid") RETURNS "void"
     LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public'
+    SET "search_path" TO ''
     AS $$
-BEGIN
-    PERFORM public.assert_support_staff();
-    IF NOT EXISTS (SELECT 1 FROM public.device_members
-                    WHERE device_id = p_device_id AND user_id = p_user_id AND is_authorized IS NOT TRUE) THEN
-        RAISE EXCEPTION 'No hay una solicitud pendiente de ese usuario.' USING ERRCODE = '22023';
-    END IF;
-    PERFORM public.change_device_membership(p_device_id, p_user_id, 'remove');
-    DELETE FROM public.push_alerts
-     WHERE device_id = p_device_id AND requester_user_id = p_user_id AND event_type = 'access_request';
-END $$;
+begin
+  perform public.assert_support_staff();
+  if not exists (select 1 from public.device_members
+                  where device_id = p_device_id and user_id = p_user_id and is_authorized is not true) then
+    raise exception 'No hay una solicitud pendiente de ese usuario.' using errcode = '22023';
+  end if;
+  perform public.change_device_membership(p_device_id, p_user_id, 'remove');
+end $$;
 
 
 ALTER FUNCTION "public"."admin_reject_member"("p_device_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
@@ -308,51 +280,34 @@ ALTER FUNCTION "public"."admin_release_devices"("p_release_id" "uuid") OWNER TO 
 
 CREATE OR REPLACE FUNCTION "public"."admin_reset_device"("p_device_id" "uuid") RETURNS "jsonb"
     LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public'
+    SET "search_path" TO ''
     AS $$
-DECLARE
-    v_device  public.devices;
-    v_members INTEGER;
-    v_meas    INTEGER;
-BEGIN
-    PERFORM public.assert_support_staff();
-
-    SELECT * INTO v_device FROM public.devices WHERE id = p_device_id FOR UPDATE;
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'Equipo no encontrado.' USING ERRCODE = 'P0002';
-    END IF;
-
-    SELECT count(*) INTO v_members FROM public.device_members WHERE device_id = p_device_id;
-    SELECT count(*) INTO v_meas FROM public.soil_measurements WHERE device_id = p_device_id;
-
-    INSERT INTO public.device_data_resets (user_id, device_id, generation)
-    SELECT user_id, device_id, v_device.data_generation + 1 FROM public.device_members WHERE device_id = p_device_id
-    ON CONFLICT (user_id, device_id) DO UPDATE SET generation = EXCLUDED.generation;
-
-    DELETE FROM public.device_members          WHERE device_id = p_device_id;
-    DELETE FROM public.soil_measurements       WHERE device_id = p_device_id;
-    DELETE FROM public.push_alerts             WHERE device_id = p_device_id;
-    DELETE FROM public.device_access_invites   WHERE device_id = p_device_id;
-    DELETE FROM public.device_firmware_updates WHERE device_id = p_device_id;
-
-    UPDATE public.devices
-       SET data_generation = data_generation + 1,
-           name = 'Sonda TerraSense',
-           alias = NULL,
-           pairing_mode_active = FALSE,
-           battery_level = NULL,
-           first_seen_at = NULL,
-           last_seen_at = NULL,
-           last_measurement_at = NULL
-     WHERE id = p_device_id;
-    -- Después del UPDATE: también se va la fila que el trigger acaba de registrar.
-    DELETE FROM public.device_status_log WHERE device_id = p_device_id;
-
-    INSERT INTO public.device_member_audit (device_id, actor_user_id, action)
-    VALUES (p_device_id, auth.uid(), 'factory_reset');
-
-    RETURN jsonb_build_object('members_removed', v_members, 'measurements_deleted', v_meas);
-END $$;
+declare v_device public.devices; v_members integer; v_meas integer;
+begin
+  perform public.assert_support_staff();
+  select * into v_device from public.devices where id = p_device_id for update;
+  if not found then raise exception 'Equipo no encontrado.' using errcode = 'P0002'; end if;
+  select count(*) into v_members from public.device_members where device_id = p_device_id;
+  select count(*) into v_meas from public.soil_measurements where device_id = p_device_id;
+  insert into public.device_data_resets(user_id, device_id, generation)
+    select user_id, device_id, v_device.data_generation + 1 from public.device_members where device_id = p_device_id
+    on conflict (user_id, device_id) do update set generation = excluded.generation;
+  perform set_config('terrasense.factory_reset', 'on', true);
+  delete from public.device_members where device_id = p_device_id;
+  perform set_config('terrasense.factory_reset', 'off', true);
+  delete from public.soil_measurements where device_id = p_device_id;
+  delete from public.push_alerts where device_id = p_device_id;
+  delete from public.device_access_invites where device_id = p_device_id;
+  delete from public.device_firmware_updates where device_id = p_device_id;
+  update public.devices set data_generation = data_generation + 1, name = 'Sonda TerraSense', alias = null,
+      pairing_mode_active = false, battery_level = null, first_seen_at = null, last_seen_at = null,
+      last_measurement_at = null
+    where id = p_device_id;
+  -- Después del UPDATE: también se va la fila que el disparador acaba de registrar.
+  delete from public.device_status_log where device_id = p_device_id;
+  insert into public.device_member_audit(device_id, actor_user_id, action) values (p_device_id, auth.uid(), 'factory_reset');
+  return jsonb_build_object('members_removed', v_members, 'measurements_deleted', v_meas);
+end $$;
 
 
 ALTER FUNCTION "public"."admin_reset_device"("p_device_id" "uuid") OWNER TO "postgres";
@@ -434,41 +389,39 @@ ALTER FUNCTION "public"."admin_send_update"("p_device_id" "uuid", "p_release_id"
 
 CREATE OR REPLACE FUNCTION "public"."admin_send_update_all"("p_release_id" "uuid") RETURNS "jsonb"
     LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public'
+    SET "search_path" TO ''
     AS $$
-DECLARE
-    v_release public.firmware_releases;
-    v_device  RECORD;
-    v_alert   UUID;
-    v_alerts  UUID[] := '{}';
-    v_skipped INTEGER := 0;
-BEGIN
-    PERFORM public.assert_support_staff();
-    SELECT * INTO v_release FROM public.firmware_releases WHERE id = p_release_id AND is_published;
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'Esa versión no está publicada.' USING ERRCODE = '22023';
-    END IF;
-
-    FOR v_device IN
-        SELECT d.id, d.firmware_version FROM public.devices d ORDER BY d.id FOR UPDATE
-    LOOP
-        IF NOT public.firmware_is_newer(v_release.version, v_device.firmware_version)
-           OR EXISTS (SELECT 1 FROM public.device_firmware_updates u
-                       WHERE u.device_id = v_device.id AND u.release_id = p_release_id
-                         AND u.status IN ('sent', 'postponed', 'installing', 'installed')) THEN
-            v_skipped := v_skipped + 1;
-            CONTINUE;
-        END IF;
-        v_alert := public.assign_firmware_update(v_device.id, v_release);
-        IF v_alert IS NULL THEN
-            v_skipped := v_skipped + 1;
-        ELSE
-            v_alerts := v_alerts || v_alert;
-        END IF;
-    END LOOP;
-
-    RETURN jsonb_build_object('sent', cardinality(v_alerts), 'skipped', v_skipped, 'alert_ids', to_jsonb(v_alerts));
-END $$;
+declare
+  v_release public.firmware_releases;
+  v_device record;
+  v_update uuid;
+  v_updates uuid[] := '{}';
+  v_skipped integer := 0;
+begin
+  perform public.assert_support_staff();
+  select * into v_release from public.firmware_releases where id = p_release_id and is_published;
+  if not found then
+    raise exception 'Esa versión no está publicada.' using errcode = '22023';
+  end if;
+  for v_device in
+    select d.id, d.firmware_version from public.devices d order by d.id for update
+  loop
+    if not public.firmware_is_newer(v_release.version, v_device.firmware_version)
+       or exists (select 1 from public.device_firmware_updates u
+                   where u.device_id = v_device.id and u.release_id = p_release_id
+                     and u.status in ('sent', 'postponed', 'installing', 'installed')) then
+      v_skipped := v_skipped + 1;
+      continue;
+    end if;
+    v_update := public.assign_firmware_update(v_device.id, v_release);
+    if v_update is null then
+      v_skipped := v_skipped + 1;
+    else
+      v_updates := v_updates || v_update;
+    end if;
+  end loop;
+  return jsonb_build_object('sent', cardinality(v_updates), 'skipped', v_skipped, 'update_ids', to_jsonb(v_updates));
+end $$;
 
 
 ALTER FUNCTION "public"."admin_send_update_all"("p_release_id" "uuid") OWNER TO "postgres";
@@ -525,33 +478,19 @@ COMMENT ON COLUMN "public"."firmware_releases"."storage_path" IS 'Ruta del binar
 
 CREATE OR REPLACE FUNCTION "public"."assign_firmware_update"("p_device_id" "uuid", "p_release" "public"."firmware_releases") RETURNS "uuid"
     LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public'
+    SET "search_path" TO ''
     AS $$
-DECLARE
-    v_admin UUID;
-    v_code  TEXT;
-    v_alert UUID;
-BEGIN
-    SELECT dm.user_id INTO v_admin FROM public.device_members dm
-     WHERE dm.device_id = p_device_id AND dm.role = 'admin' AND dm.is_authorized IS TRUE;
-    IF v_admin IS NULL THEN RETURN NULL; END IF;
-    SELECT device_code INTO v_code FROM public.devices WHERE id = p_device_id;
-
-    UPDATE public.device_firmware_updates
-       SET status = 'cancelled', updated_at = now()
-     WHERE device_id = p_device_id AND status IN ('sent', 'postponed', 'installing');
-
-    INSERT INTO public.device_firmware_updates (device_id, release_id, sent_by)
-    VALUES (p_device_id, p_release.id, auth.uid());
-
-    INSERT INTO public.push_alerts (device_id, user_id, title, body, category, severity, event_type)
-    VALUES (p_device_id, v_admin, 'Actualización disponible',
-            format('La versión %s está lista para tu sonda %s. Abre TerraSense para instalarla.',
-                   p_release.version, v_code),
-            'device', 'medium', 'firmware_update')
-    RETURNING id INTO v_alert;
-    RETURN v_alert;
-END $$;
+declare v_admin uuid; v_update uuid;
+begin
+  select dm.user_id into v_admin from public.device_members dm
+    where dm.device_id = p_device_id and dm.role = 'admin' and dm.is_authorized;
+  if v_admin is null then return null; end if;
+  update public.device_firmware_updates set status = 'cancelled', updated_at = now()
+    where device_id = p_device_id and status in ('sent', 'postponed', 'installing');
+  insert into public.device_firmware_updates(device_id, release_id, sent_by)
+    values (p_device_id, p_release.id, auth.uid()) returning id into v_update;
+  return v_update;
+end $$;
 
 
 ALTER FUNCTION "public"."assign_firmware_update"("p_device_id" "uuid", "p_release" "public"."firmware_releases") OWNER TO "postgres";
@@ -719,6 +658,26 @@ COMMENT ON FUNCTION "public"."complete_my_onboarding"("p_method" "text") IS 'Fin
 
 
 
+CREATE OR REPLACE FUNCTION "public"."create_device_event"("p_event" "text", "p_device_id" "uuid", "p_user_id" "uuid", "p_requester" "uuid" DEFAULT NULL::"uuid", "p_source_transaction" bigint DEFAULT NULL::bigint) RETURNS "uuid"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_alert uuid;
+begin
+  insert into public.push_alerts(device_id, user_id, title, body, category, severity, event_type,
+      requester_user_id, source_transaction)
+    select p_device_id, p_user_id, c.title, c.body, 'device', 'medium', p_event, p_requester, p_source_transaction
+    from public.notification_copy(p_event, 'es') c
+    returning id into v_alert;
+  -- Para que el aviso salga sin esperar al cron (pg_net envía al confirmar).
+  perform public.invoke_push_dispatch();
+  return v_alert;
+end $$;
+
+
+ALTER FUNCTION "public"."create_device_event"("p_event" "text", "p_device_id" "uuid", "p_user_id" "uuid", "p_requester" "uuid", "p_source_transaction" bigint) OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."firmware_is_newer"("p_release" "text", "p_installed" "text") RETURNS boolean
     LANGUAGE "sql" IMMUTABLE
     SET "search_path" TO 'public'
@@ -734,37 +693,31 @@ ALTER FUNCTION "public"."firmware_is_newer"("p_release" "text", "p_installed" "t
 
 CREATE OR REPLACE FUNCTION "public"."firmware_update_progress"("p_update_id" "uuid", "p_action" "text", "p_error" "text" DEFAULT NULL::"text") RETURNS "void"
     LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public'
+    SET "search_path" TO ''
     AS $$
-DECLARE
-    v_update public.device_firmware_updates;
-    v_next   TEXT;
-BEGIN
-    SELECT * INTO v_update FROM public.device_firmware_updates WHERE id = p_update_id FOR UPDATE;
-    IF NOT FOUND OR NOT public.has_device_admin_access(v_update.device_id) THEN
-        RAISE EXCEPTION 'Actualización no encontrada.' USING ERRCODE = '42501';
-    END IF;
-
-    v_next := CASE
-        WHEN p_action = 'postpone'  AND v_update.status IN ('sent', 'postponed')             THEN 'postponed'
-        WHEN p_action = 'start'     AND v_update.status IN ('sent', 'postponed', 'failed')   THEN 'installing'
-        WHEN p_action = 'installed' AND v_update.status = 'installing'                       THEN 'installed'
-        WHEN p_action = 'failed'    AND v_update.status = 'installing'                       THEN 'failed'
-    END;
-    IF v_next IS NULL THEN
-        RAISE EXCEPTION 'La actualización ya no admite ese paso.' USING ERRCODE = '22023';
-    END IF;
-
-    UPDATE public.device_firmware_updates
-       SET status = v_next,
-           error = CASE WHEN v_next = 'failed' THEN left(COALESCE(p_error, 'Falló sin detalle.'), 300) END,
-           updated_at = now()
-     WHERE id = p_update_id;
-    IF v_next IN ('installed', 'postponed') THEN
-        UPDATE public.push_alerts SET is_read = TRUE
-         WHERE device_id = v_update.device_id AND event_type = 'firmware_update' AND is_read IS NOT TRUE;
-    END IF;
-END $$;
+declare
+  v_update public.device_firmware_updates;
+  v_next text;
+begin
+  select * into v_update from public.device_firmware_updates where id = p_update_id for update;
+  if not found or not public.has_device_admin_access(v_update.device_id) then
+    raise exception 'Actualización no encontrada.' using errcode = '42501';
+  end if;
+  v_next := case
+    when p_action = 'postpone'  and v_update.status in ('sent', 'postponed')            then 'postponed'
+    when p_action = 'start'     and v_update.status in ('sent', 'postponed', 'failed')  then 'installing'
+    when p_action = 'installed' and v_update.status = 'installing'                      then 'installed'
+    when p_action = 'failed'    and v_update.status = 'installing'                      then 'failed'
+  end;
+  if v_next is null then
+    raise exception 'La actualización ya no admite ese paso.' using errcode = '22023';
+  end if;
+  update public.device_firmware_updates
+     set status = v_next,
+         error = case when v_next = 'failed' then left(coalesce(p_error, 'Falló sin detalle.'), 300) end,
+         updated_at = now()
+   where id = p_update_id;
+end $$;
 
 
 ALTER FUNCTION "public"."firmware_update_progress"("p_update_id" "uuid", "p_action" "text", "p_error" "text") OWNER TO "postgres";
@@ -822,6 +775,39 @@ END $$;
 
 
 ALTER FUNCTION "public"."get_device_access_qr"("p_device_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."get_my_notification"("p_alert_id" "uuid") RETURNS TABLE("id" "uuid", "event_type" "text", "title" "text", "body" "text", "device_id" "uuid", "created_at" timestamp with time zone, "read_at" timestamp with time zone, "status" "text")
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select a.id, a.event_type, a.title::text, a.body, a.device_id, a.created_at, r.read_at,
+    case when a.expires_at <= now() then 'expired' else a.status end
+  from public.notification_recipients r join public.push_alerts a on a.id = r.alert_id
+  where auth.uid() is not null and a.id = p_alert_id and r.user_id = auth.uid()
+    and r.cancelled_at is null
+    and public.notification_access_allowed(a, auth.uid())
+$$;
+
+
+ALTER FUNCTION "public"."get_my_notification"("p_alert_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."guard_push_alert_event"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    SET "search_path" TO ''
+    AS $$
+begin
+  if new.category <> 'device'
+     or new.event_type is null
+     or new.event_type not in ('access_request', 'access_approved', 'access_rejected', 'admin_transferred') then
+    raise exception 'Sólo se admiten avisos de acceso a equipos.' using errcode = '23514';
+  end if;
+  return new;
+end $$;
+
+
+ALTER FUNCTION "public"."guard_push_alert_event"() OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."handle_new_user"() RETURNS "trigger"
@@ -912,6 +898,26 @@ END $$;
 ALTER FUNCTION "public"."invalidate_empty_device_invite"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."invoke_push_dispatch"() RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_url text; v_key text;
+begin
+  select decrypted_secret into v_url from vault.decrypted_secrets where name = 'push_dispatch_url';
+  select decrypted_secret into v_key from vault.decrypted_secrets where name = 'push_dispatch_service_role_key';
+  if v_url is null or v_key is null then return; end if;
+  perform net.http_post(url => v_url,
+    headers => jsonb_build_object('Authorization', 'Bearer ' || v_key, 'Content-Type', 'application/json'),
+    body => '{}'::jsonb, timeout_milliseconds => 10000);
+exception when others then
+  raise warning 'No se pudo despertar el despachador de avisos: %', sqlerrm;
+end $$;
+
+
+ALTER FUNCTION "public"."invoke_push_dispatch"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."is_backoffice_email"("p_email" "text") RETURNS boolean
     LANGUAGE "sql" STABLE SECURITY DEFINER
     SET "search_path" TO 'public'
@@ -988,34 +994,36 @@ ALTER FUNCTION "public"."join_device_by_code"("p_code" "text") OWNER TO "postgre
 
 CREATE OR REPLACE FUNCTION "public"."join_device_by_invite"("p_token" "uuid") RETURNS TABLE("device_id" "uuid", "device_name" "text", "is_authorized" boolean, "role" "text", "alert_id" "uuid")
     LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public'
+    SET "search_path" TO ''
     AS $$
-DECLARE v_device public.devices; v_new BOOLEAN; v_alert UUID; v_admin UUID;
-BEGIN
-  IF auth.uid() IS NULL THEN RAISE EXCEPTION 'Autenticación requerida.' USING ERRCODE = '42501'; END IF;
-  SELECT d.* INTO v_device FROM public.devices d JOIN public.device_access_invites i ON i.device_id = d.id
-    WHERE i.token = p_token FOR UPDATE OF d;
-  -- Se revisa la vigencia después de tomar el bloqueo; reset y rotación pueden
-  -- haber invalidado la invitación mientras esta petición estaba esperando.
-  IF NOT FOUND OR NOT EXISTS(SELECT 1 FROM public.device_access_invites i
-      WHERE i.device_id = v_device.id AND i.token = p_token AND i.expires_at > clock_timestamp()) THEN
-    RAISE EXCEPTION 'El QR venció o dejó de ser válido. Pide que te muestren el QR actual.' USING ERRCODE = '22023';
-  END IF;
-  SELECT dm.user_id INTO v_admin FROM public.device_members dm
-    WHERE dm.device_id = v_device.id AND dm.role = 'admin' AND dm.is_authorized;
-  IF v_admin IS NULL THEN RAISE EXCEPTION 'Este equipo debe vincularse primero por Bluetooth.' USING ERRCODE = '22023'; END IF;
-  v_new := NOT EXISTS(SELECT 1 FROM public.device_members dm WHERE dm.device_id = v_device.id AND dm.user_id = auth.uid());
-  INSERT INTO public.device_members(device_id, user_id, role, is_authorized)
-    VALUES(v_device.id, auth.uid(), 'user', FALSE) ON CONFLICT DO NOTHING;
-  IF v_new THEN
-    INSERT INTO public.push_alerts(device_id, user_id, title, body, category, severity, event_type, requester_user_id)
-      VALUES(v_device.id, v_admin, 'Solicitud de acceso al equipo',
-        'Un usuario espera tu aprobación. Abre Ajustes > Administración para revisar la solicitud.', 'device', 'warning', 'access_request', auth.uid())
-      RETURNING id INTO v_alert;
-  END IF;
-  RETURN QUERY SELECT v_device.id, v_device.name::TEXT, dm.is_authorized, dm.role::TEXT, v_alert
-    FROM public.device_members dm WHERE dm.device_id = v_device.id AND dm.user_id = auth.uid();
-END $$;
+declare v_device public.devices; v_new boolean; v_alert uuid; v_admin uuid;
+begin
+  if auth.uid() is null then raise exception 'Autenticación requerida.' using errcode = '42501'; end if;
+  select d.* into v_device from public.devices d join public.device_access_invites i on i.device_id = d.id
+    where i.token = p_token for update of d;
+  -- La vigencia se revisa tras tomar el bloqueo: un reset o la rotación del QR pueden
+  -- haberlo invalidado mientras esta petición esperaba.
+  if not found or not exists (select 1 from public.device_access_invites i
+      where i.device_id = v_device.id and i.token = p_token and i.expires_at > clock_timestamp()) then
+    raise exception 'El QR venció o dejó de ser válido. Pide que te muestren el QR actual.' using errcode = '22023';
+  end if;
+  select dm.user_id into v_admin from public.device_members dm
+    where dm.device_id = v_device.id and dm.role = 'admin' and dm.is_authorized;
+  if v_admin is null then
+    raise exception 'Este equipo debe vincularse primero por Bluetooth.' using errcode = '22023';
+  end if;
+  v_new := not exists (select 1 from public.device_members dm
+    where dm.device_id = v_device.id and dm.user_id = auth.uid());
+  insert into public.device_members(device_id, user_id, role, is_authorized)
+    values (v_device.id, auth.uid(), 'user', false) on conflict do nothing;
+  if v_new then
+    select a.id into v_alert from public.push_alerts a where a.device_id = v_device.id
+      and a.requester_user_id = auth.uid() and a.event_type = 'access_request'
+      order by a.created_at desc, a.id desc limit 1;
+  end if;
+  return query select v_device.id, v_device.name::text, dm.is_authorized, dm.role::text, v_alert
+    from public.device_members dm where dm.device_id = v_device.id and dm.user_id = auth.uid();
+end $$;
 
 
 ALTER FUNCTION "public"."join_device_by_invite"("p_token" "uuid") OWNER TO "postgres";
@@ -1064,6 +1072,26 @@ END; $$;
 
 
 ALTER FUNCTION "public"."list_device_members"("p_device_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."list_my_notifications"("p_limit" integer DEFAULT 30, "p_before" timestamp with time zone DEFAULT NULL::timestamp with time zone, "p_before_id" "uuid" DEFAULT NULL::"uuid") RETURNS TABLE("id" "uuid", "event_type" "text", "title" "text", "body" "text", "device_id" "uuid", "created_at" timestamp with time zone, "read_at" timestamp with time zone, "status" "text")
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select a.id, a.event_type, a.title::text, a.body, a.device_id, a.created_at, r.read_at,
+    case when a.expires_at <= now() then 'expired' else a.status end
+  from public.notification_recipients r join public.push_alerts a on a.id = r.alert_id
+  where auth.uid() is not null and r.user_id = auth.uid()
+    and r.cancelled_at is null
+    and public.notification_access_allowed(a, auth.uid())
+    and (p_before is null or (a.created_at, a.id) <
+      (p_before, coalesce(p_before_id, 'ffffffff-ffff-ffff-ffff-ffffffffffff'::uuid)))
+  order by a.created_at desc, a.id desc
+  limit least(greatest(coalesce(p_limit, 30), 1), 100)
+$$;
+
+
+ALTER FUNCTION "public"."list_my_notifications"("p_limit" integer, "p_before" timestamp with time zone, "p_before_id" "uuid") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."list_my_pending_device_requests"() RETURNS TABLE("device_id" "uuid", "administrator_name" "text", "administrator_email" "text")
@@ -1120,6 +1148,23 @@ END $$;
 
 
 ALTER FUNCTION "public"."manage_device_member"("p_device_id" "uuid", "p_target_user_id" "uuid", "p_action" "text", "p_role" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."mark_notification_read"("p_alert_id" "uuid") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  if auth.uid() is null then raise exception 'Autenticación requerida.' using errcode = '42501'; end if;
+  update public.notification_recipients r set read_at = coalesce(r.read_at, now())
+    from public.push_alerts a
+    where r.alert_id = p_alert_id and a.id = r.alert_id and r.user_id = auth.uid()
+      and r.cancelled_at is null and public.notification_access_allowed(a, auth.uid());
+  if not found then raise exception 'Aviso no disponible.' using errcode = '42501'; end if;
+end $$;
+
+
+ALTER FUNCTION "public"."mark_notification_read"("p_alert_id" "uuid") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."mark_onboarding_from_membership"() RETURNS "trigger"
@@ -1192,6 +1237,156 @@ COMMENT ON FUNCTION "public"."normalize_device_versions"() IS 'Deja hardware_ver
 
 
 
+CREATE TABLE IF NOT EXISTS "public"."push_alerts" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "user_id" "uuid",
+    "device_id" "uuid",
+    "title" character varying(150) NOT NULL,
+    "body" "text" NOT NULL,
+    "category" character varying(30) NOT NULL,
+    "severity" character varying(10) DEFAULT 'medium'::character varying NOT NULL,
+    "is_read" boolean DEFAULT false NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "event_type" "text",
+    "requester_user_id" "uuid",
+    "status" "text" DEFAULT 'active'::"text" NOT NULL,
+    "expires_at" timestamp with time zone DEFAULT ("now"() + '30 days'::interval) NOT NULL,
+    "source_transaction" bigint,
+    CONSTRAINT "push_alerts_category_check" CHECK ((("category")::"text" = ANY (ARRAY[('MOISTURE_DROP'::character varying)::"text", ('FROST'::character varying)::"text", ('PH_DRIFT'::character varying)::"text", ('EC_SALINITY'::character varying)::"text", ('SYSTEM'::character varying)::"text", ('agronomic'::character varying)::"text", ('device'::character varying)::"text", ('weather'::character varying)::"text", ('sync'::character varying)::"text"]))),
+    CONSTRAINT "push_alerts_severity_check" CHECK ((("severity")::"text" = ANY (ARRAY[('high'::character varying)::"text", ('medium'::character varying)::"text", ('low'::character varying)::"text", ('warning'::character varying)::"text"]))),
+    CONSTRAINT "push_alerts_status_check" CHECK (("status" = ANY (ARRAY['active'::"text", 'cancelled'::"text", 'expired'::"text"])))
+);
+
+
+ALTER TABLE "public"."push_alerts" OWNER TO "postgres";
+
+
+COMMENT ON COLUMN "public"."push_alerts"."is_read" IS 'Obsoleta. La lectura vive en notification_recipients.read_at, por usuario.';
+
+
+
+CREATE OR REPLACE FUNCTION "public"."notification_access_allowed"("p_alert" "public"."push_alerts", "p_user_id" "uuid") RETURNS boolean
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select case
+    when p_alert.event_type = 'access_rejected' then p_alert.user_id = p_user_id
+    when p_alert.event_type = 'access_request' then exists (
+      select 1 from public.device_members admin where admin.device_id = p_alert.device_id
+        and admin.user_id = p_user_id and admin.role = 'admin' and admin.is_authorized)
+    else exists (select 1 from public.device_members m where m.device_id = p_alert.device_id
+      and m.user_id = p_user_id and m.is_authorized)
+  end
+$$;
+
+
+ALTER FUNCTION "public"."notification_access_allowed"("p_alert" "public"."push_alerts", "p_user_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."notification_copy"("p_event" "text", "p_language" "text") RETURNS TABLE("title" "text", "body" "text")
+    LANGUAGE "sql" IMMUTABLE
+    SET "search_path" TO ''
+    AS $$
+  select case when p_language = 'en' then t.en_title else t.es_title end,
+         case when p_language = 'en' then t.en_body else t.es_body end
+  from (values
+    ('access_request', 'Device access request',
+      'Someone is waiting for your approval. Open Administration to review the request.',
+      'Solicitud de acceso al equipo',
+      'Un usuario espera tu aprobación. Abre Administración para revisar la solicitud.'),
+    ('access_approved', 'Access approved', 'Your device access request was approved.',
+      'Acceso aprobado', 'Tu solicitud de acceso al equipo fue aprobada.'),
+    ('access_rejected', 'Request rejected', 'Your device access request was rejected.',
+      'Solicitud rechazada', 'Tu solicitud de acceso al equipo fue rechazada.'),
+    ('admin_transferred', 'Administration transferred', 'The administrator of this device changed.',
+      'Administración transferida', 'La administración de este equipo cambió.')
+  ) as t(event_type, en_title, en_body, es_title, es_body)
+  where t.event_type = p_event
+$$;
+
+
+ALTER FUNCTION "public"."notification_copy"("p_event" "text", "p_language" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."notification_dispatch_allowed"("p_alert" "public"."push_alerts", "p_user_id" "uuid") RETURNS boolean
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select p_alert.status = 'active' and p_alert.expires_at > now()
+    and public.notification_access_allowed(p_alert, p_user_id)
+    and (p_alert.event_type <> 'access_request' or exists (
+      select 1 from public.device_members m where m.device_id = p_alert.device_id
+        and m.user_id = p_alert.requester_user_id and not m.is_authorized))
+$$;
+
+
+ALTER FUNCTION "public"."notification_dispatch_allowed"("p_alert" "public"."push_alerts", "p_user_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."notify_device_membership"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_alert uuid; v_admin uuid; v_request uuid; v_moved boolean := false;
+begin
+  if tg_op = 'INSERT' then
+    -- Alta pendiente, venga del QR o de cualquier otra vía.
+    if not new.is_authorized then
+      select m.user_id into v_admin from public.device_members m
+        where m.device_id = new.device_id and m.role = 'admin' and m.is_authorized;
+      if v_admin is not null then
+        v_alert := public.create_device_event('access_request', new.device_id, v_admin, new.user_id);
+        insert into public.notification_recipients(alert_id, user_id) values (v_alert, v_admin);
+      end if;
+    end if;
+  elsif tg_op = 'UPDATE' and not old.is_authorized and new.is_authorized then
+    -- Aprobación.
+    perform public.resolve_access_requests(new.device_id, new.user_id);
+    v_alert := public.create_device_event('access_approved', new.device_id, new.user_id);
+    insert into public.notification_recipients(alert_id, user_id) values (v_alert, new.user_id);
+  elsif tg_op = 'DELETE' and not old.is_authorized then
+    -- Rechazo (o solicitud retirada por la propia persona, que no se avisa a sí misma).
+    perform public.resolve_access_requests(old.device_id, old.user_id);
+    if current_setting('terrasense.factory_reset', true) is distinct from 'on'
+       and auth.uid() is not null and auth.uid() <> old.user_id
+       and exists (select 1 from public.devices where id = old.device_id) then
+      v_alert := public.create_device_event('access_rejected', old.device_id, old.user_id);
+      insert into public.notification_recipients(alert_id, user_id) values (v_alert, old.user_id);
+    end if;
+  elsif tg_op = 'UPDATE' and old.role = 'admin' and new.role <> 'admin' then
+    perform public.record_admin_transfer(new.device_id, new.user_id);
+  elsif tg_op = 'UPDATE' and old.role <> 'admin' and new.role = 'admin' and new.is_authorized then
+    perform public.record_admin_transfer(new.device_id, new.user_id);
+    -- Las solicitudes aún pendientes pasan al administrador nuevo.
+    for v_request in select id from public.push_alerts where device_id = new.device_id
+        and event_type = 'access_request' and status = 'active' loop
+      update public.notification_recipients set cancelled_at = now()
+        where alert_id = v_request and user_id <> new.user_id and cancelled_at is null;
+      insert into public.notification_recipients(alert_id, user_id) values (v_request, new.user_id)
+        on conflict (alert_id, user_id) do update set cancelled_at = null;
+      update public.push_deliveries set state = 'cancelled', lease_id = null, leased_until = null, updated_at = now()
+        where alert_id = v_request and user_id <> new.user_id and state in ('pending', 'leased');
+      v_moved := true;
+    end loop;
+    if v_moved then perform public.invoke_push_dispatch(); end if;
+  elsif tg_op = 'DELETE' or (tg_op = 'UPDATE' and old.is_authorized and not new.is_authorized) then
+    -- Acceso retirado: se conservan sólo los rechazos, que no dependen de la membresía.
+    update public.notification_recipients r set cancelled_at = now()
+      from public.push_alerts a
+      where a.id = r.alert_id and r.user_id = old.user_id and a.device_id = old.device_id
+        and a.event_type <> 'access_rejected' and r.cancelled_at is null;
+    update public.push_deliveries d set state = 'cancelled', lease_id = null, leased_until = null, updated_at = now()
+      from public.push_alerts a
+      where a.id = d.alert_id and d.user_id = old.user_id and a.device_id = old.device_id
+        and a.event_type <> 'access_rejected' and d.state in ('pending', 'leased');
+  end if;
+  return case when tg_op = 'DELETE' then old else new end;
+end $$;
+
+
+ALTER FUNCTION "public"."notify_device_membership"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."protect_device_generation"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     SET "search_path" TO 'public'
@@ -1243,6 +1438,107 @@ END; $$;
 
 
 ALTER FUNCTION "public"."purge_expired_operational_data"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."purge_push_notifications"() RETURNS TABLE("alerts_deleted" bigint, "installations_deleted" bigint, "job_runs_deleted" bigint)
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_alerts bigint; v_installations bigint; v_runs bigint;
+begin
+  delete from public.push_alerts where expires_at <= now();
+  get diagnostics v_alerts = row_count;
+  delete from public.push_installations
+    where expo_push_token is null and updated_at < now() - interval '30 days';
+  get diagnostics v_installations = row_count;
+  delete from cron.job_run_details
+    where start_time < now() - interval '7 days'
+      and jobid in (select jobid from cron.job where jobname like 'terrasense-push-%');
+  get diagnostics v_runs = row_count;
+  return query select v_alerts, v_installations, v_runs;
+end $$;
+
+
+ALTER FUNCTION "public"."purge_push_notifications"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."push_dispatch_health"() RETURNS TABLE("queue_ready" bigint, "queue_oldest_age" interval, "leased" bigint, "leases_expired" bigint, "retrying" bigint, "failed_24h" bigint, "failures_by_error" "jsonb", "uncertain_24h" bigint, "awaiting_receipt" bigint, "receipts_overdue" bigint, "oldest_ticket_age" interval, "last_ticket_at" timestamp with time zone, "vault_configured" boolean, "dispatch_last_run" timestamp with time zone, "dispatch_last_status" "text", "retention_last_run" timestamp with time zone, "retention_last_status" "text")
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  if auth.role() is distinct from 'service_role' then
+    raise exception 'Servicio requerido.' using errcode = '42501';
+  end if;
+  return query
+    select
+      count(*) filter (where d.state = 'pending' and d.next_attempt_at <= now()),
+      now() - min(d.next_attempt_at) filter (where d.state = 'pending' and d.next_attempt_at <= now()),
+      count(*) filter (where d.state = 'leased'),
+      count(*) filter (where d.state = 'leased' and d.leased_until < now()),
+      count(*) filter (where d.state = 'pending' and d.attempts > 0),
+      count(*) filter (where d.state = 'failed' and d.updated_at > now() - interval '24 hours'),
+      coalesce((select jsonb_object_agg(f.error, f.n) from (
+          select coalesce(x.last_error, 'sin_detalle') as error, count(*) as n
+            from public.push_deliveries x
+            where x.state = 'failed' and x.updated_at > now() - interval '24 hours'
+            group by 1) f), '{}'::jsonb),
+      count(*) filter (where d.last_error like 'uncertain:%' and d.updated_at > now() - interval '24 hours'),
+      count(*) filter (where d.state in ('ticket_ok', 'receipt_leased')),
+      count(*) filter (where d.state in ('ticket_ok', 'receipt_leased') and d.ticket_at < now() - interval '1 hour'),
+      now() - min(d.ticket_at) filter (where d.state in ('ticket_ok', 'receipt_leased')),
+      max(d.ticket_at),
+      (select count(*) = 2 from vault.decrypted_secrets s
+        where s.name in ('push_dispatch_url', 'push_dispatch_service_role_key')),
+      (select r.start_time from cron.job_run_details r join cron.job j on j.jobid = r.jobid
+        where j.jobname = 'terrasense-push-dispatch' order by r.start_time desc limit 1),
+      (select r.status from cron.job_run_details r join cron.job j on j.jobid = r.jobid
+        where j.jobname = 'terrasense-push-dispatch' order by r.start_time desc limit 1),
+      (select r.start_time from cron.job_run_details r join cron.job j on j.jobid = r.jobid
+        where j.jobname = 'terrasense-push-retention' order by r.start_time desc limit 1),
+      (select r.status from cron.job_run_details r join cron.job j on j.jobid = r.jobid
+        where j.jobname = 'terrasense-push-retention' order by r.start_time desc limit 1)
+    from public.push_deliveries d;
+end $$;
+
+
+ALTER FUNCTION "public"."push_dispatch_health"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."push_error_class"("p_error" "text") RETURNS "text"
+    LANGUAGE "sql" IMMUTABLE
+    SET "search_path" TO ''
+    AS $$
+  select case
+    when p_error = 'DeviceNotRegistered' then 'invalid_token'
+    when p_error like 'permanent:%' or p_error in ('MessageTooBig', 'InvalidCredentials', 'MismatchSenderId')
+      then 'permanent'
+    else 'transient'
+  end
+$$;
+
+
+ALTER FUNCTION "public"."push_error_class"("p_error" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."record_admin_transfer"("p_device_id" "uuid", "p_user_id" "uuid") RETURNS "uuid"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_alert uuid;
+begin
+  select id into v_alert from public.push_alerts where device_id = p_device_id
+    and event_type = 'admin_transferred' and source_transaction = txid_current();
+  if v_alert is null then
+    v_alert := public.create_device_event('admin_transferred', p_device_id, p_user_id, null, txid_current());
+  end if;
+  insert into public.notification_recipients(alert_id, user_id) values (v_alert, p_user_id)
+    on conflict do nothing;
+  return v_alert;
+end $$;
+
+
+ALTER FUNCTION "public"."record_admin_transfer"("p_device_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."register_and_pair_device"("p_device_code" "text", "p_user_id" "uuid", "p_device_name" "text" DEFAULT 'TerraSense Sonda Pro'::"text", "p_alias" "text" DEFAULT 'Lote Principal'::"text") RETURNS "jsonb"
@@ -1335,6 +1631,70 @@ COMMENT ON FUNCTION "public"."register_paired_device"("p_code" "text", "p_name" 
 
 
 
+CREATE OR REPLACE FUNCTION "public"."register_push_installation"("p_installation_id" "uuid", "p_installation_secret" "text", "p_expo_push_token" "text", "p_platform" "text", "p_permission" "text") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $_$
+declare
+  v_uid uuid := auth.uid();
+  v_hash text;
+  v_old public.push_installations;
+  v_fresh integer;
+  v_changed boolean;
+begin
+  if v_uid is null then raise exception 'Autenticación requerida.' using errcode = '42501'; end if;
+  if p_installation_id is null or p_installation_secret is null
+     or length(p_installation_secret) < 32 or length(p_installation_secret) > 512 then
+    raise exception 'Identidad de instalación inválida.' using errcode = '22023';
+  end if;
+  if p_platform is null or p_permission is null
+     or p_platform not in ('ios', 'android')
+     or p_permission not in ('granted', 'provisional', 'denied', 'undetermined') then
+    raise exception 'Plataforma o permiso inválido.' using errcode = '22023';
+  end if;
+  if p_expo_push_token is not null and p_expo_push_token !~ '^((Expo|Exponent)PushToken)\[[A-Za-z0-9_-]+\]$' then
+    raise exception 'Token Expo inválido.' using errcode = '22023';
+  end if;
+  if p_permission not in ('granted', 'provisional') and p_expo_push_token is not null then
+    raise exception 'El permiso no autoriza un token.' using errcode = '22023';
+  end if;
+  v_hash := encode(extensions.digest(p_installation_secret, 'sha256'), 'hex');
+  insert into public.push_installations(id, user_id, secret_hash, platform, permission)
+    values (p_installation_id, v_uid, v_hash, p_platform, 'undetermined')
+    on conflict (id) do nothing;
+  get diagnostics v_fresh = row_count;
+  select * into v_old from public.push_installations where id = p_installation_id for update;
+  if v_old.secret_hash <> v_hash then
+    raise exception 'Instalación no autorizada.' using errcode = '42501';
+  end if;
+  v_changed := v_fresh = 0 and (v_old.user_id is distinct from v_uid
+    or v_old.expo_push_token is distinct from p_expo_push_token
+    or v_old.revoked_at is not null);
+  -- Un token pertenece a una sola instalación: si otra lo tenía (datos borrados,
+  -- reinstalación), pierde el token y sus envíos abiertos.
+  if p_expo_push_token is not null then
+    update public.push_deliveries set state = 'cancelled', lease_id = null, leased_until = null, updated_at = now()
+      where state in ('pending', 'leased') and installation_id in (
+        select id from public.push_installations
+          where expo_push_token = p_expo_push_token and id <> p_installation_id);
+    update public.push_installations set expo_push_token = null,
+        token_generation = token_generation + 1, updated_at = now()
+      where expo_push_token = p_expo_push_token and id <> p_installation_id;
+  end if;
+  if v_changed then
+    update public.push_deliveries set state = 'cancelled', lease_id = null, leased_until = null, updated_at = now()
+      where installation_id = p_installation_id and state in ('pending', 'leased');
+  end if;
+  update public.push_installations set user_id = v_uid, expo_push_token = p_expo_push_token,
+      platform = p_platform, permission = p_permission, revoked_at = null, updated_at = now(),
+      token_generation = token_generation + case when v_changed then 1 else 0 end
+    where id = p_installation_id;
+end $_$;
+
+
+ALTER FUNCTION "public"."register_push_installation"("p_installation_id" "uuid", "p_installation_secret" "text", "p_expo_push_token" "text", "p_platform" "text", "p_permission" "text") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."report_device_contact"("p_device_code" "text", "p_battery" integer DEFAULT NULL::integer, "p_firmware_version" "text" DEFAULT NULL::"text", "p_contacted_at" timestamp with time zone DEFAULT NULL::timestamp with time zone) RETURNS "void"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO 'public'
@@ -1363,6 +1723,112 @@ END $_$;
 
 
 ALTER FUNCTION "public"."report_device_contact"("p_device_code" "text", "p_battery" integer, "p_firmware_version" "text", "p_contacted_at" timestamp with time zone) OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."report_push_receipt"("p_delivery_id" "uuid", "p_lease_id" "uuid", "p_status" "text", "p_error" "text" DEFAULT NULL::"text", "p_invalid_token" boolean DEFAULT false) RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare
+  v_row public.push_deliveries;
+  v_class text;
+begin
+  if auth.role() is distinct from 'service_role' then
+    raise exception 'Servicio requerido.' using errcode = '42501';
+  end if;
+  if p_status is null or p_status not in ('ok', 'error', 'retry') then
+    raise exception 'Estado de receipt inválido.' using errcode = '22023';
+  end if;
+  select * into v_row from public.push_deliveries
+    where id = p_delivery_id and lease_id = p_lease_id and state = 'receipt_leased' for update;
+  if not found then return; end if;
+  if p_status = 'ok' then
+    update public.push_deliveries set state = 'delivered', receipt_checked_at = now(),
+        lease_id = null, leased_until = null, updated_at = now()
+      where id = p_delivery_id;
+  elsif p_status = 'retry' then
+    update public.push_deliveries set state = 'ticket_ok', lease_id = null, leased_until = null,
+        next_attempt_at = now() + interval '15 minutes', updated_at = now()
+      where id = p_delivery_id;
+  else
+    v_class := case when p_invalid_token then 'invalid_token' else public.push_error_class(p_error) end;
+    if v_class = 'transient' and v_row.attempts < 5 then
+      update public.push_deliveries set state = 'pending', ticket_id = null, ticket_at = null,
+          receipt_checked_at = now(), last_error = left(coalesce(p_error, 'Error de receipt'), 500),
+          lease_id = null, leased_until = null,
+          next_attempt_at = now() + make_interval(secs => least(3600, 30 * power(2, attempts - 1))::double precision),
+          updated_at = now()
+        where id = p_delivery_id;
+    else
+      update public.push_deliveries set state = 'failed',
+          last_error = left(coalesce(p_error, 'Error de receipt'), 500),
+          receipt_checked_at = now(), lease_id = null, leased_until = null, updated_at = now()
+        where id = p_delivery_id;
+      if v_class = 'invalid_token' then
+        update public.push_installations set expo_push_token = null,
+            token_generation = token_generation + 1, updated_at = now()
+          where id = v_row.installation_id and user_id = v_row.user_id
+            and token_generation = v_row.token_generation;
+      end if;
+    end if;
+  end if;
+end $$;
+
+
+ALTER FUNCTION "public"."report_push_receipt"("p_delivery_id" "uuid", "p_lease_id" "uuid", "p_status" "text", "p_error" "text", "p_invalid_token" boolean) OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."report_push_ticket"("p_delivery_id" "uuid", "p_lease_id" "uuid", "p_ticket_id" "text" DEFAULT NULL::"text", "p_error" "text" DEFAULT NULL::"text", "p_invalid_token" boolean DEFAULT false) RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare
+  v_row public.push_deliveries;
+  v_class text;
+begin
+  if auth.role() is distinct from 'service_role' then
+    raise exception 'Servicio requerido.' using errcode = '42501';
+  end if;
+  select * into v_row from public.push_deliveries
+    where id = p_delivery_id and lease_id = p_lease_id and state = 'leased' for update;
+  if not found then return; end if;
+  if p_ticket_id is not null then
+    update public.push_deliveries set state = 'ticket_ok', ticket_id = p_ticket_id, ticket_at = now(),
+        last_error = null, lease_id = null, leased_until = null,
+        next_attempt_at = now() + interval '15 minutes', updated_at = now()
+      where id = p_delivery_id;
+    return;
+  end if;
+  v_class := case when p_invalid_token then 'invalid_token' else public.push_error_class(p_error) end;
+  if p_error = 'permanent:expired' then
+    update public.push_deliveries set state = 'expired', last_error = 'permanent:expired',
+        lease_id = null, leased_until = null, updated_at = now()
+      where id = p_delivery_id;
+  elsif v_class = 'invalid_token' then
+    update public.push_deliveries set state = 'failed',
+        last_error = left(coalesce(p_error, 'DeviceNotRegistered'), 500),
+        lease_id = null, leased_until = null, updated_at = now()
+      where id = p_delivery_id;
+    update public.push_installations set expo_push_token = null,
+        token_generation = token_generation + 1, updated_at = now()
+      where id = v_row.installation_id and user_id = v_row.user_id
+        and token_generation = v_row.token_generation;
+  elsif v_class = 'permanent' then
+    update public.push_deliveries set state = 'failed',
+        last_error = left(coalesce(p_error, 'Error permanente de Expo'), 500),
+        lease_id = null, leased_until = null, updated_at = now()
+      where id = p_delivery_id;
+  else
+    update public.push_deliveries set state = case when attempts >= 5 then 'failed' else 'pending' end,
+        last_error = left(coalesce(p_error, 'Error de Expo'), 500), lease_id = null, leased_until = null,
+        next_attempt_at = now() + make_interval(secs => least(3600, 30 * power(2, attempts - 1))::double precision),
+        updated_at = now()
+      where id = p_delivery_id;
+  end if;
+end $$;
+
+
+ALTER FUNCTION "public"."report_push_ticket"("p_delivery_id" "uuid", "p_lease_id" "uuid", "p_ticket_id" "text", "p_error" "text", "p_invalid_token" boolean) OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."request_device_access_qr"("p_device_code" "text", "p_user_id" "uuid") RETURNS "jsonb"
@@ -1401,6 +1867,219 @@ $$;
 
 
 ALTER FUNCTION "public"."request_device_access_qr"("p_device_code" "text", "p_user_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."reserve_push_deliveries"("p_limit" integer DEFAULT 50) RETURNS TABLE("delivery_id" "uuid", "lease_id" "uuid", "alert_id" "uuid", "event_type" "text", "title" "text", "body" "text", "device_id" "uuid", "expo_push_token" "text", "token_generation" bigint, "expires_at" timestamp with time zone)
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+#variable_conflict use_column
+declare v_limit integer := least(greatest(coalesce(p_limit, 50), 1), 100);
+begin
+  if auth.role() is distinct from 'service_role' then
+    raise exception 'Servicio requerido.' using errcode = '42501';
+  end if;
+  -- El mantenimiento es idempotente: si otra ejecución ya lo hace, se omite.
+  if pg_try_advisory_xact_lock(hashtextextended('terrasense.push_deliveries', 0)) then
+    update public.push_alerts set status = 'expired' where status = 'active' and expires_at <= now();
+    -- Una push sólo sirve el día del evento; la bandeja conserva el aviso 30 días.
+    update public.push_deliveries d set state = 'expired', lease_id = null, leased_until = null,
+        last_error = coalesce(d.last_error, 'expired'), updated_at = now()
+      from public.push_alerts a
+      where a.id = d.alert_id and d.state in ('pending', 'leased')
+        and (a.status = 'expired' or a.created_at < now() - interval '24 hours');
+    -- Reserva vencida tras agotar los intentos: no se reintenta más.
+    update public.push_deliveries set state = 'failed', lease_id = null, leased_until = null,
+        last_error = coalesce(last_error, 'lease_expired'), updated_at = now()
+      where state = 'leased' and leased_until < now() and attempts >= 5;
+    -- Destinatario, instalación o preferencia que ya no corresponden.
+    update public.push_deliveries d set state = 'cancelled', lease_id = null, leased_until = null,
+        last_error = case when coalesce(p.app_preferences->'notifications'->>'device', 'true') = 'false'
+          then 'preference_disabled' else d.last_error end,
+        updated_at = now()
+      from public.push_installations i, public.notification_recipients r, public.push_alerts a,
+        public.profiles p
+      where i.id = d.installation_id and r.alert_id = d.alert_id and r.user_id = d.user_id
+        and a.id = d.alert_id and p.id = d.user_id
+        and d.state in ('pending', 'leased')
+        and (i.user_id <> d.user_id or i.token_generation <> d.token_generation
+          or i.revoked_at is not null or i.expo_push_token is null
+          or i.permission not in ('granted', 'provisional')
+          or r.cancelled_at is not null
+          or not public.notification_dispatch_allowed(a, d.user_id)
+          or coalesce(p.app_preferences->'notifications'->>'device', 'true') = 'false');
+    -- Entregas nuevas: una por instalación de cada destinatario vigente. Las que ya existen no se
+    -- tocan (ON CONFLICT DO NOTHING no bloquea filas): sólo se reabren, con su propio UPDATE, las
+    -- canceladas o fallidas de una generación anterior del token. Así el mantenimiento no deja
+    -- bloqueadas las entregas de otros trabajadores mientras dura su transacción.
+    with eligible as (
+      select a.id as alert_id, r.user_id, i.id as installation_id, i.token_generation
+      from public.push_alerts a
+        join public.notification_recipients r on r.alert_id = a.id
+        join public.push_installations i on i.user_id = r.user_id
+        join public.profiles p on p.id = r.user_id
+      where a.status = 'active' and a.expires_at > now() and a.created_at >= now() - interval '24 hours'
+        and r.cancelled_at is null
+        and i.revoked_at is null and i.expo_push_token is not null
+        and i.permission in ('granted', 'provisional')
+        and coalesce(p.app_preferences->'notifications'->>'device', 'true') <> 'false'
+        and public.notification_dispatch_allowed(a, r.user_id)
+    ), created as (
+      insert into public.push_deliveries(alert_id, user_id, installation_id, token_generation)
+        select e.alert_id, e.user_id, e.installation_id, e.token_generation from eligible e
+        on conflict (alert_id, installation_id) do nothing
+    )
+    update public.push_deliveries d
+      set token_generation = e.token_generation, state = 'pending', attempts = 0,
+        next_attempt_at = now(), last_error = null, lease_id = null, leased_until = null,
+        updated_at = now()
+      from eligible e
+      where d.alert_id = e.alert_id and d.installation_id = e.installation_id and d.user_id = e.user_id
+        and d.token_generation <> e.token_generation
+        and d.state in ('cancelled', 'failed')
+        and d.last_error is distinct from 'preference_disabled'
+        and d.ticket_id is null;
+  end if;
+  return query
+    with candidate as (
+      select d.id from public.push_deliveries d
+        join public.push_alerts a on a.id = d.alert_id
+        join public.notification_recipients r on r.alert_id = d.alert_id and r.user_id = d.user_id
+        join public.push_installations i on i.id = d.installation_id
+        join public.profiles p on p.id = d.user_id
+      where d.state in ('pending', 'leased') and d.next_attempt_at <= now()
+        -- Un ticket aceptado nunca se reenvía: sólo un receipt con error explícito lo reabre.
+        and d.ticket_id is null
+        and (d.state = 'pending' or d.leased_until < now()) and d.attempts < 5
+        and a.status = 'active' and a.expires_at > now() and a.created_at >= now() - interval '24 hours'
+        and r.cancelled_at is null
+        and public.notification_dispatch_allowed(a, d.user_id)
+        and i.user_id = d.user_id and i.token_generation = d.token_generation
+        and i.revoked_at is null and i.expo_push_token is not null
+        and i.permission in ('granted', 'provisional')
+        and coalesce(p.app_preferences->'notifications'->>'device', 'true') <> 'false'
+      order by d.next_attempt_at, d.created_at
+      for update of d skip locked limit v_limit
+    ), reserved as (
+      update public.push_deliveries d set state = 'leased', lease_id = gen_random_uuid(),
+          leased_until = now() + interval '2 minutes', attempts = d.attempts + 1, updated_at = now()
+        from candidate c where d.id = c.id
+        returning d.*
+    )
+    select d.id, d.lease_id, a.id, a.event_type, c.title, c.body, a.device_id, i.expo_push_token, i.token_generation,
+        least(a.expires_at, a.created_at + interval '24 hours')
+      from reserved d
+        join public.push_alerts a on a.id = d.alert_id
+        join public.push_installations i on i.id = d.installation_id
+        join public.profiles p on p.id = d.user_id
+        cross join lateral public.notification_copy(a.event_type, p.app_preferences->>'language') c;
+end $$;
+
+
+ALTER FUNCTION "public"."reserve_push_deliveries"("p_limit" integer) OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."reserve_push_receipts"("p_limit" integer DEFAULT 50) RETURNS TABLE("delivery_id" "uuid", "lease_id" "uuid", "ticket_id" "text")
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+#variable_conflict use_column
+begin
+  if auth.role() is distinct from 'service_role' then
+    raise exception 'Servicio requerido.' using errcode = '42501';
+  end if;
+  update public.push_deliveries set state = 'failed', last_error = 'receipt_unavailable',
+      lease_id = null, leased_until = null, updated_at = now()
+    where state in ('ticket_ok', 'receipt_leased') and ticket_at < now() - interval '24 hours';
+  return query
+    with candidate as (
+      select d.id from public.push_deliveries d
+      where d.ticket_id is not null and d.next_attempt_at <= now()
+        and (d.state = 'ticket_ok' or (d.state = 'receipt_leased' and d.leased_until < now()))
+      order by d.next_attempt_at, d.created_at
+      for update of d skip locked limit least(greatest(coalesce(p_limit, 50), 1), 100)
+    ), reserved as (
+      update public.push_deliveries d set state = 'receipt_leased', lease_id = gen_random_uuid(),
+          leased_until = now() + interval '2 minutes', updated_at = now()
+        from candidate c where d.id = c.id
+        returning d.*
+    )
+    select d.id, d.lease_id, d.ticket_id from reserved d;
+end $$;
+
+
+ALTER FUNCTION "public"."reserve_push_receipts"("p_limit" integer) OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."resolve_access_requests"("p_device_id" "uuid", "p_requester" "uuid") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+begin
+  update public.push_alerts set status = 'cancelled'
+    where device_id = p_device_id and requester_user_id = p_requester
+      and event_type = 'access_request' and status = 'active';
+  update public.push_deliveries d set state = 'cancelled', lease_id = null, leased_until = null, updated_at = now()
+    from public.push_alerts a
+    where a.id = d.alert_id and a.device_id = p_device_id and a.requester_user_id = p_requester
+      and a.event_type = 'access_request' and d.state in ('pending', 'leased');
+end $$;
+
+
+ALTER FUNCTION "public"."resolve_access_requests"("p_device_id" "uuid", "p_requester" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."revoke_push_installation"("p_installation_id" "uuid", "p_installation_secret" "text") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_row public.push_installations;
+begin
+  if auth.uid() is null then raise exception 'Autenticación requerida.' using errcode = '42501'; end if;
+  if p_installation_id is null or p_installation_secret is null or length(p_installation_secret) < 32
+    or length(p_installation_secret) > 512 then
+    raise exception 'Identidad de instalación inválida.' using errcode = '22023';
+  end if;
+  select * into v_row from public.push_installations where id = p_installation_id for update;
+  if not found then return; end if;
+  if v_row.user_id <> auth.uid()
+     or v_row.secret_hash <> encode(extensions.digest(p_installation_secret, 'sha256'), 'hex') then
+    raise exception 'Instalación no autorizada.' using errcode = '42501';
+  end if;
+  update public.push_installations set expo_push_token = null, permission = 'denied', revoked_at = now(),
+      updated_at = now(), token_generation = token_generation + 1
+    where id = p_installation_id;
+  update public.push_deliveries set state = 'cancelled', lease_id = null, leased_until = null, updated_at = now()
+    where installation_id = p_installation_id and state in ('pending', 'leased');
+end $$;
+
+
+ALTER FUNCTION "public"."revoke_push_installation"("p_installation_id" "uuid", "p_installation_secret" "text") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."revoke_push_installation_by_secret"("p_installation_id" "uuid", "p_installation_secret" "text") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_updated integer;
+begin
+  if p_installation_id is null or p_installation_secret is null or length(p_installation_secret) < 32
+    or length(p_installation_secret) > 512 then
+    raise exception 'Identidad de instalación inválida.' using errcode = '22023';
+  end if;
+  update public.push_installations set expo_push_token = null, permission = 'denied', revoked_at = now(),
+      updated_at = now(), token_generation = token_generation + 1
+    where id = p_installation_id
+      and secret_hash = encode(extensions.digest(p_installation_secret, 'sha256'), 'hex');
+  get diagnostics v_updated = row_count;
+  if v_updated > 0 then
+    update public.push_deliveries set state = 'cancelled', lease_id = null, leased_until = null, updated_at = now()
+      where installation_id = p_installation_id and state in ('pending', 'leased');
+  end if;
+end $$;
+
+
+ALTER FUNCTION "public"."revoke_push_installation_by_secret"("p_installation_id" "uuid", "p_installation_secret" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."semver_parts"("p_version" "text") RETURNS integer[]
@@ -1549,7 +2228,7 @@ CREATE TABLE IF NOT EXISTS "public"."device_members" (
     "created_at" timestamp with time zone DEFAULT "now"(),
     "is_authorized" boolean DEFAULT true NOT NULL,
     CONSTRAINT "device_admin_authorized" CHECK (((("role")::"text" <> 'admin'::"text") OR ("is_authorized" IS TRUE))),
-    CONSTRAINT "device_members_two_roles" CHECK ((("role")::"text" = ANY ((ARRAY['admin'::character varying, 'user'::character varying])::"text"[])))
+    CONSTRAINT "device_members_two_roles" CHECK ((("role")::"text" = ANY (ARRAY[('admin'::character varying)::"text", ('user'::character varying)::"text"])))
 );
 
 
@@ -1650,6 +2329,17 @@ CREATE TABLE IF NOT EXISTS "public"."lab_validation_records" (
 ALTER TABLE "public"."lab_validation_records" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."notification_recipients" (
+    "alert_id" "uuid" NOT NULL,
+    "user_id" "uuid" NOT NULL,
+    "read_at" timestamp with time zone,
+    "cancelled_at" timestamp with time zone
+);
+
+
+ALTER TABLE "public"."notification_recipients" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "id" "uuid" NOT NULL,
     "first_name" "text" NOT NULL,
@@ -1691,28 +2381,52 @@ COMMENT ON COLUMN "public"."profiles"."app_preferences" IS 'Preferencias multipl
 
 
 
-COMMENT ON COLUMN "public"."profiles"."push_token" IS 'Token de Expo para notificaciones push. Lo escribe el dueño de la fila al conceder el permiso y se limpia al cerrar sesión. Nulo significa que no hay dispositivo registrado para avisos.';
+COMMENT ON COLUMN "public"."profiles"."push_token" IS 'Obsoleto. Los tokens Expo se guardan por instalación en push_installations.';
 
 
 
-CREATE TABLE IF NOT EXISTS "public"."push_alerts" (
+CREATE TABLE IF NOT EXISTS "public"."push_deliveries" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "user_id" "uuid",
-    "device_id" "uuid",
-    "title" character varying(150) NOT NULL,
-    "body" "text" NOT NULL,
-    "category" character varying(30) NOT NULL,
-    "severity" character varying(10) DEFAULT 'medium'::character varying NOT NULL,
-    "is_read" boolean DEFAULT false NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"(),
-    "event_type" "text",
-    "requester_user_id" "uuid",
-    CONSTRAINT "push_alerts_category_check" CHECK ((("category")::"text" = ANY ((ARRAY['MOISTURE_DROP'::character varying, 'FROST'::character varying, 'PH_DRIFT'::character varying, 'EC_SALINITY'::character varying, 'SYSTEM'::character varying, 'agronomic'::character varying, 'device'::character varying, 'weather'::character varying, 'sync'::character varying])::"text"[]))),
-    CONSTRAINT "push_alerts_severity_check" CHECK ((("severity")::"text" = ANY ((ARRAY['high'::character varying, 'medium'::character varying, 'low'::character varying, 'warning'::character varying])::"text"[])))
+    "alert_id" "uuid" NOT NULL,
+    "user_id" "uuid" NOT NULL,
+    "installation_id" "uuid" NOT NULL,
+    "token_generation" bigint NOT NULL,
+    "state" "text" DEFAULT 'pending'::"text" NOT NULL,
+    "attempts" integer DEFAULT 0 NOT NULL,
+    "next_attempt_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "lease_id" "uuid",
+    "leased_until" timestamp with time zone,
+    "ticket_id" "text",
+    "ticket_at" timestamp with time zone,
+    "receipt_checked_at" timestamp with time zone,
+    "last_error" "text",
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "push_deliveries_state_check" CHECK (("state" = ANY (ARRAY['pending'::"text", 'leased'::"text", 'ticket_ok'::"text", 'receipt_leased'::"text", 'delivered'::"text", 'failed'::"text", 'cancelled'::"text", 'expired'::"text"])))
 );
 
 
-ALTER TABLE "public"."push_alerts" OWNER TO "postgres";
+ALTER TABLE "public"."push_deliveries" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."push_installations" (
+    "id" "uuid" NOT NULL,
+    "user_id" "uuid" NOT NULL,
+    "secret_hash" "text" NOT NULL,
+    "expo_push_token" "text",
+    "platform" "text" NOT NULL,
+    "permission" "text" NOT NULL,
+    "token_generation" bigint DEFAULT 1 NOT NULL,
+    "revoked_at" timestamp with time zone,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "push_installations_permission_check" CHECK (("permission" = ANY (ARRAY['granted'::"text", 'provisional'::"text", 'denied'::"text", 'undetermined'::"text"]))),
+    CONSTRAINT "push_installations_platform_check" CHECK (("platform" = ANY (ARRAY['ios'::"text", 'android'::"text"]))),
+    CONSTRAINT "push_installations_token_check" CHECK ((("expo_push_token" IS NULL) OR ("expo_push_token" ~ '^((Expo|Exponent)PushToken)\[[A-Za-z0-9_-]+\]$'::"text")))
+);
+
+
+ALTER TABLE "public"."push_installations" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."soil_measurements" (
@@ -1751,8 +2465,8 @@ CREATE TABLE IF NOT EXISTS "public"."soil_measurements" (
     "data_generation" integer DEFAULT 0 NOT NULL,
     CONSTRAINT "soil_measurements_battery_percent_check" CHECK ((("battery_percent" >= 0) AND ("battery_percent" <= 100))),
     CONSTRAINT "soil_measurements_phenological_stage_check" CHECK (("phenological_stage" = ANY (ARRAY['pre_siembra'::"text", 'vegetativo'::"text", 'floracion'::"text", 'cosecha'::"text"]))),
-    CONSTRAINT "soil_measurements_quadrant_check" CHECK ((("quadrant")::"text" = ANY ((ARRAY['NW'::character varying, 'NE'::character varying, 'SE'::character varying, 'SW'::character varying, 'CENTER'::character varying, 'FREE'::character varying])::"text"[]))),
-    CONSTRAINT "soil_measurements_verdict_check" CHECK ((("verdict")::"text" = ANY ((ARRAY['GREEN'::character varying, 'AMBER'::character varying, 'RED'::character varying])::"text"[])))
+    CONSTRAINT "soil_measurements_quadrant_check" CHECK ((("quadrant")::"text" = ANY (ARRAY[('NW'::character varying)::"text", ('NE'::character varying)::"text", ('SE'::character varying)::"text", ('SW'::character varying)::"text", ('CENTER'::character varying)::"text", ('FREE'::character varying)::"text"]))),
+    CONSTRAINT "soil_measurements_verdict_check" CHECK ((("verdict")::"text" = ANY (ARRAY[('GREEN'::character varying)::"text", ('AMBER'::character varying)::"text", ('RED'::character varying)::"text"])))
 );
 
 
@@ -1879,6 +2593,11 @@ ALTER TABLE ONLY "public"."lab_validation_records"
 
 
 
+ALTER TABLE ONLY "public"."notification_recipients"
+    ADD CONSTRAINT "notification_recipients_pkey" PRIMARY KEY ("alert_id", "user_id");
+
+
+
 ALTER TABLE ONLY "public"."profiles"
     ADD CONSTRAINT "profiles_pkey" PRIMARY KEY ("id");
 
@@ -1886,6 +2605,21 @@ ALTER TABLE ONLY "public"."profiles"
 
 ALTER TABLE ONLY "public"."push_alerts"
     ADD CONSTRAINT "push_alerts_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."push_deliveries"
+    ADD CONSTRAINT "push_deliveries_alert_id_installation_id_key" UNIQUE ("alert_id", "installation_id");
+
+
+
+ALTER TABLE ONLY "public"."push_deliveries"
+    ADD CONSTRAINT "push_deliveries_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."push_installations"
+    ADD CONSTRAINT "push_installations_pkey" PRIMARY KEY ("id");
 
 
 
@@ -1952,7 +2686,51 @@ CREATE INDEX "idx_soil_measurements_stage" ON "public"."soil_measurements" USING
 
 
 
+CREATE INDEX "notification_recipients_user_idx" ON "public"."notification_recipients" USING "btree" ("user_id", "alert_id");
+
+
+
+CREATE INDEX "push_alerts_active_idx" ON "public"."push_alerts" USING "btree" ("expires_at") WHERE ("status" = 'active'::"text");
+
+
+
+CREATE INDEX "push_alerts_request_idx" ON "public"."push_alerts" USING "btree" ("device_id", "requester_user_id") WHERE ("event_type" = 'access_request'::"text");
+
+
+
+CREATE UNIQUE INDEX "push_alerts_transfer_transaction_idx" ON "public"."push_alerts" USING "btree" ("device_id", "source_transaction") WHERE (("event_type" = 'admin_transferred'::"text") AND ("source_transaction" IS NOT NULL));
+
+
+
+CREATE INDEX "push_deliveries_installation_idx" ON "public"."push_deliveries" USING "btree" ("installation_id");
+
+
+
+CREATE INDEX "push_deliveries_queue_idx" ON "public"."push_deliveries" USING "btree" ("state", "next_attempt_at");
+
+
+
+CREATE INDEX "push_deliveries_user_idx" ON "public"."push_deliveries" USING "btree" ("user_id");
+
+
+
+CREATE UNIQUE INDEX "push_installations_token_idx" ON "public"."push_installations" USING "btree" ("expo_push_token") WHERE ("expo_push_token" IS NOT NULL);
+
+
+
+CREATE INDEX "push_installations_user_idx" ON "public"."push_installations" USING "btree" ("user_id");
+
+
+
 CREATE UNIQUE INDEX "soil_measurements_client_uuid_upsert" ON "public"."soil_measurements" USING "btree" ("client_uuid");
+
+
+
+CREATE OR REPLACE TRIGGER "guard_push_alert_event" BEFORE INSERT ON "public"."push_alerts" FOR EACH ROW EXECUTE FUNCTION "public"."guard_push_alert_event"();
+
+
+
+CREATE OR REPLACE TRIGGER "notify_device_membership" AFTER INSERT OR DELETE OR UPDATE ON "public"."device_members" FOR EACH ROW EXECUTE FUNCTION "public"."notify_device_membership"();
 
 
 
@@ -2067,6 +2845,16 @@ ALTER TABLE ONLY "public"."firmware_releases"
 
 
 
+ALTER TABLE ONLY "public"."notification_recipients"
+    ADD CONSTRAINT "notification_recipients_alert_id_fkey" FOREIGN KEY ("alert_id") REFERENCES "public"."push_alerts"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."notification_recipients"
+    ADD CONSTRAINT "notification_recipients_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."profiles"
     ADD CONSTRAINT "profiles_id_fkey" FOREIGN KEY ("id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
@@ -2084,6 +2872,21 @@ ALTER TABLE ONLY "public"."push_alerts"
 
 ALTER TABLE ONLY "public"."push_alerts"
     ADD CONSTRAINT "push_alerts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."push_deliveries"
+    ADD CONSTRAINT "push_deliveries_alert_id_user_id_fkey" FOREIGN KEY ("alert_id", "user_id") REFERENCES "public"."notification_recipients"("alert_id", "user_id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."push_deliveries"
+    ADD CONSTRAINT "push_deliveries_installation_id_fkey" FOREIGN KEY ("installation_id") REFERENCES "public"."push_installations"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."push_installations"
+    ADD CONSTRAINT "push_installations_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
 
 
@@ -2134,6 +2937,9 @@ ALTER TABLE "public"."firmware_releases" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."lab_validation_records" ENABLE ROW LEVEL SECURITY;
 
 
+ALTER TABLE "public"."notification_recipients" ENABLE ROW LEVEL SECURITY;
+
+
 CREATE POLICY "own_device_resets" ON "public"."device_data_resets" FOR SELECT TO "authenticated" USING (("user_id" = "auth"."uid"()));
 
 
@@ -2144,18 +2950,16 @@ ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."push_alerts" ENABLE ROW LEVEL SECURITY;
 
 
+ALTER TABLE "public"."push_deliveries" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."push_installations" ENABLE ROW LEVEL SECURITY;
+
+
 ALTER TABLE "public"."soil_measurements" ENABLE ROW LEVEL SECURITY;
 
 
 CREATE POLICY "support_select_staff" ON "public"."admin_support_users" FOR SELECT TO "authenticated" USING (("public"."is_support_staff"() OR ("user_id" = "auth"."uid"())));
-
-
-
-CREATE POLICY "ts_alerts_select" ON "public"."push_alerts" FOR SELECT TO "authenticated" USING ((("user_id" = "auth"."uid"()) OR (("device_id" IS NOT NULL) AND "public"."has_device_access"("device_id"))));
-
-
-
-CREATE POLICY "ts_alerts_update" ON "public"."push_alerts" FOR UPDATE TO "authenticated" USING (("user_id" = "auth"."uid"()));
 
 
 
@@ -2219,11 +3023,6 @@ CREATE POLICY "ts_profiles_update_own" ON "public"."profiles" FOR UPDATE TO "aut
 
 
 
-
-
-ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
-
-
 GRANT USAGE ON SCHEMA "public" TO "postgres";
 GRANT USAGE ON SCHEMA "public" TO "anon";
 GRANT USAGE ON SCHEMA "public" TO "authenticated";
@@ -2231,252 +3030,105 @@ GRANT USAGE ON SCHEMA "public" TO "service_role";
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 REVOKE ALL ON FUNCTION "public"."admin_approve_member"("p_device_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_approve_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_approve_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_approve_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_cancel_update"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_cancel_update"("p_device_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_cancel_update"("p_device_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_cancel_update"("p_device_id" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_create_release"("p_version" "text", "p_notes" "text", "p_sha256" "text", "p_size_bytes" integer, "p_storage_path" "text", "p_is_mandatory" boolean) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_create_release"("p_version" "text", "p_notes" "text", "p_sha256" "text", "p_size_bytes" integer, "p_storage_path" "text", "p_is_mandatory" boolean) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_create_release"("p_version" "text", "p_notes" "text", "p_sha256" "text", "p_size_bytes" integer, "p_storage_path" "text", "p_is_mandatory" boolean) TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_create_release"("p_version" "text", "p_notes" "text", "p_sha256" "text", "p_size_bytes" integer, "p_storage_path" "text", "p_is_mandatory" boolean) TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_delete_release"("p_release_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_delete_release"("p_release_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_delete_release"("p_release_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_delete_release"("p_release_id" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer) TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer) TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_device_members"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_device_members"("p_device_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_device_members"("p_device_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_device_members"("p_device_id" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_device_status"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_device_status"("p_device_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_device_status"("p_device_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_device_status"("p_device_id" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_device_update"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_device_update"("p_device_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_device_update"("p_device_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_device_update"("p_device_id" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_list_releases"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_list_releases"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_list_releases"() TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_list_releases"() TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_make_admin"("p_device_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_make_admin"("p_device_id" "uuid", "p_user_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_make_admin"("p_device_id" "uuid", "p_user_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_make_admin"("p_device_id" "uuid", "p_user_id" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_publish_release"("p_release_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_publish_release"("p_release_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_publish_release"("p_release_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_publish_release"("p_release_id" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_reject_member"("p_device_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_reject_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_reject_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_reject_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_release_devices"("p_release_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_release_devices"("p_release_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_release_devices"("p_release_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_release_devices"("p_release_id" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_reset_device"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_reset_device"("p_device_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_reset_device"("p_device_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_reset_device"("p_device_id" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_search"("p_query" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_search"("p_query" "text") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_search"("p_query" "text") TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_search"("p_query" "text") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_send_update"("p_device_id" "uuid", "p_release_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_send_update"("p_device_id" "uuid", "p_release_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_send_update"("p_device_id" "uuid", "p_release_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_send_update"("p_device_id" "uuid", "p_release_id" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_send_update_all"("p_release_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_send_update_all"("p_release_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."admin_send_update_all"("p_release_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."admin_send_update_all"("p_release_id" "uuid") TO "authenticated";
 
 
 
@@ -2502,36 +3154,41 @@ GRANT ALL ON FUNCTION "public"."change_device_membership"("p_device_id" "uuid", 
 
 
 REVOKE ALL ON FUNCTION "public"."check_device_administrator"() FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."check_device_administrator"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."check_firmware_update"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."check_firmware_update"("p_device_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."check_firmware_update"("p_device_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."check_firmware_update"("p_device_id" "uuid") TO "authenticated";
 
 
 
+GRANT ALL ON FUNCTION "public"."check_measurement_generation"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."check_measurement_generation"() TO "anon";
 GRANT ALL ON FUNCTION "public"."check_measurement_generation"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."check_measurement_generation"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."complete_my_onboarding"("p_method" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."complete_my_onboarding"("p_method" "text") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."complete_my_onboarding"("p_method" "text") TO "service_role";
+GRANT ALL ON FUNCTION "public"."complete_my_onboarding"("p_method" "text") TO "authenticated";
+
+
+
+REVOKE ALL ON FUNCTION "public"."create_device_event"("p_event" "text", "p_device_id" "uuid", "p_user_id" "uuid", "p_requester" "uuid", "p_source_transaction" bigint) FROM PUBLIC;
 
 
 
 REVOKE ALL ON FUNCTION "public"."firmware_is_newer"("p_release" "text", "p_installed" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."firmware_is_newer"("p_release" "text", "p_installed" "text") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."firmware_is_newer"("p_release" "text", "p_installed" "text") TO "service_role";
+GRANT ALL ON FUNCTION "public"."firmware_is_newer"("p_release" "text", "p_installed" "text") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."firmware_update_progress"("p_update_id" "uuid", "p_action" "text", "p_error" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."firmware_update_progress"("p_update_id" "uuid", "p_action" "text", "p_error" "text") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."firmware_update_progress"("p_update_id" "uuid", "p_action" "text", "p_error" "text") TO "service_role";
+GRANT ALL ON FUNCTION "public"."firmware_update_progress"("p_update_id" "uuid", "p_action" "text", "p_error" "text") TO "authenticated";
 
 
 
@@ -2541,28 +3198,43 @@ GRANT ALL ON FUNCTION "public"."generate_device_code"() TO "service_role";
 
 
 REVOKE ALL ON FUNCTION "public"."get_device_access_qr"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."get_device_access_qr"("p_device_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."get_device_access_qr"("p_device_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."get_device_access_qr"("p_device_id" "uuid") TO "authenticated";
+
+
+
+REVOKE ALL ON FUNCTION "public"."get_my_notification"("p_alert_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."get_my_notification"("p_alert_id" "uuid") TO "authenticated";
+
+
+
+REVOKE ALL ON FUNCTION "public"."guard_push_alert_event"() FROM PUBLIC;
 
 
 
 REVOKE ALL ON FUNCTION "public"."handle_new_user"() FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."has_device_access"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."has_device_access"("p_device_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."has_device_access"("p_device_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."has_device_access"("p_device_id" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."has_device_admin_access"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."has_device_admin_access"("p_device_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."has_device_admin_access"("p_device_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."has_device_admin_access"("p_device_id" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."invalidate_empty_device_invite"() FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."invalidate_empty_device_invite"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."invoke_push_dispatch"() FROM PUBLIC;
 
 
 
@@ -2572,8 +3244,8 @@ GRANT ALL ON FUNCTION "public"."is_backoffice_email"("p_email" "text") TO "servi
 
 
 REVOKE ALL ON FUNCTION "public"."is_support_staff"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."is_support_staff"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."is_support_staff"() TO "service_role";
+GRANT ALL ON FUNCTION "public"."is_support_staff"() TO "authenticated";
 
 
 
@@ -2583,65 +3255,117 @@ GRANT ALL ON FUNCTION "public"."join_device_by_code"("p_code" "text") TO "servic
 
 
 REVOKE ALL ON FUNCTION "public"."join_device_by_invite"("p_token" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."join_device_by_invite"("p_token" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."join_device_by_invite"("p_token" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."join_device_by_invite"("p_token" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."link_device_creator"() FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."link_device_creator"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."list_device_members"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."list_device_members"("p_device_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."list_device_members"("p_device_id" "uuid") TO "service_role";
+GRANT ALL ON FUNCTION "public"."list_device_members"("p_device_id" "uuid") TO "authenticated";
+
+
+
+REVOKE ALL ON FUNCTION "public"."list_my_notifications"("p_limit" integer, "p_before" timestamp with time zone, "p_before_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."list_my_notifications"("p_limit" integer, "p_before" timestamp with time zone, "p_before_id" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."list_my_pending_device_requests"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."list_my_pending_device_requests"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."list_my_pending_device_requests"() TO "service_role";
+GRANT ALL ON FUNCTION "public"."list_my_pending_device_requests"() TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."log_device_status_change"() FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."log_device_status_change"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."manage_device_member"("p_device_id" "uuid", "p_target_user_id" "uuid", "p_action" "text", "p_role" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."manage_device_member"("p_device_id" "uuid", "p_target_user_id" "uuid", "p_action" "text", "p_role" "text") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."manage_device_member"("p_device_id" "uuid", "p_target_user_id" "uuid", "p_action" "text", "p_role" "text") TO "service_role";
+GRANT ALL ON FUNCTION "public"."manage_device_member"("p_device_id" "uuid", "p_target_user_id" "uuid", "p_action" "text", "p_role" "text") TO "authenticated";
+
+
+
+REVOKE ALL ON FUNCTION "public"."mark_notification_read"("p_alert_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."mark_notification_read"("p_alert_id" "uuid") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."mark_onboarding_from_membership"() FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."mark_onboarding_from_membership"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."my_firmware_updates"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."my_firmware_updates"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."my_firmware_updates"() TO "service_role";
+GRANT ALL ON FUNCTION "public"."my_firmware_updates"() TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."normalize_device_versions"() FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."normalize_device_versions"() TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."push_alerts" TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."notification_access_allowed"("p_alert" "public"."push_alerts", "p_user_id" "uuid") FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."notification_copy"("p_event" "text", "p_language" "text") FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."notification_dispatch_allowed"("p_alert" "public"."push_alerts", "p_user_id" "uuid") FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."notify_device_membership"() FROM PUBLIC;
+
+
+
+GRANT ALL ON FUNCTION "public"."protect_device_generation"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."protect_device_generation"() TO "anon";
 GRANT ALL ON FUNCTION "public"."protect_device_generation"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."protect_device_generation"() TO "service_role";
 
 
 
+GRANT ALL ON FUNCTION "public"."protect_onboarding_fields"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."protect_onboarding_fields"() TO "anon";
 GRANT ALL ON FUNCTION "public"."protect_onboarding_fields"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."protect_onboarding_fields"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."purge_expired_operational_data"() FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."purge_expired_operational_data"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."purge_push_notifications"() FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."purge_push_notifications"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."push_dispatch_health"() FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."push_dispatch_health"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."push_error_class"("p_error" "text") FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."record_admin_transfer"("p_device_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
 
 
 
@@ -2651,14 +3375,29 @@ GRANT ALL ON FUNCTION "public"."register_and_pair_device"("p_device_code" "text"
 
 
 REVOKE ALL ON FUNCTION "public"."register_paired_device"("p_code" "text", "p_name" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."register_paired_device"("p_code" "text", "p_name" "text") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."register_paired_device"("p_code" "text", "p_name" "text") TO "service_role";
+GRANT ALL ON FUNCTION "public"."register_paired_device"("p_code" "text", "p_name" "text") TO "authenticated";
+
+
+
+REVOKE ALL ON FUNCTION "public"."register_push_installation"("p_installation_id" "uuid", "p_installation_secret" "text", "p_expo_push_token" "text", "p_platform" "text", "p_permission" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."register_push_installation"("p_installation_id" "uuid", "p_installation_secret" "text", "p_expo_push_token" "text", "p_platform" "text", "p_permission" "text") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."report_device_contact"("p_device_code" "text", "p_battery" integer, "p_firmware_version" "text", "p_contacted_at" timestamp with time zone) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."report_device_contact"("p_device_code" "text", "p_battery" integer, "p_firmware_version" "text", "p_contacted_at" timestamp with time zone) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."report_device_contact"("p_device_code" "text", "p_battery" integer, "p_firmware_version" "text", "p_contacted_at" timestamp with time zone) TO "service_role";
+GRANT ALL ON FUNCTION "public"."report_device_contact"("p_device_code" "text", "p_battery" integer, "p_firmware_version" "text", "p_contacted_at" timestamp with time zone) TO "authenticated";
+
+
+
+REVOKE ALL ON FUNCTION "public"."report_push_receipt"("p_delivery_id" "uuid", "p_lease_id" "uuid", "p_status" "text", "p_error" "text", "p_invalid_token" boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."report_push_receipt"("p_delivery_id" "uuid", "p_lease_id" "uuid", "p_status" "text", "p_error" "text", "p_invalid_token" boolean) TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."report_push_ticket"("p_delivery_id" "uuid", "p_lease_id" "uuid", "p_ticket_id" "text", "p_error" "text", "p_invalid_token" boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."report_push_ticket"("p_delivery_id" "uuid", "p_lease_id" "uuid", "p_ticket_id" "text", "p_error" "text", "p_invalid_token" boolean) TO "service_role";
 
 
 
@@ -2667,32 +3406,44 @@ GRANT ALL ON FUNCTION "public"."request_device_access_qr"("p_device_code" "text"
 
 
 
+REVOKE ALL ON FUNCTION "public"."reserve_push_deliveries"("p_limit" integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."reserve_push_deliveries"("p_limit" integer) TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."reserve_push_receipts"("p_limit" integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."reserve_push_receipts"("p_limit" integer) TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."resolve_access_requests"("p_device_id" "uuid", "p_requester" "uuid") FROM PUBLIC;
+
+
+
+REVOKE ALL ON FUNCTION "public"."revoke_push_installation"("p_installation_id" "uuid", "p_installation_secret" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."revoke_push_installation"("p_installation_id" "uuid", "p_installation_secret" "text") TO "authenticated";
+
+
+
+REVOKE ALL ON FUNCTION "public"."revoke_push_installation_by_secret"("p_installation_id" "uuid", "p_installation_secret" "text") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."revoke_push_installation_by_secret"("p_installation_id" "uuid", "p_installation_secret" "text") TO "anon";
+GRANT ALL ON FUNCTION "public"."revoke_push_installation_by_secret"("p_installation_id" "uuid", "p_installation_secret" "text") TO "authenticated";
+
+
+
 REVOKE ALL ON FUNCTION "public"."semver_parts"("p_version" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."semver_parts"("p_version" "text") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."semver_parts"("p_version" "text") TO "service_role";
+GRANT ALL ON FUNCTION "public"."semver_parts"("p_version" "text") TO "authenticated";
 
 
 
 REVOKE ALL ON FUNCTION "public"."set_device_member_authorization_default"() FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."set_device_member_authorization_default"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."set_updated_at"() FROM PUBLIC;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+GRANT ALL ON FUNCTION "public"."set_updated_at"() TO "service_role";
 
 
 
@@ -2702,15 +3453,20 @@ GRANT ALL ON TABLE "public"."admin_support_users" TO "service_role";
 
 
 
+GRANT MAINTAIN ON TABLE "public"."device_access_invites" TO "anon";
+GRANT MAINTAIN ON TABLE "public"."device_access_invites" TO "authenticated";
 GRANT ALL ON TABLE "public"."device_access_invites" TO "service_role";
 
 
 
+GRANT MAINTAIN ON TABLE "public"."device_data_resets" TO "anon";
+GRANT SELECT,MAINTAIN ON TABLE "public"."device_data_resets" TO "authenticated";
 GRANT ALL ON TABLE "public"."device_data_resets" TO "service_role";
-GRANT SELECT ON TABLE "public"."device_data_resets" TO "authenticated";
 
 
 
+GRANT MAINTAIN ON TABLE "public"."device_firmware_updates" TO "anon";
+GRANT MAINTAIN ON TABLE "public"."device_firmware_updates" TO "authenticated";
 GRANT ALL ON TABLE "public"."device_firmware_updates" TO "service_role";
 
 
@@ -2763,27 +3519,27 @@ GRANT ALL ON TABLE "public"."lab_validation_records" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."notification_recipients" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."profiles" TO "anon";
 GRANT ALL ON TABLE "public"."profiles" TO "authenticated";
 GRANT ALL ON TABLE "public"."profiles" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."push_alerts" TO "anon";
-GRANT ALL ON TABLE "public"."push_alerts" TO "authenticated";
-GRANT ALL ON TABLE "public"."push_alerts" TO "service_role";
+GRANT ALL ON TABLE "public"."push_deliveries" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."push_installations" TO "service_role";
 
 
 
 GRANT ALL ON TABLE "public"."soil_measurements" TO "anon";
 GRANT ALL ON TABLE "public"."soil_measurements" TO "authenticated";
 GRANT ALL ON TABLE "public"."soil_measurements" TO "service_role";
-
-
-
-
-
-
 
 
 
@@ -2811,30 +3567,6 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "anon";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "authenticated";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "service_role";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

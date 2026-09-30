@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -11,6 +11,31 @@ export type Database = {
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -448,6 +473,35 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_recipients: {
+        Row: {
+          alert_id: string
+          cancelled_at: string | null
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          alert_id: string
+          cancelled_at?: string | null
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          alert_id?: string
+          cancelled_at?: string | null
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_recipients_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "push_alerts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           age: number
@@ -518,10 +572,13 @@ export type Database = {
           created_at: string | null
           device_id: string | null
           event_type: string | null
+          expires_at: string
           id: string
           is_read: boolean
           requester_user_id: string | null
           severity: string
+          source_transaction: number | null
+          status: string
           title: string
           user_id: string | null
         }
@@ -531,10 +588,13 @@ export type Database = {
           created_at?: string | null
           device_id?: string | null
           event_type?: string | null
+          expires_at?: string
           id?: string
           is_read?: boolean
           requester_user_id?: string | null
           severity?: string
+          source_transaction?: number | null
+          status?: string
           title: string
           user_id?: string | null
         }
@@ -544,10 +604,13 @@ export type Database = {
           created_at?: string | null
           device_id?: string | null
           event_type?: string | null
+          expires_at?: string
           id?: string
           is_read?: boolean
           requester_user_id?: string | null
           severity?: string
+          source_transaction?: number | null
+          status?: string
           title?: string
           user_id?: string | null
         }
@@ -567,6 +630,135 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      push_deliveries: {
+        Row: {
+          alert_id: string
+          attempts: number
+          created_at: string
+          id: string
+          installation_id: string
+          last_error: string | null
+          lease_id: string | null
+          leased_until: string | null
+          next_attempt_at: string
+          receipt_checked_at: string | null
+          state: string
+          ticket_at: string | null
+          ticket_id: string | null
+          token_generation: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_id: string
+          attempts?: number
+          created_at?: string
+          id?: string
+          installation_id: string
+          last_error?: string | null
+          lease_id?: string | null
+          leased_until?: string | null
+          next_attempt_at?: string
+          receipt_checked_at?: string | null
+          state?: string
+          ticket_at?: string | null
+          ticket_id?: string | null
+          token_generation: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_id?: string
+          attempts?: number
+          created_at?: string
+          id?: string
+          installation_id?: string
+          last_error?: string | null
+          lease_id?: string | null
+          leased_until?: string | null
+          next_attempt_at?: string
+          receipt_checked_at?: string | null
+          state?: string
+          ticket_at?: string | null
+          ticket_id?: string | null
+          token_generation?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_deliveries_alert_id_user_id_fkey"
+            columns: ["alert_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "notification_recipients"
+            referencedColumns: ["alert_id", "user_id"]
+          },
+          {
+            foreignKeyName: "push_deliveries_installation_id_fkey"
+            columns: ["installation_id"]
+            isOneToOne: false
+            referencedRelation: "push_installations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      push_installations: {
+        Row: {
+          created_at: string
+          expo_push_token: string | null
+          id: string
+          permission: string
+          platform: string
+          revoked_at: string | null
+          secret_hash: string
+          session_id: string | null
+          token_generation: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expo_push_token?: string | null
+          id: string
+          permission: string
+          platform: string
+          revoked_at?: string | null
+          secret_hash: string
+          session_id?: string | null
+          token_generation?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expo_push_token?: string | null
+          id?: string
+          permission?: string
+          platform?: string
+          revoked_at?: string | null
+          secret_hash?: string
+          session_id?: string | null
+          token_generation?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      push_recovery_cutoffs: {
+        Row: {
+          blocked_through: string
+          user_id: string
+        }
+        Insert: {
+          blocked_through: string
+          user_id: string
+        }
+        Update: {
+          blocked_through?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       soil_measurements: {
         Row: {
@@ -857,6 +1049,16 @@ export type Database = {
         }[]
       }
       complete_my_onboarding: { Args: { p_method: string }; Returns: string }
+      create_device_event: {
+        Args: {
+          p_device_id: string
+          p_event: string
+          p_requester?: string
+          p_source_transaction?: number
+          p_user_id: string
+        }
+        Returns: string
+      }
       firmware_is_newer: {
         Args: { p_installed: string; p_release: string }
         Returns: boolean
@@ -873,11 +1075,25 @@ export type Database = {
           token: string
         }[]
       }
+      get_my_notification: {
+        Args: { p_alert_id: string }
+        Returns: {
+          body: string
+          created_at: string
+          device_id: string
+          event_type: string
+          id: string
+          read_at: string
+          status: string
+          title: string
+        }[]
+      }
       has_device_access: { Args: { p_device_id: string }; Returns: boolean }
       has_device_admin_access: {
         Args: { p_device_id: string }
         Returns: boolean
       }
+      invoke_push_dispatch: { Args: never; Returns: undefined }
       is_backoffice_email: { Args: { p_email: string }; Returns: boolean }
       is_support_staff: { Args: never; Returns: boolean }
       join_device_by_code: {
@@ -909,6 +1125,19 @@ export type Database = {
           user_id: string
         }[]
       }
+      list_my_notifications: {
+        Args: { p_before?: string; p_before_id?: string; p_limit?: number }
+        Returns: {
+          body: string
+          created_at: string
+          device_id: string
+          event_type: string
+          id: string
+          read_at: string
+          status: string
+          title: string
+        }[]
+      }
       list_my_pending_device_requests: {
         Args: never
         Returns: {
@@ -924,6 +1153,10 @@ export type Database = {
           p_role?: string
           p_target_user_id: string
         }
+        Returns: undefined
+      }
+      mark_notification_read: {
+        Args: { p_alert_id: string }
         Returns: undefined
       }
       my_firmware_updates: {
@@ -943,12 +1176,72 @@ export type Database = {
           version: string
         }[]
       }
+      notification_access_allowed: {
+        Args: {
+          p_alert: Database["public"]["Tables"]["push_alerts"]["Row"]
+          p_user_id: string
+        }
+        Returns: boolean
+      }
+      notification_copy: {
+        Args: { p_event: string; p_language: string }
+        Returns: {
+          body: string
+          title: string
+        }[]
+      }
+      notification_dispatch_allowed: {
+        Args: {
+          p_alert: Database["public"]["Tables"]["push_alerts"]["Row"]
+          p_user_id: string
+        }
+        Returns: boolean
+      }
       purge_expired_operational_data: {
         Args: never
         Returns: {
           audit_rows_deleted: number
           join_attempts_deleted: number
         }[]
+      }
+      purge_push_notifications: {
+        Args: never
+        Returns: {
+          alerts_deleted: number
+          installations_deleted: number
+          job_runs_deleted: number
+        }[]
+      }
+      push_dispatch_health: {
+        Args: never
+        Returns: {
+          awaiting_receipt: number
+          dispatch_last_run: string
+          dispatch_last_status: string
+          failed_24h: number
+          failures_by_error: Json
+          last_ticket_at: string
+          leased: number
+          leases_expired: number
+          oldest_ticket_age: string
+          queue_oldest_age: string
+          queue_ready: number
+          receipts_overdue: number
+          retention_last_run: string
+          retention_last_status: string
+          retrying: number
+          uncertain_24h: number
+          vault_configured: boolean
+        }[]
+      }
+      push_error_class: { Args: { p_error: string }; Returns: string }
+      push_session_valid: {
+        Args: { p_session_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      record_admin_transfer: {
+        Args: { p_device_id: string; p_user_id: string }
+        Returns: string
       }
       register_and_pair_device: {
         Args: {
@@ -965,6 +1258,16 @@ export type Database = {
           device_id: string
         }[]
       }
+      register_push_installation: {
+        Args: {
+          p_expo_push_token: string
+          p_installation_id: string
+          p_installation_secret: string
+          p_permission: string
+          p_platform: string
+        }
+        Returns: undefined
+      }
       report_device_contact: {
         Args: {
           p_battery?: number
@@ -974,11 +1277,71 @@ export type Database = {
         }
         Returns: undefined
       }
+      report_push_receipt: {
+        Args: {
+          p_delivery_id: string
+          p_error?: string
+          p_invalid_token?: boolean
+          p_lease_id: string
+          p_status: string
+        }
+        Returns: undefined
+      }
+      report_push_ticket: {
+        Args: {
+          p_delivery_id: string
+          p_error?: string
+          p_invalid_token?: boolean
+          p_lease_id: string
+          p_ticket_id?: string
+        }
+        Returns: undefined
+      }
       request_device_access_qr: {
         Args: { p_device_code: string; p_user_id: string }
         Returns: Json
       }
+      reserve_push_deliveries: {
+        Args: { p_limit?: number }
+        Returns: {
+          alert_id: string
+          body: string
+          delivery_id: string
+          device_id: string
+          event_type: string
+          expires_at: string
+          expo_push_token: string
+          lease_id: string
+          title: string
+          token_generation: number
+        }[]
+      }
+      reserve_push_receipts: {
+        Args: { p_limit?: number }
+        Returns: {
+          delivery_id: string
+          lease_id: string
+          ticket_id: string
+        }[]
+      }
+      resolve_access_requests: {
+        Args: { p_device_id: string; p_requester: string }
+        Returns: undefined
+      }
+      revoke_push_for_password_recovery: { Args: never; Returns: undefined }
+      revoke_push_installation: {
+        Args: { p_installation_id: string; p_installation_secret: string }
+        Returns: undefined
+      }
+      revoke_push_installation_by_secret: {
+        Args: { p_installation_id: string; p_installation_secret: string }
+        Returns: undefined
+      }
       semver_parts: { Args: { p_version: string }; Returns: number[] }
+      validate_push_lease: {
+        Args: { p_delivery_id: string; p_lease_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
@@ -1107,7 +1470,11 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },
 } as const
+

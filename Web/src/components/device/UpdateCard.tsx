@@ -1,8 +1,7 @@
 // src/components/device/UpdateCard.tsx — enviar una actualización a este equipo.
 //
-// El envío le llega al administrador del equipo en la app como una ventana
-// Actualizar / Cancelar; si cancela, queda pendiente. La instalación va por
-// BLE desde el teléfono. Aquí se ve el estado de la última asignación.
+// La versión queda asignada al equipo para consulta. La instalación desde
+// la app aún no está disponible y no se despacha una notificación de firmware.
 
 import { useMemo, useState } from 'react';
 import { RefreshCw, Send, X } from 'lucide-react';
@@ -74,7 +73,7 @@ export function UpdateCard({ deviceId, installedVersion }: { deviceId: string; i
     <Card
       title="Actualización"
       labelledBy="card-actualizacion"
-      description="Se instala por BLE desde el teléfono del administrador del equipo"
+      description="Asigna una versión al equipo. La instalación desde la app aún no está disponible."
       actions={
         <Button size="sm" icon={RefreshCw} onClick={() => void data.refresh()} busy={data.loading && data.data != null}>
           Refrescar
@@ -99,7 +98,7 @@ export function UpdateCard({ deviceId, installedVersion }: { deviceId: string; i
               <dd className="mt-1 font-mono text-[15px] text-ink tabular">{installedVersion ?? 'Sin informar'}</dd>
             </div>
             <div>
-              <dt className="text-xs text-muted">Último envío</dt>
+              <dt className="text-xs text-muted">Última asignación</dt>
               <dd className="mt-1 font-mono text-[15px] text-ink tabular">{update?.version ?? '—'}</dd>
             </div>
             {update && (
@@ -124,7 +123,7 @@ export function UpdateCard({ deviceId, installedVersion }: { deviceId: string; i
             ) : (
               <>
                 <label htmlFor="version-envio" className="text-[13px] font-medium text-ink">
-                  Versión a enviar
+                  Versión a asignar
                 </label>
                 <select
                   id="version-envio"
@@ -149,7 +148,7 @@ export function UpdateCard({ deviceId, installedVersion }: { deviceId: string; i
                       setConfirm('send');
                     }}
                   >
-                    Enviar actualización
+                    Asignar actualización
                   </Button>
                   {isActive(update) && update?.status !== 'installing' && (
                     <Button
@@ -159,7 +158,7 @@ export function UpdateCard({ deviceId, installedVersion }: { deviceId: string; i
                         setConfirm('cancel');
                       }}
                     >
-                      Cancelar envío
+                      Cancelar asignación
                     </Button>
                   )}
                 </div>
@@ -171,29 +170,29 @@ export function UpdateCard({ deviceId, installedVersion }: { deviceId: string; i
 
       {confirm === 'send' && chosen && (
         <ConfirmDialog
-          title={`¿Enviar la versión ${chosen.version}?`}
-          confirmLabel="Enviar"
+          title={`¿Asignar la versión ${chosen.version}?`}
+          confirmLabel="Asignar"
           busy={busy}
           error={dialogError}
           onClose={() => setConfirm(null)}
           onConfirm={() =>
             void run(async () => {
               await sendUpdateToDevice(deviceId, chosen.id);
-              return `Versión ${chosen.version} enviada al administrador del equipo.`;
+              return `Versión ${chosen.version} asignada al equipo.`;
             })
           }
         >
           <p>
-            El administrador del equipo recibirá un aviso en la app para instalarla o dejarla pendiente.
-            {isActive(update) && ` Reemplaza el envío anterior (${update?.version}).`}
+            La versión quedará asociada al equipo. La instalación desde la app está pendiente de habilitación.
+            {isActive(update) && ` Reemplaza la asignación anterior (${update?.version}).`}
           </p>
         </ConfirmDialog>
       )}
 
       {confirm === 'cancel' && update && (
         <ConfirmDialog
-          title={`¿Cancelar el envío de la versión ${update.version}?`}
-          confirmLabel="Cancelar envío"
+          title={`¿Cancelar la asignación de la versión ${update.version}?`}
+          confirmLabel="Cancelar asignación"
           cancelLabel="Volver"
           tone="danger"
           busy={busy}
@@ -202,11 +201,11 @@ export function UpdateCard({ deviceId, installedVersion }: { deviceId: string; i
           onConfirm={() =>
             void run(async () => {
               await cancelDeviceUpdate(deviceId);
-              return 'Envío cancelado. La app deja de ofrecer esa actualización.';
+              return 'Asignación cancelada.';
             })
           }
         >
-          <p>La app dejará de ofrecerle esta versión al administrador.</p>
+          <p>Esta versión dejará de estar asignada al equipo.</p>
         </ConfirmDialog>
       )}
     </Card>

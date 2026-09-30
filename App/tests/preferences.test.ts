@@ -24,12 +24,7 @@ test('normaliza el formato JSONB usado por Supabase', () => {
   assert.equal(normalized.language, 'en');
   assert.equal(normalized.theme, 'dark');
   assert.equal(normalized.measurementSystem, 'imperial');
-  assert.deepEqual(normalized.notifications, {
-    agronomic: false,
-    device: true,
-    weather: false,
-    sync: true,
-  });
+  assert.deepEqual(normalized.notifications, { device: true });
   assert.deepEqual(normalized.guidesSeen, { map: true });
 });
 
@@ -43,4 +38,19 @@ test('serializar y normalizar conserva las preferencias de la cuenta', () => {
   };
 
   assert.deepEqual(normalizePreferences(serializePreferences(preferences)), preferences);
+});
+
+test('las categorías de aviso retiradas se descartan sin romper la carga', () => {
+  const legacy = normalizePreferences({ notifications: { agronomic: true, device: false, weather: true, sync: true, reminders: true } });
+  assert.deepEqual(legacy.notifications, { device: false });
+  assert.deepEqual(Object.keys(legacy.notifications), ['device']);
+  // Sin la clave `device`, el aviso de equipos queda activo por defecto.
+  assert.deepEqual(normalizePreferences({ notifications: { agronomic: false, weather: false, sync: true } }).notifications, { device: true });
+  assert.deepEqual(normalizePreferences({ notifications: 'no es objeto' }).notifications, { device: true });
+});
+
+test('al serializar sólo se envía la categoría vigente', () => {
+  const legacy = normalizePreferences({ notifications: { agronomic: true, weather: true, sync: true, device: true } });
+  assert.deepEqual(serializePreferences(legacy).notifications, { device: true });
+  assert.deepEqual(DEFAULT_APP_PREFERENCES.notifications, { device: true });
 });

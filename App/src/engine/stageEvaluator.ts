@@ -96,6 +96,40 @@ const translateBaseAlert = (
   return alert;
 };
 
+/** Mensajes de estado del motor base (siempre en español) y su equivalente en inglés, conservando las cifras. */
+const METRIC_MESSAGES_EN: [RegExp, string][] = [
+  [/^Temperatura adecuada \((.+)°C ≥ (.+)°C mín\)$/, 'Adequate temperature ($1°C ≥ $2°C min)'],
+  [/^Suelo frío \((.+)°C < (.+)°C mín\)\.$/, 'Cold soil ($1°C < $2°C min).'],
+  [/^Temperatura en el límite \((.+)°C, mínimo (.+)°C\)$/, 'Temperature at the limit ($1°C, minimum $2°C)'],
+  [/^pH equilibrado \((.+)\) dentro del rango \((.+) - (.+)\)$/, 'Balanced pH ($1) within range ($2 - $3)'],
+  [/^Suelo fuertemente ácido \(pH (.+)\)$/, 'Strongly acidic soil (pH $1)'],
+  [/^Suelo ligeramente ácido \(pH (.+)\)$/, 'Slightly acidic soil (pH $1)'],
+  [/^Suelo alcalino \/ calcáreo \(pH (.+)\)$/, 'Alkaline / calcareous soil (pH $1)'],
+  [/^Conductividad óptima \((.+) µS\/cm ≤ (.+) µS\/cm\)$/, 'Optimal conductivity ($1 µS/cm ≤ $2 µS/cm)'],
+  [/^Salinidad crítica \((.+) µS\/cm\)\. Quema radicular asegurada\.$/, 'Critical salinity ($1 µS/cm). Root burn is certain.'],
+  [/^Salinidad moderada \((.+) µS\/cm\)\.$/, 'Moderate salinity ($1 µS/cm).'],
+  [/^Humedad óptima \((.+)% VWC en capacidad de campo\)$/, 'Optimal moisture ($1% VWC at field capacity)'],
+  [/^Suelo seco bajo Punto de Marchitez \((.+)% < (.+)%\)$/, 'Dry soil below the wilting point ($1% < $2%)'],
+  [/^Suelo saturado \/ encharcado \((.+)% VWC\)$/, 'Saturated / waterlogged soil ($1% VWC)'],
+  [/^Humedad bajo el umbral de riego \((.+)% < (.+)%\)$/, 'Moisture below the irrigation threshold ($1% < $2%)'],
+  [/^Humedad sobre Capacidad de Campo \((.+)% > (.+)%\)$/, 'Moisture above field capacity ($1% > $2%)'],
+  [/^Sin validar; no diagnostica nutrición$/, 'Unvalidated; does not diagnose nutrition'],
+  [/^Radiación normal$/, 'Normal radiation'],
+  [/^Alta radiación \((.+)k Lux\) - Evaporación superficial acelerada$/, 'High radiation ($1k Lux) - Accelerated surface evaporation'],
+  [/^Registro NPK sin validación química independiente\. .*$/, 'NPK record without independent chemical validation. A low EC does not prove accuracy or allow dosing fertilizers.'],
+  [/^Lectura poco confiable: con (.+) µS\/cm de conductividad, .*$/, 'Unreliable reading: at $1 µS/cm of conductivity, the probe may be reading salts (sodium, calcium) and reporting them as nutrients. Take it as a hint, not as data.'],
+];
+const translateMetricText = (text: string) => {
+  for (const [pattern, english] of METRIC_MESSAGES_EN) if (pattern.test(text)) return text.replace(pattern, english);
+  return text;
+};
+const translateMetrics = (metrics: AgronomicEvaluation['metrics']): AgronomicEvaluation['metrics'] =>
+  Object.fromEntries(Object.entries(metrics).map(([key, metric]) => [key, {
+    ...metric,
+    msg: translateMetricText(metric.msg),
+    ...(metric.confidenceNote ? { confidenceNote: translateMetricText(metric.confidenceNote) } : {}),
+  }])) as AgronomicEvaluation['metrics'];
+
 /** Umbrales de humedad para transitabilidad de maquinaria en cosecha. */
 
 export interface StageAwareEvaluation extends AgronomicEvaluation {
@@ -206,6 +240,7 @@ export function evaluateForStage(
 
   return {
     ...base,
+    metrics: language === 'en' ? translateMetrics(base.metrics) : base.metrics,
     verdict,
     verdictTitle: language === 'en' ? STAGE_TITLES_EN[stage][verdict] : STAGE_TITLES[stage][verdict],
     alerts: localizedAlerts,

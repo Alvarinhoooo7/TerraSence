@@ -212,7 +212,7 @@ function ReleaseRow({ release, onAction }: { release: Release; onAction: (p: Non
           {release.is_published ? (
             <>
               <Button variant="primary" icon={Send} onClick={() => onAction({ kind: 'send', release })}>
-                Enviar a todos
+                Asignar a todos
               </Button>
               <Button icon={ChevronDown} aria-expanded={open} onClick={() => setOpen((v) => !v)}>
                 {open ? 'Ocultar equipos' : 'Ver equipos'}
@@ -254,7 +254,7 @@ export function UpdatePage() {
       const { kind, release } = pending;
       if (kind === 'publish') {
         await publishRelease(release.id);
-        setNotice(`Versión ${release.version} publicada. Ya se puede enviar a un equipo o a todos.`);
+        setNotice(`Versión ${release.version} publicada. Ya se puede asignar a un equipo o a todos.`);
       } else if (kind === 'delete') {
         await deleteRelease(release.id);
         setNotice(`Borrador ${release.version} eliminado.`);
@@ -262,8 +262,8 @@ export function UpdatePage() {
         const result = await sendUpdateToAll(release.id);
         setNotice(
           result.sent === 0
-            ? 'Ningún equipo necesitaba esta versión: todos la tienen, tienen una más nueva, ya la recibieron o no tienen administrador.'
-            : `Versión ${release.version} enviada a ${result.sent} ${result.sent === 1 ? 'equipo' : 'equipos'}.` +
+            ? 'Ningún equipo necesitaba esta versión: todos la tienen, tienen una más nueva, ya la tienen asignada o no tienen administrador.'
+            : `Versión ${release.version} asignada a ${result.sent} ${result.sent === 1 ? 'equipo' : 'equipos'}.` +
                 (result.skipped ? ` ${result.skipped} no la necesitaban o no tienen administrador.` : ''),
         );
       }
@@ -280,12 +280,12 @@ export function UpdatePage() {
     publish: {
       title: `¿Publicar la versión ${pending?.release.version}?`,
       label: 'Publicar',
-      body: 'Quedará disponible para enviarla. Conviene probarla antes en un equipo desde su tarjeta Actualización.',
+      body: 'Quedará disponible para asignarla a los equipos. La instalación desde la app aún no está disponible.',
     },
     send: {
-      title: `¿Enviar la versión ${pending?.release.version} a todos?`,
-      label: 'Enviar a todos',
-      body: 'Le llegará al administrador de cada equipo con una versión anterior o sin versión informada. Los equipos que ya la tienen, tienen una más nueva o no tienen administrador se omiten.',
+      title: `¿Asignar la versión ${pending?.release.version} a todos?`,
+      label: 'Asignar a todos',
+      body: 'Quedará asignada a cada equipo con una versión anterior o sin versión informada. Los equipos que ya la tienen, tienen una más nueva o no tienen administrador se omiten. La instalación desde la app aún no está disponible.',
     },
     delete: {
       title: `¿Borrar el borrador ${pending?.release.version}?`,
@@ -299,8 +299,8 @@ export function UpdatePage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-ink">Update</h1>
         <p className="mt-1.5 max-w-2xl text-sm text-muted">
-          Carga una versión del firmware y envíala a todos los equipos. A cada administrador le llega un aviso en
-          la app para instalarla por BLE o dejarla pendiente.
+          Carga versiones del firmware y asígnalas a los equipos. La instalación desde la app aún está pendiente
+          de habilitación.
         </p>
       </div>
 
