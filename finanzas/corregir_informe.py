@@ -69,14 +69,18 @@ def sub(patron, reemplazo, etiqueta, flags=0):
 
 def exigir(patron, reemplazo, etiqueta, flags=re.S):
     """Correccion estructural. Si el ancla no aparece, basta con que el PDF ya traiga el texto
-    corregido; si tampoco lo trae, el espejo cambio y hay que revisar la correccion."""
+    corregido completo; si no, el espejo cambio y hay que revisar la correccion. Se compara el texto
+    entero y no su comienzo: un parrafo con la redaccion nueva y cifras viejas no cuenta como corregido."""
     if sub(patron, reemplazo, etiqueta, flags):
         return
 
     def plano(s):
         return re.sub(r"[\s*|]", "", s)
 
-    if callable(reemplazo) or plano(reemplazo)[:60] not in plano(texto):
+    if callable(reemplazo) or plano(reemplazo.replace("%%", "%")) not in plano(texto):
+        if os.environ.get("CORREGIR_LISTAR_FALLOS"):
+            print("FALLA:", etiqueta)
+            return
         raise SystemExit("No se encontró el ancla de la corrección «%s»" % etiqueta)
 
 
@@ -222,7 +226,7 @@ def tabla_completa(filas):
 exigir(r"^\| Especificación declarada \| Origen de la cifra.*?(?=^\*\*Tabla \d\.\d “\s*Estado Probatorio)",
        lambda m: tabla_completa(TABLA_PROBATORIO), "estado probatorio: tabla completa", re.S | re.M)
 
-exigir(r"Toda la electrónica de control está confirmada por hojas de datos.*?volumen de compra\.",
+exigir(r"(?:Toda la|La) electrónica de control está confirmada por hojas de datos.*?volumen de compra\.",
        "La electrónica de control está confirmada por hojas de datos de los componentes exactos, y la "
        "incertidumbre relevante se concentra en dos puntos: la sonda de suelo, que concentra además el %s "
        "del costo de materiales, y el consumo propio de la placa de desarrollo y del módulo de carga, que en "
@@ -491,7 +495,8 @@ sub(r"con comparación a cinco años, el marco norm(?!ativo)\s*\d*",
     "con comparación a cinco años, el marco normativo y el protocolo de validación experimental que "
     "sustentan su factibilidad técnica y económica.", "introducción truncada")
 # Filosofia: el segundo principio se repite tras el salto de pagina y falta el tercero de los cuatro
-exigir(r"capacidad de cálculo y memoria,\s*Fabricar un instrumento nuevo.*?(?=^- Cero Suscripciones Recurrentes)",
+# El PDF entregado ya trae el párrafo sin duplicar y los cuatro principios: la corrección queda opcional.
+sub(r"capacidad de cálculo y memoria,\s*Fabricar un instrumento nuevo.*?(?=^- Cero Suscripciones Recurrentes)",
        "capacidad de cálculo y memoria. Fabricar un instrumento nuevo que vuelva a incluir todas esas "
        "capacidades sería cobrarle dos veces al agricultor por algo que ya tiene. Por eso, el aparato físico se "
        "reduce a lo mínimo indispensable: hacer lo único que el teléfono no puede hacer por sí solo (tomar "
@@ -622,7 +627,7 @@ def tco(n):
 lab = [n for n in range(1, 11) if 200000 * n > tco(n)]
 ase = [n for n in range(1, 11) if 120000 * n > tco(n)]
 
-exigir(r"El diseño energético, basado en power gating.*?(?=\n)",
+exigir(r"El diseño energético(?:, basado en power gating| corta la alimentación de la sonda).*?(?=\n)",
        "El diseño energético corta la alimentación de la sonda fuera de cada lectura y apaga el equipo "
        "completo entre jornadas, y con ello sostiene aproximadamente %s semanas de uso habitual (%s "
        "mediciones) con una sola carga, sin el recambio constante de pilas primarias de los dos equipos de "
@@ -636,7 +641,7 @@ exigir(r"El diseño energético, basado en power gating.*?(?=\n)",
           num(autonomia(2, modulo=MODULO_VACIO + 1.0) / 7, 1)), "conclusión ingenieril: autonomía")
 
 # En el PDF este párrafo está partido en dos; se reemplaza hasta su cierre real.
-exigir(r"Desde la perspectiva económica, la evaluación a diez años.*?\$[\d.]+ aproximadamente\.",
+exigir(r"Desde la perspectiva económica, la evaluación a diez años.*?(?:\$[\d.]+ aproximadamente|si el precio baja de \$[\d.]+)\.",
        "Desde la perspectiva económica, la evaluación a diez años (2027–2036) entrega un resultado favorable "
        "bajo las condiciones declaradas, con cada partida abierta y trazable hasta su origen. **El precio es "
        "un resultado y no un supuesto**: se construyó primero la estructura completa de costos y el precio se "
@@ -660,7 +665,7 @@ exigir(r"Desde la perspectiva económica, la evaluación a diez años.*?\$[\d.]+
           p(M.precio_de_quiebre(R, "caja")), p(M.precio_de_quiebre(R, "van"))),
        "conclusión económica")
 
-exigir(r"Bajo la intensidad habitual, que es el caso base, el instrumento no se paga el primer año y cruza "
+exigir(r"Bajo la intensidad habitual, que es el caso base, el instrumento no se paga el primer año(?: y cruza |; cruza )"
        r".*?cada lectura cuesta \$[\d.]+",
        "Bajo la intensidad habitual, que es el caso base, el instrumento no se paga el primer año; cruza a "
        "favor en el año %d frente al laboratorio y en el año %d frente a la asesoría, aunque frente a esta "
