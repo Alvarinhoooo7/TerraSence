@@ -228,14 +228,14 @@ igual que la restricción `devices_device_code_15_digits`. La unicidad la garant
 
 ## 5. Edge Functions
 
-| Función | Autenticación | Qué hace | En producción (28-09-2026) |
+| Función | Autenticación | Qué hace | En producción (01-10-2026) |
 | :--- | :--- | :--- | :--- |
 | `request-device-access` | Sesión del usuario | Solicitud de acceso con el QR o con el código que se muestra debajo (el mismo token) y aviso al administrador. La app la llama en `requestDeviceAccess` | Desplegada el 28-09-2026 |
-| `send-push-alert` | Clave de servicio | Reserva entregas por instalación y procesa tickets y receipts de Expo | Nueva versión pendiente de despliegue |
+| `send-push-alert` | Clave `sb_secret_…` (la de `SUPABASE_SERVICE_ROLE_KEY`) | Reserva entregas por instalación y procesa tickets y receipts de Expo | Desplegada el 30-09-2026; el cron la llama desde el 01-10-2026 |
 | `backoffice-recover` | Pública (`verify_jwt = false`) | Envía el código de recuperación **solo** a la cuenta de soporte; responde igual a cualquier correo y antes de enviar | Desplegada |
-| `backoffice-send-update` | Sesión de soporte | Crea los envíos de firmware (uno o todos) | Nueva versión pendiente de despliegue |
-| `device-checkin` | Pública (`--no-verify-jwt`) | Recibe telemetría por HTTP y actualiza el estado del equipo. **Nadie la llama:** el firmware no usa Wi-Fi y la app escribe por PostgREST. Queda para integraciones | Nueva versión pendiente de despliegue |
-| `measurement-recommendation` | Sesión del usuario | Contrato para un proveedor externo de recomendaciones. Sin adaptador; la app no la invoca automáticamente | No desplegada (sin uso) |
+| `backoffice-send-update` | Sesión de soporte | Crea los envíos de firmware (uno o todos) | Desplegada el 30-09-2026 |
+| `device-checkin` | Pública (`--no-verify-jwt`) | Recibe telemetría por HTTP y actualiza el estado del equipo. **Nadie la llama:** el firmware no usa Wi-Fi y la app escribe por PostgREST. Queda para integraciones | Desplegada el 30-09-2026 |
+| `measurement-recommendation` | Sesión del usuario | Contrato para un proveedor externo de recomendaciones. Sin adaptador; la app no la invoca automáticamente | Desplegada; responde `PROVIDER_NOT_CONFIGURED` |
 
 `supabase functions list` da el estado real.
 

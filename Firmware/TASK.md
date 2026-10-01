@@ -45,7 +45,7 @@ Si la app muestra «No se pudo verificar la identidad de la sonda», la sonda ti
 | # | Tarea | Detalle |
 | :---: | :--- | :--- |
 | F1 | Driver Modbus RS-485 de la sonda 7-en-1 | Confirmar el mapa de registros con el proveedor; la consulta documentada `01 03 00 00 00 07 04 08` es una suposición. Encender la sonda por GATE, esperar a que se estabilice, controlar RTS y validar dirección, función, longitud y CRC. Ante fallo o timeout: error de sonda. Con lectura válida se llena `LecturaSuelo` y se envía la batería. |
-| F2 | Porcentaje de batería | Confirmar el divisor 100k/100k en el PCB armado, calibrar contra un multímetro, definir la curva tensión → % de la celda y validar el umbral de 3,40 V. |
+| F2 | Porcentaje de batería | Confirmar el divisor 100k/100k en el PCB armado, calibrar contra un multímetro, definir la curva tensión → % de la celda y validar el umbral de 3,40 V. La app avisa al 15 % y se rearma sobre 20 % ([`batteryWarning.ts`](../App/src/utils/batteryWarning.ts)); revisar ese umbral con la curva calibrada. |
 | F3 | Validar el BME280 | Conectar el sensor y comparar temperatura, humedad y presión con una referencia antes de dar por buenos sus valores. |
 | F4 | Reposo profundo | Despertar por IO33 (ext0), dormir tras desconectar. Definir si la sonda anuncia siempre o sólo tras una pulsación; la app asume que vuelve a reposo después de cada lectura. |
 | F5 | IO5 como pin de arranque | Comprobar con osciloscopio que el MOSFET no se activa durante el reset; si lo hace, agregar un pull-down o mover GATE a otro pin. |

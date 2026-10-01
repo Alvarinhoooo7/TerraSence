@@ -27,6 +27,10 @@ const iosPermissionStrings = (lang) => ({
 // (App/.env). Se admite además un .env en la raíz del repositorio, que es
 // donde resulta natural ponerlo cuando el mismo archivo sirve para la app, la
 // consola web y el CLI de Supabase. App/.env tiene prioridad si ambos existen.
+// Proyecto EAS de la app (cuenta alvarinhoo2001). No es un secreto: identifica el proyecto
+// para compilar y para pedir el token de Expo Push. La variable sólo sirve para probar otro.
+const EAS_PROJECT_ID = 'ac4799ff-9c98-4037-832f-0e62e0cfbe64';
+
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
@@ -38,6 +42,7 @@ export default () => ({
   expo: {
     name: 'TerraSense',
     slug: 'terrasense',
+    owner: 'alvarinhoo2001',
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/icon.png',
@@ -142,7 +147,7 @@ export default () => ({
     extra: {
       supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
-      eas: { projectId: process.env.EXPO_PUBLIC_EAS_PROJECT_ID },
+      eas: { projectId: process.env.EXPO_PUBLIC_EAS_PROJECT_ID || EAS_PROJECT_ID },
     },
   },
 });

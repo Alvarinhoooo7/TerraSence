@@ -550,9 +550,10 @@ separada al final, en rojo, con aviso si quedan mediciones pendientes.
   son estados dentro de la app, no avisos push. El diagnóstico del suelo y el pronóstico son
   parte de la medición. El firmware se consulta en Actualizaciones; su instalación todavía no
   está habilitada y no genera avisos.
-  El registro de Expo Push requiere `EXPO_PUBLIC_EAS_PROJECT_ID` con el ID real del
-  proyecto EAS en `App/.env` o en el entorno de compilación. Si falta, Ajustes muestra
-  el registro pendiente y permite reintentarlo tras configurar un binario válido.
+  El registro de Expo Push usa el ID del proyecto EAS fijado en `app.config.js`
+  (`EXPO_PUBLIC_EAS_PROJECT_ID` sólo lo reemplaza para probar otro proyecto). Android
+  necesita además las credenciales FCM del proyecto; mientras falten, Ajustes muestra el
+  registro pendiente y permite reintentarlo.
   La recuperación de contraseña invalida las instalaciones de toda la cuenta antes de
   guardar la contraseña y termina con cierre global. El servidor comprueba la sesión
   asociada a cada instalación al registrarla y despachar; un token de sesión revocada no

@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
+  AppState,
   BackHandler,
   StyleSheet,
   Switch,
@@ -38,6 +39,8 @@ import { PERMISSION_COPY, pick } from '../utils/permissionCopy';
 import { createAccountOperation } from '../utils/accountOperation';
 import { useAuthStore } from '../store/useAuthStore';
 import { localizeProbeError } from '../utils/probeErrors';
+import { checkLowBattery } from '../utils/batteryWarning';
+import { captureLocation, initialIncludeLocation, revalidateIncludeLocation, type LocationChoice } from '../utils/measureLocation';
 
 // Elección de incluir coordenadas y pronóstico, por instalación. Es distinta del permiso:
 // en Android anterior a 12 la ubicación también se concede para buscar la sonda.
@@ -74,6 +77,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   useResetGuide(phase);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [demoMode, setDemoMode] = useState(false);
+  const [lowBattery, setLowBattery] = useState<number | null>(null);
   const [raw, setRaw] = useState<SoilMeasurement | null>(null);
   const [evaluation, setEvaluation] = useState<StageAwareEvaluation | null>(null);
   const [capturedAt, setCapturedAt] = useState<string | null>(null);
@@ -96,14 +100,30 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     let active = true;
     void Promise.all([AsyncStorage.getItem(LOCATION_CHOICE_KEY).catch(() => null), readPermission('location')]).then(([choice, state]) => {
       if (!active) return;
-      const granted = state.status === 'granted';
-      // Sin elección guardada se conserva lo anterior: coordenadas si la ubicación ya estaba
-      // autorizada, salvo en Android antiguo, donde ese permiso existe por el Bluetooth.
-      const wanted = choice === null ? granted && !isLegacyAndroidBluetooth() : choice === 'on';
-      setIncludeLocation(wanted && granted);
+      setIncludeLocation(initialIncludeLocation(choice as LocationChoice, state.status === 'granted', isLegacyAndroidBluetooth()));
     });
     return () => { active = false; };
   }, []);
+
+  // El permiso puede revocarse en Ajustes del teléfono con esta pantalla abierta: al volver
+  // y antes de cada lectura se comprueba, y la opción se apaga con una nota en vez de
+  // quedar encendida sin efecto.
+  const includeLocationRef = useRef(includeLocation);
+  includeLocationRef.current = includeLocation;
+  const revalidateLocation = useCallback(async (): Promise<boolean> => {
+    if (!includeLocationRef.current) return false;
+    const state = await readPermission('location').catch(() => null);
+    const { include, lost } = revalidateIncludeLocation(includeLocationRef.current, state?.status === 'granted');
+    if (lost) {
+      setIncludeLocation(false);
+      setLocationNote(t('Se retiró el permiso de ubicación: esta lectura se guardará sin coordenadas.', 'Location permission was removed: this reading will be saved without coordinates.'));
+    }
+    return include;
+  }, [t]);
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (next) => { if (next === 'active') void revalidateLocation(); });
+    return () => subscription.remove();
+  }, [revalidateLocation]);
 
   const toggleLocation = useCallback(async (value: boolean) => {
     if (locationBusy) return;
@@ -162,6 +182,8 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
         return;
       }
     }
+    const withLocation = await revalidateLocation();
+    if (!active()) { reading.current = false; return; }
     context.current = snapshot;
     saved.current = false;
     setPhase('connecting');
@@ -170,19 +192,17 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     const current = () => request === weatherRequest.current && active();
     setWeather(null);
     setWeatherLoading(false);
+    setLowBattery(null);
     try {
       const connection = await verifySoilProbe(snapshot.device?.device_code ?? null, active, active.signal);
       if (!current()) return;
       if (!connection.connected) throw new Error(connection.message ?? t('No se pudo conectar con la sonda.', 'Could not connect to the probe.'));
       setDemoMode(connection.simulated);
       setPhase('reading');
-      const [position, probe] = await Promise.all([
-        includeLocation
-          ? Promise.race([Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }).catch(() => null), new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000))])
-          : Promise.resolve(null),
+      const [nextCoords, probe] = await Promise.all([
+        captureLocation(withLocation, () => Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High })),
         readSoilProbe(snapshot.device?.device_code ?? null, active, active.signal).then(probe => ({ ...probe, capturedAt: new Date().toISOString() })),
       ]);
-      const nextCoords = position?.coords ?? null;
       const nextWeather = null;
       if (!current()) return;
       setCapturedAt(probe.capturedAt);
@@ -194,6 +214,13 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       setEvaluation(nextEvaluation);
       setAdvice(buildContextualAdvice(stage, nextEvaluation, probe.data, nextWeather, preferences.language));
       setPhase('result');
+      // Batería baja: aviso dentro de la app, una vez por equipo (utils/batteryWarning).
+      // Una lectura simulada no informa la batería real.
+      if (!connection.simulated && !probe.simulated) {
+        const battery = probe.data.battery;
+        void checkLowBattery(AsyncStorage, useAuthStore.getState().session?.user.id, snapshot.device?.device_code, battery)
+          .then((warn) => { if (warn && current()) setLowBattery(battery); });
+      }
       if (nextCoords) {
         setWeatherLoading(true);
         void fetchCurrentWeather(nextCoords.latitude, nextCoords.longitude).then((forecast) => {
@@ -211,7 +238,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     } finally {
       reading.current = false;
     }
-  }, [cropId, device, includeLocation, language, preferences.language, stage, t, textureId]);
+  }, [cropId, device, language, preferences.language, revalidateLocation, stage, t, textureId]);
 
   const presentation = useMemo(() => raw && evaluation && advice ? buildMeasurementPresentation(raw, evaluation, advice, language) : null, [raw, evaluation, advice, language]);
 
@@ -428,6 +455,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       {header}
       <ScrollView contentContainerStyle={styles.scroll}>
         {demoMode && <View style={[styles.demoBanner, { backgroundColor: colors.warning }]}><Text style={styles.demoText}>{t('DATOS SIMULADOS · NO USAR PARA DECISIONES REALES', 'SIMULATED DATA · DO NOT USE FOR REAL DECISIONS')}</Text></View>}
+        {lowBattery != null && <View accessibilityRole="alert" style={[styles.demoBanner, { backgroundColor: colors.warning }]}><Text style={styles.demoText}>{t(`BATERÍA BAJA (${lowBattery} %) · CARGA LA SONDA ANTES DE LA PRÓXIMA SALIDA`, `LOW BATTERY (${lowBattery}%) · CHARGE THE PROBE BEFORE YOUR NEXT TRIP`)}</Text></View>}
         <Text style={[styles.eyebrow, { color: colors.primary }]}>{t('RESULTADOS', 'RESULTS')} · {stageLabel(stage)}</Text>
         <Text style={[styles.pageTitle, { color: colors.text }]}>{t('Explora cada lectura', 'Explore each reading')}</Text>
         <Text style={[styles.pageBody, { color: colors.textSecondary }]}>{t('Toca una tarjeta para entender el dato y ver un consejo breve.', 'Tap a card to understand the value and see brief advice.')}</Text>

@@ -59,7 +59,7 @@ Arriba, la búsqueda para saltar a otro equipo. Debajo, una tarjeta por tema; ca
 3. **Asignar a todos:** a cada equipo con administrador y versión anterior o desconocida. Se omiten los que ya la tienen, los que tienen una más nueva y los que no tienen administrador.
 4. **Seguimiento** por versión: pendientes, instalando, instaladas y fallidas, con la lista de equipos.
 
-Cada envío asigna la versión al equipo mediante [`backoffice-send-update`](../supabase/functions/backoffice-send-update/index.ts). Los avisos push de firmware quedan desactivados mientras no exista una acción funcional para instalarla. La ventana Actualizar/Cancelar de la app y la instalación por BLE son las fases 7 y 8 de [TAREAS.md](TAREAS.md). El plan vigente de avisos de acceso está en [TASK_PERMISSIONS.md](../App/TASK_PERMISSIONS.md#implementación-vigente-notificaciones-de-equipos).
+Cada envío asigna la versión al equipo mediante [`backoffice-send-update`](../supabase/functions/backoffice-send-update/index.ts). Los avisos push de firmware quedan desactivados mientras no exista una acción funcional para instalarla. La ventana Actualizar/Cancelar de la app y la instalación por BLE son las fases 7 y 8 de [TAREAS.md](TAREAS.md). El contrato vigente de avisos de acceso está en [ADMINISTRACION.md](../supabase/ADMINISTRACION.md); sus pendientes, en [TASK_PERMISSIONS.md](../App/TASK_PERMISSIONS.md).
 
 ## 3. Datos y seguridad
 

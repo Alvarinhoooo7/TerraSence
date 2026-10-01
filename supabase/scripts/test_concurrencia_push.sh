@@ -15,8 +15,11 @@
 #      ticket tardío del primer trabajador se ignora.
 #   4. Dos informes simultáneos del mismo ticket dejan un solo ticket, sin errores.
 #   5. Una entrega con ticket aceptado no vuelve a reservarse.
-#   6. Preferencia, permiso y membresía que cambian desde otra conexión con envíos en vuelo cancelan
-#      lo que corresponde, dejan las demás y los tickets tardíos no reviven nada.
+#   6. Preferencia, permiso, sesión Auth y membresía que cambian desde otra conexión con envíos
+#      en vuelo cancelan lo que corresponde, dejan las demás y los tickets tardíos no reviven nada.
+#
+# Desde 20260930120000 una instalación sólo es elegible si conserva la sesión Auth que la
+# registró: los teléfonos de prueba comparten una sesión del administrador.
 #
 # Deja la base como la encontró: sus filas de prueba se borran siempre, aun si algo falla. Se
 # niega a correr si ya hay entregas en la base (usa una réplica recién creada con
@@ -31,6 +34,7 @@ CONTENEDOR="${SUPABASE_DB_CONTAINER:-supabase_db_TerraSense}"
 ADMIN='c0c0c0c0-0000-4000-8000-000000000001'
 SOLICITANTE='c0c0c0c0-0000-4000-8000-000000000002'
 EQUIPO='c0c0c0c0-0000-4000-8000-0000000000d1'
+SESION='c0c0c0c0-0000-4000-8000-0000000000e1'
 SERVICIO="select set_config('request.jwt.claims', '{\"role\":\"service_role\"}', false);"
 TMP="$(mktemp -d)"
 FALLAS=0
@@ -56,6 +60,7 @@ commit;
 SQL
   local restos
   restos="$(consulta "select (select count(*) from auth.users where id in ('$ADMIN','$SOLICITANTE'))
+    + (select count(*) from auth.sessions where id = '$SESION')
     + (select count(*) from public.devices where id = '$EQUIPO')
     + (select count(*) from public.push_alerts where device_id = '$EQUIPO')
     + (select count(*) from public.push_installations where expo_push_token like 'ExpoPushToken[conc%')")"
@@ -82,6 +87,9 @@ esperar_sesion_dormida() { # application_name segundos
 }
 # Los archivos de salida pueden traer CRLF (docker en Windows): se quita al leerlos.
 uuids() { tr -d '\r' < "$1" | grep -E '^[0-9a-f]{8}-[0-9a-f]{4}-' | sort; }
+# Lista SQL con los IDs de la primera columna. Vacía da `null`: `in (null)` no coincide con nada,
+# así una reserva que no ocurrió falla en su verificación y no como error de sintaxis.
+ids_de() { awk '{printf "%s'"'"'%s'"'"'", (NR > 1 ? "," : ""), $1} END { if (NR == 0) printf "null" }' "$1"; }
 
 # ---------------------------------------------------------------------------
 echo "== Preparación =="
@@ -97,10 +105,11 @@ if ! psql_ >/dev/null <<SQL
 insert into auth.users(id, instance_id, aud, role, email, encrypted_password, email_confirmed_at) values
   ('$ADMIN', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'concurrencia-admin@example.test', 'x', now()),
   ('$SOLICITANTE', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'concurrencia-solicitante@example.test', 'x', now());
+insert into auth.sessions(id, user_id, created_at, updated_at) values ('$SESION', '$ADMIN', now(), now());
 insert into public.devices(id, device_code, name) values ('$EQUIPO', '990000000000001', 'Prueba de concurrencia');
 insert into public.device_members(device_id, user_id, role, is_authorized) values ('$EQUIPO', '$ADMIN', 'admin', true);
-insert into public.push_installations(id, user_id, secret_hash, platform, permission, expo_push_token)
-  select gen_random_uuid(), '$ADMIN', repeat('a', 64), 'android', 'granted', 'ExpoPushToken[conc' || n || ']'
+insert into public.push_installations(id, user_id, session_id, secret_hash, platform, permission, expo_push_token)
+  select gen_random_uuid(), '$ADMIN', '$SESION', repeat('a', 64), 'android', 'granted', 'ExpoPushToken[conc' || n || ']'
   from generate_series(1, 10) n;
 -- La solicitud crea el evento y su destinatario (el administrador); 10 teléfonos = 10 entregas.
 insert into public.device_members(device_id, user_id, role, is_authorized) values ('$EQUIPO', '$SOLICITANTE', 'user', false);
@@ -172,7 +181,7 @@ echo "== 3. Reserva confirmada, «llamada a Expo» y muerte sin guardar el ticke
 reiniciar_entregas
 consulta "$SERVICIO select delivery_id || ' ' || lease_id from public.reserve_push_deliveries(2)" | grep -E '^[0-9a-f]{8}-' > "$TMP/w1.txt"
 verifica "$(wc -l < "$TMP/w1.txt" | tr -d ' ')" 2 "el primer trabajador reservó dos y murió antes de informar (su ticket nunca se guarda)"
-IDS_W="$(awk '{printf "%s'"'"'%s'"'"'", (NR > 1 ? "," : ""), $1}' "$TMP/w1.txt")"
+IDS_W="$(ids_de "$TMP/w1.txt")"
 verifica "$(consulta "$SERVICIO select count(*) from public.reserve_push_deliveries(100) where delivery_id in ($IDS_W)" | tail -1)" 0 "mientras el lease sigue vigente nadie más las toma"
 if [ "${ESPERA_REAL_LEASE:-0}" = "1" ]; then
   echo "  (esperando 125 s a que venza el lease de verdad)"; sleep 125
@@ -214,7 +223,7 @@ echo "== 5. Una entrega con ticket aceptado no vuelve a reservarse =="
 psql_ -c "update public.push_deliveries set next_attempt_at = now() - interval '1 hour', leased_until = now() - interval '1 hour' where id = '$D1'" > /dev/null
 verifica "$(consulta "$SERVICIO select count(*) from public.reserve_push_deliveries(100) where delivery_id = '$D1'" | tail -1)" 0 "ni con la espera y el lease vencidos"
 
-echo "== 6. Preferencia, permiso y membresía cambian con envíos en curso (otras conexiones, confirmadas) =="
+echo "== 6. Preferencia, permiso, sesión y membresía cambian con envíos en curso (otras conexiones, confirmadas) =="
 PREF_APAGADA="update public.profiles set app_preferences = jsonb_set(coalesce(app_preferences, '{}'::jsonb), '{notifications,device}', 'false') where id = '$ADMIN'"
 PREF_ACTIVA="update public.profiles set app_preferences = jsonb_set(coalesce(app_preferences, '{}'::jsonb), '{notifications,device}', 'true') where id = '$ADMIN'"
 reservar_a_archivo() { # cantidad archivo: reserva confirmada (el trabajador ya «llama a Expo»)
@@ -225,7 +234,6 @@ ticket_tardio() { # archivo etiqueta: el trabajador informa sus tickets cuando y
   while read -r d l; do n=$((n + 1)); consulta "$SERVICIO select public.report_push_ticket('$d', '$l', '$2-$n')" > /dev/null < /dev/null; done < "$1"
 }
 estados() { consulta "select string_agg(state || ':' || coalesce(last_error, '-') || ':' || (ticket_id is not null), ',' order by id) from public.push_deliveries where id in ($1)"; }
-ids_de() { awk '{printf "%s'"'"'%s'"'"'", (NR > 1 ? "," : ""), $1}' "$1"; }
 
 # 6a. La preferencia se apaga mientras otro despachador aún no confirma su reserva.
 reiniciar_entregas
@@ -261,7 +269,18 @@ ticket_tardio "$TMP/m.txt" TICKET-PERM
 verifica "$(consulta "select count(*) filter (where state = 'cancelled' and ticket_id is null) || '/' || count(*) filter (where state = 'ticket_ok') from public.push_deliveries where id in ($(ids_de "$TMP/m.txt"))")" "3/7" "las siete vigentes guardan su ticket y las tres canceladas lo ignoran"
 psql_ -c "update public.push_installations set permission = 'granted' where expo_push_token like 'ExpoPushToken[conc%'" > /dev/null
 
-# 6c. La solicitud se aprueba (desde otra conexión) con los envíos reservados.
+# 6c. Se revoca la sesión Auth de los teléfonos (cierre global) con las diez entregas reservadas.
+reiniciar_entregas
+reservar_a_archivo 10 "$TMP/s.txt"
+verifica "$(wc -l < "$TMP/s.txt" | tr -d ' ')" 10 "diez entregas en vuelo antes del cierre global"
+psql_ -c "delete from auth.sessions where id = '$SESION'" > /dev/null
+verifica "$(consulta "$SERVICIO select count(*) from public.reserve_push_deliveries(100)" | tail -1)" 0 "sin sesión vigente nadie reserva y el mantenimiento se aplica"
+verifica "$(consulta "select count(*) from public.push_deliveries where id in ($(ids_de "$TMP/s.txt")) and state = 'cancelled'")" 10 "el cierre global cancela los diez envíos en vuelo"
+ticket_tardio "$TMP/s.txt" TICKET-SES
+verifica "$(consulta "select count(*) from public.push_deliveries where id in ($(ids_de "$TMP/s.txt")) and ticket_id is not null")" 0 "ningún ticket tardío revive un envío de una sesión revocada"
+psql_ -c "insert into auth.sessions(id, user_id, created_at, updated_at) values ('$SESION', '$ADMIN', now(), now())" > /dev/null
+
+# 6d. La solicitud se aprueba (desde otra conexión) con los envíos reservados.
 reiniciar_entregas
 reservar_a_archivo 10 "$TMP/n.txt"
 psql_ -c "update public.device_members set is_authorized = true where device_id = '$EQUIPO' and user_id = '$SOLICITANTE'" > /dev/null
