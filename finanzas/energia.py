@@ -24,6 +24,13 @@ DIVISOR_1M = V_BAT / 2000.0                         # mA, alternativa 1 MΩ + 1 
 MODULO_VACIO = 0.100                                # mA, extremo superior de 30–100 µA
 AUTODESCARGA = 2000 * 0.02 / 30 * V_BAT             # mWh/día (2 % mensual)
 ESPERA_ESP32, SONDA_MW, POLARIZACION_MW = 18.0, 150.0, 2.5
+ESPERA_SIN_REPOSO = 40.0                            # mA: firmware actual, BLE anunciando sin reposo (F4 pendiente)
+# Avisos al usuario que emite el firmware. Corrientes estimadas, sin medir en banco: el buzzer pasivo
+# 9042 va directo al GPIO con onda cuadrada (≈30 mA de promedio; pendiente H1) y cada LED con 330 Ω
+# toma ≈1 mA (verde y azul) o ≈4 mA (rojo). Duraciones exactas del firmware.
+BUZZER_MA, LED_VERDE_MA = 30.0, 1.0
+AVISO_MEDICION = 0.160 * BUZZER_MA + 0.360 * LED_VERDE_MA   # mA·s: dos pitidos (70 + 90 ms) y tres destellos de 120 ms
+AVISO_ENCENDIDO = 0.080 * BUZZER_MA + 1.0 * LED_VERDE_MA    # mA·s: un pitido de 80 ms y el LED verde 1 s
 JORNADA_H, MEDICIONES = 2, 10
 FASES = [  # fase, duracion s, corriente de la rama de 3,3 V (mA), potencia de la rama de 5 V (mW)
     ("1. Publicidad y conexión", 12, 40.0, 0.0),
@@ -37,22 +44,29 @@ def desde_bateria(i33, p5=0.0, propio=PROPIO_PLACA):
     return (V5 * (i33 + propio) + p5) / ETA
 
 
+def aviso(mas):
+    """mWh desde la batería de un aviso (mA·s en la rama de 3,3 V), sin repetir el consumo propio."""
+    return V5 * mas / ETA / 3600.0
+
+
 def ciclo(propio=PROPIO_PLACA):
-    return sum(desde_bateria(i, p5, propio) * s for _, s, i, p5 in FASES) / 3600.0
+    return sum(desde_bateria(i, p5, propio) * s for _, s, i, p5 in FASES) / 3600.0 + aviso(AVISO_MEDICION)
 
 
-def jornada(horas=JORNADA_H, propio=PROPIO_PLACA):
+def jornada(horas=JORNADA_H, propio=PROPIO_PLACA, espera=ESPERA_ESP32):
     duracion = 16 * MEDICIONES
-    return (horas * 3600 - duracion) * desde_bateria(ESPERA_ESP32, 0, propio) / 3600 + MEDICIONES * ciclo(propio)
+    return ((horas * 3600 - duracion) * desde_bateria(espera, 0, propio) / 3600 + MEDICIONES * ciclo(propio)
+            + aviso(AVISO_ENCENDIDO))
 
 
 def apagado(divisor=DIVISOR, modulo=MODULO_VACIO):
     return V_BAT * (divisor + modulo)                # mW con el interruptor abierto
 
 
-def autonomia(jornadas_semana, horas=JORNADA_H, propio=PROPIO_PLACA, divisor=DIVISOR, modulo=MODULO_VACIO):
+def autonomia(jornadas_semana, horas=JORNADA_H, propio=PROPIO_PLACA, divisor=DIVISOR, modulo=MODULO_VACIO,
+              espera=ESPERA_ESP32):
     """Días que dura una carga con el patrón de uso dado."""
-    semana = (jornadas_semana * jornada(horas, propio)
+    semana = (jornadas_semana * jornada(horas, propio, espera)
               + (168 - jornadas_semana * horas) * apagado(divisor, modulo) + 7 * AUTODESCARGA)
     return E_UTIL / semana * 7
 
@@ -98,11 +112,17 @@ filas_nodo = [["Fase", "Componente", "Nodo / tensión", "Corriente en el nodo", 
               ["", "Polarización del corte de la sonda (10 kΩ)", "5 V (elevador, η≈0,85)", "0,5 mA", "2,5 mW",
                "%s mW" % num(POLARIZACION_MW / ETA)],
               ["3. Envío del resultado", "ESP32 transmitiendo BLE", "3,3 V (regulador de la placa)", "150 mA",
-               "495 mW", "%s mW" % num(V5 * 150 / ETA)]]
+               "495 mW", "%s mW" % num(V5 * 150 / ETA)],
+              ["4. Aviso al usuario", "Buzzer pasivo 9042 (dos pitidos, 160 ms; estimado)", "3,3 V (salida del microcontrolador)",
+               "%s mA" % num(BUZZER_MA, 0), "%s mW" % num(3.3 * BUZZER_MA), "%s mW" % num(V5 * BUZZER_MA / ETA)],
+              ["", "LED verde con 330 Ω (tres destellos, 360 ms)", "3,3 V (salida del microcontrolador)",
+               "%s mA" % num(LED_VERDE_MA, 0), "%s mW" % num(3.3 * LED_VERDE_MA), "%s mW" % num(V5 * LED_VERDE_MA / ETA)]]
 filas_ciclo = [["Fase Operativa", "Potencia desde la batería", "Duración", "Energía por ciclo"]]
 for nombre, s, i, p5 in FASES:
     pot = desde_bateria(i, p5)
     filas_ciclo.append([nombre, "%s mW" % num(pot), "%d s" % s, "%s mWh" % num(pot * s / 3600, 3)])
+filas_ciclo.append(["4. Aviso al usuario (buzzer y LED verde)", "%s mW" % num(V5 * BUZZER_MA / ETA),
+                    "0,36 s, simultáneo al envío", "%s mWh" % num(aviso(AVISO_MEDICION), 3)])
 filas_ciclo.append(["Total por ciclo", "Variable", "16 s", "%s mWh" % num(E_CICLO, 3)])
 
 ESCENARIOS = [
@@ -124,6 +144,8 @@ SENSIBILIDAD = [
     ("Fuga no identificada de 1 mA con el equipo apagado", autonomia(2, modulo=MODULO_VACIO + 1.0)),
     ("Jornadas de 4 h en lugar de 2 h", autonomia(2, horas=4)),
     ("Divisor de batería de 1 MΩ + 1 MΩ", DIAS_1M),
+    ("ESP32 sin reposo con BLE anunciando (%s mA en espera, firmware actual)" % num(ESPERA_SIN_REPOSO, 0),
+     autonomia(2, espera=ESPERA_SIN_REPOSO)),
 ]
 filas_sens = [["Variación sobre el uso habitual", "Autonomía con una carga", "Cambio frente al diseño adoptado"]]
 for nombre, d in SENSIBILIDAD:

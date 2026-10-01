@@ -127,7 +127,7 @@ python -m unittest discover -s finanzas -p "test_*.py"   # pruebas del modelo fi
 TerraSense está planteado como un proyecto económicamente sustentable y escalable:
 - **Modelo de ingreso:** venta directa del hardware con IVA incluido. La app y el diagnóstico local no tienen suscripción.
 - **Precio:** se **deriva** del costo total con un margen exigido del 30 %; no es un supuesto de entrada.
-- **Costos y margen:** la sonda RS-485 concentra el 67,9 % de la BOM. El ensamblaje se paga en la nómina y no se duplica como costo variable.
+- **Costos y margen:** la sonda RS-485 concentra el 63,0 % de la BOM. El ensamblaje se paga en la nómina y no se duplica como costo variable.
 - **Financiamiento:** el pie de los socios se entrega al banco como condición de entrada y el crédito financia el 100 % de la inversión inicial. Pie y crédito **no se suman** como fuentes.
 - **Evaluación:** flujos anuales sobre 10 años (2027–2036), sin valor terminal, con depreciación, amortización del activo nominal y tabla de amortización del crédito por sistema francés.
 
@@ -137,17 +137,17 @@ TerraSense está planteado como un proyecto económicamente sustentable y escala
 
 ## Finanzas y modelo económico
 
-**El precio no es un supuesto: es un resultado.** Se construye primero la estructura completa de costos e inversión y el precio se deriva de ella exigiendo un 30 % de utilidad sobre el costo total. Precio de lista resultante: **$450.929 CLP con IVA** ($378.932 netos). Evaluación a diez años, 2027–2036, con tasa de descuento del 20 % anual.
+**El precio no es un supuesto: es un resultado.** Se construye primero la estructura completa de costos e inversión y el precio se deriva de ella exigiendo un 30 % de utilidad sobre el costo total. Precio de lista resultante: **$460.856 CLP con IVA** ($387.274 netos). Evaluación a diez años, 2027–2036, con tasa de descuento del 20 % anual.
 
 ### BOM por equipo
 
 | Componente | Cant. | Neto unitario | Subtotal |
 |---|---:|---:|---:|
 | Sonda de suelo 7-en-1 RS-485 Modbus RTU | 1 | $48.000 | $48.000 |
-| Carcasa PETG impresa en taller propio | 1 | $6.900 | $6.900 |
-| Placa de desarrollo ESP32 DevKit WROOM-32 | 1 | $4.800 | $4.800 |
+| Carcasa PETG impresa en taller propio (110 × 100 × 40 mm) | 1 | $7.196 | $7.196 |
+| Placa de desarrollo ESP32 DevKitC con módulo WROOM-32D (antena impresa) | 1 | $4.800 | $4.800 |
 | Batería LiPo 3,7 V 2.000 mAh con protección | 1 | $4.400 | $4.400 |
-| PCB portadora de 2 capas, fabricación y envío (sin ensamblar) | 1 | $2.854 | $2.854 |
+| PCB portadora de 2 capas, 99,9 × 90 mm, fabricación y envío (sin ensamblar) | 1 | $3.000 | $3.000 |
 | Módulo ambiental BME280 (I²C) | 1 | $1.050 | $1.050 |
 | Módulo de carga USB-C y elevación a 5 V | 1 | $900 | $900 |
 | Módulo transceptor SP3485 RS-485 3,3 V | 1 | $900 | $900 |
@@ -166,13 +166,22 @@ TerraSense está planteado como un proyecto económicamente sustentable y escala
 | Fusible 1 A (0603) | 1 | $19 | $19 |
 | Diodo rectificador M7 (SMA), protección contra inversión | 1 | $4 | $4 |
 | Flete de los componentes LCSC, prorrateado por equipo | 1 | $150 | $150 |
-| **Total BOM neto** | | | **$70.666** |
+| Interruptor de palanca mini de panel (rosca 6 mm) con capuchón estanco | 1 | $500 | $500 |
+| Prensaestopa PG7 IP68 con tuerca (salida del cable de la sonda) | 1 | $390 | $390 |
+| Respiradero M12 × 1,5 con membrana ePTFE (ventilación del BME280) | 1 | $950 | $950 |
+| Tapón de silicona para el puerto USB-C | 1 | $200 | $200 |
+| Inserto roscado M3 de latón para la tapa | 4 | $25 | $100 |
+| Tornillería: 4 tornillos M3 inoxidables de cierre y 4 tornillos M2 con separador para la PCB | 1 | $800 | $800 |
+| Cordón de silicona de 2 mm para la junta de la tapa (≈ 45 cm) | 1 | $300 | $300 |
+| Cableado interno: cable de silicona 22 AWG y termorretráctil | 1 | $300 | $300 |
+| Embalaje: caja de cartón, manual impreso y etiqueta | 1 | $1.500 | $1.500 |
+| **Total BOM neto** | | | **$76.148** |
 
-La BOM contiene **exclusivamente los componentes presentes en el esquemático**. Los módulos y la batería se cotizaron en AliExpress con envío Choice a Chile; los discretos en LCSC. La sonda de suelo concentra el 67,9 % del costo de materiales y es la decisión de abastecimiento crítica del proyecto.
+La BOM contiene **exclusivamente los componentes presentes en el esquemático**. Los módulos y la batería se cotizaron en AliExpress con envío Choice a Chile; los discretos en LCSC. La sonda de suelo concentra el 63,0 % del costo de materiales y es la decisión de abastecimiento crítica del proyecto.
 
 > Quedan **fuera de la BOM** por no estar todavía en el esquemático ni en el diseño mecánico cerrado: prensaestopas M12, o-ring y respiradero del BME280, cableado interno, y embalaje con manual y etiqueta. Su orden de magnitud conjunto es de $4.000 a $5.000 por equipo.
 
-Sumando merma (3 %), provisión de reposiciones y garantía (5 %) y envío, el costo variable por equipo antes de comisión es **$82.319**. La carcasa se imprime en taller propio: las dos impresoras 3D están en el activo fijo y el filamento, la merma, la energía y la mantención se cargan al costo unitario.
+Sumando merma (3 %), provisión de reposiciones y garantía (5 %) y envío, el costo variable por equipo antes de comisión es **$88.240**. La carcasa se imprime en taller propio: las dos impresoras 3D están en el activo fijo y el filamento, la merma, la energía y la mantención se cargan al costo unitario.
 
 ### Inversión inicial y financiamiento
 
@@ -181,12 +190,12 @@ Sumando merma (3 %), provisión de reposiciones y garantía (5 %) y envío, el c
 | Equipamiento y activo fijo | $9.000.000 |
 | Activo nominal (puesta en marcha) | $5.200.000 |
 | Capital de trabajo (3,0 meses de estructura) | $12.839.785 |
-| Inventario inicial | $2.743.976 |
-| **Inversión inicial total** | **$29.783.761** |
-| Crédito bancario a 10 años, 12 % efectivo anual | $29.783.761 |
-| Pie propio exigido (30 % del crédito) | $8.935.128 |
-| Aporte por socio | $4.467.564 |
-| Cuota mensual (sistema francés) | $416.815 |
+| Inventario inicial | $2.941.328 |
+| **Inversión inicial total** | **$29.981.113** |
+| Crédito bancario a 10 años, 12 % efectivo anual | $29.981.113 |
+| Pie propio exigido (30 % del crédito) | $8.994.334 |
+| Aporte por socio | $4.497.167 |
+| Cuota mensual (sistema francés) | $419.577 |
 
 **El pie no es una fuente adicional de fondos.** Los socios lo entregan al banco como condición de entrada y es el crédito el que financia el 100 % de la inversión inicial; sumar pie más crédito cuenta dos veces el mismo dinero. El capital de trabajo no se fijó por regla sino iterando hasta que la caja nunca baje de un piso de seguridad, con un mínimo de política de 3 meses de estructura.
 
@@ -194,30 +203,30 @@ Sumando merma (3 %), provisión de reposiciones y garantía (5 %) y envío, el c
 
 | Año | Equipos | Ventas netas | Utilidad del ejercicio | Flujo de fondos | Caja acumulada |
 |---|---:|---:|---:|---:|---:|
-| 2027 | 200 | $75.786.311 | $-2.690.551 | $-1.547.754 | $11.292.031 |
-| 2028 | 350 | $136.604.826 | $-2.210.632 | $-1.271.499 | $10.020.532 |
-| 2029 | 500 | $201.004.244 | $12.433.259 | $13.144.288 | $23.164.821 |
-| 2030 | 650 | $269.144.683 | $28.598.553 | $29.054.105 | $52.218.926 |
-| 2031 | 850 | $362.517.185 | $66.750.705 | $66.920.123 | $119.139.049 |
-| 2032 | 892 | $391.842.693 | $67.313.735 | $55.975.911 | $175.114.960 |
-| 2033 | 937 | $423.958.858 | $79.061.377 | $77.798.093 | $252.913.053 |
-| 2034 | 984 | $458.581.410 | $92.118.142 | $90.452.861 | $343.365.914 |
-| 2035 | 1033 | $495.859.791 | $94.690.554 | $92.575.036 | $435.940.950 |
-| 2036 | 1085 | $536.445.411 | $110.393.983 | $107.774.199 | $543.715.149 |
+| 2027 | 200 | $77.454.707 | $-2.327.433 | $-1.195.882 | $11.643.903 |
+| 2028 | 350 | $139.612.110 | $-1.537.190 | $-610.653 | $11.033.250 |
+| 2029 | 500 | $205.429.248 | $12.925.709 | $13.622.631 | $24.655.881 |
+| 2030 | 650 | $275.069.763 | $29.611.040 | $30.050.793 | $54.706.674 |
+| 2031 | 850 | $370.497.811 | $68.120.382 | $68.272.105 | $122.978.779 |
+| 2032 | 892 | $400.468.905 | $68.796.741 | $57.439.098 | $180.417.876 |
+| 2033 | 937 | $433.292.090 | $80.668.535 | $79.383.054 | $259.800.930 |
+| 2034 | 984 | $468.676.840 | $93.859.217 | $92.169.075 | $351.970.005 |
+| 2035 | 1033 | $506.775.886 | $96.575.904 | $94.432.541 | $446.402.546 |
+| 2036 | 1085 | $548.254.977 | $112.436.478 | $109.785.509 | $556.188.055 |
 
-Los ejercicios 2027 y 2028 cierran con pérdida: con 200 y 350 equipos la estructura mínima para operar formalmente todavía no se cubre. Esa pérdida está financiada por el capital de trabajo y la caja nunca baja de $10.020.532.
+Los ejercicios 2027 y 2028 cierran con pérdida: con 200 y 350 equipos la estructura mínima para operar formalmente todavía no se cubre. Esa pérdida está financiada por el capital de trabajo y la caja nunca baja de $11.033.250.
 
 ### VAN, TIR y payback
 
 | Indicador | Valor | Criterio | Veredicto |
 |---|---:|---|---|
-| VAN al 20 % | $113.397.717 | VAN > 0 | Cumple |
-| TIR efectiva anual | 53,43 % | TIR > 20 % | Cumple |
-| Payback simple | 3,67 años | ≤ 5 años | Cumple |
-| Payback descontado | 4,38 años | ≤ 5 años | Cumple |
+| VAN al 20 % | $117.269.640 | VAN > 0 | Cumple |
+| TIR efectiva anual | 54,37 % | TIR > 20 % | Cumple |
+| Payback simple | 3,60 años | ≤ 5 años | Cumple |
+| Payback descontado | 4,33 años | ≤ 5 años | Cumple |
 | Deuda al cierre de 2036 | $0 | Crédito saldado | Cumple |
 
-**Punto de quiebre del precio.** Con el financiamiento dimensionado, la caja se vuelve negativa bajo un precio de lista de $428.308 y el proyecto deja de crear valor bajo $386.245. Ese resultado es la justificación numérica de derivar el precio del costo en lugar de fijarlo por aspiración comercial.
+**Punto de quiebre del precio.** Con el financiamiento dimensionado, la caja se vuelve negativa bajo un precio de lista de $435.949 y el proyecto deja de crear valor bajo $393.916. Ese resultado es la justificación numérica de derivar el precio del costo en lugar de fijarlo por aspiración comercial.
 
 [Informe 1 corregido](Evaluacion/Evaluacion%201/INFORME%201%20CORREGIDO.md) · [Sección económica](docs/SECCION_ECONOMICA_REFORMULADA.md) · [Metodología](docs/MODELO_ECONOMICO.md)
 

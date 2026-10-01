@@ -15,12 +15,11 @@ class TestCostos(unittest.TestCase):
     def test_bom_suma_sus_lineas(self):
         self.assertEqual(M.BOM, sum(c * p for _, c, p, _ in M.S["bom"]))
 
-    def test_bom_solo_componentes_del_esquematico(self):
-        """Lo que no está en el esquemático se declara aparte, no se cuela en la BOM."""
+    def test_bom_incluye_montaje_y_embalaje(self):
+        """Desde oct-2026 la BOM incluye montaje, sellado y embalaje (decisión del equipo)."""
         nombres = " ".join(n.lower() for n, _, _, _ in M.S["bom"])
-        for ausente in ("prensaestopas", "embalaje", "cableado"):
-            self.assertNotIn(ausente, nombres)
-        self.assertIn("prensaestopas", M.S["_bom_pendiente"].lower())
+        for incluido in ("prensaestopa", "embalaje", "cableado", "respiradero", "interruptor"):
+            self.assertIn(incluido, nombres)
 
     def test_costo_variable_incluye_merma_garantia_y_envio(self):
         esperado = M.BOM * (1 + M.S["merma_fraccion_bom"] + M.S["garantia_fraccion_bom"]) \
