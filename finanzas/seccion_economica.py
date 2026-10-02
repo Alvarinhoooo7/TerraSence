@@ -58,8 +58,8 @@ reinversion = sum(f["reinversion"] for f in F)
 anio_reinversion = next(f["anio"] for f in F if f["reinversion"])
 
 # Abastecimiento: lo que se compra en plataformas internacionales paga IVA en el checkout
-importado = sum(c * v for n, c, v, o in S["bom"] if o.startswith("AliExpress"))
-discretos = sum(c * v for n, c, v, o in S["bom"] if o.startswith("LCSC"))
+importado = sum(f["cantidad"] * f["precio_clp"] for f in S["bom_filas"] if f["proveedor"] == "AliExpress")
+discretos = sum(f["cantidad"] * f["precio_clp"] for f in S["bom_filas"] if f["proveedor"] == "LCSC")
 carcasa = dict((n, v) for n, v, _ in S["_carcasa_detalle"])
 filamento = next(v for n, v in carcasa.items() if n.startswith("Filamento"))
 comision = S["comision_sobre_bruto"] * precio
@@ -149,10 +149,15 @@ w("### Estructura de costos de fabricación")
 w()
 w("El costo de materiales de cada unidad se detalla en la BOM (*Bill of Materials*, lista de materiales): "
   "el desglose de todo lo que entra físicamente en un equipo, componente por componente, con su cantidad "
-  "y su costo neto. La lista contiene exactamente los componentes del esquemático de la placa, más la "
-  "placa misma, la carcasa y el flete. Los precios se cotizaron en el mercado efectivo de abastecimiento "
-  "del proyecto [45, 46, 47], convertidos a pesos al tipo de cambio de referencia [16], y cada línea "
-  "declara su origen, de modo que se distinga lo verificado de lo presupuestado.")
+  "y su costo neto. La lista corresponde al producto sobre la placa V3, sin placas de desarrollo ni "
+  "módulos: el módulo ESP32-WROOM-32D (con antena y certificación) y los circuitos integrados y pasivos "
+  "de la placa, más la sonda, la batería, la carcasa, los materiales de montaje y el flete. Los "
+  "componentes electrónicos se cotizaron en LCSC y los precios se convirtieron a pesos al tipo de cambio "
+  "de referencia [16]; el detalle por línea, con modelo, código del proveedor, fecha y enlace, está en el "
+  "anexo de cotizaciones. Cada línea declara si su precio fue consultado o es una estimación, de modo "
+  "que se distinga lo verificado de lo presupuestado. El prototipo de laboratorio descrito en el resto del "
+  "documento, con placa de desarrollo y módulos, no es la base del costo: la evaluación económica se hace "
+  "sobre el producto de la placa V3.")
 w()
 w(cuadro("Estructura de costos de fabricación (BOM) por equipo"))
 w()
@@ -163,11 +168,11 @@ w("La sonda de suelo representa **%s, equivalente al %s del costo de materiales*
   "de esa banda, precisamente porque una sonda barata no sirve si no sostiene la exactitud que el "
   "protocolo de validación exige." % (p(48000), pct(48000 / M.BOM), p(48000)))
 w()
-w("En el otro extremo, los componentes discretos de la placa portadora (borneras, condensadores, "
-  "resistencias, indicadores, los dos transistores MOSFET que cortan la alimentación de la sonda y las "
-  "protecciones de la batería) suman apenas %s por equipo, un %s de la BOM. La conclusión de diseño es "
-  "directa: el costo del instrumento se decide en la sonda, la placa de control y la batería, y ninguna "
-  "economía sobre los discretos cambia el resultado, de modo que en ellos se privilegia la robustez "
+w("En el otro extremo, la electrónica de la placa V3 (módulo ESP32, circuitos integrados, sensor "
+  "ambiental, pasivos, indicadores y protecciones) suma %s por equipo, un %s de la BOM, y dentro de ella "
+  "el sensor BME280 y el módulo ESP32 concentran la mayor parte. La conclusión de diseño es directa: el "
+  "costo del instrumento se decide en la sonda y en un puñado de circuitos integrados, y ninguna "
+  "economía sobre los pasivos cambia el resultado, de modo que en ellos se privilegia la robustez "
   "sobre el ahorro." % (p(discretos), pct(discretos / M.BOM)))
 w()
 w("Dos precisiones sobre el abastecimiento tienen consecuencias que conviene declarar:")
@@ -180,14 +185,14 @@ w("- **Régimen tributario de las compras importadas.** Desde octubre de 2025, l
   "exposición es de **%s por equipo**, del orden de %s anuales al volumen del primer año. El proyecto "
   "asume formalizar el abastecimiento antes de comprometer volumen, y esta cifra dimensiona lo que está "
   "en juego si no lo hace." % (p(importado * S["iva"]), p(importado * S["iva"] * f0["unidades"])))
-w("- **La placa de control es una placa de desarrollo, no un módulo desnudo.** El presupuesto adquiere el "
-  "ESP32 en formato DevKit, que ya incorpora su propio regulador de 3,3 V, el conversor USB-serie y el "
-  "circuito de arranque. Esto simplifica la placa portadora y el montaje, a cambio de un consumo propio "
-  "de la placa que no se apaga con el reposo del microcontrolador; el capítulo de gestión energética "
-  "cuantifica ese efecto y explica por qué el equipo se apaga con un interruptor entre jornadas.")
+w("- **La placa de control es un módulo con antena soldado a la placa V3, no una placa de desarrollo.** "
+  "El presupuesto adquiere el ESP32 como módulo WROOM-32D, que trae la antena y la certificación de "
+  "radio, y suma en la propia placa el regulador de 3,3 V de baja corriente en reposo, el puente "
+  "USB-serie, el cargador y el elevador de la sonda. Los cargos de ensamble de la placa se contratan a "
+  "un fabricante (%s por placa al lote de %d) y se incluyen en la BOM." % (p(M.pcba_cargos(S["pcba"]["lote_bom"])["por_placa_clp"]), S["pcba"]["lote_bom"]))
 w()
-w("La carcasa se imprime en taller propio: el proyecto adquiere dos impresoras 3D, que figuran en el "
-  "activo fijo, y el costo de cada carcasa se construye así:")
+w("La carcasa se imprime en taller propio: el proyecto adquiere dos impresoras Creality K1C, que figuran "
+  "en el activo fijo, y el costo de cada carcasa se construye así:")
 w()
 w(cuadro("Costeo de la carcasa impresa en taller propio"))
 w()
@@ -219,7 +224,9 @@ w("La puesta en marcha exige tres tipos de desembolso de naturaleza distinta, qu
 w()
 w("El equipamiento se dimensionó **según la dotación real del proyecto**, no sobre una plantilla "
   "genérica: tres puestos de trabajo el primer año, dos impresoras para producir las carcasas e "
-  "instrumental de laboratorio suficiente para el montaje y la verificación de cada unidad.")
+  "instrumental de laboratorio (osciloscopio, fuente, multímetros, analizador lógico, estaciones de "
+  "soldadura y de aire caliente, microscopio y fixture de ensayo) suficiente para el montaje y la "
+  "verificación de cada unidad.")
 w()
 w(cuadro("Equipamiento e inversión en activo fijo"))
 w()

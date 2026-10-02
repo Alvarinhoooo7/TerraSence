@@ -49,20 +49,19 @@ w("**El precio no es un supuesto: es un resultado.** Se construye primero la est
 w("")
 w("### BOM por equipo")
 w("")
-w("| Componente | Cant. | Neto unitario | Subtotal |")
-w("|---|---:|---:|---:|")
-for nom, c, pu, _ in M.S["bom"]:
-    w("| %s | %d | %s | %s |" % (nom, c, p(pu), p(c * pu)))
-w("| **Total BOM neto** | | | **%s** |" % p(M.BOM))
+w("| Bloque del equipo | Líneas | Subtotal neto por equipo |")
+w("|---|---:|---:|")
+for bl, n, sub in M.bom_por_bloque():
+    w("| %s | %d | %s |" % (bl, n, p(sub)))
+w("| **Total BOM neto** | **%d** | **%s** |" % (len(M.S["bom"]), p(M.BOM)))
 w("")
-w("La BOM contiene **exclusivamente los componentes presentes en el esquemático**. Los módulos y la "
-  "batería se cotizaron en AliExpress con envío Choice a Chile; los discretos en LCSC. La sonda de suelo "
-  "concentra el %s del costo de materiales y es la decisión de abastecimiento crítica del proyecto."
+w("La BOM es la del **producto sobre la PCB V3, sin placas de desarrollo ni módulos** (sí el módulo ESP32-WROOM-32D, "
+  "con antena y certificación). Cada línea lleva modelo, código de proveedor (LCSC principal, DigiKey alternativa), "
+  "precio, fecha de consulta y enlace en la planilla `PCB/BOM_TerraSense.xlsx` y en el anexo A de la Evaluación 2. "
+  "La sonda de suelo concentra el %s del costo de materiales y es la decisión de abastecimiento crítica del proyecto."
   % pct(48000 / M.BOM))
 w("")
-w("> Quedan **fuera de la BOM** por no estar todavía en el esquemático ni en el diseño mecánico cerrado: "
-  "prensaestopas M12, o-ring y respiradero del BME280, cableado interno, y embalaje con manual y "
-  "etiqueta. Su orden de magnitud conjunto es de $4.000 a $5.000 por equipo.")
+w("> %s" % M.S["_bom_pendiente"])
 w("")
 w("Sumando merma (%s), provisión de reposiciones y garantía (%s) y envío, el costo variable por equipo "
   "antes de comisión es **%s**. La carcasa se imprime en taller propio: las dos impresoras 3D están en el "

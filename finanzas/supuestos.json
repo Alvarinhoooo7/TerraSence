@@ -2,37 +2,80 @@
   "_nota": "Supuestos de la reformulacion economica TerraSense. Estructura escalonada decidida por el usuario: anio 1 sin oficina, con contador fijo y solo pauta digital; oficina desde el anio 2; marketing y ensambladores segun volumen.",
 
   "horizonte_anios": 10,
+
   "anio_inicio": 2027,
+
   "iva": 0.19,
+
   "inflacion": 0.03,
-  "tasa_descuento": 0.20,
-  "margen_objetivo": 0.30,
+
+  "tasa_descuento": 0.2,
+
+  "margen_objetivo": 0.3,
 
   "_financiamiento": "El pie se entrega al banco como condicion de entrada y el banco desembolsa el 100% de la inversion inicial. Pie = 30% del credito. Pie disponible: 10.000.000 por socio.",
+
   "pie_por_socio": 10000000,
+
   "socios": 2,
-  "pie_sobre_credito": 0.30,
+
+  "pie_sobre_credito": 0.3,
+
   "tasa_credito_efectiva_anual": 0.12,
+
   "plazo_credito_anios": 10,
+
   "gastos_apertura_fraccion": 0.02,
 
   "_tributario": "Regimen Pro Pyme. Tasas de referencia con perdidas arrastradas.",
-  "tasa_impuesto": {"2027": 0.125, "2028": 0.15, "default": 0.25},
+
+  "tasa_impuesto": {
+    "2027": 0.125,
+    "2028": 0.15,
+    "default": 0.25
+  },
 
   "_laboral": "Ley 21.735: tasa anual ponderada por 7 meses del tramo anterior y 5 meses del nuevo tramo de agosto, con remuneracion mensual uniforme. Tramos desde agosto: 2026 3,5%; 2027 4,25%; 2028 5%; 2029 5,7%; 2030 6,4%; 2031 7,1%; 2032 7,8%; 2033 8,5%, incluido SIS desde agosto de 2026. Fuente: Subsecretaria de Prevision Social, Nota Tecnica Reforma de Pensiones Ley 21.735, agosto 2025, tabla 1. Mas cesantia 2,4% (indefinido), mutual 0,95% y provisiones presupuestarias de vacaciones e indemnizacion (8,33% cada una); estas provisiones no son tasas legales de cotizacion.",
-  "aporte_previsional_empleador": {"2027": 0.038125, "2028": 0.045625, "2029": 0.05291666666666667, "2030": 0.059916666666666674, "2031": 0.06691666666666667, "2032": 0.07391666666666667, "2033": 0.08091666666666668, "2034": 0.085},
+
+  "aporte_previsional_empleador": {
+    "2027": 0.038125,
+    "2028": 0.045625,
+    "2029": 0.05291666666666667,
+    "2030": 0.059916666666666674,
+    "2031": 0.06691666666666667,
+    "2032": 0.07391666666666667,
+    "2033": 0.08091666666666668,
+    "2034": 0.085
+  },
+
   "cesantia_empleador": 0.024,
+
   "mutual": 0.0095,
+
   "provision_vacaciones": 0.0833,
+
   "provision_indemnizacion": 0.0833,
+
   "colacion_mensual": 100000,
+
   "movilizacion_mensual": 50000,
 
   "_dotacion": "Sueldos brutos mensuales en pesos de 2027, reajustados por inflacion. El ensamblador a 700.000 se mantiene sobre el ingreso minimo ($553.553 en may-2026) durante todo el horizonte.",
+
   "_sueldo_socio": "Escala progresiva: los socios parten cerca del ingreso minimo mientras la empresa no es rentable y suben por escalones hasta 2031; desde 2032 solo se reajusta por inflacion. Los empleados (contador, marketing, ensambladores) NO siguen esta escala: se pagan a valor de mercado desde el mes 1 y solo se reajustan por inflacion.",
-  "sueldo_socio_por_anio": {"2027": 600000, "2028": 700000, "2029": 850000, "2030": 1000000, "2031": 1200000},
+
+  "sueldo_socio_por_anio": {
+    "2027": 600000,
+    "2028": 700000,
+    "2029": 850000,
+    "2030": 1000000,
+    "2031": 1200000
+  },
+
   "sueldo_contador": 1000000,
+
   "sueldo_marketing": 1000000,
+
   "sueldo_ensamblador": 700000,
 
   "dotacion_por_anio": {
@@ -48,35 +91,132 @@
     "2036": {"socios": 2, "contador": 1, "marketing": 1, "ensambladores": 4, "oficina": true}
   },
 
-  "_gastos_estructura": "Valores mensuales en pesos de 2027. La oficina entra el anio 2.",
+  "_gastos_estructura": "Valores mensuales en pesos de 2027. La oficina entra el anio 2. La electricidad sale de la potencia instalada del taller y de la oficina, sus horas de uso y la tarifa BT1 (modulo energia_v3): $20.000 sin oficina y $60.000 con oficina, redondeados hacia arriba a $5.000; no incluye climatizacion electrica.",
+
   "arriendo_oficina": 1500000,
-  "servicios_basicos_con_oficina": 450000,
-  "servicios_basicos_sin_oficina": 150000,
+
+  "servicios_basicos_con_oficina": 330000,
+
+  "servicios_basicos_sin_oficina": 110000,
+
   "_servicios_detalle_oficina": [
-    ["Electricidad (puestos de trabajo, impresoras 3D e instrumental)", 180000],
+    ["Electricidad (puestos de trabajo, impresoras 3D e instrumental)", 60000],
     ["Gastos comunes del edificio", 160000],
     ["Internet de fibra empresarial", 45000],
     ["Agua", 40000],
     ["Gas (calefaccion)", 25000]
   ],
+
   "_servicios_detalle_sin_oficina": [
-    ["Proporcion de electricidad del taller domiciliario", 60000],
+    ["Proporcion de electricidad del taller domiciliario", 20000],
     ["Internet de fibra", 45000],
     ["Proporcion de agua y gas", 25000],
     ["Proporcion de gastos comunes", 20000]
   ],
+
   "_arriendo_referencia": "Mercado de oficinas en arriendo en Providencia: 152 avisos entre $990.000 y $1.500.000. Referencias concretas: $1.220.000 por 169 m2 (Obispo Donoso), $1.700.000 por 146 m2 (Av. Andres Bello), UF 41 por 79 m2 (Pedro de Valdivia) y UF 28 por 53 m2 (Eliodoro Yanez).",
+
   "patente_comercial_anual": 70000,
+
   "softwares_cloud": 300000,
+
   "materiales_oficina": 50000,
+
   "mantencion_equipos": 100000,
+
   "pauta_por_equipo": 30000,
 
   "_plan_ventas": "Plan conservador para marca nueva con estructura liviana el anio 1.",
-  "ventas": {"2027": 200, "2028": 350, "2029": 500, "2030": 650, "2031": 850, "2032": 892, "2033": 937, "2034": 984, "2035": 1033, "2036": 1085},
 
-  "_bom": "Costo NETO por equipo. Contiene los componentes del esquematico del proyecto, itemizados uno por uno, la placa, la carcasa, los materiales de montaje y sellado, el embalaje y el flete. Fabricacion sin ensamble: PCB desnuda a JLCPCB y modulos comprados por separado, soldados en taller propio. Modulos y bateria cotizados en AliExpress con envio Choice a Chile (CLP, consulta 24-09-2026); discretos en LCSC. Desde oct-2025 (Ley 21.713) las plataformas inscritas recaudan IVA 19% en el checkout y no hay arancel bajo US$500; ese IVA solo es credito fiscal si la compra se formaliza como importacion con DIN.",
-  "bom": [
+  "ventas": {
+    "2027": 200,
+    "2028": 350,
+    "2029": 500,
+    "2030": 650,
+    "2031": 850,
+    "2032": 892,
+    "2033": 937,
+    "2034": 984,
+    "2035": 1033,
+    "2036": 1085
+  },
+
+  "_bom": "BOM del producto sobre la PCB V3, sin placas de desarrollo ni módulos (sí el módulo ESP32-WROOM-32D, que es el componente con antena y certificación). Cada fila lleva modelo, código de proveedor, cantidad por equipo, proveedor, precio unitario neto en CLP, moneda y precio original, tramo de cantidad, fecha de consulta, enlace y alternativa. LCSC es el proveedor principal y DigiKey la alternativa; sonda, celda y materiales de montaje mantienen su fuente. Precios de LCSC consultados el 02-10-2026 en su catálogo público, en US$ al tramo que corresponde a 200 equipos (primer año), convertidos a $950 por US$. Todo valor neto de IVA (crédito fiscal). Las filas con estado «estimación» declaran su razón en la columna de nota.",
+
+  "bom_filas": [
+    {"bloque": "Sonda", "equipo": "Sonda de suelo 7 en 1 RS-485 Modbus RTU", "modelo": "Sonda 7 en 1 RS-485 Modbus RTU (SKU por fijar con la muestra)", "codigo": "—", "cantidad": 1, "proveedor": "AliExpress", "precio_clp": 48000, "moneda": "CLP", "precio_original": 48000, "tramo": "1 un.", "fecha": "2026-09-24", "enlace": "https://kspelectronics.in/product/zts-3002-soil-multi-parameter-sensor-rs485/", "alternativa": "Otras sondas 7 en 1 del mercado, de $12.100 a $82.100", "estado": "estimación", "nota": "Presupuesto conservador en el tramo alto de la banda de mercado ($12.100 a $82.100); sin cotización formal del SKU. Referencias consultadas el 02-10-2026: ZTS-3002 (7 en 1, RS-485, IP68) a ₹4.300 ≈ US$49 en KSP Electronics; NPKPHCTH-S a 447,54 RON ≈ US$100 en Sigma Nortec. El presupuesto de $48.000 queda en el tramo de esas referencias"},
+    {"bloque": "Celda", "equipo": "Batería LiPo 3,7 V 2.000 mAh con protección incluida", "modelo": "LiPo 3,7 V 2.000 mAh con circuito de protección (sin DW01A en la placa)", "codigo": "—", "cantidad": 1, "proveedor": "AliExpress", "precio_clp": 4400, "moneda": "CLP", "precio_original": 4400, "tramo": "pack de 10", "fecha": "2026-09-24", "enlace": "https://www.aliexpress.com/w/wholesale-lipo-3.7v-2000mah-protection.html", "alternativa": "Celda de otro proveedor con certificación IEC 62133-2", "estado": "consultado", "nota": "AliExpress: $4.784 unitaria, $4.350 por unidad en pack de 10"},
+    {"bloque": "Carcasa", "equipo": "Carcasa PETG impresa en taller propio (110 × 100 × 40 mm, base y tapa)", "modelo": "Carcasa PETG, huella vigente de la V2; se recalcula con el contorno de la V3", "codigo": "—", "cantidad": 1, "proveedor": "Taller propio (Creality K1C)", "precio_clp": null, "moneda": "CLP", "precio_original": null, "tramo": "1 un.", "fecha": "2026-10-02", "enlace": "—", "alternativa": "Impresión externa por encargo", "estado": "estimación", "nota": "Costeo propio: filamento, merma, energía y mantención (tabla de costeo de la carcasa)", "calculo": "carcasa"},
+    {"bloque": "PCB V3 y ensamble", "equipo": "Placa de circuito impreso V3, 2 capas, 99,9 × 90 mm (sin ensamblar)", "modelo": "PCB V3 (contorno de la V2 como cota superior)", "codigo": "—", "cantidad": 1, "proveedor": "JLCPCB", "precio_clp": 3000, "moneda": "CLP", "precio_original": 3000, "tramo": "pedido de 5 placas", "fecha": "2026-09-24", "enlace": "https://jlcpcb.com/", "alternativa": "Otro fabricante de PCB", "estado": "estimación", "nota": "Precio de la compra real de la V2 (5 placas por $15.000 con envío e impuestos); la V3 se cotiza con su contorno definitivo"},
+    {"bloque": "PCB V3 y ensamble", "equipo": "Cargos de ensamble PCBA (JLCPCB), por placa, lote de 200", "modelo": "PCBA económico/estándar de JLCPCB con piezas del catálogo LCSC", "codigo": "—", "cantidad": 1, "proveedor": "JLCPCB", "precio_clp": null, "moneda": "USD", "precio_original": null, "tramo": "lote de 200", "fecha": "2026-10-02", "enlace": "https://jlcpcb.com/help/article/pcb-assembly-price", "alternativa": "Ensamble en taller propio (alternativa A)", "estado": "estimación", "nota": "Tarifas publicadas de JLCPCB (preparación, esténcil, US$3 por pieza extendida y US$0,0016 por junta) sobre 200 placas más el flete DHL estimado; la clasificación básica/extendida y el flete son estimaciones", "calculo": "pcba_lote"},
+    {"bloque": "MCU y radio", "equipo": "Módulo MCU con radio BLE y antena impresa", "modelo": "ESP32-WROOM-32D-N4", "codigo": "C473012", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 2709.78, "moneda": "USD", "precio_original": 2.8524, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C473012.html", "alternativa": "ESP32-WROOM-32E-N4 (DigiKey 11613125, US$4,99 a 1 un.), de igual huella y pines; el 32D figura en DigiKey sin stock y «no recomendado para diseños nuevos»", "estado": "consultado", "stock": 5430, "jlcpcb": "e", "pines": 47, "nota": "LCSC C473012, US$2.8524 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "USB-C y carga", "equipo": "Receptáculo USB-C de 16 pines (carga y datos)", "modelo": "TYPE-C 16PIN 2MD(073)", "codigo": "C2765186", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 57.38, "moneda": "USD", "precio_original": 0.0604, "tramo": 200, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C2765186.html", "alternativa": "TYPE-C-31-M-12 (LCSC C165948)", "estado": "consultado", "stock": 860540, "jlcpcb": "e", "pines": 20, "nota": "LCSC C2765186, US$0.0604 a 200 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "USB-C y carga", "equipo": "Puente USB-serie sin cristal", "modelo": "CH340C", "codigo": "C84681", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 379.24, "moneda": "USD", "precio_original": 0.3992, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C84681.html", "alternativa": "CH340K; CP2102N (más caro)", "estado": "consultado", "stock": 139541, "jlcpcb": "e", "pines": 16, "nota": "LCSC C84681, US$0.3992 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "USB-C y carga", "equipo": "Protección ESD de la línea USB", "modelo": "USBLC6-2SC6", "codigo": "C7519", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 111.44, "moneda": "USD", "precio_original": 0.1173, "tramo": 150, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C7519.html", "alternativa": "DigiKey 1040559 (ST, US$0,54 a 1 un.)", "estado": "consultado", "stock": 34890, "jlcpcb": "e", "pines": 6, "nota": "LCSC C7519, US$0.1173 a 150 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "USB-C y carga", "equipo": "Resistencias de configuración CC1/CC2, 5,1 kΩ", "modelo": "0603WAF5101T5E", "codigo": "C23186", "cantidad": 2, "proveedor": "LCSC", "precio_clp": 1.43, "moneda": "USD", "precio_original": 0.0015, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C23186.html", "alternativa": "Cualquier 5,1 kΩ 1 % 0603", "estado": "consultado", "stock": 21676700, "jlcpcb": "b", "pines": 2, "nota": "LCSC C23186, US$0.0015 a 100 un. (tramo para 400 equipos), consulta 02-10-2026"},
+    {"bloque": "USB-C y carga", "equipo": "PTC rearmable en VBUS, 1 A", "modelo": "0603L100SLYR", "codigo": "C207017", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 168.06, "moneda": "USD", "precio_original": 0.1769, "tramo": 150, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C207017.html", "alternativa": "0603L050YR (500 mA, LCSC C207015)", "estado": "consultado", "stock": 4890, "jlcpcb": "e", "pines": 2, "nota": "LCSC C207017, US$0.1769 a 150 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "USB-C y carga", "equipo": "Transistor NPN de autoprogramación EN/IO0", "modelo": "S8050 J3Y", "codigo": "C2146", "cantidad": 2, "proveedor": "LCSC", "precio_clp": 14.15, "moneda": "USD", "precio_original": 0.0149, "tramo": 50, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C2146.html", "alternativa": "MMBT3904 (LCSC C20526)", "estado": "consultado", "stock": 979800, "jlcpcb": "b", "pines": 3, "nota": "LCSC C2146, US$0.0149 a 50 un. (tramo para 400 equipos), consulta 02-10-2026"},
+    {"bloque": "USB-C y carga", "equipo": "Resistencia de base 10 kΩ (autoprogramación)", "modelo": "RC0603FR-0710KL", "codigo": "C98220", "cantidad": 2, "proveedor": "LCSC", "precio_clp": 3.23, "moneda": "USD", "precio_original": 0.0034, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C98220.html", "alternativa": "0603WAF1002T5E (LCSC C25804)", "estado": "consultado", "stock": 8530400, "jlcpcb": "b", "pines": 2, "nota": "LCSC C98220, US$0.0034 a 100 un. (tramo para 400 equipos), consulta 02-10-2026"},
+    {"bloque": "USB-C y carga", "equipo": "Pulsadores BOOT y EN", "modelo": "TS-1187A-B-A-B", "codigo": "C318884", "cantidad": 2, "proveedor": "LCSC", "precio_clp": 15.2, "moneda": "USD", "precio_original": 0.016, "tramo": 200, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C318884.html", "alternativa": "Cualquier pulsador SMD de 5,1 mm", "estado": "consultado", "stock": 314460, "jlcpcb": "e", "pines": 4, "nota": "LCSC C318884, US$0.016 a 200 un. (tramo para 400 equipos), consulta 02-10-2026"},
+    {"bloque": "USB-C y carga", "equipo": "Cargador Li-ion lineal 1S", "modelo": "TP4056-42-ESOP8", "codigo": "C16581", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 122.08, "moneda": "USD", "precio_original": 0.1285, "tramo": 150, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C16581.html", "alternativa": "MCP73831 (SOT-23-5, 500 mA); BQ24074 (ruta de potencia)", "estado": "consultado", "stock": 65125, "jlcpcb": "b", "pines": 9, "nota": "LCSC C16581, US$0.1285 a 150 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "USB-C y carga", "equipo": "R_PROG de corriente de carga (2,7 kΩ ≈ 444 mA, bajo el límite de 500 mA de un puerto USB 2.0)", "modelo": "0603WAF2701T5E", "codigo": "C13167", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 3.13, "moneda": "USD", "precio_original": 0.0033, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C13167.html", "alternativa": "1,2 kΩ para 1 A (excede un puerto USB 2.0)", "estado": "consultado", "stock": 859100, "jlcpcb": "b", "pines": 2, "nota": "LCSC C13167, US$0.0033 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "USB-C y carga", "equipo": "LED CHRG (rojo) de carga", "modelo": "KT-0603R", "codigo": "C2286", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 7.22, "moneda": "USD", "precio_original": 0.0076, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C2286.html", "alternativa": "—", "estado": "consultado", "stock": 2995600, "jlcpcb": "b", "pines": 2, "nota": "LCSC C2286, US$0.0076 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "USB-C y carga", "equipo": "LED STDBY (verde) de carga completa", "modelo": "XL-1608UGC-04", "codigo": "C965804", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 4.85, "moneda": "USD", "precio_original": 0.0051, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C965804.html", "alternativa": "—", "estado": "consultado", "stock": 3603300, "jlcpcb": "e", "pines": 2, "nota": "LCSC C965804, US$0.0051 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "USB-C y carga", "equipo": "Resistencias de los LED de carga, 1 kΩ", "modelo": "0603WAF1001T5E", "codigo": "C21190", "cantidad": 2, "proveedor": "LCSC", "precio_clp": 2.47, "moneda": "USD", "precio_original": 0.0026, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C21190.html", "alternativa": "—", "estado": "consultado", "stock": 3209400, "jlcpcb": "b", "pines": 2, "nota": "LCSC C21190, US$0.0026 a 100 un. (tramo para 400 equipos), consulta 02-10-2026"},
+    {"bloque": "USB-C y carga", "equipo": "P-MOSFET de la ruta de carga compartida", "modelo": "AO3401A", "codigo": "C15127", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 69.16, "moneda": "USD", "precio_original": 0.0728, "tramo": 150, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C15127.html", "alternativa": "—", "estado": "consultado", "stock": 410905, "jlcpcb": "b", "pines": 3, "nota": "LCSC C15127, US$0.0728 a 150 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "USB-C y carga", "equipo": "Schottky de la ruta de carga", "modelo": "SS14", "codigo": "C2480", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 18.24, "moneda": "USD", "precio_original": 0.0192, "tramo": 50, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C2480.html", "alternativa": "SS34 (LCSC C8678)", "estado": "consultado", "stock": 811450, "jlcpcb": "b", "pines": 2, "nota": "LCSC C2480, US$0.0192 a 50 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Alimentación 3,3 V", "equipo": "LDO de 3,3 V y 600 mA, Iq de 2 µA", "modelo": "RT9080-33GJ5", "codigo": "C841192", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 82.65, "moneda": "USD", "precio_original": 0.087, "tramo": 150, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C841192.html", "alternativa": "ME6211C33M5G-N (LCSC C82942, Iq 60 µA); HT7833 (LCSC C50936, Iq 7 µA, SOT-89); DigiKey 1028-1509-2-ND (US$0,1465 a 100 un.)", "estado": "consultado", "stock": 40105, "jlcpcb": "e", "pines": 5, "nota": "LCSC C841192, US$0.087 a 150 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Elevador 5 V", "equipo": "Elevador de 5 V con pin EN (η ≈ 85 %)", "modelo": "MT3608", "codigo": "C84817", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 78.47, "moneda": "USD", "precio_original": 0.0826, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C84817.html", "alternativa": "TPS61023DRLR (LCSC C919459, Iq de 3 µA y desconexión de carga; DigiKey 296-TPS61023DRLRCT-ND, US$0,80 a 10 un.)", "estado": "consultado", "stock": 158207, "jlcpcb": "e", "pines": 6, "nota": "LCSC C84817, US$0.0826 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Elevador 5 V", "equipo": "Inductor de 22 µH del elevador", "modelo": "CKCS6028-22uH/M", "codigo": "C354622", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 52.73, "moneda": "USD", "precio_original": 0.0555, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C354622.html", "alternativa": "SCDS125T-220M-N (LCSC C108310)", "estado": "consultado", "stock": 1800, "jlcpcb": "e", "pines": 2, "nota": "LCSC C354622, US$0.0555 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Elevador 5 V", "equipo": "Schottky del elevador", "modelo": "SS34", "codigo": "C8678", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 26.79, "moneda": "USD", "precio_original": 0.0282, "tramo": 200, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C8678.html", "alternativa": "SS14 (LCSC C2480)", "estado": "consultado", "stock": 3817060, "jlcpcb": "b", "pines": 2, "nota": "LCSC C8678, US$0.0282 a 200 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Elevador 5 V", "equipo": "Resistencia superior del divisor de realimentación, 220 kΩ", "modelo": "0603WAF2203T5E", "codigo": "C22961", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 1.43, "moneda": "USD", "precio_original": 0.0015, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C22961.html", "alternativa": "—", "estado": "consultado", "stock": 1197400, "jlcpcb": "b", "pines": 2, "nota": "LCSC C22961, US$0.0015 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Elevador 5 V", "equipo": "Resistencia inferior del divisor de realimentación, 30 kΩ", "modelo": "0603WAF3002T5E", "codigo": "C22984", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 4.85, "moneda": "USD", "precio_original": 0.0051, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C22984.html", "alternativa": "—", "estado": "consultado", "stock": 1133500, "jlcpcb": "e", "pines": 2, "nota": "LCSC C22984, US$0.0051 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Elevador 5 V", "equipo": "Condensador de 22 µF (entrada y salida del elevador)", "modelo": "CL21A226MAQNNNE", "codigo": "C45783", "cantidad": 2, "proveedor": "LCSC", "precio_clp": 157.03, "moneda": "USD", "precio_original": 0.1653, "tramo": 200, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C45783.html", "alternativa": "—", "estado": "consultado", "stock": 1369620, "jlcpcb": "e", "pines": 2, "nota": "LCSC C45783, US$0.1653 a 200 un. (tramo para 400 equipos), consulta 02-10-2026"},
+    {"bloque": "Elevador 5 V", "equipo": "P-MOSFET de corte de la sonda en la salida de 5 V (desconexión real con el elevador apagado)", "modelo": "AO3401A", "codigo": "C15127", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 69.16, "moneda": "USD", "precio_original": 0.0728, "tramo": 150, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C15127.html", "alternativa": "TPS61023DRLR como elevador con desconexión integrada (LCSC C919459)", "estado": "consultado", "stock": 393270, "jlcpcb": "b", "pines": 3, "nota": "LCSC C15127, US$0.0728 a 150 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Elevador 5 V", "equipo": "N-MOSFET que conmuta la compuerta del AO3401A desde IO5", "modelo": "AO3400A", "codigo": "C20917", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 60.23, "moneda": "USD", "precio_original": 0.0634, "tramo": 150, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C20917.html", "alternativa": "2N7002 (LCSC C8545)", "estado": "consultado", "stock": 526630, "jlcpcb": "b", "pines": 3, "nota": "LCSC C20917, US$0.0634 a 150 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Elevador 5 V", "equipo": "Resistencia de 10 kΩ entre la compuerta del AO3401A y los 5 V", "modelo": "RC0603FR-0710KL", "codigo": "C98220", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 3.23, "moneda": "USD", "precio_original": 0.0034, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C98220.html", "alternativa": "—", "estado": "consultado", "stock": 8481200, "jlcpcb": "b", "pines": 2, "nota": "LCSC C98220, US$0.0034 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Elevador 5 V", "equipo": "Resistencia de 4,7 kΩ a tierra en IO5 (corte y elevador apagados durante el arranque)", "modelo": "0603WAF4701T5E", "codigo": "C23162", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 2.66, "moneda": "USD", "precio_original": 0.0028, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C23162.html", "alternativa": "—", "estado": "consultado", "stock": 13349800, "jlcpcb": "b", "pines": 2, "nota": "LCSC C23162, US$0.0028 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "RS-485", "equipo": "Transceptor RS-485 de 3,3 V", "modelo": "SP3485EN-L/TR", "codigo": "C8963", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 140.5, "moneda": "USD", "precio_original": 0.1479, "tramo": 200, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C8963.html", "alternativa": "DigiKey 1016-1817-1-ND (US$0,541 a 100 un.; sin stock hasta nov-2026); THVD1410", "estado": "consultado", "stock": 197996, "jlcpcb": "e", "pines": 8, "nota": "LCSC C8963, US$0.1479 a 200 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "RS-485", "equipo": "Protección TVS de las líneas A y B", "modelo": "SM712", "codigo": "C502564", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 57.19, "moneda": "USD", "precio_original": 0.0602, "tramo": 200, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C502564.html", "alternativa": "SM712 de otros fabricantes (LCSC C5243888)", "estado": "consultado", "stock": 193480, "jlcpcb": "e", "pines": 3, "nota": "LCSC C502564, US$0.0602 a 200 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "RS-485", "equipo": "Terminación de 120 Ω del bus", "modelo": "0603WAF1200T5E", "codigo": "C22787", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 2.94, "moneda": "USD", "precio_original": 0.0031, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C22787.html", "alternativa": "—", "estado": "consultado", "stock": 538200, "jlcpcb": "b", "pines": 2, "nota": "LCSC C22787, US$0.0031 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "RS-485", "equipo": "Resistencias de polarización fail-safe, 4,7 kΩ", "modelo": "0603WAF4701T5E", "codigo": "C23162", "cantidad": 2, "proveedor": "LCSC", "precio_clp": 2.66, "moneda": "USD", "precio_original": 0.0028, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C23162.html", "alternativa": "—", "estado": "consultado", "stock": 13349800, "jlcpcb": "b", "pines": 2, "nota": "LCSC C23162, US$0.0028 a 100 un. (tramo para 400 equipos), consulta 02-10-2026"},
+    {"bloque": "RS-485", "equipo": "Cabezal macho de 4 pines (JP1 y puente de terminación)", "modelo": "B-2100S04P-A110", "codigo": "C124378", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 43.03, "moneda": "USD", "precio_original": 0.0453, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C124378.html", "alternativa": "—", "estado": "consultado", "stock": 64150, "jlcpcb": "t", "pines": 0, "nota": "LCSC C124378, US$0.0453 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Sensor ambiental", "equipo": "Sensor de temperatura, humedad y presión (LGA-8)", "modelo": "BME280", "codigo": "C92489", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 4607.31, "moneda": "USD", "precio_original": 4.8498, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C92489.html", "alternativa": "DigiKey 828-1063-1-ND: US$3,00 a 100 un. (ahorro de US$1,85 por equipo); no se adopta porque el PCBA de JLCPCB usa piezas del catálogo LCSC", "estado": "consultado", "stock": 4364, "jlcpcb": "e", "pines": 8, "nota": "LCSC C92489, US$4.8498 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Sensor ambiental", "equipo": "Pull-ups I²C de 4,7 kΩ", "modelo": "0603WAF4701T5E", "codigo": "C23162", "cantidad": 2, "proveedor": "LCSC", "precio_clp": 2.66, "moneda": "USD", "precio_original": 0.0028, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C23162.html", "alternativa": "—", "estado": "consultado", "stock": 13349800, "jlcpcb": "b", "pines": 2, "nota": "LCSC C23162, US$0.0028 a 100 un. (tramo para 400 equipos), consulta 02-10-2026"},
+    {"bloque": "Interfaz de usuario", "equipo": "LED azul de estado", "modelo": "XL-1608UBC-04", "codigo": "C965807", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 4.08, "moneda": "USD", "precio_original": 0.0043, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C965807.html", "alternativa": "—", "estado": "consultado", "stock": 2228400, "jlcpcb": "e", "pines": 2, "nota": "LCSC C965807, US$0.0043 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Interfaz de usuario", "equipo": "LED verde de estado", "modelo": "XL-1608UGC-04", "codigo": "C965804", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 4.85, "moneda": "USD", "precio_original": 0.0051, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C965804.html", "alternativa": "—", "estado": "consultado", "stock": 3603300, "jlcpcb": "e", "pines": 2, "nota": "LCSC C965804, US$0.0051 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Interfaz de usuario", "equipo": "LED rojo de estado", "modelo": "KT-0603R", "codigo": "C2286", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 7.22, "moneda": "USD", "precio_original": 0.0076, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C2286.html", "alternativa": "—", "estado": "consultado", "stock": 2995600, "jlcpcb": "b", "pines": 2, "nota": "LCSC C2286, US$0.0076 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Interfaz de usuario", "equipo": "Resistencias de los LED de estado, 330 Ω", "modelo": "0603WAF3300T5E", "codigo": "C23138", "cantidad": 3, "proveedor": "LCSC", "precio_clp": 2.47, "moneda": "USD", "precio_original": 0.0026, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C23138.html", "alternativa": "—", "estado": "consultado", "stock": 1604600, "jlcpcb": "b", "pines": 2, "nota": "LCSC C23138, US$0.0026 a 100 un. (tramo para 600 equipos), consulta 02-10-2026"},
+    {"bloque": "Interfaz de usuario", "equipo": "Buzzer pasivo magnético SMD de 9 mm (≈ 2,7 kHz)", "modelo": "KLJ-9032-3627", "codigo": "C201039", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 310.56, "moneda": "USD", "precio_original": 0.3269, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C201039.html", "alternativa": "YS-MBZ9042C05R42 (LCSC C409837, 9042 de agujero pasante)", "estado": "consultado", "stock": 2347, "jlcpcb": "e", "pines": 2, "nota": "LCSC C201039, US$0.3269 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Interfaz de usuario", "equipo": "Transistor NPN del buzzer", "modelo": "S8050 J3Y", "codigo": "C2146", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 14.15, "moneda": "USD", "precio_original": 0.0149, "tramo": 50, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C2146.html", "alternativa": "—", "estado": "consultado", "stock": 979800, "jlcpcb": "b", "pines": 3, "nota": "LCSC C2146, US$0.0149 a 50 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Interfaz de usuario", "equipo": "Resistencia de base del buzzer, 1 kΩ", "modelo": "0603WAF1001T5E", "codigo": "C21190", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 2.47, "moneda": "USD", "precio_original": 0.0026, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C21190.html", "alternativa": "—", "estado": "consultado", "stock": 3209400, "jlcpcb": "b", "pines": 2, "nota": "LCSC C21190, US$0.0026 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Interfaz de usuario", "equipo": "Resistencia de 47 Ω en serie con el buzzer (limita la corriente a ≈ 52 mA)", "modelo": "0603WAF470JT5E", "codigo": "C23182", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 3.8, "moneda": "USD", "precio_original": 0.004, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C23182.html", "alternativa": "—", "estado": "consultado", "stock": 461200, "jlcpcb": "b", "pines": 2, "nota": "LCSC C23182, US$0.004 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Interfaz de usuario", "equipo": "Diodo de rueda libre del buzzer", "modelo": "1N4148W", "codigo": "C81598", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 11.78, "moneda": "USD", "precio_original": 0.0124, "tramo": 50, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C81598.html", "alternativa": "—", "estado": "consultado", "stock": 4150100, "jlcpcb": "b", "pines": 2, "nota": "LCSC C81598, US$0.0124 a 50 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Interfaz de usuario", "equipo": "Pulsador PAIR", "modelo": "TS-1187A-B-A-B", "codigo": "C318884", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 15.2, "moneda": "USD", "precio_original": 0.016, "tramo": 200, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C318884.html", "alternativa": "—", "estado": "consultado", "stock": 314460, "jlcpcb": "e", "pines": 4, "nota": "LCSC C318884, US$0.016 a 200 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Protección y medición de batería", "equipo": "Divisor de medición de batería, 100 kΩ", "modelo": "RC0603FR-07100KL", "codigo": "C14675", "cantidad": 2, "proveedor": "LCSC", "precio_clp": 2.47, "moneda": "USD", "precio_original": 0.0026, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C14675.html", "alternativa": "1 MΩ + 1 MΩ para menor fuga", "estado": "consultado", "stock": 7930300, "jlcpcb": "b", "pines": 2, "nota": "LCSC C14675, US$0.0026 a 100 un. (tramo para 400 equipos), consulta 02-10-2026"},
+    {"bloque": "Protección y medición de batería", "equipo": "Diodo contra inversión de polaridad", "modelo": "M7", "codigo": "C95872", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 9.79, "moneda": "USD", "precio_original": 0.0103, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C95872.html", "alternativa": "—", "estado": "consultado", "stock": 2047800, "jlcpcb": "b", "pines": 2, "nota": "LCSC C95872, US$0.0103 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Protección y medición de batería", "equipo": "PTC rearmable de la batería, 1 A", "modelo": "0603L100SLYR", "codigo": "C207017", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 168.06, "moneda": "USD", "precio_original": 0.1769, "tramo": 150, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C207017.html", "alternativa": "—", "estado": "consultado", "stock": 4890, "jlcpcb": "e", "pines": 2, "nota": "LCSC C207017, US$0.1769 a 150 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Protección y medición de batería", "equipo": "Bornera de 2 vías, paso 5 mm (batería e interruptor)", "modelo": "WJ128V-5.0-02P-14-00A", "codigo": "C8269", "cantidad": 2, "proveedor": "LCSC", "precio_clp": 103.17, "moneda": "USD", "precio_original": 0.1086, "tramo": 150, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C8269.html", "alternativa": "KF128-5.0-2P (LCSC C474950)", "estado": "consultado", "stock": 72785, "jlcpcb": "t", "pines": 0, "nota": "LCSC C8269, US$0.1086 a 150 un. (tramo para 400 equipos), consulta 02-10-2026"},
+    {"bloque": "Protección y medición de batería", "equipo": "Bornera de 4 vías, paso 5,08 mm (sonda)", "modelo": "WJ142R-5.08-04P-14-00A", "codigo": "C80055", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 237.22, "moneda": "USD", "precio_original": 0.2497, "tramo": 90, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C80055.html", "alternativa": "Dos borneras de 2 vías KF128-5.0-2P (stock del 4P: 43 unidades)", "estado": "consultado", "stock": 43, "jlcpcb": "t", "pines": 0, "nota": "LCSC C80055, US$0.2497 a 90 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Pasivos de desacoplo", "equipo": "Condensador de 100 nF (desacoplo de cada CI)", "modelo": "CC0603KRX7R9BB104", "codigo": "C14663", "cantidad": 10, "proveedor": "LCSC", "precio_clp": 7.03, "moneda": "USD", "precio_original": 0.0074, "tramo": 1500, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C14663.html", "alternativa": "—", "estado": "consultado", "stock": 6894550, "jlcpcb": "b", "pines": 2, "nota": "LCSC C14663, US$0.0074 a 1500 un. (tramo para 2000 equipos), consulta 02-10-2026"},
+    {"bloque": "Pasivos de desacoplo", "equipo": "Condensador de 10 µF (3V3, VBAT, VBUS y cargador)", "modelo": "CL10A106KP8NNNC", "codigo": "C19702", "cantidad": 6, "proveedor": "LCSC", "precio_clp": 20.42, "moneda": "USD", "precio_original": 0.0215, "tramo": 600, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C19702.html", "alternativa": "—", "estado": "consultado", "stock": 3505360, "jlcpcb": "b", "pines": 2, "nota": "LCSC C19702, US$0.0215 a 600 un. (tramo para 1200 equipos), consulta 02-10-2026"},
+    {"bloque": "Pasivos de desacoplo", "equipo": "Condensador de 1 µF del RC de EN", "modelo": "CL05A105KP5NNNC", "codigo": "C14445", "cantidad": 1, "proveedor": "LCSC", "precio_clp": 6.84, "moneda": "USD", "precio_original": 0.0072, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C14445.html", "alternativa": "—", "estado": "consultado", "stock": 1078600, "jlcpcb": "b", "pines": 2, "nota": "LCSC C14445, US$0.0072 a 100 un. (tramo para 200 equipos), consulta 02-10-2026"},
+    {"bloque": "Pasivos de desacoplo", "equipo": "Resistencias de 10 kΩ (EN, IO0, PAIR y reposo de líneas)", "modelo": "RC0603FR-0710KL", "codigo": "C98220", "cantidad": 4, "proveedor": "LCSC", "precio_clp": 3.23, "moneda": "USD", "precio_original": 0.0034, "tramo": 100, "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/product-detail/C98220.html", "alternativa": "—", "estado": "consultado", "stock": 8530400, "jlcpcb": "b", "pines": 2, "nota": "LCSC C98220, US$0.0034 a 100 un. (tramo para 800 equipos), consulta 02-10-2026"},
+    {"bloque": "PCB V3 y ensamble", "equipo": "Flete, seguro y agente de aduanas de los componentes importados, prorrateado por equipo", "modelo": "Pedido anual de 200 equipos", "codigo": "—", "cantidad": 1, "proveedor": "LCSC / DigiKey / courier", "precio_clp": null, "moneda": "USD", "precio_original": null, "tramo": "pedido de 200 equipos", "fecha": "2026-10-02", "enlace": "https://www.lcsc.com/shipping", "alternativa": "Flete consolidado con la compra de la sonda", "estado": "estimación", "nota": "Flete DHL y agente de aduanas por pedido de 200 equipos; arancel 0 % supuesto (TLC Chile-China y acuerdo de tecnologías de la información) y IVA de importación (Ley 21.713) como crédito fiscal, sin verificar con DIN", "calculo": "internacion"},
+    {"bloque": "Montaje y embalaje", "equipo": "Interruptor de palanca mini de panel (rosca 6 mm) con capuchón estanco", "modelo": "Interruptor de panel de 6 mm con capuchón de goma", "codigo": "—", "cantidad": 1, "proveedor": "AliExpress", "precio_clp": 500, "moneda": "CLP", "precio_original": 500, "tramo": "unitario", "fecha": "2026-10-01", "enlace": "https://www.aliexpress.com/", "alternativa": "Otro proveedor local", "estado": "consultado", "nota": "AliExpress: interruptores de 6 mm con capuchón de goma desde US$0,25 el capuchón y US$1,09 el set de 10; consulta 01-10-2026"},
+    {"bloque": "Montaje y embalaje", "equipo": "Prensaestopa PG7 IP68 con tuerca (salida del cable de la sonda)", "modelo": "Prensaestopa PG7 IP68", "codigo": "—", "cantidad": 1, "proveedor": "MCI Electronics", "precio_clp": 390, "moneda": "CLP", "precio_original": 390, "tramo": "unitario", "fecha": "2026-10-01", "enlace": "https://mcielectronics.cl/", "alternativa": "Otro proveedor local", "estado": "consultado", "nota": "MCI Electronics (Chile): pack de 10 por $3.900; $990 unitaria; consulta 01-10-2026"},
+    {"bloque": "Montaje y embalaje", "equipo": "Respiradero M12 × 1,5 con membrana ePTFE (ventilación del BME280)", "modelo": "Respiradero M12 × 1,5 ePTFE", "codigo": "—", "cantidad": 1, "proveedor": "AliExpress", "precio_clp": 950, "moneda": "CLP", "precio_original": 950, "tramo": "unitario", "fecha": "2026-10-01", "enlace": "https://www.aliexpress.com/", "alternativa": "Otro proveedor local", "estado": "consultado", "nota": "AliExpress: pack de 10 por US$9,95, a $950/US$; consulta 01-10-2026"},
+    {"bloque": "Montaje y embalaje", "equipo": "Tapón de silicona para el puerto USB-C", "modelo": "Tapón de silicona USB-C", "codigo": "—", "cantidad": 1, "proveedor": "AliExpress", "precio_clp": 200, "moneda": "CLP", "precio_original": 200, "tramo": "unitario", "fecha": "2026-10-01", "enlace": "https://www.aliexpress.com/", "alternativa": "Otro proveedor local", "estado": "consultado", "nota": "AliExpress: US$0,21 por unidad en pack de 50; consulta 01-10-2026"},
+    {"bloque": "Montaje y embalaje", "equipo": "Inserto roscado M3 de latón para la tapa", "modelo": "Inserto M3 de latón", "codigo": "—", "cantidad": 4, "proveedor": "AliExpress", "precio_clp": 25, "moneda": "CLP", "precio_original": 25, "tramo": "unitario", "fecha": "2026-10-01", "enlace": "https://www.aliexpress.com/", "alternativa": "Otro proveedor local", "estado": "consultado", "nota": "AliExpress: US$1,09-2,33 por 100 unidades; consulta 01-10-2026"},
+    {"bloque": "Montaje y embalaje", "equipo": "Tornillería: 4 tornillos M3 inoxidables de cierre y 4 tornillos M2 con separador para la PCB", "modelo": "Kit de tornillos y separadores M2/M3", "codigo": "—", "cantidad": 1, "proveedor": "MCI Electronics", "precio_clp": 800, "moneda": "CLP", "precio_original": 800, "tramo": "unitario", "fecha": "2026-10-01", "enlace": "https://mcielectronics.cl/", "alternativa": "Otro proveedor local", "estado": "consultado", "nota": "MCI Electronics (Chile): kits de tornillos y separadores de $7.590-$8.490, prorrateados; consulta 01-10-2026"},
+    {"bloque": "Montaje y embalaje", "equipo": "Cordón de silicona de 2 mm para la junta de la tapa (≈ 45 cm)", "modelo": "Cordón de silicona de 2 mm", "codigo": "—", "cantidad": 1, "proveedor": "AliExpress", "precio_clp": 300, "moneda": "CLP", "precio_original": 300, "tramo": "unitario", "fecha": "2026-10-02", "enlace": "https://www.aliexpress.com/", "alternativa": "Otro proveedor local", "estado": "estimación", "nota": "estimación sobre catálogo AliExpress de cordón de silicona por metro"},
+    {"bloque": "Montaje y embalaje", "equipo": "Cableado interno: cable de silicona 22 AWG y termorretráctil", "modelo": "Cable de silicona 22 AWG y termorretráctil", "codigo": "—", "cantidad": 1, "proveedor": "Taller propio", "precio_clp": 300, "moneda": "CLP", "precio_original": 300, "tramo": "unitario", "fecha": "2026-10-02", "enlace": "—", "alternativa": "Otro proveedor local", "estado": "estimación", "nota": "estimación de taller"},
+    {"bloque": "Montaje y embalaje", "equipo": "Embalaje: caja de cartón, manual impreso y etiqueta", "modelo": "Caja de cartón, manual y etiqueta", "codigo": "—", "cantidad": 1, "proveedor": "Proveedor local", "precio_clp": 1500, "moneda": "CLP", "precio_original": 1500, "tramo": "unitario", "fecha": "2026-10-02", "enlace": "—", "alternativa": "Otro proveedor local", "estado": "estimación", "nota": "estimación: caja $800, manual $500, etiqueta $200"}
+  ],
+
+  "_bom_prototipo_v2": "BOM del prototipo V2 (con placa de desarrollo y módulos), que describe el informe de la Evaluación 1. Se conserva como referencia histórica; no alimenta el modelo.",
+
+  "bom_prototipo_v2": [
     ["Sonda de suelo 7-en-1 RS-485 Modbus RTU", 1, 48000, "AliExpress; presupuesto conservador, el mercado va de $12.100 a $82.100"],
     ["Carcasa PETG impresa en taller propio (110 × 100 × 40 mm)", 1, 7196, "costeo propio, detallado en la tabla siguiente"],
     ["Placa de desarrollo ESP32 DevKitC con módulo WROOM-32D (antena impresa)", 1, 4800, "AliExpress Choice $3.506-$6.600; en Chile $8.148 con IVA"],
@@ -110,43 +250,141 @@
     ["Cableado interno: cable de silicona 22 AWG y termorretráctil", 1, 300, "estimación de taller"],
     ["Embalaje: caja de cartón, manual impreso y etiqueta", 1, 1500, "estimación: caja $800, manual $500, etiqueta $200"]
   ],
-  "_bom_pendiente": "Desde la revisión de octubre de 2026 la BOM incluye los materiales de montaje y sellado (interruptor de panel, prensaestopas, respiradero, tapón del USB-C, insertos, tornillería, junta y cableado) y el embalaje. Sus precios son de catálogo o estimaciones de taller, sin cotización formal; la única compra efectuada es la de la PCB.",
+
+  "_bom_pendiente": "La BOM de la V3 se construye con precios de catálogo de LCSC (consultados el 02-10-2026) y estimaciones declaradas; la única compra efectuada es la de la PCB V2. Los materiales de montaje y sellado y la sonda no tienen cotización formal.",
+
   "_carcasa_detalle": [
     ["Filamento PETG, 210 g a $25.000/kg (carcasa de 110 × 100 × 40 mm para la placa de 99,9 × 90 mm)", 5250, "AliExpress $20.700-$35.800 por kg"],
     ["Merma de impresión, 15 % (fallos, soportes y purga)", 788, "estimación de taller"],
-    ["Energía, ~1,05 kWh por carcasa a $160/kWh", 168, "tarifa residencial de referencia"],
+    ["Energía, 1,05 kWh por carcasa (K1C, 262 W promedio durante 4 h) a $200/kWh", 210, "tarifa BT1 de referencia, $180-$220/kWh"],
     ["Mantención de impresora prorrateada (boquillas, correas, cama)", 990, "$100.000 anuales por impresora, sobre 100 carcasas por impresora"]
   ],
+
   "merma_fraccion_bom": 0.03,
+
   "garantia_fraccion_bom": 0.05,
+
   "envio_neto_por_equipo": 6000,
+
   "comision_sobre_bruto": 0.05,
 
-  "_equipamiento": "Ajustado a la dotacion real, no al ejemplo. Vida util 5 anios, depreciacion lineal, renovacion en el anio 6.",
-  "equipamiento": [
-    ["Impresora 3D", 2, 800000, 5],
-    ["Notebook", 3, 1000000, 5],
-    ["Osciloscopio digital portátil", 1, 500000, 5],
-    ["Fuente de alimentación de laboratorio", 1, 300000, 5],
-    ["Multímetro", 2, 100000, 5],
-    ["Soldador de temperatura regulable", 2, 150000, 5],
-    ["Herramientas", 1, 1000000, 5],
-    ["Muebles de oficina (sillas, escritorios)", 3, 500000, 5],
-    ["Monitores", 3, 150000, 5],
-    ["Impresora de oficina", 1, 150000, 5]
+  "_equipamiento": "Taller especificado: cada fila lleva modelo, proveedor, precio puesto en Chile y uso. Los precios en US$ se convierten a $950 por US$ y se les agrega flete y seguro (12 %) y arancel general (6 %), sin IVA (crédito fiscal). Vida útil 5 años, depreciación lineal, renovación en el año 6.",
+
+  "taller_filas": [
+    {"equipo": "Impresora 3D", "modelo": "Creality K1C", "uso": "Impresión de carcasas PETG en cámara cerrada (cama de 220 × 220 mm)", "codigo": "—", "cantidad": 2, "proveedor": "Creality (tienda oficial)", "moneda": "USD", "precio_original": 399, "precio_neto_clp": null, "vida_util": 5, "fecha": "2026-10-02", "enlace": "https://www.creality.com/products/creality-k1c-3d-printer", "alternativa": "Bambu Lab P1S; Elegoo Centauri Carbon (impresoras de cámara cerrada)", "estado": "consultado", "nota": "US$399 en oferta (Tom's Hardware, jul-2026); precio de lista de US$559 en el lanzamiento. Dos unidades por redundancia y por la demanda desde 2031 (ver capacidad)"},
+    {"equipo": "Estación de soldadura", "modelo": "Hakko FX-888D", "uso": "Soldadura de agujero pasante, borneras y retoques", "codigo": "FX888D-29BY/P", "cantidad": 2, "proveedor": "DigiKey", "moneda": "USD", "precio_original": 129.42, "precio_neto_clp": null, "vida_util": 5, "fecha": "2026-10-02", "enlace": "https://www.digikey.com/en/ptm/a/american-hakko/fx-888d-soldering-station", "alternativa": "Weller WE1010", "estado": "consultado", "nota": "US$129,42 en DigiKey (versión de 120 V; en Chile se compra la de 230 V a precio equivalente)"},
+    {"equipo": "Estación de aire caliente", "modelo": "Quick 861DW", "uso": "Retrabajo de BME280, USB-C y módulo ESP32; reflujo de lotes de prototipos", "codigo": "—", "cantidad": 1, "proveedor": "T-Equipment", "moneda": "USD", "precio_original": 294.99, "precio_neto_clp": null, "vida_util": 5, "fecha": "2026-10-02", "enlace": "https://www.tequipment.net/Quick/soldering-equipment-1/desoldering-equipment-rework-stations/", "alternativa": "Hakko FR-810B (DigiKey FR810B-05)", "estado": "consultado", "nota": "US$294,99 en T-Equipment; el modelo figura descontinuado en algunas tiendas"},
+    {"equipo": "Placa calefactora", "modelo": "UYUE 946-1010 (100 × 100 mm, 400 W, 50–350 °C)", "uso": "Reflujo con esténcil de placas de prototipo y retrabajo (alternativa A)", "codigo": "—", "cantidad": 1, "proveedor": "AliExpress", "moneda": "USD", "precio_original": 40, "precio_neto_clp": null, "vida_util": 5, "fecha": "2026-10-02", "enlace": "https://embeddedcomputing.com/technology/open-source/budget-pcb-hotplate-options-large-medium-small", "alternativa": "Horno de reflujo T-962", "estado": "consultado", "nota": "≈ US$40 en AliExpress, citado en Embedded Computing «Budget PCB Hotplate Options» (consulta 02-10-2026)"},
+    {"equipo": "Esténcil de ensamble", "modelo": "Esténcil de acero de 0,12 mm para la PCB V3 (con marco)", "uso": "Aplicación de pasta de soldar en prototipos y retrabajo", "codigo": "—", "cantidad": 2, "proveedor": "JLCPCB", "moneda": "USD", "precio_original": 7.86, "precio_neto_clp": null, "vida_util": 5, "fecha": "2026-10-02", "enlace": "https://jlcpcb.com/help/article/pcb-assembly-price", "alternativa": "Esténcil de otro fabricante", "estado": "estimación", "nota": "US$7,86 es la tarifa publicada del esténcil de ensamble estándar; el esténcil suelto con marco puede costar más. Dos unidades: V3 y repuesto de la revisión"},
+    {"equipo": "Microscopio estereoscópico", "modelo": "AmScope SE400-Z (10× a 20×, binocular)", "uso": "Inspección de LGA, SOIC y soldaduras de la V3", "codigo": "—", "cantidad": 1, "proveedor": "AmScope", "moneda": "USD", "precio_original": 200, "precio_neto_clp": null, "vida_util": 5, "fecha": "2026-10-02", "enlace": "https://amscope.com/", "alternativa": "Lupa con luz LED de 10×", "estado": "consultado", "nota": "US$200 en un revendedor (consulta 02-10-2026); alternativa de mayor aumento: microscopio de 10–40× a ≈ €424"},
+    {"equipo": "Osciloscopio", "modelo": "Rigol DS1054Z (4 canales, 50 MHz)", "uso": "Señales Modbus, I²C, rizado del elevador y del LDO", "codigo": "—", "cantidad": 1, "proveedor": "Electro-Meters", "moneda": "USD", "precio_original": 460.68, "precio_neto_clp": null, "vida_util": 5, "fecha": "2026-10-02", "enlace": "https://store.electro-meters.com/products/rigol-ds1054z-5426407", "alternativa": "Siglent SDS1104X-E", "estado": "consultado", "nota": "US$460,68 en oferta (precio normal US$553,08)"},
+    {"equipo": "Fuente de laboratorio", "modelo": "Korad KA3005P (0 a 30 V, 0 a 5 A)", "uso": "Alimentar la placa sin batería y emular la celda en el FAT", "codigo": "—", "cantidad": 1, "proveedor": "Welectron", "moneda": "USD", "precio_original": 99, "precio_neto_clp": null, "vida_util": 5, "fecha": "2026-10-02", "enlace": "https://welectron.com/Korad-KA3005P-Benchtop-Power-Supply", "alternativa": "Rigol DP832 (US$518,41)", "estado": "consultado", "nota": "€91,60 sin IVA en Welectron (consulta 02-10-2026), convertido a US$99 a 1,08 US$/€"},
+    {"equipo": "Multímetro", "modelo": "UNI-T UT61E+ (resolución de 0,01 µA en el rango de 220 µA)", "uso": "Corriente de reposo profundo y de medición por JP1", "codigo": "—", "cantidad": 2, "proveedor": "Mercado internacional", "moneda": "USD", "precio_original": 103.39, "precio_neto_clp": null, "vida_util": 5, "fecha": "2026-10-02", "enlace": "https://www.ebay.de/itm/286809229792", "alternativa": "Fluke 17B+ (resolución de 1 µA)", "estado": "consultado", "nota": "US$103,39 en el mercado internacional; la resolución se confirma con la hoja de datos del fabricante"},
+    {"equipo": "Analizador lógico", "modelo": "SparkFun TOL-18627 (USB, 8 canales, 24 MHz, compatible con sigrok)", "uso": "Decodificar Modbus RTU (RS-485) e I²C", "codigo": "1568-18627-ND", "cantidad": 1, "proveedor": "DigiKey", "moneda": "USD", "precio_original": 27.35, "precio_neto_clp": null, "vida_util": 5, "fecha": "2026-10-02", "enlace": "https://www.digikey.com/en/products/result?keywords=TOL-18627", "alternativa": "Saleae Logic 8 (US$499 en Jameco)", "estado": "consultado", "nota": "US$27,35 en DigiKey, 1 unidad (consulta 02-10-2026)"},
+    {"equipo": "Fixture de ensayo FAT", "modelo": "Fixture de pogo pines P75-E2 con placa FR4 y base impresa", "uso": "Contactar los puntos de prueba de cada placa en el FAT", "codigo": "—", "cantidad": 1, "proveedor": "Taller propio", "moneda": "CLP", "precio_original": 60000, "precio_neto_clp": 60000, "vida_util": 5, "fecha": "2026-10-02", "enlace": "—", "alternativa": "Fixture comercial de cama de clavos", "estado": "estimación", "nota": "Estimación de taller: 12 pogo pines, placa de contacto y base impresa"},
+    {"equipo": "Notebook", "modelo": "ASUS Vivobook 15 M1502NAQ (Ryzen 7, 16 GB, SSD de 512 GB)", "uso": "Diseño, firmware, backoffice y registro de FAT", "codigo": "—", "cantidad": 3, "proveedor": "Ripley (Chile)", "moneda": "CLP", "precio_original": 554613, "precio_neto_clp": 554613, "vida_util": 5, "fecha": "2026-10-02", "enlace": "https://simple.ripley.cl/tecno/marcas-destacadas/notebooks-amd", "alternativa": "—", "estado": "consultado", "nota": "$659.990 con IVA en Ripley (consulta 02-10-2026); neto sin IVA"},
+    {"equipo": "Monitor", "modelo": "Samsung S4 de 24 pulgadas, IPS, Full HD", "uso": "Puestos de trabajo y estación de FAT", "codigo": "—", "cantidad": 3, "proveedor": "Sodimac (Chile)", "moneda": "CLP", "precio_original": 92429, "precio_neto_clp": 92429, "vida_util": 5, "fecha": "2026-10-02", "enlace": "https://www.sodimac.cl/sodimac-cl/b/monitor-24-pulgadas", "alternativa": "—", "estado": "consultado", "nota": "$109.990 con IVA (consulta 02-10-2026); neto sin IVA"},
+    {"equipo": "Muebles de oficina", "modelo": "Escritorio Tripoli de 120 × 60 cm y silla ergonómica Belisa (juego)", "uso": "Puestos de oficina y mesa de ensamble", "codigo": "—", "cantidad": 3, "proveedor": "Sodimac (Chile)", "moneda": "CLP", "precio_original": 184857, "precio_neto_clp": 184857, "vida_util": 5, "fecha": "2026-10-02", "enlace": "https://www.sodimac.cl/sodimac-cl/category/cat1050046/Sillas-de-escritorios", "alternativa": "—", "estado": "consultado", "nota": "Escritorio $89.990 + silla $129.990 con IVA (consulta 02-10-2026); neto sin IVA"},
+    {"equipo": "Impresora de oficina", "modelo": "Brother DCP-L2540DW (multifuncional láser monocromática)", "uso": "Manuales, etiquetas y registros de FAT", "codigo": "—", "cantidad": 1, "proveedor": "Paris (Chile)", "moneda": "CLP", "precio_original": 210076, "precio_neto_clp": 210076, "vida_util": 5, "fecha": "2026-10-02", "enlace": "https://www.paris.cl/impresora-multifuncional-brother-dcp-l2540dw-bn-wifi-MKM86JE1RX.html", "alternativa": "—", "estado": "consultado", "nota": "$249.990 con IVA en Paris (consulta 02-10-2026); neto sin IVA"},
+    {"equipo": "Herramientas", "modelo": "Kit de herramientas manuales, alfombra ESD y extractor de humo", "uso": "Montaje mecánico, pinzas, alicates, destornilladores y seguridad", "codigo": "—", "cantidad": 1, "proveedor": "Proveedor local", "moneda": "CLP", "precio_original": 1000000, "precio_neto_clp": 1000000, "vida_util": 5, "fecha": "2026-10-02", "enlace": "—", "alternativa": "—", "estado": "estimación", "nota": "Valor del supuesto vigente"}
+  ],
+
+  "servicios_filas": [
+    {"equipo": "Placa de circuito impreso V3, pedido de 5 placas", "modelo": "PCB 2 capas, 99,9 × 90 mm, con envío", "cantidad": 1, "proveedor": "JLCPCB", "precio_clp": 15000, "fecha": "2026-09-24", "enlace": "https://jlcpcb.com/", "estado": "consultado", "nota": "Compra real de la V2; la V3 se cotiza con su contorno definitivo"},
+    {"equipo": "Ensamble PCBA, lote de 200 placas", "modelo": "PCBA de JLCPCB con piezas del catálogo LCSC", "cantidad": 1, "proveedor": "JLCPCB", "calculo": "pcba_total_lote", "fecha": "2026-10-02", "enlace": "https://jlcpcb.com/help/article/pcb-assembly-price", "estado": "estimación", "nota": "Cargos publicados por JLCPCB (preparación, esténcil, piezas extendidas y juntas) más flete estimado; no incluye las piezas, que van en la BOM"},
+    {"equipo": "Campaña de laboratorio, 30 muestras pareadas", "modelo": "Análisis de suelo en laboratorio acreditado", "cantidad": 1, "proveedor": "Laboratorio de Química de Suelos y Aguas, Universidad de Chile", "nominal": "Metrología y campaña de validación (30 muestras pareadas)", "fecha": "2026-10-02", "enlace": "https://www.labsueloaguas.uchile.cl/wp-content/uploads/2026/05/SUELOS.pdf", "estado": "consultado", "nota": "Lista 2026: fertilidad completa (pH, CE, MO y NPK disponible) a 1,00 UF por muestra; 30 × 1,00 UF × $40.845 (UF de agosto de 2026) = $1.225.344, más ≈ $75.000 de soluciones patrón de pH y CE (estimación)"},
+    {"equipo": "Certificación SUBTEL", "modelo": "Verificación de radiofrecuencia (Res. N° 737/2025)", "cantidad": 1, "proveedor": "SUBTEL y laboratorio de ensayo (por cotizar)", "nominal": "Verificación SUBTEL (Res. N° 737/2025)", "fecha": "2026-10-02", "enlace": "https://www.subtel.gob.cl/", "estado": "estimación", "nota": "Valor del supuesto vigente; sin cotización del laboratorio"},
+    {"equipo": "Ensayo de ingreso IP67", "modelo": "Ensayo según IEC 60529", "cantidad": 1, "proveedor": "Laboratorio acreditado (por cotizar)", "nominal": "Ensayo IP67 en laboratorio acreditado", "fecha": "2026-10-02", "enlace": "—", "estado": "estimación", "nota": "Valor del supuesto vigente; sin cotización del laboratorio"}
   ],
 
   "_activo_nominal": "Gastos de puesta en marcha, se amortizan en 5 anios.",
+
   "activo_nominal": [
     ["Constitución de sociedad, trámites legales y marca", 700000],
     ["Prototipado electrónico (tres rondas de PCB portadora)", 1100000],
     ["Prototipado mecánico (carcasa, juntas, estanqueidad)", 450000],
     ["Firmware del ESP32", 900000],
     ["Aplicación móvil y consola web", 800000],
-    ["Metrología y campaña de validación (30 muestras pareadas)", 600000],
+    ["Metrología y campaña de validación (30 muestras pareadas)", 1300000],
     ["Ensayo IP67 en laboratorio acreditado", 350000],
     ["Verificación SUBTEL (Res. N° 737/2025)", 300000]
   ],
 
-  "capital_trabajo_meses": 3
+  "capital_trabajo_meses": 3,
+
+  "_cambio": "Tipo de cambio de referencia que ya usa la BOM: $950 por US$. Los precios en US$ se convierten con él.",
+
+  "tipo_cambio_usd_clp": 950,
+
+  "fecha_consulta_precios": "2026-10-02",
+
+  "_internacion_taller": "Equipos del taller importados: flete y seguro del 12 % sobre el precio de origen y arancel general del 6 % sobre el valor CIF (estimación); el IVA de importación es crédito fiscal y no entra al costo neto.",
+
+  "internacion_taller": {
+    "flete_seguro": 0.12,
+    "arancel": 0.06
+  },
+
+  "_internacion_componentes": "Pedido anual de 200 equipos a LCSC y DigiKey: flete DHL y agente de aduanas estimados; arancel 0 % supuesto.",
+
+  "internacion_componentes": {
+    "flete_usd": 80,
+    "aduana_usd": 60,
+    "equipos_por_pedido": 200
+  },
+
+  "_pcba": "Tarifas publicadas de JLCPCB (centro de ayuda, consultado el 02-10-2026): preparación de US$8 (económico) o US$25 (estándar, una cara), esténcil de US$1,5 o US$7,86, US$3 por pieza extendida y US$0,0016 por junta. El envío DHL a Chile y la clasificación básica/extendida son estimaciones.",
+
+  "pcba": {
+    "preparacion_economico_usd": 8,
+    "estencil_economico_usd": 1.5,
+    "preparacion_estandar_usd": 25,
+    "estencil_estandar_usd": 7.86,
+    "lote_maximo_economico": 30,
+    "pieza_extendida_usd": 3,
+    "junta_usd": 0.0016,
+    "envio_base_usd": 25,
+    "envio_por_placa_usd": 0.31,
+    "lote_bom": 200
+  },
+
+  "_ensamble": "Tiempos de ensamble y ensayo por equipo, en minutos, y costo del ensamblador: estimaciones de taller, sin medir. El costo horario sale de la nómina del modelo sobre las horas efectivas del año.",
+
+  "ensamble": {
+    "horas_efectivas_anuales_por_persona": 1800,
+    "ocupacion_productiva": 0.85,
+    "min_pcba_taller": 62,
+    "min_pcba_retoque_jlcpcb": 10,
+    "pasta_y_consumibles_clp": 400,
+    "merma_retrabajo_taller": 0.04,
+    "min_recepcion": 3,
+    "min_programacion": 3,
+    "min_ensamble_mecanico": 20,
+    "min_fat": 18,
+    "min_embalaje": 5,
+    "min_impresion_atencion": 3,
+    "lotes": [5, 12, 50, 200, 1085]
+  },
+
+  "_capacidad_impresion": "Capacidad de impresión de carcasas con la K1C. La huella es la vigente (110 × 100 mm, base y tapa); se recalcula cuando exista el contorno de la V3. Tiempos estimados, sin medir.",
+
+  "capacidad_impresion": {
+    "cama_mm": [220, 220],
+    "huella_mm": [110, 100],
+    "separacion_mm": 5,
+    "piezas_por_equipo": 2,
+    "masa_g": 210,
+    "densidad_g_cm3": 1.27,
+    "flujo_mm3_s": 15,
+    "sobrecarga_tiempo": 0.25,
+    "cambio_de_cama_h": 0.25,
+    "dias_operativos": 300,
+    "horas_impresion_dia": 16,
+    "tasa_exito": 0.92,
+    "potencia_promedio_w": 262
+  },
+
+  "_tarifa": "Tarifa BT1 de distribuidoras chilenas en 2026: entre $180 y $220 por kWh (hacecuentas.com, calculadora con tarifas publicadas por distribuidora). Se adopta el centro del rango; no se obtuvo el pliego de Enel Distribución.",
+
+  "tarifa_electrica_clp_kwh": 200
 }

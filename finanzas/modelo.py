@@ -8,6 +8,76 @@ import json, os, sys
 BASE = os.path.dirname(os.path.abspath(__file__))
 S = json.load(open(os.path.join(BASE, "supuestos.json"), encoding="utf-8"))
 
+TC = S["tipo_cambio_usd_clp"]
+
+
+# ------------------------------------------- BOM y taller estructurados
+def pcba_cargos(lote):
+    """Cargos de ensamble PCBA de JLCPCB por un lote de placas (US$): tarifas publicadas y envio estimado."""
+    p = S["pcba"]
+    filas = [f for f in S["bom_filas"] if f.get("jlcpcb") in ("b", "e")]
+    juntas = sum(f["pines"] * f["cantidad"] for f in filas)
+    extendidas = len({f["codigo"] for f in filas if f["jlcpcb"] == "e"})
+    eco = lote <= p["lote_maximo_economico"]
+    preparacion = p["preparacion_economico_usd" if eco else "preparacion_estandar_usd"]
+    estencil = p["estencil_economico_usd" if eco else "estencil_estandar_usd"]
+    piezas = extendidas * p["pieza_extendida_usd"]
+    soldadura = juntas * lote * p["junta_usd"]
+    envio = p["envio_base_usd"] + p["envio_por_placa_usd"] * lote
+    total = preparacion + estencil + piezas + soldadura + envio
+    return {"lote": lote, "economico": eco, "preparacion": preparacion, "estencil": estencil, "extendidas": extendidas,
+            "piezas": piezas, "juntas": juntas, "soldadura": soldadura, "envio": envio, "total_usd": total,
+            "por_placa_usd": total / lote, "por_placa_clp": total / lote * TC}
+
+
+def internacion_por_equipo_clp():
+    c = S["internacion_componentes"]
+    return (c["flete_usd"] + c["aduana_usd"]) / c["equipos_por_pedido"] * TC
+
+
+def derivar_bom_y_taller():
+    for f in S["bom_filas"]:
+        calculo = f.get("calculo")
+        if calculo == "pcba_lote":
+            c = pcba_cargos(S["pcba"]["lote_bom"])
+            f["precio_original"], f["precio_clp"] = round(c["por_placa_usd"], 4), round(c["por_placa_clp"], 2)
+        elif calculo == "carcasa":
+            f["precio_clp"] = f["precio_original"] = sum(v for _, v, _ in S["_carcasa_detalle"])
+        elif calculo == "internacion":
+            f["precio_clp"] = round(internacion_por_equipo_clp(), 2)
+            c = S["internacion_componentes"]
+            f["precio_original"] = round((c["flete_usd"] + c["aduana_usd"]) / c["equipos_por_pedido"], 4)
+    S["bom"] = [[f["equipo"] + (": " + f["modelo"] if f["codigo"] != "—" else ""), f["cantidad"], f["precio_clp"], f["nota"]]
+                for f in S["bom_filas"]]
+    k = S["internacion_taller"]
+    for f in S["taller_filas"]:
+        if f["precio_neto_clp"] is None:
+            f["precio_neto_clp"] = round(f["precio_original"] * TC * (1 + k["flete_seguro"]) * (1 + k["arancel"]))
+    S["equipamiento"] = [[f["equipo"] + ": " + f["modelo"], f["cantidad"], f["precio_neto_clp"], f["vida_util"]]
+                         for f in S["taller_filas"]]
+    nominal = dict((n, v) for n, v in S["activo_nominal"])
+    for f in S["servicios_filas"]:
+        if "nominal" in f:
+            f["precio_clp"] = nominal[f["nominal"]]
+        elif f.get("calculo") == "pcba_total_lote":
+            f["precio_clp"] = round(pcba_cargos(S["pcba"]["lote_bom"])["total_usd"] * TC)
+        elif f.get("calculo") == "pcba_estencil":
+            f["precio_clp"] = round(pcba_cargos(S["pcba"]["lote_bom"])["estencil"] * TC)
+
+
+derivar_bom_y_taller()
+
+
+def bom_por_bloque():
+    """[(bloque, lineas, subtotal neto por equipo)] en el orden de aparicion."""
+    orden = {}
+    for f in S["bom_filas"]:
+        b = orden.setdefault(f["bloque"], [0, 0.0])
+        b[0] += 1
+        b[1] += f["cantidad"] * f["precio_clp"]
+    return [(k, v[0], v[1]) for k, v in orden.items()]
+
+
 ANIOS = [S["anio_inicio"] + i for i in range(S["horizonte_anios"])]
 INFL = S["inflacion"]
 IVA = S["iva"]
@@ -325,86 +395,14 @@ def porc(x, d=1):
 
 
 def planilla_flujo(r, ruta):
-    """Escribe la planilla de flujo de caja y financiamiento."""
-    import xlsxwriter
-    ind = resumen(r)
-    with xlsxwriter.Workbook(ruta) as wb:
-        neg = wb.add_format({"num_format": '$#,##0;[Red]-$#,##0'})
-        tit = wb.add_format({"bold": True, "bg_color": "#EEEEEE", "border": 1})
-        bold = wb.add_format({"bold": True})
-
-        ws = wb.add_worksheet("Resultados")
-        ws.set_column(0, 0, 42); ws.set_column(1, 11, 17)
-        ws.write_row(0, 0, ["Concepto"] + [str(a) for a in ANIOS], tit)
-        filas = [
-            ("Equipos vendidos", lambda f: f["unidades"]),
-            ("Ventas netas", lambda f: f["ventas"]),
-            ("(-) Costos operacionales", lambda f: f["variables"]),
-            ("(-) Gastos de estructura", lambda f: f["gastos"]["total"]),
-            ("(-) Depreciacion", lambda f: f["deprec"]),
-            ("(-) Amortizacion activo nominal", lambda f: f["amort_nom"]),
-            ("(-) Intereses", lambda f: f["interes"]),
-            ("(=) Utilidad antes de impuesto", lambda f: f["util_antes"]),
-            ("(-) Impuesto a la renta", lambda f: f["impuesto"]),
-            ("(=) Utilidad del ejercicio", lambda f: f["util_neta"]),
-            ("(+) Depreciacion y amortizacion", lambda f: f["deprec"] + f["amort_nom"]),
-            ("(-) Cuota de capital", lambda f: f["capital"]),
-            ("(-) Reinversion en activo fijo", lambda f: f["reinversion"]),
-            ("(=) Flujo de fondos", lambda f: f["flujo"]),
-            ("Caja acumulada", lambda f: f["caja"]),
-        ]
-        for i, (etq, fn) in enumerate(filas, 1):
-            ws.write(i, 0, etq, bold if etq.startswith("(=)") else None)
-            for j, f in enumerate(r["filas"], 1):
-                ws.write_number(i, j, round(fn(f)), None if etq == "Equipos vendidos" else neg)
-
-        ws2 = wb.add_worksheet("Amortizacion")
-        ws2.set_column(0, 5, 20)
-        ws2.write_row(0, 0, ["Periodo", "Saldo inicial", "Capital", "Intereses", "Cuota", "Saldo final"], tit)
-        for i, a in enumerate(r["amortizacion"], 1):
-            ws2.write(i, 0, a["anio"])
-            for j, k in enumerate(("saldo_inicial", "capital", "interes", "cuota", "saldo_final"), 1):
-                ws2.write_number(i, j, round(a[k]), neg)
-
-        ws3 = wb.add_worksheet("Inversion y evaluacion")
-        ws3.set_column(0, 0, 46); ws3.set_column(1, 1, 22)
-        datos = [
-            ("Equipamiento y activo fijo", r["inversion"]["equipamiento"]),
-            ("Activo nominal", r["inversion"]["activo_nominal"]),
-            ("Capital de trabajo", r["inversion"]["capital_trabajo"]),
-            ("Inventario inicial", r["inversion"]["inventario"]),
-            ("INVERSION INICIAL TOTAL", r["inversion"]["total"]),
-            ("Credito bancario (100 % de la inversion)", r["credito"]),
-            ("Pie propio exigido (30 % del credito)", r["pie"]),
-            ("Cuota mensual", r["cuota"]),
-            ("Precio neto de venta", r["precio_neto_base"]),
-            ("Precio de lista con IVA", r["precio_lista"]),
-            ("VAN al 20 %", ind["van"]),
-        ]
-        for i, (etq, v) in enumerate(datos):
-            ws3.write(i, 0, etq, bold if etq.isupper() else None)
-            ws3.write_number(i, 1, round(v), neg)
-        ws3.write(len(datos), 0, "TIR efectiva anual", bold)
-        ws3.write(len(datos), 1, porc(ind["tir"], 2))
-        ws3.write(len(datos) + 1, 0, "Payback simple / descontado (anios)")
-        ws3.write(len(datos) + 1, 1, "%s / %s" % (dec(ind["payback"]), dec(ind["payback_desc"])))
+    """Escribe la planilla de flujo de caja (doce hojas enlazadas por formulas)."""
+    import anexos
+    return anexos.planilla_flujo(r, ruta)
 
 
 def planilla_bom(ruta):
-    import xlsxwriter
-    with xlsxwriter.Workbook(ruta) as wb:
-        tit = wb.add_format({"bold": True, "bg_color": "#EEEEEE", "border": 1})
-        ws = wb.add_worksheet("BOM vigente")
-        ws.set_column(0, 0, 62); ws.set_column(1, 3, 18); ws.set_column(4, 4, 70)
-        ws.write_row(0, 0, ["Componente", "Cantidad", "Neto unitario CLP", "Subtotal", "Origen del precio"], tit)
-        for i, (n, q, pu, nota) in enumerate(S["bom"], 1):
-            ws.write_row(i, 0, [n, q, pu])
-            ws.write_formula(i, 3, "=B%d*C%d" % (i + 1, i + 1), None, q * pu)
-            ws.write(i, 4, nota)
-        fin = len(S["bom"]) + 1
-        ws.write(fin, 0, "TOTAL BOM NETO", tit)
-        ws.write_formula(fin, 3, "=SUM(D2:D%d)" % fin, tit, BOM)
-        ws.write(fin + 2, 0, S["_bom_pendiente"])
+    import anexos
+    return anexos.planilla_bom(ruta)
 
 
 def resultados_markdown(r, ruta):
@@ -439,7 +437,13 @@ def resultados_markdown(r, ruta):
 
 def main():
     r = dimensionar()
+    import anexos
+    destino = os.path.join(ROOT, "Evaluacion", "Evaluacion 2", "Anexos")
+    os.makedirs(destino, exist_ok=True)
     planilla_flujo(r, os.path.join(ROOT, "Flujo de caja y financiamiento - TerraSense.xlsx"))
+    planilla_flujo(r, os.path.join(destino, "Anexo B - Flujo de caja TerraSense.xlsx"))
+    anexos.anexo_a(os.path.join(destino, "Anexo A - Cotizaciones TerraSense.xlsx"))
+    anexos.anexo_e(os.path.join(destino, "Anexo E - Protocolos FAT y SAT TerraSense.xlsx"))
     planilla_bom(os.path.join(ROOT, "PCB", "BOM_TerraSense.xlsx"))
     resultados_markdown(r, os.path.join(ROOT, "docs", "RESULTADOS_FINANCIEROS.md"))
     for script in ("seccion_economica.py", "corregir_informe.py", "documentacion.py", "informe.py"):

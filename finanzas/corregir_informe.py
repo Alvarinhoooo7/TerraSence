@@ -389,7 +389,7 @@ bloque("### Modelo de Autonomía en el Campo", "### Sostenibilidad Ambiental", A
 SINTESIS = (
     "### Síntesis de Eficiencia Energética\n\n"
     "El diseño del sistema prioriza la autonomía como un atributo crítico de confiabilidad. Con la placa "
-    "de desarrollo que adquiere la BOM, esa autonomía se obtiene cortando la energía donde no se usa: la "
+    "de desarrollo del prototipo V2, esa autonomía se obtiene cortando la energía donde no se usa: la "
     "sonda solo recibe alimentación durante la lectura y el equipo completo se apaga entre jornadas. Bajo el "
     "uso habitual, una carga sostiene aproximadamente %s semanas de trabajo (%s mediciones) según el balance "
     "energético por nodo. Esta eficiencia es fruto de tres pilares de diseño:\n\n"

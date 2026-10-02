@@ -77,11 +77,12 @@ BLOQUES["VENTAS"] = "\n\n".join([
 
 # ------------------------------------------------------------------ BOM
 BLOQUES["BOM"] = "\n\n".join([
-    tabla(["Material o servicio por equipo", "Cant.", "Neto unitario", "Subtotal", "Origen del precio"],
-          [[n, c, fmt(p), fmt(c * p), ev] for n, c, p, ev in M.S["bom"]]
-          + [["**Total BOM neto**", "", "", "**%s**" % fmt(M.BOM), ""]]),
+    tabla(["Bloque del equipo", "Líneas", "Subtotal neto por equipo", "Participación"],
+          [[bl, n, fmt(sub), porc(sub / M.BOM)] for bl, n, sub in M.bom_por_bloque()]
+          + [["**Total BOM neto**", "**%d**" % len(M.S["bom"]), "**%s**" % fmt(M.BOM), "**100,0 %**"]]),
     '###### **Tabla @@ “Estructura de Costos de Fabricación (BOM)”**',
-    "La BOM contiene **exclusivamente** los componentes presentes en el esquemático. %s"
+    "La BOM es la del producto sobre la placa V3, sin placas de desarrollo ni módulos. El detalle por "
+    "línea (modelo, código del proveedor, cantidad, precio y enlace) está en el anexo A de la Evaluación 2. %s"
     % M.S["_bom_pendiente"],
     tabla(["Concepto", "Neto CLP"],
           [["Materiales y servicios de la BOM", fmt(M.BOM)],

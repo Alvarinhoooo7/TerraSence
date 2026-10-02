@@ -63,11 +63,11 @@ w("")
 
 # ---------------------------------------------------------------- BOM
 cuadro("Estructura de costos de fabricación (BOM) por equipo")
-w("| Material o servicio por equipo | Cant. | Neto unitario | Subtotal | Origen del precio |")
-w("|---|---:|---:|---:|---|")
-for nom, c, pu, ev in S["bom"]:
-    w("| %s | %d | %s | %s | %s |" % (nom, c, p(pu), p(c * pu), ev))
-w("| **Total BOM neto por equipo** |  |  | **%s** |  |" % p(M.BOM))
+w("| Bloque del equipo | Líneas | Subtotal neto por equipo | Participación |")
+w("|---|---:|---:|---:|")
+for bl, n, sub in M.bom_por_bloque():
+    w("| %s | %d | %s | %s |" % (bl, n, p(sub), pct(sub / M.BOM)))
+w("| **Total BOM neto por equipo** | **%d** | **%s** | **100,0 %%** |" % (len(S["bom"]), p(M.BOM)))
 w("")
 
 cuadro("Costeo de la carcasa impresa en taller propio")
