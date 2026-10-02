@@ -35,7 +35,7 @@ TerraSense opera y se justifica dentro de un **modelo de economía de mercado**.
 
 **Justificación del Modelo para TerraSense:**
 - **Asignación eficiente de recursos privados:** Como empresa privada, decidimos cómo combinar nuestro capital, trabajo y tecnología (producción de hardware y desarrollo de software) para maximizar el valor entregado, respondiendo a una necesidad real y apremiante: la falta de información oportuna en el agro.
-- **Formación libre de precios:** Nuestro precio propuesto de **$349.990 con IVA** no está fijado artificialmente. Considera nuestra estructura de costos (BOM de $81.184, importación, mano de obra) y busca equilibrarse con la disposición a pagar del cliente y los precios de los bienes sustitutos disponibles.
+- **Formación libre de precios:** Nuestro precio propuesto de **$465.021 con IVA** no está fijado artificialmente. Considera nuestra estructura de costos (BOM de $80.076, importación, mano de obra) y busca equilibrarse con la disposición a pagar del cliente y los precios de los bienes sustitutos disponibles.
 - **Soberanía del consumidor y bienes sustitutos:** El agricultor (consumidor final) dicta el éxito del proyecto. Ejerce su soberanía eligiendo libremente cómo resolver su necesidad, ponderando a TerraSense frente a medidores básicos (Bluelab, Hanna), laboratorios químicos o simplemente su intuición empírica.
 - **Incentivos y diferenciación:** La competencia obliga a la innovación continua. TerraSense no compite por vender hardware crudo, sino por entregar valor a través de "decisiones" interpretadas agronómicamente, lo cual es nuestro incentivo de mercado para mejorar constantemente.
 
@@ -62,7 +62,7 @@ En nuestro modelo económico, las fuerzas de mercado interactúan de la siguient
 
 - **Demanda:** Agricultores, cooperativas e instituciones que valoran las decisiones rápidas en el campo. Esta demanda es **relativamente elástica frente al precio** de los bienes sustitutos (si un medidor de la competencia baja su precio agresivamente, perdemos tracción). Sin embargo, **tiende a ser inelástica ante contingencias climáticas** (en extrema sequía, conocer la humedad del suelo pasa de ser un lujo a una necesidad operativa ineludible).
 - **Oferta:** Equipos fabricados que TerraSense puede ensamblar, soportar y vender de forma rentable en Chile. La curva de oferta tiene pendiente positiva, condicionada por los costos marginales de ensamblaje, importación e innovación técnica.
-- Precio de lista propuesto: **$349.990 con IVA** ($294.109 neto).
+- Precio de lista propuesto: **$465.021 con IVA** ($390.774 neto).
 - Meta Año 1: **200 unidades**.
 - Equilibrio operativo: **176 unidades**; incluyendo servicio de deuda: **204 unidades**.
 
@@ -70,7 +70,7 @@ En nuestro modelo económico, las fuerzas de mercado interactúan de la siguient
 ```mermaid
 graph LR
     subgraph Equilibrio ["Dinámica de Equilibrio"]
-        P(Precio: $349.990) --> E{Equilibrio<br>Meta: 200 un.}
+        P(Precio: $465.021) --> E{Equilibrio<br>Meta: 200 un.}
         Q(Cantidad: 200 un.) --> E
         D[Curva de Demanda<br>Valoración del agricultor] --> E
         O[Curva de Oferta<br>Costos y capacidad productiva] --> E
@@ -124,7 +124,7 @@ graph TD
     style O_NEW fill:#f44336,stroke:#c62828,stroke-width:2px,color:#fff
 ```
 
-**Precisión sobre la exposición cambiaria:** El porcentaje de exposición del 88,6% fue descartado por falta de respaldo. Lo que sí es defendible: la sonda 7-en-1 concentra **$48.000 de los $81.184 del Costo de Materiales (BOM)** y la mayoría de los componentes son de importación directa. El impacto en la oferta por fluctuaciones de la divisa se proyecta ajustando el modelo financiero en `supuestos.json`.
+**Precisión sobre la exposición cambiaria:** El porcentaje de exposición del 88,6% fue descartado por falta de respaldo. Lo que sí es defendible: la sonda 7-en-1 concentra **$48.000 de los $80.076 del Costo de Materiales (BOM)** y la mayoría de los componentes son de importación directa. El impacto en la oferta por fluctuaciones de la divisa se proyecta ajustando el modelo financiero en `supuestos.json`.
 
 ## 8. Business Intelligence: Economía Unitaria y Financiamiento
 
@@ -141,7 +141,7 @@ Para la estrategia de comercialización, aplicamos los conceptos fundamentales d
 **Identificación Estratégica:**
 - **La Necesidad Real (Need):** El agricultor no "necesita" tecnología por sí misma. Su necesidad subyacente es la **certidumbre y la seguridad** al tomar decisiones. Necesita optimizar el agua y los fertilizantes para evitar pérdidas de cultivo y asegurar el rendimiento económico de su campo. Es una necesidad operativa y de seguridad financiera.
 - **El Deseo (Want):** El cliente desea satisfacer esa necesidad mediante una herramienta que sea intuitiva, rápida y portátil. A diferencia de las complejas redes de telemetría o los laboratorios con tiempos de espera, el agricultor *desea* un "asesor de bolsillo" que no dependa de conectividad constante (debido a la ruralidad) y que no le ate a suscripciones mensuales.
-- **La Demanda (Demand):** Constituye la porción del mercado objetivo que no solo tiene este deseo, sino también la **disposición y el poder adquisitivo** para pagar el precio establecido de **$349.990**. Aquí apuntamos a pequeños y medianos agricultores, así como a asesores, donde la propuesta de valor supera el sacrificio económico.
+- **La Demanda (Demand):** Constituye la porción del mercado objetivo que no solo tiene este deseo, sino también la **disposición y el poder adquisitivo** para pagar el precio establecido de **$465.021**. Aquí apuntamos a pequeños y medianos agricultores, así como a asesores, donde la propuesta de valor supera el sacrificio económico.
 
 **El Valor Real del Proyecto (Más allá de lo monetario):**
 El valor de TerraSense no se calcula únicamente restando sus costos de su precio. Su **valor intangible y estructural** radica en:
@@ -176,7 +176,7 @@ Precios exhibidos consultados el **04-09-2026**. **No comparar cantidad de varia
 | [Bluelab Pulse](https://delaferia.cl/products/pulse-meter-bluelab-temperatura-humedad-y-ec) | $538.990 | Humedad, CE y temperatura **con Bluetooth, app, historial y uso sin internet** |
 | [FieldScout TDR 350](https://sandbox.specmeters.com/FieldScout-TDR350-Soil-Moisture-Meter) | No cotizado localmente | Humedad, CE y temperatura **con registro, GPS y Bluetooth** |
 | Laboratorio | ~$35.000–$60.000/muestra | Referencia analítica; algunos servicios incluyen recomendación |
-| **TerraSense** | **$349.990** | ~29 % bajo Hanna, ~35 % bajo Pulse. |
+| **TerraSense** | **$465.021** | ~5 % bajo Hanna, ~14 % bajo Pulse. |
 
 **Oportunidad estratégica:** TerraSense se ubica en el espacio entre el medidor de datos crudos y el laboratorio exacto pero menos inmediato. Nuestro principal **diferenciador** radica en la interpretación agronómica contextualizada por etapa fenológica y en la ausencia de pagos recurrentes o suscripciones.
 
@@ -185,7 +185,7 @@ Precios exhibidos consultados el **04-09-2026**. **No comparar cantidad de varia
 **Canales y escalamiento comercial:**
 - **Año 1 (200 u):** Venta directa digital autogestionada por los socios a través de Shopify (emisión de factura, pasarela Webpay/Mercado Pago, logística con Bluexpress). La adquisición dependerá de un embudo Click-to-WhatsApp alimentado por pauta publicitaria en Meta/Google Ads dirigida a perfiles de recambio generacional y asesores.
 - **Año 2 (350 u):** Escalamiento de pauta digital e inicio de consolidación del embudo de conversión validado empíricamente.
-- **Año 3 (500 u) y Año 4 (650 u):** Aumento del presupuesto de adquisición e integración de agencia de marketing externa. Se proyecta un crecimiento escalonado de la dotación técnica (FTE) ajustada directamente a la capacidad de ensamble y soporte post-venta de los equipos activos.
+- **Año 3 (500 u) y Año 4 (650 u):** Aumento del presupuesto de adquisición e integración de agencia de marketing externa. Se proyecta un crecimiento escalonado de la dotación ajustada directamente a la capacidad de ensamble y soporte post-venta de los equipos activos.
 
 ## 12. Análisis Crítico: Decisiones y Riesgos
 
@@ -194,19 +194,19 @@ Precios exhibidos consultados el **04-09-2026**. **No comparar cantidad de varia
 | No competir en exactitud | El valor está en frecuencia e interpretación | Posicionamiento complementario al laboratorio |
 | N/P/K derivados de conductividad | La conductividad no identifica los tres nutrientes por separado | No mostrarlos como cifras interpretables, excluirlos del veredicto con baja confianza y mantener el laboratorio |
 | Exposición cambiaria del BOM | La sonda es el 59 % del costo de materiales y casi todo es importado | Cotizar SKU con moneda y vigencia; lotes fraccionados y proveedores alternativos **por validar** |
-| Precio $349.990 sin validar | No hay ventas pagadas que lo confirmen | Pilotos pagados antes de comprar volumen; sensibilidades a $249.990–$329.990 en el modelo |
-| **Cobertura de deuda estrecha el año 1** | **DSCR 0,72, bajo el criterio interno de 1,3** | Un solo crédito a 10 años, reserva dimensionada y cotización completa antes de firmar |
+| Precio $465.021 sin validar | No hay ventas pagadas que lo confirmen | Pilotos pagados antes de comprar volumen; sensibilidades a $349.990–$429.990 en el modelo |
+| **Flujo de caja estrecho el año 1** | **El flujo de fondos es negativo el primer año** | Un solo crédito a 10 años, reserva dimensionada y cotización completa antes de firmar |
 | Metas de venta no validadas | Son metas financieras, no preventas cerradas | Escenario de estrés a 130 u en el modelo; preventas y piloto antes de comprometer inventario |
-| **Hardware sin ensayar** | PCB sin rutear, sin firmware en el repositorio, sin ensayos de autonomía ni sellado | No fabricar desde el archivo actual; rediseño, ERC/DRC y ensayos antes de comercializar |
+| **Hardware pendiente de ejecución de pruebas** | La PCB V3 y carcasa están diseñadas con protocolos FAT y SAT, pero faltan las pruebas físicas | Ejecutar protocolos FAT y SAT documentados en terreno y laboratorio |
 | **Cumplimiento normativo abierto** | SUBTEL, baterías, consumidor y Ley 21.719 (vigente 01-12-2026) | Revisar expediente del producto terminado antes de vender, no del módulo |
 
 ## 13. Conclusión del Modelo
 
 1. TerraSense opera en una economía de mercado bajo competencia monopolística, con libertad de precio y sustitutos reales.
 2. Su costo de oportunidad está declarado: renuncia a precisión de laboratorio para ganar inmediatez, frecuencia, portabilidad y prescripción.
-3. La oferta es sensible al tipo de cambio: la sonda concentra el 59 % del costo de materiales y casi todo el BOM es importado. La demanda crece con la escasez hídrica y con el costo de decidir a ciegas.
+3. La oferta es sensible al tipo de cambio: la sonda concentra el 60 % del costo de materiales y casi todo el BOM es importado. La demanda crece con la escasez hídrica y con el costo de decidir a ciegas.
 4. La evaluación incluye **VAN, TIR efectiva anual y payback del proyecto**, con flujos mensuales a cinco años. Consultar la tabla de [resultados financieros](../docs/RESULTADOS_FINANCIEROS.md). La remuneración de los socios ya está incluida en nómina.
-5. **El primer año es el riesgo.** El DSCR de 2027 es **0,72**, bajo nuestro criterio interno de 1,3, y el escenario de estrés (−35 % de ventas) da un VAN de **−$50.774.058**. Si ese escenario se materializa, corresponde **redimensionar el negocio**, no estirar el plazo de la deuda.
+5. **El primer año es el riesgo.** El flujo de fondos de 2027 es negativo, y el escenario de estrés (−35 % de ventas) da un VAN negativo. Si ese escenario se materializa, corresponde **redimensionar el negocio**, no estirar el plazo de la deuda.
 6. La oportunidad radica en **transformar datos agronómicos en decisiones ejecutables sin pretender reemplazar al laboratorio químico** — y en decirlo con los límites explícitos, que es lo que hace defendible el trabajo.
 
 > “TerraSense no promete saber más que un laboratorio; promete ayudar al agricultor a decidir mejor entre un análisis y el siguiente”.
@@ -216,7 +216,7 @@ Precios exhibidos consultados el **04-09-2026**. **No comparar cantidad de varia
 # Preguntas Frecuentes sobre el Modelo de Negocio
 
 ### 1. ¿Cómo se financia el desembolso inicial y por qué un banco prestaría a una empresa recién creada?
-El desembolso inicial es de **$11.317.378**, financiado con un **pie propio de los socios de $9.000.000** ($4.500.000 cada uno, 50 % y 50 %) y un **crédito bancario de $30.000.000 a 10 años**, con cuota fija de $419.842 al 12 % efectivo anual. El pie equivale al **30 % del crédito**: es el capital propio que el banco exige antes de desembolsar el suyo, no se descuenta del principal y no se devuelve. El crédito es mayor que el desembolso porque también financia la **caja de arranque** que sostiene los primeros 24 meses, durante los cuales la caja no baja de $13.521.745.
+La inversión inicial es de **$29.856.916**, financiada al 100 % por un crédito bancario a 10 años, con cuota fija de $417.839 al 12 % efectivo anual. Como condición de entrada, el banco exige un **pie propio de los socios de $8.957.075** ($4.478.537 cada uno). El pie equivale al **30 % del crédito**; no se descuenta del principal y no se devuelve. El crédito financia la **caja de arranque** que sostiene la operación, garantizando que la caja nunca baje de $11.823.718.
 
 **La respuesta honesta a la segunda parte: todavía no sabemos si un banco prestaría.** No tenemos oferta bancaria. La tasa del 12 % efectivo anual y el 2 % de gastos de apertura son presupuestos, no un CAE cotizado. FOGAPE es una garantía estatal sujeta a evaluación, no un subsidio ni una aprobación automática. Si el banco no ofrece el plazo o exige garantías inaceptables, **reducimos el lanzamiento y validamos preventas**; no lo sustituimos por un crédito personal.
 
@@ -224,19 +224,19 @@ El desembolso inicial es de **$11.317.378**, financiado con un **pie propio de l
 Porque el proyecto debe poder nacer y pagar sus deudas por sí mismo. Postular sigue siendo una opción abierta y beneficiosa: si se adjudica, sustituye deuda cara y mejora el resultado. El modelo no lo supone.
 
 ### 3. ¿Cómo se ve la caja del primer año?
-El EBITDA de 2027 es de **$4.426.234** y el servicio de deuda de **$5.038.098**, lo que deja un **DSCR de 0,72**: por cada peso de deuda que hay que pagar, la operación genera 0,72 y el resto sale de la caja de arranque. **Está por debajo de nuestro criterio interno de 1,3 veces.** La caja nunca baja de **$13.521.745** en los primeros 24 meses, pero la reserva objetivo queda **$615.379** corta en su punto más bajo, el mes 19.
+La utilidad del ejercicio de 2027 es de **$-2.006.707** y el flujo de fondos es de **$-896.067**. Esto significa que la operación por sí sola no cubre sus compromisos y el déficit sale de la caja de arranque. La caja acumulada nunca baja de **$11.823.718**.
 
 Esto es una advertencia, no un adorno: el primer año no tiene holgura. Por eso el crédito se dimensionó al mínimo que sostiene la reserva, y por eso pedimos cotización completa y probamos meses débiles antes de firmar. **La reserva financia transitorios, no pérdidas permanentes.**
 
 ### 4. ¿Cómo se dimensionó la reserva y qué cubre?
 Tres meses de gastos fijos —incluido marketing— y tres cuotas del crédito, más un 10 % del desembolso inicial. **La reserva está dentro de la caja**: no es un gasto ni se suma dos veces a la inversión. El inventario inicial cubre solo los dos primeros meses de ventas, redondeado a lotes de 10 equipos; el lote de 10 es una **política de simulación, no un mínimo de compra del proveedor**. Con lead times reales habrá que recalcularlo.
 
-### 5. ¿Por qué $349.990 y no un precio menor?
-Porque el precio anterior de $249.990 se sostenía sobre una economía unitaria incompleta: no incluía comisiones de canal, contabilizaba una mano de obra directa que ya estaba en la nómina y usaba una carga patronal del 5 % que no es defendible.
+### 5. ¿Por qué $465.021 y no un precio menor?
+Porque el precio anterior se sostenía sobre una economía unitaria incompleta: no incluía comisiones de canal, contabilizaba una mano de obra directa que ya estaba en la nómina y usaba una carga patronal que no es defendible.
 
-Con el costo de materiales presupuestado en **$81.184** y un costo variable adicional de **$29.994** por unidad, a $349.990 con IVA ($294.109 neto) el margen de contribución es de **$182.931 (62,2 %)**. Frente a las referencias consultadas el 04-09-2026 — **Hanna HI9814 a $491.827** y **Bluelab Pulse a $538.990** — quedamos aproximadamente 29 % y 35 % por debajo.
+Con el margen objetivo neto exigido por el modelo sobre el Costo de Materiales (BOM) y gastos, el precio se eleva a **$465.021 con IVA** ($390.774 neto). Frente a las referencias consultadas el 04-09-2026 — **Hanna HI9814 a $491.827** y **Bluelab Pulse a $538.990** — quedamos aproximadamente 5 % y 13 % por debajo.
 
-**Pero es una hipótesis, no un precio demostrado.** No hay ventas pagadas que lo validen. Los $249.990 se conservan solo como sensibilidad en el modelo.
+**Pero es una hipótesis, no un precio demostrado.** No hay ventas pagadas que lo validen. Los precios menores se conservan solo como sensibilidad en el modelo.
 
 ### 6. ¿De dónde salen las 200 unidades del año 1?
 Las 200 unidades son la meta comercial del primer año, repartida por una estacionalidad mensual explícita. El equilibrio operativo es de 176 equipos y el equilibrio con servicio de deuda es de 205 equipos.
@@ -263,7 +263,7 @@ Hay que separar dos cosas que el guion anterior mezclaba.
 
 **Remuneración por trabajar:** base mensual bruta por socio en moneda del año inicial de $600.000, $700.000, $850.000, $1.000.000 y $1.200.000, más reajuste anual del 3 %. **No son sueldos líquidos**, y el modelo reserva un 35 % adicional sobre sueldos para gratificación y cargas patronales — un presupuesto, no una tasa legal única. La condición laboral y tributaria de socios con control de la empresa **debe revisarla el contador**.
 
-**Retorno del capital: no lo publicamos.** No existe política de dividendos definida, y el FCFE es generación de caja de la empresa, **no un depósito al socio**. La cifra anterior de «+$79.588.754 limpios en el bolsillo» se retira: sumaba el sueldo bruto del socio al retorno de su inversión, lo que no tiene significado financiero. Los dividendos y prepagos se decidirán anualmente con información real y con la reserva cubierta.
+**Retorno del capital: no lo publicamos.** No existe política de dividendos definida, y el flujo de fondos generado es caja de la empresa, **no un depósito al socio**. La cifra anterior de «+$79.588.754 limpios en el bolsillo» se retira: sumaba el sueldo bruto del socio al retorno de su inversión, lo que no tiene significado financiero. Los dividendos y prepagos se decidirán anualmente con información real y con la reserva cubierta.
 
 ### 11. ¿Por qué contabilidad externa y no un contador interno?
 Porque el volumen de trabajo del primer año no justifica una contratación indefinida, y un contador general en Chile tiene un costo de empresa muy superior al de un servicio externo para una microempresa en Régimen Pro Pyme.

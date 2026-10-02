@@ -1,4 +1,8 @@
-# Criterios de calificación
+# Evaluación 2: Ingeniería Básica y de Detalle
+
+> **Nota:** Esta evaluación documenta y aborda los entregables de la **ingeniería conceptual, básica y de detalle** del proyecto TerraSense. Es la continuación directa del Informe 1, el cual desarrolló la primera etapa de ingeniería conceptual.
+
+## Criterios de calificación
 
 | Criterio | Excelente | Bueno | Insatisfactorio |
 | :--- | :--- | :--- | :--- |

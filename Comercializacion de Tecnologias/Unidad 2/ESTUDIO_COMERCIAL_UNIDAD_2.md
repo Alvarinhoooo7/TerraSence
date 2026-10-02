@@ -11,7 +11,7 @@ El marketing de TerraSense no se enfoca en vender "sondas", sino en resolver un 
 ### 1.1 De la Necesidad a la Demanda
 *   **Necesidad:** El agricultor tiene un estado de carencia (certidumbre) respecto a las condiciones hídricas y de fertilidad de su suelo.
 *   **Deseo:** La necesidad se moldea culturalmente en el deseo de un "asesor de bolsillo" que sea fácil de usar, sin cables, y que entregue un veredicto claro y accionable sin tener que esperar a un laboratorio.
-*   **Demanda:** Cuando ese deseo es respaldado por el poder adquisitivo (y la voluntad de pagar los $450.929 fijados en nuestro equilibrio), se convierte en demanda efectiva, cuantificada como las 200 unidades meta del Año 1.
+*   **Demanda:** Cuando ese deseo es respaldado por el poder adquisitivo (y la voluntad de pagar los $465.021 fijados en nuestro equilibrio), se convierte en demanda efectiva, cuantificada como las 200 unidades meta del Año 1.
 
 ### 1.2 Orientación de la Empresa
 TerraSense descarta la *Orientación a las Ventas* (empujar volumen sin importar la satisfacción) y adopta firmemente la **Orientación al Marketing y al Marketing Social**:
@@ -19,8 +19,8 @@ TerraSense descarta la *Orientación a las Ventas* (empujar volumen sin importar
 *   **Marketing Social:** La propuesta de valor incluye un propósito más amplio: **Sustentabilidad y Democratización**. Evitar el riego innecesario protege el recurso hídrico, y evitar la sobre-fertilización protege las napas subterráneas. 
 
 ### 1.3 El Plan de Marketing Integrado (Las 4 P's)
-*   **Producto:** Sonda RS-485 7-en-1 + Microcontrolador ESP32 BLE + App Móvil (motor agronómico offline) + Cloud (Supabase). Entregando un veredicto accionable ("Semáforo") sin cobros por suscripción.
-*   **Precio:** Fijado en **$450.929** (IVA incluido). Posicionamiento estratégico por debajo de los sustitutos de marca pero asegurando el margen objetivo neto del 30 % necesario para el sostenimiento financiero.
+*   **Producto:** Sonda RS-485 7-en-1 + Microcontrolador ESP32 BLE + App Móvil (motor agronómico offline) + Cloud (Supabase). Entregando un veredicto accionable ("Semáforo") sin cobros por suscripción. El diseño de detalle incluye carcasa y PCB V3 con sus respectivos protocolos FAT y SAT.
+*   **Precio:** Fijado en **$465.021** (IVA incluido). Posicionamiento estratégico por debajo de los sustitutos de marca pero asegurando el margen objetivo neto del 30 % necesario para el sostenimiento financiero.
 *   **Plaza:** En el Año 1: **Venta Directa** a través de e-commerce (ej. Shopify), gestionando logística con Bluexpress.
 *   **Promoción:** Publicidad digital (Facebook/Google Ads) orientada a la búsqueda de soluciones de riego. Técnica de *Click-to-WhatsApp* para reducir la fricción y permitir soporte pre-venta personalizado.
 
@@ -31,7 +31,7 @@ TerraSense descarta la *Orientación a las Ventas* (empujar volumen sin importar
 El microentorno está compuesto por los actores cercanos que afectan la capacidad de la empresa para servir a sus clientes.
 
 *   **La Empresa (Ambiente Interno):** Sincronización de tres frentes técnicos: Hardware/I+D (PCB V2, impresión 3D), Software (Supabase, App React Native) y Finanzas (gestión del crédito y flujo de fondos inicial negativo).
-*   **Proveedores:** Importación directa de la sonda RS-485 7-en-1 (representa el 68% del BOM = $70.666, alta exposición al dólar) y sensores BME280.
+*   **Proveedores:** Importación directa de la sonda RS-485 7-en-1 (representa el 60 % del BOM = $80.076, alta exposición al dólar) y sensores BME280.
 *   **Intermediarios del Marketing:** Plataformas de E-commerce (Shopify), pasarelas (Webpay, Mercado Pago) y logística de última milla.
 *   **Competidores:** Medidores portátiles básicos (ej. Hanna HI9814 a ~$492k) y sensores intermedios (ej. Bluelab Pulse a ~$539k). Laboratorios químicos como complemento de alta exactitud.
 *   **Clientes:** Mercado de Consumo (B2C) enfocado en pequeños y medianos agricultores. Mercado B2B enfocado en cooperativas o asesores agronómicos.
@@ -50,8 +50,8 @@ El microentorno está compuesto por los actores cercanos que afectan la capacida
 ### 3.2 Debilidades (Factores Internos Negativos)
 *   **Sin exactitud analítica de laboratorio:** Valores de N/P/K inferidos, exigen manejar muy bien las expectativas.
 *   **Flujo ajustado:** El servicio de deuda y costos fijos del primer año superan la generación de caja inicial, arrojando una pérdida operativa temporal.
-*   **Hardware sin validación en terreno:** La PCB V2 requiere pruebas de campo y estanqueidad antes de venderse.
-*   **Precio sin validación comercial:** Los $450.929 son una hipótesis financiera sin tracción demostrada.
+*   **Hardware pendiente de ensayo físico:** Aunque la ingeniería de detalle (V3) cuenta con protocolos FAT y SAT, aún requieren ejecución en terreno y laboratorio.
+*   **Precio sin validación comercial:** Los $465.021 son una hipótesis financiera sin tracción demostrada.
 *   **Exposición cambiaria:** Fuerte dependencia de la cotización del dólar por la sonda importada.
 
 ### 3.3 Oportunidades y Amenazas (Derivadas del PESTEL)
@@ -68,7 +68,7 @@ El microentorno está compuesto por los actores cercanos que afectan la capacida
 
 ### E — Económico
 *   **Oportunidades:** Alza en el costo de insumos agrícolas (mayor valor de medir); Precio competitivo (~8% bajo Hanna); Modelo sin suscripción.
-*   **Amenazas:** Alta exposición al tipo de cambio (USD/CLP) afectando el 68% del BOM; flujo de caja inicial en déficit el primer año; Sensibilidad a las condiciones del crédito bancario.
+*   **Amenazas:** Alta exposición al tipo de cambio (USD/CLP) afectando el 60 % del BOM; flujo de caja inicial en déficit el primer año; Sensibilidad a las condiciones del crédito bancario.
 
 ### S — Social
 *   **Oportunidades:** Relevo generacional en el campo; Conciencia sobre sustentabilidad; Democratización del acceso tecnológico (smartphones).
@@ -76,7 +76,7 @@ El microentorno está compuesto por los actores cercanos que afectan la capacida
 
 ### T — Tecnológico
 *   **Oportunidades:** Ecosistema ESP32 y BLE maduro; Madurez de Supabase; Impresión 3D y ensamble PCBA externo.
-*   **Amenazas:** Hardware V2 sin ensayos en terreno; Riesgo de obsolescencia del SKU de la sonda 7-en-1; Ingreso de grandes plataformas al segmento de bajo costo.
+*   **Amenazas:** Hardware V3 con protocolos de prueba aún pendientes de ejecución; Riesgo de obsolescencia del SKU de la sonda 7-en-1; Ingreso de grandes plataformas al segmento de bajo costo.
 
 ### E — Ecológico / Ambiental
 *   **Oportunidades:** Megasequía (15 años) impulsa la demanda de eficiencia hídrica; Normativa ambiental en fertilizantes; Posicionamiento ESG.
@@ -106,6 +106,6 @@ Aplicación de los factores de influencia y modelos de decisión al usuario obje
 ### 5.3 Proceso de Decisión de Compra (5 Etapas)
 1.  **Reconocimiento:** El agricultor detecta gasto excesivo o riesgo hídrico inminente.
 2.  **Búsqueda:** Consulta a pares, foros agrícolas o asesores.
-3.  **Evaluación:** Compara *Laboratorio* (Exacto pero lento), *Hanna HI9814* ($492k, solo datos crudos) y *TerraSense* ($451k, rápido, interpretado).
+3.  **Evaluación:** Compara *Laboratorio* (Exacto pero lento), *Hanna HI9814* ($492k, solo datos crudos) y *TerraSense* ($465k, rápido, interpretado).
 4.  **Decisión:** Fricción superada por canales asistidos (WhatsApp) frente al e-commerce automatizado.
 5.  **Postcompra:** La satisfacción ocurre si TerraSense evita un mal riego. Puede haber disonancia cognitiva si el cliente esperaba una precisión de laboratorio (por ello, la App excluye deliberadamente el cálculo de dosificación química).
