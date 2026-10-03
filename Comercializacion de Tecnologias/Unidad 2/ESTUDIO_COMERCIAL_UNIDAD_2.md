@@ -1,111 +1,101 @@
-# TerraSense — Estudio Comercial Integrado (Unidad 2)
+# Plan de Marketing: TerraSense
+**Evaluación N°2: Comercialización y Tecnologías**
 
-> **Alcance:** Este documento consolida el análisis estratégico de marketing, el comportamiento del consumidor y la auditoría del entorno (Micro y Macro) del proyecto TerraSense, aplicando los marcos teóricos de comercialización de tecnologías a la realidad financiera y técnica del repositorio.
+## 1. Fundamentos del Marketing
+De acuerdo con las definiciones de la AMA y Kotler, el marketing busca crear, comunicar y entregar **valor** a través de un **intercambio** que genere **satisfacción**. TerraSense adopta una **orientación al marketing social**, donde no solo buscamos satisfacer la necesidad del cliente, sino proteger el bienestar a largo plazo de la sociedad (optimizando el uso hídrico).
+- **Necesidad:** Estado de carencia de información (incertidumbre del agricultor sobre la humedad y nutrientes).
+- **Deseo:** La forma que toma la necesidad: un dispositivo portátil, sin cables y de diagnóstico rápido.
+- **Demanda:** El deseo respaldado por el poder adquisitivo, apuntando a 200 unidades el primer año al precio de $465.021.
+- **Valor y Satisfacción:** Se entrega un alto valor percibido al reducir la pérdida de cosechas, asegurando que el equipo cumpla las expectativas (satisfacción) mediante exactitud y facilidad de uso.
 
----
+Nuestra propuesta evita la **miopía del marketing**: no vendemos sondas multiparamétricas, vendemos **certeza y decisiones agronómicas inmediatas en terreno**.
 
-## 1. Estrategia de Marketing y Orientación Empresarial
+## 2. Análisis Estratégico del Entorno
+### 2.1 Análisis PESTEL
+*   **Político:** Políticas de eficiencia hídrica (Código de Aguas) e instrumentos de fomento (CORFO/INDAP) impulsan la adopción. La Ley 21.719 de Protección de Datos exige rigor en el manejo de datos de usuarios.
+*   **Económico:** El alza en los costos de insumos (fertilizantes) hace que medir sea una inversión altamente rentable. Sin embargo, el costo de producción depende del USD (60% del BOM es importado).
+*   **Social:** Relevo generacional en el agro. Nuevos agricultores son nativos digitales, pero conviven con la resistencia cultural al cambio de los agricultores tradicionales.
+*   **Tecnológico:** Ecosistema maduro (ESP32, BLE, React Native). Riesgo de ingreso de grandes actores tecnológicos al segmento de bajo costo.
+*   **Ecológico:** La megasequía de 15 años en Chile obliga a optimizar el riego. TerraSense se alinea fuertemente con la sustentabilidad y normativas ESG.
+*   **Legal:** Necesidad de homologación SUBTEL para transmisión BLE y normativas sobre responsabilidad de los datos (la app incluye descargos de responsabilidad agronómica).
 
-El marketing de TerraSense no se enfoca en vender "sondas", sino en resolver un problema operativo crítico, evitando así la clásica *Miopía de Marketing*.
+### 2.2 Análisis FODA
+*   **Fortalezas:** Motor agronómico offline (funciona sin señal celular); modelo de negocio de pago único (sin SaaS); desarrollo in-house; economía unitaria robusta (30% de utilidad).
+*   **Debilidades:** Menor exactitud que un análisis químico de laboratorio; flujo de caja inicial ajustado; hardware en iteración hacia certificación V3.
+*   **Oportunidades:** Escasez hídrica crítica; fondos gubernamentales para digitalización agrícola; encarecimiento de insumos.
+*   **Amenazas:** Ley de datos y homologación; fuerte competencia de empresas globales consolidadas (Hanna, Bluelab); exposición al tipo de cambio.
 
-### 1.1 De la Necesidad a la Demanda
-*   **Necesidad:** El agricultor tiene un estado de carencia (certidumbre) respecto a las condiciones hídricas y de fertilidad de su suelo.
-*   **Deseo:** La necesidad se moldea culturalmente en el deseo de un "asesor de bolsillo" que sea fácil de usar, sin cables, y que entregue un veredicto claro y accionable sin tener que esperar a un laboratorio.
-*   **Demanda:** Cuando ese deseo es respaldado por el poder adquisitivo (y la voluntad de pagar los $465.021 fijados en nuestro equilibrio), se convierte en demanda efectiva, cuantificada como las 200 unidades meta del Año 1.
+**Relación Estratégica:** Se utilizará la fortaleza del *funcionamiento offline* y el *pago único* para penetrar el mercado de agricultores desatendidos por soluciones complejas, mitigando la amenaza de la competencia internacional (que suele requerir suscripciones cloud).
 
-### 1.2 Orientación de la Empresa
-TerraSense descarta la *Orientación a las Ventas* (empujar volumen sin importar la satisfacción) y adopta firmemente la **Orientación al Marketing y al Marketing Social**:
-*   **Orientación al Marketing:** El desarrollo de la solución (Firmware, App, Cloud) está diseñado en función de lo que el cliente realmente necesita (interpretación offline y portabilidad) mejor que la competencia (Hanna, Bluelab).
-*   **Marketing Social:** La propuesta de valor incluye un propósito más amplio: **Sustentabilidad y Democratización**. Evitar el riego innecesario protege el recurso hídrico, y evitar la sobre-fertilización protege las napas subterráneas. 
+## 3. Consumidor Objetivo y Factores de Compra
+**Perfil:** Pequeños y medianos agricultores, así como asesores agronómicos independientes que requieren movilidad y rapidez en terreno.
+**Factores de Influencia:**
+*   **Culturales:** Transición de la cultura de "intuición empírica" hacia una de "datos". Valoran herramientas que se sientan robustas y confiables.
+*   **Sociales:** Alta influencia del "boca a boca" (grupos de referencia), juntas de vigilancia y recomendaciones de agrónomos (estatus).
+*   **Psicológicos:** Motivación (Maslow) impulsada por la *seguridad* (evitar pérdidas de cosecha). La percepción frente a tecnologías complejas es de rechazo, por lo que se requiere aprendizaje rápido.
+*   **Personales:** Sensibilidad al flujo de caja (ingresos y ocupación). Prefieren un pago único en vez de suscripciones.
 
-### 1.3 El Plan de Marketing Integrado (Las 4 P's)
-*   **Producto:** Sonda RS-485 7-en-1 + Microcontrolador ESP32 BLE + App Móvil (motor agronómico offline) + Cloud (Supabase). Entregando un veredicto accionable ("Semáforo") sin cobros por suscripción. El diseño de detalle incluye carcasa y PCB V3 con sus respectivos protocolos FAT y SAT.
-*   **Precio:** Fijado en **$465.021** (IVA incluido). Posicionamiento estratégico por debajo de los sustitutos de marca pero asegurando el margen objetivo neto del 30 % necesario para el sostenimiento financiero.
-*   **Plaza:** En el Año 1: **Venta Directa** a través de e-commerce (ej. Shopify), gestionando logística con Bluexpress.
-*   **Promoción:** Publicidad digital (Facebook/Google Ads) orientada a la búsqueda de soluciones de riego. Técnica de *Click-to-WhatsApp* para reducir la fricción y permitir soporte pre-venta personalizado.
+**Modelos de Comportamiento Aplicados:**
+*   **Caja Negra (Kotler):** Estímulos externos (sequía, publicidad) ingresan a la mente del agricultor, quien procesa la compra buscando seguridad hídrica, resultando en la adopción del equipo.
+*   **Modelo EKB:** Factores externos (recomendación de agrónomos) e internos (motivación por innovar) interactúan simultáneamente en la evaluación de TerraSense.
+*   **Howard-Sheth:** Destaca el aprendizaje y percepción. La primera experiencia postcompra de TerraSense será vital para generar lealtad y retroalimentación positiva.
 
----
+## 4. Recorrido del Consumidor ("Sigue al consumidor")
+1.  **Necesidad (Reconocimiento):** El agricultor ve signos de estrés hídrico en sus cultivos o nota un aumento excesivo en sus facturas de fertilizante.
+    *   *Acción:* Publicación de artículos educativos (blogs/RRSS) sobre cómo el mal riego afecta la rentabilidad.
+2.  **Búsqueda de Información:** Pregunta a su asesor agronómico o busca en Google "cómo medir humedad del suelo rápido".
+    *   *Acción:* Campañas SEM (Google Ads) para palabras clave específicas y un programa de comisiones por referidos para agrónomos.
+3.  **Evaluación de Alternativas:** Compara: enviar muestras al laboratorio (lento/caro), comprar medidores básicos (solo datos crudos) o TerraSense (rápido y con diagnóstico).
+    *   *Acción:* Tabla comparativa interactiva en la Landing Page ("TerraSense vs Laboratorio vs Competencia").
+4.  **Decisión de Compra:** Siente fricción al pagar online por una marca de hardware nueva.
+    *   *Acción:* Integración de un botón "Click-to-WhatsApp" en la web para cerrar la venta mediante atención humana, ofreciendo garantías claras.
+5.  **Postcompra:** Usa el equipo por primera vez y evalúa su experiencia.
+    *   *Acción:* *Onboarding* guiado por BLE desde la App (muy intuitivo). Envío de correo a los 15 días preguntando por sus resultados e incentivando que deje un testimonio a cambio de un beneficio.
 
-## 2. Análisis del Entorno: Microentorno
+## 5. Mercado, Competencia, Diferenciación y Posicionamiento
+*   **Mercado y Competencia:** Mercado agrotech en expansión. Competidores directos: Bluelab Pulse (aprox. $539k) y Hanna HI9814 ($492k). Ambos entregan métricas crudas (CE, Humedad, Temperatura) delegando la interpretación en el usuario.
+*   **Diferenciación:** TerraSense no solo mide, **interpreta offline**. Su motor agronómico traduce los datos en consejos accionables (ej. "Riego urgente", "Nutrientes óptimos") según la etapa fenológica del cultivo, operando 100% sin conexión a internet y sin cobrar mensualidad.
+*   **Posicionamiento:** *"Tu asesor agronómico de bolsillo"*. TerraSense se posiciona como la herramienta más accesible, rápida y accionable del mercado; no entrega solo números, entrega respuestas.
 
-El microentorno está compuesto por los actores cercanos que afectan la capacidad de la empresa para servir a sus clientes.
+## 6. Estrategia de Marketing (7P)
+1.  **Producto:** Instrumento físico (Sonda RS-485 + ESP32 BLE) y plataforma digital (App móvil + Supabase). Características: portátil, batería de larga duración, motor agronómico offline.
+2.  **Precio:** $465.021 (IVA incluido). Precio basado en el valor y en el modelo financiero del proyecto, asegurando un 30% de utilidad y manteniéndose por debajo de competidores premium.
+3.  **Plaza:** Venta directa digital (B2C) a través de e-commerce propio (Shopify), despachando a todo Chile vía Bluexpress. Sin intermediarios para maximizar margen.
+4.  **Promoción:** Publicidad digital enfocada (Ads), demostraciones en terreno (días de campo) y alianzas con consultores agrícolas.
+5.  **Personas:** Soporte técnico empático y especializado. El equipo habla el "mismo idioma" (agronómico) que el usuario, generando confianza.
+6.  **Procesos:** Flujo de emparejamiento BLE de 30 segundos (botón PAIR). Interfaz de lectura en 1 clic. Proceso de logística inversa expedito para garantías.
+7.  **Presencia Física (Physical Evidence):** Empaque robusto diseñado para el campo. Equipo con certificación/aislamiento. Aplicación móvil con modo oscuro (Dark Mode) y diseño premium, garantizando alta legibilidad bajo el sol.
 
-*   **La Empresa (Ambiente Interno):** Sincronización de tres frentes técnicos: Hardware/I+D (PCB V2, impresión 3D), Software (Supabase, App React Native) y Finanzas (gestión del crédito y flujo de fondos inicial negativo).
-*   **Proveedores:** Importación directa de la sonda RS-485 7-en-1 (representa el 60 % del BOM = $80.076, alta exposición al dólar) y sensores BME280.
-*   **Intermediarios del Marketing:** Plataformas de E-commerce (Shopify), pasarelas (Webpay, Mercado Pago) y logística de última milla.
-*   **Competidores:** Medidores portátiles básicos (ej. Hanna HI9814 a ~$492k) y sensores intermedios (ej. Bluelab Pulse a ~$539k). Laboratorios químicos como complemento de alta exactitud.
-*   **Clientes:** Mercado de Consumo (B2C) enfocado en pequeños y medianos agricultores. Mercado B2B enfocado en cooperativas o asesores agronómicos.
-*   **Públicos:** Gobierno y Reguladores (SUBTEL, Ley de Protección de Datos 21.719), Instituciones de Fomento (INDAP, CORFO).
+## 7. Publicidad y Promoción
+*   **Público Objetivo:** Agricultores de hortalizas y frutales (30 a 60 años) y agrónomos jóvenes.
+*   **Concepto Creativo:** *"Toma el control de tu suelo, al instante."*
+*   **Mensaje Principal:** "Deja de adivinar cuándo regar. TerraSense te da la respuesta exacta en segundos, directo en tu teléfono y sin pagar mensualidades."
+*   **Medios y Formatos:** 
+    - Reels/TikTok demostrando el equipo enterrándose en el suelo en tiempo real.
+    - Imágenes tipo "Antes/Después" en Facebook Ads (cultivo estresado vs. cultivo con TerraSense).
+*   **Llamado a la Acción (CTA):** "Asesórate gratis por WhatsApp" (para mitigar desconfianza) o "Adquiérelo con envío gratis".
+*   **Acciones Promocionales:** 10% de descuento a los primeros 50 compradores ("Early Adopters") y programa de incentivos por referidos.
 
----
+## 8. Marketing Digital
+*   **Estrategia Digital:** Embudo enfocado en educación y demostración de valor empírico.
+*   **Canales:** Facebook e Instagram (gran penetración en zonas rurales chilenas) y Google Search Ads (intención de compra directa).
+*   **Contenidos y Formatos:** 
+    - *Atracción (ToFu):* Infografías sobre cuánto dinero se pierde por lixiviación de fertilizantes (2x semana).
+    - *Consideración (MoFu):* Casos de éxito en video de clientes reales usando la app offline (1x semana).
+    - *Conversión (BoFu):* Retargeting dinámico hacia quienes visitaron el producto, ofreciendo asistencia por chat.
+*   **Interacción y Frecuencia:** Monitoreo diario de comentarios. Respuestas en menos de 1 hora. Historias interactivas semanales ("¿Cuánta agua crees que le falta a este predio?").
 
-## 3. Análisis FODA (Estudio Independiente)
+## 9. Identidad Visual y Comunicación
+*   **Logotipo y Colores:** Paleta que mezcla la naturaleza con la tecnología: Verde Hoja, Tierra Oscuro y Azul Tecnológico. Transmite solidez, crecimiento y ciencia.
+*   **Tipografía:** Fuentes sans-serif limpias (como Inter o Roboto). Es fundamental el alto contraste para que el agricultor pueda leer la pantalla a plena luz del sol.
+*   **Composición Visual:** Fotografías documentales y reales. Manos sucias con tierra sosteniendo el smartphone. Nada de fotos de archivo de laboratorios asépticos.
+*   **Estilo Comunicacional:** Cercano, empático y directo. Se tutea al agricultor, pero se utiliza jerga técnica precisa (ej. "capacidad de campo", "punto de marchitez permanente") para demostrar autoridad técnica.
 
-### 3.1 Fortalezas (Factores Internos Positivos)
-*   **Motor agronómico offline:** Procesa la información y sugiere acciones sin requerir internet, clave para la ruralidad chilena.
-*   **Modelo de pago único:** Sin cobros recurrentes (SaaS), reduciendo la barrera de adopción.
-*   **Economía unitaria robusta:** Margen objetivo neto del 30 % que permite absorber costos fijos y de adquisición.
-*   **Desarrollo in-house:** Impresión 3D y código propio que elimina altos costos de matricería (CAPEX).
-
-### 3.2 Debilidades (Factores Internos Negativos)
-*   **Sin exactitud analítica de laboratorio:** Valores de N/P/K inferidos, exigen manejar muy bien las expectativas.
-*   **Flujo ajustado:** El servicio de deuda y costos fijos del primer año superan la generación de caja inicial, arrojando una pérdida operativa temporal.
-*   **Hardware pendiente de ensayo físico:** Aunque la ingeniería de detalle (V3) cuenta con protocolos FAT y SAT, aún requieren ejecución en terreno y laboratorio.
-*   **Precio sin validación comercial:** Los $465.021 son una hipótesis financiera sin tracción demostrada.
-*   **Exposición cambiaria:** Fuerte dependencia de la cotización del dólar por la sonda importada.
-
-### 3.3 Oportunidades y Amenazas (Derivadas del PESTEL)
-*   *Oportunidades:* Escasez hídrica, encarecimiento de fertilizantes, relevo generacional, y fondos estatales (CORFO).
-*   *Amenazas:* Cumplimiento de la Ley 21.719 y homologación SUBTEL, brecha digital, y competencia de actores globales.
-
----
-
-## 4. Análisis PESTEL (Macroentorno)
-
-### P — Político
-*   **Oportunidades:** Política nacional de agricultura de precisión; Instrumentos de fomento productivo (CORFO, FIA); Incentivos a la eficiencia hídrica (Código de Aguas).
-*   **Amenazas:** Inestabilidad regulatoria por la Ley 21.719 de Protección de Datos (vigencia 01-12-2026); Obligaciones SUBTEL pendientes para homologación BLE.
-
-### E — Económico
-*   **Oportunidades:** Alza en el costo de insumos agrícolas (mayor valor de medir); Precio competitivo (~8% bajo Hanna); Modelo sin suscripción.
-*   **Amenazas:** Alta exposición al tipo de cambio (USD/CLP) afectando el 60 % del BOM; flujo de caja inicial en déficit el primer año; Sensibilidad a las condiciones del crédito bancario.
-
-### S — Social
-*   **Oportunidades:** Relevo generacional en el campo; Conciencia sobre sustentabilidad; Democratización del acceso tecnológico (smartphones).
-*   **Amenazas:** Brecha digital en el agricultor tradicional; Fuerte resistencia cultural al cambio de método (intuición vs datos).
-
-### T — Tecnológico
-*   **Oportunidades:** Ecosistema ESP32 y BLE maduro; Madurez de Supabase; Impresión 3D y ensamble PCBA externo.
-*   **Amenazas:** Hardware V3 con protocolos de prueba aún pendientes de ejecución; Riesgo de obsolescencia del SKU de la sonda 7-en-1; Ingreso de grandes plataformas al segmento de bajo costo.
-
-### E — Ecológico / Ambiental
-*   **Oportunidades:** Megasequía (15 años) impulsa la demanda de eficiencia hídrica; Normativa ambiental en fertilizantes; Posicionamiento ESG.
-*   **Amenazas:** Variabilidad climática extrema afecta la calibración empírica; Salinización de suelos invalida el modelo de inferencia N/P/K.
-
-### L — Legal
-*   **Oportunidades:** Marco normativo agrotech aún en desarrollo (pocas barreras sanitarias comparado con dispositivos médicos).
-*   **Amenazas:** Ley 21.719 exige arquitectura de privacidad estricta; SUBTEL requiere homologación antes de la venta; Disclaimers necesarios sobre responsabilidad agronómica.
-
----
-
-## 5. Comportamiento del Consumidor Agrícola
-
-Aplicación de los factores de influencia y modelos de decisión al usuario objetivo.
-
-### 5.1 Factores de Influencia
-*   **Culturales:** Transición de la "cultura de intuición empírica" a la agricultura de precisión impulsada por la subcultura digitalizada del relevo generacional.
-*   **Sociales:** Fuerte peso del "boca a boca" (grupos de referencia como vecinos o cooperativas).
-*   **Psicológicos:** La motivación principal (Maslow) es la *seguridad* frente a la pérdida de cosecha. Existe una barrera de percepción por malas experiencias pasadas con tecnología compleja.
-*   **Personales:** Presupuesto estacional del agricultor, que hace que un pago único encaje mejor en su flujo de caja que una mensualidad SaaS.
-
-### 5.2 Modelos de Comportamiento Aplicados
-*   **Caja Negra (Kotler):** Estímulos (Sequía, publicidad) → Caja Negra (Miedo a perder cultivo, evaluación de $451k) → Respuesta (Compra).
-*   **Modelo EKB:** Combina factores internos (miedo) y externos (recomendación de agrónomo) simultáneamente para evaluar el equipo.
-*   **Howard-Sheth:** Destaca el *aprendizaje*. Si la primera experiencia (vinculación BLE y lectura) es positiva, genera lealtad rápida.
-
-### 5.3 Proceso de Decisión de Compra (5 Etapas)
-1.  **Reconocimiento:** El agricultor detecta gasto excesivo o riesgo hídrico inminente.
-2.  **Búsqueda:** Consulta a pares, foros agrícolas o asesores.
-3.  **Evaluación:** Compara *Laboratorio* (Exacto pero lento), *Hanna HI9814* ($492k, solo datos crudos) y *TerraSense* ($465k, rápido, interpretado).
-4.  **Decisión:** Fricción superada por canales asistidos (WhatsApp) frente al e-commerce automatizado.
-5.  **Postcompra:** La satisfacción ocurre si TerraSense evita un mal riego. Puede haber disonancia cognitiva si el cliente esperaba una precisión de laboratorio (por ello, la App excluye deliberadamente el cálculo de dosificación química).
+## 10. Fuentes de Información
+*   **Primarias:** 
+    - Testing UX con agricultores reales para el desarrollo de la App.
+    - Entrevistas y levantamiento de requerimientos funcionales en terreno.
+*   **Secundarias:** 
+    - Datos técnicos y comerciales de la competencia (manuales y catálogos de Bluelab, Hanna).
+    - Repositorio técnico y financiero propio (`finanzas/supuestos.json`, `finanzas/modelo.py`).
+    - Ley 21.719 sobre Protección de Datos Personales de Chile.
