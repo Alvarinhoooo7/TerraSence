@@ -8,9 +8,10 @@ import {
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { EntryLayout, EntryHeading, EntryButton, useEntryFocus } from '../components/entry/EntryUI';
+import { SECRET_REVEAL_MS } from '../utils/secretReveal';
 
-/** Tiempo que el último dígito queda a la vista antes de enmascararse. */
-const REVEAL_MS = 900;
+// Mismo retardo que la contraseña nueva: el último dígito queda a la vista antes de enmascararse.
+const REVEAL_MS = SECRET_REVEAL_MS;
 
 /**
  * Seis casillas con el código enmascarado. El campo real va encima, transparente:

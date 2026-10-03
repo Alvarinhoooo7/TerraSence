@@ -852,9 +852,11 @@ La consulta remota confirma SMTP configurado. La entrega a bandeja
 de entrada debe comprobarse; no se puede atribuir un problema de spam sin inspeccionar
 el remitente y las cabeceras reales. Ver [configuración de correo](../supabase/README.md#7-plantillas-de-correo).
 
-### 12.2. Rediseño de las pantallas del agricultor
+### 12.2. Pantallas posteriores al login: implementación y mejoras
 
-**A medias.** Lo hecho es el pulido y los cimientos:
+**Pendiente por decisión del equipo (02-10-2026).** La entrada (bienvenida, permisos, registro, código por correo y contraseña) se da por cerrada; la implementación y las mejoras de las pantallas que siguen al login quedan para una etapa posterior y no se abordan mientras tanto.
+
+Lo hecho hasta ahora es el pulido y los cimientos:
 
 * `RadarScan` para la búsqueda por Bluetooth, de momento sólo en la medición.
 * `PasswordChecklist`, con las casillas que se marcan al escribir.
