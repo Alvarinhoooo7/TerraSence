@@ -4,6 +4,8 @@ Backoffice de soporte de TerraSense: buscar un equipo, ver su estado, administra
 
 React 19 · Vite 6 · Tailwind CSS v4 · TypeScript estricto · React Router 7 · Supabase. Desplegado en Vercel.
 
+**URL de producción:** [terrasense-web.vercel.app](https://terrasense-web.vercel.app).
+
 El plan del rediseño y lo que falta están en [TAREAS.md](TAREAS.md).
 
 ## Contenido

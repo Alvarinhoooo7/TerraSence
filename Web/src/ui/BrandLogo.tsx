@@ -1,7 +1,7 @@
 // src/ui/BrandLogo.tsx
 //
-// Logotipo oficial, tomado del recurso del repositorio (`Logo/Logo/terrasense.svg`)
-// y nunca redibujado aquí.
+// Copia del logotipo oficial de `Logo/Logo/terrasense.svg`, incluida en Web
+// para que el despliegue pueda compilar sin archivos externos al proyecto.
 //
 // El archivo trae el wordmark «Terra» en la tinta de marca `#0f2e22`. Se
 // sustituye por `currentColor` para que la palabra siga al tema, mientras
@@ -13,7 +13,7 @@
 // `viewBox` completo: 145 110 590 235. El isotipo ocupa el primer tercio.
 
 import { useMemo } from 'react';
-import logo from '../../../Logo/Logo/terrasense.svg?raw';
+import logo from '../assets/terrasense.svg?raw';
 
 const BRAND_INK = '#0f2e22';
 
