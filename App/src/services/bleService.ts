@@ -375,10 +375,14 @@ export async function readTelemetryOverBle(deviceCode?: string, signal?: AbortSi
           if (!characteristic?.value) return;
 
           // react-native-ble-plx entrega el valor en base64.
-          const binary = globalThis.atob(characteristic.value);
-          const out = new Uint8Array(binary.length);
-          for (let i = 0; i < binary.length; i++) out[i] = binary.charCodeAt(i);
-          finish(undefined, out);
+          try {
+            const binary = globalThis.atob(characteristic.value);
+            const out = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) out[i] = binary.charCodeAt(i);
+            finish(undefined, out);
+          } catch {
+            finish(new Error('Fallo de lectura BLE: el paquete recibido no es Base64 válido.'));
+          }
         },
       );
       if (settled) subscription.remove();

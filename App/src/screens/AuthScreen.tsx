@@ -15,13 +15,12 @@ import { useAppStore } from '../store/useAppStore';
 import { PasswordChecklist } from '../components/PasswordChecklist';
 import { AccessField } from '../components/auth/AccessField';
 import { EntryLayout, EntryButton, EntryHeading } from '../components/entry/EntryUI';
-import { RegistrationConsentModal } from '../components/RegistrationConsentModal';
-import { RegistrationConsent } from '../utils/registrationConsent';
+import type { RegistrationConsent } from '../utils/registrationConsent';
 import { EmailCodeScreen } from './EmailCodeScreen';
 import type { EmailOtpPurpose } from '../services/emailOtp';
 import { isPasswordAcceptable, PASSWORD_MIN_LENGTH } from '../utils/passwordRules';
 import { isEmailValid, isExistingAccountSignUp } from '../utils/authValidation';
-import { createSubmissionGate, registrationConsentValid, registrationIdentityValid, registrationNameMetadata, registrationPasswordValid, transitionRegistrationStep } from '../utils/accessRegistration';
+import { createSubmissionGate, registrationConsentValid, registrationIdentityValid, registrationPasswordValid, submitRegistration, transitionRegistrationStep } from '../utils/accessRegistration';
 
 type Mode = 'signin' | 'signup' | 'reset';
 
@@ -68,9 +67,13 @@ const humanizeError = (message: string, en: boolean): string => {
 interface Props {
   onAuthenticated: () => void;
   onChangeLanguage?: () => void;
+  onRequireConsent: (name: string, email: string) => void;
+  onBindConsent: (name: string, email: string) => RegistrationConsent | null;
+  onIdentityChange: (name: string, email: string) => void;
+  onDiscardConsent: () => void;
 }
 
-export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage }) => {
+export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage, onRequireConsent, onBindConsent, onIdentityChange, onDiscardConsent }) => {
   const { colors } = useAppTheme();
 
   const [mode, setMode] = useState<Mode>('signin');
@@ -85,11 +88,6 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage 
   const [fullName, setFullName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showConsent, setShowConsent] = useState(false);
-  // La aceptación ya dada se conserva mientras dure este registro: si la creación
-  // falla por red, reintentar no obliga a releer y remarcar los términos. Las
-  // casillas nunca aparecen premarcadas; el panel se monta vacío cada vez.
-  const acceptedConsent = useRef<RegistrationConsent | null>(null);
   const requestGate = useRef(createSubmissionGate()).current;
   const [challenge, setChallenge] = useState<{ email: string; purpose: EmailOtpPurpose; sentAt: number } | null>(null);
 
@@ -104,21 +102,19 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage 
 
   const switchMode = useCallback((next: Mode) => {
     if (requestGate.active) return;
-    setShowConsent(false);
-    acceptedConsent.current = null;
+    if (next !== 'signup') onDiscardConsent();
     setConfirmPassword('');
     setPassword('');
     setMode(next);
     setSignupStep(1);
     setFieldErrors({});
     setError(null);
-  }, []);
+  }, [onDiscardConsent]);
 
-  const submit = useCallback(async (given?: RegistrationConsent) => {
+  const submit = useCallback(async () => {
     if (requestGate.active) return;
     setError(null);
     setFieldErrors({});
-    const consent = given ?? acceptedConsent.current ?? undefined;
 
     const mail = email.trim().toLowerCase();
     if (!isEmailValid(mail)) {
@@ -142,9 +138,9 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage 
         setFieldErrors({ confirm: t('Las contraseñas no coinciden.', 'Passwords do not match.') });
         return;
       }
-      if (!registrationConsentValid(consent)) {
+      if (!registrationConsentValid(onBindConsent(fullName, mail))) {
         Keyboard.dismiss();
-        setShowConsent(true);
+        onRequireConsent(fullName, mail);
         return;
       }
     }
@@ -171,18 +167,13 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage 
       }
 
       if (mode === 'signup') {
-        const { data, error: e } = await supabase.auth.signUp({
-          email: mail,
-          password,
-          options: {
-            // El trigger usa nombre y apellidos explícitos para conservar nombres compuestos.
-            // Registro declarado por el cliente; user_metadata no es una auditoría inmutable.
-            data: { ...registrationNameMetadata(fullName), registration_consent: consent },
-          },
-        });
+        const consent = onBindConsent(fullName, mail);
+        if (!registrationConsentValid(consent)) { onRequireConsent(fullName, mail); return; }
+        // El trigger usa nombres explícitos; user_metadata es una declaración del cliente.
+        const { data, error: e } = await submitRegistration<Awaited<ReturnType<typeof supabase.auth.signUp>>>(payload => supabase.auth.signUp(payload),
+          { email: mail, password, fullName, consent });
         if (e) throw e;
-        acceptedConsent.current = null;
-        setShowConsent(false);
+        onDiscardConsent();
         setPassword('');
         setConfirmPassword('');
         // Supabase no falla cuando el correo ya tiene cuenta: devuelve un usuario sin
@@ -208,7 +199,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage 
       requestGate.leave();
       setBusy(false);
     }
-  }, [email, password, confirmPassword, fullName, mode, onAuthenticated, preferences.language, t]);
+  }, [email, password, confirmPassword, fullName, mode, onAuthenticated, onBindConsent, onDiscardConsent, onRequireConsent, preferences.language, t]);
 
   React.useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -230,11 +221,15 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage 
     if (fullName.trim().split(/\s+/u).length < 2) errors.name = t('Escribe tu nombre y apellido.', 'Enter your full name.');
     if (!isEmailValid(email)) errors.email = t('Escribe un correo válido.', 'Enter a valid email address.');
     setFieldErrors(errors);
-    if (registrationIdentityValid(fullName, email)) { Keyboard.dismiss(); setSignupStep(transitionRegistrationStep(signupStep, 'next', true)); }
+    if (registrationIdentityValid(fullName, email)) {
+      Keyboard.dismiss();
+      setSignupStep(transitionRegistrationStep(signupStep, 'next', true));
+      if (!registrationConsentValid(onBindConsent(fullName, email))) onRequireConsent(fullName, email);
+    }
   };
 
   const footer = <View style={styles.footer}>
-    <EntryButton label={mode === 'signup' && signupStep === 1 ? t('Continuar', 'Continue') : mode === 'signup' ? acceptedConsent.current ? t('Crear cuenta', 'Create account') : t('Revisar y crear cuenta', 'Review and create account') : copy.cta}
+    <EntryButton label={mode === 'signup' && signupStep === 1 ? t('Continuar', 'Continue') : mode === 'signup' ? t('Crear cuenta', 'Create account') : copy.cta}
       busy={busy} onPress={() => mode === 'signup' && signupStep === 1 ? advanceRegistration() : void submit()} />
     <Pressable accessibilityRole="button" disabled={busy}
       onPress={() => mode === 'signup' && signupStep === 2 ? setSignupStep(transitionRegistrationStep(signupStep, 'back', true)) : switchMode(mode === 'signin' ? 'signup' : 'signin')}
@@ -243,8 +238,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage 
     </Pressable>
   </View>;
 
-  return <>
-    <EntryLayout keyboardAware header={<View style={styles.header}>
+  return <EntryLayout keyboardAware header={<View style={styles.header}>
       <Text style={[styles.wordmark, { color: colors.primary }]}>TERRA<Text style={{ color: colors.text }}>SENSE</Text></Text>
       {!!onChangeLanguage && <Pressable accessibilityRole="button" accessibilityLabel={t('Cambiar idioma', 'Change language')}
         disabled={busy} onPress={onChangeLanguage} style={styles.language}>
@@ -256,10 +250,10 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage 
           title={mode === 'signin' ? t('Entra a tu cuenta', 'Sign in') : mode === 'signup' ? signupStep === 1 ? t('Crea tu cuenta', 'Create your account') : t('Protege tu cuenta', 'Secure your account') : t('Recupera tu acceso', 'Reset your password')}
           description={mode === 'signin' ? t('Continúa con tu campo.', 'Continue with your field.') : mode === 'signup' ? signupStep === 1 ? t('Comencemos con tus datos.', 'Start with your details.') : t('Elige una contraseña segura.', 'Choose a secure password.') : t('Te enviaremos un código a tu correo.', 'We will send a code to your email.')} />
         {mode === 'signup' && signupStep === 1 && <AccessField label={t('Nombre y apellido', 'Full name')} placeholder={t('Nombre y apellido', 'Full name')}
-          error={fieldErrors.name} value={fullName} onChangeText={value => { setFullName(value); acceptedConsent.current = null; setFieldErrors(e => ({ ...e, name: undefined })); }}
+          error={fieldErrors.name} value={fullName} onChangeText={value => { setFullName(value); onIdentityChange(value, email); setFieldErrors(e => ({ ...e, name: undefined })); }}
           autoCapitalize="words" autoComplete="name" textContentType="name" editable={!busy} returnKeyType="next" onSubmitEditing={() => emailInput.current?.focus()} />}
         {(mode !== 'signup' || signupStep === 1) && <AccessField ref={emailInput} label={t('Correo electrónico', 'Email address')} placeholder="nombre@ejemplo.cl"
-          error={fieldErrors.email} value={email} onChangeText={value => { setEmail(value); acceptedConsent.current = null; setFieldErrors(e => ({ ...e, email: undefined })); }}
+          error={fieldErrors.email} value={email} onChangeText={value => { setEmail(value); if (mode === 'signup') onIdentityChange(fullName, value); setFieldErrors(e => ({ ...e, email: undefined })); }}
           keyboardType="email-address" inputMode="email" autoComplete="email" textContentType="emailAddress" editable={!busy}
           returnKeyType={mode === 'signin' ? 'next' : 'done'} onSubmitEditing={() => mode === 'signin' ? passwordInput.current?.focus() : mode === 'signup' ? advanceRegistration() : void submit()} />}
         {(mode === 'signin' || mode === 'signup' && signupStep === 2) && <AccessField ref={passwordInput} key={mode} label={t('Contraseña', 'Password')}
@@ -278,16 +272,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage 
         </>}
         {!!error && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text>}
       </View>
-    </EntryLayout>
-    {showConsent && <RegistrationConsentModal busy={busy} error={error}
-      onCancel={() => { if (!requestGate.active) { setShowConsent(false); setError(null); } }}
-      onContinue={consent => {
-        acceptedConsent.current = consent;
-        setShowConsent(false);
-        setError(null);
-        void submit(consent);
-      }} />}
-  </>;
+    </EntryLayout>;
 };
 
 const styles = StyleSheet.create({

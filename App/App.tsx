@@ -25,6 +25,7 @@ import { InboxShortcut, NotificationInboxScreen } from './src/screens/Notificati
 import { getMyNotification, type DeviceNotification } from './src/services/notificationInbox';
 import { NotificationUnavailableError, notificationDestination, parseNotificationPayload, resolvePendingAlert } from './src/utils/notificationRoute';
 import { AuthScreen } from './src/screens/AuthScreen';
+import { TermsScreen } from './src/screens/TermsScreen';
 import { MeasureScreen } from './src/screens/MeasureScreen';
 import { FieldSettingsScreen } from './src/screens/FieldSettingsScreen';
 import { AdministrationScreen } from './src/screens/AdministrationScreen';
@@ -47,6 +48,7 @@ import { createRecoverySession } from './src/services/authDeepLink';
 import { parseRecoveryTokens } from './src/services/authDeepLinkParser';
 import { isInvalidSessionError } from './src/utils/authValidation';
 import { resolveEntryRoute } from './src/utils/authFlow';
+import { bindRegistrationConsent, registrationIdentity, retainConsentForIdentityChange, type RegistrationConsent, type RegistrationConsentDraft } from './src/utils/registrationConsent';
 import { EntryLayout, EntryHeading, EntryButton } from './src/components/entry/EntryUI';
 import { timedOperation } from './src/utils/timedOperation';
 import { WelcomeCarouselScreen } from './src/screens/WelcomeCarouselScreen';
@@ -69,6 +71,10 @@ export default function App() {
   const [checking, setChecking] = useState(true);
   const [checkingWelcome, setCheckingWelcome] = useState(true);
   const [welcomeComplete, setWelcomeComplete] = useState(false);
+  const [legalPresented, setLegalPresented] = useState(false);
+  const [legalFromRegistration, setLegalFromRegistration] = useState(false);
+  const registrationDraft = useRef<RegistrationConsentDraft | null>(null);
+  const pendingRegistrationIdentity = useRef<string | null>(null);
   const [languageSelected, setLanguageSelected] = useState(false);
   const [languageSelectorOpen, setLanguageSelectorOpen] = useState(false);
   const [savingLanguage, setSavingLanguage] = useState(false);
@@ -110,6 +116,7 @@ export default function App() {
     if (previousSessionId.current && previousSessionId.current !== current) {
       setInboxOpen(false); setPendingAlertId(null);
     }
+    if (current) { registrationDraft.current = null; pendingRegistrationIdentity.current = null; setLegalFromRegistration(false); }
     previousSessionId.current = current;
   }, [session?.user.id]);
   // Una push (con la app en primer plano, en segundo plano o cerrada) sólo abre la bandeja si el
@@ -150,11 +157,12 @@ export default function App() {
     Promise.all([AsyncStorage.getItem(WELCOME_KEY), loadEntryLanguage()])
       .then(([welcome, entryLanguage]) => {
         setWelcomeComplete(welcome === 'true');
+        setLegalPresented(welcome === 'true');
         // La bienvenida ya vista migra sin pedir una selección nueva.
         setLanguageSelected(entryLanguage.selected || welcome === 'true');
         setPreferences({ ...useAppStore.getState().preferences, language: entryLanguage.language });
       })
-      .catch(() => { setWelcomeComplete(false); setLanguageSelected(false); })
+      .catch(() => { setWelcomeComplete(false); setLegalPresented(false); setLanguageSelected(false); })
       .finally(() => setCheckingWelcome(false));
   }, [setPreferences]);
 
@@ -373,6 +381,12 @@ export default function App() {
     setSavingLanguage(true);
     try {
       await chooseEntryLanguage(language);
+      if (language !== useAppStore.getState().preferences.language) {
+        registrationDraft.current = null;
+        pendingRegistrationIdentity.current = null;
+        if (!welcomeComplete) setLegalPresented(false);
+        setLegalFromRegistration(false);
+      }
       setPreferences({ ...useAppStore.getState().preferences, language });
       setLanguageSelected(true);
       setLanguageSelectorOpen(false);
@@ -380,11 +394,26 @@ export default function App() {
     finally { languageSaveInFlight.current = false; setSavingLanguage(false); }
   };
 
+  const bindConsent = (name: string, email: string) => {
+    registrationDraft.current = bindRegistrationConsent(registrationDraft.current, name, email);
+    return registrationDraft.current?.consent ?? null;
+  };
+  const authScreen = () => <AuthScreen onAuthenticated={() => setRoute('dashboard')}
+    onChangeLanguage={() => setLanguageSelectorOpen(true)}
+    onRequireConsent={(name, email) => {
+      pendingRegistrationIdentity.current = registrationIdentity(name, email);
+      setLegalFromRegistration(true);
+    }}
+    onBindConsent={bindConsent}
+    onIdentityChange={(name, email) => { registrationDraft.current = retainConsentForIdentityChange(registrationDraft.current, name, email); }}
+    onDiscardConsent={() => { registrationDraft.current = null; }} />;
+
   let content;
   const entry = resolveEntryRoute({
     loading: checkingWelcome || checking || !isHydrated || recoveryLoading || checkingRecoveryLink ||
       (!!session && !recoveryActive && (!preferencesLoaded || preferencesUserId !== session.user.id)),
-    recovery: recoveryActive, welcomeComplete, languageSelected, userId: session?.user.id ?? null,
+    recovery: recoveryActive, welcomeComplete, languageSelected, legalPresented, legalFromRegistration,
+    userId: session?.user.id ?? null,
     permissionsUserId: permissionsReview?.userId ?? null,
     permissionsReviewed: permissionsReview?.reviewed ?? false,
     onboardingUserId, checkingOnboarding, onboardingError: !!onboardingError,
@@ -403,6 +432,17 @@ export default function App() {
     content = <ResetPasswordScreen onDone={() => { setRecoveryUserId(null); setRecovering(false); }} />;
   } else if (entry === 'language') {
     content = <LanguageScreen initialLanguage={preferences.language} onContinue={language => { void applyEntryLanguage(language); }} busy={savingLanguage} error={languageError} />;
+  } else if (entry === 'terms' && !legalFromRegistration) {
+    content = <TermsScreen key={preferences.language} onBack={() => {
+      registrationDraft.current = null;
+      setLanguageSelected(false);
+    }} onContinue={consent => {
+      registrationDraft.current = { consent, identity: null };
+      setLegalPresented(true);
+    }} />;
+  } else if (entry === 'terms' && legalFromRegistration) {
+    // Auth permanece montado bajo la pantalla legal para conservar el formulario.
+    content = authScreen();
   } else if (entry === 'welcome') {
     content = (
       <WelcomeCarouselScreen
@@ -414,7 +454,7 @@ export default function App() {
       />
     );
   } else if (entry === 'auth') {
-    content = <AuthScreen onAuthenticated={() => setRoute('dashboard')} onChangeLanguage={() => setLanguageSelectorOpen(true)} />;
+    content = authScreen();
   } else if (entry === 'permissions' && session) {
     const userId = session.user.id;
     content = <PermissionsScreen key={userId} userId={userId} onComplete={() => {
@@ -520,7 +560,7 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }} onLayout={() => { void SplashScreen.hideAsync().catch(() => undefined); }}>
       <SafeAreaProvider>
         <StatusBar style={entry === 'loading' || isDark ? 'light' : 'dark'} />
-        <View style={{ display: ['loading', 'language', 'welcome', 'auth', 'recovery'].includes(entry) ? 'none' : 'flex' }}>
+        <View style={{ display: ['loading', 'language', 'terms', 'welcome', 'auth', 'recovery'].includes(entry) ? 'none' : 'flex' }}>
           <OfflineBanner />
         </View>
         <ScreenGuide enabled={!recoveryLinkError && ['app', 'onboarding', 'approval'].includes(entry)} scope={`${entry}:${route}`}>
@@ -531,6 +571,16 @@ export default function App() {
         )}
         </ScreenGuide>
         <MeasurementDetailModal point={detailPoint} onClose={() => setDetailPoint(null)} />
+        <Modal visible={entry === 'terms' && legalFromRegistration} animationType="slide" presentationStyle="fullScreen"
+          onRequestClose={() => { registrationDraft.current = null; pendingRegistrationIdentity.current = null; setLegalFromRegistration(false); }}>
+          <SafeAreaProvider>{entry === 'terms' && legalFromRegistration && <TermsScreen key={preferences.language} onBack={() => {
+            registrationDraft.current = null; pendingRegistrationIdentity.current = null; setLegalFromRegistration(false);
+          }} onContinue={(consent: RegistrationConsent) => {
+            registrationDraft.current = { consent, identity: pendingRegistrationIdentity.current };
+            pendingRegistrationIdentity.current = null;
+            setLegalFromRegistration(false);
+          }} />}</SafeAreaProvider>
+        </Modal>
         <Modal visible={languageSelectorOpen && (entry === 'welcome' || entry === 'auth')} animationType="none" presentationStyle="fullScreen"
           onRequestClose={() => { if (!languageSaveInFlight.current) { setLanguageSelectorOpen(false); setLanguageError(false); } }}>
           <SafeAreaProvider><LanguageScreen initialLanguage={preferences.language}

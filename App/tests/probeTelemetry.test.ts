@@ -151,6 +151,28 @@ test('una trama sin lectura de suelo (bytes 0-14 en FF) se rechaza con su motivo
   assert.throws(() => decodeTelemetry(parcial), /Batería BLE inválida/);
 });
 
+test('rechaza humedad y pH de suelo fuera de rango en ambas versiones sin recortarlos', () => {
+  for (const version of [0, 1]) {
+    const frame = () => new Uint8Array([...suelo(), version, ...(version ? [0xff, 0xff, 0xff, 0xff] : [])]);
+    for (const [offset, maximum, field] of [[0, 1000, /Humedad de suelo/], [6, 140, /pH de suelo/]] as const) {
+      for (const value of [maximum + 1, 0xffff]) {
+        const bytes = frame();
+        new DataView(bytes.buffer).setUint16(offset, value, false);
+        assert.throws(() => decodeTelemetry(bytes), field);
+      }
+    }
+    for (const [humidity, ph] of [[0, 0], [1000, 140]]) {
+      const bytes = frame();
+      const view = new DataView(bytes.buffer);
+      view.setUint16(0, humidity, false);
+      view.setUint16(6, ph, false);
+      const decoded = decodeTelemetry(bytes);
+      assert.equal(decoded.vwc, humidity / 10);
+      assert.equal(decoded.ph, ph / 10);
+    }
+  }
+});
+
 test('respeta el desplazamiento de una vista dentro de un buffer BLE', () => {
   const buffer = new Uint8Array(24);
   buffer[4] = 1; buffer[5] = 0x5e;

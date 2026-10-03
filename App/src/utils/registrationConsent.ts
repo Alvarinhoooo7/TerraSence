@@ -48,3 +48,24 @@ export function createRegistrationConsent(state: ConsentState, language: 'es' | 
 }
 
 export type RegistrationConsent = ReturnType<typeof createRegistrationConsent>;
+
+/** Sólo existe durante esta ejecución de la app y pertenece a un intento de registro. */
+export interface RegistrationConsentDraft {
+  consent: RegistrationConsent;
+  identity: string | null;
+}
+
+export function registrationIdentity(name: string, email: string): string {
+  return `${name.trim().replace(/\s+/gu, ' ').toLocaleLowerCase()}\n${email.trim().toLowerCase()}`;
+}
+
+export function bindRegistrationConsent(draft: RegistrationConsentDraft | null, name: string, email: string): RegistrationConsentDraft | null {
+  if (!draft) return null;
+  const identity = registrationIdentity(name, email);
+  if (draft.identity && draft.identity !== identity) return null;
+  return draft.identity ? draft : { ...draft, identity };
+}
+
+export function retainConsentForIdentityChange(draft: RegistrationConsentDraft | null, name: string, email: string): RegistrationConsentDraft | null {
+  return draft?.identity && draft.identity !== registrationIdentity(name, email) ? null : draft;
+}

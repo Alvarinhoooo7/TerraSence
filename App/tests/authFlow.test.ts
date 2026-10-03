@@ -38,6 +38,18 @@ test('sin sesión se exige acceso; una cuenta nueva requiere vinculación; fallo
   assert.equal(resolveEntryRoute({ ...ready, onboardingError: true }), 'onboarding-error');
 });
 
+test('instalación nueva sigue Idioma, Términos, Bienvenida y Auth sin reutilizar la aceptación de otra cuenta', () => {
+  const fresh = { ...ready, userId: null, welcomeComplete: false, languageSelected: false, legalPresented: false };
+  assert.equal(resolveEntryRoute(fresh), 'language');
+  assert.equal(resolveEntryRoute({ ...fresh, languageSelected: true }), 'terms');
+  assert.equal(resolveEntryRoute({ ...fresh, languageSelected: true, legalPresented: true }), 'welcome');
+  assert.equal(resolveEntryRoute({ ...fresh, languageSelected: true, legalPresented: true, welcomeComplete: true }), 'auth');
+  assert.equal(resolveEntryRoute({ ...ready, userId: null, legalFromRegistration: true }), 'terms');
+  assert.equal(resolveEntryRoute({ ...ready, legalFromRegistration: true }), 'app', 'una sesión anterior no se bloquea');
+  assert.equal(resolveEntryRoute({ ...fresh, recovery: true, languageSelected: true }), 'recovery');
+  assert.equal(resolveEntryRoute({ ...fresh, loading: true, languageSelected: true }), 'loading');
+});
+
 test('fallos transitorios de red, límite y servidor no se confunden con una cuenta inválida', () => {
   for (const error of [null, {}, { status: 500 }, { status: 503 }, { status: 429 }, { status: 0 }]) {
     assert.equal(isInvalidSessionError(error), false);

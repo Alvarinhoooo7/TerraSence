@@ -8,9 +8,9 @@
 // v0 son 16 bytes (sólo suelo y batería) y v1 son 20 (añade el ambiente del BME280).
 // Contrato completo en docs/CONTRATO_BLE.md.
 //
-// Trama Modbus que emite el firmware (documentada en README §5.5):
-//   Consulta : 01 03 00 00 00 07 04 08     (8 bytes, CRC16 verificado)
-//   Respuesta: 01 03 0E <14 bytes de datos> <CRC>   (19 bytes)
+// La consulta y las escalas Modbus dependen del modelo adquirido y deben
+// confirmarse con su manual. El teléfono recibe el contrato TerraSense,
+// nunca una respuesta Modbus cruda.
 //
 // Mientras no haya equipo emparejado, se devuelven datos SIMULADOS y se marca
 // el resultado con `simulated: true`. La UI está obligada a mostrarlo: es
@@ -217,6 +217,11 @@ export function decodeTelemetry(bytes: Uint8Array): SoilMeasurement {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const u16 = (offset: number) => view.getUint16(offset, false); // big-endian, como Modbus
   const i16 = (offset: number) => view.getInt16(offset, false);
+
+  // Límites de las magnitudes, independientes del mapa Modbus del proveedor.
+  // Rechazar: recortar ocultaría errores de escala o registros intercambiados.
+  if (u16(0) > 1000) throw new Error('Humedad de suelo BLE inválida: debe estar entre 0 y 100 %.');
+  if (u16(6) > 140) throw new Error('pH de suelo BLE inválido: debe estar entre 0 y 14.');
 
   const ambiente: AmbienteBme280 =
     version === 1 ? decodeAmbiente(bytes) : { airTemp: null, airHumidity: null, airPressure: null };

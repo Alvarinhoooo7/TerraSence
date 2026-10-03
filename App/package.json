@@ -9,7 +9,7 @@
     "ios": "expo run:ios",
     "type-check": "tsc --noEmit",
     "assets:brand": "node scripts/generate-brand-assets.mjs",
-    "test": "tsx --test tests/measurementPresentation.test.ts tests/deviceReset.test.ts tests/permissions.test.ts tests/authFlow.test.ts tests/authDeepLink.test.ts tests/deviceId.test.ts tests/onboardingState.test.ts tests/preferences.test.ts tests/probeTelemetry.test.ts tests/probeContact.test.ts tests/privacy.test.ts tests/passwordRules.test.ts tests/keyedLock.test.ts tests/measurementHistory.test.ts tests/weatherService.test.ts tests/environmentHistory.test.ts tests/registrationConsent.test.ts tests/emailOtp.test.ts tests/smoothScroll.test.ts tests/guideLayout.test.ts tests/onboardingAudit.test.ts tests/entryLanguage.test.ts tests/accessRegistration.test.ts tests/entryPreferencesService.test.ts tests/notifications.test.ts tests/notificationRoute.test.ts tests/notificationInbox.test.ts tests/batteryWarning.test.ts tests/measureLocation.test.ts",
+    "test": "tsx --test tests/measurementPresentation.test.ts tests/deviceReset.test.ts tests/permissions.test.ts tests/authFlow.test.ts tests/authDeepLink.test.ts tests/deviceId.test.ts tests/onboardingState.test.ts tests/preferences.test.ts tests/probeTelemetry.test.ts tests/probeContact.test.ts tests/privacy.test.ts tests/passwordRules.test.ts tests/keyedLock.test.ts tests/measurementHistory.test.ts tests/weatherService.test.ts tests/environmentHistory.test.ts tests/registrationConsent.test.ts tests/emailOtp.test.ts tests/smoothScroll.test.ts tests/guideLayout.test.ts tests/onboardingAudit.test.ts tests/entryLanguage.test.ts tests/accessRegistration.test.ts tests/entryPreferencesService.test.ts tests/notifications.test.ts tests/notificationRoute.test.ts tests/notificationInbox.test.ts tests/batteryWarning.test.ts tests/measureLocation.test.ts tests/bleTelemetry.test.ts",
     "test:supabase-onboarding": "node scripts/verify-supabase-onboarding.mjs"
   },
   "dependencies": {
@@ -29,6 +29,7 @@
     "expo-status-bar": "~57.0.1",
     "expo-system-ui": "~57.0.4",
     "react": "19.2.3",
+    "react-dom": "19.2.3",
     "react-native": "0.86.3",
     "react-native-ble-plx": "^3.5.1",
     "react-native-gesture-handler": "~2.32.0",
@@ -38,6 +39,7 @@
     "react-native-screens": "~4.26.0",
     "react-native-svg": "15.15.4",
     "react-native-url-polyfill": "^4.0.0",
+    "react-native-web": "^0.21.2",
     "react-native-worklets": "0.10.1",
     "zustand": "^4.5.5"
   },

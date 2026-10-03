@@ -3,6 +3,7 @@ import test from 'node:test';
 import {
   canAcceptRegistration, consentReducer, createRegistrationConsent,
   hasReachedLegalEnd, initialConsent, REGISTRATION_LEGAL_VERSION,
+  bindRegistrationConsent, retainConsentForIdentityChange,
 } from '../src/utils/registrationConsent';
 
 test('no acepta casillas antes de llegar al final ni genera una aceptación incompleta', () => {
@@ -18,6 +19,22 @@ test('no acepta casillas antes de llegar al final ni genera una aceptación inco
       }
     }
   }
+});
+
+test('el borrador inicial se liga al primer registro y se descarta si cambia la identidad', () => {
+  let state = consentReducer(initialConsent, { type: 'read' });
+  state = consentReducer(state, { type: 'terms' });
+  state = consentReducer(state, { type: 'privacy' });
+  const consent = createRegistrationConsent(state, 'es');
+  const fresh = { consent, identity: null };
+  const bound = bindRegistrationConsent(fresh, ' Ana   Soto ', ' ANA@ejemplo.cl ');
+  assert.ok(bound);
+  assert.equal(bound.consent, consent);
+  assert.equal(bindRegistrationConsent(bound, 'Ana Soto', 'ana@ejemplo.cl')?.consent, consent);
+  assert.equal(retainConsentForIdentityChange(bound, 'Ana', 'ana@ejemplo.cl'), null);
+  assert.equal(bindRegistrationConsent(bound, 'Otra Persona', 'ana@ejemplo.cl'), null);
+  assert.equal(retainConsentForIdentityChange(fresh, 'Otra Persona', 'otra@ejemplo.cl'), fresh);
+  assert.equal(consent.accepted_at_client, bound.consent.accepted_at_client, 'la fecha no cambia en el reintento');
 });
 
 test('solo habilita continuar con ambas aceptaciones y lo bloquea al desmarcar cualquiera', () => {

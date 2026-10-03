@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createSubmissionGate, transitionRegistrationStep, registrationConsentValid, registrationIdentityValid, registrationNameMetadata, registrationPasswordValid } from '../src/utils/accessRegistration';
+import { createSubmissionGate, transitionRegistrationStep, registrationConsentValid, registrationIdentityValid, registrationNameMetadata, registrationPasswordValid, submitRegistration } from '../src/utils/accessRegistration';
 import { consentReducer, createRegistrationConsent, initialConsent } from '../src/utils/registrationConsent';
 
 test('el primer paso exige nombre y apellido y un correo válido sin crear cuenta', () => {
@@ -56,4 +56,23 @@ test('el envío se bloquea en el mismo frame y se libera para reintentar despué
   await first;
   await assert.rejects(submit(), /network/);
   assert.equal(requests, 2);
+});
+
+test('signUp recibe el consentimiento leído, su versión, idioma y fecha sin enviar dos solicitudes', async () => {
+  let state = consentReducer(initialConsent, { type: 'read' });
+  state = consentReducer(state, { type: 'terms' });
+  state = consentReducer(state, { type: 'privacy' });
+  const consent = createRegistrationConsent(state, 'en');
+  const calls: unknown[] = [];
+  const signUp = async (payload: unknown) => { calls.push(payload); return { data: { user: { id: 'new' } }, error: null }; };
+  const fields = { email: ' ANA@ejemplo.cl ', password: 'Campo2026!', fullName: ' Ana   Soto ', consent };
+  const result = await submitRegistration(signUp, fields);
+  assert.equal(result.data.user.id, 'new');
+  assert.deepEqual(calls, [{ email: 'ana@ejemplo.cl', password: fields.password, options: { data: {
+    full_name: 'Ana Soto', first_name: 'Ana', last_name: 'Soto', registration_consent: consent,
+  } } }]);
+  assert.equal((calls[0] as { options: { data: { registration_consent: typeof consent } } }).options.data.registration_consent.accepted_at_client,
+    consent.accepted_at_client);
+  assert.throws(() => submitRegistration(signUp, { ...fields, consent: { ...consent, privacy_version: 'anterior' } }), /aceptar/);
+  assert.equal(calls.length, 1);
 });
