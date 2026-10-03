@@ -23,6 +23,8 @@ import { AppIcon } from '../components/AppIcon';
 import { EntryHeading, EntryButton } from '../components/entry/EntryUI';
 import { ScreenCard, ScreenLabel, ScreenLayout, ScreenOption, ScreenText, ScreenTopBar, ScreenValue } from '../components/screen/ScreenUI';
 import { BrandLoading } from '../components/LoadingScreen';
+import { ProbeWait } from '../components/MeasurementLoading';
+import { InviteArt, NewProbeArt, PairPrepareArt, ProbeFoundArt } from '../components/pairing/PairingArt';
 import { formatDeviceId } from '../utils/deviceId';
 import { AccessField } from '../components/auth/AccessField';
 import { createQrScanGate } from '../utils/qrScanGate';
@@ -326,10 +328,23 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip, onCan
     footer={<EntryButton label={t('Reintentar', 'Try again')} onPress={() => { setCheckingRequests(true); setCheckAttempt(value => value + 1); }} />} />;
 
   const eyebrowFlow = addingDevice ? t('VINCULAR OTRA SONDA', 'LINK ANOTHER PROBE') : t('VINCULA TU SONDA', 'LINK YOUR PROBE');
+  // Opción ilustrada: la imagen arriba y el texto debajo, como las tarjetas de etapa.
+  const artOption = (art: React.ReactNode, title: string, subtitle: string, onPress: () => void) => <TouchableOpacity accessibilityRole="button" guideTitle={title} guide={subtitle} onPress={onPress}
+    style={{ borderRadius: 22, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 8, gap: 10 }}>
+    {art}
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 10, paddingBottom: 8 }}>
+      <View style={{ flex: 1, gap: 4 }}>
+        <Text style={{ color: colors.text, fontSize: 18, fontWeight: '700' }}>{title}</Text>
+        <Text style={{ color: colors.textSecondary, fontSize: 14, lineHeight: 20 }}>{subtitle}</Text>
+      </View>
+      <Text style={{ color: colors.primary, fontSize: 26 }}>›</Text>
+    </View>
+  </TouchableOpacity>;
 
   if (step === 'invite') return <ScreenLayout keyboardAware onBack={backToChoice} eyebrow={eyebrowFlow} title={t('Usa tu invitación', 'Use your invitation')}
     description={t('Un miembro del equipo te la muestra en Configuración › Equipos y datos › Compartir acceso. El administrador aprueba tu solicitud.', 'A team member shows it in Settings › Devices and data › Share access. The administrator approves your request.')}
     footer={<EntryButton label={t('Solicitar acceso', 'Request access')} busy={joining} disabled={!inviteCode.trim()} onPress={() => { void joinByCode(); }} />}>
+    <InviteArt />
     <ScreenOption title={t('Escanear el QR', 'Scan the QR')} subtitle={t('Con la cámara del teléfono.', 'With the phone camera.')} disabled={joining} onPress={() => { void openQr(); }} />
     <ScreenLabel>{t('O escribe el código', 'Or type the code')}</ScreenLabel>
     <AccessField label={t('Código de invitación', 'Invitation code')} value={inviteCode} onChangeText={setInviteCode} editable={!joining} maxLength={100} autoCapitalize="none" autoCorrect={false} />
@@ -365,25 +380,35 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip, onCan
   }
 
   if (step === 'pairing') {
-    if (pairingState === 'scanning' || pairingState === 'saving') return <BrandLoading
-      title={pairingState === 'saving' ? t('Vinculando tu sonda', 'Linking your probe') : t('Buscando tu sonda', 'Looking for your probe')}
-      detail={pairingState === 'saving' ? t('Registrando el equipo en tu cuenta.', 'Registering the device to your account.') : t('Con la ventana PAIR abierta y a menos de 2 metros del teléfono.', 'With the PAIR window open and within 2 meters of the phone.')}
-      onCancel={pairingState === 'scanning' ? backToChoice : undefined} />;
+    if (pairingState === 'saving') return <BrandLoading title={t('Vinculando tu sonda', 'Linking your probe')} detail={t('Registrando el equipo en tu cuenta.', 'Registering the device to your account.')} />;
+    if (pairingState === 'scanning') return <ProbeWait reading={false} eyebrow={eyebrowFlow} onCancel={backToChoice}
+      title={t('Buscando tu sonda', 'Looking for your probe')}
+      detail={t('Con la ventana PAIR abierta (LED azul parpadeando) y a menos de 2 metros del teléfono.', 'With the PAIR window open (blue LED blinking) and within 2 meters of the phone.')} />;
     return <ScreenLayout onBack={backToChoice} eyebrow={eyebrowFlow}
       title={probe ? t('La encontramos', 'Found it') : t('Prepara tu sonda', 'Get your probe ready')}
       description={probe ? t('Comprueba que el ID sea el de tu equipo y confirma.', 'Check that the ID matches your device and confirm.') : undefined}
       footer={<EntryButton label={probe ? t('Confirmar y vincular', 'Confirm and link') : t('Buscar mi sonda', 'Find my probe')} onPress={() => { void (probe ? savePairedProbe() : startPairing()); }} />}>
-      {probe ? <ScreenCard>
-        <ScreenValue label={t('Sonda', 'Probe')} value={probe.name || t('Sonda TerraSense', 'TerraSense probe')} />
-        <ScreenValue label="ID" value={formatDeviceId(probe.deviceCode)} selectable />
-      </ScreenCard> : <ScreenCard>
-        {[t('Enciende la sonda.', 'Turn the probe on.'),
-          t('Mantén el botón PAIR 3 segundos, hasta que el LED azul parpadee.', 'Hold the PAIR button for 3 seconds, until the blue LED blinks.'),
-          t('Déjala a menos de 2 metros del teléfono y toca «Buscar mi sonda».', 'Keep it within 2 meters of the phone and tap "Find my probe".')].map((line, i) => <View key={i} style={{ flexDirection: 'row', gap: 12 }}>
-          <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '700', minWidth: 18 }}>{i + 1}</Text>
-          <View style={{ flex: 1 }}><ScreenText muted={false}>{line}</ScreenText></View>
+      {probe ? <>
+        <ProbeFoundArt />
+        <ScreenCard accent={colors.success}>
+          <ScreenValue label={t('Sonda', 'Probe')} value={probe.name || t('Sonda TerraSense', 'TerraSense probe')} />
+          <ScreenValue label="ID" value={formatDeviceId(probe.deviceCode)} selectable />
+        </ScreenCard>
+      </> : <>
+        <PairPrepareArt />
+        {/* Los mismos pasos numerados que antes de medir. */}
+        {[[t('Enciende la sonda', 'Turn the probe on'), t('Con la batería cargada o conectada.', 'With the battery charged or plugged in.')],
+          [t('Mantén PAIR 3 segundos', 'Hold PAIR for 3 seconds'), t('Suelta cuando el LED azul parpadee: la ventana queda abierta unos minutos.', 'Release when the blue LED blinks: the window stays open for a few minutes.')],
+          [t('Acércala a menos de 2 metros', 'Bring it within 2 meters'), t('Y toca «Buscar mi sonda».', 'Then tap "Find my probe".')]].map(([title, body], i) => <View key={i} style={{ flexDirection: 'row', gap: 14, alignItems: 'flex-start' }}>
+          <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', marginTop: 2 }}>
+            <Text style={{ color: isDark ? colors.background : '#FFFFFF', fontSize: 15, fontWeight: '800' }}>{i + 1}</Text>
+          </View>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={{ color: colors.text, fontSize: 17, fontWeight: '700' }}>{title}</Text>
+            <ScreenText>{body}</ScreenText>
+          </View>
         </View>)}
-      </ScreenCard>}
+      </>}
       <ScreenText>{t('Si es un equipo nuevo, tu cuenta quedará como su administradora.', 'If this is a new device, your account will become its administrator.')}</ScreenText>
     </ScreenLayout>;
   }
@@ -395,12 +420,12 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip, onCan
     description={addingDevice ? t('Elige si es un equipo compartido o uno nuevo.', 'Choose whether it is a shared device or a new one.') : t('Vincula un equipo para comenzar. Elige cómo te vas a conectar.', 'Link a device to get started. Choose how you will connect.')}
     // Gesto sólo de desarrollo (sección 9): diez toques en el título entran a Inicio sin equipo.
     onHeadingPress={__DEV__ && onDevSkip ? () => { if (!operation.current) logoTap.current(); } : undefined}>
-    <ScreenOption title={t('Tengo una invitación', 'I have an invitation')}
-      subtitle={t('Equipo compartido: QR o código temporal de un miembro. El administrador aprueba tu solicitud.', 'Shared device: a member’s QR or temporary code. The administrator approves your request.')}
-      onPress={() => { if (!operation.current) setStep('invite'); }} />
-    <ScreenOption title={t('Configurar una sonda nueva', 'Set up a new probe')}
-      subtitle={t('Equipo nuevo: se vincula por Bluetooth con su botón PAIR y quedas como administrador.', 'New device: links over Bluetooth with its PAIR button and you become the administrator.')}
-      onPress={() => { if (!operation.current) setStep('pairing'); }} />
+    {artOption(<NewProbeArt />, t('Configurar una sonda nueva', 'Set up a new probe'),
+      t('Equipo nuevo: se vincula por Bluetooth con su botón PAIR y quedas como administrador.', 'New device: links over Bluetooth with its PAIR button and you become the administrator.'),
+      () => { if (!operation.current) setStep('pairing'); })}
+    {artOption(<InviteArt />, t('Tengo una invitación', 'I have an invitation'),
+      t('Equipo compartido: QR o código temporal de un miembro. El administrador aprueba tu solicitud.', 'Shared device: a member’s QR or temporary code. The administrator approves your request.'),
+      () => { if (!operation.current) setStep('invite'); })}
   </ScreenLayout>;
 };
 

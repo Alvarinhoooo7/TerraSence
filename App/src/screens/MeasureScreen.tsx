@@ -16,10 +16,15 @@ import { newClientUuid, saveMeasurement } from '../services/measurementsService'
 import { PHENOLOGICAL_STAGES, mapRowToPoint, type PhenologicalStage, type SoilMeasurementInsert } from '../types/app';
 import type { SoilMeasurement } from '../types/agronomy';
 import { MeasurementResultFlow } from '../components/MeasurementResultFlow';
-import { ScreenCard, ScreenLayout, ScreenOption, ScreenText } from '../components/screen/ScreenUI';
+import { ScreenCard, ScreenLayout, ScreenText } from '../components/screen/ScreenUI';
 import { buildMeasurementPresentation } from '../engine/measurementPresentation';
 import { CalibrationReminderModal } from '../components/CalibrationReminderModal';
 import { MeasurementLoading } from '../components/MeasurementLoading';
+import { ProbeInsertArt } from '../components/ProbeInsertArt';
+import { StageArt, StageCards } from '../components/StageCards';
+import { AppIcon } from '../components/AppIcon';
+import Animated from 'react-native-reanimated';
+import { enterDown } from '../constants/motion';
 import { EntryButton } from '../components/entry/EntryUI';
 import { askForAccess } from '../components/permissionPrompt';
 import { isLegacyAndroidBluetooth, readPermission } from '../services/permissionsService';
@@ -36,7 +41,7 @@ const LOCATION_CHOICE_KEY = '@terrasense/measure-location-v1';
 
 const ENGINE_VERSION = '1.2.0';
 const CROP_CATALOG_VERSION = '1.0.0';
-type Phase = 'connecting' | 'connection_error' | 'prepare' | 'stage' | 'reading' | 'result' | 'saving';
+type Phase = 'connecting' | 'connection_error' | 'stage' | 'steps' | 'prepare' | 'reading' | 'result' | 'saving';
 
 interface Props {
   onDone: () => void;
@@ -44,7 +49,7 @@ interface Props {
 }
 
 export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
-  const { colors } = useAppTheme();
+  const { colors, isDark } = useAppTheme();
   const { t, language } = useTranslation();
   const {
     setStage,
@@ -143,14 +148,21 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   const cancel = useCallback(() => {
     if (saving.current) return;
     const leave = () => { weatherRequest.current += 1; accountOperation.current.cancel(); onCancel(); };
-    if (raw && !saved.current) Alert.alert(t('Lectura sin guardar', 'Unsaved reading'), t('¿Descartar esta lectura y volver al dashboard?', 'Discard this reading and go back to the dashboard?'), [
+    if (raw && !saved.current) Alert.alert(t('Lectura sin guardar', 'Unsaved reading'), t('¿Descartar esta lectura y volver al inicio?', 'Discard this reading and go back home?'), [
       { text: t('Seguir revisando', 'Keep reviewing'), style: 'cancel' }, { text: t('Descartar', 'Discard'), style: 'destructive', onPress: leave },
     ]);
     else leave();
   }, [raw, onCancel, t]);
   useEffect(() => {
     // Con el resultado a la vista, el Atrás lo maneja MeasurementResultFlow, paso a paso.
-    const listener = BackHandler.addEventListener('hardwareBackPress', () => { if (phaseRef.current === 'result' || phaseRef.current === 'saving') return false; cancel(); return true; });
+    const listener = BackHandler.addEventListener('hardwareBackPress', () => {
+      const current = phaseRef.current;
+      if (current === 'result' || current === 'saving') return false;
+      // Antes de medir, Atrás retrocede una pantalla: pasos → etapa, medir → pasos.
+      if (current === 'steps') { setPhase('stage'); return true; }
+      if (current === 'prepare') { setPhase('steps'); return true; }
+      cancel(); return true;
+    });
     return () => listener.remove();
   }, [cancel]);
 
@@ -349,34 +361,69 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   }
 
   if (phase === 'stage') {
-    return <ScreenLayout onBack={cancel} backLabel={t('Inicio', 'Home')} eyebrow={t('MEDIR · PASO 1 DE 2', 'MEASURE · STEP 1 OF 2')}
+    return <ScreenLayout onBack={cancel} backLabel={t('Inicio', 'Home')} eyebrow={t('MEDIR · PASO 1 DE 3', 'MEASURE · STEP 1 OF 3')}
       title={t('¿En qué etapa está tu cultivo?', 'What stage is your crop in?')}
       description={t('La lectura se interpreta según la etapa. No cambia los valores medidos.', 'The reading is interpreted for the stage. It does not change the measured values.')}
-      footer={<EntryButton disabled={!stage} label={t('Continuar', 'Continue')} onPress={() => setPhase('prepare')} />}>
+      footer={<EntryButton disabled={!stage} label={t('Continuar', 'Continue')} onPress={() => setPhase('steps')} />}>
       {demoNotice}
-      {PHENOLOGICAL_STAGES.map(item => <ScreenOption key={item.id} selected={item.id === stage}
-        title={`${item.emoji}  ${language === 'en' ? item.labelEn : item.label}`} subtitle={language === 'en' ? item.focusEn : item.focus}
-        guide={t('Elige esta etapa para interpretar la lectura según el desarrollo del cultivo.', 'Choose this stage to interpret the reading for crop development.')}
-        onPress={() => { selectStage(item.id); setStage(item.id); }} />)}
+      <StageCards value={stage} onChange={id => { selectStage(id); setStage(id); }} />
+    </ScreenLayout>;
+  }
+
+  if (phase === 'steps') {
+    const steps: [string, string][] = [
+      [t('Enciende la sonda', 'Turn the probe on'), t('Déjala cerca del teléfono, a menos de 2 metros.', 'Keep it near the phone, within 2 meters.')],
+      [t('Límpiala antes de insertarla', 'Clean it before inserting it'), t('Electrodos limpios y secos: la tierra pegada de otra medición altera la lectura.', 'Clean, dry electrodes: soil left from another reading skews the result.')],
+      [t('Entiérrala en el suelo', 'Insert it into the soil'), t('Hasta cubrir los electrodos, en suelo representativo, sin piedras ni bolsas de aire.', 'Until the electrodes are covered, in representative soil, without stones or air pockets.')],
+      [t('Mantenla recta y quieta', 'Keep it straight and still'), t('Vertical y sin moverla mientras se lee.', 'Upright and without moving it while it reads.')],
+    ];
+    return <ScreenLayout onBack={() => setPhase('stage')} backLabel={t('Etapa', 'Stage')} eyebrow={t('MEDIR · PASO 2 DE 3', 'MEASURE · STEP 2 OF 3')}
+      title={t('Antes de medir', 'Before measuring')}
+      footer={<EntryButton label={t('Listo, continuar', 'Done, continue')} onPress={() => setPhase('prepare')} />}>
+      <ProbeInsertArt />
+      {steps.map(([title, body], i) => <Animated.View key={i} entering={enterDown(120 + i * 110)}>
+        <View style={{ flexDirection: 'row', gap: 14, alignItems: 'flex-start', paddingVertical: 4 }}>
+          <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', marginTop: 2 }}>
+            <Text style={{ color: isDark ? colors.background : '#FFFFFF', fontSize: 15, fontWeight: '800' }}>{i + 1}</Text>
+          </View>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={{ color: colors.text, fontSize: 17, fontWeight: '700' }}>{title}</Text>
+            <ScreenText>{body}</ScreenText>
+          </View>
+        </View>
+      </Animated.View>)}
     </ScreenLayout>;
   }
 
   if (phase === 'prepare') {
-    return <ScreenLayout onBack={() => setPhase('stage')} backLabel={t('Etapa', 'Stage')} eyebrow={t('MEDIR · PASO 2 DE 2', 'MEASURE · STEP 2 OF 2')}
-      title={t('Prepara la medición', 'Get ready to measure')}
-      description={t(`Sonda ${deviceName} · etapa ${stageLabel(stage)}`, `Probe ${deviceName} · ${stageLabel(stage)} stage`)}
+    const badge = (icon: 'bluetooth' | 'location') => <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: '#17392C', alignItems: 'center', justifyContent: 'center' }}>
+      <AppIcon name={icon} color="#C6DFB4" size={24} />
+    </View>;
+    return <ScreenLayout onBack={() => setPhase('steps')} backLabel={t('Pasos', 'Steps')} eyebrow={t('MEDIR · PASO 3 DE 3', 'MEASURE · STEP 3 OF 3')}
+      title={t('Todo listo', 'All set')}
       footer={<EntryButton disabled={locationBusy} label={t('Medir', 'Measure')} onPress={() => void runMeasurement()} />}>
       {demoNotice}
+      {/* Resumen de lo elegido: la etapa con su ilustración y la sonda. */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 10 }}>
+        {stage && <View style={{ width: 96, aspectRatio: 120 / 90, borderRadius: 12, overflow: 'hidden', backgroundColor: '#17392C' }}><StageArt stage={stage} /></View>}
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.5 }}>{t('ETAPA', 'STAGE')}</Text>
+          <Text numberOfLines={1} style={{ color: colors.text, fontSize: 18, fontWeight: '700' }}>{stageLabel(stage)}</Text>
+          <Text numberOfLines={1} style={{ color: colors.textSecondary, fontSize: 14 }}>{t(`Sonda ${deviceName}`, `Probe ${deviceName}`)}</Text>
+        </View>
+      </View>
       <ScreenCard>
-        {[t('Enciende la sonda y déjala cerca del teléfono.', 'Turn the probe on and keep it near the phone.'),
-          t('Entiérrala en suelo representativo, sin piedras ni bolsas de aire.', 'Insert it into representative soil, without stones or air pockets.'),
-          t('Mantenla quieta mientras se lee.', 'Keep it still while it reads.')].map((line, i) => <View key={i} style={{ flexDirection: 'row', gap: 12 }}>
-          <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '700', minWidth: 18 }}>{i + 1}</Text>
-          <View style={{ flex: 1 }}><ScreenText muted={false}>{line}</ScreenText></View>
-        </View>)}
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14 }}>
+          {badge('bluetooth')}
+          <View style={{ flex: 1, gap: 4 }}>
+            <Text style={{ color: colors.text, fontSize: 17, fontWeight: '600' }}>{t('Bluetooth', 'Bluetooth')}</Text>
+            <ScreenText>{t('Al tocar Medir, el teléfono se conecta con la sonda. Si es la primera vez, te pedirá permiso para usar Bluetooth.', 'When you tap Measure, the phone connects to the probe. The first time, it will ask for permission to use Bluetooth.')}</ScreenText>
+          </View>
+        </View>
       </ScreenCard>
       <ScreenCard>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          {badge('location')}
           <View style={{ flex: 1, gap: 4 }}>
             <Text style={{ color: colors.text, fontSize: 17, fontWeight: '600' }}>{t('Ubicación y pronóstico', 'Location and forecast')}</Text>
             <ScreenText>{t('Guarda las coordenadas y consulta el pronóstico. Sin esto, la lectura se guarda igual.', 'Saves the coordinates and gets the forecast. Without it, the reading is still saved.')}</ScreenText>

@@ -96,6 +96,38 @@ export function ScreenValue({ label, value, selectable = false }: { label: strin
   </View>;
 }
 
+/** Elección entre pocas opciones en una sola fila (idioma, unidades, tema). */
+export function ScreenSegmented<T extends string>({ label, options, value, onChange, disabled = false }: {
+  label: string; options: { value: T; label: string }[]; value: T; onChange: (value: T) => void; disabled?: boolean;
+}) {
+  const { colors, isDark } = useAppTheme();
+  return <View style={{ gap: 8 }}>
+    <Text style={{ color: colors.text, fontSize: 15, fontWeight: '600' }}>{label}</Text>
+    <View accessibilityRole="radiogroup" accessibilityLabel={label}
+      style={{ flexDirection: 'row', gap: 4, padding: 4, borderRadius: 16, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card }}>
+      {options.map(option => {
+        const selected = option.value === value;
+        return <GuideTouchable key={option.value} guide={false} accessibilityRole="radio" accessibilityState={{ selected, disabled }} disabled={disabled}
+          onPress={() => { if (!selected) onChange(option.value); }}
+          style={{ flex: 1, minHeight: 46, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6,
+            backgroundColor: selected ? colors.primary : 'transparent', opacity: disabled ? .6 : 1 }}>
+          <Text numberOfLines={1} adjustsFontSizeToFit style={{ color: selected ? (isDark ? colors.background : '#FFFFFF') : colors.text, fontSize: 15, fontWeight: selected ? '700' : '500' }}>{option.label}</Text>
+        </GuideTouchable>;
+      })}
+    </View>
+  </View>;
+}
+
+/** Estado breve en una píldora (permiso concedido, pendiente, bloqueado). */
+export function ScreenStatus({ label, tone }: { label: string; tone: 'ok' | 'warn' | 'off' }) {
+  const { colors } = useAppTheme();
+  const color = tone === 'ok' ? colors.success : tone === 'warn' ? colors.warning : colors.textSecondary;
+  return <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: color }}>
+    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: color }} />
+    <Text style={{ color, fontSize: 13, fontWeight: '700' }}>{label}</Text>
+  </View>;
+}
+
 /** Avance por pasos, igual al del carrusel de bienvenida. */
 export function StepProgress({ index, total }: { index: number; total: number }) {
   const { colors } = useAppTheme();

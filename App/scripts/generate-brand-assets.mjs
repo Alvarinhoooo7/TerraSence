@@ -50,10 +50,12 @@ const foreground = outline(assetSource.replace(/<rect x="56"[^>]+\/>/, '').repla
 await render(square, 'App/assets/icon.png', 1024);
 await render(foreground, 'App/assets/adaptive-icon.png', 1024, true);
 await render(asset, 'App/assets/favicon.png', 64, true);
-// La pantalla de arranque va sobre verde oscuro: el logotipo se aclara y los estratos
-// grises pasan a verdes, porque sobre ese fondo el gris se apaga. Misma paleta que
-// `ON_DARK` en App/src/components/BrandLogo.tsx, que dibuja la pantalla de carga.
-const onDark = logo.replaceAll('#0f2e22', '#ECFDF5').replaceAll('#94A3B8', '#6EE7B7')
-  .replaceAll('#CBD5E1', '#34D399').replaceAll('#E2E8F0', '#A7F3D0');
-await render(onDark, 'App/assets/splash.png', 1024, true, Math.round(1024 * 235 / 590));
+// La pantalla de arranque va sobre el verde oscuro de la carga.
+// Sólo el nombre «TerraSense» en dos colores, como la pantalla de carga (BrandWordmark en
+// App/src/components/BrandLogo.tsx, misma expresión y misma caja): «Terra» claro y «Sense»
+// verde. Sin isotipo ni subtítulo, para que el paso del arranque nativo a la carga no se note.
+const wordmark = [...logo.matchAll(/<path fill="(#0f2e22|#16A34A)"(?: transform="translate\(([\d.]+) 0\)")? d="([^"]+)"\/>/g)]
+  .map(([, fill, x, d]) => `<path fill="${fill === '#0f2e22' ? '#ECFDF5' : '#22C55E'}" transform="translate(${x ?? 0} 0)" d="${d}"/>`).join('');
+await render(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -38 268 39.5" width="100%" height="100%">${wordmark}</svg>`,
+  'App/assets/splash.png', 1024, true, Math.round(1024 * 39.5 / 268));
 console.log('Marca vectorial, favicon e íconos Expo generados desde Logo/.');

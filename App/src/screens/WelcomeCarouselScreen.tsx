@@ -17,11 +17,22 @@ function Artwork({ page, height }: { page: number; height: number }) {
     <Svg width="100%" height="100%" viewBox="0 0 360 230" preserveAspectRatio="xMidYMid meet">
       <Circle cx="300" cy="42" r="90" fill="none" stroke="#50715B" strokeWidth="1" />
       {page === 0 ? <>
+        {/* Campo con hileras al fondo y, en corte, una planta con sus raíces y la humedad del suelo. */}
+        <Circle cx="300" cy="42" r="16" fill="#C6DFB4" opacity={0.9} />
+        <Path d="M0 112Q90 92 180 108T360 100V230H0Z" fill="#24503A" />
+        <Path d={[[22, 108], [45, 104], [68, 102], [112, 101], [135, 102], [225, 114], [248, 114], [270, 114], [292, 112], [315, 110], [338, 105]].map(([x, y]) => `M${x} ${y}v-7M${x} ${y - 4}l-4-3M${x} ${y - 4}l4-3`).join('')} stroke="#7FA877" strokeWidth="1.6" fill="none" strokeLinecap="round" />
         <Path d="M0 125Q90 100 180 126T360 120V230H0Z" fill="#355B41" />
         <Path d="M0 160Q90 135 180 163T360 155V230H0Z" fill="#6B6A45" />
         <Path d="M0 193Q90 172 180 198T360 187V230H0Z" fill="#8A6A4A" />
-        <Path d="M178 132V61M178 91C147 93 134 73 138 51 164 52 178 65 178 91ZM178 78C185 53 204 42 227 46 221 68 207 82 178 78Z" fill="#C6DFB4" stroke="#C6DFB4" strokeWidth="2" />
-        <Path d="M178 133 154 162M178 142 198 177M178 145V192" stroke="#C6DFB4" strokeWidth="2" fill="none" />
+        {[[52, 150], [96, 176], [262, 166], [300, 150], [128, 208], [236, 212], [330, 200], [30, 206]].map(([x, y]) => <Circle key={`${x}`} cx={x} cy={y} r="2.4" fill="#A08661" />)}
+        <Path d="M180 128C178 142 170 152 158 166M168 156C162 158 156 157 151 152M180 130C184 146 194 158 204 174M196 163C203 161 209 163 214 168M180 132C181 152 179 170 181 194" stroke="#C6DFB4" strokeWidth="2" fill="none" strokeLinecap="round" opacity={0.75} />
+        <Path d="M140 186c0-5 5-10 5-10s5 5 5 10a5 5 0 0 1-10 0ZM222 192c0-4 4-8 4-8s4 4 4 8a4 4 0 0 1-8 0Z" fill="#9CC9C2" opacity={0.85} />
+        <Path d="M180 128C180 108 178 90 182 58" stroke="#C6DFB4" strokeWidth="4" fill="none" strokeLinecap="round" />
+        <Path d="M180 98C158 100 138 90 132 68C156 64 175 76 180 98Z" fill="#C6DFB4" />
+        <Path d="M180 98C166 90 150 79 137 70" stroke="#5E8C5C" strokeWidth="1.6" fill="none" />
+        <Path d="M181 82C190 61 209 50 232 52C226 75 207 86 181 82Z" fill="#E3F0D6" />
+        <Path d="M181 82C196 71 211 61 228 55" stroke="#5E8C5C" strokeWidth="1.6" fill="none" />
+        <Path d="M182 60C175 47 177 34 188 25C195 38 193 51 182 60Z" fill="#C6DFB4" />
       </> : page === 1 ? <>
         <Rect x="63" y="26" width="102" height="176" rx="17" fill="#EDE8D9" />
         <Rect x="73" y="38" width="82" height="144" rx="8" fill="#D8E6CD" />

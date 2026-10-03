@@ -2,7 +2,7 @@ import { GuideSwitch as Switch } from '../components/guide/GuideControls';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, BackHandler, Text, View } from 'react-native';
 import { SettingsPage, SettingsText, SettingsRow, SettingsCard } from '../components/SettingsUI';
-import { ScreenLabel } from '../components/screen/ScreenUI';
+import { ScreenCard, ScreenLabel, ScreenSegmented } from '../components/screen/ScreenUI';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
@@ -69,14 +69,11 @@ export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenAdministration
   return <SettingsPage title={title} eyebrow={eyebrow} description={page === 'index' ? t('Tu cuenta, tus equipos y tus preferencias.', 'Your account, devices and preferences.') : undefined} onBack={page === 'index' ? undefined : back}>
     {!!error && <SettingsText danger>{error}</SettingsText>}
     {page === 'index' && <>
-      <SettingsRow title={t('Cuenta', 'Account')} subtitle={t('Perfil y seguridad', 'Profile and security')} onPress={() => setPage('account')} />
-      <SettingsRow title={t('Preferencias', 'Preferences')} subtitle={t('Idioma, apariencia y permisos', 'Language, appearance and permissions')} onPress={() => setPage('preferences')} />
+      <SettingsRow title={t('Mi cuenta', 'My account')} subtitle={t('Nombre, correo y contraseña', 'Name, email and password')} onPress={() => setPage('profile')} />
+      <SettingsRow title={t('Preferencias', 'Preferences')} subtitle={t('Idioma, unidades, apariencia y permisos', 'Language, units, appearance and permissions')} onPress={() => setPage('preferences')} />
       <SettingsRow title={t('Equipos y datos', 'Devices and data')} subtitle={t('Acceso, actualizaciones y sincronización', 'Access, updates and synchronization')} onPress={() => setPage('equipment')} />
       <SettingsRow title={t('Ayuda y privacidad', 'Help and privacy')} subtitle={t('Avisos, contacto y documentos', 'Alerts, contact and documents')} onPress={() => setPage('help')} />
-    </>}
-    {page === 'account' && <>
-      <SettingsRow title={t('Mi perfil', 'My profile')} subtitle={t('Nombre, correo y contraseña', 'Name, email and password')} onPress={() => setPage('profile')} />
-      <SettingsRow title={t('Cerrar sesión', 'Sign out')} danger disabled={busy} onPress={() => void confirmSignOut()} />
+      <SettingsRow title={t('Cerrar sesión', 'Sign out')} subtitle={t('Sólo en este teléfono', 'On this phone only')} danger disabled={busy} onPress={() => void confirmSignOut()} />
     </>}
     {page === 'equipment' && <>
       <SettingsRow title={t('Compartir acceso', 'Share access')} subtitle={t('Invitación temporal por QR o código', 'Temporary invitation by QR or code')} onPress={() => setPage('share')} />
@@ -85,15 +82,23 @@ export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenAdministration
       <SettingsRow title={t('Datos y sincronización', 'Data and synchronization')} onPress={() => setPage('sync')} />
     </>}
     {page === 'preferences' && <>
-      <SettingsRow title={t('Idioma', 'Language')} subtitle={preferences.language === 'es' ? 'Español' : 'English'} onPress={() => setPage('language')} />
-      <SettingsRow title={t('Apariencia', 'Appearance')} onPress={() => setPage('theme')} />
-      <SettingsRow title={t('Notificaciones', 'Notifications')} subtitle={t('Avisos push de equipos', 'Device push alerts')} onPress={() => setPage('notifications')} />
-      <SettingsRow title={t('Permisos del teléfono', 'Phone permissions')} onPress={() => setPage('permissions')} />
+      {/* Las tres preferencias de pocas opciones se eligen aquí mismo, sin subpantallas. */}
+      <ScreenCard>
+        <ScreenSegmented label={t('Idioma', 'Language')} disabled={busy} value={preferences.language}
+          options={[{ value: 'es', label: 'Español' }, { value: 'en', label: 'English' }]} onChange={language => void apply({ ...preferences, language })} />
+        <ScreenSegmented label={t('Unidades', 'Units')} disabled={busy} value={preferences.measurementSystem}
+          options={[{ value: 'metric', label: t('Métrico · °C', 'Metric · °C') }, { value: 'imperial', label: t('Imperial · °F', 'Imperial · °F') }]} onChange={measurementSystem => void apply({ ...preferences, measurementSystem })} />
+        <ScreenSegmented label={t('Apariencia', 'Appearance')} disabled={busy} value={preferences.theme}
+          options={[{ value: 'system', label: t('Sistema', 'System') }, { value: 'light', label: t('Claro', 'Light') }, { value: 'dark', label: t('Oscuro', 'Dark') }]} onChange={theme => void apply({ ...preferences, theme })} />
+      </ScreenCard>
+      <ScreenLabel>{t('Avisos y permisos', 'Alerts and permissions')}</ScreenLabel>
+      <SettingsRow title={t('Notificaciones', 'Notifications')} subtitle={preferences.notifications.device ? t('Avisos de acceso activados', 'Access alerts on') : t('Avisos de acceso desactivados', 'Access alerts off')} onPress={() => setPage('notifications')} />
+      <SettingsRow title={t('Permisos del teléfono', 'Phone permissions')} subtitle={t('Bluetooth, ubicación, cámara y avisos', 'Bluetooth, location, camera and alerts')} onPress={() => setPage('permissions')} />
     </>}
     {page === 'help' && <>
-      <SettingsRow title={t('Avisos', 'Alerts')} subtitle={t('Solicitudes y cambios de acceso', 'Requests and access changes')} onPress={onOpenInbox} />
-      <SettingsRow title={t('Contacto', 'Contact')} onPress={() => setPage('contact')} />
-      <SettingsRow title={t('Acerca de y privacidad', 'About and privacy')} onPress={() => setPage('about')} />
+      <SettingsRow title={t('Avisos', 'Alerts')} subtitle={t('Solicitudes y cambios de acceso a tus equipos', 'Requests and access changes for your devices')} onPress={onOpenInbox} />
+      <SettingsRow title={t('Contactar a soporte', 'Contact support')} subtitle={t('Escríbenos por correo', 'Write to us by email')} onPress={() => setPage('contact')} />
+      <SettingsRow title={t('Términos y privacidad', 'Terms and privacy')} subtitle={t('Cómo funciona el servicio y cómo cuidamos tus datos', 'How the service works and how we protect your data')} onPress={() => setPage('about')} />
     </>}
     {page === 'language' && <>{(['es', 'en'] as const).map(language => <SettingsRow key={language} title={language === 'es' ? 'Español' : 'English'} selected={language === preferences.language} disabled={busy} onPress={() => void apply({ ...preferences, language })} />)}
       <ScreenLabel>{t('Unidades de medida', 'Measurement units')}</ScreenLabel>{(['metric', 'imperial'] as const).map(measurementSystem => <SettingsRow key={measurementSystem} title={measurementSystem === 'metric' ? t('Métrico · °C, ha', 'Metric · °C, ha') : t('Imperial · °F, ac', 'Imperial · °F, ac')} selected={preferences.measurementSystem === measurementSystem} disabled={busy} onPress={() => void apply({ ...preferences, measurementSystem })} />)}</>}

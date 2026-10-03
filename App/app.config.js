@@ -105,7 +105,10 @@ export default () => ({
         'expo-splash-screen',
         {
           image: './assets/splash.png',
-          imageWidth: 240,
+          // Sólo el nombre «TerraSense», igual que la pantalla de carga. Android 12+ muestra
+          // el ícono a 240/288 de su tamaño y lo recorta en un círculo: con 186 el nombre
+          // entra completo y mide 155 dp en pantalla (SPLASH_WORDMARK_WIDTH en LoadingScreen).
+          imageWidth: 186,
           resizeMode: 'contain',
           backgroundColor: '#12281F',
         },

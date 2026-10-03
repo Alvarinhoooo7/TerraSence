@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BackHandler, Text, View, useWindowDimensions } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { GuideTouchable } from './guide/GuideControls';
 import { useResetGuide } from './guide/GuideContext';
 import { EntryButton } from './entry/EntryUI';
@@ -12,6 +13,8 @@ import { useAppStore } from '../store/useAppStore';
 import { PHENOLOGICAL_STAGES } from '../types/app';
 import { parameterLabel, type MeasurementPresentation, type ParameterPresentation } from '../engine/measurementPresentation';
 import { formatEngineMetric } from '../utils/units';
+import { MetricBadge, MetricScale, StatusRing } from './result/ResultVisuals';
+import { StageArt } from './StageCards';
 
 const NUTRIENTS = ['nitrogen', 'phosphorus', 'potassium'];
 type Step = 'summary' | 'soil' | 'nutrients' | 'environment' | 'advice' | 'forecast';
@@ -35,7 +38,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
   save?: { onSave: () => void; busy: boolean };
   onRestart?: () => void;
 }) {
-  const { colors } = useAppTheme();
+  const { colors, isDark } = useAppTheme();
   const { t, language, locale } = useTranslation();
   const { width, fontScale } = useWindowDimensions();
   const system = useAppStore(s => s.preferences.measurementSystem);
@@ -84,14 +87,69 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
     <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '700' }}>{save.busy ? t('Guardando…', 'Saving…') : t('Guardar', 'Save')}</Text>
   </GuideTouchable> : undefined;
 
+  // --- Piezas compartidas ---
+  const half = width >= 360 && fontScale <= 1.3;
+  const scored = p.parameters.filter(m => !NUTRIENTS.includes(m.key) && m.status !== 'INFO');
+  const counts = { ok: scored.filter(m => m.status === 'OPTIMAL').length, warn: scored.filter(m => m.status === 'WARNING').length, bad: scored.filter(m => m.status === 'CRITICAL').length };
+  // Los datos de contexto y los nutrientes no tienen estado: su ícono lleva el verde de la marca.
+  const badgeTone = (m: ParameterPresentation) => NUTRIENTS.includes(m.key) || m.status === 'INFO' ? colors.primary : tone(m);
+  const statusPill = (m: ParameterPresentation) => <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: `${tone(m)}22` }}>
+    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: tone(m) }} />
+    <Text style={{ color: tone(m), fontSize: 13, fontWeight: '700' }}>{statusLabel(m)}</Text>
+  </View>;
+  const tile = (m: ParameterPresentation, i: number) => <GuideTouchable key={m.key} onPress={() => openDetail(i)}
+    guideTitle={parameterLabel(m.key, language)} guide={t('Abre el estado, la recomendación y el control de esta variable.', 'Opens the status, recommendation and check for this variable.')}
+    accessibilityLabel={`${parameterLabel(m.key, language)}, ${value(m)}, ${statusLabel(m)}. ${t('Abrir detalle.', 'Open detail.')}`}
+    style={{ width: half ? '47.5%' : '100%', flexGrow: 1, minHeight: 150, borderRadius: 20, borderWidth: 1, borderColor: colors.border,
+      backgroundColor: colors.card, padding: 14, gap: 8 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+      <MetricBadge metric={m.key} tone={badgeTone(m)} size={38} />
+      <Text style={{ color: colors.primary, fontSize: 22 }}>›</Text>
+    </View>
+    <Text numberOfLines={2} style={{ color: colors.textSecondary, fontSize: 14 }}>{parameterLabel(m.key, language)}</Text>
+    <Text adjustsFontSizeToFit numberOfLines={1} style={{ color: colors.text, fontSize: 24, fontWeight: '800', letterSpacing: -0.5 }}>{value(m)}</Text>
+    <MetricScale metric={m.key} value={m.value} tone={tone(m)} />
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 'auto' }}>
+      <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: tone(m) }} />
+      <Text numberOfLines={2} style={{ color: tone(m), fontSize: 13, fontWeight: '700', flexShrink: 1 }}>{statusLabel(m)}</Text>
+    </View>
+  </GuideTouchable>;
+  const section = (label: string, body: string, color: string) => <View style={{ borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 16, gap: 6 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+      <View style={{ width: 4, height: 16, borderRadius: 2, backgroundColor: color }} />
+      <Text accessibilityRole="header" style={{ color: colors.text, fontSize: 13, fontWeight: '800', letterSpacing: 1.2 }}>{label.toUpperCase()}</Text>
+    </View>
+    <ScreenText muted={false}>{body}</ScreenText>
+  </View>;
+  // Acciones como línea de tiempo numerada, igual que los pasos antes de medir.
+  const timeline = <View>
+    {p.actions.map((action, i) => <View key={i} style={{ flexDirection: 'row', gap: 14 }}>
+      <View style={{ alignItems: 'center' }}>
+        <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ color: isDark ? colors.background : '#FFFFFF', fontSize: 15, fontWeight: '800' }}>{i + 1}</Text>
+        </View>
+        {i < p.actions.length - 1 && <View style={{ flex: 1, width: 2, backgroundColor: colors.border, marginVertical: 4 }} />}
+      </View>
+      <View style={{ flex: 1, paddingBottom: i < p.actions.length - 1 ? 18 : 0, paddingTop: 4 }}><ScreenText muted={false}>{action}</ScreenText></View>
+    </View>)}
+  </View>;
+  const weatherCard = p.weatherNote ? <View style={{ flexDirection: 'row', gap: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 16 }}>
+    <View style={{ width: 40, height: 40, borderRadius: 13, backgroundColor: '#3B8FD922', alignItems: 'center', justifyContent: 'center' }}>
+      <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="#3B8FD9" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round"><Path d="M7 16a4 4 0 0 1-.5-8A6 6 0 0 1 18 9.5 3.5 3.5 0 0 1 17.5 16ZM9 19l-1 2M13 19l-1 2M17 19l-1 2" /></Svg>
+    </View>
+    <View style={{ flex: 1, gap: 4 }}>
+      <Text style={{ color: colors.text, fontSize: 13, fontWeight: '800', letterSpacing: 1.2 }}>{t('CLIMA', 'WEATHER')}</Text>
+      <ScreenText>{p.weatherNote}</ScreenText>
+    </View>
+  </View> : null;
+
   // --- Plan global: diagnóstico de conjunto con el texto completo ---
   if (plan) {
     return <ScreenLayout onBack={back} backLabel={t('Recomendaciones', 'Recommendations')} action={saveAction}
       eyebrow={t(`PLAN GLOBAL · ${stage.toUpperCase()}`, `OVERALL PLAN · ${stage.toUpperCase()}`)} title={p.title} description={p.context}>
-      <ScreenCard><ScreenText muted={false}>{p.summary}</ScreenText></ScreenCard>
-      {!!p.actions.length && <><ScreenLabel>{t('Qué hacer', 'What to do')}</ScreenLabel>
-        {p.actions.map((action, i) => <ScreenCard key={i}><ScreenText muted={false}>{`${i + 1}. ${action}`}</ScreenText></ScreenCard>)}</>}
-      {!!p.weatherNote && <><ScreenLabel>{t('Clima', 'Weather')}</ScreenLabel><ScreenCard><ScreenText>{p.weatherNote}</ScreenText></ScreenCard></>}
+      <ScreenCard accent={colors.primary}><ScreenText muted={false}>{p.summary}</ScreenText></ScreenCard>
+      {!!p.actions.length && <><ScreenLabel>{t('Qué hacer', 'What to do')}</ScreenLabel>{timeline}</>}
+      {weatherCard}
     </ScreenLayout>;
   }
 
@@ -107,16 +165,19 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
         <View style={{ flex: 1 }}><EntryButton secondary disabled={detail === 0} label={t('‹ Anterior', '‹ Previous')} onPress={() => openDetail(detail - 1)} /></View>
         <View style={{ flex: 1 }}><EntryButton secondary disabled={detail === p.parameters.length - 1} label={t('Siguiente ›', 'Next ›')} onPress={() => openDetail(detail + 1)} /></View>
       </View>}>
-      <View style={{ gap: 4 }}>
-        <Text style={{ color: colors.text, fontSize: 40, fontWeight: '700', letterSpacing: -1 }}>{value(m)}</Text>
-        <Text style={{ color: tone(m), fontSize: 16, fontWeight: '700' }}>{statusLabel(m)}</Text>
+      <View style={{ borderRadius: 22, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 20, gap: 14 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          <MetricBadge metric={m.key} tone={badgeTone(m)} size={56} />
+          <View style={{ flex: 1, gap: 6 }}>
+            <Text adjustsFontSizeToFit numberOfLines={1} style={{ color: colors.text, fontSize: 36, fontWeight: '800', letterSpacing: -1 }}>{value(m)}</Text>
+            {statusPill(m)}
+          </View>
+        </View>
+        <MetricScale metric={m.key} value={m.value} tone={tone(m)} labels />
       </View>
-      <ScreenLabel>{t('Estado', 'Status')}</ScreenLabel>
-      <ScreenCard accent={tone(m)}><ScreenText muted={false}>{m.state}</ScreenText></ScreenCard>
-      <ScreenLabel>{t('Recomendación', 'Recommendation')}</ScreenLabel>
-      <ScreenCard><ScreenText muted={false}>{m.recommendation}</ScreenText></ScreenCard>
-      <ScreenLabel>{t('Control', 'Check')}</ScreenLabel>
-      <ScreenCard><ScreenText muted={false}>{m.control}</ScreenText></ScreenCard>
+      {section(t('Estado', 'Status'), m.state, tone(m))}
+      {section(t('Recomendación', 'Recommendation'), m.recommendation, colors.primary)}
+      {section(t('Control', 'Check'), m.control, colors.textSecondary)}
     </ScreenLayout>;
   }
 
@@ -135,15 +196,33 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
     const essentials = p.parameters.filter(m => MEASUREMENT_GROUPS[0].includes(m.key));
     return <ScreenLayout {...common} eyebrow={t(`RESULTADO · ${stage.toUpperCase()}`, `RESULT · ${stage.toUpperCase()}`)} title={p.title} description={p.context}>
       {notices}
-      {!!meta && <ScreenText>{meta}</ScreenText>}
-      <ScreenCard><ScreenText muted={false}>{p.summary}</ScreenText></ScreenCard>
+      {/* Portada: cuántas variables quedaron bien y la etapa ilustrada. */}
+      <View style={{ borderRadius: 22, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, overflow: 'hidden' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18, padding: 18 }}>
+          <StatusRing counts={counts} />
+          <View style={{ flex: 1, gap: 8 }}>
+            {([[counts.ok, colors.success, t('Favorables', 'Favorable')], [counts.warn, colors.warning, t('Requieren atención', 'Need attention')], [counts.bad, colors.danger, t('Limitantes', 'Limiting')]] as const).map(([n, color, label]) =>
+              <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, opacity: n ? 1 : .5 }}>
+                <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: color }} />
+                <Text style={{ color: colors.text, fontSize: 15, fontWeight: '700', minWidth: 16 }}>{n}</Text>
+                <Text style={{ color: colors.textSecondary, fontSize: 14, flexShrink: 1 }}>{label}</Text>
+              </View>)}
+          </View>
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, backgroundColor: '#17392C' }}>
+          <View style={{ width: 64, aspectRatio: 120 / 90, borderRadius: 10, overflow: 'hidden' }}><StageArt stage={p.stage} /></View>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={{ color: '#6EE7B7', fontSize: 11, fontWeight: '700', letterSpacing: 1.5 }}>{t('ETAPA', 'STAGE')}</Text>
+            <Text numberOfLines={1} style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700' }}>{stage}</Text>
+            {!!meta && <Text numberOfLines={2} style={{ color: '#C4D4C9', fontSize: 13 }}>{meta}</Text>}
+          </View>
+        </View>
+      </View>
+      <ScreenCard accent={colors.primary}><ScreenText muted={false}>{p.summary}</ScreenText></ScreenCard>
       <ScreenLabel>{t('Datos esenciales', 'Key readings')}</ScreenLabel>
-      <ScreenCard>
-        {essentials.map(m => <View key={m.key} style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, minHeight: 32 }}>
-          <Text style={{ color: colors.textSecondary, fontSize: 15, flexShrink: 1 }}>{parameterLabel(m.key, language)}</Text>
-          <Text style={{ color: tone(m), fontSize: 17, fontWeight: '700' }}>{value(m)}</Text>
-        </View>)}
-      </ScreenCard>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+        {essentials.map(m => tile(m, p.parameters.indexOf(m)))}
+      </View>
       {onRestart && <ScreenOption title={t('Cambiar etapa y medir de nuevo', 'Change stage and measure again')}
         subtitle={t('Descarta esta lectura.', 'Discards this reading.')} onPress={onRestart} />}
     </ScreenLayout>;
@@ -157,22 +236,9 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
       [t('Nutrientes', 'Nutrients'), t('Valores informativos que la sonda deriva de la conductividad. No son un análisis químico y no se usan para recomendar dosis.', 'Informative values the probe derives from conductivity. They are not a chemical analysis and are not used to recommend doses.')],
       [t('Ambiente', 'Environment'), t('Temperatura, humedad y presión del aire junto a la sonda.', 'Air temperature, humidity and pressure next to the probe.')],
     ][group];
-    const half = width >= 360 && fontScale <= 1.3;
     return <ScreenLayout {...common} eyebrow={t('LECTURAS', 'READINGS')} title={titles[0]} description={titles[1]}>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-        {p.parameters.map((m, i) => MEASUREMENT_GROUPS[group].includes(m.key) && <GuideTouchable key={m.key} onPress={() => openDetail(i)}
-          guideTitle={parameterLabel(m.key, language)} guide={t('Abre el estado, la recomendación y el control de esta variable.', 'Opens the status, recommendation and check for this variable.')}
-          accessibilityLabel={`${parameterLabel(m.key, language)}, ${value(m)}, ${statusLabel(m)}. ${t('Abrir detalle.', 'Open detail.')}`}
-          style={{ width: half ? '47.5%' : '100%', flexGrow: 1, minHeight: 132, borderRadius: 18, borderWidth: 1, borderColor: colors.border,
-            backgroundColor: colors.card, padding: 16, gap: 6 }}>
-          <Text style={{ color: colors.textSecondary, fontSize: 14 }}>{parameterLabel(m.key, language)}</Text>
-          <Text style={{ color: colors.text, fontSize: 24, fontWeight: '700' }}>{value(m)}</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: tone(m) }} />
-            <Text style={{ color: tone(m), fontSize: 14, fontWeight: '600', flexShrink: 1 }}>{statusLabel(m)}</Text>
-          </View>
-          <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '600', marginTop: 'auto' }}>{t('Ver detalle ›', 'View detail ›')}</Text>
-        </GuideTouchable>)}
+        {p.parameters.map((m, i) => MEASUREMENT_GROUPS[group].includes(m.key) && tile(m, i))}
       </View>
     </ScreenLayout>;
   }
@@ -181,11 +247,8 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
   if (current === 'advice') {
     return <ScreenLayout {...common} eyebrow={t('RECOMENDACIONES', 'RECOMMENDATIONS')} title={t('Qué hacer', 'What to do')}
       description={t(`Según la lectura y la etapa ${stage.toLowerCase()}.`, `Based on the reading and the ${stage.toLowerCase()} stage.`)}>
-      {p.actions.length ? p.actions.map((action, i) => <ScreenCard key={i}>
-        <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.5 }}>{t(`PASO ${i + 1}`, `STEP ${i + 1}`)}</Text>
-        <ScreenText muted={false}>{action}</ScreenText>
-      </ScreenCard>) : <ScreenCard><ScreenText>{t('No hay acciones para esta lectura.', 'No actions for this reading.')}</ScreenText></ScreenCard>}
-      {!!p.weatherNote && <><ScreenLabel>{t('Clima', 'Weather')}</ScreenLabel><ScreenCard><ScreenText>{p.weatherNote}</ScreenText></ScreenCard></>}
+      {p.actions.length ? timeline : <ScreenCard><ScreenText>{t('No hay acciones para esta lectura.', 'No actions for this reading.')}</ScreenText></ScreenCard>}
+      {weatherCard}
       <ScreenOption title={t('Ver plan global', 'View overall plan')} subtitle={t('Suelo, etapa y pronóstico juntos, con el texto completo.', 'Soil, stage and forecast together, with the full text.')} onPress={() => setPlan(true)} />
     </ScreenLayout>;
   }

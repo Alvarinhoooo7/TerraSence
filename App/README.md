@@ -6,7 +6,7 @@
 
 **Interfaz:** el primer inicio sigue **carga → idioma → carrusel → acceso**. Combina tipografía protagonista, verde bosque e ilustraciones de suelo y tecnología, con versiones clara y oscura.
 
-- **Carga e idioma:** logo grande y rueda de carga; selección Español/English guardada antes de avanzar.
+- **Carga e idioma:** el nombre TerraSense en dos colores (los mismos trazos del logotipo) y una rueda debajo; el splash nativo dibuja ese nombre en el mismo lugar, así que el paso a la app no se nota. Selección Español/English guardada antes de avanzar.
 - **Carrusel:** tres composiciones SVG adaptadas al espacio que deja el texto, navegación horizontal, indicadores y acciones visibles.
 - **Autenticación:** registro en dos pasos, campos con validación y acciones fuera del contenido desplazable. El contenedor contempla áreas seguras y teclado; conserva desplazamiento cuando el texto ampliado o el teclado reducen el espacio. Las transiciones respetan reducción de movimiento.
 - **Onboarding de Equipos y Permisos:** Separación visual clara mediante tarjetas interactivas que responden a la presión con feedback háptico y escalas sutiles.
@@ -146,13 +146,9 @@ Es la herramienta central que el agricultor y los operadores llevan al campo: se
    - **Primer Propietario (Owner):** Vinculación física por BLE: la app lee el ID de 15 dígitos que la sonda deriva de su MAC (con la ventana PAIR abierta) y registro atómico en Supabase (`register_paired_device`).
    - **Usuarios:** escanean el QR temporal mostrado por cualquier miembro aprobado o ingresan su código de invitación en el onboarding. Quedan en una pantalla de espera hasta que el administrador apruebe su ingreso. El QR y su código vencen juntos; el ID permanente no concede acceso.
 5. **Dashboard Principal:** Punto de inicio rápido con botón destacado **Iniciar Medición** y acceso al historial.
-6. **Selección Obligatoria de Fase Fenológica:** Al pulsar medir, el usuario debe seleccionar una de las 4 etapas productivas:
-   - **Pre-siembra (Siembra)**
-   - **Vegetativo**
-   - **Floración**
-   - **Cosecha**
+6. **Medición en tres pantallas:** etapa fenológica obligatoria (Pre-siembra, Vegetativo, Floración o Cosecha, en tarjetas ilustradas), pasos antes de medir (encender, limpiar, enterrar y mantener recta la sonda, con una animación de la sonda entrando al suelo) y «Todo listo» (Bluetooth y ubicación opcional).
 7. **Captura BLE y meteorológica:** conexión por BLE a la sonda, lectura de la trama GATT de 20 bytes y consulta meteorológica. La consulta requiere red y no tiene caché: si falla, la medición se registra igual y el diagnóstico se emite **sin contexto climático**.
-8. **Resultados, una pantalla por paso:** resumen con el veredicto de la etapa y los datos esenciales; Suelo, Nutrientes y Ambiente, donde cada variable abre su detalle (*Estado*, *Recomendación*, *Control*); recomendaciones; y pronóstico con los datos de la captura. **Guardar** está siempre en la barra superior, sin esperar el pronóstico. Al guardar aparece el recordatorio de limpiar los electrodos (`CalibrationReminderModal`).
+8. **Resultados, una pantalla por paso:** resumen con el veredicto de la etapa, un anillo con cuántas variables quedaron favorables, en atención o limitantes, y los datos esenciales; Suelo, Nutrientes y Ambiente, donde cada variable abre su detalle (*Estado*, *Recomendación*, *Control*); recomendaciones; y pronóstico con los datos de la captura. **Guardar** está siempre en la barra superior, sin esperar el pronóstico. Al guardar aparece el recordatorio de limpiar los electrodos (`CalibrationReminderModal`).
 9. **Historial de Mediciones (`HistoryScreen`):** Lista cronológica de todas las etapas, con filtros, estado de sincronización y detalle del diagnóstico. No incluye visualización cartográfica.
 
 ---
@@ -489,17 +485,16 @@ Ambos roles pueden operar el equipo y mostrar el QR. Sólo el administrador ve A
 
 El proceso de medición sigue una secuencia rigurosa y pedagógica:
 
-1. **Selección de Fase Fenológica:** Al presionar "Medir", la interfaz exige seleccionar una de las cuatro etapas del ciclo:
-   - **Pre-siembra (Siembra)**
-   - **Vegetativo**
-   - **Floración**
-   - **Cosecha**
-2. **Captura física:**
+1. **Tres pantallas antes de leer** ([`MeasureScreen`](src/screens/MeasureScreen.tsx)), con Atrás paso a paso:
+   - **Etapa:** las cuatro etapas del ciclo (Pre-siembra, Vegetativo, Floración y Cosecha) en tarjetas ilustradas ([`StageCards`](src/components/StageCards.tsx)); debajo, qué significa la elegida. Es obligatoria.
+   - **Antes de medir:** animación de la sonda entrando recta al suelo ([`ProbeInsertArt`](src/components/ProbeInsertArt.tsx)) y cuatro pasos: encenderla cerca del teléfono, limpiarla, enterrarla y mantenerla recta y quieta.
+   - **Todo listo:** la etapa y la sonda elegidas, el aviso de Bluetooth y el interruptor de ubicación y pronóstico. «Medir» inicia la lectura.
+2. **Captura física** (pantalla de espera con la sonda en corte: ondas de Bluetooth al conectar y ondas en el suelo al leer, [`MeasurementLoading`](src/components/MeasurementLoading.tsx)):
    - La app escanea el anuncio `TerraSense-<ID>`, conecta vía BLE, captura la trama y consulta el clima en Open-Meteo.
    - Desconecta inmediatamente el enlace BLE para proteger la batería del ESP32.
 3. **Resultados, una pantalla por paso** ([`MeasurementResultFlow`](src/components/MeasurementResultFlow.tsx)), con indicador de avance y Atrás/Continuar:
-   - **Resumen:** el veredicto de la etapa, el diagnóstico y los datos esenciales del suelo. En **Pre-siembra** incluye qué cultivos conviene sembrar.
-   - **Suelo, Nutrientes** (siempre «Sin validar») **y Ambiente**, cada uno en su pantalla, con semáforo (§5.3). Cada variable abre su detalle con *Estado*, *Recomendación* y *Control*, y botones para pasar a la anterior o la siguiente.
+   - **Resumen:** el veredicto de la etapa, un anillo con cuántas variables quedaron favorables, en atención o limitantes, la etapa ilustrada, el diagnóstico y los datos esenciales del suelo. En **Pre-siembra** incluye qué cultivos conviene sembrar.
+   - **Suelo, Nutrientes** (siempre «Sin validar») **y Ambiente**, cada uno en su pantalla, con semáforo (§5.3). Cada variable es una tarjeta con ícono teñido por su estado; la humedad lleva una barra de 0 a 100 % y el pH su escala de 0 a 14. Son escalas físicas, no umbrales: el estado lo decide el motor agronómico ([`ResultVisuals`](src/components/result/ResultVisuals.tsx)). Cada variable abre su detalle con *Estado*, *Recomendación* y *Control*, y botones para pasar a la anterior o la siguiente.
    - **Recomendaciones** y **Pronóstico y captura** (cinco días, fecha, batería y coordenadas como texto).
    - **Guardar** queda siempre en la barra superior; la lectura puede guardarse mientras el pronóstico carga. El botón Atrás de Android retrocede paso a paso.
 4. **Después de guardar:** el recordatorio `CalibrationReminderModal` pide limpiar y secar los electrodos de acero inoxidable. No hay más pantallas: la app no dibuja mapas.
@@ -515,17 +510,22 @@ La sincronización automática depende de `OfflineBanner`, no de abrir una panta
 
 ### 4.5. Ajustes, perfil y dispositivos
 
-Configuración abre un índice por categorías ([`settingsNavigation.ts`](src/utils/settingsNavigation.ts)):
-**Cuenta** (Perfil), **Preferencias** (Notificaciones, Idioma, Apariencia y Permisos del
-teléfono), **Equipos y datos** (Actualizaciones, Datos y sincronización y Compartir acceso)
-y **Ayuda y privacidad** (Contacto y Acerca de y privacidad). Cada subpantalla vuelve a su
-categoría. Administración del equipo sólo aparece para quien
-administra al menos un equipo; el servidor verifica el rol para cada operación.
-La configuración del campo ya no forma parte de Ajustes. Cerrar sesión es una acción
-separada al final, en rojo, con aviso si quedan mediciones pendientes.
+Configuración abre un índice ([`settingsNavigation.ts`](src/utils/settingsNavigation.ts)):
+**Mi cuenta**, **Preferencias** (Idioma, Unidades y Apariencia se eligen en la misma pantalla;
+Notificaciones y Permisos del teléfono), **Equipos y datos** (Actualizaciones, Sincronización
+y Compartir acceso), **Ayuda y privacidad** (Avisos, Contactar a soporte y Términos y
+privacidad) y **Cerrar sesión**, en rojo, con aviso si quedan mediciones pendientes. Cada
+subpantalla vuelve a su categoría y Mi cuenta vuelve al índice. Administración del equipo
+sólo aparece para quien administra al menos un equipo; el servidor verifica el rol para
+cada operación. La configuración del campo ya no forma parte de Ajustes.
 
-- **Perfil:** nombre y apellido desde `profiles`, correo y verificación desde Auth;
-  cambio de contraseña con comprobación de la contraseña actual y las mismas reglas del registro.
+- **Mi cuenta:** se abre directo, sin pantalla intermedia: identidad (iniciales, nombre,
+  correo y si está verificado), nombre y apellido editables desde `profiles` («Guardar cambios»
+  sólo se activa si cambiaron) y cambio de contraseña con comprobación de la contraseña actual
+  y las mismas reglas del registro.
+- **Permisos del teléfono:** cada permiso con su estado. «Sin decidir» no es un error: la app
+  pide cada permiso recién al usar su función (la ubicación, al activar «Ubicación y pronóstico»
+  antes de medir), y desde aquí se puede adelantar o abrir los ajustes del teléfono.
 - **Dispositivos:** consulta de rol, última conexión, firmware informado y batería cuando
   está disponible; el QR temporal se muestra desde Compartir acceso. El ID permanente no sustituye una invitación.
 - **Preferencias:** español/inglés, unidades y tema claro/oscuro/sistema. Se guardan por
@@ -681,6 +681,8 @@ El Grid 2×5 de la pantalla de resultados usa el semáforo con estas etiquetas (
 * **Estado (Read):** `00000005-5e4e-4c69-6d61-746572726105`: batería en % (`FF` sin dato), versión del firmware y ventana PAIR abierta ([contrato](../docs/CONTRATO_BLE.md#característica-de-estado))
 
 ### Vincular una sonda
+
+En pantalla ([`OnboardingScreen`](src/screens/OnboardingScreen.tsx), ilustraciones en [`PairingArt`](src/components/pairing/PairingArt.tsx)): la elección muestra dos tarjetas ilustradas, «Configurar una sonda nueva» y «Tengo una invitación». La sonda nueva se prepara con una animación del botón PAIR, el LED azul parpadeando y el teléfono a 2 metros como máximo; la búsqueda muestra la sonda con ondas de Bluetooth y, al encontrarla, se confirma su ID antes de registrarla.
 
 El ID de la sonda **no lo genera la app**: el firmware lo deriva de la MAC del ESP32 (15 dígitos, puede empezar con 0) y nunca cambia. `pairWithNearbyProbe` lee el ID y la ventana PAIR; si la ventana está cerrada, la pantalla pide mantener PAIR 3 s y no registra nada. Con la ventana abierta, `registerDevice` registra el equipo con ese ID y `confirmPairing` se lo escribe a la sonda para que avise con verde y buzzer (un fallo de ese aviso no deshace el registro). No hay reset desde la sonda ni desde la app: el único es el del backoffice, y la sonda vuelve con el mismo ID, libre para que la vincule quien abra su ventana PAIR.
 

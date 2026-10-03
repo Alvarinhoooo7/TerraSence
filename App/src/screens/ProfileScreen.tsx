@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { SettingsPage, SettingsCard, SettingsText, SettingsButton, SettingsRow } from '../components/SettingsUI';
+import { SettingsPage, SettingsText, SettingsButton, SettingsRow } from '../components/SettingsUI';
 import { AccessField } from '../components/auth/AccessField';
-import { BackHandler } from 'react-native';
+import { BackHandler, Text, View } from 'react-native';
+import { useAppTheme } from '../hooks/useAppTheme';
+import { EntryButton } from '../components/entry/EntryUI';
+import { ScreenCard, ScreenLabel, ScreenStatus } from '../components/screen/ScreenUI';
 import { useTranslation } from '../hooks/useTranslation';
 import { supabase } from '../services/supabase';
 import { useAuthStore } from '../store/useAuthStore';
@@ -14,6 +17,8 @@ export function ProfileScreen({ onBack }: { onBack: () => void }) {
   const [current, setCurrent] = useState(''); const [password, setPassword] = useState(''); const [repeat, setRepeat] = useState('');
   const [busy, setBusy] = useState(false); const [loaded, setLoaded] = useState(false); const [message, setMessage] = useState('');
   const [passwordPage, setPasswordPage] = useState(false);
+  const [saved, setSaved] = useState({ name: '', surname: '' });
+  const { colors, isDark } = useAppTheme();
   const back = () => { if (busy) return; if (passwordPage) { setPasswordPage(false); setMessage(''); setCurrent(''); setPassword(''); setRepeat(''); } else onBack(); };
   useEffect(() => { const sub = BackHandler.addEventListener('hardwareBackPress', () => { if (busy) return true; if (!passwordPage) return false; back(); return true; }); return () => sub.remove(); }, [busy, passwordPage]);
   const lock = useRef(false); const alive = useRef(true);
@@ -23,7 +28,7 @@ export function ProfileScreen({ onBack }: { onBack: () => void }) {
     const { data, error } = await supabase.from('profiles').select('first_name,last_name').eq('id', user.id).single();
     if (!alive.current) return;
     if (error) setMessage(t('No pudimos cargar tu perfil. Reintenta con conexión.', 'Could not load your profile. Retry online.'));
-    else { setName(data.first_name ?? ''); setSurname(data.last_name ?? ''); setLoaded(true); }
+    else { setName(data.first_name ?? ''); setSurname(data.last_name ?? ''); setSaved({ name: data.first_name ?? '', surname: data.last_name ?? '' }); setLoaded(true); }
   };
   useEffect(() => { void load(); }, [user?.id]);
   const run = async (work: () => Promise<void>) => {
@@ -35,7 +40,7 @@ export function ProfileScreen({ onBack }: { onBack: () => void }) {
     if (!user || !name.trim()) return;
     const { error } = await supabase.from('profiles').update({ first_name: name.trim(), last_name: surname.trim() }).eq('id', user.id);
     if (error) throw error;
-    if (alive.current) setMessage(t('Nombre guardado.', 'Name saved.'));
+    if (alive.current) { setSaved({ name: name.trim(), surname: surname.trim() }); setMessage(t('Datos guardados.', 'Details saved.')); }
   });
   const changePassword = () => run(async () => {
     if (!user?.email || !isPasswordAcceptable(password) || password !== repeat) return;
@@ -45,20 +50,41 @@ export function ProfileScreen({ onBack }: { onBack: () => void }) {
     if (result.error) throw result.error;
     if (alive.current) { setCurrent(''); setPassword(''); setRepeat(''); setMessage(t('Contraseña actualizada.', 'Password updated.')); }
   });
-  return <SettingsPage eyebrow={passwordPage ? t('MI PERFIL', 'MY PROFILE') : t('CUENTA', 'ACCOUNT')} title={passwordPage ? t('Cambiar contraseña', 'Change password') : t('Mi perfil', 'My profile')} onBack={back}
-    description={passwordPage ? t('Confirma tu contraseña actual para proteger tu cuenta.', 'Confirm your current password to protect your account.') : t('Tus datos y la seguridad de tu cuenta.', 'Your details and account security.')}
-    footer={passwordPage ? <SettingsButton title={t('Actualizar contraseña', 'Update password')} onPress={() => void changePassword()} busy={busy} disabled={!current || !isPasswordAcceptable(password) || password !== repeat || password === current} /> : loaded ? <SettingsButton title={t('Guardar nombre', 'Save name')} onPress={() => void save()} busy={busy} disabled={!name.trim()} /> : undefined}>
+  if (passwordPage) return <SettingsPage eyebrow={t('MI CUENTA', 'MY ACCOUNT')} title={t('Cambiar contraseña', 'Change password')} onBack={back}
+    description={t('Confirma tu contraseña actual para proteger tu cuenta.', 'Confirm your current password to protect your account.')}
+    footer={<SettingsButton title={t('Actualizar contraseña', 'Update password')} onPress={() => void changePassword()} busy={busy} disabled={!current || !isPasswordAcceptable(password) || password !== repeat || password === current} />}>
     {!!message && <SettingsText>{message}</SettingsText>}
-    {!passwordPage && <>{!loaded ? <SettingsButton title={t('Cargar perfil', 'Load profile')} onPress={() => void run(load)} busy={busy} /> : <SettingsCard>
-      <AccessField label={t('Nombre', 'First name')} value={name} onChangeText={setName} maxLength={80} editable={!busy} autoComplete="given-name" />
-      <AccessField label={t('Apellido', 'Last name')} value={surname} onChangeText={setSurname} maxLength={80} editable={!busy} autoComplete="family-name" />
-      <SettingsText>{user?.email}</SettingsText><SettingsText>{user?.email_confirmed_at ? t('Correo verificado', 'Verified email') : t('Correo pendiente de verificación', 'Email verification pending')}</SettingsText>
-    </SettingsCard>}<SettingsRow title={t('Cambiar contraseña', 'Change password')} onPress={() => { setMessage(''); setPasswordPage(true); }} /></>}
-    {passwordPage && <>
-      <AccessField label={t('Contraseña actual', 'Current password')} value={current} onChangeText={setCurrent} secret autoComplete="current-password" editable={!busy} />
-      <AccessField label={t('Nueva contraseña', 'New password')} value={password} onChangeText={setPassword} secret autoComplete="new-password" textContentType="newPassword" editable={!busy} />
-      <PasswordChecklist password={password} compact />
-      <AccessField label={t('Repetir nueva contraseña', 'Repeat new password')} value={repeat} onChangeText={setRepeat} secret autoComplete="new-password" textContentType="newPassword" editable={!busy} />
-    </>}
+    <AccessField label={t('Contraseña actual', 'Current password')} value={current} onChangeText={setCurrent} secret autoComplete="current-password" editable={!busy} />
+    <AccessField label={t('Nueva contraseña', 'New password')} value={password} onChangeText={setPassword} secret autoComplete="new-password" textContentType="newPassword" editable={!busy} />
+    <PasswordChecklist password={password} compact />
+    <AccessField label={t('Repetir nueva contraseña', 'Repeat new password')} value={repeat} onChangeText={setRepeat} secret autoComplete="new-password" textContentType="newPassword" editable={!busy} />
+  </SettingsPage>;
+
+  // Cuenta: identidad arriba, datos editables en su tarjeta y seguridad aparte.
+  const fullName = [saved.name, saved.surname].filter(Boolean).join(' ') || user?.email || '';
+  const initials = (saved.name || user?.email || '?').charAt(0).toUpperCase() + (saved.surname ? saved.surname.charAt(0).toUpperCase() : '');
+  const changed = loaded && (name.trim() !== saved.name || surname.trim() !== saved.surname);
+  return <SettingsPage eyebrow={t('CONFIGURACIÓN', 'SETTINGS')} title={t('Mi cuenta', 'My account')} onBack={back}>
+    <ScreenCard>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+        <View style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ color: isDark ? colors.background : '#FFFFFF', fontSize: 22, fontWeight: '800' }}>{initials}</Text>
+        </View>
+        <View style={{ flex: 1, gap: 4 }}>
+          <Text numberOfLines={2} style={{ color: colors.text, fontSize: 19, fontWeight: '700' }}>{fullName}</Text>
+          <Text numberOfLines={1} style={{ color: colors.textSecondary, fontSize: 14 }}>{user?.email}</Text>
+          <ScreenStatus tone={user?.email_confirmed_at ? 'ok' : 'warn'} label={user?.email_confirmed_at ? t('Correo verificado', 'Verified email') : t('Correo sin verificar', 'Email not verified')} />
+        </View>
+      </View>
+    </ScreenCard>
+    {!!message && <SettingsText>{message}</SettingsText>}
+    <ScreenLabel>{t('Datos personales', 'Personal details')}</ScreenLabel>
+    {!loaded ? <SettingsButton title={t('Cargar perfil', 'Load profile')} onPress={() => void run(load)} busy={busy} /> : <ScreenCard>
+      <AccessField label={t('Nombre', 'First name')} value={name} onChangeText={setName} maxLength={80} editable={!busy} autoComplete="given-name" autoCapitalize="words" />
+      <AccessField label={t('Apellido', 'Last name')} value={surname} onChangeText={setSurname} maxLength={80} editable={!busy} autoComplete="family-name" autoCapitalize="words" />
+      <EntryButton label={t('Guardar cambios', 'Save changes')} onPress={() => void save()} busy={busy} disabled={!changed || !name.trim()} />
+    </ScreenCard>}
+    <ScreenLabel>{t('Seguridad', 'Security')}</ScreenLabel>
+    <SettingsRow title={t('Cambiar contraseña', 'Change password')} subtitle={t('Necesitas tu contraseña actual.', 'You need your current password.')} onPress={() => { setMessage(''); setPasswordPage(true); }} />
   </SettingsPage>;
 }

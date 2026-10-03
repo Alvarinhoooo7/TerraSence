@@ -251,7 +251,7 @@ Una vista web o un emulador ayudan a revisar diseño; no prueban BLE, push ni pe
 
 ## 10. Plan de diseño después del acceso y ajuste de contraseñas
 
-**Estado (03-10-2026): implementación en código completa y con pruebas de lógica (276 aprobadas, sin errores de tipos). Revisión renderizada en un Moto G56 (Android, tema oscuro, español) por depuración USB: entrada a la medición, resultado por pantallas (con datos de demostración), Configuración, Perfil y contraseña, Mis dispositivos, Mediciones, Inicio y vinculación. Falta el tema claro, el inglés, texto grande, teclado en todas las pantallas, iPhone y lectores de pantalla, por eso las casillas UI siguen abiertas.** Las pantallas posteriores al acceso comparten `src/components/screen/ScreenUI.tsx` (el lenguaje visual de la entrada) y las de carga, `BrandLoading` (el nombre TerraSense en dos colores y una rueda). El diseño toma como
+**Estado (03-10-2026): implementación en código completa y con pruebas de lógica (277 aprobadas, sin errores de tipos). Revisión renderizada en un Moto G56 (Android, tema oscuro, español) por depuración USB: medición en tres pantallas (etapa ilustrada, pasos con animación y «Todo listo»), espera animada de conexión y lectura, resultado por pantallas (con datos de demostración), Configuración, Mi cuenta, Permisos, Mis dispositivos, Mediciones, Inicio con selector en hoja inferior, vinculación ilustrada y el splash nativo, que ya muestra sólo el nombre TerraSense como la pantalla de carga. Falta el tema claro, el inglés, texto grande, teclado en todas las pantallas, iPhone y lectores de pantalla, por eso las casillas UI siguen abiertas.** Las pantallas posteriores al acceso comparten `src/components/screen/ScreenUI.tsx` (el lenguaje visual de la entrada) y las de carga, `BrandLoading` (el nombre TerraSense en dos colores y una rueda). El diseño toma como
 referencia visual la entrada que el usuario ya validó e incluye el ajuste solicitado
 del ocultamiento de contraseñas nuevas. Las casillas anteriores conservan
 su estado: varias piezas de APP-01 a APP-04 ya existen y requieren comprobarse antes de
@@ -334,7 +334,7 @@ reconciliar el plan; su existencia no acredita por sí sola la aceptación de es
 | Abandono de lectura | Confirmación al descartar una lectura sin guardar o cambiar de etapa. |
 | Mediciones | Historial en su propia sección; filtros de sonda/etapa, fechas, diagnóstico y estado de sincronización. |
 | Detalle histórico | Mismo visor que el resultado, sin acción de guardar otra vez; conservar valores y recomendaciones registrados. |
-| Configuración | Índice breve por categorías: Cuenta, Preferencias, Equipos y datos, Ayuda y privacidad. |
+| Configuración | Índice breve: Mi cuenta (directo a nombre, apellido y contraseña), Preferencias (idioma, unidades y apariencia en la misma pantalla), Equipos y datos, Ayuda y privacidad y Cerrar sesión. |
 | Perfil | Datos personales y correo con estado de verificación; Guardar visible. |
 | Contraseña | Subpantalla propia con contraseña actual, nueva y confirmación; validación y errores. Nueva y confirmación usan el ritmo de ocultamiento del código por correo, también en registro y recuperación. |
 | Idioma y unidades | Español/English y sistema de unidades, con selección persistente y errores recuperables. |

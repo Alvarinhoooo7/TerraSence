@@ -1,3 +1,4 @@
+import { NewProbeArt } from '../components/pairing/PairingArt';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, BackHandler } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
@@ -51,10 +52,10 @@ export function DevicesScreen({ onClose, onLinkDevice, initialDeviceId }: { onCl
 
   return <SettingsPage eyebrow={t('TUS EQUIPOS', 'YOUR DEVICES')} title={t('Mis dispositivos', 'My devices')}
     description={t('Tus sondas vinculadas. La sonda para medir se elige en Inicio.', 'Your linked probes. The probe to measure with is chosen on Home.')}
-    footer={onLinkDevice ? <EntryButton secondary label={t('Vincular otra sonda', 'Link another probe')} onPress={onLinkDevice} /> : undefined}>
+    footer={onLinkDevice ? <EntryButton secondary={devices.length > 0} label={devices.length ? t('Vincular otra sonda', 'Link another probe') : t('Vincular una sonda', 'Link a probe')} onPress={onLinkDevice} /> : undefined}>
     {loading && <ActivityIndicator color={colors.primary} />}
     {error && <><SettingsText>{t('No pudimos actualizar tus dispositivos.', 'Could not update your devices.')}</SettingsText><SettingsButton title={t('Reintentar', 'Retry')} onPress={() => void refresh()} /></>}
-    {!loading && !error && !devices.length && <SettingsText>{t('Aún no tienes sondas autorizadas.', 'You have no authorized probes yet.')}</SettingsText>}
+    {!loading && !error && !devices.length && <><NewProbeArt /><SettingsText>{t('Aún no tienes sondas autorizadas. Vincula una nueva con su botón PAIR o pide una invitación a quien ya la usa.', 'You have no authorized probes yet. Link a new one with its PAIR button or ask someone who already uses one for an invitation.')}</SettingsText></>}
     {devices.map(d => <SettingsRow key={d.id} title={d.alias || d.name} subtitle={formatDeviceId(d.device_code)} onPress={() => { setDetailId(d.id); setMessage(''); }} />)}
   </SettingsPage>;
 }

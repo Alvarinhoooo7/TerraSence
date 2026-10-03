@@ -4,6 +4,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { GuideTouchable as Button, GuideScrollView as ScrollView } from '../components/guide/GuideControls';
 import { GuideModal } from '../components/guide/GuideModal';
 import { GUIDE_BUTTON_SPACE } from '../components/screen/ScreenUI';
+import { EntryButton } from '../components/entry/EntryUI';
 import { AppIcon } from '../components/AppIcon';
 import { SPLASH_BACKGROUND } from '../components/LoadingScreen';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -97,19 +98,39 @@ export function DashboardScreen({ onStartMeasurement, onLinkDevice }: Props) {
       <Text style={styles.hint}>{device ? t('Acerca tu sonda para comenzar.', 'Bring your probe close to begin.') : t('Elige o vincula tu sonda para comenzar.', 'Choose or link your probe to begin.')}</Text>
       {!!notice && <Text accessibilityLiveRegion="polite" style={styles.hint}>{notice}</Text>}
     </ScrollView>
-    <GuideModal visible={selector} transparent animationType="fade" onRequestClose={() => setSelector(false)}>
-      <SafeAreaView style={styles.backdrop}><View style={[styles.sheet, { backgroundColor: colors.background }]}>
-        <View style={styles.sheetHeader}><Text accessibilityRole="header" style={[styles.sheetTitle, { color: colors.text }]}>{t('Elegir sonda', 'Choose probe')}</Text><Button accessibilityRole="button" onPress={() => setSelector(false)} style={styles.close}><Text style={{ color: colors.primary }}>{t('Cerrar', 'Close')}</Text></Button></View>
-        <ScrollView style={{ flexShrink: 1 }} contentContainerStyle={{ gap: 10, paddingBottom: 12 }}>
-          {loading && <ActivityIndicator color={colors.primary} accessibilityLabel={t('Cargando sondas', 'Loading probes')} />}
-          {error && <><Text style={{ color: colors.textSecondary }}>{t('No pudimos actualizar la lista. La última selección se conserva.', 'Could not update the list. Your last selection is retained.')}</Text><Button onPress={() => void refresh()} style={styles.close}><Text style={{ color: colors.primary }}>{t('Reintentar', 'Retry')}</Text></Button></>}
-          {!loading && !error && !devices.length && <Text style={{ color: colors.textSecondary }}>{t('Aún no tienes sondas autorizadas.', 'You have no authorized probes yet.')}</Text>}
-          {devices.map(d => <Button key={d.id} accessibilityRole="radio" accessibilityState={{ selected: d.id === device?.id }} onPress={() => choose(d)} style={[styles.deviceRow, { borderColor: d.id === device?.id ? colors.primary : colors.border, backgroundColor: colors.card }]}>
-            <View style={{ flex: 1, gap: 6 }}><Text style={{ color: colors.text, fontSize: 16, fontWeight: '600' }}>{d.alias || d.name}</Text><Text style={{ color: colors.textSecondary }}>{formatDeviceId(d.device_code)}</Text></View>{d.id === device?.id && <Text style={{ color: colors.primary }}>✓</Text>}
-          </Button>)}
-        </ScrollView>
-        <Button onPress={() => { setSelector(false); onLinkDevice(); }} style={[styles.link, { backgroundColor: colors.primary }]}><Text style={{ color: colors.background, fontWeight: '700', fontSize: 16 }}>{t('Vincular otra sonda', 'Link another probe')}</Text></Button>
-      </View></SafeAreaView>
+    <GuideModal visible={selector} transparent animationType="slide" onRequestClose={() => setSelector(false)}>
+      {/* Hoja inferior: tocar fuera la cierra. */}
+      <View style={styles.backdrop}>
+        <Button accessible={false} guide={false} onPress={() => setSelector(false)} style={{ flex: 1 }} />
+        <View style={[styles.sheet, { backgroundColor: colors.background, paddingBottom: 20 + insets.bottom }]}>
+          <View style={[styles.handle, { backgroundColor: colors.border }]} />
+          <View style={styles.sheetHeader}>
+            <View style={{ flex: 1, gap: 4 }}>
+              <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.5 }}>{t('MEDIR CON', 'MEASURE WITH')}</Text>
+              <Text accessibilityRole="header" style={[styles.sheetTitle, { color: colors.text }]}>{t('Elige tu sonda', 'Choose your probe')}</Text>
+            </View>
+            <Button accessibilityRole="button" onPress={() => setSelector(false)} style={styles.close}><Text style={{ color: colors.primary, fontSize: 16, fontWeight: '600' }}>{t('Cerrar', 'Close')}</Text></Button>
+          </View>
+          <ScrollView style={{ flexShrink: 1 }} contentContainerStyle={{ gap: 10, paddingBottom: 12 }}>
+            {loading && !devices.length && <ActivityIndicator color={colors.primary} accessibilityLabel={t('Cargando sondas', 'Loading probes')} />}
+            {error && <View style={{ gap: 4 }}><Text style={{ color: colors.textSecondary, fontSize: 15, lineHeight: 22 }}>{t('No pudimos actualizar la lista. La última selección se conserva.', 'Could not update the list. Your last selection is retained.')}</Text><Button onPress={() => void refresh()} style={styles.close}><Text style={{ color: colors.primary, fontWeight: '600' }}>{t('Reintentar', 'Retry')}</Text></Button></View>}
+            {!loading && !error && !devices.length && <Text style={{ color: colors.textSecondary, fontSize: 15, lineHeight: 22 }}>{t('Aún no tienes sondas autorizadas. Vincula una para empezar a medir.', 'You have no authorized probes yet. Link one to start measuring.')}</Text>}
+            {devices.map(d => { const marked = d.id === device?.id; return <Button key={d.id} accessibilityRole="radio" accessibilityState={{ selected: marked }} onPress={() => choose(d)}
+              style={[styles.deviceRow, { borderColor: marked ? colors.primary : colors.border, borderWidth: marked ? 2 : 1, padding: marked ? 13 : 14, backgroundColor: colors.card }]}>
+              <View style={styles.deviceBadge}><AppIcon name="probe" color={mint} size={26} /></View>
+              <View style={{ flex: 1, gap: 3 }}>
+                <Text numberOfLines={1} style={{ color: colors.text, fontSize: 17, fontWeight: marked ? '700' : '600' }}>{d.alias || d.name}</Text>
+                <Text style={{ color: colors.textSecondary, fontSize: 13, fontVariant: ['tabular-nums'] }}>{formatDeviceId(d.device_code)}</Text>
+                {d.battery_level != null && <Text style={{ color: colors.textSecondary, fontSize: 13 }}>{t(`Batería ${d.battery_level} %`, `Battery ${d.battery_level}%`)}</Text>}
+              </View>
+              <View style={[styles.radio, { borderColor: marked ? colors.primary : colors.border, backgroundColor: marked ? colors.primary : 'transparent' }]}>
+                {marked && <Text style={{ color: colors.background, fontSize: 14, fontWeight: '800' }}>✓</Text>}
+              </View>
+            </Button>; })}
+          </ScrollView>
+          <EntryButton secondary label={`+  ${t('Vincular otra sonda', 'Link another probe')}`} onPress={() => { setSelector(false); onLinkDevice(); }} />
+        </View>
+      </View>
     </GuideModal>
   </SafeAreaView>;
 }
@@ -129,11 +150,13 @@ const styles = StyleSheet.create({
   measure: { borderRadius: 120, backgroundColor: mint, padding: 24, alignItems: 'center', justifyContent: 'center', gap: 10 },
   measureText: { color: SPLASH_BACKGROUND, fontSize: 28, fontWeight: '700', letterSpacing: -0.5 },
   hint: { color: '#C4D4C9', fontSize: 15, lineHeight: 22, textAlign: 'center', maxWidth: 320 },
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,.55)', justifyContent: 'center', padding: 24 },
-  sheet: { maxHeight: '90%', width: '100%', maxWidth: 520, alignSelf: 'center', borderRadius: 24, padding: 20 },
-  sheetHeader: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
-  sheetTitle: { fontSize: 24, fontWeight: '700', flex: 1 },
+  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,.55)' },
+  sheet: { maxHeight: '85%', width: '100%', maxWidth: 560, alignSelf: 'center', borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 10, gap: 12 },
+  handle: { width: 44, height: 5, borderRadius: 3, alignSelf: 'center', marginBottom: 6 },
+  sheetHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  deviceBadge: { width: 48, height: 48, borderRadius: 14, backgroundColor: '#17392C', alignItems: 'center', justifyContent: 'center' },
+  radio: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  sheetTitle: { fontSize: 26, fontWeight: '700', letterSpacing: -0.5 },
   close: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 8 },
-  deviceRow: { borderWidth: 1, borderRadius: 16, padding: 16, flexDirection: 'row', gap: 12, alignItems: 'center' },
-  link: { minHeight: 54, borderRadius: 16, padding: 12, justifyContent: 'center', alignItems: 'center' },
+  deviceRow: { borderRadius: 18, flexDirection: 'row', gap: 14, alignItems: 'center' },
 });

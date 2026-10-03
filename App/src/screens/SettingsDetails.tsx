@@ -1,5 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, Linking, Text } from 'react-native';
+import { AppState, Linking, Text, View } from 'react-native';
+import { useAppTheme } from '../hooks/useAppTheme';
+import { EntryButton } from '../components/entry/EntryUI';
+import { ScreenStatus, ScreenValue } from '../components/screen/ScreenUI';
 import Constants from 'expo-constants';
 import * as Clipboard from 'expo-clipboard';
 import { SettingsPage, SettingsCard, SettingsText, SettingsButton } from '../components/SettingsUI';
@@ -20,6 +23,7 @@ import type { DeviceRow } from '../types/app';
 import { legalSections } from '../utils/legalSections';
 
 export function PhonePermissions({ onBack }: { onBack: () => void }) {
+  const { colors } = useAppTheme();
   const { t, language } = useTranslation(); const [snapshot, setSnapshot] = useState<PermissionSnapshot | null>(null);
   const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const lock = useRef(false); const latest = useRef(createLatestOnly());
   // Una continuación tras el permiso no escribe si la pantalla se cerró o cambió la cuenta.
@@ -53,12 +57,23 @@ export function PhonePermissions({ onBack }: { onBack: () => void }) {
     finally { lock.current = false; setBusy(false); }
   };
   const manage = (kind: PermissionKind) => { const state = snapshot?.[kind]; return !!state && (state.status === 'granted' || !state.canAskAgain); };
-  return <SettingsPage title={t('Permisos del teléfono', 'Phone permissions')} onBack={onBack} description={t('Tú decides qué autorizas. Cada permiso se pide al usar su función, y los administra tu teléfono.', 'You choose what to allow. Each permission is requested when you use its feature, and your phone manages them.')}>
+  // «Sin decidir» no es un error: la app pide cada permiso recién al usar su función
+  // (sección 9 del plan). Ubicación, por ejemplo, se pregunta al activar «Ubicación y
+  // pronóstico» antes de medir. Aquí se puede adelantar o cambiar la decisión.
+  const tone = (kind: PermissionKind): 'ok' | 'warn' | 'off' => {
+    const state = snapshot?.[kind];
+    if (!state) return 'off';
+    if (state.status === 'granted' && !state.poweredOff) return 'ok';
+    return state.status === 'denied' || !state.canAskAgain ? 'warn' : 'off';
+  };
+  return <SettingsPage eyebrow={t('PREFERENCIAS', 'PREFERENCES')} title={t('Permisos', 'Permissions')} onBack={onBack}
+    description={t('Cada permiso se pide recién cuando usas su función, nunca todos al entrar. «Sin decidir» significa que todavía no la usaste; puedes adelantarlo aquí.', 'Each permission is requested only when you use its feature, never all at once. "Not decided" means you have not used it yet; you can grant it here in advance.')}>
     {!!error && <SettingsText danger>{error}</SettingsText>}
     {PERMISSION_KINDS.map(kind => { const state = snapshot?.[kind]; const fixed = state?.status === 'unavailable' || state?.status === 'restricted'; return <SettingsCard key={kind}>
-      <SettingsText>{pick(PERMISSION_COPY[kind].name, language)} · {permissionStatusLabel(state, language)}</SettingsText>
+      <Text style={{ color: colors.text, fontSize: 17, fontWeight: '700' }}>{pick(PERMISSION_COPY[kind].name, language)}</Text>
+      <ScreenStatus tone={tone(kind)} label={permissionStatusLabel(state, language)} />
       <SettingsText>{descriptions[kind]}</SettingsText>
-      {!fixed && <SettingsButton title={manage(kind) ? t('Abrir ajustes del teléfono', 'Open phone settings') : pick(PERMISSION_ACTIONS.request, language)} onPress={() => void act(kind)} disabled={busy || !state} />}
+      {!fixed && <EntryButton secondary label={manage(kind) ? t('Abrir ajustes del teléfono', 'Open phone settings') : pick(PERMISSION_ACTIONS.request, language)} onPress={() => void act(kind)} disabled={busy || !state} />}
     </SettingsCard>; })}
   </SettingsPage>;
 }
@@ -72,17 +87,21 @@ export function SyncSettings({ onBack }: { onBack: () => void }) {
     catch { setMessage(t('No se pudo sincronizar. Tus lecturas pendientes se conservan.', 'Could not synchronize. Pending readings are retained.')); }
     finally { lock.current = false; setBusy(false); }
   };
-  return <SettingsPage title={t('Datos y sincronización', 'Data and synchronization')} onBack={onBack}>
-    <SettingsCard><SettingsText>{t('Mediciones pendientes', 'Pending readings')}: {status?.pending ?? '—'}</SettingsText>
-      <SettingsText>{t('Último envío confirmado desde este teléfono', 'Last confirmed upload from this phone')}: {status?.lastSentAt ? new Date(status.lastSentAt).toLocaleString(locale) : t('Sin registro', 'No record')}</SettingsText>
-      <SettingsText>{t('Los envíos automáticos funcionan mientras la app está abierta. Antes de cerrar sesión, revisa los pendientes. Si soporte resetea un equipo, este teléfono descarta sus lecturas pendientes al volver a conectarse.', 'Automatic uploads run while the app is open. Check pending readings before signing out. If support resets a device, this phone discards its pending readings when it reconnects.')}</SettingsText>
-      <SettingsButton title={t('Sincronizar ahora', 'Sync now')} onPress={() => void sync()} busy={busy} />
-    </SettingsCard>{!!message && <SettingsText>{message}</SettingsText>}
+  return <SettingsPage eyebrow={t('EQUIPOS Y DATOS', 'DEVICES AND DATA')} title={t('Sincronización', 'Synchronization')} onBack={onBack}
+    description={t('Tus lecturas se guardan primero en el teléfono y se envían a la nube cuando hay conexión.', 'Your readings are saved on the phone first and sent to the cloud when there is a connection.')}
+    footer={<SettingsButton title={t('Sincronizar ahora', 'Sync now')} onPress={() => void sync()} busy={busy} />}>
+    <SettingsCard>
+      <ScreenValue label={t('Pendientes de enviar', 'Pending upload')} value={status ? String(status.pending) : '—'} />
+      <ScreenValue label={t('Último envío confirmado', 'Last confirmed upload')} value={status?.lastSentAt ? new Date(status.lastSentAt).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' }) : t('Sin registro', 'No record')} />
+    </SettingsCard>
+    {!!message && <SettingsText>{message}</SettingsText>}
+    <SettingsText>{t('Los envíos automáticos funcionan mientras la app está abierta. Antes de cerrar sesión, revisa los pendientes. Si soporte resetea un equipo, este teléfono descarta sus lecturas pendientes al volver a conectarse.', 'Automatic uploads run while the app is open. Check pending readings before signing out. If support resets a device, this phone discards its pending readings when it reconnects.')}</SettingsText>
   </SettingsPage>;
 }
 
 type Release = { version: string; release_notes: string | null; is_mandatory: boolean; size_bytes: number | null };
 export function FirmwareSettings({ onBack }: { onBack: () => void }) {
+  const { colors } = useAppTheme();
   const { t } = useTranslation(); const [rows, setRows] = useState<{ device: DeviceRow; release: Release | null }[]>([]);
   const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const lock = useRef(false); const alive = useRef(true);
   const refresh = async () => { if (lock.current) return; lock.current = true; setBusy(true); setError('');
@@ -91,13 +110,14 @@ export function FirmwareSettings({ onBack }: { onBack: () => void }) {
     finally { lock.current = false; if (alive.current) setBusy(false); }
   };
   useEffect(() => { alive.current = true; void refresh(); return () => { alive.current = false; }; }, []);
-  return <SettingsPage title={t('Firmware de la sonda', 'Probe firmware')} description={t('Consulta aquí las novedades del ESP32, cuando tú decidas.', 'Check ESP32 updates here, whenever you choose.')} onBack={onBack}>
-    <SettingsButton title={t('Buscar actualizaciones', 'Check for updates')} onPress={() => void refresh()} busy={busy} />
+  return <SettingsPage eyebrow={t('EQUIPOS Y DATOS', 'DEVICES AND DATA')} title={t('Actualizaciones', 'Updates')} description={t('El firmware es el programa interno de la sonda. Consulta aquí si hay una versión nueva.', 'Firmware is the probe’s internal program. Check here whether a new version is available.')} onBack={onBack}
+    footer={<EntryButton secondary label={t('Buscar actualizaciones', 'Check for updates')} onPress={() => void refresh()} busy={busy} />}>
     {!!error && <SettingsText danger>{error}</SettingsText>}
     {!busy && !error && !rows.length && <SettingsText>{t('Vincula un equipo para consultar su firmware.', 'Link a device to check its firmware.')}</SettingsText>}
     {rows.map(({ device, release }) => <SettingsCard key={device.id}>
-      <SettingsText>{device.alias || device.name} · {device.device_code}</SettingsText>
-      <SettingsText>{t('Versión instalada', 'Installed version')}: {device.firmware_version || t('No informada', 'Not reported')}</SettingsText>
+      <Text style={{ color: colors.text, fontSize: 17, fontWeight: '700' }}>{device.alias || device.name}</Text>
+      <ScreenValue label={t('Versión instalada', 'Installed version')} value={device.firmware_version || t('No informada', 'Not reported')} />
+      <ScreenStatus tone={release ? 'warn' : 'ok'} label={release ? t(`Disponible ${release.version}`, `${release.version} available`) : t('Al día', 'Up to date')} />
       <SettingsText>{release ? `${t('Disponible', 'Available')}: ${release.version}` : device.firmware_version ? t('No hay una versión más reciente publicada para este equipo.', 'No newer version is published for this device.') : t('El equipo debe informar su versión antes de comprobar compatibilidad.', 'The device must report its version before compatibility can be checked.')}</SettingsText>
       {!!release && <SettingsText>{release.release_notes || t('Sin descripción publicada.', 'No release notes published.')}</SettingsText>}
     </SettingsCard>)}
@@ -106,20 +126,32 @@ export function FirmwareSettings({ onBack }: { onBack: () => void }) {
 }
 
 export function AboutSettings({ onBack }: { onBack: () => void }) {
+  const { colors } = useAppTheme();
   const { t } = useTranslation();
-  return <SettingsPage title={t('Acerca de y privacidad', 'About and privacy')} onBack={onBack}>
-    <SettingsText>TerraSense · {Constants.expoConfig?.version ?? t('Versión no disponible', 'Version unavailable')}</SettingsText>
-    <SettingsText>{t('Texto preliminar compartido con el registro. Falta completar el responsable y los plazos de conservación antes de publicarlo.', 'Draft shared with registration. The responsible party and retention periods must be completed before publication.')}</SettingsText>
-    {legalSections(t).map(([title, body]) => <SettingsCard key={title}><Text accessibilityRole="header" style={{ fontWeight: '700' }}><SettingsText>{title}</SettingsText></Text><SettingsText>{body}</SettingsText></SettingsCard>)}
+  return <SettingsPage eyebrow={t('AYUDA Y PRIVACIDAD', 'HELP AND PRIVACY')} title={t('Términos y privacidad', 'Terms and privacy')} onBack={onBack}
+    description={t('El mismo texto que aceptaste al crear tu cuenta.', 'The same text you accepted when creating your account.')}>
+    <SettingsCard>
+      <ScreenValue label="TerraSense" value={`${t('Versión', 'Version')} ${Constants.expoConfig?.version ?? '—'}`} />
+    </SettingsCard>
+    {legalSections(t).map(([title, body]) => <View key={title} style={{ gap: 6, marginTop: 4 }}>
+      <Text accessibilityRole="header" style={{ color: colors.text, fontSize: 18, fontWeight: '700' }}>{title}</Text>
+      <SettingsText>{body}</SettingsText>
+    </View>)}
+    <SettingsText>{t('Texto preliminar: falta completar el responsable y los plazos de conservación antes de publicarlo.', 'Draft: the responsible party and retention periods must be completed before publication.')}</SettingsText>
   </SettingsPage>;
 }
 export function ContactSettings({ onBack }: { onBack: () => void }) {
+  const { colors } = useAppTheme();
   const { t } = useTranslation(); const [message, setMessage] = useState(''); const email = 'akurasoporte@gmail.com';
   const open = async () => { try { await Linking.openURL(`mailto:${email}?subject=${encodeURIComponent('Soporte TerraSense')}&body=${encodeURIComponent(t('Hola, equipo de soporte. Necesito ayuda con TerraSense.\n\nDescripción del problema:\n\nPasos que realicé:\n\nGracias.', 'Hello support team. I need help with TerraSense.\n\nProblem description:\n\nSteps I followed:\n\nThank you.'))}`); } catch { setMessage(t('No se pudo abrir el correo. Copia la dirección y úsala en tu aplicación de correo.', 'Could not open email. Copy the address and use your email application.')); } };
-  return <SettingsPage title={t('Contacto', 'Contact')} onBack={onBack} description={t('Cuéntanos en qué podemos ayudarte.', 'Tell us how we can help.')}>
-    <SettingsCard><SettingsText>{email}</SettingsText><SettingsText>{t('Se abrirá tu aplicación de correo con un mensaje editable. Tú decides qué incluir y cuándo enviarlo.', 'Your email app opens with an editable message. You decide what to include and when to send it.')}</SettingsText>
-      <SettingsButton title={t('Escribir a soporte', 'Email support')} onPress={() => void open()} />
-      <SettingsButton title={t('Copiar correo', 'Copy email')} onPress={() => void Clipboard.setStringAsync(email).then(() => setMessage(t('Correo copiado.', 'Email copied.'))).catch(() => setMessage(t('No se pudo copiar.', 'Could not copy.')))} />
-    </SettingsCard>{!!message && <SettingsText>{message}</SettingsText>}
+  return <SettingsPage eyebrow={t('AYUDA Y PRIVACIDAD', 'HELP AND PRIVACY')} title={t('Soporte', 'Support')} onBack={onBack}
+    description={t('Cuéntanos en qué podemos ayudarte. Se abre tu correo con un mensaje que puedes editar antes de enviarlo.', 'Tell us how we can help. Your email opens with a message you can edit before sending it.')}
+    footer={<SettingsButton title={t('Escribir a soporte', 'Email support')} onPress={() => void open()} />}>
+    <SettingsCard>
+      <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.5 }}>{t('CORREO DE SOPORTE', 'SUPPORT EMAIL')}</Text>
+      <Text selectable style={{ color: colors.text, fontSize: 18, fontWeight: '600' }}>{email}</Text>
+      <EntryButton secondary label={t('Copiar correo', 'Copy email')} onPress={() => void Clipboard.setStringAsync(email).then(() => setMessage(t('Correo copiado.', 'Email copied.'))).catch(() => setMessage(t('No se pudo copiar.', 'Could not copy.')))} />
+    </SettingsCard>
+    {!!message && <SettingsText>{message}</SettingsText>}
   </SettingsPage>;
 }
