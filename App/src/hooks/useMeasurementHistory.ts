@@ -4,10 +4,12 @@ import { loadMeasurementHistory } from '../services/measurementsService';
 import { useAppStore } from '../store/useAppStore';
 import { useAuthStore } from '../store/useAuthStore';
 import type { MeasurementPoint } from '../types/app';
+import { measurementHistoryScope } from '../utils/measurementHistory';
 
-export function useMeasurementHistory() {
+export function useMeasurementHistory(historyDeviceId?: string | null) {
   const dataRevision = useAppStore(s => s.dataRevision);
-  const deviceId = useAppStore(s => s.device?.id);
+  const selectedDeviceId = useAppStore(s => s.device?.id);
+  const deviceId = measurementHistoryScope(selectedDeviceId, historyDeviceId);
   const accountId = useAuthStore(s => s.session?.user.id);
   const [points, setPoints] = useState<MeasurementPoint[]>([]);
   const [loading, setLoading] = useState(true);

@@ -13,18 +13,20 @@ import { pendingCount } from '../services/measurementsService';
 import type { AppPreferences } from '../types/preferences';
 import { ProfileScreen } from './ProfileScreen';
 import { AboutSettings, ContactSettings, FirmwareSettings, PhonePermissions, SyncSettings } from './SettingsDetails';
+import { ShareDeviceScreen } from './ShareDeviceScreen';
+import { settingsParent, type SettingsPageId } from '../utils/settingsNavigation';
 
-type Page = 'index' | 'profile' | 'notifications' | 'firmware' | 'language' | 'theme' | 'permissions' | 'sync' | 'about' | 'contact';
-interface Props { onClose: () => void; onOpenInbox: () => void; onOpenDevices: () => void; onOpenAdministration: () => void }
-export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenDevices, onOpenAdministration }: Props) {
+type Page = SettingsPageId;
+interface Props { onClose: () => void; onOpenInbox: () => void; onOpenAdministration: () => void }
+export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenAdministration }: Props) {
   const { colors } = useAppTheme(); const { t } = useTranslation();
   const preferences = useAppStore(s => s.preferences); const [page, setPage] = useState<Page>('index');
   const [canAdminister, setCanAdminister] = useState(false); const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const lock = useRef(false);
   const [pushStatus, setPushStatus] = useState(getPushRegistrationStatus);
   useEffect(() => subscribePushRegistration(setPushStatus), []);
   useEffect(() => { let active = true; const refresh = () => void listMyDeviceMemberships().then(rows => { if (active) setCanAdminister(rows.some(m => m.role === 'admin' && m.is_authorized)); }).catch(() => { if (active) setCanAdminister(false); }); refresh(); const timer = setInterval(refresh, 10000); return () => { active = false; clearInterval(timer); }; }, []);
-  useEffect(() => { const sub = BackHandler.addEventListener('hardwareBackPress', () => { if (busy) return true; if (page === 'index') return false; setPage('index'); return true; }); return () => sub.remove(); }, [page, busy]);
-  const back = () => { if (!busy) { setError(''); setPage('index'); } };
+  useEffect(() => { const sub = BackHandler.addEventListener('hardwareBackPress', () => { if (busy) return true; if (page === 'index') return false; setPage(settingsParent(page)); return true; }); return () => sub.remove(); }, [page, busy]);
+  const back = () => { if (!busy) { setError(''); setPage(settingsParent(page)); } };
   const apply = async (next: AppPreferences) => {
     if (lock.current) return; lock.current = true; setBusy(true); setError('');
     const previous = useAppStore.getState().preferences;
@@ -52,23 +54,36 @@ export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenDevices, onOpe
   if (page === 'firmware') return <FirmwareSettings onBack={back} />;
   if (page === 'about') return <AboutSettings onBack={back} />;
   if (page === 'contact') return <ContactSettings onBack={back} />;
-  const title = { index: t('Ajustes', 'Settings'), notifications: t('Notificaciones', 'Notifications'), language: t('Idioma', 'Language'), theme: t('Apariencia', 'Appearance') }[page];
+  if (page === 'share') return <ShareDeviceScreen onBack={back} />;
+  const title = { index: t('Configuración', 'Settings'), account: t('Cuenta', 'Account'), preferences: t('Preferencias', 'Preferences'), equipment: t('Equipos y datos', 'Devices and data'), help: t('Ayuda y privacidad', 'Help and privacy'), notifications: t('Notificaciones', 'Notifications'), language: t('Idioma y unidades', 'Language and units'), theme: t('Apariencia', 'Appearance') }[page];
   return <SettingsPage title={title} description={page === 'index' ? t('Tu cuenta, tus equipos y tus preferencias.', 'Your account, devices and preferences.') : undefined} onBack={page === 'index' ? onClose : back}>
     {!!error && <SettingsText danger>{error}</SettingsText>}
     {page === 'index' && <>
+      <SettingsRow title={t('Cuenta', 'Account')} subtitle={t('Perfil y seguridad', 'Profile and security')} onPress={() => setPage('account')} />
+      <SettingsRow title={t('Preferencias', 'Preferences')} subtitle={t('Idioma, apariencia y permisos', 'Language, appearance and permissions')} onPress={() => setPage('preferences')} />
+      <SettingsRow title={t('Equipos y datos', 'Devices and data')} subtitle={t('Acceso, actualizaciones y sincronización', 'Access, updates and synchronization')} onPress={() => setPage('equipment')} />
+      <SettingsRow title={t('Ayuda y privacidad', 'Help and privacy')} subtitle={t('Avisos, contacto y documentos', 'Alerts, contact and documents')} onPress={() => setPage('help')} />
+    </>}
+    {page === 'account' && <>
       <SettingsRow title={t('Mi perfil', 'My profile')} subtitle={t('Nombre, correo y contraseña', 'Name, email and password')} onPress={() => setPage('profile')} />
-      <SettingsRow title={t('Mis dispositivos', 'My devices')} subtitle={t('Equipos vinculados y acceso compartido', 'Linked devices and shared access')} onPress={onOpenDevices} />
+      <SettingsRow title={t('Cerrar sesión', 'Sign out')} danger disabled={busy} onPress={() => void confirmSignOut()} />
+    </>}
+    {page === 'equipment' && <>
+      <SettingsRow title={t('Compartir acceso', 'Share access')} subtitle={t('Invitación temporal por QR o código', 'Temporary invitation by QR or code')} onPress={() => setPage('share')} />
       {canAdminister && <SettingsRow title={t('Administración del equipo', 'Device administration')} subtitle={t('Miembros, solicitudes y propiedad', 'Members, requests and ownership')} onPress={onOpenAdministration} />}
-      <SettingsRow title={t('Avisos', 'Alerts')} subtitle={t('Solicitudes y cambios de acceso', 'Requests and access changes')} onPress={onOpenInbox} />
-      <SettingsRow title={t('Notificaciones', 'Notifications')} subtitle={t('Avisos push de equipos', 'Device push alerts')} onPress={() => setPage('notifications')} />
       <SettingsRow title={t('Actualizaciones', 'Updates')} subtitle={t('Firmware del ESP32', 'ESP32 firmware')} onPress={() => setPage('firmware')} />
+      <SettingsRow title={t('Datos y sincronización', 'Data and synchronization')} onPress={() => setPage('sync')} />
+    </>}
+    {page === 'preferences' && <>
       <SettingsRow title={t('Idioma', 'Language')} subtitle={preferences.language === 'es' ? 'Español' : 'English'} onPress={() => setPage('language')} />
       <SettingsRow title={t('Apariencia', 'Appearance')} onPress={() => setPage('theme')} />
+      <SettingsRow title={t('Notificaciones', 'Notifications')} subtitle={t('Avisos push de equipos', 'Device push alerts')} onPress={() => setPage('notifications')} />
       <SettingsRow title={t('Permisos del teléfono', 'Phone permissions')} onPress={() => setPage('permissions')} />
-      <SettingsRow title={t('Datos y sincronización', 'Data and synchronization')} onPress={() => setPage('sync')} />
+    </>}
+    {page === 'help' && <>
+      <SettingsRow title={t('Avisos', 'Alerts')} subtitle={t('Solicitudes y cambios de acceso', 'Requests and access changes')} onPress={onOpenInbox} />
       <SettingsRow title={t('Contacto', 'Contact')} onPress={() => setPage('contact')} />
       <SettingsRow title={t('Acerca de y privacidad', 'About and privacy')} onPress={() => setPage('about')} />
-      <View style={{ height: 12 }} /><SettingsRow title={t('Cerrar sesión', 'Sign out')} danger disabled={busy} onPress={() => void confirmSignOut()} />
     </>}
     {page === 'language' && <>{(['es', 'en'] as const).map(language => <SettingsRow key={language} title={language === 'es' ? 'Español' : 'English'} selected={language === preferences.language} disabled={busy} onPress={() => void apply({ ...preferences, language })} />)}
       <SettingsText>{t('Unidades de medida', 'Measurement units')}</SettingsText>{(['metric', 'imperial'] as const).map(measurementSystem => <SettingsRow key={measurementSystem} title={measurementSystem === 'metric' ? t('Métrico · °C, ha', 'Metric · °C, ha') : t('Imperial · °F, ac', 'Imperial · °F, ac')} selected={preferences.measurementSystem === measurementSystem} disabled={busy} onPress={() => void apply({ ...preferences, measurementSystem })} />)}</>}

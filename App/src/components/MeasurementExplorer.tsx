@@ -8,6 +8,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { PHENOLOGICAL_STAGES } from '../types/app';
 import { parameterLabel, type MeasurementPresentation, type ParameterPresentation } from '../engine/measurementPresentation';
+import { MEASUREMENT_GROUPS } from './measurementResultData';
 import { formatEngineMetric } from '../utils/units';
 
 /** El gesto horizontal recorre información; los botones cambian de parámetro. */
@@ -28,14 +29,15 @@ function Pages({ titles, pages, page, onPage }: { titles: string[]; pages: strin
   </View>;
 }
 
-export function MeasurementExplorer({ presentation: p }: { presentation: MeasurementPresentation }) {
+export function MeasurementExplorer({ presentation: p, forecast }: { presentation: MeasurementPresentation; forecast?: React.ReactNode }) {
   const { colors } = useAppTheme();
   const { t, language } = useTranslation();
   const { width, fontScale } = useWindowDimensions();
   const system = useAppStore(s => s.preferences.measurementSystem);
   const [index, setIndex] = useState<number | null>(null);
   const [page, setPage] = useState(0);
-  const [summaryPage, setSummaryPage] = useState(0);
+  const [section, setSection] = useState(0);
+  const [groupIndex, setGroupIndex] = useState(0);
   const [plan, setPlan] = useState(false);
   const detailScroll = useRef<ScrollView>(null);
   const parameter = index === null ? null : p.parameters[index];
@@ -57,14 +59,20 @@ export function MeasurementExplorer({ presentation: p }: { presentation: Measure
   return <View style={styles.container}>
     <Text style={[styles.context, { color: colors.textSecondary }]}>{stage} · {p.context}</Text>
     <Text style={[styles.title, { color: colors.text }]}>{p.title}</Text>
-    <Pages titles={[t('Resumen', 'Summary'), t('Qué hacer', 'What to do'), t('Qué revisar', 'What to check')]} pages={[p.summary, p.actions.join('\n\n') || t('Sin acciones registradas.', 'No actions recorded.'), p.weatherNote]} page={summaryPage} onPage={setSummaryPage} />
+    <View style={styles.row}>{[t('Resumen', 'Summary'), t('Lecturas', 'Readings'), t('Consejos', 'Advice'), t('Pronóstico', 'Forecast')].map((label, i) => <Button key={label} accessibilityRole="tab" accessibilityState={{ selected: section === i }} onPress={() => setSection(i)} style={[styles.tab, { borderBottomColor: section === i ? colors.primary : 'transparent' }]}><Text style={{ color: section === i ? colors.primary : colors.textSecondary, textAlign: 'center' }}>{label}</Text></Button>)}</View>
+    {section === 0 && <Text style={[styles.body, { color: colors.text }]}>{p.summary}</Text>}
+    {section === 2 && <><Text style={[styles.title, { color: colors.text }]}>{t('Recomendaciones', 'Recommendations')}</Text><Text style={[styles.body, { color: colors.text }]}>{p.actions.join('\n\n') || t('Sin acciones registradas.', 'No actions recorded.')}</Text><Text style={[styles.body, { color: colors.textSecondary }]}>{p.weatherNote}</Text></>}
+    {section === 3 && (forecast || <Text style={[styles.body, { color: colors.textSecondary }]}>{p.weatherNote}</Text>)}
+    {(section === 0 || section === 2) && <>
     <Button onPress={() => setPlan(true)} style={styles.button}><Text style={{ color: colors.primary, fontWeight: '600' }}>{t('Ver plan global ›', 'View global plan ›')}</Text></Button>
-    <View style={styles.grid}>{p.parameters.map((m, i) => <Button key={m.key} onPress={() => move(i)} accessibilityLabel={`${parameterLabel(m.key, language)}, ${value(m)}, ${statusLabels[m.status]}. ${t('Abrir detalle.', 'Open detail.')}`} style={[styles.card, { width: width < 360 || fontScale > 1.3 ? '100%' : '48%', backgroundColor: colors.card, borderColor: colors.border, borderTopColor: tone(m) }]}>
+    </>}
+    {section === 1 && <View style={styles.row}>{[['Suelo', 'Soil'], ['Nutrientes', 'Nutrients'], ['Ambiente', 'Environment']].map(([es, en], i) => <Button key={es} accessibilityRole="tab" accessibilityState={{ selected: groupIndex === i }} onPress={() => setGroupIndex(i)} style={[styles.tab, { borderBottomColor: groupIndex === i ? colors.primary : 'transparent' }]}><Text style={{ color: groupIndex === i ? colors.primary : colors.textSecondary }}>{t(es, en)}</Text></Button>)}</View>}
+    {section === 1 && [['Suelo', 'Soil'], ['Nutrientes', 'Nutrients'], ['Ambiente', 'Environment']].map(([es, en], group) => groupIndex === group && <View key={es}><Text style={[styles.title, { color: colors.text }]}>{t(es, en)}</Text><View style={styles.grid}>{p.parameters.map((m, i) => MEASUREMENT_GROUPS[group].includes(m.key) && <Button key={m.key} onPress={() => move(i)} accessibilityLabel={`${parameterLabel(m.key, language)}, ${value(m)}, ${group === 1 ? t('Sin validar', 'Not validated') : statusLabels[m.status]}. ${t('Abrir detalle.', 'Open detail.')}`} style={[styles.card, { width: width < 360 || fontScale > 1.3 ? '100%' : '48%', backgroundColor: colors.card, borderColor: colors.border, borderTopColor: tone(m) }]}>
       <Text style={{ color: colors.textSecondary }}>{parameterLabel(m.key, language)}</Text>
       <Text style={[styles.value, { color: colors.text }]}>{value(m)}</Text>
       <Text style={{ color: tone(m), marginTop: 8 }}>{m.key === 'nitrogen' || m.key === 'phosphorus' || m.key === 'potassium' ? t('Sin validar', 'Not validated') : statusLabels[m.status]}</Text>
       <Text style={{ color: colors.primary, marginTop: 8 }}>{t('Ver detalle ›', 'View detail ›')}</Text>
-    </Button>)}</View>
+    </Button>)}</View></View>)}
     <GuideModal visible={index !== null || plan} animationType="slide" onRequestClose={close}>
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
         <Button onPress={close} style={styles.back}><Text style={{ color: colors.primary, fontWeight: '600' }}>‹ {plan && parameter ? t('Volver al parámetro', 'Back to parameter') : t('Volver al resumen', 'Back to summary')}</Text></Button>
@@ -73,7 +81,7 @@ export function MeasurementExplorer({ presentation: p }: { presentation: Measure
             <Text style={[styles.context, { color: colors.textSecondary }]}>{t('Parámetro', 'Parameter')} {index! + 1} {t('de', 'of')} {p.parameters.length} · {stage}</Text>
             <Text style={[styles.title, { color: colors.text }]}>{parameterLabel(parameter.key, language)}</Text>
             <Text style={[styles.value, { color: colors.text }]}>{value(parameter)}</Text>
-            <Text style={[styles.context, { color: tone(parameter) }]}>{statusLabels[parameter.status]}</Text>
+            <Text style={[styles.context, { color: tone(parameter) }]}>{['nitrogen', 'phosphorus', 'potassium'].includes(parameter.key) ? t('Sin validar', 'Not validated') : statusLabels[parameter.status]}</Text>
             <Pages key={parameter.key} titles={[t('Estado', 'Status'), t('Recomendación', 'Recommendation'), t('Control', 'Check')]} pages={[parameter.state, parameter.recommendation, parameter.control]} page={page} onPage={setPage} />
             <Button onPress={() => setPlan(true)} style={styles.button}><Text style={{ color: colors.primary }}>{t('Ver plan global ›', 'View global plan ›')}</Text></Button>
           </>}

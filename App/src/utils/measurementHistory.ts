@@ -1,5 +1,10 @@
 import type { MeasurementPoint } from '../types/app';
 
+/** undefined mantiene compatibilidad; null consulta todas las sondas explícitamente. */
+export function measurementHistoryScope(selectedDeviceId: string | undefined, historyDeviceId: string | null | undefined) {
+  return historyDeviceId === undefined ? selectedDeviceId : historyDeviceId;
+}
+
 /** Une cachés antiguos sin convertir lecturas respaldadas en pendientes. */
 export function mergeCachedHistories(histories: MeasurementPoint[][]): MeasurementPoint[] {
   const points = new Map<string, MeasurementPoint>();

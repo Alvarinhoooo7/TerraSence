@@ -53,18 +53,19 @@ Aplicación móvil de terreno desarrollada en **React Native 0.86 + React 19.2 +
 
 ### Aceptación previa al registro móvil
 
+La aceptación legal es una pantalla completa, [«Términos y privacidad»](src/screens/TermsScreen.tsx),
+que aparece después de Idioma y antes de Bienvenida, en el idioma elegido. Las dos casillas
+se habilitan sólo al llegar al final del texto; antes, la acción se llama «Leer hasta el
+final» y desplaza el documento a una velocidad legible (arrastrarlo interrumpe ese
+desplazamiento asistido). Con lectura completa y ambas casillas marcadas, «Aceptar y
+continuar» deja la aceptación en memoria para un único intento: no crea la cuenta, no envía
+datos y no concede permisos del teléfono.
+
 El registro pide nombre y correo en el primer paso, y contraseña y confirmación en el
-segundo. Al pulsar «Revisar y crear cuenta» con datos válidos se abre el
-[panel de términos y privacidad](src/components/RegistrationConsentModal.tsx).
-La solicitud de creación de cuenta se realiza únicamente después de llegar al final
-del contenido, marcar las dos casillas y pulsar «Aceptar y crear cuenta». Esta acción
-envía el registro directamente. El botón permanece visible en la parte inferior.
-Antes de llegar al final, la acción se llama «Leer hasta el final»:
-desplaza el texto hasta el final a una velocidad legible, y sólo entonces se habilitan
-las casillas. Arrastrar el texto interrumpe ese desplazamiento asistido. Cancelar vuelve
-al formulario sin enviar la solicitud; al reabrir, las casillas vuelven a estar vacías.
-Una aceptación ya enviada se conserva para reintentar si falla la red; cambiar el
-nombre, el correo o el flujo obliga a revisarla de nuevo.
+segundo. «Crear cuenta» envía el registro con esa aceptación (versiones, idioma y fecha de
+la acción real); si falta, vuelve a la pantalla de términos en vez de abrir otra hoja.
+La aceptación se conserva para reintentar si falla la red; cambiar el nombre, el correo o
+el flujo, cancelar el registro o reiniciar la app obliga a leerla y aceptarla de nuevo.
 Si todo el contenido cabe en pantalla, no se exige un desplazamiento imposible. El inicio
 de sesión, la recuperación y la consola web no incorporan este paso.
 
@@ -237,8 +238,8 @@ App/
 
 ### Inicio, navegación e historial
 
-- Inicio con la última lectura real, acceso a equipos, estado de respaldo y acceso al historial; sin métricas de ejemplo. Se adapta a tema claro/oscuro y español/inglés.
-- Navegación inferior persistente entre Inicio, Historial y Ajustes. Se oculta durante la medición y el onboarding.
+- Inicio sobre fondo verde con una sola acción protagonista, «Medir». La sonda para medir se elige sólo en su encabezado: con una sonda se muestra su nombre; con varias, un desplegable con selección explícita. La selección se recuerda por cuenta y se restaura sólo si el acceso sigue vigente. Sin métricas de ejemplo; tema claro/oscuro y español/inglés.
+- Barra inferior fija con Inicio, Mis dispositivos, Mediciones y Configuración. Se oculta durante la captura y el onboarding. «Mis dispositivos» es consulta: tocar una sonda abre su ficha y nunca cambia la sonda usada para medir.
 - Historial con actualización al deslizar, estados de carga/error, filtros táctiles de 48 dp y etiqueta de respaldo por lectura.
 - Caché del historial consultado (hasta 200 lecturas por consulta), aislada por cuenta y equipo. Sin red se combina con la cola pendiente; los registros confirmados se identifican también por `client_uuid` para evitar duplicados visuales. No equivale a descargar todo el historial. La app no crea ni selecciona campos: consulta las lecturas sin filtrar por `field_name` y envía ese atributo vacío en nuevas mediciones por compatibilidad con el esquema. Los nombres de registros anteriores se conservan; los cachés antiguos por campo se recuperan cuando aún no existe el caché unificado del equipo.
 - Bienvenida con ilustración ajustada al espacio disponible y acciones fijas; permite desplazar texto ampliado cuando no cabe. Selector de etapa en tarjetas de ancho completo con estado accesible.
@@ -498,31 +499,34 @@ El proceso de medición sigue una secuencia rigurosa y pedagógica:
    - Desconecta inmediatamente el enlace BLE para proteger la batería del ESP32.
 3. **Resultados, en una sola pantalla** ([`MeasurementExplorer`](src/components/MeasurementExplorer.tsx)):
    - **Veredicto y resumen:** el título de la fase y un panel con pestañas *Resumen*, *Qué hacer* y *Qué revisar*. **Ver plan global** abre el diagnóstico de conjunto: suelo, fase elegida y pronóstico (lluvias, olas de calor o heladas). En **Pre-siembra** incluye qué cultivos conviene sembrar.
-   - **Grid 2×5 con semáforo** (§5.3). Al tocar una tarjeta se abre su detalle con pestañas *Estado*, *Recomendación* y *Control*, y botones para pasar al parámetro siguiente o anterior.
+   - **Lecturas con semáforo** (§5.3), repartidas en las pestañas *Suelo*, *Nutrientes* (siempre «Sin validar») y *Ambiente*, dentro de las secciones *Resumen*, *Lecturas*, *Consejos* y *Pronóstico*. Al tocar una tarjeta se abre su detalle con pestañas *Estado*, *Recomendación* y *Control*, y botones para pasar al parámetro siguiente o anterior.
    - **Pronóstico** de cinco días y **Guardar resultado**. La lectura puede guardarse mientras el pronóstico carga.
 4. **Después de guardar:** el recordatorio `CalibrationReminderModal` pide limpiar y secar los electrodos de acero inoxidable. No hay más pantallas: la app no dibuja mapas.
 
 ### 4.4. Historial de mediciones
 
 `HistoryScreen` conserva las cuatro etapas, fechas, valores, diagnóstico y estado local/nube.
-Cada fila abre `MeasurementDetailModal`. La navegación principal contiene Inicio, Historial
-y Ajustes: no hay mapas, perímetros, círculos ni accesos cartográficos en los resultados.
+Cada fila abre `MeasurementDetailModal`. El historial vive en la pestaña Mediciones, con
+filtros de sonda y etapa propios, distintos de la sonda elegida para medir: no hay mapas,
+perímetros, círculos ni accesos cartográficos en los resultados.
 La ubicación sigue siendo opcional para coordenadas de las lecturas y consulta meteorológica.
 La sincronización automática depende de `OfflineBanner`, no de abrir una pantalla de mapa.
 
 ### 4.5. Ajustes, perfil y dispositivos
 
-Ajustes organiza las opciones en submenús: Mi perfil, Mis dispositivos, Avisos, Notificaciones,
-Actualizaciones, Idioma, Apariencia, Permisos del teléfono, Datos y sincronización,
-Contacto y Acerca de y privacidad. Administración del equipo sólo aparece para quien
+Configuración abre un índice por categorías ([`settingsNavigation.ts`](src/utils/settingsNavigation.ts)):
+**Cuenta** (Perfil), **Preferencias** (Notificaciones, Idioma, Apariencia y Permisos del
+teléfono), **Equipos y datos** (Actualizaciones, Datos y sincronización y Compartir acceso)
+y **Ayuda y privacidad** (Contacto y Acerca de y privacidad). Cada subpantalla vuelve a su
+categoría. Administración del equipo sólo aparece para quien
 administra al menos un equipo; el servidor verifica el rol para cada operación.
 La configuración del campo ya no forma parte de Ajustes. Cerrar sesión es una acción
 separada al final, en rojo, con aviso si quedan mediciones pendientes.
 
 - **Perfil:** nombre y apellido desde `profiles`, correo y verificación desde Auth;
   cambio de contraseña con comprobación de la contraseña actual y las mismas reglas del registro.
-- **Dispositivos:** selección, rol, última conexión, firmware informado, batería cuando
-  está disponible, registro BLE y QR temporal. El ID permanente no sustituye una invitación.
+- **Dispositivos:** consulta de rol, última conexión, firmware informado y batería cuando
+  está disponible; el QR temporal se muestra desde Compartir acceso. El ID permanente no sustituye una invitación.
 - **Preferencias:** español/inglés, unidades y tema claro/oscuro/sistema. Se guardan por
   cuenta en el teléfono; los cambios remotos pendientes se reintentan al recuperar conexión.
 - **Avisos:** bandeja persistente por cuenta para solicitudes de acceso, aprobaciones,
@@ -854,7 +858,7 @@ el remitente y las cabeceras reales. Ver [configuración de correo](../supabase/
 
 ### 12.2. Pantallas posteriores al login: implementación y mejoras
 
-**Pendiente por decisión del equipo (02-10-2026).** La entrada (bienvenida, permisos, registro, código por correo y contraseña) se da por cerrada; la implementación y las mejoras de las pantallas que siguen al login quedan para una etapa posterior y no se abordan mientras tanto.
+**Implementado en código, pendiente de revisión visual (03-10-2026).** El rediseño de las pantallas que siguen al acceso está en el código y cubierto por pruebas de lógica (sección 10 de [TASK_PERMISSIONS](TASK_PERMISSIONS.md#10-plan-de-diseño-después-del-acceso-y-ajuste-de-contraseñas)): barra inferior, selección de sonda por cuenta, Inicio, vinculación sin nombrar la sonda, QR con pausa y bloqueo, pantalla de carga de la medición, resultados por grupos, historial y Configuración por categorías. Falta revisarlo en teléfono (tamaños, temas, idiomas, texto grande, teclado y lectores de pantalla).
 
 Lo hecho hasta ahora es el pulido y los cimientos:
 

@@ -57,9 +57,10 @@ import { PermissionsScreen } from './src/screens/PermissionsScreen';
 import { hasReviewedPermissions } from './src/utils/permissionState';
 import { DashboardScreen } from './src/screens/DashboardScreen';
 import { BottomNavigation } from './src/components/BottomNavigation';
+import { rememberSelectedDevice, restoreSelectedDevice } from './src/services/deviceSelectionService';
 import type { AppLanguage } from './src/types/preferences';
 
-type Route = 'dashboard' | 'measure' | 'settings' | 'devices' | 'history' | 'administration';
+type Route = 'dashboard' | 'measure' | 'settings' | 'devices' | 'history' | 'administration' | 'link-device';
 const WELCOME_KEY = '@terrasense/welcome-complete-v1';
 void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
@@ -115,6 +116,9 @@ export default function App() {
     const current = session?.user.id ?? null;
     if (previousSessionId.current && previousSessionId.current !== current) {
       setInboxOpen(false); setPendingAlertId(null);
+      useAppStore.getState().setDevice(null);
+      useAppStore.getState().setPoints([]);
+      setRoute('dashboard'); setNotificationDeviceId(null);
     }
     if (current) { registrationDraft.current = null; pendingRegistrationIdentity.current = null; setLegalFromRegistration(false); }
     previousSessionId.current = current;
@@ -146,7 +150,7 @@ export default function App() {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
       if (detailPoint) { setDetailPoint(null); return true; }
       if (inboxOpen && route !== 'measure') { setInboxOpen(false); setPendingAlertId(null); return true; }
-      if (route === 'measure') return false;
+      if (route === 'measure' || route === 'link-device') return false;
       if (route !== 'dashboard') { setRoute(route === 'devices' ? devicesOrigin : route === 'administration' ? 'settings' : 'dashboard'); return true; }
       return false;
     });
@@ -310,9 +314,10 @@ export default function App() {
       }),
       devSkip,
     ] as const))
-      .then(([state, devSkip]) => {
+      .then(async ([state, devSkip]) => {
+        const selected = await restoreSelectedDevice(session.user.id, state.devices);
         if (!active) return;
-        setDevice(state.devices[0] ?? null);
+        setDevice(selected);
         setOnboardingComplete(state.completed || devSkip);
         setAwaitingDeviceApproval(!state.completed && (state.hasPendingRequests ?? false));
       })
@@ -365,7 +370,7 @@ export default function App() {
     const close = () => { setInboxOpen(false); setPendingAlertId(null); };
     if (destination === 'administration' && device) { setNotificationDeviceId(device.id); setRoute('administration'); close(); return; }
     if (destination === 'onboarding') { setOnboardingRetry(value => value + 1); close(); return; }
-    if (destination === 'devices' && device) { setDevice(device); setDevicesOrigin('dashboard'); setRoute('devices'); close(); return; }
+    if (destination === 'devices' && device) { setNotificationDeviceId(device.id); setDevicesOrigin('dashboard'); setRoute('devices'); close(); return; }
     if (destination === 'stay') return;
     throw new NotificationUnavailableError();
   };
@@ -513,12 +518,14 @@ export default function App() {
       onBack={() => { setInboxOpen(false); setPendingAlertId(null); }} onOpen={openNotification} />;
   } else if (entry === 'approval') {
     content = <WaitingApprovalScreen onApproved={device => {
+      if (session) void rememberSelectedDevice(session.user.id, device.id).catch(() => undefined);
       setDevice(device); setOnboardingComplete(true); setAwaitingDeviceApproval(false); setRoute('dashboard');
     }} onDismiss={() => { setAwaitingDeviceApproval(false); setOnboardingRetry(value => value + 1); }} />;
   } else if (entry === 'onboarding') {
     content = (
       <OnboardingScreen
         onComplete={(device) => {
+          if (session) void rememberSelectedDevice(session.user.id, device.id).catch(() => undefined);
           setDevice(device);
           setOnboardingComplete(true);
           setRoute('dashboard');
@@ -531,16 +538,20 @@ export default function App() {
         }}
       />
     );
+  } else if (route === 'link-device') {
+    content = <OnboardingScreen addingDevice onCancel={() => setRoute('dashboard')} onComplete={() => {
+      useAppStore.getState().invalidateData(); setRoute('dashboard');
+    }} />;
   } else if (route === 'settings') {
-    content = <FieldSettingsScreen onClose={() => setRoute('dashboard')} onOpenInbox={() => setInboxOpen(true)} onOpenDevices={() => { setDevicesOrigin('settings'); setRoute('devices'); }} onOpenAdministration={() => setRoute('administration')} />;
+    content = <FieldSettingsScreen key={session?.user.id} onClose={() => setRoute('dashboard')} onOpenInbox={() => setInboxOpen(true)} onOpenAdministration={() => setRoute('administration')} />;
   } else if (route === 'administration') {
-    content = <AdministrationScreen initialDeviceId={notificationDeviceId} onClose={() => { setNotificationDeviceId(null); setRoute('settings'); }} />;
+    content = <AdministrationScreen key={session?.user.id} initialDeviceId={notificationDeviceId} onClose={() => { setNotificationDeviceId(null); setRoute('settings'); }} />;
   } else if (route === 'history') {
     content = (
       <HistoryScreen onClose={() => setRoute('dashboard')} onOpenDetail={handleOpenDetail} />
     );
   } else if (route === 'devices') {
-    content = <DevicesScreen onClose={() => setRoute(devicesOrigin)} />;
+    content = <DevicesScreen key={`${session?.user.id}:${notificationDeviceId ?? ''}`} initialDeviceId={notificationDeviceId} onClose={() => { setNotificationDeviceId(null); setRoute(devicesOrigin); }} />;
   } else if (route === 'measure') {
     content = (
       <MeasureScreen onDone={() => setRoute('dashboard')} onCancel={() => setRoute('dashboard')} />
@@ -549,9 +560,7 @@ export default function App() {
     content = (
       <DashboardScreen
         onStartMeasurement={() => setRoute('measure')}
-        onOpenHistory={() => setRoute('history')}
-        onOpenDevices={() => { setDevicesOrigin('dashboard'); setRoute('devices'); }}
-        onOpenDetail={handleOpenDetail}
+        onLinkDevice={() => setRoute('link-device')}
       />
     );
   }
@@ -559,15 +568,15 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }} onLayout={() => { void SplashScreen.hideAsync().catch(() => undefined); }}>
       <SafeAreaProvider>
-        <StatusBar style={entry === 'loading' || isDark ? 'light' : 'dark'} />
+        <StatusBar style={entry === 'loading' || entry === 'app' && route === 'dashboard' || isDark ? 'light' : 'dark'} />
         <View style={{ display: ['loading', 'language', 'terms', 'welcome', 'auth', 'recovery'].includes(entry) ? 'none' : 'flex' }}>
           <OfflineBanner />
         </View>
         <ScreenGuide enabled={!recoveryLinkError && ['app', 'onboarding', 'approval'].includes(entry)} scope={`${entry}:${route}`}>
         {session && !inboxOpen && ['approval', 'onboarding'].includes(entry) && <InboxShortcut onPress={() => setInboxOpen(true)} />}
         {content}
-        {entry === 'app' && !inboxOpen && !recoveryLinkError && ['dashboard', 'history', 'settings'].includes(route) && (
-          <BottomNavigation route={route} onNavigate={setRoute} />
+        {entry === 'app' && !inboxOpen && !recoveryLinkError && ['dashboard', 'devices', 'history', 'settings', 'administration'].includes(route) && (
+          <BottomNavigation route={route} onNavigate={next => { setNotificationDeviceId(null); setDevicesOrigin('dashboard'); setRoute(next); }} />
         )}
         </ScreenGuide>
         <MeasurementDetailModal point={detailPoint} onClose={() => setDetailPoint(null)} />

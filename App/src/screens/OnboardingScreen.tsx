@@ -20,13 +20,17 @@ import { Typography } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { AppIcon } from '../components/AppIcon';
-import { AuthLayout, AuthHeading, AuthButton, AuthField, SoilArtwork, authStyles } from '../components/auth/AuthUI';
+import { SoilArtwork, authStyles } from '../components/auth/AuthUI';
+import { EntryLayout, EntryHeading, EntryButton } from '../components/entry/EntryUI';
+import { AccessField } from '../components/auth/AccessField';
+import { newPendingTarget } from '../utils/approvalFlow';
+import { createQrScanGate } from '../utils/qrScanGate';
 import { enableDevSkip } from '../utils/devSkipOnboarding';
 import { createDeveloperTap } from '../utils/developerTap';
 import { askForAccess } from '../components/permissionPrompt';
 import { createAccountOperation } from '../utils/accountOperation';
 import { PERMISSION_COPY, pick } from '../utils/permissionCopy';
-import { requestDeviceAccess, registerDevice, listMyDevices, listMyDeviceMemberships } from '../services/deviceService';
+import { requestDeviceAccess, registerDevice, listMyDevices, listMyDeviceMemberships, listPendingDeviceRequests } from '../services/deviceService';
 import { WaitingApprovalScreen } from './WaitingApprovalScreen';
 import { completeOnboarding } from '../services/onboardingService';
 import { useAppStore } from '../store/useAppStore';
@@ -50,20 +54,25 @@ interface Props {
   onComplete: (device: DeviceRow) => void;
   /** Sólo desarrollo: entra a Dashboard sin equipo. */
   onDevSkip?: () => void;
+  onCancel?: () => void;
+  addingDevice?: boolean;
 }
 
-export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => {
+export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip, onCancel, addingDevice = false }) => {
   const { colors, isDark } = useAppTheme();
   const { t, language } = useTranslation();
   const setDevice = useAppStore((state) => state.setDevice);
 
   const [checkingRequests, setCheckingRequests] = useState(true);
+  const [checkFailed, setCheckFailed] = useState(false);
+  const [checkAttempt, setCheckAttempt] = useState(0);
   const [step, setStep] = useState<Step>('choice');
   const [pending, setPending] = useState(false);
+  const [targetDeviceId, setTargetDeviceId] = useState<string | undefined>();
   const [joining, setJoining] = useState(false);
   const [inviteCode, setInviteCode] = useState('');
   const [scanned, setScanned] = useState(false);
-  const scanLatch = useRef(false);
+  const scanGate = useRef(createQrScanGate());
   const operation = useRef(false);
   const mounted = useRef(true);
   // Cuenta y generación de las operaciones que esperan un permiso: al desmontar o cambiar de cuenta
@@ -81,17 +90,18 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
     if (mounted.current) { setDevice(null); onDevSkip(); }
   };
   const logoTap = useRef(createDeveloperTap(__DEV__, () => { void skipFromLogo(); }));
-  useEffect(() => { mounted.current = true; accountOperation.current.mount(); const unsubscribe = useAuthStore.subscribe(() => accountOperation.current.cancelIfAccountChanged()); return () => { mounted.current = false; unsubscribe(); accountOperation.current.unmount(); }; }, []);
-  const rejectedPayload = useRef<string | null>(null);
+  useEffect(() => { mounted.current = true; accountOperation.current.mount(); const unsubscribe = useAuthStore.subscribe(() => accountOperation.current.cancelIfAccountChanged()); return () => { mounted.current = false; unsubscribe(); scanGate.current.cancel(); accountOperation.current.unmount(); }; }, []);
+
 
   const rearmScanner = useCallback(() => {
-    scanLatch.current = false;
+    if (!mounted.current || !accountOperation.current.begin()()) return;
+    scanGate.current.arm();
     setScanned(false);
   }, []);
   const [pairingState, setPairingState] = useState<PairingState>('idle');
   useResetGuide(`${step}:${pairingState}`);
   const [probe, setProbe] = useState<ProbeIdentity | null>(null);
-  const [deviceName, setDeviceName] = useState(() => t('Mi sonda TerraSense', 'My TerraSense probe'));
+
 
   const friendlyError = useCallback((error: unknown): string => {
     const message = error instanceof Error ? error.message : String(error);
@@ -106,40 +116,49 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
 
   const finish = useCallback(
     async (method: OnboardingMethod, device: DeviceRow) => {
-      if (!mounted.current || finished.current) return;
+      const active = accountOperation.current.begin();
+      if (!active() || finished.current) return;
       finished.current = true;
-      setDevice(device);
+      if (!addingDevice) setDevice(device);
       try {
-        await completeOnboarding(method, device);
+        if (!addingDevice) await completeOnboarding(method, device);
       } catch (error) {
         console.warn('[TerraSense] No se pudo guardar el sello de onboarding:', error);
       }
-      if (mounted.current) onComplete(device);
+      if (active()) onComplete(device);
     },
-    [onComplete, setDevice],
+    [onComplete, setDevice, addingDevice],
   );
 
   useEffect(() => {
+    const accountActive = accountOperation.current.begin();
     let active = true;
     let polling = false;
     const check = async () => {
       if (polling || operation.current || finished.current) return;
       polling = true;
       try {
+        if (addingDevice) {
+          await listMyDevices();
+          if (!active || !accountActive()) return;
+          setCheckFailed(false);
+          return;
+        }
         const memberships = await listMyDeviceMemberships();
-        if (!active || operation.current || finished.current) return;
+        if (!active || !accountActive() || operation.current || finished.current) return;
         setPending(!memberships.some(m => m.is_authorized) && memberships.some(m => !m.is_authorized));
         if (memberships.some(m => m.is_authorized)) {
           const devices = await listMyDevices();
-          if (active && !operation.current && devices[0]) await finish('qr', devices[0]);
+          if (active && accountActive() && !operation.current && devices[0]) await finish('qr', devices[0]);
         }
-      } catch { }
+        setCheckFailed(false);
+      } catch { if (active && accountActive()) setCheckFailed(true); }
       finally { polling = false; if (active) setCheckingRequests(false); }
     };
     void check();
-    const timer = setInterval(() => void check(), 10000);
+    const timer = addingDevice ? undefined : setInterval(() => void check(), 10000);
     return () => { active = false; clearInterval(timer); };
-  }, [finish]);
+  }, [finish, addingDevice, checkAttempt]);
 
   const openQr = useCallback(async () => {
     if (operation.current) return;
@@ -154,49 +173,52 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
         if (access.deniedNow) Alert.alert(pick(PERMISSION_COPY.camera.name, language), pick(PERMISSION_COPY.camera.denied, language));
         return;
       }
-      scanLatch.current = false;
-      rejectedPayload.current = null;
+      scanGate.current.arm(true);
       setScanned(false);
       setStep('qr');
     } catch {
       if (active()) Alert.alert(t('No pudimos abrir la cámara', 'Could not open camera'), t('Revisa los permisos del teléfono e inténtalo otra vez.', 'Check phone permissions and try again.'));
-    } finally { operation.current = false; }
+    } finally { if (active()) operation.current = false; }
   }, [language, t]);
 
   const handleBarcode = useCallback(
     async ({ data }: BarcodeScanningResult) => {
-      if (!mounted.current || scanLatch.current || operation.current) return;
-      if (rejectedPayload.current === data) return;
-      scanLatch.current = true;
+      const active = accountOperation.current.begin();
+      if (!active() || operation.current || !scanGate.current.accept(data)) return;
       setScanned(true);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-
       const code = parseDeviceQrPayload(data);
       if (!code) {
-        rejectedPayload.current = data;
+        scanGate.current.reject(data);
         Alert.alert(
           t('QR no reconocido', 'QR not recognized'),
-          t('Este código no pertenece a un equipo TerraSense. Pide a un miembro aprobado que abra “Mis dispositivos” y muestre el QR de la sonda.', 'This code does not belong to a TerraSense device. Ask an approved member to open “My devices” and show the probe QR.'),
-          [{ text: t('Escanear otra vez', 'Scan again'), onPress: rearmScanner }],
+          t('Este código no pertenece a un equipo TerraSense. Pide a un miembro aprobado que abra “Configuración > Equipos y datos > Compartir acceso” y muestre el QR de la sonda.', 'This code does not belong to a TerraSense device. Ask an approved member to open “Settings > Devices and data > Share access” and show the probe QR.'),
+          [{ text: t('Escanear otra vez', 'Scan again'), onPress: () => { if (active()) rearmScanner(); } }],
         );
         return;
       }
 
       operation.current = true;
       setJoining(true);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       try {
+        const before = addingDevice ? await listPendingDeviceRequests() : [];
+        if (!active()) return;
         const device = await requestDeviceAccess(code);
-        if (!mounted.current) return;
+        if (!active()) return;
         if (device) await finish('qr', device);
-        else { setPending(true); setStep('choice'); }
+        else {
+          const after = await listPendingDeviceRequests();
+          if (!active()) return;
+          setTargetDeviceId(newPendingTarget(before, after));
+          setPending(true); setStep('choice');
+        }
       } catch (error) {
-        if (!mounted.current) return;
+        if (!active()) return;
         Alert.alert(t('No se pudo vincular', 'Could not link'), friendlyError(error), [
-          { text: t('Reintentar', 'Try again'), onPress: rearmScanner },
+          { text: t('Reintentar', 'Try again'), onPress: () => { if (active()) rearmScanner(); } },
         ]);
       } finally {
-        operation.current = false;
-        if (mounted.current) setJoining(false);
+        if (active()) { operation.current = false; setJoining(false); }
       }
     },
     [finish, friendlyError, rearmScanner, t],
@@ -209,18 +231,25 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
       Alert.alert(t('Código de invitación inválido', 'Invalid invitation code'), t('Copia el código temporal que aparece junto al QR. El número de serie de la sonda no sirve para solicitar acceso.', 'Copy the temporary code displayed beside the QR. The probe serial number cannot request access.'));
       return;
     }
+    const active = accountOperation.current.begin();
     operation.current = true;
     setJoining(true);
     try {
+      const before = addingDevice ? await listPendingDeviceRequests() : [];
+      if (!active()) return;
       const device = await requestDeviceAccess(token);
-      if (!mounted.current) return;
+      if (!active()) return;
       if (device) await finish('qr', device);
-      else { setPending(true); setStep('choice'); }
+      else {
+          const after = await listPendingDeviceRequests();
+          if (!active()) return;
+          setTargetDeviceId(newPendingTarget(before, after));
+          setPending(true); setStep('choice');
+        }
     } catch (error) {
-      if (mounted.current) Alert.alert(t('No se pudo solicitar acceso', 'Could not request access'), friendlyError(error));
+      if (active()) Alert.alert(t('No se pudo solicitar acceso', 'Could not request access'), friendlyError(error));
     } finally {
-      operation.current = false;
-      if (mounted.current) setJoining(false);
+      if (active()) { operation.current = false; setJoining(false); }
     }
   };
 
@@ -246,7 +275,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
         throw new Error(t('Mantén el botón PAIR de la sonda 3 segundos, hasta que la luz azul parpadee, y vuelve a buscar.', 'Hold the probe PAIR button for 3 seconds, until the blue light blinks, and search again.'));
       }
       setProbe(found);
-      setDeviceName(found.name);
+
       setPairingState('found');
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     } catch (error) {
@@ -258,31 +287,30 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
 
   const savePairedProbe = useCallback(async () => {
     if (!probe || operation.current) return;
-    if (!deviceName.trim()) {
-      Alert.alert(t('Nombre de la sonda', 'Probe name'), t('Escribe un nombre para reconocer tu equipo.', 'Enter a name to identify your probe.'));
-      return;
-    }
+    const active = accountOperation.current.begin();
     operation.current = true;
     setPairingState('saving');
     try {
-      const device = await registerDevice(deviceName.trim(), probe.deviceCode);
+      const device = await registerDevice(probe.name.trim() || t('Sonda TerraSense', 'TerraSense probe'), probe.deviceCode);
+      if (!active()) return;
       // Aviso en la sonda (verde y buzzer); no retiene ni deshace el registro.
-      void import('../services/bleService').then((ble) => ble.confirmPairing(probe.bleId, probe.deviceCode));
+      void import('../services/bleService').then((ble) => ble.confirmPairing(probe.bleId, probe.deviceCode)).catch(() => {});
       await finish('pairing', device);
     } catch (error) {
-      if (!mounted.current) return;
+      if (!active()) return;
       setPairingState('found');
       Alert.alert(t('No se pudo registrar el equipo', 'Could not register device'), friendlyError(error));
-    } finally { operation.current = false; }
-  }, [deviceName, finish, friendlyError, probe, t]);
+    } finally { if (active()) operation.current = false; }
+  }, [finish, friendlyError, probe, t]);
 
   const backToChoice = useCallback(() => {
-    if (joining || pairingState === 'saving') return;
+    if (pairingState === 'saving') return;
     pairingRun.current += 1;
     accountOperation.current.cancel();
     operation.current = false;
+    setJoining(false);
     setStep('choice');
-    scanLatch.current = false;
+    scanGate.current.cancel();
     setScanned(false);
     setPairingState('idle');
     setProbe(null);
@@ -290,36 +318,42 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
 
   useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (joining || pairingState === 'saving' || (operation.current && step !== 'pairing')) return true;
+      if (pairingState === 'saving') return true;
       if (step !== 'choice') { backToChoice(); return true; }
+      if (onCancel) { accountOperation.current.cancel(); scanGate.current.cancel(); onCancel(); return true; }
       return false;
     });
     return () => listener.remove();
-  }, [step, joining, pairingState, backToChoice]);
+  }, [step, joining, pairingState, backToChoice, onCancel]);
 
-  if (pending) return <WaitingApprovalScreen onApproved={device => void finish('qr', device)} onDismiss={() => setPending(false)} />;
+  if (pending) return <WaitingApprovalScreen onApproved={device => void finish('qr', device)} addingDevice={addingDevice} targetDeviceId={targetDeviceId} onCancel={onCancel} onDismiss={() => setPending(false)} />;
   if (checkingRequests) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center' }}><ActivityIndicator color={colors.primary} /></SafeAreaView>;
 
-  if (step === 'invite') return <AuthLayout toolbar={<TouchableOpacity accessibilityRole="button" disabled={joining} onPress={backToChoice} style={authStyles.link}><Text style={{ color: colors.primary }}>{t('Volver', 'Back')}</Text></TouchableOpacity>}>
-    <AuthHeading eyebrow={t('EQUIPO COMPARTIDO', 'SHARED DEVICE')} title={t('Usa tu invitación.', 'Use your invitation.')}
-      description={t('Pide a un miembro aprobado que abra el QR en Mis dispositivos. Puedes escanearlo o escribir el código temporal de esa pantalla. El administrador deberá aprobar tu solicitud.', 'Ask an approved member to open the QR in My devices. Scan it or enter the temporary code from that screen. The administrator must approve your request.')} />
-    <AuthButton secondary label={t('Escanear QR', 'Scan QR')} disabled={joining} onPress={() => { void openQr(); }} />
-    <AuthField label={t('Código de invitación', 'Invitation code')} value={inviteCode} onChangeText={setInviteCode} editable={!joining} maxLength={100} autoCapitalize="none" autoCorrect={false} />
-    <AuthButton label={t('Solicitar acceso', 'Request access')} busy={joining} disabled={!inviteCode.trim()} onPress={() => { void joinByCode(); }} />
-  </AuthLayout>;
+  if (checkFailed) return <EntryLayout footer={<EntryButton label={t('Reintentar', 'Try again')} onPress={() => { setCheckingRequests(true); setCheckAttempt(value => value + 1); }} />}><EntryHeading title={t('No pudimos revisar tu cuenta.', 'Could not check your account.')} description={t('Revisa tu conexión e inténtalo otra vez.', 'Check your connection and try again.')} /></EntryLayout>;
+
+  if (step === 'invite') return <EntryLayout keyboardAware header={<EntryButton secondary label={t('Volver', 'Back')} onPress={backToChoice} />}
+    footer={<EntryButton label={t('Solicitar acceso', 'Request access')} busy={joining} disabled={!inviteCode.trim()} onPress={() => { void joinByCode(); }} />}>
+    <View style={{ gap: 18 }}>
+      <EntryHeading eyebrow={t('EQUIPO COMPARTIDO', 'SHARED DEVICE')} title={t('Usa tu invitación.', 'Use your invitation.')}
+        description={t('Pide el QR o código temporal en Configuración > Equipos y datos > Compartir acceso. El administrador debe aprobar tu solicitud.', 'Ask for the QR or temporary code in Settings > Devices and data > Share access. The administrator must approve your request.')} />
+      <EntryButton secondary label={t('Escanear QR', 'Scan QR')} disabled={joining} onPress={() => { void openQr(); }} />
+      <AccessField label={t('Código de invitación', 'Invitation code')} value={inviteCode} onChangeText={setInviteCode} editable={!joining} maxLength={100} autoCapitalize="none" autoCorrect={false} />
+    </View>
+  </EntryLayout>;
 
   if (step === 'qr') {
     return (
       <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
-        <ScrollView contentContainerStyle={{ flexGrow: 1, width: '100%', maxWidth: 520, alignSelf: 'center' }}>
+        <View style={{ flex: 1 }}>
         <View style={styles.header}>
-          <TouchableOpacity accessibilityRole="button" disabled={joining} onPress={backToChoice} style={styles.headerButton} hitSlop={12}>
+          <TouchableOpacity accessibilityRole="button" onPress={backToChoice} style={styles.headerButton} hitSlop={12}>
             <Text style={[Typography.bodyBold, { color: colors.primary }]}>‹ {t('Volver', 'Back')}</Text>
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: colors.text }]}>{t('Escanear QR', 'Scan QR')}</Text>
           <View style={styles.headerButton} />
         </View>
 
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
         <View style={styles.cameraWrap}>
           <CameraView
             style={StyleSheet.absoluteFill}
@@ -331,7 +365,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
           {joining && (
             <View style={styles.cameraBusy}>
               <ActivityIndicator size="large" color="#FFFFFF" />
-              <Text style={styles.cameraBusyText}>{t('Vinculando equipo…', 'Linking device…')}</Text>
+              <Text style={styles.cameraBusyText}>{t('Solicitando acceso…', 'Requesting access…')}</Text>
             </View>
           )}
         </View>
@@ -339,41 +373,38 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
         <View style={styles.explanation}>
           <Text style={[styles.explanationTitle, { color: colors.text }]}>{t('Pídeselo a un miembro del equipo', 'Ask a team member')}</Text>
           <Text style={[styles.explanationText, { color: colors.textSecondary }]}>
-            {t('Un miembro aprobado debe abrir “Mis dispositivos” en su app y mostrarte el QR. Al escanearlo solicitarás acceso al administrador.', 'An approved member must open “My devices” in their app and show you the QR. Scanning it requests administrator approval.')}
+            {t('Un miembro aprobado debe abrir “Configuración > Equipos y datos > Compartir acceso” en su app y mostrarte el QR. Al escanearlo solicitarás acceso al administrador.', 'An approved member must open “Settings > Devices and data > Share access” in their app and show you the QR. Scanning it requests administrator approval.')}
           </Text>
         </View>
-        </ScrollView>
+        </ScrollView></View>
       </SafeAreaView>
     );
   }
 
   if (step === 'pairing') {
     const waiting = pairingState === 'scanning' || pairingState === 'saving';
-    return <AuthLayout toolbar={<TouchableOpacity accessibilityRole="button" disabled={pairingState === 'saving'} onPress={backToChoice} style={authStyles.link}>
-      <Text style={{ color: colors.primary }}>{t('Volver', 'Back')}</Text>
-    </TouchableOpacity>}>
-      <AuthHeading eyebrow={t('VINCULA TU SONDA', 'PAIR YOUR PROBE')} title={probe ? t('La encontramos.', 'There it is.') : t('Acerca tu sonda.', 'Bring your probe closer.')}
-        description={probe ? t('Dale un nombre para reconocerla cuando trabajes en el campo.', 'Give it a name you will recognize when working in the field.') : t('Enciéndela, mantén PAIR por 3 segundos y acércala a menos de 2 metros del teléfono.', 'Turn it on, hold PAIR for 3 seconds and keep it within 2 meters of your phone.')} />
-      {pairingState === 'scanning' ? <Animated.View entering={enterDown()} layout={layoutFlow()} accessibilityLiveRegion="polite" style={{ alignItems: 'center', paddingVertical: 24 }}>
-        <AppIcon name="probe" color={colors.primary} size={64} />
-        <ActivityIndicator color={colors.primary} style={{ marginTop: 24 }} />
-      </Animated.View> : <SoilArtwork variant={1} />}
-      {probe ? <Animated.View entering={enterDown()} layout={layoutFlow()} style={authStyles.form}>
-        <View style={{ borderLeftWidth: 3, borderColor: colors.primary, paddingLeft: 16, gap: 8 }}>
-          <Text style={[authStyles.eyebrow, { color: colors.primary }]}>{t('SONDA ENCONTRADA', 'PROBE FOUND')}</Text>
-          <Text style={[authStyles.body, { color: colors.text }]}>{probe.name}</Text>
-        </View>
-        <AuthField label={t('Nombre de la sonda', 'Probe name')} value={deviceName} onChangeText={setDeviceName} editable={!waiting} autoCapitalize="sentences" maxLength={80} />
-        <AuthButton label={t('Terminar configuración', 'Finish setup')} busy={waiting} onPress={() => { void savePairedProbe(); }} />
-      </Animated.View> : <AuthButton label={pairingState === 'scanning' ? t('Buscando sonda…', 'Searching for probe…') : t('Buscar mi sonda', 'Find my probe')} busy={waiting} onPress={() => { void startPairing(); }} />}
-      <Text style={[authStyles.body, { color: colors.textSecondary }]}>{t('Si es un equipo nuevo, tu cuenta quedará como administradora.', 'If this is a new device, your account will become its administrator.')}</Text>
-    </AuthLayout>;
+    return <EntryLayout header={<EntryButton secondary label={t('Volver', 'Back')} disabled={pairingState === 'saving'} onPress={backToChoice} />}
+      footer={<EntryButton label={probe ? t('Confirmar y vincular', 'Confirm and link') : t('Buscar mi sonda', 'Find my probe')} busy={waiting} onPress={() => { void (probe ? savePairedProbe() : startPairing()); }} />}>
+      <View style={{ gap: 18 }}>
+        <EntryHeading eyebrow={t('VINCULA TU SONDA', 'PAIR YOUR PROBE')} title={probe ? t('La encontramos.', 'There it is.') : t('Prepara tu sonda.', 'Prepare your probe.')}
+          description={probe ? t('Comprueba su identidad y confirma la vinculación.', 'Check its identity and confirm pairing.') : t('Enciéndela, mantén PAIR por 3 segundos y acércala a menos de 2 metros del teléfono.', 'Turn it on, hold PAIR for 3 seconds and keep it within 2 meters of your phone.')} />
+        {waiting ? <View accessibilityLiveRegion="polite" style={{ alignItems: 'center', gap: 16, paddingVertical: 24 }}>
+          <AppIcon name="probe" color={colors.primary} size={64} /><ActivityIndicator color={colors.primary} />
+          <Text style={{ color: colors.text }}>{pairingState === 'saving' ? t('Vinculando…', 'Linking…') : t('Buscando sonda…', 'Searching for probe…')}</Text>
+        </View> : <SoilArtwork variant={1} compact />}
+        {probe && <View style={{ gap: 8 }}><Text style={{ color: colors.text, fontWeight: '700' }}>{probe.name || t('Sonda TerraSense', 'TerraSense probe')}</Text><Text selectable style={{ color: colors.textSecondary }}>ID: {probe.deviceCode}</Text></View>}
+        <Text style={{ color: colors.textSecondary }}>{t('Si es un equipo nuevo, tu cuenta quedará como administradora.', 'If this is a new device, your account will become its administrator.')}</Text>
+      </View>
+    </EntryLayout>;
   }
 
-  return <AuthLayout onBrandPress={__DEV__ && onDevSkip ? () => { if (!operation.current) logoTap.current(); } : undefined}>
-    <AuthHeading eyebrow={t('TU CUENTA ESTÁ LISTA', 'YOUR ACCOUNT IS READY')} title={t('Ahora, tu sonda.', 'Now, your probe.')}
+  return <EntryLayout header={onCancel ? <EntryButton secondary label={t('Volver', 'Back')} onPress={() => { accountOperation.current.cancel(); scanGate.current.cancel(); onCancel(); }} /> : undefined}>
+    <EntryHeading eyebrow={t('TU CUENTA ESTÁ LISTA', 'YOUR ACCOUNT IS READY')} title={t('Ahora, tu sonda.', 'Now, your probe.')}
       description={t('Vincula un equipo para comenzar. Elige cómo te vas a conectar.', 'Link a device to get started. Choose how you will connect.')} />
-    <SoilArtwork variant={1} compact />
+    {/* Gesto sólo de desarrollo (sección 9): diez toques entran a Dashboard sin equipo. */}
+    {__DEV__ && onDevSkip
+      ? <Pressable guide={false} accessibilityRole="button" accessibilityLabel="TerraSense" onPress={() => { if (!operation.current) logoTap.current(); }}><SoilArtwork variant={1} compact /></Pressable>
+      : <SoilArtwork variant={1} compact />}
     <Animated.View layout={layoutFlow()} style={{ gap: 16 }}>
       <Animated.View entering={enterDown(100)}>
         <Pressable guideTitle={t("Usar invitación", "Use invitation")} guide={t("Solicita acceso con el QR o el código temporal de otro miembro del equipo.", "Requests access using another member’s temporary QR or code.")} onPress={() => { if (!operation.current) setStep('invite'); }} accessibilityRole="button"
@@ -420,7 +451,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip }) => 
         </Pressable>
       </Animated.View>
     </Animated.View>
-  </AuthLayout>;
+  </EntryLayout>;
 
 };
 
@@ -429,7 +460,7 @@ const styles = StyleSheet.create({
   header: { minHeight: 64, paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   headerButton: { width: 72, minHeight: 48, justifyContent: 'center' },
   headerTitle: { ...Typography.titleMedium, flexShrink: 1 },
-  optionCard: { minHeight: 160, borderRadius: 20, borderWidth: 1.5, padding: 24, flexDirection: 'row', alignItems: 'center' },
+  optionCard: { minHeight: 120, borderRadius: 20, borderWidth: 1.5, padding: 16, flexDirection: 'row', alignItems: 'center' },
   optionTitle: { fontSize: 22, lineHeight: 28, fontWeight: '600', letterSpacing: -0.5 },
   cameraWrap: { flex: 1, minHeight: 240, margin: 24, borderRadius: 24, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' },
   scannerFrame: { width: '75%', aspectRatio: 1, maxWidth: 260, borderWidth: 2, borderColor: '#FFFFFF', borderRadius: 24 },

@@ -218,10 +218,20 @@ export function decodeTelemetry(bytes: Uint8Array): SoilMeasurement {
   const u16 = (offset: number) => view.getUint16(offset, false); // big-endian, como Modbus
   const i16 = (offset: number) => view.getInt16(offset, false);
 
-  // Límites de las magnitudes, independientes del mapa Modbus del proveedor.
-  // Rechazar: recortar ocultaría errores de escala o registros intercambiados.
+  // Límites de las magnitudes, iguales a sueloPublicable() en Firmware/trama.h,
+  // que a su vez vienen del manual de la sonda adquirida (ComWinTop
+  // CWT-Soil-NPKPHCTH-S). Rechazar: recortar ocultaría errores de escala o
+  // registros intercambiados.
   if (u16(0) > 1000) throw new Error('Humedad de suelo BLE inválida: debe estar entre 0 y 100 %.');
+  const tempSuelo = i16(2);
+  if (tempSuelo < -400 || tempSuelo > 800) {
+    throw new Error('Temperatura de suelo BLE inválida: debe estar entre -40,0 y 80,0 °C.');
+  }
+  if (u16(4) > 20000) throw new Error('Conductividad eléctrica de suelo BLE inválida: debe ser de 0 a 20.000 µS/cm.');
   if (u16(6) > 140) throw new Error('pH de suelo BLE inválido: debe estar entre 0 y 14.');
+  if (u16(8) > 1999) throw new Error('Nitrógeno de suelo BLE inválido: debe ser de 0 a 1.999 mg/kg.');
+  if (u16(10) > 1999) throw new Error('Fósforo de suelo BLE inválido: debe ser de 0 a 1.999 mg/kg.');
+  if (u16(12) > 1999) throw new Error('Potasio de suelo BLE inválido: debe ser de 0 a 1.999 mg/kg.');
 
   const ambiente: AmbienteBme280 =
     version === 1 ? decodeAmbiente(bytes) : { airTemp: null, airHumidity: null, airPressure: null };

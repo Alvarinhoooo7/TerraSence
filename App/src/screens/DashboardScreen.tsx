@@ -1,110 +1,109 @@
-import { MeasurementExplorer } from '../components/MeasurementExplorer';
-import { presentationFromPoint } from '../engine/measurementPresentation';
-import { BrandLogo } from '../components/BrandLogo';
-import { GuideTouchable as TouchableOpacity, GuideScrollView as ScrollView } from '../components/guide/GuideControls';
-import React from 'react';
-import { RefreshControl, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Typography, VERDICT_META } from '../constants/theme';
+import { GuideTouchable as Button, GuideScrollView as ScrollView } from '../components/guide/GuideControls';
+import { GuideModal } from '../components/guide/GuideModal';
+import { BrandLogo } from '../components/BrandLogo';
+import { AppIcon } from '../components/AppIcon';
+import { SPLASH_BACKGROUND } from '../components/LoadingScreen';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
-import { useMeasurementHistory } from '../hooks/useMeasurementHistory';
+import { useLinkedDevices } from '../hooks/useLinkedDevices';
 import { useAppStore } from '../store/useAppStore';
-import { AppIcon } from '../components/AppIcon';
-import type { MeasurementPoint } from '../types/app';
+import { useAuthStore } from '../store/useAuthStore';
+import { rememberSelectedDevice } from '../services/deviceSelectionService';
+import { formatDeviceId } from '../utils/deviceId';
+import type { DeviceRow } from '../types/app';
 
-interface Props {
-  onStartMeasurement: () => void;
-  onOpenHistory: () => void;
-  onOpenDevices: () => void;
-  onOpenDetail: (point: MeasurementPoint) => void;
+interface Props { onStartMeasurement: () => void; onLinkDevice: () => void }
+const mint = '#C5E8AF';
+
+export function DashboardScreen({ onStartMeasurement, onLinkDevice }: Props) {
+  const { colors } = useAppTheme(); const { t } = useTranslation();
+  const { height, fontScale } = useWindowDimensions();
+  const compact = height < 700 || fontScale > 1.2;
+  const device = useAppStore(s => s.device);
+  const accountId = useAuthStore(s => s.session?.user.id);
+  const { devices, loading, error, refresh } = useLinkedDevices();
+  const [selector, setSelector] = useState(false); const [notice, setNotice] = useState('');
+  useEffect(() => {
+    if (loading || error || !device) return;
+    const fresh = devices.find(d => d.id === device.id);
+    if (!fresh) {
+      useAppStore.getState().setDevice(null);
+      setNotice(t('Esta sonda ya no está disponible. Elige otra para medir.', 'This probe is no longer available. Choose another to measure.'));
+    } else if (fresh !== device) useAppStore.getState().setDevice(fresh);
+  }, [devices, loading, error]);
+  const choose = (next: DeviceRow) => {
+    if (!accountId || useAuthStore.getState().session?.user.id !== accountId) return;
+    useAppStore.getState().setDevice(next); setSelector(false); setNotice('');
+    void rememberSelectedDevice(accountId, next.id).catch(() => {
+      if (useAuthStore.getState().session?.user.id === accountId) setNotice(t('Sonda seleccionada. No se pudo recordar para el próximo inicio.', 'Probe selected. Could not remember it for the next launch.'));
+    });
+  };
+  const openSelector = () => { setSelector(true); void refresh(); };
+  return <SafeAreaView edges={['top', 'left', 'right']} style={styles.root}>
+    <View style={styles.header}>
+      <BrandLogo width={compact ? 130 : 156} onDark />
+      <Button accessibilityRole="button" accessibilityLabel={t('Vincular otra sonda', 'Link another probe')} onPress={onLinkDevice} style={styles.add}><Text style={{ color: mint, fontSize: 28 }}>+</Text></Button>
+    </View>
+    <View style={styles.selectorContainer}><Button accessibilityRole="button" accessibilityState={{ expanded: selector }} accessibilityLabel={t('Elegir sonda para medir', 'Choose a probe for measurement')}
+      guide={t('Aquí eliges la sonda para medir. Vinculada no significa conectada por Bluetooth.', 'Choose the probe to measure with here. Linked does not mean connected over Bluetooth.')}
+      onPress={openSelector} style={styles.selector}>
+      <AppIcon name="probe" color={mint} />
+      <View style={{ flex: 1, gap: 4 }}><Text style={styles.eyebrow}>{t('TU SONDA', 'YOUR PROBE')}</Text>
+        <Text numberOfLines={1} style={styles.deviceName}>{device?.alias || device?.name || t('Elige una sonda', 'Choose a probe')}</Text>
+        {device && <Text style={styles.identifier}>{formatDeviceId(device.device_code)}</Text>}
+      </View><Text style={{ color: mint, fontSize: 22 }}>⌄</Text>
+    </Button></View>
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.center, { gap: compact ? 18 : 28 }]}>
+      <Text accessibilityRole="header" style={[styles.title, { fontSize: compact ? 28 : 34 }]}>{t('Conoce tu suelo.', 'Know your soil.')}</Text>
+      <View style={[styles.orbit, { padding: compact ? 14 : 22 }]}>
+        <Button accessibilityRole="button" accessibilityLabel={device ? t('Medir', 'Measure') : t('Elegir sonda para medir', 'Choose a probe to measure')} guide={t('Prepara una medición con la sonda indicada arriba.', 'Prepare a reading with the probe shown above.')}
+          onPress={device ? onStartMeasurement : openSelector} style={[styles.measure, { minWidth: compact ? 150 : 180, minHeight: compact ? 150 : 180 }]}>
+          <AppIcon name="probe" color={SPLASH_BACKGROUND} size={compact ? 36 : 44} /><Text style={styles.measureText}>{t('Medir', 'Measure')}</Text>
+        </Button>
+      </View>
+      <Text style={styles.hint}>{device ? t('Acerca tu sonda para comenzar.', 'Bring your probe close to begin.') : t('Elige o vincula tu sonda para comenzar.', 'Choose or link your probe to begin.')}</Text>
+      {!!notice && <Text accessibilityLiveRegion="polite" style={styles.hint}>{notice}</Text>}
+    </ScrollView>
+    <GuideModal visible={selector} transparent animationType="fade" onRequestClose={() => setSelector(false)}>
+      <SafeAreaView style={styles.backdrop}><View style={[styles.sheet, { backgroundColor: colors.background }]}>
+        <View style={styles.sheetHeader}><Text accessibilityRole="header" style={[styles.sheetTitle, { color: colors.text }]}>{t('Elegir sonda', 'Choose probe')}</Text><Button accessibilityRole="button" onPress={() => setSelector(false)} style={styles.close}><Text style={{ color: colors.primary }}>{t('Cerrar', 'Close')}</Text></Button></View>
+        <ScrollView style={{ flexShrink: 1 }} contentContainerStyle={{ gap: 10, paddingBottom: 12 }}>
+          {loading && <ActivityIndicator color={colors.primary} accessibilityLabel={t('Cargando sondas', 'Loading probes')} />}
+          {error && <><Text style={{ color: colors.textSecondary }}>{t('No pudimos actualizar la lista. La última selección se conserva.', 'Could not update the list. Your last selection is retained.')}</Text><Button onPress={() => void refresh()} style={styles.close}><Text style={{ color: colors.primary }}>{t('Reintentar', 'Retry')}</Text></Button></>}
+          {!loading && !error && !devices.length && <Text style={{ color: colors.textSecondary }}>{t('Aún no tienes sondas autorizadas.', 'You have no authorized probes yet.')}</Text>}
+          {devices.map(d => <Button key={d.id} accessibilityRole="radio" accessibilityState={{ selected: d.id === device?.id }} onPress={() => choose(d)} style={[styles.deviceRow, { borderColor: d.id === device?.id ? colors.primary : colors.border, backgroundColor: colors.card }]}>
+            <View style={{ flex: 1, gap: 6 }}><Text style={{ color: colors.text, fontSize: 16, fontWeight: '600' }}>{d.alias || d.name}</Text><Text style={{ color: colors.textSecondary }}>{formatDeviceId(d.device_code)}</Text></View>{d.id === device?.id && <Text style={{ color: colors.primary }}>✓</Text>}
+          </Button>)}
+        </ScrollView>
+        <Button onPress={() => { setSelector(false); onLinkDevice(); }} style={[styles.link, { backgroundColor: colors.primary }]}><Text style={{ color: colors.background, fontWeight: '700', fontSize: 16 }}>{t('Vincular otra sonda', 'Link another probe')}</Text></Button>
+      </View></SafeAreaView>
+    </GuideModal>
+  </SafeAreaView>;
 }
 
-export const DashboardScreen: React.FC<Props> = (props) => {
-  const { colors } = useAppTheme();
-  const { t, locale, language } = useTranslation();
-  const { device } = useAppStore();
-  const { points, loading, offline, error, refresh } = useMeasurementHistory();
-  const latest = points[0];
-  const action = (label: string, onPress: () => void) => <TouchableOpacity accessibilityRole="button" guide={t("Abre todas las mediciones del campo con filtros y detalle.", "Opens all field readings with filters and details.")} onPress={onPress} style={styles.textButton}>
-    <Text style={[styles.actionText, { color: colors.primary }]}>{label}</Text>
-    <AppIcon name="arrow" color={colors.primary} size={18} />
-  </TouchableOpacity>;
-  return <SafeAreaView edges={['top', 'left', 'right']} style={[styles.root, { backgroundColor: colors.background }]}>
-    <ScrollView contentContainerStyle={styles.scroll} refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} tintColor={colors.primary} />}>
-      <View style={styles.header}>
-        <BrandLogo width={160} />
-      </View>
-      <Text style={[styles.eyebrow, { color: colors.textSecondary }]}>{t('TU JORNADA EN TERRENO', 'YOUR DAY IN THE FIELD')}</Text>
-      <Text style={[styles.pageTitle, { color: colors.text }]}>{t('Inicio', 'Home')}</Text>
-      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('Cada lectura, una mejor decisión.', 'Every reading, a better decision.')}</Text>
-      {__DEV__ && !device && <Text accessibilityLiveRegion="polite" style={[styles.notice, { color: colors.warning }]}>{t('Desarrollo · Sin sonda vinculada. Vincula un equipo para realizar mediciones.', 'Development · No linked probe. Link a device to take readings.')}</Text>}
-
-      <View style={[styles.hero, { backgroundColor: colors.primaryDark }]}>
-        <View style={styles.heroTop}>
-          <View style={styles.heroBadge}>
-            <AppIcon name="probe" color="#C5E8AF" size={18} />
-            <Text style={styles.heroEyebrow}>{t('DIAGNÓSTICO DE SUELO', 'SOIL DIAGNOSIS')}</Text>
-          </View>
-          
-        </View>
-        <Text style={styles.heroTitle}>{t('Tu suelo tiene mucho que decir.', 'Your soil has a story to tell.')}</Text>
-        <Text style={styles.heroBody}>{t('Elige la etapa del cultivo, conecta tu sonda y descubre qué necesita tu terreno.', 'Choose your crop stage, connect your probe and learn what your field needs.')}</Text>
-        <TouchableOpacity guide={t("Con un equipo seleccionado inicia la preparación de una lectura; sin equipo abre la vinculación.", "With a selected device, starts reading preparation; otherwise opens pairing.")} accessibilityRole="button" onPress={device ? props.onStartMeasurement : props.onOpenDevices} style={styles.measureButton}>
-          <Text style={styles.measureButtonText}>{device ? t('Iniciar medición', 'Start measurement') : t('Vincular un equipo', 'Link a device')}</Text>
-          <AppIcon name="arrow" color="#183D2B" />
-        </TouchableOpacity>
-      </View>
-
-      {latest && <View style={{ marginTop: 20 }}><Text style={[styles.sectionTitle, { color: colors.text }]}>{t('Última medición', 'Latest reading')} · {new Date(latest.measuredAt).toLocaleDateString(locale)}</Text><MeasurementExplorer key={latest.id} presentation={presentationFromPoint(latest, language)} /></View>}
-
-      <View style={[styles.sectionHeading, { marginTop: 20 }]}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('Última lectura', 'Latest reading')}</Text>{action(t('Ver historial', 'View history'), props.onOpenHistory)}</View>
-      {(offline || error) && <Text accessibilityLiveRegion="polite" style={[styles.notice, { color: colors.warning }]}>{error ? t('No pudimos cargar las lecturas. Desliza hacia abajo para reintentar.', 'Could not load readings. Pull down to retry.') : t('Mostrando el historial guardado en este teléfono.', 'Showing history saved on this phone.')}</Text>}
-      {latest ? <TouchableOpacity guideTitle={t("Última lectura", "Latest reading")} guide={t("Abre los valores, recomendaciones y estado de respaldo de esta medición.", "Opens values, recommendations and backup status for this reading.")} accessibilityRole="button" onPress={() => props.onOpenDetail(latest)} style={[styles.latest, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <View style={styles.sectionHeading}>
-          <Text style={[styles.statusLabel, { color: latest.verdict === 'RED' ? colors.danger : latest.verdict === 'AMBER' ? colors.warning : colors.success }]}>{VERDICT_META[latest.verdict].icon} {latest.title}</Text>
-          <AppIcon name="arrow" color={colors.textSecondary} size={18} />
-        </View>
-        <Text style={[styles.caption, { color: colors.textSecondary }]}>{new Date(latest.measuredAt).toLocaleString(locale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} · {latest.isPending ? t('Pendiente de respaldo', 'Backup pending') : t('Respaldada', 'Backed up')}</Text>
-      </TouchableOpacity> : <View style={[styles.empty, { borderColor: colors.border, backgroundColor: colors.card }]}>
-        <AppIcon name="leaf" color={colors.primary} size={30} />
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>{loading ? t('Cargando lecturas…', 'Loading readings…') : t('Tu próxima decisión empieza aquí', 'Your next decision starts here')}</Text>
-        <Text style={[styles.emptyBody, { color: colors.textSecondary }]}>{t('Después de medir podrás revisar el estado del suelo y sus recomendaciones en este espacio.', 'After measuring, review soil conditions and recommendations here.')}</Text>
-      </View>}
-    </ScrollView>
-  </SafeAreaView>;
-};
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  scroll: { padding: 24, paddingBottom: 32, width: '100%', maxWidth: 720, alignSelf: 'center' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 30, paddingRight: 52 },
-  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  brandIcon: { width: 38, height: 38, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
-  brand: { fontSize: 22, fontWeight: '700', letterSpacing: -0.8 },
-  eyebrow: { ...Typography.badge, letterSpacing: 1.5 },
-  pageTitle: { fontSize: 34, fontWeight: '700', letterSpacing: -1.2, marginTop: 6 },
-  subtitle: { ...Typography.bodyRegular, marginTop: 5, marginBottom: 24 },
-  hero: { borderRadius: 26, padding: 24, overflow: 'hidden' },
-  heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  heroBadge: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 },
-  heroEyebrow: { ...Typography.badge, color: '#C5E8AF', flexShrink: 1 },
-  step: { fontSize: 12, color: '#BED0C3' },
-  heroTitle: { fontSize: 23, lineHeight: 29, fontWeight: '600', letterSpacing: -0.7, color: '#FFFFFF', marginTop: 12 },
-  heroBody: { ...Typography.bodyRegular, color: '#D0DFD5', marginTop: 12 },
-  measureButton: { minHeight: 58, borderRadius: 16, paddingHorizontal: 18, paddingVertical: 12, marginTop: 24, backgroundColor: '#C5E8AF', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
-  measureButtonText: { ...Typography.button, color: '#183D2B', flexShrink: 1 },
-  statusLabel: { ...Typography.badge, flexShrink: 1 },
-  caption: { ...Typography.caption },
-  sectionHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  sectionTitle: { ...Typography.titleMedium, flexShrink: 1 },
-  textButton: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 5 },
-  actionText: { ...Typography.captionBold },
-  latest: { padding: 18, borderWidth: 1, borderRadius: 20, marginTop: 6 },
-  metrics: { flexDirection: 'row', marginTop: 22, gap: 12 },
-  metric: { flex: 1, gap: 4 },
-  metricValue: { fontSize: 26, fontWeight: '600', fontVariant: ['tabular-nums'] },
-  empty: { borderWidth: 1, borderStyle: 'dashed', borderRadius: 20, padding: 24, alignItems: 'center', gap: 12 },
-  emptyBody: { ...Typography.bodyRegular, textAlign: 'center' },
-  notice: { ...Typography.caption, marginBottom: 12 },
+  root: { flex: 1, backgroundColor: SPLASH_BACKGROUND },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, minHeight: 64, width: '100%', maxWidth: 520, alignSelf: 'center' },
+  add: { minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
+  selectorContainer: { width: '100%', maxWidth: 520, paddingHorizontal: 24, alignSelf: 'center' },
+  selector: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 16, borderWidth: 1, borderColor: '#3B5646', backgroundColor: '#1C3528' },
+  eyebrow: { color: '#B2C9BB', fontSize: 11, fontWeight: '700', letterSpacing: 1.6 },
+  deviceName: { color: '#FFFFFF', fontSize: 17, fontWeight: '600' },
+  identifier: { color: '#B2C9BB', fontSize: 12, fontVariant: ['tabular-nums'] },
+  center: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
+  title: { color: '#F2F5F1', fontWeight: '700', letterSpacing: -1, textAlign: 'center' },
+  orbit: { borderWidth: 1, borderColor: '#3B5646', borderRadius: 150 },
+  measure: { borderRadius: 120, backgroundColor: mint, padding: 24, alignItems: 'center', justifyContent: 'center', gap: 10 },
+  measureText: { color: SPLASH_BACKGROUND, fontSize: 28, fontWeight: '700', letterSpacing: -0.5 },
+  hint: { color: '#C4D4C9', fontSize: 15, lineHeight: 22, textAlign: 'center', maxWidth: 320 },
+  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,.55)', justifyContent: 'center', padding: 24 },
+  sheet: { maxHeight: '90%', width: '100%', maxWidth: 520, alignSelf: 'center', borderRadius: 24, padding: 20 },
+  sheetHeader: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
+  sheetTitle: { fontSize: 24, fontWeight: '700', flex: 1 },
+  close: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 8 },
+  deviceRow: { borderWidth: 1, borderRadius: 16, padding: 16, flexDirection: 'row', gap: 12, alignItems: 'center' },
+  link: { minHeight: 54, borderRadius: 16, padding: 12, justifyContent: 'center', alignItems: 'center' },
 });

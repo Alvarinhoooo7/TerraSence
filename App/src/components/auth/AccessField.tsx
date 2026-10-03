@@ -17,6 +17,9 @@ export const AccessField = forwardRef<TextInput, Props>(function AccessField({ l
   const [visible, setVisible] = useState(false);
   const [focused, setFocused] = useState(false);
   const [reveal, setReveal] = useState(-1);
+  const lastValue = useRef(props.value ?? '');
+  const revealTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearReveal = () => { if (revealTimer.current) clearTimeout(revealTimer.current); revealTimer.current = null; setReveal(-1); };
   const input = useRef<TextInput>(null);
   const revealFocus = useEntryFocus();
 
@@ -27,10 +30,10 @@ export const AccessField = forwardRef<TextInput, Props>(function AccessField({ l
   const value = props.value ?? '';
 
   useEffect(() => {
-    if (reveal < 0) return;
-    const timer = setTimeout(() => setReveal(-1), SECRET_REVEAL_MS);
-    return () => clearTimeout(timer);
-  }, [reveal, value]);
+    if (lastValue.current !== value) { lastValue.current = value; clearReveal(); }
+    if (!masked) clearReveal();
+  }, [value, masked]);
+  useEffect(() => () => { if (revealTimer.current) clearTimeout(revealTimer.current); }, []);
 
   return <View style={styles.group}>
     <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
@@ -42,9 +45,16 @@ export const AccessField = forwardRef<TextInput, Props>(function AccessField({ l
           // Sin ocultamiento nativo, el teclado de Android no debe aprender ni sugerir la clave.
           keyboardType={masked && Platform.OS === 'android' ? 'visible-password' : props.keyboardType}
           spellCheck={masked ? false : props.spellCheck} contextMenuHidden={masked || props.contextMenuHidden}
-          onChangeText={text => { if (masked) setReveal(revealedIndex(value, text)); props.onChangeText?.(text); }}
+          onChangeText={text => { clearReveal();
+            if (masked && focused) {
+              const index = revealedIndex(lastValue.current, text);
+              setReveal(index);
+              if (index >= 0) revealTimer.current = setTimeout(() => { revealTimer.current = null; setReveal(-1); }, SECRET_REVEAL_MS);
+            }
+            lastValue.current = text;
+            props.onChangeText?.(text); }}
           onFocus={event => { setFocused(true); revealFocus(input.current); props.onFocus?.(event); }}
-          onBlur={event => { setFocused(false); setReveal(-1); revealFocus(null); props.onBlur?.(event); }}
+          onBlur={event => { setFocused(false); clearReveal(); revealFocus(null); props.onBlur?.(event); }}
           selectionColor={colors.primary}
           style={[styles.input, { color: masked && value ? 'transparent' : colors.text }, masked && styles.mono, props.style]} />
         {masked && !!value && <View pointerEvents="none" accessible={false} importantForAccessibility="no-hide-descendants" style={styles.overlay}>
@@ -54,7 +64,7 @@ export const AccessField = forwardRef<TextInput, Props>(function AccessField({ l
         </View>}
       </View>
       {secret && <Pressable accessibilityRole="button" accessibilityLabel={visible ? t('Ocultar contraseña', 'Hide password') : t('Mostrar contraseña', 'Show password')}
-        disabled={props.editable === false} onPress={() => setVisible(current => !current)} style={styles.reveal}>
+        disabled={props.editable === false} onPress={() => { clearReveal(); setVisible(current => !current); }} style={styles.reveal}>
         <Text style={{ color: colors.primary, fontWeight: '700' }}>{visible ? t('Ocultar', 'Hide') : t('Ver', 'Show')}</Text>
       </Pressable>}
     </View>

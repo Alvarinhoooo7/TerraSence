@@ -82,6 +82,20 @@ TTTTTTTT   TTTTPPPP   PPPPPPPP   HHHHHHHH
 
 El empaquetado define resoluciones de transporte; no acredita exactitud ni calibración del conjunto. La app rechaza además valores por encima del máximo del sensor: temperatura sobre 85 °C, presión sobre 1100 hPa o humedad sobre 100 %.
 
+### Rangos de las siete variables de suelo
+
+`decodeTelemetry` valida cada variable de suelo contra los mismos límites que `sueloPublicable()` en [`Firmware/trama.h`](../Firmware/trama.h), tomados del manual de la sonda adquirida (ComWinTop CWT-Soil-NPKPHCTH-S). Un valor fuera de estos límites se rechaza entero, nunca se recorta:
+
+| Variable | Rango aceptado |
+| :--- | :--- |
+| Humedad volumétrica | 0 a 100,0 % |
+| Temperatura del suelo | −40,0 a 80,0 °C |
+| Conductividad eléctrica | 0 a 20.000 µS/cm |
+| pH | 0 a 14,0 (la sonda mide con exactitud entre 3 y 9; fuera de ahí sigue siendo un valor físico válido) |
+| Nitrógeno, fósforo y potasio | 0 a 1.999 mg/kg cada uno |
+
+Estos límites se aplican igual en la trama de 16 y de 20 bytes, porque los primeros 15 bytes son idénticos en ambas.
+
 **Si el BME280 no responde, el firmware pone a uno todos los bits de esa magnitud** y la app guarda `null`:
 
 | Magnitud | Centinela de "sin dato" |
@@ -154,7 +168,7 @@ Este fragmento ilustra el empaquetado; no es un firmware completo. El ID del equ
 
 ## Qué pasa si el formato está mal
 
-La app rechaza paquetes incompletos, una longitud que no corresponde a la versión declarada, una versión distinta de 0 o 1, una trama sin lectura de suelo, batería superior a 100 y valores de ambiente por encima del rango del BME280. No convierte un error de trama en una medición simulada. Las pruebas de [`App/tests/probeTelemetry.test.ts`](../App/tests/probeTelemetry.test.ts) cubren las dos versiones, la temperatura de aire y de suelo bajo cero, los centinelas por separado y juntos, cada límite de rango y vistas con desplazamiento dentro de un buffer.
+La app rechaza paquetes incompletos, una longitud que no corresponde a la versión declarada, una versión distinta de 0 o 1, una trama sin lectura de suelo, batería superior a 100, cada variable de suelo fuera de los rangos del manual de la sonda (tabla arriba) y valores de ambiente por encima del rango del BME280. No convierte un error de trama en una medición simulada. Las pruebas de [`App/tests/probeTelemetry.test.ts`](../App/tests/probeTelemetry.test.ts) cubren las dos versiones, la temperatura de aire y de suelo bajo cero, los centinelas por separado y juntos, cada límite de rango de suelo y de ambiente, y vistas con desplazamiento dentro de un buffer.
 
 Una longitud correcta **no permite detectar por sí sola campos intercambiados o escalas erróneas**. Para validar el firmware hay que comparar una captura real con las unidades del sensor y con estos valores esperados. Si el proveedor usa otro mapa o escala, se corrige la conversión Modbus del ESP32 manteniendo el contrato BLE.
 

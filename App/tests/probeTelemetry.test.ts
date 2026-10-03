@@ -173,6 +173,47 @@ test('rechaza humedad y pH de suelo fuera de rango en ambas versiones sin recort
   }
 });
 
+test('rechaza temperatura de suelo fuera del rango del manual (-40,0 a 80,0 °C) sin recortarla', () => {
+  for (const version of [0, 1]) {
+    const frame = () => new Uint8Array([...suelo(), version, ...(version ? [0xff, 0xff, 0xff, 0xff] : [])]);
+
+    for (const value of [801, -401, 32767, -32768]) {
+      const bytes = frame();
+      new DataView(bytes.buffer).setInt16(2, value, false);
+      assert.throws(() => decodeTelemetry(bytes), /Temperatura de suelo/);
+    }
+    for (const value of [-400, 800]) {
+      const bytes = frame();
+      new DataView(bytes.buffer).setInt16(2, value, false);
+      assert.equal(decodeTelemetry(bytes).temp, value / 10);
+    }
+  }
+});
+
+test('rechaza CE, nitrógeno, fósforo y potasio de suelo fuera de rango en ambas versiones sin recortarlos', () => {
+  for (const version of [0, 1]) {
+    const frame = () => new Uint8Array([...suelo(), version, ...(version ? [0xff, 0xff, 0xff, 0xff] : [])]);
+
+    const campos = [
+      { offset: 4, maximum: 20000, field: /Conductividad eléctrica/, key: 'ec' as const },
+      { offset: 8, maximum: 1999, field: /Nitrógeno/, key: 'nitrogen' as const },
+      { offset: 10, maximum: 1999, field: /Fósforo/, key: 'phosphorus' as const },
+      { offset: 12, maximum: 1999, field: /Potasio/, key: 'potassium' as const },
+    ];
+
+    for (const { offset, maximum, field, key } of campos) {
+      for (const value of [maximum + 1, 0xffff]) {
+        const bytes = frame();
+        new DataView(bytes.buffer).setUint16(offset, value, false);
+        assert.throws(() => decodeTelemetry(bytes), field);
+      }
+      const bytes = frame();
+      new DataView(bytes.buffer).setUint16(offset, maximum, false);
+      assert.equal(decodeTelemetry(bytes)[key], maximum);
+    }
+  }
+});
+
 test('respeta el desplazamiento de una vista dentro de un buffer BLE', () => {
   const buffer = new Uint8Array(24);
   buffer[4] = 1; buffer[5] = 0x5e;

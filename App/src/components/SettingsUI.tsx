@@ -1,22 +1,20 @@
-import { GuideTouchable as TouchableOpacity, GuideScrollView as ScrollView, GuideInput as TextInput } from './guide/GuideControls';
+import { GuideTouchable as TouchableOpacity, GuideInput as TextInput } from './guide/GuideControls';
 import React from 'react';
 import { ActivityIndicator, StyleSheet, Text, View, type TextInputProps } from 'react-native';
 import { useResetGuide } from './guide/GuideContext';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
+import { EntryLayout, useEntryMetrics } from './entry/EntryUI';
 
-export function SettingsPage({ title, description, onBack, children }: React.PropsWithChildren<{ title: string; description?: string; onBack: () => void }>) {
+export function SettingsPage({ title, description, onBack, children, footer }: React.PropsWithChildren<{ title: string; description?: string; onBack: () => void; footer?: React.ReactNode }>) {
   useResetGuide(title);
   const { colors } = useAppTheme(); const { t } = useTranslation();
-  return <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1, backgroundColor: colors.background }}>
-    <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={ui.page}>
+  const { compact } = useEntryMetrics();
+  return <EntryLayout keyboardAware header={<View style={{ paddingBottom: 8 }}>
       <TouchableOpacity accessibilityRole="button" onPress={onBack} style={ui.back}><Text style={{ color: colors.primary, fontWeight: '600' }}>‹ {t('Volver', 'Back')}</Text></TouchableOpacity>
-      <Text accessibilityRole="header" style={[ui.title, { color: colors.text }]}>{title}</Text>
+      <Text accessibilityRole="header" style={[ui.title, { color: colors.text, fontSize: compact ? 28 : 34 }]}>{title}</Text>
       {!!description && <SettingsText>{description}</SettingsText>}
-      <View style={{ height: 8 }} />{children}
-    </ScrollView>
-  </SafeAreaView>;
+    </View>} footer={footer}><View style={{ flex: 1, gap: 12 }}>{children}</View></EntryLayout>;
 }
 export function SettingsText({ children, danger = false }: React.PropsWithChildren<{ danger?: boolean }>) {
   const { colors } = useAppTheme();
@@ -44,7 +42,6 @@ export function SettingsInput({ label, ...props }: TextInputProps & { label: str
   return <View style={{ gap: 8 }}><Text style={{ color: colors.text, fontWeight: '600' }}>{label}</Text><TextInput {...props} accessibilityLabel={label} placeholderTextColor={colors.textMuted} style={[ui.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.card }, props.style]} /></View>;
 }
 const ui = StyleSheet.create({
-  page: { paddingHorizontal: 24, paddingBottom: 36, gap: 12, width: '100%', maxWidth: 720, alignSelf: 'center' },
   back: { minHeight: 48, justifyContent: 'center', alignSelf: 'flex-start', paddingRight: 56 },
   title: { fontSize: 30, fontWeight: '700', letterSpacing: -0.7, marginBottom: 4 },
   card: { borderWidth: 1, borderRadius: 18, padding: 20, gap: 14 },

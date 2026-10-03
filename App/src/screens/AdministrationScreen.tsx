@@ -7,6 +7,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { listMyDevices, listMyDeviceMemberships, listDeviceMembers, manageDeviceMember } from '../services/deviceService';
 import type { DeviceRow, ManagedDeviceMember } from '../types/app';
 import { maskEmail, maskName } from '../utils/privacy';
+import { SettingsPage } from '../components/SettingsUI';
 
 export function AdministrationScreen({ onClose, initialDeviceId }: { onClose: () => void; initialDeviceId?: string | null }) {
   const { colors } = useAppTheme();
@@ -76,10 +77,7 @@ export function AdministrationScreen({ onClose, initialDeviceId }: { onClose: ()
     [{ text: t('Cancelar', 'Cancel'), style: 'cancel' }, { text: t('Confirmar', 'Confirm'), onPress: () => void change(member, action) }],
   );
 
-  return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-    <TouchableOpacity disabled={busy} onPress={onClose} style={{ padding: 20 }}><Text style={{ color: colors.primary }}>{t('‹ Ajustes', '‹ Settings')}</Text></TouchableOpacity>
-    <ScrollView contentContainerStyle={{ padding: 20, gap: 16 }}>
-      <Text style={{ color: colors.text, fontSize: 24, fontWeight: '700' }}>{t('Administración', 'Administration')}</Text>
+  return <SettingsPage title={t('Administración', 'Administration')} onBack={() => { if (!busy) onClose(); }} description={t('Gestiona el acceso a cada sonda.', 'Manage access to each probe.')}>
       {loading && <ActivityIndicator color={colors.primary} />}
       {!!error && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text>}
       {!loading && !devices.length && <Text style={{ color: colors.text }}>{t('Ya no administras ningún equipo.', 'You do not administer any devices.')}</Text>}
@@ -93,9 +91,8 @@ export function AdministrationScreen({ onClose, initialDeviceId }: { onClose: ()
         {m.role === 'user' && <>
           {!m.is_authorized && <TouchableOpacity disabled={busy} onPress={() => void change(m, 'authorize')}><Text style={{ paddingVertical: 12, color: colors.primary }}>{t('Aprobar acceso', 'Approve access')}</Text></TouchableOpacity>}
           {m.is_authorized && <TouchableOpacity disabled={busy} onPress={() => confirm(m, 'transfer_owner')}><Text style={{ paddingVertical: 12, color: colors.primary }}>{t('Delegar administración', 'Transfer administration')}</Text></TouchableOpacity>}
-          <TouchableOpacity disabled={busy} onPress={() => confirm(m, 'remove')}><Text style={{ paddingVertical: 12, color: colors.danger }}>{t('Eliminar usuario', 'Remove user')}</Text></TouchableOpacity>
+          <TouchableOpacity disabled={busy} onPress={() => confirm(m, 'remove')}><Text style={{ paddingVertical: 12, color: colors.danger }}>{m.is_authorized ? t('Retirar acceso', 'Remove access') : t('Rechazar solicitud', 'Reject request')}</Text></TouchableOpacity>
         </>}
       </View>)}
-    </ScrollView>
-  </SafeAreaView>;
+  </SettingsPage>;
 }

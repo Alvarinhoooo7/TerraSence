@@ -12,10 +12,12 @@ export const SECRET_MASK = '*';
  * escribir uno solo (borrar, pegar o reemplazar no revelan nada).
  */
 export function revealedIndex(previous: string, next: string): number {
-  if (next.length !== previous.length + 1) return -1;
+  const before = Array.from(previous);
+  const after = Array.from(next);
+  if (after.length !== before.length + 1) return -1;
   let i = 0;
-  while (i < previous.length && previous[i] === next[i]) i++;
-  return next.slice(i + 1) === previous.slice(i) ? i : -1;
+  while (i < before.length && before[i] === after[i]) i++;
+  return after.slice(i + 1).join('') === before.slice(i).join('') ? i : -1;
 }
 
 /** El texto enmascarado, salvo el carácter en `revealIndex`. */

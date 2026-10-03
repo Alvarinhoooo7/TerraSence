@@ -1,10 +1,14 @@
+import { listMyDevices } from '../services/deviceService';
+import { useAuthStore } from '../store/useAuthStore';
+import type { DeviceRow } from '../types/app';
+import { ScrollView } from 'react-native';
 import { GuideSectionList as SectionList } from '../components/guide/GuideSectionList';
 import { GuideTouchable as TouchableOpacity } from '../components/guide/GuideControls';
 // src/screens/HistoryScreen.tsx
 //
 // Mediciones en lista, agrupadas por día y filtrables por etapa.
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   RefreshControl,
@@ -40,7 +44,17 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
   const { isDark, colors } = useAppTheme();
   const { language, locale, t } = useTranslation();
 
-  const { points, loading, offline, error, refresh } = useMeasurementHistory();
+  const accountId = useAuthStore(s => s.session?.user.id);
+  const [historyDevice, setHistoryDevice] = useState<{ accountId: string | undefined; id: string | null }>({ accountId, id: null });
+  const historyDeviceId = historyDevice.accountId === accountId ? historyDevice.id : null;
+  const [devices, setDevices] = useState<DeviceRow[]>([]);
+  useEffect(() => {
+    let active = true;
+    setDevices([]);
+    void listMyDevices().then(rows => { if (active && useAuthStore.getState().session?.user.id === accountId) setDevices(rows); }).catch(() => undefined);
+    return () => { active = false; };
+  }, [accountId]);
+  const { points, loading, offline, error, refresh } = useMeasurementHistory(historyDeviceId);
   const [filter, setFilter] = useState<PhenologicalStage | 'all'>('all');
 
   const sections = useMemo(() => {
@@ -55,17 +69,9 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
     return [...groups.entries()].map(([title, data]) => ({ title, data }));
   }, [points, filter, locale]);
 
-  const counts = useMemo(() => {
-    const c = { GREEN: 0, AMBER: 0, RED: 0 };
-    for (const p of points) c[p.verdict] += 1;
-    return c;
-  }, [points]);
-
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={[styles.root, { backgroundColor: colors.background }]}>
-      <SectionList
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} tintColor={colors.primary} />}
-        ListHeaderComponent={<>      <View style={styles.header}>
+      <View style={styles.header}>
         <TouchableOpacity onPress={onClose} hitSlop={12} style={styles.headerBtn}>
           <Text style={{ color: colors.primary, ...Typography.bodyBold }}>‹ {t('Inicio', 'Home')}</Text>
         </TouchableOpacity>
@@ -75,27 +81,11 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
         <View style={styles.headerBtn} />
       </View>
 
-      <View style={{ paddingHorizontal: 20, marginBottom: 20 }}><Text style={{ ...Typography.titleLarge, fontSize: 32, color: colors.text }}>{t('Historial', 'History')}</Text><Text style={{ ...Typography.bodyRegular, color: colors.textSecondary, marginTop: 6 }}>{t('Cada lectura cuenta la historia de tu suelo.', 'Every reading tells the story of your soil.')}</Text></View>
-      {/* Resumen de las mediciones de un vistazo */}
-      <View style={styles.summary}>
-        {(['GREEN', 'AMBER', 'RED'] as const).map((v) => {
-          const meta = VERDICT_META[v];
-          const stroke = isDark ? meta.strokeDark : meta.strokeLight;
-          return (
-            <View
-              key={v}
-              style={[styles.summaryCell, { backgroundColor: colors.card, borderColor: colors.border }]}
-            >
-              <Text style={[styles.summaryIcon, { color: stroke }]}>{meta.icon}</Text>
-              <Text style={[styles.summaryCount, { color: colors.text }]}>{counts[v]}</Text>
-              <Text style={[styles.summaryLabel, { color: colors.textMuted }]}>{meta.label}</Text>
-            </View>
-          );
-        })}
-      </View>
-
+      {devices.length > 0 && <View><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 24, gap: 8 }}>
+        {[{ id: null, name: t('Todas las sondas', 'All probes') }, ...devices.map(d => ({ id: d.id, name: `${d.alias || d.name} · ${d.device_code.slice(-6)}` }))].map(d => <TouchableOpacity key={d.id ?? 'all'} accessibilityRole="radio" accessibilityState={{ selected: historyDeviceId === d.id }} onPress={() => setHistoryDevice({ accountId, id: d.id })} style={[styles.filterChip, { backgroundColor: historyDeviceId === d.id ? colors.primary : colors.card, borderColor: colors.border }]}><Text style={{ color: historyDeviceId === d.id ? '#FFFFFF' : colors.text }}>{d.name}</Text></TouchableOpacity>)}
+      </ScrollView></View>}
       {/* Filtro por etapa */}
-      <View style={styles.filters}>
+      <View><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters}>
         {(['all', ...PHENOLOGICAL_STAGES.map((s) => s.id)] as const).map((id) => {
           const active = filter === id;
           const label =
@@ -132,9 +122,14 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
             </TouchableOpacity>
           );
         })}
-      </View>
+      </ScrollView></View>
 
-{(offline || error) && <Text style={{ color: colors.warning }}>{error ? t("No pudimos cargar el historial. Desliza para reintentar.", "Could not load history. Pull to retry.") : t("Mostrando el historial local.", "Showing local history.")}</Text>}</>}
+<Text style={{ color: colors.textSecondary, paddingHorizontal: 24 }}>{t('Últimas lecturas disponibles · Etapa filtrada sobre este registro', 'Latest available readings · Stage filters this record')}</Text>
+{(offline || error) && <Text accessibilityLiveRegion="polite" style={{ color: colors.warning, paddingHorizontal: 24 }}>{error ? t("No pudimos cargar el historial. Desliza para reintentar.", "Could not load history. Pull to retry.") : t("Mostrando el historial local.", "Showing local history.")}</Text>}
+      <SectionList
+        style={{ flex: 1 }}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} tintColor={colors.primary} />}
+
         sections={sections}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
@@ -212,7 +207,6 @@ const styles = StyleSheet.create({
   summaryLabel: { ...Typography.badge, textAlign: 'center', paddingHorizontal: 6 },
   filters: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: Spacing.xs,
     padding: Spacing.md,
   },

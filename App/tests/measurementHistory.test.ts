@@ -1,7 +1,15 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mergeCachedHistories, mergeMeasurementHistory } from '../src/utils/measurementHistory';
+import { measurementHistoryScope, mergeCachedHistories, mergeMeasurementHistory } from '../src/utils/measurementHistory';
 import type { MeasurementPoint } from '../src/types/app';
+
+test('el filtro de Mediciones permanece independiente de la sonda seleccionada para medir', () => {
+  assert.equal(measurementHistoryScope('measure-a', 'history-b'), 'history-b');
+  assert.equal(measurementHistoryScope('measure-c', 'history-b'), 'history-b');
+  assert.equal(measurementHistoryScope('measure-a', null), null);
+  assert.equal(measurementHistoryScope('measure-c', null), null);
+  assert.equal(measurementHistoryScope('measure-a', undefined), 'measure-a');
+});
 
 const point = (id: string, clientUuid: string, measuredAt = '2026-09-05T12:00:00Z'): MeasurementPoint => ({
   id, clientUuid, measuredAt, latitude: null, longitude: null,

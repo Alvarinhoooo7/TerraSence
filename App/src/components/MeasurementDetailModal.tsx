@@ -1,3 +1,5 @@
+import { MeasurementForecast } from './MeasurementForecast';
+import { savedForecast } from './measurementResultData';
 import { MeasurementExplorer } from './MeasurementExplorer';
 import { presentationFromPoint } from '../engine/measurementPresentation';
 import { GuideModal as Modal } from './guide/GuideModal';
@@ -30,7 +32,6 @@ export const MeasurementDetailModal: React.FC<Props> = ({ point, onClose }) => {
     : point.verdict === 'AMBER'
       ? t('ATENCIÓN', 'ATTENTION')
       : t('CRÍTICO', 'CRITICAL');
-  const missing = t('Sin dato', 'No data');
 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
@@ -65,18 +66,8 @@ export const MeasurementDetailModal: React.FC<Props> = ({ point, onClose }) => {
             </View>
           )}
 
-          <Text style={[styles.section, { color: colors.textMuted }]}>{t('LECTURAS REGISTRADAS', 'RECORDED READINGS')}</Text>
-          <Text style={[styles.meta, { color: colors.textSecondary }]}>{t('Suelo: sonda · Ambiente: registro local; las lecturas antiguas pueden carecer de origen verificado. N/P/K sin validación química.', 'Soil: probe · Environment: local record; older readings may lack verified provenance. N/P/K chemically unvalidated.')}</Text>
-          <Text style={[styles.meta, { color: colors.textSecondary }]}>{t('Batería en captura', 'Battery at capture')}: {point.batteryPercent == null ? missing : `${point.batteryPercent} %`}</Text>
-          <MeasurementExplorer key={point.id} presentation={presentationFromPoint(point, language)} />
+          <MeasurementExplorer key={point.id} presentation={presentationFromPoint(point, language)} forecast={<MeasurementForecast historical days={savedForecast(point.diagnosis)} capturedAt={point.measuredAt} battery={point.batteryPercent} latitude={point.latitude} longitude={point.longitude} accuracy={point.gpsAccuracyM} />} />
 
-          <Text style={[styles.section, { color: colors.textMuted }]}>{t('UBICACIÓN', 'LOCATION')}</Text>
-          <View style={[styles.location, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <Text style={[styles.actionText, { color: colors.text }]}>{point.latitude != null && point.longitude != null ? `📍 ${point.latitude.toFixed(6)}, ${point.longitude.toFixed(6)}` : t('Medición guardada sin coordenadas.', 'Reading saved without coordinates.')}</Text>
-            <Text style={[styles.locationMeta, { color: colors.textSecondary }]}>
-              {t('Precisión GPS', 'GPS accuracy')}: {point.gpsAccuracyM == null ? t('sin dato', 'not available') : `±${Math.round(point.gpsAccuracyM)} m`}
-            </Text>
-          </View>
         </ScrollView>
       </SafeAreaView>
     
@@ -88,7 +79,7 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   header: { height: 60, paddingHorizontal: Spacing.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   headerButton: { width: 82, minHeight: Spacing.touchTarget, justifyContent: 'center' },
-  headerTitle: { ...Typography.titleMedium },
+  headerTitle: { ...Typography.titleMedium, flex: 1, textAlign: 'center' },
   scroll: { padding: Spacing.md, paddingBottom: Spacing.xxl },
   verdict: { borderRadius: Spacing.cardRadius, padding: Spacing.lg, alignItems: 'center', gap: Spacing.xs },
   verdictIcon: { color: '#FFFFFF', fontSize: 38, fontWeight: '800' },

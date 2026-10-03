@@ -1,81 +1,19 @@
-import { GuideModal as Modal } from './guide/GuideModal';
-import { GuideTouchable as TouchableOpacity } from './guide/GuideControls';
 import React from 'react';
-import { View, Text, StyleSheet, } from 'react-native';
+import { Text, View } from 'react-native';
+import { GuideModal } from './guide/GuideModal';
+import { EntryButton, EntryHeading, EntryLayout } from './entry/EntryUI';
 import { useAppTheme } from '../hooks/useAppTheme';
-import { Typography, Spacing } from '../constants/theme';
 import { useTranslation } from '../hooks/useTranslation';
 
-interface Props {
-  visible: boolean;
-  onClose: () => void;
-}
-
-export const CalibrationReminderModal: React.FC<Props> = ({ visible, onClose }) => {
-  const { colors, isDark } = useAppTheme();
+export function CalibrationReminderModal({ visible, onClose, synced }: { visible: boolean; onClose: () => void; synced?: boolean }) {
+  const { colors } = useAppTheme();
   const { t } = useTranslation();
-
-  return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-
-      <View style={[styles.overlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.5)' }]}>
-        <View style={[styles.card, { backgroundColor: colors.background }]}>
-          <Text style={{ fontSize: 40, textAlign: 'center', marginBottom: Spacing.sm }}>🧽</Text>
-          <Text style={[styles.title, { color: colors.text }]}>
-            {t('¡Limpieza de Sonda!', 'Probe Cleaning!')}
-          </Text>
-          <Text style={[styles.body, { color: colors.textSecondary }]}>
-            {t(
-              'Para mantener la máxima precisión en tus lecturas de humedad y pH, recuerda limpiar la punta de la sonda con un paño antes de la siguiente medición.',
-              'To maintain maximum accuracy in your moisture and pH readings, remember to wipe the probe tip before the next measurement.'
-            )}
-          </Text>
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }]}
-            onPress={onClose}
-          >
-            <Text style={styles.buttonText}>{t('¡Entendido!', 'Got it!')}</Text>
-          </TouchableOpacity>
-        </View>
+  return <GuideModal visible={visible} animationType="fade" onRequestClose={onClose}>
+    <EntryLayout footer={<EntryButton label={t('Volver a Inicio', 'Back to Home')} onPress={onClose} />}>
+      <View style={{ gap: 24 }}>
+        <Text accessibilityLiveRegion="polite" style={{ color: colors.primary, fontSize: 16, fontWeight: '700' }}>{synced === undefined ? t('Lectura guardada', 'Reading saved') : synced ? t('Lectura respaldada en la nube', 'Reading backed up to cloud') : t('Guardada en el teléfono · Pendiente de sincronización', 'Saved on phone · Pending sync')}</Text>
+        <EntryHeading title={t('Lista para la próxima lectura', 'Ready for the next reading')} description={t('Limpia la punta de la sonda con un paño antes de volver a medir.', 'Wipe the probe tip with a cloth before measuring again.')} />
       </View>
-    
-    </Modal>
-  );
-};
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: Spacing.lg,
-  },
-  card: {
-    width: '100%',
-    borderRadius: Spacing.borderRadius,
-    padding: Spacing.xl,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  title: {
-    ...Typography.titleMedium,
-    textAlign: 'center',
-    marginBottom: Spacing.md,
-  },
-  body: {
-    ...Typography.bodyRegular,
-    textAlign: 'center',
-    marginBottom: Spacing.xl,
-  },
-  button: {
-    paddingVertical: Spacing.md,
-    borderRadius: Spacing.borderRadius,
-    alignItems: 'center',
-  },
-  buttonText: {
-    ...Typography.button,
-    color: '#FFF',
-  },
-});
+    </EntryLayout>
+  </GuideModal>;
+}

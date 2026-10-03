@@ -519,7 +519,7 @@ Una sola ficha técnica reúne las capacidades del producto V3 y del servicio, c
 | Autonomía en uso habitual | ≈ 130,5 días (≈ 18,6 semanas) calculados con el modelo energético V3, frente a 34,5 días de la placa V2 con el firmware actual; requerimiento R07: al menos 8 semanas | Modelo energético V3 | De diseño (calculada, no medida) |
 | Tiempo de carga | ≈ 5 a 5,5 h con 444 mA desde 3,0 V | Cálculo de Tabla 3.8 | De diseño |
 | Memoria del equipo | 520 KB de SRAM y 4 MB de flash; no guarda mediciones ni historial | Hoja del módulo [17] | Verificado contra la hoja |
-| Almacenamiento de datos | En el teléfono (persistente, con cola de envío) y respaldo en la nube | Aplicación | Verificado en su lógica (239 de 239 pruebas) |
+| Almacenamiento de datos | En el teléfono (persistente, con cola de envío) y respaldo en la nube | Aplicación | Verificado en su lógica (276 de 276 pruebas) |
 | Enlace BLE | Bluetooth 4.2 (BR/EDR y BLE), GATT (perfil de atributos genéricos), trama de 20 bytes en una notificación; alcance objetivo 10 m | Hoja del módulo [17] y contrato BLE | Trama implementada sin ensayo; alcance de diseño |
 | Potencia de transmisión | +9 dBm (≈ 8 mW), presupuesto de diseño | Hoja del módulo | De diseño |
 | Bus de la sonda | RS-485 con Modbus RTU: 4.800 baudios, 8 bits, sin paridad y 1 bit de parada, dirección 1 y función 03 de fábrica; la sonda admite reconfigurarse a 2.400 o 9.600 baudios. El driver consulta a 4.800 y, si no hay respuesta, a 9.600 | Manual de la sonda [16] y Modbus V1.1b3 [18] | Implementado sin ensayo |
@@ -967,7 +967,7 @@ La digitalización de TerraSense transforma un proceso manual y no trazable (la 
 |---|---|---|
 | IoT y conectividad | Equipo con radio BLE; trama única de 20 bytes; el teléfono hace de pasarela hacia la nube | Trama implementada sin ensayo; decodificador verificado |
 | Independencia de la red | Medir, diagnosticar, georreferenciar y guardar no dependen de cobertura; cola de envío idempotente | Verificado en su lógica; prueba en teléfono real pendiente |
-| Aplicación móvil | Motor agronómico determinista, historial por campo, georreferencia, español e inglés | Lógica verificada (239 de 239 pruebas) |
+| Aplicación móvil | Motor agronómico determinista, historial por campo, georreferencia, español e inglés | Lógica verificada (276 de 276 pruebas) |
 | Backoffice y panel de control | Consola web de soporte: búsqueda de equipos, ficha con las últimas mediciones, aprobación de usuarios, reset y catálogo de firmware | Verificado en réplica local |
 | Avisos | Cuatro avisos de acceso por notificación; batería baja como estado en la aplicación | Avisos verificados en réplica local; recepción en teléfono pendiente |
 | Análisis de datos | Diagnóstico por fase fenológica con semáforo por variable; pronóstico de cinco días para contextualizar | Implementado sin ensayo; umbrales sin auditar con un experto |
@@ -1603,7 +1603,7 @@ Las pruebas de software son las únicas ejecutadas. Corren de forma automática 
 
 | Prueba | Alcance | Resultado de la última ejecución | Estado |
 |---|---|---|---|
-| Aplicación | Decodificación de la trama, vinculación, cola de respaldo, historial, permisos y pronóstico | 239 de 239 aprobadas | Ejecutada en réplica local |
+| Aplicación | Decodificación de la trama, vinculación, cola de respaldo, historial, permisos y pronóstico | 276 de 276 aprobadas | Ejecutada en réplica local |
 | Consola de soporte | Formatos, veredicto y resumen del pronóstico | 8 de 8 aprobadas | Ejecutada en réplica local |
 | Despachador de avisos | Cliente del servicio de notificaciones y clasificación de errores | 29 de 29 aprobadas | Ejecutada en réplica local |
 | Base de datos | Esquema, aislamiento por cuenta y rol, avisos de acceso únicos, reintentos y concurrencia | Reconstrucción sin errores; ninguna cuenta accede a equipos ajenos | Ejecutada en réplica local |
@@ -1900,7 +1900,7 @@ Este informe cierra las etapas posteriores a la definición del proyecto y sosti
 
 **Ingeniería de detalle y fabricación.** Quedó **cotizado** el producto y el taller por bloque (anexo A), verificado cada circuito integrado contra su hoja de datos, descrita la geometría de la placa y de la carcasa con conectores, cableado, torques y una secuencia de montaje que un tercero puede seguir, y comparado el ensamble en el taller con el ensamble completo del fabricante, ahora viable por la ausencia de módulos: gana el fabricante (alternativa C) en producción desde lotes de 5 placas, y el taller con esténcil y placa calefactora queda para prototipos y retrabajo. La capacidad se dimensiona contra la demanda de 200 a 1.085 equipos anuales: dos impresoras quedan justificadas para 2036, y la carga de ensamble y FAT (0,73 personas con ensamble del fabricante) es menor que la dotación del modelo, cuya holgura se declara conservadora y se propone revisar.
 
-**Pruebas.** Cada requerimiento tiene su prueba, con FAT sobre el 100 % de las unidades, SAT en el campo y ensayos normativos. Ningún ensayo de hardware se ha ejecutado: sólo las pruebas automatizadas de software tienen resultado (239 de 239 en la aplicación).
+**Pruebas.** Cada requerimiento tiene su prueba, con FAT sobre el 100 % de las unidades, SAT en el campo y ensayos normativos. Ningún ensayo de hardware se ha ejecutado: sólo las pruebas automatizadas de software tienen resultado (276 de 276 en la aplicación).
 
 **Evaluación económica.** Con el precio derivado del costo y un 30 % de utilidad, el crédito por el 100 % de la inversión (con el pie como condición de entrada) y un horizonte de diez años, el proyecto arroja un VAN de $122.844.289 al 20 % y una TIR de 56,97 %, con un precio de lista de $466.027 con IVA y una inversión inicial de $28.778.513; la caja mínima es de $12.054.899 y la deuda queda saldada en 2036. El punto de tensión es de arranque y no de rentabilidad, y las sensibilidades del capítulo VIII acotan el margen de error.
 
