@@ -9,6 +9,7 @@
  */
 
 #include <Wire.h>
+#include <esp_log.h>
 
 #include "pines.h"
 #include "config.h"
@@ -111,6 +112,44 @@ bool capturaPedidaPorSerie() {
   return pedida;
 }
 
+// Diagnóstico de arranque del bus I2C: lista las direcciones que responden,
+// para distinguir un bus mudo (cableado, alimentación, modo SPI) de un sensor
+// en otra dirección o de otro modelo. Devuelve cuántas respondieron.
+uint8_t escanearI2C() {
+  uint8_t encontrados = 0;
+  Serial.print("[I2C] Responden:");
+  for (uint8_t dir = 0x08; dir < 0x78; dir++) {
+    Wire.beginTransmission(dir);
+    if (Wire.endTransmission() == 0) {
+      Serial.printf(" 0x%02X", dir);
+      encontrados++;
+    }
+  }
+  Serial.println(encontrados ? "" : " ninguna dirección");
+  return encontrados;
+}
+
+void informarBme(uint8_t enBus) {
+  if (bme.presente()) {
+    if (bme.tieneHumedad()) Serial.printf("[BME280] Detectado en 0x%02X\n", bme.direccion());
+    else Serial.printf("[BME280] En 0x%02X hay un BMP280: temperatura y presión sí, la humedad viajará como centinela\n",
+                       bme.direccion());
+    return;
+  }
+  Serial.println("[BME280] No detectado: el ambiente viajará como centinela");
+  if (bme.direccionAjena()) {
+    Serial.printf("[BME280] En 0x%02X responde un chip con ID 0x%02X, que no es BME280 (0x60) ni BMP280 (0x58)\n",
+                  bme.direccionAjena(), bme.idAjeno());
+  } else if (enBus) {
+    Serial.println("[BME280] Hay dispositivos en el bus, pero ninguno en 0x76 ni 0x77");
+  } else {
+    Serial.printf("[BME280] Bus mudo. Revisar: SDA en IO%d y SCL en IO%d sin invertir; VCC a 3,3 V y GND común; "
+                  "en módulos de 6 pines, CSB a VCC (a GND o al aire el sensor puede quedar en modo SPI) y SDO a "
+                  "GND (0x76) o a VCC (0x77); pull-up en el módulo o 4,7 kΩ de SDA y SCL a 3,3 V\n",
+                  PIN_SDA, PIN_SCL);
+  }
+}
+
 // En reposo todo está apagado y en silencio. Tabla completa en Firmware/README.md.
 void actualizarAvisos(uint32_t ahora) {
   ledAzul.fondo(bleVentanaAbierta(ahora) ? PatronLed::Parpadeo2Hz : PatronLed::Apagado, ahora);
@@ -149,11 +188,14 @@ void setup() {
   zumbador.begin();
   pulsadorPair.begin();
 
+  // El driver I2C del núcleo registra cada NACK como error; la ausencia del
+  // sensor ya la informa el firmware, y sin esto el escaneo llena la consola.
+  esp_log_level_set("i2c.master", ESP_LOG_NONE);
   Wire.begin(PIN_SDA, PIN_SCL);
   Wire.setTimeOut(20);
+  const uint8_t enBus = escanearI2C();
   bme.begin(Wire);
-  if (bme.presente()) Serial.printf("[BME280] Detectado en 0x%02X\n", bme.direccion());
-  else Serial.println("[BME280] No detectado: el ambiente viajará como centinela");
+  informarBme(enBus);
 
   identidad::begin();
   Serial.printf("[PAIR] ID de la sonda (desde la MAC): %s\n", identidad::codigo().c_str());
