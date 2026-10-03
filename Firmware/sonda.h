@@ -26,6 +26,9 @@ public:
   bool terminada() const { return estado_ == Estado::Terminada; }
   // Entrega el resultado una sola vez y deja la sonda libre para otra captura.
   LecturaSuelo tomarLectura();
+  // Diagnóstico de banco (tecla «d»): bloquea unos 3 s y muestra los bytes
+  // crudos que vuelven a cada consulta y velocidad. No produce una lectura.
+  void diagnosticoBus();
 
 private:
   enum class Estado : uint8_t { Libre, Midiendo, Terminada };

@@ -131,6 +131,51 @@ LecturaSuelo Sonda::tomarLectura() {
   return l;
 }
 
+void Sonda::diagnosticoBus() {
+  if (estado_ == Estado::Midiendo) return;
+  // Consulta normal a la dirección configurada y consulta de identidad del
+  // manual: la dirección comodín 0xFF lee el registro 0x07D0, donde la sonda
+  // guarda su dirección, y responde aunque la tenga cambiada.
+  modbus::Consulta c;
+  c.direccion = SONDA_DIRECCION;
+  c.funcion = SONDA_FUNCION;
+  c.inicio = SONDA_REGISTRO_INICIO;
+  c.cantidad = SONDA_REGISTROS;
+  uint8_t lectura[8];
+  modbus::armarSolicitud(c, lectura);
+  static const uint8_t identidad[8] = {0xFF, 0x03, 0x07, 0xD0, 0x00, 0x01, 0x91, 0x59};
+  struct Prueba { const char *nombre; const uint8_t *trama; };
+  const Prueba pruebas[] = {{"lectura (dirección 1)", lectura}, {"identidad (dirección FF)", identidad}};
+  // 2.400 es la tercera velocidad que admite la sonda (registro 0x07D1).
+  static const uint32_t velocidades[] = {2400, 4800, 9600};
+
+  Serial.println("[DIAG] Bus RS-485: cada consulta a 2.400, 4.800 y 9.600 baudios");
+  puerto.alimentar(true);
+  delay(SONDA_ESTABILIZACION_MS);
+  for (uint32_t baudios : velocidades) {
+    for (const Prueba &p : pruebas) {
+      puerto.abrir(baudios);
+      while (Serial2.available()) Serial2.read();
+      puerto.direccionTx(true);
+      puerto.transmitir(p.trama, 8);  // suelta RTS al terminar
+      Serial.printf("[DIAG] %lu baudios, %s:", (unsigned long)baudios, p.nombre);
+      size_t n = 0;
+      const uint32_t inicio = millis();
+      while (millis() - inicio < 300) {
+        while (Serial2.available()) {
+          Serial.printf(" %02X", Serial2.read());
+          n++;
+        }
+        delay(1);
+      }
+      Serial.println(n ? "" : " nada");
+      puerto.cerrar();
+    }
+  }
+  puerto.alimentar(false);
+  Serial.println("[DIAG] Una respuesta sana empieza por 01 03 (lectura) o FF 03 02 (identidad; el quinto byte es la dirección)");
+}
+
 void Sonda::convertir(const uint16_t *r) {
   if (!r) return;
   lectura_.humedadX10 = r[0];

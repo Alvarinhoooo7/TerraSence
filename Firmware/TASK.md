@@ -50,7 +50,7 @@ Sirve para F1 sin la app ni la batería. La sonda va directo a 5 V (no hace falt
 
 | Monitor serie | Causa probable |
 | :--- | :--- |
-| `sin respuesta` a 4.800 y a 9.600 | Sin alimentación o sin GND común, A y B invertidos (inofensivo: intercambiarlos), RO y DI invertidos, RTS sin conectar o sonda con otra dirección. |
+| `sin respuesta` a 4.800 y a 9.600 | Sin alimentación o sin GND común, A y B invertidos (inofensivo: intercambiarlos), RO y DI invertidos, RTS sin conectar o sonda con otra dirección o velocidad. La tecla **`d`** descarta las dos últimas: envía la lectura a la dirección 1 y la consulta de identidad del manual (dirección comodín `FF`, registro `0x07D0`) a 2.400, 4.800 y 9.600 baudios, y muestra los bytes crudos. Si las seis dicen «nada», el problema es de cableado. Un solo `00` por intento es el ruido del bus al pasar a recepción, no una respuesta. |
 | `CRC`, `direccion` o `respuesta truncada` | Ruido o pérdida de los primeros bytes: revisar GND común, cable y la conexión de RTS. La línea `[SONDA] Bytes recibidos` muestra lo que llegó. Uno o más bytes sueltos (típicamente `00`, `80` o `FF`) antes de `01 03 0E` son el bus flotando al pasar a recepción: el firmware descarta hasta 4, pero la solución es polarizar el bus, con 4,7 kΩ de A a 3,3 V y 4,7 kΩ de B a GND (en la placa V2 lo hacen `R12` y `R13`). |
 | `Se descartaron N bytes espurios` tras una lectura buena | La misma causa: la lectura es válida (la valida el CRC), pero conviene polarizar el bus. |
 | `excepcion` | La sonda responde pero rechaza la consulta: revisar dirección, función y cantidad de registros. |

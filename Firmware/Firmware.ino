@@ -102,14 +102,16 @@ void medirYNotificar(uint32_t ahora, LecturaSuelo suelo, bool notificar) {
   }
 }
 
-// Tecla «m» (o «M») en el monitor serie: pide una captura de prueba.
-bool capturaPedidaPorSerie() {
-  bool pedida = false;
+// Comandos del monitor serie para el banco: «m» pide una captura de prueba y
+// «d» el diagnóstico del bus RS-485. Devuelve el último reconocido, o 0.
+char comandoSerie() {
+  char comando = 0;
   while (Serial.available() > 0) {
     const int c = Serial.read();
-    if (c == 'm' || c == 'M') pedida = true;
+    if (c == 'm' || c == 'M') comando = 'm';
+    if (c == 'd' || c == 'D') comando = 'd';
   }
-  return pedida;
+  return comando;
 }
 
 // Diagnóstico de arranque del bus I2C: lista las direcciones que responden,
@@ -204,7 +206,7 @@ void setup() {
   // La única señal de «estoy encendida».
   ledVerde.aviso(PatronLed::Encendido1s, millis());
   zumbador.reproducir(Sonido::Encendido, millis());
-  Serial.println("TerraSense ESP32 inicializado. Tecla «m»: medir la sonda sin la app.");
+  Serial.println("TerraSense ESP32 inicializado. Tecla «m»: medir la sonda sin la app; «d»: diagnóstico del bus RS-485.");
 }
 
 void loop() {
@@ -225,13 +227,14 @@ void loop() {
   // La suscripción de la app inicia una captura nueva; el bucle sigue atendiendo
   // PAIR y avisos mientras la sonda se estabiliza y responde.
   if (bleTomarSolicitudLectura(ahora) && sonda.iniciar(ahora)) captura = OrigenCaptura::App;
-  if (capturaPedidaPorSerie()) {
-    if (captura == OrigenCaptura::Ninguna && sonda.iniciar(ahora)) {
-      captura = OrigenCaptura::Serie;
-      Serial.println("[SONDA] Captura pedida desde el monitor serie");
-    } else {
-      Serial.println("[SONDA] Ya hay una captura en curso");
-    }
+  const char comando = comandoSerie();
+  if (comando && captura != OrigenCaptura::Ninguna) {
+    Serial.println("[SONDA] Ya hay una captura en curso");
+  } else if (comando == 'm' && sonda.iniciar(ahora)) {
+    captura = OrigenCaptura::Serie;
+    Serial.println("[SONDA] Captura pedida desde el monitor serie");
+  } else if (comando == 'd') {
+    sonda.diagnosticoBus();
   }
   sonda.actualizar(ahora);
   if (captura == OrigenCaptura::App && !bleConectado()) {
