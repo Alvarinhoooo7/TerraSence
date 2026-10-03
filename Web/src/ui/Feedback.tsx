@@ -89,11 +89,20 @@ export function Badge({ tone = 'neutral', children }: { tone?: BadgeTone; childr
   );
 }
 
+import { BrandLogo } from './BrandLogo';
+
 export function FullPageLoader() {
   return (
-    <div className="grid h-full place-items-center" aria-busy="true" aria-label="Cargando">
-      <div className="h-1 w-24 overflow-hidden rounded-full bg-line">
-        <div className="h-full w-1/2 animate-pulse rounded-full bg-primary" />
+    <div className="grid h-screen place-items-center bg-paper" aria-busy="true" aria-label="Cargando">
+      <div className="flex flex-col items-center gap-8">
+        <div className="animate-pulse">
+          <BrandLogo className="w-44" />
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 animate-bounce rounded-full bg-primary/60" style={{ animationDelay: '0ms' }} />
+          <div className="h-2 w-2 animate-bounce rounded-full bg-primary" style={{ animationDelay: '150ms' }} />
+          <div className="h-2 w-2 animate-bounce rounded-full bg-primary/60" style={{ animationDelay: '300ms' }} />
+        </div>
       </div>
     </div>
   );
