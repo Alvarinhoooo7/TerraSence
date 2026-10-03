@@ -179,7 +179,7 @@ export async function scanForProbe(expectedDeviceCode?: string, signal?: AbortSi
         new Error(
           expected
             ? 'No se encontró la sonda seleccionada. Comprueba que esté encendida y que su código coincida con el equipo activo.'
-            : 'No se encontró ninguna sonda cerca. Comprueba que esté encendida y a menos de 30 metros.',
+            : 'No se encontró ninguna sonda cerca. Comprueba que esté encendida, con la ventana PAIR abierta y a menos de 2 metros del teléfono.',
         ),
       );
     }, SCAN_TIMEOUT_MS);

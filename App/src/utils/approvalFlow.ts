@@ -11,9 +11,3 @@ export function createApprovalTracker(targetDeviceId?: string, discoverPending =
     },
   };
 }
-/** Las solicitudes previas o ambiguas no pueden identificar una invitación recién enviada. */
-export function newPendingTarget(before: { device_id: string }[], after: { device_id: string }[]): string | undefined {
-  const existing = new Set(before.map(request => request.device_id));
-  const added = [...new Set(after.filter(request => !existing.has(request.device_id)).map(request => request.device_id))];
-  return added.length === 1 ? added[0] : undefined;
-}

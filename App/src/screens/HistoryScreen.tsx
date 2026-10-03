@@ -8,7 +8,7 @@ import { GuideTouchable as TouchableOpacity } from '../components/guide/GuideCon
 //
 // Mediciones en lista, agrupadas por día y filtrables por etapa.
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, RefreshControl, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -44,13 +44,18 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
   const [historyDevice, setHistoryDevice] = useState<{ accountId: string | undefined; id: string | null }>({ accountId, id: null });
   const historyDeviceId = historyDevice.accountId === accountId ? historyDevice.id : null;
   const [devices, setDevices] = useState<DeviceRow[]>([]);
-  useEffect(() => {
-    let active = true;
-    setDevices([]);
-    void listMyDevices().then(rows => { if (active && useAuthStore.getState().session?.user.id === accountId) setDevices(rows); }).catch(() => undefined);
-    return () => { active = false; };
+  const devicesRequest = useRef(0);
+  // Sondas para el filtro. Si la consulta falla se reintenta junto con el historial
+  // (al deslizar para actualizar); mientras tanto sólo se ve «todas las sondas».
+  const loadDevices = useCallback(() => {
+    const generation = ++devicesRequest.current;
+    void listMyDevices().then(rows => {
+      if (generation === devicesRequest.current && useAuthStore.getState().session?.user.id === accountId) setDevices(rows);
+    }).catch(() => undefined);
   }, [accountId]);
-  const { points, loading, offline, error, refresh } = useMeasurementHistory(historyDeviceId);
+  useEffect(() => { setDevices([]); loadDevices(); return () => { devicesRequest.current++; }; }, [loadDevices]);
+  const { points, loading, offline, error, refresh: refreshPoints } = useMeasurementHistory(historyDeviceId);
+  const refresh = () => { loadDevices(); void refreshPoints(); };
   const [filter, setFilter] = useState<PhenologicalStage | 'all'>('all');
 
   const sections = useMemo(() => {

@@ -10,6 +10,8 @@ const ENGLISH: [RegExp, string][] = [
   [/Bluetooth no está disponible/i, 'Bluetooth is not available on this device.'],
   [/No se pudo iniciar Bluetooth/i, 'Could not start Bluetooth.'],
   [/Fallo al buscar la sonda/i, 'Could not find the probe.'],
+  [/ninguna sonda cerca/i, 'No probe found nearby. Check that it is on, with the PAIR window open and within 2 meters of the phone.'],
+  [/sonda seleccionada/i, 'The selected probe was not found. Check that it is on and that its code matches the active device.'],
   [/no respondió a tiempo/i, 'The probe did not respond in time. Reinsert the probe and try again.'],
   [/Fallo de lectura BLE|Paquete BLE|Versión de trama|BLE inválid|fuera del rango|Presión fuera/i, 'The probe sent a reading that could not be interpreted. Measure again.'],
   [/no entregó lectura de suelo/i, 'The probe did not deliver a soil reading. Check that the sensor is connected and buried, and measure again.'],

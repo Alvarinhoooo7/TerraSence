@@ -84,7 +84,14 @@ export async function registerDevice(name: string, pairedCode: string): Promise<
 }
 
 /** Solicita acceso con el token temporal del QR. null significa pendiente. */
-export async function requestDeviceAccess(token: string): Promise<DeviceRow | null> {
+/**
+ * Resultado de pedir acceso con una invitación. `deviceId` viene siempre del
+ * servicio, también cuando la solicitud queda pendiente o ya existía: es lo que
+ * identifica qué aprobación se espera. `device` sólo llega si ya hay acceso.
+ */
+export interface DeviceAccessResult { deviceId: string; device: DeviceRow | null }
+
+export async function requestDeviceAccess(token: string): Promise<DeviceAccessResult> {
   const { data, error } = await supabase.functions.invoke('request-device-access', { body: { token } });
   if (error) {
     const context = error.context as Response | undefined;
@@ -93,7 +100,7 @@ export async function requestDeviceAccess(token: string): Promise<DeviceRow | nu
   }
   const result = data as { device_id: string; is_authorized: boolean } | null;
   if (!result?.device_id) throw new Error('No se pudo solicitar acceso.');
-  if (!result.is_authorized) return null;
+  if (!result.is_authorized) return { deviceId: result.device_id, device: null };
 
   // Tras la vinculación el equipo ya es visible para la política SELECT.
   const { data: device, error: readError } = await supabase
@@ -103,7 +110,7 @@ export async function requestDeviceAccess(token: string): Promise<DeviceRow | nu
     .single();
 
   if (readError) throw readError;
-  return device as unknown as DeviceRow;
+  return { deviceId: result.device_id, device: device as unknown as DeviceRow };
 }
 
 export interface DeviceAccessQr { token: string; expires_at: string }

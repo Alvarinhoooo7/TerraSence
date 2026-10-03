@@ -6,6 +6,7 @@ import { ScreenLabel } from '../components/screen/ScreenUI';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { listMyDeviceMemberships } from '../services/deviceService';
 import { clearDevSkip } from '../utils/devSkipOnboarding';
 import { getPushRegistrationStatus, registerPushToken, signOutThisPhone, subscribePushRegistration } from '../services/notifications';
@@ -18,10 +19,10 @@ import { ShareDeviceScreen } from './ShareDeviceScreen';
 import { settingsParent, type SettingsPageId } from '../utils/settingsNavigation';
 
 type Page = SettingsPageId;
-interface Props { onClose: () => void; onOpenInbox: () => void; onOpenAdministration: () => void }
-export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenAdministration }: Props) {
+interface Props { onClose: () => void; onOpenInbox: () => void; onOpenAdministration: () => void; initialPage?: SettingsPageId }
+export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenAdministration, initialPage = 'index' }: Props) {
   const { colors } = useAppTheme(); const { t } = useTranslation();
-  const preferences = useAppStore(s => s.preferences); const [page, setPage] = useState<Page>('index');
+  const preferences = useAppStore(s => s.preferences); const [page, setPage] = useState<Page>(initialPage);
   const [canAdminister, setCanAdminister] = useState(false); const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const lock = useRef(false);
   const [pushStatus, setPushStatus] = useState(getPushRegistrationStatus);
   useEffect(() => subscribePushRegistration(setPushStatus), []);
@@ -31,9 +32,13 @@ export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenAdministration
   const apply = async (next: AppPreferences) => {
     if (lock.current) return; lock.current = true; setBusy(true); setError('');
     const previous = useAppStore.getState().preferences;
+    // Cuenta de este cambio: si la sesión cambia mientras se guarda, una respuesta
+    // tardía no restaura ni avisa sobre las preferencias de la cuenta nueva.
+    const account = useAuthStore.getState().session?.user.id;
+    const sameAccount = () => useAuthStore.getState().session?.user.id === account;
     useAppStore.getState().setPreferences(next);
-    try { await savePreferences(next); void registerPushToken(next).catch(() => undefined); }
-    catch { useAppStore.getState().setPreferences(previous); setError(t('No se pudo guardar el cambio. Inténtalo nuevamente.', 'Could not save the change. Please retry.')); }
+    try { await savePreferences(next); if (sameAccount()) void registerPushToken(next).catch(() => undefined); }
+    catch { if (!sameAccount()) return; useAppStore.getState().setPreferences(previous); setError(t('No se pudo guardar el cambio. Inténtalo nuevamente.', 'Could not save the change. Please retry.')); }
     finally { lock.current = false; setBusy(false); }
   };
   const signOut = async () => {

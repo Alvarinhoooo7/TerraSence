@@ -28,6 +28,7 @@ import { AuthScreen } from './src/screens/AuthScreen';
 import { TermsScreen } from './src/screens/TermsScreen';
 import { MeasureScreen } from './src/screens/MeasureScreen';
 import { FieldSettingsScreen } from './src/screens/FieldSettingsScreen';
+import type { SettingsPageId } from './src/utils/settingsNavigation';
 import { AdministrationScreen } from './src/screens/AdministrationScreen';
 import { WaitingApprovalScreen } from './src/screens/WaitingApprovalScreen';
 import { DevicesScreen } from './src/screens/DevicesScreen';
@@ -115,7 +116,7 @@ export default function App() {
   useEffect(() => {
     const current = session?.user.id ?? null;
     if (previousSessionId.current && previousSessionId.current !== current) {
-      setInboxOpen(false); setPendingAlertId(null);
+      setInboxOpen(false); setPendingAlertId(null); setDetailPoint(null);
       useAppStore.getState().setDevice(null);
       useAppStore.getState().setPoints([]);
       setRoute('dashboard'); setNotificationDeviceId(null);
@@ -140,6 +141,7 @@ export default function App() {
   const dataRevision = useAppStore(s => s.dataRevision);
   useEffect(() => { setDetailPoint(null); }, [dataRevision]);
   const [detailPoint, setDetailPoint] = useState<MeasurementPoint | null>(null);
+  const [settingsReturn, setSettingsReturn] = useState<SettingsPageId | undefined>();
   const setDevice = useAppStore((state) => state.setDevice);
   const setPreferences = useAppStore((state) => state.setPreferences);
   const setPreferencesLoaded = useAppStore((state) => state.setPreferencesLoaded);
@@ -543,7 +545,8 @@ export default function App() {
       useAppStore.getState().invalidateData(); setRoute('dashboard');
     }} />;
   } else if (route === 'settings') {
-    content = <FieldSettingsScreen key={session?.user.id} onClose={() => setRoute('dashboard')} onOpenInbox={() => setInboxOpen(true)} onOpenAdministration={() => setRoute('administration')} />;
+    // Al volver de Administración, Configuración reabre la categoría de origen (Equipos y datos).
+    content = <FieldSettingsScreen key={session?.user.id} initialPage={settingsReturn} onClose={() => setRoute('dashboard')} onOpenInbox={() => setInboxOpen(true)} onOpenAdministration={() => { setSettingsReturn('equipment'); setRoute('administration'); }} />;
   } else if (route === 'administration') {
     content = <AdministrationScreen key={session?.user.id} initialDeviceId={notificationDeviceId} onClose={() => { setNotificationDeviceId(null); setRoute('settings'); }} />;
   } else if (route === 'history') {
@@ -576,9 +579,12 @@ export default function App() {
         {session && !inboxOpen && ['approval', 'onboarding'].includes(entry) && <InboxShortcut onPress={() => setInboxOpen(true)} />}
         {content}
         {entry === 'app' && !inboxOpen && !recoveryLinkError && ['dashboard', 'devices', 'history', 'settings', 'administration'].includes(route) && (
-          <BottomNavigation route={route} onNavigate={next => { setNotificationDeviceId(null); setDevicesOrigin('dashboard'); setRoute(next); }} />
+          <BottomNavigation route={route} onNavigate={next => { setNotificationDeviceId(null); setDevicesOrigin('dashboard'); setSettingsReturn(undefined); setRoute(next); }} />
         )}
-        <MeasurementDetailModal point={detailPoint} onClose={() => setDetailPoint(null)} />
+        {/* El detalle sólo existe dentro de Mediciones de la cuenta con sesión: con las
+            mismas barreras que esa pantalla (entrada completa y sin error de recuperación). */}
+        {entry === 'app' && !!session && !recoveryLinkError && route === 'history' &&
+          <MeasurementDetailModal point={detailPoint} onClose={() => setDetailPoint(null)} />}
         </ScreenGuide>
         <Modal visible={entry === 'terms' && legalFromRegistration} animationType="slide" presentationStyle="fullScreen"
           onRequestClose={() => { registrationDraft.current = null; pendingRegistrationIdentity.current = null; setLegalFromRegistration(false); }}>

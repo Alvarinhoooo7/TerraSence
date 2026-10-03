@@ -12,6 +12,7 @@ import { useLinkedDevices } from '../hooks/useLinkedDevices';
 import { useAppStore } from '../store/useAppStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { rememberSelectedDevice } from '../services/deviceSelectionService';
+import { listMyDeviceMemberships } from '../services/deviceService';
 import { formatDeviceId } from '../utils/deviceId';
 import type { DeviceRow } from '../types/app';
 
@@ -43,6 +44,30 @@ export function DashboardScreen({ onStartMeasurement, onLinkDevice }: Props) {
     });
   };
   const openSelector = () => { setSelector(true); void refresh(); };
+  // Con Inicio a la vista, un acceso retirado se nota sin esperar a volver de otra pantalla.
+  useEffect(() => { const timer = setInterval(() => void refresh(), 30000); return () => clearInterval(timer); }, [refresh]);
+  // Antes de medir se confirma que el acceso a la sonda sigue vigente. Sin conexión se
+  // mide igual con la última autorización conocida: la medición se guarda en el teléfono
+  // y el servidor vuelve a validar el acceso al sincronizarla.
+  const [checking, setChecking] = useState(false);
+  const measure = async () => {
+    if (!device || checking) return;
+    setChecking(true);
+    let allowed = true;
+    try {
+      const roles = await listMyDeviceMemberships();
+      if (useAuthStore.getState().session?.user.id !== accountId) return;
+      allowed = roles.some(m => m.device_id === device.id && m.is_authorized);
+    } catch { /* sin conexión: se conserva la selección */ }
+    finally { setChecking(false); }
+    if (!allowed) {
+      useAppStore.getState().setDevice(null);
+      setNotice(t('Ya no tienes acceso a esta sonda. Elige otra para medir.', 'You no longer have access to this probe. Choose another to measure.'));
+      void refresh();
+      return;
+    }
+    onStartMeasurement();
+  };
   return <SafeAreaView edges={['left', 'right']} style={styles.root}>
     {/* Barra superior: la sonda para medir (el único lugar donde se elige), vincular otra
         y, a la derecha, el lugar del botón «?» de la guía, que flota encima. */}
@@ -65,7 +90,7 @@ export function DashboardScreen({ onStartMeasurement, onLinkDevice }: Props) {
       <Text accessibilityRole="header" style={[styles.title, { fontSize: compact ? 28 : 34 }]}>{t('Conoce tu suelo.', 'Know your soil.')}</Text>
       <View style={[styles.orbit, { padding: compact ? 14 : 22 }]}>
         <Button accessibilityRole="button" accessibilityLabel={device ? t('Medir', 'Measure') : t('Elegir sonda para medir', 'Choose a probe to measure')} guide={t('Prepara una medición con la sonda indicada arriba.', 'Prepare a reading with the probe shown above.')}
-          onPress={device ? onStartMeasurement : openSelector} style={[styles.measure, { minWidth: compact ? 150 : 180, minHeight: compact ? 150 : 180 }]}>
+          onPress={device ? () => void measure() : openSelector} disabled={checking} style={[styles.measure, { minWidth: compact ? 150 : 180, minHeight: compact ? 150 : 180 }]}>
           <AppIcon name="probe" color={SPLASH_BACKGROUND} size={compact ? 36 : 44} /><Text style={styles.measureText}>{t('Medir', 'Measure')}</Text>
         </Button>
       </View>

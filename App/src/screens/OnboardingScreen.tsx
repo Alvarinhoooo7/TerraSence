@@ -25,7 +25,6 @@ import { ScreenCard, ScreenLabel, ScreenLayout, ScreenOption, ScreenText, Screen
 import { BrandLoading } from '../components/LoadingScreen';
 import { formatDeviceId } from '../utils/deviceId';
 import { AccessField } from '../components/auth/AccessField';
-import { newPendingTarget } from '../utils/approvalFlow';
 import { createQrScanGate } from '../utils/qrScanGate';
 import { enableDevSkip } from '../utils/devSkipOnboarding';
 import { createDeveloperTap } from '../utils/developerTap';
@@ -203,15 +202,13 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip, onCan
       setJoining(true);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       try {
-        const before = addingDevice ? await listPendingDeviceRequests() : [];
+        const access = await requestDeviceAccess(code);
         if (!active()) return;
-        const device = await requestDeviceAccess(code);
-        if (!active()) return;
-        if (device) await finish('qr', device);
+        if (access.device) await finish('qr', access.device);
         else {
-          const after = await listPendingDeviceRequests();
-          if (!active()) return;
-          setTargetDeviceId(newPendingTarget(before, after));
+          // El servicio identifica la sonda aunque la solicitud ya existiera o se apruebe
+          // mientras tanto: la espera sigue a ese equipo y no a una diferencia de listas.
+          setTargetDeviceId(access.deviceId);
           setPending(true); setStep('choice');
         }
       } catch (error) {
@@ -237,17 +234,10 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip, onCan
     operation.current = true;
     setJoining(true);
     try {
-      const before = addingDevice ? await listPendingDeviceRequests() : [];
+      const access = await requestDeviceAccess(token);
       if (!active()) return;
-      const device = await requestDeviceAccess(token);
-      if (!active()) return;
-      if (device) await finish('qr', device);
-      else {
-          const after = await listPendingDeviceRequests();
-          if (!active()) return;
-          setTargetDeviceId(newPendingTarget(before, after));
-          setPending(true); setStep('choice');
-        }
+      if (access.device) await finish('qr', access.device);
+      else { setTargetDeviceId(access.deviceId); setPending(true); setStep('choice'); }
     } catch (error) {
       if (active()) Alert.alert(t('No se pudo solicitar acceso', 'Could not request access'), friendlyError(error));
     } finally {

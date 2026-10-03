@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createApprovalTracker, newPendingTarget } from '../src/utils/approvalFlow';
+import { createApprovalTracker } from '../src/utils/approvalFlow';
 const pending = (id: string) => ({ device_id: id });
 test('vincular otra sonda espera el objetivo y nunca devuelve un equipo existente o ajeno', () => {
   const tracker = createApprovalTracker('target');
@@ -24,10 +24,11 @@ test('la vinculación inicial aprende los objetivos pendientes, informa el retir
   const result = tracker.update([], [{ id: 'other' }]);
   assert.equal(result.approved, undefined); assert.equal(result.removed, true);
 });
-test('la inferencia del objetivo excluye solicitudes previas y rechaza la ambigüedad', () => {
-  assert.equal(newPendingTarget([pending('old')], [pending('old'), pending('target')]), 'target');
-  assert.equal(newPendingTarget([pending('old')], [pending('old')]), undefined);
-  assert.equal(newPendingTarget([], [pending('one'), pending('two')]), undefined);
+test('una solicitud que ya existía se sigue por el identificador del servicio, aunque se apruebe antes del primer sondeo', () => {
+  // La lista de pendientes no cambia (ya estaba) y el equipo llega aprobado de inmediato:
+  // con el identificador que entrega request-device-access, la espera termina igual.
+  const tracker = createApprovalTracker('target');
+  assert.deepEqual(tracker.update([pending('old')], [{ id: 'old' }, { id: 'target' }]).approved, { id: 'target' });
 });
 
 test('los datos de la solicitud sobreviven el filtrado para la interfaz', () => {
