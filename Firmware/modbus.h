@@ -8,8 +8,10 @@ namespace modbus {
 
 constexpr uint8_t MAX_REGISTROS = 16;
 constexpr size_t MAX_RESPUESTA = 5 + 2 * MAX_REGISTROS;
-// Bytes espurios tolerados antes del primero de la trama (ver Fase::Rx).
-constexpr uint8_t MAX_DESCARTE = 4;
+// Bytes tolerados antes del primero de la trama (ver Fase::Rx): el eco de
+// la consulta (8) cuando el transceptor escucha mientras transmite, más
+// ruido del bus al cambiar de dirección.
+constexpr uint8_t MAX_DESCARTE = 24;
 
 enum class Fallo : uint8_t {
   Ninguno, Configuracion, Puerto, Silencio, Truncada, Sobrante,
@@ -72,6 +74,7 @@ private:
   void fallar(Fallo fallo, uint32_t ahora);
   void terminar(Fallo fallo);
   void vaciarEntrada();
+  bool prefijoValido() const;
 
   Puerto &puerto_;
   Consulta consulta_{};

@@ -74,4 +74,4 @@ constexpr uint32_t SONDA_BAUDIOS[]        = {4800, 9600};
 // ≤ 15 s). Medirlo cuando el corte por MOSFET esté montado (TASK.md, F1).
 constexpr uint32_t SONDA_ESTABILIZACION_MS = 1000;
 constexpr uint32_t SONDA_RESPUESTA_MS      = 300;   // espera por respuesta, por intento
-constexpr uint8_t  SONDA_REINTENTOS        = 1;     // reintentos por velocidad
+constexpr uint8_t  SONDA_REINTENTOS        = 2;     // reintentos por velocidad (máximo del transporte)

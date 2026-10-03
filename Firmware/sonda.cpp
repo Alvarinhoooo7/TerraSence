@@ -15,6 +15,7 @@ class PuertoEsp32 : public modbus::Puerto {
 public:
   bool abrir(uint32_t baudios) override {
     Serial2.begin(baudios, SERIAL_8N1, PIN_RX, PIN_TX);
+    baudios_ = baudios;
     abierto_ = true;
     return true;
   }
@@ -27,10 +28,14 @@ public:
   bool transmitir(const uint8_t *bytes, size_t largo) override {
     if (!abierto_ || Serial2.write(bytes, largo) != largo) return false;
     // Ocho bytes a 4.800 baudios son ≈ 17 ms: se espera el fin de la
-    // transmisión aquí y se suelta el bus de inmediato, sin esperar la
-    // siguiente vuelta de loop() (≥ 5 ms), porque la sonda puede responder
-    // apenas pasan 3,5 caracteres (≈ 8 ms) y se perderían sus primeros bytes.
+    // transmisión aquí y se suelta el bus sin esperar la siguiente vuelta de
+    // loop() (≥ 5 ms), porque la sonda puede responder apenas pasan 3,5
+    // caracteres (≈ 8 ms). flush() vuelve con los últimos bits aún saliendo:
+    // en banco, el eco mostró el último byte truncado en sus 3 bits finales.
+    // Por eso se sostiene el bus un carácter más (≈ 2,3 ms a 4.800 baudios),
+    // muy por debajo de los 3,5 que la sonda espera antes de responder.
     Serial2.flush();
+    delayMicroseconds(11000000UL / baudios_);
     digitalWrite(PIN_RTS, LOW);
     return true;
   }
@@ -40,6 +45,7 @@ public:
 
 private:
   bool abierto_ = false;
+  uint32_t baudios_ = 4800;
 };
 
 PuertoEsp32 puerto;
@@ -92,7 +98,7 @@ void Sonda::actualizar(uint32_t ahora) {
     convertir(transporte.registros());
     Serial.printf("[SONDA] Lectura a %lu baudios\n", (unsigned long)SONDA_BAUDIOS[velocidad_]);
     if (transporte.descartados())
-      Serial.printf("[SONDA] Se descartaron %u bytes espurios antes de la trama: falta polarizar el bus\n",
+      Serial.printf("[SONDA] Se descartaron %u bytes antes de la trama (eco de la consulta o ruido del bus)\n",
                     transporte.descartados());
     estado_ = Estado::Terminada;
     return;
@@ -173,7 +179,8 @@ void Sonda::diagnosticoBus() {
     }
   }
   puerto.alimentar(false);
-  Serial.println("[DIAG] Una respuesta sana empieza por 01 03 (lectura) o FF 03 02 (identidad; el quinto byte es la dirección)");
+  Serial.println("[DIAG] Antes de la respuesta puede venir el eco de la consulta. Una respuesta sana es 01 03 0E + 14 bytes + "
+                 "CRC (lectura) o XX 03 02 00 XX + CRC (identidad; XX es la dirección)");
 }
 
 void Sonda::convertir(const uint16_t *r) {

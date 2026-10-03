@@ -1,5 +1,7 @@
 #include "modbus.h"
 
+#include <string.h>
+
 namespace modbus {
 
 uint16_t crc16(const uint8_t *bytes, size_t largo) {
@@ -94,6 +96,15 @@ void Transporte::vaciarEntrada() {
   for (unsigned i = 0; i < 128 && puerto_.disponible() > 0; ++i) puerto_.recibir();
 }
 
+// ¿Los bytes acumulados pueden ser el comienzo de la respuesta esperada?
+bool Transporte::prefijoValido() const {
+  if (recibidos_ >= 1 && respuesta_[0] != consulta_.direccion) return false;
+  if (recibidos_ >= 2 && respuesta_[1] != consulta_.funcion &&
+      respuesta_[1] != uint8_t(consulta_.funcion | 0x80)) return false;
+  if (recibidos_ >= 3 && !(respuesta_[1] & 0x80) && respuesta_[2] != consulta_.cantidad * 2) return false;
+  return true;
+}
+
 void Transporte::enviar(uint32_t ahora) {
   vaciarEntrada();
   if (puerto_.disponible() > 0) { terminar(Fallo::Sobrante); return; }
@@ -150,30 +161,21 @@ void Transporte::actualizar(uint32_t ahora) {
         const int valor = puerto_.recibir();
         if (valor < 0) break;
         if (crudos_ < sizeof(crudo_)) crudo_[crudos_++] = uint8_t(valor);
-        // Al pasar a recepción, un bus RS-485 sin polarización queda flotando y
-        // el transceptor puede entregar un byte espurio. Antes del primer byte
-        // de la trama se descartan hasta MAX_DESCARTE que no sean la dirección
-        // esperada; el CRC sigue validando la trama completa.
-        if (recibidos_ == 0 && uint8_t(valor) != consulta_.direccion) {
-          if (++descartados_ > MAX_DESCARTE) { fallar(Fallo::Direccion, ahora); return; }
-          continue;
-        }
-        if (recibidos_ >= MAX_RESPUESTA || (esperados_ && recibidos_ >= esperados_)) {
-          fallar(Fallo::Sobrante, ahora); return;
-        }
+        if (recibidos_ >= MAX_RESPUESTA) { fallar(Fallo::Sobrante, ahora); return; }
         respuesta_[recibidos_++] = uint8_t(valor);
-        if (recibidos_ == 2) {
-          if (respuesta_[0] != consulta_.direccion) { fallar(Fallo::Direccion, ahora); return; }
-          if (respuesta_[1] != consulta_.funcion &&
-              respuesta_[1] != uint8_t(consulta_.funcion | 0x80)) {
-            fallar(Fallo::Funcion, ahora); return;
-          }
-          if (respuesta_[1] & 0x80) esperados_ = 5;
+        // Resincronización: antes de la respuesta pueden llegar el eco de la
+        // propia consulta (transceptores que escuchan mientras transmiten) y
+        // ruido del bus al cambiar de dirección. Mientras los bytes acumulados
+        // no puedan ser el encabezado esperado (dirección, función y cantidad)
+        // se descarta el más antiguo. El CRC sigue validando la trama completa.
+        while (recibidos_ && !prefijoValido()) {
+          memmove(respuesta_, respuesta_ + 1, --recibidos_);
+          if (++descartados_ > MAX_DESCARTE) { fallar(Fallo::Direccion, ahora); return; }
         }
-        if (recibidos_ == 3 && !esperados_) {
-          if (respuesta_[2] != consulta_.cantidad * 2) { fallar(Fallo::Cantidad, ahora); return; }
-          esperados_ = 5 + respuesta_[2];
-        }
+        esperados_ = 0;
+        if (recibidos_ >= 2 && (respuesta_[1] & 0x80)) esperados_ = 5;
+        else if (recibidos_ >= 3) esperados_ = 5 + respuesta_[2];
+        if (esperados_ && recibidos_ == esperados_) break;
       }
       if (esperados_ && recibidos_ == esperados_) {
         if (puerto_.disponible() > 0) { fallar(Fallo::Sobrante, ahora); return; }
