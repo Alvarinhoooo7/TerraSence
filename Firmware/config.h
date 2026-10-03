@@ -53,3 +53,21 @@ constexpr float    BATERIA_BAJA_V         = 3.40f;  // entra en aviso bajo este 
 constexpr float    BATERIA_RECUPERADA_V   = 3.50f;  // histéresis: sale del aviso sobre este
 constexpr float    BATERIA_PRESENTE_MIN_V = 2.50f;  // bajo esto no hay celda (p. ej. sólo USB)
 constexpr uint32_t BATERIA_PERIODO_MS     = 5000;
+
+// --- Sonda de suelo 7 en 1 (RS-485, Modbus RTU) ---
+// Mapa de la familia de sondas 7 en 1 de la ficha de referencia: dirección 1,
+// función 03, siete registros desde el 0x0000 en este orden: humedad (% × 10),
+// temperatura (°C × 10, con signo), conductividad (µS/cm), pH (× 10),
+// nitrógeno, fósforo y potasio (mg/kg). Es una hipótesis hasta contrastarla
+// con la muestra comprada (PLAN.md, P0): si la escala del pH u otro registro
+// difiere, la trama se descarta por fuera de rango en vez de enviar un valor
+// equivocado. La velocidad de fábrica es 4.800 o 9.600 baudios según el lote:
+// el firmware prueba ambas en ese orden.
+constexpr uint8_t  SONDA_DIRECCION        = 1;
+constexpr uint8_t  SONDA_FUNCION          = 3;
+constexpr uint16_t SONDA_REGISTRO_INICIO  = 0x0000;
+constexpr uint8_t  SONDA_REGISTROS        = 7;
+constexpr uint32_t SONDA_BAUDIOS[]        = {4800, 9600};
+constexpr uint32_t SONDA_ESTABILIZACION_MS = 1000;  // tras energizar, antes de consultar
+constexpr uint32_t SONDA_RESPUESTA_MS      = 300;   // espera por respuesta, por intento
+constexpr uint8_t  SONDA_REINTENTOS        = 1;     // reintentos por velocidad

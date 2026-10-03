@@ -19,7 +19,7 @@ constexpr size_t  TRAMA_BYTES   = 20;
 constexpr uint8_t TRAMA_VERSION = 1;
 
 struct LecturaSuelo {
-  bool     valida = false;  // false mientras no exista el driver Modbus
+  bool     valida = false;  // true sólo con una respuesta Modbus íntegra de esta captura
   uint16_t humedadX10 = 0;  // % × 10
   int16_t  temperaturaX10 = 0;  // °C × 10, con signo
   uint16_t conductividad = 0;   // µS/cm
@@ -29,6 +29,12 @@ struct LecturaSuelo {
   uint16_t potasio = 0;         // mg/kg
   uint8_t  bateriaPct = 0;      // 0-100
 };
+
+inline bool sueloPublicable(const LecturaSuelo &suelo) {
+  // Los demás límites dependen de la ficha del sensor. No recortar errores.
+  return suelo.valida && suelo.humedadX10 <= 1000 && suelo.phX10 <= 140 &&
+         suelo.bateriaPct <= 100;
+}
 
 struct LecturaAmbiente {
   bool  temperaturaOk = false;
@@ -51,7 +57,7 @@ inline void armarTrama(const LecturaSuelo &suelo, const LecturaAmbiente &aire, u
     out[offset + 1] = uint8_t(valor & 0xFF);
   };
 
-  if (suelo.valida) {
+  if (sueloPublicable(suelo)) {
     put16(0, suelo.humedadX10);
     put16(2, uint16_t(suelo.temperaturaX10));
     put16(4, suelo.conductividad);
@@ -59,7 +65,7 @@ inline void armarTrama(const LecturaSuelo &suelo, const LecturaAmbiente &aire, u
     put16(8, suelo.nitrogeno);
     put16(10, suelo.fosforo);
     put16(12, suelo.potasio);
-    out[14] = suelo.bateriaPct > 100 ? 100 : suelo.bateriaPct;
+    out[14] = suelo.bateriaPct;
   } else {
     for (size_t i = 0; i <= 14; i++) out[i] = 0xFF;
   }

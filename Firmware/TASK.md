@@ -40,11 +40,13 @@ Si la app muestra «No se pudo verificar la identidad de la sonda», la sonda ti
 
 ## Pendiente de implementación
 
+Orden, dependencias y criterios de aceptación en [PLAN.md](PLAN.md#orden-de-trabajo). Primer objetivo: una medición real de suelo y ambiente recibida y guardada por la app; después reposo profundo y actualización por BLE. El plan distingue pruebas en computador de validación física y conserva los identificadores F/H/A/D de este inventario.
+
 ### Firmware
 
 | # | Tarea | Detalle |
 | :---: | :--- | :--- |
-| F1 | Driver Modbus RS-485 de la sonda 7-en-1 | Confirmar el mapa de registros con el proveedor; la consulta documentada `01 03 00 00 00 07 04 08` es una suposición. Encender la sonda por GATE, esperar a que se estabilice, controlar RTS y validar dirección, función, longitud y CRC. Ante fallo o timeout: error de sonda. Con lectura válida se llena `LecturaSuelo` y se envía la batería. |
+| F1 | Validar el driver Modbus con la sonda real | Implementado sin ensayo: `sonda.cpp` energiza la sonda por IO5, consulta por UART2 (IO16/IO17, DE/RE en IO4) con `modbus.cpp` y prueba 4.800 y luego 9.600 baudios. El mapa de `config.h` (dirección 1, función 03, siete registros desde 0x0000) es el de la familia de la ficha y debe contrastarse con la muestra: comparar el monitor serie (`[SONDA] Registros: …`) con un adaptador USB–RS-485. Una escala distinta (p. ej. pH × 100) hace que la trama se descarte, no que llegue un valor errado. |
 | F2 | Porcentaje de batería | Confirmar el divisor 100k/100k en el PCB armado, calibrar contra un multímetro, definir la curva tensión → % de la celda y validar el umbral de 3,40 V. La app avisa al 15 % y se rearma sobre 20 % ([`batteryWarning.ts`](../App/src/utils/batteryWarning.ts)); revisar ese umbral con la curva calibrada. |
 | F3 | Validar el BME280 | Conectar el sensor y comparar temperatura, humedad y presión con una referencia antes de dar por buenos sus valores. |
 | F4 | Reposo profundo | Despertar por IO33 (ext0), dormir tras desconectar. Definir si la sonda anuncia siempre o sólo tras una pulsación; la app asume que vuelve a reposo después de cada lectura. |

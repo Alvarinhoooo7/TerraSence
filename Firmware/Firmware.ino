@@ -13,6 +13,8 @@
 #include "pines.h"
 #include "config.h"
 #include "trama.h"
+#include "bateria.h"
+#include "sonda.h"
 #include "pulsador.h"
 #include "leds.h"
 #include "zumbador.h"
@@ -26,8 +28,10 @@ Led ledVerde(PIN_LED_GREEN);
 Led ledRojo(PIN_LED_RED);
 Zumbador zumbador(PIN_BUZZER);
 Bme280 bme;
+Sonda sonda;
+bool capturaEnCurso = false;
 
-bool bateriaBaja = false;
+EstadoBateria bateriaActual;
 uint32_t ultimaBateria = 0;
 
 // Tensión de la celda en voltios, promediando para reducir el ruido del ADC.
@@ -37,58 +41,34 @@ float leerBateriaV() {
   return (suma / 8.0f) / 1000.0f * BATERIA_FACTOR_DIVISOR;
 }
 
-// Porcentaje aproximado de una celda LiPo de 3,7 V según su tensión, por
-// interpolación lineal entre puntos de una curva de descarga típica. Sin
-// calibrar contra la celda real (TASK.md, F2): sirve para el estado del equipo,
-// no como medida de capacidad.
-uint8_t porcentajeBateria(float v) {
-  static const float curva[][2] = {
-    {3.30f, 0}, {3.60f, 5}, {3.70f, 15}, {3.75f, 25}, {3.80f, 40},
-    {3.85f, 55}, {3.95f, 70}, {4.05f, 85}, {4.20f, 100},
-  };
-  constexpr size_t n = sizeof(curva) / sizeof(curva[0]);
-  if (v <= curva[0][0]) return 0;
-  if (v >= curva[n - 1][0]) return 100;
-  for (size_t i = 1; i < n; i++) {
-    if (v <= curva[i][0]) {
-      const float t = (v - curva[i - 1][0]) / (curva[i][0] - curva[i - 1][0]);
-      return uint8_t(curva[i - 1][1] + t * (curva[i][1] - curva[i - 1][1]) + 0.5f);
-    }
-  }
-  return 100;
-}
-
-void revisarBateria(uint32_t ahora) {
-  if (ultimaBateria != 0 && ahora - ultimaBateria < BATERIA_PERIODO_MS) return;
+void revisarBateria(uint32_t ahora, bool forzar = false) {
+  if (!forzar && ultimaBateria != 0 && ahora - ultimaBateria < BATERIA_PERIODO_MS) return;
   ultimaBateria = ahora ? ahora : 1;
-
-  const float v = leerBateriaV();
-  // Sin celda (p. ej. sólo USB) no hay porcentaje que informar.
-  bleActualizarEstado(v < BATERIA_PRESENTE_MIN_V ? 0xFF : porcentajeBateria(v));
-  const bool antes = bateriaBaja;
-  if (v < BATERIA_PRESENTE_MIN_V) {
-    bateriaBaja = false;  // sin celda (p. ej. sólo USB): no hay nada que avisar
-  } else if (v < BATERIA_BAJA_V) {
-    bateriaBaja = true;
-  } else if (v > BATERIA_RECUPERADA_V) {
-    bateriaBaja = false;
-  }
-  if (bateriaBaja != antes) {
-    if (bateriaBaja) zumbador.reproducir(Sonido::BateriaBaja, ahora);
-    Serial.printf("[BAT] %.2f V: %s\n", v, bateriaBaja ? "batería baja" : "batería normal");
+  const bool antes = bateriaActual.baja;
+  bateriaActual = evaluarBateria(leerBateriaV(), antes);
+  bleActualizarEstado(bateriaActual.porcentaje);
+  if (bateriaActual.baja != antes) {
+    if (bateriaActual.baja) zumbador.reproducir(Sonido::BateriaBaja, ahora);
+    Serial.printf("[BAT] %.2f V: %s\n", bateriaActual.voltios,
+                  bateriaActual.baja ? "batería baja" : "batería normal");
   }
 }
 
 // La sonda RS-485 aún no tiene driver: la lectura siempre es inválida.
 // No se reemplaza por valores de ejemplo; ver trama.h.
-LecturaSuelo leerSuelo() {
-  LecturaSuelo suelo;
-  suelo.valida = false;
-  return suelo;
-}
-
-void medirYNotificar(uint32_t ahora) {
-  const LecturaSuelo suelo = leerSuelo();
+// Arma y notifica la trama con la lectura de suelo de esta captura (inválida si
+// la sonda no respondió), el ambiente y la batería medidos ahora mismo.
+void medirYNotificar(uint32_t ahora, LecturaSuelo suelo) {
+  revisarBateria(ahora, true);  // la batería de esta captura, sin reutilizar la anterior
+  if (suelo.valida && !bateriaActual.valida) {
+    Serial.println("[TRAMA] Batería inválida: se descarta la medición de suelo");
+    suelo.valida = false;
+  }
+  if (suelo.valida) suelo.bateriaPct = bateriaActual.porcentaje;
+  if (suelo.valida && !sueloPublicable(suelo)) {
+    Serial.println("[TRAMA] Suelo fuera de rango: se descarta la medición");
+    suelo.valida = false;
+  }
   const LecturaAmbiente aire = bme.leer();
 
   uint8_t trama[TRAMA_BYTES];
@@ -98,12 +78,13 @@ void medirYNotificar(uint32_t ahora) {
   Serial.print("[TRAMA] ");
   for (size_t i = 0; i < sizeof(trama); i++) Serial.printf("%02X ", trama[i]);
   Serial.println(enviada ? "(notificada)" : "(sin teléfono conectado)");
-  Serial.printf("[TRAMA] suelo: %s | BME280: %s | batería ADC: %.2f V (no se envía sin suelo)\n",
+  Serial.printf("[TRAMA] suelo: %s | BME280: %s | batería ADC: %.2f V (%s)\n",
                 suelo.valida ? "ok" : "sin lectura (FF)",
-                bme.presente() ? "ok" : "ausente (centinela)", leerBateriaV());
+                bme.presente() ? "ok" : "ausente (centinela)", bateriaActual.voltios,
+                bateriaActual.valida ? "aproximada" : "sin dato");
 
   if (!enviada) return;
-  // Verde: la app recibió una medición. Rojo: la trama llegó, pero sin suelo.
+  // notify() sólo encola la notificación; no acredita recepción en la app.
   if (suelo.valida) {
     ledVerde.aviso(PatronLed::TresDestellos, ahora);
     zumbador.reproducir(Sonido::Exito, ahora);
@@ -116,7 +97,7 @@ void medirYNotificar(uint32_t ahora) {
 // En reposo todo está apagado y en silencio. Tabla completa en Firmware/README.md.
 void actualizarAvisos(uint32_t ahora) {
   ledAzul.fondo(bleVentanaAbierta(ahora) ? PatronLed::Parpadeo2Hz : PatronLed::Apagado, ahora);
-  ledRojo.fondo(bateriaBaja ? PatronLed::Latido10s : PatronLed::Apagado, ahora);
+  ledRojo.fondo(bateriaActual.baja ? PatronLed::Latido10s : PatronLed::Apagado, ahora);
 
   switch (bleTomarResultadoVinculacion()) {
     case ResultadoVinculacion::Aceptado:
@@ -139,11 +120,8 @@ void actualizarAvisos(uint32_t ahora) {
 void setup() {
   Serial.begin(115200);
 
-  // Sonda sin energía y transceptor RS-485 en recepción mientras no haya driver.
-  pinMode(PIN_GATE, OUTPUT);
-  digitalWrite(PIN_GATE, LOW);
-  pinMode(PIN_RTS, OUTPUT);
-  digitalWrite(PIN_RTS, LOW);
+  // Sonda sin energía y transceptor RS-485 en recepción hasta la primera captura.
+  sonda.begin();
 
   pinMode(PIN_VBAT_SENSE, INPUT);
   analogSetPinAttenuation(PIN_VBAT_SENSE, ADC_11db);
@@ -185,7 +163,19 @@ void loop() {
 
   bleActualizar(ahora);
   revisarBateria(ahora);
-  if (bleTomarSolicitudLectura(ahora)) medirYNotificar(ahora);
+  // La suscripción de la app inicia una captura nueva; el bucle sigue atendiendo
+  // PAIR y avisos mientras la sonda se estabiliza y responde.
+  if (bleTomarSolicitudLectura(ahora) && sonda.iniciar(ahora)) capturaEnCurso = true;
+  sonda.actualizar(ahora);
+  if (capturaEnCurso && !bleConectado()) {
+    sonda.cancelar();  // la respuesta no se entrega a una conexión posterior
+    capturaEnCurso = false;
+    Serial.println("[SONDA] Captura cancelada: la app se desconectó");
+  }
+  if (capturaEnCurso && sonda.terminada()) {
+    capturaEnCurso = false;
+    medirYNotificar(ahora, sonda.tomarLectura());
+  }
   actualizarAvisos(ahora);
 
   delay(5);

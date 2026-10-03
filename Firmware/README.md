@@ -20,7 +20,7 @@ El contrato con la app lo fija el código de la app, no este firmware: [`App/src
 | `bme280.*` | Driver mínimo del BME280 por I2C. |
 | `platformio.ini` | Compilación alternativa con PlatformIO (pioarduino, mismo núcleo 3.3.0). |
 | `TASK.md` | Estado, procedimiento de prueba con la app y pendientes. |
-| `PLAN.md` | Trabajo en curso: característica de estado y actualización por BLE (OTA). |
+| `PLAN.md` | Orden de implementación: Modbus, medición real, batería, validación, reposo y actualización por BLE (OTA). |
 
 ## Distribución de pines
 
