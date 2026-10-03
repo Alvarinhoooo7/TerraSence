@@ -1,7 +1,8 @@
 import { GuideSwitch as Switch } from '../components/guide/GuideControls';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, BackHandler, View } from 'react-native';
+import { Alert, BackHandler, Text, View } from 'react-native';
 import { SettingsPage, SettingsText, SettingsRow, SettingsCard } from '../components/SettingsUI';
+import { ScreenLabel } from '../components/screen/ScreenUI';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
@@ -56,7 +57,11 @@ export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenAdministration
   if (page === 'contact') return <ContactSettings onBack={back} />;
   if (page === 'share') return <ShareDeviceScreen onBack={back} />;
   const title = { index: t('Configuración', 'Settings'), account: t('Cuenta', 'Account'), preferences: t('Preferencias', 'Preferences'), equipment: t('Equipos y datos', 'Devices and data'), help: t('Ayuda y privacidad', 'Help and privacy'), notifications: t('Notificaciones', 'Notifications'), language: t('Idioma y unidades', 'Language and units'), theme: t('Apariencia', 'Appearance') }[page];
-  return <SettingsPage title={title} description={page === 'index' ? t('Tu cuenta, tus equipos y tus preferencias.', 'Your account, devices and preferences.') : undefined} onBack={page === 'index' ? onClose : back}>
+  // Etiqueta de cada subpantalla: la categoría a la que vuelve. El índice es una
+  // pestaña de la barra inferior y no lleva «Volver».
+  const parent = settingsParent(page);
+  const eyebrow = page === 'index' ? 'TERRASENSE' : (parent === 'index' ? t('Configuración', 'Settings') : ({ account: t('Cuenta', 'Account'), preferences: t('Preferencias', 'Preferences'), equipment: t('Equipos y datos', 'Devices and data'), help: t('Ayuda y privacidad', 'Help and privacy') } as Record<string, string>)[parent] ?? '').toUpperCase();
+  return <SettingsPage title={title} eyebrow={eyebrow} description={page === 'index' ? t('Tu cuenta, tus equipos y tus preferencias.', 'Your account, devices and preferences.') : undefined} onBack={page === 'index' ? undefined : back}>
     {!!error && <SettingsText danger>{error}</SettingsText>}
     {page === 'index' && <>
       <SettingsRow title={t('Cuenta', 'Account')} subtitle={t('Perfil y seguridad', 'Profile and security')} onPress={() => setPage('account')} />
@@ -86,12 +91,12 @@ export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenAdministration
       <SettingsRow title={t('Acerca de y privacidad', 'About and privacy')} onPress={() => setPage('about')} />
     </>}
     {page === 'language' && <>{(['es', 'en'] as const).map(language => <SettingsRow key={language} title={language === 'es' ? 'Español' : 'English'} selected={language === preferences.language} disabled={busy} onPress={() => void apply({ ...preferences, language })} />)}
-      <SettingsText>{t('Unidades de medida', 'Measurement units')}</SettingsText>{(['metric', 'imperial'] as const).map(measurementSystem => <SettingsRow key={measurementSystem} title={measurementSystem === 'metric' ? t('Métrico · °C, ha', 'Metric · °C, ha') : t('Imperial · °F, ac', 'Imperial · °F, ac')} selected={preferences.measurementSystem === measurementSystem} disabled={busy} onPress={() => void apply({ ...preferences, measurementSystem })} />)}</>}
+      <ScreenLabel>{t('Unidades de medida', 'Measurement units')}</ScreenLabel>{(['metric', 'imperial'] as const).map(measurementSystem => <SettingsRow key={measurementSystem} title={measurementSystem === 'metric' ? t('Métrico · °C, ha', 'Metric · °C, ha') : t('Imperial · °F, ac', 'Imperial · °F, ac')} selected={preferences.measurementSystem === measurementSystem} disabled={busy} onPress={() => void apply({ ...preferences, measurementSystem })} />)}</>}
     {page === 'theme' && (['system', 'light', 'dark'] as const).map(theme => <SettingsRow key={theme} title={theme === 'system' ? t('Seguir el sistema', 'Follow system') : theme === 'light' ? t('Claro', 'Light') : t('Oscuro', 'Dark')} selected={preferences.theme === theme} disabled={busy} onPress={() => void apply({ ...preferences, theme })} />)}
     {page === 'notifications' && <>
       <SettingsText>{t('Recibe solicitudes de acceso, aprobaciones, rechazos y cambios de administración. El permiso del teléfono se gestiona por separado. Los cambios sin conexión se enviarán cuando vuelvas a conectarte.', 'Receive access requests, approvals, rejections and administration changes. Phone permission is managed separately. Offline changes will sync when you reconnect.')}</SettingsText>
       {pushStatus === 'error' && <SettingsCard><SettingsText danger>{t('No se pudo actualizar el registro de este teléfono. Reintenta con conexión.', 'Could not update this phone registration. Retry online.')}</SettingsText><SettingsRow title={t('Reintentar registro', 'Retry registration')} onPress={() => void registerPushToken().catch(() => undefined)} /></SettingsCard>}
-      <SettingsCard><View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}><View style={{ flex: 1 }}><SettingsText>{t('Acceso a equipos', 'Device access')}</SettingsText><SettingsText>{t('Avisos push sobre miembros y solicitudes.', 'Push alerts about members and requests.')}</SettingsText></View><Switch accessibilityLabel={t('Acceso a equipos', 'Device access')} disabled={busy} value={preferences.notifications.device} onValueChange={enabled => void apply({ ...preferences, notifications: { device: enabled } })} trackColor={{ false: colors.border, true: colors.primary }} /></View></SettingsCard>
+      <SettingsCard><View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}><View style={{ flex: 1, gap: 4 }}><Text style={{ color: colors.text, fontSize: 17, fontWeight: '600' }}>{t('Acceso a equipos', 'Device access')}</Text><SettingsText>{t('Avisos push sobre miembros y solicitudes.', 'Push alerts about members and requests.')}</SettingsText></View><Switch accessibilityLabel={t('Acceso a equipos', 'Device access')} disabled={busy} value={preferences.notifications.device} onValueChange={enabled => void apply({ ...preferences, notifications: { device: enabled } })} trackColor={{ false: colors.border, true: colors.primary }} /></View></SettingsCard>
       <SettingsRow title={t('Revisar permiso del teléfono', 'Review phone permission')} onPress={() => setPage('permissions')} />
     </>}
   </SettingsPage>;

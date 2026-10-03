@@ -20,8 +20,13 @@ export function useEntryMetrics() {
     spacing: veryCompact ? 12 : compact ? 18 : 24 };
 }
 
-export function EntryLayout({ header, children, footer, keyboardAware = false }: React.PropsWithChildren<{
-  header?: React.ReactNode; footer?: React.ReactNode; keyboardAware?: boolean;
+/**
+ * `align="top"` para listas y ajustes, que se leen desde arriba; la entrada
+ * centra su contenido. `tabBar` cuando hay barra inferior debajo: ella ya
+ * respeta el área segura inferior.
+ */
+export function EntryLayout({ header, children, footer, keyboardAware = false, align = 'center', tabBar = false }: React.PropsWithChildren<{
+  header?: React.ReactNode; footer?: React.ReactNode; keyboardAware?: boolean; align?: 'center' | 'top'; tabBar?: boolean;
 }>) {
   const { colors } = useAppTheme();
   const metrics = useEntryMetrics();
@@ -40,14 +45,14 @@ export function EntryLayout({ header, children, footer, keyboardAware = false }:
     const listener = Keyboard.addListener('keyboardDidShow', revealFocus);
     return () => listener.remove();
   }, [keyboardAware, revealFocus]);
-  return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+  return <SafeAreaView edges={tabBar ? ['top', 'left', 'right'] : undefined} style={{ flex: 1, backgroundColor: colors.background }}>
     <EntryFocus.Provider value={focus}>
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={keyboardAware && Platform.OS === 'ios' ? 'padding' : undefined}>
       {!!header && <View style={{ alignSelf: 'center', width: '100%', maxWidth: metrics.contentMaxWidth, paddingHorizontal: 24 }}>{header}</View>}
       <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" style={{ flex: 1 }}
         contentContainerStyle={{ flexGrow: 1, alignSelf: 'center', width: '100%', maxWidth: metrics.contentMaxWidth,
           paddingHorizontal: 24, paddingTop: metrics.compact ? 8 : 16, paddingBottom: metrics.compact ? 8 : 16 }}>
-        <Animated.View entering={enterDown()} style={{ flexGrow: 1, justifyContent: 'center', minHeight: 0 }}>{children}</Animated.View>
+        <Animated.View entering={enterDown()} style={{ flexGrow: 1, justifyContent: align === 'top' ? 'flex-start' : 'center', minHeight: 0 }}>{children}</Animated.View>
       </ScrollView>
       {!!footer && <View style={{ alignSelf: 'center', width: '100%', maxWidth: metrics.contentMaxWidth, paddingHorizontal: 24, paddingBottom: 12 }}>{footer}</View>}
     </KeyboardAvoidingView>
@@ -65,14 +70,16 @@ export function EntryHeading({ eyebrow, title, description }: { eyebrow?: string
   </View>;
 }
 
-export function EntryButton({ label, onPress, disabled = false, busy = false, secondary = false }: {
-  label: string; onPress: () => void; disabled?: boolean; busy?: boolean; secondary?: boolean;
+/** `danger`: acción destructiva (cerrar sesión, descartar), con borde y texto rojos. */
+export function EntryButton({ label, onPress, disabled = false, busy = false, secondary = false, danger = false }: {
+  label: string; onPress: () => void; disabled?: boolean; busy?: boolean; secondary?: boolean; danger?: boolean;
 }) {
   const { colors, isDark } = useAppTheme();
-  const ink = secondary ? colors.primary : isDark ? colors.background : '#FFFFFF';
+  const outline = secondary || danger;
+  const ink = danger ? colors.danger : secondary ? colors.primary : isDark ? colors.background : '#FFFFFF';
   return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: disabled || busy, busy }}
     disabled={disabled || busy} onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => undefined); onPress(); }} style={({ pressed }) => ({ minHeight: 54, borderRadius: 16, borderWidth: 1,
-      borderColor: secondary ? colors.border : colors.primary, backgroundColor: secondary ? colors.card : colors.primary,
+      borderColor: danger ? colors.danger : outline ? colors.border : colors.primary, backgroundColor: outline ? colors.card : colors.primary,
       alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18, paddingVertical: 12, opacity: disabled || busy ? .55 : pressed ? .8 : 1 })}>
     {busy ? <ActivityIndicator color={ink} /> :
       <Text style={{ color: ink, fontSize: 16, fontWeight: '700', textAlign: 'center' }}>{label}</Text>}

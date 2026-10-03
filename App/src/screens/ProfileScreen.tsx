@@ -45,7 +45,8 @@ export function ProfileScreen({ onBack }: { onBack: () => void }) {
     if (result.error) throw result.error;
     if (alive.current) { setCurrent(''); setPassword(''); setRepeat(''); setMessage(t('Contraseña actualizada.', 'Password updated.')); }
   });
-  return <SettingsPage title={passwordPage ? t('Cambiar contraseña', 'Change password') : t('Mi perfil', 'My profile')} onBack={back} description={passwordPage ? undefined : t('Tus datos y la seguridad de tu cuenta.', 'Your details and account security.')}
+  return <SettingsPage eyebrow={passwordPage ? t('MI PERFIL', 'MY PROFILE') : t('CUENTA', 'ACCOUNT')} title={passwordPage ? t('Cambiar contraseña', 'Change password') : t('Mi perfil', 'My profile')} onBack={back}
+    description={passwordPage ? t('Confirma tu contraseña actual para proteger tu cuenta.', 'Confirm your current password to protect your account.') : t('Tus datos y la seguridad de tu cuenta.', 'Your details and account security.')}
     footer={passwordPage ? <SettingsButton title={t('Actualizar contraseña', 'Update password')} onPress={() => void changePassword()} busy={busy} disabled={!current || !isPasswordAcceptable(password) || password !== repeat || password === current} /> : loaded ? <SettingsButton title={t('Guardar nombre', 'Save name')} onPress={() => void save()} busy={busy} disabled={!name.trim()} /> : undefined}>
     {!!message && <SettingsText>{message}</SettingsText>}
     {!passwordPage && <>{!loaded ? <SettingsButton title={t('Cargar perfil', 'Load profile')} onPress={() => void run(load)} busy={busy} /> : <SettingsCard>
@@ -54,7 +55,6 @@ export function ProfileScreen({ onBack }: { onBack: () => void }) {
       <SettingsText>{user?.email}</SettingsText><SettingsText>{user?.email_confirmed_at ? t('Correo verificado', 'Verified email') : t('Correo pendiente de verificación', 'Email verification pending')}</SettingsText>
     </SettingsCard>}<SettingsRow title={t('Cambiar contraseña', 'Change password')} onPress={() => { setMessage(''); setPasswordPage(true); }} /></>}
     {passwordPage && <>
-      <SettingsText>{t('Cambiar contraseña. Confirma tu contraseña actual para proteger tu cuenta.', 'Change password. Confirm your current password to protect your account.')}</SettingsText>
       <AccessField label={t('Contraseña actual', 'Current password')} value={current} onChangeText={setCurrent} secret autoComplete="current-password" editable={!busy} />
       <AccessField label={t('Nueva contraseña', 'New password')} value={password} onChangeText={setPassword} secret autoComplete="new-password" textContentType="newPassword" editable={!busy} />
       <PasswordChecklist password={password} compact />

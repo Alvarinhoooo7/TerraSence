@@ -3,6 +3,7 @@
 import type { ComponentType, ReactNode } from 'react';
 import type { LucideProps } from 'lucide-react';
 import { CircleAlert, CircleCheck, X } from 'lucide-react';
+import { BrandLogo } from './BrandLogo';
 
 type Tone = 'success' | 'error';
 
@@ -88,8 +89,6 @@ export function Badge({ tone = 'neutral', children }: { tone?: BadgeTone; childr
     </span>
   );
 }
-
-import { BrandLogo } from './BrandLogo';
 
 export function FullPageLoader() {
   return (

@@ -41,9 +41,10 @@ export const AccessField = forwardRef<TextInput, Props>(function AccessField({ l
       <View style={styles.field}>
         <TextInput ref={node => { input.current = node; if (typeof ref === 'function') ref(node); else if (ref) ref.current = node; }} {...props} accessibilityLabel={label} accessibilityHint={error} placeholderTextColor={colors.textSecondary}
           autoCorrect={props.autoCorrect ?? false} autoCapitalize={props.autoCapitalize ?? 'none'}
-          secureTextEntry={secret && !visible && !masked}
-          // Sin ocultamiento nativo, el teclado de Android no debe aprender ni sugerir la clave.
-          keyboardType={masked && Platform.OS === 'android' ? 'visible-password' : props.keyboardType}
+          // Campo de contraseña también con la máscara a mano: así el teclado no
+          // muestra lo escrito en su barra de sugerencias ni lo aprende. Lo que
+          // se ve es la máscara de encima; el campo real queda invisible.
+          secureTextEntry={secret && !visible}
           spellCheck={masked ? false : props.spellCheck} contextMenuHidden={masked || props.contextMenuHidden}
           onChangeText={text => { clearReveal();
             if (masked && focused) {
@@ -56,11 +57,17 @@ export const AccessField = forwardRef<TextInput, Props>(function AccessField({ l
           onFocus={event => { setFocused(true); revealFocus(input.current); props.onFocus?.(event); }}
           onBlur={event => { setFocused(false); clearReveal(); revealFocus(null); props.onBlur?.(event); }}
           selectionColor={colors.primary}
-          style={[styles.input, { color: masked && value ? 'transparent' : colors.text }, masked && styles.mono, props.style]} />
-        {masked && !!value && <View pointerEvents="none" accessible={false} importantForAccessibility="no-hide-descendants" style={styles.overlay}>
-          <Text numberOfLines={1} ellipsizeMode="head" style={[styles.overlayText, styles.mono, { color: colors.text }]}>
+          // Enmascarado a mano: el campo real queda invisible y encima se dibuja
+          // la máscara. Un color «transparent» no basta: Android lo ignora en
+          // algunos teclados y se veía el texto real bajo los asteriscos. Es el
+          // mismo método del código por correo (EmailCodeScreen).
+          placeholder={masked ? undefined : props.placeholder}
+          style={[styles.input, { color: colors.text }, masked && styles.mono, props.style, masked && styles.hidden]} />
+        {masked && <View pointerEvents="none" accessible={false} importantForAccessibility="no-hide-descendants" style={styles.overlay}>
+          {value ? <Text numberOfLines={1} ellipsizeMode="head" style={[styles.overlayText, styles.mono, { color: colors.text }]}>
             {maskSecret(value, reveal)}
-          </Text>
+          </Text> : !!props.placeholder && !focused && <Text numberOfLines={1} style={[styles.overlayText, { color: colors.textSecondary }]}>{props.placeholder}</Text>}
+          {focused && <View style={[styles.caret, { backgroundColor: colors.primary }]} />}
         </View>}
       </View>
       {secret && <Pressable accessibilityRole="button" accessibilityLabel={visible ? t('Ocultar contraseña', 'Hide password') : t('Mostrar contraseña', 'Show password')}
@@ -79,8 +86,10 @@ const styles = StyleSheet.create({
   field: { flex: 1, minWidth: 0, justifyContent: 'center' },
   input: { flex: 1, minWidth: 0, minHeight: 48, paddingHorizontal: 14, paddingVertical: 10, fontSize: 16 },
   mono: { fontFamily: MONO },
-  overlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, justifyContent: 'center', paddingHorizontal: 14 },
-  overlayText: { fontSize: 16 },
+  hidden: { opacity: 0 },
+  overlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14 },
+  overlayText: { fontSize: 16, flexShrink: 1 },
+  caret: { width: 2, height: 20, marginLeft: 1, borderRadius: 1 },
   reveal: { minWidth: 54, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
   error: { fontSize: 13, lineHeight: 18 },
 });

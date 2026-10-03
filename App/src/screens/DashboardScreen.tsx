@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GuideTouchable as Button, GuideScrollView as ScrollView } from '../components/guide/GuideControls';
 import { GuideModal } from '../components/guide/GuideModal';
-import { BrandLogo } from '../components/BrandLogo';
+import { GUIDE_BUTTON_SPACE } from '../components/screen/ScreenUI';
 import { AppIcon } from '../components/AppIcon';
 import { SPLASH_BACKGROUND } from '../components/LoadingScreen';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -22,6 +22,7 @@ export function DashboardScreen({ onStartMeasurement, onLinkDevice }: Props) {
   const { colors } = useAppTheme(); const { t } = useTranslation();
   const { height, fontScale } = useWindowDimensions();
   const compact = height < 700 || fontScale > 1.2;
+  const insets = useSafeAreaInsets();
   const device = useAppStore(s => s.device);
   const accountId = useAuthStore(s => s.session?.user.id);
   const { devices, loading, error, refresh } = useLinkedDevices();
@@ -42,20 +43,24 @@ export function DashboardScreen({ onStartMeasurement, onLinkDevice }: Props) {
     });
   };
   const openSelector = () => { setSelector(true); void refresh(); };
-  return <SafeAreaView edges={['top', 'left', 'right']} style={styles.root}>
-    <View style={styles.header}>
-      <BrandLogo width={compact ? 130 : 156} onDark />
-      <Button accessibilityRole="button" accessibilityLabel={t('Vincular otra sonda', 'Link another probe')} onPress={onLinkDevice} style={styles.add}><Text style={{ color: mint, fontSize: 28 }}>+</Text></Button>
-    </View>
-    <View style={styles.selectorContainer}><Button accessibilityRole="button" accessibilityState={{ expanded: selector }} accessibilityLabel={t('Elegir sonda para medir', 'Choose a probe for measurement')}
-      guide={t('Aquí eliges la sonda para medir. Vinculada no significa conectada por Bluetooth.', 'Choose the probe to measure with here. Linked does not mean connected over Bluetooth.')}
-      onPress={openSelector} style={styles.selector}>
-      <AppIcon name="probe" color={mint} />
-      <View style={{ flex: 1, gap: 4 }}><Text style={styles.eyebrow}>{t('TU SONDA', 'YOUR PROBE')}</Text>
-        <Text numberOfLines={1} style={styles.deviceName}>{device?.alias || device?.name || t('Elige una sonda', 'Choose a probe')}</Text>
-        {device && <Text style={styles.identifier}>{formatDeviceId(device.device_code)}</Text>}
-      </View><Text style={{ color: mint, fontSize: 22 }}>⌄</Text>
-    </Button></View>
+  return <SafeAreaView edges={['left', 'right']} style={styles.root}>
+    {/* Barra superior: la sonda para medir (el único lugar donde se elige), vincular otra
+        y, a la derecha, el lugar del botón «?» de la guía, que flota encima. */}
+    <View style={[styles.topBar, { paddingTop: insets.top }]}><View style={styles.topBarRow}>
+      <Button accessibilityRole="button" accessibilityState={{ expanded: selector }} accessibilityLabel={t('Elegir sonda para medir', 'Choose a probe for measurement')}
+        guide={t('Aquí eliges la sonda para medir. Vinculada no significa conectada por Bluetooth.', 'Choose the probe to measure with here. Linked does not mean connected over Bluetooth.')}
+        onPress={openSelector} style={styles.selector}>
+        <AppIcon name="probe" color={mint} />
+        <View style={{ flex: 1, gap: 2 }}><Text style={styles.eyebrow}>{t('TU SONDA', 'YOUR PROBE')}</Text>
+          <Text numberOfLines={1} style={styles.deviceName}>{device?.alias || device?.name || t('Elige una sonda', 'Choose a probe')}</Text>
+          {device && <Text style={styles.identifier}>{formatDeviceId(device.device_code)}</Text>}
+        </View><Text style={{ color: mint, fontSize: 18 }}>▾</Text>
+      </Button>
+      <Button accessibilityRole="button" accessibilityLabel={t('Vincular otra sonda', 'Link another probe')}
+        guide={t('Vincula otra sonda con su botón PAIR o con una invitación.', 'Link another probe with its PAIR button or an invitation.')}
+        onPress={onLinkDevice} style={styles.add}><Text style={{ color: mint, fontSize: 30, lineHeight: 34 }}>+</Text></Button>
+      <View style={{ width: GUIDE_BUTTON_SPACE }} />
+    </View></View>
     <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.center, { gap: compact ? 18 : 28 }]}>
       <Text accessibilityRole="header" style={[styles.title, { fontSize: compact ? 28 : 34 }]}>{t('Conoce tu suelo.', 'Know your soil.')}</Text>
       <View style={[styles.orbit, { padding: compact ? 14 : 22 }]}>
@@ -86,10 +91,10 @@ export function DashboardScreen({ onStartMeasurement, onLinkDevice }: Props) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: SPLASH_BACKGROUND },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, minHeight: 64, width: '100%', maxWidth: 520, alignSelf: 'center' },
-  add: { minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
-  selectorContainer: { width: '100%', maxWidth: 520, paddingHorizontal: 24, alignSelf: 'center' },
-  selector: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 16, borderWidth: 1, borderColor: '#3B5646', backgroundColor: '#1C3528' },
+  topBar: { backgroundColor: '#1C3528', borderBottomWidth: 1, borderBottomColor: '#3B5646' },
+  topBarRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 16, paddingRight: 16, minHeight: 72, width: '100%', maxWidth: 560, alignSelf: 'center' },
+  add: { minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, borderWidth: 1, borderColor: '#3B5646' },
+  selector: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingHorizontal: 8, minHeight: 56 },
   eyebrow: { color: '#B2C9BB', fontSize: 11, fontWeight: '700', letterSpacing: 1.6 },
   deviceName: { color: '#FFFFFF', fontSize: 17, fontWeight: '600' },
   identifier: { color: '#B2C9BB', fontSize: 12, fontVariant: ['tabular-nums'] },

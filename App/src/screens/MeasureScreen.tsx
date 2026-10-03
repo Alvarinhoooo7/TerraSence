@@ -1,35 +1,22 @@
 import { useResetGuide } from '../components/guide/GuideContext';
 import { useTranslation } from '../hooks/useTranslation';
-import { GuideTouchable as TouchableOpacity, GuideScrollView as ScrollView } from '../components/guide/GuideControls';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  AppState,
-  BackHandler,
-  StyleSheet,
-  Switch,
-  Text,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Alert, AppState, BackHandler, Switch, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 
-import { Spacing, Typography } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useAppStore } from '../store/useAppStore';
 import { evaluateForStage, type StageAwareEvaluation } from '../engine/stageEvaluator';
 import { buildContextualAdvice, type ContextualAdvice } from '../engine/contextualAdvice';
 import { computeVpdKpa } from '../engine/agronomyEngine';
-import { cropName, textureName } from '../engine/catalogNames';
 import { readSoilProbe, verifySoilProbe } from '../services/probeService';
 import { fetchCurrentWeather, type CurrentWeather } from '../services/weatherService';
 import { newClientUuid, saveMeasurement } from '../services/measurementsService';
 import { PHENOLOGICAL_STAGES, mapRowToPoint, type PhenologicalStage, type SoilMeasurementInsert } from '../types/app';
 import type { SoilMeasurement } from '../types/agronomy';
-import { MeasurementForecast } from '../components/MeasurementForecast';
-import { MeasurementExplorer } from '../components/MeasurementExplorer';
+import { MeasurementResultFlow } from '../components/MeasurementResultFlow';
+import { ScreenCard, ScreenLayout, ScreenOption, ScreenText } from '../components/screen/ScreenUI';
 import { buildMeasurementPresentation } from '../engine/measurementPresentation';
 import { CalibrationReminderModal } from '../components/CalibrationReminderModal';
 import { MeasurementLoading } from '../components/MeasurementLoading';
@@ -76,6 +63,8 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   const reading = useRef(false);
   const saved = useRef(false);
   useResetGuide(phase);
+  const phaseRef = useRef(phase);
+  phaseRef.current = phase;
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [demoMode, setDemoMode] = useState(false);
   const [saveSynced, setSaveSynced] = useState(false);
@@ -160,7 +149,8 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     else leave();
   }, [raw, onCancel, t]);
   useEffect(() => {
-    const listener = BackHandler.addEventListener('hardwareBackPress', () => { cancel(); return true; });
+    // Con el resultado a la vista, el Atrás lo maneja MeasurementResultFlow, paso a paso.
+    const listener = BackHandler.addEventListener('hardwareBackPress', () => { if (phaseRef.current === 'result' || phaseRef.current === 'saving') return false; cancel(); return true; });
     return () => listener.remove();
   }, [cancel]);
 
@@ -332,174 +322,86 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     const item = PHENOLOGICAL_STAGES.find(candidate => candidate.id === id);
     return item ? (language === 'en' ? item.labelEn : item.label) : '';
   };
-  const header = (
-    <View style={styles.header}>
-      <TouchableOpacity disabled={phase === 'saving'} onPress={cancel} style={styles.headerSide}>
-        <Text style={[styles.backText, { color: colors.primary }]}>{t('‹ Volver', '‹ Back')}</Text>
-      </TouchableOpacity>
-      <Text style={[styles.headerTitle, { color: colors.text }]}>{t('Nueva medición', 'New measurement')}</Text>
-      <View style={styles.headerSide} />
-    </View>
-  );
+  const deviceName = context.current.device?.alias || context.current.device?.name || device?.alias || device?.name || 'TerraSense';
+  const restart = () => Alert.alert(t('Nueva medición', 'New measurement'), t('¿Descartar esta lectura y elegir otra etapa?', 'Discard this reading and choose another stage?'), [
+    { text: t('Seguir revisando', 'Keep reviewing'), style: 'cancel' },
+    { text: t('Descartar', 'Discard'), style: 'destructive', onPress: () => { weatherRequest.current += 1; setRaw(null); selectStage(null); setPhase('stage'); } },
+  ]);
+  const demoNotice = demoMode && <ScreenCard accent={colors.warning}>
+    <Text style={{ color: colors.warning, fontSize: 13, fontWeight: '700', letterSpacing: 1 }}>{t('DATOS SIMULADOS', 'SIMULATED DATA')}</Text>
+    <ScreenText>{t('No hay una sonda real conectada. No uses esta lectura para decidir.', 'No real probe is connected. Do not use this reading to make decisions.')}</ScreenText>
+  </ScreenCard>;
 
   if (phase === 'connecting' || phase === 'reading') {
-    return <MeasurementLoading reading={phase === 'reading'} deviceName={context.current.device?.alias || context.current.device?.name || 'TerraSense'} onCancel={cancel} />;
+    return <MeasurementLoading reading={phase === 'reading'} deviceName={deviceName} onCancel={cancel} />;
   }
 
   if (phase === 'connection_error') {
-    return (
-      <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
-        {header}
-        <View style={styles.center}>
-          <View style={[styles.connectionIcon, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}><Text style={[styles.connectionGlyph, { color: colors.primary }]}>!</Text></View>
-          <Text style={[styles.centerTitle, { color: colors.text }]}>{t('No se pudo completar la medición', 'Could not complete the measurement')}</Text>
-          <Text style={[styles.centerBody, { color: colors.textSecondary }]}>{t('Comprueba que esté encendido, con batería y cerca del teléfono.', 'Check that it is on, has battery and is near the phone.')}</Text>
-          {connectionError && <Text style={[styles.errorDetail, { color: colors.textMuted }]}>{connectionError}</Text>}
-          <TouchableOpacity disabled={!stage} onPress={runMeasurement} style={[styles.cta, { backgroundColor: colors.primary, opacity: stage ? 1 : 0.4 }]}>
-            <Text style={styles.ctaText}>{t('Reintentar medición', 'Retry measurement')}</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
+    return <ScreenLayout align="center" onBack={cancel} backLabel={t('Inicio', 'Home')} eyebrow={t('MEDICIÓN', 'MEASUREMENT')}
+      title={t('No se pudo completar la medición', 'Could not complete the measurement')}
+      description={t('Comprueba que la sonda esté encendida, con batería y cerca del teléfono.', 'Check that the probe is on, has battery and is near the phone.')}
+      footer={<>
+        <EntryButton disabled={!stage} label={t('Reintentar medición', 'Retry measurement')} onPress={() => void runMeasurement()} />
+        <EntryButton secondary label={t('Cambiar etapa', 'Change stage')} onPress={() => setPhase('stage')} />
+      </>}>
+      {!!connectionError && <ScreenCard accent={colors.danger}><ScreenText>{connectionError}</ScreenText></ScreenCard>}
+    </ScreenLayout>;
   }
 
-  if (phase === 'stage' || phase === 'prepare') {
-    return (
-      <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
-        {header}
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scroll}>
-          {demoMode && <View style={[styles.demoBanner, { backgroundColor: colors.warning }]}><Text style={styles.demoText}>{t('MODO DEMOSTRACIÓN · SIN SONDA REAL', 'DEMO MODE · NO REAL PROBE')}</Text></View>}
-          <Text style={[styles.eyebrow, { color: colors.primary }]}>{phase === 'stage' ? t('PASO 1 DE 2', 'STEP 1 OF 2') : t('PASO 2 DE 2', 'STEP 2 OF 2')}</Text>
-          {phase === 'stage' && <>
-          <Text style={[styles.source, { color: colors.textSecondary }]}>{cropName(cropId, language)} · {textureName(textureId, language)}</Text>
-          <Text style={[styles.pageTitle, { color: colors.text }]}>{t('¿En qué fase quieres medir?', 'Which stage do you want to measure?')}</Text>
-          <Text style={[styles.pageBody, { color: colors.textSecondary }]}>{t('Elige la etapa en que se encuentra tu cultivo.', 'Choose the stage your crop is in.')}</Text>
-          <View style={styles.stageGrid}>
-            {PHENOLOGICAL_STAGES.map((item) => {
-              const selected = item.id === stage;
-              return (
-                <TouchableOpacity
-                  key={item.id}
-                  guideTitle={language === "en" ? item.labelEn : item.label}
-                  guide={t("Selecciona esta etapa para interpretar la lectura según el desarrollo del cultivo. No cambia los valores medidos.", "Selects this stage to interpret readings for crop development. Does not change measured values.")}
-                  accessibilityRole="radio"
-                  accessibilityState={{ selected }}
-                  onPress={() => { selectStage(item.id); setStage(item.id); }}
-                  style={[
-                    styles.stageCard,
-                    {
-                      backgroundColor: selected ? colors.primaryDark : colors.card,
-                      borderColor: selected ? colors.primary : colors.border,
-                    },
-                  ]}
-                >
-                  <Text style={styles.stageEmoji}>{item.emoji}</Text>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.stageTitle, { color: selected ? '#FFFFFF' : colors.text }]}>{language === "en" ? item.labelEn : item.label}</Text>
-                    <Text style={[styles.stageFocus, { color: selected ? '#D8E8DF' : colors.textSecondary }]}>{language === "en" ? item.focusEn : item.focus}</Text>
-                  </View>
-                  <Text style={{ color: selected ? '#C5E8AF' : colors.textMuted, fontSize: 22 }}>{selected ? '●' : '○'}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-          </>}
-          {phase === 'prepare' && <>
-          <View style={[styles.detailCard, { backgroundColor: colors.card, borderColor: colors.border, marginTop: Spacing.md }]}>
-            <Text style={[styles.detailTitle, { color: colors.text }]}>{t('Antes de medir', 'Before measuring')}</Text>
-            <Text style={[styles.detailBody, { color: colors.textSecondary }]}>{t('Inserta la sonda en suelo representativo, evitando piedras y bolsas de aire. Mantén el equipo quieto durante la lectura.', 'Insert the probe into representative soil, avoiding stones and air pockets. Keep it still during the reading.')}</Text>
-            <Text style={[styles.source, { color: colors.textSecondary }]}>{device?.alias || device?.name || t('Demostración sin equipo', 'Demo without device')}</Text>
-          </View>
-          <View style={[styles.detailCard, { backgroundColor: colors.card, borderColor: colors.border, marginTop: Spacing.md }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md }}>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.detailTitle, { color: colors.text }]}>{t('Añadir ubicación y pronóstico', 'Add location and forecast')}</Text>
-                <Text style={[styles.detailBody, { color: colors.textSecondary }]}>{t('Guarda las coordenadas de la lectura y consulta el pronóstico con Open-Meteo. Sin esta opción, la lectura se guarda igual.', 'Saves the reading coordinates and gets the forecast from Open-Meteo. Without this option, the reading is saved anyway.')}</Text>
-              </View>
-              <Switch value={includeLocation} disabled={locationBusy} onValueChange={value => { void toggleLocation(value); }}
-                trackColor={{ true: colors.primary, false: colors.border }}
-                accessibilityLabel={t('Añadir ubicación y pronóstico', 'Add location and forecast')} />
-            </View>
-            {!!locationNote && <Text accessibilityLiveRegion="polite" style={[styles.source, { color: colors.textSecondary, marginTop: Spacing.sm }]}>{locationNote}</Text>}
-          </View>
-          </>}
-        </ScrollView>
-        <View style={styles.fixedFooter}>
-          {phase === 'prepare' && <EntryButton secondary label={t('Cambiar etapa', 'Change stage')} onPress={() => setPhase('stage')} />}
-          <EntryButton disabled={!stage || locationBusy} label={phase === 'stage' ? t('Continuar', 'Continue') : t('Medir', 'Measure')} onPress={() => phase === 'stage' ? setPhase('prepare') : void runMeasurement()} />
-        </View>
-      </SafeAreaView>
-    );
+  if (phase === 'stage') {
+    return <ScreenLayout onBack={cancel} backLabel={t('Inicio', 'Home')} eyebrow={t('MEDIR · PASO 1 DE 2', 'MEASURE · STEP 1 OF 2')}
+      title={t('¿En qué etapa está tu cultivo?', 'What stage is your crop in?')}
+      description={t('La lectura se interpreta según la etapa. No cambia los valores medidos.', 'The reading is interpreted for the stage. It does not change the measured values.')}
+      footer={<EntryButton disabled={!stage} label={t('Continuar', 'Continue')} onPress={() => setPhase('prepare')} />}>
+      {demoNotice}
+      {PHENOLOGICAL_STAGES.map(item => <ScreenOption key={item.id} selected={item.id === stage}
+        title={`${item.emoji}  ${language === 'en' ? item.labelEn : item.label}`} subtitle={language === 'en' ? item.focusEn : item.focus}
+        guide={t('Elige esta etapa para interpretar la lectura según el desarrollo del cultivo.', 'Choose this stage to interpret the reading for crop development.')}
+        onPress={() => { selectStage(item.id); setStage(item.id); }} />)}
+    </ScreenLayout>;
   }
 
+  if (phase === 'prepare') {
+    return <ScreenLayout onBack={() => setPhase('stage')} backLabel={t('Etapa', 'Stage')} eyebrow={t('MEDIR · PASO 2 DE 2', 'MEASURE · STEP 2 OF 2')}
+      title={t('Prepara la medición', 'Get ready to measure')}
+      description={t(`Sonda ${deviceName} · etapa ${stageLabel(stage)}`, `Probe ${deviceName} · ${stageLabel(stage)} stage`)}
+      footer={<EntryButton disabled={locationBusy} label={t('Medir', 'Measure')} onPress={() => void runMeasurement()} />}>
+      {demoNotice}
+      <ScreenCard>
+        {[t('Enciende la sonda y déjala cerca del teléfono.', 'Turn the probe on and keep it near the phone.'),
+          t('Entiérrala en suelo representativo, sin piedras ni bolsas de aire.', 'Insert it into representative soil, without stones or air pockets.'),
+          t('Mantenla quieta mientras se lee.', 'Keep it still while it reads.')].map((line, i) => <View key={i} style={{ flexDirection: 'row', gap: 12 }}>
+          <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '700', minWidth: 18 }}>{i + 1}</Text>
+          <View style={{ flex: 1 }}><ScreenText muted={false}>{line}</ScreenText></View>
+        </View>)}
+      </ScreenCard>
+      <ScreenCard>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          <View style={{ flex: 1, gap: 4 }}>
+            <Text style={{ color: colors.text, fontSize: 17, fontWeight: '600' }}>{t('Ubicación y pronóstico', 'Location and forecast')}</Text>
+            <ScreenText>{t('Guarda las coordenadas y consulta el pronóstico. Sin esto, la lectura se guarda igual.', 'Saves the coordinates and gets the forecast. Without it, the reading is still saved.')}</ScreenText>
+          </View>
+          <Switch value={includeLocation} disabled={locationBusy} onValueChange={value => { void toggleLocation(value); }}
+            trackColor={{ true: colors.primary, false: colors.border }} accessibilityLabel={t('Ubicación y pronóstico', 'Location and forecast')} />
+        </View>
+        {!!locationNote && <ScreenText>{locationNote}</ScreenText>}
+      </ScreenCard>
+    </ScreenLayout>;
+  }
 
-  return (
-    <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
-      {header}
-      <ScrollView contentContainerStyle={styles.scroll}>
-        {demoMode && <View style={[styles.demoBanner, { backgroundColor: colors.warning }]}><Text style={styles.demoText}>{t('DATOS SIMULADOS · NO USAR PARA DECISIONES REALES', 'SIMULATED DATA · DO NOT USE FOR REAL DECISIONS')}</Text></View>}
-        {lowBattery != null && <View accessibilityRole="alert" style={[styles.demoBanner, { backgroundColor: colors.warning }]}><Text style={styles.demoText}>{t(`BATERÍA BAJA (${lowBattery} %) · CARGA LA SONDA ANTES DE LA PRÓXIMA SALIDA`, `LOW BATTERY (${lowBattery}%) · CHARGE THE PROBE BEFORE YOUR NEXT TRIP`)}</Text></View>}
-        <Text style={[styles.eyebrow, { color: colors.primary }]}>{t('RESULTADOS', 'RESULTS')} · {stageLabel(stage)}</Text>
-        {presentation && <MeasurementExplorer presentation={presentation} forecast={<MeasurementForecast days={weather?.forecast ?? []} loading={weatherLoading} capturedAt={capturedAt} battery={raw?.battery} latitude={coords?.latitude} longitude={coords?.longitude} accuracy={coords?.accuracy} />} />}
-
-        <TouchableOpacity disabled={phase === 'saving'} onPress={() => Alert.alert(t('Nueva medición', 'New measurement'), t('¿Descartar esta lectura y elegir otra fase?', 'Discard this reading and choose another stage?'), [{ text: t('Seguir revisando', 'Keep reviewing'), style: 'cancel' }, { text: t('Continuar', 'Continue'), onPress: () => { weatherRequest.current += 1; setRaw(null); selectStage(null); setPhase('stage'); } }])} style={styles.secondaryButton}>
-          <Text style={[styles.secondaryText, { color: colors.primary }]}>{t('Cambiar fase y volver a medir', 'Change stage and measure again')}</Text>
-        </TouchableOpacity>
-      </ScrollView>
-      <View style={styles.fixedFooter}><EntryButton label={t('Guardar resultado', 'Save result')} onPress={() => void save()} busy={phase === 'saving'} /></View>
-      <CalibrationReminderModal synced={saveSynced} visible={showCalibration} onClose={() => { setShowCalibration(false); onDone(); }} />
-    </SafeAreaView>
-  );
+  if (!presentation) return null;
+  return <>
+    <MeasurementResultFlow presentation={presentation} onExit={cancel} exitLabel={t('Salir', 'Exit')} onRestart={restart}
+      save={{ onSave: () => void save(), busy: phase === 'saving' }}
+      notices={<>
+        {demoNotice}
+        {lowBattery != null && <ScreenCard accent={colors.warning}>
+          <Text accessibilityRole="alert" style={{ color: colors.warning, fontSize: 13, fontWeight: '700', letterSpacing: 1 }}>{t(`BATERÍA BAJA · ${lowBattery} %`, `LOW BATTERY · ${lowBattery}%`)}</Text>
+          <ScreenText>{t('Carga la sonda antes de la próxima salida.', 'Charge the probe before your next trip.')}</ScreenText>
+        </ScreenCard>}
+      </>}
+      forecast={{ days: weather?.forecast ?? [], loading: weatherLoading, capturedAt, battery: raw?.battery, latitude: coords?.latitude, longitude: coords?.longitude, accuracy: coords?.accuracy }} />
+    <CalibrationReminderModal synced={saveSynced} visible={showCalibration} onClose={() => { setShowCalibration(false); onDone(); }} />
+  </>;
 };
 
-const styles = StyleSheet.create({
-  root: { flex: 1 },
-  fixedFooter: { paddingHorizontal: 24, paddingBottom: 12, paddingTop: 8, gap: 8 },
-  header: { height: 62, paddingHorizontal: Spacing.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  headerSide: { minWidth: 86, minHeight: Spacing.touchTarget, justifyContent: 'center' },
-  backText: { ...Typography.bodyBold },
-  headerTitle: { ...Typography.titleMedium, flex: 1, textAlign: 'center' },
-  center: { flex: 1, padding: Spacing.xl, alignItems: 'center', justifyContent: 'center' },
-  connectionIcon: { width: 92, height: 92, borderRadius: 46, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.lg },
-  connectionGlyph: { color: '#FFFFFF', fontSize: 42, fontWeight: '700' },
-  centerTitle: { ...Typography.titleLarge, textAlign: 'center', marginTop: Spacing.lg },
-  centerBody: { ...Typography.bodyRegular, textAlign: 'center', marginTop: Spacing.sm, maxWidth: 360 },
-  errorDetail: { ...Typography.caption, textAlign: 'center', marginTop: Spacing.md },
-  scroll: { padding: Spacing.md, paddingBottom: Spacing.xxl },
-  demoBanner: { borderRadius: Spacing.borderRadius, padding: Spacing.sm, marginBottom: Spacing.md },
-  demoText: { ...Typography.badge, color: '#FFFFFF', textAlign: 'center' },
-  eyebrow: { ...Typography.badge, marginTop: Spacing.sm, marginBottom: Spacing.xs },
-  pageTitle: { ...Typography.titleLarge, fontSize: 28 },
-  pageBody: { ...Typography.bodyRegular, marginTop: Spacing.sm, marginBottom: Spacing.lg },
-  stageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
-  stageCard: { width: '100%', flexDirection: 'row', alignItems: 'center', gap: 16, minHeight: 76, borderRadius: Spacing.cardRadius, borderWidth: 1, padding: 16 },
-  stageEmoji: { fontSize: 31, marginBottom: Spacing.sm },
-  stageTitle: { ...Typography.titleMedium },
-  stageFocus: { ...Typography.bodyRegular, marginTop: Spacing.sm },
-  cta: { minHeight: 56, borderRadius: Spacing.borderRadius, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.md, marginTop: Spacing.lg },
-  ctaText: { ...Typography.button, color: '#FFFFFF', fontSize: 17 },
-  resultGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs, marginBottom: Spacing.lg },
-  resultCard: { width: '48%', flexGrow: 1, minHeight: 96, borderRadius: 12, borderWidth: 1, borderTopWidth: 4, padding: Spacing.sm },
-  resultLabel: { ...Typography.badge },
-  resultValue: { ...Typography.bodyBold, marginTop: Spacing.sm },
-  detailCard: { borderRadius: Spacing.cardRadius, borderWidth: 1, padding: Spacing.md },
-  detailHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.sm },
-  detailCounter: { ...Typography.caption },
-  detailStatus: { ...Typography.badge },
-  detailTitle: { ...Typography.titleMedium, marginBottom: Spacing.xs },
-  source: { ...Typography.caption, marginBottom: Spacing.sm },
-  detailBody: { ...Typography.bodyRegular, marginBottom: Spacing.md },
-  tipBox: { borderRadius: 12, padding: Spacing.md },
-  tipLabel: { ...Typography.badge, marginBottom: Spacing.xs },
-  tipText: { ...Typography.bodyRegular },
-  action: { ...Typography.bodyRegular, marginBottom: Spacing.sm },
-  weather: { ...Typography.caption, marginTop: Spacing.sm },
-  cropBox: { borderRadius: 12, padding: Spacing.md, marginTop: Spacing.md },
-  cropLabel: { ...Typography.badge, marginBottom: Spacing.sm },
-  cropNames: { ...Typography.bodyBold },
-  carouselActions: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.lg },
-  carouselButton: { flex: 1, minHeight: Spacing.touchTarget, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-  carouselText: { ...Typography.bodyBold },
-  secondaryButton: { minHeight: Spacing.touchTarget, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.sm },
-  secondaryText: { ...Typography.bodyBold },
-});

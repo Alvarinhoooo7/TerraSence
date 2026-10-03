@@ -9,16 +9,12 @@ import { GuideTouchable as TouchableOpacity } from '../components/guide/GuideCon
 // Mediciones en lista, agrupadas por día y filtrables por etapa.
 
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, RefreshControl, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Spacing, Typography, VERDICT_META } from '../constants/theme';
+import { VERDICT_META } from '../constants/theme';
+import { EntryHeading } from '../components/entry/EntryUI';
+import { ScreenCard, ScreenLabel, ScreenText } from '../components/screen/ScreenUI';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { PHENOLOGICAL_STAGES, type MeasurementPoint, type PhenologicalStage } from '../types/app';
@@ -69,112 +65,72 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
     return [...groups.entries()].map(([title, data]) => ({ title, data }));
   }, [points, filter, locale]);
 
+  // Píldora de filtro: el mismo verde y la misma tinta de los botones de la entrada.
+  const chip = (key: string, label: string, selected: boolean, onPress: () => void, guide?: string) => <TouchableOpacity key={key}
+    guideTitle={label} guide={guide ?? false} onPress={onPress} accessibilityRole="radio" accessibilityState={{ selected }}
+    style={{ minHeight: 44, paddingHorizontal: 16, borderRadius: 22, borderWidth: 1, justifyContent: 'center',
+      backgroundColor: selected ? colors.primary : colors.card, borderColor: selected ? colors.primary : colors.border }}>
+    <Text style={{ color: selected ? (isDark ? colors.background : '#FFFFFF') : colors.text, fontSize: 15, fontWeight: selected ? '700' : '500' }}>{label}</Text>
+  </TouchableOpacity>;
+  const stageName = (id: PhenologicalStage | 'all') => {
+    if (id === 'all') return t('Todas las etapas', 'All stages');
+    const stage = PHENOLOGICAL_STAGES.find(s => s.id === id);
+    return stage ? (language === 'en' ? stage.labelEn : stage.label) : id;
+  };
+
+  const header = <View style={{ gap: 16, paddingTop: 8, paddingBottom: 8 }}>
+    <EntryHeading eyebrow={t('HISTORIAL', 'HISTORY')} title={t('Mediciones', 'Readings')}
+      description={t('Tus lecturas guardadas. Los filtros sólo cambian lo que ves aquí, no la sonda para medir.', 'Your saved readings. Filters only change what you see here, not the probe used to measure.')} />
+    {devices.length > 1 && <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+      {[{ id: null as string | null, name: t('Todas las sondas', 'All probes') }, ...devices.map(d => ({ id: d.id as string | null, name: d.alias || d.name }))]
+        .map(d => chip(d.id ?? 'all', d.name, historyDeviceId === d.id, () => setHistoryDevice({ accountId, id: d.id })))}
+    </ScrollView>}
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+      {(['all', ...PHENOLOGICAL_STAGES.map(s => s.id)] as const).map(id => chip(id, stageName(id as PhenologicalStage | 'all'), filter === id,
+        () => setFilter(id as PhenologicalStage | 'all'),
+        t('Filtra el historial por esta etapa. «Todas las etapas» vuelve a mostrar el registro completo.', 'Filters history by this stage. "All stages" shows the complete history again.')))}
+    </ScrollView>
+    {(offline || error) && <ScreenText danger={!!error}>{error ? t('No pudimos cargar el historial. Desliza hacia abajo para reintentar.', 'Could not load history. Pull down to retry.') : t('Sin conexión: mostrando el historial guardado en el teléfono.', 'Offline: showing the history saved on this phone.')}</ScreenText>}
+  </View>;
+
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={[styles.root, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onClose} hitSlop={12} style={styles.headerBtn}>
-          <Text style={{ color: colors.primary, ...Typography.bodyBold }}>‹ {t('Inicio', 'Home')}</Text>
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
-          {t('Mediciones', 'Readings')}
-        </Text>
-        <View style={styles.headerBtn} />
-      </View>
-
-      {devices.length > 0 && <View><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 24, gap: 8 }}>
-        {[{ id: null, name: t('Todas las sondas', 'All probes') }, ...devices.map(d => ({ id: d.id, name: `${d.alias || d.name} · ${d.device_code.slice(-6)}` }))].map(d => <TouchableOpacity key={d.id ?? 'all'} accessibilityRole="radio" accessibilityState={{ selected: historyDeviceId === d.id }} onPress={() => setHistoryDevice({ accountId, id: d.id })} style={[styles.filterChip, { backgroundColor: historyDeviceId === d.id ? colors.primary : colors.card, borderColor: colors.border }]}><Text style={{ color: historyDeviceId === d.id ? '#FFFFFF' : colors.text }}>{d.name}</Text></TouchableOpacity>)}
-      </ScrollView></View>}
-      {/* Filtro por etapa */}
-      <View><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters}>
-        {(['all', ...PHENOLOGICAL_STAGES.map((s) => s.id)] as const).map((id) => {
-          const active = filter === id;
-          const label =
-            id === 'all'
-              ? t('Todas', 'All')
-              : (() => {
-                  const stage = PHENOLOGICAL_STAGES.find((s) => s.id === id);
-                  return stage ? (language === 'en' ? stage.labelEn : stage.label) : id;
-                })();
-          return (
-            <TouchableOpacity
-              key={id}
-              guideTitle={label}
-              guide={t("Filtra el historial por esta etapa. Todas vuelve a mostrar el registro completo.", "Filters history by this stage. All shows the complete history again.")}
-              onPress={() => setFilter(id as PhenologicalStage | 'all')}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: active }}
-              style={[
-                styles.filterChip,
-                {
-                  backgroundColor: active ? colors.primary : colors.card,
-                  borderColor: active ? colors.primary : colors.border,
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.filterText,
-                  { color: active ? '#FFFFFF' : colors.textSecondary },
-                ]}
-              >
-                {label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView></View>
-
-<Text style={{ color: colors.textSecondary, paddingHorizontal: 24 }}>{t('Últimas lecturas disponibles · Etapa filtrada sobre este registro', 'Latest available readings · Stage filters this record')}</Text>
-{(offline || error) && <Text accessibilityLiveRegion="polite" style={{ color: colors.warning, paddingHorizontal: 24 }}>{error ? t("No pudimos cargar el historial. Desliza para reintentar.", "Could not load history. Pull to retry.") : t("Mostrando el historial local.", "Showing local history.")}</Text>}
+    <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1, backgroundColor: colors.background }}>
       <SectionList
         style={{ flex: 1 }}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} tintColor={colors.primary} />}
-
         sections={sections}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
+        stickySectionHeadersEnabled={false}
+        contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 32, width: '100%', maxWidth: 520, alignSelf: 'center' }}
+        ListHeaderComponent={header}
         ListEmptyComponent={loading ? <ActivityIndicator color={colors.primary} style={{ marginTop: 32 }} /> :
-          <Text style={[styles.empty, { color: colors.textSecondary }]}>
-            {points.length === 0
-              ? t('Todavía no hay mediciones.', 'There are no readings yet.')
-              : t('No hay mediciones en la etapa seleccionada.', 'There are no readings for the selected stage.')}
-          </Text>
-        }
-        renderSectionHeader={({ section }) => (
-          <Text style={[styles.sectionHeader, { color: colors.textMuted, backgroundColor: colors.background }]}>
-            {section.title.toUpperCase()}
-          </Text>
-        )}
+          <ScreenCard><ScreenText>{points.length === 0
+            ? t('Todavía no hay mediciones. Las que guardes aparecerán aquí, también sin conexión.', 'No readings yet. The ones you save will appear here, even offline.')
+            : t('No hay mediciones en la etapa seleccionada.', 'There are no readings for the selected stage.')}</ScreenText></ScreenCard>}
+        renderSectionHeader={({ section }) => <View style={{ paddingTop: 12, paddingBottom: 8 }}><ScreenLabel>{section.title}</ScreenLabel></View>}
         renderItem={({ item, index, section }) => {
           const meta = VERDICT_META[item.verdict];
           const stroke = isDark ? meta.strokeDark : meta.strokeLight;
           const stage = PHENOLOGICAL_STAGES.find((s) => s.id === item.stage);
           return (
             <TouchableOpacity
-              guide={index === 0 && section === sections[0] ? t("Abre el detalle de esta lectura: valores, recomendación y respaldo. Las demás filas funcionan de la misma manera.", "Opens this reading’s values, recommendation and backup status. Other rows work the same way.") : false}
-              guideTitle={t("Detalle de una lectura", "Reading details")}
+              guide={index === 0 && section === sections[0] ? t('Abre el detalle de esta lectura: valores, recomendación y respaldo. Las demás filas funcionan de la misma manera.', 'Opens this reading’s values, recommendation and backup status. Other rows work the same way.') : false}
+              guideTitle={t('Detalle de una lectura', 'Reading details')}
               accessibilityRole="button"
               onPress={() => onOpenDetail(item)}
-              style={[
-                styles.row,
-                { backgroundColor: colors.card, borderColor: colors.border, borderLeftColor: stroke },
-              ]}
-            >
-              <View style={[styles.rowBadge, { backgroundColor: stroke }]}>
-                <Text style={styles.rowBadgeText}>{meta.icon}</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.rowTitle, { color: colors.text }]} numberOfLines={1}>
-                  {item.title}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border,
+                backgroundColor: colors.card, paddingHorizontal: 18, paddingVertical: 14, marginBottom: 12, minHeight: 72 }}>
+              <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: stroke }} />
+              <View style={{ flex: 1, gap: 3 }}>
+                <Text style={{ color: colors.text, fontSize: 17, fontWeight: '600' }} numberOfLines={1}>{item.title}</Text>
+                <Text style={{ color: colors.textSecondary, fontSize: 14 }}>
+                  {hourLabel(item.measuredAt, locale)} · {stage ? (language === 'en' ? stage.labelEn : stage.label) : ''} · pH {item.ph.toLocaleString(locale, { maximumFractionDigits: 1, minimumFractionDigits: 1 })} · {Math.round(item.vwcPercent)} %
                 </Text>
-                <Text style={{ ...Typography.captionBold, color: item.isPending ? colors.warning : colors.primary, marginTop: 4 }}>{item.isPending ? t('Guardada en el teléfono · Pendiente', 'Saved on phone · Pending') : t('Respaldada en la nube', 'Backed up to cloud')}</Text>
-                <Text style={[styles.rowMeta, { color: colors.textSecondary }]}>
-                  {hourLabel(item.measuredAt, locale)} · {stage?.emoji}{' '}
-                  {stage ? (language === 'en' ? stage.labelEn : stage.label) : ''} · pH{' '}
-                  {item.ph.toFixed(1)} · CE {Math.round(item.ecUsCm)} · {item.vwcPercent.toFixed(0)}%
+                <Text style={{ color: item.isPending ? colors.warning : colors.primary, fontSize: 13, fontWeight: '600' }}>
+                  {item.isPending ? t('Guardada en el teléfono · pendiente', 'Saved on phone · pending') : t('Respaldada en la nube', 'Backed up to cloud')}
                 </Text>
               </View>
-              <Text style={{ color: colors.textMuted, fontSize: 20 }}>›</Text>
+              <Text style={{ color: colors.primary, fontSize: 26 }}>›</Text>
             </TouchableOpacity>
           );
         }}
@@ -182,58 +138,3 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  root: { flex: 1 },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.md,
-    height: Spacing.touchTarget + 8,
-  },
-  headerBtn: { minWidth: 80, minHeight: Spacing.touchTarget, justifyContent: 'center' },
-  headerTitle: { ...Typography.titleMedium, flex: 1, textAlign: 'center' },
-  summary: { flexDirection: 'row', gap: Spacing.xs, paddingHorizontal: Spacing.md },
-  summaryCell: {
-    flex: 1,
-    alignItems: 'center',
-    borderRadius: Spacing.borderRadius,
-    borderWidth: 1,
-    paddingVertical: Spacing.sm,
-  },
-  summaryIcon: { fontSize: 18, fontWeight: '700' },
-  summaryCount: { ...Typography.titleLarge },
-  summaryLabel: { ...Typography.badge, textAlign: 'center', paddingHorizontal: 6 },
-  filters: {
-    flexDirection: 'row',
-    gap: Spacing.xs,
-    padding: Spacing.md,
-  },
-  filterChip: {
-    paddingHorizontal: Spacing.md,
-    minHeight: 48,
-    justifyContent: 'center',
-    borderRadius: 24,
-    borderWidth: 1,
-  },
-  filterText: { ...Typography.captionBold },
-  list: { paddingHorizontal: Spacing.md, paddingBottom: Spacing.xxl },
-  sectionHeader: { ...Typography.badge, paddingVertical: Spacing.sm },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    borderRadius: Spacing.borderRadius,
-    borderWidth: 1,
-    borderLeftWidth: 4,
-    padding: Spacing.md,
-    marginBottom: Spacing.sm,
-    minHeight: Spacing.touchTarget + 12,
-  },
-  rowBadge: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
-  rowBadgeText: { color: '#FFFFFF', fontWeight: '700' },
-  rowTitle: { ...Typography.bodyBold },
-  rowMeta: { ...Typography.caption, marginTop: 2 },
-  empty: { ...Typography.bodyRegular, textAlign: 'center', marginTop: Spacing.xl },
-});

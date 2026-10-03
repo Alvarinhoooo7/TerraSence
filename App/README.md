@@ -25,7 +25,7 @@ menos de 360 px o con letra ampliada (escala sobre 1,3) pasa a una sola columna.
 
 N, P y K se muestran por separado como registros informativos rotulados **Sin validar**, sin atribuirles selectividad química ni prescribir dosis. Si falta una lectura ambiental, se indica su ausencia; no se sustituye por datos de internet. Batería, fecha de captura y completitud del ambiente van fuera de las tarjetas, y el pronóstico a cinco días aparte, sin bloquear la presentación ni el guardado local.
 
-El mismo explorador ([`MeasurementExplorer`](src/components/MeasurementExplorer.tsx)) se usa en la medición, en el Inicio y en el detalle del historial. La consola web muestra las mismas diez variables, pero como filas desplegables, no como Grid ([Web](../Web/README.md#2-pantallas)).
+El mismo visor por pantallas ([`MeasurementResultFlow`](src/components/MeasurementResultFlow.tsx)) se usa en la medición y en el detalle del historial. La consola web muestra las mismas diez variables, pero como filas desplegables, no como Grid ([Web](../Web/README.md#2-pantallas)).
 
 - Implementado: Grid, unidades, ausencias, origen, fecha de captura, batería e historial de las diez variables.
 - Probar captura, diagnóstico y guardado en modo avión; no bloquear el resultado por la consulta meteorológica.
@@ -152,7 +152,7 @@ Es la herramienta central que el agricultor y los operadores llevan al campo: se
    - **Floración**
    - **Cosecha**
 7. **Captura BLE y meteorológica:** conexión por BLE a la sonda, lectura de la trama GATT de 20 bytes y consulta meteorológica. La consulta requiere red y no tiene caché: si falla, la medición se registra igual y el diagnóstico se emite **sin contexto climático**.
-8. **Resultados (una pantalla):** el veredicto de la fase; un resumen con pestañas *Resumen*, *Qué hacer* y *Qué revisar* y el **plan global**, que combina suelo, etapa y pronóstico; el Grid 2×5 con semáforo, donde cada tarjeta abre su detalle (*Estado*, *Recomendación*, *Control*); el pronóstico de cinco días; y **Guardar resultado**. Al guardar aparece el recordatorio de limpiar los electrodos (`CalibrationReminderModal`).
+8. **Resultados, una pantalla por paso:** resumen con el veredicto de la etapa y los datos esenciales; Suelo, Nutrientes y Ambiente, donde cada variable abre su detalle (*Estado*, *Recomendación*, *Control*); recomendaciones; y pronóstico con los datos de la captura. **Guardar** está siempre en la barra superior, sin esperar el pronóstico. Al guardar aparece el recordatorio de limpiar los electrodos (`CalibrationReminderModal`).
 9. **Historial de Mediciones (`HistoryScreen`):** Lista cronológica de todas las etapas, con filtros, estado de sincronización y detalle del diagnóstico. No incluye visualización cartográfica.
 
 ---
@@ -497,10 +497,11 @@ El proceso de medición sigue una secuencia rigurosa y pedagógica:
 2. **Captura física:**
    - La app escanea el anuncio `TerraSense-<ID>`, conecta vía BLE, captura la trama y consulta el clima en Open-Meteo.
    - Desconecta inmediatamente el enlace BLE para proteger la batería del ESP32.
-3. **Resultados, en una sola pantalla** ([`MeasurementExplorer`](src/components/MeasurementExplorer.tsx)):
-   - **Veredicto y resumen:** el título de la fase y un panel con pestañas *Resumen*, *Qué hacer* y *Qué revisar*. **Ver plan global** abre el diagnóstico de conjunto: suelo, fase elegida y pronóstico (lluvias, olas de calor o heladas). En **Pre-siembra** incluye qué cultivos conviene sembrar.
-   - **Lecturas con semáforo** (§5.3), repartidas en las pestañas *Suelo*, *Nutrientes* (siempre «Sin validar») y *Ambiente*, dentro de las secciones *Resumen*, *Lecturas*, *Consejos* y *Pronóstico*. Al tocar una tarjeta se abre su detalle con pestañas *Estado*, *Recomendación* y *Control*, y botones para pasar al parámetro siguiente o anterior.
-   - **Pronóstico** de cinco días y **Guardar resultado**. La lectura puede guardarse mientras el pronóstico carga.
+3. **Resultados, una pantalla por paso** ([`MeasurementResultFlow`](src/components/MeasurementResultFlow.tsx)), con indicador de avance y Atrás/Continuar:
+   - **Resumen:** el veredicto de la etapa, el diagnóstico y los datos esenciales del suelo. En **Pre-siembra** incluye qué cultivos conviene sembrar.
+   - **Suelo, Nutrientes** (siempre «Sin validar») **y Ambiente**, cada uno en su pantalla, con semáforo (§5.3). Cada variable abre su detalle con *Estado*, *Recomendación* y *Control*, y botones para pasar a la anterior o la siguiente.
+   - **Recomendaciones** y **Pronóstico y captura** (cinco días, fecha, batería y coordenadas como texto).
+   - **Guardar** queda siempre en la barra superior; la lectura puede guardarse mientras el pronóstico carga. El botón Atrás de Android retrocede paso a paso.
 4. **Después de guardar:** el recordatorio `CalibrationReminderModal` pide limpiar y secar los electrodos de acero inoxidable. No hay más pantallas: la app no dibuja mapas.
 
 ### 4.4. Historial de mediciones

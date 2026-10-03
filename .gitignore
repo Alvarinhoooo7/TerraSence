@@ -151,3 +151,4 @@ skills-lock.json
 # Presentaciones de clase de los ramos. Son material docente, no del proyecto,
 # y pesan decenas de MB en un repositorio publico.
 *.pptx
+.vercel

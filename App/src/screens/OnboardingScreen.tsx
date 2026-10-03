@@ -20,8 +20,10 @@ import { Typography } from '../constants/theme';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { AppIcon } from '../components/AppIcon';
-import { SoilArtwork, authStyles } from '../components/auth/AuthUI';
-import { EntryLayout, EntryHeading, EntryButton } from '../components/entry/EntryUI';
+import { EntryHeading, EntryButton } from '../components/entry/EntryUI';
+import { ScreenCard, ScreenLabel, ScreenLayout, ScreenOption, ScreenText, ScreenTopBar, ScreenValue } from '../components/screen/ScreenUI';
+import { BrandLoading } from '../components/LoadingScreen';
+import { formatDeviceId } from '../utils/deviceId';
 import { AccessField } from '../components/auth/AccessField';
 import { newPendingTarget } from '../utils/approvalFlow';
 import { createQrScanGate } from '../utils/qrScanGate';
@@ -327,33 +329,29 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip, onCan
   }, [step, joining, pairingState, backToChoice, onCancel]);
 
   if (pending) return <WaitingApprovalScreen onApproved={device => void finish('qr', device)} addingDevice={addingDevice} targetDeviceId={targetDeviceId} onCancel={onCancel} onDismiss={() => setPending(false)} />;
-  if (checkingRequests) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center' }}><ActivityIndicator color={colors.primary} /></SafeAreaView>;
+  if (checkingRequests) return <BrandLoading />;
 
-  if (checkFailed) return <EntryLayout footer={<EntryButton label={t('Reintentar', 'Try again')} onPress={() => { setCheckingRequests(true); setCheckAttempt(value => value + 1); }} />}><EntryHeading title={t('No pudimos revisar tu cuenta.', 'Could not check your account.')} description={t('Revisa tu conexión e inténtalo otra vez.', 'Check your connection and try again.')} /></EntryLayout>;
+  if (checkFailed) return <ScreenLayout align="center" eyebrow="TERRASENSE" title={t('No pudimos revisar tu cuenta.', 'Could not check your account.')}
+    description={t('Revisa tu conexión e inténtalo otra vez.', 'Check your connection and try again.')}
+    footer={<EntryButton label={t('Reintentar', 'Try again')} onPress={() => { setCheckingRequests(true); setCheckAttempt(value => value + 1); }} />} />;
 
-  if (step === 'invite') return <EntryLayout keyboardAware header={<EntryButton secondary label={t('Volver', 'Back')} onPress={backToChoice} />}
+  const eyebrowFlow = addingDevice ? t('VINCULAR OTRA SONDA', 'LINK ANOTHER PROBE') : t('VINCULA TU SONDA', 'LINK YOUR PROBE');
+
+  if (step === 'invite') return <ScreenLayout keyboardAware onBack={backToChoice} eyebrow={eyebrowFlow} title={t('Usa tu invitación', 'Use your invitation')}
+    description={t('Un miembro del equipo te la muestra en Configuración › Equipos y datos › Compartir acceso. El administrador aprueba tu solicitud.', 'A team member shows it in Settings › Devices and data › Share access. The administrator approves your request.')}
     footer={<EntryButton label={t('Solicitar acceso', 'Request access')} busy={joining} disabled={!inviteCode.trim()} onPress={() => { void joinByCode(); }} />}>
-    <View style={{ gap: 18 }}>
-      <EntryHeading eyebrow={t('EQUIPO COMPARTIDO', 'SHARED DEVICE')} title={t('Usa tu invitación.', 'Use your invitation.')}
-        description={t('Pide el QR o código temporal en Configuración > Equipos y datos > Compartir acceso. El administrador debe aprobar tu solicitud.', 'Ask for the QR or temporary code in Settings > Devices and data > Share access. The administrator must approve your request.')} />
-      <EntryButton secondary label={t('Escanear QR', 'Scan QR')} disabled={joining} onPress={() => { void openQr(); }} />
-      <AccessField label={t('Código de invitación', 'Invitation code')} value={inviteCode} onChangeText={setInviteCode} editable={!joining} maxLength={100} autoCapitalize="none" autoCorrect={false} />
-    </View>
-  </EntryLayout>;
+    <ScreenOption title={t('Escanear el QR', 'Scan the QR')} subtitle={t('Con la cámara del teléfono.', 'With the phone camera.')} disabled={joining} onPress={() => { void openQr(); }} />
+    <ScreenLabel>{t('O escribe el código', 'Or type the code')}</ScreenLabel>
+    <AccessField label={t('Código de invitación', 'Invitation code')} value={inviteCode} onChangeText={setInviteCode} editable={!joining} maxLength={100} autoCapitalize="none" autoCorrect={false} />
+  </ScreenLayout>;
 
   if (step === 'qr') {
     return (
-      <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
-        <View style={{ flex: 1 }}>
-        <View style={styles.header}>
-          <TouchableOpacity accessibilityRole="button" onPress={backToChoice} style={styles.headerButton} hitSlop={12}>
-            <Text style={[Typography.bodyBold, { color: colors.primary }]}>‹ {t('Volver', 'Back')}</Text>
-          </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>{t('Escanear QR', 'Scan QR')}</Text>
-          <View style={styles.headerButton} />
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+        <View style={{ paddingHorizontal: 24, width: '100%', maxWidth: 520, alignSelf: 'center' }}>
+          <ScreenTopBar onBack={backToChoice} />
+          <EntryHeading eyebrow={eyebrowFlow} title={t('Escanea el QR', 'Scan the QR')} />
         </View>
-
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
         <View style={styles.cameraWrap}>
           <CameraView
             style={StyleSheet.absoluteFill}
@@ -365,94 +363,55 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip, onCan
           {joining && (
             <View style={styles.cameraBusy}>
               <ActivityIndicator size="large" color="#FFFFFF" />
-              <Text style={styles.cameraBusyText}>{t('Solicitando acceso…', 'Requesting access…')}</Text>
+              <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700' }}>{t('Solicitando acceso…', 'Requesting access…')}</Text>
             </View>
           )}
         </View>
-
-        <View style={styles.explanation}>
-          <Text style={[styles.explanationTitle, { color: colors.text }]}>{t('Pídeselo a un miembro del equipo', 'Ask a team member')}</Text>
-          <Text style={[styles.explanationText, { color: colors.textSecondary }]}>
-            {t('Un miembro aprobado debe abrir “Configuración > Equipos y datos > Compartir acceso” en su app y mostrarte el QR. Al escanearlo solicitarás acceso al administrador.', 'An approved member must open “Settings > Devices and data > Share access” in their app and show you the QR. Scanning it requests administrator approval.')}
-          </Text>
+        <View style={{ paddingHorizontal: 24, paddingBottom: 24, width: '100%', maxWidth: 520, alignSelf: 'center' }}>
+          <ScreenText>{t('Un miembro aprobado abre Configuración › Equipos y datos › Compartir acceso y te muestra el QR. Al escanearlo, el administrador recibe tu solicitud.', 'An approved member opens Settings › Devices and data › Share access and shows you the QR. Scanning it sends your request to the administrator.')}</ScreenText>
         </View>
-        </ScrollView></View>
       </SafeAreaView>
     );
   }
 
   if (step === 'pairing') {
-    const waiting = pairingState === 'scanning' || pairingState === 'saving';
-    return <EntryLayout header={<EntryButton secondary label={t('Volver', 'Back')} disabled={pairingState === 'saving'} onPress={backToChoice} />}
-      footer={<EntryButton label={probe ? t('Confirmar y vincular', 'Confirm and link') : t('Buscar mi sonda', 'Find my probe')} busy={waiting} onPress={() => { void (probe ? savePairedProbe() : startPairing()); }} />}>
-      <View style={{ gap: 18 }}>
-        <EntryHeading eyebrow={t('VINCULA TU SONDA', 'PAIR YOUR PROBE')} title={probe ? t('La encontramos.', 'There it is.') : t('Prepara tu sonda.', 'Prepare your probe.')}
-          description={probe ? t('Comprueba su identidad y confirma la vinculación.', 'Check its identity and confirm pairing.') : t('Enciéndela, mantén PAIR por 3 segundos y acércala a menos de 2 metros del teléfono.', 'Turn it on, hold PAIR for 3 seconds and keep it within 2 meters of your phone.')} />
-        {waiting ? <View accessibilityLiveRegion="polite" style={{ alignItems: 'center', gap: 16, paddingVertical: 24 }}>
-          <AppIcon name="probe" color={colors.primary} size={64} /><ActivityIndicator color={colors.primary} />
-          <Text style={{ color: colors.text }}>{pairingState === 'saving' ? t('Vinculando…', 'Linking…') : t('Buscando sonda…', 'Searching for probe…')}</Text>
-        </View> : <SoilArtwork variant={1} compact />}
-        {probe && <View style={{ gap: 8 }}><Text style={{ color: colors.text, fontWeight: '700' }}>{probe.name || t('Sonda TerraSense', 'TerraSense probe')}</Text><Text selectable style={{ color: colors.textSecondary }}>ID: {probe.deviceCode}</Text></View>}
-        <Text style={{ color: colors.textSecondary }}>{t('Si es un equipo nuevo, tu cuenta quedará como administradora.', 'If this is a new device, your account will become its administrator.')}</Text>
-      </View>
-    </EntryLayout>;
+    if (pairingState === 'scanning' || pairingState === 'saving') return <BrandLoading
+      title={pairingState === 'saving' ? t('Vinculando tu sonda', 'Linking your probe') : t('Buscando tu sonda', 'Looking for your probe')}
+      detail={pairingState === 'saving' ? t('Registrando el equipo en tu cuenta.', 'Registering the device to your account.') : t('Con la ventana PAIR abierta y a menos de 2 metros del teléfono.', 'With the PAIR window open and within 2 meters of the phone.')}
+      onCancel={pairingState === 'scanning' ? backToChoice : undefined} />;
+    return <ScreenLayout onBack={backToChoice} eyebrow={eyebrowFlow}
+      title={probe ? t('La encontramos', 'Found it') : t('Prepara tu sonda', 'Get your probe ready')}
+      description={probe ? t('Comprueba que el ID sea el de tu equipo y confirma.', 'Check that the ID matches your device and confirm.') : undefined}
+      footer={<EntryButton label={probe ? t('Confirmar y vincular', 'Confirm and link') : t('Buscar mi sonda', 'Find my probe')} onPress={() => { void (probe ? savePairedProbe() : startPairing()); }} />}>
+      {probe ? <ScreenCard>
+        <ScreenValue label={t('Sonda', 'Probe')} value={probe.name || t('Sonda TerraSense', 'TerraSense probe')} />
+        <ScreenValue label="ID" value={formatDeviceId(probe.deviceCode)} selectable />
+      </ScreenCard> : <ScreenCard>
+        {[t('Enciende la sonda.', 'Turn the probe on.'),
+          t('Mantén el botón PAIR 3 segundos, hasta que el LED azul parpadee.', 'Hold the PAIR button for 3 seconds, until the blue LED blinks.'),
+          t('Déjala a menos de 2 metros del teléfono y toca «Buscar mi sonda».', 'Keep it within 2 meters of the phone and tap "Find my probe".')].map((line, i) => <View key={i} style={{ flexDirection: 'row', gap: 12 }}>
+          <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '700', minWidth: 18 }}>{i + 1}</Text>
+          <View style={{ flex: 1 }}><ScreenText muted={false}>{line}</ScreenText></View>
+        </View>)}
+      </ScreenCard>}
+      <ScreenText>{t('Si es un equipo nuevo, tu cuenta quedará como su administradora.', 'If this is a new device, your account will become its administrator.')}</ScreenText>
+    </ScreenLayout>;
   }
 
-  return <EntryLayout header={onCancel ? <EntryButton secondary label={t('Volver', 'Back')} onPress={() => { accountOperation.current.cancel(); scanGate.current.cancel(); onCancel(); }} /> : undefined}>
-    <EntryHeading eyebrow={t('TU CUENTA ESTÁ LISTA', 'YOUR ACCOUNT IS READY')} title={t('Ahora, tu sonda.', 'Now, your probe.')}
-      description={t('Vincula un equipo para comenzar. Elige cómo te vas a conectar.', 'Link a device to get started. Choose how you will connect.')} />
-    {/* Gesto sólo de desarrollo (sección 9): diez toques entran a Dashboard sin equipo. */}
-    {__DEV__ && onDevSkip
-      ? <Pressable guide={false} accessibilityRole="button" accessibilityLabel="TerraSense" onPress={() => { if (!operation.current) logoTap.current(); }}><SoilArtwork variant={1} compact /></Pressable>
-      : <SoilArtwork variant={1} compact />}
-    <Animated.View layout={layoutFlow()} style={{ gap: 16 }}>
-      <Animated.View entering={enterDown(100)}>
-        <Pressable guideTitle={t("Usar invitación", "Use invitation")} guide={t("Solicita acceso con el QR o el código temporal de otro miembro del equipo.", "Requests access using another member’s temporary QR or code.")} onPress={() => { if (!operation.current) setStep('invite'); }} accessibilityRole="button"
-          onPressIn={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); }}
-          style={({ pressed }) => [
-            styles.optionCard,
-            {
-              backgroundColor: isDark ? colors.card : colors.background,
-              borderColor: pressed ? colors.primary : colors.border,
-              opacity: pressed ? 0.8 : 1,
-              transform: [{ scale: pressed ? 0.98 : 1 }],
-            }
-          ]}>
-          <View style={{ gap: 16, flex: 1 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text style={[authStyles.eyebrow, { color: colors.primary }]}>{t('EQUIPO COMPARTIDO', 'SHARED DEVICE')}</Text>
-              <AppIcon name="arrow" color={colors.primary} size={20} />
-            </View>
-            <Text style={[styles.optionTitle, { color: colors.text }]}>{t('Tengo una invitación', 'I have an invitation')}</Text>
-            <Text style={[authStyles.body, { color: colors.textSecondary }]}>{t('Escanea el QR o escribe el código temporal de un miembro del equipo. El administrador revisará tu solicitud.', 'Scan a team member’s QR or enter their temporary code. The administrator will review your request.')}</Text>
-          </View>
-        </Pressable>
-      </Animated.View>
-      <Animated.View entering={enterDown(200)}>
-        <Pressable guideTitle={t("Configurar equipo nuevo", "Set up new device")} guide={t("Inicia la vinculación Bluetooth de una sonda nueva para registrarte como administrador.", "Starts Bluetooth pairing of a new probe to register you as administrator.")} onPress={() => { if (!operation.current) setStep('pairing'); }} accessibilityRole="button"
-          onPressIn={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); }}
-          style={({ pressed }) => [
-            styles.optionCard,
-            {
-              backgroundColor: isDark ? colors.card : colors.background,
-              borderColor: pressed ? colors.primary : colors.border,
-              opacity: pressed ? 0.8 : 1,
-              transform: [{ scale: pressed ? 0.98 : 1 }],
-            }
-          ]}>
-          <View style={{ gap: 16, flex: 1 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text style={[authStyles.eyebrow, { color: colors.primary }]}>{t('EQUIPO NUEVO', 'NEW DEVICE')}</Text>
-              <AppIcon name="probe" color={colors.primary} size={20} />
-            </View>
-            <Text style={[styles.optionTitle, { color: colors.text }]}>{t('Configurar mi sonda', 'Set up my probe')}</Text>
-            <Text style={[authStyles.body, { color: colors.textSecondary }]}>{t('Conéctala por Bluetooth para registrar el equipo y comenzar a usarlo.', 'Connect over Bluetooth to register the device and start using it.')}</Text>
-          </View>
-        </Pressable>
-      </Animated.View>
-    </Animated.View>
-  </EntryLayout>;
-
+  return <ScreenLayout
+    onBack={onCancel ? () => { accountOperation.current.cancel(); scanGate.current.cancel(); onCancel(); } : undefined}
+    eyebrow={addingDevice ? t('VINCULAR OTRA SONDA', 'LINK ANOTHER PROBE') : t('TU CUENTA ESTÁ LISTA', 'YOUR ACCOUNT IS READY')}
+    title={addingDevice ? t('¿Cómo la vinculas?', 'How will you link it?') : t('Ahora, tu sonda.', 'Now, your probe.')}
+    description={addingDevice ? t('Elige si es un equipo compartido o uno nuevo.', 'Choose whether it is a shared device or a new one.') : t('Vincula un equipo para comenzar. Elige cómo te vas a conectar.', 'Link a device to get started. Choose how you will connect.')}
+    // Gesto sólo de desarrollo (sección 9): diez toques en el título entran a Inicio sin equipo.
+    onHeadingPress={__DEV__ && onDevSkip ? () => { if (!operation.current) logoTap.current(); } : undefined}>
+    <ScreenOption title={t('Tengo una invitación', 'I have an invitation')}
+      subtitle={t('Equipo compartido: QR o código temporal de un miembro. El administrador aprueba tu solicitud.', 'Shared device: a member’s QR or temporary code. The administrator approves your request.')}
+      onPress={() => { if (!operation.current) setStep('invite'); }} />
+    <ScreenOption title={t('Configurar una sonda nueva', 'Set up a new probe')}
+      subtitle={t('Equipo nuevo: se vincula por Bluetooth con su botón PAIR y quedas como administrador.', 'New device: links over Bluetooth with its PAIR button and you become the administrator.')}
+      onPress={() => { if (!operation.current) setStep('pairing'); }} />
+  </ScreenLayout>;
 };
 
 const styles = StyleSheet.create({

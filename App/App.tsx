@@ -551,7 +551,7 @@ export default function App() {
       <HistoryScreen onClose={() => setRoute('dashboard')} onOpenDetail={handleOpenDetail} />
     );
   } else if (route === 'devices') {
-    content = <DevicesScreen key={`${session?.user.id}:${notificationDeviceId ?? ''}`} initialDeviceId={notificationDeviceId} onClose={() => { setNotificationDeviceId(null); setRoute(devicesOrigin); }} />;
+    content = <DevicesScreen key={`${session?.user.id}:${notificationDeviceId ?? ''}`} initialDeviceId={notificationDeviceId} onLinkDevice={() => setRoute('link-device')} onClose={() => { setNotificationDeviceId(null); setRoute(devicesOrigin); }} />;
   } else if (route === 'measure') {
     content = (
       <MeasureScreen onDone={() => setRoute('dashboard')} onCancel={() => setRoute('dashboard')} />
@@ -572,14 +572,14 @@ export default function App() {
         <View style={{ display: ['loading', 'language', 'terms', 'welcome', 'auth', 'recovery'].includes(entry) ? 'none' : 'flex' }}>
           <OfflineBanner />
         </View>
-        <ScreenGuide enabled={!recoveryLinkError && ['app', 'onboarding', 'approval'].includes(entry)} scope={`${entry}:${route}`}>
+        <ScreenGuide enabled={!recoveryLinkError && (entry === 'app' && route !== 'link-device' || entry === 'approval')} scope={`${entry}:${route}`}>
         {session && !inboxOpen && ['approval', 'onboarding'].includes(entry) && <InboxShortcut onPress={() => setInboxOpen(true)} />}
         {content}
         {entry === 'app' && !inboxOpen && !recoveryLinkError && ['dashboard', 'devices', 'history', 'settings', 'administration'].includes(route) && (
           <BottomNavigation route={route} onNavigate={next => { setNotificationDeviceId(null); setDevicesOrigin('dashboard'); setRoute(next); }} />
         )}
-        </ScreenGuide>
         <MeasurementDetailModal point={detailPoint} onClose={() => setDetailPoint(null)} />
+        </ScreenGuide>
         <Modal visible={entry === 'terms' && legalFromRegistration} animationType="slide" presentationStyle="fullScreen"
           onRequestClose={() => { registrationDraft.current = null; pendingRegistrationIdentity.current = null; setLegalFromRegistration(false); }}>
           <SafeAreaProvider>{entry === 'terms' && legalFromRegistration && <TermsScreen key={preferences.language} onBack={() => {
