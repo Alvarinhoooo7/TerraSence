@@ -161,12 +161,14 @@ w("El costo de materiales de cada unidad se detalla en la BOM (*Bill of Material
 w()
 w(cuadro("Estructura de costos de fabricación (BOM) por equipo"))
 w()
+SONDA = next(f["precio_clp"] for f in M.S["bom_filas"] if f["bloque"] == "Sonda")
 w("La sonda de suelo representa **%s, equivalente al %s del costo de materiales**, y es por lejos la "
   "decisión de abastecimiento más crítica del proyecto. El mercado de sondas 7-en-1 RS-485 muestra una "
   "dispersión enorme, entre $12.100 y $82.100, que refleja productos genuinamente distintos en número de "
-  "variables, calidad de construcción y material del vástago. El presupuesto adopta %s, en el tramo alto "
-  "de esa banda, precisamente porque una sonda barata no sirve si no sostiene la exactitud que el "
-  "protocolo de validación exige." % (p(48000), pct(48000 / M.BOM), p(48000)))
+  "variables, calidad de construcción y material del vástago. La variante cotizada, de siete variables, "
+  "cuesta %s puesta en Chile según una publicación con fecha; una sonda barata no sirve si no sostiene "
+  "la exactitud que el protocolo de validación exige, y por eso se compra una muestra antes del lote."
+  % (p(SONDA), pct(SONDA / M.BOM), p(SONDA)))
 w()
 w("En el otro extremo, la electrónica de la placa V3 (módulo ESP32, circuitos integrados, sensor "
   "ambiental, pasivos, indicadores y protecciones) suma %s por equipo, un %s de la BOM, y dentro de ella "

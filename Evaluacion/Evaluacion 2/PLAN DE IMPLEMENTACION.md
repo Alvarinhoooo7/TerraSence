@@ -16,7 +16,7 @@
 | Anexo B. Flujo de caja | `Evaluacion/Evaluacion 2/Anexos/Anexo B - Flujo de caja TerraSense.xlsx` | Generado por `python finanzas/modelo.py`. Se sube a Drive |
 | Anexo C. Planos de la placa | PDF exportado de KiCad: esquemático, capas, vista de fabricación acotada y plano de ensamble | Lo exportas tú desde la PCB V3 |
 | Anexo D. Planos de la carcasa | PDF del CAD con vistas acotadas, cortes y tolerancias | Lo exportas tú desde el CAD |
-| Anexo E. Protocolos FAT y SAT | Formularios de registro, una hoja por protocolo | Generado junto al anexo A o redactado; se decide en F9 |
+| Anexo E. Protocolos FAT y SAT | Formularios de registro, una hoja por protocolo | Generado por `finanzas/anexos.py` desde `modelo.py` |
 
 ### 0.1. Reglas que valen para el informe y los anexos
 
@@ -179,7 +179,7 @@ su estado.
 | Cargador Li-ion | Carga de la celda 1S | **TP4056** (ESOP-8) | MCP73831 (SOT-23-5, 500 mA); BQ24074 (gestión de ruta de potencia) | R_PROG (1,2 kΩ → 1 A; 2 kΩ → 580 mA, a decidir por temperatura); 2 LED de estado (CHRG/STDBY); NTC en TEMP o puente a GND; ruta de carga compartida (P-MOSFET + Schottky) |
 | Protección de celda | Sobrecarga, sobredescarga y cortocircuito | **La que trae la celda** (D8) | DW01A + FS8205A en placa, sólo si cambia la celda | No va en la V3. El informe justifica por qué basta la protección integrada de la LiPo |
 | Regulador 3,3 V | Alimentar ESP32, BME280 y SP3485 | **LDO de baja Iq ≥ 500 mA** (RT9080-33, HT7833 o ME6211) | Buck-boost TPS63001 | La matriz compara Iq, caída y corriente: el pico de BLE es de ≈ 130 mA y el de Wi-Fi no aplica |
-| Elevador a 5 V | Alimentar la sonda RS-485 | **MT3608** (SOT-23-6) con pin EN | TPS61023 (0,5 µA en apagado, más eficiente); SX1308 | Bobina de 22 µH (dimensionar I_sat); Schottky SS14/SS34; divisor de realimentación; 22 µF entrada/salida. **El EN controlado por GPIO reemplaza al par AO3400A/AO3401A** como corte de la sonda (gestión de cargas) |
+| Elevador a 5 V | Alimentar la sonda RS-485 | **MT3608** (SOT-23-6) con pin EN | TPS61023 (0,5 µA en apagado, más eficiente); SX1308 | Bobina de 22 µH (dimensionar I_sat); Schottky SS14/SS34; divisor de realimentación; 22 µF entrada/salida. **Se conserva el corte AO3401A/AO3400A** en serie con la salida: el MT3608 no desconecta la carga con EN bajo (la salida queda en ≈ VBAT menos el diodo). IO5 gobierna el EN y el corte a la vez |
 | RS-485 | Bus Modbus RTU con la sonda | **SP3485EN** (SOIC-8) | MAX3485; THVD1410 | TVS **SM712** en A/B; terminación de 120 Ω por puente; resistencias de polarización fail-safe |
 | Sensor ambiental | T, HR y presión | **BME280** (LGA-8) | SHT40 + BMP280 | 100 nF; pull-ups I²C de 4,7 kΩ; ubicarlo en el borde, junto al respiradero, lejos del LDO y del ESP32, con ranura de aislación térmica |
 | Interfaz | Avisos sin pantalla | 3 LED (azul, verde, rojo) + buzzer pasivo 9042 + pulsador PAIR | — | **Buzzer con transistor y diodo de rueda libre**: cierra el riesgo H1 |
@@ -192,7 +192,7 @@ su estado.
 Para no reabrir el firmware:
 
 - El contrato de pines de `Firmware/pines.h`: PAIR en IO33, buzzer en IO19, batería en IO34 y LEDs.
-  Cambia sólo el control de la sonda, que pasa a ser el EN del elevador.
+  El control de la sonda sigue en IO5, que ahora gobierna también el EN del elevador.
 - La trama de 20 bytes.
 - El puente de medición de corriente JP1.
 
@@ -385,7 +385,7 @@ modelo.
      cargador.
    - Consumo de la flota vendida en el horizonte, como dato de impacto.
 2. **Gestión de cargas:**
-   - Corte de la sonda por EN del elevador.
+   - Corte de la sonda por AO3401A y EN del elevador, ambos desde IO5.
    - Reposo profundo con despertar por PAIR.
    - CH340 sin alimentación desde la batería.
    - LED apagados en reposo.
@@ -587,22 +587,38 @@ Además:
 - Agregar los anexos generados a la lista de `CLAUDE.md` §2 y de `AGENTS.md`.
 - Una lectura completa contra la rúbrica (`Readme.md`), criterio por criterio, y contra E1 a E14.
 
-## 7. Lo que necesito de ti
+## 7. Estado al 02-10-2026 y lo que falta
 
-Ninguna pregunta bloquea F1 ni F2.
+F1 a F12 están implementadas. `python finanzas/verificar_informe_e2.py` sólo reporta los marcadores `⟦PENDIENTE PCB V3: …⟧` y `⟦PENDIENTE CAD: …⟧`: 18 en total, todos de geometría. Precios, hojas de datos y redacción quedaron cerrados con consultas del 02-10-2026:
 
-Respondidas el 02-10-2026 y llevadas a la sección 2.2:
+- **Sonda:** variante T-H-EC-NPK-PH en AliExpress, $34.700 más $9.694 de envío. Ficha de la familia [16]: 4.800/9.600 baudios; cable marrón (+), negro (−), amarillo o gris (A) y azul (B).
+- **Celda:** EEMB LP103454, $6.900 en pack de 10. Se eligió por tener un fabricante identificable que respalde la certificación IEC 62133-2.
+- **Termistor de la celda** (MF52A103F3950) con red de 4,7 kΩ y 47 kΩ en TEMP, para una ventana de carga de ≈ 0 a 44 °C. Estaba en el texto y faltaba en la BOM; también lleva una tercera bornera de 2 vías.
+- **Accesorios** con enlace al producto exacto: interruptor, respiradero, tapón, insertos M3 × 5,7 × 4,6 (agujero de 4,0 mm), cordón, cable y embalaje.
+- **Flete:** dos envíos UPS de 2,5 kg a US$188,45 cada uno (carrito de LCSC con destino Chile). Los componentes de 200 equipos pesan ≈ 4,7 kg netos. DigiKey cobra US$100 por envío a Chile.
+- **Clasificación básica o extendida de JLCPCB** verificada pieza por pieza: había 14 rótulos errados.
+- **Taller:** el microscopio pasa al precio de la tienda oficial. El fixture del FAT ($38.528) y las herramientas ($374.588, antes $1.000.000 sin respaldo) quedan desglosados con precios consultados.
+- **Servicios:** SUBTEL por declaración con QR (Res. 737, vigente desde el 22-02-2026), $1.300.000. Ensayo IP67, US$500 ($475.000).
+- **Hojas de datos:** CH340 con 12 mA típicos; PTC de la serie 0603L al 82 % a 40 °C y al 74 % a 50 °C [49]; PETG con 74,5 °C de deflexión bajo carga [50]; LED azul de 300 mcd a 20 mA.
+- **Figuras:** los 8 Mermaid se renderizaron con `mermaid-cli` sin errores. Los PNG para el Word están en `Evaluacion/Evaluacion 2/Figuras/`.
 
-- Módulo WROOM-32D (D2).
-- Gantt sin evaluaciones, con el hito del 17-12-2026 (D7).
-- LiPo de 2.000 mAh (D8).
-- Creality K1C (D9).
+### 7.1. Guía para cerrar la placa V3 y la carcasa
 
-Queda abierta:
-
-1. **PCB V3: tamaño y fecha.** F5, F7.1, el anexo C, la carcasa y las carcasas por cama dependen de
-   ella. Mientras tanto, la geometría se documenta con la V2 (99,9 × 90 mm) como cota superior, y la
-   carcasa y su costeo se dejan parametrizados para recalcularlos cuando fijes el contorno.
+1. **Placa V3 dibujada:**
+   - Copiar a la Tabla 5.1 el contorno y las coordenadas: 6 marcadores `PCB V3`.
+   - Exportar las seis láminas del anexo C.
+   - En `finanzas/supuestos.json`, actualizar el precio de la fila «Placa de circuito impreso V3» con la cotización de JLCPCB para el contorno real, y los `pines` de cada fila si cambia la huella.
+2. **Modelo 3D de la carcasa:**
+   - Copiar las dimensiones exteriores (Tabla 5.3) y las posiciones de las aberturas (Tabla 5.4): 10 marcadores `CAD`.
+   - Exportar las cuatro láminas del anexo D.
+   - En `supuestos.json`, actualizar `capacidad_impresion.huella_mm` y `capacidad_impresion.masa_g`, y los gramos de PETG de `_carcasa_detalle`.
+3. **Regenerar y propagar:**
+   - Ejecutar `python finanzas/modelo.py` y `python finanzas/energia_v3.py`.
+   - Llevar al informe las cifras que cambien: BOM, precio, VAN, TIR, Tabla 4.9, Tabla 6.4 (carcasas por cama, horas e impresoras) y capítulo VIII.
+   - `verificar_informe_e2.py` detecta las cifras clave que no calcen.
+4. **Cerrar:** el validador debe dar 0 errores.
+   - Ejecutar `python -m unittest discover -s finanzas -p "test_*.py"` y `python docs/verificar_documentacion.py`.
+   - Re-renderizar los Mermaid si se tocaron.
 
 ## 8. Riesgos
 

@@ -127,7 +127,7 @@ python -m unittest discover -s finanzas -p "test_*.py"   # pruebas del modelo fi
 TerraSense está planteado como un proyecto económicamente sustentable y escalable:
 - **Modelo de ingreso:** venta directa del hardware con IVA incluido. La app y el diagnóstico local no tienen suscripción.
 - **Precio:** se **deriva** del costo total con un margen exigido del 30 %; no es un supuesto de entrada.
-- **Costos y margen:** la sonda RS-485 concentra el 59,9 % de la BOM. El ensamblaje se paga en la nómina y no se duplica como costo variable.
+- **Costos y margen:** la sonda RS-485 concentra el 59,5 % de la BOM. El ensamblaje se paga en la nómina y no se duplica como costo variable.
 - **Financiamiento:** el pie de los socios se entrega al banco como condición de entrada y el crédito financia el 100 % de la inversión inicial. Pie y crédito **no se suman** como fuentes.
 - **Evaluación:** flujos anuales sobre 10 años (2027–2036), sin valor terminal, con depreciación, amortización del activo nominal y tabla de amortización del crédito por sistema francés.
 
@@ -137,47 +137,47 @@ TerraSense está planteado como un proyecto económicamente sustentable y escala
 
 ## Finanzas y modelo económico
 
-**El precio no es un supuesto: es un resultado.** Se construye primero la estructura completa de costos e inversión y el precio se deriva de ella exigiendo un 30 % de utilidad sobre el costo total. Precio de lista resultante: **$465.021 CLP con IVA** ($390.774 netos). Evaluación a diez años, 2027–2036, con tasa de descuento del 20 % anual.
+**El precio no es un supuesto: es un resultado.** Se construye primero la estructura completa de costos e inversión y el precio se deriva de ella exigiendo un 30 % de utilidad sobre el costo total. Precio de lista resultante: **$466.027 CLP con IVA** ($391.620 netos). Evaluación a diez años, 2027–2036, con tasa de descuento del 20 % anual.
 
 ### BOM por equipo
 
 | Bloque del equipo | Líneas | Subtotal neto por equipo |
 |---|---:|---:|
-| Sonda | 1 | $48.000 |
-| Celda | 1 | $4.400 |
+| Sonda | 1 | $44.394 |
+| Celda | 1 | $6.900 |
 | Carcasa | 1 | $7.238 |
-| PCB V3 y ensamble | 3 | $4.896 |
+| PCB V3 y ensamble | 3 | $6.312 |
 | MCU y radio | 1 | $2.710 |
-| USB-C y carga | 15 | $1.014 |
+| USB-C y carga | 18 | $1.054 |
 | Alimentación 3,3 V | 1 | $83 |
 | Elevador 5 V | 10 | $614 |
 | RS-485 | 5 | $249 |
 | Sensor ambiental | 2 | $4.613 |
 | Interfaz de usuario | 10 | $382 |
-| Protección y medición de batería | 5 | $626 |
+| Protección y medición de batería | 5 | $730 |
 | Pasivos de desacoplo | 4 | $213 |
-| Montaje y embalaje | 9 | $5.040 |
-| **Total BOM neto** | **68** | **$80.076** |
+| Montaje y embalaje | 9 | $5.142 |
+| **Total BOM neto** | **71** | **$80.632** |
 
-La BOM es la del **producto sobre la PCB V3, sin placas de desarrollo ni módulos** (sí el módulo ESP32-WROOM-32D, con antena y certificación). Cada línea lleva modelo, código de proveedor (LCSC principal, DigiKey alternativa), precio, fecha de consulta y enlace en la planilla `PCB/BOM_TerraSense.xlsx` y en el anexo A de la Evaluación 2. La sonda de suelo concentra el 59,9 % del costo de materiales y es la decisión de abastecimiento crítica del proyecto.
+La BOM es la del **producto sobre la PCB V3, sin placas de desarrollo ni módulos** (sí el módulo ESP32-WROOM-32D, con antena y certificación). Cada línea lleva modelo, código de proveedor (LCSC principal, DigiKey alternativa), precio, fecha de consulta y enlace en la planilla `PCB/BOM_TerraSense.xlsx` y en el anexo A de la Evaluación 2. La sonda de suelo concentra el 59,5 % del costo de materiales y es la decisión de abastecimiento crítica del proyecto.
 
-> La BOM de la V3 se construye con precios de catálogo de LCSC (consultados el 02-10-2026) y estimaciones declaradas; la única compra efectuada es la de la PCB V2. Los materiales de montaje y sellado y la sonda no tienen cotización formal.
+> La BOM de la V3 se construye con precios de catálogo de LCSC, DigiKey y AliExpress consultados el 02-10-2026; la única compra efectuada es la de la PCB V2. Quedan como estimación sólo la placa V3, su ensamble y la carcasa, que dependen del contorno de la placa y del modelo 3D.
 
-Sumando merma (3 %), provisión de reposiciones y garantía (5 %) y envío, el costo variable por equipo antes de comisión es **$92.482**. La carcasa se imprime en taller propio: las dos impresoras 3D están en el activo fijo y el filamento, la merma, la energía y la mantención se cargan al costo unitario.
+Sumando merma (3 %), provisión de reposiciones y garantía (5 %) y envío, el costo variable por equipo antes de comisión es **$93.082**. La carcasa se imprime en taller propio: las dos impresoras 3D están en el activo fijo y el filamento, la merma, la energía y la mantención se cargan al costo unitario.
 
 ### Inversión inicial y financiamiento
 
 | Concepto | CLP |
 |---|---:|
-| Equipamiento y activo fijo | $6.474.122 |
-| Activo nominal (puesta en marcha) | $5.900.000 |
+| Equipamiento y activo fijo | $5.930.988 |
+| Activo nominal (puesta en marcha) | $7.025.000 |
 | Capital de trabajo (3,0 meses de estructura) | $12.719.785 |
-| Inventario inicial | $3.082.735 |
-| **Inversión inicial total** | **$28.176.642** |
-| Crédito bancario a 10 años, 12 % efectivo anual | $28.176.642 |
-| Pie propio exigido (30 % del crédito) | $8.452.993 |
-| Aporte por socio | $4.226.496 |
-| Cuota mensual (sistema francés) | $394.324 |
+| Inventario inicial | $3.102.740 |
+| **Inversión inicial total** | **$28.778.513** |
+| Crédito bancario a 10 años, 12 % efectivo anual | $28.778.513 |
+| Pie propio exigido (30 % del crédito) | $8.633.554 |
+| Aporte por socio | $4.316.777 |
+| Cuota mensual (sistema francés) | $402.747 |
 
 **El pie no es una fuente adicional de fondos.** Los socios lo entregan al banco como condición de entrada y es el crédito el que financia el 100 % de la inversión inicial; sumar pie más crédito cuenta dos veces el mismo dinero. El capital de trabajo no se fijó por regla sino iterando hasta que la caja nunca baje de un piso de seguridad, con un mínimo de política de 3 meses de estructura.
 
@@ -185,30 +185,30 @@ Sumando merma (3 %), provisión de reposiciones y garantía (5 %) y envío, el c
 
 | Año | Equipos | Ventas netas | Utilidad del ejercicio | Flujo de fondos | Caja acumulada |
 |---|---:|---:|---:|---:|---:|
-| 2027 | 200 | $78.154.812 | $-1.472.040 | $-602.838 | $12.116.947 |
-| 2028 | 350 | $140.874.049 | $156.594 | $833.122 | $12.950.069 |
-| 2029 | 500 | $207.286.101 | $13.460.675 | $13.921.407 | $26.871.476 |
-| 2030 | 650 | $277.556.089 | $30.677.947 | $30.896.988 | $57.768.463 |
-| 2031 | 850 | $373.846.702 | $69.034.131 | $68.982.477 | $126.750.940 |
-| 2032 | 892 | $404.088.701 | $69.842.602 | $61.008.722 | $187.759.662 |
-| 2033 | 937 | $437.208.572 | $81.675.262 | $80.007.105 | $267.766.767 |
-| 2034 | 984 | $472.913.161 | $94.821.267 | $92.772.804 | $360.539.571 |
-| 2035 | 1033 | $511.356.579 | $97.487.252 | $95.012.847 | $455.552.417 |
-| 2036 | 1085 | $553.210.596 | $113.289.647 | $110.338.186 | $565.890.603 |
+| 2027 | 200 | $78.323.938 | $-1.616.164 | $-664.886 | $12.054.899 |
+| 2028 | 350 | $141.178.897 | $47.907 | $802.395 | $12.857.295 |
+| 2029 | 500 | $207.734.663 | $13.470.693 | $14.004.776 | $26.862.070 |
+| 2030 | 650 | $278.156.714 | $30.654.953 | $30.942.182 | $57.804.252 |
+| 2031 | 850 | $374.655.697 | $69.051.537 | $69.062.290 | $126.866.542 |
+| 2032 | 892 | $404.963.140 | $70.057.919 | $61.667.308 | $188.533.850 |
+| 2033 | 937 | $438.154.681 | $81.908.423 | $80.046.641 | $268.580.491 |
+| 2034 | 984 | $473.936.534 | $95.073.894 | $92.823.682 | $361.404.173 |
+| 2035 | 1033 | $512.463.143 | $97.761.101 | $95.075.848 | $456.480.021 |
+| 2036 | 1085 | $554.407.731 | $113.586.814 | $110.414.316 | $566.894.337 |
 
-Los ejercicios 2027 y 2028 cierran con pérdida: con 200 y 350 equipos la estructura mínima para operar formalmente todavía no se cubre. Esa pérdida está financiada por el capital de trabajo y la caja nunca baja de $12.116.947.
+Los ejercicios 2027 y 2028 cierran con pérdida: con 200 y 350 equipos la estructura mínima para operar formalmente todavía no se cubre. Esa pérdida está financiada por el capital de trabajo y la caja nunca baja de $12.054.899.
 
 ### VAN, TIR y payback
 
 | Indicador | Valor | Criterio | Veredicto |
 |---|---:|---|---|
-| VAN al 20 % | $123.149.158 | VAN > 0 | Cumple |
-| TIR efectiva anual | 57,52 % | TIR > 20 % | Cumple |
-| Payback simple | 3,45 años | ≤ 5 años | Cumple |
-| Payback descontado | 4,19 años | ≤ 5 años | Cumple |
+| VAN al 20 % | $122.844.289 | VAN > 0 | Cumple |
+| TIR efectiva anual | 56,97 % | TIR > 20 % | Cumple |
+| Payback simple | 3,47 años | ≤ 5 años | Cumple |
+| Payback descontado | 4,21 años | ≤ 5 años | Cumple |
 | Deuda al cierre de 2036 | $0 | Crédito saldado | Cumple |
 
-**Punto de quiebre del precio.** Con el financiamiento dimensionado, la caja se vuelve negativa bajo un precio de lista de $435.787 y el proyecto deja de crear valor bajo $394.649. Ese resultado es la justificación numérica de derivar el precio del costo en lugar de fijarlo por aspiración comercial.
+**Punto de quiebre del precio.** Con el financiamiento dimensionado, la caja se vuelve negativa bajo un precio de lista de $437.003 y el proyecto deja de crear valor bajo $395.836. Ese resultado es la justificación numérica de derivar el precio del costo en lugar de fijarlo por aspiración comercial.
 
 [Informe 1 corregido](Evaluacion/Evaluacion%201/INFORME%201%20CORREGIDO.md) · [Sección económica](docs/SECCION_ECONOMICA_REFORMULADA.md) · [Metodología](docs/MODELO_ECONOMICO.md)
 
