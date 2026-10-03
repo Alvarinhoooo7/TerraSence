@@ -2,10 +2,10 @@
  * Firmware TerraSense - ESP32 (Arduino IDE, núcleo esp32 3.x)
  *
  * Alcance actual: vinculación BLE con la app (pulsador PAIR y confirmación del
- * ID, que sale de la MAC), indicadores LED y sonoros, y trama de telemetría de
- * 20 bytes. No hay reset desde la sonda: el único reset es el del backoffice.
- * Sin lectura de suelo todavía: los campos sin lectura viajan en 0xFF y nunca
- * se simulan. Estado y pendientes en TASK.md.
+ * ID, que sale de la MAC), indicadores LED y sonoros, lectura Modbus de la
+ * sonda de suelo y trama de telemetría de 20 bytes. No hay reset desde la
+ * sonda: el único reset es el del backoffice. Un campo sin lectura viaja en
+ * 0xFF y nunca se simula. Estado y pendientes en TASK.md.
  */
 
 #include <Wire.h>
@@ -29,7 +29,11 @@ Led ledRojo(PIN_LED_RED);
 Zumbador zumbador(PIN_BUZZER);
 Bme280 bme;
 Sonda sonda;
-bool capturaEnCurso = false;
+
+// Quién pidió la captura en curso: la de la app se notifica; la de la tecla
+// «m» del monitor serie sólo se muestra, para probar la sonda sin teléfono.
+enum class OrigenCaptura : uint8_t { Ninguna, App, Serie };
+OrigenCaptura captura = OrigenCaptura::Ninguna;
 
 EstadoBateria bateriaActual;
 uint32_t ultimaBateria = 0;
@@ -54,30 +58,33 @@ void revisarBateria(uint32_t ahora, bool forzar = false) {
   }
 }
 
-// La sonda RS-485 aún no tiene driver: la lectura siempre es inválida.
-// No se reemplaza por valores de ejemplo; ver trama.h.
-// Arma y notifica la trama con la lectura de suelo de esta captura (inválida si
-// la sonda no respondió), el ambiente y la batería medidos ahora mismo.
-void medirYNotificar(uint32_t ahora, LecturaSuelo suelo) {
+// Arma la trama con la lectura de suelo de esta captura (inválida si la sonda
+// no respondió), el ambiente y la batería medidos ahora mismo, y la notifica
+// si la pidió la app.
+void medirYNotificar(uint32_t ahora, LecturaSuelo suelo, bool notificar) {
   revisarBateria(ahora, true);  // la batería de esta captura, sin reutilizar la anterior
+  // Los rangos se revisan antes que la batería para que la prueba en banco, sin
+  // celda, igual diga si la lectura de la sonda habría sido publicable.
+  if (suelo.valida && !sueloPublicable(suelo)) {
+    Serial.println("[TRAMA] Suelo fuera de los rangos del manual: se descarta la medición");
+    suelo.valida = false;
+  }
   if (suelo.valida && !bateriaActual.valida) {
-    Serial.println("[TRAMA] Batería inválida: se descarta la medición de suelo");
+    Serial.println("[TRAMA] Suelo dentro de rango, pero batería inválida: se descarta la medición de suelo");
     suelo.valida = false;
   }
   if (suelo.valida) suelo.bateriaPct = bateriaActual.porcentaje;
-  if (suelo.valida && !sueloPublicable(suelo)) {
-    Serial.println("[TRAMA] Suelo fuera de rango: se descarta la medición");
-    suelo.valida = false;
-  }
   const LecturaAmbiente aire = bme.leer();
 
   uint8_t trama[TRAMA_BYTES];
   armarTrama(suelo, aire, trama);
-  const bool enviada = bleNotificar(trama, sizeof(trama));
+  const bool enviada = notificar && bleNotificar(trama, sizeof(trama));
 
   Serial.print("[TRAMA] ");
   for (size_t i = 0; i < sizeof(trama); i++) Serial.printf("%02X ", trama[i]);
-  Serial.println(enviada ? "(notificada)" : "(sin teléfono conectado)");
+  Serial.println(enviada     ? "(notificada)"
+                 : notificar ? "(sin teléfono conectado)"
+                             : "(prueba desde el monitor serie: no se notifica)");
   Serial.printf("[TRAMA] suelo: %s | BME280: %s | batería ADC: %.2f V (%s)\n",
                 suelo.valida ? "ok" : "sin lectura (FF)",
                 bme.presente() ? "ok" : "ausente (centinela)", bateriaActual.voltios,
@@ -92,6 +99,16 @@ void medirYNotificar(uint32_t ahora, LecturaSuelo suelo) {
     ledRojo.aviso(PatronLed::TresDestellos, ahora);
     zumbador.reproducir(Sonido::Fallo, ahora);
   }
+}
+
+// Tecla «m» (o «M») en el monitor serie: pide una captura de prueba.
+bool capturaPedidaPorSerie() {
+  bool pedida = false;
+  while (Serial.available() > 0) {
+    const int c = Serial.read();
+    if (c == 'm' || c == 'M') pedida = true;
+  }
+  return pedida;
 }
 
 // En reposo todo está apagado y en silencio. Tabla completa en Firmware/README.md.
@@ -145,7 +162,7 @@ void setup() {
   // La única señal de «estoy encendida».
   ledVerde.aviso(PatronLed::Encendido1s, millis());
   zumbador.reproducir(Sonido::Encendido, millis());
-  Serial.println("TerraSense ESP32 inicializado.");
+  Serial.println("TerraSense ESP32 inicializado. Tecla «m»: medir la sonda sin la app.");
 }
 
 void loop() {
@@ -165,16 +182,25 @@ void loop() {
   revisarBateria(ahora);
   // La suscripción de la app inicia una captura nueva; el bucle sigue atendiendo
   // PAIR y avisos mientras la sonda se estabiliza y responde.
-  if (bleTomarSolicitudLectura(ahora) && sonda.iniciar(ahora)) capturaEnCurso = true;
+  if (bleTomarSolicitudLectura(ahora) && sonda.iniciar(ahora)) captura = OrigenCaptura::App;
+  if (capturaPedidaPorSerie()) {
+    if (captura == OrigenCaptura::Ninguna && sonda.iniciar(ahora)) {
+      captura = OrigenCaptura::Serie;
+      Serial.println("[SONDA] Captura pedida desde el monitor serie");
+    } else {
+      Serial.println("[SONDA] Ya hay una captura en curso");
+    }
+  }
   sonda.actualizar(ahora);
-  if (capturaEnCurso && !bleConectado()) {
+  if (captura == OrigenCaptura::App && !bleConectado()) {
     sonda.cancelar();  // la respuesta no se entrega a una conexión posterior
-    capturaEnCurso = false;
+    captura = OrigenCaptura::Ninguna;
     Serial.println("[SONDA] Captura cancelada: la app se desconectó");
   }
-  if (capturaEnCurso && sonda.terminada()) {
-    capturaEnCurso = false;
-    medirYNotificar(ahora, sonda.tomarLectura());
+  if (captura != OrigenCaptura::Ninguna && sonda.terminada()) {
+    const bool notificar = captura == OrigenCaptura::App;
+    captura = OrigenCaptura::Ninguna;
+    medirYNotificar(ahora, sonda.tomarLectura(), notificar);
   }
   actualizarAvisos(ahora);
 

@@ -1,6 +1,6 @@
 # Firmware: estado, prueba y pendientes
 
-Alcance vigente: **vinculación BLE con la app, pulsador PAIR, indicadores LED y sonoros y trama de 20 bytes activa**. La lectura de la sonda de suelo no está implementada y no se simula: todo campo sin lectura viaja en `0xFF`. Descripción del firmware en [README.md](README.md).
+Alcance vigente: **vinculación BLE con la app, pulsador PAIR, indicadores LED y sonoros, lectura Modbus de la sonda de suelo y trama de 20 bytes activa**. La lectura de suelo está implementada pero sin ensayar con la sonda (F1); nunca se simula: todo campo sin lectura viaja en `0xFF`. Descripción del firmware en [README.md](README.md).
 
 ## Hecho
 
@@ -38,6 +38,24 @@ Requisitos:
 
 Si la app muestra «No se pudo verificar la identidad de la sonda», la sonda tiene un firmware anterior al ID por MAC: cargar este.
 
+## Prueba de la sonda en banco
+
+Sirve para F1 sin la app ni la batería. La sonda va directo a 5 V (no hace falta el MOSFET de IO5) y el ESP32 por USB.
+
+1. Cables de la sonda: café a +5 V, negro a GND, amarillo a A del transceptor y azul a B. El GND de la fuente de la sonda tiene que ser el mismo del ESP32.
+2. Transceptor SP3485 a 3,3 V: su salida del receptor (RO) a IO16, la entrada del driver (DI) a IO17 y RTS (DE y RE unidos) a IO4.
+3. IO34 a GND mientras no haya batería ni divisor: un pin flotante da tensiones al azar que pueden parecer una celda.
+4. Monitor serie a 115200 baudios y tecla **`m`** + Enter. Resultado esperado: `[SONDA] Lectura a 4800 baudios`, los registros crudos y convertidos, y luego `Suelo dentro de rango, pero batería inválida`. Es correcto: sin celda no se publica suelo, y el mensaje confirma que los siete valores caben en los rangos del manual. Si en cambio aparece `Suelo fuera de los rangos del manual`, alguna escala no es la esperada: revisar los registros crudos.
+5. Comparar con la realidad: sonda al aire, humedad cerca de 0 y CE cerca de 0; en un vaso con agua, humedad alta; temperatura parecida a la del ambiente. Un pH × 100 (p. ej. `pH 650`) indicaría otra escala.
+
+| Monitor serie | Causa probable |
+| :--- | :--- |
+| `sin respuesta` a 4.800 y a 9.600 | Sin alimentación o sin GND común, A y B invertidos (inofensivo: intercambiarlos), RO y DI invertidos, RTS sin conectar o sonda con otra dirección. |
+| `CRC`, `direccion` o `respuesta truncada` | Ruido o pérdida de los primeros bytes: revisar GND común, cable y la conexión de RTS. |
+| `excepcion` | La sonda responde pero rechaza la consulta: revisar dirección, función y cantidad de registros. |
+
+Para que la app reciba una medición completa hace falta una tensión válida en IO34 (entre 1,25 y 2,15 V, es decir, 2,5 a 4,3 V después del divisor ×2): la batería real con su divisor o, en banco, un divisor desde 3,3 V (por ejemplo 68 kΩ arriba y 100 kΩ abajo, ≈ 1,96 V, se lee como 3,9 V). Esa batería es de banco: no la des por calibrada (F2).
+
 ## Pendiente de implementación
 
 Orden, dependencias y criterios de aceptación en [PLAN.md](PLAN.md#orden-de-trabajo). Primer objetivo: una medición real de suelo y ambiente recibida y guardada por la app; después reposo profundo y actualización por BLE. El plan distingue pruebas en computador de validación física y conserva los identificadores F/H/A/D de este inventario.
@@ -46,7 +64,7 @@ Orden, dependencias y criterios de aceptación en [PLAN.md](PLAN.md#orden-de-tra
 
 | # | Tarea | Detalle |
 | :---: | :--- | :--- |
-| F1 | Validar el driver Modbus con la sonda real | Implementado sin ensayo: `sonda.cpp` energiza la sonda por IO5, consulta por UART2 (IO16/IO17, DE/RE en IO4) con `modbus.cpp` y prueba 4.800 y luego 9.600 baudios. El mapa de `config.h` (dirección 1, función 03, siete registros desde 0x0000) es el de la familia de la ficha y debe contrastarse con la muestra: comparar el monitor serie (`[SONDA] Registros: …`) con un adaptador USB–RS-485. Una escala distinta (p. ej. pH × 100) hace que la trama se descarte, no que llegue un valor errado. |
+| F1 | Validar el driver Modbus con la sonda real | Implementado sin ensayo: `sonda.cpp` energiza la sonda por IO5, consulta por UART2 (IO16/IO17, DE/RE en IO4) con `modbus.cpp` y prueba 4.800 y luego 9.600 baudios. El mapa de `config.h` (dirección 1, 4.800 8N1, función 03, siete registros desde 0x0000) coincide con el manual de ComWinTop para la CWT-Soil-NPKPHCTH-S; falta contrastarlo con la muestra en banco (procedimiento abajo). Falta también medir cuánto tarda la sonda en entregar valores estables tras energizarla por el MOSFET: `SONDA_ESTABILIZACION_MS` (1 s) no sale del manual. Una escala distinta (p. ej. pH × 100) hace que la trama se descarte, no que llegue un valor errado. |
 | F2 | Porcentaje de batería | Confirmar el divisor 100k/100k en el PCB armado, calibrar contra un multímetro, definir la curva tensión → % de la celda y validar el umbral de 3,40 V. La app avisa al 15 % y se rearma sobre 20 % ([`batteryWarning.ts`](../App/src/utils/batteryWarning.ts)); revisar ese umbral con la curva calibrada. |
 | F3 | Validar el BME280 | Conectar el sensor y comparar temperatura, humedad y presión con una referencia antes de dar por buenos sus valores. |
 | F4 | Reposo profundo | Despertar por IO33 (ext0), dormir tras desconectar. Definir si la sonda anuncia siempre o sólo tras una pulsación; la app asume que vuelve a reposo después de cada lectura. |
@@ -66,7 +84,7 @@ Orden, dependencias y criterios de aceptación en [PLAN.md](PLAN.md#orden-de-tra
 
 | # | Tarea | Detalle |
 | :---: | :--- | :--- |
-| A1 | Rangos de suelo | El centinela «sin lectura de suelo» (bytes 0-14 en `FF`) ya está en el contrato y en `decodeTelemetry`. Falta validar los rangos de cada campo de suelo (humedad ≤ 100 %, pH ≤ 14) cuando exista el driver Modbus. |
+| A1 | Rangos de suelo | El centinela «sin lectura de suelo» (bytes 0-14 en `FF`) ya está en el contrato y en `decodeTelemetry`. El firmware ya descarta una lectura fuera de los rangos del manual de la sonda (`sueloPublicable` en `trama.h`: humedad ≤ 100 %, temperatura de −40 a +80 °C, CE ≤ 20.000 µS/cm, pH ≤ 14, N, P y K ≤ 1.999 mg/kg). Falta la misma validación en `decodeTelemetry` como segunda barrera. |
 | A3 | Ventana de 30 s y el nombre | La ventana se comprueba al buscar la sonda, antes de pedir el nombre: registrar ya no depende de terminar dentro de los 30 s. Sólo el aviso verde de la sonda lo requiere. Resuelto. |
 | A4 | Vincular sin pulsador | Resuelto: la app sólo registra una sonda con la ventana PAIR abierta (byte de banderas de la característica de estado). Queda un límite de la base, **aceptado**: `register_paired_device` acepta el ID de una sonda libre sin prueba física, así que alguien que conozca el ID (se anuncia por BLE) podría registrarla llamando a la API directamente. Vale para una sonda nueva y para una recién reseteada por el backoffice, que queda libre para revincularse. Una sonda con dueño está protegida. |
 

@@ -27,8 +27,11 @@ public:
   bool transmitir(const uint8_t *bytes, size_t largo) override {
     if (!abierto_ || Serial2.write(bytes, largo) != largo) return false;
     // Ocho bytes a 4.800 baudios son ≈ 17 ms: se espera el fin de la
-    // transmisión aquí para soltar la línea antes de que responda la sonda.
+    // transmisión aquí y se suelta el bus de inmediato, sin esperar la
+    // siguiente vuelta de loop() (≥ 5 ms), porque la sonda puede responder
+    // apenas pasan 3,5 caracteres (≈ 8 ms) y se perderían sus primeros bytes.
     Serial2.flush();
+    digitalWrite(PIN_RTS, LOW);
     return true;
   }
   bool txTerminado() override { return true; }  // flush() ya esperó el último bit
@@ -132,4 +135,7 @@ void Sonda::convertir(const uint16_t *r) {
   lectura_.valida = true;
   Serial.printf("[SONDA] Registros: hum %u, temp %d, CE %u, pH %u, N %u, P %u, K %u\n",
                 r[0], int16_t(r[1]), r[2], r[3], r[4], r[5], r[6]);
+  Serial.printf("[SONDA] Con las escalas de config.h: humedad %.1f %%, temperatura %.1f °C, "
+                "CE %u µS/cm, pH %.1f, N %u, P %u, K %u mg/kg\n",
+                r[0] / 10.0f, int16_t(r[1]) / 10.0f, r[2], r[3] / 10.0f, r[4], r[5], r[6]);
 }

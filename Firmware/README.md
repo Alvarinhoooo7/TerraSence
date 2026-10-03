@@ -1,6 +1,6 @@
 # Firmware TerraSense
 
-Código del ESP32 de TerraSense, compatible con **Arduino IDE** (núcleo `esp32 by Espressif Systems` 3.x, sin bibliotecas externas). Hoy cubre la vinculación BLE con la app (el ID de la sonda sale de su MAC), los indicadores LED y sonoros y la trama de telemetría de 20 bytes; la lectura de la sonda de suelo aún no está implementada. El estado detallado, lo pendiente y el procedimiento de prueba están en [TASK.md](TASK.md).
+Código del ESP32 de TerraSense, compatible con **Arduino IDE** (núcleo `esp32 by Espressif Systems` 3.x, sin bibliotecas externas). Hoy cubre la vinculación BLE con la app (el ID de la sonda sale de su MAC), los indicadores LED y sonoros, la lectura Modbus de la sonda de suelo (sin ensayar aún con la sonda) y la trama de telemetría de 20 bytes. El estado detallado, lo pendiente y el procedimiento de prueba están en [TASK.md](TASK.md).
 
 El contrato con la app lo fija el código de la app, no este firmware: [`App/src/services/bleService.ts`](../App/src/services/bleService.ts) (transporte y vinculación) y [`App/src/services/probeService.ts`](../App/src/services/probeService.ts) (UUID y decodificación). El formato de la trama está explicado en [docs/CONTRATO_BLE.md](../docs/CONTRATO_BLE.md).
 
@@ -10,7 +10,7 @@ El contrato con la app lo fija el código de la app, no este firmware: [`App/src
 | :--- | :--- |
 | `Firmware.ino` | Arranque, bucle principal, batería y estado de los LEDs. |
 | `pines.h` | Asignación de pines del esquemático. |
-| `config.h` | UUID del servicio, versión del firmware, tiempos del pulsador y umbrales de batería. |
+| `config.h` | UUID del servicio, versión del firmware, tiempos del pulsador, umbrales de batería y mapa Modbus de la sonda. |
 | `trama.h` | Empaquetado de la trama de 20 bytes. |
 | `ble_terrasense.*` | Servidor GATT, anuncio, identidad, confirmación de vinculación y estado. |
 | `pulsador.*` | Pulsador PAIR con antirrebote y pulsación de 3 s. |
@@ -18,6 +18,8 @@ El contrato con la app lo fija el código de la app, no este firmware: [`App/src
 | `zumbador.*` | Secuencias de tonos del buzzer pasivo por LEDC, no bloqueantes. |
 | `identidad.*` | ID de 15 dígitos derivado de la MAC del ESP32. |
 | `bme280.*` | Driver mínimo del BME280 por I2C. |
+| `modbus.*` | Transporte Modbus RTU genérico: solicitud, CRC, validación de la respuesta y reintentos. |
+| `sonda.*` | Captura de la sonda de suelo: la energiza, la consulta por RS-485 y convierte los registros. |
 | `platformio.ini` | Compilación alternativa con PlatformIO (pioarduino, mismo núcleo 3.3.0). |
 | `TASK.md` | Estado, procedimiento de prueba con la app y pendientes. |
 | `PLAN.md` | Orden de implementación: Modbus, medición real, batería, validación, reposo y actualización por BLE (OTA). |
@@ -75,7 +77,7 @@ Los tonos agudos usan `BUZZER_FRECUENCIA_HZ` (2,7 kHz por defecto) y los graves 
 
 Los LEDs son independientes: el azul de la ventana PAIR puede coincidir con los tres destellos verdes de la vinculación confirmada. En el rojo, los tres destellos se muestran encima del latido de batería baja y luego este sigue. Estar conectado al teléfono no enciende nada: la app se conecta sólo lo que dura cada operación.
 
-Mientras no exista el driver Modbus, toda medición termina en tres destellos rojos y el tono grave: no hay lectura de suelo que capturar, y el firmware no la reemplaza por valores de ejemplo.
+Si la sonda no responde, o no hay una batería válida que informar, la medición termina en tres destellos rojos y el tono grave: el firmware no reemplaza el dato que falta por valores de ejemplo.
 
 Los LEDs ya no son el consumo que importa. El ESP32 despierto con la radio BLE anunciando consume decenas de mA de forma continua, muy por encima de un LED. Para que la batería dure hace falta el reposo profundo (pendiente F4 en [TASK.md](TASK.md)).
 
@@ -85,7 +87,7 @@ Al suscribirse la app, el firmware arma una trama **nueva** de 20 bytes, versió
 
 | Bytes | Hoy | Con sensores |
 | :--- | :--- | :--- |
-| 0–13 (suelo) | `FF` | Valores del driver Modbus (pendiente). |
+| 0–13 (suelo) | `FF` si la sonda no respondió | Registros Modbus de la sonda. |
 | 14 (batería) | `FF` | Porcentaje de batería, sólo junto con una lectura de suelo. |
 | 15 (versión) | `01` | `01` |
 | 16–19 (BME280) | `FF FF FF FF` si el sensor no responde | Temperatura, presión y humedad empaquetadas. |
@@ -101,6 +103,6 @@ Además de la trama, el firmware publica una característica de lectura con 5 by
 1. Instalar en el Gestor de Tarjetas `esp32 by Espressif Systems` (probado con 3.3.0).
 2. Abrir `Firmware/Firmware.ino`. El IDE carga los demás archivos como pestañas.
 3. Placa: **ESP32 Dev Module**. Esquema de particiones por defecto: el programa ocupa cerca del 88 % de la partición.
-4. Compilar y subir. Monitor serie a **115200 baudios**: muestra los eventos del pulsador, la vinculación y cada trama en hexadecimal.
+4. Compilar y subir. Monitor serie a **115200 baudios**: muestra los eventos del pulsador, la vinculación, la respuesta de la sonda y cada trama en hexadecimal. La tecla **`m`** pide una captura sin la app ([prueba en banco](TASK.md#prueba-de-la-sonda-en-banco)).
 
 Con PlatformIO, desde `Firmware/`: `pio run -t upload` y `pio device monitor`. [`platformio.ini`](platformio.ini) usa la plataforma pioarduino porque la oficial trae el núcleo 2.x, y este firmware usa APIs del 3.x.

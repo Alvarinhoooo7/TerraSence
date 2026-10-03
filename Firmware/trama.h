@@ -30,9 +30,17 @@ struct LecturaSuelo {
   uint8_t  bateriaPct = 0;      // 0-100
 };
 
+// Rangos de medición del manual de la sonda (ComWinTop CWT-Soil-NPKPHCTH-S):
+// humedad 0-100 %, temperatura -40 a +80 °C, CE 0-20.000 µS/cm y N, P, K hasta
+// 1.999 mg/kg. El pH se mide de 3 a 9, pero sólo se exige que sea físico
+// (≤ 14): fuera de 3-9 la sonda pierde exactitud, no la lectura su escala. Un
+// valor fuera de rango delata una escala distinta o una trama corrupta: la
+// medición entera se descarta, nunca se recorta.
 inline bool sueloPublicable(const LecturaSuelo &suelo) {
-  // Los demás límites dependen de la ficha del sensor. No recortar errores.
-  return suelo.valida && suelo.humedadX10 <= 1000 && suelo.phX10 <= 140 &&
+  return suelo.valida && suelo.humedadX10 <= 1000 &&
+         suelo.temperaturaX10 >= -400 && suelo.temperaturaX10 <= 800 &&
+         suelo.conductividad <= 20000 && suelo.phX10 <= 140 &&
+         suelo.nitrogeno <= 1999 && suelo.fosforo <= 1999 && suelo.potasio <= 1999 &&
          suelo.bateriaPct <= 100;
 }
 
