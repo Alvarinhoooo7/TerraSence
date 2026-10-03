@@ -14,10 +14,12 @@ export function ShareDeviceScreen({ onBack }: { onBack: () => void }) {
   const device = devices.find(d => d.id === id);
   const back = () => { if (id) setId(null); else onBack(); };
   useEffect(() => { const sub = BackHandler.addEventListener('hardwareBackPress', () => { if (!id) return false; setId(null); return true; }); return () => sub.remove(); }, [id]);
-  return <SettingsPage title={t('Compartir acceso', 'Share access')} onBack={back} description={device ? device.alias || device.name : t('Elige la sonda que quieres compartir.', 'Choose the probe you want to share.')}>
+  return <SettingsPage eyebrow={device ? t('COMPARTIR ACCESO', 'SHARE ACCESS') : t('EQUIPOS Y DATOS', 'DEVICES AND DATA')} title={device ? device.alias || device.name : t('Compartir acceso', 'Share access')} onBack={back}
+    backLabel={device ? t('Sondas', 'Probes') : undefined}
+    description={device ? t('Muéstrale este QR a quien quieras sumar. Al escanearlo pide acceso y el administrador lo aprueba.', 'Show this QR to the person you want to add. Scanning it requests access and the administrator approves it.') : t('Elige la sonda que quieres compartir.', 'Choose the probe you want to share.')}>
     {loading && <ActivityIndicator color={colors.primary} />}
     {error && <><SettingsText>{t('No pudimos consultar tus sondas.', 'Could not load your probes.')}</SettingsText><SettingsButton title={t('Reintentar', 'Retry')} onPress={() => void refresh()} /></>}
-    {device ? <><SettingsText>{t('Escanear este QR solicita acceso. El administrador debe aprobarlo.', 'Scanning this QR requests access. The administrator must approve it.')}</SettingsText><RotatingDeviceQr deviceId={device.id} /></> : devices.map(d => <SettingsRow key={d.id} title={d.alias || d.name} subtitle={formatDeviceId(d.device_code)} onPress={() => setId(d.id)} />)}
+    {device ? <RotatingDeviceQr deviceId={device.id} /> : devices.map(d => <SettingsRow key={d.id} title={d.alias || d.name} subtitle={formatDeviceId(d.device_code)} onPress={() => setId(d.id)} />)}
     {!loading && !error && !devices.length && <SettingsText>{t('Necesitas acceso aprobado a una sonda para compartirla.', 'You need approved access to a probe to share it.')}</SettingsText>}
   </SettingsPage>;
 }

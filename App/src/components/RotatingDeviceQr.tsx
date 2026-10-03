@@ -3,6 +3,8 @@ import { ActivityIndicator, Alert, Text, View, useWindowDimensions } from 'react
 import * as Clipboard from 'expo-clipboard';
 import { GuideTouchable as TouchableOpacity } from './guide/GuideControls';
 import QRCode from 'react-native-qrcode-svg';
+import { EntryButton } from './entry/EntryUI';
+import { ScreenCard, ScreenText } from './screen/ScreenUI';
 import { getDeviceAccessQr, type DeviceAccessQr } from '../services/deviceService';
 import { buildDeviceQrPayload } from '../utils/deviceCode';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -38,18 +40,23 @@ export function RotatingDeviceQr({ deviceId }: { deviceId: string }) {
     return () => { active = false; clearInterval(timer); };
   }, [deviceId]);
   const remaining = qr ? Math.max(0, Math.ceil((Date.parse(qr.expires_at) - now) / 1000)) : 0;
-  return <View style={{ alignItems: 'center', gap: 12, padding: 16 }}>
-    {qr && remaining > 0 ? <View style={{ padding: 12, backgroundColor: '#fff' }}><QRCode value={buildDeviceQrPayload(qr.token)} size={Math.min(220, Math.max(120, width - 160))} /></View> : <ActivityIndicator color={colors.primary} />}
-    <Text style={{ color: colors.textSecondary }}>{t('Cada QR dura 5 minutos y luego se renueva.', 'Each QR lasts 5 minutes and then renews.')}</Text>
-    {qr && remaining > 0 && <>
-      <Text style={{ color: colors.textSecondary }}>{t('Código de invitación temporal', 'Temporary invitation code')}</Text>
-      <Text selectable style={{ color: colors.text, textAlign: 'center' }}>{qr.token}</Text>
-      <TouchableOpacity accessibilityRole="button" style={{ minHeight: 48, justifyContent: 'center' }} onPress={() => {
+  const minutes = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')}`;
+  return <View style={{ gap: 12 }}>
+    <View style={{ alignItems: 'center', gap: 12 }}>
+      {qr && remaining > 0
+        ? <View style={{ padding: 16, borderRadius: 20, backgroundColor: '#FFFFFF' }}><QRCode value={buildDeviceQrPayload(qr.token)} size={Math.min(240, Math.max(140, width - 140))} /></View>
+        : <View style={{ height: 200, justifyContent: 'center' }}><ActivityIndicator color={colors.primary} /></View>}
+      {remaining > 0 && <Text accessibilityLiveRegion="polite" style={{ color: colors.text, fontSize: 17, fontWeight: '700' }}>{t(`Vence en ${minutes}`, `Expires in ${minutes}`)}</Text>}
+      <Text style={{ color: colors.textSecondary, fontSize: 15, textAlign: 'center' }}>{t('Cada QR dura 5 minutos y luego se renueva solo.', 'Each QR lasts 5 minutes and then renews by itself.')}</Text>
+    </View>
+    {qr && remaining > 0 && <ScreenCard>
+      <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.5 }}>{t('O COMPARTE EL CÓDIGO', 'OR SHARE THE CODE')}</Text>
+      <Text selectable style={{ color: colors.text, fontSize: 15, lineHeight: 22 }}>{qr.token}</Text>
+      <EntryButton secondary label={t('Copiar invitación', 'Copy invitation')} onPress={() => {
         if (Date.parse(qr.expires_at) <= Date.now()) return;
         void Clipboard.setStringAsync(qr.token).then(() => Alert.alert(t('Invitación copiada', 'Invitation copied'))).catch(() => Alert.alert(t('No se pudo copiar. Mantén pulsado el código para seleccionarlo.', 'Could not copy. Long press the code to select it.')));
-      }}><Text style={{ color: colors.primary }}>{t('Copiar invitación', 'Copy invitation')}</Text></TouchableOpacity>
-    </>}
-    {remaining > 0 && <Text style={{ color: colors.textSecondary }}>{t('Vence en', 'Expires in')} {Math.floor(remaining / 60)}:{String(remaining % 60).padStart(2, '0')}</Text>}
-    {!!error && <Text style={{ color: colors.danger }}>{error}</Text>}
+      }} />
+    </ScreenCard>}
+    {!!error && <ScreenText danger>{error}</ScreenText>}
   </View>;
 }

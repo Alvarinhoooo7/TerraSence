@@ -1,13 +1,14 @@
-import { GuideTouchable as TouchableOpacity, GuideScrollView as ScrollView } from '../components/guide/GuideControls';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, BackHandler, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { listMyDevices, listMyDeviceMemberships, listDeviceMembers, manageDeviceMember } from '../services/deviceService';
 import type { DeviceRow, ManagedDeviceMember } from '../types/app';
 import { maskEmail, maskName } from '../utils/privacy';
 import { SettingsPage } from '../components/SettingsUI';
+import { EntryButton } from '../components/entry/EntryUI';
+import { ScreenCard, ScreenLabel, ScreenOption, ScreenText, ScreenValue } from '../components/screen/ScreenUI';
+import { formatDeviceId } from '../utils/deviceId';
 
 export function AdministrationScreen({ onClose, initialDeviceId }: { onClose: () => void; initialDeviceId?: string | null }) {
   const { colors } = useAppTheme();
@@ -77,22 +78,35 @@ export function AdministrationScreen({ onClose, initialDeviceId }: { onClose: ()
     [{ text: t('Cancelar', 'Cancel'), style: 'cancel' }, { text: t('Confirmar', 'Confirm'), onPress: () => void change(member, action) }],
   );
 
-  return <SettingsPage title={t('Administración', 'Administration')} onBack={() => { if (!busy) onClose(); }} description={t('Gestiona el acceso a cada sonda.', 'Manage access to each probe.')}>
+  const pending = members.filter(m => m.role === 'user' && !m.is_authorized);
+  const team = members.filter(m => m.role === 'admin' || m.is_authorized);
+  const roleLabel = (m: ManagedDeviceMember) => m.role === 'admin' ? t('Administrador', 'Administrator') : m.is_authorized ? t('Usuario', 'User') : t('Pendiente de aprobación', 'Awaiting approval');
+  const memberCard = (m: ManagedDeviceMember) => <ScreenCard key={m.user_id} accent={m.is_authorized ? undefined : colors.warning}>
+    <View style={{ gap: 2 }}>
+      <Text style={{ color: colors.text, fontSize: 17, fontWeight: '700' }}>{shownName(m)}</Text>
+      <Text style={{ color: colors.textSecondary, fontSize: 15 }}>{shownEmail(m)}</Text>
+      <Text style={{ color: m.role === 'admin' ? colors.primary : m.is_authorized ? colors.textSecondary : colors.warning, fontSize: 14, fontWeight: '600', marginTop: 4 }}>{roleLabel(m)}</Text>
+    </View>
+    {m.role === 'user' && <View style={{ gap: 8, marginTop: 4 }}>
+      {!m.is_authorized && <EntryButton label={t('Aprobar acceso', 'Approve access')} disabled={busy} onPress={() => void change(m, 'authorize')} />}
+      {m.is_authorized && <EntryButton secondary label={t('Delegar administración', 'Transfer administration')} disabled={busy} onPress={() => confirm(m, 'transfer_owner')} />}
+      <EntryButton danger label={m.is_authorized ? t('Retirar acceso', 'Remove access') : t('Rechazar solicitud', 'Reject request')} disabled={busy} onPress={() => confirm(m, 'remove')} />
+    </View>}
+  </ScreenCard>;
+
+  return <SettingsPage eyebrow={t('EQUIPOS Y DATOS', 'DEVICES AND DATA')} title={t('Administración', 'Administration')} onBack={() => { if (!busy) onClose(); }}
+    description={t('Aprueba solicitudes y gestiona quién usa cada sonda que administras.', 'Approve requests and manage who uses each probe you administer.')}>
       {loading && <ActivityIndicator color={colors.primary} />}
-      {!!error && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text>}
-      {!loading && !devices.length && <Text style={{ color: colors.text }}>{t('Ya no administras ningún equipo.', 'You do not administer any devices.')}</Text>}
-      {devices.map(d => <TouchableOpacity guideTitle={d.alias || d.name} guide={t("Muestra los miembros y solicitudes de este equipo. Las acciones siguientes afectan únicamente al seleccionado.", "Shows this device’s members and requests. The following actions affect only the selected device.")} key={d.id} disabled={busy} onPress={() => { requestVersion.current += 1; setMembers([]); setSelected(d.id); }} style={{ padding: 16, backgroundColor: colors.card, borderWidth: 1, borderColor: d.id === selected ? colors.primary : colors.border }}>
-        <Text style={{ color: colors.text }}>{d.alias || d.name} · {d.device_code}</Text>
-      </TouchableOpacity>)}
-      {members.map(m => <View key={m.user_id} style={{ padding: 16, gap: 12, backgroundColor: colors.card, borderRadius: 18 }}>
-        <Text style={{ color: colors.text, fontWeight: '700' }}>{shownName(m)}</Text>
-        <Text style={{ color: colors.textSecondary }}>{shownEmail(m)}</Text>
-        <Text style={{ color: colors.textSecondary }}>{m.role === 'admin' ? t('Administrador', 'Administrator') : m.is_authorized ? t('Usuario', 'User') : t('Pendiente de aprobación', 'Awaiting approval')}</Text>
-        {m.role === 'user' && <>
-          {!m.is_authorized && <TouchableOpacity disabled={busy} onPress={() => void change(m, 'authorize')}><Text style={{ paddingVertical: 12, color: colors.primary }}>{t('Aprobar acceso', 'Approve access')}</Text></TouchableOpacity>}
-          {m.is_authorized && <TouchableOpacity disabled={busy} onPress={() => confirm(m, 'transfer_owner')}><Text style={{ paddingVertical: 12, color: colors.primary }}>{t('Delegar administración', 'Transfer administration')}</Text></TouchableOpacity>}
-          <TouchableOpacity disabled={busy} onPress={() => confirm(m, 'remove')}><Text style={{ paddingVertical: 12, color: colors.danger }}>{m.is_authorized ? t('Retirar acceso', 'Remove access') : t('Rechazar solicitud', 'Reject request')}</Text></TouchableOpacity>
-        </>}
-      </View>)}
+      {!!error && <ScreenText danger>{error}</ScreenText>}
+      {!loading && !devices.length && <ScreenCard><ScreenText>{t('Ya no administras ningún equipo.', 'You do not administer any devices.')}</ScreenText></ScreenCard>}
+      {devices.length > 1 && <>
+        <ScreenLabel>{t('Sonda', 'Probe')}</ScreenLabel>
+        {devices.map(d => <ScreenOption key={d.id} title={d.alias || d.name} subtitle={formatDeviceId(d.device_code)} selected={d.id === selected} disabled={busy}
+          guide={t('Muestra los miembros y solicitudes de esta sonda. Las acciones de abajo afectan sólo a la elegida.', 'Shows this probe’s members and requests. The actions below affect only the chosen one.')}
+          onPress={() => { requestVersion.current += 1; setMembers([]); setSelected(d.id); }} />)}
+      </>}
+      {devices.length === 1 && <ScreenCard><ScreenValue label={t('Sonda', 'Probe')} value={devices[0].alias || devices[0].name} /><ScreenValue label="ID" value={formatDeviceId(devices[0].device_code)} /></ScreenCard>}
+      {!!pending.length && <><ScreenLabel>{t(`Solicitudes pendientes · ${pending.length}`, `Pending requests · ${pending.length}`)}</ScreenLabel>{pending.map(memberCard)}</>}
+      {!!team.length && <><ScreenLabel>{t('Miembros', 'Members')}</ScreenLabel>{team.map(memberCard)}</>}
   </SettingsPage>;
 }

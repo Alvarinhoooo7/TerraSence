@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, AppState, Text, View } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SettingsButton, SettingsCard, SettingsPage, SettingsText } from '../components/SettingsUI';
+import { SettingsCard, SettingsPage, SettingsText } from '../components/SettingsUI';
+import { EntryButton } from '../components/entry/EntryUI';
 import { GuideTouchable as TouchableOpacity } from '../components/guide/GuideControls';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
@@ -126,7 +127,7 @@ export function NotificationInboxScreen({ onBack, onOpen, initialAlertId, onInit
     resolved: t('Este aviso ya no requiere acción.', 'This alert no longer needs action.'),
   };
 
-  return <SettingsPage title={t('Avisos', 'Alerts')} onBack={onBack}
+  return <SettingsPage eyebrow={t('ACCESO A TUS EQUIPOS', 'ACCESS TO YOUR DEVICES')} title={t('Avisos', 'Alerts')} onBack={onBack}
     description={t('Solicitudes y cambios de acceso a tus equipos.', 'Requests and access changes for your devices.')}>
     {!!problem && <SettingsText danger={problem !== 'resolved'}>{message[problem]}</SettingsText>}
     {loading && !loaded && <View accessibilityRole="progressbar" accessibilityLabel={t('Cargando avisos', 'Loading alerts')} style={{ paddingVertical: 24, alignItems: 'center', gap: 10 }}>
@@ -154,7 +155,7 @@ export function NotificationInboxScreen({ onBack, onOpen, initialAlertId, onInit
         </SettingsCard>
       </TouchableOpacity>;
     })}
-    {hasMore && <SettingsButton title={t('Ver avisos anteriores', 'View earlier alerts')} onPress={() => void load(rows[rows.length - 1] ?? null)} busy={loading} disabled={!rows.length} />}
-    <SettingsButton title={t('Actualizar', 'Refresh')} onPress={() => void load()} busy={loading} />
+    {hasMore && <EntryButton secondary label={t('Ver avisos anteriores', 'View earlier alerts')} onPress={() => void load(rows[rows.length - 1] ?? null)} busy={loading} disabled={!rows.length} />}
+    <EntryButton secondary label={t('Actualizar', 'Refresh')} onPress={() => void load()} busy={loading} />
   </SettingsPage>;
 }

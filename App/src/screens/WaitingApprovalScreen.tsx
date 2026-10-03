@@ -5,7 +5,8 @@ import { listMyDevices, listPendingDeviceRequests, type PendingDeviceRequest } f
 import type { DeviceRow } from '../types/app';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
-import { EntryLayout, EntryButton } from '../components/entry/EntryUI';
+import { EntryButton } from '../components/entry/EntryUI';
+import { ScreenCard, ScreenLayout, ScreenText } from '../components/screen/ScreenUI';
 import { createAccountOperation } from '../utils/accountOperation';
 import { useAuthStore } from '../store/useAuthStore';
 import { createApprovalTracker } from '../utils/approvalFlow';
@@ -49,19 +50,18 @@ export function WaitingApprovalScreen({ onApproved, onDismiss, addingDevice = fa
     const timer = setInterval(() => void check(), 5000);
     return () => { active = false; unsubscribe(); account.unmount(); clearInterval(timer); };
   }, [addingDevice, targetDeviceId]);
-  return <EntryLayout footer={(removed || addingDevice) ? <EntryButton secondary label={t('Volver', 'Back')} onPress={leave} /> : undefined}>
-    <View style={{ gap: 20, alignItems: 'center' }}>
-      {!removed && <ActivityIndicator size="large" color={colors.primary} />}
-      <GuideTarget title={t('Estado de la solicitud', 'Request status')} description={t('La aprobación se consulta automáticamente. Debes esperar a que el administrador autorice tu acceso; la guía no cambia ese estado.', 'Approval is checked automatically. Wait for the administrator to authorize access; this guide does not change that status.')}><Text style={{ fontSize: 24, fontWeight: '700', color: colors.text, textAlign: 'center' }}>{removed ? t('Solicitud no disponible', 'Request unavailable') : t('Esperando aprobación', 'Awaiting approval')}</Text></GuideTarget>
-      <Text style={{ color: colors.textSecondary, textAlign: 'center' }}>{removed
-        ? t('La solicitud fue eliminada o el equipo fue reseteado.', 'The request was removed or the device was reset.')
-        : t('El administrador debe aprobar tu ingreso. Esta pantalla se actualizará automáticamente.', 'The administrator must approve your access. This screen will update automatically.')}</Text>
-      {requests.map(r => <View key={r.device_id} style={{ gap: 8, alignItems: 'center' }}>
-        <Text style={{ color: colors.text }}>{maskName(r.administrator_name)}</Text>
-        <Text style={{ color: colors.textSecondary }}>{maskEmail(r.administrator_email)}</Text>
-      </View>)}
-      {!!error && <Text style={{ color: colors.danger }}>{t('No se pudo comprobar el estado. Reintentando…', 'Could not check the status. Retrying…')}</Text>}
-
-    </View>
-  </EntryLayout>;
+  return <ScreenLayout align="center" eyebrow={addingDevice ? t('VINCULAR OTRA SONDA', 'LINK ANOTHER PROBE') : t('VINCULA TU SONDA', 'LINK YOUR PROBE')}
+    title={removed ? t('Solicitud no disponible', 'Request unavailable') : t('Esperando aprobación', 'Awaiting approval')}
+    description={removed
+      ? t('La solicitud fue eliminada o el equipo fue reseteado.', 'The request was removed or the device was reset.')
+      : t('El administrador debe aprobar tu ingreso. Esta pantalla se actualiza sola.', 'The administrator must approve your access. This screen updates by itself.')}
+    footer={(removed || addingDevice) ? <EntryButton secondary label={t('Volver', 'Back')} onPress={leave} /> : undefined}>
+    {!removed && <ActivityIndicator size="large" color={colors.primary} style={{ alignSelf: 'flex-start' }} />}
+    {requests.map(r => <ScreenCard key={r.device_id}>
+      <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.5 }}>{t('ADMINISTRADOR', 'ADMINISTRATOR')}</Text>
+      <Text style={{ color: colors.text, fontSize: 17, fontWeight: '600' }}>{maskName(r.administrator_name)}</Text>
+      <Text style={{ color: colors.textSecondary, fontSize: 15 }}>{maskEmail(r.administrator_email)}</Text>
+    </ScreenCard>)}
+    {!!error && <ScreenText danger>{t('No se pudo comprobar el estado. Reintentando…', 'Could not check the status. Retrying…')}</ScreenText>}
+  </ScreenLayout>;
 }

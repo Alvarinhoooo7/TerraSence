@@ -572,7 +572,7 @@ export default function App() {
         <View style={{ display: ['loading', 'language', 'terms', 'welcome', 'auth', 'recovery'].includes(entry) ? 'none' : 'flex' }}>
           <OfflineBanner />
         </View>
-        <ScreenGuide enabled={!recoveryLinkError && (entry === 'app' && route !== 'link-device' || entry === 'approval')} scope={`${entry}:${route}`}>
+        <ScreenGuide enabled={!recoveryLinkError && entry === 'app' && route !== 'link-device'} scope={`${entry}:${route}`}>
         {session && !inboxOpen && ['approval', 'onboarding'].includes(entry) && <InboxShortcut onPress={() => setInboxOpen(true)} />}
         {content}
         {entry === 'app' && !inboxOpen && !recoveryLinkError && ['dashboard', 'devices', 'history', 'settings', 'administration'].includes(route) && (
