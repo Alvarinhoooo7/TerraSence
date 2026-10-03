@@ -4,9 +4,9 @@
 // copia. Guían; el mínimo real lo impone Supabase Auth.
 
 import { Check, Circle } from 'lucide-react';
-import { evaluatePassword } from '../../../App/src/utils/passwordRules';
+import { evaluatePassword } from '../utils/passwordRules';
 
-export { isPasswordAcceptable } from '../../../App/src/utils/passwordRules';
+export { isPasswordAcceptable } from '../utils/passwordRules';
 
 export function PasswordChecklist({ password }: { password: string }) {
   const rules = evaluatePassword(password);
