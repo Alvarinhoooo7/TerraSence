@@ -181,7 +181,9 @@ void Transporte::actualizar(uint32_t ahora) {
         if (resultado == Fallo::Ninguno) terminar(Fallo::Ninguno);
         else fallar(resultado, ahora);
       } else if (ahora - faseDesde_ >= consulta_.respuestaMs) {
-        fallar(recibidos_ ? Fallo::Truncada : descartados_ ? Fallo::Direccion : Fallo::Silencio, ahora);
+        // Bytes descartados sin trama detrás son ruido del bus, no una respuesta:
+        // cuentan como silencio, para que se pruebe la otra velocidad.
+        fallar(recibidos_ ? Fallo::Truncada : Fallo::Silencio, ahora);
       }
       return;
     }

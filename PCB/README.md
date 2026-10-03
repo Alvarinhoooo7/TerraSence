@@ -410,7 +410,7 @@ Para cortar de verdad, el interruptor tiene que ir **arriba**, entre `+BATT 3.7V
 
 | Ref | Componente | Encapsulado | Pines |
 | :--- | :--- | :--- | :--- |
-| `U3` | Módulo BME280 I²C | Placa hija | `VCC`, `GND`, `SCL`, `SDA`, `CSB`, `SDO` |
+| `U3` | Módulo BME280 I²C de 4 pines (formato GY-BME280) | Placa hija | `VIN`, `GND`, `SCL`, `SDA` |
 | `R7` | 4,7 kΩ | 0805 | 2 |
 | `R8` | 4,7 kΩ | 0805 | 2 |
 | `U2` | Módulo RS-485 (SP3485) | Placa hija / Módulo | `VCC`, `GND`, `RO`, `DI`, `RE/DE`, `A`, `B` |
@@ -424,20 +424,19 @@ Para cortar de verdad, el interruptor tiene que ir **arriba**, entre `+BATT 3.7V
 ### 6.2. Sensor ambiental BME280
 
 ```text
-   +3V3 ──┬──── U3.VCC
-          ├──── U3.CSB            (fuerza modo I2C)
-          ├──── R7 4k7 ──┬──── U3.SDA ──── GPIO21
-          └──── R8 4k7 ──│─┬── U3.SCL ──── GPIO22
+   +3V3 ──┬──── U3.VIN            (pad 6)
+          ├──── R7 4k7 ──┬──── U3.SDA ──── GPIO21   (pad 3)
+          └──── R8 4k7 ──│─┬── U3.SCL ──── GPIO22   (pad 4)
                          │ │
-   GND ──┬──── U3.GND    │ │
-         └──── U3.SDO    (dirección 0x76)
+   GND ───────── U3.GND  │ │                         (pad 5)
 ```
+
+La huella tiene **4 pads en línea, paso 2,54 mm**, en el orden del módulo GY-BME280 de 4 pines: `VIN`, `GND`, `SCL`, `SDA` (pads 6, 5, 4 y 3). El símbolo del esquemático dibuja además `CSB` y `SDO` (pines 1 y 2), pero la huella no los tiene: el módulo los resuelve en su propia placa (`CSB` a su 3,3 V para el modo I²C y `SDO` a masa, dirección `0x76`). El módulo trae un regulador propio; alimentado con 3,3 V en `VIN` entrega unos 3,0 V al sensor, dentro de su rango (comprobado en banco: responde en `0x76`).
 
 | Desde | Hasta | Net |
 | :--- | :--- | :--- |
-| `3.3V` | `U3` `VCC`, `U3` `CSB`, `R7` pin 1, `R8` pin 1 | `3.3V` |
+| `3.3V` | `U3` `VIN`, `R7` pin 1, `R8` pin 1 | `3.3V` |
 | `U3` `GND` | `GND` | `GND` |
-| `U3` `SDO` | `GND` | `GND` |
 | `U3` `SDA` | `R7` pin 2, `U1` `GPIO21` | `SDA` |
 | `U3` `SCL` | `R8` pin 2, `U1` `GPIO22` | `SCL` |
 
@@ -449,10 +448,9 @@ Para cortar de verdad, el interruptor tiene que ir **arriba**, entre `+BATT 3.7V
 
 Detalles que deciden el dibujo:
 
-- **`SDO` a masa fija la dirección `0x76`.** A `3.3V` daría `0x77`. Fijarla por hardware y documentarla; no dejar el pin al aire.
-- **`CSB` a `3.3V` fuerza modo I²C.** Al aire, el sensor puede entrar en modo SPI.
+- **La dirección `0x76` y el modo I²C los fija el módulo de 4 pines**, que lleva `SDO` a masa y `CSB` alto en su placa. Un módulo de 6 pines (`VCC`, `GND`, `SCL`, `SDA`, `CSB`, `SDO`) no sirve en esta huella: `CSB` y `SDO` quedarían al aire.
 - **Muchos módulos BME280 ya traen `R7` y `R8` montados.** Verificar antes de duplicarlos: en paralelo la resistencia de pull-up baja a la mitad y carga el bus de más.
-- Es **BME280**, no BMP280: el BMP no mide humedad.
+- Es **BME280**, no BMP280: el BMP no mide humedad. El formato de 4 pines se vende con cualquiera de los dos chips (a veces rotulado «GY-BMEP»); el firmware informa al arrancar cuál encontró (ID `0x60` o `0x58`).
 
 **Lectura local obligatoria:** la app usa estas tres magnitudes para tres celdas del grid 2×5; el pronóstico de la API solo las complementa. Los centinelas de ausencia se declaran por magnitud y **no se reemplazan con ceros ni con la última lectura buena**.
 
