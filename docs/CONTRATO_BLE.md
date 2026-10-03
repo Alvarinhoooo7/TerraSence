@@ -2,11 +2,11 @@
 
 El formato del producto es **una notificación BLE binaria de 20 bytes**, con las siete variables de suelo, las tres de ambiente y el estado de batería en una sola captura. El decodificador acepta además una trama reducida de 16 bytes, que existe únicamente como tolerancia hacia el firmware de prototipo anterior al BME280 y no es un modo de operación del equipo terminado. No se envía texto hexadecimal ni JSON. El hexadecimal de este documento es una forma legible de representar esos bytes.
 
-El aviso de los README se refería a documentos antiguos que describían formatos distintos. La tabla siguiente coincide con `decodeTelemetry` y sus pruebas, y con `armarTrama` en [`Firmware/trama.h`](../Firmware/trama.h). Falta comprobarla con la sonda física: el firmware aún no tiene el driver Modbus y no hay una captura real del sensor adquirido.
+El aviso de los README se refería a documentos antiguos que describían formatos distintos. La tabla siguiente coincide con `decodeTelemetry` y sus pruebas, y con `armarTrama` en [`Firmware/trama.h`](../Firmware/trama.h). Falta comprobarla con la sonda física: el driver Modbus del firmware está escrito, pero aún no hay una captura real de la sonda adquirida.
 
 ## Dos tramas diferentes
 
-1. **Sonda → ESP32, por RS-485/Modbus:** el ESP32 recibe la respuesta del sensor, valida dirección, función, longitud y CRC, y convierte sus registros a unidades conocidas. La consulta documentada `01 03 00 00 00 07 04 08` supone siete registros desde la dirección cero; ese mapa debe confirmarse con el proveedor. No debe asumirse que sirve para cualquier sonda 7-en-1.
+1. **Sonda → ESP32, por RS-485/Modbus:** el ESP32 recibe la respuesta del sensor, valida dirección, función, longitud y CRC, y convierte sus registros a unidades conocidas. La consulta `01 03 00 00 00 07 04 08` lee siete registros desde la dirección cero, según el manual del fabricante de la sonda adquirida (ComWinTop CWT-Soil-NPKPHCTH-S; mapa y escalas en [`Firmware/config.h`](../Firmware/config.h)). Falta contrastarlo con una captura real. No debe asumirse que sirve para cualquier sonda 7-en-1.
 2. **ESP32 → teléfono, por BLE:** el ESP32 construye el paquete TerraSense de abajo, con los datos de la sonda **y los de su propio BME280**. No incluye la cabecera Modbus ni su CRC. El teléfono se suscribe a la característica de telemetría y procesa una notificación completa.
 
 El servicio es `00000001-5e4e-4c69-6d61-746572726101` y la característica de telemetría, `00000002-5e4e-4c69-6d61-746572726102`. La biblioteca del teléfono entrega su valor como Base64; `bleService.ts` lo convierte a bytes antes de decodificarlo. **El firmware debe enviar los bytes originales**, sin codificarlos a Base64.

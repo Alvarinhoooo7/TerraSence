@@ -1071,31 +1071,31 @@ La última fila de la tabla es una cifra del módulo y no del equipo. La BOM adq
 
 ### Adquisición de Datos y Sensado
 
-- Sonda de Suelo 7-en-1 (RS-485 Modbus RTU): El nodo extrae 7 de las 10 variables del sistema mediante una sonda multiparamétrica de grado industrial, construida en acero inoxidable
+- Sonda de Suelo 7-en-1 (RS-485 Modbus RTU), modelo ComWinTop CWT-Soil-NPKPHCTH-S: El nodo extrae 7 de las 10 variables del sistema mediante una sonda multiparamétrica de grado industrial, construida en acero inoxidable
 
 316L para prevenir la corrosión por picadura inducida por cloruros en el suelo.
 
 | Parámetro | Rango de Operación | Exactitud Declarada |
 |---|---|---|
-| Humedad Volumétrica | 0 – 100 % | ±2 % (en rango 0–50 %) |
-| Temperatura de Suelo | −40 °C a +80 °C | ±0,3 °C |
-| Conductividad Eléctrica | 0 – 20.000 µS/cm | ±3 % |
-| pH | 3,0 – 9,0 | ±0,1 |
-| Macronutrientes (N, P, K) | 1 – 1.999 mg/kg c/u | ±5 % (según fabricante) |
+| Humedad Volumétrica | 0 – 100 % | ±2 % (0–50 %); ±3 % (50–100 %) |
+| Temperatura de Suelo | −40 °C a +80 °C | ±0,5 °C (a 25 °C) |
+| Conductividad Eléctrica | 0 – 20.000 µS/cm | ±3 % (hasta 10.000 µS/cm); ±5 % (10.000–20.000 µS/cm) |
+| pH | 3,0 – 9,0 | ±0,3 |
+| Macronutrientes (N, P, K) | 1 – 1.999 mg/kg c/u | ±2 % de la escala completa (según fabricante) |
 
 **Tabla 3.9 “Especificaciones Técnicas Sonda”**
 
-Estas cifras provienen de la ficha de una sonda representativa de la familia [20] y no del SKU finalmente adquirido, que aún no cuenta con ficha propia publicada. La distinción no es formal: el protocolo de validación de este informe fija su criterio de aceptación sobre umbrales agronómicos propios precisamente porque la exactitud del fabricante no está verificada.
+Estas cifras provienen del manual del fabricante del modelo adquirido, la ComWinTop CWT-Soil-NPKPHCTH-S [20], y se declaran en condiciones de laboratorio. La distinción no es formal: el protocolo de validación de este informe fija su criterio de aceptación sobre umbrales agronómicos propios porque la exactitud del fabricante no está verificada en suelo real.
 
-65 El rango de alimentación de 5 a 24 V DC es representativo de la familia de sondas 7-en-1 RS-485 industriales [20]; dentro de ese rango, el proyecto opera la sonda en su extremo inferior (5 V, entregados por el elevador de tensión descrito más adelante) porque coincide con la tensión que el mismo elevador ya entrega a la placa de control y evita añadir un segundo convertidor. Esta decisión se declara explícitamente como una condición de diseño a validar contra la ficha técnica definitiva del SKU adquirido, dado que otras sondas de la misma familia sólo alcanzan su exactitud declarada operando a 12 V o más; si la validación en laboratorio mostrara desviación en la lectura al operar a 5 V, la contingencia de diseño es agregar un elevador de 12 V dedicado a la sonda, detrás del mismo corte por MOSFET, lo que no altera la arquitectura general pero sí el consumo de la Rama de Medición Conmutada.
+65 El manual del fabricante fija la alimentación de la sonda entre 4,5 y 30 V DC [20]; dentro de ese rango, el proyecto opera la sonda en su extremo inferior (5 V, entregados por el elevador de tensión descrito más adelante) porque coincide con la tensión que el mismo elevador ya entrega a la placa de control y evita añadir un segundo convertidor. Esta decisión se declara explícitamente como una condición de diseño a validar en banco con la muestra adquirida, dado que otras sondas 7-en-1 sólo alcanzan su exactitud declarada operando a 12 V o más; si la validación en laboratorio mostrara desviación en la lectura al operar a 5 V, la contingencia de diseño es agregar un elevador de 12 V dedicado a la sonda, detrás del mismo corte por MOSFET, lo que no altera la arquitectura general pero sí el consumo de la Rama de Medición Conmutada.
 
 
 <!-- ===== PAGINA 66 ===== -->
 
 
-Conviene además declarar el supuesto con que se estima el consumo de la sonda, porque no se lee directamente de ninguna ficha. La descripción del vendedor entrega 0,15W a 12 V y 0,5W a 24 V, de modo que la potencia no es constante con la tensión de alimentación. El balance energético de este informe adopta, a falta de dato a 5 V, un supuesto de potencia constante de 150 mW en el extremo inferior del rango, equivalente a 30 mA a 5 V. Ese supuesto se declara aquí como tal y figura entre las mediciones de banco que el plan de trabajo ejecuta antes de comprometer el volumen de compra. Su peso en el resultado es acotado, porque la fase de adquisición dura tres segundos, pero el método exige nombrarlo.
+Conviene además declarar el supuesto con que se estima el consumo de la sonda, porque no se lee directamente de ninguna ficha. El manual del fabricante sólo declara el máximo, 0,5 W a 24 V [20], y la ficha de una sonda equivalente entrega 0,15 W a 12 V [50], de modo que la potencia no es constante con la tensión de alimentación. El balance energético de este informe adopta, a falta de dato a 5 V, un supuesto de potencia constante de 150 mW en el extremo inferior del rango, equivalente a 30 mA a 5 V. Ese supuesto se declara aquí como tal y figura entre las mediciones de banco que el plan de trabajo ejecuta antes de comprometer el volumen de compra. Su peso en el resultado es acotado, porque la fase de adquisición dura tres segundos, pero el método exige nombrarlo.
 
-La comunicación se establece a 9.600 baudios vía Modbus RTU. Para mitigar variaciones entre lotes de proveedores, el mapa de registros Modbus, la dirección del esclavo y los coeficientes de calibración no estarán fijados en el firmware, sino que residirán parametrizados en la memoria no volátil (NVS) del ESP32, permitiendo ajustes remotos por actualización remota.
+La comunicación se establece vía Modbus RTU a 4.800 baudios, 8N1 y dirección 1, la configuración de fábrica según el manual [20]. Para mitigar variaciones entre lotes de proveedores, el mapa de registros Modbus, la dirección del esclavo y los coeficientes de calibración no estarán fijados en el firmware, sino que residirán parametrizados en la memoria no volátil (NVS) del ESP32, permitiendo ajustes remotos por actualización remota.
 
 - Sensor Ambiental (Bosch BME280): Para las variables climáticas superficiales se integra un sensor BME280 en el bus I²C. Este componente aporta mediciones de temperatura (±1,0 °C), humedad relativa (±3 % HR) y presión barométrica (±1,0 hPa) [13]. Dado que su consumo en reposo es de apenas 0,1 µA, una cifra inferior a la corriente de fuga intrínseca de los transistores convencionales, se prescinde de un circuito de corte dedicado. El sensor operará en forced mode, autogestionando su transición a reposo tras cada muestreo; los 3,6 µA son el consumo medio a 1
 
@@ -1142,7 +1142,7 @@ Cuando el BME280 no responde, el firmware escribe un centinela de todos unos (0x
 
 ### Estado Probatorio de las Especificaciones Declaradas
 
-Las tablas anteriores mezclan, inevitablemente, cifras de distinta solidez: algunas provienen de la hoja de datos del componente exacto que se va a montar, otras de una ficha representativa de la familia mientras no se cierre el SKU, y otras son estimaciones de diseño aún no medidas en banco. Presentarlas todas con el mismo peso sería engañoso, de modo que se clasifican explícitamente:
+Las tablas anteriores mezclan, inevitablemente, cifras de distinta solidez: algunas provienen de la hoja de datos del componente exacto que se va a montar, otras de declaraciones del vendedor, y otras son estimaciones de diseño aún no medidas en banco. Presentarlas todas con el mismo peso sería engañoso, de modo que se clasifican explícitamente:
 
 | Especificación declarada | Origen de la cifra | Nivel de evidencia | Qué falta para confirmar |
 |---|---|---|---|
@@ -1153,8 +1153,8 @@ Las tablas anteriores mezclan, inevitablemente, cifras de distinta solidez: algu
 | BME280: ±1,0 °C, ±3 % HR, ±1,0 hPa, 0,1 µA en reposo | Hoja de datos Bosch del componente exacto [13] | Confirmada por hoja de datos del componente seleccionado | Nada; verificar la respuesta térmica una vez montado tras el respiradero |
 | SP3485: 2 mA con driver habilitado | Hoja de datos del transceptor exacto [24] | Confirmada por hoja de datos del componente seleccionado | Nada |
 | Interruptor de encendido después del módulo de carga | Decisión de diseño del esquemático | Definida, no medida | Medir la corriente de la celda con el interruptor abierto, usando el puente soldable de medición |
-| Sonda 7-en-1: rangos y exactitudes de las 7 variables | Ficha de una sonda representativa de la familia [20]; el SKU no tiene ficha propia publicada | Representativa de la familia, no del SKU | Exigir la ficha técnica del SKU al proveedor antes de la orden de compra, y contrastar con la campaña de validación de 30 muestras |
-| Sonda: alimentación 5–24 V DC y consumo 30 mA a 5 V | Descripción del vendedor (4,5–30 V; 0,15 W a 12 V; 0,5 W a 24 V) más supuesto propio de potencia constante | Supuesto de diseño sobre declaración del vendedor | Medir consumo y exactitud operando a 5 V; si la exactitud se degradara, la contingencia es elevar a 12 V |
+| Sonda 7-en-1: rangos y exactitudes de las 7 variables | Manual del fabricante del modelo adquirido, ComWinTop CWT-Soil-NPKPHCTH-S [20] | Confirmada por la hoja de datos del componente exacto, en condiciones de laboratorio | Contrastar en suelo real con la campaña de validación de 30 muestras |
+| Sonda: alimentación 4,5–30 V DC y consumo 30 mA a 5 V | Manual del fabricante (4,5–30 V; 0,5 W como máximo a 24 V) [20], ficha de una sonda equivalente (0,15 W a 12 V) [50] y supuesto propio de potencia constante | Alimentación confirmada por el manual; consumo, supuesto de diseño | Medir consumo y exactitud operando a 5 V; si la exactitud se degradara, la contingencia es elevar a 12 V |
 | Sonda: acero inoxidable 316L | Descripción del vendedor | Declaración del vendedor | Certificado de material o ensayo; afecta la vida útil en suelos salinos |
 | Módulo de carga y elevación en vacío: 30–100 µA | Integrado de referencia de la categoría [21] | Estimación de diseño, no medida | Medir en banco sobre el módulo finalmente adquirido |
 | Elevador: eficiencia η ≈ 0,85 | Valor típico de convertidores elevadores de esta clase y corriente | Estimación de diseño, no medida | Medir la eficiencia real a la corriente de excitación de la sonda |
@@ -1169,7 +1169,7 @@ Las tablas anteriores mezclan, inevitablemente, cifras de distinta solidez: algu
 <!-- ===== PAGINA 71 ===== -->
 
 
-La electrónica de control está confirmada por hojas de datos de los componentes exactos, y la incertidumbre relevante se concentra en dos puntos: la sonda de suelo, que concentra además el 59,5 % del costo de materiales, y el consumo propio de la placa de desarrollo y del módulo de carga, que en esta placa determinan la autonomía. De ahí que las dos primeras acciones del plan de trabajo sean exigir al proveedor la ficha del SKU específico junto a una unidad de muestra para medición en banco, y medir el consumo del conjunto ensamblado encendido y apagado, ambas antes de comprometer cualquier volumen de compra.
+La electrónica de control está confirmada por hojas de datos de los componentes exactos, y la incertidumbre relevante se concentra en dos puntos: la sonda de suelo, que concentra además el 59,5 % del costo de materiales, y el consumo propio de la placa de desarrollo y del módulo de carga, que en esta placa determinan la autonomía. De ahí que las dos primeras acciones del plan de trabajo sean ensayar en banco la muestra de la sonda ya adquirida, cuyo modelo y manual del fabricante están identificados, y medir el consumo del conjunto ensamblado encendido y apagado, ambas antes de comprometer cualquier volumen de compra.
 
 71
 
@@ -1609,7 +1609,7 @@ La exclusión de N, P y K es deliberada y coherente con el resto del informe: es
 
 **Tabla 5.2 “Protocolo de Validación In Situ vs. Laboratorio de Referencia”**
 
-101 Por qué un umbral propio y no el del fabricante. Una formulación aparentemente más rigurosa sería exigir que el error del instrumento no supere la exactitud declarada por el fabricante de la sonda, es decir ±0,1 unidades de pH. Este informe no la adopta, por dos razones. La primera es de evidencia: esa exactitud proviene de la ficha de una sonda representativa de la familia y no del SKU adquirido, como declara la tabla de estado probatorio, de modo que fijar el criterio de aprobación contra ella significaría medirse contra un número que el propio proyecto reconoce no tener verificado. La segunda es de pertinencia: ±0,1 unidades de pH es una exigencia de laboratorio, y el producto de este instrumento no es una cifra sino una decisión de manejo. Un error de 0,3 unidades de pH no cambia la recomendación de encalado para ningún cultivo de la matriz; uno de 0,8 sí la cambia. El umbral debe fijarse donde la decisión cambia, y por eso se declara en términos agronómicos y no metrológicos. El mismo criterio explica los umbrales de conductividad y de humedad: un error de 4 puntos de humedad volumétrica no altera el veredicto de riego, mientras que uno de 10 puntos sí lo altera.
+101 Por qué un umbral propio y no el del fabricante. El manual de la sonda declara ±0,3 unidades de pH, ±3 % de conductividad y ±2 a 3 % de humedad. El umbral de pH coincide con esa cifra, pero no se fija por ella, por dos razones. La primera es de condiciones: la exactitud del fabricante se declara en laboratorio, a 25 °C y en un medio homogéneo, mientras que la campaña compara mediciones en suelo real, con su heterogeneidad y su contacto variable con los electrodos, contra un laboratorio acreditado; exigir la cifra del fabricante en esas condiciones mediría el suelo y no el instrumento. La segunda es de pertinencia: el producto de este instrumento no es una cifra sino una decisión de manejo. Un error de 0,3 unidades de pH no cambia la recomendación de encalado para ningún cultivo de la matriz; uno de 0,8 sí la cambia. El umbral debe fijarse donde la decisión cambia, y por eso se declara en términos agronómicos y no metrológicos. El mismo criterio explica los umbrales de conductividad y de humedad: un error de 4 puntos de humedad volumétrica no altera el veredicto de riego, mientras que uno de 10 puntos sí lo altera.
 
 
 <!-- ===== PAGINA 102 ===== -->
@@ -1689,7 +1689,7 @@ Desde la perspectiva del cliente, la comparación de costo total de propiedad se
 
 Corresponde por eso precisar con exactitud qué acredita y qué no acredita este resultado, porque la diferencia decide si el proyecto pasa a la etapa siguiente o se declara concluido. Lo que acredita es que la arquitectura elegida es coherente con el problema, que la estructura de costos cierra con el precio propuesto, que el financiamiento es consistente y que el negocio, de cumplirse el plan de ventas, crea valor y paga su deuda. Lo que no acredita:
 
-1. Que el precio de la sonda sea el presupuestado, porque aún no existe una orden de compra ni ficha técnica del SKU.
+1. Que el precio de la sonda sea el presupuestado, porque aún no existe una orden de compra en volumen.
 
 2. Que el consumo del conjunto ensamblado, encendido y apagado, sea el estimado, porque el consumo propio de la placa de desarrollo y del módulo de carga proviene de hojas de datos representativas y no de una medición.
 
@@ -1705,7 +1705,7 @@ Corresponde por eso precisar con exactitud qué acredita y qué no acredita este
 <!-- ===== PAGINA 108 ===== -->
 
 
-Ninguna de esas seis verificaciones pendientes es un obstáculo oculto: todas están identificadas en este informe con su costo, su método y su criterio de aceptación, y ese es precisamente el aporte de la ingeniería conceptual. Las dos primeras concentran además el riesgo técnico y se atacan con el mismo gasto y en el mismo mes: pedir al proveedor la ficha del SKU y una unidad de muestra, e instrumentar una placa piloto, a través de su puente soldable de medición, para medir su consumo encendida y apagada.
+Ninguna de esas seis verificaciones pendientes es un obstáculo oculto: todas están identificadas en este informe con su costo, su método y su criterio de aceptación, y ese es precisamente el aporte de la ingeniería conceptual. Las dos primeras concentran además el riesgo técnico y se atacan con el mismo gasto y en el mismo mes: ensayar en banco la muestra de la sonda, cuyo modelo y manual ya están identificados, e instrumentar una placa piloto, a través de su puente soldable de medición, para medir su consumo encendida y apagada.
 
 La decisión que el estudio respalda es continuar el desarrollo y ejecutar esas verificaciones, no comprometer volumen de compra ni declarar una viabilidad comprobada.
 
@@ -1742,7 +1742,7 @@ Recuperado de https://www.bosch-sensortec.com/media/boschsensortec/downloads/dat
 17. Subsecretaría de Telecomunicaciones (SUBTEL). (2025). Resolución N° 737: Actualización del régimen de certificación de equipos de telecomunicaciones. Recuperado de https://www.subtel.gob.cl/
 18. Ministerio de Hacienda / Biblioteca del Congreso Nacional (BCN). (2020). Síntesis de la Ley N° 21.210 de Modernización Tributaria — Régimen Pro Pyme. Recuperado de https://obtienearchivo.bcn.cl/obtienearchivo?id=repositorio/10221/28765/2/BCN_Reforma_Tributaria_2020_edi t.pdf
 19. Espressif Systems. (s.f.). ESP32-WROOM-32 Datasheet (consumo dinámico, reposo profundo del módulo y FCC ID 2AC7Z-ESPWROOM32). Recuperado de https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32_datasheet_en.pdf
-20. Sumeet Instruments. (s.f.). 7 in 1 Integrated Soil Sensor NPK-pH-EC-Temperature-Moisture, RS485, alimentación 5–24 V DC. Ficha técnica de referencia de familia de producto (0,15 W a 12 V DC; 0,5 W a 24 V DC). Recuperado de https://sumeetinstruments.com/Soil-NPK-pH-EC-Temperature-Moisture-7in1-Sensor-RS485
+20. ComWinTop (CWT Co., Limited). (s.f.). Soil sensor (5PIN Probe, RS485 output type) manual, versión 1.0, válido para el modelo NPKPHCTH-S: alimentación de 4,5 a 30 V DC y 0,5 W como máximo a 24 V; RS-485 Modbus RTU a 4.800 baudios 8N1, dirección 1; rangos, exactitudes y colores del cable. La exactitud de temperatura figura como ±5 °C y el rango de conductividad como 0–200.000 µS/cm, erratas de esa versión: el manual V1.4 de la misma serie (modelo THCPH-S) declara ±0,5 °C y 0–20.000 µS/cm. Recuperado de https://www.comwintop.com/
 21. INJOINIC Technology. (s.f.). IP5306: Multi-functional High-Efficiency Charging and Discharging Chip (corriente de pérdida en reposo y eficiencia de conversión boost, representativo de la PCB combinada USB-C carga + boost). Recuperado de https://www.lcsc.com/product-detail/C181692.html
 22. Holtek Semiconductor. (s.f.). HT75xx-3 100 mA TinyPower LDO (corriente de quiescente típica 2,5 µA).
 
@@ -1792,5 +1792,6 @@ Recuperado de https://www.bcn.cl/leychile/navegar?idNorma=141599
 Recuperado de https://jlcpcb.com/
 48. Advanced Monolithic Systems. (s.f.). AMS1117: 1A Low Dropout Voltage Regulator. Datasheet (corriente de reposo típica de 5 mA, representativa del regulador de las placas de desarrollo ESP32). Recuperado de http://www.advanced-monolithic.com/pdf/ds1117.pdf
 49. Espressif Systems. (s.f.). ESP32-DevKitC V4 Getting Started Guide: alimentación de la placa, regulador de 3,3 V y LED de alimentación. Recuperado de https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html
+50. Sumeet Instruments. (s.f.). 7 in 1 Integrated Soil Sensor NPK-pH-EC-Temperature-Moisture, RS485, alimentación 5–24 V DC. Ficha técnica de una sonda equivalente (0,15 W a 12 V DC; 0,5 W a 24 V DC). Recuperado de https://sumeetinstruments.com/Soil-NPK-pH-EC-Temperature-Moisture-7in1-Sensor-RS485
 
 Nota sobre los supuestos de mercado. Los costos de referencia del análisis de laboratorio y de la visita de asesoría agronómica no figuran en esta lista porque no provienen de una fuente bibliográfica publicable. Se declaran como supuestos de trabajo, identificados como S1 y S2, en la Tabla 5.4 “Supuestos de Mercado Declarados”, junto con su método de obtención y la cotización formal que los reemplazará. 112

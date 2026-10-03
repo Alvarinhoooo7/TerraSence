@@ -591,7 +591,7 @@ Además:
 
 F1 a F12 están implementadas. `python finanzas/verificar_informe_e2.py` sólo reporta los marcadores `⟦PENDIENTE PCB V3: …⟧` y `⟦PENDIENTE CAD: …⟧`: 18 en total, todos de geometría. Precios, hojas de datos y redacción quedaron cerrados con consultas del 02-10-2026:
 
-- **Sonda:** variante T-H-EC-NPK-PH en AliExpress, $34.700 más $9.694 de envío. Ficha de la familia [16]: 4.800/9.600 baudios; cable marrón (+), negro (−), amarillo o gris (A) y azul (B).
+- **Sonda:** ComWinTop CWT-Soil-NPKPHCTH-S (variante T-H-EC-NPK-PH) en AliExpress, $34.700 más $9.694 de envío; la muestra adquirida es ese modelo. Desde el 03-10-2026 la referencia [16] del informe es el manual del fabricante: 4,5 a 30 V, 4.800 baudios 8N1, dirección 1, pH ±0,3, NPK ±2 % de la escala; cable marrón (+), negro (−), amarillo (A+) y azul (B−). La ficha de Sumeet pasó a [51] y sólo respalda el consumo de 0,15 W a 12 V. El mapa de registros está en `Firmware/config.h`; la prueba en banco, en [Firmware/TASK.md](../../Firmware/TASK.md#prueba-de-la-sonda-en-banco).
 - **Celda:** EEMB LP103454, $6.900 en pack de 10. Se eligió por tener un fabricante identificable que respalde la certificación IEC 62133-2.
 - **Termistor de la celda** (MF52A103F3950) con red de 4,7 kΩ y 47 kΩ en TEMP, para una ventana de carga de ≈ 0 a 44 °C. Estaba en el texto y faltaba en la BOM; también lleva una tercera bornera de 2 vías.
 - **Accesorios** con enlace al producto exacto: interruptor, respiradero, tapón, insertos M3 × 5,7 × 4,6 (agujero de 4,0 mm), cordón, cable y embalaje.

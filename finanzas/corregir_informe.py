@@ -209,8 +209,8 @@ TABLA_PROBATORIO = [
     "| BME280: ±1,0 °C, ±3 % HR, ±1,0 hPa, 0,1 µA en reposo | Hoja de datos Bosch del componente exacto [13] | Confirmada por hoja de datos del componente seleccionado | Nada; verificar la respuesta térmica una vez montado tras el respiradero |",
     "| SP3485: 2 mA con driver habilitado | Hoja de datos del transceptor exacto [24] | Confirmada por hoja de datos del componente seleccionado | Nada |",
     FILAS_PROBATORIO[2][1],
-    "| Sonda 7-en-1: rangos y exactitudes de las 7 variables | Ficha de una sonda representativa de la familia [20]; el SKU no tiene ficha propia publicada | Representativa de la familia, no del SKU | Exigir la ficha técnica del SKU al proveedor antes de la orden de compra, y contrastar con la campaña de validación de 30 muestras |",
-    "| Sonda: alimentación 5–24 V DC y consumo 30 mA a 5 V | Descripción del vendedor (4,5–30 V; 0,15 W a 12 V; 0,5 W a 24 V) más supuesto propio de potencia constante | Supuesto de diseño sobre declaración del vendedor | Medir consumo y exactitud operando a 5 V; si la exactitud se degradara, la contingencia es elevar a 12 V |",
+    "| Sonda 7-en-1: rangos y exactitudes de las 7 variables | Manual del fabricante del modelo adquirido, ComWinTop CWT-Soil-NPKPHCTH-S [20] | Confirmada por la hoja de datos del componente exacto, en condiciones de laboratorio | Contrastar en suelo real con la campaña de validación de 30 muestras |",
+    "| Sonda: alimentación 4,5–30 V DC y consumo 30 mA a 5 V | Manual del fabricante (4,5–30 V; 0,5 W como máximo a 24 V) [20], ficha de una sonda equivalente (0,15 W a 12 V) [50] y supuesto propio de potencia constante | Alimentación confirmada por el manual; consumo, supuesto de diseño | Medir consumo y exactitud operando a 5 V; si la exactitud se degradara, la contingencia es elevar a 12 V |",
     "| Sonda: acero inoxidable 316L | Descripción del vendedor | Declaración del vendedor | Certificado de material o ensayo; afecta la vida útil en suelos salinos |",
     FILAS_PROBATORIO[3][1],
     "| Elevador: eficiencia η ≈ 0,85 | Valor típico de convertidores elevadores de esta clase y corriente | Estimación de diseño, no medida | Medir la eficiencia real a la corriente de excitación de la sonda |",
@@ -231,7 +231,8 @@ exigir(r"(?:Toda la|La) electrónica de control está confirmada por hojas de da
        "incertidumbre relevante se concentra en dos puntos: la sonda de suelo, que concentra además el %s "
        "del costo de materiales, y el consumo propio de la placa de desarrollo y del módulo de carga, que en "
        "esta placa determinan la autonomía. De ahí que las dos primeras acciones del plan de trabajo sean "
-       "exigir al proveedor la ficha del SKU específico junto a una unidad de muestra para medición en banco, "
+       "ensayar en banco la muestra de la sonda ya adquirida, cuyo modelo y manual del fabricante están "
+       "identificados, "
        "y medir el consumo del conjunto ensamblado encendido y apagado, ambas antes de comprometer cualquier "
        "volumen de compra." % pct(48000 / M.BOM), "conclusión del estado probatorio")
 
@@ -761,6 +762,10 @@ REFERENCIAS = {
     49: "Espressif Systems. (s.f.). ESP32-DevKitC V4 Getting Started Guide: alimentación de la placa, "
         "regulador de 3,3 V y LED de alimentación. Recuperado de "
         "https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html",
+    # La ficha de familia que el PDF cita como [20] pasa aquí: sólo respalda el consumo a 12 V.
+    50: "Sumeet Instruments. (s.f.). 7 in 1 Integrated Soil Sensor NPK-pH-EC-Temperature-Moisture, RS485, "
+        "alimentación 5–24 V DC. Ficha técnica de una sonda equivalente (0,15 W a 12 V DC; 0,5 W a 24 V DC). "
+        "Recuperado de https://sumeetinstruments.com/Soil-NPK-pH-EC-Temperature-Moisture-7in1-Sensor-RS485",
 }
 inicio_refs = [m.start() for m in re.finditer(r"Referencias bibliográficas", texto, re.I)][-1]
 cabecera, lista = texto[:inicio_refs], texto[inicio_refs:]
@@ -802,6 +807,70 @@ while True:
         break
     uniones += 1
 CAMBIOS.append(("tablas partidas por el salto de página, unidas", uniones))
+
+# --------------------------------------------------------------------------
+# 8. Sonda: manual del fabricante del modelo adquirido en lugar de la ficha de familia
+# --------------------------------------------------------------------------
+# El PDF cita como [20] la ficha de una sonda representativa de la familia. La muestra
+# adquirida es la ComWinTop CWT-Soil-NPKPHCTH-S, cuyo manual pasa a ser la [20]; la ficha
+# de familia queda como [50] y sólo respalda el consumo a 12 V. Va al final, sobre el texto
+# con las referencias separadas y las tablas unidas.
+SONDA = "ComWinTop CWT-Soil-NPKPHCTH-S"
+exigir(r"^20\. Sumeet Instruments\.[^\n]*",
+       "20. ComWinTop (CWT Co., Limited). (s.f.). Soil sensor (5PIN Probe, RS485 output type) manual, versión "
+       "1.0, válido para el modelo NPKPHCTH-S: alimentación de 4,5 a 30 V DC y 0,5 W como máximo a 24 V; "
+       "RS-485 Modbus RTU a 4.800 baudios 8N1, dirección 1; rangos, exactitudes y colores del cable. La "
+       "exactitud de temperatura figura como ±5 °C y el rango de conductividad como 0–200.000 µS/cm, erratas "
+       "de esa versión: el manual V1.4 de la misma serie (modelo THCPH-S) declara ±0,5 °C y 0–20.000 µS/cm. "
+       "Recuperado de https://www.comwintop.com/", "sonda: referencia [20] al manual del fabricante", re.M)
+exigir(r"Sonda de Suelo 7-en-1 \(RS-485 Modbus RTU\): El nodo extrae",
+       "Sonda de Suelo 7-en-1 (RS-485 Modbus RTU), modelo %s: El nodo extrae" % SONDA, "sonda: modelo")
+exigir(r"^\| Parámetro \| Rango de Operación \| Exactitud Declarada \|.*?(?=^\*\*Tabla \d+\.\d+ “\s*Especificaciones Técnicas Sonda)",
+       "| Parámetro | Rango de Operación | Exactitud Declarada |\n|---|---|---|\n"
+       "| Humedad Volumétrica | 0 – 100 % | ±2 % (0–50 %); ±3 % (50–100 %) |\n"
+       "| Temperatura de Suelo | −40 °C a +80 °C | ±0,5 °C (a 25 °C) |\n"
+       "| Conductividad Eléctrica | 0 – 20.000 µS/cm | ±3 % (hasta 10.000 µS/cm); ±5 % (10.000–20.000 µS/cm) |\n"
+       "| pH | 3,0 – 9,0 | ±0,3 |\n"
+       "| Macronutrientes (N, P, K) | 1 – 1.999 mg/kg c/u | ±2 % de la escala completa (según fabricante) |\n\n",
+       "sonda: tabla con el manual del fabricante", re.S | re.M)
+exigir(r"Estas cifras provienen de la ficha de una sonda representativa de la familia \[20\].*?no está verificada\.",
+       "Estas cifras provienen del manual del fabricante del modelo adquirido, la %s [20], y se declaran en "
+       "condiciones de laboratorio. La distinción no es formal: el protocolo de validación de este informe fija "
+       "su criterio de aceptación sobre umbrales agronómicos propios porque la exactitud del fabricante no está "
+       "verificada en suelo real." % SONDA, "sonda: origen de las cifras")
+exigir(r"El rango de alimentación de 5 a 24 V DC es representativo de la familia de sondas 7-en-1 RS-485 "
+       r"industriales \[20\]; dentro de ese rango,",
+       "El manual del fabricante fija la alimentación de la sonda entre 4,5 y 30 V DC [20]; dentro de ese rango,",
+       "sonda: rango de alimentación")
+exigir(r"a validar contra la ficha técnica definitiva del SKU adquirido, dado que otras sondas de la misma "
+       r"familia sólo alcanzan",
+       "a validar en banco con la muestra adquirida, dado que otras sondas 7-en-1 sólo alcanzan",
+       "sonda: validación a 5 V")
+exigir(r"La descripción del vendedor entrega 0,15 ?W a 12 V y 0,5 ?W a 24 V,",
+       "El manual del fabricante sólo declara el máximo, 0,5 W a 24 V [20], y la ficha de una sonda "
+       "equivalente entrega 0,15 W a 12 V [50],", "sonda: consumo declarado")
+exigir(r"La comunicación se establece a 9\.600 baudios vía Modbus RTU\.",
+       "La comunicación se establece vía Modbus RTU a 4.800 baudios, 8N1 y dirección 1, la configuración de "
+       "fábrica según el manual [20].", "sonda: velocidad del bus")
+exigir(r"otras de una ficha representativa de la familia mientras no se cierre el SKU,",
+       "otras de declaraciones del vendedor,", "sonda: niveles de evidencia")
+exigir(r"Por qué un umbral propio y no el del fabricante\. Una formulación.*?no es una cifra sino una "
+       r"decisión de manejo\.",
+       "Por qué un umbral propio y no el del fabricante. El manual de la sonda declara ±0,3 unidades de pH, "
+       "±3 %% de conductividad y ±2 a 3 %% de humedad. El umbral de pH coincide con esa cifra, pero no se fija "
+       "por ella, por dos razones. La primera es de condiciones: la exactitud del fabricante se declara en "
+       "laboratorio, a 25 °C y en un medio homogéneo, mientras que la campaña compara mediciones en suelo "
+       "real, con su heterogeneidad y su contacto variable con los electrodos, contra un laboratorio "
+       "acreditado; exigir la cifra del fabricante en esas condiciones mediría el suelo y no el instrumento. "
+       "La segunda es de pertinencia: el producto de este instrumento no es una cifra sino una decisión de "
+       "manejo.".replace("%%", "%"), "sonda: umbral propio frente al del fabricante")
+exigir(r"Que el precio de la sonda sea el presupuestado, porque aún no existe una orden de compra ni ficha "
+       r"técnica del SKU\.",
+       "Que el precio de la sonda sea el presupuestado, porque aún no existe una orden de compra en volumen.",
+       "sonda: precio sin orden de compra")
+exigir(r"pedir al proveedor la ficha del SKU y una unidad de muestra, e instrumentar",
+       "ensayar en banco la muestra de la sonda, cuyo modelo y manual ya están identificados, e instrumentar",
+       "sonda: primera verificación")
 
 texto = re.sub(r"\n{4,}", "\n\n\n", texto)
 with io.open(SALIDA, "w", encoding="utf-8", newline="\r\n") as fh:

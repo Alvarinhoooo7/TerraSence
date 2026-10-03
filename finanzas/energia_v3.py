@@ -86,7 +86,7 @@ def potencia_instalada():
     pf = lambda i33: V_BAT * (i33 / 1000)
     filas = [
         ("ESP32-WROOM-32D transmitiendo BLE", "3,3 V", 150.0, 3.3 * 0.150, pf(150.0), "estimación de hoja de datos"),
-        ("Sonda 7 en 1 (excitación y lectura)", "5 V", 30.0, 5.0 * 0.030, 5.0 * 0.030 / ETA_ELEVADOR, "estimación del fabricante"),
+        ("Sonda 7 en 1 (excitación y lectura)", "5 V", 30.0, 5.0 * 0.030, 5.0 * 0.030 / ETA_ELEVADOR, "supuesto sin medir (el fabricante sólo declara 0,5 W como máximo a 24 V)"),
         ("Transceptor SP3485 con el driver activo", "3,3 V", 2.0, 3.3 * 0.002, pf(2.0), "hoja de datos"),
         ("Sensor BME280 en muestreo", "3,3 V", 0.0036, 3.3 * 0.0000036, pf(0.0036), "hoja de datos"),
         ("LED de estado (uno encendido a la vez)", "3,3 V", LED_MA, 3.3 * LED_MA / 1000, pf(LED_MA), "corriente de diseño"),

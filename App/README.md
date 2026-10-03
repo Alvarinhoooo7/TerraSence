@@ -710,7 +710,7 @@ Esta tabla refleja lo que `probeService.ts` decodifica realmente. El aviso anter
          Todos los bits a uno = el sensor no entrego dato -> NULL en la base
 ```
 
-El firmware vive en [`Firmware/`](../Firmware/README.md), pero aún no tiene el driver Modbus, y el mapa de registros de la sonda **no está confirmado contra la ficha del proveedor**. Antes de fabricar hace falta una captura BLE/Modbus real del SKU adquirido.
+El firmware vive en [`Firmware/`](../Firmware/README.md). Ya lee la sonda por Modbus con el mapa del manual del fabricante (ComWinTop CWT-Soil-NPKPHCTH-S), pero **sin ensayo**: antes de fabricar hace falta una captura BLE/Modbus real de la muestra.
 
 > [!CAUTION]
 > **Desconexión BLE obligatoria:** `bleService.ts` siempre ejecuta `cancelConnection()` dentro de un bloque `finally`. Si la conexión quedara activa, el ESP32 no podría entrar en *deep sleep* y el consumo se dispararía. La cifra de «12 a 18 meses de autonomía» **se retira**: el balance energético publicado omitía el consumo de la propia conexión BLE y no considera reconexiones, eficiencia del conversor, autodescarga ni pérdida de capacidad. **La autonomía debe medirse desde la batería, no estimarse.**

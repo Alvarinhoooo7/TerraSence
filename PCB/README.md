@@ -9,8 +9,8 @@ Especificación del hardware del instrumento portátil de medición de suelo: pl
 > | Afirmación | Estado real |
 > | :--- | :--- |
 > | Placa ruteada | **Sí.** Esquemático y ruteo en `Medidor De Suelos V2/`. Primer lote de 5 placas sin ensamblar pedido a JLCPCB; aún no se arma ni se prueba |
-> | Firmware | **Existe en [`Firmware/`](../Firmware/README.md)**: vinculación BLE, LEDs, buzzer y trama de 20 bytes. Falta el driver Modbus de la sonda |
-> | Mapa de registros de la sonda | **Sin confirmar** contra la ficha del proveedor. El SKU no se ha adquirido |
+> | Firmware | **Existe en [`Firmware/`](../Firmware/README.md)**: vinculación BLE, LEDs, buzzer, trama de 20 bytes y lectura Modbus de la sonda, esta última sin ensayo en banco |
+> | Mapa de registros de la sonda | **Coincide con el manual del fabricante** de la muestra adquirida (ComWinTop CWT-Soil-NPKPHCTH-S). Falta la captura real en banco |
 > | BLE 5.0 | El ESP32-WROOM-32E especifica **Bluetooth 4.2 BR/EDR y BLE**. La certificación del módulo no acredita el equipo terminado |
 > | Consumo en reposo y autonomía | **No se declaran en la V2.** Ver sección 5.9 |
 > | IP67 y peso bajo 280 g | **Objetivos de diseño sin ensayo.** No hay actas ni pesaje del conjunto |
@@ -74,7 +74,7 @@ La V2 es una **placa portadora**: no integra el silicio, sino que sostiene y con
 | Parámetro | Valor de diseño | Justificación |
 | :--- | :--- | :--- |
 | **Microcontrolador** | DevKit ESP32-WROOM-32 | Doble núcleo a 240 MHz, 520 KB SRAM, 4 MB de flash. [Ficha Espressif](https://documentation.espressif.com/esp32-wroom-32e_esp32-wroom-32ue_datasheet_en.html): **Bluetooth 4.2 BR/EDR y BLE**, no 5.0 |
-| **Sonda de suelo** | Industrial 7 en 1, RS-485 Modbus RTU | Alimentación **4,5 – 30 V DC**, electrodos de aleación anticorrosión, grado de acero por confirmar |
+| **Sonda de suelo** | Industrial 7 en 1, RS-485 Modbus RTU | ComWinTop CWT-Soil-NPKPHCTH-S. Alimentación **4,5 – 30 V DC**, 0,5 W como máximo a 24 V, IP68, cable de 2 m; electrodos de aleación anticorrosión, grado de acero por confirmar |
 | **Alimentación de la sonda** | **5,0 V DC** conmutados | Operación directa sin elevar a 12 V; menor estrés térmico y menor consumo |
 | **Sensor ambiental** | BME280 I²C a 3,3 V | Temperatura del aire, humedad relativa y presión en el punto de lectura |
 | **Transceptor de bus** | SP3485 a 3,3 V | Diferencial industrial semidúplex, sin desplazadores de nivel |
@@ -505,7 +505,7 @@ Utilizaremos un "Terminal Block" estándar de 4 vías (paso de 5.0mm o 5.08mm) p
 | `R13` pin 1 | `RS485_B` | `RS485_B` |
 | `R13` pin 2 | `GND` | `GND` |
 
-**La terminación de 120 Ω probablemente sobra.** `R11` evita reflexiones en buses largos; con **2 m de cable y 9600 baudios** no hay reflexión que corregir, y **consume del orden de 25 mA extra mientras el transceptor transmite**. Dejarla como huella sin montar, con dos islas puenteables, y montarla solo si aparecen errores de CRC.
+**La terminación de 120 Ω probablemente sobra.** `R11` evita reflexiones en buses largos; con **2 m de cable y 4800 baudios** no hay reflexión que corregir, y **consume del orden de 25 mA extra mientras el transceptor transmite**. Dejarla como huella sin montar, con dos islas puenteables, y montarla solo si aparecen errores de CRC.
 
 La polarización *fail-safe* `R12` y `R13` sí conviene: define el estado del bus cuando nadie transmite y evita que el receptor lea ruido como datos. Consume unos 350 µA mientras haya `3.3V`.
 
@@ -960,18 +960,18 @@ Se deja así en la V2, porque `SW1` corta todo entre usos. Si más adelante se p
 
 1. **Despertar:** por pulsación en `GPIO33` (pendiente F4 de [`Firmware/TASK.md`](../Firmware/TASK.md)); hoy el firmware no duerme y mide cuando la app se suscribe a la telemetría.
 2. **Power gate ON:** `GPIO5` en alto, la sonda recibe 5,0 V.
-3. **Estabilización:** 100 ms para el oscilador interno de la sonda.
-4. **Comando, UART2 a 9600 baudios, 8N1**, con `GPIO4` en alto:
+3. **Estabilización:** 1 s (`SONDA_ESTABILIZACION_MS`). El manual no da un tiempo de arranque: se mide en banco con el MOSFET montado.
+4. **Comando, UART2 a 4800 baudios, 8N1** (velocidad de fábrica; si no hay respuesta se reintenta a 9600), con `GPIO4` en alto:
    ```text
    0x01 (dirección) 0x03 (leer holding) 0x00 0x00 (registro inicial) 0x00 0x07 (7 registros) 0x04 0x08 (CRC16)
    ```
-5. **`GPIO4` a bajo** y recepción de 19 bytes con validación CRC16.
+5. **`GPIO4` a bajo** apenas sale el último bit, y recepción de 19 bytes con validación CRC16.
 6. **Power gate OFF:** `GPIO5` en bajo.
 7. **Lectura ambiental I²C** del BME280.
 8. **Lectura de batería:** muestreo de `GPIO34`, promediando varias tomas.
 9. **Notificación BLE** de los 20 bytes.
 
-> El mapa de registros **no está confirmado** contra la ficha del proveedor. Antes de fabricar hace falta una captura Modbus real del SKU adquirido.
+> El mapa de registros coincide con el manual del fabricante (ComWinTop CWT-Soil-NPKPHCTH-S). Antes de fabricar hace falta una captura Modbus real de la muestra: procedimiento en [`Firmware/TASK.md`](../Firmware/TASK.md#prueba-de-la-sonda-en-banco).
 
 ---
 
@@ -1041,10 +1041,10 @@ El firmware debe adquirir y notificar una lectura nueva al suscribirse: no trans
 
 ### 10.3. Pendientes antes de fabricar
 
-- Confirmar la variante de sonda y **medir su consumo a la tensión elegida**. Los 0,5 W publicados corresponden a 24 V.
-- **Confirmar el mapa de registros Modbus** contra la ficha del proveedor, con captura real del SKU adquirido.
+- **Medir el consumo de la sonda a 5 V**: el manual de la ComWinTop CWT-Soil-NPKPHCTH-S sólo publica 0,5 W como máximo a 24 V.
+- **Capturar una respuesta Modbus real** de la muestra y contrastarla con el mapa del manual.
 - Cerrar fichas de DevKit, BME280, módulo de carga y elevación, y celda.
-- Completar el firmware de [`Firmware/`](../Firmware/TASK.md): falta el driver Modbus de la sonda.
+- Completar el firmware de [`Firmware/`](../Firmware/TASK.md): falta ensayar en banco la lectura Modbus de la sonda.
 - Medir la corriente de `BZ1` en `IO19` y decidir resistencia serie o transistor (sección 5.7.1).
 - **Medir energía desde la batería** con `JP1`, distinguiendo el consumo del equipo encendido del de la rama de sonda.
 - Ensayos de radio, batería y carcasa. El IP68 de la sonda no acredita el equipo.

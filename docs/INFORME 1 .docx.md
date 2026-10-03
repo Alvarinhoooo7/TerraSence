@@ -519,7 +519,7 @@ Cerrando esta capa de decisiones, la siguiente tabla resume la selección vigent
 
 ###### **Tabla 1.9 “Selección de Componentes e Integración Eléctrica”**
 
-Dos verificaciones quedan expresamente abiertas sobre esta tabla. La línea de sonda se diseña para la variante compatible con la rama prevista de 5 V, pero la interfaz RS-485 no determina por sí sola la tensión de alimentación: debe confirmarse contra la ficha del SKU efectivamente adquirido, incluyendo su comportamiento a batería baja, durante el arranque y durante la transmisión. Por su parte, el BME280 se comunica a 3,3 V por I²C, con GPIO21 como SDA y GPIO22 como SCL en el pinout de trabajo; la dirección 0x76 o 0x77 y la presencia de resistencias de pull-up dependen del módulo comprado.
+Dos verificaciones quedan expresamente abiertas sobre esta tabla. La sonda adquirida es la ComWinTop CWT-Soil-NPKPHCTH-S, cuyo manual fija la alimentación entre 4,5 y 30 V DC, de modo que la rama de 5 V queda dentro de rango; falta ensayar en banco su comportamiento a 5 V, a batería baja, durante el arranque y durante la transmisión ([prueba en banco](../Firmware/TASK.md#prueba-de-la-sonda-en-banco)). Por su parte, el BME280 se comunica a 3,3 V por I²C, con GPIO21 como SDA y GPIO22 como SCL en el pinout de trabajo; la dirección 0x76 o 0x77 y la presencia de resistencias de pull-up dependen del módulo comprado.
 
 ```mermaid
 flowchart LR
@@ -991,7 +991,7 @@ Todas las filas de la tabla descuentan la misma serie anual de flujos, sin modif
 **Riesgos Técnicos:**
 
 * **Dependencia de proveedor único de la sonda 7-en-1 (RS-485):** al concentrar más de dos tercios del costo de materiales y no existir múltiples proveedores calificados bajo el mismo mapa de registros, una discontinuación o alza abrupta de precio impactaría directamente el margen. *Mitigación:* calificar un segundo proveedor alternativo antes del lanzamiento comercial; el mapa de registros Modbus parametrizable contemplado en el diseño de firmware permite migrar de sonda sin rediseñar el sistema.
-* **Ficha del SKU no verificada:** la tensión de alimentación, el mapa de registros y el comportamiento en arranque de la variante concreta que se adquiera no están confirmados. *Mitigación:* declarado como bloqueante técnico previo a comprometer compra de volumen.
+* **Sonda sin ensayo en banco:** el manual del fabricante (ComWinTop CWT-Soil-NPKPHCTH-S) fija la tensión de alimentación y el mapa de registros, pero el comportamiento en arranque y la exactitud a 5 V de la muestra adquirida no están medidos. *Mitigación:* declarado como bloqueante técnico previo a comprometer compra de volumen.
 * **Desviación entre la exactitud declarada por el fabricante y el desempeño real en suelos chilenos:** mitigado mediante el objetivo específico de validación instrumental contra un laboratorio de referencia acreditado, declarando método, profundidad y condición de humedad de cada comparación.
 * **Autonomía no medida:** el balance energético del conjunto no se ha ensayado desde batería. *Mitigación:* la autonomía no se declara comercialmente hasta disponer de la medición, y ninguna cifra de campaña depende hoy de ese dato.
 
@@ -1062,15 +1062,15 @@ Dos precisiones sobre esta ficha técnica. Primero, la hoja de datos de Espressi
 
 | Parámetro | Rango de Operación | Exactitud Declarada por el fabricante |
 | :---: | :---: | :---: |
-| **Humedad Volumétrica** | 0 – 100 % | ±2 % (en rango 0–50 %) |
-| **Temperatura de Suelo** | −40 °C a \+80 °C | ±0,3 °C |
-| **Conductividad Eléctrica** | 0 – 20.000 µS/cm | ±3 % |
-| **pH** | 3,0 – 9,0 | ±0,1 |
-| **Macronutrientes (N, P, K)** | 1 – 1.999 mg/kg c/u | ±5 % (declarado; **valores derivados de la CE, no medidos por electrodo ion-selectivo**) |
+| **Humedad Volumétrica** | 0 – 100 % | ±2 % (0–50 %); ±3 % (50–100 %) |
+| **Temperatura de Suelo** | −40 °C a \+80 °C | ±0,5 °C (a 25 °C) |
+| **Conductividad Eléctrica** | 0 – 20.000 µS/cm | ±3 % (hasta 10.000 µS/cm); ±5 % (10.000–20.000 µS/cm) |
+| **pH** | 3,0 – 9,0 | ±0,3 |
+| **Macronutrientes (N, P, K)** | 1 – 1.999 mg/kg c/u | ±2 % de la escala completa (declarado; **valores derivados de la CE, no medidos por electrodo ion-selectivo**) |
 
 ###### **Tabla 3.9 “Especificaciones Técnicas Sonda”**
 
-Estas cifras corresponden a lo declarado por el fabricante y deben verificarse contra la ficha del SKU efectivamente adquirido. La comunicación se establece a 9.600 baudios vía Modbus RTU, función 0x03 (lectura de registros *holding*), con verificación CRC-16 y respeto de los tiempos de silencio entre tramas. Para mitigar variaciones entre lotes de proveedores, el mapa de registros Modbus, la dirección del esclavo y los coeficientes de calibración no estarán fijados en el firmware, sino parametrizados en la memoria no volátil (NVS) del ESP32, permitiendo ajustes remotos vía OTA.
+Estas cifras son las del manual del fabricante del modelo adquirido, la ComWinTop CWT-Soil-NPKPHCTH-S (alimentación de 4,5 a 30 V DC, 0,5 W como máximo a 24 V), y se declaran en condiciones de laboratorio. La comunicación se establece a 4.800 baudios 8N1, dirección 1, vía Modbus RTU, función 0x03 (lectura de registros *holding*), con verificación CRC-16 y respeto de los tiempos de silencio entre tramas. Para mitigar variaciones entre lotes de proveedores, el mapa de registros Modbus, la dirección del esclavo y los coeficientes de calibración no estarán fijados en el firmware, sino parametrizados en la memoria no volátil (NVS) del ESP32, permitiendo ajustes remotos vía OTA.
 
 * **Sensor Ambiental (Bosch BME280):** Para las variables climáticas del punto de muestreo se integra un BME280 en el bus I²C a 3,3 V, aportando temperatura del aire (±1,0 °C), humedad relativa (±3 % HR) y presión barométrica (±1,0 hPa). El sensor opera en *forced mode*, realizando una adquisición y regresando por sí solo al reposo. Bosch especifica aproximadamente 3,6 µA de consumo promedio a una tasa de una actualización por segundo midiendo las tres magnitudes, y 0,1 µA en reposo del sensor; conviene precisar que el primer valor **es un promedio a esa configuración de muestreo específica** y no una corriente instantánea aplicable a cualquier régimen, y que a ambos debe sumarse el consumo del módulo *breakout* que aloja el chip.
 
@@ -1444,7 +1444,7 @@ Para sostener estas afirmaciones con evidencia en lugar de con declaraciones, se
 
 **Estado Probatorio de las Especificaciones Declaradas:**
 
-Las tablas de esta sección mezclan, inevitablemente, cifras de distinta solidez: algunas provienen de la hoja de datos del componente exacto, otras de una ficha representativa de la familia mientras no se cierre el SKU, y otras son estimaciones de diseño aún no medidas. Presentarlas con el mismo peso sería engañoso, de modo que se clasifican explícitamente.
+Las tablas de esta sección mezclan, inevitablemente, cifras de distinta solidez: algunas provienen de la hoja de datos del componente exacto, otras de declaraciones del vendedor, y otras son estimaciones de diseño aún no medidas. Presentarlas con el mismo peso sería engañoso, de modo que se clasifican explícitamente.
 
 > **Fuente de verdad:** la lista de componentes y sus notas de procedencia están en la clave `bom` de `finanzas/supuestos.json`, cuyos comentarios por línea registran qué está confirmado por socios, qué es presupuesto y qué falta cotizar. El árbol de alimentación está en [`PCB/README.md`](../PCB/README.md) y las comprobaciones físicas pendientes, en el [plan de validación](PLAN_VALIDACION.md).
 
@@ -1457,8 +1457,8 @@ Las tablas de esta sección mezclan, inevitablemente, cifras de distinta solidez
 | BME280: ±1,0 °C, ±3 % HR, ±1,0 hPa, 0,1 µA en reposo | Hoja de datos Bosch del componente exacto | Confirmada por hoja de datos del componente seleccionado | Verificar la respuesta térmica montado tras el respiradero |
 | SP3485: 2 mA con driver habilitado | Hoja de datos del transceptor exacto | Confirmada por hoja de datos del componente seleccionado | Nada |
 | Interruptor de encendido después del módulo de carga | Decisión del esquemático | Definida, no medida | Medir la corriente de la celda con el interruptor abierto, a través de JP1 |
-| Sonda 7-en-1: rangos y exactitudes de las 7 variables | Ficha de una sonda representativa de la familia; el SKU de `supuestos.json` no tiene ficha propia publicada | Representativa de la familia, no del SKU | Exigir la ficha del SKU al proveedor antes de la orden de compra y contrastar con la campaña de 30 muestras |
-| Sonda: alimentación 5–24 V DC y consumo 30 mA a 5 V | Descripción del vendedor (4,5–30 V; 0,15 W a 12 V; 0,5 W a 24 V) más supuesto propio de potencia constante | Supuesto de diseño sobre declaración del vendedor | Medir consumo y exactitud a 5 V; si la exactitud se degradara, elevar a 12 V |
+| Sonda 7-en-1: rangos y exactitudes de las 7 variables | Manual del fabricante del modelo de `supuestos.json`, ComWinTop CWT-Soil-NPKPHCTH-S | Confirmada por la hoja de datos del componente exacto, en condiciones de laboratorio | Contrastar en suelo real con la campaña de 30 muestras |
+| Sonda: alimentación 4,5–30 V DC y consumo 30 mA a 5 V | Manual del fabricante (4,5–30 V; 0,5 W como máximo a 24 V), ficha de una sonda equivalente (0,15 W a 12 V) y supuesto propio de potencia constante | Alimentación confirmada por el manual; consumo, supuesto de diseño | Medir consumo y exactitud a 5 V; si la exactitud se degradara, elevar a 12 V |
 | Sonda: acero inoxidable 316L | Descripción del vendedor | Declaración del vendedor | Certificado de material o ensayo; afecta la vida útil en suelos salinos |
 | Módulo de carga y elevación en vacío: 30–100 µA | Integrado de referencia de la categoría | Estimación de diseño, no medida | Medir en banco sobre el módulo finalmente adquirido |
 | Elevador: eficiencia η ≈ 0,85 | Valor típico de convertidores de esta clase y corriente | Estimación de diseño, no medida | Medir la eficiencia real a la corriente de excitación de la sonda |
@@ -1566,7 +1566,7 @@ Quedan fuera también, y esto es lo más importante, **N, P y K**. La exclusión
 
 ###### **Tabla 5.6 “Protocolo de Validación In Situ vs. Laboratorio de Referencia”**
 
-**Por qué un umbral propio y no el del fabricante.** Una formulación aparentemente más rigurosa sería exigir que el error no supere la exactitud declarada por el fabricante, es decir ±0,1 unidades de pH. No se adopta, por dos razones. La primera es de evidencia: esa exactitud proviene de una ficha de familia y no del SKU, como declara la Tabla 5.4, de modo que sería medirse contra un número que el propio proyecto reconoce no tener verificado. La segunda es de pertinencia: ±0,1 unidades es una exigencia de laboratorio, y el producto de este instrumento no es una cifra sino una decisión de manejo. Un error de 0,3 unidades de pH no cambia la recomendación de encalado de ningún cultivo de la matriz; uno de 0,8 sí. El umbral debe fijarse donde la decisión cambia.
+**Por qué un umbral propio y no el del fabricante.** El manual de la sonda declara ±0,3 unidades de pH, ±3 % de conductividad y ±2 a 3 % de humedad. El umbral de pH coincide con esa cifra, pero no se fija por ella, por dos razones. La primera es de condiciones: la exactitud del fabricante se declara en laboratorio, a 25 °C y en un medio homogéneo, mientras que la campaña compara mediciones en suelo real contra un laboratorio acreditado; exigir la cifra del fabricante en esas condiciones mediría el suelo y no el instrumento. La segunda es de pertinencia: el producto de este instrumento no es una cifra sino una decisión de manejo. Un error de 0,3 unidades de pH no cambia la recomendación de encalado de ningún cultivo de la matriz; uno de 0,8 sí. El umbral debe fijarse donde la decisión cambia.
 
 **Plan de Calibración y Control de Deriva:**
 

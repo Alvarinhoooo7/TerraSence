@@ -181,7 +181,7 @@ Las necesidades anteriores se traducen en requerimientos medibles, cada uno con 
 | R12 | Recibir avisos sin pantalla | Señales luminosas y sonoras con un significado cada una | 3 LED y 1 buzzer | señales | Cada evento de la tabla de filosofía operativa produce su señal |
 | R13 | Que sólo el dueño vincule el equipo | Vinculación por presencia física | 3 (pulsación) y 30 (ventana) | s | Pulsación menor que 3 s no abre; la ventana dura 30 ± 1 s |
 | R14 | Datos íntegros hasta el teléfono | Trama BLE única | 20 | bytes | 20 bytes con formato 1; ausencias marcadas y nunca estimadas |
-| R15 | Leer la sonda sin errores | Bus RS-485 (comunicación serial diferencial) con Modbus RTU (protocolo serial binario) | 4.800 o 9.600 (según la configuración de fábrica de la sonda) | baudios | 1.000 lecturas consecutivas sin error de CRC (verificación de redundancia cíclica) |
+| R15 | Leer la sonda sin errores | Bus RS-485 (comunicación serial diferencial) con Modbus RTU (protocolo serial binario) | 4.800 (velocidad de fábrica de la sonda; 9.600 si se reconfigura) | baudios | 1.000 lecturas consecutivas sin error de CRC (verificación de redundancia cíclica) |
 | R16 | Un equipo que no se daña en el campo | Protección eléctrica: inversión de batería, descarga electrostática (ESD), cortocircuito | ±8 (contacto) | kV | Fusible abre en menos de 1 s con batería invertida; sin daño tras 10 descargas en USB y en el bus |
 | R17 | No quedarse sin energía sin aviso | Aviso de batería baja | 3,40 (rearme 3,50) | V | Aviso una sola vez al bajar de 3,40 V; se apaga sobre 3,50 V |
 | R18 | Una celda segura | Seguridad de la celda de litio | IEC 62133-2 | certificado | Certificado vigente y protección integrada verificada |
@@ -412,7 +412,7 @@ Lo que queda fuera del alcance no es una carencia accidental sino una decisión:
 | Ubicación | Latitud, longitud y precisión de cada medición, mostradas como texto | Mapas, perímetros de campo y extensión geoespacial en la base de datos | El mapa no cambia la decisión y encarece el servicio |
 | Pronóstico y avisos | Pronóstico a cinco días con red; cuatro avisos de acceso por notificación; batería baja como estado en la aplicación | Alarmas agronómicas o meteorológicas por notificación | Un pronóstico inventado sería peor que ninguno; se evita el ruido |
 | Administración | Roles de administrador y usuario, invitación por código QR de 5 minutos, reset sólo desde el backoffice | Reset desde la aplicación o el equipo | El reset es una operación de soporte con confirmación y registro |
-| Firmware | Vinculación, pulsador, LED, buzzer, trama de 20 bytes y estado de batería | Lectura Modbus, reposo profundo, actualización por BLE y cifrado del enlace (pendientes) | Se declaran pendientes para no prometerlos como operativos |
+| Firmware | Vinculación, pulsador, LED, buzzer, trama de 20 bytes, estado de batería y lectura Modbus de la sonda (escrita, en ensayo de banco) | Reposo profundo, actualización por BLE y cifrado del enlace (pendientes) | Se declaran pendientes para no prometerlos como operativos |
 
 **Tabla 2.1 “Alcance incluido y excluido del proyecto”**
 
@@ -500,16 +500,16 @@ sequenceDiagram
 
 ### IV.2 Capacidades y características
 
-Una sola ficha técnica reúne las capacidades del producto V3 y del servicio, con el origen de cada cifra y su estado. Los rangos de la sonda provienen de la ficha de la familia de sondas 7 en 1 [16], a la que pertenece la variante cotizada (anexo A), y los del BME280 de su hoja de datos [14].
+Una sola ficha técnica reúne las capacidades del producto V3 y del servicio, con el origen de cada cifra y su estado. Los rangos de la sonda provienen del manual de su fabricante, ComWinTop, para el modelo cotizado y adquirido, la CWT-Soil-NPKPHCTH-S (anexo A) [16], y los del BME280 de su hoja de datos [14].
 
 | Parámetro | Valor | Fuente | Estado |
 |---|---|---|---|
-| Variables de suelo | 7: humedad volumétrica, temperatura, CE, pH, N, P y K | Ficha de la familia de sondas [16] | De diseño (lectura Modbus no implementada) |
-| Humedad volumétrica | 0–100 %, ±2 % entre 0 y 50 % | Ficha de la familia de sondas | De diseño |
-| Temperatura del suelo | −40 a +80 °C, ±0,3 °C | Ficha de la familia de sondas | De diseño |
-| Conductividad eléctrica | 0–20.000 µS/cm, ±3 % | Ficha de la familia de sondas | De diseño |
-| pH | 3,0–9,0, ±0,1 | Ficha de la familia de sondas | De diseño |
-| N, P y K | 1–1.999 mg/kg cada uno, ±5 % según el fabricante; derivados de la CE, registros informativos | Ficha de la familia de sondas | De diseño |
+| Variables de suelo | 7: humedad volumétrica, temperatura, CE, pH, N, P y K | Manual de la sonda [16] | Verificado contra el manual; lectura Modbus implementada sin ensayo |
+| Humedad volumétrica | 0–100 %, ±2 % entre 0 y 50 % y ±3 % entre 50 y 100 % | Manual de la sonda | Verificado contra el manual |
+| Temperatura del suelo | −40 a +80 °C, ±0,5 °C a 25 °C | Manual de la sonda | Verificado contra el manual |
+| Conductividad eléctrica | 0–20.000 µS/cm, ±3 % hasta 10.000 µS/cm y ±5 % sobre ese valor | Manual de la sonda | Verificado contra el manual |
+| pH | 3,0–9,0, ±0,3 | Manual de la sonda | Verificado contra el manual |
+| N, P y K | 1–1.999 mg/kg cada uno, resolución de 1 mg/kg, ±2 % de la escala completa según el fabricante; derivados de la CE, registros informativos | Manual de la sonda | Verificado contra el manual |
 | Variables ambientales | 3: temperatura del aire −40 a +85 °C (±1,0 °C), humedad relativa 0–100 % (±3 %), presión 300–1.100 hPa (±1,0 hPa) | Hoja de datos del BME280 [14] | Verificado contra la hoja; implementado sin ensayo en el equipo (driver propio) |
 | Batería en la trama | 1 (porcentaje con curva típica de LiPo, sin calibrar) | Firmware | Implementado sin ensayo |
 | Resolución de la trama | Humedad 0,1 %; temperatura de suelo 0,1 °C; pH 0,1; CE 1 µS/cm; temperatura del aire 0,1 °C; humedad relativa 0,5 %; presión 1 hPa | Contrato de la trama de 20 bytes | Verificado (decodificador con pruebas automatizadas) |
@@ -522,7 +522,7 @@ Una sola ficha técnica reúne las capacidades del producto V3 y del servicio, c
 | Almacenamiento de datos | En el teléfono (persistente, con cola de envío) y respaldo en la nube | Aplicación | Verificado en su lógica (239 de 239 pruebas) |
 | Enlace BLE | Bluetooth 4.2 (BR/EDR y BLE), GATT (perfil de atributos genéricos), trama de 20 bytes en una notificación; alcance objetivo 10 m | Hoja del módulo [17] y contrato BLE | Trama implementada sin ensayo; alcance de diseño |
 | Potencia de transmisión | +9 dBm (≈ 8 mW), presupuesto de diseño | Hoja del módulo | De diseño |
-| Bus de la sonda | RS-485 con Modbus RTU a 4.800 baudios de fábrica o 9.600 según el lote; el driver prueba ambas velocidades al arrancar y fija la que responde | Ficha de la familia [16] y Modbus V1.1b3 [18] | De diseño (lectura no implementada) |
+| Bus de la sonda | RS-485 con Modbus RTU: 4.800 baudios, 8 bits, sin paridad y 1 bit de parada, dirección 1 y función 03 de fábrica; la sonda admite reconfigurarse a 2.400 o 9.600 baudios. El driver consulta a 4.800 y, si no hay respuesta, a 9.600 | Manual de la sonda [16] y Modbus V1.1b3 [18] | Implementado sin ensayo |
 | Bus ambiental | I²C a 100 kHz (400 kHz admitidos), BME280 en la dirección 0x76 o 0x77 | Hoja del BME280 | Implementado sin ensayo |
 | USB | USB 2.0 Full Speed por un puente USB-serie; carga y programación, no transporta mediciones | Hoja del CH340C [19] | De diseño |
 | Identidad | ID de 15 dígitos derivado de la dirección física; no se guarda ni cambia | Firmware | Implementado sin ensayo |
@@ -539,7 +539,7 @@ Una sola ficha técnica reúne las capacidades del producto V3 y del servicio, c
 
 **Tabla 2.3 “Ficha técnica del producto y del servicio”**
 
-Los límites de producto que el cliente debe conocer quedan así: el equipo mide siete variables de suelo y tres ambientales cuando exista el driver Modbus, pero no entrega concentraciones de nutrientes; la recomendación es cualitativa y por fase; el pronóstico depende de red y de ubicación; y la estanqueidad IP67 es un objetivo de diseño sin certificar.
+Los límites de producto que el cliente debe conocer quedan así: el equipo mide siete variables de suelo y tres ambientales (la lectura de la sonda está escrita y en ensayo de banco), pero no entrega concentraciones de nutrientes; la recomendación es cualitativa y por fase; el pronóstico depende de red y de ubicación; y la estanqueidad IP67 es un objetivo de diseño sin certificar.
 
 
 ### IV.3 Requerimientos técnicos y matrices de decisión por componente
@@ -566,15 +566,15 @@ Cada bloque del equipo recorre el mismo formato: el requisito que debe cumplir (
 
 | Requisito | Valor exigido | Qué declara la sonda elegida | Cómo se verifica |
 |---|---|---|---|
-| Interfaz | RS-485 con Modbus RTU | RS-485 Modbus RTU [16] | Ensayo del bus con analizador lógico |
+| Interfaz | RS-485 con Modbus RTU | RS-485 Modbus RTU a 4.800 baudios, dirección 1 [16] | Ensayo del bus con analizador lógico |
 | Variables | 7 de suelo | Humedad, temperatura, CE, pH, N, P y K | Campaña de 30 puntos contra laboratorio |
-| Alimentación | 5 V del elevador (4,75 a 5,25 V) | 5 a 24 V según la ficha de la familia; 4,5 a 30 V según el vendedor | Exactitud a 5 V sin verificar; contingencia: elevador de 12 V detrás del mismo corte |
-| Consumo | 30 mA a 5 V (supuesto de 150 mW constantes) | 0,15 W a 12 V y 0,5 W a 24 V | Medición en banco a 5 V |
+| Alimentación | 5 V del elevador (4,75 a 5,25 V) | 4,5 a 30 V [16] | Exactitud a 5 V en ensayo de banco; contingencia: elevador de 12 V detrás del mismo corte |
+| Consumo | 30 mA a 5 V (supuesto de 150 mW constantes) | 0,5 W como máximo a 24 V [16]; una sonda equivalente declara 0,15 W a 12 V [51] | Medición en banco a 5 V |
 | Material | Resistencia a la corrosión por cloruros | Acero inoxidable 316L (declaración del vendedor) | Certificado de material o ensayo |
 
 **Tabla 2.5 “Requisitos técnicos de la sonda de suelo”**
 
-**Esta sonda porque entrega las siete variables por RS-485 y funciona desde 5 V**; la alternativa de investigación cuesta unas veinte veces más y entrega de tres a cuatro variables. La variante cotizada es la de siete variables (humedad, temperatura, CE, pH, N, P y K) de la familia de la ficha [16]: $34.700 más $9.694 de envío a Chile, sin IVA (anexo A). La muestra que se compra antes del lote confirma contra esa ficha la alimentación a 5 V, la velocidad del bus y los colores del cable.
+**Esta sonda porque entrega las siete variables por RS-485 y funciona desde 5 V**; la alternativa de investigación cuesta unas veinte veces más y entrega de tres a cuatro variables. La sonda cotizada es la ComWinTop CWT-Soil-NPKPHCTH-S, de siete variables (humedad, temperatura, CE, pH, N, P y K) [16]: $34.700 más $9.694 de envío a Chile, sin IVA (anexo A). La muestra ya adquirida confirma el modelo, y su manual fija la alimentación desde 4,5 V, el bus a 4.800 baudios y los colores del cable. Queda el ensayo en banco a 5 V: que la muestra responda por el bus y entregue lecturas estables a esa tensión.
 
 **Sensor ambiental.** Requisito: temperatura, humedad relativa y presión en un solo componente, alimentación de 3,3 V por I²C, encapsulado soldable con esténcil y disponibilidad en el catálogo de montaje de placas.
 
@@ -841,8 +841,8 @@ La asignación de pines conserva la de la placa V2, que es la del firmware vigen
 | Buzzer | IO19 | Base del transistor NPN S8050 con resistencia de 1 kΩ; resistencia de 47 Ω en serie con el buzzer y diodo de rueda libre 1N4148W | Pin mantenido; excitación nueva | Implementado sin ensayo (excitación de diseño) |
 | Bus I²C | SDA en IO21, SCL en IO22 | BME280 con pull-ups de 4,7 kΩ | Mantenido de la V2 | Implementado sin ensayo |
 | Corte de la sonda y habilitación del elevador | IO5 (pin de arranque) | Entrada EN del MT3608 y compuerta del AO3400A que conmuta el AO3401A; resistencia de 4,7 kΩ a tierra | Pin y corte mantenidos de la V2; nuevo el EN del elevador | De diseño |
-| UART de la sonda | TX en IO17, RX en IO16 | Transceptor SP3485 | Mantenido de la V2 | De diseño (lectura no implementada) |
-| Dirección del bus RS-485 | IO4 | Terminales DE y RE (habilitación del driver y del receptor) unidos del SP3485 | Mantenido de la V2 | De diseño (lectura no implementada) |
+| UART de la sonda | TX en IO17, RX en IO16 | Transceptor SP3485 | Mantenido de la V2 | De diseño (lectura implementada sin ensayo) |
+| Dirección del bus RS-485 | IO4 | Terminales DE y RE (habilitación del driver y del receptor) unidos del SP3485 | Mantenido de la V2 | De diseño (lectura implementada sin ensayo) |
 | USB-serie | IO1 (TX0) e IO3 (RX0) | CH340C; la línea TXD pasa por un divisor de 10 kΩ y 20 kΩ | Nuevo en la V3 | De diseño |
 | Autoprogramación | EN e IO0 | Dos transistores NPN comandados por DTR y RTS del CH340C | Nuevo en la V3 | De diseño |
 | Reinicio y arranque | EN e IO0 | Pulsadores de reinicio y de arranque; red de 10 kΩ y 1 µF en EN | Nuevo en la V3 | De diseño |
@@ -888,7 +888,7 @@ La regla que gobierna el diseño es una sola: toda energía que el instrumento c
 | Consumidor | Nodo | Corriente de diseño | Potencia en el nodo | Origen de la cifra |
 |---|---|---|---|---|
 | Módulo ESP32 transmitiendo BLE (pico) | 3,3 V | 150 mA | 495 mW | Hoja del módulo: 130 a 150 mA en transmisión BLE [17] |
-| Sonda 7-en-1 (excitación y lectura) | 5 V | 30 mA | 150 mW | Supuesto de potencia constante sobre la ficha de la familia [16] |
+| Sonda 7-en-1 (excitación y lectura) | 5 V | 30 mA | 150 mW | Supuesto de potencia constante: el manual sólo da el máximo, 0,5 W a 24 V [16]; una sonda equivalente declara 0,15 W a 12 V [51]; se mide en banco |
 | Transceptor SP3485 con el driver activo | 3,3 V | 2 mA | 6,6 mW | Hoja del transceptor [25] |
 | BME280 muestreando a 1 Hz | 3,3 V | 0,0036 mA | 0,01 mW | Hoja del BME280 [14] |
 | LED rojo (el más exigente de los tres) | 3,3 V | 3,9 mA | 12,9 mW | Cálculo con 330 Ω (Tabla 3.8) |
@@ -1061,7 +1061,7 @@ La tabla enumera, por bloque, qué se compra, con qué número de parte, en qué
 | Protección y ruta de carga | Fusible de 1 A, diodo M7, P-MOSFET AO3401A y diodo Schottky de la ruta de carga, termistor NTC de 10 kΩ adosado a la celda con su red de 4,7 kΩ y 47 kΩ, puente de medición | PTC 0603L100 de 1 A; M7 (SMA); AO3401A; NTC MF52A103F3950 | 1 de cada uno | LCSC; DigiKey |
 | Pasivos y conectores | Resistencias, condensadores y borneras de 5 mm (celda, interruptor y sonda) | Según la lista del anexo A | Según anexo A | LCSC; DigiKey |
 | Placa | Placa de circuito impreso de 2 capas | Diseño propio, FR-4 de 1,6 mm | 1 | JLCPCB |
-| Sonda | Sonda de suelo 7 en 1 RS-485 | Variante T-H-EC-NPK-PH de la familia de la ficha [16] | 1 | AliExpress; no hay alternativa nacional (se compra una muestra antes del lote) |
+| Sonda | Sonda de suelo 7 en 1 RS-485 | ComWinTop CWT-Soil-NPKPHCTH-S, variante T-H-EC-NPK-PH [16] | 1 | AliExpress; no hay alternativa nacional (muestra ya adquirida) |
 | Energía | Celda LiPo con protección | EEMB LP103454, 3,7 V y 2.000 mAh | 1 | AliExpress, tienda del fabricante |
 | Carcasa | Cuerpo y tapa de PETG impresos | Diseño propio | 1 | Taller propio |
 | Sellado | Interruptor de palanca con capuchón, prensaestopa PG7 IP68, respiradero M12 con ePTFE, tapón de silicona del USB-C y cordón de silicona de 2 mm | Según la selección de Tabla 3.4 | 1 de cada uno | MCI Electronics (prensaestopa y tornillería); AliExpress |
@@ -1127,7 +1127,7 @@ La verificación contrasta, componente por componente, lo que el diseño le exig
 | Módulo ESP32-WROOM-32D | Alimentación, temperatura y fuente | 3,3 V del LDO; 150 mA en transmisión BLE; interior de hasta ≈ 60 °C | 3,0 a 3,6 V; −40 a +85 °C; 130 a 150 mA en BLE; fuente de al menos 500 mA [17] | 25 °C de margen en calor; el LDO entrega 600 mA contra 500 mA recomendados (factor 1,2) | Cumple |
 | RT9080-33 (U de 3,3 V) | Tensión de entrada, corriente y caída | Entrada de 3,0 a 4,6 V; 150 mA de pico | Entrada de 1,2 a 5,5 V; 600 mA; 0,31 V típica y 0,53 V máxima de caída a 600 mA; unos 2 µA de corriente propia [22] | Corriente: factor 4; entrada máxima 4,6 V frente a 5,5 V | Cumple |
 | BME280 | Rangos y alimentación | Aire de −5 a +50 °C; 0 a 100 % HR; 550 a 1.050 hPa; 3,3 V | −40 a +85 °C (±1,0 °C); 0 a 100 % (±3 %); 300 a 1.100 hPa (±1,0 hPa); 1,71 a 3,6 V; 3,6 µA a 1 Hz [14] | 35 °C de margen en calor | Cumple; verificar la respuesta térmica tras el respiradero |
-| SP3485EN | Alimentación y velocidad | 3,3 V; 4.800 o 9.600 baudios | 3,0 a 3,6 V; hasta 10 Mbps; ≈ 2 mA con driver activo [25] | 1.000 veces la velocidad requerida | Cumple |
+| SP3485EN | Alimentación y velocidad | 3,3 V; 4.800 baudios (9.600 si se reconfigura la sonda) | 3,0 a 3,6 V; hasta 10 Mbps; ≈ 2 mA con driver activo [25] | 1.000 veces la velocidad requerida | Cumple |
 | TVS SM712 | Rango del bus | Líneas A y B de RS-485 (−7 a +12 V de modo común) | Protege las líneas de datos en el rango −7 a +12 V [37] | Cubre el rango completo del estándar | Cumple |
 | MT3608 | Entrada, salida y corriente | Entrada de 3,0 a 4,2 V; 4,98 V; 0,32 A de pico | Salida hasta 28 V; límite de conmutador de 4 A; 1,2 MHz [24] | Corriente: factor 12 | Cumple; como no desconecta la carga con EN bajo (la salida queda en ≈ VBAT menos la caída del diodo), el corte de la sonda lo hace el AO3401A en serie |
 | TP4056 | Entrada, tensión de flotación y corriente | 5 V; 4,20 V; 0,444 A | Entrada de 4,0 a 8,0 V; 4,2 V ± 1,5 % (±63 mV); hasta 1 A; límite térmico de 120 °C [27] | Corriente: factor 2,3 | Cumple con condición: tolerancia de ±63 mV, algo mayor que los ±50 mV de la celda; NTC en la celda |
@@ -1141,7 +1141,7 @@ La verificación contrasta, componente por componente, lo que el diseño le exig
 | Celda LiPo de 2.000 mAh | Tensión y régimen | 3,0 a 4,2 V; descarga de 0,13 C; carga de 0,22 C | Carga de 4,20 V ± 50 mV; carga estándar de 0,5 C y máxima de 1 C [43] | Carga a menos de la mitad de 0,5 C | Cumple con condición: certificado IEC 62133-2 y protección de la celda comprada |
 | LED 0603 con 330 Ω | Corriente | Visibilidad con 1 a 4 mA | 20 mA nominales; el azul XL-1608UBC-04 entrega 300 mcd a 20 mA con 3,3 V de tensión directa | Factor de 5 o más | Cumple: azul y verde quedan en torno a 1 mA (≈ 15 mcd), visibles en interior y a la sombra; al sol directo cada aviso se repite con el buzzer y en la aplicación |
 | Resistencias y condensadores | Potencia y tensión | 47 Ω a 52 mA disipa 64 mW; rieles de 5 V | Resistencias de 250 mW; condensadores de 35 y 50 V | Factor 3,9 en potencia; factor 7 en tensión | Cumple |
-| Sonda 7 en 1 | Alimentación y consumo | 4,98 V del elevador; ≈ 30 mA | 4,5 a 30 V según el vendedor; 5 a 24 V según la ficha de la familia [16] | Sin margen frente al mínimo de la ficha de la familia | Cumple con condición: exactitud a 5 V sin verificar; contingencia: elevador de 12 V |
+| Sonda CWT-Soil-NPKPHCTH-S | Alimentación y consumo | 4,98 V del elevador; ≈ 30 mA | 4,5 a 30 V; 0,5 W como máximo a 24 V [16] | 0,48 V sobre el mínimo (0,28 V con la tolerancia del elevador) | Cumple; exactitud a 5 V en ensayo de banco; contingencia: elevador de 12 V |
 | Carcasa de PETG | Temperatura de uso | Interior de hasta ≈ 60 °C al sol | Temperatura de deflexión bajo carga de 74,5 °C y ablandamiento Vicat de 83 °C (Creality Hyper PETG) [50] | 14,5 °C | Cumple con condición (ensayo de temperatura); contingencia: ASA |
 
 **Tabla 5.0 “Verificación de los componentes de la placa V3 frente a las hojas de datos”**
@@ -1230,7 +1230,7 @@ Las posiciones de cada abertura se miden desde la esquina exterior superior izqu
 | USB-C de 16 pines | A6, B6 y A7, B7 | D+ y D− | Hacia el CH340C |
 | Bornera de la sonda (4 vías, paso de 5,08 mm) | 1 | +5 V de la sonda | Cable marrón |
 | Bornera de la sonda | 2 | Tierra | Cable negro |
-| Bornera de la sonda | 3 | Línea A de RS-485 | Cable amarillo (gris en algunos lotes) |
+| Bornera de la sonda | 3 | Línea A de RS-485 | Cable amarillo |
 | Bornera de la sonda | 4 | Línea B de RS-485 | Cable azul |
 | Bornera de la celda (2 vías) | 1 | Positivo de la celda | Cable rojo; pasa por el fusible |
 | Bornera de la celda | 2 | Negativo de la celda | Cable negro |
@@ -1239,7 +1239,7 @@ Las posiciones de cada abertura se miden desde la esquina exterior superior izqu
 
 **Tabla 5.5 “Lista de conectores y pinout”**
 
-Los colores del cable de la sonda son los de la ficha de la familia [16]: marrón (+), negro (−), amarillo o gris (A) y azul (B).
+Los colores del cable de la sonda son los de su manual [16]: marrón (+), negro (−), amarillo (A+) y azul (B−).
 
 **Lista de cableado y torques.**
 
@@ -1249,7 +1249,7 @@ Los colores del cable de la sonda son los de la ficha de la familia [16]: marró
 | Celda negativo | Celda | Bornera de la celda, terminal 2 | 22 AWG | Negro | 80 mm | Terminal estañado |
 | Interruptor, línea 1 | Bornera del interruptor, terminal 1 | Contacto 1 del interruptor | 22 AWG | Blanco | 70 mm | Terminal estañado y termorretráctil |
 | Interruptor, línea 2 | Bornera del interruptor, terminal 2 | Contacto 2 del interruptor | 22 AWG | Blanco | 70 mm | Terminal estañado y termorretráctil |
-| Cable de la sonda | Bornera de la sonda, terminales 1 a 4 | Sonda de suelo | Cable de fábrica de la sonda | Marrón, negro, amarillo (o gris) y azul | El de fábrica, sin cortar; 120 mm dentro de la carcasa, del prensaestopa a la bornera | Pasa por el prensaestopa con alivio de tracción |
+| Cable de la sonda | Bornera de la sonda, terminales 1 a 4 | Sonda de suelo | Cable de fábrica de la sonda | Marrón, negro, amarillo y azul | El de fábrica, sin cortar; 120 mm dentro de la carcasa, del prensaestopa a la bornera | Pasa por el prensaestopa con alivio de tracción |
 | Termistor | Bornera del termistor, terminales 1 y 2 | Cara de la celda | 22 AWG soldado a las patas del termistor | Blanco | 90 mm | Termorretráctil en cada pata |
 
 **Tabla 5.6 “Lista de cableado”**
@@ -1456,7 +1456,7 @@ El capítulo responde la pregunta ¿cómo se demuestra que cumple? Cada requerim
 
 | ID | Prueba | Método e instrumento | Criterio de aceptación | Etapa | Estado |
 |---|---|---|---|---|---|
-| R01 | Lectura de las siete variables de suelo | Aplicación leyendo la trama con la sonda patrón conectada | 7 de 7 campos distintos del centinela en el FAT; 95 % o más de las mediciones del piloto | FAT y SAT | Pendiente (depende del driver Modbus) |
+| R01 | Lectura de las siete variables de suelo | Aplicación leyendo la trama con la sonda patrón conectada | 7 de 7 campos distintos del centinela en el FAT; 95 % o más de las mediciones del piloto | FAT y SAT | Pendiente (lectura Modbus implementada; ensayo de banco en curso) |
 | R02 | Exactitud del BME280 y autocalentamiento | Termohigrómetro y barómetro patrón en ambiente estable; lectura al encender y a los 10 min | ±1,0 °C, ±3 % HR y ±1,0 hPa; deriva menor que 0,5 °C | Desarrollo y FAT | Pendiente |
 | R03 | Tiempo del ciclo de medición | Cronómetro y monitor serie en 10 mediciones | Adquisición y envío en 10 s o menos; ciclo completo en 20 s o menos | Desarrollo y FAT | Pendiente |
 | R04 | Validación contra laboratorio | Protocolo de Tabla 7.0 con 30 puntos pareados | RMSE de pH ≤ 0,3; CE ≤ 10 % o 200 µS/cm; humedad ≤ 4 puntos; R² ≥ 0,80 | Desarrollo y SAT | Pendiente |
@@ -1470,7 +1470,7 @@ El capítulo responde la pregunta ¿cómo se demuestra que cumple? Cada requerim
 | R12 | Señales luminosas y sonoras | Observación y monitor serie recorriendo cada evento de Tabla 2.2 | El 100 % de los eventos produce su señal | FAT | Pendiente |
 | R13 | Ventana de vinculación | Cronómetro y observación del LED azul | Pulsación menor que 3 s no abre; mantenida 3 s abre una ventana de 30 ± 1 s | Desarrollo y FAT | Pendiente |
 | R14 | Trama de 20 bytes | Aplicación de depuración BLE y vector de ejemplo del contrato; prueba automatizada del decodificador | 20 bytes, formato 1; ausencias en 0xFF; trama idéntica al vector | Desarrollo y FAT | Decodificador ejecutado en réplica local; empaquetado en el equipo pendiente |
-| R15 | Bus RS-485 y Modbus RTU | Osciloscopio diferencial y analizador lógico contra el mapa de registros de la sonda | Diferencial de al menos ±1,5 V sobre 54 Ω; silencio de 4 ms entre tramas; 1.000 lecturas consecutivas sin error de CRC | Desarrollo y FAT | Pendiente (depende del driver Modbus) |
+| R15 | Bus RS-485 y Modbus RTU | Osciloscopio diferencial y analizador lógico contra el mapa de registros de la sonda | Diferencial de al menos ±1,5 V sobre 54 Ω; silencio de 4 ms entre tramas; 1.000 lecturas consecutivas sin error de CRC | Desarrollo y FAT | Pendiente (lectura Modbus implementada; ensayo de banco en curso) |
 | R16 | Protecciones eléctricas | Fuente de 4,2 V invertida y limitada a 3 A sobre una placa de sacrificio; generador de descargas electrostáticas en el USB y en las bornes del bus | El fusible abre en menos de 1 s y la placa queda sin daño; 10 descargas de ±8 kV de contacto sin pérdida de función | Desarrollo y normativa | Pendiente |
 | R17 | Aviso de batería baja | Fuente de laboratorio en la entrada de celda, bajando y subiendo la tensión | Latido rojo y dos tonos graves una sola vez bajo 3,40 V; se apaga sobre 3,50 V; la aplicación avisa al 15 % y se rearma sobre el 20 % | Desarrollo y FAT | Pendiente |
 | R18 | Seguridad de la celda | Certificados IEC 62133-2 y UN 38.3 del proveedor [26]; prueba de las protecciones de la celda | Certificados vigentes y corte correcto en sobrecarga, sobredescarga y cortocircuito | Normativa | Pendiente |
@@ -1580,9 +1580,9 @@ El objetivo de «validar la precisión instrumental» exige un protocolo concret
 
 **Tabla 7.0 “Protocolo de Validación In Situ vs. Laboratorio de Referencia”**
 
-Por qué un umbral propio y no el del fabricante. Una formulación aparentemente más rigurosa sería exigir que el error del instrumento no supere la exactitud declarada por el fabricante de la sonda, es decir ±0,1 unidades de pH. Este informe no la adopta, por dos razones. La primera es de evidencia: esa exactitud proviene de la ficha de una sonda representativa de la familia y no del SKU adquirido, como declara la tabla de estado probatorio, de modo que fijar el criterio de aprobación contra ella significaría medirse contra un número que el propio proyecto reconoce no tener verificado. La segunda es de pertinencia: ±0,1 unidades de pH es una exigencia de laboratorio, y el producto de este instrumento no es una cifra sino una decisión de manejo. Un error de 0,3 unidades de pH no cambia la recomendación de encalado para ningún cultivo de la matriz; uno de 0,8 sí la cambia. El umbral debe fijarse donde la decisión cambia, y por eso se declara en términos agronómicos y no metrológicos. El mismo criterio explica los umbrales de conductividad y de humedad: un error de 4 puntos de humedad volumétrica no altera el veredicto de riego, mientras que uno de 10 puntos sí lo altera.
+Por qué un umbral propio y no el del fabricante. El manual de la sonda declara ±0,3 unidades de pH, ±3 % de conductividad y ±2 a 3 % de humedad. El umbral de pH coincide con esa cifra, pero no se fija por ella, por dos razones. La primera es de condiciones: la exactitud del fabricante se declara en laboratorio, a 25 °C y en un medio homogéneo, mientras que la campaña compara mediciones en suelo real, con su heterogeneidad y su contacto variable con los electrodos, contra un laboratorio acreditado; exigir la cifra del fabricante en esas condiciones mediría el suelo y no el instrumento. La segunda es de pertinencia: el producto de este instrumento no es una cifra sino una decisión de manejo. Un error de 0,3 unidades de pH no cambia la recomendación de encalado para ningún cultivo de la matriz; uno de 0,8 sí la cambia. El umbral debe fijarse donde la decisión cambia, y por eso se declara en términos agronómicos y no metrológicos. El mismo criterio explica los umbrales de conductividad y de humedad: un error de 4 puntos de humedad volumétrica no altera el veredicto de riego, mientras que uno de 10 puntos sí lo altera.
 
-La validación responde si el instrumento concuerda con el laboratorio en un momento dado; la calibración y el control de deriva responden si el dato sigue siendo confiable dos temporadas después. La calibración se ejecuta ajustando coeficientes que residen en la memoria no volátil del microcontrolador y que, por diseño, son actualizables de forma remota.
+La validación responde si el instrumento concuerda con el laboratorio en un momento dado; la calibración y el control de deriva responden si el dato sigue siendo confiable dos temporadas después. La calibración se ejecuta ajustando coeficientes que residen en la memoria no volátil del microcontrolador y que, por diseño, son actualizables de forma remota. El manual de la sonda ofrece además registros de calibración en la propia sonda (desplazamientos de temperatura, humedad, conductividad y pH, y un coeficiente y un desplazamiento lineales para N, P y K) [16]; usarlos en lugar de la memoria del microcontrolador queda como alternativa a evaluar con la muestra.
 
 | Etapa | Qué se hace | Periodicidad | Criterio de aceptación | Evidencia que queda |
 |---|---|---|---|---|
@@ -1827,7 +1827,7 @@ gantt
 
 | Hito | Fecha | Entregable | Criterio de cumplimiento |
 |---|---|---|---|
-| Ficha y muestra de la sonda | 23-10-2026 (propuesta) | Ficha técnica del SKU y una unidad de muestra | Ficha con rango, exactitud y alimentación; la unidad funciona a 5 V |
+| Ficha y muestra de la sonda | 23-10-2026 (propuesta); ficha y muestra obtenidas el 03-10-2026 | Manual del fabricante del modelo cotizado y una unidad de muestra | Ficha con rango, exactitud y alimentación (cumplido); la unidad funciona a 5 V (ensayo de banco en curso) |
 | Placa V3 diseñada | 06-11-2026 (propuesta) | Esquemático, trazado y archivos de fabricación | Revisión de diseño aprobada y pedido emitido |
 | Firmware con Modbus y reposo | 04-12-2026 (propuesta) | Firmware que lee la sonda y duerme entre mediciones | 1.000 lecturas consecutivas sin error de CRC |
 | **Prototipo funcional entregado al cliente** | **17-12-2026 (fijo)** | Prototipo armado, calibrado y con FAT aprobado | FAT de Tabla 6.7 aprobado y recepción firmada por el cliente |
@@ -1837,7 +1837,7 @@ gantt
 
 **Tabla 8.5 “Hitos del proyecto”**
 
-**Ruta crítica.** Es la cadena sonda, firmware Modbus, calibración y piloto: sin la ficha y la muestra de la sonda no se puede escribir ni ensayar el driver Modbus; sin el driver no hay lectura de suelo que calibrar; y sin calibración no hay prototipo ni piloto que mostrar. Un atraso en cualquiera de esas tareas mueve la entrega del 17 de diciembre. La placa V3 y la carcasa tienen holgura, pero no más de dos semanas.
+**Ruta crítica.** Es la cadena sonda, firmware Modbus, calibración y piloto: la ficha y la muestra de la sonda ya están y el driver Modbus está escrito, pero sin su ensayo no hay lectura de suelo que calibrar; y sin calibración no hay prototipo ni piloto que mostrar. Un atraso en cualquiera de esas tareas mueve la entrega del 17 de diciembre. La placa V3 y la carcasa tienen holgura, pero no más de dos semanas.
 
 **Coherencia con el modelo económico.** El modelo trata 2027 como el año 1, con 200 equipos. Con ventas desde abril, esas 200 unidades se venden en nueve meses (unas 22 por mes), de modo que el primer lote de producción debe cubrir al menos el primer trimestre de ventas. Si el calendario se desplaza, se ajusta el Gantt y no el modelo.
 
@@ -1906,13 +1906,13 @@ Este informe cierra las etapas posteriores a la definición del proyecto y sosti
 
 **Lo que este estudio acredita y lo que no.** Acredita que la arquitectura es coherente con el problema, que el diseño electrónico de la V3 cumple las hojas de datos de sus componentes, que la estructura de costos cierra con el precio propuesto, que el financiamiento es consistente y que, de cumplirse el plan de ventas, el negocio crea valor y paga su deuda. No acredita:
 
-1. Que el precio de la sonda se sostenga en volumen, porque es el de una publicación para una unidad y aún no existen una orden de compra ni una muestra contrastada con la ficha de la familia.
+1. Que el precio de la sonda se sostenga en volumen, porque es el de una publicación para una unidad y aún no existe una orden de compra en volumen.
 2. Que la placa V3 funcione, porque no está fabricada: los cálculos de consumo y de autonomía vienen de hojas de datos y de estimaciones, no de una medición.
 3. Que la demanda responda como proyecta el plan comercial, porque todavía no hay un piloto pagado.
 4. Que el banco otorgue el crédito en las condiciones supuestas, porque no hay oferta formal.
 5. Que la carcasa contenga y selle la placa y que el equipo alcance IP67, porque la carcasa es un diseño a validar y el ensayo no se ha ejecutado.
 6. Que la sonda concuerde con el laboratorio dentro del umbral agronómico fijado, porque la campaña de 30 muestras es un plan y no un resultado.
-7. Que el equipo ya lea la sonda y duerma entre mediciones, porque la lectura Modbus y el reposo profundo no están implementados en el firmware.
+7. Que el equipo ya lea la sonda y duerma entre mediciones, porque la lectura Modbus está escrita pero sin ensayar con la sonda y el reposo profundo no está implementado.
 8. Que el alcance del enlace Bluetooth y la autonomía cumplan lo esperado, porque no se han ensayado.
 
 Ninguna de esas verificaciones pendientes es un obstáculo oculto: todas están identificadas con su método y su criterio de aceptación. **El próximo hito es el prototipo funcional del 17 de diciembre de 2026**, cuyo FAT cierra las verificaciones 2, 7 y 8 en banco, y cuyo piloto de febrero de 2027 aborda la 6. La decisión que el estudio respalda es continuar el desarrollo y ejecutar esas verificaciones, no comprometer volumen de compra ni declarar una viabilidad comprobada.
@@ -1936,7 +1936,7 @@ Nota sobre los supuestos de mercado. Los costos de referencia del análisis de l
 13. Bosch Sensortec. (2021). BMP280 Datasheet (exactitud de temperatura ±1,0 °C, sin medición de humedad). Recuperado de https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp280-ds001.pdf
 14. Bosch Sensortec. (2024). BME280 Datasheet (exactitud ±1,0 °C / ±3 % HR / ±1,0 hPa; consumo 0,1 µA en reposo y 3,6 µA por muestreo en forced mode). Recuperado de https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf
 15. Food and Agriculture Organization (FAO). (1998). Crop Evapotranspiration – Guidelines for Computing Crop Water Requirements, FAO Irrigation and Drainage Paper 56 (corrección del cálculo de evapotranspiración por presión atmosférica/altitud). Recuperado de https://www.fao.org/4/x0490e/x0490e00.htm
-16. Sumeet Instruments. (s.f.). 7 in 1 Integrated Soil Sensor NPK-pH-EC-Temperature-Moisture, RS485, alimentación 5–24 V DC. Ficha técnica de referencia de familia de producto (0,15 W a 12 V DC; 0,5 W a 24 V DC). Recuperado de https://sumeetinstruments.com/Soil-NPK-pH-EC-Temperature-Moisture-7in1-Sensor-RS485
+16. ComWinTop (CWT Co., Limited). (s.f.). Soil sensor (5PIN Probe, RS485 output type) manual, versión 1.0, válido para el modelo NPKPHCTH-S: alimentación de 4,5 a 30 V DC y 0,5 W como máximo a 24 V; RS-485 Modbus RTU a 4.800 baudios 8N1, dirección 1; mapa de registros, registros de calibración y colores del cable. La exactitud de temperatura figura como ±5 °C y el rango de conductividad como 0–200.000 µS/cm, erratas de esa versión: el manual V1.4 de la misma serie (modelo THCPH-S) declara ±0,5 °C y 0–20.000 µS/cm. Recuperado de https://www.comwintop.com/
 17. Espressif Systems. (s.f.). ESP32-WROOM-32D / ESP32-WROOM-32U Datasheet (módulo con antena impresa en la variante 32D; Bluetooth 4.2 BR/EDR y BLE; corriente recomendada y máxima de las salidas digitales). Recuperado de https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32d_esp32-wroom-32u_datasheet_en.pdf
 18. Modbus Organization. (2006). Modbus Application Protocol Specification V1.1b3. Recuperado de https://modbus.org/
 19. WCH (Nanjing Qinheng Microelectronics). (s.f.). CH340: USB to Serial Chip. Hoja de datos (CH340C con oscilador integrado). Recuperado de https://www.wch-ic.com/products/CH340.html
@@ -1971,6 +1971,7 @@ Nota sobre los supuestos de mercado. Los costos de referencia del análisis de l
 48. Subsecretaría de Telecomunicaciones (SUBTEL). (2025). Resolución N° 737: Actualización del régimen de certificación de equipos de telecomunicaciones. Recuperado de https://www.subtel.gob.cl/
 49. Littelfuse. (2024). PolySwitch Resettable PPTC, 0603L Series: hoja de datos (corriente de mantenimiento según la temperatura ambiente). Recuperado de https://www.littelfuse.com/
 50. Creality. (2024). Hyper PETG Filament Technical Data Sheet, versión 1.0 (temperatura de deflexión bajo carga de 74,5 °C y ablandamiento Vicat de 83 °C). Recuperado de https://www.creality.com/
+51. Sumeet Instruments. (s.f.). 7 in 1 Integrated Soil Sensor NPK-pH-EC-Temperature-Moisture, RS485, alimentación 5–24 V DC. Ficha técnica de referencia de familia de producto (0,15 W a 12 V DC; 0,5 W a 24 V DC). Recuperado de https://sumeetinstruments.com/Soil-NPK-pH-EC-Temperature-Moisture-7in1-Sensor-RS485
 
 ## Anexos
 
