@@ -101,6 +101,8 @@ void Transporte::enviar(uint32_t ahora) {
   if (!armarSolicitud(consulta_, solicitud)) { terminar(Fallo::Configuracion); return; }
   recibidos_ = 0;
   esperados_ = 0;
+  crudos_ = 0;
+  descartados_ = 0;
   puerto_.direccionTx(true);
   if (!puerto_.transmitir(solicitud, sizeof(solicitud))) { terminar(Fallo::Puerto); return; }
   faseDesde_ = ahora;
@@ -147,6 +149,15 @@ void Transporte::actualizar(uint32_t ahora) {
       for (unsigned i = 0; i < 64 && puerto_.disponible() > 0; ++i) {
         const int valor = puerto_.recibir();
         if (valor < 0) break;
+        if (crudos_ < sizeof(crudo_)) crudo_[crudos_++] = uint8_t(valor);
+        // Al pasar a recepción, un bus RS-485 sin polarización queda flotando y
+        // el transceptor puede entregar un byte espurio. Antes del primer byte
+        // de la trama se descartan hasta MAX_DESCARTE que no sean la dirección
+        // esperada; el CRC sigue validando la trama completa.
+        if (recibidos_ == 0 && uint8_t(valor) != consulta_.direccion) {
+          if (++descartados_ > MAX_DESCARTE) { fallar(Fallo::Direccion, ahora); return; }
+          continue;
+        }
         if (recibidos_ >= MAX_RESPUESTA || (esperados_ && recibidos_ >= esperados_)) {
           fallar(Fallo::Sobrante, ahora); return;
         }
@@ -170,7 +181,7 @@ void Transporte::actualizar(uint32_t ahora) {
         if (resultado == Fallo::Ninguno) terminar(Fallo::Ninguno);
         else fallar(resultado, ahora);
       } else if (ahora - faseDesde_ >= consulta_.respuestaMs) {
-        fallar(recibidos_ ? Fallo::Truncada : Fallo::Silencio, ahora);
+        fallar(recibidos_ ? Fallo::Truncada : descartados_ ? Fallo::Direccion : Fallo::Silencio, ahora);
       }
       return;
     }

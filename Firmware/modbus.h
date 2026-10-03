@@ -8,6 +8,8 @@ namespace modbus {
 
 constexpr uint8_t MAX_REGISTROS = 16;
 constexpr size_t MAX_RESPUESTA = 5 + 2 * MAX_REGISTROS;
+// Bytes espurios tolerados antes del primero de la trama (ver Fase::Rx).
+constexpr uint8_t MAX_DESCARTE = 4;
 
 enum class Fallo : uint8_t {
   Ninguno, Configuracion, Puerto, Silencio, Truncada, Sobrante,
@@ -57,6 +59,11 @@ public:
   Fallo fallo() const { return fallo_; }
   uint8_t excepcion() const { return excepcion_; }
   const uint16_t *registros() const { return fallo_ == Fallo::Ninguno && terminado() ? registros_ : nullptr; }
+  // Diagnóstico del último intento: todos los bytes que llegaron, en orden,
+  // incluidos los descartados antes de la trama.
+  const uint8_t *crudo() const { return crudo_; }
+  size_t largoCrudo() const { return crudos_; }
+  uint8_t descartados() const { return descartados_; }
   void limpiar() { if (!ocupado()) fase_ = Fase::Inactivo; }
 
 private:
@@ -75,6 +82,9 @@ private:
   uint8_t respuesta_[MAX_RESPUESTA]{};
   size_t recibidos_ = 0;
   size_t esperados_ = 0;
+  uint8_t crudo_[MAX_RESPUESTA + MAX_DESCARTE]{};
+  size_t crudos_ = 0;
+  uint8_t descartados_ = 0;
   uint16_t registros_[MAX_REGISTROS]{};
   uint32_t faseDesde_ = 0;
   uint32_t inicio_ = 0;

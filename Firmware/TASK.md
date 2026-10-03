@@ -51,7 +51,8 @@ Sirve para F1 sin la app ni la batería. La sonda va directo a 5 V (no hace falt
 | Monitor serie | Causa probable |
 | :--- | :--- |
 | `sin respuesta` a 4.800 y a 9.600 | Sin alimentación o sin GND común, A y B invertidos (inofensivo: intercambiarlos), RO y DI invertidos, RTS sin conectar o sonda con otra dirección. |
-| `CRC`, `direccion` o `respuesta truncada` | Ruido o pérdida de los primeros bytes: revisar GND común, cable y la conexión de RTS. |
+| `CRC`, `direccion` o `respuesta truncada` | Ruido o pérdida de los primeros bytes: revisar GND común, cable y la conexión de RTS. La línea `[SONDA] Bytes recibidos` muestra lo que llegó. Uno o más bytes sueltos (típicamente `00`, `80` o `FF`) antes de `01 03 0E` son el bus flotando al pasar a recepción: el firmware descarta hasta 4, pero la solución es polarizar el bus, con 4,7 kΩ de A a 3,3 V y 4,7 kΩ de B a GND (en la placa V2 lo hacen `R12` y `R13`). |
+| `Se descartaron N bytes espurios` tras una lectura buena | La misma causa: la lectura es válida (la valida el CRC), pero conviene polarizar el bus. |
 | `excepcion` | La sonda responde pero rechaza la consulta: revisar dirección, función y cantidad de registros. |
 
 Para que la app reciba una medición completa hace falta una tensión válida en IO34 (entre 1,25 y 2,15 V, es decir, 2,5 a 4,3 V después del divisor ×2): la batería real con su divisor o, en banco, un divisor desde 3,3 V (por ejemplo 68 kΩ arriba y 100 kΩ abajo, ≈ 1,96 V, se lee como 3,9 V). Esa batería es de banco: no la des por calibrada (F2).

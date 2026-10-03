@@ -91,6 +91,9 @@ void Sonda::actualizar(uint32_t ahora) {
   if (fallo == modbus::Fallo::Ninguno) {
     convertir(transporte.registros());
     Serial.printf("[SONDA] Lectura a %lu baudios\n", (unsigned long)SONDA_BAUDIOS[velocidad_]);
+    if (transporte.descartados())
+      Serial.printf("[SONDA] Se descartaron %u bytes espurios antes de la trama: falta polarizar el bus\n",
+                    transporte.descartados());
     estado_ = Estado::Terminada;
     return;
   }
@@ -100,6 +103,11 @@ void Sonda::actualizar(uint32_t ahora) {
   } else {
     Serial.printf("[SONDA] Fallo a %lu baudios: %s\n", (unsigned long)SONDA_BAUDIOS[velocidad_],
                   modbus::nombreFallo(fallo));
+  }
+  if (transporte.largoCrudo()) {
+    Serial.print("[SONDA] Bytes recibidos:");
+    for (size_t i = 0; i < transporte.largoCrudo(); i++) Serial.printf(" %02X", transporte.crudo()[i]);
+    Serial.println();
   }
   // Sólo el silencio sugiere otra velocidad; un CRC o una excepción indican
   // que la sonda sí escucha a esta velocidad y no conviene insistir.
