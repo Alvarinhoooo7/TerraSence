@@ -1,5 +1,6 @@
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
+import { Platform, Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
+import { Text, scaleTextStyle, useLargeText } from '../AppText';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useEntryFocus } from '../entry/EntryUI';
@@ -21,6 +22,8 @@ export const AccessField = forwardRef<TextInput, Props>(function AccessField({ l
   const revealTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const clearReveal = () => { if (revealTimer.current) clearTimeout(revealTimer.current); revealTimer.current = null; setReveal(-1); };
   const input = useRef<TextInput>(null);
+  const large = useLargeText();
+  const inputStyle = (style: TextInputProps['style']) => (large ? scaleTextStyle(style) : style);
   const revealFocus = useEntryFocus();
 
   // Una contraseña nueva se enmascara a mano, con el mismo retardo que el código
@@ -62,7 +65,7 @@ export const AccessField = forwardRef<TextInput, Props>(function AccessField({ l
           // algunos teclados y se veía el texto real bajo los asteriscos. Es el
           // mismo método del código por correo (EmailCodeScreen).
           placeholder={masked ? undefined : props.placeholder}
-          style={[styles.input, { color: colors.text }, masked && styles.mono, props.style, masked && styles.hidden]} />
+          style={inputStyle([styles.input, { color: colors.text }, masked && styles.mono, props.style, masked && styles.hidden])} />
         {masked && <View pointerEvents="none" accessible={false} importantForAccessibility="no-hide-descendants" style={styles.overlay}>
           {value ? <Text numberOfLines={1} ellipsizeMode="head" style={[styles.overlayText, styles.mono, { color: colors.text }]}>
             {maskSecret(value, reveal)}

@@ -69,6 +69,18 @@ const STAGE_TITLES_EN: Record<PhenologicalStage, Record<Verdict, string>> = {
   cosecha: { GREEN: 'Soil is trafficable', AMBER: 'Enter with caution', RED: 'Do not enter with machinery' },
 };
 
+/**
+ * Título de una lectura guardada en el idioma actual. El título se guarda en el idioma en que
+ * se midió; si es uno de los títulos conocidos de su etapa y veredicto, se muestra su
+ * equivalente. Un título que no se reconoce (de otra versión de las reglas) queda tal cual.
+ */
+export function localizedStageTitle(stage: PhenologicalStage, verdict: Verdict, stored: string, language: AppLanguage): string {
+  const es = STAGE_TITLES[stage]?.[verdict];
+  const en = STAGE_TITLES_EN[stage]?.[verdict];
+  if (!es || !en || (stored !== es && stored !== en)) return stored;
+  return language === 'en' ? en : es;
+}
+
 const translateBaseAlert = (
   alert: AgronomicAlert,
   sensor: SoilMeasurement,

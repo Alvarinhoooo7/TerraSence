@@ -6,9 +6,9 @@ import {
   Alert,
   BackHandler,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
+import { Text } from '../components/AppText';
 import type { BarcodeScanningResult } from 'expo-camera';
 import { GuideCamera as CameraView } from '../components/guide/GuideCamera';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -43,6 +43,7 @@ import {
   parseDeviceInvite,
 } from '../utils/deviceId';
 import type { DeviceRow, OnboardingMethod } from '../types/app';
+import { localizeProbeError } from '../utils/probeErrors';
 
 type Step = 'choice' | 'invite' | 'qr' | 'pairing';
 type PairingState = 'idle' | 'scanning' | 'found' | 'saving';
@@ -114,8 +115,8 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip, onCan
         'Bluetooth pairing requires a development build or the installed app; it does not work inside Expo Go.',
       );
     }
-    return message;
-  }, [t]);
+    return localizeProbeError(message, language, t('No pudimos completar la vinculación. Inténtalo otra vez.', 'We could not complete the pairing. Try again.'));
+  }, [t, language]);
 
   const finish = useCallback(
     async (method: OnboardingMethod, device: DeviceRow) => {
@@ -399,7 +400,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip, onCan
         {/* Los mismos pasos numerados que antes de medir. */}
         {[[t('Enciende la sonda', 'Turn the probe on'), t('Con la batería cargada o conectada.', 'With the battery charged or plugged in.')],
           [t('Mantén PAIR 3 segundos', 'Hold PAIR for 3 seconds'), t('Suelta cuando el LED azul parpadee: la ventana queda abierta unos minutos.', 'Release when the blue LED blinks: the window stays open for a few minutes.')],
-          [t('Acércala a menos de 2 metros', 'Bring it within 2 meters'), t('Y toca «Buscar mi sonda».', 'Then tap "Find my probe".')]].map(([title, body], i) => <View key={i} style={{ flexDirection: 'row', gap: 14, alignItems: 'flex-start' }}>
+          [t('Acércala a menos de 2 metros', 'Bring it within 2 meters'), t('Luego toca «Buscar mi sonda».', 'Then tap "Find my probe".')]].map(([title, body], i) => <View key={i} style={{ flexDirection: 'row', gap: 14, alignItems: 'flex-start' }}>
           <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', marginTop: 2 }}>
             <Text style={{ color: isDark ? colors.background : '#FFFFFF', fontSize: 15, fontWeight: '800' }}>{i + 1}</Text>
           </View>

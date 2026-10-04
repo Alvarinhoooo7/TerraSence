@@ -1,7 +1,8 @@
 import { useResetGuide } from '../components/guide/GuideContext';
 import { useTranslation } from '../hooks/useTranslation';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, AppState, BackHandler, Switch, Text, View } from 'react-native';
+import { Alert, AppState, BackHandler, Switch, View } from 'react-native';
+import { Text } from '../components/AppText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 

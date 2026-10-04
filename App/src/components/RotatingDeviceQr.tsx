@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Text, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Alert, View, useWindowDimensions } from 'react-native';
+import { Text } from './AppText';
 import * as Clipboard from 'expo-clipboard';
 import { GuideTouchable as TouchableOpacity } from './guide/GuideControls';
 import QRCode from 'react-native-qrcode-svg';
@@ -9,10 +10,11 @@ import { getDeviceAccessQr, type DeviceAccessQr } from '../services/deviceServic
 import { buildDeviceQrPayload } from '../utils/deviceCode';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
+import { localizeProbeError } from '../utils/probeErrors';
 
 export function RotatingDeviceQr({ deviceId }: { deviceId: string }) {
   const { colors } = useAppTheme();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { width } = useWindowDimensions();
   const [qr, setQr] = useState<DeviceAccessQr | null>(null);
   const [error, setError] = useState('');
@@ -31,7 +33,7 @@ export function RotatingDeviceQr({ deviceId }: { deviceId: string }) {
         const result = await getDeviceAccessQr(deviceId);
         if (active) { expiry = Date.parse(result.expires_at); setQr(result); setError(''); }
       } catch (e) {
-        if (active) { setQr(null); setError(e instanceof Error ? e.message : String(e)); }
+        if (active) { setQr(null); setError(localizeProbeError(e instanceof Error ? e.message : String(e), language, t('No se pudo generar el QR.', 'Could not generate the QR.'))); }
         retryAt = Date.now() + 5000;
       } finally { loading = false; }
     };

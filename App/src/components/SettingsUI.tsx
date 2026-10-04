@@ -1,6 +1,7 @@
 import { GuideInput as TextInput } from './guide/GuideControls';
 import React from 'react';
-import { Text, View, type TextInputProps } from 'react-native';
+import { View, type TextInputProps } from 'react-native';
+import { Text } from './AppText';
 import { useResetGuide } from './guide/GuideContext';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';

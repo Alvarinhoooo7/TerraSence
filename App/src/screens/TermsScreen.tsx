@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer, useRef } from 'react';
-import { AccessibilityInfo, BackHandler, Pressable, ScrollView, Text, View } from 'react-native';
+import { AccessibilityInfo, BackHandler, Pressable, ScrollView, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { EntryButton, EntryHeading } from '../components/entry/EntryUI';
 import { useAppTheme } from '../hooks/useAppTheme';

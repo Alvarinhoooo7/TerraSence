@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from './AppText';
 import { MeasurementResultFlow } from './MeasurementResultFlow';
 import { savedForecast } from './measurementResultData';
 import { ScreenCard, ScreenText } from './screen/ScreenUI';

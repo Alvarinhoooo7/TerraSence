@@ -38,7 +38,7 @@ Las temperaturas se muestran en °C o °F según la preferencia.
 
 Las tres magnitudes ambientales, `battery_percent`, `measured_at` y `diagnosis` sobreviven al guardado, consulta, caché, cola offline e historial. Los registros antiguos sin ambiente o batería siguen siendo legibles y muestran ausencia. `diagnosis.localSource = 'probe-bme280-v1'` identifica las capturas del nuevo flujo; no permite atribuir el mismo origen a históricos sin esa marca. `measured_at` conserva la recepción de la lectura en el celular, aunque la sincronización ocurra más tarde.
 
-El servicio consulta `forecast_days=6&timezone=auto` a Open-Meteo y presenta las **cinco fechas locales posteriores a hoy**, con temperaturas mínima/máxima y precipitación. Los valores faltantes se conservan como ausencia; las alertas por fecha de lluvia, helada o calor usan reglas orientativas aún no validadas en campo. La lectura y su diagnóstico se presentan antes de terminar esa consulta y pueden guardarse mientras carga. Al guardar, el pronóstico y la recomendación disponibles quedan congelados en `diagnosis`: una respuesta tardía no modifica ese registro ni otra medición.
+El servicio consulta `forecast_days=6&timezone=auto` a Open-Meteo y presenta las **cinco fechas locales posteriores a hoy**, con temperaturas mínima/máxima y precipitación. Los valores faltantes se conservan como ausencia; las alertas por fecha de lluvia, helada o calor usan reglas orientativas aún no validadas en campo. Si la humedad está bajo el umbral de riego y se pronostican 5 mm o más en uno de los dos días siguientes, la recomendación sugiere esperar esa lluvia antes de regar y volver a medir ([`contextualAdvice.ts`](src/engine/contextualAdvice.ts)). Las fechas se muestran como «dom 4 oct» / «Sun Oct 4», con un formato propio que no depende del motor de JavaScript. La lectura y su diagnóstico se presentan antes de terminar esa consulta y pueden guardarse mientras carga. Al guardar, el pronóstico y la recomendación disponibles quedan congelados en `diagnosis`: una respuesta tardía no modifica ese registro ni otra medición.
 
 El GPS procede del celular y se espera como máximo cinco segundos. Si no entrega ubicación, se conserva la lectura sin coordenadas y sin pronóstico. Este límite **no es el tiempo total de medición**. Las cuatro etapas permanecen en el historial, con o sin coordenadas. La app no incluye mapas.
 
@@ -511,7 +511,7 @@ La sincronización automática depende de `OfflineBanner`, no de abrir una panta
 ### 4.5. Ajustes, perfil y dispositivos
 
 Configuración abre un índice ([`settingsNavigation.ts`](src/utils/settingsNavigation.ts)):
-**Mi cuenta**, **Preferencias** (Idioma, Unidades y Apariencia se eligen en la misma pantalla;
+**Mi cuenta**, **Preferencias** (Idioma, Unidades, Apariencia y Tamaño de letra se eligen en la misma pantalla;
 Notificaciones y Permisos del teléfono), **Equipos y datos** (Actualizaciones, Sincronización
 y Compartir acceso), **Ayuda y privacidad** (Avisos, Contactar a soporte y Términos y
 privacidad) y **Cerrar sesión**, en rojo, con aviso si quedan mediciones pendientes. Cada
@@ -528,8 +528,14 @@ cada operación. La configuración del campo ya no forma parte de Ajustes.
   antes de medir), y desde aquí se puede adelantar o abrir los ajustes del teléfono.
 - **Dispositivos:** consulta de rol, última conexión, firmware informado y batería cuando
   está disponible; el QR temporal se muestra desde Compartir acceso. El ID permanente no sustituye una invitación.
-- **Preferencias:** español/inglés, unidades y tema claro/oscuro/sistema. Se guardan por
-  cuenta en el teléfono; los cambios remotos pendientes se reintentan al recuperar conexión.
+- **Preferencias:** español/inglés, unidades, tema claro/oscuro/sistema y letra normal o
+  grande. Se guardan por cuenta en el teléfono y en `profiles.app_preferences` (`text_size`);
+  los cambios remotos pendientes se reintentan al recuperar conexión. El tema elegido también
+  manda en lo nativo (`Appearance.setColorScheme`): barra de navegación de Android y diálogos
+  del sistema; el velo gris que Android pone sobre la barra de tres botones se desactiva en
+  [`withNavigationBarContrast`](plugins/withNavigationBarContrast.js). La letra grande vive en
+  [`AppText.tsx`](src/components/AppText.tsx): todos los textos de la app usan ese `Text`, que
+  agranda la lectura un 20 % y los títulos un 10 %, sumado al tamaño de letra del teléfono.
 - **Avisos:** bandeja persistente por cuenta para solicitudes de acceso, aprobaciones,
   rechazos y cambios de administración, con carga paginada (cursor por fecha e id), lectura
   por usuario (se marca al abrir) y estados de carga, vacío, error y sin conexión. Los textos
@@ -538,7 +544,8 @@ cada operación. La configuración del campo ya no forma parte de Ajustes.
   comprobar la sesión, que el aviso sea de la cuenta actual y el acceso vigente al equipo.
   Una push que se toca con la app abierta, en segundo plano o cerrada abre la bandeja sólo si
   el aviso es de la cuenta con sesión; la de otra cuenta se descarta sin abrir nada. Está
-  disponible durante la espera de aprobación y desde Ajustes, incluso si falta vincular.
+  disponible durante la espera de aprobación y desde Ajustes. En la primera vinculación no se
+  muestra: todavía no hay avisos que revisar.
   Si se toca durante una medición, la bandeja se muestra al terminarla.
 - **Notificaciones:** un interruptor para los avisos push de acceso a equipos (la única
   categoría; las preferencias antiguas de suelo, clima y sincronización se ignoran al leerlas).

@@ -1,6 +1,7 @@
 export type AppLanguage = 'es' | 'en';
 export type AppThemePreference = 'system' | 'light' | 'dark';
 export type MeasurementSystem = 'metric' | 'imperial';
+export type TextSize = 'normal' | 'large';
 export type NotificationCategory = 'device';
 
 export type GuideId =
@@ -15,6 +16,7 @@ export interface AppPreferences {
   language: AppLanguage;
   theme: AppThemePreference;
   measurementSystem: MeasurementSystem;
+  textSize: TextSize;
   notifications: Record<NotificationCategory, boolean>;
   guidesSeen: Partial<Record<GuideId, boolean>>;
 }
@@ -23,6 +25,7 @@ export const DEFAULT_APP_PREFERENCES: AppPreferences = {
   language: 'es',
   theme: 'system',
   measurementSystem: 'metric',
+  textSize: 'normal',
   notifications: {
     device: true,
   },
@@ -49,6 +52,7 @@ export const normalizePreferences = (raw: unknown): AppPreferences => {
       value.measurement_system === 'imperial' || value.measurementSystem === 'imperial'
         ? 'imperial'
         : 'metric',
+    textSize: value.text_size === 'large' || value.textSize === 'large' ? 'large' : 'normal',
     notifications: {
       device: notifications.device !== false,
     },
@@ -62,6 +66,7 @@ export const serializePreferences = (preferences: AppPreferences) => ({
   language: preferences.language,
   theme: preferences.theme,
   measurement_system: preferences.measurementSystem,
+  text_size: preferences.textSize,
   notifications: preferences.notifications,
   guides_seen: preferences.guidesSeen,
 });

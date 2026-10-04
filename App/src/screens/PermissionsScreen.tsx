@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { BackHandler, Text, View } from 'react-native';
+import { BackHandler, View } from 'react-native';
+import { Text } from '../components/AppText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';

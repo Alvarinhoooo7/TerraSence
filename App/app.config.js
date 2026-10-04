@@ -145,6 +145,7 @@ export default () => ({
         { icon: './assets/icon.png', color: '#1F5B3F' },
       ],
       './plugins/withStartupPermissions',
+      './plugins/withNavigationBarContrast',
     ],
 
     extra: {

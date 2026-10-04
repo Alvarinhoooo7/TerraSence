@@ -34,9 +34,9 @@ test('pronóstico usa cinco fechas posteriores locales, conserva ceros y ausenci
     const raw = decodeTelemetry(new Uint8Array([1, 94, 0, 245, 3, 232, 0, 65, 0, 45, 0, 30, 0, 80, 87, 0]));
     const evaluation = evaluateForStage(raw, 'pre_siembra');
     const advice = buildContextualAdvice('pre_siembra', evaluation, raw, weather);
-    assert.match(advice.weatherNote, /2026-10-04 \(lluvia\)/);
-    assert.match(advice.weatherNote, /2026-10-01 \(helada\)/);
-    assert.doesNotMatch(advice.weatherNote, /2026-09-30/);
+    assert.match(advice.weatherNote, /dom 4 oct \(lluvia\)/);
+    assert.match(advice.weatherNote, /jue 1 oct \(helada\)/);
+    assert.doesNotMatch(advice.weatherNote, /mié 30 sept/);
     const incomplete = { ...weather, forecast: weather.forecast.map(day => ({ ...day, minimumTemperatureC: null, precipitationMm: null })) };
     assert.match(buildContextualAdvice('pre_siembra', evaluation, raw, incomplete).weatherNote, /incompleto/);
   } finally { globalThis.fetch = original; }

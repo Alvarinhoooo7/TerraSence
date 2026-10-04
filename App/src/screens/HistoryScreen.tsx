@@ -13,6 +13,7 @@ import { ActivityIndicator, RefreshControl, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { VERDICT_META } from '../constants/theme';
+import { localizedStageTitle } from '../engine/stageEvaluator';
 import { EntryHeading } from '../components/entry/EntryUI';
 import { ScreenCard, ScreenLabel, ScreenText } from '../components/screen/ScreenUI';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -127,7 +128,7 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
                 backgroundColor: colors.card, paddingHorizontal: 18, paddingVertical: 14, marginBottom: 12, minHeight: 72 }}>
               <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: stroke }} />
               <View style={{ flex: 1, gap: 3 }}>
-                <Text style={{ color: colors.text, fontSize: 17, fontWeight: '600' }} numberOfLines={1}>{item.title}</Text>
+                <Text style={{ color: colors.text, fontSize: 17, fontWeight: '600' }} numberOfLines={1}>{localizedStageTitle(item.stage, item.verdict, item.title, language)}</Text>
                 <Text style={{ color: colors.textSecondary, fontSize: 14 }}>
                   {hourLabel(item.measuredAt, locale)} · {stage ? (language === 'en' ? stage.labelEn : stage.label) : ''} · pH {item.ph.toLocaleString(locale, { maximumFractionDigits: 1, minimumFractionDigits: 1 })} · {Math.round(item.vwcPercent)} %
                 </Text>

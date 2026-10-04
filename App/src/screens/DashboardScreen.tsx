@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GuideTouchable as Button, GuideScrollView as ScrollView } from '../components/guide/GuideControls';
 import { GuideModal } from '../components/guide/GuideModal';
@@ -8,6 +9,7 @@ import { EntryButton } from '../components/entry/EntryUI';
 import { AppIcon } from '../components/AppIcon';
 import { SPLASH_BACKGROUND } from '../components/LoadingScreen';
 import { useAppTheme } from '../hooks/useAppTheme';
+import type { ThemeColors } from '../constants/theme';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLinkedDevices } from '../hooks/useLinkedDevices';
 import { useAppStore } from '../store/useAppStore';
@@ -20,8 +22,16 @@ import type { DeviceRow } from '../types/app';
 interface Props { onStartMeasurement: () => void; onLinkDevice: () => void }
 const mint = '#C5E8AF';
 
+/** Inicio en verde de marca con tema oscuro; con tema claro, sobre el fondo claro de la app. */
+function dashboardPalette(isDark: boolean, colors: ThemeColors) {
+  return isDark
+    ? { background: SPLASH_BACKGROUND, bar: '#1C3528', line: '#3B5646', accent: mint, muted: '#B2C9BB', strong: '#FFFFFF', title: '#F2F5F1', hint: '#C4D4C9', button: mint, buttonInk: SPLASH_BACKGROUND }
+    : { background: colors.background, bar: colors.card, line: colors.border, accent: colors.primary, muted: colors.textSecondary, strong: colors.text, title: colors.text, hint: colors.textSecondary, button: colors.primary, buttonInk: '#FFFFFF' };
+}
+
 export function DashboardScreen({ onStartMeasurement, onLinkDevice }: Props) {
-  const { colors } = useAppTheme(); const { t } = useTranslation();
+  const { colors, isDark } = useAppTheme(); const { t } = useTranslation();
+  const palette = dashboardPalette(isDark, colors);
   const { height, fontScale } = useWindowDimensions();
   const compact = height < 700 || fontScale > 1.2;
   const insets = useSafeAreaInsets();
@@ -69,34 +79,34 @@ export function DashboardScreen({ onStartMeasurement, onLinkDevice }: Props) {
     }
     onStartMeasurement();
   };
-  return <SafeAreaView edges={['left', 'right']} style={styles.root}>
+  return <SafeAreaView edges={['left', 'right']} style={[styles.root, { backgroundColor: palette.background }]}>
     {/* Barra superior: la sonda para medir (el único lugar donde se elige), vincular otra
         y, a la derecha, el lugar del botón «?» de la guía, que flota encima. */}
-    <View style={[styles.topBar, { paddingTop: insets.top }]}><View style={styles.topBarRow}>
+    <View style={[styles.topBar, { paddingTop: insets.top, backgroundColor: palette.bar, borderBottomColor: palette.line }]}><View style={styles.topBarRow}>
       <Button accessibilityRole="button" accessibilityState={{ expanded: selector }} accessibilityLabel={t('Elegir sonda para medir', 'Choose a probe for measurement')}
         guide={t('Aquí eliges la sonda para medir. Vinculada no significa conectada por Bluetooth.', 'Choose the probe to measure with here. Linked does not mean connected over Bluetooth.')}
         onPress={openSelector} style={styles.selector}>
-        <AppIcon name="probe" color={mint} />
-        <View style={{ flex: 1, gap: 2 }}><Text style={styles.eyebrow}>{t('TU SONDA', 'YOUR PROBE')}</Text>
-          <Text numberOfLines={1} style={styles.deviceName}>{device?.alias || device?.name || t('Elige una sonda', 'Choose a probe')}</Text>
-          {device && <Text style={styles.identifier}>{formatDeviceId(device.device_code)}</Text>}
-        </View><Text style={{ color: mint, fontSize: 18 }}>▾</Text>
+        <AppIcon name="probe" color={palette.accent} />
+        <View style={{ flex: 1, gap: 2 }}><Text style={[styles.eyebrow, { color: palette.muted }]}>{t('TU SONDA', 'YOUR PROBE')}</Text>
+          <Text numberOfLines={1} style={[styles.deviceName, { color: palette.strong }]}>{device?.alias || device?.name || t('Elige una sonda', 'Choose a probe')}</Text>
+          {device && <Text style={[styles.identifier, { color: palette.muted }]}>{formatDeviceId(device.device_code)}</Text>}
+        </View><Text style={{ color: palette.accent, fontSize: 18 }}>▾</Text>
       </Button>
       <Button accessibilityRole="button" accessibilityLabel={t('Vincular otra sonda', 'Link another probe')}
         guide={t('Vincula otra sonda con su botón PAIR o con una invitación.', 'Link another probe with its PAIR button or an invitation.')}
-        onPress={onLinkDevice} style={styles.add}><Text style={{ color: mint, fontSize: 30, lineHeight: 34 }}>+</Text></Button>
+        onPress={onLinkDevice} style={[styles.add, { borderColor: palette.line }]}><Text style={{ color: palette.accent, fontSize: 30, lineHeight: 34 }}>+</Text></Button>
       <View style={{ width: GUIDE_BUTTON_SPACE }} />
     </View></View>
     <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.center, { gap: compact ? 18 : 28 }]}>
-      <Text accessibilityRole="header" style={[styles.title, { fontSize: compact ? 28 : 34 }]}>{t('Conoce tu suelo.', 'Know your soil.')}</Text>
-      <View style={[styles.orbit, { padding: compact ? 14 : 22 }]}>
+      <Text accessibilityRole="header" style={[styles.title, { color: palette.title, fontSize: compact ? 28 : 34 }]}>{t('Conoce tu suelo.', 'Know your soil.')}</Text>
+      <View style={[styles.orbit, { borderColor: palette.line, padding: compact ? 14 : 22 }]}>
         <Button accessibilityRole="button" accessibilityLabel={device ? t('Medir', 'Measure') : t('Elegir sonda para medir', 'Choose a probe to measure')} guide={t('Prepara una medición con la sonda indicada arriba.', 'Prepare a reading with the probe shown above.')}
-          onPress={device ? () => void measure() : openSelector} disabled={checking} style={[styles.measure, { minWidth: compact ? 150 : 180, minHeight: compact ? 150 : 180 }]}>
-          <AppIcon name="probe" color={SPLASH_BACKGROUND} size={compact ? 36 : 44} /><Text style={styles.measureText}>{t('Medir', 'Measure')}</Text>
+          onPress={device ? () => void measure() : openSelector} disabled={checking} style={[styles.measure, { backgroundColor: palette.button, minWidth: compact ? 150 : 180, minHeight: compact ? 150 : 180 }]}>
+          <AppIcon name="probe" color={palette.buttonInk} size={compact ? 36 : 44} /><Text style={[styles.measureText, { color: palette.buttonInk }]}>{t('Medir', 'Measure')}</Text>
         </Button>
       </View>
-      <Text style={styles.hint}>{device ? t('Acerca tu sonda para comenzar.', 'Bring your probe close to begin.') : t('Elige o vincula tu sonda para comenzar.', 'Choose or link your probe to begin.')}</Text>
-      {!!notice && <Text accessibilityLiveRegion="polite" style={styles.hint}>{notice}</Text>}
+      <Text style={[styles.hint, { color: palette.hint }]}>{device ? t('Acerca tu sonda para comenzar.', 'Bring your probe close to begin.') : t('Elige o vincula tu sonda para comenzar.', 'Choose or link your probe to begin.')}</Text>
+      {!!notice && <Text accessibilityLiveRegion="polite" style={[styles.hint, { color: palette.hint }]}>{notice}</Text>}
     </ScrollView>
     <GuideModal visible={selector} transparent animationType="slide" onRequestClose={() => setSelector(false)}>
       {/* Hoja inferior: tocar fuera la cierra. */}

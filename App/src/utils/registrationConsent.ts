@@ -1,7 +1,7 @@
 // Cambiar la versión cada vez que cambie el texto presentado al usuario: es lo que
 // queda registrado en la aceptación de cada cuenta y lo que permite saber qué leyó.
 // Identifica el texto de términos y privacidad presentado al aceptar el registro.
-export const REGISTRATION_LEGAL_VERSION = '2026-10-01-1';
+export const REGISTRATION_LEGAL_VERSION = '2026-10-04-1';
 
 export interface ConsentState {
   reachedEnd: boolean;

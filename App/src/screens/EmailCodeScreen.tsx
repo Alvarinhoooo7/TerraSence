@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { BackHandler, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { BackHandler, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { supabase } from '../services/supabase';
 import {
   EMAIL_CODE_LENGTH, EmailOtpPurpose, emailCodeCells, isEmailCodeValid, normalizeEmailCode,

@@ -54,3 +54,10 @@ test('al serializar sólo se envía la categoría vigente', () => {
   assert.deepEqual(serializePreferences(legacy).notifications, { device: true });
   assert.deepEqual(DEFAULT_APP_PREFERENCES.notifications, { device: true });
 });
+
+test('letra grande se guarda y se lee; cualquier otro valor es normal', () => {
+  assert.equal(DEFAULT_APP_PREFERENCES.textSize, 'normal');
+  assert.equal(normalizePreferences({ text_size: 'large' }).textSize, 'large');
+  assert.equal(normalizePreferences({ text_size: 'huge' }).textSize, 'normal');
+  assert.equal(serializePreferences({ ...DEFAULT_APP_PREFERENCES, textSize: 'large' }).text_size, 'large');
+});

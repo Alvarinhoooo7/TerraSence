@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { AccessibilityInfo, Text, useWindowDimensions, View } from 'react-native';
+import { AccessibilityInfo, useWindowDimensions, View } from 'react-native';
+import { Text } from './AppText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withDelay, withRepeat, withTiming, type SharedValue } from 'react-native-reanimated';
 import Svg, { Circle, Ellipse, Path, Rect } from 'react-native-svg';
 import { EntryButton } from './entry/EntryUI';
 import { SPLASH_BACKGROUND } from './LoadingScreen';
 import { useTranslation } from '../hooks/useTranslation';
+import { useAppTheme } from '../hooks/useAppTheme';
 
 const LEAF = '#C6DFB4';
 const RINGS = [0, 1, 2];
@@ -93,16 +95,18 @@ export function MeasurementLoading({ reading, deviceName, onCancel }: { reading:
 /** Espera con la sonda animada: ondas de Bluetooth (conectar, buscar) o en el suelo (leer). */
 export function ProbeWait({ reading, eyebrow, title, detail, onCancel }: { reading: boolean; eyebrow: string; title: string; detail: string; onCancel?: () => void }) {
   const { t } = useTranslation();
+  const { isDark, colors } = useAppTheme();
   const { width, height } = useWindowDimensions();
   const size = Math.max(160, Math.min(width - 96, height * 0.36, 300));
-  return <SafeAreaView style={{ flex: 1, backgroundColor: SPLASH_BACKGROUND }}>
+  // La ilustración conserva su verde; el fondo y los textos siguen el tema.
+  return <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? SPLASH_BACKGROUND : colors.background }}>
     <View accessibilityRole="progressbar" accessibilityState={{ busy: true }} accessibilityLabel={title}
       style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 28 }}>
       <ProbeReadingArt reading={reading} size={size} />
       <View style={{ gap: 8, maxWidth: 360 }}>
-        <Text style={{ color: '#6EE7B7', fontSize: 12, fontWeight: '700', letterSpacing: 1.6, textAlign: 'center' }}>{eyebrow.toUpperCase()}</Text>
-        <Text accessibilityLiveRegion="polite" style={{ color: '#FFFFFF', fontSize: 24, fontWeight: '700', textAlign: 'center' }}>{title}</Text>
-        <Text style={{ color: '#C4D4C9', fontSize: 16, lineHeight: 24, textAlign: 'center' }}>{detail}</Text>
+        <Text style={{ color: isDark ? '#6EE7B7' : colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.6, textAlign: 'center' }}>{eyebrow.toUpperCase()}</Text>
+        <Text accessibilityLiveRegion="polite" style={{ color: isDark ? '#FFFFFF' : colors.text, fontSize: 24, fontWeight: '700', textAlign: 'center' }}>{title}</Text>
+        <Text style={{ color: isDark ? '#C4D4C9' : colors.textSecondary, fontSize: 16, lineHeight: 24, textAlign: 'center' }}>{detail}</Text>
       </View>
     </View>
     {onCancel && <View style={{ paddingHorizontal: 24, paddingBottom: 16, width: '100%', maxWidth: 520, alignSelf: 'center' }}>

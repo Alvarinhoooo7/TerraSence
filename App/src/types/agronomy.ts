@@ -51,6 +51,7 @@ export type Verdict = 'GREEN' | 'AMBER' | 'RED';
 
 export interface AgronomicAlert {
   type: 'danger' | 'warning' | 'info';
+  /** Clave de la métrica que la origina (`vwc`, `temp`, `ec`, `ph`) o `npk`. La etapa y la ficha de cada parámetro la buscan por esta clave. */
   param: string;
   title: string;
   action: string;

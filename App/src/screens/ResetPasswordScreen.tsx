@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { BackHandler, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { BackHandler, Keyboard, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { supabase } from '../services/supabase';
 import { beginPasswordRecoveryClosure, cancelPasswordRecoveryClosure, finishPasswordRecoveryClosure } from '../services/notifications';
 import { EntryLayout, EntryHeading, EntryButton } from '../components/entry/EntryUI';

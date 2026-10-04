@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react';
-import { ActivityIndicator, findNodeHandle, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, findNodeHandle, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, TextInput, useWindowDimensions, View } from 'react-native';
+import { Text, LARGE_BODY_FACTOR, useLargeText } from '../AppText';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
@@ -10,8 +11,10 @@ const EntryFocus = createContext<(input: TextInput | null) => void>(() => {});
 export const useEntryFocus = () => useContext(EntryFocus);
 
 export function useEntryMetrics() {
-  const { width, height, fontScale } = useWindowDimensions();
+  const { width, height, fontScale: systemScale } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  // La letra grande de la app se suma a la del teléfono al decidir si compactar.
+  const fontScale = systemScale * (useLargeText() ? LARGE_BODY_FACTOR : 1);
   const usableHeight = height - insets.top - insets.bottom;
   const compact = usableHeight < 690 || fontScale > 1.15;
   const veryCompact = usableHeight < 570 || fontScale > 1.35;

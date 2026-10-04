@@ -1,6 +1,7 @@
 import { legalSections } from '../utils/legalSections';
 import React, { useEffect, useReducer, useRef } from 'react';
-import { AccessibilityInfo, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AccessibilityInfo, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Text } from './AppText';
 import Animated from 'react-native-reanimated';
 import { AuthButton } from './auth/AuthUI';
 import { SafeAreaView } from 'react-native-safe-area-context';

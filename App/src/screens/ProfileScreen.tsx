@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { SettingsPage, SettingsText, SettingsButton, SettingsRow } from '../components/SettingsUI';
 import { AccessField } from '../components/auth/AccessField';
-import { BackHandler, Text, View } from 'react-native';
+import { BackHandler, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { EntryButton } from '../components/entry/EntryUI';
 import { ScreenCard, ScreenLabel, ScreenStatus } from '../components/screen/ScreenUI';

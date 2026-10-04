@@ -1,7 +1,8 @@
 import { BrandLogo } from '../BrandLogo';
 import { GuidePressable as Pressable, GuideScrollView as ScrollView, GuideInput as TextInput } from '../guide/GuideControls';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet, Text, View, type TextInputProps } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet, View, type TextInputProps } from 'react-native';
+import { Text } from '../AppText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import * as Haptics from 'expo-haptics';

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, BackHandler, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, BackHandler, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { listMyDevices, listMyDeviceMemberships, listDeviceMembers, manageDeviceMember } from '../services/deviceService';
@@ -9,10 +10,12 @@ import { SettingsPage } from '../components/SettingsUI';
 import { EntryButton } from '../components/entry/EntryUI';
 import { ScreenCard, ScreenLabel, ScreenOption, ScreenText, ScreenValue } from '../components/screen/ScreenUI';
 import { formatDeviceId } from '../utils/deviceId';
+import { localizeProbeError } from '../utils/probeErrors';
 
 export function AdministrationScreen({ onClose, initialDeviceId }: { onClose: () => void; initialDeviceId?: string | null }) {
   const { colors } = useAppTheme();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const describe = (e: unknown) => localizeProbeError(e instanceof Error ? e.message : String(e), language, t('No pudimos completar la operación. Revisa tu conexión e inténtalo otra vez.', 'We could not complete the operation. Check your connection and try again.'));
   const [devices, setDevices] = useState<DeviceRow[]>([]);
   const [selected, setSelected] = useState<string | null>(initialDeviceId ?? null);
   const requestVersion = useRef(0);
@@ -40,7 +43,7 @@ export function AdministrationScreen({ onClose, initialDeviceId }: { onClose: ()
   useEffect(() => {
     let active = true;
     const reload = () => { if (operation.current) return; void refresh().catch(e => {
-      if (active) { setMembers([]); setError(e instanceof Error ? e.message : String(e)); }
+      if (active) { setMembers([]); setError(describe(e)); }
     }).finally(() => { if (active) setLoading(false); }); };
     reload();
     const timer = setInterval(reload, 10000);
@@ -57,7 +60,7 @@ export function AdministrationScreen({ onClose, initialDeviceId }: { onClose: ()
       await refresh();
     } catch (e) {
       await refresh().catch(() => setMembers([]));
-      setError(e instanceof Error ? e.message : String(e));
+      setError(describe(e));
     } finally { operation.current = false; setBusy(false); }
   };
 

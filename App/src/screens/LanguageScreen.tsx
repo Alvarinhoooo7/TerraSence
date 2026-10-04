@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useEntryMetrics, EntryButton, EntryHeading, EntryLayout } from '../components/entry/EntryUI';
 import type { AppLanguage } from '../types/preferences';

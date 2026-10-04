@@ -1,19 +1,21 @@
 import { ScreenGuide } from './src/components/ScreenGuide';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  Appearance,
   BackHandler,
   Linking,
   Modal,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Text } from './src/components/AppText';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import * as SplashScreen from 'expo-splash-screen';
+import * as SystemUI from 'expo-system-ui';
 
 import { useAuthStore } from './src/store/useAuthStore';
 import { OfflineBanner } from './src/components/OfflineBanner';
@@ -68,6 +70,13 @@ void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 export default function App() {
   const { isDark, colors } = useAppTheme();
   const { t } = useTranslation();
+  const themePreference = useAppStore((state) => state.preferences.theme);
+  // El tema elegido en la app también manda en lo nativo: la franja de la barra de
+  // navegación de Android, los diálogos del sistema y el fondo bajo la vista raíz.
+  useEffect(() => {
+    Appearance.setColorScheme(themePreference === 'system' ? 'unspecified' : themePreference);
+  }, [themePreference]);
+  useEffect(() => { void SystemUI.setBackgroundColorAsync(colors.background).catch(() => undefined); }, [colors.background]);
 
   const { session, setSession, isHydrated, recoveryUserId, setRecoveryUserId } = useAuthStore();
   const [checking, setChecking] = useState(true);
@@ -571,12 +580,14 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }} onLayout={() => { void SplashScreen.hideAsync().catch(() => undefined); }}>
       <SafeAreaProvider>
-        <StatusBar style={entry === 'loading' || entry === 'app' && route === 'dashboard' || isDark ? 'light' : 'dark'} />
+        <StatusBar style={entry === 'loading' || isDark ? 'light' : 'dark'} />
         <View style={{ display: ['loading', 'language', 'terms', 'welcome', 'auth', 'recovery'].includes(entry) ? 'none' : 'flex' }}>
           <OfflineBanner />
         </View>
         <ScreenGuide enabled={!recoveryLinkError && entry === 'app' && route !== 'link-device'} scope={`${entry}:${route}`}>
-        {session && !inboxOpen && ['approval', 'onboarding'].includes(entry) && <InboxShortcut onPress={() => setInboxOpen(true)} />}
+        {/* Sólo mientras espera aprobación: ahí llega el aviso de la respuesta. En la primera
+            vinculación no hay avisos que revisar y la franja desplazaba la pantalla hacia abajo. */}
+        {session && !inboxOpen && entry === 'approval' && <InboxShortcut onPress={() => setInboxOpen(true)} />}
         {content}
         {entry === 'app' && !inboxOpen && !recoveryLinkError && ['dashboard', 'devices', 'history', 'settings', 'administration'].includes(route) && (
           <BottomNavigation route={route} onNavigate={next => { setNotificationDeviceId(null); setDevicesOrigin('dashboard'); setSettingsReturn(undefined); setRoute(next); }} />

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { BackHandler, Text, View, useWindowDimensions } from 'react-native';
+import { BackHandler, View, useWindowDimensions } from 'react-native';
+import { Text } from './AppText';
 import Svg, { Path } from 'react-native-svg';
 import { GuideTouchable } from './guide/GuideControls';
 import { useResetGuide } from './guide/GuideContext';

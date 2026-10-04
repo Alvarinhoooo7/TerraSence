@@ -7,7 +7,8 @@
 // escritura, así que esta pantalla es la puerta de entrada real de la app.
 
 import React, { useCallback, useRef, useState } from 'react';
-import { BackHandler, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { BackHandler, Keyboard, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { supabase } from '../services/supabase';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';

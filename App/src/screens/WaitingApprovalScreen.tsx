@@ -1,6 +1,7 @@
 import { GuideTarget } from '../components/guide/GuideControls';
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { listMyDevices, listPendingDeviceRequests, type PendingDeviceRequest } from '../services/deviceService';
 import type { DeviceRow } from '../types/app';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -11,10 +12,11 @@ import { createAccountOperation } from '../utils/accountOperation';
 import { useAuthStore } from '../store/useAuthStore';
 import { createApprovalTracker } from '../utils/approvalFlow';
 import { maskEmail, maskName } from '../utils/privacy';
+import { localizeProbeError } from '../utils/probeErrors';
 
 export function WaitingApprovalScreen({ onApproved, onDismiss, addingDevice = false, targetDeviceId, onCancel }: { targetDeviceId?: string; addingDevice?: boolean; onCancel?: () => void; onApproved: (device: DeviceRow) => void; onDismiss: () => void }) {
   const { colors } = useAppTheme();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [requests, setRequests] = useState<PendingDeviceRequest[]>([]);
   const [error, setError] = useState('');
   const [removed, setRemoved] = useState(false);
@@ -43,7 +45,7 @@ export function WaitingApprovalScreen({ onApproved, onDismiss, addingDevice = fa
         setRequests(result.requests);
         setRemoved(result.removed);
         setError('');
-      } catch (e) { if (active && current()) setError(e instanceof Error ? e.message : String(e)); }
+      } catch (e) { if (active && current()) setError(localizeProbeError(e instanceof Error ? e.message : String(e), language, t('No pudimos completar la operación. Revisa tu conexión e inténtalo otra vez.', 'We could not complete the operation. Check your connection and try again.'))); }
       finally { checking = false; }
     };
     void check();

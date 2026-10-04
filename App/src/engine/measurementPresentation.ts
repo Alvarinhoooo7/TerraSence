@@ -1,7 +1,7 @@
 import type { SoilMeasurement } from '../types/agronomy';
 import type { MeasurementPoint, PhenologicalStage } from '../types/app';
 import type { StageAwareEvaluation } from './stageEvaluator';
-import { STAGE_DRIVERS } from './stageEvaluator';
+import { STAGE_DRIVERS, localizedStageTitle } from './stageEvaluator';
 import type { ContextualAdvice } from './contextualAdvice';
 import type { AppLanguage } from '../types/preferences';
 import { cropName, textureNameFromDefinition } from './catalogNames';
@@ -91,11 +91,16 @@ export function isMeasurementPresentation(value: unknown): value is MeasurementP
 
 export function presentationFromPoint(point: MeasurementPoint, language: AppLanguage = 'es'): MeasurementPresentation {
   const diagnosis = point.diagnosis as { presentation?: unknown } | null;
-  if (isMeasurementPresentation(diagnosis?.presentation) && diagnosis.presentation.stage === point.stage) return diagnosis.presentation;
+  if (isMeasurementPresentation(diagnosis?.presentation) && diagnosis.presentation.stage === point.stage) {
+    const saved = diagnosis.presentation;
+    const title = localizedStageTitle(point.stage, point.verdict, saved.title, language);
+    return title === saved.title ? saved : { ...saved, title };
+  }
+  const title = localizedStageTitle(point.stage, point.verdict, point.title, language);
   const en = language === 'en';
   const values = [point.vwcPercent, point.soilTempC, point.ph, point.ecUsCm, point.nitrogen, point.phosphorus, point.potassium, point.airTemp, point.airHumidity, point.airPressure];
   return {
-    version: 1, stage: point.stage, context: en ? 'Saved reading' : 'Lectura guardada', title: point.title,
+    version: 1, stage: point.stage, context: en ? 'Saved reading' : 'Lectura guardada', title,
     summary: point.action ?? (en ? 'This reading does not keep a detailed recommendation.' : 'Esta lectura no conserva una recomendación detallada.'),
     actions: point.action ? [point.action] : [],
     weatherNote: en ? 'See the recorded diagnosis; the current forecast is not added to this reading.' : 'Consulta el diagnóstico registrado; no se incorpora pronóstico actual a esta lectura.',

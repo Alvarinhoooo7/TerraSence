@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, FlatList, Pressable, ScrollView, Text, useWindowDimensions, View, type ViewToken } from 'react-native';
+import { AccessibilityInfo, FlatList, Pressable, ScrollView, useWindowDimensions, View, type ViewToken } from 'react-native';
+import { Text } from '../components/AppText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { EntryButton, useEntryMetrics } from '../components/entry/EntryUI';

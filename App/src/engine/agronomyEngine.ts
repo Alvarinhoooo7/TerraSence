@@ -230,7 +230,7 @@ export function evaluateAgronomicStatus(
     tempMessage = `Suelo frío (${temp.toFixed(1)}°C < ${crop.tempMin}°C mín).`;
     alerts.push({
       type: 'danger',
-      param: 'Temperatura',
+      param: 'temp',
       title: '❄️ Suelo Frío para Germinación',
       action: `No sembrar hoy. La semilla entrará en letargo y se pudrirá. Esperar ${Math.round((crop.tempMin - temp) * 2 + 3)} días con sol.`
     });
@@ -243,7 +243,7 @@ export function evaluateAgronomicStatus(
     tempMessage = `Temperatura en el límite (${temp.toFixed(1)}°C, mínimo ${crop.tempMin}°C)`;
     alerts.push({
       type: 'warning',
-      param: 'Temperatura',
+      param: 'temp',
       title: '🌡️ Temperatura Marginal para Germinación',
       action: 'Germinación lenta y despareja. Conviene esperar 2 o 3 días de sol, o sembrar algo más superficial para aprovechar el calor de los primeros centímetros.'
     });
@@ -259,7 +259,7 @@ export function evaluateAgronomicStatus(
       phMessage = `Suelo fuertemente ácido (pH ${ph.toFixed(1)})`;
       alerts.push({
         type: 'danger',
-        param: 'pH',
+        param: 'ph',
         title: '🧪 Suelo Ácido: Fósforo Bloqueado',
         action: 'Confirmar pH en laboratorio y solicitar requerimiento de encalado (capacidad tampón, profundidad y calidad de enmienda). Esta lectura no permite calcular kg/ha de cal.'
       });
@@ -269,7 +269,7 @@ export function evaluateAgronomicStatus(
       phMessage = `Suelo ligeramente ácido (pH ${ph.toFixed(1)})`;
       alerts.push({
         type: 'warning',
-        param: 'pH',
+        param: 'ph',
         title: '🧪 Ligera Acidez de Suelo',
         action: 'Confirmar pH y requerimientos del cultivo con análisis de suelo antes de aplicar enmiendas.'
       });
@@ -280,7 +280,7 @@ export function evaluateAgronomicStatus(
     phMessage = `Suelo alcalino / calcáreo (pH ${ph.toFixed(1)})`;
     alerts.push({
       type: 'warning',
-      param: 'pH',
+      param: 'ph',
       title: '🧂 Suelo Alcalino: Riesgo de Clorosis Férrica',
       action: 'Confirmar pH y alcalinidad en laboratorio; solicitar asesoría antes de aplicar azufre u otras enmiendas.'
     });
@@ -296,7 +296,7 @@ export function evaluateAgronomicStatus(
       ecMessage = `Salinidad crítica (${ec} µS/cm). Quema radicular asegurada.`;
       alerts.push({
         type: 'danger',
-        param: 'Salinidad (EC)',
+        param: 'ec',
         title: '⚠️ Exceso de Sales / Salinidad Tóxica',
         action: 'Confirmar salinidad y calidad del agua. Evaluar drenaje y asesoría agronómica antes de diseñar un lavado; no aplicar una fracción fija con esta lectura.'
       });
@@ -306,7 +306,7 @@ export function evaluateAgronomicStatus(
       ecMessage = `Salinidad moderada (${ec} µS/cm).`;
       alerts.push({
         type: 'warning',
-        param: 'Salinidad (EC)',
+        param: 'ec',
         title: '⚠️ Salinidad Moderada',
         action: 'Evitar fertilizantes con alto índice salino y mantener humedad constante.'
       });
@@ -318,7 +318,7 @@ export function evaluateAgronomicStatus(
   if (vetoNpk.activo) {
     alerts.push({
       type: 'warning',
-      param: 'Nutrientes (N-P-K)',
+      param: 'npk',
       title: '⚠️ Posible Falso Positivo por Salinidad',
       action:
         'La sonda estima los nutrientes a partir de la conductividad y no distingue el ' +
@@ -336,7 +336,7 @@ export function evaluateAgronomicStatus(
     vwcMessage = `Suelo seco bajo Punto de Marchitez (${vwc.toFixed(1)}% < ${texture.pmp}%)`;
     alerts.push({
       type: 'danger',
-      param: 'Humedad',
+      param: 'vwc',
       title: '🏜️ Déficit Hídrico Severo',
       action: 'Riego urgente indispensable previo a la siembra. La semilla no alcanzará a hidratarse para brotar.'
     });
@@ -346,7 +346,7 @@ export function evaluateAgronomicStatus(
     vwcMessage = `Suelo saturado / encharcado (${vwc.toFixed(1)}% VWC)`;
     alerts.push({
       type: 'danger',
-      param: 'Humedad',
+      param: 'vwc',
       title: '🌊 Asfixia Radicular por Exceso de Agua',
       action: 'Esperar 48 a 72 horas a que el suelo drene hasta Capacidad de Campo.'
     });
@@ -359,7 +359,7 @@ export function evaluateAgronomicStatus(
     vwcMessage = `Humedad bajo el umbral de riego (${vwc.toFixed(1)}% < ${texture.ur}%)`;
     alerts.push({
       type: 'warning',
-      param: 'Humedad',
+      param: 'vwc',
       title: '💧 Umbral de Riego Alcanzado',
       action: `Programar riego en las próximas 24 a 48 horas. Por debajo de ${texture.ur}% la planta gasta energía en extraer agua en vez de crecer.`
     });
@@ -371,7 +371,7 @@ export function evaluateAgronomicStatus(
     vwcMessage = `Humedad sobre Capacidad de Campo (${vwc.toFixed(1)}% > ${texture.cc}%)`;
     alerts.push({
       type: 'warning',
-      param: 'Humedad',
+      param: 'vwc',
       title: '💦 Suelo por Encima de Capacidad de Campo',
       action: 'Suspender el riego y no laborear todavía: el suelo húmedo se compacta al pasar maquinaria y la raíz dispone de poco oxígeno.'
     });

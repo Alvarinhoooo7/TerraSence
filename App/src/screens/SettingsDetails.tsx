@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, Linking, Text, View } from 'react-native';
+import { AppState, Linking, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { EntryButton } from '../components/entry/EntryUI';
 import { ScreenStatus, ScreenValue } from '../components/screen/ScreenUI';

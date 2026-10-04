@@ -3,6 +3,7 @@ import { Pressable, ScrollView, Switch, TextInput, TouchableOpacity, View, type 
 import { useTranslation } from '../../hooks/useTranslation';
 import { GuideContext, GuideScrollContext, guideText, measure, useGuideTarget, type Measurable } from './GuideContext';
 import { controlDescription } from './guideCopy';
+import { scaleTextStyle, useLargeText } from '../AppText';
 
 export interface GuideProps { guide?: string | false; guideTitle?: string }
 function useControlGuide(props: GuideProps & { accessibilityLabel?: string; accessibilityHint?: string; children?: React.ReactNode }, fallback: string) {
@@ -23,7 +24,8 @@ export function GuidePressable({ guide, guideTitle, ...props }: PressableProps &
 export function GuideInput({ guide, guideTitle, ...props }: TextInputProps & GuideProps) {
   const { t } = useTranslation();
   const ref = useControlGuide({ ...props, guide, guideTitle }, t('Escribe aquí el valor solicitado. Los cambios se confirman con el botón correspondiente.', 'Enter the requested value here. Confirm changes using the corresponding button.'));
-  return <TextInput {...props} ref={ref as React.RefObject<TextInput>} />;
+  const large = useLargeText();
+  return <TextInput {...props} style={large ? scaleTextStyle(props.style) : props.style} ref={ref as React.RefObject<TextInput>} />;
 }
 export function GuideSwitch({ guide, guideTitle, ...props }: SwitchProps & GuideProps) {
   const { t } = useTranslation();

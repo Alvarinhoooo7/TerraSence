@@ -1,9 +1,11 @@
 import React from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
+import { Text } from './AppText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BrandWordmark, WORDMARK_BOX } from './BrandLogo';
 import { EntryButton } from './entry/EntryUI';
 import { useTranslation } from '../hooks/useTranslation';
+import { useAppTheme } from '../hooks/useAppTheme';
 
 /**
  * Verde de arranque. Es el mismo color que `expo-splash-screen` pinta en la pantalla
@@ -26,6 +28,7 @@ const SPINNER = '#6EE7B7';
  */
 export function BrandLoading({ title, detail, onCancel, cancelLabel }: { title?: string; detail?: string; onCancel?: () => void; cancelLabel?: string }) {
   const { t } = useTranslation();
+  const { isDark, colors } = useAppTheme();
   // Sin texto es la carga de arranque: el nombre queda en el centro exacto de la
   // pantalla, donde lo dibuja la pantalla nativa, y la rueda aparece debajo.
   if (!title && !onCancel) return <View accessibilityRole="progressbar" accessibilityState={{ busy: true }} accessibilityLabel={t('Cargando TerraSense', 'Loading TerraSense')}
@@ -35,14 +38,15 @@ export function BrandLoading({ title, detail, onCancel, cancelLabel }: { title?:
       <ActivityIndicator size="large" color={SPINNER} />
     </View>
   </View>;
-  return <SafeAreaView style={{ flex: 1, backgroundColor: SPLASH_BACKGROUND }}>
+  // Con texto es una espera dentro de un flujo (vincular, guardar): sigue el tema elegido.
+  return <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? SPLASH_BACKGROUND : colors.background }}>
     <View accessibilityRole="progressbar" accessibilityState={{ busy: true }} accessibilityLabel={title ?? t('Cargando TerraSense', 'Loading TerraSense')}
       style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 28 }}>
-      <BrandWordmark onDark width={SPLASH_WORDMARK_WIDTH} />
-      <ActivityIndicator size="large" color={SPINNER} />
+      <BrandWordmark onDark={isDark} width={SPLASH_WORDMARK_WIDTH} />
+      <ActivityIndicator size="large" color={isDark ? SPINNER : colors.primary} />
       {!!title && <View style={{ gap: 8, maxWidth: 360 }}>
-        <Text accessibilityLiveRegion="polite" style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '700', textAlign: 'center' }}>{title}</Text>
-        {!!detail && <Text style={{ color: '#C4D4C9', fontSize: 16, lineHeight: 24, textAlign: 'center' }}>{detail}</Text>}
+        <Text accessibilityLiveRegion="polite" style={{ color: isDark ? '#FFFFFF' : colors.text, fontSize: 22, fontWeight: '700', textAlign: 'center' }}>{title}</Text>
+        {!!detail && <Text style={{ color: isDark ? '#C4D4C9' : colors.textSecondary, fontSize: 16, lineHeight: 24, textAlign: 'center' }}>{detail}</Text>}
       </View>}
     </View>
     {onCancel && <View style={{ paddingHorizontal: 24, paddingBottom: 16, width: '100%', maxWidth: 520, alignSelf: 'center' }}>

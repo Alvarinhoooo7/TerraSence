@@ -1,6 +1,7 @@
 import { GuideSwitch as Switch } from '../components/guide/GuideControls';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, BackHandler, Text, View } from 'react-native';
+import { Alert, BackHandler, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { SettingsPage, SettingsText, SettingsRow, SettingsCard } from '../components/SettingsUI';
 import { ScreenCard, ScreenLabel, ScreenSegmented } from '../components/screen/ScreenUI';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -70,7 +71,7 @@ export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenAdministration
     {!!error && <SettingsText danger>{error}</SettingsText>}
     {page === 'index' && <>
       <SettingsRow title={t('Mi cuenta', 'My account')} subtitle={t('Nombre, correo y contraseña', 'Name, email and password')} onPress={() => setPage('profile')} />
-      <SettingsRow title={t('Preferencias', 'Preferences')} subtitle={t('Idioma, unidades, apariencia y permisos', 'Language, units, appearance and permissions')} onPress={() => setPage('preferences')} />
+      <SettingsRow title={t('Preferencias', 'Preferences')} subtitle={t('Idioma, apariencia, letra y permisos', 'Language, appearance, text and permissions')} onPress={() => setPage('preferences')} />
       <SettingsRow title={t('Equipos y datos', 'Devices and data')} subtitle={t('Acceso, actualizaciones y sincronización', 'Access, updates and synchronization')} onPress={() => setPage('equipment')} />
       <SettingsRow title={t('Ayuda y privacidad', 'Help and privacy')} subtitle={t('Avisos, contacto y documentos', 'Alerts, contact and documents')} onPress={() => setPage('help')} />
       <SettingsRow title={t('Cerrar sesión', 'Sign out')} subtitle={t('Sólo en este teléfono', 'On this phone only')} danger disabled={busy} onPress={() => void confirmSignOut()} />
@@ -90,6 +91,8 @@ export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenAdministration
           options={[{ value: 'metric', label: t('Métrico · °C', 'Metric · °C') }, { value: 'imperial', label: t('Imperial · °F', 'Imperial · °F') }]} onChange={measurementSystem => void apply({ ...preferences, measurementSystem })} />
         <ScreenSegmented label={t('Apariencia', 'Appearance')} disabled={busy} value={preferences.theme}
           options={[{ value: 'system', label: t('Sistema', 'System') }, { value: 'light', label: t('Claro', 'Light') }, { value: 'dark', label: t('Oscuro', 'Dark') }]} onChange={theme => void apply({ ...preferences, theme })} />
+        <ScreenSegmented label={t('Tamaño de letra', 'Text size')} disabled={busy} value={preferences.textSize}
+          options={[{ value: 'normal', label: t('Normal', 'Normal') }, { value: 'large', label: t('Grande', 'Large') }]} onChange={textSize => void apply({ ...preferences, textSize })} />
       </ScreenCard>
       <ScreenLabel>{t('Avisos y permisos', 'Alerts and permissions')}</ScreenLabel>
       <SettingsRow title={t('Notificaciones', 'Notifications')} subtitle={preferences.notifications.device ? t('Avisos de acceso activados', 'Access alerts on') : t('Avisos de acceso desactivados', 'Access alerts off')} onPress={() => setPage('notifications')} />

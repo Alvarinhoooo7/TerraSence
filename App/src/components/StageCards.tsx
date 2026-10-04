@@ -1,5 +1,6 @@
 import React from 'react';
-import { Text, useWindowDimensions, View } from 'react-native';
+import { useWindowDimensions, View } from 'react-native';
+import { Text } from './AppText';
 import Animated from 'react-native-reanimated';
 import Svg, { Circle, Ellipse, G, Path } from 'react-native-svg';
 import { GuideTouchable } from './guide/GuideControls';

@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, BackHandler, findNodeHandle, Keyboard, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { AccessibilityInfo, BackHandler, findNodeHandle, Keyboard, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Text } from '../AppText';
+import type { Text as NativeText } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -10,7 +12,7 @@ import { guideLayout, type GuideRect } from '../../utils/guideLayout';
 export function ScreenGuide({ children, enabled = true, scope = '' }: React.PropsWithChildren<{ enabled?: boolean; scope?: string }>) {
   const { colors } = useAppTheme(); const { t } = useTranslation();
   const insets = useSafeAreaInsets(); const window = useWindowDimensions();
-  const root = useRef<View>(null); const help = useRef<View>(null); const heading = useRef<Text>(null);
+  const root = useRef<View>(null); const help = useRef<View>(null); const heading = useRef<NativeText>(null);
   const targets = useRef(new Map<string, GuideTarget>()); const revision = useRef(0);
   const [steps, setSteps] = useState<GuideTarget[]>([]); const [index, setIndex] = useState(0);
   const [active, setActive] = useState(false); const [rect, setRect] = useState<GuideRect | null>(null);

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { evaluateForStage } from '../src/engine/stageEvaluator';
-import { buildContextualAdvice } from '../src/engine/contextualAdvice';
+import { evaluateForStage, localizedStageTitle } from '../src/engine/stageEvaluator';
+import { buildContextualAdvice, forecastDayLabel } from '../src/engine/contextualAdvice';
 import { buildMeasurementPresentation, isMeasurementPresentation, parameterLabel, presentationFromPoint, PARAMETER_KEYS } from '../src/engine/measurementPresentation';
 import { localizeProbeError } from '../src/utils/probeErrors';
 import { cropName, textureName } from '../src/engine/catalogNames';
@@ -122,4 +122,39 @@ test('D10: un barrido de lecturas extremas no deja mensajes del motor en españo
       }
     }
   }
+});
+
+test('la alerta del motor llega como acción concreta: se identifica por la clave de su métrica', () => {
+  // Bajo el umbral de riego del suelo franco: el motor recomienda regar.
+  const dry = { ...raw, vwc: 18 };
+  const evaluation = evaluateForStage(dry, 'pre_siembra');
+  assert.equal(evaluation.verdict, 'AMBER');
+  assert.ok(evaluation.alerts.every(alert => ['vwc', 'temp', 'ec', 'ph', 'npk'].includes(alert.param)));
+  const advice = buildContextualAdvice('pre_siembra', evaluation, dry, null);
+  assert.match(advice.actions[0], /Programar riego/);
+  const presentation = buildMeasurementPresentation(dry, evaluation, advice);
+  assert.match(presentation.parameters.find(m => m.key === 'vwc')!.recommendation, /Programar riego/);
+});
+test('con lluvia en los dos días siguientes se sugiere esperarla antes de regar', () => {
+  const dry = { ...raw, vwc: 18 };
+  const evaluation = evaluateForStage(dry, 'pre_siembra');
+  const weather = { timezone: 'UTC', fetchedAt: '2026-10-04T00:00:00Z', forecast: [
+    { date: '2026-10-05', precipitationMm: 1, rainProbabilityPct: 30, minimumTemperatureC: 6, maximumTemperatureC: 18 },
+    { date: '2026-10-06', precipitationMm: 12, rainProbabilityPct: 90, minimumTemperatureC: 8, maximumTemperatureC: 15 },
+  ] } as unknown as Parameters<typeof buildContextualAdvice>[3];
+  assert.ok(buildContextualAdvice('pre_siembra', evaluation, dry, weather).actions.some(a => /12 mm de lluvia para el mar 6 oct/.test(a)));
+  assert.ok(buildContextualAdvice('pre_siembra', evaluation, dry, weather, 'en').actions.some(a => /12 mm of rain is forecast for Tue Oct 6/.test(a)));
+  // Con humedad suficiente no hay riego que postergar.
+  const moist = evaluateForStage(raw, 'pre_siembra');
+  assert.ok(!buildContextualAdvice('pre_siembra', moist, raw, weather).actions.some(a => /antes de regar/.test(a)));
+});
+test('fechas del pronóstico legibles e iguales en Node y en el teléfono', () => {
+  assert.equal(forecastDayLabel('2026-10-04'), 'dom 4 oct');
+  assert.equal(forecastDayLabel('2026-10-04', 'en'), 'Sun Oct 4');
+  assert.equal(forecastDayLabel('sin fecha'), 'sin fecha');
+});
+test('el título de una lectura guardada se muestra en el idioma actual', () => {
+  assert.equal(localizedStageTitle('pre_siembra', 'GREEN', 'Apto para sembrar', 'en'), 'Ready to plant');
+  assert.equal(localizedStageTitle('pre_siembra', 'GREEN', 'Ready to plant', 'es'), 'Apto para sembrar');
+  assert.equal(localizedStageTitle('pre_siembra', 'GREEN', 'Título de otra versión', 'en'), 'Título de otra versión');
 });

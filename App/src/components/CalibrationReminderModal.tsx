@@ -1,5 +1,6 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import { Text } from './AppText';
 import { GuideModal } from './guide/GuideModal';
 import { EntryButton, EntryHeading, EntryLayout } from './entry/EntryUI';
 import { useAppTheme } from '../hooks/useAppTheme';
