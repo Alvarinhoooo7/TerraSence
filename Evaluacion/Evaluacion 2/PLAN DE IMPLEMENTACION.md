@@ -122,7 +122,7 @@ firmware». Se confirma en F3 contra la ficha de ciclo de vida del fabricante.
 | D4 | **Ensamble** | Con componentes desnudos (BME280 en LGA de 2,5 × 2,5 mm, cargador con almohadilla térmica) la soldadura a mano deja de ser razonable. Se compara **A: taller con esténcil y placa calefactora** con **C: PCBA completo de JLCPCB**. Con todos los IC en el catálogo de LCSC, C pasa a ser viable | Invierte la conclusión actual de las tablas 7.1 y 7.2, que descartaban C por los módulos |
 | D5 | **Proveedores** | Componentes electrónicos: **LCSC** como principal y **DigiKey** como alternativa y para el instrumental del taller. Sonda, celda y carcasa: se mantienen sus fuentes actuales, con justificación. AliExpress sólo donde ni LCSC ni DigiKey tienen el ítem | Indicación de clases. LCSC además alimenta el PCBA de JLCPCB |
 | D6 | **Generación** | Informe redactado a mano y validado por script (F12). Anexos A y B generados por `finanzas/modelo.py` | El informe de la E2 ya es manual. Los anexos son tablas puras: generados no se desincronizan |
-| D7 | **Fechas de la carta Gantt** (**cerrada por ti, 02-10-2026**) | Hito fijo: **entrega del prototipo funcional al cliente el 17 de diciembre de 2026**. Después: puesta en marcha en **febrero de 2027**, aprobación de la app en las tiendas en **marzo de 2027** y venta desde el segundo trimestre de 2027, coherente con las 200 unidades de 2027 del modelo | La carta Gantt es del proyecto, no del curso: **no incluye las evaluaciones** |
+| D7 | **Fechas de la carta Gantt** (**cerrada por ti, 02-10-2026**) | Hito fijo: **entrega del prototipo funcional al mandante el 17 de diciembre de 2026**. Después: puesta en marcha en **febrero de 2027**, aprobación de la app en las tiendas en **marzo de 2027** y venta desde el segundo trimestre de 2027, coherente con las 200 unidades de 2027 del modelo. La carta va **mes a mes de agosto de 2026 a julio de 2027** y el proyecto se cierra el 30-07-2027 con la placa revisada entregada al mandante (decisión del 04-10-2026); va como **anexo F** | La carta Gantt es del proyecto, no del curso: **no incluye las evaluaciones** |
 | D8 | **Celda** (**cerrada por ti, 02-10-2026**) | **LiPo de 3,7 V y 2.000 mAh con protección incluida** | Se mantiene. Por eso la protección DW01A + FS8205A **no** va en la placa |
 | D9 | **Impresora 3D** (**propuesta por ti, 02-10-2026**) | **Creality K1C**: volumen de 220 × 220 × 250 mm y cámara cerrada | Permite imprimir más de una carcasa por cama. La matriz la compara con otras dos impresoras de cámara cerrada, y el dimensionamiento de F7 calcula cuántas carcasas caben por cama cuando exista el tamaño de la V3 |
 
@@ -143,7 +143,7 @@ alimenta el precio.
 | VI | Fabricación | Alternativas de ensamble (A frente a C), proceso por estaciones, **dimensionamiento de la capacidad del taller**, control de calidad y trazabilidad por número de serie | Tablas 7.1 y 7.2, ampliadas |
 | VII | Ensayos y pruebas | **Matriz Requerimiento → Prueba**, ensayos de desarrollo, **FAT**, **SAT**, ensayos normativos, calibración y deriva | Tablas 5.2, 5.3 y 8.0 a 8.4 |
 | VIII | Evaluación económica | Resumen: BOM V3, inversión, financiamiento, precio derivado, VAN/TIR, sensibilidad, TCO. **El detalle anual va al anexo B** | Cap. V económico (tablas 1.7 a 3.7) |
-| IX | Planificación del proyecto | **Carta Gantt** por trimestres, hitos y ruta crítica | Nuevo |
+| IX | Planificación del proyecto | **Carta Gantt** mes a mes, hitos y ruta crítica calculada; detalle en el anexo F | Nuevo |
 | X | Propuestas de mejora | Retroalimentación del mandante (lo dicho en clases) + mejoras propias, con su estado | Cap. VIII actual |
 | XI | Conclusiones | Nuevas (F10) | Reescritas |
 | XII | Referencias bibliográficas | Vigentes + hojas de datos de los IC nuevos, LCSC, DigiKey y normas de FAT/SAT | Cap. X actual |
@@ -520,14 +520,16 @@ binario.
    - TCO.
 
    Todo el detalle se remite al anexo B. Las cifras salen de `docs/RESULTADOS_FINANCIEROS.md` tras F3.
-2. **IX Carta Gantt** en Mermaid (`gantt`) por trimestres, de octubre de 2026 a fines de 2027. Más una
-   tabla de hitos con su entregable y su criterio de cumplimiento. Paquetes:
+2. **IX Carta Gantt** en Mermaid (`gantt`) mes a mes, de agosto de 2026 a julio de 2027, más una tabla de
+   hitos con su criterio de cumplimiento. El plan vive en `plan_proyecto()` de `finanzas/anexos.py`, que
+   genera el **anexo F** (EDT, holgura en días hábiles y ruta crítica) y que `verificar_informe_e2.py`
+   contrasta con la carta y la tabla del informe. Paquetes:
 
    | Trimestre | Paquetes |
    | --- | --- |
-   | T4 2026 | Diseño de la PCB V3. Firmware: lectura Modbus y reposo profundo. CAD e impresión de la carcasa. Pedido PCB/PCBA. Ensamble, FAT del prototipo. **Hito: entrega del prototipo funcional al cliente, 17 de diciembre de 2026** |
+   | T4 2026 | Diseño de la PCB V3. Firmware: lectura Modbus y reposo profundo. CAD e impresión de la carcasa. Pedido PCB/PCBA. Ensamble, FAT del prototipo. **Hito: entrega del prototipo funcional al mandante, 17 de diciembre de 2026** |
    | T1 2027 | Constitución de la empresa y crédito. Campaña de laboratorio (30 muestras). Certificación SUBTEL. **Puesta en marcha y SAT del piloto, febrero 2027**. **Publicación de la app en Google Play y App Store, marzo 2027**. Primer lote |
-   | T2–T4 2027 | Lanzamiento comercial. Lotes de producción con PCBA desde 12 placas. Revisión de la placa con lo aprendido en el piloto. Ventas del año 1 (200 equipos) |
+   | T2–T3 2027 | Lanzamiento comercial (19-04-2027). Revisión de la placa con lo aprendido en el piloto. **Cierre: proyecto entregado al mandante, 30 de julio de 2027**. Las ventas del año 1 (200 equipos) y los lotes de producción son operación y siguen después del cierre |
 
    - Marcar la **ruta crítica**: sonda → firmware Modbus → calibración → piloto.
    - **Coherencia obligatoria:** el inicio de las ventas del Gantt debe calzar con el año 1 del modelo
@@ -600,7 +602,7 @@ F1 a F12 están implementadas. `python finanzas/verificar_informe_e2.py` sólo r
 - **Taller:** el microscopio pasa al precio de la tienda oficial. El fixture del FAT ($38.528) y las herramientas ($374.588, antes $1.000.000 sin respaldo) quedan desglosados con precios consultados.
 - **Servicios:** SUBTEL por declaración con QR (Res. 737, vigente desde el 22-02-2026), $1.300.000. Ensayo IP67, US$500 ($475.000).
 - **Hojas de datos:** CH340 con 12 mA típicos; PTC de la serie 0603L al 82 % a 40 °C y al 74 % a 50 °C [49]; PETG con 74,5 °C de deflexión bajo carga [50]; LED azul de 300 mcd a 20 mA.
-- **Figuras:** los 8 Mermaid se renderizaron con `mermaid-cli` sin errores. Los PNG para el Word están en `Evaluacion/Evaluacion 2/Figuras/`.
+- **Figuras:** el informe contiene 9 bloques Mermaid, incluida la Figura 1.0. Su sintaxis pasa el analizador de Mermaid con un adaptador de texto para ejecución sin DOM; esto no verifica composición visual. Los PNG de `Evaluacion/Evaluacion 2/Figuras/` corresponden a una exportación anterior y deben regenerarse desde el informe vigente antes de llevarlos a Word. El entorno de revisión bloquea el arranque de Chrome (`spawn EPERM`), por lo que la exportación visual está pendiente.
 
 ### 7.1. Guía para cerrar la placa V3 y la carcasa
 
@@ -629,7 +631,7 @@ F1 a F12 están implementadas. `python finanzas/verificar_informe_e2.py` sólo r
   regenerar y releer cada párrafo que los comenta, conclusiones incluidas.
 - **Prometer lo no verificado:**
   - La V3 no está fabricada.
-  - La lectura de la sonda y el reposo profundo no están en el firmware.
+  - La lectura Modbus está implementada y registra una primera trama válida en banco; estabilidad y exactitud en suelo están pendientes. El reposo profundo no está implementado.
   - IP67, la autonomía y el alcance BLE no están ensayados.
 
   Todo va con su estado (de diseño, implementado sin ensayo o verificado) y su prueba de aceptación.

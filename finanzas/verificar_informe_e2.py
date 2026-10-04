@@ -136,6 +136,66 @@ def cifras(texto, err):
     for k, v in clave.items():
         if v not in texto:
             err("Cifras", "falta la cifra del modelo «%s» = %s" % (k, v))
+    # Comparar las celdas, no sólo la presencia de una cifra en cualquier párrafo.
+    esperados = {
+        "Precio neto de venta 2027": r["precio_neto_base"],
+        "IVA 19 %": r["precio_lista"] - r["precio_neto_base"],
+        "Precio de lista con IVA": r["precio_lista"],
+        "Costo y gasto total de los 10 años": sum(f["costo_total"] for f in r["filas"]),
+        "Ventas netas necesarias en los 10 años": sum(f["ventas"] for f in r["filas"]),
+    }
+    for _, filas in tablas(texto.splitlines()):
+        for fila in filas[2:]:
+            etiqueta = fila[0].replace("*", "")
+            if etiqueta in esperados and len(fila) > 1:
+                valor = _num(fila[1])
+                if valor is None or abs(valor - esperados[etiqueta]) > 0.51:
+                    err("Cifras", "%s no coincide con el modelo" % etiqueta)
+        if filas[0][:3] == ["Año", "Equipos", "Ventas netas"]:
+            por_anio = {str(f["anio"]): f for f in r["filas"]}
+            for fila in filas[2:]:
+                if fila[0] not in por_anio:
+                    continue
+                f = por_anio[fila[0]]
+                for c, k in ((2, "ventas"), (3, "util_neta"), (4, "flujo"), (5, "caja")):
+                    v = _num(fila[c]) if c < len(fila) else None
+                    if v is None or abs(v - f[k]) > 0.51:
+                        err("Cifras", "%s: %s no coincide con el modelo" % (fila[0], k))
+
+
+def matrices(lineas, err):
+    for ini, filas in tablas(lineas):
+        if len(filas[0]) < 3 or filas[0][1] != "Peso":
+            continue
+        pesos = [_num(f[1]) for f in filas[2:-1]]
+        if any(p is None for p in pesos):
+            continue
+        if abs(sum(pesos) - 100) > 0.001:
+            err("Matrices", "línea %d: pesos distintos de 100 %%" % (ini + 1))
+        for col in range(2, len(filas[0])):
+            notas = [_num(f[col]) if col < len(f) else None for f in filas[2:-1]]
+            declarado = _num(filas[-1][col]) if col < len(filas[-1]) else None
+            if declarado is None or any(n is None for n in notas):
+                continue
+            calculado = sum(p * n / 100 for p, n in zip(pesos, notas))
+            if abs(calculado - declarado) > 0.0051:
+                err("Matrices", "línea %d: puntaje de %s debe ser %.2f" % (ini + 1, filas[0][col], calculado))
+
+
+def protocolos(texto, err):
+    import anexos as A
+    for numero, definicion in (("6.7", A.pruebas_fat()), ("6.8", A.pruebas_sat())):
+        fin = texto.find("**Tabla " + numero)
+        if fin < 0:
+            continue
+        anteriores = tablas(texto[:fin].splitlines())
+        if not anteriores:
+            continue
+        filas = anteriores[-1][1][2:]
+        por_nombre = {f[0]: f for f in filas}
+        for prueba in definicion:
+            if list(prueba) != por_nombre.get(prueba[0]):
+                err("Protocolos", "Tabla %s: «%s» difiere del anexo E" % (numero, prueba[0]))
 
 
 def hardware(texto, err):
@@ -196,12 +256,56 @@ def anexos(err):
     if not os.path.exists(e):
         err("Anexos", "no existe %s" % os.path.basename(e))
         return
+    f = os.path.join(ANEXOS, "Anexo F - Carta Gantt TerraSense.xlsx")
+    if not os.path.exists(f):
+        err("Anexos", "no existe %s" % os.path.basename(f))
+        return
     import zipfile
-    for ruta in (a, b, e):
+    for ruta in (a, b, e, f):
         with zipfile.ZipFile(ruta) as z:
             t = "\n".join(z.read(n).decode("utf-8", "ignore") for n in z.namelist() if n.endswith(".xml"))
         if REPO.search(t):
             err("Sin repositorio", "%s contiene referencias al repositorio" % os.path.basename(ruta))
+
+
+def gantt(texto, err):
+    """La carta del capítulo IX y la tabla de hitos repiten las fechas del anexo F."""
+    import anexos as A
+    plan = A.plan_proyecto()
+    lineas = texto.splitlines()
+    fin = texto.find("**Tabla 8.5")
+    if fin < 0:
+        err("Gantt", "no existe la tabla de hitos")
+        return
+    anteriores = tablas(texto[:fin].splitlines())
+    filas = {f[0].replace("*", ""): f for f in anteriores[-1][1][2:]} if anteriores else {}
+    for p in plan:
+        if p[7] != "hito":
+            continue
+        fila = filas.get(p[1])
+        if not fila:
+            err("Gantt", "el hito «%s» del anexo F falta en la tabla de hitos" % p[1])
+        elif not fila[1].replace("*", "").startswith(A.fecha_texto(p[3])):
+            err("Gantt", "el hito «%s» tiene otra fecha que en el anexo F" % p[1])
+    m = re.search(r"```mermaid\s+gantt\n(.*?)```", texto, re.S)
+    if not m:
+        err("Gantt", "falta la carta Gantt del capítulo IX")
+        return
+    tareas = {}
+    for l in m.group(1).splitlines():
+        x = re.match(r"\s*(.+?)\s*:.*?\bt([\d_]+), (\d{4}-\d\d-\d\d)(?:, (\d{4}-\d\d-\d\d|0d))?\s*$", l)
+        if x:
+            tareas[x.group(2).replace("_", ".")] = (x.group(1), x.group(3), x.group(4))
+    for p in plan:
+        if p[7] == "fase":
+            continue
+        t = tareas.get(p[0])
+        if not t:
+            err("Gantt", "la actividad %s del anexo F falta en la carta del informe" % p[0])
+        elif t[1] != p[3] or (p[7] != "hito" and t[2] != p[4]):
+            err("Gantt", "la actividad %s tiene otras fechas que en el anexo F" % p[0])
+    if len(tareas) != sum(p[7] != "fase" for p in plan):
+        err("Gantt", "la carta del informe y el anexo F no tienen las mismas actividades")
 
 
 def validar(texto, con_anexos=True):
@@ -211,6 +315,8 @@ def validar(texto, con_anexos=True):
     if "⟦PENDIENTE" in texto:
         err("Marcadores", "quedan %d marcadores ⟦PENDIENTE" % texto.count("⟦PENDIENTE"))
     revisar_tablas(lineas, err)
+    matrices(lineas, err)
+    protocolos(texto, err)
     numeracion(texto, lineas, err)
     siglas(lineas, err)
     sin_modulos(lineas, err)
@@ -218,12 +324,16 @@ def validar(texto, con_anexos=True):
         for m in re.finditer(p, texto):
             err("Términos", "término prohibido «%s»" % m.group(0))
     sin_mermaid = re.sub(r"```mermaid\s.*?```", "", texto, flags=re.S)  # las vallas Mermaid son legítimas
-    if REPO.search(sin_mermaid):
-        m = REPO.search(sin_mermaid)
+    sin_urls = re.sub(r"https?://[^\s<>]+", "", sin_mermaid)
+    if REPO.search(sin_urls):
+        m = REPO.search(sin_urls)
         err("Sin repositorio", "el informe contiene una referencia al repositorio: «%s»" % m.group(0))
+    if re.search(r"informe (?:1|anterior|pasado|original)\b|versiones anteriores|sin cambios|changelog", sin_mermaid, re.I):
+        err("Autonomía documental", "el informe remite a una entrega anterior o relata cambios")
     cifras(texto, err)
     hardware(texto, err)
     trazabilidad(lineas, err)
+    gantt(texto, err)
     if con_anexos:
         anexos(err)
     return errores

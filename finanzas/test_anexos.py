@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Pruebas de los anexos A y B de la Evaluacion 2, de la BOM estructurada y de los modulos de ensamble y energia.
+"""Pruebas de los anexos A, B, E y F de la Evaluacion 2, de la BOM estructurada y de los modulos de ensamble y energia.
 
     python -m unittest discover -s finanzas -p "test_*.py"
 """
@@ -327,8 +327,8 @@ class TestEnergiaV3(unittest.TestCase):
 
     def test_modos_ordenados_por_consumo(self):
         m = {n: p for n, p, _, _ in EV.modos()}
-        self.assertEqual(m["Apagado (interruptor abierto)"], 0.0)
-        self.assertLess(m["Reposo profundo (mejora, con divisor de 1 MΩ)"], m["Conectado en espera"])
+        self.assertGreater(m["Apagado (interruptor abierto)"], EV.V_BAT * EV.DIVISOR_MA)
+        self.assertLess(m["Reposo profundo (mejora, divisor de 100 kΩ)"], m["Conectado en espera"])
         self.assertLess(m["Conectado en espera"], m["Midiendo (adquisición de la sonda)"])
 
     def test_la_v3_dura_mas_que_la_v2_con_reposo(self):
@@ -341,9 +341,22 @@ class TestEnergiaV3(unittest.TestCase):
         self.assertGreater(EV.kwh_red_anuales(EV.JORNADAS_HABITUAL) * 1000, EV.wh_anuales(EV.JORNADAS_HABITUAL))
 
     def test_la_electricidad_del_modelo_calza_con_la_potencia_instalada(self):
-        """La electricidad de los servicios basicos sale del taller y la oficina: el supuesto es el calculo redondeado hacia arriba a $5.000."""
+        """El presupuesto conservador cubre el consumo calculado sin duplicar horas de máquina."""
         _, _, sin, con = EV.electricidad_requerida()
-        self.assertEqual(EV.electricidad_supuesto(), (sin, con))
+        for presupuesto, requerido in zip(EV.electricidad_supuesto(), (sin, con)):
+            self.assertGreaterEqual(presupuesto, requerido)
+
+    def test_dos_impresoras_reparten_las_horas_de_la_demanda(self):
+        for anio in (2027, 2036):
+            fila = EV.taller(anio)[0]
+            horas_total = EN.impresoras_necesarias(M.S['ventas'][str(anio)])['horas']
+            self.assertAlmostEqual(fila[1] * fila[4], horas_total)
+            self.assertAlmostEqual(fila[5], horas_total * M.S['capacidad_impresion']['potencia_promedio_w'] / 1000)
+
+    def test_sin_jornadas_el_consumo_no_desaparece(self):
+        esperado = (365 * 24 * EV.apagado_mw() + 365 * EV.AUTODESCARGA_MWH_DIA) / 1000
+        self.assertAlmostEqual(EV.wh_anuales(0), esperado)
+        self.assertGreater(EV.wh_anuales(0), 365 * EV.AUTODESCARGA_MWH_DIA / 1000)
 
     def test_los_servicios_basicos_suman_su_detalle(self):
         self.assertEqual(M.S["servicios_basicos_con_oficina"], sum(v for _, v in M.S["_servicios_detalle_oficina"]))
@@ -389,6 +402,26 @@ class TestValidadorInforme(unittest.TestCase):
     def test_detecta_referencias_al_repositorio(self):
         self.assertIn("Sin repositorio", self.cats("Ver `modelo.py` y finanzas/supuestos.json"))
 
+    def test_url_bibliografica_con_docs_no_es_ruta_del_repositorio(self):
+        self.assertNotIn("Sin repositorio", self.cats("https://www.modbus.org/docs/Modbus_over_serial_line_V1_02.pdf"))
+
+    def test_detecta_iva_errado_aunque_otras_cifras_esten_presentes(self):
+        t = "| Concepto | Valor |\n|---|---|\n| IVA 19 % | $74.202 |\n"
+        mensajes = [m for c, m in VI.validar(t, con_anexos=False) if c == "Cifras"]
+        self.assertTrue(any("IVA 19 % no coincide" in m for m in mensajes))
+
+    def test_detecta_puntaje_ponderado_errado(self):
+        t = "| Criterio | Peso | Opción |\n|---|---|---|\n| A | 40 % | 8 |\n| B | 60 % | 6 |\n| Puntaje | 100 % | 7,00 |\n"
+        self.assertIn("Matrices", self.cats(t))
+        self.assertNotIn("Matrices", self.cats(t.replace("7,00", "6,80")))
+
+    def test_el_informe_debe_ser_autonomo(self):
+        self.assertIn("Autonomía documental", self.cats("Según el informe anterior, sin cambios."))
+
+    def test_protocolo_no_puede_discrepar_del_anexo(self):
+        t = "| Prueba | Método | Criterio | Requerimiento |\n|---|---|---|---|\n| Carga | USB | 2 A | R08 |\n\n**Tabla 6.7 “FAT”**\n"
+        self.assertIn("Protocolos", self.cats(t))
+
     def test_los_anexos_generados_pasan_la_validacion(self):
         errores = []
         VI.anexos(lambda c, m: errores.append((c, m)))
@@ -424,6 +457,62 @@ class TestAnexoE(unittest.TestCase):
         with zipfile.ZipFile(self.ruta) as z:
             t = "\n".join(z.read(n).decode("utf-8", "ignore") for n in z.namelist() if n.endswith(".xml"))
         self.assertIsNone(VI.REPO.search(t))
+
+
+class TestAnexoF(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.dir = tempfile.TemporaryDirectory()
+        cls.ruta = os.path.join(cls.dir.name, "f.xlsx")
+        cls.res = anexos.anexo_f(cls.ruta)
+        cls.plan = anexos.plan_proyecto()
+        cls.por = {p[0]: p for p in cls.plan}
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.dir.cleanup()
+
+    def test_mes_a_mes_de_agosto_de_2026_a_julio_de_2027(self):
+        meses = anexos.meses_gantt()
+        self.assertEqual((meses[0], meses[-1], len(meses)), ((2026, 8), (2027, 7), 12))
+
+    def test_hitos_comprometidos(self):
+        self.assertEqual(self.por["4.6"][3], "2026-12-17")
+        self.assertEqual(self.por["6.4"][3], max(p[4] for p in self.plan))
+        for p in self.plan:
+            if p[7] == "hito":
+                self.assertEqual(p[3], p[4], p[0])
+
+    def test_predecesoras_existen_y_terminan_antes(self):
+        for p in self.plan:
+            for pre in filter(None, (x.strip() for x in p[5].split(","))):
+                self.assertIn(pre, self.por, p[0])
+                self.assertLessEqual(self.por[pre][4], p[3], "%s empieza antes de terminar %s" % (p[0], pre))
+
+    def test_la_entrega_de_diciembre_no_tiene_holgura(self):
+        h = anexos.holguras()
+        for edt in ("3.3", "4.1", "4.3", "4.4", "4.5"):
+            self.assertEqual(h[edt], 0, edt)
+        self.assertTrue(all(v >= 0 for v in h.values()))
+        self.assertGreater(h["3.6"], 0)
+
+    def test_dias_habiles(self):
+        d = anexos._d
+        self.assertEqual(anexos.dias_habiles(d("2026-12-07"), d("2026-12-16")), 8)
+        self.assertEqual(anexos.dias_habiles(d("2026-10-03"), d("2026-10-04")), 0)
+
+    def test_hojas_y_sin_referencias_al_repositorio(self):
+        self.assertEqual(openpyxl.load_workbook(self.ruta).sheetnames, ["Carta Gantt", "Hitos", "Método"])
+        with zipfile.ZipFile(self.ruta) as z:
+            t = "\n".join(z.read(n).decode("utf-8", "ignore") for n in z.namelist() if n.endswith(".xml"))
+        self.assertIsNone(VI.REPO.search(t))
+
+    def test_el_informe_repite_las_fechas_del_anexo(self):
+        with open(VI.INFORME, encoding="utf-8") as fh:
+            texto = fh.read()
+        errores = []
+        VI.gantt(texto, lambda cat, msg: errores.append(msg))
+        self.assertEqual(errores, [])
 
 
 if __name__ == "__main__":

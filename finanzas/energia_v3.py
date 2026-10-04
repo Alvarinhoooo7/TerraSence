@@ -5,7 +5,7 @@ kWh anuales y costo, con los parametros de la V3.
 Complementa a `energia.py` (balance de la V2 con placa de desarrollo, que sigue siendo la fuente
 de las cifras del prototipo). Lo que no esta medido es estimacion y se declara como tal: ninguna
 corriente de la V3 se ha medido en banco porque la placa aun no esta fabricada, y el firmware
-todavia no implementa la lectura de la sonda ni el reposo profundo.
+ya implementa la lectura de la sonda, pero no el reposo profundo.
 """
 import math
 
@@ -30,7 +30,8 @@ ETA_ADAPTADOR = 0.80                                        # cargador USB de pa
 ETA_TP4056 = V_BAT / 5.0                                    # cargador lineal: toma 5 V y entrega la corriente de la celda
 HORAS_CARGA = 2.0 / I_CARGA_A * 1.1                         # 2.000 mAh a corriente constante mas la cola de tension constante
 DEEP_SLEEP_MA = 0.010                                       # ESP32 en reposo profundo (estimacion de hoja de datos)
-OTROS_REPOSO_MA = 0.0036                                    # LDO 2 µA, BME280 0,1 µA, SP3485 y elevador apagados (estimacion)
+OTROS_REPOSO_MA = 0.0016                                    # BME280, SP3485 y elevador apagados; el LDO se cuenta en p_bateria
+FUGA_CARGADOR_MA = S["energia_v3"]["fuga_cargador_ma"]                                    # supuesto de descarga inversa, por confirmar en el componente recibido
 VIDA_EQUIPO_ANIOS = 5                                       # misma del activo y del TCO del agricultor
 
 BUZZER_MA, LED_MA = 52.0, 3.9                               # corrientes de diseno de la tabla de potencia del informe
@@ -54,6 +55,11 @@ def aviso_mwh(ma_s):
     return V_BAT * ma_s / 3600.0                            # el consumo de base ya esta en la fase en que ocurre
 
 
+def apagado_mw(divisor_ma=DIVISOR_MA):
+    """El interruptor no desconecta ni el divisor ni el cargador de la celda."""
+    return V_BAT * (divisor_ma + FUGA_CARGADOR_MA)
+
+
 E_AVISO_MEDICION = aviso_mwh(AVISO_MEDICION_MAS)
 E_AVISO_ENCENDIDO = aviso_mwh(AVISO_ENCENDIDO_MAS)
 
@@ -75,8 +81,10 @@ E_CICLO, E_JORNADA = ciclo_mwh(), jornada_mwh()
 
 
 def autonomia_dias(jornadas_semana, horas=JORNADA_H, espera=ESPERA_REPOSO, divisor_ma=DIVISOR_MA):
-    """Dias con una carga: jornadas con el equipo encendido; el resto de la semana, interruptor abierto (solo autodescarga)."""
-    semana = jornadas_semana * jornada_mwh(horas, espera, divisor_ma) + 7 * AUTODESCARGA_MWH_DIA
+    """Dias con una carga, incluyendo consumos residuales con el interruptor abierto."""
+    semana = (jornadas_semana * jornada_mwh(horas, espera, divisor_ma)
+              + (168 - jornadas_semana * horas) * apagado_mw(divisor_ma)
+              + 7 * AUTODESCARGA_MWH_DIA)
     return E_UTIL / semana * 7
 
 
@@ -120,10 +128,10 @@ def modos():
     p_pub = p_bateria(FASES_V3[0][2])
     p_med = p_bateria(FASES_V3[1][2], FASES_V3[1][3])
     p_env = p_bateria(FASES_V3[2][2])
-    p_prof = p_bateria(DEEP_SLEEP_MA + OTROS_REPOSO_MA, 0.0, DIVISOR_1M_MA)
+    p_prof = p_bateria(DEEP_SLEEP_MA + OTROS_REPOSO_MA)
     return [
-        ("Apagado (interruptor abierto)", 0.0, 0.0, "solo autodescarga de la celda, %.2f mWh/día" % AUTODESCARGA_MWH_DIA),
-        ("Reposo profundo (mejora, con divisor de 1 MΩ)", p_prof, 0.0, "pendiente en el firmware; despierta con PAIR"),
+        ("Apagado (interruptor abierto)", apagado_mw(), 0.0, "divisor y cargador, más autodescarga de %.2f mWh/día" % AUTODESCARGA_MWH_DIA),
+        ("Reposo profundo (mejora, divisor de 100 kΩ)", p_prof, 0.0, "pendiente en el firmware; despierta con PAIR"),
         ("Anuncio BLE", p_pub, t_pub / 60, "12 s por medición"),
         ("Conectado en espera", p_con, t_con / 60, "reposo ligero del módem, 18 mA"),
         ("Midiendo (adquisición de la sonda)", p_med, t_med / 60, "3 s por medición"),
@@ -137,7 +145,8 @@ JORNADAS_HABITUAL, JORNADAS_INTENSIVO = 104, 365
 
 
 def wh_anuales(jornadas):
-    return (jornadas * E_JORNADA + 365 * AUTODESCARGA_MWH_DIA) / 1000
+    return (jornadas * E_JORNADA + (365 * 24 - jornadas * JORNADA_H) * apagado_mw()
+            + 365 * AUTODESCARGA_MWH_DIA) / 1000
 
 
 def kwh_red_anuales(jornadas):
@@ -165,14 +174,14 @@ def autonomias():
     olv_actual = E2.E_UTIL / E2.desde_bateria(ESPERA_ACTUAL) / 24
     olv_v2 = E2.HORAS_ENCENDIDO / 24
     olv_v3 = E_UTIL / p_bateria(ESPERA_REPOSO) / 24
-    p_prof = p_bateria(DEEP_SLEEP_MA + OTROS_REPOSO_MA, 0.0, DIVISOR_1M_MA)
+    p_prof = p_bateria(DEEP_SLEEP_MA + OTROS_REPOSO_MA)
     olv_prof = E_UTIL / (p_prof + AUTODESCARGA_MWH_DIA / 24) / 24
     return [
         ("Equipo olvidado encendido, sin medir", olv_actual, olv_v2, olv_v3, olv_prof),
         ("Uso habitual: dos jornadas semanales de 2 h", E2.autonomia(2, espera=ESPERA_ACTUAL), E2.DIAS_HABITUAL,
-         autonomia_dias(2), autonomia_dias(2, espera=ESPERA_PROFUNDO, divisor_ma=DIVISOR_1M_MA)),
+         autonomia_dias(2), autonomia_dias(2, espera=ESPERA_PROFUNDO)),
         ("Uso intensivo: una jornada diaria de 2 h", E2.autonomia(7, espera=ESPERA_ACTUAL), E2.DIAS_INTENSIVO,
-         autonomia_dias(7), autonomia_dias(7, espera=ESPERA_PROFUNDO, divisor_ma=DIVISOR_1M_MA)),
+         autonomia_dias(7), autonomia_dias(7, espera=ESPERA_PROFUNDO)),
     ]
 
 
@@ -194,8 +203,8 @@ def taller(anio):
     h_micro = u * 5 / 60 + 100
     h_aire = u * e["merma_retrabajo_taller"] * 10 / 60 + 120
     filas = [
-        ("Impresora 3D Creality K1C", S["taller_filas"][0]["cantidad"], 350, S["capacidad_impresion"]["potencia_promedio_w"] / 350, imp["horas"], "350 W de placa; 262 W promedio al imprimir PETG (estimación)"),
-        ("Estación de soldadura Hakko FX-888D", 2, 70, 0.60, h_sold, "70 W de placa"),
+        ("Impresora 3D Creality K1C", S["taller_filas"][0]["cantidad"], 350, S["capacidad_impresion"]["potencia_promedio_w"] / 350, imp["horas"] / S["taller_filas"][0]["cantidad"], "Horas por máquina: la carga anual total se reparte entre las impresoras"),
+        ("Estación de soldadura Hakko FX-888D", 2, 70, 0.60, h_sold / 2, "Horas por puesto: carga total de retoque y desarrollo repartida entre dos estaciones"),
         ("Estación de aire caliente Quick 861DW", 1, 1000, 0.50, h_aire, "retrabajo y lotes de prototipos"),
         ("Placa calefactora de 100 × 100 mm", 1, 400, 0.50, 60, "prototipos"),
         ("Microscopio estereoscópico con luz LED", 1, 10, 1.0, h_micro, "estimación"),

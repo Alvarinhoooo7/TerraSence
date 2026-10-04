@@ -444,6 +444,7 @@ def main():
     planilla_flujo(r, os.path.join(destino, "Anexo B - Flujo de caja TerraSense.xlsx"))
     anexos.anexo_a(os.path.join(destino, "Anexo A - Cotizaciones TerraSense.xlsx"))
     anexos.anexo_e(os.path.join(destino, "Anexo E - Protocolos FAT y SAT TerraSense.xlsx"))
+    anexos.anexo_f(os.path.join(destino, "Anexo F - Carta Gantt TerraSense.xlsx"))
     planilla_bom(os.path.join(ROOT, "PCB", "BOM_TerraSense.xlsx"))
     resultados_markdown(r, os.path.join(ROOT, "docs", "RESULTADOS_FINANCIEROS.md"))
     for script in ("seccion_economica.py", "corregir_informe.py", "documentacion.py", "informe.py"):

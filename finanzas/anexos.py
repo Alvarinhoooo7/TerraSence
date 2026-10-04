@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Anexos A (cotizaciones) y B (flujo de caja) de la Evaluacion 2, mas la planilla de BOM del repositorio.
+"""Anexos A (cotizaciones), B (flujo de caja), E (protocolos FAT y SAT) y F (carta Gantt) de la
+Evaluacion 2, mas la planilla de BOM del repositorio.
 
 Los llama `modelo.py`. Los libros que se entregan (anexos) no contienen ninguna referencia al
 repositorio: ni rutas, ni nombres de scripts, ni instrucciones de regeneracion.
@@ -277,8 +278,10 @@ def pruebas_fat():
          "Versión de la liberación vigente; identificador de 15 dígitos igual a la dirección física", "R23"),
         ("BLE y trama", "Vinculación con la aplicación de prueba y lectura de una trama",
          "Trama de 20 bytes con formato 1", "R13, R14"),
-        ("Lectura de la sonda patrón", "Sonda en solución patrón de pH 7,00 y de CE 1.413 µS/cm",
-         "Siete campos válidos y CRC correcto; pH 7,00 ± 0,3; CE 1.413 µS/cm ± 10 %", "R01, R15"),
+        ("Lectura de la sonda de cada unidad", "Verificar la sonda que se despacha, en soluciones separadas de pH 7,00 y CE 1.413 µS/cm; enjuagar entre patrones",
+         "Siete campos válidos y CRC correcto; pH 7,00 ± 0,3; CE 1.413 ± 200 µS/cm; N, P y K sólo informativos", "R01, R15"),
+        ("Tiempo de medición", "Cronometrar 10 mediciones consecutivas con la aplicación",
+         "Adquisición y envío ≤ 10 s; ciclo con conexión ≤ 20 s en cada intento", "R03"),
         ("BME280 contra la referencia", "Comparación con termohigrómetro y barómetro patrón",
          "±1,0 °C; ±3 % HR; ±1,0 hPa", "R02"),
         ("LED, buzzer y pulsador PAIR", "Recorrido de los eventos de la filosofía operativa",
@@ -287,8 +290,12 @@ def pruebas_fat():
          "Menos de 0,1 V", "R16"),
         ("Carga", "Cargador USB de 1 A; corriente por JP1 y luz de carga",
          "Corriente de 0,5 A o menos; luz de carga encendida", "R08"),
+        ("Aviso de batería baja", "Fuente ajustable: bajar de 3,40 V y subir sobre 3,50 V; comprobar también el aviso de la aplicación",
+         "Aviso del equipo al cruzar 3,40 V y rearme sobre 3,50 V; aplicación: aviso al 15 % y rearme sobre 20 %", "R17"),
         ("Estanqueidad por muestreo", "Inmersión de 10 min a 0,5 m (1 de cada 10 unidades y las 5 primeras de cada lote)",
          "Sin ingreso de agua; si la unidad no está en la muestra, se marca «No aplica»", "R09"),
+        ("Celda extraíble por muestreo", "Una unidad por lote: desmontar la celda con destornillador y repetir el cierre y el control de estanqueidad",
+         "≤ 5 min sin daño; No aplica sólo fuera de la muestra documentada", "R27"),
     ]
 
 
@@ -296,13 +303,15 @@ def pruebas_sat():
     """Pruebas de aceptacion en sitio (tabla SAT del informe)."""
     return [
         ("Recepción", "Revisión de la etiqueta y de la carga completa", "Número de serie legible y celda cargada", "R08, R23"),
-        ("Vinculación", "Pulsador PAIR durante 3 s y registro en la aplicación",
-         "El agricultor queda como administrador; verde con tres destellos", "R13"),
+        ("Vinculación", "Con red: PAIR durante 3 s, buscar dentro de la ventana de 30 s y completar el registro",
+         "El agricultor queda como administrador; aviso verde sólo si la confirmación llega dentro de la ventana", "R13"),
         ("Primera medición con ubicación", "Medición con la fase fenológica elegida y la ubicación activa",
          "Diez variables y ubicación como texto", "R01, R02, R05"),
-        ("Operación sin red", "Medición con el teléfono en modo avión", "La medición se guarda y queda en cola", "R05"),
+        ("Operación sin red", "Con cuenta y equipo previamente registrados: modo avión, reactivar Bluetooth y ubicación, mantener datos y Wi-Fi apagados", "La medición se guarda y queda en cola", "R05"),
         ("Comparación con una muestra de laboratorio", "Muestra del punto medido enviada a laboratorio (sólo en el piloto)",
-         "pH dentro de ± 0,3; CE dentro de ± 10 % o 200 µS/cm; humedad dentro de ± 4 puntos", "R04"),
+         "Registrar el par y los métodos; aceptación estadística al completar ≥ 30 puntos: RMSE pH ≤ 0,3; RMSE de CE normalizado ≤ 1; RMSE humedad ≤ 4 puntos; R² ≥ 0,80. No aplica fuera del piloto", "R04"),
+        ("Alcance BLE", "Equipo cerrado en el suelo: 20 intentos por distancia a 1, 3, 5 y 10 m",
+         "20 de 20 lecturas a 1, 3 y 5 m; registrar éxitos a 10 m como objetivo", "R06"),
         ("Sincronización con la nube", "Recuperar la cobertura", "La medición aparece en el historial y en la consola; cola vacía", "R05, R25"),
         ("Aviso de batería", "Estado de batería en la aplicación frente a la tensión medida con voltímetro",
          "Porcentaje coherente con la tensión medida", "R17"),
@@ -339,10 +348,10 @@ def _hoja_protocolo(wb, f, nombre, titulo, cabecera, pruebas, firmas):
         ws.set_row(r, 45)
     r = fila + len(pruebas) + 1
     ws.write(r, 1, "Resultado global", lab)
-    ws.write(r, 2, "Aprueba si todas las pruebas aplicables aprueban; una sola prueba rechazada devuelve la unidad a diagnóstico.", f["nota"])
+    ws.merge_range(r, 2, r, 5, "Aprueba sólo con todas las pruebas aplicables aprobadas, sin casillas pendientes y con firmas. No aplica exige justificación; sólo se admite en muestreo o fuera del piloto.", f["nota"])
     ws.data_validation(r, 6, r, 6, {"validate": "list", "source": ["Aprueba", "Rechaza"]})
     ws.write(r, 6, "", vac)
-    ws.set_row(r, 30)
+    ws.set_row(r, 55)
     for k, firma in enumerate(firmas):
         ws.write(r + 3, 1 + 2 * k, "_" * 30)
         ws.write(r + 4, 1 + 2 * k, firma)
@@ -358,10 +367,12 @@ def anexo_e(ruta):
         wb.set_properties({"title": "Anexo E. Protocolos FAT y SAT TerraSense", "author": "TerraSense"})
         f = _formatos(wb)
         _hoja_protocolo(wb, f, "FAT", "Prueba de aceptación en fábrica (FAT) — una hoja por unidad",
-                        ["Número de serie (15 dígitos)", "Lote de fabricación", "Fecha", "Operador", "Versión de firmware"],
+                        ["Número de serie (15 dígitos)", "Lote de fabricación", "Fecha", "Operador", "Versión de firmware",
+                         "Instrumentos y vigencia de calibración", "Lotes de patrones y temperatura", "Acta de ensayos de desarrollo aprobada"],
                         pruebas_fat(), ["Firma del operador", "Firma de control de calidad"])
         _hoja_protocolo(wb, f, "SAT", "Prueba de aceptación en sitio (SAT) — una hoja por equipo instalado",
-                        ["Número de serie (15 dígitos)", "Cliente", "Campo y comuna", "Fecha", "Técnico a cargo"],
+                        ["Número de serie (15 dígitos)", "Cliente", "Campo y comuna", "Fecha", "Técnico a cargo",
+                         "Teléfono, sistema y versión de aplicación", "Instrumentos y patrones", "Acta de campaña pareada (si aplica)"],
                         pruebas_sat(), ["Firma del técnico", "Firma de recepción del cliente"])
         ws = wb.add_worksheet("Instrucciones")
         ws.set_column(0, 0, 110)
@@ -373,12 +384,338 @@ def anexo_e(ruta):
             "3. Una sola prueba rechazada devuelve la unidad a diagnóstico; tras el retrabajo se repite el FAT completo en un formulario nuevo.",
             "4. El SAT se completa en el campo del cliente durante la puesta en marcha y cierra con la firma de recepción.",
             "5. Los formularios se archivan por número de serie: son el registro de trazabilidad de cada unidad.",
+            "6. La campaña de laboratorio usa error de CE normalizado: (lectura − referencia) / máximo(0,10 × referencia, 200 µS/cm). "
+            "La raíz del promedio de sus cuadrados debe ser ≤ 1. Un solo punto no demuestra R² ni valida la campaña.",
+            "7. Las corrientes son objetivos del diseño V3 con reposo ligero. Antes del FAT deben aprobarse el firmware y los ensayos de desarrollo, "
+            "incluidos carga completa, temperatura, comunicación prolongada y autonomía; el FAT breve no los reemplaza.",
+            "8. Una falla de estanqueidad retiene el lote: investigar la causa, corregir y ampliar la inspección al 100 %. "
+            "El muestreo de fábrica no certifica IP67. Registrar las unidades seleccionadas antes del ensayo.",
         ]
         ws.write(0, 0, texto[0], wb.add_format({"bold": True, "font_size": 14, "font_color": "#1F3864"}))
         for i, x in enumerate(texto[1:], 2):
             ws.write(i, 0, x, f["nota"])
             ws.set_row(i, 32)
     return {"fat": len(pruebas_fat()), "sat": len(pruebas_sat())}
+
+
+# ============================================================ Anexo F
+import datetime as _dt
+
+FECHA_CORTE = "2026-10-04"          # estado de avance de la carta
+MESES_ES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sept", "oct", "nov", "dic"]
+MESES_LARGOS = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+
+
+def plan_proyecto():
+    """Carta Gantt del proyecto: única fuente de fechas para el anexo F y el capítulo IX del informe.
+
+    (EDT, actividad, área, inicio, término, predecesoras, entregable, tipo). Tipo: fase, tarea, hito u
+    operacion (la operación comercial empieza dentro del período pero no es parte del proyecto). Las
+    fechas anteriores al corte salen del historial de trabajo; las posteriores son planificadas.
+    """
+    return [
+        ("1", "Ingeniería conceptual", "", "2026-08-03", "2026-09-10", "", "", "fase"),
+        ("1.1", "Necesidades, requerimientos medibles y filtro de viabilidad", "Gestión", "2026-08-03", "2026-08-14", "", "Requerimientos R01 a R27", "tarea"),
+        ("1.2", "Matriz de arquitecturas y selección de componentes base", "Hardware", "2026-08-17", "2026-08-31", "1.1", "Matriz de decisión", "tarea"),
+        ("1.3", "Mercado y evaluación económica preliminar", "Gestión", "2026-08-24", "2026-09-04", "1.1", "Dimensionamiento de mercado y flujo preliminar", "tarea"),
+        ("1.4", "Ingeniería conceptual cerrada", "Mandante", "2026-09-10", "2026-09-10", "1.2, 1.3", "Informe de ingeniería conceptual", "hito"),
+        ("2", "Prototipo de laboratorio V2 y plataforma", "", "2026-08-24", "2026-10-09", "", "", "fase"),
+        ("2.1", "Aplicación móvil, base de datos y backoffice en versión base", "Software", "2026-08-24", "2026-09-30", "1.1", "Aplicación y backoffice operativos", "tarea"),
+        ("2.2", "Diseño de la placa V2", "Hardware", "2026-09-07", "2026-09-23", "1.2", "Esquemático y trazado de la V2", "tarea"),
+        ("2.3", "Fabricación y envío de la placa V2", "Hardware", "2026-09-24", "2026-10-09", "2.2", "5 placas V2", "tarea"),
+        ("2.4", "Firmware V2 con BLE, LED, buzzer y vinculación", "Firmware", "2026-09-21", "2026-10-09", "1.2", "Firmware en ensayo de banco", "tarea"),
+        ("2.5", "Ficha y muestra de la sonda", "Hardware", "2026-10-03", "2026-10-03", "1.2", "Manual del fabricante y unidad de muestra", "hito"),
+        ("3", "Ingeniería básica y de detalle de la V3", "", "2026-09-21", "2026-11-27", "", "", "fase"),
+        ("3.1", "Alcance, filosofía operativa y matrices de decisión", "Gestión", "2026-09-21", "2026-10-09", "1.4", "Ingeniería básica", "tarea"),
+        ("3.2", "Cotizaciones, flujo de caja y protocolos FAT y SAT", "Gestión", "2026-09-28", "2026-10-09", "1.3", "Anexos A, B y E", "tarea"),
+        ("3.3", "Diseño de la placa V3", "Hardware", "2026-10-05", "2026-11-05", "1.4, 2.5", "Esquemático, trazado y archivos de fabricación", "tarea"),
+        ("3.4", "Placa V3 diseñada", "Hardware", "2026-11-06", "2026-11-06", "3.3", "Revisión de diseño aprobada y pedido emitido", "hito"),
+        ("3.5", "CAD e impresión de la carcasa", "Mecánica", "2026-10-12", "2026-11-27", "3.1", "Modelo 3D y carcasa de prueba", "tarea"),
+        ("3.6", "Planos de la placa y de la carcasa", "Hardware", "2026-11-09", "2026-11-27", "3.4", "Anexos C y D", "tarea"),
+        ("4", "Prototipo funcional", "", "2026-10-26", "2026-12-17", "", "", "fase"),
+        ("4.1", "Firmware con lectura Modbus y reposo profundo", "Firmware", "2026-10-26", "2026-12-03", "2.3, 2.4, 2.5", "Firmware que lee la sonda y duerme entre mediciones", "tarea"),
+        ("4.2", "Firmware con Modbus y reposo", "Firmware", "2026-12-04", "2026-12-04", "4.1", "1.000 lecturas consecutivas sin error de CRC", "hito"),
+        ("4.3", "Pedido de la placa y de los componentes", "Hardware", "2026-11-09", "2026-11-27", "3.4, 3.2", "Placa montada y componentes recibidos", "tarea"),
+        ("4.4", "Ensamble y FAT del prototipo", "Calidad", "2026-11-30", "2026-12-04", "4.3, 3.5", "Prototipo armado con FAT aprobado", "tarea"),
+        ("4.5", "Calibración con soluciones patrón", "Calidad", "2026-12-07", "2026-12-16", "4.2, 4.4", "Coeficientes de calibración registrados", "tarea"),
+        ("4.6", "Prototipo funcional entregado al mandante", "Mandante", "2026-12-17", "2026-12-17", "4.5, 3.6", "Prototipo armado, calibrado y con FAT aprobado", "hito"),
+        ("5", "Validación y habilitación comercial", "", "2027-01-04", "2027-04-19", "", "", "fase"),
+        ("5.1", "Constitución de la empresa y crédito", "Gestión", "2027-01-04", "2027-03-26", "4.6", "Sociedad constituida y crédito desembolsado", "tarea"),
+        ("5.2", "Campaña de laboratorio de 30 muestras", "Calidad", "2027-01-11", "2027-02-26", "4.6", "Informe de concordancia con el laboratorio", "tarea"),
+        ("5.3", "Ensayo IP67 en laboratorio acreditado", "Calidad", "2027-01-11", "2027-02-05", "4.6", "Informe de ensayo IEC 60529", "tarea"),
+        ("5.4", "Conformidad de radio y declaración ante SUBTEL", "Gestión", "2027-01-18", "2027-03-26", "4.6", "Declaración de conformidad con código QR", "tarea"),
+        ("5.5", "Puesta en marcha y SAT del piloto", "Calidad", "2027-02-01", "2027-02-25", "4.6", "Equipo instalado en el campo del piloto", "tarea"),
+        ("5.6", "SAT del piloto aprobado", "Mandante", "2027-02-26", "2027-02-26", "5.5", "SAT aprobado y firmado", "hito"),
+        ("5.7", "Publicación de la aplicación en Google Play y App Store", "Software", "2027-03-01", "2027-03-30", "5.6, 2.1", "Aplicación descargable en ambas tiendas", "tarea"),
+        ("5.8", "Aplicación aprobada en las tiendas", "Software", "2027-03-31", "2027-03-31", "5.7", "Versión descargable e instalable", "hito"),
+        ("5.9", "Primer lote de producción con FAT", "Calidad", "2027-03-08", "2027-04-16", "5.6, 5.3", "Primer lote con FAT al 100 %", "tarea"),
+        ("5.10", "Lanzamiento comercial", "Gestión", "2027-04-19", "2027-04-19", "5.1, 5.2, 5.4, 5.8, 5.9", "Primer lote disponible para la venta", "hito"),
+        ("6", "Cierre del proyecto", "", "2027-04-19", "2027-07-30", "", "", "fase"),
+        ("6.1", "Ventas y lotes de producción (operación, continúa después del cierre)", "Gestión", "2027-04-19", "2027-07-30", "5.10", "200 equipos vendidos en 2027", "operacion"),
+        ("6.2", "Revisión de la placa con lo aprendido en el piloto", "Hardware", "2027-05-03", "2027-07-23", "5.6, 5.10", "Placa revisada y validada", "tarea"),
+        ("6.3", "Documentación final y transferencia al mandante", "Gestión", "2027-07-26", "2027-07-29", "6.2", "Documentación de fabricación y de operación", "tarea"),
+        ("6.4", "Proyecto entregado al mandante", "Mandante", "2027-07-30", "2027-07-30", "6.3", "Placa revisada liberada y documentación aceptada", "hito"),
+    ]
+
+
+def _d(iso):
+    return _dt.date.fromisoformat(iso)
+
+
+def _habil(d):
+    return d.weekday() < 5
+
+
+def dias_habiles(desde, hasta):
+    """Días hábiles (lunes a viernes, sin feriados) de `desde` a `hasta`, ambos incluidos."""
+    n, d = 0, desde
+    while d <= hasta:
+        n += _habil(d)
+        d += _dt.timedelta(days=1)
+    return n
+
+
+def _habil_anterior(d):
+    d -= _dt.timedelta(days=1)
+    while not _habil(d):
+        d -= _dt.timedelta(days=1)
+    return d
+
+
+def _restar_habiles(d, n):
+    """Retrocede n días hábiles desde d."""
+    while n > 0:
+        d = _habil_anterior(d)
+        n -= 1
+    return d
+
+
+def holguras():
+    """Holgura total en días hábiles por actividad: pasada hacia atrás desde cada hito, que es una fecha comprometida.
+
+    El hito ocurre al inicio de su día: la actividad que lo precede termina, a más tardar, el día hábil
+    anterior; ante otra actividad, el día hábil anterior a su inicio más tardío. La ruta crítica son las tareas con holgura cero. No se calcula para las fases ni
+    para la operación comercial.
+    """
+    plan = [p for p in plan_proyecto() if p[7] in ("tarea", "hito")]
+    por_edt = {p[0]: p for p in plan}
+    sucesores = {e: [] for e in por_edt}
+    for p in plan:
+        for pre in filter(None, (x.strip() for x in p[5].split(","))):
+            if pre in sucesores:
+                sucesores[pre].append(p[0])
+    fin_proyecto = max(_d(p[4]) for p in plan)
+    tarde = {}
+
+    def termino_tardio(edt):
+        if edt in tarde:
+            return tarde[edt]
+        p = por_edt[edt]
+        if p[7] == "hito":
+            lf = _d(p[3])
+        else:
+            limites = []
+            for s in sucesores[edt]:
+                ps = por_edt[s]
+                if ps[7] == "hito":
+                    limites.append(_habil_anterior(termino_tardio(s)))
+                else:
+                    inicio_tardio = _restar_habiles(termino_tardio(s), dias_habiles(_d(ps[3]), _d(ps[4])) - 1)
+                    limites.append(_habil_anterior(inicio_tardio))
+            lf = min(limites) if limites else fin_proyecto
+        tarde[edt] = lf
+        return lf
+
+    out = {}
+    for edt, p in por_edt.items():
+        if p[7] != "tarea":
+            continue
+        lf, fin = termino_tardio(edt), _d(p[4])
+        out[edt] = dias_habiles(fin + _dt.timedelta(days=1), lf) if lf >= fin else -dias_habiles(lf + _dt.timedelta(days=1), fin)
+    return out
+
+
+def estado(p, corte=FECHA_CORTE):
+    ini, fin, c = _d(p[3]), _d(p[4]), _d(corte)
+    if fin < c or (p[7] == "hito" and fin <= c):
+        return "Terminada" if p[7] != "hito" else "Cumplido"
+    if ini <= c:
+        return "En curso"
+    return "Pendiente"
+
+
+def meses_gantt():
+    """Agosto de 2026 a julio de 2027, mes a mes."""
+    plan = plan_proyecto()
+    ini, fin = min(_d(p[3]) for p in plan), max(_d(p[4]) for p in plan)
+    meses, a, m = [], ini.year, ini.month
+    while (a, m) <= (fin.year, fin.month):
+        meses.append((a, m))
+        a, m = (a + 1, 1) if m == 12 else (a, m + 1)
+    return meses
+
+
+def fecha_texto(iso):
+    d = _d(iso)
+    return "%02d-%02d-%d" % (d.day, d.month, d.year)
+
+
+def anexo_f(ruta):
+    """Anexo F. Carta Gantt industrial, mes a mes, con EDT, holgura, ruta crítica e hitos."""
+    plan, meses, hol = plan_proyecto(), meses_gantt(), holguras()
+    corte = _d(FECHA_CORTE)
+    with xlsxwriter.Workbook(ruta) as wb:
+        wb.set_properties({"title": "Anexo F. Carta Gantt TerraSense", "author": "TerraSense"})
+        f = _formatos(wb)
+        borde = {"border": 1, "border_color": "#BFBFBF"}
+        tit = wb.add_format({"bold": True, "font_size": 15, "font_color": "#1F3864"})
+        dato = wb.add_format({"font_color": "#404040"})
+        fase_txt = wb.add_format({"bold": True, "bg_color": "#D9E1F2", "border": 1, "valign": "vcenter"})
+        fase_ctr = wb.add_format({"bold": True, "bg_color": "#D9E1F2", "border": 1, "align": "center", "valign": "vcenter"})
+        txt = wb.add_format(dict(borde, text_wrap=True, valign="vcenter"))
+        ctr = wb.add_format(dict(borde, align="center", valign="vcenter", text_wrap=True))
+        hito_txt = wb.add_format(dict(borde, bold=True, text_wrap=True, valign="vcenter"))
+        anio_f = wb.add_format({"bold": True, "bg_color": "#1F3864", "font_color": "#FFFFFF", "border": 1, "align": "center"})
+        mes_f = wb.add_format({"bold": True, "bg_color": "#2F5597", "font_color": "#FFFFFF", "border": 1, "align": "center"})
+        mes_corte = wb.add_format({"bold": True, "bg_color": "#C00000", "font_color": "#FFFFFF", "border": 1, "align": "center"})
+        vacia = wb.add_format(borde)
+        vacia_corte = wb.add_format({"border": 1, "border_color": "#BFBFBF", "left": 2, "left_color": "#C00000", "right": 2, "right_color": "#C00000"})
+        barra = {
+            "fase": wb.add_format({"bg_color": "#1F3864", "border": 1, "border_color": "#FFFFFF"}),
+            "terminada": wb.add_format({"bg_color": "#A6A6A6", "border": 1, "border_color": "#FFFFFF"}),
+            "critica": wb.add_format({"bg_color": "#C00000", "border": 1, "border_color": "#FFFFFF"}),
+            "normal": wb.add_format({"bg_color": "#2F75B5", "border": 1, "border_color": "#FFFFFF"}),
+            "operacion": wb.add_format({"bg_color": "#A9D08E", "pattern": 1, "border": 1, "border_color": "#FFFFFF"}),
+        }
+        hito_f = wb.add_format({"bold": True, "align": "center", "valign": "vcenter", "font_size": 12, **borde})
+        hito_hecho = wb.add_format({"bold": True, "align": "center", "valign": "vcenter", "font_size": 12, "font_color": "#7F7F7F", **borde})
+
+        ws = wb.add_worksheet("Carta Gantt")
+        cab = ["EDT", "Actividad", "Área responsable", "Inicio", "Término", "Duración (días hábiles)", "Predecesoras",
+               "Entregable", "Estado al %s" % fecha_texto(FECHA_CORTE), "Holgura (días hábiles)", "Ruta crítica"]
+        anchos = [6, 46, 13, 11, 11, 10, 12, 34, 12, 10, 8]
+        for i, w in enumerate(anchos):
+            ws.set_column(i, i, w)
+        c0 = len(cab)
+        ws.set_column(c0, c0 + len(meses) - 1, 6.5)
+        ws.write(0, 0, "Carta Gantt del proyecto TerraSense", tit)
+        ws.write(1, 0, "Período: %s de %d a %s de %d, mes a mes. Cliente del proyecto: el mandante. Fecha de corte del avance: %s."
+                 % (MESES_LARGOS[meses[0][1] - 1], meses[0][0], MESES_LARGOS[meses[-1][1] - 1], meses[-1][0], fecha_texto(FECHA_CORTE)), dato)
+        fila_anio, fila_mes = 3, 4
+        for i, c in enumerate(cab):
+            ws.merge_range(fila_anio, i, fila_mes, i, c, f["tit"])
+        j = 0
+        while j < len(meses):
+            k = j
+            while k + 1 < len(meses) and meses[k + 1][0] == meses[j][0]:
+                k += 1
+            if k > j:
+                ws.merge_range(fila_anio, c0 + j, fila_anio, c0 + k, meses[j][0], anio_f)
+            else:
+                ws.write(fila_anio, c0 + j, meses[j][0], anio_f)
+            j = k + 1
+        for j, (a, m) in enumerate(meses):
+            ws.write(fila_mes, c0 + j, MESES_ES[m - 1].capitalize(), mes_corte if (a, m) == (corte.year, corte.month) else mes_f)
+        ws.set_row(fila_anio, 18)
+        ws.set_row(fila_mes, 30)
+        r = fila_mes + 1
+        for p in plan:
+            edt, nombre, area, ini, fin, pre, entregable, tipo = p
+            di, df = _d(ini), _d(fin)
+            if tipo == "fase":
+                ws.write(r, 0, edt, fase_ctr)
+                ws.merge_range(r, 1, r, 2, nombre, fase_txt)
+                ws.write(r, 3, fecha_texto(ini), fase_ctr)
+                ws.write(r, 4, fecha_texto(fin), fase_ctr)
+                ws.write(r, 5, dias_habiles(di, df), fase_ctr)
+                for c in range(6, c0):
+                    ws.write(r, c, "", fase_txt)
+            else:
+                est = estado(p)
+                ws.write(r, 0, edt, ctr)
+                ws.write(r, 1, ("◆ " if tipo == "hito" else "") + nombre, hito_txt if tipo == "hito" else txt)
+                ws.write(r, 2, area, ctr)
+                ws.write(r, 3, fecha_texto(ini), ctr)
+                ws.write(r, 4, fecha_texto(fin), ctr)
+                ws.write(r, 5, 0 if tipo == "hito" else dias_habiles(di, df), ctr)
+                ws.write(r, 6, pre or "—", ctr)
+                ws.write(r, 7, entregable, txt)
+                ws.write(r, 8, "Operación" if tipo == "operacion" else est, ctr)
+                h = hol.get(edt)
+                ws.write(r, 9, "—" if h is None or est == "Terminada" else h, ctr)
+                ws.write(r, 10, "Sí" if h == 0 and est != "Terminada" else ("Hito" if tipo == "hito" else "No"), ctr)
+            for j, (a, m) in enumerate(meses):
+                inicio_mes = _dt.date(a, m, 1)
+                fin_mes = (_dt.date(a + (m == 12), m % 12 + 1, 1) - _dt.timedelta(days=1))
+                en_corte = (a, m) == (corte.year, corte.month)
+                activa = di <= fin_mes and df >= inicio_mes
+                if tipo == "hito":
+                    if activa:
+                        ws.write(r, c0 + j, "◆ %d" % df.day, hito_hecho if estado(p) == "Cumplido" else hito_f)
+                    else:
+                        ws.write(r, c0 + j, "", vacia_corte if en_corte else vacia)
+                elif activa:
+                    if tipo == "fase":
+                        clave = "fase"
+                    elif tipo == "operacion":
+                        clave = "operacion"
+                    elif estado(p) == "Terminada":
+                        clave = "terminada"
+                    else:
+                        clave = "critica" if hol.get(edt) == 0 else "normal"
+                    ws.write(r, c0 + j, "", barra[clave])
+                else:
+                    ws.write(r, c0 + j, "", vacia_corte if en_corte else vacia)
+            ws.set_row(r, 22 if tipo == "fase" else 30)
+            r += 1
+        r += 1
+        ws.write(r, 1, "Simbología", wb.add_format({"bold": True}))
+        leyenda = [("terminada", "Actividad terminada a la fecha de corte"), ("critica", "Ruta crítica: holgura cero frente a un hito comprometido"),
+                   ("normal", "Actividad con holgura"), ("fase", "Fase (resumen de sus actividades)"),
+                   ("operacion", "Operación comercial: empieza dentro del período, no forma parte del proyecto")]
+        for k, (clave, texto) in enumerate(leyenda, 1):
+            ws.write(r + k, c0, "", barra[clave])
+            ws.write(r + k, 1, texto)
+        ws.write(r + len(leyenda) + 1, c0, "◆", hito_f)
+        ws.write(r + len(leyenda) + 1, 1, "Hito con su día del mes; en gris, hito cumplido")
+        ws.write(r + len(leyenda) + 2, c0, "", vacia_corte)
+        ws.write(r + len(leyenda) + 2, 1, "Mes de la fecha de corte (encabezado en rojo)")
+        ws.freeze_panes(fila_mes + 1, 2)
+        ws.set_landscape()
+        ws.set_paper(8)
+        ws.fit_to_pages(1, 0)
+        ws.repeat_rows(fila_anio, fila_mes)
+
+        wh = wb.add_worksheet("Hitos")
+        wh.set_column(0, 0, 6)
+        wh.set_column(1, 1, 46)
+        wh.set_column(2, 3, 12)
+        wh.set_column(4, 4, 50)
+        wh.set_column(5, 5, 12)
+        wh.write(0, 0, "Hitos del proyecto", tit)
+        wh.write_row(2, 0, ["EDT", "Hito", "Fecha", "Responsable", "Criterio de cumplimiento", "Estado"], f["tit"])
+        hitos = [p for p in plan if p[7] == "hito"]
+        for k, p in enumerate(hitos, 3):
+            wh.write_row(k, 0, [p[0], p[1], fecha_texto(p[3]), p[2], p[6], estado(p)], txt)
+            wh.set_row(k, 30)
+
+        wn = wb.add_worksheet("Método")
+        wn.set_column(0, 0, 120)
+        notas = [
+            "Cómo se construyó la carta",
+            "1. La carta cubre el proyecto, no el curso: no incluye evaluaciones. Parte en agosto de 2026 y termina con la entrega del proyecto al mandante en julio de 2027.",
+            "2. Las fechas anteriores al corte (%s) registran lo ejecutado; las posteriores son planificadas y se revisan en cada corte." % fecha_texto(FECHA_CORTE),
+            "3. La duración y la holgura se cuentan en días hábiles de lunes a viernes, sin descontar feriados.",
+            "4. Los hitos son fechas comprometidas y ocurren al inicio de su día. La holgura total de cada actividad se calcula hacia atrás desde el hito o la actividad que la sigue: debe terminar, a más tardar, el día hábil anterior al hito o al inicio más tardío de la actividad siguiente.",
+            "5. La ruta crítica son las actividades con holgura cero: cualquier atraso en ellas mueve un hito. Las actividades terminadas no tienen holgura.",
+            "6. La entrega del prototipo funcional al mandante, el %s, es el hito fijo del proyecto." % fecha_texto(next(p[3] for p in plan if p[1].startswith("Prototipo funcional entregado"))),
+            "7. La operación comercial (ventas y lotes) empieza con el lanzamiento y continúa después del cierre; se muestra para situarla, pero no forma parte del alcance del proyecto.",
+        ]
+        wn.write(0, 0, notas[0], tit)
+        for k, x in enumerate(notas[1:], 2):
+            wn.write(k, 0, x, f["nota"])
+            wn.set_row(k, 32)
+    return {"actividades": sum(p[7] in ("tarea", "operacion") for p in plan), "hitos": sum(p[7] == "hito" for p in plan), "meses": len(meses)}
 
 
 # ============================================================ Anexo B
