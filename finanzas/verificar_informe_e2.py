@@ -182,10 +182,16 @@ def matrices(lineas, err):
                 err("Matrices", "línea %d: puntaje de %s debe ser %.2f" % (ini + 1, filas[0][col], calculado))
 
 
+def pie_tabla(texto, titulo):
+    """Posición y número del pie de la tabla cuyo título empieza por «titulo»; la numeración cambia al editar."""
+    m = re.search(r"^\*\*Tabla (\d+\.\d) “%s" % re.escape(titulo), texto, re.M)
+    return (m.start(), m.group(1)) if m else (-1, None)
+
+
 def protocolos(texto, err):
     import anexos as A
-    for numero, definicion in (("6.7", A.pruebas_fat()), ("6.8", A.pruebas_sat())):
-        fin = texto.find("**Tabla " + numero)
+    for titulo, definicion in (("Pruebas de aceptación en fábrica", A.pruebas_fat()), ("Pruebas de aceptación en sitio", A.pruebas_sat())):
+        fin, numero = pie_tabla(texto, titulo)
         if fin < 0:
             continue
         anteriores = tablas(texto[:fin].splitlines())
@@ -273,7 +279,7 @@ def gantt(texto, err):
     import anexos as A
     plan = A.plan_proyecto()
     lineas = texto.splitlines()
-    fin = texto.find("**Tabla 8.5")
+    fin, _ = pie_tabla(texto, "Hitos del proyecto")
     if fin < 0:
         err("Gantt", "no existe la tabla de hitos")
         return

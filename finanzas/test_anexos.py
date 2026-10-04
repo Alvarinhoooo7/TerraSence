@@ -419,7 +419,7 @@ class TestValidadorInforme(unittest.TestCase):
         self.assertIn("Autonomía documental", self.cats("Según el informe anterior, sin cambios."))
 
     def test_protocolo_no_puede_discrepar_del_anexo(self):
-        t = "| Prueba | Método | Criterio | Requerimiento |\n|---|---|---|---|\n| Carga | USB | 2 A | R08 |\n\n**Tabla 6.7 “FAT”**\n"
+        t = "| Prueba | Método | Criterio | Requerimiento |\n|---|---|---|---|\n| Carga | USB | 2 A | R08 |\n\n**Tabla 9.3 “Pruebas de aceptación en fábrica (FAT)”**\n"
         self.assertIn("Protocolos", self.cats(t))
 
     def test_los_anexos_generados_pasan_la_validacion(self):
