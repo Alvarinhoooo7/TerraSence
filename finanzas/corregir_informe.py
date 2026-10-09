@@ -598,6 +598,55 @@ TABLA_NORMATIVA = [
 exigir(r"^\| Norma \| Carácter \| Requisito de diseño derivado.*?(?=^\*\*Tabla \d\.\d “\s*Clasificación Normativa)",
        lambda m: tabla_completa(TABLA_NORMATIVA), "matriz normativa: tabla completa con leyes 21.713 y 21.735",
        re.S | re.M)
+PROTOCOLO_ESTADISTICO = (
+    "#### Criterio estadístico para declarar ausencia de sesgo\n\n"
+    "Una prueba que no encuentra diferencia significativa no demuestra que la diferencia no exista: con 30 "
+    "puntos, una regresión puede no detectar un sesgo proporcional del 15 % sólo porque la muestra es "
+    "pequeña. Por eso el protocolo no declara ausencia de sesgo cuando la prueba «no resulta significativa», "
+    "sino cuando el intervalo de confianza demuestra que el sesgo, si existe, es menor que un margen fijado de "
+    "antemano. Es un criterio de **equivalencia**, no de significancia.\n\n"
+    "- **Sesgo proporcional.** Se ajusta la regresión de Passing-Bablok [57] de la lectura in situ (eje y) "
+    "sobre la de laboratorio (eje x). Este método no supone normalidad, admite error en ambos métodos y no lo "
+    "desplaza un valor atípico aislado, que en suelo real es frecuente. Sin sesgo proporcional la pendiente "
+    "vale 1. Se declara la ausencia de sesgo proporcional sólo si el intervalo de confianza del 95 % de la "
+    "pendiente queda **entero** dentro de 0,90–1,10. El margen de ±10 % no es arbitrario: es el mismo error "
+    "relativo que el umbral de conductividad tolera, y en humedad equivale a 3 puntos porcentuales en un suelo "
+    "al 30 %, bajo el umbral de 4 puntos.\n"
+    "- **Sesgo constante.** Con la misma regresión, la ordenada en el origen vale 0 si no hay sesgo constante. "
+    "Se declara su ausencia si el intervalo de confianza del 95 % de la ordenada contiene el cero.\n"
+    "- **Concordancia.** El análisis de Bland-Altman [56] grafica la diferencia entre ambos métodos contra su "
+    "promedio y entrega el sesgo medio, con su intervalo de confianza, y los límites de concordancia, iguales "
+    "al sesgo ± 1,96 desviaciones estándar de las diferencias. Si las diferencias crecen con el promedio, "
+    "señal de sesgo proporcional, los límites se calculan sobre diferencias porcentuales y no absolutas.\n\n"
+    "Si el intervalo de la pendiente sale más ancho que el margen, el resultado no es «aprobado» ni "
+    "«rechazado» sino **no concluyente**: se agregan puntos hasta que el intervalo permita decidir, en lugar "
+    "de aprobar la variable porque la muestra fue demasiado chica para ver el error.")
+PROTOCOLO_HUMEDAD = (
+    "#### Conversión entre humedad gravimétrica y volumétrica\n\n"
+    "La sonda informa **humedad volumétrica** (θv, volumen de agua por volumen de suelo), mientras que el "
+    "método gravimétrico de laboratorio entrega **humedad gravimétrica** (w, masa de agua por masa de suelo "
+    "seco). Las dos magnitudes no son comparables directamente: las relaciona la densidad aparente seca del "
+    "suelo (ρb), que varía de un punto a otro con la textura, la materia orgánica y la compactación. La "
+    "conversión se formaliza así:\n\n"
+    "| Magnitud | Expresión | Unidad | Origen |\n"
+    "|---|---|---|---|\n"
+    "| Humedad gravimétrica | w = (mh − ms) / ms | g/g | ISO 11465 [36]: masa húmeda (mh) y masa seca a 105 °C hasta masa constante (ms) |\n"
+    "| Densidad aparente seca | ρb = ms / V | g/cm³ | ISO 11272 [54]: masa seca del cilindro de volumen conocido (V = 100 cm³) |\n"
+    "| Humedad volumétrica | θv = w × ρb / ρw = (mh − ms) / (ρw × V) | cm³/cm³ (× 100 = %) | ISO 11461 [55], con ρw = 1,00 g/cm³ (densidad del agua) |\n"
+    "| Incertidumbre relativa | u(θv)/θv = √[(u(w)/w)² + (u(ρb)/ρb)²] | adimensional | Propagación de las incertidumbres de w y de ρb |\n\n"
+    "**Tabla 5.3 “Conversión de la humedad gravimétrica a volumétrica”**\n\n"
+    "En cada punto de la campaña se toma, a no más de 10 cm del punto de inserción de la sonda y a la misma "
+    "profundidad de sus electrodos, un cilindro de acero de 100 cm³ hincado sin compactar el suelo, dentro de "
+    "los 15 minutos siguientes a la lectura in situ. El cilindro se sella, se pesa húmedo dentro de 24 horas y "
+    "se seca en estufa a 105 °C hasta masa constante. De la misma muestra salen w, ρb y θv, y es θv, expresado "
+    "en porcentaje, el que se compara con la lectura de la sonda; la diferencia se informa en puntos "
+    "porcentuales.\n\n"
+    "Un ejemplo muestra por qué la densidad aparente se mide en cada punto y no se toma de una tabla por "
+    "textura. Con w = 0,20 g/g y ρb = 1,35 g/cm³, la humedad volumétrica es 0,20 × 1,35 = 0,27, es decir "
+    "27 %. Si en vez de medir ρb se asumiera 1,30 g/cm³ en un suelo que en realidad tiene 1,50 g/cm³, el valor "
+    "de referencia saldría 26 % cuando el real es 30 %: un error de 4 puntos, igual a todo el umbral de "
+    "aceptación, atribuido injustamente a la sonda. Medir w y ρb sobre el mismo cilindro elimina esa fuente "
+    "de error.")
 SECCION_TRIB = (
     "### Obligaciones Tributarias y Laborales\n\n"
     "- Ley N° 21.713 [42] (cumplimiento de obligaciones tributarias): desde octubre de 2025 eliminó la "
@@ -613,6 +662,30 @@ SECCION_TRIB = (
 if "### Obligaciones Tributarias y Laborales" not in texto:
     sub(r"(### Protección al Consumidor)", lambda m: SECCION_TRIB + m.group(1),
         "sección normativa: obligaciones tributarias y laborales")
+
+# 3b. Protocolo de validación: sesgo proporcional por equivalencia y conversión de humedad
+exigir(r"^\| Referencia de laboratorio \|[^\n]*\|\n",
+       "| Referencia de laboratorio | pH según ISO 10390; conductividad eléctrica según ISO 11265; textura según "
+       "ISO 11277; humedad gravimétrica según ISO 11465 [36] y densidad aparente seca según ISO 11272 [54], ambas "
+       "sobre el mismo cilindro de volumen conocido, y humedad volumétrica derivada de ellas según ISO 11461 [55]. "
+       "Laboratorio acreditado bajo ISO/IEC 17025 para los ensayos solicitados |\n",
+       "protocolo: referencia de laboratorio con densidad aparente", re.M)
+exigir(r"^\| Estadístico de concordancia \|[^\n]*\|\n",
+       "| Estadístico de concordancia | Coeficiente de determinación (R²) y error cuadrático medio (RMSE) en la "
+       "unidad nativa de cada variable; regresión de Passing-Bablok [57] de la lectura in situ sobre la de "
+       "laboratorio, con el intervalo de confianza del 95 % de la pendiente y de la ordenada; análisis de "
+       "Bland-Altman [56] con el sesgo medio, su intervalo de confianza del 95 % y los límites de concordancia |\n",
+       "protocolo: estadístico de concordancia", re.M)
+exigir(r"^\| Umbral de aceptación \|[^\n]*\|\n",
+       "| Umbral de aceptación | Umbral agronómico propio: pH, RMSE ≤ 0,3 unidades; conductividad eléctrica, "
+       "RMSE ≤ 10 % de la lectura o 200 µS/cm, el mayor de ambos; humedad volumétrica, RMSE ≤ 4 puntos "
+       "porcentuales. Adicionalmente R² ≥ 0,80; sin sesgo proporcional, demostrado por equivalencia: el "
+       "intervalo de confianza del 95 % de la pendiente de Passing-Bablok queda entero dentro de 0,90–1,10; y sin "
+       "sesgo constante: el intervalo de confianza del 95 % de la ordenada contiene el cero |\n",
+       "protocolo: umbral de sesgo proporcional por equivalencia", re.M)
+exigir(r"(uno de 10 puntos sí lo altera\.)(?!\n\n#### Criterio estadístico)",
+       lambda m: m.group(1) + "\n\n" + PROTOCOLO_ESTADISTICO + "\n\n" + PROTOCOLO_HUMEDAD,
+       "protocolo: criterio estadístico y conversión de humedad", re.S)
 
 # --------------------------------------------------------------------------
 # 4. Conclusiones, reescritas sobre el modelo y la placa vigentes
@@ -647,17 +720,18 @@ exigir(r"Desde la perspectiva económica, la evaluación a diez años.*?(?:\$[\d
        "bajo las condiciones declaradas, con cada partida abierta y trazable hasta su origen. **El precio es "
        "un resultado y no un supuesto**: se construyó primero la estructura completa de costos y el precio se "
        "derivó de ella exigiendo un %s de utilidad sobre el costo total, lo que arroja un precio de lista de "
-       "%s con IVA. Con una inversión inicial de %s financiada íntegramente por un crédito de igual monto a "
-       "diez años y %s efectivo anual, con cuota fija de %s, y un pie propio de %s entregado al banco en "
-       "partes iguales por los socios (%s cada uno), el proyecto alcanza un VAN de %s al %s de descuento, una "
+       "%s con IVA. Con una inversión inicial de %s desembolsada íntegramente por un crédito de igual monto a "
+       "diez años y %s efectivo anual, con cuota fija de %s, y un pie propio de %s que los socios aportan en "
+       "partes iguales (%s cada uno) y abonan al banco como cuotas pagadas por anticipado, el proyecto alcanza un VAN de %s al %s de descuento, una "
        "TIR de %s, un payback simple de %s años y uno descontado de %s años. La empresa renueva su activo "
        "fijo en %d, cancela la totalidad de su deuda dentro del horizonte evaluado y cierra %d con %s de caja "
        "acumulada y sin pasivo bancario. El punto de tensión está identificado y es de arranque, no de "
        "rentabilidad: los ejercicios %d y %d cierran con pérdida porque la estructura mínima para operar "
        "formalmente no se cubre con %d equipos, y esa pérdida se financia con el capital de trabajo "
-       "dimensionado para ello. Las sensibilidades acotan el margen de error: el proyecto resiste un alza "
-       "del 15 %% en el costo de materiales, pero se queda sin caja si las ventas caen un 10 %% o si el precio "
-       "de lista baja de %s, y deja de crear valor si las ventas caen un 25 %% o si el precio baja de %s."
+       "dimensionado para ello y con las cuotas que el pie dejó pagadas. Las sensibilidades acotan el margen "
+       "de error: el proyecto resiste un alza del 15 %% en el costo de materiales y una caída del 10 %% en "
+       "las ventas sin quedarse sin caja, pero se queda sin ella si el precio de lista baja de %s, y deja de "
+       "crear valor si las ventas caen un 25 %% o si el precio baja de %s."
        % (pct(M.S["margen_objetivo"], 0), p(PRECIO), p(R["inversion"]["total"]),
           pct(M.S["tasa_credito_efectiva_anual"], 0), p(R["cuota"]), p(R["pie"]), p(R["pie"] / 2),
           p(IND["van"]), pct(M.S["tasa_descuento"], 0), pct(IND["tir"], 2), num(IND["payback"], 2),
@@ -762,6 +836,27 @@ REFERENCIAS = {
     49: "Espressif Systems. (s.f.). ESP32-DevKitC V4 Getting Started Guide: alimentación de la placa, "
         "regulador de 3,3 V y LED de alimentación. Recuperado de "
         "https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html",
+    51: "Comisión para el Mercado Financiero (CMF) / BancoEstado. (2025). Fondo de Garantía para Pequeños "
+        "Empresarios (FOGAPE): garantía de hasta el 80 % del crédito para empresas con ventas anuales de hasta "
+        "UF 25.000, comisión de hasta 1 % anual sobre el monto garantizado y plazo de hasta diez años. Recuperado "
+        "de https://www.bancoestado.cl/content/bancoestado-public/cl/es/home/inicio---bancoestado-pequena-empresa/"
+        "productos/garantias-estatales---bancoestado-pequena-empresa/fogape-para-el-pequeno-empresario---"
+        "bancoestado-pequenas-empresa.html",
+    52: "Servicio de Cooperación Técnica (Sercotec). (2025). Bases de convocatoria Capital Semilla Emprende, "
+        "Región Metropolitana 2025: subsidio de $3.500.000 para personas naturales sin inicio de actividades. "
+        "Recuperado de https://www.sercotec.cl/capital-semilla-emprende-region-metropolitana-2025/",
+    53: "Corporación de Fomento de la Producción (CORFO). (2025). Semilla Inicia: subsidio no reembolsable de "
+        "hasta $15.000.000 que cofinancia hasta el 75 % del proyecto. Recuperado de "
+        "https://www.corfo.gob.cl/sites/cpp/convocatoria/semilla_inicia/",
+    54: "International Organization for Standardization. (2017). ISO 11272: Soil quality — Determination of dry "
+        "bulk density. Ginebra: ISO.",
+    55: "International Organization for Standardization. (2014). ISO 11461: Soil quality — Determination of "
+        "soil water content as a volume fraction using coring sleeves — Gravimetric method. Ginebra: ISO.",
+    56: "Bland, J. M., & Altman, D. G. (1999). Measuring agreement in method comparison studies. Statistical "
+        "Methods in Medical Research, 8(2), 135–160.",
+    57: "Passing, H., & Bablok, W. (1983). A new biometrical procedure for testing the equality of "
+        "measurements from two different analytical methods. Journal of Clinical Chemistry and Clinical "
+        "Biochemistry, 21(11), 709–720.",
     # La ficha de familia que el PDF cita como [20] pasa aquí: sólo respalda el consumo a 12 V.
     50: "Sumeet Instruments. (s.f.). 7 in 1 Integrated Soil Sensor NPK-pH-EC-Temperature-Moisture, RS485, "
         "alimentación 5–24 V DC. Ficha técnica de una sonda equivalente (0,15 W a 12 V DC; 0,5 W a 24 V DC). "

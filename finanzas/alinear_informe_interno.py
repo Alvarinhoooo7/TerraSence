@@ -113,10 +113,10 @@ sub(r"\| Todas las tablas y cifras económicas \| `finanzas/supuestos\.json` \(p
 sub(r"\| Financiamiento: pie, crédito, tasa y plazo \| Claves `aporte_socios`, `credito_principal`, "
     r"`tasa_credito_efectiva_anual` y `plazo_base` de `finanzas/supuestos\.json` \| El principal es un "
     r"monto fijo de decisión, no lo dimensiona el modelo \|",
-    "| Financiamiento: pie, crédito, tasa y plazo | Claves `pie_sobre_credito`, "
+    "| Financiamiento: pie, crédito, tasa y plazo | Claves `pie_total`, "
     "`tasa_credito_efectiva_anual` y `plazo_credito_anios` de `finanzas/supuestos.json` | El crédito "
-    "financia el 100 % de la inversión inicial, que el modelo sí dimensiona; el pie es el 30 % de ese "
-    "crédito y se entrega al banco como condición de entrada |", "mapa: financiamiento")
+    "desembolsa el 100 % de la inversión inicial, que el modelo sí dimensiona; el pie es un monto fijo de "
+    "los socios que se abona al banco como cuotas pagadas por anticipado |", "mapa: financiamiento")
 
 
 # ------------------------------------- residuos finales de la metodologia previa

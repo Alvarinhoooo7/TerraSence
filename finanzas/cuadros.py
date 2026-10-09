@@ -23,6 +23,19 @@ def num(x, d=2):
 
 
 R = M.dimensionar()
+# Alternativas de financiamiento: notas de 1 (peor) a 5 (mejor) por criterio
+ALTERNATIVAS_FIN = ["Crédito bancario con pie propio", "Crédito con garantía FOGAPE", "Capital Semilla Emprende (Sercotec)",
+                    "Semilla Inicia (CORFO)"]
+CRITERIOS_FIN = [
+    ("Certeza de obtener los fondos", 35, (4, 2, 1, 1)),
+    ("Suficiencia del monto frente a la inversión", 25, (5, 5, 1, 3)),
+    ("Disponibilidad al inicio de la operación", 20, (5, 3, 2, 2)),
+    ("Costo financiero", 10, (2, 3, 5, 5)),
+    ("Libertad de uso y control de la empresa", 10, (5, 4, 3, 2)),
+]
+PUNTAJE_FIN = [sum(peso * notas[j] for _, peso, notas in CRITERIOS_FIN) / 100 for j in range(len(ALTERNATIVAS_FIN))]
+MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre",
+         "noviembre", "diciembre"]
 FILAS = R["filas"]
 INV = R["inversion"]
 IND = M.resumen(R)
@@ -129,10 +142,12 @@ cuadro("Condiciones del financiamiento")
 w("| Condición | Valor |")
 w("|---|---|")
 w("| Inversión inicial total del proyecto | %s |" % p(INV["total"]))
-w("| Porcentaje financiado con préstamo bancario | 100,00 % |")
-w("| Monto del préstamo (capital) | %s |" % p(R["credito"]))
-w("| Pie propio exigido por el banco (%s del crédito) | %s |" % (pct(S["pie_sobre_credito"], 0), p(R["pie"])))
+w("| Monto del préstamo (capital), desembolsado íntegro por el banco | %s |" % p(R["credito"]))
+w("| Pie de los socios, con capital propio | %s |" % p(R["pie"]))
 w("| Aporte por socio (%d socios, partes iguales) | %s |" % (S["socios"], p(R["pie"] / S["socios"])))
+w("| Destino del pie | Abono al banco el día del desembolso como cuotas pagadas por anticipado |")
+w("| Cuotas que cubre el pie | %s cuotas mensuales: todo %d y hasta %s de %d |" % (
+    num(R["cuotas_anticipadas"], 1), ANIOS[0], MESES[int(R["cuotas_anticipadas"]) - 13], ANIOS[1]))
 w("| Sistema de amortización | Francés: cuota constante, interés decreciente, capital creciente |")
 w("| Tasa de interés | %s efectiva anual (%s %% mensual) |" % (
     pct(S["tasa_credito_efectiva_anual"], 0), num(((1 + S["tasa_credito_efectiva_anual"]) ** (1 / 12) - 1) * 100, 4)))
@@ -140,17 +155,35 @@ w("| Plazo | %d años, %d cuotas mensuales iguales |" % (S["plazo_credito_anios"
 w("| Cuota mensual | %s |" % p(R["cuota"]))
 intereses = sum(a["interes"] for a in R["amortizacion"])
 w("| Total intereses del crédito | %s |" % p(intereses))
-w("| Total pagado al banco | %s |" % p(R["credito"] + intereses))
+w("| Total pagado al banco (con el pie incluido) | %s |" % p(R["credito"] + intereses))
+w("")
+
+cuadro("Fuentes y usos de los fondos al inicio")
+w("| Fuentes | Monto | Usos | Monto |")
+w("|---|---:|---|---:|")
+w("| Crédito bancario | %s | Inversión inicial | %s |" % (p(R["credito"]), p(INV["total"])))
+w("| Pie de los socios | %s | Cuotas pagadas por anticipado | %s |" % (p(R["pie"]), p(R["pie"])))
+w("| **Total fuentes** | **%s** | **Total usos** | **%s** |" % (p(R["credito"] + R["pie"]), p(INV["total"] + R["pie"])))
+w("")
+
+cuadro("Matriz de decisión de las alternativas de financiamiento")
+w("| Criterio | Peso | " + " | ".join(a for a in ALTERNATIVAS_FIN) + " |")
+w("|---|---:|" + "---:|" * len(ALTERNATIVAS_FIN))
+for criterio, peso, notas in CRITERIOS_FIN:
+    w("| %s | %d %% | %s |" % (criterio, peso, " | ".join(str(n) for n in notas)))
+w("| **Puntaje ponderado** |  | %s |" % " | ".join("**%s**" % num(v) for v in PUNTAJE_FIN))
 w("")
 
 cuadro("Tabla de amortización del crédito")
-w("| Periodo | Saldo inicial | Cuota de capital | Intereses | Cuota total | Saldo final |")
-w("|---|---:|---:|---:|---:|---:|")
-for a in R["amortizacion"]:
-    w("| %d | %s | %s | %s | %s | %s |" % (a["anio"], p(a["saldo_inicial"]), p(a["capital"]),
-                                            p(a["interes"]), p(a["cuota"]), p(a["saldo_final"])))
-w("| **Total** |  | **%s** | **%s** | **%s** |  |" % (
-    p(sum(a["capital"] for a in R["amortizacion"])), p(intereses), p(R["credito"] + intereses)))
+w("| Periodo | Saldo inicial | Cuota de capital | Intereses | Cuota total | Pagada con el pie | Pagada por la empresa | Saldo final |")
+w("|---|---:|---:|---:|---:|---:|---:|---:|")
+for a, f in zip(R["amortizacion"], FILAS):
+    w("| %d | %s | %s | %s | %s | %s | %s | %s |" % (a["anio"], p(a["saldo_inicial"]), p(a["capital"]),
+                                                      p(a["interes"]), p(a["cuota"]), p(f["pie_aplicado"]),
+                                                      p(a["cuota"] - f["pie_aplicado"]), p(a["saldo_final"])))
+w("| **Total** |  | **%s** | **%s** | **%s** | **%s** | **%s** |  |" % (
+    p(sum(a["capital"] for a in R["amortizacion"])), p(intereses), p(R["credito"] + intereses), p(R["pie"]),
+    p(R["credito"] + intereses - R["pie"])))
 w("")
 
 # ----------------------------------------------------------- estructura
@@ -253,6 +286,7 @@ fila("Utilidad del ejercicio", lambda x: x["util_neta"])
 fila("(+) Depreciación y amortización", lambda x: x["deprec"] + x["amort_nom"])
 fila("(-) Cuota de capital del préstamo", lambda x: x["capital"])
 fila("(-) Reinversión en activo fijo", lambda x: x["reinversion"])
+fila("(+) Cuota ya pagada con el pie", lambda x: x["pie_aplicado"])
 fila("**(=) Flujo de fondos**", lambda x: x["flujo"])
 fila("Caja acumulada", lambda x: x["caja"])
 w("")
@@ -266,7 +300,7 @@ caja_min = M.caja_minima(R)
 cuadro("Evaluación económica")
 w("| Indicador | Valor | Criterio | Veredicto |")
 w("|---|---:|---|---|")
-w("| Inversión inicial | %s | — | — |" % p(INV["total"]))
+w("| Desembolso inicial evaluado (inversión %s + pie %s) | %s | — | — |" % (p(INV["total"]), p(R["pie"]), p(R["desembolso"])))
 w("| VAN al %s | %s | VAN > 0 | %s |" % (pct(S["tasa_descuento"], 0), p(IND["van"]), veredicto(IND["van"] > 0)))
 w("| TIR efectiva anual | %s | TIR > %s | %s |" % (pct(IND["tir"], 2), pct(S["tasa_descuento"], 0),
                                                    veredicto(IND["tir"] > S["tasa_descuento"])))
@@ -282,9 +316,9 @@ flujos = [f["flujo"] for f in FILAS]
 cuadro("Comparación del horizonte de evaluación: cinco y diez años")
 w("| Indicador | A 5 años (2027–2031) | A 10 años (2027–2036) |")
 w("|---|---:|---:|")
-w("| VAN al %s | %s | %s |" % (pct(S["tasa_descuento"], 0), p(M.van(INV["total"], flujos[:5], S["tasa_descuento"])),
+w("| VAN al %s | %s | %s |" % (pct(S["tasa_descuento"], 0), p(M.van(R["desembolso"], flujos[:5], S["tasa_descuento"])),
                              p(IND["van"])))
-w("| TIR efectiva anual | %s | %s |" % (pct(M.tir(INV["total"], flujos[:5]), 2), pct(IND["tir"], 2)))
+w("| TIR efectiva anual | %s | %s |" % (pct(M.tir(R["desembolso"], flujos[:5]), 2), pct(IND["tir"], 2)))
 w("| Caja acumulada al cierre | %s | %s |" % (p(FILAS[4]["caja"]), p(FILAS[-1]["caja"])))
 w("| Deuda bancaria pendiente al cierre | %s | %s |" % (p(R["amortizacion"][4]["saldo_final"]),
                                                       p(R["amortizacion"][-1]["saldo_final"])))
@@ -294,7 +328,7 @@ cuadro("VAN ante distintas tasas de descuento")
 w("| Tasa efectiva anual | VAN | Interpretación |")
 w("|---:|---:|---|")
 for t in (0.05, 0.08, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50):
-    v = M.van(INV["total"], flujos, t)
+    v = M.van(R["desembolso"], flujos, t)
     w("| %s | %s | %s |" % (pct(t, 0), p(v), "Positivo" if v > 0 else "Negativo"))
 w("| TIR: %s | $0 | VAN aproximadamente cero |" % pct(IND["tir"], 2))
 w("")

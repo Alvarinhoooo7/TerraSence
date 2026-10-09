@@ -213,12 +213,16 @@ class TestAnexoB(unittest.TestCase):
         self.assertAlmostEqual(res["Payback descontado (años)"], ind["payback_desc"], places=6)
         self.assertAlmostEqual(res["Caja mínima del horizonte"], M.caja_minima(self.r), places=1)
         self.assertAlmostEqual(res["Inversión inicial total"], self.r["inversion"]["total"], places=1)
-        self.assertAlmostEqual(res["Crédito bancario (100 % de la inversión)"], self.r["credito"], places=1)
-        self.assertAlmostEqual(res["Pie propio exigido (condición de entrada)"], self.r["pie"], places=1)
+        self.assertAlmostEqual(res["Crédito bancario (desembolsa el 100 % de la inversión)"], self.r["credito"], places=1)
+        self.assertAlmostEqual(res["Pie de los socios (cuotas pagadas por anticipado)"], self.r["pie"], places=1)
+        self.assertAlmostEqual(res["Desembolso inicial evaluado (inversión + pie)"], self.r["desembolso"], places=1)
 
-    def test_pie_y_credito_no_se_suman_como_fuentes(self):
+    def test_fuentes_igualan_a_usos(self):
+        """Crédito + pie = inversión + cuotas anticipadas: el pie paga cuotas, no se suma a la inversión."""
         res = {r[0]: r[1] for r in self.wb["1 Resumen"].iter_rows(values_only=True) if r[0]}
-        self.assertAlmostEqual(res["Crédito bancario (100 % de la inversión)"], res["Inversión inicial total"], places=1)
+        self.assertAlmostEqual(res["Crédito bancario (desembolsa el 100 % de la inversión)"], res["Inversión inicial total"], places=1)
+        pagado = self.fila("12 Flujo de caja", "(+) Cuota ya pagada con el pie (hoja 8)")[2:2 + len(self.r["filas"])]
+        self.assertAlmostEqual(sum(pagado), res["Pie de los socios (cuotas pagadas por anticipado)"], places=1)
 
     def test_la_reagrupacion_conserva_el_costo_total_de_cada_anio(self):
         """Separar administracion de comercializacion es solo reagrupar: hojas 4 + 5 + 6 = costo total del modelo."""

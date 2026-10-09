@@ -137,11 +137,11 @@ BLOQUES["INVERSION"] = "\n\n".join([
            ["Inventario inicial", fmt(INV["inventario"]), porc(INV["inventario"] / INV["total"])],
            ["**Inversión inicial total**", "**%s**" % fmt(INV["total"]), "**100,0 %**"]]),
     '###### **Tabla @@ “Inversión Inicial”**',
-    "**El pie no es una fuente adicional de fondos.** Los socios entregan al banco un pie del %s del "
-    "monto solicitado como condición de entrada, y es el crédito el que financia el 100 %% de la "
-    "inversión: **%s** de crédito y **%s** de pie (%s por socio), con cuota mensual de %s por el sistema "
-    "francés." % (porc(M.S["pie_sobre_credito"], 0), fmt(R["credito"]), fmt(R["pie"]),
-                  fmt(R["pie"] / 2), fmt(R["cuota"])),
+    "El banco desembolsa **%s**, el 100 %% de la inversión, y los socios abonan ese mismo día un pie de "
+    "**%s** (%s por socio) como cuotas pagadas por anticipado, que cubre las primeras %s cuotas mensuales "
+    "de %s por el sistema francés. Fuentes (crédito más pie) igualan a usos (inversión más cuotas "
+    "anticipadas)." % (fmt(R["credito"]), fmt(R["pie"]), fmt(R["pie"] / M.S["socios"]),
+                       dec(R["cuotas_anticipadas"], 1), fmt(R["cuota"])),
     tabla(["Periodo", "Saldo inicial", "Cuota de capital", "Intereses", "Cuota total", "Saldo final"],
           [[a["anio"], fmt(a["saldo_inicial"]), fmt(a["capital"]), fmt(a["interes"]),
             fmt(a["cuota"]), fmt(a["saldo_final"])] for a in R["amortizacion"]]),
@@ -171,6 +171,7 @@ BLOQUES["FLUJOS"] = "\n\n".join([
         serie("(+) Depreciación y amortización", lambda x: x["deprec"] + x["amort_nom"]),
         serie("(-) Cuota de capital", lambda x: x["capital"]),
         serie("(-) Reinversión en activo fijo", lambda x: x["reinversion"]),
+        serie("(+) Cuota ya pagada con el pie", lambda x: x["pie_aplicado"]),
         serie("**(=) Flujo de fondos**", lambda x: x["flujo"]),
         serie("Caja acumulada", lambda x: x["caja"]),
     ]),
@@ -190,8 +191,8 @@ BLOQUES["HORIZONTE"] = "\n\n".join([
     tabla(["Indicador", "A 5 años (%d–%d)" % (M.ANIOS[0], M.ANIOS[4]),
            "A 10 años (%d–%d)" % (M.ANIOS[0], M.ANIOS[-1])],
           [["VAN al %s" % porc(M.S["tasa_descuento"], 0),
-            fmt(M.van(INV["total"], _flujos[:5], M.S["tasa_descuento"])), fmt(IND["van"])],
-           ["TIR efectiva anual", porc(M.tir(INV["total"], _flujos[:5]), 2), porc(IND["tir"], 2)],
+            fmt(M.van(R["desembolso"], _flujos[:5], M.S["tasa_descuento"])), fmt(IND["van"])],
+           ["TIR efectiva anual", porc(M.tir(R["desembolso"], _flujos[:5]), 2), porc(IND["tir"], 2)],
            ["Caja acumulada al cierre", fmt(F[4]["caja"]), fmt(F[-1]["caja"])],
            ["Deuda bancaria pendiente al cierre", fmt(R["amortizacion"][4]["saldo_final"]),
             fmt(R["amortizacion"][-1]["saldo_final"])]]),
@@ -308,7 +309,7 @@ BLOQUES["SENSIBILIDAD"] = "\n\n".join([
 flujos = [f["flujo"] for f in F]
 BLOQUES["DESCUENTO"] = "\n\n".join([
     tabla(["Tasa efectiva anual", "VAN"],
-          [[porc(t, 0), fmt(M.van(INV["total"], flujos, t))]
+          [[porc(t, 0), fmt(M.van(R["desembolso"], flujos, t))]
            for t in (0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50)]
           + [["TIR: %s" % porc(IND["tir"], 2), fmt(0)]]),
     '###### **Tabla @@ “Análisis del VAN”**',

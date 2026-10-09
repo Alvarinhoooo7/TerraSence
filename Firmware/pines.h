@@ -1,6 +1,6 @@
 // pines.h
 //
-// Asignación de pines del ESP32-DevKitC-32U (módulo WROOM-32UE) según el
+// Asignación de pines del ESP32-DevKitC con módulo WROOM-32D según el
 // esquemático «Medidor De Suelos V2». En WROOM, IO16/IO17 están libres; en un
 // WROVER los ocupa la PSRAM y este mapa no serviría.
 

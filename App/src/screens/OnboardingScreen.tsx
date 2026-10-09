@@ -399,7 +399,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip, onCan
         <PairPrepareArt />
         {/* Los mismos pasos numerados que antes de medir. */}
         {[[t('Enciende la sonda', 'Turn the probe on'), t('Con la batería cargada o conectada.', 'With the battery charged or plugged in.')],
-          [t('Mantén PAIR 3 segundos', 'Hold PAIR for 3 seconds'), t('Suelta cuando el LED azul parpadee: la ventana queda abierta unos minutos.', 'Release when the blue LED blinks: the window stays open for a few minutes.')],
+          [t('Mantén PAIR 3 segundos', 'Hold PAIR for 3 seconds'), t('Suelta cuando el LED azul parpadee: tienes 30 segundos para buscarla.', 'Release when the blue LED blinks: you have 30 seconds to find it.')],
           [t('Acércala a menos de 2 metros', 'Bring it within 2 meters'), t('Luego toca «Buscar mi sonda».', 'Then tap "Find my probe".')]].map(([title, body], i) => <View key={i} style={{ flexDirection: 'row', gap: 14, alignItems: 'flex-start' }}>
           <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', marginTop: 2 }}>
             <Text style={{ color: isDark ? colors.background : '#FFFFFF', fontSize: 15, fontWeight: '800' }}>{i + 1}</Text>

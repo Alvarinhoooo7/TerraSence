@@ -26,7 +26,7 @@ El contrato con la app lo fija el código de la app, no este firmware: [`App/src
 
 ## Distribución de pines
 
-Según el esquemático «Medidor De Suelos V2», con un ESP32-DevKitC-32U (módulo WROOM-32UE):
+Según el esquemático «Medidor De Suelos V2», con un ESP32-DevKitC con módulo WROOM-32D (la huella del esquemático es la de la DevKitC-32U, que tiene el mismo pinout):
 
 | GPIO | Función | Notas |
 | :--- | :--- | :--- |

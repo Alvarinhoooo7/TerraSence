@@ -58,8 +58,22 @@ class TestFinanciamiento(unittest.TestCase):
     def test_credito_financia_toda_la_inversion(self):
         self.assertAlmostEqual(self.r["credito"], self.r["inversion"]["total"], places=6)
 
-    def test_pie_es_la_fraccion_declarada_del_credito(self):
-        self.assertAlmostEqual(self.r["pie"], self.r["credito"] * M.S["pie_sobre_credito"], places=6)
+    def test_fuentes_igualan_a_usos(self):
+        """Credito + pie = inversion + cuotas anticipadas: ningun peso se cuenta dos veces."""
+        fuentes = self.r["credito"] + self.r["pie"]
+        usos = self.r["inversion"]["total"] + sum(f["pie_aplicado"] for f in self.r["filas"])
+        self.assertAlmostEqual(fuentes, usos, places=2)
+
+    def test_pie_cubre_las_primeras_cuotas(self):
+        aplicado = [f["pie_aplicado"] for f in self.r["filas"]]
+        self.assertAlmostEqual(sum(aplicado), M.S["pie_total"], places=2)
+        self.assertEqual(aplicado, sorted(aplicado, reverse=True))
+        self.assertAlmostEqual(self.r["cuotas_anticipadas"], M.S["pie_total"] / self.r["cuota"], places=6)
+
+    def test_van_descuenta_la_inversion_y_el_pie(self):
+        flujos = [f["flujo"] for f in self.r["filas"]]
+        esperado = M.van(self.r["inversion"]["total"] + self.r["pie"], flujos, M.S["tasa_descuento"])
+        self.assertAlmostEqual(M.resumen(self.r)["van"], esperado, places=2)
 
     def test_amortizacion_devuelve_el_principal_y_cierra_en_cero(self):
         capital = sum(a["capital"] for a in self.r["amortizacion"])
@@ -75,7 +89,7 @@ class TestEvaluacion(unittest.TestCase):
     def setUp(self):
         self.r = M.dimensionar()
         self.flujos = [f["flujo"] for f in self.r["filas"]]
-        self.inv = self.r["inversion"]["total"]
+        self.inv = self.r["desembolso"]
 
     def test_van_se_anula_en_la_tir(self):
         tir = M.tir(self.inv, self.flujos)

@@ -70,36 +70,39 @@ Alan Paul Escobar Rojas Académico guía: Carlos Alberto Castillo Torres Santiag
 - Tabla 2.2 “Activo nominal (gastos de puesta en marcha)”
 - Tabla 2.3 “Inversión inicial total”
 - Tabla 2.4 “Condiciones del financiamiento”
-- Tabla 2.5 “Tabla de amortización del crédito”
-- Tabla 2.6 “Dotación por año”
-- Tabla 2.7 “Sueldo bruto mensual por cargo y costo laboral anual”
-- Tabla 2.8 “Desglose estimado de servicios básicos mensuales”
-- Tabla 2.9 “Costos operacionales, de administración y de comercialización”
-- Tabla 3.0 “Determinación del precio de venta”
-- Tabla 3.1 “Estado de resultados proyectado”
-- Tabla 3.2 “Flujo de fondos para la evaluación del proyecto”
-- Tabla 3.3 “Evaluación económica”
-- Tabla 3.4 “Comparación del horizonte de evaluación: cinco y diez años”
-- Tabla 3.5 “VAN ante distintas tasas de descuento”
-- Tabla 3.6 “Análisis de sensibilidad y punto de quiebre”
-- Tabla 3.7 “Costo total de propiedad para el agricultor”
-- Tabla 3.8 “Especificaciones Técnicas ESP32”
-- Tabla 3.9 “Especificaciones Técnicas Sonda”
-- Tabla 4.0 “Contrato de Datos BLE (20 bytes)”
-- Tabla 4.1 “Estado Probatorio de las Especificaciones de Hardware”
-- Tabla 4.2 “Gestión Energética”
-- Tabla 4.3 “Interfaz Hardware”
-- Tabla 4.4 “Pilares de Digitalización del Proceso Agrícola”
-- Tabla 4.5 “Estados Energéticos y Medidas de Diseño”
-- Tabla 4.6 “Balance Energético por Nodo de Tensión”
-- Tabla 4.7 “Energía por Ciclo de Medición”
-- Tabla 4.8 “Autonomía según el Patrón de Uso”
-- Tabla 4.9 “Sensibilidad de la Autonomía al Consumo y al Uso”
-- Tabla 5.0 “Análisis Comparativo de Parámetros”
-- Tabla 5.1 “Clasificación Normativa: Obligatoria, Voluntaria y de Mercado Futuro”
-- Tabla 5.2 “Protocolo de Validación In Situ vs. Laboratorio de Referencia”
-- Tabla 5.3 “Plan de Calibración y Control de Deriva”
-- Tabla 5.4 “Supuestos de Mercado Declarados”
+- Tabla 2.5 “Fuentes y usos de los fondos al inicio”
+- Tabla 2.6 “Matriz de decisión de las alternativas de financiamiento”
+- Tabla 2.7 “Tabla de amortización del crédito”
+- Tabla 2.8 “Dotación por año”
+- Tabla 2.9 “Sueldo bruto mensual por cargo y costo laboral anual”
+- Tabla 3.0 “Desglose estimado de servicios básicos mensuales”
+- Tabla 3.1 “Costos operacionales, de administración y de comercialización”
+- Tabla 3.2 “Determinación del precio de venta”
+- Tabla 3.3 “Estado de resultados proyectado”
+- Tabla 3.4 “Flujo de fondos para la evaluación del proyecto”
+- Tabla 3.5 “Evaluación económica”
+- Tabla 3.6 “Comparación del horizonte de evaluación: cinco y diez años”
+- Tabla 3.7 “VAN ante distintas tasas de descuento”
+- Tabla 3.8 “Análisis de sensibilidad y punto de quiebre”
+- Tabla 3.9 “Costo total de propiedad para el agricultor”
+- Tabla 4.0 “Especificaciones Técnicas ESP32”
+- Tabla 4.1 “Especificaciones Técnicas Sonda”
+- Tabla 4.2 “Contrato de Datos BLE (20 bytes)”
+- Tabla 4.3 “Estado Probatorio de las Especificaciones de Hardware”
+- Tabla 4.4 “Gestión Energética”
+- Tabla 4.5 “Interfaz Hardware”
+- Tabla 4.6 “Pilares de Digitalización del Proceso Agrícola”
+- Tabla 4.7 “Estados Energéticos y Medidas de Diseño”
+- Tabla 4.8 “Balance Energético por Nodo de Tensión”
+- Tabla 4.9 “Energía por Ciclo de Medición”
+- Tabla 5.0 “Autonomía según el Patrón de Uso”
+- Tabla 5.1 “Sensibilidad de la Autonomía al Consumo y al Uso”
+- Tabla 5.2 “Análisis Comparativo de Parámetros”
+- Tabla 5.3 “Clasificación Normativa: Obligatoria, Voluntaria y de Mercado Futuro”
+- Tabla 5.4 “Protocolo de Validación In Situ vs. Laboratorio de Referencia”
+- Tabla 5.5 “Conversión de la humedad gravimétrica a volumétrica”
+- Tabla 5.6 “Plan de Calibración y Control de Deriva”
+- Tabla 5.7 “Supuestos de Mercado Declarados”
 
 
 ## I. Introducción
@@ -672,7 +675,7 @@ La carcasa se imprime en taller propio: el proyecto adquiere dos impresoras Crea
 
 | Concepto | Neto CLP | Base de cálculo |
 |---|---:|---|
-| Filamento PETG, 210 g a $25.000/kg (carcasa de 110 × 100 × 40 mm para la placa de 99,9 × 90 mm) | $5.250 | AliExpress $20.700-$35.800 por kg |
+| Filamento PETG, 210 g a $25.000/kg (cota conservadora: material de la carcasa de 110 × 100 × 40 mm de la V2; la carcasa V3 mide 73 × 79 × 31 mm) | $5.250 | AliExpress $20.700-$35.800 por kg |
 | Merma de impresión, 15 % (fallos, soportes y purga) | $788 | estimación de taller |
 | Energía, 1,05 kWh por carcasa (K1C, 262 W promedio durante 4 h) a $200/kWh | $210 | tarifa BT1 de referencia, $180-$220/kWh |
 | Mantención de impresora prorrateada (boquillas, correas, cama) | $990 | $100.000 anuales por impresora, sobre 100 carcasas por impresora |
@@ -761,43 +764,73 @@ La partida más grande de la inversión no es un bien físico sino el capital de
 
 ### Financiamiento
 
-El financiamiento se estructura de la forma en que opera la banca con una empresa nueva. **El pie no es una fuente adicional de fondos.** Los socios entregan al banco un pie equivalente al 30 % del monto solicitado como condición para que este desembolse el crédito, y es el crédito el que financia el 100 % de la inversión inicial. Sumar el pie y el crédito como si fueran dos fuentes contaría dos veces el mismo dinero.
+La inversión inicial se financia con un crédito bancario de largo plazo que el banco desembolsa por el total, $28.778.513. Para otorgar un crédito de ese tamaño a una empresa sin historial de ventas, el banco exige que los socios comprometan capital propio: un pie de $9.000.000, $4.500.000 por socio, que se abona al banco el mismo día del desembolso como **cuotas pagadas por anticipado**. Ese abono cubre las primeras 22,3 cuotas mensuales del calendario, es decir, todo 2027 y la mayor parte de 2028, los dos ejercicios de arranque en que la empresa todavía no cubre su estructura. Desde ahí la cuota sale de la caja de la operación.
+
+El pie, entonces, no se suma a la inversión ni se pierde de vista: es dinero de los socios que paga deuda. Las fuentes del inicio son el crédito y el pie; los usos son la inversión inicial y las cuotas anticipadas. Ambos lados suman lo mismo, de modo que ningún peso se cuenta dos veces, y el pie aparece explícitamente en la tabla de amortización, en el flujo de fondos y en el desembolso inicial con que se calculan el VAN y la TIR.
 
 | Condición | Valor |
 |---|---|
 | Inversión inicial total del proyecto | $28.778.513 |
-| Porcentaje financiado con préstamo bancario | 100,00 % |
-| Monto del préstamo (capital) | $28.778.513 |
-| Pie propio exigido por el banco (30 % del crédito) | $8.633.554 |
-| Aporte por socio (2 socios, partes iguales) | $4.316.777 |
+| Monto del préstamo (capital), desembolsado íntegro por el banco | $28.778.513 |
+| Pie de los socios, con capital propio | $9.000.000 |
+| Aporte por socio (2 socios, partes iguales) | $4.500.000 |
+| Destino del pie | Abono al banco el día del desembolso como cuotas pagadas por anticipado |
+| Cuotas que cubre el pie | 22,3 cuotas mensuales: todo 2027 y hasta octubre de 2028 |
 | Sistema de amortización | Francés: cuota constante, interés decreciente, capital creciente |
 | Tasa de interés | 12 % efectiva anual (0,9489 % mensual) |
 | Plazo | 10 años, 120 cuotas mensuales iguales |
 | Cuota mensual | $402.747 |
 | Total intereses del crédito | $19.551.146 |
-| Total pagado al banco | $48.329.660 |
+| Total pagado al banco (con el pie incluido) | $48.329.660 |
 
 **Tabla 2.4 “Condiciones del financiamiento”**
 
+| Fuentes | Monto | Usos | Monto |
+|---|---:|---|---:|
+| Crédito bancario | $28.778.513 | Inversión inicial | $28.778.513 |
+| Pie de los socios | $9.000.000 | Cuotas pagadas por anticipado | $9.000.000 |
+| **Total fuentes** | **$37.778.513** | **Total usos** | **$37.778.513** |
+
+**Tabla 2.5 “Fuentes y usos de los fondos al inicio”**
+
+#### Alternativas de financiamiento evaluadas
+
+Antes de fijar esta estructura se compararon las alternativas a las que puede optar una empresa nueva de base tecnológica en Chile. Dos son instrumentos públicos de fomento: la garantía FOGAPE (Fondo de Garantía para Pequeños Empresarios), que no entrega dinero sino que avala hasta el 80 % de un crédito bancario de una micro o pequeña empresa [51], y los fondos concursables de capital semilla: Capital Semilla Emprende de Sercotec, con un subsidio de $3.500.000 [52], y Semilla Inicia de CORFO, con un subsidio no reembolsable de hasta $15.000.000 que cofinancia hasta el 75 % del proyecto [53].
+
+| Criterio | Peso | Crédito bancario con pie propio | Crédito con garantía FOGAPE | Capital Semilla Emprende (Sercotec) | Semilla Inicia (CORFO) |
+|---|---:|---:|---:|---:|---:|
+| Certeza de obtener los fondos | 35 % | 4 | 2 | 1 | 1 |
+| Suficiencia del monto frente a la inversión | 25 % | 5 | 5 | 1 | 3 |
+| Disponibilidad al inicio de la operación | 20 % | 5 | 3 | 2 | 2 |
+| Costo financiero | 10 % | 2 | 3 | 5 | 5 |
+| Libertad de uso y control de la empresa | 10 % | 5 | 4 | 3 | 2 |
+| **Puntaje ponderado** |  | **4,35** | **3,25** | **1,80** | **2,20** |
+
+**Tabla 2.6 “Matriz de decisión de las alternativas de financiamiento”**
+
+El criterio con más peso es la **certeza de obtener los fondos**, porque la empresa compromete arriendo, sueldos y compras de componentes desde el primer mes y no puede condicionar esos compromisos a un resultado que no controla. Ahí está la diferencia decisiva. Los fondos concursables se asignan por concurso, con cupos y convocatorias anuales: no basta con que el proyecto sea bueno para adjudicarlos, y su fecha de resolución no coincide necesariamente con la de inicio de la operación. Capital Semilla Emprende cubre además apenas el 12 % de la inversión y exige postular como persona natural sin inicio de actividades, y Semilla Inicia, aun en su monto máximo, deja sin financiar cerca de la mitad. La garantía FOGAPE, por su parte, la asigna el banco desde su propio cupo y la evalúa con la historia comercial del deudor, que una empresa nueva todavía no tiene.
+
+La decisión, por lo tanto, **no responde a que el proyecto no califique** para estos instrumentos, sino a que los socios no quieren que la puesta en marcha dependa de un beneficio que no está asegurado. Prefieren comprometer su propio capital como pie y ejecutar el proyecto con un financiamiento que pueden asegurar de antemano. Los instrumentos públicos quedan como **escenario favorable, fuera del caso base**: si durante 2027 se adjudicara un fondo concursable, se destinaría a prepagar el crédito, y si el banco ofreciera la garantía FOGAPE, podría rebajar el pie o la tasa. A modo de referencia, un Semilla Inicia por su monto máximo aplicado a reducir el crédito ahorraría $10.190.491 de intereses en los diez años. Ninguna de esas cifras entra en la evaluación, porque un modelo que cuenta con ellas falla precisamente en el escenario en que no llegan.
+
 Sobre el sistema de amortización: se adopta el **francés**, de cuota constante con interés decreciente y capital creciente, porque es el que la banca chilena aplica al crédito empresarial de largo plazo. La cuota fija facilita además la planificación de caja de una empresa que en sus primeros ejercicios opera con holgura estrecha. La cuota anual, $4.832.966, equivale al 6,2 % de las ventas netas del primer año y al 0,9 % de las del último, de modo que su peso sobre la operación se diluye a medida que el negocio crece.
 
-| Periodo | Saldo inicial | Cuota de capital | Intereses | Cuota total | Saldo final |
-|---|---:|---:|---:|---:|---:|
-| 2027 | $28.778.513 | $1.639.920 | $3.193.046 | $4.832.966 | $27.138.594 |
-| 2028 | $27.138.594 | $1.836.710 | $2.996.256 | $4.832.966 | $25.301.884 |
-| 2029 | $25.301.884 | $2.057.115 | $2.775.851 | $4.832.966 | $23.244.769 |
-| 2030 | $23.244.769 | $2.303.969 | $2.528.997 | $4.832.966 | $20.940.800 |
-| 2031 | $20.940.800 | $2.580.445 | $2.252.521 | $4.832.966 | $18.360.355 |
-| 2032 | $18.360.355 | $2.890.099 | $1.942.867 | $4.832.966 | $15.470.256 |
-| 2033 | $15.470.256 | $3.236.910 | $1.596.056 | $4.832.966 | $12.233.346 |
-| 2034 | $12.233.346 | $3.625.340 | $1.207.626 | $4.832.966 | $8.608.006 |
-| 2035 | $8.608.006 | $4.060.380 | $772.586 | $4.832.966 | $4.547.626 |
-| 2036 | $4.547.626 | $4.547.626 | $285.340 | $4.832.966 | $0 |
-| **Total** |  | **$28.778.513** | **$19.551.146** | **$48.329.660** |  |
+| Periodo | Saldo inicial | Cuota de capital | Intereses | Cuota total | Pagada con el pie | Pagada por la empresa | Saldo final |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 2027 | $28.778.513 | $1.639.920 | $3.193.046 | $4.832.966 | $4.832.966 | $0 | $27.138.594 |
+| 2028 | $27.138.594 | $1.836.710 | $2.996.256 | $4.832.966 | $4.167.034 | $665.932 | $25.301.884 |
+| 2029 | $25.301.884 | $2.057.115 | $2.775.851 | $4.832.966 | $0 | $4.832.966 | $23.244.769 |
+| 2030 | $23.244.769 | $2.303.969 | $2.528.997 | $4.832.966 | $0 | $4.832.966 | $20.940.800 |
+| 2031 | $20.940.800 | $2.580.445 | $2.252.521 | $4.832.966 | $0 | $4.832.966 | $18.360.355 |
+| 2032 | $18.360.355 | $2.890.099 | $1.942.867 | $4.832.966 | $0 | $4.832.966 | $15.470.256 |
+| 2033 | $15.470.256 | $3.236.910 | $1.596.056 | $4.832.966 | $0 | $4.832.966 | $12.233.346 |
+| 2034 | $12.233.346 | $3.625.340 | $1.207.626 | $4.832.966 | $0 | $4.832.966 | $8.608.006 |
+| 2035 | $8.608.006 | $4.060.380 | $772.586 | $4.832.966 | $0 | $4.832.966 | $4.547.626 |
+| 2036 | $4.547.626 | $4.547.626 | $285.340 | $4.832.966 | $0 | $4.832.966 | $0 |
+| **Total** |  | **$28.778.513** | **$19.551.146** | **$48.329.660** | **$9.000.000** | **$39.329.660** |  |
 
-**Tabla 2.5 “Tabla de amortización del crédito”**
+**Tabla 2.7 “Tabla de amortización del crédito”**
 
-El crédito se cancela íntegramente dentro del horizonte de evaluación: al cierre de 2036 la deuda es cero. Los $19.551.146 de intereses son el precio del financiamiento y están descontados en el estado de resultados de cada ejercicio.
+El crédito se cancela íntegramente dentro del horizonte de evaluación: al cierre de 2036 la deuda es cero. Los $19.551.146 de intereses son el precio del financiamiento y están descontados en el estado de resultados de cada ejercicio, aunque las cuotas de 2027 y de parte de 2028 las haya pagado el pie: el interés es un gasto del año en que se devenga, no del año en que se desembolsa el dinero.
 
 ### Estructura de costos de operación
 
@@ -816,7 +849,7 @@ La dotación crece de forma escalonada y deliberada: el primer año operan solo 
 | 2035 | 2 | 1 | 1 | 4 | 8 | sí |
 | 2036 | 2 | 1 | 1 | 4 | 8 | sí |
 
-**Tabla 2.6 “Dotación por año”**
+**Tabla 2.8 “Dotación por año”**
 
 La dotación se expresa en personas y no en horas: el primer ensamblador entra en 2028, cuando el volumen supera lo que los socios pueden montar y verificar por sí mismos, y el cuarto en 2035, cuando las ventas se acercan a 1.033 equipos anuales.
 
@@ -835,7 +868,7 @@ Cada cargo tiene su propio sueldo. Los socios siguen una escala progresiva que p
 | 2035 | $1.350.611 | $1.266.770 | $1.266.770 | $886.739 | $8.781.718 | 28,5 % | $135.424.622 |
 | 2036 | $1.391.129 | $1.304.773 | $1.304.773 | $913.341 | $9.045.169 | 28,5 % | $139.487.361 |
 
-**Tabla 2.7 “Sueldo bruto mensual por cargo y costo laboral anual”**
+**Tabla 2.9 “Sueldo bruto mensual por cargo y costo laboral anual”**
 
 La masa salarial bruta pasa de $2.200.000 mensuales en 2027 a $9.045.169 en 2036, porque se combinan tres efectos: más personas, la escala de los socios y la inflación. El costo laboral anual es mayor que doce veces la masa bruta porque le suma las cargas del empleador y las provisiones. Sobre ese costo, el modelo no pondera los tramos legales por sus meses de vigencia: siete meses del tramo de enero y cinco del tramo que comienza en agosto. La Ley N° 21.735 [43] establece 3,5 % desde agosto de 2026, 4,25 % desde agosto de 2027 y aumentos hasta 8,5 % desde agosto de 2033; estos tramos ya incluyen el Seguro de Invalidez y Sobrevivencia. A eso se agregan el seguro de cesantía (2,4 % en contrato indefinido) y la cotización de la mutualidad, más las provisiones presupuestarias de vacaciones e indemnización, que no son tasas legales de cotización. La carga sobre el sueldo bruto pasa así de **23,8 % en 2027 a 28,5 % en 2036**. Aparte de la remuneración, cada persona recibe $150.000 mensuales de colación y movilización, que se registran en su propia línea de costos.
 
@@ -849,7 +882,7 @@ Conviene verificar además que la escala salarial se mantenga sobre el piso lega
 | Agua y gas | $65.000 | $25.000 |
 | **Total mensual** | **$330.000** | **$110.000** |
 
-**Tabla 2.8 “Desglose estimado de servicios básicos mensuales”**
+**Tabla 3.0 “Desglose estimado de servicios básicos mensuales”**
 
 El primer año la empresa opera desde un taller domiciliario, y los servicios básicos corresponden a la proporción de ese hogar que ocupa la actividad. Desde el segundo año la oficina en Providencia agrega un arriendo de $1.500.000 mensuales, fijado en el extremo superior de los avisos de oficinas comparables en la comuna, y servicios completos por $330.000. Ambos se reajustan por inflación.
 
@@ -867,7 +900,7 @@ El primer año la empresa opera desde un taller domiciliario, y los servicios b�
 | Publicidad digital | $6.000.000 | $10.815.000 | $15.913.500 | $21.308.176 | $28.700.475 | $31.022.174 | $33.564.810 | $36.305.877 | $39.257.205 | $42.470.367 |
 | **Costo y gasto total** | $74.155.857 | $135.543.536 | $184.929.442 | $232.163.249 | $277.743.263 | $308.234.585 | $325.972.267 | $344.588.588 | $379.967.295 | $401.298.178 |
 
-**Tabla 2.9 “Costos operacionales, de administración y de comercialización”**
+**Tabla 3.1 “Costos operacionales, de administración y de comercialización”**
 
 La tabla muestra dónde está el costo de la empresa. En 2027 el personal, sumando nómina, cargas, colación y movilización, se lleva el 51 % del costo total y los materiales solo el 31 %: es una empresa que todavía paga más estructura de la que su volumen justifica. En 2036 la proporción se ha acercado (39 % el personal y 41 % los materiales), porque la estructura crece por escalones mientras las ventas crecen todos los años. La publicidad digital se presupuesta en $30.000 por equipo vendido, de modo que acompaña al volumen en lugar de ser un monto fijo.
 
@@ -886,7 +919,7 @@ Con la estructura completa de costos ya construida, el precio deja de ser una de
 | IVA 19 % | $74.408 |
 | **Precio de lista con IVA** | **$466.027** |
 
-**Tabla 3.0 “Determinación del precio de venta”**
+**Tabla 3.2 “Determinación del precio de venta”**
 
 El precio de lista resultante es de **$466.027 con IVA**, expresado en pesos de 2027 y reajustado cada año por inflación, igual que los costos; por eso se obtiene dividiendo las ventas necesarias por los equipos ponderados según ese reajuste, y no multiplicando un costo medio por el margen. Conviene explicitar cómo se comporta ese margen en el tiempo: al ser un precio único aplicado sobre una estructura que se diluye con el volumen, los primeros ejercicios quedan por debajo del 30 % objetivo y los últimos por encima, de modo que el margen se cumple sobre el horizonte completo y no ejercicio por ejercicio. Esa es exactamente la razón por la que los años 2027 y 2028 arrojan pérdida: son los años en que se construye la empresa.
 
@@ -906,7 +939,7 @@ Este resultado define el posicionamiento competitivo. A $466.027, TerraSense que
 | (-) Impuesto a la renta | $0 | $0 | $3.967.479 | $10.218.318 | $23.017.179 | $23.352.640 | $27.302.808 | $31.691.298 | $32.587.034 | $37.862.271 |
 | **(=) Utilidad del ejercicio** | $-1.616.164 | $47.907 | $13.470.693 | $30.654.953 | $69.051.537 | $70.057.919 | $81.908.423 | $95.073.894 | $97.761.101 | $113.586.814 |
 
-**Tabla 3.1 “Estado de resultados proyectado”**
+**Tabla 3.3 “Estado de resultados proyectado”**
 
 El primer ejercicio cierra con una pérdida de $1.616.164 y el segundo con $47.907. No es un defecto del modelo sino su hallazgo más útil: con 200 equipos vendidos, la estructura mínima que exige operar formalmente —dos socios, un contador, cotizaciones, servicios digitales y publicidad— no se cubre todavía. A partir de 2029 el resultado es positivo y creciente.
 
@@ -920,53 +953,54 @@ El impuesto a la renta se calcula bajo el régimen Pro Pyme [18], con las tasas 
 | (+) Depreciación y amortización | $2.591.198 | $2.591.198 | $2.591.198 | $2.591.198 | $2.591.198 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 |
 | (-) Cuota de capital del préstamo | $1.639.920 | $1.836.710 | $2.057.115 | $2.303.969 | $2.580.445 | $2.890.099 | $3.236.910 | $3.625.340 | $4.060.380 | $4.547.626 |
 | (-) Reinversión en activo fijo | $0 | $0 | $0 | $0 | $0 | $6.875.641 | $0 | $0 | $0 | $0 |
-| **(=) Flujo de fondos** | $-664.886 | $802.395 | $14.004.776 | $30.942.182 | $69.062.290 | $61.667.308 | $80.046.641 | $92.823.682 | $95.075.848 | $110.414.316 |
-| Caja acumulada | $12.054.899 | $12.857.295 | $26.862.070 | $57.804.252 | $126.866.542 | $188.533.850 | $268.580.491 | $361.404.173 | $456.480.021 | $566.894.337 |
+| (+) Cuota ya pagada con el pie | $4.832.966 | $4.167.034 | $0 | $0 | $0 | $0 | $0 | $0 | $0 | $0 |
+| **(=) Flujo de fondos** | $4.168.080 | $4.969.429 | $14.004.776 | $30.942.182 | $69.062.290 | $61.667.308 | $80.046.641 | $92.823.682 | $95.075.848 | $110.414.316 |
+| Caja acumulada | $16.887.865 | $21.857.295 | $35.862.070 | $66.804.252 | $135.866.542 | $197.533.850 | $277.580.491 | $370.404.173 | $465.480.021 | $575.894.337 |
 
-**Tabla 3.2 “Flujo de fondos para la evaluación del proyecto”**
+**Tabla 3.4 “Flujo de fondos para la evaluación del proyecto”**
 
-El flujo de fondos parte de la utilidad, le devuelve la depreciación y la amortización que no son salidas de caja, y le descuenta lo que sí sale de la empresa sin pasar por resultados: el capital del préstamo y, en 2032, la renovación del activo fijo. La caja nunca baja de $12.054.899, que ocurre en 2027. Ese es el piso que el capital de trabajo fue dimensionado para sostener.
+El flujo de fondos parte de la utilidad, le devuelve la depreciación y la amortización que no son salidas de caja, y le descuenta lo que sí sale de la empresa sin pasar por resultados: el capital del préstamo y, en 2032, la renovación del activo fijo. Le devuelve además la parte de la cuota que el pie ya pagó por anticipado en 2027 y 2028, porque ese dinero salió al inicio y no vuelve a salir de la caja. La caja nunca baja de $16.887.865, que ocurre en 2027.
 
 | Indicador | Valor | Criterio | Veredicto |
 |---|---:|---|---|
-| Inversión inicial | $28.778.513 | — | — |
-| VAN al 20 % | $122.844.289 | VAN > 0 | Cumple |
-| TIR efectiva anual | 56,97 % | TIR > 20 % | Cumple |
+| Desembolso inicial evaluado (inversión $28.778.513 + pie $9.000.000) | $37.778.513 | — | — |
+| VAN al 20 % | $120.765.535 | VAN > 0 | Cumple |
+| TIR efectiva anual | 53,37 % | TIR > 20 % | Cumple |
 | Payback simple | 3,47 años | ≤ 5 años | Cumple |
-| Payback descontado al 20 % | 4,21 años | ≤ 5 años | Cumple |
-| Caja mínima del horizonte | $12.054.899 | > 0 | Cumple |
+| Payback descontado al 20 % | 4,28 años | ≤ 5 años | Cumple |
+| Caja mínima del horizonte | $16.887.865 | > 0 | Cumple |
 | Deuda al cierre del horizonte | $0 | Crédito saldado | Cumple |
 
-**Tabla 3.3 “Evaluación económica”**
+**Tabla 3.5 “Evaluación económica”**
 
-Todos los indicadores cumplen su criterio. El VAN de $122.844.289 indica excedente económico después de remunerar el capital al 20 % anual; la TIR de 56,97 % supera esa exigencia en 36,97 puntos porcentuales; y la inversión se recupera en 3,47 años nominales o 4,21 descontados, dentro del plazo de cinco años que el proyecto se fijó como criterio.
+Todos los indicadores cumplen su criterio. El VAN de $120.765.535 indica excedente económico después de remunerar el capital al 20 % anual; la TIR de 53,37 % supera esa exigencia en 33,37 puntos porcentuales; y el desembolso inicial, que suma la inversión y el pie, se recupera en 3,47 años nominales o 4,28 descontados, dentro del plazo de cinco años que el proyecto se fijó como criterio.
 
 La evaluación principal es a diez años porque es el plazo del crédito y porque el equipo tiene una vida comercial que excede el lustro. La comparación con un horizonte de cinco años muestra qué parte del resultado depende de esa elección:
 
 | Indicador | A 5 años (2027–2031) | A 10 años (2027–2036) |
 |---|---:|---:|
-| VAN al 20 % | $22.005.798 | $122.844.289 |
-| TIR efectiva anual | 36,67 % | 56,97 % |
-| Caja acumulada al cierre | $126.866.542 | $566.894.337 |
+| VAN al 20 % | $19.927.043 | $120.765.535 |
+| TIR efectiva anual | 33,54 % | 53,37 % |
+| Caja acumulada al cierre | $135.866.542 | $575.894.337 |
 | Deuda bancaria pendiente al cierre | $18.360.355 | $0 |
 
-**Tabla 3.4 “Comparación del horizonte de evaluación: cinco y diez años”**
+**Tabla 3.6 “Comparación del horizonte de evaluación: cinco y diez años”**
 
-A cinco años el proyecto ya crea valor, con un VAN de $22.005.798, pero conserva una deuda bancaria de $18.360.355 que a diez años está saldada. El grueso del VAN se genera en la segunda mitad del horizonte, cuando la estructura ya está pagada y cada venta adicional aporta casi todo su margen de contribución: evaluar a cinco años subestimaría el negocio, pero no cambiaría la decisión.
+A cinco años el proyecto ya crea valor, con un VAN de $19.927.043, pero conserva una deuda bancaria de $18.360.355 que a diez años está saldada. El grueso del VAN se genera en la segunda mitad del horizonte, cuando la estructura ya está pagada y cada venta adicional aporta casi todo su margen de contribución: evaluar a cinco años subestimaría el negocio, pero no cambiaría la decisión.
 
 | Tasa efectiva anual | VAN | Interpretación |
 |---:|---:|---|
-| 5 % | $357.785.252 | Positivo |
-| 8 % | $286.579.125 | Positivo |
-| 10 % | $247.898.395 | Positivo |
-| 15 % | $173.902.298 | Positivo |
-| 20 % | $122.844.289 | Positivo |
-| 30 % | $60.880.334 | Positivo |
-| 40 % | $27.647.598 | Positivo |
-| 50 % | $8.599.609 | Positivo |
-| TIR: 56,97 % | $0 | VAN aproximadamente cero |
+| 5 % | $357.167.699 | Positivo |
+| 8 % | $285.626.653 | Positivo |
+| 10 % | $246.735.830 | Positivo |
+| 15 % | $172.255.754 | Positivo |
+| 20 % | $120.765.535 | Positivo |
+| 30 % | $58.063.701 | Positivo |
+| 40 % | $24.225.755 | Positivo |
+| 50 % | $4.673.601 | Positivo |
+| TIR: 53,37 % | $0 | VAN aproximadamente cero |
 
-**Tabla 3.5 “VAN ante distintas tasas de descuento”**
+**Tabla 3.7 “VAN ante distintas tasas de descuento”**
 
 El VAN decrece monótonamente al subir la tasa de descuento y cruza cero exactamente en la TIR, tal como exige la definición de ambos indicadores, y se mantiene positivo hasta exigencias de rentabilidad muy superiores al 20 % de referencia.
 
@@ -976,25 +1010,25 @@ Para verificar la robustez del resultado se recalculó el proyecto modificando u
 
 | Caso | Precio de lista | Utilidad del año 1 | VAN a 10 años | TIR | Caja mínima |
 |---|---:|---:|---:|---:|---:|
-| Caso base | $466.027 | $-1.616.164 | $122.844.289 | 57,0 % | $12.054.899 |
-| Ventas -10 % | $466.027 | $-6.486.460 | $69.685.295 | 41,7 % | $-783.976 |
-| Ventas -25 % | $466.027 | $-13.791.905 | $-12.004.315 | 15,9 % | $-37.912.395 |
-| Ventas -35 % | $466.027 | $-18.662.201 | $-70.290.608 | -6,2 % | $-81.891.832 |
-| Ventas +20 % | $466.027 | $7.108.875 | $229.684.467 | 85,7 % | $20.744.577 |
-| BOM +15 % | $466.027 | $-4.276.940 | $93.684.923 | 48,4 % | $5.389.614 |
-| BOM +30 % | $466.027 | $-6.937.716 | $64.214.453 | 39,7 % | $-2.078.066 |
-| Precio rebajado a $439.990 (−5,6 %) | $439.990 | $-5.731.828 | $77.864.082 | 44,0 % | $1.323.146 |
-| Precio rebajado a $419.990 (−9,9 %) | $419.990 | $-8.893.172 | $42.843.012 | 33,5 % | $-8.864.713 |
-| Precio rebajado a $399.990 (−14,2 %) | $399.990 | $-12.054.517 | $7.426.554 | 22,4 % | $-26.109.058 |
-| Precio rebajado a $369.990 (−20,6 %) | $369.990 | $-16.796.534 | $-47.595.499 | 3,1 % | $-64.726.075 |
+| Caso base | $466.027 | $-1.616.164 | $120.765.535 | 53,4 % | $16.887.865 |
+| Ventas -10 % | $466.027 | $-6.486.460 | $67.599.303 | 39,6 % | $8.216.024 |
+| Ventas -25 % | $466.027 | $-13.791.905 | $-14.101.162 | 15,4 % | $-28.912.395 |
+| Ventas -35 % | $466.027 | $-18.662.201 | $-72.394.692 | -6,1 % | $-72.891.832 |
+| Ventas +20 % | $466.027 | $7.108.875 | $227.620.186 | 78,5 % | $25.681.756 |
+| BOM +15 % | $466.027 | $-4.276.940 | $91.616.324 | 45,7 % | $14.275.399 |
+| BOM +30 % | $466.027 | $-6.937.716 | $62.156.010 | 37,8 % | $6.921.934 |
+| Precio rebajado a $439.990 (−5,6 %) | $439.990 | $-5.731.828 | $75.785.328 | 41,7 % | $10.323.146 |
+| Precio rebajado a $419.990 (−9,9 %) | $419.990 | $-8.893.172 | $40.764.257 | 32,1 % | $135.287 |
+| Precio rebajado a $399.990 (−14,2 %) | $399.990 | $-12.054.517 | $5.347.799 | 21,7 % | $-17.109.058 |
+| Precio rebajado a $369.990 (−20,6 %) | $369.990 | $-16.796.534 | $-49.674.254 | 3,0 % | $-55.726.075 |
 
-**Tabla 3.6 “Análisis de sensibilidad y punto de quiebre”**
+**Tabla 3.8 “Análisis de sensibilidad y punto de quiebre”**
 
 Tres lecturas se desprenden de la tabla:
 
-- **El punto de quiebre del volumen está entre una caída del 10 % y una del 25 % en las ventas.** Con −10 % el VAN sigue positivo en $69.685.295 pero la caja se vuelve negativa, de modo que el proyecto destruiría liquidez antes de destruir valor: la restricción que aparece primero es de caja, no de rentabilidad.
-- **El costo de materiales admite desviación.** Un alza del 15 % en la BOM deja el VAN en $93.684.923 y la caja positiva; a +30 % el VAN sigue siendo de $64.214.453, pero la caja mínima cae a $-2.078.066. El margen resiste, pero confirma que la cotización de la sonda no admite descuido.
-- **El precio no admite rebaja.** Con el financiamiento dimensionado, la caja se vuelve negativa con cualquier precio de lista inferior a $437.003, apenas un 6,2 % bajo el precio calculado, y el proyecto deja de crear valor bajo $395.836. Ese resultado confirma que el precio debe derivarse del costo y no fijarse por aspiración comercial: un precio elegido para parecer competitivo, sin mirar la estructura, deja a la empresa sin caja en su segundo año.
+- **El punto de quiebre del volumen está entre una caída del 10 % y una del 25 % en las ventas.** Con −10 % el VAN sigue positivo en $67.599.303 y la caja mínima se mantiene en $8.216.024; con −25 % el VAN cae a $-14.101.162 y la caja a $-28.912.395, de modo que una caída de esa magnitud destruye a la vez valor y liquidez. Las cuotas que el pie dejó pagadas en los dos primeros años son las que sostienen la caja en el escenario de −10 %.
+- **El costo de materiales admite desviación.** Un alza del 15 % en la BOM deja el VAN en $91.616.324 y la caja mínima en $14.275.399; a +30 % el VAN sigue siendo de $62.156.010 y la caja mínima baja a $6.921.934. El margen resiste, pero confirma que la cotización de la sonda no admite descuido.
+- **El precio no admite rebaja.** Con el financiamiento dimensionado, la caja se vuelve negativa con cualquier precio de lista inferior a $419.833, apenas un 9,9 % bajo el precio calculado, y el proyecto deja de crear valor bajo $396.986. Ese resultado confirma que el precio debe derivarse del costo y no fijarse por aspiración comercial: un precio elegido para parecer competitivo, sin mirar la estructura, deja a la empresa sin caja en su tercer año.
 
 ### Costo total de propiedad para el agricultor
 
@@ -1008,7 +1042,7 @@ La pregunta que un agricultor se hace antes de comprar no es cuánto cuesta el i
 | Asesoría agronómica externa (S2) | Uso habitual: 2 visitas/año | $120.000 | $360.000 | $600.000 | $1.200.000 |
 | Asesoría agronómica externa (S2) | Uso intensivo: 12 visitas/año | $720.000 | $2.160.000 | $3.600.000 | $7.200.000 |
 
-**Tabla 3.7 “Costo total de propiedad para el agricultor”**
+**Tabla 3.9 “Costo total de propiedad para el agricultor”**
 
 Los valores S1 y S2 son supuestos de mercado declarados, no referencias bibliográficas, y figuran como tales en la tabla de supuestos de mercado al final del capítulo.
 
@@ -1053,7 +1087,7 @@ El núcleo del procesamiento recae en el módulo ESP32-WROOM-32 [19]. La elecci�
 | Consumo Deep-Sleep | 10 µA del módulo reteniendo RTC y memoria RTC / 5 µA en hibernación. No incluye el regulador, el LED de alimentación ni el puente USB-UART de la placa de desarrollo |
 | Certificación RF | Módulo pre-certificado FCC ID 2AC7Z-ESPWROOM32 |
 
-**Tabla 3.8 “Especificaciones Técnicas ESP32”**
+**Tabla 4.0 “Especificaciones Técnicas ESP32”**
 
 63 El rango de 95 a 380 mA describe el consumo del módulo medido en su propio pin de alimentación de 3,3 V, no el consumo del sistema completo: el extremo inferior corresponde a CPU activa con radio en reposo (el estado que domina durante la fase de adquisición Modbus) y el extremo superior a un pico instantáneo de transmisión Wi-Fi a máxima potencia, que este proyecto no utiliza porque toda la comunicación con el teléfono ocurre por BLE. Durante el advertising BLE de bajo duty cycle, el consumo promedio del módulo es menor que ese piso de 95 mA porque la radio se activa en pulsos breves y espaciados; el valor de 40 mA usado en la Fase 1 del ciclo de medición corresponde a ese promedio y no contradice el rango declarado, que describe el consumo en los instantes en que el núcleo de radio está activo.
 
@@ -1083,7 +1117,7 @@ La última fila de la tabla es una cifra del módulo y no del equipo. La BOM adq
 | pH | 3,0 – 9,0 | ±0,3 |
 | Macronutrientes (N, P, K) | 1 – 1.999 mg/kg c/u | ±2 % de la escala completa (según fabricante) |
 
-**Tabla 3.9 “Especificaciones Técnicas Sonda”**
+**Tabla 4.1 “Especificaciones Técnicas Sonda”**
 
 Estas cifras provienen del manual del fabricante del modelo adquirido, la ComWinTop CWT-Soil-NPKPHCTH-S [20], y se declaran en condiciones de laboratorio. La distinción no es formal: el protocolo de validación de este informe fija su criterio de aceptación sobre umbrales agronómicos propios porque la exactitud del fabricante no está verificada en suelo real.
 
@@ -1120,7 +1154,7 @@ Hz declarado en la hoja de datos, no la corriente instantánea durante la conver
 | 15 | Identificador de formato | uint8 | Constante 0x01, que identifica este contrato de 20 bytes |
 | 16–19 | Ambiente BME280 | 32 bits empaquetados | Temperatura del aire (12 bits, °C × 10 + 400), presión (12 bits, hPa − 300) y humedad relativa (8 bits, % × 2) |
 
-**Tabla 4.0 “Contrato de Datos BLE (20 bytes)”**
+**Tabla 4.2 “Contrato de Datos BLE (20 bytes)”**
 
 67 Un cambio de orden de bytes o de escala puede producir cifras plausibles pero incorrectas, mucho más difíciles de detectar que una desconexión visible: una humedad de 35,0 % leída como 8.960 se advierte de inmediato, pero un pH mal escalado que arroje 6,5 en lugar de 5,6 puede pasar inadvertido y provocar una recomendación equivocada.
 
@@ -1161,7 +1195,7 @@ Las tablas anteriores mezclan, inevitablemente, cifras de distinta solidez: algu
 | Divisor de batería: 18,5 µA | Cálculo directo (3,7 V / 200 kΩ) sobre el valor de resistencia adoptado | Calculada a partir de una decisión de diseño | Nada; verificar con las resistencias reales y su tolerancia |
 | Autonomía: ≈9 semanas por carga en uso habitual | Balance energético por nodo sobre las líneas anteriores | Calculada; hereda la incertidumbre de las estimaciones anteriores | Medir la energía de una jornada tipo y la corriente con el equipo apagado |
 
-**Tabla 4.1 “Estado Probatorio de las Especificaciones de Hardware”**
+**Tabla 4.3 “Estado Probatorio de las Especificaciones de Hardware”**
 
 70 La conclusión que se desprende de esta clasificación es concreta y define la prioridad de la etapa siguiente.
 
@@ -1190,7 +1224,7 @@ La autonomía del dispositivo depende de dos cortes: el que el microcontrolador 
 | MOSFET de canal P y de canal N | Corte de la alimentación de 5 V de la sonda, gobernado por un pin del microcontrolador. |
 | Divisor resistivo 100 kΩ + 100 kΩ | Lectura del estado de batería por la entrada analógica del microcontrolador. |
 
-**Tabla 4.2 “Gestión Energética”**
+**Tabla 4.4 “Gestión Energética”**
 
 El corte de la sonda está resuelto para fallar hacia el lado seguro. El MOSFET de canal P, en serie con los 5 V de la sonda, mantiene su compuerta en alto mediante una resistencia de 10 kΩ, de modo que la rama queda apagada por defecto; el microcontrolador la habilita encendiendo el MOSFET de canal N, que lleva esa compuerta a tierra. Si el programa se detiene o el microcontrolador se reinicia, la sonda queda desconectada, y en operación normal solo se energiza durante los tres segundos de la adquisición. Sin ese corte, sus 176,5 mW referidos a la batería se sumarían de forma continua a los 141,2 mW que el equipo consume en espera, más que duplicándolos.
 
@@ -1238,7 +1272,7 @@ El diagrama hace explícito lo que el balance energético por nodo cuantifica m�
 | Error de sonda | 🔴 Rojo | Tres destellos | Tono grave de 0,4 s | La lectura llegó sin datos de suelo: sonda desconectada, sin respuesta Modbus o con CRC inválido. |
 | Batería baja | 🔴 Rojo | Un destello corto cada 10 s | Dos tonos graves, sólo al entrar en batería baja | Tensión de batería bajo el umbral de aviso; requiere recarga por USB-C. |
 
-**Tabla 4.3 “Interfaz Hardware”**
+**Tabla 4.5 “Interfaz Hardware”**
 
 76
 
@@ -1287,7 +1321,7 @@ Digitalización del Proceso Agrícola: El segundo eje, tan determinante como la 
 | Actualización remota (OTA) | El firmware se actualiza por Bluetooth desde la aplicación, sin Wi-Fi: la consola web de soporte publica cada versión y la aplicación la transfiere al equipo. El mapa de registros Modbus, la dirección del esclavo y los coeficientes de calibración se diseñan para residir en la memoria no volátil del microcontrolador y ajustarse por esa misma vía, sin reemplazar el firmware completo; la app móvil se distribuye por los canales estándar de actualización de cada tienda de aplicaciones. |
 | Accesibilidad digital (WCAG 2.1 AA) [23] | Contraste mínimo de 4,5:1 entre texto y fondo, área táctil mínima de 48×48 dp y prohibición del color como único portador de información, pensado para usuarios de distintos niveles de alfabetización digital y para la lectura bajo sol directo en terreno. |
 
-**Tabla 4.4 “Pilares de Digitalización del Proceso Agrícola”**
+**Tabla 4.6 “Pilares de Digitalización del Proceso Agrícola”**
 
 Esta digitalización habilita capacidades imposibles bajo el modelo análogo, tales como comparar la evolución de un mismo punto del campo a lo largo de distintas temporadas y mantener un registro histórico respaldado. De este modo, el agricultor puede compartir información precisa con su asesor técnico sin depender de la memoria ni de anotaciones manuales.
 
@@ -1322,7 +1356,7 @@ El equipo no tiene un único nivel de consumo, sino que transita entre estados b
 | Entrega y espera | Comunicación y procesamiento | Confirmar envío y regresar al estado de menor consumo |
 | Carga | Circuito USB-C y celda | Verificar corriente, temperatura y efecto del calor sobre la lectura ambiental |
 
-**Tabla 4.5 “Estados Energéticos y Medidas de Diseño”**
+**Tabla 4.7 “Estados Energéticos y Medidas de Diseño”**
 
 81
 
@@ -1352,7 +1386,7 @@ La conversión hacia la batería sigue una sola cadena. El elevador, de eficienc
 | 4. Aviso al usuario | Buzzer pasivo 9042 (dos pitidos, 160 ms; estimado) | 3,3 V (salida del microcontrolador) | 30 mA | 99,0 mW | 176,5 mW |
 |  | LED verde con 330 Ω (tres destellos, 360 ms) | 3,3 V (salida del microcontrolador) | 1 mA | 3,3 mW | 5,9 mW |
 
-**Tabla 4.6 “Balance Energético por Nodo de Tensión”**
+**Tabla 4.8 “Balance Energético por Nodo de Tensión”**
 
 | Fase Operativa | Potencia desde la batería | Duración | Energía por ciclo |
 |---|---|---|---|
@@ -1362,7 +1396,7 @@ La conversión hacia la batería sigue una sola cadena. El elevador, de eficienc
 | 4. Aviso al usuario (buzzer y LED verde) | 176,5 mW | 0,36 s, simultáneo al envío | 0,008 mWh |
 | Total por ciclo | Variable | 16 s | 1,820 mWh |
 
-**Tabla 4.7 “Energía por Ciclo de Medición”**
+**Tabla 4.9 “Energía por Ciclo de Medición”**
 
 Tres precisiones sostienen estas tablas frente a un cálculo por suma directa de corrientes. La sonda toma 150 mW en su nodo de 5 V, pero exige 176,5 mW a la batería: el factor 1/η = 1,176 que impone el elevador es energía perdida en la conversión. La rama de 3,3 V exhibe una pérdida mayor: los 40 mA de la Fase 1 valen 132 mW en su nodo, pero cuestan 235,3 mW de batería, porque el regulador lineal y el elevador pierden en serie. Y el consumo propio de la placa, 35,3 mW desde la batería, está presente en todas las fases y en la espera, de modo que la energía de la jornada la determina el tiempo que el equipo permanece encendido, no el número de mediciones. La corriente de transmisión del ESP32 en la Fase 3 se fija en 150 mA, el extremo superior de la banda de transmisión BLE declarada en la comparativa de microcontroladores; el consumo del transceptor SP3485 se toma del extremo superior de su hoja de datos [24]; y el de la sonda, del supuesto de potencia constante ya declarado.
 
@@ -1377,7 +1411,7 @@ Como el equipo se apaga entre jornadas, la autonomía no se expresa en tiempo de
 | Uso habitual: dos jornadas semanales de 2 h con 10 mediciones | 2 por semana | 59,6 días (≈ 8,5 semanas) | 170 |
 | Almacenado apagado, sin uso | Ninguno | 383,0 días (≈ 12,6 meses) | — |
 
-**Tabla 4.8 “Autonomía según el Patrón de Uso”**
+**Tabla 5.0 “Autonomía según el Patrón de Uso”**
 
 La tabla muestra la consecuencia de operar con placa de desarrollo: el mismo equipo que almacenado apagado conserva su carga durante más de un año, se descarga en menos de dos días si se olvida encendido. Bajo el uso habitual, dos jornadas por semana, una carga dura del orden de 9 semanas y 170 mediciones; bajo uso intensivo diario, del orden de 3 semanas. En ambos casos la recarga se resuelve con el mismo cargador USB-C del teléfono, y el equipo puede cargarse apagado.
 
@@ -1394,7 +1428,7 @@ Las cifras anteriores heredan dos estimaciones no medidas: el consumo propio de 
 | Divisor de batería de 1 MΩ + 1 MΩ | 60,5 días (≈ 8,6 semanas) | +1,5 % |
 | ESP32 sin reposo con BLE anunciando (40 mA en espera, firmware actual) | 34,5 días (≈ 4,9 semanas) | −42,1 % |
 
-**Tabla 4.9 “Sensibilidad de la Autonomía al Consumo y al Uso”**
+**Tabla 5.1 “Sensibilidad de la Autonomía al Consumo y al Uso”**
 
 Las variables decisivas son el tiempo que el equipo pasa encendido y lo que consume apagado: duplicar la duración de las jornadas reduce la autonomía en un 45 %, duplicar el consumo propio de la placa en un 17 % y una fuga de 1 mA con el equipo apagado en un 47 %. El divisor de batería, en cambio, casi no pesa: reemplazarlo por uno de 1 MΩ + 1 MΩ la alarga apenas un 1,5 %, y por eso se conserva el de 100 kΩ, que entrega una lectura más estable.
 
@@ -1413,7 +1447,7 @@ Al comparar el sistema contra los estándares de la industria, el proyecto enfre
 | Hanna HI9814 [6] | 3 pilas AAA de 1,5 V | Sustituir el juego completo; ~600 horas de uso continuo declaradas | 4 (pH, EC, TDS y temperatura), en soluciones hidropónicas |
 | TerraSense | 1 celda LiPo recargable de 2.000 mAh, carga USB-C | Recargar la misma celda; sustituirla al degradarse | 7 registros de suelo + 3 ambientales, con interpretación agronómica móvil |
 
-**Tabla 5.0 “Análisis Comparativo de Parámetros”**
+**Tabla 5.2 “Análisis Comparativo de Parámetros”**
 
 87 TerraSense busca reducir el recambio habitual de pilas primarias al recuperar la carga de la misma celda durante muchos ciclos de uso, lo que para el agricultor significa menos compras de repuestos y la posibilidad de cargar el equipo antes de una jornada mediante USB-C. Conviene reconocer, sin embargo, la ventaja operativa que conservan las pilas intercambiables: permiten reanudar el trabajo de inmediato con un repuesto, mientras que la batería integrada obliga a planificar la carga y a asegurar acceso a energía.
 
@@ -1573,7 +1607,7 @@ El listado anterior mezcla, deliberadamente, normas de cumplimiento legal inelud
 | ISO/IEC 27001:2022 e ISO/IEC 25010 | Voluntaria (certificación de gestión y calidad de software) | Cifrado en tránsito y reposo, control de acceso segmentado | Revisión de configuración de cifrado y de segmentación de accesos. Criterio: TLS vigente y ausencia de credenciales embebidas. Evidencia: informe de revisión | Parcial |
 | WCAG 2.1, nivel AA | Voluntaria (no exigida por ley a aplicaciones privadas en Chile) | Contraste ≥ 4,5:1, área táctil ≥ 48×48 dp y color no exclusivo como portador de información | Auditoría de accesibilidad sobre las pantallas de la aplicación. Criterio: contraste ≥ 4,5:1 y ninguna información transmitida solo por color. Evidencia: informe de auditoría | Pendiente |
 
-**Tabla 5.1 “Clasificación Normativa: Obligatoria, Voluntaria y de Mercado Futuro”**
+**Tabla 5.3 “Clasificación Normativa: Obligatoria, Voluntaria y de Mercado Futuro”**
 
 99
 
@@ -1601,15 +1635,42 @@ La exclusión de N, P y K es deliberada y coherente con el resto del informe: es
 | Variables excluidas y motivo | N, P y K, por ser derivaciones de la conductividad eléctrica y no determinaciones independientes; temperatura de suelo, resuelta con termómetro patrón en calibración de fábrica; magnitudes del BME280, confirmadas por hoja de datos del componente exacto |
 | Tamaño de muestra | N ≥ 30 puntos de medición en total y no menos de 10 por clase textural, tomados en terreno y sub muestreados el mismo día para envío a laboratorio |
 | Diversidad de suelos | Al menos 3 clases texturales distintas (franco, arcilloso, arenoso), cubriendo el rango útil de pH (4,5–8,5) y de conductividad eléctrica (0–5.000 µS/cm), que es donde se toman las decisiones agronómicas reales |
-| Referencia de laboratorio | pH según ISO 10390; conductividad eléctrica según ISO 11265; textura según ISO 11277; humedad volumétrica por gravimetría según ISO 11465. Laboratorio acreditado bajo ISO/IEC 17025 para los ensayos solicitados |
-| Estadístico de concordancia | Coeficiente de determinación (R²) entre lectura in situ y laboratorio; error cuadrático medio (RMSE) en la unidad nativa de cada variable; análisis de concordancia de Bland-Altman para detectar sesgo sistemático |
-| Umbral de aceptación | Umbral agronómico propio: pH, RMSE ≤ 0,3 unidades; conductividad eléctrica, RMSE ≤ 10 % de la lectura o 200 µS/cm, el mayor de ambos; humedad volumétrica, RMSE ≤ 4 puntos porcentuales. Adicionalmente R² ≥ 0,80 y ausencia de sesgo proporcional significativo (p < 0,05) en Bland-Altman |
+| Referencia de laboratorio | pH según ISO 10390; conductividad eléctrica según ISO 11265; textura según ISO 11277; humedad gravimétrica según ISO 11465 [36] y densidad aparente seca según ISO 11272 [54], ambas sobre el mismo cilindro de volumen conocido, y humedad volumétrica derivada de ellas según ISO 11461 [55]. Laboratorio acreditado bajo ISO/IEC 17025 para los ensayos solicitados |
+| Estadístico de concordancia | Coeficiente de determinación (R²) y error cuadrático medio (RMSE) en la unidad nativa de cada variable; regresión de Passing-Bablok [57] de la lectura in situ sobre la de laboratorio, con el intervalo de confianza del 95 % de la pendiente y de la ordenada; análisis de Bland-Altman [56] con el sesgo medio, su intervalo de confianza del 95 % y los límites de concordancia |
+| Umbral de aceptación | Umbral agronómico propio: pH, RMSE ≤ 0,3 unidades; conductividad eléctrica, RMSE ≤ 10 % de la lectura o 200 µS/cm, el mayor de ambos; humedad volumétrica, RMSE ≤ 4 puntos porcentuales. Adicionalmente R² ≥ 0,80; sin sesgo proporcional, demostrado por equivalencia: el intervalo de confianza del 95 % de la pendiente de Passing-Bablok queda entero dentro de 0,90–1,10; y sin sesgo constante: el intervalo de confianza del 95 % de la ordenada contiene el cero |
 | Alcance del resultado | La campaña detecta sesgo grueso y desviación sistemática. El ajuste fino de coeficientes requiere una segunda campaña sobre la base instalada, prevista en el plan de calibración |
 | Acción si no se cumple el umbral | La variable se marca como “referencial” en la app (no apta para prescripción cuantitativa de dosis ni de volúmenes) hasta recalibrar el coeficiente de compensación o sustituir el sensor asociado |
 
-**Tabla 5.2 “Protocolo de Validación In Situ vs. Laboratorio de Referencia”**
+**Tabla 5.4 “Protocolo de Validación In Situ vs. Laboratorio de Referencia”**
 
 101 Por qué un umbral propio y no el del fabricante. El manual de la sonda declara ±0,3 unidades de pH, ±3 % de conductividad y ±2 a 3 % de humedad. El umbral de pH coincide con esa cifra, pero no se fija por ella, por dos razones. La primera es de condiciones: la exactitud del fabricante se declara en laboratorio, a 25 °C y en un medio homogéneo, mientras que la campaña compara mediciones en suelo real, con su heterogeneidad y su contacto variable con los electrodos, contra un laboratorio acreditado; exigir la cifra del fabricante en esas condiciones mediría el suelo y no el instrumento. La segunda es de pertinencia: el producto de este instrumento no es una cifra sino una decisión de manejo. Un error de 0,3 unidades de pH no cambia la recomendación de encalado para ningún cultivo de la matriz; uno de 0,8 sí la cambia. El umbral debe fijarse donde la decisión cambia, y por eso se declara en términos agronómicos y no metrológicos. El mismo criterio explica los umbrales de conductividad y de humedad: un error de 4 puntos de humedad volumétrica no altera el veredicto de riego, mientras que uno de 10 puntos sí lo altera.
+
+#### Criterio estadístico para declarar ausencia de sesgo
+
+Una prueba que no encuentra diferencia significativa no demuestra que la diferencia no exista: con 30 puntos, una regresión puede no detectar un sesgo proporcional del 15 % sólo porque la muestra es pequeña. Por eso el protocolo no declara ausencia de sesgo cuando la prueba «no resulta significativa», sino cuando el intervalo de confianza demuestra que el sesgo, si existe, es menor que un margen fijado de antemano. Es un criterio de **equivalencia**, no de significancia.
+
+- **Sesgo proporcional.** Se ajusta la regresión de Passing-Bablok [57] de la lectura in situ (eje y) sobre la de laboratorio (eje x). Este método no supone normalidad, admite error en ambos métodos y no lo desplaza un valor atípico aislado, que en suelo real es frecuente. Sin sesgo proporcional la pendiente vale 1. Se declara la ausencia de sesgo proporcional sólo si el intervalo de confianza del 95 % de la pendiente queda **entero** dentro de 0,90–1,10. El margen de ±10 % no es arbitrario: es el mismo error relativo que el umbral de conductividad tolera, y en humedad equivale a 3 puntos porcentuales en un suelo al 30 %, bajo el umbral de 4 puntos.
+- **Sesgo constante.** Con la misma regresión, la ordenada en el origen vale 0 si no hay sesgo constante. Se declara su ausencia si el intervalo de confianza del 95 % de la ordenada contiene el cero.
+- **Concordancia.** El análisis de Bland-Altman [56] grafica la diferencia entre ambos métodos contra su promedio y entrega el sesgo medio, con su intervalo de confianza, y los límites de concordancia, iguales al sesgo ± 1,96 desviaciones estándar de las diferencias. Si las diferencias crecen con el promedio, señal de sesgo proporcional, los límites se calculan sobre diferencias porcentuales y no absolutas.
+
+Si el intervalo de la pendiente sale más ancho que el margen, el resultado no es «aprobado» ni «rechazado» sino **no concluyente**: se agregan puntos hasta que el intervalo permita decidir, en lugar de aprobar la variable porque la muestra fue demasiado chica para ver el error.
+
+#### Conversión entre humedad gravimétrica y volumétrica
+
+La sonda informa **humedad volumétrica** (θv, volumen de agua por volumen de suelo), mientras que el método gravimétrico de laboratorio entrega **humedad gravimétrica** (w, masa de agua por masa de suelo seco). Las dos magnitudes no son comparables directamente: las relaciona la densidad aparente seca del suelo (ρb), que varía de un punto a otro con la textura, la materia orgánica y la compactación. La conversión se formaliza así:
+
+| Magnitud | Expresión | Unidad | Origen |
+|---|---|---|---|
+| Humedad gravimétrica | w = (mh − ms) / ms | g/g | ISO 11465 [36]: masa húmeda (mh) y masa seca a 105 °C hasta masa constante (ms) |
+| Densidad aparente seca | ρb = ms / V | g/cm³ | ISO 11272 [54]: masa seca del cilindro de volumen conocido (V = 100 cm³) |
+| Humedad volumétrica | θv = w × ρb / ρw = (mh − ms) / (ρw × V) | cm³/cm³ (× 100 = %) | ISO 11461 [55], con ρw = 1,00 g/cm³ (densidad del agua) |
+| Incertidumbre relativa | u(θv)/θv = √[(u(w)/w)² + (u(ρb)/ρb)²] | adimensional | Propagación de las incertidumbres de w y de ρb |
+
+**Tabla 5.5 “Conversión de la humedad gravimétrica a volumétrica”**
+
+En cada punto de la campaña se toma, a no más de 10 cm del punto de inserción de la sonda y a la misma profundidad de sus electrodos, un cilindro de acero de 100 cm³ hincado sin compactar el suelo, dentro de los 15 minutos siguientes a la lectura in situ. El cilindro se sella, se pesa húmedo dentro de 24 horas y se seca en estufa a 105 °C hasta masa constante. De la misma muestra salen w, ρb y θv, y es θv, expresado en porcentaje, el que se compara con la lectura de la sonda; la diferencia se informa en puntos porcentuales.
+
+Un ejemplo muestra por qué la densidad aparente se mide en cada punto y no se toma de una tabla por textura. Con w = 0,20 g/g y ρb = 1,35 g/cm³, la humedad volumétrica es 0,20 × 1,35 = 0,27, es decir 27 %. Si en vez de medir ρb se asumiera 1,30 g/cm³ en un suelo que en realidad tiene 1,50 g/cm³, el valor de referencia saldría 26 % cuando el real es 30 %: un error de 4 puntos, igual a todo el umbral de aceptación, atribuido injustamente a la sonda. Medir w y ρb sobre el mismo cilindro elimina esa fuente de error.
 
 
 <!-- ===== PAGINA 102 ===== -->
@@ -1644,7 +1705,7 @@ La calibración no se ejecuta reescribiendo el firmware, sino ajustando los coef
 | Retiro de la variable | La variable afectada se marca como “referencial” en la aplicación y deja de sustentar recomendaciones cuantitativas | Cuando la recalibración no recupera el criterio | — | Aviso al usuario en la pantalla de la variable y en el histórico |
 | Control de deriva de la flota | Seguimiento agregado de las verificaciones periódicas sincronizadas, para detectar si la desviación es de un equipo o un patrón común del lote | Revisión semestral | Ningún lote con desviación media creciente y sostenida | Informe de deriva por lote de fabricación |
 
-**Tabla 5.3 “Plan de Calibración y Control de Deriva”**
+**Tabla 5.6 “Plan de Calibración y Control de Deriva”**
 
 Tres precisiones sobre este plan. La primera es de alcance: la verificación del usuario emplea solución patrón de pH, que es barata, estable y de uso corriente en agricultura, y no pretende reproducir un laboratorio; su función es detectar que algo se desvió, no cuantificar cuánto con precisión metrológica. La segunda es de costo, y se conecta con el desglose económico: la calibración de fábrica es trabajo de taller y está contenida en el trabajo de los ensambladores que la nómina ya presupuesta, mientras que las soluciones patrón y el instrumental de referencia se cargan a la partida de metrología del rubro de desarrollo y validación. La tercera es de honestidad: la periodicidad semestral y los umbrales de esta tabla se fijan a partir del comportamiento típico de los electrodos de pH y de las sondas de conductividad, y deben confirmarse con la deriva que efectivamente muestre el SKU adquirido durante la primera temporada de operación; si resultara más rápida, la periodicidad se acorta antes de que el dato equivocado llegue al agricultor.
 
@@ -1663,9 +1724,9 @@ Dos cifras que sostienen la comparación de costo total de propiedad no proviene
 | S1 | Costo de un análisis de suelo en laboratorio acreditado en Chile | $50.000 por muestra | Consulta de tarifarios publicados por laboratorios de suelos universitarios y comerciales del mercado nacional, sin fuente única | Cotización formal y fechada del laboratorio que se adopte como referencia en la campaña de validación |
 | S2 | Costo de una visita de asesoría agronómica externa en Chile | $60.000 por visita | Consulta de tarifarios de consultores agronómicos independientes, sin fuente única | Cotización formal y fechada de al menos dos consultores de la zona de operación |
 
-**Tabla 5.4 “Supuestos de Mercado Declarados”**
+**Tabla 5.7 “Supuestos de Mercado Declarados”**
 
-Ambos valores se utilizan exclusivamente como término de comparación en el costo total de propiedad del agricultor y no intervienen en ninguna línea del flujo de caja del proyecto, de modo que una desviación en ellos altera el argumento de adopción pero no el VAN, la TIR ni la caja de la empresa. La Tabla 3.7 presenta además dos intensidades de uso precisamente para que el lector pueda juzgar la sensibilidad del argumento frente a estos dos supuestos.
+Ambos valores se utilizan exclusivamente como término de comparación en el costo total de propiedad del agricultor y no intervienen en ninguna línea del flujo de caja del proyecto, de modo que una desviación en ellos altera el argumento de adopción pero no el VAN, la TIR ni la caja de la empresa. La Tabla 3.9 presenta además dos intensidades de uso precisamente para que el lector pueda juzgar la sensibilidad del argumento frente a estos dos supuestos.
 
 105
 
@@ -1679,7 +1740,7 @@ La ingeniería conceptual desarrollada en este informe sostiene que es técnica 
 
 Desde la perspectiva ingenieril, la arquitectura descentralizada un nodo portátil de captura (ESP32, sonda industrial y celda de ion-litio) que transfiere los datos al teléfono del usuario responde directamente a las dos barreras identificadas en la problemática, porque traslada al teléfono el costo de la pantalla, el cómputo y el almacenamiento, y con ello el precio del instrumento. El diseño energético corta la alimentación de la sonda fuera de cada lectura y apaga el equipo completo entre jornadas, y con ello sostiene aproximadamente 9 semanas de uso habitual (170 mediciones) con una sola carga, sin el recambio constante de pilas primarias de los dos equipos de referencia comparados. Esa cifra proviene del balance energético por nodo de tensión, con las eficiencias de conversión declaradas, y su confirmación exige medir el consumo de la placa ensamblada encendida y apagada: si apareciera una fuga no identificada de 1 mA con el equipo apagado, la autonomía caería a unas 4,5 semanas. Alcanzar autonomías de varios meses sin apagar el equipo exige reemplazar la placa de desarrollo por el módulo desnudo con un regulador de baja corriente de reposo, mejora que queda identificada para la versión de producción.
 
-Desde la perspectiva económica, la evaluación a diez años (2027–2036) entrega un resultado favorable bajo las condiciones declaradas, con cada partida abierta y trazable hasta su origen. **El precio es un resultado y no un supuesto**: se construyó primero la estructura completa de costos y el precio se derivó de ella exigiendo un 30 % de utilidad sobre el costo total, lo que arroja un precio de lista de $466.027 con IVA. Con una inversión inicial de $28.778.513 financiada íntegramente por un crédito de igual monto a diez años y 12 % efectivo anual, con cuota fija de $402.747, y un pie propio de $8.633.554 entregado al banco en partes iguales por los socios ($4.316.777 cada uno), el proyecto alcanza un VAN de $122.844.289 al 20 % de descuento, una TIR de 56,97 %, un payback simple de 3,47 años y uno descontado de 4,21 años. La empresa renueva su activo fijo en 2032, cancela la totalidad de su deuda dentro del horizonte evaluado y cierra 2036 con $566.894.337 de caja acumulada y sin pasivo bancario. El punto de tensión está identificado y es de arranque, no de rentabilidad: los ejercicios 2027 y 2028 cierran con pérdida porque la estructura mínima para operar formalmente no se cubre con 200 equipos, y esa pérdida se financia con el capital de trabajo dimensionado para ello. Las sensibilidades acotan el margen de error: el proyecto resiste un alza del 15 % en el costo de materiales, pero se queda sin caja si las ventas caen un 10 % o si el precio de lista baja de $437.003, y deja de crear valor si las ventas caen un 25 % o si el precio baja de $395.836.
+Desde la perspectiva económica, la evaluación a diez años (2027–2036) entrega un resultado favorable bajo las condiciones declaradas, con cada partida abierta y trazable hasta su origen. **El precio es un resultado y no un supuesto**: se construyó primero la estructura completa de costos y el precio se derivó de ella exigiendo un 30 % de utilidad sobre el costo total, lo que arroja un precio de lista de $466.027 con IVA. Con una inversión inicial de $28.778.513 desembolsada íntegramente por un crédito de igual monto a diez años y 12 % efectivo anual, con cuota fija de $402.747, y un pie propio de $9.000.000 que los socios aportan en partes iguales ($4.500.000 cada uno) y abonan al banco como cuotas pagadas por anticipado, el proyecto alcanza un VAN de $120.765.535 al 20 % de descuento, una TIR de 53,37 %, un payback simple de 3,47 años y uno descontado de 4,28 años. La empresa renueva su activo fijo en 2032, cancela la totalidad de su deuda dentro del horizonte evaluado y cierra 2036 con $575.894.337 de caja acumulada y sin pasivo bancario. El punto de tensión está identificado y es de arranque, no de rentabilidad: los ejercicios 2027 y 2028 cierran con pérdida porque la estructura mínima para operar formalmente no se cubre con 200 equipos, y esa pérdida se financia con el capital de trabajo dimensionado para ello y con las cuotas que el pie dejó pagadas. Las sensibilidades acotan el margen de error: el proyecto resiste un alza del 15 % en el costo de materiales y una caída del 10 % en las ventas sin quedarse sin caja, pero se queda sin ella si el precio de lista baja de $419.833, y deja de crear valor si las ventas caen un 25 % o si el precio baja de $396.986.
 
 
 <!-- ===== PAGINA 107 ===== -->
@@ -1793,5 +1854,12 @@ Recuperado de https://jlcpcb.com/
 48. Advanced Monolithic Systems. (s.f.). AMS1117: 1A Low Dropout Voltage Regulator. Datasheet (corriente de reposo típica de 5 mA, representativa del regulador de las placas de desarrollo ESP32). Recuperado de http://www.advanced-monolithic.com/pdf/ds1117.pdf
 49. Espressif Systems. (s.f.). ESP32-DevKitC V4 Getting Started Guide: alimentación de la placa, regulador de 3,3 V y LED de alimentación. Recuperado de https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html
 50. Sumeet Instruments. (s.f.). 7 in 1 Integrated Soil Sensor NPK-pH-EC-Temperature-Moisture, RS485, alimentación 5–24 V DC. Ficha técnica de una sonda equivalente (0,15 W a 12 V DC; 0,5 W a 24 V DC). Recuperado de https://sumeetinstruments.com/Soil-NPK-pH-EC-Temperature-Moisture-7in1-Sensor-RS485
+51. Comisión para el Mercado Financiero (CMF) / BancoEstado. (2025). Fondo de Garantía para Pequeños Empresarios (FOGAPE): garantía de hasta el 80 % del crédito para empresas con ventas anuales de hasta UF 25.000, comisión de hasta 1 % anual sobre el monto garantizado y plazo de hasta diez años. Recuperado de https://www.bancoestado.cl/content/bancoestado-public/cl/es/home/inicio---bancoestado-pequena-empresa/productos/garantias-estatales---bancoestado-pequena-empresa/fogape-para-el-pequeno-empresario---bancoestado-pequenas-empresa.html
+52. Servicio de Cooperación Técnica (Sercotec). (2025). Bases de convocatoria Capital Semilla Emprende, Región Metropolitana 2025: subsidio de $3.500.000 para personas naturales sin inicio de actividades. Recuperado de https://www.sercotec.cl/capital-semilla-emprende-region-metropolitana-2025/
+53. Corporación de Fomento de la Producción (CORFO). (2025). Semilla Inicia: subsidio no reembolsable de hasta $15.000.000 que cofinancia hasta el 75 % del proyecto. Recuperado de https://www.corfo.gob.cl/sites/cpp/convocatoria/semilla_inicia/
+54. International Organization for Standardization. (2017). ISO 11272: Soil quality — Determination of dry bulk density. Ginebra: ISO.
+55. International Organization for Standardization. (2014). ISO 11461: Soil quality — Determination of soil water content as a volume fraction using coring sleeves — Gravimetric method. Ginebra: ISO.
+56. Bland, J. M., & Altman, D. G. (1999). Measuring agreement in method comparison studies. Statistical Methods in Medical Research, 8(2), 135–160.
+57. Passing, H., & Bablok, W. (1983). A new biometrical procedure for testing the equality of measurements from two different analytical methods. Journal of Clinical Chemistry and Clinical Biochemistry, 21(11), 709–720.
 
-Nota sobre los supuestos de mercado. Los costos de referencia del análisis de laboratorio y de la visita de asesoría agronómica no figuran en esta lista porque no provienen de una fuente bibliográfica publicable. Se declaran como supuestos de trabajo, identificados como S1 y S2, en la Tabla 5.4 “Supuestos de Mercado Declarados”, junto con su método de obtención y la cotización formal que los reemplazará. 112
+Nota sobre los supuestos de mercado. Los costos de referencia del análisis de laboratorio y de la visita de asesoría agronómica no figuran en esta lista porque no provienen de una fuente bibliográfica publicable. Se declaran como supuestos de trabajo, identificados como S1 y S2, en la Tabla 5.7 “Supuestos de Mercado Declarados”, junto con su método de obtención y la cotización formal que los reemplazará. 112

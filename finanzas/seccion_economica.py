@@ -82,14 +82,26 @@ perdida_arrastrada = -(F[0]["util_antes"] + F[1]["util_antes"])
 # Sensibilidad
 quiebre_van = M.precio_de_quiebre(R, "van")
 quiebre_caja = M.precio_de_quiebre(R, "caja")
+_rq = M.correr(precio_forzado=quiebre_caja * 0.99, capital_trabajo=INV["capital_trabajo"])
+_cajas = [f["caja"] for f in _rq["filas"]]
+anio_sin_caja = ["primer", "segundo", "tercer", "cuarto", "quinto", "sexto", "séptimo", "octavo", "noveno",
+                 "décimo"][_cajas.index(min(_cajas))]
 CT = INV["capital_trabajo"]
-v10 = M.resumen(M.correr(precio_forzado=precio, capital_trabajo=CT, factor_ventas=0.90))["van"]
+_r10 = M.correr(precio_forzado=precio, capital_trabajo=CT, factor_ventas=0.90)
+_r25 = M.correr(precio_forzado=precio, capital_trabajo=CT, factor_ventas=0.75)
+v10, caja10 = M.resumen(_r10)["van"], M.caja_minima(_r10)
+v25, caja25 = M.resumen(_r25)["van"], M.caja_minima(_r25)
+# Año en que la caja toca su mínimo cuando el precio está justo en el quiebre de caja (se calcula más abajo)
 bom15 = M.correr(precio_forzado=precio, capital_trabajo=CT, factor_bom=1.15)
 bom30 = M.correr(precio_forzado=precio, capital_trabajo=CT, factor_bom=1.30)
 
 # Horizonte corto
 flujos = [f["flujo"] for f in F]
-van5 = M.van(INV["total"], flujos[:5], S["tasa_descuento"])
+van5 = M.van(R["desembolso"], flujos[:5], S["tasa_descuento"])
+
+# Fondo concursable en su monto máximo aplicado a reducir el crédito (escenario fuera del caso base)
+_, _am_semilla = M.tabla_amortizacion(R["credito"] - 15000000, S["tasa_credito_efectiva_anual"], S["plazo_credito_anios"])
+ahorro_semilla = intereses - sum(a["interes"] for a in _am_semilla)
 
 # Costo total de propiedad del agricultor, año a año
 KIT, LAB, ASE = C.KIT_BATERIA, C.LAB_MUESTRA, C.ASESORIA_VISITA
@@ -264,13 +276,54 @@ w()
 
 w("### Financiamiento")
 w()
-w("El financiamiento se estructura de la forma en que opera la banca con una empresa nueva. **El pie no "
-  "es una fuente adicional de fondos.** Los socios entregan al banco un pie equivalente al %s del monto "
-  "solicitado como condición para que este desembolse el crédito, y es el crédito el que financia el "
-  "100 %% de la inversión inicial. Sumar el pie y el crédito como si fueran dos fuentes contaría dos "
-  "veces el mismo dinero." % pct(S["pie_sobre_credito"], 0))
+w("La inversión inicial se financia con un crédito bancario de largo plazo que el banco desembolsa por el "
+  "total, %s. Para otorgar un crédito de ese tamaño a una empresa sin historial de ventas, el banco exige que "
+  "los socios comprometan capital propio: un pie de %s, %s por socio, que se abona al banco el mismo día del "
+  "desembolso como **cuotas pagadas por anticipado**. Ese abono cubre las primeras %s cuotas mensuales del "
+  "calendario, es decir, todo %d y la mayor parte de %d, los dos ejercicios de arranque en que la empresa "
+  "todavía no cubre su estructura. Desde ahí la cuota sale de la caja de la operación."
+  % (p(R["credito"]), p(R["pie"]), p(R["pie"] / S["socios"]), num(R["cuotas_anticipadas"], 1), ANIOS[0], ANIOS[1]))
+w()
+w("El pie, entonces, no se suma a la inversión ni se pierde de vista: es dinero de los socios que paga deuda. "
+  "Las fuentes del inicio son el crédito y el pie; los usos son la inversión inicial y las cuotas anticipadas. "
+  "Ambos lados suman lo mismo, de modo que ningún peso se cuenta dos veces, y el pie aparece explícitamente en "
+  "la tabla de amortización, en el flujo de fondos y en el desembolso inicial con que se calculan el VAN y la TIR.")
 w()
 w(cuadro("Condiciones del financiamiento"))
+w()
+w(cuadro("Fuentes y usos de los fondos al inicio"))
+w()
+w("#### Alternativas de financiamiento evaluadas")
+w()
+w("Antes de fijar esta estructura se compararon las alternativas a las que puede optar una empresa nueva de "
+  "base tecnológica en Chile. Dos son instrumentos públicos de fomento: la garantía FOGAPE (Fondo de Garantía "
+  "para Pequeños Empresarios), que no entrega dinero sino que avala hasta el 80 % de un crédito bancario de "
+  "una micro o pequeña empresa [51], y los fondos concursables de capital semilla: Capital Semilla Emprende "
+  "de Sercotec, con un subsidio de $3.500.000 [52], y Semilla Inicia de CORFO, con un subsidio no reembolsable "
+  "de hasta $15.000.000 que cofinancia hasta el 75 % del proyecto [53].")
+w()
+w(cuadro("Matriz de decisión de las alternativas de financiamiento"))
+w()
+w("El criterio con más peso es la **certeza de obtener los fondos**, porque la empresa compromete arriendo, "
+  "sueldos y compras de componentes desde el primer mes y no puede condicionar esos compromisos a un "
+  "resultado que no controla. Ahí está la diferencia decisiva. Los fondos concursables se asignan por concurso, "
+  "con cupos y convocatorias anuales: no basta con que el proyecto sea bueno para adjudicarlos, y su fecha de "
+  "resolución no coincide necesariamente con la de inicio de la operación. Capital Semilla Emprende cubre "
+  "además apenas el %s de la inversión y exige postular como persona natural sin inicio de actividades, y "
+  "Semilla Inicia, aun en su monto máximo, deja sin financiar cerca de la mitad. La garantía FOGAPE, por su "
+  "parte, la asigna el banco desde su propio cupo y la evalúa con la historia comercial del deudor, que una "
+  "empresa nueva todavía no tiene."
+  % pct(3500000 / INV["total"], 0))
+w()
+w("La decisión, por lo tanto, **no responde a que el proyecto no califique** para estos instrumentos, sino a "
+  "que los socios no quieren que la puesta en marcha dependa de un beneficio que no está asegurado. Prefieren "
+  "comprometer su propio capital como pie y ejecutar el proyecto con un financiamiento que pueden asegurar de "
+  "antemano. Los instrumentos públicos quedan como **escenario favorable, fuera del caso base**: si durante "
+  "%d se adjudicara un fondo concursable, se destinaría a prepagar el crédito, y si el banco ofreciera la "
+  "garantía FOGAPE, podría rebajar el pie o la tasa. A modo de referencia, un Semilla Inicia por su monto "
+  "máximo aplicado a reducir el crédito ahorraría %s de intereses en los diez años. Ninguna de esas cifras "
+  "entra en la evaluación, porque un modelo que cuenta con ellas falla precisamente en el escenario en que no "
+  "llegan." % (ANIOS[0], p(ahorro_semilla)))
 w()
 w("Sobre el sistema de amortización: se adopta el **francés**, de cuota constante con interés decreciente "
   "y capital creciente, porque es el que la banca chilena aplica al crédito empresarial de largo plazo. "
@@ -283,7 +336,9 @@ w(cuadro("Tabla de amortización del crédito"))
 w()
 w("El crédito se cancela íntegramente dentro del horizonte de evaluación: al cierre de %d la deuda es "
   "cero. Los %s de intereses son el precio del financiamiento y están descontados en el estado de "
-  "resultados de cada ejercicio." % (ANIOS[-1], p(intereses)))
+  "resultados de cada ejercicio, aunque las cuotas de %d y de parte de %d las haya pagado el pie: el "
+  "interés es un gasto del año en que se devenga, no del año en que se desembolsa el dinero."
+  % (ANIOS[-1], p(intereses), ANIOS[0], ANIOS[1]))
 w()
 
 w("### Estructura de costos de operación")
@@ -406,16 +461,17 @@ w(cuadro("Flujo de fondos para la evaluación del proyecto"))
 w()
 w("El flujo de fondos parte de la utilidad, le devuelve la depreciación y la amortización que no son "
   "salidas de caja, y le descuenta lo que sí sale de la empresa sin pasar por resultados: el capital del "
-  "préstamo y, en %d, la renovación del activo fijo. La caja nunca baja de %s, que ocurre en %d. Ese es "
-  "el piso que el capital de trabajo fue dimensionado para sostener."
-  % (anio_reinversion, p(caja_min), F[[f["caja"] for f in F].index(caja_min)]["anio"]))
+  "préstamo y, en %d, la renovación del activo fijo. Le devuelve además la parte de la cuota que el pie "
+  "ya pagó por anticipado en %d y %d, porque ese dinero salió al inicio y no vuelve a salir de la caja. "
+  "La caja nunca baja de %s, que ocurre en %d."
+  % (anio_reinversion, ANIOS[0], ANIOS[1], p(caja_min), F[[f["caja"] for f in F].index(caja_min)]["anio"]))
 w()
 w(cuadro("Evaluación económica"))
 w()
 w("Todos los indicadores cumplen su criterio. El VAN de %s indica excedente económico después de "
-  "remunerar el capital al %s anual; la TIR de %s supera esa exigencia en %s puntos porcentuales; y la "
-  "inversión se recupera en %s años nominales o %s descontados, dentro del plazo de cinco años que el "
-  "proyecto se fijó como criterio." % (
+  "remunerar el capital al %s anual; la TIR de %s supera esa exigencia en %s puntos porcentuales; y el "
+  "desembolso inicial, que suma la inversión y el pie, se recupera en %s años nominales o %s descontados, "
+  "dentro del plazo de cinco años que el proyecto se fijó como criterio." % (
       p(IND["van"]), pct(S["tasa_descuento"], 0), pct(IND["tir"], 2),
       num((IND["tir"] - S["tasa_descuento"]) * 100), num(IND["payback"]), num(IND["payback_desc"])))
 w()
@@ -449,19 +505,20 @@ w()
 w("Tres lecturas se desprenden de la tabla:")
 w()
 w("- **El punto de quiebre del volumen está entre una caída del 10 %% y una del 25 %% en las ventas.** "
-  "Con −10 %% el VAN sigue positivo en %s pero la caja se vuelve negativa, de modo que el proyecto "
-  "destruiría liquidez antes de destruir valor: la restricción que aparece primero es de caja, no de "
-  "rentabilidad." % p(v10))
+  "Con −10 %% el VAN sigue positivo en %s y la caja mínima %s; con −25 %% el VAN cae a %s y la caja a %s, "
+  "de modo que una caída de esa magnitud destruye a la vez valor y liquidez. Las cuotas que el pie dejó "
+  "pagadas en los dos primeros años son las que sostienen la caja en el escenario de −10 %%."
+  % (p(v10), ("se mantiene en " + p(caja10)) if caja10 > 0 else ("cae a " + p(caja10)), p(v25), p(caja25)))
 w("- **El costo de materiales admite desviación.** Un alza del 15 %% en la BOM deja el VAN en %s y la "
-  "caja positiva; a +30 %% el VAN sigue siendo de %s, pero la caja mínima cae a %s. El margen "
+  "caja mínima en %s; a +30 %% el VAN sigue siendo de %s y la caja mínima baja a %s. El margen "
   "resiste, pero confirma que la cotización de la sonda no admite descuido."
-  % (p(M.resumen(bom15)["van"]), p(M.resumen(bom30)["van"]), p(M.caja_minima(bom30))))
+  % (p(M.resumen(bom15)["van"]), p(M.caja_minima(bom15)), p(M.resumen(bom30)["van"]), p(M.caja_minima(bom30))))
 w("- **El precio no admite rebaja.** Con el financiamiento dimensionado, la caja se vuelve negativa con "
   "cualquier precio de lista inferior a %s, apenas un %s bajo el precio calculado, y el proyecto deja de "
   "crear valor bajo %s. Ese resultado confirma que el precio debe derivarse del costo y no fijarse por "
   "aspiración comercial: un precio elegido para parecer competitivo, sin mirar la estructura, deja a la "
-  "empresa sin caja en su segundo año."
-  % (p(quiebre_caja), pct(1 - quiebre_caja / precio), p(quiebre_van)))
+  "empresa sin caja en su %s año."
+  % (p(quiebre_caja), pct(1 - quiebre_caja / precio), p(quiebre_van), anio_sin_caja))
 w()
 
 w("### Costo total de propiedad para el agricultor")

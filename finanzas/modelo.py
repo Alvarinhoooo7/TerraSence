@@ -243,8 +243,15 @@ def correr(unidades_por_anio=None, precio_forzado=None, factor_ventas=1.0, facto
 
     inv = inversion_inicial(u[ANIOS[0]], capital_trabajo)
     credito = inv["total"]
-    pie = credito * S["pie_sobre_credito"]
+    pie = S["pie_total"]
     cuota, amort = tabla_amortizacion(credito, S["tasa_credito_efectiva_anual"], S["plazo_credito_anios"])
+    # El pie se abona al banco al desembolso como cuotas pagadas por anticipado:
+    # cubre las primeras cuotas del calendario hasta agotarse.
+    saldo_pie, pie_aplicado = pie, []
+    for a_ in amort:
+        cubierto = min(saldo_pie, a_["cuota"])
+        pie_aplicado.append(cubierto)
+        saldo_pie -= cubierto
 
     filas, perdida_acum, caja = [], 0.0, inv["capital_trabajo"]
     for idx, a in enumerate(ANIOS):
@@ -269,7 +276,7 @@ def correr(unidades_por_anio=None, precio_forzado=None, factor_ventas=1.0, facto
             imp = 0.0
             perdida_acum = base
         util_neta = util_antes - imp
-        flujo = util_neta + deprec + amort_nom - amort[idx]["capital"] - reinversion
+        flujo = util_neta + deprec + amort_nom - amort[idx]["capital"] - reinversion + pie_aplicado[idx]
         caja += flujo
         filas.append({
             "caja": caja,
@@ -277,7 +284,8 @@ def correr(unidades_por_anio=None, precio_forzado=None, factor_ventas=1.0, facto
             "ventas": ventas_netas, "variables": var_total, "gastos": g,
             "deprec": deprec, "amort_nom": amort_nom, "interes": interes,
             "util_antes": util_antes, "impuesto": imp, "util_neta": util_neta,
-            "capital": amort[idx]["capital"], "reinversion": reinversion, "flujo": flujo,
+            "capital": amort[idx]["capital"], "reinversion": reinversion, "pie_aplicado": pie_aplicado[idx],
+            "flujo": flujo,
             "costo_total": var_total + g["total"],
         })
 
@@ -285,6 +293,7 @@ def correr(unidades_por_anio=None, precio_forzado=None, factor_ventas=1.0, facto
     return {
         "precio_neto_base": P, "precio_lista": P * (1 + IVA),
         "inversion": inv, "credito": credito, "pie": pie, "cuota": cuota,
+        "cuotas_anticipadas": pie / cuota, "desembolso": inv["total"] + pie,
         "amortizacion": amort, "filas": filas, "unidades": u,
         "fijos_total": F, "unidades_ponderadas": U,
     }
@@ -319,12 +328,12 @@ def payback(inversion, flujos, tasa=0.0):
 
 def resumen(r, etiqueta=""):
     flujos = [f["flujo"] for f in r["filas"]]
-    inv = r["inversion"]["total"]
+    inv = r["desembolso"]
     v = van(inv, flujos, S["tasa_descuento"])
     t = tir(inv, flujos)
     ps = payback(inv, flujos)
     pd = payback(inv, flujos, S["tasa_descuento"])
-    return {"etiqueta": etiqueta, "precio": r["precio_lista"], "inversion": inv,
+    return {"etiqueta": etiqueta, "precio": r["precio_lista"], "inversion": r["inversion"]["total"], "desembolso": inv,
             "van": v, "tir": t, "payback": ps, "payback_desc": pd}
 
 
@@ -413,9 +422,11 @@ def resultados_markdown(r, ruta):
          % porc(S["margen_objetivo"], 0), "",
          "Precio de lista: **%s** con IVA (%s netos). BOM neta por equipo: **%s**."
          % (fmt(r["precio_lista"]), fmt(r["precio_neto_base"]), fmt(BOM)), "",
-         "Inversión inicial: **%s**, financiada al 100 %% por el crédito. Pie propio exigido: **%s** "
-         "(%s por socio), entregado al banco como condición de entrada. Cuota mensual: %s."
-         % (fmt(r["inversion"]["total"]), fmt(r["pie"]), fmt(r["pie"] / 2), fmt(r["cuota"])), "",
+         "Inversión inicial: **%s**, desembolsada íntegra por el crédito. Pie de los socios: **%s** "
+         "(%s por socio), abonado al banco al desembolso como cuotas pagadas por anticipado: cubre las "
+         "primeras %s cuotas mensuales de %s. Desembolso inicial evaluado (inversión más pie): %s."
+         % (fmt(r["inversion"]["total"]), fmt(r["pie"]), fmt(r["pie"] / S["socios"]), dec(r["cuotas_anticipadas"], 1),
+            fmt(r["cuota"]), fmt(r["desembolso"])), "",
          "| Año | Equipos | Ventas netas | Utilidad del ejercicio | Flujo de fondos | Caja acumulada |",
          "|---|---:|---:|---:|---:|---:|"]
     for f in r["filas"]:

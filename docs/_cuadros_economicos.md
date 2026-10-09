@@ -30,7 +30,7 @@
 
 | Concepto | Neto CLP | Base de cálculo |
 |---|---:|---|
-| Filamento PETG, 210 g a $25.000/kg (carcasa de 110 × 100 × 40 mm para la placa de 99,9 × 90 mm) | $5.250 | AliExpress $20.700-$35.800 por kg |
+| Filamento PETG, 210 g a $25.000/kg (cota conservadora: material de la carcasa de 110 × 100 × 40 mm de la V2; la carcasa V3 mide 73 × 79 × 31 mm) | $5.250 | AliExpress $20.700-$35.800 por kg |
 | Merma de impresión, 15 % (fallos, soportes y purga) | $788 | estimación de taller |
 | Energía, 1,05 kWh por carcasa (K1C, 262 W promedio durante 4 h) a $200/kWh | $210 | tarifa BT1 de referencia, $180-$220/kWh |
 | Mantención de impresora prorrateada (boquillas, correas, cama) | $990 | $100.000 anuales por impresora, sobre 100 carcasas por impresora |
@@ -100,34 +100,54 @@
 | Condición | Valor |
 |---|---|
 | Inversión inicial total del proyecto | $28.778.513 |
-| Porcentaje financiado con préstamo bancario | 100,00 % |
-| Monto del préstamo (capital) | $28.778.513 |
-| Pie propio exigido por el banco (30 % del crédito) | $8.633.554 |
-| Aporte por socio (2 socios, partes iguales) | $4.316.777 |
+| Monto del préstamo (capital), desembolsado íntegro por el banco | $28.778.513 |
+| Pie de los socios, con capital propio | $9.000.000 |
+| Aporte por socio (2 socios, partes iguales) | $4.500.000 |
+| Destino del pie | Abono al banco el día del desembolso como cuotas pagadas por anticipado |
+| Cuotas que cubre el pie | 22,3 cuotas mensuales: todo 2027 y hasta octubre de 2028 |
 | Sistema de amortización | Francés: cuota constante, interés decreciente, capital creciente |
 | Tasa de interés | 12 % efectiva anual (0,9489 % mensual) |
 | Plazo | 10 años, 120 cuotas mensuales iguales |
 | Cuota mensual | $402.747 |
 | Total intereses del crédito | $19.551.146 |
-| Total pagado al banco | $48.329.660 |
+| Total pagado al banco (con el pie incluido) | $48.329.660 |
 
-### Cuadro 9. Tabla de amortización del crédito
+### Cuadro 9. Fuentes y usos de los fondos al inicio
 
-| Periodo | Saldo inicial | Cuota de capital | Intereses | Cuota total | Saldo final |
+| Fuentes | Monto | Usos | Monto |
+|---|---:|---|---:|
+| Crédito bancario | $28.778.513 | Inversión inicial | $28.778.513 |
+| Pie de los socios | $9.000.000 | Cuotas pagadas por anticipado | $9.000.000 |
+| **Total fuentes** | **$37.778.513** | **Total usos** | **$37.778.513** |
+
+### Cuadro 10. Matriz de decisión de las alternativas de financiamiento
+
+| Criterio | Peso | Crédito bancario con pie propio | Crédito con garantía FOGAPE | Capital Semilla Emprende (Sercotec) | Semilla Inicia (CORFO) |
 |---|---:|---:|---:|---:|---:|
-| 2027 | $28.778.513 | $1.639.920 | $3.193.046 | $4.832.966 | $27.138.594 |
-| 2028 | $27.138.594 | $1.836.710 | $2.996.256 | $4.832.966 | $25.301.884 |
-| 2029 | $25.301.884 | $2.057.115 | $2.775.851 | $4.832.966 | $23.244.769 |
-| 2030 | $23.244.769 | $2.303.969 | $2.528.997 | $4.832.966 | $20.940.800 |
-| 2031 | $20.940.800 | $2.580.445 | $2.252.521 | $4.832.966 | $18.360.355 |
-| 2032 | $18.360.355 | $2.890.099 | $1.942.867 | $4.832.966 | $15.470.256 |
-| 2033 | $15.470.256 | $3.236.910 | $1.596.056 | $4.832.966 | $12.233.346 |
-| 2034 | $12.233.346 | $3.625.340 | $1.207.626 | $4.832.966 | $8.608.006 |
-| 2035 | $8.608.006 | $4.060.380 | $772.586 | $4.832.966 | $4.547.626 |
-| 2036 | $4.547.626 | $4.547.626 | $285.340 | $4.832.966 | $0 |
-| **Total** |  | **$28.778.513** | **$19.551.146** | **$48.329.660** |  |
+| Certeza de obtener los fondos | 35 % | 4 | 2 | 1 | 1 |
+| Suficiencia del monto frente a la inversión | 25 % | 5 | 5 | 1 | 3 |
+| Disponibilidad al inicio de la operación | 20 % | 5 | 3 | 2 | 2 |
+| Costo financiero | 10 % | 2 | 3 | 5 | 5 |
+| Libertad de uso y control de la empresa | 10 % | 5 | 4 | 3 | 2 |
+| **Puntaje ponderado** |  | **4,35** | **3,25** | **1,80** | **2,20** |
 
-### Cuadro 10. Dotación por año
+### Cuadro 11. Tabla de amortización del crédito
+
+| Periodo | Saldo inicial | Cuota de capital | Intereses | Cuota total | Pagada con el pie | Pagada por la empresa | Saldo final |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 2027 | $28.778.513 | $1.639.920 | $3.193.046 | $4.832.966 | $4.832.966 | $0 | $27.138.594 |
+| 2028 | $27.138.594 | $1.836.710 | $2.996.256 | $4.832.966 | $4.167.034 | $665.932 | $25.301.884 |
+| 2029 | $25.301.884 | $2.057.115 | $2.775.851 | $4.832.966 | $0 | $4.832.966 | $23.244.769 |
+| 2030 | $23.244.769 | $2.303.969 | $2.528.997 | $4.832.966 | $0 | $4.832.966 | $20.940.800 |
+| 2031 | $20.940.800 | $2.580.445 | $2.252.521 | $4.832.966 | $0 | $4.832.966 | $18.360.355 |
+| 2032 | $18.360.355 | $2.890.099 | $1.942.867 | $4.832.966 | $0 | $4.832.966 | $15.470.256 |
+| 2033 | $15.470.256 | $3.236.910 | $1.596.056 | $4.832.966 | $0 | $4.832.966 | $12.233.346 |
+| 2034 | $12.233.346 | $3.625.340 | $1.207.626 | $4.832.966 | $0 | $4.832.966 | $8.608.006 |
+| 2035 | $8.608.006 | $4.060.380 | $772.586 | $4.832.966 | $0 | $4.832.966 | $4.547.626 |
+| 2036 | $4.547.626 | $4.547.626 | $285.340 | $4.832.966 | $0 | $4.832.966 | $0 |
+| **Total** |  | **$28.778.513** | **$19.551.146** | **$48.329.660** | **$9.000.000** | **$39.329.660** |  |
+
+### Cuadro 12. Dotación por año
 
 | Año | Socios | Contador | Marketing | Ensambladores | Total personas | Oficina |
 |---|---:|---:|---:|---:|---:|---|
@@ -142,7 +162,7 @@
 | 2035 | 2 | 1 | 1 | 4 | 8 | sí |
 | 2036 | 2 | 1 | 1 | 4 | 8 | sí |
 
-### Cuadro 11. Sueldo bruto mensual por cargo y costo laboral anual
+### Cuadro 13. Sueldo bruto mensual por cargo y costo laboral anual
 
 | Año | Socio (c/u) | Contador | Marketing | Ensamblador (c/u) | Masa salarial bruta mensual | Cargas del empleador y provisiones | Costo laboral anual |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -157,7 +177,7 @@
 | 2035 | $1.350.611 | $1.266.770 | $1.266.770 | $886.739 | $8.781.718 | 28,5 % | $135.424.622 |
 | 2036 | $1.391.129 | $1.304.773 | $1.304.773 | $913.341 | $9.045.169 | 28,5 % | $139.487.361 |
 
-### Cuadro 12. Desglose estimado de servicios básicos mensuales
+### Cuadro 14. Desglose estimado de servicios básicos mensuales
 
 | Concepto | Con oficina (desde 2028) | Sin oficina (2027) |
 |---|---:|---:|
@@ -167,7 +187,7 @@
 | Agua y gas | $65.000 | $25.000 |
 | **Total mensual** | **$330.000** | **$110.000** |
 
-### Cuadro 13. Costos operacionales, de administración y de comercialización
+### Cuadro 15. Costos operacionales, de administración y de comercialización
 
 | Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -183,7 +203,7 @@
 | Publicidad digital | $6.000.000 | $10.815.000 | $15.913.500 | $21.308.176 | $28.700.475 | $31.022.174 | $33.564.810 | $36.305.877 | $39.257.205 | $42.470.367 |
 | **Costo y gasto total** | $74.155.857 | $135.543.536 | $184.929.442 | $232.163.249 | $277.743.263 | $308.234.585 | $325.972.267 | $344.588.588 | $379.967.295 | $401.298.178 |
 
-### Cuadro 14. Determinación del precio de venta
+### Cuadro 16. Determinación del precio de venta
 
 | Concepto | Valor |
 |---|---:|
@@ -196,7 +216,7 @@
 | IVA 19 % | $74.408 |
 | **Precio de lista con IVA** | **$466.027** |
 
-### Cuadro 15. Estado de resultados proyectado
+### Cuadro 17. Estado de resultados proyectado
 
 | Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -210,7 +230,7 @@
 | (-) Impuesto a la renta | $0 | $0 | $3.967.479 | $10.218.318 | $23.017.179 | $23.352.640 | $27.302.808 | $31.691.298 | $32.587.034 | $37.862.271 |
 | **(=) Utilidad del ejercicio** | $-1.616.164 | $47.907 | $13.470.693 | $30.654.953 | $69.051.537 | $70.057.919 | $81.908.423 | $95.073.894 | $97.761.101 | $113.586.814 |
 
-### Cuadro 16. Flujo de fondos para la evaluación del proyecto
+### Cuadro 18. Flujo de fondos para la evaluación del proyecto
 
 | Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -218,61 +238,62 @@
 | (+) Depreciación y amortización | $2.591.198 | $2.591.198 | $2.591.198 | $2.591.198 | $2.591.198 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 |
 | (-) Cuota de capital del préstamo | $1.639.920 | $1.836.710 | $2.057.115 | $2.303.969 | $2.580.445 | $2.890.099 | $3.236.910 | $3.625.340 | $4.060.380 | $4.547.626 |
 | (-) Reinversión en activo fijo | $0 | $0 | $0 | $0 | $0 | $6.875.641 | $0 | $0 | $0 | $0 |
-| **(=) Flujo de fondos** | $-664.886 | $802.395 | $14.004.776 | $30.942.182 | $69.062.290 | $61.667.308 | $80.046.641 | $92.823.682 | $95.075.848 | $110.414.316 |
-| Caja acumulada | $12.054.899 | $12.857.295 | $26.862.070 | $57.804.252 | $126.866.542 | $188.533.850 | $268.580.491 | $361.404.173 | $456.480.021 | $566.894.337 |
+| (+) Cuota ya pagada con el pie | $4.832.966 | $4.167.034 | $0 | $0 | $0 | $0 | $0 | $0 | $0 | $0 |
+| **(=) Flujo de fondos** | $4.168.080 | $4.969.429 | $14.004.776 | $30.942.182 | $69.062.290 | $61.667.308 | $80.046.641 | $92.823.682 | $95.075.848 | $110.414.316 |
+| Caja acumulada | $16.887.865 | $21.857.295 | $35.862.070 | $66.804.252 | $135.866.542 | $197.533.850 | $277.580.491 | $370.404.173 | $465.480.021 | $575.894.337 |
 
-### Cuadro 17. Evaluación económica
+### Cuadro 19. Evaluación económica
 
 | Indicador | Valor | Criterio | Veredicto |
 |---|---:|---|---|
-| Inversión inicial | $28.778.513 | — | — |
-| VAN al 20 % | $122.844.289 | VAN > 0 | Cumple |
-| TIR efectiva anual | 56,97 % | TIR > 20 % | Cumple |
+| Desembolso inicial evaluado (inversión $28.778.513 + pie $9.000.000) | $37.778.513 | — | — |
+| VAN al 20 % | $120.765.535 | VAN > 0 | Cumple |
+| TIR efectiva anual | 53,37 % | TIR > 20 % | Cumple |
 | Payback simple | 3,47 años | ≤ 5 años | Cumple |
-| Payback descontado al 20 % | 4,21 años | ≤ 5 años | Cumple |
-| Caja mínima del horizonte | $12.054.899 | > 0 | Cumple |
+| Payback descontado al 20 % | 4,28 años | ≤ 5 años | Cumple |
+| Caja mínima del horizonte | $16.887.865 | > 0 | Cumple |
 | Deuda al cierre del horizonte | $0 | Crédito saldado | Cumple |
 
-### Cuadro 18. Comparación del horizonte de evaluación: cinco y diez años
+### Cuadro 20. Comparación del horizonte de evaluación: cinco y diez años
 
 | Indicador | A 5 años (2027–2031) | A 10 años (2027–2036) |
 |---|---:|---:|
-| VAN al 20 % | $22.005.798 | $122.844.289 |
-| TIR efectiva anual | 36,67 % | 56,97 % |
-| Caja acumulada al cierre | $126.866.542 | $566.894.337 |
+| VAN al 20 % | $19.927.043 | $120.765.535 |
+| TIR efectiva anual | 33,54 % | 53,37 % |
+| Caja acumulada al cierre | $135.866.542 | $575.894.337 |
 | Deuda bancaria pendiente al cierre | $18.360.355 | $0 |
 
-### Cuadro 19. VAN ante distintas tasas de descuento
+### Cuadro 21. VAN ante distintas tasas de descuento
 
 | Tasa efectiva anual | VAN | Interpretación |
 |---:|---:|---|
-| 5 % | $357.785.252 | Positivo |
-| 8 % | $286.579.125 | Positivo |
-| 10 % | $247.898.395 | Positivo |
-| 15 % | $173.902.298 | Positivo |
-| 20 % | $122.844.289 | Positivo |
-| 30 % | $60.880.334 | Positivo |
-| 40 % | $27.647.598 | Positivo |
-| 50 % | $8.599.609 | Positivo |
-| TIR: 56,97 % | $0 | VAN aproximadamente cero |
+| 5 % | $357.167.699 | Positivo |
+| 8 % | $285.626.653 | Positivo |
+| 10 % | $246.735.830 | Positivo |
+| 15 % | $172.255.754 | Positivo |
+| 20 % | $120.765.535 | Positivo |
+| 30 % | $58.063.701 | Positivo |
+| 40 % | $24.225.755 | Positivo |
+| 50 % | $4.673.601 | Positivo |
+| TIR: 53,37 % | $0 | VAN aproximadamente cero |
 
-### Cuadro 20. Análisis de sensibilidad y punto de quiebre
+### Cuadro 22. Análisis de sensibilidad y punto de quiebre
 
 | Caso | Precio de lista | Utilidad del año 1 | VAN a 10 años | TIR | Caja mínima |
 |---|---:|---:|---:|---:|---:|
-| Caso base | $466.027 | $-1.616.164 | $122.844.289 | 57,0 % | $12.054.899 |
-| Ventas -10 % | $466.027 | $-6.486.460 | $69.685.295 | 41,7 % | $-783.976 |
-| Ventas -25 % | $466.027 | $-13.791.905 | $-12.004.315 | 15,9 % | $-37.912.395 |
-| Ventas -35 % | $466.027 | $-18.662.201 | $-70.290.608 | -6,2 % | $-81.891.832 |
-| Ventas +20 % | $466.027 | $7.108.875 | $229.684.467 | 85,7 % | $20.744.577 |
-| BOM +15 % | $466.027 | $-4.276.940 | $93.684.923 | 48,4 % | $5.389.614 |
-| BOM +30 % | $466.027 | $-6.937.716 | $64.214.453 | 39,7 % | $-2.078.066 |
-| Precio rebajado a $439.990 (−5,6 %) | $439.990 | $-5.731.828 | $77.864.082 | 44,0 % | $1.323.146 |
-| Precio rebajado a $419.990 (−9,9 %) | $419.990 | $-8.893.172 | $42.843.012 | 33,5 % | $-8.864.713 |
-| Precio rebajado a $399.990 (−14,2 %) | $399.990 | $-12.054.517 | $7.426.554 | 22,4 % | $-26.109.058 |
-| Precio rebajado a $369.990 (−20,6 %) | $369.990 | $-16.796.534 | $-47.595.499 | 3,1 % | $-64.726.075 |
+| Caso base | $466.027 | $-1.616.164 | $120.765.535 | 53,4 % | $16.887.865 |
+| Ventas -10 % | $466.027 | $-6.486.460 | $67.599.303 | 39,6 % | $8.216.024 |
+| Ventas -25 % | $466.027 | $-13.791.905 | $-14.101.162 | 15,4 % | $-28.912.395 |
+| Ventas -35 % | $466.027 | $-18.662.201 | $-72.394.692 | -6,1 % | $-72.891.832 |
+| Ventas +20 % | $466.027 | $7.108.875 | $227.620.186 | 78,5 % | $25.681.756 |
+| BOM +15 % | $466.027 | $-4.276.940 | $91.616.324 | 45,7 % | $14.275.399 |
+| BOM +30 % | $466.027 | $-6.937.716 | $62.156.010 | 37,8 % | $6.921.934 |
+| Precio rebajado a $439.990 (−5,6 %) | $439.990 | $-5.731.828 | $75.785.328 | 41,7 % | $10.323.146 |
+| Precio rebajado a $419.990 (−9,9 %) | $419.990 | $-8.893.172 | $40.764.257 | 32,1 % | $135.287 |
+| Precio rebajado a $399.990 (−14,2 %) | $399.990 | $-12.054.517 | $5.347.799 | 21,7 % | $-17.109.058 |
+| Precio rebajado a $369.990 (−20,6 %) | $369.990 | $-16.796.534 | $-49.674.254 | 3,0 % | $-55.726.075 |
 
-### Cuadro 21. Costo total de propiedad para el agricultor
+### Cuadro 23. Costo total de propiedad para el agricultor
 
 | Alternativa | Intensidad | Año 1 | Acumulado a 3 años | Acumulado a 5 años | Acumulado a 10 años |
 |---|---|---:|---:|---:|---:|

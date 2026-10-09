@@ -89,6 +89,8 @@ Firmware/managed_components/
 # KICAD  (PCB/)
 # ─────────────────────────────────────────────────────────────
 *-backups/
+# Proyecto V3 local; el informe conserva sus figuras y anexos exportados.
+PCB/V3/
 *.kicad_prl
 *.kicad_pcb-bak
 *.kicad_sch-bak

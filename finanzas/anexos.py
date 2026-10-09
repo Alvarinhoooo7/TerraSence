@@ -288,8 +288,8 @@ def pruebas_fat():
          "Tres colores y cinco señales sonoras; ventana de vinculación de 30 ± 1 s", "R12, R13"),
         ("Corte de la sonda", "Tensión en la bornera de la sonda con el equipo encendido y sin medir",
          "Menos de 0,1 V", "R16"),
-        ("Carga", "Cargador USB de 1 A; corriente por JP1 y luz de carga",
-         "Corriente de 0,5 A o menos; luz de carga encendida", "R08"),
+        ("Carga", "Cargador USB de 1 A; corriente por JP1, tensión de flotación en la bornera de la celda y luz de carga",
+         "Corriente de 0,5 A o menos; tensión de flotación de 4,25 V o menos; luz de carga encendida", "R08"),
         ("Aviso de batería baja", "Fuente ajustable: bajar de 3,40 V y subir sobre 3,50 V; comprobar también el aviso de la aplicación",
          "Aviso del equipo al cruzar 3,40 V y rearme sobre 3,50 V; aplicación: aviso al 15 % y rearme sobre 20 %", "R17"),
         ("Estanqueidad por muestreo", "Inmersión de 10 min a 0,5 m (1 de cada 10 unidades y las 5 primeras de cada lote)",
@@ -308,8 +308,8 @@ def pruebas_sat():
         ("Primera medición con ubicación", "Medición con la fase fenológica elegida y la ubicación activa",
          "Diez variables y ubicación como texto", "R01, R02, R05"),
         ("Operación sin red", "Con cuenta y equipo previamente registrados: modo avión, reactivar Bluetooth y ubicación, mantener datos y Wi-Fi apagados", "La medición se guarda y queda en cola", "R05"),
-        ("Comparación con una muestra de laboratorio", "Muestra del punto medido enviada a laboratorio (sólo en el piloto)",
-         "Registrar el par y los métodos; aceptación estadística al completar ≥ 30 puntos: RMSE pH ≤ 0,3; RMSE de CE normalizado ≤ 1; RMSE humedad ≤ 4 puntos; R² ≥ 0,80. No aplica fuera del piloto", "R04"),
+        ("Comparación con una muestra de laboratorio", "Muestra del punto medido y cilindro de 100 cm³ para la humedad, enviados a laboratorio (sólo en el piloto)",
+         "Registrar el par, los métodos, la humedad gravimétrica y la densidad aparente; aceptación estadística al completar ≥ 30 puntos: RMSE pH ≤ 0,3; RMSE de CE ≤ 10 % o 200 µS/cm; RMSE humedad ≤ 4 puntos; R² ≥ 0,80; intervalo de confianza del 95 % de la pendiente de Passing-Bablok dentro de 0,90–1,10. No aplica fuera del piloto", "R04"),
         ("Alcance BLE", "Equipo cerrado en el suelo: 20 intentos por distancia a 1, 3, 5 y 10 m",
          "20 de 20 lecturas a 1, 3 y 5 m; registrar éxitos a 10 m como objetivo", "R06"),
         ("Sincronización con la nube", "Recuperar la cobertura", "La medición aparece en el historial y en la consola; cola vacía", "R05, R25"),
@@ -1077,22 +1077,24 @@ def planilla_flujo(r, ruta, nombre_hojas=None):
         i_m = (1 + S["tasa_credito_efectiva_anual"]) ** (1 / 12) - 1
         n_m = S["plazo_credito_anios"] * 12
         _param(L, k, 2, "monto", "Inversión inicial por financiar", inv["total"], "clp", formula="=%s" % INV_TOTAL)
-        _param(L, k, 3, "pcred", "Parte de la inversión que financia el crédito", 1.0, "pcti")
+        _param(L, k, 3, "pcred", "Parte de la inversión que desembolsa el crédito", 1.0, "pcti")
         _param(L, k, 4, "cred", "Crédito bancario", r["credito"], "clp", formula="=B3*B4")
-        _param(L, k, 5, "ppie", "Pie exigido por el banco sobre el crédito (condición de entrada)", S["pie_sobre_credito"], "pcti")
-        _param(L, k, 6, "pie", "Pie propio exigido", r["pie"], "clp", formula="=B5*B6")
-        _param(L, k, 7, "soc", "Socios", S["socios"], "n0i")
-        _param(L, k, 8, "piesoc", "Pie por socio", r["pie"] / S["socios"], "clp", formula="=B7/B8")
-        _param(L, k, 9, "tasa", "Tasa de interés efectiva anual", S["tasa_credito_efectiva_anual"], "pcti")
-        _param(L, k, 10, "plazo", "Plazo (años)", S["plazo_credito_anios"], "n0i")
-        _param(L, k, 11, "tm", "Tasa efectiva mensual = (1 + tasa anual)^(1/12) − 1", i_m, "pct", formula="=(1+B10)^(1/12)-1")
-        ws.write_formula(11, 1, "=(1+B10)^(1/12)-1", wb.add_format({"num_format": "0.0000%", "border": 1, "border_color": "#BFBFBF"}), i_m)
-        _param(L, k, 12, "nm", "Número de cuotas mensuales", n_m, "n0", formula="=B11*12")
-        _param(L, k, 13, "cuota", "Cuota mensual (sistema francés)", r["cuota"], "clp", formula="=B5*B12/(1-(1+B12)^-B13)")
-        ws.merge_range(14, 0, 14, 6, "El pie no es una fuente adicional: se entrega al banco como condición de entrada y el crédito financia el 100 % de la inversión inicial. "
-                       "Sumarlos contaría dos veces el mismo dinero.", L.f["nota"])
+        _param(L, k, 5, "pie", "Pie de los socios, abonado al banco como cuotas pagadas por anticipado", r["pie"], "clpi")
+        _param(L, k, 6, "soc", "Socios", S["socios"], "n0i")
+        _param(L, k, 7, "piesoc", "Pie por socio", r["pie"] / S["socios"], "clp", formula="=B6/B7")
+        _param(L, k, 8, "tasa", "Tasa de interés efectiva anual", S["tasa_credito_efectiva_anual"], "pcti")
+        _param(L, k, 9, "plazo", "Plazo (años)", S["plazo_credito_anios"], "n0i")
+        _param(L, k, 10, "tm", "Tasa efectiva mensual = (1 + tasa anual)^(1/12) − 1", i_m, "pct", formula="=(1+B9)^(1/12)-1")
+        ws.write_formula(10, 1, "=(1+B9)^(1/12)-1", wb.add_format({"num_format": "0.0000%", "border": 1, "border_color": "#BFBFBF"}), i_m)
+        _param(L, k, 11, "nm", "Número de cuotas mensuales", n_m, "n0", formula="=B10*12")
+        _param(L, k, 12, "cuota", "Cuota mensual (sistema francés)", r["cuota"], "clp", formula="=B5*B11/(1-(1+B11)^-B12)")
+        _param(L, k, 13, "ncub", "Cuotas mensuales que cubre el pie", r["cuotas_anticipadas"], "n2", formula="=B6/B13")
+        ws.merge_range(14, 0, 14, 7, "Fuentes: crédito más pie. Usos: inversión inicial más cuotas pagadas por anticipado. El banco desembolsa el total de la "
+                       "inversión y el pie, abonado el mismo día, paga las primeras cuotas del calendario hasta agotarse.", L.f["nota"])
         ws.set_row(14, 30)
-        ws.write_row(16, 0, ["Cuadro de amortización anual", "Saldo inicial", "Cuota anual", "Intereses", "Amortización de capital", "Saldo final"], L.f["encl"])
+        ws.set_column(6, 7, 18)
+        ws.write_row(16, 0, ["Cuadro de amortización anual", "Saldo inicial", "Cuota anual", "Intereses", "Amortización de capital", "Saldo final",
+                             "Cuota pagada con el pie", "Cuota pagada por la empresa"], L.f["encl"])
         ws.set_row(16, 32)
         am = r["amortizacion"]
         for i, a in enumerate(am):
@@ -1102,10 +1104,13 @@ def planilla_flujo(r, ruta, nombre_hojas=None):
                 ws.write_formula(rr, 1, "=B5", L.f["clp"], a["saldo_inicial"])
             else:
                 ws.write_formula(rr, 1, "=F%d" % rr, L.f["clp"], a["saldo_inicial"])
-            ws.write_formula(rr, 2, "=12*$B$14", L.f["clp"], a["cuota"])
+            ws.write_formula(rr, 2, "=12*$B$13", L.f["clp"], a["cuota"])
             ws.write_formula(rr, 3, "=C%d-E%d" % (rr + 1, rr + 1), L.f["clp"], a["interes"])
             ws.write_formula(rr, 4, "=B%d-F%d" % (rr + 1, rr + 1), L.f["clp"], a["capital"])
-            ws.write_formula(rr, 5, "=MAX($B$5*(1+$B$12)^(12*%d)-$B$14*((1+$B$12)^(12*%d)-1)/$B$12,0)" % (i + 1, i + 1), L.f["clp"], a["saldo_final"])
+            ws.write_formula(rr, 5, "=MAX($B$5*(1+$B$11)^(12*%d)-$B$13*((1+$B$11)^(12*%d)-1)/$B$11,0)" % (i + 1, i + 1), L.f["clp"], a["saldo_final"])
+            previo = "0" if i == 0 else "SUM(G$18:G%d)" % rr
+            ws.write_formula(rr, 6, "=MIN(C%d,$B$6-%s)" % (rr + 1, previo), L.f["clp"], filas[i]["pie_aplicado"])
+            ws.write_formula(rr, 7, "=C%d-G%d" % (rr + 1, rr + 1), L.f["clp"], a["cuota"] - filas[i]["pie_aplicado"])
         rr = 17 + len(am)
         ws.write(rr, 0, "TOTAL", L.f["labb"])
         ws.write(rr, 1, "", L.f["labb"])
@@ -1113,6 +1118,8 @@ def planilla_flujo(r, ruta, nombre_hojas=None):
         ws.write_formula(rr, 3, "=SUM(D18:D%d)" % rr, L.f["clpb"], sum(a["interes"] for a in am))
         ws.write_formula(rr, 4, "=SUM(E18:E%d)" % rr, L.f["clpb"], sum(a["capital"] for a in am))
         ws.write(rr, 5, "", L.f["labb"])
+        ws.write_formula(rr, 6, "=SUM(G18:G%d)" % rr, L.f["clpb"], sum(f["pie_aplicado"] for f in filas))
+        ws.write_formula(rr, 7, "=SUM(H18:H%d)" % rr, L.f["clpb"], sum(a["cuota"] for a in am) - sum(f["pie_aplicado"] for f in filas))
         FIN_ROW0 = 17  # primera fila (0-based) del cuadro
         L.fila[(k, "tabla")] = 17
         FIN = lambda col, i: "'%s'!%s" % (N_["fin"], xl_rowcol_to_cell(FIN_ROW0 + i, col))
@@ -1126,9 +1133,12 @@ def planilla_flujo(r, ruta, nombre_hojas=None):
         _serie(L, k, 5, "int", "Intereses del año (costo financiero)", ["=%s" % FIN(3, i) for i in range(N)], [a["interes"] for a in am], total=True, bold=True)
         _serie(L, k, 6, "cap", "Amortización de capital", ["=%s" % FIN(4, i) for i in range(N)], [a["capital"] for a in am], total=True)
         _serie(L, k, 7, "fin", "Deuda al cierre del año", ["=%s" % FIN(5, i) for i in range(N)], [a["saldo_final"] for a in am])
+        _serie(L, k, 9, "pie", "Cuota pagada con el pie (cuotas anticipadas)", ["=%s" % FIN(6, i) for i in range(N)], [f["pie_aplicado"] for f in filas], total=True)
         _serie(L, k, 8, "pct", "Intereses sobre ventas netas", ["=%s/%s" % (xl_rowcol_to_cell(5, 1 + i), V("ventas", i)) for i in range(N)],
                [am[i]["interes"] / filas[i]["ventas"] for i in range(N)], fmt="pct")
-        ws.merge_range(10, 0, 10, 8, "Los intereses se descuentan en el estado de resultados; la amortización de capital se descuenta en el flujo de caja.", L.f["nota"])
+        ws.merge_range(11, 0, 11, 8, "Los intereses se descuentan en el estado de resultados y la amortización de capital en el flujo de caja; la parte de la cuota "
+                       "que ya pagó el pie se devuelve en el flujo de caja, porque ese dinero salió al inicio.", L.f["nota"])
+        ws.set_row(11, 30)
 
         # ------------------------------------------------------ 9 Depreciación
         k = "dep"
@@ -1224,41 +1234,45 @@ def planilla_flujo(r, ruta, nombre_hojas=None):
         cap = [f["capital"] for f in filas]
         _serie(L, k, 6, "cap", "(−) Amortización de capital del crédito (hoja 8)", ["=%s" % L.ref("cf", "cap", i) for i in range(N)], cap, total=True)
         _serie(L, k, 7, "reinv", "(−) Reinversión en activo fijo (hoja 9)", ["=%s" % L.ref("dep", "reinv", i) for i in range(N)], reinv, total=True)
+        _serie(L, k, 8, "pie", "(+) Cuota ya pagada con el pie (hoja 8)", ["=%s" % L.ref("cf", "pie", i) for i in range(N)],
+               [f["pie_aplicado"] for f in filas], total=True)
         fl = [f["flujo"] for f in filas]
-        _serie(L, k, 8, "flujo", "(=) FLUJO DE FONDOS DEL AÑO", ["=%s+%s+%s-%s-%s" % (F_(3, i), F_(4, i), F_(5, i), F_(6, i), F_(7, i)) for i in range(N)],
+        _serie(L, k, 9, "flujo", "(=) FLUJO DE FONDOS DEL AÑO",
+               ["=%s+%s+%s-%s-%s+%s" % (F_(3, i), F_(4, i), F_(5, i), F_(6, i), F_(7, i), F_(8, i)) for i in range(N)],
                fl, total=True, bold=True)
         caja = [f["caja"] for f in filas]
-        ws.write(9, 0, "Caja acumulada (parte con el capital de trabajo)", L.f["lab"])
-        L.fila[(k, "caja")] = 9
-        ws.write_formula(9, 1, "=%s" % INV_CT, L.f["clp"], inv["capital_trabajo"])
+        ws.write(10, 0, "Caja acumulada (parte con el capital de trabajo)", L.f["lab"])
+        L.fila[(k, "caja")] = 10
+        ws.write_formula(10, 1, "=%s" % INV_CT, L.f["clp"], inv["capital_trabajo"])
         for i in range(N):
-            ws.write_formula(9, 2 + i, "=%s+%s" % (xl_rowcol_to_cell(9, 1 + i), F_(8, i)), L.f["clp"], caja[i])
+            ws.write_formula(10, 2 + i, "=%s+%s" % (xl_rowcol_to_cell(10, 1 + i), F_(9, i)), L.f["clp"], caja[i])
         # flujos para VAN y TIR
-        ws.write(11, 0, "Flujo neto para evaluar (año 0 = −inversión inicial)", L.f["labb"])
-        L.fila[(k, "eval")] = 11
-        ws.write_formula(11, 1, "=-%s" % INV_TOTAL, L.f["clpb"], -inv["total"])
+        PIE_FIN = "'%s'!$B$6" % N_["fin"]
+        ws.write(12, 0, "Flujo neto para evaluar (año 0 = −inversión inicial − pie)", L.f["labb"])
+        L.fila[(k, "eval")] = 12
+        ws.write_formula(12, 1, "=-%s-%s" % (INV_TOTAL, PIE_FIN), L.f["clpb"], -r["desembolso"])
         for i in range(N):
-            ws.write_formula(11, 2 + i, "=%s" % F_(8, i), L.f["clpb"], fl[i])
+            ws.write_formula(12, 2 + i, "=%s" % F_(9, i), L.f["clpb"], fl[i])
         # acumulado y recuperacion
-        acum, acumd = [-inv["total"]], [-inv["total"]]
+        acum, acumd = [-r["desembolso"]], [-r["desembolso"]]
         tasa = S["tasa_descuento"]
         for i in range(N):
             acum.append(acum[-1] + fl[i])
             acumd.append(acumd[-1] + fl[i] / (1 + tasa) ** (i + 1))
-        ws.write(12, 0, "Flujo acumulado", L.f["lab"])
-        ws.write_formula(12, 1, "=B12", L.f["clp"], acum[0])
+        ws.write(13, 0, "Flujo acumulado", L.f["lab"])
+        ws.write_formula(13, 1, "=B13", L.f["clp"], acum[0])
         for i in range(N):
-            ws.write_formula(12, 2 + i, "=%s+%s" % (xl_rowcol_to_cell(12, 1 + i), xl_rowcol_to_cell(11, 2 + i)), L.f["clp"], acum[i + 1])
-        ws.write(13, 0, "Flujo descontado de cada año (a la tasa de descuento)", L.f["lab"])
-        L.fila[(k, "desc")] = 13
-        ws.write(13, 1, "", L.f["lab"])
+            ws.write_formula(13, 2 + i, "=%s+%s" % (xl_rowcol_to_cell(13, 1 + i), xl_rowcol_to_cell(12, 2 + i)), L.f["clp"], acum[i + 1])
+        ws.write(14, 0, "Flujo descontado de cada año (a la tasa de descuento)", L.f["lab"])
+        L.fila[(k, "desc")] = 14
+        ws.write(14, 1, "", L.f["lab"])
         TASA = "'%s'!$B$%d" % (N_["resumen"], 4)
         for i in range(N):
-            ws.write_formula(13, 2 + i, "=%s/(1+%s)^%d" % (xl_rowcol_to_cell(11, 2 + i), TASA, i + 1), L.f["clp"], fl[i] / (1 + tasa) ** (i + 1))
-        ws.write(14, 0, "Flujo descontado acumulado", L.f["lab"])
-        ws.write_formula(14, 1, "=B12", L.f["clp"], acumd[0])
+            ws.write_formula(14, 2 + i, "=%s/(1+%s)^%d" % (xl_rowcol_to_cell(12, 2 + i), TASA, i + 1), L.f["clp"], fl[i] / (1 + tasa) ** (i + 1))
+        ws.write(15, 0, "Flujo descontado acumulado", L.f["lab"])
+        ws.write_formula(15, 1, "=B13", L.f["clp"], acumd[0])
         for i in range(N):
-            ws.write_formula(14, 2 + i, "=%s+%s" % (xl_rowcol_to_cell(14, 1 + i), xl_rowcol_to_cell(13, 2 + i)), L.f["clp"], acumd[i + 1])
+            ws.write_formula(15, 2 + i, "=%s+%s" % (xl_rowcol_to_cell(15, 1 + i), xl_rowcol_to_cell(14, 2 + i)), L.f["clp"], acumd[i + 1])
 
         def payback_vals(ac, fv):
             out = []
@@ -1271,29 +1285,30 @@ def planilla_flujo(r, ruta, nombre_hojas=None):
         pb = payback_vals(acum, fl)
         fd = [fl[i] / (1 + tasa) ** (i + 1) for i in range(N)]
         pbd = payback_vals(acumd, fd)
-        ws.write(15, 0, "Año de recuperación simple (años desde el inicio)", L.f["lab"])
-        ws.write(16, 0, "Año de recuperación descontado (años desde el inicio)", L.f["lab"])
-        L.fila[(k, "pb")] = 15
-        L.fila[(k, "pbd")] = 16
-        ws.write(15, 1, "", L.f["lab"])
+        ws.write(16, 0, "Año de recuperación simple (años desde el inicio)", L.f["lab"])
+        ws.write(17, 0, "Año de recuperación descontado (años desde el inicio)", L.f["lab"])
+        L.fila[(k, "pb")] = 16
+        L.fila[(k, "pbd")] = 17
         ws.write(16, 1, "", L.f["lab"])
+        ws.write(17, 1, "", L.f["lab"])
         for i in range(N):
-            ws.write_formula(15, 2 + i, '=IF(AND(%s<0,%s>=0),%d+(-%s)/%s,"")' % (xl_rowcol_to_cell(12, 1 + i), xl_rowcol_to_cell(12, 2 + i), i,
-                                                                                 xl_rowcol_to_cell(12, 1 + i), xl_rowcol_to_cell(11, 2 + i)), L.f["n2"],
+            ws.write_formula(16, 2 + i, '=IF(AND(%s<0,%s>=0),%d+(-%s)/%s,"")' % (xl_rowcol_to_cell(13, 1 + i), xl_rowcol_to_cell(13, 2 + i), i,
+                                                                                 xl_rowcol_to_cell(13, 1 + i), xl_rowcol_to_cell(12, 2 + i)), L.f["n2"],
                              pb[i] if pb[i] is not None else "")
-            ws.write_formula(16, 2 + i, '=IF(AND(%s<0,%s>=0),%d+(-%s)/%s,"")' % (xl_rowcol_to_cell(14, 1 + i), xl_rowcol_to_cell(14, 2 + i), i,
-                                                                                 xl_rowcol_to_cell(14, 1 + i), xl_rowcol_to_cell(13, 2 + i)), L.f["n2"],
+            ws.write_formula(17, 2 + i, '=IF(AND(%s<0,%s>=0),%d+(-%s)/%s,"")' % (xl_rowcol_to_cell(15, 1 + i), xl_rowcol_to_cell(15, 2 + i), i,
+                                                                                 xl_rowcol_to_cell(15, 1 + i), xl_rowcol_to_cell(14, 2 + i)), L.f["n2"],
                              pbd[i] if pbd[i] is not None else "")
-        ws.merge_range(18, 0, 18, 8, "El flujo de fondos ya descuenta el servicio de la deuda (intereses en la utilidad y capital en esta hoja). La inversión inicial "
-                       "se financia con el crédito, por eso la caja parte del capital de trabajo.", L.f["nota"])
-        ws.set_row(18, 30)
-        FC_FLUJOS = "'%s'!%s:%s" % (N_["fc"], xl_rowcol_to_cell(8, 2), xl_rowcol_to_cell(8, 1 + N))
-        FC_EVAL = "'%s'!%s:%s" % (N_["fc"], xl_rowcol_to_cell(11, 1), xl_rowcol_to_cell(11, 1 + N))
-        FC_FLUJOS5 = "'%s'!%s:%s" % (N_["fc"], xl_rowcol_to_cell(8, 2), xl_rowcol_to_cell(8, 6))
-        FC_EVAL5 = "'%s'!%s:%s" % (N_["fc"], xl_rowcol_to_cell(11, 1), xl_rowcol_to_cell(11, 6))
-        FC_CAJA = "'%s'!%s:%s" % (N_["fc"], xl_rowcol_to_cell(9, 2), xl_rowcol_to_cell(9, 1 + N))
-        FC_PB = "'%s'!%s:%s" % (N_["fc"], xl_rowcol_to_cell(15, 2), xl_rowcol_to_cell(15, 1 + N))
-        FC_PBD = "'%s'!%s:%s" % (N_["fc"], xl_rowcol_to_cell(16, 2), xl_rowcol_to_cell(16, 1 + N))
+        ws.merge_range(19, 0, 19, 8, "El flujo de fondos ya descuenta el servicio de la deuda (intereses en la utilidad y capital en esta hoja) y devuelve la parte "
+                       "de las cuotas que el pie pagó por anticipado. La inversión inicial se financia con el crédito, por eso la caja parte del capital "
+                       "de trabajo; el año 0 de la evaluación descuenta la inversión y el pie.", L.f["nota"])
+        ws.set_row(19, 45)
+        FC_FLUJOS = "'%s'!%s:%s" % (N_["fc"], xl_rowcol_to_cell(9, 2), xl_rowcol_to_cell(9, 1 + N))
+        FC_EVAL = "'%s'!%s:%s" % (N_["fc"], xl_rowcol_to_cell(12, 1), xl_rowcol_to_cell(12, 1 + N))
+        FC_FLUJOS5 = "'%s'!%s:%s" % (N_["fc"], xl_rowcol_to_cell(9, 2), xl_rowcol_to_cell(9, 6))
+        FC_EVAL5 = "'%s'!%s:%s" % (N_["fc"], xl_rowcol_to_cell(12, 1), xl_rowcol_to_cell(12, 6))
+        FC_CAJA = "'%s'!%s:%s" % (N_["fc"], xl_rowcol_to_cell(10, 2), xl_rowcol_to_cell(10, 1 + N))
+        FC_PB = "'%s'!%s:%s" % (N_["fc"], xl_rowcol_to_cell(16, 2), xl_rowcol_to_cell(16, 1 + N))
+        FC_PBD = "'%s'!%s:%s" % (N_["fc"], xl_rowcol_to_cell(17, 2), xl_rowcol_to_cell(17, 1 + N))
 
         # ----------------------------------------------------------- 1 Resumen
         k = "resumen"
@@ -1309,20 +1324,22 @@ def planilla_flujo(r, ruta, nombre_hojas=None):
         ws.write(5, 1, "Valor", L.f["enc"])
         ws.write(5, 2, "Cálculo", L.f["encl"])
         van10 = ind["van"]
-        van5 = M.van(inv["total"], fl[:5], tasa)
+        van5 = M.van(r["desembolso"], fl[:5], tasa)
         tir10 = ind["tir"]
-        tir5 = M.tir(inv["total"], fl[:5])
+        tir5 = M.tir(r["desembolso"], fl[:5])
         rows = [
             ("Precio neto de venta, %d" % ANIOS[0], "=%s" % V("precio", 0), r["precio_neto_base"], "clp", "Hoja 3, derivado del costo total"),
             ("Precio de lista con IVA, %d" % ANIOS[0], "=%s" % V("lista", 0), r["precio_lista"], "clp", "Hoja 3"),
             ("Inversión inicial total", "=%s" % INV_TOTAL, inv["total"], "clp", "Hoja 2"),
-            ("Crédito bancario (100 % de la inversión)", "='%s'!B5" % N_["fin"], r["credito"], "clp", "Hoja 7"),
-            ("Pie propio exigido (condición de entrada)", "='%s'!B7" % N_["fin"], r["pie"], "clp", "Hoja 7"),
-            ("Pie por socio", "='%s'!B9" % N_["fin"], r["pie"] / S["socios"], "clp", "Hoja 7"),
-            ("Cuota mensual del crédito", "='%s'!B14" % N_["fin"], r["cuota"], "clp", "Hoja 7"),
-            ("VAN a 10 años", "=-%s+NPV(B4,%s)" % (INV_TOTAL, FC_FLUJOS), van10, "clp", "Flujo de fondos de la hoja 12 descontado a la tasa de descuento, sin valor terminal"),
-            ("TIR a 10 años", "=IRR(%s)" % FC_EVAL, tir10, "pctb", "Flujo neto con la inversión inicial de la hoja 12"),
-            ("VAN a 5 años", "=-%s+NPV(B4,%s)" % (INV_TOTAL, FC_FLUJOS5), van5, "clp", "Primeros cinco flujos"),
+            ("Crédito bancario (desembolsa el 100 % de la inversión)", "='%s'!B5" % N_["fin"], r["credito"], "clp", "Hoja 7"),
+            ("Pie de los socios (cuotas pagadas por anticipado)", "='%s'!B6" % N_["fin"], r["pie"], "clp", "Hoja 7"),
+            ("Pie por socio", "='%s'!B8" % N_["fin"], r["pie"] / S["socios"], "clp", "Hoja 7"),
+            ("Cuota mensual del crédito", "='%s'!B13" % N_["fin"], r["cuota"], "clp", "Hoja 7"),
+            ("Cuotas mensuales que cubre el pie", "='%s'!B14" % N_["fin"], r["cuotas_anticipadas"], "dec", "Hoja 7"),
+            ("Desembolso inicial evaluado (inversión + pie)", "=%s+'%s'!B6" % (INV_TOTAL, N_["fin"]), r["desembolso"], "clp", "Hojas 2 y 7"),
+            ("VAN a 10 años", "=-B15+NPV(B4,%s)" % FC_FLUJOS, van10, "clp", "Flujo de fondos de la hoja 12 descontado a la tasa de descuento, sin valor terminal"),
+            ("TIR a 10 años", "=IRR(%s)" % FC_EVAL, tir10, "pctb", "Flujo neto con la inversión inicial y el pie de la hoja 12"),
+            ("VAN a 5 años", "=-B15+NPV(B4,%s)" % FC_FLUJOS5, van5, "clp", "Primeros cinco flujos"),
             ("TIR a 5 años", "=IRR(%s)" % FC_EVAL5, tir5, "pctb", "Primeros cinco flujos"),
             ("Payback simple (años)", '=IF(COUNT(%s)=0,"No recupera",MIN(%s))' % (FC_PB, FC_PB), ind["payback"], "dec", "Hoja 12, flujo acumulado"),
             ("Payback descontado (años)", '=IF(COUNT(%s)=0,"No recupera",MIN(%s))' % (FC_PBD, FC_PBD), ind["payback_desc"], "dec", "Hoja 12, flujo descontado acumulado"),

@@ -15,7 +15,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 import modelo as M  # noqa: E402
 
 RAIZ = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-INFORME = os.path.join(RAIZ, "Evaluacion", "Evaluacion 2", "INFORME CORREGIDO.md")
+INFORME = os.path.join(RAIZ, "Evaluacion", "Evaluacion 2", "INFORME 2.md")
 ANEXOS = os.path.join(RAIZ, "Evaluacion", "Evaluacion 2", "Anexos")
 SIGLAS = ["TAM", "SAM", "SOM", "VAN", "TIR", "TCO", "BOM", "FAT", "SAT", "PCBA", "LDO", "ESD", "IoT"]
 PROHIBIDOS = [r"\bEBITDA\b", r"\bFCFF\b", r"\bFCFE\b", r"\bDSCR\b", r"\bFTE\b", r"\bpredio", r"\bpotrero"]
@@ -295,7 +295,12 @@ def gantt(texto, err):
             err("Gantt", "el hito «%s» tiene otra fecha que en el anexo F" % p[1])
     m = re.search(r"```mermaid\s+gantt\n(.*?)```", texto, re.S)
     if not m:
-        err("Gantt", "falta la carta Gantt del capítulo IX")
+        # La carta puede ir como imagen: la dibuja figuras_e2.py desde plan_proyecto(), con las mismas fechas.
+        im = re.search(r"!\[Carta Gantt del proyecto\]\(Figuras/([^)]+)\)", texto)
+        if not im:
+            err("Gantt", "falta la carta Gantt del capítulo IX")
+        elif not os.path.exists(os.path.join(os.path.dirname(INFORME), "Figuras", im.group(1))):
+            err("Gantt", "no existe la imagen de la carta Gantt")
         return
     tareas = {}
     for l in m.group(1).splitlines():

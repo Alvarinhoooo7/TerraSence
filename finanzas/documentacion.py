@@ -78,15 +78,17 @@ w("| Capital de trabajo (%s meses de estructura) | %s |" % (num(INV["meses_cubie
 w("| Inventario inicial | %s |" % p(INV["inventario"]))
 w("| **Inversión inicial total** | **%s** |" % p(INV["total"]))
 w("| Crédito bancario a 10 años, 12 % efectivo anual | " + p(R["credito"]) + " |")
-w("| Pie propio exigido (30 % del crédito) | " + p(R["pie"]) + " |")
-w("| Aporte por socio | %s |" % p(R["pie"] / 2))
+w("| Pie de los socios, abonado como cuotas pagadas por anticipado | " + p(R["pie"]) + " |")
+w("| Aporte por socio | %s |" % p(R["pie"] / M.S["socios"]))
 w("| Cuota mensual (sistema francés) | %s |" % p(R["cuota"]))
+w("| Cuotas que cubre el pie | %s |" % num(R["cuotas_anticipadas"], 1))
 w("")
-w("**El pie no es una fuente adicional de fondos.** Los socios lo entregan al banco como condición de "
-  "entrada y es el crédito el que financia el 100 %% de la inversión inicial; sumar pie más crédito "
-  "cuenta dos veces el mismo dinero. El capital de trabajo no se fijó por regla sino iterando hasta que "
-  "la caja nunca baje de un piso de seguridad, con un mínimo de política de %d meses de estructura."
-  % M.S["capital_trabajo_meses"])
+w("El banco desembolsa el 100 %% de la inversión inicial y los socios abonan el pie ese mismo día como "
+  "cuotas pagadas por anticipado: cubre las primeras %s cuotas. Fuentes (crédito + pie) igualan a usos "
+  "(inversión + cuotas anticipadas), y el VAN descuenta en el año 0 la inversión más el pie. El capital de "
+  "trabajo no se fijó por regla sino iterando hasta que la caja nunca baje de un piso de seguridad, con un "
+  "mínimo de política de %d meses de estructura."
+  % (num(R["cuotas_anticipadas"], 1), M.S["capital_trabajo_meses"]))
 w("")
 w("### Flujo de caja anual")
 w("")
@@ -137,7 +139,7 @@ nuevo_intro = """TerraSense está planteado como un proyecto económicamente sus
 - **Modelo de ingreso:** venta directa del hardware con IVA incluido. La app y el diagnóstico local no tienen suscripción.
 - **Precio:** se **deriva** del costo total con un margen exigido del %s; no es un supuesto de entrada.
 - **Costos y margen:** la sonda RS-485 concentra el %s de la BOM. El ensamblaje se paga en la nómina y no se duplica como costo variable.
-- **Financiamiento:** el pie de los socios se entrega al banco como condición de entrada y el crédito financia el 100 %% de la inversión inicial. Pie y crédito **no se suman** como fuentes.
+- **Financiamiento:** el crédito desembolsa el 100 %% de la inversión inicial y el pie de los socios se abona al banco como cuotas pagadas por anticipado. Fuentes (crédito + pie) = usos (inversión + cuotas anticipadas).
 - **Evaluación:** flujos anuales sobre 10 años (2027–2036), sin valor terminal, con depreciación, amortización del activo nominal y tabla de amortización del crédito por sistema francés.
 
 > 💡 Las cifras del bloque siguiente se generan desde `finanzas/supuestos_reformulado.json`. **No editar a mano:** ejecutar `python finanzas/documentacion_reformulada.py`.
