@@ -66,9 +66,9 @@ La V2 es una **placa portadora**: no integra el silicio, sino que sostiene y con
 | `BOM_TerraSense.xlsx` | Lista de materiales, **generada**; no editar a mano |
 | `Medidor De Suelos V2/` | Proyecto KiCad de la V2: esquemático y ruteo. **Fuente de verdad del hardware** |
 | `V1/` | Prototipo anterior, congelado. No se edita ni se usa como referencia de diseño |
-| `V3/` | Distribución conceptual de componentes para el informe 2, sin redes ni pistas; el esquemático heredado aún usa módulos. No está liberada a fabricación |
+| `V3/` | Placa del instrumento del informe 2 (90 × 64 mm): esquemático con circuitos integrados soldados y placa ruteada en dos capas con planos de masa. Local, fuera de git; no está liberada a fabricación |
 
-Las vistas de la V3 y los anexos conceptuales C y D se regeneran con `python finanzas/figuras_e2.py`. El estado eléctrico y mecánico pendiente está en el [plan de implementación del informe 2](<../Evaluacion/Evaluacion 2/PLAN DE IMPLEMENTACION.md>). La lista de materiales y los costos se mantienen por decisión del proyecto.
+Las vistas de la V3 y los anexos C y D se regeneran con `python finanzas/figuras_e2.py`, que toma los renders de la placa con `kicad-cli`. El estado eléctrico y mecánico pendiente está en el [plan de implementación del informe 2](<../Evaluacion/Evaluacion 2/PLAN DE IMPLEMENTACION.md>). La lista de materiales y los costos se mantienen por decisión del proyecto.
 
 ---
 

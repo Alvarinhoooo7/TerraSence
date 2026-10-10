@@ -134,7 +134,7 @@ Para TerraSense, el valor no está en la sonda como objeto, sino en lo que el ag
 |---|---|---|
 | Necesidad | Estado de carencia percibida | Certidumbre para decidir el riego y la fertilización sin arriesgar el cultivo ni malgastar agua e insumos |
 | Deseo | Forma que toma la necesidad según la cultura y la persona | Una herramienta portátil, rápida y fácil de entender, que diga qué hacer en el mismo campo, funcione sin señal y no obligue a pagar una mensualidad |
-| Demanda | Deseo respaldado por poder adquisitivo | Pequeños y medianos agricultores y asesores dispuestos a pagar $466.027 con IVA por el equipo; la meta del primer año es de 200 equipos |
+| Demanda | Deseo respaldado por poder adquisitivo | Pequeños y medianos agricultores y asesores dispuestos a pagar $467.463 con IVA por el equipo; la meta del primer año es de 200 equipos |
 
 La secuencia muestra el límite del marketing que enseña la asignatura: TerraSense no crea la necesidad de decidir bien, que ya existe, sino que da forma a cómo se satisface.
 
@@ -308,7 +308,7 @@ Solo el mercado total tiene fuente oficial. El mercado servible y la meta de ven
 
 | Alternativa | Tipo | Precio de referencia | Qué entrega | Qué no entrega |
 |---|---|---:|---|---|
-| **TerraSense** | Directa | **$466.027** con IVA | Siete variables del suelo y tres del ambiente; interpretación por cultivo y etapa; pronóstico con señal; historial; funciona sin conexión | Exactitud de laboratorio; dosis de fertilizante |
+| **TerraSense** | Directa | **$467.463** con IVA | Siete variables del suelo y tres del ambiente; interpretación por cultivo y etapa; pronóstico con señal; historial; funciona sin conexión | Exactitud de laboratorio; dosis de fertilizante |
 | Bluelab Pulse | Directa | $538.990 | Humedad, conductividad y temperatura, con Bluetooth, aplicación e historial | pH, nitrógeno, fósforo y potasio; recomendación por etapa del cultivo |
 | Hanna HI9814 | Directa parcial | $491.827 | pH, conductividad, sólidos disueltos y temperatura en soluciones y sustratos | Humedad del suelo; interpretación agronómica |
 | FieldScout TDR 350 | Directa | Sin precio local | Humedad, conductividad y temperatura con registro, GPS y Bluetooth | Recomendación agronómica; distribución local |
@@ -326,7 +326,7 @@ La estructura del mercado es de **competencia monopolística**: muchos oferentes
 
 | Alternativa | Intensidad de uso | Año 1 | 3 años | 5 años | 10 años |
 |---|---|---:|---:|---:|---:|
-| TerraSense (equipo, kits de batería en los años 3 y 8, segundo equipo en el año 6) | Mediciones ilimitadas | $466.027 | $491.017 | $491.017 | $982.035 |
+| TerraSense (equipo, kits de batería en los años 3 y 8, segundo equipo en el año 6) | Mediciones ilimitadas | $467.463 | $492.453 | $492.453 | $984.906 |
 | Análisis de laboratorio | Uso habitual: 4 muestras al año | $200.000 | $600.000 | $1.000.000 | $2.000.000 |
 | Análisis de laboratorio | Uso intensivo: 20 muestras al año | $1.000.000 | $3.000.000 | $5.000.000 | $10.000.000 |
 | Asesoría agronómica | Uso habitual: 2 visitas al año | $120.000 | $360.000 | $600.000 | $1.200.000 |
@@ -378,7 +378,7 @@ Siguiendo los niveles del producto de Kotler y Keller (2016), la oferta se orden
 
 ### 7.2 Precio
 
-- **Precio de lista: $466.027 con IVA** ($391.620 neto). No es un precio fijado por aspiración comercial: se deriva del costo total del proyecto en diez años, exigiendo un 30 % de utilidad sobre ese costo.
+- **Precio de lista: $467.463 con IVA** ($392.826 neto). No es un precio fijado por aspiración comercial: se deriva del costo total del proyecto en diez años, exigiendo un 30 % de utilidad sobre ese costo.
 - **Frente a la competencia:** queda un 5,2 % bajo Hanna HI9814 y un 13,5 % bajo Bluelab Pulse, con más variables e interpretación. Es un precio de **valor**: menor que los equivalentes importados y con más beneficio, pero no un precio de penetración que sacrifique el margen.
 - **Frente al costo de uso:** el gasto acumulado en análisis de laboratorio de uso habitual lo supera durante el tercer año (Tabla 11). Este es el argumento central contra la objeción «es caro».
 - **Sin descuentos permanentes ni precio psicológico a la baja:** un precio como $459.990 quedaría bajo el costo con la utilidad exigida. Las promociones de la sección 8 no rebajan el precio de lista; se financian con el presupuesto de publicidad y con la comisión comercial ya considerados en el costo.
@@ -426,7 +426,7 @@ Cada equipo pasa una prueba de aceptación en fábrica antes de embalarse, regis
 | P | Decisión | Justificación (consumidor, mercado y posicionamiento) |
 |---|---|---|
 | Producto | Sonda de diez variables con interpretación por etapa | Responde a la necesidad de decidir, no solo de medir |
-| Precio | $466.027 con IVA, derivado del costo; sin rebajas | Bajo los importados y amortizable frente al laboratorio |
+| Precio | $467.463 con IVA, derivado del costo; sin rebajas | Bajo los importados y amortizable frente al laboratorio |
 | Plaza | Directa y digital, con despacho incluido | Consumidor disperso y digitalizado; equipo pequeño |
 | Promoción | Educar antes de vender; referidos y días de campo | Compra extensa y desconfianza hacia la tecnología |
 | Personas | Socios con lenguaje del campo; asesores referentes | La confianza se construye con trato humano |
@@ -580,7 +580,7 @@ El análisis del entorno muestra un contexto favorable: la megasequía, el alza 
 
 El consumidor es un productor que compra para protegerse de pérdidas, que confía más en sus pares y en su asesor que en un anuncio, y que necesita entender y probar antes de pagar. Por eso el recorrido define acciones en las cinco etapas, con énfasis en la postcompra: la primera medición decide si el cliente recomienda o abandona.
 
-La diferenciación sostenible es la interpretación agronómica por cultivo y etapa, combinada con diez variables y un pago único. El posicionamiento «del número a la decisión» ocupa un espacio que ningún competidor directo cubre: alta interpretación con respuesta inmediata. Las 7P son coherentes con ese posicionamiento. El precio de $466.027 se deriva del costo, queda bajo los medidores importados y, en uso habitual, resulta más conveniente que el laboratorio desde el tercer año. La plaza es digital con atención humana. La promoción educa antes de vender y se financia sin rebajar el precio.
+La diferenciación sostenible es la interpretación agronómica por cultivo y etapa, combinada con diez variables y un pago único. El posicionamiento «del número a la decisión» ocupa un espacio que ningún competidor directo cubre: alta interpretación con respuesta inmediata. Las 7P son coherentes con ese posicionamiento. El precio de $467.463 se deriva del costo, queda bajo los medidores importados y, en uso habitual, resulta más conveniente que el laboratorio desde el tercer año. La plaza es digital con atención humana. La promoción educa antes de vender y se financia sin rebajar el precio.
 
 El principal riesgo es que la demanda y las metas de conversión aún no están validadas. La próxima etapa del plan es medirlas: entrevistas, piloto y primeras ventas permitirán confirmar o corregir el plan antes de comprometer el inventario. Así, el plan no es una promesa de ventas, sino una hipótesis ordenada y medible.
 
@@ -630,7 +630,7 @@ El principal riesgo es que la demanda y las metas de conversión aún no están 
 | Energía | Batería de litio de 2.000 mAh recargable por USB-C |
 | Carcasa | Diseñada para el campo, con objetivo de estanqueidad IP67 (ensayo acreditado pendiente) |
 | Aplicación | Android y iPhone; español e inglés; tema claro u oscuro; letra normal o grande |
-| Precio | $466.027 con IVA ($391.620 neto), pago único, despacho incluido |
+| Precio | $467.463 con IVA ($392.826 neto), pago único, despacho incluido |
 | Garantía | Legal de seis meses; derecho a retracto de 10 días en compras a distancia |
 
 ### Anexo B. Calendario editorial de los tres primeros meses

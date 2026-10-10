@@ -262,7 +262,7 @@ def planilla_bom(ruta):
 
 # ============================================================ Anexo E
 def pruebas_fat():
-    """Pruebas de aceptacion en fabrica (tabla FAT del informe), con las corrientes de referencia del modelo energetico V3."""
+    """Pruebas de aceptacion en fabrica (tabla FAT del informe), con las corrientes de referencia del modelo energetico del instrumento."""
     import energia_v3 as EV
     espera = EV.p_bateria(EV.ESPERA_REPOSO) / EV.V_BAT
     adquisicion = EV.p_bateria(EV.FASES_V3[1][2], EV.FASES_V3[1][3]) / EV.V_BAT
@@ -386,7 +386,7 @@ def anexo_e(ruta):
             "5. Los formularios se archivan por número de serie: son el registro de trazabilidad de cada unidad.",
             "6. La campaña de laboratorio usa error de CE normalizado: (lectura − referencia) / máximo(0,10 × referencia, 200 µS/cm). "
             "La raíz del promedio de sus cuadrados debe ser ≤ 1. Un solo punto no demuestra R² ni valida la campaña.",
-            "7. Las corrientes son objetivos del diseño V3 con reposo ligero. Antes del FAT deben aprobarse el firmware y los ensayos de desarrollo, "
+            "7. Las corrientes son objetivos del diseño con reposo ligero. Antes del FAT deben aprobarse el firmware y los ensayos de desarrollo, "
             "incluidos carga completa, temperatura, comunicación prolongada y autonomía; el FAT breve no los reemplaza.",
             "8. Una falla de estanqueidad retiene el lote: investigar la causa, corregir y ampliar la inspección al 100 %. "
             "El muestreo de fábrica no certifica IP67. Registrar las unidades seleccionadas antes del ensayo.",
@@ -418,18 +418,18 @@ def plan_proyecto():
         ("1.1", "Necesidades, requerimientos medibles y filtro de viabilidad", "Gestión", "2026-08-03", "2026-08-14", "", "Requerimientos R01 a R27", "tarea"),
         ("1.2", "Matriz de arquitecturas y selección de componentes base", "Hardware", "2026-08-17", "2026-08-31", "1.1", "Matriz de decisión", "tarea"),
         ("1.3", "Mercado y evaluación económica preliminar", "Gestión", "2026-08-24", "2026-09-04", "1.1", "Dimensionamiento de mercado y flujo preliminar", "tarea"),
-        ("1.4", "Ingeniería conceptual cerrada", "Mandante", "2026-09-10", "2026-09-10", "1.2, 1.3", "Informe de ingeniería conceptual", "hito"),
-        ("2", "Prototipo de laboratorio V2 y plataforma", "", "2026-08-24", "2026-10-09", "", "", "fase"),
+        ("1.4", "Ingeniería conceptual cerrada", "Gestión", "2026-09-10", "2026-09-10", "1.2, 1.3", "Informe de ingeniería conceptual", "hito"),
+        ("2", "Prototipo de laboratorio y plataforma", "", "2026-08-24", "2026-10-09", "", "", "fase"),
         ("2.1", "Aplicación móvil, base de datos y backoffice en versión base", "Software", "2026-08-24", "2026-09-30", "1.1", "Aplicación y backoffice operativos", "tarea"),
-        ("2.2", "Diseño de la placa V2", "Hardware", "2026-09-07", "2026-09-23", "1.2", "Esquemático y trazado de la V2", "tarea"),
-        ("2.3", "Fabricación y envío de la placa V2", "Hardware", "2026-09-24", "2026-10-09", "2.2", "5 placas V2", "tarea"),
-        ("2.4", "Firmware V2 con BLE, LED, buzzer y vinculación", "Firmware", "2026-09-21", "2026-10-09", "1.2", "Firmware en ensayo de banco", "tarea"),
+        ("2.2", "Diseño de la placa de laboratorio", "Hardware", "2026-09-07", "2026-09-23", "1.2", "Esquemático y trazado de la placa de laboratorio", "tarea"),
+        ("2.3", "Fabricación y envío de la placa de laboratorio", "Hardware", "2026-09-24", "2026-10-09", "2.2", "5 placas de laboratorio", "tarea"),
+        ("2.4", "Firmware base con BLE, LED, buzzer y vinculación", "Firmware", "2026-09-21", "2026-10-09", "1.2", "Firmware en ensayo de banco", "tarea"),
         ("2.5", "Ficha y muestra de la sonda", "Hardware", "2026-10-03", "2026-10-03", "1.2", "Manual del fabricante y unidad de muestra", "hito"),
-        ("3", "Ingeniería básica y de detalle de la V3", "", "2026-09-21", "2026-11-27", "", "", "fase"),
+        ("3", "Ingeniería básica y de detalle", "", "2026-09-21", "2026-11-27", "", "", "fase"),
         ("3.1", "Alcance, filosofía operativa y matrices de decisión", "Gestión", "2026-09-21", "2026-10-09", "1.4", "Ingeniería básica", "tarea"),
         ("3.2", "Cotizaciones, flujo de caja y protocolos FAT y SAT", "Gestión", "2026-09-28", "2026-10-09", "1.3", "Anexos A, B y E", "tarea"),
-        ("3.3", "Diseño de la placa V3", "Hardware", "2026-10-05", "2026-11-05", "1.4, 2.5", "Esquemático, trazado y archivos de fabricación", "tarea"),
-        ("3.4", "Placa V3 diseñada", "Hardware", "2026-11-06", "2026-11-06", "3.3", "Revisión de diseño aprobada y pedido emitido", "hito"),
+        ("3.3", "Diseño de la placa del instrumento", "Hardware", "2026-10-05", "2026-11-05", "1.4, 2.5", "Esquemático, trazado y archivos de fabricación", "tarea"),
+        ("3.4", "Placa del instrumento diseñada", "Hardware", "2026-11-06", "2026-11-06", "3.3", "Revisión de diseño aprobada y pedido emitido", "hito"),
         ("3.5", "CAD e impresión de la carcasa", "Mecánica", "2026-10-12", "2026-11-27", "3.1", "Modelo 3D y carcasa de prueba", "tarea"),
         ("3.6", "Planos de la placa y de la carcasa", "Hardware", "2026-11-09", "2026-11-27", "3.4", "Anexos C y D", "tarea"),
         ("4", "Prototipo funcional", "", "2026-10-26", "2026-12-17", "", "", "fase"),
@@ -438,14 +438,14 @@ def plan_proyecto():
         ("4.3", "Pedido de la placa y de los componentes", "Hardware", "2026-11-09", "2026-11-27", "3.4, 3.2", "Placa montada y componentes recibidos", "tarea"),
         ("4.4", "Ensamble y FAT del prototipo", "Calidad", "2026-11-30", "2026-12-04", "4.3, 3.5", "Prototipo armado con FAT aprobado", "tarea"),
         ("4.5", "Calibración con soluciones patrón", "Calidad", "2026-12-07", "2026-12-16", "4.2, 4.4", "Coeficientes de calibración registrados", "tarea"),
-        ("4.6", "Prototipo funcional entregado al mandante", "Mandante", "2026-12-17", "2026-12-17", "4.5, 3.6", "Prototipo armado, calibrado y con FAT aprobado", "hito"),
+        ("4.6", "Prototipo funcional entregado", "Gestión", "2026-12-17", "2026-12-17", "4.5, 3.6", "Prototipo armado, calibrado y con FAT aprobado", "hito"),
         ("5", "Validación y habilitación comercial", "", "2027-01-04", "2027-04-19", "", "", "fase"),
         ("5.1", "Constitución de la empresa y crédito", "Gestión", "2027-01-04", "2027-03-26", "4.6", "Sociedad constituida y crédito desembolsado", "tarea"),
         ("5.2", "Campaña de laboratorio de 30 muestras", "Calidad", "2027-01-11", "2027-02-26", "4.6", "Informe de concordancia con el laboratorio", "tarea"),
         ("5.3", "Ensayo IP67 en laboratorio acreditado", "Calidad", "2027-01-11", "2027-02-05", "4.6", "Informe de ensayo IEC 60529", "tarea"),
         ("5.4", "Conformidad de radio y declaración ante SUBTEL", "Gestión", "2027-01-18", "2027-03-26", "4.6", "Declaración de conformidad con código QR", "tarea"),
         ("5.5", "Puesta en marcha y SAT del piloto", "Calidad", "2027-02-01", "2027-02-25", "4.6", "Equipo instalado en el campo del piloto", "tarea"),
-        ("5.6", "SAT del piloto aprobado", "Mandante", "2027-02-26", "2027-02-26", "5.5", "SAT aprobado y firmado", "hito"),
+        ("5.6", "SAT del piloto aprobado", "Calidad", "2027-02-26", "2027-02-26", "5.5", "SAT aprobado y firmado", "hito"),
         ("5.7", "Publicación de la aplicación en Google Play y App Store", "Software", "2027-03-01", "2027-03-30", "5.6, 2.1", "Aplicación descargable en ambas tiendas", "tarea"),
         ("5.8", "Aplicación aprobada en las tiendas", "Software", "2027-03-31", "2027-03-31", "5.7", "Versión descargable e instalable", "hito"),
         ("5.9", "Primer lote de producción con FAT", "Calidad", "2027-03-08", "2027-04-16", "5.6, 5.3", "Primer lote con FAT al 100 %", "tarea"),
@@ -453,8 +453,8 @@ def plan_proyecto():
         ("6", "Cierre del proyecto", "", "2027-04-19", "2027-07-30", "", "", "fase"),
         ("6.1", "Ventas y lotes de producción (operación, continúa después del cierre)", "Gestión", "2027-04-19", "2027-07-30", "5.10", "200 equipos vendidos en 2027", "operacion"),
         ("6.2", "Revisión de la placa con lo aprendido en el piloto", "Hardware", "2027-05-03", "2027-07-23", "5.6, 5.10", "Placa revisada y validada", "tarea"),
-        ("6.3", "Documentación final y transferencia al mandante", "Gestión", "2027-07-26", "2027-07-29", "6.2", "Documentación de fabricación y de operación", "tarea"),
-        ("6.4", "Proyecto entregado al mandante", "Mandante", "2027-07-30", "2027-07-30", "6.3", "Placa revisada liberada y documentación aceptada", "hito"),
+        ("6.3", "Documentación final y transferencia", "Gestión", "2027-07-26", "2027-07-29", "6.2", "Documentación de fabricación y de operación", "tarea"),
+        ("6.4", "Proyecto entregado", "Gestión", "2027-07-30", "2027-07-30", "6.3", "Placa revisada liberada y documentación aceptada", "hito"),
     ]
 
 
@@ -545,7 +545,7 @@ def estado(p, corte=FECHA_CORTE):
 
 
 def meses_gantt():
-    """Agosto de 2026 a julio de 2027, mes a mes."""
+    """Agosto de 2026 a julio de 2027, mes a mes; el encabezado los agrupa por trimestre."""
     plan = plan_proyecto()
     ini, fin = min(_d(p[3]) for p in plan), max(_d(p[4]) for p in plan)
     meses, a, m = [], ini.year, ini.month
@@ -561,7 +561,7 @@ def fecha_texto(iso):
 
 
 def anexo_f(ruta):
-    """Anexo F. Carta Gantt industrial, mes a mes, con EDT, holgura, ruta crítica e hitos."""
+    """Anexo F. Carta Gantt industrial por trimestres y meses, con EDT, holgura, ruta crítica e hitos."""
     plan, meses, hol = plan_proyecto(), meses_gantt(), holguras()
     corte = _d(FECHA_CORTE)
     with xlsxwriter.Workbook(ruta) as wb:
@@ -599,20 +599,21 @@ def anexo_f(ruta):
         c0 = len(cab)
         ws.set_column(c0, c0 + len(meses) - 1, 6.5)
         ws.write(0, 0, "Carta Gantt del proyecto TerraSense", tit)
-        ws.write(1, 0, "Período: %s de %d a %s de %d, mes a mes. Cliente del proyecto: el mandante. Fecha de corte del avance: %s."
+        ws.write(1, 0, "Período: %s de %d a %s de %d, por trimestres y meses. Fecha de corte del avance: %s."
                  % (MESES_LARGOS[meses[0][1] - 1], meses[0][0], MESES_LARGOS[meses[-1][1] - 1], meses[-1][0], fecha_texto(FECHA_CORTE)), dato)
         fila_anio, fila_mes = 3, 4
         for i, c in enumerate(cab):
             ws.merge_range(fila_anio, i, fila_mes, i, c, f["tit"])
+        trimestre = lambda a, m: "Q%d %d" % ((m - 1) // 3 + 1, a)
         j = 0
         while j < len(meses):
             k = j
-            while k + 1 < len(meses) and meses[k + 1][0] == meses[j][0]:
+            while k + 1 < len(meses) and trimestre(*meses[k + 1]) == trimestre(*meses[j]):
                 k += 1
             if k > j:
-                ws.merge_range(fila_anio, c0 + j, fila_anio, c0 + k, meses[j][0], anio_f)
+                ws.merge_range(fila_anio, c0 + j, fila_anio, c0 + k, trimestre(*meses[j]), anio_f)
             else:
-                ws.write(fila_anio, c0 + j, meses[j][0], anio_f)
+                ws.write(fila_anio, c0 + j, trimestre(*meses[j]), anio_f)
             j = k + 1
         for j, (a, m) in enumerate(meses):
             ws.write(fila_mes, c0 + j, MESES_ES[m - 1].capitalize(), mes_corte if (a, m) == (corte.year, corte.month) else mes_f)
@@ -703,12 +704,12 @@ def anexo_f(ruta):
         wn.set_column(0, 0, 120)
         notas = [
             "Cómo se construyó la carta",
-            "1. La carta cubre el proyecto, no el curso: no incluye evaluaciones. Parte en agosto de 2026 y termina con la entrega del proyecto al mandante en julio de 2027.",
+            "1. La carta cubre el proyecto, no el curso: no incluye evaluaciones. Parte en agosto de 2026 y termina con la entrega del proyecto en julio de 2027. Se organiza por trimestres (Q3 de 2026 a Q3 de 2027) y, dentro de cada uno, por mes.",
             "2. Las fechas anteriores al corte (%s) registran lo ejecutado; las posteriores son planificadas y se revisan en cada corte." % fecha_texto(FECHA_CORTE),
             "3. La duración y la holgura se cuentan en días hábiles de lunes a viernes, sin descontar feriados.",
             "4. Los hitos son fechas comprometidas y ocurren al inicio de su día. La holgura total de cada actividad se calcula hacia atrás desde el hito o la actividad que la sigue: debe terminar, a más tardar, el día hábil anterior al hito o al inicio más tardío de la actividad siguiente.",
             "5. La ruta crítica son las actividades con holgura cero: cualquier atraso en ellas mueve un hito. Las actividades terminadas no tienen holgura.",
-            "6. La entrega del prototipo funcional al mandante, el %s, es el hito fijo del proyecto." % fecha_texto(next(p[3] for p in plan if p[1].startswith("Prototipo funcional entregado"))),
+            "6. La entrega del prototipo funcional, el %s, es el hito fijo del proyecto." % fecha_texto(next(p[3] for p in plan if p[1].startswith("Prototipo funcional entregado"))),
             "7. La operación comercial (ventas y lotes) empieza con el lanzamiento y continúa después del cierre; se muestra para situarla, pero no forma parte del alcance del proyecto.",
         ]
         wn.write(0, 0, notas[0], tit)

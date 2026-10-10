@@ -75,12 +75,12 @@ AÑO 2026
   - Plan de Calibración y Control de Deriva
   - Supuestos de Mercado
 - VI. Ingeniería Básica
-  - Del prototipo de laboratorio (placa V2) al producto (placa V3)
+  - Composición de la placa del instrumento
   - Trazabilidad de lo conceptual a lo básico
   - Alcance y filosofía operativa
   - Capacidades y características
   - Requerimientos técnicos y matrices de decisión por componente
-  - Arquitectura eléctrica de la placa V3
+  - Arquitectura eléctrica de la placa del instrumento
   - Eficiencia energética
   - Digitalización e Industria 4.0
   - Marco normativo aplicable al producto
@@ -89,7 +89,7 @@ AÑO 2026
   - Equipos del taller
   - Cotizaciones y proveedores
   - Verificación contra hojas de datos
-  - Geometría de la placa V3
+  - Geometría de la placa del instrumento
   - Carcasa, conectores, cableado y montaje
   - Instalación y puesta en marcha en campo
   - Trazabilidad maestra
@@ -124,20 +124,21 @@ AÑO 2026
 - Figura 1.6 “Diagrama de Flujo Arquitectura de Sistema Embebido de Bajo Consumo”
 - Figura 1.7 “Diagrama de Flujo Arquitectura de Conectividad”
 - Figura 1.8 “Árbol de Alimentación y Nodos de Tensión”
-- Figura 1.9 “Representación Conceptual de Carcasa”
+- Figura 1.9 “Concepto funcional de la carcasa”
 - Figura 2.0 “Estados de operación del equipo”
 - Figura 2.1 “Secuencia de una jornada de medición”
-- Figura 2.2 “Diagrama de bloques del hardware de la placa V3”
-- Figura 2.3 “Árbol de alimentación de la placa V3”
+- Figura 2.2 “Diagrama de bloques del hardware del instrumento”
+- Figura 2.3 “Árbol de alimentación del instrumento”
 - Figura 2.4 “Aplicación móvil: inicio, tema oscuro, vinculación y preferencias”
 - Figura 2.5 “Consola de soporte: búsqueda de equipos y ficha del equipo”
 - Figura 2.6 “Flujo de datos y digitalización del proceso”
-- Figura 2.7 “Placa V3: vista tridimensional”
-- Figura 2.8 “Plano de la placa V3”
-- Figura 2.9 “Carcasa V3: planta, vista frontal y corte”
-- Figura 3.0 “Secuencia de montaje del equipo”
-- Figura 3.1 “Proceso de fabricación por estaciones”
-- Figura 3.2 “Carta Gantt del proyecto”
+- Figura 2.7 “Placa del instrumento: vista tridimensional”
+- Figura 2.8 “Plano de la placa del instrumento”
+- Figura 2.9 “Ruteo de la placa: cara superior e inferior”
+- Figura 3.0 “Carcasa: planta, vista frontal y corte”
+- Figura 3.1 “Secuencia de montaje del equipo”
+- Figura 3.2 “Proceso de fabricación por estaciones”
+- Figura 3.3 “Carta Gantt del proyecto”
 
 ### Índice de tablas
 
@@ -190,7 +191,7 @@ AÑO 2026
 - Tabla 5.6 “Conversión de la humedad gravimétrica a volumétrica”
 - Tabla 5.7 “Plan de Calibración y Control de Deriva”
 - Tabla 5.8 “Supuestos de Mercado Declarados”
-- Tabla 5.9 “Componentes de los módulos del prototipo V2 en la placa V3”
+- Tabla 5.9 “Bloques funcionales de la placa del instrumento”
 - Tabla 6.0 “Trazabilidad de la ingeniería conceptual a la ingeniería básica”
 - Tabla 6.1 “Alcance incluido y excluido del proyecto”
 - Tabla 6.2 “Filosofía operativa: condición, fase, acción del sistema y señal al usuario”
@@ -209,8 +210,8 @@ AÑO 2026
 - Tabla 7.5 “Selección de interruptor, prensaestopa, respiradero y tapón por grado IP”
 - Tabla 7.6 “Matriz de decisión del material de la carcasa”
 - Tabla 7.7 “Matriz de decisión de la impresora 3D”
-- Tabla 7.8 “Asignación de pines del módulo ESP32 en la placa V3”
-- Tabla 7.9 “Cálculos de dimensionamiento de la electrónica V3”
+- Tabla 7.8 “Asignación de pines del módulo ESP32 en la placa del instrumento”
+- Tabla 7.9 “Cálculos de dimensionamiento de la electrónica del instrumento”
 - Tabla 8.0 “Potencia instalada del equipo por consumidor”
 - Tabla 8.1 “Modos de consumo del equipo y tiempo por jornada”
 - Tabla 8.2 “Gestión de cargas del equipo”
@@ -220,10 +221,10 @@ AÑO 2026
 - Tabla 8.6 “Ciberseguridad: implementada y propuesta”
 - Tabla 8.7 “Especificación de compra del producto por bloque”
 - Tabla 8.8 “Equipos del taller según el ciclo especificar, justificar, cotizar, dimensionar y probar”
-- Tabla 8.9 “Resumen de la lista de materiales de la placa V3 por bloque”
-- Tabla 9.0 “Verificación de los componentes de la placa V3 frente a las hojas de datos”
-- Tabla 9.1 “Datos de fabricación de la placa V3”
-- Tabla 9.2 “Zonas críticas y distancias de la placa V3”
+- Tabla 8.9 “Resumen de la lista de materiales de la placa del instrumento por bloque”
+- Tabla 9.0 “Verificación de los componentes de la placa del instrumento frente a las hojas de datos”
+- Tabla 9.1 “Datos de fabricación de la placa del instrumento”
+- Tabla 9.2 “Zonas críticas y distancias de la placa del instrumento”
 - Tabla 9.3 “Dimensiones y tolerancias de la carcasa”
 - Tabla 9.4 “Aberturas y elementos de fijación de la carcasa”
 - Tabla 9.5 “Lista de conectores y pinout”
@@ -232,7 +233,7 @@ AÑO 2026
 - Tabla 9.8 “Pasos de montaje y controles”
 - Tabla 9.9 “Instalación y puesta en marcha en el campo”
 - Tabla 10.0 “Trazabilidad maestra: requerimiento, especificar, justificar, cotizar, dimensionar y probar”
-- Tabla 10.1 “Alternativas de ensamble de la placa V3: A (taller) y C (fabricante)”
+- Tabla 10.1 “Alternativas de ensamble de la placa del instrumento: A (taller) y C (fabricante)”
 - Tabla 10.2 “Costo por placa del ensamble según el tamaño del lote”
 - Tabla 10.3 “Estaciones de fabricación, controles y tiempos por unidad”
 - Tabla 10.4 “Dimensionamiento de la capacidad del taller”
@@ -256,15 +257,13 @@ En este contexto, optimizar el uso del agua y los nutrientes es un requisito est
 
 Para dar respuesta a esta problemática, el presente informe detalla el desarrollo y evaluación de TerraSense, un sistema integral de apoyo a la decisión sobre el terreno. Más que un simple sensor, la propuesta se basa en una arquitectura de bajo consumo que captura las variables físicas del suelo (mediante bus RS-485 con protocolo Modbus RTU) y del ambiente inmediato del punto de muestreo (mediante el sensor BME280 en bus I²C). Su innovación radica en delegar el procesamiento complejo al teléfono del agricultor vía Bluetooth Low Energy (BLE), transformando datos crudos en recomendaciones agronómicas accionables de forma inmediata, sin necesidad de conexión a internet durante la medición ni de suscripciones de pago. A lo largo de este documento se expone la ingeniería del sistema, desde la selección de la arquitectura hasta su fabricación y sus pruebas, junto con el marco regulatorio y la evaluación económica que respalda su viabilidad técnica y financiera.
 
-En el teléfono una aplicación con motor agronómico determinista opera de manera estrictamente offline, interpretando las variables y presentándolas bajo un Grid 2×5 de fácil asimilación, categorizada por código de colores tipo semáforo y enriquecida con recomendaciones directas de labor según el cultivo, el tipo de suelo y la etapa fenológica (Pre-siembra, Vegetativo, Floración o Cosecha). Como complemento a la lectura local, el sistema consulta un pronóstico meteorológico a 5 días que contextualiza la labor a mediano plazo (evitando, por ejemplo, sembrar antes de un pronóstico temporal).
+En el teléfono una aplicación con motor agronómico determinista opera de manera estrictamente offline, interpretando las variables y presentándolas variable por variable con un código de colores tipo semáforo de lectura inmediata y enriquecida con recomendaciones directas de labor según el cultivo, el tipo de suelo y la etapa fenológica (Pre-siembra, Vegetativo, Floración o Cosecha). Como complemento a la lectura local, el sistema consulta un pronóstico meteorológico a 5 días que contextualiza la labor a mediano plazo (evitando, por ejemplo, sembrar antes de un pronóstico temporal).
 
-El informe recorre el proyecto en el orden en que se construye. La ingeniería conceptual responde qué solución se implementa: evalúa las alternativas, define el prototipo de laboratorio, establece el marco normativo y evalúa la rentabilidad a diez años, con comparación a cinco (capítulo V). La ingeniería básica responde cómo funcionará técnicamente: la filosofía operativa, las capacidades del producto, la selección de cada componente, la energía y la digitalización (capítulo VI). La ingeniería de detalle responde cómo se comprará, construirá e instalará (capítulo VII); la fabricación, con qué proceso y capacidad se produce (capítulo VIII); y los ensayos, cómo se demuestra que cumple (capítulo IX). Cierran la planificación del proyecto (capítulo X) y las propuestas de mejora (capítulo XI). Las necesidades del agricultor se traducen en los requerimientos R01 a R27, que se siguen desde su especificación hasta su prueba.
+El informe recorre el proyecto en el orden en que se construye. La ingeniería conceptual responde qué solución se implementa: evalúa las alternativas, define la arquitectura del instrumento, establece el marco normativo y evalúa la rentabilidad a diez años, con comparación a cinco (capítulo V). La ingeniería básica responde cómo funcionará técnicamente: la filosofía operativa, las capacidades del producto, la selección de cada componente, la energía y la digitalización (capítulo VI). La ingeniería de detalle responde cómo se comprará, construirá e instalará (capítulo VII); la fabricación, con qué proceso y capacidad se produce (capítulo VIII); y los ensayos, cómo se demuestra que cumple (capítulo IX). Cierran la planificación del proyecto (capítulo X) y las propuestas de mejora (capítulo XI). Las necesidades del agricultor se traducen en los requerimientos R01 a R27, que se siguen desde su especificación hasta su prueba.
 
-La ingeniería conceptual es la base de todo lo que sigue e incorpora las observaciones de la revisión del mandante. La estructura de financiamiento se formaliza con fuentes y usos: el banco desembolsa el total de la inversión y el pie de los socios se abona como cuotas pagadas por anticipado, de modo que aporte propio y crédito quedan coherentes entre sí. Se comparan además las alternativas de financiamiento, incluidas la garantía estatal FOGAPE y los fondos concursables de Sercotec y CORFO, y se explica por qué quedan fuera del caso base. En el protocolo de validación, la ausencia de sesgo proporcional pasa a declararse con un criterio de equivalencia y no de significancia, y se formaliza la conversión entre humedad gravimétrica y volumétrica.
+La estructura de financiamiento se formaliza con fuentes y usos: el banco desembolsa el total de la inversión y el pie de los socios se abona como cuotas pagadas por anticipado, de modo que aporte propio y crédito quedan coherentes entre sí. Se comparan además las alternativas de financiamiento, incluidas la garantía estatal FOGAPE y los fondos concursables de Sercotec y CORFO, y se explica por qué quedan fuera del caso base. En el protocolo de validación, la ausencia de sesgo proporcional se declara con un criterio de equivalencia y no de significancia, y se formaliza la conversión entre humedad gravimétrica y volumétrica.
 
-El producto se especifica sobre la placa V3, que suelda directamente los mismos circuitos integrados que en el prototipo de laboratorio, la placa V2, vienen montados en módulos: el módulo ESP32-WROOM-32D con su puente USB-serie, el cargador y el elevador de la celda, el sensor BME280 y el transceptor RS-485. La placa V2, ya fabricada, es el banco sobre el que se desarrollan y ensayan el firmware y la aplicación. El taller se dimensiona para la demanda proyectada, y las pruebas se organizan en desarrollo, aceptación en fábrica (FAT, *Factory Acceptance Test*), aceptación en sitio (SAT, *Site Acceptance Test*) y ensayos normativos. La entrega prevista del prototipo funcional al mandante es el 17 de diciembre de 2026.
-
-El documento distingue la especificación de diseño, la implementación y la evidencia de ensayo, y cada afirmación lleva su estado: **verificado**, **implementado** o **de diseño**. La placa V3 se fabrica para el prototipo funcional de diciembre de 2026, y con él se ensayan la estanqueidad IP67, la autonomía y el alcance del enlace Bluetooth. Las cifras de detalle viven en los anexos, que se entregan en una carpeta compartida: las cotizaciones (anexo A) y el flujo de caja (anexo B) como planillas de Excel, los planos de diseño de la placa y de la carcasa (anexos C y D), los formularios de FAT y SAT (anexo E) y la carta Gantt (anexo F).
+El documento distingue la especificación de diseño, la implementación y la evidencia de ensayo, y cada afirmación lleva su estado: **verificado**, **implementado** o **de diseño**. La placa del instrumento se fabrica para el prototipo funcional de diciembre de 2026, y con él se ensayan la estanqueidad IP67, la autonomía y el alcance del enlace Bluetooth. Las cifras de detalle viven en los anexos, que se entregan en una carpeta compartida: las cotizaciones (anexo A) y el flujo de caja (anexo B) como planillas de Excel, los planos de diseño de la placa y de la carcasa (anexos C y D), los formularios de las pruebas de aceptación en fábrica (FAT, *Factory Acceptance Test*) y en sitio (SAT, *Site Acceptance Test*), en el anexo E, y la carta Gantt (anexo F).
 
 ## II. Descripción de la Problemática
 
@@ -407,7 +406,7 @@ Para optimizar costos de manufactura y maximizar la durabilidad en terreno, las 
 | Capa del Sistema | Componente Físico | Responsabilidad Asignada | Lo Que Deliberadamente No Realiza |
 |---|---|---|---|
 | 1. Instrumento de Captura | ESP32-WROOM-32 + Sonda 7-en-1 + BME280 | Excitar sensores, leer buses RS-485 e I²C, verificar checksums y transmitir trama BLE. | No procesa algoritmos agronómicos, no almacena historial ni requiere pantalla gráfica propia. |
-| 2. Inteligencia Local | App móvil (React Native) con almacenamiento local persistente del teléfono y cola de sincronización diferida | Ejecutar motor agronómico determinista, desplegar Grid 2×5 y almacenar histórico local. | No genera voltajes de excitación industrial ni depende de servidores externos para evaluar. |
+| 2. Inteligencia Local | App móvil (React Native) con almacenamiento local persistente del teléfono y cola de sincronización diferida | Ejecutar motor agronómico determinista, presentar las diez variables con su semáforo y almacenar el histórico local. | No genera voltajes de excitación industrial ni depende de servidores externos para evaluar. |
 | 3. Respaldo y soporte | Supabase (PostgreSQL) + Consola Web | Respaldar mediciones al detectar red, control de cuentas, soporte posventa y consulta del histórico de cada equipo. | No bloquea la operación en campo en ausencia de conectividad. |
 
 **Tabla 1.1 “Distribución de Responsabilidades Funcionales del Sistema”**
@@ -449,12 +448,12 @@ Para materializar este objetivo general, el proyecto se estructura en los siguie
 La etapa que este informe agrega lleva esos frentes desde la decisión conceptual hasta lo que hace falta para comprar, fabricar, instalar y probar el equipo:
 
 - Especificar las capacidades del producto y del servicio: traducir cada necesidad en un requerimiento con valor, unidad y criterio de aceptación, y reunirlos en una ficha técnica con el origen y el estado de cada cifra.
-- Rediseñar el instrumento como producto: pasar del prototipo de laboratorio con módulos a la placa V3, que suelda directamente los mismos circuitos integrados, y justificar cada componente con una matriz de decisión.
+- Diseñar la placa del instrumento con sus circuitos integrados soldados directamente, rutearla y justificar cada componente con una matriz de decisión.
 - Dimensionar la electrónica, la energía y la digitalización: calcular cada circuito con su margen, la potencia instalada y el consumo anual del equipo y del taller, y ubicar la digitalización en el marco de Industria 4.0.
 - Especificar la compra y la geometría: cotizar el producto, el taller y los servicios con proveedores identificados, y fijar las reglas de fabricación, conectores, cableado, torques y montaje.
 - Definir la fabricación: el método de ensamble de la placa, las estaciones, la capacidad del taller y la trazabilidad por número de serie.
 - Definir los ensayos: una prueba para cada requerimiento, con la aceptación en fábrica y en sitio y los ensayos normativos.
-- Planificar el proyecto hasta su entrega al mandante e incorporar las mejoras surgidas en las tres ingenierías.
+- Planificar el proyecto hasta su entrega e incorporar las mejoras surgidas en las tres ingenierías.
 
 ## V. Ingeniería Conceptual
 
@@ -601,7 +600,7 @@ Justificación de la Selección: Se sacrifica exactitud absoluta a cambio de via
 
 **Tabla 1.6 “Comparativa de Sensores de Temperatura / Humedad / Presión Barométrica”**
 
-Justificación de la Selección: Se elige por una razón funcional, no de desempeño. El BME280 es el único de los tres candidatos que entrega simultáneamente las tres magnitudes que el Grid 2×5 reserva al ambiente local. El SHT40 es más exacto en temperatura pero no mide presión; el BMP280, frecuentemente confundido con el BME280 por su encapsulado casi idéntico, no aporta humedad relativa y por lo tanto no constituye un reemplazo funcional. La presión barométrica se utiliza además para corregir el cálculo de evapotranspiración por altitud [14]. Cabe precisar que la temperatura del BME280 se emplea también en la compensación interna del propio sensor, y su correspondencia con el aire exterior depende críticamente de su ubicación física dentro de la carcasa, requisito que se aborda en el diseño mecánico.
+Justificación de la Selección: Se elige por una razón funcional, no de desempeño. El BME280 es el único de los tres candidatos que entrega simultáneamente las tres magnitudes que la aplicación reserva al ambiente local. El SHT40 es más exacto en temperatura pero no mide presión; el BMP280, frecuentemente confundido con el BME280 por su encapsulado casi idéntico, no aporta humedad relativa y por lo tanto no constituye un reemplazo funcional. La presión barométrica se utiliza además para corregir el cálculo de evapotranspiración por altitud [14]. Cabe precisar que la temperatura del BME280 se emplea también en la compensación interna del propio sensor, y su correspondencia con el aire exterior depende críticamente de su ubicación física dentro de la carcasa, requisito que se aborda en el diseño mecánico.
 
 ### Arquitectura de Conectividad
 
@@ -667,36 +666,36 @@ La consecuencia práctica es una sola y se aplica sin excepción: **el ahorro de
 
 ### Estructura de costos de fabricación
 
-El costo de materiales de cada unidad se detalla en la BOM (*Bill of Materials*, lista de materiales): el desglose de todo lo que entra físicamente en un equipo, componente por componente, con su cantidad y su costo neto. La lista corresponde al producto sobre la placa V3, sin placas de desarrollo ni módulos: el módulo ESP32-WROOM-32D (con antena y certificación) y los circuitos integrados y pasivos de la placa, más la sonda, la batería, la carcasa, los materiales de montaje y el flete. Los componentes electrónicos se cotizaron en LCSC y los precios se convirtieron a pesos al tipo de cambio de referencia [16]; el detalle por línea, con modelo, código del proveedor, fecha y enlace, está en el anexo de cotizaciones. Cada línea declara si su precio fue consultado o es una estimación, de modo que se distinga lo verificado de lo presupuestado. El prototipo de laboratorio descrito en el resto del documento, con placa de desarrollo y módulos, no es la base del costo: la evaluación económica se hace sobre el producto de la placa V3.
+El costo de materiales de cada unidad se detalla en la BOM (*Bill of Materials*, lista de materiales): el desglose de todo lo que entra físicamente en un equipo, componente por componente, con su cantidad y su costo neto. La lista corresponde al producto sobre la placa del instrumento, sin placas de desarrollo ni módulos: el módulo ESP32-WROOM-32D (con antena y certificación) y los circuitos integrados y pasivos de la placa, más la sonda, la batería, la carcasa, los materiales de montaje y el flete. Los componentes electrónicos se cotizaron en LCSC y los precios se convirtieron a pesos al tipo de cambio de referencia [16]; el detalle por línea, con modelo, código del proveedor, fecha y enlace, está en el anexo de cotizaciones. Cada línea declara si su precio fue consultado o es una estimación, de modo que se distinga lo verificado de lo presupuestado.
 
 | Bloque del equipo | Líneas | Subtotal neto por equipo | Participación |
 |---|---:|---:|---:|
-| Sonda | 1 | $44.394 | 55,1 % |
-| Celda | 1 | $6.900 | 8,6 % |
-| Carcasa | 1 | $7.238 | 9,0 % |
-| PCB V3 y ensamble | 3 | $6.312 | 7,8 % |
-| MCU y radio | 1 | $2.710 | 3,4 % |
-| USB-C y carga | 18 | $1.054 | 1,3 % |
+| Sonda | 1 | $44.394 | 54,5 % |
+| Celda | 1 | $6.900 | 8,5 % |
+| Carcasa | 1 | $7.238 | 8,9 % |
+| PCB y ensamble | 3 | $6.289 | 7,7 % |
+| MCU y radio | 1 | $2.710 | 3,3 % |
+| USB-C y carga | 20 | $1.543 | 1,9 % |
 | Alimentación 3,3 V | 1 | $83 | 0,1 % |
-| Elevador 5 V | 10 | $614 | 0,8 % |
-| RS-485 | 5 | $249 | 0,3 % |
-| Sensor ambiental | 2 | $4.613 | 5,7 % |
-| Interfaz de usuario | 10 | $382 | 0,5 % |
-| Protección y medición de batería | 5 | $730 | 0,9 % |
-| Pasivos de desacoplo | 4 | $213 | 0,3 % |
-| Montaje y embalaje | 9 | $5.142 | 6,4 % |
-| **Total BOM neto por equipo** | **71** | **$80.632** | **100,0 %** |
+| Elevador 5 V | 10 | $665 | 0,8 % |
+| RS-485 | 4 | $220 | 0,3 % |
+| Sensor ambiental | 2 | $4.623 | 5,7 % |
+| Interfaz de usuario | 10 | $229 | 0,3 % |
+| Protección y medición de batería | 5 | $731 | 0,9 % |
+| Pasivos de desacoplo | 4 | $657 | 0,8 % |
+| Montaje y embalaje | 9 | $5.142 | 6,3 % |
+| **Total BOM neto por equipo** | **72** | **$81.425** | **100,0 %** |
 
 **Tabla 1.9 “Estructura de costos de fabricación (BOM) por equipo”**
 
-La sonda de suelo representa **$44.394, equivalente al 55,1 % del costo de materiales**, y es por lejos la decisión de abastecimiento más crítica del proyecto. El mercado de sondas 7-en-1 RS-485 muestra una dispersión enorme, entre $12.100 y $82.100, que refleja productos genuinamente distintos en número de variables, calidad de construcción y material del vástago. La variante cotizada, de siete variables, cuesta $44.394 puesta en Chile según una publicación con fecha; una sonda barata no sirve si no sostiene la exactitud que el protocolo de validación exige, y por eso se compra una muestra antes del lote.
+La sonda de suelo representa **$44.394, equivalente al 54,5 % del costo de materiales**, y es por lejos la decisión de abastecimiento más crítica del proyecto. El mercado de sondas 7-en-1 RS-485 muestra una dispersión enorme, entre $12.100 y $82.100, que refleja productos genuinamente distintos en número de variables, calidad de construcción y material del vástago. La variante cotizada, de siete variables, cuesta $44.394 puesta en Chile según una publicación con fecha; una sonda barata no sirve si no sostiene la exactitud que el protocolo de validación exige, y por eso se compra una muestra antes del lote.
 
-En el otro extremo, la electrónica de la placa V3 (módulo ESP32, circuitos integrados, sensor ambiental, pasivos, indicadores y protecciones) suma $10.645 por equipo, un 13,2 % de la BOM, y dentro de ella el sensor BME280 y el módulo ESP32 concentran la mayor parte. La conclusión de diseño es directa: el costo del instrumento se decide en la sonda y en un puñado de circuitos integrados, y ninguna economía sobre los pasivos cambia el resultado, de modo que en ellos se privilegia la robustez sobre el ahorro.
+En el otro extremo, la electrónica de la placa del instrumento (módulo ESP32, circuitos integrados, sensor ambiental, pasivos, indicadores y protecciones) suma $11.462 por equipo, un 14,1 % de la BOM, y dentro de ella el sensor BME280 y el módulo ESP32 concentran la mayor parte. La conclusión de diseño es directa: el costo del instrumento se decide en la sonda y en un puñado de circuitos integrados, y ninguna economía sobre los pasivos cambia el resultado, de modo que en ellos se privilegia la robustez sobre el ahorro.
 
 Dos precisiones sobre el abastecimiento tienen consecuencias que conviene declarar:
 
 - **Régimen tributario de las compras importadas.** Desde octubre de 2025, la Ley N° 21.713 [42] eliminó la exención que liberaba de IVA a las importaciones bajo US$41: hoy toda compra internacional paga IVA, y las plataformas inscritas ante el Servicio de Impuestos Internos lo recaudan en el momento de la compra para pedidos de hasta US$500, sin arancel aduanero adicional. Ese IVA solo constituye crédito fiscal si la compra se formaliza como importación con Declaración de Ingreso. Comprando al detalle, la exposición es de **$499 por equipo**, del orden de $99.712 anuales al volumen del primer año. El proyecto asume formalizar el abastecimiento antes de comprometer volumen, y esta cifra dimensiona lo que está en juego si no lo hace.
-- **La placa de control es un módulo con antena soldado a la placa V3, no una placa de desarrollo.** El presupuesto adquiere el ESP32 como módulo WROOM-32D, que trae la antena y la certificación de radio, y suma en la propia placa el regulador de 3,3 V de baja corriente en reposo, el puente USB-serie, el cargador y el elevador de la sonda. Los cargos de ensamble de la placa se contratan a un fabricante ($1.237 por placa al lote de 200) y se incluyen en la BOM.
+- **La placa de control es un módulo con antena soldado a la placa del instrumento, no una placa de desarrollo.** El presupuesto adquiere el ESP32 como módulo WROOM-32D, que trae la antena y la certificación de radio, y suma en la propia placa el regulador de 3,3 V de baja corriente en reposo, el puente USB-serie, el cargador y el elevador de la sonda. Los cargos de ensamble de la placa se contratan a un fabricante ($1.214 por placa al lote de 200) y se incluyen en la BOM.
 
 La carcasa se imprime en taller propio: el proyecto adquiere dos impresoras Creality K1C, que figuran en el activo fijo, y el costo de cada carcasa se construye así:
 
@@ -716,17 +715,17 @@ A los materiales se suman los costos que solo existen cuando hay una venta, y qu
 
 | Concepto | Neto CLP |
 |---|---:|
-| Materiales y servicios de la BOM | $80.632 |
-| Merma de fabricación, 3 % de la BOM | $2.419 |
-| Provisión de reposiciones y garantía, 5 % de la BOM | $4.032 |
+| Materiales y servicios de la BOM | $81.425 |
+| Merma de fabricación, 3 % de la BOM | $2.443 |
+| Provisión de reposiciones y garantía, 5 % de la BOM | $4.071 |
 | Envío al cliente | $6.000 |
-| **Subtotal sin comisión** | **$93.082** |
-| Comisión comercial, 5 % sobre el precio bruto | $23.301 |
-| **Costo variable total por equipo** | **$116.384** |
+| **Subtotal sin comisión** | **$93.939** |
+| Comisión comercial, 5 % sobre el precio bruto | $23.373 |
+| **Costo variable total por equipo** | **$117.312** |
 
 **Tabla 2.1 “Costo variable por equipo”**
 
-El costo variable total, $116.384 por equipo, equivale al 29,7 % del precio neto de venta. Cada unidad vendida deja por lo tanto un margen de contribución de $275.236, que es lo que queda disponible para cubrir la estructura fija de la empresa, los intereses y la utilidad. La comisión comercial es la única partida que depende del precio; todas las demás dependen de la BOM y del envío, y por eso una variación en el costo de la sonda se transmite casi íntegra al costo variable.
+El costo variable total, $117.312 por equipo, equivale al 29,9 % del precio neto de venta. Cada unidad vendida deja por lo tanto un margen de contribución de $275.515, que es lo que queda disponible para cubrir la estructura fija de la empresa, los intereses y la utilidad. La comisión comercial es la única partida que depende del precio; todas las demás dependen de la BOM y del envío, y por eso una variación en el costo de la sonda se transmite casi íntegra al costo variable.
 
 ### Inversión inicial
 
@@ -740,7 +739,7 @@ El equipamiento se dimensionó **según la dotación real del proyecto**, no sob
 | Estación de soldadura: Hakko FX-888D | 2 | $145.965 | $291.930 | 5 años | $58.386 |
 | Estación de aire caliente: Quick 861DW | 1 | $332.702 | $332.702 | 5 años | $66.540 |
 | Placa calefactora: UYUE 946-1010 (100 × 100 mm, 400 W, 50–350 °C) | 1 | $45.114 | $45.114 | 5 años | $9.023 |
-| Esténcil de ensamble: Esténcil de acero de 0,12 mm para la PCB V3 (con marco) | 2 | $8.865 | $17.730 | 5 años | $3.546 |
+| Esténcil de ensamble: Esténcil de acero de 0,12 mm para la PCB (con marco) | 2 | $8.865 | $17.730 | 5 años | $3.546 |
 | Microscopio estereoscópico: AmScope SE400-Z (10× a 20×, binocular) | 1 | $329.318 | $329.318 | 5 años | $65.864 |
 | Osciloscopio: Rigol DS1054Z (4 canales, 50 MHz) | 1 | $519.573 | $519.573 | 5 años | $103.915 |
 | Fuente de laboratorio: Korad KA3005P (0 a 30 V, 0 a 5 A) | 1 | $111.656 | $111.656 | 5 años | $22.331 |
@@ -779,11 +778,11 @@ El capital de trabajo no se fijó por una regla de tantos meses, sino **iterando
 
 | Destino | CLP | Participación |
 |---|---:|---:|
-| Equipamiento y activo fijo | $5.930.988 | 20,6 % |
+| Equipamiento y activo fijo | $5.930.988 | 20,9 % |
 | Activo nominal (puesta en marcha) | $7.025.000 | 24,4 % |
 | Capital de trabajo (3,0 meses de estructura) | $12.719.785 | 44,2 % |
-| Inventario inicial (2 meses de ventas) | $3.102.740 | 10,8 % |
-| **Inversión inicial total** | **$28.778.513** | **100,0 %** |
+| Inventario inicial (2 meses de ventas) | $3.131.286 | 10,9 % |
+| **Inversión inicial total** | **$28.807.059** | **100,0 %** |
 
 **Tabla 2.4 “Inversión inicial total”**
 
@@ -791,14 +790,14 @@ La partida más grande de la inversión no es un bien físico sino el capital de
 
 ### Financiamiento
 
-La inversión inicial se financia con un crédito bancario de largo plazo que el banco desembolsa por el total, $28.778.513. Para otorgar un crédito de ese tamaño a una empresa sin historial de ventas, el banco exige que los socios comprometan capital propio: un pie de $9.000.000, $4.500.000 por socio, que se abona al banco el mismo día del desembolso como **cuotas pagadas por anticipado**. Ese abono cubre las primeras 22,3 cuotas mensuales del calendario, es decir, todo 2027 y la mayor parte de 2028, los dos ejercicios de arranque en que la empresa todavía no cubre su estructura. Desde ahí la cuota sale de la caja de la operación.
+La inversión inicial se financia con un crédito bancario de largo plazo que el banco desembolsa por el total, $28.807.059. Para otorgar un crédito de ese tamaño a una empresa sin historial de ventas, el banco exige que los socios comprometan capital propio: un pie de $9.000.000, $4.500.000 por socio, que se abona al banco el mismo día del desembolso como **cuotas pagadas por anticipado**. Ese abono cubre las primeras 22,3 cuotas mensuales del calendario, es decir, todo 2027 y la mayor parte de 2028, los dos ejercicios de arranque en que la empresa todavía no cubre su estructura. Desde ahí la cuota sale de la caja de la operación.
 
 El pie, entonces, no se suma a la inversión ni se pierde de vista: es dinero de los socios que paga deuda. Las fuentes del inicio son el crédito y el pie; los usos son la inversión inicial y las cuotas anticipadas. Ambos lados suman lo mismo, de modo que ningún peso se cuenta dos veces, y el pie aparece explícitamente en la tabla de amortización, en el flujo de fondos y en el desembolso inicial con que se calculan el VAN y la TIR.
 
 | Condición | Valor |
 |---|---|
-| Inversión inicial total del proyecto | $28.778.513 |
-| Monto del préstamo (capital), desembolsado íntegro por el banco | $28.778.513 |
+| Inversión inicial total del proyecto | $28.807.059 |
+| Monto del préstamo (capital), desembolsado íntegro por el banco | $28.807.059 |
 | Pie de los socios, con capital propio | $9.000.000 |
 | Aporte por socio (2 socios, partes iguales) | $4.500.000 |
 | Destino del pie | Abono al banco el día del desembolso como cuotas pagadas por anticipado |
@@ -806,17 +805,17 @@ El pie, entonces, no se suma a la inversión ni se pierde de vista: es dinero de
 | Sistema de amortización | Francés: cuota constante, interés decreciente, capital creciente |
 | Tasa de interés | 12 % efectiva anual (0,9489 % mensual) |
 | Plazo | 10 años, 120 cuotas mensuales iguales |
-| Cuota mensual | $402.747 |
-| Total intereses del crédito | $19.551.146 |
-| Total pagado al banco (con el pie incluido) | $48.329.660 |
+| Cuota mensual | $403.147 |
+| Total intereses del crédito | $19.570.539 |
+| Total pagado al banco (con el pie incluido) | $48.377.598 |
 
 **Tabla 2.5 “Condiciones del financiamiento”**
 
 | Fuentes | Monto | Usos | Monto |
 |---|---:|---|---:|
-| Crédito bancario | $28.778.513 | Inversión inicial | $28.778.513 |
+| Crédito bancario | $28.807.059 | Inversión inicial | $28.807.059 |
 | Pie de los socios | $9.000.000 | Cuotas pagadas por anticipado | $9.000.000 |
-| **Total fuentes** | **$37.778.513** | **Total usos** | **$37.778.513** |
+| **Total fuentes** | **$37.807.059** | **Total usos** | **$37.807.059** |
 
 **Tabla 2.6 “Fuentes y usos de los fondos al inicio”**
 
@@ -837,27 +836,27 @@ Antes de fijar esta estructura se compararon las alternativas a las que puede op
 
 El criterio con más peso es la **certeza de obtener los fondos**, porque la empresa compromete arriendo, sueldos y compras de componentes desde el primer mes y no puede condicionar esos compromisos a un resultado que no controla. Ahí está la diferencia decisiva. Los fondos concursables se asignan por concurso, con cupos y convocatorias anuales: no basta con que el proyecto sea bueno para adjudicarlos, y su fecha de resolución no coincide necesariamente con la de inicio de la operación. Capital Semilla Emprende cubre además apenas el 12 % de la inversión y exige postular como persona natural sin inicio de actividades, y Semilla Inicia, aun en su monto máximo, deja sin financiar cerca de la mitad. La garantía FOGAPE, por su parte, la asigna el banco desde su propio cupo y la evalúa con la historia comercial del deudor, que una empresa nueva todavía no tiene.
 
-La decisión, por lo tanto, **no responde a que el proyecto no califique** para estos instrumentos, sino a que los socios no quieren que la puesta en marcha dependa de un beneficio que no está asegurado. Prefieren comprometer su propio capital como pie y ejecutar el proyecto con un financiamiento que pueden asegurar de antemano. Los instrumentos públicos quedan como **escenario favorable, fuera del caso base**: si durante 2027 se adjudicara un fondo concursable, se destinaría a prepagar el crédito, y si el banco ofreciera la garantía FOGAPE, podría rebajar el pie o la tasa. A modo de referencia, un Semilla Inicia por su monto máximo aplicado a reducir el crédito ahorraría $10.190.491 de intereses en los diez años. Ninguna de esas cifras entra en la evaluación, porque un modelo que cuenta con ellas falla precisamente en el escenario en que no llegan.
+La decisión, por lo tanto, **no responde a que el proyecto no califique** para estos instrumentos, sino a que la puesta en marcha no debe depender de un beneficio cuya obtención no está asegurada. Por eso el pie se cubre con capital propio de los fundadores y el proyecto se ejecuta con un financiamiento que puede asegurarse de antemano. Los instrumentos públicos quedan como **escenario favorable, fuera del caso base**: si durante 2027 se adjudicara un fondo concursable, se destinaría a prepagar el crédito, y si el banco ofreciera la garantía FOGAPE, podrían rebajarse el pie o la tasa. A modo de referencia, un Semilla Inicia por su monto máximo, aplicado a reducir el crédito, ahorraría $10.190.491 de intereses en los diez años. Ninguna de esas cifras entra en la evaluación, porque un modelo que cuenta con ellas falla precisamente en el escenario en que no llegan.
 
-Sobre el sistema de amortización: se adopta el **francés**, de cuota constante con interés decreciente y capital creciente, porque es el que la banca chilena aplica al crédito empresarial de largo plazo. La cuota fija facilita además la planificación de caja de una empresa que en sus primeros ejercicios opera con holgura estrecha. La cuota anual, $4.832.966, equivale al 6,2 % de las ventas netas del primer año y al 0,9 % de las del último, de modo que su peso sobre la operación se diluye a medida que el negocio crece.
+Sobre el sistema de amortización: se adopta el **francés**, de cuota constante con interés decreciente y capital creciente, porque es el que la banca chilena aplica al crédito empresarial de largo plazo. La cuota fija facilita además la planificación de caja de una empresa que en sus primeros ejercicios opera con holgura estrecha. La cuota anual, $4.837.760, equivale al 6,2 % de las ventas netas del primer año y al 0,9 % de las del último, de modo que su peso sobre la operación se diluye a medida que el negocio crece.
 
 | Periodo | Saldo inicial | Cuota de capital | Intereses | Cuota total | Pagada con el pie | Pagada por la empresa | Saldo final |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| 2027 | $28.778.513 | $1.639.920 | $3.193.046 | $4.832.966 | $4.832.966 | $0 | $27.138.594 |
-| 2028 | $27.138.594 | $1.836.710 | $2.996.256 | $4.832.966 | $4.167.034 | $665.932 | $25.301.884 |
-| 2029 | $25.301.884 | $2.057.115 | $2.775.851 | $4.832.966 | $0 | $4.832.966 | $23.244.769 |
-| 2030 | $23.244.769 | $2.303.969 | $2.528.997 | $4.832.966 | $0 | $4.832.966 | $20.940.800 |
-| 2031 | $20.940.800 | $2.580.445 | $2.252.521 | $4.832.966 | $0 | $4.832.966 | $18.360.355 |
-| 2032 | $18.360.355 | $2.890.099 | $1.942.867 | $4.832.966 | $0 | $4.832.966 | $15.470.256 |
-| 2033 | $15.470.256 | $3.236.910 | $1.596.056 | $4.832.966 | $0 | $4.832.966 | $12.233.346 |
-| 2034 | $12.233.346 | $3.625.340 | $1.207.626 | $4.832.966 | $0 | $4.832.966 | $8.608.006 |
-| 2035 | $8.608.006 | $4.060.380 | $772.586 | $4.832.966 | $0 | $4.832.966 | $4.547.626 |
-| 2036 | $4.547.626 | $4.547.626 | $285.340 | $4.832.966 | $0 | $4.832.966 | $0 |
-| **Total** | — | **$28.778.513** | **$19.551.146** | **$48.329.660** | **$9.000.000** | **$39.329.660** | — |
+| 2027 | $28.807.059 | $1.641.546 | $3.196.214 | $4.837.760 | $4.837.760 | $0 | $27.165.513 |
+| 2028 | $27.165.513 | $1.838.532 | $2.999.228 | $4.837.760 | $4.162.240 | $675.520 | $25.326.981 |
+| 2029 | $25.326.981 | $2.059.156 | $2.778.604 | $4.837.760 | $0 | $4.837.760 | $23.267.826 |
+| 2030 | $23.267.826 | $2.306.254 | $2.531.506 | $4.837.760 | $0 | $4.837.760 | $20.961.571 |
+| 2031 | $20.961.571 | $2.583.005 | $2.254.755 | $4.837.760 | $0 | $4.837.760 | $18.378.567 |
+| 2032 | $18.378.567 | $2.892.965 | $1.944.795 | $4.837.760 | $0 | $4.837.760 | $15.485.601 |
+| 2033 | $15.485.601 | $3.240.121 | $1.597.639 | $4.837.760 | $0 | $4.837.760 | $12.245.480 |
+| 2034 | $12.245.480 | $3.628.936 | $1.208.824 | $4.837.760 | $0 | $4.837.760 | $8.616.545 |
+| 2035 | $8.616.545 | $4.064.408 | $773.352 | $4.837.760 | $0 | $4.837.760 | $4.552.137 |
+| 2036 | $4.552.137 | $4.552.137 | $285.623 | $4.837.760 | $0 | $4.837.760 | $0 |
+| **Total** | — | **$28.807.059** | **$19.570.539** | **$48.377.598** | **$9.000.000** | **$39.377.598** | — |
 
 **Tabla 2.8 “Tabla de amortización del crédito”**
 
-El crédito se cancela íntegramente dentro del horizonte de evaluación: al cierre de 2036 la deuda es cero. Los $19.551.146 de intereses son el precio del financiamiento y están descontados en el estado de resultados de cada ejercicio, aunque las cuotas de 2027 y de parte de 2028 las haya pagado el pie: el interés es un gasto del año en que se devenga, no del año en que se desembolsa el dinero.
+El crédito se cancela íntegramente dentro del horizonte de evaluación: al cierre de 2036 la deuda es cero. Los $19.570.539 de intereses son el precio del financiamiento y están descontados en el estado de resultados de cada ejercicio, aunque las cuotas de 2027 y de parte de 2028 las haya pagado el pie: el interés es un gasto del año en que se devenga, no del año en que se desembolsa el dinero.
 
 ### Estructura de costos de operación
 
@@ -915,7 +914,7 @@ El primer año la empresa opera desde un taller domiciliario, y los servicios b�
 
 | Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Materiales y costo variable | $23.276.717 | $41.956.283 | $61.735.673 | $82.664.066 | $111.342.139 | $120.349.063 | $130.213.098 | $140.846.936 | $152.296.476 | $164.761.787 |
+| Materiales y costo variable | $23.462.349 | $42.290.883 | $62.228.014 | $83.323.311 | $112.230.090 | $121.308.845 | $131.251.546 | $141.970.189 | $153.511.038 | $166.075.760 |
 | Nómina y cargas | $32.689.140 | $47.103.354 | $68.631.682 | $86.416.053 | $94.672.448 | $110.457.607 | $114.396.445 | $118.203.924 | $135.424.622 | $139.487.361 |
 | Colación y movilización | $5.400.000 | $7.416.000 | $9.548.100 | $11.801.452 | $12.155.495 | $14.606.853 | $15.045.059 | $15.496.411 | $18.241.489 | $18.788.734 |
 | Arriendo de oficina | $0 | $18.540.000 | $19.096.200 | $19.669.086 | $20.259.159 | $20.866.933 | $21.492.941 | $22.137.730 | $22.801.861 | $23.485.917 |
@@ -925,7 +924,7 @@ El primer año la empresa opera desde un taller domiciliario, y los servicios b�
 | Materiales de oficina | $600.000 | $618.000 | $636.540 | $655.636 | $675.305 | $695.564 | $716.431 | $737.924 | $760.062 | $782.864 |
 | Mantención de equipos | $1.200.000 | $1.236.000 | $1.273.080 | $1.311.272 | $1.350.611 | $1.391.129 | $1.432.863 | $1.475.849 | $1.520.124 | $1.565.728 |
 | Publicidad digital | $6.000.000 | $10.815.000 | $15.913.500 | $21.308.176 | $28.700.475 | $31.022.174 | $33.564.810 | $36.305.877 | $39.257.205 | $42.470.367 |
-| **Costo y gasto total** | $74.155.857 | $135.543.536 | $184.929.442 | $232.163.249 | $277.743.263 | $308.234.585 | $325.972.267 | $344.588.588 | $379.967.295 | $401.298.178 |
+| **Costo y gasto total** | $74.341.489 | $135.878.137 | $185.421.784 | $232.822.493 | $278.631.214 | $309.194.367 | $327.010.714 | $345.711.840 | $381.181.857 | $402.612.151 |
 
 **Tabla 3.2 “Costos operacionales, de administración y de comercialización”**
 
@@ -937,95 +936,95 @@ Con la estructura completa de costos ya construida, el precio deja de ser una de
 
 | Concepto | Valor |
 |---|---:|
-| Costo y gasto total de los 10 años | $2.664.596.260 |
+| Costo y gasto total de los 10 años | $2.672.806.047 |
 | Margen de utilidad exigido sobre el costo total | 30 % |
-| Ventas netas necesarias en los 10 años (costo total + 30 %) | $3.463.975.139 |
+| Ventas netas necesarias en los 10 años (costo total + 30 %) | $3.474.647.861 |
 | Equipos vendidos en los 10 años | 7.481 |
 | Equipos ponderados por el reajuste anual del precio (3 %) | 8.845,25 |
-| **Precio neto de venta 2027 (ventas ÷ equipos ponderados)** | **$391.620** |
-| IVA 19 % | $74.408 |
-| **Precio de lista con IVA** | **$466.027** |
+| **Precio neto de venta 2027 (ventas ÷ equipos ponderados)** | **$392.826** |
+| IVA 19 % | $74.637 |
+| **Precio de lista con IVA** | **$467.463** |
 
 **Tabla 3.3 “Determinación del precio de venta”**
 
-El precio de lista resultante es de **$466.027 con IVA**, expresado en pesos de 2027 y reajustado cada año por inflación, igual que los costos; por eso se obtiene dividiendo las ventas necesarias por los equipos ponderados según ese reajuste, y no multiplicando un costo medio por el margen. Conviene explicitar cómo se comporta ese margen en el tiempo: al ser un precio único aplicado sobre una estructura que se diluye con el volumen, los primeros ejercicios quedan por debajo del 30 % objetivo y los últimos por encima, de modo que el margen se cumple sobre el horizonte completo y no ejercicio por ejercicio. Esa es exactamente la razón por la que los años 2027 y 2028 arrojan pérdida: son los años en que se construye la empresa.
+El precio de lista resultante es de **$467.463 con IVA**, expresado en pesos de 2027 y reajustado cada año por inflación, igual que los costos; por eso se obtiene dividiendo las ventas necesarias por los equipos ponderados según ese reajuste, y no multiplicando un costo medio por el margen. Conviene explicitar cómo se comporta ese margen en el tiempo: al ser un precio único aplicado sobre una estructura que se diluye con el volumen, los primeros ejercicios quedan por debajo del 30 % objetivo y los últimos por encima, de modo que el margen se cumple sobre el horizonte completo y no ejercicio por ejercicio. Esa es exactamente la razón por la que los años 2027 y 2028 arrojan pérdida: son los años en que se construye la empresa.
 
-Este resultado define el posicionamiento competitivo. A $466.027, TerraSense queda por encima del precio de un medidor básico de importación como el Hanna HI9814 (US$294) o el Bluelab Pulse (US$339). **El argumento no es de etiqueta sino de capacidad y de costo de uso**: TerraSense entrega 7 variables de suelo más 3 ambientales con interpretación agronómica y mediciones ilimitadas sin costo marginal, frente a 3 o 4 variables sin interpretación de los equipos comparados, y cuesta menos que dos años y medio de análisis de laboratorio al ritmo habitual de cuatro muestras por año.
+Este resultado define el posicionamiento competitivo. A $467.463, TerraSense queda por encima del precio de un medidor básico de importación como el Hanna HI9814 (US$294) o el Bluelab Pulse (US$339). **El argumento no es de etiqueta sino de capacidad y de costo de uso**: TerraSense entrega 7 variables de suelo más 3 ambientales con interpretación agronómica y mediciones ilimitadas sin costo marginal, frente a 3 o 4 variables sin interpretación de los equipos comparados, y cuesta menos que dos años y medio de análisis de laboratorio al ritmo habitual de cuatro muestras por año.
 
 ### Estado de resultados proyectado
 
 | Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| (+) Ventas netas | $78.323.938 | $141.178.897 | $207.734.663 | $278.156.714 | $374.655.697 | $404.963.140 | $438.154.681 | $473.936.534 | $512.463.143 | $554.407.731 |
-| (-) Costos operacionales | $23.276.717 | $41.956.283 | $61.735.673 | $82.664.066 | $111.342.139 | $120.349.063 | $130.213.098 | $140.846.936 | $152.296.476 | $164.761.787 |
+| (+) Ventas netas | $78.565.258 | $141.613.878 | $208.374.707 | $279.013.732 | $375.810.035 | $406.210.856 | $439.504.663 | $475.396.762 | $514.042.074 | $556.115.895 |
+| (-) Costos operacionales | $23.462.349 | $42.290.883 | $62.228.014 | $83.323.311 | $112.230.090 | $121.308.845 | $131.251.546 | $141.970.189 | $153.511.038 | $166.075.760 |
 | (-) Gastos de estructura | $50.879.140 | $93.587.254 | $123.193.769 | $149.499.182 | $166.401.124 | $187.885.523 | $195.759.168 | $203.741.652 | $227.670.820 | $236.536.391 |
 | (-) Depreciación | $1.186.198 | $1.186.198 | $1.186.198 | $1.186.198 | $1.186.198 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 |
 | (-) Amortización del activo nominal | $1.405.000 | $1.405.000 | $1.405.000 | $1.405.000 | $1.405.000 | $0 | $0 | $0 | $0 | $0 |
-| (-) Costo financiero (intereses) | $3.193.046 | $2.996.256 | $2.775.851 | $2.528.997 | $2.252.521 | $1.942.867 | $1.596.056 | $1.207.626 | $772.586 | $285.340 |
-| **(=) Utilidad antes de impuesto** | $-1.616.164 | $47.907 | $17.438.172 | $40.873.271 | $92.068.717 | $93.410.559 | $109.211.231 | $126.765.191 | $130.348.134 | $151.449.085 |
-| (-) Impuesto a la renta | $0 | $0 | $3.967.479 | $10.218.318 | $23.017.179 | $23.352.640 | $27.302.808 | $31.691.298 | $32.587.034 | $37.862.271 |
-| **(=) Utilidad del ejercicio** | $-1.616.164 | $47.907 | $13.470.693 | $30.654.953 | $69.051.537 | $70.057.919 | $81.908.423 | $95.073.894 | $97.761.101 | $113.586.814 |
+| (-) Costo financiero (intereses) | $3.196.214 | $2.999.228 | $2.778.604 | $2.531.506 | $2.254.755 | $1.944.795 | $1.597.639 | $1.208.824 | $773.352 | $285.623 |
+| **(=) Utilidad antes de impuesto** | $-1.563.641 | $145.316 | $17.583.121 | $41.068.536 | $92.332.868 | $93.696.566 | $109.521.182 | $127.100.969 | $130.711.736 | $151.842.994 |
+| (-) Impuesto a la renta | $0 | $0 | $4.041.199 | $10.267.134 | $23.083.217 | $23.424.142 | $27.380.296 | $31.775.242 | $32.677.934 | $37.960.748 |
+| **(=) Utilidad del ejercicio** | $-1.563.641 | $145.316 | $13.541.922 | $30.801.402 | $69.249.651 | $70.272.425 | $82.140.887 | $95.325.727 | $98.033.802 | $113.882.245 |
 
 **Tabla 3.4 “Estado de resultados proyectado”**
 
-El primer ejercicio cierra con una pérdida de $1.616.164 y el segundo con $47.907. No es un defecto del modelo sino su hallazgo más útil: con 200 equipos vendidos, la estructura mínima que exige operar formalmente —dos socios, un contador, cotizaciones, servicios digitales y publicidad— no se cubre todavía. A partir de 2029 el resultado es positivo y creciente.
+El primer ejercicio cierra con una pérdida de $1.563.641 y el segundo con $145.316. No es un defecto del modelo sino su hallazgo más útil: con 200 equipos vendidos, la estructura mínima que exige operar formalmente —dos socios, un contador, cotizaciones, servicios digitales y publicidad— no se cubre todavía. A partir de 2029 el resultado es positivo y creciente.
 
-El impuesto a la renta se calcula bajo el régimen Pro Pyme [18], con las tasas de 12,5 % en 2027, 15 % en 2028 y 25 % desde 2029, y con arrastre de pérdidas: los $1.568.256 perdidos en los dos primeros ejercicios se descuentan de la base imponible de 2029, que por eso tributa sobre una utilidad menor que la contable. La depreciación y la amortización reducen el impuesto sin ser salidas de dinero, y por esa razón se suman de vuelta en el flujo de fondos.
+El impuesto a la renta se calcula bajo el régimen Pro Pyme [18], con las tasas de 12,5 % en 2027, 15 % en 2028 y 25 % desde 2029, y con arrastre de pérdidas: los $1.418.326 perdidos en los dos primeros ejercicios se descuentan de la base imponible de 2029, que por eso tributa sobre una utilidad menor que la contable. La depreciación y la amortización reducen el impuesto sin ser salidas de dinero, y por esa razón se suman de vuelta en el flujo de fondos.
 
 ### Flujo de fondos y evaluación
 
 | Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Utilidad del ejercicio | $-1.616.164 | $47.907 | $13.470.693 | $30.654.953 | $69.051.537 | $70.057.919 | $81.908.423 | $95.073.894 | $97.761.101 | $113.586.814 |
+| Utilidad del ejercicio | $-1.563.641 | $145.316 | $13.541.922 | $30.801.402 | $69.249.651 | $70.272.425 | $82.140.887 | $95.325.727 | $98.033.802 | $113.882.245 |
 | (+) Depreciación y amortización | $2.591.198 | $2.591.198 | $2.591.198 | $2.591.198 | $2.591.198 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 |
-| (-) Cuota de capital del préstamo | $1.639.920 | $1.836.710 | $2.057.115 | $2.303.969 | $2.580.445 | $2.890.099 | $3.236.910 | $3.625.340 | $4.060.380 | $4.547.626 |
+| (-) Cuota de capital del préstamo | $1.641.546 | $1.838.532 | $2.059.156 | $2.306.254 | $2.583.005 | $2.892.965 | $3.240.121 | $3.628.936 | $4.064.408 | $4.552.137 |
 | (-) Reinversión en activo fijo | $0 | $0 | $0 | $0 | $0 | $6.875.641 | $0 | $0 | $0 | $0 |
-| (+) Cuota ya pagada con el pie | $4.832.966 | $4.167.034 | $0 | $0 | $0 | $0 | $0 | $0 | $0 | $0 |
-| **(=) Flujo de fondos** | $4.168.080 | $4.969.429 | $14.004.776 | $30.942.182 | $69.062.290 | $61.667.308 | $80.046.641 | $92.823.682 | $95.075.848 | $110.414.316 |
-| Caja acumulada | $16.887.865 | $21.857.295 | $35.862.070 | $66.804.252 | $135.866.542 | $197.533.850 | $277.580.491 | $370.404.173 | $465.480.021 | $575.894.337 |
+| (+) Cuota ya pagada con el pie | $4.837.760 | $4.162.240 | $0 | $0 | $0 | $0 | $0 | $0 | $0 | $0 |
+| **(=) Flujo de fondos** | $4.223.770 | $5.060.222 | $14.073.965 | $31.086.345 | $69.257.844 | $61.878.947 | $80.275.894 | $93.071.919 | $95.344.523 | $110.705.236 |
+| Caja acumulada | $16.943.555 | $22.003.777 | $36.077.741 | $67.164.086 | $136.421.930 | $198.300.877 | $278.576.770 | $371.648.690 | $466.993.213 | $577.698.449 |
 
 **Tabla 3.5 “Flujo de fondos para la evaluación del proyecto”**
 
-El flujo de fondos parte de la utilidad, le devuelve la depreciación y la amortización que no son salidas de caja, y le descuenta lo que sí sale de la empresa sin pasar por resultados: el capital del préstamo y, en 2032, la renovación del activo fijo. Le devuelve además la parte de la cuota que el pie ya pagó por anticipado en 2027 y 2028, porque ese dinero salió al inicio y no vuelve a salir de la caja. La caja nunca baja de $16.887.865, que ocurre en 2027.
+El flujo de fondos parte de la utilidad, le devuelve la depreciación y la amortización que no son salidas de caja, y le descuenta lo que sí sale de la empresa sin pasar por resultados: el capital del préstamo y, en 2032, la renovación del activo fijo. Le devuelve además la parte de la cuota que el pie ya pagó por anticipado en 2027 y 2028, porque ese dinero salió al inicio y no vuelve a salir de la caja. La caja nunca baja de $16.943.555, que ocurre en 2027.
 
 | Indicador | Valor | Criterio | Veredicto |
 |---|---:|---|---|
-| Desembolso inicial evaluado (inversión $28.778.513 + pie $9.000.000) | $37.778.513 | — | — |
-| VAN al 20 % | $120.765.535 | VAN > 0 | Cumple |
-| TIR efectiva anual | 53,37 % | TIR > 20 % | Cumple |
+| Desembolso inicial evaluado (inversión $28.807.059 + pie $9.000.000) | $37.807.059 | — | — |
+| VAN al 20 % | $121.326.245 | VAN > 0 | Cumple |
+| TIR efectiva anual | 53,50 % | TIR > 20 % | Cumple |
 | Payback simple | 3,47 años | ≤ 5 años | Cumple |
 | Payback descontado al 20 % | 4,28 años | ≤ 5 años | Cumple |
-| Caja mínima del horizonte | $16.887.865 | > 0 | Cumple |
+| Caja mínima del horizonte | $16.943.555 | > 0 | Cumple |
 | Deuda al cierre del horizonte | $0 | Crédito saldado | Cumple |
 
 **Tabla 3.6 “Evaluación económica”**
 
-Todos los indicadores cumplen su criterio. El VAN de $120.765.535 indica excedente económico después de remunerar el capital al 20 % anual; la TIR de 53,37 % supera esa exigencia en 33,37 puntos porcentuales; y el desembolso inicial, que suma la inversión y el pie, se recupera en 3,47 años nominales o 4,28 descontados, dentro del plazo de cinco años que el proyecto se fijó como criterio.
+Todos los indicadores cumplen su criterio. El VAN de $121.326.245 indica excedente económico después de remunerar el capital al 20 % anual; la TIR de 53,50 % supera esa exigencia en 33,50 puntos porcentuales; y el desembolso inicial, que suma la inversión y el pie, se recupera en 3,46 años nominales o 4,27 descontados, dentro del plazo de cinco años que el proyecto se fijó como criterio.
 
 La evaluación principal es a diez años porque es el plazo del crédito y porque el equipo tiene una vida comercial que excede el lustro. La comparación con un horizonte de cinco años muestra qué parte del resultado depende de esa elección:
 
 | Indicador | A 5 años (2027–2031) | A 10 años (2027–2036) |
 |---|---:|---:|
-| VAN al 20 % | $19.927.043 | $120.765.535 |
-| TIR efectiva anual | 33,54 % | 53,37 % |
-| Caja acumulada al cierre | $135.866.542 | $575.894.337 |
-| Deuda bancaria pendiente al cierre | $18.360.355 | $0 |
+| VAN al 20 % | $20.196.108 | $121.326.245 |
+| TIR efectiva anual | 33,71 % | 53,50 % |
+| Caja acumulada al cierre | $136.421.930 | $577.698.449 |
+| Deuda bancaria pendiente al cierre | $18.378.567 | $0 |
 
 **Tabla 3.7 “Comparación del horizonte de evaluación: cinco y diez años”**
 
-A cinco años el proyecto ya crea valor, con un VAN de $19.927.043, pero conserva una deuda bancaria de $18.360.355 que a diez años está saldada. El grueso del VAN se genera en la segunda mitad del horizonte, cuando la estructura ya está pagada y cada venta adicional aporta casi todo su margen de contribución: evaluar a cinco años subestimaría el negocio, pero no cambiaría la decisión.
+A cinco años el proyecto ya crea valor, con un VAN de $20.196.108, pero conserva una deuda bancaria de $18.378.567 que a diez años está saldada. El grueso del VAN se genera en la segunda mitad del horizonte, cuando la estructura ya está pagada y cada venta adicional aporta casi todo su margen de contribución: evaluar a cinco años subestimaría el negocio, pero no cambiaría la decisión.
 
 | Tasa efectiva anual | VAN | Interpretación |
 |---:|---:|---|
-| 5 % | $357.167.699 | Positivo |
-| 8 % | $285.626.653 | Positivo |
-| 10 % | $246.735.830 | Positivo |
-| 15 % | $172.255.754 | Positivo |
-| 20 % | $120.765.535 | Positivo |
-| 30 % | $58.063.701 | Positivo |
-| 40 % | $24.225.755 | Positivo |
-| 50 % | $4.673.601 | Positivo |
-| TIR: 53,37 % | $0 | VAN aproximadamente cero |
+| 5 % | $358.446.796 | Positivo |
+| 8 % | $286.691.898 | Positivo |
+| 10 % | $247.683.837 | Positivo |
+| 15 % | $172.976.546 | Positivo |
+| 20 % | $121.326.245 | Positivo |
+| 30 % | $58.423.605 | Positivo |
+| 40 % | $24.472.150 | Positivo |
+| 50 % | $4.850.981 | Positivo |
+| TIR: 53,50 % | $0 | VAN aproximadamente cero |
 
 **Tabla 3.8 “VAN ante distintas tasas de descuento”**
 
@@ -1037,25 +1036,25 @@ Para verificar la robustez del resultado se recalculó el proyecto modificando u
 
 | Caso | Precio de lista | Utilidad del año 1 | VAN a 10 años | TIR | Caja mínima |
 |---|---:|---:|---:|---:|---:|
-| Caso base | $466.027 | $-1.616.164 | $120.765.535 | 53,4 % | $16.887.865 |
-| Ventas -10 % | $466.027 | $-6.486.460 | $67.599.303 | 39,6 % | $8.216.024 |
-| Ventas -25 % | $466.027 | $-13.791.905 | $-14.101.162 | 15,4 % | $-28.912.395 |
-| Ventas -35 % | $466.027 | $-18.662.201 | $-72.394.692 | -6,1 % | $-72.891.832 |
-| Ventas +20 % | $466.027 | $7.108.875 | $227.620.186 | 78,5 % | $25.681.756 |
-| BOM +15 % | $466.027 | $-4.276.940 | $91.616.324 | 45,7 % | $14.275.399 |
-| BOM +30 % | $466.027 | $-6.937.716 | $62.156.010 | 37,8 % | $6.921.934 |
-| Precio rebajado a $439.990 (−5,6 %) | $439.990 | $-5.731.828 | $75.785.328 | 41,7 % | $10.323.146 |
-| Precio rebajado a $419.990 (−9,9 %) | $419.990 | $-8.893.172 | $40.764.257 | 32,1 % | $135.287 |
-| Precio rebajado a $399.990 (−14,2 %) | $399.990 | $-12.054.517 | $5.347.799 | 21,7 % | $-17.109.058 |
-| Precio rebajado a $369.990 (−20,6 %) | $369.990 | $-16.796.534 | $-49.674.254 | 3,0 % | $-55.726.075 |
+| Caso base | $467.463 | $-1.563.641 | $121.326.245 | 53,5 % | $16.943.555 |
+| Ventas -10 % | $467.463 | $-6.439.190 | $68.110.355 | 39,7 % | $8.347.858 |
+| Ventas -25 % | $467.463 | $-13.752.513 | $-13.658.373 | 15,6 % | $-28.550.609 |
+| Ventas -35 % | $467.463 | $-18.628.061 | $-71.970.001 | -5,9 % | $-72.578.300 |
+| Ventas +20 % | $467.463 | $7.164.024 | $228.300.299 | 78,6 % | $25.740.705 |
+| BOM +15 % | $467.463 | $-4.250.584 | $91.890.381 | 45,8 % | $14.305.397 |
+| BOM +30 % | $467.463 | $-6.937.526 | $62.143.703 | 37,8 % | $6.921.542 |
+| Precio rebajado a $439.990 (−5,9 %) | $439.990 | $-5.906.268 | $73.851.568 | 41,2 % | $9.833.566 |
+| Precio rebajado a $419.990 (−10,2 %) | $419.990 | $-9.067.612 | $38.799.274 | 31,5 % | $-813.346 |
+| Precio rebajado a $399.990 (−14,4 %) | $399.990 | $-12.228.957 | $3.382.816 | 21,1 % | $-18.057.690 |
+| Precio rebajado a $369.990 (−20,9 %) | $369.990 | $-16.970.974 | $-51.773.645 | 2,3 % | $-57.287.753 |
 
 **Tabla 3.9 “Análisis de sensibilidad y punto de quiebre”**
 
 Tres lecturas se desprenden de la tabla:
 
-- **El punto de quiebre del volumen está entre una caída del 10 % y una del 25 % en las ventas.** Con −10 % el VAN sigue positivo en $67.599.303 y la caja mínima se mantiene en $8.216.024; con −25 % el VAN cae a $-14.101.162 y la caja a $-28.912.395, de modo que una caída de esa magnitud destruye a la vez valor y liquidez. Las cuotas que el pie dejó pagadas en los dos primeros años son las que sostienen la caja en el escenario de −10 %.
-- **El costo de materiales admite desviación.** Un alza del 15 % en la BOM deja el VAN en $91.616.324 y la caja mínima en $14.275.399; a +30 % el VAN sigue siendo de $62.156.010 y la caja mínima baja a $6.921.934. El margen resiste, pero confirma que la cotización de la sonda no admite descuido.
-- **El precio no admite rebaja.** Con el financiamiento dimensionado, la caja se vuelve negativa con cualquier precio de lista inferior a $419.833, apenas un 9,9 % bajo el precio calculado, y el proyecto deja de crear valor bajo $396.986. Ese resultado confirma que el precio debe derivarse del costo y no fijarse por aspiración comercial: un precio elegido para parecer competitivo, sin mirar la estructura, deja a la empresa sin caja en su tercer año.
+- **El punto de quiebre del volumen está entre una caída del 10 % y una del 25 % en las ventas.** Con −10 % el VAN sigue positivo en $68.110.355 y la caja mínima se mantiene en $8.347.858; con −25 % el VAN cae a $-13.658.373 y la caja a $-28.550.609, de modo que una caída de esa magnitud destruye a la vez valor y liquidez. Las cuotas que el pie dejó pagadas en los dos primeros años son las que sostienen la caja en el escenario de −10 %.
+- **El costo de materiales admite desviación.** Un alza del 15 % en la BOM deja el VAN en $91.890.381 y la caja mínima en $14.305.397; a +30 % el VAN sigue siendo de $62.143.703 y la caja mínima baja a $6.921.542. El margen resiste, pero confirma que la cotización de la sonda no admite descuido.
+- **El precio no admite rebaja.** Con el financiamiento dimensionado, la caja se vuelve negativa con cualquier precio de lista inferior a $420.933, apenas un 10,0 % bajo el precio calculado, y el proyecto deja de crear valor bajo $398.095. Ese resultado confirma que el precio debe derivarse del costo y no fijarse por aspiración comercial: un precio elegido para parecer competitivo, sin mirar la estructura, deja a la empresa sin caja en su tercer año.
 
 ### Costo total de propiedad para el agricultor
 
@@ -1063,7 +1062,7 @@ La pregunta que un agricultor se hace antes de comprar no es cuánto cuesta el i
 
 | Alternativa | Intensidad | Año 1 | Acumulado a 3 años | Acumulado a 5 años | Acumulado a 10 años |
 |---|---|---:|---:|---:|---:|
-| TerraSense (equipo, kit de batería en los años 3 y 8, segundo equipo en el año 6) | Mediciones ilimitadas | $466.027 | $491.017 | $491.017 | $982.035 |
+| TerraSense (equipo, kit de batería en los años 3 y 8, segundo equipo en el año 6) | Mediciones ilimitadas | $467.463 | $492.453 | $492.453 | $984.907 |
 | Análisis de laboratorio (S1) | Uso habitual: 4 muestras/año | $200.000 | $600.000 | $1.000.000 | $2.000.000 |
 | Análisis de laboratorio (S1) | Uso intensivo: 20 muestras/año | $1.000.000 | $3.000.000 | $5.000.000 | $10.000.000 |
 | Asesoría agronómica externa (S2) | Uso habitual: 2 visitas/año | $120.000 | $360.000 | $600.000 | $1.200.000 |
@@ -1073,27 +1072,27 @@ La pregunta que un agricultor se hace antes de comprar no es cuánto cuesta el i
 
 Los valores S1 y S2 son supuestos de mercado declarados, no referencias bibliográficas, y figuran como tales en la tabla de supuestos de mercado al final del capítulo.
 
-Bajo la intensidad habitual, que es el caso base, el instrumento **no se paga el primer año**: $466.027 de compra frente a $200.000 de laboratorio. Frente al laboratorio el cruce ocurre en el año 3 y la ventaja se mantiene hasta el final: a diez años la diferencia es de $2.000.000 contra $982.035, 2,0 veces. Frente a la asesoría habitual el resultado es más estrecho y no es monótono: TerraSense pasa adelante en el año 5, la compra del segundo equipo en el año 6 lo deja atrás durante 3 años, y recupera la ventaja en el año 9, para cerrar la década con una diferencia de 1,2 veces. Bajo uso intensivo las distancias se abren a 10,2 y 7,3 veces respectivamente.
+Bajo la intensidad habitual, que es el caso base, el instrumento **no se paga el primer año**: $467.463 de compra frente a $200.000 de laboratorio. Frente al laboratorio el cruce ocurre en el año 3 y la ventaja se mantiene hasta el final: a diez años la diferencia es de $2.000.000 contra $984.907, 2,0 veces. Frente a la asesoría habitual el resultado es más estrecho y no es monótono: TerraSense pasa adelante en el año 5, la compra del segundo equipo en el año 6 lo deja atrás durante 3 años, y recupera la ventaja en el año 9, para cerrar la década con una diferencia de 1,2 veces. Bajo uso intensivo las distancias se abren a 10,2 y 7,3 veces respectivamente.
 
-El argumento estructural, en todo caso, no depende del precio: **el costo marginal de cada medición adicional es cero**. Un agricultor que tome cien mediciones al año acumula mil en diez años, de modo que cada una le cuesta $982 frente a los $50.000 de una muestra de laboratorio. El laboratorio y la asesoría conservan íntegramente su función en las determinaciones químicas que el instrumento no reemplaza; lo que el instrumento resuelve es el seguimiento rutinario entre temporadas, que hoy no tiene herramienta.
+El argumento estructural, en todo caso, no depende del precio: **el costo marginal de cada medición adicional es cero**. Un agricultor que tome cien mediciones al año acumula mil en diez años, de modo que cada una le cuesta $985 frente a los $50.000 de una muestra de laboratorio. El laboratorio y la asesoría conservan íntegramente su función en las determinaciones químicas que el instrumento no reemplaza; lo que el instrumento resuelve es el seguimiento rutinario entre temporadas, que hoy no tiene herramienta.
 
 ### Especificaciones Técnicas del Proyecto
 
 Arquitectura General y Estrategia de Hardware: El diseño de hardware se articula en torno a una topología de bajo consumo, orientada a maximizar la autonomía del equipo en jornadas de terreno. La arquitectura separa lógicamente el sistema en un dominio de control digital (siempre energizado, pero capaz de entrar en reposo profundo) y un dominio de potencia analógico/periférico que se aísla mediante power gating cuando no está en ciclo de medición.
 
-La fuente de energía primaria es una celda LiPo protegida de 2.000 mAh a 3,7 V nominales, equivalente a una energía de referencia de aproximadamente 7,4 Wh. Antes de llegar a cualquier otro circuito, la celda pasa por un fusible de 1 A y un diodo de protección contra inversión de polaridad: si la batería se conecta al revés, el diodo conduce y el fusible corta, de modo que ninguno de los dos protege por sí solo. Un puente soldable en serie permite además intercalar un amperímetro para medir en banco el consumo real del equipo. Desde ese punto derivan cuatro ramas:
+La fuente de energía primaria es una celda LiPo protegida de 2.000 mAh a 3,7 V nominales, equivalente a una energía de referencia de aproximadamente 7,4 Wh. Antes de llegar a cualquier otro circuito, la celda pasa por un fusible rearmable (PTC) de 1 A y un diodo de protección contra inversión de polaridad: si la batería se conecta al revés, el diodo conduce y el PTC se abre, de modo que ninguno de los dos protege por sí solo. Un puente soldable en serie permite además intercalar un amperímetro para medir en banco el consumo real del equipo. Desde ese punto derivan cuatro ramas:
 
-- Rama de Carga y Elevación: un módulo combinado USB-C carga la celda con sus protecciones (sobrecarga, sobredescarga y cortocircuito) y eleva su tensión a 5 V. Esa salida alimenta todo el equipo a través del interruptor mecánico de encendido, que corta la salida del módulo y no la celda: así el equipo puede cargarse estando apagado.
+- Rama de Carga: el cargador lineal TP4056 carga la celda desde el puerto USB-C con 444 mA, la corriente que fija su resistencia de programación, y un termistor adosado a la celda limita la carga a la ventana de 0 a 45 °C; la celda trae además su propio circuito de protección contra sobrecarga, sobredescarga y cortocircuito. Una ruta de carga, formada por un P-MOSFET y un diodo Schottky, alimenta el sistema desde el USB mientras carga y desde la celda en terreno. El interruptor mecánico corta la entrada del sistema y no la celda: así el equipo puede cargarse estando apagado.
 
-- Rama de Control: la placa de desarrollo ESP32 recibe los 5 V en su entrada y los reduce a 3,3 V con su propio regulador lineal, del que se alimentan también el sensor ambiental y el transceptor RS-485. Ese regulador y el LED de alimentación de la placa consumen del orden de 6 mA mientras el equipo está encendido, aunque el microcontrolador esté en reposo, y por eso la autonomía se gestiona apagando el equipo entre jornadas y no con el reposo profundo del microcontrolador.
+- Rama de Control: el regulador lineal de baja caída (LDO) RT9080 entrega 3,3 V al módulo ESP32-WROOM-32D, al sensor ambiental y al transceptor RS-485, tomando la energía directamente de la celda. Su corriente propia es de unos 2 µA, del orden de la de los reguladores de reposo bajo como el HT7533 [22], de modo que el reposo del microcontrolador se traduce en ahorro real; el puente USB-serie CH340C sólo se alimenta cuando hay un cable conectado.
 
-- Rama de Medición Conmutada: un par de transistores MOSFET, uno de canal P en serie con la alimentación de la sonda y uno de canal N gobernado por el microcontrolador, entrega los 5 V a la sonda de suelo RS-485 solo durante la lectura.
+- Rama de Medición Conmutada: el elevador MT3608 lleva la tensión a 5 V sólo durante la lectura, habilitado por el microcontrolador, y un par de transistores MOSFET, uno de canal P en serie con su salida y uno de canal N de mando, entrega esos 5 V a la sonda de suelo RS-485. El corte por MOSFET es necesario porque el elevador apagado no desconecta su salida.
 
 - Rama de Interfaz: tres LED indicadores gobernados por el microcontrolador y un divisor resistivo de 100 kΩ + 100 kΩ, conectado a la celda después de sus protecciones, que entrega la mitad de la tensión de batería, entre 1,5 y 2,1 V, a una entrada analógica del ESP32.
 
-El divisor drena de forma permanente 18,5 µA (I = V/R = 3,7 V / 200 kΩ), incluso con el equipo apagado. El valor se adopta por dos razones. La primera es de medición: el conversor analógico del ESP32 muestrea cargando un condensador interno, y una fuente de alta impedancia, como un divisor de 1 MΩ + 1 MΩ, entrega lecturas más ruidosas y lentas de estabilizar; con 100 kΩ la lectura es estable sin componentes adicionales. La segunda es de proporción: en esta placa el drenaje del divisor es menor que el consumo en vacío del módulo de carga y elevación, de modo que reducirlo diez veces solo alargaría la autonomía en un 1,5 %. Las resistencias se montan en encapsulado 1206, la misma huella que admite valores de 1 MΩ: si una revisión posterior reduce el resto del consumo en apagado hasta que el divisor pese, el cambio se resuelve reemplazando dos resistencias, sin rediseñar la placa.
+El divisor drena de forma permanente 18,5 µA (I = V/R = 3,7 V / 200 kΩ), incluso con el equipo apagado. El valor se adopta por dos razones. La primera es de medición: el conversor analógico del ESP32 muestrea cargando un condensador interno, y una fuente de alta impedancia, como un divisor de 1 MΩ + 1 MΩ, entrega lecturas más ruidosas y lentas de estabilizar; con 100 kΩ la lectura es estable sin componentes adicionales. La segunda es de proporción: aunque con el equipo apagado el divisor es el mayor consumo que queda conectado a la celda, la energía de una carga la decide el tiempo encendido, y reducirlo diez veces sólo alargaría la autonomía en uso habitual un 3,2 %. Las resistencias se montan en encapsulado 1206, la misma huella que admite valores de 1 MΩ: si el uso real mostrara que el equipo pasa más tiempo apagado que lo supuesto, el cambio se resuelve reemplazando dos resistencias, sin rediseñar la placa.
 
-La carga y la elevación de tensión se resuelven mediante una PCB combinada USB-C de carga y boost, integrada como un único componente. Concentrar ambas funciones en un solo módulo reduce el número de referencias de la BOM, el área de placa portadora y los puntos de soldadura del ensamblaje, sin renunciar a las protecciones de sobrecarga, sobredescarga y cortocircuito que exige la celda de litio.
+La carga, la regulación y la elevación se resuelven con circuitos integrados soldados directamente en la placa, y no con módulos comerciales: así cada función queda bajo control del diseño (corriente de carga, ventana de temperatura, habilitación del elevador y corriente propia del regulador) y la lista de materiales se abastece en volumen desde el catálogo del fabricante de la placa. Un integrado combinado de carga y elevación, como el IP5306 [21], reduciría el número de piezas, pero mantiene una corriente de reposo propia y deja menos control sobre la corriente de carga y sobre la habilitación de la salida de 5 V.
 
 ### Sistema de Procesamiento y Conectividad
 
@@ -1106,14 +1105,14 @@ El núcleo del procesamiento recae en el módulo ESP32-WROOM-32 [19]. La elecci�
 | Memoria | 520 KB SRAM interna / 4 MB Flash SPI (particiones OTA duales) |
 | Conectividad | Wi-Fi 802.11 b/g/n + Bluetooth 4.2 (BR/EDR y BLE) |
 | Consumo Dinámico | 95–380 mA (dependiente del estado del transceptor de radio); transmisión BLE en el orden de 130–150 mA |
-| Consumo Deep-Sleep | 10 µA del módulo reteniendo RTC y memoria RTC / 5 µA en hibernación. No incluye el regulador, el LED de alimentación ni el puente USB-UART de la placa de desarrollo |
+| Consumo Deep-Sleep | 10 µA del módulo reteniendo RTC y memoria RTC / 5 µA en hibernación; en la placa se suman unos 2 µA del LDO, y el puente USB-serie no consume sin cable |
 | Certificación RF | Módulo pre-certificado FCC ID 2AC7Z-ESPWROOM32 |
 
 **Tabla 4.1 “Especificaciones Técnicas ESP32”**
 
 El rango de 95 a 380 mA describe el consumo del módulo medido en su propio pin de alimentación de 3,3 V, no el consumo del sistema completo: el extremo inferior corresponde a CPU activa con radio en reposo (el estado que domina durante la fase de adquisición Modbus) y el extremo superior a un pico instantáneo de transmisión Wi-Fi a máxima potencia, que este proyecto no utiliza porque toda la comunicación con el teléfono ocurre por BLE. Durante el advertising BLE de bajo duty cycle, el consumo promedio del módulo es menor que ese piso de 95 mA porque la radio se activa en pulsos breves y espaciados; el valor de 40 mA usado en la Fase 1 del ciclo de medición corresponde a ese promedio y no contradice el rango declarado, que describe el consumo en los instantes en que el núcleo de radio está activo.
 
-La última fila de la tabla es una cifra del módulo y no del equipo. La BOM adquiere una placa de desarrollo que mantiene alimentados su regulador y su LED de alimentación mientras recibe tensión, con un consumo propio del orden de 6 mA [48, 49], varios cientos de veces el reposo profundo del módulo. En esta placa, por lo tanto, la herramienta de ahorro no es el reposo profundo sino el interruptor, que corta la alimentación de la placa completa; la sección de gestión energética cuantifica el efecto.
+La última fila de la tabla es una cifra del módulo, pero en la placa del instrumento queda muy cerca de la cifra del equipo: el regulador consume unos 2 µA y el puente USB-serie sólo funciona con cable. Por eso el reposo profundo es una herramienta de ahorro real, que se suma al interruptor; la sección de gestión energética cuantifica ambos.
 
 ### Adquisición de Datos y Sensado
 
@@ -1133,7 +1132,7 @@ La última fila de la tabla es una cifra del módulo y no del equipo. La BOM adq
 
 Estas cifras provienen del manual del fabricante del modelo adquirido, la ComWinTop CWT-Soil-NPKPHCTH-S [20], y se declaran en condiciones de laboratorio. La distinción no es formal: el protocolo de validación de este informe fija su criterio de aceptación sobre umbrales agronómicos propios porque la exactitud del fabricante no está verificada en suelo real.
 
-El manual del fabricante fija la alimentación de la sonda entre 4,5 y 30 V DC [20]; dentro de ese rango, el proyecto opera la sonda en su extremo inferior (5 V, entregados por el elevador de tensión descrito más adelante) porque coincide con la tensión que el mismo elevador ya entrega a la placa de control y evita añadir un segundo convertidor. Esta decisión se declara explícitamente como una condición de diseño a validar en banco con la muestra adquirida, dado que otras sondas 7-en-1 sólo alcanzan su exactitud declarada operando a 12 V o más; si la validación en laboratorio mostrara desviación en la lectura al operar a 5 V, la contingencia de diseño es agregar un elevador de 12 V dedicado a la sonda, detrás del mismo corte por MOSFET, lo que no altera la arquitectura general pero sí el consumo de la Rama de Medición Conmutada.
+El manual del fabricante fija la alimentación de la sonda entre 4,5 y 30 V DC [20]; dentro de ese rango, el proyecto opera la sonda en su extremo inferior (5 V, entregados por el elevador de tensión descrito más adelante) porque es la tensión que entrega el elevador de la placa sin componentes adicionales y queda dentro del rango del fabricante. Esta decisión se declara explícitamente como una condición de diseño a validar en banco con la muestra adquirida, dado que otras sondas 7-en-1 sólo alcanzan su exactitud declarada operando a 12 V o más; si la validación en laboratorio mostrara desviación en la lectura al operar a 5 V, la contingencia de diseño es agregar un elevador de 12 V dedicado a la sonda, detrás del mismo corte por MOSFET, lo que no altera la arquitectura general pero sí el consumo de la Rama de Medición Conmutada.
 
 Conviene además declarar el supuesto con que se estima el consumo de la sonda, porque no se lee directamente de ninguna ficha. El manual del fabricante sólo declara el máximo, 0,5 W a 24 V [20], y la ficha de una sonda equivalente entrega 0,15 W a 12 V [50], de modo que la potencia no es constante con la tensión de alimentación. El balance energético de este informe adopta, a falta de dato a 5 V, un supuesto de potencia constante de 150 mW en el extremo inferior del rango, equivalente a 30 mA a 5 V. Ese supuesto se declara aquí como tal y figura entre las mediciones de banco que el plan de trabajo ejecuta antes de comprometer el volumen de compra. Su peso en el resultado es acotado, porque la fase de adquisición dura tres segundos, pero el método exige nombrarlo.
 
@@ -1175,62 +1174,64 @@ Las tablas anteriores mezclan, inevitablemente, cifras de distinta solidez: algu
 | Especificación declarada | Origen de la cifra | Nivel de evidencia | Cómo se confirma |
 |---|---|---|---|
 | ESP32-WROOM-32: procesamiento, memoria, radio | Hoja de datos del módulo [19] | Confirmada por hoja de datos del componente seleccionado | Nada |
-| ESP32: reposo profundo 10 µA | Hoja de datos del módulo [19] | Confirmada para el módulo; no determina la autonomía, porque la placa de desarrollo tiene un consumo propio mayor | Nada |
-| Consumo propio de la placa de desarrollo: ≈6 mA en su entrada de 5 V (regulador y LED de alimentación) | Hoja de datos de un regulador representativo de la categoría y guía de la placa [48, 49] | Representativa; medición en banco sobre la placa adquirida | Medir en banco la corriente de la placa encendida con el microcontrolador en reposo |
+| ESP32: reposo profundo 10 µA | Hoja de datos del módulo [19] | Confirmada para el módulo; junto con el LDO fija el consumo del equipo en reposo | Medir la corriente del equipo en reposo profundo cuando el firmware lo implemente |
+| LDO RT9080: unos 2 µA de corriente propia | Hoja de datos del regulador [64] | Confirmada por hoja de datos del componente seleccionado | Medir la corriente de la placa con el microcontrolador en reposo |
 | ESP32: FCC ID 2AC7Z-ESPWROOM32 | Certificado modular del fabricante | Confirmada | Verificar que la integración respeta las condiciones del certificado modular |
 | BME280: ±1,0 °C, ±3 % HR, ±1,0 hPa, 0,1 µA en reposo | Hoja de datos Bosch del componente exacto [13] | Confirmada por hoja de datos del componente seleccionado | Nada; verificar la respuesta térmica una vez montado tras el respiradero |
 | SP3485: 2 mA con driver habilitado | Hoja de datos del transceptor exacto [24] | Confirmada por hoja de datos del componente seleccionado | Nada |
-| Interruptor de encendido después del módulo de carga | Decisión de diseño del esquemático | Definida; medición en banco programada | Medir la corriente de la celda con el interruptor abierto, usando el puente soldable de medición |
+| Interruptor de encendido después de la ruta de carga | Decisión de diseño del esquemático | Definida; medición en banco programada | Medir la corriente de la celda con el interruptor abierto, usando el puente soldable de medición |
 | Sonda 7-en-1: rangos y exactitudes de las 7 variables | Manual del fabricante del modelo adquirido, ComWinTop CWT-Soil-NPKPHCTH-S [20] | Confirmada por la hoja de datos del componente exacto, en condiciones de laboratorio | Contrastar en suelo real con la campaña de validación de 30 muestras |
 | Sonda: alimentación 4,5–30 V DC y consumo 30 mA a 5 V | Manual del fabricante (4,5–30 V; 0,5 W como máximo a 24 V) [20], ficha de una sonda equivalente (0,15 W a 12 V) [50] y supuesto propio de potencia constante | Alimentación confirmada por el manual; consumo, supuesto de diseño | Medir consumo y exactitud operando a 5 V; si la exactitud se degradara, la contingencia es elevar a 12 V |
 | Sonda: acero inoxidable 316L | Descripción del vendedor | Declaración del vendedor | Certificado de material o ensayo; afecta la vida útil en suelos salinos |
-| Módulo de carga y elevación en vacío: 30–100 µA | Integrado de referencia de la categoría [21] | Estimación de diseño; medición en banco programada | Medir en banco sobre el módulo finalmente adquirido |
+| Corriente inversa del cargador con el equipo apagado: 2 µA | Supuesto de diseño sobre la hoja de datos del TP4056 [67] | Estimación de diseño; medición en banco programada | Medir la corriente de la celda con el interruptor abierto, usando el puente soldable de medición |
 | Elevador: eficiencia η ≈ 0,85 | Valor típico de convertidores elevadores de esta clase y corriente | Estimación de diseño; medición en banco programada | Medir la eficiencia real a la corriente de excitación de la sonda |
 | Divisor de batería: 18,5 µA | Cálculo directo (3,7 V / 200 kΩ) sobre el valor de resistencia adoptado | Calculada a partir de una decisión de diseño | Nada; verificar con las resistencias reales y su tolerancia |
-| Autonomía: ≈9 semanas por carga en uso habitual | Balance energético por nodo sobre las líneas anteriores | Calculada; hereda la incertidumbre de las estimaciones anteriores | Medir la energía de una jornada tipo y la corriente con el equipo apagado |
+| Autonomía: ≈ 18 semanas (125,6 días) por carga en uso habitual | Balance energético por nodo sobre las líneas anteriores | Calculada; hereda la incertidumbre de las estimaciones anteriores | Medir la energía de una jornada tipo y la corriente con el equipo apagado |
 
 **Tabla 4.4 “Estado Probatorio de las Especificaciones de Hardware”**
 
 La conclusión que se desprende de esta clasificación es concreta y define la prioridad de la etapa siguiente.
 
-La electrónica de control está confirmada por hojas de datos de los componentes exactos, y la incertidumbre relevante se concentra en dos puntos: la sonda de suelo, que concentra además el 59,5 % del costo de materiales, y el consumo propio de la placa de desarrollo y del módulo de carga, que en esta placa determinan la autonomía. De ahí que las dos primeras acciones del plan de trabajo sean ensayar en banco la muestra de la sonda ya adquirida, cuyo modelo y manual del fabricante están identificados, y medir el consumo del conjunto ensamblado encendido y apagado, ambas antes de comprometer cualquier volumen de compra.
+La electrónica de control está confirmada por hojas de datos de los componentes exactos, y la incertidumbre relevante se concentra en dos puntos: la sonda de suelo, que concentra además el 59,0 % del costo de materiales, y la corriente del módulo en espera con el enlace BLE activo, que determina la autonomía. De ahí que las dos primeras acciones del plan de trabajo sean ensayar en banco la muestra de la sonda ya adquirida, cuyo modelo y manual del fabricante están identificados, y medir el consumo del conjunto ensamblado encendido y apagado, ambas antes de comprometer cualquier volumen de compra.
 
 ### Gestión Energética
 
-La autonomía del dispositivo depende de dos cortes: el que el microcontrolador aplica a la sonda en cada medición y el que el usuario aplica al equipo completo entre jornadas.
+La autonomía del dispositivo depende de tres cortes: el que el microcontrolador aplica a la sonda en cada medición, el reposo del microcontrolador entre mediciones y el que el usuario aplica al equipo completo entre jornadas.
 
 | Componente de Potencia | Función en la Arquitectura |
 |---|---|
-| Fusible de 1 A y diodo de protección | Protección de la celda contra cortocircuito e inversión de polaridad: el diodo detecta la inversión y el fusible corta. |
-| PCB combinada USB-C (carga + boost) | Carga de la celda de litio por USB-C con protecciones (sobrecarga, sobredescarga, cortocircuito) y elevación a 5 V para todo el equipo, en un solo módulo. |
-| Interruptor mecánico de encendido | Corta la salida de 5 V del módulo hacia el resto del equipo; la celda queda conectada al módulo para poder cargar con el equipo apagado. |
-| Regulador de 3,3 V de la placa de desarrollo | Alimenta el microcontrolador, el sensor ambiental y el transceptor RS-485 a partir de los 5 V. |
-| MOSFET de canal P y de canal N | Corte de la alimentación de 5 V de la sonda, gobernado por un pin del microcontrolador. |
+| PTC de 1 A y diodo de protección | Protección de la celda contra cortocircuito e inversión de polaridad: el diodo detecta la inversión y el PTC se abre. |
+| Cargador TP4056 con termistor | Carga la celda por USB-C con 444 mA dentro de la ventana de 0 a 45 °C; la celda trae su propia protección contra sobrecarga, sobredescarga y cortocircuito. |
+| Ruta de carga: P-MOSFET y diodo Schottky | Alimenta el sistema desde el USB mientras carga y desde la celda en terreno, de modo que el consumo del equipo no engaña al cargador. |
+| Interruptor mecánico de encendido | Corta la entrada del sistema; la celda queda conectada al cargador para poder cargar con el equipo apagado. |
+| Regulador lineal RT9080 (LDO) | Entrega 3,3 V al microcontrolador, al sensor ambiental y al transceptor RS-485 directamente desde la celda, con unos 2 µA de corriente propia. |
+| Elevador MT3608 | Eleva a 5 V sólo durante la lectura de la sonda, habilitado por el pin IO5. |
+| MOSFET de canal P y de canal N | Corte real de los 5 V de la sonda, gobernado por el mismo pin IO5. |
 | Divisor resistivo 100 kΩ + 100 kΩ | Lectura del estado de batería por la entrada analógica del microcontrolador. |
 
 **Tabla 4.5 “Gestión Energética”**
 
-El corte de la sonda está resuelto para fallar hacia el lado seguro. El MOSFET de canal P, en serie con los 5 V de la sonda, mantiene su compuerta en alto mediante una resistencia de 10 kΩ, de modo que la rama queda apagada por defecto; el microcontrolador la habilita encendiendo el MOSFET de canal N, que lleva esa compuerta a tierra. Si el programa se detiene o el microcontrolador se reinicia, la sonda queda desconectada, y en operación normal solo se energiza durante los tres segundos de la adquisición. Sin ese corte, sus 176,5 mW referidos a la batería se sumarían de forma continua a los 141,2 mW que el equipo consume en espera, más que duplicándolos.
+El corte de la sonda está resuelto para fallar hacia el lado seguro. El MOSFET de canal P, en serie con los 5 V de la sonda, mantiene su compuerta en alto mediante una resistencia de 10 kΩ, de modo que la rama queda apagada por defecto; el microcontrolador la habilita encendiendo el MOSFET de canal N, que lleva esa compuerta a tierra, y una resistencia de 4,7 kΩ a tierra en el pin IO5 mantiene apagados el elevador y el corte durante el reinicio. Si el programa se detiene o el microcontrolador se reinicia, la sonda queda desconectada, y en operación normal sólo se energiza durante los tres segundos de la adquisición. Sin ese corte, sus 176,5 mW referidos a la batería se sumarían de forma continua a los 66,7 mW que el equipo consume en espera, más que triplicándolos.
 
-Con el equipo encendido y el microcontrolador en reposo, el consumo no baja de la decena de miliamperios. La placa de desarrollo mantiene alimentados su regulador y su LED, y como la placa recibe 5 V desde el elevador, cada miliamperio de la rama de 3,3 V le cuesta a la batería la potencia de un miliamperio a 5 V dividida por la eficiencia del elevador. Solo el consumo propio de la placa representa 35,3 mW desde la batería, varios cientos de veces lo que consumiría el módulo ESP32 en reposo profundo. Por eso, en esta placa, dejar el equipo encendido entre jornadas no es una opción de operación: el equipo se enciende al llegar al campo y se apaga al terminar.
+Con el equipo encendido y el enlace BLE en espera, el consumo lo fija el módulo: 18 mA con reposo ligero, 66,7 mW desde la celda. El regulador agrega unos 2 µA y el elevador está apagado, de modo que no hay un consumo propio de la placa que se pague en cada segundo encendido. Aun así, un equipo olvidado encendido descarga la celda en unos 3,7 días: el equipo se enciende al llegar al campo y se apaga al terminar, y el reposo profundo programado en el firmware amplía ese margen.
 
-Con el interruptor abierto quedan conectados a la celda solo dos consumos: el divisor de batería, 18,5 µA, y el módulo de carga y elevación en vacío, entre 30 y 100 µA según su modo de reposo [21]. El balance adopta el extremo superior, a confirmar en banco, lo que da ≈0,12 mA en total, dos órdenes de magnitud bajo el consumo del equipo encendido.
+Con el interruptor abierto quedan conectados a la celda sólo dos consumos: el divisor de batería, 18,5 µA, y la corriente inversa del cargador, unos 2 µA según el supuesto de diseño que se confirma en banco. Suman ≈ 0,02 mA, tres órdenes de magnitud bajo el consumo del equipo encendido.
 
-Esta arquitectura tiene un camino de mejora identificado para una versión de producción: reemplazar la placa de desarrollo por el módulo ESP32 desnudo, alimentado desde la celda por un regulador de baja corriente de reposo, como el HT7533 de 2,5 µA [22]. Eso permitiría dejar el equipo en reposo profundo entre mediciones sin apagarlo, a cambio de incorporar a la placa portadora el regulador, el conversor USB-serie y el circuito de arranque que hoy aporta la placa de desarrollo.
+El camino de mejora que queda es de firmware: implementar el reposo profundo entre mediciones, que el hardware ya permite porque el regulador y el puente USB-serie no consumen en reposo.
 
 A modo de referencia del árbol de alimentación completo, incluyendo el punto de corte del MOSFET y los dos nodos de tensión regulada:
 
-![Árbol de Alimentación y Nodos de Tensión](Figuras/fig_alimentacion_v2.png)
+![Árbol de Alimentación y Nodos de Tensión](Figuras/fig_nodos_tension.png)
 
 **Figura 1.8 “Árbol de Alimentación y Nodos de Tensión”**
 
-El diagrama hace explícito lo que el balance energético por nodo cuantifica más adelante: toda la energía pasa primero por el elevador de 5 V, y la rama de 3,3 V cuelga de él a través del regulador lineal de la placa, de modo que ninguna corriente puede sumarse directamente a otra sin antes referirla a la batería.
+El diagrama hace explícito lo que el balance energético por nodo cuantifica más adelante: la rama de 3,3 V toma su energía de la celda a través del regulador lineal, sin pasar por el elevador, y sólo la sonda paga la conversión a 5 V; por eso cada corriente se refiere a la batería antes de sumarla a otra.
 
-Interfaz Física de Usuario: El panel físico del equipo se reduce deliberadamente a lo mínimo indispensable para la operación en terreno. El panel frontal centraliza las interacciones físicas, aislando las entradas de cableado en la sección inferior:
+Interfaz Física de Usuario: El panel físico del equipo se reduce deliberadamente a lo mínimo indispensable para la operación en terreno. La figura siguiente es un esquema funcional de la envolvente: muestra qué cumple cada elemento y dónde se ubica, sin representar la forma final, que se fija en la ingeniería de detalle:
 
-![Representación Conceptual de Carcasa](Figuras/fig_carcasa_conceptual.png)
+![Concepto funcional de la carcasa](Figuras/fig_carcasa_concepto.png)
 
-**Figura 1.9 “Representación Conceptual de Carcasa”**
+**Figura 1.9 “Concepto funcional de la carcasa”**
 
 La interfaz consta de tres luces indicadoras, un zumbador, un botón de emparejamiento, un puerto USB-C de carga y un interruptor mecánico de encendido dimensionado para ser accionable incluso con guantes de trabajo pesados. Las luces y el zumbador comunican los estados relevantes del equipo sin necesidad de abrir la aplicación. En reposo permanecen apagados y en silencio, y cada color tiene un único significado: azul, vinculación; verde, operación correcta; rojo, necesita atención:
 
@@ -1264,7 +1265,7 @@ Toda la ingeniería de energía del equipo se reduce a una sola regla, declarada
 
 Toda energía que el instrumento consume fuera del instante de medición es energía desperdiciada, y esa energía desperdiciada se paga dos veces: en autonomía perdida para el usuario y en batería adicional que hay que comprar.
 
-Esta regla es la que explica, con hilo conductor, las decisiones de hardware adoptadas: por qué el equipo no lleva pantalla, por qué existe un MOSFET dedicado solo a cortar la alimentación de la sonda, por qué se prefirieron LED por sobre otros métodos de alerta y por qué el equipo lleva un interruptor mecánico que corta la alimentación de la placa completa entre jornadas.
+Esta regla es la que explica, con hilo conductor, las decisiones de hardware adoptadas: por qué el equipo no lleva pantalla, por qué existe un MOSFET dedicado solo a cortar la alimentación de la sonda, por qué se prefirieron LED por sobre otros métodos de alerta y por qué el equipo lleva un interruptor mecánico que corta la alimentación del sistema entre jornadas.
 
 Digitalización del Proceso Agrícola: El segundo eje, tan determinante como la eficiencia energética, es la digitalización del proceso de toma de decisiones en terreno. TerraSense transforma un proceso hoy manual y no trazable, la estimación visual, la memoria del agricultor o, en el mejor de los casos, un cuaderno de papel en un flujo digital estructurado: cada medición queda georreferenciada, con marca de tiempo y sincronizada a una base histórica consultable. El agricultor pasa de "estimar" a "medir y registrar", cerrando la brecha de datos que hoy impide a instituciones públicas y privadas focalizar sus políticas de apoyo al sector. Esta digitalización se sostiene sobre cuatro pilares técnicos:
 
@@ -1281,7 +1282,7 @@ Esta digitalización habilita capacidades imposibles bajo el modelo análogo, ta
 
 ### Arquitectura de la Gestión Eficiente de Energía
 
-El rendimiento real lo dictan componentes básicos implementados estratégicamente. La sonda no permanece alimentada mientras el equipo está encendido: dos MOSFET gobernados por el microcontrolador cortan su alimentación salvo durante los segundos exactos en que se toma una lectura. Sin ese corte, la sonda sola consumiría más que todo el resto del equipo en espera. Los dos MOSFET cuestan en conjunto $38 y son, proporcionalmente, la mejor inversión electrónica del diseño.
+El rendimiento real lo dictan componentes básicos implementados estratégicamente. La sonda no permanece alimentada mientras el equipo está encendido: dos MOSFET gobernados por el microcontrolador cortan su alimentación salvo durante los segundos exactos en que se toma una lectura. Sin ese corte, la sonda sola consumiría más que todo el resto del equipo en espera. Los dos MOSFET cuestan en conjunto $129 y son, proporcionalmente, la mejor inversión electrónica del diseño.
 
 Sin embargo, el componente que más autonomía aporta no es electrónico, sino mecánico: el interruptor que permite al usuario apagar el equipo por completo en lugar de dejarlo emitiendo advertising Bluetooth de forma permanente. La diferencia entre un equipo apagado y uno en publicidad continua es de varios órdenes de magnitud en consumo, y la determina una pieza de menos de $1.000 CLP.
 
@@ -1292,7 +1293,7 @@ El equipo no tiene un único nivel de consumo, sino que transita entre estados b
 | Estado | Qué permanece activo | Medida de diseño |
 |---|---|---|
 | Almacenamiento | Circuitos no desconectados por el interruptor y autodescarga de la celda | Identificar rutas reales de consumo y verificar el método de apagado |
-| Reposo | Control, regulación y periféricos retenidos | Medir la corriente del conjunto; revisar LED de alimentación y puente USB-UART |
+| Reposo | Control, regulación y periféricos retenidos | Medir la corriente del conjunto en reposo ligero y profundo; confirmar que el puente USB-serie queda sin alimentación sin cable |
 | Publicidad y conexión | Radio BLE y control | Ventanas acotadas de advertising y reintento controlado |
 | Medición | Sonda, interfaces RS-485 y lectura ambiental | Habilitar solo durante estabilización y adquisición |
 | Entrega y espera | Comunicación y procesamiento | Confirmar envío y regresar al estado de menor consumo |
@@ -1304,71 +1305,71 @@ El equipo no tiene un único nivel de consumo, sino que transita entre estados b
 
 Cada vez que el usuario pulsa “Medir”, se dispara una lectura y el equipo recorre tres fases consecutivas. Entre una medición y otra el equipo permanece encendido en espera, con el enlace BLE disponible, y al final de la jornada se apaga con el interruptor.
 
-El error metodológico más común al estimar autonomía es sumar corrientes de distintos nodos de tensión como si fueran directamente equivalentes. El equipo no opera a una única tensión: la celda entrega 3,7 V nominales, el elevador la lleva a 5 V para todo el equipo, y la rama digital trabaja a 3,3 V detrás del regulador lineal de la placa de desarrollo. Un miliamperio-hora no significa lo mismo en cada uno de esos nodos, de modo que el balance completo se plantea en unidades de energía (mWh) y no de carga (mAh): la energía sí es aditiva entre nodos de distinta tensión, la carga no.
+El error metodológico más común al estimar autonomía es sumar corrientes de distintos nodos de tensión como si fueran directamente equivalentes. El equipo no opera a una única tensión: la celda entrega 3,7 V nominales, la rama digital trabaja a 3,3 V detrás del regulador lineal y la sonda a 5 V detrás del elevador. Un miliamperio-hora no significa lo mismo en cada uno de esos nodos, de modo que el balance completo se plantea en unidades de energía (mWh) y no de carga (mAh): la energía sí es aditiva entre nodos de distinta tensión, la carga no.
 
-La conversión hacia la batería sigue una sola cadena. El elevador, de eficiencia η ≈ 0,85 [21], entrega los 5 V a costa de un 15 % de pérdida. El regulador lineal de la placa entrega a la rama de 3,3 V la misma corriente que toma de los 5 V, y disipa como calor la diferencia de tensión. Por eso la potencia desde la batería de cualquier componente de la rama de 3,3 V es 5 V × corriente del nodo / η, y solo el 56 % de la energía que sale de la celda llega efectivamente a la electrónica de 3,3 V. La sonda, que cuelga directamente de los 5 V, pierde solo la eficiencia del elevador.
+La conversión hacia la batería sigue dos caminos. El regulador lineal entrega a la rama de 3,3 V la misma corriente que toma de la celda y disipa como calor la diferencia de tensión: la potencia desde la batería de cualquier componente de esa rama es 3,7 V × su corriente, y el 89 % de la energía que sale de la celda llega a la electrónica (3,3 V / 3,7 V). La sonda, que cuelga de los 5 V, paga la eficiencia del elevador, η ≈ 0,85 [66], es decir, un 15 % de pérdida, sólo durante los tres segundos de la lectura.
 
 | Fase | Componente | Nodo / tensión | Corriente en el nodo | Potencia en el nodo | Potencia desde la batería (3,7 V) |
 |---|---|---|---|---|---|
-| Todas | Consumo propio de la placa de desarrollo (regulador y LED) | 5 V (entrada de la placa) | 6 mA | 30,0 mW | 35,3 mW |
-| Espera encendido | ESP32 con enlace BLE en espera | 3,3 V (regulador de la placa) | 18 mA | 59,4 mW | 105,9 mW |
-| 1. Publicidad y conexión | ESP32 en advertising BLE | 3,3 V (regulador de la placa) | 40 mA | 132 mW | 235,3 mW |
-| 2. Adquisición del conjunto | ESP32 (temporización Modbus) | 3,3 V (regulador de la placa) | 95 mA | 313,5 mW | 558,8 mW |
-| 2. Adquisición del conjunto | Transceptor SP3485 (driver activo) [24] | 3,3 V (regulador de la placa) | 2 mA | 6,6 mW | 11,8 mW |
-| 2. Adquisición del conjunto | BME280 (muestreo forced-mode) | 3,3 V (regulador de la placa) | 0,0036 mA | 0,012 mW | 0,021 mW |
+| Todas | Corriente propia del LDO RT9080 y divisor de batería | 3,7 V (celda) | 0,02 mA | 0,08 mW | 0,08 mW |
+| Espera encendido | ESP32 con enlace BLE en espera | 3,3 V (LDO) | 18 mA | 59,4 mW | 66,6 mW |
+| 1. Publicidad y conexión | ESP32 en advertising BLE | 3,3 V (LDO) | 40 mA | 132 mW | 148,0 mW |
+| 2. Adquisición del conjunto | ESP32 (temporización Modbus) | 3,3 V (LDO) | 95 mA | 313,5 mW | 351,5 mW |
+| 2. Adquisición del conjunto | Transceptor SP3485 (driver activo) [24] | 3,3 V (LDO) | 2 mA | 6,6 mW | 7,4 mW |
+| 2. Adquisición del conjunto | BME280 (muestreo forced-mode) | 3,3 V (LDO) | 0,0036 mA | 0,012 mW | 0,013 mW |
 | 2. Adquisición del conjunto | Sonda 7-en-1 (excitación y lectura) | 5 V (elevador, η≈0,85) | 30 mA | 150 mW | 150 mW / 0,85 ≈ 176,5 mW |
 | 2. Adquisición del conjunto | Polarización del corte de la sonda (10 kΩ) | 5 V (elevador, η≈0,85) | 0,5 mA | 2,5 mW | 2,9 mW |
-| 3. Envío del resultado | ESP32 transmitiendo BLE | 3,3 V (regulador de la placa) | 150 mA | 495 mW | 882,4 mW |
-| 4. Aviso al usuario | Buzzer pasivo 9042 (dos pitidos, 160 ms; estimado) | 3,3 V (salida del microcontrolador) | 30 mA | 99,0 mW | 176,5 mW |
-| 4. Aviso al usuario | LED verde con 330 Ω (tres destellos, 360 ms) | 3,3 V (salida del microcontrolador) | 1 mA | 3,3 mW | 5,9 mW |
+| 3. Envío del resultado | ESP32 transmitiendo BLE | 3,3 V (LDO) | 150 mA | 495 mW | 555,0 mW |
+| 4. Aviso al usuario | Buzzer pasivo con transistor (dos pitidos, 160 ms; cota de diseño) | 3,3 V (LDO) | 52 mA | 171,6 mW | 192,4 mW |
+| 4. Aviso al usuario | LED verde con 330 Ω (tres destellos, 360 ms) | 3,3 V (LDO) | 3,9 mA | 12,9 mW | 14,4 mW |
 
 **Tabla 4.9 “Balance Energético por Nodo de Tensión”**
 
 | Fase Operativa | Potencia desde la batería | Duración | Energía por ciclo |
 |---|---|---|---|
-| 1. Publicidad y conexión | 270,6 mW | 12 s | 0,902 mWh |
-| 2. Adquisición del conjunto | 785,3 mW | 3 s | 0,654 mWh |
-| 3. Envío del resultado | 917,6 mW | 1 s | 0,255 mWh |
-| 4. Aviso al usuario (buzzer y LED verde) | 176,5 mW | 0,36 s, simultáneo al envío | 0,008 mWh |
-| Total por ciclo | Variable | 16 s | 1,820 mWh |
+| 1. Publicidad y conexión | 148,1 mW | 12 s | 0,494 mWh |
+| 2. Adquisición del conjunto | 538,4 mW | 3 s | 0,449 mWh |
+| 3. Envío del resultado | 555,1 mW | 1 s | 0,154 mWh |
+| 4. Aviso al usuario (buzzer y LED verde) | 206,8 mW en pulsos | 0,16 s de buzzer y 0,36 s de LED, simultáneos al envío | 0,010 mWh |
+| Total por ciclo | Variable | 16 s | 1,106 mWh |
 
 **Tabla 5.0 “Energía por Ciclo de Medición”**
 
-Tres precisiones sostienen estas tablas frente a un cálculo por suma directa de corrientes. La sonda toma 150 mW en su nodo de 5 V, pero exige 176,5 mW a la batería: el factor 1/η = 1,176 que impone el elevador es energía perdida en la conversión. La rama de 3,3 V exhibe una pérdida mayor: los 40 mA de la Fase 1 valen 132 mW en su nodo, pero cuestan 235,3 mW de batería, porque el regulador lineal y el elevador pierden en serie. Y el consumo propio de la placa, 35,3 mW desde la batería, está presente en todas las fases y en la espera, de modo que la energía de la jornada la determina el tiempo que el equipo permanece encendido, no el número de mediciones. La corriente de transmisión del ESP32 en la Fase 3 se fija en 150 mA, el extremo superior de la banda de transmisión BLE declarada en la comparativa de microcontroladores; el consumo del transceptor SP3485 se toma del extremo superior de su hoja de datos [24]; y el de la sonda, del supuesto de potencia constante ya declarado.
+Tres precisiones sostienen estas tablas frente a un cálculo por suma directa de corrientes. La sonda toma 150 mW en su nodo de 5 V, pero exige 176,5 mW a la batería: el factor 1/η = 1,176 que impone el elevador es energía perdida en la conversión. La rama de 3,3 V pierde menos: los 40 mA de la Fase 1 valen 132 mW en su nodo y cuestan 148,0 mW de batería, porque el regulador lineal sólo disipa la diferencia entre 3,7 y 3,3 V. Y el consumo que queda conectado en todas las fases, el del regulador y el divisor, es de apenas 0,08 mW, de modo que la energía de la jornada la determina el tiempo que el módulo pasa en espera con el enlace activo. La corriente de transmisión del ESP32 en la Fase 3 se fija en 150 mA, el extremo superior de la banda de transmisión BLE declarada en la comparativa de microcontroladores; el consumo del transceptor SP3485 se toma del extremo superior de su hoja de datos [24]; el del buzzer, de la cota de diseño de 52 mA; y el de la sonda, del supuesto de potencia constante ya declarado.
 
 ### Autonomía según el Patrón de Uso
 
-Como el equipo se apaga entre jornadas, la autonomía no se expresa en tiempo de reposo sino en jornadas de trabajo por carga. El ejercicio supone jornadas de 2 horas encendido con 10 mediciones cada una (294,3 mWh por jornada), una capacidad útil de 1.600 mAh equivalente a 5.920 mWh a 3,7 V, el consumo con el equipo apagado de la sección anterior (0,44 mW) y una autodescarga de la celda del 2 % mensual (4,93 mWh por día):
+Como el equipo se apaga entre jornadas, la autonomía no se expresa en tiempo de reposo sino en jornadas de trabajo por carga. El ejercicio supone jornadas de 2 horas encendido con 10 mediciones cada una (141,5 mWh por jornada), una capacidad útil de 1.600 mAh equivalente a 5.920 mWh a 3,7 V, el consumo con el equipo apagado de la sección anterior (0,076 mW) y una autodescarga de la celda del 2 % mensual (4,93 mWh por día):
 
 | Patrón de uso | Jornadas | Autonomía con una carga | Mediciones por carga |
 |---|---|---|---|
-| Equipo olvidado encendido, sin medir | Continuo | 41,9 horas (≈ 1,7 días) | — |
-| Uso intensivo: una jornada diaria de 2 h con 10 mediciones | Diario | 19,2 días (≈ 2,7 semanas) | 190 |
-| Uso habitual: dos jornadas semanales de 2 h con 10 mediciones | 2 por semana | 59,6 días (≈ 8,5 semanas) | 170 |
-| Almacenado apagado, sin uso | Ninguno | 383,0 días (≈ 12,6 meses) | — |
+| Equipo olvidado encendido, sin medir | Continuo | 88,8 horas (≈ 3,7 días) | — |
+| Uso intensivo: una jornada diaria de 2 h con 10 mediciones | Diario | 40,0 días (≈ 5,7 semanas) | 400 |
+| Uso habitual: dos jornadas semanales de 2 h con 10 mediciones | 2 por semana | 125,6 días (≈ 17,9 semanas) | 359 |
+| Almacenado apagado, sin uso | Ninguno | 876,6 días (≈ 28,8 meses) | — |
 
 **Tabla 5.1 “Autonomía según el Patrón de Uso”**
 
-La tabla muestra la consecuencia de operar con placa de desarrollo: el mismo equipo que almacenado apagado conserva su carga durante más de un año, se descarga en menos de dos días si se olvida encendido. Bajo el uso habitual, dos jornadas por semana, una carga dura del orden de 9 semanas y 170 mediciones; bajo uso intensivo diario, del orden de 3 semanas. En ambos casos la recarga se resuelve con el mismo cargador USB-C del teléfono, y el equipo puede cargarse apagado.
+La tabla muestra el efecto de una placa sin consumo propio: el equipo almacenado apagado conserva su carga más de dos años, limitado en la práctica por la autodescarga de la celda, y aun olvidado encendido dura casi cuatro días. Bajo el uso habitual, dos jornadas por semana, una carga dura del orden de 18 semanas y unas 360 mediciones; bajo uso intensivo diario, del orden de 6 semanas. En ambos casos la recarga se resuelve con el mismo cargador USB-C del teléfono, y el equipo puede cargarse apagado.
 
 ### Sensibilidad de la Autonomía
 
-Las cifras anteriores heredan dos estimaciones de diseño, que se miden en banco: el consumo propio de la placa de desarrollo y el consumo en vacío del módulo de carga. La siguiente tabla acota su efecto sobre el uso habitual:
+Las cifras anteriores heredan dos estimaciones de diseño, que se miden en banco: la corriente del módulo en espera con el enlace BLE activo y la corriente que queda conectada con el equipo apagado. La siguiente tabla acota su efecto sobre el uso habitual:
 
 | Variación sobre el uso habitual | Autonomía con una carga | Cambio frente al diseño adoptado |
 |---|---|---|
-| Diseño adoptado (valores de la tabla de balance) | 59,6 días (≈ 8,5 semanas) | — |
-| Consumo propio de la placa del doble de lo estimado (12 mA) | 49,6 días (≈ 7,1 semanas) | −16,9 % |
-| Fuga no identificada de 1 mA con el equipo apagado | 31,8 días (≈ 4,5 semanas) | −46,6 % |
-| Jornadas de 4 h en lugar de 2 h | 32,9 días (≈ 4,7 semanas) | −44,8 % |
-| Divisor de batería de 1 MΩ + 1 MΩ | 60,5 días (≈ 8,6 semanas) | +1,5 % |
-| ESP32 sin reposo con BLE anunciando (40 mA en espera, firmware actual) | 34,5 días (≈ 4,9 semanas) | −42,1 % |
+| Diseño adoptado (valores de la tabla de balance) | 125,6 días (≈ 17,9 semanas) | — |
+| Espera del módulo del doble de lo estimado (36 mA) | 70,2 días (≈ 10,0 semanas) | −44,1 % |
+| Fuga no identificada de 1 mA con el equipo apagado | 44,2 días (≈ 6,3 semanas) | −64,8 % |
+| Jornadas de 4 h en lugar de 2 h | 69,5 días (≈ 9,9 semanas) | −44,7 % |
+| Divisor de batería de 1 MΩ + 1 MΩ | 129,7 días (≈ 18,5 semanas) | +3,2 % |
+| ESP32 sin reposo con BLE anunciando (40 mA en espera, firmware actual) | 63,9 días (≈ 9,1 semanas) | −49,1 % |
 
 **Tabla 5.2 “Sensibilidad de la Autonomía al Consumo y al Uso”**
 
-Las variables decisivas son el tiempo que el equipo pasa encendido y lo que consume apagado: duplicar la duración de las jornadas reduce la autonomía en un 45 %, duplicar el consumo propio de la placa en un 17 % y una fuga de 1 mA con el equipo apagado en un 47 %. El divisor de batería, en cambio, casi no pesa: reemplazarlo por uno de 1 MΩ + 1 MΩ la alarga apenas un 1,5 %, y por eso se conserva el de 100 kΩ, que entrega una lectura más estable.
+Las variables decisivas son el tiempo que el equipo pasa encendido, la corriente del módulo en espera y lo que se consume apagado: duplicar la duración de las jornadas o la corriente de espera reduce la autonomía cerca de un 45 %, y una fuga de 1 mA con el equipo apagado, un 65 %, porque el equipo pasa la mayor parte de la semana apagado. El divisor de batería, en cambio, pesa poco: reemplazarlo por uno de 1 MΩ + 1 MΩ la alarga apenas un 3,2 %, y por eso se conserva el de 100 kΩ, que entrega una lectura más estable.
 
-La cifra de referencia que se sostiene de aquí en adelante, de forma consistente en Síntesis y Conclusiones, es la del uso habitual: aproximadamente 9 semanas (170 mediciones) con una sola carga, con un piso de 4,5 semanas si se materializara una fuga de 1 mA antes de validarse en laboratorio.
+La cifra de referencia que se sostiene de aquí en adelante, de forma consistente en Síntesis y Conclusiones, es la del uso habitual: aproximadamente 18 semanas (unas 360 mediciones) con una sola carga, con un piso de unas 9 semanas con el firmware actual, que todavía no aplica el reposo ligero, y de 6 semanas si se materializara una fuga de 1 mA antes de validarse en laboratorio.
 
 Corresponde subrayar el carácter de esta cifra: es un resultado calculado. Procede del balance energético por nodo con las eficiencias declaradas, y su confirmación exige medir el consumo del conjunto ensamblado encendido y apagado. Esa medición es la primera de las verificaciones programadas que el informe enumera en sus conclusiones.
 
@@ -1390,11 +1391,11 @@ Esta arquitectura se alinea además con la normativa ambiental, aunque conviene 
 
 ### Síntesis de Eficiencia Energética
 
-El diseño del sistema prioriza la autonomía como un atributo crítico de confiabilidad. Con la placa de desarrollo del prototipo V2, esa autonomía se obtiene cortando la energía donde no se usa: la sonda solo recibe alimentación durante la lectura y el equipo completo se apaga entre jornadas. Bajo el uso habitual, una carga sostiene aproximadamente 9 semanas de trabajo (170 mediciones) según el balance energético por nodo. Esta eficiencia es fruto de tres pilares de diseño:
+El diseño del sistema prioriza la autonomía como un atributo crítico de confiabilidad. En la placa del instrumento esa autonomía se obtiene cortando la energía donde no se usa y sin un consumo propio de placa: la sonda sólo recibe alimentación durante la lectura, el regulador toma unos 2 µA y el equipo completo se apaga entre jornadas. Bajo el uso habitual, una carga sostiene aproximadamente 18 semanas de trabajo (unas 360 mediciones) según el balance energético por nodo. Esta eficiencia es fruto de tres pilares de diseño:
 
-- Aislamiento Activo (Power Gating): Utilización de dos MOSFET para desconectar físicamente la sonda fuera de la lectura, de modo que su consumo no se suma a la espera.
+- Aislamiento Activo (Power Gating): el elevador se habilita y dos MOSFET desconectan físicamente la sonda sólo durante la lectura, de modo que su consumo no se suma a la espera.
 
-- Apagado Completo entre Jornadas: Un interruptor mecánico corta la salida del módulo de carga hacia la placa, dejando conectados a la celda solo el divisor de batería y el módulo en vacío, del orden de 0,12 mA.
+- Apagado Completo entre Jornadas: un interruptor mecánico corta la entrada del sistema, dejando conectados a la celda sólo el divisor de batería y la corriente inversa del cargador, del orden de 0,02 mA.
 
 - Optimización de Radio y Gestión Local: Empleo de Bluetooth Low Energy (BLE) con tramas de 20 bytes de longitud fija y ciclos de medición acotados (16 segundos), mientras el procesamiento offline en el teléfono libera al instrumento de tareas de cómputo intensivas y de almacenamiento.
 
@@ -1593,25 +1594,26 @@ Ambos valores se utilizan exclusivamente como término de comparación en el cos
 La ingeniería básica responde la pregunta ¿cómo funcionará técnicamente? Convierte la solución conceptual en requisitos que se pueden comprobar: qué hace el sistema y en qué condiciones, con qué cifras, con qué componentes y por qué esos, cómo se alimenta, cuánta energía usa y cómo se digitaliza. Cada capacidad se rotula con uno de tres estados:
 
 - **Verificado:** comprobado con una prueba que sí se ejecutó (pruebas automatizadas de software, reconstrucción de la base de datos en una réplica local) o contrastado con la hoja de datos del componente exacto. No significa ensayado en un equipo físico ni en un teléfono real.
-- **Implementado:** existe en el firmware, en la aplicación o en la placa V2 y funciona en su lógica; su ensayo sobre el equipo armado y en teléfono está programado en el capítulo IX.
-- **De diseño:** cifra, cálculo o componente especificado para la placa V3, o función programada para el prototipo; se verifica con la prueba que el capítulo IX le asigna.
+- **Implementado:** existe en el firmware, en la aplicación o en la placa de laboratorio y funciona en su lógica; su ensayo sobre el equipo armado y en teléfono está programado en el capítulo IX.
+- **De diseño:** cifra, cálculo o componente especificado para la placa del instrumento, o función programada para el prototipo; se verifica con la prueba que el capítulo IX le asigna.
 
-### Del prototipo de laboratorio (placa V2) al producto (placa V3)
+### Composición de la placa del instrumento
 
-La placa V2, fabricada y comprada, es el **prototipo de laboratorio**: una placa portadora de 99,9 × 90 mm sobre la que se montan cuatro módulos comerciales: la placa de desarrollo ESP32-DevKitC con el módulo ESP32-WROOM-32D, el módulo de carga y elevación LX-LCBST, el módulo ambiental BME280 de SparkFun y un módulo con el transceptor SP3485. Se utiliza para desarrollar y ensayar el firmware y la aplicación. Como plataforma de producción tiene dos limitaciones: el abastecimiento de módulos no está asegurado en volumen, y la placa de desarrollo consume del orden de 6 mA aunque el microcontrolador duerma, por su regulador y su LED de alimentación.
+La placa del instrumento es el **producto**: una placa de dos capas de 90 × 64 mm que suelda directamente sobre el circuito impreso todos los circuitos integrados del equipo, con el módulo ESP32-WROOM-32D como única pieza modular, porque es el componente que trae la antena y la certificación de radio. Todo el estudio de especificación, costos, energía y ensayos de los capítulos siguientes se hace sobre esta placa. La tabla siguiente la recorre por bloque funcional.
 
-La placa V3 es el **producto**: conserva el contorno de la V2 y suelda directamente sobre el circuito impreso los mismos circuitos integrados que esos módulos traen montados, con los cambios que la tabla siguiente identifica y justifica. Todo el estudio de especificación, costos, energía y ensayos de los capítulos siguientes se hace sobre la V3; la V2 aporta el firmware, la aplicación y la experiencia de armado.
-
-| Módulo del prototipo V2 | Componentes del módulo | Cómo queda en la placa V3 |
+| Bloque | Circuitos y componentes | Por qué así |
 |---|---|---|
-| Placa de desarrollo ESP32-DevKitC con el módulo ESP32-WROOM-32D | Módulo WROOM-32D, puente USB-serie, dos transistores de autoprogramación, pulsadores EN y BOOT, regulador lineal AMS1117-3.3 y LED de alimentación | Mismo módulo ESP32-WROOM-32D, puente CH340C, dos transistores S8050 y pulsadores EN y BOOT. El AMS1117, de unos 5 mA de corriente propia, se reemplaza por el LDO (*Low Dropout*, regulador lineal de baja caída) RT9080-33, de unos 2 µA, y se elimina el LED de alimentación |
-| Módulo LX-LCBST de carga y elevación | Cargador lineal PT4056 (equivalente del TP4056) con RPROG de 1 kΩ; protector de celda HM5434 con MOSFET integrado; elevador MT3608 con bobina de 100 µH, diodo SS34 y potenciómetro de ajuste de 1,6 kΩ; cuatro condensadores de 10 µF; LED rojo y verde de carga; resistencias de 5,1 kΩ en CC1 y CC2; conector USB-C de 6 pines | Mismo cargador TP4056 con sus LED de carga y el mismo elevador MT3608 con su diodo SS34. RPROG pasa de 1 kΩ (≈ 1,2 A) a 2,7 kΩ (444 mA), bajo el límite del puerto USB 2.0; el potenciómetro se reemplaza por un divisor fijo de 220 kΩ y 30 kΩ que fija 5,00 V; la bobina pasa a 22 µH, calculada para 1,2 MHz. El protector HM5434 no se duplica, porque la celda trae su propia protección. El conector pasa a un USB-C de 16 pines, con las mismas resistencias de 5,1 kΩ, compartido con la programación |
-| Módulo SparkFun BME280 | Sensor BME280, dos resistencias de pull-up de 10 kΩ y dos diodos Schottky de protección de las líneas | Mismo BME280 en cápsula LGA-8, en el borde de la placa junto al respiradero y aislado por una ranura térmica. Los pull-ups pasan a 4,7 kΩ para admitir I²C a 400 kHz, y los diodos de protección no se trasladan porque las líneas ya no salen de la placa |
-| Módulo transceptor RS-485 | Transceptor SP3485 (SOIC-8), condensador de desacoplo de 100 nF, terminación de 220 Ω, LED indicador con 330 Ω, cabezales de pines y conector RJ45 | Mismo SP3485EN con su desacoplo de 100 nF; la terminación pasa a 120 Ω, la impedancia característica que fija la norma TIA/EIA-485-A, y se agregan la polarización de reposo y un supresor TVS SM712. El LED se elimina para no consumir y el RJ45 se reemplaza por la bornera de la sonda de 4 vías, la misma de la V2 |
+| Procesamiento y radio | Módulo ESP32-WROOM-32D; puente USB-serie CH340C con dos transistores S8050 de autoprogramación y divisor de 10 kΩ y 20 kΩ en su línea TXD; pulsadores EN y BOOT con red de 10 kΩ y 1 µF en EN | El módulo aporta antena y certificación; el CH340C se alimenta sólo desde el USB y el divisor adapta sus 5 V a la entrada de 3,3 V del módulo |
+| USB y carga | Receptáculo USB-C de 16 pines con 5,1 kΩ en CC1 y CC2, protección ESD USBLC6-2SC6 y PTC de 1 A; cargador TP4056 con RPROG de 2,7 kΩ (444 mA) y termistor NTC de la celda; LED de carga y de fin de carga; ruta de carga con P-MOSFET AO3401A y diodo SS14 | La corriente de carga queda bajo el límite de un puerto USB 2.0, el termistor aplica la ventana de 0 a 45 °C y la ruta de carga evita que el consumo del equipo engañe al cargador |
+| Regulación de 3,3 V | LDO RT9080-33 alimentado desde el interruptor | Unos 2 µA de corriente propia: el reposo profundo del módulo se traduce en ahorro real |
+| Elevador y corte de la sonda | Elevador MT3608 con EN en IO5, bobina de 22 µH, diodo SS34 y divisor fijo de 220 kΩ y 30 kΩ (5,00 V); corte con AO3401A en serie y AO3400A de mando; 4,7 kΩ a tierra en IO5 | El elevador sólo trabaja durante la lectura y el corte desconecta realmente la sonda, también durante el reinicio |
+| Bus RS-485 | Transceptor SP3485EN con desacoplo de 100 nF, terminación de 120 Ω, polarización de 4,7 kΩ y supresor TVS SM712 | Terminación de la impedancia característica que fija la norma TIA/EIA-485-A, línea en reposo definida y protección del cable de campo |
+| Sensor ambiental | BME280 en cápsula LGA-8 con pull-ups de 4,7 kΩ, en el borde de la placa junto al respiradero y aislado por una ranura térmica | Las líneas no salen de la placa y el calor del resto del circuito no sesga la temperatura del aire |
+| Interfaz y protección | Tres LED con 330 Ω; buzzer pasivo con transistor S8050, 47 Ω y diodo 1N4148W; pulsador PAIR; PTC de 1 A y diodo M7 en la celda; divisor de batería de 100 kΩ + 100 kΩ | El buzzer no carga el pin del microcontrolador y la celda queda protegida contra cortocircuito e inversión |
 
-**Tabla 5.9 “Componentes de los módulos del prototipo V2 en la placa V3”**
+**Tabla 5.9 “Bloques funcionales de la placa del instrumento”**
 
-Los cambios responden a la eficiencia energética, a la seguridad y a la norma del bus, no a una preferencia: el regulador de la placa de desarrollo impedía el reposo profundo, el elevador del módulo no tenía pin de habilitación, la corriente de carga del módulo superaba lo que entrega un puerto USB 2.0 y la protección de la celda quedaba duplicada. Fuera de eso, el firmware, la asignación de pines, las borneras y la experiencia de armado de la V2 se conservan en la V3.
+Las decisiones de la tabla responden a la eficiencia energética, a la seguridad y a la norma del bus: un regulador de baja corriente propia, un elevador que sólo trabaja durante la lectura, una corriente de carga compatible con cualquier puerto USB 2.0 y una celda que trae su propia protección, sin duplicarla en la placa.
 
 ### Trazabilidad de lo conceptual a lo básico
 
@@ -1625,7 +1627,7 @@ Los cambios responden a la eficiencia energética, a la seguridad y a la norma d
 | Operación offline primero (Tabla 1.7) | R05 | Cola local idempotente y sincronización diferida | Tabla 6.4, Tabla 8.5 |
 | Regla energética: no consumir fuera de la medición | R07, R08, R17 | Elevador con habilitación y corte de la sonda por MOSFET, reposo profundo, LDO (*Low Dropout*, regulador lineal de baja caída) de baja corriente propia | Tabla 8.1, Tabla 8.2 |
 | Diseño para el campo real | R09, R10, R11 | Carcasa de PETG (PET modificado con glicol) con junta, prensaestopa y respiradero | Tabla 7.6, Tabla 7.5 |
-| Precio derivado del costo con 30 % de utilidad | R20, R21 | Lista de materiales (BOM, *Bill of Materials*) V3 con costos de compra y fabricación | Tabla 8.9, Tabla 3.6 |
+| Precio derivado del costo con 30 % de utilidad | R20, R21 | Lista de materiales (BOM, *Bill of Materials*) del instrumento con costos de compra y fabricación | Tabla 8.9, Tabla 3.6 |
 
 **Tabla 6.0 “Trazabilidad de la ingeniería conceptual a la ingeniería básica”**
 
@@ -1704,7 +1706,7 @@ La operación en terreno involucra a cuatro actores. Todo lo que ocurre entre el
 
 ### Capacidades y características
 
-Una sola ficha técnica reúne las capacidades del producto V3 y del servicio, con el origen de cada cifra y su estado. Los rangos de la sonda provienen del manual de su fabricante, ComWinTop, para el modelo cotizado y adquirido, la CWT-Soil-NPKPHCTH-S (anexo A) [20], y los del BME280 de su hoja de datos [13].
+Una sola ficha técnica reúne las capacidades del producto y del servicio, con el origen de cada cifra y su estado. Los rangos de la sonda provienen del manual de su fabricante, ComWinTop, para el modelo cotizado y adquirido, la CWT-Soil-NPKPHCTH-S (anexo A) [20], y los del BME280 de su hoja de datos [13].
 
 | Parámetro | Valor | Fuente | Estado |
 |---|---|---|---|
@@ -1718,9 +1720,9 @@ Una sola ficha técnica reúne las capacidades del producto V3 y del servicio, c
 | Batería en la trama | 1 (porcentaje con curva típica de LiPo, sin calibrar) | Firmware | Implementado |
 | Resolución de la trama | Humedad 0,1 %; temperatura de suelo 0,1 °C; pH 0,1; CE 1 µS/cm; temperatura del aire 0,1 °C; humedad relativa 0,5 %; presión 1 hPa | Contrato de la trama de 20 bytes | Verificado (decodificador con pruebas automatizadas) |
 | Ciclo de medición | 16 s: 12 s de anuncio y conexión, 3 s de adquisición, 1 s de envío | Modelo de diseño | De diseño |
-| Tensiones del equipo | VBUS (línea de 5 V del conector USB) 5 V; celda 3,0 a 4,2 V; riel de 3,3 V; 5 V de la sonda (≈ 5,00 V) | Arquitectura V3 (Tabla 7.9) | De diseño |
+| Tensiones del equipo | VBUS (línea de 5 V del conector USB) 5 V; celda 3,0 a 4,2 V; riel de 3,3 V; 5 V de la sonda (≈ 5,00 V) | Arquitectura del instrumento (Tabla 7.9) | De diseño |
 | Celda | LiPo 3,7 V y 2.000 mAh (≈ 7,4 Wh) con protección incluida | Decisión del proyecto | De diseño |
-| Autonomía en uso habitual | ≈ 125,6 días (≈ 17,9 semanas) calculados con el modelo energético V3, frente a 34,5 días de la placa V2 con el firmware actual; requerimiento R07: al menos 8 semanas | Modelo energético V3 | De diseño (calculada con el modelo energético) |
+| Autonomía en uso habitual | ≈ 125,6 días (≈ 17,9 semanas) calculados con el modelo energético del instrumento; requerimiento R07: al menos 8 semanas | Modelo energético del instrumento | De diseño (calculada con el modelo energético) |
 | Tiempo de carga | ≈ 5 a 5,5 h con 444 mA desde 3,0 V | Cálculo de Tabla 7.9 | De diseño |
 | Memoria del equipo | 520 KB de SRAM y 4 MB de flash; no guarda mediciones ni historial | Hoja del módulo [61] | Verificado contra la hoja |
 | Almacenamiento de datos | En el teléfono (persistente, con cola de envío) y respaldo en la nube | Aplicación | Verificado en su lógica (277 de 277 pruebas) |
@@ -1734,7 +1736,7 @@ Una sola ficha técnica reúne las capacidades del producto V3 y del servicio, c
 | Aviso de batería | Equipo: bajo 3,40 V con rearme sobre 3,50 V; aplicación: 15 % con rearme sobre 20 % | Firmware y aplicación | Implementado |
 | Temperatura | Operación de −5 a +50 °C; carga de 0 a 45 °C (límite de la celda) | Hojas del módulo y del cargador | De diseño |
 | Grado de protección | Objetivo IP67; se declara «objetivo de diseño IP67» hasta aprobar el ensayo acreditado mientras no exista ensayo | Diseño de la carcasa | De diseño |
-| Dimensiones | 73 × 79 × 31 mm; distribución conceptual para una placa V3 de 64 × 56 mm | Plano de la carcasa (anexo D) | De diseño |
+| Dimensiones | 99 × 87 × 31 mm, para una placa de 90 × 64 mm | Plano de la carcasa (anexo D) | De diseño |
 | Masa | ≈ 516 g sin embalaje (carcasa 210 g, sonda con cable 180 g, celda 38 g, placa 27 g, componentes ≈ 21 g y montaje 40 g); estimación sin pesar el prototipo | Diseño | De diseño |
 | Aplicación | Android e iOS, español e inglés, offline primero, accesibilidad con contraste 4,5:1 y área táctil de 48 dp | Aplicación | Lógica verificada; en teléfono, implementada |
 | Backoffice | Consola web de soporte (cuenta única): búsqueda, ficha, aprobación, reset y catálogo de firmware | Consola web | Verificado en réplica local |
@@ -1753,7 +1755,7 @@ Cada bloque del equipo recorre el mismo formato: el requisito que debe cumplir (
 
 **Microcontrolador, por nivel de integración.** El ESP32 ya está decidido a nivel de familia; falta decidir en qué forma se compra. Requisito: alimentación de 3,0 a 3,6 V, Bluetooth 4.2 compatible con Android e iOS, antena y radio certificadas, soldable como componente de montaje superficial y disponible para producción.
 
-| Criterio | Peso | Circuito integrado ESP32-D0WD (QFN) | Módulo ESP32-WROOM-32D | Placa de desarrollo ESP32-DevKitC (la del prototipo V2) |
+| Criterio | Peso | Circuito integrado ESP32-D0WD (QFN) | Módulo ESP32-WROOM-32D | Placa de desarrollo ESP32-DevKitC (opción de prototipo) |
 |---|---:|---:|---:|---:|
 | Radio y antena certificadas | 25 % | 3 | 10 | 10 |
 | Esfuerzo y riesgo de diseño de la placa | 20 % | 2 | 8 | 10 |
@@ -1765,7 +1767,7 @@ Cada bloque del equipo recorre el mismo formato: el requisito que debe cumplir (
 
 **Tabla 6.5 “Matriz de decisión del ESP32 por nivel de integración”**
 
-**El módulo ESP32-WROOM-32D porque trae la radio, el cristal, la memoria flash de 4 MB y la antena impresa ya certificados, y se suelda como un componente más.** El circuito integrado desnudo (QFN de 5 × 5 mm) no trae antena, flash ni cristal: obligaría a diseñar la red de adaptación y la antena y a certificar la radiofrecuencia desde cero. La placa de desarrollo es un módulo de desarrollo: su abastecimiento no está asegurado para producción, ocupa espacio y su regulador consume del orden de 6 mA aunque el microcontrolador duerma. El módulo se conecta con sus contactos laterales a la placa, conserva el firmware y los pines actuales y exige una fuente de al menos 500 mA [61]. Riesgo declarado: Espressif no recomienda el 32D para diseños nuevos; su reemplazo directo, de igual huella y pines (18 × 25,5 mm), es el ESP32-WROOM-32E [63]. Si el 32D se discontinúa, el 32E entra sin cambiar la placa ni el firmware; su ciclo de vida se confirma contra la ficha del fabricante antes de cada orden de compra.
+**El módulo ESP32-WROOM-32D porque trae la radio, el cristal, la memoria flash de 4 MB y la antena impresa ya certificados, y se suelda como un componente más.** El circuito integrado desnudo (QFN de 5 × 5 mm) no trae antena, flash ni cristal: obligaría a diseñar la red de adaptación y la antena y a certificar la radiofrecuencia desde cero. La placa de desarrollo es un módulo de desarrollo: su abastecimiento no está asegurado para producción, ocupa espacio y su regulador consume del orden de 6 mA aunque el microcontrolador duerma [48, 49]. El módulo se conecta con sus contactos laterales a la placa, conserva el firmware y los pines actuales y exige una fuente de al menos 500 mA [61]. Riesgo declarado: Espressif no recomienda el 32D para diseños nuevos; su reemplazo directo, de igual huella y pines (18 × 25,5 mm), es el ESP32-WROOM-32E [63]. Si el 32D se discontinúa, el 32E entra sin cambiar la placa ni el firmware; su ciclo de vida se confirma contra la ficha del fabricante antes de cada orden de compra.
 
 **Sonda de suelo.** Requisito: siete variables por RS-485, alimentación desde el elevador de 5 V, material resistente a los cloruros del suelo y costo por variable viable. La comparación cualitativa de la ingeniería conceptual (Tabla 1.5) justifica ensayar la sonda 7-en-1; su exactitud en suelo la acredita la campaña de laboratorio.
 
@@ -1841,7 +1843,7 @@ Cada bloque del equipo recorre el mismo formato: el requisito que debe cumplir (
 
 **Tabla 7.0 “Matriz de decisión del elevador de 5 V”**
 
-**El MT3608 porque tiene pin EN, límite de corriente de 4 A y es el más disponible y barato [66].** El TPS61023 es mejor en corriente de apagado y eficiencia, pero más caro y menos disponible. El MT3608 tiene una limitación que decide el resto del bloque: **no desconecta la carga con EN en nivel bajo**, porque queda un camino por la bobina y el diodo y la salida se queda en ≈ VBAT menos la caída del diodo (unos 3,4 V). Por eso la V3 **conserva el corte de la sonda de la placa V2**: un P-MOSFET AO3401A en serie con la salida de 5 V, cuya compuerta conmuta un N-MOSFET AO3400A. El mismo pin IO5 gobierna el EN del elevador y la compuerta del AO3400A: con IO5 en alto el elevador arranca y el AO3401A conduce; con IO5 en bajo el elevador deja de conmutar y el AO3401A abre el circuito, de modo que la sonda queda en 0 V. Una resistencia de 4,7 kΩ a tierra en IO5 mantiene ambos apagados mientras arranca el microcontrolador. El par cuesta ≈ $136 por equipo con sus resistencias, conserva el pin y el firmware de la V2 y permite especificar el corte, que debe verificarse en el prototipo.
+**El MT3608 porque tiene pin EN, límite de corriente de 4 A y es el más disponible y barato [66].** El TPS61023 es mejor en corriente de apagado y eficiencia, pero más caro y menos disponible. El MT3608 tiene una limitación que decide el resto del bloque: **no desconecta la carga con EN en nivel bajo**, porque queda un camino por la bobina y el diodo y la salida se queda en ≈ VBAT menos la caída del diodo (unos 3,4 V). Por eso la placa del instrumento **corta la sonda con un P-MOSFET en serie**: un P-MOSFET AO3401A en serie con la salida de 5 V, cuya compuerta conmuta un N-MOSFET AO3400A. El mismo pin IO5 gobierna el EN del elevador y la compuerta del AO3400A: con IO5 en alto el elevador arranca y el AO3401A conduce; con IO5 en bajo el elevador deja de conmutar y el AO3401A abre el circuito, de modo que la sonda queda en 0 V. Una resistencia de 4,7 kΩ a tierra en IO5 mantiene ambos apagados mientras arranca el microcontrolador. El par cuesta ≈ $136 por equipo con sus resistencias, conserva el pin y el firmware vigentes y permite especificar el corte, que debe verificarse en el prototipo.
 
 **Transceptor RS-485.** Requisito: alimentación de 3,3 V sin adaptar niveles hacia el microcontrolador, velocidad muy sobre los 4.800 o 9.600 baudios de la sonda, consumo bajo y encapsulado soldable.
 
@@ -1902,7 +1904,7 @@ Cada bloque del equipo recorre el mismo formato: el requisito que debe cumplir (
 
 **Tabla 7.4 “Matriz de decisión de la interfaz de usuario”**
 
-**Tres LED y un buzzer pasivo porque no consumen en reposo y permiten cinco señales distintas con tono y color.** Un buzzer activo tiene un solo tono; la pantalla consume y abre una ventana de ingreso de agua. En la V3 el buzzer se maneja con un transistor y un diodo de rueda libre, lo que cierra el riesgo de corriente por el pin del microcontrolador que tenía la V2.
+**Tres LED y un buzzer pasivo porque no consumen en reposo y permiten cinco señales distintas con tono y color.** Un buzzer activo tiene un solo tono; la pantalla consume y abre una ventana de ingreso de agua. En la placa del instrumento el buzzer se maneja con un transistor y un diodo de rueda libre, lo que cierra el riesgo de corriente por el pin del microcontrolador que tenía la placa de laboratorio.
 
 **Interruptor, prensaestopa, respiradero y tapón, según el grado IP.** PG7 es una medida normalizada de prensaestopa y M3, M6 y M12 designan el diámetro nominal, en milímetros, de una rosca métrica. Cada penetración de la carcasa es un punto por el que puede entrar agua, de modo que el requisito común es IP67 como mínimo.
 
@@ -1944,41 +1946,41 @@ Cada bloque del equipo recorre el mismo formato: el requisito que debe cumplir (
 
 **Tabla 7.7 “Matriz de decisión de la impresora 3D”**
 
-**La Creality K1C porque tiene cámara cerrada y el menor precio de lista registrado de las tres: US$399, frente a US$579 de la Bambu Lab P1S y US$1.299 de la Prusa Core One armada (tiendas oficiales, consulta del 02-10-2026).** Es un empate técnico con la Bambu Lab P1S: la diferencia de puntaje es menor que la incertidumbre de los puntajes, y la inclina el precio, US$180 menos por impresora y US$360 en las dos del taller. Su volumen de 220 × 220 mm es el menor de las tres, por lo que la cantidad de carcasas por cama se calcula en el capítulo VIII con la huella conservadora de 110 × 100 mm de la carcasa V2, mantenida como base del presupuesto.
+**La Creality K1C porque tiene cámara cerrada y el menor precio de lista registrado de las tres: US$399, frente a US$579 de la Bambu Lab P1S y US$1.299 de la Prusa Core One armada (tiendas oficiales, consulta del 02-10-2026).** Es un empate técnico con la Bambu Lab P1S: la diferencia de puntaje es menor que la incertidumbre de los puntajes, y la inclina el precio, US$180 menos por impresora y US$360 en las dos del taller. Su volumen de 220 × 220 mm es el menor de las tres, por lo que la cantidad de carcasas por cama se calcula en el capítulo VIII con la huella conservadora de 110 × 100 mm de la carcasa de laboratorio, mantenida como base del presupuesto.
 
-### Arquitectura eléctrica de la placa V3
+### Arquitectura eléctrica de la placa del instrumento
 
-La placa V3 reúne todos los circuitos como componentes soldados y conserva el contrato de pines del firmware actual para no reabrirlo. Su estado es **de diseño**: el esquemático y el plano de diseño están en el anexo C, y la placa se fabrica para el prototipo de diciembre de 2026. La figura siguiente muestra el diagrama de bloques; la que sigue, el árbol de alimentación, del producto. En ellas, PTC es un resistor de coeficiente de temperatura positivo que actúa como fusible rearmable y TVS, un supresor de tensiones transitorias.
+La placa del instrumento reúne todos los circuitos como componentes soldados y conserva el contrato de pines del firmware actual para no reabrirlo. Su estado es **de diseño**: la placa está ruteada y sus vistas están en el anexo C, y la placa se fabrica para el prototipo de diciembre de 2026. La figura siguiente muestra el diagrama de bloques; la que sigue, el árbol de alimentación, del producto. En ellas, PTC es un resistor de coeficiente de temperatura positivo que actúa como fusible rearmable y TVS, un supresor de tensiones transitorias.
 
-![Diagrama de bloques del hardware de la placa V3](Figuras/fig_bloques_v3.png)
+![Diagrama de bloques del hardware del instrumento](Figuras/fig_bloques.png)
 
-**Figura 2.2 “Diagrama de bloques del hardware de la placa V3”**
+**Figura 2.2 “Diagrama de bloques del hardware del instrumento”**
 
-![Árbol de alimentación de la placa V3](Figuras/fig_alimentacion_v3.png)
+![Árbol de alimentación del instrumento](Figuras/fig_alimentacion.png)
 
-**Figura 2.3 “Árbol de alimentación de la placa V3”**
+**Figura 2.3 “Árbol de alimentación del instrumento”**
 
 Cuatro decisiones del árbol explican su forma. Primero, **la celda y el cargador están siempre conectados entre sí**, de modo que el equipo se carga con el interruptor abierto; el interruptor corta la entrada del sistema, no la celda. Segundo, **la ruta de carga** (un P-MOSFET entre la celda y el sistema, gobernado por VBUS, más un diodo Schottky desde VBUS) alimenta el sistema desde USB mientras carga: sin ella, la carga del sistema engañaría al cargador, que nunca vería caer la corriente bajo su umbral de término. Tercero, **el LDO y el elevador cuelgan del mismo nodo**: la rama de 3,3 V se alimenta directamente desde la celda a través del regulador lineal. Cuarto, **el puente USB sólo se alimenta desde VBUS**: sin cable no consume nada de la celda.
 
-La asignación de pines de la V3 es compatible con el firmware del prototipo. IO5 gobierna el corte de la sonda y la habilitación del elevador; el puerto USB utiliza las señales de programación y comunicación indicadas en la tabla.
+La asignación de pines del instrumento es compatible con el firmware del prototipo. IO5 gobierna el corte de la sonda y la habilitación del elevador; el puerto USB utiliza las señales de programación y comunicación indicadas en la tabla.
 
-| Función | Pin del ESP32 | Conexión en la placa V3 | Origen | Estado |
+| Función | Pin del ESP32 | Conexión en la placa del instrumento | Relación con el firmware | Estado |
 |---|---|---|---|---|
-| Medición de batería | IO34 (sólo entrada, ADC1) | Divisor de 100 kΩ + 100 kΩ desde el nodo de celda | Mantenido de la V2 | Implementado |
-| Pulsador PAIR | IO33 | Pulsador a tierra con pull-up; activo en nivel bajo | Mantenido de la V2 | Implementado |
-| LED azul | IO25 | Resistencia de 330 Ω y LED a tierra; activo en nivel alto | Mantenido de la V2 | Implementado |
-| LED verde | IO26 | Ídem | Mantenido de la V2 | Implementado |
-| LED rojo | IO27 | Ídem | Mantenido de la V2 | Implementado |
+| Medición de batería | IO34 (sólo entrada, ADC1) | Divisor de 100 kΩ + 100 kΩ desde el nodo de celda | Igual al firmware vigente | Implementado |
+| Pulsador PAIR | IO33 | Pulsador a tierra con pull-up; activo en nivel bajo | Igual al firmware vigente | Implementado |
+| LED azul | IO25 | Resistencia de 330 Ω y LED a tierra; activo en nivel alto | Igual al firmware vigente | Implementado |
+| LED verde | IO26 | Ídem | Igual al firmware vigente | Implementado |
+| LED rojo | IO27 | Ídem | Igual al firmware vigente | Implementado |
 | Buzzer | IO19 | Base del transistor NPN S8050 con resistencia de 1 kΩ; resistencia de 47 Ω en serie con el buzzer y diodo de rueda libre 1N4148W | Pin mantenido; excitación nueva | Implementado; excitación de diseño |
-| Bus I²C | SDA en IO21, SCL en IO22 | BME280 con pull-ups de 4,7 kΩ | Mantenido de la V2 | Implementado |
-| Corte de la sonda y habilitación del elevador | IO5 (pin de arranque) | Entrada EN del MT3608 y compuerta del AO3400A que conmuta el AO3401A; resistencia de 4,7 kΩ a tierra | Pin y corte mantenidos de la V2; nuevo el EN del elevador | De diseño |
-| UART de la sonda | TX en IO17, RX en IO16 | Transceptor SP3485 | Mantenido de la V2 | De diseño V3; lectura inicial ensayada en banco V2 |
-| Dirección del bus RS-485 | IO4 | Terminales DE y RE (habilitación del driver y del receptor) unidos del SP3485 | Mantenido de la V2 | De diseño V3; lectura inicial ensayada en banco V2 |
-| USB-serie | IO1 (TX0) e IO3 (RX0) | CH340C; la línea TXD pasa por un divisor de 10 kΩ y 20 kΩ | Nuevo en la V3 | De diseño |
-| Autoprogramación | EN e IO0 | Dos transistores NPN comandados por DTR y RTS del CH340C | Nuevo en la V3 | De diseño |
-| Reinicio y arranque | EN e IO0 | Pulsadores de reinicio y de arranque; red de 10 kΩ y 1 µF en EN | Nuevo en la V3 | De diseño |
+| Bus I²C | SDA en IO21, SCL en IO22 | BME280 con pull-ups de 4,7 kΩ | Igual al firmware vigente | Implementado |
+| Corte de la sonda y habilitación del elevador | IO5 (pin de arranque) | Entrada EN del MT3608 y compuerta del AO3400A que conmuta el AO3401A; resistencia de 4,7 kΩ a tierra | Pin del firmware vigente; nuevo el EN del elevador | De diseño |
+| UART de la sonda | TX en IO17, RX en IO16 | Transceptor SP3485 | Igual al firmware vigente | De diseño; lectura inicial ensayada en banco de laboratorio |
+| Dirección del bus RS-485 | IO4 | Terminales DE y RE (habilitación del driver y del receptor) unidos del SP3485 | Igual al firmware vigente | De diseño; lectura inicial ensayada en banco de laboratorio |
+| USB-serie | IO1 (TX0) e IO3 (RX0) | CH340C; la línea TXD pasa por un divisor de 10 kΩ y 20 kΩ | Nuevo en el diseño | De diseño |
+| Autoprogramación | EN e IO0 | Dos transistores NPN comandados por DTR y RTS del CH340C | Nuevo en el diseño | De diseño |
+| Reinicio y arranque | EN e IO0 | Pulsadores de reinicio y de arranque; red de 10 kΩ y 1 µF en EN | Nuevo en el diseño | De diseño |
 
-**Tabla 7.8 “Asignación de pines del módulo ESP32 en la placa V3”**
+**Tabla 7.8 “Asignación de pines del módulo ESP32 en la placa del instrumento”**
 
 El pin IO5 es de arranque: durante el reinicio, el pull-up interno del módulo lo lleva a nivel alto antes de que el programa lo fije. Con la resistencia de 4,7 kΩ a tierra el nodo queda en unos 0,3 V, bajo el umbral de encendido del elevador y bajo el umbral mínimo de compuerta del AO3400A (0,65 V), de modo que la sonda no se energiza durante el reinicio. Ese comportamiento es una hipótesis de diseño que el ensayo de arranque verifica con osciloscopio.
 
@@ -1991,30 +1993,30 @@ El pin IO5 es de arranque: durante el reinicio, el pull-up interno del módulo l
 | Diodo Schottky del elevador | IF = Iout; VR = Vout | 0,15 A y 5 V con un diodo SS34 de 3 A y 40 V | — | Factor 20 en corriente y 8 en tensión |
 | Disipación del LDO | P = (Vsistema − 3,3 V) · I; ΔT = P · θJA | I = 150 mA (pico de transmisión BLE); 4,2 V con la celda llena y 4,5 V con USB; θJA ≈ 250 °C/W (supuesto, cobre mínimo) | 0,135 W con la celda llena y 0,18 W con USB; ΔT de 34 K y 45 K | Con 45 °C de ambiente la unión llega a 79 y 90 °C, bajo 125 °C; la transmisión dura 1 s de cada 16 s |
 | Límite de regulación del LDO | Vin,mín = Vsalida + caída | Caída de 0,31 V típica y 0,53 V máxima a 600 mA [64], ≈ 0,1 V a 150 mA (estimada, proporcional) | 3,4 V para regular 3,3 V; 3,1 V para mantener 3,0 V | El aviso de 3,40 V coincide con el límite de regulación; el equipo sigue operando hasta ≈ 3,1 V (mínimo del módulo: 3,0 V) |
-| Corriente desde la celda en el escenario nominal | I = I3,3V + Psonda/(η · Vcelda) + Ibuzzer | 0,150 A + 0,150 W/(0,85 · 3,0 V) + 0,052 A | 0,26 A | Fusible de 1 A: factor 3,8 (3,1 con 20 % de reducción por temperatura) |
+| Corriente desde la celda en el escenario nominal | I = I3,3V + Psonda/(η · Vcelda) + Ibuzzer | 0,150 A + 0,150 W/(0,85 · 3,0 V) + 0,052 A | 0,26 A | PTC de 1 A: factor 3,8 (3,1 con 20 % de reducción por temperatura) |
 | Corriente de carga | Icarga = 1.200 V/RPROG [67] | RPROG = 2,7 kΩ | 444 mA (0,22 C) | Menos de 0,5 C (1,0 A) de la celda y de 0,5 A del puerto USB 2.0 con el sistema apagado |
 | Tiempo de carga | t ≈ C/I más la fase de tensión constante | 2.000 mAh y 444 mA | 4,5 h más 0,5 a 1 h: ≈ 5 a 5,5 h | Cumple R08 (6 h o menos) |
 | Disipación del TP4056 | P = (VBUS − Vcelda) · Icarga; ΔT = P · θJA | 5 V; 3,0 V; 0,444 A; θJA ≈ 40 °C/W con almohadilla soldada (supuesto) | 0,89 W; ΔT de 36 K | Con 45 °C de ambiente: 81 °C, bajo el límite térmico de 120 °C; a 1 A serían 2 W y el cargador reduciría su corriente |
-| Ancho de pistas | I = k · ΔT^0,44 · A^0,725 (IPC-2221, k = 0,048 en capa externa, A en mil²) | 1 A; ΔT = 10 K; cobre de 35 µm | Ancho de 0,30 mm para 1 A y de 0,06 mm para 0,32 A | Pistas de potencia de 0,8 a 1,5 mm: factor 2,7 a 5 |
+| Ancho de pistas | I = k · ΔT^0,44 · A^0,725 (IPC-2221, k = 0,048 en capa externa, A en mil²) | 1 A; ΔT = 10 K; cobre de 35 µm | Ancho de 0,30 mm para 1 A y de 0,06 mm para 0,32 A | Pistas de potencia de 0,7 mm: factor 2,3 |
 | Resistencias de los LED | R = (3,3 V − Vf)/I | 330 Ω; rojo con Vf ≈ 2,0 V; verde y azul con Vf ≈ 2,9 a 3,1 V | Rojo 3,9 mA; verde y azul 0,6 a 1,2 mA | Factor de 5 o más bajo los 20 mA típicos |
-| Buzzer con transistor | Ipico = 3,3 V/(Rbobina + Rserie) | Bobina de 16 a 42 Ω, rango de los buzzers magnéticos de 9 mm: la ficha del KLJ-9032-3627 no la publica y se mide en banco; resistencia en serie de 47 Ω [68] | 52 mA (16 Ω) a 37 mA (42 Ω), bajo los 100 mA nominales del buzzer; promedio de 19 a 26 mA con onda cuadrada | La corriente sale del riel de 3,3 V y no del pin (≈ 2,6 mA por IO19 con resistencia de base de 1 kΩ); la resistencia disipa ≈ 64 mW de 250 mW |
+| Buzzer con transistor | Ipico = 3,3 V/(Rbobina + Rserie) | Bobina de 42 Ω según el código del YS-MBZ9042C05R42, que se confirma en banco; el diseño conserva la cota de 16 Ω, el extremo inferior de los buzzers magnéticos de 9 mm; resistencia en serie de 47 Ω [68] | 37 mA (42 Ω) y 52 mA como cota de diseño (16 Ω), bajo los 60 mA nominales del buzzer; promedio de 19 a 26 mA con onda cuadrada | La corriente sale del riel de 3,3 V y no del pin (≈ 2,6 mA por IO19 con resistencia de base de 1 kΩ); la resistencia disipa ≈ 64 mW de 250 mW |
 | Divisor de batería | VADC = Vcelda/2 | 100 kΩ + 100 kΩ; celda de 3,0 a 4,2 V | 1,5 a 2,1 V; 18,5 µA a 3,7 V | Dentro del rango del conversor analógico (hasta 3,3 V) |
 | Nivel de IO5 al reiniciar | V = 3,3 V · Rpd/(Rpd + Rpull-up) | Rpd = 4,7 kΩ; pull-up interno de IO5 ≈ 45 kΩ [61] | 0,31 V | Bajo el umbral de encendido del elevador y bajo el umbral mínimo de 0,65 V del AO3400A [69]: factor 2 (se confirma con osciloscopio) |
 | Divisor de la línea TXD del CH340C | V = 5 V · R2/(R1 + R2) | R1 = 10 kΩ; R2 = 20 kΩ | 3,33 V | Menos de 3,6 V, máximo del módulo |
 | Resistencias CC del USB-C | Rd = 5,1 kΩ ±1 % en CC1 y CC2 | Especificación del conector USB-C | El cargador reconoce al equipo como receptor y entrega 5 V | — |
 | Retardo de reinicio | τ = R · C | 10 kΩ y 1 µF | 10 ms | Recomendación de la guía de diseño del fabricante [70] |
 
-**Tabla 7.9 “Cálculos de dimensionamiento de la electrónica V3”**
+**Tabla 7.9 “Cálculos de dimensionamiento de la electrónica del instrumento”**
 
 Los 0,26 A desde la celda corresponden a la sonda de 30 mA. Con la cota de diseño de 150 mA a 5 V, la fórmula entrega aproximadamente 0,50 A a 3,0 V; este escenario debe incluirse en protecciones y pistas. Un LDO no eleva tensión: con celda a 3,0 V no garantiza el mínimo de 3,0 V del ESP32. La descarga utilizable y el fin de operación se validan bajo carga; el 80 % de capacidad usado en autonomía es un supuesto. La temperatura de encapsulado del cargador y la estimación de temperatura de unión son magnitudes distintas.
 
-Tres puntos de esta tabla definen decisiones de la V3. **Primero, el MT3608 no desconecta la carga cuando EN está en nivel bajo:** queda un camino por la bobina y el diodo y la salida se queda en ≈ 3,4 a 3,9 V. Por eso el corte de la sonda no se confía al EN: lo hace el P-MOSFET AO3401A en serie con la salida, gobernado por el AO3400A desde el mismo pin IO5, igual que en la placa V2. El ensayo de corte comprueba que la sonda queda en 0 V con IO5 en bajo. **Segundo,** el valor de la resistencia de programación, 2,7 kΩ, limita la corriente de carga a 444 mA para no sobrepasar el puerto USB 2.0 de 500 mA; con el equipo midiendo mientras carga desde un puerto USB-A la corriente total lo superaría, y por eso se recomienda cargar con el equipo apagado. **Tercero,** con el pin TEMP del cargador a tierra el cargador no vigila la temperatura de la celda: la V3 lleva una huella para un termistor NTC de 10 kΩ adosado a la celda, cuya red resistiva debe verificarse contra los umbrales del cargador para garantizar la ventana de 0 a 45 °C; incluir el termistor no demuestra por sí solo ese cumplimiento.
+Tres puntos de esta tabla definen decisiones del diseño. **Primero, el MT3608 no desconecta la carga cuando EN está en nivel bajo:** queda un camino por la bobina y el diodo y la salida se queda en ≈ 3,4 a 3,9 V. Por eso el corte de la sonda no se confía al EN: lo hace el P-MOSFET AO3401A en serie con la salida, gobernado por el AO3400A desde el mismo pin IO5. El ensayo de corte comprueba que la sonda queda en 0 V con IO5 en bajo. **Segundo,** el valor de la resistencia de programación, 2,7 kΩ, limita la corriente de carga a 444 mA para no sobrepasar el puerto USB 2.0 de 500 mA; con el equipo midiendo mientras carga desde un puerto USB-A la corriente total lo superaría, y por eso se recomienda cargar con el equipo apagado. **Tercero,** con el pin TEMP del cargador a tierra el cargador no vigila la temperatura de la celda: la placa del instrumento lleva una huella para un termistor NTC de 10 kΩ adosado a la celda, cuya red resistiva debe verificarse contra los umbrales del cargador para garantizar la ventana de 0 a 45 °C; incluir el termistor no demuestra por sí solo ese cumplimiento.
 
-La autonomía de la placa V3 y su comparación con la V2 se calculan en el apartado de eficiencia energética.
+La autonomía de la placa del instrumento y su comparación con la placa de laboratorio se calculan en el apartado de eficiencia energética.
 
 ### Eficiencia energética
 
-La regla que gobierna el diseño es una sola: toda energía que el instrumento consume fuera del instante de medición es energía desperdiciada, y se paga dos veces, en autonomía perdida para el usuario y en batería adicional que comprar. Esta sección la aplica al equipo y también al taller que lo fabrica. Las cifras de energía salen del modelo energético de la placa V3, construido con las corrientes de diseño de la tabla siguiente; son cifras de diseño que se miden en el prototipo.
+La regla que gobierna el diseño es una sola: toda energía que el instrumento consume fuera del instante de medición es energía desperdiciada, y se paga dos veces, en autonomía perdida para el usuario y en batería adicional que comprar. Esta sección la aplica al equipo y también al taller que lo fabrica. Las cifras de energía salen del modelo energético de la placa del instrumento, construido con las corrientes de diseño de la tabla siguiente; son cifras de diseño que se miden en el prototipo.
 
 **Potencia instalada del equipo.** La potencia instalada es la suma de las potencias nominales de todos los consumidores, hayan o no de funcionar a la vez. La tabla da la corriente de diseño y la potencia de cada uno en su propio nodo de tensión; la potencia total desde la celda incluye además las pérdidas de conversión.
 
@@ -2025,13 +2027,13 @@ La regla que gobierna el diseño es una sola: toda energía que el instrumento c
 | Transceptor SP3485 con el driver activo | 3,3 V | 2 mA | 6,6 mW | Hoja del transceptor [24] |
 | BME280 muestreando a 1 Hz | 3,3 V | 0,0036 mA | 0,01 mW | Hoja del BME280 [13] |
 | LED rojo (el más exigente de los tres) | 3,3 V | 3,9 mA | 12,9 mW | Cálculo con 330 Ω (Tabla 7.9) |
-| Buzzer KLJ-9032 con transistor (pico) | 3,3 V | 52 mA | 173 mW | Cálculo con bobina de 16 Ω supuesta y 47 Ω en serie (Tabla 7.9) |
+| Buzzer YS-MBZ9042 con transistor (pico) | 3,3 V | 52 mA | 173 mW | Cota de diseño con bobina de 16 Ω y 47 Ω en serie; con la bobina de 42 Ω de su código serían 37 mA (Tabla 7.9) |
 | Divisor de batería | 3,7 V | 0,0185 mA | 0,07 mW | Cálculo directo |
 | Polarización del corte de la sonda (10 kΩ entre compuerta y 5 V, sólo midiendo) | 5 V | 0,5 mA | 2,5 mW | Cálculo directo |
 | Puente USB-serie CH340C (sólo con cable) | 5 V | 12 mA típicos (30 mA como máximo) | 60 mW (150 mW como máximo) | Hoja del CH340 [62] |
 | Cargador TP4056 (sólo cargando) | 5 V | 444 mA | 2,2 W | Cálculo de Tabla 7.9 |
-| Pérdidas del elevador y del LDO | — | — | ≈ 0,110 W (LDO ≈ 0,083 W para todos los consumidores de 3,3 V y elevador ≈ 0,027 W) | Cálculo del modelo energético V3 |
-| **Potencia total instalada del equipo, desde la celda** | — | — | 0,949 W desde la celda (0,839 W en los nodos; las pérdidas ya están incluidas en la primera cifra) | Modelo energético V3 |
+| Pérdidas del elevador y del LDO | — | — | ≈ 0,110 W (LDO ≈ 0,083 W para todos los consumidores de 3,3 V y elevador ≈ 0,027 W) | Cálculo del modelo energético del instrumento |
+| **Potencia total instalada del equipo, desde la celda** | — | — | 0,949 W desde la celda (0,839 W en los nodos; las pérdidas ya están incluidas en la primera cifra) | Modelo energético del instrumento |
 
 **Tabla 8.0 “Potencia instalada del equipo por consumidor”**
 
@@ -2059,7 +2061,7 @@ Con esa jornada, la energía por medición es de 1,106 mWh y la energía por jor
 |---|---|---|---|
 | Corte de la sonda por MOSFET y habilitación del elevador | El pin IO5 habilita el elevador y cierra el corte AO3401A sólo durante los 3 s de adquisición; la resistencia de 4,7 kΩ a tierra los mantiene apagados durante el reinicio | Sin el corte, la sonda se sumaría de forma continua a la espera: 176,5 mW desde la celda, frente a los 66,7 mW de la espera: más que triplicaría el consumo de espera (de 66,7 a 243 mW) | De diseño |
 | Reposo profundo con despertar por el pulsador | El módulo duerme a 10 µA entre mediciones y despierta con PAIR | En el equipo olvidado encendido, de 3,7 a 760,6 días (limitado en la práctica por la autodescarga); en uso habitual, de 125,6 a ≈ 595,6 días (cálculo derivado del modelo) | De diseño (firmware programado para el prototipo) |
-| LDO de baja corriente propia | RT9080-33 con unos 2 µA, frente a los ≈ 6 mA de la placa de desarrollo del prototipo | 3.000 veces menos corriente propia | De diseño |
+| LDO de baja corriente propia | RT9080-33 con unos 2 µA de corriente propia | El reposo profundo del módulo se traduce en ahorro real | De diseño |
 | Puente USB sin alimentación desde la celda | El CH340C toma energía sólo de VBUS | Sin cable USB, consumo nulo desde la celda | De diseño |
 | LED y buzzer apagados en reposo | Sólo avisos breves de décimas de segundo | El aviso de una medición es una fracción de un punto porcentual del ciclo | Implementado |
 | Interruptor general | Corta la entrada del sistema; el cargador sigue conectado a la celda | El equipo apagado conserva su carga durante meses | De diseño |
@@ -2087,7 +2089,7 @@ A la tarifa presupuestaria de $200 por kWh, la demanda calculada cuesta $152.298
 
 | Fuente de eficiencia | Qué cambia | Ahorro |
 |---|---|---|
-| Conversión | El LDO alimenta la electrónica de 3,3 V directamente desde la celda y sólo la sonda pasa por el elevador | Eficiencia del LDO de 3,3 V/3,7 V = 89 %, frente al 56 % de la placa V2, donde la rama de 3,3 V pasaba por el elevador y por el regulador de la placa de desarrollo |
+| Conversión | El LDO alimenta la electrónica de 3,3 V directamente desde la celda y sólo la sonda pasa por el elevador | Eficiencia del LDO de 3,3 V/3,7 V = 89 %; si la rama de 3,3 V pasara por el elevador y luego por un regulador lineal, llegaría sólo el 56 % de la energía de la celda |
 | Reposo | Reposo profundo del módulo y LDO de baja corriente propia | De 141,5 a 11,3 mWh por jornada: 130,2 mWh menos, el 92 % de la energía de la jornada |
 | Conmutación de cargas | Elevador y corte de la sonda activos sólo en la adquisición; buzzer y LED apagados | La sonda no se suma a la espera (véase la gestión de cargas) |
 | Carga por USB frente a pilas primarias | Una celda recargable de unos 7,4 Wh en lugar de pilas desechables | Del orden de cuatro celdas en diez años en lugar de un juego de pilas por temporada; la celda sigue siendo un residuo prioritario de la Ley REP |
@@ -2149,11 +2151,11 @@ La figura muestra los flujos continuos (implementados) y los punteados (opcional
 
 ### Marco normativo aplicable al producto
 
-El marco regulatorio y su clasificación (Tabla 5.4) se establecieron en la ingeniería conceptual y se aplican también al producto. La placa V3 sólo cambia dónde se cumplen algunos requisitos: la protección de la celda la trae la propia celda, de modo que su certificado IEC 62133-2 pasa a ser un requisito de compra [28]; la protección contra descargas electrostáticas del puerto USB y del bus RS-485 se resuelve con circuitos dedicados, ensayados según IEC 61000-4-2 [59]; y la conformidad de radio se tramita sobre el equipo terminado. El equipo se vende sin adaptador de red, con cable USB-C: al no incluir una fuente conectada a la red domiciliaria no se configura la certificación eléctrica de producto, y esa decisión se mantiene.
+El marco regulatorio y su clasificación (Tabla 5.4) se establecieron en la ingeniería conceptual y se aplican también al producto. La placa del instrumento sólo cambia dónde se cumplen algunos requisitos: la protección de la celda la trae la propia celda, de modo que su certificado IEC 62133-2 pasa a ser un requisito de compra [28]; la protección contra descargas electrostáticas del puerto USB y del bus RS-485 se resuelve con circuitos dedicados, ensayados según IEC 61000-4-2 [59]; y la conformidad de radio se tramita sobre el equipo terminado. El equipo se vende sin adaptador de red, con cable USB-C: al no incluir una fuente conectada a la red domiciliaria no se configura la certificación eléctrica de producto, y esa decisión se mantiene.
 
 ## VII. Ingeniería de Detalle
 
-La ingeniería de detalle responde la pregunta ¿cómo se construirá, comprará e instalará? Baja la ingeniería básica hasta lo que hace falta para comprar cada componente y equipo, verificar que cumple su hoja de datos, fabricar la placa y la carcasa, armar el equipo siguiendo una secuencia que un tercero pueda repetir, e instalarlo en el campo. Cada ítem del producto y del taller recorre el ciclo especificar, justificar, cotizar, dimensionar y probar. Lo que sigue es la especificación de diseño de la placa V3 y de su carcasa, con sus planos en los anexos C y D.
+La ingeniería de detalle responde la pregunta ¿cómo se construirá, comprará e instalará? Baja la ingeniería básica hasta lo que hace falta para comprar cada componente y equipo, verificar que cumple su hoja de datos, fabricar la placa y la carcasa, armar el equipo siguiendo una secuencia que un tercero pueda repetir, e instalarlo en el campo. Cada ítem del producto y del taller recorre el ciclo especificar, justificar, cotizar, dimensionar y probar. Lo que sigue es la especificación de diseño de la placa del instrumento y de su carcasa, con sus planos en los anexos C y D.
 
 ### Especificación de compra del producto
 
@@ -2165,12 +2167,12 @@ La tabla enumera, por bloque, qué se compra, con qué número de parte, en qué
 | Sensor ambiental | Sensor de temperatura, humedad y presión | BME280 (LGA-8) | 1 | LCSC; DigiKey |
 | Cargador | Cargador de celda de litio | TP4056 (ESOP-8) | 1 | LCSC; DigiKey |
 | Regulador | LDO de 3,3 V | RT9080-33GJ5 (TSOT-23-5); alternativa ME6211C33 | 1 | LCSC; DigiKey |
-| Elevador y corte de la sonda | Elevador de 5 V con habilitación, bobina de 22 µH, diodo SS34 y divisor de realimentación; corte con P-MOSFET en serie y N-MOSFET de mando | MT3608 (SOT-23-6); AO3401A y AO3400A (SOT-23) | 1; 1 y 1 | LCSC; DigiKey |
+| Elevador y corte de la sonda | Elevador de 5 V con habilitación, bobina de 22 µH de 7,3 × 7,3 mm, diodo SS34 y divisor de realimentación; corte con P-MOSFET en serie y N-MOSFET de mando | MT3608 (SOT-23-6); AO3401A y AO3400A (SOT-23) | 1; 1 y 1 | LCSC; DigiKey |
 | Bus de la sonda | Transceptor RS-485 y protección del bus | SP3485EN y TVS SM712 | 1 y 1 | LCSC; DigiKey |
-| USB-C | Conector, puente USB-serie, protección ESD y PTC de 1,0 A | Receptáculo USB-C de 16 pines, CH340C (SOIC-16), USBLC6-2SC6 y PTC 0603L100SLYR | 1, 1, 1 y 1 | LCSC; DigiKey |
-| Interfaz | LED azul, verde y rojo, más los dos LED de estado del cargador; buzzer pasivo magnético SMD de 9 mm (KLJ-9032) con transistor NPN S8050, diodo 1N4148W y resistencia de 47 Ω; pulsadores PAIR, EN y BOOT | LED 0603; buzzer KLJ-9032-3627; pulsador SMD TS-1187A de 5,1 mm | 5; 1; 3 | LCSC; DigiKey |
-| Protección y ruta de carga | Fusible de 1 A, diodo M7, P-MOSFET AO3401A y diodo Schottky de la ruta de carga, termistor NTC de 10 kΩ adosado a la celda con su red de 4,7 kΩ y 47 kΩ, puente de medición | PTC 0603L100 de 1 A; M7 (SMA); AO3401A; NTC MF52A103F3950 | 1 de cada uno | LCSC; DigiKey |
-| Pasivos y conectores | Resistencias, condensadores y borneras de paso 5 mm (celda, interruptor y termistor) y 5,08 mm (sonda) | Según la lista del anexo A | Según anexo A | LCSC; DigiKey |
+| USB-C | Conector, puente USB-serie, protección ESD y PTC de 1,0 A | Receptáculo USB-C de 16 pines GCT USB4105, CH340C (SOIC-16) con divisor de 10 kΩ y 20 kΩ en TXD, USBLC6-2SC6 y PTC 0603L100SLYR | 1, 1, 1 y 1 | LCSC; DigiKey |
+| Interfaz | LED azul, verde y rojo, más los dos LED de estado del cargador; buzzer pasivo magnético de 9 mm de montaje pasante con transistor NPN S8050, diodo 1N4148W y resistencia de 47 Ω; pulsadores PAIR, EN y BOOT | LED 0603; buzzer YS-MBZ9042C05R42; pulsador SMD TS-1187A de 5,1 mm | 5; 1; 3 | LCSC; DigiKey |
+| Protección y ruta de carga | PTC de 1 A en la celda, diodo M7, P-MOSFET AO3401A y diodo Schottky de la ruta de carga, termistor NTC de 10 kΩ adosado a la celda con su red de 4,7 kΩ y 47 kΩ, puente de medición | PTC 0603L100 de 1 A; M7 (SMA); AO3401A; NTC MF52A103F3950 | 1 de cada uno | LCSC; DigiKey |
+| Pasivos y conectores | Resistencias de 1 % y 250 mW y condensadores cerámicos en encapsulado 1206; borneras de paso 5 mm (celda, interruptor, termistor y sonda) | Según la lista del anexo A | Según anexo A | LCSC; DigiKey |
 | Placa | Placa de circuito impreso de 2 capas | Diseño propio, FR-4 de 1,6 mm | 1 | JLCPCB |
 | Sonda | Sonda de suelo 7 en 1 RS-485 | ComWinTop CWT-Soil-NPKPHCTH-S, variante T-H-EC-NPK-PH [20] | 1 | AliExpress; no hay alternativa nacional (muestra ya adquirida) |
 | Energía | Celda LiPo con protección | EEMB LP103454, 3,7 V y 2.000 mAh | 1 | AliExpress, tienda del fabricante |
@@ -2191,7 +2193,7 @@ El taller es parte del proyecto y recorre el mismo ciclo que el producto. El tal
 | Estación de soldadura | Temperatura regulable y punta fina para componentes 0603 y 1206 | Retoque y retrabajo de la placa y soldadura de cableado | Hakko FX-888D en DigiKey; $145.965 cada una (consultado) | 2, una por puesto | Soldadura de una placa de prueba sin juntas frías |
 | Aire caliente | Perfil de reflujo para LGA y SOIC | El BME280 en LGA no se suelda a mano; sirve para prototipos y retrabajo | Quick 861DW (T-Equipment); $332.702 (consultado) | 1 | Reflujo de una placa de prueba con inspección al microscopio |
 | Placa calefactora | Precalentado de 100 × 100 mm, 400 W | Reflujo de prototipos con esténcil | UYUE 946-1010 (AliExpress); $45.114 (consultado) | 1 | Perfil de temperatura en una placa de prueba |
-| Esténcil de pasta de soldar | Acero de 0,12 mm con marco, aberturas según las huellas de la V3 | Aplicar pasta en los componentes pequeños | JLCPCB; $8.865 cada uno (tarifa publicada; aberturas según el plano del anexo C) | 2: uno para la V3 y uno de repuesto | Cobertura de pasta verificada con lupa |
+| Esténcil de pasta de soldar | Acero de 0,12 mm con marco, aberturas según las huellas de la placa | Aplicar pasta en los componentes pequeños | JLCPCB; $8.865 cada uno (tarifa publicada; aberturas según el plano del anexo C) | 2: uno para la placa del instrumento y uno de repuesto | Cobertura de pasta verificada con lupa |
 | Microscopio estereoscópico | De 10× a 20× binocular | Inspección de puentes y juntas visibles; las uniones ocultas requieren control del proceso y, si procede, radiografía del fabricante | AmScope SE400-Z; $329.318 (tienda oficial) | 1 | Se distinguen defectos visibles; la lupa no acredita las uniones bajo el LGA |
 | Osciloscopio | 4 canales y 50 MHz para el bus RS-485 y el rizado de 3,3 V | Ensayo de arranque del elevador y del bus | Rigol DS1054Z (Electro-Meters); $519.573 (consultado) | 1 | Medición de una señal de referencia |
 | Fuente de laboratorio | 0 a 30 V y 0 a 5 A con limitación de corriente | Puesta en marcha por etapas | Korad KA3005P (Welectron); $111.656 (consultado) | 1 | Calibración contra una referencia |
@@ -2205,29 +2207,29 @@ El taller es parte del proyecto y recorre el mismo ciclo que el producto. El tal
 
 El anexo A reúne las cotizaciones en una planilla de Excel con las columnas equipo, modelo, cantidad, proveedor, valor unitario y valor total, más la fecha de consulta y el enlace. Aquí se resume por bloque. Los precios de los componentes electrónicos son de catálogo público de LCSC consultado el 02-10-2026, en el tramo para 200 equipos y a $950 por dólar; DigiKey se consultó para las alternativas y para parte del instrumental del taller.
 
-Sobre el origen de los precios: **cada valor es un precio público con proveedor, fecha y enlace**, y la placa V2 y la muestra de la sonda ya se compraron. Lo consultado es el catálogo de LCSC (las 56 líneas de electrónica), el de DigiKey (alternativas) y las publicaciones de AliExpress para la sonda, la celda y los accesorios, todos el 02-10-2026; el flete de los componentes sale del carrito de LCSC con destino Chile. En el producto, tres líneas son estimaciones: la placa V3, su ensamble por el fabricante y la carcasa, porque su orden de compra se emite con el prototipo; se valorizan con el precio pagado por la placa V2 como referencia conservadora para placas de hasta 100 × 100 mm, con las tarifas publicadas del fabricante y con el costeo del filamento. La compra de placas documentada corresponde a la V2; también se adquirió la muestra de sonda (las placas fueron 5 por $15.000 con envío, IVA e impuestos, es decir $3.000 por placa, en JLCPCB). Los servicios de validación y parte del taller se valorizan con tarifas publicadas de los laboratorios y fabricantes. Los demás valores son precios públicos de LCSC [45], DigiKey [71] y AliExpress, consultados en la fecha que registra el anexo. Para el volumen de producción, cada proveedor emite una cotización formal y fechada antes de la primera orden de compra.
+Sobre el origen de los precios: **cada valor es un precio público con proveedor, fecha y enlace**, y la placa de laboratorio y la muestra de la sonda ya se compraron. Lo consultado es el catálogo de LCSC (las 57 líneas de electrónica), el de DigiKey (alternativas) y las publicaciones de AliExpress para la sonda, la celda y los accesorios, todos el 02-10-2026; el flete de los componentes sale del carrito de LCSC con destino Chile. En el producto, tres líneas son estimaciones: la placa del instrumento, su ensamble por el fabricante y la carcasa, porque su orden de compra se emite con el prototipo; se valorizan con el precio pagado por la placa de laboratorio como referencia conservadora para placas de hasta 100 × 100 mm, con las tarifas publicadas del fabricante y con el costeo del filamento. La compra de placas documentada corresponde a la placa de laboratorio; también se adquirió la muestra de sonda (las placas fueron 5 por $15.000 con envío, IVA e impuestos, es decir $3.000 por placa, en JLCPCB). Los servicios de validación y parte del taller se valorizan con tarifas publicadas de los laboratorios y fabricantes. Los demás valores son precios públicos de LCSC [45], DigiKey [71] y AliExpress, consultados en la fecha que registra el anexo. Para el volumen de producción, cada proveedor emite una cotización formal y fechada antes de la primera orden de compra.
 
 | Bloque | Líneas | Proveedor principal | Subtotal neto por equipo | Naturaleza del precio |
 |---|---:|---|---:|---|
 | Sonda de suelo | 1 | AliExpress (sin alternativa nacional) | $44.394 | Publicación con fecha: $34.700 más $9.694 de envío a Chile |
 | Celda de energía | 1 | AliExpress, tienda EEMB | $6.900 | Publicación con fecha (pack de 10) |
 | Carcasa | 1 | Taller propio | $7.238 | Costeo de la impresión: filamento $5.250, merma $788, energía $210 y mantención $990 |
-| Placa V3, cargos de ensamble del fabricante, flete e internación | 3 | JLCPCB y LCSC | $6.312 | Placa y ensamble: estimación con el precio de la V2 como referencia conservadora y las tarifas publicadas; flete: cotizado en el carrito de LCSC |
+| Placa del instrumento, cargos de ensamble del fabricante, flete e internación | 3 | JLCPCB y LCSC | $6.289 | Placa y ensamble: estimación con el precio de la placa de laboratorio como referencia conservadora y las tarifas publicadas; flete: cotizado en el carrito de LCSC |
 | Procesamiento y radio (ESP32-WROOM-32D) | 1 | LCSC (alternativa DigiKey) | $2.710 | Catálogo con fecha |
-| USB y carga (conector, CH340C, USBLC6-2SC6, PTC, TP4056 y termistor de la celda) | 18 | LCSC | $1.054 | Catálogo con fecha |
+| USB y carga (conector USB4105, CH340C con su divisor de TXD, USBLC6-2SC6, PTC, TP4056, termistor de la celda y ruta de carga) | 20 | LCSC | $1.543 | Catálogo con fecha |
 | Alimentación de 3,3 V (RT9080-33) | 1 | LCSC | $83 | Catálogo con fecha |
-| Elevador de 5 V y corte de la sonda (MT3608, bobina, diodo, AO3401A y AO3400A) | 10 | LCSC (alternativa TPS61023) | $614 | Catálogo con fecha |
-| Bus RS-485 (SP3485 y SM712) | 5 | LCSC | $249 | Catálogo con fecha |
-| Sensor ambiental (BME280) | 2 | LCSC (alternativa DigiKey) | $4.613 | Catálogo con fecha |
-| Interfaz (LED, buzzer con su resistencia de 47 Ω, pulsadores) | 10 | LCSC | $382 | Catálogo con fecha |
-| Protección y medición | 5 | LCSC | $730 | Catálogo con fecha |
-| Pasivos de desacoplo | 4 | LCSC | $213 | Catálogo con fecha |
+| Elevador de 5 V y corte de la sonda (MT3608, bobina, diodo, AO3401A y AO3400A) | 10 | LCSC (alternativa TPS61023) | $665 | Catálogo con fecha |
+| Bus RS-485 (SP3485, SM712, terminación y polarización) | 4 | LCSC | $220 | Catálogo con fecha |
+| Sensor ambiental (BME280) | 2 | LCSC (alternativa DigiKey) | $4.623 | Catálogo con fecha |
+| Interfaz (LED, buzzer con su resistencia de 47 Ω, pulsadores) | 10 | LCSC | $229 | Catálogo con fecha |
+| Protección y medición | 5 | LCSC | $731 | Catálogo con fecha |
+| Pasivos de desacoplo | 4 | LCSC | $657 | Catálogo con fecha |
 | Montaje y embalaje | 9 | AliExpress, MCI Electronics e imprenta local | $5.142 | Catálogo y publicaciones con fecha |
-| **Total de la lista de materiales por equipo** | 71 | — | **$80.632** | — |
+| **Total de la lista de materiales por equipo** | 72 | — | **$81.425** | — |
 
-**Tabla 8.9 “Resumen de la lista de materiales de la placa V3 por bloque”**
+**Tabla 8.9 “Resumen de la lista de materiales de la placa del instrumento por bloque”**
 
-La Ley N° 21.713 [42] regula desde el 25 de octubre de 2025 el IVA de ventas remotas de bienes de hasta US$500 a consumidores finales. TerraSense debe informar su condición de contribuyente y documentar las importaciones o compras nacionales para sustentar el crédito fiscal; no se presume recuperable el impuesto de una compra personal. La electrónica de la placa suma $10.645 (13,2 % de la lista) y la sonda $44.394 (55,1 %); el resto corresponde a placa, ensamble, carcasa, celda y montaje. Los plazos referenciales son de 1 a 3 semanas para JLCPCB, de 1 a 2 semanas para LCSC con mensajería internacional y de 2 a 4 semanas para AliExpress; se confirman al emitir la orden.
+La Ley N° 21.713 [42] regula desde el 25 de octubre de 2025 el IVA de ventas remotas de bienes de hasta US$500 a consumidores finales. TerraSense debe informar su condición de contribuyente y documentar las importaciones o compras nacionales para sustentar el crédito fiscal; no se presume recuperable el impuesto de una compra personal. La electrónica de la placa suma $11.462 (14,1 % de la lista) y la sonda $44.394 (54,5 %); el resto corresponde a placa, ensamble, carcasa, celda y montaje. Los plazos referenciales son de 1 a 3 semanas para JLCPCB, de 1 a 2 semanas para LCSC con mensajería internacional y de 2 a 4 semanas para AliExpress; se confirman al emitir la orden.
 
 ### Verificación contra hojas de datos
 
@@ -2247,7 +2249,7 @@ La verificación contrasta, componente por componente, lo que el diseño le exig
 | PTC de 1,0 A en VBUS | Corriente de mantenimiento | 0,7 A en el peor caso (carga 0,444 A y sistema 0,26 A) | 1,0 A de mantenimiento a 20 °C; la serie 0603L conserva el 82 % a 40 °C y el 74 % a 50 °C [75], ≈ 0,78 A a 45 °C | Factor 1,1 a 45 °C; sobre 45 °C el termistor suspende la carga y la corriente cae a 0,26 A (factor 2,8 a 50 °C) | Compatible con la hoja de datos; se ensaya en el prototipo |
 | AO3400A y AO3401A (corte de la sonda y ruta de carga) | Umbral, corriente y tensión | Compuerta del AO3400A a 3,3 V; AO3401A con −5 V entre compuerta y fuente; 30 mA de la sonda y hasta 0,7 A en la ruta de carga; 5 V | AO3400A: umbral de 0,65 a 1,45 V, 5,7 A y 30 V [69]; AO3401A: umbral de −0,5 a −1,3 V, 4,0 A y −30 V [76] | Compuerta 1,85 V sobre el umbral máximo; corriente: factor 5,7 en la ruta de carga y más de 100 en la sonda | Compatible con la hoja de datos; se ensaya en el prototipo |
 | S8050 (buzzer y autoprogramación) | Corriente de colector | 52 mA del buzzer | 500 mA de colector | Factor 9,6 | Compatible con la hoja de datos; se ensaya en el prototipo |
-| Buzzer KLJ-9032 con transistor y 47 Ω | Corriente por el pin | 20 mA por pin como máximo recomendado | La corriente (37 a 52 mA) la entrega el riel de 3,3 V; por el pin pasa sólo la corriente de base [77] | ≈ 2,6 mA por IO19 con 1 kΩ de base | Cumple: el riesgo de corriente del buzzer queda cerrado en el diseño; falta el ensayo |
+| Buzzer YS-MBZ9042 con transistor y 47 Ω | Corriente por el pin | 20 mA por pin como máximo recomendado | La corriente (37 a 52 mA) la entrega el riel de 3,3 V; por el pin pasa sólo la corriente de base [77] | ≈ 2,6 mA por IO19 con 1 kΩ de base | Cumple: el riesgo de corriente del buzzer queda cerrado en el diseño; falta el ensayo |
 | PTC de 1 A y diodo M7 | Coordinación ante inversión de batería | Corriente de cortocircuito limitada antes de dañar la placa | Curvas de disparo del PTC y energía de pulso del diodo [78] | El factor de tensión inversa no demuestra protección | Cálculo de coordinación y ensayo con fuente limitada en el prototipo |
 | Celda LiPo de 2.000 mAh | Tensión y régimen | 3,0 a 4,2 V; descarga de 0,13 C; carga de 0,22 C | Carga de 4,20 V ± 50 mV; carga estándar de 0,5 C y máxima de 1 C [79] | Carga a menos de la mitad de 0,5 C | Cumple con condición: certificado IEC 62133-2 y protección de la celda comprada |
 | LED 0603 con 330 Ω | Corriente | Visibilidad con 1 a 4 mA | 20 mA nominales; el azul XL-1608UBC-04 entrega 300 mcd a 20 mA con 3,3 V de tensión directa | Factor de 5 o más | Cumple: azul y verde quedan en torno a 1 mA (≈ 15 mcd), visibles en interior y a la sombra; al sol directo cada aviso se repite con el buzzer y en la aplicación |
@@ -2255,44 +2257,49 @@ La verificación contrasta, componente por componente, lo que el diseño le exig
 | Sonda CWT-Soil-NPKPHCTH-S | Alimentación y consumo | 5,00 V del elevador; ≈ 30 mA | 4,5 a 30 V; 0,5 W como máximo a 24 V [20] | 0,50 V sobre el mínimo (0,30 V con la tolerancia del elevador) | Cumple; exactitud a 5 V en ensayo de banco; contingencia: elevador de 12 V |
 | Carcasa de PETG | Temperatura de uso | Interior de hasta ≈ 60 °C al sol | Temperatura de deflexión bajo carga de 74,5 °C y ablandamiento Vicat de 83 °C (Creality Hyper PETG) [80] | 14,5 °C | Cumple con condición (ensayo de temperatura); contingencia: ASA |
 
-**Tabla 9.0 “Verificación de los componentes de la placa V3 frente a las hojas de datos”**
+**Tabla 9.0 “Verificación de los componentes de la placa del instrumento frente a las hojas de datos”**
 
-El elevador de la lista es el MT3608 y el corte real de la sonda lo hace el AO3401A en serie con su salida, como en la placa V2. Requieren cierre documental, cálculo o ensayo: la tolerancia de la tensión de carga, la certificación de la celda, la exactitud de la sonda a 5 V y la temperatura de la carcasa. La excitación del buzzer por transistor reduce la corriente del pin, pero requiere verificar corriente, temperatura y audibilidad en el prototipo. Un regulador de 100 mA no cubre el pico de transmisión BLE; el RT9080-33 se selecciona por su capacidad nominal de 600 mA, con su verificación térmica y de caída de tensión programada en el prototipo.
+El elevador de la lista es el MT3608 y el corte real de la sonda lo hace el AO3401A en serie con su salida. Requieren cierre documental, cálculo o ensayo: la tolerancia de la tensión de carga, la certificación de la celda, la exactitud de la sonda a 5 V y la temperatura de la carcasa. La excitación del buzzer por transistor reduce la corriente del pin, pero requiere verificar corriente, temperatura y audibilidad en el prototipo. Un regulador de 100 mA no cubre el pico de transmisión BLE; el RT9080-33 se selecciona por su capacidad nominal de 600 mA, con su verificación térmica y de caída de tensión programada en el prototipo.
 
-### Geometría de la placa V3
+### Geometría de la placa del instrumento
 
-La distribución conceptual de la placa V3 ocupa un contorno de 64,0 × 56,0 mm, con radio de esquina de 3,0 mm. Las figuras 2.7 y 2.8 representan la ubicación de los circuitos integrados y conectores mediante sus huellas y modelos tridimensionales. Su alcance es geométrico: ilustran la ocupación y el montaje del conjunto, sin acreditar conexiones eléctricas ni ruteo. Las coordenadas se expresan en milímetros, desde la esquina superior izquierda del contorno, con X hacia la derecha e Y hacia abajo, vista por la cara de componentes. El anexo C contiene estas vistas de diseño.
+La placa ocupa un contorno de 90,0 × 64,0 mm, con radio de esquina de 3,0 mm, y está ruteada en dos capas: las señales van en pistas de 0,25 mm, la potencia en pistas de 0,7 mm y la masa en planos de cobre que cubren ambas caras, unidos por vías de costura junto a cada pin de masa y en una retícula de 5 mm. Al no rutear la masa con pistas, cada componente encuentra su retorno en el plano más cercano y las pistas quedan libres para las señales. Las figuras 2.7 a 2.9 muestran la placa en vista tridimensional, su plano con las cotas y el ruteo de cada cara. Las coordenadas se expresan en milímetros, desde la esquina superior izquierda del contorno, con X hacia la derecha e Y hacia abajo, vista por la cara de componentes. El anexo C contiene estas vistas.
 
-La lista de materiales y los costos se mantienen por decisión del proyecto: la reducción del contorno no se contabiliza como ahorro. La placa conserva la referencia económica de la compra de la V2 y la carcasa conserva el presupuesto de material, energía y capacidad de impresión de la envolvente de 110 × 100 × 40 mm. Los modelos tridimensionales de encapsulados son representativos y no sustituyen la especificación de compra de los componentes.
+La lista de materiales y los costos se mantienen por decisión del proyecto: el contorno de 90 × 64 mm cae en el mismo tramo de precio de la placa de laboratorio (hasta 100 × 100 mm), y la carcasa conserva el presupuesto de material, energía y capacidad de impresión de la envolvente de laboratorio de 110 × 100 × 40 mm. Los modelos tridimensionales de encapsulados son representativos y no sustituyen la especificación de compra de los componentes.
 
-![Placa V3: vista tridimensional](Figuras/fig_placa_v3_3d.png)
+![Placa del instrumento: vista tridimensional](Figuras/fig_placa_3d.png)
 
-**Figura 2.7 “Placa V3: vista tridimensional”**
+**Figura 2.7 “Placa del instrumento: vista tridimensional”**
 
-![Plano de la placa V3](Figuras/fig_placa_v3.png)
+![Plano de la placa del instrumento](Figuras/fig_placa.png)
 
-**Figura 2.8 “Plano de la placa V3”**
+**Figura 2.8 “Plano de la placa del instrumento”**
+
+![Ruteo de la placa: cara superior e inferior](Figuras/fig_ruteo.png)
+
+**Figura 2.9 “Ruteo de la placa: cara superior e inferior”**
 
 | Parámetro | Valor | Observación |
 |---|---|---|
-| Contorno | 64,0 × 56,0 mm, con esquinas de 3 mm de radio | Distribución conceptual de la V3 |
+| Contorno | 90,0 × 64,0 mm, con esquinas de 3 mm de radio | Mismo tramo de precio del fabricante que la placa de laboratorio |
 | Capas y sustrato | 2 capas de cobre; FR-4 de 1,6 mm | Tolerancia de espesor típica de ±10 % |
 | Cobre | 1 oz (35 µm) en ambas caras | Estándar del fabricante |
-| Vertido de masa | Especificación: masa en ambas caras con separación de 0,5 mm | Vías térmicas bajo la almohadilla del cargador; criterio del diseño eléctrico |
-| Ancho y separación de pistas | 0,2 mm en señales; 0,8 a 1,5 mm en potencia; separación mínima de 0,2 mm | Las pistas de potencia llevan hasta 1 A (Tabla 7.9) |
-| Vías | Taladro de 0,5 mm con pad de 1,0 mm | Dentro de la capacidad del fabricante |
-| Agujeros de montaje | 4 agujeros M2 de 2,2 mm con isla de cobre | Posiciones en el anexo C |
-| Coordenadas de los agujeros de montaje | (3,0; 3,0), (61,0; 3,0), (3,0; 41,5) y (61,2; 41,0) | Origen superior izquierdo del contorno; centros de taladro |
-| Posición de los conectores | USB-C: origen de huella en (4,6; 13,0); borneras de celda, termistor e interruptor: primer terminal en (6,0; 50,0), (18,0; 50,0) y (30,0; 50,0); sonda: primer terminal en (42,5; 50,0) | Paso de 5,0 mm en las borneras de dos polos y 5,08 mm en la de cuatro |
-| Posición del módulo ESP32 y zona libre de la antena | Origen de huella en (32,0; 9,6); antena hacia el borde superior, sobresale 6,3 mm del contorno | Reserva geométrica de antena; criterio de integración en Tabla 9.2 |
-| Posición del BME280 y de su ranura térmica | Sensor en (60,6; 12,0); ranura de 1,0 × 12,0 mm, de X 57,6 a 58,6 e Y 6,0 a 18,0 | Cargador en (20,4; 37,0) y regulador en (18,6; 26,2), ambos a más de 20 mm del sensor |
-| Posición de los LED, el buzzer y el pulsador PAIR | LED azul, verde y rojo en (26,0; 30,8), (32,0; 30,8) y (38,0; 30,8); PAIR en (32,0; 25,4); origen de huella del buzzer en (45,6; 7,2) | Centro del cuerpo representativo del buzzer en (46,5; 8,45); alineación nominal con la tapa |
+| Planos de masa | Masa en ambas caras con separación de 0,3 mm a las demás redes y alivio térmico en los pines; vías de costura de 0,3 mm de taladro | Vías térmicas bajo la almohadilla del cargador y del módulo; sin cobre bajo el BME280 |
+| Ancho y separación de pistas | 0,25 mm en señales; 0,7 mm en potencia (celda, VBUS, 5 V, 3,3 V y salida del elevador); separación mínima de 0,2 mm | Las pistas de potencia llevan hasta 1 A (Tabla 7.9) |
+| Vías | Taladro de 0,3 mm con pad de 0,6 mm en señales y de 0,4 mm con pad de 0,8 mm en potencia | Dentro de la capacidad del fabricante |
+| Agujeros de montaje | 4 agujeros M2 de 2,2 mm con isla de cobre unida a masa | Posiciones en el anexo C |
+| Coordenadas de los agujeros de montaje | (3,2; 3,2), (86,8; 3,2), (3,2; 60,8) y (86,8; 60,8) | Origen superior izquierdo del contorno; centros de taladro |
+| Posición de los conectores | USB-C: origen de huella en (4,6; 11,0), abertura hacia el borde izquierdo; borneras de celda, termistor e interruptor: primer terminal en (9,0; 59,0), (21,5; 59,0) y (34,0; 59,0); sonda: primer terminal en (62,0; 59,0) | Paso de 5,0 mm; entrada de cables hacia el borde inferior |
+| Posición del módulo ESP32 y zona libre de la antena | Origen de huella en (45,0; 9,5); antena hacia el borde superior, sobresale 6,3 mm del contorno | Sin cobre ni componentes bajo la antena; criterio de integración en Tabla 9.2 |
+| Posición del BME280 y de su ranura térmica | Sensor en (87,0; 26,0); ranura de 1,0 × 12,0 mm, de X 83,6 a 84,6 e Y 20,0 a 32,0 | Cargador en (24,0; 9,0) y LDO en (39,5; 39,0), ambos a más de 45 mm del sensor |
+| Posición de los LED, el buzzer y el pulsador PAIR | LED azul, verde y rojo en (39,0; 31,0), (45,0; 31,0) y (51,0; 31,0); PAIR en (45,0; 25,5); origen de huella del buzzer en (80,0; 7,5) | Centro del cuerpo del buzzer en (80,0; 8,75); alineación nominal con la tapa |
+| Pulsadores de reinicio y de arranque | EN en (26,5; 27,0) y BOOT en (26,5; 34,0) | Sólo para programación; quedan bajo la tapa |
 | Acabado superficial | ENIG, sin plomo | La planitud del acabado favorece el LGA y el esténcil; HASL sin plomo es una alternativa |
 | Máscara y serigrafía | Estándar del fabricante; designadores y rotulado de conectores | Los puntos de prueba se rotulan con el nombre del nodo |
-| Puntos de prueba | Los de la V2 más VBUS, celda, 5 V de la sonda y 3,3 V | Para medir el árbol de alimentación sin cambiar la punta de sitio |
-| Pedido | Lote de prototipo y lote anual | Costo en el anexo A; la V2 se compró en 5 placas por $15.000 con envío, IVA e impuestos |
+| Puntos de prueba | 5 V del elevador, 5 V de la sonda, 3,3 V, batería, compuerta del corte de la sonda, PAIR, los tres LED y dos de masa | Agujeros metalizados de 1 mm para la punta del instrumento, sin componente montado; miden el árbol de alimentación y las señales sin cambiar la punta de sitio |
+| Pedido | Lote de prototipo y lote anual | Costo en el anexo A; la placa de laboratorio se compró en 5 placas por $15.000 con envío, IVA e impuestos |
 
-**Tabla 9.1 “Datos de fabricación de la placa V3”**
+**Tabla 9.1 “Datos de fabricación de la placa del instrumento”**
 
 Las **zonas críticas** de la placa son las que aseguran que el equipo mida bien y se comunique:
 
@@ -2305,19 +2312,19 @@ Las **zonas críticas** de la placa son las que aseguran que el equipo mida bien
 | Bornera de la sonda | En el borde inferior, a 5 mm o más del borde, con el TVS SM712 pegado a los terminales | Un tirón o una descarga entra primero por aquí | Alivio de tracción y descarga ESD |
 | Conector USB-C | En el borde, con el USBLC6-2SC6 pegado al conector y D+ y D− paralelas y cortas | Descarga electrostática y calidad de la señal | Ensayo ESD |
 
-**Tabla 9.2 “Zonas críticas y distancias de la placa V3”**
+**Tabla 9.2 “Zonas críticas y distancias de la placa del instrumento”**
 
 ### Carcasa, conectores, cableado y montaje
 
-**Carcasa.** La envolvente conceptual mide 73 × 79 × 31 mm. El anexo D presenta la planta, la vista frontal y el corte del conjunto. Las cotas en planta se miden desde la esquina exterior superior izquierda, con X hacia la derecha e Y hacia abajo; las alturas se miden desde la cara exterior de la base. La placa queda desplazada 4,5 mm en X y 10,3 mm en Y, y su cara inferior se sitúa a 14,0 mm de la base. El costo conserva los 210 g de PETG y las demás hipótesis de la carcasa V2 como presupuesto conservador, sin equipararlos a la masa de esta envolvente.
+**Carcasa.** La envolvente mide 99 × 87 × 31 mm. El anexo D presenta la planta, la vista frontal y el corte del conjunto. Las cotas en planta se miden desde la esquina exterior superior izquierda, con X hacia la derecha e Y hacia abajo; las alturas se miden desde la cara exterior de la base. La placa queda desplazada 4,5 mm en X y 10,3 mm en Y, y su cara inferior se sitúa a 14,0 mm de la base. El costo conserva los 210 g de PETG y las demás hipótesis de la carcasa de laboratorio como presupuesto conservador, sin equipararlos a la masa de esta envolvente.
 
-![Carcasa V3: planta, vista frontal y corte](Figuras/fig_carcasa_v3.png)
+![Carcasa: planta, vista frontal y corte](Figuras/fig_carcasa.png)
 
-**Figura 2.9 “Carcasa V3: planta, vista frontal y corte”**
+**Figura 3.0 “Carcasa: planta, vista frontal y corte”**
 
 | Parámetro | Valor nominal | Tolerancia o criterio |
 |---|---|---|
-| Dimensiones exteriores | 73,0 × 79,0 × 31,0 mm | ±0,3 mm por dimensión, tras calibrar la impresora |
+| Dimensiones exteriores | 99,0 × 87,0 × 31,0 mm | ±0,3 mm por dimensión, tras calibrar la impresora |
 | Paredes, base y tapa | 2,5 mm | Al menos 4 perímetros sólidos; relleno de 40 a 60 %; capa de 0,16 a 0,20 mm |
 | Holgura entre placa y pared | 2,0 mm nominales en los laterales; 1,5 mm desde la antena a la pared interior superior; 10,2 mm desde el contorno inferior a la pared | Cotas de la envolvente conceptual |
 | Soporte de la placa | 4 separadores M2 de 11,5 mm con tornillo M2 | ±0,2 mm en la posición de los postes |
@@ -2331,15 +2338,15 @@ Las **zonas críticas** de la placa son las que aseguran que el equipo mida bien
 
 | Abertura | Cara | Dimensión | Elemento asociado | Posición X e Y desde la esquina |
 |---|---|---|---|---|
-| Visores de los tres LED | Tapa | Guía de luz de 3,0 mm de diámetro y longitud ajustada al apilamiento nominal, de la cara interior de la tapa al LED, con sello continuo | LED azul, verde y rojo | (30,5; 41,1), (36,5; 41,1) y (42,5; 41,1) |
-| Acceso al pulsador PAIR | Tapa | Empujador de 4,0 mm en un agujero de 5,0 mm, sellado con una membrana de silicona de 0,5 mm | Pulsador PAIR | (36,5; 35,7) |
-| Zona acústica del buzzer | Tapa | Círculo de 10 mm adelgazado a 1,0 mm, sin orificio | Buzzer | (51,0; 18,75) |
-| Puerto USB-C | Pared lateral | Abertura de 9,5 × 3,8 mm con tapón de silicona | Conector USB-C | Pared izquierda: Y = 23,3; centro a 17,2 mm de la base |
-| Interruptor general | Pared inferior | Agujero de 6,2 mm de diámetro | Interruptor de palanca | Pared inferior: X = 25,0; centro a 20,0 mm de la base |
-| Salida de la sonda | Pared inferior | Agujero de 12,8 mm de diámetro | Prensaestopa PG7 | Pared inferior: X = 54,6; centro a 20,0 mm de la base |
-| Respiradero | Pared lateral, a la altura del BME280 | Agujero roscado M12 × 1,5 con asiento plano de 16 mm para la junta del respiradero | Respiradero M12 × 1,5 | Pared derecha: Y = 22,3; centro a 20,0 mm de la base |
-| Tornillos de cierre | Tapa | Agujero de 3,4 mm con avellanado de 6,0 mm | Insertos M3 | (6,0; 6,0), (67,0; 6,0), (6,0; 73,0) y (67,0; 73,0) |
-| Postes de la placa | Base | Poste de 6 mm con agujero piloto de 1,8 mm | Separadores M2 | (7,5; 13,3), (65,5; 13,3), (7,5; 51,8) y (65,7; 51,3) |
+| Visores de los tres LED | Tapa | Guía de luz de 3,0 mm de diámetro y longitud ajustada al apilamiento nominal, de la cara interior de la tapa al LED, con sello continuo | LED azul, verde y rojo | (43,5; 41,3), (49,5; 41,3) y (55,5; 41,3) |
+| Acceso al pulsador PAIR | Tapa | Empujador de 4,0 mm en un agujero de 5,0 mm, sellado con una membrana de silicona de 0,5 mm | Pulsador PAIR | (49,5; 35,8) |
+| Zona acústica del buzzer | Tapa | Círculo de 10 mm adelgazado a 1,0 mm, sin orificio | Buzzer | (84,5; 19,05) |
+| Puerto USB-C | Pared lateral | Abertura de 9,5 × 3,8 mm con tapón de silicona | Conector USB-C | Pared izquierda: Y = 21,3; centro a 17,2 mm de la base |
+| Interruptor general | Pared inferior | Agujero de 6,2 mm de diámetro | Interruptor de palanca | Pared inferior: X = 41,0; centro a 20,0 mm de la base |
+| Salida de la sonda | Pared inferior | Agujero de 12,8 mm de diámetro | Prensaestopa PG7 | Pared inferior: X = 74,0; centro a 20,0 mm de la base |
+| Respiradero | Pared lateral, a la altura del BME280 | Agujero roscado M12 × 1,5 con asiento plano de 16 mm para la junta del respiradero | Respiradero M12 × 1,5 | Pared derecha: Y = 36,3; centro a 20,0 mm de la base |
+| Tornillos de cierre | Tapa | Agujero de 3,4 mm con avellanado de 6,0 mm | Insertos M3 | (6,0; 6,0), (93,0; 6,0), (6,0; 81,0) y (93,0; 81,0) |
+| Postes de la placa | Base | Poste de 6 mm con agujero piloto de 1,8 mm | Separadores M2 | (7,7; 13,5), (91,3; 13,5), (7,7; 71,1) y (91,3; 71,1) |
 
 **Tabla 9.4 “Aberturas y elementos de fijación de la carcasa”**
 
@@ -2353,12 +2360,12 @@ Las posiciones en planta se miden desde la esquina exterior superior izquierda d
 | USB-C de 16 pines | A1, B1, A12, B12 | Tierra | — |
 | USB-C de 16 pines | A5 y B5 | CC1 y CC2 | Cada uno con 5,1 kΩ a tierra |
 | USB-C de 16 pines | A6, B6 y A7, B7 | D+ y D− | Hacia el CH340C |
-| Bornera de la sonda (4 vías, paso de 5,08 mm) | 1 | +5 V de la sonda | Cable marrón |
-| Bornera de la sonda | 2 | Tierra | Cable negro |
-| Bornera de la sonda | 3 | Línea A de RS-485 | Cable amarillo |
-| Bornera de la sonda | 4 | Línea B de RS-485 | Cable azul |
-| Bornera de la celda (2 vías) | 1 | Positivo de la celda | Cable rojo; pasa por el fusible |
-| Bornera de la celda | 2 | Negativo de la celda | Cable negro |
+| Bornera de la sonda (4 vías, paso de 5,0 mm) | 1 | Línea B de RS-485 | Cable azul |
+| Bornera de la sonda | 2 | Línea A de RS-485 | Cable amarillo |
+| Bornera de la sonda | 3 | Tierra | Cable negro |
+| Bornera de la sonda | 4 | +5 V de la sonda | Cable marrón |
+| Bornera de la celda (2 vías) | 1 | Negativo de la celda | Cable negro |
+| Bornera de la celda | 2 | Positivo de la celda | Cable rojo; pasa por el fusible |
 | Bornera del interruptor (2 vías) | 1 y 2 | Contactos del interruptor, sin polaridad | Cables blancos |
 | Bornera del termistor (2 vías) | 1 y 2 | Termistor NTC de la celda hacia el pin TEMP del cargador, sin polaridad | Cables blancos; el termistor va pegado a la cara de la celda |
 
@@ -2370,8 +2377,8 @@ Los colores del cable de la sonda son los de su manual [20]: marrón (+), negro 
 
 | Cable | De | A | Sección | Color | Largo | Terminación |
 |---|---|---|---|---|---|---|
-| Celda positivo | Celda | Bornera de la celda, terminal 1 | 22 AWG | Rojo | 80 mm | Puntera adecuada a la bornera |
-| Celda negativo | Celda | Bornera de la celda, terminal 2 | 22 AWG | Negro | 80 mm | Puntera adecuada a la bornera |
+| Celda positivo | Celda | Bornera de la celda, terminal 2 | 22 AWG | Rojo | 80 mm | Puntera adecuada a la bornera |
+| Celda negativo | Celda | Bornera de la celda, terminal 1 | 22 AWG | Negro | 80 mm | Puntera adecuada a la bornera |
 | Interruptor, línea 1 | Bornera del interruptor, terminal 1 | Contacto 1 del interruptor | 22 AWG | Blanco | 70 mm | Puntera adecuada a la bornera y termorretráctil |
 | Interruptor, línea 2 | Bornera del interruptor, terminal 2 | Contacto 2 del interruptor | 22 AWG | Blanco | 70 mm | Puntera adecuada a la bornera y termorretráctil |
 | Cable de la sonda | Bornera de la sonda, terminales 1 a 4 | Sonda de suelo | Cable de fábrica de la sonda | Marrón, negro, amarillo y azul | El de fábrica, sin cortar; 120 mm dentro de la carcasa, del prensaestopa a la bornera | Pasa por el prensaestopa con alivio de tracción |
@@ -2386,7 +2393,7 @@ Los colores del cable de la sonda son los de su manual [20]: marrón (+), negro 
 | Tuerca del prensaestopa | PG7 | 1,5 N·m | Hasta que el cable no se desplace |
 | Respiradero | M12 × 1,5 | 1,0 N·m | Membrana sin tocar |
 | Tuerca del interruptor | M6 | 0,8 N·m | Con la arandela de goma |
-| Terminales de las borneras | Paso entre polos de 5,08 mm; tornillo según fabricante | 0,5 N·m | Conductor sin hebras sueltas |
+| Terminales de las borneras | Paso entre polos de 5,0 mm; tornillo según fabricante | 0,5 N·m | Conductor sin hebras sueltas |
 
 **Tabla 9.7 “Torques de apriete”**
 
@@ -2396,7 +2403,7 @@ Los torques son valores de diseño que se validan en el ensayo de estanqueidad y
 
 ![Secuencia de montaje del equipo](Figuras/fig_montaje.png)
 
-**Figura 3.0 “Secuencia de montaje del equipo”**
+**Figura 3.1 “Secuencia de montaje del equipo”**
 
 | Paso | Operación | Herramienta o instrumento | Control antes de continuar |
 |---|---|---|---|
@@ -2474,7 +2481,7 @@ La fabricación responde la pregunta ¿con qué proceso, capacidad y control se 
 
 ### Alternativas de ensamble de la placa
 
-La placa V3 se especifica con componentes de catálogo compatibles con montaje industrial; la disponibilidad y la elegibilidad efectiva para ensamble se confirman en la cotización formal. Se comparan el ensamble en taller y el ensamble contratado al fabricante.
+La placa del instrumento se especifica con componentes de catálogo compatibles con montaje industrial; la disponibilidad y la elegibilidad efectiva para ensamble se confirman en la cotización formal. Se comparan el ensamble en taller y el ensamble contratado al fabricante.
 
 | Criterio | A. Taller propio con esténcil y placa calefactora | C. Ensamble completo del fabricante (PCBA, *Printed Circuit Board Assembly*, placa con sus componentes ya montados) |
 |---|---|---|
@@ -2484,29 +2491,29 @@ La placa V3 se especifica con componentes de catálogo compatibles con montaje i
 | Riesgo técnico | BME280 en LGA, CH340C en SOIC y almohadilla del TP4056: exigen perfil de reflujo y retrabajo | Menor: proceso industrial, con inspección del fabricante |
 | Plazo | Inmediato una vez que llegan los componentes | De 1 a 3 semanas con envío internacional |
 | Tiempo de ensamble de la placa | 62 min por unidad (estimado) | 10 min de retoque y revisión por unidad |
-| Costo por placa en un lote de 200 | $8.226: mano de obra $7.004 (a $6.778 por hora), consumibles y merma $826 y equipo prorrateado $396 | $2.367: cargos del fabricante $1.237 y retoque $1.130 |
+| Costo por placa en un lote de 200 | $8.258: mano de obra $7.004 (a $6.778 por hora), consumibles y merma $858 y equipo prorrateado $396 | $2.344: cargos del fabricante $1.214 y retoque $1.130 |
 
-**Tabla 10.1 “Alternativas de ensamble de la placa V3: A (taller) y C (fabricante)”**
+**Tabla 10.1 “Alternativas de ensamble de la placa del instrumento: A (taller) y C (fabricante)”**
 
-El costo de C tiene una parte fija por pedido (preparación y esténcil de US$8 y US$1,50 en servicio económico; US$25 y US$7,86 en servicio estándar para el lote de 200, 17 piezas «extendidas» a US$3 cada una y envío estimado de US$25) y otra variable por placa (US$0,0016 por cada una de las 280 juntas y US$0,31 de envío), de modo que su costo por placa baja con el lote; el de A es casi constante. Las cifras son estimaciones sobre las tarifas publicadas del fabricante.
+El costo de C tiene una parte fija por pedido (preparación y esténcil de US$8 y US$1,50 en servicio económico; US$25 y US$7,86 en servicio estándar para el lote de 200, 16 piezas «extendidas» a US$3 cada una y envío estimado de US$25) y otra variable por placa (US$0,0016 por cada una de las 274 juntas y US$0,31 de envío), de modo que su costo por placa baja con el lote; el de A es casi constante. Las cifras son estimaciones sobre las tarifas publicadas del fabricante.
 
 | Placas por lote | A: taller propio (equipo prorrateado) | C: fabricante | Alternativa conveniente |
 | ---: | ---: | ---: | --- |
-| 5 | $23.652 | $18.095 | C |
-| 12 | $14.423 | $8.619 | C |
-| 50 | $9.412 | $3.918 | C |
-| 200 | $8.226 | $2.367 | C |
-| 1.085 | $7.903 | $1.945 | C |
+| 5 | $23.685 | $17.516 | C |
+| 12 | $14.455 | $8.372 | C |
+| 50 | $9.445 | $3.852 | C |
+| 200 | $8.258 | $2.344 | C |
+| 1.085 | $7.936 | $1.933 | C |
 
 **Tabla 10.2 “Costo por placa del ensamble según el tamaño del lote”**
 
-**Gana C en producción, en todos los lotes desde 5 placas.** Con el equipo de A ya comprado (se cuenta sólo el costo incremental de $7.830 por placa), A es más barato únicamente hasta lotes de 13 placas; con su equipo prorrateado, A nunca supera a C. Por eso el equipo de A, que se compra igual (aire caliente, placa calefactora y esténcil), queda para lo que C no hace bien: los **prototipos** (como el de diciembre de 2026, cuando el plazo de 1 a 3 semanas del fabricante obliga a pedir con anticipación), el **retrabajo** de placas con fallas y las revisiones de diseño. La lista de materiales de Tabla 8.9 ya incluye los cargos de ensamble del fabricante.
+**Gana C en producción, en todos los lotes desde 5 placas.** Con el equipo de A ya comprado (se cuenta sólo el costo incremental de $7.863 por placa), A es más barato únicamente hasta lotes de 13 placas; con su equipo prorrateado, A nunca supera a C. Por eso el equipo de A, que se compra igual (aire caliente, placa calefactora y esténcil), queda para lo que C no hace bien: los **prototipos** (como el de diciembre de 2026, cuando el plazo de 1 a 3 semanas del fabricante obliga a pedir con anticipación), el **retrabajo** de placas con fallas y las revisiones de diseño. La lista de materiales de Tabla 8.9 ya incluye los cargos de ensamble del fabricante.
 
 ### Proceso por estaciones
 
 ![Proceso de fabricación por estaciones](Figuras/fig_fabricacion.png)
 
-**Figura 3.1 “Proceso de fabricación por estaciones”**
+**Figura 3.2 “Proceso de fabricación por estaciones”**
 
 | Estación | Operación | Equipos | Control | Minutos por unidad |
 |---|---|---|---|---:|
@@ -2529,7 +2536,7 @@ El dimensionamiento convierte la demanda anual del plan de ventas (200 equipos e
 
 | Recurso | Fórmula | Datos | Resultado |
 |---|---|---|---|
-| Carcasas por cama de impresión | Piezas por cama de 220 × 220 mm con huella y separación; una carcasa son dos piezas (base y tapa) | Huella conservadora de la V2 de 110 × 100 mm con separación de 5 mm | 2 piezas por cama: 1 carcasa por cama |
+| Carcasas por cama de impresión | Piezas por cama de 220 × 220 mm con huella y separación; una carcasa son dos piezas (base y tapa) | Huella conservadora de la carcasa de laboratorio de 110 × 100 mm con separación de 5 mm | 2 piezas por cama: 1 carcasa por cama |
 | Horas de impresión por carcasa | Horas por cama, con sobretiempo | 210 g de PETG, flujo de 15 mm³/s y 25 % de sobretiempo; 4,08 h por ciclo con el cambio de cama | 3,83 h de impresión; ≈ 4,1 h por carcasa |
 | Horas de impresión al año | Horas por carcasa × equipos por año | Plan de ventas | 816 h en 2027 y 4.424 h en 2036 |
 | Capacidad de una impresora | Horas disponibles ÷ horas por carcasa | 300 días × 16 h × 92 % de éxito = 4.416 h | 1.083 carcasas por impresora al año |
@@ -2539,7 +2546,7 @@ El dimensionamiento convierte la demanda anual del plan de ventas (200 equipos e
 
 **Tabla 10.4 “Dimensionamiento de la capacidad del taller”**
 
-Dos impresoras quedan justificadas para 1.085 equipos en 2036 (y dan redundancia ante fallas); el dimensionamiento conserva por decisión del proyecto la huella de 110 × 100 mm de la carcasa V2, sin anticipar ahorro por la envolvente conceptual más pequeña de la V3. Respecto de las personas, la carga de ensamble y FAT equivale al 73 % del tiempo productivo anual de una persona con ensamble del fabricante en 2036, frente a 4 ensambladores en la dotación del modelo (más los 2 socios). Esa dotación no sale del tiempo de ensamble: su holgura es una decisión conservadora que cubre además el retrabajo, la garantía, la calibración de sondas, la logística y la contingencia, y se registra como mejora propuesta revisar la dotación de taller.
+Dos impresoras quedan justificadas para 1.085 equipos en 2036 (y dan redundancia ante fallas); el dimensionamiento conserva por decisión del proyecto la huella de 110 × 100 mm de la carcasa de laboratorio, sin anticipar ahorro por la envolvente más pequeña del instrumento. Respecto de las personas, la carga de ensamble y FAT equivale al 73 % del tiempo productivo anual de una persona con ensamble del fabricante en 2036, frente a 4 ensambladores en la dotación del modelo (más los 2 socios). Esa dotación no sale del tiempo de ensamble: su holgura es una decisión conservadora que cubre además el retrabajo, la garantía, la calibración de sondas, la logística y la contingencia, y se registra como mejora propuesta revisar la dotación de taller.
 
 ### Control de calidad y trazabilidad por número de serie
 
@@ -2549,13 +2556,13 @@ El registro FAT por número de serie es una función **propuesta** para el backo
 
 ## IX. Ensayos y Pruebas
 
-El capítulo responde la pregunta ¿cómo se demuestra que cumple? Cada requerimiento del capítulo II tiene al menos una prueba y cada prueba tiene un criterio de aceptación numérico o binario. Las pruebas se organizan en cuatro etapas: **desarrollo** (sobre prototipos, antes de producir), **FAT** (prueba de aceptación en fábrica, sobre el 100 % de las unidades, en el taller y antes de embalar), **SAT** (prueba de aceptación en sitio, en el campo del cliente, durante la puesta en marcha de febrero de 2027) y **normativa** (ensayos acreditados que exige o respalda una norma). Los ensayos de hardware sobre la placa V3 se ejecutan con el prototipo de diciembre de 2026; a la fecha están ejecutadas las pruebas automatizadas de software y una primera lectura Modbus válida en el banco V2, del 03-10-2026. El BME280 se contrasta contra patrones en los ensayos de desarrollo y en el FAT. Las tramas Modbus se validan con su verificación de redundancia cíclica (CRC), que detecta errores de transmisión sin garantizar la detección de toda alteración posible.
+El capítulo responde la pregunta ¿cómo se demuestra que cumple? Cada requerimiento del capítulo II tiene al menos una prueba y cada prueba tiene un criterio de aceptación numérico o binario. Las pruebas se organizan en cuatro etapas: **desarrollo** (sobre prototipos, antes de producir), **FAT** (prueba de aceptación en fábrica, sobre el 100 % de las unidades, en el taller y antes de embalar), **SAT** (prueba de aceptación en sitio, en el campo del cliente, durante la puesta en marcha de febrero de 2027) y **normativa** (ensayos acreditados que exige o respalda una norma). Los ensayos de hardware sobre la placa del instrumento se ejecutan con el prototipo de diciembre de 2026; a la fecha están ejecutadas las pruebas automatizadas de software y una primera lectura Modbus válida en el banco de laboratorio, del 03-10-2026. El BME280 se contrasta contra patrones en los ensayos de desarrollo y en el FAT. Las tramas Modbus se validan con su verificación de redundancia cíclica (CRC), que detecta errores de transmisión sin garantizar la detección de toda alteración posible.
 
 ### Matriz Requerimiento → Prueba
 
 | ID | Prueba | Método e instrumento | Criterio de aceptación | Etapa | Estado |
 |---|---|---|---|---|---|
-| R01 | Lectura de las siete variables de suelo | Aplicación leyendo la trama con la sonda patrón conectada | 7 de 7 campos distintos del centinela en el FAT; 95 % o más de las mediciones del piloto | FAT y SAT | Parcial: primera trama válida en banco V2; ensayo completo programado |
+| R01 | Lectura de las siete variables de suelo | Aplicación leyendo la trama con la sonda patrón conectada | 7 de 7 campos distintos del centinela en el FAT; 95 % o más de las mediciones del piloto | FAT y SAT | Parcial: primera trama válida en banco de laboratorio; ensayo completo programado |
 | R02 | Exactitud del BME280 y autocalentamiento | Termohigrómetro y barómetro patrón en ambiente estable; lectura al encender y a los 10 min | ±1,0 °C, ±3 % HR y ±1,0 hPa; deriva menor que 0,5 °C | Desarrollo y FAT | Programado |
 | R03 | Tiempo del ciclo de medición | Cronómetro y monitor serie en 10 mediciones | Adquisición y envío en 10 s o menos; ciclo completo en 20 s o menos | Desarrollo y FAT | Programado |
 | R04 | Validación contra laboratorio | Protocolo de Tabla 5.5 con 30 puntos pareados y conversión de humedad de Tabla 5.6 | RMSE de pH ≤ 0,3; CE con RMSE ≤ 10 % o 200 µS/cm; humedad con RMSE ≤ 4 puntos; R² ≥ 0,80; intervalo de confianza del 95 % de la pendiente de Passing-Bablok dentro de 0,90–1,10 | Desarrollo y SAT | Programado |
@@ -2569,7 +2576,7 @@ El capítulo responde la pregunta ¿cómo se demuestra que cumple? Cada requerim
 | R12 | Señales luminosas y sonoras | Observación y monitor serie recorriendo cada evento de Tabla 6.2 | El 100 % de los eventos produce su señal | FAT | Programado |
 | R13 | Ventana de vinculación | Cronómetro y observación del LED azul | Pulsación menor que 3 s no abre; mantenida 3 s abre una ventana de 30 ± 1 s | Desarrollo y FAT | Programado |
 | R14 | Trama de 20 bytes | Aplicación de depuración BLE y vector de ejemplo del contrato; prueba automatizada del decodificador | 20 bytes, formato 1; ausencias en 0xFF; trama idéntica al vector | Desarrollo y FAT | Decodificador ejecutado en réplica local; empaquetado en el equipo, programado |
-| R15 | Bus RS-485 y Modbus RTU | Osciloscopio diferencial y analizador lógico contra el mapa de registros de la sonda | Diferencial de al menos ±1,5 V sobre 54 Ω; silencio ≥ 3,5 caracteres (adoptar ≥ 8,1 ms a 4.800 baudios y ≥ 4,1 ms a 9.600) [32]; 1.000 lecturas consecutivas sin error de CRC | Desarrollo y FAT | Parcial: primera trama válida en banco V2; ensayo completo programado |
+| R15 | Bus RS-485 y Modbus RTU | Osciloscopio diferencial y analizador lógico contra el mapa de registros de la sonda | Diferencial de al menos ±1,5 V sobre 54 Ω; silencio ≥ 3,5 caracteres (adoptar ≥ 8,1 ms a 4.800 baudios y ≥ 4,1 ms a 9.600) [32]; 1.000 lecturas consecutivas sin error de CRC | Desarrollo y FAT | Parcial: primera trama válida en banco de laboratorio; ensayo completo programado |
 | R16 | Protecciones eléctricas | Fuente de 4,2 V invertida y limitada a 3 A sobre una placa de sacrificio; generador de descargas electrostáticas en el USB y en las bornes del bus | La protección limita la corriente antes de superar los límites térmicos del diodo y la placa, según curvas y ensayo de coordinación; 10 descargas de ±8 kV de contacto sin pérdida de función | Desarrollo y normativa | Programado |
 | R17 | Aviso de batería baja | Fuente de laboratorio en la entrada de celda, bajando y subiendo la tensión | Latido rojo y dos tonos graves una sola vez bajo 3,40 V; se apaga sobre 3,50 V; la aplicación avisa al 15 % y se rearma sobre el 20 % | Desarrollo y FAT | Programado |
 | R18 | Seguridad de la celda | Certificados IEC 62133-2 y UN 38.3 del proveedor [28]; prueba de las protecciones de la celda | Certificados vigentes y corte correcto en sobrecarga, sobredescarga y cortocircuito | Normativa | Programado |
@@ -2587,7 +2594,7 @@ El capítulo responde la pregunta ¿cómo se demuestra que cumple? Cada requerim
 
 ### Ensayos de desarrollo de la placa y del firmware
 
-Estos ensayos detallan los procedimientos de la puesta en marcha por etapas y sustentan varios requerimientos de la matriz. Cada uno supone aprobado el anterior, de modo que una falla temprana detiene el avance antes de gastar tiempo en ensayos caros. Las referencias de corriente son las del modelo energético V3.
+Estos ensayos detallan los procedimientos de la puesta en marcha por etapas y sustentan varios requerimientos de la matriz. Cada uno supone aprobado el anterior, de modo que una falla temprana detiene el avance antes de gastar tiempo en ensayos caros. Las referencias de corriente son las del modelo energético del instrumento.
 
 | Ensayo | Método e instrumento | Criterio de aceptación | Requerimientos | Estado |
 |---|---|---|---|---|
@@ -2702,7 +2709,7 @@ Los ensayos que sólo pueden hacerse con teléfonos físicos se organizan en una
 | Perfil de teléfono | Sistema | Qué se comprueba | Estado |
 |---|---|---|---|
 | Motorola G55 | Android 12 o posterior | Recorrido completo con el equipo; permisos de Bluetooth, ubicación, cámara y notificaciones; modo avión; cierre del proceso con cola pendiente | Programado |
-| Android compacto de 360 × 640 | Android (versión por registrar) | Diseño de las pantallas con texto ampliado; lectura de los avisos y del Grid de diez variables | Programado |
+| Android compacto de 360 × 640 | Android (versión por registrar) | Diseño de las pantallas con texto ampliado; lectura de los avisos y de las diez variables | Programado |
 | Android anterior a la versión 12 | Android 11 o anterior | Permisos heredados de Bluetooth y ubicación para buscar equipos | Programado |
 | iPhone compacto de 375 × 667 | iOS (versión por registrar) | Diseño con texto grande; permiso de Bluetooth; QR y código de invitación | Programado |
 | iPhone físico con compilación de tienda | iOS | Recepción de avisos de acceso en primer plano, segundo plano y arranque frío; lectura del permiso de Bluetooth | Programado |
@@ -2711,27 +2718,27 @@ Los ensayos que sólo pueden hacerse con teléfonos físicos se organizan en una
 
 ## X. Planificación del Proyecto
 
-La carta Gantt es la del proyecto, no la del curso: no incluye evaluaciones. Va de agosto de 2026 a julio de 2027, mes a mes, y está completa en el anexo F con su estructura de desglose del trabajo (EDT), el área responsable, las predecesoras, la duración en días hábiles, la holgura y la ruta crítica de cada actividad. El proyecto parte con la ingeniería conceptual en agosto de 2026 y termina el 30 de julio de 2027, cuando se entrega al mandante la placa revisada con lo aprendido en el piloto, junto con la documentación final. Su hito fijo es la **entrega del prototipo funcional al mandante el 17 de diciembre de 2026**. Le siguen la prueba de aceptación en sitio (SAT) del piloto aprobada el 26 de febrero de 2027, la aplicación aprobada en las tiendas el 31 de marzo, el lanzamiento comercial el 19 de abril y la entrega del proyecto. Las ventas que empiezan con el lanzamiento son operación de la empresa y continúan después del cierre: se muestran para situarlas, pero no forman parte del alcance. Las fechas anteriores al corte del 04-10-2026 registran lo ejecutado; las posteriores son planificadas.
+La carta Gantt es la del proyecto, no la del curso: no incluye evaluaciones. Va de agosto de 2026 a julio de 2027 y se divide por trimestres, del Q3 de 2026 al Q3 de 2027, con los meses como subdivisión; está completa en el anexo F con su estructura de desglose del trabajo (EDT), el área responsable, las predecesoras, la duración en días hábiles, la holgura y la ruta crítica de cada actividad. El proyecto parte con la ingeniería conceptual en agosto de 2026 y termina el 30 de julio de 2027, cuando se entrega la placa revisada con lo aprendido en el piloto, junto con la documentación final. Su hito fijo es la **entrega del prototipo funcional el 17 de diciembre de 2026**. Le siguen la prueba de aceptación en sitio (SAT) del piloto aprobada el 26 de febrero de 2027, la aplicación aprobada en las tiendas el 31 de marzo, el lanzamiento comercial el 19 de abril y la entrega del proyecto. Las ventas que empiezan con el lanzamiento son operación de la empresa y continúan después del cierre: se muestran para situarlas, pero no forman parte del alcance. Las fechas anteriores al corte del 04-10-2026 registran lo ejecutado; las posteriores son planificadas.
 
 ![Carta Gantt del proyecto](Figuras/fig_gantt.png)
 
-**Figura 3.2 “Carta Gantt del proyecto”**
+**Figura 3.3 “Carta Gantt del proyecto”**
 
 | Hito | Fecha | Estado al 04-10-2026 | Criterio de cumplimiento |
 |---|---|---|---|
 | Ingeniería conceptual cerrada | 10-09-2026 | Cumplido | Informe de ingeniería conceptual |
 | Ficha y muestra de la sonda | 03-10-2026 | Cumplido | Manual del fabricante y unidad de muestra |
-| Placa V3 diseñada | 06-11-2026 | Programado | Revisión de diseño aprobada y pedido emitido |
+| Placa del instrumento diseñada | 06-11-2026 | Programado | Revisión de diseño aprobada y pedido emitido |
 | Firmware con Modbus y reposo | 04-12-2026 | Programado | 1.000 lecturas consecutivas sin error de CRC |
-| **Prototipo funcional entregado al mandante** | **17-12-2026 (fijo)** | Programado | Prototipo armado, calibrado y con FAT aprobado |
+| **Prototipo funcional entregado** | **17-12-2026 (fijo)** | Programado | Prototipo armado, calibrado y con FAT aprobado |
 | SAT del piloto aprobado | 26-02-2027 | Programado | SAT aprobado y firmado |
 | Aplicación aprobada en las tiendas | 31-03-2027 | Programado | Versión descargable e instalable |
 | Lanzamiento comercial | 19-04-2027 | Programado | Primer lote disponible para la venta |
-| **Proyecto entregado al mandante** | **30-07-2027** | Programado | Placa revisada liberada y documentación aceptada |
+| **Proyecto entregado** | **30-07-2027** | Programado | Placa revisada liberada y documentación aceptada |
 
 **Tabla 11.3 “Hitos del proyecto”**
 
-**Ruta crítica.** La holgura total se calcula hacia atrás desde cada hito, en días hábiles, porque los hitos son fechas comprometidas. La entrega de diciembre no tiene holgura: el cierre de la ingeniería básica, el diseño de la placa V3 con su pedido, el CAD de la carcasa, el firmware con Modbus y reposo, el ensamble con FAT y la calibración convergen en el prototipo del 17 de diciembre de 2026, de modo que un día de atraso en cualquiera de esas actividades mueve la entrega. En 2027 son críticas la puesta en marcha con SAT del piloto, la publicación de la aplicación, el primer lote de producción, la revisión de la placa y la documentación final. Tienen holgura los planos de los anexos C y D (13 días hábiles), la constitución de la empresa con su crédito y la conformidad de radio (15 cada una), el ensayo IP67 (20) y la campaña de laboratorio (35); entre las actividades en curso, la fabricación de la placa V2 y su firmware (10) y las cotizaciones con sus anexos (20).
+**Ruta crítica.** La holgura total se calcula hacia atrás desde cada hito, en días hábiles, porque los hitos son fechas comprometidas. La entrega de diciembre no tiene holgura: el cierre de la ingeniería básica, el diseño de la placa del instrumento con su pedido, el CAD de la carcasa, el firmware con Modbus y reposo, el ensamble con FAT y la calibración convergen en el prototipo del 17 de diciembre de 2026, de modo que un día de atraso en cualquiera de esas actividades mueve la entrega. En 2027 son críticas la puesta en marcha con SAT del piloto, la publicación de la aplicación, el primer lote de producción, la revisión de la placa y la documentación final. Tienen holgura los planos de los anexos C y D (13 días hábiles), la constitución de la empresa con su crédito y la conformidad de radio (15 cada una), el ensayo IP67 (20) y la campaña de laboratorio (35); entre las actividades en curso, la fabricación de la placa de laboratorio y su firmware (10) y las cotizaciones con sus anexos (20).
 
 **Dependencias de cierre.** La muestra permite validar Modbus; el firmware estable permite calibrar; la placa y carcasa terminadas permiten ensamble y FAT. La entrega de diciembre depende de todas esas ramas, sin holgura. Para vender, deben estar cerrados la validación del piloto, la conformidad de radio, los ensayos del producto, el financiamiento, la publicación de la aplicación y el FAT del primer lote. El lanzamiento se sitúa el 19 de abril de 2027, después del término previsto del lote el 16 de abril. Estos plazos son objetivos sujetos a verificación.
 
@@ -2739,27 +2746,27 @@ La carta Gantt es la del proyecto, no la del curso: no incluye evaluaciones. Va 
 
 ## XI. Propuestas de Mejora
 
-El capítulo reúne las mejoras surgidas al pasar por las ingenierías conceptual, básica y de detalle, y las que resultaron de la revisión del mandante sobre la ingeniería conceptual. Se distinguen las medidas **incorporadas** en la especificación vigente, de las **propuestas**, que quedan para la próxima revisión de la placa, del firmware o de la fabricación.
+El capítulo reúne las mejoras surgidas al pasar por las ingenierías conceptual, básica y de detalle. Se distinguen las medidas **incorporadas** en la especificación vigente, de las **propuestas**, que quedan para la próxima revisión de la placa, del firmware o de la fabricación.
 
 | Origen | Observación | Mejora | Estado | Efecto |
 |---|---|---|---|---|
-| Revisión del mandante | La estructura de financiamiento no hacía coherentes el aporte propio y el monto del crédito: el pie no aparecía como fuente ni como uso | El banco desembolsa el total de la inversión y el pie de $9.000.000 se abona como cuotas pagadas por anticipado; fuentes y usos se igualan y el pie entra a la amortización, al flujo y al VAN | Incorporada | El pie cubre las primeras 22,3 cuotas; VAN de $120.765.535 y TIR de 53,37 % |
-| Revisión del mandante | No se comparaban alternativas de financiamiento ni se justificaba prescindir de FOGAPE, Sercotec o CORFO | Matriz de decisión de cuatro alternativas; los instrumentos públicos quedan como escenario favorable fuera del caso base | Incorporada | La puesta en marcha no depende de un fondo concursable ni de una garantía que asigna el banco |
-| Revisión del mandante | La ausencia de sesgo proporcional se declaraba con un criterio de significancia | Criterio de equivalencia: intervalo de confianza del 95 % de la pendiente de Passing-Bablok dentro de 0,90–1,10 | Incorporada | Un resultado no significativo con pocos puntos ya no aprueba una variable; si el intervalo es ancho, el resultado es no concluyente |
-| Revisión del mandante | El protocolo no formalizaba la conversión entre humedad gravimétrica y volumétrica | Fórmula de conversión, cilindro de volumen conocido y densidad aparente medida en cada punto | Incorporada | Se elimina un error de hasta 4 puntos de humedad atribuible a una densidad supuesta |
-| Revisión del mandante | La ingeniería conceptual requería evaluación formal de alternativas, balance energético por nodo, separación de las economías, sensibilidad financiera, alcance de la sonda NPK, matriz normativa y protocolo de validación | Filtro de viabilidad y matriz de arquitecturas, balance por nodo de tensión, economías del proyecto, del negocio y del cliente, sensibilidad, matriz normativa y protocolo con plan de calibración | Incorporada | La ingeniería conceptual queda cerrada como base de la ingeniería básica |
-| Ingeniería conceptual | Fijar el precio antes del costo obliga a ajustar los costos a una cifra elegida | Precio derivado del costo con 30 % de utilidad | Incorporada | Precio de lista de $466.027 con IVA y VAN de $120.765.535 al 20 % |
-| Ingeniería básica | El buzzer iba directo a un pin del microcontrolador y su bobina podía pedir más de 20 mA | Transistor, resistencia de 47 Ω y diodo de rueda libre en la V3 | Incorporada en el diseño | Por el pin pasa sólo la corriente de base (≈ 2,6 mA), que se mide en el ensayo de desarrollo |
-| Ingeniería básica | Los módulos del prototipo no tienen abastecimiento asegurado en volumen | Placa V3 con los mismos circuitos integrados de los módulos, soldados directamente y comprados en el catálogo de LCSC | Incorporada en el diseño | Abastecimiento y ensamble completo viables sin cambiar el firmware; placa del prototipo de diciembre de 2026 |
+| Ingeniería conceptual | La estructura de financiamiento no hacía coherentes el aporte propio y el monto del crédito: el pie no aparecía como fuente ni como uso | El banco desembolsa el total de la inversión y el pie de $9.000.000 se abona como cuotas pagadas por anticipado; fuentes y usos se igualan y el pie entra a la amortización, al flujo y al VAN | Incorporada | El pie cubre las primeras 22,3 cuotas; VAN de $121.326.245 y TIR de 53,50 % |
+| Ingeniería conceptual | No se comparaban alternativas de financiamiento ni se justificaba prescindir de FOGAPE, Sercotec o CORFO | Matriz de decisión de cuatro alternativas; los instrumentos públicos quedan como escenario favorable fuera del caso base | Incorporada | La puesta en marcha no depende de un fondo concursable ni de una garantía que asigna el banco |
+| Ingeniería conceptual | La ausencia de sesgo proporcional se declaraba con un criterio de significancia | Criterio de equivalencia: intervalo de confianza del 95 % de la pendiente de Passing-Bablok dentro de 0,90–1,10 | Incorporada | Un resultado no significativo con pocos puntos ya no aprueba una variable; si el intervalo es ancho, el resultado es no concluyente |
+| Ingeniería conceptual | El protocolo no formalizaba la conversión entre humedad gravimétrica y volumétrica | Fórmula de conversión, cilindro de volumen conocido y densidad aparente medida en cada punto | Incorporada | Se elimina un error de hasta 4 puntos de humedad atribuible a una densidad supuesta |
+| Ingeniería conceptual | La ingeniería conceptual debía incluir la evaluación formal de alternativas, balance energético por nodo, separación de las economías, sensibilidad financiera, alcance de la sonda NPK, matriz normativa y protocolo de validación | Filtro de viabilidad y matriz de arquitecturas, balance por nodo de tensión, economías del proyecto, del negocio y del cliente, sensibilidad, matriz normativa y protocolo con plan de calibración | Incorporada | La ingeniería conceptual queda cerrada como base de la ingeniería básica |
+| Ingeniería conceptual | Fijar el precio antes del costo obliga a ajustar los costos a una cifra elegida | Precio derivado del costo con 30 % de utilidad | Incorporada | Precio de lista de $467.463 con IVA y VAN de $121.326.245 al 20 % |
+| Ingeniería básica | El buzzer iba directo a un pin del microcontrolador y su bobina podía pedir más de 20 mA | Transistor, resistencia de 47 Ω y diodo de rueda libre en la placa del instrumento | Incorporada en el diseño | Por el pin pasa sólo la corriente de base (≈ 2,6 mA), que se mide en el ensayo de desarrollo |
+| Ingeniería básica | Los módulos del prototipo no tienen abastecimiento asegurado en volumen | Placa del instrumento con los mismos circuitos integrados de los módulos, soldados directamente y comprados en el catálogo de LCSC | Incorporada en el diseño | Abastecimiento y ensamble completo viables sin cambiar el firmware; placa del prototipo de diciembre de 2026 |
 | Ingeniería de detalle | La huella y el símbolo del módulo correspondían al 32U | Módulo 32D definido, con el 32E de igual huella como alternativa | Incorporada en el diseño | Coherencia entre esquemático, compra y lista de materiales |
 | Ingeniería conceptual | La placa de desarrollo consumía unos 6 mA aunque el microcontrolador durmiera | LDO de unos 2 µA y módulo sin placa de desarrollo | Incorporada en el diseño | Habilita el reposo profundo |
 | Ingeniería básica | El firmware actual no duerme entre mediciones | Reposo profundo con despertar por el pulsador | Propuesta | Autonomía en uso habitual de 125,6 días a ≈ 595,6 días (cálculo con el modelo) y de 3,7 a 760,6 días con el equipo olvidado encendido |
-| Ingeniería de detalle | Soldar a mano no escala y el BME280 es LGA | Ensamble completo del fabricante (alternativa C) en producción; el taller con esténcil y placa calefactora queda para prototipos y retrabajo | Incorporada en el diseño | C cuesta $2.367 por placa en un lote de 200 frente a $8.226 de A, con el equipo de A prorrateado |
+| Ingeniería de detalle | Soldar a mano no escala y el BME280 es LGA | Ensamble completo del fabricante (alternativa C) en producción; el taller con esténcil y placa calefactora queda para prototipos y retrabajo | Incorporada en el diseño | C cuesta $2.344 por placa en un lote de 200 frente a $8.258 de A, con el equipo de A prorrateado |
 | Ingeniería de detalle | Alta dependencia de comercio exterior | Formalizar el abastecimiento como importación; LCSC y DigiKey | Propuesta | Habilita el crédito fiscal del IVA |
 | Ingeniería básica | Un reset desde la aplicación o el equipo borraría datos sin control | Reset sólo en el backoffice, con confirmación | Incorporada | Verificado en réplica local |
 | Ingeniería básica | Una lectura ausente no debe confundirse con una medición real | Centinela en la trama y rechazo en la aplicación; nunca se estima | Incorporada | Verificada con pruebas automatizadas |
 | Ingeniería básica | Los avisos deben limitarse a lo que el usuario puede atender | Cuatro avisos de acceso y batería baja como estado | Incorporada | Verificada en réplica local |
-| Ingeniería de detalle | El MT3608 no desconecta la carga con EN bajo: su salida queda en ≈ VBAT menos la caída del diodo | Se conserva el corte de la placa V2: P-MOSFET AO3401A en serie, gobernado por un AO3400A desde el mismo pin IO5 que habilita el elevador | Incorporada en el diseño | Sonda en 0 V fuera de la medición por ≈ $136 por equipo, sin cambiar el firmware |
+| Ingeniería de detalle | El MT3608 no desconecta la carga con EN bajo: su salida queda en ≈ VBAT menos la caída del diodo | Corte con P-MOSFET AO3401A en serie, gobernado por un AO3400A desde el mismo pin IO5 que habilita el elevador | Incorporada en el diseño | Sonda en 0 V fuera de la medición por ≈ $136 por equipo, sin cambiar el firmware |
 | Ingeniería de detalle | La dotación de taller (hasta 4 ensambladores en 2036) excede la carga de ensamble y FAT (73 % del tiempo anual de una persona con ensamble del fabricante y 135 % con ensamble en taller) | Revisar la dotación de taller; la holgura se mantiene de forma conservadora, para retrabajo, garantía, calibración de sondas y logística | Propuesta | La dotación del modelo no se deriva del tiempo de ensamble |
 | Ingeniería de detalle | El cargador no vigila la temperatura de la celda sin termistor | Termistor NTC adosado a la celda | Incorporada en el diseño | Hace efectiva la ventana de carga de 0 a 45 °C |
 | Ingeniería básica | La carcasa de PETG no resiste tanto el sol como el ASA | ASA como contingencia si falla el ensayo de temperatura o de exposición | Propuesta (condicional) | Misma impresora y mismo diseño |
@@ -2774,16 +2781,15 @@ Dos de las propuestas condicionan el calendario de producción: la partición de
 
 | Criterio de la rúbrica | Evidencia en el informe | Estado |
 |---|---|---|
-| 1.1.4.1 Considera lo establecido en ingeniería conceptual | Capítulo V, con la revisión del mandante incorporada, y Tabla 6.0 | Desarrollado: cada decisión conceptual se enlaza con su solución de ingeniería básica |
+| 1.1.4.1 Considera lo establecido en ingeniería conceptual | Capítulo V y Tabla 6.0 | Desarrollado: cada decisión conceptual se enlaza con su solución de ingeniería básica |
 | 1.1.4.2 Alcance y filosofías operativas | Tablas 6.1 y 6.2; Figuras 2.0 y 2.1 | Desarrollado |
 | 1.1.4.3 Capacidades y características del producto y del servicio | Tabla 6.4 y requerimientos R01 a R27 | Desarrollado: cada capacidad con su cifra, su origen y su prueba |
 | 1.1.4.4 Selección de materiales y equipos según especificaciones | Matrices de decisión por componente, desde la Tabla 6.5 hasta la Tabla 7.7 | Desarrollado |
 | 1.1.4.5 Eficiencia energética y digitalización | Tablas 8.0 a 8.6 | Desarrollado; el consumo se mide en el prototipo |
 | 1.1.5.6 Materiales y equipos a adquirir, con cotizaciones y proveedores | Tablas 8.7 a 8.9 y anexo A | Desarrollado con precios de catálogo fechados; las cotizaciones formales se piden antes de la primera orden |
 | 1.1.5.7 Selección de materiales y equipos en la ingeniería de detalle | Tabla 9.0 | Desarrollado; la tensión de flotación se controla en el FAT y la coordinación de protecciones se ensaya en el prototipo |
-| 1.1.5.8 Aspectos geométricos y dimensionales para fabricar y montar | Tablas 9.1 a 9.8, Figura 3.0 y anexos C y D | Desarrollado; los torques se validan con el ensayo de estanqueidad |
+| 1.1.5.8 Aspectos geométricos y dimensionales para fabricar y montar | Tablas 9.1 a 9.8, Figura 3.1 y anexos C y D | Desarrollado; los torques se validan con el ensayo de estanqueidad |
 | 1.1.5.9 Ensayos y pruebas de equipos y sistemas | Capítulo IX y anexo E | Desarrollado: protocolos con criterio de aceptación y formularios de registro en el anexo E |
-| 1.1.6.10 Mejoras de las ingenierías conceptual y básica retroalimentadas por el mandante | Tabla 11.4 | Desarrollado: cada mejora con su origen, incluida la revisión del mandante |
 | 1.1.6.11 Formato institucional | Portada, índices, capítulos numerados, tablas y figuras rotuladas, referencias y anexos | Desarrollado en el documento editable; la paginación se revisa al exportar |
 
 **Tabla 11.5 “Cobertura de los criterios de la segunda entrega”**
@@ -2796,21 +2802,21 @@ La ingeniería desarrollada en este informe sostiene que es técnica y económic
 
 **Problema y requerimientos.** La necesidad del agricultor quedó traducida a 27 requerimientos con valor, unidad y criterio de aceptación (R01 a R27), de modo que lo que el instrumento debe lograr es medible y no una intención.
 
-**Ingeniería conceptual.** La arquitectura de un nodo portátil de captura que transfiere los datos al teléfono del usuario responde directamente a las dos barreras de la problemática, porque traslada al teléfono el costo de la pantalla, el cómputo y el almacenamiento, y con ello el precio del instrumento. Supera el filtro de viabilidad y gana la matriz de decisión con amplio margen. Con la revisión del mandante incorporada, la ingeniería conceptual queda cerrada en sus tres puntos abiertos: el financiamiento se ordena en fuentes y usos, con el pie de los socios abonado como cuotas pagadas por anticipado; la ausencia de sesgo proporcional se declara sólo cuando el intervalo de confianza de la pendiente cae dentro de un margen fijado de antemano; y la humedad de laboratorio se convierte a volumétrica con la densidad aparente medida en cada punto.
+**Ingeniería conceptual.** La arquitectura de un nodo portátil de captura que transfiere los datos al teléfono del usuario responde directamente a las dos barreras de la problemática, porque traslada al teléfono el costo de la pantalla, el cómputo y el almacenamiento, y con ello el precio del instrumento. Supera el filtro de viabilidad y gana la matriz de decisión con amplio margen. La ingeniería conceptual queda cerrada en tres frentes: el financiamiento se ordena en fuentes y usos, con el pie de los socios abonado como cuotas pagadas por anticipado; la ausencia de sesgo proporcional se declara sólo cuando el intervalo de confianza de la pendiente cae dentro de un margen fijado de antemano; y la humedad de laboratorio se convierte a volumétrica con la densidad aparente medida en cada punto.
 
-**Ingeniería básica.** Quedó **especificado** el comportamiento del equipo en una matriz de condición, fase, acción y señal; **justificado** cada componente del producto con una matriz propia; **dimensionado** el circuito con fórmula, dato de hoja y margen; y descrita la eficiencia energética, con la potencia instalada del equipo y del taller, y la digitalización con el marco de Industria 4.0. La placa V3 suelda directamente los mismos circuitos integrados que el prototipo trae en módulos, con cambios que responden a la energía, a la seguridad y a la norma del bus: el regulador de baja corriente propia, la habilitación del elevador con el corte de la sonda, la corriente de carga dentro del límite del puerto USB, la protección de la celda sin duplicar y la terminación de 120 Ω. Con ellos, la autonomía calculada en uso habitual sube a unos 125,6 días. Los puntos sensibles del diseño quedaron resueltos con un control concreto: la temperatura de carga, con el termistor adosado a la celda; la tensión de flotación del cargador, con su medición en el FAT de cada unidad; y la sonda en 0 V fuera de la medición, con el corte por MOSFET que verifica el ensayo de arranque.
+**Ingeniería básica.** Quedó **especificado** el comportamiento del equipo en una matriz de condición, fase, acción y señal; **justificado** cada componente del producto con una matriz propia; **dimensionado** el circuito con fórmula, dato de hoja y margen; y descrita la eficiencia energética, con la potencia instalada del equipo y del taller, y la digitalización con el marco de Industria 4.0. La placa del instrumento suelda directamente todos sus circuitos integrados, con decisiones que responden a la energía, a la seguridad y a la norma del bus: el regulador de baja corriente propia, la habilitación del elevador con el corte de la sonda, la corriente de carga dentro del límite del puerto USB, la protección de la celda sin duplicar y la terminación de 120 Ω. Con ellas, la autonomía calculada en uso habitual es de unos 125,6 días, cerca de 18 semanas. Los puntos sensibles del diseño quedaron resueltos con un control concreto: la temperatura de carga, con el termistor adosado a la celda; la tensión de flotación del cargador, con su medición en el FAT de cada unidad; y la sonda en 0 V fuera de la medición, con el corte por MOSFET que verifica el ensayo de arranque.
 
 **Ingeniería de detalle y fabricación.** Quedó **presupuestado** el producto y el taller por bloque (anexo A), contrastados los requisitos eléctricos de los componentes y representadas la distribución conceptual de la placa y la envolvente de la carcasa (anexos C y D), con coordenadas nominales, conectores, cableado, torques y secuencia de montaje. El ensamble completo del fabricante gana en producción desde lotes de 5 placas, y el taller con esténcil y placa calefactora queda para prototipos y retrabajo. La capacidad se dimensiona contra la demanda de 200 a 1.085 equipos anuales: dos impresoras quedan justificadas para 2036, y la carga de ensamble y FAT es menor que la dotación del modelo, cuya holgura se declara conservadora y se propone revisar.
 
-**Pruebas y planificación.** Cada requerimiento tiene su prueba, con FAT sobre el 100 % de las unidades, SAT en el campo y ensayos normativos. La aplicación aprueba 282 de 282 pruebas automatizadas y la consola 8 de 8, y el banco del prototipo registra una primera lectura Modbus válida; los ensayos de la placa V3, el FAT y el SAT se ejecutan con el prototipo de diciembre de 2026 y el piloto de febrero de 2027. La carta Gantt, mes a mes de agosto de 2026 a julio de 2027, muestra que la entrega del prototipo del 17 de diciembre de 2026 no tiene holgura.
+**Pruebas y planificación.** Cada requerimiento tiene su prueba, con FAT sobre el 100 % de las unidades, SAT en el campo y ensayos normativos. La aplicación aprueba 282 de 282 pruebas automatizadas y la consola 8 de 8, y el banco del prototipo registra una primera lectura Modbus válida; los ensayos de la placa del instrumento, el FAT y el SAT se ejecutan con el prototipo de diciembre de 2026 y el piloto de febrero de 2027. La carta Gantt, mes a mes de agosto de 2026 a julio de 2027, muestra que la entrega del prototipo del 17 de diciembre de 2026 no tiene holgura.
 
-**Evaluación económica.** **El precio es un resultado y no un supuesto**: se construyó primero la estructura completa de costos y el precio se derivó de ella exigiendo un 30 % de utilidad sobre el costo total, lo que arroja un precio de lista de $466.027 con IVA. La inversión inicial de $28.778.513 la desembolsa íntegramente un crédito a diez años y 12 % efectivo anual, con cuota fija de $402.747; los socios aportan un pie de $9.000.000 con capital propio, que el banco imputa como cuotas pagadas por anticipado y que cubre las primeras 22,3 cuotas, de modo que fuentes y usos se igualan. Con ese financiamiento el proyecto alcanza un VAN de $120.765.535 al 20 %, una TIR de 53,37 %, un payback simple de 3,47 años y uno descontado de 4,28 años; la caja mínima es de $16.887.865 y la deuda queda saldada en 2036. Las sensibilidades muestran que el proyecto resiste una caída del 10 % en las ventas y un alza del 15 % en el costo de materiales sin quedarse sin caja, pero se queda sin ella si el precio de lista baja de $419.833 y deja de crear valor si las ventas caen un 25 % o si el precio baja de $396.986. La garantía FOGAPE y los fondos concursables de Sercotec y CORFO se evaluaron y quedaron fuera del caso base, no porque el proyecto no califique, sino porque su obtención no es segura y los socios prefieren asegurar la puesta en marcha con su propio capital y un crédito que pueden comprometer de antemano.
+**Evaluación económica.** **El precio es un resultado y no un supuesto**: se construyó primero la estructura completa de costos y el precio se derivó de ella exigiendo un 30 % de utilidad sobre el costo total, lo que arroja un precio de lista de $467.463 con IVA. La inversión inicial de $28.807.059 la desembolsa íntegramente un crédito a diez años y 12 % efectivo anual, con cuota fija de $403.147; los socios aportan un pie de $9.000.000 con capital propio, que el banco imputa como cuotas pagadas por anticipado y que cubre las primeras 22,3 cuotas, de modo que fuentes y usos se igualan. Con ese financiamiento el proyecto alcanza un VAN de $121.326.245 al 20 %, una TIR de 53,50 %, un payback simple de 3,46 años y uno descontado de 4,27 años; la caja mínima es de $16.943.555 y la deuda queda saldada en 2036. Las sensibilidades muestran que el proyecto resiste una caída del 10 % en las ventas y un alza del 15 % en el costo de materiales sin quedarse sin caja, pero se queda sin ella si el precio de lista baja de $420.933 y deja de crear valor si las ventas caen un 25 % o si el precio baja de $398.095. La garantía FOGAPE y los fondos concursables de Sercotec y CORFO se evaluaron y quedaron fuera del caso base, no porque el proyecto no califique, sino porque su obtención no es segura y los socios prefieren asegurar la puesta en marcha con su propio capital y un crédito que pueden comprometer de antemano.
 
 **Desde la perspectiva del cliente**, bajo la intensidad habitual el instrumento no se paga el primer año; cruza a favor en el año 3 frente al laboratorio y en el año 5 frente a la asesoría, y el argumento estructural es el costo marginal cero de la medición repetida. Ese ahorro pertenece al agricultor y no aparece en ninguna línea del flujo de caja de la empresa.
 
 **Verificaciones programadas.** El estudio deja establecido que la arquitectura es coherente con el problema, que la selección electrónica está documentada y verificada contra hojas de datos, que la estructura de costos cierra con el precio propuesto, que el financiamiento es coherente en fuentes y usos y que, con el plan de ventas, el negocio crea valor y paga su deuda. Las verificaciones que siguen tienen fecha, método y criterio de aceptación:
 
-1. El prototipo funcional del 17 de diciembre de 2026 mide el consumo de la placa V3 en cada modo, la autonomía y el corte de la sonda, con los ensayos de desarrollo y el FAT.
+1. El prototipo funcional del 17 de diciembre de 2026 mide el consumo de la placa del instrumento en cada modo, la autonomía y el corte de la sonda, con los ensayos de desarrollo y el FAT.
 2. El firmware del mismo hito cierra la lectura estable de la sonda, con 1.000 lecturas consecutivas sin error de CRC, y el reposo profundo entre mediciones.
 3. La campaña de 30 muestras de enero y febrero de 2027 contrasta la sonda con el laboratorio, con el criterio de equivalencia y la conversión de humedad del capítulo V.
 4. El ensayo IP67 en laboratorio acreditado y el de caída libre confirman la estanqueidad y la robustez de la carcasa.
@@ -2873,7 +2879,7 @@ Nota sobre los supuestos de mercado. Los costos de referencia del análisis de l
 46. AliExpress. (2026). Precios de referencia con envío Choice a Chile de los módulos, la sonda de suelo y la celda de litio de la lista de materiales. Recuperado de https://www.aliexpress.com/
 47. JLCPCB. (2026). Fabricación de circuito impreso de dos capas: precio según cantidad y envío a Chile. Recuperado de https://jlcpcb.com/
 48. Advanced Monolithic Systems. (s.f.). AMS1117: 1A Low Dropout Voltage Regulator. Datasheet (corriente de reposo típica de 5 mA, representativa del regulador de las placas de desarrollo ESP32). Recuperado de http://www.advanced-monolithic.com/pdf/ds1117.pdf
-49. Espressif Systems. (s.f.). ESP32-DevKitC V4 Getting Started Guide, placa de desarrollo del prototipo V2: alimentación de la placa, regulador de 3,3 V y LED de alimentación. Recuperado de https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html
+49. Espressif Systems. (s.f.). ESP32-DevKitC V4 Getting Started Guide, placa de desarrollo del prototipo de laboratorio: alimentación de la placa, regulador de 3,3 V y LED de alimentación. Recuperado de https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html
 50. Sumeet Instruments. (s.f.). 7 in 1 Integrated Soil Sensor NPK-pH-EC-Temperature-Moisture, RS485, alimentación 5–24 V DC. Ficha técnica de una sonda equivalente (0,15 W a 12 V DC; 0,5 W a 24 V DC). Recuperado de https://sumeetinstruments.com/Soil-NPK-pH-EC-Temperature-Moisture-7in1-Sensor-RS485
 51. Comisión para el Mercado Financiero (CMF) / BancoEstado. (2025). Fondo de Garantía para Pequeños Empresarios (FOGAPE): garantía de hasta el 80 % del crédito para empresas con ventas anuales de hasta UF 25.000, comisión de hasta 1 % anual sobre el monto garantizado y plazo de hasta diez años. Recuperado de https://www.bancoestado.cl/content/bancoestado-public/cl/es/home/inicio---bancoestado-pequena-empresa/productos/garantias-estatales---bancoestado-pequena-empresa/fogape-para-el-pequeno-empresario---bancoestado-pequenas-empresa.html
 52. Servicio de Cooperación Técnica (Sercotec). (2025). Bases de convocatoria Capital Semilla Emprende, Región Metropolitana 2025: subsidio de $3.500.000 para personas naturales sin inicio de actividades. Recuperado de https://www.sercotec.cl/capital-semilla-emprende-region-metropolitana-2025/
@@ -2890,9 +2896,9 @@ Nota sobre los supuestos de mercado. Los costos de referencia del análisis de l
 63. Espressif Systems. (s.f.). ESP32-WROOM-32E / ESP32-WROOM-32UE Datasheet (reemplazo recomendado del módulo 32D, de igual huella y pines). Recuperado de https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32e_esp32-wroom-32ue_datasheet_en.pdf
 64. Richtek Technology. (s.f.). RT9080: 600 mA, Ultra-Low Quiescent Current, Low Dropout Linear Regulator. Hoja de datos (corriente propia de 2 µA y caída de 0,31 V a 600 mA). Recuperado de https://www.richtek.com/SaveDownload.aspx?specid=RT9080
 65. Microne (Nanjing Micro One Electronics). (s.f.). ME6211: 500 mA LDO regulator. Hoja de datos (corriente propia y caída de tensión). Recuperado de https://www.lcsc.com/product-detail/C82942.html
-66. Aerosemi Technology. (s.f.). MT3608: 1,2 MHz, 24 V Step-Up Converter. Hoja de datos (límite del conmutador de 4 A, referencia de 0,6 V y pin de habilitación). Recuperado de https://www.lcsc.com/
+66. Aerosemi Technology. (s.f.). MT3608: 1,2 MHz, 24 V Step-Up Converter. Hoja de datos (límite del conmutador de 4 A, referencia de 0,6 V, pin de habilitación y eficiencia de hasta 93 %). Recuperado de https://www.lcsc.com/
 67. NanJing Top Power ASIC Corp. (s.f.). TP4056: 1A Standalone Linear Li-Ion Battery Charger with Thermal Regulation in SOP-8. Hoja de datos (corriente de carga según RPROG, tensión de flotación y regulación térmica). Recuperado de https://www.lcsc.com/
-68. LCSC Electronics. (2026). Zumbador magnético pasivo KLJ-9032-3627 (C201039): 3,6 V, 2,731 kHz y 100 mA nominales; y zumbadores pasivos de 9 mm de la serie 9042: fichas de catálogo (resistencia de bobina, tensión nominal y frecuencia de resonancia). Recuperado de https://www.lcsc.com/
+68. LCSC Electronics. (2026). Zumbador magnético pasivo YS-MBZ9042C05R42 (C409837): 9 mm, montaje pasante, 3 a 7 V, 2,7 kHz, 60 mA nominales y bobina de 42 Ω; y zumbadores pasivos de 9 mm de la serie 9042: fichas de catálogo (resistencia de bobina, tensión nominal y frecuencia de resonancia). Recuperado de https://www.lcsc.com/
 69. Alpha & Omega Semiconductor. (s.f.). AO3400A: 30 V N-Channel MOSFET. Hoja de datos (umbral de compuerta, resistencia de conducción y corriente de drenaje). Recuperado de https://www.aosmd.com/res/data_sheets/AO3400A.pdf
 70. Espressif Systems. (s.f.). ESP32 Hardware Design Guidelines (circuito de reinicio, alimentación y zona libre bajo la antena). Recuperado de https://docs.espressif.com/projects/esp-hardware-design-guidelines/en/latest/esp32/
 71. DigiKey Electronics. (2026). Catálogo de componentes electrónicos: precios por tramo y disponibilidad, empleados como alternativa de abastecimiento y para el instrumental del taller. Recuperado de https://www.digikey.com/
@@ -2913,7 +2919,7 @@ Los anexos se entregan en una carpeta compartida de Google Drive: [enlace a la c
 
 - **Anexo A. Cotizaciones (planilla de Excel).** Una hoja para el producto, otra para el taller, otra para los servicios de fabricación y validación, y un resumen por proveedor. Columnas: equipo, modelo, cantidad, proveedor, valor unitario y valor total, más la fecha de consulta y el enlace público. Los totales son fórmulas.
 - **Anexo B. Flujo de caja (planilla de Excel).** Una hoja por tema, enlazadas por fórmulas: resumen, inversión, ventas, costos operacionales, gastos de administración, gastos de comercialización, financiamiento (con la imputación del pie a las primeras cuotas), costo financiero, depreciación, amortización, estado de resultados y flujo de caja.
-- **Anexo C. Distribución conceptual de la placa V3 (PDF).** Vista tridimensional y vista superior con el contorno, agujeros de montaje y ubicación de componentes. Documenta la geometría nominal de diseño.
-- **Anexo D. Geometría conceptual de la carcasa V3 (PDF).** Planta, vista frontal y corte con las dimensiones exteriores, posición nominal de aberturas y apilamiento del conjunto.
+- **Anexo C. Placa del instrumento (PDF).** Vista tridimensional, vista superior con el contorno, los agujeros de montaje y la ubicación de los componentes, y ruteo de ambas caras.
+- **Anexo D. Geometría de la carcasa (PDF).** Planta, vista frontal y corte con las dimensiones exteriores, posición nominal de aberturas y apilamiento del conjunto.
 - **Anexo E. Protocolos FAT y SAT (planilla de Excel).** Formularios de registro, una hoja por protocolo, con número de serie, fecha, operador, resultado de cada prueba y firma.
 - **Anexo F. Carta Gantt (planilla de Excel).** Carta del proyecto mes a mes, de agosto de 2026 a julio de 2027: EDT, actividad, área responsable, inicio, término, duración en días hábiles, predecesoras, entregable, estado a la fecha de corte, holgura y ruta crítica, con barras por mes e hitos. Una segunda hoja reúne los hitos y una tercera explica el método.

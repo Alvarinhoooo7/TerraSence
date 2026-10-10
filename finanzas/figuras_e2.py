@@ -57,18 +57,19 @@ FIGURAS = {
     "Diagrama de Flujo Arquitectura de Sonda conectada al Teléfono": "fig_arq_sonda_telefono.png",
     "Diagrama de Flujo Arquitectura de Sistema Embebido de Bajo Consumo": "fig_arq_bajo_consumo.png",
     "Diagrama de Flujo Arquitectura de Conectividad": "fig_conectividad.png",
-    "Árbol de Alimentación y Nodos de Tensión": "fig_alimentacion_v2.png",
-    "Representación Conceptual de Carcasa": "fig_carcasa_conceptual.png",
+    "Árbol de Alimentación y Nodos de Tensión": "fig_nodos_tension.png",
+    "Concepto funcional de la carcasa": "fig_carcasa_concepto.png",
     "Estados de operación del equipo": "fig_estados.png",
     "Secuencia de una jornada de medición": "fig_jornada.png",
     "Aplicación móvil: inicio, tema oscuro, vinculación y preferencias": "fig_app_pantallas.png",
     "Consola de soporte: búsqueda de equipos y ficha del equipo": "fig_consola.png",
-    "Diagrama de bloques del hardware de la placa V3": "fig_bloques_v3.png",
-    "Árbol de alimentación de la placa V3": "fig_alimentacion_v3.png",
+    "Diagrama de bloques del hardware del instrumento": "fig_bloques.png",
+    "Árbol de alimentación del instrumento": "fig_alimentacion.png",
     "Flujo de datos y digitalización del proceso": "fig_flujo_datos.png",
-    "Placa V3: vista tridimensional": "fig_placa_v3_3d.png",
-    "Plano de la placa V3": "fig_placa_v3.png",
-    "Carcasa V3: planta, vista frontal y corte": "fig_carcasa_v3.png",
+    "Placa del instrumento: vista tridimensional": "fig_placa_3d.png",
+    "Plano de la placa del instrumento": "fig_placa.png",
+    "Ruteo de la placa: cara superior e inferior": "fig_ruteo.png",
+    "Carcasa: planta, vista frontal y corte": "fig_carcasa.png",
     "Secuencia de montaje del equipo": "fig_montaje.png",
     "Proceso de fabricación por estaciones": "fig_fabricacion.png",
     "Carta Gantt del proyecto": "fig_gantt.png",
@@ -323,35 +324,35 @@ def conectividad():
 
 
 def alimentacion_v2():
-    L = Lienzo(23, 9.6)
-    L.caja("usb", 0.3, 0.7, 3.4, 1.3, "USB-C", "gris")
-    L.caja("cel", 0.3, 4.2, 3.4, 1.5, "Celda LiPo 2.000 mAh", "gris")
-    L.caja("fu", 4.6, 4.2, 3.8, 1.5, "Fusible de 1 A y diodo de protección", "normal")
-    L.caja("mc", 4.6, 0.4, 3.8, 1.9, "Módulo de carga y elevación a 5 V", "suave")
-    L.caja("sw", 9.4, 0.6, 3.0, 1.5, "Interruptor de encendido", "normal")
-    L.caja("v5", 13.4, 0.6, 2.6, 1.5, "Nodo de 5 V", "fuerte")
-    L.caja("pd", 17.0, 0.4, 5.6, 1.9, "Placa de desarrollo ESP32 con regulador de 3,3 V", "suave")
-    L.caja("v33", 17.6, 3.2, 4.4, 1.3, "Nodo de 3,3 V", "fuerte")
-    L.caja("bme", 15.0, 5.4, 3.4, 1.3, "Sensor ambiental", "normal")
-    L.caja("rs", 19.2, 5.4, 3.4, 1.3, "Transceptor RS-485", "normal")
-    L.caja("cor", 11.6, 3.4, 4.6, 1.7, "Corte de la sonda: P-MOSFET y N-MOSFET", "ambar")
-    L.caja("son", 11.6, 7.4, 4.6, 1.4, "Sonda de suelo", "gris")
+    """Nodos de tensión de la placa del instrumento y dónde se paga cada conversión (figura del capítulo V)."""
+    L = Lienzo(24, 10.2)
+    L.caja("usb", 0.3, 0.6, 3.4, 1.3, "USB-C 5 V", "gris")
+    L.caja("tp", 4.6, 0.4, 3.8, 1.7, "Cargador TP4056 con termistor", "suave")
+    L.caja("cel", 0.3, 4.3, 3.4, 1.5, "Celda LiPo 2.000 mAh", "gris")
+    L.caja("fu", 4.6, 4.3, 3.8, 1.5, "PTC de 1 A y diodo de protección", "normal")
+    L.caja("vc", 9.2, 4.2, 3.2, 1.7, "Nodo de celda: 3,0 a 4,2 V", "fuerte")
+    L.caja("sw", 9.2, 0.6, 3.2, 1.5, "Ruta de carga e interruptor", "normal")
+    L.caja("ldo", 13.4, 0.4, 4.0, 1.9, "LDO RT9080: 3,3 V con η = 3,3/3,7 ≈ 89 %", "suave")
+    L.caja("v33", 18.4, 0.4, 5.3, 1.9, "Nodo de 3,3 V: ESP32, BME280, SP3485, LED y buzzer", "fuerte", fuente=8.6)
+    L.caja("ele", 13.4, 3.4, 4.0, 1.9, "Elevador MT3608: 5 V con η ≈ 0,85, sólo al medir", "suave", fuente=8.8)
+    L.caja("cor", 18.4, 3.4, 5.3, 1.9, "Corte de la sonda: AO3401A con AO3400A", "ambar")
+    L.caja("son", 18.4, 6.8, 5.3, 1.4, "Sonda de suelo a 5 V", "gris")
     L.caja("div", 4.6, 7.2, 3.8, 1.4, "Divisor 100 kΩ + 100 kΩ", "normal")
-    L.caja("adc", 0.3, 7.2, 3.4, 1.4, "Entrada analógica del ESP32", "normal")
-    L.flecha("usb", "mc")
+    L.caja("adc", 0.3, 7.2, 3.4, 1.4, "Entrada analógica IO34", "normal")
+    L.flecha("usb", "tp")
+    L.flecha("tp", "vc", lado_a="ab", lado_b="ar", puntos=[(6.5, 3.1), (10.8, 3.1)])
     L.flecha("cel", "fu")
-    L.flecha("fu", "mc", doble=True)
-    L.flecha("fu", "div")
+    L.flecha("fu", "vc", doble=True)
+    L.flecha("vc", "sw", lado_a="ar", lado_b="ab", dx=0.9)
+    L.flecha("sw", "ldo")
+    L.flecha("ldo", "v33")
+    L.flecha("sw", "ele", lado_a="d", lado_b="i", puntos=[(12.9, 1.35), (12.9, 4.35)])
+    L.flecha("ele", "cor")
+    L.flecha("cor", "son", lado_a="ab", lado_b="ar")
+    L.flecha("v33", "cor", "IO5", lado_a="ab", lado_b="ar", discontinua=True, fuente=8)
+    L.flecha("fu", "div", lado_a="ab", lado_b="ar")
     L.flecha("div", "adc")
-    L.flecha("mc", "sw")
-    L.flecha("sw", "v5")
-    L.flecha("v5", "pd")
-    L.flecha("pd", "v33")
-    L.flecha("v33", "bme", lado_a="ab", lado_b="ar")
-    L.flecha("v33", "rs", lado_a="ab", lado_b="ar")
-    L.flecha("v5", "cor", lado_a="ab", lado_b="ar")
-    L.flecha("pd", "cor", "Pin de control", lado_a="i", lado_b="d", puntos=[(16.6, 1.35), (16.6, 4.25)], discontinua=True)
-    L.flecha("cor", "son")
+    L.nota(0.3, 9.6, "Sólo la sonda paga la conversión a 5 V; la electrónica de 3,3 V toma la energía de la celda a través del regulador lineal.")
     L.guardar("Árbol de Alimentación y Nodos de Tensión")
 
 
@@ -435,7 +436,7 @@ def bloques_v3():
     L.caja("ch", 0.6, 5.0, 3.2, 1.4, "Puente USB-serie CH340C", "suave", fuente=f)
     L.grupo(8.4, 0.2, 17.4, 6.6, "Energía")
     L.caja("cel", 8.8, 1.0, 3.6, 1.4, "Celda LiPo de 2.000 mAh", "gris", fuente=f)
-    L.caja("fus", 8.8, 3.0, 3.6, 1.4, "Fusible de 1 A y puente JP1", "normal", fuente=f)
+    L.caja("fus", 8.8, 3.0, 3.6, 1.4, "PTC de 1 A y puente JP1", "normal", fuente=f)
     L.caja("ntc", 14.0, 1.0, 3.2, 1.2, "Termistor NTC en la celda", "normal", fuente=f)
     L.caja("tp", 13.0, 3.0, 3.6, 1.4, "Cargador TP4056", "suave", fuente=f)
     L.caja("ruta", 17.2, 3.0, 4.0, 1.4, "Ruta de carga: P-MOSFET y Schottky", "normal", fuente=f)
@@ -453,7 +454,7 @@ def bloques_v3():
     L.caja("son", 20.4, 10.5, 5.0, 1.3, "Sonda 7 en 1 RS-485", "gris", fuente=f)
     L.grupo(0.2, 13.2, 25.6, 3.0, "Interfaz de usuario")
     L.caja("led", 0.6, 14.3, 6.4, 1.4, "LED azul, verde y rojo con 330 Ω", "normal", fuente=f)
-    L.caja("bz", 8.0, 14.3, 7.0, 1.4, "Buzzer KLJ-9032 con transistor S8050 y diodo", "normal", fuente=f)
+    L.caja("bz", 8.0, 14.3, 7.0, 1.4, "Buzzer YS-MBZ9042 con transistor S8050 y diodo", "normal", fuente=f)
     L.caja("pair", 16.0, 14.3, 4.4, 1.4, "Pulsador PAIR", "normal", fuente=f)
     L.flecha("j1", "esd", lado_a="ab", lado_b="ar")
     L.flecha("j1", "ptc", lado_a="ab", lado_b="ar")
@@ -479,7 +480,7 @@ def bloques_v3():
     L.flecha("mcu", "led", lado_a="ab", lado_b="ar", da=(-1.1, 0), puntos=[(5.6, 13.0), (3.8, 13.0)])
     L.flecha("mcu", "bz", "IO19", lado_a="ab", lado_b="ar", da=(-0.5, 0), puntos=[(6.2, 12.6), (11.5, 12.6)], fuente=8)
     L.flecha("pair", "mcu", "IO33", lado_a="ar", lado_b="ab", db=(0.6, 0), puntos=[(18.2, 12.45), (7.3, 12.45)], fuente=8)
-    L.guardar("Diagrama de bloques del hardware de la placa V3")
+    L.guardar("Diagrama de bloques del hardware del instrumento")
 
 
 def alimentacion_v3():
@@ -496,7 +497,7 @@ def alimentacion_v3():
     L.caja("tp", 9.0, r1, 3.6, h, "TP4056: carga a 4,20 V", "suave")
     L.caja("car", 22.2, r1, 3.6, h, "ESP32, BME280, SP3485, LED y buzzer", "normal", fuente=8.2)
     L.caja("cel", 0.3, r2, 3.6, h, "Celda LiPo con protección", "gris")
-    L.caja("fus", 4.8, r2, 3.0, h, "Fusible 1 A y JP1", "normal")
+    L.caja("fus", 4.8, r2, 3.0, h, "PTC 1 A y JP1", "normal")
     L.caja("nb", 9.0, r2, 3.6, h, "Nodo de celda: 3,0 a 4,2 V", "fuerte")
     L.caja("pm", 13.6, r2, 3.4, h, "P-MOSFET de ruta de carga", "normal")
     L.caja("ele", 22.2, r2, 3.6, h, "Elevador MT3608", "suave")
@@ -524,7 +525,7 @@ def alimentacion_v3():
     L.flecha("nb", "div", lado_a="ab", lado_b="d", puntos=[(10.8, 7.7)])
     L.flecha("div", "adc")
     L.nota(0.3, 9.6, "La celda y el cargador quedan siempre unidos: el equipo carga con el interruptor abierto. El puente USB-serie sólo se alimenta desde VBUS.")
-    L.guardar("Árbol de alimentación de la placa V3")
+    L.guardar("Árbol de alimentación del instrumento")
 
 
 def flujo_datos():
@@ -615,9 +616,9 @@ def gantt():
         holg = {}
     corte = date.fromisoformat(A.FECHA_CORTE)
     filas = [p for p in plan]
-    fig, ax = plt.subplots(figsize=(15, 0.36 * len(filas) + 1.6))
-    d0 = date(2026, 8, 1)
-    dfin = date(2027, 8, 1)
+    fig, ax = plt.subplots(figsize=(15, 0.36 * len(filas) + 1.9))
+    d0 = date(2026, 7, 1)            # inicio del Q3 de 2026
+    dfin = date(2027, 10, 1)         # fin del Q3 de 2027
     for i, p in enumerate(filas):
         edt, nombre, area, ini, fin, pred, entr, tipo = p
         a, b = date.fromisoformat(ini), date.fromisoformat(fin)
@@ -639,27 +640,34 @@ def gantt():
         else:
             ax.add_patch(Rectangle(((a - d0).days, y - 0.3), (b - a).days + 1, 0.6, fc=color,
                                    ec=GRIS if tipo == "operacion" else "none", ls=(0, (3, 2)) if tipo == "operacion" else "-"))
-    meses = []
+    # División por trimestres (Q), con los meses como subdivisión tenue
+    nombres = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
     m = d0
     while m < dfin:
-        meses.append(m)
-        m = date(m.year + (m.month == 12), m.month % 12 + 1, 1)
-    nombres = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
-    for m in meses:
         x = (m - d0).days
-        ax.axvline(x, color="#D9DDD6", lw=0.8, zorder=0)
-        ax.text(x + 15, -1.2, "%s %s" % (nombres[m.month - 1], str(m.year)[2:]), ha="center", fontsize=8.2, color=GRIS)
+        siguiente = date(m.year + (m.month == 12), m.month % 12 + 1, 1)
+        if (m.month - 1) % 3 == 0:
+            fin_q = date(m.year + (m.month >= 10), (m.month + 2) % 12 + 1, 1)
+            ancho = (fin_q - m).days
+            ax.add_patch(Rectangle((x, -2.55), ancho, 0.75, fc=VERDE if ((m.month - 1) // 3) % 2 == 0 else VERDE_M, ec="white", lw=1.5, clip_on=False))
+            ax.text(x + ancho / 2, -2.17, "Q%d %d" % ((m.month - 1) // 3 + 1, m.year), ha="center", va="center", fontsize=9.5,
+                    color="white", fontweight="bold")
+            ax.axvline(x, color="#9AA59C", lw=1.3, zorder=0)
+        else:
+            ax.axvline(x, color="#E4E7E2", lw=0.6, zorder=0)
+        ax.text(x + (siguiente - m).days / 2, -1.2, nombres[m.month - 1], ha="center", fontsize=7.4, color=GRIS)
+        m = siguiente
+    ax.axvline((dfin - d0).days, color="#9AA59C", lw=1.3, zorder=0)
     xc = (corte - d0).days
     ax.axvline(xc, color=AZUL, lw=1.2, ls=(0, (4, 2)))
     ax.text(xc, len(filas) + 0.3, "Corte %s" % corte.strftime("%d-%m-%Y"), color=AZUL, fontsize=8, ha="center")
     ax.set_xlim(0, (dfin - d0).days)
-    ax.set_ylim(len(filas) + 0.8, -1.8)
     ax.axis("off")
     ley = [("Ejecutado", "#9DB8A6"), ("Planificado", VERDE_M), ("Ruta crítica", ROJO), ("Hito", AMBAR), ("Operación (fuera del alcance)", GRIS_C)]
     for j, (t, c) in enumerate(ley):
-        ax.add_patch(Rectangle((j * 75, len(filas) + 1.4), 10, 0.5, fc=c, ec=GRIS, lw=0.5, clip_on=False))
-        ax.text(j * 75 + 13, len(filas) + 1.65, t, va="center", fontsize=8.2, clip_on=False)
-    ax.set_ylim(len(filas) + 2.2, -1.8)
+        ax.add_patch(Rectangle((j * 90, len(filas) + 1.4), 12, 0.5, fc=c, ec=GRIS, lw=0.5, clip_on=False))
+        ax.text(j * 90 + 15, len(filas) + 1.65, t, va="center", fontsize=8.2, clip_on=False)
+    ax.set_ylim(len(filas) + 2.2, -2.7)
     fig.savefig(os.path.join(DESTINO, FIGURAS["Carta Gantt del proyecto"]), dpi=200, bbox_inches="tight", facecolor="white")
     plt.close(fig)
 
@@ -668,7 +676,6 @@ def gantt():
 def capturas():
     origen = os.path.join(RAIZ, "Comercializacion de Tecnologias", "Unidad 2", "Figuras")
     shutil.copyfile(os.path.join(origen, "app_mosaico.png"), os.path.join(DESTINO, FIGURAS["Aplicación móvil: inicio, tema oscuro, vinculación y preferencias"]))
-    shutil.copyfile(os.path.join(RAIZ, "docs", "img", "figura-carcasa.png"), os.path.join(DESTINO, FIGURAS["Representación Conceptual de Carcasa"]))
     import matplotlib.image as mpimg
     # Capturas de la consola tomadas por el equipo; se recorta la barra del navegador.
     buscar = mpimg.imread(os.path.join(DESTINO, "buscar_equipo.png"))
@@ -685,29 +692,71 @@ def capturas():
     plt.close(fig)
 
 
-# --------------------------------------------------------------------------- placa y carcasa V3
+# --------------------------------------------------------------------------- placa y carcasa del instrumento
 PCB_V3 = os.path.join(RAIZ, "PCB", "V3", "V3.kicad_pcb")
 KICAD_CLI = os.environ.get("KICAD_CLI") or shutil.which("kicad-cli") or r"C:\Program Files\KiCad\9.0\bin\kicad-cli.exe"
-PLACA_W, PLACA_H = 64.0, 56.0
-CARCASA_W, CARCASA_L, CARCASA_H = 73.0, 79.0, 31.0
-DX, DY = 4.5, 10.3            # desplazamiento de la placa dentro de la carcasa (pared y holgura; antena arriba)
+PLACA_W, PLACA_H = 90.0, 64.0
+ORIGEN_PCB = (100.0, 100.0)    # esquina superior izquierda del contorno en coordenadas de KiCad
+ANTENA = 6.3                   # vuelo de la antena del módulo sobre el borde superior
+AGUJEROS = ((3.2, 3.2), (86.8, 3.2), (3.2, 60.8), (86.8, 60.8))
+PARED, HOLGURA, HOLGURA_ANTENA, HOLGURA_BORNERAS = 2.5, 2.0, 1.5, 10.2
+DX = PARED + HOLGURA
+DY = PARED + HOLGURA_ANTENA + ANTENA
+CARCASA_W = PLACA_W + 2 * DX
+CARCASA_L = DY + PLACA_H + HOLGURA_BORNERAS + PARED
+CARCASA_H = 31.0
+# posiciones de diseño en la placa (mm desde la esquina superior izquierda del contorno)
+LED = ((39.0, 31.0), (45.0, 31.0), (51.0, 31.0))
+PAIR = (45.0, 25.5)
+BUZZER = (80.0, 8.75)
+USB_Y = 11.0
+BME = (87.0, 26.0)
+SONDA_X = 69.5                 # centro de la bornera de cuatro vías
+INTERRUPTOR_X = 36.5           # centro de la bornera del interruptor
+
+
+def mm_txt(v):
+    return ("%.1f" % v).replace(".", ",")
 
 
 def renders_placa():
-    """Renders 3D de PCB/V3/V3.kicad_pcb con kicad-cli: vista superior ortogonal e isométrica."""
+    """Renders 3D y vistas de cobre de PCB/V3/V3.kicad_pcb con kicad-cli; sin KiCad se usan las imágenes versionadas."""
     import subprocess
+    salidas = ("render_placa_superior.png", "render_placa_iso.png", "ruteo_superior.png", "ruteo_inferior.png")
     if not (os.path.exists(KICAD_CLI) and os.path.exists(PCB_V3)):
-        for nombre in ("render_placa_superior.png", "render_placa_iso.png"):
+        for nombre in salidas:
             if not os.path.isfile(os.path.join(DESTINO, nombre)):
-                raise FileNotFoundError(f"Falta {nombre}; configura KICAD_CLI para generar las vistas de la V3.")
-        print("KiCad no disponible: se usan las vistas 3D versionadas.")
+                raise FileNotFoundError(f"Falta {nombre}; configura KICAD_CLI para generar las vistas de la placa.")
+        print("KiCad no disponible: se usan las vistas de la placa versionadas.")
         return
-    for nombre, extra in (("render_placa_superior.png", ["--side", "top", "--width", "2000", "--height", "1800"]),
+    for nombre, extra in (("render_placa_superior.png", ["--side", "top", "--width", "2000", "--height", "1600"]),
                           ("render_placa_iso.png", ["--width", "2000", "--height", "1500", "--perspective", "--rotate", " -50,0,-30", "--zoom", "0.9"])):
         resultado = subprocess.run([KICAD_CLI, "pcb", "render", "--quality", "high", "--background", "opaque", "-o",
-                                    os.path.join(DESTINO, nombre)] + extra + [PCB_V3], capture_output=True, timeout=180)
+                                    os.path.join(DESTINO, nombre)] + extra + [PCB_V3], capture_output=True, timeout=300)
         if resultado.returncode:
             raise RuntimeError(resultado.stderr.decode("utf-8", errors="replace"))
+    import tempfile
+    import pymupdf
+    ox, oy = ORIGEN_PCB
+    for nombre, capas, espejo in (("ruteo_superior.png", "F.Cu,F.Silkscreen,Edge.Cuts", False), ("ruteo_inferior.png", "B.Cu,Edge.Cuts", True)):
+        with tempfile.TemporaryDirectory() as tmp:
+            pdf = os.path.join(tmp, "capa.pdf")
+            args = [KICAD_CLI, "pcb", "export", "pdf", "--layers", capas, "--mode-single", "-o", pdf, PCB_V3]
+            if espejo:
+                args.insert(-1, "--mirror")
+            resultado = subprocess.run(args, capture_output=True, timeout=180)
+            if resultado.returncode:
+                raise RuntimeError(resultado.stderr.decode("utf-8", errors="replace"))
+            doc = pymupdf.open(pdf)
+            pag = doc[0]
+            k = 72 / 25.4
+            if espejo:
+                x0 = pag.rect.width / k - (ox + PLACA_W)
+            else:
+                x0 = ox
+            clip = pymupdf.Rect((x0 - 1) * k, (oy - 1) * k, (x0 + PLACA_W + 1) * k, (oy + PLACA_H + 1) * k)
+            pag.get_pixmap(dpi=300, clip=clip).save(os.path.join(DESTINO, nombre))
+            doc.close()
 
 
 def placa_3d():
@@ -716,12 +765,11 @@ def placa_3d():
     if not os.path.exists(ruta):
         return
     img = mpimg.imread(ruta)
-    alto, ancho = img.shape[:2]
     fig = plt.figure(figsize=(11, 8.2))
     a = fig.add_axes([0, 0, 1, 1])
     a.imshow(img)
     a.axis("off")
-    fig.savefig(os.path.join(DESTINO, FIGURAS["Placa V3: vista tridimensional"]), dpi=170, facecolor="white", bbox_inches="tight")
+    fig.savefig(os.path.join(DESTINO, FIGURAS["Placa del instrumento: vista tridimensional"]), dpi=170, facecolor="white", bbox_inches="tight")
     plt.close(fig)
 
 
@@ -732,16 +780,16 @@ def plano_placa():
     if not os.path.exists(ruta):
         return
     img = mpimg.imread(ruta)[:, :, :3]
-    verde = (img[:, :, 1] > img[:, :, 0] + 0.06) & (img[:, :, 1] > img[:, :, 2] + 0.03) & (img[:, :, 1] < 0.45)
-    cols = np.where(verde.sum(0) > 200)[0]
-    filas = np.where(verde.sum(1) > 200)[0]
+    verde = (img[:, :, 1] > img[:, :, 0] + 0.04) & (img[:, :, 1] > img[:, :, 2] + 0.02) & (img[:, :, 1] < 0.55)
+    cols = np.where(verde.sum(0) > 150)[0]
+    filas = np.where(verde.sum(1) > 150)[0]
     x0, y0 = cols.min(), filas.min()
     esc = (cols.max() - cols.min()) / PLACA_W
     P = lambda x, y: (x0 + x * esc, y0 + y * esc)
-    fig, ax = plt.subplots(figsize=(12, 11.4))
+    fig, ax = plt.subplots(figsize=(13, 10.5))
     ax.imshow(img)
-    ax.set_xlim(x0 - 16 * esc, x0 + (PLACA_W + 30) * esc)
-    ax.set_ylim(y0 + (PLACA_H + 14) * esc, y0 - 10 * esc)
+    ax.set_xlim(x0 - 34 * esc, x0 + (PLACA_W + 36) * esc)
+    ax.set_ylim(y0 + (PLACA_H + 16) * esc, y0 - 12 * esc)
     ax.axis("off")
 
     def cota(xa, ya, xb, yb, texto, desplaz=(0, 0), rot=0):
@@ -750,26 +798,32 @@ def plano_placa():
         ax.text((pa + pb) / 2 + desplaz[0] * esc, (qa + qb) / 2 + desplaz[1] * esc, texto, ha="center", va="center",
                 fontsize=10, rotation=rot, bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none"))
 
-    cota(0, PLACA_H + 4, PLACA_W, PLACA_H + 4, "64,0 mm", desplaz=(-20, 0))
-    cota(PLACA_W + 5, 0, PLACA_W + 5, PLACA_H, "56,0 mm", rot=90)
-    cota(-5, -6.3, -5, 0, "6,3 mm", desplaz=(-3.2, 0), rot=90)
-    for xm, ym in ((3.0, 3.0), (61.0, 3.0), (3.0, 41.5), (61.2, 41.0)):
+    cota(0, PLACA_H + 5, PLACA_W, PLACA_H + 5, "%s mm" % mm_txt(PLACA_W))
+    cota(PLACA_W + 4, 0, PLACA_W + 4, PLACA_H, "%s mm" % mm_txt(PLACA_H), rot=90)
+    cota(57.0, -ANTENA, 57.0, 0, "%s mm" % mm_txt(ANTENA), desplaz=(3.4, 0), rot=90)
+    for xm, ym in AGUJEROS:
         px, py = P(xm, ym)
         ax.plot([px], [py], marker="+", color="#FFE36E", ms=14, mew=2)
     notas = [
-        (32.0, -3.4, 40.0, -7.6, "Antena del ESP32-WROOM-32D sobre el borde, sin cobre debajo"),
-        (2.0, 13.0, -10.0, 20.0, "USB-C 16 pines"),
-        (61.0, 12.0, 74.0, 9.0, "BME280 y ranura térmica"),
-        (32.0, 25.4, 74.0, 22.0, "Pulsador PAIR"),
-        (38.0, 30.8, 74.0, 28.0, "LED azul, verde y rojo"),
-        (46.5, 8.5, 74.0, 2.0, "Buzzer"),
-        (45.4, 36.8, 74.0, 35.0, "Elevador MT3608 y bobina"),
-        (20.4, 37.0, -10.0, 33.0, "Cargador TP4056"),
-        (8.5, 53.0, 8.5, 66.5, "Celda"),
-        (20.5, 53.0, 20.5, 66.5, "Termistor"),
-        (32.5, 53.0, 32.5, 66.5, "Interruptor"),
-        (50.1, 50.0, 74.0, 50.0, "Sonda: +, −, A y B"),
-        (3.0, 3.0, -10.0, 5.0, "Agujeros M2 (+)"),
+        (45.0, -3.4, 75.0, -9.0, "Antena del ESP32-WROOM-32D fuera del contorno"),
+        (2.0, USB_Y, -8.0, 4.0, "USB-C de 16 pines"),
+        (12.5, 11.0, -8.0, 12.0, "ESD USBLC6 y PTC"),
+        (24.0, 9.0, -8.0, 20.0, "Cargador TP4056"),
+        (7.5, 30.0, -8.0, 30.0, "Puente USB-serie CH340C"),
+        (26.5, 30.5, -8.0, 38.0, "Pulsadores EN y BOOT"),
+        (8.0, 44.0, -8.0, 46.0, "Protección y medición de celda"),
+        (BUZZER[0], BUZZER[1], PLACA_W + 9, 4.0, "Buzzer"),
+        (BME[0], BME[1], PLACA_W + 9, 18.0, "BME280 y ranura térmica"),
+        (PAIR[0], PAIR[1], PLACA_W + 9, 26.0, "Pulsador PAIR"),
+        (LED[2][0], LED[2][1], PLACA_W + 9, 32.0, "LED azul, verde y rojo"),
+        (39.5, 39.0, PLACA_W + 9, 38.0, "LDO RT9080-33"),
+        (48.5, 47.0, PLACA_W + 9, 44.0, "Elevador MT3608 y bobina"),
+        (68.0, 42.0, PLACA_W + 9, 50.0, "RS-485: SP3485 y SM712"),
+        (11.5, 57.0, 11.5, PLACA_H + 12, "Celda"),
+        (24.0, 57.0, 24.0, PLACA_H + 12, "Termistor"),
+        (36.5, 57.0, 36.5, PLACA_H + 12, "Interruptor"),
+        (SONDA_X, 57.0, SONDA_X, PLACA_H + 12, "Sonda: +, −, A y B"),
+        (3.2, 60.8, -8.0, 56.0, "Agujeros M2 (+)"),
     ]
     for xa, ya, xb, yb, t in notas:
         pa, qa = P(xa, ya)
@@ -777,14 +831,74 @@ def plano_placa():
         ax.annotate(t, xy=(pa, qa), xytext=(pb, qb), fontsize=9.5, color="#1B1B1B", ha="left" if xb > PLACA_W else ("right" if xb < 0 else "center"),
                     va="center", arrowprops=dict(arrowstyle="-", color=GRIS, lw=0.9),
                     bbox=dict(boxstyle="round,pad=0.2", fc="white", ec=GRIS_C))
-    fig.savefig(os.path.join(DESTINO, FIGURAS["Plano de la placa V3"]), dpi=170, facecolor="white", bbox_inches="tight")
+    fig.savefig(os.path.join(DESTINO, FIGURAS["Plano de la placa del instrumento"]), dpi=170, facecolor="white", bbox_inches="tight")
     plt.close(fig)
+
+
+def ruteo_placa():
+    import matplotlib.image as mpimg
+    sup, inf = (os.path.join(DESTINO, n) for n in ("ruteo_superior.png", "ruteo_inferior.png"))
+    if not (os.path.exists(sup) and os.path.exists(inf)):
+        return
+    fig, axs = plt.subplots(1, 2, figsize=(15, 5.9))
+    for a, ruta, t in zip(axs, (sup, inf), ("Cara superior: pistas, plano de masa y serigrafía", "Cara inferior (vista en espejo): pistas y plano de masa")):
+        a.imshow(mpimg.imread(ruta))
+        a.axis("off")
+        a.set_title(t, fontsize=11, color=VERDE)
+    fig.tight_layout()
+    fig.savefig(os.path.join(DESTINO, FIGURAS["Ruteo de la placa: cara superior e inferior"]), dpi=170, facecolor="white", bbox_inches="tight")
+    plt.close(fig)
+
+
+def carcasa_concepto():
+    """Esquema funcional de la envolvente: qué cumple cada elemento, sin representar la forma final."""
+    L = Lienzo(26, 13.6, escala=0.58)
+    f = 8.6
+    # corte esquemático
+    L.ax.add_patch(Rectangle((3.0, 2.0), 13.0, 0.55, fc="#C9CEC6", ec=GRIS, lw=1.2))
+    L.ax.add_patch(Rectangle((3.0, 2.55), 13.0, 0.18, fc=AMBAR, ec="none"))
+    L.ax.add_patch(Rectangle((3.0, 2.73), 0.45, 7.3, fc="#D5DAD2", ec=GRIS, lw=1.2))
+    L.ax.add_patch(Rectangle((15.55, 2.73), 0.45, 7.3, fc="#D5DAD2", ec=GRIS, lw=1.2))
+    L.ax.add_patch(Rectangle((3.0, 10.03), 13.0, 0.45, fc="#D5DAD2", ec=GRIS, lw=1.2))
+    L.ax.add_patch(Rectangle((4.2, 5.1), 10.6, 0.3, fc=VERDE, ec=VERDE))
+    for xc in (4.9, 6.4, 8.4, 10.6, 12.6):
+        L.ax.add_patch(Rectangle((xc, 4.45), 0.9, 0.65, fc="#9AA0A6", ec=GRIS, lw=0.6))
+    for xs in (4.6, 14.2):
+        L.ax.add_patch(Rectangle((xs, 5.4), 0.25, 4.63, fc="#BFC6BC", ec=GRIS, lw=0.6))
+    L.ax.add_patch(Rectangle((5.6, 7.2), 7.8, 2.8, fc=AMBAR_C, ec=AMBAR, lw=1.1))
+    L.ax.text(9.5, 8.6, "Celda LiPo 2.000 mAh", ha="center", va="center", fontsize=f)
+    for xl, c in ((7.6, "#3B82F6"), (8.3, "#22C55E"), (9.0, "#EF4444")):
+        L.ax.add_patch(Circle((xl, 2.27), 0.2, fc=c, ec="black", lw=0.5))
+    L.ax.add_patch(Rectangle((10.2, 2.05), 0.8, 0.45, fc="#C9CEC6", ec="black", lw=0.6))
+    L.ax.add_patch(Rectangle((2.6, 4.5), 0.8, 0.9, fc="#9AA0A6", ec="black", lw=0.8))      # USB-C
+    L.ax.add_patch(Rectangle((15.6, 3.6), 0.8, 1.2, fc="#C9CEC6", ec="black", lw=0.8))     # respiradero
+    L.ax.add_patch(Rectangle((11.6, 10.0), 1.4, 0.9, fc="#C9CEC6", ec="black", lw=0.8))    # prensaestopa
+    L.ax.plot([12.3, 12.3, 13.4], [10.9, 12.4, 13.2], color="black", lw=2.2)
+    L.ax.add_patch(Rectangle((6.0, 10.0), 0.8, 0.8, fc="#9AA0A6", ec="black", lw=0.8))     # interruptor
+    L.ax.text(9.5, 1.4, "Esquema funcional en corte: no representa la forma final de la carcasa", ha="center", fontsize=f, style="italic", color=GRIS)
+
+    def nota(xa, ya, xb, yb, texto, ha="left"):
+        L.ax.annotate(texto, xy=(xa, ya), xytext=(xb, yb), fontsize=f, ha=ha, va="center", color="#1B1B1B",
+                      arrowprops=dict(arrowstyle="-", color=GRIS, lw=0.9), bbox=dict(boxstyle="round,pad=0.25", fc="white", ec=GRIS_C))
+
+    nota(8.3, 2.1, 17.6, 0.7, "Tapa con ventanas para los tres LED y el pulsador PAIR")
+    nota(14.0, 2.64, 17.6, 2.0, "Junta de silicona comprimida por cuatro tornillos M3")
+    nota(16.4, 4.2, 17.6, 3.6, "Respiradero con membrana, frente al sensor ambiental")
+    nota(13.0, 5.25, 17.6, 5.3, "Placa electrónica sobre separadores M2")
+    nota(13.4, 8.6, 17.6, 7.4, "Celda bajo la placa, sujeta por nervios de la base")
+    nota(12.3, 10.5, 17.6, 9.4, "Prensaestopa del cable de la sonda (alivio de tracción)")
+    nota(13.4, 13.2, 17.6, 12.6, "Cable hacia la sonda de suelo")
+    nota(2.6, 4.95, 0.2, 4.0, "USB-C con tapón\nde silicona", ha="left")
+    nota(6.4, 10.8, 0.2, 12.4, "Interruptor de palanca\ncon capuchón estanco", ha="left")
+    L.guardar("Concepto funcional de la carcasa")
 
 
 def carcasa():
     from matplotlib.patches import FancyBboxPatch as FB
     fig = plt.figure(figsize=(14, 10.5))
-    W, L, Hc, pared = CARCASA_W, CARCASA_L, CARCASA_H, 2.5
+    W, L, Hc, pared = CARCASA_W, CARCASA_L, CARCASA_H, PARED
+    base_placa = 14.0                          # cara inferior de la placa sobre la base
+    sep = base_placa - pared                   # largo de los separadores
 
     def cota(ax, xa, ya, xb, yb, t, d=(0, 0), rot=0):
         ax.annotate("", xy=(xa, ya), xytext=(xb, yb), arrowprops=dict(arrowstyle="<->", lw=1.0))
@@ -797,32 +911,37 @@ def carcasa():
     ax.add_patch(FB((0, 0), W, L, boxstyle="round,pad=0,rounding_size=4", fc="#E9ECE6", ec=GRIS, lw=2))
     ax.add_patch(Rectangle((pared, pared), W - 2 * pared, L - 2 * pared, fc="#F8F9F6", ec="#B8BFB5"))
     ax.add_patch(Rectangle((DX, DY), PLACA_W, PLACA_H, fc="none", ec=VERDE_M, lw=1.4, ls=(0, (4, 3))))
-    ax.add_patch(Rectangle((DX + 23.0, DY - 6.3), 18.0, 6.3, fc=AZUL_C, ec=AZUL, lw=1))
-    ax.text(DX + 32.0, DY - 3.1, "Antena", ha="center", va="center", fontsize=7.5, color=AZUL)
-    ax.add_patch(Rectangle((19.5, 14.0), 34.0, 54.0, fc="none", ec=AMBAR, lw=1.2, ls=(0, (2, 2))))
-    ax.text(36.5, 60.0, "Celda bajo la placa\n34 × 54 × 10 mm", ha="center", fontsize=7.5, color=AMBAR)
-    for x, y in ((6, 6), (67, 6), (6, 73), (67, 73)):
+    ax.add_patch(Rectangle((DX + 45.0 - 9.0, DY - ANTENA), 18.0, ANTENA, fc=AZUL_C, ec=AZUL, lw=1))
+    ax.text(DX + 45.0, DY - ANTENA / 2, "Antena", ha="center", va="center", fontsize=7.5, color=AZUL)
+    cx, cy = DX + PLACA_W / 2 - 17.0, DY + 6.0
+    ax.add_patch(Rectangle((cx, cy), 34.0, 54.0, fc="none", ec=AMBAR, lw=1.2, ls=(0, (2, 2))))
+    ax.text(cx + 17.0, cy + 47.0, "Celda bajo la placa\n34 × 54 × 10 mm", ha="center", fontsize=7.5, color=AMBAR)
+    for x, y in ((6, 6), (W - 6, 6), (6, L - 6), (W - 6, L - 6)):
         ax.add_patch(Rectangle((x - 6, y - 6), 12, 12, fc="#D5DAD2", ec=GRIS, lw=0.8))
         ax.add_patch(Circle((x, y), 1.7, fc="white", ec=GRIS))
-    for x, y in ((7.5, 13.3), (65.5, 13.3), (7.5, 51.8), (65.7, 51.3)):
-        ax.add_patch(Circle((x, y), 3.0, fc="none", ec=VERDE, lw=1.1))
-        ax.add_patch(Circle((x, y), 0.9, fc=VERDE))
-    for (x, y), c in zip(((30.5, 41.1), (36.5, 41.1), (42.5, 41.1)), ("#3B82F6", "#22C55E", "#EF4444")):
-        ax.add_patch(Circle((x, y), 1.5, fc=c, ec="black", lw=0.5))
-    ax.add_patch(Circle((36.5, 35.7), 2.5, fc="#C9CEC6", ec="black", lw=0.7))
-    ax.text(36.5, 31.6, "PAIR", ha="center", fontsize=7.5)
-    ax.add_patch(Circle((51.0, 18.75), 5, fc="none", ec="black", lw=0.7, ls=(0, (2, 2))))
-    ax.text(51.0, 26.0, "Zona acústica", ha="center", fontsize=7.5)
-    ax.add_patch(Rectangle((-1.5, 18.55), 4.0, 9.5, fc="#9AA0A6", ec="black"))
-    ax.text(-2.5, 23.3, "USB-C\nY = 23,3", ha="right", va="center", fontsize=8)
-    ax.add_patch(Rectangle((W - 2.5, 16.3), 4.0, 12.0, fc="#C9CEC6", ec="black"))
-    ax.text(W + 2.4, 22.3, "Respiradero\nY = 22,3", ha="left", va="center", fontsize=8)
-    ax.add_patch(Rectangle((48.2, L - 2.5), 12.8, 4.0, fc="#C9CEC6", ec="black"))
-    ax.text(54.6, L + 4.6, "Prensaestopa PG7\nX = 54,6", ha="center", va="center", fontsize=8)
-    ax.add_patch(Rectangle((21.9, L - 2.5), 6.2, 4.0, fc="#9AA0A6", ec="black"))
-    ax.text(25.0, L + 4.6, "Interruptor\nX = 25,0", ha="center", va="center", fontsize=8)
-    cota(ax, 0, -5, W, -5, "73,0 mm")
-    cota(ax, -14, 0, -14, L, "79,0 mm", rot=90)
+    for x, y in AGUJEROS:
+        ax.add_patch(Circle((DX + x, DY + y), 3.0, fc="none", ec=VERDE, lw=1.1))
+        ax.add_patch(Circle((DX + x, DY + y), 0.9, fc=VERDE))
+    for (x, y), c in zip(LED, ("#3B82F6", "#22C55E", "#EF4444")):
+        ax.add_patch(Circle((DX + x, DY + y), 1.5, fc=c, ec="black", lw=0.5))
+    ax.add_patch(Circle((DX + PAIR[0], DY + PAIR[1]), 2.5, fc="#C9CEC6", ec="black", lw=0.7))
+    ax.text(DX + PAIR[0], DY + PAIR[1] - 4.0, "PAIR", ha="center", fontsize=7.5)
+    ax.add_patch(Circle((DX + BUZZER[0], DY + BUZZER[1]), 5, fc="none", ec="black", lw=0.7, ls=(0, (2, 2))))
+    ax.text(DX + BUZZER[0], DY + BUZZER[1] + 7.5, "Zona acústica", ha="center", fontsize=7.5)
+    yu = DY + USB_Y
+    ax.add_patch(Rectangle((-1.5, yu - 4.75), 4.0, 9.5, fc="#9AA0A6", ec="black"))
+    ax.text(-2.5, yu, "USB-C\nY = %s" % mm_txt(yu), ha="right", va="center", fontsize=8)
+    yr = DY + BME[1]
+    ax.add_patch(Rectangle((W - 2.5, yr - 6.0), 4.0, 12.0, fc="#C9CEC6", ec="black"))
+    ax.text(W + 2.4, yr, "Respiradero\nY = %s" % mm_txt(yr), ha="left", va="center", fontsize=8)
+    xp = DX + SONDA_X
+    ax.add_patch(Rectangle((xp - 6.4, L - 2.5), 12.8, 4.0, fc="#C9CEC6", ec="black"))
+    ax.text(xp, L + 4.6, "Prensaestopa PG7\nX = %s" % mm_txt(xp), ha="center", va="center", fontsize=8)
+    xi = DX + INTERRUPTOR_X
+    ax.add_patch(Rectangle((xi - 3.1, L - 2.5), 6.2, 4.0, fc="#9AA0A6", ec="black"))
+    ax.text(xi, L + 4.6, "Interruptor\nX = %s" % mm_txt(xi), ha="center", va="center", fontsize=8)
+    cota(ax, 0, -5, W, -5, "%s mm" % mm_txt(W))
+    cota(ax, -14, 0, -14, L, "%s mm" % mm_txt(L), rot=90)
     ax.set_xlim(-22, W + 20)
     ax.set_ylim(L + 10, -10)
     ax.set_aspect("equal")
@@ -832,11 +951,11 @@ def carcasa():
     ax.set_title("Vista frontal, pared de los cables", fontsize=11, color=VERDE)
     ax.add_patch(Rectangle((0, 0), W, Hc - 2.5, fc="#E9ECE6", ec=GRIS, lw=1.6))
     ax.add_patch(Rectangle((0, Hc - 2.5), W, 2.5, fc="#D5DAD2", ec=GRIS, lw=1.6))
-    ax.add_patch(Circle((54.6, 20.0), 6.4, fc="white", ec="black"))
-    ax.text(54.6, 20.0, "PG7", ha="center", va="center", fontsize=8)
-    ax.add_patch(Circle((25.0, 20.0), 3.1, fc="white", ec="black"))
-    cota(ax, 0, -3.5, W, -3.5, "73,0 mm")
-    cota(ax, W + 4, 0, W + 4, Hc, "31,0 mm", rot=90)
+    ax.add_patch(Circle((xp, 20.0), 6.4, fc="white", ec="black"))
+    ax.text(xp, 20.0, "PG7", ha="center", va="center", fontsize=8)
+    ax.add_patch(Circle((xi, 20.0), 3.1, fc="white", ec="black"))
+    cota(ax, 0, -3.5, W, -3.5, "%s mm" % mm_txt(W))
+    cota(ax, W + 4, 0, W + 4, Hc, "%s mm" % mm_txt(Hc), rot=90)
     ax.text(W / 2, Hc - 1.25, "Tapa 2,5 mm", ha="center", va="center", fontsize=7.5)
     ax.set_xlim(-4, W + 10)
     ax.set_ylim(-7, Hc + 3)
@@ -849,46 +968,53 @@ def carcasa():
     ax.add_patch(Rectangle((0, 0), pared, Hc - pared, fc="#D5DAD2", ec=GRIS))
     ax.add_patch(Rectangle((L - pared, 0), pared, Hc - pared, fc="#D5DAD2", ec=GRIS))
     ax.add_patch(Rectangle((0, Hc - pared), L, pared, fc="#C9CEC6", ec=GRIS))
-    ax.add_patch(Rectangle((14.0, pared), 54.0, 10.0, fc=AMBAR_C, ec=AMBAR))
-    ax.text(41.0, pared + 5, "Celda LiPo 2.000 mAh", ha="center", va="center", fontsize=8)
-    ax.add_patch(Rectangle((DY, 14.0), PLACA_H, 1.6, fc=VERDE, ec=VERDE))
-    ax.add_patch(Rectangle((DY - 6.3, 14.0), 6.3, 1.0, fc=AZUL_C, ec=AZUL))
-    ax.add_patch(Rectangle((DY + 0.3, 15.6), 25.0, 3.1, fc="#EDEDED", ec=GRIS))
-    ax.text(DY + 12.8, 17.2, "ESP32", ha="center", va="center", fontsize=7.5)
-    ax.add_patch(Rectangle((DY + 45.0, 15.6), 10.8, 11.0, fc="#7CCB8F", ec=VERDE))
-    ax.text(DY + 50.4, 21.0, "Borneras", ha="center", va="center", fontsize=7.5, rotation=90)
-    ax.add_patch(Rectangle((DY + 2.0, pared), 2.0, 11.5, fc="#BFC6BC", ec=GRIS))
-    ax.add_patch(Rectangle((DY + 50.0, pared), 2.0, 11.5, fc="#BFC6BC", ec=GRIS))
-    cota(ax, -4, 0, -4, Hc, "31,0", rot=90)
-    cota(ax, L + 3, pared, L + 3, 14.0, "11,5", rot=90)
-    cota(ax, L + 9, 15.6, L + 9, 26.6, "11,0", rot=90)
-    cota(ax, DY + 56.0, 22.0, L - pared, 22.0, "10,2")
-    ax.text(L / 2, -4.0, "Separadores M2 de 11,5 mm · placa a 14,0 mm de la base · 1,9 mm libres bajo la tapa", ha="center", fontsize=8)
+    ax.add_patch(Rectangle((DY + 6.0, pared), 54.0, 10.0, fc=AMBAR_C, ec=AMBAR))
+    ax.text(DY + 33.0, pared + 5, "Celda LiPo 2.000 mAh", ha="center", va="center", fontsize=8)
+    ax.add_patch(Rectangle((DY, base_placa), PLACA_H, 1.6, fc=VERDE, ec=VERDE))
+    ax.add_patch(Rectangle((DY - ANTENA, base_placa), ANTENA, 1.0, fc=AZUL_C, ec=AZUL))
+    ax.add_patch(Rectangle((DY + 0.3, base_placa + 1.6), 19.5, 3.1, fc="#EDEDED", ec=GRIS))
+    ax.text(DY + 10.0, base_placa + 3.2, "ESP32", ha="center", va="center", fontsize=7.5)
+    ax.add_patch(Rectangle((DY + PLACA_H - 9.4, base_placa + 1.6), 9.4, 11.0, fc="#7CCB8F", ec=VERDE))
+    ax.text(DY + PLACA_H - 4.7, base_placa + 7.0, "Borneras", ha="center", va="center", fontsize=7.5, rotation=90)
+    for y in (AGUJEROS[0][1], AGUJEROS[2][1]):
+        ax.add_patch(Rectangle((DY + y - 1.0, pared), 2.0, sep, fc="#BFC6BC", ec=GRIS))
+    alto_borneras = 11.0
+    libre = Hc - pared - (base_placa + 1.6 + alto_borneras)
+    cota(ax, -4, 0, -4, Hc, mm_txt(Hc), rot=90)
+    cota(ax, L + 3, pared, L + 3, base_placa, mm_txt(sep), rot=90)
+    cota(ax, L + 9, base_placa + 1.6, L + 9, base_placa + 1.6 + alto_borneras, mm_txt(alto_borneras), rot=90)
+    cota(ax, DY + PLACA_H, 22.0, L - pared, 22.0, mm_txt(HOLGURA_BORNERAS))
+    ax.text(L / 2, -4.0, "Separadores M2 de %s mm · placa a %s mm de la base · %s mm libres bajo la tapa" % (mm_txt(sep), mm_txt(base_placa), mm_txt(libre)),
+            ha="center", fontsize=8)
     ax.set_xlim(-8, L + 13)
     ax.set_ylim(-7, Hc + 3)
     ax.set_aspect("equal")
     ax.axis("off")
-    fig.text(0.02, 0.05, "Cotas en mm. Planta medida desde la esquina exterior superior izquierda; la placa queda desplazada 4,5 mm en X y 10,3 mm en Y "
-                         "(pared, holgura y espacio de la antena).", fontsize=9, color=GRIS)
-    fig.savefig(os.path.join(DESTINO, FIGURAS["Carcasa V3: planta, vista frontal y corte"]), dpi=170, facecolor="white", bbox_inches="tight")
+    fig.text(0.02, 0.05, "Cotas en mm. Planta medida desde la esquina exterior superior izquierda; la placa queda desplazada %s mm en X y %s mm en Y "
+                         "(pared, holgura y espacio de la antena)." % (mm_txt(DX), mm_txt(DY)), fontsize=9, color=GRIS)
+    fig.savefig(os.path.join(DESTINO, FIGURAS["Carcasa: planta, vista frontal y corte"]), dpi=170, facecolor="white", bbox_inches="tight")
     plt.close(fig)
 
 
 def anexos_geometricos():
-    """PDF de las vistas conceptuales; no son documentos de liberación a fabricación."""
+    """PDF de los planos de la placa y de la carcasa; no son documentos de liberación a fabricación."""
     from matplotlib.backends.backend_pdf import PdfPages
     import matplotlib.image as mpimg
 
     destino = Path(RAIZ) / "Evaluacion" / "Evaluacion 2" / "Anexos"
     destino.mkdir(exist_ok=True)
+    for antiguo in ("Anexo C - Distribucion conceptual placa V3.pdf", "Anexo D - Geometria conceptual carcasa V3.pdf"):
+        if (destino / antiguo).exists():
+            (destino / antiguo).unlink()
     anexos = (
-        ("Anexo C - Distribucion conceptual placa V3.pdf", "Anexo C · Distribución conceptual de la placa V3", (
-            ("Placa V3: vista tridimensional", "Vista tridimensional de la distribución de componentes"),
-            ("Plano de la placa V3", "Vista superior y cotas del contorno"),
-        ), "Representación geométrica de diseño. Las huellas y sus modelos 3D ilustran la distribución; no acreditan conexiones eléctricas ni ruteo."),
-        ("Anexo D - Geometria conceptual carcasa V3.pdf", "Anexo D · Geometría conceptual de la carcasa V3", (
-            ("Carcasa V3: planta, vista frontal y corte", "Planta, vista frontal y corte de la envolvente"),
-        ), "Envolvente conceptual de diseño. Las cotas nominales ilustran el montaje; no acreditan ajuste, estanqueidad ni validación de fabricación."),
+        ("Anexo C - Placa TerraSense.pdf", "Anexo C · Placa del instrumento", (
+            ("Placa del instrumento: vista tridimensional", "Vista tridimensional de la placa ruteada"),
+            ("Plano de la placa del instrumento", "Vista superior y cotas del contorno"),
+            ("Ruteo de la placa: cara superior e inferior", "Pistas y planos de masa de ambas caras"),
+        ), "Placa de diseño ruteada en dos capas, con planos de masa en ambas caras. Se libera a fabricación tras la revisión de reglas de diseño y del montaje en la carcasa."),
+        ("Anexo D - Carcasa TerraSense.pdf", "Anexo D · Geometría de la carcasa", (
+            ("Carcasa: planta, vista frontal y corte", "Planta, vista frontal y corte de la envolvente"),
+        ), "Envolvente de diseño. Las cotas nominales definen el montaje; el ajuste y la estanqueidad se validan con el prototipo impreso."),
     )
     for nombre, titulo, paginas, nota in anexos:
         with PdfPages(destino / nombre, metadata={"Title": titulo, "Author": "TerraSense"}) as pdf:
@@ -907,8 +1033,8 @@ def anexos_geometricos():
 def main():
     os.makedirs(DESTINO, exist_ok=True)
     renders_placa()
-    for f in (decisiones, arquitecturas, conectividad, alimentacion_v2, estados, jornada, bloques_v3, alimentacion_v3,
-              flujo_datos, placa_3d, plano_placa, carcasa, montaje, fabricacion, gantt, capturas):
+    for f in (decisiones, arquitecturas, conectividad, alimentacion_v2, carcasa_concepto, estados, jornada, bloques_v3, alimentacion_v3,
+              flujo_datos, placa_3d, plano_placa, ruteo_placa, carcasa, montaje, fabricacion, gantt, capturas):
         f()
     anexos_geometricos()
     print("Figuras escritas en", DESTINO)

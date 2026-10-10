@@ -123,7 +123,7 @@ def sin_modulos(lineas, err):
             continue
         for p in MODULOS:
             if re.search(p, l):
-                err("Sin módulos", "línea %d: «%s» fuera de la sección del prototipo V2" % (i + 1, p))
+                err("Sin módulos", "línea %d: «%s» fuera de la sección del prototipo de laboratorio" % (i + 1, p))
 
 
 def cifras(texto, err):
