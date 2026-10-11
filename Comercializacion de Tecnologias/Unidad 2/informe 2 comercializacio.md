@@ -69,17 +69,19 @@ Octubre de 2026
 - Tabla 14. Estrategias de precio evaluadas
 - Tabla 15. Síntesis de las 7P
 - Tabla 16. Estrategia publicitaria
-- Tabla 17. Presupuesto de publicidad y promoción del primer año
-- Tabla 18. Estrategia por canal digital
-- Tabla 19. Indicadores digitales
-- Tabla 20. Fuentes de información y su uso
+- Tabla 17. Estructura del carrusel y fundamento de cada imagen
+- Tabla 18. Presupuesto de publicidad y promoción del primer año
+- Tabla 19. Estrategia por canal digital
+- Tabla 20. Indicadores digitales
+- Tabla 21. Fuentes de información y su uso
 
 **Índice de figuras**
 
 - Figura 1. Mapa de posicionamiento
-- Figura 2. Logotipo de TerraSense
-- Figura 3. Paleta de colores de la marca
-- Figura 4. Pantallas de la aplicación TerraSense
+- Figura 2. Carrusel «Del número a la decisión»
+- Figura 3. Logotipo de TerraSense
+- Figura 4. Paleta de colores de la marca
+- Figura 5. Pantallas de la aplicación TerraSense
 
 ---
 
@@ -87,7 +89,7 @@ Octubre de 2026
 
 En Chile, muchas decisiones de riego y fertilización se toman con información insuficiente o tardía. El análisis de suelo en laboratorio es exacto, pero exige tomar una muestra, enviarla y esperar el resultado. Los medidores portátiles responden en el momento, pero entregan números que el agricultor debe saber interpretar. En medio de una sequía prolongada y con insumos caros, decidir por intuición cuesta agua, fertilizante y cosecha.
 
-TerraSense es una sonda de suelo portátil que mide siete variables del suelo y tres del ambiente, y envía la lectura por Bluetooth a una aplicación móvil. La aplicación interpreta cada valor según el cultivo y su etapa (pre-siembra, crecimiento vegetativo, floración o cosecha) y recomienda una acción concreta. Funciona sin señal en el campo; con señal, suma el pronóstico del tiempo y respalda el historial en la nube. Se vende con un pago único, sin suscripción.
+TerraSense es una sonda de suelo portátil que mide siete variables del suelo y tres del ambiente, y envía la lectura por Bluetooth a una aplicación móvil. La aplicación interpreta la lectura según la etapa en que está el cultivo (pre-siembra, crecimiento vegetativo, floración o cosecha) y recomienda una acción concreta. Funciona sin señal en el campo; con señal, suma el pronóstico del tiempo y respalda el historial en la nube. Se vende con un pago único, sin suscripción.
 
 El **objetivo** de este informe es diseñar el plan de marketing de TerraSense: a quién se dirige, por qué ese consumidor lo preferiría frente a las alternativas y cómo llegará a él. Cada capítulo corresponde a un criterio de la rúbrica de evaluación y, en el mismo orden, aplica los conceptos de la asignatura al proyecto para fundamentar una decisión. El precio, los costos y la meta de ventas provienen del modelo económico del proyecto; las cifras de demanda y conversión son hipótesis, y el plan indica cómo validarlas.
 
@@ -125,7 +127,7 @@ El **mercado** de TerraSense son los compradores actuales y potenciales de infor
 
 Levitt (1960) llamó **miopía de marketing** al error de enfocarse en el producto y no en la necesidad: los clientes no compran taladros, compran agujeros. TerraSense no vende una sonda de siete variables, **vende decisiones a tiempo en el campo**. Si se viera como fabricante de sensores, competiría por precio contra medidores importados; como proveedor de decisiones, compite por utilidad.
 
-De ahí nace su **propuesta de valor**: *saber en el mismo campo, en segundos, qué hacer con el riego y la fertilización según el cultivo y su etapa, aun sin señal y con un solo pago.*
+De ahí nace su **propuesta de valor**: *saber en el mismo campo, en segundos, qué hacer con el riego y la siembra según la etapa del cultivo, aun sin señal y con un solo pago.*
 
 ### 1.5 Orientación de la empresa y microentorno
 
@@ -167,7 +169,7 @@ El análisis PESTEL (factores políticos, económicos, sociales, tecnológicos, 
 
 | | Positivo | Negativo |
 |---|---|---|
-| **Interno** | **Fortalezas** <br> F1. Interpretación agronómica por cultivo y etapa, no solo datos. <br> F2. Funciona sin señal; con señal suma el pronóstico. <br> F3. Pago único, sin suscripción. <br> F4. Diez variables en un solo equipo. <br> F5. Precio menor que los medidores importados comparables. | **Debilidades** <br> D1. Marca nueva, sin clientes que den testimonio. <br> D2. Menor exactitud que un laboratorio; nitrógeno, fósforo y potasio solo como referencia. <br> D3. Estanqueidad IP67 y conformidad de radio por acreditar antes de vender. <br> D4. Equipo de dos personas para vender, producir y dar soporte. |
+| **Interno** | **Fortalezas** <br> F1. Recomendación agronómica según la etapa del cultivo, no solo datos. <br> F2. Funciona sin señal; con señal suma el pronóstico. <br> F3. Pago único, sin suscripción. <br> F4. Diez variables en un solo equipo. <br> F5. Precio menor que los medidores importados comparables. | **Debilidades** <br> D1. Marca nueva, sin clientes que den testimonio. <br> D2. Menor exactitud que un laboratorio; nitrógeno, fósforo y potasio solo como referencia. <br> D3. Estanqueidad IP67 y conformidad de radio por acreditar antes de vender. <br> D4. Equipo de dos personas para vender, producir y dar soporte. |
 | **Externo** | **Oportunidades** <br> O1. Megasequía y presión por usar mejor el agua. <br> O2. Insumos caros: medir antes de fertilizar ahorra dinero. <br> O3. Conectividad rural casi universal en los hogares. <br> O4. Asesores técnicos de INDAP en terreno. <br> O5. Relevo generacional: productores jóvenes más abiertos a la tecnología. | **Amenazas** <br> A1. Competidores con marca y distribución establecidas (Hanna, Bluelab). <br> A2. Desconfianza hacia la tecnología y preferencia por la experiencia propia. <br> A3. Alza del dólar. <br> A4. Exigencias regulatorias antes de vender. |
 
 ### 2.3 Del análisis a las decisiones
@@ -268,7 +270,7 @@ Solo el mercado total tiene fuente oficial. Como la meta del primer año equival
 
 | Alternativa | Tipo | Precio | Qué entrega | Qué no entrega |
 |---|---|---:|---|---|
-| **TerraSense** | Directa | **$467.463** | Siete variables del suelo y tres del ambiente; recomendación por cultivo y etapa; funciona sin señal | Exactitud de laboratorio; dosis de fertilizante |
+| **TerraSense** | Directa | **$467.463** | Siete variables del suelo y tres del ambiente; recomendación según la etapa del cultivo; funciona sin señal | Exactitud de laboratorio; dosis de fertilizante |
 | Bluelab Pulse | Directa | $538.990 | Humedad, conductividad y temperatura, con Bluetooth e historial | pH, nitrógeno, fósforo y potasio; recomendación |
 | Hanna HI9814 | Directa parcial | $491.827 | pH, conductividad y temperatura en soluciones | Humedad del suelo; interpretación |
 | FieldScout TDR 350 | Directa | Sin precio local | Humedad, conductividad y temperatura, con GPS | Recomendación; distribución en Chile |
@@ -293,7 +295,7 @@ Pesos de 2027, sin descuento. Con uso habitual, el laboratorio supera a TerraSen
 
 ### 5.4 Diferenciación
 
-- **Diferencias sostenibles:** la interpretación por cultivo y etapa del cultivo; diez variables en un solo equipo; el pronóstico integrado a la recomendación cuando hay señal; el pago único frente a la telemetría con planes mensuales.
+- **Diferencias sostenibles:** la recomendación según la etapa del cultivo; diez variables en un solo equipo; el pronóstico integrado a la recomendación cuando hay señal; el pago único frente a la telemetría con planes mensuales.
 - **Atributos valiosos, pero no exclusivos:** el funcionamiento sin conexión, el historial y el Bluetooth, que Bluelab también ofrece. Se comunican como parte del producto, nunca como la diferencia, porque prometer como exclusivo algo que la competencia tiene destruye la credibilidad.
 
 ### 5.5 Posicionamiento
@@ -302,7 +304,7 @@ Pesos de 2027, sin descuento. Con uso habitual, el laboratorio supera a TerraSen
 
 **Figura 1. Mapa de posicionamiento.** Valoración cualitativa según dos atributos que el consumidor valora: cuánto interpreta la lectura y cuán rápido llega la respuesta.
 
-**Declaración de posicionamiento:** *Para los pequeños y medianos agricultores y sus asesores, que necesitan decidir el riego y la fertilización a tiempo, TerraSense es la sonda de suelo portátil que convierte la medición en una recomendación clara según el cultivo y su etapa, en el mismo campo y aun sin señal. A diferencia de los medidores que solo entregan números y de los análisis que tardan semanas, TerraSense entrega la decisión en el momento, con un pago único.*
+**Declaración de posicionamiento:** *Para los pequeños y medianos agricultores y sus asesores, que necesitan decidir el riego y la fertilización a tiempo, TerraSense es la sonda de suelo portátil que convierte la medición en una recomendación clara según la etapa del cultivo, en el mismo campo y aun sin señal. A diferencia de los medidores que solo entregan números y de los análisis que tardan semanas, TerraSense entrega la decisión en el momento, con un pago único.*
 
 **Frase de posicionamiento:** «Del número a la decisión».
 
@@ -334,7 +336,7 @@ La mezcla se diseña para cumplir los siguientes objetivos:
 |---|---|
 | Beneficio central | Decidir a tiempo el riego, la fertilización y el momento de entrar al campo |
 | Producto real | Sonda de siete variables (humedad, temperatura, conductividad eléctrica, pH, nitrógeno, fósforo y potasio) y sensor del ambiente (temperatura, humedad del aire y presión); batería recargable por USB-C; carcasa para el campo; vinculación con un botón; aplicación para Android y iPhone; empaque con guía de inicio |
-| Producto aumentado | Interpretación para ocho cultivos y cuatro texturas de suelo; pronóstico de cinco días; historial en la nube; soporte por WhatsApp; garantía legal de seis meses |
+| Producto aumentado | Recomendaciones para cuatro etapas del cultivo (pre-siembra, crecimiento vegetativo, floración y cosecha); pronóstico de cinco días; historial en la nube; soporte por WhatsApp; garantía legal de seis meses |
 
 **Decisiones:** una sola versión en el lanzamiento, para simplificar la producción y el soporte de un equipo de dos personas; mejoras continuas a través de actualizaciones de la aplicación; límites declarados en el propio producto (nitrógeno, fósforo y potasio como referencia).
 
@@ -375,7 +377,7 @@ La mezcla se diseña para cumplir los siguientes objetivos:
 
 ### 6.6 Pruebas tangibles
 
-**Decisiones:** testimonios en video de los primeros clientes; publicación de la conformidad de radio ante SUBTEL y del ensayo de estanqueidad IP67 en cuanto se obtengan (el equipo se comunicará como resistente al agua solo con ese ensayo); sitio web con ficha técnica y comparador de costos; aplicación con identidad propia (Figura 4); empaque con guía de inicio y número de serie.
+**Decisiones:** testimonios en video de los primeros clientes; publicación de la conformidad de radio ante SUBTEL y del ensayo de estanqueidad IP67 en cuanto se obtengan (el equipo se comunicará como resistente al agua solo con ese ensayo); sitio web con ficha técnica y comparador de costos; aplicación con identidad propia (Figura 5); empaque con guía de inicio y número de serie.
 
 **Justificación:** la venta es a distancia y la marca es desconocida. Las pruebas tangibles reducen la incertidumbre de quien no puede tocar el equipo antes de comprarlo.
 
@@ -425,8 +427,32 @@ Al revisar la mezcla, la variable más débil al lanzamiento son las **pruebas t
 **Piezas principales:**
 
 1. **Video «Diez segundos»:** un productor entierra la sonda, saca el teléfono y lee la recomendación. Texto final: «¿Riego hoy? Ahora lo sabes».
-2. **Carrusel «Lo que ves vs. lo que entiendes»:** primero los números crudos de un medidor; luego la misma lectura interpretada por TerraSense.
+2. **Carrusel «Del número a la decisión»:** siete imágenes que llevan del problema a la conversación por WhatsApp. Es la pieza principal de la campaña y se desarrolla a continuación.
 3. **Anuncio de búsqueda:** «Medidor de humedad de suelo con recomendación. Funciona sin señal. Despacho a todo Chile».
+
+**Pieza principal: carrusel «Del número a la decisión»**
+
+Es un anuncio de siete imágenes para Instagram y Facebook, en formato vertical 4:5 (1080 × 1350 píxeles), que el productor recorre deslizando hacia el lado. Su estructura sigue el modelo AIDA (atención, interés, deseo y acción), que describe cómo un anuncio lleva a una persona desde notarlo hasta actuar (Strong, 1925), y cada imagen corresponde a una etapa del recorrido del consumidor (sección 4) y a un nivel del embudo digital (sección 8). Las pantallas de la aplicación que aparecen en las imágenes 3 y 4 muestran el resultado que entrega el motor agronómico de TerraSense para una lectura real de pre-siembra: el usuario elige la etapa y la aplicación responde. No son una simulación de diseño.
+
+<img src="Carrusel/resumen.png" width="680" alt="Carrusel Del número a la decisión">
+
+**Figura 2. Carrusel «Del número a la decisión».** Las siete imágenes, en el orden en que el productor las ve, publicadas en un teléfono. Maqueta: los «me gusta» y comentarios de la publicación son ilustrativos. El Anexo D muestra cada imagen en tamaño completo.
+
+**Tabla 17. Estructura del carrusel y fundamento de cada imagen**
+
+| Imagen | Qué muestra | Función (AIDA) | Etapa del recorrido | Por qué funciona |
+|---|---|---|---|---|
+| 1. Impacto | «¿Riego hoy o mañana?» sobre un suelo seco, con la invitación «Desliza» | Atención | 1. Necesidad | La primera impresión se forma en una fracción de segundo y condiciona cómo se lee lo que viene después (Lindgaard et al., 2006; Asch, 1946). Una pregunta sin responder genera curiosidad, que empuja a deslizar (Loewenstein, 1994) |
+| 2. Problema | Un medidor común que solo dice «Humedad 16 % · Suelo 10 °C» y la pregunta «¿Y ahora qué?» | Interés | 2. Búsqueda | Hace visible la brecha entre medir y decidir. Plantea el riesgo como pérdida («equivocarte cuesta agua y la temporada»), porque una pérdida pesa más que una ganancia del mismo tamaño (Kahneman y Tversky, 1979) |
+| 3. Resultado | La pantalla de la aplicación: «No sembrar todavía», con 2 de 4 variables favorables | Interés y deseo | 3. Evaluación | Responde la pregunta abierta con la propuesta de valor: el número convertido en decisión, que es el concepto creativo de la campaña |
+| 4. Qué hacer | Las recomendaciones de la aplicación, con la lluvia pronosticada para el día siguiente | Deseo | 3. Evaluación | Muestra un beneficio concreto y comprobable, ahorrarse un riego, en lugar de una promesa general |
+| 5. Beneficios | Sin señal, diez variables, según la etapa del cultivo y pago único | Deseo | 3. Evaluación | Responde de antemano las objeciones del consumidor (sección 3): señal, complejidad y mensualidades |
+| 6. Prueba | Costo a tres años frente al laboratorio; garantía, retracto y despacho | Deseo | 3 y 4. Evaluación y compra | Reduce el riesgo percibido de una compra extensa. Con los primeros clientes se agregarán testimonios, porque las personas se guían por lo que hacen otras como ellas (Cialdini, 2009) |
+| 7. Acción | «Escríbenos por WhatsApp» y el precio con pago único | Acción | 4. Compra | Un solo llamado a la acción, el mismo de toda la campaña, para no dividir la atención |
+
+**Por qué la primera imagen es la más importante.** En una red social, el usuario decide en un instante si se detiene o sigue de largo, y esa primera impresión pesa más que la información que llega después: es el efecto de primacía (Asch, 1946). Por eso la imagen 1 no muestra el producto, sino el problema del agricultor, con una pregunta que él mismo se hace, letra grande y alto contraste. La pregunta abre una brecha de curiosidad, es decir, una diferencia entre lo que la persona sabe y lo que quiere saber, que la motiva a buscar la respuesta (Loewenstein, 1994). Esa curiosidad activa el circuito de recompensa del cerebro, en el que participa la dopamina, y mejora el recuerdo de lo que se aprende a continuación (Gruber et al., 2014). Así, la respuesta de la imagen 3 se recuerda mejor porque el productor la estaba esperando.
+
+**Coherencia con el plan.** Según el modelo de la caja negra visto en clase, el carrusel es el estímulo de marketing que entra en la mente del productor, y cada imagen apunta a un factor de la Tabla 7: la motivación de seguridad (imágenes 1 y 2), la percepción de que la tecnología es complicada (una pantalla simple en la imagen 3) y la sensibilidad al precio (imagen 6). Además, usa la identidad visual de la sección 9 y deja un solo mensaje por imagen.
 
 **Acciones promocionales** (ninguna rebaja el precio de lista):
 
@@ -437,7 +463,7 @@ Al revisar la mezcla, la variable más débil al lanzamiento son las **pruebas t
 
 **Calendario:** expectativa en marzo de 2027 con los resultados del piloto de febrero; **lanzamiento el 19 de abril de 2027**; refuerzo de agosto a noviembre, antes de las siembras de primavera y de la temporada de riego, cuando la necesidad es más visible.
 
-**Tabla 17. Presupuesto de publicidad y promoción del primer año**
+**Tabla 18. Presupuesto de publicidad y promoción del primer año**
 
 | Partida | Monto 2027 | Participación |
 |---|---:|---:|
@@ -461,20 +487,20 @@ La estrategia digital es un **embudo de tres niveles** conectado con el recorrid
 - **Consideración:** que compare y confíe (etapa 3).
 - **Conversión y fidelización:** que compre, use el equipo y lo recomiende (etapas 4 y 5).
 
-**Tabla 18. Estrategia por canal digital**
+**Tabla 19. Estrategia por canal digital**
 
 | Canal | Objetivo | Contenido y formato | Frecuencia | Interacción | Llamado a la acción | Etapa |
 |---|---|---|---|---|---|---|
 | Instagram y Facebook | Alcance y educación | Videos cortos de errores frecuentes por etapa del cultivo; carruseles; historias con preguntas («¿Cuánta agua le falta a este campo?») | 4 publicaciones y 5 historias por semana | Respuesta a comentarios el mismo día; encuestas en historias | «Escríbenos por WhatsApp» | 1, 2 y 3 |
 | Google (búsqueda) | Captar a quien ya busca | Anuncios de texto para «medidor humedad suelo» y «análisis de suelo precio» | Continua, reforzada de agosto a noviembre | — | «Ver cómo funciona» | 2 y 3 |
-| YouTube | Demostrar y enseñar | Tutoriales de 3 a 5 minutos por cultivo y etapa; video de puesta en marcha | 2 videos al mes | Comentarios y preguntas frecuentes | «Míralo en tu campo» | 2, 3 y 5 |
+| YouTube | Demostrar y enseñar | Tutoriales de 3 a 5 minutos por etapa del cultivo; video de puesta en marcha | 2 videos al mes | Comentarios y preguntas frecuentes | «Míralo en tu campo» | 2, 3 y 5 |
 | Sitio web | Evaluación y compra | Ficha técnica, comparador de costo acumulado, testimonios, botón de WhatsApp | Actualización mensual | Comparador interactivo | «Calcula tu ahorro» / «Comprar» | 3 y 4 |
 | WhatsApp Business | Conversión y soporte | Catálogo, respuestas rápidas, enlace de pago, seguimiento | Atención diaria en horario hábil | Conversación uno a uno con una persona | «Te ayudamos a elegir» | 3, 4 y 5 |
 | Correo y WhatsApp postcompra | Fidelización y referidos | Bienvenida, consejos de temporada, invitación a reseñar y referir | A las 24 horas, a los 15 días y una vez por temporada | Respuestas personalizadas | «Recomienda y recibe tu kit» | 5 |
 
 Quienes visitan el sitio o ven más de la mitad de un video reciben, durante los 14 días siguientes, anuncios de consideración con testimonios y el comparador (*retargeting*). El Anexo B presenta el calendario de contenidos de los tres primeros meses.
 
-**Tabla 19. Indicadores digitales**
+**Tabla 20. Indicadores digitales**
 
 | Indicador | Meta inicial |
 |---|---|
@@ -495,14 +521,14 @@ La identidad de TerraSense une **la tierra** y **la tecnología**, y cada elemen
 
 <img src="Figuras/logo_icono.png" width="140" alt="Ícono de TerraSense"> &nbsp;&nbsp; <img src="Figuras/logo_nombre.png" width="360" alt="Nombre TerraSense">
 
-**Figura 2. Logotipo de TerraSense.** A la izquierda, el ícono; a la derecha, el nombre.
+**Figura 3. Logotipo de TerraSense.** A la izquierda, el ícono; a la derecha, el nombre.
 
 - **Logotipo:** un brote cuya raíz es la sonda que entra en el suelo, con las líneas de los estratos. La planta (el cultivo) y la sonda (el dato) son una sola línea, igual que la propuesta une medición y decisión. El nombre separa por color «Terra», en verde noche, y «Sense», en verde vivo.
-- **Colores:** verdes del cultivo con tonos tierra (Figura 3). El verde bosque marca las acciones y los botones; el ocre y la tierra, los acentos. Los estados del suelo usan verde, ámbar y rojo, siempre acompañados de texto o ícono, porque cerca del 8 % de los hombres distingue mal los colores.
+- **Colores:** verdes del cultivo con tonos tierra (Figura 4). El verde bosque marca las acciones y los botones; el ocre y la tierra, los acentos. Los estados del suelo usan verde, ámbar y rojo, siempre acompañados de texto o ícono, porque cerca del 8 % de los hombres distingue mal los colores.
 
 <img src="Figuras/paleta.png" width="600" alt="Paleta de colores">
 
-**Figura 3. Paleta de colores de la marca.**
+**Figura 4. Paleta de colores de la marca.**
 
 - **Tipografía:** sans serif limpia (Roboto en la aplicación) con títulos grandes en negrita, legible en un teléfono a pleno sol. El nombre de la marca se usa siempre como imagen.
 - **Imágenes y composición:** fotografías reales en el campo (manos con tierra, la sonda enterrada, el teléfono al sol), nunca laboratorios ni modelos de banco de imágenes, porque el consumidor debe reconocerse en ellas. Cada pieza tiene un solo mensaje: un titular grande, una imagen y un llamado a la acción.
@@ -510,7 +536,7 @@ La identidad de TerraSense une **la tierra** y **la tecnología**, y cada elemen
 
 <img src="Figuras/app_mosaico.png" width="640" alt="Pantallas de la aplicación">
 
-**Figura 4. Pantallas de la aplicación TerraSense.** Inicio en tema claro y oscuro, elección del tipo de vinculación y preferencias con letra grande.
+**Figura 5. Pantallas de la aplicación TerraSense.** Inicio en tema claro y oscuro, elección del tipo de vinculación y preferencias con letra grande.
 
 La identidad continúa dentro del producto: la aplicación usa la misma paleta, un tema claro de alto contraste para leer al sol y una opción de letra grande para usuarios mayores. Así, la comunicación y la experiencia de uso cuentan la misma historia, y la aplicación funciona como una prueba tangible de la marca.
 
@@ -518,11 +544,12 @@ La identidad continúa dentro del producto: la aplicación usa la misma paleta, 
 
 ## 10. Fuentes de información
 
-**Tabla 20. Fuentes de información y su uso**
+**Tabla 21. Fuentes de información y su uso**
 
 | Tipo | Fuentes | Para qué se usan | Confiabilidad |
 |---|---|---|---|
 | Académicas | Kotler y Armstrong (2017); Kotler y Keller (2016); Levitt (1960); McCarthy (1960); Booms y Bitner (1981); Rogers (2003); Howard y Sheth (1969); Blackwell et al. (2006) | Conceptos, comportamiento del consumidor, niveles del producto y 7P | Alta: textos de referencia de la disciplina |
+| Psicología del consumidor y publicidad | Strong (1925); Asch (1946); Kahneman y Tversky (1979); Loewenstein (1994); Lindgaard et al. (2006); Cialdini (2009); Gruber et al. (2014) | Estructura del carrusel, primera impresión, curiosidad, aversión a la pérdida y prueba social | Alta: artículos y libros con revisión académica |
 | Material de la asignatura | Maldonado (2026a, 2026b, 2026c) | Fundamentos, PESTEL, factores y etapas de compra, 4P y 7P | Alta para el marco del curso |
 | Estadística oficial | INE (2022) | Tamaño del mercado total | Alta: fuente censal |
 | Organismos públicos | CR2 (2015); ODEPA (s.f.); Ministerio de Agricultura (s.f.) | Factores ecológico, económico y político | Alta |
@@ -541,7 +568,7 @@ TerraSense responde a una necesidad real: en la zona central de Chile se decide 
 
 El entorno es favorable (megasequía, fertilizantes caros, conectividad rural y asesores en terreno), pero el análisis identifica la confianza como la barrera principal. El consumidor compra para protegerse de pérdidas, confía más en sus pares y en su asesor que en un anuncio, y necesita entender y probar antes de pagar. Por eso todo el plan está construido sobre la confianza: un posicionamiento que no promete más de lo que el producto hace, asesores referentes, testimonios reales, atención humana y una postcompra cuidada.
 
-La diferenciación sostenible es la recomendación por cultivo y etapa, y el posicionamiento «del número a la decisión» ocupa un espacio que ningún competidor directo cubre. Las 7P son coherentes con él: un producto simple, un precio por valor bajo los importados, un canal digital con atención humana, una promoción que educa antes de vender y personas, pruebas y procesos que sostienen la experiencia después de la compra.
+La diferenciación sostenible es la recomendación según la etapa del cultivo, y el posicionamiento «del número a la decisión» ocupa un espacio que ningún competidor directo cubre. Las 7P son coherentes con él: un producto simple, un precio por valor bajo los importados, un canal digital con atención humana, una promoción que educa antes de vender y personas, pruebas y procesos que sostienen la experiencia después de la compra.
 
 El principal riesgo es que la demanda y la conversión todavía son estimaciones. Las entrevistas, el piloto y los indicadores digitales permiten confirmarlas o corregirlas en los primeros meses, antes de comprometer más inventario.
 
@@ -550,18 +577,24 @@ El principal riesgo es que la demanda y la conversión todavía son estimaciones
 ## Referencias bibliográficas
 
 - American Marketing Association. (2017). *Definitions of marketing*. https://www.ama.org/the-definition-of-marketing-what-is-marketing/
+- Asch, S. E. (1946). Forming impressions of personality. *Journal of Abnormal and Social Psychology, 41*(3), 258–290.
 - Biblioteca del Congreso Nacional de Chile. (2024). *Ley N° 21.719, regula la protección y el tratamiento de los datos personales*. https://www.bcn.cl/leychile/navegar?i=1209272
 - Blackwell, R. D., Miniard, P. W., y Engel, J. F. (2006). *Consumer behavior* (10.ª ed.). Thomson South-Western.
 - Booms, B. H., y Bitner, M. J. (1981). Marketing strategies and organization structures for service firms. En J. H. Donnelly y W. R. George (Eds.), *Marketing of services* (pp. 47–51). American Marketing Association.
+- Cialdini, R. B. (2009). *Influence: Science and practice* (5.ª ed.). Pearson.
 - Centro de Ciencia del Clima y la Resiliencia (CR2). (2015). *Informe a la Nación: La megasequía 2010-2015, una lección para el futuro*. https://www.cr2.cl/megasequia/
+- Gruber, M. J., Gelman, B. D., y Ranganath, C. (2014). States of curiosity modulate hippocampus-dependent learning via the dopaminergic circuit. *Neuron, 84*(2), 486–496.
 - Hanna Instruments Chile. (2026). *Medidor portátil e impermeable de pH, CE, TDS y temperatura GroLine HI9814* [Precio consultado el 04-09-2026]. https://hannachile.com/producto/medidor-portatil-e-impermeable-de-ph-ce-tds-temperatura-groline-hidroponia-hi9814/
 - Howard, J. A., y Sheth, J. N. (1969). *The theory of buyer behavior*. John Wiley & Sons.
 - Instituto Nacional de Estadísticas (INE). (2022). *VIII Censo Agropecuario y Forestal 2021: resultados finales*. https://www.ine.gob.cl/censoagropecuario
+- Kahneman, D., y Tversky, A. (1979). Prospect theory: An analysis of decision under risk. *Econometrica, 47*(2), 263–291.
 - Kotler, P., y Armstrong, G. (2017). *Fundamentos de marketing* (13.ª ed.). Pearson Educación.
 - Kotler, P., y Keller, K. L. (2016). *Dirección de marketing* (15.ª ed.). Pearson Educación.
 - La Feria. (2026). *Pulse Meter Bluelab: temperatura, humedad y EC* [Precio consultado el 04-09-2026]. https://delaferia.cl/products/pulse-meter-bluelab-temperatura-humedad-y-ec
 - Laboratorio de Química de Suelos y Aguas, Universidad de Chile. (2026). *Lista de precios de análisis de suelos 2026*. https://www.labsueloaguas.uchile.cl/wp-content/uploads/2026/05/SUELOS.pdf
 - Levitt, T. (1960). Marketing myopia. *Harvard Business Review, 38*(4), 45–56.
+- Lindgaard, G., Fernandes, G., Dudek, C., y Brown, J. (2006). Attention web designers: You have 50 milliseconds to make a good first impression! *Behaviour & Information Technology, 25*(2), 115–126.
+- Loewenstein, G. (1994). The psychology of curiosity: A review and reinterpretation. *Psychological Bulletin, 116*(1), 75–98.
 - Maldonado, K. (2026a). *Introducción al marketing: conceptos fundamentales y entorno del marketing* [Diapositivas de clase, Unidad 2]. Comercialización de Tecnologías, INACAP.
 - Maldonado, K. (2026b). *Comportamiento del consumidor en marketing* [Diapositivas de clase, Unidad 2]. Comercialización de Tecnologías, INACAP.
 - Maldonado, K. (2026c). *Las 4P y 7P del marketing: del modelo tradicional al digital* [Diapositivas de clase, Unidad 2]. Comercialización de Tecnologías, INACAP.
@@ -572,6 +605,7 @@ El principal riesgo es que la demanda y la conversión todavía son estimaciones
 - Rogers, E. M. (2003). *Diffusion of innovations* (5.ª ed.). Free Press.
 - Servicio Nacional del Consumidor (SERNAC). (s.f.). *Especial Ley Pro Consumidor*. https://www.sernac.cl/portal/604/w3-propertyname-786.html
 - Spectrum Technologies. (s.f.). *FieldScout TDR 350 Soil Moisture Meter*. https://sandbox.specmeters.com/FieldScout-TDR350-Soil-Moisture-Meter
+- Strong, E. K. (1925). *The psychology of selling and advertising*. McGraw-Hill.
 - Subsecretaría de Telecomunicaciones (SUBTEL). (2026). *Equipos de alcance reducido*. https://www.subtel.gob.cl/equipos-de-alcance-reducido/
 
 ---
@@ -584,7 +618,7 @@ El principal riesgo es que la demanda y la conversión todavía son estimaciones
 |---|---|
 | Variables del suelo | Humedad, temperatura, conductividad eléctrica, pH, nitrógeno, fósforo y potasio (estos tres como referencia) |
 | Variables del ambiente | Temperatura del aire, humedad relativa y presión |
-| Interpretación | Ocho cultivos (maíz, tomate, papa, trigo, lechuga, palto, vid y arándano), cuatro texturas de suelo y cuatro etapas del cultivo |
+| Interpretación | Según la etapa del cultivo que elige el usuario: pre-siembra, crecimiento vegetativo, floración o cosecha |
 | Conexión | Bluetooth de bajo consumo; vinculación con el botón PAIR mantenido 3 segundos |
 | Tiempo por medición | Menos de 20 segundos |
 | Sin señal | Mide, interpreta y guarda; sincroniza al recuperar la conexión |
@@ -600,10 +634,10 @@ El principal riesgo es que la demanda y la conversión todavía son estimaciones
 | Semana | Atracción (Instagram y Facebook) | Consideración (YouTube y sitio) | Conversión y fidelización (WhatsApp y correo) |
 |---|---|---|---|
 | 1 (lanzamiento, 19 de abril de 2027) | Video «Diez segundos»; historia «¿Cuánta agua le falta a este campo?» | Tutorial de puesta en marcha | Respuestas rápidas activas; enlace de pago |
-| 2 | Carrusel «Lo que ves vs. lo que entiendes» | Tutorial: suelo frío en pre-siembra | Bienvenida a los primeros compradores |
+| 2 | Carrusel «Del número a la decisión» | Tutorial: suelo frío en pre-siembra | Bienvenida a los primeros compradores |
 | 3 | Testimonio del piloto | Comparador de costo acumulado publicado | Invitación al programa Campo Pionero |
 | 4 | Infografía: el costo de fertilizar sin medir | Preguntas frecuentes: qué mide y qué no | Seguimiento a los 15 días |
-| 5 a 8 | Un error frecuente por etapa del cultivo, una etapa por semana | Tutoriales por cultivo: maíz, papa, tomate y vid | Programa de referidos; recolección de reseñas |
+| 5 a 8 | Un error frecuente por etapa del cultivo, una etapa por semana | Tutoriales por etapa: pre-siembra, crecimiento, floración y cosecha | Programa de referidos; recolección de reseñas |
 | 9 a 12 | Casos de clientes Campo Pionero | Video con un asesor referente | Consejos para preparar el suelo en otoño e invierno |
 
 ### Anexo C. Guía de entrevista para validar al consumidor
@@ -615,10 +649,18 @@ Se aplica a 10 productores y 5 asesores de la zona central antes del lanzamiento
 3. ¿Cuándo una decisión de riego o fertilización le costó una pérdida? ¿Qué pasó?
 4. ¿Ha usado algún medidor de suelo? ¿Qué le gustó y qué no?
 5. ¿Tiene señal de celular en todo su campo?
-6. Si un equipo le dijera en el campo qué hacer según su cultivo y su etapa, ¿lo usaría? ¿Cuántas veces por temporada?
+6. Si un equipo le dijera en el campo qué hacer según la etapa de su cultivo, ¿lo usaría? ¿Cuántas veces por temporada?
 7. ¿Qué precio le parecería razonable por un equipo así, de pago único? ¿Y caro?
 8. ¿A quién le pediría consejo antes de comprarlo?
 9. ¿Dónde se informa sobre productos para el campo?
 10. ¿Compraría por internet o preferiría hablar antes con una persona?
 
 Los resultados ajustan los perfiles y los factores de compra (sección 3), los mensajes (sección 7) y los canales (sección 8).
+
+### Anexo D. Imágenes del carrusel «Del número a la decisión»
+
+<img src="Carrusel/slide_1.png" width="210" alt="Imagen 1"> <img src="Carrusel/slide_2.png" width="210" alt="Imagen 2"> <img src="Carrusel/slide_3.png" width="210" alt="Imagen 3"> <img src="Carrusel/slide_4.png" width="210" alt="Imagen 4">
+
+<img src="Carrusel/slide_5.png" width="210" alt="Imagen 5"> <img src="Carrusel/slide_6.png" width="210" alt="Imagen 6"> <img src="Carrusel/slide_7.png" width="210" alt="Imagen 7">
+
+Imágenes 1 a 7 en formato 4:5, tal como se publican. Las pantallas de las imágenes 3 y 4 reproducen la aplicación con la lectura de pre-siembra descrita en la sección 7.
