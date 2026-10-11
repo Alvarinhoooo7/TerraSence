@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Figuras del informe 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<!--
+  Figuras del plan de marketing (informe 2 de Comercialización).
+  Cada figura se exporta con su hash: #pestel, #foda, #perfiles, #recorrido, #mercado,
+  #precios, #costo, #mezcla, #presupuesto, #embudo, #cadena.
+  Cifras: modelo económico del proyecto (precio, costos, metas y presupuesto) y
+  fuentes citadas en el informe.
+-->
+<style>
+  :root { --noche:#12281F; --bosque:#1F5B3F; --vivo:#2E8B5A; --brote:#6FD3A0; --fondo:#F2F5F1;
+    --ocre:#C9762B; --tierra:#8A6A3B; --texto:#14201B; --texto2:#48584F; --borde:#DCE4DD;
+    --ok:#2C7A4E; --warn:#9E6612; --bad:#A33528; --azul:#3B6E9A; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Roboto','Segoe UI',Arial,sans-serif; color:var(--texto); background:#fff; }
+  .fig { display:none; background:#fff; padding:48px 56px; position:relative; }
+  .fig.on { display:block; }
+  .ttl { font-size:34px; font-weight:900; color:var(--noche); letter-spacing:-.5px; }
+  .sub { font-size:20px; color:var(--texto2); margin-top:6px; }
+  .tag { display:inline-block; font-size:15px; font-weight:700; padding:5px 12px; border-radius:20px; }
+  .op { background:#E3F1E8; color:var(--ok); } .am { background:#F8E6E3; color:var(--bad); } .mx { background:#FBF1E3; color:var(--warn); }
+
+  /* Cadena necesidad → deseo → demanda */
+  #cadena { width:1600px; height:470px; }
+  .chain { display:flex; align-items:stretch; gap:0; margin-top:40px; }
+  .chain .c { flex:1; border-radius:24px; padding:30px; color:#fff; }
+  .chain .c h3 { font-size:30px; font-weight:900; } .chain .c .d { font-size:17px; opacity:.85; margin-top:4px; }
+  .chain .c p { font-size:21px; line-height:1.4; margin-top:18px; }
+  .chain .ar { width:70px; display:grid; place-items:center; }
+
+  /* PESTEL */
+  #pestel { width:1600px; height:880px; }
+  .g6 { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:34px; }
+  .pf { border:2px solid var(--borde); border-radius:24px; padding:26px; background:var(--fondo); }
+  .pf .hd { display:flex; align-items:center; gap:16px; }
+  .pf .lt { width:64px; height:64px; border-radius:18px; background:var(--bosque); color:#fff; font-size:34px; font-weight:900; display:grid; place-items:center; }
+  .pf h3 { font-size:26px; font-weight:900; }
+  .pf .ev { font-size:19px; line-height:1.4; margin-top:16px; color:var(--texto); min-height:108px; }
+  .pf .dc { font-size:17px; line-height:1.35; margin-top:14px; color:var(--texto2); border-top:1px dashed var(--borde); padding-top:12px; }
+  .pf .dc b { color:var(--bosque); }
+
+  /* FODA */
+  #foda { width:1600px; height:1000px; }
+  .foda { display:grid; grid-template-columns:120px 1fr 1fr; grid-template-rows:60px 1fr 1fr; gap:14px; margin-top:30px; height:820px; }
+  .foda .ax { display:grid; place-items:center; font-size:22px; font-weight:900; color:var(--texto2); letter-spacing:2px; }
+  .foda .ax.v { writing-mode:vertical-rl; transform:rotate(180deg); }
+  .q { border-radius:24px; padding:26px 30px; color:#fff; }
+  .q h3 { font-size:30px; font-weight:900; display:flex; align-items:center; gap:12px; }
+  .q h3 span { width:46px; height:46px; border-radius:14px; background:rgba(255,255,255,.2); display:grid; place-items:center; font-size:24px; }
+  .q ul { list-style:none; margin-top:16px; }
+  .q li { font-size:20px; line-height:1.35; padding:7px 0; border-bottom:1px solid rgba(255,255,255,.18); }
+  .q li b { opacity:.75; margin-right:6px; }
+
+  /* Perfiles */
+  #perfiles { width:1600px; height:760px; }
+  .pp { display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-top:34px; }
+  .pc { border:2px solid var(--borde); border-radius:28px; overflow:hidden; }
+  .pc .top { display:flex; gap:24px; align-items:center; padding:26px 30px; color:#fff; }
+  .pc .av { width:110px; height:110px; border-radius:55px; background:rgba(255,255,255,.15); display:grid; place-items:center; flex:none; }
+  .pc .top h3 { font-size:34px; font-weight:900; } .pc .top p { font-size:19px; opacity:.9; margin-top:4px; }
+  .pc .bd { padding:22px 30px; display:grid; grid-template-columns:1fr 1fr; gap:16px 26px; }
+  .pc .it { font-size:18px; line-height:1.4; } .pc .it b { display:block; font-size:14px; letter-spacing:1.5px; color:var(--bosque); margin-bottom:4px; }
+  .pc .quote { grid-column:1/3; background:var(--fondo); border-left:6px solid var(--ocre); border-radius:12px; padding:16px 20px; font-size:21px; font-style:italic; }
+
+  /* Recorrido */
+  #recorrido { width:1800px; height:900px; }
+  .jr { display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin-top:26px; }
+  .st { border-radius:22px; overflow:hidden; border:2px solid var(--borde); }
+  .st .hd { padding:18px 20px; color:#fff; } .st .hd .n { font-size:15px; letter-spacing:2px; opacity:.85; font-weight:700; } .st .hd h3 { font-size:28px; font-weight:900; }
+  .st .bd { padding:16px 20px; } .st .rw { font-size:16.5px; line-height:1.38; padding:9px 0; border-bottom:1px dashed var(--borde); }
+  .st .rw:last-child { border:0; } .st .rw b { display:block; font-size:12.5px; letter-spacing:1.5px; color:var(--bosque); margin-bottom:3px; }
+  .emo { margin-top:18px; }
+
+  /* Mercado */
+  #mercado { width:1500px; height:860px; }
+  /* Precios y costo */
+  #precios { width:1600px; height:690px; }
+  #costo { width:1600px; height:900px; }
+  .legend { display:flex; gap:28px; font-size:19px; margin-top:14px; color:var(--texto2); } .legend i { display:inline-block; width:26px; height:6px; border-radius:3px; margin-right:8px; vertical-align:middle; }
+
+  /* 7P */
+  #mezcla { width:1600px; height:1000px; }
+  /* Presupuesto */
+  #presupuesto { width:1500px; height:700px; }
+  /* Embudo */
+  #embudo { width:1700px; height:940px; }
+</style>
+</head>
+<body>
+
+<!-- ============ Cadena necesidad → deseo → demanda ============ -->
+<div class="fig" id="cadena">
+  <div class="ttl">De la necesidad a la demanda</div>
+  <div class="sub">La secuencia que activa el mercado de TerraSense</div>
+  <div class="chain">
+    <div class="c" style="background:var(--tierra)"><h3>Necesidad</h3><div class="d">Estado de carencia percibida</div>
+      <p>Saber cuándo regar y sembrar sin arriesgar el cultivo ni malgastar agua e insumos.</p></div>
+    <div class="ar"><svg width="44" height="44" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" stroke="#8A6A3B" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="c" style="background:var(--ocre)"><h3>Deseo</h3><div class="d">Forma que toma la necesidad según la persona</div>
+      <p>Una herramienta portátil y simple que diga qué hacer en el mismo campo, sin señal y sin mensualidad.</p></div>
+    <div class="ar"><svg width="44" height="44" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" stroke="#C9762B" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="c" style="background:var(--bosque)"><h3>Demanda</h3><div class="d">Deseo respaldado por poder adquisitivo</div>
+      <p>Productores y asesores dispuestos a pagar $467.463 por el equipo: meta de 200 equipos en 2027.</p></div>
+  </div>
+</div>
+
+<!-- ============ PESTEL ============ -->
+<div class="fig" id="pestel">
+  <div class="ttl">Análisis PESTEL de TerraSense</div>
+  <div class="sub">Fuerzas del macroentorno, su efecto y la decisión que provocan en el plan</div>
+  <div class="g6">
+    <div class="pf"><div class="hd"><div class="lt">P</div><div><h3>Político</h3><span class="tag op">Oportunidad</span></div></div>
+      <div class="ev">INDAP acompaña a pequeños productores con su Programa de Asesoría Técnica (SAT).</div>
+      <div class="dc"><b>Decisión:</b> programa de asesores referentes.</div></div>
+    <div class="pf"><div class="hd"><div class="lt">E</div><div><h3>Económico</h3><span class="tag mx">Oportunidad y amenaza</span></div></div>
+      <div class="ev">Fertilizantes más caros desde 2021; los componentes del equipo se pagan en dólares.</div>
+      <div class="dc"><b>Decisión:</b> mensaje de ahorro de insumos; precio recalculado si cambia el costo.</div></div>
+    <div class="pf"><div class="hd"><div class="lt">S</div><div><h3>Social</h3><span class="tag op">Oportunidad</span></div></div>
+      <div class="ev">95,1 % de los hogares rurales tiene internet; la brecha con lo urbano es de 1,6 puntos.</div>
+      <div class="dc"><b>Decisión:</b> venta y comunicación digitales; producto que funciona sin señal.</div></div>
+    <div class="pf"><div class="hd"><div class="lt">T</div><div><h3>Tecnológico</h3><span class="tag mx">Oportunidad y amenaza</span></div></div>
+      <div class="ev">El Bluetooth de bajo consumo y las apps abaratan la medición portátil, y también su copia.</div>
+      <div class="dc"><b>Decisión:</b> diferenciarse por la interpretación, más difícil de copiar que el hardware.</div></div>
+    <div class="pf"><div class="hd"><div class="lt">E</div><div><h3>Ecológico</h3><span class="tag op">Oportunidad</span></div></div>
+      <div class="ev">Megasequía: déficit de lluvias cercano al 30 % entre Coquimbo y La Araucanía desde 2010.</div>
+      <div class="dc"><b>Decisión:</b> foco en la zona central y mensaje de cuidado del agua.</div></div>
+    <div class="pf"><div class="hd"><div class="lt">L</div><div><h3>Legal</h3><span class="tag am">Exigencia</span></div></div>
+      <div class="ev">Garantía y retracto (Ley 21.398), datos personales (Ley 21.719), radio (SUBTEL) y baterías (Ley 20.920).</div>
+      <div class="dc"><b>Decisión:</b> cumplir antes de vender y comunicarlo para generar confianza.</div></div>
+  </div>
+</div>
+
+<!-- ============ FODA ============ -->
+<div class="fig" id="foda">
+  <div class="ttl">Matriz FODA de TerraSense</div>
+  <div class="foda">
+    <div></div><div class="ax">POSITIVO</div><div class="ax">NEGATIVO</div>
+    <div class="ax v">INTERNO</div>
+    <div class="q" style="background:var(--bosque)"><h3><span>F</span>Fortalezas</h3><ul>
+      <li><b>F1</b>Recomendación según la etapa del cultivo, no solo datos</li><li><b>F2</b>Funciona sin señal; con señal suma el pronóstico</li>
+      <li><b>F3</b>Pago único, sin suscripción</li><li><b>F4</b>Diez variables en un solo equipo</li><li><b>F5</b>Precio menor que los importados comparables</li></ul></div>
+    <div class="q" style="background:var(--bad)"><h3><span>D</span>Debilidades</h3><ul>
+      <li><b>D1</b>Marca nueva, sin clientes que den testimonio</li><li><b>D2</b>Menor exactitud que un laboratorio; N, P y K como referencia</li>
+      <li><b>D3</b>Estanqueidad y radio por acreditar antes de vender</li><li><b>D4</b>Dos personas para vender, producir y dar soporte</li></ul></div>
+    <div class="ax v">EXTERNO</div>
+    <div class="q" style="background:var(--vivo)"><h3><span>O</span>Oportunidades</h3><ul>
+      <li><b>O1</b>Megasequía y presión por usar mejor el agua</li><li><b>O2</b>Insumos caros: medir antes ahorra dinero</li>
+      <li><b>O3</b>Conectividad rural casi universal en los hogares</li><li><b>O4</b>Asesores técnicos de INDAP en terreno</li><li><b>O5</b>Productores jóvenes abiertos a la tecnología</li></ul></div>
+    <div class="q" style="background:var(--ocre)"><h3><span>A</span>Amenazas</h3><ul>
+      <li><b>A1</b>Marcas establecidas (Hanna, Bluelab)</li><li><b>A2</b>Desconfianza hacia la tecnología</li>
+      <li><b>A3</b>Alza del dólar</li><li><b>A4</b>Exigencias regulatorias antes de vender</li></ul></div>
+  </div>
+</div>
+
+<!-- ============ Perfiles ============ -->
+<div class="fig" id="perfiles">
+  <div class="ttl">Perfiles del consumidor objetivo</div>
+  <div class="sub">Arquetipos construidos a partir de la segmentación; se validan con la guía de entrevistas del Anexo C</div>
+  <div class="pp">
+    <div class="pc"><div class="top" style="background:var(--bosque)">
+        <div class="av"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5h18M6 9.5l1.5-4.5h9L18 9.5"/><circle cx="12" cy="13.5" r="3.2"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg></div>
+        <div><h3>El productor</h3><p>Usuario y decisor de compra · 35 a 60 años</p></div></div>
+      <div class="bd">
+        <div class="it"><b>QUIÉN ES</b>5 a 30 hectáreas de hortalizas o frutales en la zona central</div>
+        <div class="it"><b>CÓMO DECIDE HOY</b>Por experiencia; un análisis de suelo al año, cuando lo hace</div>
+        <div class="it"><b>QUÉ TEME</b>Perder una siembra o una floración por regar mal</div>
+        <div class="it"><b>DÓNDE SE INFORMA</b>WhatsApp, Facebook, YouTube, su asesor y sus vecinos</div>
+        <div class="quote">«Estos aparatos son caros y no los entiendo».</div>
+      </div></div>
+    <div class="pc"><div class="top" style="background:var(--ocre)">
+        <div class="av"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/><rect x="14.5" y="13" width="6" height="8" rx="1.2"/><path d="M16 15.5h3M16 17.8h3"/></svg></div>
+        <div><h3>El asesor técnico</h3><p>Usuario e influenciador · 25 a 45 años</p></div></div>
+      <div class="bd">
+        <div class="it"><b>QUIÉN ES</b>Agrónomo o técnico que visita varios campos por semana</div>
+        <div class="it"><b>QUÉ NECESITA</b>Respaldar sus recomendaciones con datos que el productor entienda</div>
+        <div class="it"><b>QUÉ TEME</b>Afirmar algo que el equipo no puede sostener</div>
+        <div class="it"><b>SU PAPEL</b>Principal influenciador de la compra del productor</div>
+        <div class="quote">«Necesito saber qué puedo afirmar con este equipo y qué no».</div>
+      </div></div>
+  </div>
+</div>
+
+<!-- ============ Recorrido ============ -->
+<div class="fig" id="recorrido">
+  <div class="ttl">Mapa del recorrido del consumidor</div>
+  <div class="sub">Las cinco etapas del proceso de decisión de compra, con lo que vive el productor y lo que hace TerraSense</div>
+  <div class="jr">
+    <div class="st"><div class="hd" style="background:var(--tierra)"><div class="n">ETAPA 1</div><h3>Necesidad</h3></div><div class="bd">
+      <div class="rw"><b>PIENSA</b>«Las plantas se ven estresadas»</div><div class="rw"><b>DÓNDE</b>Redes sociales, su asesor, un vecino</div>
+      <div class="rw"><b>TERRASENSE</b>Videos cortos de errores frecuentes por etapa</div><div class="rw"><b>SE MIDE</b>Alcance y reproducciones</div></div></div>
+    <div class="st"><div class="hd" style="background:#A8723A"><div class="n">ETAPA 2</div><h3>Búsqueda</h3></div><div class="bd">
+      <div class="rw"><b>PIENSA</b>«¿Cómo mido la humedad del suelo?»</div><div class="rw"><b>DÓNDE</b>Google, YouTube, grupos de WhatsApp</div>
+      <div class="rw"><b>TERRASENSE</b>Anuncios en el buscador, tutoriales, asesores referentes</div><div class="rw"><b>SE MIDE</b>Clics, visitas y referidos</div></div></div>
+    <div class="st"><div class="hd" style="background:var(--ocre)"><div class="n">ETAPA 3</div><h3>Evaluación</h3></div><div class="bd">
+      <div class="rw"><b>PIENSA</b>«¿Laboratorio, medidor o seguir igual?»</div><div class="rw"><b>DÓNDE</b>Sitio web, WhatsApp, días de campo</div>
+      <div class="rw"><b>TERRASENSE</b>Comparador de costos, ficha honesta, demostración</div><div class="rw"><b>SE MIDE</b>Uso del comparador, conversaciones</div></div></div>
+    <div class="st"><div class="hd" style="background:var(--vivo)"><div class="n">ETAPA 4</div><h3>Compra</h3></div><div class="bd">
+      <div class="rw"><b>PIENSA</b>«Prefiero hablar con alguien antes de pagar»</div><div class="rw"><b>DÓNDE</b>WhatsApp, pasarela de pago</div>
+      <div class="rw"><b>TERRASENSE</b>Atención humana, garantía y retracto antes de pagar</div><div class="rw"><b>SE MIDE</b>Conversión a venta</div></div></div>
+    <div class="st"><div class="hd" style="background:var(--bosque)"><div class="n">ETAPA 5</div><h3>Postcompra</h3></div><div class="bd">
+      <div class="rw"><b>PIENSA</b>«¿Hice bien en comprarlo?»</div><div class="rw"><b>DÓNDE</b>Empaque, aplicación, WhatsApp</div>
+      <div class="rw"><b>TERRASENSE</b>Guía de inicio, seguimiento a 24 h y 15 días, referidos</div><div class="rw"><b>SE MIDE</b>Uso la primera semana, NPS</div></div></div>
+  </div>
+  <svg class="emo" width="1688" height="200" viewBox="0 0 1688 200">
+    <text x="0" y="22" font-size="17" font-weight="700" fill="#48584F" letter-spacing="1.5">CÓMO SE SIENTE EL PRODUCTOR</text>
+    <line x1="0" y1="110" x2="1688" y2="110" stroke="#DCE4DD" stroke-width="2" stroke-dasharray="6 6"/>
+    <text x="1688" y="102" font-size="14" fill="#7B8A82" text-anchor="end">neutral</text>
+    <path d="M168 160 C 330 160, 360 125, 506 120 S 700 175, 844 168 S 1050 70, 1182 62 S 1400 120, 1520 90" fill="none" stroke="#1F5B3F" stroke-width="5" stroke-linecap="round"/>
+    <g font-size="16" fill="#14201B" text-anchor="middle">
+      <circle cx="168" cy="160" r="9" fill="#8A6A3B"/><text x="168" y="194">Preocupado</text>
+      <circle cx="506" cy="120" r="9" fill="#A8723A"/><text x="506" y="154">Con esperanza</text>
+      <circle cx="844" cy="168" r="9" fill="#C9762B"/><text x="844" y="196">Duda de la exactitud</text>
+      <circle cx="1182" cy="62" r="9" fill="#2E8B5A"/><text x="1182" y="44">Confiado</text>
+      <circle cx="1520" cy="90" r="9" fill="#1F5B3F"/><text x="1520" y="132">Disonancia: «¿hice bien?»</text>
+    </g>
+  </svg>
+</div>
+
+<!-- ============ Mercado ============ -->
+<div class="fig" id="mercado">
+  <div class="ttl">Tamaño del mercado</div>
+  <div class="sub">Mercado total, servible y objetivo del primer año</div>
+  <svg width="1388" height="700" viewBox="0 0 1388 700" style="margin-top:10px">
+    <circle cx="380" cy="360" r="320" fill="#E3F1E8"/>
+    <circle cx="380" cy="420" r="250" fill="#B9DCC6"/>
+    <circle cx="380" cy="590" r="70" fill="#1F5B3F"/>
+    <text x="380" y="120" text-anchor="middle" font-size="22" font-weight="700" fill="#1F5B3F">TOTAL (TAM)</text>
+    <text x="380" y="248" text-anchor="middle" font-size="22" font-weight="700" fill="#12281F">SERVIBLE (SAM)</text>
+    <text x="380" y="598" text-anchor="middle" font-size="20" font-weight="700" fill="#fff">SOM</text>
+    <g font-family="Roboto">
+      <line x1="640" y1="150" x2="760" y2="150" stroke="#48584F" stroke-width="2"/>
+      <text x="780" y="140" font-size="40" font-weight="900" fill="#12281F">175.556 explotaciones</text>
+      <text x="780" y="172" font-size="20" fill="#48584F">Mercado total · Censo Agropecuario 2021 (INE, 2022)</text>
+      <line x1="620" y1="330" x2="760" y2="330" stroke="#48584F" stroke-width="2"/>
+      <text x="780" y="320" font-size="40" font-weight="900" fill="#12281F">≈ 120.000 explotaciones</text>
+      <text x="780" y="352" font-size="20" fill="#48584F">Mercado servible · estimación del equipo</text>
+      <line x1="450" y1="590" x2="760" y2="590" stroke="#48584F" stroke-width="2"/>
+      <text x="780" y="580" font-size="40" font-weight="900" fill="#1F5B3F">200 equipos en 2027</text>
+      <text x="780" y="612" font-size="20" fill="#48584F">0,17 % del servible · 2.550 equipos en cinco años</text>
+    </g>
+  </svg>
+</div>
+
+<!-- ============ Precios ============ -->
+<div class="fig" id="precios">
+  <div class="ttl">Precio frente a la competencia directa</div>
+  <div class="sub">Precio de lista con IVA en Chile y variables que mide cada equipo</div>
+  <svg width="1488" height="560" viewBox="0 0 1488 560" style="margin-top:30px">
+    <g font-family="Roboto">
+      <line x1="300" y1="20" x2="300" y2="460" stroke="#DCE4DD" stroke-width="2"/>
+      <!-- escala: 600.000 = 1100 px -->
+      <g font-size="16" fill="#7B8A82" text-anchor="middle">
+        <line x1="483" y1="20" x2="483" y2="460" stroke="#EEF2EF"/><text x="483" y="490">$100.000</text>
+        <line x1="667" y1="20" x2="667" y2="460" stroke="#EEF2EF"/><text x="667" y="490">$200.000</text>
+        <line x1="850" y1="20" x2="850" y2="460" stroke="#EEF2EF"/><text x="850" y="490">$300.000</text>
+        <line x1="1033" y1="20" x2="1033" y2="460" stroke="#EEF2EF"/><text x="1033" y="490">$400.000</text>
+        <line x1="1217" y1="20" x2="1217" y2="460" stroke="#EEF2EF"/><text x="1217" y="490">$500.000</text>
+      </g>
+      <text x="280" y="88" text-anchor="end" font-size="26" font-weight="900" fill="#1F5B3F">TerraSense</text>
+      <text x="280" y="114" text-anchor="end" font-size="17" fill="#48584F">10 variables + recomendación</text>
+      <rect x="300" y="50" width="857" height="80" rx="12" fill="#1F5B3F"/><text x="1137" y="102" text-anchor="end" font-size="28" font-weight="900" fill="#fff">$467.463</text>
+      <text x="280" y="228" text-anchor="end" font-size="26" font-weight="700" fill="#14201B">Hanna HI9814</text>
+      <text x="280" y="254" text-anchor="end" font-size="17" fill="#48584F">3 variables, sin humedad</text>
+      <rect x="300" y="190" width="902" height="80" rx="12" fill="#B7C3BB"/><text x="1182" y="242" text-anchor="end" font-size="28" font-weight="900" fill="#14201B">$491.827</text>
+      <text x="1215" y="242" font-size="20" font-weight="700" fill="#A33528">+$24.364</text>
+      <text x="280" y="368" text-anchor="end" font-size="26" font-weight="700" fill="#14201B">Bluelab Pulse</text>
+      <text x="280" y="394" text-anchor="end" font-size="17" fill="#48584F">3 variables, sin pH</text>
+      <rect x="300" y="330" width="988" height="80" rx="12" fill="#B7C3BB"/><text x="1268" y="382" text-anchor="end" font-size="28" font-weight="900" fill="#14201B">$538.990</text>
+      <text x="1301" y="382" font-size="20" font-weight="700" fill="#A33528">+$71.527</text>
+    </g>
+  </svg>
+</div>
+
+<!-- ============ Costo acumulado ============ -->
+<div class="fig" id="costo">
+  <div class="ttl">Costo acumulado para el agricultor en diez años</div>
+  <div class="sub">Pesos de 2027, sin descuento. TerraSense incluye kits de batería en los años 3 y 8 y un segundo equipo en el año 6</div>
+  <div class="legend"><span><i style="background:#1F5B3F"></i>TerraSense (mediciones ilimitadas)</span><span><i style="background:#C9762B"></i>Laboratorio, 4 muestras al año</span><span><i style="background:#3B6E9A"></i>Asesoría, 2 visitas al año</span></div>
+  <svg id="costo-svg" width="1488" height="660" viewBox="0 0 1488 660" style="margin-top:14px"></svg>
+</div>
+
+<!-- ============ 7P ============ -->
+<div class="fig" id="mezcla">
+  <div class="ttl">La mezcla de marketing de TerraSense: las 7P</div>
+  <div class="sub">Las cuatro variables clásicas (McCarthy, 1960) y las tres de servicio (Booms y Bitner, 1981)</div>
+  <svg id="mezcla-svg" width="1488" height="860" viewBox="0 0 1488 860"></svg>
+</div>
+
+<!-- ============ Presupuesto ============ -->
+<div class="fig" id="presupuesto">
+  <div class="ttl">Presupuesto de publicidad del primer año</div>
+  <div class="sub">$6.000.000 en 2027, equivalentes a $30.000 por equipo vendido</div>
+  <svg id="presupuesto-svg" width="1388" height="620" viewBox="0 0 1388 620"></svg>
+</div>
+
+<!-- ============ Embudo ============ -->
+<div class="fig" id="embudo">
+  <div class="ttl">Embudo digital de TerraSense</div>
+  <div class="sub">Tres niveles conectados con las etapas del recorrido del consumidor, con sus canales y su indicador principal</div>
+  <svg id="embudo-svg" width="1588" height="790" viewBox="0 0 1588 790"></svg>
+</div>
+
+<script>
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs, parent, text) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; if (parent) parent.appendChild(e); return e; };
+  const clp = n => '$' + Math.round(n).toLocaleString('es-CL');
+
+  // Costo acumulado: valores de la tabla de costo de uso del informe.
+  (function () {
+    const svg = document.getElementById('costo-svg');
+    const X = y => 140 + y * 118, Y = v => 600 - v / 2100000 * 560;
+    for (let v = 0; v <= 2000000; v += 500000) { el('line', { x1: 140, y1: Y(v), x2: 1320, y2: Y(v), stroke: '#EEF2EF', 'stroke-width': 2 }, svg); el('text', { x: 124, y: Y(v) + 6, 'text-anchor': 'end', 'font-size': 17, fill: '#7B8A82' }, svg, clp(v)); }
+    for (let y = 0; y <= 10; y++) el('text', { x: X(y), y: 632, 'text-anchor': 'middle', 'font-size': 17, fill: '#7B8A82' }, svg, y === 0 ? 'Compra' : `Año ${y}`);
+    const terra = [467463, 467463, 467463, 492453, 492453, 492453, 959916, 959916, 984906, 984906, 984906];
+    const series = [
+      [terra, '#1F5B3F', true],
+      [Array.from({ length: 11 }, (_, y) => 200000 * y), '#C9762B', false],
+      [Array.from({ length: 11 }, (_, y) => 120000 * y), '#3B6E9A', false],
+    ];
+    series.forEach(([vals, color, step]) => {
+      let d = `M${X(0)} ${Y(vals[0])}`;
+      for (let y = 1; y <= 10; y++) d += step ? ` H${X(y)} V${Y(vals[y])}` : ` L${X(y)} ${Y(vals[y])}`;
+      el('path', { d, fill: 'none', stroke: color, 'stroke-width': 6, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, svg);
+    });
+    // Cruce: el laboratorio supera a TerraSense durante el tercer año.
+    el('circle', { cx: X(2.46), cy: Y(492453), r: 12, fill: '#fff', stroke: '#A33528', 'stroke-width': 4 }, svg);
+    el('text', { x: X(2.46) + 26, y: Y(492453) + 52, 'font-size': 20, 'font-weight': 700, fill: '#A33528' }, svg, 'Durante el año 3, el laboratorio ya cuesta más');
+    [[10, 984906, '#1F5B3F'], [10, 2000000, '#C9762B'], [10, 1200000, '#3B6E9A']].forEach(([y, v, c]) => el('text', { x: X(y) + 14, y: Y(v) + 7, 'font-size': 19, 'font-weight': 900, fill: c }, svg, clp(v)));
+  })();
+
+  // 7P: rueda con TerraSense al centro.
+  (function () {
+    const svg = document.getElementById('mezcla-svg');
+    const cx = 744, cy = 430, RX = 520, RY = 330;
+    const items = [
+      ['Producto', 'Sonda de 10 variables con recomendación según la etapa', '#1F5B3F'],
+      ['Precio', '$467.463, pago único, estrategia por valor', '#1F5B3F'],
+      ['Plaza', 'Directa y digital, despacho a todo Chile', '#1F5B3F'],
+      ['Promoción', 'Educar antes de vender con publicidad y promociones', '#1F5B3F'],
+      ['Personas', 'Socios con lenguaje del campo y asesores referentes', '#C9762B'],
+      ['Pruebas tangibles', 'Testimonios, certificaciones, sitio y empaque', '#C9762B'],
+      ['Procesos', 'Venta asistida y puesta en marcha con un botón', '#C9762B'],
+    ];
+    items.forEach(([t, d, c], i) => {
+      const a = -Math.PI / 2 + i * 2 * Math.PI / 7, x = cx + RX * Math.cos(a), y = cy + RY * Math.sin(a);
+      el('line', { x1: cx, y1: cy, x2: x, y2: y, stroke: '#DCE4DD', 'stroke-width': 3 }, svg);
+      const g = el('g', {}, svg);
+      el('rect', { x: x - 155, y: y - 62, width: 310, height: 124, rx: 22, fill: '#fff', stroke: c, 'stroke-width': 3 }, g);
+      el('text', { x, y: y - 22, 'text-anchor': 'middle', 'font-size': 24, 'font-weight': 900, fill: c }, g, t);
+      const words = d.split(' '); let line = '', lines = [];
+      words.forEach(w => { if ((line + ' ' + w).trim().length > 30) { lines.push(line.trim()); line = w; } else line += ' ' + w; });
+      lines.push(line.trim());
+      lines.forEach((l, k) => el('text', { x, y: y + 10 + k * 22, 'text-anchor': 'middle', 'font-size': 17, fill: '#48584F' }, g, l));
+    });
+    el('circle', { cx, cy, r: 110, fill: '#12281F' }, svg);
+    el('text', { x: cx, y: cy - 6, 'text-anchor': 'middle', 'font-size': 32, 'font-weight': 900, fill: '#fff' }, svg, 'TerraSense');
+    el('text', { x: cx, y: cy + 28, 'text-anchor': 'middle', 'font-size': 18, fill: '#6FD3A0' }, svg, 'Del número a la decisión');
+    el('rect', { x: 0, y: 830, width: 22, height: 22, rx: 5, fill: '#1F5B3F' }, svg); el('text', { x: 32, y: 848, 'font-size': 18, fill: '#48584F' }, svg, '4P clásicas');
+    el('rect', { x: 180, y: 830, width: 22, height: 22, rx: 5, fill: '#C9762B' }, svg); el('text', { x: 212, y: 848, 'font-size': 18, fill: '#48584F' }, svg, 'P de servicio');
+  })();
+
+  // Presupuesto: anillo por partida.
+  (function () {
+    const svg = document.getElementById('presupuesto-svg');
+    const parts = [['Anuncios en Meta (Facebook, Instagram y WhatsApp)', 2700000, '#1F5B3F'], ['Anuncios en Google y YouTube', 1500000, '#2E8B5A'],
+      ['Días de campo, ferias y relaciones públicas', 900000, '#C9762B'], ['Producción de videos y fotografías', 600000, '#8A6A3B'], ['Herramientas digitales', 300000, '#6FD3A0']];
+    const cx = 300, cy = 320, r = 210, w = 90; let a0 = -Math.PI / 2;
+    parts.forEach(([t, v, c], i) => {
+      const a1 = a0 + v / 6000000 * 2 * Math.PI, large = a1 - a0 > Math.PI ? 1 : 0;
+      const p = (a, rr) => `${cx + rr * Math.cos(a)} ${cy + rr * Math.sin(a)}`;
+      el('path', { d: `M${p(a0, r)} A${r} ${r} 0 ${large} 1 ${p(a1, r)} L${p(a1, r - w)} A${r - w} ${r - w} 0 ${large} 0 ${p(a0, r - w)} Z`, fill: c, stroke: '#fff', 'stroke-width': 4 }, svg);
+      const y = 120 + i * 92;
+      el('rect', { x: 620, y: y - 22, width: 28, height: 28, rx: 7, fill: c }, svg);
+      el('text', { x: 666, y, 'font-size': 23, 'font-weight': 700, fill: '#14201B' }, svg, t);
+      el('text', { x: 666, y: y + 30, 'font-size': 20, fill: '#48584F' }, svg, `${clp(v)} · ${Math.round(v / 60000)} %`);
+      a0 = a1;
+    });
+    el('text', { x: cx, y: cy - 4, 'text-anchor': 'middle', 'font-size': 38, 'font-weight': 900, fill: '#12281F' }, svg, '$6.000.000');
+    el('text', { x: cx, y: cy + 30, 'text-anchor': 'middle', 'font-size': 19, fill: '#48584F' }, svg, 'publicidad 2027');
+  })();
+
+  // Embudo: tres niveles.
+  (function () {
+    const svg = document.getElementById('embudo-svg');
+    const lv = [
+      ['ATRACCIÓN', 'Que reconozca su necesidad y conozca la marca', 'Etapas 1 y 2: necesidad y búsqueda', 'Instagram, Facebook, Google, YouTube', 'Alcance y clics', '#8A6A3B'],
+      ['CONSIDERACIÓN', 'Que compare y confíe', 'Etapa 3: evaluación', 'Sitio web con comparador, YouTube, carrusel', 'Conversaciones por WhatsApp (meta: 2.000)', '#C9762B'],
+      ['CONVERSIÓN Y FIDELIZACIÓN', 'Que compre, use el equipo y lo recomiende', 'Etapas 4 y 5: compra y postcompra', 'WhatsApp Business, correo, programa de referidos', 'Conversión del 10 % y NPS mayor que 50', '#1F5B3F'],
+    ];
+    lv.forEach(([t, obj, et, ch, kpi, c], i) => {
+      const top = 20 + i * 250, wTop = 900 - i * 180, wBot = 900 - (i + 1) * 180 + 20, x0 = 470;
+      el('path', { d: `M${x0 - wTop / 2} ${top} H${x0 + wTop / 2} L${x0 + wBot / 2} ${top + 220} H${x0 - wBot / 2} Z`, fill: c }, svg);
+      el('text', { x: x0, y: top + 100, 'text-anchor': 'middle', 'font-size': i === 2 ? 22 : 28, 'font-weight': 900, fill: '#fff' }, svg, t);
+      el('text', { x: x0, y: top + 134, 'text-anchor': 'middle', 'font-size': 18, fill: '#fff', opacity: .9 }, svg, et);
+      const gx = 1000;
+      el('line', { x1: x0 + wTop / 2 + 10, y1: top + 110, x2: gx - 20, y2: top + 110, stroke: '#DCE4DD', 'stroke-width': 3, 'stroke-dasharray': '6 6' }, svg);
+      el('text', { x: gx, y: top + 60, 'font-size': 26, 'font-weight': 900, fill: c }, svg, obj);
+      el('text', { x: gx, y: top + 104, 'font-size': 20, fill: '#14201B' }, svg, 'Canales: ' + ch);
+      el('text', { x: gx, y: top + 140, 'font-size': 20, fill: '#48584F' }, svg, 'Indicador: ' + kpi);
+    });
+  })();
+
+  document.getElementById((location.hash.slice(1) || 'pestel')).classList.add('on');
+</script>
+</body>
+</html>
