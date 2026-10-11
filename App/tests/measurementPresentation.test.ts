@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { evaluateForStage, localizedStageTitle } from '../src/engine/stageEvaluator';
+import { evaluateForStage, evaluateReadingForStage, localizedStageTitle } from '../src/engine/stageEvaluator';
 import { buildContextualAdvice, forecastDayLabel } from '../src/engine/contextualAdvice';
 import { buildMeasurementPresentation, isMeasurementPresentation, parameterLabel, presentationFromPoint, PARAMETER_KEYS } from '../src/engine/measurementPresentation';
 import { localizeProbeError } from '../src/utils/probeErrors';
@@ -57,7 +57,7 @@ test('D10: la presentación en inglés no contiene frases fijas en español', ()
       assert.doesNotMatch([advice.title, advice.summary, advice.weatherNote, ...advice.actions].join(' '), SPANISH, `consejo ${stage}`);
       for (const m of p.parameters) {
         assert.doesNotMatch(m.label, SPANISH);
-        // context lleva el nombre del cultivo y la textura, que son catálogo (D13).
+        assert.doesNotMatch(p.context, SPANISH);
         assert.doesNotMatch([m.state, m.recommendation, m.control].join(' '), SPANISH, `${stage}/${m.key}`);
       }
     }
@@ -77,9 +77,9 @@ test('D10: ocho cultivos y cuatro texturas conservan claves y se muestran en amb
   const evaluation = evaluateForStage(raw, 'pre_siembra', 'maiz', 'franco', 'en');
   const advice = buildContextualAdvice('pre_siembra', evaluation, raw, null, 'en');
   const presentation = buildMeasurementPresentation(raw, evaluation, advice, 'en');
-  assert.match(presentation.context, /Grain corn.*Loam/);
+  assert.equal(presentation.context, 'Based on the measured soil conditions.');
   assert.ok(advice.suggestedCrops.some(name => name.includes('Grain corn')));
-  assert.equal(evaluation.crop.id, 'maiz');
+  assert.equal(evaluation.crop?.id, 'maiz');
 });
 test('D10: el español se conserva tal cual y el pronóstico de riesgo también se traduce', () => {
   const es = build('vegetativo');
@@ -127,7 +127,7 @@ test('D10: un barrido de lecturas extremas no deja mensajes del motor en españo
 test('la alerta del motor llega como acción concreta: se identifica por la clave de su métrica', () => {
   // Bajo el umbral de riego del suelo franco: el motor recomienda regar.
   const dry = { ...raw, vwc: 18 };
-  const evaluation = evaluateForStage(dry, 'pre_siembra');
+  const evaluation = evaluateForStage(dry, 'pre_siembra', 'maiz', 'franco');
   assert.equal(evaluation.verdict, 'AMBER');
   assert.ok(evaluation.alerts.every(alert => ['vwc', 'temp', 'ec', 'ph', 'npk'].includes(alert.param)));
   const advice = buildContextualAdvice('pre_siembra', evaluation, dry, null);
@@ -137,7 +137,7 @@ test('la alerta del motor llega como acción concreta: se identifica por la clav
 });
 test('con lluvia en los dos días siguientes se sugiere esperarla antes de regar', () => {
   const dry = { ...raw, vwc: 18 };
-  const evaluation = evaluateForStage(dry, 'pre_siembra');
+  const evaluation = evaluateForStage(dry, 'pre_siembra', 'maiz', 'franco');
   const weather = { timezone: 'UTC', fetchedAt: '2026-10-04T00:00:00Z', forecast: [
     { date: '2026-10-05', precipitationMm: 1, rainProbabilityPct: 30, minimumTemperatureC: 6, maximumTemperatureC: 18 },
     { date: '2026-10-06', precipitationMm: 12, rainProbabilityPct: 90, minimumTemperatureC: 8, maximumTemperatureC: 15 },
@@ -145,7 +145,7 @@ test('con lluvia en los dos días siguientes se sugiere esperarla antes de regar
   assert.ok(buildContextualAdvice('pre_siembra', evaluation, dry, weather).actions.some(a => /12 mm de lluvia para el mar 6 oct/.test(a)));
   assert.ok(buildContextualAdvice('pre_siembra', evaluation, dry, weather, 'en').actions.some(a => /12 mm of rain is forecast for Tue Oct 6/.test(a)));
   // Con humedad suficiente no hay riego que postergar.
-  const moist = evaluateForStage(raw, 'pre_siembra');
+  const moist = evaluateForStage(raw, 'pre_siembra', 'maiz', 'franco');
   assert.ok(!buildContextualAdvice('pre_siembra', moist, raw, weather).actions.some(a => /antes de regar/.test(a)));
 });
 test('fechas del pronóstico legibles e iguales en Node y en el teléfono', () => {
@@ -157,4 +157,73 @@ test('el título de una lectura guardada se muestra en el idioma actual', () => 
   assert.equal(localizedStageTitle('pre_siembra', 'GREEN', 'Apto para sembrar', 'en'), 'Ready to plant');
   assert.equal(localizedStageTitle('pre_siembra', 'GREEN', 'Ready to plant', 'es'), 'Apto para sembrar');
   assert.equal(localizedStageTitle('pre_siembra', 'GREEN', 'Título de otra versión', 'en'), 'Título de otra versión');
+});
+
+const withoutProfile = (reading = raw, stage: PhenologicalStage = 'pre_siembra', language: 'es' | 'en' = 'es') => {
+  const evaluation = evaluateReadingForStage(reading, stage, language);
+  const advice = buildContextualAdvice(stage, evaluation, reading, null, language);
+  return { evaluation, advice, presentation: buildMeasurementPresentation(reading, evaluation, advice, language) };
+};
+
+test('el flujo sin selección no asigna maíz ni franco y conserva todas las posibilidades de pre-siembra', () => {
+  const { evaluation, presentation } = withoutProfile();
+  assert.equal(evaluation.crop, null);
+  assert.equal(evaluation.texture, null);
+  assert.equal(evaluation.metrics.vwc.status, 'INFO');
+  assert.doesNotMatch(presentation.context, /maíz|franco/i);
+  assert.ok(presentation.suggestedCrops!.some(c => /Tomate/.test(c)));
+  assert.ok(presentation.suggestedCrops!.length > 3);
+  assert.doesNotMatch(presentation.title, /apto|ideal|garant/i);
+  assert.ok(isMeasurementPresentation(presentation));
+});
+
+test('un suelo frío para maíz puede ofrecer trigo; pH ácido puede ofrecer arándano sin ordenar encalar', () => {
+  const cold = withoutProfile({ ...raw, temp: 6 });
+  assert.deepEqual(cold.presentation.suggestedCrops, ['🌾 Trigo / Cereales de Invierno']);
+  assert.doesNotMatch(cold.presentation.actions.join(' '), /No sembrar|pudrir|días con sol/);
+  const acidic = withoutProfile({ ...raw, ph: 4.5 });
+  assert.deepEqual(acidic.presentation.suggestedCrops, ['🫐 Arándano (Berries)']);
+  assert.doesNotMatch(acidic.presentation.actions.join(' '), /encalar|encalado|aplicar cal/);
+});
+
+test('sugerencias vacías, otras etapas y salinidad extrema no inventan cultivos', () => {
+  const noMatches = withoutProfile({ ...raw, ec: 5000 });
+  assert.deepEqual(noMatches.presentation.suggestedCrops, []);
+  assert.equal(noMatches.evaluation.verdict, 'AMBER');
+  assert.ok(noMatches.presentation.actions.some(a => /salinidad/.test(a)));
+  for (const stage of ['vegetativo', 'floracion', 'cosecha'] as const) {
+    const { presentation } = withoutProfile(raw, stage);
+    assert.deepEqual(presentation.suggestedCrops, []);
+    assert.doesNotMatch(presentation.actions.join(' '), /sembrar|germinación|aborto floral/);
+  }
+});
+
+test('sin textura no indica regar a las 24–48 horas ni autoriza maquinaria', () => {
+  const dry = withoutProfile({ ...raw, vwc: 18 });
+  assert.equal(dry.evaluation.metrics.vwc.status, 'INFO');
+  assert.doesNotMatch(dry.presentation.actions.join(' '), /Programar riego|24.*48/);
+  const extreme = withoutProfile({ ...raw, vwc: 2 });
+  assert.equal(extreme.evaluation.metrics.vwc.status, 'WARNING');
+  const harvest = withoutProfile(raw, 'cosecha');
+  assert.doesNotMatch(harvest.presentation.title, /transitable/);
+});
+
+test('las sugerencias sobreviven al guardado; los históricos recuperan sólo sugerencias registradas', () => {
+  const { presentation } = withoutProfile();
+  const point = { stage: 'pre_siembra', verdict: 'GREEN', diagnosis: JSON.parse(JSON.stringify({ presentation })) } as MeasurementPoint;
+  assert.deepEqual(presentationFromPoint(point).suggestedCrops, presentation.suggestedCrops);
+  const old = { ...presentation, version: 1, context: 'Maíz Grano / Choclo · Franco', suggestedCrops: undefined };
+  const historical = presentationFromPoint({ ...point, diagnosis: { presentation: old, advice: { suggestedCrops: ['Tomate guardado'] } } });
+  assert.deepEqual(historical.suggestedCrops, ['Tomate guardado']);
+  assert.doesNotMatch(historical.context, /Maíz|Franco/);
+  assert.equal(presentationFromPoint({ ...point, diagnosis: { presentation: old } }).suggestedCrops, undefined);
+  assert.equal(presentationFromPoint({ ...point, diagnosis: { presentation: old, advice: { suggestedCrops: [42] } } }).suggestedCrops, undefined);
+  assert.equal(isMeasurementPresentation({ ...presentation, suggestedCrops: [42] }), false);
+});
+
+test('la lectura sin perfiles respeta idioma y no usa NPK ni ambiente para elegir cultivos', () => {
+  const { presentation } = withoutProfile(raw, 'pre_siembra', 'en');
+  assert.doesNotMatch([presentation.context, presentation.title, presentation.summary, ...presentation.actions, ...presentation.suggestedCrops!].join(' '), SPANISH);
+  const changed = withoutProfile({ ...raw, nitrogen: 900, phosphorus: 900, potassium: 900, airTemp: 35 });
+  assert.deepEqual(changed.presentation.suggestedCrops, withoutProfile().presentation.suggestedCrops);
 });

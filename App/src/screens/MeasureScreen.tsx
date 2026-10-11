@@ -8,7 +8,7 @@ import * as Location from 'expo-location';
 
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useAppStore } from '../store/useAppStore';
-import { evaluateForStage, type StageAwareEvaluation } from '../engine/stageEvaluator';
+import { evaluateReadingForStage, type StageAwareEvaluation } from '../engine/stageEvaluator';
 import { buildContextualAdvice, type ContextualAdvice } from '../engine/contextualAdvice';
 import { computeVpdKpa } from '../engine/agronomyEngine';
 import { readSoilProbe, verifySoilProbe } from '../services/probeService';
@@ -40,7 +40,7 @@ import { captureLocation, initialIncludeLocation, revalidateIncludeLocation, typ
 // en Android anterior a 12 la ubicación también se concede para buscar la sonda.
 const LOCATION_CHOICE_KEY = '@terrasense/measure-location-v1';
 
-const ENGINE_VERSION = '1.2.0';
+const ENGINE_VERSION = '1.3.0';
 const CROP_CATALOG_VERSION = '1.0.0';
 type Phase = 'connecting' | 'connection_error' | 'stage' | 'steps' | 'prepare' | 'reading' | 'result' | 'saving';
 
@@ -54,8 +54,6 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   const { t, language } = useTranslation();
   const {
     setStage,
-    cropId,
-    textureId,
     device,
     preferences,
     addPoint,
@@ -64,7 +62,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
 
   const [phase, setPhase] = useState<Phase>('stage');
   const [stage, selectStage] = useState<PhenologicalStage | null>(null);
-  const context = useRef({ cropId, textureId, device });
+  const context = useRef({ device });
   const saving = useRef(false);
   const reading = useRef(false);
   const saved = useRef(false);
@@ -172,7 +170,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     reading.current = true;
     // El contexto se fija al tocar «Medir» y vale sólo para esta lectura: lo que cambie en el
     // store mientras el permiso o la sonda responden no se mezcla con ella.
-    const snapshot = { cropId, textureId, device };
+    const snapshot = { device };
     const active = accountOperation.current.begin();
     if (device) {
       // Bluetooth se pide al tocar «Medir». Un estado que no se pudo consultar no es un
@@ -211,7 +209,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       const nextWeather = null;
       if (!current()) return;
       setCapturedAt(probe.capturedAt);
-      const nextEvaluation = evaluateForStage(probe.data, stage, snapshot.cropId, snapshot.textureId, preferences.language);
+      const nextEvaluation = evaluateReadingForStage(probe.data, stage, preferences.language);
       setCoords(nextCoords);
       setRaw(probe.data);
       setDemoMode((current) => current || probe.simulated);
@@ -243,7 +241,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     } finally {
       reading.current = false;
     }
-  }, [cropId, device, language, preferences.language, revalidateLocation, stage, t, textureId]);
+  }, [device, language, preferences.language, revalidateLocation, stage, t]);
 
   const presentation = useMemo(() => raw && evaluation && advice ? buildMeasurementPresentation(raw, evaluation, advice, language) : null, [raw, evaluation, advice, language]);
 
@@ -265,7 +263,8 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       device_id: context.current.device?.id ?? '',
       data_generation: context.current.device?.data_generation ?? 0,
       user_id: null,
-      crop_id: context.current.cropId,
+      // Columnas de texto NOT NULL del esquema vigente: ausencia explícita, sin cultivar ficticio.
+      crop_id: 'sin_especificar',
       // Compatibilidad con el esquema existente; la app ya no agrupa por campo.
       field_name: '',
       quadrant: null,
@@ -281,7 +280,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       phosphorus: raw.phosphorus,
       potassium: raw.potassium,
       battery_percent: raw.battery,
-      soil_texture: context.current.textureId,
+      soil_texture: 'sin_especificar',
       // Ambiente del BME280 del equipo, no de la API del clima: esa da pronóstico de
       // días para complementar la recomendación, no una medición de este punto y este
       // instante. Si el sensor no entregó dato, va NULL y no se rellena con nada.
@@ -329,7 +328,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       saving.current = false;
       if (active()) setPhase('result');
     }
-  }, [capturedAt, advice, addPoint, coords, cropId, demoMode, device, evaluation, language, raw, setPendingCount, stage, t, textureId, weather, presentation]);
+  }, [capturedAt, advice, addPoint, coords, demoMode, device, evaluation, language, raw, setPendingCount, stage, t, weather, presentation]);
 
   const stageLabel = (id: PhenologicalStage | null) => {
     const item = PHENOLOGICAL_STAGES.find(candidate => candidate.id === id);

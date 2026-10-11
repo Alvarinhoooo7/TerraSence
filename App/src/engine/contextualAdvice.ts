@@ -1,5 +1,5 @@
 import { applicableAlerts } from './measurementPresentation';
-import { CROPS_DB } from './agronomyEngine';
+import { possibleCrops } from './agronomyEngine';
 import { cropName } from './catalogNames';
 import type { StageAwareEvaluation } from './stageEvaluator';
 import type { PhenologicalStage } from '../types/app';
@@ -49,7 +49,7 @@ export function buildContextualAdvice(
     : (en ? 'Review the highlighted conditions with advice before intervening. There is no validated specific action for this stage.' : 'Revisa las condiciones destacadas con asesoría antes de intervenir. No hay una acción específica validada para esta fase.'));
 
   // La humedad bajo el umbral de riego pide regar, pero si llueve pronto ese riego sobra.
-  const irrigationAdvised = applicableAlerts(evaluation).some(alert => alert.param === 'vwc') && reading.vwc < evaluation.texture.ur;
+  const irrigationAdvised = evaluation.texture !== null && applicableAlerts(evaluation).some(alert => alert.param === 'vwc') && reading.vwc < evaluation.texture.ur;
   const rainSoon = irrigationAdvised
     ? weather?.forecast.slice(0, 2).find(day => (day.precipitationMm ?? 0) >= RAIN_INSTEAD_OF_IRRIGATION_MM)
     : undefined;
@@ -90,21 +90,14 @@ export function buildContextualAdvice(
         : (en ? 'Incomplete forecast: data is missing to evaluate all of the next five days.' : 'Pronóstico incompleto: faltan datos para evaluar todos los próximos cinco días.');
 
   const suggestedCrops = stage === 'pre_siembra'
-    ? Object.values(CROPS_DB)
-        .filter((crop) =>
-          reading.temp >= crop.tempMin &&
-          reading.ph >= crop.phMin &&
-          reading.ph <= crop.phMax &&
-          reading.ec <= crop.ecMax,
-        )
-        .slice(0, 3)
+    ? possibleCrops(reading)
         .map((crop) => `${crop.emoji} ${cropName(crop.id, language)}`)
     : [];
 
   const copyEs: Record<PhenologicalStage, { title: string; summary: string }> = {
     pre_siembra: {
       title: 'Prepara el suelo antes de sembrar',
-      summary: 'Prioriza las correcciones que condicionan germinación y establecimiento. Luego confirma que el clima permita entrar al campo.',
+      summary: 'La temperatura, el pH y la conductividad medidos permiten explorar posibles cultivos. Antes de sembrar, confirma humedad, drenaje, temporada y condiciones locales.',
     },
     vegetativo: {
       title: 'Protege el crecimiento activo',
@@ -122,7 +115,7 @@ export function buildContextualAdvice(
   const copyEn: Record<PhenologicalStage, { title: string; summary: string }> = {
     pre_siembra: {
       title: 'Prepare the soil before planting',
-      summary: 'Prioritize the corrections that condition germination and establishment. Then confirm the weather allows entering the field.',
+      summary: 'The measured temperature, pH and conductivity help explore possible crops. Before planting, confirm moisture, drainage, season and local conditions.',
     },
     vegetativo: {
       title: 'Protect active growth',

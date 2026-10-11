@@ -144,11 +144,23 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
     </View>
   </View> : null;
 
+  const possibleCropsCard = p.stage === 'pre_siembra' ? <ScreenCard accent={colors.primary}>
+    <ScreenLabel>{t('Posibles cultivos', 'Possible crops')}</ScreenLabel>
+    {p.suggestedCrops === undefined
+      ? <ScreenText>{t('Esta lectura antigua no conserva sugerencias de cultivos.', 'This older reading does not keep crop suggestions.')}</ScreenText>
+      : p.suggestedCrops.length ? <>
+        <ScreenText muted={false}>{t('Con esta temperatura, pH y conductividad, podrías considerar:', 'With this temperature, pH and conductivity, you could consider:')}</ScreenText>
+        {p.suggestedCrops.map(crop => <ScreenText key={crop} muted={false}>{crop}</ScreenText>)}
+        <ScreenText>{t('Son posibilidades para evaluar, no una garantía de aptitud. Confirma humedad, textura, drenaje, temporada y clima local antes de sembrar.', 'These are possibilities to assess, not a guarantee of suitability. Confirm moisture, texture, drainage, season and local climate before planting.')}</ScreenText>
+      </> : <ScreenText>{t('No encontramos coincidencias en el catálogo con esta temperatura, pH y conductividad. Esto no significa que ningún cultivo pueda crecer aquí; confirma las condiciones con asesoría agronómica.', 'No catalog crops match this temperature, pH and conductivity. This does not mean no crop can grow here; confirm conditions with agronomic advice.')}</ScreenText>}
+  </ScreenCard> : null;
+
   // --- Plan global: diagnóstico de conjunto con el texto completo ---
   if (plan) {
     return <ScreenLayout onBack={back} backLabel={t('Recomendaciones', 'Recommendations')} action={saveAction}
       eyebrow={t(`PLAN GLOBAL · ${stage.toUpperCase()}`, `OVERALL PLAN · ${stage.toUpperCase()}`)} title={p.title} description={p.context}>
       <ScreenCard accent={colors.primary}><ScreenText muted={false}>{p.summary}</ScreenText></ScreenCard>
+      {possibleCropsCard}
       {!!p.actions.length && <><ScreenLabel>{t('Qué hacer', 'What to do')}</ScreenLabel>{timeline}</>}
       {weatherCard}
     </ScreenLayout>;
@@ -220,6 +232,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
         </View>
       </View>
       <ScreenCard accent={colors.primary}><ScreenText muted={false}>{p.summary}</ScreenText></ScreenCard>
+      {possibleCropsCard}
       <ScreenLabel>{t('Datos esenciales', 'Key readings')}</ScreenLabel>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
         {essentials.map(m => tile(m, p.parameters.indexOf(m)))}
@@ -249,6 +262,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
     return <ScreenLayout {...common} eyebrow={t('RECOMENDACIONES', 'RECOMMENDATIONS')} title={t('Qué hacer', 'What to do')}
       description={t(`Según la lectura y la etapa ${stage.toLowerCase()}.`, `Based on the reading and the ${stage.toLowerCase()} stage.`)}>
       {p.actions.length ? timeline : <ScreenCard><ScreenText>{t('No hay acciones para esta lectura.', 'No actions for this reading.')}</ScreenText></ScreenCard>}
+      {possibleCropsCard}
       {weatherCard}
       <ScreenOption title={t('Ver plan global', 'View overall plan')} subtitle={t('Suelo, etapa y pronóstico juntos, con el texto completo.', 'Soil, stage and forecast together, with the full text.')} onPress={() => setPlan(true)} />
     </ScreenLayout>;

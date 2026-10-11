@@ -2,20 +2,19 @@
 //
 // CAPA DE ETAPA FENOLÓGICA sobre el motor agronómico base.
 //
-// El motor rescatado (`agronomyEngine.ts`) evalúa el suelo de forma correcta
-// pero es CIEGO a la etapa del cultivo: siempre razona como si se tratara de
-// una siembra. Esta capa corrige eso sin tocar el motor base.
+// El motor base compara perfiles explícitos como si se tratara de una siembra.
+// Esta capa adapta esas reglas por etapa. El flujo de la app usa
+// evaluateReadingForStage, sin asignar un cultivo ni una textura al campo.
 //
 // Fundamento: el mismo suelo, con los mismos 7 valores, exige veredictos
-// distintos según la etapa. Un suelo a 9 °C es prohibitivo para sembrar y
-// perfectamente irrelevante para cosechar; una CE de 2.400 µS/cm es tolerable
-// en vegetativo y catastrófica en floración, donde provoca aborto floral.
+// distintos según la etapa y el cultivo. Estos umbrales son orientativos,
+// no diagnósticos validados de germinación, daño floral o transitabilidad.
 //
 // Se declara explícitamente el peso de cada parámetro por etapa, en vez de
 // esconderlo en condicionales: así un agrónomo puede auditar y corregir los
 // criterios sin leer código (principio P4, determinismo auditable).
 
-import { evaluateAgronomicStatus } from './agronomyEngine';
+import { CROPS_DB, SOIL_TEXTURES, evaluateAgronomicStatus, possibleCrops, vetoCruzadoSalinidad } from './agronomyEngine';
 import type {
   AgronomicEvaluation,
   AgronomicAlert,
@@ -144,7 +143,9 @@ const translateMetrics = (metrics: AgronomicEvaluation['metrics']): AgronomicEva
 
 /** Umbrales de humedad para transitabilidad de maquinaria en cosecha. */
 
-export interface StageAwareEvaluation extends AgronomicEvaluation {
+export interface StageAwareEvaluation extends Omit<AgronomicEvaluation, 'crop' | 'texture'> {
+  crop: AgronomicEvaluation['crop'] | null;
+  texture: AgronomicEvaluation['texture'] | null;
   stage: PhenologicalStage;
   /** Parámetros que efectivamente decidieron el veredicto en esta etapa. */
   drivers: string[];
@@ -166,8 +167,8 @@ const worst = (a: Verdict, b: Verdict): Verdict => {
 export function evaluateForStage(
   sensorData: SoilMeasurement,
   stage: PhenologicalStage,
-  cropId: CropId = 'maiz',
-  textureId: SoilTextureId = 'franco',
+  cropId: CropId,
+  textureId: SoilTextureId,
   language: AppLanguage = 'es',
 ): StageAwareEvaluation {
   const base = evaluateAgronomicStatus(sensorData, cropId, textureId);
@@ -260,4 +261,70 @@ export function evaluateForStage(
     drivers: [...new Set(driverLabels)],
     actionSummary,
   };
+}
+
+/**
+ * Flujo de la app: sólo se conoce la etapa. Compara el catálogo sin asignar un
+ * cultivo ni una textura al campo. Si los perfiles discrepan, conserva el dato
+ * como contexto; no prescribe riego ni autoriza maquinaria usando suelo franco.
+ * La evaluación con perfiles explícitos queda disponible para contrastar reglas.
+ */
+export function evaluateReadingForStage(
+  reading: SoilMeasurement, stage: PhenologicalStage, language: AppLanguage = 'es',
+): StageAwareEvaluation {
+  const en = language === 'en';
+  const crops = Object.values(CROPS_DB);
+  const textures = Object.values(SOIL_TEXTURES);
+  const alerts: AgronomicAlert[] = [];
+  const metrics = Object.fromEntries(
+    (['vwc', 'temp', 'ec', 'ph', 'nitrogen', 'phosphorus', 'potassium', 'lux'] as const).map(key => [key, {
+      val: reading[key], unit: key === 'vwc' ? '%' : key === 'temp' ? '°C' : key === 'ec' ? 'µS/cm' : key === 'ph' ? 'pH' : key === 'lux' ? 'Lux' : 'registro',
+      status: 'INFO', msg: en ? 'Local reading; interpretation depends on field conditions.' : 'Lectura local; su interpretación depende de las condiciones del campo.',
+    }]),
+  ) as AgronomicEvaluation['metrics'];
+  const check = (key: 'temp' | 'ph' | 'ec' | 'vwc', matches: boolean[], note: string, action: string) => {
+    const all = matches.every(Boolean);
+    const none = !matches.some(Boolean);
+    metrics[key].status = none ? 'WARNING' : all ? 'OPTIMAL' : 'INFO';
+    metrics[key].msg = note;
+    // La acción explica qué falta confirmar, sin dar por conocido el cultivo.
+    metrics[key].confidenceNote = action;
+    if (none && STAGE_DRIVERS[stage].includes(key)) alerts.push({ type: 'warning', param: key, title: note, action });
+  };
+  check('temp', crops.map(c => reading.temp >= c.tempMin),
+    en ? 'Soil temperature compared with the minimums in the crop catalog.' : 'Temperatura del suelo comparada con los mínimos del catálogo de cultivos.',
+    en ? 'Temperature alone does not establish planting suitability. Check the possible crops and local season.' : 'La temperatura por sí sola no determina aptitud para sembrar. Revisa los posibles cultivos y la temporada local.');
+  check('ph', crops.map(c => reading.ph >= c.phMin && reading.ph <= c.phMax),
+    en ? 'pH requirements vary by crop; no crop is assigned to this reading.' : 'El rango de pH depende del cultivo; esta lectura no tiene un cultivo asignado.',
+    en ? 'Confirm pH and crop requirements before applying amendments.' : 'Confirma el pH y los requerimientos del cultivo antes de aplicar enmiendas.');
+  check('ec', crops.map(c => reading.ec <= c.ecMax * (stage === 'floracion' ? 0.8 : 1)),
+    en ? 'Conductivity compared with the provisional crop catalog limits.' : 'Conductividad comparada con los límites orientativos del catálogo de cultivos.',
+    en ? 'Confirm salinity, crop tolerance and drainage before treatment.' : 'Confirma salinidad, tolerancia del cultivo y drenaje antes de intervenir.');
+  // Sólo se destaca un extremo de humedad si todos los perfiles coinciden.
+  const dry = textures.every(t => reading.vwc < t.pmp);
+  const wet = textures.every(t => reading.vwc >= t.sat);
+  metrics.vwc.msg = en ? 'Soil texture is unknown; moisture does not determine an irrigation dose or machinery access.' : 'La textura del suelo no está determinada; esta humedad no define una dosis de riego ni autoriza el ingreso de maquinaria.';
+  if (dry || wet) {
+    metrics.vwc.status = 'WARNING';
+    alerts.push({ type: 'warning', param: 'vwc',
+      title: en ? 'Moisture outside all catalog reference ranges' : 'Humedad fuera de los rangos de referencia del catálogo',
+      action: en ? 'Check moisture and drainage in the field and repeat the reading before deciding on irrigation or machinery.' : 'Revisa humedad y drenaje en terreno y repite la lectura antes de decidir riego o ingreso de maquinaria.',
+    });
+  }
+  const veto = vetoCruzadoSalinidad(reading.ec, reading.nitrogen, reading.phosphorus, reading.potassium);
+  for (const key of ['nitrogen', 'phosphorus', 'potassium'] as const) {
+    metrics[key] = { ...metrics[key], derived: true, confidence: 'LOW',
+      msg: en ? 'Unvalidated; does not diagnose nutrition' : 'Sin validar; no diagnostica nutrición',
+      confidenceNote: en ? 'Confirm nutrients in a laboratory; do not use these records to dose fertilizers.'
+        : veto.activo ? veto.nota : 'Confirma nutrientes en laboratorio; no uses estos registros para dosificar fertilizantes.',
+    };
+  }
+  const candidates = stage === 'pre_siembra' ? possibleCrops(reading) : [];
+  const verdict: Verdict = alerts.length || (stage === 'pre_siembra' && !candidates.length) ? 'AMBER' : 'GREEN';
+  const title = stage === 'pre_siembra'
+    ? candidates.length ? (en ? 'Possible crops to consider' : 'Posibles cultivos para evaluar') : (en ? 'Review conditions before planting' : 'Revisar condiciones antes de sembrar')
+    : (en ? 'Indicative soil reading' : 'Lectura orientativa del suelo');
+  const summary = en ? 'Interpret the reading for this stage without assuming a crop or soil texture.' : 'Interpreta la lectura para esta etapa sin dar por conocido el cultivo ni la textura del suelo.';
+  return { crop: null, texture: null, stage, metrics, alerts, verdict, verdictTitle: title,
+    verdictSummary: summary, actionSummary: summary, drivers: alerts.map(a => a.param) };
 }

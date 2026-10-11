@@ -60,7 +60,7 @@ export interface AgronomicAlert {
 export interface MetricDetail {
   val: number;
   unit: string;
-  status: 'OPTIMAL' | 'WARNING' | 'CRITICAL';
+  status: 'OPTIMAL' | 'WARNING' | 'CRITICAL' | 'INFO';
   msg: string;
   /** true cuando la sonda no mide la variable, sino que la deriva de la conductividad. */
   derived?: boolean;

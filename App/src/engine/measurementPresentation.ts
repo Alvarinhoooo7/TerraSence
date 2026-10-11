@@ -4,7 +4,6 @@ import type { StageAwareEvaluation } from './stageEvaluator';
 import { STAGE_DRIVERS, localizedStageTitle } from './stageEvaluator';
 import type { ContextualAdvice } from './contextualAdvice';
 import type { AppLanguage } from '../types/preferences';
-import { cropName, textureNameFromDefinition } from './catalogNames';
 
 export const PARAMETER_KEYS = ['vwc', 'temp', 'ph', 'ec', 'nitrogen', 'phosphorus', 'potassium', 'airTemp', 'airHumidity', 'airPressure'] as const;
 export type ParameterKey = typeof PARAMETER_KEYS[number];
@@ -19,13 +18,15 @@ export interface ParameterPresentation {
   control: string;
 }
 export interface MeasurementPresentation {
-  version: 1;
+  version: 1 | 2;
   stage: PhenologicalStage;
   context: string;
   title: string;
   summary: string;
   actions: string[];
   weatherNote: string;
+  /** Ausente en históricos que no conservaron sugerencias; [] significa sin coincidencias. */
+  suggestedCrops?: string[];
   parameters: ParameterPresentation[];
 }
 const labelsEs = ['Humedad del suelo', 'Temperatura del suelo', 'pH del suelo', 'Conductividad eléctrica', 'Nitrógeno', 'Fósforo', 'Potasio', 'Temperatura ambiente', 'Humedad ambiente', 'Presión atmosférica'];
@@ -45,10 +46,11 @@ export function buildMeasurementPresentation(raw: SoilMeasurement, evaluation: S
   const en = language === 'en';
   const alerts = applicableAlerts(evaluation);
   return {
-    version: 1, stage: evaluation.stage,
-    context: `${cropName(evaluation.crop.id, language)} · ${textureNameFromDefinition(evaluation.texture, language)}`,
+    version: 2, stage: evaluation.stage,
+    context: en ? 'Based on the measured soil conditions.' : 'Según las condiciones medidas del suelo.',
     title: evaluation.verdictTitle, summary: advice.summary,
     actions: advice.actions, weatherNote: advice.weatherNote,
+    suggestedCrops: evaluation.stage === 'pre_siembra' ? [...advice.suggestedCrops] : [],
     parameters: PARAMETER_KEYS.map((key, index) => {
       const metric = key in evaluation.metrics ? evaluation.metrics[key as keyof typeof evaluation.metrics] : undefined;
       const value = raw[key];
@@ -80,7 +82,8 @@ export function buildMeasurementPresentation(raw: SoilMeasurement, evaluation: S
 export function isMeasurementPresentation(value: unknown): value is MeasurementPresentation {
   if (!value || typeof value !== 'object') return false;
   const p = value as MeasurementPresentation;
-  return p.version === 1 && ['pre_siembra', 'vegetativo', 'floracion', 'cosecha'].includes(p.stage)
+  return [1, 2].includes(p.version) && ['pre_siembra', 'vegetativo', 'floracion', 'cosecha'].includes(p.stage)
+    && (p.suggestedCrops === undefined ? p.version === 1 : Array.isArray(p.suggestedCrops) && p.suggestedCrops.every(c => typeof c === 'string'))
     && ['context', 'title', 'summary', 'weatherNote'].every(k => typeof (p as unknown as Record<string, unknown>)[k] === 'string')
     && Array.isArray(p.actions) && p.actions.every(a => typeof a === 'string')
     && Array.isArray(p.parameters) && p.parameters.length === PARAMETER_KEYS.length
@@ -90,10 +93,17 @@ export function isMeasurementPresentation(value: unknown): value is MeasurementP
 }
 
 export function presentationFromPoint(point: MeasurementPoint, language: AppLanguage = 'es'): MeasurementPresentation {
-  const diagnosis = point.diagnosis as { presentation?: unknown } | null;
+  const diagnosis = point.diagnosis as { presentation?: unknown; advice?: { suggestedCrops?: unknown } } | null;
   if (isMeasurementPresentation(diagnosis?.presentation) && diagnosis.presentation.stage === point.stage) {
     const saved = diagnosis.presentation;
     const title = localizedStageTitle(point.stage, point.verdict, saved.title, language);
+    if (saved.version === 1) {
+      const crops = diagnosis?.advice?.suggestedCrops;
+      return { ...saved, title,
+        context: language === 'en' ? 'Saved reading evaluated with assumed reference profiles in an earlier version.' : 'Lectura guardada evaluada con perfiles de referencia supuestos en una versión anterior.',
+        suggestedCrops: point.stage === 'pre_siembra' && Array.isArray(crops) && crops.every(c => typeof c === 'string') ? [...crops] : saved.suggestedCrops,
+      };
+    }
     return title === saved.title ? saved : { ...saved, title };
   }
   const title = localizedStageTitle(point.stage, point.verdict, point.title, language);

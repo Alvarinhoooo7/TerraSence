@@ -160,7 +160,7 @@ El agricultor agrícola opera habitualmente en zonas rurales sin conectividad ce
 | Escenario en Terreno | Comportamiento del Sistema |
 | :--- | :--- |
 | **Sin Conexión a Internet** | La app inicia desde la caché persistente de Zustand/AsyncStorage (`useAuthStore`). Conecta por BLE, evalúa el suelo localmente, genera la recomendación, guarda la lectura y la encola con un `client_uuid` único. |
-| **Sin Señal de Satélites GPS** | Emite un aviso no bloqueante; la medición se registra con fecha, hora y cultivo, guardándose localmente sin coordenadas geográficas. |
+| **Sin Señal de Satélites GPS** | Emite un aviso no bloqueante; la medición se registra con fecha, hora y etapa, guardándose localmente sin coordenadas geográficas. |
 | **Sin Sonda Física Presente (sólo en desarrollo)** | En un build de desarrollo sin equipo vinculado, o sin el módulo BLE nativo (Expo Go), simula lecturas con una **bandera visual visible y permanente**. En producción, medir sin sonda vinculada es un error (`readSoilProbe` en `probeService.ts`). |
 | **Recuperación de Cobertura** | El componente `OfflineBanner` detecta el regreso de internet y `measurementsService` vacía la cola en segundo plano mediante upsert idempotente. |
 
@@ -493,7 +493,7 @@ El proceso de medición sigue una secuencia rigurosa y pedagógica:
    - La app escanea el anuncio `TerraSense-<ID>`, conecta vía BLE, captura la trama y consulta el clima en Open-Meteo.
    - Desconecta inmediatamente el enlace BLE para proteger la batería del ESP32.
 3. **Resultados, una pantalla por paso** ([`MeasurementResultFlow`](src/components/MeasurementResultFlow.tsx)), con indicador de avance y Atrás/Continuar:
-   - **Resumen:** el veredicto de la etapa, un anillo con cuántas variables quedaron favorables, en atención o limitantes, la etapa ilustrada, el diagnóstico y los datos esenciales del suelo. En **Pre-siembra** incluye qué cultivos conviene sembrar.
+   - **Resumen:** la evaluación de la etapa, un anillo con cuántas variables quedaron favorables, en atención o limitantes, la etapa ilustrada, el diagnóstico y los datos esenciales del suelo. En **Pre-siembra** muestra **posibles cultivos para evaluar**, según coincidencias de temperatura mínima, pH y conductividad con el catálogo. Son posibilidades, no una garantía de aptitud ni un cultivo elegido por el usuario. También aparecen en recomendaciones y en el plan global.
    - **Suelo, Nutrientes** (siempre «Sin validar») **y Ambiente**, cada uno en su pantalla, con semáforo (§5.3). Cada variable es una tarjeta con ícono teñido por su estado; la humedad lleva una barra de 0 a 100 % y el pH su escala de 0 a 14. Son escalas físicas, no umbrales: el estado lo decide el motor agronómico ([`ResultVisuals`](src/components/result/ResultVisuals.tsx)). Cada variable abre su detalle con *Estado*, *Recomendación* y *Control*, y botones para pasar a la anterior o la siguiente.
    - **Recomendaciones** y **Pronóstico y captura** (cinco días, fecha, batería y coordenadas como texto).
    - **Guardar** queda siempre en la barra superior; la lectura puede guardarse mientras el pronóstico carga. El botón Atrás de Android retrocede paso a paso.
@@ -631,16 +631,24 @@ Falta también probar en Android/iOS la limpieza de colas y cachés al reconecta
 
 ## 5. Motor Agronómico y Reglas de Decisión
 
-El motor agronómico (`agronomyEngine.ts` + `stageEvaluator.ts` + `contextualAdvice.ts`) es un sistema experto determinista basado en relaciones biofísicas de suelo-planta:
+La [especificación de desarrollo del motor agronómico](MOTOR_AGRONOMICO.md) reúne el diseño propuesto: uso de las diez variables, clima horario e histórico, indicadores combinados, catálogo con evidencia, reglas por etapa, justificación de vistas y criterios de validación. Distingue las capacidades futuras del comportamiento actual descrito a continuación; no implica que estén implementadas o validadas en campo.
+
+El motor agronómico (`agronomyEngine.ts` + `stageEvaluator.ts` + `contextualAdvice.ts`) aplica reglas deterministas y un catálogo local. No aprende de las mediciones ni predice rendimiento. Sus rangos son referencias orientativas; el código por sí solo no acredita validación agronómica en campo.
+
+El agricultor elige **sólo la etapa**, nunca un cultivo ni una textura. El flujo usa `evaluateReadingForStage`: no asigna maíz ni suelo franco. Compara temperatura mínima, pH y conductividad con los perfiles del catálogo; cuando éstos discrepan, la variable queda como **dato de contexto**. Sólo marca favorable una comparación que satisface todos los perfiles, y solicita revisión cuando no satisface ninguno. Esto no equivale a declarar apto el suelo. La humedad queda como contexto salvo extremos fuera de todos los perfiles de textura; no se prescribe riego ni se autoriza maquinaria suponiendo una textura.
+
+En pre-siembra, `possibleCrops` devuelve **todas** las coincidencias simultáneas de temperatura mínima, intervalo de pH y conductividad máxima. No las ordena por conveniencia. No usa nutrientes, humedad, temporada, variedad ni temperatura máxima para seleccionar opciones. La pantalla explica que deben confirmarse humedad, textura, drenaje, temporada y clima local. Una lista vacía significa que no hay coincidencias en este catálogo, no que ningún cultivo sea posible.
+
+Las nuevas capturas guardan `crop_id` y `soil_texture` como `sin_especificar`, compatible con las columnas de texto obligatorias del esquema vigente, y conservan las sugerencias en la presentación versión 2. Los históricos no se recalculan: sólo recuperan las sugerencias registradas y explicitan si el diagnóstico antiguo utilizó perfiles supuestos. `evaluateForStage` conserva la evaluación de perfiles explícitos para contrastar reglas; ya no tiene valores por defecto ni es la entrada del flujo de medición.
 
 ### 5.1. Etapas Fenológicas Obligatorias
 
 | Etapa Fenológica | Variables que deciden el veredicto (`STAGE_DRIVERS`) | Comportamiento del Motor |
 | :--- | :--- | :--- |
-| **Pre-siembra (Siembra)** | Temperatura del suelo, CE, pH, humedad | Evalúa la aptitud de la cama de siembra; alerta si el suelo está frío para germinar o si la salinidad dañará la plántula. |
-| **Vegetativo** | Humedad, pH, CE | Vigila agua en la zona radicular y condiciones que limitan la absorción durante el crecimiento foliar. |
-| **Floración** | CE, humedad, pH | El umbral de salinidad máxima se reduce al **80 % del valor del cultivo**, porque el estrés osmótico provoca aborto floral. |
-| **Cosecha** | Humedad, CE | Evalúa la transitabilidad del suelo para entrar con maquinaria sin compactarlo. |
+| **Pre-siembra (Siembra)** | Temperatura del suelo, CE, pH, humedad | Explora posibles cultivos por temperatura, pH y CE; la humedad aporta contexto o un aviso de extremo. No declara aptitud de siembra. |
+| **Vegetativo** | Humedad, pH, CE | Compara referencias del catálogo sin asumir la especie cultivada; orienta la revisión de condiciones. |
+| **Floración** | CE, humedad, pH | Compara CE con el **80 % de los límites del catálogo**, una regla provisional. No diagnostica aborto floral sin conocer el cultivo. |
+| **Cosecha** | Humedad, CE | Orienta la revisión de humedad y salinidad; no declara transitabilidad sin conocer textura y condiciones del terreno. |
 
 N, P y K no deciden el veredicto en ninguna etapa (§5.2); la fuente de verdad de esta tabla es
 [`stageEvaluator.ts`](src/engine/stageEvaluator.ts).
@@ -658,10 +666,10 @@ La sonda mide **conductividad eléctrica y temperatura**. Los tres registros aso
 
 ### 5.3. Código de Colores Semáforo y Desglose Interactivo
 El Grid 2×5 de la pantalla de resultados usa el semáforo con estas etiquetas (N, P y K se rotulan siempre **Sin validar**):
-* **🟢 Condición favorable:** el parámetro está dentro del rango óptimo para el cultivo y la fase seleccionada.
-* **🟡 Requiere atención:** el valor se aproxima a los límites de estrés; conviene un ajuste preventivo de riego o manejo.
-* **🔴 Condición limitante:** estrés hídrico, acidez perjudicial o salinidad que exige intervención.
-* **⚪ Dato de contexto:** variable que no decide el veredicto de esa fase (no está en `STAGE_DRIVERS`, §5.1), las tres del ambiente o un dato ausente. Por ejemplo, la temperatura del suelo decide en pre-siembra y es contexto en las otras tres fases.
+* **🟢 Condición favorable:** la comparación satisface todos los perfiles consultados; no garantiza aptitud del campo.
+* **🟡 Requiere atención:** la comparación queda fuera de todos los perfiles consultados, o hay un extremo de humedad; corresponde confirmar las condiciones antes de intervenir.
+* **🔴 Condición limitante:** se conserva para diagnósticos históricos o evaluaciones con perfiles explícitos; el flujo sin cultivo ni textura no emite este diagnóstico categórico.
+* **⚪ Dato de contexto:** faltan antecedentes para interpretar la variable, los perfiles discrepan, no decide en esa fase, corresponde al ambiente o está ausente. La temperatura del suelo es contexto en vegetativo, floración y cosecha.
 
 ---
 

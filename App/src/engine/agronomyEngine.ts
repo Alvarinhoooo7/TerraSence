@@ -137,6 +137,15 @@ export const SOIL_TEXTURES: Record<SoilTextureId, SoilTexture> = {
   }
 };
 
+/** Coincidencia parcial con el catálogo; no determina aptitud ni el cultivo del campo. */
+export function possibleCrops(reading: SoilMeasurement): CropDefinition[] {
+  if (![reading.temp, reading.ph, reading.ec].every(Number.isFinite)) return [];
+  return Object.values(CROPS_DB).filter(crop =>
+    reading.temp >= crop.tempMin && reading.ph >= crop.phMin &&
+    reading.ph <= crop.phMax && reading.ec <= crop.ecMax,
+  );
+}
+
 /**
  * Umbral de conductividad sobre el cual la calibración de fábrica de la sonda deja
  * de ser válida y la estimación de NPK se contamina con iones no nutritivos.
@@ -201,8 +210,8 @@ export function vetoCruzadoSalinidad(
 
 export function evaluateAgronomicStatus(
   sensorData: SoilMeasurement, 
-  cropId: CropId = 'maiz', 
-  textureId: SoilTextureId = 'franco'
+  cropId: CropId,
+  textureId: SoilTextureId
 ): AgronomicEvaluation {
   const crop = CROPS_DB[cropId] || CROPS_DB.maiz;
   const texture = SOIL_TEXTURES[textureId] || SOIL_TEXTURES.franco;

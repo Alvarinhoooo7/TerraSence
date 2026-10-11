@@ -1,14 +1,11 @@
 // src/store/useAppStore.ts
 import { create } from 'zustand';
 import type { PhenologicalStage, MeasurementPoint, DeviceRow } from '../types/app';
-import type { CropId, SoilTextureId } from '../types/agronomy';
 import { DEFAULT_APP_PREFERENCES, type AppPreferences } from '../types/preferences';
 
 interface AppState {
   /** Fase elegida en el flujo de medición; determina la interpretación y el consejo. */
   stage: PhenologicalStage;
-  cropId: CropId;
-  textureId: SoilTextureId;
 
   device: DeviceRow | null;
   points: MeasurementPoint[];
@@ -22,8 +19,6 @@ interface AppState {
   preferencesLoaded: boolean;
 
   setStage: (s: PhenologicalStage) => void;
-  setCrop: (c: CropId) => void;
-  setTexture: (t: SoilTextureId) => void;
   setDevice: (d: DeviceRow | null) => void;
   setPoints: (p: MeasurementPoint[]) => void;
   addPoint: (p: MeasurementPoint) => void;
@@ -36,8 +31,6 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set) => ({
   stage: 'pre_siembra',
-  cropId: 'maiz',
-  textureId: 'franco',
 
   device: null,
   points: [],
@@ -51,8 +44,6 @@ export const useAppStore = create<AppState>((set) => ({
   preferencesLoaded: false,
 
   setStage: (stage) => set({ stage }),
-  setCrop: (cropId) => set({ cropId }),
-  setTexture: (textureId) => set({ textureId }),
   setDevice: (device) => set({ device }),
   setPoints: (points) => set({ points }),
   addPoint: (p) => set((s) => ({ points: [p, ...s.points.filter(item => item.id !== p.id)] })),

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { fetchCurrentWeather } from '../src/services/weatherService';
 import { buildContextualAdvice } from '../src/engine/contextualAdvice';
-import { evaluateForStage } from '../src/engine/stageEvaluator';
+import { evaluateReadingForStage } from '../src/engine/stageEvaluator';
 import { decodeTelemetry } from '../src/services/probeService';
 
 test('pronóstico usa cinco fechas posteriores locales, conserva ceros y ausencias', async () => {
@@ -32,7 +32,7 @@ test('pronóstico usa cinco fechas posteriores locales, conserva ceros y ausenci
     assert.equal(weather.source, 'Open-Meteo');
     assert.match(weather.fetchedAt, /Z$/);
     const raw = decodeTelemetry(new Uint8Array([1, 94, 0, 245, 3, 232, 0, 65, 0, 45, 0, 30, 0, 80, 87, 0]));
-    const evaluation = evaluateForStage(raw, 'pre_siembra');
+    const evaluation = evaluateReadingForStage(raw, 'pre_siembra');
     const advice = buildContextualAdvice('pre_siembra', evaluation, raw, weather);
     assert.match(advice.weatherNote, /dom 4 oct \(lluvia\)/);
     assert.match(advice.weatherNote, /jue 1 oct \(helada\)/);
