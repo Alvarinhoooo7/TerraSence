@@ -43,6 +43,7 @@ Octubre de 2026
    - 2.3 Valor, satisfacción e intercambio
    - 2.4 Mercado, oferta de mercado y miopía de marketing
    - 2.5 Orientación de la empresa y microentorno
+   - 2.6 Misión, objetivos y estrategia de crecimiento
 3. Análisis estratégico del entorno
    - 3.1 Análisis PESTEL
    - 3.2 Análisis FODA
@@ -61,6 +62,13 @@ Octubre de 2026
    - 6.4 Diferenciación
    - 6.5 Posicionamiento
 7. Estrategia de marketing: las 7P
+   - 7.1 Producto
+   - 7.2 Precio
+   - 7.3 Plaza
+   - 7.4 Promoción
+   - 7.5 Personas
+   - 7.6 Pruebas tangibles (evidencia física)
+   - 7.7 Procesos
 8. Publicidad y promoción
 9. Marketing digital
 10. Identidad visual y comunicación de marketing
@@ -72,23 +80,27 @@ Octubre de 2026
 **Índice de tablas**
 
 - Tabla 1. Necesidad, deseo y demanda en TerraSense
-- Tabla 2. Análisis PESTEL
-- Tabla 3. Matriz FODA
-- Tabla 4. Cruce FODA y decisiones estratégicas
-- Tabla 5. Segmentación del mercado
-- Tabla 6. Roles en la decisión de compra
-- Tabla 7. Factores que influyen en la compra
-- Tabla 8. Recorrido del consumidor y acciones por etapa
-- Tabla 9. Tamaño del mercado (TAM, SAM y SOM)
-- Tabla 10. Comparación con la competencia
-- Tabla 11. Costo acumulado para el agricultor
-- Tabla 12. Niveles del producto
-- Tabla 13. Síntesis de las 7P
-- Tabla 14. Estrategia publicitaria
-- Tabla 15. Presupuesto de publicidad y promoción del primer año
-- Tabla 16. Canales digitales
-- Tabla 17. Indicadores digitales
-- Tabla 18. Fuentes de información y su uso
+- Tabla 2. Orientaciones de la empresa evaluadas para TerraSense
+- Tabla 3. Objetivos de marketing del primer año
+- Tabla 4. Estrategias de crecimiento de TerraSense (matriz de Ansoff)
+- Tabla 5. Análisis PESTEL
+- Tabla 6. Matriz FODA
+- Tabla 7. Cruce FODA y decisiones estratégicas
+- Tabla 8. Segmentación del mercado
+- Tabla 9. Roles en la decisión de compra
+- Tabla 10. Factores que influyen en la compra
+- Tabla 11. Recorrido del consumidor y acciones por etapa
+- Tabla 12. Tamaño del mercado (TAM, SAM y SOM)
+- Tabla 13. Comparación con la competencia
+- Tabla 14. Costo acumulado para el agricultor
+- Tabla 15. Niveles del producto
+- Tabla 16. Estrategias de precio evaluadas
+- Tabla 17. Síntesis de las 7P
+- Tabla 18. Estrategia publicitaria
+- Tabla 19. Presupuesto de publicidad y promoción del primer año
+- Tabla 20. Canales digitales
+- Tabla 21. Indicadores digitales
+- Tabla 22. Fuentes de información y su uso
 
 **Índice de figuras**
 
@@ -107,7 +119,7 @@ TerraSense es la respuesta del equipo a ese problema. Es una sonda de suelo port
 
 Este informe desarrolla el plan de marketing de TerraSense. Su **objetivo general** es definir cómo el producto llegará a su consumidor objetivo y por qué ese consumidor lo preferiría frente a las alternativas. Los **objetivos específicos** son:
 
-1. Aplicar los conceptos fundamentales del marketing al proyecto.
+1. Aplicar los conceptos fundamentales del marketing al proyecto y definir su misión, sus objetivos y su estrategia de crecimiento.
 2. Analizar el entorno con las herramientas PESTEL y FODA, y traducirlo en decisiones.
 3. Definir al consumidor objetivo y los factores que influyen en su compra.
 4. Recorrer las cinco etapas de su proceso de decisión con acciones concretas para cada una.
@@ -125,6 +137,8 @@ La **metodología** combina el material de la asignatura, fuentes oficiales chil
 La American Marketing Association (2017) define el marketing como la actividad, el conjunto de instituciones y los procesos para crear, comunicar, entregar e intercambiar ofertas que tienen valor para los clientes, los socios y la sociedad. Kotler y Armstrong (2017) lo describen como el proceso por el que las personas obtienen lo que necesitan y desean mediante la creación y el intercambio de valor. Ambas definiciones coinciden en la palabra clave: **valor**.
 
 Para TerraSense, el valor no está en la sonda como objeto, sino en lo que el agricultor puede decidir con ella: regar a tiempo, no sembrar en un suelo frío o salino, no entrar con maquinaria a un suelo saturado. Todo el plan se construye sobre esa idea.
+
+El marketing pasó por cuatro eras: la de la producción («si lo fabricas, se venderá»), la de las ventas, la del marketing, que puso al cliente en el centro, y la era digital actual, basada en relaciones, datos y personalización. TerraSense nace en la **era digital**, y eso se nota en su oferta: el producto genera datos de cada medición, la relación con el cliente continúa después de la venta a través de la aplicación y de WhatsApp, y la comunicación se dirige a segmentos precisos por medio de canales digitales. El equipo no vende un aparato y se desentiende, sino que mantiene una relación con cada agricultor.
 
 ### 2.2 Necesidad, deseo y demanda
 
@@ -150,7 +164,21 @@ El **mercado** de TerraSense son los compradores actuales y potenciales de infor
 
 Levitt (1960) advirtió contra la **miopía de marketing**: enfocarse en el producto y no en la necesidad que satisface. La clase lo resume con un ejemplo: los clientes no compran taladros, compran agujeros. Aplicado al proyecto, TerraSense no vende una sonda de siete variables. **Vende decisiones a tiempo en el campo.** Si el equipo se viera a sí mismo como fabricante de sensores, competiría por precio contra medidores importados; viéndose como proveedor de decisiones, compite por utilidad.
 
+De esta lectura se desprende la **propuesta de valor** de TerraSense: *saber en el mismo campo, en menos de un minuto, qué hacer con el riego y la fertilización según el cultivo y su etapa, aun sin señal y con un solo pago*. Cada componente responde a una carencia de las alternativas: la inmediatez, a la espera del laboratorio; la recomendación, a los números crudos de los medidores; el funcionamiento sin señal, a la conectividad irregular del campo; y el pago único, a las mensualidades de las soluciones de telemetría.
+
 ### 2.5 Orientación de la empresa y microentorno
+
+Antes de elegir una orientación, el equipo evaluó las cinco que plantea la asignatura y lo que cada una significaría para el proyecto.
+
+**Tabla 2. Orientaciones de la empresa evaluadas para TerraSense**
+
+| Orientación | Premisa | Qué significaría para TerraSense | Decisión |
+|---|---|---|---|
+| A la producción | El cliente prefiere lo disponible y barato | Fabricar al menor costo y competir por precio con los medidores importados | Descartada: ignora que el agricultor no sabe interpretar los números |
+| Al producto | El cliente prefiere la mejor calidad y más funciones | Sumar sensores y funciones sin preguntarse si el agricultor los usa | Descartada: es la puerta de entrada a la miopía de marketing (sección 2.4) |
+| A las ventas | El cliente no compra si no se le presiona | Publicidad masiva y descuentos agresivos para vender rápido | Descartada: en una compra técnica genera clientes insatisfechos y reseñas negativas |
+| Al marketing | Conocer y satisfacer al cliente mejor que la competencia | Diseñar el producto y la comunicación desde la decisión que el agricultor debe tomar | Adoptada como base |
+| Al marketing social | Satisfacer al cliente y cuidar el bienestar de la sociedad a largo plazo | Además, reducir el uso innecesario de agua y fertilizante | **Adoptada como orientación del plan** |
 
 TerraSense adopta una **orientación al marketing social**: satisfacer al cliente y, a la vez, cuidar el bienestar de la sociedad a largo plazo. Medir antes de regar o fertilizar reduce el uso innecesario de agua y fertilizante. Es un beneficio para el agricultor y para el entorno, en línea con la tendencia ESG (ambiental, social y de gobernanza) que muestra la asignatura. Esta orientación también obliga a ser honestos con los límites del producto.
 
@@ -161,7 +189,42 @@ El **microentorno** del proyecto lo componen:
 - **Los intermediarios:** pasarela de pago, courier y plataformas de publicidad.
 - **Los clientes:** agricultores y asesores.
 - **Los competidores:** medidores portátiles, laboratorios y asesoría agronómica.
-- **Los públicos relevantes:** el Instituto de Desarrollo Agropecuario (INDAP), cooperativas, juntas de vigilancia de regantes, la Subsecretaría de Telecomunicaciones (SUBTEL) y el Servicio Nacional del Consumidor (SERNAC).
+- **Los públicos relevantes:** el Instituto de Desarrollo Agropecuario (INDAP), cooperativas, juntas de vigilancia de regantes, la Subsecretaría de Telecomunicaciones (SUBTEL), el Servicio Nacional del Consumidor (SERNAC), los medios de comunicación agrícolas y las comunidades rurales donde se hacen las demostraciones.
+
+Según la clasificación de mercados de clientes, TerraSense vende principalmente a un **mercado industrial**: el agricultor no compra la sonda para su consumo personal, sino para producir, y por eso valora el retorno económico del equipo y pide factura. El asesor técnico, que la usa para prestar un servicio, pertenece al mismo mercado. Los demás tipos tienen un papel acotado: el mercado **revendedor** aparece desde el tercer año con los distribuidores de insumos (sección 7.3); el **gubernamental** actúa como facilitador, no como comprador, a través de los programas de INDAP; y el **internacional** queda fuera del plan hasta validar el producto en Chile.
+
+### 2.6 Misión, objetivos y estrategia de crecimiento
+
+La asignatura muestra que el marketing se integra en la planificación estratégica de la empresa: la misión orienta los objetivos, y estos, las estrategias de cada área.
+
+**Misión.** *Ayudar a los pequeños y medianos agricultores de Chile a decidir a tiempo el riego y la fertilización, convirtiendo la medición del suelo en una recomendación clara en el mismo campo.* Está orientada al mercado: describe la necesidad que se satisface y no el aparato que se fabrica.
+
+**Tabla 3. Objetivos de marketing del primer año**
+
+| Objetivo | Meta medible | Plazo |
+|---|---|---|
+| Ventas | 200 equipos vendidos | Abril a diciembre de 2027 |
+| Generación de demanda | 2.000 conversaciones calificadas por WhatsApp | Abril a diciembre de 2027 |
+| Conversión | 10 % de las conversaciones terminan en venta | Medido mes a mes desde el lanzamiento |
+| Prueba social | 30 clientes del programa Campo Pionero con testimonio publicado | Primeros seis meses desde el lanzamiento |
+| Satisfacción | Recomendación neta (NPS, *Net Promoter Score*) mayor que 50 a los 15 días de la compra | Medido en cada cliente |
+
+Las metas de ventas y conversión son las mismas del modelo económico del proyecto y se validan con las entrevistas y el piloto (Anexo C).
+
+Para crecer, la matriz de Ansoff (1957) combina productos y mercados actuales o nuevos en cuatro estrategias.
+
+**Tabla 4. Estrategias de crecimiento de TerraSense (matriz de Ansoff)**
+
+| Estrategia | Producto | Mercado | Aplicación en TerraSense | Momento |
+|---|---|---|---|---|
+| Penetración de mercado | Actual | Actual | Vender la sonda a productores y asesores de la zona central por el canal digital y los asesores referentes | Años 1 y 2 |
+| Desarrollo de mercado | Actual | Nuevo | Llegar a otras regiones agrícolas y a los distribuidores de insumos como nuevo canal | Desde el año 3 |
+| Desarrollo de producto | Nuevo | Actual | Sumar cultivos y funciones a la aplicación mediante actualizaciones para los clientes que ya tienen el equipo | Continuo, según lo que pidan los clientes |
+| Diversificación | Nuevo | Nuevo | No se plantea: exigiría recursos que un equipo de dos personas no tiene | Descartada |
+
+En la matriz BCG (del Boston Consulting Group; Henderson, 1970), que clasifica los productos según el crecimiento de su mercado y la participación que tienen en él, TerraSense es hoy un **interrogante**: compite en un mercado en crecimiento, el de la tecnología para el agro en un contexto de sequía, pero con una participación todavía mínima. Un interrogante necesita inversión en marketing para convertirse en **estrella**; por eso el plan concentra el esfuerzo del primer año en ganar confianza y testimonios, no en maximizar el margen de cada venta.
+
+Por último, el plan sigue el ciclo del **sistema de marketing moderno**: crear valor, entregarlo al cliente, recibir su retroalimentación y mejorar la oferta. En TerraSense, la retroalimentación llega por WhatsApp, las encuestas de recomendación y el uso del equipo, y se traduce en mejoras de la aplicación que llegan también a quienes ya compraron.
 
 ---
 
@@ -171,7 +234,7 @@ El **microentorno** del proyecto lo componen:
 
 El análisis PESTEL (factores políticos, económicos, sociales, tecnológicos, ecológicos y legales) revisa las fuerzas del macroentorno que la empresa no controla. Cada factor se acompaña de la decisión que provoca en el plan.
 
-**Tabla 2. Análisis PESTEL**
+**Tabla 5. Análisis PESTEL**
 
 | Factor | Evidencia | Efecto para TerraSense | Decisión del plan |
 |---|---|---|---|
@@ -184,18 +247,18 @@ El análisis PESTEL (factores políticos, económicos, sociales, tecnológicos, 
 
 ### 3.2 Análisis FODA
 
-**Tabla 3. Matriz FODA**
+**Tabla 6. Matriz FODA**
 
 | | Positivo | Negativo |
 |---|---|---|
-| **Interno** | **Fortalezas** <br> F1. Interpretación agronómica por cultivo y etapa fenológica, no solo datos. <br> F2. Funciona sin conexión en el campo; con señal suma el pronóstico. <br> F3. Pago único, sin suscripción. <br> F4. Diez variables en un solo equipo: siete del suelo y tres del ambiente. <br> F5. Desarrollo propio de hardware y software: se puede mejorar rápido con la experiencia de los clientes. <br> F6. Precio menor que los medidores importados comparables. | **Debilidades** <br> D1. Marca nueva, sin historial ni clientes que den testimonio. <br> D2. Menor exactitud que un laboratorio; nitrógeno, fósforo y potasio solo como referencia. <br> D3. Estanqueidad IP67 y radio aún sin ensayo acreditado. <br> D4. Equipo pequeño: dos socios para vender, producir y dar soporte. <br> D5. Caja ajustada el primer año. |
+| **Interno** | **Fortalezas** <br> F1. Interpretación agronómica por cultivo y etapa fenológica, no solo datos. <br> F2. Funciona sin conexión en el campo; con señal suma el pronóstico. <br> F3. Pago único, sin suscripción. <br> F4. Diez variables en un solo equipo: siete del suelo y tres del ambiente. <br> F5. Desarrollo propio de hardware y software: se puede mejorar rápido con la experiencia de los clientes. <br> F6. Precio menor que los medidores importados comparables. | **Debilidades** <br> D1. Marca nueva, sin historial ni clientes que den testimonio. <br> D2. Menor exactitud que un laboratorio; nitrógeno, fósforo y potasio solo como referencia. <br> D3. Estanqueidad IP67 y conformidad de radio por acreditar antes de vender. <br> D4. Equipo pequeño: dos socios para vender, producir y dar soporte. <br> D5. Caja ajustada el primer año. |
 | **Externo** | **Oportunidades** <br> O1. Megasequía y presión por usar mejor el agua. <br> O2. Insumos caros: medir antes de fertilizar ahorra dinero. <br> O3. Conectividad rural casi universal en los hogares. <br> O4. Programas de asesoría técnica de INDAP con asesores en terreno. <br> O5. Relevo generacional: productores jóvenes más abiertos a la tecnología. | **Amenazas** <br> A1. Competidores con marca y distribución establecidas (Hanna, Bluelab). <br> A2. Desconfianza hacia la tecnología y preferencia por la experiencia propia. <br> A3. Alza del dólar, que encarece los componentes. <br> A4. Exigencias regulatorias antes de vender (radio, datos personales, baterías). <br> A5. Ingreso de actores grandes al segmento de bajo costo. |
 
 ### 3.3 Cruce FODA: de los factores a las decisiones
 
 El cruce combina factores internos y externos para obtener estrategias. Cada estrategia se traduce en una acción del plan.
 
-**Tabla 4. Cruce FODA y decisiones estratégicas**
+**Tabla 7. Cruce FODA y decisiones estratégicas**
 
 | Tipo | Estrategia | Acción del plan |
 |---|---|---|
@@ -212,7 +275,7 @@ El cruce combina factores internos y externos para obtener estrategias. Cada est
 
 ### 4.1 Segmentación y mercado meta
 
-**Tabla 5. Segmentación del mercado**
+**Tabla 8. Segmentación del mercado**
 
 | Variable | Criterio | Mercado meta |
 |---|---|---|
@@ -233,7 +296,7 @@ Los siguientes perfiles son **arquetipos construidos por el equipo** a partir de
 
 ### 4.3 Roles en la decisión de compra
 
-**Tabla 6. Roles en la decisión de compra**
+**Tabla 9. Roles en la decisión de compra**
 
 | Rol | Quién lo cumple | Implicancia |
 |---|---|---|
@@ -245,7 +308,7 @@ Los siguientes perfiles son **arquetipos construidos por el equipo** a partir de
 
 ### 4.4 Factores culturales, sociales, psicológicos y personales
 
-**Tabla 7. Factores que influyen en la compra**
+**Tabla 10. Factores que influyen en la compra**
 
 | Factor | Cómo se manifiesta en el consumidor | Influencia en la compra | Respuesta del plan |
 |---|---|---|---|
@@ -273,17 +336,19 @@ Los siguientes perfiles son **arquetipos construidos por el equipo** a partir de
 
 El recorrido sigue las cinco etapas del proceso de decisión de compra que propone la asignatura. Court et al. (2009) muestran que ese recorrido no es un embudo lineal: el consumidor agrega y descarta marcas durante la evaluación y, después de comprar, su experiencia lo devuelve al ciclo como recomendador o como detractor. Para cada etapa se define qué vive el consumidor, dónde se encuentra con la marca, qué hace TerraSense y cómo se mide el resultado.
 
-**Tabla 8. Recorrido del consumidor y acciones por etapa**
+**Tabla 11. Recorrido del consumidor y acciones por etapa**
 
 | Etapa | Qué piensa y hace el consumidor | Punto de contacto | Acción concreta de TerraSense | Indicador |
 |---|---|---|---|---|
 | 1. Necesidad | «Las plantas se ven estresadas», «gasté mucho en fertilizante y no sé si sirvió», «no sé si regar mañana» | Redes sociales, conversación con el asesor o un vecino | Contenido educativo sobre los síntomas de riego mal calibrado y el costo de fertilizar sin medir; videos cortos de errores frecuentes por etapa del cultivo | Alcance y reproducciones de los videos educativos |
-| 2. Búsqueda | Pregunta a su asesor o a otros productores; busca en Google y YouTube «cómo medir la humedad del suelo» | Buscador, YouTube, grupos de WhatsApp, asesores | Anuncios en el buscador para esas búsquedas; tutoriales en YouTube; asesores referentes que conocen el equipo | Clics y visitas al sitio; consultas que llegan por referido |
-| 3. Evaluación de alternativas | Compara laboratorio, medidores importados, la asesoría o seguir como está; duda de la exactitud | Sitio web, WhatsApp, días de campo | Comparador en el sitio (TerraSense, laboratorio y medidores) con el costo acumulado; ficha honesta de qué mide y qué no; demostración en un día de campo | Tiempo en el comparador; conversaciones de WhatsApp iniciadas |
+| 2. Búsqueda | **Búsqueda interna:** recuerda su último análisis de laboratorio o un medidor que usó un vecino. **Búsqueda externa:** pregunta a su asesor o a otros productores; busca en Google y YouTube «cómo medir la humedad del suelo» | Buscador, YouTube, grupos de WhatsApp, asesores | Anuncios en el buscador para esas búsquedas; tutoriales en YouTube; asesores referentes que conocen el equipo. Como la marca es nueva y no está en la memoria del productor, la búsqueda externa es donde TerraSense tiene que aparecer | Clics y visitas al sitio; consultas que llegan por referido |
+| 3. Evaluación de alternativas | Compara laboratorio, medidores importados, la asesoría o seguir como está; duda de la exactitud. Solo tres a cinco alternativas llegan a su **conjunto evocado** | Sitio web, WhatsApp, días de campo | Comparador en el sitio (TerraSense, laboratorio y medidores) con el costo acumulado; ficha honesta de qué mide y qué no; reseñas y testimonios; demostración en un día de campo. El objetivo es entrar al conjunto evocado junto al laboratorio y a los medidores conocidos | Tiempo en el comparador; conversaciones de WhatsApp iniciadas |
 | 4. Compra | Siente fricción al pagar por internet a una marca nueva; quiere hablar con alguien | WhatsApp, sitio web, pasarela de pago | Atención humana por WhatsApp con enlace de pago; medios de pago conocidos; garantía de seis meses y derecho a retracto de 10 días informados antes de pagar; despacho incluido a todo Chile | Tasa de conversión de conversación a venta |
 | 5. Postcompra | Abre la caja, se pregunta si fue buena decisión (disonancia cognitiva), mide por primera vez | Empaque, aplicación, WhatsApp, correo | Guía de inicio impresa y guía en pantalla; mensaje de bienvenida a las 24 horas; seguimiento a los 15 días con consejos por etapa e invitación a compartir su experiencia; programa de referidos para clientes satisfechos | Mediciones en la primera semana; reseñas; recomendación neta (NPS) |
 
 La etapa 5 merece atención especial. La clase recuerda que retener a un cliente cuesta cerca de cinco veces menos que conseguir uno nuevo, y que en compras de alto valor aparece la disonancia cognitiva. En un producto técnico, un cliente que no logra su primera medición se convierte en una reseña negativa. Por eso la vinculación se hace con un solo botón (PAIR) y la aplicación incluye una guía en cada pantalla.
+
+El recorrido también considera los rasgos del **consumidor digital de productos electrónicos** que muestra la asignatura. La gran mayoría investiga en internet antes de comprar, y los videos de demostración y las reseñas pesan en la decisión; por eso YouTube y los testimonios están presentes en las etapas 2 y 3. Las garantías, el soporte y la comunidad determinan la recompra y la recomendación; por eso la etapa 5 combina garantía comunicada, soporte por WhatsApp y programa de referidos. La asignatura muestra además que las marcas de electrónica crean urgencia con la escasez. TerraSense la aplica de forma honesta: los cupos del programa Campo Pionero son realmente limitados a los primeros 30 compradores (sección 8), sin inventar plazos ni rebajar el precio.
 
 ---
 
@@ -291,7 +356,7 @@ La etapa 5 merece atención especial. La clase recuerda que retener a un cliente
 
 ### 6.1 Tamaño del mercado
 
-**Tabla 9. Tamaño del mercado (TAM, SAM y SOM)**
+**Tabla 12. Tamaño del mercado (TAM, SAM y SOM)**
 
 | Nivel | Tamaño | Origen |
 |---|---:|---|
@@ -304,7 +369,7 @@ Solo el mercado total tiene fuente oficial. El mercado servible y la meta de ven
 
 ### 6.2 Competencia directa e indirecta
 
-**Tabla 10. Comparación con la competencia**
+**Tabla 13. Comparación con la competencia**
 
 | Alternativa | Tipo | Precio de referencia | Qué entrega | Qué no entrega |
 |---|---|---:|---|---|
@@ -322,7 +387,7 @@ La estructura del mercado es de **competencia monopolística**: muchos oferentes
 
 ### 6.3 Costo de uso frente a las alternativas
 
-**Tabla 11. Costo acumulado para el agricultor**
+**Tabla 14. Costo acumulado para el agricultor**
 
 | Alternativa | Intensidad de uso | Año 1 | 3 años | 5 años | 10 años |
 |---|---|---:|---:|---:|---:|
@@ -360,13 +425,15 @@ El posicionamiento es **claro**, porque ocupa un cuadrante que nadie más ocupa 
 
 ## 7. Estrategia de marketing: las 7P
 
-Las 4P clásicas (producto, precio, plaza y promoción) se amplían a las 7P de Booms y Bitner (1981), porque TerraSense combina un bien físico con un servicio continuo (aplicación, historial y soporte): se suman personas, procesos y evidencia física.
+Las 4P (producto, precio, plaza y promoción) fueron propuestas por McCarthy (1960) para gestionar la mezcla de marketing de productos físicos. Booms y Bitner (1981) las ampliaron a las 7P para incluir los servicios y la experiencia del cliente después de la venta, y sumaron **personas**, **pruebas tangibles** (o evidencia física) y **procesos**.
+
+**¿Por qué 7P y no 4P?** La asignatura recomienda las 4P cuando se venden productos físicos por canales tradicionales y la transacción es el centro de la relación, y las 7P cuando hay un servicio o un negocio digital, cuando la empresa es emergente y está orientada al cliente, y cuando la experiencia posterior a la compra define la retención. TerraSense cumple ambas descripciones: la sonda es un bien físico, pero el valor llega a través de una aplicación, un historial en la nube y un soporte continuo, y el proyecto es una empresa emergente cuya reputación depende de que el cliente logre su primera medición. Por eso se usan las **7P**, que incluyen las 4P y suman las tres variables de servicio.
 
 ### 7.1 Producto
 
 Siguiendo los niveles del producto de Kotler y Keller (2016), la oferta se ordena desde el beneficio que busca el cliente hasta los servicios que la rodean.
 
-**Tabla 12. Niveles del producto**
+**Tabla 15. Niveles del producto**
 
 | Nivel | Qué incluye |
 |---|---|
@@ -374,54 +441,95 @@ Siguiendo los niveles del producto de Kotler y Keller (2016), la oferta se orden
 | Producto real | Sonda de suelo de siete variables (humedad, temperatura, conductividad eléctrica, pH, nitrógeno, fósforo y potasio) y sensor ambiental de temperatura, humedad del aire y presión. Batería recargable por USB-C, carcasa diseñada para el campo con objetivo de estanqueidad IP67 y vinculación con un botón. Aplicación para Android y iPhone, marca TerraSense y empaque con guía de inicio |
 | Producto aumentado | Interpretación para ocho cultivos y cuatro texturas de suelo, pronóstico de cinco días con señal, historial respaldado en la nube, invitación de otros usuarios por código QR, aplicación en español e inglés con tema claro u oscuro y letra grande, soporte por WhatsApp y correo, garantía legal de seis meses |
 
+**Decisiones clave del producto:**
+
+- **Diseño y calidad:** carcasa para barro y lluvia, un solo botón y una aplicación con guía en cada pantalla. Cada equipo pasa una prueba de aceptación en fábrica antes de embalarse (sección 7.7).
+- **Marca:** TerraSense, con una identidad que une tierra y tecnología (sección 10).
+- **Empaque:** caja de cartón corrugado con guía de inicio impresa; es el primer contacto físico con la marca y debe permitir medir sin leer un manual.
+- **Variantes:** una sola versión en el lanzamiento. Con un equipo de dos personas, una única variante simplifica la producción, el inventario y el soporte. El desarrollo de producto ocurre en la aplicación (Tabla 4).
+- **Ciclo de vida:** el producto está en la etapa de **introducción**, en la que las ventas crecen lento, la marca es desconocida y la comunicación debe explicar qué es la categoría antes que convencer de una marca. Esto justifica una promoción educativa (sección 7.4) y la inversión en testimonios. En la etapa de crecimiento, la prioridad se trasladará a la distribución (sección 7.3).
+- **Diferenciación:** la interpretación por cultivo y etapa, que ningún competidor directo ofrece (sección 6.4).
+
 **Justificación.** El consumidor busca simplicidad y confianza (sección 4). Por eso el producto se diseñó con un botón de vinculación, lectura en menos de 20 segundos y recomendaciones en lenguaje claro, en lugar de más funciones. Los límites también se declaran en el producto: nitrógeno, fósforo y potasio aparecen como valores de referencia, nunca como base para dosificar fertilizante.
 
 ### 7.2 Precio
 
-- **Precio de lista: $467.463 con IVA** ($392.826 neto). No es un precio fijado por aspiración comercial: se deriva del costo total del proyecto en diez años, exigiendo un 30 % de utilidad sobre ese costo.
+El precio no es solo un número: comunica un posicionamiento. Por eso se evaluaron las cuatro estrategias de precio que presenta la asignatura.
+
+**Tabla 16. Estrategias de precio evaluadas**
+
+| Estrategia | En qué consiste | Evaluación para TerraSense | Decisión |
+|---|---|---|---|
+| Penetración | Precio bajo para ganar participación rápido | Exigiría vender bajo el costo con la utilidad requerida; además, en un instrumento de medición un precio muy bajo se lee como baja calidad | Descartada |
+| Descremado | Precio alto al lanzamiento para el segmento dispuesto a pagar más | Choca con un consumidor sensible al precio y con competidores importados ya establecidos; frenaría la generación de testimonios | Descartada |
+| Psicológico | Precios terminados en 990 que se perciben más bajos | Bajar a $459.990 dejaría el precio bajo el costo con la utilidad exigida; subir a $469.990 no agrega valor percibido | Descartada |
+| **Por valor** | El precio refleja lo que el cliente percibe que recibe | Coincide con el posicionamiento: más variables e interpretación que los importados, a menor precio, y amortizable frente al laboratorio | **Adoptada** |
+
+- **Precio de lista: $467.463 con IVA** ($392.826 neto). No es un precio fijado por aspiración comercial: se deriva del costo total del proyecto en diez años, exigiendo un 30 % de utilidad sobre ese costo. El precio por valor se comprueba después: el precio derivado del costo debe quedar bajo el valor que percibe el cliente, y así ocurre.
 - **Frente a la competencia:** queda un 5,2 % bajo Hanna HI9814 y un 13,5 % bajo Bluelab Pulse, con más variables e interpretación. Es un precio de **valor**: menor que los equivalentes importados y con más beneficio, pero no un precio de penetración que sacrifique el margen.
-- **Frente al costo de uso:** el gasto acumulado en análisis de laboratorio de uso habitual lo supera durante el tercer año (Tabla 11). Este es el argumento central contra la objeción «es caro».
+- **Frente al costo de uso:** el gasto acumulado en análisis de laboratorio de uso habitual lo supera durante el tercer año (Tabla 14). Este es el argumento central contra la objeción «es caro».
 - **Sin descuentos permanentes ni precio psicológico a la baja:** un precio como $459.990 quedaría bajo el costo con la utilidad exigida. Las promociones de la sección 8 no rebajan el precio de lista; se financian con el presupuesto de publicidad y con la comisión comercial ya considerados en el costo.
 - **Facilidades:** pago con tarjeta en cuotas a través de la pasarela; factura para los productores con giro, que recuperan el IVA y pagan en la práctica el precio neto.
 
 ### 7.3 Plaza
+
+La plaza sigue la cadena que muestra la asignatura, desde la producción hasta el cliente final:
+
+1. **Producción:** los socios ensamblan, prueban y embalan cada equipo con componentes de proveedores; desde 2028 se suma un ensamblador.
+2. **Distribución:** courier con seguimiento hasta la dirección del cliente, sin mayoristas.
+3. **Punto de venta:** tienda en línea propia y WhatsApp Business; desde el tercer año, además, distribuidores de insumos agrícolas.
+4. **Cliente final:** el equipo llega al campo o a la oficina del asesor, en cualquier región del país.
 
 - **Canal directo y digital** en el primer año: tienda en línea propia con pasarela de pago (Webpay o Mercado Pago) y atención por WhatsApp. Sin intermediarios, para conservar el margen y la relación directa con el cliente, que es la fuente de aprendizaje del producto.
 - **Despacho incluido a todo Chile** por courier. Su costo, de $6.000 por equipo, ya está en el costo variable.
 - **Canal de influencia en terreno:** asesores referentes y días de campo con cooperativas, que no venden directamente pero acercan la compra.
 - **Escalamiento:** desde el tercer año, con la marca validada, se evalúa incorporar distribuidores de insumos agrícolas de la zona central como punto de venta físico.
 
-**Justificación:** el segmento ya usa WhatsApp y redes sociales (Tabla 2, factor social), está disperso geográficamente y el equipo tiene dos personas. Un canal digital con atención humana es el único que cubre el país con esa dotación.
+**Justificación:** el segmento ya usa WhatsApp y redes sociales (Tabla 5, factor social), está disperso geográficamente y el equipo tiene dos personas. Un canal digital con atención humana es el único que cubre el país con esa dotación.
 
 ### 7.4 Promoción
 
-Se desarrolla en las secciones 8 (publicidad y promoción) y 9 (marketing digital). Su línea común es **educar antes de vender**: el consumidor tiene una compra de alto involucramiento y desconfía de la tecnología, de modo que primero debe entender el problema y ver el equipo funcionar.
+Se desarrolla en las secciones 8 (publicidad, relaciones públicas y promociones) y 9 (marketing digital). Usa las tres herramientas que distingue la asignatura:
+
+- **Publicidad:** anuncios pagados en Meta, Google y YouTube para llegar al mercado meta.
+- **Relaciones públicas:** presencia en medios agrícolas, cooperativas y ferias para construir reputación ante el productor y sus asesores.
+- **Promociones:** acciones que estimulan la compra sin rebajar el precio de lista, como el programa Campo Pionero y los referidos.
+
+Su línea común es **educar antes de vender**: el consumidor tiene una compra de alto involucramiento y desconfía de la tecnología, de modo que primero debe entender el problema y ver el equipo funcionar.
 
 ### 7.5 Personas
 
-- **Los dos socios** atienden la venta y el soporte el primer año. Hablan el lenguaje del campo (etapa, capacidad de campo, salinidad) sin jerga innecesaria.
-- **Desde 2029** se incorpora una persona dedicada a marketing.
-- **Los asesores referentes** actúan como una fuerza de recomendación externa.
-- Todas las personas que atienden clientes siguen el mismo protocolo: responder por WhatsApp dentro de la jornada, explicar los límites del equipo y no prometer exactitud de laboratorio.
+Las personas construyen una confianza que ningún algoritmo reemplaza, y para una marca nueva en el campo son la principal fuente de credibilidad. Los tres roles que destaca la asignatura se cubren así:
 
-### 7.6 Procesos
+- **Soporte en vivo:** los dos socios atienden la venta y el soporte el primer año. Hablan el lenguaje del campo (etapa, capacidad de campo, salinidad) sin jerga innecesaria.
+- **Gestión de la comunidad (*community manager*):** el primer año la asume uno de los socios, que responde comentarios y mensajes en redes sociales. **Desde 2029** se incorpora una persona dedicada a marketing, que toma este rol.
+- **Creadores e influenciadores:** los asesores referentes y los productores del programa Campo Pionero actúan como voces externas. No son celebridades, sino personas a quienes el agricultor ya les cree: su asesor y sus vecinos.
 
-1. **Consulta:** el cliente escribe por WhatsApp desde un anuncio o desde el sitio.
+Todas las personas que atienden clientes siguen el mismo protocolo: responder por WhatsApp dentro de la jornada, explicar los límites del equipo y no prometer exactitud de laboratorio. Las personas no se tratan como un costo que se recorta, sino como una ventaja frente a competidores que venden por catálogo.
+
+### 7.6 Pruebas tangibles (evidencia física)
+
+Las pruebas tangibles hacen visible la calidad antes de la compra y reducen la incertidumbre de quien no puede tocar el equipo. Son críticas para TerraSense porque es una marca nueva y se vende a distancia.
+
+- **Diseño web y aplicación:** sitio con fichas técnicas honestas y el comparador de costos; aplicación con identidad visual propia, tema claro de alto contraste para leer al sol y letra grande opcional (Figura 4).
+- **Reseñas y testimonios:** testimonios en video de los productores del piloto y del programa Campo Pionero, publicados en el sitio y en redes sociales.
+- **Certificaciones:** declaración de conformidad del equipo de radio ante SUBTEL antes de vender y ensayo de estanqueidad IP67 en un laboratorio acreditado. El equipo se comunicará como «resistente al agua» solo cuando ese ensayo lo confirme.
+- **Casos de éxito:** registros reales de medición antes y después de una decisión de riego, con la autorización del productor.
+- **Empaque y equipo:** caja de cartón corrugado con guía de inicio impresa y etiqueta con el número de serie; carcasa diseñada para barro y lluvia.
+
+### 7.7 Procesos
+
+Los procesos son invisibles para el cliente, pero determinan su satisfacción. TerraSense los diseña en tres frentes: la compra sin fricciones, la incorporación del usuario a la aplicación (*onboarding*) y la atención automatizada con respaldo humano.
+
+1. **Consulta:** el cliente escribe por WhatsApp desde un anuncio o desde el sitio. Fuera del horario hábil, una respuesta automática de WhatsApp Business confirma la recepción, envía la ficha del equipo y el enlace al comparador, y avisa cuándo responderá una persona.
 2. **Asesoría previa:** se revisa su cultivo y su caso de uso, y se envía el enlace de pago.
 3. **Pago y despacho:** confirmación escrita de las condiciones, la garantía y el derecho a retracto; despacho con seguimiento.
-4. **Puesta en marcha:** se mantiene presionado el botón PAIR durante 3 segundos y la aplicación encuentra la sonda; la guía en pantalla acompaña la primera medición.
+4. **Puesta en marcha (*onboarding*):** se mantiene presionado el botón PAIR durante 3 segundos y la aplicación encuentra la sonda; la guía en pantalla acompaña la primera medición. Es el flujo que define si el usuario se queda o abandona.
 5. **Postventa:** seguimiento a las 24 horas y a los 15 días; garantía legal de seis meses con cambio, reparación o devolución; recepción de la batería al final de su vida útil.
 
 Cada equipo pasa una prueba de aceptación en fábrica antes de embalarse, registrada por número de serie. Ese registro respalda la garantía.
 
-### 7.7 Evidencia física
-
-- **Empaque** de cartón corrugado con guía de inicio impresa y etiqueta con el número de serie.
-- **Equipo** con carcasa diseñada para barro y lluvia, con objetivo de diseño IP67. Se comunicará como «resistente al agua» solo cuando el ensayo acreditado lo confirme.
-- **Aplicación** con identidad visual propia, tema claro de alto contraste para leer al sol y letra grande opcional (Figura 4).
-- **Sitio web** con fichas técnicas honestas, el comparador de costos y testimonios reales del piloto.
-
-**Tabla 13. Síntesis de las 7P**
+**Tabla 17. Síntesis de las 7P**
 
 | P | Decisión | Justificación (consumidor, mercado y posicionamiento) |
 |---|---|---|
@@ -430,14 +538,16 @@ Cada equipo pasa una prueba de aceptación en fábrica antes de embalarse, regis
 | Plaza | Directa y digital, con despacho incluido | Consumidor disperso y digitalizado; equipo pequeño |
 | Promoción | Educar antes de vender; referidos y días de campo | Compra extensa y desconfianza hacia la tecnología |
 | Personas | Socios con lenguaje del campo; asesores referentes | La confianza se construye con trato humano |
-| Procesos | Venta asistida, vinculación con un botón, seguimiento | Reduce la fricción en la compra y en la postcompra |
-| Evidencia física | Empaque, equipo, aplicación y sitio coherentes | Hace tangible la calidad de una marca nueva |
+| Pruebas tangibles | Testimonios, certificaciones, sitio, aplicación y empaque coherentes | Hace tangible la calidad de una marca nueva que se vende a distancia |
+| Procesos | Venta asistida, respuesta automática, vinculación con un botón, seguimiento | Reduce la fricción en la compra y en la postcompra |
+
+**Auditoría de la mezcla: la P más débil.** La asignatura propone revisar las siete variables e identificar la que limita el crecimiento. En TerraSense es la de **pruebas tangibles**: al lanzamiento no hay clientes con testimonio, y la conformidad de radio y el ensayo de estanqueidad se completan antes de la venta. Por eso el plan prioriza el programa Campo Pionero, los testimonios del piloto y la publicación de las certificaciones en cuanto se obtengan. También evita los tres errores comunes que muestra la clase: no ignora los procesos (se diseñan desde la primera consulta hasta la postventa), no subestima las pruebas tangibles (se reconocen como la P más débil) y no trata a las personas como un costo (son el canal de confianza del plan).
 
 ---
 
 ## 8. Publicidad y promoción
 
-**Tabla 14. Estrategia publicitaria**
+**Tabla 18. Estrategia publicitaria**
 
 | Elemento | Definición |
 |---|---|
@@ -463,13 +573,22 @@ Cada equipo pasa una prueba de aceptación en fábrica antes de embalarse, regis
 - **Días de campo demostrativos** con cooperativas y grupos de productores en la zona central, desde la temporada de pre-siembra de primavera.
 - **Referido entre clientes.** El cliente que recomienda a otro productor recibe un kit de mantenimiento (soluciones de calibración y un cepillo para los electrodos), con cargo a la partida de días de campo y ferias.
 
+**Relaciones públicas.** Construyen reputación ante el productor y sus asesores sin comprar espacio publicitario:
+
+- **Comunicado de lanzamiento** a medios agrícolas especializados (revistas, sitios y programas radiales del campo), con el ángulo de interés público: medir antes de regar en plena megasequía.
+- **Presentaciones a cooperativas, juntas de vigilancia y equipos de asesoría técnica de INDAP**, que son públicos relevantes del microentorno (sección 2.5) y prescriptores del productor.
+- **Charlas técnicas en liceos agrícolas y centros de formación técnica** de la zona central sobre el manejo del suelo y el agua, en las que el equipo se muestra como herramienta de aprendizaje.
+- **Presencia en ferias agrícolas regionales**, con demostraciones en vivo; su costo está dentro de la partida de días de campo y ferias.
+
+Estas acciones no tienen costo adicional al presupuesto: usan el tiempo de los socios y la partida de ferias ya considerada.
+
 **Calendario.** La campaña sigue la carta Gantt del proyecto:
 
 - **Expectativa (marzo de 2027):** testimonios del piloto, cuya prueba de aceptación en sitio se completa en febrero.
 - **Lanzamiento:** el 19 de abril de 2027.
 - **Refuerzo:** la pauta se intensifica de agosto a noviembre, antes de las siembras de primavera y la temporada de riego, cuando la necesidad es más visible.
 
-**Tabla 15. Presupuesto de publicidad y promoción del primer año**
+**Tabla 19. Presupuesto de publicidad y promoción del primer año**
 
 | Partida | Monto 2027 | Participación |
 |---|---:|---:|
@@ -493,7 +612,7 @@ La estrategia digital sigue un **embudo de tres niveles**, conectado con el reco
 - **Consideración (parte media):** que compare y confíe. Corresponde a la etapa 3.
 - **Conversión y fidelización (parte baja):** que compre, use el equipo y lo recomiende. Corresponde a las etapas 4 y 5.
 
-**Tabla 16. Canales digitales**
+**Tabla 20. Canales digitales**
 
 | Canal | Objetivo | Contenido y formato | Frecuencia | Interacción | Llamado a la acción | Etapa del recorrido |
 |---|---|---|---|---|---|---|
@@ -506,7 +625,7 @@ La estrategia digital sigue un **embudo de tres niveles**, conectado con el reco
 
 **Retargeting.** Quienes visitaron el sitio o vieron más de la mitad de un video reciben anuncios de consideración (testimonios y comparador) durante los 14 días siguientes.
 
-**Tabla 17. Indicadores digitales**
+**Tabla 21. Indicadores digitales**
 
 | Indicador | Meta inicial (por validar en los primeros tres meses) |
 |---|---|
@@ -554,19 +673,19 @@ La identidad visual de TerraSense une dos mundos: **la tierra** y **la tecnolog�
 
 El plan se apoya en fuentes de distinta naturaleza. Cada una se usa para lo que puede respaldar.
 
-**Tabla 18. Fuentes de información y su uso**
+**Tabla 22. Fuentes de información y su uso**
 
 | Tipo | Fuente | Uso en el plan | Confiabilidad |
 |---|---|---|---|
-| Académica | Kotler y Armstrong (2017); Kotler y Keller (2016); Levitt (1960); Booms y Bitner (1981); Rogers (2003); Blackwell et al. (2006); Howard y Sheth (1969); Court et al. (2009) | Conceptos, modelos de comportamiento, 7P, difusión de innovaciones y recorrido del consumidor | Alta: textos de referencia de la disciplina |
-| Material de la asignatura | Clases de la Unidad 2 (Maldonado, 2026a, 2026b) | Estructura de los fundamentos, PESTEL, factores y etapas de compra | Alta para el marco del curso |
+| Académica | Kotler y Armstrong (2017); Kotler y Keller (2016); Levitt (1960); McCarthy (1960); Booms y Bitner (1981); Ansoff (1957); Henderson (1970); Rogers (2003); Blackwell et al. (2006); Howard y Sheth (1969); Court et al. (2009) | Conceptos, estrategia de crecimiento, cartera de productos, modelos de comportamiento, 4P y 7P, difusión de innovaciones y recorrido del consumidor | Alta: textos de referencia de la disciplina |
+| Material de la asignatura | Clases de la Unidad 2 (Maldonado, 2026a, 2026b, 2026c) | Fundamentos, orientaciones, PESTEL, factores y etapas de compra, estrategias de precio, 4P y 7P | Alta para el marco del curso |
 | Estadística oficial | INE (2022), Censo Agropecuario y Forestal | Tamaño del mercado total | Alta: fuente censal |
 | Estudios y organismos públicos | CR2 (2015); ODEPA (s.f.); Ministerio de Agricultura (s.f.) | Factores ecológico, económico y político del PESTEL | Alta |
 | Prensa con datos de un estudio | Nogales (2026), con datos de Fundación País Digital | Conectividad rural (factor social) | Media-alta: cita un estudio identificable |
 | Normativa | Leyes N° 21.398, 21.719 y 20.920; SUBTEL (2026) | Factor legal, garantía, retracto, datos y baterías | Alta: texto legal y organismo regulador |
 | Precios publicados | Hanna Chile, De la Feria (Bluelab), Spectrum (FieldScout), Universidad de Chile | Comparación de precios y costo de uso | Media: precios vigentes a la fecha de consulta |
 | Fuente interna | Modelo económico y diseño técnico del proyecto TerraSense | Precio, costos, presupuesto de publicidad, plan de ventas y características del producto | Alta en lo técnico; las metas de venta son supuestos |
-| Primaria (pendiente) | Entrevistas a productores y asesores (guía en el Anexo C); piloto de febrero de 2027 | Validar perfiles, factores de compra, precio y mensajes | Por obtener |
+| Primaria (programada) | Entrevistas a productores y asesores (guía en el Anexo C); piloto de febrero de 2027 | Validar perfiles, factores de compra, precio y mensajes | Alta una vez aplicada: proviene del propio consumidor; se levanta antes del lanzamiento |
 
 **Lectura crítica.** El plan todavía no cuenta con investigación primaria con agricultores: los perfiles del consumidor y las metas de conversión son hipótesis fundamentadas, no datos observados. Por eso el Anexo C propone una guía de entrevistas a diez productores y cinco asesores antes del lanzamiento. Sus resultados deben ajustar los mensajes, los canales y, si corresponde, el plan de ventas.
 
@@ -574,13 +693,13 @@ El plan se apoya en fuentes de distinta naturaleza. Cada una se usa para lo que 
 
 ## 12. Conclusiones
 
-TerraSense responde a una necesidad real y cada vez más urgente. En la zona central de Chile se decide el riego y la fertilización con agua escasa e insumos caros, y con información que llega tarde o no llega. El plan de marketing evita la miopía de mirar solo el aparato: lo que se vende es la **decisión a tiempo en el campo**. Ese principio ordena todo lo demás.
+TerraSense responde a una necesidad real y cada vez más urgente. En la zona central de Chile se decide el riego y la fertilización con agua escasa e insumos caros, y con información que llega tarde o no llega. El plan de marketing evita la miopía de mirar solo el aparato: lo que se vende es la **decisión a tiempo en el campo**. Ese principio ordena todo lo demás. De él nacen una orientación al marketing social, una misión centrada en la necesidad del agricultor y una estrategia de crecimiento por etapas: penetrar primero la zona central, luego desarrollar nuevos mercados y canales, y mejorar el producto a través de la aplicación.
 
 El análisis del entorno muestra un contexto favorable: la megasequía, el alza de los fertilizantes, una conectividad rural casi universal y programas públicos de asesoría técnica. También muestra exigencias que el plan asume antes de vender: garantía, retracto, datos personales, conformidad de radio y baterías. El cruce FODA convierte esos factores en decisiones concretas: competir por utilidad y no por marca, ganar confianza a través de los asesores y no prometer lo que aún no está ensayado.
 
 El consumidor es un productor que compra para protegerse de pérdidas, que confía más en sus pares y en su asesor que en un anuncio, y que necesita entender y probar antes de pagar. Por eso el recorrido define acciones en las cinco etapas, con énfasis en la postcompra: la primera medición decide si el cliente recomienda o abandona.
 
-La diferenciación sostenible es la interpretación agronómica por cultivo y etapa, combinada con diez variables y un pago único. El posicionamiento «del número a la decisión» ocupa un espacio que ningún competidor directo cubre: alta interpretación con respuesta inmediata. Las 7P son coherentes con ese posicionamiento. El precio de $467.463 se deriva del costo, queda bajo los medidores importados y, en uso habitual, resulta más conveniente que el laboratorio desde el tercer año. La plaza es digital con atención humana. La promoción educa antes de vender y se financia sin rebajar el precio.
+La diferenciación sostenible es la interpretación agronómica por cultivo y etapa, combinada con diez variables y un pago único. El posicionamiento «del número a la decisión» ocupa un espacio que ningún competidor directo cubre: alta interpretación con respuesta inmediata. Las 7P son coherentes con ese posicionamiento. El precio de $467.463 se deriva del costo, sigue una estrategia de precio por valor, queda bajo los medidores importados y, en uso habitual, resulta más conveniente que el laboratorio desde el tercer año. La plaza es digital con atención humana. La promoción combina publicidad, relaciones públicas y promociones, educa antes de vender y se financia sin rebajar el precio. Las personas, las pruebas tangibles y los procesos sostienen la experiencia después de la compra; de ellas, las pruebas tangibles son la variable más débil al lanzamiento, y por eso el plan prioriza los testimonios y las certificaciones.
 
 El principal riesgo es que la demanda y las metas de conversión aún no están validadas. La próxima etapa del plan es medirlas: entrevistas, piloto y primeras ventas permitirán confirmar o corregir el plan antes de comprometer el inventario. Así, el plan no es una promesa de ventas, sino una hipótesis ordenada y medible.
 
@@ -589,12 +708,14 @@ El principal riesgo es que la demanda y las metas de conversión aún no están 
 ## 13. Bibliografía
 
 - American Marketing Association. (2017). *Definitions of marketing*. https://www.ama.org/the-definition-of-marketing-what-is-marketing/
+- Ansoff, H. I. (1957). Strategies for diversification. *Harvard Business Review, 35*(5), 113–124.
 - Biblioteca del Congreso Nacional de Chile. (2024). *Ley N° 21.719, regula la protección y el tratamiento de los datos personales*. https://www.bcn.cl/leychile/navegar?i=1209272
 - Blackwell, R. D., Miniard, P. W., y Engel, J. F. (2006). *Consumer behavior* (10.ª ed.). Thomson South-Western.
 - Booms, B. H., y Bitner, M. J. (1981). Marketing strategies and organization structures for service firms. En J. H. Donnelly y W. R. George (Eds.), *Marketing of services* (pp. 47–51). American Marketing Association.
 - Centro de Ciencia del Clima y la Resiliencia (CR2). (2015). *Informe a la Nación: La megasequía 2010-2015, una lección para el futuro*. https://www.cr2.cl/megasequia/
 - Court, D., Elzinga, D., Mulder, S., y Vetvik, O. J. (2009). The consumer decision journey. *McKinsey Quarterly*, (3).
 - Hanna Instruments Chile. (2026). *Medidor portátil e impermeable de pH, CE, TDS y temperatura GroLine HI9814* [Precio consultado el 04-09-2026]. https://hannachile.com/producto/medidor-portatil-e-impermeable-de-ph-ce-tds-temperatura-groline-hidroponia-hi9814/
+- Henderson, B. D. (1970). *The product portfolio*. The Boston Consulting Group.
 - Howard, J. A., y Sheth, J. N. (1969). *The theory of buyer behavior*. John Wiley & Sons.
 - Instituto Nacional de Estadísticas (INE). (2022). *VIII Censo Agropecuario y Forestal 2021: resultados finales*. https://www.ine.gob.cl/censoagropecuario
 - Kotler, P., y Armstrong, G. (2017). *Fundamentos de marketing* (13.ª ed.). Pearson Educación.
@@ -604,6 +725,8 @@ El principal riesgo es que la demanda y las metas de conversión aún no están 
 - Levitt, T. (1960). Marketing myopia. *Harvard Business Review, 38*(4), 45–56.
 - Maldonado, K. (2026a). *Introducción al marketing: conceptos fundamentales y entorno del marketing* [Diapositivas de clase, Unidad 2]. Comercialización de Tecnologías, INACAP.
 - Maldonado, K. (2026b). *Comportamiento del consumidor en marketing* [Diapositivas de clase, Unidad 2]. Comercialización de Tecnologías, INACAP.
+- Maldonado, K. (2026c). *Las 4P y 7P del marketing: del modelo tradicional al digital* [Diapositivas de clase, Unidad 2]. Comercialización de Tecnologías, INACAP.
+- McCarthy, E. J. (1960). *Basic marketing: A managerial approach*. Richard D. Irwin.
 - Ministerio de Agricultura. (s.f.). *Programa de Asesoría Técnica (SAT)*. https://minagri.gob.cl/servicios/programa-de-asesoria-tecnica-sat/
 - Nogales, D. (2026, 25 de mayo). Chile alcanza cobertura de internet virtualmente universal y lleva brecha urbano-rural a su mínimo histórico. *La Tercera*. https://www.latercera.com/pulso/noticia/chile-alcanza-cobertura-de-internet-virtualmente-universal-y-lleva-brecha-urbano-rural-a-su-minimo-historico/
 - Oficina de Estudios y Políticas Agrarias (ODEPA). (s.f.). *Evolución reciente de los precios de los fertilizantes*. https://www.odepa.gob.cl/publicaciones/articulos/evolucion-reciente-de-los-precios-de-los-fertilizantes
@@ -628,7 +751,7 @@ El principal riesgo es que la demanda y las metas de conversión aún no están 
 | Sin señal | Mide, interpreta y guarda; sincroniza al recuperar la conexión |
 | Con señal | Suma el pronóstico de cinco días y respalda el historial en la nube |
 | Energía | Batería de litio de 2.000 mAh recargable por USB-C |
-| Carcasa | Diseñada para el campo, con objetivo de estanqueidad IP67 (ensayo acreditado pendiente) |
+| Carcasa | Diseñada para el campo, con objetivo de estanqueidad IP67, con ensayo en laboratorio acreditado programado antes de la venta |
 | Aplicación | Android y iPhone; español e inglés; tema claro u oscuro; letra normal o grande |
 | Precio | $467.463 con IVA ($392.826 neto), pago único, despacho incluido |
 | Garantía | Legal de seis meses; derecho a retracto de 10 días en compras a distancia |
@@ -659,7 +782,7 @@ Aplicar a 10 productores y 5 asesores de la zona central antes del lanzamiento. 
 9. ¿Dónde se informa de productos para el campo (asesor, ferias, redes sociales, YouTube, cooperativa)?
 10. ¿Compraría por internet o preferiría hablar con una persona antes?
 
-Cada respuesta se registra en una planilla. Los resultados ajustan los perfiles (sección 4.2), los factores de compra (Tabla 7), los mensajes (sección 8) y los canales (Tabla 16).
+Cada respuesta se registra en una planilla. Los resultados ajustan los perfiles (sección 4.2), los factores de compra (Tabla 10), los mensajes (sección 8) y los canales (Tabla 20).
 
 ### Anexo D. Pantallas adicionales de la aplicación
 
