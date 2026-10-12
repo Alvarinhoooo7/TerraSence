@@ -29,7 +29,7 @@ Los reescribe `python finanzas/modelo.py`. Si los editas, tu cambio se pierde en
 Para cambiar una **cifra**, edita `finanzas/supuestos.json` y regenera.
 Para cambiar la **redacción** de un bloque generado, edita `finanzas/informe.py` (informe interno), `finanzas/documentacion.py` (README), `finanzas/cuadros.py` y `finanzas/seccion_economica.py` (sección económica) o `finanzas/corregir_informe.py` (informe corregido), nunca el resultado.
 
-`supabase/schema.sql` es un volcado de `pg_dump`, no una fuente: el esquema real son las migraciones de `supabase/migrations/` (más las `*.local.sql`, fuera de git).
+`supabase/schema.sql` es un volcado de `pg_dump`, no una fuente: el esquema real son las migraciones de `supabase/migrations/` (los datos locales sensibles van como semillas `supabase/seeds/*.local.sql`, fuera de git).
 
 ## 3. Decisiones cerradas del proyecto
 

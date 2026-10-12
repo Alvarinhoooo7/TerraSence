@@ -64,10 +64,11 @@ supabase/.branches/
 supabase/.temp/
 supabase/.env
 
-# Migraciones de un solo uso con datos sensibles en texto plano (p.ej. alta
-# directa de un usuario por SQL). Se aplican con `supabase db push` igual que
-# cualquier otra, pero nunca deben llegar al remoto de git. Convención:
-# nombrarlas *.local.sql.
+# Datos de un solo uso con información sensible en texto plano (p.ej. alta
+# directa de un usuario por SQL). Van como semillas locales: corren en
+# `supabase start` y `db reset`, `db push` no las envía y nunca deben llegar
+# al remoto de git. Convención: nombrarlas *.local.sql.
+supabase/seeds/*.local.sql
 supabase/migrations/*.local.sql
 supabase/migrations_archivo/*.local.sql
 

@@ -288,50 +288,26 @@ curl -X POST https://bjmhjatykqccksddgtmo.supabase.co/functions/v1/device-checki
 Las migraciones `130000` y `150000` **no contienen DDL**: sólo emiten `RAISE NOTICE`. Fueron la única
 forma de auditar las políticas sin Docker ni `psql`, y se conservan como constancia.
 
-### 6.1. Desfase entre el historial local y el remoto
+### 6.1. Historial de migraciones y datos locales
 
-`supabase migration list --linked`, ejecutado el **20 de septiembre de 2026**, devuelve cuatro
-discrepancias. El resto de versiones coincide:
+`supabase migration list --linked`, ejecutado el **12 de octubre de 2026**, muestra el historial local y
+el remoto idénticos, de la línea base `20260929120000` a `20261012120000`, y
+`supabase db push --dry-run` responde «Remote database is up to date».
 
-| Versión | Local | Remoto | Qué implica |
-| :--- | :---: | :---: | :--- |
-| `20260902180000` | ausente | **aplicada** | Migración `*.local.sql`, excluida de git a propósito |
-| `20260902210000` | ausente | **aplicada** | Migración `*.local.sql`, excluida de git a propósito |
-| `20260920120000` | presente | **aplicada el 21-09-2026** | Preparación del equipo por su administrador |
-| `20260920140000` | presente | **aplicada el 21-09-2026** | Retirada del mapa. Dependía de la anterior |
+Los datos de un solo uso con información sensible **no son migraciones: son semillas locales** en
+`supabase/seeds/*.local.sql`, fuera de git ([`.gitignore`](../.gitignore)). [`config.toml`](config.toml)
+(`[db.seed]`) las carga después de las migraciones en `supabase start` y `supabase db reset`;
+`supabase db push` no envía semillas, así que no llegan a producción.
 
-> [!NOTE]
-> **Al 21 de septiembre de 2026 el historial está alineado.** `supabase migration
-> list --linked` sólo distingue las dos migraciones `*.local.sql` excluidas de git
-> a propósito; todo lo demás, incluida `20260921120000`, figura aplicado en remoto.
+| Semilla | Qué contiene |
+| :--- | :--- |
+| `01_alta_usuario_soporte.local.sql` | Alta directa de la cuenta de soporte en `auth.users` + `auth.identities` + `admin_support_users`, con la contraseña redactada |
+| `02_dispositivo_demo.local.sql` | *Fixture* desechable: usuario y equipo de prueba con histórico de batería y una medición |
 
-**Las dos ausentes no son un fallo: están fuera del repositorio a propósito.** El 6 de septiembre se
-recuperó su contenido real desde `supabase_migrations.schema_migrations`, la tabla donde Supabase
-guarda el SQL de cada migración aplicada. Se leyó **sin escribir nada en remoto**:
-
-```bash
-supabase db dump --linked --data-only --schema supabase_migrations -f <fuera-del-repo>.sql
-```
-
-| Versión | Nombre en remoto | Qué contiene |
-| :--- | :--- | :--- |
-| `20260902180000` | `alta_usuario_alvaro.local` | Alta directa de la cuenta de soporte en `auth.users` + `auth.identities` + `admin_support_users` |
-| `20260902210000` | `dispositivo_demo.local` | *Fixture* desechable: usuario y equipo de prueba con histórico de batería y una medición |
-
-Ninguna de las dos contiene DDL: son bloques `DO $$ … $$` que insertan **datos**. `.gitignore:71`
-excluye `supabase/migrations/*.local.sql`, y el encabezado de ambas lo dice explícitamente —
-*"sólo local, NUNCA se sube a git"*—: la primera porque lleva una contraseña en texto plano, la
-segunda porque es data de un solo uso.
-
-> [!NOTE]
-> **El desfase está explicado y no hay que cerrarlo.** No falta esquema —lo confirma
-> [`schema.sql`](schema.sql), §10.2— y volver a añadir esos archivos al repositorio sería
-> exactamente lo que su patrón `*.local.sql` existe para impedir. `supabase db pull` tampoco los
-> habría recuperado: compara esquemas, y aquí no hay diferencia de esquema que capturar.
-> La hipótesis anterior —que eran bloques de auditoría `RAISE NOTICE`— **era incorrecta**.
-
-Lo que sí queda abierto son dos consecuencias de haberlas aplicado, ambas en §10.5: la contraseña en
-texto plano que quedó guardada en el historial remoto, y el equipo de prueba que sigue en producción.
+Ambas son bloques `DO $$ … $$` que insertan **datos**, sin DDL. Hasta el 12-10-2026 eran las migraciones
+`20260902180000` y `20260902210000`: con fecha anterior a la línea base corrían antes de que existieran
+sus tablas, `supabase db reset` fallaba y `supabase db push` intentaba enviarlas. En producción se
+aplicaron como migraciones en septiembre; lo que eso dejó pendiente está en §10.5.
 
 ---
 
@@ -614,7 +590,7 @@ retirada del mapa.
 **Orden correcto:**
 
 1. ~~Arrancar Docker y recuperar las dos migraciones remotas ausentes~~ — **resuelto el 6-sep**.
-   El desfase quedó explicado: las dos ausentes son `*.local.sql` intencionales, sin DDL (§6.1).
+   El desfase quedó explicado: las dos ausentes eran datos locales sin DDL, hoy semillas fuera de git (§6.1).
    No hay historial que recuperar antes de empujar.
 2. **Comprobar qué arrastra el `push`.** `db push` no sabe aplicar una sola migración: aplica todas
    las locales que falten en el historial remoto. Si hay migraciones a medio escribir, sácalas de
