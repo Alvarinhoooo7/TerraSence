@@ -56,23 +56,23 @@ Octubre de 2026
 - 5. Mercado, competencia, diferenciación y posicionamiento
    - 5.1 Tamaño del mercado
    - 5.2 Competencia
-   - 5.3 Costo de uso frente a las alternativas
+   - 5.3 Costo frente a las alternativas
    - 5.4 Diferenciación
    - 5.5 Posicionamiento
 - 6. Estrategia de marketing: las 7P
-   - 6.1 Producto
-   - 6.2 Precio
-   - 6.3 Plaza
-   - 6.4 Promoción
-   - 6.5 Personas
-   - 6.6 Pruebas tangibles
-   - 6.7 Procesos
-   - 6.8 Síntesis y coherencia de la mezcla
+   - 6.1 Elección del modelo: ¿4P o 7P?
+   - 6.2 Producto
+   - 6.3 Precio
+   - 6.4 Plaza
+   - 6.5 Promoción
+   - 6.6 Personas
+   - 6.7 Pruebas tangibles
+   - 6.8 Procesos
+   - 6.9 Síntesis y coherencia de la mezcla
 - 7. Publicidad y promoción
    - 7.1 Estrategia publicitaria
    - 7.2 Pieza principal: carrusel «Del número a la decisión»
    - 7.3 Acciones promocionales y relaciones públicas
-   - 7.4 Presupuesto
 - 8. Marketing digital
 - 9. Identidad visual y comunicación de marketing
    - 9.1 Logotipo
@@ -83,10 +83,7 @@ Octubre de 2026
 - Conclusiones
 - Referencias bibliográficas
 - Anexos
-   - Anexo A. Ficha comercial del producto
-   - Anexo B. Calendario de contenidos de los tres primeros meses
-   - Anexo C. Guía de entrevista para validar al consumidor
-   - Anexo D. El carrusel publicado en un teléfono
+   - Anexo A. Calendario de contenidos de los tres primeros meses
 
 **Índice de tablas**
 
@@ -100,19 +97,16 @@ Octubre de 2026
 - Tabla 5.1. Tamaño del mercado
 - Tabla 5.2. Comparación con la competencia
 - Tabla 5.3. Costo acumulado para el agricultor
-- Tabla 6.1. Objetivos de marketing del primer año
+- Tabla 6.1. Criterios para elegir entre las 4P y las 7P
 - Tabla 6.2. Niveles del producto
 - Tabla 6.3. Estrategias de precio evaluadas
 - Tabla 6.4. Síntesis de las 7P y su justificación
 - Tabla 7.1. Estrategia publicitaria
-- Tabla 7.2. Estructura del carrusel y fundamento de cada imagen
-- Tabla 7.3. Presupuesto de publicidad y promoción del primer año
+- Tabla 7.2. Secuencia del carrusel
 - Tabla 8.1. Estrategia por canal digital
-- Tabla 8.2. Indicadores digitales
 - Tabla 9.1. Colores de la marca y su uso
 - Tabla 10.1. Fuentes de información y su uso
-- Tabla A.1. Ficha comercial de TerraSense
-- Tabla B.1. Calendario de contenidos desde el lanzamiento
+- Tabla A.1. Calendario de contenidos desde el lanzamiento
 
 **Índice de figuras**
 
@@ -123,22 +117,13 @@ Octubre de 2026
 - Figura 4.1. Mapa del recorrido del consumidor de TerraSense
 - Figura 5.1. Tamaño del mercado de TerraSense
 - Figura 5.2. Precio de TerraSense frente a la competencia directa
-- Figura 5.3. Costo acumulado en diez años
-- Figura 5.4. Mapa de posicionamiento
+- Figura 5.3. Mapa de posicionamiento
 - Figura 6.1. La mezcla de marketing de TerraSense
-- Figura 7.1. Imagen 1 del carrusel: impacto
-- Figura 7.2. Imagen 2 del carrusel: problema
-- Figura 7.3. Imagen 3 del carrusel: el resultado en la aplicación
-- Figura 7.4. Imagen 4 del carrusel: las recomendaciones
-- Figura 7.5. Imagen 5 del carrusel: beneficios
-- Figura 7.6. Imagen 6 del carrusel: prueba
-- Figura 7.7. Imagen 7 del carrusel: llamado a la acción
-- Figura 7.8. Distribución del presupuesto de publicidad
+- Figura 7.1. Las siete imágenes del carrusel «Del número a la decisión»
 - Figura 8.1. Embudo digital de TerraSense
 - Figura 9.1. Logotipo de TerraSense
 - Figura 9.2. Paleta de colores de la marca
 - Figura 9.3. Pantallas de la aplicación TerraSense
-- Figura D.1. Vista de conjunto del carrusel publicado
 
 ---
 
@@ -148,7 +133,7 @@ En Chile, muchas decisiones de riego y siembra se toman con información insufic
 
 TerraSense es una sonda de suelo portátil que mide siete variables del suelo (humedad, temperatura, conductividad eléctrica, pH, nitrógeno, fósforo y potasio) y tres del ambiente (temperatura, humedad del aire y presión), y envía la lectura por Bluetooth a una aplicación móvil. El agricultor elige la etapa en que está su cultivo (pre-siembra, crecimiento vegetativo, floración o cosecha) y la aplicación interpreta la lectura para esa etapa: entrega un veredicto, como «No sembrar todavía», y una lista de acciones concretas. Funciona sin señal en el campo; con señal, suma el pronóstico del tiempo a la recomendación y respalda el historial en la nube. Se vende con un pago único, sin suscripción.
 
-El **objetivo** de este informe es diseñar el plan de marketing de TerraSense: definir a quién se dirige, por qué ese consumidor lo preferiría frente a las alternativas y cómo llegará a él. Los diez capítulos siguen el orden de los criterios de la rúbrica de evaluación. Cada uno parte del concepto visto en la asignatura, lo aplica al proyecto y termina en una decisión del plan. El precio, los costos, el presupuesto y la meta de ventas provienen del modelo económico del proyecto; las cifras de demanda y de conversión son estimaciones, y el plan indica cómo validarlas antes de comprometer más recursos.
+El **objetivo** de este informe es diseñar el plan de marketing de TerraSense: definir a quién se dirige, por qué ese consumidor lo preferiría frente a las alternativas y cómo llegará a él. Cada capítulo parte del concepto visto en la asignatura, lo aplica al proyecto y termina en una decisión del plan. El precio, los costos y la meta de ventas provienen del modelo económico del proyecto; las cifras de demanda y de conversión son estimaciones, y el plan indica cómo validarlas antes de comprometer más recursos.
 
 ---
 
@@ -296,11 +281,11 @@ Segmentar consiste en dividir el mercado en grupos con necesidades y conductas p
 
 *Fuente:* elaboración propia.
 
-El resultado es un mercado meta con dos segmentos que cumplen papeles distintos en la compra: el **productor**, que usa el equipo y decide la compra, y el **asesor técnico**, que lo usa en varios campos y además influye en lo que compran sus clientes. Según la teoría de difusión de innovaciones (Rogers, 2003), los primeros compradores serán innovadores y adoptadores tempranos: productores jóvenes o con cultivos de mayor valor, para quienes un error cuesta más. Ellos son el público de la campaña de lanzamiento.
+El resultado es un mercado meta con dos segmentos que cumplen papeles distintos en la compra: el **productor**, que usa el equipo y decide la compra, y el **asesor técnico**, que lo usa en varios campos y además influye en lo que compran sus clientes. La campaña de lanzamiento se dirige primero a los productores jóvenes o con cultivos de mayor valor: adoptan antes la tecnología (Tabla 3.2, subcultura) y para ellos un error cuesta más.
 
 ### 3.2 Perfiles del consumidor
 
-La Figura 3.1 describe a los dos segmentos como perfiles de cliente. Son arquetipos construidos a partir de la segmentación, no personas reales, y se validan con la guía de entrevistas del Anexo C.
+La Figura 3.1 describe a los dos segmentos como perfiles de cliente. Son arquetipos construidos a partir de la segmentación, no personas reales, y se validarán con entrevistas a productores y asesores antes del lanzamiento.
 
 **Figura 3.1.** *Perfiles del consumidor objetivo*
 
@@ -342,7 +327,7 @@ Los tres modelos de comportamiento vistos en clase explican aspectos complementa
 
 ## 4. Recorrido del consumidor: «Sigue al consumidor»
 
-El proceso de decisión de compra tiene cinco etapas: necesidad, búsqueda, evaluación, compra y postcompra. «Seguir al consumidor» significa ponerse en su lugar en cada etapa: qué piensa, dónde busca, qué lo hace dudar y qué puede hacer la marca para acompañarlo. La Figura 4.1 representa ese recorrido como un mapa, con la curva de cómo se siente el productor en cada momento, y la Tabla 4.1 lo detalla con una acción concreta y un indicador por etapa.
+El proceso de decisión de compra tiene cinco etapas: necesidad, búsqueda, evaluación, compra y postcompra. «Seguir al consumidor» significa ponerse en su lugar en cada etapa: qué piensa, dónde busca, qué lo hace dudar y qué puede hacer la marca para acompañarlo. La Figura 4.1 representa ese recorrido como un mapa, con la curva de cómo se siente el productor en cada momento, y la Tabla 4.1 lo detalla con una acción concreta por etapa.
 
 **Figura 4.1.** *Mapa del recorrido del consumidor de TerraSense*
 
@@ -352,13 +337,13 @@ El proceso de decisión de compra tiene cinco etapas: necesidad, búsqueda, eval
 
 **Tabla 4.1.** *Recorrido del consumidor y acciones por etapa*
 
-| Etapa | Qué piensa y hace el consumidor | Punto de contacto | Acción concreta de TerraSense | Indicador |
-|---|---|---|---|---|
-| **1. Necesidad** | «Las plantas se ven estresadas», «gasté mucho en fertilizante y no sé si sirvió» | Redes sociales; conversación con el asesor o un vecino | Videos cortos sobre los síntomas del riego mal calibrado y el costo de fertilizar sin medir | Alcance y reproducciones |
-| **2. Búsqueda** | Recuerda su último análisis (búsqueda interna); pregunta a su asesor y busca en Google y YouTube «cómo medir la humedad del suelo» (búsqueda externa) | Buscador, YouTube, grupos de WhatsApp, asesores | Anuncios en el buscador para esas consultas; tutoriales en YouTube; asesores referentes que conocen el equipo | Clics y visitas al sitio; consultas por referido |
-| **3. Evaluación** | Compara laboratorio, medidores importados o seguir igual; duda de la exactitud. Solo tres a cinco opciones llegan a su conjunto evocado | Sitio web, WhatsApp, días de campo | Comparador de costo acumulado; ficha de qué mide y qué no; testimonios; demostración en un día de campo | Uso del comparador; conversaciones iniciadas |
-| **4. Compra** | Le cuesta pagar por internet a una marca nueva; quiere hablar con alguien | WhatsApp, sitio web, pasarela de pago | Atención humana por WhatsApp con enlace de pago; garantía y retracto informados antes de pagar; despacho incluido a todo Chile | Conversión de conversación a venta |
-| **5. Postcompra** | Abre la caja, se pregunta si fue buena decisión, mide por primera vez | Empaque, aplicación, WhatsApp | Guía de inicio impresa y en pantalla; mensaje a las 24 horas; seguimiento a los 15 días; invitación a reseñar y a referir | Clientes que miden la primera semana; recomendación neta (NPS, *Net Promoter Score*) |
+| Etapa | Qué piensa y hace el consumidor | Punto de contacto | Acción concreta de TerraSense |
+|---|---|---|---|
+| **1. Necesidad** | «Las plantas se ven estresadas», «gasté mucho en fertilizante y no sé si sirvió» | Redes sociales; conversación con el asesor o un vecino | Videos cortos sobre los síntomas del riego mal calibrado y el costo de fertilizar sin medir |
+| **2. Búsqueda** | Recuerda su último análisis (búsqueda interna); pregunta a su asesor y busca en Google y YouTube «cómo medir la humedad del suelo» (búsqueda externa) | Buscador, YouTube, grupos de WhatsApp, asesores | Anuncios en el buscador para esas consultas; tutoriales en YouTube; asesores referentes que conocen el equipo |
+| **3. Evaluación** | Compara laboratorio, medidores importados o seguir igual; duda de la exactitud. Solo tres a cinco opciones llegan a su conjunto evocado | Sitio web, WhatsApp, días de campo | Comparador de costo acumulado; ficha de qué mide y qué no; testimonios; demostración en un día de campo |
+| **4. Compra** | Le cuesta pagar por internet a una marca nueva; quiere hablar con alguien | WhatsApp, sitio web, pasarela de pago | Atención humana por WhatsApp con enlace de pago; garantía y retracto informados antes de pagar; despacho incluido a todo Chile |
+| **5. Postcompra** | Abre la caja, se pregunta si fue buena decisión, mide por primera vez | Empaque, aplicación, WhatsApp | Guía de inicio impresa y en pantalla; mensaje a las 24 horas; seguimiento a los 15 días; invitación a reseñar y a referir |
 
 *Fuente:* elaboración propia.
 
@@ -415,11 +400,11 @@ TerraSense compite con tres tipos de alternativas: competidores directos (otros 
 
 *Fuente:* elaboración propia con los precios de la Tabla 5.2.
 
-La Figura 5.2 muestra que TerraSense cuesta $24.364 menos que Hanna (un 5,0 % menos) y $71.527 menos que Bluelab (un 13,3 % menos), mientras mide más variables que ambos y es el único que entrega una recomendación. El mercado es de **competencia monopolística**: hay muchos oferentes con productos diferenciados, cada uno con algo de poder sobre su nicho. En ese mercado, **ningún competidor directo combina la medición del suelo y del ambiente con una recomendación según la etapa del cultivo**. Esa es la oportunidad de diferenciación.
+La Figura 5.2 muestra que TerraSense cuesta $24.364 menos que Hanna (un 5,0 % menos) y $71.527 menos que Bluelab (un 13,3 % menos), mientras mide más variables que ambos y es el único que entrega una recomendación. En ese mercado, **ningún competidor directo combina la medición del suelo y del ambiente con una recomendación según la etapa del cultivo**. Esa es la oportunidad de diferenciación.
 
-### 5.3 Costo de uso frente a las alternativas
+### 5.3 Costo frente a las alternativas
 
-El precio de compra no es la única comparación que hace el productor: también pesa cuánto gasta en el tiempo con cada alternativa. La Tabla 5.3 y la Figura 5.3 calculan el costo acumulado.
+El precio de compra no es la única comparación que hace el productor: también pesa cuánto gasta en el tiempo con cada alternativa. La Tabla 5.3 calcula el costo acumulado.
 
 **Tabla 5.3.** *Costo acumulado para el agricultor*
 
@@ -432,13 +417,7 @@ El precio de compra no es la única comparación que hace el productor: también
 
 *Fuente:* elaboración propia, en pesos de 2027 y sin descuento.
 
-**Figura 5.3.** *Costo acumulado en diez años*
-
-<img src="Figuras/fig_costo.png" width="680" alt="Costo acumulado">
-
-*Fuente:* elaboración propia con los datos de la Tabla 5.3.
-
-Con un uso habitual de cuatro análisis al año, el laboratorio supera el costo de TerraSense durante el tercer año; con uso intensivo, durante el primero. En diez años, el laboratorio cuesta el doble. Esto no significa que el laboratorio sobre: sigue siendo necesario para los análisis químicos completos. Lo que TerraSense cubre es el seguimiento frecuente entre un análisis y el siguiente. Este cálculo es el argumento central contra la objeción «es caro» y alimenta el comparador del sitio web.
+Con un uso habitual de cuatro análisis al año, el laboratorio supera el costo de TerraSense durante el tercer año; con uso intensivo, durante el primero. En diez años, el laboratorio cuesta el doble. Esto no significa que el laboratorio sobre: sigue siendo necesario para los análisis químicos completos. Lo que TerraSense cubre es el seguimiento frecuente entre un análisis y el siguiente. Este cálculo responde a la objeción «es caro» y alimenta el comparador del sitio web.
 
 ### 5.4 Diferenciación
 
@@ -449,9 +428,9 @@ Diferenciarse exige separar lo que realmente es exclusivo de lo que no lo es, po
 
 ### 5.5 Posicionamiento
 
-El posicionamiento es el lugar que la marca quiere ocupar en la mente del consumidor frente a sus alternativas. La Figura 5.4 ubica a cada alternativa según dos atributos que el productor valora: cuánto interpreta la lectura y cuán rápido llega la respuesta.
+El posicionamiento es el lugar que la marca quiere ocupar en la mente del consumidor frente a sus alternativas. La Figura 5.3 ubica a cada alternativa según dos atributos que el productor valora: cuánto interpreta la lectura y cuán rápido llega la respuesta.
 
-**Figura 5.4.** *Mapa de posicionamiento*
+**Figura 5.3.** *Mapa de posicionamiento*
 
 <img src="Figuras/mapa_posicionamiento.png" width="560" alt="Mapa de posicionamiento">
 
@@ -467,7 +446,34 @@ El posicionamiento es **claro**, porque ocupa un cuadrante del mapa que ninguna 
 
 ## 6. Estrategia de marketing: las 7P
 
-McCarthy (1960) propuso las 4P (producto, precio, plaza y promoción) como marco para gestionar la mezcla de marketing de productos físicos. Booms y Bitner (1981) las ampliaron a las 7P, sumando **personas**, **pruebas tangibles** y **procesos**, para los negocios en que la experiencia después de la venta define la retención. La clase indica usar las 7P cuando hay servicios o componentes digitales, cuando la empresa es emergente y orientada al cliente, y cuando la postcompra decide si el cliente vuelve. TerraSense cumple las tres condiciones: la sonda es un bien físico, pero su valor llega a través de una aplicación, un historial y un soporte continuo, y como marca nueva depende de que cada cliente logre su primera medición. Por eso el plan usa las 7P.
+### 6.1 Elección del modelo: ¿4P o 7P?
+
+McCarthy (1960) propuso las 4P (producto, precio, plaza y promoción) como marco para gestionar la mezcla de marketing de productos físicos. Booms y Bitner (1981) las ampliaron a las 7P, sumando **personas**, **pruebas tangibles** y **procesos**, tres variables que gestionan lo que ocurre después de la venta: la experiencia completa del cliente. Elegir uno u otro modelo no es un trámite, porque define qué variables administra la empresa y cuáles quedan sin dueño. Para decidir, TerraSense se contrastó con los criterios que la asignatura entrega para usar cada modelo (Maldonado, 2026c), como muestra la Tabla 6.1.
+
+**Tabla 6.1.** *Criterios para elegir entre las 4P y las 7P*
+
+| Modelo | Se usa cuando… | ¿Se cumple en TerraSense? | Evidencia |
+|---|---|---|---|
+| 4P | Se venden productos físicos con distribución tradicional | En parte | La sonda es un bien físico, pero se vende por un canal directo y digital, sin distribuidores (sección 6.4) |
+| 4P | El mercado es de bienes de consumo masivo | No | Es un mercado industrial: el agricultor compra para producir, y es una compra extensa, de alto valor y técnica (secciones 1.5 y 3.4) |
+| 4P | Los canales offline son los dominantes | No | La venta ocurre en el sitio web y por WhatsApp; los días de campo son un canal de influencia, no de venta |
+| 4P | La transacción es el centro de la relación con el cliente | No | El valor llega después del pago: interpretación en la aplicación, historial en la nube, pronóstico, actualizaciones y soporte |
+| 7P | Se ofrecen servicios o negocios digitales | Sí | La mitad del producto es software: la aplicación convierte la lectura en una recomendación según la etapa del cultivo |
+| 7P | Es una empresa emergente u orientada al cliente | Sí | Empresa nueva de dos socios, con orientación al marketing social (sección 1.5) |
+| 7P | La experiencia postcompra define la retención | Sí | Con pago único, retener significa que el cliente siga midiendo y recomiende el equipo. La recomendación de pares es el factor que más pesa en esta compra (sección 3.3), y la primera medición decide si nace un testimonio o una reseña negativa (capítulo 4) |
+| 7P | El negocio incluye suscripciones o membresías | No, por decisión | La mensualidad se descartó porque el consumidor la rechaza (Tabla 3.2); el servicio continuo se entrega igual, incluido en el pago único |
+
+*Fuente:* elaboración propia a partir de Maldonado (2026c).
+
+**Decisión: el plan usa las 7P.** TerraSense cumple tres de los cuatro criterios de las 7P y solo uno, en parte, de los criterios de las 4P. La única condición de las 7P que no cumple, la suscripción, es una renuncia deliberada a cobrar mensualidades, no la ausencia de un servicio continuo.
+
+El argumento de fondo viene del análisis estratégico. El FODA concluyó que la principal barrera no es el mercado, sino la **confianza**: una marca nueva que vende tecnología a un consumidor que desconfía de ella (sección 2.3). Con las 4P, justamente las tres palancas que responden a esa barrera quedarían fuera del plan:
+
+- **Personas:** quién atiende, asesora y responde cuando el productor duda, antes y después de pagar.
+- **Pruebas tangibles:** qué demuestra que el equipo funciona a alguien que no puede tocarlo antes de comprar, como los testimonios, las certificaciones y el comparador de costos.
+- **Procesos:** cómo se asegura que el cliente logre su primera medición, el momento que define si se queda o abandona.
+
+La asignatura advierte tres errores comunes al aplicar las 7P: ignorar los procesos, subestimar las pruebas tangibles cuando la confianza es difícil de construir y tratar a las personas como un costo. Los tres son riesgos concretos para TerraSense, por lo que el plan los gestiona como variables propias. Elegir las 7P tampoco abandona las 4P: el producto, el precio, la plaza y la promoción siguen ordenando la venta de la sonda como bien físico, y las tres nuevas variables gestionan el servicio que la rodea. La Figura 6.1 resume la mezcla resultante.
 
 **Figura 6.1.** *La mezcla de marketing de TerraSense*
 
@@ -475,21 +481,7 @@ McCarthy (1960) propuso las 4P (producto, precio, plaza y promoción) como marco
 
 *Fuente:* elaboración propia a partir de McCarthy (1960), Booms y Bitner (1981) y Maldonado (2026c).
 
-La mezcla se diseña para cumplir objetivos medibles, que la Tabla 6.1 resume.
-
-**Tabla 6.1.** *Objetivos de marketing del primer año*
-
-| Objetivo | Meta medible |
-|---|---|
-| Ventas | 200 equipos entre abril y diciembre de 2027 |
-| Generación de demanda | 2.000 conversaciones calificadas por WhatsApp |
-| Conversión | 10 % de las conversaciones terminan en venta |
-| Prueba social | 30 clientes con testimonio publicado en los primeros seis meses |
-| Satisfacción | Recomendación neta (NPS) mayor que 50 a los 15 días de la compra |
-
-*Fuente:* modelo económico del proyecto y elaboración propia.
-
-### 6.1 Producto
+### 6.2 Producto
 
 Kotler y Keller (2016) ordenan el producto en niveles: el beneficio central que busca el cliente, el producto real que lo entrega y el producto aumentado, formado por los servicios que lo rodean. La Tabla 6.2 aplica esos niveles.
 
@@ -507,7 +499,7 @@ Kotler y Keller (2016) ordenan el producto en niveles: el beneficio central que 
 
 **Justificación.** El consumidor busca simplicidad y confianza, no más funciones (sección 3). Además, el producto está en la etapa de **introducción** de su ciclo de vida: la categoría es poco conocida, de modo que la comunicación debe primero explicar qué problema resuelve y después diferenciar la marca.
 
-### 6.2 Precio
+### 6.3 Precio
 
 El precio de lista es de **$467.463 con IVA** ($392.826 neto), con pago único y despacho incluido. No es un precio elegido por aspiración comercial: se deriva del costo total del proyecto en diez años, exigiendo un 30 % de utilidad. Una vez calculado, se contrastó con las cuatro estrategias de precio vistas en clase (Tabla 6.3).
 
@@ -522,33 +514,33 @@ El precio de lista es de **$467.463 con IVA** ($392.826 neto), con pago único y
 
 *Fuente:* elaboración propia a partir de Maldonado (2026c).
 
-**Justificación.** Frente al mercado, el precio queda un 5,0 % bajo Hanna y un 13,3 % bajo Bluelab, con más beneficio (Figura 5.2). Frente al consumidor, responde a la objeción «es caro» con el costo acumulado (Figura 5.3) y evita las mensualidades que rechaza. Y frente al posicionamiento, no se rebaja con descuentos permanentes, porque la marca compite por utilidad y no por ser la más barata. Se ofrece pago en cuotas con tarjeta y factura para quien tiene giro, que recupera el IVA.
+**Justificación.** Frente al mercado, el precio queda un 5,0 % bajo Hanna y un 13,3 % bajo Bluelab, con más beneficio (Figura 5.2). Frente al consumidor, responde a la objeción «es caro» con el costo acumulado (Tabla 5.3) y evita las mensualidades que rechaza. Y frente al posicionamiento, no se rebaja con descuentos permanentes, porque la marca compite por utilidad y no por ser la más barata. Se ofrece pago en cuotas con tarjeta y factura para quien tiene giro, que recupera el IVA.
 
-### 6.3 Plaza
+### 6.4 Plaza
 
 **Decisiones.** Canal **directo y digital** el primer año, con tienda en línea propia, pasarela de pago y atención por WhatsApp; despacho incluido a todo Chile por courier ($6.000 por equipo, ya considerado en el costo); asesores referentes y días de campo como canal de influencia en terreno; y, desde el tercer año, evaluación de distribuidores de insumos agrícolas como punto de venta físico.
 
 **Justificación.** El consumidor está disperso por el país y ya usa WhatsApp (Tabla 2.1, factor social). El canal directo conserva el margen y el contacto con cada cliente, que es la principal fuente de aprendizaje de una empresa nueva, y es el único que dos personas pueden atender a escala nacional.
 
-### 6.4 Promoción
+### 6.5 Promoción
 
 **Decisiones.** Combina las tres herramientas de la asignatura: **publicidad** pagada en Meta, Google y YouTube; **relaciones públicas** con medios agrícolas, cooperativas y ferias; y **promociones** que no rebajan el precio de lista, como el programa de asesores referentes, Campo Pionero y los referidos. Se desarrolla en los capítulos 7 y 8.
 
 **Justificación.** Es una compra extensa y el consumidor desconfía de la tecnología. La línea común es **educar antes de vender**: primero que el productor entienda el problema y vea el equipo funcionar, y recién después pedirle la compra.
 
-### 6.5 Personas
+### 6.6 Personas
 
 **Decisiones.** Los dos socios dan el **soporte en vivo** y la venta el primer año, con el lenguaje del campo; uno de ellos asume la **gestión de redes sociales** hasta que, en 2029, se incorpore una persona dedicada a marketing; y los asesores referentes y los primeros clientes actúan como **voces externas** de la marca. Todos siguen el mismo protocolo: responder dentro de la jornada, explicar los límites del equipo y no prometer exactitud de laboratorio.
 
 **Justificación.** Para una marca nueva, la confianza se construye con trato humano y con personas a quienes el agricultor ya les cree, no con celebridades.
 
-### 6.6 Pruebas tangibles
+### 6.7 Pruebas tangibles
 
 **Decisiones.** Testimonios en video de los primeros clientes; publicación de la conformidad de radio ante SUBTEL y del ensayo de estanqueidad IP67 en cuanto se obtengan, ya que el equipo solo se comunicará como resistente al agua con ese ensayo; sitio web con ficha técnica y comparador de costos; aplicación con identidad propia (Figura 9.3); y empaque con guía de inicio y número de serie.
 
 **Justificación.** La venta es a distancia y la marca es desconocida. Las pruebas tangibles reducen la incertidumbre de quien no puede tocar el equipo antes de comprarlo.
 
-### 6.7 Procesos
+### 6.8 Procesos
 
 1. **Consulta:** el cliente escribe por WhatsApp desde un anuncio o el sitio; fuera de horario recibe una respuesta automática con la ficha y el comparador.
 2. **Asesoría previa:** se revisa su caso de uso y se envía el enlace de pago.
@@ -558,9 +550,9 @@ El precio de lista es de **$467.463 con IVA** ($392.826 neto), con pago único y
 
 **Justificación.** Cada paso elimina una fricción de las etapas de compra y postcompra del recorrido (Tabla 4.1). Cada equipo pasa una prueba de aceptación antes de embalarse, registrada por número de serie, lo que respalda la garantía.
 
-### 6.8 Síntesis y coherencia de la mezcla
+### 6.9 Síntesis y coherencia de la mezcla
 
-La rúbrica exige que cada decisión de la mezcla se justifique según el consumidor, el mercado y el posicionamiento. La Tabla 6.4 hace esa comprobación para las siete variables.
+Cada decisión de la mezcla debe responder al consumidor, al mercado y al posicionamiento. La Tabla 6.4 hace esa comprobación para las siete variables.
 
 **Tabla 6.4.** *Síntesis de las 7P y su justificación*
 
@@ -584,7 +576,7 @@ Al revisar la mezcla, la variable más débil al lanzamiento son las **pruebas t
 
 ### 7.1 Estrategia publicitaria
 
-La rúbrica pide definir ocho elementos de la estrategia publicitaria. La Tabla 7.1 los presenta.
+La Tabla 7.1 define los elementos de la estrategia publicitaria.
 
 **Tabla 7.1.** *Estrategia publicitaria*
 
@@ -597,7 +589,7 @@ La rúbrica pide definir ocho elementos de la estrategia publicitaria. La Tabla 
 | Medios | Facebook, Instagram, YouTube, buscador de Google, WhatsApp, días de campo y ferias agrícolas |
 | Formatos | Carrusel de siete imágenes (pieza principal); videos verticales de 15 a 30 segundos; anuncios de texto en el buscador; tutoriales de 3 a 5 minutos; pendón y volante para ferias |
 | Llamado a la acción | «Escríbenos por WhatsApp y te ayudamos a elegir» (principal); «Calcula cuánto te cuesta decidir a ciegas» (comparador en el sitio) |
-| Tono | Cercano y directo, de tú, con el vocabulario del campo |
+| Acciones promocionales | Programa de asesores referentes, Campo Pionero, referidos entre clientes y días de campo, sin rebajar el precio de lista (sección 7.3) |
 
 *Fuente:* elaboración propia.
 
@@ -605,127 +597,29 @@ El concepto creativo traduce el posicionamiento en una imagen que se entiende si
 
 ### 7.2 Pieza principal: carrusel «Del número a la decisión»
 
-El carrusel es un anuncio de siete imágenes para Instagram y Facebook, en formato vertical 4:5 (1080 × 1350 píxeles), que el productor recorre deslizando hacia el lado. Se eligió este formato por tres razones. Primero, el usuario controla el ritmo y decide avanzar, lo que convierte cada imagen en un pequeño compromiso. Segundo, permite contar una historia completa, del problema a la solución, en un solo anuncio. Y tercero, cada imagen puede cumplir una función distinta dentro del embudo.
+El carrusel es un anuncio de siete imágenes para Instagram y Facebook, en formato vertical 4:5 (1080 × 1350 píxeles), que el productor recorre deslizando hacia el lado. Se eligió este formato porque el usuario avanza a su ritmo y porque un solo anuncio alcanza para contar la historia completa, del problema a la decisión: cada imagen acompaña una etapa del recorrido del consumidor (capítulo 4). Las pantallas de las imágenes 3 y 4 no son una simulación: reproducen el resultado que entrega la aplicación para una lectura real de pre-siembra, con el suelo a 10 °C, un 16 % de humedad y 12 mm de lluvia pronosticados para el día siguiente. La Tabla 7.2 explica la secuencia y la Figura 7.1 muestra las siete imágenes.
 
-Su estructura sigue el modelo **AIDA** (atención, interés, deseo y acción), que describe cómo un anuncio lleva a una persona desde notarlo hasta actuar (Strong, 1925). Cada imagen corresponde, además, a una etapa del recorrido del consumidor (capítulo 4) y a un nivel del embudo digital (capítulo 8). Las pantallas de la aplicación que aparecen en las imágenes 3 y 4 no son una simulación de diseño: reproducen el resultado que entrega el motor agronómico de TerraSense para una lectura real de pre-siembra, con el suelo a 10 °C, un 16 % de humedad y 12 mm de lluvia pronosticados para el día siguiente. A continuación se explica cada imagen.
+**Tabla 7.2.** *Secuencia del carrusel*
 
-#### Imagen 1. Impacto: «¿Riego hoy o mañana?»
-
-**Figura 7.1.** *Imagen 1 del carrusel: impacto*
-
-<img src="Carrusel/slide_1.png" width="360" alt="Imagen 1 del carrusel">
-
-*Fuente:* elaboración propia.
-
-**Qué muestra.** Una pregunta grande, «¿Riego hoy o mañana?», sobre un fondo verde noche, con una ilustración de suelo seco y agrietado, un brote, un sol y una nube con lluvia. Abajo, la sonda enterrada y un botón ocre que invita a deslizar.
-
-**Función: atención (etapa 1, necesidad).** Es la imagen más importante del carrusel, porque decide si el usuario se detiene o sigue de largo. La primera impresión visual se forma en una fracción de segundo (Lindgaard et al., 2006) y condiciona cómo se interpreta todo lo que viene después; es el efecto de primacía (Asch, 1946). Por eso la imagen no muestra el producto, sino el problema del agricultor, formulado con una pregunta que él mismo se hace cada semana.
-
-**Por qué funciona.** Una pregunta sin responder abre una **brecha de curiosidad**, es decir, una diferencia entre lo que la persona sabe y lo que quiere saber, que la motiva a buscar la respuesta (Loewenstein, 1994). Esa curiosidad activa el circuito de recompensa del cerebro, en el que participa la dopamina, y mejora el recuerdo de la información que llega a continuación (Gruber et al., 2014). El diseño refuerza el efecto: letra muy grande, alto contraste, una sola idea y el sol y la nube como pista visual de que la respuesta depende del clima. La palabra «mañana» va en verde para marcar que la decisión está pendiente.
-
-#### Imagen 2. Problema: «¿Y ahora qué?»
-
-**Figura 7.2.** *Imagen 2 del carrusel: problema*
-
-<img src="Carrusel/slide_2.png" width="360" alt="Imagen 2 del carrusel">
+| Imagen | Qué muestra | Etapa del recorrido | Para qué sirve |
+|---|---|---|---|
+| 1. «¿Riego hoy o mañana?» | Suelo seco y agrietado, un sol, una nube con lluvia y la sonda enterrada | 1. Necesidad | Detener al usuario con la pregunta que el productor se hace cada semana; muestra el problema, no el producto |
+| 2. «¿Y ahora qué?» | Un medidor común, sin marca, que solo dice «Humedad 16 %» y «T° suelo 10 °C» | 2. Búsqueda | Hacer visible la brecha entre medir y decidir, la debilidad de la competencia directa (Tabla 5.2); plantea el riesgo como una pérdida, que conecta con la motivación de seguridad (Tabla 3.2) |
+| 3. «No siembres todavía» | La misma lectura en la aplicación: veredicto «No sembrar todavía» y la explicación «El suelo está a 10 °C: todavía muy frío para que la semilla germine» | 3. Evaluación | Mostrar el concepto creativo: el número se convierte en decisión. La pantalla real responde al factor de percepción («la tecnología es complicada») |
+| 4. «No riegues hoy: viene lluvia el miércoles» | La pantalla «Qué hacer», con la recomendación de esperar los 12 mm de lluvia antes de regar | 3. Evaluación | Mostrar un beneficio concreto, un riego ahorrado, gracias al pronóstico integrado a la recomendación (sección 5.4) |
+| 5. «Todo para decidir, en el mismo campo» | Cuatro beneficios: funciona sin señal, diez variables, recomendación según la etapa y pago único | 3. Evaluación | Responder de antemano a las objeciones de los perfiles (Figura 3.1): falta de señal, complejidad, utilidad y mensualidades |
+| 6. «En 3 años, te sale más barato que el laboratorio» | $600.000 en análisis de laboratorio frente a $492.453 de TerraSense; garantía, retracto y despacho incluido | 3 y 4. Evaluación y compra | Responder a la objeción «es caro» con el cálculo de la Tabla 5.3 y reducir el riesgo justo antes de pedir la compra |
+| 7. «Mide hoy. Decide hoy.» | El logotipo, el botón «Escríbenos por WhatsApp» y el precio con pago único | 4. Compra | Cerrar con un solo llamado a la acción, el mismo de toda la campaña |
 
 *Fuente:* elaboración propia.
 
-**Qué muestra.** Un medidor común, gris y genérico, cuya pantalla dice solo «Humedad 16 %» y «T° suelo 10 °C». Debajo, la pregunta «¿Y ahora qué?» y el texto «Un medidor común te da números. La decisión, y el riesgo, siguen siendo tuyos».
+**Figura 7.1.** *Las siete imágenes del carrusel «Del número a la decisión»*
 
-**Función: interés (etapa 2, búsqueda).** Representa la experiencia de quien ya buscó una solución y encontró un medidor: tiene datos, pero no sabe qué hacer con ellos. Hace visible la brecha entre medir y decidir, que es la debilidad de toda la competencia directa (Tabla 5.2).
+<img src="Carrusel/carrusel_grilla.png" width="680" alt="Las siete imágenes del carrusel">
 
-**Por qué funciona.** El texto plantea el riesgo como una pérdida («el riesgo sigue siendo tuyo»). Según la teoría de las perspectivas, una pérdida pesa más en la decisión que una ganancia del mismo tamaño (Kahneman y Tversky, 1979), y conecta con la motivación de seguridad del consumidor (Tabla 3.2). El medidor se dibuja sin marca para criticar una categoría, no a un competidor en particular. El fondo claro marca el cambio de tono respecto de la imagen 1.
+*Fuente:* elaboración propia; las imágenes 3 y 4 reproducen la aplicación TerraSense.
 
-#### Imagen 3. Resultado: «No siembres todavía»
-
-**Figura 7.3.** *Imagen 3 del carrusel: el resultado en la aplicación*
-
-<img src="Carrusel/slide_3.png" width="360" alt="Imagen 3 del carrusel">
-
-*Fuente:* elaboración propia; la pantalla reproduce la aplicación TerraSense.
-
-**Qué muestra.** La misma lectura de la imagen 2, ahora en la aplicación TerraSense, dentro de un teléfono. El productor eligió la etapa de pre-siembra y la aplicación responde con el veredicto «No sembrar todavía», un anillo que indica que 2 de las 4 variables decisivas son favorables y la indicación «Prioriza las correcciones que condicionan germinación y establecimiento». Un globo explica en lenguaje simple: «El suelo está a 10 °C: todavía muy frío para que la semilla germine».
-
-**Función: interés y deseo (etapa 3, evaluación).** Es la respuesta a la pregunta que abrió la imagen 1 y el giro del carrusel: el número se convierte en decisión, que es exactamente el concepto creativo y la propuesta de valor.
-
-**Por qué funciona.** Cierra la brecha de curiosidad en el momento en que el usuario la espera, lo que hace más memorable la respuesta (Gruber et al., 2014). Mostrar la pantalla real, y no una promesa, responde al factor psicológico de percepción (Tabla 3.2): el productor ve que la aplicación es simple, con un veredicto claro y colores de semáforo acompañados siempre de texto. El titular aclara cómo se usa: «Eliges la etapa y te dice: no siembres todavía».
-
-#### Imagen 4. Qué hacer: «No riegues hoy: viene lluvia el miércoles»
-
-**Figura 7.4.** *Imagen 4 del carrusel: las recomendaciones*
-
-<img src="Carrusel/slide_4.png" width="360" alt="Imagen 4 del carrusel">
-
-*Fuente:* elaboración propia; la pantalla reproduce la aplicación TerraSense.
-
-**Qué muestra.** La pantalla «Qué hacer» de la aplicación, con las cuatro recomendaciones que entrega para esa lectura. La tercera aparece destacada: «Se pronostican 12 mm de lluvia para el mié 22 sept. Si puedes, espérala antes de regar y vuelve a medir después». Un globo resume el beneficio: «Cruza tu medición con el pronóstico y te ahorra un riego».
-
-**Función: deseo (etapa 3, evaluación).** Muestra un beneficio concreto y comprobable, ahorrarse un riego, en lugar de una promesa general como «riega mejor». Es el diferenciador del pronóstico integrado a la recomendación (sección 5.4) en acción.
-
-**Por qué funciona.** Un beneficio específico es más creíble que uno abstracto, y en este caso se traduce directamente en agua y dinero ahorrados, lo que responde a los factores económicos del PESTEL. La recomendación está escrita como la escribe la aplicación, con verbos de acción y en el lenguaje del campo, lo que refuerza la confianza en que el producto hace lo que el anuncio dice.
-
-#### Imagen 5. Beneficios: «Todo para decidir, en el mismo campo»
-
-**Figura 7.5.** *Imagen 5 del carrusel: beneficios*
-
-<img src="Carrusel/slide_5.png" width="360" alt="Imagen 5 del carrusel">
-
-*Fuente:* elaboración propia.
-
-**Qué muestra.** Cuatro beneficios en tarjetas con íconos sobre fondo verde bosque: funciona sin señal; diez variables, siete del suelo y tres del ambiente; recomendación según la etapa del cultivo; y pago único, sin mensualidades. Al pie, la aclaración de que con señal se suma el pronóstico.
-
-**Función: deseo (etapa 3, evaluación).** Una vez que el productor vio el producto funcionando, la imagen ordena los atributos que lo distinguen.
-
-**Por qué funciona.** Cada tarjeta responde de antemano a una objeción de los perfiles del consumidor (Figura 3.1): la falta de señal en el campo, la complejidad, la utilidad real y las mensualidades. Cuatro beneficios es el máximo que se puede leer de un vistazo en un teléfono; por eso no se agregan más.
-
-#### Imagen 6. Prueba: «En 3 años, te sale más barato que el laboratorio»
-
-**Figura 7.6.** *Imagen 6 del carrusel: prueba*
-
-<img src="Carrusel/slide_6.png" width="360" alt="Imagen 6 del carrusel">
-
-*Fuente:* elaboración propia con los datos de la Tabla 5.3.
-
-**Qué muestra.** Dos barras con el costo acumulado a tres años: $600.000 en análisis de laboratorio con cuatro muestras al año frente a $492.453 de TerraSense con mediciones ilimitadas. Debajo, tres garantías: seis meses de garantía, diez días para arrepentirse y despacho gratis a todo Chile.
-
-**Función: deseo y paso a la compra (etapas 3 y 4).** Reduce el riesgo percibido de una compra extensa justo antes de pedir la acción. Responde a la objeción «es caro» con el mismo cálculo del capítulo 5 y aclara, con honestidad, que el laboratorio sigue siendo necesario para el análisis químico completo.
-
-**Por qué funciona.** Las personas se guían por lo que hacen otras como ellas (Cialdini, 2009); por eso, cuando existan los primeros clientes del programa Campo Pionero, esta imagen sumará un testimonio real. Mientras tanto, la prueba es económica y legal: cifras verificables y derechos que la ley garantiza al comprador.
-
-#### Imagen 7. Acción: «Mide hoy. Decide hoy.»
-
-**Figura 7.7.** *Imagen 7 del carrusel: llamado a la acción*
-
-<img src="Carrusel/slide_7.png" width="360" alt="Imagen 7 del carrusel">
-
-*Fuente:* elaboración propia.
-
-**Qué muestra.** El logotipo completo de TerraSense sobre fondo verde noche, la frase «Mide hoy. Decide hoy.», un botón verde «Escríbenos por WhatsApp», la alternativa de visitar el sitio web y el precio con pago único y despacho incluido.
-
-**Función: acción (etapa 4, compra).** Cierra el carrusel con un solo llamado a la acción, el mismo de toda la campaña, para no dividir la atención entre varias opciones.
-
-**Por qué funciona.** WhatsApp es el canal que el productor ya usa a diario (Tabla 2.1, factor social) y permite hablar con una persona antes de pagar, que es lo que el consumidor pide en la etapa de compra (Tabla 4.1). Mostrar el precio al final evita que la conversación empiece con una sorpresa. El fondo oscuro repite el de la imagen 1, de modo que el carrusel abre y cierra con la misma identidad.
-
-#### Síntesis del carrusel
-
-La Tabla 7.2 resume cómo las siete imágenes recorren el modelo AIDA y las etapas del consumidor.
-
-**Tabla 7.2.** *Estructura del carrusel y fundamento de cada imagen*
-
-| Imagen | Función (AIDA) | Etapa del recorrido | Principio que aplica | Fuente |
-|---|---|---|---|---|
-| 1. Impacto | Atención | 1. Necesidad | Primera impresión y brecha de curiosidad | Lindgaard et al. (2006); Asch (1946); Loewenstein (1994) |
-| 2. Problema | Interés | 2. Búsqueda | El riesgo planteado como pérdida | Kahneman y Tversky (1979) |
-| 3. Resultado | Interés y deseo | 3. Evaluación | Respuesta a la curiosidad y propuesta de valor | Gruber et al. (2014) |
-| 4. Qué hacer | Deseo | 3. Evaluación | Beneficio concreto y comprobable | Diferenciación (sección 5.4) |
-| 5. Beneficios | Deseo | 3. Evaluación | Respuesta anticipada a las objeciones | Perfiles del consumidor (Figura 3.1) |
-| 6. Prueba | Deseo | 3 y 4. Evaluación y compra | Reducción del riesgo y prueba social | Cialdini (2009) |
-| 7. Acción | Acción | 4. Compra | Un solo llamado a la acción | Strong (1925) |
-
-*Fuente:* elaboración propia.
-
-El carrusel es coherente con el resto del plan. Según el modelo de la caja negra visto en clase, es el estímulo de marketing que entra en la mente del productor, y cada imagen apunta a un factor de la Tabla 3.2: la motivación de seguridad (imágenes 1 y 2), la percepción de que la tecnología es complicada (imágenes 3 y 4) y la sensibilidad al precio (imagen 6). Además, usa la identidad visual del capítulo 9 y deja un solo mensaje por imagen. En la publicación real, las imágenes se ven dentro del teléfono como en el Anexo D; en esa maqueta, los «me gusta» y comentarios son ilustrativos.
+El carrusel aplica la identidad visual del capítulo 9: abre y cierra con el mismo fondo verde noche, deja un solo mensaje por imagen y usa el ocre para orientar la lectura. Cada imagen apunta a un factor de la Tabla 3.2: la motivación de seguridad (imágenes 1 y 2), la percepción de que la tecnología es complicada (imágenes 3 y 4) y la sensibilidad al precio (imagen 6).
 
 ### 7.3 Acciones promocionales y relaciones públicas
 
@@ -737,30 +631,6 @@ Las promociones estimulan la compra inmediata. En TerraSense, **ninguna rebaja e
 - **Días de campo y relaciones públicas.** Demostraciones con cooperativas y equipos de asesoría de INDAP, presencia en ferias regionales y un comunicado de lanzamiento a medios agrícolas, con el ángulo de interés público de medir antes de regar en plena sequía.
 
 **Calendario.** La campaña tiene tres momentos: expectativa en marzo de 2027, con los resultados del piloto de febrero; **lanzamiento el 19 de abril de 2027**; y refuerzo de agosto a noviembre, antes de las siembras de primavera y de la temporada de riego, cuando la necesidad es más visible.
-
-### 7.4 Presupuesto
-
-**Tabla 7.3.** *Presupuesto de publicidad y promoción del primer año*
-
-| Partida | Monto 2027 | Participación |
-|---|---:|---:|
-| Anuncios en Meta (Facebook, Instagram y WhatsApp) | $2.700.000 | 45 % |
-| Anuncios en Google y YouTube | $1.500.000 | 25 % |
-| Días de campo, ferias y relaciones públicas | $900.000 | 15 % |
-| Producción de videos y fotografías | $600.000 | 10 % |
-| Herramientas digitales (mensajería, correo y diseño) | $300.000 | 5 % |
-| **Total de publicidad** | **$6.000.000** | **100 %** |
-| Comisión a referentes (5 % del precio, solo si hay venta referida) | hasta $4.660.274 | — |
-
-*Fuente:* modelo económico del proyecto; el reparto entre partidas es una propuesta del equipo.
-
-**Figura 7.8.** *Distribución del presupuesto de publicidad*
-
-<img src="Figuras/fig_presupuesto.png" width="600" alt="Presupuesto de publicidad">
-
-*Fuente:* elaboración propia con los datos de la Tabla 7.3.
-
-El presupuesto equivale a $30.000 por equipo vendido, la cifra del modelo económico. El 70 % se destina a anuncios digitales, porque es donde está el consumidor y porque permite medir el costo de cada venta. El reparto se ajusta mes a mes: si un canal resulta más caro por venta, su presupuesto pasa al más eficiente (capítulo 8).
 
 ---
 
@@ -774,7 +644,7 @@ La estrategia digital se organiza como un **embudo de tres niveles**, cada uno c
 
 *Fuente:* elaboración propia.
 
-La Tabla 8.1 desarrolla cada canal con los elementos que pide la rúbrica: objetivo, contenido, formato, frecuencia, interacción, llamado a la acción y etapa del recorrido.
+La Tabla 8.1 desarrolla cada canal: objetivo, contenido, formato, frecuencia, interacción, llamado a la acción y etapa del recorrido.
 
 **Tabla 8.1.** *Estrategia por canal digital*
 
@@ -789,22 +659,7 @@ La Tabla 8.1 desarrolla cada canal con los elementos que pide la rúbrica: objet
 
 *Fuente:* elaboración propia.
 
-La elección de canales sigue al consumidor: el productor ya usa WhatsApp y Facebook a diario y aprende con videos de YouTube (Figura 3.1), y la clase muestra que la gran mayoría de los compradores de electrónica investiga en internet antes de comprar. WhatsApp ocupa un lugar central porque une la venta y el soporte en un mismo canal, atendido por una persona, que es lo que el consumidor pide en la etapa de compra. Quienes visitan el sitio o ven más de la mitad de un video reciben, durante los 14 días siguientes, anuncios de consideración con testimonios y el comparador (*retargeting*). El Anexo B presenta el calendario de contenidos de los tres primeros meses.
-
-**Tabla 8.2.** *Indicadores digitales*
-
-| Indicador | Meta inicial |
-|---|---|
-| Costo por conversación iniciada en WhatsApp | Hasta $2.100 |
-| Conversión de conversación a venta | 10 % |
-| Costo de publicidad por venta | Hasta $30.000 |
-| Tiempo de primera respuesta | Menos de 2 horas hábiles |
-| Clientes que miden en su primera semana | 90 % |
-| Recomendación neta (NPS) a los 15 días | Mayor que 50 |
-
-*Fuente:* modelo económico del proyecto y elaboración propia.
-
-Los indicadores cubren los tres niveles del embudo, desde el costo de atraer una conversación hasta la satisfacción después de la compra. La regla de gestión es simple: si el costo por venta de un canal supera los $30.000 durante dos meses seguidos, su presupuesto pasa al canal más eficiente.
+La elección de canales sigue al consumidor: el productor ya usa WhatsApp y Facebook a diario y aprende con videos de YouTube (Figura 3.1), y la clase muestra que la gran mayoría de los compradores de electrónica investiga en internet antes de comprar. WhatsApp ocupa un lugar central porque une la venta y el soporte en un mismo canal, atendido por una persona, que es lo que el consumidor pide en la etapa de compra. Quienes visitan el sitio o ven más de la mitad de un video reciben, durante los 14 días siguientes, anuncios de consideración con testimonios y el comparador (*retargeting*). El Anexo A presenta el calendario de contenidos de los tres primeros meses.
 
 ---
 
@@ -844,7 +699,7 @@ El ícono, a la izquierda, es un brote cuya raíz es la sonda que entra en el su
 
 *Fuente:* elaboración propia a partir de la paleta de la aplicación.
 
-La paleta combina los verdes del cultivo con los tonos de la tierra. Los estados del suelo usan verde, ámbar y rojo, como un semáforo, pero **nunca se comunican solo con el color**: cada estado lleva además texto o ícono, porque cerca del 8 % de los hombres tiene alguna dificultad para distinguir colores.
+La paleta combina los verdes del cultivo con los tonos de la tierra. Los estados del suelo usan verde, ámbar y rojo, como un semáforo, pero **nunca se comunican solo con el color**: cada estado lleva además texto o ícono, para que se lea sin ambigüedad.
 
 ### 9.3 Tipografía, imágenes y composición
 
@@ -874,19 +729,18 @@ El plan se apoya en fuentes de distinta naturaleza, y cada una se usa solo para 
 
 | Tipo | Fuentes | Para qué se usan | Confiabilidad |
 |---|---|---|---|
-| Académicas de marketing | Kotler y Armstrong (2017); Kotler y Keller (2016); Levitt (1960); McCarthy (1960); Booms y Bitner (1981); Rogers (2003); Howard y Sheth (1969); Blackwell et al. (2006) | Conceptos, comportamiento del consumidor, niveles del producto y 7P | Alta: textos de referencia de la disciplina |
-| Psicología del consumidor y publicidad | Strong (1925); Asch (1946); Kahneman y Tversky (1979); Loewenstein (1994); Lindgaard et al. (2006); Cialdini (2009); Gruber et al. (2014) | Estructura del carrusel, primera impresión, curiosidad, aversión a la pérdida y prueba social | Alta: artículos y libros con revisión académica |
-| Material de la asignatura | Maldonado (2026a, 2026b, 2026c) | Fundamentos, PESTEL, factores y etapas de compra, 4P y 7P | Alta para el marco del curso |
+| Académicas de marketing | Kotler y Armstrong (2017); Kotler y Keller (2016); Levitt (1960); McCarthy (1960); Booms y Bitner (1981); Howard y Sheth (1969); Blackwell et al. (2006) | Conceptos, comportamiento del consumidor, niveles del producto y 7P | Alta: textos de referencia de la disciplina |
+| Material de la asignatura | Maldonado (2026a, 2026b, 2026c) | Fundamentos, PESTEL, factores y etapas de compra, elección entre 4P y 7P | Alta para el marco del curso |
 | Estadística oficial | INE (2022) | Tamaño del mercado total | Alta: fuente censal |
 | Organismos públicos | CR2 (2015); ODEPA (s.f.); Ministerio de Agricultura (s.f.) | Factores ecológico, económico y político | Alta |
 | Normativa | Leyes N° 21.398, 21.719 y 20.920; SUBTEL (2026); SERNAC (s.f.) | Factor legal, garantía, retracto y datos personales | Alta: texto legal y regulador |
 | Prensa con datos de un estudio | Nogales (2026), con datos de Fundación País Digital | Conectividad rural | Media-alta |
 | Precios publicados | Hanna Chile, La Feria, Spectrum y Universidad de Chile | Competencia y costo de uso | Media: vigentes a la fecha de consulta |
-| Fuente interna | Modelo económico y aplicación de TerraSense | Precio, costos, presupuesto, meta de ventas y pantallas del carrusel | Alta en lo técnico; la demanda es una estimación |
+| Fuente interna | Modelo económico y aplicación de TerraSense | Precio, costos, meta de ventas y pantallas del carrusel | Alta en lo técnico; la demanda es una estimación |
 
 *Fuente:* elaboración propia.
 
-**Lectura crítica.** Las fuentes oficiales y académicas respaldan el análisis del entorno, los conceptos y el diseño de la publicidad. En cambio, los perfiles del consumidor y las metas de conversión se apoyan en fuentes secundarias y en el criterio del equipo, no en datos de clientes. Por eso el plan incluye una guía de entrevistas a diez productores y cinco asesores antes del lanzamiento (Anexo C), cuyos resultados ajustarán los mensajes, los canales y la meta de ventas.
+**Lectura crítica.** Las fuentes oficiales y académicas respaldan el análisis del entorno, los conceptos y las decisiones de la mezcla. En cambio, los perfiles del consumidor y las metas de conversión se apoyan en fuentes secundarias y en el criterio del equipo, no en datos de clientes. Por eso el plan contempla entrevistas a diez productores y cinco asesores antes del lanzamiento, cuyos resultados ajustarán los mensajes, los canales y la meta de ventas.
 
 ---
 
@@ -896,7 +750,7 @@ TerraSense responde a una necesidad real: en la zona central de Chile se decide 
 
 El análisis del entorno es favorable (megasequía, fertilizantes caros, conectividad rural y asesores en terreno), pero identifica la confianza como la barrera principal. El consumidor compra para protegerse de pérdidas, confía más en sus pares y en su asesor que en un anuncio, y necesita entender y probar antes de pagar. Por eso todo el plan está construido sobre la confianza: un posicionamiento que no promete más de lo que el producto hace, asesores referentes, testimonios reales, atención humana y una postcompra cuidada.
 
-La diferenciación sostenible es la recomendación según la etapa del cultivo, y el posicionamiento «del número a la decisión» ocupa un espacio que ningún competidor directo cubre. Las 7P son coherentes con él: un producto simple, un precio por valor bajo los importados, un canal digital con atención humana, una promoción que educa antes de vender y personas, pruebas y procesos que sostienen la experiencia después de la compra. El carrusel «Del número a la decisión» condensa esa estrategia en siete imágenes que llevan al productor del problema a la conversación por WhatsApp, apoyadas en principios de la psicología del consumidor y en pantallas reales de la aplicación.
+La diferenciación sostenible es la recomendación según la etapa del cultivo, y el posicionamiento «del número a la decisión» ocupa un espacio que ningún competidor directo cubre. Se eligieron las 7P y no las 4P porque el valor de TerraSense continúa después de la venta y la confianza se gana con personas, pruebas y procesos. La mezcla es coherente con el posicionamiento: un producto simple, un precio por valor bajo los importados, un canal digital con atención humana, una promoción que educa antes de vender y personas, pruebas y procesos que sostienen la experiencia después de la compra. El carrusel «Del número a la decisión» condensa esa estrategia en siete imágenes que llevan al productor del problema a la conversación por WhatsApp, con pantallas reales de la aplicación.
 
 El principal riesgo es que la demanda y la conversión todavía son estimaciones. Las entrevistas, el piloto y los indicadores digitales permiten confirmarlas o corregirlas en los primeros meses, antes de comprometer más inventario.
 
@@ -905,24 +759,18 @@ El principal riesgo es que la demanda y la conversión todavía son estimaciones
 ## Referencias bibliográficas
 
 - American Marketing Association. (2017). *Definitions of marketing*. https://www.ama.org/the-definition-of-marketing-what-is-marketing/
-- Asch, S. E. (1946). Forming impressions of personality. *Journal of Abnormal and Social Psychology, 41*(3), 258–290.
 - Biblioteca del Congreso Nacional de Chile. (2024). *Ley N° 21.719, regula la protección y el tratamiento de los datos personales*. https://www.bcn.cl/leychile/navegar?i=1209272
 - Blackwell, R. D., Miniard, P. W., y Engel, J. F. (2006). *Consumer behavior* (10.ª ed.). Thomson South-Western.
 - Booms, B. H., y Bitner, M. J. (1981). Marketing strategies and organization structures for service firms. En J. H. Donnelly y W. R. George (Eds.), *Marketing of services* (pp. 47–51). American Marketing Association.
 - Centro de Ciencia del Clima y la Resiliencia (CR2). (2015). *Informe a la Nación: La megasequía 2010-2015, una lección para el futuro*. https://www.cr2.cl/megasequia/
-- Cialdini, R. B. (2009). *Influence: Science and practice* (5.ª ed.). Pearson.
-- Gruber, M. J., Gelman, B. D., y Ranganath, C. (2014). States of curiosity modulate hippocampus-dependent learning via the dopaminergic circuit. *Neuron, 84*(2), 486–496.
 - Hanna Instruments Chile. (2026). *Medidor portátil e impermeable de pH, CE, TDS y temperatura GroLine HI9814* [Precio consultado el 04-09-2026]. https://hannachile.com/producto/medidor-portatil-e-impermeable-de-ph-ce-tds-temperatura-groline-hidroponia-hi9814/
 - Howard, J. A., y Sheth, J. N. (1969). *The theory of buyer behavior*. John Wiley & Sons.
 - Instituto Nacional de Estadísticas (INE). (2022). *VIII Censo Agropecuario y Forestal 2021: resultados finales*. https://www.ine.gob.cl/censoagropecuario
-- Kahneman, D., y Tversky, A. (1979). Prospect theory: An analysis of decision under risk. *Econometrica, 47*(2), 263–291.
 - Kotler, P., y Armstrong, G. (2017). *Fundamentos de marketing* (13.ª ed.). Pearson Educación.
 - Kotler, P., y Keller, K. L. (2016). *Dirección de marketing* (15.ª ed.). Pearson Educación.
 - La Feria. (2026). *Pulse Meter Bluelab: temperatura, humedad y EC* [Precio consultado el 04-09-2026]. https://delaferia.cl/products/pulse-meter-bluelab-temperatura-humedad-y-ec
 - Laboratorio de Química de Suelos y Aguas, Universidad de Chile. (2026). *Lista de precios de análisis de suelos 2026*. https://www.labsueloaguas.uchile.cl/wp-content/uploads/2026/05/SUELOS.pdf
 - Levitt, T. (1960). Marketing myopia. *Harvard Business Review, 38*(4), 45–56.
-- Lindgaard, G., Fernandes, G., Dudek, C., y Brown, J. (2006). Attention web designers: You have 50 milliseconds to make a good first impression! *Behaviour & Information Technology, 25*(2), 115–126.
-- Loewenstein, G. (1994). The psychology of curiosity: A review and reinterpretation. *Psychological Bulletin, 116*(1), 75–98.
 - Maldonado, K. (2026a). *Introducción al marketing: conceptos fundamentales y entorno del marketing* [Diapositivas de clase, Unidad 2]. Comercialización de Tecnologías, INACAP.
 - Maldonado, K. (2026b). *Comportamiento del consumidor en marketing* [Diapositivas de clase, Unidad 2]. Comercialización de Tecnologías, INACAP.
 - Maldonado, K. (2026c). *Las 4P y 7P del marketing: del modelo tradicional al digital* [Diapositivas de clase, Unidad 2]. Comercialización de Tecnologías, INACAP.
@@ -930,40 +778,17 @@ El principal riesgo es que la demanda y la conversión todavía son estimaciones
 - Ministerio de Agricultura. (s.f.). *Programa de Asesoría Técnica (SAT)*. https://minagri.gob.cl/servicios/programa-de-asesoria-tecnica-sat/
 - Nogales, D. (2026, 25 de mayo). Chile alcanza cobertura de internet virtualmente universal y lleva brecha urbano-rural a su mínimo histórico. *La Tercera*. https://www.latercera.com/pulso/noticia/chile-alcanza-cobertura-de-internet-virtualmente-universal-y-lleva-brecha-urbano-rural-a-su-minimo-historico/
 - Oficina de Estudios y Políticas Agrarias (ODEPA). (s.f.). *Evolución reciente de los precios de los fertilizantes*. https://www.odepa.gob.cl/publicaciones/articulos/evolucion-reciente-de-los-precios-de-los-fertilizantes
-- Rogers, E. M. (2003). *Diffusion of innovations* (5.ª ed.). Free Press.
 - Servicio Nacional del Consumidor (SERNAC). (s.f.). *Especial Ley Pro Consumidor*. https://www.sernac.cl/portal/604/w3-propertyname-786.html
 - Spectrum Technologies. (s.f.). *FieldScout TDR 350 Soil Moisture Meter*. https://sandbox.specmeters.com/FieldScout-TDR350-Soil-Moisture-Meter
-- Strong, E. K. (1925). *The psychology of selling and advertising*. McGraw-Hill.
 - Subsecretaría de Telecomunicaciones (SUBTEL). (2026). *Equipos de alcance reducido*. https://www.subtel.gob.cl/equipos-de-alcance-reducido/
 
 ---
 
 ## Anexos
 
-### Anexo A. Ficha comercial del producto
+### Anexo A. Calendario de contenidos de los tres primeros meses
 
-**Tabla A.1.** *Ficha comercial de TerraSense*
-
-| Atributo | Especificación |
-|---|---|
-| Variables del suelo | Humedad, temperatura, conductividad eléctrica, pH, nitrógeno, fósforo y potasio (estos tres como referencia) |
-| Variables del ambiente | Temperatura del aire, humedad relativa y presión |
-| Interpretación | Según la etapa del cultivo que elige el usuario: pre-siembra, crecimiento vegetativo, floración o cosecha |
-| Conexión | Bluetooth de bajo consumo; vinculación con el botón PAIR mantenido 3 segundos |
-| Tiempo por medición | Menos de 20 segundos |
-| Sin señal | Mide, interpreta y guarda; sincroniza al recuperar la conexión |
-| Con señal | Suma el pronóstico de cinco días y respalda el historial en la nube |
-| Energía | Batería de litio de 2.000 mAh recargable por USB-C |
-| Carcasa | Diseñada para el campo, con objetivo de estanqueidad IP67 verificado en laboratorio acreditado antes de la venta |
-| Aplicación | Android y iPhone; español e inglés; tema claro u oscuro; letra normal o grande |
-| Precio | $467.463 con IVA ($392.826 neto), pago único, despacho incluido |
-| Garantía | Legal de seis meses; derecho a retracto de 10 días en compras a distancia |
-
-*Fuente:* elaboración propia.
-
-### Anexo B. Calendario de contenidos de los tres primeros meses
-
-**Tabla B.1.** *Calendario de contenidos desde el lanzamiento*
+**Tabla A.1.** *Calendario de contenidos desde el lanzamiento*
 
 | Semana | Atracción (Instagram y Facebook) | Consideración (YouTube y sitio) | Conversión y fidelización (WhatsApp y correo) |
 |---|---|---|---|
@@ -975,28 +800,3 @@ El principal riesgo es que la demanda y la conversión todavía son estimaciones
 | 9 a 12 | Casos de clientes Campo Pionero | Video con un asesor referente | Consejos para preparar el suelo en otoño e invierno |
 
 *Fuente:* elaboración propia.
-
-### Anexo C. Guía de entrevista para validar al consumidor
-
-Se aplica a 10 productores y 5 asesores de la zona central antes del lanzamiento, en 20 minutos.
-
-1. ¿Cómo decide hoy cuándo regar y cuándo sembrar?
-2. ¿Cuántas veces al año analiza su suelo? ¿Cuánto paga y cuánto espera el resultado?
-3. ¿Cuándo una decisión de riego o de siembra le costó una pérdida? ¿Qué pasó?
-4. ¿Ha usado algún medidor de suelo? ¿Qué le gustó y qué no?
-5. ¿Tiene señal de celular en todo su campo?
-6. Si un equipo le dijera en el campo qué hacer según la etapa de su cultivo, ¿lo usaría? ¿Cuántas veces por temporada?
-7. ¿Qué precio le parecería razonable por un equipo así, de pago único? ¿Y caro?
-8. ¿A quién le pediría consejo antes de comprarlo?
-9. ¿Dónde se informa sobre productos para el campo?
-10. ¿Compraría por internet o preferiría hablar antes con una persona?
-
-Los resultados ajustan los perfiles y los factores de compra (capítulo 3), los mensajes (capítulo 7) y los canales (capítulo 8).
-
-### Anexo D. El carrusel publicado en un teléfono
-
-**Figura D.1.** *Vista de conjunto del carrusel publicado*
-
-<img src="Carrusel/resumen.png" width="680" alt="Carrusel publicado en un teléfono">
-
-*Fuente:* elaboración propia. Maqueta: los «me gusta» y comentarios de la publicación son ilustrativos.
