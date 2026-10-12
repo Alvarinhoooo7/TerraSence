@@ -22,6 +22,7 @@
 #include "identidad.h"
 #include "bme280.h"
 #include "ble_terrasense.h"
+#include "monitor_serie.h"
 
 Pulsador pulsadorPair(PIN_PARING);
 Led ledAzul(PIN_LED_BLUE);
@@ -30,6 +31,7 @@ Led ledRojo(PIN_LED_RED);
 Zumbador zumbador(PIN_BUZZER);
 Bme280 bme;
 Sonda sonda;
+MonitorSerie monitor;
 
 // Quién pidió la captura en curso: la de la app se notifica; la de la tecla
 // «m» del monitor serie sólo se muestra, para probar la sonda sin teléfono.
@@ -63,6 +65,7 @@ void revisarBateria(uint32_t ahora, bool forzar = false) {
 // no respondió), el ambiente y la batería medidos ahora mismo, y la notifica
 // si la pidió la app.
 void medirYNotificar(uint32_t ahora, LecturaSuelo suelo, bool notificar) {
+  const LecturaSuelo original = suelo;  // sólo para el diagnóstico, antes del descarte
   revisarBateria(ahora, true);  // la batería de esta captura, sin reutilizar la anterior
   // Los rangos se revisan antes que la batería para que la prueba en banco, sin
   // celda, igual diga si la lectura de la sonda habría sido publicable.
@@ -80,6 +83,7 @@ void medirYNotificar(uint32_t ahora, LecturaSuelo suelo, bool notificar) {
   uint8_t trama[TRAMA_BYTES];
   armarTrama(suelo, aire, trama);
   const bool enviada = notificar && bleNotificar(trama, sizeof(trama));
+  monitor.registrarCaptura(original, bateriaActual, aire, trama, notificar, enviada, millis());
 
   Serial.print("[TRAMA] ");
   for (size_t i = 0; i < sizeof(trama); i++) Serial.printf("%02X ", trama[i]);
@@ -91,6 +95,7 @@ void medirYNotificar(uint32_t ahora, LecturaSuelo suelo, bool notificar) {
                 bme.presente() ? "ok" : "ausente (centinela)", bateriaActual.voltios,
                 bateriaActual.valida ? "aproximada" : "sin dato");
 
+  if (!notificar) monitor.mostrarCaptura(millis());
   if (!enviada) return;
   // notify() sólo encola la notificación; no acredita recepción en la app.
   if (suelo.valida) {
@@ -102,16 +107,69 @@ void medirYNotificar(uint32_t ahora, LecturaSuelo suelo, bool notificar) {
   }
 }
 
-// Comandos del monitor serie para el banco: «m» pide una captura de prueba y
-// «d» el diagnóstico del bus RS-485. Devuelve el último reconocido, o 0.
-char comandoSerie() {
-  char comando = 0;
-  while (Serial.available() > 0) {
-    const int c = Serial.read();
-    if (c == 'm' || c == 'M') comando = 'm';
-    if (c == 'd' || c == 'D') comando = 'd';
+void cancelarPruebas() {
+  if (!ledAzul.enPrueba() && !ledVerde.enPrueba() && !ledRojo.enPrueba() && !zumbador.enPrueba()) return;
+  ledAzul.cancelarPrueba();
+  ledVerde.cancelarPrueba();
+  ledRojo.cancelarPrueba();
+  zumbador.cancelarPrueba();
+  // Aplicar el fondo/aviso vigente de inmediato, también antes del barrido d.
+  const uint32_t ahora = millis();
+  ledAzul.actualizar(ahora);
+  ledVerde.actualizar(ahora);
+  ledRojo.actualizar(ahora);
+}
+
+void atenderMonitor(uint32_t ahora) {
+  const char comando = monitor.tomarComando();
+  if (!comando) return;
+  const bool ocupada = captura != OrigenCaptura::Ninguna;
+  switch (comando) {
+    case 'h': case '?': monitor.menu(); return;
+    case 'x':
+      cancelarPruebas();
+      monitor.mensaje("Pruebas de salidas canceladas; avisos normales conservados.");
+      return;
+    case 'e':
+      monitor.mostrarEstado(identidad::codigo().c_str(), bleConectado(), bleVentanaAbierta(ahora),
+                            ocupada, digitalRead(PIN_PARING) == LOW, ahora);
+      monitor.sensorAmbiente(bme.presente(), bme.tieneHumedad(), bme.direccion());
+      return;
+    case 'b': monitor.mostrarBateria(bateriaActual, ultimaBateria, ahora); return;
+    case 'a': monitor.mostrarAmbiente(ahora); return;
+    case 't': monitor.mostrarTrama(ahora); return;
+    case '!': monitor.mensaje("Comando desconocido. Usa h para ver el menú."); return;
   }
-  return comando;
+  // Las pruebas manuales nunca compiten con una captura o vinculación.
+  if (ocupada || bleConectado() || bleVentanaAbierta(ahora) || digitalRead(PIN_PARING) == LOW) {
+    monitor.mensaje("Prueba no iniciada: captura, BLE o PAIR activos. Intenta cuando esté en reposo.");
+    return;
+  }
+  cancelarPruebas();  // una sola salida de mantenimiento a la vez
+  bool iniciada = false;
+  switch (comando) {
+    case '1': iniciada = zumbador.probar(ahora); break;
+    case '2': iniciada = ledAzul.probar(ahora); break;
+    case '3': iniciada = ledVerde.probar(ahora); break;
+    case '4': iniciada = ledRojo.probar(ahora); break;
+    case 'm': case 'g':
+      if (sonda.iniciar(ahora)) {
+        captura = OrigenCaptura::Serie;
+        monitor.mensaje("Captura nueva iniciada. El diagnóstico se mostrará al terminar.");
+        Serial.println("[SONDA] Captura pedida desde el monitor serie");
+      } else monitor.mensaje("No se pudo iniciar: la sonda ya está ocupada.");
+      return;
+    case 'd':
+      // Conserva el barrido de banco existente; es la única prueba bloqueante.
+      sonda.diagnosticoBus();
+      monitor.mensaje("Barrido RS-485 terminado. Usa m para adquirir y validar una lectura.");
+      return;
+  }
+  if (!iniciada) monitor.mensaje("Salida no probada: aviso operativo activo o buzzer deshabilitado.");
+  else monitor.mensaje(comando == '1' ? "Buzzer: tono de 1 s. Confirma si se escucha; x cancela." :
+                       comando == '2' ? "LED azul: encendido de 1 s. Confirma visualmente; x cancela." :
+                       comando == '3' ? "LED verde: encendido de 1 s. Confirma visualmente; x cancela." :
+                                        "LED rojo: encendido de 1 s. Confirma visualmente; x cancela.");
 }
 
 // Diagnóstico de arranque del bus I2C: lista las direcciones que responden,
@@ -206,7 +264,8 @@ void setup() {
   // La única señal de «estoy encendida».
   ledVerde.aviso(PatronLed::Encendido1s, millis());
   zumbador.reproducir(Sonido::Encendido, millis());
-  Serial.println("TerraSense ESP32 inicializado. Tecla «m»: medir la sonda sin la app; «d»: diagnóstico del bus RS-485.");
+  Serial.println("TerraSense ESP32 inicializado. Tecla h: menú de mantenimiento; m: medir; d: bus RS-485.");
+  monitor.menu();
 }
 
 void loop() {
@@ -214,6 +273,7 @@ void loop() {
 
   switch (pulsadorPair.actualizar(ahora)) {
     case EventoPulsador::PairingActivado:
+      cancelarPruebas();
       bleAbrirVentana(ahora);
       zumbador.reproducir(Sonido::VentanaAbierta, ahora);
       Serial.printf("[PAIR] Ventana de vinculación abierta por %lu s\n", PAIR_VENTANA_MS / 1000UL);
@@ -223,19 +283,16 @@ void loop() {
   }
 
   bleActualizar(ahora);
+  if (bleConectado() || bleVentanaAbierta(ahora) || digitalRead(PIN_PARING) == LOW)
+    cancelarPruebas();
   revisarBateria(ahora);
   // La suscripción de la app inicia una captura nueva; el bucle sigue atendiendo
   // PAIR y avisos mientras la sonda se estabiliza y responde.
-  if (bleTomarSolicitudLectura(ahora) && sonda.iniciar(ahora)) captura = OrigenCaptura::App;
-  const char comando = comandoSerie();
-  if (comando && captura != OrigenCaptura::Ninguna) {
-    Serial.println("[SONDA] Ya hay una captura en curso");
-  } else if (comando == 'm' && sonda.iniciar(ahora)) {
-    captura = OrigenCaptura::Serie;
-    Serial.println("[SONDA] Captura pedida desde el monitor serie");
-  } else if (comando == 'd') {
-    sonda.diagnosticoBus();
+  if (bleTomarSolicitudLectura(ahora)) {
+    cancelarPruebas();
+    if (sonda.iniciar(ahora)) captura = OrigenCaptura::App;
   }
+  atenderMonitor(ahora);
   sonda.actualizar(ahora);
   if (captura == OrigenCaptura::App && !bleConectado()) {
     sonda.cancelar();  // la respuesta no se entrega a una conexión posterior
@@ -248,6 +305,7 @@ void loop() {
     medirYNotificar(ahora, sonda.tomarLectura(), notificar);
   }
   actualizarAvisos(ahora);
+  monitor.actualizar(captura != OrigenCaptura::Ninguna);
 
   delay(5);
 }

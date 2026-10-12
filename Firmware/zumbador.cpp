@@ -32,6 +32,7 @@ void Zumbador::tocar(uint16_t frecuencia) {
 }
 
 void Zumbador::silenciar() {
+  prueba_ = false;
   notas_ = nullptr;
   total_ = 0;
   tocar(0);
@@ -39,6 +40,7 @@ void Zumbador::silenciar() {
 
 void Zumbador::reproducir(Sonido sonido, uint32_t ahora) {
   if (!BUZZER_HABILITADO) return;
+  prueba_ = false;
   switch (sonido) {
     case Sonido::Encendido:      notas_ = ENCENDIDO; total_ = largo(ENCENDIDO); break;
     case Sonido::VentanaAbierta: notas_ = VENTANA;   total_ = largo(VENTANA);   break;
@@ -51,7 +53,20 @@ void Zumbador::reproducir(Sonido sonido, uint32_t ahora) {
   tocar(notas_[0].frecuencia);
 }
 
+bool Zumbador::probar(uint32_t ahora) {
+  if (!BUZZER_HABILITADO || notas_) return false;
+  prueba_ = true;
+  pruebaDesde_ = ahora;
+  tocar(AGUDO);
+  return true;
+}
+
+void Zumbador::cancelarPrueba() {
+  if (prueba_) silenciar();
+}
+
 void Zumbador::actualizar(uint32_t ahora) {
+  if (prueba_ && ahora - pruebaDesde_ >= 1000) silenciar();
   if (!notas_) return;
   while (indice_ < total_ && ahora - notaDesde_ >= notas_[indice_].duracionMs) {
     notaDesde_ += notas_[indice_].duracionMs;

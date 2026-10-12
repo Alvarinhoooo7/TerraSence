@@ -20,6 +20,7 @@ El contrato con la app lo fija el código de la app, no este firmware: [`App/src
 | `bme280.*` | Driver mínimo del BME280 por I2C. |
 | `modbus.*` | Transporte Modbus RTU genérico: solicitud, CRC, validación de la respuesta y reintentos. |
 | `sonda.*` | Captura de la sonda de suelo: la energiza, la consulta por RS-485 y convierte los registros. |
+| `monitor_serie.*` | Menú de mantenimiento, informes de batería y copia de la última captura para diagnóstico. |
 | `platformio.ini` | Compilación alternativa con PlatformIO (pioarduino, mismo núcleo 3.3.0). |
 | `TASK.md` | Estado, procedimiento de prueba con la app y pendientes. |
 | `PLAN.md` | Orden de implementación: Modbus, medición real, batería, validación, reposo y actualización por BLE (OTA). |
@@ -81,6 +82,30 @@ Si la sonda no responde, o no hay una batería válida que informar, la medició
 
 Los LEDs ya no son el consumo que importa. El ESP32 despierto con la radio BLE anunciando consume decenas de mA de forma continua, muy por encima de un LED. Para que la batería dure hace falta el reposo profundo (pendiente F4 en [TASK.md](TASK.md)).
 
+## Monitor de mantenimiento
+
+Monitor serie a **115200 baudios**. El menú aparece al arrancar y se repite con **`h`** o **`?`**. Envía un comando por vez; acepta mayúsculas, con o sin Enter, y terminaciones LF o CRLF.
+
+| Comando | Acción |
+| :--- | :--- |
+| `1` | Tono del buzzer durante 1 segundo. Respeta la configuración de silencio. |
+| `2` / `3` / `4` | LED azul / verde / rojo encendido durante 1 segundo. |
+| `x` | Cancela las pruebas de salidas y conserva los avisos normales. |
+| `e` | ID, versión, tiempo encendido, conexión BLE, ventana PAIR, nivel instantáneo del pulsador, pines y detección del sensor ambiental. |
+| `b` | Última lectura periódica de batería y su antigüedad: tensión en el ADC, tensión de celda calculada con el divisor, porcentaje aproximado, umbrales y motivo de invalidez. No fuerza otra adquisición ni cambia el estado publicado. |
+| `m` / `g` | Captura nueva por la ruta habitual de la sonda, sin notificar a la app. Al terminar muestra suelo recibido, motivo de aceptación o descarte, batería, temperatura/humedad/presión ambientales y trama desglosada. |
+| `a` | Ambiente de la última captura, con antigüedad. No vuelve a medir. |
+| `t` | Última trama en hexadecimal, índices, campos, escalas y centinelas. No vuelve a medir ni notifica. |
+| `d` | Barrido RS-485 de banco existente: lecturas e identidad a varias velocidades. **Bloquea el bucle unos segundos**; usar sin operaciones desde la app durante el barrido. |
+
+Las pruebas manuales de salidas, la captura local y el barrido se rechazan si hay una captura, conexión BLE, ventana PAIR o pulsación PAIR en curso. Sólo se prueba una salida a la vez. Las pruebas de un segundo no usan `delay`: el bucle sigue atendiendo al equipo. Una conexión BLE, el pulsador PAIR o una captura cancelan las pruebas; un aviso normal del LED o buzzer tiene prioridad sobre su prueba. El barrido `d` conserva su funcionamiento bloqueante anterior.
+
+El informe distingue **«la sonda no respondió»** de **«la sonda respondió, pero el suelo fue descartado por batería inválida»**. La copia de diagnóstico conserva los datos originales; no modifica la trama, los rangos, los umbrales ni las reglas de descarte. Los valores ausentes se muestran como «SIN DATO». La copia nunca se usa para enviar una medición posterior a la app.
+
+Los informes nuevos salen en fragmentos de hasta 64 bytes por vuelta, limitados por el espacio disponible del puerto, y se pausan durante una captura. Un nuevo comando sustituye el informe pendiente; espera a que termine para leerlo completo. Los mensajes operativos existentes pueden intercalarse. El monitor confirma que **ordenó** una salida: comprobar físicamente luz y sonido sigue siendo necesario.
+
+Para verificar en banco: probar `1`–`4` por separado, comprobar que terminan al segundo, cancelar con `x` y pulsar PAIR durante una prueba. Revisar `b` con y sin batería, `a`/`t` antes de la primera captura y después de `m`, y finalmente realizar una medición desde la app para comprobar que conserva su comportamiento habitual.
+
 ## Trama de telemetría
 
 Al suscribirse la app, el firmware arma una trama **nueva** de 20 bytes, versión 1, y la notifica una vez. Los campos sin lectura no se simulan:
@@ -102,7 +127,7 @@ Además de la trama, el firmware publica una característica de lectura con 5 by
 
 1. Instalar en el Gestor de Tarjetas `esp32 by Espressif Systems` (probado con 3.3.0).
 2. Abrir `Firmware/Firmware.ino`. El IDE carga los demás archivos como pestañas.
-3. Placa: **ESP32 Dev Module**. Esquema de particiones por defecto: el programa ocupa cerca del 88 % de la partición.
-4. Compilar y subir. Monitor serie a **115200 baudios**: muestra los eventos del pulsador, la vinculación, la respuesta de la sonda y cada trama en hexadecimal. La tecla **`m`** pide una captura sin la app ([prueba en banco](TASK.md#prueba-de-la-sonda-en-banco)).
+3. Placa: **ESP32 Dev Module**, esquema de particiones por defecto. Verificación y ocupación en [TASK.md](TASK.md#hecho).
+4. Compilar y subir. Monitor serie a **115200 baudios**: **`h`** abre el menú de mantenimiento y **`m`** pide una captura sin la app con diagnóstico detallado ([prueba en banco](TASK.md#prueba-de-la-sonda-en-banco)). También conserva los eventos del pulsador, la vinculación, la respuesta de la sonda y cada trama en hexadecimal.
 
 Con PlatformIO, desde `Firmware/`: `pio run -t upload` y `pio device monitor`. [`platformio.ini`](platformio.ini) usa la plataforma pioarduino porque la oficial trae el núcleo 2.x, y este firmware usa APIs del 3.x.

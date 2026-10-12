@@ -39,21 +39,32 @@ void Led::begin() {
 }
 
 void Led::fondo(PatronLed patron, uint32_t ahora) {
+  if (patron != PatronLed::Apagado) cancelarPrueba();
   if (patron == fondo_) return;
   fondo_ = patron;
   fondoDesde_ = ahora;
 }
 
 void Led::aviso(PatronLed patron, uint32_t ahora) {
+  cancelarPrueba();
   aviso_ = patron;
   avisoDesde_ = ahora;
 }
 
 void Led::apagar() {
+  cancelarPrueba();
   fondo_ = PatronLed::Apagado;
   aviso_ = PatronLed::Apagado;
   digitalWrite(pin_, LOW);
   estado_ = 0;
+}
+
+bool Led::probar(uint32_t ahora) {
+  if (fondo_ != PatronLed::Apagado ||
+      (aviso_ != PatronLed::Apagado && ahora - avisoDesde_ < duracionAviso(aviso_))) return false;
+  prueba_ = true;
+  pruebaDesde_ = ahora;
+  return true;
 }
 
 void Led::actualizar(uint32_t ahora) {
@@ -65,6 +76,8 @@ void Led::actualizar(uint32_t ahora) {
     aviso_ = PatronLed::Apagado;
     encendido = nivel(fondo_, ahora - fondoDesde_);
   }
+  if (prueba_ && ahora - pruebaDesde_ >= ENCENDIDO_MS) cancelarPrueba();
+  if (prueba_) encendido = true;
   if (int8_t(encendido) != estado_) {
     digitalWrite(pin_, encendido ? HIGH : LOW);
     estado_ = encendido;

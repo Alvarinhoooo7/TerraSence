@@ -31,6 +31,9 @@ public:
   void reproducir(Sonido sonido, uint32_t ahora);
   void actualizar(uint32_t ahora);
   void silenciar();
+  bool probar(uint32_t ahora);  // tono de 1 s, sin reemplazar sonidos operativos
+  bool enPrueba() const { return prueba_; }
+  void cancelarPrueba();
 
 private:
   void tocar(uint16_t frecuencia);
@@ -41,4 +44,6 @@ private:
   uint8_t     indice_ = 0;
   uint32_t    notaDesde_ = 0;
   int32_t     frecuenciaActual_ = -1;
+  bool        prueba_ = false;
+  uint32_t    pruebaDesde_ = 0;
 };

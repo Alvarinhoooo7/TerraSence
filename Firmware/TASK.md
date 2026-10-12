@@ -16,8 +16,9 @@ Alcance vigente: **vinculación BLE con la app, pulsador PAIR, indicadores LED y
 | Buzzer (IO19) | Tonos por LEDC con el mismo significado que los LEDs (tabla del README), en secuencias no bloqueantes. | Compila sin advertencias. Falta en hardware; ver H1. |
 | Característica de estado `…6105` | 5 bytes: batería en % (curva LiPo típica, sin calibrar), versión `FIRMWARE_VERSION_*` y banderas (bit 0 = ventana PAIR abierta), legible en cualquier momento. La app la lee en cada contacto y la informa a Supabase. | Compila sin advertencias. Falta leerla con nRF Connect en hardware. |
 | Batería (IO34) | Lectura calibrada del ADC, divisor ×2, aviso bajo 3,40 V con histéresis hasta 3,50 V; se ignora bajo 2,5 V (sin celda). No entra en la trama sin lectura de suelo. | Compila. Divisor y umbral sin confirmar. |
+| Monitor de mantenimiento | Menú `h`, pruebas de un segundo para buzzer y LEDs (`1`–`4`), cancelación `x`, estado `e`, batería `b`, captura detallada `m`/`g` y última captura `a`/`t`. Conserva el barrido bloqueante `d` sólo para banco. Los avisos operativos tienen prioridad. | Compilación y enlace para ESP32 verificados. Falta comprobar las salidas físicas y la convivencia con BLE/PAIR en hardware; procedimiento en [README.md](README.md#monitor-de-mantenimiento). |
 
-Compilación: `arduino-cli` del Arduino IDE, núcleo esp32 3.3.0, placa ESP32 Dev Module, sin advertencias en los archivos del firmware. El programa ocupa el 88 % de la partición por defecto.
+Compilación y enlace: `arduino-cli` del Arduino IDE, núcleo esp32 3.3.0, placa ESP32 Dev Module, sin advertencias en los archivos del firmware. El programa ocupa el 89 % de la partición por defecto. La verificación local del monitor llegó hasta el ejecutable ELF: el empaquetado BIN con `esptool.exe` quedó sin verificar porque el entorno denegó la extracción de una DLL. No se cargó al equipo. Las 28 pruebas de telemetría, contacto y avisos de batería de la app pasaron; no sustituyen la prueba física del monitor.
 
 ## Procedimiento de prueba con la app
 
