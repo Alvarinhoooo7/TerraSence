@@ -61,7 +61,12 @@ export function ScreenGuide({ children, enabled = true, scope = '' }: React.Prop
     <View ref={root} collapsable={false} style={{ flex: 1 }} onLayout={event => setSize(event.nativeEvent.layout)}>
       <View style={{ flex: 1 }} pointerEvents={active ? 'none' : 'auto'} accessibilityElementsHidden={active} importantForAccessibility={active ? 'no-hide-descendants' : 'auto'}>{children}</View>
       {enabled && <Pressable ref={help} accessibilityRole="button" accessibilityLabel={t('Abrir guía de esta pantalla', 'Open this screen guide')} accessibilityElementsHidden={active} importantForAccessibility={active ? 'no-hide-descendants' : 'auto'} onPress={() => void open()}
-        style={[styles.help, { opacity: active ? 0 : 1, top: insets.top + 6, backgroundColor: colors.card, borderColor: colors.border }]}><Text style={{ color: colors.primary, fontSize: 23, fontWeight: '700' }}>?</Text></Pressable>}
+        style={({ pressed }) => [styles.help, { opacity: active ? 0 : pressed ? .6 : 1, top: insets.top + 8 }]}>
+        {/* Área táctil de 44; lo visible es un círculo discreto, sin borde. */}
+        <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: `${colors.primary}22`, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '800' }}>?</Text>
+        </View>
+      </Pressable>}
       {enabled && active && <View style={[StyleSheet.absoluteFill, { zIndex: 100 }]} accessibilityViewIsModal importantForAccessibility="yes" onAccessibilityEscape={close}>
         {hole ? <>
           <View style={[styles.shade, { top: 0, left: 0, right: 0, height: hole.y }]} />
@@ -90,7 +95,7 @@ export function ScreenGuide({ children, enabled = true, scope = '' }: React.Prop
   </GuideContext.Provider>;
 }
 const styles = StyleSheet.create({
-  help: { position: 'absolute', right: 16, width: 48, height: 48, borderRadius: 24, borderWidth: 1, justifyContent: 'center', alignItems: 'center', zIndex: 50 },
+  help: { position: 'absolute', right: 14, width: 44, height: 44, justifyContent: 'center', alignItems: 'center', zIndex: 50 },
   shade: { position: 'absolute', backgroundColor: 'rgba(0,0,0,0.72)' },
   panel: { position: 'absolute', borderRadius: 18, padding: 16, borderWidth: 1 },
   row: { flexDirection: 'row', alignItems: 'center' },

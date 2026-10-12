@@ -23,6 +23,7 @@ def validate():
     paths = [ROOT/'README.md', *sorted((ROOT/'docs').glob('*.md'))]
     paths += [ROOT/name/'README.md' for name in ('App','PCB','Web','supabase','Comercializacion de Tecnologias')]
     paths.append(ROOT/'App/TASK_PERMISSIONS.md')
+    paths += [ROOT/'App'/name for name in ('MOTOR_AGRONOMICO.md', 'TASK_MOTOR_AGRONOMICO.md')]
     errors = []
     count = 0
     for path in paths:

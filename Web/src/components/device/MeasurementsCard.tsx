@@ -1,8 +1,8 @@
 // src/components/device/MeasurementsCard.tsx — últimas 5 mediciones.
 //
 // Las 16 columnas pedidas no caben en una fila legible, así que cada fila se
-// despliega: recogida muestra las primeras (Registro, Fase y las cuatro
-// variables del suelo) y desplegada, el resto en el mismo orden. La
+// despliega: recogida muestra las primeras (Registro, Fase con la especie y las
+// cuatro variables del suelo) y desplegada, el resto en el mismo orden. La
 // coordenada va en texto plano, tal cual.
 
 import { useState } from 'react';
@@ -46,7 +46,10 @@ function Row({ m, open, onToggle }: { m: Measurement; open: boolean; onToggle: (
           className={`text-faint transition-transform ${open ? 'rotate-180 text-ink' : ''}`}
         />
         <span className="font-mono text-[13px] text-ink tabular">{exactDateTime(m.measured_at)}</span>
-        <span className="text-ink md:text-left">{stageLabel(m.phenological_stage)}</span>
+        <span className="min-w-0 text-ink md:text-left">
+          {stageLabel(m.phenological_stage)}
+          <span className="block truncate text-xs text-muted">{m.species?.es ?? 'Sin especie'}</span>
+        </span>
         <span className="hidden text-right tabular md:block">{num(m.vwc_percent, 1, '%')}</span>
         <span className="hidden text-right tabular md:block">{num(m.soil_temp_c, 1, '°C')}</span>
         <span className="hidden text-right tabular md:block">{num(m.ec_us_cm, 0)}</span>
@@ -65,6 +68,9 @@ function Row({ m, open, onToggle }: { m: Measurement; open: boolean; onToggle: (
             <Detail label="Conductividad eléctrica">{num(m.ec_us_cm, 0, 'µS/cm')}</Detail>
             <Detail label="pH">{num(m.ph, 1)}</Detail>
           </div>
+          <Detail label="Especie">
+            {m.species ? <>{m.species.es} <i className="text-muted">{m.species.scientific}</i></> : 'Sin especie indicada'}
+          </Detail>
           <Detail label="Nitrógeno">{num(m.nitrogen, 0, 'mg/kg')}</Detail>
           <Detail label="Fósforo">{num(m.phosphorus, 0, 'mg/kg')}</Detail>
           <Detail label="Potasio">{num(m.potassium, 0, 'mg/kg')}</Detail>
@@ -135,7 +141,7 @@ export function MeasurementsCard({
           <div aria-hidden="true" className={`${COLS} hidden border-b border-line px-5 py-2.5 text-xs text-muted md:grid`}>
             <span />
             <span>Registro</span>
-            <span>Fase</span>
+            <span>Fase y especie</span>
             <span className="text-right">Humedad del suelo</span>
             <span className="text-right">Temp. del suelo</span>
             <span className="text-right">CE (µS/cm)</span>

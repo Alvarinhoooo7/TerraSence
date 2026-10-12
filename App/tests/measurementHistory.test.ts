@@ -43,3 +43,32 @@ test('supports cached points without client UUID and does not mutate inputs', ()
   assert.equal(mergeMeasurementHistory([cached], [pending]).length, 1);
   assert.equal(pending.isPending, undefined);
 });
+
+test('el historial se filtra por etapa y especie y se agrupa por fecha, especie o etapa', async () => {
+  const { organizeHistory, historySpeciesOptions } = await import('../src/utils/measurementHistory');
+  const species = (id: string, es: string) => ({ presentation: { version: 3, stage: 'vegetativo', species: { id, es, en: es, scientific: es, catalogVersion: '2.0.0', hasStageCriteria: false },
+    context: '', title: '', summary: '', weatherNote: '', actions: [], suggestedCrops: [],
+    parameters: ['vwc', 'temp', 'ph', 'ec', 'nitrogen', 'phosphorus', 'potassium', 'airTemp', 'airHumidity', 'airPressure']
+      .map(key => ({ key, label: key, value: 1, unit: '', status: 'INFO', state: '', recommendation: '', control: '' })) } });
+  const at = (id: string, day: string, stage: MeasurementPoint['stage'], diagnosis?: unknown) =>
+    ({ ...point(id, id, `2026-10-${day}T12:00:00Z`), stage, diagnosis });
+  const points = [
+    at('a', '10', 'vegetativo', species('sp.tomate', 'Tomate')),
+    at('b', '12', 'vegetativo', species('sp.palto', 'Palto')),
+    at('c', '11', 'cosecha'),
+    at('d', '09', 'vegetativo', species('sp.tomate', 'Tomate')),
+  ];
+  const titles = { dayTitle: (iso: string) => iso.slice(0, 10), speciesTitle: (id: string | null) => id ?? 'Sin especie', stageTitle: (stage: string) => stage };
+  const shape = (sections: { title: string; data: MeasurementPoint[] }[]) => sections.map(s => [s.title, s.data.map(p => p.id)]);
+
+  assert.deepEqual(historySpeciesOptions(points), { species: [{ id: 'sp.palto', name: 'Palto' }, { id: 'sp.tomate', name: 'Tomate' }], withoutSpecies: true });
+  assert.deepEqual(shape(organizeHistory(points, { ...titles, by: 'date', stage: 'all', species: 'all' })),
+    [['2026-10-12', ['b']], ['2026-10-11', ['c']], ['2026-10-10', ['a']], ['2026-10-09', ['d']]]);
+  assert.deepEqual(shape(organizeHistory(points, { ...titles, by: 'species', stage: 'all', species: 'all' })),
+    [['sp.palto', ['b']], ['sp.tomate', ['a', 'd']], ['Sin especie', ['c']]]);
+  assert.deepEqual(shape(organizeHistory(points, { ...titles, by: 'stage', stage: 'all', species: 'all' })),
+    [['vegetativo', ['b', 'a', 'd']], ['cosecha', ['c']]]);
+  assert.deepEqual(shape(organizeHistory(points, { ...titles, by: 'date', stage: 'vegetativo', species: 'sp.tomate' })),
+    [['2026-10-10', ['a']], ['2026-10-09', ['d']]]);
+  assert.deepEqual(shape(organizeHistory(points, { ...titles, by: 'date', stage: 'all', species: 'none' })), [['2026-10-11', ['c']]]);
+});

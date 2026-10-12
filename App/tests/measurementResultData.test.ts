@@ -8,6 +8,7 @@ import { fetchCurrentWeather } from '../src/services/weatherService';
 import { evaluateForStage } from '../src/engine/stageEvaluator';
 import { buildContextualAdvice } from '../src/engine/contextualAdvice';
 import { mapRowToPoint, type SoilMeasurementRow } from '../src/types/app';
+import { WEATHER_UNITS } from './fixtures/weatherUnits';
 
 test('los grupos permiten abrir las diez variables sin omitir ni duplicar nutrientes o ambiente', () => {
   assert.deepEqual(MEASUREMENT_GROUPS.flat(), [...PARAMETER_KEYS]);
@@ -20,7 +21,7 @@ test('históricos sin clima o malformados conservan ausencia explícita', () => 
 
 test('el pronóstico guardado preserva cero y convierte ausencias o valores inválidos en sin dato', () => {
   const diagnosis = { weather: { forecast: [{ date: '2026-10-04', minimumTemperatureC: 0, maximumTemperatureC: 24, precipitationMm: NaN, rainProbabilityPct: '10' }, null, { date: 'invalid' }] } };
-  assert.deepEqual(savedForecast(diagnosis), [{ date: '2026-10-04', minimumTemperatureC: 0, maximumTemperatureC: 24, precipitationMm: null, rainProbabilityPct: null }]);
+  assert.deepEqual(savedForecast(diagnosis), [{ date: '2026-10-04', minimumTemperatureC: 0, maximumTemperatureC: 24, precipitationMm: null, rainProbabilityPct: null, weatherCode: null }]);
   assert.equal(diagnosis.weather.forecast.length, 3);
 });
 
@@ -32,6 +33,7 @@ test('el visor mantiene como máximo cinco fechas registradas', () => {
 test('captura y visor histórico conservan presentación, detalles y pronóstico después de serializar la fila', async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => new Response(JSON.stringify({
+    ...WEATHER_UNITS,
     timezone: 'America/Santiago', current: { time: '2026-10-03T12:00', temperature_2m: 19 },
     daily: { time: ['2026-10-04', '2026-10-05'], temperature_2m_min: [0, 12], temperature_2m_max: [21, 25], precipitation_sum: [0, 5] },
   }));

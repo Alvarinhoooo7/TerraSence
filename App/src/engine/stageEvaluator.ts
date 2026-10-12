@@ -14,8 +14,10 @@
 // esconderlo en condicionales: así un agrónomo puede auditar y corregir los
 // criterios sin leer código (principio P4, determinismo auditable).
 
-import { CROPS_DB, SOIL_TEXTURES, evaluateAgronomicStatus, possibleCrops, vetoCruzadoSalinidad } from './agronomyEngine';
+import { CROPS_DB, SOIL_TEXTURES, evaluateAgronomicStatus } from './agronomyEngine';
 import type {
+  EvaluationCoverage,
+  EvaluationState,
   AgronomicEvaluation,
   AgronomicAlert,
   CropId,
@@ -23,6 +25,8 @@ import type {
   SoilTextureId,
   Verdict,
 } from '../types/agronomy';
+import { buildLocalInputQuality, localQualityNote } from './inputQuality';
+import { buildEvaluationCoverage } from './evaluationCoverage';
 import type { PhenologicalStage } from '../types/app';
 import type { AppLanguage } from '../types/preferences';
 
@@ -144,6 +148,9 @@ const translateMetrics = (metrics: AgronomicEvaluation['metrics']): AgronomicEva
 /** Umbrales de humedad para transitabilidad de maquinaria en cosecha. */
 
 export interface StageAwareEvaluation extends Omit<AgronomicEvaluation, 'crop' | 'texture'> {
+  /** Ausentes únicamente en el evaluador legado de perfiles explícitos. */
+  state?: EvaluationState;
+  coverage?: EvaluationCoverage;
   crop: AgronomicEvaluation['crop'] | null;
   texture: AgronomicEvaluation['texture'] | null;
   stage: PhenologicalStage;
@@ -271,8 +278,12 @@ export function evaluateForStage(
  */
 export function evaluateReadingForStage(
   reading: SoilMeasurement, stage: PhenologicalStage, language: AppLanguage = 'es',
+  context?: { capturedAt: string; evaluatedAt: string; simulated?: boolean },
 ): StageAwareEvaluation {
   const en = language === 'en';
+  const quality = buildLocalInputQuality(reading, context?.capturedAt ?? '', context?.simulated);
+  const coverage = buildEvaluationCoverage(quality, context?.evaluatedAt ?? null);
+  const usable = (key: 'temp' | 'ph' | 'vwc') => quality.observations[key].availability === 'available' && coverage.freshness === 'fresh';
   const crops = Object.values(CROPS_DB);
   const textures = Object.values(SOIL_TEXTURES);
   const alerts: AgronomicAlert[] = [];
@@ -283,9 +294,9 @@ export function evaluateReadingForStage(
     }]),
   ) as AgronomicEvaluation['metrics'];
   const check = (key: 'temp' | 'ph' | 'ec' | 'vwc', matches: boolean[], note: string, action: string) => {
-    const all = matches.every(Boolean);
+    if (key === 'ec' || !usable(key)) return;
     const none = !matches.some(Boolean);
-    metrics[key].status = none ? 'WARNING' : all ? 'OPTIMAL' : 'INFO';
+    metrics[key].status = none ? 'WARNING' : 'INFO';
     metrics[key].msg = note;
     // La acción explica qué falta confirmar, sin dar por conocido el cultivo.
     metrics[key].confidenceNote = action;
@@ -297,12 +308,11 @@ export function evaluateReadingForStage(
   check('ph', crops.map(c => reading.ph >= c.phMin && reading.ph <= c.phMax),
     en ? 'pH requirements vary by crop; no crop is assigned to this reading.' : 'El rango de pH depende del cultivo; esta lectura no tiene un cultivo asignado.',
     en ? 'Confirm pH and crop requirements before applying amendments.' : 'Confirma el pH y los requerimientos del cultivo antes de aplicar enmiendas.');
-  check('ec', crops.map(c => reading.ec <= c.ecMax * (stage === 'floracion' ? 0.8 : 1)),
-    en ? 'Conductivity compared with the provisional crop catalog limits.' : 'Conductividad comparada con los límites orientativos del catálogo de cultivos.',
-    en ? 'Confirm salinity, crop tolerance and drainage before treatment.' : 'Confirma salinidad, tolerancia del cultivo y drenaje antes de intervenir.');
+  metrics.ec.msg = localQualityNote(quality.observations.ec, language);
+  metrics.ph.confidenceNote = localQualityNote(quality.observations.ph, language);
   // Sólo se destaca un extremo de humedad si todos los perfiles coinciden.
-  const dry = textures.every(t => reading.vwc < t.pmp);
-  const wet = textures.every(t => reading.vwc >= t.sat);
+  const dry = usable('vwc') && textures.every(t => reading.vwc < t.pmp);
+  const wet = usable('vwc') && textures.every(t => reading.vwc >= t.sat);
   metrics.vwc.msg = en ? 'Soil texture is unknown; moisture does not determine an irrigation dose or machinery access.' : 'La textura del suelo no está determinada; esta humedad no define una dosis de riego ni autoriza el ingreso de maquinaria.';
   if (dry || wet) {
     metrics.vwc.status = 'WARNING';
@@ -311,20 +321,22 @@ export function evaluateReadingForStage(
       action: en ? 'Check moisture and drainage in the field and repeat the reading before deciding on irrigation or machinery.' : 'Revisa humedad y drenaje en terreno y repite la lectura antes de decidir riego o ingreso de maquinaria.',
     });
   }
-  const veto = vetoCruzadoSalinidad(reading.ec, reading.nitrogen, reading.phosphorus, reading.potassium);
   for (const key of ['nitrogen', 'phosphorus', 'potassium'] as const) {
-    metrics[key] = { ...metrics[key], derived: true, confidence: 'LOW',
+    metrics[key] = { ...metrics[key], confidence: 'LOW',
       msg: en ? 'Unvalidated; does not diagnose nutrition' : 'Sin validar; no diagnostica nutrición',
       confidenceNote: en ? 'Confirm nutrients in a laboratory; do not use these records to dose fertilizers.'
-        : veto.activo ? veto.nota : 'Confirma nutrientes en laboratorio; no uses estos registros para dosificar fertilizantes.',
+        : 'Confirma nutrientes en laboratorio; no uses estos registros para dosificar fertilizantes.',
     };
   }
-  const candidates = stage === 'pre_siembra' ? possibleCrops(reading) : [];
-  const verdict: Verdict = alerts.length || (stage === 'pre_siembra' && !candidates.length) ? 'AMBER' : 'GREEN';
-  const title = stage === 'pre_siembra'
-    ? candidates.length ? (en ? 'Possible crops to consider' : 'Posibles cultivos para evaluar') : (en ? 'Review conditions before planting' : 'Revisar condiciones antes de sembrar')
-    : (en ? 'Indicative soil reading' : 'Lectura orientativa del suelo');
-  const summary = en ? 'Interpret the reading for this stage without assuming a crop or soil texture.' : 'Interpreta la lectura para esta etapa sin dar por conocido el cultivo ni la textura del suelo.';
+  // El esquema legado exige un semáforo. Ámbar evita que clientes antiguos lo lean como éxito;
+  // los consumidores nuevos usan state para representar insuficiencia con tono neutral.
+  const state: EvaluationState = alerts.length ? 'attention' : 'insufficient_data';
+  const verdict: Verdict = 'AMBER';
+  const title = state === 'attention' ? (en ? 'Review the measured conditions' : 'Revisar las condiciones medidas')
+    : (en ? 'Insufficient evidence for a complete assessment' : 'Evidencia insuficiente para una evaluación completa');
+  const summary = coverage.freshness !== 'fresh'
+    ? (en ? 'The capture is old or its time cannot be verified. Take a new reading before making decisions.' : 'La captura es antigua o su instante no se puede verificar. Realiza una nueva lectura antes de decidir.')
+    : (en ? 'Partial assessment. pH comparisons are indicative; conductivity cannot classify salinity without a compatible method. Nutrient registers do not determine fertilization.' : 'Evaluación parcial. Las comparaciones de pH son orientativas; la conductividad no permite clasificar salinidad sin un método compatible. Los registros de nutrientes no determinan fertilización.');
   return { crop: null, texture: null, stage, metrics, alerts, verdict, verdictTitle: title,
-    verdictSummary: summary, actionSummary: summary, drivers: alerts.map(a => a.param) };
+    state, coverage, verdictSummary: summary, actionSummary: summary, drivers: alerts.map(a => a.param) };
 }

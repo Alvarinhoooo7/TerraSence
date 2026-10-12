@@ -924,6 +924,7 @@ export type Database = {
           phosphorus: number
           potassium: number
           soil_temp_c: number
+          species: Json
           verdict: string
           verdict_title: string
           vwc_percent: number

@@ -6,7 +6,7 @@ import { GuideSectionList as SectionList } from '../components/guide/GuideSectio
 import { GuideTouchable as TouchableOpacity } from '../components/guide/GuideControls';
 // src/screens/HistoryScreen.tsx
 //
-// Mediciones en lista, agrupadas por día y filtrables por etapa.
+// Mediciones en lista, filtrables por etapa y especie y agrupables por día, especie o etapa.
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, RefreshControl, Text, View } from 'react-native';
@@ -14,12 +14,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { VERDICT_META } from '../constants/theme';
 import { localizedStageTitle } from '../engine/stageEvaluator';
+import { presentationSpeciesName, savedEvaluationState, savedSpecies } from '../engine/measurementPresentation';
 import { EntryHeading } from '../components/entry/EntryUI';
 import { ScreenCard, ScreenLabel, ScreenText } from '../components/screen/ScreenUI';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { PHENOLOGICAL_STAGES, type MeasurementPoint, type PhenologicalStage } from '../types/app';
 import { useMeasurementHistory } from '../hooks/useMeasurementHistory';
+import { historySpeciesOptions, organizeHistory, type HistoryGrouping, type HistorySpeciesFilter } from '../utils/measurementHistory';
 
 interface Props {
   onClose: () => void;
@@ -57,19 +59,25 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
   useEffect(() => { setDevices([]); loadDevices(); return () => { devicesRequest.current++; }; }, [loadDevices]);
   const { points, loading, offline, error, refresh: refreshPoints } = useMeasurementHistory(historyDeviceId);
   const refresh = () => { loadDevices(); void refreshPoints(); };
+  const stageName = (id: PhenologicalStage | 'all') => {
+    if (id === 'all') return t('Todas las etapas', 'All stages');
+    const stage = PHENOLOGICAL_STAGES.find(s => s.id === id);
+    return stage ? (language === 'en' ? stage.labelEn : stage.label) : id;
+  };
   const [filter, setFilter] = useState<PhenologicalStage | 'all'>('all');
+  const [speciesFilter, setSpeciesFilter] = useState<HistorySpeciesFilter>('all');
+  const [grouping, setGrouping] = useState<HistoryGrouping>('date');
+  const speciesOptions = useMemo(() => historySpeciesOptions(points, language), [points, language]);
+  // Si la especie filtrada deja de estar en el historial (otra sonda, otra cuenta), se vuelve a «todas».
+  const activeSpecies = speciesFilter === 'all' || (speciesFilter === 'none' ? speciesOptions.withoutSpecies : speciesOptions.species.some(s => s.id === speciesFilter))
+    ? speciesFilter : 'all';
 
-  const sections = useMemo(() => {
-    const filtered = filter === 'all' ? points : points.filter((p) => p.stage === filter);
-    const groups = new Map<string, MeasurementPoint[]>();
-    for (const p of filtered) {
-      const k = dayKey(p.measuredAt, locale);
-      const arr = groups.get(k);
-      if (arr) arr.push(p);
-      else groups.set(k, [p]);
-    }
-    return [...groups.entries()].map(([title, data]) => ({ title, data }));
-  }, [points, filter, locale]);
+  const sections = useMemo(() => organizeHistory(points, {
+    by: grouping, stage: filter, species: activeSpecies,
+    dayTitle: iso => dayKey(iso, locale),
+    speciesTitle: id => id ? speciesOptions.species.find(s => s.id === id)?.name ?? id : t('Sin especie', 'No species'),
+    stageTitle: stage => stageName(stage),
+  }), [points, grouping, filter, activeSpecies, locale, speciesOptions, language]);
 
   // Píldora de filtro: el mismo verde y la misma tinta de los botones de la entrada.
   const chip = (key: string, label: string, selected: boolean, onPress: () => void, guide?: string) => <TouchableOpacity key={key}
@@ -78,11 +86,6 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
       backgroundColor: selected ? colors.primary : colors.card, borderColor: selected ? colors.primary : colors.border }}>
     <Text style={{ color: selected ? (isDark ? colors.background : '#FFFFFF') : colors.text, fontSize: 15, fontWeight: selected ? '700' : '500' }}>{label}</Text>
   </TouchableOpacity>;
-  const stageName = (id: PhenologicalStage | 'all') => {
-    if (id === 'all') return t('Todas las etapas', 'All stages');
-    const stage = PHENOLOGICAL_STAGES.find(s => s.id === id);
-    return stage ? (language === 'en' ? stage.labelEn : stage.label) : id;
-  };
 
   const header = <View style={{ gap: 16, paddingTop: 8, paddingBottom: 8 }}>
     <EntryHeading eyebrow={t('HISTORIAL', 'HISTORY')} title={t('Mediciones', 'Readings')}
@@ -96,6 +99,22 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
         () => setFilter(id as PhenologicalStage | 'all'),
         t('Filtra el historial por esta etapa. «Todas las etapas» vuelve a mostrar el registro completo.', 'Filters history by this stage. "All stages" shows the complete history again.')))}
     </ScrollView>
+    {/* Especies: sólo las que aparecen en el historial, según lo que se eligió al medir. */}
+    {speciesOptions.species.length > 0 && <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+      {[{ id: 'all', name: t('Todas las especies', 'All species') }, ...speciesOptions.species,
+        ...(speciesOptions.withoutSpecies ? [{ id: 'none', name: t('Sin especie', 'No species') }] : [])]
+        .map(option => chip(`sp-${option.id}`, option.name, activeSpecies === option.id, () => setSpeciesFilter(option.id),
+          t('Filtra el historial por la especie indicada al medir.', 'Filters history by the species chosen when measuring.')))}
+    </ScrollView>}
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+      <Text style={{ color: colors.textSecondary, fontSize: 14 }}>{t('Agrupar por', 'Group by')}</Text>
+      {([['date', t('Fecha', 'Date')], ['species', t('Especie', 'Species')], ['stage', t('Etapa', 'Stage')]] as const).map(([id, label]) =>
+        <TouchableOpacity key={id} guide={false} onPress={() => setGrouping(id)} accessibilityRole="radio" accessibilityState={{ selected: grouping === id }}
+          style={{ minHeight: 36, paddingHorizontal: 12, borderRadius: 18, justifyContent: 'center', borderWidth: 1,
+            borderColor: grouping === id ? colors.primary : colors.border, backgroundColor: grouping === id ? `${colors.primary}22` : 'transparent' }}>
+          <Text style={{ color: grouping === id ? colors.primary : colors.text, fontSize: 14, fontWeight: grouping === id ? '700' : '500' }}>{label}</Text>
+        </TouchableOpacity>)}
+    </View>
     {(offline || error) && <ScreenText danger={!!error}>{error ? t('No pudimos cargar el historial. Desliza hacia abajo para reintentar.', 'Could not load history. Pull down to retry.') : t('Sin conexión: mostrando el historial guardado en el teléfono.', 'Offline: showing the history saved on this phone.')}</ScreenText>}
   </View>;
 
@@ -112,12 +131,14 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
         ListEmptyComponent={loading ? <ActivityIndicator color={colors.primary} style={{ marginTop: 32 }} /> :
           <ScreenCard><ScreenText>{points.length === 0
             ? t('Todavía no hay mediciones. Las que guardes aparecerán aquí, también sin conexión.', 'No readings yet. The ones you save will appear here, even offline.')
-            : t('No hay mediciones en la etapa seleccionada.', 'There are no readings for the selected stage.')}</ScreenText></ScreenCard>}
-        renderSectionHeader={({ section }) => <View style={{ paddingTop: 12, paddingBottom: 8 }}><ScreenLabel>{section.title}</ScreenLabel></View>}
+            : t('No hay mediciones con los filtros elegidos.', 'There are no readings with the selected filters.')}</ScreenText></ScreenCard>}
+        renderSectionHeader={({ section }) => <View style={{ paddingTop: 12, paddingBottom: 8 }}><ScreenLabel>{grouping === 'date' ? section.title : `${section.title} · ${section.data.length}`}</ScreenLabel></View>}
         renderItem={({ item, index, section }) => {
           const meta = VERDICT_META[item.verdict];
-          const stroke = isDark ? meta.strokeDark : meta.strokeLight;
+          const stroke = savedEvaluationState(item.diagnosis) === 'insufficient_data' ? colors.textSecondary
+            : isDark ? meta.strokeDark : meta.strokeLight;
           const stage = PHENOLOGICAL_STAGES.find((s) => s.id === item.stage);
+          const species = savedSpecies(item.diagnosis);
           return (
             <TouchableOpacity
               guide={index === 0 && section === sections[0] ? t('Abre el detalle de esta lectura: valores, recomendación y respaldo. Las demás filas funcionan de la misma manera.', 'Opens this reading’s values, recommendation and backup status. Other rows work the same way.') : false}
@@ -130,7 +151,7 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
               <View style={{ flex: 1, gap: 3 }}>
                 <Text style={{ color: colors.text, fontSize: 17, fontWeight: '600' }} numberOfLines={1}>{localizedStageTitle(item.stage, item.verdict, item.title, language)}</Text>
                 <Text style={{ color: colors.textSecondary, fontSize: 14 }}>
-                  {hourLabel(item.measuredAt, locale)} · {stage ? (language === 'en' ? stage.labelEn : stage.label) : ''} · pH {item.ph.toLocaleString(locale, { maximumFractionDigits: 1, minimumFractionDigits: 1 })} · {Math.round(item.vwcPercent)} %
+                  {grouping === 'date' ? hourLabel(item.measuredAt, locale) : `${new Date(item.measuredAt).toLocaleDateString(locale, { day: 'numeric', month: 'short' })} ${hourLabel(item.measuredAt, locale)}`} · {stage ? (language === 'en' ? stage.labelEn : stage.label) : ''}{species ? ` · ${presentationSpeciesName(species, language)}` : ''} · pH {item.ph.toLocaleString(locale, { maximumFractionDigits: 1, minimumFractionDigits: 1 })} · {Math.round(item.vwcPercent)} %
                 </Text>
                 <Text style={{ color: item.isPending ? colors.warning : colors.primary, fontSize: 13, fontWeight: '600' }}>
                   {item.isPending ? t('Guardada en el teléfono · pendiente', 'Saved on phone · pending') : t('Respaldada en la nube', 'Backed up to cloud')}

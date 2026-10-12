@@ -1,8 +1,8 @@
 # Motor agronómico TerraSense: especificación de desarrollo
 
-**Estado: propuesta documentada para revisión e implementación posterior.** Este documento define el motor que se quiere desarrollar; no acredita que las capacidades propuestas estén implementadas, calibradas o validadas en campo. La sección 2 identifica el comportamiento del código disponible. El alcance de este trabajo es documental.
+**Estado: implementación iniciada, E1 en progreso.** Este documento define el motor que se quiere desarrollar; no acredita que todas las capacidades propuestas estén implementadas, calibradas o validadas en campo. La sección 2 identifica el comportamiento del código disponible. El [task del motor agronómico](TASK_MOTOR_AGRONOMICO.md) detalla las subtareas, evidencias y pendientes de cada entrega.
 
-El objetivo es obtener la mayor orientación agronómica defendible de la sonda, el BME280 y los servicios climáticos, **sin pedir al agricultor nuevos datos**. El motor debe explicar condiciones y posibilidades, reconocer lo que desconoce y ayudar a decidir qué revisar y cuándo. No diagnostica rendimiento, nutrición química, enfermedades ni madurez mediante variables que no miden esos fenómenos.
+El objetivo es obtener la mayor orientación agronómica defendible de la sonda, el BME280 y los servicios climáticos, **sin pedir al agricultor datos obligatorios nuevos**: la única pregunta añadida es la especie, opcional, en vegetativo, floración y cosecha. El motor debe explicar condiciones y posibilidades, reconocer lo que desconoce y ayudar a decidir qué revisar y cuándo. No diagnostica rendimiento, nutrición química, enfermedades ni madurez mediante variables que no miden esos fenómenos.
 
 ## Índice
 
@@ -28,7 +28,7 @@ El objetivo es obtener la mayor orientación agronómica defendible de la sonda,
 
 ### 1.1. Entradas autorizadas
 
-El usuario mantiene únicamente la elección de etapa: pre-siembra, vegetativo, floración o cosecha. El motor puede recibir automáticamente:
+El usuario elige la etapa: pre-siembra, vegetativo, floración o cosecha. En vegetativo, floración y cosecha puede además indicar, de forma opcional, la especie que tiene plantada (sección [12.1](#pantallas)). En pre-siembra no se pregunta: la etapa responde qué conviene sembrar. El motor puede recibir automáticamente:
 
 - Las diez variables del equipo y sus ausencias explícitas.
 - Fecha y hora de captura, identificación del equipo y metadatos técnicos existentes.
@@ -37,7 +37,9 @@ El usuario mantiene únicamente la elección de etapa: pre-siembra, vegetativo, 
 - Catálogos y reglas distribuidos con la aplicación, con fuentes y versiones.
 - Históricos propios autorizados, únicamente para operaciones que respeten su comparabilidad.
 
-No agregar formularios para cultivo, variedad, textura, profundidad, fecha de siembra, riego, superficie o tipo de instalación. No deducir esos datos a partir de la etapa, de la última sugerencia consultada, de la identidad del equipo o de una coincidencia del catálogo. Consultar una ficha nunca equivale a seleccionar una especie para el campo.
+La especie se guarda **por medición**, no por campo: la app no agrupa mediciones por campo y no recuerda la especie de una medición anterior. Omitirla («Saltar») es una respuesta válida y deja la medición sin especie, con el mismo análisis general.
+
+No agregar formularios para variedad, textura, profundidad, fecha de siembra, riego, superficie o tipo de instalación. No deducir la especie ni esos datos a partir de la etapa, de la última sugerencia consultada, de la identidad del equipo, de mediciones anteriores o de una coincidencia del catálogo. Consultar una ficha nunca equivale a seleccionar una especie.
 
 La falta de coordenadas conserva el análisis local. No usar una ciudad por defecto, ubicación de la cuenta, IP ni coordenadas antiguas de otra captura para aparentar clima local. La georreferenciación sigue existiendo como dato; no se reintroduce un mapa.
 
@@ -48,9 +50,9 @@ Una mejora aporta valor si introduce una conclusión verificable, un contexto ú
 Se buscan cinco resultados:
 
 1. **Pre-siembra:** alternativas de establecimiento compatibles con los criterios que sí se pudieron revisar, con razones y limitaciones por alternativa.
-2. **Vegetativo:** revisión de condiciones físicas que pueden dificultar el crecimiento, sin atribuir una respuesta a una especie desconocida.
-3. **Floración:** exposición ambiental y ventanas de atención, sin afirmar daño floral ni cuaja.
-4. **Cosecha:** comparación de condiciones meteorológicas para organizar labores; no decisión de madurez ni autorización de tránsito.
+2. **Vegetativo:** revisión de condiciones físicas que pueden dificultar el crecimiento. Con especie indicada, se agregan los criterios de su perfil que tengan evidencia; sin especie, no se atribuye una respuesta a una especie desconocida.
+3. **Floración:** exposición ambiental y ventanas de atención, sin afirmar daño floral ni cuaja. Con especie indicada, se agregan sus sensibilidades florales documentadas.
+4. **Cosecha:** comparación de condiciones meteorológicas para organizar labores; no decisión de madurez ni autorización de tránsito, aunque se indique la especie.
 5. **Todas las etapas:** calidad del dato, explicación trazable, acciones coherentes y conservación del resultado original.
 
 ### 1.3. No objetivos
@@ -63,6 +65,7 @@ Quedan fuera: recetas de fertilización o enmiendas, litros o minutos de riego, 
 | Responsabilidad | Fuente local | Situación observada |
 |---|---|---|
 | Entrada BLE y validación de rangos | [probeService.ts](src/services/probeService.ts), [contrato BLE](../docs/CONTRATO_BLE.md) | Decodifica suelo, ambiente y batería; rechaza suelo inválido y distingue ausencias ambientales. |
+| Calidad y procedencia de entradas | [inputQuality.ts](src/engine/inputQuality.ts), [tipos agronómicos](src/types/agronomy.ts) | Contrato versionado de las diez variables, fuentes, unidades, tiempos y limitaciones; se muestra en detalles y se conserva con capturas nuevas. La aplicación de todos sus límites a las reglas sigue pendiente. |
 | Transporte y cancelación | [bleService.ts](src/services/bleService.ts) | Fuente del transporte, no del significado agronómico. |
 | Perfiles y cálculo de déficit de presión de vapor | [agronomyEngine.ts](src/engine/agronomyEngine.ts) | Catálogo acotado, comparación por temperatura mínima, pH y conductividad; ya existe cálculo local de déficit de presión de vapor. |
 | Etapas | [stageEvaluator.ts](src/engine/stageEvaluator.ts) | El flujo usa `evaluateReadingForStage`, sin asignar cultivo ni textura. La evaluación con perfiles explícitos se conserva aparte. |
@@ -81,8 +84,8 @@ Quedan fuera: recetas de fertilización o enmiendas, litros o minutos de riego, 
 - El pH necesita trazabilidad de método y calibración; el número que informa el equipo no acredita equivalencia con cada referencia de laboratorio.
 - Las reglas específicas de floración son provisionales. Una reducción porcentual uniforme de tolerancias no constituye un modelo validado de respuesta floral.
 - Humedad volumétrica sin textura, profundidad ni curva de retención no permite calcular agua disponible para raíces.
-- El servicio climático sustituye algunas ausencias actuales por cero y condiciona toda la respuesta a un dato actual de temperatura; se debe conservar información parcial útil sin inventar ceros.
-- Falta separar la gravedad ambiental, la cobertura de evaluación y la solidez de la evidencia. «No detecté alertas» no puede traducirse automáticamente a «todo está favorable».
+- Los primeros incrementos conservan información climática parcial útil sin inventar ceros ni exigir temperatura actual, validan unidades devueltas y registran estados y motivos por dato. E1.3 incorpora cobertura por capacidad y una política técnica de antigüedad en capturas nuevas; el task detalla su alcance y pendientes.
+- El flujo nuevo separa estado semántico, cobertura y limitaciones de evidencia. Falta completar la independencia de las reglas ambientales y revisar sus fuentes. «No detecté alertas» no puede traducirse automáticamente a «todo está favorable».
 - Las magnitudes ambientales y el pronóstico están desaprovechados para comparaciones temporales y combinaciones explicables.
 
 Las cifras de las reglas actuales viven en el código enlazado. Este documento no las duplica como si fueran parámetros aprobados del motor futuro.
@@ -90,17 +93,18 @@ Las cifras de las reglas actuales viven en el código enlazado. Este documento n
 <a id="arquitectura"></a>
 ## 3. Arquitectura propuesta
 
-Una sola especificación contiene las capacidades relacionadas; no se crean documentos paralelos de plan ni registros de cambios.
+Esta especificación contiene las capacidades y decisiones de diseño. El [task de implementación](TASK_MOTOR_AGRONOMICO.md), solicitado para revisar el avance paso a paso, concentra las casillas y evidencias sin duplicar parámetros ni mantener un registro de cambios.
 
 | Capacidad | Responsabilidad | Dependencias |
 |---|---|---|
 | `input-quality` | Normalizar unidades, procedencia, intervalos temporales y calidad | Contrato del equipo y contratos del proveedor |
 | `weather-context` | Obtener y normalizar clima; caché y degradación | `input-quality` |
-| `evidence-catalog` | Perfiles, fuentes, parámetros y condiciones de aplicación | Ninguna entrada del agricultor |
+| `evidence-catalog` | Lista de especies, perfiles, fuentes, parámetros y condiciones de aplicación | Ninguna entrada del agricultor |
+| `species-rules` | Criterios del perfil de la especie indicada en vegetativo, floración o cosecha | `derived-indicators`, `evidence-catalog`, especie opcional de la medición |
 | `derived-indicators` | Cálculos físicos y resúmenes temporales reproducibles | `input-quality`, `weather-context` |
 | `stage-risks` | Reglas ambientales independientes del catálogo de especies | `derived-indicators`, registro de reglas documentadas |
 | `crop-options` | Comparaciones por perfil sólo en pre-siembra | `derived-indicators`, `evidence-catalog` |
-| `decision-composer` | Resolver prioridades y conflictos; generar razones | `stage-risks`, `crop-options` |
+| `decision-composer` | Resolver prioridades y conflictos; generar razones | `stage-risks`, `crop-options`, `species-rules` |
 | `result-snapshot` | Presentación, trazabilidad y guardado inmutable | `decision-composer` |
 
 ```mermaid
@@ -111,15 +115,19 @@ flowchart TD
     I --> R[Riesgos por etapa]
     I --> C[Opciones de pre-siembra]
     E[Perfiles y evidencia] --> C
+    U[Especie opcional de la medicion] --> P[Criterios de la especie]
+    E --> P
+    I --> P
     F[Reglas ambientales documentadas] --> R
     R --> D[Prioridades y explicaciones]
     C --> D
+    P --> D
     D --> S[Resultado versionado]
     S --> V[Pantallas existentes y detalles opcionales]
     S --> H[Historico sin recalculo]
 ```
 
-**Invariante:** añadir o retirar un perfil puede cambiar las opciones de pre-siembra, nunca los indicadores físicos ni una alerta ambiental general. Las alertas específicas de un perfil permanecen dentro de su ficha y no atribuyen esa especie al campo.
+**Invariante:** añadir o retirar un perfil puede cambiar las opciones de pre-siembra y los criterios de esa especie, nunca los indicadores físicos ni una alerta ambiental general. Las alertas específicas de un perfil sólo se aplican a la medición si el usuario indicó esa especie; en cualquier otro caso permanecen dentro de su ficha. Indicar o saltar la especie no altera las reglas generales.
 
 <a id="variables"></a>
 ## 4. Las diez variables y su calidad
@@ -328,7 +336,14 @@ En historia climática se pueden calcular acumulaciones térmicas de referencia 
 
 ### 7.1. Perfil de establecimiento, no ficha enciclopédica
 
-La unidad de evaluación será **especie o grupo bien definido + forma de establecimiento + contexto de evidencia**. Un mismo vegetal puede tener perfiles de semilla y trasplante distintos; se presentan como alternativas de consulta, sin pedir que el agricultor elija una para evaluar el resto de la medición.
+La unidad de evaluación será **especie o grupo bien definido + forma de establecimiento + contexto de evidencia**. Un mismo vegetal puede tener perfiles de semilla y trasplante distintos; en pre-siembra se presentan como alternativas de consulta, sin pedir que el agricultor elija una para evaluar el resto de la medición.
+
+El catálogo separa dos cosas que crecen a ritmos distintos:
+
+- **Lista de especies:** identidad (ID estable, nombre de Chile, nombre científico, grupo y sinónimos de búsqueda). Es la que ve el selector y puede ser amplia desde el inicio, porque no afirma ningún parámetro.
+- **Perfil con criterios:** los umbrales por etapa y forma de establecimiento, cada uno con su fuente. Crece con la curación de la sección 7.5.
+
+Una especie de la lista sin criterios habilitados para la etapa elegida se puede seleccionar, y el resultado lo dice expresamente: se muestra el análisis general y se indica que aún no hay criterios propios de esa especie para esa etapa. Nunca se rellena con valores de otra especie, del grupo ni de un promedio. El selector no marca como «con perfil» una especie que no lo tiene.
 
 El catálogo contiene hechos documentados, no textos generados sin fuente. Información descriptiva puede mantenerse para comprensión, pero no se convierte en una regla ejecutable si faltan condiciones de aplicación. La identidad botánica y los sinónimos se revisan antes de consolidar IDs; nombres amplios como «hortalizas de hoja» no heredan automáticamente el perfil de lechuga.
 
@@ -374,6 +389,8 @@ Este inventario define alcance de investigación, **no una lista ya implementada
 | Coberturas, extensión posterior | Avena de cobertura, vicia, trébol | Finalidad, manejo y compatibilidad no se infieren de sensores | [S11](#s11) para localizar perfiles; habilitar sólo con reglas propias |
 
 No fijar una cuota de especies que obligue a inventar parámetros. El primer catálogo operativo debe priorizar perfiles con mejor evidencia y utilidad local; los candidatos incompletos permanecen fuera de las sugerencias activas.
+
+**Cobertura comprometida de la lista de especies:** hortalizas y frutales deben quedar completos respecto de lo que se cultiva y comercializa en Chile. La lista se construye desde estadísticas oficiales de superficie y comercialización (encuestas de hortalizas, catastros frutícolas y precios de mercados mayoristas), no desde una selección a criterio; la fuente y su fecha quedan registradas junto a la versión del catálogo. Aromáticas, especies ornamentales, forestales y otros árboles se incorporan con cobertura parcial y la lista no se presenta como exhaustiva en esos grupos. Esta cobertura es de **nombres**: la cobertura de criterios por etapa se informa aparte y nunca se infiere de que la especie esté en la lista.
 
 ### 7.4. Evidencia concreta localizada
 
@@ -450,7 +467,9 @@ Ejemplo de redacción, con valores que en ejecución provendrán de la captura: 
 
 ### 8.3. Vegetativo
 
-**Pregunta:** «¿Qué condiciones físicas conviene revisar para sostener el crecimiento?». No se conoce la especie y no se afirma una deficiencia nutricional.
+**Pregunta:** «¿Qué condiciones físicas conviene revisar para sostener el crecimiento?». No se afirma una deficiencia nutricional.
+
+Las reglas VG01–VG05 se aplican siempre, con o sin especie. Si el usuario indicó una especie con criterios habilitados para esta etapa, se agregan como razones propias de esa especie (por ejemplo, su intervalo térmico de crecimiento o su sensibilidad salina documentada), identificadas con el perfil y su fuente. Las secciones 8.4 y 8.5 siguen la misma regla.
 
 | Regla propuesta | Entradas | Resultado útil | No debe afirmar |
 |---|---|---|---|
@@ -474,7 +493,7 @@ La recomendación debe referirse al período: «Revisa el estado hídrico durant
 | FL04 — Viento y ráfagas | Viento previsto | Exposición meteorológica que puede dificultar labores | No contar visitas de polinizadores ni afirmar ausencia de polinización |
 | FL05 — Contexto del suelo | Humedad, CE, pH y calidad | Explicar condiciones observadas junto al episodio | No reducir uniformemente la tolerancia a sales de todas las especies |
 
-Se propone retirar del nuevo flujo la regla genérica que multiplica todas las tolerancias salinas por un mismo porcentaje. Sólo admitir una regla floral específica en una ficha de perfil si existe evidencia correspondiente; esa ficha no representa automáticamente al cultivo medido.
+Se propone retirar del nuevo flujo la regla genérica que multiplica todas las tolerancias salinas por un mismo porcentaje. Sólo admitir una regla floral específica en una ficha de perfil si existe evidencia correspondiente; esa regla se aplica a la medición únicamente cuando el usuario indicó esa especie.
 
 La documentación de INIA muestra que respuesta al frío depende de especie, variedad y estado del órgano. Es fundamento para mantener ese límite, no para asignar una tolerancia única. [INIA: hortalizas y heladas](#s17).
 
@@ -568,7 +587,7 @@ La restricción de no pedir más datos implica que ciertas inferencias temporale
 
 ### 11.1. Interfaz conceptual
 
-Ejemplo de contrato futuro, no archivo implementado. Los nombres se alinearán con los tipos existentes al desarrollar. Las entradas son inmutables y el motor puro no hace peticiones de red.
+La capa de entrada ya implementa un contrato versionado en [agronomy.ts](src/types/agronomy.ts) y [inputQuality.ts](src/engine/inputQuality.ts). El siguiente ejemplo describe el contrato objetivo más amplio: los criterios, opciones y estado de antigüedad todavía deben integrarse. Las entradas son inmutables y el motor puro no hace peticiones de red.
 
 ```typescript
 type Availability = 'available' | 'missing' | 'invalid' | 'stale';
@@ -623,7 +642,8 @@ Medir tamaño del diagnóstico y de la cola sin red. Si la serie horaria excede 
 ### 11.3. Compatibilidad
 
 - Versionar el nuevo contrato; no reinterpretar presentaciones antiguas como resultados nuevos.
-- Mantener el cultivo y la textura sin especificar. Una opción consultada no modifica columnas de identificación del cultivo.
+- La especie indicada se guarda en `crop_id` de la medición, junto con `crop_catalog_version`; sin especie se conserva `sin_especificar`. La textura sigue sin especificar. Una opción consultada en pre-siembra no modifica `crop_id`.
+- Las mediciones anteriores con `crop_id` heredado de los perfiles del prototipo no se reinterpretan como especie indicada por el usuario.
 - Preservar las claves históricas; los nuevos perfiles necesitan IDs estables y nombres traducibles.
 - Listas, historial y resultado deben respetar cobertura insuficiente aunque conserven un semáforo legado.
 - Mantener la capacidad de consultar la presentación guardada aun si se retira una regla o perfil.
@@ -632,9 +652,24 @@ Medir tamaño del diagnóstico y de la cola sin red. Si la serie horaria excede 
 <a id="pantallas"></a>
 ## 12. Pantallas propuestas y justificación
 
-La mejora principal es del motor. No se propone agregar formularios ni interponer pasos obligatorios antes de medir o guardar. Las vistas siguientes consumirían el mismo resultado versionado.
+La mejora principal es del motor. El único paso nuevo es el selector opcional de especie; no se interponen pasos obligatorios antes de medir o guardar. Las vistas siguientes consumirían el mismo resultado versionado.
 
-### 12.1. Pre-siembra: detalle opcional «Por qué aparece este cultivo»
+### 12.1. Vegetativo, floración y cosecha: «¿Qué tienes plantado?»
+
+**Decisión del producto.** Al elegir vegetativo, floración o cosecha, el flujo de medición muestra una pantalla entre la etapa y los pasos de preparación. En pre-siembra no aparece.
+
+- Un desplegable con buscador: escribe y filtra por nombre común de Chile y sinónimos (choclo/maíz, palta/palto, zapallo italiano/zucchini), sin distinguir tildes ni mayúsculas. La lista se agrupa (hortalizas, frutales, aromáticas, otros) y abarca la cobertura comprometida en [7.3](#catalogo).
+- Botón inferior **«Continuar»**, habilitado sólo cuando hay una especie seleccionada.
+- Botón **«Saltar»** arriba a la derecha: continúa sin especie, con la medición en `sin_especificar`.
+- Opción **«No se encuentra en la lista»**: lleva a una pantalla que explica que se están sumando más cultivos y continúa sin especie, igual que «Saltar». No existe una opción «Otra» ni se guarda texto libre.
+- Volver desde la pantalla siguiente conserva la selección mientras dure la medición; una medición nueva parte vacía.
+- Si la especie elegida no tiene criterios para la etapa, se avisa en el resultado, no en el selector como bloqueo.
+
+**Por qué:** sin especie, vegetativo, floración y cosecha sólo pueden dar avisos ambientales generales. Con ella, el motor puede aplicar los criterios documentados de esa planta. Se mantiene opcional para no reabrir el problema original de pedir información que el usuario no tiene o no quiere dar.
+
+**Criterio de aceptación:** se puede llegar a medir con un toque («Saltar»); la búsqueda encuentra especies por sinónimo; el resultado y el histórico muestran la especie indicada o «sin especie», y distinguen criterios propios de la especie de las alertas generales.
+
+### 12.2. Pre-siembra: detalle opcional «Por qué aparece este cultivo»
 
 **Recomendación: incorporarlo cuando se amplíen los perfiles.** Se abre tocando una posibilidad del resumen o de recomendaciones. No cambia el cultivo del campo.
 
@@ -642,11 +677,11 @@ Contenido: forma de establecimiento, coincidencias térmicas/de pH, contexto de 
 
 **Por qué se necesita:** una lista extensa de nombres puede parecer una orden o esconder por qué dos especies reciben tratamientos distintos. El detalle permite explicar semilla frente a trasplante y compatibilidad parcial frente a aptitud completa. Meter todas esas razones en el resumen lo volvería difícil de recorrer en terreno.
 
-**Alternativa descartada:** un selector obligatorio de cultivo reabriría el problema original y añadiría información que el usuario no quiere proporcionar. Tampoco conviene un carrusel que oculte opciones o fuerce recorrerlas una por una.
+**Alternativa descartada:** pedir en pre-siembra qué se quiere sembrar invertiría la pregunta de la etapa, que es qué conviene sembrar. Tampoco conviene un carrusel que oculte opciones o fuerce recorrerlas una por una.
 
 **Criterio de aceptación:** el agricultor identifica por qué aparece una opción y su principal limitación; puede volver sin guardar una selección. Históricos muestran las razones originales. Sin perfiles evaluables, se explica la ausencia y se mantienen las mediciones.
 
-### 12.2. Todas las etapas: «Próximas condiciones» dentro de pronóstico
+### 12.3. Todas las etapas: «Próximas condiciones» dentro de pronóstico
 
 **Recomendación: ampliar primero la pantalla de pronóstico existente.** Mostrar períodos, condiciones previstas y razones del motor; en cosecha, una comparación de períodos menos adversos. Un detalle horario opcional puede abrirse desde un día.
 
@@ -656,17 +691,17 @@ No se justifica inicialmente una pantalla separada obligatoria de «ventanas»: 
 
 **Criterio de aceptación:** distingue medido de previsto, incluye lo que queda del día, no destaca como conveniente un período con datos faltantes y no afirma seguridad de ingreso de maquinaria.
 
-### 12.3. Vegetativo y floración: reutilizar recomendaciones y detalles
+### 12.4. Vegetativo y floración: reutilizar recomendaciones y detalles
 
 Las combinaciones suelo–aire–clima deben llegar como razones de las recomendaciones actuales. El detalle de ambiente puede mostrar DPV y rocío como derivados, claramente separados de las variables medidas.
 
-No agregar una pantalla de «salud del cultivo»: sin identificar especie ni observar la planta, ese título sugeriría una capacidad que no tenemos. Tampoco una pantalla nutricional con dosis a partir de NPK.
+No agregar una pantalla de «salud del cultivo»: aun con la especie indicada, sin observar la planta ese título sugeriría una capacidad que no tenemos. Tampoco una pantalla nutricional con dosis a partir de NPK.
 
-### 12.4. Cobertura y calidad: bloque breve, no paso obligatorio
+### 12.5. Cobertura y calidad: bloque breve, no paso obligatorio
 
 En el resumen, explicar sólo la limitación que cambia la interpretación: por ejemplo, ambiente ausente o pronóstico no disponible. Un detalle «Cómo se evaluó» puede reunir las demás. Evitar repetir avisos extensos en todas las tarjetas.
 
-Conservar lectura sin red, idioma, accesibilidad, tamaño de letra, desplazamiento, botón Guardar y navegación atrás. El criterio de éxito no es tener más pantallas: es comprender mejor la decisión con el menor recorrido necesario.
+Conservar lectura sin red, idioma, accesibilidad, tamaño de letra, desplazamiento, guardado sin esperar el clima y navegación atrás (deslizar y Atrás del teléfono). El criterio de éxito no es tener más pantallas: es comprender mejor la decisión con el menor recorrido necesario.
 
 <a id="validacion"></a>
 ## 13. Validación y criterios de aceptación
@@ -704,7 +739,7 @@ No inventar resultados de validación. Registrar versión, dominio y limitacione
 | T17 | Perfil de semilla comparado con trasplante | No reutiliza referencias fuera de su contexto |
 | T18 | Perfil con parámetros faltantes | No obtiene ventaja por omitir restricciones |
 | T19 | Ninguna coincidencia | Explica alcance del catálogo, sin afirmar imposibilidad universal |
-| T20 | Etapa distinta de pre-siembra | No asigna especie ni propone automáticamente cambiar de cultivo |
+| T20 | Etapa distinta de pre-siembra sin especie | No asigna especie ni propone automáticamente cambiar de cultivo |
 | T21 | Episodio esta noche | Se incluye aunque ocurra antes del primer día futuro de la lista |
 | T22 | Pronóstico sólo diario | No inventa horas de frío/calor ni ventana horaria |
 | T23 | Una hora faltante entre episodios | No une continuidad ni rellena duración |
@@ -729,6 +764,10 @@ No inventar resultados de validación. Registrar versión, dominio y limitacione
 | T42 | Opción perenne | Explica evaluación parcial; no promete aptitud de huerto |
 | T43 | Retirar regla o fuente | Históricos legibles y nuevos resultados sin la regla retirada |
 | T44 | Varias señales derivadas del mismo fenómeno | No aumenta gravedad por duplicar evidencia |
+| T45 | Misma captura con especie indicada y sin especie | Alertas generales idénticas; sólo se agregan los criterios de la especie |
+| T46 | Especie de la lista sin criterios para la etapa | Resultado general con aviso explícito; ningún valor tomado de otra especie o grupo |
+| T47 | Búsqueda por sinónimo, sin tildes o en mayúsculas | Encuentra la misma especie con ID estable |
+| T48 | Medición nueva después de una con especie | Parte sin especie; no hereda la selección anterior |
 
 La tabla térmica de la sección 7 sirve para pruebas de conversión y fronteras de ejemplos documentales. No se convertirá automáticamente en el catálogo de producción.
 
@@ -748,9 +787,9 @@ Desde la raíz, para documentación:
 python docs/verificar_documentacion.py
 ```
 
-El verificador actual comprueba una lista fija de documentos: también se deben revisar los enlaces y anclas de este archivo, que todavía no recorre internamente. No basta con que el enlace desde README exista.
+El verificador comprueba una lista fija de documentos que incluye esta especificación y el task del motor agronómico, con sus enlaces locales y anclas.
 
-Desde `App/`, durante la futura implementación:
+Desde `App/`, durante la implementación:
 
 ```powershell
 npm test
@@ -763,7 +802,7 @@ Las pruebas existentes usan `tsx --test`; agregar nuevos archivos al comando de 
 <a id="implementacion"></a>
 ## 14. Orden de implementación
 
-Este orden es una propuesta técnica para la siguiente etapa; no representa tareas ejecutadas en este trabajo documental.
+Este orden organiza las entregas. El [task del motor agronómico](TASK_MOTOR_AGRONOMICO.md) identifica lo implementado y verificado dentro de cada una; una entrega parcial no cierra todos sus criterios.
 
 | Entrega | Alcance | Resultado verificable antes de continuar |
 |---|---|---|
@@ -771,14 +810,14 @@ Este orden es una propuesta técnica para la siguiente etapa; no representa tare
 | E2 — Física local | DPV, rocío, consistencia y metadatos de derivados | T07–T11, fórmulas comprobadas y límites explícitos |
 | E3 — Clima horario | Resto del día, horas, resúmenes, caché, cancelación y errores parciales | T21–T32, T36–T38; costo de peticiones y payload medido |
 | E4 — Motor por etapa | Reglas ambientales independientes, prioridades, cobertura y traducciones | T01–T03, T20, T33–T34, T40, T44 |
-| E5 — Catálogo con evidencia | Perfiles documentados, criterios parciales, límites superiores y propagación | T15–T19, T42; cada criterio activo tiene fuente y contexto |
-| E6 — Resultado y persistencia | Integración en pantallas existentes, detalle de alternativas y diagnóstico versionado | T35–T40, T43; consulta sin selección y guardado sin red |
+| E5 — Catálogo con evidencia | Lista de especies con la cobertura de 7.3, perfiles documentados, criterios por etapa, límites superiores y propagación | T15–T19, T42, T46–T47; cada criterio activo tiene fuente y contexto |
+| E6 — Resultado y persistencia | Selector de especie, integración en pantallas existentes, detalle de alternativas y diagnóstico versionado | T35–T40, T43, T45, T48; consulta sin selección, «Saltar» y guardado sin red |
 | E7 — Contraste con equipo y terreno | Validación de medición y revisión agronómica del alcance habilitado | Informe de evidencia en los registros técnicos existentes; sin afirmar validaciones no realizadas |
 | E8 — Extensiones justificadas | Contexto climático histórico, perennes y escenarios de pronóstico | Valor demostrado frente a costo/latencia; limitaciones de variedad y escala conservadas |
 
 La investigación de fuentes puede avanzar durante E1–E4, pero ningún parámetro llega al motor activo sin revisión de correspondencia. No es necesario esperar a completar todo el catálogo candidato para entregar física local y mejor clima.
 
-### 14.1. Áreas de código afectadas en el futuro
+### 14.1. Áreas de código previstas
 
 | Área existente | Cambio previsto |
 |---|---|
@@ -786,7 +825,7 @@ La investigación de fuentes puede avanzar durante E1–E4, pero ningún paráme
 | `src/engine/` | Separar cálculo físico, evaluación de perfiles, riesgos y composición; funciones puras |
 | `src/services/weatherService.ts` | Adaptador por grupos, horarios, unidades y respuestas parciales |
 | `src/engine/measurementPresentation.ts` | Adaptación a textos, cobertura y versión guardada |
-| `src/screens/MeasureScreen.tsx` | Captura inmutable y llegada climática conservando cancelación |
+| `src/screens/MeasureScreen.tsx` | Selector opcional de especie entre etapa y pasos; captura inmutable y llegada climática conservando cancelación |
 | `src/components/MeasurementResultFlow.tsx` y pronóstico | Presentar razones, derivados y consultas opcionales |
 | `tests/` | Casos de la matriz y regresiones del flujo actual |
 | `supabase/migrations/` | Sólo si el contrato persistido lo necesita; nunca editar el volcado como fuente |
@@ -798,15 +837,15 @@ No se requiere una dependencia nueva para calcular DPV o evaluar tablas. Antes d
 
 ### 15.1. Decisiones establecidas por esta propuesta
 
-- Sin nuevos datos obligatorios del agricultor; la etapa es la entrada manual existente.
-- Catálogo separado de los riesgos ambientales generales.
+- Sin nuevos datos obligatorios del agricultor. La etapa es obligatoria; la especie es opcional, sólo en vegetativo, floración y cosecha, y se guarda por medición.
+- Catálogo separado de los riesgos ambientales generales; la lista de especies no implica perfil con criterios.
 - Medición local, derivado local, pronóstico y reanálisis identificados por separado.
 - No asignar una especie ni textura a partir de sugerencias o inferencias.
 - Reglas explicables; límite importante no compensado por promedios de conveniencia.
 - Sin dosis ni diagnósticos que requieran variables ausentes.
 - Clima opcional; resultado local disponible sin red ni ubicación.
 - Catálogos/fuentes versionados e históricos que preservan lo que se sabía al capturar.
-- Cambios visuales concentrados en motivos y comparación temporal, no en formularios adicionales.
+- Cambios visuales concentrados en motivos y comparación temporal; el selector opcional de especie es el único formulario nuevo.
 
 ### 15.2. Trabajo técnico que debe cerrarse antes de habilitar capacidades
 
@@ -822,7 +861,7 @@ No se requiere una dependencia nueva para calcular DPV o evaluar tablas. Antes d
 | Capacidad de persistir series y razones | Ingeniería de la app y datos | Medir tamaño y cerrar contrato antes de desplegar |
 | Mapeo de estado insuficiente en listas e históricos | Ingeniería de interfaz | No convertir ausencia de evaluación en verde por compatibilidad |
 
-Estas cuestiones no requieren formularios nuevos ni respuestas del agricultor. Son requisitos de desarrollo y verificación del equipo. La implementación debe priorizar capacidades habilitables y conservar explícitamente los criterios que aún no puede evaluar.
+Estas cuestiones no requieren más formularios ni respuestas del agricultor. Son requisitos de desarrollo y verificación del equipo. La implementación debe priorizar capacidades habilitables y conservar explícitamente los criterios que aún no puede evaluar.
 
 <a id="fuentes"></a>
 ## 16. Fuentes consultadas

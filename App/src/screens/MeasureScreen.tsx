@@ -1,4 +1,5 @@
 import { useResetGuide } from '../components/guide/GuideContext';
+import { GuideTouchable } from '../components/guide/GuideControls';
 import { useTranslation } from '../hooks/useTranslation';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, AppState, BackHandler, Switch, View } from 'react-native';
@@ -10,6 +11,7 @@ import { useAppTheme } from '../hooks/useAppTheme';
 import { useAppStore } from '../store/useAppStore';
 import { evaluateReadingForStage, type StageAwareEvaluation } from '../engine/stageEvaluator';
 import { buildContextualAdvice, type ContextualAdvice } from '../engine/contextualAdvice';
+import { buildLocalInputQuality } from '../engine/inputQuality';
 import { computeVpdKpa } from '../engine/agronomyEngine';
 import { readSoilProbe, verifySoilProbe } from '../services/probeService';
 import { fetchCurrentWeather, type CurrentWeather } from '../services/weatherService';
@@ -17,12 +19,15 @@ import { newClientUuid, saveMeasurement } from '../services/measurementsService'
 import { PHENOLOGICAL_STAGES, mapRowToPoint, type PhenologicalStage, type SoilMeasurementInsert } from '../types/app';
 import type { SoilMeasurement } from '../types/agronomy';
 import { MeasurementResultFlow } from '../components/MeasurementResultFlow';
+import { weatherNow } from '../components/measurementResultData';
 import { ScreenCard, ScreenLayout, ScreenText } from '../components/screen/ScreenUI';
 import { buildMeasurementPresentation } from '../engine/measurementPresentation';
 import { CalibrationReminderModal } from '../components/CalibrationReminderModal';
 import { MeasurementLoading } from '../components/MeasurementLoading';
 import { ProbeInsertArt } from '../components/ProbeInsertArt';
 import { StageArt, StageCards } from '../components/StageCards';
+import { SpeciesArt, SpeciesPicker } from '../components/SpeciesPicker';
+import { NO_SPECIES_ID, SPECIES_CATALOG_VERSION, speciesName, type SpeciesEntry } from '../engine/speciesCatalog';
 import { AppIcon } from '../components/AppIcon';
 import Animated from 'react-native-reanimated';
 import { enterDown } from '../constants/motion';
@@ -40,9 +45,8 @@ import { captureLocation, initialIncludeLocation, revalidateIncludeLocation, typ
 // en Android anterior a 12 la ubicación también se concede para buscar la sonda.
 const LOCATION_CHOICE_KEY = '@terrasense/measure-location-v1';
 
-const ENGINE_VERSION = '1.3.0';
-const CROP_CATALOG_VERSION = '1.0.0';
-type Phase = 'connecting' | 'connection_error' | 'stage' | 'steps' | 'prepare' | 'reading' | 'result' | 'saving';
+const ENGINE_VERSION = '1.4.0';
+type Phase = 'connecting' | 'connection_error' | 'stage' | 'species' | 'species_missing' | 'steps' | 'prepare' | 'reading' | 'result' | 'saving';
 
 interface Props {
   onDone: () => void;
@@ -62,6 +66,10 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
 
   const [phase, setPhase] = useState<Phase>('stage');
   const [stage, selectStage] = useState<PhenologicalStage | null>(null);
+  // Especie de esta medición: opcional, fuera de pre-siembra y nunca en el store global,
+  // para que una medición nueva no la herede.
+  const [species, setSpecies] = useState<SpeciesEntry | null>(null);
+  const asksSpecies = stage != null && stage !== 'pre_siembra';
   const context = useRef({ device });
   const saving = useRef(false);
   const reading = useRef(false);
@@ -69,6 +77,8 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   useResetGuide(phase);
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
+  const stageRef = useRef(stage);
+  stageRef.current = stage;
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [demoMode, setDemoMode] = useState(false);
   const [saveSynced, setSaveSynced] = useState(false);
@@ -157,8 +167,10 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => {
       const current = phaseRef.current;
       if (current === 'result' || current === 'saving') return false;
-      // Antes de medir, Atrás retrocede una pantalla: pasos → etapa, medir → pasos.
-      if (current === 'steps') { setPhase('stage'); return true; }
+      // Antes de medir, Atrás retrocede una pantalla: medir → pasos → especie → etapa.
+      if (current === 'species') { setPhase('stage'); return true; }
+      if (current === 'species_missing') { setPhase('species'); return true; }
+      if (current === 'steps') { setPhase(stageRef.current === 'pre_siembra' ? 'stage' : 'species'); return true; }
       if (current === 'prepare') { setPhase('steps'); return true; }
       cancel(); return true;
     });
@@ -209,13 +221,17 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       const nextWeather = null;
       if (!current()) return;
       setCapturedAt(probe.capturedAt);
-      const nextEvaluation = evaluateReadingForStage(probe.data, stage, preferences.language);
+      const evaluatedAt = new Date().toISOString();
+      const nextEvaluation = evaluateReadingForStage(probe.data, stage, preferences.language, {
+        capturedAt: probe.capturedAt, evaluatedAt, simulated: connection.simulated || probe.simulated,
+      });
+      const weatherContext = { captureId: clientUuid.current!, location: nextCoords, evaluatedAt };
       setCoords(nextCoords);
       setRaw(probe.data);
       setDemoMode((current) => current || probe.simulated);
       setWeather(nextWeather);
       setEvaluation(nextEvaluation);
-      setAdvice(buildContextualAdvice(stage, nextEvaluation, probe.data, nextWeather, preferences.language));
+      setAdvice(buildContextualAdvice(stage, nextEvaluation, probe.data, nextWeather, preferences.language, weatherContext));
       setPhase('result');
       // Batería baja: aviso dentro de la app, una vez por equipo (utils/batteryWarning).
       // Una lectura simulada no informa la batería real.
@@ -226,10 +242,12 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       }
       if (nextCoords) {
         setWeatherLoading(true);
-        void fetchCurrentWeather(nextCoords.latitude, nextCoords.longitude).then((forecast) => {
+        void fetchCurrentWeather(nextCoords.latitude, nextCoords.longitude, weatherContext.captureId).then((forecast) => {
           if (!current()) return;
-          setWeather(forecast);
-          setAdvice(buildContextualAdvice(stage, nextEvaluation, probe.data, forecast, preferences.language));
+          const updatedAdvice = buildContextualAdvice(stage, nextEvaluation, probe.data, forecast, preferences.language,
+            { ...weatherContext, evaluatedAt: new Date().toISOString() });
+          setWeather(updatedAdvice.weatherCoverage?.status === 'not_evaluated' ? null : forecast);
+          setAdvice(updatedAdvice);
           setWeatherLoading(false);
         }).catch(() => { if (current()) setWeatherLoading(false); });
       }
@@ -243,10 +261,11 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     }
   }, [device, language, preferences.language, revalidateLocation, stage, t]);
 
-  const presentation = useMemo(() => raw && evaluation && advice ? buildMeasurementPresentation(raw, evaluation, advice, language) : null, [raw, evaluation, advice, language]);
+  const inputQuality = useMemo(() => raw && capturedAt ? buildLocalInputQuality(raw, capturedAt, demoMode) : null, [raw, capturedAt, demoMode]);
+  const presentation = useMemo(() => raw && evaluation && advice && inputQuality ? buildMeasurementPresentation(raw, evaluation, advice, language, inputQuality, asksSpecies ? species?.id : null) : null, [raw, evaluation, advice, language, inputQuality, asksSpecies, species]);
 
   const save = useCallback(async () => {
-    if (!evaluation || !raw || !stage || saving.current || saved.current) return;
+    if (!evaluation || !raw || !stage || !inputQuality || !presentation || saving.current || saved.current) return;
     if (demoMode) {
       Alert.alert(t('Demostración', 'Demo'), t('Los datos simulados no se guardan como mediciones reales.', 'Simulated data is not saved as real readings.'));
       return;
@@ -263,8 +282,8 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       device_id: context.current.device?.id ?? '',
       data_generation: context.current.device?.data_generation ?? 0,
       user_id: null,
-      // Columnas de texto NOT NULL del esquema vigente: ausencia explícita, sin cultivar ficticio.
-      crop_id: 'sin_especificar',
+      // Especie indicada por el usuario o ausencia explícita: nunca un cultivo ficticio.
+      crop_id: asksSpecies && species ? species.id : NO_SPECIES_ID,
       // Compatibilidad con el esquema existente; la app ya no agrupa por campo.
       field_name: '',
       quadrant: null,
@@ -291,9 +310,9 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       verdict: evaluation.verdict,
       verdict_title: evaluation.verdictTitle,
       action_summary: advice?.summary ?? evaluation.actionSummary,
-      diagnosis: { presentation, localSource: 'probe-bme280-v1', capturedAt, connectionAtCapture: 'ble-response', alerts: evaluation.alerts, drivers: evaluation.drivers, advice, weather },
+      diagnosis: { presentation, inputQuality, evaluationState: evaluation.state, coverage: evaluation.coverage, localSource: 'probe-bme280-v1', capturedAt, connectionAtCapture: 'ble-response', alerts: evaluation.alerts, drivers: evaluation.drivers, advice, weather },
       engine_version: ENGINE_VERSION,
-      crop_catalog_version: CROP_CATALOG_VERSION,
+      crop_catalog_version: SPECIES_CATALOG_VERSION,
       firmware_version: context.current.device?.firmware_version ?? null,
       client_uuid: clientUuid.current,
     };
@@ -328,17 +347,13 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       saving.current = false;
       if (active()) setPhase('result');
     }
-  }, [capturedAt, advice, addPoint, coords, demoMode, device, evaluation, language, raw, setPendingCount, stage, t, weather, presentation]);
+  }, [capturedAt, advice, addPoint, coords, demoMode, device, evaluation, language, raw, setPendingCount, stage, t, weather, presentation, inputQuality, asksSpecies, species]);
 
   const stageLabel = (id: PhenologicalStage | null) => {
     const item = PHENOLOGICAL_STAGES.find(candidate => candidate.id === id);
     return item ? (language === 'en' ? item.labelEn : item.label) : '';
   };
   const deviceName = context.current.device?.alias || context.current.device?.name || device?.alias || device?.name || 'TerraSense';
-  const restart = () => Alert.alert(t('Nueva medición', 'New measurement'), t('¿Descartar esta lectura y elegir otra etapa?', 'Discard this reading and choose another stage?'), [
-    { text: t('Seguir revisando', 'Keep reviewing'), style: 'cancel' },
-    { text: t('Descartar', 'Discard'), style: 'destructive', onPress: () => { weatherRequest.current += 1; setRaw(null); selectStage(null); setPhase('stage'); } },
-  ]);
   const demoNotice = demoMode && <ScreenCard accent={colors.warning}>
     <Text style={{ color: colors.warning, fontSize: 13, fontWeight: '700', letterSpacing: 1 }}>{t('DATOS SIMULADOS', 'SIMULATED DATA')}</Text>
     <ScreenText>{t('No hay una sonda real conectada. No uses esta lectura para decidir.', 'No real probe is connected. Do not use this reading to make decisions.')}</ScreenText>
@@ -360,13 +375,50 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     </ScreenLayout>;
   }
 
+  // Fuera de pre-siembra hay un paso más: la especie.
+  const totalSteps = asksSpecies ? 4 : 3;
+  const stepLabel = (n: number) => t(`MEDIR · PASO ${n} DE ${totalSteps}`, `MEASURE · STEP ${n} OF ${totalSteps}`);
+  const skipSpecies = (label: string) => <GuideTouchable accessibilityRole="button" onPress={() => { setSpecies(null); setPhase('steps'); }}
+    guide={t('Continúa sin indicar especie. La lectura se interpreta con el análisis general.', 'Continues without a species. The reading uses the general assessment.')}
+    style={{ minHeight: 48, justifyContent: 'center', paddingLeft: 16 }}>
+    <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '700' }}>{label}</Text>
+  </GuideTouchable>;
+
   if (phase === 'stage') {
-    return <ScreenLayout onBack={cancel} backLabel={t('Inicio', 'Home')} eyebrow={t('MEDIR · PASO 1 DE 3', 'MEASURE · STEP 1 OF 3')}
+    return <ScreenLayout key={phase} onBack={cancel} backLabel={t('Inicio', 'Home')} eyebrow={stepLabel(1)}
       title={t('¿En qué etapa está tu cultivo?', 'What stage is your crop in?')}
       description={t('La lectura se interpreta según la etapa. No cambia los valores medidos.', 'The reading is interpreted for the stage. It does not change the measured values.')}
-      footer={<EntryButton disabled={!stage} label={t('Continuar', 'Continue')} onPress={() => setPhase('steps')} />}>
+      footer={<EntryButton disabled={!stage} label={t('Continuar', 'Continue')} onPress={() => setPhase(asksSpecies ? 'species' : 'steps')} />}>
       {demoNotice}
-      <StageCards value={stage} onChange={id => { selectStage(id); setStage(id); }} />
+      {/* Entre vegetativo, floración y cosecha la planta es la misma: se conserva la especie. */}
+      <StageCards value={stage} onChange={id => { selectStage(id); setStage(id); if (id === 'pre_siembra') setSpecies(null); }} />
+    </ScreenLayout>;
+  }
+
+  if (phase === 'species' && stage) {
+    return <ScreenLayout key={phase} keyboardAware onBack={() => setPhase('stage')} backLabel={t('Etapa', 'Stage')} eyebrow={stepLabel(2)}
+      action={skipSpecies(t('Saltar', 'Skip'))}
+      title={t('¿Qué tienes plantado?', 'What are you growing?')}
+      description={t('Busca la especie de tu cultivo. Queda registrada solo en esta medición.', 'Search for your crop species. It is saved with this measurement only.')}
+      footer={<EntryButton disabled={!species} label={t('Continuar', 'Continue')} onPress={() => setPhase('steps')} />}>
+      <SpeciesPicker stage={stage} value={species} onChange={setSpecies} onMissing={() => setPhase('species_missing')} />
+    </ScreenLayout>;
+  }
+
+  if (phase === 'species_missing') {
+    return <ScreenLayout key={phase} onBack={() => setPhase('species')} backLabel={t('Buscar', 'Search')} eyebrow={stepLabel(2)}
+      title={t('Estamos sumando más cultivos', 'We are adding more crops')}
+      description={t('Tu planta todavía no está en la lista. Estamos trabajando para incluir más cultivos y plantas.', 'Your plant is not on the list yet. We are working to include more crops and plants.')}
+      footer={<>
+        <EntryButton label={t('Continuar sin especie', 'Continue without a species')} onPress={() => { setSpecies(null); setPhase('steps'); }} />
+        <EntryButton secondary label={t('Volver a buscar', 'Search again')} onPress={() => setPhase('species')} />
+      </>}>
+      <Animated.View entering={enterDown(60)}><SpeciesArt highlight={null} /></Animated.View>
+      <Animated.View entering={enterDown(160)}>
+        <ScreenCard accent={colors.primary}>
+          <ScreenText muted={false}>{t('Puedes medir igual: la lectura se interpreta con el análisis general de la etapa y se guarda sin especie.', 'You can still measure: the reading uses the general assessment for the stage and is saved without a species.')}</ScreenText>
+        </ScreenCard>
+      </Animated.View>
     </ScreenLayout>;
   }
 
@@ -377,7 +429,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       [t('Entiérrala en el suelo', 'Insert it into the soil'), t('Hasta cubrir los electrodos, en suelo representativo, sin piedras ni bolsas de aire.', 'Until the electrodes are covered, in representative soil, without stones or air pockets.')],
       [t('Mantenla recta y quieta', 'Keep it straight and still'), t('Vertical y sin moverla mientras se lee.', 'Upright and without moving it while it reads.')],
     ];
-    return <ScreenLayout onBack={() => setPhase('stage')} backLabel={t('Etapa', 'Stage')} eyebrow={t('MEDIR · PASO 2 DE 3', 'MEASURE · STEP 2 OF 3')}
+    return <ScreenLayout key={phase} onBack={() => setPhase(asksSpecies ? 'species' : 'stage')} backLabel={asksSpecies ? t('Especie', 'Species') : t('Etapa', 'Stage')} eyebrow={stepLabel(totalSteps - 1)}
       title={t('Antes de medir', 'Before measuring')}
       footer={<EntryButton label={t('Listo, continuar', 'Done, continue')} onPress={() => setPhase('prepare')} />}>
       <ProbeInsertArt />
@@ -399,7 +451,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     const badge = (icon: 'bluetooth' | 'location') => <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: '#17392C', alignItems: 'center', justifyContent: 'center' }}>
       <AppIcon name={icon} color="#C6DFB4" size={24} />
     </View>;
-    return <ScreenLayout onBack={() => setPhase('steps')} backLabel={t('Pasos', 'Steps')} eyebrow={t('MEDIR · PASO 3 DE 3', 'MEASURE · STEP 3 OF 3')}
+    return <ScreenLayout key={phase} onBack={() => setPhase('steps')} backLabel={t('Pasos', 'Steps')} eyebrow={stepLabel(totalSteps)}
       title={t('Todo listo', 'All set')}
       footer={<EntryButton disabled={locationBusy} label={t('Medir', 'Measure')} onPress={() => void runMeasurement()} />}>
       {demoNotice}
@@ -409,6 +461,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
         <View style={{ flex: 1, gap: 2 }}>
           <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.5 }}>{t('ETAPA', 'STAGE')}</Text>
           <Text numberOfLines={1} style={{ color: colors.text, fontSize: 18, fontWeight: '700' }}>{stageLabel(stage)}</Text>
+          {asksSpecies && <Text numberOfLines={1} style={{ color: colors.text, fontSize: 15 }}>{species ? speciesName(species, language === 'en' ? 'en' : 'es') : t('Sin especie', 'No species')}</Text>}
           <Text numberOfLines={1} style={{ color: colors.textSecondary, fontSize: 14 }}>{t(`Sonda ${deviceName}`, `Probe ${deviceName}`)}</Text>
         </View>
       </View>
@@ -438,7 +491,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
 
   if (!presentation) return null;
   return <>
-    <MeasurementResultFlow presentation={presentation} onExit={cancel} exitLabel={t('Salir', 'Exit')} onRestart={restart}
+    <MeasurementResultFlow presentation={presentation} onExit={cancel} exitLabel={t('Salir', 'Exit')}
       save={{ onSave: () => void save(), busy: phase === 'saving' }}
       notices={<>
         {demoNotice}
@@ -447,7 +500,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
           <ScreenText>{t('Carga la sonda antes de la próxima salida.', 'Charge the probe before your next trip.')}</ScreenText>
         </ScreenCard>}
       </>}
-      forecast={{ days: weather?.forecast ?? [], loading: weatherLoading, capturedAt, battery: raw?.battery, latitude: coords?.latitude, longitude: coords?.longitude, accuracy: coords?.accuracy }} />
+      forecast={{ days: weather?.forecast ?? [], now: weatherNow(weather), loading: weatherLoading, capturedAt, battery: raw?.battery, latitude: coords?.latitude, longitude: coords?.longitude, accuracy: coords?.accuracy }} />
     <CalibrationReminderModal synced={saveSynced} visible={showCalibration} onClose={() => { setShowCalibration(false); onDone(); }} />
   </>;
 };

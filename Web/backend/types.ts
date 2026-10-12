@@ -79,6 +79,16 @@ export interface Measurement {
   action_summary: string | null;
   latitude: number | string | null;
   longitude: number | string | null;
+  /** Especie indicada al medir (instantánea de la app); `null` si se midió sin especie o es anterior. */
+  species?: MeasurementSpecies | null;
+}
+
+/** Copia de la especie que guarda la app en el diagnóstico de cada medición. */
+export interface MeasurementSpecies {
+  id: string;
+  es: string;
+  en: string;
+  scientific: string;
 }
 
 export interface ResetResult {

@@ -1,87 +1,201 @@
+import { numericEvidence } from '../engine/inputQuality';
+import type { EvidenceDatum } from '../types/agronomy';
+
 export interface ForecastDay {
   date: string;
   minimumTemperatureC: number | null;
   maximumTemperatureC: number | null;
   precipitationMm: number | null;
   rainProbabilityPct: number | null;
+  /** Código WMO del tiempo del día; ausente en diagnósticos guardados antes de pedirlo. */
+  weatherCode?: number | null;
 }
 
 export interface CurrentWeather {
+  /** Asociación de la solicitud; no es la coordenada de la celda del modelo. */
+  request?: { captureId: string | null; latitude: number; longitude: number };
   forecast: ForecastDay[];
+  /** Resumen del día de la consulta (fecha local del proveedor); ausente en diagnósticos anteriores. */
+  today?: ForecastDay;
   source: 'Open-Meteo';
   timezone: string;
-  temperatureC: number;
-  precipitationMm: number;
-  windKmh: number;
+  temperatureC: number | null;
+  precipitationMm: number | null;
+  windKmh: number | null;
+  /** Código WMO del tiempo actual (llovizna, lluvia, chubasco…); ausente en diagnósticos anteriores. */
+  weatherCode?: number | null;
   rainProbabilityPct: number | null;
   dailyPrecipitationMm: number | null;
   minimumTemperatureC: number | null;
   maximumTemperatureC: number | null;
   fetchedAt: string;
+  inputQuality: {
+    version: 1;
+    /** Desplazamiento fijo que el proveedor usa para esta respuesta ISO. */
+    providerUtcOffsetSeconds: number | null;
+    current: Record<'temperatureC' | 'precipitationMm' | 'windKmh', EvidenceDatum>;
+    daily: Record<string, Record<Exclude<keyof ForecastDay, 'date' | 'weatherCode'>, EvidenceDatum>>;
+  };
+}
+
+const finite = (value: unknown): number | null =>
+  typeof value === 'number' && Number.isFinite(value) ? value : null;
+const record = (value: unknown): Record<string, unknown> =>
+  value !== null && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
+
+/** Códigos WMO que publica Open-Meteo. Otro valor no se interpreta. */
+const WMO_CODES = new Set([0, 1, 2, 3, 45, 48, 51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 99]);
+const weatherCodeOf = (value: unknown): number | null =>
+  typeof value === 'number' && WMO_CODES.has(value) ? value : null;
+
+function validDate(value: unknown): string | null {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const parsed = new Date(`${value}T12:00:00Z`);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value ? value : null;
+}
+
+/** Sin bloque actual, el día se obtiene del reloj recibido y la zona del proveedor. */
+function localDate(fetchedAt: string, timezone: string): string | null {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit',
+    }).formatToParts(new Date(fetchedAt));
+    const part = (type: string) => parts.find(value => value.type === type)?.value;
+    return validDate(`${part('year')}-${part('month')}-${part('day')}`);
+  } catch { return null; }
+}
+
+/** Adaptador puro: no rellena ausencias ni depende del reloj global. */
+export function normalizeWeather(payload: unknown, fetchedAt: string): CurrentWeather | null {
+  const root = record(payload);
+  const current = record(root.current);
+  const daily = record(root.daily);
+  const currentUnits = record(root.current_units);
+  const dailyUnits = record(root.daily_units);
+  const timezone = typeof root.timezone === 'string' ? root.timezone : 'auto';
+  const currentTime = typeof current.time === 'string' && /^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):[0-5]\d$/.test(current.time)
+    ? current.time : null;
+  const currentDate = validDate(currentTime?.slice(0, 10));
+  const today = currentDate ?? localDate(fetchedAt, timezone);
+  if (!today) return null;
+  const suppliedOffset = finite(root.utc_offset_seconds);
+  const offset = suppliedOffset !== null && Number.isInteger(suppliedOffset) && Math.abs(suppliedOffset) <= 86400 ? suppliedOffset : null;
+  const utc = (local: string): string | null => offset !== null
+    ? new Date(Date.parse(`${local}Z`) - offset * 1000).toISOString() : null;
+  const invalidate = (datum: EvidenceDatum, reason: string) => {
+    datum.value = null;
+    if (datum.availability !== 'missing') datum.availability = 'invalid';
+    datum.limitationCodes.push(reason);
+  };
+  const datum = (value: unknown, unit: string, reportedUnit: unknown, temporalKind: EvidenceDatum['temporalKind'],
+    validFrom: string | null, validTo: string | null, range?: { min: number; max: number }): EvidenceDatum => {
+    const result = numericEvidence(value, {
+      unit, reportedUnit: typeof reportedUnit === 'string' ? reportedUnit : null,
+      source: 'weather_model', temporalKind, validFrom, validTo, timezone: timezone === 'auto' ? null : timezone,
+      methodId: null, measurementQuality: 'modelled', interpretation: 'physical_only',
+      limitationCodes: [...(validFrom && validTo ? [] : ['time_interval_unknown'])],
+    }, range);
+    if (reportedUnit !== unit) invalidate(result, reportedUnit == null ? 'unit_missing' : 'unit_mismatch');
+    return result;
+  };
+  const inputQuality: CurrentWeather['inputQuality'] = { version: 1, providerUtcOffsetSeconds: offset,
+    current: {} as CurrentWeather['inputQuality']['current'], daily: {} };
+  const dates = Array.isArray(daily.time) ? daily.time : [];
+  const dayAt = (date: string): ForecastDay => {
+    const index = dates.indexOf(date);
+    // Una fecha duplicada no permite asociar inequívocamente los valores.
+    const value = (key: string) => index >= 0 && dates.lastIndexOf(date) === index && Array.isArray(daily[key])
+      ? daily[key][index] : undefined;
+    const end = new Date(`${date}T12:00:00Z`);
+    end.setUTCDate(end.getUTCDate() + 1);
+    const from = utc(`${date}T00:00:00`);
+    const to = utc(`${end.toISOString().slice(0, 10)}T00:00:00`);
+    const observations = {
+      minimumTemperatureC: datum(value('temperature_2m_min'), '°C', dailyUnits.temperature_2m_min, 'minimum', from, to),
+      maximumTemperatureC: datum(value('temperature_2m_max'), '°C', dailyUnits.temperature_2m_max, 'maximum', from, to),
+      precipitationMm: datum(value('precipitation_sum'), 'mm', dailyUnits.precipitation_sum, 'sum', from, to, { min: 0, max: Infinity }),
+      rainProbabilityPct: datum(value('precipitation_probability_max'), '%', dailyUnits.precipitation_probability_max, 'maximum', from, to, { min: 0, max: 100 }),
+    };
+    const { minimumTemperatureC, maximumTemperatureC } = observations;
+    if (minimumTemperatureC.value !== null && maximumTemperatureC.value !== null && minimumTemperatureC.value > maximumTemperatureC.value) {
+      invalidate(minimumTemperatureC, 'inconsistent_temperature_range');
+      invalidate(maximumTemperatureC, 'inconsistent_temperature_range');
+    }
+    for (const key of Object.keys(observations) as (keyof typeof observations)[]) {
+      const observation = observations[key];
+      if (index >= 0 && dates.lastIndexOf(date) !== index) {
+        invalidate(observation, 'duplicate_date');
+        observation.availability = 'invalid';
+      }
+      const providerKey = { minimumTemperatureC: 'temperature_2m_min', maximumTemperatureC: 'temperature_2m_max',
+        precipitationMm: 'precipitation_sum', rainProbabilityPct: 'precipitation_probability_max' }[key];
+      if (providerKey && daily[providerKey] != null && !Array.isArray(daily[providerKey])) {
+        observation.availability = 'invalid';
+        observation.limitationCodes.push('invalid_series');
+      }
+    }
+    inputQuality.daily[date] = observations;
+    return {
+      date, minimumTemperatureC: minimumTemperatureC.value, maximumTemperatureC: maximumTemperatureC.value,
+      precipitationMm: observations.precipitationMm.value,
+      rainProbabilityPct: observations.rainProbabilityPct.value,
+      weatherCode: index >= 0 && dates.lastIndexOf(date) === index ? weatherCodeOf(value('weather_code')) : null,
+    };
+  };
+  const forecast = Array.from({ length: 5 }, (_, offset) => {
+    const date = new Date(`${today}T12:00:00Z`);
+    date.setUTCDate(date.getUTCDate() + offset + 1);
+    return dayAt(date.toISOString().slice(0, 10));
+  });
+  const day = dayAt(today);
+  const currentInstant = currentDate && currentTime ? utc(`${currentTime}:00`) : null;
+  const interval = finite(current.interval);
+  const precipitationFrom = currentInstant && interval !== null && interval > 0 && interval <= 86400
+    ? new Date(Date.parse(currentInstant) - interval * 1000).toISOString() : null;
+  inputQuality.current = {
+    temperatureC: datum(current.temperature_2m, '°C', currentUnits.temperature_2m, 'instant', currentInstant, currentInstant),
+    precipitationMm: datum(current.precipitation, 'mm', currentUnits.precipitation, 'sum', precipitationFrom, currentInstant, { min: 0, max: Infinity }),
+    windKmh: datum(current.wind_speed_10m, 'km/h', currentUnits.wind_speed_10m, 'instant', currentInstant, currentInstant, { min: 0, max: Infinity }),
+  };
+  if (!currentDate) for (const observation of Object.values(inputQuality.current)) invalidate(observation, 'invalid_current_time');
+  const temperatureC = inputQuality.current.temperatureC.value;
+  const precipitationMm = inputQuality.current.precipitationMm.value;
+  const windKmh = inputQuality.current.windKmh.value;
+  const hasDailyData = [day, ...forecast].some(item =>
+    [item.minimumTemperatureC, item.maximumTemperatureC, item.precipitationMm, item.rainProbabilityPct].some(value => value !== null));
+  if (!hasDailyData && temperatureC === null && precipitationMm === null && windKmh === null) return null;
+  return {
+    forecast, today: day, source: 'Open-Meteo', timezone, temperatureC, precipitationMm, windKmh,
+    weatherCode: currentDate ? weatherCodeOf(current.weather_code) : null,
+    rainProbabilityPct: day.rainProbabilityPct,
+    dailyPrecipitationMm: day.precipitationMm,
+    minimumTemperatureC: day.minimumTemperatureC,
+    maximumTemperatureC: day.maximumTemperatureC,
+    fetchedAt, inputQuality,
+  };
 }
 
 export async function fetchCurrentWeather(
   latitude: number,
   longitude: number,
+  captureId: string | null = null,
 ): Promise<CurrentWeather | null> {
+  if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90 ||
+      !Number.isFinite(longitude) || longitude < -180 || longitude > 180) return null;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 4500);
   try {
     const url =
       'https://api.open-meteo.com/v1/forecast' +
       `?latitude=${latitude}&longitude=${longitude}` +
-      '&current=temperature_2m,precipitation,wind_speed_10m' +
-      '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum' +
-      '&forecast_days=6&timezone=auto';
+      '&current=temperature_2m,precipitation,wind_speed_10m,weather_code' +
+      '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,weather_code' +
+      '&forecast_days=6&timezone=auto' +
+      '&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm';
     const response = await fetch(url, { signal: controller.signal });
     if (!response.ok) return null;
-    const payload = await response.json() as {
-      timezone?: string;
-      current?: {
-        temperature_2m?: number;
-        precipitation?: number;
-        wind_speed_10m?: number;
-        time?: string;
-      };
-      daily?: {
-        time?: string[];
-        temperature_2m_max?: number[];
-        temperature_2m_min?: number[];
-        precipitation_probability_max?: number[];
-        precipitation_sum?: number[];
-      };
-    };
-    const current = payload.current;
-    if (!current || typeof current.temperature_2m !== 'number' || !Number.isFinite(current.temperature_2m)) return null;
-    const today = current.time?.slice(0, 10);
-    if (!today) return null;
-    const finite = (value: unknown): number | null => typeof value === 'number' && Number.isFinite(value) ? value : null;
-    const forecast = Array.from({ length: 5 }, (_, offset): ForecastDay => {
-      const date = new Date(`${today}T12:00:00Z`);
-      date.setUTCDate(date.getUTCDate() + offset + 1);
-      const key = date.toISOString().slice(0, 10);
-      const index = payload.daily?.time?.indexOf(key) ?? -1;
-      return {
-        date: key,
-        minimumTemperatureC: finite(payload.daily?.temperature_2m_min?.[index]),
-        maximumTemperatureC: finite(payload.daily?.temperature_2m_max?.[index]),
-        precipitationMm: finite(payload.daily?.precipitation_sum?.[index]),
-        rainProbabilityPct: finite(payload.daily?.precipitation_probability_max?.[index]),
-      };
-    });
-    return {
-      forecast,
-      source: 'Open-Meteo',
-      timezone: payload.timezone ?? 'auto',
-      temperatureC: current.temperature_2m,
-      precipitationMm: current.precipitation ?? 0,
-      windKmh: current.wind_speed_10m ?? 0,
-      rainProbabilityPct: payload.daily?.precipitation_probability_max?.[0] ?? null,
-      dailyPrecipitationMm: payload.daily?.precipitation_sum?.[0] ?? null,
-      minimumTemperatureC: payload.daily?.temperature_2m_min?.[0] ?? null,
-      maximumTemperatureC: payload.daily?.temperature_2m_max?.[0] ?? null,
-      fetchedAt: new Date().toISOString(),
-    };
+    const weather = normalizeWeather(await response.json(), new Date().toISOString());
+    return weather ? { ...weather, request: { captureId, latitude, longitude } } : null;
   } catch {
     return null;
   } finally {

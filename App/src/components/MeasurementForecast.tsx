@@ -1,5 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { Text } from './AppText';
 import Svg, { Path } from 'react-native-svg';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -7,47 +8,111 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { formatEngineMetric } from '../utils/units';
 import type { ForecastDay } from '../services/weatherService';
+import { forecastOutlook, isRainingNow, isRainyDay, weatherKind, weatherKindLabel } from '../engine/weatherOutlook';
+import type { WeatherNow } from './measurementResultData';
+import { WeatherGlyph } from './result/WeatherGlyph';
 import { ScreenCard, ScreenLabel, ScreenText } from './screen/ScreenUI';
+import { enterDown } from '../constants/motion';
 
 const RAIN = '#3B8FD9';
+const SHORT_DAYS = { es: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'], en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] };
 
 export interface ForecastProps {
-  days: ForecastDay[]; loading?: boolean; latitude?: number | null; longitude?: number | null;
+  days: ForecastDay[]; now?: WeatherNow | null; loading?: boolean; latitude?: number | null; longitude?: number | null;
   accuracy?: number | null; capturedAt: string | null; battery?: number | null; historical?: boolean;
 }
 
-/** Pronóstico y datos de la captura. El título lo pone la pantalla que lo contiene. */
-export function MeasurementForecast({ days, loading = false, latitude, longitude, accuracy, capturedAt, battery }: ForecastProps) {
+/**
+ * Clima del punto medido: cómo está ahora (o al medir, en el historial), un resumen en
+ * una frase de los próximos días, la franja de cinco días y los datos de la captura.
+ * El título lo pone la pantalla que lo contiene.
+ */
+export function MeasurementForecast({ days, now, loading = false, latitude, longitude, accuracy, capturedAt, battery, historical = false }: ForecastProps) {
   const { colors } = useAppTheme();
-  const { t, locale } = useTranslation();
+  const { t, locale, language } = useTranslation();
+  const lang = language === 'en' ? 'en' : 'es';
   const system = useAppStore(s => s.preferences.measurementSystem);
   const missing = t('Sin dato', 'No data');
-  const temp = (v: number | null) => { if (v == null) return missing; const f = formatEngineMetric('temp', v, '°C', system); return `${f.value.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} ${f.unit}`; };
-  const day = (iso: string) => {
-    const date = new Date(`${iso}T12:00:00`);
-    return Number.isNaN(date.getTime()) ? iso : date.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'short' });
+  const degrees = (v: number | null, decimals = 1) => {
+    if (v == null) return missing;
+    const f = formatEngineMetric('temp', v, '°C', system);
+    return `${f.value.toLocaleString(locale, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })} ${f.unit}`;
   };
-  const row = (label: string, value: string, selectable = false) => <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12, minHeight: 30, alignItems: 'baseline' }}>
-    <Text style={{ color: colors.textSecondary, fontSize: 15 }}>{label}</Text>
-    <Text selectable={selectable} style={{ color: colors.text, fontSize: 15, fontWeight: '600', flexShrink: 1, textAlign: 'right' }}>{value}</Text>
+  const shortDegrees = (v: number | null) => v == null ? '–' : `${Math.round(formatEngineMetric('temp', v, '°C', system).value)}°`;
+  const mm = (v: number) => `${v.toLocaleString(locale, { maximumFractionDigits: 1 })} mm`;
+  const row = (label: string, value: string, selectable = false) => <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12, minHeight: 28, alignItems: 'baseline' }}>
+    <Text style={{ color: colors.textSecondary, fontSize: 14 }}>{label}</Text>
+    <Text selectable={selectable} style={{ color: colors.text, fontSize: 14, fontWeight: '600', flexShrink: 1, textAlign: 'right' }}>{value}</Text>
   </View>;
-  return <View style={{ gap: 12 }}>
-    {days.length ? <>
-      <ScreenText>{t('Pronóstico de Open-Meteo para el punto medido.', 'Open-Meteo forecast for the measured point.')}</ScreenText>
-      {/* Un día por fila: nombre, lluvia y mínima / máxima. */}
-      <View style={{ borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, paddingHorizontal: 16 }}>
-        {days.map((d, i) => <View key={d.date} style={{ paddingVertical: 14, gap: 6, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border }}>
-          <Text style={{ color: colors.text, fontSize: 16, fontWeight: '700', textTransform: 'capitalize' }}>{day(d.date)}</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke={RAIN} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><Path d="M12 3C12 3 5 10.5 5 15a7 7 0 0 0 14 0C19 10.5 12 3 12 3Z" /></Svg>
-              <Text style={{ color: colors.textSecondary, fontSize: 15 }}>{d.precipitationMm == null ? missing : `${d.precipitationMm} mm${d.rainProbabilityPct == null ? '' : ` · ${d.rainProbabilityPct} %`}`}</Text>
-            </View>
-            <Text style={{ color: colors.text, fontSize: 15, fontWeight: '600' }}>{temp(d.minimumTemperatureC)} / {temp(d.maximumTemperatureC)}</Text>
-          </View>
-        </View>)}
+
+  const nowKind = now ? weatherKind(now.weatherCode) ?? weatherKind(now.today.weatherCode) : null;
+  const raining = !!now && isRainingNow(now);
+  // El resumen habla de «mañana»: sólo vale para una consulta nueva, no para un histórico.
+  const outlook = historical ? null : forecastOutlook(days, lang);
+
+  // --- Hoy · ahora: tiempo actual, lluvia reciente y el día completo ---
+  const nowCard = now ? <Animated.View entering={enterDown(40)} style={{ borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: raining ? `${RAIN}88` : colors.border, backgroundColor: colors.card }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, padding: 18, backgroundColor: raining ? `${RAIN}1A` : 'transparent' }}>
+      <View style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: `${RAIN}22`, alignItems: 'center', justifyContent: 'center' }}>
+        <WeatherGlyph kind={nowKind} size={44} color={colors.textSecondary} animate />
       </View>
-    </> : <View style={{ flexDirection: 'row', gap: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 16 }}>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text style={{ color: raining ? RAIN : colors.primary, fontSize: 12, fontWeight: '800', letterSpacing: 1.4 }}>
+          {historical ? t('AL MEDIR', 'AT CAPTURE') : t('HOY · AHORA', 'TODAY · NOW')}
+        </Text>
+        <Text style={{ color: colors.text, fontSize: 22, fontWeight: '800', letterSpacing: -0.4 }}>
+          {raining && !historical ? t('Está lloviendo', 'It is raining')
+            : nowKind ? weatherKindLabel(nowKind, lang) : t('Tiempo actual', 'Current weather')}
+        </Text>
+        <Text style={{ color: colors.textSecondary, fontSize: 15 }}>
+          {[now.temperatureC != null ? degrees(now.temperatureC) : null, raining && nowKind && !historical ? weatherKindLabel(nowKind, lang) : null].filter(Boolean).join(' · ') || missing}
+        </Text>
+      </View>
+    </View>
+    <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingHorizontal: 18, paddingVertical: 12, gap: 4 }}>
+      {now.precipitationMm != null && now.precipitationMm > 0 && row(
+        now.precipitationMinutes ? t(`Lluvia últimos ${now.precipitationMinutes} min`, `Rain, last ${now.precipitationMinutes} min`) : t('Lluvia reciente', 'Recent rain'),
+        mm(now.precipitationMm))}
+      {row(historical ? t('Ese día', 'That day') : t('Hoy', 'Today'),
+        [now.today.precipitationMm != null ? mm(now.today.precipitationMm) : null,
+          now.today.rainProbabilityPct != null ? t(`${now.today.rainProbabilityPct} % de prob.`, `${now.today.rainProbabilityPct} % chance`) : null].filter(Boolean).join(' · ') || missing)}
+      {row(t('Mínima / máxima', 'Low / high'), `${degrees(now.today.minimumTemperatureC)} / ${degrees(now.today.maximumTemperatureC)}`)}
+    </View>
+  </Animated.View> : null;
+
+  // --- Próximos días: una columna por día, sin tarjetas ---
+  const strip = <View style={{ flexDirection: 'row', borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, paddingVertical: 12 }}>
+    {days.map((d, i) => {
+      const date = new Date(`${d.date}T12:00:00Z`);
+      const kind = weatherKind(d.weatherCode) ?? (isRainyDay(d) ? 'rain' : null);
+      return <View key={d.date} accessible accessibilityLabel={`${date.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' })}: ${kind ? weatherKindLabel(kind, lang) + ', ' : ''}${d.precipitationMm != null ? mm(d.precipitationMm) + ', ' : ''}${degrees(d.minimumTemperatureC)} / ${degrees(d.maximumTemperatureC)}`}
+        style={{ flex: 1, alignItems: 'center', gap: 4, borderLeftWidth: i ? 1 : 0, borderLeftColor: colors.border }}>
+        <Text style={{ color: colors.textSecondary, fontSize: 13, fontWeight: '700', textTransform: 'capitalize' }}>
+          {Number.isNaN(date.getTime()) ? d.date : (i === 0 && !historical ? t('Mañana', 'Tmrw') : SHORT_DAYS[lang][date.getUTCDay()])}
+        </Text>
+        <WeatherGlyph kind={kind} size={26} color={colors.textSecondary} />
+        <Text style={{ color: colors.text, fontSize: 15, fontWeight: '700' }}>{shortDegrees(d.maximumTemperatureC)}</Text>
+        <Text style={{ color: colors.textSecondary, fontSize: 13 }}>{shortDegrees(d.minimumTemperatureC)}</Text>
+        <Text style={{ color: (d.precipitationMm ?? 0) > 0 ? RAIN : colors.textSecondary, fontSize: 12, fontWeight: '600' }}>
+          {d.precipitationMm == null ? '–' : `${d.precipitationMm.toLocaleString(locale, { maximumFractionDigits: 1 })}`}
+        </Text>
+      </View>;
+    })}
+  </View>;
+
+  return <View style={{ gap: 12 }}>
+    {nowCard}
+    {days.length ? <>
+      {!!outlook && <Animated.View entering={enterDown(120)}><ScreenCard accent={colors.primary}>
+        <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '800', letterSpacing: 1.4 }}>{t('EN RESUMEN', 'IN SHORT')}</Text>
+        <ScreenText muted={false}>{outlook}</ScreenText>
+      </ScreenCard></Animated.View>}
+      <Animated.View entering={enterDown(200)} style={{ gap: 8 }}>
+        <ScreenLabel>{t('Próximos cinco días', 'Next five days')}</ScreenLabel>
+        {strip}
+        <Text style={{ color: colors.textSecondary, fontSize: 12 }}>{t('Máxima, mínima y lluvia en mm. Pronóstico de Open-Meteo para el punto medido.', 'High, low and rain in mm. Open-Meteo forecast for the measured point.')}</Text>
+      </Animated.View>
+    </> : !now && <View style={{ flexDirection: 'row', gap: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 16 }}>
       <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: `${RAIN}22`, alignItems: 'center', justifyContent: 'center' }}>
         <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={RAIN} strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round">
           <Path d={loading ? 'M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 11.5 3.5 3.5 0 0 1 17.5 18Z' : 'M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 11.5 3.5 3.5 0 0 1 17.5 18ZM4 4l16 16'} />

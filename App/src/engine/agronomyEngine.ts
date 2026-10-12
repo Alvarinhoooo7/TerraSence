@@ -2,6 +2,7 @@
  * Motor de Reglas Agronómicas en TypeScript para React Native (TerraSense)
  */
 
+import { LOCAL_VARIABLES } from './inputQuality';
 import { 
   SoilMeasurement, CropId, CropDefinition, SoilTextureId, 
   SoilTexture, AgronomicEvaluation, AgronomicAlert, Verdict 
@@ -139,10 +140,11 @@ export const SOIL_TEXTURES: Record<SoilTextureId, SoilTexture> = {
 
 /** Coincidencia parcial con el catálogo; no determina aptitud ni el cultivo del campo. */
 export function possibleCrops(reading: SoilMeasurement): CropDefinition[] {
-  if (![reading.temp, reading.ph, reading.ec].every(Number.isFinite)) return [];
+  if (!(['temp', 'ph'] as const).every(key => Number.isFinite(reading[key]) &&
+    reading[key] >= LOCAL_VARIABLES[key].min && reading[key] <= LOCAL_VARIABLES[key].max)) return [];
   return Object.values(CROPS_DB).filter(crop =>
     reading.temp >= crop.tempMin && reading.ph >= crop.phMin &&
-    reading.ph <= crop.phMax && reading.ec <= crop.ecMax,
+    reading.ph <= crop.phMax,
   );
 }
 

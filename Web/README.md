@@ -47,7 +47,7 @@ Arriba, la búsqueda para saltar a otro equipo. Debajo, una tarjeta por tema; ca
 | --- | --- | --- |
 | Estado | ID, Online/Offline, batería («No disponible» si está Offline), primera y última conexión | Refrescar · Reset |
 | Usuarios | Usuario, correo, Admin (Sí/No), Hacer admin, Aprobado | Refrescar · Hacer administrador (con confirmación; el admin anterior pasa a usuario) · Aceptar / Rechazar solicitudes pendientes |
-| Mediciones | Últimas 5. Recogida: registro, fase, humedad, temperatura del suelo, CE y pH. Desplegada: N, P, K, ambiente, presión, batería, resumen del pronóstico, consejo del motor y coordenada en texto plano | Refrescar · desplegar cada fila |
+| Mediciones | Últimas 5. Recogida: registro, fase con la especie indicada al medir (o «Sin especie»), humedad, temperatura del suelo, CE y pH. Desplegada: especie con su nombre científico, N, P, K, ambiente, presión, batería, resumen del pronóstico, consejo del motor y coordenada en texto plano | Refrescar · desplegar cada fila |
 | Actualización | Versión instalada, último envío y su estado | Refrescar · Enviar actualización · Cancelar envío |
 
 **Online** significa que un teléfono habló con la sonda hace menos de 15 minutos: la sonda no tiene internet. Lo decide el servidor con `devices.last_seen_at`, que la app actualiza en cada contacto BLE ([`contactService.ts`](../App/src/services/contactService.ts)).

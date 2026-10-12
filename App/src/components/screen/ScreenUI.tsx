@@ -12,21 +12,25 @@ import { EntryHeading, EntryLayout, useEntryMetrics } from '../entry/EntryUI';
  * mayúsculas sobre un título grande, opciones como las del selector de idioma
  * y la acción principal abajo, fuera del desplazamiento.
  */
-export function ScreenLayout({ eyebrow, title, description, onBack, backLabel, action, footer, children, align = 'top', tabBar = false, keyboardAware = false, onHeadingPress }: React.PropsWithChildren<{
+export function ScreenLayout({ eyebrow, title, description, onBack, backLabel, action, leading, footer, children, align = 'top', tabBar = false, keyboardAware = false, fill = false, onHeadingPress }: React.PropsWithChildren<{
   eyebrow?: string; title: string; description?: string; onBack?: () => void; backLabel?: string;
   action?: React.ReactNode; footer?: React.ReactNode; align?: 'center' | 'top'; tabBar?: boolean; keyboardAware?: boolean;
+  /** Contenido a la izquierda de la barra superior cuando la pantalla no tiene «volver». */
+  leading?: React.ReactNode;
+  /** El contenido ocupa el alto libre de la pantalla: un hijo con `flexGrow` se estira y empuja lo que sigue hacia abajo. */
+  fill?: boolean;
   /** Sólo para gestos de desarrollo; no es un control visible. */
   onHeadingPress?: () => void;
 }>) {
   const { spacing } = useEntryMetrics();
   return <EntryLayout align={align} tabBar={tabBar} keyboardAware={keyboardAware}
-    header={onBack || action ? <ScreenTopBar onBack={onBack} backLabel={backLabel} action={action} /> : undefined}
+    header={onBack || action || leading ? <ScreenTopBar onBack={onBack} backLabel={backLabel} action={action} leading={leading} /> : undefined}
     footer={footer ? <View style={{ gap: 10, paddingTop: 8 }}>{footer}</View> : undefined}>
-    <View style={{ gap: spacing, paddingTop: onBack || action ? 0 : 8 }}>
+    <View style={{ gap: spacing, paddingTop: onBack || action || leading ? 0 : 8, flexGrow: fill ? 1 : 0 }}>
       {onHeadingPress
         ? <Pressable accessible={false} onPress={onHeadingPress}><EntryHeading eyebrow={eyebrow} title={title} description={description} /></Pressable>
         : <EntryHeading eyebrow={eyebrow} title={title} description={description} />}
-      <View style={{ gap: 12 }}>{children}</View>
+      <View style={{ gap: 12, flexGrow: fill ? 1 : 0 }}>{children}</View>
     </View>
   </EntryLayout>;
 }
@@ -34,7 +38,7 @@ export function ScreenLayout({ eyebrow, title, description, onBack, backLabel, a
 /** Ancho que ocupa el botón «?» de la guía junto al borde derecho. */
 export const GUIDE_BUTTON_SPACE = 48;
 
-export function ScreenTopBar({ onBack, backLabel, action }: { onBack?: () => void; backLabel?: string; action?: React.ReactNode }) {
+export function ScreenTopBar({ onBack, backLabel, action, leading }: { onBack?: () => void; backLabel?: string; action?: React.ReactNode; leading?: React.ReactNode }) {
   const { colors } = useAppTheme();
   const { t } = useTranslation();
   // El botón «?» de la guía (ScreenGuide) flota arriba a la derecha: se le
@@ -42,7 +46,7 @@ export function ScreenTopBar({ onBack, backLabel, action }: { onBack?: () => voi
   return <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 54, paddingRight: GUIDE_BUTTON_SPACE }}>
     {onBack ? <GuideTouchable guide={false} accessibilityRole="button" onPress={onBack} style={{ minHeight: 48, justifyContent: 'center', paddingRight: 16 }}>
       <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '600' }}>‹ {backLabel ?? t('Volver', 'Back')}</Text>
-    </GuideTouchable> : <View />}
+    </GuideTouchable> : leading ?? <View />}
     {action}
   </View>;
 }

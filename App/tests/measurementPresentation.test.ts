@@ -160,7 +160,7 @@ test('el título de una lectura guardada se muestra en el idioma actual', () => 
 });
 
 const withoutProfile = (reading = raw, stage: PhenologicalStage = 'pre_siembra', language: 'es' | 'en' = 'es') => {
-  const evaluation = evaluateReadingForStage(reading, stage, language);
+  const evaluation = evaluateReadingForStage(reading, stage, language, { capturedAt: '2026-10-11T12:00:00Z', evaluatedAt: '2026-10-11T12:00:00Z' });
   const advice = buildContextualAdvice(stage, evaluation, reading, null, language);
   return { evaluation, advice, presentation: buildMeasurementPresentation(reading, evaluation, advice, language) };
 };
@@ -186,11 +186,12 @@ test('un suelo frío para maíz puede ofrecer trigo; pH ácido puede ofrecer ar�
   assert.doesNotMatch(acidic.presentation.actions.join(' '), /encalar|encalado|aplicar cal/);
 });
 
-test('sugerencias vacías, otras etapas y salinidad extrema no inventan cultivos', () => {
-  const noMatches = withoutProfile({ ...raw, ec: 5000 });
+test('sugerencias vacías explican los criterios evaluables; CE no excluye cultivos', () => {
+  assert.deepEqual(withoutProfile({ ...raw, ec: 5000 }).presentation.suggestedCrops, withoutProfile().presentation.suggestedCrops);
+  const noMatches = withoutProfile({ ...raw, temp: -10 });
   assert.deepEqual(noMatches.presentation.suggestedCrops, []);
   assert.equal(noMatches.evaluation.verdict, 'AMBER');
-  assert.ok(noMatches.presentation.actions.some(a => /salinidad/.test(a)));
+  assert.equal(noMatches.evaluation.metrics.ec.status, 'INFO');
   for (const stage of ['vegetativo', 'floracion', 'cosecha'] as const) {
     const { presentation } = withoutProfile(raw, stage);
     assert.deepEqual(presentation.suggestedCrops, []);
