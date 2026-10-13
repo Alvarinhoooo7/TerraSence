@@ -3,12 +3,13 @@
  *
  * Es identidad, no agronomía: nombre, nombre científico, grupo, sinónimos y la fuente
  * oficial que acredita que la especie se cultiva en Chile. Ningún umbral vive aquí; los
- * criterios por etapa se incorporan aparte con su propia evidencia (TASK ES6), y
- * `hasStageCriteria` informa honestamente cuándo todavía no existen.
+ * criterios por etapa se incorporan aparte con su propia evidencia, en speciesRules.ts
+ * (TASK ES6), y `hasStageCriteria` informa honestamente cuándo todavía no existen.
  *
  * Criterio de inclusión y fuentes: TASK_MOTOR_AGRONOMICO.md, sección ES1.
  */
 import type { PhenologicalStage } from '../types/app';
+import { hasEnabledCriteria } from './speciesRules';
 
 export const SPECIES_CATALOG_VERSION = '2.0.0';
 
@@ -325,7 +326,8 @@ export function searchSpecies(query: string, language: 'es' | 'en' = 'es'): Spec
 }
 
 /**
- * Si la especie tiene criterios propios habilitados para la etapa. Ninguna los tiene
- * todavía: se incorporan con fuente en TASK ES6. Hasta entonces el resultado lo dice.
+ * Si la especie tiene criterios propios habilitados para la etapa. Delega en
+ * speciesRules.ts (TASK ES6), que crece especie por especie con su propia evidencia;
+ * una especie sin perfil ahí sigue devolviendo `false`.
  */
-export const hasStageCriteria = (_id: string, _stage: PhenologicalStage): boolean => false;
+export const hasStageCriteria = (id: string, stage: PhenologicalStage): boolean => hasEnabledCriteria(id, stage);

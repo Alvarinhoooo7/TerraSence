@@ -224,7 +224,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       const evaluatedAt = new Date().toISOString();
       const nextEvaluation = evaluateReadingForStage(probe.data, stage, preferences.language, {
         capturedAt: probe.capturedAt, evaluatedAt, simulated: connection.simulated || probe.simulated,
-      });
+      }, asksSpecies ? species?.id : null);
       const weatherContext = { captureId: clientUuid.current!, location: nextCoords, evaluatedAt };
       setCoords(nextCoords);
       setRaw(probe.data);

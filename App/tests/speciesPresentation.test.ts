@@ -12,7 +12,7 @@ import type { MeasurementPoint, PhenologicalStage } from '../src/types/app';
 const raw: SoilMeasurement = { vwc: 22, temp: 20, ph: 6.5, ec: 500, nitrogen: 50, phosphorus: 20, potassium: 80, lux: 0, battery: 80, airTemp: 24, airHumidity: 55, airPressure: 1010 };
 const clock = { capturedAt: '2026-10-11T15:30:00.000Z', evaluatedAt: '2026-10-11T15:31:00.000Z' };
 const build = (stage: PhenologicalStage, speciesId?: string | null, language: 'es' | 'en' = 'es', reading = raw) => {
-  const evaluation = evaluateReadingForStage(reading, stage, language, clock);
+  const evaluation = evaluateReadingForStage(reading, stage, language, clock, speciesId);
   return buildMeasurementPresentation(reading, evaluation, buildContextualAdvice(stage, evaluation, reading, null, language), language, undefined, speciesId);
 };
 
@@ -25,6 +25,17 @@ test('T45: la especie no cambia alertas, estados, acciones ni título', () => {
     assert.equal(withSpecies.title, without.title);
     assert.equal(withSpecies.summary, without.summary);
     assert.equal(withSpecies.evaluationState, without.evaluationState);
+  }
+});
+
+test('ES6: una especie con criterios propios (arándano) sólo cambia el parámetro de pH', () => {
+  for (const ph of [4.8, 5.6]) {
+    const without = build('vegetativo', null, 'es', { ...raw, ph });
+    const withSpecies = build('vegetativo', 'sp.arandano', 'es', { ...raw, ph });
+    const byKey = (p: typeof without.parameters) => Object.fromEntries(p.map(x => [x.key, x]));
+    const a = byKey(without.parameters), b = byKey(withSpecies.parameters);
+    for (const key of ['vwc', 'temp', 'ec', 'nitrogen', 'phosphorus', 'potassium'] as const) assert.deepEqual(b[key], a[key], key);
+    assert.notDeepEqual(b.ph, a.ph);
   }
 });
 

@@ -27,6 +27,7 @@ import type {
 } from '../types/agronomy';
 import { buildLocalInputQuality, localQualityNote } from './inputQuality';
 import { buildEvaluationCoverage } from './evaluationCoverage';
+import { evaluateSpeciesCriteria } from './speciesRules';
 import type { PhenologicalStage } from '../types/app';
 import type { AppLanguage } from '../types/preferences';
 
@@ -279,6 +280,7 @@ export function evaluateForStage(
 export function evaluateReadingForStage(
   reading: SoilMeasurement, stage: PhenologicalStage, language: AppLanguage = 'es',
   context?: { capturedAt: string; evaluatedAt: string; simulated?: boolean },
+  speciesId?: string | null,
 ): StageAwareEvaluation {
   const en = language === 'en';
   const quality = buildLocalInputQuality(reading, context?.capturedAt ?? '', context?.simulated);
@@ -328,6 +330,11 @@ export function evaluateReadingForStage(
         : 'Confirma nutrientes en laboratorio; no uses estos registros para dosificar fertilizantes.',
     };
   }
+  // Criterios propios de la especie (TASK ES6): se agregan al final sin alterar las
+  // alertas generales de arriba, para que una especie indicada no cambie cómo se
+  // evalúa el suelo frío, salino o seco (T45).
+  alerts.push(...evaluateSpeciesCriteria(speciesId, stage, reading, language));
+
   // El esquema legado exige un semáforo. Ámbar evita que clientes antiguos lo lean como éxito;
   // los consumidores nuevos usan state para representar insuficiencia con tono neutral.
   const state: EvaluationState = alerts.length ? 'attention' : 'insufficient_data';

@@ -5,6 +5,7 @@ import {
   EXCLUDED_SOURCE_NAMES, NO_SPECIES_ID, SPECIES, SPECIES_GROUPS, SPECIES_SOURCES, findSpecies, hasStageCriteria,
   normalizeSearch, searchSpecies, type SpeciesSourceId,
 } from '../src/engine/speciesCatalog';
+import { hasEnabledCriteria } from '../src/engine/speciesRules';
 
 // Nombres exactos de las fuentes oficiales, extraídos de los archivos descargados (TASK ES1).
 const sourceNames = JSON.parse(readFileSync(new URL('./fixtures/speciesSourceNames.json', import.meta.url), 'utf8')) as Record<SpeciesSourceId, string[]>;
@@ -78,8 +79,14 @@ test('T47: sin búsqueda devuelve toda la lista agrupada y en orden estable', ()
   assert.equal(all[0].group, 'hortalizas');
 });
 
-test('ES6 pendiente: ninguna especie declara criterios propios todavía', () => {
+test('ES6: hasStageCriteria refleja únicamente los perfiles habilitados en speciesRules.ts', () => {
   for (const entry of SPECIES) for (const stage of ['vegetativo', 'floracion', 'cosecha'] as const) {
-    assert.equal(hasStageCriteria(entry.id, stage), false);
+    assert.equal(hasStageCriteria(entry.id, stage), hasEnabledCriteria(entry.id, stage), `${entry.id}/${stage}`);
   }
+  // Primer perfil habilitado (ES6): arándano tiene pH documentado en vegetativo y floración, no en cosecha.
+  assert.equal(hasStageCriteria('sp.arandano', 'vegetativo'), true);
+  assert.equal(hasStageCriteria('sp.arandano', 'floracion'), true);
+  assert.equal(hasStageCriteria('sp.arandano', 'cosecha'), false);
+  // El resto del catálogo sigue sin perfil hasta incorporarse con su propia evidencia.
+  assert.equal(hasStageCriteria('sp.frutilla', 'vegetativo'), false);
 });
