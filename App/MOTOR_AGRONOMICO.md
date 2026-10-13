@@ -407,7 +407,7 @@ No fijar una cuota de especies que obligue a inventar parámetros. El primer cat
 
 No interpretar un mínimo como recomendación de sembrar a esa temperatura. No usar una tabla de semillas para dientes de ajo, tubérculos de papa o plantas de vivero. La entrada de tomate no justifica aplicar los mismos valores al trasplante.
 
-**pH:** hay antecedentes de tomate en [S12](#s12), albahaca en [S13](#s13), frutilla en [S14](#s14) y arándano en [S18](#s18). Sirven para documentar perfiles con rangos y contextos propios; no se importan dosis de las mismas páginas. En arándano, incluso las fuentes consultadas presentan diferencias de intervalo según contexto. La discrepancia debe registrarse, no resolverse tomando el promedio o el rango más amplio.
+**pH:** hay antecedentes de tomate en [S12](#s12), albahaca en [S13](#s13), frutilla en [S14](#s14) y arándano en [S18](#s18). Sirven para documentar perfiles con rangos y contextos propios; no se importan dosis de las mismas páginas. Los criterios de pH habilitados usan la tabla B-1 de hortalizas de [S22](#s22) y, cuando INIA documenta la especie, sus boletines: tomate [S23](#s23), frutilla [S24](#s24), cerezo [S25](#s25) y olivo [S26](#s26). El detalle por especie está en la [tarea ES6](TASK_MOTOR_AGRONOMICO.md#es6-criterios-por-especie-y-etapa--en-curso). En arándano, incluso las fuentes consultadas presentan diferencias de intervalo según contexto. La discrepancia debe registrarse, no resolverse tomando el promedio o el rango más amplio.
 
 **Amplitud y adaptación local:** ECOCROP sirve como índice de características ambientales y usos, pero FAO informa que su actualización se discontinuó. No tratarlo como un catálogo clínicamente validado o actualizado de recomendaciones locales. La documentación de INIA sobre aptitud térmica permite orientar la búsqueda de evidencia chilena, distinguiendo especies, variedades y zonas; una noticia sobre un libro no aporta por sí sola sus tablas. [ECOCROP](#s11), [INIA](#s16).
 
@@ -930,3 +930,18 @@ Consulta documental: 10 de octubre de 2026. Los enlaces respaldan el aspecto ind
 
 <a id="s21"></a>
 **S21 — University of Minnesota Extension, Soil moisture sensors for irrigation scheduling.** [Guía técnica](https://extension.umn.edu/natural-resources/conservation/agricultural-soil-and-water/irrigation/soil-moisture-sensors-for-irrigation-scheduling). Ubicación, profundidad y propiedades del suelo en la interpretación de humedad. No se importan a la sonda portátil los supuestos de una instalación fija.
+
+<a id="s22"></a>
+**S22 — University of Maryland Extension, Mid-Atlantic Commercial Vegetable Production Recommendations 2026, sección B.** [Soil and Nutrient Management](https://extension.umd.edu/sites/extension.umd.edu/files/2026-02/Soil%20and%20Nutrient%20Management.pdf). Tabla B-1 «Target Soil pH Values for Vegetable Crops», p. 40: pH objetivo y pH bajo el cual encalar por hortaliza. No fija máximos ni reemplaza el requerimiento de cal de un laboratorio.
+
+<a id="s23"></a>
+**S23 — INIA, Manual de cultivo del tomate al aire libre (Boletín INIA–INDAP).** [Capítulo 1](https://biblioteca.inia.cl/server/api/core/bitstreams/21592963-55e3-43bb-9426-bd9ec288ae07/content), apartado 1.5.1 «Suelo», p. 16. pH óptimo de 6 a 6,5 y cultivos establecidos con pH 8 en Arica y Parinacota.
+
+<a id="s24"></a>
+**S24 — INIA Quilamapu, Manual de frutilla (Boletín INIA N° 262, 2013).** [Documento](https://bibliotecadigital.ciren.cl/server/api/core/bitstreams/6989b90c-bc5f-494d-b790-fe196c0d430d/content). Capítulo 1, «Requerimientos de suelo» y cuadro 1: pH 5,8–7,0 y efectos bajo 5,8 y sobre 7,2.
+
+<a id="s25"></a>
+**S25 — INIA La Platina, El cultivo del cerezo (Boletín INIA N° 133, 2005).** [Registro en la biblioteca INIA](https://biblioteca.inia.cl/items/4ed5eb65-a167-4db2-a6bc-1ebb7a26c489). Apartado «Suelo»: pH óptimo 6,0–6,5 y deficiencias de microelementos sobre 7,5. La tolerancia depende del portainjerto.
+
+<a id="s26"></a>
+**S26 — INIA Intihuasi, Manual del cultivo del olivo (Boletín INIA N° 101, 2003).** [Registro en la biblioteca INIA](https://biblioteca.inia.cl/items/f6a76e2b-197e-4643-8243-d29bc434cf1a). Capítulo 1 «Requerimientos de clima y suelo», p. 18: crecimiento con pH 5,5–8,5, preferible bajo 7,5.

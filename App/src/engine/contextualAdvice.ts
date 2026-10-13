@@ -68,10 +68,14 @@ export function buildContextualAdvice(
   // decide es el agricultor; el texto sugiere y explica, no ordena.
   const plan: Recommendation[] = [];
   const seen = new Set<string>();
+  const notes: Recommendation[] = [];
   for (const alert of alerts) {
     if (seen.has(alert.action)) continue;
     seen.add(alert.action);
-    plan.push({ kind: 'soil', priority: alert.type === 'danger' ? 'high' : 'normal', when: 'today', title: alert.title, body: alert.action });
+    // Una nota informativa (p. ej. pH dentro del óptimo de la especie) no pide actuar hoy:
+    // va como seguimiento, después de lo que sí requiere revisión.
+    if (alert.type === 'info') notes.push({ kind: 'monitoring', priority: 'normal', when: 'next_reading', title: alert.title, body: alert.action });
+    else plan.push({ kind: 'soil', priority: alert.type === 'danger' ? 'high' : 'normal', when: 'today', title: alert.title, body: alert.action });
   }
   if (!plan.length) plan.push(evaluation.state === 'insufficient_data'
     ? { kind: 'evidence', priority: 'normal', when: 'next_reading',
@@ -83,6 +87,7 @@ export function buildContextualAdvice(
       : { kind: 'soil', priority: 'normal', when: 'today',
         title: en ? 'Review the highlighted conditions' : 'Revisa las condiciones destacadas',
         body: en ? 'Review the highlighted conditions with advice before intervening. There is no validated specific action for this stage.' : 'Revisa las condiciones destacadas con asesoría antes de intervenir. No hay una acción específica validada para esta fase.' });
+  plan.push(...notes);
 
   // Hoy cuenta como el primer día: si llueve hoy, también importa para regar o entrar al campo.
   const today = weather?.today ?? null;

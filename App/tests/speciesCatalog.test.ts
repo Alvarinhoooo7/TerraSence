@@ -83,10 +83,11 @@ test('ES6: hasStageCriteria refleja únicamente los perfiles habilitados en spec
   for (const entry of SPECIES) for (const stage of ['vegetativo', 'floracion', 'cosecha'] as const) {
     assert.equal(hasStageCriteria(entry.id, stage), hasEnabledCriteria(entry.id, stage), `${entry.id}/${stage}`);
   }
-  // Primer perfil habilitado (ES6): arándano tiene pH documentado en vegetativo y floración, no en cosecha.
+  // Los perfiles ES6 documentan pH en vegetativo y floración, no en cosecha.
   assert.equal(hasStageCriteria('sp.arandano', 'vegetativo'), true);
   assert.equal(hasStageCriteria('sp.arandano', 'floracion'), true);
   assert.equal(hasStageCriteria('sp.arandano', 'cosecha'), false);
+  assert.equal(hasStageCriteria('sp.frutilla', 'vegetativo'), true);
   // El resto del catálogo sigue sin perfil hasta incorporarse con su propia evidencia.
-  assert.equal(hasStageCriteria('sp.frutilla', 'vegetativo'), false);
+  assert.equal(hasStageCriteria('sp.palto', 'vegetativo'), false);
 });

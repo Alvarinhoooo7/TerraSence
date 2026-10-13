@@ -332,12 +332,16 @@ export function evaluateReadingForStage(
   }
   // Criterios propios de la especie (TASK ES6): se agregan al final sin alterar las
   // alertas generales de arriba, para que una especie indicada no cambie cómo se
-  // evalúa el suelo frío, salino o seco (T45).
-  alerts.push(...evaluateSpeciesCriteria(speciesId, stage, reading, language));
+  // evalúa el suelo frío, salino o seco (T45). Usan la misma regla de calidad y vigencia:
+  // un pH ausente, inválido o de una captura antigua no se compara con la especie.
+  const speciesAlerts = evaluateSpeciesCriteria(speciesId, stage, reading, language, usable);
+  alerts.push(...speciesAlerts);
 
   // El esquema legado exige un semáforo. Ámbar evita que clientes antiguos lo lean como éxito;
   // los consumidores nuevos usan state para representar insuficiencia con tono neutral.
-  const state: EvaluationState = alerts.length ? 'attention' : 'insufficient_data';
+  // Una nota informativa de la especie (pH dentro de su óptimo) no es motivo de atención.
+  const needsAttention = alerts.some(a => !speciesAlerts.includes(a) || a.type !== 'info');
+  const state: EvaluationState = needsAttention ? 'attention' : 'insufficient_data';
   const verdict: Verdict = 'AMBER';
   const title = state === 'attention' ? (en ? 'Review the measured conditions' : 'Revisar las condiciones medidas')
     : (en ? 'Insufficient evidence for a complete assessment' : 'Evidencia insuficiente para una evaluación completa');
@@ -345,5 +349,5 @@ export function evaluateReadingForStage(
     ? (en ? 'The capture is old or its time cannot be verified. Take a new reading before making decisions.' : 'La captura es antigua o su instante no se puede verificar. Realiza una nueva lectura antes de decidir.')
     : (en ? 'Partial assessment. pH comparisons are indicative; conductivity cannot classify salinity without a compatible method. Nutrient registers do not determine fertilization.' : 'Evaluación parcial. Las comparaciones de pH son orientativas; la conductividad no permite clasificar salinidad sin un método compatible. Los registros de nutrientes no determinan fertilización.');
   return { crop: null, texture: null, stage, metrics, alerts, verdict, verdictTitle: title,
-    state, coverage, verdictSummary: summary, actionSummary: summary, drivers: alerts.map(a => a.param) };
+    state, coverage, verdictSummary: summary, actionSummary: summary, drivers: [...new Set(alerts.map(a => a.param))] };
 }

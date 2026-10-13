@@ -16,10 +16,10 @@ const build = (stage: PhenologicalStage, speciesId?: string | null, language: 'e
   return buildMeasurementPresentation(reading, evaluation, buildContextualAdvice(stage, evaluation, reading, null, language), language, undefined, speciesId);
 };
 
-test('T45: la especie no cambia alertas, estados, acciones ni título', () => {
+test('T45/T46: una especie sin criterios propios no cambia alertas, estados, acciones ni título', () => {
   for (const stage of ['vegetativo', 'floracion', 'cosecha'] as const) for (const reading of [raw, { ...raw, ph: 4.6, ec: 2400, temp: 3 }]) {
     const without = build(stage, null, 'es', reading);
-    const withSpecies = build(stage, 'sp.tomate', 'es', reading);
+    const withSpecies = build(stage, 'sp.palto', 'es', reading);
     assert.deepEqual(withSpecies.parameters, without.parameters);
     assert.deepEqual(withSpecies.actions, without.actions);
     assert.equal(withSpecies.title, without.title);
@@ -28,15 +28,22 @@ test('T45: la especie no cambia alertas, estados, acciones ni título', () => {
   }
 });
 
-test('ES6: una especie con criterios propios (arándano) sólo cambia el parámetro de pH', () => {
-  for (const ph of [4.8, 5.6]) {
+test('ES6: una especie con criterios propios sólo cambia el parámetro de pH', () => {
+  for (const [speciesId, ph] of [['sp.arandano', 4.8], ['sp.arandano', 5.6], ['sp.tomate', 6.2], ['sp.tomate', 5.5], ['sp.lechuga', 7.2]] as const) {
     const without = build('vegetativo', null, 'es', { ...raw, ph });
-    const withSpecies = build('vegetativo', 'sp.arandano', 'es', { ...raw, ph });
+    const withSpecies = build('vegetativo', speciesId, 'es', { ...raw, ph });
     const byKey = (p: typeof without.parameters) => Object.fromEntries(p.map(x => [x.key, x]));
     const a = byKey(without.parameters), b = byKey(withSpecies.parameters);
     for (const key of ['vwc', 'temp', 'ec', 'nitrogen', 'phosphorus', 'potassium'] as const) assert.deepEqual(b[key], a[key], key);
     assert.notDeepEqual(b.ph, a.ph);
+    assert.ok(b.ph.state.includes('esta especie'), `${speciesId}: el pH muestra el criterio de la especie`);
+    assert.equal(withSpecies.species?.hasStageCriteria, true);
+    assert.match(withSpecies.context, /criterios de esta especie para vegetativo/);
   }
+  // Fuera del límite documentado, el pH se marca como advertencia; dentro, no.
+  const pHStatus = (speciesId: string, ph: number) => build('vegetativo', speciesId, 'es', { ...raw, ph }).parameters.find(p => p.key === 'ph')!.status;
+  assert.equal(pHStatus('sp.tomate', 5.5), 'WARNING');
+  assert.notEqual(pHStatus('sp.tomate', 6.2), 'WARNING');
 });
 
 test('ES4: la presentación v3 guarda una copia de la especie y avisa que aún no tiene criterios propios', () => {
@@ -75,4 +82,21 @@ test('ES4: el historial lee la especie de la instantánea, no de crop_id', () =>
   const legacy = { ...build('cosecha', null), version: 2 as const, species: undefined };
   assert.equal(savedSpecies({ presentation: legacy }), null);
   assert.equal(savedSpecies(null), null);
+});
+
+test('ES6: una nota de especie dentro del óptimo va como seguimiento; cruzar un límite pide revisión hoy', () => {
+  const plan = (ph: number) => {
+    const reading = { ...raw, ph };
+    const evaluation = evaluateReadingForStage(reading, 'vegetativo', 'es', clock, 'sp.tomate');
+    return buildContextualAdvice('vegetativo', evaluation, reading, null, 'es').recommendations ?? [];
+  };
+  const within = plan(6.2);
+  const note = within.find(r => /óptimo documentado/.test(r.title));
+  assert.equal(note?.kind, 'monitoring');
+  assert.equal(note?.when, 'next_reading');
+  assert.equal(within.some(r => r.kind === 'evidence'), true, 'la evaluación sigue siendo parcial');
+  assert.ok(within.findIndex(r => r.kind === 'evidence') < within.indexOf(note!));
+  const below = plan(5.5).find(r => /bajo el mínimo documentado/.test(r.title));
+  assert.equal(below?.kind, 'soil');
+  assert.equal(below?.when, 'today');
 });

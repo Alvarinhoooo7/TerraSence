@@ -22,7 +22,7 @@ Implementar por entregas la [especificación del motor agronómico](MOTOR_AGRONO
 | E6 — Resultado y persistencia | Pendiente | Selector de especie: lista de E5. Resto: E4/E5; presentación e instantánea versionadas, legibles sin recalcular |
 | E7 — Equipo y terreno | Pendiente | Capacidades habilitadas; contraste físico y revisión agronómica |
 | E8 — Extensiones justificadas | Pendiente | Base verificada; beneficio y costo demostrados |
-| ES — Especie de la medición | ES1–ES4 por software; ES5 en teléfono pendiente | Lista con fuentes, selector, resultado e historial; después, criterios por especie y etapa (ES6) |
+| ES — Especie de la medición | ES1–ES4 por software; ES5 en teléfono pendiente; ES6 con pH de 32 especies | Lista con fuentes, selector, resultado e historial; criterios por especie y etapa (ES6) en curso |
 
 ## 2. ES — Especie de la medición
 
@@ -75,24 +75,38 @@ Trabajo prioritario: primero la app y su lista de especies (ES1–ES5); después
 - [x] Resumen del resultado: «ESPECIE · Tomate» bajo la etapa, o «Sin especie indicada». Contexto que explica si hay criterios propios para esa etapa.
 - [x] Historial: la especie en la fila y en el detalle, leída del diagnóstico guardado; las mediciones antiguas con `crop_id` del prototipo no se muestran como especie elegida.
 - [x] Alertas generales idénticas con y sin especie (T45), probado en `speciesPresentation.test.ts`.
-- [ ] Medición nueva sin especie heredada (T48): la especie vive sólo en el estado de la pantalla de medición; falta confirmarlo en el teléfono.
+- [x] Medición nueva sin especie heredada (T48): la especie vive sólo en el estado de la pantalla de medición, que se monta de nuevo en cada medición; las reglas de etapa, evaluación y guardado están en [measureSpecies.ts](src/utils/measureSpecies.ts) y se prueban en [measureSpecies.test.ts](tests/measureSpecies.test.ts). La lectura se evalúa con la especie elegida al tocar «Medir», no con una anterior. El recorrido en teléfono queda en ES5.
 
-**Código y evidencia de ES1–ES4:** [speciesCatalog.ts](src/engine/speciesCatalog.ts) (115 especies en siete grupos), [SpeciesPicker.tsx](src/components/SpeciesPicker.tsx), [MeasureScreen.tsx](src/screens/MeasureScreen.tsx), [measurementPresentation.ts](src/engine/measurementPresentation.ts), [MeasurementResultFlow.tsx](src/components/MeasurementResultFlow.tsx) e [historial](src/screens/HistoryScreen.tsx); [speciesCatalog.test.ts](tests/speciesCatalog.test.ts), [speciesPresentation.test.ts](tests/speciesPresentation.test.ts) y los nombres exactos de las fuentes en [speciesSourceNames.json](tests/fixtures/speciesSourceNames.json). `npm test` aprobó 323 pruebas; `npm run type-check` sin errores. Ninguna especie tiene todavía criterios propios (ES6).
+**Código y evidencia de ES1–ES4:** [speciesCatalog.ts](src/engine/speciesCatalog.ts) (115 especies en siete grupos), [SpeciesPicker.tsx](src/components/SpeciesPicker.tsx), [MeasureScreen.tsx](src/screens/MeasureScreen.tsx), [measurementPresentation.ts](src/engine/measurementPresentation.ts), [MeasurementResultFlow.tsx](src/components/MeasurementResultFlow.tsx) e [historial](src/screens/HistoryScreen.tsx); [speciesCatalog.test.ts](tests/speciesCatalog.test.ts), [speciesPresentation.test.ts](tests/speciesPresentation.test.ts), [measureSpecies.test.ts](tests/measureSpecies.test.ts) y los nombres exactos de las fuentes en [speciesSourceNames.json](tests/fixtures/speciesSourceNames.json). Los criterios propios de cada especie se describen en ES6.
 
 ### ES5. Verificación
 
 - [x] `npm test`, `npm run type-check` y verificador documental.
 - [ ] Recorrido en teléfono Android: elegir, buscar con y sin tildes, saltar, «no se encuentra», volver atrás, letra grande, inglés, guardar sin red y abrir el historial.
 
-### ES6. Criterios por especie y etapa — siguiente fase
+### ES6. Criterios por especie y etapa — en curso
 
 Se aborda después de ES1–ES5, empezando por las especies de mayor superficie de cada grupo. Cada criterio sigue el [proceso de incorporación](MOTOR_AGRONOMICO.md#catalogo) de la especificación.
 
-- [ ] Familias de criterios por etapa: temperatura de suelo y aire (mínima, favorable y máxima) por etapa; sensibilidad a helada y calor en floración; pH; tolerancia salina con su método; requerimientos hídricos cualitativos; condiciones meteorológicas relevantes para cosecha.
+**Avance: pH habilitado en vegetativo y floración para 32 especies.** Código: [speciesRules.ts](src/engine/speciesRules.ts) (versión de criterios `1.1.0`); evidencia: [speciesRules.test.ts](tests/speciesRules.test.ts).
+
+| Especies | Fuente | Qué se usa |
+| --- | --- | --- |
+| Apio, arveja, berenjena, betarraga, brócoli, camote, cebolla, cebollín, coliflor, espárrago, espinaca, lechuga, maíz (fila de choclo), melón, pepino, perejil, pimiento, poroto (fila de poroto verde), puerro, rabanito, repollito de Bruselas, repollo, sandía, zanahoria, zapallo y zapallo italiano | University of Maryland Extension, tabla B-1 de las recomendaciones de hortalizas 2026 ([S22](MOTOR_AGRONOMICO.md#s22)) | Valor objetivo y pH bajo el cual se indica encalar; la tabla no fija máximo |
+| Papa | Misma tabla, dos filas por grupo de variedades | Sólo el mínimo común (5,0); entre 5,0 y 5,5 depende de la variedad, que no se conoce |
+| Tomate | INIA, manual de tomate al aire libre ([S23](MOTOR_AGRONOMICO.md#s23)) y tabla B-1 | Óptimo 6–6,5 y mínimo 6,0; sin máximo, porque INIA documenta cultivos con pH 8 |
+| Frutilla | INIA, Boletín 262 ([S24](MOTOR_AGRONOMICO.md#s24)), coherente con la tabla B-1 | Rango normal 5,8–7,0; límites documentados 5,8 y 7,2 |
+| Cerezo | INIA, Boletín 133 ([S25](MOTOR_AGRONOMICO.md#s25)) | Óptimo 6,0–6,5; máximo 7,5; sin mínimo documentado |
+| Olivo | INIA, Boletín 101 ([S26](MOTOR_AGRONOMICO.md#s26)) | Crece bien con 5,5–8,5; preferible bajo 7,5 |
+| Arándano | University of Maryland Extension ([S18](MOTOR_AGRONOMICO.md#s18)) | Ideal 4,5–5,3; corregir bajo 4,3 o sobre 5,3 |
+
+Cada criterio separa el óptimo (sólo orienta) de los límites donde la fuente documenta un problema o una corrección: únicamente cruzar un límite es advertencia, y un límite no documentado queda vacío. Una prueba exige que cada cifra aparezca en el valor original citado de su fuente. Los criterios de especie usan la misma regla de calidad y vigencia que el análisis general, no cambian el estado de la evaluación cuando sólo informan, y en el plan aparecen como seguimiento. No se habilitó pH en cosecha porque no gobierna esa etapa. Frambueso (Boletín INIA 372) y palto (manual INIA 1998) se revisaron y no documentan un rango de pH: siguen sin criterio.
+
+- [ ] Familias de criterios por etapa: temperatura de suelo y aire (mínima, favorable y máxima) por etapa; sensibilidad a helada y calor en floración; tolerancia salina con su método; requerimientos hídricos cualitativos; condiciones meteorológicas relevantes para cosecha. El pH ya está habilitado (tabla anterior).
 - [ ] Fuentes por prioridad: institucionales chilenas (INIA, ODEPA, universidades), extensión agrícola con tablas citables (UC ANR y equivalentes), FAO y ECOCROP sólo como índice para localizar evidencia.
-- [ ] Registro por criterio: valor original, unidad, conversión, etapa, forma de establecimiento, contexto, fuente con sección o tabla y fecha de consulta.
+- [ ] Registro por criterio: valor original, unidad, conversión, etapa, forma de establecimiento, contexto, fuente con sección o tabla y fecha de consulta. Los criterios de pH ya registran valor original, etapa, contexto, fuente con sección o tabla y fecha; falta la forma de establecimiento.
 - [ ] Estados por criterio (candidato, documentado, habilitado) y exposición en el catálogo de qué etapas tienen criterios.
-- [ ] Conectar `species-rules` al motor sin alterar las alertas generales; pasar T15–T19, T42, T45 y T46.
+- [ ] Conectar `species-rules` al motor sin alterar las alertas generales; pasar T15–T19, T42, T45 y T46. Conectado y probado para pH: T15, T45 y T46 pasan; T16–T19 y T42 esperan criterios térmicos y la explicación de evaluación parcial de perennes.
 
 ## 3. E1 — Calidad y contratos
 
@@ -244,6 +258,6 @@ python docs/verificar_documentacion.py
 
 El verificador incluye esta tarea y la especificación. Las pruebas de calidad de entrada y del servicio climático pertenecen al comando habitual de la app. E1.1/E1.2 no requieren dependencias ni migraciones nuevas.
 
-**Resultados de verificación del incremento:** `npm test` aprobó la suite completa (331 pruebas) y `npm run type-check` terminó sin errores; el verificador documental, con 0 errores. Las pantallas se revisaron en un teléfono Android mediante Expo Go con lecturas simuladas y el pronóstico real de Open-Meteo. Son comprobaciones de software, no ensayos con la sonda.
+**Resultados de verificación del incremento:** `npm test` aprobó la suite completa (347 pruebas) y `npm run type-check` terminó sin errores; el verificador documental, con 0 errores. Las pantallas se revisaron en un teléfono Android mediante Expo Go con lecturas simuladas y el pronóstico real de Open-Meteo. Son comprobaciones de software, no ensayos con la sonda.
 
 **Revisión pendiente fuera de las pruebas automatizadas:** ejecución en teléfono y proveedor real. No se declara validación de terreno, precisión instrumental ni cierre completo de E1.

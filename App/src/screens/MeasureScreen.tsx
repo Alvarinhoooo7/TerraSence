@@ -27,7 +27,8 @@ import { MeasurementLoading } from '../components/MeasurementLoading';
 import { ProbeInsertArt } from '../components/ProbeInsertArt';
 import { StageArt, StageCards } from '../components/StageCards';
 import { SpeciesArt, SpeciesPicker } from '../components/SpeciesPicker';
-import { NO_SPECIES_ID, SPECIES_CATALOG_VERSION, speciesName, type SpeciesEntry } from '../engine/speciesCatalog';
+import { SPECIES_CATALOG_VERSION, speciesName, type SpeciesEntry } from '../engine/speciesCatalog';
+import { asksForSpecies, cropIdForSave, initialMeasureSpecies, measuredSpeciesId, speciesAfterStageChange } from '../utils/measureSpecies';
 import { AppIcon } from '../components/AppIcon';
 import Animated from 'react-native-reanimated';
 import { enterDown } from '../constants/motion';
@@ -68,8 +69,9 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
   const [stage, selectStage] = useState<PhenologicalStage | null>(null);
   // Especie de esta medición: opcional, fuera de pre-siembra y nunca en el store global,
   // para que una medición nueva no la herede.
-  const [species, setSpecies] = useState<SpeciesEntry | null>(null);
-  const asksSpecies = stage != null && stage !== 'pre_siembra';
+  const [species, setSpecies] = useState<SpeciesEntry | null>(initialMeasureSpecies);
+  const asksSpecies = asksForSpecies(stage);
+  const speciesId = measuredSpeciesId(stage, species);
   const context = useRef({ device });
   const saving = useRef(false);
   const reading = useRef(false);
@@ -224,7 +226,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       const evaluatedAt = new Date().toISOString();
       const nextEvaluation = evaluateReadingForStage(probe.data, stage, preferences.language, {
         capturedAt: probe.capturedAt, evaluatedAt, simulated: connection.simulated || probe.simulated,
-      }, asksSpecies ? species?.id : null);
+      }, speciesId);
       const weatherContext = { captureId: clientUuid.current!, location: nextCoords, evaluatedAt };
       setCoords(nextCoords);
       setRaw(probe.data);
@@ -259,10 +261,10 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
     } finally {
       reading.current = false;
     }
-  }, [device, language, preferences.language, revalidateLocation, stage, t]);
+  }, [device, language, preferences.language, revalidateLocation, stage, speciesId, t]);
 
   const inputQuality = useMemo(() => raw && capturedAt ? buildLocalInputQuality(raw, capturedAt, demoMode) : null, [raw, capturedAt, demoMode]);
-  const presentation = useMemo(() => raw && evaluation && advice && inputQuality ? buildMeasurementPresentation(raw, evaluation, advice, language, inputQuality, asksSpecies ? species?.id : null) : null, [raw, evaluation, advice, language, inputQuality, asksSpecies, species]);
+  const presentation = useMemo(() => raw && evaluation && advice && inputQuality ? buildMeasurementPresentation(raw, evaluation, advice, language, inputQuality, speciesId) : null, [raw, evaluation, advice, language, inputQuality, speciesId]);
 
   const save = useCallback(async () => {
     if (!evaluation || !raw || !stage || !inputQuality || !presentation || saving.current || saved.current) return;
@@ -283,7 +285,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       data_generation: context.current.device?.data_generation ?? 0,
       user_id: null,
       // Especie indicada por el usuario o ausencia explícita: nunca un cultivo ficticio.
-      crop_id: asksSpecies && species ? species.id : NO_SPECIES_ID,
+      crop_id: cropIdForSave(stage, species),
       // Compatibilidad con el esquema existente; la app ya no agrupa por campo.
       field_name: '',
       quadrant: null,
@@ -347,7 +349,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       saving.current = false;
       if (active()) setPhase('result');
     }
-  }, [capturedAt, advice, addPoint, coords, demoMode, device, evaluation, language, raw, setPendingCount, stage, t, weather, presentation, inputQuality, asksSpecies, species]);
+  }, [capturedAt, advice, addPoint, coords, demoMode, device, evaluation, language, raw, setPendingCount, stage, t, weather, presentation, inputQuality, species]);
 
   const stageLabel = (id: PhenologicalStage | null) => {
     const item = PHENOLOGICAL_STAGES.find(candidate => candidate.id === id);
@@ -391,7 +393,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       footer={<EntryButton disabled={!stage} label={t('Continuar', 'Continue')} onPress={() => setPhase(asksSpecies ? 'species' : 'steps')} />}>
       {demoNotice}
       {/* Entre vegetativo, floración y cosecha la planta es la misma: se conserva la especie. */}
-      <StageCards value={stage} onChange={id => { selectStage(id); setStage(id); if (id === 'pre_siembra') setSpecies(null); }} />
+      <StageCards value={stage} onChange={id => { selectStage(id); setStage(id); setSpecies(current => speciesAfterStageChange(current, id)); }} />
     </ScreenLayout>;
   }
 
