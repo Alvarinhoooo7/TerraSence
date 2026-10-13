@@ -7,10 +7,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700;900&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
 <!--
   Carrusel publicitario «Del número a la decisión».
-  Las pantallas de la app reproducen MeasurementResultFlow (resumen y «Qué hacer»)
-  con los textos que entrega el motor agronómico real para esta lectura en pre-siembra:
-  humedad 16 %, suelo a 10 °C, pH 6,4, CE 650 µS/cm y 12 mm de lluvia pronosticados
-  para el día siguiente. La app no pide elegir cultivo: el usuario elige la etapa.
+  Las pantallas de la app reproducen el paso «¿Qué tienes plantado?» de MeasureScreen
+  (SpeciesPicker con sus 115 especies en siete grupos) y el plan de recomendaciones de
+  MeasurementResultFlow, con los textos que entrega el motor agronómico real para esta
+  lectura: tomate en etapa vegetativa, humedad 5 %, suelo a 17 °C, pH 6,4, CE 650 µS/cm,
+  12 mm de lluvia pronosticados para el día siguiente (mié 14 oct) y 3 mm el jueves.
 
   Vistas (hash de la URL): #slide-N (1080 x 1350), #phone-N (publicación en un iPhone),
   #grid (resumen 16:9 de las siete) y sin hash, todas.
@@ -65,6 +66,9 @@
   .s3 .h2, .s4 .h2 { font-size: 74px; }
   .app-dock { position: absolute; top: 400px; width: 650px; height: 950px; }
   .app-dock > .iphone { transform: scale(1.5663); transform-origin: top left; }
+  /* Escala menor: deja ver más de la pantalla (la lista de especies o el segundo paso del plan). */
+  .app-dock.wide { top: 380px; width: 500px; height: 970px; }
+  .app-dock.wide > .iphone { transform: scale(1.2); }
   .callout { position: absolute; z-index: 4; background: var(--noche); color: #fff; font-size: 32px; font-weight: 700; line-height: 1.25; padding: 22px 28px; border-radius: 26px; box-shadow: 0 16px 40px rgba(18,40,31,.35); width: 330px; }
   .callout b { color: var(--brote); }
   .callout::after { content: ''; position: absolute; width: 28px; height: 28px; background: var(--noche); transform: rotate(45deg); }
@@ -157,6 +161,37 @@
   .a-tl p { flex: 1; padding: 4px 0 18px; font-size: 16px; line-height: 24px; }
   .a-tl .it.hot { background: #E5F0FA; border-radius: 16px; margin: 0 -10px; padding: 8px 10px 0; box-shadow: 0 0 0 2px #3B8FD9; }
   .a-tl .it.hot p { padding-bottom: 10px; }
+  .a-top .act { font-weight: 700; font-size: 16px; color: var(--bosque); }
+  .a-batt { display: flex; align-items: center; gap: 8px; color: var(--texto); font-size: 15px; font-weight: 700; }
+  .a-batt .cell { width: 38px; height: 18px; border-radius: 5px; border: 1.5px solid var(--ok); padding: 2px; display: block; }
+  .a-batt .cell i { display: block; height: 100%; border-radius: 2.5px; background: var(--ok); }
+  .a-batt .tip { width: 3px; height: 7px; margin-left: -6.5px; border-radius: 0 2px 2px 0; background: var(--ok); }
+  /* Selector de especie (SpeciesPicker) */
+  .sp-art { width: 100%; aspect-ratio: 360 / 150; border-radius: 20px; overflow: hidden; background: #17392C; }
+  .sp-art svg { display: block; width: 100%; height: 100%; }
+  .sp-bar { min-height: 68px; border-radius: 18px; border: 2px solid var(--bosque); background: #fff; padding: 10px 14px; display: flex; align-items: center; gap: 12px; }
+  .sp-bar .ic { width: 42px; height: 42px; border-radius: 21px; background: #17392C; display: grid; place-items: center; flex: none; }
+  .sp-bar .ph { flex: 1; color: var(--texto2); font-size: 17px; }
+  .sp-bar .chev { color: var(--bosque); font-size: 18px; font-weight: 700; transform: rotate(180deg); }
+  .sp-list { border-radius: 18px; border: 1px solid var(--borde); background: #fff; padding: 10px; display: flex; flex-direction: column; gap: 4px; }
+  .sp-search { display: flex; align-items: center; gap: 8px; min-height: 50px; border-radius: 14px; border: 1.5px solid var(--borde); background: var(--fondo); padding-left: 14px; font-size: 16px; color: var(--texto2); }
+  .sp-count { color: var(--texto2); font-size: 13px; padding: 2px 6px; }
+  .sp-group { min-height: 44px; padding: 0 12px; display: flex; align-items: center; gap: 10px; }
+  .sp-group .t { flex: 1; color: var(--bosque); font-size: 12px; font-weight: 700; letter-spacing: 1.5px; }
+  .sp-group .n { color: var(--texto2); font-size: 13px; }
+  .sp-group .c { color: var(--bosque); font-size: 16px; font-weight: 700; }
+  /* Plan de recomendaciones */
+  .pl-first { border-radius: 22px; border: 2px solid var(--bosque); background: #fff; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .pl-k { color: var(--bosque); font-size: 12px; font-weight: 800; letter-spacing: 1.4px; }
+  .pl-chips { display: flex; align-items: center; gap: 8px; }
+  .pl-chips .kd { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; letter-spacing: 1.2px; }
+  .pl-chips .wh { padding: 2px 8px; border-radius: 10px; background: rgba(72,88,79,.094); color: var(--texto2); font-size: 12px; font-weight: 700; }
+  .pl-first .tt { font-size: 21px; font-weight: 800; letter-spacing: -.3px; line-height: 1.25; }
+  .pl-body { font-size: 16px; line-height: 24px; }
+  .pl-next { display: flex; gap: 14px; border-radius: 18px; border: 1px solid var(--borde); background: #fff; padding: 16px; }
+  .pl-next .nm { width: 30px; height: 30px; border-radius: 15px; display: grid; place-items: center; font-size: 14px; font-weight: 800; flex: none; }
+  .pl-next .tt { font-size: 17px; font-weight: 700; line-height: 1.3; }
+  .pl-next .pl-body { color: var(--texto2); }
 
   /* ---------- Publicación de una red social en el iPhone ---------- */
   .social { background: #fff; color: #000; }
@@ -207,72 +242,49 @@
 </template>
 
 <!-- ========== Pantallas de la app: valores y textos del motor agronómico ========== -->
-<template id="app-summary">
+<template id="app-species">
   <div class="appui" style="flex:1">
     <div class="a-guide">?</div>
     <div class="a-body">
-      <div class="a-top"><span class="bk">‹ Salir</span><span class="sv">Guardar</span></div>
+      <div class="a-top"><span class="bk">‹ Etapa</span><span class="act">Saltar</span></div>
       <div class="a-head" style="margin-top:-24px">
-        <div class="a-eyebrow">RESULTADO · PRE-SIEMBRA</div>
-        <div class="a-title">No sembrar todavía</div>
+        <div class="a-eyebrow">MEDIR · PASO 2 DE 4</div>
+        <div class="a-title">¿Qué tienes plantado?</div>
+        <div class="a-desc">Busca la especie de tu cultivo. Queda registrada solo en esta medición.</div>
       </div>
-      <div class="a-kids">
-        <div class="a-card">
-          <div class="a-ringrow">
-            <div class="a-ring">
-              <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" stroke="#DCE4DD" stroke-width="9" fill="none"/>
-                <circle cx="50" cy="50" r="44" stroke="#2C7A4E" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="134.2 276.5" stroke-dashoffset="0" transform="rotate(-90 50 50)"/>
-                <circle cx="50" cy="50" r="44" stroke="#9E6612" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="65.1 276.5" stroke-dashoffset="-138.2" transform="rotate(-90 50 50)"/>
-                <circle cx="50" cy="50" r="44" stroke="#A33528" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="65.1 276.5" stroke-dashoffset="-207.4" transform="rotate(-90 50 50)"/></svg>
-              <div><div class="n">2<small>/4</small></div><div class="l">favorables</div></div>
-            </div>
-            <div class="a-leg">
-              <div><i style="background:#2C7A4E"></i><b>2</b>Favorables</div>
-              <div><i style="background:#9E6612"></i><b>1</b>Requieren atención</div>
-              <div><i style="background:#A33528"></i><b>1</b>Limitantes</div>
-            </div>
-          </div>
-          <div class="a-stage">
-            <div class="art"><svg width="100%" height="100%" viewBox="0 0 120 90" preserveAspectRatio="xMidYMid meet"><rect width="120" height="90" fill="#17392C"/><circle cx="100" cy="16" r="30" fill="none" stroke="#3F604B"/><path d="M0 64Q60 54 120 64V90H0Z" fill="#355B41"/><path d="M0 76Q60 68 120 78V90H0Z" fill="#6B6A45"/><path d="M14 70q8-4 16 0M44 66q8-4 16 0M82 67q8-4 16 0" stroke="#8FA67F" stroke-width="1.6" fill="none" stroke-linecap="round"/><ellipse cx="60" cy="78" rx="6" ry="4" fill="#E3C27A" transform="rotate(-18 60 78)"/><path d="M61 74C61 66 63 61 68 58" stroke="#C6DFB4" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M68 58C70 52 76 50 81 51 79 57 74 60 68 58Z" fill="#C6DFB4"/></svg></div>
-            <div><div class="k">ETAPA</div><div class="v">Pre-siembra</div></div>
-          </div>
-        </div>
-        <div class="a-scard">Prioriza las correcciones que condicionan germinación y establecimiento. Luego confirma que el clima permita entrar al campo.</div>
-        <div class="a-label">DATOS ESENCIALES</div>
-        <div class="a-tiles">
-          <div class="a-tile"><div class="r"><div class="a-badge" style="background:#9E661222"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#9E6612" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C12 3 5 10.5 5 15a7 7 0 0 0 14 0C19 10.5 12 3 12 3Z"/></svg></div><span>›</span></div>
-            <div class="nm">Humedad del suelo</div><div class="vl">16,0 %</div><div class="a-pbar"><div style="width:16%;background:#9E6612"></div></div>
-            <div class="st" style="color:#9E6612"><i style="background:#9E6612"></i>Requiere atención</div></div>
-          <div class="a-tile"><div class="r"><div class="a-badge" style="background:#A3352822"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#A33528" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4a2 2 0 0 1 4 0v10.5a4 4 0 1 1-4 0ZM12 17V9"/></svg></div><span>›</span></div>
-            <div class="nm">Temperatura del suelo</div><div class="vl">10,0 °C</div>
-            <div class="st" style="color:#A33528"><i style="background:#A33528"></i>Condición limitante</div></div>
-          <div class="a-tile"><div class="r"><div class="a-badge" style="background:#2C7A4E22"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#2C7A4E" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6L5 19a1.5 1.5 0 0 0 1.3 2h11.4a1.5 1.5 0 0 0 1.3-2L14 9V3M7.5 15h9"/></svg></div><span>›</span></div>
-            <div class="nm">pH del suelo</div><div class="vl">6,4 pH</div><div class="a-ph"><div class="g"></div><div class="k" style="left:45.7%"></div></div>
-            <div class="st" style="color:#2C7A4E"><i style="background:#2C7A4E"></i>Condición favorable</div></div>
-          <div class="a-tile"><div class="r"><div class="a-badge" style="background:#2C7A4E22"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#2C7A4E" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7Z"/></svg></div><span>›</span></div>
-            <div class="nm">Conductividad eléctrica</div><div class="vl">650,0 µS/cm</div>
-            <div class="st" style="color:#2C7A4E"><i style="background:#2C7A4E"></i>Condición favorable</div></div>
+      <div class="a-kids" style="gap:14px">
+        <div class="sp-art"><svg viewBox="0 0 360 150" preserveAspectRatio="xMidYMid meet"><circle cx="312" cy="22" r="78" fill="none" stroke="#3F604B"/><circle cx="312" cy="22" r="48" fill="none" stroke="#3F604B"/><path d="M0 122Q90 110 180 122T360 118V150H0Z" fill="#355B41"/><path d="M0 140Q90 132 180 142T360 138V150H0Z" fill="#6B6A45"/><g transform="translate(12 82)"><ellipse cx="17" cy="33" rx="14" ry="11" fill="#7FB06B"/><ellipse cx="39" cy="33" rx="14" ry="11" fill="#7FB06B"/><ellipse cx="28" cy="25" rx="15" ry="15" fill="#C6DFB4"/><path d="M28 42V16M28 30 20 23M28 30 36 23" stroke="#5E8C5C" stroke-width="1.4" fill="none" stroke-linecap="round"/></g><g transform="translate(64 44)"><path d="M32 82V50M32 62 23 53M32 57 41 49" stroke="#8A6F4E" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="32" cy="30" r="25" fill="#5E9C5A"/><circle cx="24" cy="23" r="14" fill="#6FAE66"/><circle cx="20" cy="33" r="3.4" fill="#E86A5A"/><circle cx="39" cy="21" r="3.4" fill="#E86A5A"/><circle cx="43" cy="38" r="3.4" fill="#E86A5A"/><circle cx="28" cy="14" r="3.4" fill="#E86A5A"/><circle cx="33" cy="42" r="3.4" fill="#E86A5A"/></g><g transform="translate(124 80)"><ellipse cx="18" cy="32" rx="16" ry="13" fill="#4F8A55"/><ellipse cx="38" cy="30" rx="17" ry="15" fill="#5E9C5A"/><ellipse cx="28" cy="22" rx="13" ry="12" fill="#6FAE66"/><circle cx="15" cy="28" r="3.2" fill="#6F8FE0"/><circle cx="22" cy="35" r="3.2" fill="#3D5BA8"/><circle cx="34" cy="22" r="3.2" fill="#6F8FE0"/><circle cx="41" cy="31" r="3.2" fill="#3D5BA8"/><circle cx="28" cy="15" r="3.2" fill="#6F8FE0"/><circle cx="46" cy="24" r="3.2" fill="#3D5BA8"/></g><g transform="translate(180 40)"><path d="M20 86C20 64 21 44 22 20" stroke="#E3C27A" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="18" cy="12" rx="2.6" ry="4.6" fill="#E3C27A" transform="rotate(-28 18 12)"/><ellipse cx="25" cy="12" rx="2.6" ry="4.6" fill="#E3C27A" transform="rotate(28 25 12)"/><ellipse cx="18" cy="19" rx="2.6" ry="4.6" fill="#E3C27A" transform="rotate(-28 18 19)"/><ellipse cx="25" cy="19" rx="2.6" ry="4.6" fill="#E3C27A" transform="rotate(28 25 19)"/><ellipse cx="18" cy="26" rx="2.6" ry="4.6" fill="#E3C27A" transform="rotate(-28 18 26)"/><ellipse cx="25" cy="26" rx="2.6" ry="4.6" fill="#E3C27A" transform="rotate(28 25 26)"/><ellipse cx="18" cy="33" rx="2.6" ry="4.6" fill="#E3C27A" transform="rotate(-28 18 33)"/><ellipse cx="25" cy="33" rx="2.6" ry="4.6" fill="#E3C27A" transform="rotate(28 25 33)"/><ellipse cx="18" cy="40" rx="2.6" ry="4.6" fill="#E3C27A" transform="rotate(-28 18 40)"/><ellipse cx="25" cy="40" rx="2.6" ry="4.6" fill="#E3C27A" transform="rotate(28 25 40)"/><path d="M21 62C14 58 10 52 9 46M21 70C28 66 31 60 32 54" stroke="#9CCB7E" stroke-width="2" fill="none" stroke-linecap="round"/></g><g transform="translate(218 84)"><path d="M10 42Q12 22 6 9M18 42Q18 18 22 5M26 42Q24 22 30 11M34 42Q36 20 44 9M42 42Q42 28 48 19" stroke="#9CCB7E" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="22" cy="6" r="4" fill="#E3A1C0"/><circle cx="44" cy="9" r="3.6" fill="#E3A1C0"/></g><g transform="translate(268 64)"><path d="M20 62V12" stroke="#C6DFB4" stroke-width="2.4" stroke-linecap="round"/><ellipse cx="13" cy="46" rx="7" ry="3.6" fill="#8FC27A" transform="rotate(-24 13 46)"/><ellipse cx="27" cy="42" rx="7" ry="3.6" fill="#8FC27A" transform="rotate(24 27 42)"/><ellipse cx="13" cy="34" rx="7" ry="3.6" fill="#8FC27A" transform="rotate(-24 13 34)"/><ellipse cx="27" cy="30" rx="7" ry="3.6" fill="#8FC27A" transform="rotate(24 27 30)"/><ellipse cx="13" cy="22" rx="7" ry="3.6" fill="#8FC27A" transform="rotate(-24 13 22)"/><ellipse cx="27" cy="18" rx="7" ry="3.6" fill="#8FC27A" transform="rotate(24 27 18)"/><circle cx="20" cy="8" r="3" fill="#B79CE6"/><circle cx="16" cy="12" r="3" fill="#B79CE6"/><circle cx="24" cy="12" r="3" fill="#B79CE6"/></g><g transform="translate(304 36)"><rect x="23" y="74" width="6" height="16" fill="#8A6F4E"/><path d="M26 2 8 32H44Z" fill="#2F6B45"/><path d="M26 18 5 52H47Z" fill="#2A5F3E"/><path d="M26 36 2 76H50Z" fill="#245437"/></g></svg></div>
+        <div class="sp-bar"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C6DFB4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19C-1 5 12 3 21 3 21 15 17 23 5 19ZM5 19 15 9M5 19 3 22"/></svg></div><div class="ph">Elige una especie</div><div class="chev">▾</div></div>
+        <div class="sp-list">
+          <div class="sp-search">⌕ <span>Buscar: tomate, palta, trigo…</span></div>
+          <div class="sp-count">115 especies</div>
+          <div class="sp-group"><span class="t">HORTALIZAS</span><span class="n">34</span><span class="c">▾</span></div><div class="sp-group"><span class="t">FRUTALES</span><span class="n">44</span><span class="c">▾</span></div><div class="sp-group"><span class="t">BERRIES</span><span class="n">15</span><span class="c">▾</span></div><div class="sp-group"><span class="t">CEREALES, LEGUMBRES E INDUSTRIALES</span><span class="n">11</span><span class="c">▾</span></div><div class="sp-group"><span class="t">FORRAJERAS</span><span class="n">4</span><span class="c">▾</span></div><div class="sp-group"><span class="t">AROMÁTICAS · LISTA PARCIAL</span><span class="n">5</span><span class="c">▾</span></div><div class="sp-group"><span class="t">ÁRBOLES FORESTALES · LISTA PARCIAL</span><span class="n">2</span><span class="c">▾</span></div>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<template id="app-advice">
+<template id="app-plan">
   <div class="appui" style="flex:1">
     <div class="a-guide">?</div>
     <div class="a-body">
-      <div class="a-top"><span class="bk">‹ Atrás</span><span class="sv">Guardar</span></div>
+      <div class="a-top"><span class="a-batt"><span class="cell"><i style="width:82%"></i></span><span class="tip"></span>82 %</span></div>
       <div class="a-head" style="margin-top:-24px">
-        <div class="a-eyebrow">RECOMENDACIONES</div>
-        <div class="a-title">Qué hacer</div>
-        <div class="a-desc">Según la lectura y la etapa pre-siembra.</div>
+        <div class="a-eyebrow">PLAN DE RECOMENDACIONES · VEGETATIVO</div>
+        <div class="a-title">Lo que te recomendamos</div>
+        <div class="a-desc">Según la lectura, la etapa vegetativo, la especie (Tomate) y el clima. Son sugerencias: tú decides qué aplicar en tu campo.</div>
       </div>
-      <div class="a-tl">
-        <div class="it"><div class="rail"><div class="num">1</div><div class="ln"></div></div><p>No sembrar hoy. La semilla entrará en letargo y se pudrirá. Esperar 7 días con sol.</p></div>
-        <div class="it"><div class="rail"><div class="num">2</div><div class="ln"></div></div><p>Programar riego en las próximas 24 a 48 horas. Por debajo de 20% la planta gasta energía en extraer agua en vez de crecer.</p></div>
-        <div class="it hot"><div class="rail"><div class="num">3</div><div class="ln"></div></div><p>Se pronostican 12 mm de lluvia para el mié 22 sept. Si puedes, espérala antes de regar y vuelve a medir después.</p></div>
-        <div class="it"><div class="rail"><div class="num">4</div></div><p>Revisa la fecha de la labor por lluvia, helada o calor previstos: mié 22 sept, jue 23 sept. Confirma las condiciones antes de ingresar al campo.</p></div>
+      <div class="a-kids">
+        <div class="pl-first">
+          <div class="pl-k">PARA EMPEZAR</div>
+          <div class="pl-chips"><span class="kd" style="color:#1F5B3F"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F5B3F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14C6 12 9 12 12 14S18 16 22 14M2 19H22M12 3V10M9 7H15"/></svg>SUELO</span><span class="wh">Hoy</span></div>
+          <div class="tt">Humedad fuera de los rangos de referencia del catálogo</div>
+          <div class="pl-body">Revisa humedad y drenaje en terreno y repite la lectura antes de decidir riego o ingreso de maquinaria.</div>
+        </div>
+        <div class="a-label">DESPUÉS</div>
+        <div class="pl-next"><div class="nm" style="background:#3B8FD922;color:#3B8FD9">2</div><div style="flex:1;display:flex;flex-direction:column;gap:6px"><div class="pl-chips"><span class="kd" style="color:#3B8FD9"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B8FD9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16a4 4 0 0 1-.5-8A6 6 0 0 1 18 9.5 3.5 3.5 0 0 1 17.5 16ZM9 19l-1 2M13 19l-1 2M17 19l-1 2"/></svg>CLIMA</span><span class="wh">Próximos días</span></div><div class="tt">Programa las labores según el clima</div><div class="pl-body">Revisa la fecha de la labor por lluvia, helada o calor previstos: mié 14 oct, jue 15 oct. Confirma las condiciones antes de ingresar al campo.</div></div></div>
+        <div class="pl-next"><div class="nm" style="background:#1F5B3F22;color:#1F5B3F">3</div><div style="flex:1;display:flex;flex-direction:column;gap:6px"><div class="pl-chips"><span class="kd" style="color:#1F5B3F"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F5B3F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10A9 9 0 0 1 19 6L21 9M21 3V9H15M21 14A9 9 0 0 1 5 18L3 15M3 21V15H9"/></svg>SEGUIMIENTO</span><span class="wh">Próxima medición</span></div><div class="tt">Vuelve a medir para comparar</div><div class="pl-body">Mide puntos representativos y repite después de cada cambio de manejo: la tendencia dice más que una sola lectura.</div></div></div>
       </div>
     </div>
   </div>
@@ -286,7 +298,7 @@
     <div class="counter">1/7</div>
     <div class="brand"><img src="../Figuras/logo_icono.png" alt=""><span><span class="t">Terra</span><span class="s">Sense</span></span></div>
     <div class="h1" style="margin-top:90px">¿Riego hoy<br>o <span class="hl">mañana?</span></div>
-    <p class="sub">Vas a sembrar y el suelo se ve seco.<br>Equivocarte cuesta agua… y la temporada.</p>
+    <p class="sub">El suelo se ve seco y el cielo, nublado.<br>Equivocarte cuesta agua… y la temporada.</p>
     <svg class="art" viewBox="0 0 1080 640" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
       <g opacity=".9"><ellipse cx="820" cy="120" rx="120" ry="62" fill="#2F4A3E"/><ellipse cx="740" cy="140" rx="80" ry="48" fill="#2F4A3E"/><ellipse cx="900" cy="145" rx="78" ry="44" fill="#2F4A3E"/>
         <g stroke="#6FD3A0" stroke-width="8" stroke-linecap="round" opacity=".8"><line x1="760" y1="210" x2="745" y2="250"/><line x1="820" y1="215" x2="805" y2="255"/><line x1="880" y1="210" x2="865" y2="250"/></g></g>
@@ -306,7 +318,7 @@
     <div class="counter">2/7</div>
     <div class="kicker">Lo que ves hoy</div>
     <div class="meter">
-      <div class="lcd"><div class="ln"><span class="lab">HUMEDAD</span><span class="val">16%</span></div><div class="ln"><span class="lab">T° SUELO</span><span class="val">10°C</span></div></div>
+      <div class="lcd"><div class="ln"><span class="lab">HUMEDAD</span><span class="val">5%</span></div><div class="ln"><span class="lab">T° SUELO</span><span class="val">17°C</span></div></div>
       <div class="btns"><span></span><span></span></div>
     </div>
     <div class="h2">¿Y ahora <span class="hl-ocre">qué?</span></div>
@@ -317,19 +329,19 @@
   <!-- 3. Giro: el resultado -->
   <section class="slide light s3">
     <div class="counter">3/7</div>
-    <div class="kicker">La misma lectura, con TerraSense</div>
-    <div class="h2">Eliges la etapa y te dice: <span class="hl-bosque">no siembres todavía.</span></div>
-    <div class="app-dock" data-app="app-summary" style="left:400px"></div>
-    <div class="callout left" style="left:40px;top:770px">El suelo está a <b>10&nbsp;°C</b>: todavía muy frío para que la semilla germine.</div>
+    <div class="kicker">Con TerraSense, primero tu cultivo</div>
+    <div class="h2">Le dices qué tienes plantado: <span class="hl-bosque">115 especies.</span></div>
+    <div class="app-dock wide" data-app="app-species" style="left:500px"></div>
+    <div class="callout left" style="left:90px;top:1000px">Del <b>tomate</b> al <b>palto</b>: hortalizas, frutales, berries, cereales y más.</div>
   </section>
 
   <!-- 4. Giro: qué hacer -->
   <section class="slide light s4">
     <div class="counter">4/7</div>
-    <div class="kicker">Y te dice qué hacer</div>
-    <div class="h2">No riegues hoy: <span class="hl-bosque">viene lluvia el miércoles.</span></div>
-    <div class="app-dock" data-app="app-advice" style="left:30px"></div>
-    <div class="callout right" style="right:34px;top:1125px">Cruza tu medición con el <b>pronóstico</b> y te ahorra un riego.</div>
+    <div class="kicker">Y te dice por dónde empezar</div>
+    <div class="h2">Suelo seco, lluvia mañana: <span class="hl-bosque">te arma un plan.</span></div>
+    <div class="app-dock wide" data-app="app-plan" style="left:80px"></div>
+    <div class="callout right" style="right:60px;top:1150px">Cruza tu medición con el <b>pronóstico</b> de tu campo.</div>
   </section>
 
   <!-- 5. Beneficios -->
@@ -343,11 +355,11 @@
       <div class="ben"><div class="ic"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#12281F" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v18M7 8v8M17 6v12M2 11v2M22 10v4"/></svg></div>
         <h3>10 variables</h3><p>7 del suelo y 3 del ambiente, en un solo equipo.</p></div>
       <div class="ben"><div class="ic"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#12281F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V11"/><path d="M12 13c-4 0-6-3-6-7 4 0 6 3 6 7Z"/><path d="M12 11c0-4 2-7 6-7 0 4-2 7-6 7Z"/></svg></div>
-        <h3>Según la etapa del cultivo</h3><p>De la pre-siembra a la cosecha, te dice qué hacer.</p></div>
+        <h3>Tu cultivo y su etapa</h3><p>115 especies, de la pre-siembra a la cosecha, con un plan de acción.</p></div>
       <div class="ben"><div class="ic"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#12281F" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h4"/></svg></div>
         <h3>Pago único</h3><p>Sin mensualidades. Mediciones ilimitadas.</p></div>
     </div>
-    <p class="sub" style="margin-top:44px;font-size:36px">Con señal, suma el pronóstico del tiempo a cada recomendación.</p>
+    <p class="sub" style="margin-top:44px;font-size:36px">Con señal, suma el clima de hoy y de los próximos cinco días a cada recomendación.</p>
   </section>
 
   <!-- 6. Prueba -->
@@ -423,7 +435,7 @@
 
 <script>
   const tpl = id => document.getElementById(id).content;
-  const steps = ['Impacto', 'Problema', 'Resultado', 'Qué hacer', 'Beneficios', 'Prueba', 'Acción'];
+  const steps = ['Impacto', 'Problema', 'Tu cultivo', 'Plan', 'Beneficios', 'Prueba', 'Acción'];
   // Nivel del embudo digital del informe (sección 8) al que apunta cada imagen.
   const levels = ['Atracción', 'Atracción', 'Consideración', 'Consideración', 'Consideración', 'Consideración', 'Conversión'];
 
