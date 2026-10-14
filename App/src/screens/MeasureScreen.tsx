@@ -233,7 +233,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       setDemoMode((current) => current || probe.simulated);
       setWeather(nextWeather);
       setEvaluation(nextEvaluation);
-      setAdvice(buildContextualAdvice(stage, nextEvaluation, probe.data, nextWeather, preferences.language, weatherContext));
+      setAdvice(buildContextualAdvice(stage, nextEvaluation, probe.data, nextWeather, preferences.language, weatherContext, speciesId));
       setPhase('result');
       // Batería baja: aviso dentro de la app, una vez por equipo (utils/batteryWarning).
       // Una lectura simulada no informa la batería real.
@@ -247,7 +247,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
         void fetchCurrentWeather(nextCoords.latitude, nextCoords.longitude, weatherContext.captureId).then((forecast) => {
           if (!current()) return;
           const updatedAdvice = buildContextualAdvice(stage, nextEvaluation, probe.data, forecast, preferences.language,
-            { ...weatherContext, evaluatedAt: new Date().toISOString() });
+            { ...weatherContext, evaluatedAt: new Date().toISOString() }, speciesId);
           setWeather(updatedAdvice.weatherCoverage?.status === 'not_evaluated' ? null : forecast);
           setAdvice(updatedAdvice);
           setWeatherLoading(false);

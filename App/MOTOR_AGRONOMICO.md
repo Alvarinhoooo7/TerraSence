@@ -409,6 +409,8 @@ No interpretar un mínimo como recomendación de sembrar a esa temperatura. No u
 
 **pH:** hay antecedentes de tomate en [S12](#s12), albahaca en [S13](#s13), frutilla en [S14](#s14) y arándano en [S18](#s18). Sirven para documentar perfiles con rangos y contextos propios; no se importan dosis de las mismas páginas. Los criterios de pH habilitados usan la tabla B-1 de hortalizas de [S22](#s22) y, cuando INIA documenta la especie, sus boletines: tomate [S23](#s23), frutilla [S24](#s24), cerezo [S25](#s25) y olivo [S26](#s26). El detalle por especie está en la [tarea ES6](TASK_MOTOR_AGRONOMICO.md#es6-criterios-por-especie-y-etapa--en-curso). En arándano, incluso las fuentes consultadas presentan diferencias de intervalo según contexto. La discrepancia debe registrarse, no resolverse tomando el promedio o el rango más amplio.
 
+**Helada, calor y lluvia por especie:** la tolerancia a helada de hortalizas proviene de clasificaciones de extensión con umbrales en °F ([S27](#s27), [S28](#s28), [S29](#s29)), contrastadas con [S30](#s30), [S31](#s31), [S32](#s32) y [S33](#s33); se convierten con `(F - 32) × 5/9`. Cuando las fuentes difieren se usa lo que todas documentan (por ejemplo, 28 °F aunque una admita 24 °F) y la diferencia queda en las limitaciones; si una sostiene tolerancia y otra no (apio, papa), se trata como sensible. Tomate, cerezo, olivo y frutilla usan los capítulos de clima de sus boletines INIA ([S23](#s23)–[S26](#s26)); las flores de berries, [S34](#s34), y la cosecha de arándano, [S35](#s35). Una fuente que no da temperatura («sensible a helada») se compara con 0 °C como definición de helada, y una fuente que no da cantidad de lluvia se compara con la regla de día lluvioso de la app; ambos casos se declaran en el resultado.
+
 **Amplitud y adaptación local:** ECOCROP sirve como índice de características ambientales y usos, pero FAO informa que su actualización se discontinuó. No tratarlo como un catálogo clínicamente validado o actualizado de recomendaciones locales. La documentación de INIA sobre aptitud térmica permite orientar la búsqueda de evidencia chilena, distinguiendo especies, variedades y zonas; una noticia sobre un libro no aporta por sí sola sus tablas. [ECOCROP](#s11), [INIA](#s16).
 
 ### 7.5. Proceso de incorporación
@@ -935,13 +937,40 @@ Consulta documental: 10 de octubre de 2026. Los enlaces respaldan el aspecto ind
 **S22 — University of Maryland Extension, Mid-Atlantic Commercial Vegetable Production Recommendations 2026, sección B.** [Soil and Nutrient Management](https://extension.umd.edu/sites/extension.umd.edu/files/2026-02/Soil%20and%20Nutrient%20Management.pdf). Tabla B-1 «Target Soil pH Values for Vegetable Crops», p. 40: pH objetivo y pH bajo el cual encalar por hortaliza. No fija máximos ni reemplaza el requerimiento de cal de un laboratorio.
 
 <a id="s23"></a>
-**S23 — INIA, Manual de cultivo del tomate al aire libre (Boletín INIA–INDAP).** [Capítulo 1](https://biblioteca.inia.cl/server/api/core/bitstreams/21592963-55e3-43bb-9426-bd9ec288ae07/content), apartado 1.5.1 «Suelo», p. 16. pH óptimo de 6 a 6,5 y cultivos establecidos con pH 8 en Arica y Parinacota.
+**S23 — INIA, Manual de cultivo del tomate al aire libre (Boletín INIA–INDAP).** [Capítulo 1](https://biblioteca.inia.cl/server/api/core/bitstreams/21592963-55e3-43bb-9426-bd9ec288ae07/content), apartado 1.5.1 «Suelo», p. 16. pH óptimo de 6 a 6,5 y cultivos establecidos con pH 8 en Arica y Parinacota. Apartado 1.5.2 «Clima» y cuadro 1.3: la planta se hiela a −2 °C, bajo 10 °C se afecta la formación de flores y sobre 35 °C la fructificación.
 
 <a id="s24"></a>
-**S24 — INIA Quilamapu, Manual de frutilla (Boletín INIA N° 262, 2013).** [Documento](https://bibliotecadigital.ciren.cl/server/api/core/bitstreams/6989b90c-bc5f-494d-b790-fe196c0d430d/content). Capítulo 1, «Requerimientos de suelo» y cuadro 1: pH 5,8–7,0 y efectos bajo 5,8 y sobre 7,2.
+**S24 — INIA Quilamapu, Manual de frutilla (Boletín INIA N° 262, 2013).** [Documento](https://bibliotecadigital.ciren.cl/server/api/core/bitstreams/6989b90c-bc5f-494d-b790-fe196c0d430d/content). Capítulo 1, «Requerimientos de suelo» y cuadro 1: pH 5,8–7,0 y efectos bajo 5,8 y sobre 7,2. «Requerimientos agroclimáticos», pp. 7–8: aborto floral sobre 32 °C, raíces mejor con suelo sobre 12 °C y cosecha sin lluvias; «Pudrición gris», pp. 69–70: fruta madura susceptible con agua y más de 15 °C.
 
 <a id="s25"></a>
-**S25 — INIA La Platina, El cultivo del cerezo (Boletín INIA N° 133, 2005).** [Registro en la biblioteca INIA](https://biblioteca.inia.cl/items/4ed5eb65-a167-4db2-a6bc-1ebb7a26c489). Apartado «Suelo»: pH óptimo 6,0–6,5 y deficiencias de microelementos sobre 7,5. La tolerancia depende del portainjerto.
+**S25 — INIA La Platina, El cultivo del cerezo (Boletín INIA N° 133, 2005).** [Registro en la biblioteca INIA](https://biblioteca.inia.cl/items/4ed5eb65-a167-4db2-a6bc-1ebb7a26c489). Apartado «Suelo»: pH óptimo 6,0–6,5 y deficiencias de microelementos sobre 7,5. La tolerancia depende del portainjerto. Apartados «Temperatura» (cuadro 2, de Proebsting y Mills) y «Humedad relativa»: daño en flor desde −1,1 °C, temperaturas de congelamiento de yemas por estado, polen afectado sobre 30 °C, crecimiento limitado sobre 36 °C y partidura por lluvia en cosecha.
 
 <a id="s26"></a>
-**S26 — INIA Intihuasi, Manual del cultivo del olivo (Boletín INIA N° 101, 2003).** [Registro en la biblioteca INIA](https://biblioteca.inia.cl/items/f6a76e2b-197e-4643-8243-d29bc434cf1a). Capítulo 1 «Requerimientos de clima y suelo», p. 18: crecimiento con pH 5,5–8,5, preferible bajo 7,5.
+**S26 — INIA Intihuasi, Manual del cultivo del olivo (Boletín INIA N° 101, 2003).** [Registro en la biblioteca INIA](https://biblioteca.inia.cl/items/f6a76e2b-197e-4643-8243-d29bc434cf1a). Capítulo 1 «Requerimientos de clima y suelo», p. 18: crecimiento con pH 5,5–8,5, preferible bajo 7,5. Cuadro 2 y floración, pp. 11–14: brotes tiernos dañados entre 0 y −5 °C, muerte de ramillas entre −5 y −10 °C, actividad detenida sobre 35 °C, caída de flores con niebla y estigma deshidratado con humedad bajo 50 %. La fila de frutos («menos de 5») es ambigua y no se usa.
+
+<a id="s27"></a>
+**S27 — Nebraska Extension, Frost – Cold Temperatures Bring an End to the Gardening Season (S. Browning, 2023).** [Artículo](https://lancaster.unl.edu/frost-cold-temperatures-bring-end-gardening-season/). Hortalizas «very hardy» (bajo 28 °F por períodos cortos), «frost tolerant» (28–32 °F sin daño) y «tender» (daño o muerte con 28–32 °F); cosecha antes de la helada de zapallo, tomate, pimiento, poroto y zapallo italiano.
+
+<a id="s28"></a>
+**S28 — South Dakota State University Extension, Fall Frost Tolerance of Common Vegetables (R. Burrows, 2023).** [Artículo](https://extension.sdstate.edu/fall-frost-tolerance-common-vegetables). Hortalizas sin tolerancia (proteger o cosechar antes de una helada leve), con tolerancia a helada leve (28–32 °F) y resistentes (24–28 °F; brócoli y coliflor hasta 26 °F).
+
+<a id="s29"></a>
+**S29 — South Dakota State University Extension, Leeks: Harvest and Storage (D. Kohn, 2025).** [Artículo](https://extension.sdstate.edu/leeks-harvest-and-storage). La cosecha de puerro puede esperar a las primeras heladas; bajo 20 °F se indica protegerlo.
+
+<a id="s30"></a>
+**S30 — Colorado State University Extension, Vegetable Planting Guide (CMG GardenNotes #720).** [Guía](https://extension.colostate.edu/resource/vegetable-planting-guide/). Clasifica el apio como intolerante a la helada; contrasta S27, que lo considera tolerante a heladas leves.
+
+<a id="s31"></a>
+**S31 — University of Wisconsin–Madison Extension, Growing onions, garlic, leeks, and other alliums in Wisconsin (A3785).** [Publicación](https://hort.extension.wisc.edu/files/2023/10/A3785-Growing-Onions-Garlic-Leeks-and-Other-Alliums-in-Wisconsin-KA-Delahaut-and-AC-Newenhouse.pdf). La cebolla de verdeo es cebolla inmadura; la cebolla de hoja (Allium fistulosum) es muy resistente al frío, sin temperatura documentada.
+
+<a id="s32"></a>
+**S32 — Iowa State University Extension and Outreach, Harvesting Asparagus (R. Jauron, 2018).** [Artículo](https://yardandgarden.extension.iastate.edu/article/2018/03/harvesting-asparagus). Los turiones tiernos son sensibles a la helada; no da una temperatura.
+
+<a id="s33"></a>
+**S33 — Marmolejo y Ruiz, Tolerancia de papas nativas (Solanum spp.) a heladas en el contexto de cambio climático, Scientia Agropecuaria 9(3), 2018.** [Artículo](https://www.scielo.org.pe/scielo.php?script=sci_arttext&pid=S2077-99172018000300010). Introducción: la mayoría de las variedades cultivadas de papa son sensibles bajo −2,5 °C, con daño foliar visible.
+
+<a id="s34"></a>
+**S34 — Penn State Extension, Frost and Freeze Damage on Berry Crops (K. Demchak, 2026).** [Artículo](https://extension.psu.edu/frost-and-freeze-damage-on-berry-crops). Temperaturas críticas de flor: frutilla abierta 30 °F; arándano abierta 27 °F y caída de pétalos 28 °F. Cerca del suelo el aire puede estar hasta 5 °F más frío que la mínima de referencia.
+
+<a id="s35"></a>
+**S35 — University of Georgia Cooperative Extension, Blueberry Harvesting and Postharvest Handling (Circular 1269, 2023).** [Publicación](https://fieldreport.caes.uga.edu/publications/C1269/blueberry-harvesting-and-postharvest-handling/). No cosechar arándano con plantas mojadas por rocío o lluvia: cosechar con lluvia puede partir la fruta.

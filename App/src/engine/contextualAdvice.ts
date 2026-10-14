@@ -6,7 +6,8 @@ import type { PhenologicalStage } from '../types/app';
 import type { SoilMeasurement } from '../types/agronomy';
 import type { CurrentWeather } from '../services/weatherService';
 import type { AppLanguage } from '../types/preferences';
-import { isRainingNow } from './weatherOutlook';
+import { isRainingNow, isRainyDay, weatherKind } from './weatherOutlook';
+import { evaluateSpeciesWeather, type SpeciesWeatherInput } from './speciesRules';
 import { assessWeatherEvidence, type WeatherEvaluationContext, type WeatherCoverage } from './evaluationCoverage';
 
 export type RecommendationKind = 'soil' | 'evidence' | 'weather' | 'irrigation' | 'monitoring';
@@ -49,6 +50,26 @@ export function forecastDayLabel(date: string, language: AppLanguage = 'es'): st
   return language === 'en' ? `${weekday} ${month} ${day.getUTCDate()}` : `${weekday} ${day.getUTCDate()} ${month}`;
 }
 
+const finiteNumber = (value: number | null | undefined): value is number => typeof value === 'number' && Number.isFinite(value);
+
+/** Hoy y los días siguientes en la forma que comparan los criterios climáticos de la especie. */
+function pickSpeciesWeather(weather: CurrentWeather, dayLabel: (date: string) => string): SpeciesWeatherInput {
+  const days = [...(weather.today ? [weather.today] : []), ...weather.forecast];
+  return {
+    days: days.map(day => ({
+      date: day.date,
+      label: dayLabel(day.date),
+      isToday: day === weather.today,
+      minimumTemperatureC: finiteNumber(day.minimumTemperatureC) ? day.minimumTemperatureC : null,
+      maximumTemperatureC: finiteNumber(day.maximumTemperatureC) ? day.maximumTemperatureC : null,
+      rainy: finiteNumber(day.precipitationMm) || finiteNumber(day.rainProbabilityPct) ? isRainyDay(day) : null,
+      fog: day.weatherCode == null ? null : weatherKind(day.weatherCode) === 'fog',
+    })),
+    rainingNow: isRainingNow(weather),
+    fogNow: weatherKind(weather.weatherCode) === 'fog',
+  };
+}
+
 /** Lluvia que reemplaza un riego: 5 mm o más hoy o mañana. */
 const RAIN_INSTEAD_OF_IRRIGATION_MM = 5;
 
@@ -59,6 +80,7 @@ export function buildContextualAdvice(
   weather: CurrentWeather | null,
   language: AppLanguage = 'es',
   weatherContext?: WeatherEvaluationContext,
+  speciesId?: string | null,
 ): ContextualAdvice {
   const en = language === 'en';
   const weatherCoverage = evaluation.coverage ? assessWeatherEvidence(weather, weatherContext) : undefined;
@@ -93,6 +115,17 @@ export function buildContextualAdvice(
   const today = weather?.today ?? null;
   const upcoming = weather ? [...(today ? [today] : []), ...weather.forecast] : [];
   const dayLabel = (date: string) => today && date === today.date ? (en ? 'today' : 'hoy') : forecastDayLabel(date, language);
+
+  // Criterios climáticos de la especie indicada (TASK ES6): helada, frío, calor, lluvia o
+  // niebla que su fuente documenta para la etapa. Sin pronóstico vigente quedan sin evaluar
+  // y así se dice; nunca se dan por favorables.
+  const speciesWeather = evaluateSpeciesWeather(speciesId, stage, weather && pickSpeciesWeather(weather, dayLabel), language);
+  for (const finding of speciesWeather.findings) plan.push({ kind: 'weather', priority: finding.type === 'danger' ? 'high' : 'normal',
+    when: finding.when, title: finding.title, body: finding.body });
+  if (speciesWeather.applicable && !speciesWeather.evaluated) plan.push({ kind: 'evidence', priority: 'normal', when: 'next_reading',
+    title: en ? 'Species weather criteria not evaluated' : 'Criterios climáticos de la especie sin evaluar',
+    body: en ? 'Without a current forecast, the frost, heat or rain that the sources document for this species at this stage could not be checked. Measure again with a connection to review them.'
+      : 'Sin un pronóstico vigente no se pudo revisar la helada, el calor o la lluvia que las fuentes documentan para esta especie en esta fase. Vuelve a medir con conexión para revisarlos.' });
 
   if (weather && isRainingNow(weather)) plan.push({ kind: 'weather', priority: 'high', when: 'now',
     title: en ? 'It is raining now' : 'Está lloviendo ahora',

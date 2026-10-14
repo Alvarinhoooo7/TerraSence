@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  classifyPh, evaluateSpeciesCriteria, findSpeciesRuleProfile, hasEnabledCriteria, SPECIES_RULES, type SpeciesPhCriterion,
+  classifyPh, evaluateSpeciesCriteria, findSpeciesRuleProfile, hasEnabledCriteria, SPECIES_RULES,
 } from '../src/engine/speciesRules';
 import { evaluateReadingForStage } from '../src/engine/stageEvaluator';
 import { SPECIES, findSpecies } from '../src/engine/speciesCatalog';
@@ -10,7 +10,7 @@ import type { SoilMeasurement } from '../src/types/agronomy';
 const raw: SoilMeasurement = { vwc: 22, temp: 20, ph: 6.5, ec: 500, nitrogen: 50, phosphorus: 20, potassium: 80, lux: 0, battery: 80, airTemp: 24, airHumidity: 55, airPressure: 1010 };
 const clock = { capturedAt: '2026-10-11T15:30:00.000Z', evaluatedAt: '2026-10-11T15:31:00.000Z' };
 const STAGES = ['vegetativo', 'floracion', 'cosecha'] as const;
-const phCriteria = Object.values(SPECIES_RULES).flatMap(p => p.criteria.map(c => ({ id: p.speciesId, c: c as SpeciesPhCriterion })));
+const phCriteria = Object.values(SPECIES_RULES).flatMap(p => p.criteria.flatMap(c => c.kind === 'ph' ? [{ id: p.speciesId, c }] : []));
 const round = (n: number) => Math.round(n * 10) / 10;
 
 /** La cifra aparece tal cual en el texto de la fuente: 6 o 6.0 o 6,0; 6.5 o 6,5. Nunca como parte de otra cifra. */
@@ -88,7 +88,8 @@ test('ES6/T15: arándano distingue óptimo, fuera del óptimo y límites documen
   const at = (ph: number, language: 'es' | 'en' = 'es') => evaluateSpeciesCriteria('sp.arandano', 'vegetativo', { ...raw, ph }, language)[0];
   assert.equal(hasEnabledCriteria('sp.arandano', 'vegetativo'), true);
   assert.equal(hasEnabledCriteria('sp.arandano', 'floracion'), true);
-  assert.equal(hasEnabledCriteria('sp.arandano', 'cosecha'), false, 'el criterio no se declaró para cosecha');
+  // En cosecha el arándano sólo tiene el criterio de lluvia, que se evalúa con el pronóstico.
+  assert.equal(hasEnabledCriteria('sp.arandano', 'cosecha'), true);
   assert.equal(at(4.8).type, 'info');
   assert.match(at(4.8).title, /dentro del óptimo documentado para esta especie \(4,5–5,3\)/);
   // Entre 4,3 y 4,5 está bajo el ideal, pero la fuente sólo indica encalar bajo 4,3.
@@ -151,7 +152,8 @@ test('ES6/T45: los criterios de especie se agregan al final sin alterar las aler
         const withSpecies = evaluateReadingForStage(reading, stage, 'es', clock, speciesId);
         assert.deepEqual(withSpecies.alerts.slice(0, without.alerts.length), without.alerts, `${speciesId}/${stage}`);
         const added = withSpecies.alerts.slice(without.alerts.length);
-        assert.equal(added.length, hasEnabledCriteria(speciesId, stage) ? 1 : 0, `${speciesId}/${stage}`);
+        assert.deepEqual(added, evaluateSpeciesCriteria(speciesId, stage, reading, 'es'), `${speciesId}/${stage}`);
+        assert.ok(added.every(a => a.origin === 'species'), 'las alertas de especie se identifican como tales');
         // Una nota informativa no cambia el estado; sólo cruzar un límite documentado lo hace.
         if (added.every(a => a.type === 'info')) assert.equal(withSpecies.state, without.state, `${speciesId}/${stage}`);
         else assert.equal(withSpecies.state, 'attention');

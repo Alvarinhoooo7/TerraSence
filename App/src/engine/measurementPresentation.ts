@@ -55,7 +55,7 @@ const units = ['%', '°C', 'pH', 'µS/cm', 'mg/kg', 'mg/kg', 'mg/kg', '°C', '%'
 
 export function applicableAlerts(evaluation: StageAwareEvaluation) {
   const drivers = STAGE_DRIVERS[evaluation.stage] as readonly string[];
-  return evaluation.alerts.filter(a => drivers.includes(a.param))
+  return evaluation.alerts.filter(a => a.origin === 'species' || drivers.includes(a.param))
     .filter(a => evaluation.stage === 'pre_siembra' || !/sembr|siembra|germin|planting|seeds|germination/i.test(a.action))
     .sort((a, b) => ({ danger: 0, warning: 1, info: 2 }[a.type] - { danger: 0, warning: 1, info: 2 }[b.type]));
 }

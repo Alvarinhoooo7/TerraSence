@@ -103,6 +103,8 @@ export interface AgronomicAlert {
   param: string;
   title: string;
   action: string;
+  /** `species`: criterio propio de la especie indicada; se muestra en cualquier etapa aunque su parámetro no la gobierne. */
+  origin?: 'species';
 }
 
 export interface MetricDetail {

@@ -285,7 +285,7 @@ export function evaluateReadingForStage(
   const en = language === 'en';
   const quality = buildLocalInputQuality(reading, context?.capturedAt ?? '', context?.simulated);
   const coverage = buildEvaluationCoverage(quality, context?.evaluatedAt ?? null);
-  const usable = (key: 'temp' | 'ph' | 'vwc') => quality.observations[key].availability === 'available' && coverage.freshness === 'fresh';
+  const usable = (key: 'temp' | 'ph' | 'vwc' | 'airHumidity') => quality.observations[key].availability === 'available' && coverage.freshness === 'fresh';
   const crops = Object.values(CROPS_DB);
   const textures = Object.values(SOIL_TEXTURES);
   const alerts: AgronomicAlert[] = [];
@@ -333,7 +333,8 @@ export function evaluateReadingForStage(
   // Criterios propios de la especie (TASK ES6): se agregan al final sin alterar las
   // alertas generales de arriba, para que una especie indicada no cambie cómo se
   // evalúa el suelo frío, salino o seco (T45). Usan la misma regla de calidad y vigencia:
-  // un pH ausente, inválido o de una captura antigua no se compara con la especie.
+  // un dato ausente, inválido o de una captura antigua no se compara con la especie. Los
+  // criterios de la especie que dependen del pronóstico se evalúan en contextualAdvice.ts.
   const speciesAlerts = evaluateSpeciesCriteria(speciesId, stage, reading, language, usable);
   alerts.push(...speciesAlerts);
 
