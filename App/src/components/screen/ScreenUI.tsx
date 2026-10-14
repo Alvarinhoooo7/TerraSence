@@ -12,18 +12,20 @@ import { EntryHeading, EntryLayout, useEntryMetrics } from '../entry/EntryUI';
  * mayúsculas sobre un título grande, opciones como las del selector de idioma
  * y la acción principal abajo, fuera del desplazamiento.
  */
-export function ScreenLayout({ eyebrow, title, description, onBack, backLabel, action, leading, footer, children, align = 'top', tabBar = false, keyboardAware = false, fill = false, onHeadingPress }: React.PropsWithChildren<{
+export function ScreenLayout({ eyebrow, title, description, onBack, backLabel, action, leading, footer, children, align = 'top', tabBar = false, keyboardAware = false, fill = false, embedded = false, onHeadingPress }: React.PropsWithChildren<{
   eyebrow?: string; title: string; description?: string; onBack?: () => void; backLabel?: string;
   action?: React.ReactNode; footer?: React.ReactNode; align?: 'center' | 'top'; tabBar?: boolean; keyboardAware?: boolean;
   /** Contenido a la izquierda de la barra superior cuando la pantalla no tiene «volver». */
   leading?: React.ReactNode;
   /** El contenido ocupa el alto libre de la pantalla: un hijo con `flexGrow` se estira y empuja lo que sigue hacia abajo. */
   fill?: boolean;
+  /** Página dentro de un carrusel (ResultPager): sin área segura propia; barra y pie los pone el carrusel. */
+  embedded?: boolean;
   /** Sólo para gestos de desarrollo; no es un control visible. */
   onHeadingPress?: () => void;
 }>) {
   const { spacing } = useEntryMetrics();
-  return <EntryLayout align={align} tabBar={tabBar} keyboardAware={keyboardAware}
+  return <EntryLayout align={align} tabBar={tabBar} keyboardAware={keyboardAware} embedded={embedded}
     header={onBack || action || leading ? <ScreenTopBar onBack={onBack} backLabel={backLabel} action={action} leading={leading} /> : undefined}
     footer={footer ? <View style={{ gap: 10, paddingTop: 8 }}>{footer}</View> : undefined}>
     <View style={{ gap: spacing, paddingTop: onBack || action || leading ? 0 : 8, flexGrow: fill ? 1 : 0 }}>

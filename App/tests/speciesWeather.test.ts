@@ -34,11 +34,13 @@ const citesNumber = (text: string, n: number) => {
 const conditionCriteria = Object.values(SPECIES_RULES).flatMap(profile => profile.criteria
   .flatMap(c => c.kind === 'air_temperature' || c.kind === 'reading' ? [{ id: profile.speciesId, c }] : []));
 
-test('ES6: las 32 especies con perfil tienen criterios en vegetativo, floración y cosecha; la única brecha es documentada', () => {
+test('ES6: las 32 especies con perfil tienen criterios en vegetativo, floración y cosecha', () => {
   const gaps = Object.keys(SPECIES_RULES).flatMap(id => STAGES.filter(stage => !hasEnabledCriteria(id, stage)).map(stage => `${id}/${stage}`));
-  // Olivo: la fila de frutos del cuadro de INIA es ambigua y no hay otra fuente verificada para cosecha.
-  assert.deepEqual(gaps, ['sp.olivo/cosecha']);
+  assert.deepEqual(gaps, []);
   assert.equal(Object.keys(SPECIES_RULES).length, 32);
+  for (const profile of Object.values(SPECIES_RULES)) {
+    assert.equal(profile.establishment, profile.horizon === 'annual' ? 'not_specified' : 'established_plantation', profile.speciesId);
+  }
 });
 
 test('ES6: cada umbral climático o de lectura figura en el valor original de su fuente, con la conversión de °F declarada', () => {
@@ -62,10 +64,18 @@ test('ES6: cada umbral climático o de lectura figura en el valor original de su
 test('ES6: cada criterio de condición es coherente y tiene sus textos en ambos idiomas', () => {
   for (const profile of Object.values(SPECIES_RULES)) for (const c of profile.criteria as readonly SpeciesCriterion[]) {
     if (c.kind === 'ph') continue;
-    assert.ok(c.effect.trim() && c.effectEn.trim(), `${profile.speciesId}: efecto sin texto`);
-    assert.doesNotMatch(c.effectEn + c.noteEn + c.limitationsEn, /[áéíóúñ¿¡]|\b(la|el|helada|lluvia)\b/i, `${profile.speciesId}: inglés con español`);
+    const effectEn = 'effectEn' in c ? c.effectEn : '';
+    if ('effect' in c) assert.ok(c.effect.trim() && c.effectEn.trim(), `${profile.speciesId}: efecto sin texto`);
+    assert.doesNotMatch(effectEn + c.noteEn + c.limitationsEn, /[áéíóúñ¿¡]|\b(la|el|helada|lluvia)\b/i, `${profile.speciesId}: inglés con español`);
+    if ('advice' in c) {
+      // El consejo lo lee el agricultor: lenguaje simple, sin citas, °F ni términos técnicos.
+      assert.ok(c.advice.trim() && c.adviceEn.trim(), `${profile.speciesId}: consejo sin texto`);
+      assert.doesNotMatch(c.advice + c.adviceEn, /INIA|FAO|Extension|University|Fuente|Source|°F|documenta|extracto|\bky\b/i, `${profile.speciesId}: consejo técnico`);
+      assert.doesNotMatch(c.adviceEn, /[áéíóúñ¿¡]/, `${profile.speciesId}: consejo en inglés con español`);
+    }
     if (c.kind === 'air_temperature') {
-      assert.ok(c.extreme === 'minimum' ? /below/.test(c.comparison) : /above/.test(c.comparison), `${profile.speciesId}: extremo y comparación`);
+      // La máxima sólo se compara hacia arriba (calor); la mínima, hacia abajo (helada) o hacia arriba (noche cálida).
+      if (c.extreme === 'maximum') assert.match(c.comparison, /above/, `${profile.speciesId}: máxima y comparación`);
       assert.ok(c.threshold.value >= -15 && c.threshold.value <= 45, `${profile.speciesId}: ${c.threshold.value} °C fuera de dominio`);
     }
   }
@@ -79,8 +89,9 @@ test('ES6/T15: cada umbral del pronóstico respeta su frontera, a ambos lados y 
   for (const profile of Object.values(SPECIES_RULES)) for (const c of profile.criteria) {
     if (c.kind !== 'air_temperature') continue;
     const inclusive = c.comparison === 'at_or_below' || c.comparison === 'at_or_above';
-    const beyond = Math.round((c.threshold.value + (c.extreme === 'minimum' ? -0.1 : 0.1)) * 10) / 10;
-    const inside = Math.round((c.threshold.value + (c.extreme === 'minimum' ? 0.1 : -0.1)) * 10) / 10;
+    const below = /below/.test(c.comparison);
+    const beyond = Math.round((c.threshold.value + (below ? -0.1 : 0.1)) * 10) / 10;
+    const inside = Math.round((c.threshold.value + (below ? 0.1 : -0.1)) * 10) / 10;
     const key = c.extreme === 'minimum' ? 'minimumTemperatureC' : 'maximumTemperatureC';
     const titles = (value: number) => weatherFor(profile.speciesId, c.stages[0], forecast({ [key]: value })).findings.map(f => f.title);
     const has = (value: number) => titles(value).some(t => t.startsWith(c.effect));
@@ -97,12 +108,15 @@ test('ES6: hortaliza sensible a helada advierte desde 0 °C; tomate se agrava a 
   assert.equal(frost.findings.length, 1);
   assert.equal(frost.findings[0].type, 'warning');
   assert.equal(frost.findings[0].when, 'next_days');
-  assert.match(frost.findings[0].title, /^Helada prevista: esta especie no la tolera — mínima -0,4 °C el día 1$/);
-  assert.match(frost.findings[0].body, /Días: día 1 y día 2\./);
-  assert.match(frost.findings[0].body, /Nebraska Extension.*South Dakota State/);
+  assert.match(frost.findings[0].title, /^Helada prevista: esta especie no la tolera — mínima de -0,4 °C el día 1$/);
+  // El texto dice qué hacer en palabras simples; las fuentes van al detalle técnico.
+  assert.match(frost.findings[0].body, /^Una helada puede quemar o matar las plantas\./);
+  assert.match(frost.findings[0].body, /Días con riesgo: día 1 y día 2\./);
+  assert.doesNotMatch(frost.findings[0].body, /Nebraska|Fuente|°F/);
+  assert.match(frost.findings[0].detail, /Nebraska Extension.*South Dakota State/);
   const tomato = weatherFor('sp.tomate', 'vegetativo', forecast({ minimumTemperatureC: -2 }));
   assert.deepEqual(tomato.findings.map(f => f.type), ['danger'], 'sólo el grado más extremo del mismo episodio (T44)');
-  assert.match(tomato.findings[0].title, /congela la planta de tomate — mínima -2 °C hoy/);
+  assert.match(tomato.findings[0].title, /congela la planta de tomate — mínima de -2 °C hoy/);
   assert.equal(tomato.findings[0].when, 'today');
 });
 
@@ -112,7 +126,7 @@ test('ES6: hortaliza tolerante informa la helada leve y advierte bajo lo que doc
   assert.deepEqual(at(-1).map(f => f.type), ['info']);
   assert.deepEqual(at(-2.2).map(f => f.type), ['info'], '28 °F exacto todavía se tolera');
   assert.deepEqual(at(-2.3).map(f => f.type), ['warning']);
-  assert.match(at(-2.3)[0].title, /bajo lo que tolera esta especie \(-2,2 °C\)/);
+  assert.match(at(-2.3)[0].title, /más fuerte de lo que este cultivo resiste \(-2,2 °C\)/);
   // Puerro: la fuente documenta protección bajo 20 °F.
   const leek = (min: number) => weatherFor('sp.puerro', 'cosecha', forecast({ minimumTemperatureC: min })).findings.map(f => f.type);
   assert.deepEqual(leek(-6.7), ['info']);
@@ -132,7 +146,8 @@ test('ES6: cerezo distingue grados de helada en flor, calor en polinización y l
   assert.equal(bloom({ minimumTemperatureC: -2, maximumTemperatureC: 32 }).length, 2);
   const harvest = weatherFor('sp.cerezo', 'cosecha', forecast({}, { rainy: true }));
   assert.match(harvest.findings[0].title, /partidura de la cereza — día 1$/);
-  assert.match(harvest.findings[0].body, /1 mm o más/);
+  assert.match(harvest.findings[0].detail, /1 mm o más/);
+  assert.match(harvest.findings[0].body, /considera cosechar antes/);
   assert.match(weatherFor('sp.cerezo', 'vegetativo', forecast({ maximumTemperatureC: 37 })).findings[0].title, /limita el crecimiento/);
 });
 
@@ -140,7 +155,8 @@ test('ES6: lluvia en curso cuenta para el arándano en cosecha y niebla en flora
   const raining = weatherFor('sp.arandano', 'cosecha', { ...forecast({}), rainingNow: true });
   assert.equal(raining.findings[0].when, 'now');
   assert.match(raining.findings[0].title, /no cosechar fruta mojada — ahora$/);
-  assert.match(raining.findings[0].body, /University of Georgia/);
+  assert.match(raining.findings[0].body, /Espera a que las plantas se sequen/);
+  assert.match(raining.findings[0].detail, /University of Georgia/);
   const fog = weatherFor('sp.olivo', 'floracion', forecast({}, { fog: true }));
   assert.match(fog.findings[0].title, /caída de flores/);
   assert.deepEqual(weatherFor('sp.olivo', 'floracion', forecast({})).findings, []);
@@ -154,7 +170,7 @@ test('ES6/T05: sin pronóstico, o sin el dato que el criterio necesita, el crite
   assert.equal(noRain.evaluated, false);
   // Una especie sin criterios del pronóstico en la etapa no los informa como pendientes.
   assert.deepEqual(weatherFor('sp.palto', 'cosecha', null), { applicable: false, evaluated: false, findings: [] });
-  assert.equal(hasWeatherCriteria('sp.olivo', 'cosecha'), false);
+  assert.equal(hasWeatherCriteria('sp.arandano', 'vegetativo'), false);
   assert.equal(hasWeatherCriteria('sp.tomate', 'cosecha'), true);
 });
 
@@ -202,8 +218,10 @@ test('ES6: el plan agrega los criterios climáticos de la especie y no cambia na
   const general = evaluateReadingForStage(raw, 'floracion', 'es', { capturedAt: now, evaluatedAt: now }, null);
   const withSpecies = buildContextualAdvice('floracion', evaluation, raw, frostyWeather(), 'es', context, 'sp.frutilla');
   const titles = withSpecies.recommendations!.map(r => r.title);
-  assert.ok(titles.some(t => /daña las flores abiertas de frutilla — mínima -1,5 °C el mié 14 oct/.test(t)), titles.join(' | '));
-  assert.ok(titles.some(t => /aborto floral — máxima 33 °C el vie 16 oct/.test(t)), titles.join(' | '));
+  assert.ok(titles.some(t => /daña las flores abiertas de frutilla — mínima de -1,5 °C el mié 14 oct/.test(t)), titles.join(' | '));
+  assert.ok(titles.some(t => /aborto floral — máxima de 33 °C el vie 16 oct/.test(t)), titles.join(' | '));
+  // Cada hallazgo de la especie lleva su respaldo técnico aparte.
+  assert.ok(withSpecies.recommendations!.filter(r => /frutilla|aborto/.test(r.title)).every(r => /Fuente:/.test(r.detail ?? '')));
   assert.ok(withSpecies.recommendations!.filter(r => r.kind === 'weather' && /frutilla|aborto/.test(r.title)).every(r => r.when === 'next_days'));
   // Sin especie, ninguna recomendación de especie aparece (T45).
   const without = buildContextualAdvice('floracion', general, raw, frostyWeather(), 'es', context, null);
@@ -213,19 +231,34 @@ test('ES6: el plan agrega los criterios climáticos de la especie y no cambia na
   const en = buildContextualAdvice('floracion', evaluateReadingForStage(raw, 'floracion', 'en', { capturedAt: now, evaluatedAt: now }, 'sp.frutilla'),
     raw, frostyWeather(), 'en', context, 'sp.frutilla');
   const frostEn = en.recommendations!.find(r => /strawberry blossoms/.test(r.title))!;
-  assert.match(frostEn.title, /low -1\.5 °C on Wed Oct 14/);
-  assert.doesNotMatch(frostEn.title + frostEn.body, /mínima|Fuente|helada/);
+  assert.match(frostEn.title, /low of -1\.5 °C on Wed Oct 14/);
+  assert.doesNotMatch(frostEn.title + frostEn.body + frostEn.detail, /mínima|Fuente|helada/);
+});
+
+test('ES6: si el pronóstico no cumple ningún criterio de la especie, el plan lo dice en vez de callar', () => {
+  // Cerezo en cosecha sólo tiene el criterio de lluvia, y este pronóstico es seco.
+  const evaluation = evaluateReadingForStage(raw, 'cosecha', 'es', { capturedAt: now, evaluatedAt: now }, 'sp.cerezo');
+  const advice = buildContextualAdvice('cosecha', evaluation, raw, frostyWeather(), 'es', context, 'sp.cerezo');
+  const note = advice.recommendations!.find(r => r.title === 'Clima sin riesgos para este cultivo');
+  assert.ok(note);
+  assert.equal(note!.kind, 'monitoring');
+  assert.ok(!advice.recommendations!.some(r => /partidura/.test(r.title)));
+  // Con un hallazgo, la nota no aparece.
+  const frost = buildContextualAdvice('cosecha', evaluateReadingForStage(raw, 'cosecha', 'es', { capturedAt: now, evaluatedAt: now }, 'sp.olivo'),
+    raw, frostyWeather(), 'es', context, 'sp.olivo');
+  assert.ok(frost.recommendations!.some(r => /aceituna/.test(r.title)));
+  assert.ok(!frost.recommendations!.some(r => r.title === 'Clima sin riesgos para este cultivo'));
 });
 
 test('ES6: sin pronóstico vigente el plan dice que los criterios climáticos de la especie no se evaluaron', () => {
   const evaluation = evaluateReadingForStage(raw, 'cosecha', 'es', { capturedAt: now, evaluatedAt: now }, 'sp.cerezo');
   const advice = buildContextualAdvice('cosecha', evaluation, raw, null, 'es', context, 'sp.cerezo');
-  assert.ok(advice.recommendations!.some(r => r.title === 'Criterios climáticos de la especie sin evaluar'));
+  assert.ok(advice.recommendations!.some(r => r.title === 'No pudimos revisar el clima para este cultivo'));
   // Un pronóstico de otra captura no se atribuye a este campo (T29): tampoco evalúa la especie.
   const other = buildContextualAdvice('cosecha', evaluation, raw, frostyWeather(), 'es', { ...context, captureId: 'otra' }, 'sp.cerezo');
-  assert.ok(other.recommendations!.some(r => r.title === 'Criterios climáticos de la especie sin evaluar'));
-  // Una especie sin criterios del pronóstico en la etapa no agrega el aviso.
-  const olive = buildContextualAdvice('cosecha', evaluateReadingForStage(raw, 'cosecha', 'es', { capturedAt: now, evaluatedAt: now }, 'sp.olivo'),
-    raw, null, 'es', context, 'sp.olivo');
-  assert.ok(!olive.recommendations!.some(r => r.title === 'Criterios climáticos de la especie sin evaluar'));
+  assert.ok(other.recommendations!.some(r => r.title === 'No pudimos revisar el clima para este cultivo'));
+  // Una especie sin criterios del pronóstico en la etapa (arándano en vegetativo) no agrega el aviso.
+  const olive = buildContextualAdvice('vegetativo', evaluateReadingForStage(raw, 'vegetativo', 'es', { capturedAt: now, evaluatedAt: now }, 'sp.arandano'),
+    raw, null, 'es', context, 'sp.arandano');
+  assert.ok(!olive.recommendations!.some(r => r.title === 'No pudimos revisar el clima para este cultivo'));
 });

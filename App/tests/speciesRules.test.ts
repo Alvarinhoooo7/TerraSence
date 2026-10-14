@@ -91,17 +91,24 @@ test('ES6/T15: arándano distingue óptimo, fuera del óptimo y límites documen
   // En cosecha el arándano sólo tiene el criterio de lluvia, que se evalúa con el pronóstico.
   assert.equal(hasEnabledCriteria('sp.arandano', 'cosecha'), true);
   assert.equal(at(4.8).type, 'info');
-  assert.match(at(4.8).title, /dentro del óptimo documentado para esta especie \(4,5–5,3\)/);
+  // El título y el texto están en lenguaje simple; la clasificación técnica queda en el detalle.
+  assert.equal(at(4.8).title, 'pH adecuado para este cultivo');
+  assert.equal(at(4.8).action, 'pH medido: 4,8. Ideal para este cultivo: 4,5 a 5,3. Está dentro de lo ideal.');
+  assert.match(at(4.8).detail!, /dentro del óptimo documentado para esta especie \(4,5–5,3\)/);
   // Entre 4,3 y 4,5 está bajo el ideal, pero la fuente sólo indica encalar bajo 4,3.
   assert.equal(at(4.4).type, 'info');
-  assert.match(at(4.4).title, /bajo el óptimo \(4,5–5,3\).*sobre su mínimo \(4,3\)/);
+  assert.equal(at(4.4).title, 'pH algo bajo para este cultivo');
+  assert.match(at(4.4).action, /no hace falta corregir/);
+  assert.match(at(4.4).detail!, /bajo el óptimo \(4,5–5,3\).*sobre su mínimo \(4,3\)/);
   assert.equal(at(4.2).type, 'warning');
   assert.equal(at(5.3).type, 'info');
   assert.equal(at(5.4).type, 'warning');
-  assert.match(at(5.4).title, /sobre el máximo documentado para esta especie \(5,3\)/);
-  assert.match(at(4.2).action, /University of Maryland Extension/);
+  assert.equal(at(5.4).title, 'pH demasiado alto para este cultivo (suelo alcalino)');
+  assert.match(at(5.4).detail!, /sobre el máximo documentado para esta especie \(5,3\)/);
+  assert.match(at(4.2).detail!, /University of Maryland Extension/);
   assert.match(at(4.2).action, /laboratorio/);
-  assert.match(at(5.4, 'en').title, /above the documented maximum for this species \(5\.3\)/);
+  assert.doesNotMatch(at(4.2).action, /University|Fuente|documentado/, 'el texto simple no cita la fuente');
+  assert.match(at(5.4, 'en').detail!, /above the documented maximum for this species \(5\.3\)/);
   assert.deepEqual(evaluateSpeciesCriteria('sp.arandano', 'cosecha', { ...raw, ph: 4.2 }, 'es'), []);
 });
 
@@ -109,36 +116,38 @@ test('ES6: tomate combina el óptimo de INIA con el mínimo de encalado y no inv
   const at = (ph: number) => evaluateSpeciesCriteria('sp.tomate', 'floracion', { ...raw, ph }, 'es')[0];
   assert.equal(at(5.9).type, 'warning');
   assert.equal(at(6.0).type, 'info');
-  assert.match(at(6.2).title, /dentro del óptimo documentado para esta especie \(6–6,5\)/);
+  assert.match(at(6.2).detail!, /dentro del óptimo documentado para esta especie \(6–6,5\)/);
   assert.equal(at(7.8).type, 'info', 'INIA documenta tomate establecido con pH 8');
-  assert.match(at(7.8).title, /no hay un máximo documentado/);
-  assert.match(at(7.8).action, /INIA; University of Maryland Extension/);
+  assert.equal(at(7.8).title, 'pH algo alto para este cultivo');
+  assert.match(at(7.8).detail!, /no hay un máximo documentado/);
+  assert.match(at(7.8).detail!, /INIA; University of Maryland Extension/);
 });
 
 test('ES6: papa sólo advierte bajo el mínimo común a ambos grupos de variedades', () => {
   const at = (ph: number) => evaluateSpeciesCriteria('sp.papa', 'vegetativo', { ...raw, ph }, 'es')[0];
   assert.equal(at(4.9).type, 'warning');
   for (const ph of [5.0, 5.3, 6.0, 7.0]) assert.equal(at(ph).type, 'info', `pH ${ph}`);
-  assert.match(at(5.3).action, /variedad/);
+  assert.match(at(5.3).detail!, /variedad/);
 });
 
 test('ES6: una hortaliza con valor objetivo único lo nombra como objetivo, no como rango', () => {
   const lettuce = (ph: number, language: 'es' | 'en' = 'es') => evaluateSpeciesCriteria('sp.lechuga', 'vegetativo', { ...raw, ph }, language)[0];
-  assert.match(lettuce(6.5).title, /en el objetivo documentado para esta especie \(6,5\)/);
-  assert.match(lettuce(6.2).title, /bajo el objetivo 6,5 documentado para esta especie, sobre su mínimo \(6\)/);
-  assert.match(lettuce(7.2).title, /sobre el objetivo 6,5 .*no hay un máximo documentado/);
-  assert.match(lettuce(5.9).title, /bajo el mínimo documentado para esta especie \(6\)/);
-  assert.match(lettuce(5.9).action, /materia orgánica/);
-  assert.match(lettuce(7.2, 'en').title, /above this species' documented target 6\.5; no maximum is documented/);
+  assert.match(lettuce(6.5).detail!, /en el objetivo documentado para esta especie \(6,5\)/);
+  assert.match(lettuce(6.5).action, /Ideal para este cultivo: 6,5\./, 'un valor objetivo, no un rango');
+  assert.match(lettuce(6.2).detail!, /bajo el objetivo 6,5 documentado para esta especie, sobre su mínimo \(6\)/);
+  assert.match(lettuce(7.2).detail!, /sobre el objetivo 6,5 .*no hay un máximo documentado/);
+  assert.match(lettuce(5.9).detail!, /bajo el mínimo documentado para esta especie \(6\)/);
+  assert.match(lettuce(5.9).detail!, /materia orgánica/);
+  assert.match(lettuce(7.2, 'en').detail!, /above this species' documented target 6\.5; no maximum is documented/);
   // El texto en inglés no mezcla español.
-  assert.doesNotMatch(lettuce(5.9, 'en').action, /laboratorio|Fuente|objetivo/);
+  assert.doesNotMatch(lettuce(5.9, 'en').action + lettuce(5.9, 'en').detail, /laboratorio|Fuente|objetivo/);
 });
 
 test('ES6: un pH ausente, no finito o que no se puede interpretar no se compara con la especie', () => {
   for (const ph of [Number.NaN, Number.POSITIVE_INFINITY, null as unknown as number]) {
-    assert.deepEqual(evaluateSpeciesCriteria('sp.tomate', 'vegetativo', { ...raw, ph }, 'es'), []);
+    assert.deepEqual(evaluateSpeciesCriteria('sp.tomate', 'vegetativo', { ...raw, ph }, 'es').filter(a => a.param === 'ph'), []);
   }
-  assert.deepEqual(evaluateSpeciesCriteria('sp.tomate', 'vegetativo', { ...raw, ph: 5 }, 'es', () => false), []);
+  assert.deepEqual(evaluateSpeciesCriteria('sp.tomate', 'vegetativo', { ...raw, ph: 5 }, 'es', () => false).filter(a => a.param === 'ph'), []);
   // Una captura antigua suspende la interpretación también para la especie.
   const stale = evaluateReadingForStage({ ...raw, ph: 5 }, 'vegetativo', 'es', { capturedAt: clock.capturedAt, evaluatedAt: '2026-10-11T18:00:00.000Z' }, 'sp.tomate');
   assert.equal(stale.alerts.some(a => a.param === 'ph'), false);

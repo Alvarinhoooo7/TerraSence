@@ -129,6 +129,9 @@ export function SpeciesArt({ highlight }: { highlight: SpeciesGroup | null }) {
   </View>;
 }
 
+/** Espacio bajo el buscador, sobre el teclado, para que se vean unos tres resultados. */
+const SEARCH_RESULTS_ROOM = 220;
+
 const groupInfo = (group: SpeciesGroup) => SPECIES_GROUPS.find(g => g.id === group)!;
 
 /**
@@ -230,7 +233,7 @@ export function SpeciesPicker({ stage, value, onChange, onMissing }: {
         borderColor: query ? colors.primary : colors.border, backgroundColor: colors.background, paddingLeft: 14 }}>
         <Text accessibilityElementsHidden importantForAccessibility="no" style={{ color: colors.textSecondary, fontSize: 16 }}>⌕</Text>
         <TextInput ref={input} value={query} onChangeText={setQuery} autoCorrect={false} autoCapitalize="none" returnKeyType="search"
-          onFocus={() => revealFocus(input.current)} placeholder={t('Buscar: tomate, palta, trigo…', 'Search: tomato, avocado, wheat…')}
+          onFocus={() => revealFocus(input.current, SEARCH_RESULTS_ROOM)} placeholder={t('Buscar: tomate, palta, trigo…', 'Search: tomato, avocado, wheat…')}
           placeholderTextColor={colors.textSecondary} accessibilityLabel={t('Buscar especie', 'Search species')}
           style={{ flex: 1, minHeight: 48, fontSize: 16, color: colors.text }} />
         {!!query && <Pressable accessibilityRole="button" accessibilityLabel={t('Borrar búsqueda', 'Clear search')} onPress={() => setQuery('')}

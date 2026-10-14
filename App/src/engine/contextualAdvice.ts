@@ -13,13 +13,18 @@ import { assessWeatherEvidence, type WeatherEvaluationContext, type WeatherCover
 export type RecommendationKind = 'soil' | 'evidence' | 'weather' | 'irrigation' | 'monitoring';
 export type RecommendationTiming = 'now' | 'today' | 'next_days' | 'next_reading';
 
-/** Una recomendación del plan: tema, urgencia, cuándo aplica, título breve y explicación. */
+/**
+ * Una recomendación del plan: tema, urgencia, cuándo aplica, título breve y explicación.
+ * `body` va en lenguaje simple para el agricultor; `detail`, si existe, guarda las cifras,
+ * la fuente y las limitaciones que respaldan la recomendación.
+ */
 export interface Recommendation {
   kind: RecommendationKind;
   priority: 'high' | 'normal';
   when: RecommendationTiming;
   title: string;
   body: string;
+  detail?: string;
 }
 
 export interface ContextualAdvice {
@@ -65,6 +70,7 @@ function pickSpeciesWeather(weather: CurrentWeather, dayLabel: (date: string) =>
       rainy: finiteNumber(day.precipitationMm) || finiteNumber(day.rainProbabilityPct) ? isRainyDay(day) : null,
       fog: day.weatherCode == null ? null : weatherKind(day.weatherCode) === 'fog',
     })),
+    ...(weather.hourly ? { hours: weather.hourly.time.map((time, index) => ({ time, temperatureC: weather.hourly!.temperatureC[index] ?? null })) } : {}),
     rainingNow: isRainingNow(weather),
     fogNow: weatherKind(weather.weatherCode) === 'fog',
   };
@@ -96,19 +102,26 @@ export function buildContextualAdvice(
     seen.add(alert.action);
     // Una nota informativa (p. ej. pH dentro del óptimo de la especie) no pide actuar hoy:
     // va como seguimiento, después de lo que sí requiere revisión.
-    if (alert.type === 'info') notes.push({ kind: 'monitoring', priority: 'normal', when: 'next_reading', title: alert.title, body: alert.action });
-    else plan.push({ kind: 'soil', priority: alert.type === 'danger' ? 'high' : 'normal', when: 'today', title: alert.title, body: alert.action });
+    const detail = alert.detail ? { detail: alert.detail } : {};
+    if (alert.type === 'info') notes.push({ kind: 'monitoring', priority: 'normal', when: 'next_reading', title: alert.title, body: alert.action, ...detail });
+    else plan.push({ kind: 'soil', priority: alert.type === 'danger' ? 'high' : 'normal', when: 'today', title: alert.title, body: alert.action, ...detail });
   }
   if (!plan.length) plan.push(evaluation.state === 'insufficient_data'
     ? { kind: 'evidence', priority: 'normal', when: 'next_reading',
-      title: en ? 'Use this reading as a reference' : 'Toma esta lectura como referencia', body: evaluation.actionSummary }
+      title: en ? 'Use this reading as a reference' : 'Toma esta lectura como referencia',
+      body: en ? 'With this data we cannot give a complete diagnosis of the soil. Use it to compare with your next readings.'
+        : 'Con estos datos no podemos darte un diagnóstico completo del suelo. Úsala para comparar con tus próximas mediciones.',
+      detail: en ? 'Partial assessment: pH comparisons are indicative; probe conductivity cannot classify salinity without a compatible method; nutrient registers do not determine fertilization.'
+        : 'Evaluación parcial: las comparaciones de pH son orientativas; la conductividad de la sonda no permite clasificar salinidad sin un método compatible; los registros de nutrientes no determinan fertilización.' }
     : evaluation.verdict === 'GREEN'
       ? { kind: 'monitoring', priority: 'normal', when: 'next_reading',
-        title: en ? 'No corrections under these rules' : 'Sin correcciones bajo estas reglas',
-        body: en ? 'No corrective actions under these rules. Keep monitoring and compare representative points.' : 'Sin acciones correctivas bajo estas reglas. Mantén seguimiento y compara puntos representativos.' }
+        title: en ? 'Nothing to correct for now' : 'Nada que corregir por ahora',
+        body: en ? 'We see nothing to correct with this data. Keep watching the crop and measure other spots to compare.'
+          : 'Con estos datos no vemos nada que corregir. Sigue observando el cultivo y mide en otros puntos para comparar.' }
       : { kind: 'soil', priority: 'normal', when: 'today',
-        title: en ? 'Review the highlighted conditions' : 'Revisa las condiciones destacadas',
-        body: en ? 'Review the highlighted conditions with advice before intervening. There is no validated specific action for this stage.' : 'Revisa las condiciones destacadas con asesoría antes de intervenir. No hay una acción específica validada para esta fase.' });
+        title: en ? 'Check what is highlighted' : 'Revisa lo que aparece destacado',
+        body: en ? 'Some conditions are worth checking. Before making changes, confirm them in the field or with your advisor.'
+          : 'Hay condiciones que conviene revisar. Antes de hacer cambios, confírmalas en terreno o con tu asesor.' });
   plan.push(...notes);
 
   // Hoy cuenta como el primer día: si llueve hoy, también importa para regar o entrar al campo.
@@ -121,11 +134,18 @@ export function buildContextualAdvice(
   // y así se dice; nunca se dan por favorables.
   const speciesWeather = evaluateSpeciesWeather(speciesId, stage, weather && pickSpeciesWeather(weather, dayLabel), language);
   for (const finding of speciesWeather.findings) plan.push({ kind: 'weather', priority: finding.type === 'danger' ? 'high' : 'normal',
-    when: finding.when, title: finding.title, body: finding.body });
+    when: finding.when, title: finding.title, body: finding.body, detail: finding.detail });
+  // Revisado y sin episodios: se dice, para que la ausencia de avisos no parezca un criterio omitido.
+  if (speciesWeather.evaluated && !speciesWeather.findings.length) plan.push({ kind: 'monitoring', priority: 'normal', when: 'next_days',
+    title: en ? 'No weather risks for this crop' : 'Clima sin riesgos para este cultivo',
+    body: en ? 'No frost, heat, rain or fog that could harm this crop at this stage is expected in the coming days. It is a forecast: still check the field.'
+      : 'En los próximos días no se esperan heladas, calor, lluvia ni niebla que dañen a este cultivo en esta etapa. Es un pronóstico: igual revisa el campo.',
+    detail: en ? 'The forecast was compared with the frost, heat, rain or fog that the sources document for this species at this stage.'
+      : 'Se comparó el pronóstico con la helada, el calor, la lluvia o la niebla que las fuentes documentan para esta especie en esta etapa.' });
   if (speciesWeather.applicable && !speciesWeather.evaluated) plan.push({ kind: 'evidence', priority: 'normal', when: 'next_reading',
-    title: en ? 'Species weather criteria not evaluated' : 'Criterios climáticos de la especie sin evaluar',
-    body: en ? 'Without a current forecast, the frost, heat or rain that the sources document for this species at this stage could not be checked. Measure again with a connection to review them.'
-      : 'Sin un pronóstico vigente no se pudo revisar la helada, el calor o la lluvia que las fuentes documentan para esta especie en esta fase. Vuelve a medir con conexión para revisarlos.' });
+    title: en ? 'We could not check the weather for this crop' : 'No pudimos revisar el clima para este cultivo',
+    body: en ? 'Without an up-to-date forecast we could not check frost, heat or rain for this crop. Measure again with an internet connection.'
+      : 'Sin un pronóstico actualizado no revisamos heladas, calor ni lluvia para este cultivo. Vuelve a medir con conexión a internet.' });
 
   if (weather && isRainingNow(weather)) plan.push({ kind: 'weather', priority: 'high', when: 'now',
     title: en ? 'It is raining now' : 'Está lloviendo ahora',

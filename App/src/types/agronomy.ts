@@ -105,6 +105,8 @@ export interface AgronomicAlert {
   action: string;
   /** `species`: criterio propio de la especie indicada; se muestra en cualquier etapa aunque su parámetro no la gobierne. */
   origin?: 'species';
+  /** Cifras, fuente y limitaciones para quien quiera revisarlas; `action` queda en lenguaje simple. */
+  detail?: string;
 }
 
 export interface MetricDetail {

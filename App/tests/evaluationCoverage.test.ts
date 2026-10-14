@@ -98,7 +98,8 @@ test('E1.3: instantánea conserva estado neutral, cobertura y traducciones', () 
     const saved = JSON.parse(JSON.stringify({ presentation }));
     assert.equal(savedEvaluationState(saved), 'insufficient_data');
     assert.deepEqual(saved.presentation.coverage, result.coverage);
-    assert.match(presentation.summary, language === 'es' ? /parcial/ : /Partial/);
+    // El resumen dice en palabras simples que la evaluación no es completa.
+    assert.match(presentation.summary, language === 'es' ? /no podemos darte un diagnóstico completo/ : /cannot give you a complete diagnosis/);
     assert.match(presentation.parameters.find(p => p.key === 'ph')!.control, language === 'es' ? /parciales/ : /partial/);
   }
   assert.equal(savedEvaluationState(null), undefined);

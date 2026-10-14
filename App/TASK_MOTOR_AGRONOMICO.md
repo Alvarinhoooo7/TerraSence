@@ -22,7 +22,7 @@ Implementar por entregas la [especificación del motor agronómico](MOTOR_AGRONO
 | E6 — Resultado y persistencia | Pendiente | Selector de especie: lista de E5. Resto: E4/E5; presentación e instantánea versionadas, legibles sin recalcular |
 | E7 — Equipo y terreno | Pendiente | Capacidades habilitadas; contraste físico y revisión agronómica |
 | E8 — Extensiones justificadas | Pendiente | Base verificada; beneficio y costo demostrados |
-| ES — Especie de la medición | ES1–ES4 por software; ES5 en teléfono pendiente; ES6 con 32 especies en vegetativo, floración y cosecha (salvo olivo en cosecha) | Lista con fuentes, selector, resultado e historial; criterios por especie y etapa (ES6) en curso |
+| ES — Especie de la medición | ES1–ES4 por software; ES5 en teléfono parcial; ES6 con 32 especies en vegetativo, floración y cosecha | Lista con fuentes, selector, resultado e historial; criterios por especie y etapa (ES6) en curso |
 
 ## 2. ES — Especie de la medición
 
@@ -82,13 +82,13 @@ Trabajo prioritario: primero la app y su lista de especies (ES1–ES5); después
 ### ES5. Verificación
 
 - [x] `npm test`, `npm run type-check` y verificador documental.
-- [ ] Recorrido en teléfono Android: elegir, buscar con y sin tildes, saltar, «no se encuentra», volver atrás, letra grande, inglés, guardar sin red y abrir el historial.
+- [ ] Recorrido en teléfono Android. Hecho en un Moto g56 con Expo Go, sonda simulada y pronóstico real de Open-Meteo: elegir etapa y especie, buscar, letra grande (escala 1,3), resultado y plan de recomendaciones de cerezo, olivo y tomate, y el detalle técnico desplegable. El recorrido corrigió el buscador, que quedaba tapado por el teclado: [EntryUI.tsx](src/components/entry/EntryUI.tsx) reserva el alto del teclado en Android y [SpeciesPicker.tsx](src/components/SpeciesPicker.tsx) deja espacio para ver los resultados. Pendiente: saltar, «no se encuentra», inglés, guardar sin red y abrir el historial; la sonda simulada no guarda mediciones.
 
 ### ES6. Criterios por especie y etapa — en curso
 
 Se aborda después de ES1–ES5, empezando por las especies de mayor superficie de cada grupo. Cada criterio sigue el [proceso de incorporación](MOTOR_AGRONOMICO.md#catalogo) de la especificación.
 
-**Avance: las 32 especies con perfil tienen criterios propios en vegetativo, floración y cosecha; la única fase sin criterio es la cosecha del olivo.** pH del suelo en vegetativo y floración; clima del pronóstico (helada, frío, calor, lluvia y niebla) y lecturas del equipo (temperatura de suelo, humedad del aire) según lo que documenta cada fuente. Código: [speciesRules.ts](src/engine/speciesRules.ts) (versión de criterios `2.0.0`) y [contextualAdvice.ts](src/engine/contextualAdvice.ts); evidencia: [speciesRules.test.ts](tests/speciesRules.test.ts) y [speciesWeather.test.ts](tests/speciesWeather.test.ts).
+**Avance: las 32 especies con perfil tienen criterios propios en vegetativo, floración y cosecha.** pH del suelo; tolerancia a sales y etapa crítica de riego como referencia; clima del pronóstico (helada, frío, calor, noches cálidas, lluvia y niebla) y lecturas del equipo (temperatura de suelo, humedad del aire), según lo que documenta cada fuente. Código: [speciesRules.ts](src/engine/speciesRules.ts) (versión de criterios `2.1.0`) y [contextualAdvice.ts](src/engine/contextualAdvice.ts); evidencia: [speciesRules.test.ts](tests/speciesRules.test.ts), [speciesWeather.test.ts](tests/speciesWeather.test.ts) y [speciesCriteriaFamilies.test.ts](tests/speciesCriteriaFamilies.test.ts).
 
 **pH del suelo**, vegetativo y floración:
 
@@ -102,29 +102,45 @@ Se aborda después de ES1–ES5, empezando por las especies de mayor superficie 
 | Olivo | INIA, Boletín 101 ([S26](MOTOR_AGRONOMICO.md#s26)) | Crece bien con 5,5–8,5; preferible bajo 7,5 |
 | Arándano | University of Maryland Extension ([S18](MOTOR_AGRONOMICO.md#s18)) | Ideal 4,5–5,3; corregir bajo 4,3 o sobre 5,3 |
 
-**Clima y lecturas del equipo**, por fase:
+**Helada en hortalizas.** La clasificación es de INIA ([S36](MOTOR_AGRONOMICO.md#s36), [S37](MOTOR_AGRONOMICO.md#s37)); las temperaturas, de Nebraska ([S27](MOTOR_AGRONOMICO.md#s27)) y South Dakota State ([S28](MOTOR_AGRONOMICO.md#s28)):
+
+| Grupo de INIA | Especies | Vegetativo y floración | Cosecha |
+| --- | --- | --- | --- |
+| No toleran heladas | Berenjena, camote, maíz, melón, papa, pepino, pimiento, poroto, sandía, tomate, zapallo y zapallo italiano | Advertencia con mínima de 0 °C o menos | Igual: proteger o cosechar antes |
+| Toleran heladas débiles | Betarraga, brócoli, espinaca, rabanito, repollito de Bruselas, repollo y zanahoria | Información hasta −2,2 °C (28 °F); advertencia bajo ese valor | Igual, salvo zanahoria (cerca de madurez) |
+| Se dañan cerca de la madurez | Apio, arveja, coliflor, lechuga, perejil y zanahoria | Como las de heladas débiles; arveja en floración: aborto floral con cualquier helada | Advertencia con cualquier helada (bajo 0 °C) |
+| Toleran heladas | Cebolla, cebollín, puerro y espárrago | Información; advertencia bajo −2,2 °C (cebollas) o −6,7 °C (puerro, [S29](MOTOR_AGRONOMICO.md#s29)) | Igual; espárrago: los turiones son sensibles ([S32](MOTOR_AGRONOMICO.md#s32)) |
+
+Papa agrava bajo −2,5 °C ([S33](MOTOR_AGRONOMICO.md#s33)) y tomate se congela a −2 °C (INIA, [S23](MOTOR_AGRONOMICO.md#s23)). Zanahoria y perejil: los boletines INIA de 2007 y 1998 los clasifican distinto; en cosecha se usa el criterio más cauto y se declara. Apio, contrastado con Colorado State ([S30](MOTOR_AGRONOMICO.md#s30)).
+
+**Otros criterios de clima y lecturas del equipo:**
 
 | Especies | Vegetativo y floración | Cosecha | Fuente |
 | --- | --- | --- | --- |
-| Berenjena, camote, maíz (choclo), melón, pepino, pimiento, poroto, sandía, zapallo, zapallo italiano, apio y papa | Advertencia con mínima de 0 °C o menos: no toleran helada | Igual: proteger o cosechar antes de la helada | Nebraska ([S27](MOTOR_AGRONOMICO.md#s27)) y South Dakota State ([S28](MOTOR_AGRONOMICO.md#s28)); apio contrastado con Colorado State ([S30](MOTOR_AGRONOMICO.md#s30)); papa agrava bajo −2,5 °C ([S33](MOTOR_AGRONOMICO.md#s33)) |
-| Arveja, betarraga, brócoli, cebolla, cebollín, coliflor, espinaca, lechuga, perejil, rabanito, repollito de Bruselas, repollo y zanahoria | Helada leve hasta −2,2 °C (28 °F): información; bajo ese mínimo: advertencia | Igual | [S27](MOTOR_AGRONOMICO.md#s27), [S28](MOTOR_AGRONOMICO.md#s28); cebollín, además [S31](MOTOR_AGRONOMICO.md#s31) |
-| Puerro | Información hasta −6,7 °C (20 °F); advertencia bajo ese valor | Igual | [S29](MOTOR_AGRONOMICO.md#s29) |
-| Espárrago | Helada: información, la planta es muy resistente | Helada: advertencia, los turiones son sensibles | [S27](MOTOR_AGRONOMICO.md#s27), [S32](MOTOR_AGRONOMICO.md#s32) |
-| Tomate | Sensible a helada; −2 °C congela la planta (peligro); vegetativo: noches bajo 10 °C; floración: bajo 10 °C y sobre 35 °C | Helada | INIA ([S23](MOTOR_AGRONOMICO.md#s23)), [S27](MOTOR_AGRONOMICO.md#s27), [S28](MOTOR_AGRONOMICO.md#s28) |
+| Tomate | Vegetativo: noches bajo 10 °C. Floración: bajo 10 °C y sobre 35 °C | — | INIA ([S23](MOTOR_AGRONOMICO.md#s23)) |
+| Pimiento, zapallo y zapallo italiano | Floración: días sobre 35 °C (95 °F) y noches sobre 23,9 °C (75 °F) | — | University of Maryland ([S38](MOTOR_AGRONOMICO.md#s38)) |
+| Poroto | Floración: días sobre 35 °C y noches sobre 20 °C (68 °F) | — | [S38](MOTOR_AGRONOMICO.md#s38) |
+| Maíz | Floración: sobre 35 °C se desecan las sedas; sobre 37,8 °C (100 °F) puede morir el polen | — | Purdue ([S39](MOTOR_AGRONOMICO.md#s39)) |
 | Cerezo | Vegetativo: sobre 36 °C. Floración: daño desde −1,1 °C, 10 % de flores a −2,4 °C, 90 % a −3,9 °C (peligro), polen sobre 30 °C y lluvia | Lluvia: partidura | INIA ([S25](MOTOR_AGRONOMICO.md#s25)) |
-| Olivo | Brotes tiernos desde 0 °C; ramillas a −5 °C (peligro). Vegetativo: sobre 35 °C. Floración: niebla y humedad del aire medida bajo 50 % | Sin criterio: la fila de frutos del cuadro INIA es ambigua | INIA ([S26](MOTOR_AGRONOMICO.md#s26)) |
+| Olivo | Brotes tiernos desde 0 °C; ramillas a −5 °C (peligro). Vegetativo: sobre 35 °C. Floración: niebla y humedad del aire medida bajo 50 % | Helada bajo 0 °C sobre la aceituna en maduración | INIA ([S26](MOTOR_AGRONOMICO.md#s26), [S36](MOTOR_AGRONOMICO.md#s36)) |
 | Frutilla | Vegetativo: suelo medido a 12 °C o menos (información). Floración: flor abierta a −1,1 °C (30 °F) y sobre 32 °C | Lluvia: fruta madura expuesta a pudrición gris | INIA ([S24](MOTOR_AGRONOMICO.md#s24)), Penn State ([S34](MOTOR_AGRONOMICO.md#s34)) |
 | Arándano | Floración: −2,2 °C (28 °F), caída de pétalos | Lluvia o lluvia en curso: no cosechar fruta mojada | Penn State ([S34](MOTOR_AGRONOMICO.md#s34)), University of Georgia ([S35](MOTOR_AGRONOMICO.md#s35)) |
 
-Los criterios del pronóstico comparan la mínima o máxima diaria de hoy y los cinco días siguientes; entre los grados de un mismo extremo sólo se informa el más extremo que se cumple (T44). Sin pronóstico vigente, o sin el dato que el criterio necesita, el plan dice que los criterios climáticos de la especie no se evaluaron; nunca se dan por favorables. Una cifra en °F se conserva junto a su conversión, y una prueba exige que cada umbral figure en el valor original citado. Cuando la fuente no da temperatura («sensible a helada») se usa 0 °C como definición de helada; cuando no da cantidad de lluvia, la regla de día lluvioso de la app; ambos casos se declaran en el texto. Las alertas de especie llevan `origin: 'species'` para mostrarse aunque su parámetro no gobierne la etapa.
+Melón, sandía y pepino no tienen una fuente propia de calor en floración, y no se infiere de los zapallos.
 
-Cada criterio de pH separa el óptimo (sólo orienta) de los límites donde la fuente documenta un problema o una corrección: únicamente cruzar un límite es advertencia, y un límite no documentado queda vacío. Una prueba exige que cada cifra aparezca en el valor original citado de su fuente. Los criterios de especie usan la misma regla de calidad y vigencia que el análisis general, no cambian el estado de la evaluación cuando sólo informan, y en el plan aparecen como seguimiento. No se habilitó pH en cosecha porque no gobierna esa etapa. Frambueso (Boletín INIA 372) y palto (manual INIA 1998) se revisaron y no documentan un rango de pH: siguen sin criterio. Olivo no tiene criterio de cosecha: el cuadro 2 de INIA dice «menos de 5» para frutos, sin signo claro, y las fuentes de UC sobre helada en aceituna no estaban accesibles.
+**Referencias que no comparan la lectura.** Tolerancia a sales de FAO 29 ([S06](MOTOR_AGRONOMICO.md#s06)) en vegetativo y floración para 27 especies, con el umbral en extracto saturado cuando la tabla 4 lo da: la conductividad de la sonda no se mide así, así que nunca se clasifica con ese valor (T13). Arveja, cebollín, perejil, puerro y arándano no figuran en las tablas y no tienen referencia. Etapa crítica de riego por el factor ky de FAO 33 ([S40](MOTOR_AGRONOMICO.md#s40)): floración en arveja, maíz, poroto, sandía y tomate; crecimiento vegetativo en papa. Sin textura, la humedad medida no indica si falta agua y no se compara.
 
-- [ ] Familias de criterios por etapa. Habilitados: pH; helada por especie en las tres fases; frío y calor en floración (tomate, cerezo, frutilla) y en vegetativo (tomate, cerezo, olivo); lluvia y niebla en floración y cosecha; temperatura de suelo (frutilla) y humedad del aire (olivo). Pendientes: tolerancia salina con su método, requerimientos hídricos cualitativos, calor de floración en las hortalizas sin fuente propia y cosecha del olivo.
+**Cómo se evalúan.** Los criterios del pronóstico comparan la mínima o máxima diaria de hoy y los cinco días siguientes; entre los grados de un mismo episodio (helada, calor o noche cálida) sólo se informa el más extremo que se cumple (T44). Si el pronóstico trae la serie horaria, el texto agrega cuántas horas seguidas dura el episodio, sin cambiar su gravedad; un hueco o un cambio de hora corta la racha (T22–T24). Sin pronóstico vigente, o sin el dato que el criterio necesita, el plan dice que no pudo revisar el clima del cultivo; si lo revisó y no hay riesgo, también lo dice. Nunca se dan por favorables. Una cifra en °F se conserva junto a su conversión, y una prueba exige que cada umbral figure en el valor original citado. Cuando la fuente no da temperatura («sensible a helada») se usa 0 °C como definición de helada; cuando no da cantidad de lluvia, la regla de día lluvioso de la app; ambos casos se declaran. Las alertas de especie llevan `origin: 'species'` para mostrarse aunque su parámetro no gobierne la etapa.
+
+**Cómo se presentan.** Cada recomendación tiene un título y un texto en lenguaje simple: qué pasa, qué significa para el cultivo y qué conviene hacer (campo `advice` de cada criterio). Las cifras de la fuente, sus limitaciones y la cita van al campo `detail`, que el plan muestra en «Detalle técnico y fuente», cerrado por defecto. Una prueba impide que el texto simple cite fuentes, °F o términos como «extracto» o «ky». La instantánea guarda `rulesVersion` junto a la versión del catálogo (T39).
+
+Cada criterio de pH separa el óptimo (sólo orienta) de los límites donde la fuente documenta un problema o una corrección: únicamente cruzar un límite es advertencia, y un límite no documentado queda vacío. Los criterios de especie usan la misma regla de calidad y vigencia que el análisis general, no cambian el estado de la evaluación cuando sólo informan, y en el plan aparecen como seguimiento. No se habilitó pH en cosecha porque no gobierna esa etapa. Frambueso (Boletín INIA 372) y palto (manual INIA 1998) se revisaron y no documentan un rango de pH: siguen sin criterio. La fila de frutos del cuadro 2 del Boletín INIA 101 («menos de 5») es ambigua y no se usa; la helada sobre la aceituna proviene del Boletín INIA 165.
+
+- [ ] Familias de criterios por etapa. Habilitados: pH; helada por especie en las tres fases; frío y calor en floración y vegetativo cuando hay fuente; noches cálidas; lluvia y niebla; temperatura de suelo (frutilla) y humedad del aire (olivo); tolerancia a sales y etapa crítica de riego como referencias. Pendientes: calor en floración de melón, sandía y pepino, y comparar la salinidad cuando exista un método compatible para la conductividad de la sonda.
 - [ ] Fuentes por prioridad: institucionales chilenas (INIA, ODEPA, universidades), extensión agrícola con tablas citables (UC ANR y equivalentes), FAO y ECOCROP sólo como índice para localizar evidencia.
-- [ ] Registro por criterio: valor original, unidad, conversión, etapa, forma de establecimiento, contexto, fuente con sección o tabla y fecha de consulta. Todos los criterios registran valor original, unidad y conversión de °F, etapa, contexto, fuente con sección o tabla y fecha; falta la forma de establecimiento.
+- [x] Registro por criterio: valor original, unidad, conversión de °F, etapa, contexto, fuente con sección o tabla y fecha de consulta. La forma de establecimiento se registra por perfil: las tablas de hortalizas no distinguen semilla, almácigo ni trasplante (`not_specified`), y las de frutales y berries describen plantaciones establecidas (`established_plantation`).
 - [ ] Estados por criterio (candidato, documentado, habilitado) y exposición en el catálogo de qué etapas tienen criterios.
-- [ ] Conectar `species-rules` al motor sin alterar las alertas generales; pasar T15–T19, T42, T45 y T46. Conectado y probado para pH, lecturas del equipo y pronóstico: T05, T15, T44, T45 y T46 pasan para los criterios de especie; T16–T19 y T42 esperan los perfiles de pre-siembra y la explicación de evaluación parcial de perennes.
+- [ ] Conectar `species-rules` al motor sin alterar las alertas generales; pasar T15–T19, T42, T45 y T46. Conectado y probado para pH, lecturas del equipo, referencias y pronóstico: T05, T13, T15, T22–T24, T39, T44, T45 y T46 pasan para los criterios de especie; T16–T19 y T42 esperan los perfiles de pre-siembra y la explicación de evaluación parcial de perennes.
 
 ## 3. E1 — Calidad y contratos
 
@@ -197,7 +213,7 @@ Cada criterio de pH separa el óptimo (sólo orienta) de los límites donde la f
 **Dependencia:** E1; revisar [contrato del proveedor](https://open-meteo.com/en/docs) antes de activar grupos.
 
 - [ ] Verificar variables, unidades y disponibilidad con respuestas reales para Chile y conservar fixtures reproducibles.
-- [ ] Incorporar lo que queda del día e intervalos horarios sin deducir horas desde resúmenes diarios. Avance: el día de la consulta (`today`) y el tiempo actual por código WMO (`weatherCode`, diario y actual) ya se piden, validan y guardan; hoy cuenta en las alertas de lluvia, helada y calor, y la lluvia en curso abre el plan. La serie horaria sigue pendiente. Código: [weatherService.ts](src/services/weatherService.ts), [weatherOutlook.ts](src/engine/weatherOutlook.ts); evidencia: [weatherOutlook.test.ts](tests/weatherOutlook.test.ts), con la forma de una respuesta real del 12 de octubre de 2026 en Santiago.
+- [ ] Incorporar lo que queda del día e intervalos horarios sin deducir horas desde resúmenes diarios. Avance: el día de la consulta (`today`) y el tiempo actual por código WMO (`weatherCode`, diario y actual) ya se piden, validan y guardan; hoy cuenta en las alertas de lluvia, helada y calor, y la lluvia en curso abre el plan. La temperatura horaria del aire (`hourly`) se pide, se valida (unidad °C, horas repetidas o inválidas descartadas) y sólo se usa para estimar cuántas horas dura un episodio de los criterios de especie; no se guarda en el diagnóstico. Faltan el resto de variables horarias y los intervalos de lo que queda del día. Código: [weatherService.ts](src/services/weatherService.ts), [weatherOutlook.ts](src/engine/weatherOutlook.ts); evidencia: [weatherOutlook.test.ts](tests/weatherOutlook.test.ts), con la forma de una respuesta real del 12 de octubre de 2026 en Santiago.
 - [ ] Normalizar intervalos y cambios de hora de Chile; los huecos interrumpen la continuidad.
 - [ ] Mantener separados probabilidad, cantidad y componentes de precipitación; evitar dobles conteos de agua y evapotranspiración de referencia.
 - [ ] Añadir caché y política de vigencia vinculadas a ubicación/producto; conservar errores parciales.
@@ -235,7 +251,7 @@ El selector de especie, su guardado y su presentación se trabajan en [ES](#2-es
 
 - [ ] Integrar el resultado nuevo en las pantallas existentes, mostrando la limitación que cambia la interpretación.
 - [x] Plan de recomendaciones estructurado (tema, urgencia, momento, título y explicación) en `ContextualAdvice.recommendations` y en la presentación v3 como campo opcional; las lecturas anteriores siguen mostrando sus acciones. Es la última pantalla del resultado, después del clima. Evidencia: [weatherOutlook.test.ts](tests/weatherOutlook.test.ts).
-- [x] Pantalla de clima con «Hoy · ahora», resumen de los próximos días y franja compacta; páginas de lecturas con explicación e ilustración; navegación por deslizamiento tipo carrusel y batería de la sonda en la barra superior.
+- [x] Pantalla de clima con «Hoy · ahora», resumen de los próximos días y franja compacta; páginas de lecturas con explicación e ilustración; carrusel real como el de la bienvenida ([MeasurementResultFlow.tsx](src/components/MeasurementResultFlow.tsx), `ResultPager`): las páginas del resultado y las del detalle de variables van una al lado de la otra, así que al deslizar entra la siguiente por partes; la barra superior con la batería y el pie con el avance quedan fijos, y los botones y el atrás del teléfono desplazan el carrusel.
 - [x] Historial filtrable por especie y agrupable por fecha, especie o etapa, leyendo la instantánea guardada; el backoffice muestra la especie ([migración](../supabase/migrations/20261012120000_especie_en_mediciones_soporte.sql)). Evidencia: [measurementHistory.test.ts](tests/measurementHistory.test.ts).
 - [ ] Incorporar detalle opcional de alternativas sin convertir su consulta en selección de cultivo.
 - [ ] Ampliar pronóstico con comparación temporal y derivados identificados, sin pasos obligatorios nuevos.
@@ -276,6 +292,6 @@ python docs/verificar_documentacion.py
 
 El verificador incluye esta tarea y la especificación. Las pruebas de calidad de entrada y del servicio climático pertenecen al comando habitual de la app. E1.1/E1.2 no requieren dependencias ni migraciones nuevas.
 
-**Resultados de verificación del incremento:** `npm test` aprobó la suite completa (359 pruebas) y `npm run type-check` terminó sin errores; el verificador documental, con 0 errores. Las pantallas se revisaron en un teléfono Android mediante Expo Go con lecturas simuladas y el pronóstico real de Open-Meteo. Son comprobaciones de software, no ensayos con la sonda.
+**Resultados de verificación del incremento:** `npm test` aprobó la suite completa (368 pruebas) y `npm run type-check` terminó sin errores; el verificador documental, con 0 errores. Las pantallas se revisaron en un teléfono Android mediante Expo Go con lecturas simuladas y el pronóstico real de Open-Meteo. Son comprobaciones de software, no ensayos con la sonda.
 
 **Revisión pendiente fuera de las pruebas automatizadas:** ejecución en teléfono y proveedor real. No se declara validación de terreno, precisión instrumental ni cierre completo de E1.

@@ -28,6 +28,12 @@ export interface CurrentWeather {
   dailyPrecipitationMm: number | null;
   minimumTemperatureC: number | null;
   maximumTemperatureC: number | null;
+  /**
+   * Temperatura horaria del aire a 2 m, en hora local del proveedor (`AAAA-MM-DDTHH:mm`).
+   * Sólo sirve para estimar cuántas horas dura un episodio; ausente en diagnósticos
+   * anteriores y cuando la serie no llega o su unidad no es °C.
+   */
+  hourly?: { time: string[]; temperatureC: (number | null)[] };
   fetchedAt: string;
   inputQuality: {
     version: 1;
@@ -72,6 +78,8 @@ export function normalizeWeather(payload: unknown, fetchedAt: string): CurrentWe
   const daily = record(root.daily);
   const currentUnits = record(root.current_units);
   const dailyUnits = record(root.daily_units);
+  const hourlyBlock = record(root.hourly);
+  const hourlyUnits = record(root.hourly_units);
   const timezone = typeof root.timezone === 'string' ? root.timezone : 'auto';
   const currentTime = typeof current.time === 'string' && /^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):[0-5]\d$/.test(current.time)
     ? current.time : null;
@@ -164,6 +172,13 @@ export function normalizeWeather(payload: unknown, fetchedAt: string): CurrentWe
   const hasDailyData = [day, ...forecast].some(item =>
     [item.minimumTemperatureC, item.maximumTemperatureC, item.precipitationMm, item.rainProbabilityPct].some(value => value !== null));
   if (!hasDailyData && temperatureC === null && precipitationMm === null && windKmh === null) return null;
+  // Serie horaria: la hora inválida o repetida se descarta; un valor ausente queda null.
+  const hourlyTimes = Array.isArray(hourlyBlock.time) ? hourlyBlock.time : [];
+  const hourlyValues = Array.isArray(hourlyBlock.temperature_2m) ? hourlyBlock.temperature_2m : [];
+  const hourly = hourlyUnits.temperature_2m === '°C' && hourlyTimes.length && hourlyTimes.length === hourlyValues.length
+    ? hourlyTimes.flatMap((time, index) => typeof time === 'string' && /^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):00$/.test(time)
+      && hourlyTimes.indexOf(time) === hourlyTimes.lastIndexOf(time) ? [{ time, temperatureC: finite(hourlyValues[index]) }] : [])
+    : [];
   return {
     forecast, today: day, source: 'Open-Meteo', timezone, temperatureC, precipitationMm, windKmh,
     weatherCode: currentDate ? weatherCodeOf(current.weather_code) : null,
@@ -171,6 +186,7 @@ export function normalizeWeather(payload: unknown, fetchedAt: string): CurrentWe
     dailyPrecipitationMm: day.precipitationMm,
     minimumTemperatureC: day.minimumTemperatureC,
     maximumTemperatureC: day.maximumTemperatureC,
+    ...(hourly.length ? { hourly: { time: hourly.map(h => h.time), temperatureC: hourly.map(h => h.temperatureC) } } : {}),
     fetchedAt, inputQuality,
   };
 }
@@ -190,6 +206,7 @@ export async function fetchCurrentWeather(
       `?latitude=${latitude}&longitude=${longitude}` +
       '&current=temperature_2m,precipitation,wind_speed_10m,weather_code' +
       '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,weather_code' +
+      '&hourly=temperature_2m' +
       '&forecast_days=6&timezone=auto' +
       '&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm';
     const response = await fetch(url, { signal: controller.signal });

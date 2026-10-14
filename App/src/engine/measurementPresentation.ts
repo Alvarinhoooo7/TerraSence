@@ -6,6 +6,7 @@ import { STAGE_DRIVERS, localizedStageTitle } from './stageEvaluator';
 import type { ContextualAdvice, Recommendation } from './contextualAdvice';
 import type { AppLanguage } from '../types/preferences';
 import { SPECIES_CATALOG_VERSION, findSpecies, hasStageCriteria } from './speciesCatalog';
+import { SPECIES_RULES_VERSION } from './speciesRules';
 
 export const PARAMETER_KEYS = ['vwc', 'temp', 'ph', 'ec', 'nitrogen', 'phosphorus', 'potassium', 'airTemp', 'airHumidity', 'airPressure'] as const;
 export type ParameterKey = typeof PARAMETER_KEYS[number];
@@ -26,6 +27,8 @@ export interface PresentationSpecies {
   en: string;
   scientific: string;
   catalogVersion: string;
+  /** Versión de los criterios por especie con que se evaluó (`SPECIES_RULES_VERSION`); ausente en lecturas anteriores. */
+  rulesVersion?: string;
   /** Si al medir había criterios propios de la especie para la etapa. */
   hasStageCriteria: boolean;
 }
@@ -68,7 +71,7 @@ const STAGE_NAMES: Record<PhenologicalStage, [string, string]> = {
 export function presentationSpecies(speciesId: string | null | undefined, stage: PhenologicalStage): PresentationSpecies | null {
   const entry = stage === 'pre_siembra' ? undefined : findSpecies(speciesId);
   return entry ? { id: entry.id, es: entry.es, en: entry.en, scientific: entry.scientific,
-    catalogVersion: SPECIES_CATALOG_VERSION, hasStageCriteria: hasStageCriteria(entry.id, stage) } : null;
+    catalogVersion: SPECIES_CATALOG_VERSION, rulesVersion: SPECIES_RULES_VERSION, hasStageCriteria: hasStageCriteria(entry.id, stage) } : null;
 }
 
 export const presentationSpeciesName = (species: PresentationSpecies, language: AppLanguage = 'es') =>
@@ -77,8 +80,8 @@ export const presentationSpeciesName = (species: PresentationSpecies, language: 
 function presentationContext(stage: PhenologicalStage, species: PresentationSpecies | null, en: boolean): string {
   if (!species) return en ? 'Based on the measured soil conditions.' : 'Según las condiciones medidas del suelo.';
   const stageName = STAGE_NAMES[stage][en ? 1 : 0];
-  if (species.hasStageCriteria) return en ? `Based on the measured soil conditions and this species' ${stageName} criteria.`
-    : `Según las condiciones medidas del suelo y los criterios de esta especie para ${stageName}.`;
+  if (species.hasStageCriteria) return en ? `Based on the measured soil conditions, the forecast and this species' ${stageName} criteria.`
+    : `Según las condiciones medidas del suelo, el pronóstico y los criterios de esta especie para ${stageName}.`;
   return en ? `Based on the measured soil conditions. There are no criteria specific to this species for ${stageName} yet, so the general assessment is shown.`
     : `Según las condiciones medidas del suelo. Todavía no hay criterios propios de esta especie para ${stageName}: se muestra el análisis general.`;
 }
@@ -146,14 +149,15 @@ function isRecommendation(value: unknown): value is Recommendation {
   if (!value || typeof value !== 'object') return false;
   const r = value as Recommendation;
   return ['soil', 'evidence', 'weather', 'irrigation', 'monitoring'].includes(r.kind) && ['high', 'normal'].includes(r.priority)
-    && ['now', 'today', 'next_days', 'next_reading'].includes(r.when) && typeof r.title === 'string' && typeof r.body === 'string';
+    && ['now', 'today', 'next_days', 'next_reading'].includes(r.when) && typeof r.title === 'string' && typeof r.body === 'string'
+    && (r.detail === undefined || typeof r.detail === 'string');
 }
 
 function isPresentationSpecies(value: unknown): value is PresentationSpecies {
   if (!value || typeof value !== 'object') return false;
   const s = value as PresentationSpecies;
   return ['id', 'es', 'en', 'scientific', 'catalogVersion'].every(k => typeof (s as unknown as Record<string, unknown>)[k] === 'string')
-    && typeof s.hasStageCriteria === 'boolean';
+    && typeof s.hasStageCriteria === 'boolean' && (s.rulesVersion === undefined || typeof s.rulesVersion === 'string');
 }
 
 /**

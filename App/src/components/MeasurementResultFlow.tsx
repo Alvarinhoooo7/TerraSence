@@ -1,14 +1,15 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { BackHandler, View, useWindowDimensions } from 'react-native';
+import { BackHandler, FlatList, Pressable, View, useWindowDimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from './AppText';
 import Svg, { Path } from 'react-native-svg';
-import Animated, { Easing, SlideInLeft, SlideInRight, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, SlideInLeft, SlideInRight, runOnJS, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 import { GuideTouchable } from './guide/GuideControls';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { BatteryBar } from './result/BatteryBar';
 import { useResetGuide } from './guide/GuideContext';
 import { EntryButton } from './entry/EntryUI';
-import { ScreenCard, ScreenLabel, ScreenLayout, ScreenOption, ScreenText, StepProgress } from './screen/ScreenUI';
+import { ScreenCard, ScreenLabel, ScreenLayout, ScreenOption, ScreenText, ScreenTopBar, StepProgress } from './screen/ScreenUI';
 import { MeasurementForecast, type ForecastProps } from './MeasurementForecast';
 import { MEASUREMENT_GROUPS } from './measurementResultData';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -39,6 +40,68 @@ const KIND_ICON: Record<RecommendationKind, string> = {
   irrigation: 'M12 3C12 3 5 10.5 5 15a7 7 0 0 0 14 0C19 10.5 12 3 12 3Z',
   monitoring: 'M3 10A9 9 0 0 1 19 6L21 9M21 3V9H15M21 14A9 9 0 0 1 5 18L3 15M3 21V15H9',
 };
+
+/**
+ * Carrusel de páginas, como el de la bienvenida: todas las páginas están una al lado de la
+ * otra en una lista horizontal paginada, así que al deslizar se ve entrar la siguiente
+ * mientras sale la actual, sin fondo vacío. La barra superior y el pie quedan fijos y sólo
+ * se desliza el contenido. `index` lo controla quien lo usa: los botones lo cambian y el
+ * carrusel se desplaza; al deslizar con el dedo, avisa la página en la que se detuvo.
+ */
+function ResultPager({ count, index, onIndexChange, renderPage, top, footer }: {
+  count: number; index: number; onIndexChange: (page: number) => void;
+  renderPage: (page: number) => React.ReactNode; top: React.ReactNode; footer: React.ReactNode;
+}) {
+  const { colors } = useAppTheme();
+  const { width } = useWindowDimensions();
+  const reduced = useReducedMotion();
+  const list = useRef<FlatList<number>>(null);
+  const shown = useRef(index);
+  const [height, setHeight] = useState(0);
+  const pages = Array.from({ length: count }, (_, page) => page);
+  useEffect(() => {
+    if (shown.current === index) return;
+    shown.current = index;
+    list.current?.scrollToIndex({ index, animated: !reduced });
+  }, [index, reduced]);
+  // Al girar el teléfono o cambiar el ancho, la página visible sigue siendo la misma.
+  useEffect(() => { list.current?.scrollToOffset({ offset: shown.current * width, animated: false }); }, [width]);
+  const settle = (x: number) => {
+    const page = Math.max(0, Math.min(count - 1, Math.round(x / width)));
+    if (page === shown.current) return;
+    shown.current = page;
+    onIndexChange(page);
+  };
+  return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+    <View style={{ alignSelf: 'center', width: '100%', maxWidth: 520, paddingHorizontal: 24 }}>{top}</View>
+    <FlatList ref={list} data={pages} horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={{ flex: 1 }}
+      keyExtractor={page => String(page)} initialScrollIndex={index} extraData={renderPage}
+      getItemLayout={(_, page) => ({ length: width, offset: width * page, index: page })}
+      onLayout={event => setHeight(event.nativeEvent.layout.height)}
+      onMomentumScrollEnd={event => settle(event.nativeEvent.contentOffset.x)}
+      renderItem={({ item }) => <View style={{ width, height }}>{height ? renderPage(item) : null}</View>} />
+    <View style={{ alignSelf: 'center', width: '100%', maxWidth: 520, paddingHorizontal: 24, paddingTop: 8, paddingBottom: 12, gap: 10 }}>{footer}</View>
+  </SafeAreaView>;
+}
+
+/**
+ * Cifras, fuente y limitaciones de una recomendación. Cerrado por defecto: el plan se lee
+ * en lenguaje simple y el respaldo técnico queda a un toque para quien quiera revisarlo.
+ */
+function TechnicalDetail({ text }: { text: string }) {
+  const { colors } = useAppTheme();
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  return <View style={{ gap: 4 }}>
+    <Pressable accessibilityRole="button" accessibilityState={{ expanded: open }} onPress={() => setOpen(value => !value)}
+      style={{ minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start' }}>
+      <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '700' }}>
+        {open ? t('Ocultar detalle técnico ▴', 'Hide technical detail ▴') : t('Detalle técnico y fuente ▾', 'Technical detail and source ▾')}
+      </Text>
+    </Pressable>
+    {open && <Text style={{ color: colors.textSecondary, fontSize: 14, lineHeight: 21 }}>{text}</Text>}
+  </View>;
+}
 
 /**
  * Resultado de una medición, una pantalla por paso (plan de diseño §10.2):
@@ -227,32 +290,37 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
     </ScreenLayout>);
   }
 
-  // --- Detalle de una variable ---
+  // --- Detalle de una variable: carrusel entre las variables ---
   if (detail !== null) {
-    const m = p.parameters[detail];
-    const group = MEASUREMENT_GROUPS.findIndex(keys => keys.includes(m.key));
-    const groupName = [t('Suelo', 'Soil'), t('Nutrientes', 'Nutrients'), t('Ambiente', 'Environment')][group] ?? t('Lecturas', 'Readings');
-    return swipeable(<ScreenLayout key={`detalle-${detail}`} onBack={back} backLabel={groupName}
-      eyebrow={t(`VARIABLE ${detail + 1} DE ${p.parameters.length}`, `VARIABLE ${detail + 1} OF ${p.parameters.length}`)}
-      title={parameterLabel(m.key, language)}
+    const groupName = (index: number) => {
+      const group = MEASUREMENT_GROUPS.findIndex(keys => keys.includes(p.parameters[index].key));
+      return [t('Suelo', 'Soil'), t('Nutrientes', 'Nutrients'), t('Ambiente', 'Environment')][group] ?? t('Lecturas', 'Readings');
+    };
+    const detailPage = (index: number) => {
+      const m = p.parameters[index];
+      return <ScreenLayout embedded eyebrow={t(`VARIABLE ${index + 1} DE ${p.parameters.length}`, `VARIABLE ${index + 1} OF ${p.parameters.length}`)}
+        title={parameterLabel(m.key, language)}>
+        <View style={{ borderRadius: 22, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 20, gap: 14 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+            <MetricBadge metric={m.key} tone={badgeTone(m)} size={56} />
+            <View style={{ flex: 1, gap: 6 }}>
+              <Text adjustsFontSizeToFit numberOfLines={1} style={{ color: colors.text, fontSize: 36, fontWeight: '800', letterSpacing: -1 }}>{value(m)}</Text>
+              {statusPill(m)}
+            </View>
+          </View>
+          <MetricScale metric={m.key} value={m.value} tone={tone(m)} labels />
+        </View>
+        {section(t('Estado', 'Status'), m.state, tone(m))}
+        {section(t('Recomendación', 'Recommendation'), m.recommendation, colors.primary)}
+        {section(t('Control', 'Check'), m.control, colors.textSecondary)}
+      </ScreenLayout>;
+    };
+    return <ResultPager count={p.parameters.length} index={detail} onIndexChange={openDetail} renderPage={detailPage}
+      top={<ScreenTopBar onBack={back} backLabel={groupName(detail)} />}
       footer={<View style={{ flexDirection: 'row', gap: 10 }}>
         <View style={{ flex: 1 }}><EntryButton secondary disabled={detail === 0} label={t('‹ Anterior', '‹ Previous')} onPress={() => openDetail(detail - 1)} /></View>
         <View style={{ flex: 1 }}><EntryButton secondary disabled={detail === p.parameters.length - 1} label={t('Siguiente ›', 'Next ›')} onPress={() => openDetail(detail + 1)} /></View>
-      </View>}>
-      <View style={{ borderRadius: 22, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 20, gap: 14 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-          <MetricBadge metric={m.key} tone={badgeTone(m)} size={56} />
-          <View style={{ flex: 1, gap: 6 }}>
-            <Text adjustsFontSizeToFit numberOfLines={1} style={{ color: colors.text, fontSize: 36, fontWeight: '800', letterSpacing: -1 }}>{value(m)}</Text>
-            {statusPill(m)}
-          </View>
-        </View>
-        <MetricScale metric={m.key} value={m.value} tone={tone(m)} labels />
-      </View>
-      {section(t('Estado', 'Status'), m.state, tone(m))}
-      {section(t('Recomendación', 'Recommendation'), m.recommendation, colors.primary)}
-      {section(t('Control', 'Check'), m.control, colors.textSecondary)}
-    </ScreenLayout>);
+      </View>} />;
   }
 
   const last = step === STEPS.length - 1;
@@ -263,13 +331,14 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
         : <EntryButton label={exitLabel ?? t('Cerrar', 'Close')} onPress={onExit} />)
       : <EntryButton label={t('Continuar', 'Continue')} onPress={forward} />}
   </>;
-  // Cada pantalla lleva `key`: al cambiar de paso parte desde arriba, sin heredar el desplazamiento.
-  const common = { leading: battery, footer };
+  // Cada paso es una página del carrusel: barra (batería) y pie quedan fijos fuera de ella.
+  const common = { embedded: true } as const;
+  const renderStep = (s: Step): React.ReactNode => {
 
   // --- Resumen ---
-  if (current === 'summary') {
+  if (s === 'summary') {
     const essentials = p.parameters.filter(m => MEASUREMENT_GROUPS[0].includes(m.key));
-    return swipeable(<ScreenLayout key={current} {...common} eyebrow={t(`RESULTADO · ${stage.toUpperCase()}`, `RESULT · ${stage.toUpperCase()}`)} title={p.title} description={p.context}>
+    return (<ScreenLayout {...common} eyebrow={t(`RESULTADO · ${stage.toUpperCase()}`, `RESULT · ${stage.toUpperCase()}`)} title={p.title} description={p.context}>
       {notices}
       {/* Portada: cuántas variables quedaron bien y la etapa ilustrada. */}
       <View style={{ borderRadius: 22, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, overflow: 'hidden' }}>
@@ -318,7 +387,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
   }
 
   // --- Lecturas por familia: qué se mide, una ilustración y las tarjetas abajo ---
-  const group = GROUP_OF[current];
+  const group = GROUP_OF[s];
   if (group !== undefined) {
     const family = [
       { title: t('Suelo', 'Soil'), art: <SoilReadingArt label={t('Sonda enterrada midiendo el suelo', 'Probe in the ground measuring the soil')} />,
@@ -332,7 +401,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
           'The device sensor measures the air next to the probe at capture time: temperature, relative humidity and atmospheric pressure. It is a local, instant value; the forecast is on the next page.') },
     ][group];
     // `fill`: la ilustración toma el alto libre y deja las tarjetas al pie, sin desplazar.
-    return swipeable(<ScreenLayout key={current} {...common} fill eyebrow={t('LECTURAS', 'READINGS')} title={family.title} description={family.description}>
+    return (<ScreenLayout {...common} fill eyebrow={t('LECTURAS', 'READINGS')} title={family.title} description={family.description}>
       {/* Base cero: la ilustración sólo toma el alto que sobra, con un mínimo visible. */}
       <Animated.View entering={enterDown(80)} style={{ flexGrow: 1, flexBasis: 0, minHeight: 72, maxHeight: 190 }}>{family.art}</Animated.View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
@@ -342,8 +411,8 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
   }
 
   // --- Clima y captura ---
-  if (current === 'forecast') {
-    return swipeable(<ScreenLayout key={current} {...common} eyebrow={t('CLIMA DEL PUNTO MEDIDO', 'WEATHER AT THE MEASURED POINT')}
+  if (s === 'forecast') {
+    return (<ScreenLayout {...common} eyebrow={t('CLIMA DEL PUNTO MEDIDO', 'WEATHER AT THE MEASURED POINT')}
       title={forecast.historical ? t('Clima registrado', 'Recorded weather') : t('Clima', 'Weather')}
       description={forecast.historical ? t('Cómo estaba el tiempo al medir y el pronóstico de ese momento.', 'The weather at capture time and the forecast back then.')
         : t('Cómo está el tiempo donde mediste y qué se espera para los próximos días.', 'The weather where you measured and what to expect over the next days.')}>
@@ -385,6 +454,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
       {chips(first)}
       <Text style={{ color: colors.text, fontSize: 21, fontWeight: '800', letterSpacing: -0.3 }}>{first.title}</Text>
       <ScreenText muted={false}>{first.body}</ScreenText>
+      {!!first.detail && <TechnicalDetail text={first.detail} />}
     </Animated.View>
     {recs.length > 1 && <ScreenLabel>{t('Después', 'Then')}</ScreenLabel>}
     {recs.slice(1).map((r, i) => <Animated.View key={`${r.kind}-${i}`} entering={enterDown(140 + i * 70)} style={{ flexDirection: 'row', gap: 14, borderRadius: 18, borderWidth: 1,
@@ -396,10 +466,11 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
         {chips(r)}
         <Text style={{ color: colors.text, fontSize: 17, fontWeight: '700' }}>{r.title}</Text>
         <ScreenText>{r.body}</ScreenText>
+        {!!r.detail && <TechnicalDetail text={r.detail} />}
       </View>
     </Animated.View>)}
   </> : p.actions.length ? timeline : <ScreenCard><ScreenText>{t('No hay recomendaciones para esta lectura.', 'No recommendations for this reading.')}</ScreenText></ScreenCard>;
-  return swipeable(<ScreenLayout key={current} {...common} eyebrow={t(`PLAN DE RECOMENDACIONES · ${stage.toUpperCase()}`, `RECOMMENDATION PLAN · ${stage.toUpperCase()}`)}
+  return (<ScreenLayout {...common} eyebrow={t(`PLAN DE RECOMENDACIONES · ${stage.toUpperCase()}`, `RECOMMENDATION PLAN · ${stage.toUpperCase()}`)}
     title={t('Lo que te recomendamos', 'What we recommend')}
     description={speciesName
       ? t(`Según la lectura, la etapa ${stage.toLowerCase()}, la especie (${speciesName}) y el clima. Son sugerencias: tú decides qué aplicar en tu campo.`,
@@ -414,4 +485,8 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
     </ScreenCard>
     <ScreenOption title={t('Ver plan global', 'View overall plan')} subtitle={t('Suelo, etapa y pronóstico juntos, con el texto completo.', 'Soil, stage and forecast together, with the full text.')} onPress={() => { direction.current = 1; setPlan(true); }} />
   </ScreenLayout>);
+  };
+
+  return <ResultPager count={STEPS.length} index={step} onIndexChange={setStep}
+    renderPage={page => renderStep(STEPS[page])} top={<ScreenTopBar leading={battery} />} footer={footer} />;
 }

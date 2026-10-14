@@ -347,8 +347,9 @@ export function evaluateReadingForStage(
   const title = state === 'attention' ? (en ? 'Review the measured conditions' : 'Revisar las condiciones medidas')
     : (en ? 'Insufficient evidence for a complete assessment' : 'Evidencia insuficiente para una evaluación completa');
   const summary = coverage.freshness !== 'fresh'
-    ? (en ? 'The capture is old or its time cannot be verified. Take a new reading before making decisions.' : 'La captura es antigua o su instante no se puede verificar. Realiza una nueva lectura antes de decidir.')
-    : (en ? 'Partial assessment. pH comparisons are indicative; conductivity cannot classify salinity without a compatible method. Nutrient registers do not determine fertilization.' : 'Evaluación parcial. Las comparaciones de pH son orientativas; la conductividad no permite clasificar salinidad sin un método compatible. Los registros de nutrientes no determinan fertilización.');
+    ? (en ? 'This reading is old or we cannot tell when it was taken. Measure again before deciding.' : 'Esta lectura es antigua o no sabemos cuándo se tomó. Vuelve a medir antes de decidir.')
+    : (en ? 'Reference reading: with this data we cannot give you a complete diagnosis of the soil. pH works as a guide; for salt or fertilizers you need a laboratory analysis.'
+      : 'Lectura de referencia: con estos datos no podemos darte un diagnóstico completo del suelo. El pH sirve como guía; para sal o fertilizantes necesitas un análisis de laboratorio.');
   return { crop: null, texture: null, stage, metrics, alerts, verdict, verdictTitle: title,
     state, coverage, verdictSummary: summary, actionSummary: summary, drivers: [...new Set(alerts.map(a => a.param))] };
 }

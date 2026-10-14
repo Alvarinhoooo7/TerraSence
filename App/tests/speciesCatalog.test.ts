@@ -88,8 +88,8 @@ test('ES6: hasStageCriteria refleja únicamente los perfiles habilitados en spec
   assert.equal(hasStageCriteria('sp.arandano', 'floracion'), true);
   assert.equal(hasStageCriteria('sp.arandano', 'cosecha'), true);
   assert.equal(hasStageCriteria('sp.frutilla', 'vegetativo'), true);
-  // Olivo no tiene una fuente que documente un criterio de cosecha.
-  assert.equal(hasStageCriteria('sp.olivo', 'cosecha'), false);
+  // Olivo en cosecha: helada sobre la aceituna en maduración (INIA, Boletín 165).
+  assert.equal(hasStageCriteria('sp.olivo', 'cosecha'), true);
   // El resto del catálogo sigue sin perfil hasta incorporarse con su propia evidencia.
   assert.equal(hasStageCriteria('sp.palto', 'vegetativo'), false);
 });

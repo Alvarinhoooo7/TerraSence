@@ -312,7 +312,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       verdict: evaluation.verdict,
       verdict_title: evaluation.verdictTitle,
       action_summary: advice?.summary ?? evaluation.actionSummary,
-      diagnosis: { presentation, inputQuality, evaluationState: evaluation.state, coverage: evaluation.coverage, localSource: 'probe-bme280-v1', capturedAt, connectionAtCapture: 'ble-response', alerts: evaluation.alerts, drivers: evaluation.drivers, advice, weather },
+      diagnosis: { presentation, inputQuality, evaluationState: evaluation.state, coverage: evaluation.coverage, localSource: 'probe-bme280-v1', capturedAt, connectionAtCapture: 'ble-response', alerts: evaluation.alerts, drivers: evaluation.drivers, advice, weather: weather && { ...weather, hourly: undefined } },
       engine_version: ENGINE_VERSION,
       crop_catalog_version: SPECIES_CATALOG_VERSION,
       firmware_version: context.current.device?.firmware_version ?? null,

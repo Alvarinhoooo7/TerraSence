@@ -6,6 +6,7 @@ import {
   buildMeasurementPresentation, isMeasurementPresentation, presentationFromPoint, presentationSpecies, savedSpecies,
 } from '../src/engine/measurementPresentation';
 import { NO_SPECIES_ID, SPECIES_CATALOG_VERSION } from '../src/engine/speciesCatalog';
+import { SPECIES_RULES_VERSION } from '../src/engine/speciesRules';
 import type { SoilMeasurement } from '../src/types/agronomy';
 import type { MeasurementPoint, PhenologicalStage } from '../src/types/app';
 
@@ -28,15 +29,21 @@ test('T45/T46: una especie sin criterios propios no cambia alertas, estados, acc
   }
 });
 
-test('ES6: una especie con criterios propios sólo cambia el parámetro de pH', () => {
+test('ES6: una especie con criterios propios sólo cambia los parámetros que su criterio documenta (pH y tolerancia a sales)', () => {
   for (const [speciesId, ph] of [['sp.arandano', 4.8], ['sp.arandano', 5.6], ['sp.tomate', 6.2], ['sp.tomate', 5.5], ['sp.lechuga', 7.2]] as const) {
     const without = build('vegetativo', null, 'es', { ...raw, ph });
     const withSpecies = build('vegetativo', speciesId, 'es', { ...raw, ph });
     const byKey = (p: typeof without.parameters) => Object.fromEntries(p.map(x => [x.key, x]));
     const a = byKey(without.parameters), b = byKey(withSpecies.parameters);
-    for (const key of ['vwc', 'temp', 'ec', 'nitrogen', 'phosphorus', 'potassium'] as const) assert.deepEqual(b[key], a[key], key);
+    for (const key of ['vwc', 'temp', 'nitrogen', 'phosphorus', 'potassium'] as const) assert.deepEqual(b[key], a[key], key);
+    // La conductividad sólo suma la tolerancia a sales de FAO como referencia: no cambia su estado.
+    if (speciesId === 'sp.arandano') assert.deepEqual(b.ec, a.ec);
+    else {
+      assert.match(b.ec.state, /^Este cultivo (es|tolera)/);
+      assert.equal(b.ec.status, a.ec.status);
+    }
     assert.notDeepEqual(b.ph, a.ph);
-    assert.ok(b.ph.state.includes('esta especie'), `${speciesId}: el pH muestra el criterio de la especie`);
+    assert.ok(b.ph.state.includes('este cultivo'), `${speciesId}: el pH muestra el criterio de la especie`);
     assert.equal(withSpecies.species?.hasStageCriteria, true);
     assert.match(withSpecies.context, /criterios de esta especie para vegetativo/);
   }
@@ -49,7 +56,7 @@ test('ES6: una especie con criterios propios sólo cambia el parámetro de pH', 
 test('ES4: la presentación v3 guarda una copia de la especie y avisa que aún no tiene criterios propios', () => {
   const p = build('floracion', 'sp.palto');
   assert.equal(p.version, 3);
-  assert.deepEqual(p.species, { id: 'sp.palto', es: 'Palto', en: 'Avocado', scientific: 'Persea americana', catalogVersion: SPECIES_CATALOG_VERSION, hasStageCriteria: false });
+  assert.deepEqual(p.species, { id: 'sp.palto', es: 'Palto', en: 'Avocado', scientific: 'Persea americana', catalogVersion: SPECIES_CATALOG_VERSION, rulesVersion: SPECIES_RULES_VERSION, hasStageCriteria: false });
   assert.match(p.context, /Todavía no hay criterios propios de esta especie para floración/);
   assert.match(build('cosecha', 'sp.palto', 'en').context, /no criteria specific to this species for harvest/);
   assert.equal(isMeasurementPresentation(p), true);
@@ -91,12 +98,12 @@ test('ES6: una nota de especie dentro del óptimo va como seguimiento; cruzar un
     return buildContextualAdvice('vegetativo', evaluation, reading, null, 'es').recommendations ?? [];
   };
   const within = plan(6.2);
-  const note = within.find(r => /óptimo documentado/.test(r.title));
+  const note = within.find(r => /pH adecuado/.test(r.title));
   assert.equal(note?.kind, 'monitoring');
   assert.equal(note?.when, 'next_reading');
   assert.equal(within.some(r => r.kind === 'evidence'), true, 'la evaluación sigue siendo parcial');
   assert.ok(within.findIndex(r => r.kind === 'evidence') < within.indexOf(note!));
-  const below = plan(5.5).find(r => /bajo el mínimo documentado/.test(r.title));
+  const below = plan(5.5).find(r => /pH demasiado bajo/.test(r.title));
   assert.equal(below?.kind, 'soil');
   assert.equal(below?.when, 'today');
 });
