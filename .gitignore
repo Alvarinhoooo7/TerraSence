@@ -73,11 +73,8 @@ supabase/migrations/*.local.sql
 supabase/migrations_archivo/*.local.sql
 
 # ─────────────────────────────────────────────────────────────
-# FIRMWARE ESP32  (PlatformIO / ESP-IDF)
+# FIRMWARE ESP32  (Arduino IDE)
 # ─────────────────────────────────────────────────────────────
-.pio/
-.pioenvs/
-.piolibdeps/
 Firmware/build/
 Firmware/.build/
 Firmware/sdkconfig.old

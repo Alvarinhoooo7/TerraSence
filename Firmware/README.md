@@ -20,8 +20,9 @@ El contrato con la app lo fija el código de la app, no este firmware: [`App/src
 | `bme280.*` | Driver mínimo del BME280 por I2C. |
 | `modbus.*` | Transporte Modbus RTU genérico: solicitud, CRC, validación de la respuesta y reintentos. |
 | `sonda.*` | Captura de la sonda de suelo: la energiza, la consulta por RS-485 y convierte los registros. |
-| `monitor_serie.*` | Menú de mantenimiento, informes de batería y copia de la última captura para diagnóstico. |
-| `platformio.ini` | Compilación alternativa con PlatformIO (pioarduino, mismo núcleo 3.3.0). |
+| `monitor_serie.*` | Menú de mantenimiento y sus informes: batería, ambiente, sonda y BLE. No guarda capturas anteriores. |
+| `comandos_monitor.h` | Lectura de los comandos del monitor: una línea completa por comando; rechaza prefijos y líneas ambiguas. |
+| `tests/test_comandos.cpp` | Pruebas de `comandos_monitor.h` que evalúa el compilador (`static_assert`): se comprueban compilando, sin cargar el ESP32. Arduino IDE no compila esta carpeta con el sketch. |
 | `TASK.md` | Estado, procedimiento de prueba con la app y pendientes. |
 | `PLAN.md` | Orden de implementación: Modbus, medición real, batería, validación, reposo y actualización por BLE (OTA). |
 
@@ -84,27 +85,33 @@ Los LEDs ya no son el consumo que importa. El ESP32 despierto con la radio BLE a
 
 ## Monitor de mantenimiento
 
-Monitor serie a **115200 baudios**. El menú aparece al arrancar y se repite con **`h`** o **`?`**. Envía un comando por vez; acepta mayúsculas, con o sin Enter, y terminaciones LF o CRLF.
+Monitor serie a **115200 baudios**. Cada comando es una línea completa terminada en Enter: el firmware acepta LF, CR o CRLF, así que en Arduino IDE el monitor debe estar en «Nueva línea», «Retorno de carro» o «Ambos NL & CR»; con «Sin ajuste de línea» ningún comando se ejecuta. Primero envía **`d` o `D`** para entrar: antes de eso cualquier línea sólo responde cómo entrar y no ejecuta pruebas. Las letras aceptan mayúsculas, y los espacios y tabuladores alrededor del comando se ignoran. Una línea ambigua (`12`, `1x`, `01`, `1 0`) o de más de 16 caracteres se rechaza como «Comando desconocido»: el firmware nunca ejecuta el comienzo de una línea, de modo que `10` no dispara `1`.
 
 | Comando | Acción |
 | :--- | :--- |
-| `1` | Tono del buzzer durante 1 segundo. Respeta la configuración de silencio. |
-| `2` / `3` / `4` | LED azul / verde / rojo encendido durante 1 segundo. |
-| `x` | Cancela las pruebas de salidas y conserva los avisos normales. |
-| `e` | ID, versión, tiempo encendido, conexión BLE, ventana PAIR, nivel instantáneo del pulsador, pines y detección del sensor ambiental. |
-| `b` | Última lectura periódica de batería y su antigüedad: tensión en el ADC, tensión de celda calculada con el divisor, porcentaje aproximado, umbrales y motivo de invalidez. No fuerza otra adquisición ni cambia el estado publicado. |
-| `m` / `g` | Captura nueva por la ruta habitual de la sonda, sin notificar a la app. Al terminar muestra suelo recibido, motivo de aceptación o descarte, batería, temperatura/humedad/presión ambientales y trama desglosada. |
-| `a` | Ambiente de la última captura, con antigüedad. No vuelve a medir. |
-| `t` | Última trama en hexadecimal, índices, campos, escalas y centinelas. No vuelve a medir ni notifica. |
-| `d` | Barrido RS-485 de banco existente: lecturas e identidad a varias velocidades. **Bloquea el bucle unos segundos**; usar sin operaciones desde la app durante el barrido. |
+| `1` | Adquisición nueva de batería: ADC crudo de 12 bits, milivoltios calibrados en IO34, tensión de celda y porcentaje estimado. Promedia ocho conversiones crudas y ocho calibradas, tomadas consecutivamente. Bajo 2,50 V indica «no conectada»; también puede ser descarga profunda. Sobre 4,30 V indica tensión inválida. |
+| `2` | Tono del buzzer durante **2 segundos**. Respeta la configuración de silencio (`BUZZER_HABILITADO`). |
+| `3` / `4` / `5` | LED **azul / rojo / verde**, respectivamente, durante 1 segundo. |
+| `6` | Lectura nueva sólo del BME280: temperatura, presión atmosférica y humedad. Un BMP280 entrega temperatura y presión, con humedad sin dato. No consulta la sonda. |
+| `7` | Energiza la sonda por el MOSFET de IO5, espera su estabilización y lee los siete registros Modbus (4.800 baudios y, si no hay respuesta, 9.600), **independientemente de la batería**. Valida CRC y rangos por separado. Apaga IO5 al terminar, fallar o cancelar. No consulta el BME280 ni publica telemetría. |
+| `8` | Estado de la pila BLE, configuración GATT, conexión, anuncio, reanuncio pendiente, solicitud de lectura y ventana PAIR. Incluye nombre, UUID del servicio y los cinco bytes de la característica de estado. No certifica la recepción por un teléfono. |
+| `9` | Diagnóstico del bus I2C: recorre las direcciones `0x08` a `0x77`, una por vuelta del bucle, y lista las que responden y los errores distintos de «no hay dispositivo». En `0x76` y `0x77` lee el registro de identidad (`0xD0`) para distinguir BME280 (`60`), BMP280 (`58`) u otro modelo. Al final informa el total y los pines SDA (IO21) y SCL (IO22). |
+| `10` | Barrido RS-485: energiza IO5, espera la estabilización y, a 2.400, 4.800 y 9.600 baudios, envía la lectura a la dirección 1 y la consulta de identidad del manual (dirección comodín `FF`, registro `0x07D0`). Muestra lo transmitido y los bytes recibidos en 300 ms, sin validar CRC (hasta 64 bytes). Avanza por pasos sin bloquear el bucle; `x` lo cancela. Apaga IO5 al terminar o cancelar. Sirve para buscar la velocidad o la dirección cuando `7` no recibe respuesta. |
+| `d` / `D` | Repite el menú. |
+| `x` | Cancela salidas y capturas locales, apagando el MOSFET. Conserva avisos normales y capturas de la app. |
+| `q` | Cancela la prueba local y cierra el menú; exige `d` o `D` para volver a entrar. |
 
-Las pruebas manuales de salidas, la captura local y el barrido se rechazan si hay una captura, conexión BLE, ventana PAIR o pulsación PAIR en curso. Sólo se prueba una salida a la vez. Las pruebas de un segundo no usan `delay`: el bucle sigue atendiendo al equipo. Una conexión BLE, el pulsador PAIR o una captura cancelan las pruebas; un aviso normal del LED o buzzer tiene prioridad sobre su prueba. El barrido `d` conserva su funcionamiento bloqueante anterior.
+Las opciones `1`–`7`, `9` y `10` se rechazan si hay una captura, conexión BLE, ventana PAIR o pulsador PAIR presionado (con su antirrebote); `8` permite consultar BLE también con el teléfono conectado. Sólo se prueba una salida a la vez. Los temporizadores de LEDs y buzzer no usan `delay`: el bucle sigue atendiendo al equipo. Una conexión BLE o PAIR cancela las salidas y las capturas locales para dar paso a la app, y lo avisa de inmediato; un aviso normal del LED o buzzer tiene prioridad sobre su prueba.
 
-El informe distingue **«la sonda no respondió»** de **«la sonda respondió, pero el suelo fue descartado por batería inválida»**. La copia de diagnóstico conserva los datos originales; no modifica la trama, los rangos, los umbrales ni las reglas de descarte. Los valores ausentes se muestran como «SIN DATO». La copia nunca se usa para enviar una medición posterior a la app.
+Cada lectura nueva lleva una línea `HEX` después de sus datos, terminada en `\n`: `1` muestra ADC crudo, milivoltios y el byte de porcentaje (`FF` sin dato); `6` muestra el bloque ambiental empaquetado de cuatro bytes, correspondiente a los índices 16–19 del contrato BLE; `7` muestra la respuesta Modbus recibida con CRC, sin eco ni ruido inicial cuando es válida (si falla, muestra los bytes recibidos del último intento, o indica que no llegaron bytes); `8` muestra los cinco bytes de estado GATT; `9`, la dirección de cada dispositivo y su registro de identidad; `10`, lo transmitido (`HEX TX`) y lo recibido (`HEX RX`) en cada consulta. Son formatos distintos y quedan identificados: el bloque ambiental no es una lectura cruda de registros I2C. LEDs y buzzer informan la orden ejecutada; no generan tramas de sensor.
 
-Los informes nuevos salen en fragmentos de hasta 64 bytes por vuelta, limitados por el espacio disponible del puerto, y se pausan durante una captura. Un nuevo comando sustituye el informe pendiente; espera a que termine para leerlo completo. Los mensajes operativos existentes pueden intercalarse. El monitor confirma que **ordenó** una salida: comprobar físicamente luz y sonido sigue siendo necesario.
+La detección de batería requiere el divisor conectado: IO34 flotante puede producir una tensión que parezca válida. Sin batería ni divisor, conectar IO34 a GND durante la prueba. El porcentaje sigue siendo una estimación por tensión, pendiente de calibración física.
 
-Para verificar en banco: probar `1`–`4` por separado, comprobar que terminan al segundo, cancelar con `x` y pulsar PAIR durante una prueba. Revisar `b` con y sin batería, `a`/`t` antes de la primera captura y después de `m`, y finalmente realizar una medición desde la app para comprobar que conserva su comportamiento habitual.
+La opción `7` comprueba la sonda sin batería; las reglas completas de la app (suelo descartado si la batería es inválida y trama de 20 bytes) se verifican midiendo desde la app, y el monitor muestra cada trama notificada en hexadecimal (`[TRAMA]`). Ninguna lectura de diagnóstico se usa para enviar una medición posterior a la app.
+
+Los informes del menú salen en fragmentos de hasta 64 bytes por vuelta, limitados por el espacio disponible del puerto, y se retienen mientras hay una captura en curso; un comando nuevo sustituye el informe pendiente. Los avisos de inicio de `7` y `9`, y el de cancelación por BLE/PAIR, salen de inmediato, antes de los mensajes y del resultado de esa prueba. Los mensajes operativos (`[SONDA]`, `[I2C]`, `[DIAG]`, `[BLE]`, `[PAIR]`) se escriben directo y muestran el avance antes del resultado. Nada de esto viaja en la trama BLE. El monitor confirma que **ordenó** una salida: comprobar físicamente luz y sonido sigue siendo necesario.
+
+Para verificar en banco: enviar `1`–`10` antes de `d` y comprobar que no ejecutan pruebas; entrar con `D` y probar las terminaciones LF, CR y CRLF, y que `12` o `1x` se rechazan. Revisar `1` con y sin batería y contra un multímetro; comprobar los 2 s de `2` y los colores de `3`–`5`. Probar `6` y `9` con BME280, BMP280 y sin sensor; probar `7` y `10` sin batería con sonda presente y ausente, comprobando IO5 alto durante la adquisición y bajo al terminar, fallar o cancelar con `x`/`q`. Consultar `8` con y sin teléfono, iniciar PAIR durante una prueba y medir desde la app. Tras `q`, comprobar que los números vuelven a quedar inactivos.
 
 ## Trama de telemetría
 
@@ -128,6 +135,4 @@ Además de la trama, el firmware publica una característica de lectura con 5 by
 1. Instalar en el Gestor de Tarjetas `esp32 by Espressif Systems` (probado con 3.3.0).
 2. Abrir `Firmware/Firmware.ino`. El IDE carga los demás archivos como pestañas.
 3. Placa: **ESP32 Dev Module**, esquema de particiones por defecto. Verificación y ocupación en [TASK.md](TASK.md#hecho).
-4. Compilar y subir. Monitor serie a **115200 baudios**: **`h`** abre el menú de mantenimiento y **`m`** pide una captura sin la app con diagnóstico detallado ([prueba en banco](TASK.md#prueba-de-la-sonda-en-banco)). También conserva los eventos del pulsador, la vinculación, la respuesta de la sonda y cada trama en hexadecimal.
-
-Con PlatformIO, desde `Firmware/`: `pio run -t upload` y `pio device monitor`. [`platformio.ini`](platformio.ini) usa la plataforma pioarduino porque la oficial trae el núcleo 2.x, y este firmware usa APIs del 3.x.
+4. Compilar y subir. Monitor serie a **115200 baudios**: **`d` o `D`** abre el menú de diagnóstico y **`7`** pide una lectura de la sonda sin depender de la batería ([prueba en banco](TASK.md#prueba-de-la-sonda-en-banco)). También conserva los eventos del pulsador, la vinculación, la respuesta de la sonda y cada trama en hexadecimal.

@@ -16,6 +16,8 @@ public:
   explicit Pulsador(uint8_t pin) : pin_(pin) {}
   void begin();
   EventoPulsador actualizar(uint32_t ahora);
+  // Estado ya filtrado por el antirrebote (true = presionado).
+  bool presionado() const { return presionado_; }
 
 private:
   uint8_t  pin_;

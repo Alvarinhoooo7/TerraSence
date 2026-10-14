@@ -66,7 +66,7 @@ void Zumbador::cancelarPrueba() {
 }
 
 void Zumbador::actualizar(uint32_t ahora) {
-  if (prueba_ && ahora - pruebaDesde_ >= 1000) silenciar();
+  if (prueba_ && ahora - pruebaDesde_ >= 2000) silenciar();
   if (!notas_) return;
   while (indice_ < total_ && ahora - notaDesde_ >= notas_[indice_].duracionMs) {
     notaDesde_ += notas_[indice_].duracionMs;

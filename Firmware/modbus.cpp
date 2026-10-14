@@ -70,6 +70,9 @@ const char *nombreFallo(Fallo fallo) {
 
 bool Transporte::iniciar(const Consulta &c, uint32_t ahora) {
   if (ocupado()) return false;
+  // Limpiar antes de abrir/estabilizar: un fallo temprano no debe exponer RX anterior.
+  crudos_ = descartados_ = recibidos_ = esperados_ = 0;
+  excepcion_ = 0;
   uint8_t solicitud[8];
   if (!armarSolicitud(c, solicitud) || c.baudios < 1200 || c.baudios > 115200 ||
       c.respuestaMs < 10 || c.respuestaMs > 2000 ||

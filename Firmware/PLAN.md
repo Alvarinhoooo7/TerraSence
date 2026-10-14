@@ -22,9 +22,9 @@ La app permite empezar la integración BLE sin cerrar primero push. Sus pendient
 
 ### P0. Preparar compilación y ficha del sensor — F1, F5, H1, D1
 
-**Dependencias:** ninguna. **Alcance:** pequeño; `platformio.ini`, README y TASK.
+**Dependencias:** ninguna. **Alcance:** pequeño; README y TASK. Se compila sólo con Arduino IDE.
 
-- [ ] Localizar o preparar Arduino-ESP32 3.3.0 y un compilador C++ para pruebas de lógica; fijar comando reproducible, placa, flash y partición efectiva. Configurar exclusiones si se añaden pruebas bajo `src_dir = .`.
+- [ ] Localizar o preparar Arduino-ESP32 3.3.0 y un compilador C++ para pruebas de lógica; fijar comando reproducible, placa, flash y partición efectiva.
 - [x] Identificar fabricante/modelo y registrar fuente de dirección, velocidad, paridad, función, registros, escalas, signo y rangos: ComWinTop CWT-Soil-NPKPHCTH-S, según su manual (dirección 1, 4800/8N1, función 03, siete registros desde 0x0000; detalle en `config.h`). El tiempo de estabilización no figura en el manual: se mide en banco (F1).
 - [ ] Antes de energizar el conjunto, comprobar alimentación, masa, GATE, RTS y divisor contra la placa; resolver el ensayo del buzzer y el comportamiento de IO5 durante reset descritos en TASK. Actualizar sólo las referencias de PCB que se comprueben.
 

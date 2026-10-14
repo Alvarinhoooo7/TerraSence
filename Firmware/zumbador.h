@@ -31,7 +31,7 @@ public:
   void reproducir(Sonido sonido, uint32_t ahora);
   void actualizar(uint32_t ahora);
   void silenciar();
-  bool probar(uint32_t ahora);  // tono de 1 s, sin reemplazar sonidos operativos
+  bool probar(uint32_t ahora);  // tono de 2 s, sin reemplazar sonidos operativos
   bool enPrueba() const { return prueba_; }
   void cancelarPrueba();
 

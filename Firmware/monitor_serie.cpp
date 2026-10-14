@@ -2,15 +2,11 @@
 #include "pines.h"
 #include <stdarg.h>
 #include <stdio.h>
-#include <string.h>
 
-char MonitorSerie::tomarComando() {
-  // Acotar el trabajo incluso si un terminal envía datos sin pausa.
+uint8_t MonitorSerie::tomarComando() {
   for (uint8_t n = 0; n < 32 && Serial.available() > 0; ++n) {
-    int c = Serial.read();
-    if (c >= 'A' && c <= 'Z') c += 'a' - 'A';
-    if (c == '\r' || c == '\n' || c == ' ' || c == '\t') continue;
-    return strchr("h?1234xbeatmgd", c) && c != 0 ? char(c) : '!';
+    const uint8_t comando = entrada_.consumir(char(Serial.read()));
+    if (comando) return comando;
   }
   return 0;
 }
@@ -44,155 +40,101 @@ void MonitorSerie::mensaje(const char *valor) {
   texto("\n[MANTENIMIENTO] %s\n", valor);
 }
 
+void MonitorSerie::aviso(const char *valor) {
+  // Descarta el informe anterior, como mensaje(), pero escribe directo: una
+  // captura retiene el buffer y su resultado lo reemplazaría al llegar.
+  largo_ = enviado_ = 0;
+  Serial.printf("\n[MANTENIMIENTO] %s\n", valor);
+}
+
 void MonitorSerie::menu() {
-  mensaje("TerraSense | monitor a 115200 baudios");
-  texto("  h / ? : este menú (comando + Enter; mayúsculas también)\n"
-        "  1     : buzzer durante 1 segundo\n"
-        "  2     : LED azul durante 1 segundo\n"
-        "  3     : LED verde durante 1 segundo\n"
+  mensaje("TerraSense | diagnóstico | 115200 baudios");
+  texto("  1     : lectura nueva de batería: ADC, tensión y porcentaje\n"
+        "  2     : buzzer durante 2 segundos\n"
+        "  3     : LED azul durante 1 segundo\n"
         "  4     : LED rojo durante 1 segundo\n"
-        "  x     : cancelar pruebas de salidas; conserva avisos normales\n"
-        "  e     : estado del equipo, BLE y pulsador PAIR\n"
-        "  b     : batería, ADC, porcentaje y motivo de invalidez\n"
-        "  m / g : captura nueva + diagnóstico de suelo, ambiente y trama\n"
-        "  a     : ambiente de la última captura (no vuelve a medir)\n"
-        "  t     : desglose de la última trama (no vuelve a medir)\n"
-        "  d     : barrido RS-485 de banco; bloquea unos segundos\n"
-        "Pruebas de salidas y barrido: sólo sin BLE, PAIR ni captura.\n"
+        "  5     : LED verde durante 1 segundo\n"
+        "  6     : lectura nueva de temperatura, presión y humedad del BME280\n"
+        "  7     : energizar y leer la sonda, incluso sin batería\n"
+        "  8     : estado de Bluetooth y su característica en hexadecimal\n"
+        "  9     : diagnóstico I2C: direcciones, errores e identidad del sensor\n"
+        "  10    : barrido RS-485: lectura e identidad a 2400/4800/9600 baudios\n"
+        "  d/D   : repetir menú | q: salir | x: cancelar prueba local\n"
+        "Envía un comando por línea, con Enter (LF, CR o CRLF).\n"
+        "Pruebas 1-7, 9 y 10: sólo sin BLE conectado, PAIR ni captura.\n"
         "Un aviso operativo tiene prioridad. Verifica luz/sonido físicamente.\n"
         "Un comando nuevo sustituye el informe pendiente de impresión.\n");
 }
 
-void MonitorSerie::bateria(const EstadoBateria &b) {
-  texto("\nBATERÍA | GPIO%d | divisor configurado x%.2f\n", PIN_VBAT_SENSE, BATERIA_FACTOR_DIVISOR);
-  texto("  ADC en pin: %.3f V | celda estimada: %.3f V\n",
-        b.voltios / BATERIA_FACTOR_DIVISOR, b.voltios);
-  if (b.valida) texto("  Estado: %s | carga aproximada: %u %%\n", b.baja ? "BAJA" : "normal", b.porcentaje);
-  else {
-    texto("  Estado: SIN DATO | porcentaje no disponible\n");
-    if (!isfinite(b.voltios)) texto("  Motivo: lectura de tensión no finita.\n");
-    else if (b.voltios < BATERIA_PRESENTE_MIN_V)
-      texto("  Motivo: menos de %.2f V; revisar celda/divisor. Compatible con banco sólo USB.\n", BATERIA_PRESENTE_MIN_V);
-    else texto("  Motivo: más de 4.30 V; revisar divisor y tensión real.\n");
-    texto("  El firmware descarta el suelo si la batería es inválida.\n");
-  }
-  texto("  Aviso bajo %.2f V; recuperación sobre %.2f V.\n", BATERIA_BAJA_V, BATERIA_RECUPERADA_V);
+void MonitorSerie::salir() {
+  mensaje("Diagnóstico cerrado. Envía d o D para volver a entrar.");
 }
 
-void MonitorSerie::mostrarBateria(const EstadoBateria &b, uint32_t tomadaEn, uint32_t ahora) {
-  mensaje("Lectura periódica de batería; no fuerza otra adquisición");
-  if (!tomadaEn) { texto("  Aún no hay lectura.\n"); return; }
-  texto("  Antigüedad: %lu ms\n", (unsigned long)(ahora - tomadaEn));
-  bateria(b);
-}
-
-void MonitorSerie::mostrarEstado(const char *id, bool conectado, bool ventana, bool captura,
-                                bool pairPulsado, uint32_t ahora) {
-  mensaje("Estado actual del equipo");
-  texto("  ID: %s | firmware: %u.%u.%u | encendido: %lu s\n", id,
-        FIRMWARE_VERSION_MAYOR, FIRMWARE_VERSION_MENOR, FIRMWARE_VERSION_PARCHE,
-        (unsigned long)(ahora / 1000));
-  texto("  BLE: %s | ventana PAIR: %s | captura: %s\n",
-        conectado ? "conectado" : "sin conexión", ventana ? "abierta" : "cerrada",
-        captura ? "en curso" : "en reposo");
-  texto("  PAIR IO%d: %s (nivel instantáneo)\n", PIN_PARING, pairPulsado ? "pulsado / LOW" : "suelto / HIGH");
-  texto("  LEDs: azul IO%d, verde IO%d, rojo IO%d | buzzer IO%d: %s\n",
-        PIN_LED_BLUE, PIN_LED_GREEN, PIN_LED_RED, PIN_BUZZER,
-        BUZZER_HABILITADO ? "habilitado" : "silenciado en configuración");
-  texto("  I2C: SDA IO%d / SCL IO%d | RS-485: RX IO%d / TX IO%d / RTS IO%d\n",
-        PIN_SDA, PIN_SCL, PIN_RX, PIN_TX, PIN_RTS);
-  texto("  Modbus configurado: dirección %u, %lu / %lu baudios, 8N1.\n",
-        SONDA_DIRECCION, (unsigned long)SONDA_BAUDIOS[0], (unsigned long)SONDA_BAUDIOS[1]);
-  texto("  Usa b para batería; m para una captura nueva; a/t para la última.\n");
-}
-
-void MonitorSerie::sensorAmbiente(bool presente, bool humedad, uint8_t direccion) {
-  if (presente) texto("  Ambiente: %s detectado en 0x%02X (no confirma una lectura actual).\n",
-                     humedad ? "BME280" : "BMP280", direccion);
-  else texto("  Ambiente: sensor no detectado; m vuelve a intentar leerlo.\n");
-}
-
-void MonitorSerie::registrarCaptura(const LecturaSuelo &original, const EstadoBateria &b,
-                                   const LecturaAmbiente &aire, const uint8_t *bytes,
-                                   bool solicitadaApp, bool enviada, uint32_t ahora) {
-  suelo_ = original;
-  bateria_ = b;
-  aire_ = aire;
-  memcpy(trama_, bytes, TRAMA_BYTES);
-  solicitadaApp_ = solicitadaApp;
-  enviada_ = enviada;
-  capturaEn_ = ahora;
-  hayCaptura_ = true;
-}
-
-bool MonitorSerie::cabeceraCaptura(uint32_t ahora) {
-  if (!hayCaptura_) {
-    texto("  Aún no hay captura. Usa m para adquirir datos reales.\n");
-    return false;
-  }
-  texto("  Última captura: hace %lu ms | origen: %s\n", (unsigned long)(ahora - capturaEn_),
-        solicitadaApp_ ? "app" : "monitor serie");
-  texto("  BLE: %s\n", enviada_ ? "notificación encolada; recepción no confirmada" :
-        solicitadaApp_ ? "no enviada" : "prueba local; no se notifica");
-  return true;
-}
-
-void MonitorSerie::ambiente() {
-  texto("\nAMBIENTE | lectura del BME280/BMP280 de esa captura\n");
-  // Usar los centinelas del empaquetador: reflejan ausencia o fuera de rango.
-  const uint16_t t = (uint16_t(trama_[16]) << 4) | (trama_[17] >> 4);
-  const uint16_t p = (uint16_t(trama_[17] & 15) << 8) | trama_[18];
-  if (t != AMBIENTE_SIN_DATO_12) texto("  Temperatura del aire: %.2f °C\n", aire_.temperaturaC);
-  else texto("  Temperatura del aire: SIN DATO (ausente o fuera de rango)\n");
-  if (p != AMBIENTE_SIN_DATO_12) texto("  Presión: %.2f hPa\n", aire_.presionHpa);
-  else texto("  Presión: SIN DATO (ausente o fuera de rango)\n");
-  if (trama_[19] != AMBIENTE_SIN_DATO_8) texto("  Humedad del aire: %.2f %%\n", aire_.humedadPct);
-  else texto("  Humedad del aire: SIN DATO (ausente o fuera de rango; BMP280 sin humedad)\n");
-}
-
-void MonitorSerie::trama() {
-  texto("\nTRAMA BLE | 20 bytes | índices desde 0 | enteros big-endian\n  HEX: ");
-  for (size_t i = 0; i < TRAMA_BYTES; ++i) texto("%02X ", trama_[i]);
+void MonitorSerie::hexadecimal(const char *nombre, const uint8_t *bytes, size_t largo) {
+  texto("HEX %s:", nombre);
+  for (size_t i = 0; i < largo; ++i) texto(" %02X", bytes[i]);
+  if (!largo) texto(" sin bytes recibidos");
   texto("\n");
-  static const char *nombres[] = {"humedad x10", "temperatura x10 (con signo)", "CE en µS/cm", "pH x10", "N en mg/kg", "P en mg/kg", "K en mg/kg"};
-  bool sinSuelo = true;
-  for (size_t i = 0; i < 15; ++i) sinSuelo = sinSuelo && trama_[i] == 0xFF;
-  for (size_t i = 0; i < 7; ++i)
-    texto("  [%02u-%02u] %02X %02X : %s%s\n", unsigned(i * 2), unsigned(i * 2 + 1),
-          trama_[i * 2], trama_[i * 2 + 1], nombres[i], sinSuelo ? " | SIN DATO" : "");
-  texto("  [14] %02X : batería%s\n  [15] %02X : versión del formato\n",
-        trama_[14], sinSuelo ? " | SIN DATO" : " en %", trama_[15]);
-  texto("  [16-18] %02X %02X %02X : temperatura (12 bits) + presión (12 bits)\n",
-        trama_[16], trama_[17], trama_[18]);
-  texto("  [19] %02X : humedad del aire x2 (FF = sin dato)\n", trama_[19]);
-  texto("  Temperatura aire = código / 10 - 40 °C; presión = código + 300 hPa.\n"
-        "  Código FFF = sin dato para cada magnitud de 12 bits.\n");
 }
 
-void MonitorSerie::mostrarCaptura(uint32_t ahora) {
-  mensaje("Diagnóstico de la última captura; no modifica la medición");
-  if (!cabeceraCaptura(ahora)) return;
-  texto("\nSUELO | respuesta Modbus: %s\n", suelo_.valida ? "íntegra (CRC validado)" : "sin lectura válida");
-  if (suelo_.valida) {
-    texto("  Humedad: %.1f %% | temperatura: %.1f °C | CE: %u µS/cm\n",
-          suelo_.humedadX10 / 10.0f, suelo_.temperaturaX10 / 10.0f, suelo_.conductividad);
-    texto("  pH: %.1f | N: %u | P: %u | K: %u mg/kg\n", suelo_.phX10 / 10.0f,
-          suelo_.nitrogeno, suelo_.fosforo, suelo_.potasio);
-    texto("  Resultado: %s\n", !sueloPublicable(suelo_) ? "descartado por rangos" :
-          !bateria_.valida ? "descartado por batería inválida; la sonda SÍ respondió" : "suelo incluido en la trama");
-    texto("  Rangos válidos no certifican calibración ni contacto con el suelo.\n");
+void MonitorSerie::mostrarAdc(const EstadoBateria &b, uint16_t adc, uint16_t milivoltios) {
+  mensaje("Batería: adquisición nueva (promedio de 8 muestras)");
+  texto("ADC IO%d: %u / 4095 | pin: %u mV | celda: %.3f V\n",
+        PIN_VBAT_SENSE, adc, milivoltios, b.voltios);
+  texto("HEX ADC crudo: %04X | mV: %04X\n", adc, milivoltios);
+  if (b.valida) texto("Batería %s: %u %% (estimado por tensión)\n", b.baja ? "baja" : "conectada", b.porcentaje);
+  else if (isfinite(b.voltios) && b.voltios < BATERIA_PRESENTE_MIN_V)
+    texto("Batería no conectada (tensión bajo %.2f V; también puede ser descarga profunda)\n", BATERIA_PRESENTE_MIN_V);
+  else texto("Batería: tensión inválida; revisar divisor y alimentación\n");
+  hexadecimal("porcentaje (FF = sin dato)", &b.porcentaje, 1);
+  texto("Conservar el divisor conectado: IO34 flotante no permite detectar ausencia.\n");
+}
+
+void MonitorSerie::mostrarAmbienteNuevo(const LecturaAmbiente &aire, bool presente, bool humedad) {
+  mensaje(presente ? (humedad ? "Lectura nueva del BME280" : "Lectura nueva del BMP280; no mide humedad") :
+                    "Sensor ambiental no conectado o sin respuesta");
+  uint8_t bytes[TRAMA_BYTES];
+  armarTrama(LecturaSuelo{}, aire, bytes);
+  const uint16_t t = (uint16_t(bytes[16]) << 4) | (bytes[17] >> 4);
+  const uint16_t p = (uint16_t(bytes[17] & 15) << 8) | bytes[18];
+  if (t != AMBIENTE_SIN_DATO_12) texto("Temperatura: %.2f °C\n", aire.temperaturaC);
+  else texto("Temperatura: SIN DATO\n");
+  if (p != AMBIENTE_SIN_DATO_12) texto("Presión atmosférica: %.2f hPa\n", aire.presionHpa);
+  else texto("Presión atmosférica: SIN DATO\n");
+  if (bytes[19] != AMBIENTE_SIN_DATO_8) texto("Humedad: %.2f %%\n", aire.humedadPct);
+  else texto("Humedad: SIN DATO\n");
+  hexadecimal("ambiente (bytes 16-19 de telemetría; empaquetados, no registros I2C)", bytes + 16, 4);
+}
+
+void MonitorSerie::mostrarSonda(const LecturaSuelo &suelo, const uint8_t *crudo, size_t largo, uint8_t descartados) {
+  mensaje("Sonda: captura independiente de batería y ambiente; MOSFET apagado al finalizar");
+  if (suelo.valida) {
+    texto("Humedad: %.1f %% | temperatura: %.1f °C | CE: %u µS/cm | pH: %.1f\n"
+          "N: %u | P: %u | K: %u mg/kg | CRC correcto | rangos: %s\n",
+          suelo.humedadX10 / 10.0f, suelo.temperaturaX10 / 10.0f, suelo.conductividad,
+          suelo.phX10 / 10.0f, suelo.nitrogeno, suelo.fosforo, suelo.potasio,
+          sueloPublicable(suelo) ? "correctos" : "fuera de rango");
+    // El transporte conserva eco/ruido antes de la respuesta; no son parte de la trama.
+    const size_t inicio = descartados < largo ? descartados : largo;
+    hexadecimal("respuesta Modbus recibida (incluye CRC)", crudo + inicio, largo - inicio);
+  } else {
+    texto("Sonda sin lectura válida; revisar alimentación, cableado y mensajes Modbus\n");
+    hexadecimal("RX del último intento (sin validar; puede incluir eco/ruido)", crudo, largo);
   }
-  bateria(bateria_);
-  ambiente();
-  trama();
 }
 
-void MonitorSerie::mostrarAmbiente(uint32_t ahora) {
-  mensaje("Ambiente de la última captura; usa m para actualizar");
-  if (cabeceraCaptura(ahora)) ambiente();
-}
-
-void MonitorSerie::mostrarTrama(uint32_t ahora) {
-  mensaje("Última trama; usa m para actualizar");
-  if (cabeceraCaptura(ahora)) trama();
+void MonitorSerie::mostrarBle(const DiagnosticoBle &d, const char *id) {
+  mensaje("Estado actual de Bluetooth");
+  texto("Nombre: " TS_NOMBRE_BASE "-%s\nServicio: " TS_SERVICE_UUID "\n", id);
+  texto("Pila: %s | GATT: %s | teléfono: %s | anuncio: %s\n",
+        d.inicializado ? "iniciada" : "NO iniciada", d.gattListo ? "configurado" : "incompleto",
+        d.conectado ? "conectado" : "sin conexión", d.anunciando ? "activo" : "inactivo");
+  texto("Reanudar anuncio: %s | lectura pendiente: %s | PAIR: %s\n",
+        d.reanudando ? "sí" : "no", d.lecturaPendiente ? "sí" : "no",
+        d.largoEstado == 5 ? (d.estado[4] & 1 ? "abierta" : "cerrada") : "sin dato");
+  texto("Característica de estado: batería, versión mayor/menor/parche, banderas\n");
+  hexadecimal("estado actual (mismo formato de la lectura GATT)", d.estado, d.largoEstado);
+  texto("Resultado local: %s; comprobar descubrimiento y recepción con un teléfono.\n",
+        d.inicializado && d.gattListo && d.largoEstado == 5 && (d.conectado || d.anunciando) ?
+        "sin anomalías detectadas" : d.reanudando ? "reanuncio pendiente" : "revisar BLE");
 }

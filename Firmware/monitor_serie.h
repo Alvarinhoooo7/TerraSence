@@ -1,43 +1,31 @@
-// Diagnóstico de mantenimiento: conserva una copia para inspección, nunca
-// reutiliza esa copia como medición ni la publica por BLE.
+// Diagnóstico serial local; no conserva ni publica mediciones anteriores.
 #pragma once
-
 #include <Arduino.h>
 #include "bateria.h"
 #include "trama.h"
+#include "ble_terrasense.h"
+#include "comandos_monitor.h"
 
 class MonitorSerie {
 public:
-  char tomarComando();
+  uint8_t tomarComando();
   void actualizar(bool capturaEnCurso);
   void menu();
+  void salir();
   void mensaje(const char *texto);
-  void mostrarBateria(const EstadoBateria &bateria, uint32_t tomadaEn, uint32_t ahora);
-  void mostrarEstado(const char *id, bool conectado, bool ventana, bool captura,
-                     bool pairPulsado, uint32_t ahora);
-  void sensorAmbiente(bool presente, bool humedad, uint8_t direccion);
-  void registrarCaptura(const LecturaSuelo &original, const EstadoBateria &bateria,
-                       const LecturaAmbiente &aire, const uint8_t *trama,
-                       bool solicitadaApp, bool enviada, uint32_t ahora);
-  void mostrarCaptura(uint32_t ahora);
-  void mostrarAmbiente(uint32_t ahora);
-  void mostrarTrama(uint32_t ahora);
+  // Aviso de inicio de una prueba con resultado diferido (sonda, I2C): sale de
+  // inmediato, antes de los mensajes de esa prueba, y nunca se borra ni se retiene.
+  void aviso(const char *texto);
+  void mostrarAdc(const EstadoBateria &bateria, uint16_t adc, uint16_t milivoltios);
+  void mostrarAmbienteNuevo(const LecturaAmbiente &aire, bool presente, bool humedad);
+  void mostrarSonda(const LecturaSuelo &suelo, const uint8_t *crudo, size_t largo, uint8_t descartados);
+  void mostrarBle(const DiagnosticoBle &estado, const char *id);
 
 private:
   void texto(const char *formato, ...);
-  void bateria(const EstadoBateria &valor);
-  bool cabeceraCaptura(uint32_t ahora);
-  void ambiente();
-  void trama();
-
+  void hexadecimal(const char *nombre, const uint8_t *bytes, size_t largo);
+  EntradaMonitor entrada_;
   // Salida acotada: sin String dinámico, sin flush ni esperas por el monitor.
-  char salida_[4096] = {};
+  char salida_[2048] = {};
   size_t largo_ = 0, enviado_ = 0;
-  bool hayCaptura_ = false;
-  uint32_t capturaEn_ = 0;
-  LecturaSuelo suelo_{};
-  EstadoBateria bateria_{};
-  LecturaAmbiente aire_{};
-  uint8_t trama_[TRAMA_BYTES] = {};
-  bool solicitadaApp_ = false, enviada_ = false;
 };

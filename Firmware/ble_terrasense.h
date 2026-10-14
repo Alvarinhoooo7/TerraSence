@@ -14,9 +14,8 @@
 //   · Telemetría (notificación): al suscribirse la app, el bucle principal
 //     arma una trama nueva de 20 bytes y la notifica una vez.
 //
-// Los callbacks BLE corren en la tarea de Bluedroid; sólo marcan banderas que
-// el bucle principal consume, salvo la confirmación, que se resuelve en el
-// mismo callback.
+// Los callbacks BLE corren en Bluedroid. Las transiciones compartidas con loop()
+// se protegen con mutex; la característica de estado se refresca en onRead.
 
 #pragma once
 
@@ -33,11 +32,28 @@ bool bleVentanaAbierta(uint32_t ahora);
 enum class ResultadoVinculacion : uint8_t { Ninguno, Aceptado, Rechazado };
 ResultadoVinculacion bleTomarResultadoVinculacion();
 
-// true una vez por suscripción, cuando ya pasó la espera configurada.
-bool bleTomarSolicitudLectura(uint32_t ahora);
+// true una vez por suscripción, tras la espera configurada. Guardar sesion con
+// la captura: desconectar, desuscribirse o volver a suscribirse la invalidan.
+bool bleTomarSolicitudLectura(uint32_t ahora, uint32_t &sesion);
+// Consultar antes de avanzar la captura y antes de consumir una nueva solicitud.
+bool bleSesionLecturaVigente(uint32_t sesion);
 
 // Característica de estado (lectura, 5 bytes): batería en % (0xFF = sin dato),
 // versión mayor, menor y parche, y banderas (bit 0 = ventana PAIR abierta). La
 // app la lee en cada contacto.
 void bleActualizarEstado(uint8_t bateriaPct);
-bool bleNotificar(const uint8_t *datos, size_t largo);
+// Sólo encola si sigue vigente la suscripción que inició esa captura. true
+// confirma aceptación local por la pila, no recepción por el teléfono.
+bool bleNotificar(const uint8_t *datos, size_t largo, uint32_t sesion);
+
+struct DiagnosticoBle {
+  bool inicializado = false;
+  bool gattListo = false;
+  bool conectado = false;
+  bool anunciando = false;
+  bool reanudando = false;
+  bool lecturaPendiente = false;
+  uint8_t estado[5] = {};
+  size_t largoEstado = 0;
+};
+DiagnosticoBle bleDiagnostico();

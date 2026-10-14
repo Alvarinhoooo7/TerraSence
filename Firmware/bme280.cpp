@@ -46,6 +46,9 @@ bool Bme280::leerBloque(uint8_t registro, uint8_t *destino, size_t largo) {
 }
 
 bool Bme280::detectar() {
+  direccion_ = direccionAjena_ = idAjeno_ = 0;
+  humedad_ = false;
+  if (!bus_) return false;
   for (uint8_t candidata : {uint8_t(0x76), uint8_t(0x77)}) {
     direccion_ = candidata;
     uint8_t id = 0;

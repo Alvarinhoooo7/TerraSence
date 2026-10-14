@@ -77,7 +77,7 @@ bool Sonda::consultar(uint32_t ahora) {
 }
 
 bool Sonda::iniciar(uint32_t ahora) {
-  if (estado_ == Estado::Midiendo) return false;
+  if (ocupada()) return false;
   lectura_ = LecturaSuelo{};
   velocidad_ = 0;
   estado_ = Estado::Midiendo;
@@ -89,6 +89,7 @@ bool Sonda::iniciar(uint32_t ahora) {
 }
 
 void Sonda::actualizar(uint32_t ahora) {
+  if (estado_ == Estado::Barrido) { actualizarBarrido(ahora); return; }
   if (estado_ != Estado::Midiendo) return;
   transporte.actualizar(ahora);
   if (!transporte.terminado()) return;
@@ -126,7 +127,11 @@ void Sonda::actualizar(uint32_t ahora) {
 
 void Sonda::cancelar() {
   transporte.cancelar();
-  if (estado_ == Estado::Midiendo) estado_ = Estado::Libre;
+  puerto.direccionTx(false);
+  puerto.cerrar();
+  puerto.alimentar(false);
+  lectura_ = LecturaSuelo{};
+  estado_ = Estado::Libre;
 }
 
 LecturaSuelo Sonda::tomarLectura() {
@@ -137,50 +142,82 @@ LecturaSuelo Sonda::tomarLectura() {
   return l;
 }
 
-void Sonda::diagnosticoBus() {
-  if (estado_ == Estado::Midiendo) return;
-  // Consulta normal a la dirección configurada y consulta de identidad del
-  // manual: la dirección comodín 0xFF lee el registro 0x07D0, donde la sonda
-  // guarda su dirección, y responde aunque la tenga cambiada.
-  modbus::Consulta c;
-  c.direccion = SONDA_DIRECCION;
-  c.funcion = SONDA_FUNCION;
-  c.inicio = SONDA_REGISTRO_INICIO;
-  c.cantidad = SONDA_REGISTROS;
-  uint8_t lectura[8];
-  modbus::armarSolicitud(c, lectura);
-  static const uint8_t identidad[8] = {0xFF, 0x03, 0x07, 0xD0, 0x00, 0x01, 0x91, 0x59};
-  struct Prueba { const char *nombre; const uint8_t *trama; };
-  const Prueba pruebas[] = {{"lectura (dirección 1)", lectura}, {"identidad (dirección FF)", identidad}};
-  // 2.400 es la tercera velocidad que admite la sonda (registro 0x07D1).
-  static const uint32_t velocidades[] = {2400, 4800, 9600};
+const uint8_t *Sonda::crudo() const { return transporte.crudo(); }
+size_t Sonda::largoCrudo() const { return transporte.largoCrudo(); }
+uint8_t Sonda::descartados() const { return transporte.descartados(); }
 
-  Serial.println("[DIAG] Bus RS-485: cada consulta a 2.400, 4.800 y 9.600 baudios");
+bool Sonda::iniciarBarrido(uint32_t ahora) {
+  if (ocupada()) return false;
+  lectura_ = LecturaSuelo{};
+  transporte.limpiar();
+  estado_ = Estado::Barrido;
+  pasoBarrido_ = 0;
+  recibiendoBarrido_ = false;
+  barridoDesde_ = ahora;
+  puerto.direccionTx(false);
   puerto.alimentar(true);
-  delay(SONDA_ESTABILIZACION_MS);
-  for (uint32_t baudios : velocidades) {
-    for (const Prueba &p : pruebas) {
-      puerto.abrir(baudios);
-      while (Serial2.available()) Serial2.read();
-      puerto.direccionTx(true);
-      puerto.transmitir(p.trama, 8);  // suelta RTS al terminar
-      Serial.printf("[DIAG] %lu baudios, %s:", (unsigned long)baudios, p.nombre);
-      size_t n = 0;
-      const uint32_t inicio = millis();
-      while (millis() - inicio < 300) {
-        while (Serial2.available()) {
-          Serial.printf(" %02X", Serial2.read());
-          n++;
-        }
-        delay(1);
-      }
-      Serial.println(n ? "" : " nada");
-      puerto.cerrar();
+  Serial.println("[DIAG] Barrido RS-485 iniciado; MOSFET IO5 activo. x cancela.");
+  return true;
+}
+
+void Sonda::actualizarBarrido(uint32_t ahora) {
+  static const uint32_t velocidades[] = {2400, 4800, 9600};
+  if (!recibiendoBarrido_) {
+    if (pasoBarrido_ == 0 && ahora - barridoDesde_ < SONDA_ESTABILIZACION_MS) return;
+    modbus::Consulta c;
+    c.direccion = SONDA_DIRECCION;
+    c.funcion = SONDA_FUNCION;
+    c.inicio = SONDA_REGISTRO_INICIO;
+    c.cantidad = SONDA_REGISTROS;
+    uint8_t lectura[8];
+    modbus::armarSolicitud(c, lectura);
+    // Consulta de identidad comodín del manual; no escribe configuración.
+    static const uint8_t identidad[8] = {0xFF, 0x03, 0x07, 0xD0, 0x00, 0x01, 0x91, 0x59};
+    const uint8_t *tx = pasoBarrido_ % 2 ? identidad : lectura;
+    if (!puerto.abrir(velocidades[pasoBarrido_ / 2])) { cancelar(); return; }
+    // Acotado incluso si el bus recibe ruido continuamente.
+    for (unsigned i = 0; i < 128 && Serial2.available(); ++i) Serial2.read();
+    if (Serial2.available()) {
+      cancelar();
+      Serial.println("[DIAG] Barrido cancelado: recepción continua antes de transmitir; MOSFET apagado.");
+      return;
     }
+    Serial.printf("[DIAG] %lu baudios | %s\nHEX TX:",
+                  (unsigned long)velocidades[pasoBarrido_ / 2],
+                  pasoBarrido_ % 2 ? "identidad FF" : "lectura de suelo");
+    for (size_t i = 0; i < 8; ++i) Serial.printf(" %02X", tx[i]);
+    Serial.println();
+    puerto.direccionTx(true);
+    if (!puerto.transmitir(tx, 8)) {
+      cancelar();
+      Serial.println("[DIAG] Fallo de transmisión; MOSFET apagado.");
+      return;
+    }
+    barridoDesde_ = millis();
+    largoBarrido_ = 0;
+    excesoBarrido_ = false;
+    recibiendoBarrido_ = true;
+    return;
   }
-  puerto.alimentar(false);
-  Serial.println("[DIAG] Antes de la respuesta puede venir el eco de la consulta. Una respuesta sana es 01 03 0E + 14 bytes + "
-                 "CRC (lectura) o XX 03 02 00 XX + CRC (identidad; XX es la dirección)");
+  for (unsigned n = 0; n < 64 && Serial2.available(); ++n) {
+    const uint8_t byte = uint8_t(Serial2.read());
+    if (largoBarrido_ < sizeof(rxBarrido_)) rxBarrido_[largoBarrido_++] = byte;
+    else excesoBarrido_ = true;
+  }
+  if (ahora - barridoDesde_ < SONDA_RESPUESTA_MS) return;
+  Serial.println("[DIAG] Bytes recibidos sin validar (pueden incluir eco/ruido):");
+  Serial.print("HEX RX:");
+  for (size_t i = 0; i < largoBarrido_; ++i) Serial.printf(" %02X", rxBarrido_[i]);
+  if (!largoBarrido_) Serial.print(" sin respuesta");
+  if (excesoBarrido_) Serial.print(" [truncado a 64 bytes]");
+  Serial.println();
+  puerto.cerrar();
+  recibiendoBarrido_ = false;
+  if (++pasoBarrido_ == 6) {
+    puerto.alimentar(false);
+    estado_ = Estado::Terminada;
+    Serial.println("[DIAG] Barrido terminado; MOSFET apagado. Opción 7 valida lectura y CRC.");
+  }
 }
 
 void Sonda::convertir(const uint16_t *r) {
