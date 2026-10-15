@@ -799,7 +799,46 @@ npm run test:supabase-onboarding
 
 # Compilación de prueba para verificar empaquetado Android
 npx expo export --platform android
+
+# APK release para entregar a otra persona (sección 9.1)
+npm run android:release
 ```
+
+### 9.1. APK release distribuible
+
+El APK que se entrega a otra persona sale **sólo** de `npm run android:release`
+([`scripts/build-android-release.mjs`](scripts/build-android-release.mjs)). El script aplica los
+config plugins con `expo prebuild --no-clean` (sin borrar `android/`, que en Windows suele estar
+bloqueado por el IDE; si no existe, lo crea con su `local.properties`), ejecuta
+`gradlew assembleRelease` y verifica el resultado en
+`android/app/build/outputs/apk/release/app-release.apk`. Para revisar un APK que ya existe:
+`node scripts/build-android-release.mjs --verificar <ruta.apk>`.
+
+**No sirve el APK del botón «Run» de Android Studio** (el que queda en
+`android/app/build/intermediates/apk/`). Android Studio le inyecta `android:testOnly="true"`, que
+hace que el teléfono lo rechace salvo con `adb install -t`, y compila `libappmodules.so`, el código
+nativo propio de la app, sólo para la ABI del teléfono conectado, así que la app se cierra al abrir
+en teléfonos de 32 bits (`armeabi-v7a`). `npx expo run:android --variant release` limita la ABI
+igual (con `--all-arch` no). Esas compilaciones release se abortan con un mensaje que lo explica.
+
+**Firma.** La plantilla de Expo firma `release` con `debug.keystore`, cuya clave es pública:
+Google Play lo rechaza y un APK así no actualiza una instalación firmada con otra clave. El
+config plugin [`plugins/withReleaseSigning.js`](plugins/withReleaseSigning.js) lo reemplaza por la
+clave de publicación propia, que vive **fuera del repositorio y de `android/`**:
+
+| Qué | Dónde |
+| :--- | :--- |
+| Almacén de claves (PKCS12, RSA 4096, alias `terrasense-upload`) | `%USERPROFILE%\.terrasense\terrasense-upload.jks` |
+| Ruta, alias y contraseñas | `%USERPROFILE%\.gradle\gradle.properties`: `TERRASENSE_UPLOAD_STORE_FILE`, `TERRASENSE_UPLOAD_STORE_PASSWORD`, `TERRASENSE_UPLOAD_KEY_ALIAS`, `TERRASENSE_UPLOAD_KEY_PASSWORD` |
+
+Sin esas cuatro propiedades, toda tarea release falla en vez de firmar con la clave debug. Para
+compilar en otro equipo hay que copiar ambos archivos. **Si se pierde el `.jks` o su contraseña, los
+teléfonos que tienen la app no aceptan una versión nueva** (hay que desinstalar y reinstalar), así
+que se respaldan fuera del computador. En Google Play esta es la *clave de subida* (Play App
+Signing firma con la suya); allí una clave perdida se puede reemplazar a través del soporte de Play.
+
+Los perfiles de `eas build` no usan este almacén: EAS firma con las credenciales que administra
+en su servidor.
 
 ### Verificación en dispositivo — pendiente
 

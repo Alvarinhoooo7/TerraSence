@@ -114,6 +114,8 @@ export default () => ({
         },
       ],
       './plugins/withAndroidSecurity',
+      // Firma release con la clave propia y aborta los release no distribuibles.
+      './plugins/withReleaseSigning',
       [
         'react-native-ble-plx',
         {
