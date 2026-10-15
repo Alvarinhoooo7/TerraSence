@@ -8,7 +8,7 @@
 // `ReduceMotion.System` respeta «reducir movimiento» del teléfono sin que cada
 // pantalla tenga que consultarlo por su cuenta.
 
-import { Easing, FadeIn, FadeInDown, LinearTransition, ReduceMotion, SlideInDown, withTiming } from 'react-native-reanimated';
+import { Easing, FadeIn, FadeInDown, LinearTransition, ReduceMotion, SlideInDown, withTiming, ZoomIn } from 'react-native-reanimated';
 
 export const Motion = {
   /** Aparición de un bloque de contenido. */
@@ -40,6 +40,10 @@ export const sheetIn = () =>
 /** Fundido del fondo atenuado que acompaña a la hoja. */
 export const backdropIn = () =>
   FadeIn.duration(Motion.sheet).reduceMotion(ReduceMotion.System);
+
+/** Marca que aparece con un pequeño "pop" al seleccionar una opción. */
+export const checkPop = () =>
+  ZoomIn.duration(Motion.press).easing(MotionEasing).reduceMotion(ReduceMotion.System);
 
 /** Reacomodo de los hijos cuando el contenido cambia de tamaño o de orden. */
 export const layoutFlow = () =>

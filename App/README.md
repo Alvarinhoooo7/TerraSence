@@ -191,7 +191,7 @@ App/
 │   ├── store/                          # useAppStore.ts y useAuthStore.ts (sesión con caché offline)
 │   ├── hooks/                          # useAppTheme, useTranslation y useMeasurementHistory
 │   ├── screens/
-│   │   ├── LanguageScreen.tsx          # Selector de idioma inicial y desde bienvenida/acceso
+│   │   ├── LanguageScreen.tsx          # Selector de idioma del onboarding (paso obligatorio, una vez)
 │   │   ├── WelcomeCarouselScreen.tsx   # Carrusel informativo inicial
 │   │   ├── AuthScreen.tsx              # Inicio de sesión, registro y solicitud de clave
 │   │   ├── EmailCodeScreen.tsx         # Código de 6 dígitos: confirmación y recuperación
@@ -372,7 +372,8 @@ una sesión de recuperación no abre permisos ni la aplicación operativa.
 
 - **Carga e idioma:** el splash nativo entrega el control a [LoadingScreen](src/components/LoadingScreen.tsx).
   [LanguageScreen](src/screens/LanguageScreen.tsx) guarda la elección sin requerir conexión.
-  Desde bienvenida o acceso se abre como panel completo y conserva la página y los campos al volver.
+  Desde bienvenida o acceso, [LanguageSwitch](src/components/entry/LanguageSwitch.tsx) ofrece un
+  desplegable chico anclado al mismo botón (sin pantalla completa) que cambia al idioma inverso al activo.
   [preferencesService](src/services/preferencesService.ts) asocia una elección explícita a la siguiente
   cuenta autenticada, conserva el resto de su perfil y reintenta cambios pendientes al recuperar red.
   Una sesión restaurada usa la caché de su cuenta y consulta el servidor con espera acotada.

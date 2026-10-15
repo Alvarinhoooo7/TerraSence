@@ -87,7 +87,6 @@ export default function App() {
   const registrationDraft = useRef<RegistrationConsentDraft | null>(null);
   const pendingRegistrationIdentity = useRef<string | null>(null);
   const [languageSelected, setLanguageSelected] = useState(false);
-  const [languageSelectorOpen, setLanguageSelectorOpen] = useState(false);
   const [savingLanguage, setSavingLanguage] = useState(false);
   const languageSaveInFlight = useRef(false);
   const [languageError, setLanguageError] = useState(false);
@@ -405,7 +404,6 @@ export default function App() {
       }
       setPreferences({ ...useAppStore.getState().preferences, language });
       setLanguageSelected(true);
-      setLanguageSelectorOpen(false);
     } catch { setLanguageError(true); }
     finally { languageSaveInFlight.current = false; setSavingLanguage(false); }
   };
@@ -415,7 +413,7 @@ export default function App() {
     return registrationDraft.current?.consent ?? null;
   };
   const authScreen = () => <AuthScreen onAuthenticated={() => setRoute('dashboard')}
-    onChangeLanguage={() => setLanguageSelectorOpen(true)}
+    onChangeLanguage={language => void applyEntryLanguage(language)} languageBusy={savingLanguage}
     onRequireConsent={(name, email) => {
       pendingRegistrationIdentity.current = registrationIdentity(name, email);
       setLegalFromRegistration(true);
@@ -462,7 +460,7 @@ export default function App() {
   } else if (entry === 'welcome') {
     content = (
       <WelcomeCarouselScreen
-        onChangeLanguage={() => setLanguageSelectorOpen(true)}
+        onChangeLanguage={language => void applyEntryLanguage(language)} languageBusy={savingLanguage}
         onComplete={() => {
           setWelcomeComplete(true);
           void AsyncStorage.setItem(WELCOME_KEY, 'true').catch(() => undefined);
@@ -606,11 +604,6 @@ export default function App() {
             pendingRegistrationIdentity.current = null;
             setLegalFromRegistration(false);
           }} />}</SafeAreaProvider>
-        </Modal>
-        <Modal visible={languageSelectorOpen && (entry === 'welcome' || entry === 'auth')} animationType="none" presentationStyle="fullScreen"
-          onRequestClose={() => { if (!languageSaveInFlight.current) { setLanguageSelectorOpen(false); setLanguageError(false); } }}>
-          <SafeAreaProvider><LanguageScreen initialLanguage={preferences.language}
-            onClose={() => { setLanguageSelectorOpen(false); setLanguageError(false); }} onContinue={language => { void applyEntryLanguage(language); }} busy={savingLanguage} error={languageError} /></SafeAreaProvider>
         </Modal>
       </SafeAreaProvider>
     </GestureHandlerRootView>

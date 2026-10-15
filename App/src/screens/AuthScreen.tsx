@@ -16,7 +16,9 @@ import { useAppStore } from '../store/useAppStore';
 import { PasswordChecklist } from '../components/PasswordChecklist';
 import { AccessField } from '../components/auth/AccessField';
 import { EntryLayout, EntryButton, EntryHeading } from '../components/entry/EntryUI';
+import { LanguageSwitch } from '../components/entry/LanguageSwitch';
 import type { RegistrationConsent } from '../utils/registrationConsent';
+import type { AppLanguage } from '../types/preferences';
 import { EmailCodeScreen } from './EmailCodeScreen';
 import type { EmailOtpPurpose } from '../services/emailOtp';
 import { isPasswordAcceptable, PASSWORD_MIN_LENGTH } from '../utils/passwordRules';
@@ -67,14 +69,15 @@ const humanizeError = (message: string, en: boolean): string => {
 
 interface Props {
   onAuthenticated: () => void;
-  onChangeLanguage?: () => void;
+  onChangeLanguage?: (language: AppLanguage) => void;
+  languageBusy?: boolean;
   onRequireConsent: (name: string, email: string) => void;
   onBindConsent: (name: string, email: string) => RegistrationConsent | null;
   onIdentityChange: (name: string, email: string) => void;
   onDiscardConsent: () => void;
 }
 
-export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage, onRequireConsent, onBindConsent, onIdentityChange, onDiscardConsent }) => {
+export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage, languageBusy = false, onRequireConsent, onBindConsent, onIdentityChange, onDiscardConsent }) => {
   const { colors } = useAppTheme();
 
   const [mode, setMode] = useState<Mode>('signin');
@@ -241,10 +244,9 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage,
 
   return <EntryLayout keyboardAware header={<View style={styles.header}>
       <Text style={[styles.wordmark, { color: colors.primary }]}>TERRA<Text style={{ color: colors.text }}>SENSE</Text></Text>
-      {!!onChangeLanguage && <Pressable accessibilityRole="button" accessibilityLabel={t('Cambiar idioma', 'Change language')}
-        disabled={busy} onPress={onChangeLanguage} style={styles.language}>
-        <Text style={{ color: colors.primary, fontWeight: '700' }}>{preferences.language.toUpperCase()} ▾</Text>
-      </Pressable>}
+      {!!onChangeLanguage && <View style={styles.language}>
+        <LanguageSwitch language={preferences.language} onChange={onChangeLanguage} busy={busy || languageBusy} />
+      </View>}
     </View>} footer={footer}>
       <View style={styles.body}>
         <EntryHeading eyebrow={mode === 'signup' ? `${signupStep} / 2` : undefined}

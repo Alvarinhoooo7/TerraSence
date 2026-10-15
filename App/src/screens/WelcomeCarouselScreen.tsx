@@ -3,9 +3,12 @@ import { AccessibilityInfo, FlatList, Pressable, ScrollView, useWindowDimensions
 import { Text } from '../components/AppText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import { EntryButton, useEntryMetrics } from '../components/entry/EntryUI';
+import { LanguageSwitch } from '../components/entry/LanguageSwitch';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
+import type { AppLanguage } from '../types/preferences';
 
 const PAGES = [
   { eyebrow: ['01 / CONOCE EL SUELO', '01 / KNOW THE SOIL'], title: ['Conoce mejor\ntu campo.', 'Know your\nfield better.'], body: ['Comprende las condiciones del suelo con cada medición y lleva el registro contigo.', 'Understand soil conditions with each measurement and keep a record at hand.'] },
@@ -13,10 +16,24 @@ const PAGES = [
   { eyebrow: ['03 / INTERPRETA', '03 / INTERPRET'], title: ['Datos con\ncontexto.', 'Data with\ncontext.'], body: ['Revisa el historial y recibe orientación según el suelo y la etapa de tu cultivo. Con internet, suma el pronóstico.', 'Review your history and guidance based on soil and crop stage. Add the forecast when online.'] },
 ] as const;
 
-function Artwork({ page, height }: { page: number; height: number }) {
+function Artwork({ page, height, reducedMotion }: { page: number; height: number; reducedMotion: boolean }) {
+  const breathe = useSharedValue(1);
+  useEffect(() => {
+    if (reducedMotion) { breathe.value = 1; return; }
+    breathe.value = withRepeat(withSequence(
+      withTiming(0.35, { duration: 1900, easing: Easing.inOut(Easing.sin) }),
+      withTiming(1, { duration: 1900, easing: Easing.inOut(Easing.sin) }),
+    ), -1, false);
+  }, [reducedMotion]);
+  const ringStyle = useAnimatedStyle(() => ({ opacity: breathe.value }));
+  const layer = { position: 'absolute' as const, top: 0, right: 0, bottom: 0, left: 0 };
   return <View accessible={false} importantForAccessibility="no-hide-descendants" style={{ height, borderRadius: 24, overflow: 'hidden', backgroundColor: '#17392C' }}>
-    <Svg width="100%" height="100%" viewBox="0 0 360 230" preserveAspectRatio="xMidYMid meet">
-      <Circle cx="300" cy="42" r="90" fill="none" stroke="#50715B" strokeWidth="1" />
+    <Animated.View style={[layer, ringStyle]}>
+      <Svg width="100%" height="100%" viewBox="0 0 360 230" preserveAspectRatio="xMidYMid meet">
+        <Circle cx="300" cy="42" r="90" fill="none" stroke="#50715B" strokeWidth="1" />
+      </Svg>
+    </Animated.View>
+    <Svg style={layer} width="100%" height="100%" viewBox="0 0 360 230" preserveAspectRatio="xMidYMid meet">
       {page === 0 ? <>
         {/* Campo con hileras al fondo y, en corte, una planta con sus raíces y la humedad del suelo. */}
         <Circle cx="300" cy="42" r="16" fill="#C6DFB4" opacity={0.9} />
@@ -39,7 +56,9 @@ function Artwork({ page, height }: { page: number; height: number }) {
         <Rect x="73" y="38" width="82" height="144" rx="8" fill="#D8E6CD" />
         <Path d="M89 148h50M89 131h31M89 103h50" stroke="#43704B" strokeWidth="4" strokeLinecap="round" />
         <Rect x="239" y="37" width="28" height="76" rx="8" fill="#C6DFB4" />
-        <Path d="M245 113v91m16-91v91M187 64q-20 30 0 56m29-71q-36 49 0 91" stroke="#C6DFB4" strokeWidth="3" fill="none" />
+        <Path d="M187 64q-20 30 0 56m29-71q-36 49 0 91" stroke="#C6DFB4" strokeWidth="3" fill="none" />
+        {/* Sonda real: 5 electrodos bajo el cuerpo, no 2. */}
+        <Path d="M243 113v91M248 113v91M253 113v91M258 113v91M263 113v91" stroke="#C6DFB4" strokeWidth="2.2" fill="none" strokeLinecap="round" />
         <Circle cx="253" cy="70" r="5" fill="#39704B" />
       </> : <>
         <Rect x="42" y="41" width="276" height="150" rx="15" fill="#EDE8D9" />
@@ -51,8 +70,8 @@ function Artwork({ page, height }: { page: number; height: number }) {
   </View>;
 }
 
-function WelcomePage({ item, page, active, width, viewportHeight }: {
-  item: (typeof PAGES)[number]; page: number; active: boolean; width: number; viewportHeight: number;
+function WelcomePage({ item, page, active, width, viewportHeight, reducedMotion }: {
+  item: (typeof PAGES)[number]; page: number; active: boolean; width: number; viewportHeight: number; reducedMotion: boolean;
 }) {
   const { colors } = useAppTheme();
   const { t } = useTranslation();
@@ -67,7 +86,7 @@ function WelcomePage({ item, page, active, width, viewportHeight }: {
   return <ScrollView style={{ width }} contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, justifyContent: 'center', paddingVertical: 8 }}
     accessibilityElementsHidden={!active} importantForAccessibility={active ? 'auto' : 'no-hide-descendants'}>
     <View style={{ maxWidth: 472, alignSelf: 'center', width: '100%', gap: artworkHeight > 0 ? gap : 0 }}>
-      {artworkHeight > 0 && <Artwork page={page} height={artworkHeight} />}
+      {artworkHeight > 0 && <Artwork page={page} height={artworkHeight} reducedMotion={reducedMotion} />}
       <View onLayout={event => setTextHeight(event.nativeEvent.layout.height)} style={{ gap: metrics.compact ? 9 : 14 }}>
         <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.3 }}>{t(item.eyebrow[0], item.eyebrow[1])}</Text>
         <Text accessibilityRole="header" style={{ color: colors.text, fontSize: metrics.compact ? 33 : 39, lineHeight: metrics.compact ? 39 : 45, fontWeight: '700', letterSpacing: -1.2 }}>{t(item.title[0], item.title[1])}</Text>
@@ -77,7 +96,9 @@ function WelcomePage({ item, page, active, width, viewportHeight }: {
   </ScrollView>;
 }
 
-export function WelcomeCarouselScreen({ onComplete, onChangeLanguage }: { onComplete: () => void; onChangeLanguage?: () => void }) {
+export function WelcomeCarouselScreen({ onComplete, onChangeLanguage, languageBusy = false }: {
+  onComplete: () => void; onChangeLanguage?: (language: AppLanguage) => void; languageBusy?: boolean;
+}) {
   const { width } = useWindowDimensions();
   const { colors } = useAppTheme();
   const { t, language } = useTranslation();
@@ -109,19 +130,17 @@ export function WelcomeCarouselScreen({ onComplete, onChangeLanguage }: { onComp
   };
   return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, minHeight: 54, maxWidth: 520, width: '100%', alignSelf: 'center' }}>
-      <Pressable accessibilityRole="button" accessibilityLabel={t('Cambiar idioma', 'Change language')} onPress={onChangeLanguage} style={{ minHeight: 48, justifyContent: 'center' }}>
-        <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '700' }}>{language === 'es' ? 'ESPAÑOL ▾' : 'ENGLISH ▾'}</Text>
-      </Pressable>
+      {onChangeLanguage ? <LanguageSwitch language={language} onChange={onChangeLanguage} busy={languageBusy} /> : <View />}
       <Pressable accessibilityRole="button" onPress={onComplete} style={{ minHeight: 48, justifyContent: 'center', paddingHorizontal: 8 }}>
         <Text style={{ color: colors.textSecondary, fontSize: 15 }}>{t('Saltar', 'Skip')}</Text>
       </Pressable>
     </View>
     <FlatList ref={list} data={PAGES} horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={{ flex: 1 }}
-      extraData={{ width, language, index, viewportHeight }} keyExtractor={(_, i) => String(i)}
+      extraData={{ width, language, index, viewportHeight, reducedMotion }} keyExtractor={(_, i) => String(i)}
       onLayout={event => setViewportHeight(event.nativeEvent.layout.height)}
       getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
       onViewableItemsChanged={viewable} viewabilityConfig={viewabilityConfig} onScrollBeginDrag={() => { target.current = null; }}
-      renderItem={({ item, index: page }) => <WelcomePage item={item} page={page} active={page === index} width={width} viewportHeight={viewportHeight} />} />
+      renderItem={({ item, index: page }) => <WelcomePage item={item} page={page} active={page === index} width={width} viewportHeight={viewportHeight} reducedMotion={reducedMotion} />} />
     <View style={{ paddingHorizontal: 24, paddingBottom: 16, gap: 16, maxWidth: 520, width: '100%', alignSelf: 'center' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 32 }}>
         <Pressable accessibilityRole="button" accessibilityLabel={t('Anterior', 'Previous')} accessibilityState={{ disabled: index === 0 }} disabled={index === 0} onPress={() => go(index - 1)} style={{ minWidth: 72, minHeight: 48, justifyContent: 'center' }}>
