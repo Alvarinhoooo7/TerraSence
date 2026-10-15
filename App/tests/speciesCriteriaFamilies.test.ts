@@ -152,5 +152,5 @@ test('ES6/T39: la instantánea guarda la versión de los criterios y el contexto
   const presentation = buildMeasurementPresentation(raw, evaluation, advice, 'es', undefined, 'sp.tomate');
   assert.match(presentation.context, /el pronóstico y los criterios de esta especie para floración/);
   assert.equal(presentation.species?.rulesVersion, SPECIES_RULES_VERSION);
-  assert.ok(Object.values(SPECIES_RULES).length === 32);
+  assert.ok(Object.values(SPECIES_RULES).length === 69);
 });

@@ -34,11 +34,22 @@ const citesNumber = (text: string, n: number) => {
 const conditionCriteria = Object.values(SPECIES_RULES).flatMap(profile => profile.criteria
   .flatMap(c => c.kind === 'air_temperature' || c.kind === 'reading' ? [{ id: profile.speciesId, c }] : []));
 
-test('ES6: las 32 especies con perfil tienen criterios en vegetativo, floración y cosecha', () => {
-  const gaps = Object.keys(SPECIES_RULES).flatMap(id => STAGES.filter(stage => !hasEnabledCriteria(id, stage)).map(stage => `${id}/${stage}`));
+const ORIGINAL_33_SPECIES = [
+  'sp.apio', 'sp.arveja', 'sp.berenjena', 'sp.betarraga', 'sp.brocoli',
+  'sp.camote', 'sp.cebolla', 'sp.cebollin', 'sp.coliflor', 'sp.espinaca',
+  'sp.lechuga', 'sp.maiz', 'sp.melon', 'sp.pepino', 'sp.perejil',
+  'sp.pimiento', 'sp.poroto', 'sp.puerro', 'sp.rabanito', 'sp.repollito-bruselas',
+  'sp.repollo', 'sp.sandia', 'sp.zanahoria', 'sp.zapallo', 'sp.zapallo-italiano',
+  'sp.esparrago', 'sp.papa', 'sp.tomate', 'sp.arandano', 'sp.frutilla',
+  'sp.cerezo', 'sp.kiwi', 'sp.olivo',
+];
+
+test('ES6: las 33 especies originales tienen cobertura en las 3 etapas y el conjunto suma 69 perfiles', () => {
+  const gaps = ORIGINAL_33_SPECIES.flatMap(id => STAGES.filter(stage => !hasEnabledCriteria(id, stage)).map(stage => `${id}/${stage}`));
   assert.deepEqual(gaps, []);
-  assert.equal(Object.keys(SPECIES_RULES).length, 32);
+  assert.equal(Object.keys(SPECIES_RULES).length, 69);
   for (const profile of Object.values(SPECIES_RULES)) {
+    assert.ok(profile.criteria.length > 0, profile.speciesId);
     assert.equal(profile.establishment, profile.horizon === 'annual' ? 'not_specified' : 'established_plantation', profile.speciesId);
   }
 });
@@ -151,6 +162,27 @@ test('ES6: cerezo distingue grados de helada en flor, calor en polinización y l
   assert.match(weatherFor('sp.cerezo', 'vegetativo', forecast({ maximumTemperatureC: 37 })).findings[0].title, /limita el crecimiento/);
 });
 
+test('ES6: kiwi sigue la tabla de helada del Comité del Kiwi por etapa y el calor de verano sólo informa', () => {
+  const at = (stage: PhenologicalStage, over: Partial<SpeciesWeatherDay>) => weatherFor('sp.kiwi', stage, forecast(over)).findings;
+  // Flor abierta −0,5 °C; brotes tiernos −1,0 °C; fruto en maduración −2,0 °C.
+  assert.deepEqual(at('floracion', { minimumTemperatureC: -0.4 }), []);
+  assert.match(at('floracion', { minimumTemperatureC: -0.5 })[0].title, /daña la flor del kiwi/);
+  assert.deepEqual(at('vegetativo', { minimumTemperatureC: -0.9 }), []);
+  assert.equal(at('vegetativo', { minimumTemperatureC: -1 })[0].type, 'warning');
+  assert.deepEqual(at('cosecha', { minimumTemperatureC: -1.9 }), []);
+  assert.match(at('cosecha', { minimumTemperatureC: -2 })[0].title, /maduración/);
+  // Sin fuente de lluvia en cosecha: la lluvia no genera aviso.
+  assert.deepEqual(at('cosecha', { rainy: true }), []);
+  const heat = at('vegetativo', { maximumTemperatureC: 32 });
+  assert.deepEqual(heat.map(f => f.type), ['info'], 'el pronóstico no compara viento ni humedad');
+  assert.match(heat[0].detail, /Comité del Kiwi/);
+  // pH: rango deseado sin límites documentados, nunca advierte.
+  const ph = (value: number) => evaluateSpeciesCriteria('sp.kiwi', 'vegetativo', { ...raw, ph: value }, 'es').filter(a => a.param === 'ph')[0];
+  assert.equal(ph(6.5).title, 'pH adecuado para este cultivo');
+  assert.equal(ph(5.2).type, 'info');
+  assert.match(ph(5.2).detail!, /Wisconsin/);
+});
+
 test('ES6: lluvia en curso cuenta para el arándano en cosecha y niebla en floración para el olivo', () => {
   const raining = weatherFor('sp.arandano', 'cosecha', { ...forecast({}), rainingNow: true });
   assert.equal(raining.findings[0].when, 'now');
@@ -164,12 +196,15 @@ test('ES6: lluvia en curso cuenta para el arándano en cosecha y niebla en flora
 
 test('ES6/T05: sin pronóstico, o sin el dato que el criterio necesita, el criterio queda sin evaluar y nunca favorable', () => {
   assert.deepEqual(weatherFor('sp.tomate', 'cosecha', null), { applicable: true, evaluated: false, findings: [] });
-  const noMinimum = weatherFor('sp.tomate', 'cosecha', forecast({ minimumTemperatureC: null }, { minimumTemperatureC: null }));
+  const noMinimum = weatherFor('sp.tomate', 'cosecha', forecast({ minimumTemperatureC: null, rainy: null }, { minimumTemperatureC: null, rainy: null }));
   assert.equal(noMinimum.evaluated, false);
+  // Con datos de lluvia disponibles, el criterio propio de rajadura por lluvia sí se evalúa.
+  assert.equal(weatherFor('sp.tomate', 'cosecha', forecast({ minimumTemperatureC: null, rainy: false })).evaluated, true);
   const noRain = weatherFor('sp.cerezo', 'cosecha', forecast({ rainy: null }));
   assert.equal(noRain.evaluated, false);
   // Una especie sin criterios del pronóstico en la etapa no los informa como pendientes.
-  assert.deepEqual(weatherFor('sp.palto', 'cosecha', null), { applicable: false, evaluated: false, findings: [] });
+  assert.deepEqual(weatherFor('sp.arandano', 'vegetativo', null), { applicable: false, evaluated: false, findings: [] });
+  assert.deepEqual(weatherFor('sp.manzano', 'cosecha', null), { applicable: false, evaluated: false, findings: [] });
   assert.equal(hasWeatherCriteria('sp.arandano', 'vegetativo'), false);
   assert.equal(hasWeatherCriteria('sp.tomate', 'cosecha'), true);
 });
@@ -261,4 +296,38 @@ test('ES6: sin pronóstico vigente el plan dice que los criterios climáticos de
   const olive = buildContextualAdvice('vegetativo', evaluateReadingForStage(raw, 'vegetativo', 'es', { capturedAt: now, evaluatedAt: now }, 'sp.arandano'),
     raw, null, 'es', context, 'sp.arandano');
   assert.ok(!olive.recommendations!.some(r => r.title === 'No pudimos revisar el clima para este cultivo'));
+});
+
+test('ES6: perfiles de frutales ola 2 (vid, manzano, palto, limonero) evalúan sus criterios climáticos propios', () => {
+  // Vid: helada tras brotación en vegetativo (-1.2 °C), calor en floración (>35 °C), lluvia en cosecha
+  const vineFrost = weatherFor('sp.vid', 'vegetativo', forecast({ minimumTemperatureC: -1.5 }));
+  assert.equal(vineFrost.applicable, true);
+  assert.equal(vineFrost.evaluated, true);
+  assert.match(vineFrost.findings[0]?.title ?? '', /Helada tras la brotación/);
+
+  const vineHeat = weatherFor('sp.vid', 'floracion', forecast({ maximumTemperatureC: 36 }));
+  assert.equal(vineHeat.applicable, true);
+  assert.equal(vineHeat.evaluated, true);
+  assert.match(vineHeat.findings[0]?.title ?? '', /Calor sobre 35 °C en floración/);
+
+  const vineRain = weatherFor('sp.vid', 'cosecha', forecast({ rainy: true }));
+  assert.equal(vineRain.applicable, true);
+  assert.equal(vineRain.evaluated, true);
+  assert.match(vineRain.findings[0]?.title ?? '', /Lluvia en cosecha.*botritis/);
+
+  // Palto: helada a -1.7 °C en vegetativo y floración
+  const avocadoFrost = weatherFor('sp.palto', 'vegetativo', forecast({ minimumTemperatureC: -2.0 }));
+  assert.equal(avocadoFrost.applicable, true);
+  assert.equal(avocadoFrost.evaluated, true);
+  assert.match(avocadoFrost.findings[0]?.title ?? '', /Helada bajo −1,7 °C/);
+
+  // Manzano: helada a -2.2 °C en floración
+  const appleFrost = weatherFor('sp.manzano', 'floracion', forecast({ minimumTemperatureC: -2.5 }));
+  assert.equal(appleFrost.applicable, true);
+  assert.match(appleFrost.findings[0]?.title ?? '', /Helada en floración/);
+
+  // Limonero: helada a -1.7 °C en floración
+  const lemonFrost = weatherFor('sp.limonero', 'floracion', forecast({ minimumTemperatureC: -2.0 }));
+  assert.equal(lemonFrost.applicable, true);
+  assert.match(lemonFrost.findings[0]?.title ?? '', /Helada en floración.*limonero/);
 });

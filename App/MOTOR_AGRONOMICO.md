@@ -989,3 +989,117 @@ Consulta documental: 10 de octubre de 2026. Los enlaces respaldan el aspecto ind
 
 <a id="s40"></a>
 **S40 — FAO, Organization, operation and maintenance of irrigation schemes (Irrigation and Drainage Paper 40, 1986), anexo II.** [Capítulo](https://www.fao.org/4/x5647E/x5647e0e.htm). Tabla 12, factores de respuesta del rendimiento (ky) por período, tomados de FAO Irrigation and Drainage Paper 33: un ky alto marca el período sensible a la falta de agua.
+
+<a id="s41"></a>
+**S41 — Washington State University Extension, How Does Heat Impact Blueberry Pollination, And Why Does It Matter? (M. Evalt, DeVetter Small Fruit Horticulture Program, WSU NWREC, 2024).** [Artículo](https://extension.wsu.edu/beat-the-heat/?p=527). Citando a Walters e Isaacs (2023): polen de arándano expuesto a 86–104 °F germina peor, y el crecimiento del tubo polínico se reduce sobre 95 °F.
+
+<a id="s42"></a>
+**S42 — University of Maryland Extension, Cracking of Vegetables (actualizado el 20 de febrero de 2023).** [Artículo](https://www.extension.umd.edu/node/2473). Rajadura longitudinal o concéntrica por lluvia persistente o rocío abundante («rain checking»); nombra melón, pepino, berenjena, tomate y pimiento. Recomienda cosechar antes de la madurez plena en períodos de lluvia frecuente.
+
+<a id="s43"></a>
+**S43 — University of Delaware Cooperative Extension, Fruit Cracking in Tomato (E. Ernest, agosto de 2026).** [Hoja técnica](https://www.udel.edu/content/dam/udelImages/canr/pdfs/extension/factsheets/Fruit-Cracking-in-Tomatoes_A.pdf). La lluvia durante la madurez del tomate aumenta la rajadura y las pérdidas de fruta comercial, sobre todo tras lluvia fuerte; también ocurre con riego irregular.
+
+<a id="s44"></a>
+**S44 — University of Delaware Cooperative Extension, Pythium in Vegetable Production (A. Koehler, Weekly Crop Update, 4 de junio de 2021).** [Artículo](https://sites.udel.edu/weeklycropupdate/?p=18401). En poroto verde, la pudrición algodonosa (Pythium) ocurre en plantas maduras cerca de la cosecha o después, y es más frecuente con lluvia y temperaturas frescas; recomienda evitar cosechar o embalar con clima húmedo.
+
+<a id="s45"></a>
+**S45 — University of Nebraska–Lincoln Extension, Wet Rots of Potato in Storage (G2203, A. D. Pavlista, Extension Potato Specialist, 2013).** [Publicación](https://extensionpubs.unl.edu/publication/g2203/na/pdf/view). Proteger la papa guardada de pudriciones húmedas cosechando con el suelo no mojado, evitando golpes al manipularla y guardándola fresca, seca y ventilada.
+
+<a id="s46"></a>
+**S46 — Mississippi State University Extension Service, State expects average sweet potato harvest (B. Coblentz, citando a L. Harvey, especialista en camote, 2021).** [Artículo](https://extension.msstate.edu/news/crop-report/2021/state-expects-average-sweet-potato-harvest). La lluvia al final de la temporada causa problemas de guarda como pudriciones, porque los suelos cálidos y mojados favorecen bacterias y hongos.
+
+<a id="s47"></a>
+**S47 — University of Arkansas Division of Agriculture, Cooperative Extension Service, Parsley (Home Gardening Series, FSA6091, C. R. Andersen).** [Hoja técnica](https://www.uaex.uada.edu/publications/PDF/FSA-6091.pdf). Si el perejil se fuerza a crecer por períodos largos sobre 90 °F (32,2 °C), el crecimiento se reduce mucho y puede morir.
+
+<a id="s48"></a>
+**S48 — Cornell Cooperative Extension (Cornell Vegetable Program), «Rolling Onions to "Stop the Rot"» (C. Hoepting, VegEdge, vol. 18, n.° 21, 31 de agosto de 2022).** [Boletín](https://rvpadmin.cce.cornell.edu/pdf/veg_edge/pdf252_pdf.pdf). Ensayo a campo 2021: menos pudrición bacteriana del bulbo (4,2 %) en cebollas volcadas antes de la lluvia que en las dejadas en pie (6,5 %); la lluvia que salpica puede introducir bacterias por el cuello.
+
+<a id="s49"></a>
+**S49 — University of Illinois Extension, Cabbage (Home Vegetable Gardening).** [Artículo](https://extension.illinois.edu/gardening-site/cabbage). Una lluvia fuerte repentina sobre una cabeza madura puede rajarla por la presión del agua absorbida de golpe.
+
+<a id="s50"></a>
+**S50 — University of Minnesota Extension, What's wrong with my plant? — Lettuce & endive, flowering plant.** [Diagnóstico](https://apps.extension.umn.edu/garden/diagnose/plant/vegetable/lettuce%26endive/floweringplant.html). Varios días sobre 75 °F (23,9 °C) hacen que la lechuga forme tallo floral y pueda amargar.
+
+<a id="s51"></a>
+**S51 — Oregon State University Extension Service, Plan now to harvest and store pumpkins and winter squash (K. Pokorny, 2023, revisado en 2025).** [Artículo](https://extension.oregonstate.edu/node/153311). Cosechar el zapallo de guarda antes de que el tiempo se vuelva demasiado frío o lluvioso; bajo 50 °F sostenido o con lluvia frecuente, es hora de traer la cosecha.
+
+<a id="s52"></a>
+**S52 — Colorado State University Western Colorado Research Center, Fruit Bud Stages & Critical Temperatures (H. J. Larsen y asociados).** [Fichas técnicas](https://labs.agsci.colostate.edu/minas/wp-content/uploads/sites/7/2025/09/budstagesapples.pdf). Umbrales críticos de helada (10 % y 90 % de mortalidad tras 30 minutos de exposición) por estadio de yema y flor en manzano, peral, damasco y ciruelo europeo (basados en datos de WSU Prosser).
+
+<a id="s53"></a>
+**S53 — Cornell Cooperative Extension, Orchard Soil pH Management (CCE Lake Ontario Fruit Program).** [Guía técnica](https://rvpadmin.cce.cornell.edu/uploads/doc_472.pdf). Recomienda mantener el pH del suelo del huerto de manzanos entre 6,0 y 6,5 en todo el perfil radicular para disponibilidad óptima de nutrientes.
+
+<a id="s54"></a>
+**S54 — Penn State Extension, Pear Soil pH and Nutrition.** [Artículo técnico](https://extension.psu.edu/orchard-soil-ph-and-nutrition). Objetivo documentado de pH 6,5 para huertos de perales comerciales.
+
+<a id="s55"></a>
+**S55 — North Carolina State Extension, Persimmon Culture & Viticulture.** [Ficha de caqui](https://content.ces.ncsu.edu/persimmons) y [Guía de vid](https://content.ces.ncsu.edu/muscadine-grapes-in-the-home-garden). Documenta pH óptimo de 6,0 a 6,5 para caqui y de 6,0 a 7,0 para cultivares de Vitis vinifera.
+
+<a id="s56"></a>
+**S56 — University of California Postharvest Technology Center, Persimmon: Recommendations for Maintaining Postharvest Quality (C. H. Crisosto).** [Ficha de poscosecha](https://postharvest.ucdavis.edu/produce-facts-sheets/persimmon). Indica que la lluvia durante la cosecha de caquis acelera el ablandamiento de la fruta e incrementa las pérdidas por pudrición.
+
+<a id="s57"></a>
+**S57 — California Rare Fruit Growers (CRFG), Fruit Facts.** [Índice de publicaciones](https://crfg.org/wiki/fruit/). Documenta requerimientos de pH, susceptibilidad térmica y comportamiento ante heladas para níspero, feijoa, granado, higuera, chirimoyo, maracuyá y tumbo.
+
+<a id="s58"></a>
+**S58 — Clemson University Cooperative Extension, Loquat (HGIC 1361).** [Ficha de extensión](https://hgic.clemson.edu/factsheet/loquat/). Documenta la temperatura crítica de −3 °C (27 °F) para daño en flores y frutos cuajados de níspero.
+
+<a id="s59"></a>
+**S59 — University of New Hampshire Extension, Growing Fruits: Plums, Cherries and Apricots in NH Home Orchards.** [Guía de extensión](https://extension.unh.edu/resource/growing-fruits-growing-plums-cherries-and-apricots-nh-home-orchards). Recomienda un rango de pH de 6,0 a 7,0 para frutales de hueso (carozos).
+
+<a id="s60"></a>
+**S60 — Michigan State University Extension / Purdue University MRCC, Picture Table of Fruit Freeze Thresholds (citando WSU EB0914 y MSU RR220).** [Tabla ilustrada](https://mrcc.purdue.edu/modules/vip/docs/PictureTableFFThresholds.pdf). Temperaturas críticas de 10 % y 90 % de daño en floración para duraznero y guindo (guinda ácida).
+
+<a id="s61"></a>
+**S61 — University of Georgia Cooperative Extension, Circulars on Peach and Pecan.** [Ficha de duraznero](https://extension.uga.edu/publications/detail.html?number=C1063) y [Blog de pecana](https://site.extension.uga.edu/pecan/2021/04/here-are-some-thoughts-on-the-recent-cold-snap-from-dr-wells/). Rango de pH de 6,0 a 6,5 para duraznero y sensibilidad a heladas primaverales en brotes de pecana.
+
+<a id="s62"></a>
+**S62 — University of Delaware Cooperative Extension, Fruit Cracking in Plums, Peaches, and Nectarines (G. Johnson).** [Artículo de extensión](https://sites.udel.edu/weeklycropupdate/?p=22968). Documenta absorción osmótica de agua y partidura de la piel en carozos cuando la fruta permanece mojada por lluvia cerca de la cosecha.
+
+<a id="s63"></a>
+**S63 — University of California Cooperative Extension, The Almond Doctor & County Fruit/Nut Reports (D. Doll, J. Connell, C. Kallsen).** [Almond Frost](https://www.thealmonddoctor.com/almond-frost-warning-protection-methods-2018/), [Almond Planting](https://www.thealmonddoctor.com/planning-and-planting-a-new-almond-orchard/), [Walnut Frost](https://ccfruitandnuts.ucanr.edu/files/296889.pdf) y [Pistachio Heat](https://cekern.ucanr.edu). Criterios térmicos y de suelo para almendro, nogal y pistacho.
+
+<a id="s64"></a>
+**S64 — Washington State University Viticulture & Enology, Grapevine Cold Hardiness (Ferguson et al., AJEV).** [Portal técnico](https://wine.wsu.edu/extension/cold-hardiness/). Documenta la temperatura crítica post-brotación de 29,8 °F (−1,2 °C) para variedades de vid vinífera.
+
+<a id="s65"></a>
+**S65 — University of California, Davis (Department of Viticulture and Enology), Effect of Heat on Grapevine Production and Fruit Quality (M. K. Bartlett).** [Artículo técnico](https://progressivecrop.com/2025/03/effect-of-heat-on-grapevine-production-and-fruit-quality/). Documenta que temperaturas sobre 35 °C (95 °F) durante la floración inhiben el desarrollo del tubo polínico y causan corrimiento floral en vid.
+
+<a id="s66"></a>
+**S66 — University of Wisconsin–Madison Division of Extension, Berry Splitting in Grapes (A. Atucha).** [Publicación de extensión](https://fruit.wisc.edu/2020/09/17/harvesting-decisions-after-heavy-rains-and-berry-splitting/). Documenta partidura de bayas y proliferación de Botrytis cinerea tras lluvias intensas próximas a la vendimia.
+
+<a id="s67"></a>
+**S67 — University of Florida IFAS Extension, EDIS Publications (Citrus, Lemon, Lime, Guava, Mango, Passion Fruit).** [Portal EDIS](https://edis.ifas.ufl.edu/). Publicaciones SS666 (pH en cítricos), HS402 (limonero), CH093 (lima ácida), MG045 (guayabo), MG216 (mango) y HS1467 (maracuyá).
+
+<a id="s68"></a>
+**S68 — Mississippi State University Extension Service, Fruit and Nut Review: Citrus (E. Stafne, Pub. 1779).** [Publicación](https://extension.msstate.edu/publications/fruit-and-nut-review-citrus). Daño por helada bajo −2,2 °C en árboles cítricos y fruta en árbol.
+
+<a id="s69"></a>
+**S69 — University of California Agriculture and Natural Resources, Growing Citrus in the Sierra Nevada Foothills (C. Fake, Pub. 31-018C).** [Publicación técnica](https://ccfruitandnuts.ucanr.edu/files/238122.pdf). Umbrales de helada y maduración para mandarinos y clementinas.
+
+<a id="s70"></a>
+**S70 — Oregon State University Extension Service, Growing Hazelnuts in the Pacific Northwest (J. Olsen, EM 9072).** [Manual técnico](https://extension.oregonstate.edu/catalog/em-9072-growing-hazelnuts-pacific-northwest-introduction). Tolerancia térmica de inflorescencias femeninas (−8,9 °C) y masculinas en avellano europeo.
+
+<a id="s71"></a>
+**S71 — Queensland Department of Primary Industries, Effects of Temperature on Premature Nut Drop in Macadamia (Stephenson y Gallagher).** [Investigación](https://era.dpi.qld.gov.au/id/eprint/11710/). Caída prematura de nueces en macadamia por temperaturas sobre 30 °C durante el cuajado.
+
+<a id="s72"></a>
+**S72 — Purdue University / ASHS Press, Macadamia Production in Southern California (L. T. McHargue).** [Procedimientos de simposio](https://www.hort.purdue.edu/newcrop/proceedings1996/v3-458.html). Documenta sensibilidad a heladas bajo −2,2 °C en follaje de macadamia.
+
+<a id="s73"></a>
+**S73 — University of Arizona Campus Arboretum, Simmondsia chinensis (Snyder Preserve Collection).** [Ficha botánica](https://arboretum.arizona.edu/snyder-preserve-simmondsia-chinensis). Tolerancia edáfica de jojoba en suelos con pH de 7,3 a 8,2.
+
+<a id="s74"></a>
+**S74 — University of Guam Cooperative Extension & Outreach, Fig Production Guide.** [Guía de extensión](https://www.uog.edu/extension/publications/). pH óptimo de 6,0 a 6,5 para higuera.
+
+<a id="s75"></a>
+**S75 — FAO, ECOCROP Data Sheets & Date Palm Cultivation (Zaid y de Wet).** [ECOCROP Lúcumo](https://ecocrop.apps.fao.org/ecocrop/srv/en/dataSheet?id=8912) y [Date Palm Paper](https://www.fao.org/4/y4360e/y4360e08.htm). Parámetros edafoclimáticos de lúcumo y palma datilera.
+
+<a id="s76"></a>
+**S76 — Central Soil Salinity Research Institute (ICAR), Performance of Edible Cactus in Saline Environments.** [Artículo científico](https://epubs.icar.org.in/index.php/IJAgS/article/download/39469/18063). Rango óptimo de pH de 6,5 a 7,5 para tuna (Opuntia ficus-indica).
+
+<a id="s77"></a>
+**S77 — Frontiers in Plant Science, Southern Species From the Biodiversity Hotspot of Central Chile: Vasconcellea pubescens (Letelier et al.).** [Artículo científico](https://pmc.ncbi.nlm.nih.gov/articles/PMC7348657/). Rango térmico de 10 a 28 °C y sensibilidad a heladas en papayo de montaña y babaco.
+
+<a id="s78"></a>
+**S78 — California Avocado Commission, Effects of Freezes on Avocado Trees.** [Guía cultural](https://californiaavocadogrowers.com/cultural-management-library/effects-freezes-avocado-trees/). Documenta daño en ramas y flores de palto Hass desde 29 °F (−1,7 °C).

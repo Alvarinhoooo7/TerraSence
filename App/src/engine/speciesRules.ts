@@ -22,7 +22,7 @@ import type { AgronomicAlert, LocalVariable, SoilMeasurement } from '../types/ag
 import type { AppLanguage } from '../types/preferences';
 
 /** Versión del conjunto de criterios; cambia cuando se agrega, corrige o retira uno. */
-export const SPECIES_RULES_VERSION = '2.1.0';
+export const SPECIES_RULES_VERSION = '2.6.0';
 
 export type SpeciesCriterionState = 'candidate' | 'documented' | 'enabled';
 
@@ -526,6 +526,118 @@ const waterSensitive = (row: string, values: string, ky: number, period: Species
   };
 };
 
+// --- Lluvia cerca de la cosecha en hortalizas de fruto ------------------------------------
+
+/** University of Maryland Extension: rajadura por lluvia («rain checking») en varias hortalizas de fruto. */
+const UMD_VEGETABLE_CRACKING = (crop: string): SpeciesCriterionEvidence => ({
+  institution: 'University of Maryland Extension',
+  title: 'Cracking of Vegetables (actualizado el 20 de febrero de 2023)',
+  url: 'https://www.extension.umd.edu/node/2473',
+  section: '«Rain checking»',
+  consultedAt: '2026-10-15',
+  originalValue: `Longitudinal and concentric growth cracking also called "rain checking" is caused by soil moisture fluctuations, persistent rainfall, and heavy dews. Melons, cucumbers, eggplant, tomato, and pepper are often affected. Crop listed: ${crop}. Recommended: water plants deeply and regularly; consider harvesting fruits prior to full ripeness during periods of frequent rainfall or heavy dew.`,
+});
+
+const RAIN_CRACKING_SCOPE = 'La fuente no fija una cantidad de lluvia ni un porcentaje de pérdida: describe el mecanismo (agua que entra a la fruta por la cicatriz del pedúnculo o grietas de la piel) y recomienda cosechar antes de que la fruta esté totalmente madura en períodos de lluvia frecuente.';
+const RAIN_CRACKING_SCOPE_EN = 'The source sets no rainfall amount or loss percentage: it describes the mechanism (water entering the fruit through the stem scar or skin cracks) and advises harvesting before full ripeness during periods of frequent rain.';
+
+/** Rajadura por lluvia cerca de la cosecha: hortaliza de fruto nombrada por UMD en «Cracking of Vegetables». */
+const rainCrackingFruit = (crop: string, cropEn: string): SpeciesWeatherEventCriterion =>
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: 'Lluvia cerca de la cosecha: riesgo de rajadura del fruto',
+    effectEn: 'Rain near harvest: risk of fruit cracking',
+    advice: `La lluvia después de un período seco puede rajar el fruto de ${crop} ya maduro. Si hay fruta lista, cosecharla antes de la lluvia reduce la pérdida; después, revisa y cosecha primero la que esté partida.`,
+    adviceEn: `Rain after a dry spell can crack ripe ${cropEn} fruit. If fruit is ready, harvesting it before the rain reduces loss; afterward, check the plants and harvest cracked fruit first.`,
+    note: 'La fuente documenta rajadura longitudinal o concéntrica por lluvia persistente o rocío abundante, con cambios de humedad del suelo como causa de fondo.',
+    noteEn: 'The source documents longitudinal or concentric cracking from persistent rain or heavy dew, with soil moisture swings as the underlying cause.',
+    limitations: RAIN_CRACKING_SCOPE, limitationsEn: RAIN_CRACKING_SCOPE_EN,
+    evidence: [UMD_VEGETABLE_CRACKING(crop)],
+  });
+
+const UDEL_TOMATO_CRACKING: SpeciesCriterionEvidence = {
+  institution: 'University of Delaware Cooperative Extension',
+  title: 'Fruit Cracking in Tomato (E. Ernest, agosto de 2026)',
+  url: 'https://www.udel.edu/content/dam/udelImages/canr/pdfs/extension/factsheets/Fruit-Cracking-in-Tomatoes_A.pdf',
+  section: 'Texto completo de la hoja técnica',
+  consultedAt: '2026-10-15',
+  originalValue: 'Rain during tomato fruit ripening can result in increased fruit cracking in field tomatoes causing extensive losses of marketable fruit. Cracking is most common after heavy rain events but can also occur with irregular irrigation.',
+};
+
+const UDEL_BEAN_POD_ROT: SpeciesCriterionEvidence = {
+  institution: 'University of Delaware Cooperative Extension',
+  title: 'Pythium in Vegetable Production (A. Koehler, Weekly Crop Update, 4 de junio de 2021)',
+  url: 'https://sites.udel.edu/weeklycropupdate/?p=18401',
+  section: 'Sección sobre poroto verde (snap beans)',
+  consultedAt: '2026-10-15',
+  originalValue: 'In snap beans, Pythium can be a problem at different stages throughout the season. Cottony leak of pods occurs on mature plants near harvest or postharvest. Cottony leak (Pythium Blight) is typically worse when there is rainy weather with cool temperatures. It is also recommended to avoid harvesting and packing during wet weather.',
+};
+
+// --- Lluvia y calor en cosecha de tubérculos y perejil -----------------------------------
+
+const NEBRASKA_POTATO_WET_ROT: SpeciesCriterionEvidence = {
+  institution: 'University of Nebraska–Lincoln Extension',
+  title: 'Wet Rots of Potato in Storage (G2203, A. D. Pavlista, Extension Potato Specialist, 2013)',
+  url: 'https://extensionpubs.unl.edu/publication/g2203/na/pdf/view',
+  section: 'Resumen inicial',
+  consultedAt: '2026-10-15',
+  originalValue: 'Protect stored potatoes from wet rots by digging when the soil is not wet; avoiding bruising when handling; and storing under cool, dry, and well-ventilated conditions.',
+};
+
+const MSU_SWEETPOTATO_HARVEST: SpeciesCriterionEvidence = {
+  institution: 'Mississippi State University Extension Service',
+  title: 'State expects average sweet potato harvest (B. Coblentz, citando a L. Harvey, especialista en camote, 2021)',
+  url: 'https://extension.msstate.edu/news/crop-report/2021/state-expects-average-sweet-potato-harvest',
+  section: 'Declaraciones de Lorin Harvey sobre lluvia y guarda',
+  consultedAt: '2026-10-15',
+  originalValue: 'Rainfall at the end of the growing season causes storage problems, such as rot issues. Warm, wet soils increase bacteria and fungus growth in the soils.',
+};
+
+const OSU_WINTER_SQUASH_HARVEST: SpeciesCriterionEvidence = {
+  institution: 'Oregon State University Extension Service',
+  title: 'Plan now to harvest and store pumpkins and winter squash (K. Pokorny, 2023, revisado en 2025)',
+  url: 'https://extension.oregonstate.edu/node/153311',
+  section: '«Harvest timing»',
+  consultedAt: '2026-10-15',
+  originalValue: "Pumpkins and squash should be harvested before the weather turns too cold or wet. When temperatures dip below 50°F for more than a week or rain becomes frequent, it's time to bring in your harvest.",
+};
+
+const UIUC_CABBAGE_SPLIT: SpeciesCriterionEvidence = {
+  institution: 'University of Illinois Extension',
+  title: 'Cabbage (Home Vegetable Gardening)',
+  url: 'https://extension.illinois.edu/gardening-site/cabbage',
+  section: 'Guía de cultivo de repollo, cosecha',
+  consultedAt: '2026-10-15',
+  originalValue: 'When heads are mature, a sudden heavy rain may cause heads to crack or split wide open. Splitting is caused by the pressure of excessive water taken up after the heads are solid. For highest yield, cut the cabbage heads when they are solid (firm to hand pressure) but before they crack or split.',
+};
+
+const UMN_LETTUCE_HEAT: SpeciesCriterionEvidence = {
+  institution: 'University of Minnesota Extension',
+  title: "What's wrong with my plant? — Lettuce & endive, flowering plant",
+  url: 'https://apps.extension.umn.edu/garden/diagnose/plant/vegetable/lettuce%26endive/floweringplant.html',
+  section: 'Diagnóstico: planta de lechuga con tallo floral',
+  consultedAt: '2026-10-15',
+  originalValue: 'Plant produces a flower stalk under multiple days of high temperatures (> 75°F). Lettuce may taste bitter if grown under high temperatures.',
+};
+
+const CORNELL_ONION_HARVEST: SpeciesCriterionEvidence = {
+  institution: 'Cornell Cooperative Extension, Cornell Vegetable Program',
+  title: '«Rolling Onions to "Stop the Rot"» (C. Hoepting, VegEdge, vol. 18, n.° 21, 31 de agosto de 2022)',
+  url: 'https://rvpadmin.cce.cornell.edu/pdf/veg_edge/pdf252_pdf.pdf',
+  section: 'Ensayo a campo 2021 sobre pudrición bacteriana del bulbo',
+  consultedAt: '2026-10-15',
+  originalValue: 'In a 2021 on-farm study, we observed numerically 35% less bacterial bulb rot when plants with 40-50% leaf dieback that were "dying standing up" were rolled (4.2%) compared to those that were left standing (6.5%). Splashing rain from heavy rainfall may introduce bacterial pathogens into the neck area and leaf axils of standing onions.',
+};
+
+const UARK_PARSLEY: SpeciesCriterionEvidence = {
+  institution: 'University of Arkansas Division of Agriculture, Cooperative Extension Service',
+  title: 'Parsley (Home Gardening Series, FSA6091, C. R. Andersen, Associate Professor and Extension Specialist)',
+  url: 'https://www.uaex.uada.edu/publications/PDF/FSA-6091.pdf',
+  section: '«Harvesting» y preguntas frecuentes sobre cosecha prolongada',
+  consultedAt: '2026-10-15',
+  originalValue: 'If parsley is forced to grow for long periods at temperatures above 90 degrees F, growth is greatly reduced and death may occur.',
+};
+
 // --- Fuentes INIA y de extensión para tomate, frutales y berries --------------------------
 
 const INIA_TOMATO_CLIMATE: SpeciesCriterionEvidence = {
@@ -582,10 +694,551 @@ const UGA_BLUEBERRY_HARVEST: SpeciesCriterionEvidence = {
   originalValue: 'Producers should not harvest when plants are wet from morning dew or rain. Harvesting while it is raining can lead to fruit splitting and reduce storage quality.',
 };
 
+const WSU_BLUEBERRY_HEAT: SpeciesCriterionEvidence = {
+  institution: 'Washington State University Extension',
+  title: 'How Does Heat Impact Blueberry Pollination, And Why Does It Matter? (M. Evalt, DeVetter Small Fruit Horticulture Program, WSU NWREC, 2024)',
+  url: 'https://extension.wsu.edu/beat-the-heat/?p=527',
+  section: 'Efecto del calor sobre el polen, citando a Walters e Isaacs (2023)',
+  consultedAt: '2026-10-15',
+  originalValue: 'Pollen exposed to air temperatures between 86 and 104°F had reduced pollen germination rates, while tube growth was reduced above 95°F (Walters and Isaacs, 2023).',
+};
+
+// --- Fuentes del kiwi ------------------------------------------------------------------
+
+const KIWI_MANUAL = 'Manual de Producción del Kiwi Chileno (2.ª edición, junio de 2011)';
+const KIWI_MANUAL_URL = 'https://www.comitedelkiwi.cl/wp-content/uploads/2024/01/manual_prod_cap0_6.pdf';
+const KIWI_COMMITTEE = 'Comité del Kiwi (Chile), Comisión de Producción';
+
+const KIWI_FROST: SpeciesCriterionEvidence = {
+  institution: KIWI_COMMITTEE,
+  title: `${KIWI_MANUAL}, capítulo 3 «Requerimientos agroclimáticos»`,
+  url: KIWI_MANUAL_URL,
+  section: 'Tabla 3.2 «Temperaturas críticas (heladas) y tejido dañado», p. 02 del capítulo (p. 14 del PDF)',
+  consultedAt: '2026-10-15',
+  originalValue: 'T° de daño (°C). Brotación: yemas (desde lloro) -8,0 a -4,0; yema algodonosa -1,5 a 2,0; puntas verdes y brotes tiernos -1,0; cáliz partido-flor -0,5. Maduración del fruto: frutos (sección peduncular) y hojas maduras -2,0. (*) Datos para 30 minutos, las temperaturas críticas son más altas (menos negativas) al aumentar el tiempo. Fuente: G. Zuccherelli, Ctifl y M. Kulczewski.',
+};
+
+const KIWI_SUMMER: SpeciesCriterionEvidence = {
+  institution: KIWI_COMMITTEE,
+  title: `${KIWI_MANUAL}, capítulo 3 «Requerimientos agroclimáticos»`,
+  url: KIWI_MANUAL_URL,
+  section: 'Apartado «3. Verano», p. 08 del capítulo (p. 20 del PDF), y tabla 3.1, p. 02 del capítulo',
+  consultedAt: '2026-10-15',
+  originalValue: 'Temperaturas mayores a 31 °C que se combinan con viento y baja humedad relativa hacen que la tasa transpiratoria de las hojas se eleve sobre la capacidad de abastecimiento del suelo y la planta, generándose el desorden conocido como «bronceado». Tabla 3.1 (kiwi var. Hayward): temperaturas críticas, máx. verano, período vegetativo (Sep-Abr): 29 con baja humedad relativa.',
+};
+
+const KIWI_SOIL: SpeciesCriterionEvidence = {
+  institution: KIWI_COMMITTEE,
+  title: `${KIWI_MANUAL}, capítulo 4 «Suelos y enmiendas»`,
+  url: KIWI_MANUAL_URL,
+  section: '«Propiedades químicas», apartado «PH», p. 05 del capítulo (p. 29 del PDF)',
+  consultedAt: '2026-10-15',
+  originalValue: 'PH. En el kiwi se desea entre 6 y 7.',
+};
+
+const WISCONSIN_KIWI: SpeciesCriterionEvidence = {
+  institution: 'University of Wisconsin–Madison Extension',
+  title: 'Kiwifruit, Actinidia spp. (S. Mahr; última actualización: B. Spangenberg, 2025)',
+  url: 'https://hort.extension.wisc.edu/articles/kiwifruit-actinidia-spp/',
+  section: 'Requerimientos de sitio y suelo',
+  consultedAt: '2026-10-15',
+  originalValue: 'The vines do best in a sunny location with well-drained, somewhat acid (pH 5 - 6.5) soil.',
+};
+
+const KIWI_BUD_FREEZE: SpeciesCriterionEvidence = {
+  institution: 'Scientific Reports (Nature Portfolio), citando a Hewett y Young (1981), New Zealand Journal of Agricultural Research 24: 73–75',
+  title: 'Impacts of cold stress and temperature fluctuations on bud abortion and malformed flower development on Hayward kiwifruit (Mirarzgar, Ghasemnezhad, Fotouhi Ghazvini y Jalali Sendi)',
+  url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12852680/',
+  section: 'Introducción, referencia 32',
+  consultedAt: '2026-10-15',
+  originalValue: 'In kiwifruit (Actinidia spp.), dormant buds exhibit damage upon exposure to temperatures as low as - 10 °C. However, at advanced phenological stages, even brief exposure (30 min) to - 1.5 °C to - 2.0 °C can damage ~ 10% of floral buds.',
+};
+
+const KIWI_EXPOSURE = 'Valores para 30 minutos de exposición: con más tiempo, el daño empieza a temperaturas más altas (menos negativas).';
+const KIWI_EXPOSURE_EN = 'Values for 30 minutes of exposure: with longer exposure, damage starts at higher (less negative) temperatures.';
+
 const GROUND_COLDER = 'Cerca del suelo, en noches despejadas, la temperatura puede bajar varios grados más que la mínima pronosticada.';
 const GROUND_COLDER_EN = 'Near the ground, on clear nights, temperature can drop several degrees below the forecast minimum.';
 const RAIN_RULE = 'La fuente no fija una cantidad de lluvia: cuenta como día con lluvia el que tiene 1 mm o más, o 60 % de probabilidad o más, criterio de planificación de la app.';
 const RAIN_RULE_EN = 'The source sets no rainfall amount: a day counts as rainy with 1 mm or more, or a 60% chance or more, which is the app\'s planning rule.';
+
+// --- Fuentes de nuevas especies perennes (Wave 2 - TASK ES6) --------------------------
+
+// Pomáceas y caqui
+const CSU_APPLE_FROST: SpeciesCriterionEvidence = {
+  institution: 'Colorado State University Western Colorado Research Center',
+  title: 'Apple Bud Stages & Critical Temperatures (H. J. Larsen, 2004, datos de WSU Prosser)',
+  url: 'https://labs.agsci.colostate.edu/minas/wp-content/uploads/sites/7/2025/09/budstagesapple.pdf',
+  section: 'Tabla «Critical temperatures for apple fruit buds», Full Bloom',
+  consultedAt: '2026-10-15',
+  originalValue: 'Critical temperatures for apple fruit buds. Stage 8 (Full Bloom): Ave. Temp. for 10% Kill 28; Ave. Temp. for 90% Kill 25. For Red Delicious.',
+};
+
+const CORNELL_APPLE_PH: SpeciesCriterionEvidence = {
+  institution: 'Cornell Cooperative Extension (Eastern NY Commercial Horticulture Program)',
+  title: 'Tree Fruit News: Nutrient Management in Apple Orchards for the 2023 Growing Season',
+  url: 'https://blogs.cornell.edu/enychp/tree-fruit/apples/tree-fruit-news-nutrient-management-in-apple-orchards-for-the-2023-growing-season/',
+  section: 'Recomendaciones de pH del suelo en huertos de manzano',
+  consultedAt: '2026-10-15',
+  originalValue: 'Soil pH should be maintained in the range of 6.0 to 6.5 throughout the soil profile. For Honeycrisp, target your soil pH between 6.5 and 7.1.',
+};
+
+const CSU_PEAR_FROST: SpeciesCriterionEvidence = {
+  institution: 'Colorado State University Western Colorado Research Center',
+  title: 'Pear Bud Stages & Critical Temperatures (H. J. Larsen, 2004, datos de WSU Prosser)',
+  url: 'https://labs.agsci.colostate.edu/minas/wp-content/uploads/sites/7/2025/09/budstagespear.pdf',
+  section: 'Tabla «Critical temperatures for pear fruit buds», Full Bloom',
+  consultedAt: '2026-10-15',
+  originalValue: 'Critical temperatures for pear fruit buds. Stage 7 (Full Bloom): Ave. Temp. for 10% Kill 28; Ave. Temp. for 90% Kill 24. For Bartlett. Anjou is similar but may bloom earlier.',
+};
+
+const PENN_STATE_PEAR_PH: SpeciesCriterionEvidence = {
+  institution: 'Penn State Agricultural Analytical Services Laboratory',
+  title: 'Recommendations for Tree Fruit: Pears (Crop Code 4006)',
+  url: 'https://agsci.psu.edu/aasl',
+  section: 'Código 4006 PEARS-MAINTAIN',
+  consultedAt: '2026-10-15',
+  originalValue: '4006 PEARS-MAINTAIN Crop Code: pH Goal: 6.5. Optimum pH for tree fruits is 6.0-6.5.',
+};
+
+const NCSU_PERSIMMON_PH: SpeciesCriterionEvidence = {
+  institution: 'North Carolina State Extension (N.C. Cooperative Extension)',
+  title: 'Japanese Persimmon - Diospyros kaki (Plant Toolbox)',
+  url: 'https://plants.ces.ncsu.edu/plants/diospyros-kaki/common-name/japanese-persimmon/',
+  section: 'Requerimientos de suelo y pH',
+  consultedAt: '2026-10-15',
+  originalValue: 'The trees grow best in loamy, moist but well-drained soils with a pH of 6.0 to 6.5 in full sun but thrive on a wide range of soils.',
+};
+
+const UCLA_PERSIMMON_HARVEST: SpeciesCriterionEvidence = {
+  institution: 'University of California, Los Angeles (Division of Plant Pathology)',
+  title: 'Stylar End Checking of the Hachiya Persimmon (P. A. Miller, California Avocado Society Yearbook 1943, 27:53-55)',
+  url: 'https://www.avocadosource.com/CAS_Yearbooks/CAS_27_1943/CAS_1943_PG_53-55.pdf',
+  section: 'Mecanismo de partidura por lluvia y humedad',
+  consultedAt: '2026-10-15',
+  originalValue: 'The skin breaks develop during or immediately following humid, foggy or rainy periods during which free moisture collects upon the fruit surface.',
+};
+
+const CRFG_LOQUAT_FROST: SpeciesCriterionEvidence = {
+  institution: 'California Rare Fruit Growers (CRFG)',
+  title: 'Loquat Fruit Facts (Eriobotrya japonica)',
+  url: 'https://crfg.org/wiki/fruit/loquat/',
+  section: 'Adaptación al frío y temperaturas críticas de flor',
+  consultedAt: '2026-10-15',
+  originalValue: 'The killing temperature for the flower bud is about 19° F, and for the mature flower about 26° F. At 25° F the seed is killed, causing the fruit to fall. Well established trees can tolerate a low temperature of 12° F.',
+};
+
+const CLEMSON_LOQUAT_FROST: SpeciesCriterionEvidence = {
+  institution: 'Clemson University Cooperative Extension',
+  title: 'Loquat (Eriobotrya japonica) Care, Cultivation & Growing Guide (HGIC)',
+  url: 'https://hgic.clemson.edu/factsheet/loquat-eriobotrya-japonica-care-cultivation-growing-guide/',
+  section: 'Tolerancia al frío y daño en flores',
+  consultedAt: '2026-10-15',
+  originalValue: 'Loquat trees are cold hardy to 12 °F, but flowers and developing fruit can be killed when temperatures drop to 27 °F.',
+};
+
+// Carozos
+const CSU_APRICOT_FROST: SpeciesCriterionEvidence = {
+  institution: 'Colorado State University Western Colorado Research Center',
+  title: 'Apricot Bud Stages & Critical Temperatures (H. J. Larsen, 2004, datos de WSU Prosser)',
+  url: 'https://labs.agsci.colostate.edu/minas/wp-content/uploads/sites/7/2025/09/budstagesapricot.pdf',
+  section: 'Tabla «Critical temperatures for apricot fruit buds», Full Bloom',
+  consultedAt: '2026-10-15',
+  originalValue: 'Critical temperatures for apricot fruit buds. Stage 6 (Full Bloom): Ave. Temp. for 10% Kill 27; Ave. Temp. for 90% Kill 22. First Bloom: 10% Kill 25.',
+};
+
+const UNH_STONE_FRUIT_PH: SpeciesCriterionEvidence = {
+  institution: 'University of New Hampshire Extension',
+  title: 'Growing Fruits: Growing Plums, Cherries and Apricots in NH Home Orchards',
+  url: 'https://extension.unh.edu/resource/growing-fruits-growing-plums-cherries-and-apricots-nh-home-orchards',
+  section: 'Suelo y pH para frutales de hueso',
+  consultedAt: '2026-10-15',
+  originalValue: 'The soil pH should be 6.0-7.0 for plums, cherries and apricots.',
+};
+
+const MSU_PEACH_FROST: SpeciesCriterionEvidence = {
+  institution: 'Michigan State University Extension / Purdue University MRCC',
+  title: 'Picture Table of Fruit Freeze Thresholds (citando WSU EB0914)',
+  url: 'https://mrcc.purdue.edu/modules/vip/docs/PictureTableFFThresholds.pdf',
+  section: 'Peaches - WSU EB0914, Full Bloom',
+  consultedAt: '2026-10-15',
+  originalValue: 'Peaches - WSU EB0914. Full bloom: 10% kill 27; 90% kill 24.',
+};
+
+const UGA_PEACH_PH: SpeciesCriterionEvidence = {
+  institution: 'University of Georgia Cooperative Extension',
+  title: 'Home Garden Peaches (Circular 1063, D. Chavez y J. Cook)',
+  url: 'https://extension.uga.edu/publications/detail.html?number=C1063',
+  section: 'Requerimientos de suelo',
+  consultedAt: '2026-10-15',
+  originalValue: 'Soil pH for peach trees should be between 6 and 6.5.',
+};
+
+const UDEL_STONE_FRUIT_CRACK: SpeciesCriterionEvidence = {
+  institution: 'University of Delaware Cooperative Extension',
+  title: 'Fruit Cracking in Plums, Peaches, and Nectarines (G. Johnson, Weekly Crop Update, julio 2023)',
+  url: 'https://sites.udel.edu/weeklycropupdate/?p=22968',
+  section: 'Rajado de fruto por exceso de agua y lluvia',
+  consultedAt: '2026-10-15',
+  originalValue: 'We are seeing fruit cracking in plums, peaches, and nectarines. When the skin of these fruits stays wet for an extended period near ripening, the fruit can absorb so much moisture that it cracks.',
+};
+
+const CSU_PLUM_FROST: SpeciesCriterionEvidence = {
+  institution: 'Colorado State University Western Colorado Research Center',
+  title: 'European (Prune) Plum Bud Stages & Critical Temperatures (H. J. Larsen, 2004, datos de WSU Prosser)',
+  url: 'https://labs.agsci.colostate.edu/minas/wp-content/uploads/sites/7/2025/09/budstageseplum.pdf',
+  section: 'Tabla «Critical temperatures for European prune plum fruit buds», Full Bloom',
+  consultedAt: '2026-10-15',
+  originalValue: 'Critical temperatures for European prune plum fruit buds. Stage 7 (Full Bloom): Ave. Temp. for 10% Kill 28; Ave. Temp. for 90% Kill 23.',
+};
+
+const MSU_TART_CHERRY_FROST: SpeciesCriterionEvidence = {
+  institution: 'Michigan State University Extension / Purdue University MRCC',
+  title: 'Picture Table of Fruit Freeze Thresholds (citando MSU Research Report 220)',
+  url: 'https://mrcc.purdue.edu/modules/vip/docs/PictureTableFFThresholds.pdf',
+  section: 'Tart Cherries - MSU Research Rpt. 220, Full Bloom',
+  consultedAt: '2026-10-15',
+  originalValue: 'Tart Cherries - MSU Research. Rpt. 220. Full Bloom: 10% kill 28; 90% kill 24.',
+};
+
+const UDEL_NECTARINE_CRACK: SpeciesCriterionEvidence = {
+  institution: 'University of Delaware Cooperative Extension',
+  title: 'Fruit Cracking in Plums, Peaches, and Nectarines (G. Johnson, Weekly Crop Update, julio 2023)',
+  url: 'https://sites.udel.edu/weeklycropupdate/?p=22968',
+  section: 'Mayor susceptibilidad de nectarinos por piel lisa',
+  consultedAt: '2026-10-15',
+  originalValue: 'Nectarines are more susceptible to cracking due to the smooth skin. Similar skin cracking can occur in nectarines and peaches.',
+};
+
+const UCCE_ALMOND_FROST: SpeciesCriterionEvidence = {
+  institution: 'University of California Cooperative Extension (The Almond Doctor, D. Doll)',
+  title: 'Almond Frost Warning and Protection Methods (2018)',
+  url: 'https://www.thealmonddoctor.com/almond-frost-warning-protection-methods-2018/',
+  section: 'Temperaturas críticas en floración',
+  consultedAt: '2026-10-15',
+  originalValue: 'At full bloom, temperatures at or below 27-28F can cause crop loss.',
+};
+
+const UCCE_ALMOND_PH: SpeciesCriterionEvidence = {
+  institution: 'University of California Cooperative Extension (The Almond Doctor, D. Doll)',
+  title: 'Planning and Planting a New Almond Orchard',
+  url: 'https://www.thealmonddoctor.com/planning-and-planting-a-new-almond-orchard/',
+  section: 'Rango de pH para almendro',
+  consultedAt: '2026-10-15',
+  originalValue: 'Ideally, the range is between 6.4-7.5, with peach-almond hybrids performing better in alkaline soils.',
+};
+
+// Vid
+const WSU_GRAPEVINE_FROST: SpeciesCriterionEvidence = {
+  institution: 'Washington State University Viticulture & Enology',
+  title: 'Grapevine Cold Hardiness (citando Ferguson et al., 2014, AJEV)',
+  url: 'https://wine.wsu.edu/extension/cold-hardiness/',
+  section: 'Tabla «Frost Cold Tolerance - Post Budbreak», cultivares de Vitis vinifera',
+  consultedAt: '2026-10-15',
+  originalValue: 'Frost Cold Tolerance - Post Budbreak (°F): 29.8 for Vitis vinifera varieties.',
+};
+
+const UCD_GRAPEVINE_HEAT: SpeciesCriterionEvidence = {
+  institution: 'University of California, Davis (Department of Viticulture and Enology)',
+  title: 'Effect of Heat on Grapevine Production and Fruit Quality (M. K. Bartlett, Progressive Crop Consultant, 2025)',
+  url: 'https://progressivecrop.com/2025/03/effect-of-heat-on-grapevine-production-and-fruit-quality/',
+  section: 'Impacto de temperaturas sobre 95 °F en floración',
+  consultedAt: '2026-10-15',
+  originalValue: 'At bloom, temperatures >95 degrees F can interfere with flower fertilization, preventing the pollen from forming the tunnels that allow it to reach the ovary, inducing shatter and berry thinning.',
+};
+
+const NCSU_GRAPE_PH: SpeciesCriterionEvidence = {
+  institution: 'North Carolina State Extension (N.C. Cooperative Extension)',
+  title: "North Carolina Winegrape Grower's Guide, Chapter 9: Vine Nutrition (T. K. Wolf)",
+  url: 'https://content.ces.ncsu.edu/north-carolina-winegrape-growers-guide/chapter-9-vine-nutrition',
+  section: 'pH de suelo para Vitis vinifera',
+  consultedAt: '2026-10-15',
+  originalValue: 'Varieties of Vitis vinifera generally grow best at a pH between 6.0 and 7.0, whereas the native American grapes (such as Concord and Niagara) and the hybrids tolerate lower pH values (5.5 to 6.0).',
+};
+
+const UW_GRAPE_HARVEST_SPLIT: SpeciesCriterionEvidence = {
+  institution: 'University of Wisconsin–Madison Division of Extension (UW Fruit Program)',
+  title: 'Berry Splitting in Grapes, Should You Harvest? (A. Atucha, 2020/2021)',
+  url: 'https://fruit.wisc.edu/2020/09/17/harvesting-decisions-after-heavy-rains-and-berry-splitting/',
+  section: 'Partidura de bayas por lluvias y decisión de cosecha',
+  consultedAt: '2026-10-15',
+  originalValue: 'All that rain resulted in a significant number of berries splitting. We strongly recommend growers to harvest as soon as possible if more than 20% of the berries in the clusters are split.',
+};
+
+// Cítricos
+const UF_CITRUS_PH: SpeciesCriterionEvidence = {
+  institution: 'University of Florida IFAS Extension',
+  title: 'Soil and Fertilizer Management for Citrus (EDIS SS666, K. T. Morgan)',
+  url: 'https://edis.ifas.ufl.edu/publication/SS666',
+  section: 'Rango de pH para cítricos',
+  consultedAt: '2026-10-15',
+  originalValue: 'Maintain soil pH in the range of 5.8 to 6.5 for citrus trees.',
+};
+
+const MSU_CITRUS_COLD: SpeciesCriterionEvidence = {
+  institution: 'Mississippi State University Extension Service',
+  title: 'Fruit and Nut Review: Citrus (Publication 1779, E. Stafne)',
+  url: 'https://extension.msstate.edu/publications/fruit-and-nut-review-citrus',
+  section: 'Tabla 1 «Cold hardiness of citrus trees»',
+  consultedAt: '2026-10-15',
+  originalValue: 'Cold hardiness of citrus trees (°F). Kumquat: 16-17; Satsuma mandarin: 18-20; All other mandarin oranges: 22-23; Orange (Citrus sinensis): 23-24; Grapefruit (Citrus paradisii): 23-24; Lemon: 26-27; Lime (Citrus aurantifolia): 28.',
+};
+
+const UCANR_CITRUS_FOOTHILLS: SpeciesCriterionEvidence = {
+  institution: 'University of California Agriculture and Natural Resources (UC Cooperative Extension)',
+  title: 'Growing Citrus in the Sierra Nevada Foothills (Publication 31-018C, C. Fake)',
+  url: 'https://ccfruitandnuts.ucanr.edu/files/238122.pdf',
+  section: 'Tolerancia al frío por tipo de cítrico',
+  consultedAt: '2026-10-15',
+  originalValue: 'Generally, kumquat (18°F) is hardier than Satsuma mandarin (20°F) > Meyer lemon (22°F) > oranges: navel, blood, etc. (24°F) > grapefruit (26°F) > true lemons (Eureka, Lisbon) (28°F) > lime (30°F).',
+};
+
+const UF_LEMON_FREEZE: SpeciesCriterionEvidence = {
+  institution: 'University of Florida IFAS Extension',
+  title: 'Lemon Growing in the Florida Home Landscape (EDIS HS402, J. H. Crane)',
+  url: 'https://edis.ifas.ufl.edu/publication/HS402',
+  section: 'Temperaturas críticas de congelación para limonero',
+  consultedAt: '2026-10-15',
+  originalValue: 'Defoliated at 22-24°F (-4.4 to -5.6°C), severe wood damaged at 20°F (-6.7°C), flowers and young fruit are killed at 29°F (-1.7°C), and mature fruit damaged at 28°F to 31°F (-2.2°C to -1.8°C).',
+};
+
+const UF_TAHITI_LIME_FREEZE: SpeciesCriterionEvidence = {
+  institution: 'University of Florida IFAS Extension',
+  title: 'Growing Tahiti Limes in the Home Landscape (EDIS CH093, J. H. Crane)',
+  url: 'https://edis.ifas.ufl.edu/publication/CH093',
+  section: 'Tolerancia al frío en lima Tahití',
+  consultedAt: '2026-10-15',
+  originalValue: 'Damage to Tahiti lime leaves occurs at temperatures below 28°F (-2°C); wood damage occurs below about 26°F (-3°C), and severe damage or death occurs below 24°F (-4°C).',
+};
+
+const citrusPh = (): SpeciesPhCriterion => ({
+  kind: 'ph', state: 'enabled', stages: GROWING,
+  optimum: { min: 5.8, max: 6.5 }, lowerLimit: null, upperLimit: null,
+  note: 'El pH del suelo recomendado para cítricos se mantiene en el rango de 5,8 a 6,5.',
+  noteEn: 'Recommended soil pH for citrus trees is maintained in the range of 5.8 to 6.5.',
+  limitations: 'Recomendación general de UF/IFAS para cítricos comerciales; no desglosa por especie particular dentro del género.',
+  limitationsEn: 'General UF/IFAS recommendation for commercial citrus; it does not break down by individual species within the genus.',
+  evidence: [UF_CITRUS_PH],
+});
+
+// Frutos secos
+const OSU_HAZELNUT_FROST: SpeciesCriterionEvidence = {
+  institution: 'Oregon State University Extension Service',
+  title: 'Growing Hazelnuts in the Pacific Northwest: Introduction (EM 9072, J. Olsen)',
+  url: 'https://extension.oregonstate.edu/catalog/em-9072-growing-hazelnuts-pacific-northwest-introduction',
+  section: 'Resistencia al frío de amentos y flores femeninas',
+  consultedAt: '2026-10-15',
+  originalValue: 'Catkins can freeze at 15°F (-9.4°C) when fully elongated. In the most cold-sensitive varieties, the female flowers, which bloom in January and February, can freeze at 10°F (-12.2°C).',
+};
+
+const UCCE_WALNUT_FROST: SpeciesCriterionEvidence = {
+  institution: 'University of California Cooperative Extension (Butte County)',
+  title: 'Microclimate Considerations and Frost Protection in Walnuts (J. Connell)',
+  url: 'https://ccfruitandnuts.ucanr.edu/files/296889.pdf',
+  section: 'Temperatura crítica primaveral para hojas, brotes y frutos recién cuajados',
+  consultedAt: '2026-10-15',
+  originalValue: 'Critical temperature for radiation frost damage in spring is 30°F for new leaves, shoots and nutlets.',
+};
+
+const UGA_PECAN_FROST: SpeciesCriterionEvidence = {
+  institution: 'University of Georgia Cooperative Extension (Pecan Team)',
+  title: 'Cold Snap Thoughts for Pecan (L. Wells, 2021)',
+  url: 'https://site.extension.uga.edu/pecan/2021/04/here-are-some-thoughts-on-the-recent-cold-snap-from-dr-wells/',
+  section: 'Daño por helada en tejido verde de pecana',
+  consultedAt: '2026-10-15',
+  originalValue: 'Green pecan tissue does not suffer long-term or crop damaging injury until temps reach 28 degrees for several hours.',
+};
+
+const UGA_PECAN_HARVEST: SpeciesCriterionEvidence = {
+  institution: 'University of Georgia Cooperative Extension',
+  title: 'Pecan Nut and Kernel Quality (L. Wells, 2015)',
+  url: 'https://site.extension.uga.edu/pecan/2015/10/pecan-nut-and-kernel-quality/',
+  section: 'Pudriciones de cáscara y humedad en maduración',
+  consultedAt: '2026-10-15',
+  originalValue: 'Phytophthora shuck rot outbreak following a 15-day period during which rain was recorded on 11 days. Maximum daily temperature exceeded 86°F only once.',
+};
+
+const UCCE_PISTACHIO_HEAT: SpeciesCriterionEvidence = {
+  institution: 'University of California Cooperative Extension (Kern County)',
+  title: 'Temperature-related variables associated with yield of Kerman pistachio (C. Kallsen, citando HortScience 52:598-605)',
+  url: 'https://cekern.ucanr.edu',
+  section: 'Efecto de horas sobre 80 °F durante floración',
+  consultedAt: '2026-10-15',
+  originalValue: 'Hours above 80°F during the bloom window (March 20 to April 25) were negatively correlated with yield.',
+};
+
+const QDPI_MACADAMIA_HEAT: SpeciesCriterionEvidence = {
+  institution: 'Queensland Department of Primary Industries (Australia)',
+  title: 'Effects of temperature on premature nut drop in macadamia (R. A. Stephenson y E. C. Gallagher, 1986)',
+  url: 'https://era.dpi.qld.gov.au/id/eprint/11710/',
+  section: 'Caída prematura de nueces y temperatura crítica',
+  consultedAt: '2026-10-15',
+  originalValue: 'It is suggested that 30 deg C might be critical in promoting unacceptable levels of nut drop.',
+};
+
+const PURDUE_MACADAMIA_COLD: SpeciesCriterionEvidence = {
+  institution: 'Purdue University (New Crops Symposium / ASHS Press)',
+  title: 'Macadamia Production in Southern California (L. T. McHargue, 1996)',
+  url: 'https://www.hort.purdue.edu/newcrop/proceedings1996/v3-458.html',
+  section: 'Tolerancia a heladas en árbol maduro',
+  consultedAt: '2026-10-15',
+  originalValue: 'Frost damage starts at -2.8°C (27°F), especially if low temperatures persist for several hours.',
+};
+
+const UARIZONA_JOJOBA_PH: SpeciesCriterionEvidence = {
+  institution: 'University of Arizona Campus Arboretum',
+  title: 'Simmondsia chinensis (Snyder Preserve Collection)',
+  url: 'https://arboretum.arizona.edu/snyder-preserve-simmondsia-chinensis',
+  section: 'Rango de tolerancia de pH',
+  consultedAt: '2026-10-15',
+  originalValue: 'Soil pH can be in a range between 5-9 (strongly acidic to very alkaline).',
+};
+
+// Subtropicales A
+const CRFG_CHERIMOYA: SpeciesCriterionEvidence = {
+  institution: 'California Rare Fruit Growers (CRFG)',
+  title: 'Cherimoya Fruit Facts (Annona cherimola)',
+  url: 'https://crfg.org/wiki/fruit/cherimoya/',
+  section: 'Clima, temperaturas críticas de helada y pH',
+  consultedAt: '2026-10-15',
+  originalValue: 'Young growing tips are killed at 29° F and mature trees are killed or severely injured at 25° F. The optimum pH ranges from 6.5 to 7.6.',
+};
+
+const CRFG_FEIJOA: SpeciesCriterionEvidence = {
+  institution: 'California Rare Fruit Growers (CRFG)',
+  title: 'Feijoa Fruit Facts (Acca sellowiana)',
+  url: 'https://crfg.org/wiki/fruit/feijoa/',
+  section: 'Adaptación climática y pH',
+  consultedAt: '2026-10-15',
+  originalValue: 'Are generally adapted to areas where temperatures stay above 15° F. Best harvests come from plants growing in well-drained soil with a pH between 5.5 and 7.0.',
+};
+
+const UF_POMEGRANATE: SpeciesCriterionEvidence = {
+  institution: 'University of Florida IFAS Extension',
+  title: 'The Pomegranate (Publication MG056)',
+  url: 'https://edis.ifas.ufl.edu/publication/MG056',
+  section: 'Heladas, riego, rajado de fruto y pH',
+  consultedAt: '2026-10-15',
+  originalValue: 'Temperatures down to 12°F (-11°C) may severely injure dormant trees. Optimum growth is in the pH range of 5.5-7.0. Sudden changes in irrigation amounts and timing often lead to fruit splitting, especially a few weeks before harvesting.',
+};
+
+const CRFG_POMEGRANATE: SpeciesCriterionEvidence = {
+  institution: 'California Rare Fruit Growers (CRFG)',
+  title: 'Pomegranate Fruit Facts (Punica granatum)',
+  url: 'https://crfg.org/wiki/fruit/pomegranate/',
+  section: 'Rajado de fruto por lluvia en madurez',
+  consultedAt: '2026-10-15',
+  originalValue: 'The tree can be severely injured by temperatures below 12° F. The fruits must be picked before over maturity when they tend to crack open, particularly when rained on.',
+};
+
+const UF_GUAVA: SpeciesCriterionEvidence = {
+  institution: 'University of Florida IFAS Extension',
+  title: 'Guava Growing in the Florida Home Landscape (EDIS MG045, J. H. Crane y C. F. Balerdi)',
+  url: 'https://edis.ifas.ufl.edu/publication/MG045',
+  section: 'Temperaturas críticas de frío y pH de suelo',
+  consultedAt: '2026-10-15',
+  originalValue: 'Young guava trees may be killed by temperatures of 27° to 28°F (-3° to -2°C). Mature trees may withstand short periods of 25° to 26°F (-4° to -3°C) without much damage. A soil pH of 4.5 to 7 is ideal but plants do well in high pH soils (7-8.5) if supplied with chelated iron materials.',
+};
+
+const CRFG_FIG: SpeciesCriterionEvidence = {
+  institution: 'California Rare Fruit Growers (CRFG)',
+  title: 'Fig Fruit Facts (Ficus carica)',
+  url: 'https://crfg.org/wiki/fruit/fig/',
+  section: 'Tolerancia a heladas y rajado por lluvia',
+  consultedAt: '2026-10-15',
+  originalValue: 'Fully dormant trees are hardy to 12° – 15° F, but plants in active growth can be damaged at 30° F. Rains during fruit development and ripening can cause the fruits to split.',
+};
+
+const UGUAM_FIG_PH: SpeciesCriterionEvidence = {
+  institution: 'University of Guam Cooperative Extension & Outreach',
+  title: 'Fig (Ficus carica) Production Guide',
+  url: 'https://www.uog.edu/extension/publications/',
+  section: 'Requerimientos de suelo',
+  consultedAt: '2026-10-15',
+  originalValue: 'Fig trees grow best in well-drained soils with a pH of 6 – 6.5 but are tolerant of higher pH levels. It is not tolerant of highly acidic soils.',
+};
+
+const FAO_ECOCROP_LUCUMO: SpeciesCriterionEvidence = {
+  institution: 'FAO (ECOCROP Data Sheet 8912)',
+  title: 'Pouteria lucuma - Agro-climatic data sheet',
+  url: 'https://ecocrop.apps.fao.org/ecocrop/srv/en/dataSheet?id=8912',
+  section: 'Temperaturas críticas y pH del suelo',
+  consultedAt: '2026-10-15',
+  originalValue: 'Killing temp. during rest: -5 °C. Killing temp. early growth: 0 °C. Soil PH Optimal Min 6.5 / Max 7.5; Absolute Min 6 / Max 8.5.',
+};
+
+// Subtropicales B
+const UF_MANGO: SpeciesCriterionEvidence = {
+  institution: 'University of Florida IFAS Extension',
+  title: 'Mango Growing in the Florida Home Landscape (EDIS MG216, J. H. Crane)',
+  url: 'https://edis.ifas.ufl.edu/publication/MG216',
+  section: 'Temperaturas críticas por etapa',
+  consultedAt: '2026-10-15',
+  originalValue: 'Flowers and small fruits may be damaged or killed if the temperature falls below 40°F (4.4°C) for a few hours. Young trees may be killed at 29°F to 30°F (-1.7°C to -1.1°C). Mature trees can withstand air temperatures as low as 25°F (-3.9°C) for a few hours.',
+};
+
+const FAO_DATE_PALM: SpeciesCriterionEvidence = {
+  institution: 'FAO (Plant Production and Protection Paper)',
+  title: 'Date Palm Cultivation (A. Zaid y P. F. de Wet)',
+  url: 'https://www.fao.org/4/y4360e/y4360e08.htm',
+  section: 'Climatic Requirements of Date Palm',
+  consultedAt: '2026-10-15',
+  originalValue: 'Growth stops below 7°C. At -6°C leaflet margins turn yellow and dry out. Leaves will be damaged at -9 to -15°C. Growth will continue at a stable rate until the temperature reaches 38°C/40°C when it will start decreasing.',
+};
+
+const UF_PASSION_FRUIT: SpeciesCriterionEvidence = {
+  institution: 'University of Florida IFAS Extension',
+  title: 'Passion Fruit Growing in the Florida Home Landscape (EDIS HS1467)',
+  url: 'https://edis.ifas.ufl.edu/publication/HS1467',
+  section: 'pH de suelo y susceptibilidad a bajas temperaturas',
+  consultedAt: '2026-10-15',
+  originalValue: 'The soil should have a pH of 6–7.5. Exposure to temperatures of 32°F to 59°F can cause chilling injury.',
+};
+
+const CRFG_PASSION_FRUIT: SpeciesCriterionEvidence = {
+  institution: 'California Rare Fruit Growers (CRFG)',
+  title: 'Rare Fruit for Climates with Relatively Frost Free Winters',
+  url: 'https://crfg.org/wiki/fruit/passion-fruit/',
+  section: 'Cold Hardiness table',
+  consultedAt: '2026-10-15',
+  originalValue: 'Purple passion fruit (Passiflora edulis) cold hardiness: the mid 20s °F (25° F).',
+};
+
+const CRFG_BANANA_PASSION: SpeciesCriterionEvidence = {
+  institution: 'California Rare Fruit Growers (CRFG)',
+  title: 'Rare Fruit for Climates with Relatively Frost Free Winters',
+  url: 'https://crfg.org/wiki/fruit/passion-fruit/',
+  section: 'Cold Hardiness table',
+  consultedAt: '2026-10-15',
+  originalValue: 'Banana passion fruit (P. tripartita var. mollissima) cold hardiness: about 28°F.',
+};
+
+const ICAR_OPUNTIA_PH: SpeciesCriterionEvidence = {
+  institution: 'Central Soil Salinity Research Institute (ICAR, India)',
+  title: 'Performance of edible cactus (Opuntia ficus-indica) in saline environments (Indian J. Agric. Sci. 84:4)',
+  url: 'https://epubs.icar.org.in/index.php/IJAgS/article/download/39469/18063',
+  section: 'Respuesta al pH del suelo en Opuntia ficus-indica',
+  consultedAt: '2026-10-15',
+  originalValue: 'Plant height reduced significantly with increase in pH from 7.8 to 9.0 and then to 9.4 and 9.8. There was no cladode formation at pH 9.8.',
+};
+
+const FRONTIERS_PAPAYO: SpeciesCriterionEvidence = {
+  institution: 'Frontiers in Plant Science (citando Letelier et al. 2020, PMC7348657)',
+  title: 'Southern Species From the Biodiversity Hotspot of Central Chile (Vasconcellea pubescens)',
+  url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7348657/',
+  section: 'Sección Mountain Papaya',
+  consultedAt: '2026-10-15',
+  originalValue: 'V. pubescens is sensitive to cold: the stem and leaves could be affected leading to complete plant death when temperatures fall below 2°C (36°F).',
+};
+
+const CAC_AVOCADO_FREEZE: SpeciesCriterionEvidence = {
+  institution: 'California Avocado Commission',
+  title: 'Effects of Freezes on Avocado Trees',
+  url: 'https://californiaavocadogrowers.com/cultural-management-library/effects-freezes-avocado-trees/',
+  section: 'Sensibilidad al frío por variedad',
+  consultedAt: '2026-10-15',
+  originalValue: 'General temperature indications: Hass (25˚ to 29˚ F). Young trees are most susceptible to freeze conditions.',
+};
 
 /**
  * Perfiles habilitados. Cada uno se incorpora sólo con fuente propia verificada; no se
@@ -624,6 +1277,7 @@ const PROFILES: readonly SpeciesRuleProfile[] = [
     waterSensitive('Pea', 'vegetative (early) 0.2; flowering 0.9; yield formation 0.7; ripening 0.2', 0.9, 'flowering')),
   annual('sp.berenjena', umdVegetable('Eggplant', 6.5, 6.0),
     frostTender([inia165('none'), nebraska('tender', 'eggplant'), sdsu('none', 'Pepper, eggplant')]),
+    rainCrackingFruit('la berenjena', 'eggplant'),
     salt('Eggplant (Solanum melongena)', null, 'moderately_sensitive')),
   annual('sp.betarraga', umdVegetable('Beets', 6.5, 6.2),
     frostTolerant(28, [inia165('weak'), nebraska('tolerant', 'Beet'), sdsu('light', 'Beets')]),
@@ -635,11 +1289,35 @@ const PROFILES: readonly SpeciesRuleProfile[] = [
     salt('Broccoli (Brassica oleracea botrytis)', 2.8, 'moderately_sensitive')),
   annual('sp.camote', umdVegetable('Potatoes, sweet', 6.2, 5.5),
     frostTender([inia165('none'), nebraska('tender', 'sweet potato'), sdsu('none', 'Sweet potatoes')]),
+    weatherEvent(['cosecha'], 'rain', {
+      severity: 'warning',
+      effect: 'Lluvia en cosecha: favorece pudriciones del camote en guarda',
+      effectEn: 'Rain at harvest: favors sweet potato rot in storage',
+      advice: 'La lluvia al final del cultivo deja el suelo cálido y mojado, lo que favorece hongos y bacterias que pudren el camote guardado. Si puedes, espera a que el suelo se seque antes de cosechar.',
+      adviceEn: 'Rain at the end of the season leaves the soil warm and wet, which favors fungi and bacteria that rot stored sweet potato. If you can, wait for the soil to dry before harvesting.',
+      note: 'La especialista indica que la lluvia al final de la temporada causa problemas de guarda, como pudriciones, porque los suelos cálidos y mojados favorecen el crecimiento de bacterias y hongos.',
+      noteEn: 'The specialist states that rainfall at the end of the season causes storage problems such as rot, because warm, wet soils favor bacteria and fungus growth.',
+      limitations: 'Declaración de manejo de una especialista de extensión sobre una temporada particular de lluvias intensas; no fija una cantidad de lluvia ni un plazo exacto.',
+      limitationsEn: 'Management statement from an extension specialist about a particular season of heavy rain; it sets no rainfall amount or exact timeframe.',
+      evidence: [MSU_SWEETPOTATO_HARVEST],
+    }),
     salt('Sweet potato (Ipomoea batatas)', 1.5, 'moderately_sensitive')),
   annual('sp.cebolla', umdVegetable('Onions - green, bulb, scallions', 6.5, 6.0),
     frostTolerant(28, [inia165('tolerant'), nebraska('tolerant', 'onion'), sdsu('light', 'Onion, Garlic, Chives')],
       'INIA la clasifica entre las que toleran heladas; el mínimo de 28 °F es el que documentan las fuentes de Estados Unidos.',
       'INIA lists it among frost-tolerant crops; the 28 °F minimum is the one documented by the US sources.'),
+    weatherEvent(['cosecha'], 'rain', {
+      severity: 'warning',
+      effect: 'Lluvia cerca de la cosecha: la cebolla en pie queda más expuesta a pudrición bacteriana',
+      effectEn: 'Rain near harvest: standing onions are more exposed to bacterial rot',
+      advice: 'La lluvia que salpica el cuello de la cebolla madura y en pie puede meter bacterias y pudrir el bulbo guardado. Si ya está lista, prioriza sacarla antes de que llueva mucho.',
+      adviceEn: 'Rain splashing the neck of mature, standing onion plants can introduce bacteria and rot the bulb in storage. If it is already ready, prioritize pulling it before heavy rain.',
+      note: 'Un ensayo de Cornell encontró menos pudrición bacteriana del bulbo (4,2 %) en cebollas volcadas antes de la lluvia que en las dejadas en pie (6,5 %); la lluvia que salpica puede introducir bacterias por el cuello.',
+      noteEn: 'A Cornell trial found less bacterial bulb rot (4.2%) in onions rolled before the rain than in those left standing (6.5%); splashing rain can introduce bacteria through the neck.',
+      limitations: 'Un solo ensayo a campo en Nueva York, una variedad y una temporada; la diferencia es numérica, no declarada estadísticamente significativa por el propio boletín. No se pronostica salpicadura ni intensidad, sólo si el día cuenta como lluvioso.',
+      limitationsEn: 'A single on-farm trial in New York, one variety and one season; the difference is numeric, not stated as statistically significant by the bulletin itself. Splash and intensity are not forecast, only whether the day counts as rainy.',
+      evidence: [CORNELL_ONION_HARVEST],
+    }),
     salt('Onion (Allium cepa)', 1.2, 'sensitive')),
   annual('sp.cebollin', umdVegetable('Onions - green, bulb, scallions', 6.5, 6.0,
     'La fila de la tabla agrupa cebolla de bulbo y de verdeo.', 'The table row groups bulb and green onions.'),
@@ -662,6 +1340,18 @@ const PROFILES: readonly SpeciesRuleProfile[] = [
       'Nebraska Extension la clasifica como muy resistente (heladas bajo 28 °F por períodos cortos); South Dakota State sólo documenta heladas leves.',
       'Nebraska Extension classifies it as very hardy (frosts below 28 °F for short periods); South Dakota State only documents light frosts.', GROWING),
     frostNearMaturity(),
+    airMax(['cosecha'], 'above', fromF(75), {
+      severity: 'warning',
+      effect: 'Calor sobre 23,9 °C: la lechuga puede amargar y espigar',
+      effectEn: 'Heat above 23.9 °C: lettuce may turn bitter and bolt',
+      advice: 'Varios días de calor sobre 23,9 °C pueden hacer que la lechuga espigue y amargue. Si está lista, prioriza cosecharla antes de que eso avance.',
+      adviceEn: 'Several days of heat above 23.9 °C can make lettuce bolt and turn bitter. If it is ready, prioritize harvesting before that progresses.',
+      note: 'La fuente indica que varios días seguidos sobre 75 °F (23,9 °C) hacen que la planta forme tallo floral, y que la lechuga puede amargar con calor.',
+      noteEn: 'The source states that several consecutive days above 75 °F (23.9 °C) make the plant form a flower stalk, and that lettuce may turn bitter with heat.',
+      limitations: 'La fuente no especifica cuántos días consecutivos cuentan como "varios"; se compara la máxima diaria pronosticada contra este umbral. No distingue variedades, que cambian en tolerancia al calor.',
+      limitationsEn: 'The source does not specify how many consecutive days count as "multiple"; the forecast daily maximum is compared against this threshold. It does not distinguish between varieties, which vary in heat tolerance.',
+      evidence: [UMN_LETTUCE_HEAT],
+    }),
     salt('Lettuce (Lactuca sativa)', 1.3, 'moderately_sensitive')),
   annual('sp.maiz', umdVegetable('Sweet corn', 6.5, 6.0,
     'La fila corresponde a choclo (maíz dulce); la fuente no trata el maíz de grano ni para silo.',
@@ -695,16 +1385,31 @@ const PROFILES: readonly SpeciesRuleProfile[] = [
   waterSensitive('Maize', 'vegetative 0.4; flowering 1.5; yield formation 0.5; ripening 0.2', 1.5, 'flowering')),
   annual('sp.melon', umdVegetable('Cantaloupes; Muskmelons', 6.5, 6.0),
     frostTender([inia165('none'), nebraska('tender', 'muskmelon'), sdsu('none', 'Cucurbits: Cucumbers, summer squash, melons')]),
+    rainCrackingFruit('el melón', 'melon'),
     salt('Muskmelon (Cucumis melo)', null, 'moderately_sensitive')),
   annual('sp.pepino', umdVegetable('Cucumber', 6.5, 6.0),
     frostTender([inia165('none'), nebraska('tender', 'cucumber'), sdsu('none', 'Cucurbits: Cucumbers, summer squash, melons')]),
+    rainCrackingFruit('el pepino', 'cucumber'),
     salt('Cucumber (Cucumis sativus)', 2.5, 'moderately_sensitive')),
   annual('sp.perejil', umdVegetable('Parsley', 6.5, 6.0),
     frostTolerant(28, [sdsu('light', 'Parsley'), INIA_1998_FROST], '', '', GROWING),
-    frostNearMaturity()),
+    frostNearMaturity(),
+    airMax(['cosecha'], 'above', fromF(90), {
+      severity: 'warning',
+      effect: 'Calor sostenido sobre 32 °C: puede detener el crecimiento del perejil que sigues cosechando',
+      effectEn: 'Sustained heat above 32 °C: may stop growth of parsley you keep harvesting',
+      advice: 'Si el calor sobre 32 °C se mantiene varios días, el perejil crece mucho más lento y puede morir. Si puedes, dale sombra o más riego mientras dura el calor.',
+      adviceEn: 'If heat above 32 °C lasts several days, parsley grows much more slowly and can die. If you can, give it shade or more water while the heat lasts.',
+      note: 'La fuente indica que si el perejil se fuerza a crecer por períodos largos sobre 90 °F (32,2 °C), el crecimiento se reduce mucho y puede morir.',
+      noteEn: 'The source states that if parsley is forced to grow for long periods above 90 °F (32.2 °C), growth is greatly reduced and death may occur.',
+      limitations: 'La fuente habla de períodos largos de calor sostenido en una plantación que se sigue cosechando hoja por hoja, no de un solo día de máxima; el pronóstico sólo compara la máxima diaria.',
+      limitationsEn: 'The source refers to long periods of sustained heat on a planting that keeps being picked leaf by leaf, not a single day\'s maximum; the forecast only compares the daily maximum.',
+      evidence: [UARK_PARSLEY],
+    })),
   annual('sp.pimiento', umdVegetable('Peppers', 6.5, 6.0),
     frostTender([inia165('none'), nebraska('tender', 'pepper'), sdsu('none', 'Pepper, eggplant')]),
     pollinationHeat(75, WARM_NIGHT_NOTE, WARM_NIGHT_NOTE_EN),
+    rainCrackingFruit('el pimiento', 'pepper'),
     salt('Pepper (Capsicum annuum)', 1.5, 'moderately_sensitive')),
   annual('sp.poroto', umdVegetable('Beans - lima, snap', 6.2, 6.0,
     'La fila corresponde a poroto verde y pallar; la fuente no trata el poroto de grano seco.',
@@ -713,6 +1418,18 @@ const PROFILES: readonly SpeciesRuleProfile[] = [
   pollinationHeat(68,
     'La fuente cita una investigación de la Universidad de Delaware: en poroto verde, noches sobre 68 °F (20 °C) causaron problemas de polinización.',
     'The source cites University of Delaware research: in snap beans, nights above 68 °F (20 °C) caused pollination problems.'),
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: 'Lluvia fría cerca de la cosecha: riesgo de pudrición de la vaina',
+    effectEn: 'Cool rain near harvest: risk of pod rot',
+    advice: 'Con lluvia y frío cerca de la cosecha las vainas maduras pueden pudrirse (pudrición algodonosa). Evita cosechar o embalar con las plantas mojadas.',
+    adviceEn: 'With cool rain near harvest, mature pods can rot (cottony leak). Avoid harvesting or packing while plants are wet.',
+    note: 'La fuente documenta que la pudrición algodonosa (Pythium) ocurre en plantas maduras cerca de la cosecha o después, y que es más frecuente con lluvia y temperaturas frescas.',
+    noteEn: 'The source documents that cottony leak (Pythium) occurs on mature plants near or after harvest, and is more common with rain and cool temperatures.',
+    limitations: 'La fuente no da una cantidad de lluvia; describe el riesgo de forma cualitativa y recomienda evitar cosechar o embalar en clima húmedo.',
+    limitationsEn: 'The source gives no rainfall amount; it describes the risk qualitatively and recommends avoiding harvest or packing in wet weather.',
+    evidence: [UDEL_BEAN_POD_ROT],
+  }),
   salt('Bean (Phaseolus vulgaris)', 1.0, 'sensitive'),
   waterSensitive('Bean', 'vegetative 0.2; flowering 1.1; yield formation 0.75; ripening 0.2', 1.1, 'flowering')),
   annual('sp.puerro', umdVegetable('Leeks', 6.5, 6.0),
@@ -731,6 +1448,18 @@ const PROFILES: readonly SpeciesRuleProfile[] = [
     frostTolerant(28, [inia165('weak'), nebraska('tolerant', 'cabbage'), sdsu('hardy', 'Chinese cabbage, cabbage, kale, kohlrabi, turnip')],
       'South Dakota State documenta tolerancia a heladas moderadas de 24 a 28 °F; Nebraska Extension, sólo heladas leves hasta 28 °F.',
       'South Dakota State documents tolerance to moderate freezes of 24 to 28 °F; Nebraska Extension, only light frosts down to 28 °F.'),
+    weatherEvent(['cosecha'], 'rain', {
+      severity: 'warning',
+      effect: 'Lluvia en cosecha: riesgo de que la cabeza se raje',
+      effectEn: 'Rain at harvest: risk of head splitting',
+      advice: 'Con la cabeza firme y lluvia fuerte en camino, el repollo puede absorber agua de golpe y rajarse. Si ya está firme y lista, considera cosecharla antes de la lluvia.',
+      adviceEn: 'With a firm head and heavy rain on the way, cabbage can take up water quickly and split. If it is already firm and ready, consider harvesting before the rain.',
+      note: 'La fuente indica que una lluvia fuerte sobre una cabeza madura puede rajarla, porque la presión del agua absorbida de golpe rompe el tejido ya firme.',
+      noteEn: 'The source states that heavy rain on a mature head can split it, because the pressure from water taken up suddenly breaks the already-firm tissue.',
+      limitations: `${RAIN_RULE} La fuente no fija una cantidad de lluvia; «lluvia fuerte» es su propio término, no un umbral medido.`,
+      limitationsEn: `${RAIN_RULE_EN} The source sets no rainfall amount; "heavy rain" is its own term, not a measured threshold.`,
+      evidence: [UIUC_CABBAGE_SPLIT],
+    }),
     salt('Cabbage (Brassica oleracea capitata)', 1.8, 'moderately_sensitive')),
   annual('sp.sandia', umdVegetable('Watermelon', 6.2, 5.5),
     frostTender([inia165('none'), nebraska('tender', 'watermelon')]),
@@ -747,6 +1476,18 @@ const PROFILES: readonly SpeciesRuleProfile[] = [
       'South Dakota State admite que el zapallo de guarda puede tolerar heladas muy leves, pero indica protegerlo; Nebraska Extension, cosecharlo antes de la helada porque daña la cáscara y acorta su guarda.',
       'South Dakota State allows that winter squash may tolerate very light frosts but advises protecting it; Nebraska Extension, harvesting it before frost because frost damages the rind and shortens storage.'),
     pollinationHeat(75, WARM_NIGHT_NOTE, WARM_NIGHT_NOTE_EN),
+    weatherEvent(['cosecha'], 'rain', {
+      severity: 'warning',
+      effect: 'Lluvia frecuente en cosecha: conviene traer el zapallo guardado antes de que se moje',
+      effectEn: 'Frequent rain at harvest: bring winter squash in before it gets wet',
+      advice: 'Cosecha el zapallo de guarda antes de que el tiempo se vuelva lluvioso: la fruta mojada o con humedad se pudre más fácil en la guarda. Si ya está maduro, cosecha antes de la lluvia y guárdalo seco.',
+      adviceEn: 'Harvest winter squash before the weather turns rainy: wet or damp fruit rots more easily in storage. If it is already mature, harvest before the rain and store it dry.',
+      note: 'La fuente indica traer la cosecha cuando la lluvia se vuelve frecuente, porque el zapallo de guarda debe cosecharse antes de que el clima se ponga húmedo.',
+      noteEn: 'The source advises bringing in the harvest once rain becomes frequent, because winter squash should be picked before the weather turns wet.',
+      limitations: `${RAIN_RULE} Es guía de manejo de cosecha y guarda, no un umbral de daño agronómico medido; no distingue variedades de zapallo de guarda.`,
+      limitationsEn: `${RAIN_RULE_EN} It is harvest and storage management guidance, not a measured agronomic damage threshold; it does not distinguish winter squash varieties.`,
+      evidence: [OSU_WINTER_SQUASH_HARVEST],
+    }),
     salt('Pumpkin (Cucurbita pepo pepo)', null, 'moderately_sensitive')),
   annual('sp.zapallo-italiano', umdVegetable('Squash - winter, summer', 6.5, 6.0),
     frostTender([inia165('none'), nebraska('tender', 'summer squash'), sdsu('none', 'Cucurbits: Cucumbers, summer squash, melons')]),
@@ -807,6 +1548,18 @@ const PROFILES: readonly SpeciesRuleProfile[] = [
     limitations: 'Afirmación general de un estudio sobre papas nativas en Perú; la tolerancia depende de la variedad, que no se conoce.',
     limitationsEn: 'General statement in a study of native potatoes in Peru; tolerance depends on the variety, which is unknown.',
     evidence: [POTATO_FROST],
+  }),
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: 'Lluvia en cosecha: suelo mojado favorece pudriciones de la papa',
+    effectEn: 'Rain at harvest: wet soil favors potato rot',
+    advice: 'Cosechar con el suelo mojado golpea y rasga más la piel de la papa, y esas heridas dejan entrar las pudriciones húmedas. Si puedes, espera a que el suelo se seque.',
+    adviceEn: 'Digging when the soil is wet bruises and skins the potatoes more, and those wounds let wet rots in. If you can, wait for the soil to dry.',
+    note: 'La fuente indica proteger las papas de las pudriciones húmedas cosechando cuando el suelo no está mojado, evitando golpes al manipularlas y guardándolas frescas, secas y ventiladas.',
+    noteEn: 'The source advises protecting potatoes from wet rots by digging when the soil is not wet, avoiding bruising when handling, and storing them cool, dry and well ventilated.',
+    limitations: 'Recomendación general de manejo de cosecha y guarda; no fija una cantidad de lluvia ni distingue variedad. La humedad del suelo que mide la sonda es puntual y no certifica que el resto del paño esté igual.',
+    limitationsEn: 'General harvest and storage management advice; it sets no rainfall amount and does not distinguish variety. The soil moisture the probe measures is local and does not certify the rest of the field is the same.',
+    evidence: [NEBRASKA_POTATO_WET_ROT],
   }),
   salt('Potato (Solanum tuberosum)', 1.7, 'moderately_sensitive'),
   waterSensitive('Potato', 'vegetative early 0.45, late 0.8; yield formation 0.7; ripening 0.2', 0.8, 'vegetative')),
@@ -880,6 +1633,17 @@ const PROFILES: readonly SpeciesRuleProfile[] = [
     limitationsEn: 'The forecast daily maximum is compared; the source does not state how many hours of heat cause the effect.',
     evidence: [INIA_TOMATO_CLIMATE],
   }),
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: 'Lluvia cerca de la cosecha: riesgo de rajadura del tomate',
+    effectEn: 'Rain near harvest: risk of tomato cracking',
+    advice: 'La lluvia después de un período seco puede rajar el tomate maduro, sobre todo si llueve fuerte. Si hay fruta lista, cosecharla antes de la lluvia reduce la pérdida; después, revisa y cosecha primero la que esté partida.',
+    adviceEn: 'Rain after a dry spell can crack ripe tomatoes, especially with heavy rain. If fruit is ready, harvesting it before the rain reduces loss; afterward, check the plants and harvest cracked fruit first.',
+    note: 'La fuente documenta que la lluvia durante la maduración aumenta la rajadura y las pérdidas de fruta comercial, sobre todo tras lluvia fuerte.',
+    noteEn: 'The source documents that rain during ripening increases cracking and losses of marketable fruit, especially after heavy rain.',
+    limitations: RAIN_CRACKING_SCOPE, limitationsEn: RAIN_CRACKING_SCOPE_EN,
+    evidence: [UDEL_TOMATO_CRACKING],
+  }),
   salt('Tomato (Lycopersicon esculentum)', 2.5, 'moderately_sensitive'),
   waterSensitive('Tomato', 'vegetative 0.4; flowering 1.1; yield formation 0.8; ripening 0.4', 1.1, 'flowering')),
 
@@ -911,6 +1675,18 @@ const PROFILES: readonly SpeciesRuleProfile[] = [
     limitations: `La fuente compara la temperatura de la flor; ${GROUND_COLDER.charAt(0).toLowerCase()}${GROUND_COLDER.slice(1)} Botones cerrados toleran más frío.`,
     limitationsEn: `The source refers to blossom temperature; ${GROUND_COLDER_EN.charAt(0).toLowerCase()}${GROUND_COLDER_EN.slice(1)} Closed buds tolerate more cold.`,
     evidence: [pennStateBerries('Critical temperatures for blueberry blossoms: open blossoms 27°F; petal fall (most tender stage) 28°F. Air temperature close to the ground is often much colder (as much as 5°F) than the low temperature reached at standard measurement height.')],
+  }),
+  airMax(['floracion'], 'above', fromF(95), {
+    severity: 'warning',
+    effect: 'Calor sobre 35 °C en floración: puede reducir la viabilidad del polen',
+    effectEn: 'Heat above 35 °C during flowering: may reduce pollen viability',
+    advice: 'Con calor sobre 35 °C el polen del arándano germina y crece peor, así que puede cuajar menos fruta. No hay nada que corregir en el momento; revisa la cuaja en los días siguientes.',
+    adviceEn: 'With heat above 35 °C blueberry pollen germinates and grows worse, so fewer fruit may set. There is nothing to fix in the moment; check fruit set over the following days.',
+    note: 'La investigación citada encontró menor germinación de polen entre 86 y 104 °F (30 a 40 °C) y menor crecimiento del tubo polínico sobre 95 °F (35 °C).',
+    noteEn: 'The cited research found reduced pollen germination between 86 and 104 °F (30 to 40 °C) and reduced pollen tube growth above 95 °F (35 °C).',
+    limitations: 'Investigación de laboratorio sobre polen expuesto a temperatura de aire controlada, resumida por extensión universitaria; no mide cuaja de campo ni distingue cultivares. Se usa 95 °F porque es el umbral exacto más bajo que la fuente documenta.',
+    limitationsEn: 'Laboratory research on pollen exposed to controlled air temperature, summarized by university extension; it does not measure field fruit set or distinguish cultivars. 95 °F is used because it is the lowest exact threshold the source documents.',
+    evidence: [WSU_BLUEBERRY_HEAT],
   }),
   weatherEvent(['cosecha'], 'rain', {
     severity: 'warning',
@@ -1095,6 +1871,63 @@ const PROFILES: readonly SpeciesRuleProfile[] = [
     evidence: [INIA_CHERRY_CLIMATE],
   }),
   salt('Cherry, sweet (Prunus avium)', null, 'sensitive')),
+  perennial('sp.kiwi', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 6.0, max: 7.0 }, lowerLimit: null, upperLimit: null,
+    note: 'El pH deseado para el kiwi en Chile es 6 a 7.',
+    noteEn: 'The desired pH for kiwifruit in Chile is 6 to 7.',
+    limitations: 'La fuente chilena sólo da el rango deseado, sin límites donde documente un problema, así que fuera de él no se advierte. University of Wisconsin–Madison Extension recomienda un suelo algo ácido, pH 5 a 6,5, para varias especies de Actinidia: ambas coinciden entre 6 y 6,5. No se promedian; se usa la fuente chilena.',
+    limitationsEn: 'The Chilean source only gives the desired range, with no limits where it documents a problem, so no warning is raised outside it. University of Wisconsin-Madison Extension recommends a somewhat acid soil, pH 5 to 6.5, for several Actinidia species: both agree between 6 and 6.5. They are not averaged; the Chilean source is used.',
+    evidence: [KIWI_SOIL, WISCONSIN_KIWI],
+  },
+  airMin(['vegetativo'], 'at_or_below', celsius(-1), {
+    severity: 'warning',
+    effect: 'Helada en brotación: daña puntas verdes y brotes tiernos del kiwi',
+    effectEn: 'Frost at budbreak injures green tips and tender kiwifruit shoots',
+    advice: 'Desde −1 °C se dañan las puntas y los brotes nuevos del kiwi. Si tienes control de heladas, prepáralo para esa noche.',
+    adviceEn: 'From −1 °C kiwifruit green tips and new shoots are damaged. If you have frost protection, get it ready for that night.',
+    note: 'En la tabla de temperaturas críticas del Comité del Kiwi, las puntas verdes y los brotes tiernos se dañan a −1,0 °C; las yemas desde el lloro, entre −8,0 y −4,0 °C, y la yema algodonosa, desde −1,5 °C.',
+    noteEn: 'In the Chilean Kiwifruit Committee critical temperature table, green tips and tender shoots are injured at −1.0 °C; buds from bleeding onward, between −8.0 and −4.0 °C, and woolly buds, from −1.5 °C.',
+    limitations: `${KIWI_EXPOSURE} ${GROUND_COLDER} El criterio describe la brotación de primavera; en pleno verano los brotes ya no están tiernos. En la fila de yema algodonosa la tabla imprime «-1,5 a 2,0», sin signo en la segunda cifra, y esa cifra no se usa. La tabla no indica variedad ni distingue kiwi amarillo o baby kiwi.`,
+    limitationsEn: `${KIWI_EXPOSURE_EN} ${GROUND_COLDER_EN} The criterion describes spring budbreak; by midsummer shoots are no longer tender. In the woolly bud row the table prints "-1.5 to 2.0", with no sign on the second figure, and that figure is not used. The table names no variety and does not separate gold or baby kiwifruit.`,
+    evidence: [KIWI_FROST],
+  }),
+  airMax(['vegetativo'], 'above', celsius(31), {
+    severity: 'info',
+    effect: 'Calor sobre 31 °C: con viento y aire seco, riesgo de «bronceado» en las hojas del kiwi',
+    effectEn: 'Heat above 31 °C: with wind and dry air, risk of kiwifruit leaf bronzing',
+    advice: 'Sobre 31 °C, si además hay viento y aire seco, la hoja del kiwi pierde más agua de la que la planta alcanza a reponer y se quema. Revisa que el riego esté al día esos días.',
+    adviceEn: 'Above 31 °C, if there is also wind and dry air, kiwifruit leaves lose more water than the plant can replace and get scorched. Check that irrigation is up to date on those days.',
+    note: 'El Comité del Kiwi indica que temperaturas mayores a 31 °C combinadas con viento y baja humedad relativa elevan la transpiración de las hojas sobre lo que el suelo y la planta alcanzan a abastecer, y producen el desorden conocido como «bronceado».',
+    noteEn: 'The Chilean Kiwifruit Committee states that temperatures above 31 °C combined with wind and low relative humidity raise leaf transpiration beyond what soil and plant can supply, causing the disorder known as bronzing.',
+    limitations: 'Es sólo informativo: el daño descrito exige calor, viento y aire seco juntos, y el pronóstico que usa la app no compara viento ni humedad. La tabla 3.1 del mismo manual da 29 °C con baja humedad relativa como máxima crítica de verano para la variedad Hayward; se usa 31 °C, la cifra del texto que describe el daño. La fuente no indica cuántas horas de calor lo producen.',
+    limitationsEn: 'It is informative only: the described damage requires heat, wind and dry air together, and the forecast used by the app does not compare wind or humidity. Table 3.1 of the same manual gives 29 °C with low relative humidity as the critical summer maximum for Hayward; 31 °C is used, the figure in the text that describes the damage. The source does not state how many hours of heat cause it.',
+    evidence: [KIWI_SUMMER],
+  }),
+  airMin(['floracion'], 'at_or_below', celsius(-0.5), {
+    severity: 'warning',
+    effect: 'Helada en floración: daña la flor del kiwi',
+    effectEn: 'Frost during flowering injures kiwifruit blossoms',
+    advice: 'Desde −0,5 °C se dañan las flores abiertas del kiwi, y los botones florales desde −1,5 °C. Si tienes control de heladas, prepáralo para esa noche.',
+    adviceEn: 'From −0.5 °C open kiwifruit flowers are damaged, and flower buds from −1.5 °C. If you have frost protection, get it ready for that night.',
+    note: 'En la tabla del Comité del Kiwi, el cáliz partido y la flor se dañan a −0,5 °C, la temperatura crítica más alta de la tabla. Un estudio neozelandés citado en Scientific Reports encontró que, en estados avanzados, 30 minutos a −1,5 o −2,0 °C dañan cerca del 10 % de las yemas florales.',
+    noteEn: 'In the Chilean Kiwifruit Committee table, split calyx and flower are injured at −0.5 °C, the highest critical temperature in the table. A New Zealand study cited in Scientific Reports found that, at advanced stages, 30 minutes at −1.5 or −2.0 °C injure about 10% of floral buds.',
+    limitations: `${KIWI_EXPOSURE} ${GROUND_COLDER} El estudio neozelandés (Hewett y Young, 1981) se leyó a través de la revisión publicada en Scientific Reports; el artículo original no estuvo disponible.`,
+    limitationsEn: `${KIWI_EXPOSURE_EN} ${GROUND_COLDER_EN} The New Zealand study (Hewett and Young, 1981) was read through the review published in Scientific Reports; the original article was not available.`,
+    evidence: [KIWI_FROST, KIWI_BUD_FREEZE],
+  }),
+  airMin(['cosecha'], 'at_or_below', celsius(-2), {
+    severity: 'warning',
+    effect: 'Helada con el kiwi en maduración: daña el fruto y las hojas maduras',
+    effectEn: 'Frost while kiwifruit ripens injures fruit and mature leaves',
+    advice: 'Desde −2 °C se daña la fruta del kiwi junto al pedúnculo, y también las hojas maduras. Si la fruta ya está lista, considera cosecharla antes de la helada.',
+    adviceEn: 'From −2 °C kiwifruit is damaged next to the stalk, and so are mature leaves. If the fruit is ready, consider picking it before the frost.',
+    note: 'En la tabla del Comité del Kiwi, durante la maduración del fruto la sección peduncular del fruto y las hojas maduras se dañan a −2,0 °C.',
+    noteEn: 'In the Chilean Kiwifruit Committee table, during fruit ripening the stalk end of the fruit and mature leaves are injured at −2.0 °C.',
+    limitations: `${KIWI_EXPOSURE} ${GROUND_COLDER} La fuente no documenta un umbral de lluvia en cosecha para el kiwi, así que esa etapa sólo compara la helada.`,
+    limitationsEn: `${KIWI_EXPOSURE_EN} ${GROUND_COLDER_EN} The source documents no rain threshold at harvest for kiwifruit, so this stage only compares frost.`,
+    evidence: [KIWI_FROST],
+  })),
   perennial('sp.olivo', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 5.5, max: 7.5 }, lowerLimit: 5.5, upperLimit: 8.5,
@@ -1184,6 +2017,739 @@ const PROFILES: readonly SpeciesRuleProfile[] = [
     evidence: [INIA_165_OLIVE],
   }),
   salt('Olive (Olea europaea)', null, 'moderately_tolerant')),
+perennial('sp.manzano', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 6.0, max: 6.5 }, lowerLimit: null, upperLimit: null,
+    note: 'El pH del suelo debe mantenerse en el rango de 6,0 a 6,5 en todo el perfil del huerto.',
+    noteEn: 'Soil pH should be maintained in the range of 6.0 to 6.5 throughout the orchard soil profile.',
+    limitations: 'Cornell Cooperative Extension recomienda 6,0 a 6,5 para huertos comerciales en general. Para el cultivar Honeycrisp sugiere 6,5 a 7,1, pero no se distingue por variedad en el motor.',
+    limitationsEn: 'Cornell Cooperative Extension recommends 6.0 to 6.5 for commercial orchards in general. For Honeycrisp it suggests 6.5 to 7.1, but varieties are not separated in the engine.',
+    evidence: [CORNELL_APPLE_PH],
+  },
+  airMin(['floracion'], 'at_or_below', fromF(28), {
+    severity: 'warning',
+    effect: 'Helada en floración: riesgo de daño en flores de manzano',
+    effectEn: 'Frost during flowering: risk of apple blossom injury',
+    advice: 'Desde −2,2 °C se daña cerca del 10 % de las flores abiertas del manzano, y bajo −3,9 °C el daño alcanza al 90 %. Si cuentas con control de heladas, prepáralo para esa noche.',
+    adviceEn: 'From −2.2 °C about 10% of open apple blossoms are damaged, and below −3.9 °C damage reaches 90%. If you have frost protection, get it ready for that night.',
+    note: 'En plena floración (Full Bloom) se produce 10 % de mortalidad de yemas y flores a 28 °F (−2,2 °C) y 90 % a 25 °F (−3,9 °C) tras 30 minutos de exposición.',
+    noteEn: 'At full bloom 10% bud and flower mortality occurs at 28 °F (−2.2 °C) and 90% at 25 °F (−3.9 °C) after 30 minutes of exposure.',
+    limitations: 'Valores para 30 minutos de exposición en Red Delicious. Golden Delicious y Winesap resisten cerca de 1 °F menos antes de caída de pétalos. Tras la caída de pétalos todas las variedades presentan sensibilidad similar.',
+    limitationsEn: 'Values for 30 minutes of exposure in Red Delicious. Golden Delicious and Winesap withstand about 1 °F less before petal fall. After petal fall all varieties show similar sensitivity.',
+    evidence: [CSU_APPLE_FROST],
+  })),
+  perennial('sp.peral', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 6.0, max: 6.5 }, lowerLimit: null, upperLimit: null,
+    note: 'El pH objetivo documentado para peral es 6,5, dentro del rango óptimo general de 6,0 a 6,5 para frutales de árbol.',
+    noteEn: 'The documented target pH for pear is 6.5, within the general optimum range of 6.0 to 6.5 for tree fruits.',
+    limitations: 'Recomendación del laboratorio de suelos de Penn State para huertos en mantención (código 4006); no fija límites de daño fuera del rango.',
+    limitationsEn: 'Penn State soil lab recommendation for maintained orchards (code 4006); it sets no damage limits outside the range.',
+    evidence: [PENN_STATE_PEAR_PH],
+  },
+  airMin(['floracion'], 'at_or_below', fromF(28), {
+    severity: 'warning',
+    effect: 'Helada en floración: riesgo de daño en flores de peral',
+    effectEn: 'Frost during flowering: risk of pear blossom injury',
+    advice: 'Desde −2,2 °C se daña cerca del 10 % de las flores de peral en plena floración, y bajo −4,4 °C el daño llega al 90 %. Si dispones de control de heladas, prepáralo.',
+    adviceEn: 'From −2.2 °C about 10% of pear blossoms in full bloom are damaged, and below −4.4 °C damage reaches 90%. If you have frost protection, get it ready.',
+    note: 'En plena floración (Full Bloom) se produce 10 % de mortalidad a 28 °F (−2,2 °C) y 90 % a 24 °F (−4,4 °C) tras 30 minutos de exposición en Bartlett.',
+    noteEn: 'At full bloom 10% mortality occurs at 28 °F (−2.2 °C) and 90% at 24 °F (−4.4 °C) after 30 minutes of exposure in Bartlett.',
+    limitations: 'Datos de WSU para la variedad Bartlett expuesta 30 minutos. Anjou presenta temperaturas críticas similares aunque suele florecer antes.',
+    limitationsEn: 'WSU data for Bartlett exposed for 30 minutes. Anjou shows similar critical temperatures although it usually blooms earlier.',
+    evidence: [CSU_PEAR_FROST],
+  })),
+  perennial('sp.caqui', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 6.0, max: 6.5 }, lowerLimit: null, upperLimit: null,
+    note: 'El caqui se desarrolla mejor con un pH de suelo de 6,0 a 6,5.',
+    noteEn: 'Persimmon grows best in soils with a pH of 6.0 to 6.5.',
+    limitations: 'Guía de NC State Extension; señala que el árbol tolera una amplia variedad de suelos bien drenados sin fijar límites de toxicidad.',
+    limitationsEn: 'NC State Extension guide; notes that the tree tolerates a wide range of well-drained soils without setting toxicity limits.',
+    evidence: [NCSU_PERSIMMON_PH],
+  },
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: 'Lluvia en maduración del caqui: riesgo de partidura apical del fruto',
+    effectEn: 'Rain during persimmon ripening: risk of fruit stylar end checking',
+    advice: 'La lluvia o humedad libre sobre el caqui maduro produce pequeñas grietas en la piel del fruto. Si la fruta está lista, cosecha antes de la lluvia.',
+    adviceEn: 'Rain or free moisture on ripening persimmon causes small skin cracks on the fruit. If fruit is ready, harvest before the rain.',
+    note: 'Estudios de patología vegetal de UCLA en caqui Hachiya demuestran que períodos húmedos, de niebla o lluvia generan partiduras apicales en frutos cercanos a cosecha cuando el agua libre se deposita en la superficie.',
+    noteEn: 'Plant pathology studies by UCLA on Hachiya persimmon demonstrate that humid, foggy or rainy periods cause stylar end skin cracks near harvest when free moisture collects on the fruit surface.',
+    limitations: 'Estudio clásico de UCLA enfocado en la variedad Hachiya; el daño ocurre con agua libre sobre el fruto por 24 horas en ambiente húmedo. La app usa el pronóstico de lluvia como aviso preventivo.',
+    limitationsEn: 'Classic UCLA study focused on Hachiya persimmon; injury develops with free moisture on fruit for 24 hours in a humid atmosphere. The app uses the rain forecast as a preventive notice.',
+    evidence: [UCLA_PERSIMMON_HARVEST],
+  })),
+  perennial('sp.nispero', airMin(['floracion'], 'at_or_below', fromF(26), {
+    severity: 'warning',
+    effect: 'Helada en floración: daña flores maduras y cuaja del níspero',
+    effectEn: 'Frost during flowering injures mature loquat blossoms and fruit set',
+    advice: 'Desde −3,3 °C se dañan las flores maduras del níspero y a −3,9 °C se dañan las semillas del fruto recién cuajado, provocando su caída. Protege los árboles si se prevé helada.',
+    adviceEn: 'From −3.3 °C mature loquat blossoms are killed and at −3.9 °C seeds of newly set fruit are damaged, causing fruit drop. Protect trees if frost is forecast.',
+    note: 'CRFG documenta muerte de flores maduras a 26 °F (−3,3 °C), muerte de semillas en fruto cuajado a 25 °F (−3,9 °C) y daño en botones florales a 19 °F (−7,2 °C). Clemson Extension señala daño a 27 °F (−2,8 °C).',
+    noteEn: 'CRFG documents killing of mature flowers at 26 °F (−3.3 °C), seed death in developing fruit at 25 °F (−3.9 °C), and flower bud injury at 19 °F (−7.2 °C). Clemson Extension reports injury at 27 °F (−2.8 °C).',
+    limitations: 'El níspero florece a fines de otoño e invierno, por lo que su floración coincide con el período invernal. Se adopta 26 °F de CRFG como umbral de advertencia, contrastado con 27 °F de Clemson.',
+    limitationsEn: 'Loquat blooms in late autumn and winter, so its flowering coincides with cold winter weather. CRFG 26 °F is adopted as the warning threshold, contrasted with Clemson 27 °F.',
+    evidence: [CRFG_LOQUAT_FROST, CLEMSON_LOQUAT_FROST],
+  })),
+  perennial('sp.damasco', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 6.0, max: 7.0 }, lowerLimit: null, upperLimit: null,
+    note: 'El pH del suelo recomendado para damasco se ubica entre 6,0 y 7,0.',
+    noteEn: 'The recommended soil pH for apricot is between 6.0 and 7.0.',
+    limitations: 'UNH Extension entrega un rango conjunto de 6,0 a 7,0 para ciruelos, guindos y damascos sin desglosar por especie.',
+    limitationsEn: 'UNH Extension gives a shared 6.0 to 7.0 range for plums, cherries and apricots without breaking down by species.',
+    evidence: [UNH_STONE_FRUIT_PH],
+  },
+  airMin(['floracion'], 'at_or_below', fromF(27), {
+    severity: 'warning',
+    effect: 'Helada en floración: riesgo de daño en flores de damasco',
+    effectEn: 'Frost during flowering: risk of apricot blossom injury',
+    advice: 'Desde −2,8 °C se daña cerca del 10 % de las flores de damasco en plena floración, y bajo −5,6 °C el daño llega al 90 %. Prepara sistemas de control de heladas.',
+    adviceEn: 'From −2.8 °C about 10% of apricot blossoms in full bloom are damaged, and below −5.6 °C damage reaches 90%. Prepare frost protection systems.',
+    note: 'En plena floración (Full Bloom), 10 % de mortalidad ocurre a 27 °F (−2,8 °C) y 90 % a 22 °F (−5,6 °C). Al inicio de floración (First Bloom), 10 % de muerte ocurre a 25 °F (−3,9 °C).',
+    noteEn: 'At full bloom 10% mortality occurs at 27 °F (−2.8 °C) and 90% at 22 °F (−5.6 °C). At first bloom 10% kill occurs at 25 °F (−3.9 °C).',
+    limitations: 'Temperaturas críticas de WSU Prosser y CSU para 30 minutos de exposición en damasco.',
+    limitationsEn: 'WSU Prosser and CSU critical temperatures for 30 minutes of exposure in apricot.',
+    evidence: [CSU_APRICOT_FROST],
+  })),
+  perennial('sp.duraznero', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 6.0, max: 6.5 }, lowerLimit: null, upperLimit: null,
+    note: 'El pH del suelo para duraznero debe situarse entre 6,0 y 6,5.',
+    noteEn: 'Soil pH for peach trees should be between 6.0 and 6.5.',
+    limitations: 'Recomendación de UGA Extension específica para duraznero; no fija límites de daño fuera del rango.',
+    limitationsEn: 'UGA Extension recommendation specific to peach; it sets no damage limits outside the range.',
+    evidence: [UGA_PEACH_PH],
+  },
+  airMin(['floracion'], 'at_or_below', fromF(27), {
+    severity: 'warning',
+    effect: 'Helada en floración: riesgo de daño en flores de duraznero',
+    effectEn: 'Frost during flowering: risk of peach blossom injury',
+    advice: 'Desde −2,8 °C se daña cerca del 10 % de las flores abiertas de duraznero, y bajo −4,4 °C el daño llega al 90 %. Prepara medidas contra la helada.',
+    adviceEn: 'From −2.8 °C about 10% of open peach blossoms are damaged, and below −4.4 °C damage reaches 90%. Prepare frost protection measures.',
+    note: 'En plena floración (Full bloom), WSU EB0914 y MSU documentan 10 % de mortalidad a 27 °F (−2,8 °C) y 90 % a 24 °F (−4,4 °C).',
+    noteEn: 'At full bloom WSU EB0914 and MSU document 10% mortality at 27 °F (−2.8 °C) and 90% at 24 °F (−4.4 °C).',
+    limitations: 'Datos de WSU y MSU para 30 minutos de exposición en plena floración de duraznero.',
+    limitationsEn: 'WSU and MSU data for 30 minutes of exposure in full bloom peach.',
+    evidence: [MSU_PEACH_FROST],
+  }),
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: 'Lluvia cerca de la cosecha: riesgo de partidura en duraznos',
+    effectEn: 'Rain near harvest: risk of peach fruit cracking',
+    advice: 'Si la fruta permanece mojada por lluvia cerca de la cosecha, absorbe humedad y puede rajarse. Cosecha la fruta que esté madura antes de que llueva.',
+    adviceEn: 'If fruit stays wet from rain near harvest, it absorbs moisture and can crack. Harvest ripe fruit before the rain.',
+    note: 'University of Delaware documenta que la piel mojada por períodos prolongados durante la maduración hace que el fruto absorba exceso de humedad y se raje.',
+    noteEn: 'University of Delaware documents that skin wet for extended periods near ripening causes fruit to absorb excess moisture and crack.',
+    limitations: 'Guía de manejo cualitativa de University of Delaware para carozos; no especifica milímetros exactos de lluvia.',
+    limitationsEn: 'Qualitative management guide from University of Delaware for stone fruits; it does not specify exact millimeters of rainfall.',
+    evidence: [UDEL_STONE_FRUIT_CRACK],
+  })),
+  perennial('sp.ciruelo', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 6.0, max: 7.0 }, lowerLimit: null, upperLimit: null,
+    note: 'El pH del suelo recomendado para ciruelo se ubica entre 6,0 y 7,0.',
+    noteEn: 'The recommended soil pH for plum is between 6.0 and 7.0.',
+    limitations: 'UNH Extension agrupa ciruelo, guindo y damasco en 6,0 a 7,0 sin desglosar por especie.',
+    limitationsEn: 'UNH Extension groups plum, cherry and apricot at 6.0 to 7.0 without breaking down by species.',
+    evidence: [UNH_STONE_FRUIT_PH],
+  },
+  airMin(['floracion'], 'at_or_below', fromF(28), {
+    severity: 'warning',
+    effect: 'Helada en floración: riesgo de daño en flores de ciruelo',
+    effectEn: 'Frost during flowering: risk of plum blossom injury',
+    advice: 'Desde −2,2 °C se daña cerca del 10 % de las flores de ciruelo europeo, y bajo −5,0 °C el daño llega al 90 %. Prepara control de heladas.',
+    adviceEn: 'From −2.2 °C about 10% of European plum blossoms are damaged, and below −5.0 °C damage reaches 90%. Prepare frost protection.',
+    note: 'En plena floración (Full Bloom) de ciruelo europeo (P. domestica), se documenta 10 % de muerte a 28 °F (−2,2 °C) y 90 % a 23 °F (−5,0 °C).',
+    noteEn: 'At full bloom of European prune plum (P. domestica), 10% kill is documented at 28 °F (−2.2 °C) and 90% at 23 °F (−5.0 °C).',
+    limitations: 'Cifras medidas en ciruelo europeo (Prunus domestica). CSU advierte expresamente que no hay datos propios para ciruelo japonés (Prunus salicina, ej. Santa Rosa).',
+    limitationsEn: 'Figures measured on European plum (Prunus domestica). CSU explicitly notes that data for Japanese plum (Prunus salicina, e.g. Santa Rosa) is unavailable.',
+    evidence: [CSU_PLUM_FROST],
+  }),
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: 'Lluvia cerca de la cosecha: riesgo de partidura en ciruelas',
+    effectEn: 'Rain near harvest: risk of plum cracking',
+    advice: 'La lluvia prolongada cerca de la madurez puede rajar las ciruelas. Cosecha la fruta madura antes de que comience a llover.',
+    adviceEn: 'Extended rain near ripening can crack plums. Harvest ripe fruit before the rain begins.',
+    note: 'University of Delaware documenta rajado de fruta en ciruelo cuando la piel permanece mojada por lluvia durante la maduración.',
+    noteEn: 'University of Delaware documents fruit cracking in plums when the skin remains wet from rain during ripening.',
+    limitations: 'Guía de extensión cualitativa de University of Delaware; no fija un umbral de milímetros de lluvia.',
+    limitationsEn: 'Qualitative extension guide from University of Delaware; it sets no rainfall millimeter threshold.',
+    evidence: [UDEL_STONE_FRUIT_CRACK],
+  })),
+  perennial('sp.guindo', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 6.0, max: 7.0 }, lowerLimit: null, upperLimit: null,
+    note: 'El pH del suelo recomendado para guindo se ubica entre 6,0 y 7,0.',
+    noteEn: 'The recommended soil pH for sour cherry is between 6.0 and 7.0.',
+    limitations: 'UNH Extension agrupa guindo, ciruelo y damasco en 6,0 a 7,0 sin desglosar por especie.',
+    limitationsEn: 'UNH Extension groups sour cherry, plum and apricot at 6.0 to 7.0 without breaking down by species.',
+    evidence: [UNH_STONE_FRUIT_PH],
+  },
+  airMin(['floracion'], 'at_or_below', fromF(28), {
+    severity: 'warning',
+    effect: 'Helada en floración: riesgo de daño en flores de guindo',
+    effectEn: 'Frost during flowering: risk of sour cherry blossom injury',
+    advice: 'Desde −2,2 °C se daña cerca del 10 % de las flores de guindo en plena floración, y bajo −4,4 °C el daño llega al 90 %. Prepara protección contra helada.',
+    adviceEn: 'From −2.2 °C about 10% of sour cherry blossoms in full bloom are damaged, and below −4.4 °C damage reaches 90%. Prepare frost protection.',
+    note: 'En plena floración (Full Bloom) de guindo (Prunus cerasus), MSU Research Report 220 documenta 10 % de daño a 28 °F (−2,2 °C) y 90 % a 24 °F (−4,4 °C).',
+    noteEn: 'At full bloom of sour cherry (Prunus cerasus), MSU Research Report 220 documents 10% injury at 28 °F (−2.2 °C) and 90% at 24 °F (−4.4 °C).',
+    limitations: 'Datos de MSU específicos para guindo agrio (Prunus cerasus). No deben confundirse con cerezo dulce (Prunus avium), que tolera el frío severo de forma diferente.',
+    limitationsEn: 'MSU data specific to sour cherry (Prunus cerasus). Must not be confused with sweet cherry (Prunus avium), which tolerates severe cold differently.',
+    evidence: [MSU_TART_CHERRY_FROST],
+  })),
+  perennial('sp.nectarino', weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: 'Lluvia cerca de la cosecha: alto riesgo de partidura en nectarinos',
+    effectEn: 'Rain near harvest: high risk of nectarine fruit cracking',
+    advice: 'Los nectarinos tienen piel lisa y son muy propensos a rajarse si llueve cuando están madurando. Cosecha la fruta lista antes de las lluvias.',
+    adviceEn: 'Nectarines have smooth skin and are very prone to cracking if it rains while ripening. Harvest ready fruit before the rains.',
+    note: 'University of Delaware documenta que los nectarinos son más susceptibles a la partidura que los duraznos debido a su piel lisa, al absorber humedad durante maduración.',
+    noteEn: 'University of Delaware documents that nectarines are more susceptible to cracking than peaches due to their smooth skin, absorbing moisture during ripening.',
+    limitations: 'Guía de manejo cualitativa de University of Delaware; no fija un umbral de lluvia en milímetros.',
+    limitationsEn: 'Qualitative management guide from University of Delaware; it does not set a rainfall millimeter threshold.',
+    evidence: [UDEL_NECTARINE_CRACK],
+  })),
+  perennial('sp.almendro', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 6.4, max: 7.5 }, lowerLimit: null, upperLimit: null,
+    note: 'El rango ideal de pH del suelo para almendro se ubica entre 6,4 y 7,5.',
+    noteEn: 'The ideal soil pH range for almond is between 6.4 and 7.5.',
+    limitations: 'Recomendación de asesor de extensión de UCCE; los portainjertos híbridos duraznero-almendro presentan mejor desempeño en suelos alcalinos.',
+    limitationsEn: 'Recommendation from UCCE extension advisor; peach-almond hybrid rootstocks perform better in alkaline soils.',
+    evidence: [UCCE_ALMOND_PH],
+  },
+  airMin(['floracion'], 'at_or_below', fromF(28), {
+    severity: 'warning',
+    effect: 'Helada en floración: riesgo de pérdida de flores en almendro',
+    effectEn: 'Frost during flowering: risk of almond blossom loss',
+    advice: 'A −2,2 °C o menos en plena floración se pueden perder flores y cuaja de almendras. Si cuentas con control de heladas, actívalo.',
+    adviceEn: 'At −2.2 °C or below at full bloom, almond blossoms and fruit set can be lost. If you have frost protection, activate it.',
+    note: 'UCCE documenta que en plena floración temperaturas de 27 a 28 °F (−2,8 a −2,2 °C) o menores pueden causar pérdida de cosecha.',
+    noteEn: 'UCCE documents that at full bloom temperatures at or below 27 to 28 °F (−2.8 to −2.2 °C) can cause crop loss.',
+    limitations: 'Fuente de divulgación de asesor de extensión de UCCE Merced; la susceptibilidad exacta varía según cultivar.',
+    limitationsEn: 'Extension publication from UCCE Merced extension advisor; exact susceptibility varies by cultivar.',
+    evidence: [UCCE_ALMOND_FROST],
+  })),
+  perennial('sp.vid', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 6.0, max: 7.0 }, lowerLimit: null, upperLimit: null,
+    note: 'Las variedades de Vitis vinifera se desarrollan mejor en suelos con un pH entre 6,0 y 7,0.',
+    noteEn: 'Varieties of Vitis vinifera generally grow best at a soil pH between 6.0 and 7.0.',
+    limitations: 'NC State Extension documenta 6,0 a 7,0 para vinífera europea, a diferencia de especies americanas nativas que toleran pH 5,5 a 6,0. No documenta límites de daño.',
+    limitationsEn: 'NC State Extension documents 6.0 to 7.0 for European vinifera, unlike native American species that tolerate pH 5.5 to 6.0. It documents no damage limits.',
+    evidence: [NCSU_GRAPE_PH],
+  },
+  airMin(['vegetativo'], 'at_or_below', fromF(29.8), {
+    severity: 'warning',
+    effect: 'Helada tras la brotación: riesgo de daño en brotes tiernos de la vid',
+    effectEn: 'Frost after budbreak: risk of tender grapevine shoot injury',
+    advice: 'Bajo −1,2 °C se dañan los brotes nuevos de la vid tras la brotación. Si tienes control de heladas, déjalo preparado.',
+    adviceEn: 'Below −1.2 °C new grapevine shoots after budbreak are injured. If you have frost protection, keep it ready.',
+    note: 'WSU documenta una tolerancia crítica post-brotación de 29,8 °F (−1,2 °C) para variedades de Vitis vinifera (basado en Ferguson et al., 2014, AJEV).',
+    noteEn: 'WSU documents a post-budbreak critical frost tolerance of 29.8 °F (−1.2 °C) for Vitis vinifera varieties (based on Ferguson et al., 2014, AJEV).',
+    limitations: 'Medido tras brotación en más de 20 cultivares viníferos; no se dispone de umbral específico de helada en plena floración en vid porque florece más tarde.',
+    limitationsEn: 'Measured post-budbreak across more than 20 vinifera cultivars; no specific full bloom frost threshold is available for grapevines because they bloom later.',
+    evidence: [WSU_GRAPEVINE_FROST],
+  }),
+  airMax(['floracion'], 'above', fromF(95), {
+    severity: 'warning',
+    effect: 'Calor sobre 35 °C en floración: riesgo de corrimiento y raleo de racimos en vid',
+    effectEn: 'Heat above 35 °C during flowering: risk of grapevine flower shatter and berry thinning',
+    advice: 'Días con más de 35 °C durante la floración impiden la correcta fecundación de las flores de la vid y hacen caer bayas. Mantén el riego al día.',
+    adviceEn: 'Days above 35 °C during flowering prevent proper fertilization of grape flowers and cause berry drop. Keep watering up to date.',
+    note: 'Investigación de UC Davis indica que sobre 95 °F (35 °C) en floración se interfiere la fecundación floral al impedir el desarrollo del tubo polínico, induciendo corrimiento (shatter).',
+    noteEn: 'UC Davis research indicates that above 95 °F (35 °C) at bloom, flower fertilization is impaired because pollen tube growth is prevented, inducing shatter.',
+    limitations: 'Publicación técnica de especialista de UC Davis; la susceptibilidad cambia según cultivar y vigor de la parra.',
+    limitationsEn: 'Technical publication by UC Davis specialist; susceptibility varies by cultivar and vine vigor.',
+    evidence: [UCD_GRAPEVINE_HEAT],
+  }),
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: 'Lluvia en cosecha: riesgo de partidura de bayas y botritis en vid',
+    effectEn: 'Rain at harvest: risk of berry splitting and botrytis in grapevine',
+    advice: 'La lluvia sobre racimos maduros hace reventar las bayas y facilita pudriciones. Si más del 20 % de las bayas están partidas, cosecha lo antes posible.',
+    adviceEn: 'Rain on ripe grape clusters causes berries to split and promotes rot. If more than 20% of berries are split, harvest as soon as possible.',
+    note: 'University of Wisconsin Extension recomienda cosechar de inmediato si más del 20 % de las bayas del racimo se parten tras lluvias copiosas.',
+    noteEn: 'University of Wisconsin Extension recommends harvesting immediately if more than 20% of berries in the cluster split after heavy rain.',
+    limitations: 'Regla de manejo post-lluvia de UW-Madison; cultivares de racimo apretado presentan mayor susceptibilidad a la partidura.',
+    limitationsEn: 'Post-rain management rule from UW-Madison; tight-clustered cultivars show higher susceptibility to splitting.',
+    evidence: [UW_GRAPE_HARVEST_SPLIT],
+  }),
+  salt('Grape (Vitis sp.)', 1.5, 'moderately_sensitive')),
+  perennial('sp.naranjo', citrusPh(),
+    airMin(ALL_STAGES, 'at_or_below', fromF(24), {
+      severity: 'warning',
+      effect: 'Helada bajo −4,4 °C: daño severo en ramas y follaje del naranjo',
+      effectEn: 'Frost at or below −4.4 °C: severe branch and foliage damage in orange trees',
+      advice: 'Bajo −4,4 °C se queman las hojas y ramas del naranjo. Si se pronostica helada, protege los árboles.',
+      adviceEn: 'Below −4.4 °C orange leaves and branches are damaged. If frost is forecast, protect the trees.',
+      note: 'UC ANR y Mississippi State University documentan daño por frío en naranjo dulce (Citrus sinensis) a 24 °F (−4,4 °C).',
+      noteEn: 'UC ANR and Mississippi State University document cold damage in sweet orange (Citrus sinensis) at 24 °F (−4.4 °C).',
+      limitations: 'Umbral de rusticidad en madera y follaje de árbol adulto; flores y frutos tiernos pueden dañarse a temperaturas más altas.',
+      limitationsEn: 'Hardiness threshold for adult tree wood and foliage; blossoms and young fruit can be damaged at warmer temperatures.',
+      evidence: [UCANR_CITRUS_FOOTHILLS, MSU_CITRUS_COLD],
+    })),
+  perennial('sp.limonero', citrusPh(),
+    airMin(['floracion'], 'at_or_below', fromF(29), {
+      severity: 'warning',
+      effect: 'Helada en floración: mata flores y frutos pequeños de limonero',
+      effectEn: 'Frost during flowering kills lemon blossoms and young fruit',
+      advice: 'Desde −1,7 °C mueren las flores y frutos recién cuajados del limonero. Activa sistemas de control de heladas.',
+      adviceEn: 'From −1.7 °C open lemon flowers and young fruit are killed. Activate frost protection systems.',
+      note: 'UF/IFAS documenta que flores y frutos pequeños de limonero mueren a 29 °F (−1,7 °C).',
+      noteEn: 'UF/IFAS documents that lemon flowers and young fruit are killed at 29 °F (−1.7 °C).',
+      limitations: 'Publicación EDIS HS402 de UF/IFAS para limonero.',
+      limitationsEn: 'UF/IFAS EDIS HS402 publication for lemon.',
+      evidence: [UF_LEMON_FREEZE],
+    }),
+    airMin(['cosecha'], 'at_or_below', fromF(28), {
+      severity: 'warning',
+      effect: 'Helada en cosecha: daña limones maduros en el árbol',
+      effectEn: 'Frost at harvest damages mature lemons on the tree',
+      advice: 'Desde −2,2 °C se daña la fruta madura en el limonero. Cosecha la fruta comercial antes de la helada.',
+      adviceEn: 'From −2.2 °C mature fruit on the lemon tree is damaged. Harvest commercial fruit before the frost.',
+      note: 'UF/IFAS documenta daño en fruta madura de limonero entre 28 y 31 °F (−2,2 a −1,8 °C).',
+      noteEn: 'UF/IFAS documents damage to mature lemon fruit between 28 and 31 °F (−2.2 to −1.8 °C).',
+      limitations: 'Se adopta 28 °F como límite crítico de daño en fruta madura según UF/IFAS.',
+      limitationsEn: '28 °F is adopted as the critical damage threshold for mature fruit according to UF/IFAS.',
+      evidence: [UF_LEMON_FREEZE],
+    }),
+    airMin(['vegetativo'], 'at_or_below', fromF(24), {
+      severity: 'warning',
+      effect: 'Helada intensa: defoliación y daño en madera de limonero',
+      effectEn: 'Hard freeze: defoliation and wood injury in lemon trees',
+      advice: 'Bajo −4,4 °C el limonero pierde hojas y sufre daño en ramas. Protege los árboles esa noche.',
+      adviceEn: 'Below −4.4 °C lemon trees lose leaves and suffer branch damage. Protect trees that night.',
+      note: 'UF/IFAS documenta defoliación en limonero a 22–24 °F (−5,6 a −4,4 °C) y daño severo en madera a 20 °F (−6,7 °C).',
+      noteEn: 'UF/IFAS documents defoliation in lemon trees at 22–24 °F (−5.6 to −4.4 °C) and severe wood damage at 20 °F (−6.7 °C).',
+      limitations: 'Umbral de defoliación en árbol establecido según UF/IFAS.',
+      limitationsEn: 'Defoliation threshold in established trees according to UF/IFAS.',
+      evidence: [UF_LEMON_FREEZE],
+    })),
+  perennial('sp.lima', citrusPh(),
+    airMin(ALL_STAGES, 'below', fromF(28), {
+      severity: 'warning',
+      effect: 'Helada bajo −2,2 °C: daño foliar en lima Tahití',
+      effectEn: 'Frost below −2.2 °C: foliage damage in Tahiti lime',
+      advice: 'Bajo −2,2 °C se queman las hojas de la lima, y bajo −4,4 °C puede morir el árbol. Protege la plantación.',
+      adviceEn: 'Below −2.2 °C lime leaves are damaged, and below −4.4 °C tree death can occur. Protect the plantation.',
+      note: 'UF/IFAS documenta que en lima Tahití (Citrus latifolia) el daño foliar ocurre bajo 28 °F (−2,2 °C), daño en madera bajo 26 °F (−3,3 °C) y daño severo o muerte bajo 24 °F (−4,4 °C).',
+      noteEn: 'UF/IFAS documents that in Tahiti lime (Citrus latifolia) leaf damage occurs below 28 °F (−2.2 °C), wood damage below 26 °F (−3.3 °C), and severe damage or death below 24 °F (−4.4 °C).',
+      limitations: 'Cifras para lima Tahití (Citrus latifolia). La lima sutil o Key lime (Citrus aurantiifolia) es aún más sensible al frío (daño foliar desde 30–32 °F).',
+      limitationsEn: 'Figures for Tahiti lime (Citrus latifolia). Key lime (Citrus aurantiifolia) is even more cold-sensitive (foliage damage from 30–32 °F).',
+      evidence: [UF_TAHITI_LIME_FREEZE],
+    })),
+  perennial('sp.mandarino', citrusPh(),
+    airMin(ALL_STAGES, 'at_or_below', fromF(23), {
+      severity: 'warning',
+      effect: 'Helada bajo −5,0 °C: daño por frío en mandarinos',
+      effectEn: 'Frost at or below −5.0 °C: cold injury in mandarin trees',
+      advice: 'Bajo −5,0 °C se dañan hojas y ramas de mandarinos. Protege los árboles ante heladas fuertes.',
+      adviceEn: 'Below −5.0 °C mandarin leaves and branches are injured. Protect trees against hard frosts.',
+      note: 'Mississippi State University documenta una rusticidad de 22 a 23 °F (−5,6 a −5,0 °C) para mandarinas comunes (Citrus reticulata).',
+      noteEn: 'Mississippi State University documents a cold hardiness of 22 to 23 °F (−5.6 to −5.0 °C) for common mandarin oranges (Citrus reticulata).',
+      limitations: 'Dato específico para mandarinas del grupo Citrus reticulata; no aplica a mandarina Satsuma (Citrus unshiu), que tolera hasta 18–20 °F.',
+      limitationsEn: 'Data specific to Citrus reticulata mandarins; does not apply to Satsuma mandarin (Citrus unshiu), which tolerates down to 18–20 °F.',
+      evidence: [MSU_CITRUS_COLD],
+    })),
+  perennial('sp.pomelo', citrusPh(),
+    airMin(ALL_STAGES, 'at_or_below', fromF(24), {
+      severity: 'warning',
+      effect: 'Helada bajo −4,4 °C: daño en follaje y ramas de pomelo',
+      effectEn: 'Frost at or below −4.4 °C: foliage and branch damage in grapefruit',
+      advice: 'Bajo −4,4 °C el pomelo sufre daño en hojas y ramas jóvenes. Protege los árboles si se prevén heladas.',
+      adviceEn: 'Below −4.4 °C grapefruit suffers damage to leaves and young branches. Protect trees if frost is forecast.',
+      note: 'Mississippi State University sitúa la resistencia de pomelo (Citrus paradisi) en 23 a 24 °F (−5,0 a −4,4 °C); UC ANR documenta daño a 26 °F (−3,3 °C).',
+      noteEn: 'Mississippi State University rates grapefruit (Citrus paradisi) cold hardiness at 23 to 24 °F (−5.0 to −4.4 °C); UC ANR documents injury at 26 °F (−3.3 °C).',
+      limitations: 'Se adopta 24 °F (−4,4 °C) como umbral de advertencia con base en MSU y UC ANR.',
+      limitationsEn: '24 °F (−4.4 °C) is adopted as the warning threshold based on MSU and UC ANR.',
+      evidence: [MSU_CITRUS_COLD, UCANR_CITRUS_FOOTHILLS],
+    })),
+  perennial('sp.kumquat', citrusPh(),
+    airMin(ALL_STAGES, 'below', fromF(18), {
+      severity: 'warning',
+      effect: 'Helada bajo −7,8 °C: frío extremo para kumquat',
+      effectEn: 'Frost below −7.8 °C: extreme cold for kumquat',
+      advice: 'El kumquat tolera heladas moderadas, pero bajo −7,8 °C puede sufrir daño. Revisa el huerto tras heladas muy intensas.',
+      adviceEn: 'Kumquat tolerates moderate frosts, but below −7.8 °C it can suffer damage. Check the orchard after very hard frosts.',
+      note: 'UC ANR documenta que el kumquat tolera temperaturas de hasta 18 °F (−7,8 °C), siendo el cítrico más resistente al frío.',
+      noteEn: 'UC ANR documents that kumquat tolerates temperatures down to 18 °F (−7.8 °C), being the most cold-hardy citrus.',
+      limitations: 'UF/IFAS reporta tolerancia de hasta 10 °F en ciertas condiciones; se adopta 18 °F de UC ANR como límite conservador de advertencia.',
+      limitationsEn: 'UF/IFAS reports tolerance down to 10 °F under certain conditions; UC ANR 18 °F is adopted as a conservative warning limit.',
+      evidence: [UCANR_CITRUS_FOOTHILLS],
+    })),
+  perennial('sp.avellano', airMin(['floracion'], 'at_or_below', fromF(15), {
+    severity: 'warning',
+    effect: 'Helada en floración: riesgo de congelamiento de amentos en avellano europeo',
+    effectEn: 'Frost during flowering: risk of catkin freezing in European hazelnut',
+    advice: 'A −9,4 °C o menos se congelan los amentos masculinos elongados del avellano. En variedades sensibles, las flores femeninas se dañan bajo −12,2 °C.',
+    adviceEn: 'At −9.4 °C or below elongated male hazelnut catkins freeze. In sensitive varieties, female flowers freeze below −12.2 °C.',
+    note: 'Oregon State University Extension documenta que los amentos se congelan a 15 °F (−9,4 °C) al estar completamente elongados, y flores femeninas sensibles a 10 °F (−12,2 °C).',
+    noteEn: 'Oregon State University Extension documents that fully elongated catkins freeze at 15 °F (−9.4 °C), and sensitive female flowers at 10 °F (−12.2 °C).',
+    limitations: 'Boletín EM 9072 de OSU Extension; la pérdida de cosecha global suele ser baja si el frío es breve debido a la floración escalonada.',
+    limitationsEn: 'OSU Extension bulletin EM 9072; overall crop loss is usually minimal during brief cold spells due to staggered bloom.',
+    evidence: [OSU_HAZELNUT_FROST],
+  })),
+  perennial('sp.nogal', airMin(['floracion'], 'at_or_below', fromF(30), {
+    severity: 'warning',
+    effect: 'Helada primaveral: daña brotes nuevos y frutos recién cuajados del nogal',
+    effectEn: 'Spring frost damages new shoots and small nutlets in walnut',
+    advice: 'Desde −1,1 °C se queman las hojas nuevas, brotes y nueces recién cuajadas del nogal. Si tienes control de heladas, actívalo esa noche.',
+    adviceEn: 'From −1.1 °C new walnut leaves, shoots and small nutlets are damaged. If you have frost protection, activate it that night.',
+    note: 'UCCE Butte County documenta que 30 °F (−1,1 °C) es la temperatura crítica para daño por helada de radiación en brotes y nueces recién cuajadas.',
+    noteEn: 'UCCE Butte County documents that 30 °F (−1.1 °C) is the critical temperature for radiation frost damage to new shoots and small nutlets.',
+    limitations: 'Presentación técnica de especialista emérito de UCCE Butte County sobre nogal en primavera.',
+    limitationsEn: 'Technical presentation by UCCE Butte County emeritus extension specialist on walnut in spring.',
+    evidence: [UCCE_WALNUT_FROST],
+  })),
+  perennial('sp.pecana', airMin(['vegetativo', 'floracion'], 'at_or_below', fromF(28), {
+    severity: 'warning',
+    effect: 'Helada en tejido verde: daña brotes y follaje nuevo de pecana',
+    effectEn: 'Frost on green tissue damages new pecan shoots and foliage',
+    advice: 'Temperaturas de −2,2 °C sostenidas por varias horas dañan el tejido verde y brotes nuevos de la pecana. Protege los árboles si es posible.',
+    adviceEn: 'Temperatures of −2.2 °C lasting several hours injure green tissue and new pecan shoots. Protect trees if possible.',
+    note: 'University of Georgia Pecan Extension documenta que el tejido verde de pecana sufre daño de consideración cuando la temperatura alcanza 28 °F (−2,2 °C) por varias horas.',
+    noteEn: 'University of Georgia Pecan Extension documents that green pecan tissue suffers damaging injury when temperatures reach 28 °F (−2.2 °C) for several hours.',
+    limitations: 'Publicación del equipo de especialistas de pecana de UGA Extension; se refiere a tejido verde tras la brotación.',
+    limitationsEn: 'Publication from UGA Extension pecan team specialists; refers to green tissue after budbreak.',
+    evidence: [UGA_PECAN_FROST],
+  }),
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: 'Lluvia en maduración: favorece pudrición de cáscara en nuez pecana',
+    effectEn: 'Rain during ripening promotes pecan shuck rot',
+    advice: 'Lluvias frecuentes antes de la cosecha favorecen hongos que pudren la cáscara de la pecana. Cosecha tan pronto como las nueces estén secas y listas.',
+    adviceEn: 'Frequent rain before harvest favors fungi that rot the pecan shuck. Harvest as soon as nuts are dry and ready.',
+    note: 'UGA Extension documenta brotes severos de pudrición de cáscara (Phytophthora shuck rot) tras períodos lluviosos (11 días de lluvia en 15 días) con temperaturas bajo 86 °F (30 °C).',
+    noteEn: 'UGA Extension documents severe outbreaks of Phytophthora shuck rot following rainy periods (11 rainy days in 15 days) with temperatures below 86 °F (30 °C).',
+    limitations: 'Registro histórico y patológico de UGA Extension sobre calidad de nuez y hongos de poscosecha en pecana.',
+    limitationsEn: 'Historical and pathological record from UGA Extension on pecan nut quality and postharvest fungi.',
+    evidence: [UGA_PECAN_HARVEST],
+  })),
+  perennial('sp.pistacho', airMax(['floracion'], 'above', fromF(80), {
+    severity: 'warning',
+    effect: 'Calor sobre 26,7 °C en floración: reduce el rendimiento de pistacho',
+    effectEn: 'Heat above 26.7 °C during bloom reduces pistachio yield',
+    advice: 'Horas con más de 26,7 °C durante la floración del pistacho reducen el cuaje y el rendimiento final. Mantén un buen riego esos días.',
+    adviceEn: 'Hours above 26.7 °C during pistachio bloom reduce fruit set and final yield. Maintain good irrigation on those days.',
+    note: 'UCCE Kern County (Craig Kallsen, HortScience 52:598-605) documenta que las horas sobre 80 °F (26,7 °C) en la ventana de floración se correlacionan negativamente con el rendimiento en cultivar Kerman.',
+    noteEn: 'UCCE Kern County (Craig Kallsen, HortScience 52:598-605) documents that hours above 80 °F (26.7 °C) in the bloom window are negatively correlated with yield in cv. Kerman.',
+    limitations: 'Estudio de UCCE en San Joaquin Valley para cultivar Kerman; la acumulación de horas cálidas afecta el cuaje.',
+    limitationsEn: 'UCCE study in San Joaquin Valley for cultivar Kerman; accumulation of warm hours affects fruit set.',
+    evidence: [UCCE_PISTACHIO_HEAT],
+  })),
+  perennial('sp.macadamia', airMax(['floracion'], 'above', celsius(30), {
+    severity: 'warning',
+    effect: 'Calor sobre 30 °C en cuaja: favorece caída prematura de nueces en macadamia',
+    effectEn: 'Heat above 30 °C during nut set promotes premature macadamia nut drop',
+    advice: 'Temperaturas sobre 30 °C provocan la caída de nueces recién cuajadas de macadamia. Asegura el riego para disminuir el estrés térmico.',
+    adviceEn: 'Temperatures above 30 °C trigger premature nut drop in macadamia. Ensure irrigation to reduce heat stress.',
+    note: 'Queensland DPI (Stephenson y Gallagher, 1986) documenta que 30 °C es una temperatura crítica que detona niveles inaceptables de caída prematura de nueces.',
+    noteEn: 'Queensland DPI (Stephenson and Gallagher, 1986) documents that 30 °C is critical in promoting unacceptable levels of premature nut drop.',
+    limitations: 'Investigación en macadamia en Australia; describe la respuesta fisiológica a días cálidos en cuaja.',
+    limitationsEn: 'Macadamia research in Australia; describes the physiological response to warm days during nut set.',
+    evidence: [QDPI_MACADAMIA_HEAT],
+  }),
+  airMin(['vegetativo'], 'at_or_below', fromF(27), {
+    severity: 'warning',
+    effect: 'Helada bajo −2,8 °C: daño en árboles maduros de macadamia',
+    effectEn: 'Frost at or below −2.8 °C damages mature macadamia trees',
+    advice: 'Bajo −2,8 °C se dañan hojas y ramas de macadamia si el frío dura varias horas. Protege los árboles si se prevé helada.',
+    adviceEn: 'Below −2.8 °C macadamia leaves and branches are damaged if cold persists for several hours. Protect trees if frost is forecast.',
+    note: 'Purdue New Crops (McHargue, 1996) documenta que el daño por helada comienza a −2,8 °C (27 °F), especialmente con exposición prolongada.',
+    noteEn: 'Purdue New Crops (McHargue, 1996) documents that frost damage starts at −2.8 °C (27 °F), especially if low temperatures persist.',
+    limitations: 'Datos del sur de California para árboles establecidos; ramas jóvenes y flores pueden afectarse a temperaturas más suaves.',
+    limitationsEn: 'Data from Southern California for established trees; young branches and flowers may be affected at milder temperatures.',
+    evidence: [PURDUE_MACADAMIA_COLD],
+  })),
+  perennial('sp.jojoba', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 5.0, max: 9.0 }, lowerLimit: null, upperLimit: null,
+    note: 'La jojoba tolera un amplio rango de pH de suelo, entre 5,0 y 9,0 (fuertemente ácido a muy alcalino).',
+    noteEn: 'Jojoba tolerates a wide soil pH range between 5.0 and 9.0 (strongly acidic to very alkaline).',
+    limitations: 'University of Arizona Campus Arboretum; describe el rango de tolerancia edáfica de la especie sin fijar óptimo estrecho.',
+    limitationsEn: 'University of Arizona Campus Arboretum; describes the edaphic tolerance range without setting a narrow optimum.',
+    evidence: [UARIZONA_JOJOBA_PH],
+  }),
+  perennial('sp.chirimoyo', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 6.5, max: 7.6 }, lowerLimit: null, upperLimit: null,
+    note: 'El pH óptimo del suelo para chirimoyo se ubica entre 6,5 y 7,6.',
+    noteEn: 'The optimum soil pH for cherimoya ranges from 6.5 to 7.6.',
+    limitations: 'Guía de cultivo de CRFG; señala que prefiere suelos bien drenados sin fijar límites de toxicidad.',
+    limitationsEn: 'CRFG growing guide; notes preference for well-drained soils without setting toxicity limits.',
+    evidence: [CRFG_CHERIMOYA],
+  },
+  airMin(['vegetativo', 'floracion'], 'at_or_below', fromF(29), {
+    severity: 'warning',
+    effect: 'Helada bajo −1,7 °C: mata brotes tiernos de chirimoyo',
+    effectEn: 'Frost at or below −1.7 °C kills young cherimoya growing tips',
+    advice: 'A −1,7 °C mueren las puntas de brotes tiernos del chirimoyo, y a −3,9 °C se dañan severamente los árboles adultos. Protege los árboles esa noche.',
+    adviceEn: 'At −1.7 °C young cherimoya growing tips are killed, and at −3.9 °C mature trees are severely injured. Protect trees that night.',
+    note: 'CRFG documenta que las puntas en crecimiento activo mueren a 29 °F (−1,7 °C) y árboles adultos sufren daño severo a 25 °F (−3,9 °C).',
+    noteEn: 'CRFG documents that young growing tips are killed at 29 °F (−1.7 °C) and mature trees are severely injured at 25 °F (−3.9 °C).',
+    limitations: 'Publicación técnica de CRFG para Annona cherimola.',
+    limitationsEn: 'CRFG technical publication for Annona cherimola.',
+    evidence: [CRFG_CHERIMOYA],
+  })),
+  perennial('sp.feijoa', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 5.5, max: 7.0 }, lowerLimit: null, upperLimit: null,
+    note: 'Las mejores cosechas de feijoa se obtienen en suelos con pH entre 5,5 y 7,0.',
+    noteEn: 'The best feijoa harvests come from soils with a pH between 5.5 and 7.0.',
+    limitations: 'Guía de CRFG para Acca sellowiana en suelos bien drenados.',
+    limitationsEn: 'CRFG guide for Acca sellowiana in well-drained soils.',
+    evidence: [CRFG_FEIJOA],
+  },
+  airMin(ALL_STAGES, 'at_or_below', fromF(15), {
+    severity: 'warning',
+    effect: 'Helada bajo −9,4 °C: frío extremo para feijoa',
+    effectEn: 'Frost at or below −9.4 °C: extreme cold for feijoa',
+    advice: 'La feijoa tolera heladas comunes, pero temperaturas de −9,4 °C o menores provocan daños severos. Revisa el huerto tras fríos extremos.',
+    adviceEn: 'Feijoa tolerates typical frosts, but temperatures of −9.4 °C or lower cause severe injury. Check the orchard after extreme cold.',
+    note: 'CRFG documenta que la feijoa se adapta generalmente a zonas con temperaturas sobre 15 °F (−9,4 °C).',
+    noteEn: 'CRFG documents that feijoa is generally adapted to areas where temperatures stay above 15 °F (−9.4 °C).',
+    limitations: 'Límite de adaptación climática de CRFG; heladas tardías de primavera pueden afectar la floración a temperaturas más altas.',
+    limitationsEn: 'CRFG climate adaptation limit; late spring frosts can affect flowering at warmer temperatures.',
+    evidence: [CRFG_FEIJOA],
+  })),
+  perennial('sp.granado', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 5.5, max: 7.0 }, lowerLimit: null, upperLimit: null,
+    note: 'El crecimiento óptimo del granado se asocia a suelos con un pH entre 5,5 y 7,0.',
+    noteEn: 'Optimum pomegranate growth is associated with soils in the pH range of 5.5 to 7.0.',
+    limitations: 'UF/IFAS indica que el granado presenta pobre desarrollo en suelos fuertemente alcalinos.',
+    limitationsEn: 'UF/IFAS indicates that pomegranate shows poor development on strongly alkaline soils.',
+    evidence: [UF_POMEGRANATE],
+  },
+  airMin(['vegetativo'], 'at_or_below', fromF(12), {
+    severity: 'warning',
+    effect: 'Helada bajo −11,1 °C: daño severo en árboles de granado',
+    effectEn: 'Frost at or below −11.1 °C: severe damage to pomegranate trees',
+    advice: 'El granado en dormancia invernal tolera frío moderado, pero bajo −11,1 °C sufre daños graves. Revisa los árboles tras heladas extremas.',
+    adviceEn: 'Dormant pomegranate trees tolerate moderate cold, but below −11.1 °C they suffer severe damage. Check trees after extreme freezes.',
+    note: 'CRFG y UF/IFAS coinciden en que temperaturas bajo 12 °F (−11,1 °C) dañan severamente a los árboles en dormancia.',
+    noteEn: 'CRFG and UF/IFAS agree that temperatures below 12 °F (−11.1 °C) severely injure dormant trees.',
+    limitations: 'Aplica a árboles adultos en reposo invernal; árboles en activo crecimiento se dañan a temperaturas considerablemente mayores (cerca de 28 °F).',
+    limitationsEn: 'Applies to mature dormant trees; non-dormant trees are injured at considerably warmer temperatures (around 28 °F).',
+    evidence: [UF_POMEGRANATE, CRFG_POMEGRANATE],
+  }),
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: 'Lluvia en maduración: riesgo de rajado en granadas',
+    effectEn: 'Rain during ripening: risk of pomegranate fruit splitting',
+    advice: 'La lluvia sobre granadas maduras provoca que los frutos se revienten. Cosecha la fruta que esté madura antes de que llueva.',
+    adviceEn: 'Rain on ripe pomegranates causes fruit splitting. Harvest ripe fruit before it rains.',
+    note: 'CRFG y UF/IFAS documentan que las granadas tienden a abrirse y rajarse al mojarse con lluvia o cambios bruscos de humedad cerca de cosecha.',
+    noteEn: 'CRFG and UF/IFAS document that pomegranates tend to crack open particularly when rained on or with sudden moisture shifts near harvest.',
+    limitations: 'Recomendación de cosecha de CRFG y UF/IFAS para evitar rajado del fruto.',
+    limitationsEn: 'CRFG and UF/IFAS harvest recommendation to prevent fruit splitting.',
+    evidence: [CRFG_POMEGRANATE, UF_POMEGRANATE],
+  })),
+  perennial('sp.guayabo', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 4.5, max: 7.0 }, lowerLimit: null, upperLimit: 8.5,
+    note: 'Un pH de suelo de 4,5 a 7,0 es ideal para guayabo; tolera hasta 8,5 si se aporta hierro quelatado.',
+    noteEn: 'A soil pH of 4.5 to 7.0 is ideal for guava; it tolerates up to 8.5 with chelated iron additions.',
+    limitations: 'UF/IFAS documenta 4,5 a 7 como óptimo y hasta 8,5 con enmiendas de micronutrientes.',
+    limitationsEn: 'UF/IFAS documents 4.5 to 7 as ideal and up to 8.5 with micronutrient amendments.',
+    evidence: [UF_GUAVA],
+  },
+  airMin(['vegetativo', 'floracion'], 'at_or_below', fromF(27), {
+    severity: 'warning',
+    effect: 'Helada bajo −2,8 °C: riesgo de muerte en guayabos jóvenes',
+    effectEn: 'Frost at or below −2.8 °C: risk of young guava tree death',
+    advice: 'Entre −2,8 y −2,2 °C mueren los guayabos jóvenes; árboles maduros resisten períodos breves a −3,9 °C. Protege la plantación esa noche.',
+    adviceEn: 'Between −2.8 and −2.2 °C young guava trees are killed; mature trees withstand brief spells at −3.9 °C. Protect the plantation that night.',
+    note: 'UF/IFAS documenta que árboles jóvenes mueren con 27 a 28 °F (−2,8 a −2,2 °C), mientras que adultos soportan brevemente 25 a 26 °F (−3,9 a −3,3 °C).',
+    noteEn: 'UF/IFAS documents that young trees may be killed at 27 to 28 °F (−2.8 to −2.2 °C), while mature trees briefly withstand 25 to 26 °F (−3.9 to −3.3 °C).',
+    limitations: 'Boletín EDIS MG045 de UF/IFAS para Psidium guajava.',
+    limitationsEn: 'UF/IFAS EDIS MG045 bulletin for Psidium guajava.',
+    evidence: [UF_GUAVA],
+  })),
+  perennial('sp.higuera', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 6.0, max: 6.5 }, lowerLimit: null, upperLimit: null,
+    note: 'La higuera crece mejor en suelos con pH de 6,0 a 6,5, tolerando niveles mayores.',
+    noteEn: 'Fig trees grow best in soils with a pH of 6.0 to 6.5, tolerating higher levels.',
+    limitations: 'Guía de University of Guam; la higuera tolera suelos con pH superior a 7 pero no tolera suelos fuertemente ácidos.',
+    limitationsEn: 'University of Guam guide; figs tolerate soils above pH 7 but are not tolerant of highly acidic soils.',
+    evidence: [UGUAM_FIG_PH],
+  },
+  airMin(['vegetativo', 'floracion'], 'at_or_below', fromF(30), {
+    severity: 'warning',
+    effect: 'Helada bajo −1,1 °C: daña brotes activos de la higuera',
+    effectEn: 'Frost at or below −1.1 °C damages active fig shoots',
+    advice: 'A −1,1 °C se queman los brotes y hojas tiernas de la higuera en crecimiento. Protege los árboles si hay helada.',
+    adviceEn: 'At −1.1 °C tender shoots and leaves of actively growing figs are damaged. Protect trees if frost occurs.',
+    note: 'CRFG documenta que plantas en crecimiento activo se dañan a 30 °F (−1,1 °C), mientras que árboles en reposo invernal toleran 12 a 15 °F (−11 a −9,4 °C).',
+    noteEn: 'CRFG documents that plants in active growth can be damaged at 30 °F (−1.1 °C), while fully dormant trees are hardy to 12 to 15 °F (−11 to −9.4 °C).',
+    limitations: 'Umbral para higuera en vegetación activa según CRFG.',
+    limitationsEn: 'Threshold for actively growing fig trees according to CRFG.',
+    evidence: [CRFG_FIG],
+  }),
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: 'Lluvia en maduración: causa partidura y deterioro de higos',
+    effectEn: 'Rain during ripening causes fig splitting and spoilage',
+    advice: 'La lluvia durante la maduración hace reventar los higos y pudre la fruta. Cosecha los frutos maduros antes de que llueva.',
+    adviceEn: 'Rain during ripening causes figs to split and spoil. Harvest ripe fruit before the rain.',
+    note: 'CRFG y UC ANR IPM documentan que lluvias y alta humedad durante la maduración causan partidura y pudrición de los higos.',
+    noteEn: 'CRFG and UC ANR IPM document that rains and high humidity during ripening cause figs to split and spoil.',
+    limitations: 'Guía de manejo y selección de sitio de CRFG y UC ANR IPM.',
+    limitationsEn: 'Management and site selection guide from CRFG and UC ANR IPM.',
+    evidence: [CRFG_FIG],
+  })),
+  perennial('sp.lucumo', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 6.5, max: 7.5 }, lowerLimit: 6.0, upperLimit: 8.5,
+    note: 'El pH óptimo del suelo para lúcumo es de 6,5 a 7,5, con un rango absoluto de tolerancia de 6,0 a 8,5.',
+    noteEn: 'Optimum soil pH for lucuma is 6.5 to 7.5, with an absolute tolerance range of 6.0 to 8.5.',
+    limitations: 'Ficha agroclimática ECOCROP 8912 de la FAO para Pouteria lucuma.',
+    limitationsEn: 'FAO ECOCROP 8912 agro-climatic data sheet for Pouteria lucuma.',
+    evidence: [FAO_ECOCROP_LUCUMO],
+  },
+  airMin(['vegetativo'], 'at_or_below', celsius(0), {
+    severity: 'warning',
+    effect: 'Helada desde 0 °C: daña brotes iniciales de lúcumo',
+    effectEn: 'Frost at or below 0 °C damages early lucuma growth',
+    advice: 'A 0 °C se dañan los brotes nuevos del lúcumo, y bajo −5 °C se produce la muerte de ramas en reposo. Protege los árboles jóvenes.',
+    adviceEn: 'At 0 °C new lucuma growth is damaged, and below −5 °C dormant branch killing occurs. Protect young trees.',
+    note: 'FAO ECOCROP indica una temperatura letal de 0 °C durante el crecimiento temprano y de −5 °C durante el reposo vegetativo.',
+    noteEn: 'FAO ECOCROP reports a killing temperature of 0 °C during early growth and −5 °C during rest.',
+    limitations: 'Datos agroclimáticos de la FAO para Pouteria lucuma en etapa de crecimiento vegetativo.',
+    limitationsEn: 'FAO agro-climatic data for Pouteria lucuma during vegetative growth.',
+    evidence: [FAO_ECOCROP_LUCUMO],
+  })),
+  perennial('sp.mango', airMin(['floracion'], 'below', fromF(40), {
+    severity: 'warning',
+    effect: 'Frío bajo 4,4 °C en floración: mata flores y frutos pequeños de mango',
+    effectEn: 'Cold below 4.4 °C during flowering kills mango blossoms and small fruit',
+    advice: 'Bajo 4,4 °C durante algunas horas se dañan o mueren las flores y frutos recién cuajados de mango. Protege los árboles esa noche.',
+    adviceEn: 'Below 4.4 °C for a few hours mango flowers and small fruit are damaged or killed. Protect trees that night.',
+    note: 'UF/IFAS EDIS MG216 documenta que flores y frutos pequeños de mango se dañan o mueren si la temperatura desciende bajo 40 °F (4,4 °C) por unas pocas horas.',
+    noteEn: 'UF/IFAS EDIS MG216 documents that mango flowers and small fruit may be damaged or killed if temperature falls below 40 °F (4.4 °C) for a few hours.',
+    limitations: 'Publicación de UF/IFAS para huertos de mango en Florida; señala que el mango no se aclimata al frío.',
+    limitationsEn: 'UF/IFAS publication for Florida mango orchards; notes that mango trees do not acclimate to cold.',
+    evidence: [UF_MANGO],
+  }),
+  airMin(['vegetativo'], 'at_or_below', fromF(29), {
+    severity: 'warning',
+    effect: 'Helada bajo −1,7 °C: riesgo de muerte en árboles jóvenes de mango',
+    effectEn: 'Frost at or below −1.7 °C: risk of death in young mango trees',
+    advice: 'A −1,7 °C mueren los árboles jóvenes de mango; los adultos toleran hasta −3,9 °C por pocas horas. Protege la plantación.',
+    adviceEn: 'At −1.7 °C young mango trees are killed; mature trees tolerate down to −3.9 °C for a few hours. Protect the plantation.',
+    note: 'UF/IFAS documenta que árboles jóvenes pueden morir a 29–30 °F (−1,7 a −1,1 °C), mientras que adultos soportan 25 °F (−3,9 °C) por pocas horas.',
+    noteEn: 'UF/IFAS documents that young trees may be killed at 29–30 °F (−1.7 to −1.1 °C), while mature trees withstand 25 °F (−3.9 °C) for a few hours.',
+    limitations: 'Umbral letal para árboles jóvenes según UF/IFAS.',
+    limitationsEn: 'Killing threshold for young trees according to UF/IFAS.',
+    evidence: [UF_MANGO],
+  })),
+  perennial('sp.datilera', airMin(['vegetativo'], 'at_or_below', celsius(-6), {
+    severity: 'warning',
+    effect: 'Helada bajo −6 °C: quemadura y desecación de folíolos en palmera datilera',
+    effectEn: 'Frost at or below −6 °C: leaflet scorching and drying in date palm',
+    advice: 'A −6 °C los bordes de los folíolos se secan y amarillean; bajo −9 °C se daña el follaje completo. Revisa las palmas tras fríos extremos.',
+    adviceEn: 'At −6 °C leaflet margins dry and turn yellow; below −9 °C the entire canopy is damaged. Check palms after extreme freezes.',
+    note: 'FAO documenta que el crecimiento se detiene bajo 7 °C, a −6 °C los bordes de folíolos se secan y entre −9 y −15 °C se daña el follaje.',
+    noteEn: 'FAO documents that growth stops below 7 °C, at −6 °C leaflet margins dry out, and between −9 and −15 °C foliage is damaged.',
+    limitations: 'Manual de cultivo de FAO y UNR Extension; la datilera presenta alta resistencia térmica pero heladas repetidas bajo −9 °C destruyen la copa.',
+    limitationsEn: 'FAO and UNR Extension date palm manual; date palm is very adaptable but repeated freezes below −9 °C destroy canopy.',
+    evidence: [FAO_DATE_PALM],
+  }),
+  airMax(['vegetativo'], 'above', celsius(38), {
+    severity: 'info',
+    effect: 'Calor sobre 38 °C: reduce la tasa de crecimiento de la palmera datilera',
+    effectEn: 'Heat above 38 °C reduces date palm growth rate',
+    advice: 'Sobre 38 °C el crecimiento de la palmera datilera empieza a declinar, aunque tolera calor extremo con buen riego. Mantén el riego al día.',
+    adviceEn: 'Above 38 °C date palm growth starts decreasing, although it tolerates extreme heat under irrigation. Keep watering up to date.',
+    note: 'FAO documenta que el crecimiento de la palmera datilera continúa a tasa estable hasta 38 °C a 40 °C, punto a partir del cual comienza a disminuir.',
+    noteEn: 'FAO documents that date palm growth continues at a stable rate until temperature reaches 38 °C to 40 °C, when it starts decreasing.',
+    limitations: 'Parámetro fisiológico de FAO; con riego adecuado la datilera tolera temperaturas extremas superiores a 50 °C.',
+    limitationsEn: 'FAO physiological parameter; with adequate irrigation date palms tolerate extreme temperatures exceeding 50 °C.',
+    evidence: [FAO_DATE_PALM],
+  })),
+  perennial('sp.maracuya', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 6.0, max: 7.5 }, lowerLimit: null, upperLimit: null,
+    note: 'El suelo para maracuyá debe tener un pH entre 6,0 y 7,5.',
+    noteEn: 'Soil for passion fruit should have a pH between 6.0 and 7.5.',
+    limitations: 'Publicación EDIS HS1467 de UF/IFAS para Passiflora edulis.',
+    limitationsEn: 'UF/IFAS EDIS HS1467 publication for Passiflora edulis.',
+    evidence: [UF_PASSION_FRUIT],
+  },
+  airMin(['vegetativo', 'floracion'], 'at_or_below', fromF(59), {
+    severity: 'info',
+    effect: 'Frío bajo 15 °C: riesgo de daño por enfriamiento en maracuyá',
+    effectEn: 'Cold below 15 °C: risk of chilling injury in passion fruit',
+    advice: 'Temperaturas entre 0 y 15 °C causan daño por frío y retrasan el crecimiento del maracuyá. El cultivo se desarrolla mejor entre 18 y 32 °C.',
+    adviceEn: 'Temperatures between 0 and 15 °C cause chilling injury and retard passion fruit growth. The vine grows best between 18 and 32 °C.',
+    note: 'UF/IFAS documenta que la exposición a temperaturas de 32 a 59 °F (0 a 15 °C) puede provocar daño por enfriamiento (chilling injury).',
+    noteEn: 'UF/IFAS documents that exposure to temperatures of 32 to 59 °F (0 to 15 °C) can cause chilling injury.',
+    limitations: 'Criterio informativo de sensibilidad a bajas temperaturas según UF/IFAS.',
+    limitationsEn: 'Informative low temperature sensitivity criterion according to UF/IFAS.',
+    evidence: [UF_PASSION_FRUIT],
+  }),
+  airMin(['vegetativo', 'floracion'], 'at_or_below', fromF(25), {
+    severity: 'warning',
+    effect: 'Helada bajo −3,9 °C: frío letal para maracuyá morado',
+    effectEn: 'Frost at or below −3.9 °C: lethal cold for purple passion fruit',
+    advice: 'A −3,9 °C se produce la muerte por helada del maracuyá. Protege las plantas ante cualquier pronóstico de helada.',
+    adviceEn: 'At −3.9 °C freezing death of passion fruit occurs. Protect vines against any forecast of frost.',
+    note: 'CRFG indica una resistencia al frío en torno a los 25 °F (−3,9 °C) para maracuyá morado (Passiflora edulis).',
+    noteEn: 'CRFG indicates cold hardiness around 25 °F (−3.9 °C) for purple passion fruit (Passiflora edulis).',
+    limitations: 'Ficha de rusticidad de CRFG para maracuyá morado (Passiflora edulis).',
+    limitationsEn: 'CRFG cold hardiness sheet for purple passion fruit (Passiflora edulis).',
+    evidence: [CRFG_PASSION_FRUIT],
+  })),
+  perennial('sp.tumbo', airMin(['vegetativo', 'floracion'], 'at_or_below', fromF(28), {
+    severity: 'warning',
+    effect: 'Helada bajo −2,2 °C: frío letal para tumbo',
+    effectEn: 'Frost at or below −2.2 °C: lethal cold for banana passion fruit',
+    advice: 'A −2,2 °C se daña severamente el tumbo. Protege las plantas si se anuncian heladas.',
+    adviceEn: 'At −2.2 °C banana passion fruit is severely injured. Protect plants if frosts are forecast.',
+    note: 'CRFG documenta una rusticidad al frío de aproximadamente 28 °F (−2,2 °C) para tumbo (Passiflora tripartita var. mollissima).',
+    noteEn: 'CRFG documents cold hardiness of about 28 °F (−2.2 °C) for banana passion fruit (Passiflora tripartita var. mollissima).',
+    limitations: 'Ficha de rusticidad de CRFG para Passiflora tripartita var. mollissima.',
+    limitationsEn: 'CRFG cold hardiness sheet for Passiflora tripartita var. mollissima.',
+    evidence: [CRFG_BANANA_PASSION],
+  })),
+  perennial('sp.tuna', {
+    kind: 'ph', state: 'enabled', stages: GROWING,
+    optimum: { min: 7.8, max: 7.8 }, lowerLimit: null, upperLimit: 9.0,
+    note: 'La tuna tolera suelos alcalinos; sobre pH 9,0 su desarrollo disminuye drásticamente, sin formación de cladodios a pH 9,8.',
+    noteEn: 'Prickly pear tolerates alkaline soils; above pH 9.0 growth drops drastically, with no cladode formation at pH 9.8.',
+    limitations: 'Estudio de ICAR (India) en ambientes salino-alcalinos; evaluó pH desde 7,8 hasta 9,8 sin medir suelos ácidos, por lo que no se fija límite inferior.',
+    limitationsEn: 'ICAR study in saline-alkaline environments; evaluated pH from 7.8 to 9.8 without testing acidic soils, so no lower limit is set.',
+    evidence: [ICAR_OPUNTIA_PH],
+  }),
+  perennial('sp.papayo', airMin(ALL_STAGES, 'below', celsius(2), {
+    severity: 'warning',
+    effect: 'Frío bajo 2 °C: riesgo de muerte en papayo chileno',
+    effectEn: 'Cold below 2 °C: risk of plant death in mountain papaya',
+    advice: 'Bajo 2 °C se dañan el tallo y las hojas del papayo chileno, pudiendo causar la muerte de la planta. Protégela del frío.',
+    adviceEn: 'Below 2 °C stem and leaves of mountain papaya are damaged, which can cause complete plant death. Protect it from the cold.',
+    note: 'Investigación en Frontiers in Plant Science (Letelier et al. 2020) documenta que Vasconcellea pubescens es sensible al frío y puede sufrir muerte completa con temperaturas bajo 2 °C (36 °F).',
+    noteEn: 'Research in Frontiers in Plant Science (Letelier et al. 2020) documents that Vasconcellea pubescens is cold sensitive leading to complete plant death below 2 °C (36 °F).',
+    limitations: 'Estudio científico sobre especies de la zona central de Chile; describe la alta sensibilidad a bajas temperaturas del papayo chileno.',
+    limitationsEn: 'Scientific study on species from the central Chile biodiversity hotspot; describes high sensitivity to low temperatures in mountain papaya.',
+    evidence: [FRONTIERS_PAPAYO],
+  })),
+  perennial('sp.palto', airMin(ALL_STAGES, 'at_or_below', fromF(29), {
+    severity: 'warning',
+    effect: 'Helada bajo −1,7 °C: riesgo de daño por helada en palto Hass',
+    effectEn: 'Frost at or below −1.7 °C: risk of freeze injury in Hass avocado',
+    advice: 'Entre −1,7 y −3,9 °C se dañan las ramas y flores del palto Hass. Si se pronostican heladas, activa los métodos de control.',
+    adviceEn: 'Between −1.7 and −3.9 °C Hass avocado branches and flowers are damaged. If freezes are forecast, activate control methods.',
+    note: 'California Avocado Commission documenta un rango crítico de helada de 25 a 29 °F (−3,9 a −1,7 °C) para la variedad Hass.',
+    noteEn: 'California Avocado Commission documents a critical freeze range of 25 to 29 °F (−3.9 to −1.7 °C) for cultivar Hass.',
+    limitations: 'Indicación de rusticidad general de la California Avocado Commission para la variedad Hass, la más cultivada en Chile. Árboles jóvenes son más sensibles.',
+    limitationsEn: 'General hardiness indication from the California Avocado Commission for Hass, the main commercial variety in Chile. Young trees are more susceptible.',
+    evidence: [CAC_AVOCADO_FREEZE],
+  })),
 ];
 
 export const SPECIES_RULES: Readonly<Record<string, SpeciesRuleProfile>> =

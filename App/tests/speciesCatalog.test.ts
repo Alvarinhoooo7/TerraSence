@@ -90,6 +90,9 @@ test('ES6: hasStageCriteria refleja únicamente los perfiles habilitados en spec
   assert.equal(hasStageCriteria('sp.frutilla', 'vegetativo'), true);
   // Olivo en cosecha: helada sobre la aceituna en maduración (INIA, Boletín 165).
   assert.equal(hasStageCriteria('sp.olivo', 'cosecha'), true);
-  // El resto del catálogo sigue sin perfil hasta incorporarse con su propia evidencia.
-  assert.equal(hasStageCriteria('sp.palto', 'vegetativo'), false);
+  // Palto incorporado en ES6 ola 2 con umbral de helada en todas las etapas.
+  assert.equal(hasStageCriteria('sp.palto', 'vegetativo'), true);
+  // Las 5 especies huérfanas confirmadas del catálogo siguen sin perfil por falta de evidencia técnica.
+  assert.equal(hasStageCriteria('sp.castano', 'vegetativo'), false);
+  assert.equal(hasStageCriteria('sp.membrillo', 'vegetativo'), false);
 });

@@ -54,11 +54,11 @@ test('ES6: una especie con criterios propios sólo cambia los parámetros que su
 });
 
 test('ES4: la presentación v3 guarda una copia de la especie y avisa que aún no tiene criterios propios', () => {
-  const p = build('floracion', 'sp.palto');
+  const p = build('floracion', 'sp.castano');
   assert.equal(p.version, 3);
-  assert.deepEqual(p.species, { id: 'sp.palto', es: 'Palto', en: 'Avocado', scientific: 'Persea americana', catalogVersion: SPECIES_CATALOG_VERSION, rulesVersion: SPECIES_RULES_VERSION, hasStageCriteria: false });
+  assert.deepEqual(p.species, { id: 'sp.castano', es: 'Castaño', en: 'Chestnut', scientific: 'Castanea sativa', catalogVersion: SPECIES_CATALOG_VERSION, rulesVersion: SPECIES_RULES_VERSION, hasStageCriteria: false });
   assert.match(p.context, /Todavía no hay criterios propios de esta especie para floración/);
-  assert.match(build('cosecha', 'sp.palto', 'en').context, /no criteria specific to this species for harvest/);
+  assert.match(build('cosecha', 'sp.castano', 'en').context, /no criteria specific to this species for harvest/);
   assert.equal(isMeasurementPresentation(p), true);
 });
 
