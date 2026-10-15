@@ -72,7 +72,8 @@ export default () => ({
       googleServicesFile: './google-services.json',
       adaptiveIcon: {
         foregroundImage: './assets/adaptive-icon.png',
-        backgroundColor: '#052e16',
+        // = ICON.background de scripts/generate-brand-assets.mjs, que dibuja el «TS» encima.
+        backgroundColor: '#166534',
       },
       allowBackup: false,
       // NOTA: se omite deliberadamente ACCESS_BACKGROUND_LOCATION.
@@ -144,7 +145,8 @@ export default () => ({
       ],
       [
         'expo-notifications',
-        { icon: './assets/icon.png', color: '#1F5B3F' },
+        // Android sólo usa el alfa del ícono de notificación: va la silueta del «TS».
+        { icon: './assets/notification-icon.png', color: '#1F5B3F' },
       ],
       './plugins/withStartupPermissions',
       './plugins/withNavigationBarContrast',

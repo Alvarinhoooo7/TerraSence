@@ -1,4 +1,4 @@
-import { BrandLogo } from '../BrandLogo';
+import { BrandWordmark } from '../BrandLogo';
 import { GuidePressable as Pressable, GuideScrollView as ScrollView, GuideInput as TextInput } from '../guide/GuideControls';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet, View, type TextInputProps } from 'react-native';
@@ -20,7 +20,7 @@ export function AuthLayout({ children, toolbar, brand = true, onBrandPress }: Re
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={authStyles.layout}>
         {(brand || toolbar) && <View style={authStyles.top}>
-          {brand ? (onBrandPress ? <Pressable guide={false} onPress={onBrandPress} accessibilityRole="button" accessibilityLabel="TerraSense" style={{ minHeight: 48, justifyContent: 'center' }}><BrandLogo width={172} /></Pressable> : <BrandLogo width={172} />) : <View />}
+          {brand ? (onBrandPress ? <Pressable guide={false} onPress={onBrandPress} accessibilityRole="button" accessibilityLabel="TerraSense" style={{ minHeight: 48, justifyContent: 'center' }}><BrandWordmark width={172} /></Pressable> : <BrandWordmark width={172} />) : <View />}
           {toolbar}
         </View>}
         {children}

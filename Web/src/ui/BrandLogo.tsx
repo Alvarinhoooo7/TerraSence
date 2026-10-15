@@ -1,45 +1,35 @@
 // src/ui/BrandLogo.tsx
 //
-// Copia del logotipo oficial de `Logo/Logo/terrasense.svg`, incluida en Web
-// para que el despliegue pueda compilar sin archivos externos al proyecto.
+// El nombre «TerraSense» en dos colores, el mismo de la pantalla de carga de la app.
+// `../assets/terrasense-wordmark.svg` lo genera `App/scripts/generate-brand-assets.mjs`
+// dentro de Web para que el despliegue compile sin archivos externos al proyecto.
 //
-// El archivo trae el wordmark «Terra» en la tinta de marca `#0f2e22`. Se
-// sustituye por `currentColor` para que la palabra siga al tema, mientras
-// «Sense», el isotipo y el subtítulo conservan sus verdes originales. Es
-// preferible a cargar `terrasense-dark.svg`: esa variante sólo cambia esos
-// mismos trazos por un blanco fijo, así que duplicaría 19 kB para resolver lo
-// mismo peor en los temas intermedios.
-//
-// `viewBox` completo: 145 110 590 235. El isotipo ocupa el primer tercio.
+// «Terra» viene en la tinta de marca `#0f2e22`, que se sustituye por `currentColor`
+// para que siga al tema; «Sense» conserva el verde de la marca, más claro en `inverse`
+// como en la app sobre fondo oscuro.
 
 import { useMemo } from 'react';
-import logo from '../assets/terrasense.svg?raw';
+import wordmark from '../assets/terrasense-wordmark.svg?raw';
 
 const BRAND_INK = '#0f2e22';
-
-/** Recorta el lockup al isotipo, para los sitios donde no cabe la palabra. */
-const MARK_VIEWBOX = '145 110 205 235';
+const SENSE = '#16A34A';
+const SENSE_ON_DARK = '#22C55E';
 
 export function BrandLogo({
-  variant = 'lockup',
   className = '',
   inverse = false,
   title = 'TerraSense',
 }: {
-  variant?: 'lockup' | 'mark';
   className?: string;
-  /** Wordmark en blanco, para superficies de tinta fijas que no siguen al tema. */
+  /** «Terra» en blanco, para superficies de tinta fijas que no siguen al tema. */
   inverse?: boolean;
   /** Vacío lo marca como decorativo: úsalo cuando el nombre ya esté en texto. */
   title?: string;
 }) {
   const svg = useMemo(() => {
-    let out = logo.replaceAll(BRAND_INK, 'currentColor');
-    if (variant === 'mark') {
-      out = out.replace(/viewBox="[^"]*"/, `viewBox="${MARK_VIEWBOX}"`);
-    }
-    return out;
-  }, [variant]);
+    const out = wordmark.replaceAll(BRAND_INK, 'currentColor');
+    return inverse ? out.replaceAll(SENSE, SENSE_ON_DARK) : out;
+  }, [inverse]);
 
   return (
     <span

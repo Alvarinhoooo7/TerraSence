@@ -1,8 +1,8 @@
 <div align="center">
   
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="Logo/Logo/terrasense-dark.svg" />
-    <img src="Logo/Logo/terrasense.svg" alt="TerraSense · Soil Technologies" width="380" />
+    <source media="(prefers-color-scheme: dark)" srcset="Logo/Logo/terrasense-wordmark-dark.svg" />
+    <img src="Logo/Logo/terrasense-wordmark.svg" alt="TerraSense" width="380" />
   </picture>
 
   # TerraSense
