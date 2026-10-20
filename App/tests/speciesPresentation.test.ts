@@ -5,7 +5,7 @@ import { buildContextualAdvice } from '../src/engine/contextualAdvice';
 import {
   buildMeasurementPresentation, isMeasurementPresentation, presentationFromPoint, presentationSpecies, savedSpecies,
 } from '../src/engine/measurementPresentation';
-import { NO_SPECIES_ID, SPECIES_CATALOG_VERSION } from '../src/engine/speciesCatalog';
+import { NO_SPECIES_ID, SPECIES, SPECIES_CATALOG_VERSION } from '../src/engine/speciesCatalog';
 import { SPECIES_RULES_VERSION } from '../src/engine/speciesRules';
 import type { SoilMeasurement } from '../src/types/agronomy';
 import type { MeasurementPoint, PhenologicalStage } from '../src/types/app';
@@ -53,13 +53,17 @@ test('ES6: una especie con criterios propios sólo cambia los parámetros que su
   assert.notEqual(pHStatus('sp.tomate', 6.2), 'WARNING');
 });
 
-test('ES4: la presentación v3 guarda una copia de la especie y avisa que aún no tiene criterios propios', () => {
-  const p = build('floracion', 'sp.castano');
+test('ES4/ES8: la presentación v3 guarda una copia de la especie y declara que usa sus criterios', () => {
+  const p = build('floracion', 'sp.trigo');
   assert.equal(p.version, 3);
-  assert.deepEqual(p.species, { id: 'sp.castano', es: 'Castaño', en: 'Chestnut', scientific: 'Castanea sativa', catalogVersion: SPECIES_CATALOG_VERSION, rulesVersion: SPECIES_RULES_VERSION, hasStageCriteria: false });
-  assert.match(p.context, /Todavía no hay criterios propios de esta especie para floración/);
-  assert.match(build('cosecha', 'sp.castano', 'en').context, /no criteria specific to this species for harvest/);
+  assert.deepEqual(p.species, { id: 'sp.trigo', es: 'Trigo', en: 'Wheat', scientific: 'Triticum aestivum y Triticum durum', catalogVersion: SPECIES_CATALOG_VERSION, rulesVersion: SPECIES_RULES_VERSION, hasStageCriteria: true });
+  assert.match(p.context, /criterios de esta especie para floración/);
+  assert.match(build('cosecha', 'sp.trigo', 'en').context, /this species' harvest criteria/);
   assert.equal(isMeasurementPresentation(p), true);
+  // ES8: con el catálogo completo, ninguna especie muestra el aviso de que faltan criterios.
+  for (const entry of SPECIES) for (const stage of ['vegetativo', 'floracion', 'cosecha'] as const) {
+    assert.equal(presentationSpecies(entry.id, stage)?.hasStageCriteria, true, `${entry.id}/${stage}`);
+  }
 });
 
 test('ES4: sin especie, en pre-siembra o con un ID desconocido, no hay especie', () => {

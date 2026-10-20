@@ -50,13 +50,12 @@ test('ES6: los umbrales de pH son coherentes y cada cifra figura en el valor ori
   }
 });
 
-test('ES6/T46: una especie del catálogo sin perfil propio no tiene criterios en ninguna etapa', () => {
+test('ES6/T46/ES8: toda especie del catálogo tiene perfil, y un ID sin perfil no tiene criterios', () => {
   const withProfile = new Set(Object.keys(SPECIES_RULES));
-  const without = SPECIES.filter(s => !withProfile.has(s.id));
-  assert.ok(without.length > 0);
-  for (const entry of without) for (const stage of STAGES) {
-    assert.equal(hasEnabledCriteria(entry.id, stage), false, `${entry.id}/${stage}`);
-    assert.deepEqual(evaluateSpeciesCriteria(entry.id, stage, raw, 'es'), []);
+  assert.deepEqual(SPECIES.filter(s => !withProfile.has(s.id)).map(s => s.id), [], 'ES8: el catálogo queda completo');
+  for (const stage of STAGES) {
+    assert.equal(hasEnabledCriteria('sp.haskap', stage), false, `especie retirada/${stage}`);
+    assert.deepEqual(evaluateSpeciesCriteria('sp.haskap', stage, raw, 'es'), []);
   }
   assert.equal(findSpeciesRuleProfile('sp.no-existe'), undefined);
   assert.equal(findSpeciesRuleProfile('toString'), undefined, 'una clave heredada no es un perfil');

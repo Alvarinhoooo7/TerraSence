@@ -22,7 +22,7 @@ Implementar por entregas la [especificación del motor agronómico](MOTOR_AGRONO
 | E6 — Resultado y persistencia | Pendiente | Selector de especie: lista de E5. Resto: E4/E5; presentación e instantánea versionadas, legibles sin recalcular |
 | E7 — Equipo y terreno | Pendiente | Capacidades habilitadas; contraste físico y revisión agronómica |
 | E8 — Extensiones justificadas | Pendiente | Base verificada; beneficio y costo demostrados |
-| ES — Especie de la medición | ES1–ES4 por software; ES5 en teléfono parcial; ES6 con 32 especies en vegetativo, floración y cosecha | Lista con fuentes, selector, resultado e historial; criterios por especie y etapa (ES6) en curso |
+| ES — Especie de la medición | ES1–ES4 por software; ES5 en teléfono parcial; ES6–ES8: las 111 especies del catálogo con perfil y criterios en las tres etapas (criterios `2.9.0`, catálogo `2.2.0`) | Lista con fuentes, selector, resultado e historial; criterios por especie y etapa (ES6); cobertura total del catálogo (ES7 y ES8) |
 
 ## 2. ES — Especie de la medición
 
@@ -49,7 +49,7 @@ Trabajo prioritario: primero la app y su lista de especies (ES1–ES5); después
 - [x] Grupos: hortalizas; frutales; berries; cereales, legumbres e industriales; forrajeras; aromáticas (cobertura parcial); árboles forestales (cobertura parcial).
 - [x] Tabla de completitud: cada nombre de las fuentes de hortalizas, frutales y cultivos anuales queda asignado a una especie del catálogo o excluido con motivo. Una prueba falla si aparece un nombre sin destino.
 - [x] Búsqueda sin distinguir tildes, mayúsculas ni idioma, por nombre o sinónimo; orden estable dentro de cada grupo.
-- [x] Versión del catálogo `2.0.0` registrada en `crop_catalog_version`.
+- [x] Versión del catálogo `2.2.0` registrada en `crop_catalog_version` (la `2.1.0` retira castaño, jojoba y tuna por ES7; la `2.2.0`, el haskap por ES8).
 - [x] Pruebas T47 y de integridad: IDs únicos, fuentes presentes, nombres en ambos idiomas.
 
 ### ES2. Selector en el flujo de medición
@@ -77,7 +77,7 @@ Trabajo prioritario: primero la app y su lista de especies (ES1–ES5); después
 - [x] Alertas generales idénticas con y sin especie (T45), probado en `speciesPresentation.test.ts`.
 - [x] Medición nueva sin especie heredada (T48): la especie vive sólo en el estado de la pantalla de medición, que se monta de nuevo en cada medición; las reglas de etapa, evaluación y guardado están en [measureSpecies.ts](src/utils/measureSpecies.ts) y se prueban en [measureSpecies.test.ts](tests/measureSpecies.test.ts). La lectura se evalúa con la especie elegida al tocar «Medir», no con una anterior. El recorrido en teléfono queda en ES5.
 
-**Código y evidencia de ES1–ES4:** [speciesCatalog.ts](src/engine/speciesCatalog.ts) (115 especies en siete grupos), [SpeciesPicker.tsx](src/components/SpeciesPicker.tsx), [MeasureScreen.tsx](src/screens/MeasureScreen.tsx), [measurementPresentation.ts](src/engine/measurementPresentation.ts), [MeasurementResultFlow.tsx](src/components/MeasurementResultFlow.tsx) e [historial](src/screens/HistoryScreen.tsx); [speciesCatalog.test.ts](tests/speciesCatalog.test.ts), [speciesPresentation.test.ts](tests/speciesPresentation.test.ts), [measureSpecies.test.ts](tests/measureSpecies.test.ts) y los nombres exactos de las fuentes en [speciesSourceNames.json](tests/fixtures/speciesSourceNames.json). Los criterios propios de cada especie se describen en ES6.
+**Código y evidencia de ES1–ES4:** [speciesCatalog.ts](src/engine/speciesCatalog.ts) (111 especies en siete grupos), [SpeciesPicker.tsx](src/components/SpeciesPicker.tsx), [MeasureScreen.tsx](src/screens/MeasureScreen.tsx), [measurementPresentation.ts](src/engine/measurementPresentation.ts), [MeasurementResultFlow.tsx](src/components/MeasurementResultFlow.tsx) e [historial](src/screens/HistoryScreen.tsx); [speciesCatalog.test.ts](tests/speciesCatalog.test.ts), [speciesPresentation.test.ts](tests/speciesPresentation.test.ts), [measureSpecies.test.ts](tests/measureSpecies.test.ts) y los nombres exactos de las fuentes en [speciesSourceNames.json](tests/fixtures/speciesSourceNames.json). Los criterios propios de cada especie se describen en ES6.
 
 ### ES5. Verificación
 
@@ -88,7 +88,7 @@ Trabajo prioritario: primero la app y su lista de especies (ES1–ES5); después
 
 Se aborda después de ES1–ES5, empezando por las especies de mayor superficie de cada grupo. Cada criterio sigue el [proceso de incorporación](MOTOR_AGRONOMICO.md#catalogo) de la especificación.
 
-**Avance: 69 especies con perfil propio (versión de criterios `2.6.0`, con 36 perfiles de frutales incorporados en la ola 2 sobre las 115 especies del catálogo).** Las 33 especies originales (28 hortalizas/anuales más arándano, frutilla, cerezo, kiwi y olivo) mantienen su cobertura en vegetativo, floración y cosecha. Los 36 nuevos perfiles de frutales incorporan sus umbrales edafoclimáticos exactos (pH, helada en floración/brotación/vegetativo, calor en floración y lluvia en cosecha) sin extrapolar entre etapas ni especies. Las 5 especies restantes del catálogo de frutales sin evidencia técnica suficiente (castaño, membrillo, pera asiática, pluot y tangelo) se mantienen documentadas como huérfanas confirmadas sin criterios inventados. Código: [speciesRules.ts](src/engine/speciesRules.ts) y [contextualAdvice.ts](src/engine/contextualAdvice.ts); evidencia y pruebas: [speciesRules.test.ts](tests/speciesRules.test.ts), [speciesWeather.test.ts](tests/speciesWeather.test.ts) y [speciesCriteriaFamilies.test.ts](tests/speciesCriteriaFamilies.test.ts).
+**Avance: las 111 especies del catálogo tienen perfil propio (versión de criterios `2.9.0`).** Todas tienen al menos un criterio evaluable en vegetativo, floración y cosecha: hortalizas y frutales por [ES7](#es7-cobertura-total-de-hortalizas-y-frutales--completada), y berries, aromáticas, cultivos, forrajeras y forestales por [ES8](#es8-cobertura-total-del-resto-del-catálogo--completada). 30 de los 380 criterios son por [analogía](MOTOR_AGRONOMICO.md#analogia) y lo declaran. Castaño, jojoba, tuna y haskap se retiraron del catálogo por no tener fuente ni especie similar para alguna etapa. Ninguna especie muestra ya «Todavía no hay criterios propios» en esas tres etapas.
 
 **pH del suelo en hortalizas y cultivos fundacionales**, vegetativo y floración:
 
@@ -111,14 +111,13 @@ Se aborda después de ES1–ES5, empezando por las especies de mayor superficie 
 | Peral | Penn State Extension ([S54](MOTOR_AGRONOMICO.md#s54)) | Objetivo documentado 6,5 (rango 6,0–6,5) |
 | Caqui | North Carolina State Extension ([S55](MOTOR_AGRONOMICO.md#s55)) | Óptimo 6,0–6,5 |
 | Carozos (damasco, ciruelo, guindo) | UNH Extension ([S59](MOTOR_AGRONOMICO.md#s59)) | Óptimo 6,0–7,0 |
-| Duraznero, nectarino | University of Georgia Extension ([S61](MOTOR_AGRONOMICO.md#s61)) | Óptimo 6,0–6,5 |
-| Cítricos (naranjo, limonero, mandarino, clementina, pomelo, lima) | UF/IFAS Extension ([S67](MOTOR_AGRONOMICO.md#s67)) | Rango 6,0–7,0; encalado bajo 6,0 |
+| Duraznero | University of Georgia Extension ([S61](MOTOR_AGRONOMICO.md#s61)) | Óptimo 6,0–6,5 |
+| Nectarino | University of Illinois Extension ([S79](MOTOR_AGRONOMICO.md#s79)) | Preferido 6,0–6,5 |
+| Cítricos (naranjo, limonero, mandarino —incluye clementina—, pomelo, lima, kumquat) | UF/IFAS Extension ([S67](MOTOR_AGRONOMICO.md#s67)) | Rango 6,0–7,0; encalado bajo 6,0 |
 | Vid | North Carolina State Extension ([S55](MOTOR_AGRONOMICO.md#s55)) | Óptimo 6,0–7,0 para cultivares de vinífera europea |
 | Almendro | UC Cooperative Extension ([S63](MOTOR_AGRONOMICO.md#s63)) | Óptimo 6,0–7,0 |
 | Higuera | University of Guam Extension ([S74](MOTOR_AGRONOMICO.md#s74)) | Óptimo 6,0–6,5 |
 | Lúcumo | FAO ECOCROP ([S75](MOTOR_AGRONOMICO.md#s75)) | Óptimo 6,5–7,5; límites absolutos 6,0 y 8,5 |
-| Jojoba | University of Arizona Arboretum ([S73](MOTOR_AGRONOMICO.md#s73)) | Suelos neutros a alcalinos, pH 7,3–8,2 |
-| Tuna | Central Soil Salinity Research Institute (ICAR) ([S76](MOTOR_AGRONOMICO.md#s76)) | Óptimo 6,5–7,5; límites de tolerancia 6,0 y 8,5 |
 | Maracuyá | UF/IFAS Extension ([S67](MOTOR_AGRONOMICO.md#s67)) | Óptimo 6,0–6,5; límites 5,5 y 7,0 |
 | Níspero, feijoa, granado, chirimoyo, guayabo, tumbo | California Rare Fruit Growers ([S57](MOTOR_AGRONOMICO.md#s57)), UF/IFAS ([S67](MOTOR_AGRONOMICO.md#s67)) | Rangos específicos según su ficha técnica individual |
 
@@ -128,21 +127,14 @@ Se aborda después de ES1–ES5, empezando por las especies de mayor superficie 
 | --- | --- | --- | --- |
 | Pomáceas (manzano, peral) | Floración: helada bajo −2,2 °C (28 °F, 10 % daño) y bajo −3,9 °C (25 °F, 90 % daño) | — | Colorado State University ([S52](MOTOR_AGRONOMICO.md#s52)) |
 | Níspero | Floración: helada bajo −3,0 °C (27 °F) mata flores y frutos pequeños | — | Clemson University ([S58](MOTOR_AGRONOMICO.md#s58)), CRFG ([S57](MOTOR_AGRONOMICO.md#s57)) |
-| Carozos (damasco, duraznero, ciruelo, guindo) | Floración: helada bajo −2,8 °C (damasco, duraznero) o −2,2 °C (ciruelo, guindo) | Lluvia: partidura de piel por turgencia en fruta madura | CSU ([S52](MOTOR_AGRONOMICO.md#s52)), MSU ([S60](MOTOR_AGRONOMICO.md#s60)), University of Delaware ([S62](MOTOR_AGRONOMICO.md#s62)) |
+| Carozos (damasco, duraznero, nectarino, ciruelo, guindo) | Floración: helada desde −2,8 °C (damasco, duraznero, nectarino) o −2,2 °C (ciruelo, guindo) | Lluvia: partidura de piel en fruta madura (duraznero, nectarino, ciruelo); damasco y guindo sin criterio de cosecha | CSU ([S52](MOTOR_AGRONOMICO.md#s52)), MSU ([S60](MOTOR_AGRONOMICO.md#s60)), University of Delaware ([S62](MOTOR_AGRONOMICO.md#s62)), Utah State ([S79](MOTOR_AGRONOMICO.md#s79)) |
 | Vid | Vegetativo: helada bajo −1,2 °C (29,8 °F) tras brotación. Floración: calor sobre 35 °C (95 °F) causa corrimiento floral | Lluvia: riesgo de partidura de bayas y botritis | WSU ([S64](MOTOR_AGRONOMICO.md#s64)), UC Davis ([S65](MOTOR_AGRONOMICO.md#s65)), Univ. Wisconsin ([S66](MOTOR_AGRONOMICO.md#s66)) |
 | Cítricos (limonero, lima ácida, mandarino, naranjo, clementina, pomelo) | Floración: helada bajo −1,7 °C (limonero, lima). Vegetativo/general: helada bajo −2,2 °C a −4,4 °C | Helada en fruta madura en árbol bajo −2,2 °C | UF/IFAS ([S67](MOTOR_AGRONOMICO.md#s67)), MSU ([S68](MOTOR_AGRONOMICO.md#s68)), UC ANR ([S69](MOTOR_AGRONOMICO.md#s69)) |
-| Frutos secos (almendro, nogal, avellano europeo, pecana, pistacho, macadamia, jojoba) | Floración: helada en flor abierta (−2,2 °C almendro; −1,1 °C nogal y pecana; −8,9 °C flores femeninas avellano). Calor: sobre 35 °C en floración de pistacho; sobre 30 °C en macadamia (caída de frutos) | Lluvia: pecana en suelo mojado expuesta a germinación prematura y hongos | UCCE ([S63](MOTOR_AGRONOMICO.md#s63)), Oregon State ([S70](MOTOR_AGRONOMICO.md#s70)), UGA ([S61](MOTOR_AGRONOMICO.md#s61)), QDPI ([S71](MOTOR_AGRONOMICO.md#s71)), Purdue ([S72](MOTOR_AGRONOMICO.md#s72)) |
+| Frutos secos (almendro, nogal, avellano europeo, pecana, pistacho, macadamia) | Floración: helada en flor abierta (−2,2 °C almendro; −1,1 °C nogal y pecana; −8,9 °C flores femeninas avellano). Calor: sobre 35 °C en floración de pistacho; sobre 30 °C en macadamia (caída de frutos) | Lluvia: pecana en suelo mojado expuesta a germinación prematura y hongos | UCCE ([S63](MOTOR_AGRONOMICO.md#s63)), Oregon State ([S70](MOTOR_AGRONOMICO.md#s70)), UGA ([S61](MOTOR_AGRONOMICO.md#s61)), QDPI ([S71](MOTOR_AGRONOMICO.md#s71)), Purdue ([S72](MOTOR_AGRONOMICO.md#s72)) |
 | Palto | Helada bajo −1,7 °C (29 °F) en ramas, brotes y floración (Hass) | — | California Avocado Commission ([S78](MOTOR_AGRONOMICO.md#s78)) |
-| Subtropicales (higuera, lúcumo, caqui, chirimoyo, mango, dátil, feijoa, granado, guayabo, maracuyá, tumbo, tuna, papayo, babaco) | Heladas específicas según susceptibilidad térmica de cada especie (ej. higuera activa a −1,1 °C; papayo/babaco bajo 0 °C; mango bajo −1,1 °C) | Lluvia: higo (partidura/pudrición), caqui (ablandamiento), dátil (deterioro de racimos) | CRFG ([S57](MOTOR_AGRONOMICO.md#s57)), UF/IFAS ([S67](MOTOR_AGRONOMICO.md#s67)), UCLA ([S56](MOTOR_AGRONOMICO.md#s56)), FAO ([S75](MOTOR_AGRONOMICO.md#s75)), Frontiers ([S77](MOTOR_AGRONOMICO.md#s77)) |
+| Subtropicales (higuera, lúcumo, caqui, chirimoyo, mango, dátil, feijoa, granado, guayabo, maracuyá, tumbo, papayo de montaña) | Heladas específicas según susceptibilidad térmica de cada especie (ej. higuera activa a −1,1 °C; papayo/babaco bajo 0 °C; mango bajo −1,1 °C) | Lluvia: higo (partidura/pudrición), caqui (ablandamiento), dátil (deterioro de racimos) | CRFG ([S57](MOTOR_AGRONOMICO.md#s57)), UF/IFAS ([S67](MOTOR_AGRONOMICO.md#s67)), UCLA ([S56](MOTOR_AGRONOMICO.md#s56)), FAO ([S75](MOTOR_AGRONOMICO.md#s75)), Frontiers ([S77](MOTOR_AGRONOMICO.md#s77)) |
 
-**Especies huérfanas confirmadas del catálogo de frutales:**
-De las 44 especies de frutales del catálogo, exactamente 5 se confirmaron sin criterios técnicos suficientes en la literatura agronómica especializada:
-- **Castaño** (`sp.castano`): guías agronómicas describen tolerancia edáfica cualitativa amplia sin umbrales numéricos de pH contrastados por método de laboratorio, y no existen umbrales de helada floral verificados para cultivares chilenos.
-- **Membrillo** (`sp.membrillo`): literatura disponible agrupa genéricamente al membrillero con el manzano/peral sin mediciones propias de daño celular por helada en floración ni ensayos de pH específicos.
-- **Pera asiática** (`sp.pera-asiatica`): literatura de extensión advierte diferencias de susceptibilidad térmica frente a la pera europea (P. communis) pero sin curvas de mortalidad por estadio de yema.
-- **Pluot** (`sp.pluot`): híbrido complejo (ciruelo × damasco) cuya tolerancia fenológica varía drásticamente según la proporción genética del cultivar (ej. Flavor Supreme vs. Dapple Dandy); no existe un umbral agronómico universal citable.
-- **Tangelo** (`sp.tangelo`): híbrido (mandarino × pomelo) sin umbrales térmicos específicos desglosados en publicaciones de extensión de cítricos.
-Cumpliendo la regla de oro del motor agronómico («nunca extrapolar ni inventar umbrales entre especies»), estas 5 especies se mantienen como huérfanas en `SPECIES_RULES` (`profile.criteria.length === 0`, `hasStageCriteria === false`).
+**Frutales que eran huérfanos:** membrillo, pera asiática, pluot y tangelo se cubrieron en ES7 por analogía con peral, ciruelo y mandarino, y el membrillo tiene además una fuente propia para cosecha. El castaño se retiró del catálogo; el detalle está en [ES7.B](#es7b-agente-b--frutales).
 
 **Helada en hortalizas.** La clasificación es de INIA ([S36](MOTOR_AGRONOMICO.md#s36), [S37](MOTOR_AGRONOMICO.md#s37)); las temperaturas, de Nebraska ([S27](MOTOR_AGRONOMICO.md#s27)) y South Dakota State ([S28](MOTOR_AGRONOMICO.md#s28)):
 
@@ -187,11 +179,283 @@ Melón, sandía y pepino no tienen una fuente propia de calor en floración, y n
 
 Cada criterio de pH separa el óptimo (sólo orienta) de los límites donde la fuente documenta un problema o una corrección: únicamente cruzar un límite es advertencia, y un límite no documentado queda vacío. Los criterios de especie usan la misma regla de calidad y vigencia que el análisis general, no cambian el estado de la evaluación cuando sólo informan, y en el plan aparecen como seguimiento. No se habilitó pH en cosecha porque no gobierna esa etapa. Frambueso (Boletín INIA 372) y palto (manual INIA 1998) se revisaron y no documentan un rango de pH: siguen sin criterio. La fila de frutos del cuadro 2 del Boletín INIA 101 («menos de 5») es ambigua y no se usa; la helada sobre la aceituna proviene del Boletín INIA 165.
 
-- [ ] Familias de criterios por etapa. Habilitados: pH; helada por especie en las tres fases; frío y calor en floración y vegetativo cuando hay fuente; noches cálidas; lluvia y niebla; temperatura de suelo (frutilla) y humedad del aire (olivo); tolerancia a sales y etapa crítica de riego como referencias. **Cosecha, 16 de 32 especies con perfil siguen con sólo helada genérica** tras la búsqueda dirigida del 15 de octubre de 2026 (detalle de las 16 y por qué no califican, arriba); las otras 16 (tomate, berenjena, pimiento, poroto, melón, pepino, papa, camote, cebolla, repollo, lechuga, perejil, zapallo, arándano, frutilla, cerezo) ya tienen un criterio propio de cosecha. Buscado y confirmado sin fuente comparable: calor en floración de melón, sandía y pepino; bolting/floración temprana por calor en cebollín, perejil y puerro (sólo blogs comerciales sin verificar, ninguna fuente institucional con umbral exacto); calor documentado para los turiones de espárrago en plena cosecha (sólo guías de huerta sin respaldo institucional, con umbrales que se contradicen entre 50 °F y 70–80 °F) y pudrición de vaina por lluvia en arveja (sólo pudrición de semilla en germinación y una nota de prensa agrícola del Reino Unido, ninguna institucional sobre vaina en cosecha). Pendiente: comparar la salinidad cuando exista un método compatible para la conductividad de la sonda; decidir si conviene un tipo de criterio nuevo para el patrón «cambio de humedad» (zanahoria, rabanito, betarraga, sandía), que el `weatherEvent` binario actual no representa fielmente.
+- [ ] Familias de criterios por etapa. Habilitados: pH; helada por especie en las tres fases; frío y calor en floración y vegetativo cuando hay fuente; noches cálidas; lluvia y niebla; temperatura de suelo (frutilla) y humedad del aire (olivo); tolerancia a sales y etapa crítica de riego como referencias. **De las 33 especies originales, 16 siguen con sólo helada genérica en cosecha** tras la búsqueda dirigida del 15 de octubre de 2026 (detalle de las 16 y por qué no califican, arriba); las otras 17 (tomate, berenjena, pimiento, poroto, melón, pepino, papa, camote, cebolla, repollo, lechuga, perejil, zapallo, arándano, frutilla, cerezo y kiwi) ya tienen un criterio propio de cosecha. Buscado y confirmado sin fuente comparable: calor en floración de melón, sandía y pepino; bolting/floración temprana por calor en cebollín, perejil y puerro (sólo blogs comerciales sin verificar, ninguna fuente institucional con umbral exacto); calor documentado para los turiones de espárrago en plena cosecha (sólo guías de huerta sin respaldo institucional, con umbrales que se contradicen entre 50 °F y 70–80 °F) y pudrición de vaina por lluvia en arveja (sólo pudrición de semilla en germinación y una nota de prensa agrícola del Reino Unido, ninguna institucional sobre vaina en cosecha). Pendiente: comparar la salinidad cuando exista un método compatible para la conductividad de la sonda; decidir si conviene un tipo de criterio nuevo para el patrón «cambio de humedad» (zanahoria, rabanito, betarraga, sandía), que el `weatherEvent` binario actual no representa fielmente.
 - [ ] Fuentes por prioridad: institucionales chilenas (INIA, ODEPA, universidades), extensión agrícola con tablas citables (UC ANR y equivalentes), FAO y ECOCROP sólo como índice para localizar evidencia.
 - [x] Registro por criterio: valor original, unidad, conversión de °F, etapa, contexto, fuente con sección o tabla y fecha de consulta. La forma de establecimiento se registra por perfil: las tablas de hortalizas no distinguen semilla, almácigo ni trasplante (`not_specified`), y las de frutales y berries describen plantaciones establecidas (`established_plantation`).
 - [ ] Estados por criterio (candidato, documentado, habilitado) y exposición en el catálogo de qué etapas tienen criterios.
 - [ ] Conectar `species-rules` al motor sin alterar las alertas generales; pasar T15–T19, T42, T45 y T46. Conectado y probado para pH, lecturas del equipo, referencias y pronóstico: T05, T13, T15, T22–T24, T39, T44, T45 y T46 pasan para los criterios de especie; T16–T19 y T42 esperan los perfiles de pre-siembra y la explicación de evaluación parcial de perennes.
+
+### ES7. Cobertura total de hortalizas y frutales — completada
+
+**Meta:** las 78 especies de los grupos hortalizas (34) y frutales (44) tienen al menos un **criterio evaluable** habilitado en vegetativo, floración y cosecha. Cuentan como evaluables pH, temperatura del aire, lectura del equipo y episodio del pronóstico. La tolerancia a sales y la etapa crítica de riego son referencias que no comparan la lectura, así que **no cuentan**. Pre-siembra queda fuera, porque ahí el motor sugiere qué sembrar en vez de evaluar una especie elegida. También quedan fuera berries, cultivos, forrajeras, aromáticas y forestales. La regla de evidencia es la de la especificación: una fuente propia y, en su defecto, el [criterio por analogía](MOTOR_AGRONOMICO.md#analogia), siempre declarado. **Una especie que no logra ni fuente propia ni especie similar para las tres etapas se retira del catálogo: no queda pendiente ni a medias.**
+
+**Brecha inicial (18 de octubre de 2026):** 63 combinaciones de especie y etapa. **Resultado:** las 63 quedaron cubiertas o su especie se retiró; ninguna queda pendiente.
+
+| Responsable | Especies | Etapas que faltan | Combinaciones |
+| --- | --- | --- | ---: |
+| Agente A | Acelga, ají, ajo, alcachofa, caigua, haba, locoto y pepino dulce (sin perfil) | Las tres | 24 |
+| Agente B | Castaño, membrillo, pera asiática, pluot y tangelo (sin perfil) | Las tres | 15 |
+| Agente B | Almendro, chirimoyo, damasco, guayabo, guindo, jojoba, lúcumo, macadamia, mango, manzano, maracuyá, peral, tumbo y tuna | Cosecha | 14 |
+| Agente B | Avellano, níspero, nogal y pistacho | Vegetativo y cosecha | 8 |
+| Agente B | Datilera | Floración y cosecha | 2 |
+
+#### ES7.0. Preparación — hecha por el coordinador
+
+Permite que los dos agentes trabajen en paralelo sin tocar el mismo archivo. Se verificó sin cambio de comportamiento: `npm test` (370 pruebas más las nuevas de cobertura), `npm run type-check` y el verificador documental.
+
+- [x] `src/engine/speciesRules.ts` separado en [speciesRuleKit.ts](src/engine/speciesRuleKit.ts) (tipos, constructores y fuentes existentes, todos exportados), [speciesProfilesHortalizas.ts](src/engine/speciesProfilesHortalizas.ts) (`HORTALIZA_PROFILES`, del **agente A**), [speciesProfilesFrutales.ts](src/engine/speciesProfilesFrutales.ts) (`FRUTAL_PROFILES`, perennes: frutales y berries, del **agente B**) y [speciesRules.ts](src/engine/speciesRules.ts), que conserva la versión, une las listas en `SPECIES_RULES`, evalúa y reexporta los tipos.
+- [x] Analogía en el contrato: `scope?: 'species' | 'analog'` y `analogOf?: string` en cada criterio, y el constructor `analog('sp.origen', criterio)` en el kit. La analogía se declara en las limitaciones, que el detalle técnico ya muestra.
+- [x] [speciesCoverage.test.ts](tests/speciesCoverage.test.ts), incluida en `npm test`. Compara la brecha real con `PENDIENTES_HORTALIZAS` ([es7Hortalizas.ts](tests/es7Hortalizas.ts), del agente A) y `PENDIENTES_FRUTALES` ([es7Frutales.ts](tests/es7Frutales.ts), del agente B), que cada agente vacía; también falla si una combinación ya cubierta sigue en la lista. Las especies que se retiran van a `A_ELIMINAR_HORTALIZAS` o `A_ELIMINAR_FRUTALES`, sin perfil y sin pendientes. Valida cada analogía: el origen existe, tiene ese criterio con fuente propia en alguna de las mismas etapas (sin encadenar), la evidencia es la del origen y las limitaciones empiezan con «Sin fuente propia para » y nombran al origen en ambos idiomas.
+- [x] `speciesWeather.test.ts` ya no fija el total de perfiles (exige 69 o más).
+- [x] Rangos de fuentes reservados al final de la [sección 16](MOTOR_AGRONOMICO.md#16-fuentes-consultadas): S80–S119 (A) y S120–S179 (B), bajo sus comentarios `<!-- ES7.A … -->` y `<!-- ES7.B … -->`.
+
+#### ES7.1. Instrucciones comunes a los dos agentes
+
+**Leer antes de editar:** `CLAUDE.md` de la raíz; en la especificación, §7.1 (incluido el criterio por analogía) y §7.5; ES6 y ES7 de este archivo; `speciesRuleKit.ts`; y como modelos, los perfiles `sp.nectarino` y `sp.duraznero` (perenne) y `sp.pimiento` y `sp.tomate` (anual).
+
+**Por cada combinación de especie y etapa, en este orden:**
+
+1. **Fuente propia.** Buscar una fuente que nombre la especie: primero institucional chilena (INIA, ODEPA, universidades), después extensión agrícola con tabla citable (UC ANR, UF/IFAS, WSU, MSU, Cornell, Penn State, Utah State, University of Maryland). FAO/ECOCROP sirve sólo como índice para localizar la evidencia. **Abrir siempre la página con WebFetch** y copiar la cita textual: nunca citar desde el resumen de un buscador.
+2. **Analogía**, si no hay fuente propia. La especie de origen debe ser la misma especie botánica o del mismo género y, en su defecto, de la misma familia, con el mismo órgano cosechado. Además, debe tener **ese mismo criterio con fuente propia** en `SPECIES_RULES`. Se construye con `analog('sp.origen', criterio)`, reutilizando la evidencia y la cifra del origen y con textos redactados para la especie destino. Las limitaciones empiezan con «Sin fuente propia para {especie}: se usa el criterio documentado para {origen}, {motivo de la semejanza}.».
+3. **Ni fuente ni analogía válida en alguna etapa:** la especie **se retira completa**. El agente borra su perfil de su archivo, quita sus combinaciones de la lista de pendientes, agrega el ID a su lista `A_ELIMINAR_*` y anota en su subsección qué se buscó y por qué no califica. El coordinador la saca del catálogo al integrar. **Nunca se inventa una cifra** y no queda ninguna especie a medias.
+
+**Qué criterio usar en cada etapa:**
+
+| Etapa | Primera opción | Alternativas |
+| --- | --- | --- |
+| Vegetativo | pH (`stages: GROWING`, cubre también floración) | Helada en brotes o follaje; calor documentado |
+| Floración | pH (si ya cubre `GROWING`) | Helada en flor abierta (tablas de temperaturas críticas de WSU, MSU, CSU o Utah State); calor en polinización; lluvia en polinización |
+| Cosecha | Helada sobre el órgano cosechado: «highest freezing point» de la tabla 1 del [USDA Agriculture Handbook 66](https://www.ars.usda.gov/arsuserfiles/oc/np/commercialstorage/commercialstorage.pdf), en °F y por especie (lo reproduce el [boletín 4135 de University of Maine](https://extension.umaine.edu/publications/4135e/)) | Lluvia en cosecha (rajadura, pudrición, hongos); calor en cosecha |
+
+**Reglas de contenido** (las pruebas `speciesRules`, `speciesWeather` y `speciesCoverage` fallan si no se cumplen):
+
+- Toda cifra del umbral o del pH figura **textual** en `originalValue`. En °F se usa `fromF(n)`, que convierte y conserva el valor original. El aire va de −15 a 45 °C y el pH de 3 a 10.
+- `consultedAt` es la fecha real de consulta; la `url` empieza con `https://`; `section` indica la tabla, página o apartado.
+- `advice` y `adviceEn` están en lenguaje simple: sin fuentes, sin °F y sin «documenta», «extracto», «ky», «University», «INIA», «FAO» ni «Extension». Los textos `*En` no llevan tildes, eñes ni palabras en español.
+- `note` lleva las cifras de la fuente con su conversión; `limitations` nunca va vacío.
+- La gravedad es `danger` sólo si la fuente documenta muerte o daño grave; en los demás casos, `warning`, o `info` si el criterio sólo orienta.
+- No se habilita pH en cosecha ni se usan referencias de salinidad o agua para cubrir una etapa.
+- Hortalizas anuales con `annual`; perennes (alcachofa y todos los frutales) con `perennial`.
+- Español de Chile: se dice «campo», no «predio».
+
+**Límites de cada agente:**
+
+- Edita **sólo** su archivo de perfiles, sus dos listas (`PENDIENTES_*` y `A_ELIMINAR_*`) en `tests/es7Hortalizas.ts` (A) o `tests/es7Frutales.ts` (B), su rango de fuentes en la especificación y su subsección (ES7.A o ES7.B).
+- No toca `speciesRuleKit.ts`, `speciesRules.ts`, `speciesCatalog.ts`, `SPECIES_RULES_VERSION` ni el archivo del otro agente. Si necesita un constructor o una fuente compartida nueva, la define en su propio archivo.
+- No hace commits ni ejecuta comandos git que modifiquen el repositorio. Si falla una prueba por un archivo del otro agente, no la corrige: la informa.
+- Al terminar cada especie ejecuta, desde `App/`: `npx tsx --test tests/speciesRules.test.ts tests/speciesWeather.test.ts tests/speciesCriteriaFamilies.test.ts tests/speciesPresentation.test.ts tests/speciesCoverage.test.ts` y `npm run type-check`.
+- **Informe final:** combinaciones cerradas con fuente propia, cerradas por analogía (indicando el origen) y especies propuestas para retirar, con el motivo. Su lista `PENDIENTES_*` debe terminar vacía.
+
+#### ES7.A. Agente A — hortalizas
+
+Archivo `src/engine/speciesProfilesHortalizas.ts`, fuentes S80–S119. Las analogías de la tabla son candidatas: valen sólo si falta la fuente propia y se cumplen las condiciones de ES7.1.
+
+| Especie | Primero buscar | Analogía candidata |
+| --- | --- | --- |
+| Acelga (*Beta vulgaris*, grupo Cicla) | pH en la tabla B-1 de University of Maryland («Swiss chard»); helada en Nebraska o SDSU | Betarraga (misma especie botánica) |
+| Ají (*Capsicum* spp.) | Fichas de ají de INIA; tabla B-1 («Peppers») | Pimiento (mismo género) |
+| Locoto (*Capsicum pubescens*) | Literatura andina sobre su tolerancia al frío | Pimiento (mismo género). Declarar que el locoto tolera más frío que *C. annuum* |
+| Ajo (*Allium sativum*) | Tabla B-1 («Garlic»); Wisconsin A3785, sección de ajo | Cebolla (mismo género) |
+| Alcachofa (*Cynara cardunculus* var. *scolymus*) | Guía de alcachofa de UC ANR; INIA | Ninguna cercana en el catálogo: requiere fuente propia |
+| Caigua (*Cyclanthera pedata*) | Literatura andina | Pepino (misma familia, fruto inmaduro) |
+| Haba (*Vicia faba*) | INIA; tabla B-1 si la incluye | Arveja (misma familia, leguminosa de estación fría) |
+| Pepino dulce (*Solanum muricatum*) | INIA, literatura andina | Tomate (mismo género, fruto) |
+| Especie | Vegetativo | Floración | Cosecha | Fuente o analogía |
+| --- | --- | --- | --- | --- |
+| Acelga | Helada (28 °F, tolerante) y pH | Helada (28 °F, tolerante) y pH | Helada (criterio más cauto, 2007 vs. 1998) | Helada: INIA ([S36](MOTOR_AGRONOMICO.md#s36)), Nebraska y SDSU ([S80](MOTOR_AGRONOMICO.md#s80)), propia (nombra «acelga»/«chard»). pH: analogía de betarraga (misma especie botánica) |
+| Ají | Helada (32 °F, no tolera) y pH | Helada (32 °F, no tolera) y pH | Helada (32 °F, no tolera) | Helada: INIA 411 ([S81](MOTOR_AGRONOMICO.md#s81)), Nebraska y SDSU ([S27](MOTOR_AGRONOMICO.md#s27), [S28](MOTOR_AGRONOMICO.md#s28)), propia (nombra «ají» junto al pimiento). pH: analogía de pimiento (mismo género) |
+| Locoto | Helada (hasta −5 °C) y pH | Helada (hasta −5 °C) y pH | Helada (hasta −5 °C) | Helada: PFAF ([S82](MOTOR_AGRONOMICO.md#s82)), propia (nombra la especie). pH: analogía de pimiento (mismo género; el locoto tolera más frío) |
+| Ajo | Helada (28 °F, tolera) y pH | Helada (28 °F, tolera) y pH | Helada (28 °F, tolera) | Helada: INIA y SDSU ([S83](MOTOR_AGRONOMICO.md#s83)), propia (nombra «ajo»/«Garlic»). pH: analogía de cebolla (mismo género; la tabla B-1 no tiene fila de ajo) |
+| Alcachofa | pH y helada (bajo −2 °C) | pH, helada (bajo −2 °C) y calor (sobre 24 °C) | Helada (bajo −2 °C) | INIA Ururi, Informativo N° 56 ([S84](MOTOR_AGRONOMICO.md#s84)), propia y completa: única especie que requería fuente propia sin analogía posible |
+| Caigua | Helada (sin tolerancia) y pH | Helada (sin tolerancia) y pH | Helada (sin tolerancia) | Helada: PFAF ([S85](MOTOR_AGRONOMICO.md#s85)), propia (nombra la especie; sin cifra, se usa 0 °C como definición de helada). pH: analogía de pepino (misma familia, mismo fruto inmaduro) |
+| Haba | Helada (28 °F, tolera) | Helada (aborto floral bajo 0 °C) | Helada (se daña cerca de la madurez, bajo 0 °C) | Floración y cosecha: INIA ([S86](MOTOR_AGRONOMICO.md#s86)), propia (nombra «habas»). Vegetativo: analogía de arveja (misma familia, leguminosa de estación fría) |
+| Pepino dulce | Helada (a 0 °C o menos, no tolera) y pH | Helada (a 0 °C o menos, no tolera) y pH | Helada (a 0 °C o menos, no tolera) | Helada: INIA ([S87](MOTOR_AGRONOMICO.md#s87)), propia (nombra «pepino dulce» y lo distingue del tomate). pH: analogía de tomate (mismo género) |
+
+**Notas de la investigación.** La tabla B-1 de University of Maryland (2026) **no tiene fila** de «Swiss chard», «Garlic», «Artichoke» ni «Fava beans»/«Broad beans» (se verificó el documento completo): esas cuatro hortalizas no tienen pH con fuente propia por esa vía, a diferencia de lo que sugería la búsqueda inicial. El ají sí aparece nombrado junto al pimiento en el Boletín INIA 411 («Pimiento y Ají»), pero sólo para la susceptibilidad a la helada en general, sin una cifra en °C ni una fila de pH propia, así que su pH usa la analogía de pimiento. El USDA Agriculture Handbook 66 (reproducido por el boletín 4135 de University of Maine) no tiene fila de «Artichokes, globe» (sólo de «Artichokes, Jerusalem», especie no emparentada), así que no sirvió para la cosecha de alcachofa; en su lugar, el Informativo INIA-Ururi N° 56 da cifras propias de helada (−2 a −4 °C) que cubren las tres etapas. Para caigua y locoto no se localizó una fuente institucional (chilena ni de extensión agrícola) con cifra propia: se usó Plants For A Future (PFAF), una base de datos de plantas útiles ya aceptada como fuente en este catálogo para especies similares (igual que CRFG en frutales), declarando sus límites.
+
+#### ES7.B. Agente B — frutales
+
+Archivo `src/engine/speciesProfilesFrutales.ts`, fuentes S120–S179. Para cosecha conviene revisar primero el «highest freezing point» del USDA Handbook 66, que cubre casi todos los frutales con una cifra propia de cada especie. En los frutos secos, si no figuran en la tabla, se busca el riesgo de lluvia en cosecha (hongos, aflatoxina, germinación).
+
+| Especie | Falta | Primero buscar | Analogía candidata |
+| --- | --- | --- | --- |
+| Castaño (*Castanea sativa*) | Las tres | pH y helada en brotes en guías de castaño (University of Missouri Center for Agroforestry, Oregon State) | Ninguna en el catálogo: requiere fuente propia |
+| Membrillo (*Cydonia oblonga*) | Las tres | Tablas de temperaturas críticas de membrillo; Handbook 66 («Quinces») | Peral o manzano (misma subtribu) |
+| Pera asiática (*Pyrus pyrifolia*) | Las tres | Handbook 66 («Asian pears»); UC ANR y Oregon State | Peral (mismo género) |
+| Pluot (*P. salicina* × *P. armeniaca*) | Las tres | Fichas de UC ANR | Ciruelo (progenitor dominante) |
+| Tangelo (*Citrus × tangelo*) | Las tres | Tablas de resistencia al frío de UF/IFAS, que suelen incluir tangelo | Mandarino (progenitor) |
+| Almendro, chirimoyo, damasco, guayabo, guindo, jojoba, lúcumo, macadamia, mango, manzano, maracuyá, peral, tumbo y tuna | Cosecha | Handbook 66 y lluvia en cosecha documentada | Especie del mismo género con criterio de cosecha propio |
+| Avellano, nogal y pistacho | Vegetativo y cosecha | pH en la guía de cada especie (OSU EM 9072 para avellano; UC ANR para nogal y pistacho); helada en brotes | — |
+| Níspero | Vegetativo y cosecha | pH en CRFG o UF/IFAS; Handbook 66 («Loquats») | — |
+| Datilera | Floración y cosecha | FAO, Zaid y de Wet ([S75](MOTOR_AGRONOMICO.md#s75)): calor o lluvia en polinización y lluvia sobre racimos maduros | — |
+| Especie | Vegetativo | Floración | Cosecha | Fuente o analogía |
+| --- | --- | --- | --- | --- |
+| Almendro | ya tenía | ya tenía | pH y helada ya tenían fuente; cosecha nueva | Cosecha: USDA Handbook 66, capítulo Almond ([S121](MOTOR_AGRONOMICO.md#s121)), lluvia tardía retrasa la cosecha |
+| Avellano europeo | pH nueva | ya tenía | nueva | Vegetativo (pH): OSU EM 9080 ([S123](MOTOR_AGRONOMICO.md#s123)); cosecha: OSU FS 146 ([S122](MOTOR_AGRONOMICO.md#s122)), lluvia de otoño sobre la avellana caída |
+| Castaño | — | — | — | **Retirada** del catálogo: ver nota más abajo |
+| Chirimoyo | ya tenía | ya tenía | nueva | Cosecha: mismo criterio de daño severo del árbol adulto a 25 °F, ya citado en el perfil (CRFG, evidencia existente), aplicado a la fruta en pie |
+| Damasco | ya tenía | ya tenía | nueva | Cosecha: USDA Handbook 66 vía University of Maine ([S120](MOTOR_AGRONOMICO.md#s120)) |
+| Datilera | ya tenía | nueva | nueva | Floración y cosecha: FAO, Zaid y de Wet, sección «Rain effect» ([S132](MOTOR_AGRONOMICO.md#s132)) |
+| Guayabo | ya tenía | ya tenía | nueva | Cosecha: UF/IFAS, Florida Plant Disease Management Guide: Guava ([S124](MOTOR_AGRONOMICO.md#s124)) |
+| Guindo | ya tenía | ya tenía | nueva | Cosecha: USDA Handbook 66 vía University of Maine ([S120](MOTOR_AGRONOMICO.md#s120)) |
+| Jojoba | — | — | — | **Retirada** del catálogo: ver nota más abajo |
+| Lúcumo | ya tenía | ya tenía | nueva | Cosecha: FAO ECOCROP, campo «Temperat. requir.» ([S131](MOTOR_AGRONOMICO.md#s131)), referencia general sin distinguir etapa |
+| Macadamia | ya tenía | ya tenía | nueva | Cosecha: CTAHR, Macadamia: Hawaii's Dessert Nut ([S125](MOTOR_AGRONOMICO.md#s125)) |
+| Mango | ya tenía | ya tenía | nueva | Cosecha: UF/IFAS, Some Common Diseases of Mango in Florida ([S126](MOTOR_AGRONOMICO.md#s126)), con aviso sólo informativo por el desajuste de tiempo entre la lluvia y la mancha |
+| Manzano | ya tenía | ya tenía | nueva | Cosecha: USDA Handbook 66 vía University of Maine ([S120](MOTOR_AGRONOMICO.md#s120)) |
+| Maracuyá | ya tenía | ya tenía | nueva | Cosecha: mismo criterio de enfriamiento de la planta (UF/IFAS, evidencia existente), aplicado a la fruta en maduración |
+| Membrillo | analogía | analogía | nueva (propia) | Vegetativo y floración por [analogía](MOTOR_AGRONOMICO.md#analogia) con Peral (misma subtribu Pyrinae; el membrillo se usa como portainjerto de peral); cosecha propia: USDA Handbook 66 vía University of Maine ([S120](MOTOR_AGRONOMICO.md#s120)), nombra «Quinces» |
+| Níspero | nueva | ya tenía | nueva | Vegetativo y cosecha: mismo criterio CRFG ya citado en el perfil (umbrales de yema floral a 19 °F y de semilla/caída del fruto a 25 °F) |
+| Nogal | pH nueva | ya tenía | nueva | Vegetativo (pH) y cosecha: UC Cooperative Extension, Walnut Nutrition ([S127](MOTOR_AGRONOMICO.md#s127)) y UC IPM, Walnut - Molds ([S130](MOTOR_AGRONOMICO.md#s130)) |
+| Pera asiática | analogía | analogía | analogía | Las tres por [analogía](MOTOR_AGRONOMICO.md#analogia) con Peral (mismo género *Pyrus*) |
+| Peral | ya tenía | ya tenía | nueva | Cosecha: USDA Handbook 66 vía University of Maine ([S120](MOTOR_AGRONOMICO.md#s120)) |
+| Pistacho | pH nueva | ya tenía | nueva | Vegetativo (pH): UC Cooperative Extension, Pistachio Micronutrient Management ([S128](MOTOR_AGRONOMICO.md#s128)); cosecha: FAO, Prevention of aflatoxin in pistachios ([S129](MOTOR_AGRONOMICO.md#s129)) |
+| Pluot | analogía | analogía | analogía | Las tres por [analogía](MOTOR_AGRONOMICO.md#analogia) con Ciruelo (progenitor dominante del híbrido) |
+| Tangelo | analogía | analogía | analogía | Las tres en un solo criterio, por [analogía](MOTOR_AGRONOMICO.md#analogia) con Mandarino (mismo género *Citrus*, progenitor del híbrido) |
+| Tumbo | ya tenía | ya tenía | nueva | Cosecha: mismo criterio de rusticidad al frío (CRFG, evidencia existente), aplicado a la fruta en maduración |
+| Tuna | ya tenía | ya tenía | — | **Retirada** del catálogo: ver nota más abajo |
+
+**Especies retiradas (sin fuente propia ni analogía válida en alguna etapa):**
+
+- **Castaño.** Vegetativo (pH 5,5–6,5) y la sensibilidad a la helada en brotación se encontraron en fuentes propias (Virginia Cooperative Extension, ANR-279P; Michigan State University Extension, sobre heladas de abril de 2012 en castaño). Para cosecha se buscó en USDA Handbook 66 (no incluye castaña en su tabla de punto de congelación ni en su capítulo de frutos secos), Oregon State University (FS 146, sólo describe recolección sin mencionar lluvia para castaña), The American Chestnut Foundation (hoja de cosecha, sin mención de lluvia) y estudios sobre pudrición parda del castaño (*Gnomoniopsis*) ligada a lluvia de primavera-verano, pero sin una fuente institucional que documente el efecto sobre la castaña cerca de cosecha con la claridad exigida. Sin especie similar en el catálogo (es el único *Castanea*). Se retira completa.
+- **Jojoba.** El perfil de pH (candidato previo, con fuente propia de University of Arizona) ya cubría vegetativo y floración. Para cosecha se buscó en University of Arizona (repositorio institucional, inaccesible: error 403), UF/IFAS (HS616, sin mención de lluvia o cosecha), y fuentes sobre Argentina (cápsula dehiscente, lluvia como requisito de floración, no de cosecha). Ninguna fuente institucional documenta un efecto de lluvia o helada sobre la cápsula cerca de cosecha. Sin especie similar en el catálogo (es el único *Simmondsia*). Se retira completa.
+- **Tuna.** El perfil de pH (candidato previo, ICAR) ya cubría vegetativo y floración. Para cosecha se buscó en UF/IFAS (sin ficha de cactus pear accesible), University of Nevada Reno Extension y New Mexico State University Extension (guías de cosecha sin mención de lluvia o helada sobre el fruto), FIA Chile («La tuna: manejo del cultivo y usos», menciona pudrición húmeda por *Phytophthora* ante heridas y alta humedad, pero aclara que el daño no es mayor) y un estudio revisado por pares sobre helada en *Opuntia* (Sudáfrica) que sólo documenta daño en cladodios, no en el fruto. Sin especie similar en el catálogo (es el único *Opuntia*). Se retira completa.
+
+**Nota sobre el aviso sólo informativo en mango:** la fuente liga la lluvia principalmente a la ventana de floración a fruto de medio tamaño, no a la lluvia del día de cosecha; se mantiene `severity: 'info'` y la limitación lo declara, para no sobre-advertir con una causalidad desplazada en el tiempo.
+
+#### ES7.2. Integración — hecha por el coordinador
+
+- [x] Muestra revisada contra las fuentes abiertas: locoto (Plants For A Future), alcachofa (INIA Ururi, PDF escaneado, contenido confirmado por el índice del buscador) y el capítulo de tuna del USDA Handbook 66 de 2016, que sólo documenta daño por frío en almacenamiento durante semanas y no sirve como criterio de pronóstico, lo que confirma su retiro.
+- [x] Criterios de cosecha con un umbral bajo que se cumpliría casi todas las noches de invierno (lúcumo bajo 11 °C y maracuyá bajo 15 °C) quedan como `info`. El de mango (lluvia) también es `info`, porque la fuente lo liga a la ventana de floración a fruto medio.
+- [x] `PENDIENTES_HORTALIZAS` y `PENDIENTES_FRUTALES` vacías.
+- [x] Castaño, jojoba y tuna retirados de `SPECIES`; sus nombres de fuente pasan a `EXCLUDED_SOURCE_NAMES` con el motivo de ES7. El historial no se afecta, porque lee la especie de la instantánea guardada (`savedSpecies` en `measurementPresentation.ts`), no del catálogo.
+- [x] `SPECIES_RULES_VERSION` en `2.8.0` y `SPECIES_CATALOG_VERSION` en `2.1.0`. Las pruebas que describían el estado anterior a ES7 (manzano sin cosecha, membrillo sin criterios, castaño como especie sin criterios) se actualizaron.
+- [x] `npm test` (375 pruebas), `npm run type-check` y `python docs/verificar_documentacion.py`, sin errores.
+- [ ] Recorrido en teléfono: elegir una especie por analogía (por ejemplo, pluot) y comprobar que el detalle técnico lo declara.
+
+### ES8. Cobertura total del resto del catálogo — completada
+
+**Meta:** como en ES7, pero para berries, aromáticas, cultivos, forrajeras y forestales. Cada una de las 33 especies sin perfil queda con al menos un criterio evaluable en vegetativo, floración y cosecha, con fuente propia o por [analogía declarada](MOTOR_AGRONOMICO.md#analogia). Si no se logra, la especie se retira del catálogo. Al cerrar ES8, ninguna especie del catálogo muestra «Todavía no hay criterios propios». Pre-siembra sigue fuera.
+
+**Brecha inicial (19 de octubre de 2026):** 99 combinaciones de especie y etapa, todas de especies sin perfil. **Resultado:** las 99 quedaron cubiertas o su especie se retiró (sólo el haskap); ninguna queda pendiente. Los dos lotes se ejecutaron en una sola sesión, con las mismas reglas y límites de ES7.1.
+
+| Agente | Grupos | Especies | Combinaciones |
+| --- | --- | --- | ---: |
+| C | Berries y aromáticas | Arándano rojo, calafate, frambuesa, grosella, haskap, maqui, michay, mora, rosa mosqueta, murtilla, saúco, zarzaparrilla roja, zarzaparrilla negra; albahaca, ciboulette, cilantro, orégano | 51 |
+| D | Cultivos, forrajeras y forestales | Achicoria, arroz, avena, cebada, lupino, raps, remolacha azucarera, soya, trigo, triticale; alfalfa, ballica, col forrajera, trébol rosado; eucalipto, pino radiata | 48 |
+
+#### ES8.0. Preparación — hecha por el coordinador
+
+- [x] Archivos de perfiles nuevos, ya conectados a `SPECIES_RULES`: [speciesProfilesBerriesAromaticas.ts](src/engine/speciesProfilesBerriesAromaticas.ts) (`BERRY_AROMATIC_PROFILES`, del **agente C**) y [speciesProfilesCultivos.ts](src/engine/speciesProfilesCultivos.ts) (`FIELD_CROP_PROFILES`, del **agente D**). Arándano y frutilla siguen en el archivo de frutales, y maíz y perejil en el de hortalizas: no se tocan.
+- [x] Listas de avance: [es8BerriesAromaticas.ts](tests/es8BerriesAromaticas.ts) (C) y [es8Cultivos.ts](tests/es8Cultivos.ts) (D), con `PENDIENTES_*` y `A_ELIMINAR_*`. [speciesCoverage.test.ts](tests/speciesCoverage.test.ts) recorre ahora cuatro lotes que, juntos, deben cubrir todos los grupos del catálogo.
+- [x] Fuentes reservadas al final de la [sección 16](MOTOR_AGRONOMICO.md#16-fuentes-consultadas): S180–S239 (C) y S240–S299 (D), bajo sus comentarios `<!-- ES8.C … -->` y `<!-- ES8.D … -->`.
+- [x] Meta extendida a todo el catálogo en la especificación (§7.1, §7.3 y §15.1).
+
+#### ES8.1. Instrucciones
+
+Valen **todas** las instrucciones comunes de [ES7.1](#es71-instrucciones-comunes-a-los-dos-agentes): orden fuente propia → analogía → retiro, criterios por etapa, reglas de contenido y límites. Cambian sólo los archivos y los rangos:
+
+| Agente | Archivo de perfiles | Lista de avance | Fuentes | Subsección |
+| --- | --- | --- | --- | --- |
+| C | `src/engine/speciesProfilesBerriesAromaticas.ts` | `tests/es8BerriesAromaticas.ts` | S180–S239 | ES8.C |
+| D | `src/engine/speciesProfilesCultivos.ts` | `tests/es8Cultivos.ts` | S240–S299 | ES8.D |
+
+Precisiones para estos grupos:
+
+- **Horizonte:** `annual` para albahaca, cilantro y los cultivos anuales; `perennial` para berries, ciboulette, orégano, alfalfa, trébol rosado y forestales. En ballica, según la fuente usada, declarando qué especie de *Lolium* cubre.
+- **Cosecha en forrajeras:** es el corte. Sirven la lluvia sobre el forraje cortado (henificación) y la helada, si la fuente los documenta.
+- **Forestales:** «floración» y «cosecha» no tienen el sentido de un cultivo. Un daño por helada o calor documentado para el árbol puede cubrir las tres etapas (`ALL_STAGES`, precedente: palto), declarándolo en las limitaciones. Para el pino radiata, la floración corresponde a los estróbilos.
+- **Analogías entre archivos:** el origen puede estar en cualquier archivo de perfiles (por ejemplo, repollo en hortalizas o arándano en frutales), siempre con el criterio con fuente propia.
+
+#### ES8.C. Agente C — berries y aromáticas
+
+| Especie | Primero buscar | Analogía candidata |
+| --- | --- | --- |
+| Frambuesa (*Rubus idaeus*) | INIA (Boletín 372 y manuales de frambuesa), Penn State y Cornell (heladas en flor y botritis por lluvia en cosecha), USDA Handbook 66 | — |
+| Mora (*Rubus* spp.) | Extensión de zarzamora (University of Arkansas, NC State), Handbook 66 («Blackberries») | Frambuesa (mismo género) |
+| Arándano rojo (*Vaccinium macrocarpon*) | University of Massachusetts y Wisconsin (temperaturas críticas de helada por estado), Handbook 66 («Cranberries») | Arándano (mismo género) |
+| Grosella, zarzaparrilla roja y negra (*Ribes*) | Extensión de *Ribes* (Cornell, University of Minnesota, Oregon State), Handbook 66 («Currants», «Gooseberries») | Entre ellas, por género *Ribes*, si una tiene fuente propia |
+| Haskap (*Lonicera caerulea*) | University of Saskatchewan, Oregon State | — |
+| Maqui (*Aristotelia chilensis*), murtilla (*Ugni molinae*), calafate y michay (*Berberis*) | INIA (Carillanca, Tamel Aike), universidades chilenas, FIA | Calafate y michay entre sí (mismo género) |
+| Rosa mosqueta (*Rosa rubiginosa*) | INIA y universidades chilenas | — |
+| Saúco (*Sambucus nigra*) | University of Missouri (Center for Agroforestry), Cornell | — |
+| Albahaca (*Ocimum basilicum*) | Tabla B-1 de University of Maryland, si incluye «Basil»; sensibilidad al frío en extensión (UF/IFAS, Purdue) | — |
+| Ciboulette (*Allium schoenoprasum*) | Extensión de hierbas | Cebollín o cebolla (mismo género) |
+| Cilantro (*Coriandrum sativum*) | Tabla B-1, si incluye «Cilantro»; espigado por calor (UC ANR) | Perejil (misma familia, Apiáceas) |
+| Orégano (*Origanum vulgare*) | Extensión de hierbas perennes | — |
+
+| Especie | Vegetativo | Floración | Cosecha | Fuente o analogía |
+| --- | --- | --- | --- | --- |
+| Frambuesa | pH | pH; helada bajo −0,7 °C | Helada (30,0 °F); lluvia (pudrición gris) | INIA, Boletín 372 ([S180](MOTOR_AGRONOMICO.md#s180)); Penn State ([S181](MOTOR_AGRONOMICO.md#s181)); USDA Handbook 66 ([S120](MOTOR_AGRONOMICO.md#s120)) |
+| Mora | pH | pH; helada (27 °F, mueren las flores) | Helada (30,5 °F) | NC State ([S182](MOTOR_AGRONOMICO.md#s182), [S183](MOTOR_AGRONOMICO.md#s183)); USDA Handbook 66 ([S120](MOTOR_AGRONOMICO.md#s120)) |
+| Arándano rojo | Helada bajo 30 °F | Helada bajo 30 °F | Helada bajo 28 °F (fruta que empieza a colorear) | UMass ([S184](MOTOR_AGRONOMICO.md#s184), [S185](MOTOR_AGRONOMICO.md#s185)) |
+| Grosella | pH | pH | Helada (30,0 °F) | Columbia Británica ([S186](MOTOR_AGRONOMICO.md#s186)); USDA Handbook 66 ([S120](MOTOR_AGRONOMICO.md#s120)) |
+| Zarzaparrilla roja y negra | pH | pH | Helada (30,2 °F) | Columbia Británica ([S186](MOTOR_AGRONOMICO.md#s186)); USDA Handbook 66, fila «Currants» ([S120](MOTOR_AGRONOMICO.md#s120)) |
+| Maqui | Helada (0 °C, sensible) | Helada | Helada | Universidad de Talca ([S187](MOTOR_AGRONOMICO.md#s187)) y PFAF ([S188](MOTOR_AGRONOMICO.md#s188)) |
+| Murtilla | pH (hábitat) y helada (0 °C) | pH y helada | Helada | FIA e INIA ([S189](MOTOR_AGRONOMICO.md#s189)) y PFAF ([S188](MOTOR_AGRONOMICO.md#s188)) |
+| Calafate y michay | Helada leve (informa) y bajo −15 °C | Igual | Igual | PFAF ([S188](MOTOR_AGRONOMICO.md#s188)), rusticidad de la planta completa |
+| Rosa mosqueta | pH | pH | Helada (el fruto se ablanda y cae) | FIA ([S190](MOTOR_AGRONOMICO.md#s190), [S191](MOTOR_AGRONOMICO.md#s191)) |
+| Saúco | pH; helada de primavera (informa) | pH; helada de primavera (informa) | Helada (informa: no es sensible) | Vermont ([S192](MOTOR_AGRONOMICO.md#s192)), Missouri ([S193](MOTOR_AGRONOMICO.md#s193)) y PFAF ([S188](MOTOR_AGRONOMICO.md#s188)) |
+| Albahaca | Helada (no la tolera); frío bajo 50 °F (informa) | Igual | Igual | INIA, Boletín 165 ([S36](MOTOR_AGRONOMICO.md#s36)); South Dakota State ([S194](MOTOR_AGRONOMICO.md#s194)) |
+| Ciboulette | Helada leve (informa) y bajo 28 °F | Igual | Igual | South Dakota State ([S194](MOTOR_AGRONOMICO.md#s194)) |
+| Cilantro | pH; helada leve y bajo 28 °F | pH; helada leve y bajo 28 °F | Calor sostenido sobre 90 °F | [Analogía](MOTOR_AGRONOMICO.md#analogia) con perejil (misma familia, Apiáceas de hoja) |
+| Orégano | pH; helada (informa: la tolera) | Igual | Helada (informa) | UC IPM ([S195](MOTOR_AGRONOMICO.md#s195)) |
+| Haskap | — | — | — | **Retirado** del catálogo: ver nota más abajo |
+
+**Especie retirada (sin fuente propia ni analogía válida en alguna etapa):**
+
+- **Haskap.** El pH (5 a 7, University of Saskatchewan) y la helada en flor (resiste −7 °C abierta; Utah State, 19 °F; NDSU, 17 °F) tenían fuente propia. Para cosecha se revisaron University of Saskatchewan («Growing Haskap in Canada» y «How far south can Haskap be grown?», que indica que la botritis no afecta a la fruta en la planta), Utah State, University of Alaska Fairbanks, NDSU, la ficha de jardinería de USask y PFAF: ninguna documenta un efecto de lluvia, helada o calor sobre la fruta cerca de la cosecha. USDA Handbook 66 no tiene fila de haskap. Sin especie similar en el catálogo (es el único *Lonicera* y ninguna otra especie es Caprifoliáceas). Se retira completa.
+
+**Notas de la investigación.** USDA Handbook 66 (vía University of Maine, [S120](MOTOR_AGRONOMICO.md#s120)) tiene filas de frambuesa, mora, «Currants» (sin distinguir roja ni negra) y «Gooseberries», pero no de arándano rojo ni de saúco (este último sin punto de congelación). Para los berries nativos (maqui, murtilla, calafate y michay) no se encontró una cifra institucional chilena de daño por helada en temporada: INIA, FIA, INFOR y las tesis revisadas son cualitativas. Por eso se usan las fichas de PFAF, como en caigua y locoto, declarando su alcance. Las fichas de pfnm.cl (INFOR) no se pudieron usar porque el sitio sólo responde por http. En saúco y orégano, la helada en cosecha es sólo informativa: las fuentes describen una planta tolerante, no un riesgo para la fruta o la hoja.
+
+#### ES8.D. Agente D — cultivos, forrajeras y forestales
+
+| Especie | Primero buscar | Analogía candidata |
+| --- | --- | --- |
+| Trigo | INIA (manuales de trigo); Kansas State University, «Spring Freeze Injury to Kansas Wheat» (temperaturas críticas por estado: encañado, espigadura, floración); lluvia en cosecha (brotación en espiga) | — |
+| Cebada, avena, triticale | INIA; tablas de helada por estado de extensión (NDSU, University of Minnesota) | Trigo (misma tribu Triticeae; triticale es trigo × centeno) |
+| Arroz | INIA Quilamapu: frío en floración (esterilidad de espiguillas bajo un umbral documentado) | — |
+| Raps (*Brassica napus*) | INIA; Canola Council of Canada (helada en floración y en madurez) | — |
+| Remolacha azucarera | IANSA, INIA; extensión de NDSU y University of Minnesota (helada) | Betarraga o acelga (misma especie botánica) |
+| Soya | Extensión de Iowa State y University of Nebraska (helada por estado) | Poroto (misma familia, leguminosa de grano) |
+| Lupino | INIA (lupino australiano y blanco) | Haba o arveja (misma familia) |
+| Achicoria (*Cichorium intybus*) | Achicoria industrial: INIA, Orafti/Beneo; extensión | Lechuga (misma familia), con la diferencia de órgano declarada |
+| Alfalfa | INIA; UC ANR, University of Wisconsin (pH, helada en rebrote, lluvia sobre heno cortado) | — |
+| Ballica | INIA; Oregon State (ryegrass) | — |
+| Col forrajera (*Brassica oleracea*) | Extensión forrajera de brásicas | Repollo (misma especie botánica) |
+| Trébol rosado | INIA; extensión forrajera (pH, helada) | Alfalfa (misma familia), si tiene fuente propia |
+| Pino radiata | INFOR, CONAF y Universidad de Concepción (helada y calor en plantaciones) | — |
+| Eucalipto (*E. globulus*, *E. nitens*) | INFOR, CSIRO (tolerancia a helada por especie: *E. nitens* más tolerante) | — |
+
+| Especie | Vegetativo | Floración | Cosecha | Fuente o analogía |
+| --- | --- | --- | --- | --- |
+| Trigo | Helada (24 °F, encañado) | Helada (30 °F, esterilidad) | Helada (28 °F, grano lechoso o pastoso) | Kansas State, C-646 ([S240](MOTOR_AGRONOMICO.md#s240)) |
+| Cebada | Helada leve (informa) y bajo −6 °C | Helada bajo 28 °F (fin de bota a floración) | Helada (28 °F) | Manitoba ([S241](MOTOR_AGRONOMICO.md#s241)) y NDSU ([S242](MOTOR_AGRONOMICO.md#s242)); cosecha por analogía con trigo (tribu Triticeae) |
+| Avena | Helada leve (informa) y bajo −6 °C | Helada (32 °F, esterilidad) | Helada (28 °F) | Manitoba ([S241](MOTOR_AGRONOMICO.md#s241)) y California Agriculture ([S243](MOTOR_AGRONOMICO.md#s243)); cosecha por analogía con trigo (familia de las gramíneas) |
+| Triticale | Helada (24 °F) | Helada (30 °F) | Helada (28 °F) | Las tres por analogía con trigo (híbrido de trigo y centeno) |
+| Arroz | Frío bajo 9 °C (informa) | Frío de 40 °F o menos; calor sobre 35 °C | Frío bajo 12 °C (informa) | INIA ([S244](MOTOR_AGRONOMICO.md#s244), [S245](MOTOR_AGRONOMICO.md#s245)) y California Agriculture ([S243](MOTOR_AGRONOMICO.md#s243)) |
+| Raps | Helada leve (informa) y bajo 24 °F | Helada (informa: aborta flores abiertas) | Helada bajo −2 °C y bajo −5 °C | NDSU ([S246](MOTOR_AGRONOMICO.md#s246), [S247](MOTOR_AGRONOMICO.md#s247)) y Canola Council ([S248](MOTOR_AGRONOMICO.md#s248)) |
+| Soya | Helada (32 °F, hojas) y bajo 30 °F | Igual | Igual (sin daño después de R7) | NDSU ([S249](MOTOR_AGRONOMICO.md#s249)) |
+| Remolacha azucarera | pH; helada leve y bajo 28 °F | pH; helada leve y bajo 28 °F | Helada leve y bajo 28 °F | pH: Purdue ([S250](MOTOR_AGRONOMICO.md#s250)); helada por analogía con betarraga (misma especie botánica) |
+| Lupino | pH | pH; calor de 80 °F o más; frío bajo 50 °F (informa) | Calor de 80 °F o más (llenado de vainas) | Oregon State, EM 8834 ([S251](MOTOR_AGRONOMICO.md#s251)) |
+| Achicoria | pH; helada en plántula | pH | Helada (baja la calidad de la inulina) | Ministerio de Agricultura de Ontario ([S252](MOTOR_AGRONOMICO.md#s252)) |
+| Alfalfa | Helada leve (informa) y bajo 24 °F | Igual | Lluvia sobre el forraje cortado | Penn State ([S253](MOTOR_AGRONOMICO.md#s253)), South Dakota State ([S254](MOTOR_AGRONOMICO.md#s254)) y Wisconsin ([S255](MOTOR_AGRONOMICO.md#s255)) |
+| Trébol rosado | pH | pH | Lluvia sobre el forraje cortado | pH: Oregon State ([S256](MOTOR_AGRONOMICO.md#s256)); cosecha por analogía con alfalfa (leguminosas forrajeras que se henifican) |
+| Ballica | pH | pH | Lluvia sobre el forraje cortado | Pacific Northwest Extension ([S257](MOTOR_AGRONOMICO.md#s257)) y Penn State ([S258](MOTOR_AGRONOMICO.md#s258)) |
+| Col forrajera | pH; helada leve y bajo 10 °F | Igual | Helada leve y bajo 10 °F | Mississippi State ([S259](MOTOR_AGRONOMICO.md#s259)) y Wisconsin ([S260](MOTOR_AGRONOMICO.md#s260)) |
+| Eucalipto | Helada de −7,1 °C o menos (daño grave) | Igual | Igual | Universidad de Concepción ([S261](MOTOR_AGRONOMICO.md#s261)) e INFOR ([S262](MOTOR_AGRONOMICO.md#s262)) |
+| Pino radiata | Helada de −3 °C o menos (plantas jóvenes) | Igual | Igual | Colegio de Postgraduados, Revista Chapingo ([S263](MOTOR_AGRONOMICO.md#s263)) |
+
+**Notas de la investigación.** Sólo el trigo tiene una tabla de temperaturas por estado con fuente propia; para cebada y avena hay cifras propias en vegetativo y floración, y el llenado de grano usa la tabla del trigo. Penn State ubica a la avena y la cebada como menos rústicas que el trigo y al triticale como más rústico: la analogía es cauta para el triticale, y en la avena se declara que el daño podría empezar antes. En arroz, las temperaturas críticas de INIA son medias diarias y el pronóstico compara mínimas, por eso esos criterios sólo informan. Los criterios de forestales cubren las tres etapas con el daño documentado para el árbol, como en palto. La ballica usa la guía de *Lolium multiflorum*; la de *L. perenne* puede diferir.
+
+#### ES8.2. Integración — la hace el coordinador
+
+- [x] Citas verificadas sobre el texto descargado de cada fuente (no sobre el resumen de un buscador). Los criterios de umbral bajo que se cumplirían casi todas las noches (arroz bajo 9 y 12 °C, albahaca bajo 10 °C, lupino bajo 10 °C) quedan como `info`.
+- [x] Listas `PENDIENTES_*` vacías; el haskap, retirado de `SPECIES` y con su nombre de fuente en `EXCLUDED_SOURCE_NAMES`. Las pruebas que usaban el trigo como especie sin criterios ahora comprueban que todo el catálogo tiene perfil y que la presentación declara los criterios de la especie.
+- [x] El constructor de helada en cosecha con USDA Handbook 66 (`harvestFreeze`) pasó del archivo de frutales a `speciesRuleKit.ts`, porque lo usan también los berries.
+- [x] `SPECIES_RULES_VERSION` en `2.9.0` y `SPECIES_CATALOG_VERSION` en `2.2.0`; avance de ES6 y tabla del §1 actualizados.
+- [x] `npm test` (380 pruebas), `npm run type-check` y `python docs/verificar_documentacion.py`, sin errores.
+- [ ] Recorrido en teléfono: elegir una especie de ES8 por analogía (por ejemplo, triticale) y una con criterio sólo informativo (por ejemplo, orégano) y comprobar el detalle técnico.
 
 ## 3. E1 — Calidad y contratos
 
@@ -343,6 +607,6 @@ python docs/verificar_documentacion.py
 
 El verificador incluye esta tarea y la especificación. Las pruebas de calidad de entrada y del servicio climático pertenecen al comando habitual de la app. E1.1/E1.2 no requieren dependencias ni migraciones nuevas.
 
-**Resultados de verificación del incremento:** `npm test` aprobó la suite completa (368 pruebas) y `npm run type-check` terminó sin errores; el verificador documental, con 0 errores. Las pantallas se revisaron en un teléfono Android mediante Expo Go con lecturas simuladas y el pronóstico real de Open-Meteo. Son comprobaciones de software, no ensayos con la sonda.
+**Resultados de verificación del incremento:** `npm test` aprobó la suite completa (370 pruebas, 18 de octubre de 2026) y `npm run type-check` terminó sin errores; el verificador documental, con 0 errores. Las pantallas se revisaron en un teléfono Android mediante Expo Go con lecturas simuladas y el pronóstico real de Open-Meteo. Son comprobaciones de software, no ensayos con la sonda.
 
 **Revisión pendiente fuera de las pruebas automatizadas:** ejecución en teléfono y proveedor real. No se declara validación de terreno, precisión instrumental ni cierre completo de E1.

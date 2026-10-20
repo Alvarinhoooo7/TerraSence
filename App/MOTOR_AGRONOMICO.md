@@ -343,7 +343,9 @@ El catálogo separa dos cosas que crecen a ritmos distintos:
 - **Lista de especies:** identidad (ID estable, nombre de Chile, nombre científico, grupo y sinónimos de búsqueda). Es la que ve el selector y puede ser amplia desde el inicio, porque no afirma ningún parámetro.
 - **Perfil con criterios:** los umbrales por etapa y forma de establecimiento, cada uno con su fuente. Crece con la curación de la sección 7.5.
 
-Una especie de la lista sin criterios habilitados para la etapa elegida se puede seleccionar, y el resultado lo dice expresamente: se muestra el análisis general y se indica que aún no hay criterios propios de esa especie para esa etapa. Nunca se rellena con valores de otra especie, del grupo ni de un promedio. El selector no marca como «con perfil» una especie que no lo tiene.
+Una especie de la lista sin criterios habilitados para la etapa elegida se puede seleccionar, y el resultado lo dice expresamente: se muestra el análisis general y se indica que aún no hay criterios propios de esa especie para esa etapa. El selector no marca como «con perfil» una especie que no lo tiene. Desde ES8 ninguna especie del catálogo está en esa situación en vegetativo, floración o cosecha, porque la que no logra criterios en las tres etapas se retira ([§7.1](#analogia)); el aviso se conserva como resguardo.
+
+<a id="analogia"></a>**Criterio por analogía.** Cuando ninguna fuente técnica documenta a la especie para un criterio, se admite el criterio documentado de una **especie similar**: la misma especie botánica o un cultivo del mismo género y, en su defecto, de la misma familia y con el mismo órgano cosechado y la misma sensibilidad. La analogía se declara siempre: el criterio indica de qué especie proviene (`scope: 'analog'`, `analogOf`), conserva la fuente y la cifra originales de esa especie, y explica la semejanza en sus limitaciones, que el detalle técnico muestra. Una analogía no se encadena: la especie de origen debe tener ese criterio con fuente propia. Nunca se usan promedios de grupo ni cifras sin fuente. Esta regla prioriza la cobertura de todo el catálogo en vegetativo, floración y cosecha (decisiones del 18 y 19 de octubre de 2026); la fuente propia, cuando aparece, reemplaza a la analogía. Una especie que no logra fuente propia ni especie similar para las tres etapas **se retira del catálogo**: no queda a medias. Sus nombres pasan a las exclusiones de la lista de especies, con ese motivo.
 
 El catálogo contiene hechos documentados, no textos generados sin fuente. Información descriptiva puede mantenerse para comprensión, pero no se convierte en una regla ejecutable si faltan condiciones de aplicación. La identidad botánica y los sinónimos se revisan antes de consolidar IDs; nombres amplios como «hortalizas de hoja» no heredan automáticamente el perfil de lechuga.
 
@@ -388,9 +390,9 @@ Este inventario define alcance de investigación, **no una lista ya implementada
 | Otros perennes | Nogal, avellano europeo, olivo, limonero, naranjo | Horizonte largo y necesidad de evidencia específica | [S16](#s16), [S20](#s20) como rutas, no aprobación de aptitud |
 | Coberturas, extensión posterior | Avena de cobertura, vicia, trébol | Finalidad, manejo y compatibilidad no se infieren de sensores | [S11](#s11) para localizar perfiles; habilitar sólo con reglas propias |
 
-No fijar una cuota de especies que obligue a inventar parámetros. El primer catálogo operativo debe priorizar perfiles con mejor evidencia y utilidad local; los candidatos incompletos permanecen fuera de las sugerencias activas.
+La cobertura de criterios comprometida es total para **todo el catálogo** en vegetativo, floración y cosecha: cada especie tiene al menos un criterio evaluable por etapa, con fuente propia o, en su defecto, por [analogía declarada](#analogia). Nunca se alcanza con cifras sin fuente: la especie que no se puede cubrir se retira del catálogo. Pre-siembra queda fuera de esta meta, porque ahí el motor sugiere qué sembrar en vez de evaluar una especie elegida. El primer catálogo operativo debe priorizar perfiles con mejor evidencia y utilidad local; los candidatos incompletos permanecen fuera de las sugerencias activas.
 
-**Cobertura comprometida de la lista de especies:** hortalizas y frutales deben quedar completos respecto de lo que se cultiva y comercializa en Chile. La lista se construye desde estadísticas oficiales de superficie y comercialización (encuestas de hortalizas, catastros frutícolas y precios de mercados mayoristas), no desde una selección a criterio; la fuente y su fecha quedan registradas junto a la versión del catálogo. Aromáticas, especies ornamentales, forestales y otros árboles se incorporan con cobertura parcial y la lista no se presenta como exhaustiva en esos grupos. Esta cobertura es de **nombres**: la cobertura de criterios por etapa se informa aparte y nunca se infiere de que la especie esté en la lista.
+**Cobertura comprometida de la lista de especies:** hortalizas y frutales deben quedar completos respecto de lo que se cultiva y comercializa en Chile, salvo las especies retiradas por no tener criterios ([§7.1](#analogia)), que quedan como exclusiones con motivo. La lista se construye desde estadísticas oficiales de superficie y comercialización (encuestas de hortalizas, catastros frutícolas y precios de mercados mayoristas), no desde una selección a criterio; la fuente y su fecha quedan registradas junto a la versión del catálogo. Aromáticas, especies ornamentales, forestales y otros árboles se incorporan con cobertura parcial y la lista no se presenta como exhaustiva en esos grupos. Esta cobertura es de **nombres**: la cobertura de criterios por etapa se informa aparte y nunca se infiere de que la especie esté en la lista.
 
 ### 7.4. Evidencia concreta localizada
 
@@ -841,6 +843,7 @@ No se requiere una dependencia nueva para calcular DPV o evaluar tablas. Antes d
 
 - Sin nuevos datos obligatorios del agricultor. La etapa es obligatoria; la especie es opcional, sólo en vegetativo, floración y cosecha, y se guarda por medición.
 - Catálogo separado de los riesgos ambientales generales; la lista de especies no implica perfil con criterios.
+- Cobertura total del catálogo en vegetativo, floración y cosecha; sin fuente propia se admite el criterio de una especie similar, siempre declarado, y la especie que no tiene ni lo uno ni lo otro se retira del catálogo ([§7.1](#analogia)).
 - Medición local, derivado local, pronóstico y reanálisis identificados por separado.
 - No asignar una especie ni textura a partir de sugerencias o inferencias.
 - Reglas explicables; límite importante no compensado por promedios de conveniencia.
@@ -1103,3 +1106,205 @@ Consulta documental: 10 de octubre de 2026. Los enlaces respaldan el aspecto ind
 
 <a id="s78"></a>
 **S78 — California Avocado Commission, Effects of Freezes on Avocado Trees.** [Guía cultural](https://californiaavocadogrowers.com/cultural-management-library/effects-freezes-avocado-trees/). Documenta daño en ramas y flores de palto Hass desde 29 °F (−1,7 °C).
+
+<a id="s79"></a>
+**S79 — University of Illinois Extension y Utah State University Extension, nectarino.** [HortAnswers: Nectarine](https://web.extension.illinois.edu/hortanswers/plantdetail.cfm?PlantID=628&PlantTypeID=11) y [Peach/Nectarine Growth Stages and Critical Temperatures](https://intermountainfruit.org/cold-effects/peach-nectarine-stages). pH preferido de 6,0 a 6,5 para nectarino y temperaturas críticas en plena floración de duraznero y nectarino: 10 % de daño a 27 °F (−2,8 °C) y 90 % a 24 °F (−4,4 °C).
+
+<!-- ES7.A: fuentes S80–S119 (agente A, hortalizas). Agregar aquí, en orden. -->
+
+<a id="s80"></a>
+**S80 — Nebraska Extension y South Dakota State University Extension, acelga («chard»/«Swiss chard»).** [Frost – Cold Temperatures Bring an End to the Gardening Season](https://lancaster.unl.edu/frost-cold-temperatures-bring-end-gardening-season/) y [Fall Frost Tolerance of Common Vegetables](https://extension.sdstate.edu/fall-frost-tolerance-common-vegetables). «Chard» figura en la categoría de tolerancia a heladas leves (28 a 32 °F) de ambas fuentes, corroborando la clasificación de INIA.
+
+<a id="s81"></a>
+**S81 — INIA, Boletín N° 411 «Pimiento y Ají».** [Capítulo 3, Pimiento y Ajíes](https://biblioteca.inia.cl/items/85dd96ba-1f61-4bf2-9c06-42f32b0d0dbb) (texto consultado desde el [bitstream de la biblioteca digital](https://biblioteca.inia.cl/server/api/core/bitstreams/d3f598fb-0bfb-438d-a45a-3ca1449e271c/content)). Único párrafo que nombra al ají junto al pimiento como «cultivos muy susceptibles a las heladas»; no da una cifra exacta en °C.
+
+<a id="s82"></a>
+**S82 — Plants For A Future (PFAF), Capsicum pubescens (locoto/rocoto).** [Ficha de la especie](https://pfaf.org/user/Plant.aspx?LatinName=Capsicum+pubescens). Documenta tolerancia a heladas de hasta al menos −5 °C, más frío que el resto de los Capsicum cultivados; no se localizó un equivalente institucional chileno para esta especie andina.
+
+<a id="s83"></a>
+**S83 — INIA Intihuasi, Boletín N° 165, y South Dakota State University Extension, ajo.** [Efectos de las heladas en la agricultura](https://biblioteca.inia.cl/items/475bd934-243f-4f91-8e24-ec7b98eed311) y [Fall Frost Tolerance of Common Vegetables](https://extension.sdstate.edu/fall-frost-tolerance-common-vegetables). INIA clasifica al ajo entre las especies que toleran heladas; SDSU lo incluye («Garlic») en su categoría de helada leve (28 a 32 °F).
+
+<a id="s84"></a>
+**S84 — INIA Ururi, Informativo N° 56, «Cultivo de alcachofa».** [Texto del informativo](https://biblioteca.inia.cl/server/api/core/bitstreams/1ef0227a-e782-4c14-b12f-50ac6fbd1e03/content). Único manual agroclimático chileno específico de alcachofa: pH entre 6,4 y 6,8; estructuras aéreas destruidas entre −2 y −4 °C (daño permanente de estructuras subterráneas a −10 °C); temperaturas sobre 24 °C en la formación de la cabezuela inducen fibrosidad y apertura de brácteas.
+
+<a id="s85"></a>
+**S85 — Plants For A Future (PFAF), Cyclanthera pedata (caigua).** [Ficha de la especie](https://pfaf.org/user/Plant.aspx?LatinName=Cyclanthera+pedata). La describe como sensible a la helada («frost tender») sin dar una temperatura exacta de daño; se usa 0 °C como definición de helada.
+
+<a id="s86"></a>
+**S86 — INIA Intihuasi, Boletín N° 165, aborto floral del haba.** [Efectos de las heladas en la agricultura](https://biblioteca.inia.cl/items/475bd934-243f-4f91-8e24-ec7b98eed311). Señala el aborto floral por helada como un daño de especial importancia en habas y arvejas en floración, y clasifica al haba entre las especies que se dañan cerca de la madurez.
+
+<a id="s87"></a>
+**S87 — INIA Intihuasi, Boletín N° 165, pepino dulce.** [Efectos de las heladas en la agricultura](https://biblioteca.inia.cl/items/475bd934-243f-4f91-8e24-ec7b98eed311). Distingue al pepino dulce del tomate: mientras el tomate tolera hasta −2 °C por un corto tiempo, el pepino dulce, la sandía y el melón no son capaces de tolerar 0 °C.
+
+<!-- ES7.B: fuentes S120–S179 (agente B, frutales). Agregar aquí, en orden. -->
+
+<a id="s120"></a>
+**S120 — University of Maine Cooperative Extension, Bulletin #4135 «Storage Conditions: Fruits and Vegetables».** [Boletín](https://extension.umaine.edu/publications/4135e/) (K. L. B. Gast, reimpreso de Kansas State University Cooperative Extension Service, 2001). Reproduce la tabla 1 de punto de congelación de frutas de Hardenburg, Watada y Wang (1986), USDA Agriculture Handbook N.° 66: manzana 29,3 °F, pera 29,2 °F, damasco 30,1 °F, guindo (cereza ácida) 29,0 °F y membrillo 28,4 °F. Se usa como helada sobre la fruta ya cosechada, de referencia para la fruta todavía en maduración.
+
+<a id="s121"></a>
+**S121 — USDA Agricultural Research Service, Agriculture Handbook 66, capítulo «Almond».** [Manual completo](https://www.ars.usda.gov/arsuserfiles/oc/np/commercialstorage/commercialstorage.pdf) (J. M. Labavitch, University of California, Davis). Documenta que las lluvias tardías de temporada amenazan con retrasar la cosecha de almendra, por lo que a veces se seca fuera del huerto en vez de en el suelo.
+
+<a id="s122"></a>
+**S122 — Oregon State University Extension Service, FS 146 «Harvesting, Handling, and Storing Nuts from the Home Orchard».** [Boletín](https://extension.oregonstate.edu/sites/extd8/files/documents/12281/harvesting-handling-storing-nuts.pdf) (J. Olsen y C. Raab, 2013). Indica juntar todas las avellanas caídas antes de que empiecen las lluvias de otoño, si es posible.
+
+<a id="s123"></a>
+**S123 — Oregon State University Extension Service, EM 9080 «Growing Hazelnuts in the Pacific Northwest: Orchard Nutrition».** [Boletín](https://extension.oregonstate.edu/catalog/em-9080-growing-hazelnuts-pacific-northwest-orchard-nutrition) (J. Olsen, 2013). Indica encalar el suelo de avellano europeo cuando el pH baja de 5,6.
+
+<a id="s124"></a>
+**S124 — University of Florida IFAS Extension, «Florida Plant Disease Management Guide: Guava» (PP-232/PG133).** [Publicación](https://ask.ifas.ufl.edu/publication/PG133) (R. Gazis, J. Crane y J. Wasielewski). Documenta que los síntomas de antracnosis aparecen durante la maduración del fruto de guayaba, causando pérdidas poscosecha, y que sus esporas se dispersan con el salpicado de la lluvia.
+
+<a id="s125"></a>
+**S125 — University of Hawaii, College of Tropical Agriculture and Human Resources (CTAHR), «Macadamia: Hawaii's Dessert Nut».** [Publicación](https://scholarspace.manoa.hawaii.edu/server/api/core/bitstreams/aece501e-c547-4d0e-a207-aa5f04363809/content) (R. A. Hamilton, P. J. Ito y C. L. Chia). Indica juntar las nueces de macadamia caídas antes de que se enmohezcan, germinen o se vuelvan rancias; en tiempo lluvioso cada 2 a 3 semanas, en tiempo seco una vez al mes.
+
+<a id="s126"></a>
+**S126 — University of Florida IFAS Extension, «Some Common Diseases of Mango in Florida» (PP23).** [Publicación](https://ufdcimages.uflib.ufl.edu/IR/00/00/28/58/00001/VH04800.pdf) (K. Pernezny y R. B. Marlatt). La antracnosis del mango es más grave en años con lluvia y rocío frecuentes entre la floración y la fruta de medio tamaño; el hongo queda latente hasta que la fruta madura, cuando aparecen las manchas de pudrición.
+
+<a id="s127"></a>
+**S127 — University of California Cooperative Extension (Kings County), «Walnut Nutrition: How to Develop a Balanced Program».** [Presentación](https://ucanr.edu/sites/default/files/2013-02/161801.pdf) (R. H. Beede). Documenta el efecto del pH del suelo en la disponibilidad de nutrientes del nogal: sobre 7,5 baja la de Zn, Cu, Mn y Fe; bajo 6,0 baja la de P, Ca y B.
+
+<a id="s128"></a>
+**S128 — University of California Cooperative Extension (Kings County), «Pistachio Micronutrient Management».** [Presentación](https://ucanr.edu/sites/default/files/2017-11/274450.pdf) (R. H. Beede). El mismo efecto del pH del suelo en la disponibilidad de nutrientes (S127), aplicado al pistacho.
+
+<a id="s129"></a>
+**S129 — FAO, «Prevention of aflatoxin in pistachios».** [Publicación](https://www.fao.org/4/w9474t/w9474t06.htm). Indica que cuando la cosecha de pistacho se realiza con clima seco la contaminación por micotoxinas no suele alcanzar niveles alarmantes, y que se vuelve un problema cuando la cosecha se hace con clima muy húmedo.
+
+<a id="s130"></a>
+**S130 — University of California Statewide IPM Program (UC IPM), «Walnut - Molds».** [Página](https://ipm.ucanr.edu/PMG/GARDEN/FRUIT/ENVIRON/walnutmold.html). El moho de la nuez se desarrolla rápido en condiciones cálidas y húmedas; recomienda proteger la cáscara y cosechar y secar la nuez rápidamente.
+
+<a id="s131"></a>
+**S131 — FAO, ECOCROP Data Sheet 8912, Pouteria lucuma (campo «Temperat. requir.»).** [Ficha](https://ecocrop.apps.fao.org/ecocrop/srv/en/dataSheet?id=8912). Documenta un requerimiento de temperatura óptimo de 21 a 27 °C y absoluto de 11 a 36 °C para el lúcumo, sin distinguir por etapa.
+
+<a id="s132"></a>
+**S132 — FAO, Date Palm Cultivation (A. Zaid y P. F. de Wet), sección «Rain effect».** [Documento](https://www.fao.org/4/y4360e/y4360e08.htm). La lluvia justo después de la polinización lava el polen de la palmera datilera; en las etapas rutab y tamar (dátil maduro) la lluvia y la humedad asociada causan daño severo, incluida pudrición y caída del fruto.
+
+Las combinaciones cubiertas por [analogía](#analogia) (membrillo y pera asiática desde peral; pluot desde ciruelo; tangelo desde mandarino) reutilizan la evidencia y la cifra ya citadas en S41–S79 para esas especies de origen; el detalle está en la tabla de [ES7.B](TASK_MOTOR_AGRONOMICO.md#es7b-agente-b--frutales).
+
+Castaño, jojoba y tuna se retiran del catálogo de frutales por falta de fuente propia o analogía válida para alguna etapa, tras la búsqueda documentada en [ES7.B](TASK_MOTOR_AGRONOMICO.md#es7b-agente-b--frutales).
+
+<!-- ES8.C: fuentes S180–S239 (agente C, berries y aromáticas). Agregar aquí, en orden. -->
+
+<a id="s180"></a>
+**S180 — INIA e INDAP, Manual de manejo agronómico del frambueso (Boletín INIA N° 372).** [Texto del boletín](https://biblioteca.inia.cl/server/api/core/bitstreams/1237ffdb-2623-4b6f-ae8b-beccafc46e1d/content). Cuadro 7.2: pH adecuado 6,0–7,0 en suelos franco-arenosos a franco-limosos y 5,8–6,8 en franco-limosos a franco-arcillosos. Capítulo 3, p. 24: en floración tolera −1,3 °C con botón cerrado y −0,7 °C con flor abierta y fruto recién formado. Apartado 9.2: la pudrición gris es la principal enfermedad de la fruta y sus esporas se diseminan con las gotas de lluvia.
+
+<a id="s181"></a>
+**S181 — Penn State Extension, Frost and Freeze Damage on Berry Crops, frambuesa.** [Artículo](https://extension.psu.edu/frost-and-freeze-damage-on-berry-crops). Daño observado en flores abiertas de frambuesa con temperaturas apenas bajo 0 °C; la autora estima la temperatura crítica entre 30 y 32 °F. Corrobora la cifra de INIA ([S180](#s180)).
+
+<a id="s182"></a>
+**S182 — NC State Extension, Southeast Regional Caneberry Production Guide, capítulo 11 «Fertility Management».** [Capítulo](https://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/fertility-management). pH óptimo 6,0–6,5 para caneberries (mora y frambuesa); encalar si está bajo ese rango.
+
+<a id="s183"></a>
+**S183 — NC State Extension, Southeast Regional Caneberry Production Guide, capítulo 5 «Plant Growth».** [Capítulo](https://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/plant-growth). En cámara de crecimiento, las flores de mora mueren a 27 °F en todos sus estados (botón cerrado, botón hinchado y flor abierta).
+
+<a id="s184"></a>
+**S184 — University of Massachusetts Amherst, Cranberry Station, Frost Protection Guide (1998).** [Ficha](https://www.umass.edu/agriculture-food-environment/cranberry/fact-sheets/frost-protection-guide-1998). Tolerancia del arándano rojo por estado de la yema: desde el brote de más de media pulgada, temperaturas bajo 30 °F dañan hojas nuevas y flores; los frutos verdes recién formados también son sensibles.
+
+<a id="s185"></a>
+**S185 — University of Massachusetts Amherst, Cranberry Station, Frost Tolerances of Cranberry Fruit (2019).** [Ficha](https://www.umass.edu/agriculture-food-environment/cranberry/fact-sheets/frost-tolerances-of-cranberry-fruit-2019). Tolerancia de la fruta según el color: 28 °F blanca a levemente coloreada, 27 °F con color en la cara expuesta, 26 °F con color en toda la fruta y 25 °F roja.
+
+<a id="s186"></a>
+**S186 — Gobierno de Columbia Británica (Canadá), Ministerio de Agricultura, Currant and gooseberry production guide.** [Guía](https://www2.gov.bc.ca/gov/content/industry/agriculture-seafood/animals-and-crops/crop-production/berries/berry-production-guides/currant-gooseberry). pH óptimo 5,5–6,5 para grosellas y zarzaparrillas (*Ribes*); encalar bajo 5,5. La helada en cosecha usa además las filas «Gooseberries» (30,0 °F) y «Currants» (30,2 °F) de [S120](#s120), que también da frambuesa (30,0 °F) y mora (30,5 °F).
+
+<a id="s187"></a>
+**S187 — Universidad de Talca, Maqui: experiencias en domesticación desde la Región del Maule (seminario de productos forestales no madereros de INFOR, 2018).** [Presentación](https://www.infor.cl/images/pdf/Seminario_PFNM_2018/Maqui_Experiencias_en_domesticaci%C3%B3n_desde_la_Regi%C3%B3n_del_Maule.pdf). Entre los requerimientos para cultivar maqui: «sensibles a las heladas en época productiva». No da una temperatura.
+
+<a id="s188"></a>
+**S188 — Plants For A Future (PFAF), fichas de maqui, murtilla, calafate, michay y saúco.** [Aristotelia chilensis](https://pfaf.org/user/Plant.aspx?LatinName=Aristotelia+chilensis), [Ugni molinae](https://pfaf.org/user/Plant.aspx?LatinName=Ugni+molinae), [Berberis buxifolia](https://pfaf.org/user/Plant.aspx?LatinName=Berberis+buxifolia) (sinónimo de *B. microphylla*), [Berberis darwinii](https://pfaf.org/user/Plant.aspx?LatinName=Berberis+darwinii) y [Sambucus nigra](https://pfaf.org/user/Plant.aspx?LatinName=Sambucus+nigra). Maqui y murtilla, sensibles a la helada («frost tender»; la murtilla tolera cerca de −10 °C sólo en receso y su brote de primavera se daña con heladas tardías); calafate y michay, no sensibles y rústicos hasta cerca de −15 °C; saúco, no sensible. Base de datos de plantas útiles, aceptada para especies sin fuente institucional como en [S82](#s82).
+
+<a id="s189"></a>
+**S189 — FIA e INIA, Manual técnico de producción de la murtilla (resumen en OPIA, 2017).** [Artículo](https://opia.fia.cl/601/w3-article-81742.html). En 36 sitios muestreados por INIA la murtilla crece en forma natural en suelos de pH 5,6 a 6,0; las variedades INIA se recomiendan para zonas libres o de baja ocurrencia de heladas.
+
+<a id="s190"></a>
+**S190 — FIA, Resultados y lecciones en cultivo de rosa mosqueta (Serie Experiencias de Innovación N° 20, 2008).** [Documento](https://opia.fia.cl/601/articles-75533_archivo_01.pdf). Anexo 1: se desarrolla bien en suelos delgados y pobres de pH 6 a 6,5.
+
+<a id="s191"></a>
+**S191 — FIA, Rosa mosqueta: cuaderno para recolectoras y recolectores (2018).** [Cuaderno](https://www.fia.cl/wp-content/uploads/2018/04/Rosa-Mosqueta.pdf). Los frutos maduros se mantienen en la planta, pero tras las primeras heladas se ablandan y comienzan a caer.
+
+<a id="s192"></a>
+**S192 — University of Vermont Extension, Growing Elderberries: A Production Manual and Enterprise Viability Guide (2016).** [Manual](https://www.uvm.edu/d10-files/documents/2025-02/ElderberryGuideComplete.pdf). «Fertility Management», p. 17: ajustar el pH a 5,5–6,5 antes de plantar.
+
+<a id="s193"></a>
+**S193 — University of Missouri Center for Agroforestry, Growing and Marketing Elderberries in Missouri (AF1016, 2014).** [Guía](https://mastergardener.osu.edu/sites/mgv/files/imce/MISC/Resources/HLL-HHH/2014GrowingElderberryGuide%20(1).pdf). pH 5,5–6,5; el saúco tolera el frío después de la brotación, pero conviene elegir sitios altos para reducir el riesgo de helada de primavera.
+
+<a id="s194"></a>
+**S194 — South Dakota State University Extension, Fall Frost Tolerance of Common Vegetables, albahaca y ciboulette.** Misma publicación que [S28](#s28). Los cultivos de clima cálido pueden sufrir bajo 50 °F y las hojas de albahaca se ennegrecen con temperaturas en los 40 °F; la ciboulette («Chives») figura entre las que resisten heladas leves de 28 a 32 °F. La albahaca usa además la clasificación de INIA como especie que no tolera heladas ([S36](#s36)).
+
+<a id="s195"></a>
+**S195 — UC Statewide IPM Program, Cultural Tips for Growing Oregano.** [Ficha](https://ipm.ucanr.edu/home-and-landscape/cultural-tips-for-growing-oregano/). pH del suelo 6,0–6,5; una vez establecido, el orégano es rústico y tolera la helada; se planta cuando pasó el riesgo de heladas de primavera.
+
+Las combinaciones de cilantro cubiertas por [analogía](#analogia) reutilizan las fuentes del perejil ([S22](#s22), [S28](#s28), [S37](#s37) y [S47](#s47)). El haskap se retira del catálogo de berries por falta de fuente propia o especie similar para la cosecha, tras la búsqueda documentada en [ES8.C](TASK_MOTOR_AGRONOMICO.md#es8c-agente-c--berries-y-aromáticas).
+
+<!-- ES8.D: fuentes S240–S299 (agente D, cultivos, forrajeras y forestales). Agregar aquí, en orden. -->
+
+<a id="s240"></a>
+**S240 — Kansas State University, Spring Freeze Injury to Kansas Wheat (C-646, J. P. Shroyer, M. E. Mikesell y G. M. Paulsen, 1995).** [Publicación](https://bookstore.ksre.ksu.edu/pubs/spring-freeze-injury-to-kansas-wheat_C646.pdf). Tabla 1, para unas dos horas de exposición: macolla 12 °F, encañado 24 °F, bota 28 °F, espigadura y floración 30 °F (esterilidad, efecto severo), grano lechoso y pastoso 28 °F.
+
+<a id="s241"></a>
+**S241 — Gobierno de Manitoba (Canadá), Manitoba Agriculture, Spring Frost Damage Bulletin.** [Boletín](https://www.manitoba.ca/agriculture/crops/crop-management/spring-frost-damage-bulletin.html). Trigo, cebada y avena de primavera toleran hasta −6 °C mientras el punto de crecimiento sigue bajo el suelo, hasta 5 hojas o el encañado.
+
+<a id="s242"></a>
+**S242 — NDSU Extension, Small Grain Damage from Frost Dependent on Many Factors.** [Artículo](https://www.ndsu.edu/agriculture/ag-hub/ag-topics/crop-production/crops/barley/small-grain-damage-frost-dependent-many-factors). De fin de bota a floración la helada daña bajo 28 °F; la cebada es más sensible que el trigo en bota porque florece dentro de ella.
+
+<a id="s243"></a>
+**S243 — University of California, California Agriculture, Effects of cold on cereal crops (C. A. Suneson, agosto de 1964).** [Artículo](https://californiaagriculture.org/article/112987-effects-of-cold-on-cereal-crops.pdf). Daño por helada en espigadura de cebada, trigo, avena y centeno con mínimas de 29 a 35 °F; cerca de 32 °F, esterilidad de las flores masculinas. En arroz, citando a C. R. Adair (USDA), temperatura crítica del aire cercana a 40 °F en los 24 días previos a la espigadura y en la antesis, con alta esterilidad.
+
+<a id="s244"></a>
+**S244 — INIA, 100 años del cultivo del arroz en Chile, capítulo 4 «Clima de las zonas productoras de arroz en el mundo».** [Capítulo](https://ainfo.inia.uy/digital/bitstream/item/16110/1/cap.4-Donoso.pdf). Cuadro 1, adaptado de Yoshida (1981): temperaturas medias críticas por estado; baja de 9–16 °C en macolla, 22 °C en antesis y 12–18 °C en madurez; alta de 35 °C en antesis.
+
+<a id="s245"></a>
+**S245 — INIA, 100 años del cultivo del arroz en Chile, capítulo 15 «Crecimiento y desarrollo de la planta de arroz en Chile».** [Capítulo](https://biblioteca.inia.cl/server/api/core/bitstreams/c7faabeb-9482-4767-b989-aa6d59911d37/content). Bajo 20 °C en el establecimiento se retrasa el crecimiento; sobre 35 °C en floración hay esterilidad; el frío alarga la madurez, la hace irregular y reduce el peso del grano.
+
+<a id="s246"></a>
+**S246 — NDSU Extension, Canola Production (A686, revisado en 2021).** [Publicación](https://www.ndsu.edu/agriculture/sites/default/files/2021-11/a686%20Canola%20Production.pdf). Las plántulas de canola toleran la helada hasta 24 °F.
+
+<a id="s247"></a>
+**S247 — NDSU Extension, Effect of Frost on Flowering Canola.** [Artículo](https://www.ndsu.edu/agriculture/ag-hub/effect-frost-flowering-canola). La helada en floración aborta sólo las flores abiertas, retrasa la madurez y reduce poco el rendimiento.
+
+<a id="s248"></a>
+**S248 — Canola Council of Canada, Fall frost hits canola. What to do?** [Artículo](https://www.canolacouncil.org/canola-watch/fundamentals/fall-frost-hits-canola-what-to-do/). Helada fuerte bajo −2 °C (desgrane, semilla verde); más de −5 °C suele ser letal para la semilla húmeda; con menos de 20 % de humedad la semilla escapa al daño.
+
+<a id="s249"></a>
+**S249 — NDSU Extension, Evaluating Frost Damage in Soybean.** [Artículo](https://www.ndsu.edu/agriculture/ag-hub/ag-topics/crop-production/crops/soybeans/evaluating-frost-damage-soybean). Hojas superiores dañadas con 30–32 °F; bajo 30 °F por un período prolongado mueren tallos y hojas; sin pérdida de rendimiento después de R7.
+
+<a id="s250"></a>
+**S250 — Purdue University, Alternative Field Crops Manual, Sugarbeets (A. W. Cattanach, A. G. Dexter y E. S. Oplinger, 1991).** [Ficha](https://hort.purdue.edu/newcrop/afcm/sugarbeet.html). pH 6,0–8,0; no cultivar bajo 6,0 sin encalar. La helada usa por analogía el criterio de betarraga ([S27](#s27), [S28](#s28), [S36](#s36)).
+
+<a id="s251"></a>
+**S251 — Oregon State University Extension, Dryland Cropping Systems: Narrow-leaf Lupin (EM 8834-E, 2003).** [Publicación](https://extension.oregonstate.edu/sites/extd8/files/documents/em8834.pdf). pH 4,5–7,5, tolera hasta 8,0 con poca cal libre; calor de 80 °F o más en floración o llenado de vainas y frío bajo 50 °F aumentan el aborto floral.
+
+<a id="s252"></a>
+**S252 — Gobierno de Ontario (Canadá), Ministerio de Agricultura, Alimentación y Agronegocios, Chicory - Root (CropOp).** [Ficha](https://www.omafra.gov.on.ca/CropOp/en/indus_misc/pharm/chic.html). Achicoria industrial: pH 6 en suelos livianos y 7 en pesados; plántula sensible a la helada; raíces cosechadas antes de la primera helada, después de la cual baja la calidad de la inulina.
+
+<a id="s253"></a>
+**S253 — Penn State Extension, Spring Freeze Damage in Alfalfa.** [Artículo](https://extension.psu.edu/spring-freeze-damage-in-alfalfa). El punto de crecimiento de la alfalfa se congela con 24 °F o menos por cuatro horas o más; 28 a 32 °F no la dañan.
+
+<a id="s254"></a>
+**S254 — South Dakota State University Extension, Effects of Late Spring Frost on Alfalfa.** [Artículo](https://extension.sdstate.edu/effects-late-spring-frost-alfalfa). Daño menor con temperaturas apenas bajo cero por varias horas y severo bajo 25 °F por cuatro horas o más.
+
+<a id="s255"></a>
+**S255 — University of Wisconsin–Madison Extension, Rain Damage to Forage During Hay and Silage Making (M. Rankin y D. Undersander).** [Publicación](https://fyi.extension.wisc.edu/forage/files/2014/01/Raindam.pdf). La lluvia entre el corte y la cosecha del forraje causa pérdidas de rendimiento y calidad; 22 % de materia seca con una pulgada de lluvia tras un día de secado en alfalfa.
+
+<a id="s256"></a>
+**S256 — Oregon State University Extension, Red Clover (EM 8701, 1998).** [Ficha](https://ir.library.oregonstate.edu/downloads/1r66j149d). pH óptimo 6,6–7,6 y tolerado 4,5–8,2. La lluvia sobre el forraje cortado usa por analogía el criterio de alfalfa ([S255](#s255)).
+
+<a id="s257"></a>
+**S257 — Pacific Northwest Extension, Annual Ryegrass (PNW 501, 1999).** [Publicación](https://ir.library.oregonstate.edu/downloads/mg74qm32g). pH 5,0–7,8 tolerado y 5,5–7,5 óptimo; no se recomienda henificar ballica anual en zonas lluviosas o húmedas.
+
+<a id="s258"></a>
+**S258 — Penn State Extension, Ryegrass.** [Ficha](https://extension.psu.edu/ryegrass). La ballica tiene menos materia seca que otras gramíneas y necesita más tiempo de secado antes de enfardar.
+
+<a id="s259"></a>
+**S259 — Mississippi State University Extension, Forage Brassicas for Winter Grazing Systems.** [Publicación](https://extension.msstate.edu/publications/forage-brassicas-for-winter-grazing-systems). La col forrajera (*Brassica oleracea*) tolera el frío y sobrevive hasta 10 °F; las brásicas requieren pH 5,3–6,8.
+
+<a id="s260"></a>
+**S260 — University of Wisconsin–Madison Extension, Use of Brassica Crops in Grazing Systems.** [Artículo](https://cropsandsoils.extension.wisc.edu/articles/use-of-brassica-crops-in-grazing-systems). Las brásicas mantienen su calidad con temperaturas bajo cero si no han florecido; pH 5,3–6,8.
+
+<a id="s261"></a>
+**S261 — Universidad de Concepción, Resistance to freezing in three Eucalyptus globulus Labill subspecies (Electronic Journal of Biotechnology, vol. 9, n.° 3, 2006).** [Artículo](https://www.ejbiotechnology.info/index.php/ejbiotechnology/article/download/v9n3-24/308). LT50 de plántulas endurecidas de *E. globulus* entre −7,1 °C (procedencias menos resistentes) y menos de −9 °C.
+
+<a id="s262"></a>
+**S262 — INFOR, Desarrollo de una raza local de Eucalyptus globulus tolerante al frío en Chile (B. Gutiérrez y otros).** [Artículo](https://bibliotecadigital.infor.cl/server/api/core/bitstreams/c2654dd7-9a0c-44c5-a47f-85bb20a0dc59/content). Pérdidas de plantaciones de *E. globulus* por heladas incluso en el valle central; *E. nitens*, entre las especies más resistentes al frío.
+
+<a id="s263"></a>
+**S263 — Colegio de Postgraduados (México), Poblaciones de Pinus radiata D. Don difieren en la tolerancia a bajas temperaturas y en la tasa de crecimiento (Revista Chapingo, Serie Ciencias Forestales y del Ambiente, 2020).** [Artículo](https://www.scielo.org.mx/scielo.php?pid=S2007-40182020000300469&script=sci_arttext&tlng=es). Las heladas dañan las plantaciones de pino radiata en plántula; el follaje de plántulas de menos de dos años se deteriora entre −3 y −6 °C en verano y entre −12 y −14 °C en invierno.
+
+Cebada, avena y triticale reutilizan por [analogía](#analogia) la tabla del trigo ([S240](#s240)) en llenado de grano (el triticale, en las tres etapas); la remolacha azucarera, la helada de la betarraga, y el trébol rosado, la lluvia sobre el forraje cortado de la alfalfa. El detalle está en [ES8.D](TASK_MOTOR_AGRONOMICO.md#es8d-agente-d--cultivos-forrajeras-y-forestales).

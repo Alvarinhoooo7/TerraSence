@@ -44,10 +44,10 @@ const ORIGINAL_33_SPECIES = [
   'sp.cerezo', 'sp.kiwi', 'sp.olivo',
 ];
 
-test('ES6: las 33 especies originales tienen cobertura en las 3 etapas y el conjunto suma 69 perfiles', () => {
+test('ES6: las 33 especies originales tienen cobertura en las 3 etapas y el conjunto no baja de 69 perfiles', () => {
   const gaps = ORIGINAL_33_SPECIES.flatMap(id => STAGES.filter(stage => !hasEnabledCriteria(id, stage)).map(stage => `${id}/${stage}`));
   assert.deepEqual(gaps, []);
-  assert.equal(Object.keys(SPECIES_RULES).length, 69);
+  assert.ok(Object.keys(SPECIES_RULES).length >= 69, 'ES7 suma perfiles; las especies retiradas no tenían perfil');
   for (const profile of Object.values(SPECIES_RULES)) {
     assert.ok(profile.criteria.length > 0, profile.speciesId);
     assert.equal(profile.establishment, profile.horizon === 'annual' ? 'not_specified' : 'established_plantation', profile.speciesId);
@@ -204,7 +204,9 @@ test('ES6/T05: sin pronóstico, o sin el dato que el criterio necesita, el crite
   assert.equal(noRain.evaluated, false);
   // Una especie sin criterios del pronóstico en la etapa no los informa como pendientes.
   assert.deepEqual(weatherFor('sp.arandano', 'vegetativo', null), { applicable: false, evaluated: false, findings: [] });
-  assert.deepEqual(weatherFor('sp.manzano', 'cosecha', null), { applicable: false, evaluated: false, findings: [] });
+  assert.deepEqual(weatherFor('sp.grosella', 'vegetativo', null), { applicable: false, evaluated: false, findings: [] });
+  // ES7: el manzano ya tiene helada sobre la fruta en cosecha.
+  assert.equal(hasWeatherCriteria('sp.manzano', 'cosecha'), true);
   assert.equal(hasWeatherCriteria('sp.arandano', 'vegetativo'), false);
   assert.equal(hasWeatherCriteria('sp.tomate', 'cosecha'), true);
 });

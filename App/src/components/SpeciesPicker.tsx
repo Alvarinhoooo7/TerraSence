@@ -151,7 +151,7 @@ export function SpeciesPicker({ stage, value, onChange, onMissing }: {
   const input = useRef<TextInput>(null);
   const [open, setOpen] = useState(value == null);
   const [query, setQuery] = useState('');
-  // Grupos recogidos de entrada para no obligar a recorrer las 115 especies; abre el de la elegida.
+  // Grupos recogidos de entrada para no obligar a recorrer todas las especies; abre el de la elegida.
   const [expanded, setExpanded] = useState<ReadonlySet<SpeciesGroup>>(() => new Set(value ? [value.group] : []));
   const results = useMemo(() => searchSpecies(query, lang), [query, lang]);
   const chevron = useSharedValue(open ? 1 : 0);

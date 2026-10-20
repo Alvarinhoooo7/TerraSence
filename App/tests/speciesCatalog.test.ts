@@ -92,7 +92,11 @@ test('ES6: hasStageCriteria refleja únicamente los perfiles habilitados en spec
   assert.equal(hasStageCriteria('sp.olivo', 'cosecha'), true);
   // Palto incorporado en ES6 ola 2 con umbral de helada en todas las etapas.
   assert.equal(hasStageCriteria('sp.palto', 'vegetativo'), true);
-  // Las 5 especies huérfanas confirmadas del catálogo siguen sin perfil por falta de evidencia técnica.
-  assert.equal(hasStageCriteria('sp.castano', 'vegetativo'), false);
-  assert.equal(hasStageCriteria('sp.membrillo', 'vegetativo'), false);
+  // ES7: el membrillo se cubre por analogía con el peral; ES8 cubre cultivos, forrajeras y forestales.
+  assert.equal(hasStageCriteria('sp.membrillo', 'vegetativo'), true);
+  for (const stage of ['vegetativo', 'floracion', 'cosecha'] as const) assert.equal(hasStageCriteria('sp.trigo', stage), true, stage);
+  // Pre-siembra no evalúa una especie elegida.
+  assert.equal(hasStageCriteria('sp.trigo', 'pre_siembra'), false);
+  // ES7 y ES8: las especies retiradas ya no están en el catálogo.
+  for (const id of ['sp.castano', 'sp.jojoba', 'sp.tuna', 'sp.haskap']) assert.equal(findSpecies(id), undefined, id);
 });

@@ -11,7 +11,7 @@
 import type { PhenologicalStage } from '../types/app';
 import { hasEnabledCriteria } from './speciesRules';
 
-export const SPECIES_CATALOG_VERSION = '2.0.0';
+export const SPECIES_CATALOG_VERSION = '2.2.0';
 
 /** Valor de `crop_id` cuando la medición no tiene especie (saltada o pre-siembra). */
 export const NO_SPECIES_ID = 'sin_especificar';
@@ -157,7 +157,6 @@ export const SPECIES: readonly SpeciesEntry[] = [
   sp('almendro', 'frutales', 'Almendro', 'Almond', 'Prunus dulcis', ['almendra'], [], { [CAT]: ['Almendro'] }),
   sp('avellano', 'frutales', 'Avellano europeo', 'Hazelnut', 'Corylus avellana', ['avellano', 'avellana'], ['filbert'], { [CAT]: ['Avellano'] }),
   sp('caqui', 'frutales', 'Caqui', 'Persimmon', 'Diospyros kaki', ['kaki', 'persimón'], [], { [CAT]: ['Caqui'], [MAY]: ['Caqui'] }),
-  sp('castano', 'frutales', 'Castaño', 'Chestnut', 'Castanea sativa', ['castaña'], [], { [CAT]: ['Castaño'] }),
   sp('cerezo', 'frutales', 'Cerezo', 'Sweet cherry', 'Prunus avium', ['cereza'], ['cherry'], { [CAT]: ['Cerezo'], [MAY]: ['Cereza'] }),
   sp('chirimoyo', 'frutales', 'Chirimoyo', 'Cherimoya', 'Annona cherimola', ['chirimoya'], ['custard apple'], { [CAT]: ['Chirimoyo'], [MAY]: ['Chirimoya'] }),
   sp('ciruelo', 'frutales', 'Ciruelo', 'Plum', 'Prunus domestica y Prunus salicina', ['ciruela', 'ciruelo europeo', 'ciruelo japonés', 'ciruela d\'agen'], ['prune'],
@@ -171,7 +170,6 @@ export const SPECIES: readonly SpeciesEntry[] = [
   sp('guayabo', 'frutales', 'Guayabo', 'Guava', 'Psidium guajava', ['guayaba'], [], { [CAT]: ['Guayabo'], [MAY]: ['Guayaba'] }),
   sp('guindo', 'frutales', 'Guindo', 'Sour cherry', 'Prunus cerasus', ['guinda', 'guindo agrio'], [], { [CAT]: ['Guindo Agrio'] }),
   sp('higuera', 'frutales', 'Higuera', 'Fig', 'Ficus carica', ['higo', 'breva'], [], { [CAT]: ['Higuera'], [MAY]: ['Higo', 'Breva'] }),
-  sp('jojoba', 'frutales', 'Jojoba', 'Jojoba', 'Simmondsia chinensis', [], [], { [CAT]: ['Jojoba'] }),
   sp('kiwi', 'frutales', 'Kiwi', 'Kiwifruit', 'Actinidia spp.', ['kiwi gold', 'kiwi amarillo', 'kiwi baby'], ['kiwi', 'gold kiwi', 'hardy kiwi'],
     { [CAT]: ['Kiwi', 'Kiwi Gold o Kiwi Amarillo', 'Hardy Kiwi o Baby Kiwi'], [MAY]: ['Kiwi'] }),
   sp('kumquat', 'frutales', 'Kumquat', 'Kumquat', 'Citrus japonica', ['quinoto', 'naranjo enano'], [], { [CAT]: ['Kumquat'] }),
@@ -203,7 +201,6 @@ export const SPECIES: readonly SpeciesEntry[] = [
   sp('pomelo', 'frutales', 'Pomelo', 'Grapefruit', 'Citrus × paradisi', ['toronja'], [], { [CAT]: ['Pomelo'], [MAY]: ['Pomelo'] }),
   sp('tangelo', 'frutales', 'Tangelo', 'Tangelo', 'Citrus × tangelo', [], [], { [CAT]: ['Tangelo'] }),
   sp('tumbo', 'frutales', 'Tumbo', 'Banana passionfruit', 'Passiflora tripartita var. mollissima', ['curuba'], [], { [MAY]: ['Tumbo'] }),
-  sp('tuna', 'frutales', 'Tuna', 'Prickly pear', 'Opuntia ficus-indica', ['nopal', 'higo chumbo'], ['cactus pear'], { [CAT]: ['Tuna'], [MAY]: ['Tuna'] }),
   sp('vid', 'frutales', 'Vid', 'Grapevine', 'Vitis vinifera', ['uva', 'parra', 'viña', 'uva de mesa', 'uva vinífera', 'uva pisquera'], ['grape', 'table grape', 'wine grape'],
     { [CAT]: ['Vid de Mesa'], 'sag-catastro-viticola-2024': ['Vides para vinificación y pisco'], [MAY]: ['Uva'] }),
 
@@ -215,7 +212,6 @@ export const SPECIES: readonly SpeciesEntry[] = [
   sp('frambuesa', 'berries', 'Frambuesa', 'Raspberry', 'Rubus idaeus', [], [], { [CAT]: ['Frambuesa'], [MAY]: ['Frambuesa'] }),
   sp('frutilla', 'berries', 'Frutilla', 'Strawberry', 'Fragaria × ananassa', ['fresa'], [], { [ESH]: ['Frutilla'], [MAY]: ['Frutilla'] }),
   sp('grosella', 'berries', 'Grosella', 'Gooseberry', 'Ribes uva-crispa', ['uva espina', 'uva crespa'], [], { [CAT]: ['Grosella'] }),
-  sp('haskap', 'berries', 'Haskap', 'Haskap', 'Lonicera caerulea', ['honeyberry', 'madreselva azul'], ['honeyberry'], { [CAT]: ['Haskap o Honeyberry'] }),
   sp('maqui', 'berries', 'Maqui', 'Maqui berry', 'Aristotelia chilensis', [], [], { [CAT]: ['Maqui'] }),
   sp('michay', 'berries', 'Michay', 'Darwin\'s barberry', 'Berberis darwinii', [], [], { [CAT]: ['Michay'] }),
   sp('mora', 'berries', 'Mora', 'Blackberry', 'Rubus spp.', ['zarzamora', 'mora híbrida'], [], { [CAT]: ['Moras Cultivadas e Híbridos'], [MAY]: ['Mora'] }),
@@ -281,13 +277,20 @@ export const EXCLUDED_SOURCE_NAMES: Partial<Record<SpeciesSourceId, Record<strin
     'Mezcla de forrajeras': 'Categoría agregada',
     'Otros cultivos forrajeros': 'Categoría agregada',
   },
-  'ciren-odepa-catastro': { Palma: 'Nombre que no identifica una especie' },
+  'ciren-odepa-catastro': {
+    Palma: 'Nombre que no identifica una especie',
+    Castaño: 'Retirada: sin criterios agronómicos ni especie similar (TASK ES7)',
+    Jojoba: 'Retirada: sin criterios agronómicos ni especie similar (TASK ES7)',
+    Tuna: 'Retirada: sin criterios agronómicos ni especie similar (TASK ES7)',
+    'Haskap o Honeyberry': 'Retirada: sin criterios agronómicos ni especie similar (TASK ES8)',
+  },
   'odepa-mayoristas-2025': {
     Plátano: 'Sin origen chileno en 2025',
     Piña: 'Sin origen chileno en 2025',
     Coco: 'Sin origen chileno en 2025',
     Jengibre: 'Sin origen chileno en 2025',
     'Fruto del paraíso': 'Nombre que no identifica una especie',
+    Tuna: 'Retirada: sin criterios agronómicos ni especie similar (TASK ES7)',
   },
 };
 
