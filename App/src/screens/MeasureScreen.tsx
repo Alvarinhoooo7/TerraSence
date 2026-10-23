@@ -23,7 +23,7 @@ import { MeasurementResultFlow } from '../components/MeasurementResultFlow';
 import { weatherNow } from '../components/measurementResultData';
 import { ScreenCard, ScreenLayout, ScreenText } from '../components/screen/ScreenUI';
 import { buildMeasurementPresentation } from '../engine/measurementPresentation';
-import { CalibrationReminderModal } from '../components/CalibrationReminderModal';
+import { MeasurementSavedModal } from '../components/MeasurementSavedModal';
 import { MeasurementLoading } from '../components/MeasurementLoading';
 import { ProbeInsertArt } from '../components/ProbeInsertArt';
 import { StageArt, StageCards } from '../components/StageCards';
@@ -53,9 +53,11 @@ type Phase = 'connecting' | 'connection_error' | 'stage' | 'species' | 'species_
 interface Props {
   onDone: () => void;
   onCancel: () => void;
+  /** Abre una medición nueva tras guardar; sin él, «Medir otro punto» vuelve a Inicio. */
+  onMeasureAgain?: () => void;
 }
 
-export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
+export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgain }) => {
   const { colors, isDark } = useAppTheme();
   const { t, language } = useTranslation();
   const {
@@ -506,7 +508,9 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
         </ScreenCard>}
       </>}
       forecast={{ days: weather?.forecast ?? [], now: weatherNow(weather), reuse: weather?.reuse ? { fetchedAt: weather.fetchedAt, distanceM: weather.reuse.distanceM } : null, loading: weatherLoading, capturedAt, battery: raw?.battery, latitude: coords?.latitude, longitude: coords?.longitude, accuracy: coords?.accuracy }} />
-    <CalibrationReminderModal synced={saveSynced} visible={showCalibration} onClose={() => { setShowCalibration(false); onDone(); }} />
+    <MeasurementSavedModal synced={saveSynced} visible={showCalibration} summary={{ stage: stageLabel(stage), capturedAt, presentation }}
+      onClose={() => { setShowCalibration(false); onDone(); }}
+      onMeasureAgain={() => { setShowCalibration(false); (onMeasureAgain ?? onDone)(); }} />
   </>;
 };
 

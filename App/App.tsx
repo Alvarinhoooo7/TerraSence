@@ -105,6 +105,7 @@ export default function App() {
   const [onboardingError, setOnboardingError] = useState<string | null>(null);
   const [onboardingRetry, setOnboardingRetry] = useState(0);
   const [route, setRoute] = useState<Route>('dashboard');
+  const [measureRun, setMeasureRun] = useState(0);
   const [devicesOrigin, setDevicesOrigin] = useState<'dashboard' | 'settings'>('dashboard');
   const [notificationDeviceId, setNotificationDeviceId] = useState<string | null>(null);
   const [inboxOpen, setInboxOpen] = useState(false);
@@ -566,7 +567,8 @@ export default function App() {
     content = <DevicesScreen key={`${session?.user.id}:${notificationDeviceId ?? ''}`} initialDeviceId={notificationDeviceId} onLinkDevice={() => setRoute('link-device')} onClose={() => { setNotificationDeviceId(null); setRoute(devicesOrigin); }} />;
   } else if (route === 'measure') {
     content = (
-      <MeasureScreen onDone={() => setRoute('dashboard')} onCancel={() => setRoute('dashboard')} />
+      // Una medición nueva monta la pantalla de nuevo: no hereda etapa ni especie de la anterior.
+      <MeasureScreen key={measureRun} onDone={() => setRoute('dashboard')} onCancel={() => setRoute('dashboard')} onMeasureAgain={() => setMeasureRun(run => run + 1)} />
     );
   } else {
     content = (
