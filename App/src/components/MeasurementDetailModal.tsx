@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text } from './AppText';
 import { MeasurementResultFlow } from './MeasurementResultFlow';
-import { savedForecast, weatherNow } from './measurementResultData';
+import { savedForecast, savedReuse, weatherNow } from './measurementResultData';
 import { ScreenCard, ScreenText } from './screen/ScreenUI';
 import { presentationFromPoint } from '../engine/measurementPresentation';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -27,7 +27,7 @@ export function MeasurementDetailModal({ point, onClose }: { point: MeasurementP
         <Text style={{ color: colors.warning, fontSize: 13, fontWeight: '700', letterSpacing: 1 }}>{t('PENDIENTE DE SINCRONIZAR', 'PENDING SYNC')}</Text>
         <ScreenText>{t('Guardada en este teléfono. Se enviará a la nube al recuperar la conexión.', 'Saved on this phone. It will be sent to the cloud when the connection returns.')}</ScreenText>
       </ScreenCard> : undefined}
-      forecast={{ historical: true, days: savedForecast(point.diagnosis), now: weatherNow((point.diagnosis as { weather?: unknown } | null)?.weather), capturedAt: point.measuredAt, battery: point.batteryPercent,
+      forecast={{ historical: true, days: savedForecast(point.diagnosis), now: weatherNow((point.diagnosis as { weather?: unknown } | null)?.weather), reuse: savedReuse(point.diagnosis), capturedAt: point.measuredAt, battery: point.batteryPercent,
         latitude: point.latitude, longitude: point.longitude, accuracy: point.gpsAccuracyM }} />
   </View>;
 }

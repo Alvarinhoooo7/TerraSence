@@ -3,6 +3,7 @@
  */
 
 import { LOCAL_VARIABLES } from './inputQuality';
+import { vaporPressureDeficitKpa } from './localPhysics';
 import { 
   SoilMeasurement, CropId, CropDefinition, SoilTextureId, 
   SoilTexture, AgronomicEvaluation, AgronomicAlert, Verdict 
@@ -161,19 +162,18 @@ export const EC_UMBRAL_CONFIANZA_NPK = 1000;
  * Déficit de presión de vapor (kPa) a partir de la temperatura del aire y la humedad
  * relativa que mide el BME280 del equipo.
  *
- * Presión de vapor de saturación por la ecuación de Tetens; el VPD es la fracción de
- * esa saturación que le falta al aire. Se calcula aquí y no en la base porque depende
- * de dos lecturas del mismo instante y ambas pueden faltar.
+ * Es el valor de la columna `vpd_kpa`, redondeado a centésimas; la fórmula y su dominio
+ * viven en `localPhysics.ts`. Se calcula aquí y no en la base porque depende de dos
+ * lecturas del mismo instante y ambas pueden faltar.
  *
- * Devuelve null si falta cualquiera de las dos entradas: sin las dos no hay VPD, y un
- * valor aproximado sería indistinguible de uno medido. La presión atmosférica no entra
- * en la fórmula, se guarda por sí misma.
+ * Devuelve null si falta cualquiera de las dos entradas o están fuera de dominio
+ * (humedad fuera de 0–100 %, valores no finitos): un valor aproximado sería
+ * indistinguible de uno medido. La presión atmosférica no entra en la fórmula.
  */
 export function computeVpdKpa(airTempC: number | null, relativeHumidityPct: number | null): number | null {
   if (airTempC === null || relativeHumidityPct === null) return null;
-  const saturacionKpa = 0.6108 * Math.exp((17.27 * airTempC) / (airTempC + 237.3));
-  const vpd = saturacionKpa * (1 - relativeHumidityPct / 100);
-  return Math.round(Math.max(vpd, 0) * 100) / 100;
+  const vpd = vaporPressureDeficitKpa(airTempC, relativeHumidityPct);
+  return vpd === null ? null : Math.round(vpd * 100) / 100;
 }
 
 /**

@@ -7,7 +7,7 @@ import type { SoilMeasurement } from '../types/agronomy';
 import type { CurrentWeather } from '../services/weatherService';
 import type { AppLanguage } from '../types/preferences';
 import { isRainingNow, isRainyDay, weatherKind } from './weatherOutlook';
-import { evaluateSpeciesWeather, type SpeciesWeatherInput } from './speciesRules';
+import { evaluateSpeciesWeather, hasLocalAirCriteria, type SpeciesWeatherInput } from './speciesRules';
 import { assessWeatherEvidence, type WeatherEvaluationContext, type WeatherCoverage } from './evaluationCoverage';
 
 export type RecommendationKind = 'soil' | 'evidence' | 'weather' | 'irrigation' | 'monitoring';
@@ -76,6 +76,8 @@ function pickSpeciesWeather(weather: CurrentWeather, dayLabel: (date: string) =>
   };
 }
 
+const TIMING_ORDER: Record<RecommendationTiming, number> = { now: 0, today: 1, next_days: 2, next_reading: 3 };
+
 /** Lluvia que reemplaza un riego: 5 mm o más hoy o mañana. */
 const RAIN_INSTEAD_OF_IRRIGATION_MM = 5;
 
@@ -104,6 +106,8 @@ export function buildContextualAdvice(
     // va como seguimiento, después de lo que sí requiere revisión.
     const detail = alert.detail ? { detail: alert.detail } : {};
     if (alert.type === 'info') notes.push({ kind: 'monitoring', priority: 'normal', when: 'next_reading', title: alert.title, body: alert.action, ...detail });
+    // El frío medido por el equipo en el aire es clima de este momento, no una condición del suelo.
+    else if (alert.param === 'airTemp') plan.push({ kind: 'weather', priority: alert.type === 'danger' ? 'high' : 'normal', when: 'now', title: alert.title, body: alert.action, ...detail });
     else plan.push({ kind: 'soil', priority: alert.type === 'danger' ? 'high' : 'normal', when: 'today', title: alert.title, body: alert.action, ...detail });
   }
   if (!plan.length) plan.push(evaluation.state === 'insufficient_data'
@@ -142,10 +146,17 @@ export function buildContextualAdvice(
       : 'En los próximos días no se esperan heladas, calor, lluvia ni niebla que dañen a este cultivo en esta etapa. Es un pronóstico: igual revisa el campo.',
     detail: en ? 'The forecast was compared with the frost, heat, rain or fog that the sources document for this species at this stage.'
       : 'Se comparó el pronóstico con la helada, el calor, la lluvia o la niebla que las fuentes documentan para esta especie en esta etapa.' });
+  // Sin pronóstico, el frío de este momento sí se revisó con el aire que midió el equipo
+  // (speciesRules.ts, `localAirImplies`); los días siguientes, no.
+  const localAirChecked = hasLocalAirCriteria(speciesId, stage) && typeof reading.airTemp === 'number' && Number.isFinite(reading.airTemp)
+    && evaluation.coverage?.freshness === 'fresh';
   if (speciesWeather.applicable && !speciesWeather.evaluated) plan.push({ kind: 'evidence', priority: 'normal', when: 'next_reading',
     title: en ? 'We could not check the weather for this crop' : 'No pudimos revisar el clima para este cultivo',
-    body: en ? 'Without an up-to-date forecast we could not check frost, heat or rain for this crop. Measure again with an internet connection.'
-      : 'Sin un pronóstico actualizado no revisamos heladas, calor ni lluvia para este cultivo. Vuelve a medir con conexión a internet.' });
+    body: localAirChecked
+      ? (en ? 'Without an up-to-date forecast we do not know whether frost, heat or rain is coming for this crop. We only checked the cold with the air temperature the device measures now. Measure again with an internet connection.'
+        : 'Sin un pronóstico actualizado no sabemos si vienen heladas, calor o lluvia para este cultivo. Sólo revisamos el frío con la temperatura del aire que mide el equipo ahora. Vuelve a medir con conexión a internet.')
+      : (en ? 'Without an up-to-date forecast we could not check frost, heat or rain for this crop. Measure again with an internet connection.'
+        : 'Sin un pronóstico actualizado no revisamos heladas, calor ni lluvia para este cultivo. Vuelve a medir con conexión a internet.') });
 
   if (weather && isRainingNow(weather)) plan.push({ kind: 'weather', priority: 'high', when: 'now',
     title: en ? 'It is raining now' : 'Está lloviendo ahora',
@@ -186,8 +197,11 @@ export function buildContextualAdvice(
     title: en ? 'Measure again to compare' : 'Vuelve a medir para comparar',
     body: en ? 'Measure representative points and repeat after each management change; the trend says more than a single reading.'
       : 'Mide puntos representativos y repite después de cada cambio de manejo: la tendencia dice más que una sola lectura.' });
-  // Lo urgente primero; dentro de cada prioridad se conserva el orden en que se armó.
-  const recommendations = [...plan.filter(item => item.priority === 'high'), ...plan.filter(item => item.priority !== 'high')];
+  // Lo urgente primero y, dentro de cada prioridad, lo más próximo (§9.2); a igual urgencia y
+  // momento se conserva el orden en que se armó. Nunca depende del orden del catálogo.
+  const rank = (item: Recommendation) => (item.priority === 'high' ? 0 : 4) + TIMING_ORDER[item.when];
+  const recommendations = plan.map((item, index) => ({ item, index }))
+    .sort((a, b) => rank(a.item) - rank(b.item) || a.index - b.index).map(({ item }) => item);
 
   const completeForecast = weather?.forecast.length === 5 && weather.forecast.every(day =>
     [day.precipitationMm, day.rainProbabilityPct, day.minimumTemperatureC, day.maximumTemperatureC]
@@ -213,6 +227,10 @@ export function buildContextualAdvice(
       : completeForecast
         ? (en ? 'No rain, frost or heat alerts under these indicative rules for the next five days.' : 'Sin alertas de lluvia, helada o calor bajo estas reglas orientativas para los próximos cinco días.')
         : incompleteNote;
+
+  // Un pronóstico reutilizado sin red lo dice primero: no es una descarga de este momento.
+  const reusedNote = weather?.reuse
+    ? (en ? 'Offline: forecast saved earlier near this point. ' : 'Sin conexión: pronóstico guardado antes cerca de este punto. ') : '';
 
   const suggestedCrops = stage === 'pre_siembra' && (!evaluation.coverage || evaluation.coverage.freshness === 'fresh')
     ? possibleCrops(reading)
@@ -262,7 +280,7 @@ export function buildContextualAdvice(
     ...(evaluation.coverage ? { summary: evaluation.verdictSummary } : {}),
     actions,
     recommendations,
-    weatherNote,
+    weatherNote: `${reusedNote}${weatherNote}`,
     suggestedCrops,
     mapEligible: stage === 'pre_siembra',
     ...(weatherCoverage ? { weatherCoverage } : {}),

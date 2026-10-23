@@ -7,6 +7,7 @@ import type { ContextualAdvice, Recommendation } from './contextualAdvice';
 import type { AppLanguage } from '../types/preferences';
 import { SPECIES_CATALOG_VERSION, findSpecies, hasStageCriteria } from './speciesCatalog';
 import { SPECIES_RULES_VERSION } from './speciesRules';
+import { deriveLocalPhysics, type DerivedIndicator, type DerivedIndicatorId } from './localPhysics';
 
 export const PARAMETER_KEYS = ['vwc', 'temp', 'ph', 'ec', 'nitrogen', 'phosphorus', 'potassium', 'airTemp', 'airHumidity', 'airPressure'] as const;
 export type ParameterKey = typeof PARAMETER_KEYS[number];
@@ -19,6 +20,18 @@ export interface ParameterPresentation {
   state: string;
   recommendation: string;
   control: string;
+  /** Cálculos con esta captura (localPhysics.ts); ausente en lecturas anteriores y en variables sin derivados. */
+  derived?: PresentationDerived[];
+}
+/** Indicador continuo calculado con la captura: valor sin redondear y explicación simple, sin categoría. */
+export interface PresentationDerived {
+  id: DerivedIndicatorId;
+  label: string;
+  value: number | null;
+  unit: 'kPa' | '°C';
+  /** `difference`: diferencia de temperatura; en °F sólo cambia la escala. */
+  kind: 'pressure' | 'temperature' | 'difference';
+  note: string;
 }
 /** Especie indicada por el usuario, copiada al guardar: el histórico no depende del catálogo vigente. */
 export interface PresentationSpecies {
@@ -56,6 +69,39 @@ const labelsEn = ['Soil moisture', 'Soil temperature', 'Soil pH', 'Electrical co
 export const parameterLabel = (key: ParameterKey, language: AppLanguage = 'es') => (language === 'en' ? labelsEn : labelsEs)[PARAMETER_KEYS.indexOf(key)];
 const units = ['%', '°C', 'pH', 'µS/cm', 'mg/kg', 'mg/kg', 'mg/kg', '°C', '%', 'hPa'];
 
+/** Variable del aire donde se muestra cada derivado: el DPV y el rocío dependen de la humedad. */
+const DERIVED_BY_PARAMETER: Partial<Record<ParameterKey, DerivedIndicatorId[]>> = {
+  airTemp: ['soil_air_difference'],
+  airHumidity: ['vpd', 'dew_point', 'dew_point_spread'],
+};
+
+function presentDerived(indicator: DerivedIndicator, en: boolean): PresentationDerived {
+  const t = (es: string, english: string) => en ? english : es;
+  const codes = indicator.limitationCodes;
+  const unavailable = codes.includes('relative_humidity_zero')
+    ? t('Con humedad del aire de 0 % no se puede calcular.', 'It cannot be calculated with 0 % air humidity.')
+    : t('Hace falta que esta lectura traiga los datos del aire que usa el cálculo.', 'This reading needs the air data the calculation uses.');
+  const freezing = codes.includes('water_reference_below_freezing')
+    ? ` ${t('Bajo 0 °C es una aproximación sobre agua, no un cálculo de escarcha.', 'Below 0 °C it is an approximation over water, not a frost calculation.')}` : '';
+  const texts: Record<DerivedIndicatorId, [string, string, PresentationDerived['kind']]> = {
+    vpd: [t('Sequedad del aire (déficit de presión de vapor)', 'Air dryness (vapor pressure deficit)'),
+      t('Cuánta humedad le falta al aire para saturarse en este momento. Más alto es aire más seco, que hace transpirar más a las plantas; no dice cuánta agua pierde tu cultivo.',
+        'How much moisture the air lacks to become saturated right now. Higher means drier air, which makes plants transpire more; it does not tell how much water your crop loses.'), 'pressure'],
+    dew_point: [t('Punto de rocío aproximado', 'Approximate dew point'),
+      t('Si el aire se enfría hasta esta temperatura, se forma rocío. No indica que las hojas estén mojadas.',
+        'If the air cools down to this temperature, dew forms. It does not mean the leaves are wet.'), 'temperature'],
+    dew_point_spread: [t('Distancia al rocío', 'Distance to dew point'),
+      t('Grados que le faltan al aire para llegar al rocío. Cerca de cero, el aire está casi saturado.',
+        'Degrees the air must cool to reach the dew point. Close to zero, the air is almost saturated.'), 'difference'],
+    soil_air_difference: [t('Diferencia entre suelo y aire', 'Soil minus air temperature'),
+      t('Temperatura del suelo menos la del aire en esta lectura. Muestra que suelo y aire están en condiciones distintas; no anticipa la temperatura de las raíces.',
+        'Soil temperature minus air temperature in this reading. It shows that soil and air are in different conditions; it does not predict root temperature.'), 'difference'],
+  };
+  const [label, note, kind] = texts[indicator.id];
+  return { id: indicator.id, label, value: indicator.value, unit: indicator.unit, kind,
+    note: indicator.value === null ? unavailable : `${note}${freezing}` };
+}
+
 export function applicableAlerts(evaluation: StageAwareEvaluation) {
   const drivers = STAGE_DRIVERS[evaluation.stage] as readonly string[];
   return evaluation.alerts.filter(a => a.origin === 'species' || drivers.includes(a.param))
@@ -91,6 +137,7 @@ export function buildMeasurementPresentation(raw: SoilMeasurement, evaluation: S
   quality ??= buildLocalInputQuality(raw, '');
   const alerts = applicableAlerts(evaluation);
   const species = presentationSpecies(speciesId, evaluation.stage);
+  const physics = deriveLocalPhysics(quality);
   return {
     version: 3, stage: evaluation.stage, species,
     ...(evaluation.state ? { evaluationState: evaluation.state, coverage: evaluation.coverage } : {}),
@@ -105,7 +152,10 @@ export function buildMeasurementPresentation(raw: SoilMeasurement, evaluation: S
       const value = datum ? datum.value : raw[key];
       const derived = ['nitrogen', 'phosphorus', 'potassium'].includes(key);
       const related = alerts.filter(a => a.param === key);
-      const relevant = (STAGE_DRIVERS[evaluation.stage] as readonly string[]).includes(key);
+      // Un criterio de la especie sobre esta variable (frío medido en el aire, humedad del aire)
+      // la vuelve relevante aunque no gobierne la etapa.
+      const relevant = (STAGE_DRIVERS[evaluation.stage] as readonly string[]).includes(key) || related.some(a => a.origin === 'species');
+      const derivedIds = DERIVED_BY_PARAMETER[key];
       const status = value == null || derived || !relevant ? 'INFO'
         : related.some(a => a.type === 'danger') ? 'CRITICAL'
         : related.some(a => a.type === 'warning') ? 'WARNING' : metric?.status ?? 'INFO';
@@ -124,6 +174,7 @@ export function buildMeasurementPresentation(raw: SoilMeasurement, evaluation: S
         control: [datum ? localQualityNote(datum, language) : '', metric?.confidenceNote ?? (derived
           ? (en ? 'Cross-check with a laboratory before making nutrition decisions.' : 'Contrasta con laboratorio antes de tomar decisiones sobre nutrición.')
           : (en ? 'Compare representative points and repeat the measurement after management changes. No automatic interval is set.' : 'Compara puntos representativos y repite la medición después de cambios de manejo. No se establece un plazo automático.'))].filter(Boolean).join('\n\n'),
+        ...(derivedIds ? { derived: derivedIds.map(id => presentDerived(physics.indicators[id], en)) } : {}),
       };
     }),
   };
@@ -142,7 +193,16 @@ export function isMeasurementPresentation(value: unknown): value is MeasurementP
     && Array.isArray(p.parameters) && p.parameters.length === PARAMETER_KEYS.length
     && p.parameters.every((m, i) => m && m.key === PARAMETER_KEYS[i] && (m.value === null || (typeof m.value === 'number' && Number.isFinite(m.value)))
       && ['OPTIMAL', 'WARNING', 'CRITICAL', 'INFO'].includes(m.status)
-      && ['label', 'unit', 'state', 'recommendation', 'control'].every(k => typeof (m as unknown as Record<string, unknown>)[k] === 'string'));
+      && ['label', 'unit', 'state', 'recommendation', 'control'].every(k => typeof (m as unknown as Record<string, unknown>)[k] === 'string')
+      && (m.derived === undefined || (Array.isArray(m.derived) && m.derived.every(isPresentationDerived))));
+}
+
+function isPresentationDerived(value: unknown): value is PresentationDerived {
+  if (!value || typeof value !== 'object') return false;
+  const d = value as PresentationDerived;
+  return ['vpd', 'dew_point', 'dew_point_spread', 'soil_air_difference'].includes(d.id) && typeof d.label === 'string' && typeof d.note === 'string'
+    && ['kPa', '°C'].includes(d.unit) && ['pressure', 'temperature', 'difference'].includes(d.kind)
+    && (d.value === null || (typeof d.value === 'number' && Number.isFinite(d.value)));
 }
 
 function isRecommendation(value: unknown): value is Recommendation {

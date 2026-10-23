@@ -14,7 +14,7 @@
 // esconderlo en condicionales: así un agrónomo puede auditar y corregir los
 // criterios sin leer código (principio P4, determinismo auditable).
 
-import { CROPS_DB, SOIL_TEXTURES, evaluateAgronomicStatus } from './agronomyEngine';
+import { evaluateAgronomicStatus } from './agronomyEngine';
 import type {
   EvaluationCoverage,
   EvaluationState,
@@ -145,6 +145,21 @@ const translateMetrics = (metrics: AgronomicEvaluation['metrics']): AgronomicEva
     msg: translateMetricText(metric.msg),
     ...(metric.confidenceNote ? { confidenceNote: translateMetricText(metric.confidenceNote) } : {}),
   }])) as AgronomicEvaluation['metrics'];
+
+/**
+ * Reglas generales del flujo de captura (MOTOR_AGRONOMICO.md §8.1). Se aplican con o sin
+ * especie y no dependen de ningún catálogo: agregar, quitar o reordenar perfiles no cambia
+ * una alerta general (T02, T03). Sus límites son los extremos que antes se calculaban sobre
+ * los perfiles y texturas del prototipo, congelados con el mismo valor: no son referencias
+ * agronómicas revisadas (estado `documented`, no `locally_validated`) y así se declara.
+ */
+export const GENERAL_RULES_VERSION = '1.0.0';
+export const GENERAL_RULES = {
+  'GEN-TEMP-01': { inputs: ['temp'], below: 4, basis: 'Mínimo térmico más bajo de los perfiles del prototipo (trigo, 4 °C).' },
+  'GEN-PH-01': { inputs: ['ph'], below: 4.2, above: 7.8, basis: 'Unión de los rangos de pH de los perfiles del prototipo (arándano 4,2 a vid 7,8).' },
+  'GEN-VWC-01': { inputs: ['vwc'], below: 6, atOrAbove: 60, basis: 'Punto de marchitez más bajo (arenoso, 6 %) y saturación más alta (arcilloso, 60 %) de las texturas del prototipo.' },
+} as const;
+export type GeneralRuleId = keyof typeof GENERAL_RULES;
 
 /** Umbrales de humedad para transitabilidad de maquinaria en cosecha. */
 
@@ -285,42 +300,41 @@ export function evaluateReadingForStage(
   const en = language === 'en';
   const quality = buildLocalInputQuality(reading, context?.capturedAt ?? '', context?.simulated);
   const coverage = buildEvaluationCoverage(quality, context?.evaluatedAt ?? null);
-  const usable = (key: 'temp' | 'ph' | 'vwc' | 'airHumidity') => quality.observations[key].availability === 'available' && coverage.freshness === 'fresh';
-  const crops = Object.values(CROPS_DB);
-  const textures = Object.values(SOIL_TEXTURES);
+  const usable = (key: 'temp' | 'ph' | 'vwc' | 'airHumidity' | 'airTemp') => quality.observations[key].availability === 'available' && coverage.freshness === 'fresh';
   const alerts: AgronomicAlert[] = [];
+  const rule = (ruleId: GeneralRuleId) => ({ ruleId, ruleVersion: GENERAL_RULES_VERSION });
   const metrics = Object.fromEntries(
     (['vwc', 'temp', 'ec', 'ph', 'nitrogen', 'phosphorus', 'potassium', 'lux'] as const).map(key => [key, {
       val: reading[key], unit: key === 'vwc' ? '%' : key === 'temp' ? '°C' : key === 'ec' ? 'µS/cm' : key === 'ph' ? 'pH' : key === 'lux' ? 'Lux' : 'registro',
       status: 'INFO', msg: en ? 'Local reading; interpretation depends on field conditions.' : 'Lectura local; su interpretación depende de las condiciones del campo.',
     }]),
   ) as AgronomicEvaluation['metrics'];
-  const check = (key: 'temp' | 'ph' | 'ec' | 'vwc', matches: boolean[], note: string, action: string) => {
-    if (key === 'ec' || !usable(key)) return;
-    const none = !matches.some(Boolean);
-    metrics[key].status = none ? 'WARNING' : 'INFO';
+  const check = (key: 'temp' | 'ph', ruleId: GeneralRuleId, outside: boolean, note: string, action: string) => {
+    if (!usable(key)) return;
+    metrics[key].status = outside ? 'WARNING' : 'INFO';
     metrics[key].msg = note;
     // La acción explica qué falta confirmar, sin dar por conocido el cultivo.
     metrics[key].confidenceNote = action;
-    if (none && STAGE_DRIVERS[stage].includes(key)) alerts.push({ type: 'warning', param: key, title: note, action });
+    if (outside && STAGE_DRIVERS[stage].includes(key)) alerts.push({ type: 'warning', param: key, title: note, action, ...rule(ruleId) });
   };
-  check('temp', crops.map(c => reading.temp >= c.tempMin),
+  check('temp', 'GEN-TEMP-01', reading.temp < GENERAL_RULES['GEN-TEMP-01'].below,
     en ? 'Soil temperature compared with the minimums in the crop catalog.' : 'Temperatura del suelo comparada con los mínimos del catálogo de cultivos.',
     en ? 'Temperature alone does not establish planting suitability. Check the possible crops and local season.' : 'La temperatura por sí sola no determina aptitud para sembrar. Revisa los posibles cultivos y la temporada local.');
-  check('ph', crops.map(c => reading.ph >= c.phMin && reading.ph <= c.phMax),
+  check('ph', 'GEN-PH-01', reading.ph < GENERAL_RULES['GEN-PH-01'].below || reading.ph > GENERAL_RULES['GEN-PH-01'].above,
     en ? 'pH requirements vary by crop; no crop is assigned to this reading.' : 'El rango de pH depende del cultivo; esta lectura no tiene un cultivo asignado.',
     en ? 'Confirm pH and crop requirements before applying amendments.' : 'Confirma el pH y los requerimientos del cultivo antes de aplicar enmiendas.');
   metrics.ec.msg = localQualityNote(quality.observations.ec, language);
   metrics.ph.confidenceNote = localQualityNote(quality.observations.ph, language);
   // Sólo se destaca un extremo de humedad si todos los perfiles coinciden.
-  const dry = usable('vwc') && textures.every(t => reading.vwc < t.pmp);
-  const wet = usable('vwc') && textures.every(t => reading.vwc >= t.sat);
+  const dry = usable('vwc') && reading.vwc < GENERAL_RULES['GEN-VWC-01'].below;
+  const wet = usable('vwc') && reading.vwc >= GENERAL_RULES['GEN-VWC-01'].atOrAbove;
   metrics.vwc.msg = en ? 'Soil texture is unknown; moisture does not determine an irrigation dose or machinery access.' : 'La textura del suelo no está determinada; esta humedad no define una dosis de riego ni autoriza el ingreso de maquinaria.';
   if (dry || wet) {
     metrics.vwc.status = 'WARNING';
     alerts.push({ type: 'warning', param: 'vwc',
       title: en ? 'Moisture outside all catalog reference ranges' : 'Humedad fuera de los rangos de referencia del catálogo',
       action: en ? 'Check moisture and drainage in the field and repeat the reading before deciding on irrigation or machinery.' : 'Revisa humedad y drenaje en terreno y repite la lectura antes de decidir riego o ingreso de maquinaria.',
+      ...rule('GEN-VWC-01'),
     });
   }
   for (const key of ['nitrogen', 'phosphorus', 'potassium'] as const) {

@@ -107,6 +107,13 @@ export interface AgronomicAlert {
   origin?: 'species';
   /** Cifras, fuente y limitaciones para quien quiera revisarlas; `action` queda en lenguaje simple. */
   detail?: string;
+  /**
+   * Regla que la originó y su versión (`GENERAL_RULES` en stageEvaluator.ts, o
+   * `species:<id>:<tipo>` con la versión de los criterios por especie). Ausente en el
+   * evaluador legado y en diagnósticos anteriores. Los textos son presentación; el ID no.
+   */
+  ruleId?: string;
+  ruleVersion?: string;
 }
 
 export interface MetricDetail {

@@ -16,6 +16,7 @@ import { useAppStore } from '../store/useAppStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { rememberSelectedDevice } from '../services/deviceSelectionService';
 import { listMyDeviceMemberships } from '../services/deviceService';
+import { timedOperation } from '../utils/timedOperation';
 import { formatDeviceId } from '../utils/deviceId';
 import type { DeviceRow } from '../types/app';
 
@@ -28,6 +29,9 @@ function dashboardPalette(isDark: boolean, colors: ThemeColors) {
     ? { background: SPLASH_BACKGROUND, bar: '#1C3528', line: '#3B5646', accent: mint, muted: '#B2C9BB', strong: '#FFFFFF', title: '#F2F5F1', hint: '#C4D4C9', button: mint, buttonInk: SPLASH_BACKGROUND }
     : { background: colors.background, bar: colors.card, line: colors.border, accent: colors.primary, muted: colors.textSecondary, strong: colors.text, title: colors.text, hint: colors.textSecondary, button: colors.primary, buttonInk: '#FFFFFF' };
 }
+
+/** Espera máxima para confirmar el acceso a la sonda antes de medir; sin respuesta se mide con la última autorización conocida. */
+const ACCESS_CHECK_TIMEOUT_MS = 3000;
 
 export function DashboardScreen({ onStartMeasurement, onLinkDevice }: Props) {
   const { colors, isDark } = useAppTheme(); const { t } = useTranslation();
@@ -66,7 +70,8 @@ export function DashboardScreen({ onStartMeasurement, onLinkDevice }: Props) {
     setChecking(true);
     let allowed = true;
     try {
-      const roles = await listMyDeviceMemberships();
+      // Con señal débil o sin red la consulta puede tardar en fallar: a los 3 s se mide igual.
+      const roles = await timedOperation(listMyDeviceMemberships(), ACCESS_CHECK_TIMEOUT_MS, () => undefined, 'La conexión tardó demasiado.');
       if (useAuthStore.getState().session?.user.id !== accountId) return;
       allowed = roles.some(m => m.device_id === device.id && m.is_authorized);
     } catch { /* sin conexión: se conserva la selección */ }

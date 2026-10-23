@@ -37,6 +37,15 @@ export interface WeatherNow {
  * Lee el clima actual de una consulta nueva o del diagnóstico guardado (`diagnosis.weather`),
  * sin consultar de nuevo. Los diagnósticos antiguos no traen el código del tiempo: queda nulo.
  */
+/** Procedencia de un pronóstico guardado reutilizado sin red; `null` si se descargó para esa medición. */
+export function savedReuse(diagnosis: unknown): { fetchedAt: string; distanceM: number } | null {
+  const weather = diagnosis && typeof diagnosis === 'object' ? (diagnosis as { weather?: unknown }).weather : null;
+  if (!weather || typeof weather !== 'object') return null;
+  const { reuse, fetchedAt } = weather as { reuse?: { distanceM?: unknown }; fetchedAt?: unknown };
+  return reuse && typeof reuse.distanceM === 'number' && Number.isFinite(reuse.distanceM) && typeof fetchedAt === 'string'
+    ? { fetchedAt, distanceM: reuse.distanceM } : null;
+}
+
 export function weatherNow(weather: unknown): WeatherNow | null {
   if (!weather || typeof weather !== 'object') return null;
   const w = weather as Record<string, unknown>;

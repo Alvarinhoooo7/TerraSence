@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { measurementHistoryScope, mergeCachedHistories, mergeMeasurementHistory } from '../src/utils/measurementHistory';
+import { historyScopeIncludes, measurementHistoryScope, mergeCachedHistories, mergeMeasurementHistory, withConfirmedPoint } from '../src/utils/measurementHistory';
 import type { MeasurementPoint } from '../src/types/app';
 
 test('el filtro de Mediciones permanece independiente de la sonda seleccionada para medir', () => {
@@ -71,4 +71,19 @@ test('el historial se filtra por etapa y especie y se agrupa por fecha, especie 
   assert.deepEqual(shape(organizeHistory(points, { ...titles, by: 'date', stage: 'vegetativo', species: 'sp.tomate' })),
     [['2026-10-10', ['a']], ['2026-10-09', ['d']]]);
   assert.deepEqual(shape(organizeHistory(points, { ...titles, by: 'date', stage: 'all', species: 'none' })), [['2026-10-11', ['c']]]);
+});
+
+test('una lectura subida con red entra a la copia local del historial y se ve sin red', () => {
+  const older = point('older', 'a', '2026-09-04T12:00:00Z');
+  const uploaded = point('nueva', 'b', '2026-09-06T12:00:00Z');
+  assert.deepEqual(withConfirmedPoint([older], uploaded), [uploaded, older]);
+  // Reemplaza su copia pendiente y no se duplica si la copia ya la tenía.
+  assert.deepEqual(withConfirmedPoint([{ ...uploaded, id: 'local-b', isPending: true }, older], uploaded), [uploaded, older]);
+  assert.deepEqual(withConfirmedPoint([uploaded, older], uploaded), [uploaded, older]);
+  assert.equal(withConfirmedPoint({ dañada: true }, uploaded), null, 'no reescribe una copia que no entiende');
+  // Sólo las copias de todos los equipos o de ese equipo.
+  assert.equal(historyScopeIncludes(JSON.stringify([null, null]), 'equipo-1'), true);
+  assert.equal(historyScopeIncludes(JSON.stringify([null, 'equipo-1']), 'equipo-1'), true);
+  assert.equal(historyScopeIncludes(JSON.stringify([null, 'equipo-2']), 'equipo-1'), false);
+  assert.equal(historyScopeIncludes('no-json', 'equipo-1'), false);
 });

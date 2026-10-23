@@ -20,6 +20,24 @@ export function mergeCachedHistories(histories: MeasurementPoint[][]): Measureme
   return [...points.values()].sort((a, b) => Date.parse(b.measuredAt) - Date.parse(a.measuredAt));
 }
 
+/** Si la copia local de un historial (`[campo, equipo]`) debe incluir lecturas de ese equipo. */
+export function historyScopeIncludes(scope: string, deviceId: string | null): boolean {
+  try {
+    const parsed = JSON.parse(scope) as unknown;
+    return Array.isArray(parsed) && parsed.length === 2 && (parsed[1] === null || parsed[1] === deviceId);
+  } catch { return false; }
+}
+
+/**
+ * Copia local del historial con una lectura recién confirmada por el servidor. Sin esto, lo
+ * que se sube con red no se ve sin red hasta la próxima descarga completa del historial.
+ * `null` si la copia guardada no es una lista: no se reescribe lo que no se entiende.
+ */
+export function withConfirmedPoint(cached: unknown, point: MeasurementPoint): MeasurementPoint[] | null {
+  const { isPending: _pending, ...confirmed } = point;
+  return Array.isArray(cached) ? mergeCachedHistories([[confirmed], cached as MeasurementPoint[]]) : null;
+}
+
 /** Server confirmation wins over a pending copy, even when their row IDs differ. */
 export function mergeMeasurementHistory(remote: MeasurementPoint[], pending: MeasurementPoint[]) {
   const confirmed = new Set(remote.flatMap(p => [p.id, p.clientUuid].filter((id): id is string => !!id)));

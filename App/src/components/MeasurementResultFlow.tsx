@@ -16,9 +16,9 @@ import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { PHENOLOGICAL_STAGES } from '../types/app';
-import { parameterLabel, presentationSpeciesName, type MeasurementPresentation, type ParameterPresentation } from '../engine/measurementPresentation';
+import { parameterLabel, presentationSpeciesName, type MeasurementPresentation, type ParameterPresentation, type PresentationDerived } from '../engine/measurementPresentation';
 import { AppIcon } from './AppIcon';
-import { formatEngineMetric } from '../utils/units';
+import { formatEngineMetric, formatTemperature, formatTemperatureDifference } from '../utils/units';
 import { MetricBadge, MetricScale, StatusRing } from './result/ResultVisuals';
 import { StageArt } from './StageCards';
 import { EnvironmentReadingArt, NutrientReadingArt, SoilReadingArt } from './result/ReadingArt';
@@ -152,6 +152,14 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
     if (m.value == null) return t('Sin dato', 'No data');
     const f = formatEngineMetric(m.key, m.value, m.unit, system);
     return `${f.value.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} ${f.unit}`;
+  };
+
+  const derivedValue = (d: PresentationDerived) => {
+    if (d.value == null) return t('No calculable', 'Not available');
+    const f = d.kind === 'temperature' ? formatTemperature(d.value, system)
+      : d.kind === 'difference' ? formatTemperatureDifference(d.value, system) : { value: d.value, unit: d.unit };
+    const digits = d.kind === 'pressure' ? 2 : 1;
+    return `${f.value.toLocaleString(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits })} ${f.unit}`;
   };
 
   const canNext = !plan && (detail !== null ? detail < p.parameters.length - 1 : step < STEPS.length - 1);
@@ -313,6 +321,19 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
         {section(t('Estado', 'Status'), m.state, tone(m))}
         {section(t('Recomendación', 'Recommendation'), m.recommendation, colors.primary)}
         {section(t('Control', 'Check'), m.control, colors.textSecondary)}
+        {!!m.derived?.length && <View style={{ borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 16, gap: 14 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <View style={{ width: 4, height: 16, borderRadius: 2, backgroundColor: colors.textSecondary }} />
+            <Text accessibilityRole="header" style={{ color: colors.text, fontSize: 13, fontWeight: '800', letterSpacing: 1.2 }}>{t('CALCULADO CON ESTA LECTURA', 'CALCULATED FROM THIS READING')}</Text>
+          </View>
+          {m.derived.map(d => <View key={d.id} accessible accessibilityLabel={`${d.label}: ${derivedValue(d)}. ${d.note}`} style={{ gap: 4 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
+              <Text style={{ color: colors.text, fontSize: 15, fontWeight: '700', flexShrink: 1 }}>{d.label}</Text>
+              <Text style={{ color: colors.text, fontSize: 15, fontWeight: '800' }}>{derivedValue(d)}</Text>
+            </View>
+            <ScreenText>{d.note}</ScreenText>
+          </View>)}
+        </View>}
       </ScreenLayout>;
     };
     return <ResultPager count={p.parameters.length} index={detail} onIndexChange={openDetail} renderPage={detailPage}

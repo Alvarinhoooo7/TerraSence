@@ -1,4 +1,5 @@
 import { numericEvidence } from '../engine/inputQuality';
+import { EVIDENCE_POLICY, WEATHER_CACHE_POLICY } from '../engine/evaluationCoverage';
 import type { EvidenceDatum } from '../types/agronomy';
 
 export interface ForecastDay {
@@ -14,6 +15,12 @@ export interface ForecastDay {
 export interface CurrentWeather {
   /** Asociación de la solicitud; no es la coordenada de la celda del modelo. */
   request?: { captureId: string | null; latitude: number; longitude: number };
+  /**
+   * Pronóstico descargado antes y reutilizado sin red para esta captura (WEATHER_CACHE_POLICY).
+   * `request` y `fetchedAt` siguen siendo los de la descarga original; el «ahora» no se reutiliza.
+   */
+  reuse?: { policyVersion: typeof WEATHER_CACHE_POLICY.version; captureId: string | null; latitude: number; longitude: number;
+    distanceM: number; reusedAt: string };
   forecast: ForecastDay[];
   /** Resumen del día de la consulta (fecha local del proveedor); ausente en diagnósticos anteriores. */
   today?: ForecastDay;
@@ -191,13 +198,95 @@ export function normalizeWeather(payload: unknown, fetchedAt: string): CurrentWe
   };
 }
 
+// --- Caché sin red ------------------------------------------------------------------------
+
+/** Variables, unidades y horizonte de la consulta: una caché de otra consulta no se reutiliza. */
+export const WEATHER_ADAPTER_VERSION = 'open-meteo-forecast-v1';
+
+export interface WeatherCacheEntry {
+  adapter: string;
+  latitude: number;
+  longitude: number;
+  fetchedAt: string;
+  /** Respuesta del proveedor tal como llegó: se vuelve a normalizar al reutilizarla. */
+  payload: unknown;
+}
+
+/** Distancia sobre la esfera (haversine), en metros. */
+export function distanceMeters(a: { latitude: number; longitude: number }, b: { latitude: number; longitude: number }): number {
+  const rad = (deg: number) => deg * Math.PI / 180;
+  const dLat = rad(b.latitude - a.latitude);
+  const dLon = rad(b.longitude - a.longitude);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.latitude)) * Math.cos(rad(b.latitude)) * Math.sin(dLon / 2) ** 2;
+  return 2 * 6_371_000 * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+const validEntry = (value: unknown): value is WeatherCacheEntry => {
+  const e = value as WeatherCacheEntry;
+  return !!e && typeof e === 'object' && typeof e.adapter === 'string' && typeof e.fetchedAt === 'string'
+    && Number.isFinite(e.latitude) && Number.isFinite(e.longitude) && !!e.payload && typeof e.payload === 'object';
+};
+
+/**
+ * Elige y reconstruye el pronóstico guardado más cercano que sigue vigente. Sin el bloque
+ * actual: el tiempo «ahora» de otra hora no se presenta como el de esta captura. Los días se
+ * recalculan desde el reloj recibido, así que un día ya pasado no vuelve a contar como hoy y
+ * lo que la caché no cubre queda como hueco.
+ */
+export function reuseCachedWeather(
+  entries: readonly unknown[], latitude: number, longitude: number, captureId: string | null, now: string,
+): CurrentWeather | null {
+  const nowMs = Date.parse(now);
+  if (!Number.isFinite(nowMs) || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  const candidates = entries.filter(validEntry).flatMap(entry => {
+    const age = nowMs - Date.parse(entry.fetchedAt);
+    const distanceM = distanceMeters(entry, { latitude, longitude });
+    return entry.adapter === WEATHER_ADAPTER_VERSION && Number.isFinite(age) && age >= 0 && age <= EVIDENCE_POLICY.weatherMaxAgeMs
+      && distanceM <= WEATHER_CACHE_POLICY.maxDistanceM ? [{ entry, age, distanceM }] : [];
+  }).sort((a, b) => a.distanceM - b.distanceM || a.age - b.age);
+  const chosen = candidates[0];
+  if (!chosen) return null;
+  const { current: _current, ...payload } = chosen.entry.payload as Record<string, unknown>;
+  const weather = normalizeWeather(payload, new Date(nowMs).toISOString());
+  if (!weather) return null;
+  for (const datum of Object.values(weather.inputQuality.current)) {
+    datum.limitationCodes = [...datum.limitationCodes.filter(code => code !== 'invalid_current_time'), 'cached_current_omitted'];
+  }
+  return { ...weather, fetchedAt: new Date(Date.parse(chosen.entry.fetchedAt)).toISOString(),
+    request: { captureId: null, latitude: chosen.entry.latitude, longitude: chosen.entry.longitude },
+    reuse: { policyVersion: WEATHER_CACHE_POLICY.version, captureId, latitude, longitude,
+      distanceM: Math.round(chosen.distanceM), reusedAt: new Date(nowMs).toISOString() } };
+}
+
+/** Agrega una descarga y descarta las vencidas o de otra consulta; conserva las más recientes. */
+export function rememberWeather(entries: readonly unknown[], entry: WeatherCacheEntry): WeatherCacheEntry[] {
+  const nowMs = Date.parse(entry.fetchedAt);
+  const kept = entries.filter(validEntry).filter(e => e.adapter === WEATHER_ADAPTER_VERSION
+    && nowMs - Date.parse(e.fetchedAt) <= EVIDENCE_POLICY.weatherMaxAgeMs && distanceMeters(e, entry) > 1);
+  return [entry, ...kept].slice(0, WEATHER_CACHE_POLICY.maxEntries);
+}
+
+/**
+ * Pronóstico para la captura. Con red, descarga y, si hay `cacheScope` (la cuenta), lo
+ * guarda. Sin red o ante un error del proveedor, reutiliza una descarga vigente cercana de
+ * esa misma cuenta; si no hay, devuelve `null` y el resultado se queda con la lectura local.
+ */
 export async function fetchCurrentWeather(
   latitude: number,
   longitude: number,
   captureId: string | null = null,
+  cacheScope: string | null = null,
 ): Promise<CurrentWeather | null> {
   if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90 ||
       !Number.isFinite(longitude) || longitude < -180 || longitude > 180) return null;
+  const live = await downloadWeather(latitude, longitude, captureId, cacheScope);
+  if (live || !cacheScope) return live;
+  // Importación diferida: el almacenamiento del teléfono no se carga donde sólo se normaliza.
+  const { readWeatherCache } = await import('./weatherCacheStore');
+  return reuseCachedWeather(await readWeatherCache(cacheScope), latitude, longitude, captureId, new Date().toISOString());
+}
+
+async function downloadWeather(latitude: number, longitude: number, captureId: string | null, cacheScope: string | null): Promise<CurrentWeather | null> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 4500);
   try {
@@ -211,7 +300,12 @@ export async function fetchCurrentWeather(
       '&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm';
     const response = await fetch(url, { signal: controller.signal });
     if (!response.ok) return null;
-    const weather = normalizeWeather(await response.json(), new Date().toISOString());
+    const payload: unknown = await response.json();
+    const fetchedAt = new Date().toISOString();
+    const weather = normalizeWeather(payload, fetchedAt);
+    if (weather && cacheScope) void import('./weatherCacheStore')
+      .then(({ storeWeather }) => storeWeather(cacheScope, { adapter: WEATHER_ADAPTER_VERSION, latitude, longitude, fetchedAt, payload }))
+      .catch(() => undefined);
     return weather ? { ...weather, request: { captureId, latitude, longitude } } : null;
   } catch {
     return null;

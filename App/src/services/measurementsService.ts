@@ -13,8 +13,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Crypto from 'expo-crypto';
 import { supabase } from './supabase';
 import { createKeyedLock } from '../utils/keyedLock';
+import { timedOperation } from '../utils/timedOperation';
 import { useAppStore } from '../store/useAppStore';
-import { mergeCachedHistories, mergeMeasurementHistory } from '../utils/measurementHistory';
+import { historyScopeIncludes, mergeCachedHistories, mergeMeasurementHistory, withConfirmedPoint } from '../utils/measurementHistory';
 import {
   mapRowToPoint,
   type MeasurementPoint,
@@ -105,6 +106,29 @@ export async function fetchMeasurements(
 
 // ─────────────────────────── Cola local ───────────────────────────
 
+/**
+ * Con señal débil una petición puede quedar abierta sin responder: a los 10 s se cancela y la
+ * medición sigue en la cola local, que ya se escribió antes de intentar subirla.
+ */
+const REMOTE_WRITE_TIMEOUT_MS = 10_000;
+function remoteWrite<T>(run: (signal: AbortSignal) => PromiseLike<T>): Promise<T> {
+  const controller = new AbortController();
+  return timedOperation(Promise.resolve(run(controller.signal)), REMOTE_WRITE_TIMEOUT_MS, () => controller.abort(), 'La conexión tardó demasiado.');
+}
+
+/** Agrega una lectura confirmada a las copias locales del historial de esa cuenta que la incluyen. */
+async function rememberConfirmed(account: string, deviceId: string | null, point: MeasurementPoint): Promise<void> {
+  const prefix = `${account}/history/`;
+  await locked(account, async () => {
+    const keys = (await AsyncStorage.getAllKeys()).filter(k => k.startsWith(prefix) && historyScopeIncludes(k.slice(prefix.length), deviceId));
+    for (const [cacheKey, raw] of await AsyncStorage.multiGet(keys)) {
+      if (raw === null) continue;
+      const updated = withConfirmedPoint(JSON.parse(raw), point);
+      if (updated) await AsyncStorage.setItem(cacheKey, JSON.stringify(updated));
+    }
+  }).catch(() => undefined); // la copia es una ayuda: un fallo no deshace el guardado
+}
+
 async function accountQueueKey(): Promise<string> {
   const { data } = await supabase.auth.getSession();
   if (!data.session) throw new Error('Inicia sesión para guardar o sincronizar mediciones.');
@@ -171,11 +195,12 @@ export async function saveMeasurement(
 
   try {
     if (await accountQueueKey() !== key) return { synced: false, point: null };
-    const { data, error } = await supabase
+    const { data, error } = await remoteWrite(signal => supabase
       .from('soil_measurements')
       .upsert(row, { onConflict: 'client_uuid' })
       .select(HISTORY_COLUMNS)
-      .single();
+      .abortSignal(signal)
+      .single());
 
     if (error) throw error;
     await locked(key, async () => {
@@ -183,7 +208,9 @@ export async function saveMeasurement(
       await writeQueue(key, remaining);
     });
     await AsyncStorage.setItem(`${key}/lastSentAt`, new Date().toISOString()).catch(() => undefined);
-    return { synced: true, point: mapRowToPoint(data as unknown as SoilMeasurementRow) };
+    const point = mapRowToPoint(data as unknown as SoilMeasurementRow);
+    await rememberConfirmed(key, row.device_id || null, point);
+    return { synced: true, point };
   } catch {
     return { synced: false, point: null };
   }
@@ -211,14 +238,16 @@ async function flushAccount(key: string): Promise<{ sent: number; remaining: num
   for (const item of queue) {
     if (await accountQueueKey() !== key) break;
     const row = { ...item.row, user_id: key.slice(key.lastIndexOf('/') + 1) };
-    const { error } = await supabase
+    const { error } = await remoteWrite(signal => supabase
       .from('soil_measurements')
-      .upsert(row, { onConflict: 'client_uuid' });
+      .upsert(row, { onConflict: 'client_uuid' })
+      .abortSignal(signal)).catch((failure: unknown) => ({ error: failure }));
     if (!error) {
       await locked(key, async () => {
         await writeQueue(key, (await readQueue(key)).filter(x => x.row.client_uuid !== item.row.client_uuid));
       });
       await AsyncStorage.setItem(`${key}/lastSentAt`, new Date().toISOString()).catch(() => undefined);
+      await rememberConfirmed(key, row.device_id || null, mapRowToPoint({ ...row, id: row.client_uuid } as never));
       sent += 1;
     }
   }

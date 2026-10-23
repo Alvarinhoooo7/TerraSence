@@ -20,14 +20,17 @@ const SHORT_DAYS = { es: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'], en
 export interface ForecastProps {
   days: ForecastDay[]; now?: WeatherNow | null; loading?: boolean; latitude?: number | null; longitude?: number | null;
   accuracy?: number | null; capturedAt: string | null; battery?: number | null; historical?: boolean;
+  /** Pronóstico guardado reutilizado sin red: cuándo se descargó y a qué distancia del punto. */
+  reuse?: ForecastReuse | null;
 }
+export interface ForecastReuse { fetchedAt: string; distanceM: number }
 
 /**
  * Clima del punto medido: cómo está ahora (o al medir, en el historial), un resumen en
  * una frase de los próximos días, la franja de cinco días y los datos de la captura.
  * El título lo pone la pantalla que lo contiene.
  */
-export function MeasurementForecast({ days, now, loading = false, latitude, longitude, accuracy, capturedAt, battery, historical = false }: ForecastProps) {
+export function MeasurementForecast({ days, now, loading = false, latitude, longitude, accuracy, capturedAt, battery, historical = false, reuse = null }: ForecastProps) {
   const { colors } = useAppTheme();
   const { t, locale, language } = useTranslation();
   const lang = language === 'en' ? 'en' : 'es';
@@ -45,7 +48,21 @@ export function MeasurementForecast({ days, now, loading = false, latitude, long
     <Text selectable={selectable} style={{ color: colors.text, fontSize: 14, fontWeight: '600', flexShrink: 1, textAlign: 'right' }}>{value}</Text>
   </View>;
 
+  // Procedencia de un pronóstico guardado: antigüedad respecto de la medición y distancia al punto.
+  const reuseText = (r: ForecastReuse) => {
+    const minutes = capturedAt ? Math.max(0, Math.round((Date.parse(capturedAt) - Date.parse(r.fetchedAt)) / 60000)) : NaN;
+    const age = !Number.isFinite(minutes) ? t('antes', 'earlier') : minutes < 60
+      ? t(`${minutes} min antes de medir`, `${minutes} min before measuring`)
+      : t(`${Math.floor(minutes / 60)} h ${minutes % 60} min antes de medir`, `${Math.floor(minutes / 60)} h ${minutes % 60} min before measuring`);
+    const where = r.distanceM < 50 ? t('en este mismo punto', 'at this same point') : t(`a ${r.distanceM} m de este punto`, `${r.distanceM} m from this point`);
+    return t(`Máxima, mínima y lluvia en mm. Sin conexión: es el pronóstico de Open-Meteo que se descargó ${age}, ${where}.`,
+      `High, low and rain in mm. Offline: this is the Open-Meteo forecast downloaded ${age}, ${where}.`);
+  };
+
   const nowKind = now ? weatherKind(now.weatherCode) ?? weatherKind(now.today.weatherCode) : null;
+  // Sin tiempo actual (p. ej. un pronóstico guardado, que no reutiliza el «ahora») la tarjeta es
+  // el resumen del día: no se rotula como «ahora» ni se dice «Sin dato».
+  const hasCurrent = !!now && [now.temperatureC, now.weatherCode, now.precipitationMm].some(v => v != null);
   const raining = !!now && isRainingNow(now);
   // El resumen habla de «mañana»: sólo vale para una consulta nueva, no para un histórico.
   const outlook = historical ? null : forecastOutlook(days, lang);
@@ -58,14 +75,16 @@ export function MeasurementForecast({ days, now, loading = false, latitude, long
       </View>
       <View style={{ flex: 1, gap: 2 }}>
         <Text style={{ color: raining ? RAIN : colors.primary, fontSize: 12, fontWeight: '800', letterSpacing: 1.4 }}>
-          {historical ? t('AL MEDIR', 'AT CAPTURE') : t('HOY · AHORA', 'TODAY · NOW')}
+          {historical ? (hasCurrent ? t('AL MEDIR', 'AT CAPTURE') : t('ESE DÍA', 'THAT DAY'))
+            : hasCurrent ? t('HOY · AHORA', 'TODAY · NOW') : t('HOY', 'TODAY')}
         </Text>
         <Text style={{ color: colors.text, fontSize: 22, fontWeight: '800', letterSpacing: -0.4 }}>
           {raining && !historical ? t('Está lloviendo', 'It is raining')
             : nowKind ? weatherKindLabel(nowKind, lang) : t('Tiempo actual', 'Current weather')}
         </Text>
         <Text style={{ color: colors.textSecondary, fontSize: 15 }}>
-          {[now.temperatureC != null ? degrees(now.temperatureC) : null, raining && nowKind && !historical ? weatherKindLabel(nowKind, lang) : null].filter(Boolean).join(' · ') || missing}
+          {!hasCurrent ? t('Resumen del día, sin el tiempo de este momento', 'Day summary, without current conditions')
+            : [now.temperatureC != null ? degrees(now.temperatureC) : null, raining && nowKind && !historical ? weatherKindLabel(nowKind, lang) : null].filter(Boolean).join(' · ') || missing}
         </Text>
       </View>
     </View>
@@ -110,7 +129,7 @@ export function MeasurementForecast({ days, now, loading = false, latitude, long
       <Animated.View entering={enterDown(200)} style={{ gap: 8 }}>
         <ScreenLabel>{t('Próximos cinco días', 'Next five days')}</ScreenLabel>
         {strip}
-        <Text style={{ color: colors.textSecondary, fontSize: 12 }}>{t('Máxima, mínima y lluvia en mm. Pronóstico de Open-Meteo para el punto medido.', 'High, low and rain in mm. Open-Meteo forecast for the measured point.')}</Text>
+        <Text style={{ color: colors.textSecondary, fontSize: 12 }}>{reuse ? reuseText(reuse) : t('Máxima, mínima y lluvia en mm. Pronóstico de Open-Meteo para el punto medido.', 'High, low and rain in mm. Open-Meteo forecast for the measured point.')}</Text>
       </Animated.View>
     </> : !now && <View style={{ flexDirection: 'row', gap: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 16 }}>
       <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: `${RAIN}22`, alignItems: 'center', justifyContent: 'center' }}>

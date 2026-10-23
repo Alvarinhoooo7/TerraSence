@@ -13,6 +13,7 @@ import { evaluateReadingForStage, type StageAwareEvaluation } from '../engine/st
 import { buildContextualAdvice, type ContextualAdvice } from '../engine/contextualAdvice';
 import { buildLocalInputQuality } from '../engine/inputQuality';
 import { computeVpdKpa } from '../engine/agronomyEngine';
+import { deriveLocalPhysics } from '../engine/localPhysics';
 import { readSoilProbe, verifySoilProbe } from '../services/probeService';
 import { fetchCurrentWeather, type CurrentWeather } from '../services/weatherService';
 import { newClientUuid, saveMeasurement } from '../services/measurementsService';
@@ -244,7 +245,9 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       }
       if (nextCoords) {
         setWeatherLoading(true);
-        void fetchCurrentWeather(nextCoords.latitude, nextCoords.longitude, weatherContext.captureId).then((forecast) => {
+        // La caché sin red es por cuenta: la ubicación de una cuenta no se reutiliza en otra.
+        void fetchCurrentWeather(nextCoords.latitude, nextCoords.longitude, weatherContext.captureId,
+          useAuthStore.getState().session?.user.id ?? null).then((forecast) => {
           if (!current()) return;
           const updatedAdvice = buildContextualAdvice(stage, nextEvaluation, probe.data, forecast, preferences.language,
             { ...weatherContext, evaluatedAt: new Date().toISOString() }, speciesId);
@@ -312,7 +315,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
       verdict: evaluation.verdict,
       verdict_title: evaluation.verdictTitle,
       action_summary: advice?.summary ?? evaluation.actionSummary,
-      diagnosis: { presentation, inputQuality, evaluationState: evaluation.state, coverage: evaluation.coverage, localSource: 'probe-bme280-v1', capturedAt, connectionAtCapture: 'ble-response', alerts: evaluation.alerts, drivers: evaluation.drivers, advice, weather: weather && { ...weather, hourly: undefined } },
+      diagnosis: { presentation, inputQuality, derived: deriveLocalPhysics(inputQuality), evaluationState: evaluation.state, coverage: evaluation.coverage, localSource: 'probe-bme280-v1', capturedAt, connectionAtCapture: 'ble-response', alerts: evaluation.alerts, drivers: evaluation.drivers, advice, weather: weather && { ...weather, hourly: undefined } },
       engine_version: ENGINE_VERSION,
       crop_catalog_version: SPECIES_CATALOG_VERSION,
       firmware_version: context.current.device?.firmware_version ?? null,
@@ -502,7 +505,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel }) => {
           <ScreenText>{t('Carga la sonda antes de la próxima salida.', 'Charge the probe before your next trip.')}</ScreenText>
         </ScreenCard>}
       </>}
-      forecast={{ days: weather?.forecast ?? [], now: weatherNow(weather), loading: weatherLoading, capturedAt, battery: raw?.battery, latitude: coords?.latitude, longitude: coords?.longitude, accuracy: coords?.accuracy }} />
+      forecast={{ days: weather?.forecast ?? [], now: weatherNow(weather), reuse: weather?.reuse ? { fetchedAt: weather.fetchedAt, distanceM: weather.reuse.distanceM } : null, loading: weatherLoading, capturedAt, battery: raw?.battery, latitude: coords?.latitude, longitude: coords?.longitude, accuracy: coords?.accuracy }} />
     <CalibrationReminderModal synced={saveSynced} visible={showCalibration} onClose={() => { setShowCalibration(false); onDone(); }} />
   </>;
 };

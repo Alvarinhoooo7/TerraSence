@@ -14,12 +14,12 @@ Implementar por entregas la [especificación del motor agronómico](MOTOR_AGRONO
 
 | Entrega | Estado | Dependencia y condición de cierre |
 | --- | --- | --- |
-| E1 — Calidad y contratos | E1.1/E1.2 completos; E1.3 integrado parcialmente | Faltan derivados, caché y verificación en teléfono |
-| E2 — Física local | Pendiente | E1; fórmulas y dominios comprobados |
-| E3 — Clima horario | Pendiente | E1; intervalos, caché y peticiones ligados a la captura |
-| E4 — Motor por etapa | Pendiente | E1–E3; riesgos independientes del catálogo y prioridades coherentes |
+| E1 — Calidad y contratos | E1.1/E1.2 completos; E1.3 integrado parcialmente | Falta verificación en teléfono |
+| E2 — Física local | Completa por software | Falta un BME280 con humedad para contrastar en el equipo (F3 del firmware) |
+| E3 — Clima horario | Caché sin red implementada; resto pendiente | E1; intervalos y peticiones ligados a la captura |
+| E4 — Motor por etapa | Reglas generales con ID y sin catálogo, orden del plan y T01–T03, T20, T33, T34, T40 y T44; faltan fusión de acciones y reglas VG/FL/CO con evidencia | E1–E3; riesgos independientes del catálogo y prioridades coherentes |
 | E5 — Catálogo con evidencia | Pendiente | Lista de especies: sin dependencia. Criterios: E1/E2 y evidencia revisada; cada criterio activo tiene fuente y método compatible |
-| E6 — Resultado y persistencia | Pendiente | Selector de especie: lista de E5. Resto: E4/E5; presentación e instantánea versionadas, legibles sin recalcular |
+| E6 — Resultado y persistencia | Guardado y sincronización sin red verificados en teléfono; resto pendiente | Selector de especie: lista de E5. Resto: E4/E5; presentación e instantánea versionadas, legibles sin recalcular |
 | E7 — Equipo y terreno | Pendiente | Capacidades habilitadas; contraste físico y revisión agronómica |
 | E8 — Extensiones justificadas | Pendiente | Base verificada; beneficio y costo demostrados |
 | ES — Especie de la medición | ES1–ES4 por software; ES5 en teléfono parcial; ES6–ES8: las 111 especies del catálogo con perfil y criterios en las tres etapas (criterios `2.9.0`, catálogo `2.2.0`) | Lista con fuentes, selector, resultado e historial; criterios por especie y etapa (ES6); cobertura total del catálogo (ES7 y ES8) |
@@ -82,7 +82,7 @@ Trabajo prioritario: primero la app y su lista de especies (ES1–ES5); después
 ### ES5. Verificación
 
 - [x] `npm test`, `npm run type-check` y verificador documental.
-- [ ] Recorrido en teléfono Android. Hecho en un Moto g56 con Expo Go, sonda simulada y pronóstico real de Open-Meteo: elegir etapa y especie, buscar, letra grande (escala 1,3), resultado y plan de recomendaciones de cerezo, olivo y tomate, y el detalle técnico desplegable. El recorrido corrigió el buscador, que quedaba tapado por el teclado: [EntryUI.tsx](src/components/entry/EntryUI.tsx) reserva el alto del teclado en Android y [SpeciesPicker.tsx](src/components/SpeciesPicker.tsx) deja espacio para ver los resultados. Pendiente: saltar, «no se encuentra», inglés, guardar sin red y abrir el historial; la sonda simulada no guarda mediciones.
+- [ ] Recorrido en teléfono Android. Hecho en un Moto g56 con Expo Go, sonda simulada y pronóstico real de Open-Meteo: elegir etapa y especie, buscar, letra grande (escala 1,3), resultado y plan de recomendaciones de cerezo, olivo y tomate, y el detalle técnico desplegable. El recorrido corrigió el buscador, que quedaba tapado por el teclado: [EntryUI.tsx](src/components/entry/EntryUI.tsx) reserva el alto del teclado en Android y [SpeciesPicker.tsx](src/components/SpeciesPicker.tsx) deja espacio para ver los resultados. El 22 de octubre de 2026, con la compilación release y la sonda real (al aire, sobre el escritorio), se recorrió el uso sin red: medir y guardar con red, cortar Wi-Fi y datos, medir con el pronóstico guardado, medir sin ubicación, guardar en la cola, abrir el historial sin red y sincronizar al reconectar. Con 21,2 °C y 58 % del equipo, el detalle mostró DPV de 1,06 kPa y rocío de 12,6 °C, que coinciden con el cálculo a mano. El recorrido corrigió tres fallas: una lectura subida con red no aparecía en el historial sin red ([measurementsService.ts](src/services/measurementsService.ts) ahora la agrega a la copia local); el pronóstico guardado se rotulaba «HOY · AHORA» sin tener el tiempo actual ([MeasurementForecast.tsx](src/components/MeasurementForecast.tsx)); y «Medir» tardaba unos 8 s en abrir sin red ([DashboardScreen.tsx](src/screens/DashboardScreen.tsx) limita a 3 s la comprobación de acceso). Pendiente: saltar, «no se encuentra» e inglés; sin red, el historial tarda de 10 a 15 s en mostrar la copia local.
 
 ### ES6. Criterios por especie y etapa — en curso
 
@@ -511,17 +511,20 @@ Precisiones para estos grupos:
 
 **Resultado:** coincidencias parciales por temperatura y pH; conductividad sin categorías de salinidad; nutrientes fuera de compatibilidad y dosis. Estado semántico y cobertura guardados en el diagnóstico. La insuficiencia tiene presentación neutral en resultado e historial; ámbar se conserva únicamente en el campo legado para evitar que clientes antiguos la interpreten como éxito.
 
-**Pendientes:** derivados y T04/T10 completos en E2; caché, intervalos, cancelación integral y recorridos de guardado en E3/E6. T31 verifica aquí rechazo de evidencia antigua, no una caché implementada. El evaluador legado de perfiles explícitos conserva sus reglas y no se usa en capturas nuevas. La independencia de alertas respecto del catálogo y la revisión de sus fuentes corresponden a E4/E5. Falta verificar en teléfono.
+**Pendientes:** intervalos, cancelación integral y recorridos de guardado en E3/E6. T31 verifica aquí rechazo de evidencia antigua, no una caché implementada. El evaluador legado de perfiles explícitos conserva sus reglas y no se usa en capturas nuevas. La independencia de alertas respecto del catálogo y la revisión de sus fuentes corresponden a E4/E5. Falta verificar en teléfono.
 
 ## 4. E2 — Física local
 
-**Dependencia:** E1.2. **Áreas:** funciones puras en `src/engine/`, tipos y pruebas.
+**Código:** [localPhysics.ts](src/engine/localPhysics.ts) (fórmulas y dominio), [evaluationCoverage.ts](src/engine/evaluationCoverage.ts), [speciesRules.ts](src/engine/speciesRules.ts) (frío con el aire local), [measurementPresentation.ts](src/engine/measurementPresentation.ts) y el detalle de [MeasurementResultFlow.tsx](src/components/MeasurementResultFlow.tsx). **Evidencia:** [localPhysics.test.ts](tests/localPhysics.test.ts).
 
-- [ ] Revisar el cálculo existente de déficit de presión de vapor y verificar fórmula y dominio contra la fuente de la especificación.
-- [ ] Implementar punto de rocío y consistencia entre magnitudes, con entradas/fórmula/versiones trazables.
-- [ ] Tratar humedad relativa cero, saturación y presión ausente según las dependencias reales de cada fórmula.
-- [ ] Mantener indicadores continuos; no activar categorías o acciones con umbrales sin evidencia revisada.
-- [ ] Pasar T07–T11 y conectar los derivados al resultado conservando sus limitaciones instantáneas.
+- [x] Revisar el déficit de presión de vapor existente: la fórmula coincide con FAO-56 (ec. 11 y 19), pero `computeVpdKpa` aceptaba humedad fuera de 0–100 % y valores no finitos; ahora devuelve `null` y la fórmula vive en un solo lugar.
+- [x] Punto de rocío por inversión de la misma ecuación, separación al rocío y diferencia suelo–aire, con entradas, fórmula, fuente y versión (`local-physics-v1`) por indicador.
+- [x] HR de 0 %: DPV calculable y rocío no calculable, sin mínimo artificial (T09). Saturación: DPV cero y rocío igual a la temperatura (T08). La presión no entra en ninguna fórmula (T10). Bajo 0 °C se declara la referencia sobre agua (`water_reference_below_freezing`): no es un cálculo de escarcha.
+- [x] Indicadores continuos, sin categorías ni acciones: la capacidad `ambient_vpd` deja de estar bloqueada y declara `continuous_indicator_only`.
+- [x] T04, T07–T11. Los derivados se muestran en el detalle de temperatura y humedad del aire («Calculado con esta lectura») y se guardan en el diagnóstico (`diagnosis.derived`), heredando las limitaciones de sus entradas.
+- [x] **Frío con el aire medido, sin red.** Los criterios de especie de mínima bajo un umbral (helada y frío) se comparan también con la temperatura del aire del equipo: la mínima del día nunca supera la de este momento, así que una lectura en el umbral o bajo él lo implica. Avisa una sola vez por familia, con el umbral más extremo (T44), y una lectura sobre el umbral no se presenta como clima favorable. El calor y las noches cálidas siguen sólo en el pronóstico: el sol sobre el equipo sube la lectura y una noche cálida no se deduce de un instante. Con pronóstico se muestran ambas fuentes (§5.6). Sin red, 84, 97 y 86 de las 111 especies tienen un criterio de frío revisable en vegetativo, floración y cosecha; antes, en cosecha, ninguna.
+
+**Límites:** el módulo del equipo en banco es un BMP280 sin humedad, así que el DPV y el rocío sólo se comprobaron con pruebas; con ese módulo quedan «No calculable». Es una captura instantánea: no da duración de episodios ni sustituye una serie horaria.
 
 ## 5. E3 — Clima horario
 
@@ -531,21 +534,21 @@ Precisiones para estos grupos:
 - [ ] Incorporar lo que queda del día e intervalos horarios sin deducir horas desde resúmenes diarios. Avance: el día de la consulta (`today`) y el tiempo actual por código WMO (`weatherCode`, diario y actual) ya se piden, validan y guardan; hoy cuenta en las alertas de lluvia, helada y calor, y la lluvia en curso abre el plan. La temperatura horaria del aire (`hourly`) se pide, se valida (unidad °C, horas repetidas o inválidas descartadas) y sólo se usa para estimar cuántas horas dura un episodio de los criterios de especie; no se guarda en el diagnóstico. Faltan el resto de variables horarias y los intervalos de lo que queda del día. Código: [weatherService.ts](src/services/weatherService.ts), [weatherOutlook.ts](src/engine/weatherOutlook.ts); evidencia: [weatherOutlook.test.ts](tests/weatherOutlook.test.ts), con la forma de una respuesta real del 12 de octubre de 2026 en Santiago.
 - [ ] Normalizar intervalos y cambios de hora de Chile; los huecos interrumpen la continuidad.
 - [ ] Mantener separados probabilidad, cantidad y componentes de precipitación; evitar dobles conteos de agua y evapotranspiración de referencia.
-- [ ] Añadir caché y política de vigencia vinculadas a ubicación/producto; conservar errores parciales.
+- [x] Caché y vigencia vinculadas a ubicación y producto (`weather-cache-v1`, [evaluationCoverage.ts](src/engine/evaluationCoverage.ts)). Cada descarga se guarda por cuenta ([weatherCacheStore.ts](src/services/weatherCacheStore.ts)); sin red o ante un error del proveedor se reutiliza la más cercana dentro de 1 km y de la vigencia de 3 h ya vigente, reconstruida desde la respuesta original con el reloj de la captura: sin el bloque «ahora», sin contar como hoy un día ya pasado y con huecos donde no alcanza. Conserva la hora de descarga y la distancia, se declara (`weather_reused_offline`) y se muestra en el pronóstico, el plan y el historial. Evidencia: [weatherCache.test.ts](tests/weatherCache.test.ts), que cubre T29 y T31 con la caché real. Falta medir aciertos y tamaño en uso.
 - [ ] Cancelar solicitudes al salir/cambiar de cuenta y descartar respuestas de otra captura; comprobar el patrón existente de guardado antes del clima.
 - [ ] Medir peticiones, latencia y tamaño de respuesta; revisar condiciones de uso antes del despliegue.
 - [ ] Pasar T21–T32 y T36–T38 con integración, además de las pruebas puras.
 
 ## 6. E4 — Motor por etapa
 
-**Áreas:** [stageEvaluator.ts](src/engine/stageEvaluator.ts), [contextualAdvice.ts](src/engine/contextualAdvice.ts) y funciones de decisión.
+**Áreas:** [stageEvaluator.ts](src/engine/stageEvaluator.ts), [contextualAdvice.ts](src/engine/contextualAdvice.ts) y funciones de decisión. **Evidencia:** [stageRules.test.ts](tests/stageRules.test.ts).
 
-- [ ] Separar reglas ambientales del conjunto de perfiles: agregar o reordenar cultivos no altera una alerta general.
-- [ ] Registrar IDs/versiones, entradas, razones, fuentes y límites para cada regla habilitada.
-- [ ] Implementar prioridades y resolución de conflictos; evitar aumentar gravedad por evidencia duplicada.
-- [ ] Revisar salidas de vegetativo, floración y cosecha según el alcance autorizado, sin inferir especie, enfermedad, madurez ni tránsito seguro.
-- [ ] Conservar cobertura insuficiente en el estado resultante y coherencia entre ambos idiomas.
-- [ ] Pasar T01–T03, T20, T33–T34, T40 y T44.
+- [x] Separar reglas ambientales del conjunto de perfiles: las alertas generales de temperatura, pH y humedad se calculaban sobre los perfiles y texturas del prototipo, así que agregar un cultivo podía apagar una. Ahora son reglas `GEN-TEMP-01`, `GEN-PH-01` y `GEN-VWC-01` (`GENERAL_RULES`, versión `1.0.0`) con los mismos límites congelados; el resultado vigente no cambia. Esos límites siguen sin fuente agronómica revisada y así se declara en el código.
+- [x] IDs y versiones por alerta (`ruleId`, `ruleVersion`): reglas generales y `species:<id>:<variable>` con la versión de los criterios por especie. Las fuentes y límites de cada criterio de especie ya estaban en el detalle técnico.
+- [ ] Prioridades y conflictos. Avance: el plan se ordena por urgencia y cercanía (ahora, hoy, próximos días, próxima medición) y nunca por el orden del catálogo; conductividad y NPK no suman gravedad (T44). Falta fusionar acciones del mismo objetivo conservando sus razones (§9.2).
+- [ ] Revisar salidas de vegetativo, floración y cosecha (VG01–VG05, FL01–FL05, CO01–CO05). Comprobado que no se infiere especie, infección, madurez ni tránsito seguro (T20, T33, T34); las reglas nuevas esperan umbrales con evidencia (§8.6), que no se activan para llenar la pantalla.
+- [x] Cobertura insuficiente conservada en el estado y misma evaluación en ambos idiomas (T40).
+- [x] T01–T03, T20, T33, T34, T40 y T44.
 
 ## 7. E5 — Catálogo con evidencia
 
@@ -572,6 +575,7 @@ El selector de especie, su guardado y su presentación se trabajan en [ES](#2-es
 - [ ] Ampliar pronóstico con comparación temporal y derivados identificados, sin pasos obligatorios nuevos.
 - [ ] Guardar instantánea compacta de datos usados, razones, cobertura y versiones; medir tamaño del diagnóstico y cola sin red.
 - [ ] Mantener históricos sin recalcular ni incorporar pronóstico nuevo; conservar lectura de contratos anteriores.
+- [x] Límite de 10 s para subir una medición o sincronizar la cola ([measurementsService.ts](src/services/measurementsService.ts)): con señal débil la petición se cancela y la medición queda en la cola local, que se escribe antes de intentar subirla.
 - [ ] Verificar guardar antes del clima, llegada posterior, salida y cambio de cuenta.
 - [ ] Pasar T35–T40, T43, T45 y T48; verificar navegación, letra grande, idioma y lectura sin red en Android/iOS.
 - [ ] Crear migraciones sólo si el contrato final las necesita. La especie del backoffice no agrega columnas: devuelve la de la instantánea.
@@ -607,6 +611,6 @@ python docs/verificar_documentacion.py
 
 El verificador incluye esta tarea y la especificación. Las pruebas de calidad de entrada y del servicio climático pertenecen al comando habitual de la app. E1.1/E1.2 no requieren dependencias ni migraciones nuevas.
 
-**Resultados de verificación del incremento:** `npm test` aprobó la suite completa (370 pruebas, 18 de octubre de 2026) y `npm run type-check` terminó sin errores; el verificador documental, con 0 errores. Las pantallas se revisaron en un teléfono Android mediante Expo Go con lecturas simuladas y el pronóstico real de Open-Meteo. Son comprobaciones de software, no ensayos con la sonda.
+**Resultados de verificación del incremento:** `npm test` aprobó la suite completa (423 pruebas, 22 de octubre de 2026) y `npm run type-check` terminó sin errores; el verificador documental, con 0 errores. El uso sin red se recorrió en un teléfono Android con la compilación release y la sonda real fuera del suelo (detalle en [ES5](#es5-verificación)). Son comprobaciones de software, no ensayos agronómicos con la sonda.
 
 **Revisión pendiente fuera de las pruebas automatizadas:** ejecución en teléfono y proveedor real. No se declara validación de terreno, precisión instrumental ni cierre completo de E1.

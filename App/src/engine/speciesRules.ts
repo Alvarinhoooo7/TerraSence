@@ -158,19 +158,23 @@ export function meetsThreshold(comparison: SpeciesComparison, threshold: Species
  *
  * `usable` dice si el dato puede interpretarse (disponible y captura vigente): un dato
  * ausente, inválido o de una captura antigua no se compara con ningún criterio. Los
- * criterios del pronóstico no se evalúan aquí sino en `evaluateSpeciesWeather`.
+ * criterios del pronóstico se evalúan en `evaluateSpeciesWeather`; aquí sólo se compara
+ * con ellos la temperatura del aire que midió el equipo, y sólo cuando la lectura implica
+ * la condición (ver `localAirImplies`). Así un riesgo de helada se detecta aunque no haya
+ * red ni pronóstico.
  */
 export function evaluateSpeciesCriteria(
   speciesId: string | null | undefined,
   stage: PhenologicalStage,
   reading: SoilMeasurement,
   language: AppLanguage = 'es',
-  usable: (key: 'ph' | 'temp' | 'airHumidity') => boolean = () => true,
+  usable: (key: 'ph' | 'temp' | 'airHumidity' | 'airTemp') => boolean = () => true,
 ): AgronomicAlert[] {
   const profile = findSpeciesRuleProfile(speciesId);
   if (!profile) return [];
   const en = language === 'en';
   const alerts: AgronomicAlert[] = [];
+  const localAirHits: SpeciesAirTemperatureCriterion[] = [];
   for (const criterion of profile.criteria) {
     if (criterion.state !== 'enabled' || !criterion.stages.includes(stage)) continue;
     if (criterion.kind === 'ph') {
@@ -210,6 +214,10 @@ export function evaluateSpeciesCriteria(
           ? 'To know whether salts limit this crop, ask a laboratory for the saturated-paste electrical conductivity.'
           : 'Para saber si las sales limitan este cultivo, pide en laboratorio la conductividad eléctrica del extracto de saturación.', language),
       });
+    } else if (criterion.kind === 'air_temperature') {
+      const value = reading.airTemp;
+      if (!localAirImplies(criterion) || !usable('airTemp') || typeof value !== 'number' || !Number.isFinite(value)) continue;
+      if (meetsThreshold(criterion.comparison, criterion.threshold, value)) localAirHits.push(criterion);
     } else if (criterion.kind === 'water_sensitivity') {
       alerts.push({
         type: 'info', param: 'vwc', origin: 'species',
@@ -221,7 +229,40 @@ export function evaluateSpeciesCriteria(
       });
     }
   }
-  return alerts;
+  // Grados de un mismo riesgo: sólo el umbral más bajo que se cumple, como en el pronóstico (T44).
+  const local = localAirHits.reduce<SpeciesAirTemperatureCriterion | null>((best, c) => !best || c.threshold.value < best.threshold.value
+    || (c.threshold.value === best.threshold.value && SEVERITY_ORDER[c.severity] < SEVERITY_ORDER[best.severity]) ? c : best, null);
+  if (local) {
+    const measured = decimal(Math.round(reading.airTemp! * 10) / 10, language);
+    alerts.push({
+      type: local.severity, param: 'airTemp', origin: 'species',
+      title: `${en ? local.effectEn : local.effect} — ${en ? `the device measures ${measured} °C now` : `el equipo mide ${measured} °C ahora`}`,
+      action: `${en ? local.adviceEn : local.advice} ${en
+        ? 'Check it with a thermometer in the shade, at plant height.'
+        : 'Compruébalo con un termómetro a la sombra, a la altura de la planta.'}`,
+      detail: explanation(local, en
+        ? `Air temperature measured by the device at this point when measuring (${measured} °C), compared with the threshold the source gives for the daily low: if it is already at or below the threshold, the low of the day is too. It is a single reading: it does not say how long the cold lasts, and a reading above the threshold does not rule out frost later.`
+        : `Temperatura del aire que midió el equipo en este punto al medir (${measured} °C), comparada con el umbral que la fuente da para la mínima del día: si ya está en el umbral o bajo él, la mínima del día también. Es una sola lectura: no dice cuánto dura el frío, y una lectura sobre el umbral no descarta una helada más tarde.`, language),
+    });
+  }
+  // Trazabilidad (§8.1): la especie y la variable identifican el criterio; la versión, el conjunto.
+  return alerts.map(alert => ({ ...alert, ruleId: `species:${profile.speciesId}:${alert.param}`, ruleVersion: SPECIES_RULES_VERSION }));
+}
+
+/**
+ * Si una lectura instantánea del aire basta para afirmar la condición del criterio. Sólo en
+ * frío y helada: la mínima del día nunca supera la temperatura de este momento, así que una
+ * lectura en el umbral o bajo él implica una mínima en el umbral o bajo él. El calor queda
+ * en el pronóstico: el sol sobre el equipo eleva su lectura y daría falsas alarmas, y una
+ * «noche cálida» no se deduce de un instante.
+ */
+export const localAirImplies = (criterion: SpeciesAirTemperatureCriterion) =>
+  criterion.extreme === 'minimum' && (criterion.comparison === 'below' || criterion.comparison === 'at_or_below');
+
+/** Si la especie tiene en la etapa algún criterio de frío que la lectura del aire pueda revisar. */
+export function hasLocalAirCriteria(speciesId: string | null | undefined, stage: PhenologicalStage): boolean {
+  const profile = findSpeciesRuleProfile(speciesId);
+  return !!profile && profile.criteria.some(c => c.state === 'enabled' && c.stages.includes(stage) && c.kind === 'air_temperature' && localAirImplies(c));
 }
 
 // --- Criterios del pronóstico -------------------------------------------------------------

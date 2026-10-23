@@ -13,6 +13,15 @@ export const formatTemperature = (
     ? { value: (celsius * 9) / 5 + 32, unit: '°F' }
     : { value: celsius, unit: '°C' };
 
+/** Diferencia de temperatura: en °F sólo cambia la escala, sin el desplazamiento de 32. */
+export const formatTemperatureDifference = (
+  celsius: number,
+  system: MeasurementSystem,
+): FormattedValue =>
+  system === 'imperial'
+    ? { value: (celsius * 9) / 5, unit: '°F' }
+    : { value: celsius, unit: '°C' };
+
 export const formatArea = (hectares: number, system: MeasurementSystem): string =>
   system === 'imperial'
     ? `${(hectares * 2.47105381).toFixed(2)} ac`
