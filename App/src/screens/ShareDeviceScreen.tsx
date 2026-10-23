@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, BackHandler } from 'react-native';
 import { SettingsPage, SettingsRow, SettingsText, SettingsButton } from '../components/SettingsUI';
 import { RotatingDeviceQr } from '../components/RotatingDeviceQr';
+import { NotificationActivationCard } from '../components/NotificationActivationCard';
 import { useLinkedDevices } from '../hooks/useLinkedDevices';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
@@ -20,6 +21,7 @@ export function ShareDeviceScreen({ onBack }: { onBack: () => void }) {
     {loading && <ActivityIndicator color={colors.primary} />}
     {error && <><SettingsText>{t('No pudimos consultar tus sondas.', 'Could not load your probes.')}</SettingsText><SettingsButton title={t('Reintentar', 'Retry')} onPress={() => void refresh()} /></>}
     {device ? <RotatingDeviceQr deviceId={device.id} /> : devices.map(d => <SettingsRow key={d.id} title={d.alias || d.name} subtitle={formatDeviceId(d.device_code)} onPress={() => setId(d.id)} />)}
+    {device && <NotificationActivationCard description={t('El administrador recibe las solicitudes de acceso. Activa los avisos para recibir los cambios que te correspondan.', 'The administrator receives access requests. Enable alerts to receive changes relevant to you.')} />}
     {!loading && !error && !devices.length && <SettingsText>{t('Necesitas acceso aprobado a una sonda para compartirla.', 'You need approved access to a probe to share it.')}</SettingsText>}
   </SettingsPage>;
 }

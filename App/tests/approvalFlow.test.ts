@@ -2,6 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createApprovalTracker } from '../src/utils/approvalFlow';
 const pending = (id: string) => ({ device_id: id });
+test('las solicitudes conocidas al entrar sobreviven a una aprobación o rechazo antes del primer sondeo', () => {
+  assert.deepEqual(createApprovalTracker(['target'], true).update([], [{ id: 'other' }, { id: 'target' }]).approved, { id: 'target' });
+  assert.equal(createApprovalTracker(['target'], true).update([], []).removed, true);
+  assert.equal(createApprovalTracker(['target'], true).update([], [{ id: 'other' }]).approved, undefined);
+});
+
+test('la espera inicial sin objetivos reconcilia el acceso actual y permite salir si no queda solicitud', () => {
+  assert.deepEqual(createApprovalTracker(undefined, true).update([], [{ id: 'approved' }]).approved, { id: 'approved' });
+  assert.equal(createApprovalTracker(undefined, true).update([], []).removed, true);
+  assert.equal(createApprovalTracker().update([], [{ id: 'unrelated' }]).approved, undefined);
+});
 test('vincular otra sonda espera el objetivo y nunca devuelve un equipo existente o ajeno', () => {
   const tracker = createApprovalTracker('target');
   assert.equal(tracker.update([pending('target')], [{ id: 'old' }, { id: 'other' }]).approved, undefined);

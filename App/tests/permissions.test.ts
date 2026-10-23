@@ -8,6 +8,24 @@ import {
 import { createAccountOperation } from '../src/utils/accountOperation';
 import { createLatestOnly } from '../src/utils/latestOnly';
 import { PERMISSION_ACTIONS, PERMISSION_COPY, permissionStatusLabel } from '../src/utils/permissionCopy';
+import { notificationActivation } from '../src/utils/notificationActivation';
+
+test('activar la preferencia o sincronizar un permiso denegado nunca anuncia notificaciones listas', () => {
+  assert.deepEqual(notificationActivation({ status: 'denied', canAskAgain: false }, true, 'ready'), { state: 'permission-blocked', action: 'settings' });
+  assert.deepEqual(notificationActivation({ status: 'undetermined', canAskAgain: true }, true, 'ready'), { state: 'permission-needed', action: 'request' });
+  assert.deepEqual(notificationActivation({ status: 'granted', canAskAgain: false }, false, 'ready'), { state: 'preference-off', action: 'enable' });
+});
+
+test('el registro fallido se distingue del permiso y los avisos provisionales siguen siendo silenciosos', () => {
+  const granted = { status: 'granted', canAskAgain: false } as const;
+  assert.deepEqual(notificationActivation(granted, true, 'error'), { state: 'registration-pending', action: 'retry' });
+  assert.equal(notificationActivation(granted, true, 'syncing').state, 'registering');
+  assert.equal(notificationActivation(granted, true, 'ready').state, 'registered');
+  const quiet = notificationState({ granted: true, status: 'granted', canAskAgain: false }, true);
+  assert.equal(notificationActivation(quiet, true, 'ready').state, 'quiet');
+  assert.equal(notificationActivation({ status: 'restricted', canAskAgain: false }, true, 'ready').action, null);
+  assert.equal(notificationActivation({ status: 'error', canAskAgain: true }, true, 'ready').action, 'check');
+});
 
 test('permiso concedido, rechazo definitivo y solicitud pendiente mantienen estados distintos', () => {
   assert.deepEqual(toPermissionState({ status: 'granted', granted: true, canAskAgain: false }), { status: 'granted', canAskAgain: false });

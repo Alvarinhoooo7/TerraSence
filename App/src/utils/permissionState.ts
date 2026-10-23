@@ -70,7 +70,7 @@ export function locationState(response: {
 /** Los avisos provisionales de iOS cuentan como autorización, pero silenciosa. */
 export function notificationState(response: { granted: boolean; status: string; canAskAgain: boolean }, provisional: boolean): PermissionState {
   const state = toPermissionState({ ...response, granted: response.granted || provisional });
-  return provisional && !response.granted ? { ...state, provisional } : state;
+  return provisional ? { ...state, provisional } : state;
 }
 
 /**

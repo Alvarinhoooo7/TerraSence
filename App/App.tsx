@@ -101,6 +101,7 @@ export default function App() {
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [onboardingUserId, setOnboardingUserId] = useState<string | null>(null);
   const [awaitingDeviceApproval, setAwaitingDeviceApproval] = useState(false);
+  const [pendingDeviceIds, setPendingDeviceIds] = useState<string[]>([]);
   const [onboardingError, setOnboardingError] = useState<string | null>(null);
   const [onboardingRetry, setOnboardingRetry] = useState(0);
   const [route, setRoute] = useState<Route>('dashboard');
@@ -320,7 +321,7 @@ export default function App() {
     isDevSkipEnabled(session.user.id).then(devSkip => Promise.all([
       getOnboardingState().catch(error => {
         if (!devSkip) throw error;
-        return { completed: false, hasPendingRequests: false, devices: [] };
+        return { completed: false, hasPendingRequests: false, pendingDeviceIds: [], devices: [] };
       }),
       devSkip,
     ] as const))
@@ -330,6 +331,7 @@ export default function App() {
         setDevice(selected);
         setOnboardingComplete(state.completed || devSkip);
         setAwaitingDeviceApproval(!state.completed && (state.hasPendingRequests ?? false));
+        setPendingDeviceIds(state.pendingDeviceIds ?? []);
       })
       .catch((error) => {
         if (!active) return;
@@ -526,7 +528,7 @@ export default function App() {
     content = <NotificationInboxScreen key={session.user.id} initialAlertId={pendingAlertId} onInitialHandled={() => setPendingAlertId(null)}
       onBack={() => { setInboxOpen(false); setPendingAlertId(null); }} onOpen={openNotification} />;
   } else if (entry === 'approval') {
-    content = <WaitingApprovalScreen onApproved={device => {
+    content = <WaitingApprovalScreen initialPendingDeviceIds={pendingDeviceIds} onApproved={device => {
       if (session) void rememberSelectedDevice(session.user.id, device.id).catch(() => undefined);
       setDevice(device); setOnboardingComplete(true); setAwaitingDeviceApproval(false); setRoute('dashboard');
     }} onDismiss={() => { setAwaitingDeviceApproval(false); setOnboardingRetry(value => value + 1); }} />;

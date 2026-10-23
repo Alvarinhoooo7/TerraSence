@@ -10,7 +10,8 @@ import { useAppStore } from '../store/useAppStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { listMyDeviceMemberships } from '../services/deviceService';
 import { clearDevSkip } from '../utils/devSkipOnboarding';
-import { getPushRegistrationStatus, registerPushToken, signOutThisPhone, subscribePushRegistration } from '../services/notifications';
+import { registerPushToken, signOutThisPhone } from '../services/notifications';
+import { NotificationActivationCard } from '../components/NotificationActivationCard';
 import { savePreferences } from '../services/preferencesService';
 import { pendingCount } from '../services/measurementsService';
 import type { AppPreferences } from '../types/preferences';
@@ -25,8 +26,6 @@ export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenAdministration
   const { colors } = useAppTheme(); const { t } = useTranslation();
   const preferences = useAppStore(s => s.preferences); const [page, setPage] = useState<Page>(initialPage);
   const [canAdminister, setCanAdminister] = useState(false); const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const lock = useRef(false);
-  const [pushStatus, setPushStatus] = useState(getPushRegistrationStatus);
-  useEffect(() => subscribePushRegistration(setPushStatus), []);
   useEffect(() => { let active = true; const refresh = () => void listMyDeviceMemberships().then(rows => { if (active) setCanAdminister(rows.some(m => m.role === 'admin' && m.is_authorized)); }).catch(() => { if (active) setCanAdminister(false); }); refresh(); const timer = setInterval(refresh, 10000); return () => { active = false; clearInterval(timer); }; }, []);
   useEffect(() => { const sub = BackHandler.addEventListener('hardwareBackPress', () => { if (busy) return true; if (page === 'index') return false; setPage(settingsParent(page)); return true; }); return () => sub.remove(); }, [page, busy]);
   const back = () => { if (!busy) { setError(''); setPage(settingsParent(page)); } };
@@ -95,7 +94,7 @@ export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenAdministration
           options={[{ value: 'normal', label: t('Normal', 'Normal') }, { value: 'large', label: t('Grande', 'Large') }]} onChange={textSize => void apply({ ...preferences, textSize })} />
       </ScreenCard>
       <ScreenLabel>{t('Avisos y permisos', 'Alerts and permissions')}</ScreenLabel>
-      <SettingsRow title={t('Notificaciones', 'Notifications')} subtitle={preferences.notifications.device ? t('Avisos de acceso activados', 'Access alerts on') : t('Avisos de acceso desactivados', 'Access alerts off')} onPress={() => setPage('notifications')} />
+      <SettingsRow title={t('Notificaciones', 'Notifications')} subtitle={t('Preferencia, permiso y registro del teléfono', 'Preference, permission and phone registration')} onPress={() => setPage('notifications')} />
       <SettingsRow title={t('Permisos del teléfono', 'Phone permissions')} subtitle={t('Bluetooth, ubicación, cámara y avisos', 'Bluetooth, location, camera and alerts')} onPress={() => setPage('permissions')} />
     </>}
     {page === 'help' && <>
@@ -108,9 +107,8 @@ export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenAdministration
     {page === 'theme' && (['system', 'light', 'dark'] as const).map(theme => <SettingsRow key={theme} title={theme === 'system' ? t('Seguir el sistema', 'Follow system') : theme === 'light' ? t('Claro', 'Light') : t('Oscuro', 'Dark')} selected={preferences.theme === theme} disabled={busy} onPress={() => void apply({ ...preferences, theme })} />)}
     {page === 'notifications' && <>
       <SettingsText>{t('Recibe solicitudes de acceso, aprobaciones, rechazos y cambios de administración. El permiso del teléfono se gestiona por separado. Los cambios sin conexión se enviarán cuando vuelvas a conectarte.', 'Receive access requests, approvals, rejections and administration changes. Phone permission is managed separately. Offline changes will sync when you reconnect.')}</SettingsText>
-      {pushStatus === 'error' && <SettingsCard><SettingsText danger>{t('No se pudo actualizar el registro de este teléfono. Reintenta con conexión.', 'Could not update this phone registration. Retry online.')}</SettingsText><SettingsRow title={t('Reintentar registro', 'Retry registration')} onPress={() => void registerPushToken().catch(() => undefined)} /></SettingsCard>}
       <SettingsCard><View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}><View style={{ flex: 1, gap: 4 }}><Text style={{ color: colors.text, fontSize: 17, fontWeight: '600' }}>{t('Acceso a equipos', 'Device access')}</Text><SettingsText>{t('Avisos push sobre miembros y solicitudes.', 'Push alerts about members and requests.')}</SettingsText></View><Switch accessibilityLabel={t('Acceso a equipos', 'Device access')} disabled={busy} value={preferences.notifications.device} onValueChange={enabled => void apply({ ...preferences, notifications: { device: enabled } })} trackColor={{ false: colors.border, true: colors.primary }} /></View></SettingsCard>
-      <SettingsRow title={t('Revisar permiso del teléfono', 'Review phone permission')} onPress={() => setPage('permissions')} />
+      <NotificationActivationCard showRegistered />
     </>}
   </SettingsPage>;
 }

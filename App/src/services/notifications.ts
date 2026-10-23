@@ -284,21 +284,32 @@ export async function beginPasswordRecoveryClosure(): Promise<void> {
 /** Cierra también la sesión actual. Se puede repetir tras un fallo parcial o reinicio. */
 async function finishPasswordRecoveryClosureOnce(): Promise<void> {
   recoveryUpdateInProgress = false;
-  signingOut = true;
   ++revision;
   const expected = await pendingRecoveryIdentity();
   const { data, error } = await supabase.auth.getSession();
   if (error) throw error;
   const current = data.session ? recoveryIdentity(data.session) : null;
-  if (!expected || !current || current.userId !== expected.userId || current.sessionId !== expected.sessionId) {
+  // Auth puede haber cerrado correctamente antes de fallar AsyncStorage. En ese caso
+  // sólo falta limpiar: ni finalizar ni cancelar deben exigir la sesión que ya terminó.
+  if (!current) {
+    await clearPasswordRecoveryClosure();
+    return;
+  }
+  if (!expected || current.userId !== expected.userId || current.sessionId !== expected.sessionId) {
     throw new Error('La sesión de recuperación cambió.');
   }
+  signingOut = true;
   const { error: revokeError } = await supabase.rpc('revoke_push_for_password_recovery');
   if (revokeError) throw revokeError;
   const { error: signOutError } = await supabase.auth.signOut({ scope: 'global' });
   if (signOutError) throw signOutError;
+  await clearPasswordRecoveryClosure();
+}
+
+async function clearPasswordRecoveryClosure(): Promise<void> {
   await AsyncStorage.removeItem(PENDING_RECOVERY_KEY);
   await AsyncStorage.removeItem(PENDING_REVOKE_KEY);
+  signingOut = false;
   setStatus('idle');
 }
 
@@ -319,6 +330,7 @@ export async function flushPendingPasswordRecoveryClosure(): Promise<boolean> {
   const current = data.session ? recoveryIdentity(data.session) : null;
   if (!current || current.userId !== expected.userId || current.sessionId !== expected.sessionId) {
     await AsyncStorage.removeItem(PENDING_RECOVERY_KEY);
+    signingOut = false;
     return true;
   }
   await finishPasswordRecoveryClosure();

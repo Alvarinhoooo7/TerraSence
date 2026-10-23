@@ -11,6 +11,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { getMyNotification, listMyNotifications, markNotificationRead, type DeviceNotification, type NotificationCursor } from '../services/notificationInbox';
 import { NotificationUnavailableError, isOfflineError, notificationCopy, parseNotificationPayload } from '../utils/notificationRoute';
 import { useAuthStore } from '../store/useAuthStore';
+import { NotificationActivationCard } from '../components/NotificationActivationCard';
 
 type Problem = 'offline' | 'load' | 'open' | 'unavailable' | 'resolved';
 
@@ -131,6 +132,7 @@ export function NotificationInboxScreen({ onBack, onOpen, initialAlertId, onInit
   return <SettingsPage eyebrow={t('ACCESO A TUS EQUIPOS', 'ACCESS TO YOUR DEVICES')} title={t('Avisos', 'Alerts')} onBack={onBack}
     description={t('Solicitudes y cambios de acceso a tus equipos.', 'Requests and access changes for your devices.')}>
     {!!problem && <SettingsText danger={problem !== 'resolved'}>{message[problem]}</SettingsText>}
+    <NotificationActivationCard />
     {loading && !loaded && <View accessibilityRole="progressbar" accessibilityLabel={t('Cargando avisos', 'Loading alerts')} style={{ paddingVertical: 24, alignItems: 'center', gap: 10 }}>
       <ActivityIndicator color={colors.primary} />
       <SettingsText>{t('Cargando avisos…', 'Loading alerts…')}</SettingsText>

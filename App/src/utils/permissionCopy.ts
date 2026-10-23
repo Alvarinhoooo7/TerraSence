@@ -64,7 +64,7 @@ export const PERMISSION_COPY: Record<PermissionKind, PermissionCopy> = {
   },
   notifications: {
     name: { es: 'Notificaciones', en: 'Notifications' },
-    summary: { es: 'Avisos sobre tus equipos. Se activan en Ajustes.', en: 'Alerts about your devices. Turn them on in Settings.' },
+    summary: { es: 'Avisos sobre solicitudes y acceso a equipos. Son opcionales.', en: 'Alerts about requests and device access. They are optional.' },
     rationale: {
       es: 'Los avisos te informan de solicitudes de acceso y del estado de tus equipos. Sin ellos la app funciona igual.',
       en: 'Notifications tell you about access requests and your devices. The app works the same without them.',

@@ -73,6 +73,9 @@ let onDialogOpen: (() => void) | null = null;
 let dialogsOpened = 0;
 let dialogMode: 'grant' | 'silent' = 'grant';
 const alerts: string[] = [];
+let notificationPermission = { granted: false, status: 'undetermined', canAskAgain: true, ios: { status: 0 } };
+let notificationRequests = 0;
+let settingsOpened = 0;
 const storage = new Map<string, string>();
 const probe = {
   id: 'probe', name: 'TerraSense', localName: null,
@@ -121,7 +124,7 @@ class MockManager {
 loader._load = (id, ...args) => {
   if (id === 'react-native') return {
     Platform: { OS: 'ios' },
-    Linking: { openSettings: async () => {} },
+    Linking: { openSettings: async () => { settingsOpened++; } },
     // Cada aviso se registra y se cierra solo, como si la persona pulsara el último botón.
     Alert: { alert: (title: string, _message: string, buttons: { onPress?: () => void }[]) => { alerts.push(title); buttons.at(-1)?.onPress?.(); } },
   };
@@ -133,8 +136,13 @@ loader._load = (id, ...args) => {
   };
   if (id === 'react-native-ble-plx') return { BleManager: MockManager };
   if (id === 'expo-crypto') return {};
-  if (id === 'expo-location' || id === 'expo-camera' || id === 'expo-notifications') return {};
-  if (id === './notifications') return {};
+  if (id === 'expo-notifications') return {
+    IosAuthorizationStatus: { PROVISIONAL: 3, EPHEMERAL: 4 },
+    getPermissionsAsync: async () => notificationPermission,
+    requestPermissionsAsync: async () => { notificationRequests++; return notificationPermission; },
+  };
+  if (id === 'expo-location' || id === 'expo-camera') return {};
+  if (id === './notifications') return { prepareNotificationChannels: async () => {} };
   // El informe de contactos habla con Supabase; aquí sólo importa el flujo BLE.
   if (id === './contactService') return { recordProbeContact: async () => {} };
   if (id === '@react-native-async-storage/async-storage') return {
@@ -156,6 +164,32 @@ try {
   prompt = require('../src/components/permissionPrompt');
   devSkip = require('../src/utils/devSkipOnboarding');
 } finally { loader._load = original; }
+
+test('notificaciones iOS: consultar no solicita; una acción contextual abre el diálogo nativo sin prealerta', async () => {
+  notificationPermission = { granted: false, status: 'undetermined', canAskAgain: true, ios: { status: 0 } };
+  const before = notificationRequests;
+  const beforeAlerts = alerts.length;
+  await permissions.readPermission('notifications');
+  assert.equal(notificationRequests, before);
+  await prompt.askForAccess('notifications', 'es');
+  assert.equal(notificationRequests, before + 1);
+  assert.equal(alerts.length, beforeAlerts, 'iOS no recibe una prealerta propia');
+});
+
+test('notificaciones iOS: un rechazo definitivo no repite el diálogo; Ajustes requiere otra acción', async () => {
+  notificationPermission = { granted: false, status: 'denied', canAskAgain: false, ios: { status: 1 } };
+  const before = notificationRequests;
+  const beforeSettings = settingsOpened;
+  await permissions.readPermission('notifications');
+  assert.equal(settingsOpened, beforeSettings);
+  await permissions.requestPermission('notifications');
+  assert.equal(notificationRequests, before);
+  await prompt.askForAccess('notifications', 'es');
+  assert.equal(settingsOpened, beforeSettings + 1);
+  assert.equal(notificationRequests, before);
+  notificationPermission = { granted: true, status: 'granted', canAskAgain: false, ios: { status: 2 } };
+  assert.equal((await permissions.readPermission('notifications')).status, 'granted');
+});
 
 test('el permiso iOS tolera una respuesta inmediata del listener y lo libera', async () => {
   radioState = 'Unknown';

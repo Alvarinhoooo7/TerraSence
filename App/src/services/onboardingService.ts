@@ -10,6 +10,7 @@ import {
 export interface OnboardingState {
   completed: boolean;
   hasPendingRequests: boolean;
+  pendingDeviceIds: string[];
   method: OnboardingMethod | null;
   devices: DeviceRow[];
 }
@@ -69,6 +70,7 @@ export async function getOnboardingState(): Promise<OnboardingState> {
     const state: OnboardingState = {
       completed: derived.completed,
       hasPendingRequests: memberships.some(membership => !membership.is_authorized),
+      pendingDeviceIds: memberships.filter(membership => !membership.is_authorized).map(membership => membership.device_id),
       method: derived.method,
       devices,
     };
@@ -93,6 +95,6 @@ export async function completeOnboarding(
   if (error) throw error;
   const uid = await sessionUserId();
   if (uid && device) {
-    await cacheState(uid, { completed: true, hasPendingRequests: false, method, devices: [device] });
+    await cacheState(uid, { completed: true, hasPendingRequests: false, pendingDeviceIds: [], method, devices: [device] });
   }
 }

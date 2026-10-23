@@ -54,6 +54,10 @@ function harness() {
       } : null }, error: world.sessionError }),
       signOut: async (options?: { scope?: string }) => {
         world.calls.push({ name: 'signOut', account: world.account, args: { scope: options?.scope ?? null } });
+        if (!world.signOutError) {
+          world.session = false;
+          world.authListeners.forEach(listener => listener('SIGNED_OUT'));
+        }
         return { error: world.signOutError };
       },
       onAuthStateChange: (listener: (event: string) => void) => { world.authListeners.push(listener); return { data: { subscription: { unsubscribe: () => {} } } }; },
@@ -510,6 +514,7 @@ test('un inicio nuevo de la misma cuenta descarta una marca que no pudo borrarse
   await assert.rejects(service.finishPasswordRecoveryClosure(), /storage caído/);
   const before = world.calls.length;
   world.sessionId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+  world.session = true;
   assert.equal(await service.flushPendingPasswordRecoveryClosure(), true);
   assert.equal(world.calls.length, before, 'no cierra la sesión nueva');
   assert.equal(world.storage.has('@terrasense/password-recovery-pending-v1'), false);
@@ -521,6 +526,34 @@ test('un error al leer Auth conserva la marca y permite reintentar', async () =>
   world.sessionError = new Error('Auth sin respuesta');
   await assert.rejects(service.flushPendingPasswordRecoveryClosure(), /Auth sin respuesta/);
   assert.equal(world.storage.has('@terrasense/password-recovery-pending-v1'), true);
+});
+
+test('tras cerrar Auth, finalizar o cancelar reintenta sólo la limpieza local pendiente', async () => {
+  for (const action of ['finishPasswordRecoveryClosure', 'cancelPasswordRecoveryClosure'] as const) {
+    const { world, service } = harness();
+    await service.beginPasswordRecoveryClosure();
+    world.removeErrorKey = '@terrasense/password-recovery-pending-v1';
+    await assert.rejects(service.finishPasswordRecoveryClosure(), /storage caído/);
+    assert.equal(world.session, false);
+    const before = world.calls.length;
+    await service[action]();
+    assert.equal(world.calls.length, before, 'no exige una sesión que ya se cerró');
+    assert.equal(world.storage.has('@terrasense/password-recovery-pending-v1'), false);
+    assert.equal(service.getPushRegistrationStatus(), 'idle');
+  }
+});
+
+test('finalizar no cierra ni bloquea el registro push de una sesión distinta', async () => {
+  const { world, service } = harness();
+  await service.beginPasswordRecoveryClosure();
+  world.account = 'b';
+  world.sessionId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+  await assert.rejects(service.finishPasswordRecoveryClosure(), /sesión de recuperación cambió/);
+  assert.equal(world.calls.some(call => call.name === 'signOut'), false);
+  await service.flushPendingPasswordRecoveryClosure();
+  service.setPushRegistrationUser('b');
+  await service.registerPushToken();
+  assert.equal(world.calls.at(-1)?.name, 'register_push_installation');
 });
 
 test('finalizaciones concurrentes comparten una revocación y un cierre', async () => {

@@ -13,8 +13,9 @@ import { useAuthStore } from '../store/useAuthStore';
 import { createApprovalTracker } from '../utils/approvalFlow';
 import { maskEmail, maskName } from '../utils/privacy';
 import { localizeProbeError } from '../utils/probeErrors';
+import { NotificationActivationCard } from '../components/NotificationActivationCard';
 
-export function WaitingApprovalScreen({ onApproved, onDismiss, addingDevice = false, targetDeviceId, onCancel }: { targetDeviceId?: string; addingDevice?: boolean; onCancel?: () => void; onApproved: (device: DeviceRow) => void; onDismiss: () => void }) {
+export function WaitingApprovalScreen({ onApproved, onDismiss, addingDevice = false, targetDeviceId, initialPendingDeviceIds, onCancel }: { targetDeviceId?: string; initialPendingDeviceIds?: string[]; addingDevice?: boolean; onCancel?: () => void; onApproved: (device: DeviceRow) => void; onDismiss: () => void }) {
   const { colors } = useAppTheme();
   const { t, language } = useTranslation();
   const [requests, setRequests] = useState<PendingDeviceRequest[]>([]);
@@ -31,7 +32,7 @@ export function WaitingApprovalScreen({ onApproved, onDismiss, addingDevice = fa
     let active = true;
     let checking = false;
     stop.current = () => { active = false; account.cancel(); };
-    const tracker = createApprovalTracker(targetDeviceId, !addingDevice);
+    const tracker = createApprovalTracker(targetDeviceId ?? initialPendingDeviceIds, !addingDevice);
     const check = async () => {
       if (checking) return;
       checking = true;
@@ -51,7 +52,7 @@ export function WaitingApprovalScreen({ onApproved, onDismiss, addingDevice = fa
     void check();
     const timer = setInterval(() => void check(), 5000);
     return () => { active = false; unsubscribe(); account.unmount(); clearInterval(timer); };
-  }, [addingDevice, targetDeviceId]);
+  }, [addingDevice, targetDeviceId, initialPendingDeviceIds]);
   return <ScreenLayout align="center" eyebrow={addingDevice ? t('VINCULAR OTRA SONDA', 'LINK ANOTHER PROBE') : t('VINCULA TU SONDA', 'LINK YOUR PROBE')}
     title={removed ? t('Solicitud no disponible', 'Request unavailable') : t('Esperando aprobación', 'Awaiting approval')}
     description={removed
@@ -65,5 +66,6 @@ export function WaitingApprovalScreen({ onApproved, onDismiss, addingDevice = fa
       <Text style={{ color: colors.textSecondary, fontSize: 15 }}>{maskEmail(r.administrator_email)}</Text>
     </ScreenCard>)}
     {!!error && <ScreenText danger>{t('No se pudo comprobar el estado. Reintentando…', 'Could not check the status. Retrying…')}</ScreenText>}
+    {!removed && <NotificationActivationCard description={t('Recibe un aviso cuando el administrador responda a tu solicitud.', 'Get an alert when the administrator responds to your request.')} />}
   </ScreenLayout>;
 }

@@ -151,6 +151,8 @@ El detalle técnico y los criterios por tarea viven en [Firmware/PLAN.md](../Fir
 Estas tareas no equivalen a desarrollar una pantalla ni se cierran con pruebas unitarias.
 
 - [ ] **EXT-01 / D05:** comprobar o cargar credenciales FCM V1 y APNs del proyecto EAS. Los archivos Firebase locales no prueban que las credenciales de envío funcionen. Configurar Android primero si sólo hay teléfono Android disponible.
+
+  El código ofrece activación contextual en espera de aprobación, Compartir acceso y Avisos, además de Configuración → Preferencias → Notificaciones. Distingue preferencia, permiso nativo y registro del teléfono, y reconsulta al volver de Ajustes. Las pruebas verifican que consultar no solicita permiso y que iOS no repite el diálogo tras un rechazo definitivo. Esto no cierra EXT-01 ni acredita recepción física: comprobar las credenciales y completar FIS-03.
 - [ ] **EXT-02 / D05, opcional:** sólo si se activa «Enhanced Security for Push Notifications» en Expo, crear y cargar `EXPO_ACCESS_TOKEN` en Supabase. Sin esa opción activa, el despachador admite funcionar sin token.
 - [ ] **EXT-03 / D03:** elegir e implementar panel o alertas para `push_dispatch_health()`; verificar señales de fallo sin confundir respuesta HTTP 200 con recepción en un teléfono.
 - [ ] **EXT-04 / D06:** preparar compilación iOS y distribución en TestFlight; separar preparación de binario del ensayo de Bluetooth en iPhone. Android requiere una compilación con el módulo BLE nativo; Expo Go no sustituye ese ensayo.

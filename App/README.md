@@ -26,6 +26,10 @@ Al crear una cuenta se confirma el correo con un código. Quien ya inició sesi�
 
 Bluetooth permite comunicarse con la sonda. La cámara se usa para leer invitaciones QR, con la alternativa de ingresar el código a mano. La ubicación es opcional: permite guardar coordenadas y consultar el pronóstico del lugar. Las notificaciones avisan sobre solicitudes y cambios de acceso.
 
+Los avisos se activan voluntariamente desde la espera de aprobación, Compartir acceso, la bandeja de Avisos o Configuración → Preferencias → Notificaciones. La explicación inicial de permisos no abre diálogos. Al tocar «Activar avisos de acceso», se solicita la autorización nativa; si el sistema ya no admite otra solicitud, se ofrece abrir sus ajustes. Al volver, se consulta el permiso y se reintenta el registro del teléfono. La preferencia de la cuenta, el permiso del sistema y el registro de envío se muestran como condiciones distintas; los avisos provisionales de iOS se identifican como silenciosos. La app sigue funcionando sin conceder el permiso, de acuerdo con la [solicitud contextual de notificaciones de Apple](https://developer.apple.com/documentation/usernotifications/asking-permission-to-use-notifications).
+
+La espera de aprobación conserva los equipos pendientes detectados al entrar y reconoce una aprobación o rechazo que ocurra antes de su primera actualización. La recuperación de contraseña permite reintentar la limpieza local si la sesión ya se cerró, sin exigir iniciar nuevamente esa sesión ni cerrar una cuenta distinta.
+
 ### Navegación principal
 
 | Pantalla | Para qué sirve |
