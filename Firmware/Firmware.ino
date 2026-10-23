@@ -23,6 +23,7 @@
 #include "bme280.h"
 #include "ble_terrasense.h"
 #include "monitor_serie.h"
+#include "secuencia_leds.h"
 
 Pulsador pulsadorPair(PIN_PARING);
 Led ledAzul(PIN_LED_BLUE);
@@ -32,6 +33,8 @@ Zumbador zumbador(PIN_BUZZER);
 Bme280 bme;
 Sonda sonda;
 MonitorSerie monitor;
+SecuenciaLeds secuenciaLeds;
+uint8_t faseLeds = 4;
 
 // Las opciones locales nunca publican una medición por BLE.
 enum class OrigenCaptura : uint8_t { Ninguna, App, DiagnosticoSonda, BarridoSonda };
@@ -114,7 +117,9 @@ void medirYNotificar(uint32_t ahora, LecturaSuelo suelo) {
 }
 
 void cancelarPruebas() {
-  if (!ledAzul.enPrueba() && !ledVerde.enPrueba() && !ledRojo.enPrueba() && !zumbador.enPrueba()) return;
+  if (!secuenciaLeds.activa() && !ledAzul.enPrueba() && !ledVerde.enPrueba() && !ledRojo.enPrueba() && !zumbador.enPrueba()) return;
+  if (secuenciaLeds.activa()) monitor.evento("Secuencia LED interrumpida; se conservan los avisos del equipo.");
+  secuenciaLeds.cancelar();
   ledAzul.cancelarPrueba();
   ledVerde.cancelarPrueba();
   ledRojo.cancelarPrueba();
@@ -126,6 +131,50 @@ void cancelarPruebas() {
   ledRojo.actualizar(ahora);
 }
 
+bool ledsDisponibles(uint32_t ahora) {
+  return ledRojo.disponibleParaPrueba(ahora) && ledVerde.disponibleParaPrueba(ahora) &&
+         ledAzul.disponibleParaPrueba(ahora) && !bateriaActual.baja;
+}
+
+void iniciarSecuenciaLeds(uint32_t ahora) {
+  if (captura != OrigenCaptura::Ninguna || direccionI2C || bleConectado() ||
+      bleVentanaAbierta(ahora) || pulsadorPair.presionado() || !ledsDisponibles(ahora)) {
+    monitor.evento("Secuencia LED no iniciada: equipo ocupado o aviso activo. Usa 11 cuando esté en reposo.");
+    return;
+  }
+  cancelarPruebas();
+  secuenciaLeds.iniciar(ahora);
+  faseLeds = 4;
+}
+
+void actualizarSecuenciaLeds(uint32_t ahora) {
+  if (!secuenciaLeds.activa()) return;
+  if (!ledsDisponibles(ahora)) {
+    cancelarPruebas();
+    return;
+  }
+  const uint8_t fase = secuenciaLeds.fase(ahora);
+  if (fase == faseLeds) return;
+  faseLeds = fase;
+  ledRojo.cancelarPrueba();
+  ledVerde.cancelarPrueba();
+  ledAzul.cancelarPrueba();
+  const uint32_t restante = secuenciaLeds.restante(ahora);
+  if (fase == 0 || fase == 1) ledRojo.probar(ahora, restante);
+  if (fase == 0 || fase == 2) ledVerde.probar(ahora, restante);
+  if (fase == 0 || fase == 3) ledAzul.probar(ahora, restante);
+  switch (fase) {
+    case 0: monitor.evento("LED 1/4: rojo + verde + azul (2 s). x cancela."); break;
+    case 1: monitor.evento("LED 2/4: sólo rojo (1 s)."); break;
+    case 2: monitor.evento("LED 3/4: sólo verde (1 s)."); break;
+    case 3: monitor.evento("LED 4/4: sólo azul (1 s)."); break;
+    default:
+      secuenciaLeds.cancelar();
+      monitor.evento("Secuencia LED terminada: luces apagadas. Confirma visualmente; 11 repite.");
+      break;
+  }
+}
+
 void cancelarCapturaLocal() {
   direccionI2C = 0;
   if (captura != OrigenCaptura::BarridoSonda && captura != OrigenCaptura::DiagnosticoSonda) return;
@@ -134,11 +183,15 @@ void cancelarCapturaLocal() {
 }
 
 void atenderMonitor(uint32_t ahora) {
+  const bool estabaAbierto = monitor.activo();
   const uint8_t comando = monitor.tomarComando();
   if (!comando) return;
   const bool ocupada = captura != OrigenCaptura::Ninguna || direccionI2C != 0;
   switch (comando) {
-    case 'd': monitor.menu(); return;
+    case 'd':
+      monitor.menu();
+      if (!estabaAbierto) iniciarSecuenciaLeds(ahora);
+      return;
     case 'q':
       cancelarPruebas();
       cancelarCapturaLocal();
@@ -189,6 +242,9 @@ void atenderMonitor(uint32_t ahora) {
     case 10:
       if (sonda.iniciarBarrido(ahora)) captura = OrigenCaptura::BarridoSonda;
       else monitor.mensaje("No se pudo iniciar el barrido: sonda ocupada.");
+      return;
+    case 11:
+      iniciarSecuenciaLeds(ahora);
       return;
   }
   if (!iniciada) monitor.mensaje("Salida no probada: aviso operativo activo o buzzer deshabilitado.");
@@ -278,7 +334,7 @@ void actualizarAvisos(uint32_t ahora) {
   switch (bleTomarResultadoVinculacion()) {
     case ResultadoVinculacion::Aceptado:
       ledVerde.aviso(PatronLed::TresDestellos, ahora);
-      zumbador.reproducir(Sonido::Exito, ahora);
+      zumbador.reproducir(Sonido::Vinculado, ahora);
       break;
     case ResultadoVinculacion::Rechazado:
       ledRojo.aviso(PatronLed::TresDestellos, ahora);
@@ -287,6 +343,7 @@ void actualizarAvisos(uint32_t ahora) {
     case ResultadoVinculacion::Ninguno:   break;
   }
 
+  actualizarSecuenciaLeds(ahora);
   ledAzul.actualizar(ahora);
   ledVerde.actualizar(ahora);
   ledRojo.actualizar(ahora);
@@ -298,6 +355,8 @@ void setup() {
 
   // Sonda sin energía y transceptor RS-485 en recepción hasta la primera captura.
   sonda.begin();
+  Serial.println("\n========== TerraSense | ARRANQUE ==========\n"
+                 "[INICIO] Sonda sin energía; preparando indicadores, sensores y Bluetooth.");
 
   pinMode(PIN_VBAT_SENSE, INPUT);
   analogReadResolution(12);
@@ -325,7 +384,10 @@ void setup() {
   // La única señal de «estoy encendida».
   ledVerde.aviso(PatronLed::Encendido1s, millis());
   zumbador.reproducir(Sonido::Encendido, millis());
-  Serial.println("TerraSense ESP32 inicializado. Envía d o D + Enter para entrar al menú de diagnóstico.");
+  Serial.println("[LISTO] Inicio terminado. La conexión y las lecturas se comprueban por separado.\n"
+                 "[USO] Mantén PAIR 3 s para vincular; suelta al escuchar la doble llamada.\n"
+                 "[CONSOLA] 115200 baudios. Envía d + Enter para diagnóstico y prueba de luces.\n"
+                 "==========================================");
 }
 
 void loop() {

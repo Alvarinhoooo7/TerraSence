@@ -6,7 +6,8 @@
 
 class EntradaMonitor {
 public:
-  // 0: nada; 1-10: opción; d/x/q: control; !: inválido; ?: menú cerrado.
+  constexpr bool abierta() const { return abierta_; }
+  // 0: nada; 1-11: opción; d/x/q: control; !: inválido; ?: menú cerrado.
   constexpr uint8_t consumir(char c) {
     if (c != '\r' && c != '\n') {
       if (largo_ < sizeof(linea_)) linea_[largo_++] = c;
@@ -28,8 +29,9 @@ public:
       else if (letra == 'd' || letra == 'D') comando = 'd';
       else if (letra == 'x' || letra == 'X') comando = 'x';
       else if (letra == 'q' || letra == 'Q') comando = 'q';
-    } else if (!invalida && n == 2 && linea_[inicio] == '1' && linea_[inicio + 1] == '0') {
-      comando = 10;
+    } else if (!invalida && n == 2 && linea_[inicio] == '1' &&
+               (linea_[inicio + 1] == '0' || linea_[inicio + 1] == '1')) {
+      comando = uint8_t(10 + linea_[inicio + 1] - '0');
     }
     if (comando == 'd') { abierta_ = true; return comando; }
     if (!abierta_) return '?';

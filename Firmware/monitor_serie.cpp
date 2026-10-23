@@ -1,5 +1,6 @@
 #include "monitor_serie.h"
 #include "pines.h"
+#include "config.h"
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -47,21 +48,31 @@ void MonitorSerie::aviso(const char *valor) {
   Serial.printf("\n[MANTENIMIENTO] %s\n", valor);
 }
 
+void MonitorSerie::evento(const char *valor) {
+  texto("[DIAG +%lu ms] %s\n", static_cast<unsigned long>(millis()), valor);
+}
+
 void MonitorSerie::menu() {
-  mensaje("TerraSense | diagnóstico | 115200 baudios");
-  texto("  1     : lectura nueva de batería: ADC, tensión y porcentaje\n"
+  mensaje("========== TerraSense | DIAGNÓSTICO ===========");
+  texto("Consola: 115200 baudios | encendido hace %lu s\n", static_cast<unsigned long>(millis() / 1000));
+  texto("SALIDAS (confirmación visual y auditiva)\n"
+        "  11    : secuencia: todas 2 s > rojo 1 s > verde 1 s > azul 1 s\n"
         "  2     : buzzer durante 2 segundos\n"
         "  3     : LED azul durante 1 segundo\n"
         "  4     : LED rojo durante 1 segundo\n"
         "  5     : LED verde durante 1 segundo\n"
+        "SENSORES (adquisición nueva, sin publicar en la app)\n"
+        "  1     : batería: ADC, tensión y porcentaje\n"
         "  6     : lectura nueva de temperatura, presión y humedad del BME280\n"
         "  7     : energizar y leer la sonda, incluso sin batería\n"
-        "  8     : estado de Bluetooth y su característica en hexadecimal\n"
         "  9     : diagnóstico I2C: direcciones, errores e identidad del sensor\n"
         "  10    : barrido RS-485: lectura e identidad a 2400/4800/9600 baudios\n"
+        "COMUNICACIÓN\n"
+        "  8     : estado de Bluetooth y su característica en hexadecimal\n"
+        "CONTROL\n"
         "  d/D   : repetir menú | q: salir | x: cancelar prueba local\n"
         "Envía un comando por línea, con Enter (LF, CR o CRLF).\n"
-        "Pruebas 1-7, 9 y 10: sólo sin BLE conectado, PAIR ni captura.\n"
+        "Pruebas 1-7 y 9-11: sólo sin BLE conectado, PAIR ni captura.\n"
         "Un aviso operativo tiene prioridad. Verifica luz/sonido físicamente.\n"
         "Un comando nuevo sustituye el informe pendiente de impresión.\n");
 }

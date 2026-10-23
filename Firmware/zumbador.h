@@ -12,10 +12,11 @@
 #include <Arduino.h>
 
 enum class Sonido : uint8_t {
-  Encendido,        // un pitido corto
-  VentanaAbierta,   // un pitido corto: ya se puede soltar PAIR
-  Exito,            // dos pitidos ascendentes: vinculación confirmada, medición enviada
-  Fallo,            // un tono grave largo: vinculación rechazada, medición sin suelo
+  Encendido,        // tres notas ascendentes: equipo iniciado
+  VentanaAbierta,   // dos llamadas iguales: ya se puede soltar PAIR
+  Vinculado,        // tres notas de confirmación, con cierre sostenido
+  Exito,            // dos pitidos ascendentes: medición enviada
+  Fallo,            // dos notas descendentes: vinculación rechazada, medición sin suelo
   BateriaBaja,      // dos tonos graves, sólo al entrar en batería baja
 };
 

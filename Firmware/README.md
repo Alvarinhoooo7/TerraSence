@@ -63,19 +63,19 @@ La ventana se abre al cumplir los 3 s, sin esperar a soltar. El parpadeo azul r�
 
 ## Indicadores LED y sonoros
 
-**En reposo los tres LEDs están apagados y el buzzer en silencio.** Sólo se activan para decir algo, y cada color tiene un único significado: azul = vinculación, verde = salió bien, rojo = necesita atención. El sonido sigue la misma regla: agudo y corto = salió bien, grave y largo = necesita atención.
+**En reposo los tres LEDs están apagados y el buzzer en silencio.** Sólo se activan para decir algo, y cada color tiene un único significado: azul = vinculación, verde = salió bien, rojo = necesita atención. El sonido sigue la misma regla: notas que suben = salió bien, notas que bajan o graves = necesita atención, y cada evento tiene su propia melodía para reconocerlo sin mirar el equipo.
 
 | Cuándo | LED | Patrón | Sonido |
 | :--- | :--- | :--- | :--- |
-| Al encender | 🟢 Verde | Fijo 1 s, una vez | Un pitido corto |
-| Ventana PAIR abierta (30 s) | 🔵 Azul | Parpadeo 2 Hz mientras dure | Un pitido corto al abrirse |
-| Vinculación confirmada | 🟢 Verde | Tres destellos | Dos pitidos ascendentes |
-| Vinculación rechazada (ventana cerrada o ID que no es el de esta sonda) | 🔴 Rojo | Tres destellos | Tono grave de 0,4 s |
+| Al encender | 🟢 Verde | Fijo 1 s, una vez | Tres notas que suben (grave, aguda, alta) |
+| Ventana PAIR abierta (30 s) | 🔵 Azul | Parpadeo 2 Hz mientras dure | Doble llamada aguda al abrirse: ya se puede soltar |
+| Vinculación confirmada | 🟢 Verde | Tres destellos | Tres notas de confirmación con cierre largo |
+| Vinculación rechazada (ventana cerrada o ID que no es el de esta sonda) | 🔴 Rojo | Tres destellos | Dos notas que bajan (aguda y grave) |
 | Medición enviada a la app | 🟢 Verde | Tres destellos | Dos pitidos ascendentes |
-| Medición enviada sin lectura de suelo | 🔴 Rojo | Tres destellos | Tono grave de 0,4 s |
+| Medición enviada sin lectura de suelo | 🔴 Rojo | Tres destellos | Dos notas que bajan (aguda y grave) |
 | Batería baja | 🔴 Rojo | Un destello corto cada 10 s | Dos tonos graves, sólo al entrar en batería baja |
 
-Los tonos agudos usan `BUZZER_FRECUENCIA_HZ` (2,7 kHz por defecto) y los graves la mitad; `BUZZER_HABILITADO = false` en `config.h` silencia todo. La batería baja suena una sola vez y no en cada latido, para no volver molesto un equipo que se usa horas en el campo.
+Las notas agudas usan `BUZZER_FRECUENCIA_HZ` (2,7 kHz por defecto), las altas 5/4 de ella y las graves la mitad; `BUZZER_HABILITADO = false` en `config.h` silencia todo. La batería baja suena una sola vez y no en cada latido, para no volver molesto un equipo que se usa horas en el campo.
 
 Los LEDs son independientes: el azul de la ventana PAIR puede coincidir con los tres destellos verdes de la vinculación confirmada. En el rojo, los tres destellos se muestran encima del latido de batería baja y luego este sigue. Estar conectado al teléfono no enciende nada: la app se conecta sólo lo que dura cada operación.
 
@@ -85,13 +85,14 @@ Los LEDs ya no son el consumo que importa. El ESP32 despierto con la radio BLE a
 
 ## Monitor de mantenimiento
 
-Monitor serie a **115200 baudios**. Cada comando es una línea completa terminada en Enter: el firmware acepta LF, CR o CRLF, así que en Arduino IDE el monitor debe estar en «Nueva línea», «Retorno de carro» o «Ambos NL & CR»; con «Sin ajuste de línea» ningún comando se ejecuta. Primero envía **`d` o `D`** para entrar: antes de eso cualquier línea sólo responde cómo entrar y no ejecuta pruebas. Las letras aceptan mayúsculas, y los espacios y tabuladores alrededor del comando se ignoran. Una línea ambigua (`12`, `1x`, `01`, `1 0`) o de más de 16 caracteres se rechaza como «Comando desconocido»: el firmware nunca ejecuta el comienzo de una línea, de modo que `10` no dispara `1`.
+Monitor serie a **115200 baudios**. Cada comando es una línea completa terminada en Enter: el firmware acepta LF, CR o CRLF, así que en Arduino IDE el monitor debe estar en «Nueva línea», «Retorno de carro» o «Ambos NL & CR»; con «Sin ajuste de línea» ningún comando se ejecuta. Primero envía **`d` o `D`** para entrar: antes de eso cualquier línea sólo responde cómo entrar y no ejecuta pruebas. Al entrar, el menú se agrupa en salidas, sensores, comunicación y control, y las luces hacen su secuencia de prueba (la de `11`) si el equipo está en reposo; los eventos de la secuencia salen como `[DIAG +ms]`. Las letras aceptan mayúsculas, y los espacios y tabuladores alrededor del comando se ignoran. Una línea ambigua (`12`, `1x`, `01`, `1 0`) o de más de 16 caracteres se rechaza como «Comando desconocido»: el firmware nunca ejecuta el comienzo de una línea, de modo que `10` no dispara `1`.
 
 | Comando | Acción |
 | :--- | :--- |
 | `1` | Adquisición nueva de batería: ADC crudo de 12 bits, milivoltios calibrados en IO34, tensión de celda y porcentaje estimado. Promedia ocho conversiones crudas y ocho calibradas, tomadas consecutivamente. Bajo 2,50 V indica «no conectada»; también puede ser descarga profunda. Sobre 4,30 V indica tensión inválida. |
 | `2` | Tono del buzzer durante **2 segundos**. Respeta la configuración de silencio (`BUZZER_HABILITADO`). |
 | `3` / `4` / `5` | LED **azul / rojo / verde**, respectivamente, durante 1 segundo. |
+| `11` | Secuencia de luces: las tres juntas 2 s, luego sólo rojo 1 s, sólo verde 1 s y sólo azul 1 s, y todo apagado. El monitor anuncia cada paso; `x` la cancela. No se inicia con batería baja ni con un aviso de LED en curso. |
 | `6` | Lectura nueva sólo del BME280: temperatura, presión atmosférica y humedad. Un BMP280 entrega temperatura y presión, con humedad sin dato. No consulta la sonda. |
 | `7` | Energiza la sonda por el MOSFET de IO5, espera su estabilización y lee los siete registros Modbus (4.800 baudios y, si no hay respuesta, 9.600), **independientemente de la batería**. Valida CRC y rangos por separado. Apaga IO5 al terminar, fallar o cancelar. No consulta el BME280 ni publica telemetría. |
 | `8` | Estado de la pila BLE, configuración GATT, conexión, anuncio, reanuncio pendiente, solicitud de lectura y ventana PAIR. Incluye nombre, UUID del servicio y los cinco bytes de la característica de estado. No certifica la recepción por un teléfono. |
@@ -101,7 +102,7 @@ Monitor serie a **115200 baudios**. Cada comando es una línea completa terminad
 | `x` | Cancela salidas y capturas locales, apagando el MOSFET. Conserva avisos normales y capturas de la app. |
 | `q` | Cancela la prueba local y cierra el menú; exige `d` o `D` para volver a entrar. |
 
-Las opciones `1`–`7`, `9` y `10` se rechazan si hay una captura, conexión BLE, ventana PAIR o pulsador PAIR presionado (con su antirrebote); `8` permite consultar BLE también con el teléfono conectado. Sólo se prueba una salida a la vez. Los temporizadores de LEDs y buzzer no usan `delay`: el bucle sigue atendiendo al equipo. Una conexión BLE o PAIR cancela las salidas y las capturas locales para dar paso a la app, y lo avisa de inmediato; un aviso normal del LED o buzzer tiene prioridad sobre su prueba.
+Las opciones `1`–`7` y `9`–`11` se rechazan si hay una captura, conexión BLE, ventana PAIR o pulsador PAIR presionado (con su antirrebote); `8` permite consultar BLE también con el teléfono conectado. Sólo se prueba una salida a la vez. Los temporizadores de LEDs y buzzer no usan `delay`: el bucle sigue atendiendo al equipo. Una conexión BLE o PAIR cancela las salidas y las capturas locales para dar paso a la app, y lo avisa de inmediato; un aviso normal del LED o buzzer tiene prioridad sobre su prueba.
 
 Cada lectura nueva lleva una línea `HEX` después de sus datos, terminada en `\n`: `1` muestra ADC crudo, milivoltios y el byte de porcentaje (`FF` sin dato); `6` muestra el bloque ambiental empaquetado de cuatro bytes, correspondiente a los índices 16–19 del contrato BLE; `7` muestra la respuesta Modbus recibida con CRC, sin eco ni ruido inicial cuando es válida (si falla, muestra los bytes recibidos del último intento, o indica que no llegaron bytes); `8` muestra los cinco bytes de estado GATT; `9`, la dirección de cada dispositivo y su registro de identidad; `10`, lo transmitido (`HEX TX`) y lo recibido (`HEX RX`) en cada consulta. Son formatos distintos y quedan identificados: el bloque ambiental no es una lectura cruda de registros I2C. LEDs y buzzer informan la orden ejecutada; no generan tramas de sensor.
 
@@ -111,7 +112,7 @@ La opción `7` comprueba la sonda sin batería; las reglas completas de la app (
 
 Los informes del menú salen en fragmentos de hasta 64 bytes por vuelta, limitados por el espacio disponible del puerto, y se retienen mientras hay una captura en curso; un comando nuevo sustituye el informe pendiente. Los avisos de inicio de `7` y `9`, y el de cancelación por BLE/PAIR, salen de inmediato, antes de los mensajes y del resultado de esa prueba. Los mensajes operativos (`[SONDA]`, `[I2C]`, `[DIAG]`, `[BLE]`, `[PAIR]`) se escriben directo y muestran el avance antes del resultado. Nada de esto viaja en la trama BLE. El monitor confirma que **ordenó** una salida: comprobar físicamente luz y sonido sigue siendo necesario.
 
-Para verificar en banco: enviar `1`–`10` antes de `d` y comprobar que no ejecutan pruebas; entrar con `D` y probar las terminaciones LF, CR y CRLF, y que `12` o `1x` se rechazan. Revisar `1` con y sin batería y contra un multímetro; comprobar los 2 s de `2` y los colores de `3`–`5`. Probar `6` y `9` con BME280, BMP280 y sin sensor; probar `7` y `10` sin batería con sonda presente y ausente, comprobando IO5 alto durante la adquisición y bajo al terminar, fallar o cancelar con `x`/`q`. Consultar `8` con y sin teléfono, iniciar PAIR durante una prueba y medir desde la app. Tras `q`, comprobar que los números vuelven a quedar inactivos.
+Para verificar en banco: enviar `1`–`10` antes de `d` y comprobar que no ejecutan pruebas; entrar con `D` y probar las terminaciones LF, CR y CRLF, y que `12` o `1x` se rechazan. Revisar `1` con y sin batería y contra un multímetro; comprobar los 2 s de `2`, los colores de `3`–`5` y los tiempos y el orden de `11` (también al entrar con `d`), y que PAIR la interrumpe. Probar `6` y `9` con BME280, BMP280 y sin sensor; probar `7` y `10` sin batería con sonda presente y ausente, comprobando IO5 alto durante la adquisición y bajo al terminar, fallar o cancelar con `x`/`q`. Consultar `8` con y sin teléfono, iniciar PAIR durante una prueba y medir desde la app. Tras `q`, comprobar que los números vuelven a quedar inactivos.
 
 ## Trama de telemetría
 

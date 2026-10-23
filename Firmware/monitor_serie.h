@@ -9,10 +9,13 @@
 class MonitorSerie {
 public:
   uint8_t tomarComando();
+  bool activo() const { return entrada_.abierta(); }
   void actualizar(bool capturaEnCurso);
   void menu();
   void salir();
   void mensaje(const char *texto);
+  // Agrega un evento sin borrar el menú o informe que se está imprimiendo.
+  void evento(const char *texto);
   // Aviso de inicio de una prueba con resultado diferido (sonda, I2C): sale de
   // inmediato, antes de los mensajes de esa prueba, y nunca se borra ni se retiene.
   void aviso(const char *texto);

@@ -36,8 +36,9 @@ public:
   void aviso(PatronLed patron, uint32_t ahora);
   void actualizar(uint32_t ahora);
   void apagar();
-  // Prueba de mantenimiento de 1 s; nunca reemplaza un aviso operativo.
-  bool probar(uint32_t ahora);
+  // Prueba de mantenimiento; nunca reemplaza un aviso operativo.
+  bool disponibleParaPrueba(uint32_t ahora) const;
+  bool probar(uint32_t ahora, uint32_t duracionMs = 1000);
   bool enPrueba() const { return prueba_; }
   void cancelarPrueba() { prueba_ = false; }
 
@@ -50,4 +51,5 @@ private:
   int8_t    estado_ = -1;  // último nivel escrito en el pin
   bool      prueba_ = false;
   uint32_t  pruebaDesde_ = 0;
+  uint32_t  pruebaDuracion_ = 1000;
 };

@@ -1140,12 +1140,12 @@ La interfaz consta de tres luces indicadoras, un zumbador, un botón de empareja
 
 | Estado Operativo | Indicador Activo | Patrón de Señalización | Sonido | Significado Técnico |
 | :---: | :---: | :---: | :---: | :---- |
-| **Encendido** | 🟢 Verde | Fijo durante 1 s, una vez | Un pitido corto | El equipo arrancó y está listo para vincularse o medir. |
-| **Ventana de vinculación** | 🔵 Azul | Parpadeo de 2 Hz durante 30 s | Un pitido corto al abrirse | Se mantuvo el botón 3 s; mientras dure, la aplicación puede vincular el equipo. |
-| **Vinculación confirmada** | 🟢 Verde | Tres destellos | Dos pitidos ascendentes | La aplicación registró el equipo y se lo confirmó. |
-| **Vinculación rechazada** | 🔴 Rojo | Tres destellos | Tono grave de 0,4 s | La ventana estaba cerrada o el identificador no corresponde al equipo. |
+| **Encendido** | 🟢 Verde | Fijo durante 1 s, una vez | Tres notas que suben | El equipo arrancó y está listo para vincularse o medir. |
+| **Ventana de vinculación** | 🔵 Azul | Parpadeo de 2 Hz durante 30 s | Doble llamada aguda al abrirse | Se mantuvo el botón 3 s; mientras dure, la aplicación puede vincular el equipo. |
+| **Vinculación confirmada** | 🟢 Verde | Tres destellos | Tres notas de confirmación con cierre largo | La aplicación registró el equipo y se lo confirmó. |
+| **Vinculación rechazada** | 🔴 Rojo | Tres destellos | Dos notas que bajan | La ventana estaba cerrada o el identificador no corresponde al equipo. |
 | **Medición enviada** | 🟢 Verde | Tres destellos | Dos pitidos ascendentes | La lectura llegó al teléfono. |
-| **Error de sonda** | 🔴 Rojo | Tres destellos | Tono grave de 0,4 s | La lectura llegó sin datos de suelo: sonda desconectada, sin respuesta Modbus o con CRC inválido. |
+| **Error de sonda** | 🔴 Rojo | Tres destellos | Dos notas que bajan | La lectura llegó sin datos de suelo: sonda desconectada, sin respuesta Modbus o con CRC inválido. |
 | **Batería baja** | 🔴 Rojo | Un destello corto cada 10 s | Dos tonos graves, sólo al entrar en batería baja | Tensión de batería bajo el umbral de aviso; requiere recarga por USB-C. |
 
 ###### **Tabla 4.3 “Interfaz Hardware”**

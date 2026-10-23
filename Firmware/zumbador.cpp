@@ -8,10 +8,11 @@ constexpr uint16_t AGUDO = BUZZER_FRECUENCIA_HZ;
 constexpr uint16_t ALTO  = BUZZER_FRECUENCIA_HZ * 5 / 4;
 constexpr uint16_t GRAVE = BUZZER_FRECUENCIA_HZ / 2;
 
-const Nota ENCENDIDO[] = {{AGUDO, 80}};
-const Nota VENTANA[]   = {{AGUDO, 60}};
+const Nota ENCENDIDO[] = {{GRAVE, 70}, {0, 30}, {AGUDO, 70}, {0, 30}, {ALTO, 110}};
+const Nota VENTANA[]   = {{AGUDO, 80}, {0, 120}, {AGUDO, 80}};
+const Nota VINCULADO[] = {{AGUDO, 60}, {0, 40}, {ALTO, 60}, {0, 40}, {ALTO, 180}};
 const Nota EXITO[]     = {{AGUDO, 70}, {0, 50}, {ALTO, 90}};
-const Nota FALLO[]     = {{GRAVE, 400}};
+const Nota FALLO[]     = {{AGUDO, 100}, {0, 60}, {GRAVE, 200}};
 const Nota BATERIA[]   = {{GRAVE, 120}, {0, 80}, {GRAVE, 120}};
 
 template <size_t N>
@@ -44,6 +45,7 @@ void Zumbador::reproducir(Sonido sonido, uint32_t ahora) {
   switch (sonido) {
     case Sonido::Encendido:      notas_ = ENCENDIDO; total_ = largo(ENCENDIDO); break;
     case Sonido::VentanaAbierta: notas_ = VENTANA;   total_ = largo(VENTANA);   break;
+    case Sonido::Vinculado:     notas_ = VINCULADO; total_ = largo(VINCULADO); break;
     case Sonido::Exito:          notas_ = EXITO;     total_ = largo(EXITO);     break;
     case Sonido::Fallo:          notas_ = FALLO;     total_ = largo(FALLO);     break;
     case Sonido::BateriaBaja:    notas_ = BATERIA;   total_ = largo(BATERIA);   break;
