@@ -12,15 +12,21 @@ El documento sale ya con el marco de la institución: tamaño carta, Arial 11 ju
 pie, el número de página y la franja roja. Esos dos elementos gráficos están recortados del
 informe entregado y viven en `Evaluacion/Evaluacion 2/Plantilla/`.
 
-Lo que queda para Word: pulsar «actualizar campos» para que el índice general tome sus
-números de página y revisar el corte de las tablas más anchas.
+La opción --paginar actualiza el índice y los números de página mediante LibreOffice
+instalado, en una instancia oculta y aislada. --pdf-revision permite guardar una copia
+para inspeccionar las tablas y los saltos de página antes de entregar.
 
-    python finanzas/exportar_informe_e2.py
+    python finanzas/exportar_informe_e2.py --paginar
 """
 
 import os
 import re
 import sys
+import argparse
+import shutil
+import subprocess
+from datetime import datetime, timezone
+from pathlib import Path
 
 from docx import Document
 from docx.enum.section import WD_ORIENT
@@ -45,7 +51,7 @@ INLINE = re.compile(
     r"|(?<![\*\w])\*(?P<cursiva>[^*]+?)\*(?!\w)"
     r"|`(?P<codigo>[^`]+?)`"
     r"|\[(?P<enlace>[^\]]+?)\]\((?P<url>[^)]+?)\)"
-    r"|\[(?P<cita>\d{1,3})\]"
+    r"|\[(?P<cita>\d{1,3}(?:\s*,\s*\d{1,3})*)\]"
     r"|(?P<suelta>https?://[^\s,;)\]]+)"
 )
 IMAGEN = re.compile(r"^!\[(?P<alt>[^\]]*)\]\((?P<ruta>[^)]+)\)\s*$")
@@ -113,8 +119,15 @@ class Exportador:
             elif m.group("enlace"):
                 self.enlace(parrafo, m.group("enlace"), m.group("url"), interno=False)
             elif m.group("cita"):
-                # La cita salta a su entrada de la bibliografía.
-                self.enlace(parrafo, "[%s]" % m.group("cita"), "ref_%s" % m.group("cita"), interno=True)
+                # Cada número salta a su entrada de la bibliografía; los corchetes y las comas
+                # quedan como texto, para que «[2, 3]» se lea igual y sus dos números enlacen.
+                numeros = [n.strip() for n in m.group("cita").split(",")]
+                self._run(parrafo, "[", negrita, tam)
+                for k, numero in enumerate(numeros):
+                    if k:
+                        self._run(parrafo, ", ", negrita, tam)
+                    self.enlace(parrafo, numero, "ref_%s" % numero, interno=True)
+                self._run(parrafo, "]", negrita, tam)
             elif m.group("suelta"):
                 self.enlace(parrafo, m.group("suelta"), m.group("suelta"), interno=False)
             pos = m.end()
@@ -144,15 +157,21 @@ class Exportador:
         r = OxmlElement("w:r")
         _sub(r, "w:fldChar", fldCharType="separate")
         p._p.append(r)
-        p.add_run("Índice generado por Word: seleccionar y pulsar F9 para actualizarlo.")
         r = OxmlElement("w:r")
         _sub(r, "w:fldChar", fldCharType="end")
         p._p.append(r)
 
     def tabla(self, filas):
-        cabecera = [c.strip() for c in filas[0].strip().strip("|").split("|")]
-        cuerpo = [[c.strip() for c in f.strip().strip("|").split("|")] for f in filas[2:]]
+        def celdas(fila):
+            return [c.strip().replace(r"\|", "|") for c in re.split(r"(?<!\\)\|", fila.strip())[1:-1]]
+
+        if len(filas) < 2 or not all(re.fullmatch(r":?-{3,}:?", c) for c in celdas(filas[1])):
+            raise ValueError("Tabla sin separador de encabezado: %s" % filas[0][:100])
+        cabecera = celdas(filas[0])
+        cuerpo = [celdas(f) for f in filas[2:]]
         ncol = len(cabecera)
+        if any(len(celdas(f)) != ncol for f in filas[1:]):
+            raise ValueError("Tabla con distinta cantidad de columnas: %s" % filas[0][:100])
         # Las tablas anchas sólo caben con cuerpo reducido; es lo que hace legible una de ocho columnas.
         tam = 7 if ncol >= 7 else 8 if ncol >= 5 else 9
         t = self.doc.add_table(rows=1, cols=ncol)
@@ -165,7 +184,7 @@ class Exportador:
         _sub(_sub(t.rows[0]._tr, "w:trPr"), "w:tblHeader", val="true")
         for fila in cuerpo:
             celdas = t.add_row().cells
-            for i, celda in enumerate(fila[:ncol]):
+            for i, celda in enumerate(fila):
                 p = celdas[i].paragraphs[0]
                 self.texto(p, celda, tam=tam)
                 _compacto(p)
@@ -174,6 +193,7 @@ class Exportador:
         absoluta = os.path.join(CARPETA, ruta.replace("/", os.sep))
         p = self.doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.paragraph_format.keep_with_next = True
         if not os.path.exists(absoluta):
             self.texto(p, "[Falta la figura: %s]" % alt)
             return False
@@ -264,6 +284,10 @@ def convertir():
         lineas = f.read().replace("\r\n", "\n").split("\n")
 
     doc = Document()
+    doc.core_properties.title = "TerraSense — Ingeniería conceptual, básica y de detalle"
+    doc.core_properties.author = "Álvaro Nicolás Villena Torrejón; Alan Paul Escobar Rojas"
+    doc.core_properties.comments = ""
+    doc.core_properties.created = doc.core_properties.modified = datetime.now(timezone.utc)
     seccion = doc.sections[0]
     seccion.orientation = WD_ORIENT.PORTRAIT
     # Tamaño carta: es el de los dos informes ya entregados.
@@ -283,7 +307,6 @@ def convertir():
     i = 0
     portada = True
     en_bibliografia = False
-    primer_capitulo = True
 
     while i < len(lineas):
         linea = lineas[i].rstrip()
@@ -296,10 +319,13 @@ def convertir():
         if linea.startswith("## "):
             titulo = linea[3:].strip()
             en_bibliografia = titulo.startswith("XIII.")
-            if not primer_capitulo:
-                doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
-            primer_capitulo = False
+            doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
             doc.add_heading(titulo, level=1)
+            i += 1
+            continue
+
+        if linea.startswith("#### "):
+            doc.add_heading(linea[5:].strip(), level=3)
             i += 1
             continue
 
@@ -308,7 +334,8 @@ def convertir():
             if portada and titulo == "Índice general":
                 portada = False
                 doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
-                doc.add_heading(titulo, level=1)
+                encabezado_indice = doc.add_heading(titulo, level=1)
+                ex.marcar(encabezado_indice, "indice_general")
                 ex.indice_de_word()
                 # El índice del Markdown se omite: lo genera Word con sus números de página.
                 i += 1
@@ -351,8 +378,7 @@ def convertir():
             while i < len(lineas) and lineas[i].startswith("|"):
                 bloque.append(lineas[i])
                 i += 1
-            if len(bloque) >= 2:
-                ex.tabla(bloque)
+            ex.tabla(bloque)
             continue
 
         # ------------------------------------------------ lista
@@ -390,7 +416,108 @@ def convertir():
     return citas, faltan_figuras
 
 
+def paginar(ruta, pdf_revision=None):
+    """Actualiza campos en una instancia oculta y aislada, sin tocar documentos abiertos."""
+    office = shutil.which("soffice")
+    if not office:
+        candidato = Path(os.environ.get("PROGRAMFILES", "C:/Program Files")) / "LibreOffice/program/soffice.exe"
+        if candidato.exists():
+            office = str(candidato)
+    if not office:
+        raise RuntimeError("No se encontró LibreOffice para paginar el informe")
+    python_uno = Path(office).with_name("python.exe") if os.name == "nt" else Path(sys.executable)
+    if not python_uno.exists():
+        raise RuntimeError("No se encontró el intérprete Python con UNO de LibreOffice")
+    # El Python de LibreOffice incluye UNO, pero no necesariamente python-docx.
+    codigo = r'''
+import os, sys, time, uuid, tempfile, subprocess, shutil
+from pathlib import Path
+import uno
+
+def prop(nombre, valor):
+    p = uno.createUnoStruct("com.sun.star.beans.PropertyValue")
+    p.Name, p.Value = nombre, valor
+    return p
+
+office, origen, pdf = sys.argv[1:]
+origen = Path(origen).resolve()
+with tempfile.TemporaryDirectory(prefix="terrasense-word-") as trabajo:
+    carpeta = Path(trabajo)
+    canal = "terrasense_" + uuid.uuid4().hex
+    conexion = "pipe,name=" + canal + ";urp;StarOffice.ComponentContext"
+    proceso = subprocess.Popen([
+        office, "-env:UserInstallation=" + (carpeta / "perfil").as_uri(),
+        "--headless", "--nologo", "--nodefault", "--norestore", "--nofirststartwizard",
+        "--accept=" + conexion,
+    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+       creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
+    documento = escritorio = None
+    try:
+        local = uno.getComponentContext()
+        resolver = local.ServiceManager.createInstanceWithContext("com.sun.star.bridge.UnoUrlResolver", local)
+        limite = time.monotonic() + 45
+        while True:
+            try:
+                contexto = resolver.resolve("uno:" + conexion)
+                break
+            except Exception:
+                if proceso.poll() is not None or time.monotonic() >= limite:
+                    raise RuntimeError("LibreOffice no inició la conexión de paginación")
+                time.sleep(0.25)
+        escritorio = contexto.ServiceManager.createInstanceWithContext("com.sun.star.frame.Desktop", contexto)
+        documento = escritorio.loadComponentFromURL(origen.as_uri(), "_blank", 0, (
+            prop("Hidden", True), prop("UpdateDocMode", 0),
+            prop("MacroExecutionMode", uno.getConstantByName("com.sun.star.document.MacroExecMode.NEVER_EXECUTE")),
+        ))
+        if documento is None:
+            raise RuntimeError("LibreOffice no pudo abrir el informe")
+        indices = documento.getDocumentIndexes()
+        if indices.getCount() == 0:
+            # Writer puede omitir un campo TOC que todavía no tiene resultados.
+            ancla = documento.getBookmarks().getByName("indice_general").getAnchor()
+            cursor = documento.Text.createTextCursorByRange(ancla.End)
+            cursor.gotoNextParagraph(False)
+            indice = documento.createInstance("com.sun.star.text.ContentIndex")
+            indice.CreateFromOutline = True
+            indice.Level = 2
+            indice.Title = ""
+            documento.Text.insertTextContent(cursor, indice, False)
+            indices = documento.getDocumentIndexes()
+        for vuelta in range(3):
+            documento.getTextFields().refresh()
+            for i in range(indices.getCount()):
+                indices.getByIndex(i).update()
+        destino = carpeta / "informe.docx"
+        documento.storeAsURL(destino.as_uri(), (prop("FilterName", "Office Open XML Text"), prop("Overwrite", True)))
+        if pdf:
+            documento.storeToURL(Path(pdf).resolve().as_uri(), (prop("FilterName", "writer_pdf_Export"), prop("Overwrite", True)))
+        documento.close(True)
+        documento = None
+        # Copiar sobre el archivo existente conserva los permisos de la carpeta del proyecto.
+        shutil.copyfile(destino, origen)
+        print("  Índice y números de página actualizados con LibreOffice.", flush=True)
+    finally:
+        if documento is not None:
+            documento.close(True)
+        if escritorio is not None:
+            escritorio.terminate()
+        try:
+            proceso.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            proceso.terminate()
+            proceso.wait(timeout=10)
+'''
+    entorno = dict(os.environ, PYTHONIOENCODING="utf-8")
+    sys.stdout.flush()
+    subprocess.run([str(python_uno), "-u", "-c", codigo, office, str(ruta), pdf_revision or ""],
+                   check=True, timeout=240, env=entorno)
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--paginar", action="store_true", help="Actualiza el índice y las páginas con LibreOffice instalado")
+    parser.add_argument("--pdf-revision", help="Ruta opcional de una copia PDF para revisar la paginación")
+    args = parser.parse_args()
     try:
         sys.stdout.reconfigure(encoding="utf-8")
     except (AttributeError, OSError):
@@ -398,7 +525,8 @@ def main():
     citas, faltan = convertir()
     with open(ORIGEN, encoding="utf-8") as f:
         texto = f.read()
-    referidas = {int(n) for n in re.findall(r"\[(\d{1,3})\]", texto)}
+    referidas = {int(n) for grupo in re.findall(r"\[(\d{1,3}(?:\s*,\s*\d{1,3})*)\]", texto)
+                 for n in re.findall(r"\d{1,3}", grupo)}
     huerfanas = sorted(referidas - citas)
     print("Informe exportado: %s" % os.path.basename(DESTINO))
     print("  %d entradas de bibliografía con marcador; %d números citados en el texto"
@@ -407,6 +535,15 @@ def main():
         print("  citas sin entrada en la bibliografía: %s" % huerfanas)
     if faltan:
         print("  figuras que no se encontraron: %s" % sorted(set(faltan)))
+    if not huerfanas and not faltan and args.paginar:
+        # El .docx ya quedó escrito: si la paginación no se puede hacer, se dice por qué y se
+        # devuelve error, para que nadie entregue el informe con el índice en blanco.
+        try:
+            paginar(DESTINO, args.pdf_revision)
+        except (RuntimeError, subprocess.SubprocessError, OSError) as e:
+            print("  no se pudo paginar: %s" % e)
+            print("  el .docx quedó exportado sin números de página: actualiza el índice antes de entregarlo")
+            return 1
     return 1 if huerfanas or faltan else 0
 
 

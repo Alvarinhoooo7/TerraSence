@@ -48,6 +48,8 @@ def tablas(lineas):
 def revisar_tablas(lineas, err):
     for ini, filas in tablas(lineas):
         n = len(filas[0])
+        if len(filas) < 2 or not all(re.fullmatch(r":?-{3,}:?", c) for c in filas[1]):
+            err("Tablas", "línea %d: falta el separador del encabezado; la exportación perdería una fila" % (ini + 1))
         for k, f in enumerate(filas):
             if len(f) != n:
                 err("Tablas", "línea %d: la fila tiene %d columnas y el encabezado %d" % (ini + k + 1, len(f), n))
@@ -333,12 +335,47 @@ def gantt(texto, err):
         err("Gantt", "la carta del informe y el anexo F no tienen las mismas actividades")
 
 
+def bibliografia(lineas, err):
+    """Cada entrada numerada tiene al menos una cita en el texto, y cada cita su entrada.
+
+    El exportador ya avisa de una cita sin entrada; aquí se cierra el sentido contrario, que es
+    el que pasa inadvertido: una referencia que quedó en la lista cuando el párrafo que la citaba
+    se reescribió. Las citas agrupadas (`[2, 3]`) cuentan por cada número.
+    """
+    inicio = next((i for i, l in enumerate(lineas) if l.startswith("## XIII.")), None)
+    if inicio is None:
+        return  # un fragmento sin el capítulo de bibliografía no tiene nada que cuadrar
+    entradas = {}
+    for i, linea in enumerate(lineas[inicio:], inicio):
+        m = re.match(r"(\d+)\. \S", linea.strip())
+        if m:
+            entradas.setdefault(int(m.group(1)), i)
+    citadas = set()
+    for grupo in re.findall(r"\[([0-9,\s]+)\]", "\n".join(lineas[:inicio])):
+        citadas.update(int(n) for n in re.findall(r"\d+", grupo))
+    for n in sorted(set(entradas) - citadas):
+        err("Bibliografía", "línea %d: la entrada [%d] no se cita en el texto" % (entradas[n] + 1, n))
+    for n in sorted(citadas - set(entradas)):
+        err("Bibliografía", "la cita [%d] no tiene entrada en la bibliografía" % n)
+    esperadas = list(range(1, len(entradas) + 1))
+    if sorted(entradas) != esperadas:
+        err("Bibliografía", "la numeración de la bibliografía no es consecutiva desde 1")
+
+
 def validar(texto, con_anexos=True):
     errores = []
     err = lambda cat, msg: errores.append((cat, msg))
     lineas = texto.splitlines()
     if "⟦PENDIENTE" in texto:
         err("Marcadores", "quedan %d marcadores ⟦PENDIENTE" % texto.count("⟦PENDIENTE"))
+    if re.search(r"\[enlace a|seleccionar y pulsar F9|\[Falta la figura:", texto, re.I):
+        err("Marcadores", "quedan instrucciones o enlaces de relleno en el entregable")
+    for linea in lineas:
+        if "Recuperado de " in linea:
+            enlaces = linea.split("Recuperado de ", 1)[1].split("; ")
+            if not all(re.fullmatch(r"https?://\S+", enlace) for enlace in enlaces):
+                err("Bibliografía", "enlace separado por espacios o texto residual: %s" % linea[:100])
+    bibliografia(lineas, err)
     revisar_tablas(lineas, err)
     matrices(lineas, err)
     protocolos(texto, err)

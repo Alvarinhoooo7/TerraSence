@@ -373,6 +373,38 @@ class TestEnergiaV3(unittest.TestCase):
 
 
 class TestValidadorInforme(unittest.TestCase):
+    def test_rechaza_tabla_interrumpida_sin_nuevo_encabezado(self):
+        errores = []
+        VI.revisar_tablas([
+            '| Origen | Mejora |', '|---|---|', '| Diseño | Corte de energía |', '',
+            '| Detalle | Registro de ensayos |', '| Software | Identidad |',
+        ], lambda c, m: errores.append((c, m)))
+        self.assertTrue(any('separador' in m for _, m in errores))
+
+    def test_detecta_entrada_de_bibliografia_que_nadie_cita(self):
+        texto = "Un parrafo con cita [1].\n\n## XIII. Bibliografia\n\n1. Uno.\n2. Dos.\n"
+        errores = []
+        VI.bibliografia(texto.splitlines(), lambda c, m: errores.append(m))
+        self.assertTrue(any("[2] no se cita" in m for m in errores), errores)
+
+    def test_acepta_la_cita_agrupada_como_cita_de_cada_numero(self):
+        texto = "Un parrafo con cita [1, 2].\n\n## XIII. Bibliografia\n\n1. Uno.\n2. Dos.\n"
+        errores = []
+        VI.bibliografia(texto.splitlines(), lambda c, m: errores.append(m))
+        self.assertEqual(errores, [])
+
+    def test_detecta_cita_sin_entrada_y_numeracion_con_saltos(self):
+        texto = "Cita [1] y cita [5].\n\n## XIII. Bibliografia\n\n1. Uno.\n5. Cinco.\n"
+        errores = []
+        VI.bibliografia(texto.splitlines(), lambda c, m: errores.append(m))
+        self.assertTrue(any("no es consecutiva" in m for m in errores), errores)
+
+    def test_rechaza_enlace_de_relleno_y_url_bibliografica_cortada(self):
+        self.assertIn('Marcadores', self.cats('[enlace a la carpeta de anexos]'))
+        self.assertIn('Bibliografía', self.cats('18. Fuente. Recuperado de https://example.org/edi t.pdf'))
+        self.assertIn('Bibliografía', self.cats('14. Fuente. Recuperado de https://example.org/doc.pdf 109'))
+        self.assertNotIn('Bibliografía', self.cats('28. Fuentes. Recuperado de https://example.org/uno; https://example.org/dos'))
+
     def cats(self, texto):
         return {c for c, _ in VI.validar(texto, con_anexos=False)}
 
@@ -430,6 +462,39 @@ class TestValidadorInforme(unittest.TestCase):
         errores = []
         VI.anexos(lambda c, m: errores.append((c, m)))
         self.assertEqual(errores, [])
+
+
+class TestExportacionInforme(unittest.TestCase):
+    def test_no_descarta_filas_de_una_tabla_malformada(self):
+        from docx import Document
+        from exportar_informe_e2 import Exportador
+        doc = Document()
+        ex = Exportador(doc)
+        with self.assertRaisesRegex(ValueError, 'separador'):
+            ex.tabla(['| Diseño | Especificación |', '| Detalle | Registro de ensayos |'])
+        with self.assertRaisesRegex(ValueError, 'columnas'):
+            ex.tabla(['| A | B |', '|---|---|', '| uno | dos | dato adicional |'])
+        self.assertEqual(len(doc.tables), 0)
+
+    def test_enlaza_cada_numero_de_una_cita_agrupada(self):
+        from docx import Document
+        from exportar_informe_e2 import Exportador
+        doc = Document()
+        p = doc.add_paragraph()
+        Exportador(doc).texto(p, "Segun el censo [2, 3] y la placa [47].")
+        xml = p._p.xml
+        for anclaje in ("ref_2", "ref_3", "ref_47"):
+            self.assertIn('w:anchor="%s"' % anclaje, xml)
+        self.assertEqual(p.text, "Segun el censo [2, 3] y la placa [47].")
+
+    def test_exporta_todas_las_filas_incluidos_separadores_escapados(self):
+        from docx import Document
+        from exportar_informe_e2 import Exportador
+        doc = Document()
+        Exportador(doc).tabla(['| Origen | Mejora |', '|---|---|', r'| Detalle | Registro A\|B |', '| Software | Identidad |'])
+        self.assertEqual([[c.text for c in r.cells] for r in doc.tables[0].rows], [
+            ['Origen', 'Mejora'], ['Detalle', 'Registro A|B'], ['Software', 'Identidad'],
+        ])
 
 
 class TestAnexoE(unittest.TestCase):
