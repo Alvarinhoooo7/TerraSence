@@ -6,7 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700;900&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
 <!--
-  Carrusel publicitario «Del número a la decisión».
+  Carrusel publicitario «Del número a la decisión» — Sonda portátil multivariable para el sensado agronómico.
   Las pantallas de la app reproducen el paso «¿Qué tienes plantado?» de MeasureScreen
   (SpeciesPicker con sus 115 especies en siete grupos) y el plan de recomendaciones de
   MeasurementResultFlow, con los textos que entrega el motor agronómico real para esta
@@ -44,66 +44,74 @@
   .dark .sub, .green .sub { color: #CFE3D8; }
   .hl { color: var(--brote); } .hl-ocre { color: var(--ocre); } .hl-bosque { color: var(--bosque); }
   .brand { display: flex; align-items: center; gap: 18px; font-size: 40px; font-weight: 700; letter-spacing: -.5px; }
-  .brand img { width: 76px; height: 76px; border-radius: 18px; }
+  .brand img.ic-ts { width: 78px; height: 78px; border-radius: 18px; } .brand img.wm-ts { height: 48px; width: auto; }
   .brand .t { color: #fff; } .brand .s { color: var(--brote); }
 
   /* 1. Impacto */
-  .s1 .art { position: absolute; left: 0; right: 0; bottom: 0; height: 640px; }
+  .s1 .art { position: absolute; left: 0; right: 0; bottom: 0; height: 600px; }
+  .prod-pill { display: inline-block; margin-top: 28px; padding: 14px 26px; border-radius: 40px; background: rgba(111,211,160,.14); border: 2px solid rgba(111,211,160,.45); color: var(--brote); font-size: 25px; font-weight: 800; letter-spacing: 1.3px; text-transform: uppercase; align-self: flex-start; }
   .swipe { position: absolute; right: 90px; bottom: 80px; font-size: 36px; font-weight: 700; background: var(--ocre); color: #fff; padding: 22px 38px; border-radius: 60px; display: flex; align-items: center; gap: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
 
-  /* 2. Problema: medidor genérico */
-  .meter { margin: 40px auto 0; width: 640px; background: #3A3F3D; border-radius: 48px; padding: 46px 46px 60px; box-shadow: 0 30px 60px rgba(0,0,0,.25); }
-  .lcd { background: #B9C7A8; border-radius: 20px; padding: 34px 40px; font-family: 'Roboto Mono', monospace; color: #26301F; box-shadow: inset 0 4px 12px rgba(0,0,0,.25); }
+  /* 2. Problema: medidor genérico vs nodo fijo */
+  .meter { margin: 18px auto 0; width: 610px; background: #3A3F3D; border-radius: 44px; padding: 34px 40px 42px; box-shadow: 0 26px 52px rgba(0,0,0,.25); }
+  .lcd { background: #B9C7A8; border-radius: 20px; padding: 24px 34px; font-family: 'Roboto Mono', monospace; color: #26301F; box-shadow: inset 0 4px 12px rgba(0,0,0,.25); }
   .lcd .ln { display: flex; justify-content: space-between; align-items: baseline; }
-  .lcd .ln + .ln { margin-top: 14px; border-top: 3px dashed rgba(38,48,31,.25); padding-top: 14px; }
-  .lcd .lab { font-size: 34px; font-weight: 700; }
-  .lcd .val { font-size: 92px; font-weight: 700; letter-spacing: -2px; }
-  .meter .btns { display: flex; justify-content: center; gap: 40px; margin-top: 40px; }
-  .meter .btns span { width: 90px; height: 90px; border-radius: 50%; background: #555B58; box-shadow: inset 0 -6px 0 rgba(0,0,0,.3); }
-  .s2 .h2 { margin-top: 70px; text-align: center; font-size: 120px; }
-  .s2 .sub { text-align: center; }
+  .lcd .ln + .ln { margin-top: 12px; border-top: 3px dashed rgba(38,48,31,.25); padding-top: 12px; }
+  .lcd .lab { font-size: 32px; font-weight: 700; }
+  .lcd .val { font-size: 80px; font-weight: 700; letter-spacing: -2px; }
+  .meter .btns { display: flex; justify-content: center; gap: 36px; margin-top: 26px; }
+  .meter .btns span { width: 70px; height: 70px; border-radius: 50%; background: #555B58; box-shadow: inset 0 -6px 0 rgba(0,0,0,.3); }
+  .s2 .h2 { margin-top: 34px; text-align: center; font-size: 100px; }
+  .s2 .sub { text-align: center; font-size: 37px; margin-top: 14px; }
+  .vs-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 28px; }
+  .vs-card { background: #fff; border: 2px solid var(--borde); border-left: 8px solid var(--bad); border-radius: 24px; padding: 20px 24px; }
+  .vs-card b { display: block; font-size: 27px; color: var(--bad); font-weight: 900; margin-bottom: 6px; }
+  .vs-card span { font-size: 24px; color: var(--texto2); line-height: 1.28; display: block; }
   .s2 .more { margin-top: auto; text-align: center; font-size: 34px; font-weight: 700; color: var(--bosque); }
 
   /* 3 y 4. La app dentro de un iPhone que sale por el borde inferior */
-  .s3 .h2, .s4 .h2 { font-size: 74px; }
+  .s3 .h2, .s4 .h2 { font-size: 68px; }
   .app-dock { position: absolute; top: 400px; width: 650px; height: 950px; }
   .app-dock > .iphone { transform: scale(1.5663); transform-origin: top left; }
   /* Escala menor: deja ver más de la pantalla (la lista de especies o el segundo paso del plan). */
-  .app-dock.wide { top: 380px; width: 500px; height: 970px; }
-  .app-dock.wide > .iphone { transform: scale(1.2); }
-  .callout { position: absolute; z-index: 4; background: var(--noche); color: #fff; font-size: 32px; font-weight: 700; line-height: 1.25; padding: 22px 28px; border-radius: 26px; box-shadow: 0 16px 40px rgba(18,40,31,.35); width: 330px; }
+  .app-dock.wide { top: 370px; width: 500px; height: 980px; }
+  .app-dock.wide > .iphone { transform: scale(1.18); }
+  .callout { position: absolute; z-index: 4; background: var(--noche); color: #fff; font-size: 27px; font-weight: 700; line-height: 1.28; padding: 22px 26px; border-radius: 26px; box-shadow: 0 16px 40px rgba(18,40,31,.35); width: 375px; }
   .callout b { color: var(--brote); }
-  .callout::after { content: ''; position: absolute; width: 28px; height: 28px; background: var(--noche); transform: rotate(45deg); }
-  .callout.left::after { right: -12px; top: 40px; }
-  .callout.right::after { left: -12px; top: 40px; }
+  .callout .tag-k { display: block; font-size: 19px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ocre); margin-bottom: 6px; }
+  .callout::after { content: ''; position: absolute; width: 26px; height: 26px; background: var(--noche); transform: rotate(45deg); }
+  .callout.left::after { right: -11px; top: 38px; }
+  .callout.right::after { left: -11px; top: 38px; }
 
-  /* 5. Beneficios */
-  .grid4 { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-top: 56px; }
-  .ben { background: rgba(255,255,255,.08); border: 2px solid rgba(111,211,160,.35); border-radius: 36px; padding: 34px; }
-  .ben .ic { width: 96px; height: 96px; border-radius: 28px; background: var(--brote); display: grid; place-items: center; }
-  .ben h3 { font-size: 42px; font-weight: 900; margin-top: 22px; line-height: 1.08; }
-  .ben p { font-size: 30px; margin-top: 12px; color: #CFE3D8; line-height: 1.3; }
+  /* 5. Beneficios (6 virtudes clave) */
+  .grid6 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 32px; }
+  .ben { background: rgba(255,255,255,.08); border: 2px solid rgba(111,211,160,.35); border-radius: 28px; padding: 22px 26px; display: flex; flex-direction: column; }
+  .ben-head { display: flex; align-items: center; gap: 16px; }
+  .ben .ic { width: 66px; height: 66px; border-radius: 20px; background: var(--brote); display: grid; place-items: center; flex: none; }
+  .ben h3 { font-size: 31px; font-weight: 900; line-height: 1.12; }
+  .ben p { font-size: 24px; margin-top: 10px; color: #CFE3D8; line-height: 1.28; }
 
   /* 6. Prueba */
-  .bars { margin-top: 70px; }
-  .bar { margin-bottom: 46px; }
-  .bar .lab { font-size: 36px; font-weight: 700; margin-bottom: 16px; }
-  .bar .lab small { font-weight: 400; color: var(--texto2); font-size: 30px; display: block; margin-top: 4px; }
-  .bar .track { height: 110px; background: #E1E8E2; border-radius: 26px; overflow: hidden; }
-  .bar .fill { height: 100%; border-radius: 26px; display: flex; align-items: center; justify-content: flex-end; padding-right: 30px; font-size: 48px; font-weight: 900; color: #fff; }
-  .note { font-size: 28px; color: var(--texto2); line-height: 1.35; }
-  .badges { display: flex; gap: 22px; margin-top: auto; }
-  .badge { flex: 1; text-align: center; background: var(--tarjeta); border: 2px solid var(--borde); border-radius: 30px; padding: 30px 14px; }
-  .badge b { display: block; font-size: 50px; font-weight: 900; color: var(--bosque); }
-  .badge span { font-size: 28px; color: var(--texto2); }
+  .bars { margin-top: 36px; }
+  .bar { margin-bottom: 22px; }
+  .bar .lab { font-size: 29px; font-weight: 700; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: baseline; }
+  .bar .lab small { font-weight: 500; color: var(--texto2); font-size: 23px; }
+  .bar .track { height: 74px; background: #E1E8E2; border-radius: 20px; overflow: hidden; }
+  .bar .fill { height: 100%; border-radius: 20px; display: flex; align-items: center; justify-content: flex-end; padding-right: 24px; font-size: 36px; font-weight: 900; color: #fff; }
+  .note { font-size: 24px; color: var(--texto2); line-height: 1.32; margin-top: 8px; }
+  .badges { display: flex; gap: 20px; margin-top: auto; }
+  .badge { flex: 1; text-align: center; background: var(--tarjeta); border: 2px solid var(--borde); border-radius: 26px; padding: 22px 12px; }
+  .badge b { display: block; font-size: 42px; font-weight: 900; color: var(--bosque); }
+  .badge span { font-size: 24px; color: var(--texto2); }
 
   /* 7. Acción */
   .s7 { align-items: center; text-align: center; justify-content: center; }
-  .s7 .logo { width: 720px; margin-bottom: 70px; }
-  .s7 .h2 { font-size: 112px; }
-  .cta { margin-top: 70px; display: inline-flex; align-items: center; gap: 24px; background: #25D366; color: #0B2A17; font-size: 50px; font-weight: 900; padding: 38px 64px; border-radius: 80px; box-shadow: 0 16px 40px rgba(0,0,0,.35); }
-  .web { margin-top: 40px; font-size: 42px; color: #CFE3D8; } .web b { color: #fff; }
-  .price { margin-top: 80px; font-size: 34px; color: var(--brote); font-weight: 700; letter-spacing: 1px; }
+  .s7 .brand-hero { display: flex; align-items: center; justify-content: center; gap: 28px; margin-bottom: 42px; } .s7 .brand-hero .ic-ts { width: 124px; height: 124px; border-radius: 28px; box-shadow: 0 12px 30px rgba(0,0,0,.35); } .s7 .brand-hero .wm-ts { height: 78px; width: auto; }
+  .s7 .s7-pill { padding: 12px 26px; border-radius: 40px; background: rgba(111,211,160,.14); border: 2px solid rgba(111,211,160,.4); color: var(--brote); font-size: 23px; font-weight: 800; letter-spacing: 1.3px; text-transform: uppercase; margin-bottom: 32px; }
+  .s7 .h2 { font-size: 104px; }
+  .cta { margin-top: 48px; display: inline-flex; align-items: center; gap: 24px; background: #25D366; color: #0B2A17; font-size: 46px; font-weight: 900; padding: 32px 56px; border-radius: 80px; box-shadow: 0 16px 40px rgba(0,0,0,.35); }
+  .web { margin-top: 30px; font-size: 38px; color: #CFE3D8; } .web b { color: #fff; }
+  .price { margin-top: 46px; font-size: 27px; color: var(--brote); font-weight: 800; letter-spacing: 1px; line-height: 1.45; }
 
   /* ================= iPhone (medidas lógicas de un iPhone 15: 393 x 852 pt) ================= */
   .iphone { width: 417px; height: 876px; border-radius: 68px; padding: 12px; position: relative;
@@ -318,8 +326,9 @@
   <!-- 1. Impacto -->
   <section class="slide dark s1">
     <div class="counter">1/7</div>
-    <div class="brand"><img src="../Figuras/logo_icono.png" alt=""><span><span class="t">Terra</span><span class="s">Sense</span></span></div>
-    <div class="h1" style="margin-top:90px">¿Riego hoy<br>o <span class="hl">mañana?</span></div>
+    <div class="brand"><img class="ic-ts" src="../Figuras/logo_icono.png" alt="TS"><img class="wm-ts" src="../../../Logo/Logo/terrasense-wordmark-dark.svg" alt="TerraSense"></div>
+    <div class="prod-pill">Sonda portátil multivariable · Sensado agronómico</div>
+    <div class="h1" style="margin-top:46px">¿Riego hoy<br>o <span class="hl">mañana?</span></div>
     <p class="sub">El suelo se ve seco y el cielo, nublado.<br>Equivocarte cuesta agua… y la temporada.</p>
     <svg class="art" viewBox="0 0 1080 640" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
       <g opacity=".9"><ellipse cx="820" cy="120" rx="120" ry="62" fill="#2F4A3E"/><ellipse cx="740" cy="140" rx="80" ry="48" fill="#2F4A3E"/><ellipse cx="900" cy="145" rx="78" ry="44" fill="#2F4A3E"/>
@@ -338,65 +347,89 @@
   <!-- 2. Problema -->
   <section class="slide light s2">
     <div class="counter">2/7</div>
-    <div class="kicker">Lo que ves hoy</div>
+    <div class="kicker">Lo que pasa con las opciones tradicionales</div>
     <div class="meter">
       <div class="lcd"><div class="ln"><span class="lab">HUMEDAD</span><span class="val">5%</span></div><div class="ln"><span class="lab">T° SUELO</span><span class="val">17°C</span></div></div>
       <div class="btns"><span></span><span></span></div>
     </div>
     <div class="h2">¿Y ahora <span class="hl-ocre">qué?</span></div>
-    <p class="sub">Un medidor común te da números.<br>La decisión, y el riesgo, siguen siendo tuyos.</p>
-    <div class="more">Desliza y mira la diferencia →</div>
+    <p class="sub">Un número suelto no te dice cómo interpretarlo ni qué hacer hoy.</p>
+    <div class="vs-cards">
+      <div class="vs-card"><b>Medidores comunes (Hanna / Bluelab)</b><span>Solo entregan 2 o 3 datos crudos, sin interpretación agronómica, y usan pilas desechables.</span></div>
+      <div class="vs-card"><b>Nodos fijos de telemetría</b><span>Quedan enterrados en un solo punto del campo, exigen instalación y cobran suscripción mensual.</span></div>
+    </div>
+    <div class="more">Desliza y mira cómo lo resuelve TerraSense →</div>
   </section>
 
   <!-- 3. Giro: el resultado -->
   <section class="slide light s3">
     <div class="counter">3/7</div>
-    <div class="kicker">Con TerraSense, primero tu cultivo</div>
-    <div class="h2">Le dices qué tienes plantado: <span class="hl-bosque">115 especies.</span></div>
+    <div class="kicker">Etapa fenológica + Especie + Pre-siembra</div>
+    <div class="h2">Considera tu etapa y especie: <span class="hl-bosque">115 cultivos.</span></div>
     <div class="app-dock wide" data-app="app-species" style="left:500px"></div>
-    <div class="callout left" style="left:90px;top:1000px">Del <b>tomate</b> al <b>palto</b>: hortalizas, frutales, berries, cereales y más.</div>
+    <div class="callout left" style="left:70px;top:490px"><span class="tag-k">En Pre-siembra</span>Sin pedirte especie, evalúa tu suelo y <b>te recomienda qué cultivos plantar</b>.</div>
+    <div class="callout left" style="left:70px;top:860px"><span class="tag-k">Vegetativo a Cosecha</span>Ajusta los umbrales a tu etapa y especie: del <b>tomate</b> al <b>palto</b>, berries y cereales.</div>
   </section>
 
   <!-- 4. Giro: qué hacer -->
   <section class="slide light s4">
     <div class="counter">4/7</div>
-    <div class="kicker">Y te dice por dónde empezar</div>
-    <div class="h2">Suelo seco, lluvia mañana: <span class="hl-bosque">te arma un plan.</span></div>
-    <div class="app-dock wide" data-app="app-plan" style="left:80px"></div>
-    <div class="callout right" style="right:60px;top:1150px">Cruza tu medición con el <b>pronóstico</b> de tu campo.</div>
+    <div class="kicker">Feedback, plan de acción, clima e historial</div>
+    <div class="h2">No solo mide: <span class="hl-bosque">te arma un plan de acción.</span></div>
+    <div class="app-dock wide" data-app="app-plan" style="left:70px"></div>
+    <div class="callout right" style="right:55px;top:450px"><span class="tag-k">Feedback e interpretación</span>Te explica cómo interpretar las <b>10 variables</b> y qué hacer hoy y después.</div>
+    <div class="callout right" style="right:55px;top:760px"><span class="tag-k">Clima real y actualizado</span>Cruza tu suelo con el clima actual y el <b>pronóstico a 5 días</b> de tu campo.</div>
+    <div class="callout right" style="right:55px;top:1055px"><span class="tag-k">App móvil con historial</span>Guarda el <b>historial de mediciones con GPS</b>, fecha, etapa y especie (incluso sin señal).</div>
   </section>
 
   <!-- 5. Beneficios -->
   <section class="slide green s5">
     <div class="counter">5/7</div>
-    <div class="kicker">Por qué TerraSense</div>
-    <div class="h2" style="font-size:78px">Todo para decidir,<br>en el mismo campo</div>
-    <div class="grid4">
-      <div class="ben"><div class="ic"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#12281F" stroke-width="2.2" stroke-linecap="round"><path d="M2 8.5a15 15 0 0 1 20 0M5.5 12a10 10 0 0 1 13 0M9 15.5a5 5 0 0 1 6 0"/><circle cx="12" cy="19" r="1.3" fill="#12281F"/><path d="M3 3l18 18"/></svg></div>
-        <h3>Funciona sin señal</h3><p>Mide, interpreta y guarda aunque no haya cobertura.</p></div>
-      <div class="ben"><div class="ic"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#12281F" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v18M7 8v8M17 6v12M2 11v2M22 10v4"/></svg></div>
-        <h3>10 variables</h3><p>7 del suelo y 3 del ambiente, en un solo equipo.</p></div>
-      <div class="ben"><div class="ic"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#12281F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V11"/><path d="M12 13c-4 0-6-3-6-7 4 0 6 3 6 7Z"/><path d="M12 11c0-4 2-7 6-7 0 4-2 7-6 7Z"/></svg></div>
-        <h3>Tu cultivo y su etapa</h3><p>115 especies, de la pre-siembra a la cosecha, con un plan de acción.</p></div>
-      <div class="ben"><div class="ic"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#12281F" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h4"/></svg></div>
-        <h3>Pago único</h3><p>Sin mensualidades. Mediciones ilimitadas.</p></div>
+    <div class="kicker">Por qué preferirnos frente a la competencia</div>
+    <div class="h2" style="font-size:72px">6 razones que hacen único<br>a TerraSense en tu campo</div>
+    <div class="grid6">
+      <div class="ben">
+        <div class="ben-head"><div class="ic"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#12281F" stroke-width="2.3" stroke-linecap="round"><path d="M12 2C8 2 5 5 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-4-3-7-7-7Z"/><circle cx="12" cy="9" r="2.5"/></svg></div><h3>Portátil (no es nodo fijo)</h3></div>
+        <p>Haz múltiples lecturas al día en distintos sectores de tu campo a costo marginal $0.</p>
+      </div>
+      <div class="ben">
+        <div class="ben-head"><div class="ic"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#12281F" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/><path d="M11 10l-3 3h4l-3 3"/></svg></div><h3>Recargable USB-C</h3></div>
+        <p>Batería LiPo integrada (1 mes de uso). No usa pilas desechables como Hanna o Bluelab.</p>
+      </div>
+      <div class="ben">
+        <div class="ben-head"><div class="ic"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#12281F" stroke-width="2.3" stroke-linecap="round"><path d="M12 3v18M7 8v8M17 6v12M2 11v2M22 10v4"/></svg></div><h3>10 variables + Feedback</h3></div>
+        <p>7 de suelo + 3 de ambiente (y DPV), con plan de acción para saber cómo interpretarlas.</p>
+      </div>
+      <div class="ben">
+        <div class="ben-head"><div class="ic"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#12281F" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V11"/><path d="M12 13c-4 0-6-3-6-7 4 0 6 3 6 7Z"/><path d="M12 11c0-4 2-7 6-7 0 4-2 7-6 7Z"/></svg></div><h3>Etapa, especie y pre-siembra</h3></div>
+        <p>Recomienda qué plantar en pre-siembra y ajusta rangos a tu especie y etapa fenológica.</p>
+      </div>
+      <div class="ben">
+        <div class="ben-head"><div class="ic"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#12281F" stroke-width="2.3" stroke-linecap="round"><path d="M7 15a4 4 0 0 1-.5-8A6 6 0 0 1 18 8.5 3.5 3.5 0 0 1 17.5 15Z"/><path d="M8 19h8M12 15v6"/></svg></div><h3>Clima real + Historial App</h3></div>
+        <p>Cruza el pronóstico actualizado a 5 días y guarda el historial con GPS aunque no haya señal.</p>
+      </div>
+      <div class="ben">
+        <div class="ben-head"><div class="ic"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#12281F" stroke-width="2.3" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h4"/></svg></div><h3>Pago único ($467.463)</h3></div>
+        <p>Sin mensualidades ni cobros ocultos. Más completo y económico que sus competidores.</p>
+      </div>
     </div>
-    <p class="sub" style="margin-top:44px;font-size:36px">Con señal, suma el clima de hoy y de los próximos cinco días a cada recomendación.</p>
   </section>
 
   <!-- 6. Prueba -->
   <section class="slide light s6">
     <div class="counter">6/7</div>
-    <div class="kicker">Haz la cuenta</div>
-    <div class="h2">En 3 años, te sale más barato que el laboratorio</div>
+    <div class="kicker">Haz la cuenta frente a la competencia</div>
+    <div class="h2" style="font-size:74px">Más completo hoy y más barato en 3 años</div>
     <div class="bars">
-      <div class="bar"><div class="lab">Análisis de laboratorio<small>4 muestras al año</small></div><div class="track"><div class="fill" style="width:100%;background:var(--ocre)">$600.000</div></div></div>
-      <div class="bar"><div class="lab">TerraSense<small>Mediciones ilimitadas</small></div><div class="track"><div class="fill" style="width:82%;background:var(--bosque)">$492.453</div></div></div>
-      <p class="note">Costo acumulado a 3 años, en pesos de 2027. El laboratorio sigue siendo clave para un análisis químico completo; TerraSense te acompaña en cada decisión entre un análisis y otro.</p>
+      <div class="bar"><div class="lab"><span>Análisis de laboratorio (3 años)</span><small>4 muestras/año · Espera de 5 a 15 días</small></div><div class="track"><div class="fill" style="width:100%;background:var(--ocre)">$600.000</div></div></div>
+      <div class="bar"><div class="lab"><span>Bluelab Pulse (equipo a pilas)</span><small>Solo 3 variables · Sin pH ni plan de acción</small></div><div class="track"><div class="fill" style="width:90%;background:#6E7D75">$538.990</div></div></div>
+      <div class="bar"><div class="lab"><span>Hanna HI9814 (equipo a pilas)</span><small>Solo 3 variables · Sin humedad ni clima</small></div><div class="track"><div class="fill" style="width:82%;background:#6E7D75">$491.827</div></div></div>
+      <div class="bar"><div class="lab"><span>TerraSense (USB-C + 10 variables + Plan)</span><small>Equipo $467.463 · Costo total a 3 años: $492.453</small></div><div class="track"><div class="fill" style="width:78%;background:var(--bosque)">$467.463</div></div></div>
+      <p class="note">Precios en Chile con IVA incluido. En 3 años de uso ($492.453 incluyendo kit de mantención), TerraSense cuesta menos que el laboratorio ($600.000) y entrega lecturas diarias ilimitadas en todo tu campo.</p>
     </div>
     <div class="badges">
-      <div class="badge"><b>6 meses</b><span>de garantía</span></div>
-      <div class="badge"><b>10 días</b><span>para arrepentirte</span></div>
+      <div class="badge"><b>6 meses</b><span>de garantía legal</span></div>
+      <div class="badge"><b>10 días</b><span>de retracto (SERNAC)</span></div>
       <div class="badge"><b>Gratis</b><span>despacho a todo Chile</span></div>
     </div>
   </section>
@@ -404,11 +437,12 @@
   <!-- 7. Acción -->
   <section class="slide dark s7">
     <div class="counter">7/7</div>
-    <img class="logo" src="../../../Logo/Logo/terrasense-dark.svg" alt="TerraSense">
+    <div class="brand-hero"><img class="ic-ts" src="../Figuras/logo_icono.png" alt="TS"><img class="wm-ts" src="../../../Logo/Logo/terrasense-wordmark-dark.svg" alt="TerraSense"></div>
+    <div class="s7-pill">Sonda portátil multivariable para el sensado agronómico</div>
     <div class="h2">Mide hoy.<br><span class="hl">Decide hoy.</span></div>
     <div class="cta"><svg width="56" height="56" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3Z" fill="#0B2A17"/><path d="M8.5 9.5c.5 2.5 3 5 5.5 5.5l1.2-1.4 2 1-.4 1.6c-4 .4-9.2-4.8-8.8-8.8l1.6-.4 1 2Z" fill="#25D366"/></svg>Escríbenos por WhatsApp</div>
     <p class="web">o visita <b>terrasense.cl</b></p>
-    <p class="price">$467.463 · PAGO ÚNICO · DESPACHO INCLUIDO</p>
+    <p class="price">$467.463 IVA INCL. · PAGO ÚNICO · RECARGABLE USB-C<br>10 VARIABLES + PLAN DE ACCIÓN · DESPACHO INCLUIDO</p>
   </section>
 </template>
 
@@ -431,7 +465,7 @@
     </div>
     <div class="p-txt">
       <div><b>1.284 Me gusta</b></div>
-      <div style="margin-top:4px"><b>terrasense</b> Tu suelo te habla; te lo traducimos en una decisión 🌱 Desliza y mira cómo. <span class="tag">#agricultura #riego</span></div>
+      <div style="margin-top:4px"><b>terrasense</b> Sonda portátil multivariable recargable por USB-C 🌱 10 variables + plan de acción en tu celular. <span class="tag">#agricultura #riego</span></div>
       <div class="gr">Ver los 46 comentarios</div>
       <div class="tm">Hace 2 horas</div>
     </div>
