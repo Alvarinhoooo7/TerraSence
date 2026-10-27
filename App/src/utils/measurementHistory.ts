@@ -1,6 +1,33 @@
 import { PHENOLOGICAL_STAGES, type MeasurementPoint, type PhenologicalStage } from '../types/app';
 import type { AppLanguage } from '../types/preferences';
 import { presentationSpeciesName, savedSpecies } from '../engine/measurementPresentation';
+import { timedOperation } from './timedOperation';
+
+/** Límite para consultar el historial remoto antes de mostrar la copia local (ES5: evita esperas de 10–15 s sin red). */
+export const REMOTE_HISTORY_TIMEOUT_MS = 3_000;
+
+/**
+ * Ejecuta la consulta remota del historial con un presupuesto de tiempo único (`REMOTE_HISTORY_TIMEOUT_MS`),
+ * cancelando el `AbortSignal` si la red no responde y cayendo de inmediato a la copia local (`fallback`).
+ */
+export async function runBoundedRemoteHistory<T>(
+  remote: (signal: AbortSignal) => Promise<T>,
+  fallback: () => Promise<T>,
+  timeoutMs = REMOTE_HISTORY_TIMEOUT_MS,
+): Promise<{ data: T; offline: boolean }> {
+  const controller = new AbortController();
+  try {
+    const data = await timedOperation(
+      Promise.resolve(remote(controller.signal)),
+      timeoutMs,
+      () => controller.abort(),
+      'La consulta del historial tardó demasiado.',
+    );
+    return { data, offline: false };
+  } catch {
+    return { data: await fallback(), offline: true };
+  }
+}
 
 /** undefined mantiene compatibilidad; null consulta todas las sondas explícitamente. */
 export function measurementHistoryScope(selectedDeviceId: string | undefined, historyDeviceId: string | null | undefined) {

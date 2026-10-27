@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { CROPS_DB, SOIL_TEXTURES } from '../src/engine/agronomyEngine';
+import { CROPS_DB, SOIL_TEXTURES, PRE_PLANTING_PROFILES, evaluatePrePlantingOptions, possibleCrops, suggestPrePlantingCrops } from '../src/engine/agronomyEngine';
 import { buildContextualAdvice } from '../src/engine/contextualAdvice';
 import { buildLocalInputQuality } from '../src/engine/inputQuality';
 import { buildMeasurementPresentation } from '../src/engine/measurementPresentation';
 import { SPECIES_RULES_VERSION } from '../src/engine/speciesRules';
-import { evaluateReadingForStage, GENERAL_RULES, GENERAL_RULES_VERSION } from '../src/engine/stageEvaluator';
+import { evaluateReadingForStage, GENERAL_RULES, GENERAL_RULES_VERSION, getStageOutputRules, STAGE_OUTPUT_RULES } from '../src/engine/stageEvaluator';
 import type { SoilMeasurement } from '../src/types/agronomy';
 import type { PhenologicalStage } from '../src/types/app';
 
@@ -144,4 +144,68 @@ test('plan: lo urgente y lo más próximo primero, a igual momento en el orden e
   const frozen = run({ ...raw, airTemp: -3 }, 'cosecha', 'es', 'sp.tomate').advice.recommendations!;
   assert.equal(frozen[0].when, 'now');
   assert.equal(frozen[0].priority, 'high');
+});
+
+test('E4/§9.2: GEN-PH-01 no contradice la especie elegida y las alertas del mismo objetivo se fusionan en el plan', () => {
+  const acidicWithTomato = run({ ...raw, ph: 4.0 }, 'vegetativo', 'es', 'sp.tomate');
+  // T45 se mantiene en evaluation.alerts, pero ningún texto afirma que no hay cultivo asignado.
+  assert.equal(acidicWithTomato.evaluation.alerts.filter(a => a.param === 'ph').length, 2);
+  for (const alert of acidicWithTomato.evaluation.alerts) {
+    assert.doesNotMatch(alert.title + alert.action, /no tiene un cultivo asignado|no crop is assigned/i);
+  }
+  // En el plan (recommendations y actions), GEN-PH-01 y species:sp.tomate:ph se fusionan en una sola tarjeta de suelo.
+  const soilRecs = acidicWithTomato.advice.recommendations!.filter(r => r.kind === 'soil');
+  assert.equal(soilRecs.length, 1);
+  assert.match(soilRecs[0].title, /pH demasiado bajo para este cultivo/);
+  assert.match(soilRecs[0].detail ?? '', /4,2 a 7,8/);
+  assert.match(soilRecs[0].detail ?? '', /INIA/);
+});
+
+test('E5/T16/T17/T18/T42: pre-siembra sugiere cultivos con techo térmico, separa forma de establecimiento y distingue perennes', () => {
+  assert.ok(PRE_PLANTING_PROFILES.length >= 25);
+  // T16: suelo excesivamente cálido (42 °C) no sugiere cultivos aunque superen tempMin.
+  assert.deepEqual(suggestPrePlantingCrops({ ...raw, temp: 42 }, 'es'), []);
+  assert.deepEqual(possibleCrops({ ...raw, temp: 42 }), []);
+  // A 33 °C, lechuga (máx 29,4 °C) y espinaca (máx 29,4 °C) quedan excluidas; maíz (máx 40,6 °C) sí entra.
+  const warm = suggestPrePlantingCrops({ ...raw, temp: 33, ph: 6.5 }, 'es');
+  assert.ok(warm.some(c => /Maíz/.test(c)));
+  assert.ok(!warm.some(c => /Lechuga|Espinaca|Papa/.test(c)));
+  // T17: tomate separa semilla directa (mín 10 °C) de trasplante (mín 15 °C).
+  const at12 = evaluatePrePlantingOptions({ ...raw, temp: 12, ph: 6.5 }, 'es');
+  assert.ok(at12.some(o => o.profileId === 'pre.tomate.semilla' && o.establishment === 'seed'));
+  assert.ok(!at12.some(o => o.profileId === 'pre.tomate.trasplante'));
+  // T18: apio (sin óptimo ni máximo numérico en S10) queda con has_limitations y nunca adelanta a perfiles completos.
+  const at18 = evaluatePrePlantingOptions({ ...raw, temp: 18, ph: 6.5 }, 'es');
+  const celery = at18.find(o => o.profileId === 'pre.apio.semilla')!;
+  assert.equal(celery.classification, 'has_limitations');
+  assert.ok(celery.limitationCodes.includes('thermal_optimum_and_maximum_undocumented'));
+  const firstLimitedIndex = at18.findIndex(o => o.classification === 'has_limitations');
+  const lastCompleteAnnualIndex = at18.map((o, i) => o.scope === 'short_term_establishment' && o.classification === 'matches_evaluated_criteria' ? i : -1).reduce((a, b) => Math.max(a, b), -1);
+  assert.ok(firstLimitedIndex > lastCompleteAnnualIndex);
+  // T42: perennes declaran partial_perennial_assessment y van después de los anuales de establecimiento directo.
+  const firstPerennialIndex = at18.findIndex(o => o.scope === 'partial_perennial_assessment');
+  assert.ok(firstPerennialIndex > lastCompleteAnnualIndex);
+});
+
+test('E4/§8.3–§8.6: registro auditable de VG01–VG05, FL01–FL05 y CO01–CO05 distingue reglas habilitadas y documentadas', () => {
+  assert.deepEqual(
+    STAGE_OUTPUT_RULES.map(r => r.id),
+    ['VG01', 'VG02', 'VG03', 'VG04', 'VG05', 'FL01', 'FL02', 'FL03', 'FL04', 'FL05', 'CO01', 'CO02', 'CO03', 'CO04', 'CO05'],
+  );
+  assert.equal(getStageOutputRules('vegetativo').length, 5);
+  assert.equal(getStageOutputRules('floracion').length, 5);
+  assert.equal(getStageOutputRules('cosecha').length, 5);
+  for (const rule of STAGE_OUTPUT_RULES) {
+    assert.equal(rule.version, '1.0.0', rule.id);
+    assert.ok(rule.inputs.length > 0 && rule.objective.length > 0 && rule.evidencePolicy.length > 0, rule.id);
+    assert.ok(rule.prohibitedAssertions.length > 0, rule.id);
+  }
+  // §8.6: las reglas que exigirían un umbral de patógeno, polinizadores o maquinaria quedan en documented.
+  assert.deepEqual(
+    STAGE_OUTPUT_RULES.filter(r => r.state === 'documented').map(r => r.id),
+    ['VG05', 'FL04', 'CO03'],
+  );
+  // FL05: en evaluateReadingForStage no corre la regla uniforme del 80 % de CE en floración.
+  const floweringHighEc = evaluateReadingForStage({ ...raw, ec: 2200 }, 'floracion', 'es', clock, 'sp.tomate');
+  assert.ok(!floweringHighEc.alerts.some(a => /80 %|80%/i.test(a.action)));
 });

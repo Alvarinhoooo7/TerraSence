@@ -433,5 +433,34 @@ export function evaluateSpeciesWeather(
       && (other.rank < f.rank || (other.rank === f.rank && SEVERITY_ORDER[other.type] < SEVERITY_ORDER[f.type]))))
     .sort((a, b) => SEVERITY_ORDER[a.type] - SEVERITY_ORDER[b.type])
     .map(({ rank: _rank, family: _family, ...finding }) => finding);
-  return { applicable: true, evaluated, findings };
+  const result: SpeciesWeatherResult = { applicable: true, evaluated, findings };
+  return result;
+}
+
+/**
+ * Categorías de riesgo general (`frost`, `heat`, `rain`) que ya activaron un hallazgo propio
+ * de la especie en el pronóstico, para fusionar el aviso general sin duplicar tarjetas (§9.2).
+ */
+export function coveredGeneralWeatherRisks(
+  speciesId: string | null | undefined,
+  stage: PhenologicalStage,
+  weather: SpeciesWeatherInput | null,
+): Set<'frost' | 'heat' | 'rain'> {
+  const covered = new Set<'frost' | 'heat' | 'rain'>();
+  const profile = findSpeciesRuleProfile(speciesId);
+  const criteria = (profile?.criteria ?? []).filter(c => c.state === 'enabled' && c.stages.includes(stage)).filter(isWeatherCriterion);
+  if (!criteria.length || !weather) return covered;
+  for (const criterion of criteria) {
+    if (criterion.kind === 'air_temperature') {
+      const key = criterion.extreme === 'minimum' ? 'minimumTemperatureC' : 'maximumTemperatureC';
+      const hits = weather.days.some(day => typeof day[key] === 'number' && Number.isFinite(day[key]) && meetsThreshold(criterion.comparison, criterion.threshold, day[key]!));
+      if (!hits) continue;
+      const below = criterion.comparison === 'below' || criterion.comparison === 'at_or_below';
+      if (criterion.extreme === 'minimum' && below) covered.add('frost');
+      if (criterion.extreme === 'maximum' && !below) covered.add('heat');
+    } else if (criterion.event === 'rain') {
+      if (weather.rainingNow || weather.days.some(day => day.rainy === true)) covered.add('rain');
+    }
+  }
+  return covered;
 }

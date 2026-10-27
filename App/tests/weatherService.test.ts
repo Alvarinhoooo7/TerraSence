@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { fetchCurrentWeather, normalizeWeather, type CurrentWeather } from '../src/services/weatherService';
+import { fetchCurrentWeather, measureWeatherResponse, normalizeWeather, WEATHER_RESPONSE_BUDGET, type CurrentWeather } from '../src/services/weatherService';
 import { buildContextualAdvice } from '../src/engine/contextualAdvice';
 import { evaluateReadingForStage } from '../src/engine/stageEvaluator';
 import { decodeTelemetry } from '../src/services/probeService';
-import { WEATHER_UNITS } from './fixtures/weatherUnits';
+import { CHILE_OPEN_METEO_FIXTURE, WEATHER_UNITS } from './fixtures/weatherUnits';
 
 test('pronóstico usa cinco fechas posteriores locales, conserva ceros y ausencias', async () => {
   const original = globalThis.fetch;
@@ -251,4 +251,39 @@ test('E1.2: distingue ausente, inválido y válido e identifica agregados y per�
   const unknownTime = normalizeWeather({ ...partialPayload(), utc_offset_seconds: undefined }, fetchedAt);
   assert.equal(unknownTime?.inputQuality.daily['2026-10-01'].rainProbabilityPct.validFrom, null);
   assert.ok(unknownTime?.inputQuality.daily['2026-10-01'].rainProbabilityPct.limitationCodes.includes('time_interval_unknown'));
+});
+
+test('E3: fixture reproducible para Chile normaliza las 5 series horarias, calcula lo que queda del día sin usar daily y mide presupuesto', () => {
+  const weather = normalizeWeather(CHILE_OPEN_METEO_FIXTURE, '2026-10-12T21:30:00Z');
+  assert.ok(weather);
+  assert.ok(weather.hourly);
+  assert.equal(weather.hourly.time.length, 10);
+  assert.equal(weather.hourly.relativeHumidityPct?.length, 10);
+  assert.equal(weather.hourly.precipitationMm?.length, 10);
+  assert.equal(weather.hourly.rainProbabilityPct?.length, 10);
+  assert.equal(weather.hourly.windKmh?.length, 10);
+  // Lo que queda del día toma desde las 18:00 (hora local de la consulta 18:30) hasta las 23:00 de hoy,
+  // descartando las lluvias pasadas de 16:00 (5 mm) y 17:00 (4 mm) que sí suman en daily (12 mm).
+  assert.deepEqual(weather.remainingToday, {
+    date: '2026-10-12',
+    fromHour: '2026-10-12T18:00',
+    toHour: '2026-10-12T23:00',
+    slotCount: 6,
+    minimumTemperatureC: 8.8,
+    maximumTemperatureC: 19.6,
+    precipitationMm: 2.5,
+    rainProbabilityPct: 55,
+    maxWindKmh: 15,
+  });
+  // Sin serie horaria, nunca se deduce remainingToday desde daily.
+  const withoutHourly = normalizeWeather(partialPayload(), fetchedAt);
+  assert.equal(withoutHourly?.remainingToday, undefined);
+  // Medición de respuesta y presupuesto E3.
+  const metrics = measureWeatherResponse(CHILE_OPEN_METEO_FIXTURE, 420);
+  assert.ok(metrics.payloadBytes > 200 && metrics.payloadBytes <= WEATHER_RESPONSE_BUDGET.maxPayloadBytes);
+  assert.equal(metrics.hourlySlots, 10);
+  assert.equal(metrics.dailySlots, 6);
+  assert.equal(metrics.latencyMs, 420);
+  assert.equal(metrics.withinBudget, true);
+  assert.equal(measureWeatherResponse(CHILE_OPEN_METEO_FIXTURE, WEATHER_RESPONSE_BUDGET.maxLatencyMs + 1).withinBudget, false);
 });

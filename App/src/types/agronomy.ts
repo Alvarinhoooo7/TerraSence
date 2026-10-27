@@ -78,6 +78,7 @@ export interface CropDefinition {
   emoji: string;
   tempMin: number;
   tempOpt: number;
+  tempMax?: number;
   phMin: number;
   phMax: number;
   ecMax: number;

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { historyScopeIncludes, measurementHistoryScope, mergeCachedHistories, mergeMeasurementHistory, withConfirmedPoint } from '../src/utils/measurementHistory';
+import { historyScopeIncludes, measurementHistoryScope, mergeCachedHistories, mergeMeasurementHistory, REMOTE_HISTORY_TIMEOUT_MS, runBoundedRemoteHistory, withConfirmedPoint } from '../src/utils/measurementHistory';
 import type { MeasurementPoint } from '../src/types/app';
 
 test('el filtro de Mediciones permanece independiente de la sonda seleccionada para medir', () => {
@@ -86,4 +86,26 @@ test('una lectura subida con red entra a la copia local del historial y se ve si
   assert.equal(historyScopeIncludes(JSON.stringify([null, 'equipo-1']), 'equipo-1'), true);
   assert.equal(historyScopeIncludes(JSON.stringify([null, 'equipo-2']), 'equipo-1'), false);
   assert.equal(historyScopeIncludes('no-json', 'equipo-1'), false);
+});
+
+test('ES5: runBoundedRemoteHistory corta consultas colgadas sin red y devuelve la copia local de inmediato', async () => {
+  assert.equal(REMOTE_HISTORY_TIMEOUT_MS, 3_000);
+  const localCopy = [point('local-1', 'uuid-1')];
+  let aborted = false;
+  const startedAt = Date.now();
+  const result = await runBoundedRemoteHistory(
+    signal => new Promise<MeasurementPoint[]>((_, reject) => {
+      signal.addEventListener('abort', () => {
+        aborted = true;
+        reject(new Error('Aborted'));
+      });
+    }),
+    async () => localCopy,
+    30,
+  );
+  const elapsed = Date.now() - startedAt;
+  assert.equal(aborted, true);
+  assert.equal(result.offline, true);
+  assert.deepEqual(result.data, localCopy);
+  assert.ok(elapsed < 500, `Tardó demasiado en caer a la copia local: ${elapsed} ms`);
 });

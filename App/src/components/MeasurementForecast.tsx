@@ -8,7 +8,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { formatEngineMetric } from '../utils/units';
 import type { ForecastDay } from '../services/weatherService';
-import { forecastOutlook, isRainingNow, isRainyDay, weatherKind, weatherKindLabel } from '../engine/weatherOutlook';
+import { compareForecastWindows, forecastOutlook, isRainingNow, isRainyDay, weatherKind, weatherKindLabel } from '../engine/weatherOutlook';
 import type { WeatherNow } from './measurementResultData';
 import { WeatherGlyph } from './result/WeatherGlyph';
 import { ScreenCard, ScreenLabel, ScreenText } from './screen/ScreenUI';
@@ -66,6 +66,7 @@ export function MeasurementForecast({ days, now, loading = false, latitude, long
   const raining = !!now && isRainingNow(now);
   // El resumen habla de «mañana»: sólo vale para una consulta nueva, no para un histórico.
   const outlook = historical ? null : forecastOutlook(days, lang);
+  const windowComparison = historical ? null : compareForecastWindows(days, lang);
 
   // --- Hoy · ahora: tiempo actual, lluvia reciente y el día completo ---
   const nowCard = now ? <Animated.View entering={enterDown(40)} style={{ borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: raining ? `${RAIN}88` : colors.border, backgroundColor: colors.card }}>
@@ -96,6 +97,15 @@ export function MeasurementForecast({ days, now, loading = false, latitude, long
         [now.today.precipitationMm != null ? mm(now.today.precipitationMm) : null,
           now.today.rainProbabilityPct != null ? t(`${now.today.rainProbabilityPct} % de prob.`, `${now.today.rainProbabilityPct} % chance`) : null].filter(Boolean).join(' · ') || missing)}
       {row(t('Mínima / máxima', 'Low / high'), `${degrees(now.today.minimumTemperatureC)} / ${degrees(now.today.maximumTemperatureC)}`)}
+      {!historical && now.remainingToday && row(
+        t(`Resto de hoy (${now.remainingToday.fromHour.slice(11)}–${now.remainingToday.toHour.slice(11)})`, `Rest of today (${now.remainingToday.fromHour.slice(11)}–${now.remainingToday.toHour.slice(11)})`),
+        [
+          now.remainingToday.minimumTemperatureC != null && now.remainingToday.maximumTemperatureC != null
+            ? `${degrees(now.remainingToday.minimumTemperatureC)} / ${degrees(now.remainingToday.maximumTemperatureC)}`
+            : null,
+          now.remainingToday.precipitationMm != null ? mm(now.remainingToday.precipitationMm) : null,
+        ].filter(Boolean).join(' · ') || missing
+      )}
     </View>
   </Animated.View> : null;
 
@@ -125,6 +135,7 @@ export function MeasurementForecast({ days, now, loading = false, latitude, long
       {!!outlook && <Animated.View entering={enterDown(120)}><ScreenCard accent={colors.primary}>
         <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '800', letterSpacing: 1.4 }}>{t('EN RESUMEN', 'IN SHORT')}</Text>
         <ScreenText muted={false}>{outlook}</ScreenText>
+        {!!windowComparison && <ScreenText>{windowComparison}</ScreenText>}
       </ScreenCard></Animated.View>}
       <Animated.View entering={enterDown(200)} style={{ gap: 8 }}>
         <ScreenLabel>{t('Próximos cinco días', 'Next five days')}</ScreenLabel>

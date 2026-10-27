@@ -16,7 +16,8 @@ import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { PHENOLOGICAL_STAGES } from '../types/app';
-import { parameterLabel, presentationSpeciesName, type MeasurementPresentation, type ParameterPresentation, type PresentationDerived } from '../engine/measurementPresentation';
+import { parameterLabel, presentationSpeciesName, type CoverageSummary, type MeasurementPresentation, type ParameterPresentation, type PresentationDerived } from '../engine/measurementPresentation';
+import type { PrePlantingOption } from '../engine/prePlanting';
 import { AppIcon } from './AppIcon';
 import { formatEngineMetric, formatTemperature, formatTemperatureDifference } from '../utils/units';
 import { MetricBadge, MetricScale, StatusRing } from './result/ResultVisuals';
@@ -110,6 +111,54 @@ function TechnicalDetail({ text }: { text: string }) {
  * medición nueva (con Guardar, siempre a mano en la barra superior, sin
  * esperar el pronóstico) y el detalle del historial (sin Guardar).
  */
+function CoverageSummaryBox({ summary }: { summary: CoverageSummary }) {
+  const { colors } = useAppTheme();
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  return <ScreenCard>
+    <Text style={{ color: colors.textSecondary, fontSize: 14, lineHeight: 20 }}>{summary.headline}</Text>
+    <Pressable accessibilityRole="button" accessibilityState={{ expanded: open }} onPress={() => setOpen(v => !v)}
+      style={{ minHeight: 36, justifyContent: 'center', alignSelf: 'flex-start' }}>
+      <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '700' }}>
+        {open ? t('Ocultar cómo se evaluó ▴', 'Hide how it was assessed ▴') : t('Cómo se evaluó y limitaciones ▾', 'How it was assessed and limitations ▾')}
+      </Text>
+    </Pressable>
+    {open && <View style={{ gap: 4 }}>
+      {summary.details.map((line, i) => <Text key={i} style={{ color: colors.textSecondary, fontSize: 13, lineHeight: 19 }}>• {line}</Text>)}
+    </View>}
+  </ScreenCard>;
+}
+
+/**
+ * Alternativa de pre-siembra expandible (§12.2, T35): muestra por qué aparece el cultivo,
+ * su forma de establecimiento y limitaciones sin convertir la consulta en selección de especie.
+ */
+function CropOptionRow({ option }: { option: PrePlantingOption }) {
+  const { colors } = useAppTheme();
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const badgeColor = option.classification === 'matches_evaluated_criteria' ? colors.success : colors.warning;
+  const badgeText = option.classification === 'matches_evaluated_criteria'
+    ? t('Compatible', 'Compatible')
+    : t('Con limitaciones', 'With limitations');
+  return <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10, gap: 6 }}>
+    <Pressable accessibilityRole="button" accessibilityState={{ expanded: open }} onPress={() => setOpen(v => !v)}
+      style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, minHeight: 40 }}>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text style={{ color: colors.text, fontSize: 15, fontWeight: '700' }}>{option.label}</Text>
+      </View>
+      <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10, backgroundColor: `${badgeColor}22` }}>
+        <Text style={{ color: badgeColor, fontSize: 12, fontWeight: '700' }}>{badgeText}</Text>
+      </View>
+      <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '700' }}>{open ? '▴' : '▾'}</Text>
+    </Pressable>
+    {open && <View style={{ gap: 4, paddingBottom: 4 }}>
+      {option.reasons.map((r, i) => <Text key={i} style={{ color: colors.textSecondary, fontSize: 14, lineHeight: 20 }}>• {r}</Text>)}
+      <TechnicalDetail text={option.technicalSummary} />
+    </View>}
+  </View>;
+}
+
 export function MeasurementResultFlow({ presentation: p, forecast, notices, meta, onExit, exitLabel, save }: {
   presentation: MeasurementPresentation;
   forecast: ForecastProps;
@@ -282,7 +331,9 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
         <ScreenText muted={false}>{p.coverage
           ? t('Coincidencias parciales por temperatura y pH. La conductividad no se compara sin método compatible:', 'Partial temperature and pH matches. Conductivity is not compared without a compatible method:')
           : t('Posibilidades registradas al medir:', 'Possibilities recorded at capture:')}</ScreenText>
-        {p.suggestedCrops.map(crop => <ScreenText key={crop} muted={false}>{crop}</ScreenText>)}
+        {p.cropOptions?.length
+          ? p.cropOptions.map(opt => <CropOptionRow key={opt.profileId} option={opt} />)
+          : p.suggestedCrops.map(crop => <ScreenText key={crop} muted={false}>{crop}</ScreenText>)}
         <ScreenText>{t('Son posibilidades para evaluar, no una garantía de aptitud. Confirma humedad, textura, drenaje, temporada y clima local antes de sembrar.', 'These are possibilities to assess, not a guarantee of suitability. Confirm moisture, texture, drainage, season and local climate before planting.')}</ScreenText>
       </> : <ScreenText>{t('No hay coincidencias disponibles con los criterios evaluables de esta captura. Esto no significa que ningún cultivo pueda crecer aquí; revisa los datos y sus limitaciones.', 'No matches are available under the assessable criteria for this capture. This does not mean no crop can grow here; review the data and its limitations.')}</ScreenText>}
   </ScreenCard> : null;
@@ -400,6 +451,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
       </View>
       <ScreenCard accent={colors.primary}><ScreenText muted={false}>{p.summary}</ScreenText></ScreenCard>
       {possibleCropsCard}
+      {p.coverageSummary && <CoverageSummaryBox summary={p.coverageSummary} />}
       <ScreenLabel>{t('Datos esenciales', 'Key readings')}</ScreenLabel>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
         {essentials.map(m => tile(m, p.parameters.indexOf(m)))}

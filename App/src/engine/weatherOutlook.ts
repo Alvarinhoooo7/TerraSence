@@ -55,6 +55,82 @@ function dayName(date: string, index: number, language: AppLanguage): string {
 const decimal = (value: number, language: AppLanguage) =>
   (Math.round(value * 10) / 10).toString().replace('.', language === 'en' ? '.' : ',');
 
+function joinDayNames(indices: number[], days: ForecastDay[], language: AppLanguage): string {
+  const en = language === 'en';
+  const names = indices.map(i => dayName(days[i].date, i, language));
+  return names.length > 1
+    ? `${names.slice(0, -1).join(', ')} ${en ? 'and' : 'y'} ${names[names.length - 1]}`
+    : names[0] ?? '';
+}
+
+/**
+ * Compara ventanas temporales del pronóstico corto (CO01–CO05, T28).
+ * Un día con datos faltantes (`precipitationMm`, `minimumTemperatureC` o `maximumTemperatureC` en `null`)
+ * nunca se clasifica como ventana favorable frente a un día completo.
+ */
+export function compareForecastWindows(days: ForecastDay[], language: AppLanguage = 'es'): string | null {
+  if (!days.length) return null;
+  const en = language === 'en';
+  const known = days.filter(d => [d.precipitationMm, d.rainProbabilityPct, d.minimumTemperatureC, d.maximumTemperatureC].some(v => v != null));
+  if (!known.length) return null;
+
+  const favorable: number[] = [];
+  const risky: number[] = [];
+  const incomplete: number[] = [];
+
+  days.forEach((day, index) => {
+    const hasObstacle = (day.precipitationMm != null && day.precipitationMm >= 5)
+      || (day.rainProbabilityPct != null && day.rainProbabilityPct >= 60)
+      || (day.minimumTemperatureC != null && day.minimumTemperatureC <= 0)
+      || (day.maximumTemperatureC != null && day.maximumTemperatureC >= 35);
+    const isComplete = day.precipitationMm != null && day.minimumTemperatureC != null && day.maximumTemperatureC != null;
+    if (hasObstacle) {
+      risky.push(index);
+    } else if (isComplete) {
+      favorable.push(index);
+    } else {
+      incomplete.push(index);
+    }
+  });
+
+  const parts: string[] = [];
+  if (favorable.length > 0 && risky.length > 0) {
+    const favList = joinDayNames(favorable, days, language);
+    const riskyList = joinDayNames(risky, days, language);
+    parts.push(en
+      ? `Clearer window for field work ${favList}, compared with more adverse conditions ${riskyList}.`
+      : `Ventana más despejada para labores de campo ${favList}, frente a condiciones más adversas ${riskyList}.`);
+  } else if (favorable.length > 0) {
+    const maxTemps = favorable.map(i => days[i].maximumTemperatureC as number);
+    if (favorable.length >= 2 && Math.min(...maxTemps) < Math.max(...maxTemps)) {
+      const bestIdx = favorable.reduce((best, cur) => (days[cur].maximumTemperatureC as number) < (days[best].maximumTemperatureC as number) ? cur : best, favorable[0]);
+      const bestName = dayName(days[bestIdx].date, bestIdx, language);
+      const bestMax = decimal(days[bestIdx].maximumTemperatureC as number, language);
+      parts.push(en
+        ? `Assessed days without heavy rain, frost or extreme heat; lower relative thermal demand ${bestName} (${bestMax} °C high).`
+        : `Días evaluados sin lluvia fuerte, helada ni calor extremo; menor exigencia térmica relativa ${bestName} (máxima de ${bestMax} °C).`);
+    } else {
+      const favList = joinDayNames(favorable, days, language);
+      parts.push(en
+        ? `Stable window across days with complete records (${favList}), without heavy rain, frost or extreme heat.`
+        : `Ventana estable en los días con datos completos (${favList}), sin lluvia fuerte, helada ni calor extremo.`);
+    }
+  } else if (risky.length > 0) {
+    parts.push(en
+      ? 'No clear window across assessed days; all present significant rain, frost or extreme heat.'
+      : 'Sin ventana despejada en los días evaluados; todos presentan lluvia relevante, helada o calor extremo.');
+  }
+
+  if (incomplete.length > 0) {
+    const incList = joinDayNames(incomplete, days, language);
+    parts.push(en
+      ? `Not counted as a favorable window (${incList}) due to incomplete forecast records.`
+      : `No se consideran como ventana favorable ${incList} por tener pronóstico incompleto.`);
+  }
+
+  return parts.length ? parts.join(' ') : null;
+}
+
 /**
  * Resumen breve de los próximos días: cuándo llueve y cuánto, desde cuándo se seca,
  * rango de máximas y si aparecen heladas o calor bajo los mismos umbrales orientativos

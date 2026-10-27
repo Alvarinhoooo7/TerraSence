@@ -1,13 +1,13 @@
 import { applicableAlerts } from './measurementPresentation';
-import { possibleCrops } from './agronomyEngine';
-import { cropName } from './catalogNames';
+import { evaluatePrePlantingOptions, suggestPrePlantingCrops, type PrePlantingOption } from './prePlanting';
+// Trazabilidad de cultivos sugeridos en pre_siembra: `suggestPrePlantingCrops`.
 import type { StageAwareEvaluation } from './stageEvaluator';
 import type { PhenologicalStage } from '../types/app';
 import type { SoilMeasurement } from '../types/agronomy';
 import type { CurrentWeather } from '../services/weatherService';
 import type { AppLanguage } from '../types/preferences';
 import { isRainingNow, isRainyDay, weatherKind } from './weatherOutlook';
-import { evaluateSpeciesWeather, hasLocalAirCriteria, type SpeciesWeatherInput } from './speciesRules';
+import { coveredGeneralWeatherRisks, evaluateSpeciesWeather, hasLocalAirCriteria, type SpeciesWeatherInput } from './speciesRules';
 import { assessWeatherEvidence, type WeatherEvaluationContext, type WeatherCoverage } from './evaluationCoverage';
 
 export type RecommendationKind = 'soil' | 'evidence' | 'weather' | 'irrigation' | 'monitoring';
@@ -35,6 +35,8 @@ export interface ContextualAdvice {
   recommendations?: Recommendation[];
   weatherNote: string;
   suggestedCrops: string[];
+  /** Ficha de razones y limitaciones por alternativa en pre-siembra (§12.2); ausente en históricos antiguos. */
+  cropOptions?: PrePlantingOption[];
   mapEligible: boolean;
   weatherCoverage?: WeatherCoverage;
 }
@@ -99,16 +101,35 @@ export function buildContextualAdvice(
   const plan: Recommendation[] = [];
   const seen = new Set<string>();
   const notes: Recommendation[] = [];
+  // Fusión de alertas del mismo objetivo (§9.2): si una alerta general y una de especie
+  // advierten sobre el mismo parámetro del suelo (p. ej. GEN-PH-01 y species:<id>:ph),
+  // se emite una sola recomendación con el texto específico del cultivo y ambas razones en `detail`.
+  const generalSoilByParam = new Map<string, typeof alerts[number]>();
+  const actionableSpeciesParams = new Set(
+    alerts.filter(a => a.origin === 'species' && a.type !== 'info' && a.param !== 'airTemp').map(a => a.param),
+  );
   for (const alert of alerts) {
+    if (!alert.origin && alert.type !== 'info' && alert.param !== 'airTemp' && actionableSpeciesParams.has(alert.param)) {
+      generalSoilByParam.set(alert.param, alert);
+    }
+  }
+  for (const alert of alerts) {
+    if (!alert.origin && generalSoilByParam.has(alert.param)) continue;
+    const fusedGeneral = alert.origin === 'species' && alert.type !== 'info' ? generalSoilByParam.get(alert.param) : undefined;
+    const fusedDetail = [
+      alert.detail,
+      fusedGeneral ? `${fusedGeneral.title} ${fusedGeneral.action}` : undefined,
+    ].filter(Boolean).join(' ');
+    const effectivePriority = alert.type === 'danger' || fusedGeneral?.type === 'danger' ? 'high' : 'normal';
     if (seen.has(alert.action)) continue;
     seen.add(alert.action);
     // Una nota informativa (p. ej. pH dentro del óptimo de la especie) no pide actuar hoy:
     // va como seguimiento, después de lo que sí requiere revisión.
-    const detail = alert.detail ? { detail: alert.detail } : {};
+    const detail = fusedDetail ? { detail: fusedDetail } : {};
     if (alert.type === 'info') notes.push({ kind: 'monitoring', priority: 'normal', when: 'next_reading', title: alert.title, body: alert.action, ...detail });
     // El frío medido por el equipo en el aire es clima de este momento, no una condición del suelo.
-    else if (alert.param === 'airTemp') plan.push({ kind: 'weather', priority: alert.type === 'danger' ? 'high' : 'normal', when: 'now', title: alert.title, body: alert.action, ...detail });
-    else plan.push({ kind: 'soil', priority: alert.type === 'danger' ? 'high' : 'normal', when: 'today', title: alert.title, body: alert.action, ...detail });
+    else if (alert.param === 'airTemp') plan.push({ kind: 'weather', priority: effectivePriority, when: 'now', title: alert.title, body: alert.action, ...detail });
+    else plan.push({ kind: 'soil', priority: effectivePriority, when: 'today', title: alert.title, body: alert.action, ...detail });
   }
   if (!plan.length) plan.push(evaluation.state === 'insufficient_data'
     ? { kind: 'evidence', priority: 'normal', when: 'next_reading',
@@ -136,7 +157,9 @@ export function buildContextualAdvice(
   // Criterios climáticos de la especie indicada (TASK ES6): helada, frío, calor, lluvia o
   // niebla que su fuente documenta para la etapa. Sin pronóstico vigente quedan sin evaluar
   // y así se dice; nunca se dan por favorables.
-  const speciesWeather = evaluateSpeciesWeather(speciesId, stage, weather && pickSpeciesWeather(weather, dayLabel), language);
+  const speciesWeatherInput = weather ? pickSpeciesWeather(weather, dayLabel) : null;
+  const speciesWeather = evaluateSpeciesWeather(speciesId, stage, speciesWeatherInput, language);
+  const coveredWeatherRisks = coveredGeneralWeatherRisks(speciesId, stage, speciesWeatherInput);
   for (const finding of speciesWeather.findings) plan.push({ kind: 'weather', priority: finding.type === 'danger' ? 'high' : 'normal',
     when: finding.when, title: finding.title, body: finding.body, detail: finding.detail });
   // Revisado y sin episodios: se dice, para que la ausencia de avisos no parezca un criterio omitido.
@@ -184,9 +207,25 @@ export function buildContextualAdvice(
     (day.minimumTemperatureC != null && day.minimumTemperatureC <= 0) ||
     (day.maximumTemperatureC != null && day.maximumTemperatureC >= 35),
   );
-  if (riskyDays.length) {
-    const dates = riskyDays.map(day => dayLabel(day.date)).join(', ');
-    plan.push({ kind: 'weather', priority: 'normal', when: riskyDays[0].date === today?.date ? 'today' : 'next_days',
+  const dayGeneralRisks = (day: typeof upcoming[number]): ('rain' | 'frost' | 'heat')[] => [
+    ...((day.precipitationMm != null && day.precipitationMm >= 5) || (day.rainProbabilityPct != null && day.rainProbabilityPct >= 60) ? ['rain' as const] : []),
+    ...(day.minimumTemperatureC != null && day.minimumTemperatureC <= 0 ? ['frost' as const] : []),
+    ...(day.maximumTemperatureC != null && day.maximumTemperatureC >= 35 ? ['heat' as const] : []),
+  ];
+  const uncoveredRiskyDays = riskyDays.filter(day => dayGeneralRisks(day).some(risk => !coveredWeatherRisks.has(risk)));
+  if (riskyDays.length > uncoveredRiskyDays.length) {
+    const schedulingReason = en
+      ? 'General weather rule: review task dates and confirm conditions before entering the field.'
+      : 'Regla climática general: revisa la fecha de las labores y confirma las condiciones antes de ingresar al campo.';
+    for (const item of plan) {
+      if (item.kind === 'weather' && item.when !== 'now' && item.detail) {
+        item.detail = `${item.detail} ${schedulingReason}`;
+      }
+    }
+  }
+  if (uncoveredRiskyDays.length) {
+    const dates = uncoveredRiskyDays.map(day => dayLabel(day.date)).join(', ');
+    plan.push({ kind: 'weather', priority: 'normal', when: uncoveredRiskyDays[0].date === today?.date ? 'today' : 'next_days',
       title: en ? 'Plan field work around the weather' : 'Programa las labores según el clima',
       body: en
         ? `Review the date of the task because of forecast rain, frost or heat: ${dates}. Confirm conditions before entering the field.`
@@ -232,9 +271,12 @@ export function buildContextualAdvice(
   const reusedNote = weather?.reuse
     ? (en ? 'Offline: forecast saved earlier near this point. ' : 'Sin conexión: pronóstico guardado antes cerca de este punto. ') : '';
 
+  const cropOptions = stage === 'pre_siembra' && (!evaluation.coverage || evaluation.coverage.freshness === 'fresh')
+    ? evaluatePrePlantingOptions(reading, language)
+    : [];
   const suggestedCrops = stage === 'pre_siembra' && (!evaluation.coverage || evaluation.coverage.freshness === 'fresh')
-    ? possibleCrops(reading)
-        .map((crop) => `${crop.emoji} ${cropName(crop.id, language)}`)
+    ? suggestPrePlantingCrops(reading, language)
+    // En pre_siembra no se pide especie al agricultor: el motor recomienda cultivos compatibles.
     : [];
 
   const copyEs: Record<PhenologicalStage, { title: string; summary: string }> = {
@@ -282,6 +324,7 @@ export function buildContextualAdvice(
     recommendations,
     weatherNote: `${reusedNote}${weatherNote}`,
     suggestedCrops,
+    ...(stage === 'pre_siembra' ? { cropOptions } : {}),
     mapEligible: stage === 'pre_siembra',
     ...(weatherCoverage ? { weatherCoverage } : {}),
   };

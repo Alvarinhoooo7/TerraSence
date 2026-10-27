@@ -15,7 +15,7 @@ import { supabase } from './supabase';
 import { createKeyedLock } from '../utils/keyedLock';
 import { timedOperation } from '../utils/timedOperation';
 import { useAppStore } from '../store/useAppStore';
-import { historyScopeIncludes, mergeCachedHistories, mergeMeasurementHistory, withConfirmedPoint } from '../utils/measurementHistory';
+import { historyScopeIncludes, mergeCachedHistories, mergeMeasurementHistory, runBoundedRemoteHistory, withConfirmedPoint } from '../utils/measurementHistory';
 import {
   mapRowToPoint,
   type MeasurementPoint,
@@ -44,38 +44,40 @@ export const newClientUuid = (): string => Crypto.randomUUID();
 export async function loadMeasurementHistory(deviceId?: string | null) {
   const account = await accountQueueKey();
   const key = `${account}/history/${JSON.stringify([null, deviceId ?? null])}`;
-  await reconcileDeviceResets().catch(() => undefined);
-  const revision = resetRevision;
-  const pending = await pendingMeasurementPoints(deviceId);
-  let points: MeasurementPoint[];
-  let offline = false;
-  try {
-    points = await fetchMeasurements(deviceId);
-  } catch {
-    offline = true;
+  const readLocalHistory = async (): Promise<MeasurementPoint[]> => {
     const raw = await AsyncStorage.getItem(key);
     if (raw !== null) {
-      points = JSON.parse(raw);
-      if (!Array.isArray(points)) throw new Error('No se pudo leer el historial local.');
-    } else {
-      // Recuperar los historiales por campo guardados antes de retirar el selector.
-      const keys = (await AsyncStorage.getAllKeys()).filter(candidate => {
-        const prefix = `${account}/history/`;
-        if (!candidate.startsWith(prefix)) return false;
-        try {
-          const scope = JSON.parse(candidate.slice(prefix.length));
-          return Array.isArray(scope) && scope.length === 2 && scope[1] === (deviceId ?? null);
-        } catch { return false; }
-      });
-      points = [];
-      for (const [, cached] of await AsyncStorage.multiGet(keys)) {
-        if (cached === null) continue;
-        const previous = JSON.parse(cached);
-        if (!Array.isArray(previous)) throw new Error('No se pudo leer el historial local.');
-        points = mergeCachedHistories([points, previous]);
-      }
+      const cached = JSON.parse(raw);
+      if (!Array.isArray(cached)) throw new Error('No se pudo leer el historial local.');
+      return cached;
     }
-  }
+    // Recuperar los historiales por campo guardados antes de retirar el selector.
+    const keys = (await AsyncStorage.getAllKeys()).filter(candidate => {
+      const prefix = `${account}/history/`;
+      if (!candidate.startsWith(prefix)) return false;
+      try {
+        const scope = JSON.parse(candidate.slice(prefix.length));
+        return Array.isArray(scope) && scope.length === 2 && scope[1] === (deviceId ?? null);
+      } catch { return false; }
+    });
+    let merged: MeasurementPoint[] = [];
+    for (const [, cached] of await AsyncStorage.multiGet(keys)) {
+      if (cached === null) continue;
+      const previous = JSON.parse(cached);
+      if (!Array.isArray(previous)) throw new Error('No se pudo leer el historial local.');
+      merged = mergeCachedHistories([merged, previous]);
+    }
+    return merged;
+  };
+  const { data: points, offline } = await runBoundedRemoteHistory(
+    async signal => {
+      await reconcileDeviceResets(signal).catch(() => undefined);
+      return fetchMeasurements(deviceId, 200, signal);
+    },
+    readLocalHistory,
+  );
+  const revision = resetRevision;
+  const pending = await pendingMeasurementPoints(deviceId);
   if (await accountQueueKey() !== account) throw new Error('La cuenta ha cambiado.');
   if (!offline) {
     // A cache write failure must not hide successfully fetched measurements.
@@ -90,6 +92,7 @@ export async function loadMeasurementHistory(deviceId?: string | null) {
 export async function fetchMeasurements(
   deviceId?: string | null,
   limit = 200,
+  signal?: AbortSignal,
 ): Promise<MeasurementPoint[]> {
   let query = supabase
     .from('soil_measurements')
@@ -98,6 +101,7 @@ export async function fetchMeasurements(
     .limit(limit);
 
   if (deviceId) query = query.eq('device_id', deviceId);
+  if (signal) query = query.abortSignal(signal);
   const { data, error } = await query;
 
   if (error) throw error;
@@ -261,9 +265,11 @@ export async function syncStatus() {
 }
 
 /** Purga las copias de un equipo restablecido al reconectar, sin cruzar cuentas. */
-export async function reconcileDeviceResets(): Promise<void> {
+export async function reconcileDeviceResets(signal?: AbortSignal): Promise<void> {
   const key = await accountQueueKey();
-  const { data, error } = await supabase.from('device_data_resets').select('device_id,generation');
+  let query = supabase.from('device_data_resets').select('device_id,generation');
+  if (signal) query = query.abortSignal(signal);
+  const { data, error } = await query;
   if (error) throw error;
   if (await accountQueueKey() !== key) return;
   await locked(key, async () => {

@@ -8,6 +8,7 @@ import type { AppLanguage } from '../types/preferences';
 import { SPECIES_CATALOG_VERSION, findSpecies, hasStageCriteria } from './speciesCatalog';
 import { SPECIES_RULES_VERSION } from './speciesRules';
 import { deriveLocalPhysics, type DerivedIndicator, type DerivedIndicatorId } from './localPhysics';
+import type { PrePlantingOption } from './prePlanting';
 
 export const PARAMETER_KEYS = ['vwc', 'temp', 'ph', 'ec', 'nitrogen', 'phosphorus', 'potassium', 'airTemp', 'airHumidity', 'airPressure'] as const;
 export type ParameterKey = typeof PARAMETER_KEYS[number];
@@ -45,9 +46,14 @@ export interface PresentationSpecies {
   /** Si al medir había criterios propios de la especie para la etapa. */
   hasStageCriteria: boolean;
 }
+export interface CoverageSummary {
+  headline: string;
+  details: string[];
+}
 export interface MeasurementPresentation {
   evaluationState?: EvaluationState;
   coverage?: EvaluationCoverage;
+  coverageSummary?: CoverageSummary;
   version: 1 | 2 | 3;
   /** Desde la versión 3: `null` es medición sin especie; ausente en versiones anteriores. */
   species?: PresentationSpecies | null;
@@ -61,6 +67,8 @@ export interface MeasurementPresentation {
   weatherNote: string;
   /** Ausente en históricos que no conservaron sugerencias; [] significa sin coincidencias. */
   suggestedCrops?: string[];
+  /** Alternativas de pre-siembra con razones y limitaciones explícitas (E5/E6); ausente en históricos anteriores. */
+  cropOptions?: PrePlantingOption[];
   parameters: ParameterPresentation[];
 }
 const labelsEs = ['Humedad del suelo', 'Temperatura del suelo', 'pH del suelo', 'Conductividad eléctrica', 'Nitrógeno', 'Fósforo', 'Potasio', 'Temperatura ambiente', 'Humedad ambiente', 'Presión atmosférica'];
@@ -132,6 +140,36 @@ function presentationContext(stage: PhenologicalStage, species: PresentationSpec
     : `Según las condiciones medidas del suelo. Todavía no hay criterios propios de esta especie para ${stageName}: se muestra el análisis general.`;
 }
 
+function buildCoverageSummary(quality: LocalInputQuality, advice: ContextualAdvice, species: PresentationSpecies | null, language: AppLanguage): CoverageSummary {
+  const en = language === 'en';
+  const coreKeys = ['vwc', 'temp', 'ph', 'ec'] as const;
+  const missingSoil = coreKeys.filter(k => quality.observations[k].availability !== 'available');
+  const weatherIncluded = advice.weatherCoverage?.status === 'evaluated' || advice.weatherCoverage?.status === 'partial';
+  const headline = missingSoil.length > 0
+    ? (en ? 'Essential soil measurements are missing to complete the diagnosis for this stage.'
+          : 'Faltan mediciones esenciales del suelo para completar el diagnóstico de esta fase.')
+    : !weatherIncluded
+      ? (en ? 'Assessed using probe measurements only; no weather forecast included in the diagnosis.'
+            : 'Evaluado sólo con las mediciones de la sonda; sin pronóstico meteorológico en el diagnóstico.')
+      : species?.hasStageCriteria
+        ? (en ? 'Assessed with soil, ambient sensors, forecast and species-specific thresholds.'
+              : 'Evaluado con suelo, ambiente, pronóstico y umbrales específicos de la especie.')
+        : (en ? 'Assessed with available soil and forecast measurements under general rules.'
+              : 'Evaluado con las mediciones disponibles del suelo y del pronóstico bajo reglas generales.');
+  const soilDetail = missingSoil.length === 0
+    ? (en ? 'Soil: valid moisture, temperature, pH and electrical conductivity.'
+          : 'Suelo: humedad, temperatura, pH y conductividad eléctrica válidos.')
+    : (en ? `Incomplete soil reading; no valid value for: ${missingSoil.map(k => parameterLabel(k, 'en')).join(', ')}.`
+          : `Suelo incompleto; sin dato válido en: ${missingSoil.map(k => parameterLabel(k, 'es')).join(', ')}.`);
+  const npkDetail = en
+    ? 'Nitrogen, phosphorus and potassium: indicative probe reference without laboratory chemical validation.'
+    : 'Nitrógeno, fósforo y potasio: referencia orientativa de la sonda sin validación química de laboratorio.';
+  const modelDetail = en
+    ? 'Volumetric moisture without texture retention curve; atmospheric demand without crop coefficient.'
+    : 'Humedad volumétrica sin curva de retención por textura; demanda atmosférica sin coeficiente de cultivo.';
+  return { headline, details: [soilDetail, npkDetail, modelDetail] };
+}
+
 export function buildMeasurementPresentation(raw: SoilMeasurement, evaluation: StageAwareEvaluation, advice: ContextualAdvice, language: AppLanguage = 'es', quality?: LocalInputQuality, speciesId?: string | null): MeasurementPresentation {
   const en = language === 'en';
   quality ??= buildLocalInputQuality(raw, '');
@@ -141,11 +179,13 @@ export function buildMeasurementPresentation(raw: SoilMeasurement, evaluation: S
   return {
     version: 3, stage: evaluation.stage, species,
     ...(evaluation.state ? { evaluationState: evaluation.state, coverage: evaluation.coverage } : {}),
+    coverageSummary: buildCoverageSummary(quality, advice, species, language),
     context: presentationContext(evaluation.stage, species, en),
     title: evaluation.verdictTitle, summary: advice.summary,
     actions: advice.actions, weatherNote: advice.weatherNote,
     ...(advice.recommendations ? { recommendations: advice.recommendations.map(item => ({ ...item })) } : {}),
     suggestedCrops: evaluation.stage === 'pre_siembra' ? [...advice.suggestedCrops] : [],
+    ...(evaluation.stage === 'pre_siembra' && advice.cropOptions ? { cropOptions: advice.cropOptions.map(opt => ({ ...opt, reasons: [...opt.reasons], limitationCodes: [...opt.limitationCodes] })) } : {}),
     parameters: PARAMETER_KEYS.map((key, index) => {
       const metric = key in evaluation.metrics ? evaluation.metrics[key as keyof typeof evaluation.metrics] : undefined;
       const datum = quality?.observations[key];
@@ -186,7 +226,9 @@ export function isMeasurementPresentation(value: unknown): value is MeasurementP
   return [1, 2, 3].includes(p.version) && ['pre_siembra', 'vegetativo', 'floracion', 'cosecha'].includes(p.stage)
     && (p.version < 3 ? p.species == null : p.species === null || isPresentationSpecies(p.species))
     && (p.evaluationState === undefined || ['attention', 'no_detected_risk', 'insufficient_data'].includes(p.evaluationState))
+    && (p.coverageSummary === undefined || isCoverageSummary(p.coverageSummary))
     && (p.suggestedCrops === undefined ? p.version === 1 : Array.isArray(p.suggestedCrops) && p.suggestedCrops.every(c => typeof c === 'string'))
+    && (p.cropOptions === undefined || (Array.isArray(p.cropOptions) && p.cropOptions.every(isPrePlantingOption)))
     && ['context', 'title', 'summary', 'weatherNote'].every(k => typeof (p as unknown as Record<string, unknown>)[k] === 'string')
     && Array.isArray(p.actions) && p.actions.every(a => typeof a === 'string')
     && (p.recommendations === undefined || (Array.isArray(p.recommendations) && p.recommendations.every(isRecommendation)))
@@ -195,6 +237,24 @@ export function isMeasurementPresentation(value: unknown): value is MeasurementP
       && ['OPTIMAL', 'WARNING', 'CRITICAL', 'INFO'].includes(m.status)
       && ['label', 'unit', 'state', 'recommendation', 'control'].every(k => typeof (m as unknown as Record<string, unknown>)[k] === 'string')
       && (m.derived === undefined || (Array.isArray(m.derived) && m.derived.every(isPresentationDerived))));
+}
+
+function isCoverageSummary(value: unknown): value is CoverageSummary {
+  if (!value || typeof value !== 'object') return false;
+  const c = value as CoverageSummary;
+  return typeof c.headline === 'string' && Array.isArray(c.details) && c.details.every(d => typeof d === 'string');
+}
+
+function isPrePlantingOption(value: unknown): value is PrePlantingOption {
+  if (!value || typeof value !== 'object') return false;
+  const o = value as PrePlantingOption;
+  return typeof o.profileId === 'string' && typeof o.speciesId === 'string' && typeof o.label === 'string'
+    && ['matches_evaluated_criteria', 'has_limitations'].includes(o.classification)
+    && ['short_term_establishment', 'partial_perennial_assessment'].includes(o.scope)
+    && ['seed', 'transplant', 'tuber', 'perennial_planting'].includes(o.establishment)
+    && Array.isArray(o.reasons) && o.reasons.every(r => typeof r === 'string')
+    && Array.isArray(o.limitationCodes) && o.limitationCodes.every(c => typeof c === 'string')
+    && typeof o.technicalSummary === 'string';
 }
 
 function isPresentationDerived(value: unknown): value is PresentationDerived {

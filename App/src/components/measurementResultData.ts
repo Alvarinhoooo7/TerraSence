@@ -1,5 +1,5 @@
 import type { ParameterKey } from '../engine/measurementPresentation';
-import type { ForecastDay } from '../services/weatherService';
+import type { ForecastDay, RemainingTodaySummary } from '../services/weatherService';
 
 export const MEASUREMENT_GROUPS: readonly (readonly ParameterKey[])[] = [
   ['vwc', 'temp', 'ph', 'ec'],
@@ -31,6 +31,7 @@ export interface WeatherNow {
   precipitationMinutes: number | null;
   weatherCode: number | null;
   today: { minimumTemperatureC: number | null; maximumTemperatureC: number | null; precipitationMm: number | null; rainProbabilityPct: number | null; weatherCode: number | null };
+  remainingToday?: RemainingTodaySummary;
 }
 
 /**
@@ -51,6 +52,24 @@ export function weatherNow(weather: unknown): WeatherNow | null {
   const w = weather as Record<string, unknown>;
   const number = (v: unknown) => typeof v === 'number' && Number.isFinite(v) ? v : null;
   const today = w.today && typeof w.today === 'object' ? w.today as Record<string, unknown> : null;
+  const rem = w.remainingToday && typeof w.remainingToday === 'object' ? w.remainingToday as Record<string, unknown> : null;
+  const remainingToday: RemainingTodaySummary | undefined = rem
+    && typeof rem.date === 'string'
+    && typeof rem.fromHour === 'string'
+    && typeof rem.toHour === 'string'
+    && typeof rem.slotCount === 'number'
+    ? {
+        date: rem.date,
+        fromHour: rem.fromHour,
+        toHour: rem.toHour,
+        slotCount: rem.slotCount,
+        minimumTemperatureC: number(rem.minimumTemperatureC),
+        maximumTemperatureC: number(rem.maximumTemperatureC),
+        precipitationMm: number(rem.precipitationMm),
+        rainProbabilityPct: number(rem.rainProbabilityPct),
+        maxWindKmh: number(rem.maxWindKmh),
+      }
+    : undefined;
   const rain = ((w.inputQuality as { current?: { precipitationMm?: { validFrom?: unknown; validTo?: unknown } } } | undefined)?.current?.precipitationMm);
   const span = typeof rain?.validFrom === 'string' && typeof rain?.validTo === 'string' ? (Date.parse(rain.validTo) - Date.parse(rain.validFrom)) / 60000 : NaN;
   const result: WeatherNow = {
@@ -63,6 +82,7 @@ export function weatherNow(weather: unknown): WeatherNow | null {
       rainProbabilityPct: number(today ? today.rainProbabilityPct : w.rainProbabilityPct),
       weatherCode: number(today?.weatherCode),
     },
+    ...(remainingToday ? { remainingToday } : {}),
   };
   const values = [result.temperatureC, result.precipitationMm, result.weatherCode, ...Object.values(result.today)];
   return values.some(v => v !== null) ? result : null;

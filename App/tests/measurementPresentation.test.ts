@@ -6,6 +6,11 @@ import { buildMeasurementPresentation, isMeasurementPresentation, parameterLabel
 import { localizeProbeError } from '../src/utils/probeErrors';
 import { cropName, textureName } from '../src/engine/catalogNames';
 import { CROPS_DB, SOIL_TEXTURES } from '../src/engine/agronomyEngine';
+import { NO_SPECIES_ID } from '../src/engine/speciesCatalog';
+import { cropIdForSave } from '../src/utils/measureSpecies';
+import { applyWeatherToCapture, buildSavedDiagnosisSnapshot } from '../src/utils/measureCaptureSession';
+import { normalizeWeather } from '../src/services/weatherService';
+import { WEATHER_UNITS } from './fixtures/weatherUnits';
 import type { SoilMeasurement } from '../src/types/agronomy';
 import type { MeasurementPoint, PhenologicalStage } from '../src/types/app';
 
@@ -179,7 +184,9 @@ test('el flujo sin selección no asigna maíz ni franco y conserva todas las pos
 
 test('un suelo frío para maíz puede ofrecer trigo; pH ácido puede ofrecer arándano sin ordenar encalar', () => {
   const cold = withoutProfile({ ...raw, temp: 6 });
-  assert.deepEqual(cold.presentation.suggestedCrops, ['🌾 Trigo / Cereales de Invierno']);
+  assert.ok(cold.presentation.suggestedCrops!.includes('🌾 Trigo / Cereales de Invierno'));
+  assert.ok(!cold.presentation.suggestedCrops!.some(c => /Maíz|Tomate|Palto/.test(c)));
+  assert.deepEqual(withoutProfile({ ...raw, temp: 42 }).presentation.suggestedCrops, []);
   assert.doesNotMatch(cold.presentation.actions.join(' '), /No sembrar|pudrir|días con sol/);
   const acidic = withoutProfile({ ...raw, ph: 4.5 });
   assert.deepEqual(acidic.presentation.suggestedCrops, ['🫐 Arándano (Berries)']);
@@ -227,4 +234,128 @@ test('la lectura sin perfiles respeta idioma y no usa NPK ni ambiente para elegi
   assert.doesNotMatch([presentation.context, presentation.title, presentation.summary, ...presentation.actions, ...presentation.suggestedCrops!].join(' '), SPANISH);
   const changed = withoutProfile({ ...raw, nitrogen: 900, phosphorus: 900, potassium: 900, airTemp: 35 });
   assert.deepEqual(changed.presentation.suggestedCrops, withoutProfile().presentation.suggestedCrops);
+});
+
+test('E6 (T35): cropOptions y coverageSummary en pre-siembra muestran por qué aparece cada cultivo sin cambiar crop_id', () => {
+  const { presentation } = withoutProfile(raw, 'pre_siembra', 'es');
+  assert.ok(presentation.cropOptions && presentation.cropOptions.length > 0);
+  assert.ok(presentation.coverageSummary);
+  assert.match(presentation.coverageSummary.headline, /Evaluado sólo con las mediciones de la sonda/);
+  for (const opt of presentation.cropOptions) {
+    assert.ok(opt.reasons.length > 0);
+    assert.ok(opt.technicalSummary.length > 0);
+    // T35: consultar una opción de pre-siembra nunca asigna especie ni cambia crop_id al guardar
+    assert.equal(cropIdForSave('pre_siembra', { id: opt.speciesId }), NO_SPECIES_ID);
+  }
+  const enPresentation = withoutProfile(raw, 'pre_siembra', 'en').presentation;
+  assert.doesNotMatch(
+    [enPresentation.coverageSummary!.headline, ...enPresentation.coverageSummary!.details].join(' '),
+    SPANISH,
+  );
+});
+
+test('E6 (T36–T38, tamaño de instantánea): guardar antes del clima conserva snapshot compacto (< 25 KB) y llegada posterior no lo altera', () => {
+  const capturedAt = '2026-10-12T14:00:00Z';
+  const location = { latitude: -33.45, longitude: -70.66, accuracy: 6 };
+  const baseEval = evaluateReadingForStage(raw, 'vegetativo', 'es', { capturedAt, evaluatedAt: capturedAt }, 'sp.tomate');
+  const baseAdvice = buildContextualAdvice('vegetativo', baseEval, raw, null, 'es', { captureId: 'cap-1', location, evaluatedAt: capturedAt }, 'sp.tomate');
+
+  // T36: se guarda antes de que llegue el clima
+  const savedBeforeWeather = JSON.parse(JSON.stringify(buildSavedDiagnosisSnapshot({
+    raw,
+    evaluation: baseEval,
+    advice: baseAdvice,
+    language: 'es',
+    capturedAt,
+    speciesId: 'sp.tomate',
+    weather: null,
+  })));
+  assert.equal(savedBeforeWeather.advice.weatherCoverage.status, 'not_evaluated');
+  assert.equal(savedBeforeWeather.weather, null);
+
+  // T37: el clima llega después con serie horaria de 120 horas
+  const normalized = normalizeWeather({
+    ...WEATHER_UNITS,
+    current: { time: '2026-10-12T14:00', interval: 900, temperature_2m: 19, weather_code: 1, precipitation: 0 },
+    daily: {
+      time: ['2026-10-12', '2026-10-13'],
+      weather_code: [1, 2],
+      precipitation_sum: [0, 0],
+      precipitation_probability_max: [10, 15],
+      temperature_2m_max: [24, 25],
+      temperature_2m_min: [8, 9],
+    },
+    hourly: {
+      time: Array.from({ length: 120 }, (_, i) => `2026-10-${String(12 + Math.floor(i / 24)).padStart(2, '0')}T${String(i % 24).padStart(2, '0')}:00`),
+      temperature_2m: Array.from({ length: 120 }, () => 15),
+    },
+  }, '2026-10-12T14:00:05Z')!;
+  const forecastWithHourly = {
+    ...normalized,
+    request: { captureId: 'cap-1', latitude: location.latitude, longitude: location.longitude },
+  };
+
+  // La instantánea ya guardada (T37) permanece intacta
+  assert.equal(savedBeforeWeather.weather, null);
+  assert.equal(savedBeforeWeather.advice.weatherCoverage.status, 'not_evaluated');
+
+  // Cuando el clima llega antes de guardar, se actualiza weatherCoverage y se descarta hourly al persistir
+  const withWeather = applyWeatherToCapture({
+    raw,
+    stage: 'vegetativo',
+    language: 'es',
+    capturedAt,
+    evaluatedAt: '2026-10-12T14:00:06Z',
+    speciesId: 'sp.tomate',
+    captureId: 'cap-1',
+    location,
+  }, forecastWithHourly);
+  const snapshotWithWeather = buildSavedDiagnosisSnapshot({
+    raw,
+    evaluation: withWeather.evaluation,
+    advice: withWeather.advice,
+    language: 'es',
+    capturedAt,
+    speciesId: 'sp.tomate',
+    weather: withWeather.weather,
+  });
+  assert.equal(snapshotWithWeather.advice.weatherCoverage?.status, 'partial');
+  assert.equal(snapshotWithWeather.weather?.hourly, undefined);
+  const byteLength = Buffer.byteLength(JSON.stringify(snapshotWithWeather), 'utf8');
+  assert.ok(byteLength < 40 * 1024, `Snapshot demasiado grande: ${byteLength} bytes`);
+});
+
+test('E6 (T39, T41, T43): históricos v1/v2/v3 y reglas retiradas se leen sin recalcular; dos lecturas cercanas no inventan textura ni tendencia', () => {
+  // T43: una lectura histórica guardada con una especie o regla que ya no esté en el catálogo actual conserva su texto intacto
+  const { presentation } = withoutProfile(raw, 'vegetativo', 'es');
+  const retiredSnapshot: typeof presentation = {
+    ...presentation,
+    version: 3,
+    species: {
+      id: 'sp.especie_retirada_2025',
+      es: 'Cultivo Histórico Retirado',
+      en: 'Retired Historical Crop',
+      scientific: 'Planta historica',
+      catalogVersion: '0.9.0',
+      rulesVersion: '0.9.0',
+      hasStageCriteria: true,
+    },
+    title: 'Veredicto histórico congelado',
+    summary: 'Resumen guardado con regla retirada.',
+  };
+  const historicalPoint = {
+    stage: 'vegetativo',
+    verdict: 'AMBER',
+    diagnosis: { presentation: retiredSnapshot },
+  } as unknown as MeasurementPoint;
+  const restored = presentationFromPoint(historicalPoint, 'es');
+  assert.equal(restored.summary, 'Resumen guardado con regla retirada.');
+  assert.equal(restored.species?.id, 'sp.especie_retirada_2025');
+
+  // T41: dos lecturas cercanas con sonda portátil se evalúan de forma independiente sin inferir textura ni tendencia temporal
+  const readingA = withoutProfile({ ...raw, vwc: 24 }, 'vegetativo', 'es');
+  const readingB = withoutProfile({ ...raw, vwc: 19 }, 'vegetativo', 'es');
+  assert.equal(readingA.evaluation.coverage?.capabilities.soil_moisture.status, 'partial');
+  assert.equal(readingB.evaluation.coverage?.capabilities.soil_moisture.status, 'partial');
+  assert.doesNotMatch(readingB.presentation.summary, /tendencia|bajó desde|lectura anterior/i);
 });

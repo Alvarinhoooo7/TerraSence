@@ -1,6 +1,6 @@
 # Motor agronómico TerraSense: especificación de desarrollo
 
-**Estado: implementación iniciada, E1 en progreso.** Este documento define el motor que se quiere desarrollar; no acredita que todas las capacidades propuestas estén implementadas, calibradas o validadas en campo. La sección 2 identifica el comportamiento del código disponible. El [task del motor agronómico](TASK_MOTOR_AGRONOMICO.md) detalla las subtareas, evidencias y pendientes de cada entrega.
+**Estado: motor base implementado por software (E1–E6 y ES1–ES8); pendientes únicamente la verificación en teléfono de los bloques desplegables e inglés y la validación instrumental y en terreno (E7).** Este documento define el motor desarrollado y sus reglas vigentes; no acredita calibración instrumental ni validación agronómica en campo. La sección 2 identifica el comportamiento del código disponible. El [task del motor agronómico](TASK_MOTOR_AGRONOMICO.md) detalla las subtareas, evidencias y pendientes de cada entrega.
 
 El objetivo es obtener la mayor orientación agronómica defendible de la sonda, el BME280 y los servicios climáticos, **sin pedir al agricultor datos obligatorios nuevos**: la única pregunta añadida es la especie, opcional, en vegetativo, floración y cosecha. El motor debe explicar condiciones y posibilidades, reconocer lo que desconoce y ayudar a decidir qué revisar y cuándo. No diagnostica rendimiento, nutrición química, enfermedades ni madurez mediante variables que no miden esos fenómenos.
 
@@ -28,7 +28,7 @@ El objetivo es obtener la mayor orientación agronómica defendible de la sonda,
 
 ### 1.1. Entradas autorizadas
 
-El usuario elige la etapa: pre-siembra, vegetativo, floración o cosecha. En vegetativo, floración y cosecha puede además indicar, de forma opcional, la especie que tiene plantada (sección [12.1](#pantallas)). En pre-siembra no se pregunta: la etapa responde qué conviene sembrar. El motor puede recibir automáticamente:
+El usuario elige la etapa: pre-siembra, vegetativo, floración o cosecha. En vegetativo, floración y cosecha puede además indicar, de forma opcional, la especie que tiene plantada (sección [12.1](#pantallas)). **En pre-siembra deliberadamente no se pide ningún tipo de especie al agricultor: el objetivo de esa etapa es evaluar el suelo medido para sugerirle y recomendarle qué cultivos son compatibles.** El motor puede recibir automáticamente:
 
 - Las diez variables del equipo y sus ausencias explícitas.
 - Fecha y hora de captura, identificación del equipo y metadatos técnicos existentes.
@@ -67,10 +67,10 @@ Quedan fuera: recetas de fertilización o enmiendas, litros o minutos de riego, 
 | Entrada BLE y validación de rangos | [probeService.ts](src/services/probeService.ts), [contrato BLE](../docs/CONTRATO_BLE.md) | Decodifica suelo, ambiente y batería; rechaza suelo inválido y distingue ausencias ambientales. |
 | Calidad y procedencia de entradas | [inputQuality.ts](src/engine/inputQuality.ts), [tipos agronómicos](src/types/agronomy.ts) | Contrato versionado de las diez variables, fuentes, unidades, tiempos y limitaciones; se muestra en detalles y se conserva con capturas nuevas. La aplicación de todos sus límites a las reglas sigue pendiente. |
 | Transporte y cancelación | [bleService.ts](src/services/bleService.ts) | Fuente del transporte, no del significado agronómico. |
-| Perfiles y cálculo de déficit de presión de vapor | [agronomyEngine.ts](src/engine/agronomyEngine.ts) | Catálogo acotado, comparación por temperatura mínima, pH y conductividad; ya existe cálculo local de déficit de presión de vapor. |
-| Etapas | [stageEvaluator.ts](src/engine/stageEvaluator.ts) | El flujo usa `evaluateReadingForStage`, sin asignar cultivo ni textura. La evaluación con perfiles explícitos se conserva aparte. |
-| Consejos y coincidencias | [contextualAdvice.ts](src/engine/contextualAdvice.ts) | Combina acciones con avisos climáticos; las coincidencias de cultivos todavía no incorporan el pronóstico. |
-| Clima | [weatherService.ts](src/services/weatherService.ts) | Consulta condiciones actuales y resúmenes diarios; presenta los próximos cinco días, sin serie horaria de decisión. |
+| Perfiles y cálculo de déficit de presión de vapor | [agronomyEngine.ts](src/engine/agronomyEngine.ts), [prePlanting.ts](src/engine/prePlanting.ts), [localPhysics.ts](src/engine/localPhysics.ts) | Perfiles de pre-siembra con techo térmico, forma de establecimiento y distinción de perennes; cálculo local de DPV, punto de rocío y contraste térmico suelo–aire. |
+| Etapas y criterios por especie | [stageEvaluator.ts](src/engine/stageEvaluator.ts), [speciesCatalog.ts](src/engine/speciesCatalog.ts), [speciesRules.ts](src/engine/speciesRules.ts) | `evaluateReadingForStage` aplica reglas generales (`GEN-TEMP-01`, `GEN-PH-01`, `GEN-VWC-01`) independientes del catálogo y suma los criterios de las 111 especies en vegetativo, floración y cosecha. |
+| Consejos, fusión y coincidencias | [contextualAdvice.ts](src/engine/contextualAdvice.ts), [prePlanting.ts](src/engine/prePlanting.ts) | Ordena el plan por urgencia y cercanía, fusiona acciones duplicadas del mismo objetivo (§9.2) y en `pre_siembra` sugiere cultivos compatibles sin pedir especie al usuario. |
+| Clima y caché sin red | [weatherService.ts](src/services/weatherService.ts), [weatherCacheStore.ts](src/services/weatherCacheStore.ts), [weatherOutlook.ts](src/engine/weatherOutlook.ts) | Consulta condiciones actuales, resúmenes diarios y temperatura horaria para duración de episodios; reutiliza caché cercana (≤1 km y ≤3 h) sin conexión. |
 | Captura y guardado | [MeasureScreen.tsx](src/screens/MeasureScreen.tsx) | Fija contexto y captura; el clima llega de forma asíncrona y no bloquea guardar. |
 | Presentación e históricos | [measurementPresentation.ts](src/engine/measurementPresentation.ts) | Conserva diagnóstico; las sugerencias nuevas se guardan en la presentación. |
 | Resultado visible | [MeasurementResultFlow.tsx](src/components/MeasurementResultFlow.tsx) | Resumen, familias de variables, recomendaciones, plan global y pronóstico. |

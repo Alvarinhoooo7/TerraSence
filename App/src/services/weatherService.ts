@@ -12,6 +12,45 @@ export interface ForecastDay {
   weatherCode?: number | null;
 }
 
+export interface HourlyWeatherSeries {
+  time: string[];
+  temperatureC: (number | null)[];
+  relativeHumidityPct?: (number | null)[];
+  precipitationMm?: (number | null)[];
+  rainProbabilityPct?: (number | null)[];
+  windKmh?: (number | null)[];
+}
+
+/**
+ * Resumen de lo que queda del día actual (`today`), calculado exclusivamente desde los
+ * intervalos horarios a partir de la hora local de la consulta. Nunca se deduce desde `daily`.
+ */
+export interface RemainingTodaySummary {
+  date: string;
+  fromHour: string;
+  toHour: string;
+  slotCount: number;
+  minimumTemperatureC: number | null;
+  maximumTemperatureC: number | null;
+  precipitationMm: number | null;
+  rainProbabilityPct: number | null;
+  maxWindKmh: number | null;
+}
+
+export interface WeatherResponseMetrics {
+  payloadBytes: number;
+  hourlySlots: number;
+  dailySlots: number;
+  latencyMs: number | null;
+  withinBudget: boolean;
+}
+
+export const WEATHER_RESPONSE_BUDGET = {
+  maxPayloadBytes: 65_536,
+  maxLatencyMs: 4_500,
+  maxForecastDays: 6,
+} as const;
+
 export interface CurrentWeather {
   /** Asociación de la solicitud; no es la coordenada de la celda del modelo. */
   request?: { captureId: string | null; latitude: number; longitude: number };
@@ -24,6 +63,8 @@ export interface CurrentWeather {
   forecast: ForecastDay[];
   /** Resumen del día de la consulta (fecha local del proveedor); ausente en diagnósticos anteriores. */
   today?: ForecastDay;
+  /** Lo que resta del día actual según la serie horaria; ausente si no llegaron horas para hoy. */
+  remainingToday?: RemainingTodaySummary;
   source: 'Open-Meteo';
   timezone: string;
   temperatureC: number | null;
@@ -36,11 +77,10 @@ export interface CurrentWeather {
   minimumTemperatureC: number | null;
   maximumTemperatureC: number | null;
   /**
-   * Temperatura horaria del aire a 2 m, en hora local del proveedor (`AAAA-MM-DDTHH:mm`).
-   * Sólo sirve para estimar cuántas horas dura un episodio; ausente en diagnósticos
-   * anteriores y cuando la serie no llega o su unidad no es °C.
+   * Series horarias a 2 m / 10 m en hora local del proveedor (`AAAA-MM-DDTHH:00`).
+   * Sirven para estimar duración de episodios y lo que resta del día sin deducir horas desde `daily`.
    */
-  hourly?: { time: string[]; temperatureC: (number | null)[] };
+  hourly?: HourlyWeatherSeries;
   fetchedAt: string;
   inputQuality: {
     version: 1;
@@ -76,6 +116,62 @@ function localDate(fetchedAt: string, timezone: string): string | null {
     const part = (type: string) => parts.find(value => value.type === type)?.value;
     return validDate(`${part('year')}-${part('month')}-${part('day')}`);
   } catch { return null; }
+}
+
+/** Hora local `HH:00` según el reloj recibido y la zona del proveedor. */
+function localHourSlot(fetchedAt: string, timezone: string): string | null {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone, hour: '2-digit', hourCycle: 'h23',
+    }).formatToParts(new Date(fetchedAt));
+    const hour = parts.find(value => value.type === 'hour')?.value;
+    return hour && /^([01]\d|2[0-3])$/.test(hour) ? `${hour}:00` : null;
+  } catch { return null; }
+}
+
+/** Mide tamaño serializado, ranuras horarias/diarias y presupuesto de latencia de una respuesta Open-Meteo (E3). */
+export function measureWeatherResponse(payload: unknown, latencyMs: number | null = null): WeatherResponseMetrics {
+  const serialized = typeof payload === 'string' ? payload : JSON.stringify(payload ?? null) ?? '';
+  const payloadBytes = new TextEncoder().encode(serialized).byteLength;
+  const root = record(payload);
+  const hourly = record(root.hourly);
+  const daily = record(root.daily);
+  const hourlySlots = Array.isArray(hourly.time) ? hourly.time.length : 0;
+  const dailySlots = Array.isArray(daily.time) ? daily.time.length : 0;
+  const cleanLatency = typeof latencyMs === 'number' && Number.isFinite(latencyMs) && latencyMs >= 0 ? Math.round(latencyMs) : null;
+  const withinBudget = payloadBytes <= WEATHER_RESPONSE_BUDGET.maxPayloadBytes
+    && (cleanLatency === null || cleanLatency <= WEATHER_RESPONSE_BUDGET.maxLatencyMs);
+  return { payloadBytes, hourlySlots, dailySlots, latencyMs: cleanLatency, withinBudget };
+}
+
+function buildRemainingToday(
+  today: string,
+  startHour: string,
+  hourly: HourlyWeatherSeries,
+): RemainingTodaySummary | undefined {
+  const indices: number[] = [];
+  for (let i = 0; i < hourly.time.length; i += 1) {
+    const slot = hourly.time[i];
+    if (slot.startsWith(`${today}T`) && slot >= startHour) indices.push(i);
+  }
+  if (!indices.length) return undefined;
+  const pickNums = (series: (number | null)[] | undefined): number[] =>
+    series ? indices.map(i => series[i]).filter((v): v is number => v !== null && Number.isFinite(v)) : [];
+  const temps = pickNums(hourly.temperatureC);
+  const precips = pickNums(hourly.precipitationMm);
+  const rainProbs = pickNums(hourly.rainProbabilityPct);
+  const winds = pickNums(hourly.windKmh);
+  return {
+    date: today,
+    fromHour: hourly.time[indices[0]],
+    toHour: hourly.time[indices[indices.length - 1]],
+    slotCount: indices.length,
+    minimumTemperatureC: temps.length ? Math.min(...temps) : null,
+    maximumTemperatureC: temps.length ? Math.max(...temps) : null,
+    precipitationMm: precips.length ? Math.round(precips.reduce((acc, v) => acc + v, 0) * 10) / 10 : null,
+    rainProbabilityPct: rainProbs.length ? Math.max(...rainProbs) : null,
+    maxWindKmh: winds.length ? Math.max(...winds) : null,
+  };
 }
 
 /** Adaptador puro: no rellena ausencias ni depende del reloj global. */
@@ -179,21 +275,50 @@ export function normalizeWeather(payload: unknown, fetchedAt: string): CurrentWe
   const hasDailyData = [day, ...forecast].some(item =>
     [item.minimumTemperatureC, item.maximumTemperatureC, item.precipitationMm, item.rainProbabilityPct].some(value => value !== null));
   if (!hasDailyData && temperatureC === null && precipitationMm === null && windKmh === null) return null;
-  // Serie horaria: la hora inválida o repetida se descarta; un valor ausente queda null.
+  // Serie horaria: la hora inválida o repetida se descarta; un valor ausente o fuera de dominio queda null.
   const hourlyTimes = Array.isArray(hourlyBlock.time) ? hourlyBlock.time : [];
   const hourlyValues = Array.isArray(hourlyBlock.temperature_2m) ? hourlyBlock.temperature_2m : [];
-  const hourly = hourlyUnits.temperature_2m === '°C' && hourlyTimes.length && hourlyTimes.length === hourlyValues.length
+  const validHourlyIndices = hourlyUnits.temperature_2m === '°C' && hourlyTimes.length && hourlyTimes.length === hourlyValues.length
     ? hourlyTimes.flatMap((time, index) => typeof time === 'string' && /^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):00$/.test(time)
-      && hourlyTimes.indexOf(time) === hourlyTimes.lastIndexOf(time) ? [{ time, temperatureC: finite(hourlyValues[index]) }] : [])
+      && hourlyTimes.indexOf(time) === hourlyTimes.lastIndexOf(time) ? [index] : [])
     : [];
+  const pickHourlySeries = (key: string, unit: string, min = -Infinity, max = Infinity): (number | null)[] | undefined => {
+    const rawSeries = hourlyBlock[key];
+    if (!validHourlyIndices.length || hourlyUnits[key] !== unit || !Array.isArray(rawSeries) || rawSeries.length !== hourlyTimes.length) {
+      return undefined;
+    }
+    return validHourlyIndices.map(index => {
+      const val = finite(rawSeries[index]);
+      return val !== null && val >= min && val <= max ? val : null;
+    });
+  };
+  const relativeHumidityPct = pickHourlySeries('relative_humidity_2m', '%', 0, 100);
+  const hourlyPrecipitationMm = pickHourlySeries('precipitation', 'mm', 0, Infinity);
+  const hourlyRainProbabilityPct = pickHourlySeries('precipitation_probability', '%', 0, 100);
+  const hourlyWindKmh = pickHourlySeries('wind_speed_10m', 'km/h', 0, Infinity);
+  const hourlySeries: HourlyWeatherSeries | undefined = validHourlyIndices.length
+    ? {
+        time: validHourlyIndices.map(index => hourlyTimes[index] as string),
+        temperatureC: validHourlyIndices.map(index => finite(hourlyValues[index])),
+        ...(relativeHumidityPct ? { relativeHumidityPct } : {}),
+        ...(hourlyPrecipitationMm ? { precipitationMm: hourlyPrecipitationMm } : {}),
+        ...(hourlyRainProbabilityPct ? { rainProbabilityPct: hourlyRainProbabilityPct } : {}),
+        ...(hourlyWindKmh ? { windKmh: hourlyWindKmh } : {}),
+      }
+    : undefined;
+  const fallbackHour = localHourSlot(fetchedAt, timezone) ?? '00:00';
+  const startHour = currentDate === today && currentTime ? `${currentTime.slice(0, 13)}:00` : `${today}T${fallbackHour}`;
+  const remainingToday = hourlySeries ? buildRemainingToday(today, startHour, hourlySeries) : undefined;
   return {
-    forecast, today: day, source: 'Open-Meteo', timezone, temperatureC, precipitationMm, windKmh,
+    forecast, today: day,
+    ...(remainingToday ? { remainingToday } : {}),
+    source: 'Open-Meteo', timezone, temperatureC, precipitationMm, windKmh,
     weatherCode: currentDate ? weatherCodeOf(current.weather_code) : null,
     rainProbabilityPct: day.rainProbabilityPct,
     dailyPrecipitationMm: day.precipitationMm,
     minimumTemperatureC: day.minimumTemperatureC,
     maximumTemperatureC: day.maximumTemperatureC,
-    ...(hourly.length ? { hourly: { time: hourly.map(h => h.time), temperatureC: hourly.map(h => h.temperatureC) } } : {}),
+    ...(hourlySeries ? { hourly: hourlySeries } : {}),
     fetchedAt, inputQuality,
   };
 }
@@ -288,14 +413,14 @@ export async function fetchCurrentWeather(
 
 async function downloadWeather(latitude: number, longitude: number, captureId: string | null, cacheScope: string | null): Promise<CurrentWeather | null> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 4500);
+  const timer = setTimeout(() => controller.abort(), WEATHER_RESPONSE_BUDGET.maxLatencyMs);
   try {
     const url =
       'https://api.open-meteo.com/v1/forecast' +
       `?latitude=${latitude}&longitude=${longitude}` +
       '&current=temperature_2m,precipitation,wind_speed_10m,weather_code' +
       '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,weather_code' +
-      '&hourly=temperature_2m' +
+      '&hourly=temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,wind_speed_10m' +
       '&forecast_days=6&timezone=auto' +
       '&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm';
     const response = await fetch(url, { signal: controller.signal });

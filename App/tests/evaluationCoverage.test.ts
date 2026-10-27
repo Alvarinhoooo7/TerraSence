@@ -5,6 +5,7 @@ import { buildContextualAdvice } from '../src/engine/contextualAdvice';
 import { buildMeasurementPresentation, isMeasurementPresentation, savedEvaluationState } from '../src/engine/measurementPresentation';
 import { assessWeatherEvidence, evidenceFreshness, EVIDENCE_POLICY } from '../src/engine/evaluationCoverage';
 import { normalizeWeather } from '../src/services/weatherService';
+import { applyWeatherToCapture } from '../src/utils/measureCaptureSession';
 import type { SoilMeasurement } from '../src/types/agronomy';
 import { WEATHER_UNITS } from './fixtures/weatherUnits';
 
@@ -103,4 +104,70 @@ test('E1.3: instantánea conserva estado neutral, cobertura y traducciones', () 
     assert.match(presentation.parameters.find(p => p.key === 'ph')!.control, language === 'es' ? /parciales/ : /partial/);
   }
   assert.equal(savedEvaluationState(null), undefined);
+});
+
+test('E1.3 cierre completo (T04–T06, T10–T14, T29–T32): integración de física local y caché de pronóstico en cobertura', () => {
+  const location = { latitude: -33.45, longitude: -70.66, accuracy: 8 };
+  const baseForecast = normalizeWeather({
+    ...WEATHER_UNITS,
+    current: { time: '2026-10-11T11:30', interval: 900, temperature_2m: 19, weather_code: 1, precipitation: 0 },
+    daily: {
+      time: ['2026-10-11', '2026-10-12'],
+      weather_code: [1, 2],
+      precipitation_sum: [0, 0.5],
+      precipitation_probability_max: [10, 20],
+      temperature_2m_max: [23, 24],
+      temperature_2m_min: [9, 10],
+    },
+  }, '2026-10-11T11:30:00Z')!;
+  const freshCachedForecast = {
+    ...baseForecast,
+    request: { captureId: 'cap-orig', latitude: location.latitude, longitude: location.longitude },
+    reuse: {
+      policyVersion: 'weather-cache-v1' as const,
+      captureId: 'cap-t29',
+      latitude: location.latitude,
+      longitude: location.longitude,
+      distanceM: 120,
+      reusedAt: now,
+    },
+  };
+
+  // T29: caché fresca de punto cercano (< 3 h y <= 1 km) se integra con estado partial y weather_reused_offline
+  const withFreshCache = applyWeatherToCapture({
+    raw,
+    stage: 'vegetativo',
+    language: 'es',
+    capturedAt: now,
+    evaluatedAt: now,
+    captureId: 'cap-t29',
+    location,
+    speciesId: 'sp.tomate',
+  }, freshCachedForecast);
+  assert.equal(withFreshCache.advice.weatherCoverage?.status, 'partial');
+  assert.ok(withFreshCache.advice.weatherCoverage?.limitationCodes.includes('weather_reused_offline'));
+
+  // T30/T31: caché vencida (> 3 h) o lejana (> 1 km) se descarta y weather queda null
+  const expiredForecast = { ...freshCachedForecast, fetchedAt: '2026-10-11T03:00:00Z' };
+  const withExpiredCache = applyWeatherToCapture({
+    raw,
+    stage: 'vegetativo',
+    language: 'es',
+    capturedAt: now,
+    evaluatedAt: now,
+    captureId: 'cap-t30',
+    location,
+    speciesId: 'sp.tomate',
+  }, expiredForecast);
+  assert.equal(withExpiredCache.advice.weatherCoverage?.status, 'not_evaluated');
+  assert.equal(withExpiredCache.weather, null);
+
+  // T04–T06, T10–T14: capacidades físicas (soil_moisture, soil_temperature, ambient_vpd, salinity, nutrition)
+  const pres = buildMeasurementPresentation(raw, withFreshCache.evaluation, withFreshCache.advice, 'es', undefined, 'sp.tomate');
+  assert.ok(pres.coverageSummary);
+  assert.match(pres.coverageSummary.headline, /suelo, ambiente, pronóstico y umbrales específicos/);
+  assert.equal(pres.coverage?.capabilities.soil_moisture.status, 'partial');
+  assert.equal(pres.coverage?.capabilities.ambient_vpd.status, 'partial');
+  assert.equal(pres.coverage?.capabilities.salinity.status, 'not_evaluated');
+  assert.equal(pres.coverage?.capabilities.nutrition.status, 'not_evaluated');
 });

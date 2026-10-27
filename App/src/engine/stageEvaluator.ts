@@ -161,6 +161,45 @@ export const GENERAL_RULES = {
 } as const;
 export type GeneralRuleId = keyof typeof GENERAL_RULES;
 
+export interface StageOutputRuleContract {
+  id: string;
+  version: string;
+  stage: Exclude<PhenologicalStage, 'pre_siembra'>;
+  objective: string;
+  inputs: readonly string[];
+  state: 'enabled' | 'documented';
+  evidencePolicy: string;
+  prohibitedAssertions: readonly string[];
+}
+
+/**
+ * Registro explícito de salidas de vegetativo, floración y cosecha (MOTOR_AGRONOMICO.md §8.3–§8.6, E4).
+ * Las reglas con umbrales respaldados o indicadores físicos continuos están en `enabled`; las que
+ * requerirían un umbral de patógeno, polinizador o maquinaria no especificado permanecen en `documented`
+ * para no activar alertas sin evidencia (§8.6).
+ */
+export const STAGE_OUTPUT_RULES: readonly StageOutputRuleContract[] = [
+  { id: 'VG01', version: '1.0.0', stage: 'vegetativo', objective: 'Demanda atmosférica (DPV continuo y exposición térmica)', inputs: ['airTemp', 'airHumidity', 'vpd_kpa'], state: 'enabled', evidencePolicy: 'Indicador continuo de DPV habilitado; sin categoría universal sin dominio documentado (§8.6).', prohibitedAssertions: ['marchitez confirmada'] },
+  { id: 'VG02', version: '1.0.0', stage: 'vegetativo', objective: 'Contexto agua–ambiente', inputs: ['vwc', 'precipitationMm', 'rainProbabilityPct'], state: 'enabled', evidencePolicy: 'Revisión de humedad puntual junto con pronóstico de lluvia; nunca reemplaza riego por cantidad fija (§8.6).', prohibitedAssertions: ['dosis de riego en litros', 'lluvia reemplaza el riego'] },
+  { id: 'VG03', version: '1.0.0', stage: 'vegetativo', objective: 'Condiciones térmicas en crecimiento', inputs: ['temp', 'airTemp', 'minimumTemperatureC', 'maximumTemperatureC'], state: 'enabled', evidencePolicy: 'Extremos físicos observados/previstos y criterios térmicos por especie cuando se elige cultivo (§8.3).', prohibitedAssertions: ['velocidad de crecimiento sin especie'] },
+  { id: 'VG04', version: '1.0.0', stage: 'vegetativo', objective: 'Acidez y conductividad aparente', inputs: ['ph', 'ec'], state: 'enabled', evidencePolicy: 'Comparación de pH general/especie y referencia de salinidad sin clasificar CE sin método (§6.1, §8.3).', prohibitedAssertions: ['toxicidad específica', 'bloqueo de nutrientes', 'receta de fertilización'] },
+  { id: 'VG05', version: '1.0.0', stage: 'vegetativo', objective: 'Humedad ambiental persistente', inputs: ['airHumidity', 'dew_point_c', 'hourly.relativeHumidityPct'], state: 'documented', evidencePolicy: 'Punto de rocío continuo publicado; sin umbral de infección de patógeno desconocido (§8.6, T33).', prohibitedAssertions: ['infección fúngica', 'aplicar fungicida'] },
+  { id: 'FL01', version: '1.0.0', stage: 'floracion', objective: 'Exposición a frío en floración', inputs: ['airTemp', 'minimumTemperatureC', 'hourly.temperatureC'], state: 'enabled', evidencePolicy: 'Aviso físico de helada y umbrales florales documentados por especie y duración horaria (§8.4).', prohibitedAssertions: ['porcentaje de daño tisular sin especie'] },
+  { id: 'FL02', version: '1.0.0', stage: 'floracion', objective: 'Calor y demanda en floración', inputs: ['airTemp', 'airHumidity', 'maximumTemperatureC', 'vpd_kpa'], state: 'enabled', evidencePolicy: 'Exposición térmica y criterios florales de calor/noches cálidas por especie (§8.4).', prohibitedAssertions: ['aborto floral asegurado sin evidencia de especie'] },
+  { id: 'FL03', version: '1.0.0', stage: 'floracion', objective: 'Persistencia de humedad y lluvia en floración', inputs: ['airHumidity', 'precipitationMm', 'rainProbabilityPct', 'weatherCode'], state: 'enabled', evidencePolicy: 'Observación de lluvia/niebla en floración sin inferir infección ni polinización fallida (§8.4, T33).', prohibitedAssertions: ['infección confirmada', 'polinización fallida'] },
+  { id: 'FL04', version: '1.0.0', stage: 'floracion', objective: 'Viento y ráfagas en floración', inputs: ['windKmh', 'hourly.windKmh'], state: 'documented', evidencePolicy: 'Magnitud de viento publicada; sin umbral de vuelo de polinizadores ni labor no especificada (§8.6).', prohibitedAssertions: ['conteo de visitas de polinizadores', 'ausencia de polinización'] },
+  { id: 'FL05', version: '1.0.0', stage: 'floracion', objective: 'Contexto del suelo en floración', inputs: ['vwc', 'ec', 'ph'], state: 'enabled', evidencePolicy: 'Se retira del flujo nuevo el multiplicador uniforme del 80 % de CE; sólo corren criterios documentados por especie (§8.4).', prohibitedAssertions: ['reducción uniforme de tolerancia salina'] },
+  { id: 'CO01', version: '1.0.0', stage: 'cosecha', objective: 'Exposición a lluvia en cosecha', inputs: ['precipitationMm', 'rainProbabilityPct', 'remainingToday'], state: 'enabled', evidencePolicy: 'Comparación de períodos con y sin lluvia y avisos de rajadura/fruta mojada por especie (§8.5).', prohibitedAssertions: ['cosecha seca garantizada', 'calidad poscosecha garantizada'] },
+  { id: 'CO02', version: '1.0.0', stage: 'cosecha', objective: 'Exposición a calor en cosecha', inputs: ['maximumTemperatureC', 'airTemp'], state: 'enabled', evidencePolicy: 'Comparación relativa de exigencia térmica entre días completos del pronóstico (§8.5).', prohibitedAssertions: ['temperatura interna de fruto', 'vida útil poscosecha'] },
+  { id: 'CO03', version: '1.0.0', stage: 'cosecha', objective: 'Viento en cosecha', inputs: ['windKmh', 'hourly.windKmh'], state: 'documented', evidencePolicy: 'Magnitud de viento informada; sin límite de maquinaria sin especificación del equipo (§8.6).', prohibitedAssertions: ['seguridad de maquinaria por viento'] },
+  { id: 'CO04', version: '1.0.0', stage: 'cosecha', objective: 'Humedad del suelo antes de labores de cosecha', inputs: ['vwc', 'precipitationMm'], state: 'enabled', evidencePolicy: 'Revisión del terreno antes de ingresar sin declarar transitabilidad, ausencia de barro ni madurez (§8.5, T34).', prohibitedAssertions: ['suelo transitable', 'listo para cosechar', 'madurez alcanzada'] },
+  { id: 'CO05', version: '1.0.0', stage: 'cosecha', objective: 'Comparación incompleta de ventanas de cosecha', inputs: ['forecast', 'inputQuality.daily'], state: 'enabled', evidencePolicy: 'Los días con pronóstico incompleto se declaran y nunca se presentan como ventana favorable (§8.5, T28).', prohibitedAssertions: ['ventana favorable por datos ausentes'] },
+] as const;
+
+export function getStageOutputRules(stage: Exclude<PhenologicalStage, 'pre_siembra'>): readonly StageOutputRuleContract[] {
+  return STAGE_OUTPUT_RULES.filter(r => r.stage === stage);
+}
+
 /** Umbrales de humedad para transitabilidad de maquinaria en cosecha. */
 
 export interface StageAwareEvaluation extends Omit<AgronomicEvaluation, 'crop' | 'texture'> {
@@ -321,7 +360,7 @@ export function evaluateReadingForStage(
     en ? 'Soil temperature compared with the minimums in the crop catalog.' : 'Temperatura del suelo comparada con los mínimos del catálogo de cultivos.',
     en ? 'Temperature alone does not establish planting suitability. Check the possible crops and local season.' : 'La temperatura por sí sola no determina aptitud para sembrar. Revisa los posibles cultivos y la temporada local.');
   check('ph', 'GEN-PH-01', reading.ph < GENERAL_RULES['GEN-PH-01'].below || reading.ph > GENERAL_RULES['GEN-PH-01'].above,
-    en ? 'pH requirements vary by crop; no crop is assigned to this reading.' : 'El rango de pH depende del cultivo; esta lectura no tiene un cultivo asignado.',
+    en ? 'Soil pH compared with the general reference range (4.2 to 7.8).' : 'pH del suelo comparado con el rango general de referencia (4,2 a 7,8).',
     en ? 'Confirm pH and crop requirements before applying amendments.' : 'Confirma el pH y los requerimientos del cultivo antes de aplicar enmiendas.');
   metrics.ec.msg = localQualityNote(quality.observations.ec, language);
   metrics.ph.confidenceNote = localQualityNote(quality.observations.ph, language);

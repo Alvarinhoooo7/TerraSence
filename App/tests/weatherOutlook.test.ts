@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { forecastOutlook, isRainingNow, weatherKind } from '../src/engine/weatherOutlook';
+import { compareForecastWindows, forecastOutlook, isRainingNow, weatherKind } from '../src/engine/weatherOutlook';
+import { longestRun } from '../src/engine/speciesRules';
 import { buildContextualAdvice } from '../src/engine/contextualAdvice';
 import { evaluateReadingForStage } from '../src/engine/stageEvaluator';
 import { buildMeasurementPresentation, isMeasurementPresentation } from '../src/engine/measurementPresentation';
@@ -122,4 +123,61 @@ test('la presentación guarda el plan y acepta lecturas anteriores sin él', () 
   const { recommendations: _omitted, ...older } = presentation;
   assert.ok(isMeasurementPresentation(older));
   assert.ok(!isMeasurementPresentation({ ...presentation, recommendations: [{ kind: 'dosis', priority: 'high', when: 'now', title: 'x', body: 'y' }] }));
+});
+
+test('CO01–CO05 y T28: compareForecastWindows contrasta días despejados con adversos y nunca premia días con lluvia null', () => {
+  const days: ForecastDay[] = [
+    { date: '2026-10-13', minimumTemperatureC: 8, maximumTemperatureC: 22, precipitationMm: 8, rainProbabilityPct: 80 },
+    { date: '2026-10-14', minimumTemperatureC: 9, maximumTemperatureC: 23, precipitationMm: 0, rainProbabilityPct: 10 },
+    { date: '2026-10-15', minimumTemperatureC: 9, maximumTemperatureC: 24, precipitationMm: null, rainProbabilityPct: 10 },
+  ];
+  const esText = compareForecastWindows(days, 'es')!;
+  assert.match(esText, /Ventana más despejada para labores de campo el miércoles, frente a condiciones más adversas mañana\./);
+  assert.match(esText, /No se consideran como ventana favorable el jueves por tener pronóstico incompleto\./);
+
+  const enText = compareForecastWindows(days, 'en')!;
+  assert.match(enText, /Clearer window for field work on Wednesday, compared with more adverse conditions tomorrow\./);
+  assert.match(enText, /Not counted as a favorable window \(on Thursday\) due to incomplete forecast records\./);
+
+  // CO05: cuando todos los días completos son despejados, destaca el de menor exigencia térmica relativa
+  const stableDays: ForecastDay[] = [
+    { date: '2026-10-13', minimumTemperatureC: 8, maximumTemperatureC: 24, precipitationMm: 0, rainProbabilityPct: 10 },
+    { date: '2026-10-14', minimumTemperatureC: 7, maximumTemperatureC: 19, precipitationMm: 0, rainProbabilityPct: 5 },
+  ];
+  assert.match(compareForecastWindows(stableDays, 'es')!, /menor exigencia térmica relativa el miércoles \(máxima de 19 °C\)/);
+  assert.match(compareForecastWindows(stableDays, 'en')!, /lower relative thermal demand on Wednesday \(19 °C high\)/);
+});
+
+test('T21–T27: separación de probabilidad y lámina de precipitación y continuidad horaria ante huecos o cambio de hora de Chile', () => {
+  // T25–T27: probabilidad alta sin mm no suma lámina; rain/showers no se suman encima de precipitation_sum
+  const weather = normalizeWeather({
+    ...units,
+    hourly_units: { time: 'iso8601', temperature_2m: '°C' },
+    timezone: 'America/Santiago',
+    current: { time: '2026-09-05T22:00', interval: 900, temperature_2m: 12, precipitation: 0, rain: 5, showers: 5, weather_code: 3 },
+    daily: {
+      time: ['2026-09-05', '2026-09-06'],
+      temperature_2m_max: [18, 19],
+      temperature_2m_min: [6, 7],
+      precipitation_sum: [0, 2.5],
+      precipitation_probability_max: [85, 20],
+      weather_code: [3, 1],
+    },
+    hourly: {
+      // Salto horario (de 22:00 a 01:00 = 3 h > 1 h): rompe la racha continua
+      time: [
+        '2026-09-05T18:00', '2026-09-05T19:00', '2026-09-05T20:00', '2026-09-05T21:00', '2026-09-05T22:00',
+        '2026-09-06T01:00', '2026-09-06T02:00', '2026-09-06T03:00', '2026-09-06T04:00', '2026-09-06T05:00', '2026-09-06T06:00', '2026-09-06T07:00',
+      ],
+      temperature_2m: [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+    },
+  }, '2026-09-05T22:00:00Z')!;
+
+  assert.equal(weather.precipitationMm, 0);
+  assert.equal(weather.dailyPrecipitationMm, 0);
+  assert.equal(weather.rainProbabilityPct, 85);
+
+  // Con el hueco horario entre 22:00 y 01:00, la racha continua máxima que toca 2026-09-06 es de 7 h (y no 12 h)
+  const hours = weather.hourly!.time.map((time, i) => ({ time, temperatureC: weather.hourly!.temperatureC[i] }));
+  assert.equal(longestRun(hours, '2026-09-06', v => v <= 0), 7);
 });

@@ -42,6 +42,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { localizeProbeError } from '../utils/probeErrors';
 import { checkLowBattery } from '../utils/batteryWarning';
 import { captureLocation, initialIncludeLocation, revalidateIncludeLocation, type LocationChoice } from '../utils/measureLocation';
+import { applyWeatherToCapture, buildSavedDiagnosisSnapshot } from '../utils/measureCaptureSession';
 
 // Elección de incluir coordenadas y pronóstico, por instalación. Es distinta del permiso:
 // en Android anterior a 12 la ubicación también se concede para buscar la sonda.
@@ -251,10 +252,13 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
         void fetchCurrentWeather(nextCoords.latitude, nextCoords.longitude, weatherContext.captureId,
           useAuthStore.getState().session?.user.id ?? null).then((forecast) => {
           if (!current()) return;
-          const updatedAdvice = buildContextualAdvice(stage, nextEvaluation, probe.data, forecast, preferences.language,
-            { ...weatherContext, evaluatedAt: new Date().toISOString() }, speciesId);
-          setWeather(updatedAdvice.weatherCoverage?.status === 'not_evaluated' ? null : forecast);
-          setAdvice(updatedAdvice);
+          if (!current()) return;
+
+          const updated = applyWeatherToCapture({ raw: probe.data, stage, language: preferences.language, capturedAt: probe.capturedAt, simulated: connection.simulated || probe.simulated, speciesId, captureId: weatherContext.captureId, location: nextCoords }, forecast);
+          setEvaluation(updated.evaluation);
+          setWeather(updated.weather);
+          setAdvice(updated.advice);
+
           setWeatherLoading(false);
         }).catch(() => { if (current()) setWeatherLoading(false); });
       }
@@ -272,7 +276,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
   const presentation = useMemo(() => raw && evaluation && advice && inputQuality ? buildMeasurementPresentation(raw, evaluation, advice, language, inputQuality, speciesId) : null, [raw, evaluation, advice, language, inputQuality, speciesId]);
 
   const save = useCallback(async () => {
-    if (!evaluation || !raw || !stage || !inputQuality || !presentation || saving.current || saved.current) return;
+    if (!evaluation || !raw || !stage || !inputQuality || !presentation || !advice || saving.current || saved.current) return;
     if (demoMode) {
       Alert.alert(t('Demostración', 'Demo'), t('Los datos simulados no se guardan como mediciones reales.', 'Simulated data is not saved as real readings.'));
       return;
@@ -317,7 +321,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
       verdict: evaluation.verdict,
       verdict_title: evaluation.verdictTitle,
       action_summary: advice?.summary ?? evaluation.actionSummary,
-      diagnosis: { presentation, inputQuality, derived: deriveLocalPhysics(inputQuality), evaluationState: evaluation.state, coverage: evaluation.coverage, localSource: 'probe-bme280-v1', capturedAt, connectionAtCapture: 'ble-response', alerts: evaluation.alerts, drivers: evaluation.drivers, advice, weather: weather && { ...weather, hourly: undefined } },
+      diagnosis: buildSavedDiagnosisSnapshot({ raw, evaluation, advice, language, capturedAt: capturedAt ?? new Date().toISOString(), simulated: demoMode, speciesId, weather, inputQuality, presentation }),
       engine_version: ENGINE_VERSION,
       crop_catalog_version: SPECIES_CATALOG_VERSION,
       firmware_version: context.current.device?.firmware_version ?? null,
