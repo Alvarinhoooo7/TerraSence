@@ -254,7 +254,7 @@ test('E6 (T35): cropOptions y coverageSummary en pre-siembra muestran por qué a
   );
 });
 
-test('E6 (T36–T38, tamaño de instantánea): guardar antes del clima conserva snapshot compacto (< 25 KB) y llegada posterior no lo altera', () => {
+test('E6 (T36–T38, tamaño de instantánea): guardar antes del clima conserva snapshot compacto (< 40 KB con especie, < 60 KB en pre-siembra) y llegada posterior no lo altera', () => {
   const capturedAt = '2026-10-12T14:00:00Z';
   const location = { latitude: -33.45, longitude: -70.66, accuracy: 6 };
   const baseEval = evaluateReadingForStage(raw, 'vegetativo', 'es', { capturedAt, evaluatedAt: capturedAt }, 'sp.tomate');
@@ -320,9 +320,22 @@ test('E6 (T36–T38, tamaño de instantánea): guardar antes del clima conserva 
     weather: withWeather.weather,
   });
   assert.equal(snapshotWithWeather.advice.weatherCoverage?.status, 'partial');
-  assert.equal(snapshotWithWeather.weather?.hourly, undefined);
+  assert.ok(snapshotWithWeather.weather !== null && !('hourly' in snapshotWithWeather.weather));
   const byteLength = Buffer.byteLength(JSON.stringify(snapshotWithWeather), 'utf8');
   assert.ok(byteLength < 40 * 1024, `Snapshot demasiado grande: ${byteLength} bytes`);
+
+  // Pre-siembra es la instantánea más grande: guarda una ficha por alternativa. Las fichas viven
+  // sólo en la presentación; repetirlas en `advice` duplicaba más de 30 KB por lectura.
+  const preSowing = applyWeatherToCapture({
+    raw, stage: 'pre_siembra', language: 'es', capturedAt, evaluatedAt: capturedAt, captureId: 'cap-2', location,
+  }, null);
+  const preSowingSnapshot = buildSavedDiagnosisSnapshot({
+    raw, evaluation: preSowing.evaluation, advice: preSowing.advice, language: 'es', capturedAt, weather: null,
+  });
+  assert.ok((preSowingSnapshot.presentation.cropOptions?.length ?? 0) > 1);
+  assert.ok(!('cropOptions' in preSowingSnapshot.advice));
+  const preSowingBytes = Buffer.byteLength(JSON.stringify(preSowingSnapshot), 'utf8');
+  assert.ok(preSowingBytes < 60 * 1024, `Instantánea de pre-siembra demasiado grande: ${preSowingBytes} bytes`);
 });
 
 test('E6 (T39, T41, T43): históricos v1/v2/v3 y reglas retiradas se leen sin recalcular; dos lecturas cercanas no inventan textura ni tendencia', () => {

@@ -1,9 +1,34 @@
 // Lectura en lenguaje claro del clima de Open-Meteo: qué tiempo hace ahora, cómo viene
-// el día y un resumen de los próximos días. Describe el pronóstico; no decide labores.
-// Las decisiones con umbrales viven en contextualAdvice.ts.
+// el día y un resumen de los próximos días. Describe el pronóstico; no decide labores:
+// qué hacer con un día adverso se decide en contextualAdvice.ts. Lo único compartido es
+// `GENERAL_WEATHER_RISK`, los umbrales que definen «día adverso» para todo el motor.
 
 import type { CurrentWeather, ForecastDay } from '../services/weatherService';
 import type { AppLanguage } from '../types/preferences';
+
+export type GeneralWeatherRisk = 'rain' | 'frost' | 'heat';
+
+/**
+ * Umbrales generales que marcan un día del pronóstico como adverso, sin especie indicada.
+ * Viven aquí porque los usan la comparación de ventanas (`compareForecastWindows`), el plan
+ * de labores (`contextualAdvice.ts`) y la fusión con los criterios por especie (§9.2).
+ */
+export const GENERAL_WEATHER_RISK = {
+  rainAtOrAboveMm: 5,
+  rainProbabilityAtOrAbovePct: 60,
+  frostAtOrBelowC: 0,
+  heatAtOrAboveC: 35,
+} as const;
+
+/** Riesgos generales de un día del pronóstico, bajo `GENERAL_WEATHER_RISK`. */
+export function generalRisksOfDay(day: ForecastDay): GeneralWeatherRisk[] {
+  const risks: GeneralWeatherRisk[] = [];
+  if ((day.precipitationMm != null && day.precipitationMm >= GENERAL_WEATHER_RISK.rainAtOrAboveMm)
+    || (day.rainProbabilityPct != null && day.rainProbabilityPct >= GENERAL_WEATHER_RISK.rainProbabilityAtOrAbovePct)) risks.push('rain');
+  if (day.minimumTemperatureC != null && day.minimumTemperatureC <= GENERAL_WEATHER_RISK.frostAtOrBelowC) risks.push('frost');
+  if (day.maximumTemperatureC != null && day.maximumTemperatureC >= GENERAL_WEATHER_RISK.heatAtOrAboveC) risks.push('heat');
+  return risks;
+}
 
 export type WeatherKind = 'clear' | 'partly' | 'cloudy' | 'fog' | 'drizzle' | 'rain' | 'showers' | 'snow' | 'storm';
 
@@ -79,10 +104,7 @@ export function compareForecastWindows(days: ForecastDay[], language: AppLanguag
   const incomplete: number[] = [];
 
   days.forEach((day, index) => {
-    const hasObstacle = (day.precipitationMm != null && day.precipitationMm >= 5)
-      || (day.rainProbabilityPct != null && day.rainProbabilityPct >= 60)
-      || (day.minimumTemperatureC != null && day.minimumTemperatureC <= 0)
-      || (day.maximumTemperatureC != null && day.maximumTemperatureC >= 35);
+    const hasObstacle = generalRisksOfDay(day).length > 0;
     const isComplete = day.precipitationMm != null && day.minimumTemperatureC != null && day.maximumTemperatureC != null;
     if (hasObstacle) {
       risky.push(index);

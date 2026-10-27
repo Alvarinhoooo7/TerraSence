@@ -421,7 +421,7 @@ async function downloadWeather(latitude: number, longitude: number, captureId: s
       '&current=temperature_2m,precipitation,wind_speed_10m,weather_code' +
       '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,weather_code' +
       '&hourly=temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,wind_speed_10m' +
-      '&forecast_days=6&timezone=auto' +
+      `&forecast_days=${WEATHER_RESPONSE_BUDGET.maxForecastDays}&timezone=auto` +
       '&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm';
     const response = await fetch(url, { signal: controller.signal });
     if (!response.ok) return null;

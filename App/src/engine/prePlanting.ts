@@ -50,6 +50,23 @@ export interface PrePlantingProfile {
   phOpt: { min: number; max: number };
   phMax: number;
   evidence: readonly SpeciesCriterionEvidence[];
+  /** Valores del perfil que no están en la evidencia citada (§7.5). */
+  convention?: PrePlantingConvention;
+}
+
+/**
+ * Valor que la evidencia citada no fija y que el motor resuelve por convención, declarado en la
+ * ficha técnica y en las limitaciones (MOTOR_AGRONOMICO.md §7.5, pasos 3 y 5).
+ *
+ * Una convención que **acota** (un techo donde la fuente no fija ninguno, un mínimo más prudente
+ * que el de la tabla) no cambia la clasificación, porque restringe. Una que **inventa** una banda
+ * óptima o un rango completo que la fuente no documenta sí la limita (`limitsMatch`), para que
+ * omitir una restricción nunca dé ventaja a un perfil (§8.6, T18).
+ */
+export interface PrePlantingConvention {
+  es: string;
+  en: string;
+  limitsMatch?: boolean;
 }
 
 export interface PrePlantingOption {
@@ -112,6 +129,24 @@ const S18_UMD_ARANDANO: SpeciesCriterionEvidence = {
 
 const f = fahrenheitToCelsius;
 
+const decimalEs = (n: number) => n.toString().replace('.', ',');
+
+/**
+ * La tabla B-1 de UMD ([S22]) fija el pH objetivo y el pH bajo el cual se encala, nunca un máximo.
+ * El techo que usa el motor es una convención prudente, no una cifra de la fuente.
+ */
+const PH_CEILING_CONVENTION = (phMax: number): PrePlantingConvention => ({
+  es: `techo de pH ${decimalEs(phMax)}; la tabla B-1 fija objetivo y pH de encalado, no un máximo`,
+  en: `pH ceiling of ${phMax}; Table B-1 states a target and a liming pH, not a maximum`,
+});
+
+/** Une varias convenciones en una sola declaración. */
+const conventions = (...items: PrePlantingConvention[]): PrePlantingConvention => ({
+  es: items.map(i => i.es).join('; '),
+  en: items.map(i => i.en).join('; '),
+  ...(items.some(i => i.limitsMatch) ? { limitsMatch: true } : {}),
+});
+
 const seedVegetable = (
   slug: string,
   emoji: string,
@@ -145,6 +180,7 @@ const seedVegetable = (
     S10_UCANR(cropEn, minF, `${optMinF}–${optMaxF}`, `${maxF}`),
     S22_UMD(cropEn, `${phOpt}`, `${phMin}`),
   ],
+  convention: PH_CEILING_CONVENTION(phMax),
 });
 
 export const PRE_PLANTING_PROFILES: readonly PrePlantingProfile[] = [
@@ -166,6 +202,7 @@ export const PRE_PLANTING_PROFILES: readonly PrePlantingProfile[] = [
     phOpt: { min: 6.0, max: 6.8 },
     phMax: 7.5,
     evidence: [S10_UCANR('Celery', 40, '*', '*'), S22_UMD('Celery', '6.5', '6.0')],
+    convention: PH_CEILING_CONVENTION(7.5),
   },
   seedVegetable('arveja', '🫛', 'Arveja (semilla)', 'Pea (seed)', 'Peas', 40, 65, 75, 85, 6.0, 6.5),
   seedVegetable('berenjena', '🍆', 'Berenjena (semilla)', 'Eggplant (seed)', 'Eggplant', 60, 75, 85, 95, 6.0, 6.5),
@@ -191,6 +228,10 @@ export const PRE_PLANTING_PROFILES: readonly PrePlantingProfile[] = [
     phOpt: { min: 6.0, max: 6.8 },
     phMax: 7.0,
     evidence: [S10_UCANR('Lettuce', 32, '60–75', '85'), S22_UMD('Lettuce', '6.5', '6.0')],
+    convention: conventions(
+      PH_CEILING_CONVENTION(7.0),
+      { es: 'mínimo térmico de 10 °C, más prudente que los 0 °C (32 °F) de la tabla', en: 'thermal minimum of 10 °C, stricter than the 0 °C (32 °F) in the table' },
+    ),
   },
   {
     id: 'pre.maiz.semilla',
@@ -208,6 +249,10 @@ export const PRE_PLANTING_PROFILES: readonly PrePlantingProfile[] = [
     phOpt: { min: 6.0, max: 6.8 },
     phMax: 7.2,
     evidence: [S10_UCANR('Corn', 50, '65–95', '105'), S22_UMD('Sweet corn', '6.5', '5.8')],
+    convention: conventions(
+      PH_CEILING_CONVENTION(7.2),
+      { es: 'mínimo térmico de 12 °C, más prudente que los 10 °C (50 °F) de la tabla', en: 'thermal minimum of 12 °C, stricter than the 10 °C (50 °F) in the table' },
+    ),
   },
   seedVegetable('melon', '🍈', 'Melón (semilla)', 'Melon (seed)', 'Muskmelons', 60, 75, 85, 105, 6.0, 6.5),
   {
@@ -226,6 +271,12 @@ export const PRE_PLANTING_PROFILES: readonly PrePlantingProfile[] = [
     phOpt: { min: 5.2, max: 6.2 },
     phMax: 6.5,
     evidence: [S22_UMD('Potato', '6.0', '5.0')],
+    // §7.3 mantiene papa y camote como referencia de código hasta tener búsqueda térmica propia:
+    // la única fuente citada es de pH, así que todo el rango térmico queda declarado y limitado.
+    convention: conventions(
+      PH_CEILING_CONVENTION(6.5),
+      { es: 'todo el rango térmico (8 °C, óptimo 15–20 °C y techo 28 °C): la fuente citada sólo documenta pH', en: 'the whole thermal range (8 °C, optimum 15–20 °C, ceiling 28 °C): the cited source only documents pH', limitsMatch: true },
+    ),
   },
   seedVegetable('pepino', '🥒', 'Pepino (semilla)', 'Cucumber (seed)', 'Cucumbers', 60, 65, 95, 105, 6.0, 6.5),
   seedVegetable('perejil', '🌿', 'Perejil (semilla)', 'Parsley (seed)', 'Parsley', 40, 65, 85, 95, 5.8, 6.5),
@@ -253,6 +304,7 @@ export const PRE_PLANTING_PROFILES: readonly PrePlantingProfile[] = [
     phOpt: { min: 6.0, max: 6.5 },
     phMax: 6.8,
     evidence: [S23_INIA_TOMATE],
+    convention: { es: 'techo de pH 6,8 y banda óptima de 20 a 28 °C; INIA documenta el óptimo de pH y el rango de 15 a 35 °C, sin fijar esos límites', en: 'pH ceiling of 6.8 and optimal band of 20 to 28 °C; INIA documents the pH optimum and the 15 to 35 °C range, without stating those limits' },
   },
   {
     id: 'pre.trigo.semilla',
@@ -279,6 +331,7 @@ export const PRE_PLANTING_PROFILES: readonly PrePlantingProfile[] = [
         originalValue: 'Minimum germination temperature 39–40 °F (4 °C), optimum 54–77 °F, pH 6.0–7.5',
       },
     ],
+    convention: { es: 'banda óptima acotada a 20 °C, donde la fuente llega a 25 °C (77 °F), y techo de 30 °C, que la fuente no fija', en: 'optimal band capped at 20 °C, where the source reaches 25 °C (77 °F), and a 30 °C ceiling the source does not state' },
   },
   seedVegetable('zanahoria', '🥕', 'Zanahoria (semilla)', 'Carrot (seed)', 'Carrots', 40, 65, 85, 95, 6.0, 6.5),
   seedVegetable('zapallo', '🎃', 'Zapallo (semilla)', 'Squash / Pumpkin (seed)', 'Pumpkins', 60, 85, 95, 105, 5.8, 6.5),
@@ -301,6 +354,10 @@ export const PRE_PLANTING_PROFILES: readonly PrePlantingProfile[] = [
     phOpt: { min: 4.5, max: 5.2 },
     phMax: 5.2,
     evidence: [S18_UMD_ARANDANO],
+    convention: conventions(
+      { es: 'límites de pH 4,2 y 5,2, algo más estrictos que el 4,3 y 5,3 de la fuente', en: 'pH limits of 4.2 and 5.2, slightly stricter than the source\'s 4.3 and 5.3' },
+      { es: 'todo el rango térmico (12 °C, óptimo 16–24 °C y techo 32 °C): la fuente citada sólo documenta pH', en: 'the whole thermal range (12 °C, optimum 16–24 °C, ceiling 32 °C): the cited source only documents pH', limitsMatch: true },
+    ),
   },
   {
     id: 'pre.esparrago.semilla',
@@ -317,6 +374,7 @@ export const PRE_PLANTING_PROFILES: readonly PrePlantingProfile[] = [
     phOpt: { min: 6.5, max: 7.0 },
     phMax: 7.5,
     evidence: [S10_UCANR('Asparagus', 50, '75–85', '95'), S22_UMD('Asparagus', '6.8', '6.0')],
+    convention: PH_CEILING_CONVENTION(7.5),
   },
   {
     id: 'pre.frutilla.plantacion',
@@ -333,6 +391,7 @@ export const PRE_PLANTING_PROFILES: readonly PrePlantingProfile[] = [
     phOpt: { min: 5.8, max: 7.0 },
     phMax: 7.2,
     evidence: [S24_INIA_FRUTILLA],
+    convention: { es: 'banda óptima de 15 a 25 °C: INIA documenta el rango de 12 a 32 °C, sin fijar un óptimo', en: 'optimal band of 15 to 25 °C: INIA documents the 12 to 32 °C range without stating an optimum', limitsMatch: true },
   },
   {
     id: 'pre.palto.plantacion',
@@ -359,6 +418,7 @@ export const PRE_PLANTING_PROFILES: readonly PrePlantingProfile[] = [
         originalValue: 'pH 5.5–6.8; root activity requires soil above 14 °C and below 32 °C',
       },
     ],
+    convention: { es: 'objetivo de pH 5,8 a 6,5 y banda óptima de 20 a 28 °C dentro de los rangos de la fuente, que no fija ninguno de los dos', en: 'pH target of 5.8 to 6.5 and optimal band of 20 to 28 °C inside the source\'s ranges, which states neither', limitsMatch: true },
   },
   {
     id: 'pre.vid.plantacion',
@@ -382,9 +442,10 @@ export const PRE_PLANTING_PROFILES: readonly PrePlantingProfile[] = [
         url: 'https://content.ces.ncsu.edu/muscadine-grapes-in-the-home-garden',
         section: 'Soil Management',
         consultedAt: '2026-10-15',
-        originalValue: 'Vitis vinifera optimum pH 6.0–7.0 (tolerates up to 7.8); root growth starts at 10 °C',
+        originalValue: 'Vitis vinifera cultivars: optimum soil pH 6.0 to 7.0',
       },
     ],
+    convention: { es: 'techo de pH 7,8, mínimo térmico de 10 °C, banda óptima de 18 a 26 °C y techo de 35 °C: la fuente citada sólo documenta el óptimo de pH', en: 'pH ceiling of 7.8, thermal minimum of 10 °C, optimal band of 18 to 26 °C and a 35 °C ceiling: the cited source only documents the pH optimum', limitsMatch: true },
   },
 ];
 
@@ -410,7 +471,9 @@ export function evaluatePrePlantingOptions(
   );
   if (!valid) return [];
   const en = language === 'en';
-  const matched: (PrePlantingOption & { incomplete: boolean })[] = [];
+  // `declaredGap`: al perfil le falta un parámetro en la fuente o el motor le fijó un óptimo que
+  // la fuente no documenta. Ordena detrás de los perfiles completos y no sale en el resultado.
+  const matched: (PrePlantingOption & { declaredGap: boolean })[] = [];
 
   for (const profile of profiles) {
     if (reading.temp < profile.tempMin) continue;
@@ -460,16 +523,30 @@ export function evaluatePrePlantingOptions(
       );
     }
 
+    // Una cifra que la fuente no fija se declara siempre; sólo limita la clasificación cuando
+    // inventa un óptimo o un rango en vez de restringir uno documentado (§7.5, §8.6).
+    if (profile.convention) {
+      limitationCodes.push('values_not_in_cited_sources');
+      reasons.push(
+        en
+          ? `Values set by the engine, not stated in the cited sources: ${profile.convention.en}.`
+          : `Valores fijados por el motor, que las fuentes citadas no establecen: ${profile.convention.es}.`,
+      );
+    }
+
     const classification: PrePlantingClassification =
-      profile.scope === 'short_term_establishment' && !incomplete && tempInOpt && phInOpt
+      profile.scope === 'short_term_establishment' && !incomplete && !profile.convention?.limitsMatch && tempInOpt && phInOpt
         ? 'matches_evaluated_criteria'
         : 'has_limitations';
 
-    const fmt = (n: number) => (Math.round(n * 10) / 10).toString().replace('.', en ? '.' : ',');
+    const fmt = (n: number) => (Math.round(n * 10) / 10).toFixed(1).replace('.', en ? '.' : ',');
     const sources = [...new Set(profile.evidence.map(e => en ? e.institution : `${e.institution} (${e.section})`))].join('; ');
+    const engineSet = profile.convention
+      ? (en ? ` Set by the engine, not stated in those sources: ${profile.convention.en}.` : ` Fijado por el motor, sin respaldo en esas fuentes: ${profile.convention.es}.`)
+      : '';
     const technicalSummary = en
-      ? `Reference: soil temperature ${fmt(profile.tempMin)} to ${profile.tempMax !== null ? `${fmt(profile.tempMax)} °C` : 'no fixed maximum'} (optimum ${profile.tempOpt ? `${fmt(profile.tempOpt.min)}–${fmt(profile.tempOpt.max)} °C` : 'not tabulated'}); pH ${fmt(profile.phMin)} to ${fmt(profile.phMax)} (target ${fmt(profile.phOpt.min)}–${fmt(profile.phOpt.max)}). Sources: ${sources}.`
-      : `Referencia: temperatura ${fmt(profile.tempMin)} a ${profile.tempMax !== null ? `${fmt(profile.tempMax)} °C` : 'sin máximo fijo'} (óptimo ${profile.tempOpt ? `${fmt(profile.tempOpt.min)}–${fmt(profile.tempOpt.max)} °C` : 'no tabulado'}); pH ${fmt(profile.phMin)} a ${fmt(profile.phMax)} (objetivo ${fmt(profile.phOpt.min)}–${fmt(profile.phOpt.max)}). Fuentes: ${sources}.`;
+      ? `Ranges used: soil temperature ${fmt(profile.tempMin)} to ${profile.tempMax !== null ? `${fmt(profile.tempMax)} °C` : 'no fixed maximum'} (optimum ${profile.tempOpt ? `${fmt(profile.tempOpt.min)}–${fmt(profile.tempOpt.max)} °C` : 'not tabulated'}); pH ${fmt(profile.phMin)} to ${fmt(profile.phMax)} (target ${fmt(profile.phOpt.min)}–${fmt(profile.phOpt.max)}). Sources: ${sources}.${engineSet}`
+      : `Rangos usados: temperatura ${fmt(profile.tempMin)} a ${profile.tempMax !== null ? `${fmt(profile.tempMax)} °C` : 'sin máximo fijo'} (óptimo ${profile.tempOpt ? `${fmt(profile.tempOpt.min)}–${fmt(profile.tempOpt.max)} °C` : 'no tabulado'}); pH ${fmt(profile.phMin)} a ${fmt(profile.phMax)} (objetivo ${fmt(profile.phOpt.min)}–${fmt(profile.phOpt.max)}). Fuentes: ${sources}.${engineSet}`;
     const name = en ? profile.nameEn : profile.nameEs;
     matched.push({
       profileId: profile.id,
@@ -481,7 +558,7 @@ export function evaluatePrePlantingOptions(
       reasons,
       limitationCodes,
       technicalSummary,
-      incomplete,
+      declaredGap: incomplete || profile.convention?.limitsMatch === true,
     });
   }
 
@@ -491,11 +568,11 @@ export function evaluatePrePlantingOptions(
       if (scopeOrder !== 0) return scopeOrder;
       const classOrder = (a.classification === 'matches_evaluated_criteria' ? 0 : 1) - (b.classification === 'matches_evaluated_criteria' ? 0 : 1);
       if (classOrder !== 0) return classOrder;
-      const incompleteOrder = (a.incomplete ? 1 : 0) - (b.incomplete ? 1 : 0);
-      if (incompleteOrder !== 0) return incompleteOrder;
+      const gapOrder = (a.declaredGap ? 1 : 0) - (b.declaredGap ? 1 : 0);
+      if (gapOrder !== 0) return gapOrder;
       return a.profileId.localeCompare(b.profileId);
     })
-    .map(({ incomplete: _incomplete, ...option }) => option);
+    .map(({ declaredGap: _declaredGap, ...option }) => option);
 }
 
 /** Lista de etiquetas sugeridas en pre-siembra para mostrar al agricultor. */

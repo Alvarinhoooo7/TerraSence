@@ -2,7 +2,6 @@
  * Motor de Reglas Agronómicas en TypeScript para React Native (TerraSense)
  */
 
-import { LOCAL_VARIABLES } from './inputQuality';
 import { vaporPressureDeficitKpa } from './localPhysics';
 export {
   PRE_PLANTING_VERSION,
@@ -29,7 +28,6 @@ export const CROPS_DB: Record<CropId, CropDefinition> = {
     tempOpt: 22.0,
     phMin: 5.8,
     phMax: 7.2,
-    tempMax: 40.6,
     ecMax: 1800,
     depthCm: '4 - 6 cm',
     description: 'Sensible al frío en germinación y a suelos fuertemente ácidos.'
@@ -42,7 +40,6 @@ export const CROPS_DB: Record<CropId, CropDefinition> = {
     tempOpt: 24.0,
     phMin: 6.0,
     phMax: 6.8,
-    tempMax: 35.0,
     ecMax: 2200,
     depthCm: '1 - 2 cm (trasplante)',
     description: 'Alta demanda de calcio y fósforo; no tolera anoxia radicular.'
@@ -55,7 +52,6 @@ export const CROPS_DB: Record<CropId, CropDefinition> = {
     tempOpt: 18.0,
     phMin: 5.0,
     phMax: 6.5,
-    tempMax: 28.0,
     ecMax: 1700,
     depthCm: '8 - 12 cm',
     description: 'Tolera suelos ligeramente ácidos; requiere suelo suelto y buena aireación.'
@@ -68,7 +64,6 @@ export const CROPS_DB: Record<CropId, CropDefinition> = {
     tempOpt: 16.0,
     phMin: 6.0,
     phMax: 7.5,
-    tempMax: 30.0,
     ecMax: 2500,
     depthCm: '3 - 5 cm',
     description: 'Resistente al frío; muy sensible a acidez extrema (toxicidad de Aluminio).'
@@ -81,7 +76,6 @@ export const CROPS_DB: Record<CropId, CropDefinition> = {
     tempOpt: 18.0,
     phMin: 6.0,
     phMax: 7.0,
-    tempMax: 29.4,
     ecMax: 1400,
     depthCm: '0.5 - 1 cm',
     description: 'Raíz superficial; muy sensible a salinidad y deshidratación de los primeros 5 cm.'
@@ -94,7 +88,6 @@ export const CROPS_DB: Record<CropId, CropDefinition> = {
     tempOpt: 25.0,
     phMin: 5.5,
     phMax: 6.8,
-    tempMax: 32.0,
     ecMax: 1200,
     depthCm: 'Muestreo a 20-40 cm',
     description: 'Extremadamente sensible a asfixia radicular (Phytophthora) y cloruros/salinidad.'
@@ -107,7 +100,6 @@ export const CROPS_DB: Record<CropId, CropDefinition> = {
     tempOpt: 22.0,
     phMin: 6.0,
     phMax: 7.8,
-    tempMax: 35.0,
     ecMax: 2000,
     depthCm: 'Muestreo a 30-50 cm',
     description: 'Tolera suelos calcáreos y moderadamente salinos; requiere control de vigor.'
@@ -120,7 +112,6 @@ export const CROPS_DB: Record<CropId, CropDefinition> = {
     tempOpt: 20.0,
     phMin: 4.2,
     phMax: 5.2,
-    tempMax: 32.0,
     ecMax: 1000,
     depthCm: 'Muestreo a 15-30 cm',
     description: 'Requiere suelo ácido específico (pH 4.5); el pH alto genera clorosis férrica.'
@@ -157,16 +148,6 @@ export const SOIL_TEXTURES: Record<SoilTextureId, SoilTexture> = {
     sat: 60.0
   }
 };
-
-/** Coincidencia parcial con el catálogo; no determina aptitud ni el cultivo del campo. */
-export function possibleCrops(reading: SoilMeasurement): CropDefinition[] {
-  if (!(['temp', 'ph'] as const).every(key => Number.isFinite(reading[key]) &&
-    reading[key] >= LOCAL_VARIABLES[key].min && reading[key] <= LOCAL_VARIABLES[key].max)) return [];
-  return Object.values(CROPS_DB).filter(crop =>
-    reading.temp >= crop.tempMin && (crop.tempMax === undefined || reading.temp <= crop.tempMax) && reading.ph >= crop.phMin &&
-    reading.ph <= crop.phMax,
-  );
-}
 
 /**
  * Umbral de conductividad sobre el cual la calibración de fábrica de la sonda deja

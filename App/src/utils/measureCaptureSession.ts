@@ -73,6 +73,7 @@ export function buildSavedDiagnosisSnapshot(params: {
   advice: ContextualAdvice;
   language: AppLanguage;
   capturedAt: string;
+  /** Sólo se usa si no se entrega `inputQuality`, que ya la incorpora. */
   simulated?: boolean;
   speciesId?: string | null;
   weather: CurrentWeather | null;
@@ -99,8 +100,21 @@ export function buildSavedDiagnosisSnapshot(params: {
     connectionAtCapture: 'ble-response' as const,
     alerts: params.evaluation.alerts,
     drivers: params.evaluation.drivers,
-    advice: params.advice,
-    weather: params.weather ? { ...params.weather, hourly: undefined } : null,
+    // `cropOptions` se guarda una sola vez, en la presentación, que es lo que leen los históricos
+    // (`presentationFromPoint`). Repetirlas aquí duplicaba más de 30 KB por lectura de pre-siembra.
+    advice: withoutCropOptions(params.advice),
+    weather: params.weather ? withoutHourlySeries(params.weather) : null,
   };
+}
+
+/** Quita la serie horaria cruda sin dejar la clave: `remainingToday` ya resume lo que resta del día. */
+function withoutHourlySeries(weather: CurrentWeather): Omit<CurrentWeather, 'hourly'> {
+  const { hourly: _hourly, ...rest } = weather;
+  return rest;
+}
+
+function withoutCropOptions(advice: ContextualAdvice): Omit<ContextualAdvice, 'cropOptions'> {
+  const { cropOptions: _cropOptions, ...rest } = advice;
+  return rest;
 }
 

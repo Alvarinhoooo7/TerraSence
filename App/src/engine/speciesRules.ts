@@ -31,6 +31,7 @@ import { HORTALIZA_PROFILES } from './speciesProfilesHortalizas';
 import { FRUTAL_PROFILES } from './speciesProfilesFrutales';
 import { BERRY_AROMATIC_PROFILES } from './speciesProfilesBerriesAromaticas';
 import { FIELD_CROP_PROFILES } from './speciesProfilesCultivos';
+import type { GeneralWeatherRisk } from './weatherOutlook';
 
 export type { SpeciesCriterionState, SpeciesCriterionEvidence, SpeciesPhCriterion, SpeciesThreshold, SpeciesComparison, SpeciesSeverity, SpeciesAirTemperatureCriterion, SpeciesReadingCriterion, SpeciesWeatherEventCriterion, SpeciesSalinityCriterion, SpeciesWaterCriterion, SpeciesCriterion, SpeciesEstablishment, SpeciesRuleProfile } from './speciesRuleKit';
 export { fahrenheitToCelsius } from './speciesRuleKit';
@@ -438,28 +439,43 @@ export function evaluateSpeciesWeather(
 }
 
 /**
- * Categorías de riesgo general (`frost`, `heat`, `rain`) que ya activaron un hallazgo propio
- * de la especie en el pronóstico, para fusionar el aviso general sin duplicar tarjetas (§9.2).
+ * Riesgos generales (`frost`, `heat`, `rain`) que un criterio propio de la especie ya advierte
+ * **en esa misma fecha** del pronóstico, para fusionar el aviso general sin duplicar tarjetas (§9.2).
+ *
+ * La cobertura es por fecha y por categoría, nunca por ventana completa: un criterio de frío que
+ * se activa el lunes no cubre la helada del jueves. Y un criterio de mínima cuyo umbral está sobre
+ * el de helada (por ejemplo «noches bajo 10 °C frenan el desarrollo») habla de frío, no de helada,
+ * así que tampoco la cubre el día en que coinciden. Las dos restricciones sostienen el invariante
+ * de §9.2: no ocultar una alerta general detrás de una ficha de cultivo.
+ *
+ * `frostCeilingC` es el umbral general de helada (`GENERAL_WEATHER_RISK.frostAtOrBelowC`); se recibe
+ * como parámetro para que la cifra siga viviendo en un solo lugar.
  */
 export function coveredGeneralWeatherRisks(
   speciesId: string | null | undefined,
   stage: PhenologicalStage,
   weather: SpeciesWeatherInput | null,
-): Set<'frost' | 'heat' | 'rain'> {
-  const covered = new Set<'frost' | 'heat' | 'rain'>();
+  frostCeilingC: number,
+): Map<string, Set<GeneralWeatherRisk>> {
+  const covered = new Map<string, Set<GeneralWeatherRisk>>();
   const profile = findSpeciesRuleProfile(speciesId);
   const criteria = (profile?.criteria ?? []).filter(c => c.state === 'enabled' && c.stages.includes(stage)).filter(isWeatherCriterion);
   if (!criteria.length || !weather) return covered;
-  for (const criterion of criteria) {
+  const mark = (date: string, risk: GeneralWeatherRisk) => {
+    const risks = covered.get(date) ?? new Set<GeneralWeatherRisk>();
+    risks.add(risk);
+    covered.set(date, risks);
+  };
+  for (const criterion of criteria) for (const day of weather.days) {
     if (criterion.kind === 'air_temperature') {
-      const key = criterion.extreme === 'minimum' ? 'minimumTemperatureC' : 'maximumTemperatureC';
-      const hits = weather.days.some(day => typeof day[key] === 'number' && Number.isFinite(day[key]) && meetsThreshold(criterion.comparison, criterion.threshold, day[key]!));
-      if (!hits) continue;
+      const value = criterion.extreme === 'minimum' ? day.minimumTemperatureC : day.maximumTemperatureC;
+      if (typeof value !== 'number' || !Number.isFinite(value)) continue;
+      if (!meetsThreshold(criterion.comparison, criterion.threshold, value)) continue;
       const below = criterion.comparison === 'below' || criterion.comparison === 'at_or_below';
-      if (criterion.extreme === 'minimum' && below) covered.add('frost');
-      if (criterion.extreme === 'maximum' && !below) covered.add('heat');
-    } else if (criterion.event === 'rain') {
-      if (weather.rainingNow || weather.days.some(day => day.rainy === true)) covered.add('rain');
+      if (criterion.extreme === 'minimum' && below && criterion.threshold.value <= frostCeilingC) mark(day.date, 'frost');
+      if (criterion.extreme === 'maximum' && !below) mark(day.date, 'heat');
+    } else if (criterion.event === 'rain' && day.rainy === true) {
+      mark(day.date, 'rain');
     }
   }
   return covered;

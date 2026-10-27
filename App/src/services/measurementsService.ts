@@ -69,14 +69,18 @@ export async function loadMeasurementHistory(deviceId?: string | null) {
     }
     return merged;
   };
+  // La revisión se toma después de purgar los equipos restablecidos y **antes** de la consulta:
+  // si una purga ocurre mientras la consulta está en vuelo, estos puntos ya no sirven y no se
+  // guardan ni se devuelven.
+  let revision = resetRevision;
   const { data: points, offline } = await runBoundedRemoteHistory(
     async signal => {
       await reconcileDeviceResets(signal).catch(() => undefined);
+      revision = resetRevision;
       return fetchMeasurements(deviceId, 200, signal);
     },
     readLocalHistory,
   );
-  const revision = resetRevision;
   const pending = await pendingMeasurementPoints(deviceId);
   if (await accountQueueKey() !== account) throw new Error('La cuenta ha cambiado.');
   if (!offline) {

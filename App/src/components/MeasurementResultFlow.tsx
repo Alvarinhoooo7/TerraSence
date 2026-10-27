@@ -159,6 +159,31 @@ function CropOptionRow({ option }: { option: PrePlantingOption }) {
   </View>;
 }
 
+/** Filas visibles antes de pedir ver el resto: la tarjeta es de lectura, no un catálogo (§9.2). */
+const CROP_OPTIONS_PREVIEW = 8;
+
+/**
+ * Lista de alternativas de pre-siembra acotada a las primeras `CROP_OPTIONS_PREVIEW`, con el resto
+ * a un toque. Es un límite de presentación: la evaluación y la instantánea conservan todas.
+ */
+function CropOptionsList({ options }: { options: PrePlantingOption[] }) {
+  const { colors } = useAppTheme();
+  const { t } = useTranslation();
+  const [all, setAll] = useState(false);
+  const hidden = options.length - CROP_OPTIONS_PREVIEW;
+  return <>
+    {(all ? options : options.slice(0, CROP_OPTIONS_PREVIEW)).map(opt => <CropOptionRow key={opt.profileId} option={opt} />)}
+    {hidden > 0 && <Pressable accessibilityRole="button" accessibilityState={{ expanded: all }} onPress={() => setAll(v => !v)}
+      style={{ minHeight: 40, justifyContent: 'center' }}>
+      <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '700' }}>
+        {all
+          ? t('Mostrar menos alternativas ▴', 'Show fewer options ▴')
+          : t(`Ver las otras ${hidden} alternativas ▾`, `See the other ${hidden} options ▾`)}
+      </Text>
+    </Pressable>}
+  </>;
+}
+
 export function MeasurementResultFlow({ presentation: p, forecast, notices, meta, onExit, exitLabel, save }: {
   presentation: MeasurementPresentation;
   forecast: ForecastProps;
@@ -332,7 +357,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
           ? t('Coincidencias parciales por temperatura y pH. La conductividad no se compara sin método compatible:', 'Partial temperature and pH matches. Conductivity is not compared without a compatible method:')
           : t('Posibilidades registradas al medir:', 'Possibilities recorded at capture:')}</ScreenText>
         {p.cropOptions?.length
-          ? p.cropOptions.map(opt => <CropOptionRow key={opt.profileId} option={opt} />)
+          ? <CropOptionsList options={p.cropOptions} />
           : p.suggestedCrops.map(crop => <ScreenText key={crop} muted={false}>{crop}</ScreenText>)}
         <ScreenText>{t('Son posibilidades para evaluar, no una garantía de aptitud. Confirma humedad, textura, drenaje, temporada y clima local antes de sembrar.', 'These are possibilities to assess, not a guarantee of suitability. Confirm moisture, texture, drainage, season and local climate before planting.')}</ScreenText>
       </> : <ScreenText>{t('No hay coincidencias disponibles con los criterios evaluables de esta captura. Esto no significa que ningún cultivo pueda crecer aquí; revisa los datos y sus limitaciones.', 'No matches are available under the assessable criteria for this capture. This does not mean no crop can grow here; review the data and its limitations.')}</ScreenText>}

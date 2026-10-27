@@ -252,13 +252,10 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
         void fetchCurrentWeather(nextCoords.latitude, nextCoords.longitude, weatherContext.captureId,
           useAuthStore.getState().session?.user.id ?? null).then((forecast) => {
           if (!current()) return;
-          if (!current()) return;
-
           const updated = applyWeatherToCapture({ raw: probe.data, stage, language: preferences.language, capturedAt: probe.capturedAt, simulated: connection.simulated || probe.simulated, speciesId, captureId: weatherContext.captureId, location: nextCoords }, forecast);
           setEvaluation(updated.evaluation);
           setWeather(updated.weather);
           setAdvice(updated.advice);
-
           setWeatherLoading(false);
         }).catch(() => { if (current()) setWeatherLoading(false); });
       }
@@ -321,7 +318,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
       verdict: evaluation.verdict,
       verdict_title: evaluation.verdictTitle,
       action_summary: advice?.summary ?? evaluation.actionSummary,
-      diagnosis: buildSavedDiagnosisSnapshot({ raw, evaluation, advice, language, capturedAt: capturedAt ?? new Date().toISOString(), simulated: demoMode, speciesId, weather, inputQuality, presentation }),
+      diagnosis: buildSavedDiagnosisSnapshot({ raw, evaluation, advice, language, capturedAt: capturedAt ?? new Date().toISOString(), speciesId, weather, inputQuality, presentation }),
       engine_version: ENGINE_VERSION,
       crop_catalog_version: SPECIES_CATALOG_VERSION,
       firmware_version: context.current.device?.firmware_version ?? null,

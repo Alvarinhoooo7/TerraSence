@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { CROPS_DB, SOIL_TEXTURES, PRE_PLANTING_PROFILES, evaluatePrePlantingOptions, possibleCrops, suggestPrePlantingCrops } from '../src/engine/agronomyEngine';
+import { CROPS_DB, SOIL_TEXTURES, PRE_PLANTING_PROFILES, evaluatePrePlantingOptions, suggestPrePlantingCrops } from '../src/engine/agronomyEngine';
 import { buildContextualAdvice } from '../src/engine/contextualAdvice';
+import { normalizeWeather } from '../src/services/weatherService';
+import { WEATHER_UNITS } from './fixtures/weatherUnits';
 import { buildLocalInputQuality } from '../src/engine/inputQuality';
 import { buildMeasurementPresentation } from '../src/engine/measurementPresentation';
 import { SPECIES_RULES_VERSION } from '../src/engine/speciesRules';
@@ -157,16 +159,46 @@ test('E4/§9.2: GEN-PH-01 no contradice la especie elegida y las alertas del mis
   const soilRecs = acidicWithTomato.advice.recommendations!.filter(r => r.kind === 'soil');
   assert.equal(soilRecs.length, 1);
   assert.match(soilRecs[0].title, /pH demasiado bajo para este cultivo/);
-  assert.match(soilRecs[0].detail ?? '', /4,2 a 7,8/);
+  assert.match(soilRecs[0].detail ?? '', /Regla general: .*4,2 a 7,8/);
   assert.match(soilRecs[0].detail ?? '', /INIA/);
+});
+
+test('§9.2: un criterio de frío de la especie no oculta el aviso general de helada de otro día', () => {
+  const location = { latitude: -33, longitude: -70 };
+  const context = { captureId: 'capture-frio', location, evaluatedAt: clock.evaluatedAt };
+  const forecast = (mins: number[]) => {
+    const weather = normalizeWeather({ ...WEATHER_UNITS, timezone: 'America/Santiago', utc_offset_seconds: -10800,
+      current: { time: '2026-10-11T09:00', temperature_2m: 15 },
+      daily: { time: ['2026-10-12', '2026-10-13', '2026-10-14', '2026-10-15'], temperature_2m_min: mins,
+        temperature_2m_max: [18, 18, 18, 18], precipitation_sum: [0, 0, 0, 0], precipitation_probability_max: [0, 0, 0, 0] },
+    }, clock.evaluatedAt)!;
+    return { ...weather, request: { captureId: context.captureId, ...location } };
+  };
+  const weatherPlan = (speciesId: string, mins: number[]) => {
+    const evaluation = evaluateReadingForStage(raw, 'vegetativo', 'es', clock, speciesId);
+    return buildContextualAdvice('vegetativo', evaluation, raw, forecast(mins), 'es', context, speciesId)
+      .recommendations!.filter(r => r.kind === 'weather');
+  };
+  // El arroz sólo tiene criterio de mínima bajo 9 °C: habla de frío, no de helada, así que la
+  // tarjeta general conserva su fecha aunque el criterio se active el mismo día.
+  const rice = weatherPlan('sp.arroz', [12, 12, 12, -1]);
+  assert.ok(rice.some(r => /Programa las labores seg\u00fan el clima/.test(r.title) && /jue 15 oct/.test(r.body)));
+  // Y un criterio que se activa un día templado tampoco cubre la helada de otro día.
+  const riceMixed = weatherPlan('sp.arroz', [7, 12, 12, -1]);
+  assert.ok(riceMixed.some(r => /Programa las labores seg\u00fan el clima/.test(r.title) && /jue 15 oct/.test(r.body)));
+  // El tomate sí tiene umbral de helada: ahí la tarjeta general se fusiona y no se duplica.
+  const tomato = weatherPlan('sp.tomate', [12, 12, 12, -1]);
+  assert.ok(tomato.some(r => /Helada prevista/.test(r.title)));
+  assert.ok(!tomato.some(r => /Programa las labores seg\u00fan el clima/.test(r.title)));
+  // La regla general que se fusionó queda declarada en el detalle, nunca se pierde sin rastro.
+  assert.ok(tomato.every(r => r.when === 'now' || /Regla clim\u00e1tica general/.test(r.detail ?? '')));
 });
 
 test('E5/T16/T17/T18/T42: pre-siembra sugiere cultivos con techo térmico, separa forma de establecimiento y distingue perennes', () => {
   assert.ok(PRE_PLANTING_PROFILES.length >= 25);
   // T16: suelo excesivamente cálido (42 °C) no sugiere cultivos aunque superen tempMin.
   assert.deepEqual(suggestPrePlantingCrops({ ...raw, temp: 42 }, 'es'), []);
-  assert.deepEqual(possibleCrops({ ...raw, temp: 42 }), []);
-  // A 33 °C, lechuga (máx 29,4 °C) y espinaca (máx 29,4 °C) quedan excluidas; maíz (máx 40,6 °C) sí entra.
+  // A 33 °C, lechuga (máx 29,4 °C) y espinaca (máx 23,9 °C) quedan excluidas; maíz (máx 40,6 °C) sí entra.
   const warm = suggestPrePlantingCrops({ ...raw, temp: 33, ph: 6.5 }, 'es');
   assert.ok(warm.some(c => /Maíz/.test(c)));
   assert.ok(!warm.some(c => /Lechuga|Espinaca|Papa/.test(c)));
@@ -185,6 +217,30 @@ test('E5/T16/T17/T18/T42: pre-siembra sugiere cultivos con techo térmico, separ
   // T42: perennes declaran partial_perennial_assessment y van después de los anuales de establecimiento directo.
   const firstPerennialIndex = at18.findIndex(o => o.scope === 'partial_perennial_assessment');
   assert.ok(firstPerennialIndex > lastCompleteAnnualIndex);
+});
+
+test('E5/\u00a77.5: toda cifra que la fuente citada no fija se declara y no da ventaja al perfil', () => {
+  const options = evaluatePrePlantingOptions({ ...raw, temp: 18, ph: 6.5 }, 'es');
+  // El techo de pH es una convenci\u00f3n del motor: la tabla B-1 s\u00f3lo da objetivo y pH de encalado.
+  const broccoli = options.find(o => o.profileId === 'pre.brocoli.semilla')!;
+  assert.ok(broccoli.limitationCodes.includes('values_not_in_cited_sources'));
+  assert.match(broccoli.technicalSummary, /Fijado por el motor, sin respaldo en esas fuentes: techo de pH 7,5/);
+  assert.ok(broccoli.reasons.some(r => /Valores fijados por el motor/.test(r)));
+  // Restringir no penaliza: el br\u00f3coli sigue siendo coincidencia plena.
+  assert.equal(broccoli.classification, 'matches_evaluated_criteria');
+  // Inventar un \u00f3ptimo s\u00ed: la papa no tiene fuente t\u00e9rmica y nunca se presenta como coincidencia plena.
+  const potato = evaluatePrePlantingOptions({ ...raw, temp: 18, ph: 6.0 }, 'es').find(o => o.profileId === 'pre.papa.tuberculo')!;
+  assert.equal(potato.classification, 'has_limitations');
+  assert.ok(potato.limitationCodes.includes('values_not_in_cited_sources'));
+  // Cada perfil con convenci\u00f3n la declara en los dos idiomas.
+  for (const profile of PRE_PLANTING_PROFILES) {
+    if (!profile.convention) continue;
+    assert.ok(profile.convention.es.length > 0 && profile.convention.en.length > 0, profile.id);
+  }
+  // Ning\u00fan perfil cita una fuente sin registrar: la vid s\u00f3lo afirma el \u00f3ptimo de pH de su fuente.
+  const grape = PRE_PLANTING_PROFILES.find(p => p.id === 'pre.vid.plantacion')!;
+  assert.doesNotMatch(grape.evidence[0].originalValue, /7\.8|10 \u00b0C/);
+  assert.match(grape.convention!.es, /techo de pH 7,8/);
 });
 
 test('E4/§8.3–§8.6: registro auditable de VG01–VG05, FL01–FL05 y CO01–CO05 distingue reglas habilitadas y documentadas', () => {

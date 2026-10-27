@@ -6,7 +6,7 @@ import type { PhenologicalStage } from '../types/app';
 import type { SoilMeasurement } from '../types/agronomy';
 import type { CurrentWeather } from '../services/weatherService';
 import type { AppLanguage } from '../types/preferences';
-import { isRainingNow, isRainyDay, weatherKind } from './weatherOutlook';
+import { GENERAL_WEATHER_RISK, generalRisksOfDay, isRainingNow, isRainyDay, weatherKind } from './weatherOutlook';
 import { coveredGeneralWeatherRisks, evaluateSpeciesWeather, hasLocalAirCriteria, type SpeciesWeatherInput } from './speciesRules';
 import { assessWeatherEvidence, type WeatherEvaluationContext, type WeatherCoverage } from './evaluationCoverage';
 
@@ -116,9 +116,11 @@ export function buildContextualAdvice(
   for (const alert of alerts) {
     if (!alert.origin && generalSoilByParam.has(alert.param)) continue;
     const fusedGeneral = alert.origin === 'species' && alert.type !== 'info' ? generalSoilByParam.get(alert.param) : undefined;
+    // La razón general se rotula, para que no se lea como parte de la fuente de la especie,
+    // que cierra su propio detalle con «(Fuente: …)».
     const fusedDetail = [
       alert.detail,
-      fusedGeneral ? `${fusedGeneral.title} ${fusedGeneral.action}` : undefined,
+      fusedGeneral ? `${en ? 'General rule' : 'Regla general'}: ${fusedGeneral.title} ${fusedGeneral.action}` : undefined,
     ].filter(Boolean).join(' ');
     const effectivePriority = alert.type === 'danger' || fusedGeneral?.type === 'danger' ? 'high' : 'normal';
     if (seen.has(alert.action)) continue;
@@ -159,7 +161,7 @@ export function buildContextualAdvice(
   // y así se dice; nunca se dan por favorables.
   const speciesWeatherInput = weather ? pickSpeciesWeather(weather, dayLabel) : null;
   const speciesWeather = evaluateSpeciesWeather(speciesId, stage, speciesWeatherInput, language);
-  const coveredWeatherRisks = coveredGeneralWeatherRisks(speciesId, stage, speciesWeatherInput);
+  const coveredWeatherRisks = coveredGeneralWeatherRisks(speciesId, stage, speciesWeatherInput, GENERAL_WEATHER_RISK.frostAtOrBelowC);
   for (const finding of speciesWeather.findings) plan.push({ kind: 'weather', priority: finding.type === 'danger' ? 'high' : 'normal',
     when: finding.when, title: finding.title, body: finding.body, detail: finding.detail });
   // Revisado y sin episodios: se dice, para que la ausencia de avisos no parezca un criterio omitido.
@@ -201,26 +203,22 @@ export function buildContextualAdvice(
         : `Se pronostican ${mm} mm de lluvia para ${isToday ? 'hoy' : `el ${dayLabel(rainSoon.date)}`}. Si puedes, espérala antes de regar y vuelve a medir después.` });
   }
 
-  const riskyDays = upcoming.filter(day =>
-    (day.precipitationMm != null && day.precipitationMm >= 5) ||
-    (day.rainProbabilityPct != null && day.rainProbabilityPct >= 60) ||
-    (day.minimumTemperatureC != null && day.minimumTemperatureC <= 0) ||
-    (day.maximumTemperatureC != null && day.maximumTemperatureC >= 35),
-  );
-  const dayGeneralRisks = (day: typeof upcoming[number]): ('rain' | 'frost' | 'heat')[] => [
-    ...((day.precipitationMm != null && day.precipitationMm >= 5) || (day.rainProbabilityPct != null && day.rainProbabilityPct >= 60) ? ['rain' as const] : []),
-    ...(day.minimumTemperatureC != null && day.minimumTemperatureC <= 0 ? ['frost' as const] : []),
-    ...(day.maximumTemperatureC != null && day.maximumTemperatureC >= 35 ? ['heat' as const] : []),
-  ];
-  const uncoveredRiskyDays = riskyDays.filter(day => dayGeneralRisks(day).some(risk => !coveredWeatherRisks.has(risk)));
+  const riskyDays = upcoming.filter(day => generalRisksOfDay(day).length > 0);
+  // Un día sólo se da por cubierto si un criterio de la especie advierte ese mismo día cada uno
+  // de sus riesgos generales; si no, la tarjeta general se emite con su fecha (§9.2).
+  const uncoveredRiskyDays = riskyDays.filter(day => {
+    const covered = coveredWeatherRisks.get(day.date);
+    return generalRisksOfDay(day).some(risk => !covered?.has(risk));
+  });
   if (riskyDays.length > uncoveredRiskyDays.length) {
     const schedulingReason = en
       ? 'General weather rule: review task dates and confirm conditions before entering the field.'
       : 'Regla climática general: revisa la fecha de las labores y confirma las condiciones antes de ingresar al campo.';
+    // La razón general se adjunta a los avisos de clima que la absorbieron; si ninguno trae
+    // detalle, se le crea, para que la regla nunca desaparezca sin dejar rastro.
     for (const item of plan) {
-      if (item.kind === 'weather' && item.when !== 'now' && item.detail) {
-        item.detail = `${item.detail} ${schedulingReason}`;
-      }
+      if (item.kind !== 'weather' || item.when === 'now') continue;
+      item.detail = item.detail ? `${item.detail} ${schedulingReason}` : schedulingReason;
     }
   }
   if (uncoveredRiskyDays.length) {
