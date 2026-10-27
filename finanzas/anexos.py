@@ -320,7 +320,7 @@ def pruebas_sat():
 
 def _hoja_protocolo(wb, f, nombre, titulo, cabecera, pruebas, firmas):
     ws = wb.add_worksheet(nombre)
-    ws.set_column(0, 0, 5)
+    ws.set_column(0, 0, 8)
     ws.set_column(1, 1, 30)
     ws.set_column(2, 3, 44)
     ws.set_column(4, 4, 14)
@@ -335,12 +335,14 @@ def _hoja_protocolo(wb, f, nombre, titulo, cabecera, pruebas, firmas):
         ws.write(2 + i, 1, c, lab)
         ws.merge_range(2 + i, 2, 2 + i, 3, "", vac)
     fila = 3 + len(cabecera)
-    ws.write_row(fila, 0, ["N.º", "Prueba", "Método", "Criterio de aceptación", "Requerimientos", "Valor medido",
+    ws.write_row(fila, 0, ["Ensayo", "Prueba", "Método", "Criterio de aceptación", "Requerimientos", "Valor medido",
                            "Resultado", "Observaciones"], f["tit"])
     ws.set_row(fila, 30)
+    # El identificador es el mismo del capítulo de ensayos del informe: F-01… en el FAT y S-01… en el SAT,
+    # de modo que el formulario firmado sea la evidencia que la matriz requerimiento-prueba cita.
     for j, (prueba, metodo, criterio, req) in enumerate(pruebas, 1):
         r = fila + j
-        ws.write_number(r, 0, j, f["num"])
+        ws.write(r, 0, "%s-%02d" % (nombre[0], j), f["num"])
         ws.write_row(r, 1, [prueba, metodo, criterio], f["txt"])
         ws.write(r, 4, req, f["num"])
         ws.write_row(r, 5, ["", "", ""], vac)

@@ -91,10 +91,16 @@ def numeracion(texto, lineas, err):
                 ind.append((int(m.group(1)) * 10 + int(m.group(2)), m.group(3)))
         if ind != lst:
             err("Numeración", "el índice de %s no coincide con los títulos (%d en el índice, %d en el texto)" % (tipo.lower() + "s", len(ind), len(lst)))
-        existentes = {n for n, _ in lst}
-        for m in re.finditer(r"(?<!\*)\b%s (\d+)\.(\d)\b(?! “)" % tipo, texto):
-            if int(m.group(1)) * 10 + int(m.group(2)) not in existentes:
+        # Los rótulos llevan «**» delante, de modo que `(?<!\*)` los excluye: así la revisión alcanza
+        # también a las referencias del texto que citan el título entre comillas.
+        titulos = dict(lst)
+        for m in re.finditer(r"(?<!\*)\b%s (\d+)\.(\d)(?:\s+“(.+?)”)?" % tipo, texto):
+            clave = int(m.group(1)) * 10 + int(m.group(2))
+            if clave not in titulos:
                 err("Numeración", "la referencia «%s %s.%s» no existe" % (tipo, m.group(1), m.group(2)))
+            elif m.group(3) and m.group(3) != titulos[clave]:
+                err("Numeración", "la referencia «%s %s.%s “%s”» nombra una tabla cuyo título es «%s»"
+                    % (tipo, m.group(1), m.group(2), m.group(3), titulos[clave]))
 
 
 def siglas(lineas, err):
@@ -198,10 +204,18 @@ def protocolos(texto, err):
         if not anteriores:
             continue
         filas = anteriores[-1][1][2:]
-        por_nombre = {f[0]: f for f in filas}
-        for prueba in definicion:
-            if list(prueba) != por_nombre.get(prueba[0]):
+        # La primera columna es el identificador del ensayo (F-01…, S-01…) y la segunda el nombre de la prueba.
+        prefijo = "F" if "fábrica" in titulo else "S"
+        por_nombre = {f[1]: f for f in filas if len(f) >= 5}
+        for n, prueba in enumerate(definicion, 1):
+            fila = por_nombre.get(prueba[0])
+            if fila is None or list(prueba) != fila[1:5]:
                 err("Protocolos", "Tabla %s: «%s» difiere del anexo E" % (numero, prueba[0]))
+                continue
+            esperado = "%s-%02d" % (prefijo, n)
+            if fila[0] != esperado:
+                err("Protocolos", "Tabla %s: «%s» debería ser el ensayo %s y figura como %s"
+                    % (numero, prueba[0], esperado, fila[0] or "sin identificador"))
 
 
 def hardware(texto, err):
