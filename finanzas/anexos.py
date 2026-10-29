@@ -274,7 +274,7 @@ def pruebas_fat():
          "%s mA ± 25 %%" % ma(espera), "R07"),
         ("Corriente en adquisición", "Multímetro con registro en JP1 durante una medición",
          "%s mA ± 25 %%" % ma(adquisicion), "R07"),
-        ("Programación y versión", "Lectura de la versión de firmware y del identificador por USB",
+        ("Programación y versión", "Leer identidad y versión por BLE y contrastar el binario instalado con la liberación registrada",
          "Versión de la liberación vigente; identificador de 15 dígitos igual a la dirección física", "R23"),
         ("BLE y trama", "Vinculación con la aplicación de prueba y lectura de una trama",
          "Trama de 20 bytes con formato 1", "R13, R14"),
@@ -285,17 +285,19 @@ def pruebas_fat():
         ("BME280 contra la referencia", "Comparación con termohigrómetro y barómetro patrón",
          "±1,0 °C; ±3 % HR; ±1,0 hPa", "R02"),
         ("LED, buzzer y pulsador PAIR", "Recorrido de los eventos de la filosofía operativa",
-         "Tres colores y cinco señales sonoras; ventana de vinculación de 30 ± 1 s", "R12, R13"),
+         "Tres colores y seis patrones sonoros; ventana de vinculación de 30 ± 1 s", "R12, R13"),
         ("Corte de la sonda", "Tensión en la bornera de la sonda con el equipo encendido y sin medir",
          "Menos de 0,1 V", "R16"),
         ("Carga", "Cargador USB de 1 A; corriente por JP1, tensión de flotación en la bornera de la celda y luz de carga",
-         "Corriente de 0,5 A o menos; tensión de flotación de 4,25 V o menos; luz de carga encendida", "R08"),
+         "Corriente de 0,5 A o menos; tensión de flotación de 4,20 V ± 0,05 V; señal de carga y terminación correctas", "R08"),
         ("Aviso de batería baja", "Fuente ajustable: bajar de 3,40 V y subir sobre 3,50 V; comprobar también el aviso de la aplicación",
-         "Aviso del equipo al cruzar 3,40 V y rearme sobre 3,50 V; aplicación: aviso al 15 % y rearme sobre 20 %", "R17"),
+         "Equipo: aviso con tensión < 3,40 V y rearme > 3,50 V; aplicación: aviso con carga ≤ 15 % y rearme > 20 %; un aviso por ciclo", "R17"),
         ("Estanqueidad por muestreo", "Inmersión de 10 min a 0,5 m (1 de cada 10 unidades y las 5 primeras de cada lote)",
          "Sin ingreso de agua; si la unidad no está en la muestra, se marca «No aplica»", "R09"),
-        ("Celda extraíble por muestreo", "Una unidad por lote: desmontar la celda con destornillador y repetir el cierre y el control de estanqueidad",
+        ("Celda extraíble por muestreo", "Una unidad por lote, apagada y sin USB: abrir tapa, aflojar los dos tornillos de la bornera con Phillips, recambiar la celda, verificar polaridad y repetir cierre y estanqueidad",
          "≤ 5 min sin daño; No aplica sólo fuera de la muestra documentada", "R27"),
+        ("Registro", "Formulario por número de serie, fecha, instrumentos, operador y resultados",
+         "Sin casillas pendientes y con firmas; No aplica sólo en muestreo justificado", "R23"),
     ]
 
 
@@ -305,16 +307,18 @@ def pruebas_sat():
         ("Recepción", "Revisión de la etiqueta y de la carga completa", "Número de serie legible y celda cargada", "R08, R23"),
         ("Vinculación", "Con red: PAIR durante 3 s, buscar dentro de la ventana de 30 s y completar el registro",
          "El agricultor queda como administrador; aviso verde sólo si la confirmación llega dentro de la ventana", "R13"),
-        ("Primera medición con ubicación", "Medición con la fase fenológica elegida y la ubicación activa",
-         "Diez variables y ubicación como texto", "R01, R02, R05"),
-        ("Operación sin red", "Con cuenta y equipo previamente registrados: modo avión, reactivar Bluetooth y ubicación, mantener datos y Wi-Fi apagados", "La medición se guarda y queda en cola", "R05"),
+        ("Primera medición con ubicación", "Medir con etapa elegida y ubicación activa; recorrer especie indicada y sin especie, y pre-siembra sin selector",
+         "Diez registros y ubicación como texto; N, P y K informativos; especie y cobertura coherentes en resultado e historial", "R01, R02, R05"),
+        ("Operación sin red", "Con cuenta y equipo registrados: modo avión, reactivar Bluetooth y ubicación; medir, guardar, cerrar la aplicación y reabrir sin red", "Lecturas, etapa, especie y diagnóstico permanecen en historial y cola; pronóstico ausente o guardado identificado, nunca inventado", "R05"),
         ("Comparación con una muestra de laboratorio", "Muestra del punto medido y cilindro de 100 cm³ para la humedad, enviados a laboratorio (sólo en el piloto)",
          "Registrar el par, los métodos, la humedad gravimétrica y la densidad aparente; aceptación estadística al completar ≥ 30 puntos: RMSE pH ≤ 0,3; RMSE de CE ≤ 10 % o 200 µS/cm; RMSE humedad ≤ 4 puntos; R² ≥ 0,80; intervalo de confianza del 95 % de la pendiente de Passing-Bablok dentro de 0,90–1,10. No aplica fuera del piloto", "R04"),
         ("Alcance BLE", "Equipo cerrado en el suelo: 20 intentos por distancia a 1, 3, 5 y 10 m",
          "20 de 20 lecturas a 1, 3 y 5 m; registrar éxitos a 10 m como objetivo", "R06"),
-        ("Sincronización con la nube", "Recuperar la cobertura", "La medición aparece en el historial y en la consola; cola vacía", "R05, R25"),
+        ("Sincronización con la nube", "Registrar identificadores y valores de las lecturas locales; recuperar red, interrumpir un envío y reintentar; comparar con nube y consola", "Mismos identificadores, cantidad y valores en local y nube; cero duplicados y pérdidas; cola vacía sólo tras confirmar los envíos", "R05, R25"),
         ("Aviso de batería", "Estado de batería en la aplicación frente a la tensión medida con voltímetro",
          "Porcentaje coherente con la tensión medida", "R17"),
+        ("Firma de recepción", "Formulario del anexo E",
+         "Firmado por cliente y técnico, con ensayos aplicables aprobados", "R23"),
     ]
 
 
@@ -369,11 +373,13 @@ def anexo_e(ruta):
         wb.set_properties({"title": "Anexo E. Protocolos FAT y SAT TerraSense", "author": "TerraSense"})
         f = _formatos(wb)
         _hoja_protocolo(wb, f, "FAT", "Prueba de aceptación en fábrica (FAT) — una hoja por unidad",
-                        ["Número de serie (15 dígitos)", "Lote de fabricación", "Fecha", "Operador", "Versión de firmware",
+                        ["Número de informe o acta", "Número de serie (15 dígitos)", "Lote de fabricación", "Fecha", "Operador",
+                         "Revisión de PCB y carcasa", "Versión y huella SHA-256 del firmware", "Aplicación: versión y compilación",
                          "Instrumentos y vigencia de calibración", "Lotes de patrones y temperatura", "Acta de ensayos de desarrollo aprobada"],
                         pruebas_fat(), ["Firma del operador", "Firma de control de calidad"])
         _hoja_protocolo(wb, f, "SAT", "Prueba de aceptación en sitio (SAT) — una hoja por equipo instalado",
-                        ["Número de serie (15 dígitos)", "Cliente", "Campo y comuna", "Fecha", "Técnico a cargo",
+                        ["Número de informe o acta", "Número de serie (15 dígitos)", "Cliente", "Campo y comuna", "Fecha", "Técnico a cargo",
+                         "Revisión de PCB y carcasa", "Versión y huella SHA-256 del firmware",
                          "Teléfono, sistema y versión de aplicación", "Instrumentos y patrones", "Acta de campaña pareada (si aplica)"],
                         pruebas_sat(), ["Firma del técnico", "Firma de recepción del cliente"])
         ws = wb.add_worksheet("Instrucciones")
@@ -386,6 +392,9 @@ def anexo_e(ruta):
             "3. Una sola prueba rechazada devuelve la unidad a diagnóstico; tras el retrabajo se repite el FAT completo en un formulario nuevo.",
             "4. El SAT se completa en el campo del cliente durante la puesta en marcha y cierra con la firma de recepción.",
             "5. Los formularios se archivan por número de serie: son el registro de trazabilidad de cada unidad.",
+            "5a. Identificar cada fotografía y registro instrumental en Observaciones, con el número de ensayo y acta. "
+            "Registrar la revisión de placa y carcasa, firmware y compilación de aplicación antes de ensayar; "
+            "un formulario sin resultados ni firmas es un protocolo, no evidencia de cumplimiento.",
             "6. La campaña de laboratorio usa error de CE normalizado: (lectura − referencia) / máximo(0,10 × referencia, 200 µS/cm). "
             "La raíz del promedio de sus cuadrados debe ser ≤ 1. Un solo punto no demuestra R² ni valida la campaña.",
             "7. Las corrientes son objetivos del diseño con reposo ligero. Antes del FAT deben aprobarse el firmware y los ensayos de desarrollo, "
@@ -435,8 +444,8 @@ def plan_proyecto():
         ("3.5", "CAD e impresión de la carcasa", "Mecánica", "2026-10-12", "2026-11-27", "3.1", "Modelo 3D y carcasa de prueba", "tarea"),
         ("3.6", "Planos de la placa y de la carcasa", "Hardware", "2026-11-09", "2026-11-27", "3.4", "Anexos C y D", "tarea"),
         ("4", "Prototipo funcional", "", "2026-10-26", "2026-12-17", "", "", "fase"),
-        ("4.1", "Firmware con lectura Modbus y reposo profundo", "Firmware", "2026-10-26", "2026-12-03", "2.3, 2.4, 2.5", "Firmware que lee la sonda y duerme entre mediciones", "tarea"),
-        ("4.2", "Firmware con Modbus y reposo", "Firmware", "2026-12-04", "2026-12-04", "4.1", "1.000 lecturas consecutivas sin error de CRC", "hito"),
+        ("4.1", "Firmware con lectura Modbus y gestión energética", "Firmware", "2026-10-26", "2026-12-03", "2.3, 2.4, 2.5", "Firmware con lectura estable y consumo caracterizado", "tarea"),
+        ("4.2", "Firmware con Modbus y gestión energética", "Firmware", "2026-12-04", "2026-12-04", "4.1", "1.000 lecturas consecutivas sin error de CRC", "hito"),
         ("4.3", "Pedido de la placa y de los componentes", "Hardware", "2026-11-09", "2026-11-27", "3.4, 3.2", "Placa montada y componentes recibidos", "tarea"),
         ("4.4", "Ensamble y FAT del prototipo", "Calidad", "2026-11-30", "2026-12-04", "4.3, 3.5", "Prototipo armado con FAT aprobado", "tarea"),
         ("4.5", "Calibración con soluciones patrón", "Calidad", "2026-12-07", "2026-12-16", "4.2, 4.4", "Coeficientes de calibración registrados", "tarea"),

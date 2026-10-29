@@ -174,17 +174,33 @@ class Exportador:
             raise ValueError("Tabla con distinta cantidad de columnas: %s" % filas[0][:100])
         # Las tablas anchas sólo caben con cuerpo reducido; es lo que hace legible una de ocho columnas.
         tam = 7 if ncol >= 7 else 8 if ncol >= 5 else 9
+        matriz_aceptacion = cabecera[:4] == ["ID", "Ensayos", "Prueba y método", "Criterio de aceptación"] and ncol == 7
+        if matriz_aceptacion:
+            # Los identificadores ocupan poco; reservar espacio al método y a la evidencia
+            # permite mantener Arial 8 y evita siete columnas iguales casi vacías.
+            tam = 8
         t = self.doc.add_table(rows=1, cols=ncol)
         t.style = "Table Grid"
-        t.autofit = True
+        t.autofit = not matriz_aceptacion
+        anchos = [1.1, 1.8, 3.1, 3.3, 1.95, 3.65, 2.69] if matriz_aceptacion else None
+        if anchos:
+            for columna, ancho in zip(t.columns, anchos):
+                columna.width = Cm(ancho)
         for i, celda in enumerate(cabecera):
+            if anchos:
+                t.rows[0].cells[i].width = Cm(anchos[i])
             p = t.rows[0].cells[i].paragraphs[0]
             self.texto(p, celda, negrita=True, tam=tam)
             _compacto(p)
         _sub(_sub(t.rows[0]._tr, "w:trPr"), "w:tblHeader", val="true")
         for fila in cuerpo:
-            celdas = t.add_row().cells
+            row = t.add_row()
+            celdas = row.cells
+            if anchos:
+                _sub(_sub(row._tr, "w:trPr"), "w:cantSplit")
             for i, celda in enumerate(fila):
+                if anchos:
+                    celdas[i].width = Cm(anchos[i])
                 p = celdas[i].paragraphs[0]
                 self.texto(p, celda, tam=tam)
                 _compacto(p)

@@ -363,7 +363,7 @@ def estados():
     L.caja("ca", 0.4, 0.4, 4.6, 1.8, "Apagado y cargando", "ambar")
     L.caja("re", 10.6, 4.4, 4.6, 1.8, "Encendido en reposo", "fuerte")
     L.caja("ve", 20.6, 0.4, 4.6, 1.8, "Ventana de vinculación (30 s)", "azul")
-    L.caja("me", 20.6, 4.4, 4.6, 1.8, "Medición (ciclo de 16 s)", "suave")
+    L.caja("me", 20.6, 4.4, 4.6, 1.8, "Medición (tiempo por ensayar)", "suave")
     L.caja("av", 20.6, 8.6, 4.6, 1.8, "Aviso al usuario", "normal")
     L.caja("bb", 10.6, 8.6, 4.6, 1.8, "Batería baja", "alerta")
     f = 8.2
@@ -380,8 +380,8 @@ def estados():
     L.flecha("re", "bb", "Bajo 3,40 V", dx=-1.0, fuente=f)
     L.flecha("bb", "re", "Sobre 3,50 V", dx=1.0, fuente=f)
     L.flecha("bb", "ap", "Interruptor abierto", lado_a="i", lado_b="ab", puntos=[(2.7, 9.5)], fuente=f)
-    L.nota(0.4, 10.9, "Señales: encendido, verde 1 s y pitido de 80 ms; ventana, azul a 2 Hz y pitido de 60 ms; éxito, tres destellos verdes y dos pitidos "
-                      "ascendentes; error, tres destellos rojos y tono grave de 0,4 s; batería baja, destello rojo cada 10 s.", fuente=8)
+    L.nota(0.4, 10.9, "Señales: encendido, verde 1 s y tres notas ascendentes; ventana, azul a 2 Hz y doble llamada; vinculación, tres notas; "
+                      "medición enviada, dos notas ascendentes; error, tres destellos rojos y dos notas descendentes; batería baja, rojo cada 10 s.", fuente=8)
     L.guardar("Estados de operación del equipo")
 
 
@@ -389,13 +389,16 @@ def jornada():
     actores = ["Agricultor", "Equipo", "Aplicación", "Nube"]
     xs = [2.0, 8.0, 14.0, 20.0]
     pasos = [
-        (0, 1, "Enciende con el interruptor", None), (1, 0, "LED verde 1 s y un pitido", None),
-        (0, 2, "Elige Medir y la fase fenológica", None), (2, 1, "Busca el anuncio y conecta por BLE", None),
-        (2, 1, "Se suscribe a la telemetría", None), (1, 1, "Energiza la sonda, lee Modbus y el BME280", None),
-        (1, 2, "Trama única de 20 bytes", None), (1, 0, "Verde y dos pitidos, o rojo y tono grave", None),
-        (2, 2, "Valida la trama y evalúa el suelo", None), (2, 2, "Con red: pronóstico a cinco días", "opt"),
-        (2, 0, "Veredicto, diez variables y recomendación", None), (0, 2, "Guarda el resultado", None),
-        (2, 2, "Guarda en el teléfono y encola el envío", None), (2, 1, "Lee la batería y cierra el enlace", None),
+        (0, 1, "Enciende con el interruptor", None), (1, 0, "Verde 1 s y tres notas ascendentes", None),
+        (0, 2, "Elige Medir", None), (2, 1, "Comprueba el enlace BLE y la identidad", None),
+        (0, 2, "Elige etapa y especie opcional", None),
+        (2, 2, "Pre-siembra no pide especie", None),
+        (2, 1, "Conecta y se suscribe a la telemetría", None), (1, 1, "Energiza la sonda, lee Modbus y el BME280", None),
+        (1, 2, "Trama única de 20 bytes", None), (1, 0, "Verde y notas ascendentes, o rojo y descendentes", None),
+        (2, 1, "Lee el estado y cierra el enlace", None),
+        (2, 2, "Valida datos y evalúa etapa y especie", None), (2, 2, "Pronóstico nuevo o copia vigente del lugar", "opt"),
+        (2, 0, "Lecturas, cobertura y orientación", None), (0, 2, "Guarda el resultado", None),
+        (2, 2, "Guarda en el teléfono y encola el envío", None),
         (0, 1, "Apaga con el interruptor", None), (2, 3, "Con cobertura: envía la cola", "opt"),
         (3, 2, "Acuse de recibo", "opt"),
     ]
@@ -422,7 +425,7 @@ def jornada():
                                           ls=(0, (4, 2)) if ret else "-"), zorder=2)
             L.ax.text((x0 + x1) / 2, y - 0.18, texto, ha="center", va="center", fontsize=8.6, color="#1B1B1B",
                       bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none"), zorder=3)
-    L.nota(0.3, alto - 0.05, "Franjas azules: pasos opcionales que dependen de la red.")
+    L.nota(0.3, alto - 0.05, "Franjas azules: pasos opcionales según disponibilidad de pronóstico o red.")
     L.guardar("Secuencia de una jornada de medición")
 
 
