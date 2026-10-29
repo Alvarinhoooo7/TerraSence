@@ -113,7 +113,7 @@ npm run check-classes # toda clase de color del tema genera CSS (requiere build)
 
 `check-classes` existe porque Tailwind v4 solo genera utilidades para los tokens declarados en `@theme`: una clase de color mal declarada no rompe la compilación ni las pruebas, simplemente no pinta.
 
-Despliegue: `vercel --prod --yes` desde `Web/`. `vercel.json` reescribe cualquier ruta a `index.html`.
+Despliegue: `vercel --prod --yes` desde `Web/`, con la cuenta de soporte y el proyecto `terrasense-web` del equipo `akura3`. `vercel.json` reescribe cualquier ruta a `index.html`. **El proyecto no está conectado a GitHub**: un push a `main` no redespliega nada, el despliegue es siempre este comando.
 
 ## 7. Pendiente: contraseña de la cuenta anterior
 
