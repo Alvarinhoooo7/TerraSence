@@ -70,6 +70,8 @@ La medición y la evaluación local están diseñadas para funcionar sin interne
 
 Para ejecutar el software, sigue la puesta en marcha de [App](App/README.md#desarrollo-local) o de [Web](Web/README.md). Cada módulo documenta su propia configuración.
 
+Lo que llega a `main`, y cada pull request, pasa por el [workflow de verificación](.github/workflows/verificacion.yml): regenera el modelo financiero y corre sus pruebas, revisa los enlaces y diagramas de la documentación, y ejecuta las pruebas de la app y las del backoffice con su construcción. Además guarda dos reglas que no se deducen leyendo el código: que ningún archivo generado se haya editado a mano y que el informe entregable se lea sin acceso al repositorio.
+
 <!-- FINANZAS:INICIO -->
 
 <a id="finanzas-y-modelo-económico"></a>
