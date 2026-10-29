@@ -7,3 +7,14 @@ finanzas/historico/** -whitespace
 
 # Los binarios de Excel no se diffean ni se normalizan saltos de linea.
 *.xlsx binary
+
+# Los archivos que genera `python finanzas/modelo.py` se escriben con CRLF, y la
+# verificacion los compara tras volver a generarlos: sin declararlo, en un runner
+# Linux la comparacion falla por los saltos de linea y no por el contenido. El
+# repositorio sigue guardandolos con LF, asi que los diff se leen igual.
+README.md text eol=crlf
+docs/RESULTADOS_FINANCIEROS.md text eol=crlf
+docs/SECCION_ECONOMICA_REFORMULADA.md text eol=crlf
+docs/_cuadros_economicos.md text eol=crlf
+docs/INFORME*.md text eol=crlf
+Evaluacion/**/INFORME*.md text eol=crlf
