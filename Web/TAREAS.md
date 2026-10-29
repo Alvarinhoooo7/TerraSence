@@ -42,7 +42,7 @@ todo esté cerrado, este archivo se borra: el estado final lo describe
 
 ### T3. Funciones del backoffice
 - [x] `admin_search`: filas por equipo y cliente; por ID (con o sin guiones) devuelve todos los enlazados, por correo los equipos de ese cliente.
-- [x] `admin_device_status`, `admin_device_members`, `admin_device_measurements` (últimas 5, con pronóstico y consejo).
+- [x] `admin_device_status`, `admin_device_members`, `admin_device_measurements` (con pronóstico y consejo; la especie y los filtros del historial, en T11).
 - [x] `admin_reject_member`: solo sobre solicitudes pendientes.
 - [x] Reset global: además de lo actual, borra invitaciones y deja batería y conexiones en `NULL`.
 - [x] Se eliminan las funciones de la consola anterior que ya nadie usa.
@@ -84,8 +84,10 @@ todo esté cerrado, este archivo se borra: el estado final lo describe
 - [x] Usuario, Correo, Admin (Sí/No), Hacer admin (con confirmación), Aprobado (Aceptar/Rechazar si está pendiente); Refrescar.
 
 ### T11. Equipo · Mediciones
-- [x] Últimas 5, cada fila se despliega y recoge por su cuenta; Refrescar.
-- [x] Columnas: Registro, Fase, Humedad del suelo, Temperatura del suelo, CE, pH, N, P, K, Temperatura ambiente, Humedad ambiente, Presión, Batería, Dato de la API, Consejo, Coordenada (texto plano).
+- [x] Historial filtrable por etapa y por especie y agrupable por fecha, especie o etapa, con el conteo de
+  cada grupo; filtra el servidor, agrupa el navegador y los filtros viven en la URL. Cada fila se despliega
+  y recoge por su cuenta; Refrescar.
+- [x] Columnas: Registro, la que cambia con la agrupación (Etapa y especie, Etapa o Especie), Humedad del suelo, Temperatura del suelo, CE, pH, N, P, K, Temperatura ambiente, Humedad ambiente, Presión, Batería, Dato de la API, Consejo, Coordenada (texto plano) y las versiones del catálogo y de los criterios con que se evaluó la especie.
 
 ### Control · Fases 1 a 3
 - [x] `npm run build` y `npm test` en `Web/` sin errores.

@@ -89,6 +89,38 @@ export interface MeasurementSpecies {
   es: string;
   en: string;
   scientific: string;
+  /**
+   * Si al medir había criterios propios de la especie para esa etapa. Cuando es `false`,
+   * el veredicto salió del análisis general del suelo: es lo que explica, en soporte, por
+   * qué dos lecturas de la misma especie en etapas distintas no se evalúan igual.
+   */
+  hasStageCriteria?: boolean;
+  /** Versión del catálogo de especies con que se midió. */
+  catalogVersion?: string;
+  /** Versión de los criterios por especie; ausente en lecturas anteriores a su registro. */
+  rulesVersion?: string;
+}
+
+/** Una fila de `admin_device_species`: `species` nula son las lecturas guardadas sin especie. */
+export interface DeviceSpecies {
+  species: MeasurementSpecies | null;
+  measurements: number;
+  last_measured_at: string | null;
+}
+
+/** Lecturas que trae una consulta y tope que acepta `admin_device_measurements`. */
+export const MEASUREMENTS_PAGE = 50;
+export const MEASUREMENTS_MAX = 200;
+
+/** Filtros que `admin_device_measurements` aplica en el servidor. */
+export interface MeasurementFilters {
+  stage?: PhenologicalStage | null;
+  /** ID del catálogo; se ignora si `withoutSpecies` está activo. */
+  speciesId?: string | null;
+  /** Sólo las lecturas guardadas sin especie. */
+  withoutSpecies?: boolean;
+  limit?: number;
+  offset?: number;
 }
 
 export interface ResetResult {

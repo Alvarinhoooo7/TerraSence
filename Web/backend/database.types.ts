@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.17"
   }
   graphql_public: {
     Tables: {
@@ -906,7 +906,14 @@ export type Database = {
       }
       admin_delete_release: { Args: { p_release_id: string }; Returns: string }
       admin_device_measurements: {
-        Args: { p_device_id: string; p_limit?: number }
+        Args: {
+          p_device_id: string
+          p_limit?: number
+          p_offset?: number
+          p_species_id?: string
+          p_stage?: string
+          p_without_species?: boolean
+        }
         Returns: {
           action_summary: string
           air_pressure_hpa: number
@@ -941,6 +948,14 @@ export type Database = {
           last_name: string
           role: string
           user_id: string
+        }[]
+      }
+      admin_device_species: {
+        Args: { p_device_id: string }
+        Returns: {
+          last_measured_at: string
+          measurements: number
+          species: Json
         }[]
       }
       admin_device_status: {
@@ -1160,6 +1175,7 @@ export type Database = {
         Args: { p_alert_id: string }
         Returns: undefined
       }
+      measurement_species: { Args: { p_diagnosis: Json }; Returns: Json }
       my_firmware_updates: {
         Args: never
         Returns: {

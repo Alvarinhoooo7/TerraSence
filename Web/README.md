@@ -1,6 +1,6 @@
 # 🖥️ TerraSense · Backoffice web
 
-Backoffice de soporte de TerraSense: buscar un equipo, ver su estado, administrar sus usuarios, revisar sus últimas mediciones y enviarle actualizaciones de firmware. **Una sola cuenta entra: `akurasoporte@gmail.com`.** Para cualquier otra, la web no existe: no hay alta de cuentas ni pantalla de acceso denegado.
+Backoffice de soporte de TerraSense: buscar un equipo, ver su estado, administrar sus usuarios, revisar su historial de mediciones y enviarle actualizaciones de firmware. **Una sola cuenta entra: `akurasoporte@gmail.com`.** Para cualquier otra, la web no existe: no hay alta de cuentas ni pantalla de acceso denegado.
 
 React 19 · Vite 6 · Tailwind CSS v4 · TypeScript estricto · React Router 7 · Supabase. Desplegado en Vercel.
 
@@ -47,8 +47,10 @@ Arriba, la búsqueda para saltar a otro equipo. Debajo, una tarjeta por tema; ca
 | --- | --- | --- |
 | Estado | ID, Online/Offline, batería («No disponible» si está Offline), primera y última conexión | Refrescar · Reset |
 | Usuarios | Usuario, correo, Admin (Sí/No), Hacer admin, Aprobado | Refrescar · Hacer administrador (con confirmación; el admin anterior pasa a usuario) · Aceptar / Rechazar solicitudes pendientes |
-| Mediciones | Últimas 5. Recogida: registro, fase con la especie indicada al medir (o «Sin especie»), humedad, temperatura del suelo, CE y pH. Desplegada: especie con su nombre científico, N, P, K, ambiente, presión, batería, resumen del pronóstico, consejo del motor y coordenada en texto plano | Refrescar · desplegar cada fila |
+| Mediciones | Historial dividido por etapa y por especie. 50 lecturas por consulta, ampliables a 200. Recogida: registro, etapa con la especie indicada al medir (o «Sin especie»), humedad, temperatura del suelo, CE y pH. Desplegada: etapa, especie con su nombre científico —y el aviso de que no había criterios propios de la especie para esa etapa, que es lo que explica el veredicto—, las versiones del catálogo y de los criterios con que se evaluó, N, P, K, ambiente, presión, batería, resumen del pronóstico, consejo del motor y coordenada en texto plano | Refrescar · filtrar · agrupar · desplegar cada fila |
 | Actualización | Versión instalada, último envío y su estado | Refrescar · Enviar actualización · Cancelar envío |
+
+**El historial se divide por etapa y por especie**, como en la app. Los filtros de etapa y de especie los aplica el servidor (`admin_device_measurements`); las opciones del filtro de especie son sólo las que ese equipo midió alguna vez, con su recuento, y salen de `admin_device_species`, porque no se pueden deducir de unas filas ya filtradas. La agrupación —por fecha, especie o etapa, con el total de lecturas en cada encabezado— la hace el navegador, así que cambiarla reordena lo que ya está en pantalla sin volver a la red; lo que encabeza un grupo no se repite en cada fila. Los tres quedan en la URL (`?etapa=`, `?especie=`, `?agrupar=`, `?lecturas=`, `?desde=`), de modo que un enlace reproduce lo que el operador está mirando y se puede pegar en un ticket. El historial completo no cabe en una consulta: la tarjeta trae 50 lecturas por página, u 200, y se mueve por páginas con «Más antiguas» y «Más recientes»; cambiar un filtro o el tamaño de la página vuelve a la primera. El total sale del inventario, así que el pie dice «Lecturas 51–100 de 312» salvo con una etapa elegida, que el inventario no cuenta: ahí se guía por la página llena. Una especie del enlace que ese equipo nunca midió se muestra elegida con cero lecturas, no desaparece en silencio.
 
 **Online** significa que un teléfono habló con la sonda hace menos de 15 minutos: la sonda no tiene internet. Lo decide el servidor con `devices.last_seen_at`, que la app actualiza en cada contacto BLE ([`contactService.ts`](../App/src/services/contactService.ts)).
 

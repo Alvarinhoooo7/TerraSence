@@ -2,13 +2,18 @@
 //
 // Arriba, la búsqueda para saltar a otro equipo y la vuelta a los resultados.
 // Debajo, una tarjeta por tema; cada una carga y refresca por su cuenta.
+//
+// Los filtros del historial viven en la URL, no en el estado de la tarjeta: así un
+// enlace lleva al mismo equipo con la misma etapa, la misma especie y la misma
+// agrupación, y se puede pegar en un ticket de soporte.
 
-import { useState } from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { useMemo, useState } from 'react';
+import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import {
   getDeviceMeasurements,
   getDeviceMembers,
+  getDeviceSpecies,
   getDeviceStatus,
   resetDevice,
 } from '../../backend/adminApi';
@@ -20,15 +25,31 @@ import { UpdateCard } from '../components/device/UpdateCard';
 import { useCardData } from '../hooks/useCardData';
 import { Notice } from '../ui/Feedback';
 import { formatDeviceCode } from '../utils/format';
+import {
+  filtersFor,
+  historyViewFromParams,
+  historyViewParams,
+  queryKey,
+  type HistoryView,
+} from '../utils/measurementHistory';
 
 export function DevicePage() {
   const { id = '' } = useParams<{ id: string }>();
   const from = (useLocation().state as { from?: string } | null)?.from;
   const [resetNotice, setResetNotice] = useState<string | null>(null);
+  const [params, setParams] = useSearchParams();
+  const view = useMemo(() => historyViewFromParams(params), [params]);
+  const setView = (next: HistoryView) => setParams(historyViewParams(next), { replace: true });
 
   const status = useCardData(() => getDeviceStatus(id), `status-${id}`);
   const members = useCardData(() => getDeviceMembers(id), `members-${id}`);
-  const measurements = useCardData(() => getDeviceMeasurements(id), `measurements-${id}`);
+  // Cambiar un filtro vuelve a consultar sin vaciar la tabla; cambiar de equipo, sí la vacía.
+  const measurements = useCardData(
+    () => getDeviceMeasurements(id, filtersFor(view)),
+    `measurements-${id}-${queryKey(view)}`,
+    `measurements-${id}`,
+  );
+  const species = useCardData(() => getDeviceSpecies(id), `species-${id}`);
 
   const code = status.data?.device_code;
 
@@ -70,7 +91,7 @@ export function DevicePage() {
           setResetNotice(
             `Equipo reseteado: ${result.members_removed} ${result.members_removed === 1 ? 'usuario desvinculado' : 'usuarios desvinculados'} y ${result.measurements_deleted} ${result.measurements_deleted === 1 ? 'medición borrada' : 'mediciones borradas'}.`,
           );
-          await Promise.all([status.refresh(), members.refresh(), measurements.refresh()]);
+          await Promise.all([status.refresh(), members.refresh(), measurements.refresh(), species.refresh()]);
         }}
       />
 
@@ -84,9 +105,15 @@ export function DevicePage() {
 
       <MeasurementsCard
         measurements={measurements.data}
+        inventory={species.data}
+        view={view}
         loading={measurements.loading}
-        error={measurements.error}
-        onRefresh={() => void measurements.refresh()}
+        error={measurements.error ?? species.error}
+        onViewChange={setView}
+        onRefresh={() => {
+          void measurements.refresh();
+          void species.refresh();
+        }}
       />
 
       <UpdateCard deviceId={id} installedVersion={status.data?.firmware_version ?? null} />

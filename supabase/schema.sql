@@ -108,26 +108,36 @@ END $$;
 ALTER FUNCTION "public"."admin_delete_release"("p_release_id" "uuid") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer DEFAULT 5) RETURNS TABLE("id" "uuid", "measured_at" timestamp with time zone, "phenological_stage" "text", "vwc_percent" numeric, "soil_temp_c" numeric, "ec_us_cm" integer, "ph" numeric, "nitrogen" integer, "phosphorus" integer, "potassium" integer, "canopy_temp_c" numeric, "canopy_humidity_pct" numeric, "air_pressure_hpa" numeric, "battery_percent" integer, "weather" "jsonb", "verdict" "text", "verdict_title" "text", "action_summary" "text", "latitude" numeric, "longitude" numeric)
+CREATE OR REPLACE FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer DEFAULT 50, "p_offset" integer DEFAULT 0, "p_stage" "text" DEFAULT NULL::"text", "p_species_id" "text" DEFAULT NULL::"text", "p_without_species" boolean DEFAULT false) RETURNS TABLE("id" "uuid", "measured_at" timestamp with time zone, "phenological_stage" "text", "vwc_percent" numeric, "soil_temp_c" numeric, "ec_us_cm" integer, "ph" numeric, "nitrogen" integer, "phosphorus" integer, "potassium" integer, "canopy_temp_c" numeric, "canopy_humidity_pct" numeric, "air_pressure_hpa" numeric, "battery_percent" integer, "weather" "jsonb", "verdict" "text", "verdict_title" "text", "action_summary" "text", "latitude" numeric, "longitude" numeric, "species" "jsonb")
     LANGUAGE "plpgsql" STABLE SECURITY DEFINER
     SET "search_path" TO 'public'
     AS $$
-BEGIN
-    PERFORM public.assert_support_staff();
-    RETURN QUERY
-    SELECT m.id, m.measured_at, m.phenological_stage, m.vwc_percent, m.soil_temp_c, m.ec_us_cm, m.ph,
+begin
+    perform public.assert_support_staff();
+    return query
+    select m.id, m.measured_at, m.phenological_stage, m.vwc_percent, m.soil_temp_c, m.ec_us_cm, m.ph,
            m.nitrogen, m.phosphorus, m.potassium, m.canopy_temp_c, m.canopy_humidity_pct,
-           m.air_pressure_hpa, m.battery_percent::INTEGER,
-           NULLIF(m.diagnosis -> 'weather', 'null'::jsonb),
-           m.verdict::TEXT, m.verdict_title, m.action_summary, m.latitude, m.longitude
-      FROM public.soil_measurements m
-     WHERE m.device_id = p_device_id
-     ORDER BY m.measured_at DESC NULLS LAST
-     LIMIT LEAST(GREATEST(COALESCE(p_limit, 5), 1), 50);
-END $$;
+           m.air_pressure_hpa, m.battery_percent::integer,
+           nullif(m.diagnosis -> 'weather', 'null'::jsonb),
+           m.verdict::text, m.verdict_title, m.action_summary, m.latitude, m.longitude,
+           public.measurement_species(m.diagnosis)
+      from public.soil_measurements m
+     where m.device_id = p_device_id
+       -- Cada filtro nulo deja pasar todo; una etapa fuera del CHECK simplemente no
+       -- coincide con ninguna fila.
+       and (p_stage is null or m.phenological_stage = p_stage)
+       -- «Sin especie» es una opción del filtro, no la ausencia de filtro, así que viaja
+       -- en su propio parámetro: un id de especie no puede expresarla.
+       and (not coalesce(p_without_species, false) or public.measurement_species(m.diagnosis) is null)
+       and (p_species_id is null or coalesce(p_without_species, false)
+            or public.measurement_species(m.diagnosis) ->> 'id' = p_species_id)
+     order by m.measured_at desc nulls last, m.id
+     limit least(greatest(coalesce(p_limit, 50), 1), 200)
+    offset greatest(coalesce(p_offset, 0), 0);
+end $$;
 
 
-ALTER FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer) OWNER TO "postgres";
+ALTER FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer, "p_offset" integer, "p_stage" "text", "p_species_id" "text", "p_without_species" boolean) OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."admin_device_members"("p_device_id" "uuid") RETURNS TABLE("user_id" "uuid", "first_name" "text", "last_name" "text", "email" "text", "role" "text", "is_authorized" boolean, "created_at" timestamp with time zone)
@@ -147,6 +157,27 @@ END $$;
 
 
 ALTER FUNCTION "public"."admin_device_members"("p_device_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."admin_device_species"("p_device_id" "uuid") RETURNS TABLE("species" "jsonb", "measurements" integer, "last_measured_at" timestamp with time zone)
+    LANGUAGE "plpgsql" STABLE SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+begin
+    perform public.assert_support_staff();
+    return query
+    select (array_agg(s.species order by m.measured_at desc nulls last))[1],
+           count(*)::integer,
+           max(m.measured_at)
+      from public.soil_measurements m
+      cross join lateral (select public.measurement_species(m.diagnosis) as species) s
+     where m.device_id = p_device_id
+     group by s.species ->> 'id'
+     order by (s.species ->> 'id') is null, max(m.measured_at) desc nulls last;
+end $$;
+
+
+ALTER FUNCTION "public"."admin_device_species"("p_device_id" "uuid") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."admin_device_status"("p_device_id" "uuid") RETURNS TABLE("device_id" "uuid", "device_code" "text", "battery_level" integer, "firmware_version" "text", "first_seen_at" timestamp with time zone, "last_seen_at" timestamp with time zone, "is_online" boolean)
@@ -1188,6 +1219,22 @@ COMMENT ON FUNCTION "public"."mark_onboarding_from_membership"() IS 'Persiste el
 
 
 
+CREATE OR REPLACE FUNCTION "public"."measurement_species"("p_diagnosis" "jsonb") RETURNS "jsonb"
+    LANGUAGE "sql" IMMUTABLE
+    SET "search_path" TO 'public'
+    AS $$
+  select case when jsonb_typeof(p_diagnosis -> 'presentation' -> 'species') = 'object'
+              then p_diagnosis -> 'presentation' -> 'species' end
+$$;
+
+
+ALTER FUNCTION "public"."measurement_species"("p_diagnosis" "jsonb") OWNER TO "postgres";
+
+
+COMMENT ON FUNCTION "public"."measurement_species"("p_diagnosis" "jsonb") IS 'Especie que el agricultor indicó al medir, leída de la instantánea del diagnóstico; null si midió sin especie.';
+
+
+
 CREATE OR REPLACE FUNCTION "public"."my_firmware_updates"() RETURNS TABLE("update_id" "uuid", "device_id" "uuid", "device_code" "text", "device_name" "text", "status" "text", "version" "text", "release_notes" "text", "is_mandatory" boolean, "sha256" "text", "size_bytes" integer, "storage_path" "text", "sent_at" timestamp with time zone)
     LANGUAGE "sql" STABLE SECURITY DEFINER
     SET "search_path" TO 'public'
@@ -1252,8 +1299,8 @@ CREATE TABLE IF NOT EXISTS "public"."push_alerts" (
     "status" "text" DEFAULT 'active'::"text" NOT NULL,
     "expires_at" timestamp with time zone DEFAULT ("now"() + '30 days'::interval) NOT NULL,
     "source_transaction" bigint,
-    CONSTRAINT "push_alerts_category_check" CHECK ((("category")::"text" = ANY (ARRAY[('MOISTURE_DROP'::character varying)::"text", ('FROST'::character varying)::"text", ('PH_DRIFT'::character varying)::"text", ('EC_SALINITY'::character varying)::"text", ('SYSTEM'::character varying)::"text", ('agronomic'::character varying)::"text", ('device'::character varying)::"text", ('weather'::character varying)::"text", ('sync'::character varying)::"text"]))),
-    CONSTRAINT "push_alerts_severity_check" CHECK ((("severity")::"text" = ANY (ARRAY[('high'::character varying)::"text", ('medium'::character varying)::"text", ('low'::character varying)::"text", ('warning'::character varying)::"text"]))),
+    CONSTRAINT "push_alerts_category_check" CHECK ((("category")::"text" = ANY ((ARRAY['MOISTURE_DROP'::character varying, 'FROST'::character varying, 'PH_DRIFT'::character varying, 'EC_SALINITY'::character varying, 'SYSTEM'::character varying, 'agronomic'::character varying, 'device'::character varying, 'weather'::character varying, 'sync'::character varying])::"text"[]))),
+    CONSTRAINT "push_alerts_severity_check" CHECK ((("severity")::"text" = ANY ((ARRAY['high'::character varying, 'medium'::character varying, 'low'::character varying, 'warning'::character varying])::"text"[]))),
     CONSTRAINT "push_alerts_status_check" CHECK (("status" = ANY (ARRAY['active'::"text", 'cancelled'::"text", 'expired'::"text"])))
 );
 
@@ -1521,6 +1568,25 @@ $$;
 ALTER FUNCTION "public"."push_error_class"("p_error" "text") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."push_session_valid"("p_user_id" "uuid", "p_session_id" "uuid") RETURNS boolean
+    LANGUAGE "sql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+  select p_user_id is not null and p_session_id is not null and exists (
+    select 1 from auth.sessions s
+    where s.id = p_session_id and s.user_id = p_user_id and s.created_at is not null
+      and (s.not_after is null or s.not_after > clock_timestamp())
+      and not exists (
+        select 1 from public.push_recovery_cutoffs c
+        where c.user_id = p_user_id and s.created_at <= c.blocked_through
+      )
+  );
+$$;
+
+
+ALTER FUNCTION "public"."push_session_valid"("p_user_id" "uuid", "p_session_id" "uuid") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."record_admin_transfer"("p_device_id" "uuid", "p_user_id" "uuid") RETURNS "uuid"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -1637,12 +1703,21 @@ CREATE OR REPLACE FUNCTION "public"."register_push_installation"("p_installation
     AS $_$
 declare
   v_uid uuid := auth.uid();
+  v_sid uuid;
   v_hash text;
   v_old public.push_installations;
   v_fresh integer;
   v_changed boolean;
 begin
   if v_uid is null then raise exception 'Autenticación requerida.' using errcode = '42501'; end if;
+  if coalesce(auth.jwt()->>'session_id', '') !~ '^[0-9a-fA-F-]{36}$' then
+    raise exception 'Sesión requerida.' using errcode = '42501';
+  end if;
+  v_sid := (auth.jwt()->>'session_id')::uuid;
+  perform 1 from auth.users where id = v_uid for update;
+  if not public.push_session_valid(v_uid, v_sid) then
+    raise exception 'Sesión revocada.' using errcode = '42501';
+  end if;
   if p_installation_id is null or p_installation_secret is null
      or length(p_installation_secret) < 32 or length(p_installation_secret) > 512 then
     raise exception 'Identidad de instalación inválida.' using errcode = '22023';
@@ -1659,8 +1734,8 @@ begin
     raise exception 'El permiso no autoriza un token.' using errcode = '22023';
   end if;
   v_hash := encode(extensions.digest(p_installation_secret, 'sha256'), 'hex');
-  insert into public.push_installations(id, user_id, secret_hash, platform, permission)
-    values (p_installation_id, v_uid, v_hash, p_platform, 'undetermined')
+  insert into public.push_installations(id, user_id, session_id, secret_hash, platform, permission)
+    values (p_installation_id, v_uid, v_sid, v_hash, p_platform, 'undetermined')
     on conflict (id) do nothing;
   get diagnostics v_fresh = row_count;
   select * into v_old from public.push_installations where id = p_installation_id for update;
@@ -1668,6 +1743,7 @@ begin
     raise exception 'Instalación no autorizada.' using errcode = '42501';
   end if;
   v_changed := v_fresh = 0 and (v_old.user_id is distinct from v_uid
+    or v_old.session_id is distinct from v_sid
     or v_old.expo_push_token is distinct from p_expo_push_token
     or v_old.revoked_at is not null);
   -- Un token pertenece a una sola instalación: si otra lo tenía (datos borrados,
@@ -1685,7 +1761,8 @@ begin
     update public.push_deliveries set state = 'cancelled', lease_id = null, leased_until = null, updated_at = now()
       where installation_id = p_installation_id and state in ('pending', 'leased');
   end if;
-  update public.push_installations set user_id = v_uid, expo_push_token = p_expo_push_token,
+  update public.push_installations set user_id = v_uid, session_id = v_sid,
+      expo_push_token = p_expo_push_token,
       platform = p_platform, permission = p_permission, revoked_at = null, updated_at = now(),
       token_generation = token_generation + case when v_changed then 1 else 0 end
     where id = p_installation_id;
@@ -1904,6 +1981,7 @@ begin
         and d.state in ('pending', 'leased')
         and (i.user_id <> d.user_id or i.token_generation <> d.token_generation
           or i.revoked_at is not null or i.expo_push_token is null
+          or not public.push_session_valid(i.user_id, i.session_id)
           or i.permission not in ('granted', 'provisional')
           or r.cancelled_at is not null
           or not public.notification_dispatch_allowed(a, d.user_id)
@@ -1921,6 +1999,7 @@ begin
       where a.status = 'active' and a.expires_at > now() and a.created_at >= now() - interval '24 hours'
         and r.cancelled_at is null
         and i.revoked_at is null and i.expo_push_token is not null
+        and public.push_session_valid(i.user_id, i.session_id)
         and i.permission in ('granted', 'provisional')
         and coalesce(p.app_preferences->'notifications'->>'device', 'true') <> 'false'
         and public.notification_dispatch_allowed(a, r.user_id)
@@ -1956,6 +2035,7 @@ begin
         and public.notification_dispatch_allowed(a, d.user_id)
         and i.user_id = d.user_id and i.token_generation = d.token_generation
         and i.revoked_at is null and i.expo_push_token is not null
+        and public.push_session_valid(i.user_id, i.session_id)
         and i.permission in ('granted', 'provisional')
         and coalesce(p.app_preferences->'notifications'->>'device', 'true') <> 'false'
       order by d.next_attempt_at, d.created_at
@@ -2027,6 +2107,40 @@ end $$;
 
 
 ALTER FUNCTION "public"."resolve_access_requests"("p_device_id" "uuid", "p_requester" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."revoke_push_for_password_recovery"() RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $_$
+declare
+  v_uid uuid := auth.uid();
+  v_sid uuid;
+begin
+  if v_uid is null or coalesce(auth.jwt()->>'session_id', '') !~ '^[0-9a-fA-F-]{36}$' then
+    raise exception 'Sesión requerida.' using errcode = '42501';
+  end if;
+  v_sid := (auth.jwt()->>'session_id')::uuid;
+  -- El registro toma el mismo bloqueo antes de validar su sesión. Si llegó antes,
+  -- esta transacción revoca su token; si llegó después, verá la barrera.
+  perform 1 from auth.users where id = v_uid for update;
+  if not exists (select 1 from auth.sessions where id = v_sid and user_id = v_uid) then
+    raise exception 'Sesión revocada.' using errcode = '42501';
+  end if;
+  insert into public.push_recovery_cutoffs(user_id, blocked_through)
+    values (v_uid, clock_timestamp())
+    on conflict (user_id) do update
+      set blocked_through = greatest(public.push_recovery_cutoffs.blocked_through, excluded.blocked_through);
+  update public.push_installations set expo_push_token = null, permission = 'denied',
+      revoked_at = now(), token_generation = token_generation + 1, updated_at = now()
+    where user_id = v_uid;
+  update public.push_deliveries set state = 'cancelled', lease_id = null,
+      leased_until = null, updated_at = now()
+    where user_id = v_uid and state in ('pending', 'leased');
+end $_$;
+
+
+ALTER FUNCTION "public"."revoke_push_for_password_recovery"() OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."revoke_push_installation"("p_installation_id" "uuid", "p_installation_secret" "text") RETURNS "void"
@@ -2126,6 +2240,36 @@ END; $$;
 
 
 ALTER FUNCTION "public"."set_updated_at"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."validate_push_lease"("p_delivery_id" "uuid", "p_lease_id" "uuid") RETURNS boolean
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare v_ok boolean;
+begin
+  if auth.role() is distinct from 'service_role' then
+    raise exception 'Servicio requerido.' using errcode = '42501';
+  end if;
+  select public.push_session_valid(i.user_id, i.session_id)
+      and i.revoked_at is null and i.expo_push_token is not null
+      and i.token_generation = d.token_generation and i.user_id = d.user_id
+    into v_ok
+    from public.push_deliveries d
+    join public.push_installations i on i.id = d.installation_id
+    where d.id = p_delivery_id and d.lease_id = p_lease_id and d.state = 'leased'
+    for update of d;
+  if not coalesce(v_ok, false) then
+    update public.push_deliveries set state = 'cancelled', lease_id = null,
+      leased_until = null, updated_at = now()
+      where id = p_delivery_id and lease_id = p_lease_id and state = 'leased';
+    return false;
+  end if;
+  return true;
+end $$;
+
+
+ALTER FUNCTION "public"."validate_push_lease"("p_delivery_id" "uuid", "p_lease_id" "uuid") OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."admin_support_users" (
@@ -2228,7 +2372,7 @@ CREATE TABLE IF NOT EXISTS "public"."device_members" (
     "created_at" timestamp with time zone DEFAULT "now"(),
     "is_authorized" boolean DEFAULT true NOT NULL,
     CONSTRAINT "device_admin_authorized" CHECK (((("role")::"text" <> 'admin'::"text") OR ("is_authorized" IS TRUE))),
-    CONSTRAINT "device_members_two_roles" CHECK ((("role")::"text" = ANY (ARRAY[('admin'::character varying)::"text", ('user'::character varying)::"text"])))
+    CONSTRAINT "device_members_two_roles" CHECK ((("role")::"text" = ANY ((ARRAY['admin'::character varying, 'user'::character varying])::"text"[])))
 );
 
 
@@ -2420,6 +2564,7 @@ CREATE TABLE IF NOT EXISTS "public"."push_installations" (
     "revoked_at" timestamp with time zone,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "session_id" "uuid",
     CONSTRAINT "push_installations_permission_check" CHECK (("permission" = ANY (ARRAY['granted'::"text", 'provisional'::"text", 'denied'::"text", 'undetermined'::"text"]))),
     CONSTRAINT "push_installations_platform_check" CHECK (("platform" = ANY (ARRAY['ios'::"text", 'android'::"text"]))),
     CONSTRAINT "push_installations_token_check" CHECK ((("expo_push_token" IS NULL) OR ("expo_push_token" ~ '^((Expo|Exponent)PushToken)\[[A-Za-z0-9_-]+\]$'::"text")))
@@ -2427,6 +2572,15 @@ CREATE TABLE IF NOT EXISTS "public"."push_installations" (
 
 
 ALTER TABLE "public"."push_installations" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."push_recovery_cutoffs" (
+    "user_id" "uuid" NOT NULL,
+    "blocked_through" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE "public"."push_recovery_cutoffs" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."soil_measurements" (
@@ -2465,8 +2619,8 @@ CREATE TABLE IF NOT EXISTS "public"."soil_measurements" (
     "data_generation" integer DEFAULT 0 NOT NULL,
     CONSTRAINT "soil_measurements_battery_percent_check" CHECK ((("battery_percent" >= 0) AND ("battery_percent" <= 100))),
     CONSTRAINT "soil_measurements_phenological_stage_check" CHECK (("phenological_stage" = ANY (ARRAY['pre_siembra'::"text", 'vegetativo'::"text", 'floracion'::"text", 'cosecha'::"text"]))),
-    CONSTRAINT "soil_measurements_quadrant_check" CHECK ((("quadrant")::"text" = ANY (ARRAY[('NW'::character varying)::"text", ('NE'::character varying)::"text", ('SE'::character varying)::"text", ('SW'::character varying)::"text", ('CENTER'::character varying)::"text", ('FREE'::character varying)::"text"]))),
-    CONSTRAINT "soil_measurements_verdict_check" CHECK ((("verdict")::"text" = ANY (ARRAY[('GREEN'::character varying)::"text", ('AMBER'::character varying)::"text", ('RED'::character varying)::"text"])))
+    CONSTRAINT "soil_measurements_quadrant_check" CHECK ((("quadrant")::"text" = ANY ((ARRAY['NW'::character varying, 'NE'::character varying, 'SE'::character varying, 'SW'::character varying, 'CENTER'::character varying, 'FREE'::character varying])::"text"[]))),
+    CONSTRAINT "soil_measurements_verdict_check" CHECK ((("verdict")::"text" = ANY ((ARRAY['GREEN'::character varying, 'AMBER'::character varying, 'RED'::character varying])::"text"[])))
 );
 
 
@@ -2623,6 +2777,11 @@ ALTER TABLE ONLY "public"."push_installations"
 
 
 
+ALTER TABLE ONLY "public"."push_recovery_cutoffs"
+    ADD CONSTRAINT "push_recovery_cutoffs_pkey" PRIMARY KEY ("user_id");
+
+
+
 ALTER TABLE "public"."soil_measurements"
     ADD CONSTRAINT "soil_measurements_air_ranges" CHECK (((("canopy_temp_c" IS NULL) OR (("canopy_temp_c" >= ('-40'::integer)::numeric) AND ("canopy_temp_c" <= (85)::numeric))) AND (("canopy_humidity_pct" IS NULL) OR (("canopy_humidity_pct" >= (0)::numeric) AND ("canopy_humidity_pct" <= (100)::numeric))) AND (("air_pressure_hpa" IS NULL) OR (("air_pressure_hpa" >= (300)::numeric) AND ("air_pressure_hpa" <= (1100)::numeric))) AND (("vpd_kpa" IS NULL) OR (("vpd_kpa" >= (0)::numeric) AND ("vpd_kpa" <= (20)::numeric))))) NOT VALID;
 
@@ -2711,6 +2870,10 @@ CREATE INDEX "push_deliveries_queue_idx" ON "public"."push_deliveries" USING "bt
 
 
 CREATE INDEX "push_deliveries_user_idx" ON "public"."push_deliveries" USING "btree" ("user_id");
+
+
+
+CREATE INDEX "push_installations_session_idx" ON "public"."push_installations" USING "btree" ("session_id");
 
 
 
@@ -2890,6 +3053,11 @@ ALTER TABLE ONLY "public"."push_installations"
 
 
 
+ALTER TABLE ONLY "public"."push_recovery_cutoffs"
+    ADD CONSTRAINT "push_recovery_cutoffs_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."soil_measurements"
     ADD CONSTRAINT "soil_measurements_device_id_fkey" FOREIGN KEY ("device_id") REFERENCES "public"."devices"("id") ON DELETE CASCADE;
 
@@ -2954,6 +3122,9 @@ ALTER TABLE "public"."push_deliveries" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."push_installations" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."push_recovery_cutoffs" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."soil_measurements" ENABLE ROW LEVEL SECURITY;
@@ -3031,104 +3202,110 @@ GRANT USAGE ON SCHEMA "public" TO "service_role";
 
 
 REVOKE ALL ON FUNCTION "public"."admin_approve_member"("p_device_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_approve_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."admin_approve_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_approve_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_cancel_update"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_cancel_update"("p_device_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."admin_cancel_update"("p_device_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_cancel_update"("p_device_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_create_release"("p_version" "text", "p_notes" "text", "p_sha256" "text", "p_size_bytes" integer, "p_storage_path" "text", "p_is_mandatory" boolean) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_create_release"("p_version" "text", "p_notes" "text", "p_sha256" "text", "p_size_bytes" integer, "p_storage_path" "text", "p_is_mandatory" boolean) TO "service_role";
 GRANT ALL ON FUNCTION "public"."admin_create_release"("p_version" "text", "p_notes" "text", "p_sha256" "text", "p_size_bytes" integer, "p_storage_path" "text", "p_is_mandatory" boolean) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_create_release"("p_version" "text", "p_notes" "text", "p_sha256" "text", "p_size_bytes" integer, "p_storage_path" "text", "p_is_mandatory" boolean) TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_delete_release"("p_release_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_delete_release"("p_release_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."admin_delete_release"("p_release_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_delete_release"("p_release_id" "uuid") TO "service_role";
 
 
 
-REVOKE ALL ON FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer) TO "service_role";
-GRANT ALL ON FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer) TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer, "p_offset" integer, "p_stage" "text", "p_species_id" "text", "p_without_species" boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer, "p_offset" integer, "p_stage" "text", "p_species_id" "text", "p_without_species" boolean) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_device_measurements"("p_device_id" "uuid", "p_limit" integer, "p_offset" integer, "p_stage" "text", "p_species_id" "text", "p_without_species" boolean) TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_device_members"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_device_members"("p_device_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."admin_device_members"("p_device_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_device_members"("p_device_id" "uuid") TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."admin_device_species"("p_device_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."admin_device_species"("p_device_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_device_species"("p_device_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_device_status"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_device_status"("p_device_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."admin_device_status"("p_device_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_device_status"("p_device_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_device_update"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_device_update"("p_device_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."admin_device_update"("p_device_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_device_update"("p_device_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_list_releases"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_list_releases"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."admin_list_releases"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_list_releases"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_make_admin"("p_device_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_make_admin"("p_device_id" "uuid", "p_user_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."admin_make_admin"("p_device_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_make_admin"("p_device_id" "uuid", "p_user_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_publish_release"("p_release_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_publish_release"("p_release_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."admin_publish_release"("p_release_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_publish_release"("p_release_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_reject_member"("p_device_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_reject_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."admin_reject_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_reject_member"("p_device_id" "uuid", "p_user_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_release_devices"("p_release_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_release_devices"("p_release_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."admin_release_devices"("p_release_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_release_devices"("p_release_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_reset_device"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_reset_device"("p_device_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."admin_reset_device"("p_device_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_reset_device"("p_device_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_search"("p_query" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_search"("p_query" "text") TO "service_role";
 GRANT ALL ON FUNCTION "public"."admin_search"("p_query" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_search"("p_query" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_send_update"("p_device_id" "uuid", "p_release_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_send_update"("p_device_id" "uuid", "p_release_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."admin_send_update"("p_device_id" "uuid", "p_release_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_send_update"("p_device_id" "uuid", "p_release_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."admin_send_update_all"("p_release_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."admin_send_update_all"("p_release_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."admin_send_update_all"("p_release_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."admin_send_update_all"("p_release_id" "uuid") TO "service_role";
 
 
 
@@ -3154,25 +3331,24 @@ GRANT ALL ON FUNCTION "public"."change_device_membership"("p_device_id" "uuid", 
 
 
 REVOKE ALL ON FUNCTION "public"."check_device_administrator"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."check_device_administrator"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."check_firmware_update"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."check_firmware_update"("p_device_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."check_firmware_update"("p_device_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."check_firmware_update"("p_device_id" "uuid") TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."check_measurement_generation"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."check_measurement_generation"() TO "anon";
 GRANT ALL ON FUNCTION "public"."check_measurement_generation"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."check_measurement_generation"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."complete_my_onboarding"("p_method" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."complete_my_onboarding"("p_method" "text") TO "service_role";
 GRANT ALL ON FUNCTION "public"."complete_my_onboarding"("p_method" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."complete_my_onboarding"("p_method" "text") TO "service_role";
 
 
 
@@ -3181,14 +3357,14 @@ REVOKE ALL ON FUNCTION "public"."create_device_event"("p_event" "text", "p_devic
 
 
 REVOKE ALL ON FUNCTION "public"."firmware_is_newer"("p_release" "text", "p_installed" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."firmware_is_newer"("p_release" "text", "p_installed" "text") TO "service_role";
 GRANT ALL ON FUNCTION "public"."firmware_is_newer"("p_release" "text", "p_installed" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."firmware_is_newer"("p_release" "text", "p_installed" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."firmware_update_progress"("p_update_id" "uuid", "p_action" "text", "p_error" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."firmware_update_progress"("p_update_id" "uuid", "p_action" "text", "p_error" "text") TO "service_role";
 GRANT ALL ON FUNCTION "public"."firmware_update_progress"("p_update_id" "uuid", "p_action" "text", "p_error" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."firmware_update_progress"("p_update_id" "uuid", "p_action" "text", "p_error" "text") TO "service_role";
 
 
 
@@ -3198,8 +3374,8 @@ GRANT ALL ON FUNCTION "public"."generate_device_code"() TO "service_role";
 
 
 REVOKE ALL ON FUNCTION "public"."get_device_access_qr"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."get_device_access_qr"("p_device_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."get_device_access_qr"("p_device_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."get_device_access_qr"("p_device_id" "uuid") TO "service_role";
 
 
 
@@ -3213,24 +3389,22 @@ REVOKE ALL ON FUNCTION "public"."guard_push_alert_event"() FROM PUBLIC;
 
 
 REVOKE ALL ON FUNCTION "public"."handle_new_user"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."has_device_access"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."has_device_access"("p_device_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."has_device_access"("p_device_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."has_device_access"("p_device_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."has_device_admin_access"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."has_device_admin_access"("p_device_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."has_device_admin_access"("p_device_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."has_device_admin_access"("p_device_id" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."invalidate_empty_device_invite"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."invalidate_empty_device_invite"() TO "service_role";
 
 
 
@@ -3244,8 +3418,8 @@ GRANT ALL ON FUNCTION "public"."is_backoffice_email"("p_email" "text") TO "servi
 
 
 REVOKE ALL ON FUNCTION "public"."is_support_staff"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."is_support_staff"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."is_support_staff"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."is_support_staff"() TO "service_role";
 
 
 
@@ -3255,19 +3429,18 @@ GRANT ALL ON FUNCTION "public"."join_device_by_code"("p_code" "text") TO "servic
 
 
 REVOKE ALL ON FUNCTION "public"."join_device_by_invite"("p_token" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."join_device_by_invite"("p_token" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."join_device_by_invite"("p_token" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."join_device_by_invite"("p_token" "uuid") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."link_device_creator"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."link_device_creator"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."list_device_members"("p_device_id" "uuid") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."list_device_members"("p_device_id" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."list_device_members"("p_device_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."list_device_members"("p_device_id" "uuid") TO "service_role";
 
 
 
@@ -3277,19 +3450,18 @@ GRANT ALL ON FUNCTION "public"."list_my_notifications"("p_limit" integer, "p_bef
 
 
 REVOKE ALL ON FUNCTION "public"."list_my_pending_device_requests"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."list_my_pending_device_requests"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."list_my_pending_device_requests"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."list_my_pending_device_requests"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."log_device_status_change"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."log_device_status_change"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."manage_device_member"("p_device_id" "uuid", "p_target_user_id" "uuid", "p_action" "text", "p_role" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."manage_device_member"("p_device_id" "uuid", "p_target_user_id" "uuid", "p_action" "text", "p_role" "text") TO "service_role";
 GRANT ALL ON FUNCTION "public"."manage_device_member"("p_device_id" "uuid", "p_target_user_id" "uuid", "p_action" "text", "p_role" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."manage_device_member"("p_device_id" "uuid", "p_target_user_id" "uuid", "p_action" "text", "p_role" "text") TO "service_role";
 
 
 
@@ -3299,18 +3471,22 @@ GRANT ALL ON FUNCTION "public"."mark_notification_read"("p_alert_id" "uuid") TO 
 
 
 REVOKE ALL ON FUNCTION "public"."mark_onboarding_from_membership"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."mark_onboarding_from_membership"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."measurement_species"("p_diagnosis" "jsonb") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."measurement_species"("p_diagnosis" "jsonb") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."measurement_species"("p_diagnosis" "jsonb") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."my_firmware_updates"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."my_firmware_updates"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."my_firmware_updates"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."my_firmware_updates"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."normalize_device_versions"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."normalize_device_versions"() TO "service_role";
 
 
 
@@ -3334,15 +3510,15 @@ REVOKE ALL ON FUNCTION "public"."notify_device_membership"() FROM PUBLIC;
 
 
 
-GRANT ALL ON FUNCTION "public"."protect_device_generation"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."protect_device_generation"() TO "anon";
 GRANT ALL ON FUNCTION "public"."protect_device_generation"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."protect_device_generation"() TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."protect_onboarding_fields"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."protect_onboarding_fields"() TO "anon";
 GRANT ALL ON FUNCTION "public"."protect_onboarding_fields"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."protect_onboarding_fields"() TO "service_role";
 
 
 
@@ -3365,6 +3541,11 @@ REVOKE ALL ON FUNCTION "public"."push_error_class"("p_error" "text") FROM PUBLIC
 
 
 
+REVOKE ALL ON FUNCTION "public"."push_session_valid"("p_user_id" "uuid", "p_session_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."push_session_valid"("p_user_id" "uuid", "p_session_id" "uuid") TO "service_role";
+
+
+
 REVOKE ALL ON FUNCTION "public"."record_admin_transfer"("p_device_id" "uuid", "p_user_id" "uuid") FROM PUBLIC;
 
 
@@ -3375,8 +3556,8 @@ GRANT ALL ON FUNCTION "public"."register_and_pair_device"("p_device_code" "text"
 
 
 REVOKE ALL ON FUNCTION "public"."register_paired_device"("p_code" "text", "p_name" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."register_paired_device"("p_code" "text", "p_name" "text") TO "service_role";
 GRANT ALL ON FUNCTION "public"."register_paired_device"("p_code" "text", "p_name" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."register_paired_device"("p_code" "text", "p_name" "text") TO "service_role";
 
 
 
@@ -3386,8 +3567,8 @@ GRANT ALL ON FUNCTION "public"."register_push_installation"("p_installation_id" 
 
 
 REVOKE ALL ON FUNCTION "public"."report_device_contact"("p_device_code" "text", "p_battery" integer, "p_firmware_version" "text", "p_contacted_at" timestamp with time zone) FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."report_device_contact"("p_device_code" "text", "p_battery" integer, "p_firmware_version" "text", "p_contacted_at" timestamp with time zone) TO "service_role";
 GRANT ALL ON FUNCTION "public"."report_device_contact"("p_device_code" "text", "p_battery" integer, "p_firmware_version" "text", "p_contacted_at" timestamp with time zone) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."report_device_contact"("p_device_code" "text", "p_battery" integer, "p_firmware_version" "text", "p_contacted_at" timestamp with time zone) TO "service_role";
 
 
 
@@ -3420,6 +3601,12 @@ REVOKE ALL ON FUNCTION "public"."resolve_access_requests"("p_device_id" "uuid", 
 
 
 
+REVOKE ALL ON FUNCTION "public"."revoke_push_for_password_recovery"() FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."revoke_push_for_password_recovery"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."revoke_push_for_password_recovery"() TO "service_role";
+
+
+
 REVOKE ALL ON FUNCTION "public"."revoke_push_installation"("p_installation_id" "uuid", "p_installation_secret" "text") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."revoke_push_installation"("p_installation_id" "uuid", "p_installation_secret" "text") TO "authenticated";
 
@@ -3432,18 +3619,21 @@ GRANT ALL ON FUNCTION "public"."revoke_push_installation_by_secret"("p_installat
 
 
 REVOKE ALL ON FUNCTION "public"."semver_parts"("p_version" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."semver_parts"("p_version" "text") TO "service_role";
 GRANT ALL ON FUNCTION "public"."semver_parts"("p_version" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."semver_parts"("p_version" "text") TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."set_device_member_authorization_default"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."set_device_member_authorization_default"() TO "service_role";
 
 
 
 REVOKE ALL ON FUNCTION "public"."set_updated_at"() FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."set_updated_at"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."validate_push_lease"("p_delivery_id" "uuid", "p_lease_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."validate_push_lease"("p_delivery_id" "uuid", "p_lease_id" "uuid") TO "service_role";
 
 
 
@@ -3453,20 +3643,15 @@ GRANT ALL ON TABLE "public"."admin_support_users" TO "service_role";
 
 
 
-GRANT MAINTAIN ON TABLE "public"."device_access_invites" TO "anon";
-GRANT MAINTAIN ON TABLE "public"."device_access_invites" TO "authenticated";
 GRANT ALL ON TABLE "public"."device_access_invites" TO "service_role";
 
 
 
-GRANT MAINTAIN ON TABLE "public"."device_data_resets" TO "anon";
-GRANT SELECT,MAINTAIN ON TABLE "public"."device_data_resets" TO "authenticated";
 GRANT ALL ON TABLE "public"."device_data_resets" TO "service_role";
+GRANT SELECT ON TABLE "public"."device_data_resets" TO "authenticated";
 
 
 
-GRANT MAINTAIN ON TABLE "public"."device_firmware_updates" TO "anon";
-GRANT MAINTAIN ON TABLE "public"."device_firmware_updates" TO "authenticated";
 GRANT ALL ON TABLE "public"."device_firmware_updates" TO "service_role";
 
 
@@ -3534,6 +3719,10 @@ GRANT ALL ON TABLE "public"."push_deliveries" TO "service_role";
 
 
 GRANT ALL ON TABLE "public"."push_installations" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."push_recovery_cutoffs" TO "service_role";
 
 
 

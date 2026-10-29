@@ -4,6 +4,9 @@
 
 import type { PhenologicalStage, Verdict } from '../../backend/types';
 
+/** Orden del ciclo productivo. Ordena los grupos y las píldoras del filtro por etapa. */
+export const STAGES = ['pre_siembra', 'vegetativo', 'floracion', 'cosecha'] as const satisfies readonly PhenologicalStage[];
+
 export const STAGE_LABEL: Record<PhenologicalStage, string> = {
   pre_siembra: 'Pre-siembra',
   vegetativo: 'Vegetativo',

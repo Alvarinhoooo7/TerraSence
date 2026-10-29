@@ -6,11 +6,14 @@
 // 42501 y aquí se propaga como excepción.
 
 import { supabaseAdmin as supabase } from './supabaseAdmin';
+import { MEASUREMENTS_PAGE } from './types';
 import type {
   DeviceMember,
+  DeviceSpecies,
   DeviceStatus,
   DeviceUpdate,
   Measurement,
+  MeasurementFilters,
   Release,
   ReleaseDevice,
   ResetResult,
@@ -57,10 +60,27 @@ export async function getDeviceStatus(deviceId: string): Promise<DeviceStatus> {
 export const getDeviceMembers = (deviceId: string) =>
   call<DeviceMember[]>('admin_device_members', { p_device_id: deviceId }).then((r) => r ?? []);
 
-export const getDeviceMeasurements = (deviceId: string) =>
-  call<Measurement[]>('admin_device_measurements', { p_device_id: deviceId, p_limit: 5 }).then(
-    (r) => r ?? [],
-  );
+/**
+ * Lecturas del equipo, filtradas en el servidor. Filtrar allá y no aquí es lo que permite
+ * dividir el historial completo de un cliente sin descargarlo entero en cada cambio de
+ * filtro.
+ */
+export const getDeviceMeasurements = (deviceId: string, filters: MeasurementFilters = {}) =>
+  call<Measurement[]>('admin_device_measurements', {
+    p_device_id: deviceId,
+    p_limit: filters.limit ?? MEASUREMENTS_PAGE,
+    p_offset: filters.offset ?? 0,
+    p_stage: filters.stage ?? null,
+    p_species_id: filters.speciesId ?? null,
+    p_without_species: filters.withoutSpecies ?? false,
+  }).then((r) => r ?? []);
+
+/**
+ * Especies que alguna vez se midieron con el equipo, con su recuento. Son las opciones del
+ * filtro: no se pueden deducir de unas filas ya filtradas ni de una sola página.
+ */
+export const getDeviceSpecies = (deviceId: string) =>
+  call<DeviceSpecies[]>('admin_device_species', { p_device_id: deviceId }).then((r) => r ?? []);
 
 export const makeAdmin = (deviceId: string, userId: string) =>
   call<void>('admin_make_admin', { p_device_id: deviceId, p_user_id: userId });
