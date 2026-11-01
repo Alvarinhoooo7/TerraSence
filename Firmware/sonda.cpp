@@ -10,7 +10,7 @@ namespace {
 // Puerto Modbus sobre UART2 del ESP32, con los pines de la placa V2 (pines.h):
 // IO16 recibe, IO17 transmite, IO4 (RTS) conmuta el transceptor (alto =
 // transmitir) e IO5 (GATE) energiza la sonda a través del corte por MOSFET.
-// La placa V3 del informe aún no existe: este firmware no la contempla.
+// El esquemático V3 conserva estos mismos pines.
 class PuertoEsp32 : public modbus::Puerto {
 public:
   bool abrir(uint32_t baudios) override {
@@ -23,7 +23,11 @@ public:
     if (abierto_) Serial2.end();
     abierto_ = false;
   }
-  void alimentar(bool encendido) override { digitalWrite(PIN_GATE, encendido ? HIGH : LOW); }
+  void alimentar(bool encendido) override {
+    if (!encendido && sostener_) return;  // el ensayo D-14 mantiene la sonda energizada
+    digitalWrite(PIN_GATE, encendido ? HIGH : LOW);
+  }
+  void sostener(bool activo) { sostener_ = activo; }
   void direccionTx(bool transmitir) override { digitalWrite(PIN_RTS, transmitir ? HIGH : LOW); }
   bool transmitir(const uint8_t *bytes, size_t largo) override {
     if (!abierto_ || Serial2.write(bytes, largo) != largo) return false;
@@ -45,8 +49,13 @@ public:
 
 private:
   bool abierto_ = false;
+  bool sostener_ = false;
   uint32_t baudios_ = 4800;
 };
+
+// Separación entre consultas del ensayo: muy por sobre los 3,5 caracteres de
+// silencio que exige Modbus RTU (≈ 8 ms a 4.800 baudios).
+constexpr uint32_t ENSAYO_SEPARACION_MS = 50;
 
 PuertoEsp32 puerto;
 modbus::Transporte transporte(puerto);
@@ -90,6 +99,7 @@ bool Sonda::iniciar(uint32_t ahora) {
 
 void Sonda::actualizar(uint32_t ahora) {
   if (estado_ == Estado::Barrido) { actualizarBarrido(ahora); return; }
+  if (estado_ == Estado::Ensayo) { actualizarEnsayo(ahora); return; }
   if (estado_ != Estado::Midiendo) return;
   transporte.actualizar(ahora);
   if (!transporte.terminado()) return;
@@ -126,7 +136,9 @@ void Sonda::actualizar(uint32_t ahora) {
 }
 
 void Sonda::cancelar() {
+  if (estado_ == Estado::Ensayo) resumirEnsayo(millis(), true);
   transporte.cancelar();
+  puerto.sostener(false);
   puerto.direccionTx(false);
   puerto.cerrar();
   puerto.alimentar(false);
@@ -218,6 +230,128 @@ void Sonda::actualizarBarrido(uint32_t ahora) {
     estado_ = Estado::Terminada;
     Serial.println("[DIAG] Barrido terminado; MOSFET apagado. Opción 7 valida lectura y CRC.");
   }
+}
+
+bool Sonda::iniciarEnsayo(uint32_t ahora, uint16_t total) {
+  if (ocupada() || !total) return false;
+  lectura_ = LecturaSuelo{};
+  ensayo_ = Ensayo{};
+  ensayo_.total = total;
+  ensayo_.desde = ahora;
+  estado_ = Estado::Ensayo;
+  puerto.sostener(true);
+  Serial.printf("[ENSAYO] %u consultas Modbus seguidas a %lu baudios, sin reintentos; sonda energizada "
+                "todo el ensayo (IO5). x cancela y apaga.\n",
+                total, (unsigned long)SONDA_BAUDIOS[0]);
+  if (!consultarEnsayo(ahora)) {
+    Serial.printf("[ENSAYO] No se pudo iniciar: %s\n", modbus::nombreFallo(transporte.fallo()));
+    cancelar();
+  }
+  return true;
+}
+
+bool Sonda::consultarEnsayo(uint32_t ahora) {
+  modbus::Consulta c;
+  c.direccion = SONDA_DIRECCION;
+  c.funcion = SONDA_FUNCION;
+  c.inicio = SONDA_REGISTRO_INICIO;
+  c.cantidad = SONDA_REGISTROS;
+  c.baudios = SONDA_BAUDIOS[0];
+  // La primera consulta espera la estabilización tras energizar; las demás,
+  // sólo la separación entre tramas.
+  c.estabilizacionMs = ensayo_.hechas ? ENSAYO_SEPARACION_MS : SONDA_ESTABILIZACION_MS;
+  c.respuestaMs = SONDA_RESPUESTA_MS;
+  c.reintentos = 0;  // cada fallo cuenta: nada se oculta tras un reintento
+  ensayo_.consultaDesde = ahora;
+  transporte.limpiar();
+  return transporte.iniciar(c, ahora);
+}
+
+void Sonda::actualizarEnsayo(uint32_t ahora) {
+  transporte.actualizar(ahora);
+  if (!transporte.terminado()) return;
+  Ensayo &e = ensayo_;
+  // Tiempo de la consulta sin la espera previa (resolución del bucle ≈ 5 ms).
+  const uint32_t espera = e.hechas ? ENSAYO_SEPARACION_MS : SONDA_ESTABILIZACION_MS;
+  const uint32_t transcurrido = ahora - e.consultaDesde;
+  const uint32_t ms = transcurrido > espera ? transcurrido - espera : 0;
+  const modbus::Fallo fallo = transporte.fallo();
+  ++e.hechas;
+  if (fallo == modbus::Fallo::Ninguno) {
+    const uint16_t *r = transporte.registros();
+    LecturaSuelo l;
+    l.valida = true;
+    l.humedadX10 = r[0]; l.temperaturaX10 = int16_t(r[1]); l.conductividad = r[2]; l.phX10 = r[3];
+    l.nitrogeno = r[4]; l.fosforo = r[5]; l.potasio = r[6];
+    ++e.correctas;
+    if (!sueloPublicable(l)) ++e.fueraDeRango;
+    if (++e.racha > e.rachaMaxima) e.rachaMaxima = e.racha;
+    if (ms < e.minMs) e.minMs = ms;
+    if (ms > e.maxMs) e.maxMs = ms;
+    e.sumaMs += ms;
+    if (l.humedadX10 < e.humMin) e.humMin = l.humedadX10;
+    if (l.humedadX10 > e.humMax) e.humMax = l.humedadX10;
+    if (l.temperaturaX10 < e.tempMin) e.tempMin = l.temperaturaX10;
+    if (l.temperaturaX10 > e.tempMax) e.tempMax = l.temperaturaX10;
+    if (l.conductividad < e.ceMin) e.ceMin = l.conductividad;
+    if (l.conductividad > e.ceMax) e.ceMax = l.conductividad;
+    if (l.phX10 < e.phMin) e.phMin = l.phX10;
+    if (l.phX10 > e.phMax) e.phMax = l.phX10;
+  } else {
+    const uint8_t indice = uint8_t(fallo);
+    if (indice < sizeof(e.fallos) / sizeof(e.fallos[0])) ++e.fallos[indice];
+    if (e.primeraFalla < 0) e.primeraFalla = e.hechas;
+    e.racha = 0;
+    // Las diez primeras fallas se detallan; el resto sólo se cuenta.
+    if (e.hechas - e.correctas <= 10) {
+      Serial.printf("[ENSAYO] Consulta %u: %s | RX:", e.hechas, modbus::nombreFallo(fallo));
+      for (size_t i = 0; i < transporte.largoCrudo(); ++i) Serial.printf(" %02X", transporte.crudo()[i]);
+      if (!transporte.largoCrudo()) Serial.print(" sin bytes");
+      Serial.println();
+    }
+  }
+  if (e.hechas % 100 == 0 && e.hechas < e.total)
+    Serial.printf("[ENSAYO] %u/%u | correctas %u | fallos %u\n", e.hechas, e.total, e.correctas,
+                  e.hechas - e.correctas);
+  if (e.hechas >= e.total) {
+    resumirEnsayo(ahora, false);
+    transporte.limpiar();
+    puerto.sostener(false);
+    puerto.alimentar(false);
+    estado_ = Estado::Libre;
+    return;
+  }
+  if (!consultarEnsayo(ahora)) {
+    Serial.printf("[ENSAYO] Detenido: %s\n", modbus::nombreFallo(transporte.fallo()));
+    cancelar();
+  }
+}
+
+void Sonda::resumirEnsayo(uint32_t ahora, bool cancelado) {
+  const Ensayo &e = ensayo_;
+  const uint16_t fallas = e.hechas - e.correctas;
+  using F = modbus::Fallo;
+  auto n = [&e](F f) { return e.fallos[uint8_t(f)]; };
+  Serial.printf("[ENSAYO] ===== %s: %u de %u consultas =====\n", cancelado ? "CANCELADO" : "RESULTADO",
+                e.hechas, e.total);
+  Serial.printf("[ENSAYO] Correctas %u | CRC %u | silencio %u | truncadas %u | otras fallas %u | "
+                "fuera de rango %u\n",
+                e.correctas, n(F::Crc), n(F::Silencio), n(F::Truncada),
+                fallas - n(F::Crc) - n(F::Silencio) - n(F::Truncada), e.fueraDeRango);
+  if (e.primeraFalla < 0) Serial.printf("[ENSAYO] Sin fallas. Racha máxima: %u consultas seguidas\n", e.rachaMaxima);
+  else Serial.printf("[ENSAYO] Primera falla en la consulta %ld. Racha máxima sin falla: %u\n",
+                     (long)e.primeraFalla, e.rachaMaxima);
+  if (e.correctas) {
+    Serial.printf("[ENSAYO] Respuesta por consulta: mín %lu ms, prom %lu ms, máx %lu ms "
+                  "(resolución ≈ 5 ms; sin la separación de %lu ms)\n",
+                  (unsigned long)e.minMs, (unsigned long)(e.sumaMs / e.correctas), (unsigned long)e.maxMs,
+                  (unsigned long)ENSAYO_SEPARACION_MS);
+    Serial.printf("[ENSAYO] Rango leído: humedad %.1f-%.1f %% | temperatura %.1f-%.1f °C | "
+                  "CE %u-%u µS/cm | pH %.1f-%.1f\n",
+                  e.humMin / 10.0f, e.humMax / 10.0f, e.tempMin / 10.0f, e.tempMax / 10.0f,
+                  e.ceMin, e.ceMax, e.phMin / 10.0f, e.phMax / 10.0f);
+  }
+  Serial.printf("[ENSAYO] Duración total: %.1f s. MOSFET apagado.\n", (ahora - e.desde) / 1000.0f);
 }
 
 void Sonda::convertir(const uint16_t *r) {

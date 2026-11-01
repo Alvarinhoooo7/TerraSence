@@ -67,12 +67,13 @@ void MonitorSerie::menu() {
         "  7     : energizar y leer la sonda, incluso sin batería\n"
         "  9     : diagnóstico I2C: direcciones, errores e identidad del sensor\n"
         "  10    : barrido RS-485: lectura e identidad a 2400/4800/9600 baudios\n"
+        "  12    : ensayo D-14: 1.000 lecturas Modbus seguidas (CRC, tiempos, rango)\n"
         "COMUNICACIÓN\n"
         "  8     : estado de Bluetooth y su característica en hexadecimal\n"
         "CONTROL\n"
         "  d/D   : repetir menú | q: salir | x: cancelar prueba local\n"
         "Envía un comando por línea, con Enter (LF, CR o CRLF).\n"
-        "Pruebas 1-7 y 9-11: sólo sin BLE conectado, PAIR ni captura.\n"
+        "Pruebas 1-7 y 9-12: sólo sin BLE conectado, PAIR ni captura.\n"
         "Un aviso operativo tiene prioridad. Verifica luz/sonido físicamente.\n"
         "Un comando nuevo sustituye el informe pendiente de impresión.\n");
 }

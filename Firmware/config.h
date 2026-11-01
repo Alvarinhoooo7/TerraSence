@@ -20,7 +20,7 @@
 // Versión del firmware (X.Y.Z). Viaja en la característica de estado y es la
 // que la app informa a Supabase: subirla en cada binario que se publique.
 constexpr uint8_t FIRMWARE_VERSION_MAYOR = 1;
-constexpr uint8_t FIRMWARE_VERSION_MENOR = 0;
+constexpr uint8_t FIRMWARE_VERSION_MENOR = 1;
 constexpr uint8_t FIRMWARE_VERSION_PARCHE = 0;
 
 // Nombre anunciado: "TerraSense-<ID de 15 dígitos>", del que la app extrae el
@@ -39,6 +39,18 @@ constexpr uint32_t PAIR_VENTANA_MS    = 30000;  // la app sólo puede vincular d
 constexpr uint16_t BUZZER_FRECUENCIA_HZ = 2700;
 // false silencia todos los sonidos sin tocar el resto del firmware.
 constexpr bool     BUZZER_HABILITADO    = true;
+
+// --- Energía en espera ---
+// El reposo con anuncio BLE domina el consumo de una jornada (ensayo D-07 con
+// FNB58: 74 mA a 240 MHz y anuncio cada ~50 ms). A 80 MHz la radio y el UART
+// funcionan igual. El anuncio cada ~150 ms (valor recomendado por Apple para
+// descubrimiento rápido) cuesta 1-2 mA más que uno de ~420 ms, pero éste dejó
+// 2 de 5 mediciones sin encontrar la sonda: el escaneo de bajo consumo de
+// Android abre ventanas cortas y espaciadas.
+constexpr uint32_t CPU_MHZ = 80;
+// Unidades de 0,625 ms: 152,5 ms y 162,5 ms (Bluedroid usa 20-40 ms por omisión).
+constexpr uint16_t ANUNCIO_INTERVALO_MIN = 0xF4;
+constexpr uint16_t ANUNCIO_INTERVALO_MAX = 0x104;
 
 // --- Telemetría ---
 // Espera entre la suscripción de la app y la notificación, para que el

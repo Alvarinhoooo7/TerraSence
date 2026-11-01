@@ -1,5 +1,5 @@
 // Comandos completos terminados en CR o LF. Nunca ejecuta el prefijo de una
-// línea: «10» es una opción y «12», «1x» o una línea desbordada son inválidas.
+// línea: «10» es una opción y «13», «1x» o una línea desbordada son inválidas.
 #pragma once
 #include <stddef.h>
 #include <stdint.h>
@@ -7,7 +7,7 @@
 class EntradaMonitor {
 public:
   constexpr bool abierta() const { return abierta_; }
-  // 0: nada; 1-11: opción; d/x/q: control; !: inválido; ?: menú cerrado.
+  // 0: nada; 1-12: opción; d/x/q: control; !: inválido; ?: menú cerrado.
   constexpr uint8_t consumir(char c) {
     if (c != '\r' && c != '\n') {
       if (largo_ < sizeof(linea_)) linea_[largo_++] = c;
@@ -30,7 +30,7 @@ public:
       else if (letra == 'x' || letra == 'X') comando = 'x';
       else if (letra == 'q' || letra == 'Q') comando = 'q';
     } else if (!invalida && n == 2 && linea_[inicio] == '1' &&
-               (linea_[inicio + 1] == '0' || linea_[inicio + 1] == '1')) {
+               linea_[inicio + 1] >= '0' && linea_[inicio + 1] <= '2') {
       comando = uint8_t(10 + linea_[inicio + 1] - '0');
     }
     if (comando == 'd') { abierta_ = true; return comando; }

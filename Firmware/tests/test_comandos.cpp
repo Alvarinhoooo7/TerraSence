@@ -30,7 +30,7 @@ constexpr bool noEjecutarPrefijos() {
   if (e.consumir('1') != 0 || e.consumir('0') != 0) return false;
   if (e.consumir('\r') != 10 || e.consumir('\n') != 0) return false;
   if (e.consumir('1') != 0 || e.consumir('1') != 0 || e.consumir('\n') != 11) return false;
-  if (linea(e, "12\n") != '!' || linea(e, "1x\n") != '!') return false;
+  if (linea(e, "12\n") != 12 || linea(e, "13\n") != '!' || linea(e, "1x\n") != '!') return false;
   if (linea(e, "d1\n") != '!' || linea(e, "1 0\n") != '!') return false;
   if (linea(e, "01\n") != '!' || linea(e, "0\n") != '!') return false;
   return linea(e, " \t10 \t\r\n") == 10;

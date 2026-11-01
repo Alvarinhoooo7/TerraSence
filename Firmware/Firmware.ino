@@ -37,7 +37,7 @@ SecuenciaLeds secuenciaLeds;
 uint8_t faseLeds = 4;
 
 // Las opciones locales nunca publican una medición por BLE.
-enum class OrigenCaptura : uint8_t { Ninguna, App, DiagnosticoSonda, BarridoSonda };
+enum class OrigenCaptura : uint8_t { Ninguna, App, DiagnosticoSonda, BarridoSonda, EnsayoSonda };
 OrigenCaptura captura = OrigenCaptura::Ninguna;
 uint32_t sesionCaptura = 0;
 uint8_t direccionI2C = 0;  // 0: diagnóstico inactivo
@@ -177,7 +177,8 @@ void actualizarSecuenciaLeds(uint32_t ahora) {
 
 void cancelarCapturaLocal() {
   direccionI2C = 0;
-  if (captura != OrigenCaptura::BarridoSonda && captura != OrigenCaptura::DiagnosticoSonda) return;
+  if (captura != OrigenCaptura::BarridoSonda && captura != OrigenCaptura::DiagnosticoSonda &&
+      captura != OrigenCaptura::EnsayoSonda) return;
   sonda.cancelar();
   captura = OrigenCaptura::Ninguna;
 }
@@ -245,6 +246,10 @@ void atenderMonitor(uint32_t ahora) {
       return;
     case 11:
       iniciarSecuenciaLeds(ahora);
+      return;
+    case 12:
+      if (sonda.iniciarEnsayo(ahora, 1000)) captura = OrigenCaptura::EnsayoSonda;
+      else monitor.mensaje("No se pudo iniciar el ensayo: sonda ocupada.");
       return;
   }
   if (!iniciada) monitor.mensaje("Salida no probada: aviso operativo activo o buzzer deshabilitado.");
@@ -351,6 +356,7 @@ void actualizarAvisos(uint32_t ahora) {
 }
 
 void setup() {
+  setCpuFrequencyMhz(CPU_MHZ);  // ver config.h: la espera domina el consumo
   Serial.begin(115200);
 
   // Sonda sin energía y transceptor RS-485 en recepción hasta la primera captura.
@@ -413,7 +419,8 @@ void loop() {
   // PAIR con el antirrebote del pulsador: un pico de ruido en IO33 no cancela pruebas.
   if (bleConectado() || bleVentanaAbierta(ahora) || pulsadorPair.presionado()) {
     cancelarPruebas();
-    if (direccionI2C || captura == OrigenCaptura::BarridoSonda || captura == OrigenCaptura::DiagnosticoSonda) {
+    if (direccionI2C || captura == OrigenCaptura::BarridoSonda || captura == OrigenCaptura::DiagnosticoSonda ||
+        captura == OrigenCaptura::EnsayoSonda) {
       cancelarCapturaLocal();
       monitor.aviso("Captura local cancelada por BLE/PAIR; MOSFET apagado.");
     }
@@ -429,8 +436,9 @@ void loop() {
   atenderMonitor(ahora);
   actualizarDiagnosticoI2C();
   sonda.actualizar(ahora);
-  if (captura == OrigenCaptura::BarridoSonda && !sonda.ocupada() && !sonda.terminada())
-    captura = OrigenCaptura::Ninguna;  // barrido abortado por fallo del puerto
+  if ((captura == OrigenCaptura::BarridoSonda || captura == OrigenCaptura::EnsayoSonda) &&
+      !sonda.ocupada() && !sonda.terminada())
+    captura = OrigenCaptura::Ninguna;  // barrido abortado o ensayo terminado: imprimen su propio informe
   if (captura != OrigenCaptura::Ninguna && sonda.terminada()) {
     const bool desdeApp = captura == OrigenCaptura::App;
     const bool soloSonda = captura == OrigenCaptura::DiagnosticoSonda;

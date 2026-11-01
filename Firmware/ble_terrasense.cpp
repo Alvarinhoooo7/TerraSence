@@ -112,7 +112,10 @@ void configurarAnuncio() {
   respuesta.setName(nombre);  // hasta 2 + 26 bytes
   anuncio->setAdvertisementData(principal);
   anuncio->setScanResponseData(respuesta);
-  Serial.printf("[BLE] Anunciando como \"%s\"\n", nombre.c_str());
+  anuncio->setMinInterval(ANUNCIO_INTERVALO_MIN);
+  anuncio->setMaxInterval(ANUNCIO_INTERVALO_MAX);
+  Serial.printf("[BLE] Anunciando como \"%s\" cada %.0f-%.0f ms\n", nombre.c_str(),
+                ANUNCIO_INTERVALO_MIN * 0.625f, ANUNCIO_INTERVALO_MAX * 0.625f);
 }
 
 class CallbacksServidor : public BLEServerCallbacks {
