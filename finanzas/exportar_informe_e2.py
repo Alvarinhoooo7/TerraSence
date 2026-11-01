@@ -432,6 +432,75 @@ def convertir():
     return citas, faltan_figuras
 
 
+PAGINAR_WORD = r'''
+param([string]$Origen, [string]$Pdf)
+$ErrorActionPreference = "Stop"
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
+$word = New-Object -ComObject Word.Application
+$word.Visible = $false
+$word.DisplayAlerts = 0
+$doc = $null
+try {
+    $doc = $word.Documents.Open($Origen, $false, $false, $false)
+    $ancho = $doc.PageSetup.PageWidth - $doc.PageSetup.LeftMargin - $doc.PageSetup.RightMargin
+    $rotulo = '^(Figura|Tabla) \d+\.\d+ \u201C'
+    foreach ($vuelta in 1..2) {
+        foreach ($toc in $doc.TablesOfContents) { $toc.Update() }
+        $doc.Fields.Update() | Out-Null
+        $doc.Repaginate()
+        # Los rótulos van centrados en el cuerpo; las entradas de los índices de
+        # figuras y de tablas repiten el mismo texto sin centrar.
+        $paginas = @{}
+        $entradas = New-Object System.Collections.ArrayList
+        foreach ($p in $doc.Paragraphs) {
+            $texto = $p.Range.Text.Trim()
+            if ($texto -match $rotulo) {
+                $clave = ($texto -split "`t")[0].Trim()
+                if ($p.Alignment -eq 1) { $paginas[$clave] = $p.Range.Information(3) }
+                else { [void]$entradas.Add(@($p, $clave)) }
+            }
+        }
+        foreach ($e in $entradas) {
+            $p = $e[0]; $clave = $e[1]
+            if (-not $paginas.ContainsKey($clave)) { continue }
+            $p.Range.ListFormat.RemoveNumbers()
+            $p.LeftIndent = 0
+            $p.FirstLineIndent = 0
+            $p.Alignment = 0
+            $p.TabStops.ClearAll()
+            [void]$p.TabStops.Add($ancho, 2, 1)
+            $r = $p.Range
+            [void]$r.MoveEnd(1, -1)
+            $r.Text = $clave + "`t" + $paginas[$clave]
+        }
+    }
+    $doc.Save()
+    if ($Pdf) { $doc.ExportAsFixedFormat($Pdf, 17) }
+    "  Índices y números de página actualizados con Microsoft Word: " + $doc.ComputeStatistics(2) + " páginas."
+} finally {
+    if ($doc -ne $null) { $doc.Close($false) }
+    $word.Quit()
+}
+'''
+
+
+def paginar_word(ruta, pdf_revision=None):
+    """Actualiza el índice general y pagina los de figuras y tablas con Microsoft Word."""
+    import tempfile
+    with tempfile.TemporaryDirectory(prefix="terrasense-word-") as carpeta:
+        guion = Path(carpeta) / "paginar.ps1"
+        # PowerShell 5.1 lee como ANSI un guion sin BOM y estropearía las comillas de los rótulos.
+        guion.write_text(PAGINAR_WORD, encoding="utf-8-sig")
+        resultado = subprocess.run(
+            ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(guion),
+             "-Origen", str(Path(ruta).resolve()), "-Pdf", str(Path(pdf_revision).resolve()) if pdf_revision else ""],
+            capture_output=True, timeout=900)
+        salida = resultado.stdout.decode("utf-8", "replace") + resultado.stderr.decode("utf-8", "replace")
+        if resultado.returncode != 0:
+            raise RuntimeError("Microsoft Word no pudo paginar el informe: " + salida.strip()[-400:])
+        print(salida.strip(), flush=True)
+
+
 def paginar(ruta, pdf_revision=None):
     """Actualiza campos en una instancia oculta y aislada, sin tocar documentos abiertos."""
     office = shutil.which("soffice")
@@ -439,6 +508,8 @@ def paginar(ruta, pdf_revision=None):
         candidato = Path(os.environ.get("PROGRAMFILES", "C:/Program Files")) / "LibreOffice/program/soffice.exe"
         if candidato.exists():
             office = str(candidato)
+    if not office and os.name == "nt":
+        return paginar_word(ruta, pdf_revision)
     if not office:
         raise RuntimeError("No se encontró LibreOffice para paginar el informe")
     python_uno = Path(office).with_name("python.exe") if os.name == "nt" else Path(sys.executable)

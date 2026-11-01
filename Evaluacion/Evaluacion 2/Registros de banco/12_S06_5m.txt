@@ -1,0 +1,21 @@
+[2026-10-31 19:40:04] ===== S-06 5m: 20 intentos =====
+[2026-10-31 19:40:39] Intento 1: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:41:15] Intento 2: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:41:50] Intento 3: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:42:26] Intento 4: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:43:01] Intento 5: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:43:37] Intento 6: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:44:13] Intento 7: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:44:48] Intento 8: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:45:24] Intento 9: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:45:59] Intento 10: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:46:35] Intento 11: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:47:10] Intento 12: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:47:46] Intento 13: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:48:21] Intento 14: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:48:57] Intento 15: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:49:32] Intento 16: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:50:08] Intento 17: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:50:43] Intento 18: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:51:19] Intento 19: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:55:26] Resultado S-06 5 m: 19 de 19 intentos exitosos (pantalla de resultado en todas las capturas). Ensayo detenido en el intento 19 por decisión del operador. Placa V2 con batería, sin carcasa.

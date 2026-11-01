@@ -1,0 +1,8 @@
+[BLE] Teléfono conectado
+[BLE] Suscripción a telemetría: se armará una trama nueva
+[SONDA] Registros: hum 0, temp 220, CE 0, pH 90, N 0, P 0, K 0
+[SONDA] Con las escalas de config.h: humedad 0.0 %, temperatura 22.0 °C, CE 0 µS/cm, pH 9.0, N 0, P 0, K 0 mg/kg
+[SONDA] Lectura a 4800 baudios
+[TRAMA] 00 00 00 DC 00 00 00 5A 00 00 00 00 00 00 4F 01 27 92 94 6D (notificada)
+[TRAMA] suelo: ok | BME280: ok | batería ADC: 4.01 V (aproximada)
+[BLE] Teléfono desconectado

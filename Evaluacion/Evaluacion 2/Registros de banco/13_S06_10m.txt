@@ -1,0 +1,8 @@
+[2026-10-31 19:52:19] ===== S-06 10m: 5 intentos =====
+[2026-10-31 19:52:55] Intento 1: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:53:30] Intento 2: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:54:06] Intento 3: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:54:41] Intento 4: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:55:17] Intento 5: captura del resultado a 31 s de iniciar el recorrido
+[2026-10-31 19:55:17] ===== S-06 10m: fin =====
+[2026-10-31 19:55:26] Resultado S-06 10 m: 5 de 5 intentos exitosos. Condición informada por el operador: algo más de 10 m, con una puerta y paredes de por medio (sin línea de vista). Placa V2 con batería, sin carcasa.

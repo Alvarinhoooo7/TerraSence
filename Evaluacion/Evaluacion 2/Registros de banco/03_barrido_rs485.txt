@@ -1,0 +1,54 @@
+
+### [2026-10-31 18:40:56] envío: d
+
+[MANTENIMIENTO] ========== TerraSense | DIAGNÓSTICO ===========
+Consola: 115200 baudios | encendido hace 2191 s
+SALIDAS (confirmación visual y auditiva)
+  11    : secuencia: todas 2 s > rojo 1 s > verde 1 s > azul 1 s
+  2     : buzzer durante 2 segundos
+  3     : LED azul durante 1 segundo
+  4     : LED rojo durante 1 segundo
+  5     : LED verde durante 1 segundo
+SENSORES (adquisición nueva, sin publicar en la app)
+  1     : batería: ADC, tensión y porcentaje
+  6     : lectura nueva de temperatura, presión y humedad del BME280
+  7     : energizar y leer la sonda, incluso sin batería
+  9     : diagnóstico I2C: direcciones, errores e identidad del sensor
+  10    : barrido RS-485: lectura e identidad a 2400/4800/9600 baudios
+  12    : ensayo D-14: 1.000 lecturas Modbus seguidas (CRC, tiempos, rango)
+COMUNICACIÓN
+  8     : estado de Bluetooth y su característica en hexadecimal
+CONTROL
+  d/D   : repetir menú | q: salir | x: cancelar prueba local
+Envía un comando por línea, con Enter (LF, CR o CRLF).
+Pruebas 1-7 y 9-12: sólo sin BLE conectado, PAIR ni captura.
+Un aviso operativo tiene prioridad. Verifica luz/sonido físicamente.
+Un comando nuevo sustituye el informe pendiente de impresión.
+
+### [2026-10-31 18:40:58] envío: 10
+[DIAG] Barrido RS-485 iniciado; MOSFET IO5 activo. x cancela.
+[DIAG] 2400 baudios | lectura de suelo
+HEX TX: 01 03 00 00 00 07 04 08
+[DIAG] Bytes recibidos sin validar (pueden incluir eco/ruido):
+HEX RX: sin respuesta
+[DIAG] 2400 baudios | identidad FF
+HEX TX: FF 03 07 D0 00 01 91 59
+[DIAG] Bytes recibidos sin validar (pueden incluir eco/ruido):
+HEX RX: sin respuesta
+[DIAG] 4800 baudios | lectura de suelo
+HEX TX: 01 03 00 00 00 07 04 08
+[DIAG] Bytes recibidos sin validar (pueden incluir eco/ruido):
+HEX RX: sin respuesta
+[DIAG] 4800 baudios | identidad FF
+HEX TX: FF 03 07 D0 00 01 91 59
+[DIAG] Bytes recibidos sin validar (pueden incluir eco/ruido):
+HEX RX: sin respuesta
+[DIAG] 9600 baudios | lectura de suelo
+HEX TX: 01 03 00 00 00 07 04 08
+[DIAG] Bytes recibidos sin validar (pueden incluir eco/ruido):
+HEX RX: sin respuesta
+[DIAG] 9600 baudios | identidad FF
+HEX TX: FF 03 07 D0 00 01 91 59
+[DIAG] Bytes recibidos sin validar (pueden incluir eco/ruido):
+HEX RX: sin respuesta
+[DIAG] Barrido terminado; MOSFET apagado. Opción 7 valida lectura y CRC.

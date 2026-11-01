@@ -1,0 +1,12 @@
+Informe de ERC (2026-10-31T15:46:25-0300, codificación UTF8)
+
+***** Hoja /
+[missing_unit]: El símbolo SW1 tiene unidades sin colocar [ Unidad B ]
+    ; warning
+    @(106,68 mm, 289,56 mm): Símbolo SW1 [SW_Push_Dual_x2]
+[pin_to_pin]: Pines del tipo Bidirectional y Power output están conectados
+    ; warning
+    @(353,06 mm, 288,29 mm): Symbol U8 Pin 5 [SDO, Bidirectional, Line]
+    @(365,76 mm, 200,66 mm): Symbol #FLG131 Pin 1 [Power output, Line]
+
+**Mensajes ERC: 2. Errores0, Avisos 2

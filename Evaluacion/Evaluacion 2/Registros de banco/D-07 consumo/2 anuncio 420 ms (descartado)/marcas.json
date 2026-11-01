@@ -1,0 +1,112 @@
+[
+ {
+  "t": 1793492281.5212603,
+  "tramo": "A",
+  "evento": "inicio reposo con anuncio BLE"
+ },
+ {
+  "t": 1793492341.5221303,
+  "tramo": "A",
+  "evento": "fin"
+ },
+ {
+  "t": 1793492341.5221303,
+  "tramo": "B",
+  "evento": "inicio"
+ },
+ {
+  "t": 1793492359.9902902,
+  "tramo": "B",
+  "evento": "medición 1: toque en Medir"
+ },
+ {
+  "t": 1793492379.5336232,
+  "tramo": "B",
+  "evento": "medición 1: captura del resultado"
+ },
+ {
+  "t": 1793492397.2508984,
+  "tramo": "B",
+  "evento": "medición 2: toque en Medir"
+ },
+ {
+  "t": 1793492417.196151,
+  "tramo": "B",
+  "evento": "medición 2: captura del resultado"
+ },
+ {
+  "t": 1793492435.8194647,
+  "tramo": "B",
+  "evento": "medición 3: toque en Medir"
+ },
+ {
+  "t": 1793492455.4633348,
+  "tramo": "B",
+  "evento": "medición 3: captura del resultado"
+ },
+ {
+  "t": 1793492472.9252841,
+  "tramo": "B",
+  "evento": "medición 4: toque en Medir"
+ },
+ {
+  "t": 1793492492.5872908,
+  "tramo": "B",
+  "evento": "medición 4: captura del resultado"
+ },
+ {
+  "t": 1793492510.2508745,
+  "tramo": "B",
+  "evento": "medición 5: toque en Medir"
+ },
+ {
+  "t": 1793492529.9990942,
+  "tramo": "B",
+  "evento": "medición 5: captura del resultado"
+ },
+ {
+  "t": 1793492535.2171006,
+  "tramo": "B",
+  "evento": "fin"
+ },
+ {
+  "t": 1793492535.2171006,
+  "tramo": "C",
+  "evento": "inicio LED y buzzer"
+ },
+ {
+  "t": 1793492539.7429445,
+  "tramo": "C",
+  "evento": "secuencia de LED (opción 11)"
+ },
+ {
+  "t": 1793492546.7439528,
+  "tramo": "C",
+  "evento": "buzzer 2 s (opción 2)"
+ },
+ {
+  "t": 1793492552.7453375,
+  "tramo": "C",
+  "evento": "fin"
+ },
+ {
+  "t": 1793492552.7453375,
+  "tramo": "D",
+  "evento": "inicio sonda energizada (ensayo 12)"
+ },
+ {
+  "t": 1793492602.7497041,
+  "tramo": "D",
+  "evento": "fin"
+ },
+ {
+  "t": 1793492602.7497041,
+  "tramo": "E",
+  "evento": "inicio reposo final"
+ },
+ {
+  "t": 1793492632.750147,
+  "tramo": "E",
+  "evento": "fin"
+ }
+]

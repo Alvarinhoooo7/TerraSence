@@ -892,7 +892,7 @@ def carcasa_concepto():
     nota(12.3, 10.5, 17.6, 9.4, "Prensaestopa del cable de la sonda (alivio de tracción)")
     nota(13.4, 13.2, 17.6, 12.6, "Cable hacia la sonda de suelo")
     nota(2.6, 4.95, 0.2, 4.0, "USB-C con tapón\nde silicona", ha="left")
-    nota(6.4, 10.8, 0.2, 12.4, "Interruptor de palanca\ncon capuchón estanco", ha="left")
+    nota(6.4, 10.8, 0.2, 12.4, "Interruptor de palanca\nsellado IP67", ha="left")
     L.guardar("Concepto funcional de la carcasa")
 
 
@@ -941,7 +941,7 @@ def carcasa():
     ax.add_patch(Rectangle((xp - 6.4, L - 2.5), 12.8, 4.0, fc="#C9CEC6", ec="black"))
     ax.text(xp, L + 4.6, "Prensaestopa PG7\nX = %s" % mm_txt(xp), ha="center", va="center", fontsize=8)
     xi = DX + INTERRUPTOR_X
-    ax.add_patch(Rectangle((xi - 3.1, L - 2.5), 6.2, 4.0, fc="#9AA0A6", ec="black"))
+    ax.add_patch(Rectangle((xi - 3.25, L - 2.5), 6.5, 4.0, fc="#9AA0A6", ec="black"))  # agujero del buje 1/4-40
     ax.text(xi, L + 4.6, "Interruptor\nX = %s" % mm_txt(xi), ha="center", va="center", fontsize=8)
     cota(ax, 0, -5, W, -5, "%s mm" % mm_txt(W))
     cota(ax, -14, 0, -14, L, "%s mm" % mm_txt(L), rot=90)

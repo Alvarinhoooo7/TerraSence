@@ -644,31 +644,31 @@ El costo de materiales de cada unidad se detalla en la BOM (*Bill of Materials*,
 
 | Bloque del equipo | Líneas | Subtotal neto por equipo | Participación |
 |---|---:|---:|---:|
-| Sonda | 1 | $44.394 | 54,5 % |
-| Celda | 1 | $6.900 | 8,5 % |
-| Carcasa | 1 | $7.238 | 8,9 % |
-| PCB y ensamble | 3 | $6.289 | 7,7 % |
-| MCU y radio | 1 | $2.710 | 3,3 % |
-| USB-C y carga | 20 | $1.543 | 1,9 % |
+| Sonda | 1 | $44.394 | 47,4 % |
+| Celda | 1 | $6.900 | 7,4 % |
+| Carcasa | 1 | $7.238 | 7,7 % |
+| PCB y ensamble | 3 | $6.289 | 6,7 % |
+| MCU y radio | 1 | $2.710 | 2,9 % |
+| USB-C y carga | 20 | $1.543 | 1,6 % |
 | Alimentación 3,3 V | 1 | $83 | 0,1 % |
-| Elevador 5 V | 10 | $665 | 0,8 % |
-| RS-485 | 4 | $220 | 0,3 % |
-| Sensor ambiental | 2 | $4.623 | 5,7 % |
-| Interfaz de usuario | 10 | $229 | 0,3 % |
-| Protección y medición de batería | 5 | $731 | 0,9 % |
-| Pasivos de desacoplo | 4 | $657 | 0,8 % |
-| Montaje y embalaje | 9 | $5.142 | 6,3 % |
-| **Total BOM neto por equipo** | **72** | **$81.425** | **100,0 %** |
+| Elevador 5 V | 10 | $665 | 0,7 % |
+| RS-485 | 4 | $220 | 0,2 % |
+| Sensor ambiental | 2 | $4.623 | 4,9 % |
+| Interfaz de usuario | 10 | $229 | 0,2 % |
+| Protección y medición de batería | 5 | $731 | 0,8 % |
+| Pasivos de desacoplo | 4 | $657 | 0,7 % |
+| Montaje y embalaje | 10 | $17.468 | 18,6 % |
+| **Total BOM neto por equipo** | **73** | **$93.751** | **100,0 %** |
 
 **Tabla 1.8 “Estructura de costos de fabricación (BOM) por equipo”**
 
-La sonda de suelo representa **$44.394, equivalente al 54,5 % del costo de materiales**, y es por lejos la decisión de abastecimiento más crítica del proyecto. El mercado de sondas 7-en-1 RS-485 muestra una dispersión enorme, entre $12.100 y $82.100, que refleja productos genuinamente distintos en número de variables, calidad de construcción y material del vástago. La variante cotizada, de siete variables, cuesta $44.394 puesta en Chile según una publicación con fecha; una sonda barata no sirve si no sostiene la exactitud que el protocolo de validación exige, y por eso se compra una muestra antes del lote.
+La sonda de suelo representa **$44.394, equivalente al 47,4 % del costo de materiales**, y es por lejos la decisión de abastecimiento más crítica del proyecto. El mercado de sondas 7-en-1 RS-485 muestra una dispersión enorme, entre $12.100 y $82.100, que refleja productos genuinamente distintos en número de variables, calidad de construcción y material del vástago. La variante cotizada, de siete variables, cuesta $44.394 puesta en Chile según una publicación con fecha; una sonda barata no sirve si no sostiene la exactitud que el protocolo de validación exige, y por eso se compra una muestra antes del lote.
 
-En el otro extremo, la electrónica de la placa V3 (módulo ESP32, circuitos integrados, sensor ambiental, pasivos, indicadores y protecciones) suma $11.462 por equipo, un 14,1 % de la BOM, y dentro de ella el sensor BME280 y el módulo ESP32 concentran la mayor parte. La conclusión de diseño es directa: el costo del instrumento se decide en la sonda y en un puñado de circuitos integrados, y ninguna economía sobre los pasivos cambia el resultado, de modo que en ellos se privilegia la robustez sobre el ahorro.
+En el otro extremo, la electrónica de la placa V3 (módulo ESP32, circuitos integrados, sensor ambiental, pasivos, indicadores y protecciones) suma $11.462 por equipo, un 12,2 % de la BOM, y dentro de ella el sensor BME280 y el módulo ESP32 concentran la mayor parte. La conclusión de diseño es directa: el costo del instrumento se decide en la sonda y en un puñado de circuitos integrados, y ninguna economía sobre los pasivos cambia el resultado, de modo que en ellos se privilegia la robustez sobre el ahorro.
 
 Dos precisiones sobre el abastecimiento tienen consecuencias que conviene declarar:
 
-- **Régimen tributario de las compras importadas.** Desde octubre de 2025, la Ley N° 21.713 [42] eliminó la exención que liberaba de IVA a las importaciones bajo US$41: hoy toda compra internacional paga IVA, y las plataformas inscritas ante el Servicio de Impuestos Internos lo recaudan en el momento de la compra para pedidos de hasta US$500, sin arancel aduanero adicional. Ese IVA solo constituye crédito fiscal si la compra se formaliza como importación con Declaración de Ingreso. Comprando al detalle, la exposición es de **$499 por equipo**, del orden de $99.712 anuales al volumen del primer año. El proyecto asume formalizar el abastecimiento antes de comprometer volumen, y esta cifra dimensiona lo que está en juego si no lo hace.
+- **Régimen tributario de las compras importadas.** Desde octubre de 2025, la Ley N° 21.713 [42] eliminó la exención que liberaba de IVA a las importaciones bajo US$41: hoy toda compra internacional paga IVA, y las plataformas inscritas ante el Servicio de Impuestos Internos lo recaudan en el momento de la compra para pedidos de hasta US$500, sin arancel aduanero adicional. Ese IVA solo constituye crédito fiscal si la compra se formaliza como importación con Declaración de Ingreso. Comprando al detalle, la exposición es de **$170 por equipo**, del orden de $33.972 anuales al volumen del primer año. El proyecto asume formalizar el abastecimiento antes de comprometer volumen, y esta cifra dimensiona lo que está en juego si no lo hace.
 - **La placa de control es un módulo con antena soldado a la placa V3, no una placa de desarrollo.** El presupuesto adquiere el ESP32 como módulo WROOM-32D, que trae la antena y la certificación de radio, y suma en la propia placa el regulador de 3,3 V de baja corriente en reposo, el puente USB-serie, el cargador y el elevador de la sonda. Los cargos de ensamble de la placa se contratan a un fabricante ($1.214 por placa al lote de 200) y se incluyen en la BOM.
 
 La carcasa se imprime en taller propio: el proyecto adquiere dos impresoras Creality K1C, que figuran en el activo fijo, y el costo de cada carcasa se construye así:
@@ -689,17 +689,17 @@ A los materiales se suman los costos que solo existen cuando hay una venta, y qu
 
 | Concepto | Neto CLP |
 |---|---:|
-| Materiales y servicios de la BOM | $81.425 |
-| Merma de fabricación, 3 % de la BOM | $2.443 |
-| Provisión de reposiciones y garantía, 5 % de la BOM | $4.071 |
+| Materiales y servicios de la BOM | $93.751 |
+| Merma de fabricación, 3 % de la BOM | $2.813 |
+| Provisión de reposiciones y garantía, 5 % de la BOM | $4.688 |
 | Envío al cliente | $6.000 |
-| **Subtotal sin comisión** | **$93.939** |
-| Comisión comercial, 5 % sobre el precio bruto | $23.373 |
-| **Costo variable total por equipo** | **$117.312** |
+| **Subtotal sin comisión** | **$107.251** |
+| Comisión comercial, 5 % sobre el precio bruto | $24.489 |
+| **Costo variable total por equipo** | **$131.740** |
 
 **Tabla 2.0 “Costo variable por equipo”**
 
-El costo variable total, $117.312 por equipo, equivale al 29,9 % del precio neto de venta. Cada unidad vendida deja por lo tanto un margen de contribución de $275.515, que es lo que queda disponible para cubrir la estructura fija de la empresa, los intereses y la utilidad. La comisión comercial es la única partida que depende del precio; todas las demás dependen de la BOM y del envío, y por eso una variación en el costo de la sonda se transmite casi íntegra al costo variable.
+El costo variable total, $131.740 por equipo, equivale al 32,0 % del precio neto de venta. Cada unidad vendida deja por lo tanto un margen de contribución de $279.843, que es lo que queda disponible para cubrir la estructura fija de la empresa, los intereses y la utilidad. La comisión comercial es la única partida que depende del precio; todas las demás dependen de la BOM y del envío, y por eso una variación en el costo de la sonda se transmite casi íntegra al costo variable.
 
 ### Inversión inicial
 
@@ -752,44 +752,44 @@ El capital de trabajo no se fijó por una regla de tantos meses, sino **iterando
 
 | Destino | CLP | Participación |
 |---|---:|---:|
-| Equipamiento y activo fijo | $5.930.988 | 20,6 % |
-| Activo nominal (puesta en marcha) | $7.025.000 | 24,4 % |
-| Capital de trabajo (3,0 meses de estructura) | $12.719.785 | 44,2 % |
-| Inventario inicial (2 meses de ventas) | $3.131.286 | 10,9 % |
-| **Inversión inicial total** | **$28.807.059** | **100,0 %** |
+| Equipamiento y activo fijo | $5.930.988 | 20,3 % |
+| Activo nominal (puesta en marcha) | $7.025.000 | 24,0 % |
+| Capital de trabajo (3,0 meses de estructura) | $12.719.785 | 43,5 % |
+| Inventario inicial (2 meses de ventas) | $3.575.022 | 12,2 % |
+| **Inversión inicial total** | **$29.250.795** | **100,0 %** |
 
 **Tabla 2.3 “Inversión inicial total”**
 
-La partida más grande de la inversión no es un bien físico sino el capital de trabajo: $12.719.785, el 44,2 % del total. Es el dinero que financia la pérdida de los dos primeros ejercicios y los dos meses de inventario con que parte la producción. El equipamiento y el activo nominal, que son lo que habitualmente se asocia a «montar la empresa», representan juntos menos de la mitad.
+La partida más grande de la inversión no es un bien físico sino el capital de trabajo: $12.719.785, el 43,5 % del total. Es el dinero que financia la pérdida de los dos primeros ejercicios y los dos meses de inventario con que parte la producción. El equipamiento y el activo nominal, que son lo que habitualmente se asocia a «montar la empresa», representan juntos menos de la mitad.
 
 ### Financiamiento
 
-La inversión inicial se financia con un crédito bancario de largo plazo que el banco desembolsa por el total, $28.807.059. Para otorgar un crédito de ese tamaño a una empresa sin historial de ventas, el banco exige que los socios comprometan capital propio: un pie de $9.000.000, $4.500.000 por socio, que se abona al banco el mismo día del desembolso como **cuotas pagadas por anticipado**. Ese abono cubre las primeras 22,3 cuotas mensuales del calendario, es decir, todo 2027 y la mayor parte de 2028, los dos ejercicios de arranque en que la empresa todavía no cubre su estructura. Desde ahí la cuota sale de la caja de la operación.
+La inversión inicial se financia con un crédito bancario de largo plazo que el banco desembolsa por el total, $29.250.795. Para otorgar un crédito de ese tamaño a una empresa sin historial de ventas, el banco exige que los socios comprometan capital propio: un pie de $9.000.000, $4.500.000 por socio, que se abona al banco el mismo día del desembolso como **cuotas pagadas por anticipado**. Ese abono cubre las primeras 22,0 cuotas mensuales del calendario, es decir, todo 2027 y la mayor parte de 2028, los dos ejercicios de arranque en que la empresa todavía no cubre su estructura. Desde ahí la cuota sale de la caja de la operación.
 
 El pie, entonces, no se suma a la inversión ni se pierde de vista: es dinero de los socios que paga deuda. Las fuentes del inicio son el crédito y el pie; los usos son la inversión inicial y las cuotas anticipadas. Ambos lados suman lo mismo, de modo que ningún peso se cuenta dos veces, y el pie aparece explícitamente en la tabla de amortización, en el flujo de fondos y en el desembolso inicial con que se calculan el VAN y la TIR.
 
 | Condición | Valor |
 |---|---|
-| Inversión inicial total del proyecto | $28.807.059 |
-| Monto del préstamo (capital), desembolsado íntegro por el banco | $28.807.059 |
+| Inversión inicial total del proyecto | $29.250.795 |
+| Monto del préstamo (capital), desembolsado íntegro por el banco | $29.250.795 |
 | Pie de los socios, con capital propio | $9.000.000 |
 | Aporte por socio (2 socios, partes iguales) | $4.500.000 |
 | Destino del pie | Abono al banco el día del desembolso como cuotas pagadas por anticipado |
-| Cuotas que cubre el pie | 22,3 cuotas mensuales: todo 2027 y hasta octubre de 2028 |
+| Cuotas que cubre el pie | 22,0 cuotas mensuales: todo 2027 y hasta septiembre de 2028 |
 | Sistema de amortización | Francés: cuota constante, interés decreciente, capital creciente |
 | Tasa de interés | 12 % efectiva anual (0,9489 % mensual) |
 | Plazo | 10 años, 120 cuotas mensuales iguales |
-| Cuota mensual | $403.147 |
-| Total intereses del crédito | $19.570.539 |
-| Total pagado al banco (con el pie incluido) | $48.377.598 |
+| Cuota mensual | $409.357 |
+| Total intereses del crédito | $19.871.998 |
+| Total pagado al banco (con el pie incluido) | $49.122.793 |
 
 **Tabla 2.4 “Condiciones del financiamiento”**
 
 | Fuentes | Monto | Usos | Monto |
 |---|---:|---|---:|
-| Crédito bancario | $28.807.059 | Inversión inicial | $28.807.059 |
+| Crédito bancario | $29.250.795 | Inversión inicial | $29.250.795 |
 | Pie de los socios | $9.000.000 | Cuotas pagadas por anticipado | $9.000.000 |
-| **Total fuentes** | **$37.807.059** | **Total usos** | **$37.807.059** |
+| **Total fuentes** | **$38.250.795** | **Total usos** | **$38.250.795** |
 
 **Tabla 2.5 “Fuentes y usos de los fondos al inicio”**
 
@@ -812,25 +812,25 @@ El criterio con más peso es la **certeza de obtener los fondos**, porque la emp
 
 La decisión, por lo tanto, **no responde a que el proyecto no califique** para estos instrumentos, sino a que los socios no quieren que la puesta en marcha dependa de un beneficio que no está asegurado. Prefieren comprometer su propio capital como pie y ejecutar el proyecto con un financiamiento que pueden asegurar de antemano. Los instrumentos públicos quedan como **escenario favorable, fuera del caso base**: si durante 2027 se adjudicara un fondo concursable, se destinaría a prepagar el crédito, y si el banco ofreciera la garantía FOGAPE, podría rebajar el pie o la tasa. A modo de referencia, un Semilla Inicia por su monto máximo aplicado a reducir el crédito ahorraría $10.190.491 de intereses en los diez años. Ninguna de esas cifras entra en la evaluación, porque un modelo que cuenta con ellas falla precisamente en el escenario en que no llegan.
 
-Sobre el sistema de amortización: se adopta el **francés**, de cuota constante con interés decreciente y capital creciente, porque es el que la banca chilena aplica al crédito empresarial de largo plazo. La cuota fija facilita además la planificación de caja de una empresa que en sus primeros ejercicios opera con holgura estrecha. La cuota anual, $4.837.760, equivale al 6,2 % de las ventas netas del primer año y al 0,9 % de las del último, de modo que su peso sobre la operación se diluye a medida que el negocio crece.
+Sobre el sistema de amortización: se adopta el **francés**, de cuota constante con interés decreciente y capital creciente, porque es el que la banca chilena aplica al crédito empresarial de largo plazo. La cuota fija facilita además la planificación de caja de una empresa que en sus primeros ejercicios opera con holgura estrecha. La cuota anual, $4.912.279, equivale al 6,0 % de las ventas netas del primer año y al 0,8 % de las del último, de modo que su peso sobre la operación se diluye a medida que el negocio crece.
 
 | Periodo | Saldo inicial | Cuota de capital | Intereses | Cuota total | Pagada con el pie | Pagada por la empresa | Saldo final |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| 2027 | $28.807.059 | $1.641.546 | $3.196.214 | $4.837.760 | $4.837.760 | $0 | $27.165.513 |
-| 2028 | $27.165.513 | $1.838.532 | $2.999.228 | $4.837.760 | $4.162.240 | $675.520 | $25.326.981 |
-| 2029 | $25.326.981 | $2.059.156 | $2.778.604 | $4.837.760 | $0 | $4.837.760 | $23.267.826 |
-| 2030 | $23.267.826 | $2.306.254 | $2.531.506 | $4.837.760 | $0 | $4.837.760 | $20.961.571 |
-| 2031 | $20.961.571 | $2.583.005 | $2.254.755 | $4.837.760 | $0 | $4.837.760 | $18.378.567 |
-| 2032 | $18.378.567 | $2.892.965 | $1.944.795 | $4.837.760 | $0 | $4.837.760 | $15.485.601 |
-| 2033 | $15.485.601 | $3.240.121 | $1.597.639 | $4.837.760 | $0 | $4.837.760 | $12.245.480 |
-| 2034 | $12.245.480 | $3.628.936 | $1.208.824 | $4.837.760 | $0 | $4.837.760 | $8.616.545 |
-| 2035 | $8.616.545 | $4.064.408 | $773.352 | $4.837.760 | $0 | $4.837.760 | $4.552.137 |
-| 2036 | $4.552.137 | $4.552.137 | $285.623 | $4.837.760 | $0 | $4.837.760 | $0 |
-| **Total** |  | **$28.807.059** | **$19.570.539** | **$48.377.598** | **$9.000.000** | **$39.377.598** |  |
+| 2027 | $29.250.795 | $1.666.832 | $3.245.447 | $4.912.279 | $4.912.279 | $0 | $27.583.963 |
+| 2028 | $27.583.963 | $1.866.852 | $3.045.427 | $4.912.279 | $4.087.721 | $824.559 | $25.717.111 |
+| 2029 | $25.717.111 | $2.090.874 | $2.821.405 | $4.912.279 | $0 | $4.912.279 | $23.626.237 |
+| 2030 | $23.626.237 | $2.341.779 | $2.570.500 | $4.912.279 | $0 | $4.912.279 | $21.284.458 |
+| 2031 | $21.284.458 | $2.622.793 | $2.289.487 | $4.912.279 | $0 | $4.912.279 | $18.661.665 |
+| 2032 | $18.661.665 | $2.937.528 | $1.974.752 | $4.912.279 | $0 | $4.912.279 | $15.724.137 |
+| 2033 | $15.724.137 | $3.290.031 | $1.622.248 | $4.912.279 | $0 | $4.912.279 | $12.434.106 |
+| 2034 | $12.434.106 | $3.684.835 | $1.227.445 | $4.912.279 | $0 | $4.912.279 | $8.749.272 |
+| 2035 | $8.749.272 | $4.127.015 | $785.264 | $4.912.279 | $0 | $4.912.279 | $4.622.257 |
+| 2036 | $4.622.257 | $4.622.257 | $290.023 | $4.912.279 | $0 | $4.912.279 | $0 |
+| **Total** |  | **$29.250.795** | **$19.871.998** | **$49.122.793** | **$9.000.000** | **$40.122.793** |  |
 
 **Tabla 2.7 “Tabla de amortización del crédito”**
 
-El crédito se cancela íntegramente dentro del horizonte de evaluación: al cierre de 2036 la deuda es cero. Los $19.570.539 de intereses son el precio del financiamiento y están descontados en el estado de resultados de cada ejercicio, aunque las cuotas de 2027 y de parte de 2028 las haya pagado el pie: el interés es un gasto del año en que se devenga, no del año en que se desembolsa el dinero.
+El crédito se cancela íntegramente dentro del horizonte de evaluación: al cierre de 2036 la deuda es cero. Los $19.871.998 de intereses son el precio del financiamiento y están descontados en el estado de resultados de cada ejercicio, aunque las cuotas de 2027 y de parte de 2028 las haya pagado el pie: el interés es un gasto del año en que se devenga, no del año en que se desembolsa el dinero.
 
 ### Estructura de costos de operación
 
@@ -888,7 +888,7 @@ El primer año la empresa opera desde un taller domiciliario, y los servicios b�
 
 | Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Materiales y costo variable | $23.462.349 | $42.290.883 | $62.228.014 | $83.323.311 | $112.230.090 | $121.308.845 | $131.251.546 | $141.970.189 | $153.511.038 | $166.075.760 |
+| Materiales y costo variable | $26.347.967 | $47.492.211 | $69.881.396 | $93.571.189 | $126.033.194 | $136.228.538 | $147.394.086 | $159.431.007 | $172.391.258 | $186.501.307 |
 | Nómina y cargas | $32.689.140 | $47.103.354 | $68.631.682 | $86.416.053 | $94.672.448 | $110.457.607 | $114.396.445 | $118.203.924 | $135.424.622 | $139.487.361 |
 | Colación y movilización | $5.400.000 | $7.416.000 | $9.548.100 | $11.801.452 | $12.155.495 | $14.606.853 | $15.045.059 | $15.496.411 | $18.241.489 | $18.788.734 |
 | Arriendo de oficina | $0 | $18.540.000 | $19.096.200 | $19.669.086 | $20.259.159 | $20.866.933 | $21.492.941 | $22.137.730 | $22.801.861 | $23.485.917 |
@@ -898,11 +898,11 @@ El primer año la empresa opera desde un taller domiciliario, y los servicios b�
 | Materiales de oficina | $600.000 | $618.000 | $636.540 | $655.636 | $675.305 | $695.564 | $716.431 | $737.924 | $760.062 | $782.864 |
 | Mantención de equipos | $1.200.000 | $1.236.000 | $1.273.080 | $1.311.272 | $1.350.611 | $1.391.129 | $1.432.863 | $1.475.849 | $1.520.124 | $1.565.728 |
 | Publicidad digital | $6.000.000 | $10.815.000 | $15.913.500 | $21.308.176 | $28.700.475 | $31.022.174 | $33.564.810 | $36.305.877 | $39.257.205 | $42.470.367 |
-| **Costo y gasto total** | $74.341.489 | $135.878.137 | $185.421.784 | $232.822.493 | $278.631.214 | $309.194.367 | $327.010.714 | $345.711.840 | $381.181.857 | $402.612.151 |
+| **Costo y gasto total** | $77.227.107 | $141.079.465 | $193.075.165 | $243.070.372 | $292.434.318 | $324.114.061 | $343.153.254 | $363.172.659 | $400.062.078 | $423.037.698 |
 
 **Tabla 3.1 “Costos operacionales, de administración y de comercialización”**
 
-La tabla muestra dónde está el costo de la empresa. En 2027 el personal, sumando nómina, cargas, colación y movilización, se lleva el 51 % del costo total y los materiales solo el 32 %: es una empresa que todavía paga más estructura de la que su volumen justifica. En 2036 la proporción se ha acercado (39 % el personal y 41 % los materiales), porque la estructura crece por escalones mientras las ventas crecen todos los años. La publicidad digital se presupuesta en $30.000 por equipo vendido, de modo que acompaña al volumen en lugar de ser un monto fijo.
+La tabla muestra dónde está el costo de la empresa. En 2027 el personal, sumando nómina, cargas, colación y movilización, se lleva el 49 % del costo total y los materiales solo el 34 %: es una empresa que todavía paga más estructura de la que su volumen justifica. En 2036 la proporción se ha acercado (37 % el personal y 44 % los materiales), porque la estructura crece por escalones mientras las ventas crecen todos los años. La publicidad digital se presupuesta en $30.000 por equipo vendido, de modo que acompaña al volumen en lugar de ser un monto fijo.
 
 ### Determinación del precio de venta
 
@@ -910,95 +910,95 @@ Con la estructura completa de costos ya construida, el precio deja de ser una de
 
 | Concepto | Valor |
 |---|---:|
-| Costo y gasto total de los 10 años | $2.672.806.047 |
+| Costo y gasto total de los 10 años | $2.800.426.177 |
 | Margen de utilidad exigido sobre el costo total | 30 % |
-| Ventas netas necesarias en los 10 años (costo total + 30 %) | $3.474.647.861 |
+| Ventas netas necesarias en los 10 años (costo total + 30 %) | $3.640.554.030 |
 | Equipos vendidos en los 10 años | 7.481 |
 | Equipos ponderados por el reajuste anual del precio (3 %) | 8.845,25 |
-| **Precio neto de venta 2027 (ventas ÷ equipos ponderados)** | **$392.826** |
-| IVA 19 % | $74.637 |
-| **Precio de lista con IVA** | **$467.463** |
+| **Precio neto de venta 2027 (ventas ÷ equipos ponderados)** | **$411.583** |
+| IVA 19 % | $78.201 |
+| **Precio de lista con IVA** | **$489.784** |
 
 **Tabla 3.2 “Determinación del precio de venta”**
 
-El precio de lista resultante es de **$467.463 con IVA**, expresado en pesos de 2027 y reajustado cada año por inflación, igual que los costos; por eso se obtiene dividiendo las ventas necesarias por los equipos ponderados según ese reajuste, y no multiplicando un costo medio por el margen. Conviene explicitar cómo se comporta ese margen en el tiempo: al ser un precio único aplicado sobre una estructura que se diluye con el volumen, los primeros ejercicios quedan por debajo del 30 % objetivo y los últimos por encima, de modo que el margen se cumple sobre el horizonte completo y no ejercicio por ejercicio. Esa es exactamente la razón por la que los años 2027 y 2028 arrojan pérdida: son los años en que se construye la empresa.
+El precio de lista resultante es de **$489.784 con IVA**, expresado en pesos de 2027 y reajustado cada año por inflación, igual que los costos; por eso se obtiene dividiendo las ventas necesarias por los equipos ponderados según ese reajuste, y no multiplicando un costo medio por el margen. Conviene explicitar cómo se comporta ese margen en el tiempo: al ser un precio único aplicado sobre una estructura que se diluye con el volumen, los primeros ejercicios quedan por debajo del 30 % objetivo y los últimos por encima, de modo que el margen se cumple sobre el horizonte completo y no ejercicio por ejercicio. Esa es exactamente la razón por la que los años 2027 y 2028 arrojan pérdida: son los años en que se construye la empresa.
 
-Este resultado define el posicionamiento competitivo. A $467.463, TerraSense queda por encima del precio de un medidor básico de importación como el Hanna HI9814 (US$294) o el Bluelab Pulse (US$339). **El argumento no es de etiqueta sino de capacidad y de costo de uso**: TerraSense entrega 7 variables de suelo más 3 ambientales con interpretación agronómica y mediciones ilimitadas sin costo marginal, frente a 3 o 4 variables sin interpretación de los equipos comparados, y cuesta menos que dos años y medio de análisis de laboratorio al ritmo habitual de cuatro muestras por año.
+Este resultado define el posicionamiento competitivo. A $489.784, TerraSense queda por encima del precio de un medidor básico de importación como el Hanna HI9814 (US$294) o el Bluelab Pulse (US$339). **El argumento no es de etiqueta sino de capacidad y de costo de uso**: TerraSense entrega 7 variables de suelo más 3 ambientales con interpretación agronómica y mediciones ilimitadas sin costo marginal, frente a 3 o 4 variables sin interpretación de los equipos comparados, y cuesta menos que dos años y medio de análisis de laboratorio al ritmo habitual de cuatro muestras por año.
 
 ### Estado de resultados proyectado
 
 | Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| (+) Ventas netas | $78.565.258 | $141.613.878 | $208.374.707 | $279.013.732 | $375.810.035 | $406.210.856 | $439.504.663 | $475.396.762 | $514.042.074 | $556.115.895 |
-| (-) Costos operacionales | $23.462.349 | $42.290.883 | $62.228.014 | $83.323.311 | $112.230.090 | $121.308.845 | $131.251.546 | $141.970.189 | $153.511.038 | $166.075.760 |
+| (+) Ventas netas | $82.316.563 | $148.375.604 | $218.324.103 | $292.335.974 | $393.754.070 | $425.606.458 | $460.489.965 | $498.095.826 | $538.586.360 | $582.669.106 |
+| (-) Costos operacionales | $26.347.967 | $47.492.211 | $69.881.396 | $93.571.189 | $126.033.194 | $136.228.538 | $147.394.086 | $159.431.007 | $172.391.258 | $186.501.307 |
 | (-) Gastos de estructura | $50.879.140 | $93.587.254 | $123.193.769 | $149.499.182 | $166.401.124 | $187.885.523 | $195.759.168 | $203.741.652 | $227.670.820 | $236.536.391 |
 | (-) Depreciación | $1.186.198 | $1.186.198 | $1.186.198 | $1.186.198 | $1.186.198 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 |
 | (-) Amortización del activo nominal | $1.405.000 | $1.405.000 | $1.405.000 | $1.405.000 | $1.405.000 | $0 | $0 | $0 | $0 | $0 |
-| (-) Costo financiero (intereses) | $3.196.214 | $2.999.228 | $2.778.604 | $2.531.506 | $2.254.755 | $1.944.795 | $1.597.639 | $1.208.824 | $773.352 | $285.623 |
-| **(=) Utilidad antes de impuesto** | $-1.563.641 | $145.316 | $17.583.121 | $41.068.536 | $92.332.868 | $93.696.566 | $109.521.182 | $127.100.969 | $130.711.736 | $151.842.994 |
-| (-) Impuesto a la renta | $0 | $0 | $4.041.199 | $10.267.134 | $23.083.217 | $23.424.142 | $27.380.296 | $31.775.242 | $32.677.934 | $37.960.748 |
-| **(=) Utilidad del ejercicio** | $-1.563.641 | $145.316 | $13.541.922 | $30.801.402 | $69.249.651 | $70.272.425 | $82.140.887 | $95.325.727 | $98.033.802 | $113.882.245 |
+| (-) Costo financiero (intereses) | $3.245.447 | $3.045.427 | $2.821.405 | $2.570.500 | $2.289.487 | $1.974.752 | $1.622.248 | $1.227.445 | $785.264 | $290.023 |
+| **(=) Utilidad antes de impuesto** | $-747.189 | $1.659.515 | $19.836.335 | $44.103.905 | $96.439.067 | $98.142.517 | $114.339.334 | $132.320.594 | $136.363.890 | $157.966.258 |
+| (-) Impuesto a la renta | $0 | $136.849 | $4.959.084 | $11.025.976 | $24.109.767 | $24.535.629 | $28.584.834 | $33.080.149 | $34.090.972 | $39.491.564 |
+| **(=) Utilidad del ejercicio** | $-747.189 | $1.522.666 | $14.877.251 | $33.077.929 | $72.329.301 | $73.606.888 | $85.754.501 | $99.240.446 | $102.272.917 | $118.474.693 |
 
 **Tabla 3.3 “Estado de resultados proyectado”**
 
-El primer ejercicio cierra con una pérdida de $1.563.641 y el segundo con $145.316. No es un defecto del modelo sino su hallazgo más útil: con 200 equipos vendidos, la estructura mínima que exige operar formalmente —dos socios, un contador, cotizaciones, servicios digitales y publicidad— no se cubre todavía. A partir de 2029 el resultado es positivo y creciente.
+El primer ejercicio cierra con una pérdida de $747.189 y el segundo con $1.522.666. No es un defecto del modelo sino su hallazgo más útil: con 200 equipos vendidos, la estructura mínima que exige operar formalmente —dos socios, un contador, cotizaciones, servicios digitales y publicidad— no se cubre todavía. A partir de 2029 el resultado es positivo y creciente.
 
-El impuesto a la renta se calcula bajo el régimen Pro Pyme [18], con las tasas de 12,5 % en 2027, 15 % en 2028 y 25 % desde 2029, y con arrastre de pérdidas: los $1.418.326 perdidos en los dos primeros ejercicios se descuentan de la base imponible de 2029, que por eso tributa sobre una utilidad menor que la contable. La depreciación y la amortización reducen el impuesto sin ser salidas de dinero, y por esa razón se suman de vuelta en el flujo de fondos.
+El impuesto a la renta se calcula bajo el régimen Pro Pyme [18], con las tasas de 12,5 % en 2027, 15 % en 2028 y 25 % desde 2029, y con arrastre de pérdidas: los $-912.325 perdidos en los dos primeros ejercicios se descuentan de la base imponible de 2029, que por eso tributa sobre una utilidad menor que la contable. La depreciación y la amortización reducen el impuesto sin ser salidas de dinero, y por esa razón se suman de vuelta en el flujo de fondos.
 
 ### Flujo de fondos y evaluación
 
 | Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Utilidad del ejercicio | $-1.563.641 | $145.316 | $13.541.922 | $30.801.402 | $69.249.651 | $70.272.425 | $82.140.887 | $95.325.727 | $98.033.802 | $113.882.245 |
+| Utilidad del ejercicio | $-747.189 | $1.522.666 | $14.877.251 | $33.077.929 | $72.329.301 | $73.606.888 | $85.754.501 | $99.240.446 | $102.272.917 | $118.474.693 |
 | (+) Depreciación y amortización | $2.591.198 | $2.591.198 | $2.591.198 | $2.591.198 | $2.591.198 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 |
-| (-) Cuota de capital del préstamo | $1.641.546 | $1.838.532 | $2.059.156 | $2.306.254 | $2.583.005 | $2.892.965 | $3.240.121 | $3.628.936 | $4.064.408 | $4.552.137 |
+| (-) Cuota de capital del préstamo | $1.666.832 | $1.866.852 | $2.090.874 | $2.341.779 | $2.622.793 | $2.937.528 | $3.290.031 | $3.684.835 | $4.127.015 | $4.622.257 |
 | (-) Reinversión en activo fijo | $0 | $0 | $0 | $0 | $0 | $6.875.641 | $0 | $0 | $0 | $0 |
-| (+) Cuota ya pagada con el pie | $4.837.760 | $4.162.240 | $0 | $0 | $0 | $0 | $0 | $0 | $0 | $0 |
-| **(=) Flujo de fondos** | $4.223.770 | $5.060.222 | $14.073.965 | $31.086.345 | $69.257.844 | $61.878.947 | $80.275.894 | $93.071.919 | $95.344.523 | $110.705.236 |
-| Caja acumulada | $16.943.555 | $22.003.777 | $36.077.741 | $67.164.086 | $136.421.930 | $198.300.877 | $278.576.770 | $371.648.690 | $466.993.213 | $577.698.449 |
+| (+) Cuota ya pagada con el pie | $4.912.279 | $4.087.721 | $0 | $0 | $0 | $0 | $0 | $0 | $0 | $0 |
+| **(=) Flujo de fondos** | $5.089.455 | $6.334.732 | $15.377.575 | $33.327.347 | $72.297.706 | $65.168.848 | $83.839.598 | $96.930.739 | $99.521.031 | $115.227.565 |
+| Caja acumulada | $17.809.240 | $24.143.973 | $39.521.547 | $72.848.894 | $145.146.600 | $210.315.448 | $294.155.045 | $391.085.785 | $490.606.815 | $605.834.380 |
 
 **Tabla 3.4 “Flujo de fondos para la evaluación del proyecto”**
 
-El flujo de fondos parte de la utilidad, le devuelve la depreciación y la amortización que no son salidas de caja, y le descuenta lo que sí sale de la empresa sin pasar por resultados: el capital del préstamo y, en 2032, la renovación del activo fijo. Le devuelve además la parte de la cuota que el pie ya pagó por anticipado en 2027 y 2028, porque ese dinero salió al inicio y no vuelve a salir de la caja. La caja nunca baja de $16.943.555, que ocurre en 2027.
+El flujo de fondos parte de la utilidad, le devuelve la depreciación y la amortización que no son salidas de caja, y le descuenta lo que sí sale de la empresa sin pasar por resultados: el capital del préstamo y, en 2032, la renovación del activo fijo. Le devuelve además la parte de la cuota que el pie ya pagó por anticipado en 2027 y 2028, porque ese dinero salió al inicio y no vuelve a salir de la caja. La caja nunca baja de $17.809.240, que ocurre en 2027.
 
 | Indicador | Valor | Criterio | Veredicto |
 |---|---:|---|---|
-| Desembolso inicial evaluado (inversión $28.807.059 + pie $9.000.000) | $37.807.059 | — | — |
-| VAN al 20 % | $121.326.245 | VAN > 0 | Cumple |
-| TIR efectiva anual | 53,50 % | TIR > 20 % | Cumple |
-| Payback simple | 3,46 años | ≤ 5 años | Cumple |
-| Payback descontado al 20 % | 4,27 años | ≤ 5 años | Cumple |
-| Caja mínima del horizonte | $16.943.555 | > 0 | Cumple |
+| Desembolso inicial evaluado (inversión $29.250.795 + pie $9.000.000) | $38.250.795 | — | — |
+| VAN al 20 % | $130.079.377 | VAN > 0 | Cumple |
+| TIR efectiva anual | 55,43 % | TIR > 20 % | Cumple |
+| Payback simple | 3,34 años | ≤ 5 años | Cumple |
+| Payback descontado al 20 % | 4,16 años | ≤ 5 años | Cumple |
+| Caja mínima del horizonte | $17.809.240 | > 0 | Cumple |
 | Deuda al cierre del horizonte | $0 | Crédito saldado | Cumple |
 
 **Tabla 3.5 “Evaluación económica”**
 
-Todos los indicadores cumplen su criterio. El VAN de $121.326.245 indica excedente económico después de remunerar el capital al 20 % anual; la TIR de 53,50 % supera esa exigencia en 33,50 puntos porcentuales; y el desembolso inicial, que suma la inversión y el pie, se recupera en 3,46 años nominales o 4,27 descontados, dentro del plazo de cinco años que el proyecto se fijó como criterio.
+Todos los indicadores cumplen su criterio. El VAN de $130.079.377 indica excedente económico después de remunerar el capital al 20 % anual; la TIR de 55,43 % supera esa exigencia en 35,43 puntos porcentuales; y el desembolso inicial, que suma la inversión y el pie, se recupera en 3,34 años nominales o 4,16 descontados, dentro del plazo de cinco años que el proyecto se fijó como criterio.
 
 La evaluación principal es a diez años porque es el plazo del crédito y porque el equipo tiene una vida comercial que excede el lustro. La comparación con un horizonte de cinco años muestra qué parte del resultado depende de esa elección:
 
 | Indicador | A 5 años (2027–2031) | A 10 años (2027–2036) |
 |---|---:|---:|
-| VAN al 20 % | $20.196.108 | $121.326.245 |
-| TIR efectiva anual | 33,71 % | 53,50 % |
-| Caja acumulada al cierre | $136.421.930 | $577.698.449 |
-| Deuda bancaria pendiente al cierre | $18.378.567 | $0 |
+| VAN al 20 % | $24.415.639 | $130.079.377 |
+| TIR efectiva anual | 36,29 % | 55,43 % |
+| Caja acumulada al cierre | $145.146.600 | $605.834.380 |
+| Deuda bancaria pendiente al cierre | $18.661.665 | $0 |
 
 **Tabla 3.6 “Comparación del horizonte de evaluación: cinco y diez años”**
 
-A cinco años el proyecto ya crea valor, con un VAN de $20.196.108, pero conserva una deuda bancaria de $18.378.567 que a diez años está saldada. El grueso del VAN se genera en la segunda mitad del horizonte, cuando la estructura ya está pagada y cada venta adicional aporta casi todo su margen de contribución: evaluar a cinco años subestimaría el negocio, pero no cambiaría la decisión.
+A cinco años el proyecto ya crea valor, con un VAN de $24.415.639, pero conserva una deuda bancaria de $18.661.665 que a diez años está saldada. El grueso del VAN se genera en la segunda mitad del horizonte, cuando la estructura ya está pagada y cada venta adicional aporta casi todo su margen de contribución: evaluar a cinco años subestimaría el negocio, pero no cambiaría la decisión.
 
 | Tasa efectiva anual | VAN | Interpretación |
 |---:|---:|---|
-| 5 % | $358.446.796 | Positivo |
-| 8 % | $286.691.898 | Positivo |
-| 10 % | $247.683.837 | Positivo |
-| 15 % | $172.976.546 | Positivo |
-| 20 % | $121.326.245 | Positivo |
-| 30 % | $58.423.605 | Positivo |
-| 40 % | $24.472.150 | Positivo |
-| 50 % | $4.850.981 | Positivo |
-| TIR: 53,50 % | $0 | VAN aproximadamente cero |
+| 5 % | $378.403.104 | Positivo |
+| 8 % | $303.314.730 | Positivo |
+| 10 % | $262.478.749 | Positivo |
+| 15 % | $184.227.659 | Positivo |
+| 20 % | $130.079.377 | Positivo |
+| 30 % | $64.041.107 | Positivo |
+| 40 % | $28.315.629 | Positivo |
+| 50 % | $7.615.081 | Positivo |
+| TIR: 55,43 % | $0 | VAN aproximadamente cero |
 
 **Tabla 3.7 “VAN ante distintas tasas de descuento”**
 
@@ -1010,25 +1010,25 @@ Para verificar la robustez del resultado se recalculó el proyecto modificando u
 
 | Caso | Precio de lista | Utilidad del año 1 | VAN a 10 años | TIR | Caja mínima |
 |---|---:|---:|---:|---:|---:|
-| Caso base | $467.463 | $-1.563.641 | $121.326.245 | 53,5 % | $16.943.555 |
-| Ventas -10 % | $467.463 | $-6.439.190 | $68.110.355 | 39,7 % | $8.347.858 |
-| Ventas -25 % | $467.463 | $-13.752.513 | $-13.658.373 | 15,6 % | $-28.550.609 |
-| Ventas -35 % | $467.463 | $-18.628.061 | $-71.970.001 | -5,9 % | $-72.578.300 |
-| Ventas +20 % | $467.463 | $7.164.024 | $228.300.299 | 78,6 % | $25.740.705 |
-| BOM +15 % | $467.463 | $-4.250.584 | $91.890.381 | 45,8 % | $14.305.397 |
-| BOM +30 % | $467.463 | $-6.937.526 | $62.143.703 | 37,8 % | $6.921.542 |
-| Precio rebajado a $439.990 (−5,9 %) | $439.990 | $-5.906.268 | $73.851.568 | 41,2 % | $9.833.566 |
-| Precio rebajado a $419.990 (−10,2 %) | $419.990 | $-9.067.612 | $38.799.274 | 31,5 % | $-813.346 |
-| Precio rebajado a $399.990 (−14,4 %) | $399.990 | $-12.228.957 | $3.382.816 | 21,1 % | $-18.057.690 |
-| Precio rebajado a $369.990 (−20,9 %) | $369.990 | $-16.970.974 | $-51.773.645 | 2,3 % | $-57.287.753 |
+| Caso base | $489.784 | $-747.189 | $130.079.377 | 55,4 % | $17.809.240 |
+| Ventas -10 % | $489.784 | $-5.704.383 | $76.054.584 | 41,8 % | $10.397.198 |
+| Ventas -25 % | $489.784 | $-13.140.174 | $-6.775.267 | 17,8 % | $-23.202.455 |
+| Ventas -35 % | $489.784 | $-18.097.368 | $-65.368.234 | -3,3 % | $-67.704.486 |
+| Ventas +20 % | $489.784 | $8.021.298 | $238.872.572 | 80,5 % | $26.657.060 |
+| BOM +15 % | $489.784 | $-3.840.879 | $96.150.576 | 46,7 % | $14.771.721 |
+| BOM +30 % | $489.784 | $-6.934.569 | $61.952.391 | 37,6 % | $6.915.449 |
+| Precio rebajado a $469.990 (−4,0 %) | $469.990 | $-3.875.901 | $95.969.262 | 46,8 % | $14.680.529 |
+| Precio rebajado a $439.990 (−10,2 %) | $439.990 | $-8.617.917 | $43.670.308 | 32,8 % | $1.684.626 |
+| Precio rebajado a $419.990 (−14,2 %) | $419.990 | $-11.779.262 | $8.253.850 | 22,5 % | $-15.559.718 |
+| Precio rebajado a $389.990 (−20,4 %) | $389.990 | $-16.521.279 | $-46.522.974 | 4,3 % | $-53.092.424 |
 
 **Tabla 3.8 “Análisis de sensibilidad y punto de quiebre”**
 
 Tres lecturas se desprenden de la tabla:
 
-- **El punto de quiebre del volumen está entre una caída del 10 % y una del 25 % en las ventas.** Con −10 % el VAN sigue positivo en $68.110.355 y la caja mínima se mantiene en $8.347.858; con −25 % el VAN cae a $-13.658.373 y la caja a $-28.550.609, de modo que una caída de esa magnitud destruye a la vez valor y liquidez. Las cuotas que el pie dejó pagadas en los dos primeros años son las que sostienen la caja en el escenario de −10 %.
-- **El costo de materiales admite desviación.** Un alza del 15 % en la BOM deja el VAN en $91.890.381 y la caja mínima en $14.305.397; a +30 % el VAN sigue siendo de $62.143.703 y la caja mínima baja a $6.921.542. El margen resiste, pero confirma que la cotización de la sonda no admite descuido.
-- **El precio no admite rebaja.** Con el financiamiento dimensionado, la caja se vuelve negativa con cualquier precio de lista inferior a $420.933, apenas un 10,0 % bajo el precio calculado, y el proyecto deja de crear valor bajo $398.095. Ese resultado confirma que el precio debe derivarse del costo y no fijarse por aspiración comercial: un precio elegido para parecer competitivo, sin mirar la estructura, deja a la empresa sin caja en su tercer año.
+- **El punto de quiebre del volumen está entre una caída del 10 % y una del 25 % en las ventas.** Con −10 % el VAN sigue positivo en $76.054.584 y la caja mínima se mantiene en $10.397.198; con −25 % el VAN cae a $-6.775.267 y la caja a $-23.202.455, de modo que una caída de esa magnitud destruye a la vez valor y liquidez. Las cuotas que el pie dejó pagadas en los dos primeros años son las que sostienen la caja en el escenario de −10 %.
+- **El costo de materiales admite desviación.** Un alza del 15 % en la BOM deja el VAN en $96.150.576 y la caja mínima en $14.771.721; a +30 % el VAN sigue siendo de $61.952.391 y la caja mínima baja a $6.915.449. El margen resiste, pero confirma que la cotización de la sonda no admite descuido.
+- **El precio no admite rebaja.** Con el financiamiento dimensionado, la caja se vuelve negativa con cualquier precio de lista inferior a $438.036, apenas un 10,6 % bajo el precio calculado, y el proyecto deja de crear valor bajo $415.338. Ese resultado confirma que el precio debe derivarse del costo y no fijarse por aspiración comercial: un precio elegido para parecer competitivo, sin mirar la estructura, deja a la empresa sin caja en su tercer año.
 
 ### Costo total de propiedad para el agricultor
 
@@ -1036,7 +1036,7 @@ La pregunta que un agricultor se hace antes de comprar no es cuánto cuesta el i
 
 | Alternativa | Intensidad | Año 1 | Acumulado a 3 años | Acumulado a 5 años | Acumulado a 10 años |
 |---|---|---:|---:|---:|---:|
-| TerraSense (equipo, kit de batería en los años 3 y 8, segundo equipo en el año 6) | Mediciones ilimitadas | $467.463 | $492.453 | $492.453 | $984.907 |
+| TerraSense (equipo, kit de batería en los años 3 y 8, segundo equipo en el año 6) | Mediciones ilimitadas | $489.784 | $514.774 | $514.774 | $1.029.547 |
 | Análisis de laboratorio (S1) | Uso habitual: 4 muestras/año | $200.000 | $600.000 | $1.000.000 | $2.000.000 |
 | Análisis de laboratorio (S1) | Uso intensivo: 20 muestras/año | $1.000.000 | $3.000.000 | $5.000.000 | $10.000.000 |
 | Asesoría agronómica externa (S2) | Uso habitual: 2 visitas/año | $120.000 | $360.000 | $600.000 | $1.200.000 |
@@ -1046,9 +1046,9 @@ La pregunta que un agricultor se hace antes de comprar no es cuánto cuesta el i
 
 Los valores S1 y S2 son supuestos de mercado declarados, no referencias bibliográficas, y figuran como tales en la tabla de supuestos de mercado al final del capítulo.
 
-Bajo la intensidad habitual, que es el caso base, el instrumento **no se paga el primer año**: $467.463 de compra frente a $200.000 de laboratorio. Frente al laboratorio el cruce ocurre en el año 3 y la ventaja se mantiene hasta el final: a diez años la diferencia es de $2.000.000 contra $984.907, 2,0 veces. Frente a la asesoría habitual el resultado es más estrecho y no es monótono: TerraSense pasa adelante en el año 5, la compra del segundo equipo en el año 6 lo deja atrás durante 3 años, y recupera la ventaja en el año 9, para cerrar la década con una diferencia de 1,2 veces. Bajo uso intensivo las distancias se abren a 10,2 y 7,3 veces respectivamente.
+Bajo la intensidad habitual, que es el caso base, el instrumento **no se paga el primer año**: $489.784 de compra frente a $200.000 de laboratorio. Frente al laboratorio el cruce ocurre en el año 3 y la ventaja se mantiene hasta el final: a diez años la diferencia es de $2.000.000 contra $1.029.547, 1,9 veces. Frente a la asesoría habitual el resultado es más estrecho y no es monótono: TerraSense pasa adelante en el año 5, la compra del segundo equipo en el año 6 lo deja atrás durante 3 años, y recupera la ventaja en el año 9, para cerrar la década con una diferencia de 1,2 veces. Bajo uso intensivo las distancias se abren a 9,7 y 7,0 veces respectivamente.
 
-El argumento estructural, en todo caso, no depende del precio: **el costo marginal de cada medición adicional es cero**. Un agricultor que tome cien mediciones al año acumula mil en diez años, de modo que cada una le cuesta $985 frente a los $50.000 de una muestra de laboratorio. El laboratorio y la asesoría conservan íntegramente su función en las determinaciones químicas que el instrumento no reemplaza; lo que el instrumento resuelve es el seguimiento rutinario entre temporadas, que hoy no tiene herramienta.
+El argumento estructural, en todo caso, no depende del precio: **el costo marginal de cada medición adicional es cero**. Un agricultor que tome cien mediciones al año acumula mil en diez años, de modo que cada una le cuesta $1.030 frente a los $50.000 de una muestra de laboratorio. El laboratorio y la asesoría conservan íntegramente su función en las determinaciones químicas que el instrumento no reemplaza; lo que el instrumento resuelve es el seguimiento rutinario entre temporadas, que hoy no tiene herramienta.
 
 
 ### Especificaciones Técnicas del Proyecto
@@ -1203,7 +1203,7 @@ Las tablas anteriores mezclan, inevitablemente, cifras de distinta solidez: algu
 <!-- ===== PAGINA 71 ===== -->
 
 
-La electrónica de control está confirmada por hojas de datos de los componentes exactos, y la incertidumbre relevante se concentra en dos puntos: la sonda de suelo, que concentra además el 59,0 % del costo de materiales, y el consumo propio de la placa de desarrollo y del módulo de carga, que en esta placa determinan la autonomía. De ahí que las dos primeras acciones del plan de trabajo sean ensayar en banco la muestra de la sonda ya adquirida, cuyo modelo y manual del fabricante están identificados, y medir el consumo del conjunto ensamblado encendido y apagado, ambas antes de comprometer cualquier volumen de compra.
+La electrónica de control está confirmada por hojas de datos de los componentes exactos, y la incertidumbre relevante se concentra en dos puntos: la sonda de suelo, que concentra además el 51,2 % del costo de materiales, y el consumo propio de la placa de desarrollo y del módulo de carga, que en esta placa determinan la autonomía. De ahí que las dos primeras acciones del plan de trabajo sean ensayar en banco la muestra de la sonda ya adquirida, cuyo modelo y manual del fabricante están identificados, y medir el consumo del conjunto ensamblado encendido y apagado, ambas antes de comprometer cualquier volumen de compra.
 
 71
 
@@ -1740,13 +1740,13 @@ La ingeniería conceptual desarrollada en este informe sostiene que es técnica 
 
 Desde la perspectiva ingenieril, la arquitectura descentralizada un nodo portátil de captura (ESP32, sonda industrial y celda de ion-litio) que transfiere los datos al teléfono del usuario responde directamente a las dos barreras identificadas en la problemática, porque traslada al teléfono el costo de la pantalla, el cómputo y el almacenamiento, y con ello el precio del instrumento. El diseño energético corta la alimentación de la sonda fuera de cada lectura y apaga el equipo completo entre jornadas, y con ello sostiene aproximadamente 9 semanas de uso habitual (170 mediciones) con una sola carga, sin el recambio constante de pilas primarias de los dos equipos de referencia comparados. Esa cifra proviene del balance energético por nodo de tensión, con las eficiencias de conversión declaradas, y su confirmación exige medir el consumo de la placa ensamblada encendida y apagada: si apareciera una fuga no identificada de 1 mA con el equipo apagado, la autonomía caería a unas 4,5 semanas. Alcanzar autonomías de varios meses sin apagar el equipo exige reemplazar la placa de desarrollo por el módulo desnudo con un regulador de baja corriente de reposo, mejora que queda identificada para la versión de producción.
 
-Desde la perspectiva económica, la evaluación a diez años (2027–2036) entrega un resultado favorable bajo las condiciones declaradas, con cada partida abierta y trazable hasta su origen. **El precio es un resultado y no un supuesto**: se construyó primero la estructura completa de costos y el precio se derivó de ella exigiendo un 30 % de utilidad sobre el costo total, lo que arroja un precio de lista de $467.463 con IVA. Con una inversión inicial de $28.807.059 desembolsada íntegramente por un crédito de igual monto a diez años y 12 % efectivo anual, con cuota fija de $403.147, y un pie propio de $9.000.000 que los socios aportan en partes iguales ($4.500.000 cada uno) y abonan al banco como cuotas pagadas por anticipado, el proyecto alcanza un VAN de $121.326.245 al 20 % de descuento, una TIR de 53,50 %, un payback simple de 3,46 años y uno descontado de 4,27 años. La empresa renueva su activo fijo en 2032, cancela la totalidad de su deuda dentro del horizonte evaluado y cierra 2036 con $577.698.449 de caja acumulada y sin pasivo bancario. El punto de tensión está identificado y es de arranque, no de rentabilidad: los ejercicios 2027 y 2028 cierran con pérdida porque la estructura mínima para operar formalmente no se cubre con 200 equipos, y esa pérdida se financia con el capital de trabajo dimensionado para ello y con las cuotas que el pie dejó pagadas. Las sensibilidades acotan el margen de error: el proyecto resiste un alza del 15 % en el costo de materiales y una caída del 10 % en las ventas sin quedarse sin caja, pero se queda sin ella si el precio de lista baja de $420.933, y deja de crear valor si las ventas caen un 25 % o si el precio baja de $398.095.
+Desde la perspectiva económica, la evaluación a diez años (2027–2036) entrega un resultado favorable bajo las condiciones declaradas, con cada partida abierta y trazable hasta su origen. **El precio es un resultado y no un supuesto**: se construyó primero la estructura completa de costos y el precio se derivó de ella exigiendo un 30 % de utilidad sobre el costo total, lo que arroja un precio de lista de $489.784 con IVA. Con una inversión inicial de $29.250.795 desembolsada íntegramente por un crédito de igual monto a diez años y 12 % efectivo anual, con cuota fija de $409.357, y un pie propio de $9.000.000 que los socios aportan en partes iguales ($4.500.000 cada uno) y abonan al banco como cuotas pagadas por anticipado, el proyecto alcanza un VAN de $130.079.377 al 20 % de descuento, una TIR de 55,43 %, un payback simple de 3,34 años y uno descontado de 4,16 años. La empresa renueva su activo fijo en 2032, cancela la totalidad de su deuda dentro del horizonte evaluado y cierra 2036 con $605.834.380 de caja acumulada y sin pasivo bancario. El punto de tensión está identificado y es de arranque, no de rentabilidad: los ejercicios 2027 y 2028 cierran con pérdida porque la estructura mínima para operar formalmente no se cubre con 200 equipos, y esa pérdida se financia con el capital de trabajo dimensionado para ello y con las cuotas que el pie dejó pagadas. Las sensibilidades acotan el margen de error: el proyecto resiste un alza del 15 % en el costo de materiales y una caída del 10 % en las ventas sin quedarse sin caja, pero se queda sin ella si el precio de lista baja de $438.036, y deja de crear valor si las ventas caen un 25 % o si el precio baja de $415.338.
 
 
 <!-- ===== PAGINA 107 ===== -->
 
 
-Desde la perspectiva del cliente, la comparación de costo total de propiedad se presenta sobre dos intensidades de uso declaradas, porque el resultado depende críticamente de con qué frecuencia el agricultor recurre hoy al laboratorio o a la asesoría. Bajo la intensidad habitual, que es el caso base, el instrumento no se paga el primer año; cruza a favor en el año 3 frente al laboratorio y en el año 5 frente a la asesoría, aunque frente a esta última la compra del segundo equipo lo deja atrás de forma transitoria, y acumula a diez años una ventaja de 2,0 y 1,2 veces respectivamente. El argumento estructural, sin embargo, no es el ahorro nominal sino el costo marginal cero de la medición repetida: a cien mediciones anuales, cada lectura cuesta $985 frente a los $50.000 de una muestra de laboratorio, y esa relación no depende de ningún supuesto de frecuencia. Corresponde insistir en que ese ahorro pertenece al agricultor y no aparece en ninguna línea del flujo de caja de la empresa.
+Desde la perspectiva del cliente, la comparación de costo total de propiedad se presenta sobre dos intensidades de uso declaradas, porque el resultado depende críticamente de con qué frecuencia el agricultor recurre hoy al laboratorio o a la asesoría. Bajo la intensidad habitual, que es el caso base, el instrumento no se paga el primer año; cruza a favor en el año 3 frente al laboratorio y en el año 5 frente a la asesoría, aunque frente a esta última la compra del segundo equipo lo deja atrás de forma transitoria, y acumula a diez años una ventaja de 1,9 y 1,2 veces respectivamente. El argumento estructural, sin embargo, no es el ahorro nominal sino el costo marginal cero de la medición repetida: a cien mediciones anuales, cada lectura cuesta $1.030 frente a los $50.000 de una muestra de laboratorio, y esa relación no depende de ningún supuesto de frecuencia. Corresponde insistir en que ese ahorro pertenece al agricultor y no aparece en ninguna línea del flujo de caja de la empresa.
 
 Corresponde por eso precisar con exactitud qué acredita y qué no acredita este resultado, porque la diferencia decide si el proyecto pasa a la etapa siguiente o se declara concluido. Lo que acredita es que la arquitectura elegida es coherente con el problema, que la estructura de costos cierra con el precio propuesto, que el financiamiento es consistente y que el negocio, de cumplirse el plan de ventas, crea valor y paga su deuda. Lo que no acredita:
 

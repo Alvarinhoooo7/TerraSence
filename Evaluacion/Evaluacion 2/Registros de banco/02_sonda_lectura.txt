@@ -1,0 +1,74 @@
+
+### [2026-10-31 18:04:58] envío: d
+
+[MANTENIMIENTO] ========== TerraSense | DIAGNÓSTICO ===========
+Consola: 115200 baudios | encendido hace 33 s
+SALIDAS (confirmación visual y auditiva)
+  11    : secuencia: todas 2 s > rojo 1 s > verde 1 s > azul 1 s
+  2     : buzzer durante 2 segundos
+  3     : LED azul durante 1 segundo
+  4     : LED rojo durante 1 segundo
+  5     : LED verde durante 1 segundo
+SENSORES (adquisición nueva, sin publicar en la app)
+  1     : batería: ADC, tensión y porcentaje
+  6     : lectura nueva de temperatura, presión y humedad del BME280
+  7     : energizar y leer la sonda, incluso sin batería
+  9     : diagnóstico I2C: direcciones, errores e identidad del sensor
+  10    : barrido RS-485: lectura e identidad a 2400/4800/9600 baudios
+  12    : ensayo D-14: 1.000 lecturas Modbus seguidas (CRC, tiempos, rango)
+COMUNICACIÓN
+  8     : estado de Bluetooth y su característica en hexadecimal
+CONTROL
+  d/D   : repetir menú | q: salir | x: cancelar prueba local
+Envía un comando por línea, con Enter (LF, CR o CRLF).
+Pruebas 1-7 y 9-12: sólo sin BLE conectado, PAIR ni captura.
+Un aviso operativo tiene prioridad. Verifica luz/sonido físicamente.
+Un comando nuevo sustituye el informe pendiente de impresión.
+
+### [2026-10-31 18:05:00] envío: 7
+
+[MANTENIMIENTO] MOSFET IO5 activado: estabilizando y leyendo la sonda. x cancela y apaga.
+[SONDA] Captura pedida desde el monitor serie
+[SONDA] Fallo a 4800 baudios: sin respuesta
+[SONDA] Fallo a 9600 baudios: sin respuesta
+
+[MANTENIMIENTO] Sonda: captura independiente de batería y ambiente; MOSFET apagado al finalizar
+Sonda sin lectura válida; revisar alimentación, cableado y mensajes Modbus
+HEX RX del último intento (sin validar; puede incluir eco/ruido): sin bytes recibidos
+
+### [2026-10-31 18:40:39] envío: d
+
+[MANTENIMIENTO] ========== TerraSense | DIAGNÓSTICO ===========
+Consola: 115200 baudios | encendido hace 2175 s
+SALIDAS (confirmación visual y auditiva)
+  11    : secuencia: todas 2 s > rojo 1 s > verde 1 s > azul 1 s
+  2     : buzzer durante 2 segundos
+  3     : LED azul durante 1 segundo
+  4     : LED rojo durante 1 segundo
+  5     : LED verde durante 1 segundo
+SENSORES (adquisición nueva, sin publicar en la app)
+  1     : batería: ADC, tensión y porcentaje
+  6     : lectura nueva de temperatura, presión y humedad del BME280
+  7     : energizar y leer la sonda, incluso sin batería
+  9     : diagnóstico I2C: direcciones, errores e identidad del sensor
+  10    : barrido RS-485: lectura e identidad a 2400/4800/9600 baudios
+  12    : ensayo D-14: 1.000 lecturas Modbus seguidas (CRC, tiempos, rango)
+COMUNICACIÓN
+  8     : estado de Bluetooth y su característica en hexadecimal
+CONTROL
+  d/D   : repetir menú | q: salir | x: cancelar prueba local
+Envía un comando por línea, con Enter (LF, CR o CRLF).
+Pruebas 1-7 y 9-12: sólo sin BLE conectado, PAIR ni captura.
+Un aviso operativo tiene prioridad. Verifica luz/sonido físicamente.
+Un comando nuevo sustituye el informe pendiente de impresión.
+
+### [2026-10-31 18:40:42] envío: 7
+
+[MANTENIMIENTO] MOSFET IO5 activado: estabilizando y leyendo la sonda. x cancela y apaga.
+[SONDA] Captura pedida desde el monitor serie
+[SONDA] Fallo a 4800 baudios: sin respuesta
+[SONDA] Fallo a 9600 baudios: sin respuesta
+
+[MANTENIMIENTO] Sonda: captura independiente de batería y ambiente; MOSFET apagado al finalizar
+Sonda sin lectura válida; revisar alimentación, cableado y mensajes Modbus
+HEX RX del último intento (sin validar; puede incluir eco/ruido): sin bytes recibidos

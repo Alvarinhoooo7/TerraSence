@@ -1,0 +1,89 @@
+
+### [2026-10-31 18:04:24] reinicio por EN
+ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:1
+load:0x3fff0030,len:4980
+load:0x40078000,len:16612
+load:0x40080400,len:3480
+entry 0x400805b4
+
+========== TerraSense | ARRANQUE ==========
+[INICIO] Sonda sin energía; preparando indicadores, sensores y Bluetooth.
+[I2C] Responden: 0x76
+[BME280] Detectado en 0x76
+[PAIR] ID de la sonda (desde la MAC): 061840303867496
+[BLE] Anunciando como "TerraSense-061840303867496"
+[LISTO] Inicio terminado. La conexión y las lecturas se comprueban por separado.
+[USO] Mantén PAIR 3 s para vincular; suelta al escuchar la doble llamada.
+[CONSOLA] 115200 baudios. Envía d + Enter para diagnóstico y prueba de luces.
+==========================================
+
+### [2026-10-31 18:04:31] envío: d
+
+[MANTENIMIENTO] ========== TerraSense | DIAGNÓSTICO ===========
+Consola: 115200 baudios | encendido hace 6 s
+SALIDAS (confirmación visual y auditiva)
+  11    : secuencia: todas 2 s > rojo 1 s > verde 1 s > azul 1 s
+  2     : buzzer durante 2 segundos
+  3     : LED azul durante 1 segundo
+  4     : LED rojo durante 1 segundo
+  5     : LED verde durante 1 segundo
+SENSORES (adquisición nueva, sin publicar en la app)
+  1     : batería: ADC, tensión y porcentaje
+  6     : lectura nueva de temperatura, presión y humedad del BME280
+  7     : energizar y leer la sonda, incluso sin batería
+  9     : diagnóstico I2C: direcciones, errores e identidad del sensor
+  10    : barrido RS-485: lectura e identidad a 2400/4800/9600 baudios
+  12    : ensayo D-14: 1.000 lecturas Modbus seguidas (CRC, tiempos, rango)
+COMUNICACIÓN
+  8     : estado de Bluetooth y su característica en hexadecimal
+CONTROL
+  d/D   : repetir menú | q: salir | x: cancelar prueba local
+Envía un comando por línea, con Enter (LF, CR o CRLF).
+Pruebas 1-7 y 9-12: sólo sin BLE conectado, PAIR ni captura.
+Un aviso operativo tiene prioridad. Verifica luz/sonido físicamente.
+Un comando nuevo sustituye el informe pendiente de impresión.
+[DIAG +6789 ms] LED 1/4: rojo + verde + azul (2 s). x cancela.
+[DIAG +8789 ms] LED 2/4: sólo rojo (1 s).
+[DIAG +9789 ms] LED 3/4: sólo verde (1 s).
+
+### [2026-10-31 18:04:34] envío: 9
+
+[MANTENIMIENTO] Diagnóstico I2C iniciado: direcciones 08-77; x cancela.
+[I2C] Dispositivo responde en 0x76
+HEX dirección I2C (7 bits): 76
+[I2C] Identidad: BME280
+HEX registro D0: 60
+[I2C] Diagnóstico terminado: 1 dispositivos, 0 errores. SDA IO21 / SCL IO22.
+
+### [2026-10-31 18:04:39] envío: 6
+
+[MANTENIMIENTO] Lectura nueva del BME280
+Temperatura: 23.23 °C
+Presión atmosférica: 959.73 hPa
+Humedad: 60.32 %
+HEX ambiente (bytes 16-19 de telemetría; empaquetados, no registros I2C): 27 82 94 79
+
+### [2026-10-31 18:04:43] envío: 1
+
+[MANTENIMIENTO] Batería: adquisición nueva (promedio de 8 muestras)
+ADC IO34: 2256 / 4095 | pin: 2006 mV | celda: 4.012 V
+HEX ADC crudo: 08D0 | mV: 07D6
+Batería conectada: 79 % (estimado por tensión)
+HEX porcentaje (FF = sin dato): 4F
+Conservar el divisor conectado: IO34 flotante no permite detectar ausencia.
+
+### [2026-10-31 18:04:46] envío: 8
+
+[MANTENIMIENTO] Estado actual de Bluetooth
+Nombre: TerraSense-061840303867496
+Servicio: 00000001-5e4e-4c69-6d61-746572726101
+Pila: iniciada | GATT: configurado | teléfono: sin conexión | anuncio: activo
+Reanudar anuncio: no | lectura pendiente: no | PAIR: cerrada
+Característica de estado: batería, versión mayor/menor/parche, banderas
+HEX estado actual (mismo formato de la lectura GATT): 4F 01 00 00 00
+Resultado local: sin anomalías detectadas; comprobar descubrimiento y recepción con un teléfono.

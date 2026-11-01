@@ -1,0 +1,126 @@
+1793492280.578	����������������������������������������������������������������Enter para entrar al diagnóstico.
+1793492407.024	[BLE] Teléfono conectado
+1793492407.687	[BLE] Suscripción a telemetría: se armará una trama nueva
+1793492409.010	[SONDA] Registros: hum 0, temp 218, CE 3, pH 30, N 0, P 0, K 1
+1793492409.010	[SONDA] Con las escalas de config.h: humedad 0.0 %, temperatura 21.8 °C, CE 3 µS/cm, pH 3.0, N 0, P 0, K 1 mg/kg
+1793492409.010	[SONDA] Lectura a 4800 baudios
+1793492409.010	[TRAMA] 00 00 00 DA 00 03 00 1E 00 00 00 00 00 01 4F 01 26 62 94 78 (notificada)
+1793492409.010	[TRAMA] suelo: ok | BME280: ok | batería ADC: 4.01 V (aproximada)
+1793492410.330	[BLE] Teléfono desconectado
+1793492479.254	[BLE] Teléfono conectado
+1793492479.913	[BLE] Suscripción a telemetría: se armará una trama nueva
+1793492481.108	[SONDA] Registros: hum 0, temp 217, CE 3, pH 30, N 0, P 0, K 1
+1793492481.108	[SONDA] Con las escalas de config.h: humedad 0.0 %, temperatura 21.7 °C, CE 3 µS/cm, pH 3.0, N 0, P 0, K 1 mg/kg
+1793492481.108	[SONDA] Lectura a 4800 baudios
+1793492481.219	[TRAMA] 00 00 00 D9 00 03 00 1E 00 00 00 00 00 01 4E 01 26 52 94 79 (notificada)
+1793492481.219	[TRAMA] suelo: ok | BME280: ok | batería ADC: 4.01 V (aproximada)
+1793492482.532	[BLE] Teléfono desconectado
+1793492518.520	[BLE] Teléfono conectado
+1793492519.185	[BLE] Suscripción a telemetría: se armará una trama nueva
+1793492520.506	[SONDA] Registros: hum 0, temp 218, CE 3, pH 30, N 0, P 0, K 1
+1793492520.506	[SONDA] Con las escalas de config.h: humedad 0.0 %, temperatura 21.8 °C, CE 3 µS/cm, pH 3.0, N 0, P 0, K 1 mg/kg
+1793492520.506	[SONDA] Lectura a 4800 baudios
+1793492520.506	[TRAMA] 00 00 00 DA 00 03 00 1E 00 00 00 00 00 01 4E 01 26 52 94 79 (notificada)
+1793492520.506	[TRAMA] suelo: ok | BME280: ok | batería ADC: 4.00 V (aproximada)
+1793492521.814	[BLE] Teléfono desconectado
+1793492535.342	
+1793492535.342	[MANTENIMIENTO] ========== TerraSense | DIAGNÓSTICO ===========
+1793492535.342	Consola: 115200 baudios | encendido hace 330 s
+1793492535.342	SALIDAS (confirmación visual y auditiva)
+1793492535.342	  11    : secuencia: todas 2 s > rojo 1 s > verde 1 s > azul 1 s
+1793492535.342	  2     : buzzer durante 2 segundos
+1793492535.342	  3     : LED azul durante 1 segundo
+1793492535.342	  4     : LED rojo durante 1 segundo
+1793492535.342	  5     : LED verde durante 1 segundo
+1793492535.342	SENSORES (adquisición nueva, sin publicar en la app)
+1793492535.342	  1     : batería: ADC, tensión y porcentaje
+1793492535.342	  6     : lectura nueva de temperatura, presión y humedad del BME280
+1793492535.342	  7     : energizar y leer la sonda, incluso sin batería
+1793492535.342	  9     : diagnóstico I2C: direcciones, errores e identidad del sensor
+1793492535.342	  10    : barrido RS-485: lectura e identidad a 2400/4800/9600 baudios
+1793492535.342	  12    : ensayo D-14: 1.000 lecturas Modbus seguidas (CRC, tiempos, rango)
+1793492535.342	COMUNICACIÓN
+1793492535.342	  8     : estado de Bluetooth y su característica en hexadecimal
+1793492535.342	CONTROL
+1793492535.342	  d/D   : repetir menú | q: salir | x: cancelar prueba local
+1793492535.342	Envía un comando por línea, con Enter (LF, CR o CRLF).
+1793492535.342	Pruebas 1-7 y 9-12: sólo sin BLE conectado, PAIR ni captura.
+1793492535.453	Un aviso operativo tiene prioridad. Verifica luz/sonido físicamente.
+1793492535.453	Un comando nuevo sustituye el informe pendiente de impresión.
+1793492535.453	[DIAG +330256 ms] LED 1/4: rojo + verde + azul (2 s). x cancela.
+1793492536.332	
+1793492536.332	[MANTENIMIENTO] Diagnóstico cerrado. Envía d o D para volver a entrar.
+1793492539.294	
+1793492539.294	[MANTENIMIENTO] ========== TerraSense | DIAGNÓSTICO ===========
+1793492539.294	Consola: 115200 baudios | encendido hace 334 s
+1793492539.294	SALIDAS (confirmación visual y auditiva)
+1793492539.294	  11    : secuencia: todas 2 s > rojo 1 s > verde 1 s > azul 1 s
+1793492539.294	  2     : buzzer durante 2 segundos
+1793492539.294	  3     : LED azul durante 1 segundo
+1793492539.294	  4     : LED rojo durante 1 segundo
+1793492539.294	  5     : LED verde durante 1 segundo
+1793492539.294	SENSORES (adquisición nueva, sin publicar en la app)
+1793492539.294	  1     : batería: ADC, tensión y porcentaje
+1793492539.294	  6     : lectura nueva de temperatura, presión y humedad del BME280
+1793492539.405	  7     : energizar y leer la sonda, incluso sin batería
+1793492539.405	  9     : diagnóstico I2C: direcciones, errores e identidad del sensor
+1793492539.405	  10    : barrido RS-485: lectura e identidad a 2400/4800/9600 baudios
+1793492539.405	  12    : ensayo D-14: 1.000 lecturas Modbus seguidas (CRC, tiempos, rango)
+1793492539.405	COMUNICACIÓN
+1793492539.405	  8     : estado de Bluetooth y su característica en hexadecimal
+1793492539.405	CONTROL
+1793492539.405	  d/D   : repetir menú | q: salir | x: cancelar prueba local
+1793492539.405	Envía un comando por línea, con Enter (LF, CR o CRLF).
+1793492539.405	Pruebas 1-7 y 9-12: sólo sin BLE conectado, PAIR ni captura.
+1793492539.405	Un aviso operativo tiene prioridad. Verifica luz/sonido físicamente.
+1793492539.405	Un comando nuevo sustituye el informe pendiente de impresión.
+1793492539.405	[DIAG +334258 ms] LED 1/4: rojo + verde + azul (2 s). x cancela.
+1793492539.848	[DIAG +334758 ms] Secuencia LED interrumpida; se conservan los avisos del equipo.
+1793492539.848	[DIAG +334758 ms] LED 1/4: rojo + verde + azul (2 s). x cancela.
+1793492541.849	[DIAG +336760 ms] LED 2/4: sólo rojo (1 s).
+1793492542.826	[DIAG +337760 ms] LED 3/4: sólo verde (1 s).
+1793492543.809	[DIAG +338760 ms] LED 4/4: sólo azul (1 s).
+1793492544.796	[DIAG +339760 ms] Secuencia LED terminada: luces apagadas. Confirma visualmente; 11 repite.
+1793492546.781	
+1793492546.781	[MANTENIMIENTO] Buzzer: tono de 2 s. Confirma si se escucha; x cancela.
+1793492550.842	
+1793492550.842	[MANTENIMIENTO] Diagnóstico cerrado. Envía d o D para volver a entrar.
+1793492552.819	
+1793492552.819	[MANTENIMIENTO] ========== TerraSense | DIAGNÓSTICO ===========
+1793492552.819	Consola: 115200 baudios | encendido hace 347 s
+1793492552.819	SALIDAS (confirmación visual y auditiva)
+1793492552.819	  11    : secuencia: todas 2 s > rojo 1 s > verde 1 s > azul 1 s
+1793492552.819	  2     : buzzer durante 2 segundos
+1793492552.819	  3     : LED azul durante 1 segundo
+1793492552.819	  4     : LED rojo durante 1 segundo
+1793492552.819	  5     : LED verde durante 1 segundo
+1793492552.819	SENSORES (adquisición nueva, sin publicar en la app)
+1793492552.819	  1     : batería: ADC, tensión y porcentaje
+1793492552.819	  6     : lectura nueva de temperatura, presión y humedad del BME280
+1793492552.819	  7     : energizar y leer la sonda, incluso sin batería
+1793492552.819	  9     : diagnóstico I2C: direcciones, errores e identidad del sensor
+1793492552.819	  10    : barrido RS-485: lectura e identidad a 2400/4800/9600 baudios
+1793492552.930	  12    : ensayo D-14: 1.000 lecturas Modbus seguidas (CRC, tiempos, rango)
+1793492552.930	COMUNICACIÓN
+1793492552.930	  8     : estado de Bluetooth y su característica en hexadecimal
+1793492552.930	CONTROL
+1793492552.930	  d/D   : repetir menú | q: salir | x: cancelar prueba local
+1793492552.930	Envía un comando por línea, con Enter (LF, CR o CRLF).
+1793492552.930	Pruebas 1-7 y 9-12: sólo sin BLE conectado, PAIR ni captura.
+1793492552.930	Un aviso operativo tiene prioridad. Verifica luz/sonido físicamente.
+1793492552.930	Un comando nuevo sustituye el informe pendiente de impresión.
+1793492552.930	[DIAG +347764 ms] LED 1/4: rojo + verde + azul (2 s). x cancela.
+1793492553.799	[ENSAYO] 1000 consultas Modbus seguidas a 4800 baudios, sin reintentos; sonda energizada todo el ensayo (IO5). x cancela y apaga.
+1793492566.862	[ENSAYO] 100/1000 | correctas 100 | fallos 0
+1793492578.927	[ENSAYO] 200/1000 | correctas 200 | fallos 0
+1793492591.040	[ENSAYO] 300/1000 | correctas 300 | fallos 0
+1793492598.842	[ENSAYO] ===== CANCELADO: 364 de 1000 consultas =====
+1793492598.842	[ENSAYO] Correctas 364 | CRC 0 | silencio 0 | truncadas 0 | otras fallas 0 | fuera de rango 0
+1793492598.842	[ENSAYO] Sin fallas. Racha máxima: 364 consultas seguidas
+1793492598.842	[ENSAYO] Respuesta por consulta: mín 66 ms, prom 70 ms, máx 76 ms (resolución ≈ 5 ms; sin la separación de 50 ms)
+1793492598.842	[ENSAYO] Rango leído: humedad 0.0-0.0 % | temperatura 21.6-21.8 °C | CE 3-3 µS/cm | pH 3.0-3.0
+1793492598.842	[ENSAYO] Duración total: 45.0 s. MOSFET apagado.
+1793492598.842	
+1793492598.842	[MANTENIMIENTO] Prueba local cancelada; avisos normales conservados.
+1793492601.815	
+1793492601.815	[MANTENIMIENTO] Diagnóstico cerrado. Envía d o D para volver a entrar.
