@@ -15,6 +15,8 @@ TerraSense es un proyecto de instrumento portátil y aplicación móvil para med
 
 TerraSense no es un sensor de suelo ni un nodo de monitoreo enterrado: es una **sonda portátil multivariable de diagnóstico agronómico**. Viaja con la persona, mide donde ésta decide, entrega diez registros del mismo punto y del mismo instante, y termina en una orientación de manejo según la fase del cultivo. Esa combinación es la que no existe en el mercado al que apunta.
 
+La propuesta se ordena en tres clases de valor, y conviene no mezclarlas porque cada una se sostiene con evidencia distinta: la **funcional** (qué permite hacer el instrumento que hoy no se puede), la **económica** (qué cuesta sostener esa información en el tiempo) y la **emocional** (qué incertidumbre le quita de encima al productor). El texto canónico de la propuesta, con esas tres clases y la clasificación de cada atributo en paridad o diferencia, vive en [el capítulo III del informe de la Evaluación 2](Evaluacion/Evaluacion%202/INFORME%202.md#la-propuesta-de-valor); lo que sigue es su resumen.
+
 | | Laboratorio de suelos | Nodo fijo de monitoreo | Medidor portátil de 1 a 4 variables | **TerraSense** |
 |---|---|---|---|---|
 | Puntos que se pueden medir | sólo los que se pagan | uno por nodo instalado | cualquiera | **cualquiera, con su ubicación registrada** |
@@ -35,6 +37,8 @@ Las ventajas no son atributos declarados: son consecuencias de cómo está const
 6. **Deja memoria del campo.** Cada medición queda con su fecha, su ubicación y su evaluación, de modo que la segunda temporada se compara con la primera.
 
 **Lo que no hace, dicho de frente.** No determina concentraciones reales de nutrientes: para eso sigue estando el laboratorio acreditado, y los valores de nitrógeno, fósforo y potasio son informativos. No reemplaza el criterio de un asesor agronómico. No entrega continuidad temporal en un punto, como sí hace un nodo fijo. Y la celda integrada obliga a planificar la carga, mientras un equipo con pilas intercambiables se reanuda al instante con un repuesto. TerraSense no desplaza a esas alternativas: ocupa el espacio que ninguna cubre, que es medir seguido, barato, en cualquier punto del campo e interpretado en el momento.
+
+**Qué nos diferencia y qué sólo nos iguala.** De los atributos del producto, cuatro son diferencia frente a toda la competencia comparable: la interpretación por etapa fenológica y especie, la orientación de manejo como salida del sistema, los diez registros de una sola inserción y la trazabilidad documental del criterio agronómico con su catálogo de cultivos chileno. Los demás integran el producto y se comunican como parte de él, nunca como su diferencia: la portabilidad es condición de la categoría, y la aplicación propia, la georreferenciación, el uso sin conexión y la ausencia de suscripción **también los ofrecen los medidores portátiles con que competimos**. La ausencia de suscripción es diferencia frente al laboratorio, que cobra por muestra, y frente al monitoreo remoto, que cobra plataforma mensual; no frente a Hanna ni a Bluelab, que tampoco cobran cuota. La clasificación completa está en la tabla de paridad y diferencia del [texto canónico](Evaluacion/Evaluacion%202/INFORME%202.md#la-propuesta-de-valor).
 
 ## Cómo funciona
 

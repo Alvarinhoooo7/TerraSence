@@ -4,6 +4,8 @@ Este documento define y justifica los parámetros económicos, de mercado y de m
 
 > **Tesis central:** TerraSense no busca reemplazar la exactitud analítica de un laboratorio químico. Su modelo de negocio se basa en convertir mediciones rápidas de terreno en información comprensible y acciones agronómicas concretas, otorgando inmediatez en el campo.
 
+> **Texto canónico de la propuesta de valor:** la formulación vigente —las tres clases de valor (funcional, económica y emocional) y la clasificación de cada atributo en paridad o diferencia— vive en [el capítulo III del informe de la Evaluación 2](../Evaluacion/Evaluacion%202/INFORME%202.md#la-propuesta-de-valor). Este documento no la redefine: la aplica al plano comercial. Si ambos difieren, manda el informe.
+
 ## 1. Problema y Necesidad
 
 - El agricultor frecuentemente decide sobre el riego y la fertilización con información insuficiente o tardía.

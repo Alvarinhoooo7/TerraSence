@@ -423,8 +423,9 @@ Con un uso habitual de cuatro análisis al año, el laboratorio supera el costo 
 
 Diferenciarse exige separar lo que realmente es exclusivo de lo que no lo es, porque prometer como diferencia algo que la competencia también tiene destruye la credibilidad.
 
-- **Diferencias sostenibles:** la recomendación según la etapa del cultivo; diez variables en un solo equipo; el pronóstico del tiempo integrado a la recomendación cuando hay señal; y el pago único frente a los planes mensuales del monitoreo remoto.
-- **Atributos valiosos, pero no exclusivos:** el funcionamiento sin conexión, el historial y el Bluetooth, que Bluelab también ofrece. Se comunican como parte del producto, nunca como la diferencia.
+- **Diferencias sostenibles:** la recomendación según la etapa del cultivo; diez variables en un solo equipo; la trazabilidad documental del criterio agronómico, con un catálogo de cultivos construido sobre la estadística agrícola nacional; el pronóstico del tiempo integrado a la recomendación cuando hay señal; y el pago único frente a los planes mensuales del monitoreo remoto y frente al cobro por muestra del laboratorio.
+- **Atributos valiosos, pero no exclusivos:** el funcionamiento sin conexión, el historial, el Bluetooth y la aplicación propia, que Bluelab también ofrece; la georreferenciación, que el FieldScout también registra; y la ausencia de suscripción, que **ningún medidor portátil comparable cobra**, de modo que frente a ellos es paridad y no diferencia. Se comunican como parte del producto, nunca como la diferencia.
+- **Condición de categoría:** la portabilidad. Todos los medidores comparados son de mano; portátil nos distingue del nodo fijo y del laboratorio, no de la competencia directa.
 
 ### 5.5 Posicionamiento
 

@@ -31,7 +31,33 @@ Para cambiar la **redacción** de un bloque generado, edita `finanzas/informe.py
 
 `supabase/schema.sql` es un volcado de `pg_dump`, no una fuente: el esquema real son las migraciones de `supabase/migrations/`, que parten de la línea base `20260929120000_baseline_produccion.sql` (esquema de producción consolidado). Las 54 migraciones anteriores quedan en `supabase/migrations_archivo/` sólo como historia: el CLI ya no las lee. Una migración nueva va en `supabase/migrations/` con versión posterior a la base; `supabase db reset` debe reconstruir la réplica local sin errores.
 
-## 3. Decisiones cerradas del proyecto
+## 3. Propuesta de valor: qué es diferencia y qué es paridad
+
+El texto canónico vive en el capítulo III de `Evaluacion/Evaluacion 2/INFORME 2.md` («La Propuesta de Valor» y «Atributos de Paridad y Atributos de Diferencia»). El README y los documentos de `Comercializacion de Tecnologias/` lo enlazan y lo aplican; **no lo redefinen**. Si un documento y el informe difieren, manda el informe.
+
+Se ordena en tres clases de valor, y cada una se sostiene con evidencia distinta: **funcional** (qué permite hacer), **económica** (qué cuesta sostener la información) y **emocional** (qué incertidumbre le quita al productor). La tercera no es adorno publicitario: es la consecuencia de que el costo de errar una decisión de riego o fertilización sea incomparablemente mayor que el costo de medir.
+
+**Las cuatro diferencias defendibles.** Son las únicas que ninguna alternativa comparable entrega, y la lista no se amplía sin evidencia:
+
+1. Interpretación según la etapa fenológica y la especie.
+2. Orientación de manejo como salida del sistema, en lugar del valor numérico.
+3. Diez registros obtenidos de una sola inserción (7 de suelo medidos y 3 ambientales).
+4. Trazabilidad documental del criterio agronómico, sostenida por el catálogo de cultivos construido sobre estadística agrícola chilena (INE, ODEPA, CIREN, SAG, INFOR).
+
+**Lo que es paridad y no se vende como diferencia.** La competencia directa también lo ofrece, así que presentarlo como ventaja destruye la credibilidad del resto:
+
+- **Portabilidad:** condición de la categoría. Hanna, Bluelab y FieldScout son todos de mano. Nos distingue del nodo fijo y del laboratorio, no de la competencia directa.
+- **Aplicación propia, historial y Bluetooth:** Bluelab Pulse los tiene.
+- **Georreferenciación:** el FieldScout TDR 350 también registra ubicación.
+- **Uso sin conexión:** Bluelab Pulse también opera sin red.
+- **Ausencia de suscripción y de cobro por lectura:** ⚠️ es diferencia frente al **laboratorio** (cobra por muestra) y al **monitoreo remoto** (plataforma mensual), **no frente a los medidores portátiles**, que tampoco cobran cuota. Nunca escribirlo como si Hanna o Bluelab cobraran suscripción.
+- **Celda recargable:** ventaja ambiental con contrapartida declarada. Reduce residuos de pilas primarias, pero el intervalo entre recargas es menor que el de un equipo sin radio (Bluelab declara ~4 meses por pila; TerraSense pide carga cada 6,7 semanas). No presentarla como ventaja de autonomía.
+
+«Mide donde el agricultor decide» y «mide en más puntos» son diferencia **frente al nodo fijo**, no frente a otro medidor de mano.
+
+Los límites declarados son parte de la propuesta, no una concesión: no entrega concentraciones de nutrientes, no reemplaza el criterio de un asesor y no da continuidad temporal en un punto. Decirlo es lo que construye la confianza, que según el propio FODA del proyecto es su barrera principal.
+
+## 4. Decisiones cerradas del proyecto
 
 No las "optimices" ni las reabras sin que el usuario lo pida:
 
@@ -40,7 +66,7 @@ No las "optimices" ni las reabras sin que el usuario lo pida:
 - **Horizonte:** evaluación principal a **10 años** (2027–2036), con comparación a cinco.
 - **Contrato BLE:** trama única de **20 bytes** con suelo, ambiente y batería. Los 16 bytes son solo tolerancia del decodificador para prototipos sin BME280, no un modo de operación.
 
-## 4. Fuentes de verdad cuando el texto y el código difieren
+## 5. Fuentes de verdad cuando el texto y el código difieren
 
 Manda el código:
 
@@ -55,7 +81,7 @@ Manda el código:
 
 El firmware del ESP32 vive en `Firmware/` (Arduino IDE, núcleo esp32 3.x); su estado y pendientes están en `Firmware/TASK.md`. Aún no lee la sonda de suelo: no la simules. Pines: `Firmware/pines.h`, que debe coincidir con el esquemático de `PCB/Medidor De Suelos V2/`.
 
-## 5. Documentación
+## 6. Documentación
 
 - **No crear changelogs** ni archivos de registro fechados (`INTEGRACION_<fecha>.md`, `CAMBIOS_*.md`). La documentación describe el estado vigente, no su historia; para eso está git.
 - **Una cifra vive en un solo lugar.** Si aparece en dos documentos, uno la genera y el otro la enlaza. Única excepción deliberada: el informe entregable.
@@ -64,7 +90,7 @@ El firmware del ESP32 vive en `Firmware/` (Arduino IDE, núcleo esp32 3.x); su e
 - Al citar siglas económicas (TAM, SAM, SOM, VAN, TIR, TCO, BOM), explica su significado entre paréntesis la primera vez.
 - **No uses EBITDA, FCFF, FCFE, DSCR ni FTE.** Se retiraron deliberadamente del informe: son válidos pero exceden el nivel de una evaluación de viabilidad económica y el equipo no los maneja. La dotación se expresa en personas, no en FTE.
 
-## 6. Verificación antes de dar algo por terminado
+## 7. Verificación antes de dar algo por terminado
 
 ```bash
 python finanzas/modelo.py                                  # regenera cifras y planillas
@@ -76,7 +102,7 @@ cd Web && npm test                                         # pruebas del backoff
 
 Si tocas cifras económicas, ejecuta los tres primeros. Si tocas documentación, el tercero. Estas comprobaciones son las que impiden que el repositorio se desincronice: valen más que cualquier descripción en prosa de la arquitectura.
 
-## 7. Convenciones
+## 8. Convenciones
 
 - Documentación y mensajes de commit en español.
 - Puede haber varios agentes trabajando en paralelo. Antes de borrar o reescribir algo que no creaste tú, verifica si es trabajo en curso de otro.
