@@ -526,6 +526,70 @@ def prop(nombre, valor):
     p.Name, p.Value = nombre, valor
     return p
 
+
+def ancho_del_texto(documento):
+    """Ancho util de la caja de texto, para alinear el numero de pagina a la derecha."""
+    familias = documento.StyleFamilies.getByName("PageStyles")
+    for nombre in familias.getElementNames():
+        estilo = familias.getByName(nombre)
+        if estilo.isInUse():
+            return estilo.Width - estilo.LeftMargin - estilo.RightMargin
+    return 17000
+
+
+def es_centrado(par):
+    ajuste = getattr(par.ParaAdjust, "value", par.ParaAdjust)
+    return ajuste in ("CENTER", 3)
+
+
+def numerar_listas(documento):
+    """Escribe el numero de pagina en los indices de figuras y de tablas.
+
+    Writer sabe paginar el campo TOC del indice general, pero los indices de
+    figuras y de tablas son listas de parrafos y no un campo, de modo que nadie
+    les pone la pagina. Aqui se hace lo mismo que el guion de Word: el rotulo
+    del cuerpo va centrado y la entrada del indice repite su texto sin centrar,
+    asi que el centrado da la pagina y la entrada la recibe, con un tabulador
+    derecho y relleno de puntos.
+    """
+    import re
+    rotulo = re.compile("^(Figura|Tabla) \\d+\\.\\d+ \\u201c")
+    vista = documento.getCurrentController().getViewCursor()
+    paginas, entradas = {}, []
+    enumeracion = documento.Text.createEnumeration()
+    while enumeracion.hasMoreElements():
+        par = enumeracion.nextElement()
+        if not par.supportsService("com.sun.star.text.Paragraph"):
+            continue
+        texto = par.getString().strip()
+        if not rotulo.match(texto):
+            continue
+        clave = texto.split("\t")[0].strip()
+        if es_centrado(par):
+            vista.gotoRange(par.getStart(), False)
+            paginas[clave] = vista.getPage()
+        else:
+            entradas.append((par, clave))
+    tope = uno.createUnoStruct("com.sun.star.style.TabStop")
+    tope.Position = ancho_del_texto(documento)
+    tope.Alignment = uno.Enum("com.sun.star.style.TabAlign", "RIGHT")
+    tope.FillChar = "."
+    izquierda = uno.Enum("com.sun.star.style.ParagraphAdjust", "LEFT")
+    cambios = 0
+    for par, clave in entradas:
+        if clave not in paginas:
+            continue
+        destino = clave + "\t" + str(paginas[clave])
+        if par.getString() == destino:
+            continue
+        par.setString(destino)
+        par.ParaTabStops = (tope,)
+        par.ParaAdjust = izquierda
+        par.ParaFirstLineIndent = 0
+        par.ParaLeftMargin = 0
+        cambios += 1
+    return cambios, len(entradas), len(paginas)
+
 office, origen, pdf = sys.argv[1:]
 origen = Path(origen).resolve()
 with tempfile.TemporaryDirectory(prefix="terrasense-word-") as trabajo:
@@ -574,6 +638,17 @@ with tempfile.TemporaryDirectory(prefix="terrasense-word-") as trabajo:
             documento.getTextFields().refresh()
             for i in range(indices.getCount()):
                 indices.getByIndex(i).update()
+        # Numerar las listas mueve texto y puede correr las paginas, asi que se
+        # repite hasta que una vuelta no cambie nada.
+        for vuelta in range(4):
+            cambios, entradas, rotulos = numerar_listas(documento)
+            documento.getTextFields().refresh()
+            for i in range(indices.getCount()):
+                indices.getByIndex(i).update()
+            if not cambios:
+                break
+        print("  Indices de figuras y tablas: %d entradas numeradas sobre %d rotulos, %d vueltas."
+              % (entradas, rotulos, vuelta + 1), flush=True)
         destino = carpeta / "informe.docx"
         documento.storeAsURL(destino.as_uri(), (prop("FilterName", "Office Open XML Text"), prop("Overwrite", True)))
         if pdf:
