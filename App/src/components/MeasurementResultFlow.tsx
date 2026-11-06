@@ -9,7 +9,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { BatteryBar } from './result/BatteryBar';
 import { useResetGuide } from './guide/GuideContext';
 import { EntryButton } from './entry/EntryUI';
-import { ScreenCard, ScreenLabel, ScreenLayout, ScreenOption, ScreenText, ScreenTopBar, StepProgress } from './screen/ScreenUI';
+import { ScreenCard, ScreenLabel, ScreenLayout, ScreenText, ScreenTopBar, StepProgress } from './screen/ScreenUI';
 import { MeasurementForecast, type ForecastProps } from './MeasurementForecast';
 import { MEASUREMENT_GROUPS } from './measurementResultData';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -200,9 +200,8 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
   const system = useAppStore(s => s.preferences.measurementSystem);
   const [step, setStep] = useState(0);
   const [detail, setDetail] = useState<number | null>(null);
-  const [plan, setPlan] = useState(false);
   const current = STEPS[step];
-  useResetGuide(plan ? 'plan' : detail === null ? current : `detalle-${detail}`);
+  useResetGuide(detail === null ? current : `detalle-${detail}`);
   // Abrir una variable también sitúa el paso en su familia: al recorrer con
   // anterior/siguiente, «Volver» lleva a la familia de la variable a la vista.
   // Hacia dónde entra la próxima pantalla: 1 desde la derecha (avanzar), -1 desde la izquierda.
@@ -237,8 +236,8 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
     return `${f.value.toLocaleString(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits })} ${f.unit}`;
   };
 
-  const canNext = !plan && (detail !== null ? detail < p.parameters.length - 1 : step < STEPS.length - 1);
-  const canPrev = plan || detail !== null || step > 0;
+  const canNext = detail !== null ? detail < p.parameters.length - 1 : step < STEPS.length - 1;
+  const canPrev = detail !== null || step > 0;
   const forward = () => {
     if (!canNext) return;
     if (detail !== null) { openDetail(detail + 1); return; }
@@ -247,8 +246,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
   };
   const back = () => {
     direction.current = -1;
-    if (plan) setPlan(false);
-    else if (detail !== null) setDetail(null);
+    if (detail !== null) setDetail(null);
     else if (step > 0) setStep(step - 1);
     else onExit();
   };
@@ -261,7 +259,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
   // siguiente entra desde el otro; si no, vuelve a su lugar sin rebote. En los extremos ofrece
   // resistencia. El botón de abajo y el atrás del teléfono usan la misma entrada lateral.
   // Sólo cuenta un gesto horizontal, para no competir con el desplazamiento vertical.
-  const screenKey = plan ? 'plan' : detail !== null ? `detalle-${detail}` : current;
+  const screenKey = detail !== null ? `detalle-${detail}` : current;
   const offset = useSharedValue(0);
   useLayoutEffect(() => { offset.value = 0; }, [screenKey, offset]);
   const busy = !!save?.busy;
@@ -363,17 +361,6 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
         <ScreenText>{t('Son posibilidades para evaluar, no una garantía de aptitud. Confirma humedad, textura, drenaje, temporada y clima local antes de sembrar.', 'These are possibilities to assess, not a guarantee of suitability. Confirm moisture, texture, drainage, season and local climate before planting.')}</ScreenText>
       </> : <ScreenText>{t('No hay coincidencias disponibles con los criterios evaluables de esta captura. Esto no significa que ningún cultivo pueda crecer aquí; revisa los datos y sus limitaciones.', 'No matches are available under the assessable criteria for this capture. This does not mean no crop can grow here; review the data and its limitations.')}</ScreenText>}
   </ScreenCard> : null;
-
-  // --- Plan global: diagnóstico de conjunto con el texto completo ---
-  if (plan) {
-    return swipeable(<ScreenLayout key="plan" onBack={back} backLabel={t('Recomendaciones', 'Recommendations')}
-      eyebrow={t(`PLAN GLOBAL · ${stage.toUpperCase()}`, `OVERALL PLAN · ${stage.toUpperCase()}`)} title={p.title} description={p.context}>
-      <ScreenCard accent={colors.primary}><ScreenText muted={false}>{p.summary}</ScreenText></ScreenCard>
-      {possibleCropsCard}
-      {!!p.actions.length && <><ScreenLabel>{t('Qué hacer', 'What to do')}</ScreenLabel>{timeline}</>}
-      {weatherCard}
-    </ScreenLayout>);
-  }
 
   // --- Detalle de una variable: carrusel entre las variables ---
   if (detail !== null) {
@@ -617,20 +604,28 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
       </View>
     </Animated.View>)}
   </> : p.actions.length ? timeline : <ScreenCard><ScreenText>{t('No hay recomendaciones para esta lectura.', 'No recommendations for this reading.')}</ScreenText></ScreenCard>;
-  return (<ScreenLayout {...common} eyebrow={t(`PLAN DE RECOMENDACIONES · ${stage.toUpperCase()}`, `RECOMMENDATION PLAN · ${stage.toUpperCase()}`)}
-    title={t('Lo que te recomendamos', 'What we recommend')}
-    description={speciesName
-      ? t(`Según la lectura, la etapa ${stage.toLowerCase()}, la especie (${speciesName}) y el clima. Son sugerencias: tú decides qué aplicar en tu campo.`,
-        `Based on the reading, the ${stage.toLowerCase()} stage, the species (${speciesName}) and the weather. These are suggestions: you decide what to apply in your field.`)
-      : t(`Según la lectura, la etapa ${stage.toLowerCase()} y el clima. Son sugerencias: tú decides qué aplicar en tu campo.`,
-        `Based on the reading, the ${stage.toLowerCase()} stage and the weather. These are suggestions: you decide what to apply in your field.`)}>
+  // Evidencia: los valores que sostienen el plan, para ver el porqué numérico
+  // de un vistazo sin buscarlo dentro de un párrafo.
+  const evidencia = p.parameters.filter(m => MEASUREMENT_GROUPS[0].includes(m.key) && m.value != null);
+  return (<ScreenLayout {...common} eyebrow={[t('PLAN DE ACCIÓN', 'ACTION PLAN'), stage.toUpperCase(), speciesName?.toUpperCase()].filter(Boolean).join(' · ')}
+    title={t('Plan de acción sugerido', 'Suggested action plan')}
+    description={t('Priorizado según tu lectura del suelo, el ambiente y el pronóstico. Tú decides qué aplicar.',
+      'Prioritized from your soil, environment and forecast readings. You decide what to apply.')}>
+    {!!evidencia.length && <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+      {evidencia.map(m => <View key={m.key} accessible accessibilityLabel={`${parameterLabel(m.key, language)}: ${value(m)}`}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, paddingVertical: 6, paddingHorizontal: 10 }}>
+        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: tone(m) }} />
+        <Text style={{ color: colors.textSecondary, fontSize: 12 }}>{parameterLabel(m.key, language)}</Text>
+        <Text style={{ color: colors.text, fontSize: 12, fontWeight: '800' }}>{value(m)}</Text>
+      </View>)}
+    </View>}
     {recommendationList}
     {possibleCropsCard}
-    <ScreenCard>
-      <ScreenText>{t('Las recomendaciones usan reglas orientativas y los datos de esta captura. Confírmalas con lo que ves en terreno y, si tienes dudas, con tu asesor agrícola.',
-        'Recommendations use indicative rules and the data from this capture. Check them against what you see in the field and, if in doubt, with your agricultural advisor.')}</ScreenText>
-    </ScreenCard>
-    <ScreenOption title={t('Ver plan global', 'View overall plan')} subtitle={t('Suelo, etapa y pronóstico juntos, con el texto completo.', 'Soil, stage and forecast together, with the full text.')} onPress={() => { direction.current = 1; setPlan(true); }} />
+    {weatherCard}
+    <Text style={{ color: colors.textSecondary, fontSize: 12, lineHeight: 17 }}>
+      {t('Guía orientativa basada en esta captura. Confírmala en terreno y, si dudas, con tu asesor.',
+        'Indicative guidance based on this capture. Confirm it in the field and, if in doubt, with your advisor.')}
+    </Text>
   </ScreenLayout>);
   };
 
