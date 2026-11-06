@@ -36,10 +36,27 @@ class TestPrecio(unittest.TestCase):
     def setUp(self):
         self.r = M.dimensionar()
 
-    def test_precio_entrega_exactamente_el_margen_objetivo(self):
+    def test_precio_entrega_al_menos_el_margen_objetivo(self):
+        """El precio derivado se redondea al alza, así que el margen lo supera y nunca baja de él.
+
+        El exceso no puede ser mayor que el paso del redondeo repartido sobre las
+        ventas: si lo fuera, el precio no vendría de la derivación sino de otra parte.
+        """
         ventas = sum(f["ventas"] for f in self.r["filas"])
         costo = sum(f["costo_total"] for f in self.r["filas"])
-        self.assertAlmostEqual(ventas / costo, 1 + M.S["margen_objetivo"], places=4)
+        margen = ventas / costo
+        self.assertGreaterEqual(margen, 1 + M.S["margen_objetivo"])
+        techo = (1 + M.S["margen_objetivo"]) * (
+            1 + M.S["paso_redondeo_precio"] / self.r["precio_lista"])
+        self.assertLess(margen, techo)
+
+    def test_el_precio_de_lista_termina_en_la_cifra_comercial(self):
+        self.assertEqual(self.r["precio_lista"] % M.S["paso_redondeo_precio"],
+                         M.S["terminacion_precio"])
+
+    def test_el_redondeo_del_precio_es_idempotente(self):
+        lista = self.r["precio_lista"]
+        self.assertEqual(M.redondear_lista(lista), lista)
 
     def test_precio_lista_es_el_neto_mas_iva(self):
         self.assertAlmostEqual(self.r["precio_lista"],

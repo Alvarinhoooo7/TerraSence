@@ -161,7 +161,7 @@ La asignatura distingue tres conceptos que forman una secuencia. La **necesidad*
 |---|---|---|
 | Necesidad | Estado de carencia percibida | Certidumbre para decidir el riego y la siembra sin arriesgar el cultivo ni malgastar agua e insumos |
 | Deseo | Forma que toma la necesidad según la cultura y la persona | Una herramienta portátil y fácil de entender que diga qué hacer en el mismo campo, funcione sin señal y no cobre mensualidad |
-| Demanda | Deseo respaldado por poder adquisitivo | Pequeños y medianos agricultores y asesores dispuestos a pagar $489.784 con IVA; la meta del primer año es de 200 equipos |
+| Demanda | Deseo respaldado por poder adquisitivo | Pequeños y medianos agricultores y asesores dispuestos a pagar $489.990 con IVA; la meta del primer año es de 200 equipos |
 
 *Fuente:* elaboración propia.
 
@@ -384,7 +384,7 @@ TerraSense compite con tres tipos de alternativas: competidores directos (otros 
 
 | Alternativa | Tipo | Precio | Qué entrega | Qué no entrega |
 |---|---|---:|---|---|
-| **TerraSense** | Directa | **$489.784** | Siete variables del suelo y tres del ambiente; recomendación según la etapa del cultivo; funciona sin señal | Exactitud de laboratorio; dosis de fertilizante |
+| **TerraSense** | Directa | **$489.990** | Siete variables del suelo y tres del ambiente; recomendación según la etapa del cultivo; funciona sin señal | Exactitud de laboratorio; dosis de fertilizante |
 | Bluelab Pulse | Directa | $538.990 | Humedad, conductividad y temperatura, con Bluetooth e historial | pH, nitrógeno, fósforo y potasio; recomendación |
 | Hanna HI9814 | Directa parcial | $491.827 | pH, conductividad y temperatura en soluciones | Humedad del suelo; interpretación |
 | FieldScout TDR 350 | Directa | Sin precio local | Humedad, conductividad y temperatura, con GPS | Recomendación; distribución en Chile |
@@ -400,7 +400,7 @@ TerraSense compite con tres tipos de alternativas: competidores directos (otros 
 
 *Fuente:* elaboración propia con los precios de la Tabla 5.2.
 
-La Figura 5.2 muestra que TerraSense cuesta $2.043 menos que Hanna (un 0,42 % menos) y $49.206 menos que Bluelab (un 9,13 % menos), mientras mide más variables que ambos y es el único que entrega una recomendación. En ese mercado, **ningún competidor directo combina la medición del suelo y del ambiente con una recomendación según la etapa del cultivo**. Esa es la oportunidad de diferenciación.
+La Figura 5.2 muestra que TerraSense cuesta $1.837 menos que Hanna (un 0,37 % menos) y $49.000 menos que Bluelab (un 9,09 % menos), mientras mide más variables que ambos y es el único que entrega una recomendación. En ese mercado, **ningún competidor directo combina la medición del suelo y del ambiente con una recomendación según la etapa del cultivo**. Esa es la oportunidad de diferenciación.
 
 ### 5.3 Costo frente a las alternativas
 
@@ -410,7 +410,7 @@ El precio de compra no es la única comparación que hace el productor: también
 
 | Alternativa | Uso | Año 1 | 3 años | 5 años | 10 años |
 |---|---|---:|---:|---:|---:|
-| TerraSense (incluye kits de batería y un segundo equipo en el año 6) | Ilimitado | $489.784 | $514.774 | $514.774 | $1.029.547 |
+| TerraSense (incluye kits de batería y un segundo equipo en el año 6) | Ilimitado | $489.990 | $514.980 | $514.980 | $1.029.960 |
 | Laboratorio, uso habitual | 4 muestras al año | $200.000 | $600.000 | $1.000.000 | $2.000.000 |
 | Laboratorio, uso intensivo | 20 muestras al año | $1.000.000 | $3.000.000 | $5.000.000 | $10.000.000 |
 | Asesoría agronómica | 2 visitas al año | $120.000 | $360.000 | $600.000 | $1.200.000 |
@@ -502,7 +502,7 @@ Kotler y Keller (2016) ordenan el producto en niveles: el beneficio central que 
 
 ### 6.3 Precio
 
-El precio de lista es de **$489.784 con IVA** ($411.583 neto), con pago único y despacho incluido. No es un precio elegido por aspiración comercial: se deriva del costo total del proyecto en diez años, exigiendo un 30 % de utilidad. Una vez calculado, se contrastó con las cuatro estrategias de precio vistas en clase (Tabla 6.3).
+El precio de lista es de **$489.990 con IVA** ($411.756 neto), con pago único y despacho incluido. No es un precio elegido por aspiración comercial: se deriva del costo total del proyecto en diez años, exigiendo un 30 % de utilidad, y después se redondea al alza a la terminación comercial de $990: la derivación da $489.784 y el proyecto adopta $489.990, con lo que el margen sube a 30,05 % y nunca baja del exigido. Una vez calculado, se contrastó con las cuatro estrategias de precio vistas en clase (Tabla 6.3).
 
 **Tabla 6.3.** *Estrategias de precio evaluadas*
 
@@ -515,7 +515,7 @@ El precio de lista es de **$489.784 con IVA** ($411.583 neto), con pago único y
 
 *Fuente:* elaboración propia.
 
-**Justificación.** Frente al mercado, el precio queda un 0,42 % bajo Hanna —paridad práctica— y un 9,13 % bajo Bluelab, con más beneficio (Figura 5.2). Frente al consumidor, responde a la objeción «es caro» con el costo acumulado (Tabla 5.3) y evita las mensualidades que rechaza. Y frente al posicionamiento, no se rebaja con descuentos permanentes, porque la marca compite por utilidad y no por ser la más barata. Se ofrece pago en cuotas con tarjeta y factura para quien tiene giro, que recupera el IVA.
+**Justificación.** Frente al mercado, el precio queda un 0,37 % bajo Hanna —paridad práctica— y un 9,09 % bajo Bluelab, con más beneficio (Figura 5.2). Frente al consumidor, responde a la objeción «es caro» con el costo acumulado (Tabla 5.3) y evita las mensualidades que rechaza. Y frente al posicionamiento, no se rebaja con descuentos permanentes, porque la marca compite por utilidad y no por ser la más barata. Se ofrece pago en cuotas con tarjeta y factura para quien tiene giro, que recupera el IVA.
 
 ### 6.4 Plaza
 
@@ -560,7 +560,7 @@ Cada decisión de la mezcla debe responder al consumidor, al mercado y al posici
 | P | Decisión | Por el consumidor | Por el mercado | Por el posicionamiento |
 |---|---|---|---|---|
 | Producto | Sonda de diez variables con recomendación según la etapa | Busca saber qué hacer, no un número | Ningún competidor recomienda según la etapa | Hace posible «del número a la decisión» |
-| Precio | $489.784, por valor, sin rebajas | Rechaza las mensualidades | Bajo los importados comparables | Se compite por utilidad, no por precio |
+| Precio | $489.990, por valor, sin rebajas | Rechaza las mensualidades | Bajo los importados comparables | Se compite por utilidad, no por precio |
 | Plaza | Directa y digital, despacho incluido | Disperso y usuario de WhatsApp | Competidores venden por catálogo | Contacto directo que sostiene la confianza |
 | Promoción | Educar antes de vender | Desconfía de la tecnología | Categoría poco conocida | Muestra la decisión, no la ficha técnica |
 | Personas | Socios y asesores referentes | Confía en sus pares y en su asesor | Marca nueva sin reputación | La confianza es el principal activo |
@@ -609,7 +609,7 @@ El carrusel es un anuncio de siete imágenes para Instagram y Facebook, en forma
 | 3. «Le dices qué tienes plantado: 111 especies» | El paso «¿Qué tienes plantado?» de la aplicación: un buscador y siete grupos de especies, de las hortalizas y los frutales a los cereales y las forrajeras | 3. Evaluación | Mostrar que la aplicación habla del cultivo del productor y que elegirlo toma dos toques. La pantalla real responde al factor de percepción («la tecnología es complicada») |
 | 4. «Suelo seco, lluvia mañana: te arma un plan» | La pantalla «Lo que te recomendamos»: primero, revisar la humedad en terreno antes de decidir el riego; después, programar las labores según la lluvia prevista para el miércoles y el jueves | 3. Evaluación | Mostrar el concepto creativo: el número se convierte en un plan, cruzado con el pronóstico integrado a la recomendación (sección 5.4) |
 | 5. «Todo para decidir, en el mismo campo» | Cuatro beneficios: funciona sin señal, diez variables, recomendación según el cultivo y su etapa, y pago único | 3. Evaluación | Responder de antemano a las objeciones de los perfiles (Figura 3.1): falta de señal, complejidad, utilidad y mensualidades |
-| 6. «En 3 años, te sale más barato que el laboratorio» | $600.000 en análisis de laboratorio frente a $514.774 de TerraSense; garantía, retracto y despacho incluido | 3 y 4. Evaluación y compra | Responder a la objeción «es caro» con el cálculo de la Tabla 5.3 y reducir el riesgo justo antes de pedir la compra |
+| 6. «En 3 años, te sale más barato que el laboratorio» | $600.000 en análisis de laboratorio frente a $514.980 de TerraSense; garantía, retracto y despacho incluido | 3 y 4. Evaluación y compra | Responder a la objeción «es caro» con el cálculo de la Tabla 5.3 y reducir el riesgo justo antes de pedir la compra |
 | 7. «Mide hoy. Decide hoy.» | El logotipo, el botón «Escríbenos por WhatsApp» y el precio con pago único | 4. Compra | Cerrar con un solo llamado a la acción, el mismo de toda la campaña |
 
 *Fuente:* elaboración propia.

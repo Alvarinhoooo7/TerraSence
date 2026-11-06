@@ -15,6 +15,12 @@
 
   "margen_objetivo": 0.3,
 
+  "_redondeo_precio": "El precio de lista se deriva del costo y del margen exigido, y despues se redondea al alza hasta la terminacion comercial habitual en el retail chileno. El redondeo es siempre hacia arriba, de modo que el margen resultante nunca queda por debajo del exigido: solo lo supera en la fraccion redondeada.",
+
+  "paso_redondeo_precio": 1000,
+
+  "terminacion_precio": 990,
+
   "_financiamiento": "El banco desembolsa el 100% de la inversion inicial. Como condicion para otorgarlo, los socios abonan un pie fijo con capital propio, que el banco imputa como cuotas pagadas por anticipado: cubre las primeras cuotas del calendario. Fuentes: credito + pie; usos: inversion + cuotas anticipadas.",
 
   "pie_total": 9000000,

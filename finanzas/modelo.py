@@ -3,7 +3,7 @@
 
 El precio NO es un dato de entrada: se deriva del costo total con el margen objetivo.
 """
-import json, os, sys
+import json, math, os, sys
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 S = json.load(open(os.path.join(BASE, "supuestos.json"), encoding="utf-8"))
@@ -194,6 +194,17 @@ def derivar_precio(unidades_por_anio):
     return P, F, U
 
 
+def redondear_lista(lista):
+    """Lleva el precio de lista a la terminación comercial declarada, al alza.
+
+    El redondeo es siempre hacia arriba: el margen resultante nunca baja del
+    exigido, sólo lo supera en la fracción redondeada. Es idempotente, de modo
+    que un precio ya terminado en la cifra declarada no se mueve.
+    """
+    paso, fin = S["paso_redondeo_precio"], S["terminacion_precio"]
+    return math.ceil((lista - fin) / paso) * paso + fin
+
+
 # --------------------------------------------------------- credito
 def cuota_francesa(capital, tasa_anual, anios):
     i = (1 + tasa_anual) ** (1 / 12) - 1
@@ -238,6 +249,10 @@ def correr(unidades_por_anio=None, precio_forzado=None, factor_ventas=1.0, facto
 
     u = unidades_por_anio or {a: round(S["ventas"][str(a)] * factor_ventas) for a in ANIOS}
     P, F, U = derivar_precio(u)
+    # El precio derivado se lleva a la terminación comercial antes de que lo use
+    # el resto del modelo: las ventas, el flujo y el costo del agricultor parten
+    # todos del precio que el cliente ve en la lista.
+    P = redondear_lista(P * (1 + IVA)) / (1 + IVA)
     if precio_forzado:
         P = precio_forzado / (1 + IVA)
 
@@ -418,8 +433,10 @@ def resultados_markdown(r, ruta):
     ind = resumen(r)
     L = ["# Resultados financieros generados", "",
          "No editar a mano: `python finanzas/modelo.py`. Fuente: `finanzas/supuestos.json`.", "",
-         "El precio **se deriva** del costo total con un margen exigido del %s; no es un supuesto de entrada."
-         % porc(S["margen_objetivo"], 0), "",
+         "El precio **se deriva** del costo total con un margen exigido del %s; no es un supuesto de "
+         "entrada. Una vez derivado se redondea al alza a la terminación comercial de %s, de modo que "
+         "el margen resultante supera al exigido y nunca queda por debajo."
+         % (porc(S["margen_objetivo"], 0), fmt(S["terminacion_precio"])), "",
          "Precio de lista: **%s** con IVA (%s netos). BOM neta por equipo: **%s**."
          % (fmt(r["precio_lista"]), fmt(r["precio_neto_base"]), fmt(BOM)), "",
          "Inversión inicial: **%s**, desembolsada íntegra por el crédito. Pie de los socios: **%s** "

@@ -104,7 +104,7 @@
       <p>Una herramienta portátil y simple que diga qué hacer en el mismo campo, sin señal y sin mensualidad.</p></div>
     <div class="ar"><svg width="44" height="44" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" stroke="#C9762B" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div class="c" style="background:var(--bosque)"><h3>Demanda</h3><div class="d">Deseo respaldado por poder adquisitivo</div>
-      <p>Productores y asesores dispuestos a pagar $489.784 por el equipo: meta de 200 equipos en 2027.</p></div>
+      <p>Productores y asesores dispuestos a pagar $489.990 por el equipo: meta de 200 equipos en 2027.</p></div>
   </div>
 </div>
 
@@ -262,15 +262,15 @@
       </g>
       <text x="280" y="88" text-anchor="end" font-size="26" font-weight="900" fill="#1F5B3F">TerraSense</text>
       <text x="280" y="114" text-anchor="end" font-size="17" fill="#48584F">10 variables + recomendación</text>
-      <rect x="300" y="50" width="898" height="80" rx="12" fill="#1F5B3F"/><text x="1178" y="102" text-anchor="end" font-size="28" font-weight="900" fill="#fff">$489.784</text>
+      <rect x="300" y="50" width="898" height="80" rx="12" fill="#1F5B3F"/><text x="1178" y="102" text-anchor="end" font-size="28" font-weight="900" fill="#fff">$489.990</text>
       <text x="280" y="228" text-anchor="end" font-size="26" font-weight="700" fill="#14201B">Hanna HI9814</text>
       <text x="280" y="254" text-anchor="end" font-size="17" fill="#48584F">3 variables, sin humedad</text>
       <rect x="300" y="190" width="902" height="80" rx="12" fill="#B7C3BB"/><text x="1182" y="242" text-anchor="end" font-size="28" font-weight="900" fill="#14201B">$491.827</text>
-      <text x="1215" y="242" font-size="20" font-weight="700" fill="#A33528">+$2.043</text>
+      <text x="1215" y="242" font-size="20" font-weight="700" fill="#A33528">+$1.837</text>
       <text x="280" y="368" text-anchor="end" font-size="26" font-weight="700" fill="#14201B">Bluelab Pulse</text>
       <text x="280" y="394" text-anchor="end" font-size="17" fill="#48584F">3 variables, sin pH</text>
       <rect x="300" y="330" width="988" height="80" rx="12" fill="#B7C3BB"/><text x="1268" y="382" text-anchor="end" font-size="28" font-weight="900" fill="#14201B">$538.990</text>
-      <text x="1301" y="382" font-size="20" font-weight="700" fill="#A33528">+$49.206</text>
+      <text x="1301" y="382" font-size="20" font-weight="700" fill="#A33528">+$49.000</text>
     </g>
   </svg>
 </div>
@@ -315,7 +315,7 @@
     const X = y => 140 + y * 118, Y = v => 600 - v / 2100000 * 560;
     for (let v = 0; v <= 2000000; v += 500000) { el('line', { x1: 140, y1: Y(v), x2: 1320, y2: Y(v), stroke: '#EEF2EF', 'stroke-width': 2 }, svg); el('text', { x: 124, y: Y(v) + 6, 'text-anchor': 'end', 'font-size': 17, fill: '#7B8A82' }, svg, clp(v)); }
     for (let y = 0; y <= 10; y++) el('text', { x: X(y), y: 632, 'text-anchor': 'middle', 'font-size': 17, fill: '#7B8A82' }, svg, y === 0 ? 'Compra' : `Año ${y}`);
-    const terra = [489784, 489784, 489784, 514774, 514774, 514774, 1004557, 1004557, 1029547, 1029547, 1029547];
+    const terra = [489990, 489990, 489990, 514980, 514980, 514980, 1004970, 1004970, 1029960, 1029960, 1029960];
     const series = [
       [terra, '#1F5B3F', true],
       [Array.from({ length: 11 }, (_, y) => 200000 * y), '#C9762B', false],
@@ -338,7 +338,7 @@
     const cx = 744, cy = 430, RX = 520, RY = 330;
     const items = [
       ['Producto', 'Sonda de 10 variables con recomendación según la etapa', '#1F5B3F'],
-      ['Precio', '$489.784, pago único, estrategia por valor', '#1F5B3F'],
+      ['Precio', '$489.990, pago único, estrategia por valor', '#1F5B3F'],
       ['Plaza', 'Directa y digital, despacho a todo Chile', '#1F5B3F'],
       ['Promoción', 'Educar antes de vender con publicidad y promociones', '#1F5B3F'],
       ['Personas', 'Socios con lenguaje del campo y asesores referentes', '#C9762B'],
