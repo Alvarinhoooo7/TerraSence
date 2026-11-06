@@ -11,7 +11,7 @@ import type { ForecastDay } from '../services/weatherService';
 import { compareForecastWindows, forecastOutlook, isRainingNow, isRainyDay, weatherKind, weatherKindLabel } from '../engine/weatherOutlook';
 import type { WeatherNow } from './measurementResultData';
 import { WeatherGlyph } from './result/WeatherGlyph';
-import { ScreenCard, ScreenLabel, ScreenText } from './screen/ScreenUI';
+import { ScreenLabel, ScreenText } from './screen/ScreenUI';
 import { enterDown } from '../constants/motion';
 
 const RAIN = '#3B8FD9';
@@ -26,11 +26,15 @@ export interface ForecastProps {
 export interface ForecastReuse { fetchedAt: string; distanceM: number }
 
 /**
- * Clima del punto medido: cómo está ahora (o al medir, en el historial), un resumen en
- * una frase de los próximos días, la franja de cinco días y los datos de la captura.
- * El título lo pone la pantalla que lo contiene.
+ * Clima del punto medido, en dos bloques y nada más: cómo está ahora —o al medir,
+ * en el historial— con la conclusión de los próximos días al pie de la misma
+ * tarjeta, y la franja de cinco días. El título lo pone la pantalla que lo contiene.
+ *
+ * Fecha, hora, coordenadas y batería ya no viven aquí: son el contexto de la
+ * captura y se muestran una sola vez, en la portada del resultado. Repetirlos
+ * obligaba a recorrer dos pantallas para leer lo mismo.
  */
-export function MeasurementForecast({ days, now, loading = false, latitude, longitude, accuracy, capturedAt, battery, historical = false, reuse = null }: ForecastProps) {
+export function MeasurementForecast({ days, now, loading = false, capturedAt, historical = false, reuse = null }: ForecastProps) {
   const { colors } = useAppTheme();
   const { t, locale, language } = useTranslation();
   const lang = language === 'en' ? 'en' : 'es';
@@ -97,16 +101,13 @@ export function MeasurementForecast({ days, now, loading = false, latitude, long
         [now.today.precipitationMm != null ? mm(now.today.precipitationMm) : null,
           now.today.rainProbabilityPct != null ? t(`${now.today.rainProbabilityPct} % de prob.`, `${now.today.rainProbabilityPct} % chance`) : null].filter(Boolean).join(' · ') || missing)}
       {row(t('Mínima / máxima', 'Low / high'), `${degrees(now.today.minimumTemperatureC)} / ${degrees(now.today.maximumTemperatureC)}`)}
-      {!historical && now.remainingToday && row(
-        t(`Resto de hoy (${now.remainingToday.fromHour.slice(11)}–${now.remainingToday.toHour.slice(11)})`, `Rest of today (${now.remainingToday.fromHour.slice(11)}–${now.remainingToday.toHour.slice(11)})`),
-        [
-          now.remainingToday.minimumTemperatureC != null && now.remainingToday.maximumTemperatureC != null
-            ? `${degrees(now.remainingToday.minimumTemperatureC)} / ${degrees(now.remainingToday.maximumTemperatureC)}`
-            : null,
-          now.remainingToday.precipitationMm != null ? mm(now.remainingToday.precipitationMm) : null,
-        ].filter(Boolean).join(' · ') || missing
-      )}
     </View>
+    {/* La conclusión cierra la misma tarjeta en vez de ocupar otra: es la lectura
+        del pronóstico, no un dato aparte. */}
+    {!!outlook && <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingHorizontal: 18, paddingVertical: 12, gap: 4 }}>
+      <Text style={{ color: colors.text, fontSize: 15, fontWeight: '600' }}>{outlook}</Text>
+      {!!windowComparison && <ScreenText>{windowComparison}</ScreenText>}
+    </View>}
   </Animated.View> : null;
 
   // --- Próximos días: una columna por día, sin tarjetas ---
@@ -132,11 +133,10 @@ export function MeasurementForecast({ days, now, loading = false, latitude, long
   return <View style={{ gap: 12 }}>
     {nowCard}
     {days.length ? <>
-      {!!outlook && <Animated.View entering={enterDown(120)}><ScreenCard accent={colors.primary}>
-        <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '800', letterSpacing: 1.4 }}>{t('EN RESUMEN', 'IN SHORT')}</Text>
+      {/* Sin tiempo actual no hay tarjeta donde apoyar la conclusión: va suelta y breve. */}
+      {!nowCard && !!outlook && <Animated.View entering={enterDown(120)}>
         <ScreenText muted={false}>{outlook}</ScreenText>
-        {!!windowComparison && <ScreenText>{windowComparison}</ScreenText>}
-      </ScreenCard></Animated.View>}
+      </Animated.View>}
       <Animated.View entering={enterDown(200)} style={{ gap: 8 }}>
         <ScreenLabel>{t('Próximos cinco días', 'Next five days')}</ScreenLabel>
         {strip}
@@ -154,12 +154,5 @@ export function MeasurementForecast({ days, now, loading = false, latitude, long
           : t('Hace falta incluir la ubicación y tener internet. El diagnóstico local se conserva.', 'It needs the location and an internet connection. The local diagnosis is kept.')}</ScreenText>
       </View>
     </View>}
-    <ScreenLabel>{t('Datos de la captura', 'Capture details')}</ScreenLabel>
-    <ScreenCard>
-      {row(t('Fecha y hora', 'Date and time'), capturedAt ? new Date(capturedAt).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' }) : missing)}
-      {row(t('Batería de la sonda', 'Probe battery'), battery == null ? missing : `${battery} %`)}
-      {row(t('Coordenadas', 'Coordinates'), latitude != null && longitude != null ? `${latitude.toFixed(6)}, ${longitude.toFixed(6)}` : t('Sin coordenadas', 'No coordinates'), true)}
-      {row(t('Precisión GPS', 'GPS accuracy'), accuracy == null ? missing : `±${Math.round(accuracy)} m`)}
-    </ScreenCard>
   </View>;
 }

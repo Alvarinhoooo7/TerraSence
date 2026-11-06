@@ -434,8 +434,12 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
 
   // --- Resumen ---
   if (s === 'summary') {
-    const essentials = p.parameters.filter(m => MEASUREMENT_GROUPS[0].includes(m.key));
-    return (<ScreenLayout {...common} eyebrow={t(`RESULTADO · ${stage.toUpperCase()}`, `RESULT · ${stage.toUpperCase()}`)} title={p.title} description={p.context}>
+    // Una medición recién tomada se anuncia como tal; en el historial manda el veredicto.
+    const recien = !!save;
+    return (<ScreenLayout {...common}
+      eyebrow={recien ? t('MEDICIÓN COMPLETADA', 'MEASUREMENT COMPLETE') : t('REGISTRO GUARDADO', 'SAVED READING')}
+      title={recien ? t('¡Medición realizada con éxito!', 'Measurement completed successfully!') : p.title}
+      description={recien ? t('Resumen del estado de tu campo en este punto.', 'How your field stands at this point.') : p.context}>
       {notices}
       {/* Portada: cuántas variables quedaron bien y la etapa ilustrada. */}
       <View style={{ borderRadius: 22, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, overflow: 'hidden' }}>
@@ -450,6 +454,8 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
                 <Text style={{ color: colors.text, fontSize: 15, fontWeight: '700', minWidth: 16 }}>{n}</Text>
                 <Text style={{ color: colors.textSecondary, fontSize: 14, flexShrink: 1 }}>{label}</Text>
               </View>)}
+            {/* Con el título ocupado por el aviso de éxito, el veredicto se lee aquí. */}
+            {recien && <Text numberOfLines={2} style={{ color: colors.text, fontSize: 13, fontWeight: '700', marginTop: 2 }}>{p.title}</Text>}
           </View>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, backgroundColor: '#17392C' }}>
@@ -477,10 +483,24 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
       <ScreenCard accent={colors.primary}><ScreenText muted={false}>{p.summary}</ScreenText></ScreenCard>
       {possibleCropsCard}
       {p.coverageSummary && <CoverageSummaryBox summary={p.coverageSummary} />}
-      <ScreenLabel>{t('Datos esenciales', 'Key readings')}</ScreenLabel>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-        {essentials.map(m => tile(m, p.parameters.indexOf(m)))}
-      </View>
+      {/* Contexto de la captura: cuándo, dónde y con qué carga. Vivía en la pantalla
+          del clima, donde obligaba a avanzar cuatro páginas para leer la hora. */}
+      <ScreenCard>
+        {([
+          [t('Fecha y hora', 'Date and time'),
+            forecast.capturedAt ? new Date(forecast.capturedAt).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' }) : t('Sin dato', 'No data'), false],
+          [t('Ubicación', 'Location'),
+            forecast.latitude != null && forecast.longitude != null
+              ? `${forecast.latitude.toFixed(6)}, ${forecast.longitude.toFixed(6)}${forecast.accuracy != null ? ` · ±${Math.round(forecast.accuracy)} m` : ''}`
+              : t('Sin ubicación incluida', 'Location not included'), true],
+          [t('Batería de la sonda', 'Probe battery'),
+            forecast.battery == null ? t('Sin dato', 'No data') : `${forecast.battery} %`, false],
+        ] as const).map(([label, valor, seleccionable]) =>
+          <View key={label} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12, minHeight: 28, alignItems: 'baseline' }}>
+            <Text style={{ color: colors.textSecondary, fontSize: 14 }}>{label}</Text>
+            <Text selectable={seleccionable} style={{ color: colors.text, fontSize: 14, fontWeight: '600', flexShrink: 1, textAlign: 'right' }}>{valor}</Text>
+          </View>)}
+      </ScreenCard>
     </ScreenLayout>);
   }
 
