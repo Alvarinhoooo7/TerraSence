@@ -1,11 +1,10 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { BackHandler, FlatList, Pressable, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from './AppText';
 import Svg, { Path } from 'react-native-svg';
-import Animated, { Easing, SlideInLeft, SlideInRight, runOnJS, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { useReducedMotion } from 'react-native-reanimated';
 import { GuideTouchable } from './guide/GuideControls';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { BatteryBar } from './result/BatteryBar';
 import { useResetGuide } from './guide/GuideContext';
 import { EntryButton } from './entry/EntryUI';
@@ -24,7 +23,7 @@ import { MetricBadge, MetricScale, StatusRing } from './result/ResultVisuals';
 import { buildParameterCopy, derivedMeaning } from './result/resultCopy';
 import { StageArt } from './StageCards';
 import { EnvironmentReadingArt, NutrientReadingArt, SoilReadingArt } from './result/ReadingArt';
-import { MotionEasing, enterDown } from '../constants/motion';
+import { enterDown } from '../constants/motion';
 import type { Recommendation, RecommendationKind, RecommendationTiming } from '../engine/contextualAdvice';
 
 const NUTRIENTS = ['nitrogen', 'phosphorus', 'potassium'];
@@ -204,10 +203,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
   useResetGuide(detail === null ? current : `detalle-${detail}`);
   // Abrir una variable también sitúa el paso en su familia: al recorrer con
   // anterior/siguiente, «Volver» lleva a la familia de la variable a la vista.
-  // Hacia dónde entra la próxima pantalla: 1 desde la derecha (avanzar), -1 desde la izquierda.
-  const direction = useRef<1 | -1 | 0>(0);
   const openDetail = (index: number) => {
-    direction.current = detail === null || index > detail ? 1 : -1;
     const family = MEASUREMENT_GROUPS.findIndex(keys => keys.includes(p.parameters[index].key));
     const familyStep = (Object.keys(GROUP_OF) as Step[]).find(key => GROUP_OF[key] === family);
     if (familyStep) setStep(STEPS.indexOf(familyStep));
@@ -237,15 +233,12 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
   };
 
   const canNext = detail !== null ? detail < p.parameters.length - 1 : step < STEPS.length - 1;
-  const canPrev = detail !== null || step > 0;
   const forward = () => {
     if (!canNext) return;
     if (detail !== null) { openDetail(detail + 1); return; }
-    direction.current = 1;
     setStep(step + 1);
   };
   const back = () => {
-    direction.current = -1;
     if (detail !== null) setDetail(null);
     else if (step > 0) setStep(step - 1);
     else onExit();
@@ -259,36 +252,6 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
   // siguiente entra desde el otro; si no, vuelve a su lugar sin rebote. En los extremos ofrece
   // resistencia. El botón de abajo y el atrás del teléfono usan la misma entrada lateral.
   // Sólo cuenta un gesto horizontal, para no competir con el desplazamiento vertical.
-  const screenKey = detail !== null ? `detalle-${detail}` : current;
-  const offset = useSharedValue(0);
-  useLayoutEffect(() => { offset.value = 0; }, [screenKey, offset]);
-  const busy = !!save?.busy;
-  const swipe = Gesture.Pan().activeOffsetX([-16, 16]).failOffsetY([-14, 14])
-    .onUpdate(event => {
-      const blocked = busy || (event.translationX < 0 ? !canNext : !canPrev);
-      offset.value = blocked ? event.translationX * .25 : event.translationX;
-    })
-    .onEnd(event => {
-      const dir = event.translationX < 0 ? 1 : -1;
-      const far = Math.abs(event.translationX) > width * .28 || Math.abs(event.velocityX) > 700;
-      if (far && !busy && (dir > 0 ? canNext : canPrev)) {
-        offset.value = withTiming(-dir * width, { duration: 170, easing: Easing.in(Easing.quad) }, finished => {
-          if (finished) runOnJS(dir > 0 ? forward : back)();
-        });
-        return;
-      }
-      offset.value = withTiming(0, { duration: 220, easing: MotionEasing });
-      // En la primera página, deslizar hacia la derecha equivale a salir (con su confirmación).
-      if (far && !busy && dir < 0) runOnJS(onExit)();
-    });
-  const dragStyle = useAnimatedStyle(() => ({ transform: [{ translateX: offset.value }] }));
-  const entering = direction.current > 0 ? SlideInRight.duration(260).easing(MotionEasing)
-    : direction.current < 0 ? SlideInLeft.duration(260).easing(MotionEasing) : undefined;
-  const swipeable = (screen: React.ReactNode) => <GestureDetector gesture={swipe}>
-    <Animated.View collapsable={false} style={[{ flex: 1 }, dragStyle]}>
-      <Animated.View key={screenKey} entering={entering} style={{ flex: 1 }}>{screen}</Animated.View>
-    </Animated.View>
-  </GestureDetector>;
   const battery = <BatteryBar percent={forecast.battery} />;
 
   // --- Piezas compartidas ---
