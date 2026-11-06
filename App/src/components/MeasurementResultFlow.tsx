@@ -302,7 +302,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
     <Text style={{ color: tone(m), fontSize: 13, fontWeight: '700' }}>{statusLabel(m)}</Text>
   </View>;
   const tile = (m: ParameterPresentation, i: number) => <GuideTouchable key={m.key} onPress={() => openDetail(i)}
-    guideTitle={parameterLabel(m.key, language)} guide={t('Abre el estado, la recomendación y el control de esta variable.', 'Opens the status, recommendation and check for this variable.')}
+    guideTitle={parameterLabel(m.key, language)} guide={t('Abre qué significa esta lectura en tu cultivo y qué hacer con ella.', 'Opens what this reading means for your crop and what to do with it.')}
     accessibilityLabel={`${parameterLabel(m.key, language)}, ${value(m)}, ${statusLabel(m)}. ${t('Abrir detalle.', 'Open detail.')}`}
     style={{ width: half ? '47.5%' : '100%', flexGrow: 1, minHeight: 150, borderRadius: 20, borderWidth: 1, borderColor: colors.border,
       backgroundColor: colors.card, padding: 14, gap: 8 }}>
