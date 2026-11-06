@@ -458,7 +458,8 @@ def main():
     anexos.anexo_f(os.path.join(destino, "Anexo F - Carta Gantt TerraSense.xlsx"))
     planilla_bom(os.path.join(ROOT, "PCB", "BOM_TerraSense.xlsx"))
     resultados_markdown(r, os.path.join(ROOT, "docs", "RESULTADOS_FINANCIEROS.md"))
-    for script in ("seccion_economica.py", "corregir_informe.py", "documentacion.py", "informe.py"):
+    for script in ("seccion_economica.py", "corregir_informe.py", "documentacion.py",
+                   "informe.py", "comercial.py"):
         subprocess.run([sys.executable, os.path.join(BASE, script)], check=True, cwd=BASE)
     ind = resumen(r)
     print("Precio de lista: %s | BOM: %s | VAN: %s | TIR: %s"

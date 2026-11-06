@@ -79,7 +79,7 @@ Manda el código:
 | Cifras económicas | `finanzas/supuestos.json` + `finanzas/modelo.py` |
 | Pines y comportamiento del equipo (LEDs, buzzer, PAIR) | `Firmware/pines.h`, `Firmware/Firmware.ino` y el esquemático KiCad |
 
-El firmware del ESP32 vive en `Firmware/` (Arduino IDE, núcleo esp32 3.x); su estado y pendientes están en `Firmware/TASK.md`. Aún no lee la sonda de suelo: no la simules. Pines: `Firmware/pines.h`, que debe coincidir con el esquemático de `PCB/Medidor De Suelos V2/`.
+El firmware del ESP32 vive en `Firmware/` (Arduino IDE, núcleo esp32 3.x); su estado y pendientes están en `Firmware/TASK.md`. La lectura Modbus de la sonda **ya está implementada y validada en banco** al aire: 1.000 de 1.000 lecturas sin error de CRC el 31-10-2026 (ensayo D-14). Lo que sigue pendiente es la **exactitud** en agua, en tierra y contra soluciones patrón, no la lectura. Nunca la simules: todo campo sin lectura viaja en `0xFF`. Pines: `Firmware/pines.h`, que debe coincidir con el esquemático de `PCB/Medidor De Suelos V2/`.
 
 ## 6. Documentación
 

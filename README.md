@@ -9,7 +9,7 @@
 
 TerraSense es un proyecto de instrumento portátil y aplicación móvil para medir suelo y ambiente, interpretar las lecturas según la etapa del cultivo y orientar qué revisar en el campo. Está dirigido a agricultores y asesores que necesitan consultar y guardar mediciones, incluso donde no hay cobertura de internet.
 
-**El proyecto está en desarrollo.** La app implementa la captura por Bluetooth, la evaluación local y el historial. El firmware todavía no lee la sonda de suelo; la integración completa con el equipo y la validación en campo siguen pendientes.
+**El proyecto está en desarrollo.** La app implementa la captura por Bluetooth, la evaluación local y el historial. El firmware ya lee la sonda de suelo por Modbus: en banco entregó 1.000 de 1.000 lecturas sin error de verificación de redundancia cíclica (31-10-2026), con la sonda al aire. Lo pendiente es la exactitud de esas lecturas en agua y en tierra, que se cierra con la campaña de laboratorio, y la validación en campo.
 
 ## Por qué TerraSense
 

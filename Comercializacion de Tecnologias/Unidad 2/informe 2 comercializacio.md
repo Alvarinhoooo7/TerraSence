@@ -131,7 +131,7 @@ Octubre de 2026
 
 En Chile, muchas decisiones de riego y siembra se toman con información insuficiente o tardía. El análisis de suelo en laboratorio es exacto, pero exige tomar una muestra, enviarla y esperar el resultado durante días o semanas. Los medidores portátiles responden en el momento, pero entregan números que el agricultor debe saber interpretar por su cuenta. En medio de una sequía prolongada y con insumos cada vez más caros, decidir por intuición tiene un costo concreto: agua desperdiciada, fertilizante mal aplicado y siembras que no prosperan.
 
-TerraSense es una sonda de suelo portátil que mide siete variables del suelo (humedad, temperatura, conductividad eléctrica, pH, nitrógeno, fósforo y potasio) y tres del ambiente (temperatura, humedad del aire y presión), y envía la lectura por Bluetooth a una aplicación móvil. El agricultor elige la etapa en que está su cultivo (pre-siembra, crecimiento vegetativo, floración o cosecha) y, desde el crecimiento vegetativo, puede indicar la especie que tiene plantada entre las 115 del catálogo, que queda registrada con la medición. La aplicación interpreta la lectura para esa etapa y entrega un plan de recomendaciones ordenado: por dónde empezar, cuándo hacerlo y por qué. Funciona sin señal en el campo; con señal, suma el clima de hoy y el pronóstico de cinco días a la recomendación y respalda el historial en la nube. Se vende con un pago único, sin suscripción.
+TerraSense es una sonda de suelo portátil que mide siete variables del suelo (humedad, temperatura, conductividad eléctrica, pH, nitrógeno, fósforo y potasio) y tres del ambiente (temperatura, humedad del aire y presión), y envía la lectura por Bluetooth a una aplicación móvil. El agricultor elige la etapa en que está su cultivo (pre-siembra, crecimiento vegetativo, floración o cosecha) y, desde el crecimiento vegetativo, puede indicar la especie que tiene plantada entre las 111 del catálogo, que queda registrada con la medición. La aplicación interpreta la lectura para esa etapa y entrega un plan de recomendaciones ordenado: por dónde empezar, cuándo hacerlo y por qué. Funciona sin señal en el campo; con señal, suma el clima de hoy y el pronóstico de cinco días a la recomendación y respalda el historial en la nube. Se vende con un pago único, sin suscripción.
 
 El **objetivo** de este informe es diseñar el plan de marketing de TerraSense: definir a quién se dirige, por qué ese consumidor lo preferiría frente a las alternativas y cómo llegará a él. Cada capítulo parte del concepto visto en la asignatura, lo aplica al proyecto y termina en una decisión del plan. El precio, los costos y la meta de ventas provienen del modelo económico del proyecto; las cifras de demanda y de conversión son estimaciones, y el plan indica cómo validarlas antes de comprometer más recursos.
 
@@ -161,7 +161,7 @@ La asignatura distingue tres conceptos que forman una secuencia. La **necesidad*
 |---|---|---|
 | Necesidad | Estado de carencia percibida | Certidumbre para decidir el riego y la siembra sin arriesgar el cultivo ni malgastar agua e insumos |
 | Deseo | Forma que toma la necesidad según la cultura y la persona | Una herramienta portátil y fácil de entender que diga qué hacer en el mismo campo, funcione sin señal y no cobre mensualidad |
-| Demanda | Deseo respaldado por poder adquisitivo | Pequeños y medianos agricultores y asesores dispuestos a pagar $467.463 con IVA; la meta del primer año es de 200 equipos |
+| Demanda | Deseo respaldado por poder adquisitivo | Pequeños y medianos agricultores y asesores dispuestos a pagar $489.784 con IVA; la meta del primer año es de 200 equipos |
 
 *Fuente:* elaboración propia.
 
@@ -384,7 +384,7 @@ TerraSense compite con tres tipos de alternativas: competidores directos (otros 
 
 | Alternativa | Tipo | Precio | Qué entrega | Qué no entrega |
 |---|---|---:|---|---|
-| **TerraSense** | Directa | **$467.463** | Siete variables del suelo y tres del ambiente; recomendación según la etapa del cultivo; funciona sin señal | Exactitud de laboratorio; dosis de fertilizante |
+| **TerraSense** | Directa | **$489.784** | Siete variables del suelo y tres del ambiente; recomendación según la etapa del cultivo; funciona sin señal | Exactitud de laboratorio; dosis de fertilizante |
 | Bluelab Pulse | Directa | $538.990 | Humedad, conductividad y temperatura, con Bluetooth e historial | pH, nitrógeno, fósforo y potasio; recomendación |
 | Hanna HI9814 | Directa parcial | $491.827 | pH, conductividad y temperatura en soluciones | Humedad del suelo; interpretación |
 | FieldScout TDR 350 | Directa | Sin precio local | Humedad, conductividad y temperatura, con GPS | Recomendación; distribución en Chile |
@@ -400,7 +400,7 @@ TerraSense compite con tres tipos de alternativas: competidores directos (otros 
 
 *Fuente:* elaboración propia con los precios de la Tabla 5.2.
 
-La Figura 5.2 muestra que TerraSense cuesta $24.364 menos que Hanna (un 5,0 % menos) y $71.527 menos que Bluelab (un 13,3 % menos), mientras mide más variables que ambos y es el único que entrega una recomendación. En ese mercado, **ningún competidor directo combina la medición del suelo y del ambiente con una recomendación según la etapa del cultivo**. Esa es la oportunidad de diferenciación.
+La Figura 5.2 muestra que TerraSense cuesta $2.043 menos que Hanna (un 0,42 % menos) y $49.206 menos que Bluelab (un 9,13 % menos), mientras mide más variables que ambos y es el único que entrega una recomendación. En ese mercado, **ningún competidor directo combina la medición del suelo y del ambiente con una recomendación según la etapa del cultivo**. Esa es la oportunidad de diferenciación.
 
 ### 5.3 Costo frente a las alternativas
 
@@ -410,7 +410,7 @@ El precio de compra no es la única comparación que hace el productor: también
 
 | Alternativa | Uso | Año 1 | 3 años | 5 años | 10 años |
 |---|---|---:|---:|---:|---:|
-| TerraSense (incluye kits de batería y un segundo equipo en el año 6) | Ilimitado | $467.463 | $492.453 | $492.453 | $984.906 |
+| TerraSense (incluye kits de batería y un segundo equipo en el año 6) | Ilimitado | $489.784 | $514.774 | $514.774 | $1.029.547 |
 | Laboratorio, uso habitual | 4 muestras al año | $200.000 | $600.000 | $1.000.000 | $2.000.000 |
 | Laboratorio, uso intensivo | 20 muestras al año | $1.000.000 | $3.000.000 | $5.000.000 | $10.000.000 |
 | Asesoría agronómica | 2 visitas al año | $120.000 | $360.000 | $600.000 | $1.200.000 |
@@ -492,7 +492,7 @@ Kotler y Keller (2016) ordenan el producto en niveles: el beneficio central que 
 |---|---|
 | Beneficio central | Decidir a tiempo el riego, la siembra y el momento de entrar al campo |
 | Producto real | Sonda de siete variables (humedad, temperatura, conductividad eléctrica, pH, nitrógeno, fósforo y potasio) y sensor del ambiente (temperatura, humedad del aire y presión); batería recargable por USB-C; carcasa para el campo; vinculación con un botón; aplicación para Android y iPhone; empaque con guía de inicio |
-| Producto aumentado | Plan de recomendaciones para cuatro etapas del cultivo (pre-siembra, crecimiento vegetativo, floración y cosecha); registro de la especie entre 115 del catálogo; clima de hoy y pronóstico de cinco días; historial en la nube; soporte por WhatsApp; garantía legal de seis meses |
+| Producto aumentado | Plan de recomendaciones para cuatro etapas del cultivo (pre-siembra, crecimiento vegetativo, floración y cosecha); registro de la especie entre 111 del catálogo; clima de hoy y pronóstico de cinco días; historial en la nube; soporte por WhatsApp; garantía legal de seis meses |
 
 *Fuente:* elaboración propia a partir de Kotler y Keller (2016).
 
@@ -502,7 +502,7 @@ Kotler y Keller (2016) ordenan el producto en niveles: el beneficio central que 
 
 ### 6.3 Precio
 
-El precio de lista es de **$467.463 con IVA** ($392.826 neto), con pago único y despacho incluido. No es un precio elegido por aspiración comercial: se deriva del costo total del proyecto en diez años, exigiendo un 30 % de utilidad. Una vez calculado, se contrastó con las cuatro estrategias de precio vistas en clase (Tabla 6.3).
+El precio de lista es de **$489.784 con IVA** ($411.583 neto), con pago único y despacho incluido. No es un precio elegido por aspiración comercial: se deriva del costo total del proyecto en diez años, exigiendo un 30 % de utilidad. Una vez calculado, se contrastó con las cuatro estrategias de precio vistas en clase (Tabla 6.3).
 
 **Tabla 6.3.** *Estrategias de precio evaluadas*
 
@@ -515,7 +515,7 @@ El precio de lista es de **$467.463 con IVA** ($392.826 neto), con pago único y
 
 *Fuente:* elaboración propia.
 
-**Justificación.** Frente al mercado, el precio queda un 5,0 % bajo Hanna y un 13,3 % bajo Bluelab, con más beneficio (Figura 5.2). Frente al consumidor, responde a la objeción «es caro» con el costo acumulado (Tabla 5.3) y evita las mensualidades que rechaza. Y frente al posicionamiento, no se rebaja con descuentos permanentes, porque la marca compite por utilidad y no por ser la más barata. Se ofrece pago en cuotas con tarjeta y factura para quien tiene giro, que recupera el IVA.
+**Justificación.** Frente al mercado, el precio queda un 0,42 % bajo Hanna —paridad práctica— y un 9,13 % bajo Bluelab, con más beneficio (Figura 5.2). Frente al consumidor, responde a la objeción «es caro» con el costo acumulado (Tabla 5.3) y evita las mensualidades que rechaza. Y frente al posicionamiento, no se rebaja con descuentos permanentes, porque la marca compite por utilidad y no por ser la más barata. Se ofrece pago en cuotas con tarjeta y factura para quien tiene giro, que recupera el IVA.
 
 ### 6.4 Plaza
 
@@ -560,7 +560,7 @@ Cada decisión de la mezcla debe responder al consumidor, al mercado y al posici
 | P | Decisión | Por el consumidor | Por el mercado | Por el posicionamiento |
 |---|---|---|---|---|
 | Producto | Sonda de diez variables con recomendación según la etapa | Busca saber qué hacer, no un número | Ningún competidor recomienda según la etapa | Hace posible «del número a la decisión» |
-| Precio | $467.463, por valor, sin rebajas | Rechaza las mensualidades | Bajo los importados comparables | Se compite por utilidad, no por precio |
+| Precio | $489.784, por valor, sin rebajas | Rechaza las mensualidades | Bajo los importados comparables | Se compite por utilidad, no por precio |
 | Plaza | Directa y digital, despacho incluido | Disperso y usuario de WhatsApp | Competidores venden por catálogo | Contacto directo que sostiene la confianza |
 | Promoción | Educar antes de vender | Desconfía de la tecnología | Categoría poco conocida | Muestra la decisión, no la ficha técnica |
 | Personas | Socios y asesores referentes | Confía en sus pares y en su asesor | Marca nueva sin reputación | La confianza es el principal activo |
@@ -598,7 +598,7 @@ El concepto creativo traduce el posicionamiento en una imagen que se entiende si
 
 ### 7.2 Pieza principal: carrusel «Del número a la decisión»
 
-El carrusel es un anuncio de siete imágenes para Instagram y Facebook, en formato vertical 4:5 (1080 × 1350 píxeles), que el productor recorre deslizando hacia el lado. Se eligió este formato porque el usuario avanza a su ritmo y porque un solo anuncio alcanza para contar la historia completa, del problema a la decisión: cada imagen acompaña una etapa del recorrido del consumidor (capítulo 4). Las pantallas de las imágenes 3 y 4 no son una simulación: reproducen la aplicación vigente, con el paso en que el productor elige su cultivo entre 115 especies y el plan de recomendaciones que entrega para una lectura real de un tomate en crecimiento vegetativo, con un 5 % de humedad, el suelo a 17 °C y 12 mm de lluvia pronosticados para el día siguiente. La Tabla 7.2 explica la secuencia y la Figura 7.1 muestra las siete imágenes.
+El carrusel es un anuncio de siete imágenes para Instagram y Facebook, en formato vertical 4:5 (1080 × 1350 píxeles), que el productor recorre deslizando hacia el lado. Se eligió este formato porque el usuario avanza a su ritmo y porque un solo anuncio alcanza para contar la historia completa, del problema a la decisión: cada imagen acompaña una etapa del recorrido del consumidor (capítulo 4). Las pantallas de las imágenes 3 y 4 no son una simulación: reproducen la aplicación vigente, con el paso en que el productor elige su cultivo entre 111 especies y el plan de recomendaciones que entrega para una lectura real de un tomate en crecimiento vegetativo, con un 5 % de humedad, el suelo a 17 °C y 12 mm de lluvia pronosticados para el día siguiente. La Tabla 7.2 explica la secuencia y la Figura 7.1 muestra las siete imágenes.
 
 **Tabla 7.2.** *Secuencia del carrusel*
 
@@ -606,10 +606,10 @@ El carrusel es un anuncio de siete imágenes para Instagram y Facebook, en forma
 |---|---|---|---|
 | 1. «¿Riego hoy o mañana?» | Suelo seco y agrietado, un sol, una nube con lluvia y la sonda enterrada | 1. Necesidad | Detener al usuario con la pregunta que el productor se hace cada semana; muestra el problema, no el producto |
 | 2. «¿Y ahora qué?» | Un medidor común, sin marca, que solo dice «Humedad 5 %» y «T° suelo 17 °C» | 2. Búsqueda | Hacer visible la brecha entre medir y decidir, la debilidad de la competencia directa (Tabla 5.2); plantea el riesgo como una pérdida, que conecta con la motivación de seguridad (Tabla 3.2) |
-| 3. «Le dices qué tienes plantado: 115 especies» | El paso «¿Qué tienes plantado?» de la aplicación: un buscador y siete grupos de especies, de las hortalizas y los frutales a los cereales y las forrajeras | 3. Evaluación | Mostrar que la aplicación habla del cultivo del productor y que elegirlo toma dos toques. La pantalla real responde al factor de percepción («la tecnología es complicada») |
+| 3. «Le dices qué tienes plantado: 111 especies» | El paso «¿Qué tienes plantado?» de la aplicación: un buscador y siete grupos de especies, de las hortalizas y los frutales a los cereales y las forrajeras | 3. Evaluación | Mostrar que la aplicación habla del cultivo del productor y que elegirlo toma dos toques. La pantalla real responde al factor de percepción («la tecnología es complicada») |
 | 4. «Suelo seco, lluvia mañana: te arma un plan» | La pantalla «Lo que te recomendamos»: primero, revisar la humedad en terreno antes de decidir el riego; después, programar las labores según la lluvia prevista para el miércoles y el jueves | 3. Evaluación | Mostrar el concepto creativo: el número se convierte en un plan, cruzado con el pronóstico integrado a la recomendación (sección 5.4) |
 | 5. «Todo para decidir, en el mismo campo» | Cuatro beneficios: funciona sin señal, diez variables, recomendación según el cultivo y su etapa, y pago único | 3. Evaluación | Responder de antemano a las objeciones de los perfiles (Figura 3.1): falta de señal, complejidad, utilidad y mensualidades |
-| 6. «En 3 años, te sale más barato que el laboratorio» | $600.000 en análisis de laboratorio frente a $492.453 de TerraSense; garantía, retracto y despacho incluido | 3 y 4. Evaluación y compra | Responder a la objeción «es caro» con el cálculo de la Tabla 5.3 y reducir el riesgo justo antes de pedir la compra |
+| 6. «En 3 años, te sale más barato que el laboratorio» | $600.000 en análisis de laboratorio frente a $514.774 de TerraSense; garantía, retracto y despacho incluido | 3 y 4. Evaluación y compra | Responder a la objeción «es caro» con el cálculo de la Tabla 5.3 y reducir el riesgo justo antes de pedir la compra |
 | 7. «Mide hoy. Decide hoy.» | El logotipo, el botón «Escríbenos por WhatsApp» y el precio con pago único | 4. Compra | Cerrar con un solo llamado a la acción, el mismo de toda la campaña |
 
 *Fuente:* elaboración propia.

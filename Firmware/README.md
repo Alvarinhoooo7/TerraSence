@@ -1,6 +1,6 @@
 # Firmware TerraSense
 
-Código del ESP32 de TerraSense, compatible con **Arduino IDE** (núcleo `esp32 by Espressif Systems` 3.x, sin bibliotecas externas). Hoy cubre la vinculación BLE con la app (el ID de la sonda sale de su MAC), los indicadores LED y sonoros, la lectura Modbus de la sonda de suelo (sin ensayar aún con la sonda) y la trama de telemetría de 20 bytes. El estado detallado, lo pendiente y el procedimiento de prueba están en [TASK.md](TASK.md).
+Código del ESP32 de TerraSense, compatible con **Arduino IDE** (núcleo `esp32 by Espressif Systems` 3.x, sin bibliotecas externas). Hoy cubre la vinculación BLE con la app (el ID de la sonda sale de su MAC), los indicadores LED y sonoros, la lectura Modbus de la sonda de suelo (ensayada en banco el 31-10-2026: 1.000 de 1.000 lecturas sin error de CRC con la sonda al aire; falta la exactitud en agua y en tierra) y la trama de telemetría de 20 bytes. El estado detallado, lo pendiente y el procedimiento de prueba están en [TASK.md](TASK.md).
 
 El contrato con la app lo fija el código de la app, no este firmware: [`App/src/services/bleService.ts`](../App/src/services/bleService.ts) (transporte y vinculación) y [`App/src/services/probeService.ts`](../App/src/services/probeService.ts) (UUID y decodificación). El formato de la trama está explicado en [docs/CONTRATO_BLE.md](../docs/CONTRATO_BLE.md).
 
