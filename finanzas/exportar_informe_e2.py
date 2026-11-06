@@ -102,19 +102,18 @@ class Exportador:
         h.append(r)
         parrafo._p.append(h)
 
-    def texto(self, parrafo, cadena, negrita=False, tam=None):
+    def texto(self, parrafo, cadena, negrita=False, cursiva=False, tam=None):
         """Escribe una línea resolviendo negrita, cursiva, código, citas y enlaces."""
         pos = 0
         for m in INLINE.finditer(cadena):
             if m.start() > pos:
-                self._run(parrafo, cadena[pos:m.start()], negrita, tam)
+                self._run(parrafo, cadena[pos:m.start()], negrita, cursiva, tam)
             if m.group("negrita"):
-                self._run(parrafo, m.group("negrita"), True, tam)
+                self.texto(parrafo, m.group("negrita"), negrita=True, cursiva=cursiva, tam=tam)
             elif m.group("cursiva"):
-                r = self._run(parrafo, m.group("cursiva"), negrita, tam)
-                r.italic = True
+                self.texto(parrafo, m.group("cursiva"), negrita=negrita, cursiva=True, tam=tam)
             elif m.group("codigo"):
-                r = self._run(parrafo, m.group("codigo"), negrita, tam)
+                r = self._run(parrafo, m.group("codigo"), negrita, cursiva, tam)
                 r.font.name = "Consolas"
             elif m.group("enlace"):
                 self.enlace(parrafo, m.group("enlace"), m.group("url"), interno=False)
@@ -122,22 +121,23 @@ class Exportador:
                 # Cada número salta a su entrada de la bibliografía; los corchetes y las comas
                 # quedan como texto, para que «[2, 3]» se lea igual y sus dos números enlacen.
                 numeros = [n.strip() for n in m.group("cita").split(",")]
-                self._run(parrafo, "[", negrita, tam)
+                self._run(parrafo, "[", negrita, cursiva, tam)
                 for k, numero in enumerate(numeros):
                     if k:
-                        self._run(parrafo, ", ", negrita, tam)
+                        self._run(parrafo, ", ", negrita, cursiva, tam)
                     self.enlace(parrafo, numero, "ref_%s" % numero, interno=True)
-                self._run(parrafo, "]", negrita, tam)
+                self._run(parrafo, "]", negrita, cursiva, tam)
             elif m.group("suelta"):
                 self.enlace(parrafo, m.group("suelta"), m.group("suelta"), interno=False)
             pos = m.end()
         if pos < len(cadena):
-            self._run(parrafo, cadena[pos:], negrita, tam)
+            self._run(parrafo, cadena[pos:], negrita, cursiva, tam)
 
     @staticmethod
-    def _run(parrafo, cadena, negrita, tam):
+    def _run(parrafo, cadena, negrita=False, cursiva=False, tam=None):
         r = parrafo.add_run(cadena)
         r.bold = negrita
+        r.italic = cursiva
         if tam:
             r.font.size = Pt(tam)
         return r
