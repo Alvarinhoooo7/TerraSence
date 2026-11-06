@@ -347,6 +347,8 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
     </View>
   </View> : null;
 
+  // Cuántas alternativas trae la pre-siembra: la portada sólo cuenta y remite.
+  const cultivosCompatibles = p.cropOptions?.length ?? p.suggestedCrops?.length ?? 0;
   const possibleCropsCard = p.stage === 'pre_siembra' ? <ScreenCard accent={colors.primary}>
     <ScreenLabel>{t('Posibles cultivos', 'Possible crops')}</ScreenLabel>
     {p.suggestedCrops === undefined
@@ -452,6 +454,8 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
   if (s === 'summary') {
     // Una medición recién tomada se anuncia como tal; en el historial manda el veredicto.
     const recien = !!save;
+    // La píldora toma el color de lo más grave que haya quedado, no del promedio.
+    const veredicto = counts.bad ? colors.danger : counts.warn ? colors.warning : colors.success;
     return (<ScreenLayout {...common}
       eyebrow={recien ? t('MEDICIÓN COMPLETADA', 'MEASUREMENT COMPLETE') : t('REGISTRO GUARDADO', 'SAVED READING')}
       title={recien ? t('¡Medición realizada con éxito!', 'Measurement completed successfully!') : p.title}
@@ -471,13 +475,15 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
                 <Text style={{ color: colors.textSecondary, fontSize: 14, flexShrink: 1 }}>{label}</Text>
               </View>)}
             {/* Con el título ocupado por el aviso de éxito, el veredicto se lee aquí. */}
-            {recien && <Text numberOfLines={2} style={{ color: colors.text, fontSize: 13, fontWeight: '700', marginTop: 2 }}>{p.title}</Text>}
+            {recien && <View style={{ alignSelf: 'flex-start', marginTop: 4, borderRadius: 999, borderWidth: 1, borderColor: `${veredicto}55`, backgroundColor: `${veredicto}1A`, paddingVertical: 5, paddingHorizontal: 10 }}>
+              <Text numberOfLines={2} style={{ color: veredicto, fontSize: 12, fontWeight: '800' }}>{p.title}</Text>
+            </View>}
           </View>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, backgroundColor: '#17392C' }}>
           <View style={{ width: 64, aspectRatio: 120 / 90, borderRadius: 10, overflow: 'hidden' }}><StageArt stage={p.stage} /></View>
           <View style={{ flex: 1, gap: 2 }}>
-            <Text style={{ color: '#6EE7B7', fontSize: 11, fontWeight: '700', letterSpacing: 1.5 }}>{t('ETAPA', 'STAGE')}</Text>
+            <Text style={{ color: '#6EE7B7', fontSize: 11, fontWeight: '700', letterSpacing: 1.5 }}>{t('ETAPA FENOLÓGICA', 'PHENOLOGICAL STAGE')}</Text>
             <Text numberOfLines={1} style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700' }}>{stage}</Text>
             {!!meta && <Text numberOfLines={2} style={{ color: '#C4D4C9', fontSize: 13 }}>{meta}</Text>}
           </View>
@@ -492,29 +498,36 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
             {p.species ? <>
               <Text numberOfLines={2} style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700' }}>{presentationSpeciesName(p.species, language)}</Text>
               <Text numberOfLines={1} style={{ color: '#C4D4C9', fontSize: 13, fontStyle: 'italic' }}>{p.species.scientific}</Text>
-            </> : <Text style={{ color: '#C4D4C9', fontSize: 15 }}>{t('Sin especie indicada', 'No species selected')}</Text>}
+            </> : <Text style={{ color: '#C4D4C9', fontSize: 15 }}>{t('Análisis general (sin especie indicada)', 'General analysis (no species selected)')}</Text>}
           </View>
         </View>}
       </View>
-      <ScreenCard accent={colors.primary}><ScreenText muted={false}>{p.summary}</ScreenText></ScreenCard>
-      {possibleCropsCard}
-      {p.coverageSummary && <CoverageSummaryBox summary={p.coverageSummary} />}
+      {/* Pre-siembra: una fila que cuenta y remite, no el listado entero. El
+          detalle de cada cultivo vive en el plan de acción. */}
+      {p.stage === 'pre_siembra' && !!cultivosCompatibles && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, paddingVertical: 12, paddingHorizontal: 14 }}>
+        <AppIcon name="leaf" color={colors.primary} size={18} />
+        <Text style={{ color: colors.text, fontSize: 14, fontWeight: '600', flex: 1 }}>
+          {t(`${cultivosCompatibles} cultivos compatibles detectados`, `${cultivosCompatibles} compatible crops found`)}
+        </Text>
+        <Text style={{ color: colors.textSecondary, fontSize: 13 }}>{t('en el plan ›', 'in the plan ›')}</Text>
+      </View>}
       {/* Contexto de la captura: cuándo, dónde y con qué carga. Vivía en la pantalla
           del clima, donde obligaba a avanzar cuatro páginas para leer la hora. */}
       <ScreenCard>
         {([
-          [t('Fecha y hora', 'Date and time'),
+          ['history', t('Fecha y hora', 'Date and time'),
             forecast.capturedAt ? new Date(forecast.capturedAt).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' }) : t('Sin dato', 'No data'), false],
-          [t('Ubicación', 'Location'),
+          ['location', t('Ubicación', 'Location'),
             forecast.latitude != null && forecast.longitude != null
               ? `${forecast.latitude.toFixed(6)}, ${forecast.longitude.toFixed(6)}${forecast.accuracy != null ? ` · ±${Math.round(forecast.accuracy)} m` : ''}`
               : t('Sin ubicación incluida', 'Location not included'), true],
-          [t('Batería de la sonda', 'Probe battery'),
+          ['probe', t('Batería de la sonda', 'Probe battery'),
             forecast.battery == null ? t('Sin dato', 'No data') : `${forecast.battery} %`, false],
-        ] as const).map(([label, valor, seleccionable]) =>
-          <View key={label} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12, minHeight: 28, alignItems: 'baseline' }}>
+        ] as const).map(([icono, label, valor, seleccionable]) =>
+          <View key={label} style={{ flexDirection: 'row', gap: 10, minHeight: 30, alignItems: 'center' }}>
+            <AppIcon name={icono} color={colors.textSecondary} size={16} />
             <Text style={{ color: colors.textSecondary, fontSize: 14 }}>{label}</Text>
-            <Text selectable={seleccionable} style={{ color: colors.text, fontSize: 14, fontWeight: '600', flexShrink: 1, textAlign: 'right' }}>{valor}</Text>
+            <Text selectable={seleccionable} style={{ color: colors.text, fontSize: 14, fontWeight: '600', flex: 1, textAlign: 'right' }}>{valor}</Text>
           </View>)}
       </ScreenCard>
     </ScreenLayout>);
@@ -619,9 +632,14 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
         <Text style={{ color: colors.text, fontSize: 12, fontWeight: '800' }}>{value(m)}</Text>
       </View>)}
     </View>}
+    {/* El diagnóstico de conjunto encabeza el plan: es el porqué de lo que viene
+        a continuación. Estaba en la portada, donde competía con el anillo. */}
+    <ScreenCard accent={colors.primary}><ScreenText muted={false}>{p.summary}</ScreenText></ScreenCard>
     {recommendationList}
     {possibleCropsCard}
     {weatherCard}
+    {/* Cómo se evaluó y qué quedó fuera: al final, y plegado de origen. */}
+    {p.coverageSummary && <CoverageSummaryBox summary={p.coverageSummary} />}
     <Text style={{ color: colors.textSecondary, fontSize: 12, lineHeight: 17 }}>
       {t('Guía orientativa basada en esta captura. Confírmala en terreno y, si dudas, con tu asesor.',
         'Indicative guidance based on this capture. Confirm it in the field and, if in doubt, with your advisor.')}
