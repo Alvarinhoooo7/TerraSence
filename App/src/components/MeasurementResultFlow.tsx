@@ -21,6 +21,7 @@ import type { PrePlantingOption } from '../engine/prePlanting';
 import { AppIcon } from './AppIcon';
 import { formatEngineMetric, formatTemperature, formatTemperatureDifference } from '../utils/units';
 import { MetricBadge, MetricScale, StatusRing } from './result/ResultVisuals';
+import { buildParameterCopy, derivedMeaning } from './result/resultCopy';
 import { StageArt } from './StageCards';
 import { EnvironmentReadingArt, NutrientReadingArt, SoilReadingArt } from './result/ReadingArt';
 import { MotionEasing, enterDown } from '../constants/motion';
@@ -382,7 +383,24 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
     };
     const detailPage = (index: number) => {
       const m = p.parameters[index];
-      return <ScreenLayout embedded eyebrow={t(`VARIABLE ${index + 1} DE ${p.parameters.length}`, `VARIABLE ${index + 1} OF ${p.parameters.length}`)}
+      const copy = buildParameterCopy(m, p.stage, p.species ?? null, language);
+      // Sin lectura válida manda el motor: explica por qué no hay dato y no se
+      // interpreta nada. Con lectura, el motor aporta la alerta y el texto de
+      // apoyo aporta el significado para la especie y la etapa.
+      const sinLectura = m.value == null;
+      const alerta = !sinLectura && (m.status === 'WARNING' || m.status === 'CRITICAL');
+      const contexto = [sinLectura ? m.state : alerta ? m.state : null, sinLectura ? null : copy.reading]
+        .filter(Boolean).join('\n\n');
+      // Con la variable en condición favorable, la recomendación del motor es la
+      // frase de relleno que decía que no hay corrección que indicar: ahí mandan
+      // los consejos de manejo y no se escribe esa línea.
+      const consejos = [...(alerta ? [m.recommendation] : []), ...(sinLectura ? [m.recommendation] : copy.tips)];
+      const notas = [m.control, copy.limitation].filter(Boolean).join(' ');
+      return <ScreenLayout embedded eyebrow={[
+        t(`VARIABLE ${index + 1} DE ${p.parameters.length}`, `VARIABLE ${index + 1} OF ${p.parameters.length}`),
+        p.species ? presentationSpeciesName(p.species, language).toUpperCase() : null,
+        stage.toUpperCase(),
+      ].filter(Boolean).join(' · ')}
         title={parameterLabel(m.key, language)}>
         <View style={{ borderRadius: 22, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 20, gap: 14 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
@@ -394,20 +412,31 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
           </View>
           <MetricScale metric={m.key} value={m.value} labels />
         </View>
-        {section(t('Estado', 'Status'), m.state, tone(m))}
-        {section(t('Recomendación', 'Recommendation'), m.recommendation, colors.primary)}
-        {section(t('Control', 'Check'), m.control, colors.textSecondary)}
+        {section(t('¿QUÉ PASA CON ESTA LECTURA?', 'WHAT THIS READING MEANS'), contexto, tone(m))}
+        {!!consejos.length && <View style={{ borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 16, gap: 10 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <View style={{ width: 4, height: 16, borderRadius: 2, backgroundColor: colors.primary }} />
+            <Text accessibilityRole="header" style={{ color: colors.text, fontSize: 13, fontWeight: '800', letterSpacing: 1.2 }}>{t('TIPS Y RECOMENDACIÓN', 'TIPS AND ADVICE')}</Text>
+          </View>
+          {consejos.map((consejo, i) => <View key={i} style={{ flexDirection: 'row', gap: 8 }}>
+            <Text style={{ color: colors.primary, fontSize: 15, fontWeight: '800', lineHeight: 22 }}>•</Text>
+            <ScreenText>{consejo}</ScreenText>
+          </View>)}
+        </View>}
+        {!!notas && <Text style={{ color: colors.textSecondary, fontSize: 12, lineHeight: 17 }}>{notas}</Text>}
         {!!m.derived?.length && <View style={{ borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 16, gap: 14 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <View style={{ width: 4, height: 16, borderRadius: 2, backgroundColor: colors.textSecondary }} />
             <Text accessibilityRole="header" style={{ color: colors.text, fontSize: 13, fontWeight: '800', letterSpacing: 1.2 }}>{t('CALCULADO CON ESTA LECTURA', 'CALCULATED FROM THIS READING')}</Text>
           </View>
-          {m.derived.map(d => <View key={d.id} accessible accessibilityLabel={`${d.label}: ${derivedValue(d)}. ${d.note}`} style={{ gap: 4 }}>
+          {/* Fila compacta: nombre, valor y una línea de qué significa. La nota
+              larga del cálculo sigue en el detalle técnico, no aquí. */}
+          {m.derived.map(d => <View key={d.id} accessible accessibilityLabel={`${d.label}: ${derivedValue(d)}. ${derivedMeaning(d.id, language)}`} style={{ gap: 2 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
               <Text style={{ color: colors.text, fontSize: 15, fontWeight: '700', flexShrink: 1 }}>{d.label}</Text>
               <Text style={{ color: colors.text, fontSize: 15, fontWeight: '800' }}>{derivedValue(d)}</Text>
             </View>
-            <ScreenText>{d.note}</ScreenText>
+            <Text style={{ color: colors.textSecondary, fontSize: 13, lineHeight: 18 }}>{derivedMeaning(d.id, language)}</Text>
           </View>)}
         </View>}
       </ScreenLayout>;
@@ -509,14 +538,14 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
   if (group !== undefined) {
     const family = [
       { title: t('Suelo', 'Soil'), art: <SoilReadingArt label={t('Sonda enterrada midiendo el suelo', 'Probe in the ground measuring the soil')} />,
-        description: t('La sonda mide el suelo a la profundidad de sus electrodos: humedad (cuánta agua tiene), temperatura, pH (qué tan ácido o alcalino es) y conductividad eléctrica (sales disueltas).',
-          'The probe measures the soil at the depth of its electrodes: moisture (how much water it holds), temperature, pH (how acidic or alkaline it is) and electrical conductivity (dissolved salts).') },
+        description: t('Lectura directa a la profundidad de los electrodos. Toca una variable para ver qué significa en tu cultivo.',
+          'Read directly at the depth of the electrodes. Tap a variable to see what it means for your crop.') },
       { title: t('Nutrientes', 'Nutrients'), art: <NutrientReadingArt label={t('Nitrógeno, fósforo y potasio en el suelo', 'Nitrogen, phosphorus and potassium in the soil')} />,
-        description: t('Nitrógeno (N), fósforo (P) y potasio (K) estimados por la sonda, en mg/kg. Sirven para comparar lecturas entre sí, pero no tienen validación química: no se usan para calcular dosis. Antes de fertilizar, confírmalos con un análisis de laboratorio.',
-          'Nitrogen (N), phosphorus (P) and potassium (K) estimated by the probe, in mg/kg. They help compare readings, but have no chemical validation: they are not used to calculate doses. Confirm them with a laboratory analysis before fertilizing.') },
+        description: t('Valores de referencia en mg/kg, para comparar entre mediciones. No reemplazan un análisis de laboratorio ni sirven para calcular dosis.',
+          'Reference values in mg/kg, to compare between readings. They do not replace a laboratory analysis, nor serve to calculate doses.') },
       { title: t('Ambiente', 'Environment'), art: <EnvironmentReadingArt label={t('Sensor del equipo midiendo el aire', 'Device sensor measuring the air')} />,
-        description: t('El sensor del equipo mide el aire junto a la sonda en el momento de la captura: temperatura, humedad relativa y presión atmosférica. Es un dato local e instantáneo; el pronóstico está en la página siguiente.',
-          'The device sensor measures the air next to the probe at capture time: temperature, relative humidity and atmospheric pressure. It is a local, instant value; the forecast is on the next page.') },
+        description: t('Condiciones del aire junto a la planta en el momento de medir. El pronóstico va en la página siguiente.',
+          'Air conditions next to the plant at capture time. The forecast is on the next page.') },
     ][group];
     // `fill`: la ilustración toma el alto libre y deja las tarjetas al pie, sin desplazar.
     return (<ScreenLayout {...common} fill eyebrow={t('LECTURAS', 'READINGS')} title={family.title} description={family.description}>
