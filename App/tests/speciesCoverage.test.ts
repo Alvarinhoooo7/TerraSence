@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { PRE_PLANTING_PROFILES } from '../src/engine/prePlanting';
 import { SPECIES_RULES } from '../src/engine/speciesRules';
 import type { SpeciesCriterion } from '../src/engine/speciesRules';
 import { SPECIES, SPECIES_GROUPS, findSpecies } from '../src/engine/speciesCatalog';
@@ -13,6 +14,21 @@ import { A_ELIMINAR_CULTIVOS, PENDIENTES_CULTIVOS } from './es8Cultivos';
 const STAGES = ['vegetativo', 'floracion', 'cosecha'] as const;
 /** Salinidad y etapa crítica de riego son referencias que no comparan la lectura: no cubren una etapa. */
 const EVALUABLE = new Set<SpeciesCriterion['kind']>(['ph', 'air_temperature', 'reading', 'weather_event']);
+
+/**
+ * Lotes de cobertura por tipo de criterio (L1–L5).
+ * Cada especie documentada sale de su lista `PENDIENTES_L*`; la prueba falla si
+ * alguien declara un avance que no existe o deja una especie sin cubrir.
+ */
+export const PENDIENTES_L1_WATER_SENSITIVITY: readonly string[] = [];
+
+export const PENDIENTES_L2_SALINITY_REFERENCE: readonly string[] = [];
+
+export const PENDIENTES_L3_PH: readonly string[] = [];
+
+export const PENDIENTES_L4_AIR_TEMPERATURE: readonly string[] = [];
+
+export const PENDIENTES_L5_PRE_SIEMBRA: readonly string[] = [];
 
 const covers = (speciesId: string, stage: typeof STAGES[number]) =>
   (Object.prototype.hasOwnProperty.call(SPECIES_RULES, speciesId) ? SPECIES_RULES[speciesId].criteria : [])
@@ -70,4 +86,31 @@ test('ES7: un criterio por analogía declara su especie de origen, que lo tiene 
     assert.match(c.limitationsEn, new RegExp(entry.en, 'i'), `${where}: las limitaciones en inglés no nombran a ${entry.en}`);
     assert.match(c.limitations, /^Sin fuente propia para /, `${where}: las limitaciones no declaran la analogía`);
   }
+});
+
+const LOTES_TIPO: readonly { name: string; kind: SpeciesCriterion['kind']; pending: readonly string[] }[] = [
+  { name: 'L1 (water_sensitivity)', kind: 'water_sensitivity', pending: PENDIENTES_L1_WATER_SENSITIVITY },
+  { name: 'L2 (salinity_reference)', kind: 'salinity_reference', pending: PENDIENTES_L2_SALINITY_REFERENCE },
+  { name: 'L3 (ph)', kind: 'ph', pending: PENDIENTES_L3_PH },
+  { name: 'L4 (air_temperature)', kind: 'air_temperature', pending: PENDIENTES_L4_AIR_TEMPERATURE },
+];
+
+for (const { name, kind, pending } of LOTES_TIPO) {
+  test(`${name}: las especies sin criterio habilitado coinciden exactamente con su lista PENDIENTES_*`, () => {
+    for (const id of pending) assert.ok(findSpecies(id), `${name}: especie pendiente inexistente ${id}`);
+    const actualMissing = SPECIES
+      .filter(s => !(Object.prototype.hasOwnProperty.call(SPECIES_RULES, s.id) ? SPECIES_RULES[s.id].criteria : [])
+        .some(c => c.state === 'enabled' && c.kind === kind))
+      .map(s => s.id)
+      .sort();
+    assert.deepEqual(actualMissing, [...pending].sort());
+  });
+}
+
+test('L5 (pre_siembra): las especies sin perfil en PRE_PLANTING_PROFILES coinciden con PENDIENTES_L5_PRE_SIEMBRA', () => {
+  for (const id of PENDIENTES_L5_PRE_SIEMBRA) assert.ok(findSpecies(id), `L5: especie pendiente inexistente ${id}`);
+  const covered = new Set(PRE_PLANTING_PROFILES.map(p => p.speciesId));
+  for (const id of covered) assert.ok(findSpecies(id), `L5: perfil con speciesId inexistente ${id}`);
+  const actualMissing = SPECIES.filter(s => !covered.has(s.id)).map(s => s.id).sort();
+  assert.deepEqual(actualMissing, [...PENDIENTES_L5_PRE_SIEMBRA].sort());
 });

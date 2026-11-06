@@ -13,6 +13,7 @@
  *   npx tsx scripts/auditar-especies.ts
  */
 import { SPECIES, SPECIES_GROUPS } from '../src/engine/speciesCatalog';
+import { PRE_PLANTING_PROFILES, PRE_PLANTING_VERSION } from '../src/engine/prePlanting';
 import { SPECIES_RULES, SPECIES_RULES_VERSION } from '../src/engine/speciesRules';
 import type { SpeciesCriterion } from '../src/engine/speciesRules';
 
@@ -72,7 +73,19 @@ for (const [tarjeta, tipos] of Object.entries(TARJETA)) {
   }
 }
 
+// ----------------------------------------------- cobertura de pre-siembra
+const preIds = new Set(PRE_PLANTING_PROFILES.map(p => p.speciesId));
+const sinPre = SPECIES.filter(s => !preIds.has(s.id));
+console.log(`\nPre-siembra (reglas ${PRE_PLANTING_VERSION}): ${preIds.size} de ${SPECIES.length} especies (${PRE_PLANTING_PROFILES.length} perfiles)`);
+if (sinPre.length) {
+  console.log(`Sin perfil de pre-siembra (${sinPre.length}):`);
+  for (const grupo of SPECIES_GROUPS) {
+    const propias = sinPre.filter(s => s.group === grupo.id);
+    if (propias.length) console.log(`   ${grupo.id.padEnd(14)} ${propias.map(s => s.es).join(', ')}`);
+  }
+}
+
 // ----------------------------------------------- criterios por analogía
-const analogos = SPECIES.filter(s => criterios(s.id).some(c => (c as { origin?: string }).origin === 'analog'));
+const analogos = SPECIES.filter(s => criterios(s.id).some(c => c.scope === 'analog' || (c as { origin?: string }).origin === 'analog'));
 console.log(`\nEspecies con algún criterio por analogía: ${analogos.length}`);
 if (analogos.length) console.log(`   ${analogos.map(s => s.es).join(', ')}`);

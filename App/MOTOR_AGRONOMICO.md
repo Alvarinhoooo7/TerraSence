@@ -1313,4 +1313,13 @@ Las combinaciones de cilantro cubiertas por [analogía](#analogia) reutilizan la
 <a id="s265"></a>
 **S265 — University of California Cooperative Extension, Avocado Production in California: Site Selection and Soil Requirements.** [Publicación](https://ucanr.edu/sites/alternativefruits/files/121265.pdf). Apartado de pH y temperatura del suelo: pH de 5,5 a 6,8; la actividad radicular requiere suelo sobre 14 °C y bajo 32 °C. No fija una banda óptima dentro de ese rango.
 
+<a id="s266"></a>
+**S266 — FAO, Crop evapotranspiration — Guidelines for computing crop water requirements (Irrigation and Drainage Paper 56, R. G. Allen, L. S. Pereira, D. Raes y M. Smith, 1998).** [Capítulo 6, Tabla 12 y Capítulo 8, Tabla 22](https://www.fao.org/4/x0490e/x0490e0b.htm). Coeficiente de cultivo de estación media (`Kc mid`) y fracción de agotamiento de agua del suelo sin estrés hídrico (`p`) por especie y grupo de cultivos. Complementa los factores `ky` de FAO 33/40 ([S40](#s40)) para cubrir las 111 especies en su etapa fenológica más crítica; la fracción `p` requiere curva de retención por textura, por lo que no se compara numéricamente con la lectura puntual de la sonda.
+
+<a id="s267"></a>
+**S267 — Penn State Extension, The Penn State Agronomy Guide (Barley, Oat & Alfalfa Management).** [Cebada](https://extension.psu.edu/barley-production), [Avena](https://extension.psu.edu/oat-production) y [Alfalfa](https://extension.psu.edu/alfalfa-management). Rangos óptimos de pH del suelo y umbrales mínimos de encalado: cebada 6,5–7,0 (mínimo 6,0); avena 6,0–7,0 (mínimo 5,5); alfalfa 6,5–7,0 (rango aceptable 6,2–7,5 para nodulación de *Sinorhizobium meliloti*).
+
+<a id="s268"></a>
+**S268 — INFOR e INIA Kampenaike, Requerimientos edáficos de especies forestales y berries nativos en Chile.** [Monografía de Maqui (INFOR)](https://bibliotecadigital.infor.cl/handle/20.500.12220/20856), [Domesticación de Calafate en Magallanes (INIA Kampenaike)](https://biblioteca.inia.cl/handle/20.500.14001/3560) y [Silvicultura de Pinus radiata y Eucalyptus (INFOR)](https://bibliotecadigital.infor.cl/handle/20.500.12220/1). Rangos de pH óptimo y tolerado en suelos chilenos: maqui 5,3–6,5 (5,0–7,0); calafate 5,5–6,8 (5,0–7,2); eucalipto 5,0–6,5 (4,5–7,0); pino radiata 4,5–6,0 (4,0–6,5).
+
 Cebada, avena y triticale reutilizan por [analogía](#analogia) la tabla del trigo ([S240](#s240)) en llenado de grano (el triticale, en las tres etapas); la remolacha azucarera, la helada de la betarraga, y el trébol rosado, la lluvia sobre el forraje cortado de la alfalfa. El detalle está en [ES8.D](TASK_MOTOR_AGRONOMICO.md#es8d-agente-d--cultivos-forrajeras-y-forestales).

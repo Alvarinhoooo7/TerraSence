@@ -20,7 +20,7 @@ const build = (stage: PhenologicalStage, speciesId?: string | null, language: 'e
 test('T45/T46: una especie sin criterios propios no cambia alertas, estados, acciones ni título', () => {
   for (const stage of ['vegetativo', 'floracion', 'cosecha'] as const) for (const reading of [raw, { ...raw, ph: 4.6, ec: 2400, temp: 3 }]) {
     const without = build(stage, null, 'es', reading);
-    const withSpecies = build(stage, 'sp.palto', 'es', reading);
+    const withSpecies = build(stage, 'sp.no-existe', 'es', reading);
     assert.deepEqual(withSpecies.parameters, without.parameters);
     assert.deepEqual(withSpecies.actions, without.actions);
     assert.equal(withSpecies.title, without.title);
@@ -35,13 +35,16 @@ test('ES6: una especie con criterios propios sólo cambia los parámetros que su
     const withSpecies = build('vegetativo', speciesId, 'es', { ...raw, ph });
     const byKey = (p: typeof without.parameters) => Object.fromEntries(p.map(x => [x.key, x]));
     const a = byKey(without.parameters), b = byKey(withSpecies.parameters);
-    for (const key of ['vwc', 'temp', 'nitrogen', 'phosphorus', 'potassium'] as const) assert.deepEqual(b[key], a[key], key);
-    // La conductividad sólo suma la tolerancia a sales de FAO como referencia: no cambia su estado.
-    if (speciesId === 'sp.arandano') assert.deepEqual(b.ec, a.ec);
-    else {
-      assert.match(b.ec.state, /^Este cultivo (es|tolera)/);
-      assert.equal(b.ec.status, a.ec.status);
+    for (const key of ['temp', 'nitrogen', 'phosphorus', 'potassium'] as const) assert.deepEqual(b[key], a[key], key);
+    if (speciesId === 'sp.lechuga') {
+      assert.match(b.vwc.state, /^Crecimiento vegetativo:/);
+      assert.equal(b.vwc.status, a.vwc.status);
+    } else {
+      assert.deepEqual(b.vwc, a.vwc, 'vwc');
     }
+    // La conductividad sólo suma la tolerancia a sales de FAO como referencia: no cambia su estado.
+    assert.match(b.ec.state, /^Este cultivo (es|tolera)/);
+    assert.equal(b.ec.status, a.ec.status);
     assert.notDeepEqual(b.ph, a.ph);
     assert.ok(b.ph.state.includes('este cultivo'), `${speciesId}: el pH muestra el criterio de la especie`);
     assert.equal(withSpecies.species?.hasStageCriteria, true);
