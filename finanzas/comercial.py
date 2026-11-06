@@ -246,32 +246,39 @@ FIGURAS = [
 ]
 
 DOCUMENTOS = [
-    (os.path.join("Comercializacion de Tecnologias", "README.md"), COMERCIAL_README, "\r\n"),
+    (os.path.join("Comercializacion de Tecnologias", "README.md"), COMERCIAL_README),
     (os.path.join("Comercializacion de Tecnologias", "Unidad 2",
-                  "informe 2 comercializacio.md"), INFORME_MARKETING, "\r\n"),
+                  "informe 2 comercializacio.md"), INFORME_MARKETING),
     (os.path.join("Comercializacion de Tecnologias", "Unidad 2", "Carrusel",
-                  "carrusel.html"), CARRUSEL, None),
+                  "carrusel.html"), CARRUSEL),
     (os.path.join("Comercializacion de Tecnologias", "Unidad 2", "Figuras",
-                  "figuras.html"), FIGURAS, None),
+                  "figuras.html"), FIGURAS),
 ]
 
 
 def sincronizar():
+    """Reescribe cada cifra en su lugar sin tocar nada más del archivo.
+
+    Los reemplazos se aplican sobre el texto tal como está en disco, sin
+    normalizar los saltos de línea: ninguno de estos documentos está declarado
+    con fin de línea fijo, de modo que normalizarlos reescribiría el archivo
+    entero en un runner Linux y la verificación fallaría por los saltos y no
+    por el contenido. Por eso ningún patrón cruza un salto de línea.
+    """
     errores = []
-    for rel, reemplazos, fin in DOCUMENTOS:
+    for rel, reemplazos in DOCUMENTOS:
         ruta = os.path.join(RAIZ, rel)
         with open(ruta, "rb") as f:
-            bruto = f.read().decode("utf-8")
-        crlf = "\r\n" in bruto if fin is None else fin == "\r\n"
-        texto = bruto.replace("\r\n", "\n")
+            bruto = f.read()
+        texto = bruto.decode("utf-8")
         cambios = 0
         for clave, patron, destino, exigidas in reemplazos:
-            texto, n = re.subn(patron, destino.replace("\\", "\\\\"), texto, flags=re.S)
+            texto, n = re.subn(patron, destino.replace("\\", "\\\\"), texto)
             if n != exigidas:
                 errores.append("%s / %s: %d coincidencias, se exigen %d" % (rel, clave, n, exigidas))
             cambios += n
-        nuevo = (texto.replace("\n", "\r\n") if crlf else texto).encode("utf-8")
-        if nuevo != bruto.encode("utf-8"):
+        nuevo = texto.encode("utf-8")
+        if nuevo != bruto:
             with open(ruta, "wb") as f:
                 f.write(nuevo)
         print("%-62s %2d cifras sincronizadas" % (rel, cambios))
