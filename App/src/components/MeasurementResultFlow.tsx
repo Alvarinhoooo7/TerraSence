@@ -313,7 +313,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
     </View>
     <Text numberOfLines={2} style={{ color: colors.textSecondary, fontSize: 14 }}>{parameterLabel(m.key, language)}</Text>
     <Text adjustsFontSizeToFit numberOfLines={1} style={{ color: colors.text, fontSize: 24, fontWeight: '800', letterSpacing: -0.5 }}>{value(m)}</Text>
-    <MetricScale metric={m.key} value={m.value} tone={tone(m)} />
+    <MetricScale metric={m.key} value={m.value} />
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 'auto' }}>
       <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: tone(m) }} />
       <Text numberOfLines={2} style={{ color: tone(m), fontSize: 13, fontWeight: '700', flexShrink: 1 }}>{statusLabel(m)}</Text>
@@ -392,7 +392,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
               {statusPill(m)}
             </View>
           </View>
-          <MetricScale metric={m.key} value={m.value} tone={tone(m)} labels />
+          <MetricScale metric={m.key} value={m.value} labels />
         </View>
         {section(t('Estado', 'Status'), m.state, tone(m))}
         {section(t('Recomendación', 'Recommendation'), m.recommendation, colors.primary)}
