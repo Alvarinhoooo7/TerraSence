@@ -203,11 +203,11 @@ export function buildMeasurementPresentation(raw: SoilMeasurement, evaluation: S
         key, label: parameterLabel(key, language), value, unit: units[index], status,
         state: datum?.availability === 'invalid' ? (en ? 'Invalid value; unavailable for this assessment.' : 'Dato inválido; no disponible para esta evaluación.')
           : value == null ? (en ? 'The device did not deliver this value.' : 'El equipo no entregó este dato.')
-          : derived ? (en ? 'Sensor register without independent chemical validation.' : 'Registro de la sonda sin validación química independiente.')
+          : derived ? (en ? 'Sensor reading without independent chemical validation.' : 'Lectura de la sonda sin validación química independiente.')
           : !relevant ? (en ? 'Context data. It does not determine the diagnosis for this stage.' : 'Dato de contexto. No determina el diagnóstico de esta fase.')
           : related.length ? related.map(a => a.title).join('\n') : metric?.msg ?? (en ? 'Local ambient reading from the device.' : 'Lectura ambiental local del equipo.'),
         recommendation: value == null ? (en ? 'Check the sensor and repeat the reading if you need this variable.' : 'Comprueba el sensor y repite la lectura si necesitas esta variable.')
-          : derived ? (en ? 'Do not use this value to dose fertilizers. Confirm nutrients with a laboratory analysis.' : 'No usar este registro para dosificar fertilizantes. Confirma nutrientes con un análisis de laboratorio.')
+          : derived ? (en ? 'Do not use this value to dose fertilizers. Confirm nutrients with a laboratory analysis.' : 'No usar este valor para dosificar fertilizantes. Confirma nutrientes con un análisis de laboratorio.')
           : related.length ? [...new Set(related.map(a => a.action))].join('\n\n')
           : status === 'OPTIMAL' ? (en ? 'No correction is indicated for this parameter under the current rules. Keep monitoring the crop.' : 'No se indica una corrección para este parámetro bajo las reglas actuales. Mantén seguimiento del cultivo.')
           : (en ? 'Interpret this value together with the global plan. There is no validated specific action for this condition and stage.' : 'Interpreta este dato junto con el plan global. No hay una acción específica validada para esta condición y fase.'),

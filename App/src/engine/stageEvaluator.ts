@@ -344,7 +344,7 @@ export function evaluateReadingForStage(
   const rule = (ruleId: GeneralRuleId) => ({ ruleId, ruleVersion: GENERAL_RULES_VERSION });
   const metrics = Object.fromEntries(
     (['vwc', 'temp', 'ec', 'ph', 'nitrogen', 'phosphorus', 'potassium', 'lux'] as const).map(key => [key, {
-      val: reading[key], unit: key === 'vwc' ? '%' : key === 'temp' ? '°C' : key === 'ec' ? 'µS/cm' : key === 'ph' ? 'pH' : key === 'lux' ? 'Lux' : 'registro',
+      val: reading[key], unit: key === 'vwc' ? '%' : key === 'temp' ? '°C' : key === 'ec' ? 'µS/cm' : key === 'ph' ? 'pH' : key === 'lux' ? 'Lux' : 'mg/kg',
       status: 'INFO', msg: en ? 'Local reading; interpretation depends on field conditions.' : 'Lectura local; su interpretación depende de las condiciones del campo.',
     }]),
   ) as AgronomicEvaluation['metrics'];
@@ -380,7 +380,7 @@ export function evaluateReadingForStage(
     metrics[key] = { ...metrics[key], confidence: 'LOW',
       msg: en ? 'Unvalidated; does not diagnose nutrition' : 'Sin validar; no diagnostica nutrición',
       confidenceNote: en ? 'Confirm nutrients in a laboratory; do not use these records to dose fertilizers.'
-        : 'Confirma nutrientes en laboratorio; no uses estos registros para dosificar fertilizantes.',
+        : 'Confirma nutrientes en laboratorio; no uses estos valores para dosificar fertilizantes.',
     };
   }
   // Criterios propios de la especie (TASK ES6): se agregan al final sin alterar las

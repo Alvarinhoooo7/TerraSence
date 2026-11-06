@@ -87,7 +87,7 @@ export function localQualityNote(datum: EvidenceDatum, language: AppLanguage): s
       : codes.includes('soil_context_unknown')
         ? (en ? 'Without soil texture and depth, this reading does not determine water available to roots.' : 'Sin textura y profundidad, esta lectura no determina el agua disponible para las raíces.')
         : codes.includes('chemical_validation_missing')
-          ? (en ? 'No independent chemical validation. Do not use this register to dose fertilizers.' : 'Sin validación química independiente. No usar este registro para dosificar fertilizantes.')
+          ? (en ? 'No independent chemical validation. Do not use this value to dose fertilizers.' : 'Sin validación química independiente. No usar este valor para dosificar fertilizantes.')
           : datum.source === 'bme280'
             ? (en ? 'Instantaneous ambient reading; sensor exposure and stability are unverified.' : 'Lectura ambiental instantánea; exposición y estabilidad del sensor sin verificar.')
             : (en ? 'Point reading; calibration and field representativeness are unverified.' : 'Lectura puntual; calibración y representatividad del campo sin verificar.');

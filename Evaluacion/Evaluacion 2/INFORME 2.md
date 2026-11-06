@@ -673,7 +673,7 @@ Los criterios declarados y sus pesos son: número de variables entregadas (30 %)
 
 **Tabla 1.8 “Comparativa de Sondas de Suelo”**
 
-Justificación de la Selección: Se sacrifica exactitud absoluta a cambio de viabilidad. Obtener las siete variables con sensores de investigación multiplicaría el costo del producto por veinte, lo que contradice el objetivo mismo del proyecto. La limitación técnica más importante se declara explícitamente: la estimación de N, P y K no se mide por electrodo ion-selectivo, sino que se deriva de la conductividad eléctrica. En suelo salino se puede leer erróneamente un estado “fértil”. Para mitigarlo, la aplicación presenta N, P y K como registros informativos, acompañados de forma permanente por una advertencia de que no constituyen un diagnóstico nutricional y no permiten prescribir dosis de fertilizante; además, cuando la conductividad eléctrica supera los 1.000 µS/cm se activa un veto de confianza que refuerza esa advertencia en pantalla. En ningún caso se presenta una clase agronómica ni una dosis derivada de estos tres valores.
+Justificación de la Selección: Se sacrifica exactitud absoluta a cambio de viabilidad. Obtener las siete variables con sensores de investigación multiplicaría el costo del producto por veinte, lo que contradice el objetivo mismo del proyecto. La limitación técnica más importante se declara explícitamente: la estimación de N, P y K no se mide por electrodo ion-selectivo, sino que se deriva de la conductividad eléctrica. En suelo salino se puede leer erróneamente un estado “fértil”. Para mitigarlo, la aplicación presenta N, P y K como valores de referencia, acompañados de forma permanente por una advertencia de que no constituyen un diagnóstico nutricional y no permiten prescribir dosis de fertilizante; además, cuando la conductividad eléctrica supera los 1.000 µS/cm se activa un veto de confianza que refuerza esa advertencia en pantalla. En ningún caso se presenta una clase agronómica ni una dosis derivada de estos tres valores.
 
 ### Sensor Ambiental: Compite el Bosch BME280, BMP280 y el Sensirion SHT40.
 
@@ -1233,9 +1233,9 @@ Hz declarado en la hoja de datos, no la corriente instantánea durante la conver
 | 2–3 | Temperatura de suelo | int16 con signo, ÷10 | Grados Celsius, admite valores bajo cero |
 | 4–5 | Conductividad eléctrica | uint16 | µS/cm directo |
 | 6–7 | pH | uint16, ÷10 | Unidades de pH con un decimal |
-| 8–9 | Nitrógeno (N) | uint16 | mg/kg, presentado como registro informativo |
-| 10–11 | Fósforo (P) | uint16 | mg/kg, presentado como registro informativo |
-| 12–13 | Potasio (K) | uint16 | mg/kg, presentado como registro informativo |
+| 8–9 | Nitrógeno (N) | uint16 | mg/kg, presentado como valor de referencia |
+| 10–11 | Fósforo (P) | uint16 | mg/kg, presentado como valor de referencia |
+| 12–13 | Potasio (K) | uint16 | mg/kg, presentado como valor de referencia |
 | 14 | Batería | uint8 | Porcentaje 0–100, no milivoltios |
 | 15 | Identificador de formato | uint8 | Constante 0x01, que identifica este contrato de 20 bytes |
 | 16–19 | Ambiente BME280 | 32 bits empaquetados | Temperatura del aire (12 bits, °C × 10 + 400), presión (12 bits, hPa − 300) y humedad relativa (8 bits, % × 2) |
@@ -1630,9 +1630,9 @@ El listado anterior mezcla, deliberadamente, normas de cumplimiento legal inelud
 
 El objetivo específico de “validar la precisión instrumental” exige un protocolo concreto y no sólo la intención declarada de contrastar contra un laboratorio acreditado. Se define aquí ese protocolo.
 
-La campaña compara tres magnitudes de la sonda con métodos de referencia: humedad volumétrica, pH y conductividad eléctrica. La textura se determina en laboratorio para agrupar los resultados; no es una variable medida por TerraSense ni un dato solicitado por el flujo actual de la aplicación. La temperatura del suelo se contrasta con termómetro patrón y las magnitudes ambientales con termohigrómetro y barómetro de referencia en ensayos separados. La hoja de datos del sensor establece prestaciones declaradas del componente, pero no acredita la exactitud del equipo ensamblado. N, P y K conservan exclusivamente el carácter de registros informativos.
+La campaña compara tres magnitudes de la sonda con métodos de referencia: humedad volumétrica, pH y conductividad eléctrica. La textura se determina en laboratorio para agrupar los resultados; no es una variable medida por TerraSense ni un dato solicitado por el flujo actual de la aplicación. La temperatura del suelo se contrasta con termómetro patrón y las magnitudes ambientales con termohigrómetro y barómetro de referencia en ensayos separados. La hoja de datos del sensor establece prestaciones declaradas del componente, pero no acredita la exactitud del equipo ensamblado. N, P y K conservan exclusivamente el carácter de valores de referencia.
 
-La exclusión de N, P y K es deliberada y coherente con el resto del informe: esos tres valores no son determinaciones químicas independientes sino derivaciones de la conductividad eléctrica, de modo que contrastarlos contra un método de laboratorio mediría la correlación entre salinidad y fertilidad de los suelos muestreados, no la exactitud del instrumento. Validarlos sugeriría una capacidad analítica que la sonda no tiene. Por esa misma razón la aplicación los presenta como registros informativos con advertencia permanente, no construye diagnóstico nutricional con ellos y no permite prescribir dosis: la limitación se resuelve en la interfaz, no en la campaña de laboratorio.
+La exclusión de N, P y K es deliberada y coherente con el resto del informe: esos tres valores no son determinaciones químicas independientes sino derivaciones de la conductividad eléctrica, de modo que contrastarlos contra un método de laboratorio mediría la correlación entre salinidad y fertilidad de los suelos muestreados, no la exactitud del instrumento. Validarlos sugeriría una capacidad analítica que la sonda no tiene. Por esa misma razón la aplicación los presenta como valores de referencia con advertencia permanente, no construye diagnóstico nutricional con ellos y no permite prescribir dosis: la limitación se resuelve en la interfaz, no en la campaña de laboratorio.
 
 | Elemento del protocolo | Especificación |
 |---|---|
@@ -1839,7 +1839,7 @@ Una sola ficha técnica reúne las capacidades del producto y del servicio, con 
 | Temperatura del suelo | −40 a +80 °C; ±5 °C a 25 °C según la publicación del fabricante | Ficha de la sonda [20] | **Declarado** por el fabricante; la adquisición está implementada y el desempeño del equipo se contrasta en la campaña de validación |
 | Conductividad eléctrica | 0–20.000 µS/cm, ±3 % hasta 10.000 µS/cm y ±5 % sobre ese valor | Manual de la sonda | **Declarado** por el manual de la sonda; se contrasta en la campaña de validación |
 | pH | 3,0–9,0, ±0,3 | Manual de la sonda | **Declarado** por el manual de la sonda; se contrasta en la campaña de validación |
-| N, P y K | 1–1.999 mg/kg cada uno, resolución de 1 mg/kg, ±2 % de la escala completa según el fabricante; derivados de la CE, registros informativos | Manual de la sonda | **Declarado** por el manual de la sonda; sin medición químicamente independiente, se conservan como registros informativos y no se validan como concentraciones |
+| N, P y K | 1–1.999 mg/kg cada uno, resolución de 1 mg/kg, ±2 % de la escala completa según el fabricante; derivados de la CE, valores de referencia | Manual de la sonda | **Declarado** por el manual de la sonda; sin medición químicamente independiente, se conservan como valores de referencia y no se validan como concentraciones |
 | Variables ambientales | 3: temperatura del aire −40 a +85 °C (±1,0 °C), humedad relativa 0–100 % (±3 %), presión 300–1.100 hPa (±1,0 hPa) | Hoja de datos del BME280 [13] | **Declarado** por la hoja de datos del BME280; se contrasta contra patrón en F-08 |
 | Batería en la trama | 1 (porcentaje con curva típica de LiPo, sin calibrar) | Firmware | **Implementado** en el firmware; la curva se calibra en D-10 |
 | Resolución de la trama | Humedad 0,1 %; temperatura de suelo 0,1 °C; pH 0,1; CE 1 µS/cm; temperatura del aire 0,1 °C; humedad relativa 0,5 %; presión 1 hPa | Contrato de la trama de 20 bytes | **Verificado** en W-01: el decodificador reproduce el vector del contrato |
@@ -2242,7 +2242,7 @@ La digitalización de TerraSense transforma un proceso manual y no trazable (la 
 | Aplicación móvil | Motor agronómico determinista, historial por campo, georreferencia, español e inglés | Lógica verificada en W-01 (436 de 436 pruebas) |
 | Backoffice y panel de control | Consola web de soporte: búsqueda de equipos, ficha con las últimas mediciones, aprobación de usuarios, reset y catálogo de firmware | Implementado; la aceptación por cuenta y rol se comprueba en W-04 |
 | Avisos | Cuatro avisos de acceso por notificación; batería baja como estado en la aplicación | Avisos implementados; W-03 verifica el despachador y T-05 comprueba la recepción en teléfono |
-| Análisis de datos | Diagnóstico por etapa y especie, cobertura explícita y registros informativos; pronóstico aplicable al lugar para contextualizar | Implementado; umbrales sin auditar con un experto |
+| Análisis de datos | Diagnóstico por etapa y especie, cobertura explícita y valores de referencia de nutrientes; pronóstico aplicable al lugar para contextualizar | Implementado; umbrales sin auditar con un experto |
 | Integración vertical | Sonda, equipo, teléfono, nube y consola forman una cadena de datos sin saltos manuales | Verificada en su lógica |
 | Trazabilidad | Medición con fecha, equipo y usuario; ID de 15 dígitos por equipo; versión de firmware informada; registro FAT por número de serie (propuesto) | Implementada salvo el registro FAT |
 

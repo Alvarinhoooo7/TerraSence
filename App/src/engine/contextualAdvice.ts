@@ -139,7 +139,7 @@ export function buildContextualAdvice(
       body: en ? 'With this data we cannot give a complete diagnosis of the soil. Use it to compare with your next readings.'
         : 'Con estos datos no podemos darte un diagnóstico completo del suelo. Úsala para comparar con tus próximas mediciones.',
       detail: en ? 'Partial assessment: pH comparisons are indicative; probe conductivity cannot classify salinity without a compatible method; nutrient registers do not determine fertilization.'
-        : 'Evaluación parcial: las comparaciones de pH son orientativas; la conductividad de la sonda no permite clasificar salinidad sin un método compatible; los registros de nutrientes no determinan fertilización.' }
+        : 'Evaluación parcial: las comparaciones de pH son orientativas; la conductividad de la sonda no permite clasificar salinidad sin un método compatible; los valores de nutrientes no determinan fertilización.' }
     : evaluation.verdict === 'GREEN'
       ? { kind: 'monitoring', priority: 'normal', when: 'next_reading',
         title: en ? 'Nothing to correct for now' : 'Nada que corregir por ahora',

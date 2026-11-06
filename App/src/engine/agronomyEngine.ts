@@ -430,9 +430,9 @@ export function evaluateAgronomicStatus(
       temp: { val: temp, unit: '°C', status: tempStatus, msg: tempMessage },
       ec: { val: ec, unit: 'µS/cm', status: ecStatus, msg: ecMessage },
       ph: { val: ph, unit: 'pH', status: phStatus, msg: phMessage },
-      nitrogen: { val: nitrogen, unit: 'registro', status: 'WARNING', msg: 'Sin validar; no diagnostica nutrición', ...npkMeta },
-      phosphorus: { val: phosphorus, unit: 'registro', status: 'WARNING', msg: 'Sin validar; no diagnostica nutrición', ...npkMeta },
-      potassium: { val: potassium, unit: 'registro', status: 'WARNING', msg: 'Sin validar; no diagnostica nutrición', ...npkMeta },
+      nitrogen: { val: nitrogen, unit: 'mg/kg', status: 'WARNING', msg: 'Sin validar; no diagnostica nutrición', ...npkMeta },
+      phosphorus: { val: phosphorus, unit: 'mg/kg', status: 'WARNING', msg: 'Sin validar; no diagnostica nutrición', ...npkMeta },
+      potassium: { val: potassium, unit: 'mg/kg', status: 'WARNING', msg: 'Sin validar; no diagnostica nutrición', ...npkMeta },
       lux: { val: lux, unit: 'Lux', status: 'OPTIMAL', msg: lightMsg }
     }
   };
