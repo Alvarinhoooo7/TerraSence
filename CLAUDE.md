@@ -41,7 +41,7 @@ Se ordena en tres clases de valor, y cada una se sostiene con evidencia distinta
 
 1. Interpretación según la etapa fenológica y la especie.
 2. Orientación de manejo como salida del sistema, en lugar del valor numérico.
-3. Diez registros obtenidos de una sola inserción (7 de suelo medidos y 3 ambientales).
+3. Diez variables obtenidas de una sola inserción (7 del suelo y 3 del ambiente).
 4. Trazabilidad documental del criterio agronómico, sostenida por el catálogo de cultivos construido sobre estadística agrícola chilena (INE, ODEPA, CIREN, SAG, INFOR).
 
 **Lo que es paridad y no se vende como diferencia.** La competencia directa también lo ofrece, así que presentarlo como ventaja destruye la credibilidad del resto:
@@ -55,7 +55,7 @@ Se ordena en tres clases de valor, y cada una se sostiene con evidencia distinta
 
 «Mide donde el agricultor decide» y «mide en más puntos» son diferencia **frente al nodo fijo**, no frente a otro medidor de mano.
 
-Los límites declarados son parte de la propuesta, no una concesión: no entrega concentraciones de nutrientes, no reemplaza el criterio de un asesor y no da continuidad temporal en un punto. Decirlo es lo que construye la confianza, que según el propio FODA del proyecto es su barrera principal.
+**El límite se escribe como complemento, no como carencia.** El laboratorio fija el punto de referencia con exactitud trazable; TerraSense aporta la repetición que ese análisis no puede costear —medir el mismo punto antes y después de fertilizar, varios sectores el mismo día, cuantas veces se quiera— y termina en un plan de acción que el informe de laboratorio no incluye. Así también frente al asesor, cuyo criterio el equipo confirma o corrige, y frente al nodo fijo, que da continuidad en un punto mientras la sonda cubre el campo. Nunca se enuncian los límites como una lista de carencias ni se destaca en el material comercial que N, P y K sean poco precisos: la declaración técnica de que derivan de la conductividad eléctrica vive en la ficha técnica del producto y en los capítulos de validación y de verificación del informe de la Evaluación 2, y ahí se mantiene sin atenuantes.
 
 ## 4. Decisiones cerradas del proyecto
 
@@ -86,7 +86,7 @@ El firmware del ESP32 vive en `Firmware/` (Arduino IDE, núcleo esp32 3.x); su e
 - **No crear changelogs** ni archivos de registro fechados (`INTEGRACION_<fecha>.md`, `CAMBIOS_*.md`). La documentación describe el estado vigente, no su historia; para eso está git.
 - **Una cifra vive en un solo lugar.** Si aparece en dos documentos, uno la genera y el otro la enlaza. Única excepción deliberada: el informe entregable.
 - No agregues documentos nuevos salvo que se pidan; actualiza los existentes.
-- Español de Chile. Se dice **campo**, no "predio" ni "potrero". El mapa y la extensión PostGIS se retiraron del producto en la migración `migrations_archivo/20260920140000_retirar_mapa_y_postgis.sql`: ya no existen `predial_quadrants`, `field_perimeters` ni geometrías. La medición **sí** se sigue georreferenciando (`latitude`, `longitude`, `gps_accuracy_m` se conservan y se muestran como texto), así que no confundas «retirar el mapa» con «perder la georreferenciación».
+- Español de Chile. Se dice **campo**, no "predio" ni "potrero". Se dice **variables**, nunca "registros", para lo que el equipo entrega: son **diez variables** (siete del suelo y tres del ambiente). "Registro" queda reservado a su sentido propio —el historial, el registro FAT, los registros Modbus de la sonda— porque usarlo para las magnitudes confunde al lector. El mapa y la extensión PostGIS se retiraron del producto en la migración `migrations_archivo/20260920140000_retirar_mapa_y_postgis.sql`: ya no existen `predial_quadrants`, `field_perimeters` ni geometrías. La medición **sí** se sigue georreferenciando (`latitude`, `longitude`, `gps_accuracy_m` se conservan y se muestran como texto), así que no confundas «retirar el mapa» con «perder la georreferenciación».
 - Al citar siglas económicas (TAM, SAM, SOM, VAN, TIR, TCO, BOM), explica su significado entre paréntesis la primera vez.
 - **No uses EBITDA, FCFF, FCFE, DSCR ni FTE.** Se retiraron deliberadamente del informe: son válidos pero exceden el nivel de una evaluación de viabilidad económica y el equipo no los maneja. La dotación se expresa en personas, no en FTE.
 

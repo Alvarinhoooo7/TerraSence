@@ -308,7 +308,7 @@ def pruebas_sat():
         ("Vinculación", "Con red: PAIR durante 3 s, buscar dentro de la ventana de 30 s y completar el registro",
          "El agricultor queda como administrador; aviso verde sólo si la confirmación llega dentro de la ventana", "R13"),
         ("Primera medición con ubicación", "Medir con etapa elegida y ubicación activa; recorrer especie indicada y sin especie, y pre-siembra sin selector",
-         "Diez registros y ubicación como texto; N, P y K informativos; especie y cobertura coherentes en resultado e historial", "R01, R02, R05"),
+         "Diez variables y ubicación como texto; N, P y K informativos; especie y cobertura coherentes en resultado e historial", "R01, R02, R05"),
         ("Operación sin red", "Con cuenta y equipo registrados: modo avión, reactivar Bluetooth y ubicación; medir, guardar, cerrar la aplicación y reabrir sin red", "Lecturas, etapa, especie y diagnóstico permanecen en historial y cola; pronóstico ausente o guardado identificado, nunca inventado", "R05"),
         ("Comparación con una muestra de laboratorio", "Muestra del punto medido y cilindro de 100 cm³ para la humedad, enviados a laboratorio (sólo en el piloto)",
          "Registrar el par, los métodos, la humedad gravimétrica y la densidad aparente; aceptación estadística al completar ≥ 30 puntos: RMSE pH ≤ 0,3; RMSE de CE ≤ 10 % o 200 µS/cm; RMSE humedad ≤ 4 puntos; R² ≥ 0,80; intervalo de confianza del 95 % de la pendiente de Passing-Bablok dentro de 0,90–1,10. No aplica fuera del piloto", "R04"),

@@ -170,7 +170,7 @@ La secuencia deja en claro el límite del marketing: TerraSense no crea la neces
 ### 1.3 Valor, satisfacción e intercambio
 
 - **Valor.** Es la diferencia entre los beneficios que percibe el cliente y los costos económicos, de tiempo y de esfuerzo que asume. TerraSense suma beneficios (respuesta inmediata, interpretación según la etapa, mediciones ilimitadas) y reduce costos: su pago único queda por debajo del gasto acumulado en análisis de laboratorio durante el tercer año de uso habitual (sección 5.3).
-- **Satisfacción.** Depende de que el producto cumpla las expectativas que creó la comunicación. Por eso el plan no promete lo que el equipo no hace: no reemplaza al laboratorio, no calcula dosis de fertilizante, y el nitrógeno, el fósforo y el potasio se presentan como valores de referencia. Una expectativa inflada se convierte en decepción y en reseñas negativas.
+- **Satisfacción.** Depende de que el producto cumpla las expectativas que creó la comunicación. Por eso el plan comunica el equipo como complemento del análisis de laboratorio y no como su reemplazo, y no promete lo que el equipo no hace: no calcula dosis de fertilizante. Una expectativa inflada se convierte en decepción y en reseñas negativas.
 - **Intercambio.** El agricultor entrega dinero y recibe una herramienta y un servicio continuo: aplicación, historial y soporte. El intercambio se repite cuando el cliente satisfecho recomienda el equipo a otros productores.
 
 ### 1.4 Mercado, oferta y miopía de marketing
@@ -293,7 +293,7 @@ La Figura 3.1 describe a los dos segmentos como perfiles de cliente. Son arqueti
 
 *Fuente:* elaboración propia.
 
-Los perfiles muestran dos objeciones distintas que el plan debe responder. El productor teme que el equipo sea caro y difícil de usar: se le responde con el costo acumulado frente al laboratorio y con una aplicación que entrega una decisión, no una tabla de números. El asesor teme afirmar algo que el equipo no puede sostener: se le responde con una ficha honesta de qué mide y qué no, y con la advertencia de que los nutrientes son valores de referencia.
+Los perfiles muestran dos objeciones distintas que el plan debe responder. El productor teme que el equipo sea caro y difícil de usar: se le responde con el costo acumulado frente al laboratorio y con una aplicación que entrega una decisión, no una tabla de números. El asesor teme afirmar algo que el equipo no puede sostener: se le responde con una ficha honesta de qué mide y qué no, y con el encuadre de complemento: el equipo sigue la evolución del campo entre un análisis de laboratorio y el siguiente.
 
 ### 3.3 Factores que influyen en la compra
 
