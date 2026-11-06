@@ -13,7 +13,7 @@ TerraSense es un proyecto de instrumento portátil y aplicación móvil para med
 
 ## Por qué TerraSense
 
-TerraSense no es un sensor de suelo ni un nodo de monitoreo enterrado: es una **sonda portátil multivariable de diagnóstico agronómico**. Viaja con la persona, mide donde ésta decide, entrega diez variables del mismo punto y del mismo instante, y termina en una orientación de manejo según la fase del cultivo. Esa combinación es la que no existe en el mercado al que apunta.
+TerraSense no es un sensor de suelo ni un nodo de monitoreo enterrado: es una **sonda portátil multivariable de diagnóstico agronómico**. Viaja con la persona, mide donde la persona decide y entrega diez variables del punto de medición en el mismo instante, terminando en una orientación o plan de acción según la fase del cultivo y la especie. Esa combinación es la que no existe en el mercado actual.
 
 La propuesta se ordena en tres clases de valor, y conviene no mezclarlas porque cada una se sostiene con evidencia distinta: la **funcional** (qué permite hacer el instrumento que hoy no se puede), la **económica** (qué cuesta sostener esa información en el tiempo) y la **emocional** (qué incertidumbre le quita de encima al productor). El texto canónico de la propuesta, con esas tres clases y la clasificación de cada atributo en paridad o diferencia, vive en [el capítulo III del informe de la Evaluación 2](Evaluacion/Evaluacion%202/INFORME%202.md#la-propuesta-de-valor); lo que sigue es su resumen.
 
