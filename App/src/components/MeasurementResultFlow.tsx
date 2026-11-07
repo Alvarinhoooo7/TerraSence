@@ -114,14 +114,14 @@ function PlanTile({ icon, color, label, title, onPress, strong = false }: {
   const { colors } = useAppTheme();
   const { t } = useTranslation();
   return <Pressable accessibilityRole="button" accessibilityLabel={`${label}. ${title}`} accessibilityHint={t('Abre el porqué y el detalle.', 'Opens the reason and the detail.')}
-    onPress={onPress} style={({ pressed }) => ({ flexBasis: '47%', flexGrow: 1, minHeight: 92, borderRadius: 16, borderWidth: 1,
+    onPress={onPress} style={({ pressed }) => ({ flexBasis: '47%', flexGrow: 1, minHeight: 76, borderRadius: 16, borderWidth: 1,
       borderColor: strong ? `${color}88` : colors.border, backgroundColor: colors.card, padding: 12, gap: 6, opacity: pressed ? .8 : 1 })}>
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
       <Svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><Path d={icon} /></Svg>
       <Text numberOfLines={1} style={{ flex: 1, color, fontSize: 11, fontWeight: '800', letterSpacing: 1 }}>{label.toUpperCase()}</Text>
       <Text style={{ color: colors.primary, fontSize: 16 }}>›</Text>
     </View>
-    <Text numberOfLines={3} style={{ color: colors.text, fontSize: 14, fontWeight: '700', lineHeight: 19 }}>{title}</Text>
+    <Text numberOfLines={2} style={{ color: colors.text, fontSize: 14, fontWeight: '700', lineHeight: 19 }}>{title}</Text>
   </Pressable>;
 }
 
@@ -615,18 +615,20 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, onEx
   return (<ScreenLayout {...common} eyebrow={eyebrow} title={t('Qué hacer', 'What to do')}>
     {/* El diagnóstico de conjunto, recortado: completo en el contexto. */}
     <Pressable accessibilityRole="button" accessibilityHint={t('Abre el diagnóstico completo.', 'Opens the full diagnosis.')} onPress={() => setSheet('context')}>
-      <Text numberOfLines={3} style={{ color: colors.textSecondary, fontSize: 15, lineHeight: 21 }}>{p.summary}</Text>
+      <Text numberOfLines={2} style={{ color: colors.textSecondary, fontSize: 15, lineHeight: 21 }}>{p.summary}</Text>
     </Pressable>
     {pills}
     <Animated.View entering={enterDown(60)}>
       <Pressable accessibilityRole="button" accessibilityHint={t('Abre el porqué y el detalle.', 'Opens the reason and the detail.')} onPress={() => setSheet(0)}
         style={({ pressed }) => ({ borderRadius: 20, borderWidth: 2, borderColor: firstColor, backgroundColor: colors.card, padding: 16, gap: 6, opacity: pressed ? .85 : 1 })}>
-        <Text style={{ color: firstColor, fontSize: 12, fontWeight: '800', letterSpacing: 1.4 }}>
-          {`${t('PRIMERO', 'FIRST')} · ${whenLabel(first.when).toUpperCase()}`}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={{ flex: 1, color: firstColor, fontSize: 12, fontWeight: '800', letterSpacing: 1.4 }}>
+            {`${t('PRIMERO', 'FIRST')} · ${whenLabel(first.when).toUpperCase()}`}
+          </Text>
+          <Text style={{ color: colors.primary, fontSize: 18 }}>›</Text>
+        </View>
         <Text style={{ color: colors.text, fontSize: 19, fontWeight: '800', letterSpacing: -0.3, lineHeight: 24 }}>{first.title}</Text>
         <Text numberOfLines={2} style={{ color: colors.text, fontSize: 15, lineHeight: 21 }}>{first.body}</Text>
-        <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '700' }}>{t('Por qué y detalle ›', 'Why and detail ›')}</Text>
       </Pressable>
     </Animated.View>
     <Animated.View entering={enterDown(140)} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
