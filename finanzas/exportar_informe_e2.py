@@ -1,16 +1,18 @@
 """Exporta el informe 2 a Word conservando los enlaces internos a la bibliografía.
 
-El entregable se arma en Word, pero su fuente es el Markdown del informe: así la numeración
+El Word contiene correcciones editoriales manuales y es la versión vigente del entregable.
+Sin --desde-markdown se conserva su contenido; --paginar sólo actualiza sus campos.
+La reconstrucción explícita desde Markdown permite mantener la numeración
 de tablas y figuras, los índices y las referencias salen de un solo lugar y no pueden
 desincronizarse. Este guion traduce el Markdown a un `.docx` con estilos de encabezado
 reales (para que Word genere el índice con sus números de página), tablas con fila de
 cabecera repetida, las figuras incrustadas y, sobre todo, cada cita «[n]» convertida en un
 enlace que salta a su entrada de la bibliografía.
 
-El documento sale ya con el marco de la institución: tamaño carta, Arial 11 justificado a
-1,5 líneas, títulos en Arial negrita, el logotipo en el encabezado de cada página y, en el
-pie, el número de página y la franja roja. Esos dos elementos gráficos están recortados del
-informe entregado y viven en `Evaluacion/Evaluacion 2/Plantilla/`.
+El documento utiliza la portada y el marco del Word original entregado: tamaño carta,
+márgenes superior de 3 cm, inferior de 2 cm y laterales de 1,5 cm, fondo institucional,
+encabezados y pies originales. El cuerpo usa Calibri 11 a 1,5 líneas; las tablas, Calibri 9.
+La base reutilizable está en `Evaluacion/Evaluacion 2/Plantilla/base_institucional.docx`.
 
 La opción --paginar actualiza el índice y los números de página mediante LibreOffice
 instalado, en una instancia oculta y aislada. --pdf-revision permite guardar una copia
@@ -27,9 +29,11 @@ import shutil
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
+from copy import deepcopy
 
 from docx import Document
 from docx.enum.section import WD_ORIENT
+from docx.enum.style import WD_STYLE_TYPE
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from docx.oxml import OxmlElement
@@ -42,6 +46,7 @@ ORIGEN = os.path.join(CARPETA, "INFORME 2.md")
 DESTINO = os.path.join(CARPETA, "INFORME 2.docx")
 LOGOTIPO = os.path.join(CARPETA, "Plantilla", "encabezado.png")
 FRANJA = os.path.join(CARPETA, "Plantilla", "pie.png")
+PLANTILLA = os.path.join(CARPETA, "Plantilla", "base_institucional.docx")
 
 ANCHO_TEXTO = Cm(16.0)
 
@@ -86,7 +91,7 @@ class Exportador:
         parrafo._p.insert(0, inicio)
         parrafo._p.append(fin)
 
-    def enlace(self, parrafo, texto, destino, interno):
+    def enlace(self, parrafo, texto, destino, interno, tam=None):
         h = OxmlElement("w:hyperlink")
         if interno:
             h.set(qn("w:anchor"), destino)
@@ -95,7 +100,9 @@ class Exportador:
             h.set(qn("r:id"), rid)
         r = OxmlElement("w:r")
         rpr = _sub(r, "w:rPr")
-        _sub(rpr, "w:rStyle", val="Hyperlink")
+        _sub(rpr, "w:rStyle", val=self.doc.styles["Hyperlink"].style_id)
+        if tam:
+            _sub(rpr, "w:sz", val=str(tam * 2))
         t = _sub(r, "w:t")
         t.text = texto
         t.set(qn("xml:space"), "preserve")
@@ -116,7 +123,7 @@ class Exportador:
                 r = self._run(parrafo, m.group("codigo"), negrita, cursiva, tam)
                 r.font.name = "Consolas"
             elif m.group("enlace"):
-                self.enlace(parrafo, m.group("enlace"), m.group("url"), interno=False)
+                self.enlace(parrafo, m.group("enlace"), m.group("url"), interno=False, tam=tam)
             elif m.group("cita"):
                 # Cada número salta a su entrada de la bibliografía; los corchetes y las comas
                 # quedan como texto, para que «[2, 3]» se lea igual y sus dos números enlacen.
@@ -125,10 +132,10 @@ class Exportador:
                 for k, numero in enumerate(numeros):
                     if k:
                         self._run(parrafo, ", ", negrita, cursiva, tam)
-                    self.enlace(parrafo, numero, "ref_%s" % numero, interno=True)
+                    self.enlace(parrafo, numero, "ref_%s" % numero, interno=True, tam=tam)
                 self._run(parrafo, "]", negrita, cursiva, tam)
             elif m.group("suelta"):
-                self.enlace(parrafo, m.group("suelta"), m.group("suelta"), interno=False)
+                self.enlace(parrafo, m.group("suelta"), m.group("suelta"), interno=False, tam=tam)
             pos = m.end()
         if pos < len(cadena):
             self._run(parrafo, cadena[pos:], negrita, cursiva, tam)
@@ -143,20 +150,24 @@ class Exportador:
         return r
 
     # ---------------------------------------------------------------- bloques
-    def indice_de_word(self):
-        """Campo TOC: Word lo rellena con los títulos y sus números de página."""
-        p = self.doc.add_paragraph()
+    def indice_de_word(self, instruccion=None, entradas=()):
+        """Índice nativo actualizable, con títulos visibles incluso antes de paginar."""
+        p = self.doc.add_paragraph(style="Cuerpo del informe")
         r = OxmlElement("w:r")
         _sub(r, "w:fldChar", fldCharType="begin")
         p._p.append(r)
         r = OxmlElement("w:r")
         instr = _sub(r, "w:instrText")
-        instr.text = ' TOC \\o "1-2" \\h \\z \\u '
+        instr.text = instruccion or ' TOC \\o "1-2" \\h \\z \\u '
         instr.set(qn("xml:space"), "preserve")
         p._p.append(r)
         r = OxmlElement("w:r")
         _sub(r, "w:fldChar", fldCharType="separate")
         p._p.append(r)
+        for texto, nivel in entradas:
+            p = self.doc.add_paragraph(style="Índice del informe")
+            p.paragraph_format.left_indent = Cm(0.5 if nivel == 2 else 0)
+            self.texto(p, texto)
         r = OxmlElement("w:r")
         _sub(r, "w:fldChar", fldCharType="end")
         p._p.append(r)
@@ -172,15 +183,21 @@ class Exportador:
         ncol = len(cabecera)
         if any(len(celdas(f)) != ncol for f in filas[1:]):
             raise ValueError("Tabla con distinta cantidad de columnas: %s" % filas[0][:100])
-        # Las tablas anchas sólo caben con cuerpo reducido; es lo que hace legible una de ocho columnas.
-        tam = 7 if ncol >= 7 else 8 if ncol >= 5 else 9
+        # El original utiliza Calibri 9 también en las tablas anchas.
+        tam = 9
         matriz_aceptacion = cabecera[:4] == ["ID", "Ensayos", "Prueba y método", "Criterio de aceptación"] and ncol == 7
         if matriz_aceptacion:
             # Los identificadores ocupan poco; reservar espacio al método y a la evidencia
-            # permite mantener Arial 8 y evita siete columnas iguales casi vacías.
-            tam = 8
+            # permite mantener Calibri 8 y evita siete columnas iguales casi vacías.
+            tam = 9
         t = self.doc.add_table(rows=1, cols=ncol)
         t.style = "Table Grid"
+        bordes = _sub(t._tbl.tblPr, "w:tblBorders")
+        for lado in ("top", "left", "bottom", "right", "insideH", "insideV"):
+            _sub(bordes, "w:" + lado, val="single", sz="6", color="000000")
+        margenes = _sub(t._tbl.tblPr, "w:tblCellMar")
+        for lado, valor in (("top", 100), ("bottom", 100), ("left", 100), ("right", 100)):
+            _sub(margenes, "w:" + lado, w=str(valor), type="dxa")
         t.autofit = not matriz_aceptacion
         anchos = [1.1, 1.8, 3.1, 3.3, 1.95, 3.65, 2.69] if matriz_aceptacion else None
         if anchos:
@@ -190,6 +207,7 @@ class Exportador:
             if anchos:
                 t.rows[0].cells[i].width = Cm(anchos[i])
             p = t.rows[0].cells[i].paragraphs[0]
+            p.style = "Cuerpo del informe"
             self.texto(p, celda, negrita=True, tam=tam)
             _compacto(p)
         _sub(_sub(t.rows[0]._tr, "w:trPr"), "w:tblHeader", val="true")
@@ -202,12 +220,13 @@ class Exportador:
                 if anchos:
                     celdas[i].width = Cm(anchos[i])
                 p = celdas[i].paragraphs[0]
+                p.style = "Cuerpo del informe"
                 self.texto(p, celda, tam=tam)
                 _compacto(p)
 
     def imagen(self, alt, ruta):
         absoluta = os.path.join(CARPETA, ruta.replace("/", os.sep))
-        p = self.doc.add_paragraph()
+        p = self.doc.add_paragraph(style="Cuerpo del informe")
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.keep_with_next = True
         if not os.path.exists(absoluta):
@@ -232,28 +251,86 @@ def _compacto(parrafo):
 
 
 def tipografia(doc):
-    """Fija la tipografía del informe: Arial 11 en el cuerpo y Arial negrita en los títulos.
+    """Fija la tipografía del informe: Calibri 11 en el cuerpo y Calibri negrita en los títulos.
 
-    Son las medidas de los dos informes ya entregados: cuerpo Arial 11 justificado con
-    interlineado de 1,5 líneas y títulos de capítulo en Arial negrita 14. Los estilos de
+    Son las medidas de los dos informes ya entregados: cuerpo Calibri 11 justificado con
+    interlineado de 1,5 líneas y títulos de capítulo en Calibri negrita 14. Los estilos de
     encabezado que trae Word vienen en Calibri Light azul, así que se redefinen uno por uno.
     """
-    normal = doc.styles["Normal"]
-    normal.font.name = "Arial"
+    # No modificar Normal: la portada, el encabezado y el pie originales lo heredan.
+    normal = doc.styles.add_style("Cuerpo del informe", WD_STYLE_TYPE.PARAGRAPH)
+    normal.base_style = doc.styles["Normal"]
+    normal.font.name = "Calibri"
     normal.font.size = Pt(11)
     normal.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     normal.paragraph_format.line_spacing = 1.5
     normal.paragraph_format.space_after = Pt(6)
+    normal.paragraph_format.widow_control = True
+    for nombre in ("List Bullet", "List Bullet 2", "List Number"):
+        if nombre not in doc.styles:
+            original = Document().styles[nombre]
+            doc.styles.element.append(deepcopy(original.element))
+        estilo = doc.styles[nombre]
+        estilo.font.name = "Calibri"
+        estilo.font.size = Pt(11)
+        estilo.paragraph_format.line_spacing = 1.5
+        estilo.paragraph_format.space_after = Pt(6)
+    # Los identificadores de numeración del Word original no coinciden con los de
+    # python-docx. Crear listas propias evita heredar romanos o reinicios ajenos.
+    numeracion = doc.part.numbering_part.element
+    for nombre, formato, marca, sangria in (
+        ("List Bullet", "bullet", "•", 360),
+        ("List Bullet 2", "bullet", "–", 720),
+        ("List Number", "decimal", "%1.", 360),
+    ):
+        aid = max([int(e.get(qn("w:abstractNumId"))) for e in numeracion
+                   if e.tag == qn("w:abstractNum")] + [-1]) + 1
+        abstracta = OxmlElement("w:abstractNum")
+        abstracta.set(qn("w:abstractNumId"), str(aid))
+        _sub(abstracta, "w:multiLevelType", val="singleLevel")
+        nivel = _sub(abstracta, "w:lvl", ilvl="0")
+        _sub(nivel, "w:start", val="1")
+        _sub(nivel, "w:numFmt", val=formato)
+        _sub(nivel, "w:lvlText", val=marca)
+        _sub(nivel, "w:lvlJc", val="left")
+        _sub(_sub(nivel, "w:pPr"), "w:ind", left=str(sangria), hanging="240")
+        _sub(_sub(nivel, "w:rPr"), "w:rFonts", ascii="Calibri", hAnsi="Calibri")
+        numeracion.insert(0, abstracta)
+        numero = numeracion.add_num(aid)
+        props = doc.styles[nombre].element.get_or_add_pPr().get_or_add_numPr()
+        props.get_or_add_ilvl().val = 0
+        props.get_or_add_numId().val = numero.numId
     for nivel, tamano in ((1, 14), (2, 12), (3, 11)):
         estilo = doc.styles["Heading %d" % nivel]
-        estilo.font.name = "Arial"
+        estilo.font.name = "Calibri"
         estilo.font.size = Pt(tamano)
         estilo.font.bold = True
+        estilo.font.italic = False
         estilo.font.color.rgb = RGBColor(0, 0, 0)
         estilo.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.LEFT
         estilo.paragraph_format.line_spacing = 1.5
         estilo.paragraph_format.space_before = Pt(12)
         estilo.paragraph_format.space_after = Pt(6)
+        estilo.paragraph_format.keep_with_next = True
+        estilo.paragraph_format.left_indent = Pt(0)
+        _sub(estilo.element.get_or_add_pPr(), "w:outlineLvl", val=str(nivel - 1))
+
+    rotulo = doc.styles.add_style("Rótulo del informe", WD_STYLE_TYPE.PARAGRAPH)
+    rotulo.base_style = normal
+    rotulo.font.size = Pt(10)
+    rotulo.font.bold = True
+    rotulo.font.color.rgb = RGBColor.from_string("666666")
+    rotulo.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    rotulo.paragraph_format.space_before = Pt(6)
+    rotulo.paragraph_format.space_after = Pt(12)
+    rotulo.paragraph_format.keep_together = True
+    for nombre in ("Rótulo de tabla", "Rótulo de figura"):
+        doc.styles.add_style(nombre, WD_STYLE_TYPE.PARAGRAPH).base_style = rotulo
+    indice = doc.styles.add_style("Índice del informe", WD_STYLE_TYPE.PARAGRAPH)
+    indice.base_style = normal
+    indice.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    indice.paragraph_format.line_spacing = 1.0
+    indice.paragraph_format.space_after = Pt(6)
 
 
 def marco_institucional(doc):
@@ -281,7 +358,7 @@ def marco_institucional(doc):
             campo = _sub(run._r, "w:instrText")
             campo.text = instruccion
             campo.set(qn("xml:space"), "preserve")
-        run.font.name = "Arial"
+        run.font.name = "Calibri"
         run.font.size = Pt(10)
 
     if os.path.exists(FRANJA):
@@ -299,28 +376,31 @@ def convertir():
     with open(ORIGEN, encoding="utf-8", newline="") as f:
         lineas = f.read().replace("\r\n", "\n").split("\n")
 
-    doc = Document()
+    usa_plantilla = os.path.exists(PLANTILLA)
+    doc = Document(PLANTILLA) if usa_plantilla else Document()
     doc.core_properties.title = "TerraSense — Ingeniería conceptual, básica y de detalle"
     doc.core_properties.author = "Álvaro Nicolás Villena Torrejón; Alan Paul Escobar Rojas"
     doc.core_properties.comments = ""
     doc.core_properties.created = doc.core_properties.modified = datetime.now(timezone.utc)
     seccion = doc.sections[0]
-    seccion.orientation = WD_ORIENT.PORTRAIT
-    # Tamaño carta: es el de los dos informes ya entregados.
-    seccion.page_width, seccion.page_height = Cm(21.59), Cm(27.94)
-    seccion.left_margin = seccion.right_margin = Cm(2.0)
-    # El margen superior deja sitio al logotipo y el inferior a la franja roja del pie.
-    seccion.top_margin = Cm(2.5)
-    seccion.bottom_margin = Cm(2.0)
-    seccion.header_distance = Cm(1.0)
-    seccion.footer_distance = Cm(0)
+    if not usa_plantilla:
+        seccion.orientation = WD_ORIENT.PORTRAIT
+        seccion.page_width, seccion.page_height = Cm(21.59), Cm(27.94)
+        seccion.left_margin = seccion.right_margin = Cm(1.5)
+        seccion.top_margin = Cm(3.0)
+        seccion.bottom_margin = Cm(2.0)
+        seccion.header_distance = seccion.footer_distance = Cm(0.7)
     tipografia(doc)
-    marco_institucional(doc)
+    if not usa_plantilla:
+        marco_institucional(doc)
 
     ex = Exportador(doc)
     faltan_figuras = []
     citas = set()
     i = 0
+    if usa_plantilla:
+        # La portada original ya está en el documento y no se reconstruye desde texto.
+        i = next(n for n, linea in enumerate(lineas) if linea.strip() == "### Índice general")
     portada = True
     en_bibliografia = False
 
@@ -334,8 +414,8 @@ def convertir():
         # ------------------------------------------------ encabezados
         if linea.startswith("## "):
             titulo = linea[3:].strip()
-            en_bibliografia = titulo.startswith("XIII.")
-            doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
+            en_bibliografia = "Referencias Bibliográficas" in titulo
+            doc.add_paragraph(style="Cuerpo del informe").add_run().add_break(WD_BREAK.PAGE)
             doc.add_heading(titulo, level=1)
             i += 1
             continue
@@ -349,17 +429,21 @@ def convertir():
             titulo = linea[4:].strip()
             if portada and titulo == "Índice general":
                 portada = False
-                doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
+                doc.add_paragraph(style="Cuerpo del informe").add_run().add_break(WD_BREAK.PAGE)
                 encabezado_indice = doc.add_heading(titulo, level=1)
                 ex.marcar(encabezado_indice, "indice_general")
-                ex.indice_de_word()
+                entradas = [(l.lstrip("# "), 1 if l.startswith("## ") else 2)
+                            for l in lineas[i + 1:]
+                            if (l.startswith("## ") or l.startswith("### "))
+                            and "Índice de " not in l]
+                ex.indice_de_word(entradas=entradas)
                 # El índice del Markdown se omite: lo genera Word con sus números de página.
                 i += 1
                 while i < len(lineas) and not lineas[i].startswith("#"):
                     i += 1
                 continue
             if portada:
-                p = doc.add_paragraph()
+                p = doc.add_paragraph(style="Cuerpo del informe")
                 p.alignment = WD_ALIGN_PARAGRAPH.CENTER
                 r = p.add_run(titulo)
                 r.bold = True
@@ -367,7 +451,17 @@ def convertir():
                 i += 1
                 continue
             if titulo in ("Índice de figuras", "Índice de tablas"):
+                doc.add_paragraph(style="Cuerpo del informe").add_run().add_break(WD_BREAK.PAGE)
                 doc.add_heading(titulo, level=1)
+                entradas = []
+                i += 1
+                while i < len(lineas) and not lineas[i].startswith("#"):
+                    if lineas[i].startswith("- "):
+                        entradas.append((lineas[i][2:], 1))
+                    i += 1
+                estilo = "Rótulo de figura" if titulo.endswith("figuras") else "Rótulo de tabla"
+                ex.indice_de_word(' TOC \\t "%s,1" \\h \\z ' % estilo, entradas)
+                continue
             else:
                 doc.add_heading(titulo, level=2)
             i += 1
@@ -382,9 +476,9 @@ def convertir():
             continue
 
         if ROTULO.match(linea):
-            p = doc.add_paragraph()
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            ex.texto(p, linea.strip(), tam=9)
+            estilo = "Rótulo de tabla" if linea.startswith("**Tabla") else "Rótulo de figura"
+            p = doc.add_paragraph(style=estilo)
+            ex.texto(p, linea.strip(), tam=10)
             i += 1
             continue
 
@@ -409,7 +503,7 @@ def convertir():
         if re.match(r"^\s*\d+\. ", linea):
             m = BIBLIO.match(linea.strip())
             if en_bibliografia and m:
-                p = doc.add_paragraph()
+                p = doc.add_paragraph(style="Cuerpo del informe")
                 ex.marcar(p, "ref_%s" % m.group(1))
                 ex.texto(p, "%s. " % m.group(1), negrita=True)
                 ex.texto(p, m.group(2))
@@ -421,7 +515,7 @@ def convertir():
             continue
 
         # ------------------------------------------------ párrafo
-        p = doc.add_paragraph()
+        p = doc.add_paragraph(style="Cuerpo del informe")
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER if portada else WD_ALIGN_PARAGRAPH.JUSTIFY
         ex.texto(p, linea.strip())
         i += 1
@@ -439,6 +533,7 @@ $ErrorActionPreference = "Stop"
 $word = New-Object -ComObject Word.Application
 $word.Visible = $false
 $word.DisplayAlerts = 0
+$word.Options.PrintBackgrounds = $true
 $doc = $null
 try {
     $doc = $word.Documents.Open($Origen, $false, $false, $false)
@@ -486,9 +581,10 @@ try {
 
 def paginar_word(ruta, pdf_revision=None):
     """Actualiza el índice general y pagina los de figuras y tablas con Microsoft Word."""
-    import tempfile
-    with tempfile.TemporaryDirectory(prefix="terrasense-word-") as carpeta:
-        guion = Path(carpeta) / "paginar.ps1"
+    from uuid import uuid4
+    # Un archivo temporal en el proyecto evita las ACL especiales de mkdtemp en Windows.
+    guion = Path(RAIZ) / (".paginar-" + uuid4().hex + ".ps1")
+    try:
         # PowerShell 5.1 lee como ANSI un guion sin BOM y estropearía las comillas de los rótulos.
         guion.write_text(PAGINAR_WORD, encoding="utf-8-sig")
         resultado = subprocess.run(
@@ -499,6 +595,8 @@ def paginar_word(ruta, pdf_revision=None):
         if resultado.returncode != 0:
             raise RuntimeError("Microsoft Word no pudo paginar el informe: " + salida.strip()[-400:])
         print(salida.strip(), flush=True)
+    finally:
+        guion.unlink(missing_ok=True)
 
 
 def paginar(ruta, pdf_revision=None):
@@ -677,6 +775,8 @@ with tempfile.TemporaryDirectory(prefix="terrasense-word-") as trabajo:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--desde-markdown", action="store_true",
+                        help="Reconstruye el Word desde Markdown y sustituye las correcciones manuales")
     parser.add_argument("--paginar", action="store_true", help="Actualiza el índice y las páginas con LibreOffice instalado")
     parser.add_argument("--pdf-revision", help="Ruta opcional de una copia PDF para revisar la paginación")
     args = parser.parse_args()
@@ -684,6 +784,17 @@ def main():
         sys.stdout.reconfigure(encoding="utf-8")
     except (AttributeError, OSError):
         pass
+    if os.path.exists(DESTINO) and not args.desde_markdown:
+        if args.paginar:
+            try:
+                paginar(DESTINO, args.pdf_revision)
+            except (RuntimeError, subprocess.SubprocessError, OSError) as e:
+                print("No se pudo paginar el Word vigente: %s" % e)
+                return 1
+        else:
+            print("Word vigente conservado con sus correcciones manuales. "
+                  "Use --paginar para actualizar campos o --desde-markdown para reconstruirlo.")
+        return 0
     citas, faltan = convertir()
     with open(ORIGEN, encoding="utf-8") as f:
         texto = f.read()
