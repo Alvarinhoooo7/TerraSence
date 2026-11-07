@@ -562,6 +562,86 @@ export const waterSensitive = (row: string, values: string, ky: number, period: 
   };
 };
 
+/** FAO 56, tablas 12 y 22: coeficiente de cultivo medio (Kc mid) y fracción de agotamiento sin estrés (p). */
+export const fao56Water = (row: string, kcMid: number, depletionP: number, period: SpeciesWaterCriterion['period']): SpeciesWaterCriterion => {
+  const es = period === 'flowering' ? 'floración y cuaja' : 'desarrollo vegetativo';
+  const en = period === 'flowering' ? 'flowering and fruit set' : 'vegetative development';
+  return {
+    kind: 'water_sensitivity', state: 'enabled', stages: [period === 'flowering' ? 'floracion' : 'vegetativo'], ky: depletionP, period,
+    note: `Durante ${es} este cultivo presenta máxima demanda hídrica: FAO 56 documenta un coeficiente de cultivo medio Kc de ${decimal(kcMid, 'es')} y una fracción de agotamiento sin estrés hídrico p de ${decimal(depletionP, 'es')}.`,
+    noteEn: `During ${en} this crop has its peak water demand: FAO 56 documents a mid-season crop coefficient Kc of ${decimal(kcMid, 'en')} and a no-stress soil water depletion fraction p of ${decimal(depletionP, 'en')}.`,
+    limitations: 'La fracción p de FAO 56 indica la proporción del agua disponible que puede agotarse antes de reducir la transpiración, y depende de la capacidad de campo y del punto de marchitez permanente del suelo; la humedad volumétrica puntual de la sonda sin curva de retención por textura no permite calcular ese agotamiento ni una lámina de riego.',
+    limitationsEn: 'The FAO 56 fraction p indicates the share of available soil water that can be depleted before transpiration is reduced, and depends on field capacity and permanent wilting point; a single volumetric moisture reading from the probe without a texture retention curve cannot compute that depletion or an irrigation depth.',
+    evidence: [{
+      institution: 'FAO',
+      title: 'Crop evapotranspiration — Guidelines for computing crop water requirements (FAO Irrigation and Drainage Paper 56, R. G. Allen, L. S. Pereira, D. Raes y M. Smith, 1998)',
+      url: 'https://www.fao.org/4/x0490e/x0490e0b.htm',
+      section: 'Capítulo 6, tabla 12 «Single (time-averaged) crop coefficients, Kc» y capítulo 8, tabla 22 «Soil water depletion fraction for no stress, p»',
+      consultedAt: '2026-10-18',
+      originalValue: `Table 12 & Table 22, ${row}: Kc mid = ${kcMid}; soil water depletion fraction for no stress p = ${depletionP}.`,
+    }],
+  };
+};
+
+/** Analogía declarada para salinidad (FAO 29). */
+export const analogSalt = (
+  fromSpeciesId: string,
+  targetEs: string,
+  targetEn: string,
+  originEs: string,
+  originEn: string,
+  reasonEs: string,
+  reasonEn: string,
+  row: string,
+  thresholdEce: number | null,
+  rating: SpeciesSalinityCriterion['rating'],
+): SpeciesSalinityCriterion => {
+  const base = salt(row, thresholdEce, rating);
+  return analog(fromSpeciesId, {
+    ...base,
+    note: `Por analogía con ${originEs.toLowerCase()}: ${base.note}`,
+    noteEn: `By analogy with ${originEn.toLowerCase()}: ${base.noteEn}`,
+    limitations: `Sin fuente propia para ${targetEs}: se usa el criterio documentado para ${originEs} (${originEn}), porque ${reasonEs}. ${base.limitations}`,
+    limitationsEn: `No source of its own for ${targetEn}: the documented criterion for ${originEn} is used, because ${reasonEn}. ${base.limitationsEn}`,
+  });
+};
+
+/** Analogía declarada para sensibilidad hídrica (FAO 33/40 o FAO 56). */
+export const analogWater = (
+  fromSpeciesId: string,
+  targetEs: string,
+  targetEn: string,
+  originEs: string,
+  originEn: string,
+  reasonEs: string,
+  reasonEn: string,
+  base: SpeciesWaterCriterion,
+): SpeciesWaterCriterion => analog(fromSpeciesId, {
+  ...base,
+  note: `Por analogía con ${originEs.toLowerCase()}: ${base.note}`,
+  noteEn: `By analogy with ${originEn.toLowerCase()}: ${base.noteEn}`,
+  limitations: `Sin fuente propia para ${targetEs}: se usa el criterio documentado para ${originEs} (${originEn}), porque ${reasonEs}. ${base.limitations}`,
+  limitationsEn: `No source of its own for ${targetEn}: the documented criterion for ${originEn} is used, because ${reasonEn}. ${base.limitationsEn}`,
+});
+
+/** Analogía declarada para pH del suelo. */
+export const analogPh = (
+  fromSpeciesId: string,
+  targetEs: string,
+  targetEn: string,
+  originEs: string,
+  originEn: string,
+  reasonEs: string,
+  reasonEn: string,
+  base: SpeciesPhCriterion,
+): SpeciesPhCriterion => analog(fromSpeciesId, {
+  ...base,
+  note: `Por analogía con ${originEs.toLowerCase()}: ${base.note}`,
+  noteEn: `By analogy with ${originEn.toLowerCase()}: ${base.noteEn}`,
+  limitations: `Sin fuente propia para ${targetEs}: se usa el criterio documentado para ${originEs} (${originEn}), porque ${reasonEs}. ${base.limitations}`,
+  limitationsEn: `No source of its own for ${targetEn}: the documented criterion for ${originEn} is used, because ${reasonEn}. ${base.limitationsEn}`,
+});
+
 // --- Lluvia cerca de la cosecha en hortalizas de fruto ------------------------------------
 
 /** University of Maryland Extension: rajadura por lluvia («rain checking») en varias hortalizas de fruto. */

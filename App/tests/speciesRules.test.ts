@@ -169,8 +169,8 @@ test('ES6/T45: los criterios de especie se agregan al final sin alterar las aler
       }
     }
   }
-  // Una especie sin perfil o desconocida no agrega nada.
-  for (const id of ['sp.palto', 'sp.no-existe']) {
+  // Un ID sin perfil o desconocido no agrega nada.
+  for (const id of ['sp.no-existe']) {
     assert.deepEqual(evaluateReadingForStage(raw, 'vegetativo', 'es', clock, id).alerts, evaluateReadingForStage(raw, 'vegetativo', 'es', clock, null).alerts);
   }
 });

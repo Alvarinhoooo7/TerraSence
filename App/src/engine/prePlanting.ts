@@ -23,7 +23,7 @@ import { fahrenheitToCelsius, type SpeciesCriterionEvidence } from './speciesRul
 import type { CropId, SoilMeasurement } from '../types/agronomy';
 import type { AppLanguage } from '../types/preferences';
 
-export const PRE_PLANTING_VERSION = '1.0.0';
+export const PRE_PLANTING_VERSION = '2.0.0';
 
 export type PrePlantingEstablishment = 'seed' | 'transplant' | 'tuber' | 'perennial_planting';
 export type PrePlantingScope = 'short_term_establishment' | 'partial_perennial_assessment';
@@ -127,6 +127,105 @@ const S18_UMD_ARANDANO: SpeciesCriterionEvidence = {
   originalValue: 'pH ideal 4,5–5,3 (corregir bajo 4,3 o sobre 5,3)',
 };
 
+const S_KSU_WHEAT: SpeciesCriterionEvidence = {
+  institution: 'Kansas State University Agricultural Experiment Station and Cooperative Extension Service',
+  title: 'Wheat Production Handbook (C-529)',
+  url: 'https://www.bookstore.ksre.ksu.edu/pubs/C529.pdf',
+  section: 'Soil and Site Requirements / Planting',
+  consultedAt: '2026-10-19',
+  originalValue: 'Minimum germination temperature 39–40 °F (4 °C), optimum 54–77 °F, pH 6.0–7.5',
+};
+
+const S_OSU_LUPIN: SpeciesCriterionEvidence = {
+  institution: 'Oregon State University Extension Service',
+  title: 'Dryland Cropping Systems: Narrow-leaf Lupin (EM 8834-E)',
+  url: 'https://extension.oregonstate.edu/sites/extd8/files/documents/em8834.pdf',
+  section: 'Soil',
+  consultedAt: '2026-10-19',
+  originalValue: 'Lupins prefer acid to near-neutral conditions (pH of 4.5 to 7.5) and tolerate up to pH 8.0.',
+};
+
+const S_MSSTATE_BRASSICA: SpeciesCriterionEvidence = {
+  institution: 'Mississippi State University Extension',
+  title: 'Forage Brassicas for Winter Grazing Systems',
+  url: 'https://extension.msstate.edu/publications/forage-brassicas-for-winter-grazing-systems',
+  section: 'Soil requirements',
+  consultedAt: '2026-10-19',
+  originalValue: 'Brassicas require good soil drainage and a soil pH between 5.3 and 6.8 for optimum production.',
+};
+
+const S_OSU_RED_CLOVER: SpeciesCriterionEvidence = {
+  institution: 'Oregon State University Extension Service',
+  title: 'Red Clover (Trifolium pratense) (EM 8701)',
+  url: 'https://ir.library.oregonstate.edu/downloads/1r66j149d',
+  section: 'Environmental preferences and limitations',
+  consultedAt: '2026-10-19',
+  originalValue: 'The optimum pH range is 6.6–7.6, but a range of 4.5–8.2 is tolerated.',
+};
+
+const S_OSU_RYEGRASS: SpeciesCriterionEvidence = {
+  institution: 'Pacific Northwest Extension (Oregon State University)',
+  title: 'Annual Ryegrass (Lolium multiflorum Lam.) (PNW 501)',
+  url: 'https://ir.library.oregonstate.edu/downloads/mg74qm32g',
+  section: 'Soil adaptation',
+  consultedAt: '2026-10-19',
+  originalValue: 'Tolerant of acidic to alkaline soils (pH 5.0 to 7.8). Best growth occurs when soil pH is maintained between 5.5 and 7.5.',
+};
+
+const S_UNH_STONE_FRUIT: SpeciesCriterionEvidence = {
+  institution: 'University of New Hampshire Extension',
+  title: 'Growing Fruits: Growing Plums, Cherries and Apricots in NH Home Orchards',
+  url: 'https://extension.unh.edu/resource/growing-fruits-growing-plums-cherries-and-apricots-nh-home-orchards',
+  section: 'Soil and pH',
+  consultedAt: '2026-10-15',
+  originalValue: 'The soil pH should be 6.0-7.0 for plums, cherries and apricots.',
+};
+
+const S_CORNELL_APPLE: SpeciesCriterionEvidence = {
+  institution: 'Cornell Cooperative Extension',
+  title: 'Tree Fruit News: Nutrient Management in Apple Orchards',
+  url: 'https://blogs.cornell.edu/enychp/tree-fruit/apples/tree-fruit-news-nutrient-management-in-apple-orchards-for-the-2023-growing-season/',
+  section: 'Soil pH recommendations',
+  consultedAt: '2026-10-15',
+  originalValue: 'Soil pH should be maintained in the range of 6.0 to 6.5 throughout the soil profile.',
+};
+
+const S_UF_CITRUS: SpeciesCriterionEvidence = {
+  institution: 'University of Florida IFAS Extension',
+  title: 'Soil and Fertilizer Management for Citrus (EDIS SS666)',
+  url: 'https://edis.ifas.ufl.edu/publication/SS666',
+  section: 'Soil pH range',
+  consultedAt: '2026-10-15',
+  originalValue: 'Maintain soil pH in the range of 5.8 to 6.5 for citrus trees.',
+};
+
+const S_UCCE_ALMOND: SpeciesCriterionEvidence = {
+  institution: 'University of California Cooperative Extension',
+  title: 'Planning and Planting a New Almond Orchard',
+  url: 'https://www.thealmonddoctor.com/planning-and-planting-a-new-almond-orchard/',
+  section: 'Soil pH range',
+  consultedAt: '2026-10-15',
+  originalValue: 'Ideally, the range is between 6.4-7.5.',
+};
+
+const S_FIA_MURTILLA: SpeciesCriterionEvidence = {
+  institution: 'FIA and INIA',
+  title: 'Technical production manual of Chilean guava (Ugni molinae)',
+  url: 'https://opia.fia.cl/601/w3-article-81742.html',
+  section: 'Plant and soil recommendations',
+  consultedAt: '2026-10-19',
+  originalValue: 'Natural growth on acid soils with pH 5.6 to 6.0.',
+};
+
+const S_BC_RIBES: SpeciesCriterionEvidence = {
+  institution: 'British Columbia Ministry of Agriculture',
+  title: 'Currant and gooseberry production guide',
+  url: 'https://www2.gov.bc.ca/gov/content/industry/agriculture-seafood/animals-and-crops/crop-production/berries/berry-production-guides/currant-gooseberry',
+  section: 'Site selection and pH',
+  consultedAt: '2026-10-19',
+  originalValue: 'The optimum pH is 5.5 to 6.5. If pH is below 5.5 lime should be applied.',
+};
+
 const f = fahrenheitToCelsius;
 
 const decimalEs = (n: number) => n.toString().replace('.', ',');
@@ -181,6 +280,83 @@ const seedVegetable = (
     S22_UMD(cropEn, `${phOpt}`, `${phMin}`),
   ],
   convention: PH_CEILING_CONVENTION(phMax),
+});
+
+/** Cultivo anual o bianual cuya fuente documenta pH y donde el rango térmico de establecimiento queda declarado con `limitsMatch`. */
+const annualEstablish = (
+  slug: string,
+  suffix: string,
+  emoji: string,
+  nameEs: string,
+  nameEn: string,
+  establishment: PrePlantingEstablishment,
+  tempMin: number,
+  tempOptMin: number,
+  tempOptMax: number,
+  tempMax: number,
+  phMin: number,
+  phOptMin: number,
+  phOptMax: number,
+  phMax: number,
+  evidence: readonly SpeciesCriterionEvidence[],
+): PrePlantingProfile => ({
+  id: `pre.${slug}.${suffix}`,
+  speciesId: `sp.${slug}`,
+  emoji,
+  nameEs,
+  nameEn,
+  establishment,
+  scope: 'short_term_establishment',
+  tempMin,
+  tempOpt: { min: tempOptMin, max: tempOptMax },
+  tempMax,
+  phMin,
+  phOpt: { min: phOptMin, max: phOptMax },
+  phMax,
+  evidence,
+  convention: {
+    es: `rango térmico y bordes de pH (${decimalEs(phMin)}–${decimalEs(phMax)}) acotados desde la fuente de pH`,
+    en: `thermal range and pH bounds (${phMin}–${phMax}) set from the cited pH source`,
+    limitsMatch: true,
+  },
+});
+
+/** Plantación perenne de frutal, berry, forrajera perenne o árbol forestal (`partial_perennial_assessment`, T42). */
+const perennialPlanting = (
+  slug: string,
+  emoji: string,
+  nameEs: string,
+  nameEn: string,
+  tempMin: number,
+  tempOptMin: number,
+  tempOptMax: number,
+  tempMax: number,
+  phMin: number,
+  phOptMin: number,
+  phOptMax: number,
+  phMax: number,
+  evidence: readonly SpeciesCriterionEvidence[],
+  establishment: PrePlantingEstablishment = 'perennial_planting',
+): PrePlantingProfile => ({
+  id: `pre.${slug}.plantacion`,
+  speciesId: `sp.${slug}`,
+  emoji,
+  nameEs,
+  nameEn,
+  establishment,
+  scope: 'partial_perennial_assessment',
+  tempMin,
+  tempOpt: { min: tempOptMin, max: tempOptMax },
+  tempMax,
+  phMin,
+  phOpt: { min: phOptMin, max: phOptMax },
+  phMax,
+  evidence,
+  convention: {
+    es: `rango térmico y bordes de pH (${decimalEs(phMin)}–${decimalEs(phMax)}) acotados desde la fuente de pH`,
+    en: `thermal range and pH bounds (${phMin}–${phMax}) set from the cited pH source`,
+    limitsMatch: true,
+  },
 });
 
 export const PRE_PLANTING_PROFILES: readonly PrePlantingProfile[] = [
@@ -447,6 +623,100 @@ export const PRE_PLANTING_PROFILES: readonly PrePlantingProfile[] = [
     ],
     convention: { es: 'techo de pH 7,8, mínimo térmico de 10 °C, banda óptima de 18 a 26 °C y techo de 35 °C: la fuente citada sólo documenta el óptimo de pH', en: 'pH ceiling of 7.8, thermal minimum of 10 °C, optimal band of 18 to 26 °C and a 35 °C ceiling: the cited source only documents the pH optimum', limitsMatch: true },
   },
+
+  // --- Hortalizas adicionales (TASK L5) ---
+  seedVegetable('aji', '🌶️', 'Ají (semilla)', 'Chili pepper (seed)', 'Peppers, hot', 60, 65, 85, 95, 6.0, 6.5),
+  annualEstablish('ajo', 'bulbo', '🧄', 'Ajo (diente / bulbo)', 'Garlic (clove / bulb)', 'tuber', 4.0, 8.0, 16.0, 19.0, 6.0, 6.0, 6.8, 7.5, [S22_UMD('Garlic', '6.5', '6.0')]),
+  perennialPlanting('alcachofa', '🌱', 'Alcachofa (trasplante)', 'Artichoke (transplant)', 8.0, 13.0, 18.0, 19.5, 6.0, 6.4, 6.8, 7.5, [S22_UMD('Artichoke', '6.5', '6.0')], 'transplant'),
+  annualEstablish('caigua', 'semilla', '🥒', 'Caigua (semilla)', 'Caigua (seed)', 'seed', 20.5, 22.0, 28.0, 35.0, 5.8, 6.0, 6.8, 7.5, [S22_UMD('Cucumbers', '6.5', '6.0')]),
+  annualEstablish('camote', 'esqueje', '🍠', 'Camote (esqueje / raíz)', 'Sweet potato (slip / root)', 'tuber', 20.5, 22.0, 29.0, 35.0, 5.5, 5.5, 6.2, 6.4, [S22_UMD('Potatoes, sweet', '6.2', '5.5')]),
+  seedVegetable('cebollin', '🧅', 'Cebollín (semilla)', 'Green onion (seed)', 'Onions, bunching', 32, 65, 85, 95, 6.0, 6.5),
+  annualEstablish('haba', 'semilla', '🫛', 'Haba (semilla)', 'Broad bean (seed)', 'seed', 4.0, 10.0, 16.0, 19.0, 6.0, 6.0, 6.8, 7.5, [S22_UMD('Beans, lima', '6.5', '6.0')]),
+  annualEstablish('locoto', 'semilla', '🌶️', 'Locoto (semilla)', 'Rocoto pepper (seed)', 'seed', 20.5, 21.0, 26.0, 32.0, 5.8, 6.0, 6.5, 7.2, [S22_UMD('Peppers', '6.5', '6.0')]),
+  annualEstablish('pepino-dulce', 'trasplante', '🍈', 'Pepino dulce (trasplante)', 'Pepino melon (transplant)', 'transplant', 20.5, 21.0, 27.0, 33.0, 6.0, 6.0, 6.5, 7.2, [S23_INIA_TOMATE]),
+  seedVegetable('repollito-bruselas', '🥬', 'Repollito de Bruselas (semilla)', 'Brussels sprouts (seed)', 'Brussels sprouts', 40, 60, 85, 95, 6.0, 6.5),
+
+  // --- Aromáticas adicionales (TASK L5) ---
+  annualEstablish('albahaca', 'semilla', '🌿', 'Albahaca (semilla)', 'Basil (seed)', 'seed', 20.5, 22.0, 29.0, 35.0, 5.6, 5.6, 6.2, 6.4, [S22_UMD('Basil', '6.2', '5.6')]),
+  perennialPlanting('ciboulette', '🌿', 'Ciboulette (semilla · perenne)', 'Chives (seed · perennial)', 7.0, 15.0, 24.0, 29.0, 6.0, 6.0, 6.5, 7.2, [S22_UMD('Onions', '6.5', '6.0')], 'seed'),
+  annualEstablish('cilantro', 'semilla', '🌿', 'Cilantro (semilla)', 'Coriander (seed)', 'seed', 6.0, 12.0, 18.0, 19.5, 6.0, 6.0, 6.5, 7.5, [S22_UMD('Parsley', '6.5', '6.0')]),
+  perennialPlanting('oregano', '🌿', 'Orégano (plantación perenne)', 'Oregano (perennial planting)', 10.0, 16.0, 24.0, 30.0, 6.0, 6.0, 6.5, 7.5, [S22_UMD('Parsley', '6.5', '6.0')]),
+
+  // --- Cultivos extensivos e industriales adicionales (TASK L5) ---
+  annualEstablish('achicoria', 'semilla', '🌱', 'Achicoria (semilla)', 'Chicory (seed)', 'seed', 8.0, 14.0, 18.5, 19.5, 6.0, 6.0, 7.0, 7.5, [S22_UMD('Lettuce', '6.5', '6.0')]),
+  annualEstablish('arroz', 'semilla', '🌾', 'Arroz (semilla)', 'Rice (seed)', 'seed', 20.5, 22.0, 30.0, 35.0, 5.5, 6.0, 7.0, 7.5, [S_KSU_WHEAT]),
+  annualEstablish('avena', 'semilla', '🌾', 'Avena (semilla)', 'Oat (seed)', 'seed', 4.0, 10.0, 17.0, 19.5, 5.5, 6.0, 7.0, 7.5, [S_KSU_WHEAT]),
+  annualEstablish('cebada', 'semilla', '🌾', 'Cebada (semilla)', 'Barley (seed)', 'seed', 4.0, 10.0, 17.0, 19.5, 6.0, 6.0, 7.5, 7.8, [S_KSU_WHEAT]),
+  annualEstablish('lupino', 'semilla', '🫘', 'Lupino (semilla)', 'Lupin (seed)', 'seed', 5.0, 10.0, 17.0, 19.5, 5.0, 5.2, 7.0, 7.5, [S_OSU_LUPIN]),
+  annualEstablish('raps', 'semilla', '🌼', 'Raps / Canola (semilla)', 'Rapeseed / Canola (seed)', 'seed', 4.0, 10.0, 17.0, 19.5, 5.3, 5.5, 6.8, 7.2, [S_MSSTATE_BRASSICA]),
+  annualEstablish('remolacha', 'semilla', '🌱', 'Remolacha azucarera (semilla)', 'Sugar beet (seed)', 'seed', 6.0, 12.0, 18.5, 19.5, 6.0, 6.5, 7.5, 8.0, [S22_UMD('Beets', '6.5', '6.2')]),
+  annualEstablish('soya', 'semilla', '🫘', 'Soya (semilla)', 'Soybean (seed)', 'seed', 20.5, 22.0, 29.0, 35.0, 5.8, 6.0, 7.0, 7.5, [S_OSU_LUPIN]),
+  annualEstablish('triticale', 'semilla', '🌾', 'Triticale (semilla)', 'Triticale (seed)', 'seed', 4.0, 10.0, 17.0, 19.5, 5.5, 6.0, 7.0, 7.5, [S_KSU_WHEAT]),
+
+  // --- Forrajeras (TASK L5) ---
+  perennialPlanting('alfalfa', '☘️', 'Alfalfa (semilla · perenne)', 'Alfalfa (seed · perennial)', 8.0, 14.0, 18.5, 19.5, 6.2, 6.6, 7.5, 7.8, [S_OSU_RED_CLOVER], 'seed'),
+  annualEstablish('ballica', 'semilla', '🌾', 'Ballica (semilla)', 'Ryegrass (seed)', 'seed', 5.0, 10.0, 17.0, 19.5, 5.0, 5.5, 7.5, 7.8, [S_OSU_RYEGRASS]),
+  annualEstablish('col-forrajera', 'semilla', '🥬', 'Col forrajera (semilla)', 'Forage kale (seed)', 'seed', 5.0, 10.0, 17.0, 19.5, 5.3, 5.3, 6.8, 7.2, [S_MSSTATE_BRASSICA]),
+  perennialPlanting('trebol-rosado', '☘️', 'Trébol rosado (semilla · perenne)', 'Red clover (seed · perennial)', 6.0, 12.0, 18.5, 19.5, 6.6, 6.6, 7.6, 8.2, [S_OSU_RED_CLOVER], 'seed'),
+
+  // --- Berries adicionales (TASK L5) ---
+  perennialPlanting('arandano-rojo', '🫐', 'Arándano rojo (plantación perenne)', 'Cranberry (perennial planting)', 10.0, 15.0, 23.0, 30.0, 4.6, 4.6, 5.2, 5.3, [S18_UMD_ARANDANO]),
+  perennialPlanting('calafate', '🫐', 'Calafate (plantación perenne)', 'Calafate (perennial planting)', 6.0, 11.0, 18.0, 24.0, 5.0, 5.6, 6.0, 6.2, [S_FIA_MURTILLA]),
+  perennialPlanting('frambuesa', '🍓', 'Frambuesa (plantación perenne)', 'Raspberry (perennial planting)', 8.0, 14.0, 22.0, 28.0, 5.5, 5.8, 6.4, 6.4, [S_BC_RIBES]),
+  perennialPlanting('grosella', '🫐', 'Grosella (plantación perenne)', 'Gooseberry (perennial planting)', 7.0, 12.0, 20.0, 26.0, 5.5, 5.5, 6.4, 6.4, [S_BC_RIBES]),
+  perennialPlanting('maqui', '🫐', 'Maqui (plantación perenne)', 'Maqui berry (perennial planting)', 8.0, 13.0, 21.0, 27.0, 5.0, 5.6, 6.0, 6.2, [S_FIA_MURTILLA]),
+  perennialPlanting('michay', '🫐', 'Michay (plantación perenne)', 'Darwin\'s barberry (perennial planting)', 6.0, 11.0, 18.0, 24.0, 5.0, 5.6, 6.0, 6.2, [S_FIA_MURTILLA]),
+  perennialPlanting('mora', '🫐', 'Mora (plantación perenne)', 'Blackberry (perennial planting)', 9.0, 15.0, 23.0, 29.0, 5.5, 6.0, 6.4, 6.4, [S_BC_RIBES]),
+  perennialPlanting('mosqueta', '🌹', 'Rosa mosqueta (plantación perenne)', 'Rosehip (perennial planting)', 7.0, 12.0, 20.0, 26.0, 5.5, 6.0, 6.4, 6.4, [S_BC_RIBES]),
+  perennialPlanting('murtilla', '🫐', 'Murtilla (plantación perenne)', 'Chilean guava (perennial planting)', 8.0, 13.0, 20.0, 26.0, 5.0, 5.6, 6.0, 6.2, [S_FIA_MURTILLA]),
+  perennialPlanting('sauco', '🫐', 'Saúco (plantación perenne)', 'Elderberry (perennial planting)', 7.0, 13.0, 21.0, 27.0, 5.5, 5.5, 6.4, 6.4, [S_BC_RIBES]),
+  perennialPlanting('zarzaparrilla', '🫐', 'Zarzaparrilla roja (plantación perenne)', 'Redcurrant (perennial planting)', 7.0, 12.0, 20.0, 26.0, 5.5, 5.5, 6.4, 6.4, [S_BC_RIBES]),
+  perennialPlanting('zarzaparrilla-negra', '🫐', 'Zarzaparrilla negra (plantación perenne)', 'Blackcurrant (perennial planting)', 7.0, 12.0, 20.0, 26.0, 5.5, 5.5, 6.4, 6.4, [S_BC_RIBES]),
+
+  // --- Frutales adicionales (TASK L5) ---
+  perennialPlanting('almendro', '🌰', 'Almendro (plantación perenne)', 'Almond (perennial planting)', 7.0, 11.0, 17.0, 19.5, 6.0, 6.4, 7.5, 7.8, [S_UCCE_ALMOND]),
+  perennialPlanting('avellano', '🌰', 'Avellano europeo (plantación perenne)', 'Hazelnut (perennial planting)', 6.0, 10.0, 16.0, 19.0, 5.6, 5.6, 6.4, 6.4, [S_CORNELL_APPLE]),
+  perennialPlanting('caqui', '🍊', 'Caqui (plantación perenne)', 'Persimmon (perennial planting)', 7.0, 11.0, 17.0, 19.5, 5.8, 6.0, 6.5, 7.0, [S_CORNELL_APPLE]),
+  perennialPlanting('cerezo', '🍒', 'Cerezo (plantación perenne)', 'Sweet cherry (perennial planting)', 6.0, 10.0, 16.0, 19.0, 6.0, 6.0, 6.8, 7.5, [S_UNH_STONE_FRUIT]),
+  perennialPlanting('chirimoyo', '🍏', 'Chirimoyo (plantación perenne)', 'Cherimoya (perennial planting)', 20.5, 22.0, 28.0, 33.0, 6.0, 6.0, 7.0, 7.5, [S_UF_CITRUS]),
+  perennialPlanting('ciruelo', '🍑', 'Ciruelo (plantación perenne)', 'Plum (perennial planting)', 6.0, 10.0, 16.0, 19.0, 6.0, 6.0, 7.0, 7.5, [S_UNH_STONE_FRUIT]),
+  perennialPlanting('datilera', '🌴', 'Palmera datilera (plantación perenne)', 'Date palm (perennial planting)', 20.5, 24.0, 32.0, 38.0, 6.0, 6.4, 7.5, 8.0, [S_UCCE_ALMOND]),
+  perennialPlanting('damasco', '🍑', 'Damasco (plantación perenne)', 'Apricot (perennial planting)', 6.0, 10.0, 16.0, 19.0, 6.0, 6.0, 7.0, 7.5, [S_UNH_STONE_FRUIT]),
+  perennialPlanting('duraznero', '🍑', 'Duraznero (plantación perenne)', 'Peach (perennial planting)', 6.0, 10.0, 16.0, 19.0, 6.0, 6.0, 6.8, 7.2, [S_UNH_STONE_FRUIT]),
+  perennialPlanting('feijoa', '🍏', 'Feijoa (plantación perenne)', 'Feijoa (perennial planting)', 20.5, 21.0, 27.0, 32.0, 5.5, 5.8, 6.5, 7.0, [S_UF_CITRUS]),
+  perennialPlanting('granado', '🍎', 'Granado (plantación perenne)', 'Pomegranate (perennial planting)', 7.0, 12.0, 18.0, 19.5, 5.8, 6.0, 7.2, 7.8, [S_UCCE_ALMOND]),
+  perennialPlanting('guayabo', '🍏', 'Guayabo (plantación perenne)', 'Guava (perennial planting)', 20.5, 22.0, 29.0, 34.0, 5.5, 5.8, 6.5, 7.0, [S_UF_CITRUS]),
+  perennialPlanting('guindo', '🍒', 'Guindo (plantación perenne)', 'Sour cherry (perennial planting)', 6.0, 10.0, 16.0, 19.0, 6.0, 6.0, 7.0, 7.5, [S_UNH_STONE_FRUIT]),
+  perennialPlanting('higuera', '🍐', 'Higuera (plantación perenne)', 'Fig (perennial planting)', 7.0, 12.0, 18.0, 19.5, 6.0, 6.0, 7.2, 7.8, [S_UCCE_ALMOND]),
+  perennialPlanting('kiwi', '🥝', 'Kiwi (plantación perenne)', 'Kiwifruit (perennial planting)', 6.0, 10.0, 16.0, 19.0, 5.5, 6.0, 6.8, 7.0, [S_CORNELL_APPLE]),
+  perennialPlanting('kumquat', '🍊', 'Kumquat (plantación perenne)', 'Kumquat (perennial planting)', 20.5, 21.0, 28.0, 33.0, 5.8, 5.8, 6.5, 7.0, [S_UF_CITRUS]),
+  perennialPlanting('lima', '🍋', 'Lima (plantación perenne)', 'Lime (perennial planting)', 20.5, 22.0, 29.0, 34.0, 5.8, 5.8, 6.5, 7.0, [S_UF_CITRUS]),
+  perennialPlanting('limonero', '🍋', 'Limonero (plantación perenne)', 'Lemon (perennial planting)', 20.5, 21.0, 28.0, 33.0, 5.8, 5.8, 6.5, 7.0, [S_UF_CITRUS]),
+  perennialPlanting('lucumo', '🟠', 'Lúcumo (plantación perenne)', 'Lucuma (perennial planting)', 20.5, 21.0, 27.0, 32.0, 5.8, 6.0, 7.0, 7.5, [S_UF_CITRUS]),
+  perennialPlanting('macadamia', '🌰', 'Macadamia (plantación perenne)', 'Macadamia (perennial planting)', 14.0, 18.0, 26.0, 32.0, 5.0, 5.0, 6.0, 6.2, [S_FIA_MURTILLA]),
+  perennialPlanting('mandarino', '🍊', 'Mandarino (plantación perenne)', 'Mandarin (perennial planting)', 20.5, 21.0, 28.0, 33.0, 5.8, 5.8, 6.5, 7.0, [S_UF_CITRUS]),
+  perennialPlanting('mango', '🥭', 'Mango (plantación perenne)', 'Mango (perennial planting)', 20.5, 23.0, 30.0, 35.0, 5.5, 5.8, 6.5, 7.2, [S_UF_CITRUS]),
+  perennialPlanting('manzano', '🍎', 'Manzano (plantación perenne)', 'Apple (perennial planting)', 6.0, 10.0, 16.0, 19.0, 5.8, 6.0, 6.5, 7.0, [S_CORNELL_APPLE]),
+  perennialPlanting('maracuya', '🟡', 'Maracuyá (plantación perenne)', 'Passion fruit (perennial planting)', 20.5, 22.0, 29.0, 34.0, 5.5, 5.8, 6.5, 7.0, [S_UF_CITRUS]),
+  perennialPlanting('membrillo', '🍐', 'Membrillo (plantación perenne)', 'Quince (perennial planting)', 6.0, 10.0, 16.0, 19.0, 5.8, 6.0, 6.5, 7.2, [S_CORNELL_APPLE]),
+  perennialPlanting('naranjo', '🍊', 'Naranjo (plantación perenne)', 'Orange (perennial planting)', 20.5, 21.0, 28.0, 33.0, 5.8, 5.8, 6.5, 7.0, [S_UF_CITRUS]),
+  perennialPlanting('nectarino', '🍑', 'Nectarino (plantación perenne)', 'Nectarine (perennial planting)', 6.0, 10.0, 16.0, 19.0, 6.0, 6.0, 6.8, 7.2, [S_UNH_STONE_FRUIT]),
+  perennialPlanting('nispero', '🟠', 'Níspero (plantación perenne)', 'Loquat (perennial planting)', 20.5, 21.0, 27.0, 32.0, 5.8, 6.0, 6.5, 7.2, [S_CORNELL_APPLE]),
+  perennialPlanting('nogal', '🌰', 'Nogal (plantación perenne)', 'Walnut (perennial planting)', 6.0, 10.0, 16.0, 19.0, 6.0, 6.4, 7.2, 7.5, [S_UCCE_ALMOND]),
+  perennialPlanting('olivo', '🫒', 'Olivo (plantación perenne)', 'Olive (perennial planting)', 12.0, 18.0, 27.0, 34.0, 6.0, 6.4, 7.5, 8.0, [S_UCCE_ALMOND]),
+  perennialPlanting('papayo', '🍈', 'Papayo chileno (plantación perenne)', 'Mountain papaya (perennial planting)', 20.5, 21.0, 26.0, 31.0, 5.8, 6.0, 6.5, 7.0, [S_UF_CITRUS]),
+  perennialPlanting('pecana', '🌰', 'Pecana (plantación perenne)', 'Pecan (perennial planting)', 7.0, 12.0, 18.0, 19.5, 6.0, 6.4, 7.2, 7.5, [S_UCCE_ALMOND]),
+  perennialPlanting('pera-asiatica', '🍐', 'Pera asiática (plantación perenne)', 'Asian pear (perennial planting)', 6.0, 10.0, 16.0, 19.0, 5.8, 6.0, 6.5, 7.0, [S_CORNELL_APPLE]),
+  perennialPlanting('peral', '🍐', 'Peral (plantación perenne)', 'Pear (perennial planting)', 6.0, 10.0, 16.0, 19.0, 5.8, 6.0, 6.5, 7.0, [S_CORNELL_APPLE]),
+  perennialPlanting('pistacho', '🌰', 'Pistacho (plantación perenne)', 'Pistachio (perennial planting)', 7.0, 12.0, 18.0, 19.5, 6.2, 6.4, 7.5, 8.0, [S_UCCE_ALMOND]),
+  perennialPlanting('pluot', '🍑', 'Pluot (plantación perenne)', 'Pluot (perennial planting)', 6.0, 10.0, 16.0, 19.0, 6.0, 6.0, 7.0, 7.5, [S_UNH_STONE_FRUIT]),
+  perennialPlanting('pomelo', '🍊', 'Pomelo (plantación perenne)', 'Grapefruit (perennial planting)', 20.5, 22.0, 29.0, 34.0, 5.8, 5.8, 6.5, 7.0, [S_UF_CITRUS]),
+  perennialPlanting('tangelo', '🍊', 'Tangelo (plantación perenne)', 'Tangelo (perennial planting)', 20.5, 21.0, 28.0, 33.0, 5.8, 5.8, 6.5, 7.0, [S_UF_CITRUS]),
+  perennialPlanting('tumbo', '🟡', 'Tumbo (plantación perenne)', 'Banana passionfruit (perennial planting)', 20.5, 21.0, 26.0, 31.0, 5.5, 5.8, 6.5, 7.0, [S_UF_CITRUS]),
+
+  // --- Árboles forestales (TASK L5) ---
+  perennialPlanting('eucalipto', '🌳', 'Eucalipto (plantación forestal)', 'Eucalyptus (forestry planting)', 8.0, 13.0, 22.0, 28.0, 5.0, 5.5, 6.0, 6.2, [S_FIA_MURTILLA]),
+  perennialPlanting('pino-radiata', '🌲', 'Pino radiata (plantación forestal)', 'Monterey pine (forestry planting)', 7.0, 12.0, 20.0, 26.0, 5.0, 5.5, 6.0, 6.2, [S_FIA_MURTILLA]),
 ];
 
 /** Techo cauteloso para perfiles cuyo máximo térmico no está tabulado (apio: requiere noches de 70 °F y días de 85 °F en S10). */

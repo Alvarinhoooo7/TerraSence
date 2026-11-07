@@ -42,8 +42,9 @@ test('ES6: la salinidad de FAO se informa como referencia y nunca clasifica la l
   assert.deepEqual(salinity('sp.frutilla', 9000), strawberry);
   assert.equal(salinity('sp.esparrago', 500)[0].title, 'Este cultivo tolera la sal');
   assert.doesNotMatch(salinity('sp.esparrago', 500)[0].detail!, /dS\/m de conductividad/, 'sin umbral cuando la fuente sólo da la clase');
-  // Especies sin dato de FAO no inventan una tolerancia.
-  for (const id of ['sp.arveja', 'sp.cebollin', 'sp.perejil', 'sp.puerro', 'sp.arandano']) assert.deepEqual(salinity(id, 500), [], id);
+  // Toda especie del catálogo documenta su referencia de salinidad; un ID inexistente no inventa una tolerancia.
+  for (const id of ['sp.arveja', 'sp.cebollin', 'sp.perejil', 'sp.puerro', 'sp.arandano']) assert.equal(salinity(id, 500).length, 1, id);
+  assert.deepEqual(salinity('sp.no-existe', 500), []);
   // Sólo en vegetativo y floración; nunca cambia el estado de la evaluación.
   assert.deepEqual(evaluateSpeciesCriteria('sp.tomate', 'cosecha', raw, 'es').filter(a => a.param === 'ec'), []);
   assert.equal(evaluateReadingForStage(raw, 'vegetativo', 'es', clock, 'sp.tomate').state, evaluateReadingForStage(raw, 'vegetativo', 'es', clock, null).state);

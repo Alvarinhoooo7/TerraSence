@@ -1,7 +1,7 @@
 /** Perfiles de berries (salvo arándano y frutilla, en speciesProfilesFrutales.ts) y aromáticas (salvo perejil, en speciesProfilesHortalizas.ts) (TASK ES8.C). Contrato y fuentes compartidas: speciesRuleKit.ts. */
 import type { PhenologicalStage } from '../types/app';
 import type { SpeciesCriterion, SpeciesCriterionEvidence, SpeciesPhCriterion, SpeciesRuleProfile, SpeciesThreshold } from './speciesRuleKit';
-import { ALL_STAGES, FROST, GROUND_COLDER, GROUND_COLDER_EN, GROWING, INIA_1998_FROST, RAIN_RULE, RAIN_RULE_EN, UARK_PARSLEY, airMax, airMin, analog, annual, celsius, decimal, fromF, harvestFreeze, inia165, perennial, sdsu, umaineFreeze, umdVegetable, weatherEvent } from './speciesRuleKit';
+import { ALL_STAGES, FROST, GROUND_COLDER, GROUND_COLDER_EN, GROWING, INIA_1998_FROST, RAIN_RULE, RAIN_RULE_EN, UARK_PARSLEY, airMax, airMin, analog, analogPh, analogSalt, analogWater, annual, celsius, decimal, fao56Water, fromF, harvestFreeze, inia165, perennial, salt, sdsu, umaineFreeze, umdVegetable, weatherEvent } from './speciesRuleKit';
 
 // --- Fuentes nuevas del lote C (TASK ES8.C, S180–S239): ver MOTOR_AGRONOMICO.md ---------
 
@@ -66,6 +66,23 @@ const NCSU_BLACKBERRY_FROST: SpeciesCriterionEvidence = {
   originalValue: 'Floral buds in all stages are susceptible to cold injury. Studies conducted in growth chambers have shown that all stages (tight bud, popcorn, and open blossom) blackberry flowers are killed at 27°F.',
 };
 
+const NCSU_CANEBERRY_BOTRYTIS: SpeciesCriterionEvidence = {
+  ...NCSU_CANEBERRY,
+  title: 'Southeast Regional Caneberry Production Guide, capítulo 9 «Disease Management»',
+  url: 'https://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/disease-management',
+  section: '«Botrytis Fruit Rot (Gray Mold)»',
+  originalValue: 'Botrytis fruit rot is the most common and destructive disease of ripe blackberry and raspberry fruit. Rain and prolonged wet periods during bloom and harvest favor infection and rapid decay of ripe berries.',
+};
+
+const UMASS_CRANBERRY_PH: SpeciesCriterionEvidence = {
+  institution: 'University of Massachusetts Amherst, Cranberry Station',
+  title: 'Cranberry Chart Book — Management Guide for Massachusetts, Nutrition Management',
+  url: 'https://www.umass.edu/agriculture-food-environment/cranberry/publications/cranberry-chart-book',
+  section: '«Soil pH»',
+  consultedAt: CONSULTED,
+  originalValue: 'Cranberries require acidic soils with an optimum pH between 4.0 and 5.0 (acceptable up to 5.5).',
+};
+
 const UMASS_CRANBERRY_SPRING: SpeciesCriterionEvidence = {
   institution: 'University of Massachusetts Amherst, Cranberry Station',
   title: 'Frost Protection Guide (1998)',
@@ -100,6 +117,24 @@ const UTALCA_MAQUI: SpeciesCriterionEvidence = {
   section: '«Requerimientos básicos para un cultivo de maqui exitoso», lámina 4',
   consultedAt: CONSULTED,
   originalValue: 'Requerimientos básicos para un cultivo de maqui exitoso: variedad de alta producción frutal; requerimiento de polinizantes; suelos con buen drenaje; sensibles a las heladas en época productiva; disponibilidad hídrica, especialmente en etapa productiva.',
+};
+
+const INFOR_MAQUI_SOIL: SpeciesCriterionEvidence = {
+  institution: 'INFOR (Instituto Forestal de Chile)',
+  title: 'Monografía de Maqui: Aristotelia chilensis (Mol.) Stuntz (Programa de Productos Forestales No Madereros, INFOR)',
+  url: 'https://bibliotecadigital.infor.cl/handle/20.500.12220/20856',
+  section: '«Requerimientos edáficos»',
+  consultedAt: CONSULTED,
+  originalValue: 'Se desarrolla preferentemente en suelos profundos, húmedos, bien drenados y ligeramente ácidos, con pH óptimo entre 5,3 y 6,5 (rango tolerado de 5,0 a 7,0).',
+};
+
+const INIA_CALAFATE_SOIL: SpeciesCriterionEvidence = {
+  institution: 'INIA Kampenaike',
+  title: 'Antecedentes para el manejo y domesticación del calafate (Berberis microphylla G. Forst.) en Magallanes (Boletín INIA)',
+  url: 'https://biblioteca.inia.cl/handle/20.500.14001/3560',
+  section: '«Características de suelo en poblaciones naturales y ensayos»',
+  consultedAt: CONSULTED,
+  originalValue: 'Crece en suelos moderadamente ácidos a neutros, con un rango de pH óptimo de 5,5 a 6,8 (tolerando desde 5,0 hasta 7,2).',
 };
 
 const pfaf = (latin: string, originalValue: string): SpeciesCriterionEvidence => ({
@@ -248,6 +283,28 @@ const PARSLEY_ANALOG = {
   en: 'No source for coriander: the documented criterion for Perejil (Parsley) is used, because both are cool-season Apiaceae grown for their leaves.',
 };
 
+const MURTILLA_PH: SpeciesPhCriterion = ph(5.6, 6.0, null, null,
+  {
+    es: 'En su hábitat natural la murtilla crece en suelos de pH 5,6 a 6,0, según las muestras de INIA en 36 sitios.',
+    en: 'In its natural habitat Chilean guava grows on soils of pH 5.6 to 6.0, according to INIA samples from 36 sites.',
+  },
+  {
+    es: 'Es el rango donde la especie crece en forma silvestre, no un óptimo ensayado en huertos; la murtilla prospera en suelos pobres y ácidos, así que un valor fuera de este rango sólo orienta.',
+    en: 'It is the range where the species grows in the wild, not an optimum tested in orchards; Chilean guava thrives on poor, acid soils, so a value outside this range is only guidance.',
+  },
+  [FIA_MURTILLA]);
+
+const CALAFATE_PH: SpeciesPhCriterion = ph(5.5, 6.8, 5.0, 7.2,
+  {
+    es: 'El calafate crece en suelos moderadamente ácidos a neutros, con un pH óptimo de 5,5 a 6,8 y tolerancia de 5,0 a 7,2.',
+    en: 'Calafate grows in moderately acidic to neutral soils, with an optimum pH of 5.5 to 6.8 and tolerance from 5.0 to 7.2.',
+  },
+  {
+    es: 'Antecedentes de domesticación y suelos de poblaciones naturales de INIA Kampenaike en Magallanes.',
+    en: 'Domestication and natural population soil records from INIA Kampenaike in Magallanes.',
+  },
+  [INIA_CALAFATE_SOIL]);
+
 // --- Perfiles --------------------------------------------------------------------------
 
 export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
@@ -286,7 +343,9 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: `${RAIN_RULE} No diagnostica la enfermedad: sólo señala la condición que la fuente asocia con ella.`,
       limitationsEn: `${RAIN_RULE_EN} It does not diagnose disease: it only flags the condition the source associates with it.`,
       evidence: [INIA_372_BOTRYTIS],
-    })),
+    }),
+    salt('Raspberry (Rubus idaeus)', null, 'sensitive'),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
 
   perennial('sp.mora',
     ph(6.0, 6.5, 6.0, null,
@@ -311,9 +370,33 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       limitationsEn: `Growth chamber trial summarized by the NC State regional guide; secondary buds may survive and flower later. The source refers to blossom temperature; ${GROUND_EN}`,
       evidence: [NCSU_BLACKBERRY_FROST],
     }),
-    harvestFreeze('mora', 'blackberry', 30.5, umaineFreeze('Blackberries: Temperature 31–32°F; Rel. humidity 90–95%; Approximate storage life 2–3 days; Freezing point 30.5°F.'))),
+    harvestFreeze('mora', 'blackberry', 30.5, umaineFreeze('Blackberries: Temperature 31–32°F; Rel. humidity 90–95%; Approximate storage life 2–3 days; Freezing point 30.5°F.')),
+    weatherEvent(['cosecha'], 'rain', {
+      severity: 'warning',
+      effect: 'Lluvia en cosecha: favorece la pudrición gris de la mora',
+      effectEn: 'Rain at harvest favors blackberry gray mold',
+      advice: 'La lluvia y la humedad prolongada sobre moras maduras aceleran la pudrición gris. Cosecha la fruta lista antes de la lluvia y retira la fruta sobremadura.',
+      adviceEn: 'Rain and prolonged wetness on ripe blackberries speed up gray mold decay. Harvest ready fruit before the rain and remove overripe berries.',
+      note: 'La guía regional de NC State indica que la pudrición gris (Botrytis) es la enfermedad más destructiva del fruto maduro de mora y frambuesa, y que las lluvias durante la cosecha favorecen la infección y el deterioro rápido.',
+      noteEn: 'The NC State regional guide states that Botrytis fruit rot is the most destructive disease of ripe blackberry and raspberry fruit, and that rain during harvest favors infection and rapid decay.',
+      limitations: `${RAIN_RULE} No diagnostica la enfermedad: sólo señala la condición que la fuente asocia con ella.`,
+      limitationsEn: `${RAIN_RULE_EN} It does not diagnose disease: it only flags the condition the source associates with it.`,
+      evidence: [NCSU_CANEBERRY_BOTRYTIS],
+    }),
+    salt('Blackberry (Rubus spp.)', 1.5, 'sensitive'),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
 
   perennial('sp.arandano-rojo',
+    ph(4.0, 5.0, 4.0, 5.5,
+      {
+        es: 'El arándano rojo requiere suelos ácidos con un pH óptimo entre 4,0 y 5,0, aceptable hasta 5,5.',
+        en: 'Cranberry requires acidic soils with an optimum pH between 4.0 and 5.0, acceptable up to 5.5.',
+      },
+      {
+        es: 'Guía de nutrición de University of Massachusetts Amherst Cranberry Station para camas comerciales de arándano rojo (Vaccinium macrocarpon).',
+        en: 'University of Massachusetts Amherst Cranberry Station nutrition guide for commercial cranberry beds (Vaccinium macrocarpon).',
+      },
+      [UMASS_CRANBERRY_PH]),
     airMin(GROWING, 'below', fromF(30), {
       severity: 'warning',
       effect: 'Helada bajo −1,1 °C: daña brotes nuevos y flores del arándano rojo',
@@ -337,44 +420,56 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: 'Se usa la cifra de la fruta menos coloreada, la más cauta; la fruta roja tolera más frío y la sobremadura vuelve a perder tolerancia. Valores conservadores de UMass para variedades de Massachusetts.',
       limitationsEn: 'The figure for the least colored fruit, the most cautious one, is used; red fruit tolerates more cold and overripe fruit loses tolerance again. Conservative UMass values for Massachusetts varieties.',
       evidence: [UMASS_CRANBERRY_FRUIT],
-    })),
+    }),
+    analogSalt('sp.arandano', 'el arándano rojo', 'cranberry', 'Arándano', 'Blueberry', 'ambas especies son ericáceas del género Vaccinium sensibles a las sales', 'both species are salt-sensitive ericaceous berries of the genus Vaccinium', 'Blueberry (Vaccinium spp.)', 1.5, 'sensitive'),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
 
   perennial('sp.grosella',
     ribesPh({ es: 'grosella', en: 'gooseberry' }),
-    harvestFreeze('grosella', 'gooseberry', 30.0, umaineFreeze('Gooseberries: Temperature 31–32°F; Rel. humidity 90–95%; Approximate storage life 3–4 weeks; Freezing point 30.0°F.'))),
+    harvestFreeze('grosella', 'gooseberry', 30.0, umaineFreeze('Gooseberries: Temperature 31–32°F; Rel. humidity 90–95%; Approximate storage life 3–4 weeks; Freezing point 30.0°F.')),
+    salt('Gooseberry (Ribes spp.)', null, 'sensitive'),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
 
   perennial('sp.zarzaparrilla',
     ribesPh({ es: 'zarzaparrilla roja', en: 'red currant' }),
-    harvestFreeze('zarzaparrilla roja', 'red currant', 30.2, umaineFreeze('Currants: Temperature 31–32°F; Rel. humidity 90–95%; Approximate storage life 1–4 weeks; Freezing point 30.2°F.'))),
+    harvestFreeze('zarzaparrilla roja', 'red currant', 30.2, umaineFreeze('Currants: Temperature 31–32°F; Rel. humidity 90–95%; Approximate storage life 1–4 weeks; Freezing point 30.2°F.')),
+    salt('Currant (Ribes spp.)', null, 'sensitive'),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
 
   perennial('sp.zarzaparrilla-negra',
     ribesPh({ es: 'zarzaparrilla negra', en: 'black currant' }),
-    harvestFreeze('zarzaparrilla negra', 'black currant', 30.2, umaineFreeze('Currants: Temperature 31–32°F; Rel. humidity 90–95%; Approximate storage life 1–4 weeks; Freezing point 30.2°F.'))),
+    harvestFreeze('zarzaparrilla negra', 'black currant', 30.2, umaineFreeze('Currants: Temperature 31–32°F; Rel. humidity 90–95%; Approximate storage life 1–4 weeks; Freezing point 30.2°F.')),
+    salt('Currant (Ribes spp.)', null, 'sensitive'),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
 
-  perennial('sp.maqui', airMin(ALL_STAGES, 'at_or_below', FROST, {
-    severity: 'warning',
-    effect: 'Helada prevista: el maqui es sensible a la helada en temporada productiva',
-    effectEn: 'Frost forecast: maqui is frost-sensitive during the productive season',
-    advice: 'El maqui se daña con heladas mientras brota, florece o tiene fruta, y se puede perder la producción del año. Si puedes, protege las plantas jóvenes esa noche.',
-    adviceEn: 'Maqui is damaged by frost while it sprouts, flowers or carries fruit, and the year\'s crop can be lost. If you can, protect young plants that night.',
-    note: 'La Universidad de Talca, en su experiencia de domesticación, señala que el maqui es sensible a las heladas en época productiva, y PFAF lo clasifica como sensible a la helada («frost tender»).',
-    noteEn: 'Universidad de Talca, from its domestication work, states that maqui is frost-sensitive in the productive season, and PFAF classifies it as frost tender.',
-    limitations: `${NO_FROST_FIGURE} En receso invernal la planta adulta tolera bastante más frío, y las heladas de invierno pueden cortar ramas que luego rebrotan; ${GROUND}`,
-    limitationsEn: `${NO_FROST_FIGURE_EN} In winter dormancy the adult plant tolerates much more cold, and winter frosts can cut back branches that later resprout; ${GROUND_EN}`,
-    evidence: [UTALCA_MAQUI, PFAF_MAQUI],
-  })),
+  perennial('sp.maqui',
+    ph(5.3, 6.5, 5.0, 7.0,
+      {
+        es: 'El maqui se desarrolla preferentemente en suelos ligeramente ácidos, con un pH óptimo entre 5,3 y 6,5 y tolerancia de 5,0 a 7,0.',
+        en: 'Maqui grows preferably in slightly acidic soils, with an optimum pH between 5.3 and 6.5 and tolerance from 5.0 to 7.0.',
+      },
+      {
+        es: 'Monografía de INFOR para maqui (Aristotelia chilensis) en el centro-sur de Chile.',
+        en: 'INFOR monograph for maqui (Aristotelia chilensis) in south-central Chile.',
+      },
+      [INFOR_MAQUI_SOIL]),
+    airMin(ALL_STAGES, 'at_or_below', FROST, {
+      severity: 'warning',
+      effect: 'Helada prevista: el maqui es sensible a la helada en temporada productiva',
+      effectEn: 'Frost forecast: maqui is frost-sensitive during the productive season',
+      advice: 'El maqui se daña con heladas mientras brota, florece o tiene fruta, y se puede perder la producción del año. Si puedes, protege las plantas jóvenes esa noche.',
+      adviceEn: 'Maqui is damaged by frost while it sprouts, flowers or carries fruit, and the year\'s crop can be lost. If you can, protect young plants that night.',
+      note: 'La Universidad de Talca, en su experiencia de domesticación, señala que el maqui es sensible a las heladas en época productiva, y PFAF lo clasifica como sensible a la helada («frost tender»).',
+      noteEn: 'Universidad de Talca, from its domestication work, states that maqui is frost-sensitive in the productive season, and PFAF classifies it as frost tender.',
+      limitations: `${NO_FROST_FIGURE} En receso invernal la planta adulta tolera bastante más frío, y las heladas de invierno pueden cortar ramas que luego rebrotan; ${GROUND}`,
+      limitationsEn: `${NO_FROST_FIGURE_EN} In winter dormancy the adult plant tolerates much more cold, and winter frosts can cut back branches that later resprout; ${GROUND_EN}`,
+      evidence: [UTALCA_MAQUI, PFAF_MAQUI],
+    }),
+    analogSalt('sp.frambuesa', 'el maqui', 'maqui berry', 'Frambuesa', 'Raspberry', 'ambos son arbustos de bayas de zonas templado-húmedas sensibles a la salinidad', 'both are temperate-humid berry shrubs sensitive to salinity', 'Raspberry (Rubus idaeus)', null, 'sensitive'),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
 
   perennial('sp.murtilla',
-    ph(5.6, 6.0, null, null,
-      {
-        es: 'En su hábitat natural la murtilla crece en suelos de pH 5,6 a 6,0, según las muestras de INIA en 36 sitios.',
-        en: 'In its natural habitat Chilean guava grows on soils of pH 5.6 to 6.0, according to INIA samples from 36 sites.',
-      },
-      {
-        es: 'Es el rango donde la especie crece en forma silvestre, no un óptimo ensayado en huertos; la murtilla prospera en suelos pobres y ácidos, así que un valor fuera de este rango sólo orienta.',
-        en: 'It is the range where the species grows in the wild, not an optimum tested in orchards; Chilean guava thrives on poor, acid soils, so a value outside this range is only guidance.',
-      },
-      [FIA_MURTILLA]),
+    MURTILLA_PH,
     airMin(ALL_STAGES, 'at_or_below', FROST, {
       severity: 'warning',
       effect: 'Helada prevista: el brote nuevo de murtilla se daña con heladas',
@@ -386,14 +481,24 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: `${NO_FROST_FIGURE} Ninguna fuente distingue la flor ni el fruto; ${GROUND}`,
       limitationsEn: `${NO_FROST_FIGURE_EN} No source distinguishes flower or fruit; ${GROUND_EN}`,
       evidence: [PFAF_UGNI, FIA_MURTILLA],
-    })),
+    }),
+    analogSalt('sp.frambuesa', 'la murtilla', 'Chilean guava', 'Frambuesa', 'Raspberry', 'ambos son arbustos de bayas de zonas templado-húmedas sensibles a la salinidad', 'both are temperate-humid berry shrubs sensitive to salinity', 'Raspberry (Rubus idaeus)', null, 'sensitive'),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
 
-  perennial('sp.calafate', shrubHardiness({ es: 'El calafate', en: 'Calafate' }, -15, PFAF_CALAFATE, {
-    es: 'La ficha usa el nombre Berberis buxifolia, sinónimo de Berberis microphylla.',
-    en: 'The sheet uses the name Berberis buxifolia, a synonym of Berberis microphylla.',
-  })),
+  perennial('sp.calafate',
+    CALAFATE_PH,
+    shrubHardiness({ es: 'El calafate', en: 'Calafate' }, -15, PFAF_CALAFATE, {
+      es: 'La ficha usa el nombre Berberis buxifolia, sinónimo de Berberis microphylla.',
+      en: 'The sheet uses the name Berberis buxifolia, a synonym of Berberis microphylla.',
+    }),
+    analogSalt('sp.frambuesa', 'el calafate', 'calafate', 'Frambuesa', 'Raspberry', 'ambos son arbustos de bayas de zonas templado-frías sensibles a la salinidad', 'both are cool-temperate berry shrubs sensitive to salinity', 'Raspberry (Rubus idaeus)', null, 'sensitive'),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
 
-  perennial('sp.michay', shrubHardiness({ es: 'El michay', en: 'Darwin\'s barberry' }, -15, PFAF_MICHAY, null)),
+  perennial('sp.michay',
+    analogPh('sp.calafate', 'el michay', 'Darwin\'s barberry', 'Calafate', 'Calafate', 'ambas especies son arbustos nativos del mismo género botánico (Berberis, familia Berberidaceae)', 'both species are native shrubs of the same botanical genus (Berberis, family Berberidaceae)', CALAFATE_PH),
+    shrubHardiness({ es: 'El michay', en: 'Darwin\'s barberry' }, -15, PFAF_MICHAY, null),
+    analogSalt('sp.frambuesa', 'el michay', 'Darwin\'s barberry', 'Frambuesa', 'Raspberry', 'ambos son arbustos de bayas de zonas templado-húmedas sensibles a la salinidad', 'both are temperate-humid berry shrubs sensitive to salinity', 'Raspberry (Rubus idaeus)', null, 'sensitive'),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
 
   perennial('sp.mosqueta',
     ph(6.0, 6.5, null, null,
@@ -417,7 +522,9 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: `${NO_FROST_FIGURE} Algunos recolectores esperan la helada porque el fruto queda más dulce; el aviso se refiere a la pérdida por caída del fruto.`,
       limitationsEn: `${NO_FROST_FIGURE_EN} Some pickers wait for frost because the fruit becomes sweeter; the warning refers to loss from fruit drop.`,
       evidence: [FIA_MOSQUETA_FRUTO],
-    })),
+    }),
+    analogSalt('sp.frambuesa', 'la rosa mosqueta', 'rosehip', 'Frambuesa', 'Raspberry', 'ambas especies son arbustos frutales rosáceos sensibles a la salinidad', 'both species are rosaceous berry shrubs sensitive to salinity', 'Raspberry (Rubus idaeus)', null, 'sensitive'),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
 
   perennial('sp.sauco',
     ph(5.5, 6.5, null, null,
@@ -453,10 +560,13 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: `${NO_FROST_FIGURE} La ficha describe la rusticidad de la planta en general, no la del fruto en maduración; el criterio sólo orienta.`,
       limitationsEn: `${NO_FROST_FIGURE_EN} The sheet describes the hardiness of the plant in general, not of the ripening fruit; the criterion is only guidance.`,
       evidence: [PFAF_SAUCO],
-    })),
+    }),
+    analogSalt('sp.frambuesa', 'el saúco', 'elderberry', 'Frambuesa', 'Raspberry', 'ambos son arbustos frutales de bayas sensibles a la salinidad', 'both are berry shrubs sensitive to salinity', 'Raspberry (Rubus idaeus)', null, 'sensitive'),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
 
   // --- Aromáticas ---
   annual('sp.albahaca',
+    umdVegetable('Basil', 6.2, 5.6),
     airMin(ALL_STAGES, 'at_or_below', FROST, {
       severity: 'warning',
       effect: 'Helada prevista: la albahaca no la tolera',
@@ -480,18 +590,24 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: 'Se compara la mínima diaria pronosticada; en muchas zonas de Chile se cumple varias noches de primavera y otoño, por eso el criterio sólo informa.',
       limitationsEn: 'The forecast daily minimum is compared; in many parts of Chile it is met on several spring and autumn nights, so the criterion is only informative.',
       evidence: [SDSU_BASIL],
-    })),
+    }),
+    analogSalt('sp.lechuga', 'la albahaca', 'basil', 'Lechuga', 'Lettuce', 'ambas son especies herbáceas de hoja cosechada sensibles al exceso de sales', 'both are leafy herbaceous crops harvested for their foliage and sensitive to excess salts', 'Lettuce (Lactuca sativa)', 1.3, 'moderately_sensitive'),
+    fao56Water('Small Vegetables — Sweet basil (Ocimum basilicum)', 1.0, 0.3, 'vegetative')),
 
-  perennial('sp.ciboulette', toleratesDownTo(ALL_STAGES, fromF(28), { es: 'La ciboulette', en: 'Chives' },
-    {
-      es: 'South Dakota State incluye a la ciboulette («chives») entre las hortalizas que resisten heladas leves de 28 a 32 °F (−2,2 a 0 °C).',
-      en: 'South Dakota State lists chives among the vegetables that withstand light freezes of 28 to 32 °F (−2.2 to 0 °C).',
-    },
-    {
-      es: 'Clasificación de extensión agrícola de Estados Unidos para heladas de otoño; bajo 28 °F la fuente ya no indica tolerancia, así que el aviso es cauto.',
-      en: 'US agricultural extension classification for fall frosts; below 28 °F the source no longer indicates tolerance, so the warning is cautious.',
-    },
-    [sdsu('light', 'Onion, Garlic, Chives')])),
+  perennial('sp.ciboulette',
+    umdVegetable('Chives', 6.5, 6.0),
+    toleratesDownTo(ALL_STAGES, fromF(28), { es: 'La ciboulette', en: 'Chives' },
+      {
+        es: 'South Dakota State incluye a la ciboulette («chives») entre las hortalizas que resisten heladas leves de 28 a 32 °F (−2,2 a 0 °C).',
+        en: 'South Dakota State lists chives among the vegetables that withstand light freezes of 28 to 32 °F (−2.2 to 0 °C).',
+      },
+      {
+        es: 'Clasificación de extensión agrícola de Estados Unidos para heladas de otoño; bajo 28 °F la fuente ya no indica tolerancia, así que el aviso es cauto.',
+        en: 'US agricultural extension classification for fall frosts; below 28 °F the source no longer indicates tolerance, so the warning is cautious.',
+      },
+      [sdsu('light', 'Onion, Garlic, Chives')]),
+    analogSalt('sp.cebolla', 'la ciboulette', 'chives', 'Cebolla', 'Onion', 'ambas especies pertenecen al género Allium', 'both species belong to the genus Allium', 'Onion (Allium cepa)', 1.2, 'sensitive'),
+    fao56Water('Small Vegetables — Chives (Allium schoenoprasum)', 1.0, 0.3, 'vegetative')),
 
   annual('sp.cilantro',
     analog('sp.perejil', {
@@ -522,7 +638,9 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: `${PARSLEY_ANALOG.es} La fuente habla de períodos largos de calor, no de un solo día; Utah State agrega que el cilantro se espiga con calor, lo que también corta la cosecha de hojas.`,
       limitationsEn: `${PARSLEY_ANALOG.en} The source refers to long hot periods, not a single day; Utah State adds that coriander bolts in heat, which also ends the leaf harvest.`,
       evidence: [UARK_PARSLEY],
-    }))),
+    })),
+    analogSalt('sp.apio', 'el cilantro', 'coriander', 'Apio', 'Celery', 'ambas son Apiáceas aromáticas de hoja cultivadas en estación fresca', 'both are cool-season aromatic leafy Apiaceae', 'Celery (Apium graveolens)', 1.8, 'moderately_sensitive'),
+    analogWater('sp.apio', 'el cilantro', 'coriander', 'Apio', 'Celery', 'ambas son Apiáceas de hoja y tallo tierno con raíces superficiales sensibles a la falta de agua', 'both are tender-leafed Apiaceae with shallow roots sensitive to water shortage', fao56Water('Celery (Apium graveolens)', 1.05, 0.2, 'vegetative'))),
 
   perennial('sp.oregano',
     ph(6.0, 6.5, null, null,
@@ -546,5 +664,7 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: `${NO_FROST_FIGURE} No hay un límite de daño documentado para plantas establecidas, así que el criterio sólo orienta.`,
       limitationsEn: `${NO_FROST_FIGURE_EN} There is no documented damage limit for established plants, so the criterion is only guidance.`,
       evidence: [UCIPM_OREGANO],
-    })),
+    }),
+    analogSalt('sp.apio', 'el orégano', 'oregano', 'Apio', 'Celery', 'ante la falta de curva en FAO 29 para Lamiáceas culinarias se usa una herbácea aromática de referencia moderadamente sensible', 'in the absence of an FAO 29 curve for culinary Lamiaceae, a moderately sensitive reference aromatic herb is used', 'Celery (Apium graveolens)', 1.8, 'moderately_sensitive'),
+    analogWater('sp.lechuga', 'el orégano', 'oregano', 'Lechuga', 'Lettuce', 'en producción comercial de hoja aromática el crecimiento vegetativo responde a la disponibilidad de agua en la zona radicular', 'in commercial aromatic leaf production vegetative growth responds to root-zone water availability', fao56Water('Lettuce (Lactuca sativa)', 1.0, 0.3, 'vegetative'))),
 ];

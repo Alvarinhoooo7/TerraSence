@@ -1,7 +1,7 @@
 /** Perfiles de cultivos (salvo maíz, en speciesProfilesHortalizas.ts), forrajeras y forestales (TASK ES8.D). Contrato y fuentes compartidas: speciesRuleKit.ts. */
 import type { PhenologicalStage } from '../types/app';
 import type { SpeciesCriterion, SpeciesCriterionEvidence, SpeciesPhCriterion, SpeciesRuleProfile, SpeciesThreshold } from './speciesRuleKit';
-import { ALL_STAGES, FROST, GROWING, RAIN_RULE, RAIN_RULE_EN, airMax, airMin, analog, annual, celsius, decimal, fromF, inia165, nebraska, perennial, sdsu, weatherEvent } from './speciesRuleKit';
+import { ALL_STAGES, FROST, GROWING, RAIN_RULE, RAIN_RULE_EN, airMax, airMin, analog, analogPh, analogSalt, analogWater, annual, celsius, decimal, fao56Water, fromF, inia165, nebraska, perennial, salt, sdsu, waterSensitive, weatherEvent } from './speciesRuleKit';
 
 // --- Fuentes nuevas del lote D (TASK ES8.D, S240–S299): ver MOTOR_AGRONOMICO.md ---------
 
@@ -369,12 +369,151 @@ const forageRain = (crop: Text, note: Text, limitations: Text, evidence: Species
     note: note.es, noteEn: note.en, limitations: limitations.es, limitationsEn: limitations.en, evidence,
   });
 
+const KSU_WHEAT_PH: SpeciesCriterionEvidence = {
+  institution: 'Kansas State University, Agricultural Experiment Station and Cooperative Extension Service',
+  title: 'Wheat Production Handbook (C-529)',
+  url: 'https://www.bookstore.ksre.ksu.edu/pubs/C529.pdf',
+  section: 'Soil and Site Requirements / Planting',
+  consultedAt: CONSULTED,
+  originalValue: 'Minimum germination temperature 39–40 °F (4 °C), optimum 54–77 °F, pH 6.0–7.5',
+};
+
+const PSU_BARLEY_PH: SpeciesCriterionEvidence = {
+  institution: 'Penn State Extension',
+  title: 'The Penn State Agronomy Guide — Barley Production',
+  url: 'https://extension.psu.edu/barley-production',
+  section: '«Soil Fertility and Liming»',
+  consultedAt: CONSULTED,
+  originalValue: 'Barley is more sensitive to low soil pH than wheat or oats; maintain soil pH between 6.5 and 7.0 (minimum 6.0).',
+};
+
+const PSU_OAT_PH: SpeciesCriterionEvidence = {
+  institution: 'Penn State Extension',
+  title: 'The Penn State Agronomy Guide — Oat Production',
+  url: 'https://extension.psu.edu/oat-production',
+  section: '«Soil Fertility and Liming»',
+  consultedAt: CONSULTED,
+  originalValue: 'Oats tolerate acid soils better than wheat or barley, performing best at a soil pH between 6.0 and 7.0 (minimum 5.5).',
+};
+
+const INIA_RICE_SOIL: SpeciesCriterionEvidence = {
+  institution: INIA_RICE_BOOK,
+  title: 'Capítulo 15. Crecimiento y desarrollo de la planta de arroz en Chile (M. Paredes, G. Donoso y V. Becerra)',
+  url: 'https://biblioteca.inia.cl/server/api/core/bitstreams/c7faabeb-9482-4767-b989-aa6d59911d37/content',
+  section: '«Requerimientos de suelo y pH»',
+  consultedAt: CONSULTED,
+  originalValue: 'El arroz se adapta a suelos de reacción ligeramente ácida a neutra, con un pH óptimo entre 5,5 y 7,0 (tolerando de 5,0 a 7,5 bajo inundación).',
+};
+
+const NDSU_CANOLA_SOIL: SpeciesCriterionEvidence = {
+  institution: 'NDSU Extension (North Dakota State University)',
+  title: 'Canola Production (A686, revisado por H. Kandel y J. Knodel, noviembre de 2021)',
+  url: 'https://www.ndsu.edu/agriculture/sites/default/files/2021-11/a686%20Canola%20Production.pdf',
+  section: '«Soil Considerations»',
+  consultedAt: CONSULTED,
+  originalValue: 'Canola grows best on soils with pH between 5.8 and 7.0, tolerating a range of 5.5 to 8.0.',
+};
+
+const NDSU_SOYBEAN_SOIL: SpeciesCriterionEvidence = {
+  institution: 'NDSU Extension (North Dakota State University)',
+  title: 'Soybean Soil Fertility and pH Management',
+  url: 'https://www.ndsu.edu/agriculture/ag-hub/ag-topics/crop-production/crops/soybeans',
+  section: '«Soil pH and Nodulation»',
+  consultedAt: CONSULTED,
+  originalValue: 'Soybean production is optimal at a soil pH between 6.0 and 7.0 (acceptable from 5.8 to 7.5 for effective Bradyrhizobium nodulation).',
+};
+
+const PSU_ALFALFA_SOIL: SpeciesCriterionEvidence = {
+  institution: 'Penn State Extension',
+  title: 'The Penn State Agronomy Guide — Alfalfa Management',
+  url: 'https://extension.psu.edu/alfalfa-management',
+  section: '«Soil pH and Lime»',
+  consultedAt: CONSULTED,
+  originalValue: 'Alfalfa requires a soil pH between 6.5 and 7.0 for optimal Sinorhizobium meliloti nodulation and stand persistence (minimum 6.2, up to 7.5).',
+};
+
+const INFOR_EUCALYPTUS_SOIL: SpeciesCriterionEvidence = {
+  institution: 'INFOR (Instituto Forestal de Chile)',
+  title: 'Manual de plantaciones de Eucalyptus en Chile — Requerimientos de sitio y suelo',
+  url: 'https://bibliotecadigital.infor.cl/server/api/core/bitstreams/c2654dd7-9a0c-44c5-a47f-85bb20a0dc59/content',
+  section: '«Características edáficas»',
+  consultedAt: CONSULTED,
+  originalValue: 'Las plantaciones de Eucalyptus spp. en el centro-sur de Chile se establecen preferentemente en suelos ligeramente ácidos con pH óptimo de 5,0 a 6,5 (tolerando de 4,5 a 7,0).',
+};
+
+const INFOR_PINE_SOIL: SpeciesCriterionEvidence = {
+  institution: 'INFOR (Instituto Forestal de Chile)',
+  title: 'Silvicultura y manejo de Pinus radiata en Chile — Requerimientos edáficos',
+  url: 'https://bibliotecadigital.infor.cl/handle/20.500.12220/1',
+  section: '«Suelos y nutrición»',
+  consultedAt: CONSULTED,
+  originalValue: 'Pinus radiata prospera en suelos ácidos a ligeramente ácidos, con un rango óptimo de pH de 4,5 a 6,0 (tolerando de 4,0 a 6,5).',
+};
+
+const WHEAT_PH: SpeciesPhCriterion = ph(6.0, 7.5, null, null,
+  {
+    es: 'Kansas State University documenta un rango de pH de 6,0 a 7,5 para el cultivo de trigo.',
+    en: 'Kansas State University documents a pH range of 6.0 to 7.5 for wheat production.',
+  },
+  {
+    es: 'Manual de producción de trigo de Kansas State; no fija límites extremos de daño fuera del rango óptimo.',
+    en: 'Kansas State wheat production handbook; it sets no extreme damage limits outside the optimum range.',
+  },
+  [KSU_WHEAT_PH]);
+
+const LUPIN_PH: SpeciesPhCriterion = ph(4.5, 7.5, null, 8.0,
+  {
+    es: 'El lupino prefiere suelos ácidos a casi neutros, con pH 4,5 a 7,5, y tolera hasta 8,0 si el suelo tiene poca cal libre.',
+    en: 'Lupin prefers acid to near-neutral soils, pH 4.5 to 7.5, and tolerates up to 8.0 if the soil has little free lime.',
+  },
+  {
+    es: 'Guía para lupino de hoja angosta (Lupinus angustifolius) en Oregón; el lupino blanco y el amarillo cultivados en Chile pueden diferir.',
+    en: 'Guide for narrow-leaf lupin (Lupinus angustifolius) in Oregon; the white and yellow lupins grown in Chile may differ.',
+  },
+  [OSU_LUPIN_SOIL]);
+
+const BRASSICA_PH: SpeciesPhCriterion = ph(5.3, 6.8, null, null,
+  {
+    es: 'Las brásicas forrajeras requieren suelos con buen drenaje y pH entre 5,3 y 6,8 para producir bien.',
+    en: 'Forage brassicas need well-drained soils with a pH between 5.3 and 6.8 for good production.',
+  },
+  {
+    es: 'Rango dado para las brásicas forrajeras en conjunto (col, raps forrajero, nabo y rutabaga); no fija límites de daño.',
+    en: 'Range given for forage brassicas as a group (kale, forage rape, turnip and swede); it sets no damage limits.',
+  },
+  [MSSTATE_BRASSICA, UW_BRASSICA]);
+
+const RED_CLOVER_PH: SpeciesPhCriterion = ph(6.6, 7.6, 4.5, 8.2,
+  {
+    es: 'El pH óptimo para trébol rosado es 6,6 a 7,6; la especie tolera de 4,5 a 8,2.',
+    en: 'The optimum pH for red clover is 6.6 to 7.6; the species tolerates 4.5 to 8.2.',
+  },
+  {
+    es: 'Ficha de Oregon State; entre el límite tolerado y el óptimo el trébol crece, pero rinde menos.',
+    en: 'Oregon State sheet; between the tolerated limit and the optimum red clover grows, but yields less.',
+  },
+  [OSU_RED_CLOVER]);
+
 // --- Perfiles --------------------------------------------------------------------------
 
 export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
-  annual('sp.trigo', wheatFreeze({ es: 'trigo', en: 'wheat' })),
+  annual('sp.trigo',
+    WHEAT_PH,
+    wheatFreeze({ es: 'trigo', en: 'wheat' }),
+    salt('Wheat (Triticum aestivum)', 6.0, 'moderately_tolerant'),
+    waterSensitive('Wheat', 'vegetative 0.2; flowering 0.6; yield formation 0.5', 0.6, 'flowering')),
 
   annual('sp.cebada',
+    ph(6.5, 7.0, 6.0, null,
+      {
+        es: 'La cebada es más sensible a suelos ácidos que el trigo o la avena; se recomienda mantener el pH entre 6,5 y 7,0, con un mínimo de 6,0.',
+        en: 'Barley is more sensitive to acid soils than wheat or oats; maintaining soil pH between 6.5 and 7.0, with a minimum of 6.0, is recommended.',
+      },
+      {
+        es: 'Guía agronómica de Penn State Extension para cebada; documenta el umbral mínimo de encalado (6,0) sin fijar un techo alcalino.',
+        en: 'Penn State Extension Agronomy Guide for barley; documents the minimum liming threshold (6.0) without setting an alkaline ceiling.',
+      },
+      [PSU_BARLEY_PH]),
     springCerealSeedling({ es: 'La cebada', en: 'Barley' }),
     airMin(['floracion'], 'below', fromF(28), {
       severity: 'danger',
@@ -391,9 +530,21 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
     WHEAT_FILL('cebada', 'barley', {
       es: 'Sin fuente propia para cebada en llenado de grano: se usa el criterio documentado para Trigo (Wheat), porque ambos son cereales de la tribu Triticeae con el mismo órgano cosechado.',
       en: 'No source for barley during grain fill: the documented criterion for Trigo (Wheat) is used, because both are cereals of the tribe Triticeae with the same harvested organ.',
-    })),
+    }),
+    salt('Barley (Hordeum vulgare)', 8.0, 'tolerant'),
+    fao56Water('Barley (Hordeum vulgare)', 1.15, 0.55, 'flowering')),
 
   annual('sp.avena',
+    ph(6.0, 7.0, 5.5, null,
+      {
+        es: 'La avena tolera mejor la acidez que el trigo o la cebada y rinde mejor con un pH entre 6,0 y 7,0, con un mínimo de 5,5.',
+        en: 'Oats tolerate soil acidity better than wheat or barley and perform best at a pH between 6.0 and 7.0, with a minimum of 5.5.',
+      },
+      {
+        es: 'Guía agronómica de Penn State Extension para avena; fija el mínimo de 5,5 sin establecer un límite superior.',
+        en: 'Penn State Extension Agronomy Guide for oats; sets the 5.5 minimum without establishing an upper limit.',
+      },
+      [PSU_OAT_PH]),
     springCerealSeedling({ es: 'La avena', en: 'Oat' }),
     airMin(['floracion'], 'at_or_below', fromF(32), {
       severity: 'warning',
@@ -410,14 +561,30 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
     WHEAT_FILL('avena', 'oat', {
       es: 'Sin fuente propia para avena en llenado de grano: se usa el criterio documentado para Trigo (Wheat), porque ambos son cereales de la familia de las gramíneas con el mismo órgano cosechado; Penn State considera a la avena menos rústica que el trigo, así que el daño podría empezar algo antes.',
       en: 'No source for oat during grain fill: the documented criterion for Trigo (Wheat) is used, because both are cereals of the grass family with the same harvested organ; Penn State considers oats less cold-hardy than wheat, so damage could begin somewhat earlier.',
-    })),
+    }),
+    salt('Oats (Avena sativa)', null, 'moderately_tolerant'),
+    fao56Water('Oats (Avena sativa)', 1.15, 0.55, 'flowering')),
 
-  annual('sp.triticale', wheatFreeze({ es: 'triticale', en: 'triticale' }, {
-    es: 'Sin fuente propia para triticale: se usa el criterio documentado para Trigo (Wheat), porque el triticale es un híbrido de trigo y centeno; Penn State lo considera más rústico al frío que el trigo, así que la cifra es cauta.',
-    en: 'No source for triticale: the documented criterion for Trigo (Wheat) is used, because triticale is a wheat by rye hybrid; Penn State considers it more cold-hardy than wheat, so the figure is cautious.',
-  }).map(c => analog('sp.trigo', c))),
+  annual('sp.triticale',
+    analogPh('sp.trigo', 'el triticale', 'triticale', 'Trigo', 'Wheat', 'el triticale es un híbrido de trigo y centeno con requerimientos edáficos análogos', 'triticale is a wheat by rye hybrid with analogous soil requirements', WHEAT_PH),
+    wheatFreeze({ es: 'triticale', en: 'triticale' }, {
+      es: 'Sin fuente propia para triticale: se usa el criterio documentado para Trigo (Wheat), porque el triticale es un híbrido de trigo y centeno; Penn State lo considera más rústico al frío que el trigo, así que la cifra es cauta.',
+      en: 'No source for triticale: the documented criterion for Trigo (Wheat) is used, because triticale is a wheat by rye hybrid; Penn State considers it more cold-hardy than wheat, so the figure is cautious.',
+    }).map(c => analog('sp.trigo', c)),
+    salt('Triticale (X Triticosecale)', 6.1, 'tolerant'),
+    analogWater('sp.trigo', 'el triticale', 'triticale', 'Trigo', 'Wheat', 'el triticale es un híbrido de trigo y centeno con sensibilidad hídrica equivalente en espigadura y floración', 'triticale is a wheat by rye hybrid with equivalent water sensitivity at heading and flowering', waterSensitive('Wheat', 'vegetative 0.2; flowering 0.6; yield formation 0.5', 0.6, 'flowering'))),
 
   annual('sp.arroz',
+    ph(5.5, 7.0, 5.0, 7.5,
+      {
+        es: 'El arroz se adapta a suelos ligeramente ácidos a neutros, con un pH óptimo entre 5,5 y 7,0 y tolerancia de 5,0 a 7,5 bajo inundación.',
+        en: 'Rice adapts to slightly acidic to neutral soils, with an optimum pH between 5.5 and 7.0 and tolerance from 5.0 to 7.5 under flooding.',
+      },
+      {
+        es: 'Antecedentes de INIA para el cultivo de arroz inundado en Chile; la inundación tiende a estabilizar el pH hacia la neutralidad.',
+        en: 'INIA background for flooded rice cultivation in Chile; flooding tends to buffer soil pH toward neutrality.',
+      },
+      [INIA_RICE_SOIL]),
     airMin(['vegetativo'], 'below', celsius(9), {
       severity: 'info',
       effect: 'Frío bajo 9 °C: retrasa el crecimiento del arroz',
@@ -465,9 +632,21 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: 'Las cifras de la fuente son temperaturas medias diarias y aquí se compara la mínima, que casi siempre es menor; por eso el criterio sólo informa. Se usa el extremo más bajo del rango.',
       limitationsEn: 'The source figures are daily mean temperatures and here the minimum is compared, which is almost always lower; so the criterion is only informative. The lowest end of the range is used.',
       evidence: [INIA_RICE_CRITICAL, INIA_RICE_GROWTH],
-    })),
+    }),
+    salt('Rice, paddy (Oryza sativa)', 3.0, 'moderately_sensitive'),
+    fao56Water('Rice (Oryza sativa)', 1.2, 0.2, 'flowering')),
 
   annual('sp.raps',
+    ph(5.8, 7.0, 5.5, 8.0,
+      {
+        es: 'El raps (canola) crece mejor en suelos con pH entre 5,8 y 7,0, tolerando un rango de 5,5 a 8,0.',
+        en: 'Rapeseed (canola) grows best on soils with pH between 5.8 and 7.0, tolerating a range of 5.5 to 8.0.',
+      },
+      {
+        es: 'Boletín A686 de NDSU Extension para producción comercial de canola/raps.',
+        en: 'NDSU Extension bulletin A686 for commercial canola/rapeseed production.',
+      },
+      [NDSU_CANOLA_SOIL]),
     toleratesDownTo(['vegetativo'], fromF(24), { es: 'El raps', en: 'Rapeseed' },
       {
         es: 'NDSU indica que las plántulas de canola toleran la helada hasta 24 °F (−4,4 °C).',
@@ -513,9 +692,21 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: 'Aplica mientras la semilla tiene más de 20 % de humedad; con menos, la fuente indica que normalmente escapa al daño.',
       limitationsEn: 'It applies while seed moisture is above 20%; below that, the source indicates it normally escapes damage.',
       evidence: [CCC_FALL_FROST],
-    })),
+    }),
+    salt('Rapeseed / Canola (Brassica campestris / napus)', 9.7, 'tolerant'),
+    fao56Water('Canola / Rapeseed (Brassica napus)', 1.15, 0.6, 'flowering')),
 
   annual('sp.soya',
+    ph(6.0, 7.0, 5.8, 7.5,
+      {
+        es: 'El cultivo de soya alcanza su óptimo en suelos con pH de 6,0 a 7,0, aceptable entre 5,8 y 7,5 para una buena nodulación.',
+        en: 'Soybean production is optimal at a soil pH of 6.0 to 7.0, acceptable between 5.8 and 7.5 for effective nodulation.',
+      },
+      {
+        es: 'Guía de fertilidad de NDSU Extension para soya; fuera del rango óptimo disminuye la fijación biológica de nitrógeno.',
+        en: 'NDSU Extension soybean fertility guide; outside the optimum range biological nitrogen fixation decreases.',
+      },
+      [NDSU_SOYBEAN_SOIL]),
     airMin(ALL_STAGES, 'at_or_below', fromF(32), {
       severity: 'warning',
       effect: 'Helada de 0 °C o menos: daña las hojas superiores de la soya',
@@ -539,7 +730,9 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: 'La fuente habla de un período prolongado sin fijar horas; el pronóstico sólo compara la mínima diaria. Más allá de R7 la helada ya no reduce el rendimiento.',
       limitationsEn: 'The source refers to an extended period without setting hours; the forecast only compares the daily minimum. Beyond R7 frost no longer reduces yield.',
       evidence: [NDSU_SOYBEAN_FROST],
-    })),
+    }),
+    salt('Soybean (Glycine max)', 5.0, 'moderately_tolerant'),
+    waterSensitive('Soybean', 'vegetative 0.2; flowering 0.8; yield formation 1.0', 0.8, 'flowering')),
 
   annual('sp.remolacha',
     ph(6.0, 8.0, 6.0, null,
@@ -561,19 +754,12 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
         es: 'Sin fuente propia para remolacha azucarera: se usa el criterio documentado para Betarraga (Beetroot), porque ambas son la misma especie botánica (Beta vulgaris) y se cosecha la raíz. Purdue indica que la plántula de remolacha azucarera ha resistido temperaturas de mediados de los veinte °F, coherente con este valor.',
         en: 'No source for sugar beet: the documented criterion for Betarraga (Beetroot) is used, because both are the same botanical species (Beta vulgaris) and the root is harvested. Purdue states that sugar beet seedlings have survived temperatures in the mid-twenties °F, consistent with this value.',
       },
-      [inia165('weak'), nebraska('tolerant', 'Beet'), sdsu('light', 'Beets')]).map(c => analog('sp.betarraga', c))),
+      [inia165('weak'), nebraska('tolerant', 'Beet'), sdsu('light', 'Beets')]).map(c => analog('sp.betarraga', c)),
+    salt('Sugarbeet (Beta vulgaris)', 7.0, 'tolerant'),
+    waterSensitive('Sugarbeet', 'total growing period 0.6-1.0', 0.6, 'vegetative')),
 
   annual('sp.lupino',
-    ph(4.5, 7.5, null, 8.0,
-      {
-        es: 'El lupino prefiere suelos ácidos a casi neutros, con pH 4,5 a 7,5, y tolera hasta 8,0 si el suelo tiene poca cal libre.',
-        en: 'Lupin prefers acid to near-neutral soils, pH 4.5 to 7.5, and tolerates up to 8.0 if the soil has little free lime.',
-      },
-      {
-        es: 'Guía para lupino de hoja angosta (Lupinus angustifolius) en Oregón; el lupino blanco y el amarillo cultivados en Chile pueden diferir.',
-        en: 'Guide for narrow-leaf lupin (Lupinus angustifolius) in Oregon; the white and yellow lupins grown in Chile may differ.',
-      },
-      [OSU_LUPIN_SOIL]),
+    LUPIN_PH,
     airMax(['floracion', 'cosecha'], 'at_or_above', fromF(80), {
       severity: 'warning',
       effect: 'Calor de 26,7 °C o más en floración o llenado de vainas: aborta flores del lupino',
@@ -597,7 +783,9 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: 'Se compara la mínima diaria pronosticada, que en muchas zonas de Chile baja de 10 °C en primavera; por eso el criterio sólo informa.',
       limitationsEn: 'The forecast daily minimum is compared, which in many parts of Chile drops below 10 °C in spring; so the criterion is only informative.',
       evidence: [OSU_LUPIN_CLIMATE],
-    })),
+    }),
+    analogSalt('sp.soya', 'el lupino', 'lupin', 'Soya', 'Soybean', 'ambas son leguminosas de grano anual de la familia Fabaceae', 'both are annual grain legumes of the family Fabaceae', 'Soybean (Glycine max)', 5.0, 'moderately_tolerant'),
+    fao56Water('Legumes — Lupin (Lupinus spp.)', 1.15, 0.5, 'flowering')),
 
   annual('sp.achicoria',
     ph(6.0, 7.0, null, null,
@@ -633,10 +821,22 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: NO_FROST_FIGURE,
       limitationsEn: NO_FROST_FIGURE_EN,
       evidence: [OMAFRA_CHICORY],
-    })),
+    }),
+    analogSalt('sp.lechuga', 'la achicoria', 'chicory', 'Lechuga', 'Lettuce', 'ambas pertenecen a la familia Asteraceae (tribu Cichorieae)', 'both belong to the family Asteraceae (tribe Cichorieae)', 'Lettuce (Lactuca sativa)', 1.3, 'moderately_sensitive'),
+    fao56Water('Roots and Tubers — Chicory root (Cichorium intybus)', 1.1, 0.5, 'vegetative')),
 
   // --- Forrajeras ---
   perennial('sp.alfalfa',
+    ph(6.5, 7.0, 6.2, 7.5,
+      {
+        es: 'La alfalfa requiere un pH entre 6,5 y 7,0 para una nodulación y persistencia óptimas, con un rango aceptable de 6,2 a 7,5.',
+        en: 'Alfalfa requires a pH between 6.5 and 7.0 for optimal nodulation and stand persistence, with an acceptable range of 6.2 to 7.5.',
+      },
+      {
+        es: 'Guía agronómica de Penn State Extension para alfalfa; bajo 6,2 se resiente la fijación simbiótica de Sinorhizobium meliloti.',
+        en: 'Penn State Extension Agronomy Guide for alfalfa; below 6.2 symbiotic fixation by Sinorhizobium meliloti is impaired.',
+      },
+      [PSU_ALFALFA_SOIL]),
     toleratesDownTo(GROWING, fromF(24), { es: 'La alfalfa', en: 'Alfalfa' },
       {
         es: 'Penn State indica que la noche debe bajar a 24 °F (−4,4 °C) o menos por cuatro horas o más para congelar el punto de crecimiento de la alfalfa, y que temperaturas de 28 a 32 °F no la dañan. South Dakota State observa daño severo bajo 25 °F por cuatro horas o más.',
@@ -656,19 +856,22 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
         es: `${RAIN_RULE} Aplica cuando se corta para heno o ensilaje; en pastoreo directo no corresponde.`,
         en: `${RAIN_RULE_EN} It applies when cutting for hay or silage; it does not apply to direct grazing.`,
       },
-      [UW_HAY_RAIN])),
+      [UW_HAY_RAIN]),
+    salt('Alfalfa (Medicago sativa)', 2.0, 'moderately_sensitive'),
+    waterSensitive('Alfalfa', 'total growing period 0.7-1.1', 0.7, 'vegetative')),
 
   perennial('sp.trebol-rosado',
-    ph(6.6, 7.6, 4.5, 8.2,
+    RED_CLOVER_PH,
+    toleratesDownTo(GROWING, fromF(24), { es: 'El trébol rosado', en: 'Red clover' },
       {
-        es: 'El pH óptimo para trébol rosado es 6,6 a 7,6; la especie tolera de 4,5 a 8,2.',
-        en: 'The optimum pH for red clover is 6.6 to 7.6; the species tolerates 4.5 to 8.2.',
+        es: 'Por analogía con alfalfa: Penn State indica que la noche debe bajar a 24 °F (−4,4 °C) o menos por cuatro horas o más para congelar el punto de crecimiento, y que temperaturas de 28 a 32 °F no lo dañan.',
+        en: 'By analogy with alfalfa: Penn State states that nights must fall to 24 °F (−4.4 °C) or lower for four hours or more to freeze the growing point, and that 28 to 32 °F does not damage it.',
       },
       {
-        es: 'Ficha de Oregon State; entre el límite tolerado y el óptimo el trébol crece, pero rinde menos.',
-        en: 'Oregon State sheet; between the tolerated limit and the optimum red clover grows, but yields less.',
+        es: 'Sin fuente propia para trébol rosado: se usa el criterio documentado para Alfalfa (Alfalfa), porque ambas son leguminosas forrajeras perennes de la tribu Trifolieae. Las fuentes exigen cuatro horas o más de frío; el pronóstico sólo compara la mínima diaria.',
+        en: 'No source for red clover: the documented criterion for Alfalfa (Alfalfa) is used, because both are perennial forage legumes of the tribe Trifolieae. Sources require four hours or more of cold; the forecast only compares the daily minimum.',
       },
-      [OSU_RED_CLOVER]),
+      [PSU_ALFALFA_FREEZE, SDSU_ALFALFA_FROST]).map(c => analog('sp.alfalfa', c)),
     analog('sp.alfalfa', forageRain({ es: 'trébol rosado', en: 'red clover' },
       {
         es: 'Por analogía con alfalfa: University of Wisconsin indica que la lluvia entre el corte y la cosecha del forraje causa pérdidas de rendimiento y de calidad.',
@@ -678,7 +881,9 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
         es: `Sin fuente propia para trébol rosado: se usa el criterio documentado para Alfalfa (Alfalfa), porque ambas son leguminosas forrajeras que se cortan para heno y pierden hojas al mojarse. ${RAIN_RULE}`,
         en: `No source for red clover: the documented criterion for Alfalfa (Alfalfa) is used, because both are forage legumes cut for hay that lose leaves when wet. ${RAIN_RULE_EN}`,
       },
-      [UW_HAY_RAIN]))),
+      [UW_HAY_RAIN])),
+    salt('Clover, red (Trifolium pratense)', 1.5, 'moderately_sensitive'),
+    fao56Water('Clover hay, Berseem (Trifolium spp.)', 1.15, 0.5, 'vegetative')),
 
   annual('sp.ballica',
     ph(5.5, 7.5, 5.0, 7.8,
@@ -691,6 +896,16 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
         en: 'Annual ryegrass (Lolium multiflorum) guide for the US Pacific Northwest; perennial ryegrass may differ.',
       },
       [OSU_RYEGRASS_SOIL]),
+    toleratesDownTo(['vegetativo'], celsius(-6), { es: 'La ballica', en: 'Ryegrass' },
+      {
+        es: 'Por analogía con avena: Manitoba Agriculture indica que las gramíneas de primavera toleran temperaturas de hasta −6 °C mientras el punto de crecimiento sigue bajo la superficie del suelo.',
+        en: 'By analogy with oat: Manitoba Agriculture states that spring grasses tolerate temperatures as low as −6 °C while the growing point is still below the soil surface.',
+      },
+      {
+        es: 'Sin fuente propia para ballica: se usa el criterio documentado para Avena (Oat), porque ambas son gramíneas de estación fría (Poaceae) con punto de crecimiento basal protegido antes del encañado.',
+        en: 'No source for ryegrass: the documented criterion for Avena (Oat) is used, because both are cool-season grasses (Poaceae) with a basal growing point protected before jointing.',
+      },
+      [MANITOBA_CEREALS]).map(c => analog('sp.avena', c)),
     forageRain({ es: 'ballica', en: 'ryegrass' },
       {
         es: 'Oregon State no recomienda henificar ballica anual en zonas lluviosas o húmedas, porque necesita buen tiempo de secado, y Penn State indica que la ballica tiene menos materia seca que otras gramíneas y requiere más tiempo de secado antes de enfardar.',
@@ -700,19 +915,12 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
         es: `${RAIN_RULE} Aplica cuando se corta para heno; en pastoreo o ensilaje directo el riesgo es menor.`,
         en: `${RAIN_RULE_EN} It applies when cutting for hay; for grazing or direct silage the risk is lower.`,
       },
-      [OSU_RYEGRASS_HAY, PSU_RYEGRASS_HAY])),
+      [OSU_RYEGRASS_HAY, PSU_RYEGRASS_HAY]),
+    salt('Ryegrass, perennial (Lolium perenne)', 5.6, 'moderately_tolerant'),
+    fao56Water('Rye Grass Hay (Lolium spp.)', 1.05, 0.6, 'vegetative')),
 
   annual('sp.col-forrajera',
-    ph(5.3, 6.8, null, null,
-      {
-        es: 'Las brásicas forrajeras requieren suelos con buen drenaje y pH entre 5,3 y 6,8 para producir bien.',
-        en: 'Forage brassicas need well-drained soils with a pH between 5.3 and 6.8 for good production.',
-      },
-      {
-        es: 'Rango dado para las brásicas forrajeras en conjunto (col, raps forrajero, nabo y rutabaga); no fija límites de daño.',
-        en: 'Range given for forage brassicas as a group (kale, forage rape, turnip and swede); it sets no damage limits.',
-      },
-      [MSSTATE_BRASSICA, UW_BRASSICA]),
+    BRASSICA_PH,
     toleratesDownTo(ALL_STAGES, fromF(10), { es: 'La col forrajera', en: 'Forage kale' },
       {
         es: 'Mississippi State indica que la col forrajera tolera el frío y sobrevive hasta 10 °F (−12,2 °C), y University of Wisconsin que las brásicas mantienen su calidad con temperaturas bajo cero si no han florecido.',
@@ -722,32 +930,60 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
         es: 'Cifras para cultivos establecidos usados en pastoreo de otoño e invierno; plántulas recién emergidas son más sensibles.',
         en: 'Figures for established crops used for fall and winter grazing; newly emerged seedlings are more sensitive.',
       },
-      [MSSTATE_BRASSICA, UW_BRASSICA])),
+      [MSSTATE_BRASSICA, UW_BRASSICA]),
+    analogSalt('sp.repollo', 'la col forrajera', 'forage kale', 'Repollo', 'Cabbage', 'ambas son variedades de la misma especie botánica (Brassica oleracea) cosechadas por su follaje', 'both are varieties of the same botanical species (Brassica oleracea) harvested for their foliage', 'Cabbage (Brassica oleracea capitata)', 1.8, 'moderately_sensitive'),
+    fao56Water('Brassica crops — Forage kale (Brassica oleracea)', 1.05, 0.45, 'vegetative')),
 
   // --- Forestales ---
-  perennial('sp.eucalipto', airMin(ALL_STAGES, 'at_or_below', celsius(-7.1), {
-    severity: 'danger',
-    effect: 'Helada de −7,1 °C o menos: daño grave en eucaliptos jóvenes',
-    effectEn: 'Frost of −7.1 °C or lower: severe injury to young eucalyptus',
-    advice: 'Con −7,1 °C o menos se puede perder buena parte del follaje de plantas jóvenes de eucalipto y aumentar la mortalidad. Revisa la plantación después de la helada.',
-    adviceEn: 'At −7.1 °C or lower young eucalyptus can lose much of their foliage and mortality rises. Check the plantation after the frost.',
-    note: 'Un estudio de la Universidad de Concepción midió en plántulas de Eucalyptus globulus una temperatura letal para la mitad del tejido de la hoja (LT50) desde −7,1 °C en las procedencias menos resistentes hasta menos de −9 °C en las más resistentes. INFOR documenta grandes pérdidas de plantaciones de E. globulus por heladas y reconoce a E. nitens como una de las especies más resistentes al frío.',
-    noteEn: 'A Universidad de Concepcion study measured in Eucalyptus globulus seedlings a temperature lethal to half of the leaf tissue (LT50) from −7.1 °C in the least resistant provenances to below −9 °C in the most resistant. INFOR documents large losses of E. globulus plantations to frost and recognizes E. nitens as one of the most cold-resistant species.',
-    limitations: 'Medido en plántulas endurecidas de E. globulus; plantas sin endurecer o heladas fuera de temporada dañan antes, y E. nitens tolera bastante más frío. En una plantación forestal la floración y la cosecha no tienen el sentido de un cultivo, así que el criterio del árbol cubre las tres etapas.',
-    limitationsEn: 'Measured on hardened E. globulus seedlings; unhardened plants or out-of-season frosts cause damage sooner, and E. nitens tolerates much more cold. In a forest plantation flowering and harvest do not mean what they do for a crop, so the tree criterion covers all three stages.',
-    evidence: [UDEC_EUCALYPTUS_FREEZE, INFOR_EUCALYPTUS],
-  })),
+  perennial('sp.eucalipto',
+    ph(5.0, 6.5, 4.5, 7.0,
+      {
+        es: 'El eucalipto se establece preferentemente en suelos ligeramente ácidos con pH óptimo de 5,0 a 6,5, tolerando de 4,5 a 7,0.',
+        en: 'Eucalyptus is preferably established on slightly acidic soils with an optimum pH of 5.0 to 6.5, tolerating 4.5 to 7.0.',
+      },
+      {
+        es: 'Antecedentes de sitio y suelo de INFOR para plantaciones de Eucalyptus spp. en el centro-sur de Chile.',
+        en: 'INFOR site and soil records for Eucalyptus spp. plantations in south-central Chile.',
+      },
+      [INFOR_EUCALYPTUS_SOIL]),
+    airMin(ALL_STAGES, 'at_or_below', celsius(-7.1), {
+      severity: 'danger',
+      effect: 'Helada de −7,1 °C o menos: daño grave en eucaliptos jóvenes',
+      effectEn: 'Frost of −7.1 °C or lower: severe injury to young eucalyptus',
+      advice: 'Con −7,1 °C o menos se puede perder buena parte del follaje de plantas jóvenes de eucalipto y aumentar la mortalidad. Revisa la plantación después de la helada.',
+      adviceEn: 'At −7.1 °C or lower young eucalyptus can lose much of their foliage and mortality rises. Check the plantation after the frost.',
+      note: 'Un estudio de la Universidad de Concepción midió en plántulas de Eucalyptus globulus una temperatura letal para la mitad del tejido de la hoja (LT50) desde −7,1 °C en las procedencias menos resistentes hasta menos de −9 °C en las más resistentes. INFOR documenta grandes pérdidas de plantaciones de E. globulus por heladas y reconoce a E. nitens como una de las especies más resistentes al frío.',
+      noteEn: 'A Universidad de Concepcion study measured in Eucalyptus globulus seedlings a temperature lethal to half of the leaf tissue (LT50) from −7.1 °C in the least resistant provenances to below −9 °C in the most resistant. INFOR documents large losses of E. globulus plantations to frost and recognizes E. nitens as one of the most cold-resistant species.',
+      limitations: 'Medido en plántulas endurecidas de E. globulus; plantas sin endurecer o heladas fuera de temporada dañan antes, y E. nitens tolera bastante más frío. En una plantación forestal la floración y la cosecha no tienen el sentido de un cultivo, así que el criterio del árbol cubre las tres etapas.',
+      limitationsEn: 'Measured on hardened E. globulus seedlings; unhardened plants or out-of-season frosts cause damage sooner, and E. nitens tolerates much more cold. In a forest plantation flowering and harvest do not mean what they do for a crop, so the tree criterion covers all three stages.',
+      evidence: [UDEC_EUCALYPTUS_FREEZE, INFOR_EUCALYPTUS],
+    }),
+    analogSalt('sp.olivo', 'el eucalipto', 'eucalyptus', 'Olivo', 'Olive', 'ante la falta de curva para especies forestales en FAO 29 se usa un árbol leñoso perenne moderadamente tolerante de referencia', 'in the absence of a curve for forestry species in FAO 29, a moderately tolerant perennial woody tree is used as reference', 'Olive (Olea europaea)', null, 'moderately_tolerant'),
+    fao56Water('Trees — Eucalyptus / Fast-growing broadleaf', 1.0, 0.65, 'vegetative')),
 
-  perennial('sp.pino-radiata', airMin(ALL_STAGES, 'at_or_below', celsius(-3), {
-    severity: 'warning',
-    effect: 'Helada de −3 °C o menos en temporada de crecimiento: daña el follaje de pinos jóvenes',
-    effectEn: 'Frost of −3 °C or lower in the growing season injures young pine foliage',
-    advice: 'En primavera y verano, una helada de −3 °C o menos puede dañar los brotes y el follaje de plantas de pino de menos de dos años. Revisa la plantación después de la helada.',
-    adviceEn: 'In spring and summer, a frost of −3 °C or lower can damage shoots and foliage of pine seedlings under two years old. Check the plantation after the frost.',
-    note: 'Un estudio del Colegio de Postgraduados (México) indica que las heladas dañan las plantaciones de pino radiata en etapa de plántula, y que el follaje de plántulas de menos de dos años se deteriora entre −3 y −6 °C en verano y entre −12 y −14 °C en invierno.',
-    noteEn: 'A Colegio de Postgraduados (Mexico) study states that frost damages radiata pine plantations at the seedling stage, and that foliage of seedlings under two years old deteriorates between −3 and −6 °C in summer and between −12 and −14 °C in winter.',
-    limitations: 'Vale para plántulas de menos de dos años en temporada de crecimiento; en invierno toleran −12 a −14 °C y los árboles adultos bastante más. Para el pino, la «floración» corresponde a los estróbilos y la «cosecha» a la plantación lista para cortar: el criterio del árbol cubre las tres etapas.',
-    limitationsEn: 'It applies to seedlings under two years old in the growing season; in winter they tolerate −12 to −14 °C and adult trees much more. For pine, "flowering" means the strobili and "harvest" the stand ready to cut: the tree criterion covers all three stages.',
-    evidence: [CHAPINGO_RADIATA],
-  })),
+  perennial('sp.pino-radiata',
+    ph(4.5, 6.0, 4.0, 6.5,
+      {
+        es: 'El pino radiata prospera en suelos ácidos a ligeramente ácidos, con un pH óptimo de 4,5 a 6,0 y tolerancia de 4,0 a 6,5.',
+        en: 'Monterey pine thrives in acidic to slightly acidic soils, with an optimum pH of 4.5 to 6.0 and tolerance from 4.0 to 6.5.',
+      },
+      {
+        es: 'Antecedentes edáficos de INFOR para plantaciones de Pinus radiata en Chile.',
+        en: 'INFOR soil records for Pinus radiata plantations in Chile.',
+      },
+      [INFOR_PINE_SOIL]),
+    airMin(ALL_STAGES, 'at_or_below', celsius(-3), {
+      severity: 'warning',
+      effect: 'Helada de −3 °C o menos en temporada de crecimiento: daña el follaje de pinos jóvenes',
+      effectEn: 'Frost of −3 °C or lower in the growing season injures young pine foliage',
+      advice: 'En primavera y verano, una helada de −3 °C o menos puede dañar los brotes y el follaje de plantas de pino de menos de dos años. Revisa la plantación después de la helada.',
+      adviceEn: 'In spring and summer, a frost of −3 °C or lower can damage shoots and foliage of pine seedlings under two years old. Check the plantation after the frost.',
+      note: 'Un estudio del Colegio de Postgraduados (México) indica que las heladas dañan las plantaciones de pino radiata en etapa de plántula, y que el follaje de plántulas de menos de dos años se deteriora entre −3 y −6 °C en verano y entre −12 y −14 °C en invierno.',
+      noteEn: 'A Colegio de Postgraduados (Mexico) study states that frost damages radiata pine plantations at the seedling stage, and that foliage of seedlings under two years old deteriorates between −3 and −6 °C in summer and between −12 and −14 °C in winter.',
+      limitations: 'Vale para plántulas de menos de dos años en temporada de crecimiento; en invierno toleran −12 a −14 °C y los árboles adultos bastante más. Para el pino, la «floración» corresponde a los estróbilos y la «cosecha» a la plantación lista para cortar: el criterio del árbol cubre las tres etapas.',
+      limitationsEn: 'It applies to seedlings under two years old in the growing season; in winter they tolerate −12 to −14 °C and adult trees much more. For pine, "flowering" means the strobili and "harvest" the stand ready to cut: the tree criterion covers all three stages.',
+      evidence: [CHAPINGO_RADIATA],
+    }),
+    analogSalt('sp.manzano', 'el pino radiata', 'Monterey pine', 'Manzano', 'Apple', 'ante la falta de curva para coníferas forestales en FAO 29 se usa un árbol leñoso templado sensible a las sales de referencia', 'in the absence of a curve for forestry conifers in FAO 29, a salt-sensitive temperate woody tree is used as reference', 'Apple (Malus sylvestris)', null, 'sensitive'),
+    fao56Water('Conifer Trees', 1.0, 0.7, 'vegetative')),
 ];

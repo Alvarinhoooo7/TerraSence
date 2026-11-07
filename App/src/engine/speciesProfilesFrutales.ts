@@ -1,9 +1,82 @@
 /** Perfiles perennes: frutales y berries (TASK ES6/ES7.B). Contrato y fuentes compartidas: speciesRuleKit.ts. */
-import type { SpeciesRuleProfile } from './speciesRuleKit';
+import type { SpeciesPhCriterion, SpeciesRuleProfile } from './speciesRuleKit';
 import type { SpeciesCriterionEvidence } from './speciesRuleKit';
-import { ALL_STAGES, CAC_AVOCADO_FREEZE, CLEMSON_LOQUAT_FROST, CORNELL_APPLE_PH, CRFG_BANANA_PASSION, CRFG_CHERIMOYA, CRFG_FEIJOA, CRFG_FIG, CRFG_LOQUAT_FROST, CRFG_PASSION_FRUIT, CRFG_POMEGRANATE, CSU_APPLE_FROST, CSU_APRICOT_FROST, CSU_PEAR_FROST, CSU_PLUM_FROST, FAO_DATE_PALM, FAO_ECOCROP_LUCUMO, FRONTIERS_PAPAYO, GROUND_COLDER, GROUND_COLDER_EN, GROWING, INIA_165_OLIVE, INIA_CHERRY_CLIMATE, INIA_OLIVE_CLIMATE, INIA_STRAWBERRY_CLIMATE, KIWI_BUD_FREEZE, KIWI_EXPOSURE, KIWI_EXPOSURE_EN, KIWI_FROST, KIWI_SOIL, KIWI_SUMMER, MSU_CITRUS_COLD, MSU_PEACH_FROST, MSU_TART_CHERRY_FROST, NCSU_GRAPE_PH, NCSU_PERSIMMON_PH, OSU_HAZELNUT_FROST, PENN_STATE_PEAR_PH, PURDUE_MACADAMIA_COLD, QDPI_MACADAMIA_HEAT, RAIN_RULE, RAIN_RULE_EN, UCANR_CITRUS_FOOTHILLS, UCCE_ALMOND_FROST, UCCE_ALMOND_PH, UCCE_PISTACHIO_HEAT, UCCE_WALNUT_FROST, UCD_GRAPEVINE_HEAT, UCLA_PERSIMMON_HARVEST, UDEL_NECTARINE_CRACK, UDEL_STONE_FRUIT_CRACK, UF_GUAVA, UF_LEMON_FREEZE, UF_MANGO, UF_PASSION_FRUIT, UF_POMEGRANATE, UF_TAHITI_LIME_FREEZE, UGA_BLUEBERRY_HARVEST, UGA_PEACH_PH, UGA_PECAN_FROST, UGA_PECAN_HARVEST, UGUAM_FIG_PH, UIUC_NECTARINE_PH, UNH_STONE_FRUIT_PH, USU_NECTARINE_FROST, UW_GRAPE_HARVEST_SPLIT, umaineFreeze, WISCONSIN_KIWI, WSU_BLUEBERRY_HEAT, WSU_GRAPEVINE_FROST, airMax, airMin, analog, celsius, citrusPh, decimal, fahrenheitToCelsius, fromF, harvestFreeze, pennStateBerries, percent, perennial, readingBelow, salt, umdTableB1, weatherEvent } from './speciesRuleKit';
+import { ALL_STAGES, CAC_AVOCADO_FREEZE, CLEMSON_LOQUAT_FROST, CORNELL_APPLE_PH, CRFG_BANANA_PASSION, CRFG_CHERIMOYA, CRFG_FEIJOA, CRFG_FIG, CRFG_LOQUAT_FROST, CRFG_PASSION_FRUIT, CRFG_POMEGRANATE, CSU_APPLE_FROST, CSU_APRICOT_FROST, CSU_PEAR_FROST, CSU_PLUM_FROST, FAO_DATE_PALM, FAO_ECOCROP_LUCUMO, FRONTIERS_PAPAYO, GROUND_COLDER, GROUND_COLDER_EN, GROWING, INIA_165_OLIVE, INIA_CHERRY_CLIMATE, INIA_OLIVE_CLIMATE, INIA_STRAWBERRY_CLIMATE, KIWI_BUD_FREEZE, KIWI_EXPOSURE, KIWI_EXPOSURE_EN, KIWI_FROST, KIWI_SOIL, KIWI_SUMMER, MSU_CITRUS_COLD, MSU_PEACH_FROST, MSU_TART_CHERRY_FROST, NCSU_GRAPE_PH, NCSU_PERSIMMON_PH, OSU_HAZELNUT_FROST, PENN_STATE_PEAR_PH, PURDUE_MACADAMIA_COLD, QDPI_MACADAMIA_HEAT, RAIN_RULE, RAIN_RULE_EN, UCANR_CITRUS_FOOTHILLS, UCCE_ALMOND_FROST, UCCE_ALMOND_PH, UCCE_PISTACHIO_HEAT, UCCE_WALNUT_FROST, UCD_GRAPEVINE_HEAT, UCLA_PERSIMMON_HARVEST, UDEL_NECTARINE_CRACK, UDEL_STONE_FRUIT_CRACK, UF_GUAVA, UF_LEMON_FREEZE, UF_MANGO, UF_PASSION_FRUIT, UF_POMEGRANATE, UF_TAHITI_LIME_FREEZE, UGA_BLUEBERRY_HARVEST, UGA_PEACH_PH, UGA_PECAN_FROST, UGA_PECAN_HARVEST, UGUAM_FIG_PH, UIUC_NECTARINE_PH, UNH_STONE_FRUIT_PH, USU_NECTARINE_FROST, UW_GRAPE_HARVEST_SPLIT, umaineFreeze, WISCONSIN_KIWI, WSU_BLUEBERRY_HEAT, WSU_GRAPEVINE_FROST, airMax, airMin, analog, analogPh, analogSalt, analogWater, celsius, citrusPh, decimal, fahrenheitToCelsius, fao56Water, fromF, harvestFreeze, pennStateBerries, percent, perennial, readingBelow, salt, umdTableB1, waterSensitive, weatherEvent } from './speciesRuleKit';
 
 // --- Fuentes nuevas del agente B (TASK ES7.B, S120–S179): ver MOTOR_AGRONOMICO.md ---------
+
+const UCANR_AVOCADO_PH: SpeciesCriterionEvidence = {
+  institution: 'UC Agriculture and Natural Resources',
+  title: 'California Backyard Orchard — Soil and Water Management',
+  url: 'https://homeorchard.ucanr.edu/The_Big_Picture/Soil_and_Water_Management/',
+  section: '«Soil pH»',
+  consultedAt: '2026-10-16',
+  originalValue: 'Ideal soil pH for fruit trees is between 6.0 and 7.0; avocados prefer a slightly more acidic soil (5.5 to 6.8).',
+};
+
+const CTAHR_MACADAMIA_PH: SpeciesCriterionEvidence = {
+  institution: 'University of Hawaii, College of Tropical Agriculture and Human Resources (CTAHR)',
+  title: "Macadamia: Hawaii's Dessert Nut (R. A. Hamilton, P. J. Ito y C. L. Chia, Circular 485)",
+  url: 'https://scholarspace.manoa.hawaii.edu/server/api/core/bitstreams/aece501e-c547-4d0e-a207-aa5f04363809/content',
+  section: '«Soil Requirements»',
+  consultedAt: '2026-10-18',
+  originalValue: 'Macadamia grows well in soils with pH values from 5.0 to 6.5, with an optimum pH between 5.5 and 6.5.',
+};
+
+const UF_MANGO_PH: SpeciesCriterionEvidence = {
+  institution: 'University of Florida IFAS Extension',
+  title: 'Mango Growing in the Florida Home Landscape (HS2 / MG216, J. H. Crane)',
+  url: 'https://edis.ifas.ufl.edu/publication/MG216',
+  section: '«Soils»',
+  consultedAt: '2026-10-18',
+  originalValue: 'Mango trees grow best in soils with a pH from 5.5 to 7.0; in alkaline soils above pH 7.0 iron and zinc deficiencies may occur.',
+};
+
+const CLEMSON_LOQUAT_PH: SpeciesCriterionEvidence = {
+  institution: 'Clemson University Cooperative Extension',
+  title: 'Loquat (Factsheet HGIC 1361)',
+  url: 'https://hgic.clemson.edu/factsheet/loquat/',
+  section: '«Planting» — Soil',
+  consultedAt: '2026-10-18',
+  originalValue: 'Loquats grow well in most well-drained soils with a pH of 6.0 to 6.5.',
+};
+
+const FAO_DATE_PALM_PH: SpeciesCriterionEvidence = {
+  institution: 'FAO (Plant Production and Protection Paper 156)',
+  title: 'Date Palm Cultivation (A. Zaid y P. F. de Wet)',
+  url: 'https://www.fao.org/4/y4360e/y4360e08.htm',
+  section: '«Soil requirements»',
+  consultedAt: '2026-10-18',
+  originalValue: 'Date palm grows in soils with pH 7.0 to 8.5, although neutral to slightly alkaline soils are common in date-growing areas.',
+};
+
+const UGA_PECAN_PH: SpeciesCriterionEvidence = {
+  institution: 'University of Georgia Cooperative Extension',
+  title: 'Commercial Pecan Production in Georgia (Bulletin 1346 / Circular 1100, L. Wells)',
+  url: 'https://extension.uga.edu/publications/detail.html?number=B1346',
+  section: '«Soil pH and Liming»',
+  consultedAt: '2026-10-18',
+  originalValue: 'Soil pH for pecans should be maintained between 6.0 and 6.5. Apply lime if soil pH is below 6.0.',
+};
+
+const CRFG_MOUNTAIN_PAPAYA_PH: SpeciesCriterionEvidence = {
+  institution: 'California Rare Fruit Growers (CRFG)',
+  title: 'Mountain Papaya Fruit Facts (Vasconcellea pubescens / Carica pubescens)',
+  url: 'https://crfg.org/wiki/fruit/mountain-papaya/',
+  section: '«Adaptation» — Soil',
+  consultedAt: '2026-10-18',
+  originalValue: 'Mountain papaya prefers well-drained, slightly acidic soils with an optimum pH of 6.0 to 6.5 (tolerating 5.5 to 7.0).',
+};
+
+const AVOCADO_PH_CRITERION: SpeciesPhCriterion = {
+  kind: 'ph', state: 'enabled', stages: GROWING,
+  optimum: { min: 5.5, max: 6.8 }, lowerLimit: null, upperLimit: null,
+  note: 'El palto prefiere un suelo ligeramente más ácido que otros frutales, con un pH entre 5,5 y 6,8.',
+  noteEn: 'Avocado prefers a slightly more acidic soil than other fruit trees, with a pH between 5.5 and 6.8.',
+  limitations: 'Guía de manejo de suelos de UC ANR; señala el rango preferido sin fijar límites de corrección obligatoria.',
+  limitationsEn: 'UC ANR soil management guide; states the preferred range without setting mandatory correction limits.',
+  evidence: [UCANR_AVOCADO_PH],
+};
 
 const USDA_AH66_ALMOND: SpeciesCriterionEvidence = {
   institution: 'USDA Agricultural Research Service',
@@ -167,7 +240,9 @@ export const FRUTAL_PROFILES: readonly SpeciesRuleProfile[] = [
     limitations: `${RAIN_RULE} El rocío no se pronostica.`,
     limitationsEn: `${RAIN_RULE_EN} Dew is not forecast.`,
     evidence: [UGA_BLUEBERRY_HARVEST],
-  })),
+  }),
+  salt('Blueberry (Vaccinium spp.)', 1.5, 'sensitive'),
+  fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
   perennial('sp.frutilla', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 5.8, max: 7.0 }, lowerLimit: 5.8, upperLimit: 7.2,
@@ -235,7 +310,8 @@ export const FRUTAL_PROFILES: readonly SpeciesRuleProfile[] = [
     limitationsEn: `${RAIN_RULE_EN} It does not diagnose disease: it only flags the condition the source associates with it.`,
     evidence: [INIA_STRAWBERRY_CLIMATE],
   }),
-  salt('Strawberry (Fragaria sp.)', 1.0, 'sensitive')),
+  salt('Strawberry (Fragaria sp.)', 1.0, 'sensitive'),
+  fao56Water('Strawberries (Fragaria × ananassa)', 0.85, 0.2, 'flowering')),
 
   // --- Frutales ---
   perennial('sp.cerezo', {
@@ -338,7 +414,8 @@ export const FRUTAL_PROFILES: readonly SpeciesRuleProfile[] = [
     limitationsEn: `${RAIN_RULE_EN} Cracking susceptibility varies widely among varieties.`,
     evidence: [INIA_CHERRY_CLIMATE],
   }),
-  salt('Cherry, sweet (Prunus avium)', null, 'sensitive')),
+  salt('Cherry, sweet (Prunus avium)', null, 'sensitive'),
+  fao56Water('Cherries (Prunus avium)', 0.95, 0.5, 'flowering')),
   perennial('sp.kiwi', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.0, max: 7.0 }, lowerLimit: null, upperLimit: null,
@@ -395,7 +472,11 @@ export const FRUTAL_PROFILES: readonly SpeciesRuleProfile[] = [
     limitations: `${KIWI_EXPOSURE} ${GROUND_COLDER} La fuente no documenta un umbral de lluvia en cosecha para el kiwi, así que esa etapa sólo compara la helada.`,
     limitationsEn: `${KIWI_EXPOSURE_EN} ${GROUND_COLDER_EN} The source documents no rain threshold at harvest for kiwifruit, so this stage only compares frost.`,
     evidence: [KIWI_FROST],
-  })),
+  }),
+  analogSalt('sp.vid', 'el kiwi', 'kiwifruit', 'Vid', 'Grapevine',
+    'ambos son frutales trepadores caducifolios sensibles a la salinidad en zona radicular', 'both are deciduous climbing fruit crops sensitive to root-zone salinity',
+    'Grape (Vitis sp.)', 1.5, 'moderately_sensitive'),
+  fao56Water('Kiwi (Actinidia deliciosa)', 1.05, 0.35, 'flowering')),
   perennial('sp.olivo', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 5.5, max: 7.5 }, lowerLimit: 5.5, upperLimit: 8.5,
@@ -484,7 +565,8 @@ export const FRUTAL_PROFILES: readonly SpeciesRuleProfile[] = [
     limitationsEn: `${GROUND_COLDER_EN} Frost duration also matters.`,
     evidence: [INIA_165_OLIVE],
   }),
-  salt('Olive (Olea europaea)', null, 'moderately_tolerant')),
+  salt('Olive (Olea europaea)', null, 'moderately_tolerant'),
+  fao56Water('Olives (Olea europaea)', 0.7, 0.65, 'flowering')),
 perennial('sp.manzano', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.0, max: 6.5 }, lowerLimit: null, upperLimit: null,
@@ -506,7 +588,9 @@ perennial('sp.manzano', {
     limitationsEn: 'Values for 30 minutes of exposure in Red Delicious. Golden Delicious and Winesap withstand about 1 °F less before petal fall. After petal fall all varieties show similar sensitivity.',
     evidence: [CSU_APPLE_FROST],
   }),
-  harvestFreeze('manzano', 'apple', 29.3, umaineFreeze('Apples: Temperature 30–40°F; Rel. humidity 90–95%; Approximate storage life 1–12 months; Freezing point 29.3°F.'))),
+  harvestFreeze('manzano', 'apple', 29.3, umaineFreeze('Apples: Temperature 30–40°F; Rel. humidity 90–95%; Approximate storage life 1–12 months; Freezing point 29.3°F.')),
+  salt('Apple (Malus sylvestris)', null, 'sensitive'),
+  fao56Water('Apples (Malus domestica)', 0.95, 0.5, 'flowering')),
   perennial('sp.peral', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.0, max: 6.5 }, lowerLimit: null, upperLimit: null,
@@ -528,7 +612,9 @@ perennial('sp.manzano', {
     limitationsEn: 'WSU data for Bartlett exposed for 30 minutes. Anjou shows similar critical temperatures although it usually blooms earlier.',
     evidence: [CSU_PEAR_FROST],
   }),
-  harvestFreeze('peral', 'pear', 29.2, umaineFreeze('Pears: Temperature 29–31°F; Rel. humidity 90–95%; Approximate storage life 2–7 months; Freezing point 29.2°F.'))),
+  harvestFreeze('peral', 'pear', 29.2, umaineFreeze('Pears: Temperature 29–31°F; Rel. humidity 90–95%; Approximate storage life 2–7 months; Freezing point 29.2°F.')),
+  salt('Pear (Pyrus communis)', null, 'sensitive'),
+  fao56Water('Pears (Pyrus communis)', 0.95, 0.5, 'flowering')),
   perennial('sp.caqui', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.0, max: 6.5 }, lowerLimit: null, upperLimit: null,
@@ -549,8 +635,21 @@ perennial('sp.manzano', {
     limitations: 'Estudio clásico de UCLA enfocado en la variedad Hachiya; el daño ocurre con agua libre sobre el fruto por 24 horas en ambiente húmedo. La app usa el pronóstico de lluvia como aviso preventivo.',
     limitationsEn: 'Classic UCLA study focused on Hachiya persimmon; injury develops with free moisture on fruit for 24 hours in a humid atmosphere. The app uses the rain forecast as a preventive notice.',
     evidence: [UCLA_PERSIMMON_HARVEST],
-  })),
-  perennial('sp.nispero', airMin(['floracion'], 'at_or_below', fromF(26), {
+  }),
+  harvestFreeze('caqui', 'persimmon', 28.3, umaineFreeze('Persimmons: Temperature 30°F; Rel. humidity 90%; Approximate storage life 3–4 months; Freezing point 28.3°F.')),
+  salt('Persimmon (Diospyros virginiana)', null, 'sensitive'),
+  fao56Water('Deciduous orchard — Persimmon (Diospyros kaki)', 0.95, 0.5, 'flowering')),
+  perennial('sp.nispero',
+    {
+      kind: 'ph', state: 'enabled', stages: GROWING,
+      optimum: { min: 6.0, max: 6.5 }, lowerLimit: null, upperLimit: null,
+      note: 'El níspero crece bien en suelos bien drenados con un pH de 6,0 a 6,5.',
+      noteEn: 'Loquat grows well in well-drained soils with a pH of 6.0 to 6.5.',
+      limitations: 'Ficha técnica HGIC 1361 de Clemson Cooperative Extension; no documenta límites críticos fuera de ese rango.',
+      limitationsEn: 'Clemson Cooperative Extension factsheet HGIC 1361; documents no critical limits outside that range.',
+      evidence: [CLEMSON_LOQUAT_PH],
+    },
+    airMin(['floracion'], 'at_or_below', fromF(26), {
     severity: 'warning',
     effect: 'Helada en floración: daña flores maduras y cuaja del níspero',
     effectEn: 'Frost during flowering injures mature loquat blossoms and fruit set',
@@ -585,7 +684,9 @@ perennial('sp.manzano', {
     limitations: 'El níspero fructifica durante el invierno, por lo que la fruta en desarrollo puede estar expuesta a heladas antes de la cosecha.',
     limitationsEn: 'Loquat fruits during winter, so developing fruit can be exposed to frost before harvest.',
     evidence: [CRFG_LOQUAT_FROST],
-  })),
+  }),
+  salt('Loquat (Eriobotrya japonica)', null, 'sensitive'),
+  fao56Water('Subtropical orchard — Loquat (Eriobotrya japonica)', 0.95, 0.5, 'flowering')),
   perennial('sp.damasco', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.0, max: 7.0 }, lowerLimit: null, upperLimit: null,
@@ -607,7 +708,9 @@ perennial('sp.manzano', {
     limitationsEn: 'WSU Prosser and CSU critical temperatures for 30 minutes of exposure in apricot.',
     evidence: [CSU_APRICOT_FROST],
   }),
-  harvestFreeze('damasco', 'apricot', 30.1, umaineFreeze('Apricots: Temperature 31–32°F; Rel. humidity 90–95%; Approximate storage life 1–3 weeks; Freezing point 30.1°F.'))),
+  harvestFreeze('damasco', 'apricot', 30.1, umaineFreeze('Apricots: Temperature 31–32°F; Rel. humidity 90–95%; Approximate storage life 1–3 weeks; Freezing point 30.1°F.')),
+  salt('Apricot (Prunus armeniaca)', 1.6, 'sensitive'),
+  fao56Water('Apricots, Peaches, Stone Fruit (Prunus spp.)', 0.9, 0.5, 'flowering')),
   perennial('sp.duraznero', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.0, max: 6.5 }, lowerLimit: null, upperLimit: null,
@@ -640,7 +743,9 @@ perennial('sp.manzano', {
     limitations: 'Guía de manejo cualitativa de University of Delaware para carozos; no especifica milímetros exactos de lluvia.',
     limitationsEn: 'Qualitative management guide from University of Delaware for stone fruits; it does not specify exact millimeters of rainfall.',
     evidence: [UDEL_STONE_FRUIT_CRACK],
-  })),
+  }),
+  salt('Peach (Prunus persica)', 1.7, 'sensitive'),
+  fao56Water('Apricots, Peaches, Stone Fruit (Prunus spp.)', 0.9, 0.5, 'flowering')),
   perennial('sp.ciruelo', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.0, max: 7.0 }, lowerLimit: null, upperLimit: null,
@@ -673,7 +778,9 @@ perennial('sp.manzano', {
     limitations: 'Guía de extensión cualitativa de University of Delaware; no fija un umbral de milímetros de lluvia.',
     limitationsEn: 'Qualitative extension guide from University of Delaware; it sets no rainfall millimeter threshold.',
     evidence: [UDEL_STONE_FRUIT_CRACK],
-  })),
+  }),
+  salt('Plum, prune (Prunus domestica)', 1.5, 'sensitive'),
+  fao56Water('Plums (Prunus domestica)', 0.9, 0.5, 'flowering')),
   perennial('sp.guindo', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.0, max: 7.0 }, lowerLimit: null, upperLimit: null,
@@ -695,7 +802,9 @@ perennial('sp.manzano', {
     limitationsEn: 'MSU data specific to sour cherry (Prunus cerasus). Must not be confused with sweet cherry (Prunus avium), which tolerates severe cold differently.',
     evidence: [MSU_TART_CHERRY_FROST],
   }),
-  harvestFreeze('guindo', 'sour cherry', 29.0, umaineFreeze('Cherries, sour: Temperature 32°F; Rel. humidity 90–95%; Approximate storage life 3–7 days; Freezing point 29.0°F.'))),
+  harvestFreeze('guindo', 'sour cherry', 29.0, umaineFreeze('Cherries, sour: Temperature 32°F; Rel. humidity 90–95%; Approximate storage life 3–7 days; Freezing point 29.0°F.')),
+  salt('Cherry, sand / sour (Prunus spp.)', null, 'sensitive'),
+  fao56Water('Cherries (Prunus cerasus)', 0.95, 0.5, 'flowering')),
   perennial('sp.nectarino', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.0, max: 6.5 }, lowerLimit: null, upperLimit: null,
@@ -728,7 +837,11 @@ perennial('sp.manzano', {
     limitations: 'Guía de manejo cualitativa de University of Delaware; no fija un umbral de lluvia en milímetros.',
     limitationsEn: 'Qualitative management guide from University of Delaware; it does not set a rainfall millimeter threshold.',
     evidence: [UDEL_NECTARINE_CRACK],
-  })),
+  }),
+  analogSalt('sp.duraznero', 'el nectarino', 'nectarine', 'Duraznero', 'Peach',
+    'ambos son variedades de la misma especie botánica Prunus persica', 'both are varieties of the same botanical species Prunus persica',
+    'Peach (Prunus persica)', 1.7, 'sensitive'),
+  fao56Water('Apricots, Peaches, Stone Fruit (Prunus spp.)', 0.9, 0.5, 'flowering')),
   perennial('sp.almendro', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.4, max: 7.5 }, lowerLimit: null, upperLimit: null,
@@ -761,7 +874,9 @@ perennial('sp.manzano', {
     limitations: 'La fuente describe el manejo de secado ante lluvia tardía; no fija una cantidad de lluvia ni un plazo exacto.',
     limitationsEn: 'The source describes drying management ahead of late rain; it sets no rainfall amount or exact timeframe.',
     evidence: [USDA_AH66_ALMOND],
-  })),
+  }),
+  salt('Almond (Prunus dulcis)', 1.5, 'sensitive'),
+  fao56Water('Almonds (Prunus dulcis)', 0.9, 0.4, 'flowering')),
   perennial('sp.vid', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.0, max: 7.0 }, lowerLimit: null, upperLimit: null,
@@ -807,7 +922,8 @@ perennial('sp.manzano', {
     limitationsEn: 'Post-rain management rule from UW-Madison; tight-clustered cultivars show higher susceptibility to splitting.',
     evidence: [UW_GRAPE_HARVEST_SPLIT],
   }),
-  salt('Grape (Vitis sp.)', 1.5, 'moderately_sensitive')),
+  salt('Grape (Vitis sp.)', 1.5, 'moderately_sensitive'),
+  waterSensitive('Grape', 'total growing period 0.85 (vegetative and flowering most sensitive)', 0.85, 'flowering')),
   perennial('sp.naranjo', citrusPh(),
     airMin(ALL_STAGES, 'at_or_below', fromF(24), {
       severity: 'warning',
@@ -820,7 +936,9 @@ perennial('sp.manzano', {
       limitations: 'Umbral de rusticidad en madera y follaje de árbol adulto; flores y frutos tiernos pueden dañarse a temperaturas más altas.',
       limitationsEn: 'Hardiness threshold for adult tree wood and foliage; blossoms and young fruit can be damaged at warmer temperatures.',
       evidence: [UCANR_CITRUS_FOOTHILLS, MSU_CITRUS_COLD],
-    })),
+    }),
+    salt('Orange (Citrus sinensis)', 1.7, 'sensitive'),
+    waterSensitive('Citrus', 'total growing period 0.8–1.1; flowering and fruit set 1.1', 1.1, 'flowering')),
   perennial('sp.limonero', citrusPh(),
     airMin(['floracion'], 'at_or_below', fromF(29), {
       severity: 'warning',
@@ -857,7 +975,9 @@ perennial('sp.manzano', {
       limitations: 'Umbral de defoliación en árbol establecido según UF/IFAS.',
       limitationsEn: 'Defoliation threshold in established trees according to UF/IFAS.',
       evidence: [UF_LEMON_FREEZE],
-    })),
+    }),
+    salt('Lemon (Citrus limon)', null, 'sensitive'),
+    waterSensitive('Citrus', 'total growing period 0.8–1.1; flowering and fruit set 1.1', 1.1, 'flowering')),
   perennial('sp.lima', citrusPh(),
     airMin(ALL_STAGES, 'below', fromF(28), {
       severity: 'warning',
@@ -870,7 +990,9 @@ perennial('sp.manzano', {
       limitations: 'Cifras para lima Tahití (Citrus latifolia). La lima sutil o Key lime (Citrus aurantiifolia) es aún más sensible al frío (daño foliar desde 30–32 °F).',
       limitationsEn: 'Figures for Tahiti lime (Citrus latifolia). Key lime (Citrus aurantiifolia) is even more cold-sensitive (foliage damage from 30–32 °F).',
       evidence: [UF_TAHITI_LIME_FREEZE],
-    })),
+    }),
+    salt('Lime (Citrus aurantifolia)', null, 'sensitive'),
+    waterSensitive('Citrus', 'total growing period 0.8–1.1; flowering and fruit set 1.1', 1.1, 'flowering')),
   perennial('sp.mandarino', citrusPh(),
     airMin(ALL_STAGES, 'at_or_below', fromF(23), {
       severity: 'warning',
@@ -883,7 +1005,9 @@ perennial('sp.manzano', {
       limitations: 'Dato específico para mandarinas del grupo Citrus reticulata; no aplica a mandarina Satsuma (Citrus unshiu), que tolera hasta 18–20 °F.',
       limitationsEn: 'Data specific to Citrus reticulata mandarins; does not apply to Satsuma mandarin (Citrus unshiu), which tolerates down to 18–20 °F.',
       evidence: [MSU_CITRUS_COLD],
-    })),
+    }),
+    salt('Tangerine / Mandarin (Citrus reticulata)', null, 'sensitive'),
+    waterSensitive('Citrus', 'total growing period 0.8–1.1; flowering and fruit set 1.1', 1.1, 'flowering')),
   perennial('sp.pomelo', citrusPh(),
     airMin(ALL_STAGES, 'at_or_below', fromF(24), {
       severity: 'warning',
@@ -896,7 +1020,9 @@ perennial('sp.manzano', {
       limitations: 'Se adopta 24 °F (−4,4 °C) como umbral de advertencia con base en MSU y UC ANR.',
       limitationsEn: '24 °F (−4.4 °C) is adopted as the warning threshold based on MSU and UC ANR.',
       evidence: [MSU_CITRUS_COLD, UCANR_CITRUS_FOOTHILLS],
-    })),
+    }),
+    salt('Grapefruit (Citrus paradisi)', 1.8, 'sensitive'),
+    waterSensitive('Citrus', 'total growing period 0.8–1.1; flowering and fruit set 1.1', 1.1, 'flowering')),
   perennial('sp.kumquat', citrusPh(),
     airMin(ALL_STAGES, 'below', fromF(18), {
       severity: 'warning',
@@ -909,7 +1035,13 @@ perennial('sp.manzano', {
       limitations: 'UF/IFAS reporta tolerancia de hasta 10 °F en ciertas condiciones; se adopta 18 °F de UC ANR como límite conservador de advertencia.',
       limitationsEn: 'UF/IFAS reports tolerance down to 10 °F under certain conditions; UC ANR 18 °F is adopted as a conservative warning limit.',
       evidence: [UCANR_CITRUS_FOOTHILLS],
-    })),
+    }),
+    analogSalt('sp.naranjo', 'el kumquat', 'kumquat', 'Naranjo', 'Orange',
+      'ambos son frutales cítricos afines injertados sobre portainjertos de Citrus', 'both are closely related citrus fruit trees grafted onto Citrus rootstocks',
+      'Orange (Citrus sinensis)', 1.7, 'sensitive'),
+    analogWater('sp.naranjo', 'el kumquat', 'kumquat', 'Naranjo', 'Orange',
+      'ambos son frutales cítricos perennifolios', 'both are evergreen citrus fruit trees',
+      waterSensitive('Citrus', 'total growing period 0.8–1.1; flowering and fruit set 1.1', 1.1, 'flowering'))),
   perennial('sp.avellano', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 5.6, max: 5.6 }, lowerLimit: 5.6, upperLimit: null,
@@ -942,7 +1074,13 @@ perennial('sp.manzano', {
     limitations: 'La fuente da una recomendación de manejo general; no fija una cantidad de lluvia ni un plazo exacto.',
     limitationsEn: 'The source gives a general management recommendation; it sets no rainfall amount or exact timeframe.',
     evidence: [OSU_FS146_HAZELNUT_RAIN],
-  })),
+  }),
+  analogSalt('sp.nogal', 'el avellano europeo', 'hazelnut', 'Nogal', 'Walnut',
+    'ambos son frutales de nuez caducifolios sensibles a la salinidad', 'both are deciduous nut trees sensitive to salinity',
+    'Walnut (Juglans regia)', null, 'sensitive'),
+  analogWater('sp.nogal', 'el avellano europeo', 'hazelnut', 'Nogal', 'Walnut',
+    'ambos son frutales de nuez caducifolios de clima templado', 'both are temperate deciduous nut trees',
+    fao56Water('Walnut Orchard (Juglans regia)', 1.1, 0.5, 'flowering'))),
   perennial('sp.nogal', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.0, max: 7.5 }, lowerLimit: 6.0, upperLimit: 7.5,
@@ -975,8 +1113,20 @@ perennial('sp.manzano', {
     limitations: 'La fuente no fija una cantidad de lluvia ni un plazo exacto; describe la condición general que favorece el moho.',
     limitationsEn: 'The source sets no rainfall amount or exact timeframe; it describes the general condition that favors mold.',
     evidence: [UCIPM_WALNUT_MOLD],
-  })),
-  perennial('sp.pecana', airMin(['vegetativo', 'floracion'], 'at_or_below', fromF(28), {
+  }),
+  salt('Walnut (Juglans regia)', null, 'sensitive'),
+  fao56Water('Walnut Orchard (Juglans regia)', 1.1, 0.5, 'flowering')),
+  perennial('sp.pecana',
+    {
+      kind: 'ph', state: 'enabled', stages: GROWING,
+      optimum: { min: 6.0, max: 6.5 }, lowerLimit: 6.0, upperLimit: null,
+      note: 'El pH del suelo para pecana debe mantenerse entre 6,0 y 6,5; se recomienda encalar bajo 6,0.',
+      noteEn: 'Soil pH for pecans should be maintained between 6.0 and 6.5; liming is recommended below 6.0.',
+      limitations: 'Boletín de producción comercial de pecana de University of Georgia Extension; documenta el mínimo de encalado de 6,0 sin fijar un techo crítico.',
+      limitationsEn: 'University of Georgia Extension commercial pecan production bulletin; documents the 6.0 liming minimum without setting a critical upper limit.',
+      evidence: [UGA_PECAN_PH],
+    },
+    airMin(['vegetativo', 'floracion'], 'at_or_below', fromF(28), {
     severity: 'warning',
     effect: 'Helada en tejido verde: daña brotes y follaje nuevo de pecana',
     effectEn: 'Frost on green tissue damages new pecan shoots and foliage',
@@ -999,7 +1149,9 @@ perennial('sp.manzano', {
     limitations: 'Registro histórico y patológico de UGA Extension sobre calidad de nuez y hongos de poscosecha en pecana.',
     limitationsEn: 'Historical and pathological record from UGA Extension on pecan nut quality and postharvest fungi.',
     evidence: [UGA_PECAN_HARVEST],
-  })),
+  }),
+  salt('Pecan (Carya illinoensis)', null, 'moderately_sensitive'),
+  fao56Water('Walnut / Pecan orchards (Carya illinoinensis)', 1.1, 0.5, 'flowering')),
   perennial('sp.pistacho', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.0, max: 7.5 }, lowerLimit: 6.0, upperLimit: 7.5,
@@ -1032,8 +1184,20 @@ perennial('sp.manzano', {
     limitations: 'La fuente no fija una cantidad de lluvia ni un porcentaje de humedad exacto; describe la condición general que agrava el riesgo.',
     limitationsEn: 'The source sets no exact rainfall amount or humidity percentage; it describes the general condition that worsens the risk.',
     evidence: [FAO_AFLATOXIN_PISTACHIO],
-  })),
-  perennial('sp.macadamia', airMax(['floracion'], 'above', celsius(30), {
+  }),
+  salt('Pistachio (Pistacia vera)', null, 'moderately_tolerant'),
+  fao56Water('Pistachios (Pistacia vera)', 1.1, 0.4, 'flowering')),
+  perennial('sp.macadamia',
+    {
+      kind: 'ph', state: 'enabled', stages: GROWING,
+      optimum: { min: 5.5, max: 6.5 }, lowerLimit: 5.0, upperLimit: null,
+      note: 'La macadamia crece bien en suelos con pH de 5,0 a 6,5, con un óptimo entre 5,5 y 6,5.',
+      noteEn: 'Macadamia grows well in soils with pH values from 5.0 to 6.5, with an optimum between 5.5 and 6.5.',
+      limitations: 'Circular 485 de University of Hawaii CTAHR; documenta el mínimo de 5,0 sin fijar un límite superior de corrección.',
+      limitationsEn: 'University of Hawaii CTAHR Circular 485; documents the 5.0 minimum without setting an upper correction limit.',
+      evidence: [CTAHR_MACADAMIA_PH],
+    },
+    airMax(['floracion'], 'above', celsius(30), {
     severity: 'warning',
     effect: 'Calor sobre 30 °C en cuaja: favorece caída prematura de nueces en macadamia',
     effectEn: 'Heat above 30 °C during nut set promotes premature macadamia nut drop',
@@ -1068,7 +1232,11 @@ perennial('sp.manzano', {
     limitations: 'Guía de manejo general de CTAHR para Hawái; no fija una cantidad de lluvia en milímetros.',
     limitationsEn: 'General CTAHR management guide for Hawaii; it sets no rainfall amount in millimeters.',
     evidence: [CTAHR_MACADAMIA_HARVEST],
-  })),
+  }),
+  salt('Macadamia (Macadamia integrifolia)', null, 'moderately_sensitive'),
+  analogWater('sp.palto', 'la macadamia', 'macadamia', 'Palto', 'Avocado',
+    'ambos son frutales subtropicales perennifolios sensibles al déficit hídrico en cuaja', 'both are evergreen subtropical fruit trees sensitive to water deficit during fruit set',
+    fao56Water('Avocado (Persea americana)', 0.85, 0.7, 'flowering'))),
   perennial('sp.chirimoyo', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.5, max: 7.6 }, lowerLimit: null, upperLimit: null,
@@ -1101,7 +1269,11 @@ perennial('sp.manzano', {
     limitations: 'La fuente describe el daño al árbol completo, no específicamente al fruto; se aplica aquí a la etapa de cosecha porque ese nivel de daño también arruina la fruta en desarrollo.',
     limitationsEn: 'The source describes damage to the whole tree, not specifically to the fruit; it is applied here to the harvest stage because that level of damage also ruins developing fruit.',
     evidence: [CRFG_CHERIMOYA],
-  })),
+  }),
+  salt('Cherimoya (Annona cherimola)', null, 'sensitive'),
+  analogWater('sp.palto', 'el chirimoyo', 'cherimoya', 'Palto', 'Avocado',
+    'ambos son frutales subtropicales perennifolios cultivados en los mismos valles de Chile central', 'both are evergreen subtropical fruit trees grown in the same valleys of central Chile',
+    fao56Water('Avocado (Persea americana)', 0.85, 0.7, 'flowering'))),
   perennial('sp.feijoa', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 5.5, max: 7.0 }, lowerLimit: null, upperLimit: null,
@@ -1122,7 +1294,11 @@ perennial('sp.manzano', {
     limitations: 'Límite de adaptación climática de CRFG; heladas tardías de primavera pueden afectar la floración a temperaturas más altas.',
     limitationsEn: 'CRFG climate adaptation limit; late spring frosts can affect flowering at warmer temperatures.',
     evidence: [CRFG_FEIJOA],
-  })),
+  }),
+  salt('Pineapple guava / Feijoa (Feijoa sellowiana)', null, 'sensitive'),
+  analogWater('sp.palto', 'la feijoa', 'feijoa', 'Palto', 'Avocado',
+    'ambos son frutales subtropicales perennifolios sensibles al déficit en floración y cuaja', 'both are evergreen subtropical fruit trees sensitive to water deficit during flowering and fruit set',
+    fao56Water('Avocado (Persea americana)', 0.85, 0.7, 'flowering'))),
   perennial('sp.granado', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 5.5, max: 7.0 }, lowerLimit: null, upperLimit: null,
@@ -1155,7 +1331,9 @@ perennial('sp.manzano', {
     limitations: 'Recomendación de cosecha de CRFG y UF/IFAS para evitar rajado del fruto.',
     limitationsEn: 'CRFG and UF/IFAS harvest recommendation to prevent fruit splitting.',
     evidence: [CRFG_POMEGRANATE, UF_POMEGRANATE],
-  })),
+  }),
+  salt('Pomegranate (Punica granatum)', null, 'moderately_tolerant'),
+  fao56Water('Deciduous orchard — Pomegranate (Punica granatum)', 0.9, 0.5, 'flowering')),
   perennial('sp.guayabo', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 4.5, max: 7.0 }, lowerLimit: null, upperLimit: 8.5,
@@ -1188,7 +1366,9 @@ perennial('sp.manzano', {
     limitations: 'La fuente describe el mecanismo de la enfermedad; no fija una cantidad de lluvia ni un porcentaje de pérdida.',
     limitationsEn: 'The source describes the disease mechanism; it sets no rainfall amount or loss percentage.',
     evidence: [UF_GUAVA_ANTHRACNOSE],
-  })),
+  }),
+  salt('Guava (Psidium guajava)', 4.7, 'moderately_tolerant'),
+  fao56Water('Tropical/Subtropical orchard — Guava (Psidium guajava)', 0.9, 0.5, 'flowering')),
   perennial('sp.higuera', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.0, max: 6.5 }, lowerLimit: null, upperLimit: null,
@@ -1221,7 +1401,9 @@ perennial('sp.manzano', {
     limitations: 'Guía de manejo y selección de sitio de CRFG y UC ANR IPM.',
     limitationsEn: 'Management and site selection guide from CRFG and UC ANR IPM.',
     evidence: [CRFG_FIG],
-  })),
+  }),
+  salt('Fig (Ficus carica)', null, 'moderately_tolerant'),
+  fao56Water('Fig (Ficus carica)', 0.9, 0.45, 'flowering')),
   perennial('sp.lucumo', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.5, max: 7.5 }, lowerLimit: 6.0, upperLimit: 8.5,
@@ -1254,8 +1436,24 @@ perennial('sp.manzano', {
     limitations: 'Requerimiento general de la especie, sin distinguir etapa; se aplica aquí como referencia durante la maduración del fruto porque la fuente no diferencia por etapa.',
     limitationsEn: 'General species requirement, not broken down by stage; applied here as a reference during fruit ripening because the source does not distinguish by stage.',
     evidence: [FAO_ECOCROP_LUCUMO_TEMP],
-  })),
-  perennial('sp.mango', airMin(['floracion'], 'below', fromF(40), {
+  }),
+  analogSalt('sp.palto', 'el lúcumo', 'lucuma', 'Palto', 'Avocado',
+    'ambos son frutales subtropicales perennifolios sensibles a las sales en los valles de Chile central y norte chico', 'both are evergreen subtropical fruit trees sensitive to salts in the valleys of central and northern Chile',
+    'Avocado (Persea americana)', null, 'sensitive'),
+  analogWater('sp.palto', 'el lúcumo', 'lucuma', 'Palto', 'Avocado',
+    'ambos son frutales subtropicales perennifolios cultivados en los mismos valles de Chile central', 'both are evergreen subtropical fruit trees grown in the same valleys of central Chile',
+    fao56Water('Avocado (Persea americana)', 0.85, 0.7, 'flowering'))),
+  perennial('sp.mango',
+    {
+      kind: 'ph', state: 'enabled', stages: GROWING,
+      optimum: { min: 5.5, max: 7.0 }, lowerLimit: null, upperLimit: 7.0,
+      note: 'El mango se desarrolla mejor en suelos con un pH de 5,5 a 7,0; sobre 7,0 pueden presentarse deficiencias de hierro y zinc.',
+      noteEn: 'Mango grows best in soils with a pH from 5.5 to 7.0; above 7.0 iron and zinc deficiencies may occur.',
+      limitations: 'Publicación EDIS MG216 de UF/IFAS; documenta el umbral superior de deficiencias de micronutrientes sin fijar un mínimo crítico.',
+      limitationsEn: 'UF/IFAS EDIS MG216 publication; documents the upper threshold for micronutrient deficiencies without setting a critical minimum.',
+      evidence: [UF_MANGO_PH],
+    },
+    airMin(['floracion'], 'below', fromF(40), {
     severity: 'warning',
     effect: 'Frío bajo 4,4 °C en floración: mata flores y frutos pequeños de mango',
     effectEn: 'Cold below 4.4 °C during flowering kills mango blossoms and small fruit',
@@ -1290,8 +1488,20 @@ perennial('sp.manzano', {
     limitations: 'La fuente liga la lluvia principalmente a la ventana de floración a fruto de medio tamaño, no a la lluvia del día de cosecha; se usa aquí como aviso orientativo porque la mancha se manifiesta al madurar.',
     limitationsEn: 'The source links rain mainly to the window from flowering to half-size fruit, not to rain on the harvest day itself; it is used here as an orienting notice because the spotting shows up as fruit ripens.',
     evidence: [UF_MANGO_ANTHRACNOSE],
-  })),
-  perennial('sp.datilera', airMin(['vegetativo'], 'at_or_below', celsius(-6), {
+  }),
+  salt('Mango (Mangifera indica)', null, 'sensitive'),
+  fao56Water('Mango (Mangifera indica)', 0.9, 0.5, 'flowering')),
+  perennial('sp.datilera',
+    {
+      kind: 'ph', state: 'enabled', stages: GROWING,
+      optimum: { min: 7.0, max: 8.5 }, lowerLimit: null, upperLimit: null,
+      note: 'La palmera datilera se desarrolla en suelos neutros a moderadamente alcalinos, con un pH documentado de 7,0 a 8,5.',
+      noteEn: 'Date palm grows in neutral to moderately alkaline soils, with a documented pH of 7.0 to 8.5.',
+      limitations: 'Manual de cultivo de la palmera datilera de la FAO (Paper 156); describe el rango habitual de zonas productoras sin fijar límites de daño.',
+      limitationsEn: 'FAO Date Palm Cultivation manual (Paper 156); describes the common range in date-growing areas without setting damage limits.',
+      evidence: [FAO_DATE_PALM_PH],
+    },
+    airMin(['vegetativo'], 'at_or_below', celsius(-6), {
     severity: 'warning',
     effect: 'Helada bajo −6 °C: quemadura y desecación de folíolos en palmera datilera',
     effectEn: 'Frost at or below −6 °C: leaflet scorching and drying in date palm',
@@ -1338,7 +1548,9 @@ perennial('sp.manzano', {
     limitations: 'La fuente no fija una cantidad de lluvia; describe el mecanismo por etapa de madurez del dátil.',
     limitationsEn: 'The source sets no rainfall amount; it describes the mechanism by date ripeness stage.',
     evidence: [FAO_DATE_PALM_RAIN],
-  })),
+  }),
+  salt('Date palm (Phoenix dactylifera)', 4.0, 'tolerant'),
+  fao56Water('Date Palms (Phoenix dactylifera)', 0.95, 0.5, 'flowering')),
   perennial('sp.maracuya', {
     kind: 'ph', state: 'enabled', stages: GROWING,
     optimum: { min: 6.0, max: 7.5 }, lowerLimit: null, upperLimit: null,
@@ -1383,8 +1595,24 @@ perennial('sp.manzano', {
     limitations: 'La fuente describe esta sensibilidad para la planta en general, sin distinguir la etapa; se aplica aquí a la fruta en maduración como referencia.',
     limitationsEn: 'The source describes this sensitivity for the plant in general, without distinguishing stage; it is applied here to the ripening fruit as a reference.',
     evidence: [UF_PASSION_FRUIT],
-  })),
-  perennial('sp.tumbo', airMin(['vegetativo', 'floracion'], 'at_or_below', fromF(28), {
+  }),
+  salt('Passion fruit (Passiflora edulis)', null, 'sensitive'),
+  analogWater('sp.vid', 'el maracuyá', 'passion fruit', 'Vid', 'Grapevine',
+    'ambos son frutales trepadores conducidos en espaldera o parrón', 'both are climbing vine fruit crops trained on trellises',
+    waterSensitive('Grape', 'total growing period 0.85 (vegetative and flowering most sensitive)', 0.85, 'flowering'))),
+  perennial('sp.tumbo',
+    analogPh('sp.maracuya', 'el tumbo', 'banana passionfruit', 'Maracuyá', 'Passion fruit',
+      'ambas especies pertenecen al género Passiflora', 'both species belong to the genus Passiflora',
+      {
+        kind: 'ph', state: 'enabled', stages: GROWING,
+        optimum: { min: 6.0, max: 7.5 }, lowerLimit: null, upperLimit: null,
+        note: 'El suelo para maracuyá debe tener un pH entre 6,0 y 7,5.',
+        noteEn: 'Soil for passion fruit should have a pH between 6.0 and 7.5.',
+        limitations: 'Publicación EDIS HS1467 de UF/IFAS para Passiflora edulis.',
+        limitationsEn: 'UF/IFAS EDIS HS1467 publication for Passiflora edulis.',
+        evidence: [UF_PASSION_FRUIT],
+      }),
+    airMin(['vegetativo', 'floracion'], 'at_or_below', fromF(28), {
     severity: 'warning',
     effect: 'Helada bajo −2,2 °C: frío letal para tumbo',
     effectEn: 'Frost at or below −2.2 °C: lethal cold for banana passion fruit',
@@ -1407,8 +1635,24 @@ perennial('sp.manzano', {
     limitations: 'La fuente describe la rusticidad general de la planta, sin distinguir la etapa; se aplica aquí a la fruta en maduración como referencia.',
     limitationsEn: 'The source describes the plant’s general hardiness, without distinguishing stage; it is applied here to the ripening fruit as a reference.',
     evidence: [CRFG_BANANA_PASSION],
-  })),
-  perennial('sp.papayo', airMin(ALL_STAGES, 'below', celsius(2), {
+  }),
+  analogSalt('sp.maracuya', 'el tumbo', 'banana passionfruit', 'Maracuyá', 'Passion fruit',
+    'ambas especies pertenecen al género Passiflora', 'both species belong to the genus Passiflora',
+    'Passion fruit (Passiflora edulis)', null, 'sensitive'),
+  analogWater('sp.vid', 'el tumbo', 'banana passionfruit', 'Vid', 'Grapevine',
+    'ambos son frutales trepadores conducidos en espaldera o parrón', 'both are climbing vine fruit crops trained on trellises',
+    waterSensitive('Grape', 'total growing period 0.85 (vegetative and flowering most sensitive)', 0.85, 'flowering'))),
+  perennial('sp.papayo',
+    {
+      kind: 'ph', state: 'enabled', stages: GROWING,
+      optimum: { min: 6.0, max: 6.5 }, lowerLimit: 5.5, upperLimit: 7.0,
+      note: 'El papayo chileno prefiere suelos ligeramente ácidos con un pH óptimo de 6,0 a 6,5, tolerando entre 5,5 y 7,0.',
+      noteEn: 'Mountain papaya prefers slightly acidic soils with an optimum pH of 6.0 to 6.5, tolerating 5.5 to 7.0.',
+      limitations: 'Ficha técnica de California Rare Fruit Growers para papayo de montaña o chileno (Vasconcellea pubescens).',
+      limitationsEn: 'California Rare Fruit Growers factsheet for mountain papaya (Vasconcellea pubescens).',
+      evidence: [CRFG_MOUNTAIN_PAPAYA_PH],
+    },
+    airMin(ALL_STAGES, 'below', celsius(2), {
     severity: 'warning',
     effect: 'Frío bajo 2 °C: riesgo de muerte en papayo chileno',
     effectEn: 'Cold below 2 °C: risk of plant death in mountain papaya',
@@ -1419,8 +1663,14 @@ perennial('sp.manzano', {
     limitations: 'Estudio científico sobre especies de la zona central de Chile; describe la alta sensibilidad a bajas temperaturas del papayo chileno.',
     limitationsEn: 'Scientific study on species from the central Chile biodiversity hotspot; describes high sensitivity to low temperatures in mountain papaya.',
     evidence: [FRONTIERS_PAPAYO],
-  })),
-  perennial('sp.palto', airMin(ALL_STAGES, 'at_or_below', fromF(29), {
+  }),
+  salt('Papaya (Carica spp.)', null, 'moderately_sensitive'),
+  analogWater('sp.palto', 'el papayo chileno', 'mountain papaya', 'Palto', 'Avocado',
+    'ambos son frutales subtropicales perennifolios sensibles al déficit hídrico', 'both are evergreen subtropical fruit trees sensitive to water deficit',
+    fao56Water('Avocado (Persea americana)', 0.85, 0.7, 'flowering'))),
+  perennial('sp.palto',
+    AVOCADO_PH_CRITERION,
+    airMin(ALL_STAGES, 'at_or_below', fromF(29), {
     severity: 'warning',
     effect: 'Helada bajo −1,7 °C: riesgo de daño por helada en palto Hass',
     effectEn: 'Frost at or below −1.7 °C: risk of freeze injury in Hass avocado',
@@ -1431,7 +1681,9 @@ perennial('sp.manzano', {
     limitations: 'Indicación de rusticidad general de la California Avocado Commission para la variedad Hass, la más cultivada en Chile. Árboles jóvenes son más sensibles.',
     limitationsEn: 'General hardiness indication from the California Avocado Commission for Hass, the main commercial variety in Chile. Young trees are more susceptible.',
     evidence: [CAC_AVOCADO_FREEZE],
-  })),
+  }),
+  salt('Avocado (Persea americana)', null, 'sensitive'),
+  fao56Water('Avocado (Persea americana)', 0.85, 0.7, 'flowering')),
 
   // --- Especies cubiertas por analogía (sin perfil propio en las tres etapas) ---
   perennial('sp.membrillo',
@@ -1456,7 +1708,13 @@ perennial('sp.manzano', {
       limitationsEn: 'No source for quince: the documented criterion for Peral (Pear) is used, because both species belong to the subtribe Pyrinae and quince is commonly used as a pear rootstock. WSU data for Bartlett exposed for 30 minutes; quince may differ.',
       evidence: [CSU_PEAR_FROST],
     })),
-    harvestFreeze('membrillo', 'quince', 28.4, umaineFreeze('Quinces: Temperature 31–32°F; Rel. humidity 90%; Approximate storage life 2–3 months; Freezing point 28.4°F.'))),
+    harvestFreeze('membrillo', 'quince', 28.4, umaineFreeze('Quinces: Temperature 31–32°F; Rel. humidity 90%; Approximate storage life 2–3 months; Freezing point 28.4°F.')),
+    analogSalt('sp.peral', 'el membrillo', 'quince', 'Peral', 'Pear',
+      'ambas especies pertenecen a la subtribu Pyrinae y el membrillo se usa como portainjerto de peral', 'both species belong to the subtribe Pyrinae and quince is used as a pear rootstock',
+      'Pear (Pyrus communis)', null, 'sensitive'),
+    analogWater('sp.peral', 'el membrillo', 'quince', 'Peral', 'Pear',
+      'ambas especies pertenecen a la subtribu Pyrinae', 'both species belong to the subtribe Pyrinae',
+      fao56Water('Pears (Pyrus communis)', 0.95, 0.5, 'flowering'))),
 
   perennial('sp.pera-asiatica',
     analog('sp.peral', {
@@ -1491,7 +1749,13 @@ perennial('sp.manzano', {
       limitations: 'Sin fuente propia para pera asiática: se usa el criterio documentado para Peral (Pear), porque ambas especies son del género Pyrus. El valor es el «punto de congelación» de la pera europea ya cosechada, registrado para definir temperaturas de almacenaje; se usa aquí como referencia para la pera asiática en maduración.',
       limitationsEn: 'No source for Asian pear: the documented criterion for Peral (Pear) is used, because both species belong to the genus Pyrus. The value is the "freezing point" of already-harvested European pear, recorded to define storage temperatures; it is used here as a reference for ripening Asian pear.',
       evidence: [umaineFreeze('Pears: Temperature 29–31°F; Rel. humidity 90–95%; Approximate storage life 2–7 months; Freezing point 29.2°F.')],
-    }))),
+    })),
+    analogSalt('sp.peral', 'la pera asiática', 'Asian pear', 'Peral', 'Pear',
+      'ambas especies pertenecen al género Pyrus', 'both species belong to the genus Pyrus',
+      'Pear (Pyrus communis)', null, 'sensitive'),
+    analogWater('sp.peral', 'la pera asiática', 'Asian pear', 'Peral', 'Pear',
+      'ambas especies pertenecen al género Pyrus', 'both species belong to the genus Pyrus',
+      fao56Water('Pears (Pyrus communis)', 0.95, 0.5, 'flowering'))),
 
   perennial('sp.pluot',
     analog('sp.ciruelo', {
@@ -1526,9 +1790,16 @@ perennial('sp.manzano', {
       limitations: 'Sin fuente propia para pluot: se usa el criterio documentado para Ciruelo (Plum), porque el pluot es un híbrido de ciruelo japonés y damasco con dominancia genética de ciruelo. Guía de extensión cualitativa de University of Delaware; no fija un umbral de milímetros de lluvia.',
       limitationsEn: 'No source for pluot: the documented criterion for Ciruelo (Plum) is used, because pluot is a hybrid of Japanese plum and apricot with plum genetic dominance. Qualitative extension guide from University of Delaware; it sets no rainfall millimeter threshold.',
       evidence: [UDEL_STONE_FRUIT_CRACK],
-    }))),
+    })),
+    analogSalt('sp.ciruelo', 'el pluot', 'pluot', 'Ciruelo', 'Plum',
+      'el pluot es un híbrido interespecífico con dominancia de ciruelo', 'pluot is an interspecific hybrid with plum dominance',
+      'Plum, prune (Prunus domestica)', 1.5, 'sensitive'),
+    analogWater('sp.ciruelo', 'el pluot', 'pluot', 'Ciruelo', 'Plum',
+      'el pluot es un híbrido interespecífico con dominancia de ciruelo', 'pluot is an interspecific hybrid with plum dominance',
+      fao56Water('Plums (Prunus domestica)', 0.9, 0.5, 'flowering'))),
 
   perennial('sp.tangelo',
+    citrusPh(),
     analog('sp.mandarino', airMin(ALL_STAGES, 'at_or_below', fromF(23), {
       severity: 'warning',
       effect: 'Helada bajo −5,0 °C: daño por frío en tangelo',
@@ -1540,5 +1811,9 @@ perennial('sp.manzano', {
       limitations: 'Sin fuente propia para tangelo: se usa el criterio documentado para Mandarino (Mandarin), porque el tangelo es un híbrido de mandarino y pomelo del mismo género Citrus, y las guías de extensión de Florida agrupan al tangelo junto a los híbridos de mandarino en rusticidad al frío. Dato específico para mandarinas del grupo Citrus reticulata; no distingue por variedad de tangelo.',
       limitationsEn: 'No source for tangelo: the documented criterion for Mandarino (Mandarin) is used, because tangelo is a hybrid of mandarin and grapefruit in the same genus Citrus, and Florida extension guides group tangelo with mandarin hybrids for cold hardiness. Data specific to Citrus reticulata mandarins; it does not distinguish by tangelo variety.',
       evidence: [MSU_CITRUS_COLD],
-    }))),
+    })),
+    analogSalt('sp.mandarino', 'el tangelo', 'tangelo', 'Mandarino', 'Mandarin',
+      'el tangelo es un híbrido de mandarino y pomelo del género Citrus', 'tangelo is a hybrid of mandarin and grapefruit in the genus Citrus',
+      'Tangerine / Mandarin (Citrus reticulata)', null, 'sensitive'),
+    waterSensitive('Citrus', 'total growing period 0.8–1.1; flowering and fruit set 1.1', 1.1, 'flowering')),
 ];
