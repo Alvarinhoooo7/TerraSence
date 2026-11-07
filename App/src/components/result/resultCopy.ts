@@ -45,8 +45,9 @@ function criterion<K extends SpeciesCriterion['kind']>(
 const nombre = (species: PresentationSpecies | null, language: AppLanguage) =>
   species ? (es(language) ? species.es : species.en) : '';
 
-const numero = (valor: number, decimales = 1) =>
-  valor.toLocaleString(undefined, { minimumFractionDigits: decimales, maximumFractionDigits: decimales });
+/** Con el locale de la app, como el resto del resultado: sin él, Hermes escribe «3.0» en castellano. */
+const numero = (valor: number, language: AppLanguage, decimales = 1) =>
+  valor.toLocaleString(es(language) ? 'es-CL' : 'en-US', { minimumFractionDigits: decimales, maximumFractionDigits: decimales });
 
 /** Sin criterio por especie: se dice, en vez de insinuar una cobertura que no hay. */
 function sinCriterio(species: PresentationSpecies | null, language: AppLanguage, variable: string): string {
@@ -76,22 +77,22 @@ function copiaPh(m: ParameterPresentation, species: PresentationSpecies | null,
   }
   const posicion = classifyPh(c, m.value);
   const rango = c.optimum.min === c.optimum.max
-    ? numero(c.optimum.min) : `${numero(c.optimum.min)} – ${numero(c.optimum.max)}`;
+    ? numero(c.optimum.min, language) : `${numero(c.optimum.min, language)} – ${numero(c.optimum.max, language)}`;
   const quien = nombre(species, language);
   const encabezado = castellano
     ? {
-      optimum: `pH ${numero(m.value)}, dentro del rango documentado para ${quien} (${rango}).`,
-      below_optimum: `pH ${numero(m.value)}, bajo el rango documentado para ${quien} (${rango}).`,
-      above_optimum: `pH ${numero(m.value)}, sobre el rango documentado para ${quien} (${rango}).`,
-      below_limit: `pH ${numero(m.value)}: la fuente documenta corregir bajo ${numero(c.lowerLimit ?? c.optimum.min)} para ${quien}.`,
-      above_limit: `pH ${numero(m.value)}: la fuente documenta corregir sobre ${numero(c.upperLimit ?? c.optimum.max)} para ${quien}.`,
+      optimum: `pH ${numero(m.value, language)}, dentro del rango documentado para ${quien} (${rango}).`,
+      below_optimum: `pH ${numero(m.value, language)}, bajo el rango documentado para ${quien} (${rango}).`,
+      above_optimum: `pH ${numero(m.value, language)}, sobre el rango documentado para ${quien} (${rango}).`,
+      below_limit: `pH ${numero(m.value, language)}: la fuente documenta corregir bajo ${numero(c.lowerLimit ?? c.optimum.min, language)} para ${quien}.`,
+      above_limit: `pH ${numero(m.value, language)}: la fuente documenta corregir sobre ${numero(c.upperLimit ?? c.optimum.max, language)} para ${quien}.`,
     }[posicion]
     : {
-      optimum: `pH ${numero(m.value)}, within the documented range for ${quien} (${rango}).`,
-      below_optimum: `pH ${numero(m.value)}, below the documented range for ${quien} (${rango}).`,
-      above_optimum: `pH ${numero(m.value)}, above the documented range for ${quien} (${rango}).`,
-      below_limit: `pH ${numero(m.value)}: the source documents correcting below ${numero(c.lowerLimit ?? c.optimum.min)} for ${quien}.`,
-      above_limit: `pH ${numero(m.value)}: the source documents correcting above ${numero(c.upperLimit ?? c.optimum.max)} for ${quien}.`,
+      optimum: `pH ${numero(m.value, language)}, within the documented range for ${quien} (${rango}).`,
+      below_optimum: `pH ${numero(m.value, language)}, below the documented range for ${quien} (${rango}).`,
+      above_optimum: `pH ${numero(m.value, language)}, above the documented range for ${quien} (${rango}).`,
+      below_limit: `pH ${numero(m.value, language)}: the source documents correcting below ${numero(c.lowerLimit ?? c.optimum.min, language)} for ${quien}.`,
+      above_limit: `pH ${numero(m.value, language)}: the source documents correcting above ${numero(c.upperLimit ?? c.optimum.max, language)} for ${quien}.`,
     }[posicion];
   const tips = posicion === 'optimum'
     ? (castellano
@@ -130,8 +131,8 @@ function copiaEc(m: ParameterPresentation, species: PresentationSpecies | null,
   const quien = nombre(species, language);
   const umbral = c.thresholdEce == null ? ''
     : castellano
-      ? ` La fuente no documenta pérdida de rendimiento hasta ${numero(c.thresholdEce)} dS/m de CE del extracto de saturación.`
-      : ` The source documents no yield loss up to ${numero(c.thresholdEce)} dS/m of saturation-extract EC.`;
+      ? ` La fuente no documenta pérdida de rendimiento hasta ${numero(c.thresholdEce, language)} dS/m de CE del extracto de saturación.`
+      : ` The source documents no yield loss up to ${numero(c.thresholdEce, language)} dS/m of saturation-extract EC.`;
   return {
     reading: castellano
       ? `${quien} se clasifica como ${clase} a la salinidad.${umbral}`
