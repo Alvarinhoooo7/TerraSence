@@ -3,7 +3,7 @@ import test from 'node:test';
 import { evaluateReadingForStage } from '../src/engine/stageEvaluator';
 import { buildContextualAdvice } from '../src/engine/contextualAdvice';
 import {
-  buildMeasurementPresentation, isMeasurementPresentation, presentationFromPoint, presentationSpecies, savedSpecies,
+  buildMeasurementPresentation, distinctNotes, isMeasurementPresentation, presentationFromPoint, presentationSpecies, savedSpecies,
 } from '../src/engine/measurementPresentation';
 import { NO_SPECIES_ID, SPECIES, SPECIES_CATALOG_VERSION } from '../src/engine/speciesCatalog';
 import { SPECIES_RULES_VERSION } from '../src/engine/speciesRules';
@@ -128,4 +128,14 @@ test('El detalle escribe los decimales según el idioma de la app, no el del sis
   } finally {
     Number.prototype.toLocaleString = original;
   }
+});
+
+test('El detalle de pH no repite la nota de control ni la lectura en los consejos', () => {
+  const p = build('vegetativo', 'sp.maiz', 'es', { ...raw, ph: 3 });
+  const ph = p.parameters.find(m => m.key === 'ph')!;
+  const parrafos = ph.control.split('\n\n');
+  assert.equal(new Set(parrafos).size, parrafos.length, ph.control);
+  const copy = buildParameterCopy(ph, 'vegetativo', p.species ?? null, 'es');
+  for (const tip of copy.tips) assert.ok(!copy.reading.includes(tip), `consejo repetido: ${tip}`);
+  assert.deepEqual(distinctNotes(['a b', 'a b', 'b', '', 'c']), ['a b', 'c']);
 });

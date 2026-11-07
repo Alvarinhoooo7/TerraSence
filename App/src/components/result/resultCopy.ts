@@ -101,8 +101,8 @@ function copiaPh(m: ParameterPresentation, species: PresentationSpecies | null,
       : ['Do not apply lime or acidifiers: pH is already where the source wants it.',
         'Measure again after fertilizing, especially with ammonium fertilizers through irrigation.'])
     : (castellano
-      ? [c.note, 'Corrige por sectores y vuelve a medir antes de repetir la aplicación.']
-      : [c.noteEn, 'Correct by sector and measure again before repeating the application.']);
+      ? ['Corrige por sectores y vuelve a medir antes de repetir la aplicación.']
+      : ['Correct by sector and measure again before repeating the application.']);
   return {
     reading: `${encabezado} ${castellano ? c.note : c.noteEn}`,
     tips, limitation: castellano ? c.limitations : c.limitationsEn, speciesBased: true,

@@ -170,6 +170,13 @@ function buildCoverageSummary(quality: LocalInputQuality, advice: ContextualAdvi
   return { headline, details: [soilDetail, npkDetail, modelDetail] };
 }
 
+/**
+ * Notas sin repetir: se quita la vacía, la idéntica a una anterior y la que ya está contenida
+ * en otra. La calidad local y la nota de confianza del pH dicen la misma frase.
+ */
+export const distinctNotes = (notes: readonly string[]) => notes.filter((note, i) =>
+  !!note && !notes.some((other, j) => j !== i && other.includes(note) && (other !== note || j < i)));
+
 export function buildMeasurementPresentation(raw: SoilMeasurement, evaluation: StageAwareEvaluation, advice: ContextualAdvice, language: AppLanguage = 'es', quality?: LocalInputQuality, speciesId?: string | null): MeasurementPresentation {
   const en = language === 'en';
   quality ??= buildLocalInputQuality(raw, '');
@@ -211,9 +218,9 @@ export function buildMeasurementPresentation(raw: SoilMeasurement, evaluation: S
           : related.length ? [...new Set(related.map(a => a.action))].join('\n\n')
           : status === 'OPTIMAL' ? (en ? 'No correction is indicated for this parameter under the current rules. Keep monitoring the crop.' : 'No se indica una corrección para este parámetro bajo las reglas actuales. Mantén seguimiento del cultivo.')
           : (en ? 'Interpret this value together with the global plan. There is no validated specific action for this condition and stage.' : 'Interpreta este dato junto con el plan global. No hay una acción específica validada para esta condición y fase.'),
-        control: [datum ? localQualityNote(datum, language) : '', metric?.confidenceNote ?? (derived
+        control: distinctNotes([datum ? localQualityNote(datum, language) : '', metric?.confidenceNote ?? (derived
           ? (en ? 'Cross-check with a laboratory before making nutrition decisions.' : 'Contrasta con laboratorio antes de tomar decisiones sobre nutrición.')
-          : (en ? 'Compare representative points and repeat the measurement after management changes. No automatic interval is set.' : 'Compara puntos representativos y repite la medición después de cambios de manejo. No se establece un plazo automático.'))].filter(Boolean).join('\n\n'),
+          : (en ? 'Compare representative points and repeat the measurement after management changes. No automatic interval is set.' : 'Compara puntos representativos y repite la medición después de cambios de manejo. No se establece un plazo automático.'))]).join('\n\n'),
         ...(derivedIds ? { derived: derivedIds.map(id => presentDerived(physics.indicators[id], en)) } : {}),
       };
     }),

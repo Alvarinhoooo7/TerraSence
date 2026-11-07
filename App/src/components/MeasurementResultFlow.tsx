@@ -15,7 +15,7 @@ import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { PHENOLOGICAL_STAGES } from '../types/app';
-import { parameterLabel, presentationSpeciesName, type CoverageSummary, type MeasurementPresentation, type ParameterPresentation, type PresentationDerived } from '../engine/measurementPresentation';
+import { distinctNotes, parameterLabel, presentationSpeciesName, type CoverageSummary, type MeasurementPresentation, type ParameterPresentation, type PresentationDerived } from '../engine/measurementPresentation';
 import type { PrePlantingOption } from '../engine/prePlanting';
 import { AppIcon } from './AppIcon';
 import { formatEngineMetric, formatTemperature, formatTemperatureDifference } from '../utils/units';
@@ -347,7 +347,8 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
       // frase de relleno que decía que no hay corrección que indicar: ahí mandan
       // los consejos de manejo y no se escribe esa línea.
       const consejos = [...(alerta ? [m.recommendation] : []), ...(sinLectura ? [m.recommendation] : copy.tips)];
-      const notas = [m.control, copy.limitation].filter(Boolean).join(' ');
+      // Una instantánea guardada puede traer la misma nota dos veces: se depura al dibujar.
+      const notas = [distinctNotes((m.control ?? '').split('\n\n')).join('\n\n'), copy.limitation].filter(Boolean).join(' ');
       return <ScreenLayout embedded eyebrow={[
         t(`VARIABLE ${index + 1} DE ${p.parameters.length}`, `VARIABLE ${index + 1} OF ${p.parameters.length}`),
         p.species ? presentationSpeciesName(p.species, language).toUpperCase() : null,
