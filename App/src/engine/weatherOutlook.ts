@@ -69,9 +69,12 @@ export const isRainyDay = (day: ForecastDay) => (day.precipitationMm ?? 0) >= 1 
 
 const WEEKDAYS = { es: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'], en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] };
 
-/** «mañana» para el primer día del pronóstico; el nombre del día para los demás. */
-function dayName(date: string, index: number, language: AppLanguage): string {
-  if (index === 0) return language === 'en' ? 'tomorrow' : 'mañana';
+/**
+ * «mañana» para el primer día del pronóstico; el nombre del día para los demás. En un
+ * pronóstico guardado «mañana» ya no se lee bien: ahí todos los días van por su nombre.
+ */
+function dayName(date: string, index: number, language: AppLanguage, historical = false): string {
+  if (index === 0 && !historical) return language === 'en' ? 'tomorrow' : 'mañana';
   const day = new Date(`${date}T12:00:00Z`);
   if (Number.isNaN(day.getTime())) return date;
   return `${language === 'en' ? 'on ' : 'el '}${WEEKDAYS[language][day.getUTCDay()]}`;
@@ -80,9 +83,9 @@ function dayName(date: string, index: number, language: AppLanguage): string {
 const decimal = (value: number, language: AppLanguage) =>
   (Math.round(value * 10) / 10).toString().replace('.', language === 'en' ? '.' : ',');
 
-function joinDayNames(indices: number[], days: ForecastDay[], language: AppLanguage): string {
+function joinDayNames(indices: number[], days: ForecastDay[], language: AppLanguage, historical = false): string {
   const en = language === 'en';
-  const names = indices.map(i => dayName(days[i].date, i, language));
+  const names = indices.map(i => dayName(days[i].date, i, language, historical));
   return names.length > 1
     ? `${names.slice(0, -1).join(', ')} ${en ? 'and' : 'y'} ${names[names.length - 1]}`
     : names[0] ?? '';
@@ -93,7 +96,7 @@ function joinDayNames(indices: number[], days: ForecastDay[], language: AppLangu
  * Un día con datos faltantes (`precipitationMm`, `minimumTemperatureC` o `maximumTemperatureC` en `null`)
  * nunca se clasifica como ventana favorable frente a un día completo.
  */
-export function compareForecastWindows(days: ForecastDay[], language: AppLanguage = 'es'): string | null {
+export function compareForecastWindows(days: ForecastDay[], language: AppLanguage = 'es', historical = false): string | null {
   if (!days.length) return null;
   const en = language === 'en';
   const known = days.filter(d => [d.precipitationMm, d.rainProbabilityPct, d.minimumTemperatureC, d.maximumTemperatureC].some(v => v != null));
@@ -117,8 +120,8 @@ export function compareForecastWindows(days: ForecastDay[], language: AppLanguag
 
   const parts: string[] = [];
   if (favorable.length > 0 && risky.length > 0) {
-    const favList = joinDayNames(favorable, days, language);
-    const riskyList = joinDayNames(risky, days, language);
+    const favList = joinDayNames(favorable, days, language, historical);
+    const riskyList = joinDayNames(risky, days, language, historical);
     parts.push(en
       ? `Clearer window for field work ${favList}, compared with more adverse conditions ${riskyList}.`
       : `Ventana más despejada para labores de campo ${favList}, frente a condiciones más adversas ${riskyList}.`);
@@ -126,13 +129,13 @@ export function compareForecastWindows(days: ForecastDay[], language: AppLanguag
     const maxTemps = favorable.map(i => days[i].maximumTemperatureC as number);
     if (favorable.length >= 2 && Math.min(...maxTemps) < Math.max(...maxTemps)) {
       const bestIdx = favorable.reduce((best, cur) => (days[cur].maximumTemperatureC as number) < (days[best].maximumTemperatureC as number) ? cur : best, favorable[0]);
-      const bestName = dayName(days[bestIdx].date, bestIdx, language);
+      const bestName = dayName(days[bestIdx].date, bestIdx, language, historical);
       const bestMax = decimal(days[bestIdx].maximumTemperatureC as number, language);
       parts.push(en
         ? `Assessed days without heavy rain, frost or extreme heat; lower relative thermal demand ${bestName} (${bestMax} °C high).`
         : `Días evaluados sin lluvia fuerte, helada ni calor extremo; menor exigencia térmica relativa ${bestName} (máxima de ${bestMax} °C).`);
     } else {
-      const favList = joinDayNames(favorable, days, language);
+      const favList = joinDayNames(favorable, days, language, historical);
       parts.push(en
         ? `Stable window across days with complete records (${favList}), without heavy rain, frost or extreme heat.`
         : `Ventana estable en los días con datos completos (${favList}), sin lluvia fuerte, helada ni calor extremo.`);
@@ -144,7 +147,7 @@ export function compareForecastWindows(days: ForecastDay[], language: AppLanguag
   }
 
   if (incomplete.length > 0) {
-    const incList = joinDayNames(incomplete, days, language);
+    const incList = joinDayNames(incomplete, days, language, historical);
     parts.push(en
       ? `Not counted as a favorable window (${incList}) due to incomplete forecast records.`
       : `No se consideran como ventana favorable ${incList} por tener pronóstico incompleto.`);
@@ -156,9 +159,10 @@ export function compareForecastWindows(days: ForecastDay[], language: AppLanguag
 /**
  * Resumen breve de los próximos días: cuándo llueve y cuánto, desde cuándo se seca,
  * rango de máximas y si aparecen heladas o calor bajo los mismos umbrales orientativos
- * de las recomendaciones. `null` si no hay días con datos.
+ * de las recomendaciones. `null` si no hay días con datos. `historical`: el pronóstico de una
+ * medición guardada, que se cuenta en pasado y sin «mañana».
  */
-export function forecastOutlook(days: ForecastDay[], language: AppLanguage = 'es'): string | null {
+export function forecastOutlook(days: ForecastDay[], language: AppLanguage = 'es', historical = false): string | null {
   const en = language === 'en';
   const known = days.filter(d => [d.precipitationMm, d.rainProbabilityPct, d.minimumTemperatureC, d.maximumTemperatureC].some(v => v != null));
   if (!known.length) return null;
@@ -170,10 +174,10 @@ export function forecastOutlook(days: ForecastDay[], language: AppLanguage = 'es
       const amount = day.precipitationMm != null ? `${decimal(day.precipitationMm, language)} mm` : null;
       const chance = day.rainProbabilityPct != null ? `${day.rainProbabilityPct} %` : null;
       const detail = [amount, chance].filter(Boolean).join(', ');
-      return `${dayName(day.date, index, language)}${detail ? ` (${detail})` : ''}`;
+      return `${dayName(day.date, index, language, historical)}${detail ? ` (${detail})` : ''}`;
     });
     const joined = list.length > 1 ? `${list.slice(0, -1).join(', ')} ${en ? 'and' : 'y'} ${list[list.length - 1]}` : list[0];
-    parts.push(en ? `Rain expected ${joined}.` : `Se espera lluvia ${joined}.`);
+    parts.push(en ? `Rain ${historical ? 'was ' : ''}expected ${joined}.` : `Se ${historical ? 'esperaba' : 'espera'} lluvia ${joined}.`);
     const lastRain = rainy[rainy.length - 1].index;
     if (lastRain < days.length - 1) {
       const next = days[lastRain + 1];
@@ -181,7 +185,9 @@ export function forecastOutlook(days: ForecastDay[], language: AppLanguage = 'es
         : `Desde el ${WEEKDAYS.es[new Date(`${next.date}T12:00:00Z`).getUTCDay()]}, días más secos.`);
     }
   } else {
-    parts.push(en ? 'No significant rain expected in the coming days.' : 'No se espera lluvia importante en los próximos días.');
+    parts.push(historical
+      ? (en ? 'No significant rain was expected in those days.' : 'No se esperaba lluvia importante en esos días.')
+      : (en ? 'No significant rain expected in the coming days.' : 'No se espera lluvia importante en los próximos días.'));
   }
 
   const highs = days.map(d => d.maximumTemperatureC).filter((v): v is number => v != null);
@@ -191,9 +197,11 @@ export function forecastOutlook(days: ForecastDay[], language: AppLanguage = 'es
   }
   const frost = days.some(d => d.minimumTemperatureC != null && d.minimumTemperatureC <= 0);
   const heat = days.some(d => d.maximumTemperatureC != null && d.maximumTemperatureC >= 35);
-  parts.push(frost && heat ? (en ? 'Frost and heat are both possible.' : 'Hay riesgo de helada y de calor.')
-    : frost ? (en ? 'Frost is possible.' : 'Hay riesgo de helada.')
-    : heat ? (en ? 'Very hot days are possible.' : 'Hay riesgo de calor fuerte.')
+  const hay = historical ? 'Había' : 'Hay';
+  const are = historical ? 'were' : 'are', is = historical ? 'was' : 'is';
+  parts.push(frost && heat ? (en ? `Frost and heat ${are} both possible.` : `${hay} riesgo de helada y de calor.`)
+    : frost ? (en ? `Frost ${is} possible.` : `${hay} riesgo de helada.`)
+    : heat ? (en ? `Very hot days ${are} possible.` : `${hay} riesgo de calor fuerte.`)
     : (en ? 'No frost or extreme heat expected.' : 'Sin heladas ni calor extremo previstos.'));
   return parts.join(' ');
 }

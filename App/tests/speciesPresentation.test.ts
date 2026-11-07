@@ -3,10 +3,11 @@ import test from 'node:test';
 import { evaluateReadingForStage } from '../src/engine/stageEvaluator';
 import { buildContextualAdvice } from '../src/engine/contextualAdvice';
 import {
-  buildMeasurementPresentation, isMeasurementPresentation, presentationFromPoint, presentationSpecies, savedSpecies,
+  buildMeasurementPresentation, distinctNotes, isMeasurementPresentation, presentationFromPoint, presentationSpecies, savedSpecies, speciesRulesOutdated,
 } from '../src/engine/measurementPresentation';
 import { NO_SPECIES_ID, SPECIES, SPECIES_CATALOG_VERSION } from '../src/engine/speciesCatalog';
 import { SPECIES_RULES_VERSION } from '../src/engine/speciesRules';
+import { buildParameterCopy } from '../src/components/result/resultCopy';
 import type { SoilMeasurement } from '../src/types/agronomy';
 import type { MeasurementPoint, PhenologicalStage } from '../src/types/app';
 
@@ -113,4 +114,39 @@ test('ES6: una nota de especie dentro del óptimo va como seguimiento; cruzar un
   const below = plan(5.5).find(r => /pH demasiado bajo/.test(r.title));
   assert.equal(below?.kind, 'soil');
   assert.equal(below?.when, 'today');
+});
+
+test('El detalle escribe los decimales según el idioma de la app, no el del sistema', () => {
+  // Hermes formatea con en-US cuando no se le pasa locale: «pH 3.0» en un texto en castellano.
+  const original = Number.prototype.toLocaleString;
+  Number.prototype.toLocaleString = function (this: number, locale?: string | string[], options?: Intl.NumberFormatOptions) {
+    return original.call(this, locale ?? 'en-US', options);
+  };
+  try {
+    const p = build('vegetativo', 'sp.maiz', 'es', { ...raw, ph: 3 });
+    const ph = p.parameters.find(m => m.key === 'ph')!;
+    assert.match(buildParameterCopy(ph, 'vegetativo', p.species ?? null, 'es').reading, /^pH 3,0/);
+    const en = build('vegetativo', 'sp.maiz', 'en', { ...raw, ph: 3 });
+    assert.match(buildParameterCopy(en.parameters.find(m => m.key === 'ph')!, 'vegetativo', en.species ?? null, 'en').reading, /^pH 3\.0/);
+  } finally {
+    Number.prototype.toLocaleString = original;
+  }
+});
+
+test('El detalle de pH no repite la nota de control ni la lectura en los consejos', () => {
+  const p = build('vegetativo', 'sp.maiz', 'es', { ...raw, ph: 3 });
+  const ph = p.parameters.find(m => m.key === 'ph')!;
+  const parrafos = ph.control.split('\n\n');
+  assert.equal(new Set(parrafos).size, parrafos.length, ph.control);
+  const copy = buildParameterCopy(ph, 'vegetativo', p.species ?? null, 'es');
+  for (const tip of copy.tips) assert.ok(!copy.reading.includes(tip), `consejo repetido: ${tip}`);
+  assert.deepEqual(distinctNotes(['a b', 'a b', 'b', '', 'c']), ['a b', 'c']);
+});
+
+test('una lectura evaluada con otros criterios por especie se reconoce para no reinterpretarla', () => {
+  const species = presentationSpecies('sp.maiz', 'vegetativo')!;
+  assert.equal(speciesRulesOutdated(species), false);
+  assert.equal(speciesRulesOutdated({ ...species, rulesVersion: '0.0.1' }), true);
+  assert.equal(speciesRulesOutdated({ ...species, rulesVersion: undefined }), true);
+  assert.equal(speciesRulesOutdated(null), false);
 });

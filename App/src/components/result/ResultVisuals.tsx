@@ -159,10 +159,13 @@ const ESCALAS: Record<ParameterKey, Escala> = {
     min: 0, max: 100, paradas: [[0, SECO], [0.5, HUMEDO], [1, SATURADO]],
     extremos: ['Seco', 'Húmedo', 'Saturado'], extremosEn: ['Dry', 'Humid', 'Saturated'],
   },
-  // El BME280 declara 300 a 1.100 hPa; la ventana cubre la presión de superficie.
+  // El BME280 declara 300 a 1.100 hPa y mide la presión del lugar, no la reducida al
+  // nivel del mar: en Santiago (unos 500 m) ronda 950 hPa. Depende sobre todo de la
+  // altitud, así que la ventana va de unos 1.500 m (840 hPa) a la costa, sin bandas de
+  // juicio; la marca es la presión normal al nivel del mar.
   airPressure: {
-    min: 970, max: 1040, paradas: [[0, '#9FB8CE'], [0.5, '#6BBF59'], [1, '#C98B4B']],
-    extremos: ['Baja', 'Normal', 'Alta'], extremosEn: ['Low', 'Normal', 'High'],
+    min: 840, max: 1040, paradas: [[0, '#9FB8CE'], [1, '#6BBF59']],
+    extremos: ['840', 'hPa', '1.040'], extremosEn: ['840', 'hPa', '1,040'],
     referencia: 1013,
   },
 };

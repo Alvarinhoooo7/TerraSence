@@ -17,12 +17,11 @@ import type { MeasurementPoint } from '../types/app';
  */
 export function MeasurementDetailModal({ point, onClose }: { point: MeasurementPoint | null; onClose: () => void }) {
   const { colors } = useAppTheme();
-  const { t, language, locale } = useTranslation();
+  const { t, language } = useTranslation();
   if (!point) return null;
   return <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.background }]}>
     <MeasurementResultFlow key={point.id} presentation={presentationFromPoint(point, language)}
       onExit={onClose} exitLabel={t('Mediciones', 'Readings')}
-      meta={new Date(point.measuredAt).toLocaleString(locale, { dateStyle: 'long', timeStyle: 'short' })}
       notices={point.isPending ? <ScreenCard accent={colors.warning}>
         <Text style={{ color: colors.warning, fontSize: 13, fontWeight: '700', letterSpacing: 1 }}>{t('PENDIENTE DE SINCRONIZAR', 'PENDING SYNC')}</Text>
         <ScreenText>{t('Guardada en este teléfono. Se enviará a la nube al recuperar la conexión.', 'Saved on this phone. It will be sent to the cloud when the connection returns.')}</ScreenText>
