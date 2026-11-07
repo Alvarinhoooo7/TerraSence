@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { BackHandler, FlatList, Pressable, View, useWindowDimensions } from 'react-native';
+import { BackHandler, FlatList, Modal, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from './AppText';
 import Svg, { Path } from 'react-native-svg';
@@ -105,25 +105,48 @@ function TechnicalDetail({ text }: { text: string }) {
 }
 
 /**
- * Una recomendación del plan en una fila: tema y título a la vista, el porqué y el respaldo
- * técnico a un toque. El plan se recorre de un vistazo y se abre sólo lo que interesa.
+ * Un elemento del plan como mosaico: cuándo hacerlo y el título a la vista; el porqué y el
+ * respaldo técnico se abren en una hoja. Así el plan entero cabe en una pantalla.
  */
-function PlanRow({ rec, color }: { rec: Recommendation; color: string }) {
+function PlanTile({ icon, color, label, title, onPress, strong = false }: {
+  icon: string; color: string; label: string; title: string; onPress: () => void; strong?: boolean;
+}) {
   const { colors } = useAppTheme();
-  const [open, setOpen] = useState(false);
-  const accent = rec.priority === 'high' ? colors.warning : color;
-  return <View style={{ borderTopWidth: 1, borderTopColor: colors.border }}>
-    <Pressable accessibilityRole="button" accessibilityState={{ expanded: open }} onPress={() => setOpen(v => !v)}
-      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, paddingVertical: 10 }}>
-      <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><Path d={KIND_ICON[rec.kind]} /></Svg>
-      <Text style={{ flex: 1, color: colors.text, fontSize: 16, fontWeight: '700', lineHeight: 22 }}>{rec.title}</Text>
-      <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '700' }}>{open ? '▴' : '▾'}</Text>
-    </Pressable>
-    {open && <View style={{ paddingLeft: 32, paddingBottom: 12, gap: 4 }}>
-      <ScreenText>{rec.body}</ScreenText>
-      {!!rec.detail && <TechnicalDetail text={rec.detail} />}
-    </View>}
-  </View>;
+  const { t } = useTranslation();
+  return <Pressable accessibilityRole="button" accessibilityLabel={`${label}. ${title}`} accessibilityHint={t('Abre el porqué y el detalle.', 'Opens the reason and the detail.')}
+    onPress={onPress} style={({ pressed }) => ({ flexBasis: '47%', flexGrow: 1, minHeight: 92, borderRadius: 16, borderWidth: 1,
+      borderColor: strong ? `${color}88` : colors.border, backgroundColor: colors.card, padding: 12, gap: 6, opacity: pressed ? .8 : 1 })}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+      <Svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><Path d={icon} /></Svg>
+      <Text numberOfLines={1} style={{ flex: 1, color, fontSize: 11, fontWeight: '800', letterSpacing: 1 }}>{label.toUpperCase()}</Text>
+      <Text style={{ color: colors.primary, fontSize: 16 }}>›</Text>
+    </View>
+    <Text numberOfLines={3} style={{ color: colors.text, fontSize: 14, fontWeight: '700', lineHeight: 19 }}>{title}</Text>
+  </Pressable>;
+}
+
+/** Hoja inferior con el contenido completo de un elemento del plan, sobre la pantalla. */
+function PlanSheet({ visible, onClose, eyebrow, title, children }: React.PropsWithChildren<{
+  visible: boolean; onClose: () => void; eyebrow?: string; title: string;
+}>) {
+  const { colors } = useAppTheme();
+  const { t } = useTranslation();
+  const { height } = useWindowDimensions();
+  return <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: '#000000AA' }}>
+      <Pressable accessibilityRole="button" accessibilityLabel={t('Cerrar', 'Close')} onPress={onClose} style={{ flex: 1 }} />
+      <View style={{ maxHeight: height * 0.85, borderTopLeftRadius: 24, borderTopRightRadius: 24, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.background }}>
+        <ScrollView contentContainerStyle={{ alignSelf: 'center', width: '100%', maxWidth: 520, padding: 24, paddingBottom: 12, gap: 10 }}>
+          {!!eyebrow && <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '800', letterSpacing: 1.4 }}>{eyebrow}</Text>}
+          <Text accessibilityRole="header" style={{ color: colors.text, fontSize: 21, fontWeight: '800', letterSpacing: -0.3 }}>{title}</Text>
+          {children}
+        </ScrollView>
+        <View style={{ alignSelf: 'center', width: '100%', maxWidth: 520, paddingHorizontal: 24, paddingBottom: 16, paddingTop: 4 }}>
+          <EntryButton secondary label={t('Cerrar', 'Close')} onPress={onClose} />
+        </View>
+      </View>
+    </View>
+  </Modal>;
 }
 
 /**
@@ -206,11 +229,10 @@ function CropOptionsList({ options }: { options: PrePlantingOption[] }) {
   </>;
 }
 
-export function MeasurementResultFlow({ presentation: p, forecast, notices, meta, onExit, exitLabel, save }: {
+export function MeasurementResultFlow({ presentation: p, forecast, notices, onExit, exitLabel, save }: {
   presentation: MeasurementPresentation;
   forecast: ForecastProps;
   notices?: React.ReactNode;
-  meta?: string;
   onExit: () => void;
   exitLabel?: string;
   save?: { onSave: () => void; busy: boolean };
@@ -221,6 +243,8 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
   const system = useAppStore(s => s.preferences.measurementSystem);
   const [step, setStep] = useState(0);
   const [detail, setDetail] = useState<number | null>(null);
+  // Hoja abierta del plan: una recomendación (por posición), el contexto o los cultivos posibles.
+  const [sheet, setSheet] = useState<number | 'context' | 'crops' | null>(null);
   const current = STEPS[step];
   useResetGuide(detail === null ? current : `detalle-${detail}`);
   // Abrir una variable también sitúa el paso en su familia: al recorrer con
@@ -468,7 +492,6 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
           <View style={{ flex: 1, gap: 2 }}>
             <Text style={{ color: '#6EE7B7', fontSize: 11, fontWeight: '700', letterSpacing: 1.5 }}>{t('ETAPA FENOLÓGICA', 'PHENOLOGICAL STAGE')}</Text>
             <Text numberOfLines={1} style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700' }}>{stage}</Text>
-            {!!meta && <Text numberOfLines={2} style={{ color: '#C4D4C9', fontSize: 13 }}>{meta}</Text>}
           </View>
         </View>
         {/* Especie indicada al medir (presentación v3). Pre-siembra no la pregunta. */}
@@ -551,8 +574,8 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
   }
 
   // --- Plan de recomendaciones: la última página y la más importante ---
-  // Una tarjeta con lo primero que conviene hacer y, debajo, el resto en filas de una línea
-  // agrupadas por cuándo hacerlo. El porqué y el respaldo técnico quedan a un toque.
+  // Cabe en una pantalla: lo primero que conviene hacer en una tarjeta y el resto en mosaicos
+  // de dos columnas. El porqué, el respaldo técnico, el clima y cómo se evaluó se abren en una hoja.
   const kindColor = (kind: RecommendationKind) => ({
     soil: colors.primary, evidence: colors.textSecondary, weather: RAIN, irrigation: RAIN, monitoring: colors.primary,
   }[kind]);
@@ -562,51 +585,76 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
   const recs = p.recommendations;
   const speciesName = p.species ? presentationSpeciesName(p.species, language) : null;
   const first = recs?.[0];
-  // «Ahora» y «hoy» se leen juntos: las dos son para esta visita al campo.
-  const groups = first ? [
-    { label: t('Hoy', 'Today'), items: recs.slice(1).filter(r => r.when === 'now' || r.when === 'today') },
-    { label: t('Próximos días', 'Next days'), items: recs.slice(1).filter(r => r.when === 'next_days') },
-    { label: t('Próxima medición', 'Next reading'), items: recs.slice(1).filter(r => r.when === 'next_reading') },
-  ].filter(g => g.items.length) : [];
-  const firstColor = first?.priority === 'high' ? colors.warning : colors.primary;
-  const recommendationList = first ? <>
-    <Animated.View entering={enterDown(60)} style={{ borderRadius: 22, borderWidth: 2, borderColor: firstColor, backgroundColor: colors.card, padding: 18, gap: 8 }}>
-      <Text style={{ color: firstColor, fontSize: 12, fontWeight: '800', letterSpacing: 1.4 }}>
-        {`${t('PRIMERO', 'FIRST')} · ${whenLabel(first.when).toUpperCase()}`}
-      </Text>
-      <Text style={{ color: colors.text, fontSize: 21, fontWeight: '800', letterSpacing: -0.3 }}>{first.title}</Text>
-      <ScreenText muted={false}>{first.body}</ScreenText>
-      {!!first.detail && <TechnicalDetail text={first.detail} />}
-    </Animated.View>
-    {groups.map((g, i) => <Animated.View key={g.label} entering={enterDown(140 + i * 70)} style={{ gap: 2 }}>
-      <ScreenLabel>{g.label}</ScreenLabel>
-      {g.items.map((r, j) => <PlanRow key={`${r.kind}-${j}`} rec={r} color={kindColor(r.kind)} />)}
-    </Animated.View>)}
-  </> : p.actions.length ? timeline : <ScreenCard><ScreenText>{t('No hay recomendaciones para esta lectura.', 'No recommendations for this reading.')}</ScreenText></ScreenCard>;
+  const disclaimer = t('Guía orientativa basada en esta captura. Confírmala en terreno y, si dudas, con tu asesor.',
+    'Indicative guidance based on this capture. Confirm it in the field and, if in doubt, with your advisor.');
   // Evidencia: sólo los valores que piden atención, que son los que sostienen el plan.
   const evidencia = p.parameters.filter(m => MEASUREMENT_GROUPS[0].includes(m.key) && m.value != null
     && (m.status === 'WARNING' || m.status === 'CRITICAL'));
-  // El diagnóstico de conjunto va como entradilla: es el porqué de lo que viene a continuación.
-  return (<ScreenLayout {...common} eyebrow={[t('PLAN DE ACCIÓN', 'ACTION PLAN'), stage.toUpperCase(), speciesName?.toUpperCase()].filter(Boolean).join(' · ')}
-    title={t('Qué hacer con esta lectura', 'What to do with this reading')}
-    description={p.summary}>
-    {!!evidencia.length && <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-      {evidencia.map(m => <View key={m.key} accessible accessibilityLabel={`${parameterLabel(m.key, language)}: ${value(m)}`}
-        style={{ flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, paddingVertical: 6, paddingHorizontal: 10 }}>
-        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: tone(m) }} />
-        <Text style={{ color: colors.textSecondary, fontSize: 12 }}>{parameterLabel(m.key, language)}</Text>
-        <Text style={{ color: colors.text, fontSize: 12, fontWeight: '800' }}>{value(m)}</Text>
-      </View>)}
-    </View>}
-    {recommendationList}
+  const pills = !!evidencia.length && <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+    {evidencia.map(m => <View key={m.key} accessible accessibilityLabel={`${parameterLabel(m.key, language)}: ${value(m)}`}
+      style={{ flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, paddingVertical: 6, paddingHorizontal: 10 }}>
+      <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: tone(m) }} />
+      <Text style={{ color: colors.textSecondary, fontSize: 12 }}>{parameterLabel(m.key, language)}</Text>
+      <Text style={{ color: colors.text, fontSize: 12, fontWeight: '800' }}>{value(m)}</Text>
+    </View>)}
+  </View>;
+  const eyebrow = [t('PLAN DE ACCIÓN', 'ACTION PLAN'), stage.toUpperCase(), speciesName?.toUpperCase()].filter(Boolean).join(' · ');
+
+  // Mediciones antiguas sin recomendaciones estructuradas: la lista de acciones de entonces, desplazable.
+  if (!first) return (<ScreenLayout {...common} eyebrow={eyebrow} title={t('Qué hacer con esta lectura', 'What to do with this reading')} description={p.summary}>
+    {pills}
+    {p.actions.length ? timeline : <ScreenCard><ScreenText>{t('No hay recomendaciones para esta lectura.', 'No recommendations for this reading.')}</ScreenText></ScreenCard>}
     {possibleCropsCard}
     {weatherCard}
-    {/* Cómo se evaluó y qué quedó fuera: al final, y plegado de origen. */}
     {p.coverageSummary && <CoverageSummaryBox summary={p.coverageSummary} />}
-    <Text style={{ color: colors.textSecondary, fontSize: 12, lineHeight: 17 }}>
-      {t('Guía orientativa basada en esta captura. Confírmala en terreno y, si dudas, con tu asesor.',
-        'Indicative guidance based on this capture. Confirm it in the field and, if in doubt, with your advisor.')}
-    </Text>
+    <Text style={{ color: colors.textSecondary, fontSize: 12, lineHeight: 17 }}>{disclaimer}</Text>
+  </ScreenLayout>);
+
+  const firstColor = first.priority === 'high' ? colors.warning : colors.primary;
+  const openRec = typeof sheet === 'number' ? recs[sheet] : undefined;
+  return (<ScreenLayout {...common} eyebrow={eyebrow} title={t('Qué hacer', 'What to do')}>
+    {/* El diagnóstico de conjunto, recortado: completo en el contexto. */}
+    <Pressable accessibilityRole="button" accessibilityHint={t('Abre el diagnóstico completo.', 'Opens the full diagnosis.')} onPress={() => setSheet('context')}>
+      <Text numberOfLines={3} style={{ color: colors.textSecondary, fontSize: 15, lineHeight: 21 }}>{p.summary}</Text>
+    </Pressable>
+    {pills}
+    <Animated.View entering={enterDown(60)}>
+      <Pressable accessibilityRole="button" accessibilityHint={t('Abre el porqué y el detalle.', 'Opens the reason and the detail.')} onPress={() => setSheet(0)}
+        style={({ pressed }) => ({ borderRadius: 20, borderWidth: 2, borderColor: firstColor, backgroundColor: colors.card, padding: 16, gap: 6, opacity: pressed ? .85 : 1 })}>
+        <Text style={{ color: firstColor, fontSize: 12, fontWeight: '800', letterSpacing: 1.4 }}>
+          {`${t('PRIMERO', 'FIRST')} · ${whenLabel(first.when).toUpperCase()}`}
+        </Text>
+        <Text style={{ color: colors.text, fontSize: 19, fontWeight: '800', letterSpacing: -0.3, lineHeight: 24 }}>{first.title}</Text>
+        <Text numberOfLines={2} style={{ color: colors.text, fontSize: 15, lineHeight: 21 }}>{first.body}</Text>
+        <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '700' }}>{t('Por qué y detalle ›', 'Why and detail ›')}</Text>
+      </Pressable>
+    </Animated.View>
+    <Animated.View entering={enterDown(140)} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+      {recs.slice(1).map((r, i) => <PlanTile key={`${r.kind}-${i}`} icon={KIND_ICON[r.kind]} strong={r.priority === 'high'}
+        color={r.priority === 'high' ? colors.warning : kindColor(r.kind)} label={whenLabel(r.when)} title={r.title} onPress={() => setSheet(i + 1)} />)}
+      {!!possibleCropsCard && <PlanTile icon={KIND_ICON.soil} color={colors.primary} label={t('Pre-siembra', 'Pre-planting')}
+        title={t(`Posibles cultivos (${cultivosCompatibles})`, `Possible crops (${cultivosCompatibles})`)} onPress={() => setSheet('crops')} />}
+      <PlanTile icon={KIND_ICON.evidence} color={colors.textSecondary} label={t('Contexto', 'Context')}
+        title={p.weatherNote ? t('Clima y cómo se evaluó', 'Weather and how it was assessed') : t('Cómo se evaluó', 'How it was assessed')} onPress={() => setSheet('context')} />
+    </Animated.View>
+    <Text numberOfLines={1} style={{ color: colors.textSecondary, fontSize: 12 }}>{t('Guía orientativa: confírmala en terreno.', 'Indicative guidance: confirm it in the field.')}</Text>
+
+    <PlanSheet visible={!!openRec} onClose={() => setSheet(null)} title={openRec?.title ?? ''}
+      eyebrow={openRec ? `${sheet === 0 ? `${t('PRIMERO', 'FIRST')} · ` : ''}${whenLabel(openRec.when).toUpperCase()}` : undefined}>
+      {!!openRec && <>
+        <ScreenText muted={false}>{openRec.body}</ScreenText>
+        {!!openRec.detail && <TechnicalDetail text={openRec.detail} />}
+      </>}
+    </PlanSheet>
+    <PlanSheet visible={sheet === 'context'} onClose={() => setSheet(null)} eyebrow={eyebrow} title={t('Diagnóstico y contexto', 'Diagnosis and context')}>
+      <ScreenText muted={false}>{p.summary}</ScreenText>
+      {weatherCard}
+      {p.coverageSummary && <CoverageSummaryBox summary={p.coverageSummary} />}
+      <Text style={{ color: colors.textSecondary, fontSize: 12, lineHeight: 17 }}>{disclaimer}</Text>
+    </PlanSheet>
+    <PlanSheet visible={sheet === 'crops'} onClose={() => setSheet(null)} title={t('Posibles cultivos', 'Possible crops')}>
+      {possibleCropsCard}
+    </PlanSheet>
   </ScreenLayout>);
   };
 
