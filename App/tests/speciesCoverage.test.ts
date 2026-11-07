@@ -85,6 +85,9 @@ test('ES7: un criterio por analogía declara su especie de origen, que lo tiene 
     assert.match(c.limitations, new RegExp(entry.es, 'i'), `${where}: las limitaciones no nombran a ${entry.es}`);
     assert.match(c.limitationsEn, new RegExp(entry.en, 'i'), `${where}: las limitaciones en inglés no nombran a ${entry.en}`);
     assert.match(c.limitations, /^Sin fuente propia para /, `${where}: las limitaciones no declaran la analogía`);
+    // La semejanza la lee el agricultor tras «porque»: una frase nominal ahí queda sin verbo.
+    assert.doesNotMatch(c.limitations, /porque (el|la|los|las) mism[oa]s? /, `${where}: «porque» sin verbo`);
+    assert.doesNotMatch(c.limitationsEn, /because the same /, `${where}: «because» sin verbo`);
   }
 });
 

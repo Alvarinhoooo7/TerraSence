@@ -498,7 +498,7 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       limitationsEn: 'No source for Swiss chard: the documented criterion for beetroot is used, the same botanical species (Beta vulgaris subsp. vulgaris), from a different cultivar group that the table does not separate.',
     }),
     analogSalt('sp.betarraga', 'la acelga', 'Swiss chard', 'la betarraga', 'beetroot',
-      'la misma especie botánica (Beta vulgaris subsp. vulgaris)', 'the same botanical species (Beta vulgaris subsp. vulgaris)',
+      'son la misma especie botánica (Beta vulgaris subsp. vulgaris)', 'they are the same botanical species (Beta vulgaris subsp. vulgaris)',
       'Beet, red (Beta vulgaris)', 4.0, 'moderately_tolerant'),
     fao56Water('Small Vegetables — Swiss chard (Beta vulgaris var. cicla)', 1.0, 0.2, 'vegetative')),
 
@@ -516,10 +516,10 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       limitationsEn: 'No source for chili pepper: the documented criterion for bell pepper is used, from the same genus (Capsicum).',
     }),
     analogSalt('sp.pimiento', 'el ají', 'chili pepper', 'el pimiento', 'bell pepper',
-      'el mismo género (Capsicum)', 'the same genus (Capsicum)',
+      'ambos son del género Capsicum', 'both belong to the genus Capsicum',
       'Pepper (Capsicum annuum)', 1.5, 'moderately_sensitive'),
     analogWater('sp.pimiento', 'el ají', 'chili pepper', 'el pimiento', 'bell pepper',
-      'el mismo género (Capsicum)', 'the same genus (Capsicum)',
+      'ambos son del género Capsicum', 'both belong to the genus Capsicum',
       waterSensitive('Pepper', 'total growing period 1.1 (most sensitive at flowering and fruit set)', 1.1, 'flowering'))),
 
   // Locoto: Capsicum pubescens tolera más frío que el resto de los Capsicum cultivados, con cifra
@@ -556,10 +556,10 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       limitationsEn: 'No source for rocoto pepper: the documented criterion for bell pepper is used, from the same genus (Capsicum); rocoto tolerates more cold than bell pepper, but no own pH figure is documented.',
     }),
     analogSalt('sp.pimiento', 'el locoto', 'rocoto pepper', 'el pimiento', 'bell pepper',
-      'el mismo género (Capsicum)', 'the same genus (Capsicum)',
+      'ambos son del género Capsicum', 'both belong to the genus Capsicum',
       'Pepper (Capsicum annuum)', 1.5, 'moderately_sensitive'),
     analogWater('sp.pimiento', 'el locoto', 'rocoto pepper', 'el pimiento', 'bell pepper',
-      'el mismo género (Capsicum)', 'the same genus (Capsicum)',
+      'ambos son del género Capsicum', 'both belong to the genus Capsicum',
       waterSensitive('Pepper', 'total growing period 1.1 (most sensitive at flowering and fruit set)', 1.1, 'flowering'))),
 
   // Ajo: INIA nombra «ajo» directamente en el grupo que tolera heladas y SDSU incluye «Garlic» en
@@ -575,7 +575,7 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       limitationsEn: 'No source for garlic: the documented criterion for onion is used, from the same genus (Allium) and with the same harvested organ (bulb); the vegetable pH table has no row for garlic.',
     }),
     analogSalt('sp.cebolla', 'el ajo', 'garlic', 'la cebolla', 'onion',
-      'el mismo género (Allium)', 'the same genus (Allium)',
+      'ambos son del género Allium', 'both belong to the genus Allium',
       'Onion (Allium cepa)', 1.2, 'sensitive'),
     fao56Water('Garlic (Allium sativum)', 1.0, 0.3, 'vegetative')),
 
@@ -640,10 +640,10 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       limitationsEn: 'No source for caigua: the documented criterion for cucumber is used, from the same family (Cucurbitaceae) and with the same kind of fruit harvested unripe.',
     }),
     analogSalt('sp.pepino', 'la caigua', 'caigua', 'el pepino', 'cucumber',
-      'la misma familia (Cucurbitáceas) y el mismo tipo de fruto cosechado inmaduro', 'the same family (Cucurbitaceae) and the same kind of fruit harvested unripe',
+      'ambos son cucurbitáceas y se cosechan por su fruto inmaduro', 'both are cucurbits harvested for their unripe fruit',
       'Cucumber (Cucumis sativus)', 2.5, 'moderately_sensitive'),
     analogWater('sp.pepino', 'la caigua', 'caigua', 'el pepino', 'cucumber',
-      'la misma familia (Cucurbitáceas) y el mismo tipo de fruto cosechado inmaduro', 'the same family (Cucurbitaceae) and the same kind of fruit harvested unripe',
+      'ambos son cucurbitáceas y se cosechan por su fruto inmaduro', 'both are cucurbits harvested for their unripe fruit',
       fao56Water('Cucumber - Fresh Market (Cucumis sativus)', 1.0, 0.5, 'flowering'))),
 
   // Haba: INIA nombra «habas» directamente en el aborto floral por helada (floración) y en el grupo
@@ -725,10 +725,10 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       ],
     } as SpeciesPhCriterion),
     analogSalt('sp.tomate', 'el pepino dulce', 'pepino melon', 'el tomate', 'tomato',
-      'el mismo género (Solanum) y también cultivado por su fruto', 'the same genus (Solanum) and also grown for its fruit',
+      'ambos son del género Solanum y se cultivan por su fruto', 'both belong to the genus Solanum and are grown for their fruit',
       'Tomato (Lycopersicon esculentum)', 2.5, 'moderately_sensitive'),
     analogWater('sp.tomate', 'el pepino dulce', 'pepino melon', 'el tomate', 'tomato',
-      'el mismo género (Solanum) y también cultivado por su fruto', 'the same genus (Solanum) and also grown for its fruit',
+      'ambos son del género Solanum y se cultivan por su fruto', 'both belong to the genus Solanum and are grown for their fruit',
       waterSensitive('Tomato', 'vegetative 0.4; flowering 1.1; yield formation 0.8; ripening 0.4', 1.1, 'flowering'))),
 
   // --- Berries ---
