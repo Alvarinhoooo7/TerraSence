@@ -68,9 +68,9 @@ export function MeasurementForecast({ days, now, loading = false, capturedAt, hi
   // el resumen del día: no se rotula como «ahora» ni se dice «Sin dato».
   const hasCurrent = !!now && [now.temperatureC, now.weatherCode, now.precipitationMm].some(v => v != null);
   const raining = !!now && isRainingNow(now);
-  // El resumen habla de «mañana»: sólo vale para una consulta nueva, no para un histórico.
-  const outlook = historical ? null : forecastOutlook(days, lang);
-  const windowComparison = historical ? null : compareForecastWindows(days, lang);
+  // En un histórico el resumen se cuenta en pasado y nombra cada día, sin «mañana».
+  const outlook = forecastOutlook(days, lang, historical);
+  const windowComparison = compareForecastWindows(days, lang, historical);
 
   // --- Hoy · ahora: tiempo actual, lluvia reciente y el día completo ---
   const nowCard = now ? <Animated.View entering={enterDown(40)} style={{ borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: raining ? `${RAIN}88` : colors.border, backgroundColor: colors.card }}>

@@ -87,6 +87,16 @@ test('el resumen de los próximos días nombra la lluvia, cuándo se seca y las 
   assert.equal(forecastOutlook([{ date: '2026-07-01', minimumTemperatureC: null, maximumTemperatureC: null, precipitationMm: null, rainProbabilityPct: null }]), null);
 });
 
+test('en una medición guardada el resumen del clima va en pasado y sin «mañana»', () => {
+  const text = forecastOutlook(rainyWeather().forecast, 'es', true) ?? '';
+  assert.match(text, /^Se esperaba lluvia el \S+ \(4,3 mm, 100 %\)/);
+  assert.doesNotMatch(text, /mañana/);
+  assert.doesNotMatch(forecastOutlook(rainyWeather().forecast, 'en', true) ?? '', /tomorrow/);
+  const dry: ForecastDay[] = [{ date: '2026-07-01', minimumTemperatureC: -1, maximumTemperatureC: 12, precipitationMm: 0, rainProbabilityPct: 5 }];
+  assert.equal(forecastOutlook(dry, 'es', true), 'No se esperaba lluvia importante en esos días. Máximas entre 12 y 12 °C. Había riesgo de helada.');
+  assert.doesNotMatch(compareForecastWindows(rainyWeather().forecast, 'es', true) ?? '', /mañana/);
+});
+
 test('el plan de recomendaciones pone primero la lluvia actual, incluye hoy y cierra con volver a medir', () => {
   const evaluation = evaluateReadingForStage(raw, 'vegetativo', 'es', clock);
   const advice = buildContextualAdvice('vegetativo', evaluation, raw, rainyWeather(), 'es', context);
