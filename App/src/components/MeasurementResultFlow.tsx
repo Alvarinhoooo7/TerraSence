@@ -75,7 +75,8 @@ function ResultPager({ count, index, onIndexChange, renderPage, top, footer }: {
   };
   return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
     <View style={{ alignSelf: 'center', width: '100%', maxWidth: 520, paddingHorizontal: 24 }}>{top}</View>
-    <FlatList ref={list} data={pages} horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={{ flex: 1 }}
+    {/* `disableIntervalMomentum`: un gesto rápido avanza una página, no varias. */}
+    <FlatList ref={list} data={pages} horizontal pagingEnabled disableIntervalMomentum showsHorizontalScrollIndicator={false} style={{ flex: 1 }}
       keyExtractor={page => String(page)} initialScrollIndex={index} extraData={renderPage}
       getItemLayout={(_, page) => ({ length: width, offset: width * page, index: page })}
       onLayout={event => setHeight(event.nativeEvent.layout.height)}
@@ -114,8 +115,8 @@ function PlanTile({ icon, color, label, title, onPress, strong = false }: {
   const { colors } = useAppTheme();
   const { t } = useTranslation();
   return <Pressable accessibilityRole="button" accessibilityLabel={`${label}. ${title}`} accessibilityHint={t('Abre el porqué y el detalle.', 'Opens the reason and the detail.')}
-    onPress={onPress} style={({ pressed }) => ({ flexBasis: '47%', flexGrow: 1, minHeight: 76, borderRadius: 16, borderWidth: 1,
-      borderColor: strong ? `${color}88` : colors.border, backgroundColor: colors.card, padding: 12, gap: 6, opacity: pressed ? .8 : 1 })}>
+    onPress={onPress} style={({ pressed }) => ({ flexBasis: '47%', flexGrow: 1, minHeight: 72, borderRadius: 16, borderWidth: 1,
+      borderColor: strong ? `${color}88` : colors.border, backgroundColor: colors.card, paddingHorizontal: 12, paddingVertical: 10, gap: 4, opacity: pressed ? .8 : 1 })}>
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
       <Svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><Path d={icon} /></Svg>
       <Text numberOfLines={1} style={{ flex: 1, color, fontSize: 11, fontWeight: '800', letterSpacing: 1 }}>{label.toUpperCase()}</Text>
@@ -621,7 +622,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, onEx
   return (<ScreenLayout {...common} eyebrow={eyebrow} title={t('Qué hacer', 'What to do')}>
     {/* El diagnóstico de conjunto, recortado: completo en el contexto. */}
     <Pressable accessibilityRole="button" accessibilityHint={t('Abre el diagnóstico completo.', 'Opens the full diagnosis.')} onPress={() => setSheet('context')}>
-      <Text numberOfLines={2} style={{ color: colors.textSecondary, fontSize: 15, lineHeight: 21 }}>{p.summary}</Text>
+      <Text numberOfLines={desfasada ? 1 : 2} style={{ color: colors.textSecondary, fontSize: 15, lineHeight: 21 }}>{p.summary}</Text>
     </Pressable>
     {desfasada && <Pressable accessibilityRole="button" onPress={() => setSheet('context')}>
       <Text numberOfLines={1} style={{ color: colors.warning, fontSize: 13, fontWeight: '700' }}>{t('Evaluada con los criterios de cuando se midió ›', 'Assessed with the criteria at capture time ›')}</Text>
@@ -629,7 +630,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, onEx
     {pills}
     <Animated.View entering={enterDown(60)}>
       <Pressable accessibilityRole="button" accessibilityHint={t('Abre el porqué y el detalle.', 'Opens the reason and the detail.')} onPress={() => setSheet(0)}
-        style={({ pressed }) => ({ borderRadius: 20, borderWidth: 2, borderColor: firstColor, backgroundColor: colors.card, padding: 16, gap: 6, opacity: pressed ? .85 : 1 })}>
+        style={({ pressed }) => ({ borderRadius: 20, borderWidth: 2, borderColor: firstColor, backgroundColor: colors.card, paddingHorizontal: 16, paddingVertical: 14, gap: 4, opacity: pressed ? .85 : 1 })}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Text style={{ flex: 1, color: firstColor, fontSize: 12, fontWeight: '800', letterSpacing: 1.4 }}>
             {`${t('PRIMERO', 'FIRST')} · ${whenLabel(first.when).toUpperCase()}`}
@@ -640,7 +641,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, onEx
         <Text numberOfLines={2} style={{ color: colors.text, fontSize: 15, lineHeight: 21 }}>{first.body}</Text>
       </Pressable>
     </Animated.View>
-    <Animated.View entering={enterDown(140)} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+    <Animated.View entering={enterDown(140)} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
       {recs.slice(1).map((r, i) => <PlanTile key={`${r.kind}-${i}`} icon={KIND_ICON[r.kind]} strong={r.priority === 'high'}
         color={r.priority === 'high' ? colors.warning : kindColor(r.kind)} label={whenLabel(r.when)} title={r.title} onPress={() => setSheet(i + 1)} />)}
       {!!possibleCropsCard && <PlanTile icon={KIND_ICON.soil} color={colors.primary} label={t('Pre-siembra', 'Pre-planting')}
