@@ -3,7 +3,7 @@ import test from 'node:test';
 import { evaluateReadingForStage } from '../src/engine/stageEvaluator';
 import { buildContextualAdvice } from '../src/engine/contextualAdvice';
 import {
-  buildMeasurementPresentation, distinctNotes, isMeasurementPresentation, presentationFromPoint, presentationSpecies, savedSpecies,
+  buildMeasurementPresentation, distinctNotes, isMeasurementPresentation, presentationFromPoint, presentationSpecies, savedSpecies, speciesRulesOutdated,
 } from '../src/engine/measurementPresentation';
 import { NO_SPECIES_ID, SPECIES, SPECIES_CATALOG_VERSION } from '../src/engine/speciesCatalog';
 import { SPECIES_RULES_VERSION } from '../src/engine/speciesRules';
@@ -138,4 +138,12 @@ test('El detalle de pH no repite la nota de control ni la lectura en los consejo
   const copy = buildParameterCopy(ph, 'vegetativo', p.species ?? null, 'es');
   for (const tip of copy.tips) assert.ok(!copy.reading.includes(tip), `consejo repetido: ${tip}`);
   assert.deepEqual(distinctNotes(['a b', 'a b', 'b', '', 'c']), ['a b', 'c']);
+});
+
+test('una lectura evaluada con otros criterios por especie se reconoce para no reinterpretarla', () => {
+  const species = presentationSpecies('sp.maiz', 'vegetativo')!;
+  assert.equal(speciesRulesOutdated(species), false);
+  assert.equal(speciesRulesOutdated({ ...species, rulesVersion: '0.0.1' }), true);
+  assert.equal(speciesRulesOutdated({ ...species, rulesVersion: undefined }), true);
+  assert.equal(speciesRulesOutdated(null), false);
 });

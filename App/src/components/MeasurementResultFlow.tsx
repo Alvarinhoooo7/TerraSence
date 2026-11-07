@@ -15,7 +15,7 @@ import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { PHENOLOGICAL_STAGES } from '../types/app';
-import { distinctNotes, parameterLabel, presentationSpeciesName, type CoverageSummary, type MeasurementPresentation, type ParameterPresentation, type PresentationDerived } from '../engine/measurementPresentation';
+import { distinctNotes, parameterLabel, presentationSpeciesName, speciesRulesOutdated, type CoverageSummary, type MeasurementPresentation, type ParameterPresentation, type PresentationDerived } from '../engine/measurementPresentation';
 import type { PrePlantingOption } from '../engine/prePlanting';
 import { AppIcon } from './AppIcon';
 import { formatEngineMetric, formatTemperature, formatTemperatureDifference } from '../utils/units';
@@ -258,6 +258,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, onEx
     setDetail(index);
   };
 
+  const desfasada = speciesRulesOutdated(p.species);
   const stageItem = PHENOLOGICAL_STAGES.find(s => s.id === p.stage);
   const stage = (language === 'en' ? stageItem?.labelEn : stageItem?.label) ?? '';
   const statusLabel = (m: ParameterPresentation) => NUTRIENTS.includes(m.key) ? t('Sin validar', 'Not validated') : {
@@ -380,7 +381,8 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, onEx
     };
     const detailPage = (index: number) => {
       const m = p.parameters[index];
-      const copy = buildParameterCopy(m, p.stage, p.species ?? null, language);
+      // Con criterios de otro día, la especie no se reinterpreta con los de hoy: contradiría el plan guardado.
+      const copy = buildParameterCopy(m, p.stage, desfasada ? null : p.species ?? null, language);
       // Sin lectura válida manda el motor: explica por qué no hay dato y no se
       // interpreta nada. Con lectura, el motor aporta la alerta y el texto de
       // apoyo aporta el significado para la especie y la etapa.
@@ -613,12 +615,17 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, onEx
   </ScreenLayout>);
 
   const firstColor = first.priority === 'high' ? colors.warning : colors.primary;
+  const rulesNote = t('Esta lectura se evaluó con los criterios de cultivo que tenía la app al medir. Desde entonces se actualizaron; el plan guardado no se recalcula. Para evaluar este punto con los criterios de hoy, vuelve a medir.',
+    'This reading was assessed with the crop criteria the app had at capture time. They have been updated since; the saved plan is not recalculated. To assess this spot with the current criteria, measure again.');
   const openRec = typeof sheet === 'number' ? recs[sheet] : undefined;
   return (<ScreenLayout {...common} eyebrow={eyebrow} title={t('Qué hacer', 'What to do')}>
     {/* El diagnóstico de conjunto, recortado: completo en el contexto. */}
     <Pressable accessibilityRole="button" accessibilityHint={t('Abre el diagnóstico completo.', 'Opens the full diagnosis.')} onPress={() => setSheet('context')}>
       <Text numberOfLines={2} style={{ color: colors.textSecondary, fontSize: 15, lineHeight: 21 }}>{p.summary}</Text>
     </Pressable>
+    {desfasada && <Pressable accessibilityRole="button" onPress={() => setSheet('context')}>
+      <Text numberOfLines={1} style={{ color: colors.warning, fontSize: 13, fontWeight: '700' }}>{t('Evaluada con los criterios de cuando se midió ›', 'Assessed with the criteria at capture time ›')}</Text>
+    </Pressable>}
     {pills}
     <Animated.View entering={enterDown(60)}>
       <Pressable accessibilityRole="button" accessibilityHint={t('Abre el porqué y el detalle.', 'Opens the reason and the detail.')} onPress={() => setSheet(0)}
@@ -652,6 +659,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, onEx
     </PlanSheet>
     <PlanSheet visible={sheet === 'context'} onClose={() => setSheet(null)} eyebrow={eyebrow} title={t('Diagnóstico y contexto', 'Diagnosis and context')}>
       <ScreenText muted={false}>{p.summary}</ScreenText>
+      {desfasada && <ScreenCard accent={colors.warning}><ScreenText>{rulesNote}</ScreenText></ScreenCard>}
       {weatherCard}
       {p.coverageSummary && <CoverageSummaryBox summary={p.coverageSummary} />}
       <Text style={{ color: colors.textSecondary, fontSize: 12, lineHeight: 17 }}>{disclaimer}</Text>

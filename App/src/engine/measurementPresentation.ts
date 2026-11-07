@@ -128,6 +128,14 @@ export function presentationSpecies(speciesId: string | null | undefined, stage:
     catalogVersion: SPECIES_CATALOG_VERSION, rulesVersion: SPECIES_RULES_VERSION, hasStageCriteria: hasStageCriteria(entry.id, stage) } : null;
 }
 
+/**
+ * La lectura se evaluó con criterios por especie distintos de los vigentes (o sin versión, de
+ * antes de registrarla). Su plan es el de ese día y no se recalcula; lo que se dibuje junto a él
+ * no debe interpretarla con los criterios de hoy, o se contradicen.
+ */
+export const speciesRulesOutdated = (species: PresentationSpecies | null | undefined) =>
+  !!species && species.rulesVersion !== SPECIES_RULES_VERSION;
+
 export const presentationSpeciesName = (species: PresentationSpecies, language: AppLanguage = 'es') =>
   language === 'en' ? species.en : species.es;
 
