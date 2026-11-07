@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { BackHandler, FlatList, Modal, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from './AppText';
 import Svg, { Path } from 'react-native-svg';
 import Animated, { useReducedMotion } from 'react-native-reanimated';
@@ -132,6 +132,8 @@ function PlanSheet({ visible, onClose, eyebrow, title, children }: React.PropsWi
   const { colors } = useAppTheme();
   const { t } = useTranslation();
   const { height } = useWindowDimensions();
+  // La hoja se dibuja bajo la barra de navegación de Android: el cierre queda por encima de ella.
+  const { bottom } = useSafeAreaInsets();
   return <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
     <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: '#000000AA' }}>
       <Pressable accessibilityRole="button" accessibilityLabel={t('Cerrar', 'Close')} onPress={onClose} style={{ flex: 1 }} />
@@ -141,7 +143,7 @@ function PlanSheet({ visible, onClose, eyebrow, title, children }: React.PropsWi
           <Text accessibilityRole="header" style={{ color: colors.text, fontSize: 21, fontWeight: '800', letterSpacing: -0.3 }}>{title}</Text>
           {children}
         </ScrollView>
-        <View style={{ alignSelf: 'center', width: '100%', maxWidth: 520, paddingHorizontal: 24, paddingBottom: 16, paddingTop: 4 }}>
+        <View style={{ alignSelf: 'center', width: '100%', maxWidth: 520, paddingHorizontal: 24, paddingBottom: 16 + bottom, paddingTop: 4 }}>
           <EntryButton secondary label={t('Cerrar', 'Close')} onPress={onClose} />
         </View>
       </View>
