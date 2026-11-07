@@ -105,6 +105,28 @@ function TechnicalDetail({ text }: { text: string }) {
 }
 
 /**
+ * Una recomendación del plan en una fila: tema y título a la vista, el porqué y el respaldo
+ * técnico a un toque. El plan se recorre de un vistazo y se abre sólo lo que interesa.
+ */
+function PlanRow({ rec, color }: { rec: Recommendation; color: string }) {
+  const { colors } = useAppTheme();
+  const [open, setOpen] = useState(false);
+  const accent = rec.priority === 'high' ? colors.warning : color;
+  return <View style={{ borderTopWidth: 1, borderTopColor: colors.border }}>
+    <Pressable accessibilityRole="button" accessibilityState={{ expanded: open }} onPress={() => setOpen(v => !v)}
+      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, paddingVertical: 10 }}>
+      <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><Path d={KIND_ICON[rec.kind]} /></Svg>
+      <Text style={{ flex: 1, color: colors.text, fontSize: 16, fontWeight: '700', lineHeight: 22 }}>{rec.title}</Text>
+      <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '700' }}>{open ? '▴' : '▾'}</Text>
+    </Pressable>
+    {open && <View style={{ paddingLeft: 32, paddingBottom: 12, gap: 4 }}>
+      <ScreenText>{rec.body}</ScreenText>
+      {!!rec.detail && <TechnicalDetail text={rec.detail} />}
+    </View>}
+  </View>;
+}
+
+/**
  * Resultado de una medición, una pantalla por paso (plan de diseño §10.2):
  * resumen, las tres familias de lecturas, clima con los datos de la captura y,
  * al final, el plan de recomendaciones. Cada variable abre su propio detalle. Lo usan la
@@ -300,14 +322,11 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
       <View style={{ flex: 1, paddingBottom: i < p.actions.length - 1 ? 18 : 0, paddingTop: 4 }}><ScreenText muted={false}>{action}</ScreenText></View>
     </View>)}
   </View>;
-  const weatherCard = p.weatherNote ? <View style={{ flexDirection: 'row', gap: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 16 }}>
-    <View style={{ width: 40, height: 40, borderRadius: 13, backgroundColor: '#3B8FD922', alignItems: 'center', justifyContent: 'center' }}>
-      <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="#3B8FD9" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round"><Path d="M7 16a4 4 0 0 1-.5-8A6 6 0 0 1 18 9.5 3.5 3.5 0 0 1 17.5 16ZM9 19l-1 2M13 19l-1 2M17 19l-1 2" /></Svg>
-    </View>
-    <View style={{ flex: 1, gap: 4 }}>
-      <Text style={{ color: colors.text, fontSize: 13, fontWeight: '800', letterSpacing: 1.2 }}>{t('CLIMA', 'WEATHER')}</Text>
-      <ScreenText>{p.weatherNote}</ScreenText>
-    </View>
+  // La nota general de clima es una línea al pie del plan: el riesgo por especie, si lo
+  // hay, ya viene como recomendación propia.
+  const weatherCard = p.weatherNote ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+    <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={RAIN} strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round"><Path d={KIND_ICON.weather} /></Svg>
+    <Text style={{ flex: 1, color: colors.textSecondary, fontSize: 14, lineHeight: 20 }}>{p.weatherNote}</Text>
   </View> : null;
 
   // Cuántas alternativas trae la pre-siembra: la portada sólo cuenta y remite.
@@ -532,62 +551,45 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
   }
 
   // --- Plan de recomendaciones: la última página y la más importante ---
-  const kindMeta = (kind: RecommendationKind) => ({
-    soil: { label: t('Suelo', 'Soil'), color: colors.primary },
-    evidence: { label: t('Lectura', 'Reading'), color: colors.textSecondary },
-    weather: { label: t('Clima', 'Weather'), color: RAIN },
-    irrigation: { label: t('Riego', 'Irrigation'), color: RAIN },
-    monitoring: { label: t('Seguimiento', 'Follow-up'), color: colors.primary },
+  // Una tarjeta con lo primero que conviene hacer y, debajo, el resto en filas de una línea
+  // agrupadas por cuándo hacerlo. El porqué y el respaldo técnico quedan a un toque.
+  const kindColor = (kind: RecommendationKind) => ({
+    soil: colors.primary, evidence: colors.textSecondary, weather: RAIN, irrigation: RAIN, monitoring: colors.primary,
   }[kind]);
   const whenLabel = (when: RecommendationTiming) => ({
     now: t('Ahora', 'Now'), today: t('Hoy', 'Today'), next_days: t('Próximos días', 'Next days'), next_reading: t('Próxima medición', 'Next reading'),
   }[when]);
-  const chips = (r: Recommendation) => {
-    const color = kindMeta(r.kind).color;
-    return <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-        <Svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><Path d={KIND_ICON[r.kind]} /></Svg>
-        <Text style={{ color, fontSize: 12, fontWeight: '800', letterSpacing: 1.2 }}>{kindMeta(r.kind).label.toUpperCase()}</Text>
-      </View>
-      <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, backgroundColor: r.priority === 'high' ? `${colors.warning}22` : `${colors.textSecondary}18` }}>
-        <Text style={{ color: r.priority === 'high' ? colors.warning : colors.textSecondary, fontSize: 12, fontWeight: '700' }}>{whenLabel(r.when)}</Text>
-      </View>
-    </View>;
-  };
   const recs = p.recommendations;
   const speciesName = p.species ? presentationSpeciesName(p.species, language) : null;
   const first = recs?.[0];
+  // «Ahora» y «hoy» se leen juntos: las dos son para esta visita al campo.
+  const groups = first ? [
+    { label: t('Hoy', 'Today'), items: recs.slice(1).filter(r => r.when === 'now' || r.when === 'today') },
+    { label: t('Próximos días', 'Next days'), items: recs.slice(1).filter(r => r.when === 'next_days') },
+    { label: t('Próxima medición', 'Next reading'), items: recs.slice(1).filter(r => r.when === 'next_reading') },
+  ].filter(g => g.items.length) : [];
+  const firstColor = first?.priority === 'high' ? colors.warning : colors.primary;
   const recommendationList = first ? <>
-    {/* La primera va destacada: es por donde conviene empezar. */}
-    <Animated.View entering={enterDown(60)} style={{ borderRadius: 22, borderWidth: 2, borderColor: first.priority === 'high' ? colors.warning : colors.primary,
-      backgroundColor: colors.card, padding: 18, gap: 10 }}>
-      <Text style={{ color: first.priority === 'high' ? colors.warning : colors.primary, fontSize: 12, fontWeight: '800', letterSpacing: 1.4 }}>{t('PARA EMPEZAR', 'START HERE')}</Text>
-      {chips(first)}
+    <Animated.View entering={enterDown(60)} style={{ borderRadius: 22, borderWidth: 2, borderColor: firstColor, backgroundColor: colors.card, padding: 18, gap: 8 }}>
+      <Text style={{ color: firstColor, fontSize: 12, fontWeight: '800', letterSpacing: 1.4 }}>
+        {`${t('PRIMERO', 'FIRST')} · ${whenLabel(first.when).toUpperCase()}`}
+      </Text>
       <Text style={{ color: colors.text, fontSize: 21, fontWeight: '800', letterSpacing: -0.3 }}>{first.title}</Text>
       <ScreenText muted={false}>{first.body}</ScreenText>
       {!!first.detail && <TechnicalDetail text={first.detail} />}
     </Animated.View>
-    {recs.length > 1 && <ScreenLabel>{t('Después', 'Then')}</ScreenLabel>}
-    {recs.slice(1).map((r, i) => <Animated.View key={`${r.kind}-${i}`} entering={enterDown(140 + i * 70)} style={{ flexDirection: 'row', gap: 14, borderRadius: 18, borderWidth: 1,
-      borderColor: colors.border, backgroundColor: colors.card, padding: 16 }}>
-      <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: `${kindMeta(r.kind).color}22`, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ color: kindMeta(r.kind).color, fontSize: 14, fontWeight: '800' }}>{i + 2}</Text>
-      </View>
-      <View style={{ flex: 1, gap: 6 }}>
-        {chips(r)}
-        <Text style={{ color: colors.text, fontSize: 17, fontWeight: '700' }}>{r.title}</Text>
-        <ScreenText>{r.body}</ScreenText>
-        {!!r.detail && <TechnicalDetail text={r.detail} />}
-      </View>
+    {groups.map((g, i) => <Animated.View key={g.label} entering={enterDown(140 + i * 70)} style={{ gap: 2 }}>
+      <ScreenLabel>{g.label}</ScreenLabel>
+      {g.items.map((r, j) => <PlanRow key={`${r.kind}-${j}`} rec={r} color={kindColor(r.kind)} />)}
     </Animated.View>)}
   </> : p.actions.length ? timeline : <ScreenCard><ScreenText>{t('No hay recomendaciones para esta lectura.', 'No recommendations for this reading.')}</ScreenText></ScreenCard>;
-  // Evidencia: los valores que sostienen el plan, para ver el porqué numérico
-  // de un vistazo sin buscarlo dentro de un párrafo.
-  const evidencia = p.parameters.filter(m => MEASUREMENT_GROUPS[0].includes(m.key) && m.value != null);
+  // Evidencia: sólo los valores que piden atención, que son los que sostienen el plan.
+  const evidencia = p.parameters.filter(m => MEASUREMENT_GROUPS[0].includes(m.key) && m.value != null
+    && (m.status === 'WARNING' || m.status === 'CRITICAL'));
+  // El diagnóstico de conjunto va como entradilla: es el porqué de lo que viene a continuación.
   return (<ScreenLayout {...common} eyebrow={[t('PLAN DE ACCIÓN', 'ACTION PLAN'), stage.toUpperCase(), speciesName?.toUpperCase()].filter(Boolean).join(' · ')}
-    title={t('Plan de acción sugerido', 'Suggested action plan')}
-    description={t('Priorizado según tu lectura del suelo, el ambiente y el pronóstico. Tú decides qué aplicar.',
-      'Prioritized from your soil, environment and forecast readings. You decide what to apply.')}>
+    title={t('Qué hacer con esta lectura', 'What to do with this reading')}
+    description={p.summary}>
     {!!evidencia.length && <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
       {evidencia.map(m => <View key={m.key} accessible accessibilityLabel={`${parameterLabel(m.key, language)}: ${value(m)}`}
         style={{ flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, paddingVertical: 6, paddingHorizontal: 10 }}>
@@ -596,9 +598,6 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, meta
         <Text style={{ color: colors.text, fontSize: 12, fontWeight: '800' }}>{value(m)}</Text>
       </View>)}
     </View>}
-    {/* El diagnóstico de conjunto encabeza el plan: es el porqué de lo que viene
-        a continuación. Estaba en la portada, donde competía con el anillo. */}
-    <ScreenCard accent={colors.primary}><ScreenText muted={false}>{p.summary}</ScreenText></ScreenCard>
     {recommendationList}
     {possibleCropsCard}
     {weatherCard}
