@@ -149,6 +149,7 @@ export interface ManagedDeviceMember {
 export interface MeasurementPoint {
   id: string;
   clientUuid?: string | null;
+  deviceId?: string | null;
   latitude: number | null;
   longitude: number | null;
   verdict: Verdict;
@@ -175,6 +176,7 @@ export interface MeasurementPoint {
 export const mapRowToPoint = (r: SoilMeasurementRow): MeasurementPoint => ({
   id: r.id,
   clientUuid: r.client_uuid,
+  ...(r.device_id ? { deviceId: r.device_id } : {}),
   latitude: r.latitude,
   longitude: r.longitude,
   verdict: r.verdict,

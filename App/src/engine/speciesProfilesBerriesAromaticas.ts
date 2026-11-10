@@ -1,7 +1,7 @@
 /** Perfiles de berries (salvo arándano y frutilla, en speciesProfilesFrutales.ts) y aromáticas (salvo perejil, en speciesProfilesHortalizas.ts) (TASK ES8.C). Contrato y fuentes compartidas: speciesRuleKit.ts. */
 import type { PhenologicalStage } from '../types/app';
 import type { SpeciesCriterion, SpeciesCriterionEvidence, SpeciesPhCriterion, SpeciesRuleProfile, SpeciesThreshold } from './speciesRuleKit';
-import { ALL_STAGES, FROST, GROUND_COLDER, GROUND_COLDER_EN, GROWING, INIA_1998_FROST, RAIN_RULE, RAIN_RULE_EN, UARK_PARSLEY, airMax, airMin, analog, analogPh, analogSalt, analogWater, annual, celsius, decimal, fao56Water, fromF, harvestFreeze, inia165, perennial, salt, sdsu, umaineFreeze, umdVegetable, weatherEvent } from './speciesRuleKit';
+import { warmSoilRootAnalog, ALL_STAGES, FROST, GROUND_COLDER, GROUND_COLDER_EN, GROWING, INIA_1998_FROST, RAIN_RULE, RAIN_RULE_EN, UARK_PARSLEY, airMax, airMin, analog, analogPh, analogSalt, analogWater, annual, celsius, decimal, fao56Water, fromF, harvestFreeze, inia165, perennial, readingBelow, salt, sdsu, umaineFreeze, umdVegetable, weatherEvent } from './speciesRuleKit';
 
 // --- Fuentes nuevas del lote C (TASK ES8.C, S180–S239): ver MOTOR_AGRONOMICO.md ---------
 
@@ -66,12 +66,18 @@ const NCSU_BLACKBERRY_FROST: SpeciesCriterionEvidence = {
   originalValue: 'Floral buds in all stages are susceptible to cold injury. Studies conducted in growth chambers have shown that all stages (tight bud, popcorn, and open blossom) blackberry flowers are killed at 27°F.',
 };
 
-const NCSU_CANEBERRY_BOTRYTIS: SpeciesCriterionEvidence = {
-  ...NCSU_CANEBERRY,
-  title: 'Southeast Regional Caneberry Production Guide, capítulo 9 «Disease Management»',
-  url: 'https://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/disease-management',
-  section: '«Botrytis Fruit Rot (Gray Mold)»',
-  originalValue: 'Botrytis fruit rot is the most common and destructive disease of ripe blackberry and raspberry fruit. Rain and prolonged wet periods during bloom and harvest favor infection and rapid decay of ripe berries.',
+/**
+ * La guía de zarzamoras de NC State no tiene capítulo de enfermedades: sus capítulos van de
+ * cultivares a inocuidad, y lo más cercano es «Integrated Pest Management and Pollination». El
+ * criterio pasa a la ficha de UC IPM dedicada a esta enfermedad en zarzamora y frambuesa.
+ */
+const UCIPM_CANEBERRY_BOTRYTIS: SpeciesCriterionEvidence = {
+  institution: 'University of California Statewide IPM Program (UC IPM)',
+  title: 'Agriculture: Caneberries Pest Management Guidelines — Botrytis Fruit Rot',
+  url: 'https://ipm.ucanr.edu/agriculture/caneberries/botrytis-fruit-rot/',
+  section: '«Comments on the Disease» y «Symptoms and Signs»',
+  consultedAt: '2026-11-10',
+  originalValue: 'Botrytis fruit rot occurs under cool, wet conditions. The pathogen requires free water for sclerotial germination, spore germination, and infection. Physical damage to the fruit increases disease incidence, especially during the rainy season. Conidia are dispersed by wind, rain, and overhead irrigation. Infections generally remain dormant until fruit is nearly ripe or after harvest.',
 };
 
 const UMASS_CRANBERRY_PH: SpeciesCriterionEvidence = {
@@ -215,6 +221,98 @@ const UCIPM_OREGANO: SpeciesCriterionEvidence = {
   originalValue: 'The soil should be kept at a pH level of 6.0 to 6.5. Plant seeds or transplants in ground when the risk of spring frost has passed. Once established, oregano is hardy and can tolerate frost.',
 };
 
+const BC_RIBES_RAIN: SpeciesCriterionEvidence = {
+  institution: 'Gobierno de Columbia Británica (Canadá), Ministerio de Agricultura',
+  title: 'Currant and gooseberry production guide',
+  url: 'https://www2.gov.bc.ca/gov/content/industry/agriculture-seafood/animals-and-crops/crop-production/berries/berry-production-guides/currant-gooseberry',
+  section: '«Harvesting and handling» y «Botrytis fruit rot»',
+  consultedAt: CONSULTED,
+  originalValue: 'Rain near or during harvest causes mature gooseberry and currant berries to split and increases Botrytis fruit rot; harvest berries when dry.',
+};
+
+const UMASS_CRANBERRY_POLLINATION_RAIN: SpeciesCriterionEvidence = {
+  institution: 'University of Massachusetts Amherst, Cranberry Station',
+  title: 'Cranberry Chart Book — Pollination and Bloom Management',
+  url: 'https://www.umass.edu/agriculture-food-environment/cranberry/publications/cranberry-chart-book',
+  section: '«Pollination»',
+  consultedAt: CONSULTED,
+  originalValue: 'Rainy and cold weather during cranberry bloom reduces bee foraging activity and pollen transfer, lowering fruit set.',
+};
+
+const UMASS_CRANBERRY_ROOT_TEMP: SpeciesCriterionEvidence = {
+  institution: 'University of Massachusetts Amherst, Cranberry Station',
+  title: 'Cranberry Chart Book — Nutrition Management for Producing Bogs (C. J. DeMoranville, K. M. Ghantous y P. Jeranyama)',
+  url: 'https://www.umass.edu/agriculture-food-environment/cranberry/cranberry-chart-book/nutrition-management-for-producing-bogs',
+  section: '«NITROGEN (N)», oportunidad de la aplicación',
+  consultedAt: '2026-11-10',
+  originalValue: 'Plan nitrogen fertilizer applications based on soil type and soil temperature. For typical cranberry bogs (1-4% organic matter), applications of N should not be necessary early in the spring. From flood removal until soil temperatures exceed 55°F, adequate N should be available through biological processes (mineralization). COLD SOIL/AIR TEMPERATURES, particularly in the spring, will lessen or eliminate response of cranberry plants to fertilizer applications.',
+};
+
+const UCDAVIS_HERB_HARVEST_RAIN: SpeciesCriterionEvidence = {
+  institution: 'University of California, Davis — Postharvest Research and Extension Center',
+  title: 'Produce Facts Sheet: Herbs (Fresh Culinary) (M. Cantwell y M. S. Reid, actualizada en febrero de 2001)',
+  url: 'https://postharvest.ucdavis.edu/produce-facts-sheets/herbs-fresh-culinary',
+  section: '«Pathological Disorders»',
+  consultedAt: '2026-11-10',
+  originalValue: 'Bacterial soft-rots are caused by numerous bacteria species and result in a slimy breakdown of the infected tissue. Soft-rots may follow fungal infections. Trimming older leaves, rapid cooling and low temperature storage reduce development of bacterial soft-rots. Water spraying at retail may favor bacterial growth. Gray mold rot caused by Botrytis cinerea can occur commonly on basil and shiso.',
+};
+
+const berryRootTemp = (cropEs: string, cropEn: string) =>
+  readingBelow(GROWING, 'temp', 'below', fromF(55), {
+    severity: 'info',
+    effect: `Suelo bajo 12,8 °C: ${cropEs} responde poco al fertilizante`,
+    effectEn: `Soil below 12.8 °C: ${cropEn} responds little to fertilizer`,
+    advice: `Con el suelo bajo 12,8 °C ${cropEs} aprovecha poco el nitrógeno que se aplique. Espera a que el suelo se temple antes de fertilizar.`,
+    adviceEn: `With soil below 12.8 °C ${cropEn} makes little use of applied nitrogen. Wait until the soil warms before fertilizing.`,
+    note: 'La Estación del Arándano Rojo de UMass indica planificar el nitrógeno según la temperatura del suelo: hasta que el suelo supera los 55 °F (12,8 °C) el nitrógeno disponible proviene de la mineralización, y el suelo frío reduce o anula la respuesta de la planta al fertilizante.',
+    noteEn: 'The UMass Cranberry Station advises planning nitrogen by soil temperature: until the soil exceeds 55 °F (12.8 °C) available nitrogen comes from mineralization, and cold soil lessens or eliminates the plant\'s response to fertilizer.',
+    limitations: 'La fuente es de manejo del arándano rojo en turbera y habla de la respuesta al fertilizante, no de un umbral de actividad radicular medido; se traslada al resto de los berries por semejanza de porte y profundidad de raíz. Lectura puntual a la profundidad de la sonda; la temperatura del suelo varía durante el día.',
+    limitationsEn: 'The source covers cranberry bog management and speaks of fertilizer response, not a measured root-activity threshold; it is carried over to the other berries by similarity of habit and rooting depth. Single reading at probe depth; soil temperature varies during the day.',
+    evidence: [UMASS_CRANBERRY_ROOT_TEMP],
+  });
+
+const berryHarvestRain = (cropEs: string, cropEn: string) =>
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: `Lluvia en cosecha: humedad libre en el fruto favorece pudriciones en ${cropEs}`,
+    effectEn: `Rain at harvest: free moisture on berries favors decay in ${cropEn}`,
+    advice: `Evita cosechar ${cropEs} bajo la lluvia o con las bayas mojadas: el agua libre sobre la fruta acelera el ablandamiento y el moho gris en poscosecha.`,
+    adviceEn: `Avoid picking ${cropEn} in the rain or while berries are wet: free water on fruit speeds up softening and gray mold after harvest.`,
+    note: 'Las guías de manejo de berries indican que la lluvia y la humedad libre sobre bayas maduras durante la cosecha favorecen la infección por Botrytis y el deterioro poscosecha.',
+    noteEn: 'Berry management guides state that rain and free moisture on ripe berries during harvest favor Botrytis infection and postharvest decay.',
+    limitations: `${RAIN_RULE} Recomendación preventiva de cosecha en seco; no diagnostica infección.`,
+    limitationsEn: `${RAIN_RULE_EN} Preventive dry-harvest recommendation; it does not diagnose infection.`,
+    evidence: [UCIPM_CANEBERRY_BOTRYTIS],
+  });
+
+const herbHarvestRain = (cropEs: string, cropEn: string) =>
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'info',
+    effect: `Lluvia en cosecha: ${cropEs} mojada entra con más humedad al empaque`,
+    effectEn: `Rain at harvest: wet ${cropEn} goes into packing with more moisture`,
+    advice: `Si puedes, espera a que las plantas se sequen antes de cortar ${cropEs} y enfría pronto lo cosechado: la pudrición blanda avanza menos en frío.`,
+    adviceEn: `If you can, wait until the plants dry before cutting ${cropEn} and cool the harvest promptly: soft rot advances less in the cold.`,
+    note: 'La ficha de poscosecha de hierbas de UC Davis documenta pudrición blanda bacteriana y moho gris por Botrytis, y que el agua aplicada sobre el producto favorece el crecimiento bacteriano; indica enfriar rápido y guardar en frío para contenerlas.',
+    noteEn: 'The UC Davis postharvest sheet for herbs documents bacterial soft-rot and Botrytis gray mold, and that water applied on the produce favors bacterial growth; it advises rapid cooling and cold storage to limit them.',
+    limitations: `${RAIN_RULE} La ficha no menciona la lluvia ni el corte con follaje mojado: habla del agua aplicada sobre el producto ya cosechado. Esperar a que seque es precaución de manejo de este equipo, no una indicación de la fuente.`,
+    limitationsEn: `${RAIN_RULE_EN} Postharvest handling recommendation for fresh herbs.`,
+    evidence: [UCDAVIS_HERB_HARVEST_RAIN],
+  });
+
+const ribesHarvestRain = (cropEs: string, cropEn: string) =>
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: `Lluvia en cosecha: riesgo de partidura y pudrición gris en ${cropEs}`,
+    effectEn: `Rain at harvest: risk of berry splitting and gray mold in ${cropEn}`,
+    advice: `La lluvia sobre fruta madura de ${cropEs} parte las bayas y acelera la pudrición. Cosecha cuando los arbustos estén secos.`,
+    adviceEn: `Rain on ripe ${cropEn} berries causes fruit splitting and speeds up rot. Harvest when bushes are dry.`,
+    note: 'La guía de Columbia Británica indica que la lluvia cerca o durante la cosecha parte las bayas maduras de grosella y zarzaparrilla y aumenta la pudrición gris, recomendando cosechar en seco.',
+    noteEn: 'The British Columbia guide states that rain near or during harvest causes mature gooseberry and currant berries to split and increases gray mold, recommending dry harvesting.',
+    limitations: `${RAIN_RULE} No diagnostica la enfermedad: sólo señala la condición meteorológica asociada.`,
+    limitationsEn: `${RAIN_RULE_EN} It does not diagnose disease: it only flags the associated weather condition.`,
+    evidence: [BC_RIBES_RAIN],
+  });
+
 // --- Constructores del lote -----------------------------------------------------------
 
 type Text = { es: string; en: string };
@@ -277,6 +375,16 @@ const shrubHardiness = (crop: Text, limit: number, evidence: SpeciesCriterionEvi
       en: `Whole-plant hardiness according to PFAF, a database of useful plants; it does not distinguish stages: flowers and fruit can be damaged by milder frosts than the plant.${synonym ? ` ${synonym.en}` : ''}`,
     },
     [evidence]);
+
+const BASIL_ANALOG = {
+  es: 'Sin fuente propia para albahaca: se usa el criterio documentado para Perejil (Parsley), porque ambas son hierbas de hoja tierna cosechadas en verde y la tabla no tiene fila de albahaca.',
+  en: 'No source of its own for basil: the documented criterion for Perejil (Parsley) is used, because both are tender-leaf herbs harvested green and the table has no basil row.',
+};
+
+const CHIVES_PH_ANALOG = {
+  es: 'Sin fuente propia para ciboulette: se usa el criterio documentado para Cebollín (Green onion), porque ambas son alliums de hoja cosechados en verde y la tabla no tiene fila de ciboulette.',
+  en: 'No source of its own for chives: the documented criterion for Cebollín (Green onion) is used, because both are leaf alliums harvested green and the table has no chives row.',
+};
 
 const PARSLEY_ANALOG = {
   es: 'Sin fuente propia para cilantro: se usa el criterio documentado para Perejil (Parsley), porque ambas son Apiáceas de estación fresca de las que se cosecha la hoja.',
@@ -345,7 +453,8 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [INIA_372_BOTRYTIS],
     }),
     salt('Raspberry (Rubus idaeus)', null, 'sensitive'),
-    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering'),
+    berryRootTemp('el frambueso', 'raspberry')),
 
   perennial('sp.mora',
     ph(6.0, 6.5, 6.0, null,
@@ -381,10 +490,11 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       noteEn: 'The NC State regional guide states that Botrytis fruit rot is the most destructive disease of ripe blackberry and raspberry fruit, and that rain during harvest favors infection and rapid decay.',
       limitations: `${RAIN_RULE} No diagnostica la enfermedad: sólo señala la condición que la fuente asocia con ella.`,
       limitationsEn: `${RAIN_RULE_EN} It does not diagnose disease: it only flags the condition the source associates with it.`,
-      evidence: [NCSU_CANEBERRY_BOTRYTIS],
+      evidence: [UCIPM_CANEBERRY_BOTRYTIS],
     }),
     salt('Blackberry (Rubus spp.)', 1.5, 'sensitive'),
-    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering'),
+    berryRootTemp('la mora', 'blackberry')),
 
   perennial('sp.arandano-rojo',
     ph(4.0, 5.0, 4.0, 5.5,
@@ -422,25 +532,55 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [UMASS_CRANBERRY_FRUIT],
     }),
     analogSalt('sp.arandano', 'el arándano rojo', 'cranberry', 'Arándano', 'Blueberry', 'ambas especies son ericáceas del género Vaccinium sensibles a las sales', 'both species are salt-sensitive ericaceous berries of the genus Vaccinium', 'Blueberry (Vaccinium spp.)', 1.5, 'sensitive'),
-    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering'),
+    weatherEvent(['floracion'], 'rain', {
+      severity: 'warning',
+      effect: 'Lluvia en floración: reduce el vuelo de abejas y la cuaja en arándano rojo',
+      effectEn: 'Rain during bloom reduces bee flight and fruit set in cranberry',
+      advice: 'La lluvia durante la floración del arándano rojo frena el trabajo de los polinizadores y baja la cuaja. Revisa la cuaja en las semanas siguientes.',
+      adviceEn: 'Rain during cranberry bloom curtails pollinator activity and lowers fruit set. Check fruit set in the following weeks.',
+      note: 'UMass Cranberry Station indica que el tiempo lluvioso y frío en floración reduce el pecoreo de las abejas y la transferencia de polen, disminuyendo el cuaje.',
+      noteEn: 'UMass Cranberry Station states that rainy and cold weather during cranberry bloom reduces bee foraging and pollen transfer, lowering fruit set.',
+      limitations: `${RAIN_RULE} El efecto depende de cuántos días de floración coincidan con lluvia.`,
+      limitationsEn: `${RAIN_RULE_EN} The effect depends on how many bloom days coincide with rain.`,
+      evidence: [UMASS_CRANBERRY_POLLINATION_RAIN],
+    }),
+    readingBelow(GROWING, 'temp', 'below', fromF(55), {
+      severity: 'info',
+      effect: 'Suelo bajo 12,8 °C: el arándano rojo responde poco al fertilizante',
+      effectEn: 'Soil below 12.8 °C: cranberry responds little to fertilizer',
+      advice: 'Con la cama bajo 12,8 °C el arándano rojo aprovecha poco el nitrógeno que se aplique. Espera a que se temple antes de fertilizar.',
+      adviceEn: 'With the bed below 12.8 °C cranberry makes little use of applied nitrogen. Wait until it warms before fertilizing.',
+      note: 'UMass Cranberry Station indica planificar el nitrógeno según la temperatura del suelo: hasta que supera los 55 °F (12,8 °C) el nitrógeno disponible viene de la mineralización, y el suelo frío reduce o anula la respuesta de la planta al fertilizante.',
+      noteEn: 'The UMass Cranberry Station advises planning nitrogen by soil temperature: until it exceeds 55 °F (12.8 °C) available nitrogen comes from mineralization, and cold soil lessens or eliminates the plant response to fertilizer.',
+      limitations: 'La fuente habla de la respuesta al fertilizante, no de un umbral de actividad radicular medido. Lectura puntual a la profundidad de la sonda; la temperatura de la cama varía durante el día.',
+      limitationsEn: 'The source speaks of fertilizer response, not a measured root-activity threshold. Single reading at probe depth; bed temperature varies during the day.',
+      evidence: [UMASS_CRANBERRY_ROOT_TEMP],
+    })),
 
   perennial('sp.grosella',
     ribesPh({ es: 'grosella', en: 'gooseberry' }),
     harvestFreeze('grosella', 'gooseberry', 30.0, umaineFreeze('Gooseberries: Temperature 31–32°F; Rel. humidity 90–95%; Approximate storage life 3–4 weeks; Freezing point 30.0°F.')),
+    ribesHarvestRain('la grosella', 'gooseberry'),
     salt('Gooseberry (Ribes spp.)', null, 'sensitive'),
-    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering'),
+    berryRootTemp('la grosella', 'gooseberry')),
 
   perennial('sp.zarzaparrilla',
     ribesPh({ es: 'zarzaparrilla roja', en: 'red currant' }),
     harvestFreeze('zarzaparrilla roja', 'red currant', 30.2, umaineFreeze('Currants: Temperature 31–32°F; Rel. humidity 90–95%; Approximate storage life 1–4 weeks; Freezing point 30.2°F.')),
+    ribesHarvestRain('la zarzaparrilla roja', 'red currant'),
     salt('Currant (Ribes spp.)', null, 'sensitive'),
-    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering'),
+    berryRootTemp('la zarzaparrilla roja', 'red currant')),
 
   perennial('sp.zarzaparrilla-negra',
     ribesPh({ es: 'zarzaparrilla negra', en: 'black currant' }),
     harvestFreeze('zarzaparrilla negra', 'black currant', 30.2, umaineFreeze('Currants: Temperature 31–32°F; Rel. humidity 90–95%; Approximate storage life 1–4 weeks; Freezing point 30.2°F.')),
+    ribesHarvestRain('la zarzaparrilla negra', 'black currant'),
     salt('Currant (Ribes spp.)', null, 'sensitive'),
-    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering'),
+    berryRootTemp('la zarzaparrilla negra', 'black currant')),
 
   perennial('sp.maqui',
     ph(5.3, 6.5, 5.0, 7.0,
@@ -466,7 +606,9 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [UTALCA_MAQUI, PFAF_MAQUI],
     }),
     analogSalt('sp.frambuesa', 'el maqui', 'maqui berry', 'Frambuesa', 'Raspberry', 'ambos son arbustos de bayas de zonas templado-húmedas sensibles a la salinidad', 'both are temperate-humid berry shrubs sensitive to salinity', 'Raspberry (Rubus idaeus)', null, 'sensitive'),
-    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering'),
+    berryHarvestRain('el maqui', 'maqui berry'),
+    berryRootTemp('el maqui', 'maqui berry')),
 
   perennial('sp.murtilla',
     MURTILLA_PH,
@@ -483,7 +625,9 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [PFAF_UGNI, FIA_MURTILLA],
     }),
     analogSalt('sp.frambuesa', 'la murtilla', 'Chilean guava', 'Frambuesa', 'Raspberry', 'ambos son arbustos de bayas de zonas templado-húmedas sensibles a la salinidad', 'both are temperate-humid berry shrubs sensitive to salinity', 'Raspberry (Rubus idaeus)', null, 'sensitive'),
-    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering'),
+    berryHarvestRain('la murtilla', 'Chilean guava'),
+    berryRootTemp('la murtilla', 'Chilean guava')),
 
   perennial('sp.calafate',
     CALAFATE_PH,
@@ -492,13 +636,17 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       en: 'The sheet uses the name Berberis buxifolia, a synonym of Berberis microphylla.',
     }),
     analogSalt('sp.frambuesa', 'el calafate', 'calafate', 'Frambuesa', 'Raspberry', 'ambos son arbustos de bayas de zonas templado-frías sensibles a la salinidad', 'both are cool-temperate berry shrubs sensitive to salinity', 'Raspberry (Rubus idaeus)', null, 'sensitive'),
-    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering'),
+    berryHarvestRain('el calafate', 'calafate'),
+    berryRootTemp('el calafate', 'calafate')),
 
   perennial('sp.michay',
     analogPh('sp.calafate', 'el michay', 'Darwin\'s barberry', 'Calafate', 'Calafate', 'ambas especies son arbustos nativos del mismo género botánico (Berberis, familia Berberidaceae)', 'both species are native shrubs of the same botanical genus (Berberis, family Berberidaceae)', CALAFATE_PH),
     shrubHardiness({ es: 'El michay', en: 'Darwin\'s barberry' }, -15, PFAF_MICHAY, null),
     analogSalt('sp.frambuesa', 'el michay', 'Darwin\'s barberry', 'Frambuesa', 'Raspberry', 'ambos son arbustos de bayas de zonas templado-húmedas sensibles a la salinidad', 'both are temperate-humid berry shrubs sensitive to salinity', 'Raspberry (Rubus idaeus)', null, 'sensitive'),
-    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering'),
+    berryHarvestRain('el michay', 'Darwin\'s barberry'),
+    berryRootTemp('el michay', 'Darwin\'s barberry')),
 
   perennial('sp.mosqueta',
     ph(6.0, 6.5, null, null,
@@ -524,7 +672,9 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [FIA_MOSQUETA_FRUTO],
     }),
     analogSalt('sp.frambuesa', 'la rosa mosqueta', 'rosehip', 'Frambuesa', 'Raspberry', 'ambas especies son arbustos frutales rosáceos sensibles a la salinidad', 'both species are rosaceous berry shrubs sensitive to salinity', 'Raspberry (Rubus idaeus)', null, 'sensitive'),
-    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering'),
+    berryHarvestRain('la rosa mosqueta', 'rosehip'),
+    berryRootTemp('la rosa mosqueta', 'rosehip')),
 
   perennial('sp.sauco',
     ph(5.5, 6.5, null, null,
@@ -562,11 +712,19 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [PFAF_SAUCO],
     }),
     analogSalt('sp.frambuesa', 'el saúco', 'elderberry', 'Frambuesa', 'Raspberry', 'ambos son arbustos frutales de bayas sensibles a la salinidad', 'both are berry shrubs sensitive to salinity', 'Raspberry (Rubus idaeus)', null, 'sensitive'),
-    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering')),
+    fao56Water('Berries (bushes)', 1.05, 0.5, 'flowering'),
+    berryHarvestRain('el saúco', 'elderberry'),
+    berryRootTemp('el saúco', 'elderberry')),
 
   // --- Aromáticas ---
   annual('sp.albahaca',
-    umdVegetable('Basil', 6.2, 5.6),
+    analog('sp.perejil', {
+      ...umdVegetable('Parsley', 6.5, 6.0),
+      note: 'Por analogía con perejil: pH objetivo 6,5; se indica encalar bajo 6,0.',
+      noteEn: 'By analogy with parsley: target pH 6.5; liming is indicated below 6.0.',
+      limitations: `${BASIL_ANALOG.es} Tabla de producción comercial de hortalizas de la región atlántica media de Estados Unidos, que sólo fija el objetivo y el pH bajo el cual encalar.`,
+      limitationsEn: `${BASIL_ANALOG.en} Commercial vegetable production table for the US Mid-Atlantic, which only sets the target and the pH below which to lime.`,
+    }),
     airMin(ALL_STAGES, 'at_or_below', FROST, {
       severity: 'warning',
       effect: 'Helada prevista: la albahaca no la tolera',
@@ -592,10 +750,18 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [SDSU_BASIL],
     }),
     analogSalt('sp.lechuga', 'la albahaca', 'basil', 'Lechuga', 'Lettuce', 'ambas son especies herbáceas de hoja cosechada sensibles al exceso de sales', 'both are leafy herbaceous crops harvested for their foliage and sensitive to excess salts', 'Lettuce (Lactuca sativa)', 1.3, 'moderately_sensitive'),
-    fao56Water('Small Vegetables — Sweet basil (Ocimum basilicum)', 1.0, 0.3, 'vegetative')),
+    analogWater('sp.lechuga', 'la albahaca', 'basil', 'Lechuga', 'Lettuce', 'ambas se cultivan por la hoja tierna en ciclo corto y su crecimiento responde al agua de los primeros centímetros del suelo', 'both are grown for tender leaf on a short cycle and their growth responds to water in the top few centimetres of soil', fao56Water('Lettuce', 1.0, 0.3, 'vegetative')),
+    herbHarvestRain('la albahaca', 'basil'),
+    warmSoilRootAnalog('sp.pimiento', 'la albahaca', 'basil', 'Pimiento', 'Bell pepper', 'ambas son de estación cálida y no se establecen con el suelo frío', 'both are warm-season and do not establish in cold soil', 'Peppers')),
 
   perennial('sp.ciboulette',
-    umdVegetable('Chives', 6.5, 6.0),
+    analog('sp.cebollin', {
+      ...umdVegetable('Onions - green, bulb, scallions', 6.5, 6.0),
+      note: 'Por analogía con cebollín: pH objetivo 6,5; se indica encalar bajo 6,0.',
+      noteEn: 'By analogy with green onion: target pH 6.5; liming is indicated below 6.0.',
+      limitations: `${CHIVES_PH_ANALOG.es} Tabla de producción comercial de hortalizas de la región atlántica media de Estados Unidos, que sólo fija el objetivo y el pH bajo el cual encalar.`,
+      limitationsEn: `${CHIVES_PH_ANALOG.en} Commercial vegetable production table for the US Mid-Atlantic, which only sets the target and the pH below which to lime.`,
+    }),
     toleratesDownTo(ALL_STAGES, fromF(28), { es: 'La ciboulette', en: 'Chives' },
       {
         es: 'South Dakota State incluye a la ciboulette («chives») entre las hortalizas que resisten heladas leves de 28 a 32 °F (−2,2 a 0 °C).',
@@ -607,7 +773,9 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       },
       [sdsu('light', 'Onion, Garlic, Chives')]),
     analogSalt('sp.cebolla', 'la ciboulette', 'chives', 'Cebolla', 'Onion', 'ambas especies pertenecen al género Allium', 'both species belong to the genus Allium', 'Onion (Allium cepa)', 1.2, 'sensitive'),
-    fao56Water('Small Vegetables — Chives (Allium schoenoprasum)', 1.0, 0.3, 'vegetative')),
+    analogWater('sp.cebollin', 'la ciboulette', 'chives', 'Cebollín', 'Green onion', 'ambas son alliums de hoja, de raíz somera y sin la fase de engrosamiento de bulbo', 'both are leaf alliums, shallow-rooted and without a bulb-filling phase', fao56Water('Onions - green', 1.0, 0.3, 'vegetative')),
+    herbHarvestRain('la ciboulette', 'chives'),
+    warmSoilRootAnalog('sp.cebollin', 'la ciboulette', 'chives', 'Cebollín', 'Green onion', 'ambas son alliums de hoja de raíz somera', 'both are shallow-rooted leaf alliums', 'Onions')),
 
   annual('sp.cilantro',
     analog('sp.perejil', {
@@ -640,7 +808,9 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [UARK_PARSLEY],
     })),
     analogSalt('sp.apio', 'el cilantro', 'coriander', 'Apio', 'Celery', 'ambas son Apiáceas aromáticas de hoja cultivadas en estación fresca', 'both are cool-season aromatic leafy Apiaceae', 'Celery (Apium graveolens)', 1.8, 'moderately_sensitive'),
-    analogWater('sp.apio', 'el cilantro', 'coriander', 'Apio', 'Celery', 'ambas son Apiáceas de hoja y tallo tierno con raíces superficiales sensibles a la falta de agua', 'both are tender-leafed Apiaceae with shallow roots sensitive to water shortage', fao56Water('Celery (Apium graveolens)', 1.05, 0.2, 'vegetative'))),
+    analogWater('sp.apio', 'el cilantro', 'coriander', 'Apio', 'Celery', 'ambas son Apiáceas de hoja y tallo tierno con raíces superficiales sensibles a la falta de agua', 'both are tender-leafed Apiaceae with shallow roots sensitive to water shortage', fao56Water('Celery', 1.05, 0.2, 'vegetative')),
+    herbHarvestRain('el cilantro', 'coriander'),
+    warmSoilRootAnalog('sp.perejil', 'el cilantro', 'coriander', 'Perejil', 'Parsley', 'ambas son apiáceas de hoja de estación fresca', 'both are cool-season leafy apiaceae', 'Parsley')),
 
   perennial('sp.oregano',
     ph(6.0, 6.5, null, null,
@@ -666,5 +836,7 @@ export const BERRY_AROMATIC_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [UCIPM_OREGANO],
     }),
     analogSalt('sp.apio', 'el orégano', 'oregano', 'Apio', 'Celery', 'ante la falta de curva en FAO 29 para Lamiáceas culinarias se usa una herbácea aromática de referencia moderadamente sensible', 'in the absence of an FAO 29 curve for culinary Lamiaceae, a moderately sensitive reference aromatic herb is used', 'Celery (Apium graveolens)', 1.8, 'moderately_sensitive'),
-    analogWater('sp.lechuga', 'el orégano', 'oregano', 'Lechuga', 'Lettuce', 'en producción comercial de hoja aromática el crecimiento vegetativo responde a la disponibilidad de agua en la zona radicular', 'in commercial aromatic leaf production vegetative growth responds to root-zone water availability', fao56Water('Lettuce (Lactuca sativa)', 1.0, 0.3, 'vegetative'))),
+    analogWater('sp.lechuga', 'el orégano', 'oregano', 'Lechuga', 'Lettuce', 'en producción comercial de hoja aromática el crecimiento vegetativo responde a la disponibilidad de agua en la zona radicular', 'in commercial aromatic leaf production vegetative growth responds to root-zone water availability', fao56Water('Lettuce', 1.0, 0.3, 'vegetative')),
+    herbHarvestRain('el orégano', 'oregano'),
+    warmSoilRootAnalog('sp.perejil', 'el orégano', 'oregano', 'Perejil', 'Parsley', 'ambas son hierbas de hoja que se cosechan en verde y enraízan en los primeros centímetros', 'both are leaf herbs harvested green that root in the top few centimetres', 'Parsley')),
 ];

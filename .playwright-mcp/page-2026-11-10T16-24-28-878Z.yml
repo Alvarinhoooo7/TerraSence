@@ -1,0 +1,320 @@
+- generic [active] [ref=f7e1]:
+  - link "Skip to main content ➔" [ref=f7e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f7e4]:
+    - banner [ref=f7e5]:
+      - link [ref=f7e8] [cursor=pointer]:
+        - /url: https://www.ucdavis.edu/
+        - img "UC Davis Logo" [ref=f7e9]
+      - generic [ref=f7e11]:
+        - generic [ref=f7e12]:
+          - link [ref=f7e14] [cursor=pointer]:
+            - /url: /
+            - img "Site Logo" [ref=f7e15]
+          - generic [ref=f7e16]:
+            - link "Postharvest Research and Extension Center" [ref=f7e18] [cursor=pointer]:
+              - /url: /
+            - generic [ref=f7e19]: A Research and Information Center
+        - navigation:    
+      - generic [ref=f7e22]:
+        - button " Open Search" [ref=f7e25] [cursor=pointer]
+        - button "Quick Links " [ref=f7e30] [cursor=pointer]
+        - navigation "Main navigation (extended config)" [ref=f7e33]:
+          - list:
+            - listitem [ref=f7e35]:
+              - link "Home" [ref=f7e37] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f7e38]:
+              - link "Produce Info & Fact Sheets " [ref=f7e40] [cursor=pointer]:
+                - /url: /produce-facts
+                - text: Produce Info & Fact Sheets
+                - generic [ref=f7e41]: 
+            - listitem [ref=f7e42]:
+              - link "Workshops and Free Courses" [ref=f7e44] [cursor=pointer]:
+                - /url: /core-workshops
+            - listitem [ref=f7e45]:
+              - link "Postharvest Resources " [ref=f7e47] [cursor=pointer]:
+                - /url: /postharvest-resources
+                - text: Postharvest Resources
+                - generic [ref=f7e48]: 
+            - listitem [ref=f7e49]:
+              - link "Video Library" [ref=f7e51] [cursor=pointer]:
+                - /url: /video-library
+            - listitem [ref=f7e52]:
+              - link "About the PREC " [ref=f7e54] [cursor=pointer]:
+                - /url: /about
+                - text: About the PREC
+                - generic [ref=f7e55]: 
+            - listitem [ref=f7e56]:
+              - link "Other Centers" [ref=f7e58] [cursor=pointer]:
+                - /url: https://www.plantsciences.ucdavis.edu/outreach
+    - main [ref=f7e59]:
+      - generic [ref=f7e67]:
+        - img "UC Davis, Department of Plant Sciences logo" [ref=f7e71]
+        - img "UC ANR logo" [ref=f7e74]
+      - heading "Produce Facts Sheets" [level=1] [ref=f7e78]
+      - generic [ref=f7e80]:
+        - navigation [ref=f7e81]:
+          - list [ref=f7e82]:
+            - listitem [ref=f7e83]:
+              - link "English" [ref=f7e84] [cursor=pointer]:
+                - /url: /produce-facts-sheets/vegetables
+            - listitem [ref=f7e85]:
+              - link "Español" [ref=f7e86] [cursor=pointer]:
+                - /url: /es/produce-facts-sheets/vegetables
+            - listitem [ref=f7e87]:
+              - link "Français" [ref=f7e88] [cursor=pointer]:
+                - /url: /fr/produce-facts-sheets/vegetables
+            - listitem [ref=f7e89]:
+              - link "عربي (Arabic)" [ref=f7e90] [cursor=pointer]:
+                - /url: /ar/produce-facts-sheets/vegetables
+        - paragraph [ref=f7e93]:
+          - link "  Get the App" [ref=f7e94] [cursor=pointer]:
+            - /url: https://apps.apple.com/us/app/produce-facts/id1192176504
+            - text: 
+            - generic [ref=f7e95]: 
+            - text: Get the App
+        - navigation "Tabs" [ref=f7e97]:
+          - heading "Primary tabs" [level=2] [ref=f7e98]
+          - list [ref=f7e99]:
+            - listitem [ref=f7e100]:
+              - link "Nuts" [ref=f7e101] [cursor=pointer]:
+                - /url: /produce-facts-sheets/nuts
+            - listitem [ref=f7e102]:
+              - link "Fruits" [ref=f7e103] [cursor=pointer]:
+                - /url: /produce-facts-sheets
+            - listitem [ref=f7e104]:
+              - link "Vegetables" [ref=f7e105] [cursor=pointer]:
+                - /url: /produce-facts-sheets/vegetables
+            - listitem [ref=f7e106]:
+              - link "Ornamentals" [ref=f7e107] [cursor=pointer]:
+                - /url: /produce-facts-sheets/ornamentals
+      - generic [ref=f7e116]:
+        - generic [ref=f7e117]:
+          - link "artichoke Artichoke (Globe)" [ref=f7e121] [cursor=pointer]:
+            - /url: /produce-facts-sheets/artichoke-globe
+            - img "artichoke" [ref=f7e123]
+            - generic [ref=f7e124]: Artichoke (Globe)
+          - link "asparagus Asparagus (Green)" [ref=f7e128] [cursor=pointer]:
+            - /url: /produce-facts-sheets/asparagus-green
+            - img "asparagus" [ref=f7e130]
+            - generic [ref=f7e131]: Asparagus (Green)
+          - link "belgian endive Belgian Endive (Witloof Chicory)" [ref=f7e135] [cursor=pointer]:
+            - /url: /produce-facts-sheets/belgian-endive-witloof-chicory
+            - img "belgian endive" [ref=f7e137]
+            - generic [ref=f7e138]: Belgian Endive (Witloof Chicory)
+          - link "bell pepper Bell Pepper" [ref=f7e142] [cursor=pointer]:
+            - /url: /produce-facts-sheets/bell-pepper
+            - img "bell pepper" [ref=f7e144]
+            - generic [ref=f7e145]: Bell Pepper
+        - generic [ref=f7e146]:
+          - link "new bok choy Bok Choy (Pak Choi, Pok Choi)" [ref=f7e150] [cursor=pointer]:
+            - /url: /produce-facts-sheets/bok-choy
+            - img "new bok choy" [ref=f7e152]
+            - generic [ref=f7e153]: Bok Choy (Pak Choi, Pok Choi)
+          - link "new broccoli Broccoli" [ref=f7e157] [cursor=pointer]:
+            - /url: /produce-facts-sheets/broccoli
+            - img "new broccoli" [ref=f7e159]
+            - generic [ref=f7e160]: Broccoli
+          - link "brussel sprouts Brussels Sprouts" [ref=f7e164] [cursor=pointer]:
+            - /url: /produce-facts-sheets/brussels-sprouts
+            - img "brussel sprouts" [ref=f7e166]
+            - generic [ref=f7e167]: Brussels Sprouts
+          - link "cabbage Cabbage" [ref=f7e171] [cursor=pointer]:
+            - /url: /produce-facts-sheets/cabbage
+            - img "cabbage" [ref=f7e173]
+            - generic [ref=f7e174]: Cabbage
+        - generic [ref=f7e175]:
+          - link "carrot Carrot" [ref=f7e179] [cursor=pointer]:
+            - /url: /produce-facts-sheets/carrot
+            - img "carrot" [ref=f7e181]
+            - generic [ref=f7e182]: Carrot
+          - link "cauliflower Cauliflower" [ref=f7e186] [cursor=pointer]:
+            - /url: /produce-facts-sheets/cauliflower
+            - img "cauliflower" [ref=f7e188]
+            - generic [ref=f7e189]: Cauliflower
+          - link "Fresh celery with a red \"NEW\" tag. Celery" [ref=f7e193] [cursor=pointer]:
+            - /url: /produce-facts-sheets/celery
+            - img "Fresh celery with a red \"NEW\" tag." [ref=f7e195]
+            - generic [ref=f7e196]: Celery
+          - link "chili pepper Chile Pepper" [ref=f7e200] [cursor=pointer]:
+            - /url: /produce-facts-sheets/chile-pepper
+            - img "chili pepper" [ref=f7e202]
+            - generic [ref=f7e203]: Chile Pepper
+        - generic [ref=f7e204]:
+          - link "corn Corn (Sweet)" [ref=f7e208] [cursor=pointer]:
+            - /url: /produce-facts-sheets/corn-sweet
+            - img "corn" [ref=f7e210]
+            - generic [ref=f7e211]: Corn (Sweet)
+          - link "cucumber Cucumber" [ref=f7e215] [cursor=pointer]:
+            - /url: /produce-facts-sheets/cucumber
+            - img "cucumber" [ref=f7e217]
+            - generic [ref=f7e218]: Cucumber
+          - link "eggplant Eggplant" [ref=f7e222] [cursor=pointer]:
+            - /url: /produce-facts-sheets/eggplant
+            - img "eggplant" [ref=f7e224]
+            - generic [ref=f7e225]: Eggplant
+          - link "garlic Garlic" [ref=f7e229] [cursor=pointer]:
+            - /url: /produce-facts-sheets/garlic
+            - img "garlic" [ref=f7e231]
+            - generic [ref=f7e232]: Garlic
+        - generic [ref=f7e233]:
+          - link "green beans Green Beans" [ref=f7e237] [cursor=pointer]:
+            - /url: /produce-facts-sheets/bean-snap
+            - img "green beans" [ref=f7e239]
+            - generic [ref=f7e240]: Green Beans
+          - link "herbs Herbs (Fresh Culinary)" [ref=f7e244] [cursor=pointer]:
+            - /url: /produce-facts-sheets/herbs-fresh-culinary
+            - img "herbs" [ref=f7e246]
+            - generic [ref=f7e247]: Herbs (Fresh Culinary)
+          - link "jicama Jicama" [ref=f7e251] [cursor=pointer]:
+            - /url: /produce-facts-sheets/jicama
+            - img "jicama" [ref=f7e253]
+            - generic [ref=f7e254]: Jicama
+          - link "New crisphead lettuce Lettuce (Crisphead, Iceberg)" [ref=f7e258] [cursor=pointer]:
+            - /url: /produce-facts-sheets/lettuce-crisphead
+            - img "New crisphead lettuce" [ref=f7e260]
+            - generic [ref=f7e261]: Lettuce (Crisphead, Iceberg)
+        - generic [ref=f7e262]:
+          - link "New romaine lettuce Lettuce (Romaine and Loose-Leaf)" [ref=f7e266] [cursor=pointer]:
+            - /url: /produce-facts-sheets/lettuce-romaine
+            - img "New romaine lettuce" [ref=f7e268]
+            - generic [ref=f7e269]: Lettuce (Romaine and Loose-Leaf)
+          - link "mushroom Mushroom" [ref=f7e273] [cursor=pointer]:
+            - /url: /produce-facts-sheets/mushroom
+            - img "mushroom" [ref=f7e275]
+            - generic [ref=f7e276]: Mushroom
+          - link "new Napa cabbage Napa Cabbage (Wombok)" [ref=f7e280] [cursor=pointer]:
+            - /url: /produce-facts-sheets/napa-cabbage
+            - img "new Napa cabbage" [ref=f7e282]
+            - generic [ref=f7e283]: Napa Cabbage (Wombok)
+          - link "nopalitos Nopalitos" [ref=f7e287] [cursor=pointer]:
+            - /url: /produce-facts-sheets/nopalitos
+            - img "nopalitos" [ref=f7e289]
+            - generic [ref=f7e290]: Nopalitos
+        - generic [ref=f7e291]:
+          - link "okra Okra" [ref=f7e295] [cursor=pointer]:
+            - /url: /produce-facts-sheets/okra
+            - img "okra" [ref=f7e297]
+            - generic [ref=f7e298]: Okra
+          - link "onion Onions (Dry)" [ref=f7e302] [cursor=pointer]:
+            - /url: /produce-facts-sheets/onions-dry
+            - img "onion" [ref=f7e304]
+            - generic [ref=f7e305]: Onions (Dry)
+          - link "green onions Onions (Green Bunch)" [ref=f7e309] [cursor=pointer]:
+            - /url: /produce-facts-sheets/onions-green-bunch
+            - img "green onions" [ref=f7e311]
+            - generic [ref=f7e312]: Onions (Green Bunch)
+          - link "potato Potato (Early Crop)" [ref=f7e316] [cursor=pointer]:
+            - /url: /produce-facts-sheets/potato
+            - img "potato" [ref=f7e318]
+            - generic [ref=f7e319]: Potato (Early Crop)
+        - generic [ref=f7e320]:
+          - link "pumpkin Pumpkin & Winter Squash" [ref=f7e324] [cursor=pointer]:
+            - /url: /produce-facts-sheets/pumpkin-winter-squash
+            - img "pumpkin" [ref=f7e326]
+            - generic [ref=f7e327]: Pumpkin & Winter Squash
+          - link "radiccio Radicchio" [ref=f7e331] [cursor=pointer]:
+            - /url: /produce-facts-sheets/radicchio
+            - img "radiccio" [ref=f7e333]
+            - generic [ref=f7e334]: Radicchio
+          - link "radish Radish" [ref=f7e338] [cursor=pointer]:
+            - /url: /produce-facts-sheets/radish
+            - img "radish" [ref=f7e340]
+            - generic [ref=f7e341]: Radish
+          - link "snap beans Snow & Snap Pea Pods" [ref=f7e345] [cursor=pointer]:
+            - /url: /produce-facts-sheets/peas-snow-and-snap-pod
+            - img "snap beans" [ref=f7e347]
+            - generic [ref=f7e348]: Snow & Snap Pea Pods
+        - generic [ref=f7e349]:
+          - link "spinach Spinach" [ref=f7e353] [cursor=pointer]:
+            - /url: /produce-facts-sheets/spinach
+            - img "spinach" [ref=f7e355]
+            - generic [ref=f7e356]: Spinach
+          - link "sprouts Sprouts" [ref=f7e360] [cursor=pointer]:
+            - /url: /produce-facts-sheets/sprouts-seed
+            - img "sprouts" [ref=f7e362]
+            - generic [ref=f7e363]: Sprouts
+          - link "squash Summer Squash" [ref=f7e367] [cursor=pointer]:
+            - /url: /produce-facts-sheets/squash-soft-rind
+            - img "squash" [ref=f7e369]
+            - generic [ref=f7e370]: Summer Squash
+          - link "sweet potato Sweet Potato" [ref=f7e374] [cursor=pointer]:
+            - /url: /produce-facts-sheets/sweet-potato
+            - img "sweet potato" [ref=f7e376]
+            - generic [ref=f7e377]: Sweet Potato
+        - generic [ref=f7e378]:
+          - link "tomatillo Tomatillo (Husk Tomato)" [ref=f7e382] [cursor=pointer]:
+            - /url: /produce-facts-sheets/tomatillo-husk-tomato
+            - img "tomatillo" [ref=f7e384]
+            - generic [ref=f7e385]: Tomatillo (Husk Tomato)
+          - link "tomato Tomato" [ref=f7e389] [cursor=pointer]:
+            - /url: /produce-facts-sheets/tomato
+            - img "tomato" [ref=f7e391]
+            - generic [ref=f7e392]: Tomato
+    - contentinfo [ref=f7e393]:
+      - generic [ref=f7e394]:
+        - generic [ref=f7e395]:
+          - generic [ref=f7e398]:
+            - img "UCDavis College of Agricultural and Environmental Sciences" [ref=f7e400]
+            - paragraph [ref=f7e401]
+            - img "UCDavis Department of Plant Sciences" [ref=f7e403]
+            - paragraph [ref=f7e404]
+            - paragraph [ref=f7e405]: Dept. of Plant Sciences, Mail Stop 2 University of California, Davis One Shields Avenue Davis, CA 95616
+            - paragraph [ref=f7e406]:
+              - text: "Telephone: (530) 752‐6941; Fax: (530) 754‐4326 Email:"
+              - link "postharvest@ucdavis.edu" [ref=f7e407] [cursor=pointer]:
+                - /url: mailto:postharvest@ucdavis.edu
+            - paragraph [ref=f7e408]
+          - navigation "Postharvest Site Links" [ref=f7e410]:
+            - heading "Postharvest Site Links" [level=2] [ref=f7e411]
+            - list [ref=f7e412]:
+              - listitem [ref=f7e413]:
+                - link "Division of Agriculture and Natural Resources" [ref=f7e414] [cursor=pointer]:
+                  - /url: https://ucanr.edu/
+              - listitem [ref=f7e415]:
+                - link "UCANR Accessibility Statement" [ref=f7e416] [cursor=pointer]:
+                  - /url: https://ucanr.edu/?accessibilityStatement
+              - listitem [ref=f7e417]:
+                - link "Get PDF Reader" [ref=f7e418] [cursor=pointer]:
+                  - /url: https://get.adobe.com/reader/
+          - list [ref=f7e422]:
+            - listitem [ref=f7e423]:
+              - link "Follow us on youtube" [ref=f7e424] [cursor=pointer]:
+                - /url: https://www.youtube.com/@postharvestcenter
+                - generic [ref=f7e425]: 
+            - listitem [ref=f7e426]:
+              - link "Follow us on linkedin" [ref=f7e427] [cursor=pointer]:
+                - /url: https://www.linkedin.com/company/ucpostharvest
+                - generic [ref=f7e428]: 
+        - link [ref=f7e431] [cursor=pointer]:
+          - /url: https://www.ucdavis.edu/
+          - img "UC Davis footer logo" [ref=f7e432]
+        - generic [ref=f7e434]:
+          - paragraph [ref=f7e435]:
+            - link "University of California, Davis" [ref=f7e436] [cursor=pointer]:
+              - /url: https://www.ucdavis.edu/
+            - text: ", One Shields Avenue, Davis, CA 95616 | 530-752-1011"
+          - list [ref=f7e437]:
+            - listitem [ref=f7e438]:
+              - link "Questions or comments?" [ref=f7e439] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=f7e440]:
+              - link "Privacy & Accessibility" [ref=f7e441] [cursor=pointer]:
+                - /url: http://ucdavis.edu/help/privacy-accessibility.html
+            - listitem [ref=f7e442]:
+              - link "Principles of Community" [ref=f7e443] [cursor=pointer]:
+                - /url: https://excellence.ucdavis.edu/principles-community
+            - listitem [ref=f7e444]:
+              - link "University of California" [ref=f7e445] [cursor=pointer]:
+                - /url: http://www.universityofcalifornia.edu/
+            - listitem [ref=f7e446]:
+              - link "Sitemap" [ref=f7e447] [cursor=pointer]:
+                - /url: /sitemap
+            - listitem [ref=f7e448]: "Last update: November 1, 2026"
+          - paragraph [ref=f7e449]: Copyright © The Regents of the University of California, Davis campus. All rights reserved.
+        - generic [ref=f7e450]:
+          - text: This site is officially grown in
+          - link "SiteFarm" [ref=f7e451] [cursor=pointer]:
+            - /url: https://sitefarm.ucdavis.edu
+          - text: .

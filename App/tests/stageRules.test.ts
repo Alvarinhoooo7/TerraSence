@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { CROPS_DB, SOIL_TEXTURES, PRE_PLANTING_PROFILES, evaluatePrePlantingOptions, suggestPrePlantingCrops } from '../src/engine/agronomyEngine';
-import { buildContextualAdvice } from '../src/engine/contextualAdvice';
+import { buildContextualAdvice, computeLocalVpdKpa, maxConsecutiveHighHumidityHours } from '../src/engine/contextualAdvice';
 import { normalizeWeather } from '../src/services/weatherService';
 import { WEATHER_UNITS } from './fixtures/weatherUnits';
 import { buildLocalInputQuality } from '../src/engine/inputQuality';
@@ -265,3 +265,105 @@ test('E4/§8.3–§8.6: registro auditable de VG01–VG05, FL01–FL05 y CO01–
   const floweringHighEc = evaluateReadingForStage({ ...raw, ec: 2200 }, 'floracion', 'es', clock, 'sp.tomate');
   assert.ok(!floweringHighEc.alerts.some(a => /80 %|80%/i.test(a.action)));
 });
+
+test('ES9 (pre-siembra v3.0.0): cultivos anuales con fuente térmica directa, ranking por optimalDistance y cruces de humedad, salinidad y clima', () => {
+  const cool = evaluatePrePlantingOptions({ ...raw, temp: 15.5, ph: 6.5 }, 'es');
+  for (const id of ['pre.raps.semilla']) {
+    const opt = cool.find(o => o.profileId === id);
+    assert.ok(opt, `Falta ${id} a 15,5 °C`);
+    assert.equal(opt.classification, 'matches_evaluated_criteria', id);
+    assert.ok(opt.group, `${id} debe informar group`);
+  }
+  // La avena y la cebada se suman: su referencia térmica mide trigo, no la propia especie.
+  // El diente de ajo y los trasplantes siguen apareciendo y ordenándose, pero con la limitación
+  // declarada: la tabla de UC ANR que los acompaña es de germinación de semilla, no de trasplante.
+  for (const id of ['pre.ajo.bulbo', 'pre.apio.trasplante', 'pre.avena.semilla', 'pre.cebada.semilla']) {
+    const opt = cool.find(o => o.profileId === id);
+    assert.ok(opt, `Falta ${id} a 15,5 °C`);
+    assert.equal(opt.classification, 'has_limitations', id);
+    assert.ok(opt.group, `${id} debe informar group`);
+  }
+  const warm = evaluatePrePlantingOptions({ ...raw, temp: 24, ph: 6.5 }, 'es');
+  for (const id of ['pre.soya.semilla', 'pre.arroz.semilla']) {
+    const opt = warm.find(o => o.profileId === id);
+    assert.ok(opt, `Falta ${id} a 24 °C`);
+    assert.equal(opt.classification, 'matches_evaluated_criteria', id);
+  }
+  for (const id of ['pre.pimiento.trasplante', 'pre.aji.trasplante']) {
+    const opt = warm.find(o => o.profileId === id);
+    assert.ok(opt, `Falta ${id} a 24 °C`);
+    assert.equal(opt.classification, 'has_limitations', id);
+  }
+  // Dentro de matches_evaluated_criteria, optimalDistance ordena de menor a mayor distancia al centro óptimo.
+  const fullMatches = cool.filter(o => o.scope === 'short_term_establishment' && o.classification === 'matches_evaluated_criteria');
+  for (let i = 1; i < fullMatches.length; i++) {
+    assert.ok(fullMatches[i].optimalDistance >= fullMatches[i - 1].optimalDistance - 1e-6);
+  }
+  // Cruces con humedad extrema de cama de siembra, CE alta en especie sensible y clima (C04 y C06).
+  const location = { latitude: -33, longitude: -70 };
+  const weather = normalizeWeather({
+    ...WEATHER_UNITS,
+    hourly_units: { time: 'iso8601', temperature_2m: '°C', relative_humidity_2m: '%' },
+    timezone: 'America/Santiago',
+    utc_offset_seconds: -10800,
+    current: { time: '2026-10-11T09:00', temperature_2m: 15 },
+    daily: {
+      time: ['2026-10-12', '2026-10-13', '2026-10-14', '2026-10-15'],
+      temperature_2m_min: [-1, 8, 8, 8],
+      temperature_2m_max: [18, 18, 18, 18],
+      precipitation_sum: [20, 0, 0, 0],
+      precipitation_probability_max: [80, 0, 0, 0],
+    },
+  }, clock.evaluatedAt)!;
+  const crossed = evaluatePrePlantingOptions({ ...raw, temp: 22, ph: 6.4, vwc: 4.5, ec: 1800 }, 'es', undefined, {
+    ...weather,
+    request: { captureId: 'cap-pre', ...location },
+  });
+  const bean = crossed.find(o => o.profileId === 'pre.poroto.semilla')!;
+  assert.ok(bean.limitationCodes.includes('seedbed_moisture_limitation'));
+  assert.ok(bean.limitationCodes.includes('salinity_sensitive_reference'));
+  assert.ok(bean.limitationCodes.includes('upcoming_frost_risk'));
+  assert.ok(bean.limitationCodes.includes('upcoming_heavy_rain'));
+});
+
+test('ES9 (L8: C01+C02 y C09): demanda evaporativa combinada con suelo seco y persistencia horaria de HR >= 90 % sin diagnosticar infección', () => {
+  const vpd = computeLocalVpdKpa(32, 20);
+  assert.ok(vpd !== null && vpd >= 3.5);
+  const dryAirDrySoil = { ...raw, vwc: 10, airTemp: 32, airHumidity: 20 };
+  const evalVeg = evaluateReadingForStage(dryAirDrySoil, 'vegetativo', 'es', clock, 'sp.tomate');
+  const adviceVeg = buildContextualAdvice('vegetativo', evalVeg, dryAirDrySoil, null, 'es', undefined, 'sp.tomate');
+  assert.ok(adviceVeg.recommendations!.some(r => r.kind === 'irrigation' && r.priority === 'high' && /C01 \+ C02/.test(r.detail ?? '')));
+
+  const location = { latitude: -33, longitude: -70 };
+  const context = { captureId: 'cap-rh', location, evaluatedAt: clock.evaluatedAt };
+  const hours = Array.from({ length: 16 }, (_, i) => `2026-10-22T${String(i).padStart(2, '0')}:00`);
+  const weather = normalizeWeather({
+    ...WEATHER_UNITS,
+    hourly_units: { time: 'iso8601', temperature_2m: '°C', relative_humidity_2m: '%' },
+    timezone: 'America/Santiago',
+    utc_offset_seconds: -10800,
+    current: { time: '2026-10-22T09:00', temperature_2m: 15 },
+    daily: {
+      time: ['2026-10-22', '2026-10-23', '2026-10-24', '2026-10-25', '2026-10-26'],
+      temperature_2m_min: [8, 8, 8, 8, 8],
+      temperature_2m_max: [18, 18, 18, 18, 18],
+      precipitation_sum: [0, 0, 0, 0, 0],
+      precipitation_probability_max: [10, 10, 10, 10, 10],
+    },
+    hourly: {
+      time: hours,
+      temperature_2m: hours.map(() => 14),
+      relative_humidity_2m: hours.map((_, i) => (i < 13 ? 93 : 70)),
+      dew_point_2m: hours.map(() => 13),
+      precipitation_probability: hours.map(() => 10),
+      precipitation: hours.map(() => 0),
+    },
+  }, clock.evaluatedAt)!;
+  const taggedWeather = { ...weather, request: { captureId: context.captureId, ...location } };
+  assert.equal(maxConsecutiveHighHumidityHours(taggedWeather, 90), 13);
+  const adviceRh = buildContextualAdvice('floracion', evalVeg, raw, taggedWeather, 'es', context, 'sp.tomate');
+  const rhRec = adviceRh.recommendations!.find(r => /C09/.test(r.detail ?? ''));
+  assert.ok(rhRec, 'Debe emitir recomendación horaria C09 con 13 h >= 90 % HR');
+  assert.doesNotMatch(`${rhRec.title} ${rhRec.body} ${rhRec.detail}`, /infecci[oó]n|infectad|fungicida|tiene hongos|est[aá] enfermo/i);
+});
+

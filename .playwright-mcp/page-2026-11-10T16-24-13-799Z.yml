@@ -1,0 +1,405 @@
+- generic [active] [ref=f4e1]:
+  - link "Skip to main content ➔" [ref=f4e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f4e4]:
+    - banner [ref=f4e5]:
+      - link [ref=f4e8] [cursor=pointer]:
+        - /url: https://www.ucdavis.edu/
+        - img "UC Davis Logo" [ref=f4e9]
+      - generic [ref=f4e11]:
+        - generic [ref=f4e12]:
+          - link [ref=f4e14] [cursor=pointer]:
+            - /url: /
+            - img "Site Logo" [ref=f4e15]
+          - generic [ref=f4e16]:
+            - link "Postharvest Research and Extension Center" [ref=f4e18] [cursor=pointer]:
+              - /url: /
+            - generic [ref=f4e19]: A Research and Information Center
+        - navigation:    
+      - generic [ref=f4e22]:
+        - button " Open Search" [ref=f4e25] [cursor=pointer]
+        - button "Quick Links " [ref=f4e30] [cursor=pointer]
+        - navigation "Main navigation (extended config)" [ref=f4e33]:
+          - list:
+            - listitem [ref=f4e35]:
+              - link "Home" [ref=f4e37] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f4e38]:
+              - link "Produce Info & Fact Sheets " [ref=f4e40] [cursor=pointer]:
+                - /url: /produce-facts
+                - text: Produce Info & Fact Sheets
+                - generic [ref=f4e41]: 
+            - listitem [ref=f4e42]:
+              - link "Workshops and Free Courses" [ref=f4e44] [cursor=pointer]:
+                - /url: /core-workshops
+            - listitem [ref=f4e45]:
+              - link "Postharvest Resources " [ref=f4e47] [cursor=pointer]:
+                - /url: /postharvest-resources
+                - text: Postharvest Resources
+                - generic [ref=f4e48]: 
+            - listitem [ref=f4e49]:
+              - link "Video Library" [ref=f4e51] [cursor=pointer]:
+                - /url: /video-library
+            - listitem [ref=f4e52]:
+              - link "About the PREC " [ref=f4e54] [cursor=pointer]:
+                - /url: /about
+                - text: About the PREC
+                - generic [ref=f4e55]: 
+            - listitem [ref=f4e56]:
+              - link "Other Centers" [ref=f4e58] [cursor=pointer]:
+                - /url: https://www.plantsciences.ucdavis.edu/outreach
+    - main [ref=f4e59]:
+      - generic [ref=f4e67]:
+        - img "UC Davis, Department of Plant Sciences logo" [ref=f4e71]
+        - img "UC ANR logo" [ref=f4e74]
+      - heading "Produce Facts Sheets" [level=1] [ref=f4e78]
+      - generic [ref=f4e80]:
+        - navigation [ref=f4e81]:
+          - list [ref=f4e82]:
+            - listitem [ref=f4e83]:
+              - link "English" [ref=f4e84] [cursor=pointer]:
+                - /url: /produce-facts-sheets
+            - listitem [ref=f4e85]:
+              - link "Español" [ref=f4e86] [cursor=pointer]:
+                - /url: /es/produce-facts-sheets
+            - listitem [ref=f4e87]:
+              - link "Français" [ref=f4e88] [cursor=pointer]:
+                - /url: /fr/produce-facts-sheets
+            - listitem [ref=f4e89]:
+              - link "عربي (Arabic)" [ref=f4e90] [cursor=pointer]:
+                - /url: /ar/produce-facts-sheets
+        - paragraph [ref=f4e93]:
+          - link "  Get the App" [ref=f4e94] [cursor=pointer]:
+            - /url: https://apps.apple.com/us/app/produce-facts/id1192176504
+            - text: 
+            - generic [ref=f4e95]: 
+            - text: Get the App
+        - navigation "Tabs" [ref=f4e97]:
+          - heading "Primary tabs" [level=2] [ref=f4e98]
+          - list [ref=f4e99]:
+            - listitem [ref=f4e100]:
+              - link "Nuts" [ref=f4e101] [cursor=pointer]:
+                - /url: /produce-facts-sheets/nuts
+            - listitem [ref=f4e102]:
+              - link "Fruits" [ref=f4e103] [cursor=pointer]:
+                - /url: /produce-facts-sheets
+            - listitem [ref=f4e104]:
+              - link "Vegetables" [ref=f4e105] [cursor=pointer]:
+                - /url: /produce-facts-sheets/vegetables
+            - listitem [ref=f4e106]:
+              - link "Ornamentals" [ref=f4e107] [cursor=pointer]:
+                - /url: /produce-facts-sheets/ornamentals
+      - generic [ref=f4e116]:
+        - generic [ref=f4e117]:
+          - link "fuji Apple (Fuji)" [ref=f4e121] [cursor=pointer]:
+            - /url: /produce-facts-sheets/apple-fuji
+            - img "fuji" [ref=f4e123]
+            - generic [ref=f4e124]: Apple (Fuji)
+          - link "gala Apple (Gala)" [ref=f4e128] [cursor=pointer]:
+            - /url: /produce-facts-sheets/apple-gala
+            - img "gala" [ref=f4e130]
+            - generic [ref=f4e131]: Apple (Gala)
+          - link "golden delicious Apple (Golden Delicious)" [ref=f4e135] [cursor=pointer]:
+            - /url: /produce-facts-sheets/apple-golden-delicious
+            - img "golden delicious" [ref=f4e137]
+            - generic [ref=f4e138]: Apple (Golden Delicious)
+          - link "granny smith Apple (Granny Smith)" [ref=f4e142] [cursor=pointer]:
+            - /url: /produce-facts-sheets/apple-granny-smith
+            - img "granny smith" [ref=f4e144]
+            - generic [ref=f4e145]: Apple (Granny Smith)
+        - generic [ref=f4e146]:
+          - link "honeycrisp Apple (Honeycrisp)" [ref=f4e150] [cursor=pointer]:
+            - /url: /produce-facts-sheets/apple
+            - img "honeycrisp" [ref=f4e152]
+            - generic [ref=f4e153]: Apple (Honeycrisp)
+          - link "red delicious Apple (Red Delicious)" [ref=f4e157] [cursor=pointer]:
+            - /url: /produce-facts-sheets/apple-red-delicious
+            - img "red delicious" [ref=f4e159]
+            - generic [ref=f4e160]: Apple (Red Delicious)
+          - link "apricot Apricot" [ref=f4e164] [cursor=pointer]:
+            - /url: /produce-facts-sheets/apricot
+            - img "apricot" [ref=f4e166]
+            - generic [ref=f4e167]: Apricot
+          - link "asian pear Asian Pear" [ref=f4e171] [cursor=pointer]:
+            - /url: /produce-facts-sheets/asian-pear
+            - img "asian pear" [ref=f4e173]
+            - generic [ref=f4e174]: Asian Pear
+        - generic [ref=f4e175]:
+          - link "avocado Avocado" [ref=f4e179] [cursor=pointer]:
+            - /url: /produce-facts-sheets/avocado
+            - img "avocado" [ref=f4e181]
+            - generic [ref=f4e182]: Avocado
+          - link "banana Banana (Cavendish)" [ref=f4e186] [cursor=pointer]:
+            - /url: /produce-facts-sheets/banana
+            - img "banana" [ref=f4e188]
+            - generic [ref=f4e189]: Banana (Cavendish)
+          - link "specialty banana Banana (Specialty)" [ref=f4e193] [cursor=pointer]:
+            - /url: /produce-facts-sheets/banana-specialty
+            - img "specialty banana" [ref=f4e195]
+            - generic [ref=f4e196]: Banana (Specialty)
+          - link "breadfruit Breadfruit" [ref=f4e200] [cursor=pointer]:
+            - /url: /produce-facts-sheets/breadfruit
+            - img "breadfruit" [ref=f4e202]
+            - generic [ref=f4e203]: Breadfruit
+        - generic [ref=f4e204]:
+          - link "berries Bushberries" [ref=f4e208] [cursor=pointer]:
+            - /url: /produce-facts-sheets/bushberry
+            - img "berries" [ref=f4e210]
+            - generic [ref=f4e211]: Bushberries
+          - link "prickly pear Cactus (Prickly) Pear" [ref=f4e215] [cursor=pointer]:
+            - /url: /produce-facts-sheets/cactus-prickly-pear
+            - img "prickly pear" [ref=f4e217]
+            - generic [ref=f4e218]: Cactus (Prickly) Pear
+          - link "cantaloupe Cantaloupe" [ref=f4e222] [cursor=pointer]:
+            - /url: /produce-facts-sheets/cantaloupe
+            - img "cantaloupe" [ref=f4e224]
+            - generic [ref=f4e225]: Cantaloupe
+          - link "cherimoya Cherimoya" [ref=f4e229] [cursor=pointer]:
+            - /url: /produce-facts-sheets/cherimoya-atemoya-sweetsop
+            - img "cherimoya" [ref=f4e231]
+            - generic [ref=f4e232]: Cherimoya
+        - generic [ref=f4e233]:
+          - link "cherry Cherry" [ref=f4e237] [cursor=pointer]:
+            - /url: /produce-facts-sheets/cherry
+            - img "cherry" [ref=f4e239]
+            - generic [ref=f4e240]: Cherry
+          - link "dates Date" [ref=f4e244] [cursor=pointer]:
+            - /url: /produce-facts-sheets/date
+            - img "dates" [ref=f4e246]
+            - generic [ref=f4e247]: Date
+          - link "dragonfruit Dragon Fruit" [ref=f4e251] [cursor=pointer]:
+            - /url: /produce-facts-sheets/dragon-fruit
+            - img "dragonfruit" [ref=f4e253]
+            - generic [ref=f4e254]: Dragon Fruit
+          - link "durian Durian" [ref=f4e258] [cursor=pointer]:
+            - /url: /produce-facts-sheets/durian
+            - img "durian" [ref=f4e260]
+            - generic [ref=f4e261]: Durian
+        - generic [ref=f4e262]:
+          - link "feijoa Feijoa" [ref=f4e266] [cursor=pointer]:
+            - /url: /produce-facts-sheets/feijoa
+            - img "feijoa" [ref=f4e268]
+            - generic [ref=f4e269]: Feijoa
+          - link "fig Fig" [ref=f4e273] [cursor=pointer]:
+            - /url: /produce-facts-sheets/fig
+            - img "fig" [ref=f4e275]
+            - generic [ref=f4e276]: Fig
+          - link "grapes Grape" [ref=f4e280] [cursor=pointer]:
+            - /url: /produce-facts-sheets/grape
+            - img "grapes" [ref=f4e282]
+            - generic [ref=f4e283]: Grape
+          - link "grapefruit Grapefruit" [ref=f4e287] [cursor=pointer]:
+            - /url: /produce-facts-sheets/grapefruit
+            - img "grapefruit" [ref=f4e289]
+            - generic [ref=f4e290]: Grapefruit
+        - generic [ref=f4e291]:
+          - link "guava Guava" [ref=f4e295] [cursor=pointer]:
+            - /url: /produce-facts-sheets/guava
+            - img "guava" [ref=f4e297]
+            - generic [ref=f4e298]: Guava
+          - link "honeydew Honeydew" [ref=f4e302] [cursor=pointer]:
+            - /url: /produce-facts-sheets/honeydew
+            - img "honeydew" [ref=f4e304]
+            - generic [ref=f4e305]: Honeydew
+          - link "jackfruit Jackfruit" [ref=f4e309] [cursor=pointer]:
+            - /url: /produce-facts-sheets/jackfruit
+            - img "jackfruit" [ref=f4e311]
+            - generic [ref=f4e312]: Jackfruit
+          - link "jujube Jujube" [ref=f4e316] [cursor=pointer]:
+            - /url: /produce-facts-sheets/jujube
+            - img "jujube" [ref=f4e318]
+            - generic [ref=f4e319]: Jujube
+        - generic [ref=f4e320]:
+          - link "kiwi Kiwifruit" [ref=f4e324] [cursor=pointer]:
+            - /url: /produce-facts-sheets/kiwifruit
+            - img "kiwi" [ref=f4e326]
+            - generic [ref=f4e327]: Kiwifruit
+          - link "lemon Lemon" [ref=f4e331] [cursor=pointer]:
+            - /url: /produce-facts-sheets/lemon
+            - img "lemon" [ref=f4e333]
+            - generic [ref=f4e334]: Lemon
+          - link "lime Lime" [ref=f4e338] [cursor=pointer]:
+            - /url: /produce-facts-sheets/lime
+            - img "lime" [ref=f4e340]
+            - generic [ref=f4e341]: Lime
+          - link "longan Longan" [ref=f4e345] [cursor=pointer]:
+            - /url: /produce-facts-sheets/longan
+            - img "longan" [ref=f4e347]
+            - generic [ref=f4e348]: Longan
+        - generic [ref=f4e349]:
+          - link "loquat Loquat" [ref=f4e353] [cursor=pointer]:
+            - /url: /produce-facts-sheets/loquat
+            - img "loquat" [ref=f4e355]
+            - generic [ref=f4e356]: Loquat
+          - link "lychee Lychee" [ref=f4e360] [cursor=pointer]:
+            - /url: /produce-facts-sheets/lychee
+            - img "lychee" [ref=f4e362]
+            - generic [ref=f4e363]: Lychee
+          - link "mandarin Mandarin" [ref=f4e367] [cursor=pointer]:
+            - /url: /produce-facts-sheets/mandarin
+            - img "mandarin" [ref=f4e369]
+            - generic [ref=f4e370]: Mandarin
+          - link "mango Mango" [ref=f4e374] [cursor=pointer]:
+            - /url: /produce-facts-sheets/mango
+            - img "mango" [ref=f4e376]
+            - generic [ref=f4e377]: Mango
+        - generic [ref=f4e378]:
+          - link "mangosteen Mangosteen" [ref=f4e382] [cursor=pointer]:
+            - /url: /produce-facts-sheets/mangosteen
+            - img "mangosteen" [ref=f4e384]
+            - generic [ref=f4e385]: Mangosteen
+          - link "nectarine and peach Nectarine & Peach" [ref=f4e389] [cursor=pointer]:
+            - /url: /produce-facts-sheets/peach
+            - img "nectarine and peach" [ref=f4e391]
+            - generic [ref=f4e392]: Nectarine & Peach
+          - link "olive Olive" [ref=f4e396] [cursor=pointer]:
+            - /url: /produce-facts-sheets/olive
+            - img "olive" [ref=f4e398]
+            - generic [ref=f4e399]: Olive
+          - link "orange Orange" [ref=f4e403] [cursor=pointer]:
+            - /url: /produce-facts-sheets/orange
+            - img "orange" [ref=f4e405]
+            - generic [ref=f4e406]: Orange
+        - generic [ref=f4e407]:
+          - link "papaya Papaya" [ref=f4e411] [cursor=pointer]:
+            - /url: /produce-facts-sheets/papaya
+            - img "papaya" [ref=f4e413]
+            - generic [ref=f4e414]: Papaya
+          - link "passion fruit Passion Fruit" [ref=f4e418] [cursor=pointer]:
+            - /url: /produce-facts-sheets/passion-fruit
+            - img "passion fruit" [ref=f4e420]
+            - generic [ref=f4e421]: Passion Fruit
+          - link "pawpaw Pawpaw" [ref=f4e425] [cursor=pointer]:
+            - /url: /produce-facts-sheets/pawpaw
+            - img "pawpaw" [ref=f4e427]
+            - generic [ref=f4e428]: Pawpaw
+          - 'link "anjou, bosc, comice Pear: Anjou, Bosc, Comice" [ref=f4e432] [cursor=pointer]':
+            - /url: /produce-facts-sheets/pear-anjou-bosc-comice
+            - img "anjou, bosc, comice" [ref=f4e434]
+            - generic [ref=f4e435]: "Pear: Anjou, Bosc, Comice"
+        - generic [ref=f4e436]:
+          - 'link "barlett Pear: Bartlett" [ref=f4e440] [cursor=pointer]':
+            - /url: /produce-facts-sheets/pear-bartlett
+            - img "barlett" [ref=f4e442]
+            - generic [ref=f4e443]: "Pear: Bartlett"
+          - link "pepino Pepino" [ref=f4e447] [cursor=pointer]:
+            - /url: /produce-facts-sheets/pepino
+            - img "pepino" [ref=f4e449]
+            - generic [ref=f4e450]: Pepino
+          - link "persimmon Persimmon" [ref=f4e454] [cursor=pointer]:
+            - /url: /produce-facts-sheets/persimmon
+            - img "persimmon" [ref=f4e456]
+            - generic [ref=f4e457]: Persimmon
+          - link "pineapple Pineapple" [ref=f4e461] [cursor=pointer]:
+            - /url: /produce-facts-sheets/pineapple
+            - img "pineapple" [ref=f4e463]
+            - generic [ref=f4e464]: Pineapple
+        - generic [ref=f4e465]:
+          - link "plantain Plantain" [ref=f4e469] [cursor=pointer]:
+            - /url: /produce-facts-sheets/plantain
+            - img "plantain" [ref=f4e471]
+            - generic [ref=f4e472]: Plantain
+          - link "plum Plum" [ref=f4e476] [cursor=pointer]:
+            - /url: /produce-facts-sheets/plum
+            - img "plum" [ref=f4e478]
+            - generic [ref=f4e479]: Plum
+          - link "pomegranate Pomegranate" [ref=f4e483] [cursor=pointer]:
+            - /url: /produce-facts-sheets/pomegranate
+            - img "pomegranate" [ref=f4e485]
+            - generic [ref=f4e486]: Pomegranate
+          - link "quince Quince" [ref=f4e490] [cursor=pointer]:
+            - /url: /produce-facts-sheets/quince
+            - img "quince" [ref=f4e492]
+            - generic [ref=f4e493]: Quince
+        - generic [ref=f4e494]:
+          - link "rambutan Rambutan" [ref=f4e498] [cursor=pointer]:
+            - /url: /produce-facts-sheets/rambutan
+            - img "rambutan" [ref=f4e500]
+            - generic [ref=f4e501]: Rambutan
+          - link "sapotes Sapotes (Sapodilla, Mamey Sapote)" [ref=f4e505] [cursor=pointer]:
+            - /url: /produce-facts-sheets/sapotes-sapodilla-mamey-sapote
+            - img "sapotes" [ref=f4e507]
+            - generic [ref=f4e508]: Sapotes (Sapodilla, Mamey Sapote)
+          - link "starfruit Starfruit (Carambola)" [ref=f4e512] [cursor=pointer]:
+            - /url: /produce-facts-sheets/starfruit-carambola
+            - img "starfruit" [ref=f4e514]
+            - generic [ref=f4e515]: Starfruit (Carambola)
+          - link "strawberry Strawberry" [ref=f4e519] [cursor=pointer]:
+            - /url: /produce-facts-sheets/strawberry
+            - img "strawberry" [ref=f4e521]
+            - generic [ref=f4e522]: Strawberry
+        - generic [ref=f4e523]:
+          - link "tamarillo Tamarillo" [ref=f4e527] [cursor=pointer]:
+            - /url: /produce-facts-sheets/tamarillo
+            - img "tamarillo" [ref=f4e529]
+            - generic [ref=f4e530]: Tamarillo
+          - link "watermelon Watermelon" [ref=f4e534] [cursor=pointer]:
+            - /url: /produce-facts-sheets/watermelon
+            - img "watermelon" [ref=f4e536]
+            - generic [ref=f4e537]: Watermelon
+    - contentinfo [ref=f4e538]:
+      - generic [ref=f4e539]:
+        - generic [ref=f4e540]:
+          - generic [ref=f4e543]:
+            - img "UCDavis College of Agricultural and Environmental Sciences" [ref=f4e545]
+            - paragraph [ref=f4e546]
+            - img "UCDavis Department of Plant Sciences" [ref=f4e548]
+            - paragraph [ref=f4e549]
+            - paragraph [ref=f4e550]: Dept. of Plant Sciences, Mail Stop 2 University of California, Davis One Shields Avenue Davis, CA 95616
+            - paragraph [ref=f4e551]:
+              - text: "Telephone: (530) 752‐6941; Fax: (530) 754‐4326 Email:"
+              - link "postharvest@ucdavis.edu" [ref=f4e552] [cursor=pointer]:
+                - /url: mailto:postharvest@ucdavis.edu
+            - paragraph [ref=f4e553]
+          - navigation "Postharvest Site Links" [ref=f4e555]:
+            - heading "Postharvest Site Links" [level=2] [ref=f4e556]
+            - list [ref=f4e557]:
+              - listitem [ref=f4e558]:
+                - link "Division of Agriculture and Natural Resources" [ref=f4e559] [cursor=pointer]:
+                  - /url: https://ucanr.edu/
+              - listitem [ref=f4e560]:
+                - link "UCANR Accessibility Statement" [ref=f4e561] [cursor=pointer]:
+                  - /url: https://ucanr.edu/?accessibilityStatement
+              - listitem [ref=f4e562]:
+                - link "Get PDF Reader" [ref=f4e563] [cursor=pointer]:
+                  - /url: https://get.adobe.com/reader/
+          - list [ref=f4e567]:
+            - listitem [ref=f4e568]:
+              - link "Follow us on youtube" [ref=f4e569] [cursor=pointer]:
+                - /url: https://www.youtube.com/@postharvestcenter
+                - generic [ref=f4e570]: 
+            - listitem [ref=f4e571]:
+              - link "Follow us on linkedin" [ref=f4e572] [cursor=pointer]:
+                - /url: https://www.linkedin.com/company/ucpostharvest
+                - generic [ref=f4e573]: 
+        - link [ref=f4e576] [cursor=pointer]:
+          - /url: https://www.ucdavis.edu/
+          - img "UC Davis footer logo" [ref=f4e577]
+        - generic [ref=f4e579]:
+          - paragraph [ref=f4e580]:
+            - link "University of California, Davis" [ref=f4e581] [cursor=pointer]:
+              - /url: https://www.ucdavis.edu/
+            - text: ", One Shields Avenue, Davis, CA 95616 | 530-752-1011"
+          - list [ref=f4e582]:
+            - listitem [ref=f4e583]:
+              - link "Questions or comments?" [ref=f4e584] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=f4e585]:
+              - link "Privacy & Accessibility" [ref=f4e586] [cursor=pointer]:
+                - /url: http://ucdavis.edu/help/privacy-accessibility.html
+            - listitem [ref=f4e587]:
+              - link "Principles of Community" [ref=f4e588] [cursor=pointer]:
+                - /url: https://excellence.ucdavis.edu/principles-community
+            - listitem [ref=f4e589]:
+              - link "University of California" [ref=f4e590] [cursor=pointer]:
+                - /url: http://www.universityofcalifornia.edu/
+            - listitem [ref=f4e591]:
+              - link "Sitemap" [ref=f4e592] [cursor=pointer]:
+                - /url: /sitemap
+            - listitem [ref=f4e593]: "Last update: November 1, 2026"
+          - paragraph [ref=f4e594]: Copyright © The Regents of the University of California, Davis campus. All rights reserved.
+        - generic [ref=f4e595]:
+          - text: This site is officially grown in
+          - link "SiteFarm" [ref=f4e596] [cursor=pointer]:
+            - /url: https://sitefarm.ucdavis.edu
+          - text: .

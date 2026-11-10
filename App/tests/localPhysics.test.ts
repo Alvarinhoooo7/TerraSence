@@ -4,7 +4,16 @@ import { computeVpdKpa } from '../src/engine/agronomyEngine';
 import { buildContextualAdvice } from '../src/engine/contextualAdvice';
 import { buildEvaluationCoverage } from '../src/engine/evaluationCoverage';
 import { buildLocalInputQuality } from '../src/engine/inputQuality';
-import { dewPointC, deriveLocalPhysics, saturationVaporPressureKpa, vaporPressureDeficitKpa } from '../src/engine/localPhysics';
+import {
+  assessProbeMetrologicalContext,
+  barometricAltitudeMeters,
+  CWT_SOIL_NPKPHCTH_S_SPEC,
+  dewPointC,
+  deriveLocalPhysics,
+  psychrometricConstantKpaPerC,
+  saturationVaporPressureKpa,
+  vaporPressureDeficitKpa,
+} from '../src/engine/localPhysics';
 import { buildMeasurementPresentation, isMeasurementPresentation } from '../src/engine/measurementPresentation';
 import { evaluateSpeciesCriteria, hasLocalAirCriteria, localAirImplies, SPECIES_RULES } from '../src/engine/speciesRules';
 import { evaluateReadingForStage } from '../src/engine/stageEvaluator';
@@ -201,3 +210,96 @@ test('en todo el catálogo, el frío medido avisa una sola vez donde la especie 
   // En cosecha, donde antes ninguna especie tenía un criterio evaluable sin red, ahora la mayoría lo tiene.
   assert.ok(Object.keys(SPECIES_RULES).filter(id => hasLocalAirCriteria(id, 'cosecha')).length > Object.keys(SPECIES_RULES).length / 2);
 });
+
+test('metrología CWT-Soil-NPKPHCTH-S y psicrometría barométrica del BME280', () => {
+  assert.equal(CWT_SOIL_NPKPHCTH_S_SPEC.bus.address, 1);
+  assert.equal(CWT_SOIL_NPKPHCTH_S_SPEC.bus.registerCount, 7);
+  assert.equal(CWT_SOIL_NPKPHCTH_S_SPEC.responseTimeS.firmwareBurstSamples, 10);
+  assert.equal(CWT_SOIL_NPKPHCTH_S_SPEC.responseTimeS.firmwareTrimmedMeanCentralSamples, 6);
+  assert.equal(CWT_SOIL_NPKPHCTH_S_SPEC.responseTimeS.bme280BurstSamples, 10);
+  assert.deepEqual(CWT_SOIL_NPKPHCTH_S_SPEC.channels.ph.electrodeNominalRange, { min: 3, max: 9 });
+
+  // Sonda en suelo húmedo normal y presión de banco (960 hPa ≈ 454 m s. n. m.).
+  const normal = assessProbeMetrologicalContext({ vwc: 28, temp: 18, ec: 1200, ph: 6.4, airPressure: 960 });
+  assert.equal(normal.vwcUncertaintyPct, 2.0);
+  assert.equal(normal.soilTempUncertaintyC, 0.5);
+  assert.equal(normal.ecUncertaintyUsCm, 36); // 3 % de 1200 µS/cm
+  assert.equal(normal.ecThermalCompensationGuaranteed, true);
+  assert.equal(normal.phUncertainty, 0.3);
+  assert.equal(normal.phWithinElectrodeNominalRange, true);
+  assert.equal(normal.electrolyteContactAdequate, true);
+  assert.deepEqual(normal.flags, []);
+  near(normal.psychrometricConstantKpaPerC, 0.06384, 0.0001);
+  near(normal.barometricAltitudeM, 454, 5);
+
+  // Sonda al aire o en suelo seco (ensayo F1: VWC 0 %, pH 8,6) y pH fuera de 3–9:
+  const dryAndExtreme = assessProbeMetrologicalContext({ vwc: 0, temp: -2, ec: 15000, ph: 9.4, airPressure: null });
+  assert.equal(dryAndExtreme.vwcUncertaintyPct, 2.0);
+  assert.equal(dryAndExtreme.ecUncertaintyUsCm, 750); // 5 % sobre 10.000 µS/cm
+  assert.equal(dryAndExtreme.ecThermalCompensationGuaranteed, false);
+  assert.equal(dryAndExtreme.phWithinElectrodeNominalRange, false);
+  assert.equal(dryAndExtreme.electrolyteContactAdequate, false);
+  assert.equal(dryAndExtreme.psychrometricConstantKpaPerC, null);
+  assert.equal(dryAndExtreme.barometricAltitudeM, null);
+  assert.deepEqual(dryAndExtreme.flags, [
+    'ph_outside_electrode_nominal_range',
+    'low_moisture_electrolyte_contact',
+    'ec_outside_thermal_compensation_window',
+  ]);
+
+  // Suelo muy húmedo (> 50 % VWC) pasa a ±3,0 % de incertidumbre nominal:
+  const wet = assessProbeMetrologicalContext({ vwc: 65, temp: 20, ec: 500, ph: 6.5, airPressure: 1013.25 });
+  assert.equal(wet.vwcUncertaintyPct, 3.0);
+  near(wet.barometricAltitudeM, 0, 0.1);
+  assert.equal(psychrometricConstantKpaPerC(250), null);
+  assert.equal(barometricAltitudeMeters(1200), null);
+});
+
+test('integración activa de airPressure, metrología de sonda, punto de rocío bajo cero y desacople térmico en el motor', () => {
+  // 1) A 25 °C y 34 % HR el DPV es 2,09 kPa: a 1013 hPa no activa C01+C02 (< 2,2 kPa), pero en
+  // altitud (880 hPa, γ = 0,0585 kPa/°C, ~1176 m s. n. m.) el umbral baja a 2,0 kPa y sí avisa:
+  const seaLevelReading = { ...raw, vwc: 12, airTemp: 25, airHumidity: 34, airPressure: 1013 };
+  const seaEval = evaluateReadingForStage(seaLevelReading, 'vegetativo', 'es', { capturedAt, evaluatedAt }, 'sp.tomate');
+  const seaAdvice = buildContextualAdvice('vegetativo', seaEval, seaLevelReading, null, 'es', undefined, 'sp.tomate');
+  assert.ok(!seaAdvice.recommendations!.some(r => /C01 \+ C02/.test(r.detail ?? '')));
+
+  const highAltReading = { ...raw, vwc: 12, airTemp: 25, airHumidity: 34, airPressure: 880 };
+  const highAltEval = evaluateReadingForStage(highAltReading, 'vegetativo', 'es', { capturedAt, evaluatedAt }, 'sp.tomate');
+  const highAltAdvice = buildContextualAdvice('vegetativo', highAltEval, highAltReading, null, 'es', undefined, 'sp.tomate');
+  const vpdRec = highAltAdvice.recommendations!.find(r => /C01 \+ C02/.test(r.detail ?? ''))!;
+  assert.ok(vpdRec, 'En altitud (880 hPa) debe activar C01+C02 con DPV 2,09 kPa');
+  assert.match(vpdRec.detail!, /880 hPa/);
+  assert.match(vpdRec.detail!, /0,0585 kPa\/°C/);
+
+  // 2) En la presentación, airPressure informa altitud y γ, y los canales de suelo informan su incertidumbre nominal:
+  const pres = buildMeasurementPresentation(highAltReading, highAltEval, highAltAdvice, 'es');
+  const pressureCard = pres.parameters.find(p => p.key === 'airPressure')!;
+  assert.match(pressureCard.control, /0,0585 kPa\/°C/);
+  assert.match(pressureCard.control, /m s\. n\. m\./);
+  assert.match(pres.parameters.find(p => p.key === 'vwc')!.control, /±2,0 %/);
+  assert.match(pres.parameters.find(p => p.key === 'ph')!.control, /±0,3 pH/);
+
+  // 3) Reglas metrológicas (VWC < 5 %, pH fuera de 3,0–9,0, T suelo < 0 °C):
+  const metrologicalReading = { ...raw, vwc: 3.5, ph: 9.3, temp: -1 };
+  const metEval = evaluateReadingForStage(metrologicalReading, 'vegetativo', 'es', { capturedAt, evaluatedAt }, 'sp.tomate');
+  const metAdvice = buildContextualAdvice('vegetativo', metEval, metrologicalReading, null, 'es', undefined, 'sp.tomate');
+  assert.ok(metAdvice.recommendations!.some(r => r.kind === 'evidence' && /contacto electrolítico de pH y CE/.test(r.title)));
+  assert.ok(metAdvice.recommendations!.some(r => r.kind === 'evidence' && /rango nominal del electrodo/.test(r.title)));
+  assert.ok(metAdvice.recommendations!.some(r => r.kind === 'evidence' && /compensación térmica de CE/.test(r.title)));
+
+  // 4) Vigilancia psicrométrica de helada radiativa (aire 2,5 °C sobre cero pero punto de rocío bajo 0 °C):
+  const frostWatchReading = { ...raw, airTemp: 2.5, airHumidity: 55, airPressure: 890 };
+  const fwEval = evaluateReadingForStage(frostWatchReading, 'floracion', 'es', { capturedAt, evaluatedAt }, 'sp.cerezo');
+  const fwAdvice = buildContextualAdvice('floracion', fwEval, frostWatchReading, null, 'es', undefined, 'sp.cerezo');
+  const fwRec = fwAdvice.recommendations!.find(r => /helada radiativa/.test(r.title))!;
+  assert.ok(fwRec, 'Debe emitir vigilancia psicrométrica cuando el punto de rocío es <= 0 °C con aire entre 0 y 4 °C');
+  assert.match(fwRec.detail!, /890 hPa/);
+
+  // 5) Desacople térmico raíz-follaje (suelo 10 °C <= 12 °C y aire 26 °C >= 24 °C, diferencia -16 °C <= -12 °C):
+  const decouplingReading = { ...raw, temp: 10, airTemp: 26, airHumidity: 50 };
+  const decEval = evaluateReadingForStage(decouplingReading, 'vegetativo', 'es', { capturedAt, evaluatedAt }, 'sp.tomate');
+  const decAdvice = buildContextualAdvice('vegetativo', decEval, decouplingReading, null, 'es', undefined, 'sp.tomate');
+  assert.ok(decAdvice.recommendations!.some(r => r.kind === 'monitoring' && /desacople térmico/.test(r.title)));
+});
+
+

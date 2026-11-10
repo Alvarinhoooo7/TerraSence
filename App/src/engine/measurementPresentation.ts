@@ -7,7 +7,14 @@ import type { ContextualAdvice, Recommendation } from './contextualAdvice';
 import type { AppLanguage } from '../types/preferences';
 import { SPECIES_CATALOG_VERSION, findSpecies, hasStageCriteria } from './speciesCatalog';
 import { SPECIES_RULES_VERSION } from './speciesRules';
-import { deriveLocalPhysics, type DerivedIndicator, type DerivedIndicatorId } from './localPhysics';
+import {
+  assessProbeMetrologicalContext,
+  deriveLocalPhysics,
+  ecAccuracyRelativePct,
+  type DerivedIndicator,
+  type DerivedIndicatorId,
+  type ProbeMetrologicalContext,
+} from './localPhysics';
 import type { PrePlantingOption } from './prePlanting';
 
 export const PARAMETER_KEYS = ['vwc', 'temp', 'ph', 'ec', 'nitrogen', 'phosphorus', 'potassium', 'airTemp', 'airHumidity', 'airPressure'] as const;
@@ -185,12 +192,66 @@ function buildCoverageSummary(quality: LocalInputQuality, advice: ContextualAdvi
 export const distinctNotes = (notes: readonly string[]) => notes.filter((note, i) =>
   !!note && !notes.some((other, j) => j !== i && other.includes(note) && (other !== note || j < i)));
 
+function metrologicalControlNote(
+  key: ParameterKey,
+  value: number | null,
+  metrology: ProbeMetrologicalContext,
+  en: boolean,
+): string {
+  if (value == null) return '';
+  if (
+    key === 'airPressure' &&
+    metrology.psychrometricConstantKpaPerC !== null &&
+    metrology.barometricAltitudeM !== null
+  ) {
+    const gamma = en
+      ? metrology.psychrometricConstantKpaPerC.toFixed(4)
+      : metrology.psychrometricConstantKpaPerC.toFixed(4).replace('.', ',');
+    const alt = Math.round(metrology.barometricAltitudeM);
+    return en
+      ? `Barometric context (BME280): approx. ${alt} m elevation; local psychrometric constant ${gamma} kPa/°C (FAO 56 eq. 8).`
+      : `Contexto barométrico (BME280): altitud aprox. ${alt} m s. n. m.; constante psicrométrica local ${gamma} kPa/°C (FAO 56 ec. 8).`;
+  }
+  if (key === 'vwc' && metrology.vwcUncertaintyPct !== null) {
+    const unc = en
+      ? metrology.vwcUncertaintyPct.toFixed(1)
+      : metrology.vwcUncertaintyPct.toFixed(1).replace('.', ',');
+    return en
+      ? `Probe accuracy (FDR): +/-${unc}% VWC.`
+      : `Incertidumbre nominal de la sonda (FDR): ±${unc} % de humedad volumétrica.`;
+  }
+  if (key === 'temp' && metrology.soilTempUncertaintyC !== null) {
+    const unc = en
+      ? metrology.soilTempUncertaintyC.toFixed(1)
+      : metrology.soilTempUncertaintyC.toFixed(1).replace('.', ',');
+    return en
+      ? `Probe accuracy (NTC): +/-${unc} °C.`
+      : `Incertidumbre nominal de la sonda (NTC): ±${unc} °C.`;
+  }
+  if (key === 'ph' && metrology.phUncertainty !== null) {
+    const unc = en
+      ? metrology.phUncertainty.toFixed(1)
+      : metrology.phUncertainty.toFixed(1).replace('.', ',');
+    return en
+      ? `Probe accuracy (galvanic): +/-${unc} pH (nominal range 3.0 to 9.0 pH; requires >= 5% VWC).`
+      : `Incertidumbre nominal de la sonda (galvánica): ±${unc} pH (rango nominal 3,0 a 9,0 pH; requiere >= 5 % de humedad).`;
+  }
+  if (key === 'ec' && metrology.ecUncertaintyUsCm !== null) {
+    const rel = ecAccuracyRelativePct(value);
+    return en
+      ? `Probe accuracy (bulk EC, 0 to 50 °C compensated): +/-${rel}% (+/-${metrology.ecUncertaintyUsCm} µS/cm).`
+      : `Incertidumbre nominal de la sonda (CE aparente, compensada 0 a 50 °C): ±${rel} % (±${metrology.ecUncertaintyUsCm} µS/cm).`;
+  }
+  return '';
+}
+
 export function buildMeasurementPresentation(raw: SoilMeasurement, evaluation: StageAwareEvaluation, advice: ContextualAdvice, language: AppLanguage = 'es', quality?: LocalInputQuality, speciesId?: string | null): MeasurementPresentation {
   const en = language === 'en';
   quality ??= buildLocalInputQuality(raw, '');
   const alerts = applicableAlerts(evaluation);
   const species = presentationSpecies(speciesId, evaluation.stage);
   const physics = deriveLocalPhysics(quality);
+  const metrology = assessProbeMetrologicalContext(raw);
   return {
     version: 3, stage: evaluation.stage, species,
     ...(evaluation.state ? { evaluationState: evaluation.state, coverage: evaluation.coverage } : {}),
@@ -226,7 +287,7 @@ export function buildMeasurementPresentation(raw: SoilMeasurement, evaluation: S
           : related.length ? [...new Set(related.map(a => a.action))].join('\n\n')
           : status === 'OPTIMAL' ? (en ? 'No correction is indicated for this parameter under the current rules. Keep monitoring the crop.' : 'No se indica una corrección para este parámetro bajo las reglas actuales. Mantén seguimiento del cultivo.')
           : (en ? 'Interpret this value together with the global plan. There is no validated specific action for this condition and stage.' : 'Interpreta este dato junto con el plan global. No hay una acción específica validada para esta condición y fase.'),
-        control: distinctNotes([datum ? localQualityNote(datum, language) : '', metric?.confidenceNote ?? (derived
+        control: distinctNotes([datum ? localQualityNote(datum, language) : '', metrologicalControlNote(key, value, metrology, en), metric?.confidenceNote ?? (derived
           ? (en ? 'Cross-check with a laboratory before making nutrition decisions.' : 'Contrasta con laboratorio antes de tomar decisiones sobre nutrición.')
           : (en ? 'Compare representative points and repeat the measurement after management changes. No automatic interval is set.' : 'Compara puntos representativos y repite la medición después de cambios de manejo. No se establece un plazo automático.'))]).join('\n\n'),
         ...(derivedIds ? { derived: derivedIds.map(id => presentDerived(physics.indicators[id], en)) } : {}),

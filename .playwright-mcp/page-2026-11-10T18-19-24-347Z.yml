@@ -1,0 +1,396 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - button "Toggle navigation" [ref=e3] [cursor=pointer]:
+      - generic [aria-hidden] [ref=e4]: 
+    - link [ref=e5] [cursor=pointer]:
+      - /url: /
+      - img "Logo for Statewide Integrated Pest Management Program, University of California Agriculture and Natural Resources Logo" [ref=e6]
+  - img "Grayish spores of Botrytis fruit rot, or gray mold, <i>Botrytis cinerea</i>, covering some blackberry fruit." [ref=e11]
+  - region "Navigation breadcrumb" [ref=e12]:
+    - list [ref=e14]:
+      - listitem [ref=e15]:
+        - link "UC IPM" [ref=e16] [cursor=pointer]:
+          - /url: /
+      - listitem [ref=e17]:
+        - text: /
+        - link "Agriculture" [ref=e18] [cursor=pointer]:
+          - /url: /agriculture/
+      - listitem [ref=e19]:
+        - text: /
+        - link "Caneberries" [ref=e20] [cursor=pointer]:
+          - /url: /agriculture/caneberries/
+      - listitem [ref=e21]: / Botrytis Fruit Rot
+  - banner [ref=e22]:
+    - generic [ref=e23]:
+      - paragraph [ref=e24]: "Agriculture: Caneberries Pest Management Guidelines"
+      - heading "Botrytis Fruit Rot" [level=1] [ref=e25]
+      - listitem [ref=e26]:
+        - emphasis [ref=e27]: Botrytis cinerea
+  - main [ref=e28]:
+    - generic [ref=e30]:
+      - generic [ref=e33]:
+        - paragraph [ref=e34]: On This Page
+        - list [ref=e35]:
+          - listitem [ref=e36]:
+            - link "Symptoms and Signs" [ref=e37] [cursor=pointer]:
+              - /url: "#SYMPTOMS"
+          - listitem [ref=e38]:
+            - link "Comments on the Disease" [ref=e39] [cursor=pointer]:
+              - /url: "#COMMENTS"
+          - listitem [ref=e40]:
+            - link "Management" [ref=e41] [cursor=pointer]:
+              - /url: "#MANAGEMENT"
+      - generic [ref=e42]:
+        - heading "Symptoms and Signs" [level=2] [ref=e43]
+        - paragraph [ref=e45]:
+          - text: Flattened black
+          - link "masses of sclerotia" [ref=e46] [cursor=pointer]:
+            - /url: /PMG/B/D-CB-BCIN-ST.001.html
+          - text: appear on the bleached appearing canes of Botrytis-infested blackberry and raspberry plants in late winter. In the presence of free water during spring, sclerotia germinate to form masses of gray mycelium and spores called conidia. Opened flowers may become infected, and the fungus will sporulate on the blighted flowers. On infected drupelets, a watery rot may precede the development of grayish brown conidia and hyphae. The conidia and hyphae eventually cover the fruit. Infected berries left on the vines become mummified. If the weather is moist after harvest, the receptacles can be colonized by the fungus and sclerotia can develop. In postharvest storage, white mycelia can cover infected berries.
+        - heading "Comments on the Disease" [level=2] [ref=e47]
+        - paragraph [ref=e49]: Botrytis fruit rot occurs under cool, wet conditions. The pathogen requires free water for sclerotial germination, spore germination, and infection. Physical damage to the fruit increases disease incidence, especially during the rainy season. The pathogen overwinters as sclerotia on infected canes and as mycelium in infected leaves and canes on the ground. The main sources of primary inoculum are conidia from overwintering sclerotia and dead leaves, and conidia from mummified berries. Conidia are dispersed by wind, rain, and overhead irrigation. Flowers are not susceptible to infection until they are open. Infections generally remain dormant until fruit is nearly ripe or after harvest. Infections can recur throughout the season by sporulation of the fungus on unpicked, leaky, overripe fruit left on the vine.
+        - heading "Management" [level=2] [ref=e50]
+        - generic [ref=e51]:
+          - paragraph [ref=e52]: To promote air circulation and quicken drying of plant tissue, prune and trellis the plants to open the canopy. A narrow row can be maintained by pruning, minimizing nitrogen fertilizer application, and controlling weeds. Training systems also help to maintain an open canopy. The use of macrotunnels greatly limits the amount of gray mold infestation because of the dry conditions they create for the plants.
+          - paragraph [ref=e53]: Partial resistance to this disease is available for red raspberry cultivars. To prevent postharvest fruit rot, pick fruit when it is in the red ripe stage of development (before reaching full maturity). Avoid fruit injury when picking. Pack fruit directly into containers, and use shallow containers to avoid crushing. Pick fruit often, and pick early in the day when temperatures are cool; cool fruit to 32°F as soon as possible after harvest. Store fruit at 32°F to maintain firmness and to prevent condensation inside the closed basket or clamshell.
+        - heading "Organically Acceptable Methods" [level=3] [ref=e54]
+        - paragraph [ref=e56]: Pruning or using a training system to open the canopy, proper fertilization, weed control, resistant cultivars, and proper harvest techniques are all acceptable for use in an organically certified crop.
+        - heading "Treatment Decisions" [level=3] [ref=e57]
+        - paragraph [ref=e59]: Fungicides are applied as protectant sprays at 7- to 14-day intervals from early bloom up to harvest.
+        - generic [ref=e60]:
+          - table [ref=e61]:
+            - rowgroup [ref=e62]:
+              - row [ref=e63]:
+                - columnheader [ref=e64]
+                - columnheader "Common name" [ref=e65]
+                - columnheader "Amount per acre" [ref=e66]
+                - columnheader "REI‡" [ref=e67]
+                - columnheader "PHI‡" [ref=e68]
+              - row [ref=e69]:
+                - columnheader [ref=e70]
+                - columnheader "(Example trade name)" [ref=e71]
+                - columnheader [ref=e72]
+                - columnheader "(hours)" [ref=e73]
+                - columnheader "(days)" [ref=e74]
+            - rowgroup [ref=e75]:
+              - row [ref=e76]:
+                - cell [ref=e77]:
+                  - button "Pesticide precautions" [ref=e78] [cursor=pointer]
+                  - button "Protect water" [ref=e79] [cursor=pointer]
+                  - button "Calculate VOCs" [ref=e80] [cursor=pointer]
+                  - button "Protect bees" [ref=e81] [cursor=pointer]
+              - row [ref=e82]:
+                - cell [ref=e83]
+              - row [ref=e84]:
+                - cell [ref=e85]:
+                  - text: Not all registered pesticides are listed. The following are ranked with the pesticides having the greatest IPM value listed first—the most effective and least likely to cause resistance are at the top of the table. When choosing a pesticide, consider information relating to the pesticide's properties and application timing,
+                  - link "honey bees" [ref=e86] [cursor=pointer]:
+                    - /url: /bee-precaution-pesticide-ratings/
+                  - text: ", and"
+                  - link "environmental impact" [ref=e87] [cursor=pointer]:
+                    - /url: /mitigation/
+                  - text: . Always read the label of the product being used.
+              - row [ref=e88]:
+                - cell [ref=e89]
+              - row [ref=e90]:
+                - columnheader "A." [ref=e91]
+                - columnheader "IPRODIONE" [ref=e92]
+              - row [ref=e93]:
+                - cell [ref=e94]
+                - cell "(Rovral 4 F)" [ref=e95]
+                - cell "1–2 pt" [ref=e96]
+                - cell "24" [ref=e97]
+                - cell "0" [ref=e98]
+              - row [ref=e99]:
+                - cell [ref=e100]
+                - cell [ref=e101]:
+                  - text: MODE-OF-ACTION GROUP NAME (NUMBER
+                  - superscript [ref=e102]: "1"
+                  - text: "): Dicarboximide (2)"
+              - row [ref=e103]:
+                - cell [ref=e104]
+                - 'cell "COMMENTS: Apply in a minimum of 100 gal water/acre. Do not make more than 4 applications per crop per season." [ref=e105]'
+              - row [ref=e106]:
+                - cell [ref=e107]
+              - row [ref=e108]:
+                - columnheader "B." [ref=e109]
+                - columnheader "FENHEXAMID" [ref=e110]
+              - row [ref=e111]:
+                - cell [ref=e112]
+                - cell "(Elevate 50 WDG)" [ref=e113]
+                - cell "1.5 lb" [ref=e114]
+                - cell "12" [ref=e115]
+                - cell "0" [ref=e116]
+              - row [ref=e117]:
+                - cell [ref=e118]
+                - cell [ref=e119]:
+                  - text: MODE-OF-ACTION GROUP NAME (NUMBER
+                  - superscript [ref=e120]: "1"
+                  - text: "): Hydroxyanilide (17)"
+              - row [ref=e121]:
+                - cell [ref=e122]
+                - 'cell "COMMENTS: Begin application at 10% bloom and reapply every 7 days or when conditions favor disease development. Do not apply more than 6 lb/acre per season. Avoid making two consecutive applications." [ref=e123]'
+              - row [ref=e124]:
+                - cell [ref=e125]
+              - row [ref=e126]:
+                - columnheader "C." [ref=e127]
+                - columnheader "PYRACLOSTROBIN+BOSCALID" [ref=e128]
+              - row [ref=e129]:
+                - cell [ref=e130]
+                - cell "(Pristine)" [ref=e131]
+                - cell "18.5–23 oz" [ref=e132]
+                - cell "12" [ref=e133]
+                - cell "0" [ref=e134]
+              - row [ref=e135]:
+                - cell [ref=e136]
+                - cell [ref=e137]:
+                  - text: MODE-OF-ACTION GROUP NAME (NUMBER
+                  - superscript [ref=e138]: "1"
+                  - text: "): Quinone outside inhibitor (11) and Succinate dehydrogenase inhibitor (7)"
+              - row [ref=e139]:
+                - cell [ref=e140]
+              - row [ref=e141]:
+                - columnheader "D." [ref=e142]
+                - columnheader "CYPRODINIL+FLUDIOXONIL" [ref=e143]
+              - row [ref=e144]:
+                - cell [ref=e145]
+                - cell "(Switch 62.5 WG)" [ref=e146]
+                - cell "11–14 oz" [ref=e147]
+                - cell "12" [ref=e148]
+                - cell "0" [ref=e149]
+              - row [ref=e150]:
+                - cell [ref=e151]
+                - cell [ref=e152]:
+                  - text: MODE-OF-ACTION GROUP NAME (NUMBER
+                  - superscript [ref=e153]: "1"
+                  - text: "): Anilinopyrimidine (9) and Phenylpyrrole (12)"
+              - row [ref=e154]:
+                - cell [ref=e155]
+                - 'cell "COMMENTS: Do not apply more than 56 oz/acre per year." [ref=e156]'
+          - table [ref=e157]:
+            - rowgroup [ref=e158]:
+              - row [ref=e159]:
+                - cell "‡" [ref=e160]
+                - cell "Restricted entry interval (REI) is the number of hours (unless otherwise noted) from treatment until the treated area can be safely entered without protective clothing. Preharvest interval (PHI) is the number of days from treatment to harvest. In some cases the REI exceeds the PHI. The longer of two intervals is the minimum time that must elapse before harvest." [ref=e161]
+              - row [ref=e162]:
+                - cell [ref=e163]:
+                  - superscript [ref=e164]: "1"
+                - cell [ref=e165]:
+                  - text: Group numbers are assigned by the
+                  - link "Fungicide Resistance Action Committee (FRAC)" [ref=e166] [cursor=pointer]:
+                    - /url: http://www.frac.info/
+                  - text: according to different modes of actions. Fungicides with a different group number are suitable to alternate in a resistance management program. In California, make no more than one application of fungicides with mode of action Group numbers 1, 4, 9, 11, or 17 before rotating to a fungicide with a different mode of action Group number; for fungicides with other Group numbers, make no more than two consecutive applications before rotating to a fungicide with a different mode of action Group number.
+        - complementary [ref=e167]:
+          - paragraph [ref=e168]:
+            - img "UC Peer Reviewed logo" [ref=e169]
+          - paragraph [ref=e170]:
+            - strong [ref=e171]: "UC IPM Pest Management Guidelines: Caneberries UC ANR Publication 3437"
+          - paragraph [ref=e172]:
+            - link "S.T. Koike" [ref=e173] [cursor=pointer]:
+              - /url: https://ucanr.edu/people/steven-t-koike
+            - text: (emeritus), TriCal Diagnostics, Hollister
+          - paragraph [ref=e174]:
+            - link "M.P. Bolda" [ref=e175] [cursor=pointer]:
+              - /url: https://ucanr.edu/people/mark-p-bolda
+            - text: ", UC Cooperative Extension Santa Cruz County"
+          - paragraph [ref=e176]: W.D. Gubler, Plant Pathology, UC Davis
+          - paragraph [ref=e177]: L.J. Bettiga, UC Cooperative Extension Monterey County
+          - paragraph [ref=e178]: Acknowledgement for Contributions to Plant Diseases
+          - paragraph [ref=e179]: E.J. Perry (emeritus), UC Cooperative Extension Stanislaus County
+        - paragraph [ref=e181]: "Text Updated: 12/09 Treatment Table Updated: 06/15"
+  - region "Feedback icon" [ref=e182]:
+    - generic [ref=e184]:
+      - generic [ref=e185]: 
+      - text: Feedback
+  - contentinfo [ref=e186]:
+    - generic [ref=e187]:
+      - generic [ref=e188]:
+        - generic [ref=e189]:
+          - paragraph [ref=e190]:
+            - link "Home, Garden, Turf, and Landscape" [ref=e191] [cursor=pointer]:
+              - /url: /home-and-landscape/
+          - list [ref=e192]:
+            - listitem [ref=e193]:
+              - link "Plant Pest Diagnostic Tool" [ref=e194] [cursor=pointer]:
+                - /url: /home-and-landscape/plant-problem-diagnostic-tool/
+            - listitem [ref=e195]:
+              - link "Retail Nurseries & Garden Centers" [ref=e196] [cursor=pointer]:
+                - /url: /home-and-landscape/resources-for-retail-nurseries-and-garden-centers/
+            - listitem [ref=e197]:
+              - link "Landscape Professionals" [ref=e198] [cursor=pointer]:
+                - /url: /home-and-landscape/resources-for-landscape-professionals/
+            - listitem [ref=e199]:
+              - link "UC Master Gardeners" [ref=e200] [cursor=pointer]:
+                - /url: /home-and-landscape/master-gardeners/
+        - generic [ref=e201]:
+          - paragraph [ref=e202]:
+            - link "Agriculture Pest Management Guidelines" [ref=e203] [cursor=pointer]:
+              - /url: /agriculture/
+          - list [ref=e204]:
+            - listitem [ref=e205]:
+              - link "PestManage Decision Support Tool" [ref=e206] [cursor=pointer]:
+                - /url: /agriculture/pest-manage/
+            - listitem [ref=e207]:
+              - link "Weather Models & Degree-Days" [ref=e208] [cursor=pointer]:
+                - /url: /WEATHER/index.html
+        - paragraph [ref=e210]:
+          - link "Invasive and Exotic Pests" [ref=e211] [cursor=pointer]:
+            - /url: /invasive-and-exotic-pests/
+        - paragraph [ref=e213]:
+          - link "Natural Environment" [ref=e214] [cursor=pointer]:
+            - /url: /NATURAL/index.html
+      - generic [ref=e216]:
+        - paragraph [ref=e217]: About UC IPM
+        - list [ref=e218]:
+          - listitem [ref=e219]:
+            - link "What We Do" [ref=e220] [cursor=pointer]:
+              - /url: /IPMPROJECT/about.html
+          - listitem [ref=e221]:
+            - text: "|"
+            - link "Strategic Plan 2015–2025" [ref=e222] [cursor=pointer]:
+              - /url: /strategic-plan/
+          - listitem [ref=e223]:
+            - text: "|"
+            - link "Annual Report" [ref=e224] [cursor=pointer]:
+              - /url: /highlights/
+          - listitem [ref=e225]:
+            - text: "|"
+            - link "UC IPM Programs" [ref=e226] [cursor=pointer]:
+              - /url: /IPMPROJECT/programs.html
+          - listitem [ref=e227]:
+            - text: "|"
+            - link "Program Review" [ref=e228] [cursor=pointer]:
+              - /url: /IPMPROJECT/programreview.html
+      - generic [ref=e230]:
+        - paragraph [ref=e231]: Galleries
+        - list [ref=e232]:
+          - listitem [ref=e233]:
+            - link "Videos" [ref=e234] [cursor=pointer]:
+              - /url: /IPMPROJECT/videolibrary.html
+          - listitem [ref=e235]:
+            - text: "|"
+            - link "Weeds" [ref=e236] [cursor=pointer]:
+              - /url: /PMG/weeds_intro.html
+          - listitem [ref=e237]:
+            - text: "|"
+            - link "Natural Enemies" [ref=e238] [cursor=pointer]:
+              - /url: /natural-enemies/
+      - list [ref=e241]:
+        - listitem [ref=e242]:
+          - link "Glossary" [ref=e243] [cursor=pointer]:
+            - /url: /PMG/glossary.html
+        - listitem [ref=e244]:
+          - text: "|"
+          - link "Links" [ref=e245] [cursor=pointer]:
+            - /url: /GENERAL/links.html
+        - listitem [ref=e246]:
+          - text: "|"
+          - link "Publications & Newsletters" [ref=e247] [cursor=pointer]:
+            - /url: /IPMPROJECT/pubsmenu.html
+        - listitem [ref=e248]:
+          - text: "|"
+          - link "Pesticide Information" [ref=e249] [cursor=pointer]:
+            - /url: /GENERAL/pesticides.html
+        - listitem [ref=e250]:
+          - text: "|"
+          - link "Training & Events" [ref=e251] [cursor=pointer]:
+            - /url: /IPMPROJECT/workshops.html
+        - listitem [ref=e252]:
+          - text: "|"
+          - link "What is IPM?" [ref=e253] [cursor=pointer]:
+            - /url: /what-is-ipm/
+        - listitem [ref=e254]:
+          - text: "|"
+          - link "Recursos en español" [ref=e255] [cursor=pointer]:
+            - /url: /IPMPROJECT/recursos-espanol.html
+      - generic [ref=e258]:
+        - paragraph [ref=e259]:
+          - img "Ipm logo" [ref=e260]
+        - paragraph [ref=e261]: Statewide Integrated Pest Management Program
+        - paragraph [ref=e262]: University of California Agriculture and Natural Resources
+      - generic [ref=e264]:
+        - paragraph [ref=e265]: Follow Us
+        - list [ref=e266]:
+          - listitem [ref=e267]:
+            - link "twitter" [ref=e268] [cursor=pointer]:
+              - /url: https://twitter.com/ucipm?lang=en
+              - generic [ref=e269]: 
+          - listitem [ref=e270]:
+            - text: "|"
+            - link "facebook" [ref=e271] [cursor=pointer]:
+              - /url: https://www.facebook.com/UCIPM/
+              - generic [ref=e272]: 
+          - listitem [ref=e273]:
+            - text: "|"
+            - link "instagram" [ref=e274] [cursor=pointer]:
+              - /url: https://www.instagram.com/ucipm/
+              - generic [ref=e275]: 
+          - listitem "youtube" [ref=e276]:
+            - text: "|"
+            - link "youtube" [ref=e277] [cursor=pointer]:
+              - /url: https://www.youtube.com/user/UCIPM
+              - generic [ref=e278]: 
+          - listitem [ref=e279]:
+            - text: "|"
+            - link "linkedin" [ref=e280] [cursor=pointer]:
+              - /url: https://www.linkedin.com/showcase/uc-integrated-pest-management/
+              - generic [ref=e281]: 
+          - listitem [ref=e282]:
+            - text: "|"
+            - link "subscription" [ref=e283] [cursor=pointer]:
+              - /url: /GENERAL/rssfeeds.html
+              - generic [ref=e284]: 
+        - list [ref=e285]:
+          - listitem [ref=e286]:
+            - text: "Home and Landscape:"
+            - link "Twitter" [ref=e287] [cursor=pointer]:
+              - /url: https://twitter.com/ucipmurban/
+          - listitem [ref=e288]:
+            - text: "|"
+            - link "Facebook" [ref=e289] [cursor=pointer]:
+              - /url: https://www.facebook.com/ucipmurban/
+          - listitem [ref=e290]:
+            - text: "|"
+            - link "Instagram" [ref=e291] [cursor=pointer]:
+              - /url: https://www.instagram.com/ucipmurban/
+  - contentinfo [ref=e292]:
+    - generic [ref=e294]:
+      - paragraph [ref=e296]:
+        - link "©1996—2026 Statewide IPM Program, Agriculture and Natural Resources, University of California Regents of the University of California unless otherwise noted." [ref=e297] [cursor=pointer]:
+          - /url: https://ucanr.edu/?copyright
+      - generic [ref=e298]:
+        - link [ref=e299] [cursor=pointer]:
+          - /url: /GENERAL/ceofficefinder.html
+          - button "Find Your Local Cooperative Extension Office" [ref=e300]
+        - list [ref=e301]:
+          - listitem [ref=e302]:
+            - link "Use Permissions & Citation" [ref=e303] [cursor=pointer]:
+              - /url: /GENERAL/copyright.html
+          - listitem [ref=e304]:
+            - text: "|"
+            - link "Nondiscrimination Statement" [ref=e305] [cursor=pointer]:
+              - /url: /nondiscrimination-statements/
+          - listitem [ref=e306]:
+            - text: "|"
+            - link "Acknowledgements" [ref=e307] [cursor=pointer]:
+              - /url: /GENERAL/acknowledgments.html
+          - listitem [ref=e308]:
+            - text: "|"
+            - link "Accessibility" [ref=e309] [cursor=pointer]:
+              - /url: /accessibility/
+          - listitem [ref=e310]:
+            - text: "|"
+            - link "Privacy" [ref=e311] [cursor=pointer]:
+              - /url: https://ucanr.edu/?privacyStatement
+          - listitem [ref=e312]:
+            - text: "|"
+            - link "Staff-Only Pages" [ref=e313] [cursor=pointer]:
+              - /url: /ADMIN/
+          - listitem [ref=e314]:
+            - text: "|"
+            - link "Contact UC IPM" [ref=e315] [cursor=pointer]:
+              - /url: mailto:ipm-webmaster@ad3.ucdavis.edu
+          - listitem [ref=e316]:
+            - text: "|"
+            - link "Contact Webmaster" [ref=e317] [cursor=pointer]:
+              - /url: mailto:ipm-webmaster@ad3.ucdavis.edu

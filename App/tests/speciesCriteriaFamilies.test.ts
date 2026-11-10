@@ -85,8 +85,12 @@ test('ES6: INIA distingue hortalizas que se dañan cerca de la cosecha y el abor
   // Cebolla y puerro toleran; repollo tolera heladas débiles todo el ciclo.
   assert.deepEqual(findings('sp.cebolla', 'cosecha', -1).map(f => f.type), ['info']);
   assert.deepEqual(findings('sp.repollo', 'cosecha', -1).map(f => f.type), ['info']);
-  // Papa: INIA confirma que no tolera heladas.
-  assert.match(findings('sp.papa', 'vegetativo', -0.5)[0].detail, /INIA advierte/);
+  // Papa: INIA confirma que no tolera heladas, y la discrepancia con Nebraska queda declarada.
+  const papa = findings('sp.papa', 'vegetativo', -0.5)[0].detail;
+  assert.match(papa, /pero es muy sensible a las heladas/);
+  assert.match(papa, /Nebraska Extension la clasifica como muy rústica/);
+  // El rango 28-32 °F lo documenta la clase «Tender» de Nebraska, que aquí no acompaña al criterio.
+  assert.doesNotMatch(papa, /28 a 32/);
 });
 
 test('ES6: olivo en cosecha advierte helada sobre la aceituna en maduración', () => {

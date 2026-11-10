@@ -272,8 +272,16 @@ function simulate(): SoilMeasurement {
   };
 }
 
-/** Tiempo de estabilización de la sonda antes de que la lectura sea válida. */
-const PROBE_SETTLE_MS = 1200;
+/**
+ * Tiempo de estabilización de la sonda antes de que la lectura sea válida.
+ *
+ * Sigue a la captura real del equipo para que la demostración no se sienta más
+ * rápida que el instrumento: 1 s de estabilización tras energizar el MOSFET,
+ * la ráfaga de 10 lecturas Modbus separadas 50 ms (~2,13 s en total) y la
+ * ráfaga del BME280 (~165 ms). Si cambia `SONDA_MUESTRAS_RAFAGA` o
+ * `SONDA_SEPARACION_RAFAGA_MS` en `Firmware/config.h`, este valor se ajusta.
+ */
+const PROBE_SETTLE_MS = 2300;
 
 /**
  * Lee la sonda por BLE.

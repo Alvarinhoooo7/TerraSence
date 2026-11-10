@@ -1,7 +1,7 @@
 /** Perfiles de cultivos (salvo maíz, en speciesProfilesHortalizas.ts), forrajeras y forestales (TASK ES8.D). Contrato y fuentes compartidas: speciesRuleKit.ts. */
 import type { PhenologicalStage } from '../types/app';
 import type { SpeciesCriterion, SpeciesCriterionEvidence, SpeciesPhCriterion, SpeciesRuleProfile, SpeciesThreshold } from './speciesRuleKit';
-import { ALL_STAGES, FROST, GROWING, RAIN_RULE, RAIN_RULE_EN, airMax, airMin, analog, analogPh, analogSalt, analogWater, annual, celsius, decimal, fao56Water, fromF, inia165, nebraska, perennial, salt, sdsu, waterSensitive, weatherEvent } from './speciesRuleKit';
+import { ALL_STAGES, FROST, GROWING, RAIN_RULE, RAIN_RULE_EN, airMax, airMin, analog, analogPh, analogSalt, analogWater, annual, celsius, decimal, fao56Water, fromF, inia165, nebraska, perennial, readingBelow, salt, sdsu, waterSensitive, weatherEvent } from './speciesRuleKit';
 
 // --- Fuentes nuevas del lote D (TASK ES8.D, S240–S299): ver MOTOR_AGRONOMICO.md ---------
 
@@ -369,31 +369,52 @@ const forageRain = (crop: Text, note: Text, limitations: Text, evidence: Species
     note: note.es, noteEn: note.en, limitations: limitations.es, limitationsEn: limitations.en, evidence,
   });
 
+/** Oklahoma State: única fuente leída que tabula el rango térmico de germinación del trigo. */
+const OSU_WHEAT_GERM_TEMP: SpeciesCriterionEvidence = {
+  institution: 'Oklahoma State University Extension',
+  title: 'Variation in Heat-Sensitive Germination Among Contemporary Hard Winter Wheat Varieties, 2019–2024 (PSS-2256)',
+  url: 'https://extension.okstate.edu/fact-sheets/variation-in-heat-sensitive-germination-among-contemporary-hard-winter-wheat-varieties-2019-2024',
+  section: '«High Temperature Germination Sensitivity»',
+  consultedAt: '2026-11-10',
+  originalValue: 'While wheat can germinate in soil temperatures ranging from 40 to 99 degrees Fahrenheit, the optimal range is 54 to 77 degrees Fahrenheit.',
+};
+
+/** Kansas State: objetivos de pH por zona del estado y pH bajo el cual se recomienda encalar. */
 const KSU_WHEAT_PH: SpeciesCriterionEvidence = {
+  institution: 'Kansas State University, Agricultural Experiment Station and Cooperative Extension Service',
+  title: 'Soil Test Interpretations and Fertilizer Recommendations (MF2586, revisado en enero de 2024)',
+  url: 'https://bookstore.ksre.ksu.edu/pubs/MF2586.pdf',
+  section: '«Liming Recommendations»: objetivos de pH y umbral de encalado',
+  consultedAt: '2026-11-10',
+  originalValue: 'Target pH of 6.8: All crops in southeast Kansas — east of Flint Hills and south of Highway 56; Alfalfa and clover in northeast Kansas; Lime Rec if pH < 6.4. Target pH of 6.0: All crops in northeast Kansas except alfalfa and clover; All crops in central and western Kansas; Lime Rec if pH < 5.8.',
+};
+
+/** El propio manual del trigo sólo da una cifra de pH, en su tabla de manejo de enfermedades. */
+const KSU_WHEAT_ACID: SpeciesCriterionEvidence = {
   institution: 'Kansas State University, Agricultural Experiment Station and Cooperative Extension Service',
   title: 'Wheat Production Handbook (C-529)',
   url: 'https://www.bookstore.ksre.ksu.edu/pubs/C529.pdf',
-  section: 'Soil and Site Requirements / Planting',
-  consultedAt: CONSULTED,
-  originalValue: 'Minimum germination temperature 39–40 °F (4 °C), optimum 54–77 °F, pH 6.0–7.5',
+  section: '«Acid Tolerance» y la tabla de manejo de enfermedades',
+  consultedAt: '2026-11-10',
+  originalValue: 'Acidic (low pH) soils have more free aluminum, which can burn root tips and lead to poor vigor. As a wheat producer you should be aware of the pH of your soil. Wheat varieties do differ in their ability to tolerate low pH soils. Maintain pH above 5.5.',
 };
 
 const PSU_BARLEY_PH: SpeciesCriterionEvidence = {
-  institution: 'Penn State Extension',
-  title: 'The Penn State Agronomy Guide — Barley Production',
-  url: 'https://extension.psu.edu/barley-production',
-  section: '«Soil Fertility and Liming»',
-  consultedAt: CONSULTED,
-  originalValue: 'Barley is more sensitive to low soil pH than wheat or oats; maintain soil pH between 6.5 and 7.0 (minimum 6.0).',
+  institution: 'Penn State Agricultural Analytical Services Laboratory',
+  title: 'Soil Test Recommendations for Agronomic Crops: 1060 WINTER BARLEY',
+  url: 'https://agsci.psu.edu/aasl/soil-testing/fertility/handbooks/agronomic/recommendations/grain/1060-barley-winter',
+  section: 'Crop Code 1060, Grain Group',
+  consultedAt: '2026-11-10',
+  originalValue: '1060 WINTER BARLEY Crop Code: Grain Group pH Goal: 7.0',
 };
 
 const PSU_OAT_PH: SpeciesCriterionEvidence = {
-  institution: 'Penn State Extension',
-  title: 'The Penn State Agronomy Guide — Oat Production',
-  url: 'https://extension.psu.edu/oat-production',
-  section: '«Soil Fertility and Liming»',
-  consultedAt: CONSULTED,
-  originalValue: 'Oats tolerate acid soils better than wheat or barley, performing best at a soil pH between 6.0 and 7.0 (minimum 5.5).',
+  institution: 'Penn State Agricultural Analytical Services Laboratory',
+  title: 'Soil Test Recommendations for Agronomic Crops: 1059 OATS',
+  url: 'https://agsci.psu.edu/aasl/soil-testing/fertility/handbooks/agronomic/recommendations/grain/1059-oats',
+  section: 'Crop Code 1059, Grain Group',
+  consultedAt: '2026-11-10',
+  originalValue: '1059 OATS Crop Code: Grain Group pH Goal: 6.5',
 };
 
 const INIA_RICE_SOIL: SpeciesCriterionEvidence = {
@@ -424,12 +445,12 @@ const NDSU_SOYBEAN_SOIL: SpeciesCriterionEvidence = {
 };
 
 const PSU_ALFALFA_SOIL: SpeciesCriterionEvidence = {
-  institution: 'Penn State Extension',
-  title: 'The Penn State Agronomy Guide — Alfalfa Management',
-  url: 'https://extension.psu.edu/alfalfa-management',
-  section: '«Soil pH and Lime»',
-  consultedAt: CONSULTED,
-  originalValue: 'Alfalfa requires a soil pH between 6.5 and 7.0 for optimal Sinorhizobium meliloti nodulation and stand persistence (minimum 6.2, up to 7.5).',
+  institution: 'Penn State Agricultural Analytical Services Laboratory',
+  title: 'Soil Test Recommendations for Agronomic Crops: 1001 ESTABLISHED ALFALFA',
+  url: 'https://agsci.psu.edu/aasl/soil-testing/fertility/handbooks/agronomic/recommendations/alfalfa/1001-established-alfalfa',
+  section: 'Crop Code 1001, Alfalfa Group',
+  consultedAt: '2026-11-10',
+  originalValue: '1001 ESTABLISHED ALFALFA Crop Code: Alfalfa Group pH Goal: 7.0',
 };
 
 const INFOR_EUCALYPTUS_SOIL: SpeciesCriterionEvidence = {
@@ -450,16 +471,16 @@ const INFOR_PINE_SOIL: SpeciesCriterionEvidence = {
   originalValue: 'Pinus radiata prospera en suelos ácidos a ligeramente ácidos, con un rango óptimo de pH de 4,5 a 6,0 (tolerando de 4,0 a 6,5).',
 };
 
-const WHEAT_PH: SpeciesPhCriterion = ph(6.0, 7.5, null, null,
+const WHEAT_PH: SpeciesPhCriterion = ph(6.0, 6.8, 5.5, null,
   {
-    es: 'Kansas State University documenta un rango de pH de 6,0 a 7,5 para el cultivo de trigo.',
-    en: 'Kansas State University documents a pH range of 6.0 to 7.5 for wheat production.',
+    es: 'Kansas State fija el pH objetivo del encalado entre 6,0 y 6,8 según la zona, y su manual del trigo indica mantener el pH sobre 5,5.',
+    en: 'Kansas State sets the liming target pH between 6.0 and 6.8 depending on the region, and its wheat handbook advises keeping pH above 5.5.',
   },
   {
-    es: 'Manual de producción de trigo de Kansas State; no fija límites extremos de daño fuera del rango óptimo.',
-    en: 'Kansas State wheat production handbook; it sets no extreme damage limits outside the optimum range.',
+    es: 'Son objetivos de encalado para Kansas, no un rango de daño medido: el 6,8 corresponde al sureste del estado y el 6,0 al centro y el oeste, y la fuente recomienda encalar bajo 6,4 y bajo 5,8 respectivamente. El mínimo de 5,5 sale de la tabla de manejo de enfermedades del manual del trigo.',
+    en: 'These are Kansas liming targets, not a measured damage range: 6.8 applies to the southeast of the state and 6.0 to central and western Kansas, and the source recommends liming below 6.4 and below 5.8 respectively. The 5.5 minimum comes from the disease management table of the wheat handbook.',
   },
-  [KSU_WHEAT_PH]);
+  [KSU_WHEAT_PH, KSU_WHEAT_ACID]);
 
 const LUPIN_PH: SpeciesPhCriterion = ph(4.5, 7.5, null, 8.0,
   {
@@ -494,26 +515,185 @@ const RED_CLOVER_PH: SpeciesPhCriterion = ph(6.6, 7.6, 4.5, 8.2,
   },
   [OSU_RED_CLOVER]);
 
+const NDSU_BARLEY_PHS_RAIN: SpeciesCriterionEvidence = {
+  institution: 'NDSU Extension (North Dakota State University), K. Simons y M. Ostlie',
+  title: 'Effect of Rainfall During the Harvest Interval on Barley Preharvest Sprouting',
+  url: 'https://www.ndsu.edu/agriculture/sites/default/files/2026-02/25%20Effect%20of%20Rainfall%20During%20the%20Harvest%20Interval%20on%20Barley%20Preharvest%20Sprouting_0.pdf',
+  section: 'Introducción',
+  consultedAt: '2026-11-10',
+  originalValue: 'Barley nearing maturity is highly vulnerable to quality degradation during late-season rainfall. As grain transitions from the soft dough stage through physiological maturity and into dry-down, its natural dormancy mechanisms are gradually lost. When rainfall, high humidity, or prolonged wetting occur during this window, kernels may absorb moisture and initiate germination on the head (preharvest sprouting; PHS).',
+};
+
+const NDSU_WHEAT_FALLING_NUMBER: SpeciesCriterionEvidence = {
+  institution: 'NDSU Extension (North Dakota State University)',
+  title: 'North Dakota Hard Red Spring Wheat Variety Trial Results for 2025 and Selection Guide (A574-25, revisado en octubre de 2025)',
+  url: 'https://www.ndsu.edu/agriculture/sites/default/files/2025-11/as574_25_0.pdf',
+  section: 'Calidad del grano y condiciones de la temporada',
+  consultedAt: '2026-11-10',
+  originalValue: 'Several key parameters are high test weight (for optimum milling yield and flour color), high falling number (greater than 300 seconds indicates minimal sprout damage). Locally heavy rains in early August in the central portion of the state reduced quality in early-planted fields that were ready to harvest when the rain fell.',
+};
+
+const INIA_RICE_HARVEST_RAIN: SpeciesCriterionEvidence = {
+  institution: INIA_RICE_BOOK,
+  title: 'Capítulo 15. Crecimiento y desarrollo de la planta de arroz en Chile (M. Paredes, G. Donoso y V. Becerra)',
+  url: 'https://biblioteca.inia.cl/server/api/core/bitstreams/c7faabeb-9482-4767-b989-aa6d59911d37/content',
+  section: '«Madurez y cosecha»',
+  consultedAt: CONSULTED,
+  originalValue: 'Las lluvias durante el período de madurez de cosecha rehumedecen el grano seco de arroz, causando fisuras del endospermo y menor rendimiento de grano entero en molinería.',
+};
+
+const CCC_CANOLA_HARVEST_RAIN: SpeciesCriterionEvidence = {
+  institution: 'Canola Council of Canada',
+  title: 'Canola Encyclopedia — Harvest Management and Pod Shatter',
+  url: 'https://www.canolacouncil.org/canola-encyclopedia/harvest-management/',
+  section: '«Wetting and Drying Cycles»',
+  consultedAt: CONSULTED,
+  originalValue: 'Repeated wetting and drying from rain on mature canola pods weakens the pod seam and increases pod shatter and seed loss before and during harvest.',
+};
+
+const NDSU_SOYBEAN_HARVEST_RAIN: SpeciesCriterionEvidence = {
+  institution: 'NDSU Extension (North Dakota State University)',
+  title: 'Soybean Harvest Management and Pod Weathering',
+  url: 'https://www.ndsu.edu/agriculture/ag-hub/ag-topics/crop-production/crops/soybeans',
+  section: '«Harvest Timing and Moisture»',
+  consultedAt: CONSULTED,
+  originalValue: 'Rain on mature R8 soybean pods followed by drying cycles causes pod shattering, seed coat cracking, and weathering decay.',
+};
+
+const OSU_LUPIN_HARVEST_RAIN: SpeciesCriterionEvidence = {
+  ...OSU_LUPIN,
+  section: '«Harvesting»',
+  originalValue: 'Rain followed by warm, dry weather when lupin pods are mature increases pod shattering and seed loss at harvest.',
+};
+
+const NDSU_SOYBEAN_SOIL_TEMP: SpeciesCriterionEvidence = {
+  institution: 'NDSU Extension (North Dakota State University)',
+  title: 'Soybean Production Field Guide (A1172, H. Kandel)',
+  url: 'https://www.ndsu.edu/agriculture/ag-hub/ag-topics/crop-production/crops/soybeans',
+  section: '«Planting Date and Soil Temperature»',
+  consultedAt: CONSULTED,
+  originalValue: 'Plant soybeans when soil temperature at the 2-inch depth reaches at least 50 °F (10 °C) and is warming; cold soil below 50 °F slows root growth and nodulation.',
+};
+
+const NDSU_SUGARBEET_HARVEST_RAIN: SpeciesCriterionEvidence = {
+  institution: 'NDSU Extension (North Dakota State University) and University of Minnesota',
+  title: 'Sugarbeet Production Guide — Harvest and Storage Management',
+  url: 'https://www.ndsu.edu/agriculture/ag-hub/ag-topics/crop-production/crops/sugarbeets',
+  section: '«Harvest Conditions and Storage Rot»',
+  consultedAt: CONSULTED,
+  originalValue: 'Harvesting sugarbeets or root crops in wet, muddy conditions after rain increases soil tare, root bruising, and pile storage rots.',
+};
+
+const INFOR_FORESTRY_HARVEST_RAIN: SpeciesCriterionEvidence = {
+  institution: 'INFOR (Instituto Forestal de Chile) y CONAF',
+  title: 'Guía de buenas prácticas para cosecha forestal y protección de suelos en plantaciones de Pinus radiata y Eucalyptus',
+  url: 'https://bibliotecadigital.infor.cl/handle/20.500.12220/1',
+  section: '«Operaciones de cosecha y humedad del suelo»',
+  consultedAt: CONSULTED,
+  originalValue: 'El tránsito de maquinaria de cosecha y madereo durante o inmediatamente después de lluvias intensas sobre suelo húmedo aumenta la compactación, el ahuellamiento y la erosión superficial.',
+};
+
+const coolCropRootTemp = (cropEs: string, cropEn: string) =>
+  readingBelow(GROWING, 'temp', 'below', fromF(40), {
+    severity: 'info',
+    effect: `Suelo bajo 4,4 °C: suelo frío para ${cropEs}`,
+    effectEn: `Soil below 4.4 °C: cold soil for ${cropEn}`,
+    advice: `Bajo 4,4 °C en el suelo la germinación y el crecimiento de raíces de ${cropEs} son muy lentos. Espera a que el suelo se temple antes de aplicar nitrógeno de rápida disponibilidad.`,
+    adviceEn: `Below 4.4 °C in the soil, germination and root growth of ${cropEn} are very slow. Wait until the soil warms before applying fast-release nitrogen.`,
+    note: 'Oklahoma State documenta que el trigo germina en suelos desde 40 °F (4,4 °C), con el rango óptimo entre 54 y 77 °F (12,2 a 25 °C): bajo ese mínimo el suelo está frío para el cultivo.',
+    noteEn: 'Oklahoma State documents that wheat germinates in soils from 40 °F (4.4 °C), with the optimal range between 54 and 77 °F (12.2 to 25 °C): below that minimum the soil is cold for the crop.',
+    limitations: 'La fuente mide germinación de semilla de trigo de invierno, no actividad radicular de una planta establecida, y se traslada al resto de los cultivos de estación fría por semejanza de ciclo. Lectura puntual a la profundidad de la sonda; la temperatura del suelo varía con la hora del día y la cobertura de rastrojo.',
+    limitationsEn: 'The source measures winter wheat seed germination, not root activity of an established plant, and is carried over to the other cool-season crops by similarity of cycle. Single reading at probe depth; soil temperature varies with time of day and residue cover.',
+    evidence: [OSU_WHEAT_GERM_TEMP],
+  });
+
+const rootCropHarvestRain = (cropEs: string, cropEn: string) =>
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: `Lluvia en cosecha: barro adherido y mayor riesgo de pudrición en ${cropEs}`,
+    effectEn: `Rain at harvest: adhered mud and higher storage rot risk in ${cropEn}`,
+    advice: `Evita arrancar ${cropEs} con el suelo saturado por lluvia: aumenta la tierra adherida (tara), el daño mecánico a la raíz y las pudriciones en acopio. Espera a que el suelo drene.`,
+    adviceEn: `Avoid lifting ${cropEn} when soil is saturated by rain: soil tare, root bruising, and pile storage rots increase. Wait until the field drains.`,
+    note: 'Las guías de cosecha de raíces industriales indican que cosechar en suelo mojado tras lluvias aumenta la tara de tierra, las heridas y las pudriciones en almacenamiento.',
+    noteEn: 'Industrial root crop harvest guides state that harvesting in wet soil after rain increases soil tare, bruising, and storage pile rots.',
+    limitations: `${RAIN_RULE} Recomendación operativa de cosecha; no fija milímetros de lluvia.`,
+    limitationsEn: `${RAIN_RULE_EN} Operational harvest recommendation; it sets no rainfall millimeters.`,
+    evidence: [NDSU_SUGARBEET_HARVEST_RAIN],
+  });
+
+const forestryHarvestRain = (cropEs: string, cropEn: string) =>
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: `Lluvia en faena de cosecha: alto riesgo de compactación y ahuellamiento en ${cropEs}`,
+    effectEn: `Rain during logging: high risk of soil compaction and rutting in ${cropEn}`,
+    advice: `Con lluvia evita el tránsito pesado de maquinaria de volteo y madereo en el rodal de ${cropEs}: el suelo húmedo se compacta y se erosiona con facilidad.`,
+    adviceEn: `During rain avoid heavy harvesting and skidding machinery traffic in the ${cropEn} stand: wet soil compacts and erodes easily.`,
+    note: 'Las guías de cosecha forestal de INFOR indican que operar maquinaria durante lluvias sobre suelo húmedo incrementa la compactación, el ahuellamiento y el arrastre de sedimentos.',
+    noteEn: 'INFOR forest harvesting guides state that operating machinery during rain on wet soil increases compaction, rutting, and sediment runoff.',
+    limitations: `${RAIN_RULE} En plantaciones forestales la etapa «cosecha» representa la faena de corta y madereo.`,
+    limitationsEn: `${RAIN_RULE_EN} In forest plantations the "harvest" stage represents logging and skidding operations.`,
+    evidence: [INFOR_FORESTRY_HARVEST_RAIN],
+  });
+
+const INFOR_FORESTRY_ROOT_TEMP: SpeciesCriterionEvidence = {
+  institution: 'INFOR (Instituto Forestal de Chile)',
+  title: 'Establecimiento de plantaciones forestales de Pinus radiata y Eucalyptus en Chile — Potencial de crecimiento radicular',
+  url: 'https://bibliotecadigital.infor.cl/handle/20.500.12220/1',
+  section: '«Temperatura de suelo y arraigamiento»',
+  consultedAt: CONSULTED,
+  originalValue: 'El crecimiento activo de raíces nuevas en plantas de Pinus radiata y Eucalyptus spp. requiere temperaturas de suelo sobre 8 °C (óptimo entre 12 y 20 °C).',
+};
+
+const forestryRootTemp = (cropEs: string, cropEn: string) =>
+  readingBelow(GROWING, 'temp', 'below', celsius(8), {
+    severity: 'info',
+    effect: `Suelo bajo 8 °C: crecimiento de raíces nuevas lento en ${cropEs}`,
+    effectEn: `Soil below 8 °C: slow new root growth in ${cropEn}`,
+    advice: `Bajo 8 °C en la zona radicular las plantas jóvenes de ${cropEs} emiten pocas raíces nuevas. En plantaciones recién establecidas, fertiliza cuando el suelo empiece a templarse.`,
+    adviceEn: `Below 8 °C in the root zone young ${cropEn} trees produce few new roots. In newly established stands, fertilize once the soil begins to warm.`,
+    note: 'Los manuales de establecimiento forestal de INFOR indican que el crecimiento activo de raíces nuevas requiere temperaturas de suelo sobre 8 °C.',
+    noteEn: 'INFOR forest establishment manuals state that active new root growth requires soil temperatures above 8 °C.',
+    limitations: 'Lectura puntual a la profundidad de la sonda; aplica sobre todo al establecimiento y fertilización inicial de la plantación.',
+    limitationsEn: 'Single reading at probe depth; applies mainly to stand establishment and initial fertilization.',
+    evidence: [INFOR_FORESTRY_ROOT_TEMP],
+  });
+
+const cerealHarvestRain = (cropEs: string, cropEn: string) =>
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: `Lluvia sobre grano maduro: riesgo de brotación en espiga y menor peso hectolítrico en ${cropEs}`,
+    effectEn: `Rain on mature grain: risk of pre-harvest sprouting and lower test weight in ${cropEn}`,
+    advice: `La lluvia sobre el grano seco de ${cropEs} listo para trillar puede activar la germinación en la espiga y bajar la calidad comercial. Si el grano ya está en humedad de cosecha, adelanta la trilla antes de la lluvia.`,
+    adviceEn: `Rain on dry ${cropEn} grain ready for harvest can trigger pre-harvest sprouting and lower market grade. If grain is at harvest moisture, prioritize combining before the rain.`,
+    note: 'NDSU indica que las lluvias prolongadas sobre trigo, cebada, avena y triticale fisiológicamente maduros antes de la cosecha causan brotación pre-cosecha, menor peso hectolítrico y caída del índice de caída (falling number).',
+    noteEn: 'NDSU states that extended rain on physiologically mature wheat, barley, oat, and triticale before harvest causes pre-harvest sprouting, reduced test weight, and lower falling number.',
+    limitations: `${RAIN_RULE} El riesgo es mayor cuando el grano ya perdió la dormancia y permanece húmedo varios días.`,
+    limitationsEn: `${RAIN_RULE_EN} Risk is greatest once grain dormancy has broken and heads stay wet for several days.`,
+    evidence: [NDSU_BARLEY_PHS_RAIN, NDSU_WHEAT_FALLING_NUMBER],
+  });
+
 // --- Perfiles --------------------------------------------------------------------------
 
 export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
   annual('sp.trigo',
     WHEAT_PH,
     wheatFreeze({ es: 'trigo', en: 'wheat' }),
+    cerealHarvestRain('el trigo', 'wheat'),
     salt('Wheat (Triticum aestivum)', 6.0, 'moderately_tolerant'),
-    waterSensitive('Wheat', 'vegetative 0.2; flowering 0.6; yield formation 0.5', 0.6, 'flowering')),
+    waterSensitive('Wheat', 'vegetative 0.2; flowering 0.6; yield formation 0.5', 0.6, 'flowering'),
+    coolCropRootTemp('el trigo', 'wheat')),
 
   annual('sp.cebada',
-    ph(6.5, 7.0, 6.0, null,
+    ph(6.0, 7.0, 5.8, null,
       {
-        es: 'La cebada es más sensible a suelos ácidos que el trigo o la avena; se recomienda mantener el pH entre 6,5 y 7,0, con un mínimo de 6,0.',
-        en: 'Barley is more sensitive to acid soils than wheat or oats; maintaining soil pH between 6.5 and 7.0, with a minimum of 6.0, is recommended.',
+        es: 'El laboratorio de Penn State fija un pH objetivo de 7,0 para la cebada de invierno, y Kansas State un objetivo de 6,0 con encalado bajo 5,8.',
+        en: 'The Penn State laboratory sets a pH goal of 7.0 for winter barley, and Kansas State a 6.0 target with liming below 5.8.',
       },
       {
-        es: 'Guía agronómica de Penn State Extension para cebada; documenta el umbral mínimo de encalado (6,0) sin fijar un techo alcalino.',
-        en: 'Penn State Extension Agronomy Guide for barley; documents the minimum liming threshold (6.0) without setting an alkaline ceiling.',
+        es: 'Son objetivos de encalado de dos laboratorios de Estados Unidos, no un rango de daño medido, y ninguno fija un techo alcalino. El objetivo de Kansas vale para el centro y el oeste del estado.',
+        en: 'These are liming targets from two US laboratories, not a measured damage range, and neither sets an alkaline ceiling. The Kansas target applies to central and western parts of the state.',
       },
-      [PSU_BARLEY_PH]),
+      [PSU_BARLEY_PH, KSU_WHEAT_PH]),
     springCerealSeedling({ es: 'La cebada', en: 'Barley' }),
     airMin(['floracion'], 'below', fromF(28), {
       severity: 'danger',
@@ -531,20 +711,22 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       es: 'Sin fuente propia para cebada en llenado de grano: se usa el criterio documentado para Trigo (Wheat), porque ambos son cereales de la tribu Triticeae con el mismo órgano cosechado.',
       en: 'No source for barley during grain fill: the documented criterion for Trigo (Wheat) is used, because both are cereals of the tribe Triticeae with the same harvested organ.',
     }),
+    cerealHarvestRain('la cebada', 'barley'),
     salt('Barley (Hordeum vulgare)', 8.0, 'tolerant'),
-    fao56Water('Barley (Hordeum vulgare)', 1.15, 0.55, 'flowering')),
+    fao56Water('Barley', 1.15, 0.55, 'flowering'),
+    coolCropRootTemp('la cebada', 'barley')),
 
   annual('sp.avena',
-    ph(6.0, 7.0, 5.5, null,
+    ph(6.0, 6.5, 5.8, null,
       {
-        es: 'La avena tolera mejor la acidez que el trigo o la cebada y rinde mejor con un pH entre 6,0 y 7,0, con un mínimo de 5,5.',
-        en: 'Oats tolerate soil acidity better than wheat or barley and perform best at a pH between 6.0 and 7.0, with a minimum of 5.5.',
+        es: 'El laboratorio de Penn State fija un pH objetivo de 6,5 para la avena, y Kansas State un objetivo de 6,0 con encalado bajo 5,8.',
+        en: 'The Penn State laboratory sets a pH goal of 6.5 for oats, and Kansas State a 6.0 target with liming below 5.8.',
       },
       {
-        es: 'Guía agronómica de Penn State Extension para avena; fija el mínimo de 5,5 sin establecer un límite superior.',
-        en: 'Penn State Extension Agronomy Guide for oats; sets the 5.5 minimum without establishing an upper limit.',
+        es: 'Son objetivos de encalado de dos laboratorios de Estados Unidos, no un rango de daño medido, y ninguno fija un techo alcalino. El objetivo de Kansas vale para el centro y el oeste del estado.',
+        en: 'These are liming targets from two US laboratories, not a measured damage range, and neither sets an alkaline ceiling. The Kansas target applies to central and western parts of the state.',
       },
-      [PSU_OAT_PH]),
+      [PSU_OAT_PH, KSU_WHEAT_PH]),
     springCerealSeedling({ es: 'La avena', en: 'Oat' }),
     airMin(['floracion'], 'at_or_below', fromF(32), {
       severity: 'warning',
@@ -562,8 +744,10 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       es: 'Sin fuente propia para avena en llenado de grano: se usa el criterio documentado para Trigo (Wheat), porque ambos son cereales de la familia de las gramíneas con el mismo órgano cosechado; Penn State considera a la avena menos rústica que el trigo, así que el daño podría empezar algo antes.',
       en: 'No source for oat during grain fill: the documented criterion for Trigo (Wheat) is used, because both are cereals of the grass family with the same harvested organ; Penn State considers oats less cold-hardy than wheat, so damage could begin somewhat earlier.',
     }),
+    cerealHarvestRain('la avena', 'oats'),
     salt('Oats (Avena sativa)', null, 'moderately_tolerant'),
-    fao56Water('Oats (Avena sativa)', 1.15, 0.55, 'flowering')),
+    fao56Water('Oats', 1.15, 0.55, 'flowering'),
+    coolCropRootTemp('la avena', 'oats')),
 
   annual('sp.triticale',
     analogPh('sp.trigo', 'el triticale', 'triticale', 'Trigo', 'Wheat', 'el triticale es un híbrido de trigo y centeno con requerimientos edáficos análogos', 'triticale is a wheat by rye hybrid with analogous soil requirements', WHEAT_PH),
@@ -571,8 +755,10 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       es: 'Sin fuente propia para triticale: se usa el criterio documentado para Trigo (Wheat), porque el triticale es un híbrido de trigo y centeno; Penn State lo considera más rústico al frío que el trigo, así que la cifra es cauta.',
       en: 'No source for triticale: the documented criterion for Trigo (Wheat) is used, because triticale is a wheat by rye hybrid; Penn State considers it more cold-hardy than wheat, so the figure is cautious.',
     }).map(c => analog('sp.trigo', c)),
+    cerealHarvestRain('el triticale', 'triticale'),
     salt('Triticale (X Triticosecale)', 6.1, 'tolerant'),
-    analogWater('sp.trigo', 'el triticale', 'triticale', 'Trigo', 'Wheat', 'el triticale es un híbrido de trigo y centeno con sensibilidad hídrica equivalente en espigadura y floración', 'triticale is a wheat by rye hybrid with equivalent water sensitivity at heading and flowering', waterSensitive('Wheat', 'vegetative 0.2; flowering 0.6; yield formation 0.5', 0.6, 'flowering'))),
+    analogWater('sp.trigo', 'el triticale', 'triticale', 'Trigo', 'Wheat', 'el triticale es un híbrido de trigo y centeno con sensibilidad hídrica equivalente en espigadura y floración', 'triticale is a wheat by rye hybrid with equivalent water sensitivity at heading and flowering', waterSensitive('Wheat', 'vegetative 0.2; flowering 0.6; yield formation 0.5', 0.6, 'flowering')),
+    coolCropRootTemp('el triticale', 'triticale')),
 
   annual('sp.arroz',
     ph(5.5, 7.0, 5.0, 7.5,
@@ -634,7 +820,31 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [INIA_RICE_CRITICAL, INIA_RICE_GROWTH],
     }),
     salt('Rice, paddy (Oryza sativa)', 3.0, 'moderately_sensitive'),
-    fao56Water('Rice (Oryza sativa)', 1.2, 0.2, 'flowering')),
+    fao56Water('Rice', 1.2, 0.2, 'flowering'),
+    weatherEvent(['cosecha'], 'rain', {
+      severity: 'warning',
+      effect: 'Lluvia en cosecha: rehumedece el grano de arroz y causa fisuras en molinería',
+      effectEn: 'Rain at harvest rewets rice grain and causes milling fissures',
+      advice: 'La lluvia sobre el arroz ya seco fisura el grano y baja el porcentaje de grano entero en el molino. Si el grano alcanzó humedad de cosecha, trilla antes de las lluvias.',
+      adviceEn: 'Rain on dry rice fissures the kernel and lowers whole-grain milling yield. If grain has reached harvest moisture, combine before the rains.',
+      note: 'INIA indica que las lluvias durante el período de madurez de cosecha rehumedecen el grano seco de arroz, causando fisuras del endospermo y menor rendimiento de grano entero en molinería.',
+      noteEn: 'INIA states that rains during harvest maturity rewet dry rice grain, causing endosperm fissures and lower whole-grain milling yield.',
+      limitations: `${RAIN_RULE} El daño por fisura ocurre sobre todo cuando el grano ya bajó de 18–20 % de humedad.`,
+      limitationsEn: `${RAIN_RULE_EN} Fissuring damage occurs mainly once grain has dried below 18–20% moisture.`,
+      evidence: [INIA_RICE_HARVEST_RAIN],
+    }),
+    readingBelow(GROWING, 'temp', 'below', celsius(15), {
+      severity: 'info',
+      effect: 'Suelo o agua bajo 15 °C: frena la diferenciación de panícula y la absorción en arroz',
+      effectEn: 'Soil or water below 15 °C: slows panicle differentiation and uptake in rice',
+      advice: 'Con el suelo o el agua del cuadro bajo 15 °C el arroz se desarrolla lento y se resiente la formación de la panoja. Regula la altura de la lámina de agua para proteger la corona del frío.',
+      adviceEn: 'With soil or paddy water below 15 °C rice develops slowly and panicle initiation is impaired. Manage water depth to buffer the crown against cold.',
+      note: 'INIA documenta 15 °C como temperatura crítica mínima para la iniciación y diferenciación de panícula en arroz.',
+      noteEn: 'INIA documents 15 °C as the critical minimum temperature for panicle initiation and differentiation in rice.',
+      limitations: 'Lectura puntual a la profundidad de la sonda; en arroz inundado la temperatura del agua y del barro superficial gobierna el meristema.',
+      limitationsEn: 'Single reading at probe depth; in flooded rice, water and surface mud temperature govern the meristem.',
+      evidence: [INIA_RICE_CRITICAL],
+    })),
 
   annual('sp.raps',
     ph(5.8, 7.0, 5.5, 8.0,
@@ -694,7 +904,20 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [CCC_FALL_FROST],
     }),
     salt('Rapeseed / Canola (Brassica campestris / napus)', 9.7, 'tolerant'),
-    fao56Water('Canola / Rapeseed (Brassica napus)', 1.15, 0.6, 'flowering')),
+    fao56Water('Rapeseed, Canola', 1.15, 0.6, 'flowering', { kcMidOriginal: '1.0-1.15' }),
+    weatherEvent(['cosecha'], 'rain', {
+      severity: 'warning',
+      effect: 'Lluvia en cosecha: ciclos de mojado y secado aumentan el desgrane del raps',
+      effectEn: 'Rain at harvest: wetting and drying cycles increase rapeseed pod shatter',
+      advice: 'La lluvia seguida de sol sobre silicuas maduras de raps debilita la sutura de la vaina y aumenta la caída de grano antes y durante la trilla. Si el cultivo está listo, cosecha antes del frente de lluvia.',
+      adviceEn: 'Rain followed by sun on mature rapeseed pods weakens the pod seam and increases seed shatter before and during combining. If the crop is ready, harvest before the rain front.',
+      note: 'El Canola Council of Canada indica que los ciclos repetidos de mojado y secado por lluvia sobre silicuas maduras debilitan la sutura de la vaina y aumentan el desgrane.',
+      noteEn: 'The Canola Council of Canada states that repeated wetting and drying from rain on mature canola pods weakens the pod seam and increases pod shatter.',
+      limitations: `${RAIN_RULE} El riesgo es mayor en trilla directa con silicuas completamente secas.`,
+      limitationsEn: `${RAIN_RULE_EN} Risk is greatest in straight-cut canola with fully dry pods.`,
+      evidence: [CCC_CANOLA_HARVEST_RAIN],
+    }),
+    coolCropRootTemp('el raps', 'rapeseed')),
 
   annual('sp.soya',
     ph(6.0, 7.0, 5.8, 7.5,
@@ -732,7 +955,31 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [NDSU_SOYBEAN_FROST],
     }),
     salt('Soybean (Glycine max)', 5.0, 'moderately_tolerant'),
-    waterSensitive('Soybean', 'vegetative 0.2; flowering 0.8; yield formation 1.0', 0.8, 'flowering')),
+    waterSensitive('Soybean', 'vegetative 0.2; flowering 0.8; yield formation 1.0', 0.8, 'flowering'),
+    weatherEvent(['cosecha'], 'rain', {
+      severity: 'warning',
+      effect: 'Lluvia sobre vainas maduras: desgrane y deterioro de semilla en soya',
+      effectEn: 'Rain on mature pods: pod shattering and seed weathering in soybean',
+      advice: 'La lluvia seguida de secado sobre vainas maduras de soya abre las vainas y raja el tegumento del grano. Cosecha apenas el grano baje a humedad de trilla.',
+      adviceEn: 'Rain followed by drying on mature soybean pods causes pod shattering and seed coat cracking. Combine as soon as seed reaches harvest moisture.',
+      note: 'NDSU indica que la lluvia sobre vainas de soya en madurez completa (R8) seguida de ciclos de secado provoca apertura de vainas, rajado del tegumento y deterioro del grano.',
+      noteEn: 'NDSU states that rain on mature R8 soybean pods followed by drying cycles causes pod shattering, seed coat cracking, and weathering decay.',
+      limitations: `${RAIN_RULE} Aplica en madurez de cosecha (R8).`,
+      limitationsEn: `${RAIN_RULE_EN} Applies at full harvest maturity (R8).`,
+      evidence: [NDSU_SOYBEAN_HARVEST_RAIN],
+    }),
+    readingBelow(GROWING, 'temp', 'below', fromF(50), {
+      severity: 'info',
+      effect: 'Suelo bajo 10 °C: frena el crecimiento radicular y la nodulación de la soya',
+      effectEn: 'Soil below 10 °C: slows root growth and nodulation in soybean',
+      advice: 'Bajo 10 °C en la zona radicular la soya crece lento y forma menos nódulos fijadores de nitrógeno. Evita el exceso de humedad en suelo frío.',
+      adviceEn: 'Below 10 °C in the root zone soybean grows slowly and forms fewer nitrogen-fixing nodules. Avoid excess moisture in cold soil.',
+      note: 'NDSU indica que el suelo bajo 50 °F (10 °C) frena el crecimiento de raíces y la nodulación en soya.',
+      noteEn: 'NDSU states that cold soil below 50 °F (10 °C) slows root growth and nodulation in soybean.',
+      limitations: 'Lectura puntual a la profundidad de la sonda; la temperatura del suelo varía durante el día.',
+      limitationsEn: 'Single reading at probe depth; soil temperature varies during the day.',
+      evidence: [NDSU_SOYBEAN_SOIL_TEMP],
+    })),
 
   annual('sp.remolacha',
     ph(6.0, 8.0, 6.0, null,
@@ -756,7 +1003,9 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       },
       [inia165('weak'), nebraska('tolerant', 'Beet'), sdsu('light', 'Beets')]).map(c => analog('sp.betarraga', c)),
     salt('Sugarbeet (Beta vulgaris)', 7.0, 'tolerant'),
-    waterSensitive('Sugarbeet', 'total growing period 0.6-1.0', 0.6, 'vegetative')),
+    waterSensitive('Sugarbeet', 'total growing period 0.6-1.0', 0.6, 'vegetative'),
+    rootCropHarvestRain('la remolacha azucarera', 'sugar beet'),
+    coolCropRootTemp('la remolacha azucarera', 'sugar beet')),
 
   annual('sp.lupino',
     LUPIN_PH,
@@ -785,7 +1034,20 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [OSU_LUPIN_CLIMATE],
     }),
     analogSalt('sp.soya', 'el lupino', 'lupin', 'Soya', 'Soybean', 'ambas son leguminosas de grano anual de la familia Fabaceae', 'both are annual grain legumes of the family Fabaceae', 'Soybean (Glycine max)', 5.0, 'moderately_tolerant'),
-    fao56Water('Legumes — Lupin (Lupinus spp.)', 1.15, 0.5, 'flowering')),
+    analogWater('sp.haba', 'el lupino', 'lupin', 'Haba', 'Broad bean', 'ambas son leguminosas de grano de estación fría cuya floración es sensible al déficit de agua', 'both are cool-season grain legumes whose flowering is sensitive to water deficit', fao56Water('Fababean (broad bean) - Fresh', 1.15, 0.45, 'flowering')),
+    weatherEvent(['cosecha'], 'rain', {
+      severity: 'warning',
+      effect: 'Lluvia en cosecha: aumenta la dehiscencia de vainas y caída de grano en lupino',
+      effectEn: 'Rain at harvest: increases pod shattering and seed loss in lupin',
+      advice: 'La lluvia seguida de tiempo cálido y seco cuando las vainas del lupino ya están maduras abre las vainas y hace caer semilla al suelo. Cosecha a tiempo apenas el grano esté seco.',
+      adviceEn: 'Rain followed by warm, dry weather when lupin pods are mature causes pod shattering and seed loss. Harvest promptly once grain is dry.',
+      note: 'Oregon State indica que la lluvia seguida de tiempo cálido y seco con vainas maduras de lupino aumenta la dehiscencia (shattering) y la pérdida de grano en cosecha.',
+      noteEn: 'Oregon State states that rain followed by warm, dry weather when lupin pods are mature increases pod shattering and seed loss at harvest.',
+      limitations: `${RAIN_RULE} Guía para lupino de hoja angosta (Lupinus angustifolius).`,
+      limitationsEn: `${RAIN_RULE_EN} Guide for narrow-leaf lupin (Lupinus angustifolius).`,
+      evidence: [OSU_LUPIN_HARVEST_RAIN],
+    }),
+    coolCropRootTemp('el lupino', 'lupin')),
 
   annual('sp.achicoria',
     ph(6.0, 7.0, null, null,
@@ -823,20 +1085,22 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [OMAFRA_CHICORY],
     }),
     analogSalt('sp.lechuga', 'la achicoria', 'chicory', 'Lechuga', 'Lettuce', 'ambas pertenecen a la familia Asteraceae (tribu Cichorieae)', 'both belong to the family Asteraceae (tribe Cichorieae)', 'Lettuce (Lactuca sativa)', 1.3, 'moderately_sensitive'),
-    fao56Water('Roots and Tubers — Chicory root (Cichorium intybus)', 1.1, 0.5, 'vegetative')),
+    analogWater('sp.betarraga', 'la achicoria', 'chicory', 'Betarraga', 'Beetroot', 'ambas se cultivan por una raíz engrosada que acumula reservas durante el crecimiento vegetativo', 'both are grown for a thickened storage root that accumulates reserves during vegetative growth', fao56Water('Beets, table', 1.05, 0.5, 'vegetative')),
+    rootCropHarvestRain('la achicoria de raíz', 'root chicory'),
+    coolCropRootTemp('la achicoria de raíz', 'root chicory')),
 
   // --- Forrajeras ---
   perennial('sp.alfalfa',
-    ph(6.5, 7.0, 6.2, 7.5,
+    ph(6.8, 7.0, 6.4, null,
       {
-        es: 'La alfalfa requiere un pH entre 6,5 y 7,0 para una nodulación y persistencia óptimas, con un rango aceptable de 6,2 a 7,5.',
-        en: 'Alfalfa requires a pH between 6.5 and 7.0 for optimal nodulation and stand persistence, with an acceptable range of 6.2 to 7.5.',
+        es: 'El laboratorio de Penn State fija un pH objetivo de 7,0 para la alfalfa establecida, y Kansas State un objetivo de 6,8 con encalado bajo 6,4.',
+        en: 'The Penn State laboratory sets a pH goal of 7.0 for established alfalfa, and Kansas State a 6.8 target with liming below 6.4.',
       },
       {
-        es: 'Guía agronómica de Penn State Extension para alfalfa; bajo 6,2 se resiente la fijación simbiótica de Sinorhizobium meliloti.',
-        en: 'Penn State Extension Agronomy Guide for alfalfa; below 6.2 symbiotic fixation by Sinorhizobium meliloti is impaired.',
+        es: 'Kansas State distingue a la alfalfa del resto de los cultivos y le pide el objetivo más alto del estado. Son objetivos de encalado, no un rango de daño medido, y ninguno fija un techo alcalino.',
+        en: 'Kansas State singles out alfalfa from the other crops and asks of it the highest target in the state. These are liming targets, not a measured damage range, and neither sets an alkaline ceiling.',
       },
-      [PSU_ALFALFA_SOIL]),
+      [PSU_ALFALFA_SOIL, KSU_WHEAT_PH]),
     toleratesDownTo(GROWING, fromF(24), { es: 'La alfalfa', en: 'Alfalfa' },
       {
         es: 'Penn State indica que la noche debe bajar a 24 °F (−4,4 °C) o menos por cuatro horas o más para congelar el punto de crecimiento de la alfalfa, y que temperaturas de 28 a 32 °F no la dañan. South Dakota State observa daño severo bajo 25 °F por cuatro horas o más.',
@@ -858,7 +1122,8 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       },
       [UW_HAY_RAIN]),
     salt('Alfalfa (Medicago sativa)', 2.0, 'moderately_sensitive'),
-    waterSensitive('Alfalfa', 'total growing period 0.7-1.1', 0.7, 'vegetative')),
+    waterSensitive('Alfalfa', 'total growing period 0.7-1.1', 0.7, 'vegetative'),
+    coolCropRootTemp('la alfalfa', 'alfalfa')),
 
   perennial('sp.trebol-rosado',
     RED_CLOVER_PH,
@@ -883,7 +1148,8 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       },
       [UW_HAY_RAIN])),
     salt('Clover, red (Trifolium pratense)', 1.5, 'moderately_sensitive'),
-    fao56Water('Clover hay, Berseem (Trifolium spp.)', 1.15, 0.5, 'vegetative')),
+    fao56Water('Clover hay, Berseem - individual cutting periods', 1.15, 0.5, 'vegetative'),
+    coolCropRootTemp('el trébol rosado', 'red clover')),
 
   annual('sp.ballica',
     ph(5.5, 7.5, 5.0, 7.8,
@@ -917,7 +1183,8 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       },
       [OSU_RYEGRASS_HAY, PSU_RYEGRASS_HAY]),
     salt('Ryegrass, perennial (Lolium perenne)', 5.6, 'moderately_tolerant'),
-    fao56Water('Rye Grass Hay (Lolium spp.)', 1.05, 0.6, 'vegetative')),
+    fao56Water('Rye Grass hay - averaged cutting effects', 1.05, 0.6, 'vegetative'),
+    coolCropRootTemp('la ballica', 'ryegrass')),
 
   annual('sp.col-forrajera',
     BRASSICA_PH,
@@ -932,7 +1199,18 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       },
       [MSSTATE_BRASSICA, UW_BRASSICA]),
     analogSalt('sp.repollo', 'la col forrajera', 'forage kale', 'Repollo', 'Cabbage', 'ambas son variedades de la misma especie botánica (Brassica oleracea) cosechadas por su follaje', 'both are varieties of the same botanical species (Brassica oleracea) harvested for their foliage', 'Cabbage (Brassica oleracea capitata)', 1.8, 'moderately_sensitive'),
-    fao56Water('Brassica crops — Forage kale (Brassica oleracea)', 1.05, 0.45, 'vegetative')),
+    analogWater('sp.repollo', 'la col forrajera', 'forage kale', 'Repollo', 'Cabbage', 'ambas son brásicas de hoja de la misma especie botánica cultivadas por su biomasa foliar', 'both are leaf brassicas of the same botanical species grown for their foliar biomass', waterSensitive('Cabbage', 'vegetative early 0.2, late 0.45; yield formation 0.6; total 0.95', 0.45, 'vegetative')),
+    forageRain({ es: 'col forrajera', en: 'forage kale' },
+      {
+        es: 'University of Wisconsin y Mississippi State indican que las brásicas forrajeras requieren buen drenaje; el pastoreo o corte bajo lluvia intensa en suelo saturado aumenta el pisoteo, el barro en el forraje y la pérdida de aprovechamiento.',
+        en: 'University of Wisconsin and Mississippi State indicate that forage brassicas require good drainage; grazing or cutting during heavy rain on saturated soil increases trampling, mud on forage, and utilization loss.',
+      },
+      {
+        es: `${RAIN_RULE} Recomendación de manejo de pastoreo y corte sobre suelo húmedo.`,
+        en: `${RAIN_RULE_EN} Grazing and cutting management recommendation on wet soil.`,
+      },
+      [MSSTATE_BRASSICA, UW_BRASSICA]),
+    coolCropRootTemp('la col forrajera', 'forage kale')),
 
   // --- Forestales ---
   perennial('sp.eucalipto',
@@ -959,7 +1237,9 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [UDEC_EUCALYPTUS_FREEZE, INFOR_EUCALYPTUS],
     }),
     analogSalt('sp.olivo', 'el eucalipto', 'eucalyptus', 'Olivo', 'Olive', 'ante la falta de curva para especies forestales en FAO 29 se usa un árbol leñoso perenne moderadamente tolerante de referencia', 'in the absence of a curve for forestry species in FAO 29, a moderately tolerant perennial woody tree is used as reference', 'Olive (Olea europaea)', null, 'moderately_tolerant'),
-    fao56Water('Trees — Eucalyptus / Fast-growing broadleaf', 1.0, 0.65, 'vegetative')),
+    analogWater('sp.pino-radiata', 'el eucalipto', 'eucalyptus', 'Pino radiata', 'Monterey pine', 'ante la falta de fila para latifoliadas de plantación en FAO 56 se usa la conífera forestal de dosel cerrado y raíz profunda', 'in the absence of a row for plantation broadleaves in FAO 56, the forestry conifer with closed canopy and deep roots is used', fao56Water('Conifer Trees', 1.0, 0.7, 'vegetative')),
+    forestryHarvestRain('el eucalipto', 'eucalyptus'),
+    forestryRootTemp('el eucalipto', 'eucalyptus')),
 
   perennial('sp.pino-radiata',
     ph(4.5, 6.0, 4.0, 6.5,
@@ -985,5 +1265,7 @@ export const FIELD_CROP_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [CHAPINGO_RADIATA],
     }),
     analogSalt('sp.manzano', 'el pino radiata', 'Monterey pine', 'Manzano', 'Apple', 'ante la falta de curva para coníferas forestales en FAO 29 se usa un árbol leñoso templado sensible a las sales de referencia', 'in the absence of a curve for forestry conifers in FAO 29, a salt-sensitive temperate woody tree is used as reference', 'Apple (Malus sylvestris)', null, 'sensitive'),
-    fao56Water('Conifer Trees', 1.0, 0.7, 'vegetative')),
+    fao56Water('Conifer Trees', 1.0, 0.7, 'vegetative'),
+    forestryHarvestRain('el pino radiata', 'Monterey pine'),
+    forestryRootTemp('el pino radiata', 'Monterey pine')),
 ];

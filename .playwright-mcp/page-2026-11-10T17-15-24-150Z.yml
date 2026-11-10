@@ -1,0 +1,296 @@
+- generic [active] [ref=f21e1]:
+  - button "Skip to main content" [ref=f21e2] [cursor=pointer]
+  - banner [ref=f21e3]:
+    - link "OKState.edu" [ref=f21e7] [cursor=pointer]:
+      - /url: https://go.okstate.edu
+    - generic [ref=f21e12]:
+      - generic [ref=f21e13]:
+        - link "Ferguson College of Ag" [ref=f21e14] [cursor=pointer]:
+          - /url: https://agriculture.okstate.edu/
+        - text: "|"
+      - link "Ag Research" [ref=f21e16] [cursor=pointer]:
+        - /url: https://agresearch.okstate.edu/
+    - button "Quicklinks / Search" [ref=f21e18] [cursor=pointer]:
+      - generic [ref=f21e22]:
+        - generic [ref=f21e23]: Quicklinks
+        - generic [ref=f21e24]: /
+        - generic [ref=f21e25]: Search
+    - link [ref=f21e29] [cursor=pointer]:
+      - /url: https://go.okstate.edu
+      - img "Oklahoma State University Logo. Link to home page - link" [ref=f21e30]
+    - link "Extension" [ref=f21e32] [cursor=pointer]:
+      - /url: https://extension.okstate.edu
+    - generic [ref=f21e35]:
+      - link "ABOUT" [ref=f21e36] [cursor=pointer]:
+        - /url: https://extension.okstate.edu/about-us
+      - link "EVENTS" [ref=f21e37] [cursor=pointer]:
+        - /url: https://extension.okstate.edu/events
+      - link "News" [ref=f21e38] [cursor=pointer]:
+        - /url: https://extension.okstate.edu/articles
+      - link "PROGRAMS & SERVICES" [ref=f21e39] [cursor=pointer]:
+        - /url: https://extension.okstate.edu/programs
+      - link "FACT SHEETS" [ref=f21e40] [cursor=pointer]:
+        - /url: https://extension.okstate.edu/fact-sheets
+      - link "TOPICS" [ref=f21e41] [cursor=pointer]:
+        - /url: https://extension.okstate.edu/topics
+      - link "COUNTY OFFICES" [ref=f21e42] [cursor=pointer]:
+        - /url: https://extension.okstate.edu/county
+  - main [ref=f21e43]:
+    - navigation "Breadcrumb" [ref=f21e44]:
+      - generic:
+        - list:
+          - listitem [ref=f21e45]:
+            - link "Home" [ref=f21e46] [cursor=pointer]:
+              - /url: https://extension.okstate.edu
+            - text: /
+          - listitem [ref=f21e47]:
+            - link "Fact Sheets" [ref=f21e48] [cursor=pointer]:
+              - /url: https://extension.okstate.edu/fact-sheets
+            - text: /
+          - listitem [ref=f21e49]:
+            - link "Variation in Heat-Sensitive Germination Among Contemporary Hard Winter Wheat Varieties, 2019–2024":
+              - /url: https://extension.okstate.edu/fact-sheets/variation-in-heat-sensitive-germination-among-contemporary-hard-winter-wheat-varieties-2019-2024
+    - generic [ref=f21e52]:
+      - complementary [ref=f21e53]
+      - generic [ref=f21e54]:
+        - generic [ref=f21e55]:
+          - heading "Variation in Heat-Sensitive Germination Among Contemporary Hard Winter Wheat Varieties, 2019–2024" [level=1] [ref=f21e56]
+          - generic [ref=f21e57]:
+            - generic [ref=f21e58]: Published July 2025
+            - generic [ref=f21e59]: "|"
+            - generic [ref=f21e60]: "Id: PSS-2256"
+          - generic [ref=f21e61]: By Amanda de Oliveria Silva
+          - generic [ref=f21e62]:
+            - button "Print-friendly PDF" [ref=f21e63] [cursor=pointer]
+            - menubar [ref=f21e66]:
+              - menuitem "Share Fact Sheet" [ref=f21e67] [cursor=pointer]
+        - list [ref=f21e72]:
+          - text: "Jump To:"
+          - listitem [ref=f21e73]:
+            - link "Post Harvest Dormancy" [ref=f21e74] [cursor=pointer]:
+              - /url: "#post-harvest-dormancy"
+            - text: /
+          - listitem [ref=f21e75]:
+            - link "High Temperature Germination Sensitivity" [ref=f21e76] [cursor=pointer]:
+              - /url: "#high-temperature-germination-sensitivity"
+            - text: /
+          - listitem [ref=f21e77]:
+            - link "Description of Procedures" [ref=f21e78] [cursor=pointer]:
+              - /url: "#description-of-procedures"
+        - generic [ref=f21e79]:
+          - paragraph [ref=f21e80]: Early sowing is one of the most cost-effective ways to increase fall forage production in winter wheat. Sowing before Sep. 20 generally allows enough time for the crop to establish a canopy, produce forage and develop a strong root system before grazing begins, usually in late November. In the Southern Great Plains, dual-purpose wheat — wheat grown for both grazing and grain — is typically sown in September.However, factors like seed dormancy, sensitivity to high soil temperatures and coleoptile length can delay germination or hinder seedling emergence when wheat is sown early into hot soils. Delayed germination shortens the growing window before winter dormancy, ultimately reducing forage production. Understanding these factors is crucial for dual-purpose wheat producers to optimize stand establishment and maximize fall forage growth..
+          - heading "Post Harvest Dormancy" [level=2] [ref=f21e81]
+          - paragraph [ref=f21e82]: Wheat seed is considered dormant when it fails to germinate even under favorable conditions. Some level of seed dormancy is beneficial as it helps prevent premature sprouting before harvest. Dormancy is highest just before harvest and gradually decreases over time, though the rate of dormancy loss varies due to several factors.For example, inhibitory compounds in the seed coat of hard red winter wheat varieties can extend post-harvest dormancy. Additionally, storage conditions impact dormancy loss — wheat stored at extremely hot or cold temperatures after harvest tends to germinate more readily than seed stored at ambient air temperatures. This is why placing seed samples in a refrigerator for a day or two before conducting germination tests is a common practice.Environmental conditions during grain fill also influence seed dormancy. Cooler temperatures during this period typically result in stronger dormancy, meaning that the same wheat variety harvested from different locations within a state or region may exhibit varying germination behavior when sown early. For most hard red winter wheat varieties, post-harvest dormancy naturally dissipates by October. However, early sowing shortens the interval between harvest and planting, increasing the risk that dormancy has not fully broken, which can delay germination.
+          - heading "High Temperature Germination Sensitivity" [level=2] [ref=f21e83]
+          - paragraph [ref=f21e84]: In addition to post-harvest dormancy, some wheat varieties exhibit sensitivity to high soil temperatures, a trait commonly referred to as high-temperature germination sensitivity (Table 1). While wheat can germinate in soil temperatures ranging from 40 to 99 degrees Fahrenheit, the optimal range is 54 to 77 degrees Fahrenheit. In western Oklahoma, soil temperatures often remain above 80 to 85 degrees until mid-September and may not drop below 80 degrees until October. These elevated temperatures can extend dormancy in sensitive varieties, making them less suitable for early planting.A practical strategy is to plant less sensitive varieties first and postpone sowing sensitive varieties until soil temperatures decrease. In most years, the combination of time after harvest and cooler soil conditions enables germination for most hard red winter wheat varieties by Sep. 15. However, high-temperature germination sensitivity does not mean the seed will not germinate at all; it simply delays germination until conditions improve, potentially limiting fall forage production.
+          - heading "Description of Procedures" [level=2] [ref=f21e85]
+          - paragraph [ref=f21e86]: "This study was conducted under controlled conditions, eliminating environmental factors, such as soil moisture variability, that are present in field conditions. This setup allowed for temperature control and enabled comparisons of the wheat varieties’ sensitivity to germination in hot soils. Seeds were collected from the Stillwater demonstration plots, including harvest years from 2019 to 2024. We tested 20 seeds from each variety at three replications under two temperatures: 68 degrees (20 degrees Celsius) and 86 degrees (30 degrees Celsius). Daily germination counts were recorded for each variety, and the data was used to rank the varieties based on their sensitivity levels."
+          - table "Table 1. High temperature germination sensitivity for hard red winter wheat varieties" [ref=f21e88]:
+            - caption [ref=f21e89]: Table 1. High temperature germination sensitivity for hard red winter wheat varieties
+            - rowgroup [ref=f21e90]:
+              - row [ref=f21e91]:
+                - columnheader "No Sensitivity" [ref=f21e92]
+                - columnheader "Low Sensitivity" [ref=f21e93]
+                - columnheader "Moderate Sensitivity" [ref=f21e94]
+                - columnheader "Sensitive" [ref=f21e95]
+            - rowgroup [ref=f21e96]:
+              - row [ref=f21e97]:
+                - rowheader "TAM115" [ref=f21e98]
+                - cell "AP EverRock" [ref=f21e99]
+                - cell "TAM114" [ref=f21e100]
+                - cell "AG Golden" [ref=f21e101]
+              - row [ref=f21e102]:
+                - rowheader "SY Wolverine" [ref=f21e103]
+                - cell "CP7017AX" [ref=f21e104]
+                - cell "WB4792" [ref=f21e105]
+                - cell "Breakthrough" [ref=f21e106]
+              - row [ref=f21e107]:
+                - rowheader "Big Country" [ref=f21e108]
+                - cell "AP Prolific" [ref=f21e109]
+                - cell "LCS Chrome" [ref=f21e110]
+                - cell "Canvas" [ref=f21e111]
+              - row [ref=f21e112]:
+                - rowheader "Smith's Gold" [ref=f21e113]
+                - cell "Showdown" [ref=f21e114]
+                - cell "AG Radical" [ref=f21e115]
+                - cell "Bob Dole" [ref=f21e116]
+              - row [ref=f21e117]:
+                - rowheader "Paradox" [ref=f21e118]
+                - cell "Doublestop CL+" [ref=f21e119]
+                - cell "Firebox" [ref=f21e120]
+                - cell "TAM204" [ref=f21e121]
+              - row [ref=f21e122]:
+                - rowheader "CP7869" [ref=f21e123]
+                - cell "Green Hammer" [ref=f21e124]
+                - cell "CP7266AX" [ref=f21e125]
+                - cell "AG Icon" [ref=f21e126]
+              - row [ref=f21e127]:
+                - rowheader "WB4401" [ref=f21e128]
+                - cell "KS Ahearn" [ref=f21e129]
+                - cell "WB4632" [ref=f21e130]
+                - cell "KS Western Star" [ref=f21e131]
+              - row [ref=f21e132]:
+                - rowheader "KS Dallas" [ref=f21e133]
+                - cell "AP Roadrunner" [ref=f21e134]
+                - cell "LCS Julep" [ref=f21e135]
+                - cell "WB4369" [ref=f21e136]
+              - row [ref=f21e137]:
+                - rowheader "LCS Helix AX" [ref=f21e138]
+                - cell "Strad CL+" [ref=f21e139]
+                - cell "Bentley" [ref=f21e140]
+                - cell [ref=f21e141]
+              - row [ref=f21e142]:
+                - rowheader "AP Bigfoot" [ref=f21e143]
+                - cell "Baker’s Ann" [ref=f21e144]
+                - cell "KS Providence" [ref=f21e145]
+                - cell [ref=f21e146]
+              - row [ref=f21e147]:
+                - rowheader "Duster" [ref=f21e148]
+                - cell "Crescent AX" [ref=f21e149]
+                - cell "WB4699" [ref=f21e150]
+                - cell [ref=f21e151]
+              - row [ref=f21e152]:
+                - rowheader "TAM 112" [ref=f21e153]
+                - cell "AM Cartwright" [ref=f21e154]
+                - cell "CP7909" [ref=f21e155]
+                - cell [ref=f21e156]
+              - row [ref=f21e157]:
+                - rowheader "High Cotton" [ref=f21e158]
+                - cell "Uncharted" [ref=f21e159]
+                - cell "Iba" [ref=f21e160]
+                - cell [ref=f21e161]
+              - row [ref=f21e162]:
+                - rowheader "LCS Photon AX" [ref=f21e163]
+                - cell "LCS Atomic AX" [ref=f21e164]
+                - cell "Butler’s Gold" [ref=f21e165]
+                - cell [ref=f21e166]
+              - row [ref=f21e167]:
+                - rowheader "OK Corral" [ref=f21e168]
+                - cell "Gallagher" [ref=f21e169]
+                - cell [ref=f21e170]
+                - cell [ref=f21e171]
+        - generic [ref=f21e174]:
+          - button "Print-friendly PDF" [ref=f21e175] [cursor=pointer]
+          - menubar [ref=f21e178]:
+            - menuitem "Share Fact Sheet" [ref=f21e179] [cursor=pointer]
+        - generic [ref=f21e182]:
+          - text: "Topics:"
+          - link "Crops" [ref=f21e183] [cursor=pointer]:
+            - /url: https://extension.okstate.edu/topics/plants-and-animals/crops
+          - link "Grains And Oilseeds" [ref=f21e184] [cursor=pointer]:
+            - /url: https://extension.okstate.edu/topics/plants-and-animals/crops/grains-and-oilseeds
+          - link "Wheat" [ref=f21e185] [cursor=pointer]:
+            - /url: https://extension.okstate.edu/topics/plants-and-animals/crops/grains-and-oilseeds/wheat
+        - generic [ref=f21e187]:
+          - heading "Was this information helpful?" [level=5] [ref=f21e188]
+          - button "YES" [ref=f21e189] [cursor=pointer]
+          - button "NO" [ref=f21e190] [cursor=pointer]
+        - generic [ref=f21e194]:
+          - generic [ref=f21e196]:
+            - generic [ref=f21e197]: Fact Sheet
+            - generic [ref=f21e204]:
+              - link "2025 Oklahoma Replicated Agronomic Cotton Evaluation (RACE) Trial Report" [ref=f21e205] [cursor=pointer]:
+                - /url: https://extension.okstate.edu/fact-sheets/2025-oklahoma-replicated-agronomic-cotton-evaluation-race-trial-report
+              - paragraph [ref=f21e206]: Learn about the 2025 Oklahoma cotton season, including producer support, trial partnerships, participating seed companies, planting conditions and statewide harvest results.
+              - button "Crops" [ref=f21e207] [cursor=pointer]
+              - button "Cotton" [ref=f21e208] [cursor=pointer]
+            - img "2025 Oklahoma Replicated Agronomic Cotton Evaluation (RACE) Trial Report" [ref=f21e210]
+          - generic [ref=f21e212]:
+            - generic [ref=f21e213]: Fact Sheet
+            - generic [ref=f21e220]:
+              - link "Understanding ThryvOn Cotton Technology" [ref=f21e221] [cursor=pointer]:
+                - /url: https://extension.okstate.edu/fact-sheets/understanding-thryvon-cotton-technology
+              - paragraph [ref=f21e222]: Learn how the technology works, when scouting is still needed and how it supports integrated pest management in Oklahoma cotton production.
+              - button "Crops" [ref=f21e223] [cursor=pointer]
+              - button "Cotton" [ref=f21e224] [cursor=pointer]
+              - button "Insects Pests And Diseases" [ref=f21e225] [cursor=pointer]
+              - button "Pesticides" [ref=f21e226] [cursor=pointer]
+            - img "Understanding ThryvOn Cotton Technology" [ref=f21e228]
+          - button "VIEW ALL" [ref=f21e229] [cursor=pointer]
+  - contentinfo "main-footer" [ref=f21e230]:
+    - generic [ref=f21e232]:
+      - generic [ref=f21e233]:
+        - generic [ref=f21e234]:
+          - heading "OSU Extension" [level=2] [ref=f21e236]
+          - generic [ref=f21e237]:
+            - generic [ref=f21e238]:
+              - paragraph [ref=f21e239]: Administered by the
+              - paragraph [ref=f21e240]:
+                - link "Division of Agricultural Sciences and Natural Resources" [ref=f21e241] [cursor=pointer]:
+                  - /url: https://agdivision.okstate.edu/
+            - generic [ref=f21e242]:
+              - paragraph [ref=f21e243]:
+                - link "Contact Your County Office" [ref=f21e244] [cursor=pointer]:
+                  - /url: /county/
+              - generic [ref=f21e245]:
+                - text: 202 Agricultural Hall Oklahoma State University Stillwater, OK 74078
+                - link "(map)" [ref=f21e246] [cursor=pointer]:
+                  - /url: https://goo.gl/maps/aJL1unybG942
+                - link "E-mail Us" [ref=f21e247] [cursor=pointer]:
+                  - /url: /contact.html
+        - generic [ref=f21e248]:
+          - heading "Follow Us" [level=2] [ref=f21e250]
+          - generic [ref=f21e251]:
+            - link "News |" [ref=f21e252] [cursor=pointer]:
+              - /url: https://extension.okstate.edu/articles
+            - link "Events |" [ref=f21e253] [cursor=pointer]:
+              - /url: https://ag-events.okstate.edu/
+            - link "Newsletter Signup |" [ref=f21e254] [cursor=pointer]:
+              - /url: https://extension.okstate.edu/county/county-office-newsletter-signup
+            - link "Fact Sheets |" [ref=f21e255] [cursor=pointer]:
+              - /url: https://extension.okstate.edu/fact-sheets
+            - link "Extension Careers |" [ref=f21e256] [cursor=pointer]:
+              - /url: https://extension.okstate.edu/extension-careers
+            - link "Media Request |" [ref=f21e257] [cursor=pointer]:
+              - /url: https://www.wrike.com/frontend/requestforms/index.html?token=eyJhY2NvdW50SWQiOjQyNzU0NjYsInRhc2tGb3JtSWQiOjkzNjIwOX0JNDgzNjkxODgyMDg1OAk4ZTQ3MGY0ZmYyYjk0YzZiMzY4ZTI0MzBkOWVhNGFjNTQyZjk1N2VlZjNiMDJjMmExOGU5NmRiZjk4YzEyMDFj
+            - link "Civil Rights" [ref=f21e258] [cursor=pointer]:
+              - /url: https://extension.okstate.edu/civil-rights
+          - generic [ref=f21e259]:
+            - link "Facebook" [ref=f21e260] [cursor=pointer]:
+              - /url: https://www.facebook.com/okstate.ag/
+            - link "Twitter" [ref=f21e266] [cursor=pointer]:
+              - /url: https://twitter.com/okstate_ag
+            - link "Instagram" [ref=f21e272] [cursor=pointer]:
+              - /url: https://www.instagram.com/okstate_ag/
+      - navigation "Footer Utility Navigation" [ref=f21e283]:
+        - link [ref=f21e284] [cursor=pointer]:
+          - /url: https://go.okstate.edu
+          - img "OSU Logo" [ref=f21e285]
+        - link "Oklahoma State University" [ref=f21e286] [cursor=pointer]:
+          - /url: https://go.okstate.edu
+        - generic [ref=f21e290]:
+          - link "Campus & Parking Maps" [ref=f21e291] [cursor=pointer]:
+            - /url: http://maps.okstate.edu/
+          - link "All OSU Institutions" [ref=f21e292] [cursor=pointer]:
+            - /url: https://go.okstate.edu/about-osu/institutions.html
+          - link "Careers @ OSU" [ref=f21e293] [cursor=pointer]:
+            - /url: http://jobs.okstate.edu/
+          - link "Hire OSU Grads" [ref=f21e294] [cursor=pointer]:
+            - /url: https://careerservices.okstate.edu/
+        - generic [ref=f21e296]:
+          - link "Login to edit this page." [ref=f21e297] [cursor=pointer]:
+            - /url: https://matrix.okstate.edu/_admin/?screen=contents&assetid=213060
+            - text: ©
+          - text: 2026 Oklahoma State University. All rights reserved.
+        - generic [ref=f21e298]:
+          - link "Accessibility Services |" [ref=f21e299] [cursor=pointer]:
+            - /url: https://accessibility.okstate.edu/
+          - link "Campus Safety |" [ref=f21e300] [cursor=pointer]:
+            - /url: https://safety.okstate.edu
+          - link "EEO Statement |" [ref=f21e301] [cursor=pointer]:
+            - /url: https://eeo.okstate.edu
+          - link "Ethics Point |" [ref=f21e302] [cursor=pointer]:
+            - /url: https://secure.ethicspoint.com/domain/media/en/gui/10933/index.html
+          - link "Privacy Notice |" [ref=f21e303] [cursor=pointer]:
+            - /url: https://go.okstate.edu/tos/privacy.html
+          - link "Terms of Service |" [ref=f21e304] [cursor=pointer]:
+            - /url: https://go.okstate.edu/tos/
+          - link "Trademarks" [ref=f21e305] [cursor=pointer]:
+            - /url: https://trademarks.okstate.edu/
+  - generic [ref=f21e306]:
+    - generic:
+      - status "Widget closed"
+      - button "Open Chatbot Widget" [ref=f21e307] [cursor=pointer]
+    - generic [ref=f21e325]:
+      - button "Close Chatbot Preview" [ref=f21e326] [cursor=pointer]: ×
+      - button "Hi! How can I help you?" [ref=f21e327] [cursor=pointer]

@@ -1,0 +1,317 @@
+- generic [active] [ref=f1e1]:
+  - navigation "Skip to content or Main menu":
+    - link "Skip to content" [ref=f1e2] [cursor=pointer]:
+      - /url: "#main-content"
+    - link "Skip to navigation" [ref=f1e3] [cursor=pointer]:
+      - /url: "#superfish-main"
+  - banner [ref=f1e4]:
+    - generic [ref=f1e5]:
+      - link "The University of Massachusetts Amherst" [ref=f1e6] [cursor=pointer]:
+        - /url: https://www.umass.edu/
+      - navigation [ref=f1e7]:
+        - list [ref=f1e8]:
+          - listitem [ref=f1e9]:
+            - link "Visit" [ref=f1e10] [cursor=pointer]:
+              - /url: https://www.umass.edu/admissions/visit
+          - listitem [ref=f1e11]:
+            - link "Apply" [ref=f1e12] [cursor=pointer]:
+              - /url: https://www.umass.edu/admissions
+          - listitem [ref=f1e13]:
+            - link "Give" [ref=f1e14] [cursor=pointer]:
+              - /url: https://minutefund.uma-foundation.org/project/29554/donate?fund_id=FLAGSHIP%20SCH
+          - listitem [ref=f1e15]:
+            - link "Search UMass.edu" [ref=f1e16] [cursor=pointer]:
+              - /url: https://www.umass.edu/search
+  - generic [ref=f1e18]:
+    - banner [ref=f1e19]:
+      - generic [ref=f1e20]:
+        - generic [ref=f1e21]:
+          - link "Center for Agriculture, Food, and the Environment" [ref=f1e27] [cursor=pointer]:
+            - /url: /agriculture-food-environment
+          - link "UMass Cranberry Station" [ref=f1e33] [cursor=pointer]:
+            - /url: /agriculture-food-environment/cranberry
+        - generic [ref=f1e34]:
+          - generic [ref=f1e36]:
+            - generic [ref=f1e37]:
+              - generic [ref=f1e38]: Keywords
+              - textbox "Keywords" [ref=f1e39]:
+                - /placeholder: Search CAFE
+            - button "Search" [ref=f1e41]
+          - link "Ask UMass Extension" [ref=f1e46] [cursor=pointer]:
+            - /url: /agriculture-food-environment/ask-umass-extension
+            - generic [aria-hidden] [ref=f1e47]: 
+            - text: Ask UMass Extension
+      - navigation "Cranberry" [ref=f1e51]:
+        - menubar "Menu" [ref=f1e52]:
+          - menuitem "Cranberry Station Home" [ref=f1e53] [cursor=pointer]
+          - menuitem "About »" [ref=f1e54] [cursor=pointer]:
+            - text: About
+            - generic [ref=f1e55]: »
+          - menu [aria-hidden] [ref=f1e56]:
+            - menuitem [ref=f1e57] [cursor=pointer]: The Cranberry Station
+            - menuitem [ref=f1e58] [cursor=pointer]: The Cranberry
+            - menuitem [ref=f1e59] [cursor=pointer]: Board of Oversight
+            - menuitem [ref=f1e60] [cursor=pointer]: Faculty & Staff
+            - menuitem [ref=f1e61] [cursor=pointer]: Directions
+            - menuitem [ref=f1e62] [cursor=pointer]: Contact Us
+          - menuitem "Projects" [ref=f1e63] [cursor=pointer]
+          - menuitem "Research & Extension »" [ref=f1e64] [cursor=pointer]:
+            - text: Research & Extension
+            - generic [ref=f1e65]: »
+          - menu [aria-hidden] [ref=f1e66]:
+            - menuitem [ref=f1e67] [cursor=pointer]: Overview
+            - menuitem [ref=f1e68] [cursor=pointer]: Research Goals
+            - menuitem [ref=f1e69] [cursor=pointer]: Extension Goals
+            - menuitem [ref=f1e70] [cursor=pointer]: Focus Areas
+            - menuitem [ref=f1e71] [cursor=pointer]: Annual Highlights
+          - menuitem "Publications & Resources »" [ref=f1e72] [cursor=pointer]:
+            - text: Publications & Resources
+            - generic [ref=f1e73]: »
+          - menu [aria-hidden] [ref=f1e74]:
+            - menuitem [ref=f1e75] [cursor=pointer]: Cranberry Chart Book
+            - menuitem [ref=f1e76] [cursor=pointer]: Cranberry Production Guide
+            - menuitem [ref=f1e77] [cursor=pointer]: Books and Pamphlets
+            - menuitem [ref=f1e78] [cursor=pointer]: Best Management Practices
+            - menuitem [ref=f1e79] [cursor=pointer]: Nutrient Management for Cranberries
+            - menuitem [ref=f1e80] [cursor=pointer]: Risk Management for Cranberries
+            - menuitem [ref=f1e81] [cursor=pointer]: Fact Sheets
+            - menuitem [ref=f1e82] [cursor=pointer]: Newsletters
+            - menuitem [ref=f1e83] [cursor=pointer]: Publications available in hard copy
+            - menuitem [ref=f1e84] [cursor=pointer]: Scholarworks
+            - menuitem [ref=f1e85] [cursor=pointer]: Videos
+          - menuitem "Services »" [ref=f1e86] [cursor=pointer]:
+            - text: Services
+            - generic [ref=f1e87]: »
+          - menu [aria-hidden] [ref=f1e88]:
+            - menuitem [ref=f1e89] [cursor=pointer]: Weather Summaries
+            - menuitem [ref=f1e90] [cursor=pointer]: Frost Information Updates
+            - menuitem [ref=f1e91] [cursor=pointer]: Keeping Quality Forecast
+            - menuitem [ref=f1e92] [cursor=pointer]: Soil and Plant Nutrient Testing for Cranberries
+            - menuitem [ref=f1e93] [cursor=pointer]: Groundwater Protection Regulations (Zone II)
+            - menuitem [ref=f1e94] [cursor=pointer]: Special Pesticide Labels
+            - menuitem [ref=f1e95] [cursor=pointer]: Growing Degree Days
+          - menuitem "News & Events »" [ref=f1e96] [cursor=pointer]:
+            - text: News & Events
+            - generic [ref=f1e97]: »
+          - menu [aria-hidden] [ref=f1e98]:
+            - menuitem [ref=f1e99] [cursor=pointer]: News
+            - menuitem [ref=f1e100] [cursor=pointer]: Events
+            - menuitem [ref=f1e101] [cursor=pointer]: IPM Message
+            - menuitem [ref=f1e102] [cursor=pointer]: North American Cranberry Research and Extension Workers Conference
+          - menuitem "Make a Gift" [ref=f1e103] [cursor=pointer]
+    - main "Main content" [ref=f1e104]:
+      - generic [ref=f1e106]:
+        - heading "Page not found" [level=1] [ref=f1e108]
+        - generic [ref=f1e109]: The requested page could not be found.
+    - contentinfo "Footer content" [ref=f1e110]:
+      - generic [ref=f1e118]:
+        - generic [ref=f1e119]:
+          - heading [level=2] [ref=f1e120]:
+            - link "Center for Agriculture, Food, and the Environment" [ref=f1e121] [cursor=pointer]:
+              - /url: /agriculture-food-environment
+          - list [ref=f1e122]:
+            - listitem [ref=f1e123]:
+              - link "Find us on Facebook" [ref=f1e124] [cursor=pointer]:
+                - /url: https://www.facebook.com/AgFoodEnvUMass
+                - generic [aria-hidden] [ref=f1e125]: 
+            - listitem [ref=f1e126]:
+              - link "Follow us on Twitter" [ref=f1e127] [cursor=pointer]:
+                - /url: https://twitter.com/CAFE_UMass
+                - generic [aria-hidden] [ref=f1e128]: 
+            - listitem [ref=f1e129]:
+              - link "Follow us on Instagram" [ref=f1e130] [cursor=pointer]:
+                - /url: https://www.instagram.com/cafe_umass/
+                - generic [aria-hidden] [ref=f1e131]: 
+            - listitem [ref=f1e132]:
+              - link "Follow us LinkedIn" [ref=f1e133] [cursor=pointer]:
+                - /url: https://www.linkedin.com/showcase/umass-cafe/
+                - generic [aria-hidden] [ref=f1e134]: 
+            - listitem [ref=f1e135]:
+              - link "Ask UMass Extension" [ref=f1e136] [cursor=pointer]:
+                - /url: https://www.umass.edu/agriculture-food-environment/ask-umass-extension
+                - generic [aria-hidden] [ref=f1e137]: 
+          - paragraph [ref=f1e138]
+          - generic [ref=f1e139]: "Stockbridge Hall, 80 Campus Center Way University of Massachusetts Amherst Amherst, MA 01003-9246 Phone: (413) 545-4800 Fax: (413) 545-6555"
+          - link "ag@cns.umass.edu" [ref=f1e141] [cursor=pointer]:
+            - /url: mailto:ag@cns.umass.edu
+          - paragraph [ref=f1e142]
+          - paragraph [ref=f1e143]:
+            - link "Civil Rights and Non-Discrimination Information" [ref=f1e144] [cursor=pointer]:
+              - /url: /agriculture-food-environment/civil-rights-information
+          - paragraph [ref=f1e145]:
+            - link "College of Natural Sciences" [ref=f1e146] [cursor=pointer]:
+              - /url: https://www.umass.edu/natural-sciences
+          - paragraph [ref=f1e147]:
+            - link "Login for faculty and staff" [ref=f1e148] [cursor=pointer]:
+              - /url: /agriculture-food-environment/user/login
+        - generic [ref=f1e149]:
+          - heading "CAFE Units" [level=2] [ref=f1e150]
+          - paragraph [ref=f1e151]:
+            - link "Mass. Agricultural Experiment Station" [ref=f1e152] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/19
+          - paragraph [ref=f1e153]:
+            - link "UMass Extension" [ref=f1e154] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15353
+          - paragraph [ref=f1e155]:
+            - link "UMass Research and Education Center Farms" [ref=f1e156] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/335
+          - paragraph [ref=f1e157]:
+            - link "UMass Cranberry Station" [ref=f1e158] [cursor=pointer]:
+              - /url: /agriculture-food-environment/cranberry
+          - paragraph [ref=f1e159]:
+            - link "Water Resources Research Center" [ref=f1e160] [cursor=pointer]:
+              - /url: https://www.umass.edu/water-resources-research/
+          - paragraph [ref=f1e161]:
+            - link "Gloucester Marine Station" [ref=f1e162] [cursor=pointer]:
+              - /url: https://www.umass.edu/gloucester-marine-station/
+          - heading "Interest Areas" [level=2] [ref=f1e163]
+          - paragraph [ref=f1e164]:
+            - link "Agriculture" [ref=f1e165] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15352#agriculture
+          - paragraph [ref=f1e166]:
+            - link "Commercial Horticulture" [ref=f1e167] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15352#commercial_horticuture
+          - paragraph [ref=f1e168]:
+            - link "Energy" [ref=f1e169] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15352#energy
+          - paragraph [ref=f1e170]:
+            - link "Environmental Conservation" [ref=f1e171] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15352#environmental_conservation
+          - paragraph [ref=f1e172]:
+            - link "Food Science" [ref=f1e173] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15352#food_science
+          - paragraph [ref=f1e174]:
+            - link "Nutrition" [ref=f1e175] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15352#nutrition
+          - paragraph [ref=f1e176]:
+            - link "Water" [ref=f1e177] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15352#water
+          - paragraph [ref=f1e178]:
+            - link "Youth Development & 4-H" [ref=f1e179] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15352#4h
+          - heading "Projects" [level=2] [ref=f1e180]
+          - paragraph [ref=f1e181]:
+            - link "Conservation Assessment Prioritization System (CAPS)" [ref=f1e182] [cursor=pointer]:
+              - /url: http://umasscaps.org
+          - paragraph [ref=f1e183]:
+            - link "Climate Action Tool" [ref=f1e184] [cursor=pointer]:
+              - /url: https://climateactiontool.org
+          - paragraph [ref=f1e185]:
+            - link "Mass. Keystone" [ref=f1e186] [cursor=pointer]:
+              - /url: http://masskeystone.net
+          - paragraph [ref=f1e187]:
+            - link "MassWoods" [ref=f1e188] [cursor=pointer]:
+              - /url: https://masswoods.org/
+          - paragraph [ref=f1e189]:
+            - link "North American Aquatic Connectivity Collaborative" [ref=f1e190] [cursor=pointer]:
+              - /url: http://streamcontinuity.org
+          - paragraph [ref=f1e191]:
+            - link "RiverSmart" [ref=f1e192] [cursor=pointer]:
+              - /url: http://extension.umass.edu/riversmart
+        - generic [ref=f1e193]:
+          - heading "Services" [level=2] [ref=f1e194]
+          - paragraph [ref=f1e195]:
+            - link "Pesticide Education" [ref=f1e196] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/16557
+          - paragraph [ref=f1e197]:
+            - link "Plant Diagnostics Laboratory" [ref=f1e198] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15596
+          - paragraph [ref=f1e199]:
+            - link "Soil and Plant Nutrient Testing Laboratory" [ref=f1e200] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15589
+          - paragraph [ref=f1e201]:
+            - link "Hot Water Seed Treatment" [ref=f1e202] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15594
+          - paragraph [ref=f1e203]:
+            - link "Water Testing / Environmental Analysis Laboratory" [ref=f1e204] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15593
+          - heading "Resources" [level=2] [ref=f1e205]
+          - paragraph [ref=f1e206]:
+            - link "Extension Sales Portal" [ref=f1e207] [cursor=pointer]:
+              - /url: https://extensionsalesportal-umass.nbsstore.net
+          - paragraph [ref=f1e208]:
+            - link "Agriculture & Commercial Horticulture Resources" [ref=f1e209] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15350
+          - paragraph [ref=f1e210]:
+            - link "Community & Economic Vitality" [ref=f1e211] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15344
+          - paragraph [ref=f1e212]:
+            - link "Disaster Preparedness" [ref=f1e213] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15347
+          - paragraph [ref=f1e214]:
+            - link "Food Safety" [ref=f1e215] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15342
+          - paragraph [ref=f1e216]:
+            - link "Home Lawn & Garden" [ref=f1e217] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15335
+          - paragraph [ref=f1e218]:
+            - link "Integrated Pest Management (IPM)" [ref=f1e219] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/8885
+          - paragraph [ref=f1e220]:
+            - link "Land Conservation Tools" [ref=f1e221] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/21897
+          - paragraph [ref=f1e222]:
+            - link "Pollinators" [ref=f1e223] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/19962
+          - paragraph [ref=f1e224]:
+            - link "Tick testing" [ref=f1e225] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/22096
+          - paragraph [ref=f1e226]:
+            - link "Resources for Faculty and Staff" [ref=f1e227] [cursor=pointer]:
+              - /url: https://umass.sharepoint.com/sites/CAFEFacultyStaffResources
+        - generic [ref=f1e228]:
+          - heading "Extension Programs" [level=2] [ref=f1e229]
+          - paragraph [ref=f1e230]:
+            - link "4-H Youth Development" [ref=f1e231] [cursor=pointer]:
+              - /url: /agriculture-food-environment/mass4h
+          - paragraph [ref=f1e232]: Agriculture
+          - paragraph [ref=f1e233]:
+            - link "Crops, Dairy, Livestock and Equine" [ref=f1e234] [cursor=pointer]:
+              - /url: /agriculture-food-environment/crops-dairy-livestock-equine
+          - paragraph [ref=f1e235]:
+            - link "Fruit" [ref=f1e236] [cursor=pointer]:
+              - /url: /agriculture-food-environment/fruit
+          - paragraph [ref=f1e237]:
+            - link "Greenhouse Crops and Floriculture" [ref=f1e238] [cursor=pointer]:
+              - /url: /agriculture-food-environment/greenhouse-crops-floriculture
+          - paragraph [ref=f1e239]:
+            - link "Landscape, Nursery and Urban Forestry" [ref=f1e240] [cursor=pointer]:
+              - /url: /agriculture-food-environment/landscape
+          - paragraph [ref=f1e241]:
+            - link "Pesticide Education" [ref=f1e242] [cursor=pointer]:
+              - /url: /agriculture-food-environment/services/pesticide-education
+          - paragraph [ref=f1e243]:
+            - link "Turf" [ref=f1e244] [cursor=pointer]:
+              - /url: /agriculture-food-environment/turf
+          - paragraph [ref=f1e245]:
+            - link "Vegetable" [ref=f1e246] [cursor=pointer]:
+              - /url: /agriculture-food-environment/vegetable
+          - paragraph [ref=f1e247]:
+            - link "Clean Energy" [ref=f1e248] [cursor=pointer]:
+              - /url: /agriculture-food-environment/clean-energy
+          - paragraph [ref=f1e249]:
+            - link "Climate Change" [ref=f1e250] [cursor=pointer]:
+              - /url: /agriculture-food-environment/climate-change
+          - paragraph [ref=f1e251]:
+            - link "Food Science" [ref=f1e252] [cursor=pointer]:
+              - /url: /agriculture-food-environment/food-science
+          - paragraph [ref=f1e253]:
+            - link "Nutrition Education" [ref=f1e254] [cursor=pointer]:
+              - /url: /agriculture-food-environment/nutrition
+          - paragraph [ref=f1e255]:
+            - link "Value-Added Food" [ref=f1e256] [cursor=pointer]:
+              - /url: /agriculture-food-environment/value-added-food
+  - generic [ref=f1e258]:
+    - link [ref=f1e259] [cursor=pointer]:
+      - /url: https://www.umass.edu/
+      - img "UMass collegiate M - University of Massachusetts Amherst" [ref=f1e261]
+    - generic [ref=f1e297]:
+      - text: ©2025
+      - link "University of Massachusetts Amherst" [ref=f1e298] [cursor=pointer]:
+        - /url: https://www.umass.edu/
+      - text: ·
+      - link "Site Policies" [ref=f1e299] [cursor=pointer]:
+        - /url: https://www.umass.edu/gateway/site-policies
+      - text: ·
+      - link "Accessibility" [ref=f1e300] [cursor=pointer]:
+        - /url: https://www.umass.edu/accessibility/

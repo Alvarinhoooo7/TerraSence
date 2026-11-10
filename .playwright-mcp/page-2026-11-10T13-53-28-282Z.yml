@@ -1,0 +1,479 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content ➔" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - link [ref=e8] [cursor=pointer]:
+        - /url: https://www.ucdavis.edu/
+        - img "UC Davis Logo" [ref=e9]
+      - generic [ref=e11]:
+        - generic [ref=e12]:
+          - link [ref=e14] [cursor=pointer]:
+            - /url: /
+            - img "Site Logo" [ref=e15]
+          - generic [ref=e16]:
+            - link "Postharvest Research and Extension Center" [ref=e18] [cursor=pointer]:
+              - /url: /
+            - generic [ref=e19]: A Research and Information Center
+        - navigation:    
+      - generic [ref=e22]:
+        - button " Open Search" [ref=e25] [cursor=pointer]
+        - button "Quick Links " [ref=e30] [cursor=pointer]
+        - navigation "Main navigation (extended config)" [ref=e33]:
+          - list:
+            - listitem [ref=e35]:
+              - link "Home" [ref=e37] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e38]:
+              - link "Produce Info & Fact Sheets " [ref=e40] [cursor=pointer]:
+                - /url: /produce-facts
+                - text: Produce Info & Fact Sheets
+                - generic [ref=e41]: 
+            - listitem [ref=e42]:
+              - link "Workshops and Free Courses" [ref=e44] [cursor=pointer]:
+                - /url: /core-workshops
+            - listitem [ref=e45]:
+              - link "Postharvest Resources " [ref=e47] [cursor=pointer]:
+                - /url: /postharvest-resources
+                - text: Postharvest Resources
+                - generic [ref=e48]: 
+            - listitem [ref=e49]:
+              - link "Video Library" [ref=e51] [cursor=pointer]:
+                - /url: /video-library
+            - listitem [ref=e52]:
+              - link "About the PREC " [ref=e54] [cursor=pointer]:
+                - /url: /about
+                - text: About the PREC
+                - generic [ref=e55]: 
+            - listitem [ref=e56]:
+              - link "Other Centers" [ref=e58] [cursor=pointer]:
+                - /url: https://www.plantsciences.ucdavis.edu/outreach
+    - main [ref=e59]:
+      - generic [ref=e67]:
+        - img "UC Davis, Department of Plant Sciences logo" [ref=e71]
+        - img "UC ANR logo" [ref=e74]
+      - heading "new broccoli Broccoli" [level=1] [ref=e78]:
+        - img "new broccoli" [ref=e86]
+        - generic [ref=e87]: Broccoli
+      - generic [ref=e89]:
+        - paragraph [ref=e92]:
+          - link "← Return to all fact sheets" [ref=e93] [cursor=pointer]:
+            - /url: /produce-facts-sheets
+        - link " Ask the Produce Experts" [ref=e96] [cursor=pointer]:
+          - /url: /ask-the-produce-docs
+        - link " Publications Related to this Commodity" [ref=e104] [cursor=pointer]:
+          - /url: /publication-category/broccoli
+      - article [ref=e110]:
+        - generic [ref=e111]:
+          - generic [ref=e115]:
+            - generic [ref=e116]: Last updated
+            - emphasis [ref=e118]: Last updated on September 2025
+          - generic [ref=e122]:
+            - generic [ref=e123]: Authors
+            - generic [ref=e124]:
+              - paragraph [ref=e125]:
+                - link "Marita Cantwell" [ref=e126] [cursor=pointer]:
+                  - /url: https://postharvest.ucdavis.edu/people/marita-cantwell
+              - paragraph [ref=e127]:
+                - link "Pengxia Li" [ref=e128] [cursor=pointer]:
+                  - /url: https://postharvest.ucdavis.edu/people/pengxia-li
+              - paragraph [ref=e129]: Yingtong Zhang
+              - paragraph [ref=e130]: Huali Hu
+              - paragraph [ref=e131]: Xinye Liu
+              - paragraph [ref=e132]:
+                - link "Noah X. Kulchin" [ref=e133] [cursor=pointer]:
+                  - /url: /people/noah-kulchin
+              - paragraph [ref=e134]:
+                - link "Irwin R. Donis-González" [ref=e135] [cursor=pointer]:
+                  - /url: /people/irwin-donis-gonzalez
+          - generic [ref=e137]:
+            - heading "Product description" [level=2] [ref=e140]
+            - paragraph [ref=e143]:
+              - text: Broccoli (
+              - emphasis [ref=e144]: Brassica oleracea var. italica
+              - text: ) is a nutrient-rich cruciferous vegetable valued for its dense green florets, tender stalks, and mildly earthy, slightly sweet flavor. Typically marketed as whole crowns or pre-cut florets, broccoli is widely recognized for its versatility in culinary applications. It may be consumed raw in salads and vegetable trays, or cooked using methods such as steaming, stir-frying, or roasting, which help enhance flavor and texture. Broccoli is an excellent source of vitamins C and K, dietary fiber, and antioxidant compounds, making it a beneficial component of any diet.
+          - generic [ref=e146]:
+            - heading "Maturity and Quality" [level=2] [ref=e149]
+            - generic [ref=e151]:
+              - generic [ref=e152]: Maturity Indices
+              - paragraph [ref=e154]: A broccoli head is an immature inflorescence, and all the individual florets (beads) should be closed. Head diameter and compactness are other indicators of maturity.
+            - generic [ref=e156]:
+              - generic [ref=e157]: Quality Indices
+              - generic [ref=e158]:
+                - paragraph [ref=e159]: Good quality broccoli should have a dark or bright green color typical of the cultivar. These quality aspects are closely associated with good nutritional value as well as a good appearance. The head or crown should be compact (firm to hand pressure) with a uniform color, and with a cleanly cut stalk of the required length (for head-cut or crown cut). There should be no yellow florets (all florets closed), and there should be no discoloration on the stem bracts.
+                - 'region "Table 1. Rating Scale for Broccoli Firmness (credit: Adel Kader)." [ref=e160]':
+                  - 'table "Table 1. Rating Scale for Broccoli Firmness (credit: Adel Kader)." [ref=e161]':
+                    - caption [ref=e162]:
+                      - strong [ref=e163]: Table 1.
+                      - text: "Rating Scale for Broccoli Firmness (credit: Adel Kader)."
+                    - rowgroup [ref=e164]:
+                      - row [ref=e165]:
+                        - cell [ref=e166]:
+                          - strong [ref=e167]: Score
+                        - cell [ref=e168]:
+                          - strong [ref=e169]: Description for Head
+                        - cell [ref=e170]:
+                          - strong [ref=e171]: Description for Stem
+                      - row [ref=e172]:
+                        - cell [ref=e173]:
+                          - strong [ref=e174]: "5"
+                        - cell "Very tight; very firm" [ref=e175]
+                        - cell "Very rigid" [ref=e176]
+                      - row [ref=e177]:
+                        - cell [ref=e178]:
+                          - strong [ref=e179]: "4"
+                        - cell "Quite tight, few floret buds loosened; firm" [ref=e180]
+                        - cell "Bends with considerable force" [ref=e181]
+                      - row [ref=e182]:
+                        - cell [ref=e183]:
+                          - strong [ref=e184]: "3"
+                        - cell "Fairly tight, loosening of floret buds easily noticed; moderately firm" [ref=e185]
+                        - cell "Bends easily with considerable force; bends slightly with moderate force" [ref=e186]
+                      - row [ref=e187]:
+                        - cell [ref=e188]:
+                          - strong [ref=e189]: "2"
+                        - cell "Fairly extensive loose buds; moderately soft" [ref=e190]
+                        - cell "Bends easily with moderate force" [ref=e191]
+                      - row [ref=e192]:
+                        - cell [ref=e193]:
+                          - strong [ref=e194]: "1"
+                        - cell "Buds loose and open; soft" [ref=e195]
+                        - cell "Bends easily with slight force" [ref=e196]
+                - link [ref=e197] [cursor=pointer]:
+                  - /url: https://postharvest.ucdavis.edu/sites/g/files/dgvnsk12711/files/media/images/figure_01_2.jpg
+                  - 'img "Broccoli Maturity and Quality Photos: Figure 1" [ref=e199]'
+                - paragraph [ref=e200]:
+                  - strong [ref=e202]: Figure 1.
+                  - text: Rating scale for yellowing of broccoli referenced to the hue color value (greenness) and pigment concentrations. A score of 2 (any yellow beads) indicates end of storage life. Broccoli with a score of 3 or higher is unmarketable.
+                  - emphasis [ref=e203]:
+                    - strong [ref=e205]: "Photo Credit: Agricultural Products Preservation Technology and Equipment Innovation Team, JAAS"
+          - generic [ref=e206]:
+            - heading "Postharvest Handling and Storage" [level=2] [ref=e210]
+            - generic [ref=e211]:
+              - generic [ref=e212]:
+                - generic [ref=e214]:
+                  - generic [ref=e215]: Optimum Temperature
+                  - generic [ref=e216]:
+                    - paragraph [ref=e217]: Low temperature is extremely important to maintain quality and have an adequate storage life in broccoli. Low temperature reduces respiration rates and undesirable changes in composition (yellowing, browning), reduces water loss, and retards decay. The end of postharvest life is usually indicated by floret yellowing.
+                    - paragraph [ref=e218]: The optimal storage temperature for broccoli is 0°C (32°F), which can extend its postharvest life to at least 1 month. As the storage temperature increases, the storage life decreases. At 5°C (41°F), storage life is reduced to about 14 days; at 10°C (50°F), the storage life is about 5 days. These estimates can vary depending on cultivar and production season (see special considerations).
+                    - link [ref=e219] [cursor=pointer]:
+                      - /url: https://postharvest.ucdavis.edu/sites/g/files/dgvnsk12711/files/media/images/figure_02_2.jpg
+                      - 'img "Broccoli Maturity and Quality Photos: Figure 2" [ref=e221]'
+                    - paragraph [ref=e222]:
+                      - generic [ref=e223]:
+                        - strong [ref=e224]: Figure 2.
+                        - text: Broccoli stored at different temperatures, showing the effect of storage temperature on yellowing and shelf-life.
+                      - emphasis [ref=e225]:
+                        - strong [ref=e227]: "Photo Credit: Agricultural Products Preservation Technology and Equipment Innovation Team, JAAS"
+                - generic [ref=e229]:
+                  - generic [ref=e230]: Optimum Relative Humidity
+                  - paragraph [ref=e232]: ">95%"
+                - generic [ref=e234]:
+                  - generic [ref=e235]: Rates of Respiration
+                  - generic [ref=e236]:
+                    - paragraph [ref=e237]: Broccoli heads have high respiration rates. The respiration rates of fresh-cut pieces (also called florets) are about twice the rates of the intact heads.
+                    - region "Table 2. Average reported respiration rates of broccoli heads stored at different temperatures. Maturity, cultivar and other factors will also affect respiration rates." [ref=e238]:
+                      - table "Table 2. Average reported respiration rates of broccoli heads stored at different temperatures. Maturity, cultivar and other factors will also affect respiration rates." [ref=e239]:
+                        - caption [ref=e240]:
+                          - strong [ref=e241]: Table 2
+                          - text: . Average reported respiration rates of broccoli heads stored at different temperatures. Maturity, cultivar and other factors will also affect respiration rates.
+                        - rowgroup [ref=e242]:
+                          - row [ref=e243]:
+                            - cell [ref=e244]:
+                              - strong [ref=e245]: Temperature
+                            - cell [ref=e246]:
+                              - paragraph [ref=e247]: 0°C (32°F)
+                            - cell [ref=e248]:
+                              - paragraph [ref=e249]: 5°C (41°F)
+                            - cell [ref=e250]:
+                              - paragraph [ref=e251]: 10°C (50°F)
+                            - cell [ref=e252]:
+                              - paragraph [ref=e253]: 15°C (59°F)
+                            - cell [ref=e254]:
+                              - paragraph [ref=e255]: 20°C (68°F)
+                          - row [ref=e256]:
+                            - cell [ref=e257]:
+                              - strong [ref=e258]: Respiration Rates (mL CO
+                              - strong [ref=e260]:
+                                - subscript [ref=e261]: "2"
+                              - strong [ref=e262]: / kg·hr)
+                            - cell [ref=e263]:
+                              - paragraph [ref=e264]: 10-11
+                            - cell [ref=e265]:
+                              - paragraph [ref=e266]: 16-18
+                            - cell [ref=e267]:
+                              - paragraph [ref=e268]: 38-43
+                            - cell [ref=e269]:
+                              - paragraph [ref=e270]: 80-90
+                            - cell [ref=e271]:
+                              - paragraph [ref=e272]: 140-160
+                    - paragraph [ref=e273]:
+                      - text: To calculate heat of production, multiply ml CO
+                      - subscript [ref=e275]: "2"
+                      - text: /kg·hr by 440 to get Btu/ton-day or by 122 to get kcal/metric ton-day.
+              - generic [ref=e276]:
+                - generic [ref=e278]:
+                  - generic [ref=e279]: Rates of Ethylene Production
+                  - paragraph [ref=e281]: Ethylene production rates are very low to low (<0.1-1.0 µL/ kg·hr at 20°C (68°F), depending on maturity and cultivar.
+                - generic [ref=e283]:
+                  - generic [ref=e284]: Responses to Ethylene
+                  - paragraph [ref=e286]: Broccoli is extremely sensitive to ethylene exposure. Accelerated floret yellowing is the most common result. Exposure to 2 ppm ethylene at 10°C (50°F) reduces shelf-life by 50%. While low temperature storage is the most effective way to minimize the effects of ethylene, modified atmosphere packaging and 1-MCP (a physiological ethylene blocker) can also contribute to reducing undesirable ethylene effects.
+                - generic [ref=e288]:
+                  - generic [ref=e289]: Responses to Controlled Atmospheres (CA)
+                  - paragraph [ref=e291]:
+                    - text: Atmospheres containing 2-3% O
+                    - subscript [ref=e293]: "2"
+                    - text: and 5-10% CO
+                    - subscript [ref=e295]: "2"
+                    - text: at a temperature range of 0-5°C (32-41°F) can be beneficial supplements for broccoli. Although low O
+                    - subscript [ref=e297]: "2"
+                    - text: levels extend shelf-life and quality, temperature fluctuations during commercial handling make this risky, as broccoli can easily produce offensive sulfur-containing volatiles below 2% O
+                    - subscript [ref=e299]: "2"
+                    - text: . Most modified atmosphere packaging for broccoli is designed to maintain O
+                    - subscript [ref=e301]: "2"
+                    - text: at 3-10% and CO
+                    - subscript [ref=e303]: "2"
+                    - text: at about 7-10% to avoid the development of undesirable off-odor volatiles. Microperforated packaging is often used for broccoli products (providing modified atmospheres of about 10% O
+                    - subscript [ref=e305]: "2"
+                    - text: and 10% CO
+                    - subscript [ref=e307]: "2"
+                    - text: ).
+                - generic [ref=e309]:
+                  - generic [ref=e310]: Special Considerations
+                  - generic [ref=e311]:
+                    - paragraph [ref=e312]:
+                      - emphasis [ref=e313]:
+                        - strong [ref=e314]: Cooling.
+                      - text: Rapid cooling after harvest is very important to maintain quality, minimize water loss and optimize the storage life of broccoli. Broccoli can be cooled by several methods.
+                    - paragraph [ref=e315]: For many years, the standard cooling procedure has been a liquid-ice slurry applied to field-packed waxed cartons of broccoli. After draining the cold water, ice remains in the cartons to ensure the broccoli is kept cold during transportation and distribution. However, the weight of the ice increases transportation costs, can be hazardous during distribution when melting, and icing is generally considered unnecessary with current temperature management capabilities. The water remaining on the broccoli after the ice melts may increase decay.
+                    - paragraph [ref=e316]: Hydrocooling, hydro-vacuum cooling, and forced-air cooling can also be effective (water sanitation is critical for any method using water). For an iceless broccoli product, temperature management and packaging (often with thin polyethylene liners to minimize water loss) are more critical during distribution than in the case of iced broccoli. The main quality problems experienced to date with iceless broccoli are yellowing and limpness. The former is mostly related to temperature and the latter is mostly related to weight loss (water loss) from the product. Water loss is cumulative during postharvest handling and is affected by conditions at the time of harvest, delays to cool (cut to cool time), the specifics of the cooling method used, packaging, and temperature management throughout distribution. Water loss (weight loss) of 3-4% results in a noticeable and measurable loss of head firmness.
+                    - paragraph [ref=e317]
+                    - paragraph [ref=e318]:
+                      - emphasis [ref=e319]:
+                        - strong [ref=e320]: Broccoli cultivars.
+                      - text: Storage life varies considerably among broccoli cultivars. At 5°C (41°F) and 95% RH storage life (appearance of any yellow beads = end of shelf-life) may vary from 12 to >25 days depending on the cultivar (18 cultivars evaluated). At a storage temperature of 10°C (50°F), shelf-life varied from 9 to 14 days depending on the cultivar (14 cultivars evaluated). Besides floret yellowing, cut end browning and water loss are other important characteristics that contribute to the end of storage life and these also vary among cultivars. The storage life of fresh-cut florets may be the same or slightly less than that of the intact crowns or heads.
+                    - paragraph [ref=e321]
+                    - paragraph [ref=e322]:
+                      - emphasis [ref=e323]:
+                        - strong [ref=e324]: Lighting and shelf-life.
+                      - text: Numerous studies have shown the benefit of retail display lighting on broccoli shelf-life, especially if temperature control is deficient (7-15°C; 45-59°F). White LED Light prevents floret yellowing if broccoli is kept on the shelf for several days at higher than recommended temperatures.
+                    - link [ref=e325] [cursor=pointer]:
+                      - /url: https://postharvest.ucdavis.edu/sites/g/files/dgvnsk12711/files/media/images/figure_09_1.jpg
+                      - 'img "Broccoli Temperature, Ethylene & Controlled Atmosphere Photos: Figure 9" [ref=e327]'
+                    - paragraph [ref=e328]:
+                      - strong [ref=e330]: Figure 3.
+                      - text: Effect of white light exposure on broccoli, demonstrating reduced yellowing and maintained floret color compared to the control.
+                      - emphasis [ref=e331]:
+                        - strong [ref=e333]: "Photo Credit: Agricultural Products Preservation Technology and Equipment Innovation Team, JAAS"
+          - generic [ref=e335]:
+            - generic [ref=e336]:
+              - heading "Physiological and Physical Disorders" [level=2] [ref=e339]
+              - generic [ref=e341]:
+                - paragraph [ref=e343]:
+                  - emphasis [ref=e344]:
+                    - strong [ref=e345]: Hollow Stem.
+                  - text: An open area in the stem at the cut surface which may become discolored and decay; growing conditions (irrigation, fertilization, temperature) and cultivar selection affect development of this disorder.
+                - paragraph [ref=e347]:
+                  - emphasis [ref=e348]:
+                    - strong [ref=e349]: Floret (bead) Yellowing
+                    - text: .
+                  - text: The florets are the most perishable part of the broccoli head; yellowing may be due to overmaturity at harvest, high storage temperatures, exposure to ethylene, or storing the product too long. Any development of yellow beads ends commercial marketability. Yellowing due to senescence should not be confused with the light green-yellow color of florets not directly exposed to light during growth (sometimes called ‘marginal yellowing’ in fresh-cut pieces).
+                - paragraph [ref=e351]:
+                  - emphasis [ref=e352]:
+                    - strong [ref=e353]: Brown Floret (bead).
+                  - text: Brown bead is a disorder in which areas of florets do not develop correctly, die and lead to brown discolored areas. This is thought to be caused by plant nutritional imbalances.
+                - generic [ref=e354]:
+                  - paragraph [ref=e355]:
+                    - emphasis [ref=e356]:
+                      - strong [ref=e357]: Physical damage.
+                    - text: Rough handling during harvest and packing can damage the florets and heads and will likely lead to increased decay. If liquid icing is used for cooling, the force used to apply the water-ice slurry can also damage the broccoli heads.
+                  - link [ref=e358] [cursor=pointer]:
+                    - /url: https://postharvest.ucdavis.edu/sites/g/files/dgvnsk12711/files/media/images/figure_04_1.jpg
+                    - 'img "Broccoli Maturity and Quality Photos: Figure 4" [ref=e360]'
+                  - paragraph [ref=e361]:
+                    - generic [ref=e362]:
+                      - strong [ref=e363]: Figure 4
+                      - text: . An example of physical damage that may occur during harvesting, packaging, and transportation of broccoli.
+                    - emphasis [ref=e364]:
+                      - strong [ref=e366]: "Photo Credit: Agricultural Products Preservation Technology and Equipment Innovation Team, JAAS"
+                - generic [ref=e367]:
+                  - paragraph [ref=e368]:
+                    - emphasis [ref=e369]:
+                      - strong [ref=e370]: Freezing Injury.
+                    - strong [ref=e371]
+                    - text: Broccoli will freeze if stored at -0.6°C (30.6°F) to -1.0°C (30°F). This may also occur if salt is used in the liquid-ice slurry for cooling. Frozen and thawed areas appear very dark and translucent, will discolor and lose texture after thawing, and are very susceptible to bacterial decay.
+                  - link [ref=e372] [cursor=pointer]:
+                    - /url: https://postharvest.ucdavis.edu/sites/g/files/dgvnsk12711/files/media/images/figure_03_2.jpg
+                    - 'img "Broccoli Maturity and Quality Photos: Figure 3" [ref=e374]'
+                  - paragraph [ref=e375]:
+                    - generic [ref=e376]:
+                      - strong [ref=e377]: Figure 5.
+                      - text: Broccoli showing water-soaked regions and peeling epidermis caused by freezing injury.
+                    - emphasis [ref=e378]:
+                      - strong [ref=e380]: "Photo Credit: Agricultural Products Preservation Technology and Equipment Innovation Team, JAAS"
+            - generic [ref=e381]:
+              - heading "Pathological Disorders" [level=2] [ref=e384]
+              - generic [ref=e386]:
+                - generic [ref=e387]:
+                  - paragraph [ref=e388]:
+                    - emphasis [ref=e389]:
+                      - strong [ref=e390]: Bacterial decay.
+                    - text: Various soft-rot causing organisms (
+                    - emphasis [ref=e391]: Pseudomonas, Pectobacterium,
+                    - text: formerly known as
+                    - emphasis [ref=e392]: Erwinia
+                    - text: ) may affect broccoli storage life. Rots due to these organisms are usually associated with physical injury. Infected areas become slimy and wet, accompanied by an unpleasant odor. Soft rot caused by
+                    - emphasis [ref=e393]: Pseudomonas
+                    - text: mainly occurs on the florets, while
+                    - emphasis [ref=e394]: Pectobacterium carotovorum
+                    - text: infects the stem and florets. These diseases are more likely to occur in humid environments.
+                  - link [ref=e395] [cursor=pointer]:
+                    - /url: https://postharvest.ucdavis.edu/sites/g/files/dgvnsk12711/files/media/images/figure_06_2.jpg
+                    - 'img "Broccoli Maturity and Quality Photos: Figure 6" [ref=e397]'
+                  - paragraph [ref=e398]:
+                    - strong [ref=e399]: Figure 6.
+                    - text: Appearance of broccoli with bacterial soft rots due to Pseudomonas and Pectobacterium.
+                    - emphasis [ref=e400]:
+                      - strong [ref=e402]: "Photo Credit: Agricultural Products Preservation Technology and Equipment Innovation Team, JAAS"
+                - generic [ref=e403]:
+                  - paragraph [ref=e404]:
+                    - emphasis [ref=e405]:
+                      - strong [ref=e406]: Fungal pathogens.
+                    - text: Although not as common as bacterial rots, gray mold rot (
+                    - emphasis [ref=e407]: Botrytis cinerea
+                    - text: ) and black mold (
+                    - emphasis [ref=e408]: Alternaria spp.
+                    - text: ) can infect broccoli heads; this may occur under rainy, very cool growing conditions.
+                  - link [ref=e409] [cursor=pointer]:
+                    - /url: https://postharvest.ucdavis.edu/sites/g/files/dgvnsk12711/files/media/images/figure_07_1.jpg
+                    - 'img "Broccoli Temperature, Ethylene & Controlled Atmosphere Photos: Figure 7" [ref=e411]'
+                  - paragraph [ref=e412]:
+                    - generic [ref=e413]:
+                      - strong [ref=e414]: Figure 7.
+                      - text: Appearance of broccoli with Botrytis and Alternaria fungal decays.
+                    - emphasis [ref=e415]:
+                      - strong [ref=e417]: "Photo Credit: Agricultural Products Preservation Technology and Equipment Innovation Team, JAAS"
+          - generic [ref=e419]:
+            - heading "References" [level=3] [ref=e422]
+            - generic [ref=e424]:
+              - paragraph [ref=e425]:
+                - text: "[1] Brennan, P.S. and R.L. Shewfelt. 1989. Effect of cooling delay at harvest on broccoli quality during postharvest storage. Journal of Food Quality 12: 13-22."
+                - link "https://doi.org/10.1111/j.1745-4557.1989.tb00306.x" [ref=e426] [cursor=pointer]:
+                  - /url: https://doi.org/10.1111/j.1745-4557.1989.tb00306.x
+                - text: .
+              - paragraph [ref=e427]:
+                - text: "[2] Fernández-León, M.F., A.M. Fernández-León, M. Lozano, M.C. Ayuso, and D. González-Gómez. 2013. Different postharvest strategies to preserve broccoli quality during storage and shelf-life: Controlled atmosphere and 1-MCP. Food Chemistry 138: 564-573."
+                - link "https://doi.org/10.1016/j.foodchem.2012.09.143" [ref=e428] [cursor=pointer]:
+                  - /url: https://doi.org/10.1016/j.foodchem.2012.09.143
+                - text: .
+              - paragraph [ref=e429]:
+                - text: "[3] Ghimire, U., P. Abeli, J.K. Brecht, E. Pliakoni and T. Liu. 2024. Unique molecular mechanisms revealed for the effects of temperature, CA, ethylene exposure, and 1-MCP on postharvest senescence of broccoli. Postharvest Biology and Technology 213, 112929."
+                - link "https://doi.org/10.1016/j.postharvbio.2024.112919" [ref=e430] [cursor=pointer]:
+                  - /url: https://doi.org/10.1016/j.postharvbio.2024.112919
+                - text: .
+              - paragraph [ref=e431]:
+                - text: "[4] Gillies, S.L. and P.M.A. Toivonen. 1995. Cooling method influences the postharvest quality of broccoli. HortScience 30: 313-315."
+                - link "https://doi.org/10.21273/HORTSCI.30.2.313" [ref=e432] [cursor=pointer]:
+                  - /url: https://doi.org/10.21273/HORTSCI.30.2.313
+                - text: .
+              - paragraph [ref=e433]:
+                - text: "[5] Hasperué, J.H., L. Lemone, A.R. Vicente, A.R. Chaves, and G.A. Martínez. 2015. Postharvest senescence of florets from primary and secondary broccoli inflorescences. Postharvest Biology and Technology 104: 42-47."
+                - link "https://doi.org/10.1016/j.postharvbio.2015.02.015" [ref=e434] [cursor=pointer]:
+                  - /url: https://doi.org/10.1016/j.postharvbio.2015.02.015
+                - text: .
+              - paragraph [ref=e435]:
+                - text: "[6] Jacobsson, A., T. Nielson, I. Sjöholm, and K. Wendin. 2004. Influence of packaging material and storage condition on the sensory quality of broccoli. Food Quality and Preference 15: 301-310."
+                - link "https://doi.org/10.1016/S0950-3293(03)00070-3" [ref=e436] [cursor=pointer]:
+                  - /url: https://doi.org/10.1016/S0950-3293(03)00070-3
+                - text: .
+              - paragraph [ref=e437]:
+                - text: "[7] Reddy, Y.V.R., J.E. Marcy, A.D. Bratsch, R.C. Williams, and K.M. Waterman. 2010. Effects of packaging and postharvest treatments on the shelf-life of crown-cut broccoli. Journal of Food Quality 33: 599-611."
+                - link "https://doi.org/10.1111/j.1745-4557.2010.00340.x" [ref=e438] [cursor=pointer]:
+                  - /url: https://doi.org/10.1111/j.1745-4557.2010.00340.x
+                - text: .
+              - paragraph [ref=e439]:
+                - text: "[8] Toivenen, P.M.A. and C. Forney. 2016. Broccoli. Pp. 248-251. In: Gross, K.C., C. Y. Wang, and M. Saltveit, eds. The Commercial Storage of Fruits, Vegetables, and Florist and Nursery Stocks. Agriculture Handbook 66, USDA."
+                - link "https://www.ars.usda.gov/is/np/CommercialStorage/CommercialStorage.pdf" [ref=e440] [cursor=pointer]:
+                  - /url: https://www.ars.usda.gov/is/np/CommercialStorage/CommercialStorage.pdf
+                - text: .
+              - paragraph [ref=e441]:
+                - text: "[9] USDA. 2008. Shipping Point and Market Inspection Instructions. 42 pp."
+                - link "https://www.ams.usda.gov/sites/default/files/media/Broccoli_Inspection_Instructions%5B1%5D.pdf" [ref=e442] [cursor=pointer]:
+                  - /url: https://www.ams.usda.gov/sites/default/files/media/Broccoli_Inspection_Instructions%5B1%5D.pdf
+                - text: .
+              - paragraph [ref=e443]:
+                - text: "[9] USDA. 2006. United States Standards for Grades of Italian Sprouting Broccoli. 6 pp."
+                - link "https://www.ams.usda.gov/sites/default/files/media/Broccoli%2C_Italian_Sprouting_Standard%5B1%5D.pdf" [ref=e444] [cursor=pointer]:
+                  - /url: https://www.ams.usda.gov/sites/default/files/media/Broccoli%2C_Italian_Sprouting_Standard%5B1%5D.pdf
+      - complementary [ref=e446]:
+        - generic [ref=e449]:
+          - heading "Use of Materials" [level=3] [ref=e450]
+          - paragraph [ref=e451]: The UC Davis Postharvest Research and Extension Center (PREC) allows users to download this produce fact sheet and its PDF for personal or educational purposes, provided that credit lines and copyright notices are maintained. No other website content may be copied, stored, transmitted, or used in any manner without written permission from PREC or UC Davis. Commercial use is strictly forbidden unless prior written approval is granted. Although this fact sheet provides current information, it is not a comprehensive review and is not intended for legal matters. Linking to PREC pages is permitted but does not imply any endorsement.
+          - heading "How to Cite" [level=3] [ref=e452]
+          - paragraph [ref=e453]: Author’s last name, first and middle (if available) initials. Initial publication or update date (located at the top). Produce Fact Sheet title. Website link to the specific Produce Fact Sheet (Accessed date).
+    - contentinfo [ref=e454]:
+      - generic [ref=e455]:
+        - generic [ref=e456]:
+          - generic [ref=e459]:
+            - img "UCDavis College of Agricultural and Environmental Sciences" [ref=e461]
+            - paragraph [ref=e462]
+            - img "UCDavis Department of Plant Sciences" [ref=e464]
+            - paragraph [ref=e465]
+            - paragraph [ref=e466]: Dept. of Plant Sciences, Mail Stop 2 University of California, Davis One Shields Avenue Davis, CA 95616
+            - paragraph [ref=e467]:
+              - text: "Telephone: (530) 752‐6941; Fax: (530) 754‐4326 Email:"
+              - link "postharvest@ucdavis.edu" [ref=e468] [cursor=pointer]:
+                - /url: mailto:postharvest@ucdavis.edu
+            - paragraph [ref=e469]
+          - navigation "Postharvest Site Links" [ref=e471]:
+            - heading "Postharvest Site Links" [level=2] [ref=e472]
+            - list [ref=e473]:
+              - listitem [ref=e474]:
+                - link "Division of Agriculture and Natural Resources" [ref=e475] [cursor=pointer]:
+                  - /url: https://ucanr.edu/
+              - listitem [ref=e476]:
+                - link "UCANR Accessibility Statement" [ref=e477] [cursor=pointer]:
+                  - /url: https://ucanr.edu/?accessibilityStatement
+              - listitem [ref=e478]:
+                - link "Get PDF Reader" [ref=e479] [cursor=pointer]:
+                  - /url: https://get.adobe.com/reader/
+          - list [ref=e483]:
+            - listitem [ref=e484]:
+              - link "Follow us on youtube" [ref=e485] [cursor=pointer]:
+                - /url: https://www.youtube.com/@postharvestcenter
+                - generic [ref=e486]: 
+            - listitem [ref=e487]:
+              - link "Follow us on linkedin" [ref=e488] [cursor=pointer]:
+                - /url: https://www.linkedin.com/company/ucpostharvest
+                - generic [ref=e489]: 
+        - link [ref=e492] [cursor=pointer]:
+          - /url: https://www.ucdavis.edu/
+          - img "UC Davis footer logo" [ref=e493]
+        - generic [ref=e495]:
+          - paragraph [ref=e496]:
+            - link "University of California, Davis" [ref=e497] [cursor=pointer]:
+              - /url: https://www.ucdavis.edu/
+            - text: ", One Shields Avenue, Davis, CA 95616 | 530-752-1011"
+          - list [ref=e498]:
+            - listitem [ref=e499]:
+              - link "Questions or comments?" [ref=e500] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=e501]:
+              - link "Privacy & Accessibility" [ref=e502] [cursor=pointer]:
+                - /url: http://ucdavis.edu/help/privacy-accessibility.html
+            - listitem [ref=e503]:
+              - link "Principles of Community" [ref=e504] [cursor=pointer]:
+                - /url: https://excellence.ucdavis.edu/principles-community
+            - listitem [ref=e505]:
+              - link "University of California" [ref=e506] [cursor=pointer]:
+                - /url: http://www.universityofcalifornia.edu/
+            - listitem [ref=e507]:
+              - link "Sitemap" [ref=e508] [cursor=pointer]:
+                - /url: /sitemap
+            - listitem [ref=e509]: "Last update: November 1, 2026"
+          - paragraph [ref=e510]: Copyright © The Regents of the University of California, Davis campus. All rights reserved.
+        - generic [ref=e511]:
+          - text: This site is officially grown in
+          - link "SiteFarm" [ref=e512] [cursor=pointer]:
+            - /url: https://sitefarm.ucdavis.edu
+          - text: .

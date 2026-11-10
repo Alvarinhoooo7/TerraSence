@@ -13,6 +13,7 @@
 
 #include <Arduino.h>
 
+#include "config.h"
 #include "modbus.h"
 #include "trama.h"
 
@@ -43,6 +44,9 @@ private:
   enum class Estado : uint8_t { Libre, Midiendo, Terminada, Barrido, Ensayo };
   bool consultar(uint32_t ahora);
   void convertir(const uint16_t *registros);
+  void convertirRafaga();
+  void finalizarCaptura();
+  bool quedaPlazoRafaga(uint32_t ahora) const;
   void actualizarBarrido(uint32_t ahora);
   bool consultarEnsayo(uint32_t ahora);
   void actualizarEnsayo(uint32_t ahora);
@@ -62,6 +66,10 @@ private:
 
   Estado estado_ = Estado::Libre;
   uint8_t velocidad_ = 0;  // índice en SONDA_BAUDIOS
+  uint8_t muestrasTomadas_ = 0;
+  uint8_t muestrasValidas_ = 0;
+  uint32_t rafagaDesde_ = 0;
+  uint16_t rafaga_[SONDA_MUESTRAS_RAFAGA][SONDA_REGISTROS]{};
   LecturaSuelo lectura_{};
   uint32_t barridoDesde_ = 0;
   uint8_t pasoBarrido_ = 0;

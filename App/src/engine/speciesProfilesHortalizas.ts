@@ -1,6 +1,120 @@
 /** Perfiles de hortalizas y cultivos anuales (TASK ES6/ES7.A). Contrato y fuentes compartidas: speciesRuleKit.ts. */
-import type { SpeciesCriterionEvidence, SpeciesPhCriterion, SpeciesRuleProfile } from './speciesRuleKit';
-import { ALL_STAGES, CORNELL_ONION_HARVEST, CSU_CELERY, FROST, FROST_SCOPE, FROST_SCOPE_EN, GROWING, HEAT_SCOPE, HEAT_SCOPE_EN, INIA_1998_FROST, INIA_TOMATO_CLIMATE, IOWA_ASPARAGUS, MSU_SWEETPOTATO_HARVEST, NEBRASKA_POTATO_WET_ROT, OSU_WINTER_SQUASH_HARVEST, POTATO_FROST, PURDUE_CORN, RAIN_CRACKING_SCOPE, RAIN_CRACKING_SCOPE_EN, RAIN_RULE, RAIN_RULE_EN, SDSU_LEEKS, UARK_PARSLEY, UDEL_BEAN_POD_ROT, UDEL_TOMATO_CRACKING, UIUC_CABBAGE_SPLIT, UMD_B1_SCOPE, UMD_B1_SCOPE_EN, UMN_LETTUCE_HEAT, WARM_NIGHT_NOTE, WARM_NIGHT_NOTE_EN, WISCONSIN_ALLIUMS, airMax, airMin, analog, analogSalt, analogWater, annual, celsius, fao56Water, fromF, frostNearMaturity, frostTender, frostTolerant, inia165, nebraska, perennial, pollinationHeat, rainCrackingFruit, salt, sdsu, umdTableB1, umdVegetable, waterSensitive, weatherEvent } from './speciesRuleKit';
+import type { SpeciesCriterionEvidence, SpeciesPhCriterion, SpeciesReadingCriterion, SpeciesRuleProfile, SpeciesWeatherEventCriterion } from './speciesRuleKit';
+import { ALL_STAGES, UCANR_52_SCOPE, UCANR_52_SCOPE_EN, ucanrSoilTemp, warmSoilRoot, warmSoilRootAnalog, CORNELL_ONION_HARVEST, CSU_CELERY, FROST, FROST_SCOPE, FROST_SCOPE_EN, GROWING, HEAT_SCOPE, HEAT_SCOPE_EN, INIA_1998_FROST, INIA_TOMATO_CLIMATE, IOWA_ASPARAGUS, MSU_SWEETPOTATO_HARVEST, NEBRASKA_POTATO_WET_ROT, OSU_WINTER_SQUASH_HARVEST, POTATO_FROST, PURDUE_CORN, RAIN_CRACKING_SCOPE, RAIN_CRACKING_SCOPE_EN, RAIN_RULE, RAIN_RULE_EN, SDSU_LEEKS, UARK_PARSLEY, UDEL_BEAN_POD_ROT, UDEL_TOMATO_CRACKING, UIUC_CABBAGE_SPLIT, UMD_B1_SCOPE, UMD_B1_SCOPE_EN, UMN_LETTUCE_HEAT, WARM_NIGHT_NOTE, WARM_NIGHT_NOTE_EN, WISCONSIN_ALLIUMS, airMax, airMin, analog, analogSalt, analogWater, annual, celsius, decimal, fahrenheitToCelsius, fao56Water, fromF, frostNearMaturity, frostTender, frostTolerant, inia165, nebraska, perennial, pollinationHeat, rainCrackingFruit, readingBelow, salt, sdsu, umdTableB1, umdVegetable, waterSensitive, weatherEvent } from './speciesRuleKit';
+
+/** University of Wisconsin Extension (A3785): lluvia en cosecha y curado de aliáceas (ajo, puerro, cebollín). */
+const WISCONSIN_ALLIUM_HARVEST_RAIN = (crop: string): SpeciesCriterionEvidence => ({
+  institution: 'University of Wisconsin–Madison Extension',
+  title: 'Growing onions, garlic, leeks, and other alliums in Wisconsin (A3785)',
+  url: 'https://hort.extension.wisc.edu/files/2023/10/A3785-Growing-Onions-Garlic-Leeks-and-Other-Alliums-in-Wisconsin-KA-Delahaut-and-AC-Newenhouse.pdf',
+  section: 'Harvest, curing, and postharvest diseases (Botrytis neck rot and bacterial soft rot)',
+  consultedAt: '2026-10-14',
+  originalValue: `Harvest ${crop} during dry weather; wet conditions at harvest and curing favor Botrytis neck rot and bacterial soft rot of bulbs and pseudostems.`,
+});
+
+const alliumHarvestRain = (cropEs: string, cropEn: string): SpeciesWeatherEventCriterion =>
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: `Lluvia en cosecha: favorece pudrición de cuello y bulbo en ${cropEs}`,
+    effectEn: `Rain at harvest: favors neck and bulb rot in ${cropEn}`,
+    advice: `Cosechar o dejar orear ${cropEs} bajo la lluvia favorece pudriciones de cuello y bulbo en guarda. Si ya está en punto de cosecha, arráncalo con tiempo seco y cúralo bajo techo ventilado.`,
+    adviceEn: `Harvesting or curing ${cropEn} in the rain favors neck and bulb rot in storage. If it is ready to harvest, pull it in dry weather and cure it under a ventilated roof.`,
+    note: 'La guía de aliáceas indica cosechar con tiempo seco, porque la humedad en la cosecha y el curado favorece la pudrición del cuello y la pudrición blanda bacteriana.',
+    noteEn: 'The allium guide advises harvesting in dry weather, because wet conditions at harvest and curing favor neck rot and bacterial soft rot.',
+    limitations: `${RAIN_RULE} Es una recomendación de manejo de cosecha y curado; no fija un umbral en milímetros de lluvia.`,
+    limitationsEn: `${RAIN_RULE_EN} It is harvest and curing management guidance; it sets no rainfall threshold in millimeters.`,
+    evidence: [WISCONSIN_ALLIUM_HARVEST_RAIN(cropEn)],
+  });
+
+/** Ficha de poscosecha de UC Davis del cultivo, citada con el texto verificado en ella. */
+const UCDAVIS_LEAFY_HARVEST_RAIN = (crop: FichaPoscosecha): SpeciesCriterionEvidence => ({
+  institution: 'University of California, Davis — Postharvest Research and Extension Center',
+  title: `Produce Facts Sheet: ${crop.etiqueta}`,
+  url: `https://postharvest.ucdavis.edu/produce-facts-sheets/${crop.ficha}`,
+  section: '«Pathological Disorders»',
+  consultedAt: '2026-11-10',
+  originalValue: crop.cita,
+});
+
+/**
+ * Cada cultivo tiene su propia ficha de poscosecha en UC Davis y se cita la que le corresponde.
+ *
+ * `atribuyeLluvia` distingue las fichas que ligan explícitamente la condición húmeda o lluviosa de
+ * cultivo con la pudrición (brócoli y repollito de Bruselas) de las que sólo enumeran los patógenos
+ * entre sus desórdenes poscosecha sin atribuirlos a la lluvia. En el segundo caso la tarjeta se
+ * emite igual, por precaución de manejo, pero la limitación declara que la fuente no hace esa
+ * atribución: así el lector sabe qué parte viene de la ficha y qué parte es prudencia del equipo.
+ */
+interface FichaPoscosecha {
+  ficha: string;
+  etiqueta: string;
+  cita: string;
+  atribuyeLluvia: boolean;
+}
+
+const leafyHarvestRain = (cropEs: string, cropEn: string, ficha: FichaPoscosecha): SpeciesWeatherEventCriterion =>
+  weatherEvent(['cosecha'], 'rain', {
+    severity: ficha.atribuyeLluvia ? 'warning' : 'info',
+    effect: ficha.atribuyeLluvia
+      ? `Lluvia en cosecha: la condición húmeda favorece pudriciones en ${cropEs}`
+      : `Lluvia en cosecha: tejido mojado en ${cropEs}`,
+    effectEn: ficha.atribuyeLluvia
+      ? `Rain at harvest: wet conditions favor rots in ${cropEn}`
+      : `Rain at harvest: wet tissue in ${cropEn}`,
+    advice: `Evita cortar y embalar ${cropEs} mientras siga mojado por la lluvia, y espera a que ventile y seque: el tejido mojado entra a guarda con más riesgo de pudrición blanda y moho gris.`,
+    adviceEn: `Avoid cutting and packing ${cropEn} while still wet from rain, and wait until it airs out and dries: wet tissue goes into storage at higher risk of soft rot and gray mold.`,
+    note: ficha.atribuyeLluvia
+      ? `La ficha de poscosecha de UC Davis para este cultivo liga la condición lluviosa o muy húmeda de cultivo con la infección por moho gris y pudrición blanda.`
+      : `La ficha de poscosecha de UC Davis para este cultivo registra pudrición blanda bacteriana y moho gris (Botrytis) entre sus desórdenes patológicos.`,
+    noteEn: ficha.atribuyeLluvia
+      ? `The UC Davis postharvest fact sheet for this crop links rainy or very wet growing conditions with gray mold infection and soft rot.`
+      : `The UC Davis postharvest fact sheet for this crop lists bacterial soft rot and gray mold (Botrytis) among its pathological disorders.`,
+    limitations: ficha.atribuyeLluvia
+      ? `${RAIN_RULE} Recomendación de manejo poscosecha; no fija un umbral en milímetros de precipitación.`
+      : `${RAIN_RULE} La ficha enumera esos patógenos entre sus desórdenes, pero no atribuye la infección a la lluvia en cosecha: evitar el corte con el tejido mojado es precaución de manejo y no una indicación de la fuente. No fija un umbral en milímetros de precipitación.`,
+    limitationsEn: ficha.atribuyeLluvia
+      ? `${RAIN_RULE_EN} Postharvest handling guidance; it sets no precipitation threshold in millimeters.`
+      : `${RAIN_RULE_EN} The sheet lists those pathogens among its disorders but does not attribute infection to rain at harvest: avoiding cutting while tissue is wet is a handling precaution, not a statement from the source. It sets no precipitation threshold in millimeters.`,
+    evidence: [UCDAVIS_LEAFY_HARVEST_RAIN(ficha)],
+  });
+
+/** Fichas de poscosecha de UC Davis, una por cultivo, con la cita textual verificada en cada una. */
+const FICHAS_POSCOSECHA: Record<string, FichaPoscosecha> = {
+  apio: { ficha: 'celery', etiqueta: 'Celery', atribuyeLluvia: false,
+    cita: 'Gray Mold (Botrytis cinerea), and Watery Rot (Sclerotinia spp.) [...] Botrytis and Sclerotinia can develop over a period of a few weeks, even at 2°C (35.6°F).' },
+  brocoli: { ficha: 'broccoli', etiqueta: 'Broccoli', atribuyeLluvia: true,
+    cita: 'These diseases are more likely to occur in humid environments. [...] gray mold rot (Botrytis cinerea) and black mold (Alternaria spp.) can infect broccoli heads; this may occur under rainy, very cool growing conditions.' },
+  coliflor: { ficha: 'cauliflower', etiqueta: 'Cauliflower', atribuyeLluvia: false,
+    cita: 'Grey Mold (Botrytis cinerea), and Cladosporium Rot are common disorders.' },
+  espinaca: { ficha: 'spinach', etiqueta: 'Spinach', atribuyeLluvia: false,
+    cita: 'La ficha no registra pudriciones asociadas a lluvia ni a humedad libre.' },
+  lechuga: { ficha: 'lettuce-crisphead', etiqueta: 'Lettuce (Crisphead, Iceberg)', atribuyeLluvia: false,
+    cita: 'Bacterial soft rot in lettuce is usually caused by Erwinia species [...] and is characterized by wet, rotten areas with a strong, unpleasant odor. [...] Fungal pathogens may also cause a watery breakdown of lettuce, such as the watery soft rot caused by Sclerotinia or gray mold rot caused by Botrytis cinerea.' },
+  'maiz-dulce': { ficha: 'corn-sweet', etiqueta: 'Corn (Sweet)', atribuyeLluvia: false,
+    cita: 'La ficha no registra pudriciones asociadas a lluvia ni a humedad libre.' },
+  perejil: { ficha: 'herbs-fresh-culinary', etiqueta: 'Herbs (Fresh Culinary)', atribuyeLluvia: false,
+    cita: 'Gray mold rot caused by Botrytis cinerea can occur commonly on basil and shiso.' },
+  'repollito-bruselas': { ficha: 'brussels-sprouts', etiqueta: 'Brussels Sprouts', atribuyeLluvia: true,
+    cita: 'Can occur under very wet production conditions and is associated with condensation on the developing leaves. [...] Less common are fungal pathogens, which can occur under rainy and cool growing conditions.' },
+  esparrago: { ficha: 'asparagus-green', etiqueta: 'Asparagus (Green)', atribuyeLluvia: false,
+    cita: 'The most prominent postharvest disease concern is bacterial soft rot, induced by Erwinia carotovora subsp.' },
+  alcachofa: { ficha: 'artichoke-globe', etiqueta: 'Artichoke (Globe)', atribuyeLluvia: false,
+    cita: 'Grey Mold (Botrytis cinerea) and Bacterial Soft Rot (Erwinia carotovora) may be a problem in storage and distribution if optimum temperature conditions are not met.' },
+};
+
+const legumePodRain = (cropEs: string, cropEn: string): SpeciesWeatherEventCriterion =>
+  weatherEvent(['cosecha'], 'rain', {
+    severity: 'warning',
+    effect: `Lluvia cerca de la cosecha: favorece manchado y pudrición de vainas en ${cropEs}`,
+    effectEn: `Rain near harvest: favors pod spotting and rot in ${cropEn}`,
+    advice: `Con lluvia cerca de la cosecha las vainas de ${cropEs} se manchan y pudren con más facilidad. Evita cosechar o embalar con las plantas mojadas.`,
+    adviceEn: `With rain near harvest, ${cropEn} pods spot and rot more easily. Avoid harvesting or packing while plants are wet.`,
+    note: 'La guía de leguminosas de vaina indica que el tiempo lluvioso cerca de la cosecha favorece pudriciones húmedas de la vaina y recomienda no cosechar ni embalar con plantas mojadas.',
+    noteEn: 'The pod-legume guide notes that rainy weather near harvest favors wet pod rots and advises against harvesting or packing when plants are wet.',
+    limitations: `${RAIN_RULE} Guía cualitativa de manejo de cosecha; no fija una cantidad en milímetros.`,
+    limitationsEn: `${RAIN_RULE_EN} Qualitative harvest management guidance; it sets no millimeter amount.`,
+    evidence: [UDEL_BEAN_POD_ROT],
+  });
 
 // --- Fuentes ES7.A: acelga, ají, ajo, alcachofa, caigua, haba, locoto y pepino dulce -----
 
@@ -13,7 +127,7 @@ const ALCACHOFA_INIA_URURI_TEMP: SpeciesCriterionEvidence = {
   consultedAt: '2026-10-18',
   originalValue: 'Esta especie no tolera temperaturas de congelación; sus estructuras aéreas se destruyen con temperaturas de -2 a -4ºC y con -10ºC se dañan en forma permanente las estructuras subterráneas (MAROTO, 1995).',
 };
-const ALCACHOFA_INIA_URURI_PH: SpeciesCriterionEvidence = {
+export const ALCACHOFA_INIA_URURI_PH: SpeciesCriterionEvidence = {
   ...ALCACHOFA_INIA_URURI_TEMP,
   section: 'Párrafo de pH y salinidad, p. 2',
   originalValue: 'El cultivo de la alcachofa puede adaptarse a un pH ligeramente alcalino, con valores que van desde 6,4 hasta 6,8 (CIREN, 1995).',
@@ -63,8 +177,10 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       'Colorado State University la clasifica como intolerante a la helada; INIA y Nebraska Extension documentan cierta tolerancia.',
       'Colorado State University classifies it as frost-intolerant; INIA and Nebraska Extension document some tolerance.', GROWING),
     frostNearMaturity(),
+    warmSoilRoot('el apio', 'celery', 'Celery'),
+    leafyHarvestRain('el apio', 'celery', FICHAS_POSCOSECHA.apio),
     salt('Celery (Apium graveolens)', 1.8, 'moderately_sensitive'),
-    fao56Water('Celery (Apium graveolens)', 1.05, 0.2, 'vegetative')),
+    fao56Water('Celery', 1.05, 0.2, 'vegetative')),
   annual('sp.arveja', umdVegetable('Peas', 6.5, 6.0),
     frostTolerant(28, [inia165('maturity'), nebraska('veryHardy', 'pea'), sdsu('light', 'Peas')],
       'Nebraska Extension la clasifica como muy resistente (heladas bajo 28 °F por períodos cortos); South Dakota State sólo documenta heladas leves.',
@@ -82,25 +198,33 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [inia165('flowering'), INIA_1998_FROST],
     }),
     frostNearMaturity(),
+    warmSoilRoot('la arveja', 'pea', 'Peas'),
+    legumePodRain('la arveja', 'pea'),
     salt('Pea (Pisum sativum)', 1.5, 'sensitive'),
     waterSensitive('Pea', 'vegetative (early) 0.2; flowering 0.9; yield formation 0.7; ripening 0.2', 0.9, 'flowering')),
   annual('sp.berenjena', umdVegetable('Eggplant', 6.5, 6.0),
     frostTender([inia165('none'), nebraska('tender', 'eggplant'), sdsu('none', 'Pepper, eggplant')]),
+    warmSoilRoot('la berenjena', 'eggplant', 'Eggplant'),
     rainCrackingFruit('la berenjena', 'eggplant'),
     salt('Eggplant (Solanum melongena)', null, 'moderately_sensitive'),
-    fao56Water('Egg Plant (Solanum melongena)', 1.05, 0.45, 'flowering')),
+    fao56Water('Egg Plant', 1.05, 0.45, 'flowering')),
   annual('sp.betarraga', umdVegetable('Beets', 6.5, 6.2),
     frostTolerant(28, [inia165('weak'), nebraska('tolerant', 'Beet'), sdsu('light', 'Beets')]),
+    warmSoilRoot('la betarraga', 'beetroot', 'Beets'),
+    rainCrackingFruit('la betarraga', 'beetroot'),
     salt('Beet, red (Beta vulgaris)', 4.0, 'moderately_tolerant'),
-    fao56Water('Beets, table (Beta vulgaris)', 1.05, 0.5, 'vegetative')),
+    fao56Water('Beets, table', 1.05, 0.5, 'vegetative')),
   annual('sp.brocoli', umdVegetable('Broccoli', 6.5, 6.2),
     frostTolerant(28, [inia165('weak'), nebraska('tolerant', 'broccoli'), sdsu('hardy', 'Broccoli, cauliflower (26 degrees Fahrenheit)')],
       'South Dakota State documenta tolerancia hasta 26 °F; Nebraska Extension, sólo heladas leves hasta 28 °F.',
       'South Dakota State documents tolerance down to 26 °F; Nebraska Extension, only light frosts down to 28 °F.'),
+    warmSoilRoot('el brócoli', 'broccoli', 'Broccoli'),
+    leafyHarvestRain('el brócoli', 'broccoli', FICHAS_POSCOSECHA.brocoli),
     salt('Broccoli (Brassica oleracea botrytis)', 2.8, 'moderately_sensitive'),
-    fao56Water('Broccoli (Brassica oleracea var. italica)', 1.05, 0.45, 'vegetative')),
+    fao56Water('Broccoli', 1.05, 0.45, 'vegetative')),
   annual('sp.camote', umdVegetable('Potatoes, sweet', 6.2, 5.5),
     frostTender([inia165('none'), nebraska('tender', 'sweet potato'), sdsu('none', 'Sweet potatoes')]),
+    warmSoilRootAnalog('sp.zapallo', 'el camote', 'sweet potato', 'Zapallo', 'Squash', 'ambos son cultivos de estación cálida que no se establecen con el suelo frío', 'both are warm-season crops that do not establish in cold soil', 'Pumpkins'),
     weatherEvent(['cosecha'], 'rain', {
       severity: 'warning',
       effect: 'Lluvia en cosecha: favorece pudriciones del camote en guarda',
@@ -114,7 +238,7 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [MSU_SWEETPOTATO_HARVEST],
     }),
     salt('Sweet potato (Ipomoea batatas)', 1.5, 'moderately_sensitive'),
-    fao56Water('Sweet Potato (Ipomoea batatas)', 1.15, 0.65, 'vegetative')),
+    fao56Water('Sweet Potato', 1.15, 0.65, 'vegetative')),
   annual('sp.cebolla', umdVegetable('Onions - green, bulb, scallions', 6.5, 6.0),
     frostTolerant(28, [inia165('tolerant'), nebraska('tolerant', 'onion'), sdsu('light', 'Onion, Garlic, Chives')],
       'INIA la clasifica entre las que toleran heladas; el mínimo de 28 °F es el que documentan las fuentes de Estados Unidos.',
@@ -131,6 +255,7 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       limitationsEn: 'A single on-farm trial in New York, one variety and one season; the difference is numeric, not stated as statistically significant by the bulletin itself. Splash and intensity are not forecast, only whether the day counts as rainy.',
       evidence: [CORNELL_ONION_HARVEST],
     }),
+    warmSoilRoot('la cebolla', 'onion', 'Onions'),
     salt('Onion (Allium cepa)', 1.2, 'sensitive'),
     waterSensitive('Onion', 'vegetative (and rapid bulb growth) 0.8; yield formation 0.3; total 1.1', 0.8, 'vegetative')),
   annual('sp.cebollin', umdVegetable('Onions - green, bulb, scallions', 6.5, 6.0,
@@ -138,21 +263,27 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
   frostTolerant(28, [inia165('tolerant'), sdsu('light', 'Onion, Garlic, Chives'), nebraska('tolerant', 'onion'), WISCONSIN_ALLIUMS],
     'El nombre cubre la cebolla de verdeo (cebolla inmadura, que tolera heladas leves) y la cebolla de hoja Allium fistulosum, que la Universidad de Wisconsin describe como muy resistente sin dar una temperatura; se usa el mínimo de la cebolla.',
     'The name covers green onions (immature onions, which tolerate light frost) and Allium fistulosum bunching onions, which the University of Wisconsin describes as very hardy without giving a temperature; the onion minimum is used.'),
+  alliumHarvestRain('el cebollín', 'green onion'),
+  warmSoilRoot('el cebollín', 'green onion', 'Onions'),
   analogSalt('sp.cebolla', 'cebollín', 'green onion', 'Cebolla', 'Onion', 'ambas son hortalizas del género Allium', 'both are vegetables of the genus Allium', 'Onion (Allium cepa)', 1.2, 'sensitive'),
-  fao56Water('Onions - green (Allium spp.)', 1.0, 0.3, 'vegetative')),
+  fao56Water('Onions - green', 1.0, 0.3, 'vegetative')),
   annual('sp.coliflor', umdVegetable('Cauliflower', 6.5, 6.2),
     frostTolerant(28, [inia165('maturity'), nebraska('tolerant', 'cauliflower'), sdsu('light', 'Cauliflower'), sdsu('hardy', 'Broccoli, cauliflower (26 degrees Fahrenheit)')],
       'South Dakota State la incluye entre las de helada leve y también con tolerancia hasta 26 °F; se usa 28 °F, que documentan todas.',
       'South Dakota State lists it both under light frost and with tolerance down to 26 °F; 28 °F, documented by all, is used.', GROWING),
     frostNearMaturity('INIA advierte que la cabeza es más sensible al frío que las hojas.', 'INIA notes the head is more sensitive to cold than the leaves.'),
+    warmSoilRoot('la coliflor', 'cauliflower', 'Cauliflower'),
+    leafyHarvestRain('la coliflor', 'cauliflower', FICHAS_POSCOSECHA.coliflor),
     salt('Cauliflower (B. oleracea botrytis)', null, 'moderately_sensitive'),
-    fao56Water('Cauliflower (Brassica oleracea var. botrytis)', 1.05, 0.45, 'vegetative')),
+    fao56Water('Cauliflower', 1.05, 0.45, 'vegetative')),
   annual('sp.espinaca', umdVegetable('Spinach', 6.5, 6.0),
     frostTolerant(28, [inia165('weak'), nebraska('veryHardy', 'spinach'), sdsu('light', 'Spinach')],
       'Nebraska Extension la clasifica como muy resistente (heladas bajo 28 °F por períodos cortos); South Dakota State sólo documenta heladas leves.',
       'Nebraska Extension classifies it as very hardy (frosts below 28 °F for short periods); South Dakota State only documents light frosts.'),
+    warmSoilRoot('la espinaca', 'spinach', 'Spinach'),
+    leafyHarvestRain('la espinaca', 'spinach', FICHAS_POSCOSECHA.espinaca),
     salt('Spinach (Spinacia oleracea)', 2.0, 'moderately_sensitive'),
-    fao56Water('Spinach (Spinacia oleracea)', 1.0, 0.2, 'vegetative')),
+    fao56Water('Spinach', 1.0, 0.2, 'vegetative')),
   annual('sp.lechuga', umdVegetable('Lettuce - leaf, iceberg', 6.5, 6.0),
     frostTolerant(28, [inia165('maturity'), nebraska('veryHardy', 'lettuce'), sdsu('light', 'Lettuce')],
       'Nebraska Extension la clasifica como muy resistente (heladas bajo 28 °F por períodos cortos); South Dakota State sólo documenta heladas leves.',
@@ -170,8 +301,10 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       limitationsEn: 'The source does not specify how many consecutive days count as "multiple"; the forecast daily maximum is compared against this threshold. It does not distinguish between varieties, which vary in heat tolerance.',
       evidence: [UMN_LETTUCE_HEAT],
     }),
+    warmSoilRoot('la lechuga', 'lettuce', 'Lettuce'),
+    leafyHarvestRain('la lechuga', 'lettuce', FICHAS_POSCOSECHA.lechuga),
     salt('Lettuce (Lactuca sativa)', 1.3, 'moderately_sensitive'),
-    fao56Water('Lettuce (Lactuca sativa)', 1.0, 0.3, 'vegetative')),
+    fao56Water('Lettuce', 1.0, 0.3, 'vegetative')),
   annual('sp.maiz', umdVegetable('Sweet corn', 6.5, 6.0,
     'La fila corresponde a choclo (maíz dulce); la fuente no trata el maíz de grano ni para silo.',
     'The row covers sweet corn; the source does not cover grain or silage maize.'),
@@ -200,18 +333,22 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
     limitationsEn: `${HEAT_SCOPE_EN} With enough soil moisture the effect is smaller.`,
     evidence: [PURDUE_CORN],
   }),
+  leafyHarvestRain('el maíz dulce', 'sweet corn', FICHAS_POSCOSECHA['maiz-dulce']),
   salt('Corn, sweet (Zea mays)', 1.7, 'moderately_sensitive'),
+  warmSoilRoot('el maíz', 'maize', 'Corn'),
   waterSensitive('Maize', 'vegetative 0.4; flowering 1.5; yield formation 0.5; ripening 0.2', 1.5, 'flowering')),
   annual('sp.melon', umdVegetable('Cantaloupes; Muskmelons', 6.5, 6.0),
     frostTender([inia165('none'), nebraska('tender', 'muskmelon'), sdsu('none', 'Cucurbits: Cucumbers, summer squash, melons')]),
+    warmSoilRoot('el melón', 'melon', 'Muskmelons (Cantaloupe)'),
     rainCrackingFruit('el melón', 'melon'),
     salt('Muskmelon (Cucumis melo)', null, 'moderately_sensitive'),
-    fao56Water('Sweet Melon / Cantaloupe (Cucumis melo)', 1.05, 0.4, 'flowering')),
+    fao56Water('Sweet Melons', 1.05, 0.4, 'flowering')),
   annual('sp.pepino', umdVegetable('Cucumber', 6.5, 6.0),
     frostTender([inia165('none'), nebraska('tender', 'cucumber'), sdsu('none', 'Cucurbits: Cucumbers, summer squash, melons')]),
+    warmSoilRoot('el pepino', 'cucumber', 'Cucumbers'),
     rainCrackingFruit('el pepino', 'cucumber'),
     salt('Cucumber (Cucumis sativus)', 2.5, 'moderately_sensitive'),
-    fao56Water('Cucumber - Fresh Market (Cucumis sativus)', 1.0, 0.5, 'flowering')),
+    fao56Water('Cucumber - Fresh Market', 1.0, 0.5, 'flowering')),
   annual('sp.perejil', umdVegetable('Parsley', 6.5, 6.0),
     frostTolerant(28, [sdsu('light', 'Parsley'), INIA_1998_FROST], '', '', GROWING),
     frostNearMaturity(),
@@ -227,10 +364,13 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       limitationsEn: 'The source refers to long periods of sustained heat on a planting that keeps being picked leaf by leaf, not a single day\'s maximum; the forecast only compares the daily maximum.',
       evidence: [UARK_PARSLEY],
     }),
+    warmSoilRoot('el perejil', 'parsley', 'Parsley'),
+    leafyHarvestRain('el perejil', 'parsley', FICHAS_POSCOSECHA.perejil),
     analogSalt('sp.apio', 'perejil', 'parsley', 'Apio', 'Celery', 'ambas pertenecen a la familia Apiaceae', 'both belong to the family Apiaceae', 'Celery (Apium graveolens)', 1.8, 'moderately_sensitive'),
-    fao56Water('Small Vegetables — Parsley (Petroselinum crispum)', 1.0, 0.2, 'vegetative')),
+    analogWater('sp.espinaca', 'el perejil', 'parsley', 'Espinaca', 'Spinach', 'ambas son hortalizas de hoja de raíz somera y ciclo corto, con su máxima demanda en crecimiento vegetativo', 'both are shallow-rooted short-cycle leafy vegetables with peak demand during vegetative growth', fao56Water('Spinach', 1.0, 0.2, 'vegetative'))),
   annual('sp.pimiento', umdVegetable('Peppers', 6.5, 6.0),
     frostTender([inia165('none'), nebraska('tender', 'pepper'), sdsu('none', 'Pepper, eggplant')]),
+    warmSoilRoot('el pimiento', 'bell pepper', 'Peppers'),
     pollinationHeat(75, WARM_NIGHT_NOTE, WARM_NIGHT_NOTE_EN),
     rainCrackingFruit('el pimiento', 'pepper'),
     salt('Pepper (Capsicum annuum)', 1.5, 'moderately_sensitive'),
@@ -239,6 +379,7 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
     'La fila corresponde a poroto verde y pallar; la fuente no trata el poroto de grano seco.',
     'The row covers snap and lima beans; the source does not cover dry beans.'),
   frostTender([inia165('none'), nebraska('tender', 'beans (Lima & snap)'), sdsu('none', 'Beans')]),
+  warmSoilRoot('el poroto', 'common bean', 'Beans, Snap'),
   pollinationHeat(68,
     'La fuente cita una investigación de la Universidad de Delaware: en poroto verde, noches sobre 68 °F (20 °C) causaron problemas de polinización.',
     'The source cites University of Delaware research: in snap beans, nights above 68 °F (20 °C) caused pollination problems.'),
@@ -260,18 +401,24 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
     frostTolerant(20, [inia165('tolerant'), SDSU_LEEKS],
       'La fuente indica que la cosecha puede esperar hasta después de las primeras heladas y que bajo 20 °F conviene proteger los puerros con aporca y mulch; la tolerancia varía entre variedades.',
       'The source says harvest can wait until after the first frosts and that below 20 °F leeks should be protected with hilling and mulch; tolerance varies among varieties.'),
+    alliumHarvestRain('el puerro', 'leek'),
+    warmSoilRoot('el puerro', 'leek', 'Leeks'),
     analogSalt('sp.cebolla', 'puerro', 'leek', 'Cebolla', 'Onion', 'ambas son hortalizas del género Allium', 'both are vegetables of the genus Allium', 'Onion (Allium cepa)', 1.2, 'sensitive'),
-    fao56Water('Small Vegetables — Leek (Allium porrum)', 1.0, 0.3, 'vegetative')),
+    analogWater('sp.cebollin', 'el puerro', 'leek', 'Cebollín', 'Green onion', 'ambos son alliums cosechados en verde, sin la fase de engrosamiento de bulbo de la cebolla de guarda', 'both are alliums harvested green, without the bulb-filling phase of storage onion', fao56Water('Onions - green', 1.0, 0.3, 'vegetative'))),
   annual('sp.rabanito', umdVegetable('Radish', 6.5, 6.2),
     frostTolerant(28, [inia165('weak'), nebraska('tolerant', 'radish'), sdsu('light', 'Radish')]),
+    warmSoilRoot('el rabanito', 'radish', 'Radishes'),
+    rainCrackingFruit('el rabanito', 'radish'),
     salt('Radish (Raphanus sativus)', 1.2, 'moderately_sensitive'),
-    fao56Water('Radish (Raphanus sativus)', 0.9, 0.3, 'vegetative')),
+    fao56Water('Radish', 0.9, 0.3, 'vegetative')),
   annual('sp.repollito-bruselas', umdVegetable('Brussels sprouts', 6.5, 6.2),
     frostTolerant(28, [inia165('weak'), nebraska('tolerant', 'Brussels sprout')],
       'South Dakota State indica que su calidad mejora después de varias heladas moderadas (24 a 28 °F).',
       'South Dakota State notes its quality improves after several moderate freezes (24 to 28 °F).'),
+    warmSoilRootAnalog('sp.repollo', 'el repollito de Bruselas', 'Brussels sprouts', 'Repollo', 'Cabbage', 'ambas son brásicas de hoja de la misma especie botánica', 'both are leaf brassicas of the same botanical species', 'Cabbage'),
+    leafyHarvestRain('el repollito de Bruselas', 'Brussels sprouts', FICHAS_POSCOSECHA['repollito-bruselas']),
     salt('Brussels sprouts (B. oleracea gemmifera)', null, 'moderately_sensitive'),
-    fao56Water('Brussel Sprouts (Brassica oleracea var. gemmifera)', 1.05, 0.45, 'vegetative')),
+    fao56Water('Brussel Sprouts', 1.05, 0.45, 'vegetative')),
   annual('sp.repollo', umdVegetable('Cabbage', 6.5, 6.2),
     frostTolerant(28, [inia165('weak'), nebraska('tolerant', 'cabbage'), sdsu('hardy', 'Chinese cabbage, cabbage, kale, kohlrabi, turnip')],
       'South Dakota State documenta tolerancia a heladas moderadas de 24 a 28 °F; Nebraska Extension, sólo heladas leves hasta 28 °F.',
@@ -288,10 +435,13 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       limitationsEn: `${RAIN_RULE_EN} The source sets no rainfall amount; "heavy rain" is its own term, not a measured threshold.`,
       evidence: [UIUC_CABBAGE_SPLIT],
     }),
+    warmSoilRoot('el repollo', 'cabbage', 'Cabbage'),
     salt('Cabbage (Brassica oleracea capitata)', 1.8, 'moderately_sensitive'),
     waterSensitive('Cabbage', 'vegetative early 0.2, late 0.45; yield formation 0.6; total 0.95', 0.45, 'vegetative')),
   annual('sp.sandia', umdVegetable('Watermelon', 6.2, 5.5),
     frostTender([inia165('none'), nebraska('tender', 'watermelon')]),
+    warmSoilRoot('la sandía', 'watermelon', 'Watermelons'),
+    rainCrackingFruit('la sandía', 'watermelon'),
     salt('Watermelon (Citrullus lanatus)', null, 'moderately_sensitive'),
     waterSensitive('Water melon', 'vegetative early 0.45, late 0.7; flowering 0.8; yield formation 0.8; ripening 0.3', 0.8, 'flowering')),
   annual('sp.zanahoria', umdVegetable('Carrot', 6.0, 5.5),
@@ -299,12 +449,15 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
     frostNearMaturity(
       'El boletín INIA de 2007 la clasifica entre las que toleran heladas débiles y el manual INIA de 1998, entre las que se dañan cerca de la madurez; en cosecha se usa el criterio más cauto.',
       'INIA\'s 2007 bulletin lists it among crops tolerating light frosts and INIA\'s 1998 manual among those damaged near maturity; the more cautious criterion is used at harvest.'),
+    warmSoilRoot('la zanahoria', 'carrot', 'Carrots'),
+    rainCrackingFruit('la zanahoria', 'carrot'),
     salt('Carrot (Daucus carota)', 1.0, 'sensitive'),
-    fao56Water('Carrots (Daucus carota)', 1.05, 0.35, 'vegetative')),
+    fao56Water('Carrots', 1.05, 0.35, 'vegetative')),
   annual('sp.zapallo', umdVegetable('Pumpkins; Squash - winter, summer', 6.5, 6.0),
     frostTender([inia165('none'), nebraska('tender', 'pumpkin, winter squash'), sdsu('none', 'Cucurbits (pumpkins and winter squash may be able to tolerate very light frosts, but it is better to protect them if possible)')],
       'South Dakota State admite que el zapallo de guarda puede tolerar heladas muy leves, pero indica protegerlo; Nebraska Extension, cosecharlo antes de la helada porque daña la cáscara y acorta su guarda.',
       'South Dakota State allows that winter squash may tolerate very light frosts but advises protecting it; Nebraska Extension, harvesting it before frost because frost damages the rind and shortens storage.'),
+    warmSoilRoot('el zapallo', 'squash', 'Pumpkins'),
     pollinationHeat(75, WARM_NIGHT_NOTE, WARM_NIGHT_NOTE_EN),
     weatherEvent(['cosecha'], 'rain', {
       severity: 'warning',
@@ -319,12 +472,14 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       evidence: [OSU_WINTER_SQUASH_HARVEST],
     }),
     salt('Pumpkin (Cucurbita pepo pepo)', null, 'moderately_sensitive'),
-    fao56Water('Pumpkin, Winter Squash (Cucurbita spp.)', 1.0, 0.35, 'flowering')),
+    fao56Water('Pumpkin, Winter Squash', 1.0, 0.35, 'flowering')),
   annual('sp.zapallo-italiano', umdVegetable('Squash - winter, summer', 6.5, 6.0),
     frostTender([inia165('none'), nebraska('tender', 'summer squash'), sdsu('none', 'Cucurbits: Cucumbers, summer squash, melons')]),
+    warmSoilRoot('el zapallo italiano', 'zucchini', 'Squash'),
+    rainCrackingFruit('el zapallo italiano', 'zucchini'),
     pollinationHeat(75, WARM_NIGHT_NOTE, WARM_NIGHT_NOTE_EN),
     salt('Squash, zucchini (Cucurbita pepo melopepo)', 4.7, 'moderately_tolerant'),
-    fao56Water('Squash, Zucchini (Cucurbita pepo)', 0.95, 0.5, 'flowering')),
+    fao56Water('Squash, Zucchini', 0.95, 0.5, 'flowering')),
   perennial('sp.esparrago', umdVegetable('Asparagus', 6.8, 6.2),
     airMin(['vegetativo', 'floracion'], 'at_or_below', FROST, {
       severity: 'info',
@@ -350,8 +505,10 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       limitationsEn: 'The source gives no damaging temperature: a minimum of 0 °C or less is treated as frost.',
       evidence: [IOWA_ASPARAGUS],
     }),
+    warmSoilRoot('el espárrago', 'asparagus', 'Asparagus'),
+    leafyHarvestRain('el espárrago', 'asparagus', FICHAS_POSCOSECHA.esparrago),
     salt('Asparagus (Asparagus officinalis)', null, 'tolerant'),
-    fao56Water('Asparagus (Asparagus officinalis)', 0.95, 0.45, 'vegetative')),
+    fao56Water('Asparagus', 0.95, 0.45, 'vegetative')),
 
   // Papa: la tabla separa dos grupos de variedades y la variedad no se conoce. Sólo el
   // mínimo común (5,0) se puede afirmar para cualquier papa.
@@ -368,8 +525,9 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
     ],
   },
   frostTender([inia165('none'), sdsu('none', 'Potatoes')],
-    'INIA advierte que la papa aparece en las clasificaciones como especie de estación fría, pero es muy sensible a las heladas; Nebraska Extension la clasifica como muy resistente, una clasificación pensada para la fecha de plantación.',
-    'INIA warns that potato appears in classifications as a cool-season crop but is very frost-sensitive; Nebraska Extension classifies it as very hardy, a classification aimed at planting dates.'),
+    'INIA advierte que la papa «aparece en las clasificaciones como especie de estación fría, pero es muy sensible a las heladas», y la incluye entre las especies que no toleran heladas y SDSU la pone entre las que conviene proteger o cosechar antes de una helada leve, mientras Nebraska Extension la clasifica como muy rústica, capaz de resistir bajo 28 °F. El criterio sigue a la fuente chilena porque avisa por el follaje, que es lo que se hiela; el tubérculo bajo tierra queda protegido por el suelo, y de ahí que una clasificación centrada en el producto cosechable la trate como rústica.',
+    'INIA warns that potato «appears in classifications as a cool-season crop, but is very frost-sensitive», and lists it among species that do not tolerate frost and SDSU places it among those to protect or harvest before a light frost, while Nebraska Extension classifies it as very hardy, able to withstand below 28 °F. The criterion follows the Chilean source because it warns about the foliage, which is what freezes; the tuber underground is protected by the soil, which is why a classification focused on the harvestable product treats it as hardy.',
+    { frostDefinition: true }),
   airMin(ALL_STAGES, 'below', celsius(-2.5), {
     severity: 'warning',
     effect: 'Helada que daña el follaje de la mayoría de las papas cultivadas',
@@ -394,6 +552,7 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
     limitationsEn: 'General harvest and storage management advice; it sets no rainfall amount and does not distinguish variety. The soil moisture the probe measures is local and does not certify the rest of the field is the same.',
     evidence: [NEBRASKA_POTATO_WET_ROT],
   }),
+  warmSoilRootAnalog('sp.betarraga', 'la papa', 'potato', 'Betarraga', 'Beetroot', 'ambas son de estación fría y forman su órgano de reserva bajo tierra', 'both are cool-season crops that form their storage organ underground', 'Beets'),
   salt('Potato (Solanum tuberosum)', 1.7, 'moderately_sensitive'),
   waterSensitive('Potato', 'vegetative early 0.45, late 0.8; yield formation 0.7; ripening 0.2', 0.8, 'vegetative')),
 
@@ -478,6 +637,7 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
     evidence: [UDEL_TOMATO_CRACKING],
   }),
   salt('Tomato (Lycopersicon esculentum)', 2.5, 'moderately_sensitive'),
+  warmSoilRoot('el tomate', 'tomato', 'Tomatoes'),
   waterSensitive('Tomato', 'vegetative 0.4; flowering 1.1; yield formation 0.8; ripening 0.4', 1.1, 'flowering')),
 
   // --- ES7.A: acelga, ají, ajo, alcachofa, caigua, haba, locoto y pepino dulce ---
@@ -497,10 +657,11 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: 'Sin fuente propia para la acelga: se usa el criterio documentado para la betarraga, la misma especie botánica (Beta vulgaris subsp. vulgaris), de un grupo de cultivo distinto que la tabla no separa.',
       limitationsEn: 'No source for Swiss chard: the documented criterion for beetroot is used, the same botanical species (Beta vulgaris subsp. vulgaris), from a different cultivar group that the table does not separate.',
     }),
+    warmSoilRoot('la acelga', 'Swiss chard', 'Chard, Swiss'),
     analogSalt('sp.betarraga', 'la acelga', 'Swiss chard', 'la betarraga', 'beetroot',
       'son la misma especie botánica (Beta vulgaris subsp. vulgaris)', 'they are the same botanical species (Beta vulgaris subsp. vulgaris)',
       'Beet, red (Beta vulgaris)', 4.0, 'moderately_tolerant'),
-    fao56Water('Small Vegetables — Swiss chard (Beta vulgaris var. cicla)', 1.0, 0.2, 'vegetative')),
+    analogWater('sp.espinaca', 'la acelga', 'chard', 'Espinaca', 'Spinach', 'ambas son hortalizas de hoja de la misma familia botánica y raíz somera, cosechadas por la lámina y el pecíolo', 'both are shallow-rooted leafy vegetables of the same botanical family, harvested for blade and petiole', fao56Water('Spinach', 1.0, 0.2, 'vegetative'))),
 
   // Ají: el Boletín INIA 411 trata pimiento y ají en conjunto y nombra a ambos en el párrafo de
   // heladas, que es fuente propia; sin un umbral exacto en °C ahí, se usa el umbral de 32 °F de la
@@ -510,6 +671,8 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
     frostTender([inia165('none'), nebraska('tender', 'pepper'), sdsu('none', 'Pepper, eggplant')],
       'El Boletín INIA 411 (Pimiento y Ají) confirma que el ají es muy susceptible a las heladas, igual que el pimiento, sin dar un umbral exacto en °C.',
       'INIA Bulletin 411 (Pimiento y Aji) confirms chili pepper is very susceptible to frost, like bell pepper, without giving an exact °C threshold.'),
+    warmSoilRoot('el ají', 'chili pepper', 'Peppers'),
+    rainCrackingFruit('el ají', 'chili pepper'),
     analog('sp.pimiento', {
       ...umdVegetable('Peppers', 6.5, 6.0),
       limitations: 'Sin fuente propia para el ají: se usa el criterio documentado para el pimiento, del mismo género (Capsicum).',
@@ -555,6 +718,8 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: 'Sin fuente propia para el locoto: se usa el criterio documentado para el pimiento, del mismo género (Capsicum); el locoto tolera más frío que el pimiento, pero no hay un pH propio documentado.',
       limitationsEn: 'No source for rocoto pepper: the documented criterion for bell pepper is used, from the same genus (Capsicum); rocoto tolerates more cold than bell pepper, but no own pH figure is documented.',
     }),
+    warmSoilRootAnalog('sp.pimiento', 'el locoto', 'rocoto pepper', 'Pimiento', 'Bell pepper', 'ambas son del mismo género (Capsicum), aunque el locoto tolera más frío', 'both are of the same genus (Capsicum), although rocoto tolerates more cold', 'Peppers'),
+    rainCrackingFruit('el locoto', 'rocoto pepper'),
     analogSalt('sp.pimiento', 'el locoto', 'rocoto pepper', 'el pimiento', 'bell pepper',
       'ambos son del género Capsicum', 'both belong to the genus Capsicum',
       'Pepper (Capsicum annuum)', 1.5, 'moderately_sensitive'),
@@ -569,15 +734,17 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
     frostTolerant(28, [inia165('tolerant'), sdsu('light', 'Garlic')],
       'Nebraska Extension no incluye el ajo en su clasificación por tolerancia a la helada.',
       'Nebraska Extension does not include garlic in its frost-tolerance classification.'),
+    alliumHarvestRain('el ajo', 'garlic'),
     analog('sp.cebolla', {
       ...umdVegetable('Onions - green, bulb, scallions', 6.5, 6.0),
       limitations: 'Sin fuente propia para el ajo: se usa el criterio documentado para la cebolla, del mismo género (Allium) y con el mismo órgano cosechado (bulbo); la tabla de pH de hortalizas no incluye una fila de ajo.',
       limitationsEn: 'No source for garlic: the documented criterion for onion is used, from the same genus (Allium) and with the same harvested organ (bulb); the vegetable pH table has no row for garlic.',
     }),
+    warmSoilRoot('el ajo', 'garlic', 'Garlic'),
     analogSalt('sp.cebolla', 'el ajo', 'garlic', 'la cebolla', 'onion',
       'ambos son del género Allium', 'both belong to the genus Allium',
       'Onion (Allium cepa)', 1.2, 'sensitive'),
-    fao56Water('Garlic (Allium sativum)', 1.0, 0.3, 'vegetative')),
+    fao56Water('Garlic', 1.0, 0.3, 'vegetative')),
 
   // Alcachofa: perenne con fuente propia completa (INIA-Ururi, único informativo chileno con cifras
   // de clima y suelo para esta especie). No tiene especie similar en el catálogo (§ES7.A).
@@ -615,8 +782,10 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       limitationsEn: 'Cites CIREN (1988) inside the INIA-Ururi bulletin; it does not state how many hours of heat are needed for the effect.',
       evidence: [ALCACHOFA_INIA_URURI_HEAT],
     }),
+    warmSoilRootAnalog('sp.esparrago', 'la alcachofa', 'artichoke', 'Espárrago', 'Asparagus', 'ambas son hortalizas perennes de corona que rebrotan cuando el suelo se templa', 'both are perennial crown vegetables that regrow as the soil warms', 'Asparagus'),
+    leafyHarvestRain('la alcachofa', 'artichoke', FICHAS_POSCOSECHA.alcachofa),
     salt('Artichoke (Cynara scolymus)', 6.1, 'moderately_tolerant'),
-    fao56Water('Artichokes (Cynara scolymus)', 1.0, 0.45, 'vegetative')),
+    fao56Water('Artichokes', 1.0, 0.45, 'vegetative')),
 
   // Caigua: PFAF la describe como sensible a la helada sin dar una cifra, así que se usa 0 °C como
   // definición de helada (declarado en las limitaciones). El pH no tiene fuente propia: se usa por
@@ -639,12 +808,14 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: 'Sin fuente propia para la caigua: se usa el criterio documentado para el pepino, de la misma familia (Cucurbitáceas) y con el mismo tipo de fruto cosechado inmaduro.',
       limitationsEn: 'No source for caigua: the documented criterion for cucumber is used, from the same family (Cucurbitaceae) and with the same kind of fruit harvested unripe.',
     }),
+    warmSoilRootAnalog('sp.pepino', 'la caigua', 'caigua', 'Pepino', 'Cucumber', 'ambas son cucurbitáceas de fruto que se cosecha inmaduro', 'both are cucurbits whose fruit is harvested unripe', 'Cucumbers'),
+    rainCrackingFruit('la caigua', 'caigua'),
     analogSalt('sp.pepino', 'la caigua', 'caigua', 'el pepino', 'cucumber',
       'ambos son cucurbitáceas y se cosechan por su fruto inmaduro', 'both are cucurbits harvested for their unripe fruit',
       'Cucumber (Cucumis sativus)', 2.5, 'moderately_sensitive'),
     analogWater('sp.pepino', 'la caigua', 'caigua', 'el pepino', 'cucumber',
       'ambos son cucurbitáceas y se cosechan por su fruto inmaduro', 'both are cucurbits harvested for their unripe fruit',
-      fao56Water('Cucumber - Fresh Market (Cucumis sativus)', 1.0, 0.5, 'flowering'))),
+      fao56Water('Cucumber - Fresh Market', 1.0, 0.5, 'flowering'))),
 
   // Haba: INIA nombra «habas» directamente en el aborto floral por helada (floración) y en el grupo
   // que se daña cerca de la madurez (cosecha); ambas son fuente propia. El vegetativo no tiene fuente
@@ -686,8 +857,10 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
       limitations: 'Sin fuente propia para el haba: se usa el criterio documentado para la arveja, de la misma familia (Fabáceas).',
       limitationsEn: 'No source for fava bean: the documented criterion for pea is used, from the same family (Fabaceae).',
     }),
+    warmSoilRootAnalog('sp.arveja', 'el haba', 'fava bean', 'Arveja', 'Pea', 'ambas son leguminosas de grano de estación fría que se siembran con el suelo todavía frío', 'both are cool-season grain legumes sown while the soil is still cold', 'Peas'),
+    legumePodRain('el haba', 'fava bean'),
     salt('Broadbean (Vicia faba)', 1.6, 'moderately_sensitive'),
-    fao56Water('Broadbean / Faba bean (Vicia faba)', 1.15, 0.45, 'flowering')),
+    fao56Water('Fababean (broad bean) - Fresh', 1.15, 0.45, 'flowering')),
 
   // Pepino dulce: INIA lo nombra directamente y lo distingue del tomate («pepino dulce... no son
   // capaces de tolerar 0ºC», más sensible que el tomate), fuente propia. El pH no tiene fuente
@@ -724,6 +897,8 @@ export const HORTALIZA_PROFILES: readonly SpeciesRuleProfile[] = [
         umdTableB1('Tomatoes', 6.5, 6.0),
       ],
     } as SpeciesPhCriterion),
+    warmSoilRootAnalog('sp.tomate', 'el pepino dulce', 'pepino melon', 'Tomate', 'Tomato', 'ambas son solánaceas de fruto del mismo género (Solanum)', 'both are fruiting solanaceae of the same genus (Solanum)', 'Tomatoes'),
+    rainCrackingFruit('el pepino dulce', 'pepino melon'),
     analogSalt('sp.tomate', 'el pepino dulce', 'pepino melon', 'el tomate', 'tomato',
       'ambos son del género Solanum y se cultivan por su fruto', 'both belong to the genus Solanum and are grown for their fruit',
       'Tomato (Lycopersicon esculentum)', 2.5, 'moderately_sensitive'),

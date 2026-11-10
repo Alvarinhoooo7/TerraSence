@@ -78,21 +78,46 @@ bool Sonda::consultar(uint32_t ahora) {
   c.inicio = SONDA_REGISTRO_INICIO;
   c.cantidad = SONDA_REGISTROS;
   c.baudios = SONDA_BAUDIOS[velocidad_];
-  c.estabilizacionMs = SONDA_ESTABILIZACION_MS;
+  // La primera muestra espera SONDA_ESTABILIZACION_MS tras activar el MOSFET;
+  // las muestras siguientes de la misma ráfaga esperan SONDA_SEPARACION_RAFAGA_MS
+  // con la sonda ya energizada.
+  c.estabilizacionMs = muestrasTomadas_ ? SONDA_SEPARACION_RAFAGA_MS : SONDA_ESTABILIZACION_MS;
   c.respuestaMs = SONDA_RESPUESTA_MS;
   c.reintentos = SONDA_REINTENTOS;
   transporte.limpiar();
   return transporte.iniciar(c, ahora);
 }
 
+// La ráfaga sólo pide otra muestra si le queda plazo de reloj. Sin este tope,
+// una sucesión de consultas falladas (hasta 1,5 s cada una entre reintentos)
+// estiraría la captura más allá de los 15 s que la app espera por la
+// notificación, y el equipo terminaría entregando una lectura que ya nadie
+// recibe. `millis()` da la vuelta cada 49,7 días y la resta sin signo lo
+// resuelve sola, así que no hace falta tratar el desborde aparte.
+bool Sonda::quedaPlazoRafaga(uint32_t ahora) const {
+  return ahora - rafagaDesde_ < SONDA_RAFAGA_MAX_MS;
+}
+
+void Sonda::finalizarCaptura() {
+  puerto.sostener(false);
+  puerto.direccionTx(false);
+  puerto.cerrar();
+  puerto.alimentar(false);
+  estado_ = Estado::Terminada;
+}
+
 bool Sonda::iniciar(uint32_t ahora) {
   if (ocupada()) return false;
   lectura_ = LecturaSuelo{};
   velocidad_ = 0;
+  muestrasTomadas_ = 0;
+  muestrasValidas_ = 0;
+  rafagaDesde_ = ahora;
   estado_ = Estado::Midiendo;
+  puerto.sostener(true);
   if (!consultar(ahora)) {
     Serial.printf("[SONDA] No se pudo iniciar la consulta: %s\n", modbus::nombreFallo(transporte.fallo()));
-    estado_ = Estado::Terminada;
+    finalizarCaptura();
   }
   return true;
 }
@@ -106,12 +131,21 @@ void Sonda::actualizar(uint32_t ahora) {
 
   const modbus::Fallo fallo = transporte.fallo();
   if (fallo == modbus::Fallo::Ninguno) {
-    convertir(transporte.registros());
-    Serial.printf("[SONDA] Lectura a %lu baudios\n", (unsigned long)SONDA_BAUDIOS[velocidad_]);
+    const uint16_t *r = transporte.registros();
+    if (r && muestrasValidas_ < SONDA_MUESTRAS_RAFAGA) {
+      for (uint8_t k = 0; k < SONDA_REGISTROS; ++k) rafaga_[muestrasValidas_][k] = r[k];
+      ++muestrasValidas_;
+    }
+    ++muestrasTomadas_;
     if (transporte.descartados())
       Serial.printf("[SONDA] Se descartaron %u bytes antes de la trama (eco de la consulta o ruido del bus)\n",
                     transporte.descartados());
-    estado_ = Estado::Terminada;
+    if (muestrasTomadas_ < SONDA_MUESTRAS_RAFAGA && quedaPlazoRafaga(ahora) && consultar(ahora)) return;
+    if (muestrasTomadas_ < SONDA_MUESTRAS_RAFAGA && !quedaPlazoRafaga(ahora))
+      Serial.printf("[SONDA] Ráfaga cerrada por plazo (%lu ms): se promedian las %u muestras válidas obtenidas\n",
+                    (unsigned long)SONDA_RAFAGA_MAX_MS, muestrasValidas_);
+    convertirRafaga();
+    finalizarCaptura();
     return;
   }
   if (fallo == modbus::Fallo::Excepcion) {
@@ -126,13 +160,22 @@ void Sonda::actualizar(uint32_t ahora) {
     for (size_t i = 0; i < transporte.largoCrudo(); i++) Serial.printf(" %02X", transporte.crudo()[i]);
     Serial.println();
   }
-  // Sólo el silencio sugiere otra velocidad; un CRC o una excepción indican
-  // que la sonda sí escucha a esta velocidad y no conviene insistir.
-  if (fallo == modbus::Fallo::Silencio && velocidad_ + 1 < VELOCIDADES) {
+  // Si aún no obtuvimos ninguna muestra válida y hubo silencio, probar la otra velocidad.
+  if (muestrasValidas_ == 0 && fallo == modbus::Fallo::Silencio && velocidad_ + 1 < VELOCIDADES) {
     velocidad_++;
+    muestrasTomadas_ = 0;
     if (consultar(ahora)) return;
   }
-  estado_ = Estado::Terminada;
+  // Si ya teníamos al menos una muestra válida en la ráfaga, intentar completar o cerrar con las válidas.
+  if (muestrasValidas_ > 0) {
+    ++muestrasTomadas_;
+    if (muestrasTomadas_ < SONDA_MUESTRAS_RAFAGA && quedaPlazoRafaga(ahora) && consultar(ahora)) return;
+    if (muestrasTomadas_ < SONDA_MUESTRAS_RAFAGA && !quedaPlazoRafaga(ahora))
+      Serial.printf("[SONDA] Ráfaga cerrada por plazo (%lu ms): se promedian las %u muestras válidas obtenidas\n",
+                    (unsigned long)SONDA_RAFAGA_MAX_MS, muestrasValidas_);
+    convertirRafaga();
+  }
+  finalizarCaptura();
 }
 
 void Sonda::cancelar() {
@@ -369,4 +412,64 @@ void Sonda::convertir(const uint16_t *r) {
   Serial.printf("[SONDA] Con las escalas de config.h: humedad %.1f %%, temperatura %.1f °C, "
                 "CE %u µS/cm, pH %.1f, N %u, P %u, K %u mg/kg\n",
                 r[0] / 10.0f, int16_t(r[1]) / 10.0f, r[2], r[3] / 10.0f, r[4], r[5], r[6]);
+}
+
+void Sonda::convertirRafaga() {
+  if (!muestrasValidas_) return;
+  uint16_t promediado[SONDA_REGISTROS]{};
+  const uint8_t recorte = recorteMediaRecortada(muestrasValidas_, SONDA_MUESTRAS_RAFAGA);
+  const uint8_t desde = recorte;
+  const uint8_t hasta = muestrasValidas_ - recorte;
+  const uint8_t cuenta = hasta - desde;
+
+  for (uint8_t k = 0; k < SONDA_REGISTROS; ++k) {
+    if (k == 1) {
+      int16_t vals[SONDA_MUESTRAS_RAFAGA]{};
+      for (uint8_t i = 0; i < muestrasValidas_; ++i) vals[i] = int16_t(rafaga_[i][1]);
+      for (uint8_t i = 1; i < muestrasValidas_; ++i) {
+        const int16_t v = vals[i];
+        uint8_t j = i;
+        while (j > 0 && vals[j - 1] > v) { vals[j] = vals[j - 1]; --j; }
+        vals[j] = v;
+      }
+      int32_t suma = 0;
+      for (uint8_t i = desde; i < hasta; ++i) suma += vals[i];
+      const int32_t mitad = cuenta / 2;
+      const int32_t redondeado = suma >= 0 ? (suma + mitad) / int32_t(cuenta) : (suma - mitad) / int32_t(cuenta);
+      promediado[1] = uint16_t(int16_t(redondeado));
+    } else {
+      uint16_t vals[SONDA_MUESTRAS_RAFAGA]{};
+      for (uint8_t i = 0; i < muestrasValidas_; ++i) vals[i] = rafaga_[i][k];
+      for (uint8_t i = 1; i < muestrasValidas_; ++i) {
+        const uint16_t v = vals[i];
+        uint8_t j = i;
+        while (j > 0 && vals[j - 1] > v) { vals[j] = vals[j - 1]; --j; }
+        vals[j] = v;
+      }
+      uint32_t suma = 0;
+      for (uint8_t i = desde; i < hasta; ++i) suma += vals[i];
+      promediado[k] = uint16_t((suma + cuenta / 2U) / cuenta);
+    }
+  }
+  uint16_t humMin = rafaga_[0][0], humMax = rafaga_[0][0];
+  int16_t tempMin = int16_t(rafaga_[0][1]), tempMax = int16_t(rafaga_[0][1]);
+  uint16_t ceMin = rafaga_[0][2], ceMax = rafaga_[0][2];
+  uint16_t phMin = rafaga_[0][3], phMax = rafaga_[0][3];
+  for (uint8_t i = 1; i < muestrasValidas_; ++i) {
+    if (rafaga_[i][0] < humMin) humMin = rafaga_[i][0];
+    if (rafaga_[i][0] > humMax) humMax = rafaga_[i][0];
+    const int16_t ti = int16_t(rafaga_[i][1]);
+    if (ti < tempMin) tempMin = ti;
+    if (ti > tempMax) tempMax = ti;
+    if (rafaga_[i][2] < ceMin) ceMin = rafaga_[i][2];
+    if (rafaga_[i][2] > ceMax) ceMax = rafaga_[i][2];
+    if (rafaga_[i][3] < phMin) phMin = rafaga_[i][3];
+    if (rafaga_[i][3] > phMax) phMax = rafaga_[i][3];
+  }
+  convertir(promediado);
+  Serial.printf("[SONDA] Ráfaga a %lu baudios (%u/%u muestras válidas, media recortada sobre %u centrales) | "
+                "dispersión: Δhum %.1f %%, Δtemp %.1f °C, ΔCE %u µS/cm, ΔpH %.1f\n",
+                (unsigned long)SONDA_BAUDIOS[velocidad_], muestrasValidas_, SONDA_MUESTRAS_RAFAGA, cuenta,
+                (humMax - humMin) / 10.0f, (tempMax - tempMin) / 10.0f,
+                unsigned(ceMax - ceMin), (phMax - phMin) / 10.0f);
 }

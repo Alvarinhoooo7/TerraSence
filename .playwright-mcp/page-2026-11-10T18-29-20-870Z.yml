@@ -1,0 +1,421 @@
+- generic [active] [ref=f14e1]:
+  - link "Skip to content" [ref=f14e2] [cursor=pointer]:
+    - /url: "#wp--skip-link--target"
+  - generic [ref=f14e3]:
+    - banner [ref=f14e4]:
+      - generic [ref=f14e5]:
+        - generic [ref=f14e7]:
+          - generic [ref=f14e9]:
+            - text: A website from
+            - link "UGA Cooperative Extension" [ref=f14e10] [cursor=pointer]:
+              - /url: https://extension.uga.edu
+          - generic [ref=f14e11]:
+            - paragraph [ref=f14e12]:
+              - link "Commodities at CAES" [ref=f14e13] [cursor=pointer]:
+                - /url: https://www.caes.uga.edu/extension-outreach/commodities.html
+            - button "Reveal search bar" [ref=f14e14] [cursor=pointer]:
+              - generic [aria-hidden] [ref=f14e15]: Search
+        - generic [ref=f14e19]:
+          - paragraph [ref=f14e21]:
+            - link "UGA Pecan Extension" [ref=f14e22] [cursor=pointer]:
+              - /url: https://site.extension.uga.edu/pecan
+          - navigation "Header navigation" [ref=f14e23]:
+            - list [ref=f14e28]:
+              - listitem [ref=f14e29]:
+                - link "Home" [ref=f14e30] [cursor=pointer]:
+                  - /url: https://site.extension.uga.edu/pecan/
+        - generic [ref=f14e31]:
+          - generic:
+            - paragraph
+    - main [ref=f14e33]:
+      - generic [ref=f14e35]:
+        - generic [ref=f14e37]:
+          - heading "Recent Posts" [level=1] [ref=f14e38]
+          - list [ref=f14e39]:
+            - listitem [ref=f14e40]:
+              - generic [ref=f14e41]:
+                - heading [level=2] [ref=f14e42]:
+                  - link "Fungicide Resistance Sampling Program for Pecan Scab" [ref=f14e43] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/2026/07/fungicide-resistance-sampling-program-for-pecan-scab/
+                - generic [ref=f14e44]:
+                  - paragraph [ref=f14e47]: Lenny Wells
+                  - time [ref=f14e49]: July 20, 2026
+              - generic [ref=f14e52]:
+                - generic [ref=f14e53]:
+                  - paragraph [ref=f14e54]: "If you would like to have the scab from your orchard screened for fungicide resistance to the fungicide chemistries used on pecan, Dr. Clemen Oliveira has provided the following protocol: Collect 10-20 young LEAVES/SHOOTS from 6-10 trees in the orchard block. Place them in a PLASTIC bag (no paper). Fill out the form at the…"
+                  - paragraph [ref=f14e55]:
+                    - link "Read More" [ref=f14e56] [cursor=pointer]:
+                      - /url: https://site.extension.uga.edu/pecan/2026/07/fungicide-resistance-sampling-program-for-pecan-scab/
+                - generic [ref=f14e57]:
+                  - text: "Posted in:"
+                  - link "Disease" [ref=f14e58] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/category/disease/
+            - listitem [ref=f14e59]:
+              - generic [ref=f14e60]:
+                - heading [level=2] [ref=f14e61]:
+                  - link "Is Scab Becoming Harder to Control on Pawnee?" [ref=f14e62] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/2026/07/is-scab-becoming-harder-to-control-on-pawnee/
+                - generic [ref=f14e63]:
+                  - paragraph [ref=f14e66]: Lenny Wells
+                  - time [ref=f14e68]: July 7, 2026
+              - generic [ref=f14e71]:
+                - generic [ref=f14e72]:
+                  - paragraph [ref=f14e73]: If you are spending much time in pecan orchards composed of Desirable and Pawnee trees right now, you can likely find at least a little scab on a few nuts here and there if you look hard enough. In some cases, you will find a lot more than you would like to see. Our wet…
+                  - paragraph [ref=f14e74]:
+                    - link "Read More" [ref=f14e75] [cursor=pointer]:
+                      - /url: https://site.extension.uga.edu/pecan/2026/07/is-scab-becoming-harder-to-control-on-pawnee/
+                - generic [ref=f14e76]:
+                  - text: "Posted in:"
+                  - link "Disease" [ref=f14e77] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/category/disease/
+            - listitem [ref=f14e78]:
+              - generic [ref=f14e79]:
+                - heading [level=2] [ref=f14e80]:
+                  - link "2026 Mid-Season Pecan Update" [ref=f14e81] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/2026/06/2026-mid-season-pecan-update/
+                - generic [ref=f14e82]:
+                  - paragraph [ref=f14e85]: Lenny Wells
+                  - time [ref=f14e87]: June 22, 2026
+              - generic [ref=f14e90]:
+                - generic [ref=f14e91]:
+                  - paragraph [ref=f14e92]: The summer solstice just passed and we are about half-way through the 2026 pecan season. As each year does, 2026 has come with its own set of conditions. Overall, I would say that over the state as a whole, the crop looks a little better than last year. Our pecan bloom appeared strong in April…
+                  - paragraph [ref=f14e93]:
+                    - link "Read More" [ref=f14e94] [cursor=pointer]:
+                      - /url: https://site.extension.uga.edu/pecan/2026/06/2026-mid-season-pecan-update/
+                - generic [ref=f14e95]:
+                  - text: "Posted in:"
+                  - link "Disease" [ref=f14e96] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/category/disease/
+                  - text: ","
+                  - link "Fertilization" [ref=f14e97] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/category/fertilization/
+                  - text: ","
+                  - link "Horticulture" [ref=f14e98] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/category/horticulture/
+                  - text: ","
+                  - link "Insect Management" [ref=f14e99] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/category/insect-management/
+            - listitem [ref=f14e100]:
+              - generic [ref=f14e101]:
+                - heading [level=2] [ref=f14e102]:
+                  - link "Pecan nut casebearer moth capture update and spray timing" [ref=f14e103] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/2026/04/pecan-nut-casebearer-moth-capture-update-and-spray-timing/
+                - generic [ref=f14e104]:
+                  - paragraph [ref=f14e107]: Apurba Barman
+                  - time [ref=f14e109]: April 30, 2026
+              - generic [ref=f14e112]:
+                - generic [ref=f14e113]:
+                  - paragraph [ref=f14e114]: Warm weather has affected the agricultural community across the board, whether producers are growing row crops or pecans. Fortunately, there has been some relief where recent rainfall predictions have materialized, providing much-needed moisture. Earlier this month, some pecan growers applied imidacloprid to manage phylloxera galls. By now, the results of those applications should be visible,…
+                  - paragraph [ref=f14e115]:
+                    - link "Read More" [ref=f14e116] [cursor=pointer]:
+                      - /url: https://site.extension.uga.edu/pecan/2026/04/pecan-nut-casebearer-moth-capture-update-and-spray-timing/
+                - generic [ref=f14e117]:
+                  - text: "Posted in:"
+                  - link "Insect Management" [ref=f14e118] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/category/insect-management/
+            - listitem [ref=f14e119]:
+              - generic [ref=f14e120]:
+                - heading [level=2] [ref=f14e121]:
+                  - link "2025 Pre-Emergent Herbicide Economics" [ref=f14e122] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/2026/04/2025-pre-emergent-herbicide-economics/
+                - generic [ref=f14e123]:
+                  - paragraph [ref=f14e126]: Andrew Sawyer
+                  - time [ref=f14e128]: April 17, 2026
+              - generic [ref=f14e131]:
+                - generic [ref=f14e132]:
+                  - paragraph [ref=f14e133]: By mid-April, we have usually applied our pre-emergent herbicides to control summer annual weeds. With the dry weather, many growers have not accomplished this spray for 2026. This is the driest spring since I have served the pecan industry in East Georgia. Rainfall is necessary for pre-emergent herbicides to activate. Many of us did not…
+                  - paragraph [ref=f14e134]:
+                    - link "Read More" [ref=f14e135] [cursor=pointer]:
+                      - /url: https://site.extension.uga.edu/pecan/2026/04/2025-pre-emergent-herbicide-economics/
+                - generic [ref=f14e136]:
+                  - text: "Posted in:"
+                  - link "Economics" [ref=f14e137] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/category/economics/
+                  - text: ","
+                  - link "Weed Management" [ref=f14e138] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/category/weed-management/
+            - listitem [ref=f14e139]:
+              - generic [ref=f14e140]:
+                - heading [level=2] [ref=f14e141]:
+                  - link "Calculating Nitrogen Injection" [ref=f14e142] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/2026/04/calculating-nitrogen-injection/
+                - generic [ref=f14e143]:
+                  - paragraph [ref=f14e146]: Andrew Sawyer
+                  - time [ref=f14e148]: April 13, 2026
+              - generic [ref=f14e151]:
+                - generic [ref=f14e152]:
+                  - paragraph [ref=f14e153]: This post was originally made by Dr. Lenny Wells in 2024. We are re-posting with a few updates since many growers are utilizing this method. Calibrating your nitrogen per acre is the purpose of this post. We are in the middle of fertilization season again and many are choosing to inject their N through the…
+                  - paragraph [ref=f14e154]:
+                    - link "Read More" [ref=f14e155] [cursor=pointer]:
+                      - /url: https://site.extension.uga.edu/pecan/2026/04/calculating-nitrogen-injection/
+                - generic [ref=f14e156]:
+                  - text: "Posted in:"
+                  - link "Fertilization" [ref=f14e157] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/category/fertilization/
+            - listitem [ref=f14e158]:
+              - generic [ref=f14e159]:
+                - heading [level=2] [ref=f14e160]:
+                  - link "Pecan Spray Guides and Our New Pecan Podcast" [ref=f14e161] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/2026/04/pecan-spray-guides-and-our-new-pecan-podcast/
+                - generic [ref=f14e162]:
+                  - paragraph [ref=f14e165]: Lenny Wells
+                  - time [ref=f14e167]: April 10, 2026
+              - generic [ref=f14e170]:
+                - generic [ref=f14e171]:
+                  - paragraph [ref=f14e172]: "The 2026 Pecan Spray Guides are available at the following link: Also, SE District Area Pecan Agent, Andrew Sawyer and I have started a new podcast called “In A Nutshell: The Pecan Podcast. You can subscribe and hear the first episode at the link below and anywhere you find your podcasts We will try to…"
+                  - paragraph [ref=f14e173]:
+                    - link "Read More" [ref=f14e174] [cursor=pointer]:
+                      - /url: https://site.extension.uga.edu/pecan/2026/04/pecan-spray-guides-and-our-new-pecan-podcast/
+                - generic [ref=f14e175]:
+                  - text: "Posted in:"
+                  - link "Programming" [ref=f14e176] [cursor=pointer]:
+                    - /url: https://site.extension.uga.edu/pecan/category/programming/
+          - navigation "Pagination" [ref=f14e177]:
+            - generic [ref=f14e178]:
+              - text: "1"
+              - link "2" [ref=f14e179] [cursor=pointer]:
+                - /url: https://site.extension.uga.edu/pecan/page/2/
+              - link "3" [ref=f14e180] [cursor=pointer]:
+                - /url: https://site.extension.uga.edu/pecan/page/3/
+              - text: …
+              - link "51" [ref=f14e181] [cursor=pointer]:
+                - /url: https://site.extension.uga.edu/pecan/page/51/
+            - link "Next Page" [ref=f14e182] [cursor=pointer]:
+              - /url: https://site.extension.uga.edu/pecan/page/2/
+              - text: Next Page
+              - generic [aria-hidden] [ref=f14e183]: »
+        - complementary [ref=f14e185]:
+          - generic [ref=f14e186]:
+            - heading "Newsletter Sign-Up" [level=2] [ref=f14e187]
+            - generic [ref=f14e189]:
+              - paragraph [ref=f14e190]:
+                - text: Email Address (required)
+                - textbox "Email Address (required)" [ref=f14e191]
+              - paragraph [ref=f14e192]:
+                - text: First Name
+                - textbox "First Name" [ref=f14e193]
+              - paragraph [ref=f14e194]:
+                - text: Last Name
+                - textbox "Last Name" [ref=f14e195]
+              - paragraph [ref=f14e196]:
+                - button "Subscribe" [ref=f14e197] [cursor=pointer]
+            - heading "About UGA Pecan Team" [level=2] [ref=f14e198]
+            - paragraph [ref=f14e199]:
+              - text: The
+              - link "UGA Pecan Team" [ref=f14e200] [cursor=pointer]:
+                - /url: https://pecans.uga.edu/team.html
+              - text: provides timely information relevant to pecan production in Georgia for use by county extension agents and pecan producers.
+            - paragraph [ref=f14e201]:
+              - link "Learn more about Pecan research." [ref=f14e202] [cursor=pointer]:
+                - /url: https://pecans.uga.edu/
+            - heading "Recent Posts" [level=2] [ref=f14e203]
+            - list [ref=f14e204]:
+              - listitem [ref=f14e205]:
+                - link "Fungicide Resistance Sampling Program for Pecan Scab" [ref=f14e206] [cursor=pointer]:
+                  - /url: https://site.extension.uga.edu/pecan/2026/07/fungicide-resistance-sampling-program-for-pecan-scab/
+              - listitem [ref=f14e207]:
+                - link "Is Scab Becoming Harder to Control on Pawnee?" [ref=f14e208] [cursor=pointer]:
+                  - /url: https://site.extension.uga.edu/pecan/2026/07/is-scab-becoming-harder-to-control-on-pawnee/
+              - listitem [ref=f14e209]:
+                - link "2026 Mid-Season Pecan Update" [ref=f14e210] [cursor=pointer]:
+                  - /url: https://site.extension.uga.edu/pecan/2026/06/2026-mid-season-pecan-update/
+              - listitem [ref=f14e211]:
+                - link "Pecan nut casebearer moth capture update and spray timing" [ref=f14e212] [cursor=pointer]:
+                  - /url: https://site.extension.uga.edu/pecan/2026/04/pecan-nut-casebearer-moth-capture-update-and-spray-timing/
+              - listitem [ref=f14e213]:
+                - link "2025 Pre-Emergent Herbicide Economics" [ref=f14e214] [cursor=pointer]:
+                  - /url: https://site.extension.uga.edu/pecan/2026/04/2025-pre-emergent-herbicide-economics/
+            - heading "Categories" [level=2] [ref=f14e215]
+            - generic [ref=f14e216]:
+              - generic [ref=f14e217]: Categories
+              - combobox "Categories" [ref=f14e218]:
+                - option "Select Category" [selected]
+                - option "Disease"
+                - option "Economics"
+                - option "Environmental"
+                - option "Fertilization"
+                - option "Horticulture"
+                - option "Insect Management"
+                - option "Irrigation"
+                - option "Planting"
+                - option "Pollination"
+                - option "Programming"
+                - option "Uncategorized"
+                - option "Weed Management"
+                - option "Young Trees"
+            - heading "Archives" [level=2] [ref=f14e219]
+            - generic [ref=f14e220]:
+              - generic [ref=f14e221]: Archives
+              - combobox "Archives" [ref=f14e222]:
+                - option "Select Month" [selected]
+                - option "July 2026"
+                - option "June 2026"
+                - option "April 2026"
+                - option "March 2026"
+                - option "January 2026"
+                - option "November 2025"
+                - option "October 2025"
+                - option "August 2025"
+                - option "July 2025"
+                - option "June 2025"
+                - option "May 2025"
+                - option "April 2025"
+                - option "March 2025"
+                - option "January 2025"
+                - option "November 2024"
+                - option "October 2024"
+                - option "September 2024"
+                - option "August 2024"
+                - option "July 2024"
+                - option "June 2024"
+                - option "May 2024"
+                - option "March 2024"
+                - option "February 2024"
+                - option "January 2024"
+                - option "November 2023"
+                - option "September 2023"
+                - option "August 2023"
+                - option "July 2023"
+                - option "June 2023"
+                - option "May 2023"
+                - option "April 2023"
+                - option "March 2023"
+                - option "February 2023"
+                - option "January 2023"
+                - option "October 2022"
+                - option "September 2022"
+                - option "August 2022"
+                - option "July 2022"
+                - option "June 2022"
+                - option "May 2022"
+                - option "April 2022"
+                - option "March 2022"
+                - option "February 2022"
+                - option "January 2022"
+                - option "November 2021"
+                - option "August 2021"
+                - option "July 2021"
+                - option "May 2021"
+                - option "April 2021"
+                - option "March 2021"
+                - option "February 2021"
+                - option "January 2021"
+                - option "December 2020"
+                - option "October 2020"
+                - option "September 2020"
+                - option "August 2020"
+                - option "July 2020"
+                - option "June 2020"
+                - option "May 2020"
+                - option "April 2020"
+                - option "March 2020"
+                - option "February 2020"
+                - option "January 2020"
+                - option "December 2019"
+                - option "October 2019"
+                - option "September 2019"
+                - option "August 2019"
+                - option "July 2019"
+                - option "June 2019"
+                - option "May 2019"
+                - option "April 2019"
+                - option "March 2019"
+                - option "February 2019"
+                - option "January 2019"
+                - option "December 2018"
+                - option "November 2018"
+                - option "October 2018"
+                - option "September 2018"
+                - option "August 2018"
+                - option "July 2018"
+                - option "June 2018"
+                - option "May 2018"
+                - option "April 2018"
+                - option "March 2018"
+                - option "February 2018"
+                - option "January 2018"
+                - option "November 2017"
+                - option "October 2017"
+                - option "September 2017"
+                - option "August 2017"
+                - option "July 2017"
+                - option "June 2017"
+                - option "May 2017"
+                - option "April 2017"
+                - option "March 2017"
+                - option "February 2017"
+                - option "January 2017"
+                - option "November 2016"
+                - option "October 2016"
+                - option "September 2016"
+                - option "August 2016"
+                - option "July 2016"
+                - option "June 2016"
+                - option "May 2016"
+                - option "April 2016"
+                - option "March 2016"
+                - option "February 2016"
+                - option "January 2016"
+                - option "November 2015"
+                - option "October 2015"
+                - option "September 2015"
+                - option "August 2015"
+                - option "July 2015"
+                - option "June 2015"
+                - option "May 2015"
+                - option "April 2015"
+                - option "March 2015"
+                - option "February 2015"
+                - option "January 2015"
+                - option "December 2014"
+                - option "November 2014"
+                - option "October 2014"
+                - option "September 2014"
+                - option "August 2014"
+                - option "July 2014"
+                - option "June 2014"
+                - option "May 2014"
+                - option "April 2014"
+    - contentinfo [ref=f14e223]:
+      - generic [ref=f14e224]:
+        - generic [ref=f14e230]:
+          - figure [ref=f14e231]:
+            - link "UGA College of Agricultural & Environmental Sciences":
+              - /url: https://www.caes.uga.edu
+              - img "UGA College of Agricultural & Environmental Sciences"
+          - list [ref=f14e232]:
+            - listitem [ref=f14e233]:
+              - link "Facebook" [ref=f14e234] [cursor=pointer]:
+                - /url: https://www.facebook.com/UGACAES/
+            - listitem [ref=f14e238]:
+              - link "X" [ref=f14e239] [cursor=pointer]:
+                - /url: https://twitter.com/UGA_CollegeofAg
+            - listitem [ref=f14e243]:
+              - link "Instagram" [ref=f14e244] [cursor=pointer]:
+                - /url: https://www.instagram.com/uga_collegeofag/
+            - listitem [ref=f14e248]:
+              - link "YouTube" [ref=f14e249] [cursor=pointer]:
+                - /url: https://www.youtube.com/user/UGAAgandEnvironment
+            - listitem [ref=f14e253]:
+              - link "LinkedIn" [ref=f14e254] [cursor=pointer]:
+                - /url: https://www.linkedin.com/school/uga-college-of-agricultural-and-environmental-sciences/
+        - generic [ref=f14e259]:
+          - generic [ref=f14e260]:
+            - paragraph [ref=f14e261]: Administration
+            - link "Log in" [ref=f14e263] [cursor=pointer]:
+              - /url: https://site.extension.uga.edu/pecan/wp-login.php?redirect_to=https%3A%2F%2Fsite.extension.uga.edu%2Fpecan%2F
+          - paragraph [ref=f14e266]:
+            - link "UGA Extension" [ref=f14e267] [cursor=pointer]:
+              - /url: https://extension.uga.edu
+            - text: © 2012-2026. All Rights Reserved.The
+            - link "University of Georgia" [ref=f14e268] [cursor=pointer]:
+              - /url: https://www.uga.edu
+            - text: is an Equal Opportunity, Veteran, Disability Institution.
+            - link "Privacy Policy" [ref=f14e269] [cursor=pointer]:
+              - /url: https://eits.uga.edu/access_and_security/infosec/pols_regs/policies/privacy/
+            - text: "|"
+            - link "Accessibility Policy" [ref=f14e270] [cursor=pointer]:
+              - /url: https://www.caes.uga.edu/accessibility.html
+            - text: "|"
+            - link "Report an Accessibility Barrier" [ref=f14e271] [cursor=pointer]:
+              - /url: https://uga.teamdynamix.com/TDClient/3190/eitsclientportal/Requests/TicketRequests/NewForm?ID=7tC59R-FSCY_&RequestorType=Service

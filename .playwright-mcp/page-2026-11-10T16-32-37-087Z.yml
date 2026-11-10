@@ -1,0 +1,187 @@
+- generic [active] [ref=f13e1]:
+  - link "Skip to main content ➔" [ref=f13e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f13e4]:
+    - banner [ref=f13e5]:
+      - link [ref=f13e8] [cursor=pointer]:
+        - /url: https://www.ucdavis.edu/
+        - img "UC Davis Logo" [ref=f13e9]
+      - generic [ref=f13e11]:
+        - generic [ref=f13e12]:
+          - link [ref=f13e14] [cursor=pointer]:
+            - /url: /
+            - img "Site Logo" [ref=f13e15]
+          - generic [ref=f13e16]:
+            - heading [level=1] [ref=f13e17]:
+              - link "Vegetable Research and Information Center" [ref=f13e18] [cursor=pointer]:
+                - /url: /
+            - generic [ref=f13e19]: A Research & Information Center
+        - paragraph [ref=f13e22]: A Research & Information Center
+      - generic [ref=f13e25]:
+        - button " Open Search" [ref=f13e28] [cursor=pointer]
+        - generic [ref=f13e31]:
+          - button "Toggle Quick Links Menu" [ref=f13e32] [cursor=pointer]: Quick Links 
+          - text: 
+        - navigation "Main navigation (extended config)" [ref=f13e35]:
+          - list:
+            - listitem [ref=f13e37]:
+              - link "Home" [ref=f13e39] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f13e40]:
+              - link "Crops" [ref=f13e42] [cursor=pointer]:
+                - /url: /crops
+            - listitem [ref=f13e43]:
+              - link "Events " [ref=f13e45] [cursor=pointer]:
+                - /url: /events
+                - text: Events
+                - generic [ref=f13e46]: 
+            - listitem [ref=f13e47]:
+              - link "About Us" [ref=f13e49] [cursor=pointer]:
+                - /url: /people
+    - main [ref=f13e50]:
+      - generic [ref=f13e51]:
+        - link [ref=f13e53] [cursor=pointer]:
+          - /url: ""
+          - img "Welcome to the Vegetable Research and Information Center" [ref=f13e55]
+        - generic [ref=f13e62]:
+          - img "sample" [ref=f13e65]
+          - img "sample" [ref=f13e68]
+      - article [ref=f13e74]:
+        - generic [ref=f13e77]:
+          - generic [ref=f13e79]:
+            - heading "Crops" [level=2] [ref=f13e80]
+            - generic [ref=f13e82]:
+              - generic [ref=f13e84]:
+                - generic [ref=f13e85]:
+                  - heading [level=3] [ref=f13e88]:
+                    - link "Image of a yellow onion with a white background Allium" [ref=f13e89] [cursor=pointer]:
+                      - /url: /crop/allium
+                      - img "Image of a yellow onion with a white background" [ref=f13e91]
+                      - generic [ref=f13e92]: Allium
+                  - heading [level=3] [ref=f13e95]:
+                    - link "Image of a green artichoke on a white background Artichoke" [ref=f13e96] [cursor=pointer]:
+                      - /url: /crop/artichoke
+                      - img "Image of a green artichoke on a white background" [ref=f13e98]
+                      - generic [ref=f13e99]: Artichoke
+                  - heading [level=3] [ref=f13e102]:
+                    - link "Image of asparagus spears on a white background Asparagus" [ref=f13e103] [cursor=pointer]:
+                      - /url: /crop/asparagus
+                      - img "Image of asparagus spears on a white background" [ref=f13e105]
+                      - generic [ref=f13e106]: Asparagus
+                  - heading [level=3] [ref=f13e109]:
+                    - link "Image of white lima beans on a white background Beans" [ref=f13e110] [cursor=pointer]:
+                      - /url: /crop/beans
+                      - img "Image of white lima beans on a white background" [ref=f13e112]
+                      - generic [ref=f13e113]: Beans
+                - generic [ref=f13e114]:
+                  - heading [level=3] [ref=f13e117]:
+                    - link "Image of broccoli on a white background Broccoli" [ref=f13e118] [cursor=pointer]:
+                      - /url: /crop/broccoli
+                      - img "Image of broccoli on a white background" [ref=f13e120]
+                      - generic [ref=f13e121]: Broccoli
+                  - heading [level=3] [ref=f13e124]:
+                    - link "Image of napa cabbage on a white background Cabbage" [ref=f13e125] [cursor=pointer]:
+                      - /url: /crop/cabbage
+                      - img "Image of napa cabbage on a white background" [ref=f13e127]
+                      - generic [ref=f13e128]: Cabbage
+                  - heading [level=3] [ref=f13e131]:
+                    - link "Image of an orange carrot on a white background with a green stem and leaves Carrot" [ref=f13e132] [cursor=pointer]:
+                      - /url: /crop/carrot
+                      - img "Image of an orange carrot on a white background with a green stem and leaves" [ref=f13e134]
+                      - generic [ref=f13e135]: Carrot
+                  - heading [level=3] [ref=f13e138]:
+                    - link "Image of a head of cauliflower on a white background Cauliflower" [ref=f13e139] [cursor=pointer]:
+                      - /url: /crop/cauliflower
+                      - img "Image of a head of cauliflower on a white background" [ref=f13e141]
+                      - generic [ref=f13e142]: Cauliflower
+              - generic [ref=f13e145]:
+                - list [ref=f13e148]:
+                  - listitem [ref=f13e149]:
+                    - strong [ref=f13e150]:
+                      - link "Biotechnology" [ref=f13e151] [cursor=pointer]:
+                        - /url: /crop/biotechnology
+                  - listitem [ref=f13e152]:
+                    - strong [ref=f13e153]:
+                      - link "Food Safety" [ref=f13e154] [cursor=pointer]:
+                        - /url: /crop/food-safety
+                  - listitem [ref=f13e155]:
+                    - strong [ref=f13e156]:
+                      - link "Greenhouse" [ref=f13e157] [cursor=pointer]:
+                        - /url: /crop/greenhouse-and-hydroponic-information
+                  - listitem [ref=f13e158]:
+                    - strong [ref=f13e159]:
+                      - link "Irrigation" [ref=f13e160] [cursor=pointer]:
+                        - /url: /crop/irrigation
+                  - listitem [ref=f13e161]:
+                    - strong [ref=f13e162]:
+                      - link "Organic" [ref=f13e163] [cursor=pointer]:
+                        - /url: /crop/organic-production
+                  - listitem [ref=f13e164]:
+                    - strong [ref=f13e165]:
+                      - link "Pests" [ref=f13e166] [cursor=pointer]:
+                        - /url: /crop/pests
+                  - listitem [ref=f13e167]:
+                    - strong [ref=f13e168]:
+                      - link "Production Costs" [ref=f13e169] [cursor=pointer]:
+                        - /url: /crop/production-costs
+                  - listitem [ref=f13e170]:
+                    - strong [ref=f13e171]:
+                      - link "Soil Modification" [ref=f13e172] [cursor=pointer]:
+                        - /url: /crop/soil-modification
+                - link " View all crops" [ref=f13e174] [cursor=pointer]:
+                  - /url: /crops
+          - generic [ref=f13e175]:
+            - link " Research Report Database" [ref=f13e177] [cursor=pointer]:
+              - /url: /resource-report-database
+              - generic [ref=f13e178]: 
+              - strong [ref=f13e181]: Research Report Database
+            - generic [ref=f13e182]:
+              - heading "Recent Articles" [level=2] [ref=f13e183]
+              - generic [ref=f13e185]:
+                - article [ref=f13e187]:
+                  - link "Sacramento Area Planting Guide" [ref=f13e190] [cursor=pointer]:
+                    - /url: /news/sacramento-area-planting-guide
+                    - 'img "Graphic: winter/spring planting calendar for Sacramento, vegetables by month" [ref=f13e191]'
+                  - generic [ref=f13e192]:
+                    - heading [level=3] [ref=f13e193]:
+                      - link "Sacramento Area Planting Guide" [ref=f13e194] [cursor=pointer]:
+                        - /url: /news/sacramento-area-planting-guide
+                    - time [ref=f13e196]: May 07, 2026
+                - link "Subscribe to Recent Articles" [ref=f13e198] [cursor=pointer]:
+                  - /url: https://vric.ucdavis.edu/articles.rss
+    - contentinfo [ref=f13e199]:
+      - generic [ref=f13e200]:
+        - generic [ref=f13e203]:
+          - generic [ref=f13e204]: Vegetable Research and Information Center
+          - generic [ref=f13e205]: A Research & Information Center
+        - link [ref=f13e208] [cursor=pointer]:
+          - /url: https://www.ucdavis.edu/
+          - img "UC Davis footer logo" [ref=f13e209]
+        - generic [ref=f13e211]:
+          - paragraph [ref=f13e212]:
+            - link "University of California, Davis" [ref=f13e213] [cursor=pointer]:
+              - /url: https://www.ucdavis.edu/
+            - text: ", One Shields Avenue, Davis, CA 95616 | 530-752-1011"
+          - list [ref=f13e214]:
+            - listitem [ref=f13e215]:
+              - link "Questions or comments?" [ref=f13e216] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=f13e217]:
+              - link "Privacy & Accessibility" [ref=f13e218] [cursor=pointer]:
+                - /url: http://ucdavis.edu/help/privacy-accessibility.html
+            - listitem [ref=f13e219]:
+              - link "Principles of Community" [ref=f13e220] [cursor=pointer]:
+                - /url: https://excellence.ucdavis.edu/principles-community
+            - listitem [ref=f13e221]:
+              - link "University of California" [ref=f13e222] [cursor=pointer]:
+                - /url: http://www.universityofcalifornia.edu/
+            - listitem [ref=f13e223]:
+              - link "Sitemap" [ref=f13e224] [cursor=pointer]:
+                - /url: /sitemap
+            - listitem [ref=f13e225]: "Last update: May 7, 2026"
+          - paragraph [ref=f13e226]: Copyright © The Regents of the University of California, Davis campus. All rights reserved.
+        - generic [ref=f13e227]:
+          - text: This site is officially grown in
+          - link "SiteFarm" [ref=f13e228] [cursor=pointer]:
+            - /url: https://sitefarm.ucdavis.edu
+          - text: .

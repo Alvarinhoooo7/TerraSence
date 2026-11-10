@@ -1,0 +1,100 @@
+- generic [ref=f4e2]:
+  - link "Skip to content" [ref=f4e3] [cursor=pointer]:
+    - /url: "#wsu-content"
+  - banner "WSU system" [ref=f4e4]:
+    - list [ref=f4e5]:
+      - listitem [ref=f4e6]:
+        - link "Washington State University" [ref=f4e7] [cursor=pointer]:
+          - /url: https://wsu.edu
+  - region "WSU unit" [ref=f4e8]:
+    - generic [ref=f4e10]:
+      - generic [ref=f4e11]:
+        - link "College of Agricultural, Human, and Natural Resource Sciences" [ref=f4e12] [cursor=pointer]:
+          - /url: https://wsu.edu
+          - img "College of Agricultural, Human, and Natural Resource Sciences" [ref=f4e13]
+        - link "CAHNRS College of Agricultural, Human, and Natural Resource Sciences" [ref=f4e15] [cursor=pointer]:
+          - /url: https://cahnrs.wsu.edu
+          - generic [ref=f4e16]: CAHNRS
+          - generic [ref=f4e17]: College of Agricultural, Human, and Natural Resource Sciences
+      - button "Open Site Menu" [ref=f4e18] [cursor=pointer]:  Menu
+  - text: 
+  - generic [ref=f4e19]:
+    - navigation "Information For" [ref=f4e20]:
+      - list [ref=f4e22]:
+        - listitem [ref=f4e23]:
+          - link "Future Students" [ref=f4e24] [cursor=pointer]:
+            - /url: https://cahnrs.wsu.edu/future-students/
+        - listitem [ref=f4e25]:
+          - link "New Employees" [ref=f4e26] [cursor=pointer]:
+            - /url: https://fs.cahnrs.wsu.edu/getting-started/
+        - listitem [ref=f4e27]:
+          - link "Faculty & Staff" [ref=f4e28] [cursor=pointer]:
+            - /url: https://cahnrs.wsu.edu/faculty-staff/
+        - listitem [ref=f4e29]:
+          - link "Alumni & Friends" [ref=f4e30] [cursor=pointer]:
+            - /url: https://alumni.cahnrs.wsu.edu/
+    - main [ref=f4e32]:
+      - article [ref=f4e33]:
+        - generic [ref=f4e34]:
+          - generic [ref=f4e35]:
+            - generic [ref=f4e36]:
+              - link "CAHNRS" [ref=f4e37] [cursor=pointer]:
+                - /url: https://cahnrs.wsu.edu
+              - text: /
+            - text: ">"
+            - generic [ref=f4e38]: WSU Tree Fruit Website Temporarily Unavailable
+          - heading "WSU Tree Fruit Website Temporarily Unavailable" [level=1] [ref=f4e39]
+        - generic [ref=f4e40]:
+          - paragraph [ref=f4e41]: We’re working on updates to this website. During this time, its pages and resources are unavailable.
+          - paragraph [ref=f4e42]:
+            - text: If you need information or assistance, please contact
+            - link "info.treefruit@wsu.edu" [ref=f4e43] [cursor=pointer]:
+              - /url: mailto:info.treefruit@wsu.edu
+            - text: .
+          - paragraph [ref=f4e44]: Thank you for your patience.
+    - region "site" [ref=f4e45]:
+      - generic [ref=f4e46]:
+        - list [ref=f4e47]:
+          - listitem [ref=f4e48]:
+            - link "Go to WSU Twitter" [ref=f4e49] [cursor=pointer]:
+              - /url: https://x.com/wsucahnrs
+          - listitem [ref=f4e53]:
+            - link " Go to WSU Facebook" [ref=f4e54] [cursor=pointer]:
+              - /url: https://www.facebook.com/CAHNRS
+              - text: 
+              - generic [ref=f4e55]: Go to WSU Facebook
+          - listitem [ref=f4e56]:
+            - link " Go to WSU Youtube" [ref=f4e57] [cursor=pointer]:
+              - /url: https://www.youtube.com/user/WSUCAHNRS
+              - text: 
+              - generic [ref=f4e58]: Go to WSU Youtube
+          - listitem [ref=f4e59]:
+            - link " Go to WSU Instagram" [ref=f4e60] [cursor=pointer]:
+              - /url: https://www.instagram.com/wsucahnrs
+              - text: 
+              - generic [ref=f4e61]: Go to WSU Instagram
+          - listitem [ref=f4e62]:
+            - link " Go to WSU Linkedin" [ref=f4e63] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/wsucahnrs
+              - text: 
+              - generic [ref=f4e64]: Go to WSU Linkedin
+          - listitem [ref=f4e65]:
+            - link "Go to WSU Bluesky" [ref=f4e66] [cursor=pointer]:
+              - /url: https://bsky.app/profile/wsucahnrs.bsky.social
+        - generic [ref=f4e70]: College of Agricultural, Human, & Natural Resource Sciences
+  - contentinfo "WSU system" [ref=f4e73]:
+    - generic [ref=f4e74]: © Washington State University 2026
+    - navigation [ref=f4e75]:
+      - list [ref=f4e76]:
+        - listitem [ref=f4e77]:
+          - link "Access" [ref=f4e78] [cursor=pointer]:
+            - /url: https://access.wsu.edu/
+        - listitem [ref=f4e79]:
+          - link "Policies" [ref=f4e80] [cursor=pointer]:
+            - /url: https://policies.wsu.edu/
+        - listitem [ref=f4e81]:
+          - link "MyWSU" [ref=f4e82] [cursor=pointer]:
+            - /url: https://portal.wsu.edu/
+        - listitem [ref=f4e83]:
+          - link "Follow WSU" [ref=f4e84] [cursor=pointer]:
+            - /url: https://socialmedia.wsu.edu/

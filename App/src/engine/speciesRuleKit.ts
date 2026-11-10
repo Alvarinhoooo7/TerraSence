@@ -218,6 +218,98 @@ export const perennial = (speciesId: string, ...criteria: (SpeciesCriterion | re
 export const analog = <C extends SpeciesCriterion>(fromSpeciesId: string, criterion: C): C =>
   ({ ...criterion, scope: 'analog', analogOf: fromSpeciesId });
 
+/**
+ * Tabla 5.2 del California Master Gardener Handbook (Pub. 3382, p. 114), transcrita de la página
+ * de UC ANR: mínimo, rango óptimo y máximo de temperatura de suelo para la germinación de la
+ * semilla, en °F. Al vivir como datos, una fila que la tabla no tiene es un error de compilación
+ * en vez de una cifra inventada, y el valor citado no puede separarse del rótulo de su fila.
+ */
+export const TABLA_52 = {
+  'Asparagus': [50, '75-85', '95'],
+  'Beans, Lima': [60, '75-85', '85'],
+  'Beans, Snap': [60, '75-85', '95'],
+  'Beets': [40, '65-85', '95'],
+  'Broccoli': [40, '60-85', '95'],
+  'Cabbage': [40, '60-85', '95'],
+  'Carrots': [40, '65-85', '95'],
+  'Cauliflower': [40, '65-85', '95'],
+  'Celery': [40, '*', '*'],
+  'Chard, Swiss': [40, '65-85', '95'],
+  'Corn': [50, '65-95', '105'],
+  'Cucumbers': [60, '65-95', '105'],
+  'Eggplant': [60, '75-85', '95'],
+  'Garlic': [32, '65-85', '95'],
+  'Leeks': [32, '65-85', '95'],
+  'Lettuce': [32, '60-75', '85'],
+  'Muskmelons (Cantaloupe)': [60, '75-85', '105'],
+  'Okra': [60, '85-95', '105'],
+  'Onions': [32, '65-85', '95'],
+  'Parsley': [40, '65-85', '95'],
+  'Parsnips': [32, '65-75', '85'],
+  'Peas': [40, '65-75', '85'],
+  'Peppers': [60, '65-75', '95'],
+  'Pumpkins': [60, '85-95', '105'],
+  'Radishes': [40, '65-85', '95'],
+  'Spinach': [32, '65-75', '75'],
+  'Squash': [60, '85-95', '105'],
+  'Tomatoes': [50, '65-85', '95'],
+  'Turnips': [40, '60-95', '105'],
+  'Watermelons': [60, '75-95', '105'],
+} as const;
+
+export type Tabla52Row = keyof typeof TABLA_52;
+
+/**
+ * Tabla B-1 de Mid-Atlantic Commercial Vegetable Production Recommendations (p. 40), transcrita
+ * del PDF: pH objetivo y pH bajo el cual la fuente indica encalar. Como datos, una fila que la
+ * tabla no tiene es un error de compilación y los dos valores no pueden separarse de su fila.
+ */
+export const TABLA_B1 = {
+  'Asparagus': ['6.8', '6.2'],
+  'Beans - lima, snap': ['6.2', '6.0'],
+  'Beets': ['6.5', '6.2'],
+  'Broccoli': ['6.5', '6.2'],
+  'Brussels sprouts': ['6.5', '6.2'],
+  'Cabbage': ['6.5', '6.2'],
+  'Cantaloupes': ['6.5', '6.0'],
+  'Carrot': ['6.0', '5.5'],
+  'Cauliflower': ['6.5', '6.2'],
+  'Celery': ['6.5', '6.0'],
+  'Collards': ['6.5', '6.2'],
+  'Cucumber': ['6.5', '6.0'],
+  'Eggplant': ['6.5', '6.0'],
+  'Endive – escarole': ['6.5', '6.0'],
+  'Horseradish': ['6.5', '5.5'],
+  'Kale': ['6.5', '6.2'],
+  'Kohlrabi': ['6.5', '6.2'],
+  'Leeks': ['6.5', '6.0'],
+  'Lettuce - leaf, iceberg': ['6.5', '6.0'],
+  'Mixed vegetables': ['6.5', '6.0'],
+  'Muskmelons': ['6.5', '6.0'],
+  'Okra': ['6.5', '6.0'],
+  'Onions - green, bulb, scallions': ['6.5', '6.0'],
+  'Parsley': ['6.5', '6.0'],
+  'Parsnips': ['6.5', '6.0'],
+  'Peas': ['6.5', '6.0'],
+  'Peppers': ['6.5', '6.0'],
+  'Potatoes - white, scab resistant': ['6.2', '5.5'],
+  'Potatoes - white, scab susceptible': ['5.2', '5.0'],
+  'Potatoes, sweet': ['6.2', '5.5'],
+  'Pumpkins': ['6.5', '6.0'],
+  'Radish': ['6.5', '6.2'],
+  'Rhubarb': ['6.5', '5.5'],
+  'Rutabaga': ['6.5', '6.2'],
+  'Spinach': ['6.5', '6.0'],
+  'Squash - winter, summer': ['6.5', '6.0'],
+  'Strawberries': ['6.2', '5.8'],
+  'Sweet corn': ['6.5', '6.0'],
+  'Tomatoes': ['6.5', '6.0'],
+  'Turnips': ['6.5', '6.0'],
+  'Watermelon': ['6.2', '5.5'],
+} as const;
+
+export type TablaB1Row = keyof typeof TABLA_B1;
+
 // --- Umbrales y constructores de criterios de condición --------------------------------
 
 /** °F a °C con un decimal, la única conversión que se aplica a una cifra de una fuente. */
@@ -240,6 +332,8 @@ export const airMax = (stages: readonly PhenologicalStage[], comparison: 'above'
 export const weatherEvent = (stages: readonly PhenologicalStage[], event: 'rain' | 'fog', text: ConditionText): SpeciesWeatherEventCriterion =>
   ({ kind: 'weather_event', state: 'enabled', stages, event, ...text });
 export const readingBelow = (stages: readonly PhenologicalStage[], variable: 'temp' | 'airHumidity', comparison: 'below' | 'at_or_below', threshold: SpeciesThreshold, text: ConditionText): SpeciesReadingCriterion =>
+  ({ kind: 'reading', state: 'enabled', stages, variable, comparison, threshold, ...text });
+export const readingAbove = (stages: readonly PhenologicalStage[], variable: 'temp' | 'airHumidity', comparison: 'above' | 'at_or_above', threshold: SpeciesThreshold, text: ConditionText): SpeciesReadingCriterion =>
   ({ kind: 'reading', state: 'enabled', stages, variable, comparison, threshold, ...text });
 
 // --- Helada sobre la fruta en cosecha (USDA Handbook 66), compartida por frutales y berries ---
@@ -277,6 +371,55 @@ export const harvestFreeze = (cropEs: string, cropEn: string, f: number, evidenc
   });
 };
 
+export const ucanrSoilTemp = (crop: Tabla52Row): SpeciesCriterionEvidence => {
+  const [minF, optF, maxF] = TABLA_52[crop];
+  return {
+    institution: 'University of California Agriculture and Natural Resources (UC ANR)',
+    title: 'California Master Gardener Handbook, 2nd ed. (Pub. 3382), Table 5.2: Soil Temperature Conditions for Vegetable Seed Germination',
+    url: 'https://ucanr.edu/program/uc-master-gardener-program/seed-germination-temperature-and-timing',
+    section: `Table 5.2, p. 114 (${crop})`,
+    consultedAt: '2026-11-10',
+    originalValue: `${crop}: Minimum ${minF} °F, Optimum range ${optF} °F, Maximum ${maxF} °F`,
+  };
+};
+
+export const UCANR_52_SCOPE = 'La fuente tabula la temperatura del suelo para la germinación de la semilla, no un umbral de actividad radicular en planta establecida: ese mínimo se usa aquí como referencia de suelo frío para el cultivo, y la propia fuente advierte que la semilla también germina fuera del rango, sólo con menos éxito. La sonda mide la temperatura del suelo en un punto y un instante; el suelo superficial se enfría en la mañana y se calienta por la tarde.';
+export const UCANR_52_SCOPE_EN = 'The source tabulates soil temperature for seed germination, not a root-activity threshold for an established plant: that minimum is used here as a cold-soil reference for the crop, and the source itself notes that seed also germinates outside the range, only with less success. The probe measures soil temperature at a single point and moment; surface soil cools in the morning and warms in the afternoon.';
+
+/** Suelo más frío que el mínimo de germinación que la tabla 5.2 da para el cultivo. */
+export const warmSoilRoot = (cropEs: string, cropEn: string, tableCrop: Tabla52Row): SpeciesReadingCriterion => {
+  const minF = TABLA_52[tableCrop][0];
+  const cEs = decimal(fahrenheitToCelsius(minF), 'es');
+  const cEn = decimal(fahrenheitToCelsius(minF), 'en');
+  return readingBelow(GROWING, 'temp', 'below', fromF(minF), {
+    severity: 'info',
+    effect: `Suelo frío para ${cropEs} (bajo ${cEs} °C)`,
+    effectEn: `Cold soil for ${cropEn} (below ${cEn} °C)`,
+    advice: `Con el suelo bajo ${cEs} °C las raíces absorben menos agua y nutrientes y la planta crece más lento. Evita regar en exceso con agua fría y vuelve a medir a media tarde.`,
+    adviceEn: `With soil below ${cEn} °C roots take up less water and nutrients and the plant grows more slowly. Avoid overwatering with cold water and measure again in mid-afternoon.`,
+    note: `La tabla de suelo de UC ANR da un mínimo de ${minF} °F (${cEs} °C) para la germinación de la semilla de este cultivo, así que bajo esa temperatura el suelo está frío para él.`,
+    noteEn: `The UC ANR soil table gives a minimum of ${minF} °F (${cEn} °C) for seed germination of this crop, so below that temperature the soil is cold for it.`,
+    limitations: UCANR_52_SCOPE,
+    limitationsEn: UCANR_52_SCOPE_EN,
+    evidence: [ucanrSoilTemp(tableCrop)],
+  });
+};
+
+/** Cultivo sin fila propia en la tabla 5.2: se declara de qué especie del catálogo se toma. */
+export const warmSoilRootAnalog = (
+  originId: string, cropEs: string, cropEn: string, originEs: string, originEn: string,
+  reasonEs: string, reasonEn: string, tableCrop: Tabla52Row,
+): SpeciesReadingCriterion => {
+  const base = warmSoilRoot(cropEs, cropEn, tableCrop);
+  return analog(originId, {
+    ...base,
+    note: `Por analogía con ${originEs.toLowerCase()}: ${base.note}`,
+    noteEn: `By analogy with ${originEn.toLowerCase()}: ${base.noteEn}`,
+    limitations: `Sin fuente propia para ${cropEs}: se usa el criterio documentado para ${originEs} (${originEn}), porque ${reasonEs}. La tabla 5.2 no tiene fila de esta especie. ${UCANR_52_SCOPE}`,
+    limitationsEn: `No source of its own for ${cropEn}: the documented criterion for ${originEn} is used, because ${reasonEn}. Table 5.2 has no row for this species. ${UCANR_52_SCOPE_EN}`,
+  });
+};
+
 // --- Fuentes de tolerancia a helada de hortalizas ----------------------------------------
 
 export const NEBRASKA_CLASS = {
@@ -296,9 +439,9 @@ export const nebraska = (group: keyof typeof NEBRASKA_CLASS, crop: string): Spec
 });
 
 export const SDSU_CLASS = {
-  none: 'No Frost Tolerance: The following vegetables are not cold tolerant, and they should be protected from frost or harvested before even a light frost. (Light freezes: 28 to 32 degrees Fahrenheit.)',
-  light: 'Light Frost Tolerance: Crops from more-temperate regions can withstand light freezes (28 to 32 degrees Fahrenheit).',
-  hardy: 'Frost Hardy: cole crops, which can tolerate moderate freezes (24 to 28 degrees Fahrenheit).',
+  none: 'No Frost Tolerance. The following vegetables are not cold tolerant, and they should be protected from frost or harvested before even a light frost:',
+  light: 'Light Frost Tolerance. Crops from more-temperate regions can withstand light freezes (28 to 32 degrees Fahrenheit):',
+  hardy: 'Frost Hardy. Among the hardiest vegetables are cole crops, which can tolerate moderate freezes (24 to 28 degrees Fahrenheit):',
 } as const;
 
 /** South Dakota State University Extension: tolerancia a heladas de otoño de hortalizas. */
@@ -361,15 +504,23 @@ export const FROST_SCOPE = 'Clasificación de INIA para hortalizas al aire libre
 export const FROST_SCOPE_EN = 'INIA classification for outdoor vegetables; temperatures come from US agricultural extension. Newly established seedlings may be more sensitive, and frost duration also matters.';
 
 /** Hortaliza sin tolerancia a helada: advertencia con mínima de 0 °C (32 °F) o menos. */
-export const frostTender = (evidence: SpeciesCriterionEvidence[], extra = '', extraEn = ''): SpeciesAirTemperatureCriterion =>
-  airMin(ALL_STAGES, 'at_or_below', fromF(32), {
+export const frostTender = (
+  evidence: SpeciesCriterionEvidence[], extra = '', extraEn = '',
+  /**
+   * El rango de 28 a 32 °F y su límite lo documenta la clase «Tender» de Nebraska. Donde esa cita
+   * no acompaña al criterio, `frostDefinition` deja el umbral en los 0 °C con que INIA define la
+   * helada y la nota no afirma un rango que la fuente propia no da.
+   */
+  opts: { frostDefinition?: boolean } = {},
+): SpeciesAirTemperatureCriterion =>
+  airMin(ALL_STAGES, 'at_or_below', opts.frostDefinition ? FROST : fromF(32), {
     severity: 'warning',
     effect: 'Helada prevista: esta especie no la tolera',
     effectEn: 'Frost forecast: this species does not tolerate it',
     advice: 'Una helada puede quemar o matar las plantas. Si puedes, protégelas esa noche (por ejemplo, con una cubierta) o cosecha antes lo que ya esté listo.',
     adviceEn: 'A frost can burn or kill the plants. If you can, protect them that night (for example, with a cover) or harvest what is ready beforehand.',
-    note: 'Las fuentes la clasifican como sensible a helada: se daña o muere con heladas de 28 a 32 °F (−2,2 a 0 °C). Indican protegerla o cosechar lo que esté listo antes incluso de una helada leve.',
-    noteEn: 'Sources classify it as frost-sensitive: it is injured or killed by frosts of 28 to 32 °F (−2.2 to 0 °C). They advise protecting it or harvesting what is ready before even a light frost.',
+    note: `Las fuentes la clasifican como sensible a helada: se daña o muere con la helada${opts.frostDefinition ? ' bajo los 0 °C con que la fuente la define' : ', en el rango de 28 a 32 °F (−2,2 a 0 °C)'}. Indican protegerla o cosechar lo que esté listo antes incluso de una helada leve.`,
+    noteEn: `Sources classify it as frost-sensitive: it is injured or killed by frost${opts.frostDefinition ? ' below the 0 °C the source defines it by' : ', in the 28 to 32 °F (−2.2 to 0 °C) range'}. They advise protecting it or harvesting what is ready before even a light frost.`,
     limitations: `${FROST_SCOPE}${extra ? ` ${extra}` : ''}`,
     limitationsEn: `${FROST_SCOPE_EN}${extraEn ? ` ${extraEn}` : ''}`,
     evidence,
@@ -563,25 +714,55 @@ export const waterSensitive = (row: string, values: string, ky: number, period: 
 };
 
 /** FAO 56, tablas 12 y 22: coeficiente de cultivo medio (Kc mid) y fracción de agotamiento sin estrés (p). */
-export const fao56Water = (row: string, kcMid: number, depletionP: number, period: SpeciesWaterCriterion['period']): SpeciesWaterCriterion => {
+/**
+ * `row` es el rótulo literal de la fila en las tablas 12 y 22, no el nombre de la especie: lo que
+ * se cita entre comillas tiene que poder encontrarse en el original tal cual. Cuando la especie no
+ * tiene fila propia se declara la analogía con `analogWater`, nunca inventando un rótulo.
+ * `opts.kcMidOriginal` sirve para las filas donde la tabla da un rango en vez de un valor, y
+ * `opts.rowNote*` para explicar por qué la especie pertenece a esa fila cuando el original lo
+ * dice en una nota al pie.
+ */
+export const fao56Water = (
+  row: string,
+  kcMid: number,
+  depletionP: number,
+  period: SpeciesWaterCriterion['period'],
+  opts: { kcMidOriginal?: string; rowNoteEs?: string; rowNoteEn?: string } = {},
+): SpeciesWaterCriterion => {
   const es = period === 'flowering' ? 'floración y cuaja' : 'desarrollo vegetativo';
   const en = period === 'flowering' ? 'flowering and fruit set' : 'vegetative development';
   return {
     kind: 'water_sensitivity', state: 'enabled', stages: [period === 'flowering' ? 'floracion' : 'vegetativo'], ky: depletionP, period,
     note: `Durante ${es} este cultivo presenta máxima demanda hídrica: FAO 56 documenta un coeficiente de cultivo medio Kc de ${decimal(kcMid, 'es')} y una fracción de agotamiento sin estrés hídrico p de ${decimal(depletionP, 'es')}.`,
     noteEn: `During ${en} this crop has its peak water demand: FAO 56 documents a mid-season crop coefficient Kc of ${decimal(kcMid, 'en')} and a no-stress soil water depletion fraction p of ${decimal(depletionP, 'en')}.`,
-    limitations: 'La fracción p de FAO 56 indica la proporción del agua disponible que puede agotarse antes de reducir la transpiración, y depende de la capacidad de campo y del punto de marchitez permanente del suelo; la humedad volumétrica puntual de la sonda sin curva de retención por textura no permite calcular ese agotamiento ni una lámina de riego.',
-    limitationsEn: 'The FAO 56 fraction p indicates the share of available soil water that can be depleted before transpiration is reduced, and depends on field capacity and permanent wilting point; a single volumetric moisture reading from the probe without a texture retention curve cannot compute that depletion or an irrigation depth.',
+    limitations: `La fracción p de FAO 56 indica la proporción del agua disponible que puede agotarse antes de reducir la transpiración, y depende de la capacidad de campo y del punto de marchitez permanente del suelo; la humedad volumétrica puntual de la sonda sin curva de retención por textura no permite calcular ese agotamiento ni una lámina de riego.${opts.kcMidOriginal ? ` La tabla 12 da el Kc medio de esta fila como rango (${opts.kcMidOriginal}) y aquí se adopta el extremo superior.` : ''}${opts.rowNoteEs ? ` ${opts.rowNoteEs}` : ''}`,
+    limitationsEn: `The FAO 56 fraction p indicates the share of available soil water that can be depleted before transpiration is reduced, and depends on field capacity and permanent wilting point; a single volumetric moisture reading from the probe without a texture retention curve cannot compute that depletion or an irrigation depth.${opts.kcMidOriginal ? ` Table 12 gives this row's mid-season Kc as a range (${opts.kcMidOriginal}) and the upper bound is adopted here.` : ''}${opts.rowNoteEn ? ` ${opts.rowNoteEn}` : ''}`,
     evidence: [{
       institution: 'FAO',
-      title: 'Crop evapotranspiration — Guidelines for computing crop water requirements (FAO Irrigation and Drainage Paper 56, R. G. Allen, L. S. Pereira, D. Raes y M. Smith, 1998)',
+      title: 'Crop evapotranspiration — Guidelines for computing crop water requirements (FAO Irrigation and Drainage Paper 56, R. G. Allen, L. S. Pereira, D. Raes y M. Smith, 1998), capítulo 6',
       url: 'https://www.fao.org/4/x0490e/x0490e0b.htm',
-      section: 'Capítulo 6, tabla 12 «Single (time-averaged) crop coefficients, Kc» y capítulo 8, tabla 22 «Soil water depletion fraction for no stress, p»',
-      consultedAt: '2026-10-18',
-      originalValue: `Table 12 & Table 22, ${row}: Kc mid = ${kcMid}; soil water depletion fraction for no stress p = ${depletionP}.`,
+      section: 'Tabla 12 «Single (time-averaged) crop coefficients, Kc, and mean maximum plant heights for non stressed, well-managed crops in subhumid climates»',
+      consultedAt: '2026-11-10',
+      originalValue: `Table 12, ${row}: Kc mid = ${opts.kcMidOriginal ?? kcMid}.`,
+    }, {
+      institution: 'FAO',
+      title: 'Crop evapotranspiration — Guidelines for computing crop water requirements (FAO Irrigation and Drainage Paper 56, R. G. Allen, L. S. Pereira, D. Raes y M. Smith, 1998), capítulo 8',
+      url: 'https://www.fao.org/4/x0490e/x0490e0e.htm',
+      section: 'Tabla 22 «Ranges of maximum effective rooting depth (Zr), and soil water depletion fraction for no stress (p), for common crops»',
+      consultedAt: '2026-11-10',
+      originalValue: `Table 22, ${row}: Depletion Fraction (for ET ≈ 5 mm/day) p = ${depletionP}.`,
     }],
   };
 };
+
+/**
+ * Nota 20 de la tabla 12 de FAO 56, que adscribe expresamente al ciruelo y al pecano a la fila
+ * «Apricots, Peaches, Stone Fruit». Sin ella la cita parecería una semejanza nuestra.
+ */
+export const FAO56_STONE_FRUIT_NOTE = {
+  rowNoteEs: 'La nota 20 de la tabla 12 adscribe esta especie a la fila de carozos: «Stone fruit category applies to peaches, apricots, pears, plums and pecans».',
+  rowNoteEn: 'Footnote 20 of Table 12 assigns this species to the stone fruit row: «Stone fruit category applies to peaches, apricots, pears, plums and pecans».',
+} as const;
 
 /** Analogía declarada para salinidad (FAO 29). */
 export const analogSalt = (
@@ -910,10 +1091,10 @@ export const CSU_PEAR_FROST: SpeciesCriterionEvidence = {
 
 export const PENN_STATE_PEAR_PH: SpeciesCriterionEvidence = {
   institution: 'Penn State Agricultural Analytical Services Laboratory',
-  title: 'Recommendations for Tree Fruit: Pears (Crop Code 4006)',
-  url: 'https://agsci.psu.edu/aasl',
-  section: 'Código 4006 PEARS-MAINTAIN',
-  consultedAt: '2026-10-15',
+  title: 'Soil Fertility Recommendations for Tree Fruits: 4006 PEARS-MAINTAIN',
+  url: 'https://agsci.psu.edu/aasl/soil-testing/fertility/handbooks/tree-fruits/recommendations/4006-pears-maintain',
+  section: 'Crop Code 4006 PEARS-MAINTAIN y el mensaje para pH entre 6,0 y 6,5',
+  consultedAt: '2026-11-10',
   originalValue: '4006 PEARS-MAINTAIN Crop Code: pH Goal: 6.5. Optimum pH for tree fruits is 6.0-6.5.',
 };
 
@@ -938,7 +1119,7 @@ export const UCLA_PERSIMMON_HARVEST: SpeciesCriterionEvidence = {
 export const CRFG_LOQUAT_FROST: SpeciesCriterionEvidence = {
   institution: 'California Rare Fruit Growers (CRFG)',
   title: 'Loquat Fruit Facts (Eriobotrya japonica)',
-  url: 'https://crfg.org/wiki/fruit/loquat/',
+  url: 'https://crfg.org/homepage/library/fruitfacts/loquat/',
   section: 'Adaptación al frío y temperaturas críticas de flor',
   consultedAt: '2026-10-15',
   originalValue: 'The killing temperature for the flower bud is about 19° F, and for the mature flower about 26° F. At 25° F the seed is killed, causing the fruit to fall. Well established trees can tolerate a low temperature of 12° F.',
@@ -1047,7 +1228,7 @@ export const USU_NECTARINE_FROST: SpeciesCriterionEvidence = {
 export const UCCE_ALMOND_FROST: SpeciesCriterionEvidence = {
   institution: 'University of California Cooperative Extension (The Almond Doctor, D. Doll)',
   title: 'Almond Frost Warning and Protection Methods (2018)',
-  url: 'https://www.thealmonddoctor.com/almond-frost-warning-protection-methods-2018/',
+  url: 'https://www.thealmonddoctor.com/blog/almond-frost-warning-protection-methods-2018',
   section: 'Temperaturas críticas en floración',
   consultedAt: '2026-10-15',
   originalValue: 'At full bloom, temperatures at or below 27-28F can cause crop loss.',
@@ -1056,7 +1237,7 @@ export const UCCE_ALMOND_FROST: SpeciesCriterionEvidence = {
 export const UCCE_ALMOND_PH: SpeciesCriterionEvidence = {
   institution: 'University of California Cooperative Extension (The Almond Doctor, D. Doll)',
   title: 'Planning and Planting a New Almond Orchard',
-  url: 'https://www.thealmonddoctor.com/planning-and-planting-a-new-almond-orchard/',
+  url: 'https://www.thealmonddoctor.com/blog/planning-and-planting-a-new-almond-orchard',
   section: 'Rango de pH para almendro',
   consultedAt: '2026-10-15',
   originalValue: 'Ideally, the range is between 6.4-7.5, with peach-almond hybrids performing better in alkaline soils.',
@@ -1102,11 +1283,11 @@ export const UW_GRAPE_HARVEST_SPLIT: SpeciesCriterionEvidence = {
 // Cítricos
 export const UF_CITRUS_PH: SpeciesCriterionEvidence = {
   institution: 'University of Florida IFAS Extension',
-  title: 'Soil and Fertilizer Management for Citrus (EDIS SS666, K. T. Morgan)',
+  title: 'SL453/SS666: Citrus Soil pH Management (K. Morgan)',
   url: 'https://edis.ifas.ufl.edu/publication/SS666',
-  section: 'Rango de pH para cítricos',
+  section: '«Concern about Soil pH»',
   consultedAt: '2026-10-15',
-  originalValue: 'Maintain soil pH in the range of 5.8 to 6.5 for citrus trees.',
+  originalValue: 'Research has determined that adjusting soil pH from greater than 7 to the range between 6 to 6.5 increases availability of potassium (K), phosphorus (P), calcium (Ca), manganese (Mn), zinc (Zn) and iron (Fe).',
 };
 
 export const MSU_CITRUS_COLD: SpeciesCriterionEvidence = {
@@ -1121,7 +1302,7 @@ export const MSU_CITRUS_COLD: SpeciesCriterionEvidence = {
 export const UCANR_CITRUS_FOOTHILLS: SpeciesCriterionEvidence = {
   institution: 'University of California Agriculture and Natural Resources (UC Cooperative Extension)',
   title: 'Growing Citrus in the Sierra Nevada Foothills (Publication 31-018C, C. Fake)',
-  url: 'https://ccfruitandnuts.ucanr.edu/files/238122.pdf',
+  url: 'https://ccfruitandnuts.ucanr.edu/sites/default/files/2020-10/63813.pdf',
   section: 'Tolerancia al frío por tipo de cítrico',
   consultedAt: '2026-10-15',
   originalValue: 'Generally, kumquat (18°F) is hardier than Satsuma mandarin (20°F) > Meyer lemon (22°F) > oranges: navel, blood, etc. (24°F) > grapefruit (26°F) > true lemons (Eureka, Lisbon) (28°F) > lime (30°F).',
@@ -1147,11 +1328,11 @@ export const UF_TAHITI_LIME_FREEZE: SpeciesCriterionEvidence = {
 
 export const citrusPh = (): SpeciesPhCriterion => ({
   kind: 'ph', state: 'enabled', stages: GROWING,
-  optimum: { min: 5.8, max: 6.5 }, lowerLimit: null, upperLimit: null,
-  note: 'El pH del suelo recomendado para cítricos se mantiene en el rango de 5,8 a 6,5.',
-  noteEn: 'Recommended soil pH for citrus trees is maintained in the range of 5.8 to 6.5.',
-  limitations: 'Recomendación general de UF/IFAS para cítricos comerciales; no desglosa por especie particular dentro del género.',
-  limitationsEn: 'General UF/IFAS recommendation for commercial citrus; it does not break down by individual species within the genus.',
+  optimum: { min: 6.0, max: 6.5 }, lowerLimit: null, upperLimit: null,
+  note: 'UF/IFAS documenta que llevar el pH del suelo al rango de 6,0 a 6,5 aumenta la disponibilidad de potasio, fósforo, calcio, manganeso, zinc y hierro para los cítricos.',
+  noteEn: 'UF/IFAS documents that bringing soil pH into the 6.0 to 6.5 range increases the availability of potassium, phosphorus, calcium, manganese, zinc and iron for citrus.',
+  limitations: 'La fuente razona sobre disponibilidad de nutrientes al corregir un suelo de pH mayor que 7, no fija un límite de daño, y no desglosa por especie dentro del género.',
+  limitationsEn: 'The source reasons about nutrient availability when correcting a soil above pH 7; it sets no damage limit and does not break down by species within the genus.',
   evidence: [UF_CITRUS_PH],
 });
 
@@ -1168,7 +1349,7 @@ export const OSU_HAZELNUT_FROST: SpeciesCriterionEvidence = {
 export const UCCE_WALNUT_FROST: SpeciesCriterionEvidence = {
   institution: 'University of California Cooperative Extension (Butte County)',
   title: 'Microclimate Considerations and Frost Protection in Walnuts (J. Connell)',
-  url: 'https://ccfruitandnuts.ucanr.edu/files/296889.pdf',
+  url: 'https://ccfruitandnuts.ucanr.edu/sites/default/files/2019-01/296889.pdf',
   section: 'Temperatura crítica primaveral para hojas, brotes y frutos recién cuajados',
   consultedAt: '2026-10-15',
   originalValue: 'Critical temperature for radiation frost damage in spring is 30°F for new leaves, shoots and nutlets.',
@@ -1232,7 +1413,7 @@ export const UARIZONA_JOJOBA_PH: SpeciesCriterionEvidence = {
 export const CRFG_CHERIMOYA: SpeciesCriterionEvidence = {
   institution: 'California Rare Fruit Growers (CRFG)',
   title: 'Cherimoya Fruit Facts (Annona cherimola)',
-  url: 'https://crfg.org/wiki/fruit/cherimoya/',
+  url: 'https://crfg.org/homepage/library/fruitfacts/cherimoya/',
   section: 'Clima, temperaturas críticas de helada y pH',
   consultedAt: '2026-10-15',
   originalValue: 'Young growing tips are killed at 29° F and mature trees are killed or severely injured at 25° F. The optimum pH ranges from 6.5 to 7.6.',
@@ -1241,7 +1422,7 @@ export const CRFG_CHERIMOYA: SpeciesCriterionEvidence = {
 export const CRFG_FEIJOA: SpeciesCriterionEvidence = {
   institution: 'California Rare Fruit Growers (CRFG)',
   title: 'Feijoa Fruit Facts (Acca sellowiana)',
-  url: 'https://crfg.org/wiki/fruit/feijoa/',
+  url: 'https://crfg.org/homepage/library/fruitfacts/feijoa/',
   section: 'Adaptación climática y pH',
   consultedAt: '2026-10-15',
   originalValue: 'Are generally adapted to areas where temperatures stay above 15° F. Best harvests come from plants growing in well-drained soil with a pH between 5.5 and 7.0.',
@@ -1259,7 +1440,7 @@ export const UF_POMEGRANATE: SpeciesCriterionEvidence = {
 export const CRFG_POMEGRANATE: SpeciesCriterionEvidence = {
   institution: 'California Rare Fruit Growers (CRFG)',
   title: 'Pomegranate Fruit Facts (Punica granatum)',
-  url: 'https://crfg.org/wiki/fruit/pomegranate/',
+  url: 'https://crfg.org/homepage/library/fruitfacts/pomegranate/',
   section: 'Rajado de fruto por lluvia en madurez',
   consultedAt: '2026-10-15',
   originalValue: 'The tree can be severely injured by temperatures below 12° F. The fruits must be picked before over maturity when they tend to crack open, particularly when rained on.',
@@ -1277,7 +1458,7 @@ export const UF_GUAVA: SpeciesCriterionEvidence = {
 export const CRFG_FIG: SpeciesCriterionEvidence = {
   institution: 'California Rare Fruit Growers (CRFG)',
   title: 'Fig Fruit Facts (Ficus carica)',
-  url: 'https://crfg.org/wiki/fruit/fig/',
+  url: 'https://crfg.org/homepage/library/fruitfacts/fig/',
   section: 'Tolerancia a heladas y rajado por lluvia',
   consultedAt: '2026-10-15',
   originalValue: 'Fully dormant trees are hardy to 12° – 15° F, but plants in active growth can be damaged at 30° F. Rains during fruit development and ripening can cause the fruits to split.',
@@ -1285,11 +1466,11 @@ export const CRFG_FIG: SpeciesCriterionEvidence = {
 
 export const UGUAM_FIG_PH: SpeciesCriterionEvidence = {
   institution: 'University of Guam Cooperative Extension & Outreach',
-  title: 'Fig (Ficus carica) Production Guide',
-  url: 'https://www.uog.edu/extension/publications/',
-  section: 'Requerimientos de suelo',
-  consultedAt: '2026-10-15',
-  originalValue: 'Fig trees grow best in well-drained soils with a pH of 6 – 6.5 but are tolerant of higher pH levels. It is not tolerant of highly acidic soils.',
+  title: 'Fig — Fig as a Fast to Fruit Tree (R. G. Chargualaf, J. Tuquero, M. Acosta, R. Perez y L. R. Barber Jr.; el documento lleva la marca DRAFT)',
+  url: 'https://projects.sare.org/media/pdf/F/i/g/Fig-Publictation.pdf',
+  section: '«Planting Establishment and Maintenance — Soil»',
+  consultedAt: '2026-11-10',
+  originalValue: 'It is not tolerant of highly acidic soils. Fig trees grow best in well-drained soils with a pH of 6 – 6.5 but are tolerant of higher pH levels.',
 };
 
 export const FAO_ECOCROP_LUCUMO: SpeciesCriterionEvidence = {
@@ -1331,21 +1512,18 @@ export const UF_PASSION_FRUIT: SpeciesCriterionEvidence = {
 
 export const CRFG_PASSION_FRUIT: SpeciesCriterionEvidence = {
   institution: 'California Rare Fruit Growers (CRFG)',
-  title: 'Rare Fruit for Climates with Relatively Frost Free Winters',
-  url: 'https://crfg.org/wiki/fruit/passion-fruit/',
-  section: 'Cold Hardiness table',
-  consultedAt: '2026-10-15',
-  originalValue: 'Purple passion fruit (Passiflora edulis) cold hardiness: the mid 20s °F (25° F).',
+  title: 'Passion Fruit Fruit Facts',
+  url: 'https://crfg.org/homepage/library/fruitfacts/passion-fruit/',
+  section: '«Adaptation»',
+  consultedAt: '2026-11-10',
+  originalValue: 'The purple passion fruit is subtropical and prefers a frost-free climate. However, there are cultivars that can take temperatures into the upper 20’s (°F) without serious damage.',
 };
 
-export const CRFG_BANANA_PASSION: SpeciesCriterionEvidence = {
-  institution: 'California Rare Fruit Growers (CRFG)',
-  title: 'Rare Fruit for Climates with Relatively Frost Free Winters',
-  url: 'https://crfg.org/wiki/fruit/passion-fruit/',
-  section: 'Cold Hardiness table',
-  consultedAt: '2026-10-15',
-  originalValue: 'Banana passion fruit (P. tripartita var. mollissima) cold hardiness: about 28°F.',
-};
+/**
+ * CRFG no publica ficha de Passiflora tripartita: el tumbo toma el criterio del maracuyá, del
+ * mismo género, y la analogía se declara en las limitaciones del criterio.
+ */
+export const CRFG_BANANA_PASSION: SpeciesCriterionEvidence = CRFG_PASSION_FRUIT;
 
 export const ICAR_OPUNTIA_PH: SpeciesCriterionEvidence = {
   institution: 'Central Soil Salinity Research Institute (ICAR, India)',

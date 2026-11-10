@@ -48,17 +48,26 @@ uint32_t ultimaBateria = 0;
 uint16_t ultimoAdc = 0;
 uint16_t ultimosMilivoltios = 0;
 
-// Tensión de la celda en voltios, promediando para reducir el ruido del ADC.
+// Tensión de la celda en voltios, con media recortada sobre 10 lecturas del ADC
+// (descarta el mínimo y el máximo para filtrar picos de radio y promedia las 8 centrales).
 float leerBateriaV() {
-  uint32_t suma = 0;
-  uint32_t sumaCruda = 0;
-  for (int i = 0; i < 8; i++) {
-    sumaCruda += analogRead(PIN_VBAT_SENSE);
-    suma += analogReadMilliVolts(PIN_VBAT_SENSE);
+  uint32_t suma = 0, minMv = UINT32_MAX, maxMv = 0;
+  uint32_t sumaCruda = 0, minCrudo = UINT32_MAX, maxCrudo = 0;
+  for (int i = 0; i < 10; i++) {
+    const uint32_t crudo = analogRead(PIN_VBAT_SENSE);
+    const uint32_t mv = analogReadMilliVolts(PIN_VBAT_SENSE);
+    sumaCruda += crudo;
+    if (crudo < minCrudo) minCrudo = crudo;
+    if (crudo > maxCrudo) maxCrudo = crudo;
+    suma += mv;
+    if (mv < minMv) minMv = mv;
+    if (mv > maxMv) maxMv = mv;
   }
-  ultimoAdc = (sumaCruda + 4) / 8;
-  ultimosMilivoltios = (suma + 4) / 8;
-  return (suma / 8.0f) / 1000.0f * BATERIA_FACTOR_DIVISOR;
+  const uint32_t sumaCentralCruda = sumaCruda - minCrudo - maxCrudo;
+  const uint32_t sumaCentralMv = suma - minMv - maxMv;
+  ultimoAdc = (sumaCentralCruda + 4) / 8;
+  ultimosMilivoltios = (sumaCentralMv + 4) / 8;
+  return (sumaCentralMv / 8.0f) / 1000.0f * BATERIA_FACTOR_DIVISOR;
 }
 
 void revisarBateria(uint32_t ahora, bool forzar = false) {

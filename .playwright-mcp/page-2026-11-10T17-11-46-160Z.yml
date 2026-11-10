@@ -1,0 +1,191 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=e3]:
+    - generic [ref=e5]:
+      - link [ref=e7] [cursor=pointer]:
+        - /url: /
+        - img "AskIFAS Powered by EDIS" [ref=e8]
+      - button "Menu" [ref=e10]
+    - navigation "Site Navigation"
+  - main [ref=e14]:
+    - generic [ref=e17]:
+      - heading "Citrus Soil pH Management" [level=1] [ref=e18]
+      - paragraph [ref=e19]:
+        - link "Kelly Morgan" [ref=e21] [cursor=pointer]:
+          - /url: /experts/conserv
+        - text: "Contacts:"
+        - generic [ref=e22]:
+          - link "Davie Kadyampakeni" [ref=e23] [cursor=pointer]:
+            - /url: /experts/dkadyampakeni
+          - link "Email Davie Kadyampakeni" [ref=e24] [cursor=pointer]:
+            - /url: mailto:dkadyampakeni@ufl.edu
+        - text: and
+        - generic [ref=e27]:
+          - link "Jamie Burrow" [ref=e28] [cursor=pointer]:
+            - /url: /experts/jdyates
+          - link "Email Jamie Burrow" [ref=e29] [cursor=pointer]:
+            - /url: mailto:jdyates@ufl.edu
+      - separator [ref=e32]
+    - navigation [ref=e33]:
+      - list [ref=e34]:
+        - listitem [ref=e35]:
+          - link "Publication" [ref=e36] [cursor=pointer]:
+            - /url: /publication/SS666
+        - listitem [ref=e39]:
+          - link "About" [ref=e40] [cursor=pointer]:
+            - /url: /publication/SS666/about
+        - listitem [ref=e43]:
+          - link "Explore" [ref=e44] [cursor=pointer]:
+            - /url: /publication/SS666/explore
+        - listitem [ref=e47]:
+          - link "Metrics" [ref=e48] [cursor=pointer]:
+            - /url: /publication/SS666/metrics
+    - generic [ref=e51]:
+      - navigation "Table of contents" [ref=e54]:
+        - heading "Table of Contents" [level=2] [ref=e55]:
+          - img [aria-hidden] [ref=e59] [cursor=pointer]
+      - article [ref=e64]:
+        - generic [ref=e65]:
+          - heading "Factors Affecting Soil pH" [level=2] [ref=e66]
+          - list [ref=e67]:
+            - listitem [ref=e68]: Irrigation with high-pH or saline water can cause a gradual increase in soil pH. It is strongly recommended that an irrigation water-quality (pH and salinity) test be done yearly.
+            - listitem [ref=e69]: Water drawn from the limestone aquifer is high in bicarbonates and has a liming effect on the soil.
+            - listitem [ref=e70]: Numerous soil amendments, including composts, contain nutrient value and may also have a liming effect resulting in unintended increase in soil pH.
+        - generic [ref=e71]:
+          - heading "Concern about Soil pH" [level=2] [ref=e72]
+          - list [ref=e73]:
+            - listitem [ref=e74]: Soil pH determines the solubility and bioavailability of nutrients essential for citrus growth and yield.
+            - listitem [ref=e75]: Research has determined that adjusting soil pH from greater than 7 to the range between 6 to 6.5 increases availability of potassium (K), phosphorus (P), calcium (Ca), manganese (Mn), zinc (Zn) and iron (Fe), improving citrus growth and yield.
+            - listitem [ref=e76]: Ferrous iron found in slightly acid soils is the form available to most plant species, but ferric iron in high-pH soils is not. Thus, citrus grown on high-pH soils will be iron-deficient.
+            - listitem [ref=e77]: When soil pH reaches 5 or lower, aluminum (Al), Fe, Mn, and/or Zn solubility increase in the soil solution and can become toxic to most citrus.
+        - generic [ref=e78]:
+          - heading "Management Options" [level=2] [ref=e79]
+          - list [ref=e80]:
+            - listitem [ref=e81]: Management of soil pH and nutrients should include annual soil sampling. Water samples should be taken if elevated soil pH is reported.
+            - listitem [ref=e82]: Irrigation water acidification, elemental sulfur application, or use of acidifying fertilizers are recommended to reduce soil pH to the acceptable range.
+            - listitem [ref=e83]: Injection of acids into irrigation water high in bicarbonates will reduce soil solution pH, removing soil bicarbonates.
+            - listitem [ref=e84]: The current recommendation is to lower irrigation water to a pH between 5 and 6. Soil pH will decrease over time depending on soil buffering capacity and bicarbonate concentration.
+            - listitem [ref=e85]: The time required to obtain optimum soil pH (6–6.5) can be 6 to 24 months depending on the soil buffer capacity, moisture, temperature, and aeration.
+            - listitem [ref=e86]: In certain cases, elemental sulfur (S) may be applied to the soil. Over time, the soil bacteria will convert the elemental S form into the sulfate form. Sulfuric acid is released in the process, neutralizing hydroxides and bicarbonates.
+            - listitem [ref=e87]: Acid-forming fertilizers are positively charged nutrients, such as ammoniacal-N, K, Ca, and Mg, that lower root zone pH after being absorbed by plants.
+            - listitem [ref=e88]: Long-term use of ammoniacal fertilizers will also result in lowering the pH by nitrification .
+            - listitem [ref=e89]: Sulfate, nitrate, or phosphate ions in fertilizers do not cause soil pH decrease.
+        - generic [ref=e90]:
+          - heading "pH Test Equipment" [level=2] [ref=e91]
+          - heading "Effect of Soil pH on Nutrient Management" [level=3] [ref=e92]
+          - list [ref=e93]:
+            - listitem [ref=e94]:
+              - text: High soil pH (greater than 7.2) causes NH
+              - subscript [ref=e95]: "3"
+              - text: volatilization from fertilized soils with ammoniacal-N sources, such as ammonium sulfate, or ammonium-forming fertilizers, such as urea.
+            - listitem [ref=e96]: Low soil pH exacerbates nutrient-leaching problems because positively charged nutrients such as ammonium, calcium, magnesium, and potassium adsorbed by soil particles may be replaced by hydrogen protons.
+            - listitem [ref=e97]: Nutrient leaching out of the root zone reduces citrus nutrient uptake.
+            - listitem [ref=e98]: Caution is recommended to avoid soil pH lower than 5.0.
+          - 'figure "Figure 1. Avoid soil pH lower than 5.0. Credit: Tonya R. Weeks, UF/IFAS" [ref=e100]':
+            - img "Photograph of a Thermo Scientific digital thermometer displaying a temperature reading of 40.2°C with a probe connected. Device is placed on a dark surface with visible cables and a metallic object in the background." [ref=e101]
+          - paragraph [ref=e103]
+          - 'figure "Figure 2. Effect of soil pH on nutrient availability as expressed by relative bar width. Credit: Nutrition of Florida Citrus Trees. 2nd Edition. T. A. Obreza and K. T. Morgan" [ref=e105]':
+            - img "Effect of soil pH on nutrient availability as expressed by relative bar width." [ref=e106]
+      - generic [ref=e108]:
+        - button "View PDF" [ref=e110] [cursor=pointer]
+        - generic [ref=e111]:
+          - 'heading "Publication #SL453" [level=2] [ref=e112]':
+            - text: Publication
+            - generic [ref=e113]: "#SL453"
+          - img "Peer Reviewed" [ref=e115]
+  - contentinfo [ref=e117]:
+    - generic [ref=e118]:
+      - generic [ref=e119]:
+        - generic [ref=e120]:
+          - link [ref=e121] [cursor=pointer]:
+            - /url: http://www.ufl.edu/
+            - img "UF" [ref=e123]
+          - generic [ref=e124]:
+            - link "IFAS Facebook page" [ref=e125] [cursor=pointer]:
+              - /url: https://www.facebook.com/UFIFASNews
+            - link "IFAS Twitter Page" [ref=e128] [cursor=pointer]:
+              - /url: https://twitter.com/UF_IFAS
+            - link "IFAS Instagram Page" [ref=e131] [cursor=pointer]:
+              - /url: https://www.instagram.com/ufifas_solutions/
+            - link "IFAS Youtube Page" [ref=e134] [cursor=pointer]:
+              - /url: https://www.youtube.com/c/IFASVideo
+        - generic [ref=e137]:
+          - generic [ref=e138]:
+            - heading "Contact IFAS Communications" [level=2] [ref=e139]
+            - paragraph [ref=e140]:
+              - text: P.O. Box 110810Gainesville, FL 32611edishelp@ifas.ufl.edu
+              - link "Site Feedback" [ref=e141] [cursor=pointer]:
+                - /url: mailto:Appteam@ifas.ufl.edu?subject=EDIS Website Feedback
+              - link "(352) 392-1761" [ref=e142] [cursor=pointer]:
+                - /url: tel:3523921761
+          - generic [ref=e143]:
+            - heading "Information" [level=2] [ref=e144]
+            - list [ref=e145]:
+              - listitem [ref=e146]:
+                - link "EDIS Blog" [ref=e147] [cursor=pointer]:
+                  - /url: https://blogs.ifas.ufl.edu/edis/
+              - listitem [ref=e148]:
+                - link "Bookstore" [ref=e149] [cursor=pointer]:
+                  - /url: https://ifasbooks.ifas.ufl.edu/
+              - listitem [ref=e150]:
+                - link "Accessibility" [ref=e151] [cursor=pointer]:
+                  - /url: /accessibility
+              - listitem [ref=e152]:
+                - link "Copyright" [ref=e153] [cursor=pointer]:
+                  - /url: /copyright
+          - generic [ref=e154]:
+            - heading "Land Grant Mission" [level=2] [ref=e155]
+            - list [ref=e156]:
+              - listitem [ref=e157]:
+                - link "UF/IFAS Locations" [ref=e158] [cursor=pointer]:
+                  - /url: http://ifas.ufl.edu/maps/
+              - listitem [ref=e159]:
+                - link "UF/IFAS" [ref=e160] [cursor=pointer]:
+                  - /url: http://ifas.ufl.edu/
+              - listitem [ref=e161]:
+                - link "UF/IFAS CALS" [ref=e162] [cursor=pointer]:
+                  - /url: http://cals.ufl.edu/
+              - listitem [ref=e163]:
+                - link "UF/IFAS Research" [ref=e164] [cursor=pointer]:
+                  - /url: http://research.ifas.ufl.edu
+              - listitem [ref=e165]:
+                - link "Extension" [ref=e166] [cursor=pointer]:
+                  - /url: http://sfyl.ifas.ufl.edu
+          - generic [ref=e167]:
+            - heading "For Authors" [level=2] [ref=e168]
+            - list [ref=e169]:
+              - listitem [ref=e170]:
+                - link "UF/IFAS Locations" [ref=e171] [cursor=pointer]:
+                  - /url: http://ifas.ufl.edu/maps/
+              - listitem [ref=e172]:
+                - link "Author Resources" [ref=e173] [cursor=pointer]:
+                  - /url: https://ics.ifas.ufl.edu/our-services/publication-editing-edis/
+              - listitem [ref=e174]:
+                - link "EDIS Submissions" [ref=e175] [cursor=pointer]:
+                  - /url: https://journals.flvc.org/edis/login?source=%2Fedis
+              - listitem [ref=e176]:
+                - link "ICS Editorial Services" [ref=e177] [cursor=pointer]:
+                  - /url: https://ics.ifas.ufl.edu/our-services/publication-editing-edis/
+              - listitem [ref=e178]:
+                - link "About EDIS Extension Publications" [ref=e179] [cursor=pointer]:
+                  - /url: https://extadmin.ifas.ufl.edu/communications/edis/
+      - generic [ref=e181]:
+        - link "© 2024 University of Florida" [ref=e183] [cursor=pointer]:
+          - /url: https://www.ufl.edu/
+        - generic [ref=e184]:
+          - link "Sitemap" [ref=e185] [cursor=pointer]:
+            - /url: /sitemap.xml
+          - link "*" [ref=e186] [cursor=pointer]:
+            - /url: /pdf-list
+        - link "Archive" [ref=e188] [cursor=pointer]:
+          - /url: /archived-publications
+        - link "Disability Services" [ref=e190] [cursor=pointer]:
+          - /url: https://disability.ufl.edu/
+        - link "Privacy Policy" [ref=e192] [cursor=pointer]:
+          - /url: https://privacy.ufl.edu/policies/onlineinternet-privacy-policy-/
+        - link "Analytics" [ref=e194] [cursor=pointer]:
+          - /url: http://www.google.com/policies/privacy/
+        - link "SSN Privacy" [ref=e196] [cursor=pointer]:
+          - /url: https://policy.ufl.edu/policy/online-internet-privacy-statement/
+  - alert [ref=e197]

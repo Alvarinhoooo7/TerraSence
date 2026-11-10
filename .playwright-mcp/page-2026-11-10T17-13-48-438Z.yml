@@ -1,0 +1,1207 @@
+- generic [active] [ref=f13e1]:
+  - navigation "Skip to content or Main menu":
+    - link "Skip to content" [ref=f13e2] [cursor=pointer]:
+      - /url: "#main-content"
+    - link "Skip to navigation" [ref=f13e3] [cursor=pointer]:
+      - /url: "#superfish-main"
+  - banner [ref=f13e4]:
+    - generic [ref=f13e5]:
+      - link "The University of Massachusetts Amherst" [ref=f13e6] [cursor=pointer]:
+        - /url: https://www.umass.edu/
+      - navigation [ref=f13e7]:
+        - list [ref=f13e8]:
+          - listitem [ref=f13e9]:
+            - link "Visit" [ref=f13e10] [cursor=pointer]:
+              - /url: https://www.umass.edu/admissions/visit
+          - listitem [ref=f13e11]:
+            - link "Apply" [ref=f13e12] [cursor=pointer]:
+              - /url: https://www.umass.edu/admissions
+          - listitem [ref=f13e13]:
+            - link "Give" [ref=f13e14] [cursor=pointer]:
+              - /url: https://minutefund.uma-foundation.org/project/29554/donate?fund_id=FLAGSHIP%20SCH
+          - listitem [ref=f13e15]:
+            - link "Search UMass.edu" [ref=f13e16] [cursor=pointer]:
+              - /url: https://www.umass.edu/search
+  - generic [ref=f13e18]:
+    - banner [ref=f13e19]:
+      - generic [ref=f13e20]:
+        - generic [ref=f13e21]:
+          - link "Center for Agriculture, Food, and the Environment" [ref=f13e27] [cursor=pointer]:
+            - /url: /agriculture-food-environment
+          - link "UMass Cranberry Station" [ref=f13e33] [cursor=pointer]:
+            - /url: /agriculture-food-environment/cranberry
+        - generic [ref=f13e34]:
+          - generic [ref=f13e36]:
+            - generic [ref=f13e37]:
+              - generic [ref=f13e38]: Keywords
+              - textbox "Keywords" [ref=f13e39]:
+                - /placeholder: Search CAFE
+            - button "Search" [ref=f13e41]
+          - link "Ask UMass Extension" [ref=f13e46] [cursor=pointer]:
+            - /url: /agriculture-food-environment/ask-umass-extension
+            - generic [aria-hidden] [ref=f13e47]: 
+            - text: Ask UMass Extension
+      - navigation "Cranberry" [ref=f13e51]:
+        - menubar "Menu" [ref=f13e52]:
+          - menuitem "Cranberry Station Home" [ref=f13e53] [cursor=pointer]
+          - menuitem "About »" [ref=f13e54] [cursor=pointer]:
+            - text: About
+            - generic [ref=f13e55]: »
+          - menu [aria-hidden] [ref=f13e56]:
+            - menuitem [ref=f13e57] [cursor=pointer]: The Cranberry Station
+            - menuitem [ref=f13e58] [cursor=pointer]: The Cranberry
+            - menuitem [ref=f13e59] [cursor=pointer]: Board of Oversight
+            - menuitem [ref=f13e60] [cursor=pointer]: Faculty & Staff
+            - menuitem [ref=f13e61] [cursor=pointer]: Directions
+            - menuitem [ref=f13e62] [cursor=pointer]: Contact Us
+          - menuitem "Projects" [ref=f13e63] [cursor=pointer]
+          - menuitem "Research & Extension »" [ref=f13e64] [cursor=pointer]:
+            - text: Research & Extension
+            - generic [ref=f13e65]: »
+          - menu [aria-hidden] [ref=f13e66]:
+            - menuitem [ref=f13e67] [cursor=pointer]: Overview
+            - menuitem [ref=f13e68] [cursor=pointer]: Research Goals
+            - menuitem [ref=f13e69] [cursor=pointer]: Extension Goals
+            - menuitem [ref=f13e70] [cursor=pointer]: Focus Areas
+            - menuitem [ref=f13e71] [cursor=pointer]: Annual Highlights
+          - menuitem "Publications & Resources »" [ref=f13e72] [cursor=pointer]:
+            - text: Publications & Resources
+            - generic [ref=f13e73]: »
+          - menu [aria-hidden] [ref=f13e74]:
+            - menuitem [ref=f13e75] [cursor=pointer]: Cranberry Chart Book
+            - menuitem [ref=f13e76] [cursor=pointer]: Cranberry Production Guide
+            - menuitem [ref=f13e77] [cursor=pointer]: Books and Pamphlets
+            - menuitem [ref=f13e78] [cursor=pointer]: Best Management Practices
+            - menuitem [ref=f13e79] [cursor=pointer]: Nutrient Management for Cranberries
+            - menuitem [ref=f13e80] [cursor=pointer]: Risk Management for Cranberries
+            - menuitem [ref=f13e81] [cursor=pointer]: Fact Sheets
+            - menuitem [ref=f13e82] [cursor=pointer]: Newsletters
+            - menuitem [ref=f13e83] [cursor=pointer]: Publications available in hard copy
+            - menuitem [ref=f13e84] [cursor=pointer]: Scholarworks
+            - menuitem [ref=f13e85] [cursor=pointer]: Videos
+          - menuitem "Services »" [ref=f13e86] [cursor=pointer]:
+            - text: Services
+            - generic [ref=f13e87]: »
+          - menu [aria-hidden] [ref=f13e88]:
+            - menuitem [ref=f13e89] [cursor=pointer]: Weather Summaries
+            - menuitem [ref=f13e90] [cursor=pointer]: Frost Information Updates
+            - menuitem [ref=f13e91] [cursor=pointer]: Keeping Quality Forecast
+            - menuitem [ref=f13e92] [cursor=pointer]: Soil and Plant Nutrient Testing for Cranberries
+            - menuitem [ref=f13e93] [cursor=pointer]: Groundwater Protection Regulations (Zone II)
+            - menuitem [ref=f13e94] [cursor=pointer]: Special Pesticide Labels
+            - menuitem [ref=f13e95] [cursor=pointer]: Growing Degree Days
+          - menuitem "News & Events »" [ref=f13e96] [cursor=pointer]:
+            - text: News & Events
+            - generic [ref=f13e97]: »
+          - menu [aria-hidden] [ref=f13e98]:
+            - menuitem [ref=f13e99] [cursor=pointer]: News
+            - menuitem [ref=f13e100] [cursor=pointer]: Events
+            - menuitem [ref=f13e101] [cursor=pointer]: IPM Message
+            - menuitem [ref=f13e102] [cursor=pointer]: North American Cranberry Research and Extension Workers Conference
+          - menuitem "Make a Gift" [ref=f13e103] [cursor=pointer]
+    - main "Main content" [ref=f13e104]:
+      - generic [ref=f13e105]:
+        - generic [ref=f13e106]:
+          - heading "Nutrition Management for Producing Bogs" [level=1] [ref=f13e108]
+          - article [ref=f13e110]:
+            - generic [ref=f13e111]:
+              - generic [ref=f13e113]:
+                - paragraph [ref=f13e114]:
+                  - emphasis [ref=f13e115]:
+                    - strong [ref=f13e116]: Prepared by Carolyn J. DeMoranville, K.M. Ghantous, and P. Jeranyama
+                - generic [ref=f13e117]:
+                  - paragraph [ref=f13e118]:
+                    - strong [ref=f13e119]: In this Chapter
+                  - list [ref=f13e120]:
+                    - listitem [ref=f13e121]:
+                      - link "Tools for Nutrient Management" [ref=f13e122] [cursor=pointer]:
+                        - /url: "#tools"
+                    - listitem [ref=f13e123]:
+                      - link "NITROGEN (N)" [ref=f13e124] [cursor=pointer]:
+                        - /url: "#N"
+                    - listitem [ref=f13e125]:
+                      - link "PHOSPHORUS (P)" [ref=f13e126] [cursor=pointer]:
+                        - /url: "#P"
+                    - listitem [ref=f13e127]:
+                      - link "POTASSIUM (K)" [ref=f13e128] [cursor=pointer]:
+                        - /url: "#K"
+                    - listitem [ref=f13e129]:
+                      - link "OTHER ELEMENTS" [ref=f13e130] [cursor=pointer]:
+                        - /url: "#other"
+                    - listitem [ref=f13e131]:
+                      - link "APPLYING FERTILIZER TO CRANBERRY BOGS" [ref=f13e132] [cursor=pointer]:
+                        - /url: "#APPLYING_FERTILIZER"
+                    - listitem [ref=f13e133]:
+                      - link "SOIL AND TISSUE TESTS" [ref=f13e134] [cursor=pointer]:
+                        - /url: "#Soil_and_tissue_tests"
+                    - listitem [ref=f13e135]:
+                      - link "IMPORTANT CONSIDERATIONS FOR CRANBERRY NUTRITION" [ref=f13e136] [cursor=pointer]:
+                        - /url: "#important_considerations"
+                - paragraph [ref=f13e137]: The Commonwealth of Massachusetts 330 CMR 31.00 Plant Nutrient Application Requirements for Agricultural Land and Land Not Used for Agricultural Purposes took effect in 2018. The regulation requires that nutrient management plans for agricultural lands, including cranberry, will be based on plant needs (as determined by testing and research) and UMass Extension recommendations. This section of the Chart Book encompasses UMass Extension recommendations for cranberry nutrient management. Use of these recommendations constitutes a Nutrient Management Plan as required in the regulations. Having a copy of the Chart Book and the required records of your applications satisfies the final version of the regulatory requirements – you are not required to have a separate written plan.
+                - heading "Tools for Nutrient Management" [level=2] [ref=f13e138]
+                - paragraph [ref=f13e139]:
+                  - text: The Cranberry Station website provides information regarding nutrient management planning and record keeping based on Chart Book recommendations. To view these resources, follow the 'Nutrient Management for Cranberries' Quick Link on our home page (
+                  - link "http://ag.umass.edu/cranberry" [ref=f13e140] [cursor=pointer]:
+                    - /url: http://ag.umass.edu/cranberry
+                  - text: ). Resources include a plan template and Excel files with sample record keeping formats and nutrient calculators (determine fertilizer rates based on how much nutrient you want to apply). Growers may also choose to use the BOGS system, available from the Cape Cod Cranberry Growers Association. It is an online tool designed to plan and keep records that meet regulatory requirements for pesticide and nutrient applications.
+                - paragraph [ref=f13e141]: Plants are primarily made up of carbon compounds (the products of photosynthesis) and water. Mineral elements, the materials provided in fertilizer and the soil, are present in much smaller quantity, making up only about 10% of the plants' dry mass. The essential mineral elements required for the plant to grow, develop, and produce fruit need to be provided in the right amounts, in the right form and at the right time. Management must be flexible, adjusted for changing weather and observations of the plants. It should also be implemented in an environmentally sound way.
+                - paragraph [ref=f13e142]: Cranberry is a perennial plant. As such, many of the mineral elements and carbon compounds are stored over the winter in stems and roots, then remobilized to support new growth in the spring. In addition, decaying plant material in the soil can provide minerals, especially Nitrogen (N) and Phosphorus (P), back to the growing plants. In a mature cranberry bed, these processes account for about half of the plant's need for mineral nutrition. The rest is supplied in fertilizers. The plants in new sand-based cranberry plantings depend primarily on fertilizers for their nutrients.
+                - paragraph [ref=f13e143]: Nutrient requirements must be met to assure optimum growth and to achieve the yield potential possible for each cultivar. The plant must be healthy, with an adequate root system in order for it to take up the nutrients it needs. Overly saturated or dry soil or soil outside the pH range optimal for cranberries (4.0 to 5.5) can limit yield. Uniform irrigation is essential to maintain moist, but not saturated soil. Pest pressure, frost, or shading are other potential limiting factors. Additional fertilizer applications will not compensate for any of these problems.
+                - paragraph [ref=f13e144]: The recommendations in the Chart Book are developed based on knowledge of mineral content in a healthy productive plant. The recommendations focus largely on Nitrogen (N), Potassium (K), and Phosphorus (P). Added nutrients are required to replace minerals removed in the harvested crop and associated leaf trash.
+                - list [ref=f13e145]:
+                  - listitem [ref=f13e146]: N is found in the highest concentration of all of the nutrient elements in plant tissue, and is removed in the greatest quantity in fruit and harvest detrashing.
+                  - listitem [ref=f13e147]: K is found in the highest concentration in cranberry fruit and as a result, K removal in crop harvest is similar to that of N.
+                  - listitem [ref=f13e148]: P removal in crop harvest is much less than that of N and K, but research trials support the need for a modest annual addition of P to producing cranberry beds.
+                  - listitem [ref=f13e149]: The remaining mineral elements are seldom deficient in plant tissue tests and/or are found in substantial quantity in the bog soil. Their application is primarily recommended when a deficiency exists and not on a routine basis.
+                - heading "NITROGEN (N)" [level=2] [ref=f13e150]
+                - paragraph [ref=f13e151]: The N fertilizer is not primarily used to produce fruit in the current year, rather it supports the building of the new growth that is the photosynthesis factory to support future production. In our research, current season N applications correlated to current season yield only 10-15% of the time, while in almost all cases applied N correlated significantly with production in the following two years.
+                - paragraph [ref=f13e152]: Recommended N fertilizer rates are based on the amount of N removed during harvest (in fruit and in trash). To replace the removed N, we need to apply fertilizer. Plants are not able to take up all the fertilizer applied. The amount of N removed is then multiplied by a correction factor of 1.4 to account for the less than 100% efficiency of fertilizer uptake. The base rates can then adjusted based on seasonal conditions, observed plant growth, previous summer tissue tests, and historic bog responses. The base rate recommendations for N vary by cultivar group. The N concentration in fruit and new growth is similar among the cultivars. The N amount in biomass (fruit and plant material) produced and then lost in harvest operations differs among the groups.
+                - paragraph [ref=f13e153]:
+                  - strong [ref=f13e154]: "N Lost in Fruit:"
+                - list [ref=f13e155]:
+                  - listitem [ref=f13e156]:
+                    - text: Each 100 bbl of fruit contains
+                    - strong [ref=f13e157]: 5.1 lb of N
+                    - text: .
+                  - listitem [ref=f13e158]: As crop size increases, scale up from the 5.1 lb/100 bbl base based on the total bbl/A produced or expected.
+                - paragraph [ref=f13e159]:
+                  - strong [ref=f13e160]: "N Lost in Detrashing During Harvest:"
+                - list [ref=f13e161]:
+                  - listitem [ref=f13e162]: Each acre of Early Black loses 13.4 lb N in plant biomass (in addition to what is removed in the fruit). That amount is likely similar in Howes.
+                  - listitem [ref=f13e163]: Larger fruited cultivars are larger plants with bigger leaves, and lose more biomass per acre.
+                  - listitem [ref=f13e164]:
+                    - text: Ben Lear and first generation hybrids such as Stevens and Grygleski, lose 20.1 lb N per acre.
+                    - list [ref=f13e165]:
+                      - listitem [ref=f13e166]: 1.5 x Early Black rate to compensate for larger plant size.
+                  - listitem [ref=f13e167]:
+                    - text: Newer Rutgers and University of Wisconsin hybrids lose 26.8 lb N per acre.
+                    - list [ref=f13e168]:
+                      - listitem [ref=f13e169]: 2 x Early Black rate to compensate for larger plant size.
+                - paragraph [ref=f13e170]: "The base range reflects varying crop loads: up to 600 bbl/A for the newest hybrids and up to 300 bbl/A for the others. This does not mean that higher yields necessarily would require more N. In fact, for all but the newest cultivars, adding more N than required can result in yield decline."
+                - table "Recommended base Nitrogen rates" [ref=f13e172]:
+                  - caption [ref=f13e173]: Recommended base Nitrogen rates
+                  - rowgroup [ref=f13e174]:
+                    - row [ref=f13e175]:
+                      - columnheader "Cultivar group" [ref=f13e176]
+                      - columnheader "Base N rate lb/A" [ref=f13e177]
+                      - columnheader "Other considerations" [ref=f13e178]
+                  - rowgroup [ref=f13e179]:
+                    - row [ref=f13e180]:
+                      - 'rowheader "Natives: Early Black and Howes" [ref=f13e181]'
+                      - cell "25-40" [ref=f13e182]
+                      - cell "Reduce to 25-30 for crops less than 200 bbl/A" [ref=f13e183]
+                    - row [ref=f13e184]:
+                      - 'rowheader "Older hybrids and large fruit: Ben Lear, Stevens, Grygleski, Pilgrim" [ref=f13e185]'
+                      - cell "35-50" [ref=f13e186]
+                      - cell "Reduce to 35-40 for crops less than 200 bbl/A" [ref=f13e187]
+                    - row [ref=f13e188]:
+                      - 'rowheader "Rutgers and University of Wisconsin cultivars: Crimson Queen, Demoranville, Mullica Queen, HyRed" [ref=f13e189]'
+                      - cell "50-80" [ref=f13e190]
+                      - cell "Reduce to 50-60 for crops less than 300 bbl/A" [ref=f13e191]
+                - paragraph [ref=f13e192]: The aim is to provide enough N to produce a stand of uprights with optimal density and length that will support an optimal crop of good quality fruit. When the upright stand is too dense or too long, shading occurs, pollinators may be impeded, and conditions are perfect for fungal rot infections. A thin, stunted stand will not support a large crop since there will not be adequate leaf area, leading to a deficit in photosynthesis and a shortage of carbohydrates for making fruit.
+                - paragraph [ref=f13e193]: "Within the recommended rate ranges, previous observed outcomes, tissue test results (see page 85), and observations of the plants color and growth should be used to adjust your rate. Some potential yearly adjustments to the recommendation based on growth and tissue test N:"
+                - list [ref=f13e194]:
+                  - listitem [ref=f13e195]: If vines are stunted or yellowed and tissue N is low - use more
+                  - listitem [ref=f13e196]: If vines are stunted or yellowed and tissue N is high - look for other limiting factors
+                  - listitem [ref=f13e197]: If vine growth is adequate and tissue test is in the normal range - continue with the chosen rate
+                  - listitem [ref=f13e198]: If vines are rank or leggy and tissue N is low - use less or change timing; vegetative growth is being favored over production
+                  - listitem [ref=f13e199]: If vines are rank or leggy and tissue N is high or adequate - use less
+                  - listitem [ref=f13e200]: If yield potential is limited by pest damage or frost - use less
+                - heading "Length and density of uprights." [level=3] [ref=f13e201]
+                - paragraph [ref=f13e202]: "The table below shows adequate stand density and upright length for four common cultivars assessed at hook stage (mid-June). Uprights generally should not be longer than 4 inches. An even and adequate stand of both flowering and vegetative uprights is important, as about 80% of this year’s vegetative uprights will flower next year. 200 flowering uprights/sq. ft., each producing an average of 1 berry, will give a crop of 200-300 bbl/A. To sample upright density: count all uprights in a circle 4 inches in diameter. Total upright density (approximate) for 'Early Black' should be 50/sample; density for 'Howes', 'Ben Lear', or 'Stevens' should be 35/sample. Multiply the amount in the 4-inch diameter cicle by 12 to approximate the number per squre foot."
+                - table "Upright density observations at hook stage (mid June)" [ref=f13e204]:
+                  - caption [ref=f13e205]: Upright density observations at hook stage (mid June)
+                  - rowgroup [ref=f13e206]:
+                    - row [ref=f13e207]:
+                      - columnheader "Cultivar" [ref=f13e208]
+                      - columnheader "Upright density (per sq ft)" [ref=f13e209]
+                      - columnheader "Minimum Upright total length (in)" [ref=f13e210]
+                  - rowgroup [ref=f13e211]:
+                    - row [ref=f13e212]:
+                      - rowheader "Early Black" [ref=f13e213]
+                      - cell "600" [ref=f13e214]
+                      - cell ">2.25" [ref=f13e215]
+                    - row [ref=f13e216]:
+                      - rowheader "Howes" [ref=f13e217]
+                      - cell "400" [ref=f13e218]
+                      - cell ">2.25" [ref=f13e219]
+                    - row [ref=f13e220]:
+                      - rowheader "Ben Lear" [ref=f13e221]
+                      - cell "400" [ref=f13e222]
+                      - cell ">2.5" [ref=f13e223]
+                    - row [ref=f13e224]:
+                      - rowheader "Stevens" [ref=f13e225]
+                      - cell "400" [ref=f13e226]
+                      - cell ">2.5" [ref=f13e227]
+                - list [ref=f13e228]:
+                  - listitem [ref=f13e229]: Density of total uprights per sq ft, >40% should be flowering
+                  - listitem [ref=f13e230]: Upright length above the fruit on a flowering upright should be 1.5 to 2 in.
+                - heading "Leaf greenness" [level=3] [ref=f13e231]
+                - paragraph [ref=f13e232]: Leaf greenness is related to the pigment chlorophyll that is involved in carbohydrate production through photosynthesis. Along with adequate growth (length) of the uprights, chlorophyll content is an important determinant of yield. Overall intensity and shade of leaf greenness (chlorophyll) is related to adequate N nutrition. With experience, growers can assess intensity of greenness by visual observation. A bog with thin vine cover, pale leaves, or stunted vines may not be getting enough nitrogen. Vines that are too long and too dense have nutritional assets diverted to vegetation and not to fruit (small berries, poor fruit color, increased fruit rot, and inability of bees to reach pollination sites).
+                - heading "Nitrogen timing." [level=3] [ref=f13e233]
+                - paragraph [ref=f13e234]: Plan nitrogen fertilizer applications based on soil type and soil temperature.
+                - list [ref=f13e235]:
+                  - listitem [ref=f13e236]: On sandy soils (<1% organic matter), nitrogen fertilizer may be applied throughout the season.
+                  - listitem [ref=f13e237]:
+                    - text: On more organic cranberry soils and older beds, applications should be based on soil temperatures.
+                    - list [ref=f13e238]:
+                      - listitem [ref=f13e239]: For typical cranberry bogs (1-4% organic matter), applications of N should not be necessary early in the spring. From flood removal until soil temperatures exceed 55°F, adequate N should be available through biological processes (mineralization; the process by which microbes convert N to plant-available forms).
+                      - listitem [ref=f13e240]: Nitrogen is slowly released from the soil early in the spring when the cranberry plants are dormant. This leads to a 'flush' of ammonium availability when the plants are breaking dormancy.
+                      - listitem [ref=f13e241]: As soil temperatures increase from 55°F to 70°F, release of N through mineralization is only moderate. Fertilizer applications should be beneficial. This corresponds to the period from roughneck stage through bloom.
+                - paragraph [ref=f13e242]: During spells of hot weather, when soil temperatures exceed 70°F and air temperatures exceed 85°F, soil N release increases and crop development slows, so planned fertilizer N applications should be reduced, delayed, or eliminated especially on beds with high organic matter in the soil.
+                - paragraph [ref=f13e243]: "It is best to time N applications by the growth stage of the plants. Cranberries primarily use N during three stages: early season leaf production, fruit set, and bud set. When N is applied pre-bloom, it is rapidly taken into the plant and moved to the new leafy growth. While such applications can assure adequate upright length, adding too much N at this stage can lead to excessive growth. Fruit production is a very high demand period that extends from earliest set to about 3 weeks after the final fruit are set. Bud set is occurring during fruit set, so set applications also support this function."
+                - paragraph [ref=f13e244]: Since the fruit set window is such a high N demand period, it is not unusual to see some loss of green color in the leaves above the fruit as the fruit are drawing N from both those leaves and the soil. Minor yellowing is normal, severe overall yellowing can indicate inadequate N fertilization. This should not be confused with Yellow Vine (see page 83), a patterned yellowing related to root stress and not improved by the addition of N.
+                - table "Nitrogen Application Timing by Stage and Formulation" [ref=f13e246]:
+                  - caption [ref=f13e247]: Nitrogen Application Timing by Stage and Formulation
+                  - rowgroup [ref=f13e248]:
+                    - row [ref=f13e249]:
+                      - columnheader "Stage/formulation" [ref=f13e250]
+                      - columnheader "% of total N for the season" [ref=f13e251]
+                  - rowgroup [ref=f13e252]:
+                    - row [ref=f13e253]:
+                      - cell "Slow or controlled release" [ref=f13e254]
+                    - row [ref=f13e255]:
+                      - cell "Pre-roughneck (mid-May)" [ref=f13e256]
+                      - cell "50-100%*" [ref=f13e257]
+                    - row [ref=f13e258]:
+                      - cell "Fast-acting, soluble sources including soil-applied liquids (All but the newest cultivars)" [ref=f13e259]
+                    - row [ref=f13e260]:
+                      - cell "Roughneck to hook" [ref=f13e261]
+                      - cell "up to 20%" [ref=f13e262]
+                    - row [ref=f13e263]:
+                      - cell "75% in bloom (early set)" [ref=f13e264]
+                      - cell "50-60%" [ref=f13e265]
+                    - row [ref=f13e266]:
+                      - cell "75% out of bloom (late set)" [ref=f13e267]
+                      - cell "30-40%" [ref=f13e268]
+                    - row [ref=f13e269]:
+                      - cell "Fast-acting, soluble sources including soil-applied liquids (Rutgers and U-WI cultivars)" [ref=f13e270]
+                    - row [ref=f13e271]:
+                      - cell "Roughneck to hook" [ref=f13e272]
+                      - cell "up to 20%" [ref=f13e273]
+                    - row [ref=f13e274]:
+                      - cell "First fruit set" [ref=f13e275]
+                      - cell "30-35%" [ref=f13e276]
+                    - row [ref=f13e277]:
+                      - cell "7 days later" [ref=f13e278]
+                      - cell "30-35%" [ref=f13e279]
+                    - row [ref=f13e280]:
+                      - cell "7 days later" [ref=f13e281]
+                      - cell "20-30%" [ref=f13e282]
+                    - row [ref=f13e283]:
+                      - cell "*if less than 100%, apply remainder at set using fast-acting sources" [ref=f13e284]
+                - heading "Nitrogen sources" [level=3] [ref=f13e285]
+                - paragraph [ref=f13e286]: Most cranberry growers in MA apply N in NPK fertilizer (aka 'complete fertilizers') primarily to reduce application costs when N, P, and K are all needed. In such fertilizers, the first number on the bag or jug is the percent N in the material. Since P requirements are substantially less than those for N and K, materials with high middle numbers (phosphate) should be avoided. Note that when using liquid fertilizers, the percent on the jug is based on weight, so to calculate pounds per acre applied, one must correct for the liquid density (weight per gallon x gallons per acre x percent).
+                - paragraph [ref=f13e287]: The best available evidence indicates that cranberries respond poorly to nitrate N especially in the absence of ammonium N; the AMMONIUM FORM is recommended. Monoammonium phosphate is an excellent source but can provide excess P (see the Phosphorus section below). Ammonium sulfate is also an excellent source. Light rates of urea, a material that breaks down to ammonium, are suitable to correct N deficiencies quickly (when the urea is dissolved and used as a foliar feed). Use blended fertilizers with ammonium N and excellent uniformity of particle size or ammoniated materials. Non-uniform blends may sort during application, giving poor results. Liquid formulations designed to be applied to the soil and taken up through the roots can be substituted for granular materials.
+                - paragraph [ref=f13e288]: FISH HYDROLYSATE FERTILIZER is available commercially, is useful for organic production, and has been shown to be a suitable substitute for granular, inorganic NPK. It may provide benefits in soil conditioning and reducing movement of nutrients out of the root zone. Fish fertilizer is a good choice where the bog holds water poorly and/or has a history of needing larger than normal fertilizer rates. The nitrogen in fish fertilizer is tied up in organic compounds. As these degrade in the soil, nitrogen is slowly released for use by the cranberry plants. Leaching losses of nitrogen are reduced. Therefore, 20% lower nitrogen rates provided as fish fertilizer should give the same result as a higher nitrogen rate provided in granular, inorganic fertilizer. This has been demonstrated on commercial bogs. Fish is especially useful in the spring and can be incorporated into a program that includes other inorganic fertilizers if organic production methods are not required.
+                - heading "PHOSPHORUS (P)" [level=2] [ref=f13e289]
+                - paragraph [ref=f13e290]:
+                  - strong [ref=f13e291]: PHOSPHORUS (P) RATES OF 10 LB/A (20 LB/A P2O5) OR LESS ARE STRONGLY RECOMMENDED ON NATIVE OR FIRST-GENERATION HYBRID VARIETIES UNLESS A DEFICIENCY IS DOCUMENTED.
+                - paragraph [ref=f13e292]: Phosphorus is important for plant metabolism; it plays a key role in energy transfers, in transporting the sugars produced in photosynthesis, and is part of the DNA molecule. If P is deficient, growth and yield can be impacted. However, P does build up in the upper soil layers and some of that is available to the plants. This stratification often confounds P soil test results, making them difficult to interpret. Therefore, application recommendations are based on crop use and tissue testing. Of the three main nutrients, P is required in the smallest amount (compared to N and K). P removed during harvest accounts for only about 5 lb/A (250 bbl/A contains approximately 2.5 lb P and normal harvest and subsequent detrashing removes another 2.5 lb). Pruning operations can also remove P; 500 lb of vine prunings contain about 1/2 lb P.
+                - paragraph [ref=f13e293]:
+                  - text: P is often added with N in NPK fertilizers and is the second number on the bag. Fertilizer convention is such that the second number is actually percent
+                  - emphasis [ref=f13e294]: phosphate
+                  - text: (P2O5), so to calculate the actual P, that number is multiplied by
+                  - emphasis [ref=f13e295]: "0.44"
+                  - text: .
+                - heading "Important considerations regarding P use and use reduction:" [level=3] [ref=f13e296]
+                - paragraph [ref=f13e297]: Very little P is removed from the bog in the harvested crop! Cranberries require additions of phosphorus fertilizer for sustained productivity, but there is no evidence that more than 20 lb/A actual P is required for productive cranberries (for native cultivars and first generation hybrids).
+                - paragraph [ref=f13e298]: "Research studies on P have shown:"
+                - list [ref=f13e299]:
+                  - listitem [ref=f13e300]: On high P sand soils, there was no response to P fertilizer on beds with adequate tissue P.
+                  - listitem [ref=f13e301]: On native cultivars, the greatest yields were on plots receiving 10-15 lb/A P, with no improvement at higher rates.
+                  - listitem [ref=f13e302]: If tissue P was in the sufficient range, rates well below 10 lb/A gave the best yields.
+                  - listitem [ref=f13e303]: If tissue P was in the deficient range, 20 lb/A gave the best yield.
+                  - listitem [ref=f13e304]: At several commercial sites, growers applying an average of 10 or less lb/A/yr P over a period of years have seen either no change or an improvement in their crops.
+                - paragraph [ref=f13e305]: Based on these data and observations, the P rate recommendations in this Chart Book were developed. The only exception to these recommendations for native varieties and first-generation hybrids are for new beds with fresh sand planting medium. The recommendation for those is to use up to 20 lb/A at planting and no more than a total of 30 lb/A on new or renovated beds until the canopy is established.
+                - paragraph [ref=f13e306]: Second generation hybrids produce much higher yields than native varieties and first generation hybrids, and tend to be larger and more robust plants. These varieties are reported to have moderately higher P demands than older varieties. On-going research is being conducted to quantify the increased nutrient demands.
+                - paragraph [ref=f13e307]: P can be an environmental pollutant. Adverse environmental impacts are reduced by using moderate P rates (no more than 20 lb/A per season on native varieties) and by careful attention to harvest flood management. When bogs are flooded, especially when soil and water are warm, P from the soil can move into the flood water. When the flood is released, the dissolved P then leaves the bog system.
+                - paragraph [ref=f13e308]: "To minimize P release in harvest floods:"
+                - list [ref=f13e309]:
+                  - listitem [ref=f13e310]: Hold harvest floods for 2-4 days to allow settling of P-containing particles.
+                  - listitem [ref=f13e311]: Release gradually (to avoid flushing particles) so that discharge is completed within 10 days. Research has shown that holding floods beyond 10-12 days in the fall can result in oxygen depletion and release of P from iron in the soil.
+                  - listitem [ref=f13e312]: Use no more than 20 lb/A P in fertilizer -- laboratory research showed that with higher P use, P movement into the flood begins immediately upon flooding and then accelerates as oxygen depletes. With low to moderate P use, P release into water is minimized.
+                - table "Recommended Phosphorus rates for native and first generation hybrid varieties" [ref=f13e314]:
+                  - caption [ref=f13e315]: Recommended Phosphorus rates for native and first generation hybrid varieties
+                  - rowgroup [ref=f13e316]:
+                    - row [ref=f13e317]:
+                      - columnheader "Production system" [ref=f13e318]
+                      - columnheader "Recommended P rate lb/A" [ref=f13e319]
+                      - columnheader "as P2O5 lb/A" [ref=f13e320]
+                      - columnheader "Notes" [ref=f13e321]
+                  - rowgroup [ref=f13e322]:
+                    - row [ref=f13e323]:
+                      - rowheader "New plantings" [ref=f13e324]
+                      - cell "up to 30" [ref=f13e325]
+                      - cell "up to 68" [ref=f13e326]
+                      - cell "During establishment" [ref=f13e327]
+                    - row [ref=f13e328]:
+                      - rowheader "Established beds, tissue test >0.16%" [ref=f13e329]
+                      - cell "no more than 10" [ref=f13e330]
+                      - cell "no more than 23" [ref=f13e331]
+                      - cell [ref=f13e332]
+                    - row [ref=f13e333]:
+                      - rowheader "Established beds, tissue test 0.11-0.15% and stable" [ref=f13e334]
+                      - cell "no more than 15" [ref=f13e335]
+                      - cell "no more than 34" [ref=f13e336]
+                      - cell "Trying a lower rate (e.g. 10 lb/A) is encouraged" [ref=f13e337]
+                    - row [ref=f13e338]:
+                      - rowheader "Established beds, tissue test <0.12% and trending down" [ref=f13e339]
+                      - cell "up to 20" [ref=f13e340]
+                      - cell "up to 45" [ref=f13e341]
+                      - cell "15 lb/A P with testing should suffice" [ref=f13e342]
+                    - row [ref=f13e343]:
+                      - rowheader "Established beds, tissue test <0.10%" [ref=f13e344]
+                      - cell "20" [ref=f13e345]
+                      - cell "45" [ref=f13e346]
+                      - cell [ref=f13e347]
+                - paragraph [ref=f13e348]: "Research on Stevens, Ben Lear or native cultivars showed 10-15 lb/A P is sufficient to maintain productivity if tissue test P is in the sufficient range (0.1-0.2%). In plots and demonstration sites, production and fruit quality were maintained with an average of 10 lb/A; no significant relationship between P rate and yield was observed. As P fertilizer use was reduced, P output from the bog (in flood water) also decreased. Based on these studies, growers have reduced P applications well below the previously recommended maximum of 20 lb/A (5-year rolling average of ~10 lb/A) with no reduction in crop. When implementing a reduced P rate, it is important to collect August tissue tests and follow these recommendations: If P is <0.10% - increase the P rate and retest next season; if P is 0.10-0.11% - maintain the P rate and retest next season; if P is 0.12-0.15% - maintain the reduced P rate and retest in 2-3 years; if P is 0.16% or more - further P reduction should be considered."
+                - paragraph [ref=f13e349]: These numbers above are based on Stevens, Ben Lear or native cultivars. Recently MA cranberry growers have adopted high-yielding second-generation hybrids. There is evidence that more P is being removed through harvest as yields of over 400 barrels per acre have been reported. To replenish P available for plant uptake slightly higher lb P/A may be required with the second-generation hybrids. It is suggested that up to 30 lb P/acre could be adequate. Ongoing research continues to quantify nutrient demands for these varieties.
+                - heading "Phosphorus timing and sources." [level=3] [ref=f13e350]
+                - paragraph [ref=f13e351]:
+                  - text: Phosphorus ties up in the soil quickly, binding to iron and aluminum. Therefore, P should only be applied when the plants are actively growing. Phosphorus is generally added with nitrogen and potassium (NPK) or as super phosphate (0-25-0) or triple super phosphate (0-45-0). Research indicates that foliar P or soil-applied liquid fertilizer that contains P, bone meal, or rock phosphate can supply the P needs of cranberry bogs as well. The second number on the bag of NPK fertilizer is phosphate - P
+                  - subscript [ref=f13e352]: "2"
+                  - text: O
+                  - subscript [ref=f13e353]: "5"
+                  - text: .
+                - paragraph [ref=f13e354]:
+                  - emphasis [ref=f13e355]: "* To determine pounds of P in 100 pounds of fertilizer, multiply 0.44 by the second number on the fertilizer label."
+                - paragraph [ref=f13e356]:
+                  - text: When choosing fertilizers, remember that research indicates there is
+                  - strong [ref=f13e357]: no horticultural benefit
+                  - text: to high P rates (in excess of 20 lb/A actual P per season) and that high P applications can be associated with degradation in water quality. If tissue P is in the sufficient range, we do not recommend fertilizers with high P (middle bag number). In fact, excellent results have been seen in recent years with 1:1 or near 2:1 N:P ratios (for example, 18-8-18).
+                  - strong [ref=f13e358]: It is highly recommended that growers use reduced P ratio fertilizer on their bogs, especially if high N applications are planned.
+                - paragraph [ref=f13e359]:
+                  - strong [ref=f13e360]: Use no more than 20 lb/A actual P (~45 lb/A P2O5) per season except on new beds or second-generation hybrids. See calculations on the last page of the Nutrition section.
+                - heading "POTASSIUM (K)" [level=2] [ref=f13e361]
+                - paragraph [ref=f13e362]: The amount of K in cranberry leaves is second only to nitrogen among the mineral nutrients and K is the element in the greatest abundance in the fruit. Potassium is important in the movement of sugars in the plant, in maintaining plant hydration, and in many enzyme reactions in the plant. Cranberry sand soils are naturally low in K, leading to an annual requirement for K additions.
+                - heading "Potassium rates." [level=3] [ref=f13e363]
+                - paragraph [ref=f13e364]: K is often added with N in NPK fertilizers and is the third number on the bag. Fertilizer convention is such that the third number is actually percent potassium oxide (K2O), so to calculate the actual K, that number is multiplied by 0.83. When tissue and soil tests are in the sufficient range, the K requirement is roughly similar to that for N, so choosing an NPK with similar first and third numbers works well.
+                - table "Recommended Potassium rates" [ref=f13e366]:
+                  - caption [ref=f13e367]: Recommended Potassium rates
+                  - rowgroup [ref=f13e368]:
+                    - row [ref=f13e369]:
+                      - columnheader "Soil and tissue test level" [ref=f13e370]
+                      - columnheader "Recommended K rate lb/A" [ref=f13e371]
+                      - columnheader "Other considerations" [ref=f13e372]
+                  - rowgroup [ref=f13e373]:
+                    - row [ref=f13e374]:
+                      - rowheader "normal" [ref=f13e375]
+                      - cell "up to 100" [ref=f13e376]
+                      - cell "Look for NPK with similar first and third numbers" [ref=f13e377]
+                    - row [ref=f13e378]:
+                      - rowheader "low" [ref=f13e379]
+                      - cell "60-100" [ref=f13e380]
+                      - cell "Consider a supplement like SulPoMag or KMag at 100-150 lb/A or a soil-applied liquid K supplement" [ref=f13e381]
+                    - row [ref=f13e382]:
+                      - rowheader "high" [ref=f13e383]
+                      - cell "0-60" [ref=f13e384]
+                      - cell "Use no supplements" [ref=f13e385]
+                - heading "Potassium timing and sources." [level=3] [ref=f13e386]
+                - paragraph [ref=f13e387]: Supplemental K may be applied as soon as the soil warms in the spring, generally in early May. Otherwise, K is generally added with nitrogen and phosphorus (NPK).
+                - paragraph [ref=f13e388]: Supplemental K is often added with magnesium (SulPoMag or similar product), but may be applied as a foliar spray (of little value in research trials) or as potassium sulfate (0-0-50). Muriate of potash (KCl, potassium chloride, 0-0-60) may be less desirable due to the adverse effects of chloride on cranberry vines when used at high rates over years. However, modest rates appear to have no adverse impact. While foliar applied K seems to have little utility in cranberry production, soil-applied liquid products containing K have been used with good results.
+                - heading "OTHER ELEMENTS" [level=2] [ref=f13e389]
+                - heading "Calcium and Magnesium." [level=3] [ref=f13e390]
+                - paragraph [ref=f13e391]: The other major elements, Calcium (Ca) and Magnesium (Mg) are seldom lacking in cranberries. However, Mg is often added with K in SulPoMag or KMag. On bogs with Yellow Vine (see below), magnesium sulfate (Epsom salts) may alleviate symptoms. Diagnosed deficiencies (using tissue tests) of Mg or Ca may be treated with 30 lb/A of the deficient element in granular form applied in the spring or with liquid supplements pre-bloom.
+                - paragraph [ref=f13e392]: Soil balance of K, Mg, and Ca is important. Excessive use of any one can induce deficiency of the others. This is especially a risk with large soil applications of Ca. Lime can have adverse effects by changing soil pH and is not recommended for use in cranberry production. Products that supply Ca may improve fruit quality or firmness. Examples of Ca supplements suitable for cranberry include those that are gypsum based (gypsum and some formulations of Solu-Cal) and liquid supplements such as Full Measure CAL 30TM (this material increased Ca concentration in cranberry fruit in research trials).
+                - paragraph [ref=f13e393]:
+                  - strong [ref=f13e394]: Yellow vine (YV)
+                  - text: manifests as an apparent nutrient deficiency. Beginning with older leaves, yellowing presents along leaf margins and between the veins on the leaf, leaving green only along the veins. Tissue tests of such leaves often show higher than standard potassium and low-normal magnesium. However, extensive investigation has shown that the nutrient imbalance is secondary to the primary problem – root insufficiency due to too much or too little moisture. Cranberry bogs with patches of YV were found to have soil water content (in the YV areas) that was either much higher or much lower than that in the surrounding green areas. Additionally, in greenhouse experiments, plants subjected to very shallow or very deep water table conditions developed YV. The consistent finding in the field has been that the rooting depth in YV areas is shallower than that in unaffected areas. In most cases, YV appears in areas that were too wet early in the season leading to poor rooting depth. Rooting depth can be improved by keeping the bed well drained early in the season. When the water table is closer than about 6 inches below the surface, root development and root function is impaired. Examine your drainage and irrigation practices if you see YV on your bog. Another symptom of poor drainage is high manganese (Mn) in the tissue test. YV usually appears as temperature and water stress increase during mid-summer and may be more severe if Casoron has been used since it can affect rooting and root function.
+                - heading "Minor elements." [level=3] [ref=f13e395]
+                - list [ref=f13e396]:
+                  - listitem [ref=f13e397]: Minor element deficiencies are rare in cranberries due to low requirements and high availability in acid soils. Deficiencies may be brought on by mineral imbalances or stress conditions (drought, waterlogging).
+                  - listitem [ref=f13e398]: If deficiencies are suspected (visual symptoms), confirm with tissue testing. If confirmed, deficiencies are best corrected with foliar sprays. Such sprays are applied between bud break and hook stage.
+                  - listitem [ref=f13e399]: CALCIUM-BORON (5% Ca, 0.5% B, no other minor elements) sprays were the only minor element supplements to give increased crops in our research on non-deficient bogs. Response was greatest on bogs yielding at or below 150 bbl/A. We found that 2 applications of 2 qt/A improved fruit set.
+                - paragraph [ref=f13e400]:
+                  - strong [ref=f13e401]: TIMING
+                  - text: ": 10% bloom, mid-bloom. The second application seems most effective. Application by sprayer is more effective than sprinkler application. This is a foliar feed - apply accordingly; do not wash off the leaves."
+                - paragraph [ref=f13e402]:
+                  - strong [ref=f13e403]: CAUTIONS
+                  - text: ": 1. Manganese-containing fertilizers or fungicides (Mancozeb group) may cancel any beneficial effect of CaB if applied with or around the same time as CaB.2. DO NOT use when leaf analysis is above 75 ppm B.3. If B levels are elevated, but below 75 ppm, eliminate the FIRST application."
+                - heading "APPLYING FERTILIZER TO CRANBERRY BOGS" [level=2] [ref=f13e404]
+                - list [ref=f13e405]:
+                  - listitem [ref=f13e406]: SPRINKLER SYSTEMS may be used to apply liquids, flowables, and foliar feeds. Make sure not to mix incompatible materials (jar test first). When using sprinkler systems to apply fertilizer - make sure that coverage is ADEQUATE AND UNIFORM. EVERY EFFORT SHOULD BE MADE TO PRESERVE WATER QUALITY - avoid application of fertilizer to water in ditches and canals.
+                  - listitem [ref=f13e407]: Foliar feeds should not be washed off the leaves. Liquid fertilizers should be washed onto the soil. Be sure that you know which you are applying. Liquid products that have recently been integrated into cranberry management in Massachusetts are primarily designed to be soil-applied and watered in.
+                  - listitem [ref=f13e408]: FISH FERTILIZER is a liquid fertilizer. It should be washed in.
+                  - listitem [ref=f13e409]: Make sure ground application equipment is properly calibrated.
+                - heading "SOIL pH" [level=3] [ref=f13e410]
+                - paragraph [ref=f13e411]:
+                  - text: The optimal pH for cranberry soil is between 4.0 and 5.5. Use of sulfate containing fertilizers (SulPoMag, ammonium sulfate) does not affect soil pH. However, acid is released into the soil as the plants take up ammonium N. Otherwise, to substantially lower soil pH, elemental sulfur (S) application is used. Soil pH may influence the types of weeds that invade a bog. See the Weed Management section for information on the use of sulfur for weed suppression. Prior to making S applications, seek advice from Extension specialists or consultants. Apply no more than 500 lb/A/season in one or two applications.
+                  - strong [ref=f13e412]: Apply elemental S only to well drained soils and test soil pH prior to application.
+                - paragraph [ref=f13e413]: Use this table (courtesy of the Wisconsin Cranberry Crop Management Newsletter) to calculate the amount of S needed to lower soil pH based on desired amount of change and soil organic matter content from the soil test. This is a SLOW process depending on bacterial activity in the soil - pH change will occur over a period of months. Change will be fastest when soil is warm.
+                - table "Sulfur Application Rates (lb/A) to Achieve Desired pH Change Based on Soil Organic Matter Content" [ref=f13e415]:
+                  - caption [ref=f13e416]: Sulfur Application Rates (lb/A) to Achieve Desired pH Change Based on Soil Organic Matter Content
+                  - rowgroup [ref=f13e417]:
+                    - row [ref=f13e418]:
+                      - columnheader "Desired pH change" [ref=f13e419]
+                      - columnheader "Soil organic matter content (%)" [ref=f13e420]
+                    - row [ref=f13e421]:
+                      - columnheader "0.5-2.0" [ref=f13e422]
+                      - columnheader "2-4" [ref=f13e423]
+                      - columnheader "4-6" [ref=f13e424]
+                      - columnheader "6-8" [ref=f13e425]
+                      - columnheader "8-10" [ref=f13e426]
+                      - columnheader ">10" [ref=f13e427]
+                  - rowgroup [ref=f13e428]:
+                    - row [ref=f13e429]:
+                      - rowheader [ref=f13e430]
+                      - cell "Amount of sulfur needed (lb/A)" [ref=f13e431]
+                    - row [ref=f13e432]:
+                      - rowheader "0.25 units" [ref=f13e433]
+                      - cell "250" [ref=f13e434]
+                      - cell "750" [ref=f13e435]
+                      - cell "1200" [ref=f13e436]
+                      - cell "1700" [ref=f13e437]
+                      - cell "2300" [ref=f13e438]
+                      - cell "2800" [ref=f13e439]
+                    - row [ref=f13e440]:
+                      - rowheader "0.5 units" [ref=f13e441]
+                      - cell "500" [ref=f13e442]
+                      - cell "1500" [ref=f13e443]
+                      - cell "2500" [ref=f13e444]
+                      - cell "3500" [ref=f13e445]
+                      - cell "4600" [ref=f13e446]
+                      - cell "5500" [ref=f13e447]
+                    - row [ref=f13e448]:
+                      - rowheader "1 unit" [ref=f13e449]
+                      - cell "1000" [ref=f13e450]
+                      - cell "3000" [ref=f13e451]
+                      - cell "5000" [ref=f13e452]
+                      - cell "7000" [ref=f13e453]
+                      - cell "9200" [ref=f13e454]
+                      - cell "11000" [ref=f13e455]
+                - heading "SOIL AND TISSUE TESTS" [level=2] [ref=f13e456]
+                - paragraph [ref=f13e457]: Soil and tissue tests are tools that a cranberry grower can use to help diagnose deficiencies of mineral elements, monitoring soil pH, and aiding in the decision making process for choosing fertilizer (tissue tests). These tests are also required for Nutrient Management record keeping.
+                - paragraph [ref=f13e458]: However, there are no 'cookbook' type formulas for fertilizing a cranberry bog based on the test results.
+                - list [ref=f13e459]:
+                  - listitem [ref=f13e460]: standard soil tests poorly predict availability of nutrients and poorly correlate with yield in cranberry;
+                  - listitem [ref=f13e461]: as a perennial plant, cranberries store nutrients from the previous season(s) making it impossible to base fertilizer choices only on soil content and yield potential;
+                  - listitem [ref=f13e462]: there is virtually no variability in soil test N values from bog to bog;
+                  - listitem [ref=f13e463]: tissue test N concentration may vary depending on length of upright (N concentration in the tissue does not always correlate well with added N);
+                  - listitem [ref=f13e464]: nutrient availability changes with soil pH and soil pH is not uniform from bog to bog; and
+                  - listitem [ref=f13e465]: common soil test methods for P do not give results that correlate well with cranberry yields due to very acid soils in cranberry production – standard P tests are of no predictive value if soil iron is above 200 ppm.
+                - paragraph [ref=f13e466]: With these warnings in mind, tissue and soil analyses can be beneficial as a long-term record of changes in your bog. Soil and tissue tests are particularly useful when compared to one another - a soil test alone is virtually useless in determining a fertilizer recommendation for cranberry. Use periodic soil testing to monitor any change in soil pH; we recommend testing soil every 3-5 years for this purpose.
+                - paragraph [ref=f13e467]:
+                  - text: Tissue tests are more useful for setting target fertilizer ranges. Regular tissue testing meets the mandate for testing in the Massachusetts Nutrient Management Regulations since this is the UMass recommended testing for cranberry. We recommend tissue sampling every 2-4 years (but see also P use and P reduction section above for protocols when adjusting P rates). Keep the results and use them in conjunction with your records of your bog management and performance (growth and cropping) to aid in making fertilizer decisions. For further information regarding tissue testing, refer to “Cranberry tissue testing for producing beds in North America” fact sheet (available at
+                  - link "http://scholarworks.umass.edu/cranberry_factsheets/6/)." [ref=f13e468] [cursor=pointer]:
+                    - /url: http://scholarworks.umass.edu/cranberry_factsheets/6/).
+                - heading [level=3] [ref=f13e469]:
+                  - emphasis [ref=f13e470]: When and how to test
+                - paragraph [ref=f13e471]: The results you receive from a soil or a tissue test are only as good as the sample you supply to the analytical lab. Follow the instructions for sample collection provided by the lab you are using. Collect one composite sample for each management unit as instructed below. A management unit may vary in size but will generally be a single variety that is treated uniformly, often under one sprinkler system.
+                - paragraph [ref=f13e472]:
+                  - strong [ref=f13e473]: Tissue samples
+                  - text: ": Samples for cranberry tissue analysis should NEVER contain roots, soil, runners, fruit, or trailing woody stems. In general all of these contaminants contain less nutrients than the upright tips. Including them will give a falsely low analysis. Tissue samples are best collected from"
+                  - strong [ref=f13e474]: mid-August to mid-September
+                  - text: . Samples collected at that time should include
+                  - strong [ref=f13e475]: upright tips only
+                  - text: (do not strip off the leaves). Collect no more than the
+                  - strong [ref=f13e476]: top 2 inches
+                  - text: of new growth (mix flowering and vegetative uprights). As you walk a transect across the bog, collect enough material to make about 1 cup (at least 50 upright tips). You may collect directly into marked bags as samples should not be washed. Collect samples when the plants are not wet. Do not mail samples in plastic bags. Moldy samples give poor results.
+                  - strong [ref=f13e477]: Always
+                  - text: request nitrogen determination. This increases the test cost, but nitrogen levels in the tissue test are an important indicator of plant status and the success of fertilizer programs.
+                - paragraph [ref=f13e478]:
+                  - strong [ref=f13e479]: Sampling other than in August-September
+                  - text: ": Tissue samples may be collected at other times of the year if absolutely necessary. However, nutrient levels change more rapidly outside of the recommended time and make interpretation of the results more difficult. If sampling in the spring, samples should be collected in June and consist of"
+                  - strong [ref=f13e480]: new upright tissue
+                  - text: only. Do not include last season's leaves - they will lead to a falsely low result.
+                  - emphasis [ref=f13e481]: In June samples, nitrogen should be 1.2-1.5%, phosphorus 0.15-0.19%, and potassium 0.7-0.9%.
+                  - text: Interpretations for other elements are challenging in June samples.
+                - paragraph [ref=f13e482]: Tissue samples should also be collected when deficiency is suspected or diagnosis of a specific problem is needed. For problem diagnosis, collect 2 separate samples - one from the problem area, and one from nearby 'normal' vines.
+                - paragraph [ref=f13e483]: Samples collected after mid-September give lower analysis values than those collected earlier. This is especially true for nitrogen (it is transported out of upright tips and stored in older tissue as dormancy approaches). Also, late in the season the uprights become more woody so that more of a tip sample is stem tissue. Stems have less nutrient content than do leaves so the overall result is a lower analytical value.
+                - heading "TISSUE STANDARDS (August 10 to September 15 collection)" [level=3] [ref=f13e484]
+                - paragraph [ref=f13e485]: Standards developed in conjunction with researchers throughout the cranberry growing areas of the USA
+                - table "Major Element Concentration in Dried Tissue (Percent)" [ref=f13e487]:
+                  - caption [ref=f13e488]: Major Element Concentration in Dried Tissue (Percent)
+                  - rowgroup [ref=f13e489]:
+                    - row [ref=f13e490]:
+                      - columnheader "Major Element" [ref=f13e491]
+                      - columnheader "Concentration in dried tissue (percent)" [ref=f13e492]
+                  - rowgroup [ref=f13e493]:
+                    - row [ref=f13e494]:
+                      - cell "Nitrogen (N)" [ref=f13e495]
+                      - cell "0.90-1.10 *" [ref=f13e496]
+                    - row [ref=f13e497]:
+                      - cell "Phosphorus (P)" [ref=f13e498]
+                      - cell "0.10-0.20" [ref=f13e499]
+                    - row [ref=f13e500]:
+                      - cell "Potassium (K)" [ref=f13e501]
+                      - cell "0.40-0.75" [ref=f13e502]
+                    - row [ref=f13e503]:
+                      - cell "Calcium (Ca)" [ref=f13e504]
+                      - cell "0.30-0.80" [ref=f13e505]
+                    - row [ref=f13e506]:
+                      - cell "Magnesium (Mg)" [ref=f13e507]
+                      - cell "0.15-0.25" [ref=f13e508]
+                    - row [ref=f13e509]:
+                      - cell "Sulfur (S)" [ref=f13e510]
+                      - cell "0.08-0.25" [ref=f13e511]
+                    - row [ref=f13e512]:
+                      - cell "* = As high as 1.3 % has been seen for Stevens, but monitor growth closely if N is > 1.1 %." [ref=f13e513]
+                - table "Minor Element Concentration in Dried Tissue (ppm)" [ref=f13e515]:
+                  - caption [ref=f13e516]: Minor Element Concentration in Dried Tissue (ppm)
+                  - rowgroup [ref=f13e517]:
+                    - row [ref=f13e518]:
+                      - columnheader "Minor Element" [ref=f13e519]
+                      - columnheader "Concentration in dried tissue (ppm)" [ref=f13e520]
+                  - rowgroup [ref=f13e521]:
+                    - row [ref=f13e522]:
+                      - rowheader "Boron (B)" [ref=f13e523]
+                      - cell "15-60" [ref=f13e524]
+                    - row [ref=f13e525]:
+                      - rowheader "Zinc (Zn)" [ref=f13e526]
+                      - cell "15-30" [ref=f13e527]
+                    - row [ref=f13e528]:
+                      - rowheader "Copper (Cu)" [ref=f13e529]
+                      - cell "4-10" [ref=f13e530]
+                    - row [ref=f13e531]:
+                      - rowheader "Iron (Fe)" [ref=f13e532]
+                      - cell "problem if less than 20" [ref=f13e533]
+                    - row [ref=f13e534]:
+                      - rowheader "Manganese (Mn)" [ref=f13e535]
+                      - cell "problem if less than 10, if greater than 500-600 check bog drainage" [ref=f13e536]
+                - paragraph [ref=f13e537]:
+                  - emphasis [ref=f13e538]:
+                    - strong [ref=f13e539]: "Soil samples:"
+                  - text: "Samples for analysis of soil nutrients should NOT contain stems, leaves, or the surface duff layer (trash). These are all organic contaminants and will bias the organic matter (OM) determination for the sample. The inclusion of some roots is generally unavoidable. Use a soil probe with a 1-2 inch diameter to collect cores of 4-6 inch depth. Minimum requirements: 4 cores for up to 1 acre; and 1 core for each additional 2 acres up to a total of 10 cores/management unit. After the trash layer on the surface of each is discarded, these cores are combined to make a sample. Collect enough soil to fill a 1 qt plastic bag about ¾ full. At home, open the bags and dry the soil at room temperature for a day or two. Clearly mark each sample bag. Orangic matter determination (usually an additional charge) is often useful."
+                - paragraph [ref=f13e540]: Methods of analysis vary by lab - pick a lab and stick with it. The UMass Soils Lab uses the Morgan test. However, the Bray test for soil P is the most commonly used in other labs for samples from the eastern United States. The Bray test, like all common P soil tests, is of limited value in cranberry soils. Standard P ranges for both methods are provided on the next page. The best time to sample cranberry bogs is when the soil is not waterlogged. Wet soils give falsely high P values. Soil samples may be collected with tissue samples in the late summer if no sanding is planned. Otherwise, sample soil in the spring.
+                - paragraph [ref=f13e541]:
+                  - text: UMass provides soil analysis services at the Amherst lab for a fee. Submission forms for this lab are available at
+                  - link "https://ag.umass.edu/services/soil-plant-nutrient-testing-laboratory/or…" [ref=f13e542] [cursor=pointer]:
+                    - /url: https://ag.umass.edu/services/soil-plant-nutrient-testing-laboratory/ordering-information-forms
+                  - text: .
+                - table "Conversions for Soil Test Results" [ref=f13e544]:
+                  - caption [ref=f13e545]: Conversions for Soil Test Results
+                  - rowgroup [ref=f13e546]:
+                    - row [ref=f13e547]:
+                      - columnheader "Test result" [ref=f13e548]
+                      - columnheader "Conversion" [ref=f13e549]
+                  - rowgroup [ref=f13e550]:
+                    - row [ref=f13e551]:
+                      - rowheader "lb/A K, Ca, Mg or P" [ref=f13e552]
+                      - cell "divide by 2.27 to get ppm" [ref=f13e553]
+                    - row [ref=f13e554]:
+                      - rowheader "lb/A K2O" [ref=f13e555]
+                      - cell "divide by 2.75 to get ppm K" [ref=f13e556]
+                    - row [ref=f13e557]:
+                      - rowheader "lb/A P2O5" [ref=f13e558]
+                      - cell "divide by 5.2 to get ppm P" [ref=f13e559]
+                - table "Soil Standards (ppm) Ammonium acetate extraction unless otherwise indicated." [ref=f13e561]:
+                  - caption [ref=f13e562]: Soil Standards (ppm) Ammonium acetate extraction unless otherwise indicated.
+                  - rowgroup [ref=f13e563]:
+                    - row [ref=f13e564]:
+                      - columnheader "Element" [ref=f13e565]
+                      - columnheader "Deficient if below" [ref=f13e566]
+                      - columnheader "Normal" [ref=f13e567]
+                      - columnheader "Excess if above" [ref=f13e568]
+                  - rowgroup [ref=f13e569]:
+                    - row [ref=f13e570]:
+                      - rowheader "Phosphorus (Bray)" [ref=f13e571]
+                      - cell "20" [ref=f13e572]
+                      - cell "20 - 60" [ref=f13e573]
+                      - cell "80" [ref=f13e574]
+                    - row [ref=f13e575]:
+                      - rowheader "Phosphorus (P)" [ref=f13e576]
+                      - cell "4" [ref=f13e577]
+                      - cell "4 - 9" [ref=f13e578]
+                      - cell "10" [ref=f13e579]
+                    - row [ref=f13e580]:
+                      - rowheader "Potassium (K)" [ref=f13e581]
+                      - cell "10" [ref=f13e582]
+                      - cell "10 - 40" [ref=f13e583]
+                      - cell "50" [ref=f13e584]
+                    - row [ref=f13e585]:
+                      - rowheader "Calcium (Ca)" [ref=f13e586]
+                      - cell "20" [ref=f13e587]
+                      - cell "20 - 80" [ref=f13e588]
+                      - cell "90" [ref=f13e589]
+                    - row [ref=f13e590]:
+                      - rowheader "Magnesium (Mg)" [ref=f13e591]
+                      - cell "10" [ref=f13e592]
+                      - cell "10 - 25" [ref=f13e593]
+                      - cell "25" [ref=f13e594]
+                    - row [ref=f13e595]:
+                      - columnheader "pH" [ref=f13e596]
+                      - cell [ref=f13e597]
+                      - cell "4.0 - 5.0" [ref=f13e598]
+                      - cell [ref=f13e599]
+                - paragraph [ref=f13e600]:
+                  - strong [ref=f13e601]: "Base saturation:"
+                  - text: Ca should roughly equal the sum of K and Mg. Base saturation is the proportion of the various positive cations in the soil. In acid soils, 45-70% should consist of hydrogen ions (these replace much of the Ca that would be found in higher pH soils).
+                - paragraph [ref=f13e602]:
+                  - strong [ref=f13e603]: "Cation Exchange Capacity (CEC):"
+                  - text: Measures ability of soil to hold positive ions (cations or bases). If CEC is low (<10), base saturation proportions are important. If CEC is high and all cations are in the normal range, the proportions in the base saturation are less critical.
+                  - emphasis [ref=f13e604]
+                - paragraph [ref=f13e605]:
+                  - emphasis [ref=f13e606]: If soil iron is above 200 ppm, soil P tests will not accurately reflect P availability.
+                - heading "IMPORTANT CONSIDERATIONS FOR CRANBERRY NUTRITION" [level=2] [ref=f13e607]
+                - list [ref=f13e608]:
+                  - listitem [ref=f13e609]:
+                    - text: REVIEW the Nutrient Management BMP in the Best Management Practices Guide for Massachusetts Cranberry Production on our website (
+                    - link "http://ag.umass.edu/cranberry/publications-resources/best-management-pr…" [ref=f13e610] [cursor=pointer]:
+                      - /url: http://ag.umass.edu/cranberry/publications-resources/best-management-practices
+                    - text: ). Excellent information and decision trees for planning N and P management are available as well (
+                    - link "http://ag.umass.edu/cranberry/publications-resources/books-pamphlets" [ref=f13e611] [cursor=pointer]:
+                      - /url: http://ag.umass.edu/cranberry/publications-resources/books-pamphlets
+                    - text: ). Select Nitrogen or Phosphorus for Bearing Cranberries articles.
+                  - listitem [ref=f13e612]:
+                    - text: The Cranberry Station website has an entire page devoted to Nutrient Management and planning (
+                    - link "http://ag.umass.edu/cranberry/publications-resources/nutrient-managemen…" [ref=f13e613] [cursor=pointer]:
+                      - /url: http://ag.umass.edu/cranberry/publications-resources/nutrient-management-for-cranberries
+                    - text: ). There are templates for record keeping and nutrient calculator tools that can be downloaded from that page.
+                  - listitem [ref=f13e614]:
+                    - text: GOOD DRAINAGE AND ADEQUATE IRRIGATION are essential for best response to fertilizer. Monitor and maintain adequate soil moisture. Small, frequent irrigations may not be adequate to provide moisture to the root zone. For further information, refer to the Irrigation section (pg 93) and BMP
+                    - link "https://ag.umass.edu/cranberry/publications-resources/best-management-p…" [ref=f13e615] [cursor=pointer]:
+                      - /url: https://ag.umass.edu/cranberry/publications-resources/best-management-practices
+                    - text: .
+                  - listitem [ref=f13e616]: KEEP GOOD RECORDS. Comparison of rate/material and crop response over time will help to refine fertilizer practices tailored to YOUR bog. OBSERVE YOUR BOGS OFTEN -- fertilizer timing depends on growth stage/plant development. Rate can be refined as plants respond during the growing season. For growers managing 10 acres or more, records of nutrient applications are required under Massachusetts regulations.
+                  - listitem [ref=f13e617]: Cranberry bog soil has little capacity to HOLD cations (e.g., K, Mg, Ca). Much of the holding capacity is taken up by hydrogen ions. It is important to maintain a BALANCE among cations. Overuse of one can induce deficiency of the others. When you test bog soil for pH, check this balance as well.
+                  - listitem [ref=f13e618]: WHEN SYMPTOMS OCCUR - rule out water management issues, disease, and pest problems first. Then look at nutrition. Collect tissue for testing if necessary.
+                - heading "CAUTIONS:" [level=3] [ref=f13e619]
+                - list [ref=f13e620]:
+                  - listitem [ref=f13e621]: PRESERVE SURFACE WATER QUALITY - avoid applying fertilizer to water in ditches and canals. As possible, lower water levels in ditches prior to fertilizer application and impound water during and after fertilizer applications.
+                  - listitem [ref=f13e622]: AVOID HIGH RATES APPLIED AT ONE TIME, particularly on bogs constructed on mineral soils or very sandy bogs. Such applications may lead to lateral movement of fertilizer into water.
+                  - listitem [ref=f13e623]: EXCESSIVE NITROGEN FERTILIZATION leads to over vegetative plants. This may increase susceptibility to disease, spring frost or insect feeding. High nitrogen rates are associated with poor fruit quality and may delay color development in the fruit. High nitrogen rates can have adverse carry-over effects in following years -- excess applied nitrogen leads to high nitrogen concentrations in plant tissues such as stems and roots that can be remobilized in the plant and lead to excess vegetation, particularly when more nitrogen is added to the soil.
+                  - listitem [ref=f13e624]: FALL FERTILIZER (after harvest application) is not recommended, particularly if crop was small and no deficiencies have been noted. Late-season applications may not be properly taken up by the plants depending on soil temperature and state of dormancy. Generally, if uptake does not occur in the fall, the nutrients are no longer available the following spring. Organic types of fertilizers may be the exception. If you choose to use fall fertilizer, use low N and low or no P formulations.
+                - heading "EFFECTS OF WEATHER:" [level=3] [ref=f13e625]
+                - list [ref=f13e626]:
+                  - listitem [ref=f13e627]: WINTER INJURY. If leaf drop occurs after withdrawal of winter flood, early spring fertilizer applications will aid in recovery by encouraging rapid, early production of new leaves. Do not skip spring fertilizer. SulPoMag (or similar material) at 100-200 lb/A may also aid recovery.
+                  - listitem [ref=f13e628]: COLD SOIL/AIR TEMPERATURES, particularly in the spring, will lessen or eliminate response of cranberry plants to fertilizer applications. If plants are already under stress, they may respond even less. If this occurs, care should be taken not to reapply before you are sure that the plants are not going to respond to the initial application. Soil temperatures should rise to 55°F before application of fertilizer to ensure response. If long-lasting, slow-release, controlled release, or organic forms were used, reapplication may not be necessary -- response may only be delayed.
+                  - listitem [ref=f13e629]: IF FLOWER BUDS ARE DAMAGED BY SPRING FROST, high N rates can lead to overgrowth. Use lower rates.
+                - heading "EFFECTS OF PESTS AND CULTURAL PRACTICES:" [level=3] [ref=f13e630]
+                - list [ref=f13e631]:
+                  - listitem [ref=f13e632]: BOGS CONSTRUCTED ON MINERAL SOILS without a permeability restricting or confining layer have little ability to hold nutrients in the root zone. Use organic or slow-release N and avoid large rates applied all at once.
+                  - listitem [ref=f13e633]: DECREASE fertilizer rate if the bog has been SANDED. Sanding promotes production of new vegetative uprights from the runners. Sanding combined with high fertilizer rates can lead to overgrowth.
+                  - listitem [ref=f13e634]: DECREASE fertilizer rate if late water has been held. Spring fertilizer rate may be eliminated on late water bogs. Overall fertilizer rate may be decreased 30% or more. However, do not decrease fertilizer N by more than 40% at the risk of adverse impact on the following season crop.
+                  - listitem [ref=f13e635]: ELIMINATE fertilizer applications for the entire season if the bog has been subjected to a long SUMMER FLOOD (May-July, see Insect section) for grub control.
+                  - listitem [ref=f13e636]: If eliminating crop using a FLASH FLOOD, reduce fertilizer rate. Two low-rate applications, in the spring and mid-season, should suffice to support the plants.
+                  - listitem [ref=f13e637]: PRUNING stimulates growth - reduce spring fertilizer on heavily pruned bogs. However, if the bog has been mowed, fertilizer applications are required to encourage the production of new uprights.
+                - heading "Calculating Fertilizer N and P Rates -- important for planning" [level=3] [ref=f13e638]
+                - paragraph [ref=f13e639]: Fertilizer labels have three numbers that are N-P-K. These numbers are percent by weight, and also the amount per 100 lbs of fertilizer.
+                - generic [ref=f13e640]:
+                  - paragraph [ref=f13e641]:
+                    - strong [ref=f13e642]: Nitrogen (N)
+                    - text: "- First number on the bag is percent N"
+                  - paragraph [ref=f13e643]:
+                    - emphasis [ref=f13e644]: N example
+                    - text: ": You have a 50 pound bag of"
+                    - strong [ref=f13e645]: "18"
+                    - text: – 8 – 18
+                  - paragraph [ref=f13e646]: "To figure out how much N is in the bag of fertilizer:"
+                  - list [ref=f13e647]:
+                    - listitem [ref=f13e648]:
+                      - text: Multiply the first number by weight of the bag
+                      - list [ref=f13e649]:
+                        - listitem [ref=f13e650]: 18 x 50 = 900
+                    - listitem [ref=f13e651]:
+                      - text: Because the number on the bag is a percentage, you then divide by 100 to calculate how much nitrogen you are applying
+                      - list [ref=f13e652]:
+                        - listitem [ref=f13e653]: 900/100 = 9
+                  - paragraph [ref=f13e654]: For every 50 lbs of this fertilizer, you are adding 9 lbs of N.
+                  - paragraph [ref=f13e655]:
+                    - strong [ref=f13e656]: shortcut
+                    - text: "- for a 100 pound application - the first number is pounds applied on the bog."
+                - paragraph [ref=f13e657]
+                - generic [ref=f13e658]:
+                  - paragraph [ref=f13e659]:
+                    - strong [ref=f13e660]: Phosphorus (P)
+                    - text: "- Middle number on the bag is percent phosphorus as"
+                    - emphasis [ref=f13e661]:
+                      - text: phosphate - P
+                      - subscript [ref=f13e662]: "2"
+                      - text: O
+                      - subscript [ref=f13e663]: "5"
+                  - paragraph [ref=f13e664]:
+                    - emphasis [ref=f13e665]: P example
+                    - text: ": You have a 50 pound bag of 12 –"
+                    - strong [ref=f13e666]: "24"
+                    - text: – 12
+                  - paragraph [ref=f13e667]:
+                    - text: To figure out how much
+                    - strong [ref=f13e668]: actual
+                    - text: "P is in the bag of fertilizer:"
+                  - list [ref=f13e669]:
+                    - listitem [ref=f13e670]:
+                      - text: Multiply the second number on the bag by 0.44 (conversion factor)
+                      - list [ref=f13e671]:
+                        - listitem [ref=f13e672]: 24 x 0.44 (conversion factor) = 10.56
+                    - listitem [ref=f13e673]:
+                      - text: Multiply this number by weight of the bag
+                      - list [ref=f13e674]:
+                        - listitem [ref=f13e675]: 10.56 x 50 (weight of the bag) = 528
+                    - listitem [ref=f13e676]:
+                      - text: Because the number on the bag is a percentage, you then divide by 100 to calculate how much P you are applying
+                      - list [ref=f13e677]:
+                        - listitem [ref=f13e678]: 528/100 = 5.28
+                  - paragraph [ref=f13e679]: For every 50 lbs of this fertilizer, you are adding 5.28 lbs of P.
+                  - paragraph [ref=f13e680]:
+                    - strong [ref=f13e681]: "NOTE:"
+                    - text: if you want less than 20 pounds actual P on the bog, limit to no more than 45 pounds of phosphate.
+                - paragraph [ref=f13e682]
+                - generic [ref=f13e683]:
+                  - paragraph [ref=f13e684]:
+                    - strong [ref=f13e685]: Potassium (K)
+                    - text: "- Last number on the bag is percent potassium as"
+                    - emphasis [ref=f13e686]:
+                      - text: potassium oxide - K
+                      - subscript [ref=f13e687]: "2"
+                      - text: O
+                  - paragraph [ref=f13e688]:
+                    - emphasis [ref=f13e689]: K example
+                    - text: ": You have a 50 pound bag of 0 – 0 –"
+                    - strong [ref=f13e690]: "22"
+                  - paragraph [ref=f13e691]:
+                    - text: To figure out how much
+                    - strong [ref=f13e692]: actual
+                    - text: "K is in the bag of fertilizer:"
+                  - list [ref=f13e693]:
+                    - listitem [ref=f13e694]:
+                      - text: Multiply the third number on the bag by 0.83 (conversion factor)
+                      - list [ref=f13e695]:
+                        - listitem [ref=f13e696]: 22 x 0.83 (conversion factor) = 18.26
+                    - listitem [ref=f13e697]:
+                      - text: Multiply this number by weight of the bag
+                      - list [ref=f13e698]:
+                        - listitem [ref=f13e699]: 18.26 x 50 (weight of the bag) = 913
+                    - listitem [ref=f13e700]:
+                      - text: Because the number on the bag is a percentage, you then divide by 100 to calculate how much K you are applying
+                      - list [ref=f13e701]:
+                        - listitem [ref=f13e702]: 913/100 = 9.13
+                  - paragraph [ref=f13e703]: For every 50 lbs of this fertilizer, you are adding 9.13 lbs of K.
+                - heading "Nutrient Planning Example" [level=3] [ref=f13e704]
+                - paragraph [ref=f13e705]: Since we fertilize based on nitrogen -- decide how much N you need. Then choose a fertilizer and calculate how much N, P, and K you will apply.
+                - paragraph [ref=f13e706]: My bog requires 35 lb N/A; I want to use 12-24-12. To get 35 lb N -- how much 12-24-12 do I need per acre?
+                - list [ref=f13e707]:
+                  - listitem [ref=f13e708]: Divide rate of N needed by percent N (first number on bag)
+                  - listitem [ref=f13e709]: Then multiply by 100 to convert the percent into lbs
+                - table "Calculating Fertilizer Application Rate to Meet Nitrogen Needs" [ref=f13e711]:
+                  - caption [ref=f13e712]: Calculating Fertilizer Application Rate to Meet Nitrogen Needs
+                  - rowgroup [ref=f13e713]:
+                    - row [ref=f13e714]:
+                      - columnheader "Rate of N needed" [ref=f13e715]
+                      - columnheader "÷" [ref=f13e716]
+                      - columnheader "First number on bag" [ref=f13e717]
+                      - columnheader "x" [ref=f13e718]
+                      - columnheader "100" [ref=f13e719]
+                      - columnheader "=" [ref=f13e720]
+                      - columnheader "lbs of fertilizer needed per acre" [ref=f13e721]
+                  - rowgroup [ref=f13e722]:
+                    - row [ref=f13e723]:
+                      - cell "35" [ref=f13e724]
+                      - cell "÷" [ref=f13e725]
+                      - cell "12" [ref=f13e726]
+                      - cell "x" [ref=f13e727]
+                      - cell "100" [ref=f13e728]
+                      - cell "=" [ref=f13e729]
+                      - cell "292 lb/A of 12-24-12 to deliver 35 lb N per acre" [ref=f13e730]: 292 lb/A of 12-24-12to deliver 35 lb N per acre
+                - paragraph [ref=f13e731]:
+                  - text: If you are going to use this fertilizer, you should then calculate how much
+                  - strong [ref=f13e732]: P
+                  - text: you will also be adding.
+                - list [ref=f13e733]:
+                  - listitem [ref=f13e734]: Multiply pounds of fertilizer by middle on the bag number (24 in this case)
+                  - listitem [ref=f13e735]: Then by 0.44 (to convert to actual P)
+                  - listitem [ref=f13e736]: Then divide by 100
+                - table "Calculating Actual Phosphorus Application Rate" [ref=f13e738]:
+                  - caption [ref=f13e739]: Calculating Actual Phosphorus Application Rate
+                  - rowgroup [ref=f13e740]:
+                    - row [ref=f13e741]:
+                      - columnheader "Lbs/A of fertilizer planned" [ref=f13e742]
+                      - columnheader "x" [ref=f13e743]
+                      - columnheader "Second number on bag" [ref=f13e744]
+                      - columnheader "x" [ref=f13e745]
+                      - columnheader "Conversion factor" [ref=f13e746]
+                      - columnheader "÷" [ref=f13e747]
+                      - columnheader "100" [ref=f13e748]
+                      - columnheader "=" [ref=f13e749]
+                      - columnheader "lbs actual P" [ref=f13e750]
+                  - rowgroup [ref=f13e751]:
+                    - row [ref=f13e752]:
+                      - cell "292" [ref=f13e753]
+                      - cell "x" [ref=f13e754]
+                      - cell "24" [ref=f13e755]
+                      - cell "x" [ref=f13e756]
+                      - cell "0.44" [ref=f13e757]
+                      - cell "÷" [ref=f13e758]
+                      - cell "100" [ref=f13e759]
+                      - cell "=" [ref=f13e760]
+                      - cell "30.8 lb P per acre" [ref=f13e761]
+                - paragraph [ref=f13e762]:
+                  - text: If you are going to use this fertilizer, you should then calculate how much
+                  - strong [ref=f13e763]: K
+                  - text: you will also be adding.
+                - list [ref=f13e764]:
+                  - listitem [ref=f13e765]: Multiply pounds of fertilizer by last number on bag (12 in this case)
+                  - listitem [ref=f13e766]: Then by 0.83 (to convert to actual K)
+                  - listitem [ref=f13e767]: Then divide by 100
+                - table "Calculating Actual Potassium (K) per Acre" [ref=f13e769]:
+                  - caption [ref=f13e770]: Calculating Actual Potassium (K) per Acre
+                  - rowgroup [ref=f13e771]:
+                    - row [ref=f13e772]:
+                      - columnheader "Lbs/A of fertilizer planned" [ref=f13e773]
+                      - columnheader "x" [ref=f13e774]
+                      - columnheader "Third number on bag (K2O %)" [ref=f13e775]
+                      - columnheader "x" [ref=f13e776]
+                      - columnheader "Conversion factor" [ref=f13e777]
+                      - columnheader "÷" [ref=f13e778]
+                      - columnheader "100" [ref=f13e779]
+                      - columnheader "=" [ref=f13e780]
+                      - columnheader "lbs actual K" [ref=f13e781]
+                  - rowgroup [ref=f13e782]:
+                    - row [ref=f13e783]:
+                      - cell "292" [ref=f13e784]
+                      - cell "x" [ref=f13e785]
+                      - cell "12" [ref=f13e786]
+                      - cell "x" [ref=f13e787]
+                      - cell "0.83" [ref=f13e788]
+                      - cell "÷" [ref=f13e789]
+                      - cell "100" [ref=f13e790]
+                      - cell "=" [ref=f13e791]
+                      - cell [ref=f13e792]:
+                        - strong [ref=f13e793]: 29.1 lb K per acre
+                - paragraph [ref=f13e794]: That's more P than I expected! What if I switch to 18-8-18?
+                - table "Calculating Fertilizer Application Rate to Meet Nitrogen (N) Needs" [ref=f13e796]:
+                  - caption [ref=f13e797]: Calculating Fertilizer Application Rate to Meet Nitrogen (N) Needs
+                  - rowgroup [ref=f13e798]:
+                    - row [ref=f13e799]:
+                      - columnheader "Rate of N needed" [ref=f13e800]
+                      - columnheader "÷" [ref=f13e801]
+                      - columnheader "First number on bag (N %)" [ref=f13e802]
+                      - columnheader "x" [ref=f13e803]
+                      - columnheader "100" [ref=f13e804]
+                      - columnheader "=" [ref=f13e805]
+                      - columnheader "lbs of fertilizer needed per acre" [ref=f13e806]
+                  - rowgroup [ref=f13e807]:
+                    - row [ref=f13e808]:
+                      - cell "35" [ref=f13e809]
+                      - cell "÷" [ref=f13e810]
+                      - cell "18" [ref=f13e811]
+                      - cell "x" [ref=f13e812]
+                      - cell "100" [ref=f13e813]
+                      - cell "=" [ref=f13e814]
+                      - cell [ref=f13e815]:
+                        - strong [ref=f13e816]: 194 lb/A of 18-8-18
+                        - strong [ref=f13e817]: to deliver 35 lb N/acre
+                - table "Calculating Actual Phosphorus (P) per Acre for an 18-8-18 Blend" [ref=f13e819]:
+                  - caption [ref=f13e820]: Calculating Actual Phosphorus (P) per Acre for an 18-8-18 Blend
+                  - rowgroup [ref=f13e821]:
+                    - row [ref=f13e822]:
+                      - columnheader "Lbs/A of fertilizer planned" [ref=f13e823]
+                      - columnheader "x" [ref=f13e824]
+                      - columnheader "Second number on bag (P2O5 %)" [ref=f13e825]
+                      - columnheader "x" [ref=f13e826]
+                      - columnheader "Conversion factor" [ref=f13e827]
+                      - columnheader "÷" [ref=f13e828]
+                      - columnheader "100" [ref=f13e829]
+                      - columnheader "=" [ref=f13e830]
+                      - columnheader "lbs actual P" [ref=f13e831]
+                  - rowgroup [ref=f13e832]:
+                    - row [ref=f13e833]:
+                      - cell "194" [ref=f13e834]
+                      - cell "x" [ref=f13e835]
+                      - cell "8" [ref=f13e836]
+                      - cell "x" [ref=f13e837]
+                      - cell "0.44" [ref=f13e838]
+                      - cell "÷" [ref=f13e839]
+                      - cell "100" [ref=f13e840]
+                      - cell "=" [ref=f13e841]
+                      - cell [ref=f13e842]:
+                        - strong [ref=f13e843]: 6.8 lb P per acre
+                - table "Calculating Actual Potassium (K) per Acre for an 18-8-18 Blend" [ref=f13e845]:
+                  - caption [ref=f13e846]: Calculating Actual Potassium (K) per Acre for an 18-8-18 Blend
+                  - rowgroup [ref=f13e847]:
+                    - row [ref=f13e848]:
+                      - columnheader "Lbs/A of fertilizer planned" [ref=f13e849]
+                      - columnheader "x" [ref=f13e850]
+                      - columnheader "Third number on bag (K2O %)" [ref=f13e851]
+                      - columnheader "x" [ref=f13e852]
+                      - columnheader "Conversion factor" [ref=f13e853]
+                      - columnheader "÷" [ref=f13e854]
+                      - columnheader "100" [ref=f13e855]
+                      - columnheader "=" [ref=f13e856]
+                      - columnheader "lbs actual K" [ref=f13e857]
+                  - rowgroup [ref=f13e858]:
+                    - row [ref=f13e859]:
+                      - cell "194" [ref=f13e860]
+                      - cell "x" [ref=f13e861]
+                      - cell "18" [ref=f13e862]
+                      - cell "x" [ref=f13e863]
+                      - cell "0.83" [ref=f13e864]
+                      - cell "÷" [ref=f13e865]
+                      - cell "100" [ref=f13e866]
+                      - cell "=" [ref=f13e867]
+                      - cell [ref=f13e868]:
+                        - strong [ref=f13e869]: 28.9 lb K per acre
+              - navigation "Book traversal links for Cranberry Chart Book" [ref=f13e870]:
+                - heading "Book traversal links for Cranberry Chart Book" [level=2] [ref=f13e871]
+                - list [ref=f13e872]:
+                  - listitem [ref=f13e873]:
+                    - link "‹ Herbicides" [ref=f13e874] [cursor=pointer]:
+                      - /url: /agriculture-food-environment/cranberry/cranberry-chart-book/weed-management/herbicides
+                  - listitem [ref=f13e875]:
+                    - link "Up" [ref=f13e876] [cursor=pointer]:
+                      - /url: /agriculture-food-environment/cranberry/cranberry-chart-book
+                  - listitem [ref=f13e877]:
+                    - link "Fruit Quality Management ›" [ref=f13e878] [cursor=pointer]:
+                      - /url: /agriculture-food-environment/cranberry/cranberry-chart-book/fruit-quality-management
+              - list [ref=f13e879]:
+                - listitem [ref=f13e880]:
+                  - link "Printer-friendly version" [ref=f13e881] [cursor=pointer]:
+                    - /url: /agriculture-food-environment/book/export/html/27018
+        - complementary "First sidebar" [ref=f13e882]:
+          - generic [ref=f13e884]:
+            - heading "Table of Contents" [level=2] [ref=f13e885]
+            - list [ref=f13e886]:
+              - listitem [ref=f13e887]:
+                - link "Cautions" [ref=f13e888] [cursor=pointer]:
+                  - /url: /agriculture-food-environment/cranberry/cranberry-chart-book/cautions
+              - listitem [ref=f13e889]:
+                - link "Resistance Management" [ref=f13e890] [cursor=pointer]:
+                  - /url: /agriculture-food-environment/cranberry/cranberry-chart-book/resistance-management
+              - listitem [ref=f13e891]:
+                - link "Disease Management" [ref=f13e892] [cursor=pointer]:
+                  - /url: /agriculture-food-environment/cranberry/cranberry-chart-book/disease-management
+              - listitem [ref=f13e893]:
+                - link "Insect Management" [ref=f13e894] [cursor=pointer]:
+                  - /url: /agriculture-food-environment/cranberry/cranberry-chart-book/insect-management
+              - listitem [ref=f13e895]:
+                - link "Weed Management" [ref=f13e896] [cursor=pointer]:
+                  - /url: /agriculture-food-environment/cranberry/cranberry-chart-book/weed-management
+              - listitem [ref=f13e897]:
+                - link "Nutrition Management for Producing Bogs" [ref=f13e898] [cursor=pointer]:
+                  - /url: /agriculture-food-environment/cranberry/cranberry-chart-book/nutrition-management-for-producing-bogs
+              - listitem [ref=f13e899]:
+                - link "Fruit Quality Management" [ref=f13e900] [cursor=pointer]:
+                  - /url: /agriculture-food-environment/cranberry/cranberry-chart-book/fruit-quality-management
+              - listitem [ref=f13e901]:
+                - link "Irrigation Water Management" [ref=f13e902] [cursor=pointer]:
+                  - /url: /agriculture-food-environment/cranberry/cranberry-chart-book/irrigation-water-management
+              - listitem [ref=f13e903]:
+                - link "Late Water" [ref=f13e904] [cursor=pointer]:
+                  - /url: /agriculture-food-environment/cranberry/cranberry-chart-book/late-water
+              - listitem [ref=f13e905]:
+                - link "Winter Management" [ref=f13e906] [cursor=pointer]:
+                  - /url: /agriculture-food-environment/cranberry/cranberry-chart-book/winter-management
+              - listitem [ref=f13e907]:
+                - link "Groundwater Protection Regulations and Zone II" [ref=f13e908] [cursor=pointer]:
+                  - /url: /agriculture-food-environment/cranberry/cranberry-chart-book/groundwater-protection-regulations-zone-ii
+              - listitem [ref=f13e909]:
+                - link "Using Adjuvants with Cranberry Pesticides" [ref=f13e910] [cursor=pointer]:
+                  - /url: /agriculture-food-environment/cranberry/cranberry-chart-book/using-adjuvants-with-cranberry-pesticides
+              - listitem [ref=f13e911]:
+                - link "Measures and Conversions" [ref=f13e912] [cursor=pointer]:
+                  - /url: /agriculture-food-environment/cranberry/cranberry-chart-book/measures-conversions
+              - listitem [ref=f13e913]:
+                - link "Pesticide Storage" [ref=f13e914] [cursor=pointer]:
+                  - /url: /agriculture-food-environment/cranberry/cranberry-chart-book/pesticide-storage
+    - contentinfo "Footer content" [ref=f13e915]:
+      - generic [ref=f13e923]:
+        - generic [ref=f13e924]:
+          - heading [level=2] [ref=f13e925]:
+            - link "Center for Agriculture, Food, and the Environment" [ref=f13e926] [cursor=pointer]:
+              - /url: /agriculture-food-environment
+          - list [ref=f13e927]:
+            - listitem [ref=f13e928]:
+              - link "Find us on Facebook" [ref=f13e929] [cursor=pointer]:
+                - /url: https://www.facebook.com/AgFoodEnvUMass
+                - generic [aria-hidden] [ref=f13e930]: 
+            - listitem [ref=f13e931]:
+              - link "Follow us on Twitter" [ref=f13e932] [cursor=pointer]:
+                - /url: https://twitter.com/CAFE_UMass
+                - generic [aria-hidden] [ref=f13e933]: 
+            - listitem [ref=f13e934]:
+              - link "Follow us on Instagram" [ref=f13e935] [cursor=pointer]:
+                - /url: https://www.instagram.com/cafe_umass/
+                - generic [aria-hidden] [ref=f13e936]: 
+            - listitem [ref=f13e937]:
+              - link "Follow us LinkedIn" [ref=f13e938] [cursor=pointer]:
+                - /url: https://www.linkedin.com/showcase/umass-cafe/
+                - generic [aria-hidden] [ref=f13e939]: 
+            - listitem [ref=f13e940]:
+              - link "Ask UMass Extension" [ref=f13e941] [cursor=pointer]:
+                - /url: https://www.umass.edu/agriculture-food-environment/ask-umass-extension
+                - generic [aria-hidden] [ref=f13e942]: 
+          - paragraph [ref=f13e943]
+          - generic [ref=f13e944]: "Stockbridge Hall, 80 Campus Center Way University of Massachusetts Amherst Amherst, MA 01003-9246 Phone: (413) 545-4800 Fax: (413) 545-6555"
+          - link "ag@cns.umass.edu" [ref=f13e946] [cursor=pointer]:
+            - /url: mailto:ag@cns.umass.edu
+          - paragraph [ref=f13e947]
+          - paragraph [ref=f13e948]:
+            - link "Civil Rights and Non-Discrimination Information" [ref=f13e949] [cursor=pointer]:
+              - /url: /agriculture-food-environment/civil-rights-information
+          - paragraph [ref=f13e950]:
+            - link "College of Natural Sciences" [ref=f13e951] [cursor=pointer]:
+              - /url: https://www.umass.edu/natural-sciences
+          - paragraph [ref=f13e952]:
+            - link "Login for faculty and staff" [ref=f13e953] [cursor=pointer]:
+              - /url: /agriculture-food-environment/user/login
+        - generic [ref=f13e954]:
+          - heading "CAFE Units" [level=2] [ref=f13e955]
+          - paragraph [ref=f13e956]:
+            - link "Mass. Agricultural Experiment Station" [ref=f13e957] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/19
+          - paragraph [ref=f13e958]:
+            - link "UMass Extension" [ref=f13e959] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15353
+          - paragraph [ref=f13e960]:
+            - link "UMass Research and Education Center Farms" [ref=f13e961] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/335
+          - paragraph [ref=f13e962]:
+            - link "UMass Cranberry Station" [ref=f13e963] [cursor=pointer]:
+              - /url: /agriculture-food-environment/cranberry
+          - paragraph [ref=f13e964]:
+            - link "Water Resources Research Center" [ref=f13e965] [cursor=pointer]:
+              - /url: https://www.umass.edu/water-resources-research/
+          - paragraph [ref=f13e966]:
+            - link "Gloucester Marine Station" [ref=f13e967] [cursor=pointer]:
+              - /url: https://www.umass.edu/gloucester-marine-station/
+          - heading "Interest Areas" [level=2] [ref=f13e968]
+          - paragraph [ref=f13e969]:
+            - link "Agriculture" [ref=f13e970] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15352#agriculture
+          - paragraph [ref=f13e971]:
+            - link "Commercial Horticulture" [ref=f13e972] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15352#commercial_horticuture
+          - paragraph [ref=f13e973]:
+            - link "Energy" [ref=f13e974] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15352#energy
+          - paragraph [ref=f13e975]:
+            - link "Environmental Conservation" [ref=f13e976] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15352#environmental_conservation
+          - paragraph [ref=f13e977]:
+            - link "Food Science" [ref=f13e978] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15352#food_science
+          - paragraph [ref=f13e979]:
+            - link "Nutrition" [ref=f13e980] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15352#nutrition
+          - paragraph [ref=f13e981]:
+            - link "Water" [ref=f13e982] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15352#water
+          - paragraph [ref=f13e983]:
+            - link "Youth Development & 4-H" [ref=f13e984] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15352#4h
+          - heading "Projects" [level=2] [ref=f13e985]
+          - paragraph [ref=f13e986]:
+            - link "Conservation Assessment Prioritization System (CAPS)" [ref=f13e987] [cursor=pointer]:
+              - /url: http://umasscaps.org
+          - paragraph [ref=f13e988]:
+            - link "Climate Action Tool" [ref=f13e989] [cursor=pointer]:
+              - /url: https://climateactiontool.org
+          - paragraph [ref=f13e990]:
+            - link "Mass. Keystone" [ref=f13e991] [cursor=pointer]:
+              - /url: http://masskeystone.net
+          - paragraph [ref=f13e992]:
+            - link "MassWoods" [ref=f13e993] [cursor=pointer]:
+              - /url: https://masswoods.org/
+          - paragraph [ref=f13e994]:
+            - link "North American Aquatic Connectivity Collaborative" [ref=f13e995] [cursor=pointer]:
+              - /url: http://streamcontinuity.org
+          - paragraph [ref=f13e996]:
+            - link "RiverSmart" [ref=f13e997] [cursor=pointer]:
+              - /url: http://extension.umass.edu/riversmart
+        - generic [ref=f13e998]:
+          - heading "Services" [level=2] [ref=f13e999]
+          - paragraph [ref=f13e1000]:
+            - link "Pesticide Education" [ref=f13e1001] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/16557
+          - paragraph [ref=f13e1002]:
+            - link "Plant Diagnostics Laboratory" [ref=f13e1003] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15596
+          - paragraph [ref=f13e1004]:
+            - link "Soil and Plant Nutrient Testing Laboratory" [ref=f13e1005] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15589
+          - paragraph [ref=f13e1006]:
+            - link "Hot Water Seed Treatment" [ref=f13e1007] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15594
+          - paragraph [ref=f13e1008]:
+            - link "Water Testing / Environmental Analysis Laboratory" [ref=f13e1009] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15593
+          - heading "Resources" [level=2] [ref=f13e1010]
+          - paragraph [ref=f13e1011]:
+            - link "Extension Sales Portal" [ref=f13e1012] [cursor=pointer]:
+              - /url: https://extensionsalesportal-umass.nbsstore.net
+          - paragraph [ref=f13e1013]:
+            - link "Agriculture & Commercial Horticulture Resources" [ref=f13e1014] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15350
+          - paragraph [ref=f13e1015]:
+            - link "Community & Economic Vitality" [ref=f13e1016] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15344
+          - paragraph [ref=f13e1017]:
+            - link "Disaster Preparedness" [ref=f13e1018] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15347
+          - paragraph [ref=f13e1019]:
+            - link "Food Safety" [ref=f13e1020] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15342
+          - paragraph [ref=f13e1021]:
+            - link "Home Lawn & Garden" [ref=f13e1022] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/15335
+          - paragraph [ref=f13e1023]:
+            - link "Integrated Pest Management (IPM)" [ref=f13e1024] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/8885
+          - paragraph [ref=f13e1025]:
+            - link "Land Conservation Tools" [ref=f13e1026] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/21897
+          - paragraph [ref=f13e1027]:
+            - link "Pollinators" [ref=f13e1028] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/19962
+          - paragraph [ref=f13e1029]:
+            - link "Tick testing" [ref=f13e1030] [cursor=pointer]:
+              - /url: /agriculture-food-environment/node/22096
+          - paragraph [ref=f13e1031]:
+            - link "Resources for Faculty and Staff" [ref=f13e1032] [cursor=pointer]:
+              - /url: https://umass.sharepoint.com/sites/CAFEFacultyStaffResources
+        - generic [ref=f13e1033]:
+          - heading "Extension Programs" [level=2] [ref=f13e1034]
+          - paragraph [ref=f13e1035]:
+            - link "4-H Youth Development" [ref=f13e1036] [cursor=pointer]:
+              - /url: /agriculture-food-environment/mass4h
+          - paragraph [ref=f13e1037]: Agriculture
+          - paragraph [ref=f13e1038]:
+            - link "Crops, Dairy, Livestock and Equine" [ref=f13e1039] [cursor=pointer]:
+              - /url: /agriculture-food-environment/crops-dairy-livestock-equine
+          - paragraph [ref=f13e1040]:
+            - link "Fruit" [ref=f13e1041] [cursor=pointer]:
+              - /url: /agriculture-food-environment/fruit
+          - paragraph [ref=f13e1042]:
+            - link "Greenhouse Crops and Floriculture" [ref=f13e1043] [cursor=pointer]:
+              - /url: /agriculture-food-environment/greenhouse-crops-floriculture
+          - paragraph [ref=f13e1044]:
+            - link "Landscape, Nursery and Urban Forestry" [ref=f13e1045] [cursor=pointer]:
+              - /url: /agriculture-food-environment/landscape
+          - paragraph [ref=f13e1046]:
+            - link "Pesticide Education" [ref=f13e1047] [cursor=pointer]:
+              - /url: /agriculture-food-environment/services/pesticide-education
+          - paragraph [ref=f13e1048]:
+            - link "Turf" [ref=f13e1049] [cursor=pointer]:
+              - /url: /agriculture-food-environment/turf
+          - paragraph [ref=f13e1050]:
+            - link "Vegetable" [ref=f13e1051] [cursor=pointer]:
+              - /url: /agriculture-food-environment/vegetable
+          - paragraph [ref=f13e1052]:
+            - link "Clean Energy" [ref=f13e1053] [cursor=pointer]:
+              - /url: /agriculture-food-environment/clean-energy
+          - paragraph [ref=f13e1054]:
+            - link "Climate Change" [ref=f13e1055] [cursor=pointer]:
+              - /url: /agriculture-food-environment/climate-change
+          - paragraph [ref=f13e1056]:
+            - link "Food Science" [ref=f13e1057] [cursor=pointer]:
+              - /url: /agriculture-food-environment/food-science
+          - paragraph [ref=f13e1058]:
+            - link "Nutrition Education" [ref=f13e1059] [cursor=pointer]:
+              - /url: /agriculture-food-environment/nutrition
+          - paragraph [ref=f13e1060]:
+            - link "Value-Added Food" [ref=f13e1061] [cursor=pointer]:
+              - /url: /agriculture-food-environment/value-added-food
+  - generic [ref=f13e1063]:
+    - link [ref=f13e1064] [cursor=pointer]:
+      - /url: https://www.umass.edu/
+      - img "UMass collegiate M - University of Massachusetts Amherst" [ref=f13e1066]
+    - generic [ref=f13e1102]:
+      - text: ©2025
+      - link "University of Massachusetts Amherst" [ref=f13e1103] [cursor=pointer]:
+        - /url: https://www.umass.edu/
+      - text: ·
+      - link "Site Policies" [ref=f13e1104] [cursor=pointer]:
+        - /url: https://www.umass.edu/gateway/site-policies
+      - text: ·
+      - link "Accessibility" [ref=f13e1105] [cursor=pointer]:
+        - /url: https://www.umass.edu/accessibility/

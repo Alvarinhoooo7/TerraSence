@@ -1093,7 +1093,7 @@ Consulta documental: 10 de octubre de 2026. Los enlaces respaldan el aspecto ind
 **S73 — University of Arizona Campus Arboretum, Simmondsia chinensis (Snyder Preserve Collection).** [Ficha botánica](https://arboretum.arizona.edu/snyder-preserve-simmondsia-chinensis). Tolerancia edáfica de jojoba en suelos con pH de 7,3 a 8,2.
 
 <a id="s74"></a>
-**S74 — University of Guam Cooperative Extension & Outreach, Fig Production Guide.** [Guía de extensión](https://www.uog.edu/extension/publications/). pH óptimo de 6,0 a 6,5 para higuera.
+**S74 — University of Guam Cooperative Extension & Outreach, Fig — Fig as a Fast to Fruit Tree.** [PDF de la publicación](https://projects.sare.org/media/pdf/F/i/g/Fig-Publictation.pdf). «Fig trees grow best in well-drained soils with a pH of 6 – 6.5 but are tolerant of higher pH levels». El documento lleva la marca DRAFT, y así se declara en el criterio.
 
 <a id="s75"></a>
 **S75 — FAO, ECOCROP Data Sheets & Date Palm Cultivation (Zaid y de Wet).** [ECOCROP Lúcumo](https://ecocrop.apps.fao.org/ecocrop/srv/en/dataSheet?id=8912) y [Date Palm Paper](https://www.fao.org/4/y4360e/y4360e08.htm). Parámetros edafoclimáticos de lúcumo y palma datilera.
@@ -1321,5 +1321,20 @@ Las combinaciones de cilantro cubiertas por [analogía](#analogia) reutilizan la
 
 <a id="s268"></a>
 **S268 — INFOR e INIA Kampenaike, Requerimientos edáficos de especies forestales y berries nativos en Chile.** [Monografía de Maqui (INFOR)](https://bibliotecadigital.infor.cl/handle/20.500.12220/20856), [Domesticación de Calafate en Magallanes (INIA Kampenaike)](https://biblioteca.inia.cl/handle/20.500.14001/3560) y [Silvicultura de Pinus radiata y Eucalyptus (INFOR)](https://bibliotecadigital.infor.cl/handle/20.500.12220/1). Rangos de pH óptimo y tolerado en suelos chilenos: maqui 5,3–6,5 (5,0–7,0); calafate 5,5–6,8 (5,0–7,2); eucalipto 5,0–6,5 (4,5–7,0); pino radiata 4,5–6,0 (4,0–6,5).
+
+<a id="s269"></a>
+**S269 — retirada.** Esta entrada citaba publicaciones del Vegetable Research and Information Center de UC ANR para la temperatura de suelo de trasplantes, dientes de ajo, esquejes de camote y aromáticas. Al comprobarla, el host `vric.ucanr.edu` ya no resuelve, las dos URL de `anrcatalog.ucanr.edu` redirigen a una página de ayuda y ninguna de las publicaciones existe con esos títulos. Los criterios que se apoyaban en ella pasaron a la tabla 5.2 de **S10**, que es de germinación de semilla, declarando en cada perfil que la banda de establecimiento la fija el equipo y no la fuente; donde la especie no tiene fila en esa tabla, el criterio se resuelve por analogía declarada con una especie del catálogo que sí la tiene.
+
+<a id="s270"></a>
+**S270 — UF/IFAS Extension, Washington State University Extension y UMass Cranberry Station, Temperatura de suelo en zona radicular de frutales y berries.** [UF/IFAS Citrus Root Growth](https://edis.ifas.ufl.edu/), [WSU Grapevine Root Dynamics](https://wine.wsu.edu/extension/) y [UMass Cranberry Production Guide](https://ag.umass.edu/cranberry). Crecimiento radicular y absorción reducidos con suelo frío bajo 55 °F (12,8 °C) en cítricos y bajo 50 °F (10,0 °C) en vid y arándano rojo.
+
+<a id="s271"></a>
+**S271 — University of Wisconsin–Madison Extension, Commercial Vegetable Production in Wisconsin (A3422) — Allium Harvest.** [Publicación](https://learningstore.extension.wisc.edu/). Lluvia en cosecha y curado de ajo, cebollín y puerro: el follaje y los bulbos mojados favorecen manchas y pudriciones de cuello y guarda.
+
+<a id="s272"></a>
+**S272 — UC IPM, Pest Management Guidelines: Citrus — Water Spot.** [Guía](https://ipm.ucanr.edu/agriculture/citrus/water-spot/). Lluvia prolongada sobre naranjas y mandarinas maduras en el árbol provoca absorción osmótica de agua en el albedo («mancha de agua» / *water spot*) y pudriciones secundarias.
+
+<a id="s273"></a>
+**S273 — NDSU Extension, Canola Council of Canada, Oregon State University Extension e INIA, Lluvia en cosecha y temperatura de emergencia de cereales, oleaginosas y leguminosas de grano.** [NDSU Small Grains](https://www.ndsu.edu/agriculture/ag-hub/ag-topics/crop-production/crops/wheat), [NDSU Soybeans (A1172)](https://www.ndsu.edu/agriculture/ag-hub/ag-topics/crop-production/crops/soybeans), [Canola Council](https://www.canolacouncil.org/canola-watch/), [OSU Lupin (EM 8834-E)](https://extension.oregonstate.edu/sites/extd8/files/documents/em8834.pdf) e [INIA Arroz](https://biblioteca.inia.cl/server/api/core/bitstreams/c7faabeb-9482-4767-b989-aa6d59911d37/content). Lluvia en madurez de cosecha: brotación en espiga y caída de *falling number* en trigo, cebada, avena y triticale; fisura de grano (*suncracking*) y atraso de trilla en arroz; desgrane de silicuas o vainas por ciclos de mojado y secado en raps, soya y lupino. En soya, germinación y actividad radicular reducidas con suelo bajo 50 °F (10 °C) y emergencia rápida entre 21 y 29 °C.
 
 Cebada, avena y triticale reutilizan por [analogía](#analogia) la tabla del trigo ([S240](#s240)) en llenado de grano (el triticale, en las tres etapas); la remolacha azucarera, la helada de la betarraga, y el trébol rosado, la lluvia sobre el forraje cortado de la alfalfa. El detalle está en [ES8.D](TASK_MOTOR_AGRONOMICO.md#es8d-agente-d--cultivos-forrajeras-y-forestales).

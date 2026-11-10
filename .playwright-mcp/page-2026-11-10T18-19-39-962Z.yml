@@ -1,0 +1,448 @@
+- generic [ref=f4e2]:
+  - generic [ref=f4e4]:
+    - link [ref=f4e6] [cursor=pointer]:
+      - /url: http://ces.ncsu.edu
+      - img "NCCE Logo" [ref=f4e7]
+    - paragraph [ref=f4e9]: NC State Extension Publications
+  - navigation [ref=f4e11]:
+    - link " PUBLICATIONS" [ref=f4e13] [cursor=pointer]:
+      - /url: https://content.ces.ncsu.edu
+      - generic [ref=f4e14]: 
+      - text: PUBLICATIONS
+    - generic [ref=f4e15]:
+      - list
+      - link " Print" [ref=f4e17] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=f4e18]: 
+        - text: Print
+      - link " QR Code" [ref=f4e20] [cursor=pointer]:
+        - /url: "#qr_dialog"
+        - generic [ref=f4e21]: 
+        - text: QR Code
+      - generic [ref=f4e22]:
+        - generic [ref=f4e23]:
+          - generic [ref=f4e24]: Search
+          - textbox "Search" [ref=f4e25]
+        - button "Search" [ref=f4e26] [cursor=pointer]
+      - paragraph [ref=f4e27]:
+        - link "Log In" [ref=f4e28] [cursor=pointer]:
+          - /url: /Shibboleth.sso/Login?target=https://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/fertility-management?x=96635
+  - generic [ref=f4e29]:
+    - list [ref=f4e31]:
+      - listitem [ref=f4e32]:
+        - link "Southeast Regional Caneberry Production Guide" [ref=f4e33] [cursor=pointer]:
+          - /url: /southeast-regional-caneberry-production-guide
+      - listitem [ref=f4e34]: / Fertility Management
+    - generic [ref=f4e35]:
+      - generic [ref=f4e36]:
+        - generic [ref=f4e37]:
+          - generic [ref=f4e38]:
+            - generic "Share on Twitter" [ref=f4e39] [cursor=pointer]: 
+            - generic "Share on Facebook" [ref=f4e41] [cursor=pointer]: 
+            - link "" [ref=f4e43] [cursor=pointer]:
+              - /url: /collection/southeast-regional-caneberry-production-guide/rss/
+          - generic [ref=f4e45]:
+            - heading "Related Publications" [level=2] [ref=f4e46]
+            - list
+          - link "Southeast Regional Caneberry Production Guide" [ref=f4e48] [cursor=pointer]:
+            - /url: /southeast-regional-caneberry-production-guide
+            - generic [aria-hidden] [ref=f4e49]: 
+            - text: Southeast Regional Caneberry Production Guide
+        - heading "Fertility Management" [level=1] [ref=f4e52]
+      - generic [ref=f4e53]:
+        - generic [ref=f4e54]:
+          - generic [ref=f4e55]:
+            - heading "General" [level=2] [ref=f4e56]
+            - link " Skip to General" [ref=f4e58] [cursor=pointer]:
+              - /url: "#section_heading_7008"
+              - generic [ref=f4e59]: 
+              - generic [ref=f4e60]: Skip to General
+          - paragraph [ref=f4e61]:
+            - text: Before planting, soil samples should be collected. From those results, a nutrient management plan should be developed and appropriate amendments need to be applied to the soil. If the soil pH is below optimum pH from 6.0 to 6.5, lime must be applied in the fall before planting to allow sufficient time for the lime to react with the soil. If you use pelletized lime, early spring application (two to three months before planting) is sufficient. Regardless of the source, broadcast lime should be incorporated from 3 to 4 in. deep. If soil tests are below recommended levels (
+            - link "Table 11-1" [ref=f4e62] [cursor=pointer]:
+              - /url: https://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/fertility-management#Table11-1
+            - text: ), P, K, and other nutrients (for N see below) should also be applied before planting. Broadcast apply 30 to 60 lb P2O5, K2O/ac, or both depending on soil test for P and K, followed by incorporation to distribute the material through the soil profile and to enhance availability to shallow plant roots. Failure to amend the soil to achieve optimum pH and nutrient supply could compromise your crop yield and quality.
+          - paragraph [ref=f4e63]: Nitrogen (N) must be applied annually (see below) with subsequent leaf analysis to assure N sufficiency. In established crops, leaf analysis is also essential to determine if additional plant nutrients should be applied to the soil or leaves. For example, based on previous years' plant tissue levels, reapply P, K, and other nutrients before spring regrowth to optimize nutrient supply. Maintaining plant analysis records from previous years and growing season observations of leaf color, cane growth, and crop load are useful in determining efficient nutrient rates.
+        - generic [ref=f4e64]:
+          - generic [ref=f4e65]:
+            - heading "Blackberry Fertilization" [level=2] [ref=f4e66]
+            - link " Skip to Blackberry Fertilization" [ref=f4e68] [cursor=pointer]:
+              - /url: "#section_heading_7009"
+              - generic [ref=f4e69]: 
+              - generic [ref=f4e70]: Skip to Blackberry Fertilization
+          - paragraph [ref=f4e71]:
+            - emphasis [ref=f4e72]: First year.
+            - text: Beginning two to four weeks after planting, apply 10 to 25 lb of N per acre (10 to 25 lb N/ac), with a second application four to six weeks later. Split N application is preferred to a one-time single application to increase applied N recovered by the plant and reduce N losses. Total N over the entire first growing season should not exceed 20 to 50 lb N/ac, with higher N rates suggested for irrigated, sandy soils. With broadcast N, apply the product in a narrow 6 to 12 in. wide strip on each side of the row in the weed-free zone. To minimize potential salt damage to young plants, maintain N applications at least 6 to 12 in. away from the base of the plants. When fertilizing individual plants, apply the N product 6 to 12 in. from the base of the plant in a 6 to 12 in. wide circle around the plant. Recommended N rates can also be split and applied through the drip irrigation system on a weekly basis.
+          - paragraph [ref=f4e73]:
+            - emphasis [ref=f4e74]: Second year.
+            - text: Increase total N rate to 50 to 80 lb N/ac. Split apply with ½ to ⅔ of total N rate applied in early spring (March) when primocane emergence begins, and the second application (10 to 30 lb N/a) immediately after harvest for floricane-fruiting cultivars. As in the first year, apply N in the weed-free area on each side of the row, away from the plant base as described above. With drip irrigation, N can be portioned on a weekly basis from March through May. Higher N rates should be used on irrigated, coarse-textured sandy soils. Apply 10 to 30 lb N immediately after harvest, but before early fall. Post-harvest primocane leaf analysis should be used to assess N sufficiency. Monitor seasonal growth and adjust N appropriately to achieve optimal growth. The N rates should be reduced if excessive vegetative growth is observed.
+          - table "Table 11-1. Optimum pre-plant soil test levels (lb/ac, ppm, or index) for Southeastern Blackberry Production*" [ref=f4e76]:
+            - caption [ref=f4e77]:
+              - text: Table 11-1. Optimum pre-plant soil test levels (lb/ac, ppm, or index) for Southeastern Blackberry Production
+              - link "*" [ref=f4e78] [cursor=pointer]:
+                - /url: "#Table11-1Footnote*"
+            - rowgroup [ref=f4e79]:
+              - row [ref=f4e80]:
+                - columnheader "Nutrient" [ref=f4e81]
+                - columnheader "Soil Test Level*" [ref=f4e82]:
+                  - text: Soil Test Level
+                  - link "*" [ref=f4e83] [cursor=pointer]:
+                    - /url: "#Table11-1Footnote*"
+              - row [ref=f4e84]:
+                - columnheader "lb/ac" [ref=f4e85]
+                - columnheader "ppm" [ref=f4e86]
+                - columnheader "Index (NC)*" [ref=f4e87]:
+                  - text: Index (NC)
+                  - link "*" [ref=f4e88] [cursor=pointer]:
+                    - /url: "#Table11-1Footnote*"
+            - rowgroup [ref=f4e89]:
+              - row [ref=f4e90]:
+                - cell "Phosphorus (P)" [ref=f4e91]
+                - cell "40–60" [ref=f4e92]
+                - cell "20–30" [ref=f4e93]
+                - cell "50" [ref=f4e94]
+              - row [ref=f4e95]:
+                - cell "Potassium (K)" [ref=f4e96]
+                - cell [ref=f4e97]:
+                  - text: 200–400
+                  - link "**" [ref=f4e98] [cursor=pointer]:
+                    - /url: "#Table11-1Footnote**"
+                - cell "100–200" [ref=f4e99]
+                - cell "50" [ref=f4e100]
+              - row [ref=f4e101]:
+                - cell "Calcium (Ca)" [ref=f4e102]
+                - cell [ref=f4e103]:
+                  - text: 1000–2000
+                  - link "***" [ref=f4e104] [cursor=pointer]:
+                    - /url: "#Table11-1Footnote***"
+                - cell "500–1000" [ref=f4e105]
+                - cell "—" [ref=f4e106]
+              - row [ref=f4e107]:
+                - cell "Magnesium (Mg)" [ref=f4e108]
+                - cell "100–250" [ref=f4e109]
+                - cell "50–125" [ref=f4e110]
+                - cell "—" [ref=f4e111]
+              - row [ref=f4e112]:
+                - cell "Sulfur (S)" [ref=f4e113]
+                - cell "20–40" [ref=f4e114]
+                - cell "10–20" [ref=f4e115]
+                - cell "25" [ref=f4e116]
+              - row [ref=f4e117]:
+                - cell "Iron (Fe)" [ref=f4e118]
+                - cell "100–200" [ref=f4e119]
+                - cell "50–100" [ref=f4e120]
+                - cell "—" [ref=f4e121]
+              - row [ref=f4e122]:
+                - cell "Manganese (Mn)" [ref=f4e123]
+                - cell "50–200" [ref=f4e124]
+                - cell "25–100" [ref=f4e125]
+                - cell "25" [ref=f4e126]
+              - row [ref=f4e127]:
+                - cell "Zinc (Zn)" [ref=f4e128]
+                - cell "1.0–3.0" [ref=f4e129]
+                - cell "0.5–1.5" [ref=f4e130]
+                - cell "25" [ref=f4e131]
+              - row [ref=f4e132]:
+                - cell "Copper (Cu)" [ref=f4e133]
+                - cell "1.0–3.0" [ref=f4e134]
+                - cell "0.5–1.5" [ref=f4e135]
+                - cell "25" [ref=f4e136]
+              - row [ref=f4e137]:
+                - cell "Boron (B)" [ref=f4e138]
+                - cell "1.0–2.0" [ref=f4e139]
+                - cell "0.5–1.0" [ref=f4e140]
+                - cell "25" [ref=f4e141]
+          - paragraph [ref=f4e142]:
+            - text: "* Laboratories report soil test levels as either lb/ac or ppm. NC uses \"index\" values above which nutrients are not generally recommended. Ca/Mg levels are maintained by liming to optimum soil pH. Fe deficiencies are not common in NC."
+            - link "↵" [ref=f4e143] [cursor=pointer]:
+              - /url: "#Table11-1Footnote*Ref"
+          - paragraph [ref=f4e144]:
+            - text: "** K recommendations from Oregon State are higher (300 to 600 lb/ac). Since K is relatively immobile in soil, higher rates might be needed. Apply 12 in. away from base of new plants to prevent salt injury."
+            - link "↵" [ref=f4e145] [cursor=pointer]:
+              - /url: "#Table11-1Footnote**Ref"
+          - paragraph [ref=f4e146]:
+            - text: "*** Optimum calcium levels depend on soil type. Maintain optimum soil pH (6.0 to 6.5) with liming supplies that have sufficient Ca and Mg."
+            - link "↵" [ref=f4e147] [cursor=pointer]:
+              - /url: "#Table11-1Footnote***Ref"
+          - paragraph [ref=f4e148]: Depending on leaf tissue P, K, and other nutrient levels, 30 to 60 lb P2O5 and/or K2O/ac can be applied in the fall or early spring before re-growth, whichever is most convenient. Adjust P and K rates as needed according to the tissue analysis. Blackberry has a higher annual K nutrient need than P, and thus P maybe be required less frequently.
+          - paragraph [ref=f4e149]:
+            - emphasis [ref=f4e150]: Third and subsequent years
+            - text: . Increase total N rate to 60 to 80 lb N/ac, with the split applied as outlined above for second year plants. If the leaf tissue analyses suggest that P and K are still below optimum levels (
+            - link "Table 11-1" [ref=f4e151] [cursor=pointer]:
+              - /url: "#Table11-1"
+            - text: ), continue to apply as described for the second-year crop.
+          - paragraph [ref=f4e152]:
+            - emphasis [ref=f4e153]: "Important:"
+            - text: Routinely use leaf analysis to assess sufficient levels of N and other nutrients, regardless of plant age or production year (see
+            - link "Leaf Analysis" [ref=f4e154] [cursor=pointer]:
+              - /url: "#section_heading_7011"
+            - text: below).
+        - generic [ref=f4e155]:
+          - generic [ref=f4e156]:
+            - heading "Raspberry Fertilization" [level=2] [ref=f4e157]
+            - link " Skip to Raspberry Fertilization" [ref=f4e159] [cursor=pointer]:
+              - /url: "#section_heading_7010"
+              - generic [ref=f4e160]: 
+              - generic [ref=f4e161]: Skip to Raspberry Fertilization
+          - paragraph [ref=f4e162]:
+            - text: As described above, assure that soil pH, P, and K levels are adjusted to optimum levels before planting based on soil test recommendations (
+            - link "Table 11-1" [ref=f4e163] [cursor=pointer]:
+              - /url: https://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/fertility-management#Table11-1
+            - text: ). After the establishment year, use similar P and K recommendations to maintain tissue P and K levels as described for blackberries.
+          - paragraph [ref=f4e164]:
+            - emphasis [ref=f4e165]: First year.
+            - text: Two to four weeks after planting, apply ½ to ⅔ of 25 to 50 lb N/ac, with the balance about 30 to 60 days later. Broadcast N about 6 to 12 in. from plant in 6 to 12 in. wide strips on each side of the row in the weed-free zone. If using a drip irrigation, N and other nutrients can be split applied at the recommended rates weekly or as needed.
+          - paragraph [ref=f4e166]:
+            - emphasis [ref=f4e167]: Second year.
+            - text: Broadcast apply ½ to ⅔ of 40 to 80 lb N/ac at the onset of bloom, with the remainder applied immediately after harvest (summer-bearing cultivars). Total N should not exceed 50 to 60 lb N/ac. Apply ½ to ⅔ of the total N when primocanes begin to emerge, with the remaining N applied 60 days later (primocane-fruiting cultivars).
+          - paragraph [ref=f4e168]:
+            - emphasis [ref=f4e169]: Third and subsequent years
+            - text: (summer bearing and primocane-fruiting cultivars). Split apply 40 to 80 lb N/ac, with ½ to ⅔ of total N amount at the onset of bloom and the remainder immediately after harvest (summer bearing cultivars) or when the first new primocanes emerge and the remainder about 60 days later (primocane-fruiting cultivars).
+          - paragraph [ref=f4e170]:
+            - text: For established plantings, broadcast N in the weed-free zone in at least 6 to 12 in. wide strips on each side of the row. With fertigation (application of fertilizer with irrigation water), apply N weekly beginning at the onset of bloom and through harvest for summer-bearing cultivars or until late August for primocane-bearing cultivars. Use leaf N analysis to assess sufficiency levels of N and other nutrients (see
+            - link "Leaf Analysis" [ref=f4e171] [cursor=pointer]:
+              - /url: "#section_heading_7011"
+            - text: below).
+        - generic [ref=f4e172]:
+          - generic [ref=f4e173]:
+            - heading "Leaf Analysis" [level=2] [ref=f4e174]
+            - link " Skip to Leaf Analysis" [ref=f4e176] [cursor=pointer]:
+              - /url: "#section_heading_7011"
+              - generic [ref=f4e177]: 
+              - generic [ref=f4e178]: Skip to Leaf Analysis
+          - paragraph [ref=f4e179]: In established caneberries, the correlation between soil test levels and plant nutrient status tends to be poor because plants access nutrients throughout the rooting zone, while soil tests are based on a surface soil sampling depth (0 to 6, or 0 to 8 in. depth). Despite this limitation, soil testing at regular intervals (every two to three years) is essential to monitor and adjust soil pH to optimum levels. With most perennial, woody plants, leaf analysis provides an accurate measure of the nutrient status of the plant. Therefore, annual leaf analysis, combined with periodic soil testing and field observations of plant growth and fruiting, are all needed to develop and maintain an effective nutrient management program.
+          - paragraph [ref=f4e180]: "As with soil testing, the reliability of leaf analysis depends on following tissue sampling guidelines:"
+          - list [ref=f4e181]:
+            - listitem [ref=f4e182]:
+              - paragraph [ref=f4e183]: Collect leaves from only one cultivar per sample, preferably from plants of similar age.
+            - listitem [ref=f4e184]:
+              - paragraph [ref=f4e185]: Plants included in a sample should be growing on relatively uniform field areas of similar soils and slope positions. Since inclusion of samples from widely variable areas may not accurately represent plant nutrient status, it is important to sample from smaller areas to ensure reliable results.
+            - listitem [ref=f4e186]:
+              - paragraph [ref=f4e187]: Collect leaves from healthy plants. Leaves showing signs of disease or insect damage, or different growth characteristics, should be avoided or sampled separately.
+            - listitem [ref=f4e188]:
+              - paragraph [ref=f4e189]: Sample the most recently mature leaf on primocanes shortly after harvest for summer-bearing cultivars. In primocane-fruiting cultivars, sample the most recent fully expanded leaf on primocane branches at the green to red fruit stage (usually late July to August).
+            - listitem [ref=f4e190]:
+              - paragraph [ref=f4e191]: Collect 50 to 100 leaves (one leaf per cane) from the most recently mature leaf which is generally located on the sixth to tenth nodes on primocanes in mid to late July.
+            - listitem [ref=f4e192]:
+              - paragraph [ref=f4e193]:
+                - text: Collect leaf samples
+                - emphasis [ref=f4e194]: before
+                - text: a spray application and not shortly after. If leaves are dusty or have spray residue, rinse lightly in distilled water, blot dry, and place them in a clean paper bag. Allow leaves to air dry in a dust-free area before sending to the lab for analysis.
+            - listitem [ref=f4e195]:
+              - paragraph [ref=f4e196]: Before sampling, contact the laboratory website for additional detailed sampling and handling instructions.
+          - paragraph [ref=f4e197]: General nutrient sufficiency levels in caneberry leaves are shown in Table 11-2.
+          - table "Table 11-2. Plant nutrient sufficiency ranges for fruit crops." [ref=f4e199]:
+            - caption [ref=f4e200]: Table 11-2. Plant nutrient sufficiency ranges for fruit crops.
+            - rowgroup [ref=f4e201]:
+              - row [ref=f4e202]:
+                - columnheader "Nutrient" [ref=f4e203]:
+                  - paragraph [ref=f4e204]: Nutrient
+                - columnheader "Sufficiency Range*" [ref=f4e205]:
+                  - paragraph [ref=f4e206]:
+                    - text: Sufficiency Range
+                    - link "*" [ref=f4e207] [cursor=pointer]:
+                      - /url: "#Table11-2Footnote*"
+            - rowgroup [ref=f4e208]:
+              - row [ref=f4e209]:
+                - cell [ref=f4e210]:
+                  - paragraph [ref=f4e211]: Nitrogen (N)
+                - cell [ref=f4e212]:
+                  - paragraph [ref=f4e213]: 2.50%–3.50%
+              - row [ref=f4e214]:
+                - cell [ref=f4e215]:
+                  - paragraph [ref=f4e216]: Phosphorus (P)
+                - cell [ref=f4e217]:
+                  - paragraph [ref=f4e218]: 0.15%–0.25%
+              - row [ref=f4e219]:
+                - cell [ref=f4e220]:
+                  - paragraph [ref=f4e221]: Potassium (K)
+                - cell [ref=f4e222]:
+                  - paragraph [ref=f4e223]: 0.90%–1.50%
+              - row [ref=f4e224]:
+                - cell [ref=f4e225]:
+                  - paragraph [ref=f4e226]: Calcium (Ca)
+                - cell [ref=f4e227]:
+                  - paragraph [ref=f4e228]: 0.48%–1.00%
+              - row [ref=f4e229]:
+                - cell [ref=f4e230]:
+                  - paragraph [ref=f4e231]: Magnesium (Mg)
+                - cell [ref=f4e232]:
+                  - paragraph [ref=f4e233]: 0.30%–0.45%
+              - row [ref=f4e234]:
+                - cell [ref=f4e235]:
+                  - paragraph [ref=f4e236]: Sulfur (S)
+                - cell [ref=f4e237]:
+                  - paragraph [ref=f4e238]: 0.17%–0.21%
+              - row [ref=f4e239]:
+                - cell [ref=f4e240]:
+                  - paragraph [ref=f4e241]: Iron (Fe)
+                - cell [ref=f4e242]:
+                  - paragraph [ref=f4e243]: 60–100 ppm
+              - row [ref=f4e244]:
+                - cell [ref=f4e245]:
+                  - paragraph [ref=f4e246]: Manganese (Mn)
+                - cell [ref=f4e247]:
+                  - paragraph [ref=f4e248]: 50–250 ppm
+              - row [ref=f4e249]:
+                - cell [ref=f4e250]:
+                  - paragraph [ref=f4e251]: Zinc (Zn)
+                - cell [ref=f4e252]:
+                  - paragraph [ref=f4e253]: 20–70 ppm
+              - row [ref=f4e254]:
+                - cell [ref=f4e255]:
+                  - paragraph [ref=f4e256]: Copper (Cu)
+                - cell [ref=f4e257]:
+                  - paragraph [ref=f4e258]: 8–15 ppm
+              - row [ref=f4e259]:
+                - cell [ref=f4e260]:
+                  - paragraph [ref=f4e261]: Boron (B)
+                - cell [ref=f4e262]:
+                  - paragraph [ref=f4e263]: 25–85 ppm
+          - paragraph [ref=f4e264]:
+            - text: "*If tissue analysis is below the"
+            - emphasis [ref=f4e265]: sufficiency range
+            - text: ", nutrient application should be considered."
+            - link "↵" [ref=f4e266] [cursor=pointer]:
+              - /url: "#Table11-2Footnote*Ref"
+        - generic [ref=f4e267]:
+          - heading "Authors" [level=1] [ref=f4e268]
+          - generic [ref=f4e271]:
+            - term [ref=f4e272]: John Havlin
+            - definition [ref=f4e273]: Professor and Extension Specialist Crop & Soil Sciences
+          - generic [ref=f4e276]:
+            - term [ref=f4e277]: Gina Fernandez
+            - definition [ref=f4e278]: Extension Specialist (Small Fruits) Distinguished Professor, Horticultural Science
+          - generic [ref=f4e281]:
+            - term [ref=f4e282]: Amanda McWhirt
+            - definition [ref=f4e283]: Extension Specialist, Associate Professor Department of Horticulture, University of Arkansas
+        - list [ref=f4e285]:
+          - listitem [ref=f4e286]: "Keywords:"
+          - listitem [ref=f4e287]:
+            - link "Bramble" [ref=f4e288] [cursor=pointer]:
+              - /url: /catalog?keywords=bramble
+          - listitem [ref=f4e289]:
+            - link "Soil Fertility" [ref=f4e290] [cursor=pointer]:
+              - /url: /catalog?keywords=soil-fertility
+          - listitem [ref=f4e291]:
+            - link "Soil Sampling" [ref=f4e292] [cursor=pointer]:
+              - /url: /catalog?keywords=soil-sampling
+          - listitem [ref=f4e293]:
+            - link "Blackberry" [ref=f4e294] [cursor=pointer]:
+              - /url: /catalog?keywords=blackberry
+          - listitem [ref=f4e295]:
+            - link "Raspberry" [ref=f4e296] [cursor=pointer]:
+              - /url: /catalog?keywords=raspberry
+          - listitem [ref=f4e297]:
+            - link "Blackberry Production" [ref=f4e298] [cursor=pointer]:
+              - /url: /catalog?keywords=blackberry-production
+          - listitem [ref=f4e299]:
+            - link "Raspberry Production" [ref=f4e300] [cursor=pointer]:
+              - /url: /catalog?keywords=raspberry-production
+          - listitem [ref=f4e301]:
+            - link "Caneberry" [ref=f4e302] [cursor=pointer]:
+              - /url: /catalog?keywords=caneberry
+        - generic [ref=f4e303]:
+          - paragraph [ref=f4e304]: "Find more information at the following NC State Extension websites:"
+          - generic [ref=f4e305]:
+            - link "Blackberry & Raspberry Information" [ref=f4e306] [cursor=pointer]:
+              - /url: https://rubus.ces.ncsu.edu
+            - link "Horticulture" [ref=f4e307] [cursor=pointer]:
+              - /url: https://horticulture.ces.ncsu.edu
+        - paragraph [ref=f4e308]: "Publication date: Feb. 23, 2023 AG-697"
+        - generic [ref=f4e309]:
+          - heading [level=2] [ref=f4e310]:
+            - text: Other Publications in
+            - link "Southeast Regional Caneberry Production Guide" [ref=f4e311] [cursor=pointer]:
+              - /url: /southeast-regional-caneberry-production-guide
+          - list [ref=f4e312]:
+            - listitem [ref=f4e313]:
+              - link "Introduction" [ref=f4e314] [cursor=pointer]:
+                - /url: http://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/introduction-2002
+            - listitem [ref=f4e315]:
+              - link "Cultivars" [ref=f4e316] [cursor=pointer]:
+                - /url: http://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/cultivars
+            - listitem [ref=f4e317]:
+              - link "Site Selection" [ref=f4e318] [cursor=pointer]:
+                - /url: http://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/site-selection-1
+            - listitem [ref=f4e319]:
+              - link "Site Preparation, Planting, and Establishment" [ref=f4e320] [cursor=pointer]:
+                - /url: http://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/site-preparation-planting-and-establishment
+            - listitem [ref=f4e321]:
+              - link "Plant Growth" [ref=f4e322] [cursor=pointer]:
+                - /url: http://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/plant-growth
+            - listitem [ref=f4e323]:
+              - link "Pruning and Training" [ref=f4e324] [cursor=pointer]:
+                - /url: http://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/pruning-and-training
+            - listitem [ref=f4e325]:
+              - link "Trellis Systems" [ref=f4e326] [cursor=pointer]:
+                - /url: http://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/trellis-systems
+            - listitem [ref=f4e327]:
+              - link "Tunnel Production" [ref=f4e328] [cursor=pointer]:
+                - /url: http://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/tunnel-production
+            - listitem [ref=f4e329]:
+              - link "Water Management" [ref=f4e330] [cursor=pointer]:
+                - /url: http://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/water-management
+            - listitem [ref=f4e331]:
+              - link "Integrated Pest Management and Pollination" [ref=f4e332] [cursor=pointer]:
+                - /url: http://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/integrated-pest-management-and-pollination
+            - listitem [ref=f4e333]: Fertility Management
+            - listitem [ref=f4e334]:
+              - link "Fruit Development" [ref=f4e335] [cursor=pointer]:
+                - /url: http://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/fruit-development
+            - listitem [ref=f4e336]:
+              - link "Harvesting and Postharvest Management" [ref=f4e337] [cursor=pointer]:
+                - /url: http://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/harvesting-and-postharvest-management
+            - listitem [ref=f4e338]:
+              - link "Food Safety Considerations for Caneberry Production" [ref=f4e339] [cursor=pointer]:
+                - /url: http://content.ces.ncsu.edu/southeast-regional-caneberry-production-guide/food-safety-considerations-for-caneberry-production
+        - text:   
+        - paragraph [ref=f4e341]: N.C. Cooperative Extension prohibits discrimination and harassment regardless of age, color, disability, family and marital status, gender identity, national origin, political beliefs, race, religion, sex (including pregnancy), sexual orientation and veteran status.
+        - paragraph [ref=f4e343]:
+          - link " Receive Email Notifications for New Publications" [ref=f4e344] [cursor=pointer]:
+            - /url: https://ncextension.activehosted.com/f/65
+            - generic [ref=f4e345]: 
+            - text: Receive Email Notifications for New Publications
+  - contentinfo [ref=f4e347]:
+    - generic [ref=f4e348]:
+      - generic [ref=f4e349]:
+        - heading [level=2] [ref=f4e350]:
+          - link "NC State Extension" [ref=f4e351] [cursor=pointer]:
+            - /url: http://www.ces.ncsu.edu
+        - heading "Where Next?" [level=3] [ref=f4e352]
+        - list [ref=f4e353]:
+          - listitem [ref=f4e354]:
+            - link "College of Agriculture & Life Sciences" [ref=f4e355] [cursor=pointer]:
+              - /url: https://cals.ncsu.edu/
+          - listitem [ref=f4e356]:
+            - link "CALS News" [ref=f4e357] [cursor=pointer]:
+              - /url: https://cals.ncsu.edu/news/
+          - listitem [ref=f4e358]:
+            - link "Extension at NC A&T" [ref=f4e359] [cursor=pointer]:
+              - /url: http://www.ncat.edu/academics/schools-colleges1/saes/cooperative-extension/index.html
+          - listitem [ref=f4e360]:
+            - link "Jobs" [ref=f4e361] [cursor=pointer]:
+              - /url: https://extensionhr.ces.ncsu.edu/job-openings/
+          - listitem [ref=f4e362]:
+            - link "Give Now" [ref=f4e363] [cursor=pointer]:
+              - /url: https://cals.ncsu.edu/alumni-giving/
+          - listitem [ref=f4e364]:
+            - link "County Centers" [ref=f4e365] [cursor=pointer]:
+              - /url: http://www.ces.ncsu.edu/local-county-center/
+          - listitem [ref=f4e366]:
+            - link "Contact Us" [ref=f4e367] [cursor=pointer]:
+              - /url: http://www.ces.ncsu.edu/contact-us/
+      - blockquote [ref=f4e368]:
+        - paragraph [ref=f4e369]:
+          - text: N.C. Cooperative Extension is based at North Carolina's two land-grant institutions,
+          - link "NC State University" [ref=f4e370] [cursor=pointer]:
+            - /url: http://www.ncsu.edu
+          - text: and
+          - link "NC A&T State University" [ref=f4e371] [cursor=pointer]:
+            - /url: http://www.ncat.edu
+          - text: ", in all 100 counties and with the Eastern Band of Cherokee Indians. — Read Our"
+          - link "Commitment to Nondiscrimination." [ref=f4e372] [cursor=pointer]:
+            - /url: http://www.ces.ncsu.edu/nondiscrimination
+      - paragraph [ref=f4e373]:
+        - text: Read our
+        - link "Privacy Statement" [ref=f4e374] [cursor=pointer]:
+          - /url: http://www.ncsu.edu/privacy

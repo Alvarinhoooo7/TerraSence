@@ -30,6 +30,7 @@ public:
   uint8_t idAjeno() const { return idAjeno_; }
 
 private:
+  LecturaAmbiente leerMuestra();
   bool detectar();
   bool leerCalibracion();
   bool escribir(uint8_t registro, uint8_t valor);

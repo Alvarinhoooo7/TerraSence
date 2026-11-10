@@ -9,6 +9,7 @@ import type { AppLanguage } from '../types/preferences';
 import { GENERAL_WEATHER_RISK, generalRisksOfDay, isRainingNow, isRainyDay, weatherKind } from './weatherOutlook';
 import { coveredGeneralWeatherRisks, evaluateSpeciesWeather, hasLocalAirCriteria, type SpeciesWeatherInput } from './speciesRules';
 import { assessWeatherEvidence, type WeatherEvaluationContext, type WeatherCoverage } from './evaluationCoverage';
+import { assessProbeMetrologicalContext, dewPointC } from './localPhysics';
 
 export type RecommendationKind = 'soil' | 'evidence' | 'weather' | 'irrigation' | 'monitoring';
 export type RecommendationTiming = 'now' | 'today' | 'next_days' | 'next_reading';
@@ -58,6 +59,38 @@ export function forecastDayLabel(date: string, language: AppLanguage = 'es'): st
 }
 
 const finiteNumber = (value: number | null | undefined): value is number => typeof value === 'number' && Number.isFinite(value);
+
+/**
+ * Déficit de presión de vapor instantáneo (kPa) a partir de la temperatura y humedad relativa
+ * medidas por el sensor ambiental del equipo (ecuación de Tetens / FAO 56 ec. 11, C01).
+ */
+export function computeLocalVpdKpa(airTempC: number | null | undefined, airHumidityPct: number | null | undefined): number | null {
+  if (!finiteNumber(airTempC) || !finiteNumber(airHumidityPct)) return null;
+  if (airTempC < -20 || airTempC > 60 || airHumidityPct < 0 || airHumidityPct > 100) return null;
+  const es = 0.6108 * Math.exp((17.27 * airTempC) / (airTempC + 237.3));
+  const ea = es * (airHumidityPct / 100);
+  return Math.round(Math.max(0, es - ea) * 100) / 100;
+}
+
+/**
+ * Mayor racha consecutiva de horas con humedad relativa >= `thresholdPct` en la serie horaria
+ * del pronóstico (combinación C09 / VG05 / FL03; sin inferir mojadura foliar ni infección, T33).
+ */
+export function maxConsecutiveHighHumidityHours(weather: CurrentWeather | null | undefined, thresholdPct = 90): number {
+  const rhSeries = weather?.hourly?.relativeHumidityPct;
+  if (!Array.isArray(rhSeries) || rhSeries.length === 0) return 0;
+  let current = 0;
+  let maxStreak = 0;
+  for (const rh of rhSeries) {
+    if (finiteNumber(rh) && rh >= thresholdPct) {
+      current += 1;
+      if (current > maxStreak) maxStreak = current;
+    } else {
+      current = 0;
+    }
+  }
+  return maxStreak;
+}
 
 /** Hoy y los días siguientes en la forma que comparan los criterios climáticos de la especie. */
 function pickSpeciesWeather(weather: CurrentWeather, dayLabel: (date: string) => string): SpeciesWeatherInput {
@@ -203,6 +236,200 @@ export function buildContextualAdvice(
         : `Se pronostican ${mm} mm de lluvia para ${isToday ? 'hoy' : `el ${dayLabel(rainSoon.date)}`}. Si puedes, espérala antes de regar y vuelve a medir después.` });
   }
 
+  // Combinación física local C01 + C02 (§6.4): demanda evaporativa alta (DPV >= 2,2 kPa a presión
+  // estándar, o >= 2,0 kPa en altitud con P <= 920 hPa donde la menor constante psicrométrica
+  // γ = 0,000665·P incrementa la difusividad del vapor; FAO 56 ec. 8 y 11) cruzada con la humedad
+  // volumétrica del suelo en vegetativo y floración. Emite a lo sumo una tarjeta combinada (T44).
+  const freshCapture = !evaluation.coverage || evaluation.coverage.freshness === 'fresh';
+  const metrology = assessProbeMetrologicalContext(reading);
+  const highAltitudeBarometry =
+    finiteNumber(reading.airPressure) &&
+    reading.airPressure <= 920 &&
+    metrology.psychrometricConstantKpaPerC !== null &&
+    metrology.barometricAltitudeM !== null;
+  const vpdIrrigationThreshold = highAltitudeBarometry ? 2.0 : 2.2;
+  const vpdMonitoringThreshold = highAltitudeBarometry ? 2.3 : 2.5;
+  const hasBarometry =
+    finiteNumber(reading.airPressure) &&
+    metrology.psychrometricConstantKpaPerC !== null &&
+    metrology.barometricAltitudeM !== null;
+  const baroDetailEn = hasBarometry
+    ? ` Barometric pressure ${reading.airPressure} hPa (approx. ${Math.round(metrology.barometricAltitudeM!)} m elevation, psychrometric constant ${metrology.psychrometricConstantKpaPerC!.toFixed(4)} kPa/°C, FAO 56 eq. 8)${highAltitudeBarometry ? '; reduced atmospheric pressure increases vapor diffusivity' : ''}.`
+    : '';
+  const baroDetailEs = hasBarometry
+    ? ` Presión barométrica ${reading.airPressure} hPa (aprox. ${Math.round(metrology.barometricAltitudeM!)} m s. n. m., constante psicrométrica ${metrology.psychrometricConstantKpaPerC!.toFixed(4).replace('.', ',')} kPa/°C, FAO 56 ec. 8)${highAltitudeBarometry ? '; la menor presión atmosférica incrementa la difusividad del vapor' : ''}.`
+    : '';
+  if ((stage === 'vegetativo' || stage === 'floracion') && freshCapture && finiteNumber(reading.airHumidity) && reading.airHumidity <= 35) {
+    const vpd = computeLocalVpdKpa(reading.airTemp, reading.airHumidity);
+    if (vpd !== null && vpd >= vpdIrrigationThreshold) {
+      const vpdStr = en ? `${vpd.toFixed(2)} kPa` : `${vpd.toFixed(2).replace('.', ',')} kPa`;
+      if (irrigationAdvised || (finiteNumber(reading.vwc) && reading.vwc < 15)) {
+        plan.push({
+          kind: 'irrigation',
+          priority: 'high',
+          when: 'now',
+          title: en ? 'High evaporative demand with low soil moisture' : 'Alta demanda atmosférica con suelo seco',
+          body: en
+            ? `Instantaneous vapor pressure deficit is high (${vpdStr}) and root-zone moisture is low (${reading.vwc}%). Prioritize irrigation to avoid water stress.`
+            : `El déficit de presión de vapor instantáneo es alto (${vpdStr}) y la humedad en zona radicular es baja (${reading.vwc} %). Prioriza el riego para evitar estrés hídrico.`,
+          detail: en
+            ? `Combined local rule C01 + C02 (FAO 56 eq. 11): VPD ${vpdStr} from local air (${reading.airTemp} °C, ${reading.airHumidity}% RH) + soil VWC ${reading.vwc}%.${baroDetailEn}`
+            : `Combinación física local C01 + C02 (FAO 56 ec. 11): DPV ${vpdStr} con aire local (${reading.airTemp} °C, ${reading.airHumidity} % HR) + humedad volumétrica del suelo ${reading.vwc} %.${baroDetailEs}`,
+        });
+      } else if (vpd >= vpdMonitoringThreshold) {
+        plan.push({
+          kind: 'monitoring',
+          priority: 'normal',
+          when: 'today',
+          title: en ? 'High atmospheric demand (VPD)' : 'Alta demanda evaporativa del aire (DPV)',
+          body: en
+            ? `The air around the crop is very dry (VPD ${vpdStr}), increasing transpiration even with adequate soil moisture. Recheck soil moisture after peak heat.`
+            : `El aire en el cultivo está muy seco (DPV ${vpdStr}), lo que acelera la transpiración aunque el suelo tenga humedad. Vuelve a medir tras las horas de mayor calor.`,
+          detail: en
+            ? `Combined local rule C01 + C02 (FAO 56 eq. 11): VPD ${vpdStr} from local air (${reading.airTemp} °C, ${reading.airHumidity}% RH) with current soil VWC ${reading.vwc}%.${baroDetailEn}`
+            : `Combinación física local C01 + C02 (FAO 56 ec. 11): DPV ${vpdStr} con aire local (${reading.airTemp} °C, ${reading.airHumidity} % HR) y humedad volumétrica actual de ${reading.vwc} %.${baroDetailEs}`,
+        });
+      }
+    }
+  }
+
+  // Reglas metrológicas físicas del transductor CWT-Soil-NPKPHCTH-S:
+  // 1) Bajo 5 % VWC la película de agua es discontinua y degrada el puente iónico de pH y CE.
+  if (freshCapture && metrology.flags.includes('low_moisture_electrolyte_contact')) {
+    plan.push({
+      kind: 'evidence',
+      priority: 'high',
+      when: 'now',
+      title: en
+        ? 'Dry soil limits galvanic pH and bulk EC contact'
+        : 'Suelo muy seco limita el contacto electrolítico de pH y CE',
+      body: en
+        ? `Volumetric moisture is ${reading.vwc}% (< 5%). Below 5% VWC, the water film between the probe prongs is discontinuous and pH or bulk EC readings may drift. Irrigate or measure in a moist root zone before correcting pH or salinity.`
+        : `La humedad volumétrica es ${reading.vwc} % (< 5 %). Bajo 5 % de humedad volumétrica, la película de agua entre los vástagos de la sonda se vuelve discontinua y el pH o la CE aparente pueden desviarse. Riega o mide en zona húmeda antes de corregir pH o salinidad.`,
+      detail: en
+        ? `Metrological rule (CWT-Soil-NPKPHCTH-S): galvanic pH and bulk EC require >= 5% VWC for a continuous ionic bridge (measured: ${reading.vwc}%).`
+        : `Regla metrológica (CWT-Soil-NPKPHCTH-S): el pH galvánico y la CE a granel requieren >= 5 % de humedad volumétrica para sostener el puente iónico (medido: ${reading.vwc} %).`,
+    });
+  }
+  // 2) pH fuera de la ventana nominal de calibración 3,0–9,0 pH del electrodo metálico.
+  if (freshCapture && metrology.flags.includes('ph_outside_electrode_nominal_range')) {
+    plan.push({
+      kind: 'evidence',
+      priority: 'normal',
+      when: 'today',
+      title: en
+        ? 'Soil pH outside probe nominal range (3.0 to 9.0)'
+        : 'pH fuera del rango nominal del electrodo (3,0 a 9,0)',
+      body: en
+        ? `Measured pH (${reading.ph}) is outside the nominal 3.0 to 9.0 pH calibration window of the probe. Confirm with a laboratory paste or suspension pH test before applying amendments.`
+        : `El pH medido (${reading.ph}) está fuera de la ventana nominal de calibración de la sonda (3,0 a 9,0 pH). Confirma con un análisis de pH en pasta o suspensión en laboratorio antes de aplicar enmiendas.`,
+      detail: en
+        ? `Metrological rule (CWT-Soil-NPKPHCTH-S): nominal pH range 3.0 to 9.0 pH (+/-0.3 pH); reading ${reading.ph} is at the extreme of the transducer.`
+        : `Regla metrológica (CWT-Soil-NPKPHCTH-S): rango nominal de pH 3,0 a 9,0 pH (±0,3 pH); la lectura ${reading.ph} se encuentra en el extremo del transductor.`,
+    });
+  }
+  // 3) Temperatura de suelo fuera de la ventana 0–50 °C de compensación térmica automática de CE.
+  if (freshCapture && metrology.flags.includes('ec_outside_thermal_compensation_window')) {
+    plan.push({
+      kind: 'evidence',
+      priority: 'normal',
+      when: 'today',
+      title: en
+        ? 'Soil temperature outside EC thermal compensation window'
+        : 'Temperatura del suelo fuera de la compensación térmica de CE',
+      body: en
+        ? `Soil temperature (${reading.temp} °C) is outside the 0 to 50 °C automatic thermal compensation window of the conductivity circuit. Repeat the reading when the soil is above 0 °C.`
+        : `La temperatura del suelo (${reading.temp} °C) está fuera de la ventana de compensación térmica automática (0 a 50 °C) del circuito de conductividad. Repite la lectura cuando el suelo supere 0 °C.`,
+      detail: en
+        ? `Metrological rule (CWT-Soil-NPKPHCTH-S): automatic EC thermal compensation operates from 0 to 50 °C (measured: ${reading.temp} °C).`
+        : `Regla metrológica (CWT-Soil-NPKPHCTH-S): la compensación térmica automática de CE opera entre 0 y 50 °C (medido: ${reading.temp} °C).`,
+    });
+  }
+
+  // Vigilancia psicrométrica de enfriamiento radiativo: aire frío sobre cero (0 < T <= 4,0 °C)
+  // con punto de rocío <= 0 °C (poca humedad absoluta para liberar calor latente al condensar).
+  if (
+    freshCapture &&
+    finiteNumber(reading.airTemp) &&
+    reading.airTemp > 0 &&
+    reading.airTemp <= 4.0 &&
+    finiteNumber(reading.airHumidity) &&
+    reading.airHumidity > 0 &&
+    reading.airHumidity <= 100
+  ) {
+    const dp = dewPointC(reading.airTemp, reading.airHumidity);
+    if (dp !== null && dp <= 0) {
+      const dpStr = en ? `${dp.toFixed(1)} °C` : `${dp.toFixed(1).replace('.', ',')} °C`;
+      const spreadStr = en
+        ? `${(reading.airTemp - dp).toFixed(1)} °C`
+        : `${(reading.airTemp - dp).toFixed(1).replace('.', ',')} °C`;
+      plan.push({
+        kind: 'weather',
+        priority: 'high',
+        when: 'today',
+        title: en
+          ? 'Cold air with subzero dew point: radiative frost watch'
+          : 'Aire frío con punto de rocío bajo cero: vigilancia de helada radiativa',
+        body: en
+          ? `Air temperature is ${reading.airTemp} °C and the approximate dew point is ${dpStr}. With little water vapor to release latent heat, clear-sky radiative cooling can drop temperatures below 0 °C rapidly. Monitor night temperatures closely.`
+          : `La temperatura del aire es ${reading.airTemp} °C y el punto de rocío aproximado es ${dpStr}. Con poco vapor de agua para liberar calor latente al condensar, el enfriamiento nocturno puede bajar rápido de 0 °C. Vigila de cerca la mínima en el campo.`,
+        detail: en
+          ? `Local psychrometric rule (Magnus formula): air ${reading.airTemp} °C, ${reading.airHumidity}% RH, dew point ${dpStr} (spread ${spreadStr}).${baroDetailEn}`
+          : `Regla psicrométrica local (fórmula de Magnus): aire ${reading.airTemp} °C, ${reading.airHumidity} % HR, punto de rocío ${dpStr} (distancia al rocío ${spreadStr}).${baroDetailEs}`,
+      });
+    }
+  }
+
+  // Desacople térmico raíz-follaje (`soil_air_difference`): suelo frío (<= 12 °C) bajo aire cálido
+  // (>= 24 °C) en vegetativo o floración. Las dos cotas absolutas son la condición completa: con
+  // aire sobre 24 °C y suelo bajo 12 °C el gradiente ya es de -12 °C o más, así que exigirlo aparte
+  // no agrega nada. El gradiente se informa como medición, no como umbral.
+  if (
+    (stage === 'vegetativo' || stage === 'floracion') &&
+    freshCapture &&
+    finiteNumber(reading.temp) &&
+    finiteNumber(reading.airTemp) &&
+    reading.airTemp >= 24 &&
+    reading.temp <= 12
+  ) {
+    const diff = Math.round((reading.temp - reading.airTemp) * 10) / 10;
+    const diffStr = en ? `${diff.toFixed(1)} °C` : `${diff.toFixed(1).replace('.', ',')} °C`;
+    plan.push({
+      kind: 'monitoring',
+      priority: 'normal',
+      when: 'today',
+      title: en
+        ? 'Cold root zone under warm air (thermal decoupling)'
+        : 'Suelo frío bajo aire cálido (desacople térmico raíz-follaje)',
+      body: en
+        ? `Soil temperature (${reading.temp} °C) is much colder than the air (${reading.airTemp} °C, difference ${diffStr}). Warm air drives canopy transpiration while cold roots absorb water and phosphorus slowly; avoid cold-water irrigation spikes and monitor wilting at midday.`
+        : `La temperatura del suelo (${reading.temp} °C) es mucho más fría que la del aire (${reading.airTemp} °C, diferencia ${diffStr}). El aire cálido exige transpiración al follaje mientras la raíz fría absorbe agua y fósforo con lentitud; evita riegos bruscos con agua fría y vigila decaimiento al mediodía.`,
+      detail: en
+        ? `Local thermal difference rule (soil_air_difference): triggered by soil <= 12 °C with air >= 24 °C. Measured gradient: soil ${reading.temp} °C minus air ${reading.airTemp} °C = ${diffStr}.`
+        : `Regla de gradiente térmico local (soil_air_difference): se activa con suelo <= 12 °C y aire >= 24 °C. Gradiente medido: suelo ${reading.temp} °C menos aire ${reading.airTemp} °C = ${diffStr}.`,
+    });
+  }
+
+  // Combinación horaria C09 / VG05 / FL03 (§6.4): persistencia de humedad relativa >= 90 % en la
+  // serie horaria del pronóstico (>= 12 h seguidas), sin afirmar mojadura foliar ni diagnosticar infección (T33).
+  if (stage === 'vegetativo' || stage === 'floracion') {
+    const highRhHours = maxConsecutiveHighHumidityHours(weather, 90);
+    if (highRhHours >= 12) {
+      plan.push({
+        kind: 'weather',
+        priority: 'normal',
+        when: 'next_days',
+        title: en ? 'Extended period of high air humidity forecast' : 'Periodo prolongado de alta humedad del aire previsto',
+        body: en
+          ? `The hourly forecast shows ${highRhHours} consecutive hours with relative humidity at or above 90%. Check canopy ventilation and inspect the crop in the field.`
+          : `El pronóstico horario prevé ${highRhHours} horas seguidas con humedad relativa igual o superior a 90 %. Revisa la ventilación del follaje e inspecciona el cultivo en el campo.`,
+        detail: en
+          ? `Hourly weather rule C09 (${highRhHours} consecutive hours >= 90% RH). Relative humidity is an indirect atmospheric indicator and does not measure leaf wetness.`
+          : `Regla climática horaria C09 (${highRhHours} h consecutivas con HR >= 90 %). La humedad relativa del aire es un indicador atmosférico indirecto y no mide mojadura foliar.`,
+      });
+    }
+  }
+
   const riskyDays = upcoming.filter(day => generalRisksOfDay(day).length > 0);
   // Un día sólo se da por cubierto si un criterio de la especie advierte ese mismo día cada uno
   // de sus riesgos generales; si no, la tarjeta general se emite con su fecha (§9.2).
@@ -270,10 +497,10 @@ export function buildContextualAdvice(
     ? (en ? 'Offline: forecast saved earlier near this point. ' : 'Sin conexión: pronóstico guardado antes cerca de este punto. ') : '';
 
   const cropOptions = stage === 'pre_siembra' && (!evaluation.coverage || evaluation.coverage.freshness === 'fresh')
-    ? evaluatePrePlantingOptions(reading, language)
+    ? evaluatePrePlantingOptions(reading, language, undefined, weather)
     : [];
   const suggestedCrops = stage === 'pre_siembra' && (!evaluation.coverage || evaluation.coverage.freshness === 'fresh')
-    ? suggestPrePlantingCrops(reading, language)
+    ? suggestPrePlantingCrops(reading, language, weather)
     // En pre_siembra no se pide especie al agricultor: el motor recomienda cultivos compatibles.
     : [];
 

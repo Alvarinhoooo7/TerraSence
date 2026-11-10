@@ -1,0 +1,148 @@
+- generic [ref=f11e2]:
+  - region "Cookie banner" [ref=f11e3]:
+    - paragraph [ref=f11e4]: By using this website, you agree to our use of cookies. We use cookies to provide you with a great experience and to help our website run effectively.
+    - generic [ref=f11e5]:
+      - button "Manage cookies" [ref=f11e6] [cursor=pointer]
+      - button "Decline" [ref=f11e8] [cursor=pointer]
+      - button "Accept" [ref=f11e10] [cursor=pointer]
+  - banner:
+    - generic [ref=f11e12]:
+      - link "Skip to Content" [ref=f11e13] [cursor=pointer]:
+        - /url: "#page"
+      - generic [ref=f11e16]:
+        - generic [ref=f11e17]:
+          - link [ref=f11e20] [cursor=pointer]:
+            - /url: /
+            - img "The Almond Doctor" [ref=f11e21]
+          - navigation [ref=f11e24]:
+            - link "The Almond Doctor" [ref=f11e26] [cursor=pointer]:
+              - /url: /
+            - link "David Doll" [ref=f11e28] [cursor=pointer]:
+              - /url: /daviddoll
+            - link "The Archive" [ref=f11e30] [cursor=pointer]:
+              - /url: /blog
+            - link "Contact me" [ref=f11e32] [cursor=pointer]:
+              - /url: /contact-me
+        - generic [ref=f11e33]:
+          - generic [ref=f11e34]:
+            - link "Twitter" [ref=f11e35] [cursor=pointer]:
+              - /url: https://twitter.com/thealmonddoctor
+            - link "YouTube" [ref=f11e38] [cursor=pointer]:
+              - /url: https://www.youtube.com/user/daviddoll01
+            - link "LinkedIn" [ref=f11e41] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/david-doll-46abb179/
+          - link "Become a patron" [ref=f11e45] [cursor=pointer]:
+            - /url: https://www.patreon.com/bePatron?redirect_uri=https%3A%2F%2Fthealmonddoctor.com%2F&u=31118731&utm_campaign=4376771&utm_content=site_sidebar_widget&utm_medium=widget&utm_medium=patron_button_and_widgets_plugin&utm_source=https%3A%2F%2Fthealmonddoctor.com%2Foperational-expense-savings-during-almond-bloom%2F&utm_term=
+  - main [ref=f11e46]:
+    - article [ref=f11e47]:
+      - generic [ref=f11e48]:
+        - generic [ref=f11e49]:
+          - iframe [ref=f11e51]:
+            - generic "Reproductor de video de YouTube" [ref=f12e3]
+          - generic [ref=f11e55]:
+            - heading [level=3] [ref=f11e61]:
+              - strong [ref=f11e62]:
+                - emphasis [ref=f11e63]: The Almond Doctor is a website that shares research, experiences and opinions of better farm management practices for almond orchards.
+            - generic [ref=f11e68]:
+              - heading "David Doll" [level=1] [ref=f11e69]
+              - paragraph [ref=f11e70]: manages the farm assets of Rota Única Amêndoas in the Alentejo region of Portugal. He has worked world-wide within tree nuts and uses this platform to help farmers become better almond farmers.
+        - generic [ref=f11e76]:
+          - heading "Latest News" [level=1] [ref=f11e82]
+          - generic [ref=f11e87]:
+            - generic:  
+            - generic [ref=f11e88]:
+              - generic [ref=f11e89]:
+                - link "Preventing spring diseases in almond" [ref=f11e91] [cursor=pointer]:
+                  - /url: /blog/preventing-spring-diseases-in-almond
+                  - img "Preventing spring diseases in almond" [ref=f11e93]
+                - generic [ref=f11e94]:
+                  - link "Preventing spring diseases in almond" [ref=f11e96] [cursor=pointer]:
+                    - /url: /blog/preventing-spring-diseases-in-almond
+                  - paragraph [ref=f11e98]: Petal fall through the first few weeks of nut development is a critical time for disease management. During this period, the almond fruit, newly emerged leaves, and senescing tissues are susceptible to many diseases. These include jacket rot, anthracnose, brown rot, leaf blight, shot-hole, scab, and with Mediterranean varieties, red blotch.
+                  - link "Read more →" [ref=f11e99] [cursor=pointer]:
+                    - /url: /blog/preventing-spring-diseases-in-almond
+              - generic [ref=f11e100]:
+                - link "Frost damage to almonds" [ref=f11e102] [cursor=pointer]:
+                  - /url: /blog/frost-damage-to-almonds
+                  - img "Frost damage to almonds" [ref=f11e104]
+                - generic [ref=f11e105]:
+                  - link "Frost damage to almonds" [ref=f11e107] [cursor=pointer]:
+                    - /url: /blog/frost-damage-to-almonds
+                  - paragraph [ref=f11e109]: Almonds are susceptible to frost once they begin to flower. As a flower progresses through bloom (i.e. dormant > pink bud > full bloom > petal fall > small fruit), it becomes more susceptible to cold temperatures. Frost killed flowers/small fruits are easy to identify as the color of the tissue changes.
+                  - link "Read more →" [ref=f11e110] [cursor=pointer]:
+                    - /url: /blog/frost-damage-to-almonds
+              - generic [ref=f11e111]:
+                - link "Operational expense savings during almond bloom" [ref=f11e113] [cursor=pointer]:
+                  - /url: /blog/operational-expense-savings-during-almond-bloom
+                  - img "Operational expense savings during almond bloom" [ref=f11e115]
+                - generic [ref=f11e116]:
+                  - link "Operational expense savings during almond bloom" [ref=f11e118] [cursor=pointer]:
+                    - /url: /blog/operational-expense-savings-during-almond-bloom
+                  - paragraph [ref=f11e120]: The period of bloom has become increasingly expensive. Pollination services, fungicides, application expenses have increased rapidly over the past few years and this has impacted orchard profitability.
+                  - link "Read more →" [ref=f11e121] [cursor=pointer]:
+                    - /url: /blog/operational-expense-savings-during-almond-bloom
+        - generic [ref=f11e127]:
+          - heading "Preventing spring diseases in almond" [level=2] [ref=f11e142]
+          - paragraph [ref=f11e148]: Petal fall through the first few weeks of nut development is a critical time for disease management. During this period, the almond fruit, newly emerged leaves, and senescing tissues are susceptible to many diseases.
+          - link "Read More" [ref=f11e153] [cursor=pointer]:
+            - /url: https://www.thealmonddoctor.com/blog/preventing-spring-diseases-in-almond
+        - heading "The Almond Doctor." [level=1] [ref=f11e165]
+  - contentinfo [ref=f11e166]:
+    - generic [ref=f11e172]:
+      - generic [ref=f11e185]:
+        - heading [level=3] [ref=f11e186]:
+          - strong [ref=f11e187]: Quick Links
+          - text: .
+        - paragraph [ref=f11e188]:
+          - link "Contact Me" [ref=f11e189] [cursor=pointer]:
+            - /url: /contact-me
+        - paragraph [ref=f11e190]:
+          - link "Articles" [ref=f11e191] [cursor=pointer]:
+            - /url: /blog
+        - paragraph [ref=f11e192]:
+          - link "Terms & Conditions" [ref=f11e193] [cursor=pointer]:
+            - /url: /terms-conditions
+        - paragraph [ref=f11e194]:
+          - link "Privacy Policy" [ref=f11e195] [cursor=pointer]:
+            - /url: /privacy-policy
+        - paragraph [ref=f11e196]
+      - generic [ref=f11e201]:
+        - heading "About." [level=3] [ref=f11e202]
+        - paragraph [ref=f11e203]:
+          - strong [ref=f11e204]: David Doll
+          - text: "- The Almond Doctor is a website that shares research, experiences and opinions of better farm management practices for almond orchards."
+        - paragraph [ref=f11e205]
+      - generic [ref=f11e210]:
+        - heading [level=3] [ref=f11e211]:
+          - strong [ref=f11e212]: Resources.
+        - paragraph [ref=f11e213]:
+          - link "Almond Board of Australia" [ref=f11e214] [cursor=pointer]:
+            - /url: http://www.australianalmonds.com.au/
+        - paragraph [ref=f11e215]:
+          - link "Almond Board of California" [ref=f11e216] [cursor=pointer]:
+            - /url: http://www.almondboard.com/Growers/Pages/Default.aspx
+        - paragraph [ref=f11e217]:
+          - link "California Water Blog" [ref=f11e218] [cursor=pointer]:
+            - /url: http://californiawaterblog.com/
+        - paragraph [ref=f11e219]:
+          - link "Crop Fertilization Guidelines - FREP" [ref=f11e220] [cursor=pointer]:
+            - /url: http://apps.cdfa.ca.gov/frep/docs/Guidelines.html
+        - paragraph [ref=f11e221]:
+          - link "UC Davis Fruit and Nut Center - Almonds" [ref=f11e222] [cursor=pointer]:
+            - /url: http://ucce.ucdavis.edu/datastore/datastoreview/showpage.cfm?reportnumber=612&catcol=2806&categorysearch=Almond
+        - paragraph [ref=f11e223]:
+          - link "UC Davis Weed Science" [ref=f11e224] [cursor=pointer]:
+            - /url: http://ucanr.org/blogs/UCDWeedScience/index.cfm?start=5
+        - paragraph [ref=f11e225]:
+          - link "UC Davis Drought Management Site" [ref=f11e226] [cursor=pointer]:
+            - /url: http://ucmanagedrought.ucdavis.edu/
+        - paragraph [ref=f11e227]:
+          - link "UC IPM Website" [ref=f11e228] [cursor=pointer]:
+            - /url: http://ucipm.ucdavis.edu/PMG/crops-agriculture.html
+      - navigation [ref=f11e234]:
+        - link "Twitter" [ref=f11e235] [cursor=pointer]:
+          - /url: https://twitter.com/thealmonddoctor
+        - link "YouTube" [ref=f11e240] [cursor=pointer]:
+          - /url: https://www.youtube.com/user/daviddoll01
+        - link "LinkedIn" [ref=f11e245] [cursor=pointer]:
+          - /url: https://www.linkedin.com/in/david-doll-46abb179/

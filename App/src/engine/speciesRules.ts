@@ -37,7 +37,7 @@ export type { SpeciesCriterionState, SpeciesCriterionEvidence, SpeciesPhCriterio
 export { fahrenheitToCelsius } from './speciesRuleKit';
 
 /** Versión del conjunto de criterios; cambia cuando se agrega, corrige o retira uno. */
-export const SPECIES_RULES_VERSION = '3.0.0';
+export const SPECIES_RULES_VERSION = '3.2.0';
 
 const PROFILES: readonly SpeciesRuleProfile[] = [...HORTALIZA_PROFILES, ...FRUTAL_PROFILES, ...BERRY_AROMATIC_PROFILES, ...FIELD_CROP_PROFILES];
 
