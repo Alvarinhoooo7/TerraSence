@@ -43,7 +43,7 @@ float mediaRecortadaFloat(float *vals, uint8_t n) {
     }
     vals[j] = v;
   }
-  const uint8_t recorte = n >= 6 ? 2 : (n >= 4 ? 1 : 0);
+  const uint8_t recorte = recorteMediaRecortada(n, BME280_MUESTRAS_RAFAGA);
   const uint8_t desde = recorte;
   const uint8_t hasta = n - recorte;
   float suma = 0.0f;

@@ -100,6 +100,21 @@ constexpr uint8_t SONDA_REINTENTOS =
 // muestras centrales para reducir el ruido aleatorio y eliminar transitorios.
 constexpr uint8_t SONDA_MUESTRAS_RAFAGA = 10;
 constexpr uint32_t SONDA_SEPARACION_RAFAGA_MS = 50;
+// Tope de reloj de la ráfaga completa, contado desde que se energiza la sonda.
+// La app espera la notificación 15 s (NOTIFY_TIMEOUT_MS en bleService.ts): con
+// 10 s la captura cierra con las muestras válidas que tenga y aún queda margen
+// para el BME280 y la notificación. Una ráfaga sin fallos dura ~2 s.
+constexpr uint32_t SONDA_RAFAGA_MAX_MS = 10000;
+
+// Cuántas muestras se descartan en cada extremo de la media recortada, según
+// las válidas obtenidas: 2 y 2 con 6 o más, 1 y 1 con 4 o 5, ninguna con
+// menos (no queda qué promediar). `maximo` es el tamaño del arreglo de la
+// ráfaga y acota `validas`. La comparten la sonda y el BME280.
+constexpr uint8_t recorteMediaRecortada(uint8_t validas, uint8_t maximo) {
+  return (validas > maximo ? maximo : validas) >= 6
+             ? 2
+             : ((validas > maximo ? maximo : validas) >= 4 ? 1 : 0);
+}
 
 // --- Sensor ambiental BME280 (I2C) ---
 // Ráfaga de 10 lecturas forzadas consecutivas con sobremuestreo ×2 y media
