@@ -4,7 +4,7 @@ Plan de trabajo desarrollado para TerraSense **en el orden de la PPT**, con cobe
 
 **Criterio de lectura:** las decisiones expresadas por el equipo y las cifras del modelo son la base definida. Las asignaciones personales, metas de servicio y distribución temporal incorporadas para completar el plan son **propuestas operativas**, no acuerdos laborales ni resultados ya logrados. Los eventos, contactos, ventas y mediciones de impacto se registrarán cuando ocurran. El plan no necesita inventarlos para estar desarrollado.
 
-**Decisión comercial definida:** venta directa mediante ecommerce propio, sin local comercial abierto al público. Redes sociales, WhatsApp y correo acompañan la compra y la posventa. Los asesores pueden ser compradores o recomendar el producto, pero no se presume que exista una red contratada. Taller, almacenamiento y despacho son necesidades operativas distintas de un punto de venta.
+**Decisión comercial definida:** venta directa mediante ecommerce propio, sin local comercial abierto al público; desde 2028, retailers agrícolas como canal complementario, conseguidos con trade marketing (2.5). Redes sociales, WhatsApp y correo acompañan la compra y la posventa. Los asesores pueden ser compradores o recomendar el producto, pero no se presume que exista una red contratada. Taller, almacenamiento y despacho son necesidades operativas distintas de un punto de venta.
 
 **Estado comercial confirmado por el equipo:** TerraSense está listo para la venta. El plan se desarrolla para comercializar el producto disponible, captar compradores y atender pedidos. La preparación de una actividad comercial consiste en organizar demostración, materiales, disponibilidad de unidades, despacho y seguimiento.
 
@@ -54,17 +54,17 @@ La presentación pide **misión, visión, objetivos estratégicos y ventaja comp
 
 #### B. Visión: futuro deseado
 
-**Visión del plan:** «Ser reconocidos por los agricultores como una herramienta confiable que convierte la información de su campo en un plan de acción comprensible para cuidar sus cultivos, aprovechar mejor sus recursos y mejorar su producción».
+**Visión del plan:** «Ser el referente de la industria agrícola en la medición del suelo en terreno, con la base de datos de especies más amplia del sector y mediciones cuya exactitud compita con la de un análisis de laboratorio».
 
-**Orientación aportada por el equipo:** TerraSense debe reconocerse por la utilidad de su plan de acción para el agricultor. El dispositivo permite obtener información y el sistema la interpreta para orientar el manejo según el cultivo y su etapa. Esta formulación describe el reconocimiento al que se aspira; mejorar la producción es una finalidad que requiere evaluación en campo, no un resultado garantizado por comprar el equipo.
+**Orientación aportada por el equipo:** TerraSense debe ser la referencia cuando el agricultor o el asesor necesiten medir el suelo en el campo; el catálogo de cultivos (111 especies con criterios documentados, según `Evaluacion/Evaluacion 2/INFORME 2.md`) debe crecer hasta ser la base de datos de especies más amplia de la industria, y la exactitud de cada variable debe acercarse a la del laboratorio.
 
-La misión explica el propósito actual de ayudar a decidir y utilizar mejor los recursos. La visión expresa cómo se espera que los agricultores reconozcan a TerraSense en el futuro: como una herramienta confiable para pasar de la medición a la acción.
+La misión explica el propósito actual; la visión, la proyección de largo plazo. La exactitud de laboratorio es una **meta de desarrollo**, no un atributo actual: la lectura Modbus está validada en banco, pero la exactitud en agua, en tierra y contra soluciones patrón sigue pendiente (`Firmware/TASK.md`). Mientras tanto, el laboratorio fija el punto de referencia y TerraSense aporta la repetición.
 
-**Alcance de la visión:** servir al agricultor en Chile mediante venta digital y acompañamiento remoto; no se proyecta expansión internacional en este plan. La disponibilidad nacional para asistir a eventos se mantiene como decisión del equipo.
+**Alcance de la visión:** servir al agricultor en Chile mediante venta digital y acompañamiento remoto, con retailers como canal complementario desde 2028 (2.5); no se proyecta expansión internacional en este plan.
 
 #### C. Objetivos estratégicos
 
-**Objetivos del plan:** trabajar cuatro resultados de largo plazo, concretados en las metas comerciales y operativas de 4.3.
+**Objetivos del plan:** trabajar seis resultados de largo plazo, concretados en las metas comerciales y operativas de 4.3.
 
 | Dimensión | Objetivo del plan | Indicador | Desarrollo operativo |
 |---|---|---|---|
@@ -72,6 +72,8 @@ La misión explica el propósito actual de ayudar a decidir y utilizar mejor los
 | Producto | Mantener trazabilidad entre lo ofrecido y el producto vendido | Fichas y demostraciones revisadas | Revisión técnica antes de publicar cada cambio de oferta |
 | Servicio | Acompañar al comprador en el uso y resolver incidencias | Primera medición, respuesta y resolución | Objetivos y seguimiento en 4.3 |
 | Sostenibilidad | Evaluar el aporte a decisiones responsables de manejo | Casos con seguimiento y datos comparables | Protocolo de 1.2 y objetivo operativo de 4.3 |
+| Base de datos de especies | Ampliar el catálogo con criterios documentados por etapa hasta ser el más amplio de la industria | Especies con criterios en tres etapas y fuente declarada | Revisión anual desde las 111 especies actuales, hasta 2036 |
+| Exactitud | Acercar la exactitud de cada variable a la de un análisis de laboratorio | Diferencia frente al laboratorio en muestras pareadas, por variable | Validación desde 2027 e informe anual hasta 2036 |
 
 Los objetivos estratégicos se concretan mediante las metas, responsables y fechas de los apartados 4.3 y 4.6. Las cifras comerciales se toman del modelo; las metas de atención son propuestas de gestión.
 
@@ -81,7 +83,7 @@ Los objetivos estratégicos se concretan mediante las metas, responsables y fech
 
 **Estrategia del plan:** diferenciarse por integrar medición portátil con interpretación contextual y orientación de manejo, respaldada por criterios documentados y soporte comprensible.
 
-La estrategia es diferenciación con enfoque en pequeños y medianos agricultores y asesores. No declarar liderazgo en costos: el precio se deriva del costo y la comparación debe considerar prestaciones equivalentes.
+**Decisión del equipo:** la ventaja combina las tres estrategias de la diapositiva 8. **Liderazgo en costos:** TerraSense tiene hoy el menor precio entre los medidores portátiles comparables vendidos en Chile ($489.990 frente a $491.827 del Hanna HI9814 y $538.990 del Bluelab Pulse, precios consultados el 04-09-2026 y documentados en la sección 5.2 de `Comercializacion de Tecnologias/Unidad 2/informe 2 comercializacio.md`). Ese precio resulta de la derivación por costo con 30 % de utilidad, no de un objetivo de ser el más barato; la diferencia con el Hanna es de 0,4 %, así que el precio facilita la entrada pero no es la ventaja que se defiende. **Diferenciación:** las cuatro diferencias defendibles de la propuesta de valor funcional. **Enfoque o nicho:** el negocio agropecuario, con foco en pequeños y medianos agricultores y sus asesores.
 
 Una ventaja **sostenible en el tiempo** puede mantenerse frente a competidores. La **sostenibilidad ambiental** se refiere al uso responsable de recursos. Hay que desarrollar ambas, con evidencias distintas. Tener software propio no impide que un competidor lo replique; la defensa depende de validación, actualización, conocimiento y servicio.
 
@@ -89,88 +91,53 @@ Una ventaja **sostenible en el tiempo** puede mantenerse frente a competidores. 
 
 ### 1.2 Objetivos de Desarrollo Sostenible — diapositivas 5 y 6
 
-**Selección definida para el desarrollo:** ODS 12, Producción y consumo responsables, como principal; ODS 2, Hambre cero, y ODS 6, Agua limpia y saneamiento, como complementarios. Los Objetivos de Desarrollo Sostenible (ODS) se vinculan con la misión de ayudar al agricultor a decidir y utilizar mejor sus recursos. El cuidado del ecosistema y del suelo constituye un beneficio esperado de ese manejo, conforme al enfoque del equipo.
+**Selección definida por el equipo:** ODS 15, Vida de ecosistemas terrestres, como principal; ODS 9, Industria, innovación e infraestructura, y ODS 13, Acción por el clima, como complementarios. Se eligen porque se relacionan con lo que el producto hace: medir el suelo, llevar innovación tecnológica al campo y ayudar a administrar mejor el agua de riego. La correspondencia con los ODS es un análisis del proyecto, no una certificación o respaldo de Naciones Unidas.
 
-La diapositiva 5 presenta los objetivos y la 6 los enumera. Para aplicarlos a TerraSense se explican la meta pertinente, el aporte del producto, las acciones y la forma de observar resultados. La correspondencia con los ODS es un análisis del proyecto, no una certificación o respaldo de Naciones Unidas.
+#### A. ODS principal: 15. Vida de ecosistemas terrestres
 
-#### A. ODS principal: 12. Producción y consumo responsables
+La meta 15.3 plantea luchar contra la desertificación y rehabilitar las tierras y los suelos degradados. Fuente: Naciones Unidas en Chile (s. f.-c), [Vida de ecosistemas terrestres](https://chile.un.org/es/sdgs/15).
 
-La meta 12.2 plantea gestionar sosteniblemente los recursos naturales y mejorar su eficiencia de uso. Fuente: Naciones Unidas en Chile (s. f.-c), [Producción y consumo responsables](https://chile.un.org/es/sdgs/12).
+**Justificación:** el suelo es el ecosistema que TerraSense mide. Medir el mismo punto temporada tras temporada (humedad, pH y conductividad eléctrica) permite advertir cambios que anticipan un deterioro y corregir el manejo. La conductividad medida en el suelo no se convierte en salinidad de extracto de laboratorio: el seguimiento es de tendencia, no un diagnóstico de degradación.
 
-**Justificación para TerraSense:** el propósito central es ayudar al agricultor a decidir cómo utilizar sus recursos a partir de información comprensible. Las mediciones y su interpretación aportan antecedentes para revisar el manejo del cultivo y evitar decisiones basadas únicamente en suposiciones. Esta relación hace del ODS 12 el eje principal de sostenibilidad del plan.
+#### B. ODS complementario: 9. Industria, innovación e infraestructura
 
-**Aplicación propuesta:** acompañar al comprador para que comprenda la lectura, consulte el plan de acción y registre qué decisión adoptó. Cuando exista información de insumos aplicados, contrastarla con el contexto del cultivo y sus resultados. Mejor uso no significa siempre aplicar menos: puede implicar corregir un déficit o mantener una práctica adecuada.
+La meta 9.5 promueve aumentar la investigación científica y mejorar la capacidad tecnológica, fomentando la innovación. Fuente: Naciones Unidas en Chile (s. f.-b), [Industria, innovación e infraestructura](https://chile.un.org/es/sdgs/9).
 
-**Resultado esperado:** decisiones mejor fundamentadas sobre recursos e insumos. Una reducción de desperdicio deberá demostrarse con registros; vender equipos o aumentar el número de mediciones no basta para acreditarla.
+**Justificación:** tecnología diseñada y fabricada en Chile que acerca la agricultura de precisión al pequeño y mediano agricultor; el catálogo de cultivos construido sobre estadística agrícola nacional es conocimiento local que se amplía con cada versión.
 
-#### B. ODS complementario: 2. Hambre cero
+#### C. ODS complementario: 13. Acción por el clima
 
-La meta 2.4 comprende sistemas alimentarios sostenibles y prácticas agrícolas resilientes, incluyendo el cuidado de los ecosistemas y del suelo. Fuente: Naciones Unidas en Chile (s. f.-b), [Hambre cero](https://chile.un.org/es/sdgs/2).
+La meta 13.1 busca fortalecer la resiliencia y la capacidad de adaptación a los riesgos relacionados con el clima. Fuente: Naciones Unidas en Chile (s. f.-a), [Acción por el clima](https://chile.un.org/es/sdgs/13).
 
-**Justificación para TerraSense:** cuidar el cultivo y apoyar la producción es parte de la finalidad que el agricultor busca al utilizar el plan de acción. El aporte se sitúa en el manejo agrícola informado: comprender condiciones del campo y revisar acciones según el cultivo y su etapa.
-
-**Aplicación propuesta:** acompañar casos de uso durante un ciclo del cultivo y documentar mediciones, orientaciones, decisiones y observaciones del agricultor. Cuando se disponga de registros productivos, analizar su evolución junto con el clima, manejo y demás condiciones relevantes.
-
-**Resultado esperado:** apoyar prácticas de manejo que contribuyan al cuidado y continuidad de la producción. Esta contribución específica no equivale a afirmar que TerraSense elimina el hambre ni que garantiza un aumento de rendimiento.
-
-#### C. ODS complementario: 6. Agua limpia y saneamiento
-
-La meta 6.4 aborda el uso eficiente de los recursos hídricos y la sostenibilidad de su aprovechamiento. Fuente: Naciones Unidas en Chile (s. f.-a), [Agua limpia y saneamiento](https://chile.un.org/es/sdgs/6).
-
-**Justificación para TerraSense:** la información sobre humedad del suelo y su interpretación puede apoyar la revisión de decisiones de riego. Su relación con este objetivo se concentra en el manejo del agua utilizada en el cultivo; no se atribuyen al instrumento funciones de potabilización o saneamiento.
-
-**Aplicación propuesta:** documentar mediciones y decisiones de riego y, cuando el agricultor tenga registros de caudal o volumen, comparar el agua aplicada bajo condiciones identificadas. La decisión debe considerar cultivo, etapa, suelo, clima y sistema de riego.
-
-**Resultado esperado:** aportar información para ajustar el riego a la necesidad del cultivo. El equipo no mide por sí solo el volumen de agua consumido; una lectura de humedad no permite afirmar cuántos litros se ahorraron.
+**Justificación:** la escasez hídrica es uno de esos riesgos para la agricultura chilena. La humedad del suelo interpretada según el cultivo y su etapa ayuda a administrar mejor el agua de riego. El equipo no mide el volumen de agua: una lectura de humedad no permite afirmar cuántos litros se ahorraron.
 
 #### D. Acciones e indicadores de seguimiento
 
-Los siguientes son indicadores internos propuestos para evaluar el aporte de TerraSense. No sustituyen los indicadores oficiales de los ODS ni corresponden a resultados ya obtenidos. El seguimiento ambiental acompaña la comercialización del producto listo para la venta.
+Indicadores internos propuestos, aplicados a compradores voluntarios durante los primeros 90 días de uso. No sustituyen los indicadores oficiales de los ODS ni son resultados ya obtenidos.
 
-| Acción propuesta | Indicador y cálculo | Evidencia requerida | Momento de revisión |
+| Acción propuesta | Indicador | Evidencia requerida | Momento de revisión |
 |---|---|---|---|
-| Acompañar la comprensión del plan de acción | Usuarios acompañados que explican la orientación y una decisión pertinente / usuarios evaluados × 100 | Pauta breve de puesta en marcha, con criterio de comprensión definido | Después del acompañamiento inicial |
-| Registrar el uso en decisiones de manejo | Casos con lectura, orientación y decisión documentadas / casos de seguimiento × 100 | Registro voluntario de uso y decisión; puede ser manual si la aplicación no registra la acción | Revisión mensual de los casos participantes |
-| Evaluar uso de insumos, relacionado con ODS 12 | Cantidad aplicada por unidad de superficie y ciclo, identificando tipo de insumo | Registros de aplicación, superficie, cultivo y resultados | Al cierre del período comparable |
-| Evaluar manejo y producción, relacionado con ODS 2 | Casos con seguimiento de manejo completo; rendimiento por superficie cuando exista registro | Observaciones, cosecha, superficie, clima y manejo | Al cierre del ciclo del cultivo |
-| Evaluar uso de agua, relacionado con ODS 6 | Volumen aplicado por superficie durante un período comparable | Medición externa de volumen o caudal y duración, superficie y condiciones de riego | Al cierre del período de riego observado |
+| Acompañar la comprensión del plan de acción | Usuarios que explican la orientación y una decisión pertinente / usuarios evaluados × 100 | Pauta breve de puesta en marcha | Después del acompañamiento inicial |
+| Registrar el uso en decisiones de manejo | Casos con lectura, orientación y decisión documentadas / casos de seguimiento × 100 | Registro voluntario de uso y decisión | Mensual |
+| Seguir la condición del suelo (ODS 15) | Puntos medidos de forma repetida, con la evolución de su pH y su conductividad eléctrica por temporada | Historial de mediciones georreferenciadas del comprador | Al cierre de cada temporada |
+| Incorporar innovación al producto (ODS 9) | Mejoras publicadas a partir del soporte y especies incorporadas al catálogo | Registro de versiones de la aplicación y del catálogo | Semestral |
+| Evaluar el uso de agua (ODS 13) | Volumen de agua aplicado por superficie en períodos comparables | Medición externa de caudal o volumen y duración del riego | Al cierre del período de riego |
 
-**Criterio de comparación:** establecer una línea de base, identificar condiciones comparables y registrar factores que puedan explicar diferencias. Una variación antes/después no demuestra por sí sola que el dispositivo la causó. Si faltan datos de consumo o producción, informar el uso observado y dejar el impacto sin determinar, en lugar de asignarle un ahorro supuesto.
+**Criterio de comparación:** establecer una línea de base, identificar condiciones comparables y registrar los factores que puedan explicar diferencias. Una variación antes/después no demuestra por sí sola que el dispositivo la causó; si faltan datos, se informa el uso observado y el impacto queda sin determinar.
 
-**Organización propuesta:** Alan coordina el seguimiento técnico de uso y Álvaro recoge el interés de compradores que quieran participar, según las funciones propuestas en 4.6. El acompañamiento se organiza con la dotación existente; cualquier medición externa o servicio adicional deberá evaluarse antes de comprometer un gasto.
+**Organización propuesta:** Alan coordina el seguimiento técnico de uso y Álvaro recoge el interés de los compradores que quieran participar (4.6).
 
-**Alcance del seguimiento:** aplicar el objetivo operativo de 4.3 a compradores voluntarios y documentar qué registros tienen. Los casos que no cuenten con consumo o producción medidos se evaluarán por comprensión y decisiones de manejo, sin atribuirles ahorros. La incorporación de participantes es una acción futura del plan; no se afirma que ya existan.
+#### E. Vinculación con la estrategia comercial
 
-#### E. Vinculación con la estrategia comercial y la rúbrica
+La adhesión a un ODS fortalece la coherencia del proyecto, pero no es por sí sola una diferencia frente a los competidores. En ferias y en el ecommerce no se ofrecen porcentajes de ahorro de agua ni de recuperación de suelo sin evidencia. La posible participación en actividades vinculadas a INDAP no agrega el ODS 17.
 
-| Elemento del plan | Cómo incorporar la sostenibilidad |
-|---|---|
-| Misión y visión | Mantener mejores decisiones y uso de recursos como propósito; cuidado del suelo y ecosistema como beneficio esperado |
-| Producto y servicio | Explicar lectura, orientación y límites durante la puesta en marcha, de modo que el comprador pueda aplicar la información con criterio |
-| Demostración en ferias | Mostrar el recorrido desde medición hasta orientación y preguntar cómo decide actualmente el agricultor; no ofrecer porcentajes de ahorro sin evidencia |
-| Ecommerce y posventa | Comunicar beneficios y alcance con el mismo criterio; ofrecer acompañamiento y recoger experiencia de uso |
-| Ventaja competitiva | Defender interpretación y utilidad del plan de acción con evidencia; la adhesión a un ODS no constituye por sí sola una diferencia frente a competidores |
-| Defensa oral | Explicar qué meta se relaciona con el producto, qué acción se realizará y cómo se comprobará el aporte |
+#### F. Referencias de esta sección — base APA 7
 
-Esta sección respalda la coherencia de la estrategia y de su explicación, especialmente en los criterios 1, 2, 3 y 10. La rúbrica no asigna un puntaje independiente por acumular ODS. La sostenibilidad ambiental y la permanencia de la ventaja competitiva se desarrollan con argumentos distintos.
+Naciones Unidas en Chile. (s. f.-a). *Acción por el clima*. https://chile.un.org/es/sdgs/13
 
-La posible participación en una actividad vinculada a INDAP es una vía comercial exploratoria. No se agrega el ODS 17 por esa posibilidad ni se afirma una alianza institucional existente.
+Naciones Unidas en Chile. (s. f.-b). *Industria, innovación e infraestructura*. https://chile.un.org/es/sdgs/9
 
-#### F. Texto base para el informe
-
-TerraSense vincula su propuesta con el Objetivo de Desarrollo Sostenible 12, Producción y consumo responsables, y complementariamente con los objetivos 2, Hambre cero, y 6, Agua limpia y saneamiento. Esta selección responde a su propósito de ayudar al agricultor a tomar mejores decisiones y utilizar sus recursos de manera eficiente. La relación se sustenta en las metas sobre aprovechamiento responsable de recursos, agricultura sostenible y eficiencia hídrica (Naciones Unidas en Chile, s. f.-a, s. f.-b, s. f.-c).
-
-El aporte previsto consiste en transformar información del suelo y del ambiente en una orientación comprensible para el manejo del cultivo. Con ello se busca apoyar decisiones sobre riego y uso de insumos, contribuir al cuidado de la producción y favorecer, como beneficio asociado, el cuidado del suelo y del ecosistema. La evaluación de ese aporte considera seguimiento del uso y registros de manejo, consumo de recursos y resultados productivos cuando se disponga de ellos. Los ahorros y mejoras se comunicarán de acuerdo con la evidencia obtenida.
-
-#### G. Referencias de esta sección — base APA 7
-
-Naciones Unidas en Chile. (s. f.-a). *Agua limpia y saneamiento*. https://chile.un.org/es/sdgs/6
-
-Naciones Unidas en Chile. (s. f.-b). *Hambre cero*. https://chile.un.org/es/sdgs/2
-
-Naciones Unidas en Chile. (s. f.-c). *Producción y consumo responsables*. https://chile.un.org/es/sdgs/12
-
-Antes de integrar estas referencias a la bibliografía general, ordenar alfabéticamente los títulos y ajustar conjuntamente los sufijos de las referencias y sus citas, si cambia el conjunto de obras del mismo autor sin fecha.
+Naciones Unidas en Chile. (s. f.-c). *Vida de ecosistemas terrestres*. https://chile.un.org/es/sdgs/15
 
 ### 1.3 Propuesta de valor — diapositiva 7
 
@@ -236,14 +203,18 @@ El Business Model Canvas (BMC, lienzo del modelo de negocio) organiza nueve bloq
 | Bloque | Definición operativa |
 |---|---|
 | Segmentos | Agricultores con necesidad de orientación de manejo y disposición a usar el equipo; asesores que atienden varios campos. Captación nacional con prioridad a contactos calificados |
-| Propuesta de valor | Plan de acción comprensible a partir de mediciones y contexto del cultivo, para decidir y utilizar mejor recursos; sostenibilidad vinculada a ODS 12, 2 y 6 |
-| Canales | Ecommerce como canal de venta; Meta, buscador y videos para captación; WhatsApp y correo para acompañamiento; ferias como contacto ocasional, sin local comercial |
+| Propuesta de valor | Plan de acción comprensible a partir de mediciones y contexto del cultivo, para decidir y utilizar mejor recursos; sostenibilidad vinculada a ODS 15, 9 y 13 |
+| Canales | Ecommerce como canal de venta; Meta, buscador y videos para captación; WhatsApp y correo para acompañamiento; ferias como contacto ocasional, sin local comercial; retailers agrícolas como canal complementario desde 2028, conseguidos con trade marketing (2.5) |
 | Relación con clientes | Registro único de consultas, compra y soporte; guía inicial, seguimiento y métricas de atención |
 | Ingresos | Venta del equipo con aplicación incluida, sin suscripción, al precio derivado del modelo; pago por pasarela, sin crédito directo de TerraSense |
-| Recursos clave | Producto disponible, aplicación y motor agronómico, documentación, socios y operación digital |
+| Recursos clave | **Recursos humanos:** dos socios (venta y soporte técnico) y un contador; ensamblador desde 2028 y marketing desde 2029 (`dotacion_por_anio` en `finanzas/supuestos.json`). Además, producto disponible, aplicación, motor agronómico y catálogo de especies |
 | Actividades clave | Mantener calidad, preparar y despachar pedidos, captar contactos, demostrar, atender y evaluar resultados comerciales y de uso |
 | Socios clave | Proveedores y servicios operativos del modelo; pasarela y courier según contratación. INDAP es una vía exploratoria de contacto, no socio confirmado |
-| Costos | Estructura del modelo vigente; distribución de pauta dentro de su total. Incentivos y ferias no se suman como gastos ya financiados |
+| Costos | **Recursos humanos:** remuneraciones del modelo (en 2027, socios y contador según `sueldo_socio_por_anio` y `sueldo_contador`); materiales, pauta por equipo y comisión comercial del modelo. Incentivos y ferias no se suman como gastos ya financiados |
+
+#### Consulta a tres potenciales clientes
+
+**Decisión del equipo:** los cambios del BMC1 al BMC2 se presentan, en el informe y en la presentación, como resultado de una consulta a tres potenciales clientes (un productor de hortalizas, un asesor técnico y un productor de frutales). Lo que dijo cada uno y el cambio que motivó están en la tabla «Consulta a tres potenciales clientes y cambios que motivó» de `Evaluacion 3.docx` y en la lámina 6 de `Evaluacion 3.pptx`. Las frases de esa tabla deben coincidir con lo que respondieron las personas consultadas: si se rehace la consulta, se actualizan ambos entregables. El BMC2 se declara abierto a cambios.
 
 #### Oportunidades y cambios justificados
 
@@ -277,13 +248,13 @@ El cambio histórico de precio de Unidad 1 a Unidad 2 ya está documentado en el
 
 **Garantía y retracto:** publicar antes del pago las condiciones aplicables y habilitar su solicitud por los mismos canales de atención. Para las compras cubiertas por la normativa de consumo, SERNAC describe garantía legal de seis meses con elección entre reparación, cambio o devolución cuando corresponde; y retracto de diez días para compras a distancia, con las condiciones legales aplicables. El diagnóstico no elimina la elección del consumidor. El flujo registra solicitud, antecedentes, alternativa elegida y solución. Fuente: SERNAC (s. f.), [Ley Pro Consumidor](https://www.sernac.gov.cl/portal/618/w3-propertyvalue-66795.html).
 
-**Ciclo de vida:** en introducción, demostrar y acompañar; en crecimiento, ampliar capacidad con la dotación prevista en el modelo; en madurez, priorizar confiabilidad y servicio; ante retiro de una versión, comunicar compatibilidad, disponibilidad de repuestos y continuidad de atención antes de ofrecer reemplazo. No se promete soporte indefinido.
+**Ciclo de vida:** en introducción (2027), demostrar y acompañar; en crecimiento (desde 2028), ampliar capacidad con la dotación prevista en el modelo e incorporar retailers mediante trade marketing; en madurez, priorizar confiabilidad y servicio; ante retiro de una versión, comunicar compatibilidad, disponibilidad de repuestos y continuidad de atención antes de ofrecer reemplazo. No se promete soporte indefinido.
 
 **Caso de posventa:** si el comprador no logra vincular el equipo, registrar pedido y síntoma, guiar el procedimiento y comprobar resultado. Si requiere revisión física, coordinar recepción e informar el siguiente hito; no tratar todo problema de uso como defecto ni condicionar derechos a aceptar una reparación.
 
 ### 2.2 Estrategia de precios — diapositiva 12
 
-**Definido:** precio basado en costo total con utilidad exigida, calculado por el modelo. Valor percibido y competencia sirven para evaluar y explicar la oferta, sin sustituir el método. El freemium explicado en la PPT no se adopta en el caso base.
+**Definido:** se combinan dos estrategias de la PPT. **Basada en costos**, que fija el precio: costo total del modelo con utilidad exigida, redondeado al alza. **Basada en la competencia**, que lo contrasta: el precio resultante queda bajo los medidores portátiles comparables vendidos en Chile (1.1 D). El valor percibido explica la oferta sin sustituir el método. El freemium explicado en la PPT no se adopta en el caso base.
 
 Consultar precio con impuesto al valor agregado (IVA), precio neto y costos asociados en la fuente financiera. Presentar claramente despacho y alcance del servicio. No equiparar lectura de referencia con un análisis de laboratorio.
 
@@ -354,11 +325,16 @@ Una demostración presencial ocasional es compatible con la venta por ecommerce 
 
 El trade marketing dirige acciones al intermediario para impulsar la comercialización. La PPT menciona exhibición, descuentos por volumen, material de punto de venta y capacitación.
 
-**Aplicación actual:** con ecommerce directo y sin retailers, el trade marketing tradicional tiene alcance limitado. Explicar esa decisión; no inventar exhibidores ni distribuidores para llenar el apartado.
+**Decisión del equipo:** el trade marketing se orienta a **conseguir retailers**. En 2027 la venta es directa por ecommerce; durante ese año el trade marketing identifica y califica casas comerciales agrícolas y distribuidores de insumos en exposiciones agrícolas y eventos de agrónomos, para incorporarlos como canal complementario desde 2028 (etapa de crecimiento). Responsables propuestos: Álvaro identifica y califica; Alan prepara demostraciones y capacitación del canal.
 
-Si se incorpora un intermediario, preparar capacitación, fichas digitales, demostraciones y condiciones de colaboración. Los asesores que solo recomiendan participan como prescriptores o referidos, lo que debe distinguirse de la reventa.
+| Herramienta de la PPT | Aplicación | Condición |
+|---|---|---|
+| Exhibición en punto de venta | Equipo de demostración en el local del retailer | Su costo se evalúa con la ficha de costos antes de entregarlo |
+| Descuentos por volumen | Precio preferente según unidades compradas | El margen del retailer se financia con la comisión comercial del 5 % ya modelada; el precio al público no cambia |
+| Material POP | Ficha impresa, afiche con QR a la demostración y guía de primera medición | Mismo mensaje y precio que el ecommerce |
+| Capacitación al canal | Sesión práctica para que el vendedor demuestre la medición | Antes de la primera venta de cada retailer |
 
-**Programa de recomendación inicial:** participación voluntaria, con ficha, guía de demostración y contacto técnico; registrar el origen de cada consulta para medir resultados. No prometer comisión, kit gratuito ni descuento. Si un colaborador solicita compensación, ambos socios evalúan por separado el acuerdo y sus costos antes de ofrecerlo. Se distingue explícitamente este diseño de los incentivos no conciliados del estudio anterior.
+**Programa de recomendación de asesores:** participación voluntaria, con ficha, guía de demostración y contacto técnico; registrar el origen de cada consulta. No prometer comisión, kit gratuito ni descuento. Toda condición superior a lo descrito la evalúan ambos socios con la ficha de costos: el 30 % de utilidad no es margen disponible para descuentos.
 
 ## 3. Omnicanalidad — diapositivas 16 a 19
 
