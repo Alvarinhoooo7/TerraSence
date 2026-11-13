@@ -1427,6 +1427,8 @@ def planilla_flujo(r, ruta, nombre_hojas=None):
         for j, (etiqueta, key, valores, formato) in enumerate([
             ("VAN acumulado hasta este año", "van", acumd[1:], "clpb"),
             ("TIR anualizada hasta este año", "tir", [_tir_anual(r["desembolso"], fl[:i + 1]) for i in range(N)], "pctb"),
+            ("Payback simple hasta este año (años)", "pb", [M.payback(r["desembolso"], fl[:i + 1]) or "No recupera" for i in range(N)], "dec"),
+            ("Payback descontado hasta este año (años)", "pbd", [M.payback(r["desembolso"], fl[:i + 1], tasa) or "No recupera" for i in range(N)], "dec"),
         ], 1):
             ws.write(inicio + j, 0, etiqueta, L.f["lab"])
             for i in range(N):
@@ -1435,14 +1437,15 @@ def planilla_flujo(r, ruta, nombre_hojas=None):
             ("anual", "13 · Año por año: desde las ventas hasta el flujo neto, la caja y los indicadores."),
             ("tasa", "14 · Entender la tasa exigida: ejemplo y comparación de distintas tasas."),
             ("guia", "15 · Guía para la defensa: conceptos, preguntas y alcance de los resultados."),
-        ], inicio + 4):
+        ], inicio + 6):
             ws.merge_range(j, 0, j, 10, "", L.f["nota"])
             ws.write_url(j, 0, "internal:'%s'!A1" % L.nombre[hoja], L.f["nota"], texto)
             ws.set_row(j, 26)
-        ws.merge_range(inicio + 8, 0, inicio + 8, 10,
+        ws.merge_range(inicio + 10, 0, inicio + 10, 10,
                        "VAN (valor actual neto) y TIR (tasa interna de retorno) incluyen el desembolso inicial y todos los flujos hasta cada cierre. "
-                       "El flujo neto y la caja se muestran sin descuento. La tasa exigida sólo interviene al evaluar su valor actual.", L.f["nota"])
-        ws.set_row(inicio + 8, 38)
+                       "Payback: tiempo de recuperación desde el inicio; se muestra sólo si se alcanza dentro de ese horizonte. "
+                       "El flujo neto y la caja se muestran sin descuento.", L.f["nota"])
+        ws.set_row(inicio + 10, 38)
         for clave, hoja in L.ws.items():
             hoja.hide_gridlines(2)
             hoja.set_landscape()
@@ -1455,7 +1458,7 @@ def planilla_flujo(r, ruta, nombre_hojas=None):
             for row in range(2, hoja.dim_rowmax + 1):
                 if row not in hoja.set_rows:
                     hoja.set_row(row, 30)
-        ws.print_area(0, 0, inicio + 8, N)
+        ws.print_area(0, 0, inicio + 10, N)
         ws.activate()
         ws.set_first_sheet()
 
@@ -1615,13 +1618,29 @@ def _hojas_defensa(L, r):
     serie(42, "raiz", "CONTROL: VAN calculado a la TIR", [0 if isinstance(t, float) else "Revisar" for t in tirs],
           lambda i: '=IF(ISNUMBER(%s),$B$36+NPV(%s,$C$36:%s),"Revisar")' % (ref("tir", i), ref("tir", i), ref("eval", i)),
           "Debe ser aproximadamente cero; comprueba el significado matemático de la TIR.")
+    for row, key, etiqueta, descuento, nota in [
+        (44, "pb", "Payback simple hasta este año (años)", 0,
+         "Tiempo para recuperar el desembolso evaluado sin descuento. No recupera significa que aún no se alcanza dentro de los años incluidos."),
+        (45, "pbd", "Payback descontado hasta este año (años)", tasa,
+         "Tiempo para recuperar el desembolso con los flujos a valor actual. Usa la tasa exigida del resumen, por eso puede tardar más."),
+    ]:
+        recuperaciones = [M.payback(r["desembolso"], fl[:i + 1], descuento) for i in range(n)]
+
+        def formula_payback(i, origen=key):
+            # Sólo consulta los cruces que caben en el horizonte de esta columna.
+            rango = L.rango("fc", origen, 0, i)
+            return '=IF(COUNT(%s)=0,"No recupera",MIN(%s))' % (rango, rango)
+
+        serie(row, key, etiqueta, [v if v is not None else "No recupera" for v in recuperaciones],
+              formula_payback, nota, "dec")
     for row in (18, 27, 29, 38, 39):
         ws.conditional_format(row, 2, row, n + 1, {"type": "cell", "criteria": "<", "value": 0,
                                                   "format": wb.add_format({"bg_color": "#FCE4D6", "font_color": "#9C0006"})})
-    ws.merge_range(44, 0, 44, n + 2,
-                   "Lectura de la recuperación: el saldo sin descuento y el VAN pasan de negativo a positivo en años distintos. "
-                   "El resumen informa la fracción del año estimada por interpolación; no es una fecha exacta de cobro.", f["nota"])
-    ws.set_row(44, 32)
+    ws.merge_range(47, 0, 47, n + 2,
+                   "El payback se mide siempre desde el inicio. Una vez recuperado el desembolso, el plazo se repite en los horizontes siguientes; "
+                   "no vuelve a comenzar cada año. La fracción de año se estima por interpolación, no es una fecha exacta de cobro. "
+                   "No recupera se refiere sólo al horizonte de esa columna.", f["nota"])
+    ws.set_row(47, 38)
     for col, titulo, series in [
         (0, "Utilidad y flujo neto anual", [(18, "Utilidad neta", "#7489A8"), (27, "Flujo neto", "#008577")]),
         (7, "Recuperación del desembolso evaluado", [(38, "Acumulado sin descuento", "#7489A8"), (39, "VAN acumulado", "#008577")]),
@@ -1635,8 +1654,8 @@ def _hojas_defensa(L, r):
         chart.set_x_axis({"name": "Año de cierre"})
         chart.set_legend({"position": "bottom"})
         chart.set_size({"width": 760, "height": 320})
-        ws.insert_chart(46, col, chart)
-    ws.print_area(0, 0, 62, n + 2)
+        ws.insert_chart(49, col, chart)
+    ws.print_area(0, 0, 65, n + 2)
     _hoja_tasa(L, r, ind, tasa_ref, eval_ref, fin_col)
     _hoja_guia(L, r, ind)
 
@@ -1748,7 +1767,7 @@ def _hoja_guia(L, r, ind):
         ("¿Qué representa el año 0 evaluado?", "Se mantiene la convención del estudio: inversión inicial más pie, con signo negativo, frente a flujos que incluyen el servicio de deuda. Se puede comprobar en la hoja 12. Esa combinación no es una evaluación convencional del proyecto sin deuda ni del aporte exclusivo de los socios; no atribuirle esas interpretaciones."),
         ("¿Por qué utilidad y caja no coinciden?", "La utilidad incluye depreciación y amortización nominal. Para obtener efectivo se suman esos cargos y se resta el capital del crédito y la compra de equipamiento, ajustando las cuotas anticipadas. Caja final = caja inicial + flujo neto. El control de la hoja 13 verifica la identidad."),
         ("¿Por qué cambia el resultado entre años?", "Cambian unidades vendidas, precios reajustados, dotación, remuneraciones, gastos e intereses. En el sexto año se renueva equipamiento. Para explicar una variación compare primero ventas y categorías de costos, luego impuestos, capital y reinversión en las mismas columnas."),
-        ("¿Cuándo recuperamos lo evaluado?", "El resumen muestra recuperación simple y descontada. En la hoja 13 se observa cuándo cada saldo cruza cero. La fracción del año supone reparto uniforme del flujo dentro de ese período; el libro anual no determina el mes real de recuperación."),
+        ("¿Cuándo recuperamos lo evaluado?", "Las hojas 1 y 13 muestran el payback simple y descontado hasta cada año. Antes del cruce indican No recupera; después repiten el plazo alcanzado, medido desde el inicio. La fracción del año supone reparto uniforme del flujo dentro de ese período; no determina el mes real de recuperación."),
         ("¿Qué significa cortar a cinco años?", "Se consideran sólo los cinco primeros flujos, sin valor de venta del negocio ni liquidación. Existe deuda pendiente visible en la hoja 13. El horizonte principal sigue siendo diez años; los horizontes cortos sirven para observar la evolución de la evaluación."),
         ("¿La caja acumulada es un dividendo?", "No hay una política de dividendos incorporada. La caja se acumula dentro del modelo. Los sueldos de los socios ya forman parte de administración y no son rentabilidad del capital aportado."),
         ("¿Qué simplificaciones tiene el flujo?", "Es una proyección anual: aproxima cobros y pagos dentro del año; no desarrolla plazos de clientes/proveedores ni liquidaciones mensuales de IVA. El capital de trabajo y el inventario se financian al inicio, sin incrementos posteriores explícitos ni recuperación al cierre. No se incorpora valor terminal."),

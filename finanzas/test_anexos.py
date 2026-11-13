@@ -240,6 +240,30 @@ class TestAnexoB(unittest.TestCase):
             inicial = cajas[i - 1] if i else self.r["inversion"]["capital_trabajo"]
             self.assertAlmostEqual(cajas[i], inicial + neto[i], places=5)
 
+    def test_payback_por_horizonte_sin_anticipar_la_recuperacion(self):
+        """Cada columna usa sólo sus años; el plazo se conserva tras el primer cruce."""
+        flujos = [x["flujo"] for x in self.r["filas"]]
+        for etiqueta, tasa in [
+            ("Payback simple hasta este año (años)", 0),
+            ("Payback descontado hasta este año (años)", M.S["tasa_descuento"]),
+        ]:
+            anual = self.fila("13 Evaluación anual", etiqueta)[2:2 + len(flujos)]
+            resumen = self.fila("1 Resumen", etiqueta)[1:1 + len(flujos)]
+            self.assertEqual(anual, resumen)
+            saldo = -self.r["desembolso"]
+            plazo = None
+            for i, flujo in enumerate(flujos):
+                efectivo = flujo / (1 + tasa) ** (i + 1)
+                if plazo is None and saldo + efectivo >= 0:
+                    plazo = i - saldo / efectivo
+                saldo += efectivo
+                if plazo is None:
+                    self.assertEqual(anual[i], "No recupera")
+                else:
+                    self.assertAlmostEqual(anual[i], plazo, places=8)
+                    self.assertLessEqual(anual[i], i + 1)
+            self.assertIsNotNone(plazo)
+
     def test_tir_por_horizonte_anula_el_van(self):
         flujos = [x["flujo"] for x in self.r["filas"]]
         tasas = self.fila("13 Evaluación anual", "TIR anualizada hasta este año")[2:12]
