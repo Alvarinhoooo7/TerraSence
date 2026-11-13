@@ -27,7 +27,8 @@ ANEXO_B = os.path.join(CARPETA, "Anexo B - Flujo de caja TerraSense.xlsx")
 COLUMNAS = ["Equipo", "Modelo", "Cantidad", "Proveedor", "Valor unitario", "Valor total"]
 HOJAS_B = ["1 Resumen", "2 Inversión", "3 Ventas", "4 Costos operacionales", "5 Gastos de administración",
            "6 Gastos de comercialización", "7 Financiamiento", "8 Costo financiero", "9 Depreciación",
-           "10 Amortización", "11 Estado de resultados", "12 Flujo de caja"]
+           "10 Amortización", "11 Estado de resultados", "12 Flujo de caja", "13 Evaluación anual",
+           "14 Tasa y sensibilidad", "15 Guía para la defensa"]
 PROHIBIDO_EN_ANEXOS = re.compile(r"finanzas/|\.py\b|\.json\b|supuestos\.json|docs/|PCB/|Firmware/|[A-Z]:\\|`|python finanzas")
 
 
@@ -182,7 +183,7 @@ class TestAnexoB(unittest.TestCase):
                 return r
         self.fail("no hay %r en %s" % (etiqueta, hoja))
 
-    def test_doce_hojas_en_orden_y_con_tildes(self):
+    def test_hojas_en_orden_y_con_tildes(self):
         self.assertEqual(self.wb.sheetnames, HOJAS_B)
         self.assertEqual(self.wb.sheetnames[6:10], ["7 Financiamiento", "8 Costo financiero", "9 Depreciación", "10 Amortización"])
 
@@ -196,7 +197,7 @@ class TestAnexoB(unittest.TestCase):
         ventas = self.fila("3 Ventas", "Ventas netas")[1:1 + n]
         for v, f in zip(ventas, filas):
             self.assertAlmostEqual(v, f["ventas"], places=1)
-        flujo = self.fila("12 Flujo de caja", "(=) FLUJO DE FONDOS DEL AÑO")[2:2 + n]
+        flujo = self.fila("12 Flujo de caja", "(=) FLUJO NETO DE CAJA DEL AÑO")[2:2 + n]
         for v, f in zip(flujo, filas):
             self.assertAlmostEqual(v, f["flujo"], places=1)
         caja = self.fila("12 Flujo de caja", "Caja acumulada (parte con el capital de trabajo)")[2:2 + n]
@@ -216,6 +217,56 @@ class TestAnexoB(unittest.TestCase):
         self.assertAlmostEqual(res["Crédito bancario (desembolsa el 100 % de la inversión)"], self.r["credito"], places=1)
         self.assertAlmostEqual(res["Pie de los socios (cuotas pagadas por anticipado)"], self.r["pie"], places=1)
         self.assertAlmostEqual(res["Desembolso inicial evaluado (inversión + pie)"], self.r["desembolso"], places=1)
+
+    def test_evaluacion_progresiva_por_horizonte(self):
+        flujos = [f["flujo"] for f in self.r["filas"]]
+        van = self.fila("1 Resumen", "VAN acumulado hasta este año")
+        tir = self.fila("1 Resumen", "TIR anualizada hasta este año")
+        for i in range(len(flujos)):
+            self.assertAlmostEqual(van[i + 1], M.van(self.r["desembolso"], flujos[:i + 1], M.S["tasa_descuento"]), places=2)
+            self.assertAlmostEqual(tir[i + 1], M.tir(self.r["desembolso"], flujos[:i + 1]), places=6)
+        formulas = openpyxl.load_workbook(self.ruta, data_only=False)["1 Resumen"]
+        caja = next(r for r in formulas.iter_rows() if r[0].value == "Caja acumulada al cierre de %d" % M.ANIOS[-1])
+        self.assertIn("L11", caja[1].value)
+
+    def test_flujo_directo_y_puente_desde_utilidad_coinciden(self):
+        hoja = "13 Evaluación anual"
+        neto = self.fila(hoja, "FLUJO NETO DE CAJA DEL AÑO")[2:12]
+        cajas = self.fila(hoja, "CAJA AL CIERRE DEL AÑO")[2:12]
+        for i, x in enumerate(self.r["filas"]):
+            directo = (x["ventas"] - x["costo_total"] - x["impuesto"] - x["interes"]
+                       - x["capital"] - x["reinversion"] + x["pie_aplicado"])
+            self.assertAlmostEqual(neto[i], directo, places=5)
+            inicial = cajas[i - 1] if i else self.r["inversion"]["capital_trabajo"]
+            self.assertAlmostEqual(cajas[i], inicial + neto[i], places=5)
+
+    def test_tir_por_horizonte_anula_el_van(self):
+        flujos = [x["flujo"] for x in self.r["filas"]]
+        tasas = self.fila("13 Evaluación anual", "TIR anualizada hasta este año")[2:12]
+        for i, tasa in enumerate(tasas):
+            self.assertAlmostEqual(M.van(self.r["desembolso"], flujos[:i + 1], tasa), 0, places=5)
+        self.assertLess(tasas[0], 0)
+        self.assertAlmostEqual(anexos._tir_anual(100, [10]), -.9)
+        self.assertEqual(anexos._tir_anual(100, [0, 0]), "Sin TIR")
+        self.assertEqual(anexos._tir_anual(100, [230, -132]), "Revisar signos")
+
+    def test_sensibilidad_y_ejemplos_compuestos(self):
+        ws = self.wb["14 Tasa y sensibilidad"]
+        self.assertAlmostEqual(ws["D10"].value, 1000 / (1 + M.S["tasa_descuento"]), places=6)
+        self.assertAlmostEqual(ws["D11"].value, 1000 / (1 + M.S["tasa_descuento"]) ** 2, places=6)
+        flujos = [x["flujo"] for x in self.r["filas"]]
+        for row in range(18, 28):
+            tasa = ws.cell(row, 1).value
+            self.assertAlmostEqual(ws.cell(row, 2).value, M.van(self.r["desembolso"], flujos[:5], tasa), places=4)
+            self.assertAlmostEqual(ws.cell(row, 3).value, M.van(self.r["desembolso"], flujos, tasa), places=4)
+        self.assertAlmostEqual(ws["C26"].value, 0, places=4)
+
+    def test_lectura_y_graficos_de_defensa(self):
+        wb = openpyxl.load_workbook(self.ruta)
+        self.assertEqual(wb["13 Evaluación anual"].freeze_panes, "C6")
+        self.assertEqual(len(wb["13 Evaluación anual"]._charts), 2)
+        self.assertEqual(len(wb["14 Tasa y sensibilidad"]._charts), 1)
+        self.assertEqual(len(wb["1 Resumen"].data_validations.dataValidation), 1)
 
     def test_fuentes_igualan_a_usos(self):
         """Crédito + pie = inversión + cuotas anticipadas: el pie paga cuotas, no se suma a la inversión."""

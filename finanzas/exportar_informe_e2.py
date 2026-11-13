@@ -100,7 +100,8 @@ class Exportador:
             h.set(qn("r:id"), rid)
         r = OxmlElement("w:r")
         rpr = _sub(r, "w:rPr")
-        _sub(rpr, "w:rStyle", val=self.doc.styles["Hyperlink"].style_id)
+        style_id = self.doc.styles["Hyperlink"].style_id if "Hyperlink" in self.doc.styles else "Hyperlink"
+        _sub(rpr, "w:rStyle", val=style_id)
         if tam:
             _sub(rpr, "w:sz", val=str(tam * 2))
         t = _sub(r, "w:t")
@@ -207,7 +208,8 @@ class Exportador:
             if anchos:
                 t.rows[0].cells[i].width = Cm(anchos[i])
             p = t.rows[0].cells[i].paragraphs[0]
-            p.style = "Cuerpo del informe"
+            if "Cuerpo del informe" in self.doc.styles:
+                p.style = "Cuerpo del informe"
             self.texto(p, celda, negrita=True, tam=tam)
             _compacto(p)
         _sub(_sub(t.rows[0]._tr, "w:trPr"), "w:tblHeader", val="true")
@@ -220,13 +222,14 @@ class Exportador:
                 if anchos:
                     celdas[i].width = Cm(anchos[i])
                 p = celdas[i].paragraphs[0]
-                p.style = "Cuerpo del informe"
+                if "Cuerpo del informe" in self.doc.styles:
+                    p.style = "Cuerpo del informe"
                 self.texto(p, celda, tam=tam)
                 _compacto(p)
 
     def imagen(self, alt, ruta):
         absoluta = os.path.join(CARPETA, ruta.replace("/", os.sep))
-        p = self.doc.add_paragraph(style="Cuerpo del informe")
+        p = self.doc.add_paragraph(style="Cuerpo del informe" if "Cuerpo del informe" in self.doc.styles else None)
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.keep_with_next = True
         if not os.path.exists(absoluta):

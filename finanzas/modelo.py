@@ -419,7 +419,7 @@ def porc(x, d=1):
 
 
 def planilla_flujo(r, ruta):
-    """Escribe la planilla de flujo de caja (doce hojas enlazadas por formulas)."""
+    """Escribe el flujo de caja con evaluación anual y guía de defensa enlazadas."""
     import anexos
     return anexos.planilla_flujo(r, ruta)
 

@@ -5,7 +5,7 @@ Evaluacion 2, mas la planilla de BOM del repositorio.
 Los llama `modelo.py`. Los libros que se entregan (anexos) no contienen ninguna referencia al
 repositorio: ni rutas, ni nombres de scripts, ni instrucciones de regeneracion.
 
-Anexo B: doce hojas independientes enlazadas por formulas con valor en cache, de modo que el
+Anexo B: hojas de cálculo y de defensa enlazadas por formulas con valor en cache, de modo que el
 revisor siga cada cifra. La separacion entre administracion y comercializacion es solo una
 reagrupacion del costo total del modelo; `verificar_reagrupacion` lo comprueba.
 """
@@ -857,7 +857,7 @@ def _param(L, clave, fila, key, etiqueta, valor, fmt, formula=None, col=1):
 
 
 def planilla_flujo(r, ruta, nombre_hojas=None):
-    """Anexo B. Flujo de caja: doce hojas independientes enlazadas por formulas con valor en cache."""
+    """Anexo B. Flujo, evaluación anual y guía de defensa con fórmulas y valores en caché."""
     filas = r["filas"]
     N = len(filas)
     ind = M.resumen(r)
@@ -1249,7 +1249,7 @@ def planilla_flujo(r, ruta, nombre_hojas=None):
         _serie(L, k, 8, "pie", "(+) Cuota ya pagada con el pie (hoja 8)", ["=%s" % L.ref("cf", "pie", i) for i in range(N)],
                [f["pie_aplicado"] for f in filas], total=True)
         fl = [f["flujo"] for f in filas]
-        _serie(L, k, 9, "flujo", "(=) FLUJO DE FONDOS DEL AÑO",
+        _serie(L, k, 9, "flujo", "(=) FLUJO NETO DE CAJA DEL AÑO",
                ["=%s+%s+%s-%s-%s+%s" % (F_(3, i), F_(4, i), F_(5, i), F_(6, i), F_(7, i), F_(8, i)) for i in range(N)],
                fl, total=True, bold=True)
         caja = [f["caja"] for f in filas]
@@ -1322,16 +1322,48 @@ def planilla_flujo(r, ruta, nombre_hojas=None):
         FC_PB = "'%s'!%s:%s" % (N_["fc"], xl_rowcol_to_cell(16, 2), xl_rowcol_to_cell(16, 1 + N))
         FC_PBD = "'%s'!%s:%s" % (N_["fc"], xl_rowcol_to_cell(17, 2), xl_rowcol_to_cell(17, 1 + N))
 
+        ws.write_row(22, 0, ["Inicio: origen y destino de los recursos", "Fuentes", "Usos"], L.f["encl"])
+        ws.set_row(22, 36)
+        destinos = [
+            ("Crédito recibido", "='%s'!B5" % N_["fin"], r["credito"], None, 0),
+            ("Aporte de los socios (pie)", "=" + PIE_FIN, r["pie"], None, 0),
+            ("Compra del activo fijo", None, 0, "=" + INV_AF, M.EQUIP_TOTAL),
+            ("Gastos de puesta en marcha", None, 0, "=" + INV_NOM, M.NOMINAL_TOTAL),
+            ("Asignación a capital de trabajo (caja disponible)", None, 0, "=" + INV_CT, inv["capital_trabajo"]),
+            ("Compra de inventario inicial", None, 0, "=" + L.ref("inv", "inventario", col=3), inv["inventario"]),
+            ("Cuotas pagadas por anticipado con el pie", None, 0, "=" + PIE_FIN, r["pie"]),
+        ]
+        for row, (etiqueta, fuente, vf, uso, vu) in enumerate(destinos, 23):
+            ws.write(row, 0, etiqueta, L.f["lab"])
+            ws.write_formula(row, 1, fuente or "=0", L.f["clp"], vf)
+            ws.write_formula(row, 2, uso or "=0", L.f["clp"], vu)
+        ws.write(30, 0, "TOTAL ORIGEN Y DESTINO DE LOS RECURSOS", L.f["labb"])
+        ws.write_formula(30, 1, "=SUM(B24:B30)", L.f["clpb"], r["credito"] + r["pie"])
+        ws.write_formula(30, 2, "=SUM(C24:C30)", L.f["clpb"], inv["total"] + r["pie"])
+        ws.write(31, 0, "CONTROL: fuentes − usos (debe ser cero)", L.f["lab"])
+        ws.write_formula(31, 1, "=B31-C31", L.f["clp"], 0)
+        ws.merge_range(33, 0, 33, 8, "El capital de trabajo es un destino de los recursos que permanece en caja al inicio; no es un pago a un tercero. "
+                       "Esta tabla explica el financiamiento. La fila de evaluación usa el desembolso definido por el estudio, inversión más pie, "
+                       "y no debe confundirse con la caja inicial disponible.", L.f["nota"])
+        ws.set_row(33, 50)
+
         # ----------------------------------------------------------- 1 Resumen
         k = "resumen"
         ws = L.ws[k]
         ws.set_column(0, 0, 60)
         ws.set_column(1, 1, 22)
         ws.set_column(2, 2, 36)
+        ws.merge_range(1, 0, 1, 10, "VAN: valor actual neto. TIR: tasa interna de retorno. Importes en pesos chilenos. "
+                       "La hoja 13 permite seguir cada año completo; las hojas 14 y 15 explican la tasa y la defensa.", L.f["nota"])
+        ws.set_row(1, 32)
         ws.write_row(2, 0, ["Parámetro de evaluación", "Valor", "Dónde se origina"], L.f["encl"])
         ws.write(3, 0, "Tasa de descuento", L.f["lab"])
         ws.write_number(3, 1, tasa, L.f["pcti"])
-        ws.write(3, 2, "Costo de oportunidad del capital, supuesto de la evaluación", L.f["txt"])
+        ws.write(3, 2, "Rentabilidad exigida: supuesto del estudio. Explicación y sensibilidad en hoja 14.", L.f["txt"])
+        ws.set_row(3, 48)
+        ws.data_validation(3, 1, 3, 1, {"validate": "decimal", "criteria": "between", "minimum": 0, "maximum": 10,
+                                      "input_title": "Tasa anual exigida", "input_message": "Ejemplo: escriba 20 %. Sólo afecta la evaluación, no la caja.",
+                                      "error_title": "Tasa inválida", "error_message": "Ingrese una tasa entre 0 % y 1000 %."})
         ws.write(5, 0, "Indicador", L.f["encl"])
         ws.write(5, 1, "Valor", L.f["enc"])
         ws.write(5, 2, "Cálculo", L.f["encl"])
@@ -1356,11 +1388,12 @@ def planilla_flujo(r, ruta, nombre_hojas=None):
             ("Payback simple (años)", '=IF(COUNT(%s)=0,"No recupera",MIN(%s))' % (FC_PB, FC_PB), ind["payback"], "dec", "Hoja 12, flujo acumulado"),
             ("Payback descontado (años)", '=IF(COUNT(%s)=0,"No recupera",MIN(%s))' % (FC_PBD, FC_PBD), ind["payback_desc"], "dec", "Hoja 12, flujo descontado acumulado"),
             ("Caja mínima del horizonte", "=MIN(%s)" % FC_CAJA, min(caja), "clp", "Hoja 12"),
-            ("Caja acumulada al cierre de %d" % ANIOS[-1], "=%s" % ("'%s'!%s" % (N_["fc"], xl_rowcol_to_cell(9, 1 + N))), caja[-1], "clp", "Hoja 12"),
+            ("Caja acumulada al cierre de %d" % ANIOS[-1], "=%s" % L.ref("fc", "caja", N - 1), caja[-1], "clp", "Hoja 12"),
             ("Deuda al cierre de %d" % ANIOS[-1], "=%s" % L.ref("cf", "fin", N - 1), am[-1]["saldo_final"], "clp", "Hoja 8"),
         ]
         for i, (et, fo, v, fm, org) in enumerate(rows):
             rr = 6 + i
+            ws.set_row(rr, 48)
             ws.write(rr, 0, et, L.f["lab"])
             ws.write_formula(rr, 1, fo, L.f[fm] if fm in L.f else L.f["clp"], v)
             ws.write(rr, 2, org, L.f["txt"])
@@ -1371,7 +1404,7 @@ def planilla_flujo(r, ruta, nombre_hojas=None):
         ws.set_column(3, 10, 16)
         tabla = [("Equipos vendidos", "unid", "ventas", "n0", q), ("Ventas netas", "ventas", "er", "clp", [f["ventas"] for f in filas]),
                  ("Costo total (hojas 4, 5 y 6)", None, None, "clp", [re[i]["total"] for i in range(N)]),
-                 ("Utilidad del ejercicio", "un", "er", "clp", un), ("Flujo de fondos", "flujo", "fc", "clp", fl), ("Caja acumulada", "caja", "fc", "clp", caja)]
+                 ("Utilidad neta después de impuestos", "un", "er", "clp", un), ("FLUJO NETO DE CAJA DEL AÑO", "flujo", "fc", "clp", fl), ("Caja acumulada", "caja", "fc", "clp", caja)]
         for j, (et, key, hoja, fm, vals) in enumerate(tabla, 1):
             ws.write(rr + j, 0, et, L.f["lab"])
             for i in range(N):
@@ -1386,7 +1419,363 @@ def planilla_flujo(r, ruta, nombre_hojas=None):
                        "Evaluación a diez años (%d–%d) sin valor terminal, en pesos nominales. Cada cifra se enlaza con las hojas 2 a 12; "
                        "las celdas en azul son los datos de entrada." % (ANIOS[0], ANIOS[-1]), L.f["nota"])
         ws.set_row(rr + len(tabla) + 2, 30)
+        _hojas_defensa(L, r)
+        inicio = rr + len(tabla) + 5
+        ws.write(inicio, 0, "Evaluación acumulada hasta cada año", L.f["encl"])
+        for i, a in enumerate(ANIOS):
+            ws.write_number(inicio, i + 1, a, L.f["enc"])
+        for j, (etiqueta, key, valores, formato) in enumerate([
+            ("VAN acumulado hasta este año", "van", acumd[1:], "clpb"),
+            ("TIR anualizada hasta este año", "tir", [_tir_anual(r["desembolso"], fl[:i + 1]) for i in range(N)], "pctb"),
+        ], 1):
+            ws.write(inicio + j, 0, etiqueta, L.f["lab"])
+            for i in range(N):
+                ws.write_formula(inicio + j, i + 1, "=" + L.ref("anual", key, i), L.f[formato], valores[i])
+        for j, (hoja, texto) in enumerate([
+            ("anual", "13 · Año por año: desde las ventas hasta el flujo neto, la caja y los indicadores."),
+            ("tasa", "14 · Entender la tasa exigida: ejemplo y comparación de distintas tasas."),
+            ("guia", "15 · Guía para la defensa: conceptos, preguntas y alcance de los resultados."),
+        ], inicio + 4):
+            ws.merge_range(j, 0, j, 10, "", L.f["nota"])
+            ws.write_url(j, 0, "internal:'%s'!A1" % L.nombre[hoja], L.f["nota"], texto)
+            ws.set_row(j, 26)
+        ws.merge_range(inicio + 8, 0, inicio + 8, 10,
+                       "VAN (valor actual neto) y TIR (tasa interna de retorno) incluyen el desembolso inicial y todos los flujos hasta cada cierre. "
+                       "El flujo neto y la caja se muestran sin descuento. La tasa exigida sólo interviene al evaluar su valor actual.", L.f["nota"])
+        ws.set_row(inicio + 8, 38)
+        for clave, hoja in L.ws.items():
+            hoja.hide_gridlines(2)
+            hoja.set_landscape()
+            hoja.set_paper(8)
+            hoja.fit_to_pages(1, 0)
+            hoja.set_margins(0.25, 0.25, 0.4, 0.4)
+            hoja.set_footer("&LTerraSense · Proyección económica&R&P / &N")
+            if clave not in ("anual", "tasa", "guia"):
+                hoja.freeze_panes(3, 2 if clave == "fc" else 1)
+            for row in range(2, hoja.dim_rowmax + 1):
+                if row not in hoja.set_rows:
+                    hoja.set_row(row, 30)
+        ws.print_area(0, 0, inicio + 8, N)
         ws.activate()
         ws.set_first_sheet()
 
-    return {"hojas": [N_[x] for x in ("resumen", "inv", "ventas", "oper", "adm", "com", "fin", "cf", "dep", "amo", "er", "fc")]}
+    return {"hojas": list(L.nombre.values())}
+
+
+def _tir_anual(desembolso, flujos):
+    """Sólo publica una raíz única: desembolso negativo y flujos posteriores no negativos."""
+    if desembolso <= 0 or any(f < 0 for f in flujos):
+        return "Revisar signos"
+    if not any(f > 0 for f in flujos):
+        return "Sin TIR"
+    lo, hi = -0.999999, 1.0
+    while M.van(desembolso, flujos, hi) > 0:
+        hi = 2 * hi + 1
+    for _ in range(200):
+        mid = (lo + hi) / 2
+        if M.van(desembolso, flujos, mid) > 0:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+def _hojas_defensa(L, r):
+    """Explica el caso vigente sin cambiar sus supuestos ni su perímetro de evaluación."""
+    wb, f = L.wb, L.f
+    filas = r["filas"]
+    n = len(filas)
+    tasa = S["tasa_descuento"]
+    fl = [x["flujo"] for x in filas]
+    ind = M.resumen(r)
+    fin_col = xl_col_to_name(n + 1)
+    tasa_ref = "'%s'!$B$4" % L.nombre["resumen"]
+    eval_ref = "'%s'!$B$13" % L.nombre["fc"]
+
+    ws = L.hoja("anual", "13 Evaluación anual", "Año por año · flujo neto y evaluación", anio_col0=2)
+    ws.set_tab_color("#008577")
+    ws.set_column(0, 0, 52)
+    ws.set_column(1, n + 1, 18)
+    ws.set_column(n + 2, n + 2, 66)
+    ws.merge_range(1, 0, 1, n + 2,
+                   "Lea una columna de arriba hacia abajo: ventas → utilidad neta → flujo neto → caja → evaluación. "
+                   "Pesos chilenos nominales. Cada año corresponde a un cierre anual proyectado.", f["nota"])
+    ws.set_row(1, 32)
+    ws.write(3, 0, "Tasa anual exigida (supuesto)", f["lab"])
+    ws.write_formula(3, 1, "=" + tasa_ref, f["pctb"], tasa)
+    ws.write_row(4, 0, ["Concepto", "Inicio · año 0"] + ANIOS + ["Cómo explicar esta fila"], f["enc"])
+    ws.set_row(4, 32)
+    ws.freeze_panes(5, 2)
+    ws.repeat_rows(4)
+    ws.repeat_columns(0)
+
+    def seccion(row, texto):
+        ws.merge_range(row, 0, row, n + 2, texto, f["encl"])
+        ws.set_row(row, 25)
+
+    def serie(row, key, etiqueta, valores, formulas, nota, fmt="clp", inicial=None):
+        L.fila[("anual", key)] = row
+        ws.write(row, 0, etiqueta, f["labb"] if fmt.endswith("b") else f["lab"])
+        if inicial is not None:
+            ws.write_formula(row, 1, inicial[0], f[fmt], inicial[1])
+        else:
+            ws.write(row, 1, "—", f["lab"])
+        for i, valor in enumerate(valores):
+            ws.write_formula(row, i + 2, formulas(i), f[fmt], valor)
+        ws.write(row, n + 2, nota, f["txt"])
+        ws.set_row(row, 42)
+
+    def ref(key, i):
+        return L.ref("anual", key, i, hoja=False)
+
+    seccion(5, "1 · Ventas y utilidad: resultado después de costos e impuestos")
+    lineas = [
+        (6, "q", "Equipos vendidos", "ventas", "unid", [x["unidades"] for x in filas], "Cantidad proyectada de equipos vendidos; no son ventas ya realizadas.", "n0"),
+        (7, "precio", "Precio neto por equipo (sin IVA)", "ventas", "precio", [x["precio_neto"] for x in filas], "Precio de venta sin impuesto al valor agregado (IVA), reajustado por inflación.", "clp"),
+        (8, "ventas", "VENTAS NETAS (sin IVA)", "er", "ventas", [x["ventas"] for x in filas], "Equipos vendidos × precio neto. Neto aquí significa sin IVA.", "clpb"),
+        (9, "oper", "(−) Costos operacionales", "oper", "total", [x["operacionales"] for x in reagrupacion(r)], "Materiales, envío, comisión y personal de producción. Detalle en hoja 4.", "clp"),
+        (10, "adm", "(−) Gastos de administración", "adm", "total", [x["administracion"] for x in reagrupacion(r)], "Socios, contador, oficina y servicios. Detalle en hoja 5.", "clp"),
+        (11, "com", "(−) Gastos de comercialización", "com", "total", [x["comercializacion"] for x in reagrupacion(r)], "Publicidad y personal comercial. Detalle en hoja 6.", "clp"),
+        (12, "op", "(=) Resultado operacional", "er", "res_op", [x["ventas"] - x["costo_total"] for x in filas], "Ventas menos las tres categorías de costos anteriores.", "clpb"),
+        (13, "dep", "(−) Depreciación", "er", "dep", [x["deprec"] for x in filas], "Distribuye contablemente el costo del equipamiento durante su vida útil.", "clp"),
+        (14, "amo", "(−) Amortización del activo nominal", "er", "amo", [x["amort_nom"] for x in filas], "Distribuye los gastos de puesta en marcha. No es el pago de capital al banco.", "clp"),
+        (15, "int", "(−) Intereses del crédito", "er", "int", [x["interes"] for x in filas], "Costo financiero anual. El capital del crédito se muestra más abajo.", "clp"),
+        (16, "ua", "(=) Utilidad antes de impuesto", "er", "ua", [x["util_antes"] for x in filas], "Resultado operacional menos depreciación, amortización nominal e intereses.", "clpb"),
+        (17, "imp", "(−) Impuesto a la renta", "er", "imp", [x["impuesto"] for x in filas], "Impuesto modelado después de compensar pérdidas anteriores. Base y tasas en hoja 11.", "clp"),
+        (18, "un", "UTILIDAD NETA DESPUÉS DE IMPUESTOS", "er", "un", [x["util_neta"] for x in filas], "Resultado contable final del año. Es distinto del efectivo generado.", "clpb"),
+    ]
+    for row, key, etiqueta, hoja, origen, vals, nota, fmt in lineas:
+        serie(row, key, etiqueta, vals, lambda i, h=hoja, k=origen: "=" + L.ref(h, k, i), nota, fmt)
+    serie(19, "margen", "Utilidad neta / ventas netas", [x["util_neta"] / x["ventas"] for x in filas],
+          lambda i: '=IFERROR(%s/%s,"Sin ventas")' % (ref("un", i), ref("ventas", i)),
+          "Proporción de las ventas que queda como utilidad contable. No es la TIR.", "pct")
+
+    seccion(20, "2 · Flujo neto y caja: dinero proyectado, sin aplicar tasa de descuento")
+    for row, key, etiqueta, origen, campo, nota in [
+        (21, "base", "Utilidad neta después de impuestos", "un", "util_neta", "Punto de partida para convertir utilidad en flujo de efectivo."),
+        (22, "sumdep", "(+) Depreciación", "dep", "deprec", "Se suma porque fue un cargo contable, no una salida de efectivo del año."),
+        (23, "sumamo", "(+) Amortización del activo nominal", "amo", "amort_nom", "Se suma por la misma razón: el desembolso de puesta en marcha ocurrió al inicio."),
+        (24, "cap", "(−) Capital del crédito pagado", "cap", "capital", "Devolución de principal al banco. Los intereses ya están restados de la utilidad."),
+        (25, "reinv", "(−) Compra de equipamiento renovado", "reinv", "reinversion", "Salida efectiva por renovación en el sexto año; explica parte del cambio en el flujo."),
+        (26, "pie", "(+) Cuotas ya cubiertas por el pie", "pie", "pie_aplicado", "Evita pagar dos veces las cuotas anticipadas. No es un nuevo ingreso por ventas."),
+    ]:
+        serie(row, key, etiqueta, [x[campo] for x in filas], lambda i, k=origen: "=" + L.ref("fc", k, i), nota)
+    serie(27, "neto", "FLUJO NETO DE CAJA DEL AÑO", fl,
+          lambda i: "=%s+%s+%s-%s-%s+%s" % tuple(ref(k, i) for k in ("base", "sumdep", "sumamo", "cap", "reinv", "pie")),
+          "Efectivo neto anual del modelo después de costos, impuestos, deuda y reinversión. No se le resta la tasa de descuento.", "clpb")
+    ini = [r["inversion"]["capital_trabajo"]] + [x["caja"] for x in filas[:-1]]
+    L.fila[("anual", "caja")] = 29
+    serie(28, "caja_ini", "Caja al inicio del año", ini,
+          lambda i: "=" + ("'%s'!B11" % L.nombre["fc"] if i == 0 else ref("caja", i - 1)),
+          "Primer año: capital de trabajo disponible. Años siguientes: caja del cierre anterior.")
+    serie(29, "caja", "CAJA AL CIERRE DEL AÑO", [x["caja"] for x in filas],
+          lambda i: "=%s+%s" % (ref("caja_ini", i), ref("neto", i)),
+          "Caja inicial más flujo neto. Se acumula sin dividendos modelados; no equivale a dinero repartido a los socios.", "clpb",
+          ("='%s'!B11" % L.nombre["fc"], r["inversion"]["capital_trabajo"]))
+    serie(30, "deuda", "Deuda pendiente al cierre", [x["saldo_final"] for x in r["amortizacion"]],
+          lambda i: "=" + L.ref("cf", "fin", i), "Saldo que aún se debe al banco; no se resta de nuevo a la caja de ese año.")
+    serie(31, "control", "CONTROL: flujo directo − flujo neto", [0] * n,
+          lambda i: "=%s-%s-%s-%s-%s-%s-%s-%s+%s-%s" % tuple(ref(k, i) for k in ("ventas", "oper", "adm", "com", "imp", "int", "cap", "reinv", "pie", "neto")),
+          "Debe ser cero: ventas menos egresos modelados coincide con el flujo obtenido desde la utilidad.")
+
+    seccion(33, "3 · Evaluación: VAN (valor actual neto) y TIR (tasa interna de retorno) hasta cada cierre")
+    serie(34, "periodo", "Años desde el desembolso inicial", list(range(1, n + 1)), lambda i: "=%d" % (i + 1),
+          "El inicio es t = 0. Se supone cada flujo anual al final del período.", "n0", ("=0", 0))
+    serie(35, "eval", "Flujo usado para evaluar", fl, lambda i: "=" + ref("neto", i),
+          "Inicio: menos inversión y menos pie. Después: flujos netos anuales. Convención de evaluación del estudio.", "clpb", ("=" + eval_ref, -r["desembolso"]))
+    factores = [(1 + tasa) ** (-i - 1) for i in range(n)]
+    serie(36, "factor", "Factor de descuento", factores,
+          lambda i: "=1/(1+$B$4)^%s" % ref("periodo", i), "Multiplica cada flujo para llevarlo al inicio: 1 / (1 + tasa) elevado al número de años.", "n2", ("=1", 1))
+    fd = [fl[i] * factores[i] for i in range(n)]
+    serie(37, "actual", "Valor actual del flujo del año", fd,
+          lambda i: "=%s*%s" % (ref("eval", i), ref("factor", i)),
+          "Aporte de este año al valor actual. No es un descuento cobrado ni una salida de caja.", "clp", ("=B36", -r["desembolso"]))
+    acumulados = [-r["desembolso"] + sum(fl[:i + 1]) for i in range(n)]
+    vans = [M.van(r["desembolso"], fl[:i + 1], tasa) for i in range(n)]
+    tirs = [_tir_anual(r["desembolso"], fl[:i + 1]) for i in range(n)]
+    serie(38, "acum", "Saldo acumulado sin descuento", acumulados,
+          lambda i: "=SUM($B$36:%s)" % ref("eval", i),
+          "Flujos acumulados menos desembolso evaluado. Al cruzar cero se recupera ese desembolso sin descuento.", "clp", ("=B36", -r["desembolso"]))
+    serie(39, "van", "VAN acumulado hasta este año", vans,
+          lambda i: "=SUM($B$38:%s)" % ref("actual", i),
+          "Suma del año 0 y los valores actuales hasta este cierre. No es caja ni un VAN independiente de cada año.", "clpb", ("=B36", -r["desembolso"]))
+
+    def formula_tir(i):
+        rango = "$B$36:%s" % ref("eval", i)
+        futuros = "$C$36:%s" % ref("eval", i)
+        # La aproximación negativa permite converger también en horizontes cortos.
+        guess = "(SUM(%s)/(-$B$36))^(1/%s)-1" % (futuros, ref("periodo", i))
+        return '=IF(OR($B$36>=0,MIN(%s)<0),"Revisar signos",IF(MAX(%s)<=0,"Sin TIR",IFERROR(IRR(%s,%s),"Revisar cálculo")))' % (futuros, futuros, rango, guess)
+
+    serie(40, "tir", "TIR anualizada hasta este año", tirs, formula_tir,
+          "Tasa que hace cero el VAN desde el inicio hasta ese año. No se suman las TIR; no depende de la tasa exigida.", "pctb")
+    serie(41, "criterio", "Lectura del VAN en este horizonte", ["Supera exigencia" if v > 0 else "No supera" for v in vans],
+          lambda i: '=IF(ABS(%s)<0.01,"En equilibrio",IF(%s>0,"Supera exigencia","No supera"))' % (ref("van", i), ref("van", i)),
+          "Se evalúa únicamente el período incluido. En cinco años aún existe deuda: no es una liquidación del negocio.", "txt")
+    serie(42, "raiz", "CONTROL: VAN calculado a la TIR", [0 if isinstance(t, float) else "Revisar" for t in tirs],
+          lambda i: '=IF(ISNUMBER(%s),$B$36+NPV(%s,$C$36:%s),"Revisar")' % (ref("tir", i), ref("tir", i), ref("eval", i)),
+          "Debe ser aproximadamente cero; comprueba el significado matemático de la TIR.")
+    for row in (18, 27, 29, 38, 39):
+        ws.conditional_format(row, 2, row, n + 1, {"type": "cell", "criteria": "<", "value": 0,
+                                                  "format": wb.add_format({"bg_color": "#FCE4D6", "font_color": "#9C0006"})})
+    ws.merge_range(44, 0, 44, n + 2,
+                   "Lectura de la recuperación: el saldo sin descuento y el VAN pasan de negativo a positivo en años distintos. "
+                   "El resumen informa la fracción del año estimada por interpolación; no es una fecha exacta de cobro.", f["nota"])
+    ws.set_row(44, 32)
+    for col, titulo, series in [
+        (0, "Utilidad y flujo neto anual", [(18, "Utilidad neta", "#7489A8"), (27, "Flujo neto", "#008577")]),
+        (7, "Recuperación del desembolso evaluado", [(38, "Acumulado sin descuento", "#7489A8"), (39, "VAN acumulado", "#008577")]),
+    ]:
+        chart = wb.add_chart({"type": "line"})
+        for row, nombre, color in series:
+            chart.add_series({"name": nombre, "categories": [ws.name, 4, 2, 4, n + 1], "values": [ws.name, row, 2, row, n + 1],
+                              "line": {"color": color, "width": 2.5}, "marker": {"type": "circle", "size": 4}})
+        chart.set_title({"name": titulo})
+        chart.set_y_axis({"name": "Millones de pesos", "display_units": "millions", "display_units_visible": False})
+        chart.set_x_axis({"name": "Año de cierre"})
+        chart.set_legend({"position": "bottom"})
+        chart.set_size({"width": 760, "height": 320})
+        ws.insert_chart(46, col, chart)
+    ws.print_area(0, 0, 62, n + 2)
+    _hoja_tasa(L, r, ind, tasa_ref, eval_ref, fin_col)
+    _hoja_guia(L, r, ind)
+
+
+def _hoja_tasa(L, r, ind, tasa_ref, eval_ref, fin_col):
+    wb, f = L.wb, L.f
+    ws = L.hoja("tasa", "14 Tasa y sensibilidad", "Entender la tasa exigida y comprobar su efecto")
+    ws.set_tab_color("#008577")
+    ws.set_column(0, 0, 32)
+    ws.set_column(1, 3, 23)
+    ws.set_column(4, 4, 48)
+    ws.freeze_panes(4, 1)
+
+    def nota(row, texto, alto=45):
+        ws.merge_range(row, 0, row, 4, texto, f["nota"])
+        ws.set_row(row, alto)
+
+    nota(1, "La tasa permite comparar flujos recibidos en años distintos usando el valor del dinero al inicio. "
+         "El flujo neto de caja se mantiene completo: descontar es una operación de evaluación, no un pago.")
+    ws.write(3, 0, "Tasa anual exigida", f["lab"])
+    ws.write_formula(3, 1, "=" + tasa_ref, f["pctb"], S["tasa_descuento"])
+    ws.merge_range(3, 2, 3, 4, "Se modifica en 1 Resumen, celda B4. Las fórmulas de evaluación se actualizan.", f["txt"])
+    ws.set_row(3, 34)
+    nota(5, "¿Por qué esta tasa? El estudio la adopta como supuesto de rentabilidad exigida. No existe en el modelo "
+         "una estimación cuantitativa que demuestre que ésta es la tasa exacta del proyecto. El riesgo justifica exigir "
+         "rentabilidad, pero por sí solo no demuestra un porcentaje concreto.", 56)
+    nota(6, "Cómo defenderla: declarar que es un supuesto y mostrar los resultados con otras exigencias. "
+         "La sensibilidad permite juzgar cuánto depende el VAN de esa elección; no sustituye una estimación del costo de oportunidad.", 44)
+    ws.write_row(8, 0, ["Tiempo hasta recibirlo", "Monto futuro", "Divisor (1 + tasa)^año", "Valor al inicio", "Cálculo e interpretación"], f["enc"])
+    ws.set_row(8, 36)
+    for i in range(1, 3):
+        row = 8 + i
+        ws.write_number(row, 0, i, f["n0"])
+        ws.write_number(row, 1, 1000, f["clpi"])
+        ws.write_formula(row, 2, "=(1+$B$4)^A%d" % (row + 1), f["n2"], (1 + S["tasa_descuento"]) ** i)
+        ws.write_formula(row, 3, "=B%d/C%d" % (row + 1, row + 1), wb.add_format({"num_format": CLP2, "border": 1}), 1000 / (1 + S["tasa_descuento"]) ** i)
+        ws.write(row, 4, "Monto futuro dividido por el factor compuesto. Ejemplo didáctico; no se suma al proyecto.", f["txt"])
+        ws.set_row(row, 44)
+    ws.write(11, 0, "Primer flujo real del proyecto", f["lab"])
+    ws.write_formula(11, 1, "=" + L.ref("fc", "flujo", 0), f["clp"], r["filas"][0]["flujo"])
+    ws.write_formula(11, 2, "=1+$B$4", f["n2"], 1 + S["tasa_descuento"])
+    ws.write_formula(11, 3, "=B12/C12", f["clp"], r["filas"][0]["flujo"] / (1 + S["tasa_descuento"]))
+    ws.write(11, 4, "La empresa genera el monto de la columna B; la columna D es su equivalencia al inicio.", f["txt"])
+    ws.set_row(11, 44)
+    nota(13, "Ejemplo verbal con la tasa base de %s: $1.000 hoy crecerían a %s en un año. "
+         "Por eso $1.000 recibidos dentro de un año equivalen a $%s hoy. Se divide por %s; no se resta directamente el porcentaje."
+         % (M.porc(S["tasa_descuento"], 0), M.fmt(1000 * (1 + S["tasa_descuento"])),
+            M.dec(1000 / (1 + S["tasa_descuento"])), M.dec(1 + S["tasa_descuento"])))
+    nota(14, "VAN = flujo inicial + suma de los flujos futuros / (1 + tasa)^año. En Excel en español: "
+         "flujo inicial + VNA(tasa; flujos del año 1 en adelante). El año 0 se suma fuera de VNA. La TIR usa también el año 0.")
+    ws.write_row(16, 0, ["Tasa exigida anual", "VAN a cinco años", "VAN a diez años", "Cambio frente al caso base", "Lectura a diez años"], f["enc"])
+    ws.set_row(16, 38)
+    fc = L.nombre["fc"]
+    rango5 = "'%s'!$C$13:$G$13" % fc
+    rango10 = "'%s'!$C$13:$%s$13" % (fc, fin_col)
+    tasas = [0, .10, .15, S["tasa_descuento"], .25, .30, .40, .50, ind["tir"], .60]
+    fl = [x["flujo"] for x in r["filas"]]
+    for i, tasa in enumerate(tasas):
+        row = 17 + i
+        rr = row + 1
+        if i == 3:
+            ws.write_formula(row, 0, "=$B$4", f["pctb"], tasa)
+        elif i == 8:
+            ws.write_formula(row, 0, "=" + L.ref("anual", "tir", len(fl) - 1), f["pctb"], tasa)
+        else:
+            ws.write_number(row, 0, tasa, f["pcti"])
+        v5 = M.van(r["desembolso"], fl[:5], tasa)
+        v10 = M.van(r["desembolso"], fl, tasa)
+        ws.write_formula(row, 1, "=%s+NPV(A%d,%s)" % (eval_ref, rr, rango5), f["clp"], v5)
+        ws.write_formula(row, 2, "=%s+NPV(A%d,%s)" % (eval_ref, rr, rango10), f["clpb"], v10)
+        ws.write_formula(row, 3, "=C%d-$C$21" % rr, f["clp"], v10 - ind["van"])
+        texto = "VAN ≈ 0: tasa igual a TIR" if abs(v10) < .01 else ("Supera la exigencia" if v10 > 0 else "No supera la exigencia")
+        ws.write_formula(row, 4, '=IF(ABS(C%d)<0.01,"VAN ≈ 0: tasa igual a TIR",IF(C%d>0,"Supera la exigencia","No supera la exigencia"))' % (rr, rr), f["txt"], texto)
+        ws.set_row(row, 32)
+    nota(28, "Sólo varía la tasa: ventas, costos, flujo neto y deuda son los mismos en todas las filas. "
+         "Por eso la TIR del flujo permanece constante. Las filas azules son escenarios ilustrativos; no son tasas de mercado observadas.")
+    chart = wb.add_chart({"type": "scatter", "subtype": "straight_with_markers"})
+    chart.add_series({"name": "VAN a diez años", "categories": [ws.name, 17, 0, 26, 0], "values": [ws.name, 17, 2, 26, 2],
+                      "line": {"color": "#008577", "width": 2.5}})
+    chart.set_title({"name": "Cómo cambia el VAN al aumentar la exigencia"})
+    chart.set_x_axis({"name": "Tasa anual exigida", "num_format": "0%"})
+    chart.set_y_axis({"name": "Millones de pesos", "display_units": "millions", "display_units_visible": False})
+    chart.set_legend({"none": True})
+    chart.set_size({"width": 920, "height": 330})
+    ws.insert_chart(30, 0, chart)
+    ws.print_area(0, 0, 48, 4)
+
+
+def _hoja_guia(L, r, ind):
+    f = L.f
+    ws = L.hoja("guia", "15 Guía para la defensa", "Guía para explicar y defender el flujo de caja")
+    ws.set_tab_color("#D8A24A")
+    ws.set_column(0, 0, 39)
+    ws.set_column(1, 1, 110)
+    ws.freeze_panes(3, 1)
+    ws.write_row(2, 0, ["Pregunta de la comisión", "Respuesta y lugar donde demostrarla"], f["enc"])
+    preguntas = [
+        ("¿En qué orden presento el libro?", "Inversión y financiamiento (2 y 7); precio y ventas (3); costos (4–6); utilidad (11); flujo y caja (12–13); evaluación y sensibilidad (13–14). El resumen reúne los resultados principales."),
+        ("¿Qué significa neto?", "Precio y ventas netos: sin impuesto al valor agregado (IVA). Utilidad neta: después de costos, cargos contables, intereses e impuesto a la renta. Flujo neto: efectivo anual después de los egresos modelados. La hoja 13 separa los tres significados."),
+        ("¿Qué es el VAN?", "VAN (valor actual neto): excedente de los flujos llevados al inicio después de restar el desembolso evaluado. Es una medida de valoración; la caja disponible se observa por separado. El criterio positivo depende de la tasa y del flujo elegidos."),
+        ("¿Qué es la TIR de cada año?", "TIR (tasa interna de retorno): rendimiento anualizado de la serie que comienza en el año 0 y termina en ese cierre. La columna de 2031 incluye cinco años completos. No es la rentabilidad sólo de 2031 ni un porcentaje que se sume a las columnas anteriores."),
+        ("¿Por qué la TIR puede ser negativa?", "En un horizonte corto puede no recuperarse el desembolso inicial. Una TIR negativa corresponde a ese horizonte truncado. Los años siguientes agregan otros flujos. Si se cambian los signos de los flujos, la hoja pide revisarlos porque podría haber más de una raíz."),
+        ("¿Quién exige esa tasa?", "Es la rentabilidad de referencia adoptada por el estudio, no una exigencia legal ni bancaria. La hoja 14 identifica su condición de supuesto y muestra otras tasas. No se cuenta con un cálculo que justifique exactamente ese porcentaje."),
+        ("¿La tasa se resta de las ganancias?", "No es un egreso. El flujo neto sigue intacto en la hoja 13. Al dividir un flujo futuro por (1 + tasa) elevado al año se obtiene una equivalencia al inicio para compararlo con el desembolso."),
+        ("¿Qué otras tasas debo distinguir?", "La tasa del crédito determina intereses y cuotas (hoja 7). La inflación reajusta valores nominales (hoja 3). El recargo objetivo sobre costos determina el precio; no equivale al margen sobre ventas ni a la rentabilidad de la inversión."),
+        ("¿Cómo se forma el precio?", "Se calcula el costo operacional total del horizonte, incluyendo la estructura, y se exige el recargo objetivo; se resuelve también la comisión que depende del precio. Luego se agrega IVA y se redondea al alza. La hoja 3 recibe ese precio derivado: no lo vuelve a optimizar al editar otros datos en Excel."),
+        ("¿Cómo se financia el inicio?", "El crédito cubre el total de inversión inicial. El pie fijo de los socios paga anticipadamente las primeras cuotas del calendario. Fuentes = crédito + pie; usos = inversión + cuotas anticipadas. No se cuenta con subsidios en el caso base."),
+        ("¿Por qué el pie se suma al flujo?", "Al calcular la utilidad y el pago de capital se considera el servicio de deuda completo. Se vuelve a sumar la porción ya pagada con el pie para evitar un segundo egreso de caja durante la operación. El pie salió al inicio; no es venta ni ingreso nuevo."),
+        ("¿Qué representa el año 0 evaluado?", "Se mantiene la convención del estudio: inversión inicial más pie, con signo negativo, frente a flujos que incluyen el servicio de deuda. Se puede comprobar en la hoja 12. Esa combinación no es una evaluación convencional del proyecto sin deuda ni del aporte exclusivo de los socios; no atribuirle esas interpretaciones."),
+        ("¿Por qué utilidad y caja no coinciden?", "La utilidad incluye depreciación y amortización nominal. Para obtener efectivo se suman esos cargos y se resta el capital del crédito y la compra de equipamiento, ajustando las cuotas anticipadas. Caja final = caja inicial + flujo neto. El control de la hoja 13 verifica la identidad."),
+        ("¿Por qué cambia el resultado entre años?", "Cambian unidades vendidas, precios reajustados, dotación, remuneraciones, gastos e intereses. En el sexto año se renueva equipamiento. Para explicar una variación compare primero ventas y categorías de costos, luego impuestos, capital y reinversión en las mismas columnas."),
+        ("¿Cuándo recuperamos lo evaluado?", "El resumen muestra recuperación simple y descontada. En la hoja 13 se observa cuándo cada saldo cruza cero. La fracción del año supone reparto uniforme del flujo dentro de ese período; el libro anual no determina el mes real de recuperación."),
+        ("¿Qué significa cortar a cinco años?", "Se consideran sólo los cinco primeros flujos, sin valor de venta del negocio ni liquidación. Existe deuda pendiente visible en la hoja 13. El horizonte principal sigue siendo diez años; los horizontes cortos sirven para observar la evolución de la evaluación."),
+        ("¿La caja acumulada es un dividendo?", "No hay una política de dividendos incorporada. La caja se acumula dentro del modelo. Los sueldos de los socios ya forman parte de administración y no son rentabilidad del capital aportado."),
+        ("¿Qué simplificaciones tiene el flujo?", "Es una proyección anual: aproxima cobros y pagos dentro del año; no desarrolla plazos de clientes/proveedores ni liquidaciones mensuales de IVA. El capital de trabajo y el inventario se financian al inicio, sin incrementos posteriores explícitos ni recuperación al cierre. No se incorpora valor terminal."),
+        ("¿Puedo asegurar que seremos rentables?", "Se puede afirmar que el flujo proyectado cumple el criterio elegido bajo sus supuestos. La sensibilidad de tasa no prueba que se cumplirán las ventas ni los costos. La tasa base y el tratamiento del financiamiento deben explicarse expresamente al interpretar los indicadores."),
+        ("¿Cómo uso las celdas azules?", "Identifican entradas o valores derivados recibidos por la planilla. La tasa del resumen permite explorar el descuento. Editar ventas o costos recalcula los vínculos, pero no redimensiona automáticamente el crédito, la reserva ni el precio objetivo. Por eso no es un optimizador integral de escenarios."),
+    ]
+    for row, (pregunta, respuesta) in enumerate(preguntas, 3):
+        ws.write(row, 0, pregunta, f["labb"])
+        ws.write(row, 1, respuesta, f["txt"])
+        ws.set_row(row, 75 if row in (11, 14, 20, 22) else 64)
+    row = len(preguntas) + 5
+    ws.write_row(row, 0, ["Tasas del caso base", "Valor (enlazado con el cálculo)"], f["enc"])
+    datos = [
+        ("Tasa exigida de evaluación", "='%s'!B4" % L.nombre["resumen"], S["tasa_descuento"]),
+        ("Interés efectivo anual del crédito", "='%s'!B9" % L.nombre["fin"], S["tasa_credito_efectiva_anual"]),
+        ("Inflación anual", "='%s'!B3" % L.nombre["ventas"], S["inflacion"]),
+    ]
+    for j, (texto, formula, valor) in enumerate(datos, row + 1):
+        ws.write(j, 0, texto, f["lab"])
+        ws.write_formula(j, 1, formula, f["pct"], valor)
+    for j, (nombre, url) in enumerate([
+        ("Microsoft: cálculo de VNA y TIR", "https://support.microsoft.com/es-es/excel/go-with-the-cash-flow-calculate-npv-and-irr-in-excel"),
+        ("Microsoft: año 0 y función VNA", "https://support.microsoft.com/es-es/excel/functions/npv-function"),
+        ("OpenStax: tasa exigida y valor actual neto", "https://openstax.org/books/principles-finance/pages/16-2-net-present-value-npv-method"),
+    ], row + 6):
+        ws.write(j, 0, "Referencia conceptual", f["lab"])
+        ws.write_url(j, 1, url, f["txt"], nombre)
+    ws.merge_range(row + 10, 0, row + 10, 1, "Las referencias explican los conceptos y las funciones; no respaldan la tasa específica adoptada para TerraSense ni validan sus proyecciones.", f["nota"])
+    ws.set_row(row + 10, 38)
+    ws.print_area(0, 0, row + 10, 1)

@@ -650,6 +650,11 @@ python docs/verificar_documentacion.py
 
 El verificador incluye esta tarea y la especificación. Las pruebas de calidad de entrada y del servicio climático pertenecen al comando habitual de la app. E1.1/E1.2 no requieren dependencias ni migraciones nuevas.
 
-**Resultados de verificación del incremento:** `npm test` aprobó la suite completa (453 pruebas) y `npm run type-check` terminó sin errores; el verificador documental, con 0 errores. El uso sin red se recorrió en un teléfono Android con la compilación release y la sonda real fuera del suelo (detalle en [ES5](#es5-verificación)). Son comprobaciones de software, no ensayos agronómicos con la sonda.
+**Resultados de verificación del incremento:** `npm test` aprobó la suite completa (453 pruebas) y `npm run type-check` terminó sin errores; el verificador documental, con 0 errores (18 documentos, 835 enlaces locales, 11 diagramas). El uso sin red se recorrió en un teléfono Android con la compilación release y la sonda real fuera del suelo (detalle en [ES5](#es5-verificación)). Son comprobaciones de software, no ensayos agronómicos con la sonda.
+
+**Auditoría de enlaces y citas bibliográficas (`verificar-enlaces.ts`):**
+- **URLs rotas (11 URLs, 23 citas):** detectadas y vigiladas por el verificador: guía de zarzamoras de NC State (7 usos: calafate, maqui, michay, mora, mosqueta, murtilla, saúco); dos guías de cítricos de UC ANR (4 usos); tres de Penn State (6 usos); dos de The Almond Doctor (3 usos); y cuatro de un uso: Cornell, UGA pecano y anuario CAS de palto de 1943.
+- **Acceso restringido por bots (22 URLs):** de las 40 URLs sin leer que no están rotas, 22 residen en hosts institucionales con protección anti-bot (INIA, CIREN, UNH, UC Davis, UMass) que requieren verificación manual con navegador.
+- **Cobertura por variable:** 111/111 especies (100 %) en cinco tarjetas (humedad del suelo, salinidad de referencia, pH, temperatura del aire y lecturas radiculares) y 110/111 en eventos del pronóstico (con la brecha documentada de `sp.acelga`). 124 analogías declaradas con trazabilidad completa, evidencia de la especie análoga y limitaciones explícitas.
 
 **Revisión pendiente fuera de las pruebas automatizadas:** ejecución en teléfono y proveedor real. No se declara validación de terreno, precisión instrumental ni cierre completo de E1.
