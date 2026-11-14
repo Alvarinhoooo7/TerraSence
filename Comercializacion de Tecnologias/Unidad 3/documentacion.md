@@ -48,15 +48,15 @@ La presentación pide **misión, visión, objetivos estratégicos y ventaja comp
 
 #### A. Misión: propósito actual
 
-**Misión:** «Ayudar a pequeños y medianos agricultores a tomar mejores decisiones y utilizar eficientemente sus recursos, transformando mediciones del suelo y del ambiente en orientación agronómica comprensible según el cultivo y su etapa».
+**Misión:** «Contribuir al bienestar económico de los pequeños y medianos agricultores y al cuidado del ecosistema del que depende su producción, transformando mediciones del suelo y del ambiente en un plan de acción comprensible según el cultivo y su etapa, para que apliquen el agua y los insumos que su cultivo realmente necesita».
 
-**Enfoque definido por el equipo (M1):** el propósito central es mejorar las decisiones del agricultor y el uso de sus recursos. El cuidado del ecosistema y del suelo se plantea como un beneficio ambiental esperado de ese mejor manejo. Su contribución se desarrolla en los ODS y deberá evaluarse con evidencia; no se presenta como un impacto ya demostrado. Los asesores agronómicos mantienen su papel como usuarios, compradores o facilitadores de la solución.
+**Enfoque definido por el equipo:** la misión une dos propósitos. El económico: decidir el riego y la fertilización con información del momento evita gastar en agua, fertilizante y energía que el cultivo no aprovecha y evita pérdidas de rendimiento. El ambiental: el agua que no se aplica de más se conserva frente a la escasez hídrica, y el fertilizante que no se aplica a ciegas reduce el riesgo de pérdidas hacia las napas. Ambos se vinculan con los ODS de 1.2 y deben evaluarse con evidencia; no se presentan como impactos ya demostrados. Los asesores agronómicos mantienen su papel como usuarios, compradores o facilitadores de la solución.
 
 #### B. Visión: futuro deseado
 
-**Visión del plan:** «Ser el referente de la industria agrícola en la medición del suelo en terreno, con la base de datos de especies más amplia del sector y mediciones cuya exactitud compita con la de un análisis de laboratorio».
+**Visión del plan:** «Ser el referente de la industria agrícola en la medición del suelo en terreno y, a partir de la sonda, ofrecer al agricultor una familia de soluciones para decidir el manejo de su campo, con la base de datos de especies más amplia del sector y mediciones cuya exactitud compita con la de un análisis de laboratorio».
 
-**Orientación aportada por el equipo:** TerraSense debe ser la referencia cuando el agricultor o el asesor necesiten medir el suelo en el campo; el catálogo de cultivos (111 especies con criterios documentados, según `Evaluacion/Evaluacion 2/INFORME 2.md`) debe crecer hasta ser la base de datos de especies más amplia de la industria, y la exactitud de cada variable debe acercarse a la del laboratorio.
+**Orientación aportada por el equipo:** TerraSense debe ser la referencia cuando el agricultor o el asesor necesiten medir el suelo en el campo; la sonda es el **producto de entrada** desde el que se ofrecerán otras soluciones al mismo agricultor (ver Enfoque o nicho en D); el catálogo de cultivos (111 especies con criterios documentados, según `Evaluacion/Evaluacion 2/INFORME 2.md`) debe crecer hasta ser la base de datos de especies más amplia de la industria, y la exactitud de cada variable debe acercarse a la del laboratorio.
 
 La misión explica el propósito actual; la visión, la proyección de largo plazo. La exactitud de laboratorio es una **meta de desarrollo**, no un atributo actual: la lectura Modbus está validada en banco, pero la exactitud en agua, en tierra y contra soluciones patrón sigue pendiente (`Firmware/TASK.md`). Mientras tanto, el laboratorio fija el punto de referencia y TerraSense aporta la repetición.
 
@@ -69,9 +69,9 @@ La misión explica el propósito actual; la visión, la proyección de largo pla
 | Dimensión | Objetivo del plan | Indicador | Desarrollo operativo |
 |---|---|---|---|
 | Comercial | Alcanzar el volumen del modelo mediante venta directa digital | Unidades y ventas netas frente al plan | Calendario y responsabilidad desarrollados en 4.6 |
-| Producto | Mantener trazabilidad entre lo ofrecido y el producto vendido | Fichas y demostraciones revisadas | Revisión técnica antes de publicar cada cambio de oferta |
 | Servicio | Acompañar al comprador en el uso y resolver incidencias | Primera medición, respuesta y resolución | Objetivos y seguimiento en 4.3 |
-| Sostenibilidad | Evaluar el aporte a decisiones responsables de manejo | Casos con seguimiento y datos comparables | Protocolo de 1.2 y objetivo operativo de 4.3 |
+| Sostenibilidad | Medir el aporte al uso eficiente del agua y de los insumos | Casos con seguimiento y datos comparables de agua, insumos y producción | Protocolo de 1.2 y objetivo operativo de 4.3 |
+| Familia de soluciones | Crecer desde el producto de entrada con productos o servicios complementarios para el mismo agricultor | Propuestas evaluadas con clientes y aprobadas con su ficha de costos | Primera evaluación en 2028, revisión anual hasta 2036. Fuera del modelo económico, que evalúa solo la sonda |
 | Base de datos de especies | Ampliar el catálogo con criterios documentados por etapa hasta ser el más amplio de la industria | Especies con criterios en tres etapas y fuente declarada | Revisión anual desde las 111 especies actuales, hasta 2036 |
 | Exactitud | Acercar la exactitud de cada variable a la de un análisis de laboratorio | Diferencia frente al laboratorio en muestras pareadas, por variable | Validación desde 2027 e informe anual hasta 2036 |
 
@@ -83,7 +83,9 @@ Los objetivos estratégicos se concretan mediante las metas, responsables y fech
 
 **Estrategia del plan:** diferenciarse por integrar medición portátil con interpretación contextual y orientación de manejo, respaldada por criterios documentados y soporte comprensible.
 
-**Decisión del equipo:** la ventaja combina las tres estrategias de la diapositiva 8. **Liderazgo en costos:** TerraSense tiene hoy el menor precio entre los medidores portátiles comparables vendidos en Chile ($489.990 frente a $491.827 del Hanna HI9814 y $538.990 del Bluelab Pulse, precios consultados el 04-09-2026 y documentados en la sección 5.2 de `Comercializacion de Tecnologias/Unidad 2/informe 2 comercializacio.md`). Ese precio resulta de la derivación por costo con 30 % de utilidad, no de un objetivo de ser el más barato; la diferencia con el Hanna es de 0,4 %, así que el precio facilita la entrada pero no es la ventaja que se defiende. **Diferenciación:** las cuatro diferencias defendibles de la propuesta de valor funcional. **Enfoque o nicho:** el negocio agropecuario, con foco en pequeños y medianos agricultores y sus asesores.
+**Decisión del equipo:** la ventaja combina las tres estrategias de la diapositiva 8. **Liderazgo en costos:** TerraSense tiene hoy el menor precio entre los medidores portátiles comparables vendidos en Chile ($489.990 frente a $491.827 del Hanna HI9814 y $538.990 del Bluelab Pulse, precios consultados el 04-09-2026 y documentados en la sección 5.2 de `Comercializacion de Tecnologias/Unidad 2/informe 2 comercializacio.md`). Ese precio resulta de la derivación por costo con 30 % de utilidad, no de un objetivo de ser el más barato; la diferencia con el Hanna es de 0,4 %, así que el precio facilita la entrada pero no es la ventaja que se defiende. **Diferenciación:** las cuatro diferencias defendibles de la propuesta de valor funcional. **Enfoque o nicho:** enfoque de entrada en el negocio agropecuario (pequeños y medianos agricultores de hortalizas, frutales y viñas, y sus asesores), con la sonda como **producto de entrada**. Decisión del equipo: el enfoque no se justifica por la dotación de dos socios, sino porque la sonda abre la relación con el agricultor; el nicho se define por la necesidad (decidir el manejo en el campo) y no por el aparato. Opciones que se evaluarán con clientes, sin cifras en el modelo: muestreo y análisis con un laboratorio aliado en los puntos georreferenciados del historial, un nodo fijo complementario y la ampliación del catálogo. Argumento comercial: vender una segunda solución a un cliente existente cuesta menos que conseguir uno nuevo, lo que eleva el LTV (5.3) y concreta la «mayor participación en el gasto» del KAM (5.1).
+
+**Atributos de paridad con otro papel:** la portabilidad es diferencia frente al nodo fijo, no frente a otros medidores de mano; el pronóstico del tiempo forma parte de la diferencia 2 porque la orientación lo usa (lluvia de 5 mm o más hoy o mañana reemplaza un riego, y riesgos de helada, calor, lluvia o niebla por especie y etapa, según `contextualAdvice.ts`); el historial georreferenciado complementa al laboratorio al permitir muestrear los mismos puntos.
 
 Una ventaja **sostenible en el tiempo** puede mantenerse frente a competidores. La **sostenibilidad ambiental** se refiere al uso responsable de recursos. Hay que desarrollar ambas, con evidencias distintas. Tener software propio no impide que un competidor lo replique; la defensa depende de validación, actualización, conocimiento y servicio.
 
@@ -91,25 +93,25 @@ Una ventaja **sostenible en el tiempo** puede mantenerse frente a competidores. 
 
 ### 1.2 Objetivos de Desarrollo Sostenible — diapositivas 5 y 6
 
-**Selección definida por el equipo:** ODS 15, Vida de ecosistemas terrestres, como principal; ODS 9, Industria, innovación e infraestructura, y ODS 13, Acción por el clima, como complementarios. Se eligen porque se relacionan con lo que el producto hace: medir el suelo, llevar innovación tecnológica al campo y ayudar a administrar mejor el agua de riego. La correspondencia con los ODS es un análisis del proyecto, no una certificación o respaldo de Naciones Unidas.
+**Selección definida por el equipo:** tres ODS, uno por cada propósito de la misión: ODS 2, Hambre cero (el agricultor y su bienestar económico); ODS 6, Agua limpia y saneamiento (uso eficiente del agua de riego), y ODS 15, Vida de ecosistemas terrestres (el suelo). Los ODS 9 (innovación) y 13 (clima) se mencionan como vínculos indirectos y no se adoptan, para concentrar el seguimiento en tres. La correspondencia con los ODS es un análisis del proyecto, no una certificación o respaldo de Naciones Unidas.
 
-#### A. ODS principal: 15. Vida de ecosistemas terrestres
+#### A. ODS 2. Hambre cero — el agricultor
+
+Las metas 2.3 y 2.4 buscan aumentar la productividad agrícola y los ingresos de los productores en pequeña escala, y asegurar sistemas de producción sostenibles con prácticas que mejoren progresivamente la calidad del suelo y la tierra. Fuente: Naciones Unidas en Chile (s. f.-b), [Hambre cero](https://chile.un.org/es/sdgs/2).
+
+**Justificación:** TerraSense pone la agricultura de precisión al alcance del pequeño y mediano agricultor, para que gaste en agua y fertilizante solo lo que el cultivo aprovecha y decida a tiempo antes de perder rendimiento. No se promete aumento de ingresos ni de productividad: se evalúa con el seguimiento de D.
+
+#### B. ODS 6. Agua limpia y saneamiento — el agua
+
+La meta 6.4 plantea aumentar considerablemente el uso eficiente de los recursos hídricos en todos los sectores. Fuente: Naciones Unidas en Chile (s. f.-a), [Agua limpia y saneamiento](https://chile.un.org/es/sdgs/6).
+
+**Justificación:** la escasez hídrica es uno de los mayores riesgos de la agricultura chilena. La humedad del suelo interpretada según el cultivo y su etapa, cruzada con el pronóstico de lluvia, ayuda a regar cuando el cultivo lo necesita. El equipo no mide el volumen de agua: una lectura de humedad no permite afirmar cuántos litros se ahorraron.
+
+#### C. ODS 15. Vida de ecosistemas terrestres — el suelo
 
 La meta 15.3 plantea luchar contra la desertificación y rehabilitar las tierras y los suelos degradados. Fuente: Naciones Unidas en Chile (s. f.-c), [Vida de ecosistemas terrestres](https://chile.un.org/es/sdgs/15).
 
-**Justificación:** el suelo es el ecosistema que TerraSense mide. Medir el mismo punto temporada tras temporada (humedad, pH y conductividad eléctrica) permite advertir cambios que anticipan un deterioro y corregir el manejo. La conductividad medida en el suelo no se convierte en salinidad de extracto de laboratorio: el seguimiento es de tendencia, no un diagnóstico de degradación.
-
-#### B. ODS complementario: 9. Industria, innovación e infraestructura
-
-La meta 9.5 promueve aumentar la investigación científica y mejorar la capacidad tecnológica, fomentando la innovación. Fuente: Naciones Unidas en Chile (s. f.-b), [Industria, innovación e infraestructura](https://chile.un.org/es/sdgs/9).
-
-**Justificación:** tecnología diseñada y fabricada en Chile que acerca la agricultura de precisión al pequeño y mediano agricultor; el catálogo de cultivos construido sobre estadística agrícola nacional es conocimiento local que se amplía con cada versión.
-
-#### C. ODS complementario: 13. Acción por el clima
-
-La meta 13.1 busca fortalecer la resiliencia y la capacidad de adaptación a los riesgos relacionados con el clima. Fuente: Naciones Unidas en Chile (s. f.-a), [Acción por el clima](https://chile.un.org/es/sdgs/13).
-
-**Justificación:** la escasez hídrica es uno de esos riesgos para la agricultura chilena. La humedad del suelo interpretada según el cultivo y su etapa ayuda a administrar mejor el agua de riego. El equipo no mide el volumen de agua: una lectura de humedad no permite afirmar cuántos litros se ahorraron.
+**Justificación:** el suelo es el ecosistema que TerraSense mide. Medir el mismo punto temporada tras temporada (humedad, pH y conductividad eléctrica), con el historial georreferenciado, permite advertir cambios que anticipan un deterioro y corregir el manejo. La conductividad medida en el suelo no se convierte en salinidad de extracto de laboratorio: el seguimiento es de tendencia, no un diagnóstico de degradación.
 
 #### D. Acciones e indicadores de seguimiento
 
@@ -120,8 +122,8 @@ Indicadores internos propuestos, aplicados a compradores voluntarios durante los
 | Acompañar la comprensión del plan de acción | Usuarios que explican la orientación y una decisión pertinente / usuarios evaluados × 100 | Pauta breve de puesta en marcha | Después del acompañamiento inicial |
 | Registrar el uso en decisiones de manejo | Casos con lectura, orientación y decisión documentadas / casos de seguimiento × 100 | Registro voluntario de uso y decisión | Mensual |
 | Seguir la condición del suelo (ODS 15) | Puntos medidos de forma repetida, con la evolución de su pH y su conductividad eléctrica por temporada | Historial de mediciones georreferenciadas del comprador | Al cierre de cada temporada |
-| Incorporar innovación al producto (ODS 9) | Mejoras publicadas a partir del soporte y especies incorporadas al catálogo | Registro de versiones de la aplicación y del catálogo | Semestral |
-| Evaluar el uso de agua (ODS 13) | Volumen de agua aplicado por superficie en períodos comparables | Medición externa de caudal o volumen y duración del riego | Al cierre del período de riego |
+| Evaluar el uso de insumos (ODS 2) | Fertilizante aplicado por superficie y rendimiento obtenido en temporadas comparables | Registro voluntario de compras de insumos y de cosecha | Al cierre de cada temporada |
+| Evaluar el uso de agua (ODS 6) | Volumen de agua aplicado por superficie en períodos comparables | Medición externa de caudal o volumen y duración del riego | Al cierre del período de riego |
 
 **Criterio de comparación:** establecer una línea de base, identificar condiciones comparables y registrar los factores que puedan explicar diferencias. Una variación antes/después no demuestra por sí sola que el dispositivo la causó; si faltan datos, se informa el uso observado y el impacto queda sin determinar.
 
@@ -133,9 +135,9 @@ La adhesión a un ODS fortalece la coherencia del proyecto, pero no es por sí s
 
 #### F. Referencias de esta sección — base APA 7
 
-Naciones Unidas en Chile. (s. f.-a). *Acción por el clima*. https://chile.un.org/es/sdgs/13
+Naciones Unidas en Chile. (s. f.-a). *Agua limpia y saneamiento*. https://chile.un.org/es/sdgs/6
 
-Naciones Unidas en Chile. (s. f.-b). *Industria, innovación e infraestructura*. https://chile.un.org/es/sdgs/9
+Naciones Unidas en Chile. (s. f.-b). *Hambre cero*. https://chile.un.org/es/sdgs/2
 
 Naciones Unidas en Chile. (s. f.-c). *Vida de ecosistemas terrestres*. https://chile.un.org/es/sdgs/15
 
@@ -203,18 +205,24 @@ El Business Model Canvas (BMC, lienzo del modelo de negocio) organiza nueve bloq
 | Bloque | Definición operativa |
 |---|---|
 | Segmentos | Agricultores con necesidad de orientación de manejo y disposición a usar el equipo; asesores que atienden varios campos. Captación nacional con prioridad a contactos calificados |
-| Propuesta de valor | Plan de acción comprensible a partir de mediciones y contexto del cultivo, para decidir y utilizar mejor recursos; sostenibilidad vinculada a ODS 15, 9 y 13 |
-| Canales | Ecommerce como canal de venta; Meta, buscador y videos para captación; WhatsApp y correo para acompañamiento; ferias como contacto ocasional, sin local comercial; retailers agrícolas como canal complementario desde 2028, conseguidos con trade marketing (2.5) |
+| Propuesta de valor | Plan de acción comprensible a partir de mediciones y contexto del cultivo, para decidir y utilizar mejor recursos; sostenibilidad vinculada a los ODS 2, 6 y 15 |
+| Canales | Ecommerce en Shopify como canal de venta; Instagram, Facebook, TikTok, buscador y YouTube para captación; WhatsApp y correo para acompañamiento; stand en ferias y encuentros de INDAP con compra por QR, sin local comercial; retailers agrícolas como canal complementario desde 2028, conseguidos con trade marketing (2.5) |
 | Relación con clientes | Registro único de consultas, compra y soporte; guía inicial, seguimiento y métricas de atención |
-| Ingresos | Venta del equipo con aplicación incluida, sin suscripción, al precio derivado del modelo; pago por pasarela, sin crédito directo de TerraSense |
+| Ingresos | **Ventas:** equipo con aplicación incluida, sin suscripción, al precio derivado del modelo; pago por pasarela, sin crédito directo de TerraSense. **Financiamiento de la puesta en marcha** (cambio del BMC2): crédito por el 100 % de la inversión inicial y pie de los socios abonado como cuotas anticipadas; cifras en `docs/RESULTADOS_FINANCIEROS.md`. No es ingreso de explotación: se muestra porque la inversión ocurre antes de la primera venta |
 | Recursos clave | **Recursos humanos:** dos socios (venta y soporte técnico) y un contador; ensamblador desde 2028 y marketing desde 2029 (`dotacion_por_anio` en `finanzas/supuestos.json`). Además, producto disponible, aplicación, motor agronómico y catálogo de especies |
 | Actividades clave | Mantener calidad, preparar y despachar pedidos, captar contactos, demostrar, atender y evaluar resultados comerciales y de uso |
-| Socios clave | Proveedores y servicios operativos del modelo; pasarela y courier según contratación. INDAP es una vía exploratoria de contacto, no socio confirmado |
+| Socios clave | Proveedores y servicios operativos del modelo; pasarela, courier y banco del crédito. Equipos técnicos de INDAP (PRODESAL y SAT) y sus ferias como vía exploratoria de contacto, no socio confirmado |
 | Costos | **Recursos humanos:** remuneraciones del modelo (en 2027, socios y contador según `sueldo_socio_por_anio` y `sueldo_contador`); materiales, pauta por equipo y comisión comercial del modelo. Incentivos y ferias no se suman como gastos ya financiados |
 
-#### Consulta a tres potenciales clientes
+#### Justificación de los cambios: análisis, sin encuesta
 
-**Decisión del equipo:** los cambios del BMC1 al BMC2 se presentan, en el informe y en la presentación, como resultado de una consulta a tres potenciales clientes (un productor de hortalizas, un asesor técnico y un productor de frutales). Lo que dijo cada uno y el cambio que motivó están en la tabla «Consulta a tres potenciales clientes y cambios que motivó» de `Evaluacion 3.docx` y en la lámina 6 de `Evaluacion 3.pptx`. Las frases de esa tabla deben coincidir con lo que respondieron las personas consultadas: si se rehace la consulta, se actualizan ambos entregables. El BMC2 se declara abierto a cambios.
+**Decisión del equipo:** no se hizo una consulta a clientes y no se presenta una. Los cambios del BMC1 al BMC2 se justifican con tres antecedentes del propio proyecto: la capacidad y los costos del modelo económico, el análisis del consumidor de `Comercializacion de Tecnologias/Unidad 2/informe 2 comercializacio.md` y la propuesta de valor. Se resumen en tres hallazgos (tabla «Oportunidades de mejora del BMC1 y cambios que motivaron» de `Evaluacion 3.docx` y lámina 6 de `Evaluacion 3.pptx`):
+
+1. **Canal y capacidad:** cliente disperso y conectado (95,1 % de hogares rurales con internet, Nogales, 2026, en la Tabla 2.1 de Unidad 2) frente a distribuidores físicos que dos socios no pueden gestionar.
+2. **Incentivos sin costo conciliado:** comisión del 5 % a asesores referentes y kits de referidos (sección 7.3 de Unidad 2), sin partida propia en el modelo; además, el asesor es creíble porque no vende (grupos de referencia, Tabla 3.2 de Unidad 2).
+3. **Soporte humano:** compra extensa según Howard y Sheth (1969) y etapa 4 del recorrido de compra de Unidad 2 («quiere hablar con alguien»).
+
+**Validación programada:** entrevistas a productores y asesores en marzo de 2027 (fila del cronograma de implementación) y datos del registro comercial desde abril. Si contradicen un cambio, se ajusta el bloque. No se escriben respuestas de clientes hasta que existan.
 
 #### Oportunidades y cambios justificados
 
@@ -225,7 +233,8 @@ El Business Model Canvas (BMC, lienzo del modelo de negocio) organiza nueve bloq
 | La comisión comercial aparecía como pago al asesor, mientras también se contemplaba pasarela | No prometer comisión de referidos ni duplicar la partida de venta | Conciliar costos antes de aprobar un incentivo; la recomendación inicial se apoya en capacitación y material, sin pago adicional supuesto |
 | Se proponían kits gratuitos y otras promociones sin costo separado verificado | Ofrecer guía y atención con recursos existentes | Evitar comprometer accesorios o regalos no respaldados por el presupuesto |
 | Canal digital y soporte estaban descritos por separado | Registro comercial único y seguimiento por etapas | Mantener contexto entre consulta, pedido y atención; medir conversión sin contar contactos duplicados |
-| Beneficios ambientales generales | Metas ODS específicas y protocolo de observación | Distinguir utilidad del producto de impacto medido |
+| Beneficios ambientales generales | ODS 2, 6 y 15, uno por propósito de la misión, con protocolo de observación | Distinguir utilidad del producto de impacto medido |
+| Ingresos sin explicar cómo se financia la inversión previa a la primera venta | Fuentes de ingreso con ventas y financiamiento de la puesta en marcha | Hace visible el compromiso de los socios y que las ventas deben cubrir las cuotas del crédito |
 | Metas anuales sin reparto operativo en esta unidad | Calendario, responsables, métricas y revisión mensual | Convertir proyección financiera en acciones comprobables |
 
 El cambio histórico de precio de Unidad 1 a Unidad 2 ya está documentado en el estudio económico: se conserva el método basado en costo, sin volver a calcular ni fijar otro precio. Tampoco se atribuyen a BMC1 dependencias de fondos públicos: la diapositiva 5 de Unidad 1 rechaza basar el ingreso en esa dependencia.
@@ -274,7 +283,7 @@ El 30 % de utilidad exigida sobre costo no equivale al mismo porcentaje de marge
 
 La venta sigue siendo directa si TerraSense vende al cliente final. Un asesor que recomienda no equivale a un distribuidor. Marketplaces o reventa serían decisiones adicionales.
 
-**Cobertura y operación:** mantener el despacho nacional descrito en la sección 6.4 de Unidad 2, con confirmación de cobertura, plazo y disponibilidad para cada dirección antes del pago. Preparar pedidos desde el taller de la operación existente; la dirección logística se informa al transportista y en los documentos comerciales, sin inventarla en este plan. Facebook e Instagram concentran contenido reutilizable; buscador y YouTube complementan captación. WhatsApp es el canal humano central y correo conserva comunicaciones formales. Las primeras ventas no dependen de conseguir una red de asesores.
+**Cobertura y operación:** mantener el despacho nacional descrito en la sección 6.4 de Unidad 2, con confirmación de cobertura, plazo y disponibilidad para cada dirección antes del pago. Preparar pedidos desde el taller de la operación existente; la dirección logística se informa al transportista y en los documentos comerciales, sin inventarla en este plan. Instagram, Facebook y TikTok concentran contenido reutilizable; buscador y YouTube complementan captación. WhatsApp es el canal humano central y correo conserva comunicaciones formales. Las primeras ventas no dependen de conseguir una red de asesores.
 
 ### 2.4 Go to Market — diapositiva 14
 
@@ -325,14 +334,16 @@ Una demostración presencial ocasional es compatible con la venta por ecommerce 
 
 El trade marketing dirige acciones al intermediario para impulsar la comercialización. La PPT menciona exhibición, descuentos por volumen, material de punto de venta y capacitación.
 
-**Decisión del equipo:** el trade marketing se orienta a **conseguir retailers**. En 2027 la venta es directa por ecommerce; durante ese año el trade marketing identifica y califica casas comerciales agrícolas y distribuidores de insumos en exposiciones agrícolas y eventos de agrónomos, para incorporarlos como canal complementario desde 2028 (etapa de crecimiento). Responsables propuestos: Álvaro identifica y califica; Alan prepara demostraciones y capacitación del canal.
+**Decisión del equipo:** como la venta de 2027 es directa, el trade marketing se dirige a quienes influyen en la compra: equipos técnicos de PRODESAL y SAT y asesores (recomiendan), agrupaciones y cooperativas (compran varios equipos) y, desde 2028, casas comerciales agrícolas y distribuidores de insumos (canal complementario). **Punto de venta:** stand con exhibición y medición en vivo en ferias, encuentros y congresos organizados o apoyados por INDAP, con compra inmediata desde el teléfono del visitante mediante un código QR a la ficha del ecommerce (sigue siendo venta directa). No hay eventos ni participaciones confirmadas: se aplica la ruta de 2.4. Responsables propuestos: Álvaro identifica las actividades y califica retailers y cooperativas; Alan prepara demostraciones, material y capacitaciones.
 
 | Herramienta de la PPT | Aplicación | Condición |
 |---|---|---|
-| Exhibición en punto de venta | Equipo de demostración en el local del retailer | Su costo se evalúa con la ficha de costos antes de entregarlo |
-| Descuentos por volumen | Precio preferente según unidades compradas | El margen del retailer se financia con la comisión comercial del 5 % ya modelada; el precio al público no cambia |
-| Material POP | Ficha impresa, afiche con QR a la demostración y guía de primera medición | Mismo mensaje y precio que el ecommerce |
-| Capacitación al canal | Sesión práctica para que el vendedor demuestre la medición | Antes de la primera venta de cada retailer |
+| Exhibición en punto de venta | Stand con medición en vivo en ferias y congresos de INDAP, con compra por QR; desde 2028, equipo de demostración en el local del retailer | Actividades elegidas con los criterios de 2.4; costo de cada equipo de demostración evaluado con la ficha de costos |
+| Descuentos por volumen | Precio preferente para cooperativas o agrupaciones que compran varios equipos y, desde 2028, para retailers | Se financia con la comisión comercial del 5 % ya modelada; el precio al público no cambia |
+| Material POP | Pendón, ficha impresa, afiche con QR a la demostración y a la compra, y guía de primera medición | Mismo mensaje y precio que el ecommerce |
+| Capacitación al canal | Taller práctico para equipos técnicos de PRODESAL y SAT, asesores y vendedores de retailers | Antes de recomendar o vender; sin comisión |
+| Equipo de demostración en préstamo (complementaria) | Circula entre equipos técnicos y asesores capacitados para mostrarlo en visitas a campo | Unidades limitadas y registro de tenencia; costo con la ficha de costos |
+| Reconocimiento a prescriptores (complementaria) | Certificado de asesor capacitado y mención en el sitio y las redes | Sin pago ni descuento |
 
 **Programa de recomendación de asesores:** participación voluntaria, con ficha, guía de demostración y contacto técnico; registrar el origen de cada consulta. No prometer comisión, kit gratuito ni descuento. Toda condición superior a lo descrito la evalúan ambos socios con la ficha de costos: el 30 % de utilidad no es margen disponible para descuentos.
 
@@ -342,18 +353,20 @@ No requiere tienda física. Para TerraSense significa continuidad entre redes, e
 
 | Momento | Contacto | Información que debe continuar |
 |---|---|---|
-| Descubre | Redes o recomendación | Origen e interés del usuario |
+| Descubre | Instagram, Facebook, TikTok, YouTube o recomendación | Red de origen (enlace con UTM) e interés del usuario |
 | Consulta | Web y WhatsApp | Producto, dudas y respuestas anteriores |
-| Compra | Ecommerce | Oferta, condiciones y pedido identificable |
+| Compra | Tienda en línea o stand en feria, pagando desde el teléfono | Oferta, condiciones y pedido identificable |
 | Recibe | Aviso de despacho | Seguimiento y canal para incidencias |
 | Aprende | Guía y atención remota | Compra, equipo y ayuda entregada |
 | Solicita soporte | WhatsApp o correo | Pedido, número de serie e historial del caso |
 
-**Implementación propuesta:** ficha comercial única, inventario coherente con la tienda, mensaje y precio consistentes, registro de incidencias asociado a la compra. Verificar capacidades existentes antes de prometer integración automática.
+**Recorrido de la PPT aplicado:** móvil (redes o WhatsApp) → web (ficha, videos y preguntas frecuentes) → compra sin fricciones en la tienda en línea o en el stand de una feria.
+
+**Implementación propuesta:** tienda en Shopify conectada con Bsale (inventario y boleta electrónica, mediante una de las apps de Bsale de la tienda de aplicaciones de Shopify) y con HubSpot CRM (conector nativo de sincronización de contactos y pedidos); conversaciones de WhatsApp asociadas a la ficha del contacto; mensaje y precio consistentes; enlaces con UTM por red. El costo mensual cabe en `softwares_cloud` de `finanzas/supuestos.json`. Antes de abrir se verifica en cada ficha qué cubre la app elegida (boleta, stock, notas de crédito) y se prueba todo con el pedido de ensayo.
 
 **Beneficios por evaluar:** menos repetición de consultas, menor abandono, mayor conversión y mejor satisfacción. Medir antes de afirmar resultados.
 
-**Herramienta y responsabilidad del plan:** registro comercial compartido en una planilla del entorno ofimático ya disponible, con los campos de 5.2. Álvaro registra consultas y pedidos; Alan completa uso y soporte. El traspaso inicial es manual y verificable; no se afirma una integración automática inexistente. El nombre del proveedor de tienda no altera este recorrido, que debe probarse con un pedido de ensayo antes de recibir compras.
+**Herramienta y responsabilidad del plan:** HubSpot CRM en su plan gratuito, con los campos de 5.2. Álvaro registra consultas y pedidos; Alan completa uso y soporte. Contactos y pedidos llegan desde Shopify; las conversaciones de WhatsApp se asocian a mano. El recorrido se prueba con un pedido de ensayo antes de recibir compras.
 
 ## 4. Gestión de ventas — diapositivas 20 a 23
 
@@ -471,7 +484,7 @@ Vincular cada acción a una partida del modelo y separar gastos adicionales aún
 
 Calcular unidades y gasto mensual multiplicando los totales fuente por estos pesos; si cambia la meta, ajustar el redondeo de unidades del último mes para conservar el total. No replicar manualmente precios ni montos del flujo. Los meses anteriores a marzo no reciben pauta de esta programación. La pauta de expectativa se paga antes de las primeras ventas y debe incluirse en el control de caja de la puesta en marcha; un flujo anual no prueba por sí solo la liquidez mensual.
 
-**Distribución de pauta por canal propuesta:** 50 % Meta (Facebook e Instagram), 35 % buscador y 15 % video. Cada sobre mensual se reparte con esos pesos. En la revisión mensual puede reasignarse entre canales, documentando el motivo y sin aumentar el total anual. El contenido se produce con el trabajo de los socios; no se presupone agencia adicional.
+**Distribución de pauta por canal propuesta:** 50 % Meta (Facebook e Instagram), 35 % buscador y 15 % video (YouTube y TikTok). Cada sobre mensual se reparte con esos pesos. En la revisión mensual puede reasignarse entre canales, documentando el motivo y sin aumentar el total anual. El contenido se produce con el trabajo de los socios; no se presupone agencia adicional.
 
 La feria no tiene una partida adicional aprobada: priorizar oportunidades compatibles con los recursos disponibles y evaluar costos antes de reservar. Ninguna compra depende de que INDAP acepte una participación. Para contenidos, reutilizar el calendario de tres meses y piezas de Unidad 2, retirando precios anteriores, beneficios sin evidencia e incentivos no conciliados.
 
@@ -483,7 +496,7 @@ La feria no tiene una partida adicional aprobada: priorizar oportunidades compat
 
 La gestión de cuentas clave (KAM) concentra atención en clientes estratégicos por su potencial, rentabilidad y relación. Un asesor, una asociación o un comprador de varios equipos puede ser candidato; recomendar el producto no convierte automáticamente a alguien en cuenta clave.
 
-**Propuesta:** evaluar necesidad, volumen posible, costo de atención y continuidad de la relación. Para cada cuenta registrar interlocutor, problema, propuesta, próxima acción y resultado esperado. Separar potencial de compras efectivamente comprometidas.
+**Propuesta:** evaluar necesidad, volumen posible, costo de atención y continuidad de la relación. Para cada cuenta registrar interlocutor, problema, propuesta, próxima acción y resultado esperado. Separar potencial de compras efectivamente comprometidas. Como la sonda es el producto de entrada, la cuenta clave es la primera candidata a las soluciones complementarias de 1.1 D: así se aplican los tres resultados de la diapositiva 25 (relación más duradera, mayor participación en el gasto del cliente y anticipación de necesidades).
 
 **Gestión operativa:** Álvaro mantiene una ficha por cuenta candidata: interlocutor, tipo de uso, equipos potenciales, costo de acompañamiento, próxima acción y resultado. Priorizar asesores o asociaciones con necesidad concreta y capacidad de coordinar varias compras, sin convertirlos en clientes confirmados. Revisar cuentas mensualmente; una reunión o participación en feria no equivale a una venta comprometida.
 
@@ -495,7 +508,7 @@ Un sistema de gestión de relaciones con clientes (CRM) permite seguir oportunid
 
 La herramienta se dimensiona para el equipo y presupuesto existentes. El registro comercial es distinto del backoffice del producto; no se presume que este último ya integre tienda, contactos o seguimiento de ventas.
 
-**Herramienta seleccionada para el plan:** planilla comercial compartida del entorno ofimático existente, como CRM inicial sin contratar una plataforma adicional. Álvaro actualiza oportunidades al terminar cada atención y Alan completa soporte. Cada fila de oportunidad incluye identificador de contacto, fuente, necesidad, fecha, etapa, responsable, próxima acción y resultado; pedidos y casos tienen identificadores propios vinculados al mismo contacto. Guardar solo datos necesarios y limitar acceso a quienes atienden. Evaluar automatización cuando se observen duplicados, pérdida de seguimiento o una carga que exceda la capacidad disponible; no por agregar tecnología al informe.
+**Herramienta seleccionada para el plan:** HubSpot CRM en su plan gratuito desde el lanzamiento, conectado con la tienda en Shopify (y esta con Bsale), sin costo de licencia para dos personas. Pasar a un plan de pago u otra plataforma de la PPT solo si el volumen o la incorporación de marketing en 2029 lo exigen. Álvaro actualiza oportunidades al terminar cada atención y Alan completa soporte. Cada oportunidad incluye identificador de contacto, fuente, necesidad, fecha, etapa, responsable, próxima acción y resultado; pedidos y casos tienen identificadores propios vinculados al mismo contacto. Guardar solo datos necesarios y limitar acceso a quienes atienden.
 
 ### 5.3 Métricas clave — diapositiva 27
 
