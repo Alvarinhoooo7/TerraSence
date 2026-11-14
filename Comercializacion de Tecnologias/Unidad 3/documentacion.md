@@ -216,7 +216,7 @@ El Business Model Canvas (BMC, lienzo del modelo de negocio) organiza nueve bloq
 
 #### Justificación de los cambios: análisis, sin encuesta
 
-**Decisión del equipo:** no se hizo una consulta a clientes y no se presenta una. Los cambios del BMC1 al BMC2 se justifican con tres antecedentes del propio proyecto: la capacidad y los costos del modelo económico, el análisis del consumidor de `Comercializacion de Tecnologias/Unidad 2/informe 2 comercializacio.md` y la propuesta de valor. Se resumen en tres hallazgos (tabla «Oportunidades de mejora del BMC1 y cambios que motivaron» de `Evaluacion 3.docx` y lámina 6 de `Evaluacion 3.pptx`):
+**Decisión del equipo:** no se hizo una consulta a clientes y no se presenta una. Los cambios del BMC1 al BMC2 se justifican con tres antecedentes del propio proyecto: la capacidad y los costos del modelo económico, el análisis del consumidor de `Comercializacion de Tecnologias/Unidad 2/informe 2 comercializacio.md` y la propuesta de valor. Se resumen en tres hallazgos (tabla «Oportunidades de mejora del BMC1 y cambios que motivaron» de `Evaluacion 3.docx` y láminas 9 a 11 de `Evaluacion 3.pptx`: BMC1, hallazgos y BMC2):
 
 1. **Canal y capacidad:** cliente disperso y conectado (95,1 % de hogares rurales con internet, Nogales, 2026, en la Tabla 2.1 de Unidad 2) frente a distribuidores físicos que dos socios no pueden gestionar.
 2. **Incentivos sin costo conciliado:** comisión del 5 % a asesores referentes y kits de referidos (sección 7.3 de Unidad 2), sin partida propia en el modelo; además, el asesor es creíble porque no vende (grupos de referencia, Tabla 3.2 de Unidad 2).
