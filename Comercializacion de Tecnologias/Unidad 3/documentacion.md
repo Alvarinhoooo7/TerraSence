@@ -91,27 +91,37 @@ Una ventaja **sostenible en el tiempo** puede mantenerse frente a competidores. 
 
 **Sostenimiento elegido:** mantener el criterio agronómico documentado, revisar las recomendaciones y transformar las consultas de soporte en mejoras de claridad. La red de asesores es una vía de desarrollo comercial, no una barrera competitiva ya construida.
 
-### 1.2 Objetivos de Desarrollo Sostenible — diapositivas 5 y 6
+### 1.2 Objetivos de Desarrollo Sostenible — diapositiva 5
 
-**Selección definida por el equipo:** tres ODS, uno por cada propósito de la misión: ODS 2, Hambre cero (el agricultor y su bienestar económico); ODS 6, Agua limpia y saneamiento (uso eficiente del agua de riego), y ODS 15, Vida de ecosistemas terrestres (el suelo). Los ODS 9 (innovación) y 13 (clima) se mencionan como vínculos indirectos y no se adoptan, para concentrar el seguimiento en tres. La correspondencia con los ODS es un análisis del proyecto, no una certificación o respaldo de Naciones Unidas.
+**Selección definida por el equipo:** tres ODS, uno por cada recurso que la misión busca cuidar: ODS 6, Agua limpia y saneamiento (el agua de riego); ODS 12, Producción y consumo responsables (los insumos), y ODS 15, Vida de ecosistemas terrestres (el suelo). **Criterio de selección:** solo se adopta un ODS si tiene una meta sobre la que el producto actúa directamente en el campo y un indicador con el que su aporte puede seguirse. El bienestar económico del agricultor no se asocia a un ODS aparte: es la consecuencia de los tres, porque el agua y el fertilizante que no se desperdician tampoco se pagan. La correspondencia con los ODS es un análisis del proyecto, no una certificación o respaldo de Naciones Unidas.
 
-#### A. ODS 2. Hambre cero — el agricultor
+**Por qué no Hambre cero (ODS 2):** se descartó como objetivo propio porque el plan no mide rendimiento ni seguridad alimentaria, que es lo que ese objetivo exigiría demostrar. Queda como vínculo indirecto, junto con los ODS 9 (innovación) y 13 (clima), para concentrar el seguimiento en tres.
 
-Las metas 2.3 y 2.4 buscan aumentar la productividad agrícola y los ingresos de los productores en pequeña escala, y asegurar sistemas de producción sostenibles con prácticas que mejoren progresivamente la calidad del suelo y la tierra. Fuente: Naciones Unidas en Chile (s. f.-b), [Hambre cero](https://chile.un.org/es/sdgs/2).
+Cada ODS se argumenta en cuatro pasos, los mismos de la lámina 5 de `Evaluacion 3.pptx`: la meta, por qué importa, qué hace TerraSense y cómo se mide.
 
-**Justificación:** TerraSense pone la agricultura de precisión al alcance del pequeño y mediano agricultor, para que gaste en agua y fertilizante solo lo que el cultivo aprovecha y decida a tiempo antes de perder rendimiento. No se promete aumento de ingresos ni de productividad: se evalúa con el seguimiento de D.
+#### A. ODS 6. Agua limpia y saneamiento — el agua
 
-#### B. ODS 6. Agua limpia y saneamiento — el agua
+**Meta 6.4:** aumentar considerablemente el uso eficiente de los recursos hídricos en todos los sectores. Fuente: Naciones Unidas en Chile (s. f.-a), [Agua limpia y saneamiento](https://chile.un.org/es/sdgs/6).
 
-La meta 6.4 plantea aumentar considerablemente el uso eficiente de los recursos hídricos en todos los sectores. Fuente: Naciones Unidas en Chile (s. f.-a), [Agua limpia y saneamiento](https://chile.un.org/es/sdgs/6).
+**Por qué importa:** según la Dirección General de Aguas, la agricultura es el mayor usuario de agua consuntiva de Chile, con un 72 % (Douglas, 2020), en un país que enfrenta escasez hídrica.
 
-**Justificación:** la escasez hídrica es uno de los mayores riesgos de la agricultura chilena. La humedad del suelo interpretada según el cultivo y su etapa, cruzada con el pronóstico de lluvia, ayuda a regar cuando el cultivo lo necesita. El equipo no mide el volumen de agua: una lectura de humedad no permite afirmar cuántos litros se ahorraron.
+**Qué hace TerraSense:** interpreta la humedad del suelo según el cultivo y su etapa y la cruza con el pronóstico; una lluvia de 5 mm o más hoy o mañana reemplaza un riego (`RAIN_INSTEAD_OF_IRRIGATION_MM` en `App/src/engine/contextualAdvice.ts`). El equipo no mide el volumen de agua: una lectura de humedad no permite afirmar cuántos litros se ahorraron.
+
+#### B. ODS 12. Producción y consumo responsables — los insumos
+
+**Metas 12.2 y 12.4:** lograr la gestión sostenible y el uso eficiente de los recursos naturales, y reducir la liberación de productos químicos al agua y al suelo. Fuente: Naciones Unidas en Chile (s. f.-b), [Producción y consumo responsables](https://chile.un.org/es/sdgs/12).
+
+**Por qué importa:** el fertilizante que el cultivo no absorbe es un gasto perdido para el agricultor y puede terminar en las napas. Se enuncia sin cifra: no se encontró una fuente verificable sobre la eficiencia de uso del fertilizante en Chile, y no se cita una de memoria.
+
+**Qué hace TerraSense:** interpreta el pH y la conductividad eléctrica según la especie y la etapa, y advierte cuándo evitar fertilizantes de alto índice salino o confirmar la condición del suelo antes de aplicar una enmienda (acciones de `App/src/engine/agronomyEngine.ts`). N, P y K son valores de referencia y no determinan una dosis: no se promete una receta de fertilización.
 
 #### C. ODS 15. Vida de ecosistemas terrestres — el suelo
 
-La meta 15.3 plantea luchar contra la desertificación y rehabilitar las tierras y los suelos degradados. Fuente: Naciones Unidas en Chile (s. f.-c), [Vida de ecosistemas terrestres](https://chile.un.org/es/sdgs/15).
+**Meta 15.3:** luchar contra la desertificación y rehabilitar las tierras y los suelos degradados. Fuente: Naciones Unidas en Chile (s. f.-c), [Vida de ecosistemas terrestres](https://chile.un.org/es/sdgs/15).
 
-**Justificación:** el suelo es el ecosistema que TerraSense mide. Medir el mismo punto temporada tras temporada (humedad, pH y conductividad eléctrica), con el historial georreferenciado, permite advertir cambios que anticipan un deterioro y corregir el manejo. La conductividad medida en el suelo no se convierte en salinidad de extracto de laboratorio: el seguimiento es de tendencia, no un diagnóstico de degradación.
+**Por qué importa:** el 49,1 % del territorio nacional, equivalente a 36,8 millones de hectáreas, presenta algún grado de erosión, según el estudio que CIREN elaboró para el Ministerio de Agricultura (Medina, 2011).
+
+**Qué hace TerraSense:** el suelo es el ecosistema que mide. Medir el mismo punto temporada tras temporada (humedad, pH y conductividad eléctrica), con el historial georreferenciado, permite advertir cambios que anticipan un deterioro y corregir el manejo. El equipo no rehabilita suelos: ayuda a no degradarlos. La conductividad medida en el suelo no se convierte en salinidad de extracto de laboratorio: el seguimiento es de tendencia, no un diagnóstico de degradación.
 
 #### D. Acciones e indicadores de seguimiento
 
@@ -122,7 +132,7 @@ Indicadores internos propuestos, aplicados a compradores voluntarios durante los
 | Acompañar la comprensión del plan de acción | Usuarios que explican la orientación y una decisión pertinente / usuarios evaluados × 100 | Pauta breve de puesta en marcha | Después del acompañamiento inicial |
 | Registrar el uso en decisiones de manejo | Casos con lectura, orientación y decisión documentadas / casos de seguimiento × 100 | Registro voluntario de uso y decisión | Mensual |
 | Seguir la condición del suelo (ODS 15) | Puntos medidos de forma repetida, con la evolución de su pH y su conductividad eléctrica por temporada | Historial de mediciones georreferenciadas del comprador | Al cierre de cada temporada |
-| Evaluar el uso de insumos (ODS 2) | Fertilizante aplicado por superficie y rendimiento obtenido en temporadas comparables | Registro voluntario de compras de insumos y de cosecha | Al cierre de cada temporada |
+| Evaluar el uso de insumos (ODS 12) | Fertilizante aplicado por superficie y rendimiento obtenido en temporadas comparables | Registro voluntario de compras de insumos y de cosecha | Al cierre de cada temporada |
 | Evaluar el uso de agua (ODS 6) | Volumen de agua aplicado por superficie en períodos comparables | Medición externa de caudal o volumen y duración del riego | Al cierre del período de riego |
 
 **Criterio de comparación:** establecer una línea de base, identificar condiciones comparables y registrar los factores que puedan explicar diferencias. Una variación antes/después no demuestra por sí sola que el dispositivo la causó; si faltan datos, se informa el uso observado y el impacto queda sin determinar.
@@ -135,9 +145,13 @@ La adhesión a un ODS fortalece la coherencia del proyecto, pero no es por sí s
 
 #### F. Referencias de esta sección — base APA 7
 
+Douglas, R. (2020, 4 de abril). Agua y sequía: ¿cuáles son las industrias que más emplean este recurso y qué están haciendo para darle un uso más eficiente? *El Dínamo*. https://www.eldinamo.cl/ambiente/2020/04/04/agua-y-sequia-cuales-son-las-industrias-que-mas-emplean-este-recurso-y-que-estan-haciendo-para-darle-un-uso-mas-eficiente/
+
+Medina, A. (2011, 23 de febrero). El 50% del territorio nacional presenta algún grado de erosión en sus suelos. *El Dínamo*. https://www.eldinamo.cl/pais/2011/02/23/el-50-del-territorio-nacional-presenta-algun-grado-de-erosion-en-sus-suelos/
+
 Naciones Unidas en Chile. (s. f.-a). *Agua limpia y saneamiento*. https://chile.un.org/es/sdgs/6
 
-Naciones Unidas en Chile. (s. f.-b). *Hambre cero*. https://chile.un.org/es/sdgs/2
+Naciones Unidas en Chile. (s. f.-b). *Producción y consumo responsables*. https://chile.un.org/es/sdgs/12
 
 Naciones Unidas en Chile. (s. f.-c). *Vida de ecosistemas terrestres*. https://chile.un.org/es/sdgs/15
 
@@ -205,7 +219,7 @@ El Business Model Canvas (BMC, lienzo del modelo de negocio) organiza nueve bloq
 | Bloque | Definición operativa |
 |---|---|
 | Segmentos | Agricultores con necesidad de orientación de manejo y disposición a usar el equipo; asesores que atienden varios campos. Captación nacional con prioridad a contactos calificados |
-| Propuesta de valor | Plan de acción comprensible a partir de mediciones y contexto del cultivo, para decidir y utilizar mejor recursos; sostenibilidad vinculada a los ODS 2, 6 y 15 |
+| Propuesta de valor | Plan de acción comprensible a partir de mediciones y contexto del cultivo, para decidir y utilizar mejor recursos; sostenibilidad vinculada a los ODS 6, 12 y 15 |
 | Canales | Ecommerce en Shopify como canal de venta; Instagram, Facebook, TikTok, buscador y YouTube para captación; WhatsApp y correo para acompañamiento; stand en ferias y encuentros de INDAP con compra por QR, sin local comercial; retailers agrícolas como canal complementario desde 2028, conseguidos con trade marketing (2.5) |
 | Relación con clientes | Registro único de consultas, compra y soporte; guía inicial, seguimiento y métricas de atención |
 | Ingresos | **Ventas:** equipo con aplicación incluida, sin suscripción, al precio derivado del modelo; pago por pasarela, sin crédito directo de TerraSense. **Financiamiento de la puesta en marcha** (cambio del BMC2): crédito por el 100 % de la inversión inicial y pie de los socios abonado como cuotas anticipadas; cifras en `docs/RESULTADOS_FINANCIEROS.md`. No es ingreso de explotación: se muestra porque la inversión ocurre antes de la primera venta |
@@ -235,7 +249,7 @@ El Business Model Canvas (BMC, lienzo del modelo de negocio) organiza nueve bloq
 | La comisión comercial aparecía como pago al asesor, mientras también se contemplaba pasarela | No prometer comisión de referidos ni duplicar la partida de venta | Conciliar costos antes de aprobar un incentivo; la recomendación inicial se apoya en capacitación y material, sin pago adicional supuesto |
 | Se proponían kits gratuitos y otras promociones sin costo separado verificado | Ofrecer guía y atención con recursos existentes | Evitar comprometer accesorios o regalos no respaldados por el presupuesto |
 | Canal digital y soporte estaban descritos por separado | Registro comercial único y seguimiento por etapas | Mantener contexto entre consulta, pedido y atención; medir conversión sin contar contactos duplicados |
-| Beneficios ambientales generales | ODS 2, 6 y 15, uno por propósito de la misión, con protocolo de observación | Distinguir utilidad del producto de impacto medido |
+| Beneficios ambientales generales | ODS 6, 12 y 15, uno por cada recurso que la misión busca cuidar, con protocolo de observación | Distinguir utilidad del producto de impacto medido |
 | Ingresos sin explicar cómo se financia la inversión previa a la primera venta | Fuentes de ingreso con ventas y financiamiento de la puesta en marcha | Hace visible el compromiso de los socios y que las ventas deben cubrir las cuotas del crédito |
 | Metas anuales sin reparto operativo en esta unidad | Calendario, responsables, métricas y revisión mensual | Convertir proyección financiera en acciones comprobables |
 
@@ -707,7 +721,7 @@ Usar el formato institucional del trabajo anterior como referencia y conservar e
 
 ### 8.4 Fuentes y referencias del desarrollo
 
-Las referencias ODS completas están en 1.2.G. Se añaden las siguientes fuentes primarias, citadas en sus apartados:
+Las referencias ODS completas están en 1.2.F. Se añaden las siguientes fuentes primarias, citadas en sus apartados:
 
 - Bluelab. (s. f.). *FAQ for the Bluelab Pulse Meter*. https://support.bluelab.com/bluelab-pulse-meter-faq
 - Hanna Instruments. (s. f.). *GroLine waterproof portable hydroponics pH/EC/TDS meter – HI9814*. https://hannainst.com/groline-waterproof-portable-ph-ec-tds-meter/
