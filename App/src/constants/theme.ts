@@ -19,6 +19,14 @@ export const Colors = {
     warning: '#9E6612',      // Condición que requiere atención
     danger: '#A33528',       // Condición limitante
     error: '#A33528',
+    // Fondos de ícono por estado, zona favorable de la escala y pin del punto medido.
+    tintSuccess: '#E6F1EA',
+    tintWarning: '#F6EBD6',
+    onTintWarning: '#7A4E0B',
+    tintDanger: '#F7E3DF',
+    scaleOk: '#A9D3B8',
+    pin: '#F0A63A',
+    pinLight: '#F6D08F',
     text: '#14201B',
     textSecondary: '#48584F',
     textMuted: '#7B8A82',
@@ -39,6 +47,13 @@ export const Colors = {
     warning: '#D6A044',
     danger: '#E07463',
     error: '#E07463',
+    tintSuccess: '#1B3327',
+    tintWarning: '#3A2E14',
+    onTintWarning: '#E8B860',
+    tintDanger: '#3D1F1A',
+    scaleOk: '#2F6B49',
+    pin: '#F0A63A',
+    pinLight: '#F6D08F',
     text: '#E4EAE6',
     textSecondary: '#9DACA6',
     textMuted: '#75847D',
