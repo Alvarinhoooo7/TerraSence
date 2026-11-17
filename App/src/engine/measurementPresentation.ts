@@ -367,6 +367,18 @@ export function savedSpecies(diagnosis: unknown): PresentationSpecies | null {
   return isMeasurementPresentation(presentation) && presentation.species ? presentation.species : null;
 }
 
+/**
+ * Titular de la primera recomendación de un diagnóstico guardado (su `headline`, o su `title` si
+ * no lo trae); `null` si el diagnóstico no trae recomendaciones. Sólo lee lo guardado: el texto
+ * queda en el idioma y con las reglas con que se midió.
+ */
+export function savedHeadline(diagnosis: unknown): string | null {
+  const presentation = diagnosis && typeof diagnosis === 'object' ? (diagnosis as { presentation?: unknown }).presentation : undefined;
+  if (!isMeasurementPresentation(presentation)) return null;
+  const first = presentation.recommendations?.[0];
+  return first ? first.headline ?? first.title : null;
+}
+
 /** Sólo lee la instantánea guardada; no ejecuta reglas nuevas sobre históricos. */
 export function savedEvaluationState(diagnosis: unknown): EvaluationState | undefined {
   if (!diagnosis || typeof diagnosis !== 'object') return undefined;

@@ -12,9 +12,9 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, RefreshControl, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { VERDICT_META } from '../constants/theme';
+import Svg, { Path } from 'react-native-svg';
 import { localizedStageTitle } from '../engine/stageEvaluator';
-import { presentationSpeciesName, savedEvaluationState, savedSpecies } from '../engine/measurementPresentation';
+import { presentationSpeciesName, savedEvaluationState, savedHeadline, savedSpecies } from '../engine/measurementPresentation';
 import { EntryHeading } from '../components/entry/EntryUI';
 import { ScreenCard, ScreenLabel, ScreenText } from '../components/screen/ScreenUI';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -134,30 +134,41 @@ export const HistoryScreen: React.FC<Props> = ({ onClose, onOpenDetail }) => {
             : t('No hay mediciones con los filtros elegidos.', 'There are no readings with the selected filters.')}</ScreenText></ScreenCard>}
         renderSectionHeader={({ section }) => <View style={{ paddingTop: 12, paddingBottom: 8 }}><ScreenLabel>{grouping === 'date' ? section.title : `${section.title} · ${section.data.length}`}</ScreenLabel></View>}
         renderItem={({ item, index, section }) => {
-          const meta = VERDICT_META[item.verdict];
-          const stroke = savedEvaluationState(item.diagnosis) === 'insufficient_data' ? colors.textSecondary
-            : isDark ? meta.strokeDark : meta.strokeLight;
+          // Veredicto del motor: lo guardado manda. Una evaluación insuficiente es neutra, no verde ni roja.
+          const insufficient = savedEvaluationState(item.diagnosis) === 'insufficient_data';
+          const look = insufficient ? { glyph: 'M6 12h12', tint: colors.bubbleInactive, ink: colors.textSecondary }
+            : item.verdict === 'GREEN' ? { glyph: 'M5 12l5 5 9-10', tint: colors.tintSuccess, ink: colors.success }
+            : item.verdict === 'RED' ? { glyph: 'M6 6l12 12M18 6L6 18', tint: colors.tintDanger, ink: colors.danger }
+            : { glyph: 'M12 5v9M12 19h.01', tint: colors.tintWarning, ink: colors.onTintWarning };
           const stage = PHENOLOGICAL_STAGES.find((s) => s.id === item.stage);
+          const stageName = stage ? (language === 'en' ? stage.labelEn : stage.label) : '';
           const species = savedSpecies(item.diagnosis);
+          // Antes de la versión 3 no se guardaba la especie; en pre-siembra no se pregunta.
+          const speciesName = species ? presentationSpeciesName(species, language) : item.stage === 'pre_siembra' ? null : t('Sin especie', 'No species');
+          const headline = savedHeadline(item.diagnosis) ?? localizedStageTitle(item.stage, item.verdict, item.title, language);
+          const when = grouping === 'date' ? hourLabel(item.measuredAt, locale) : `${new Date(item.measuredAt).toLocaleDateString(locale, { day: 'numeric', month: 'short' })} ${hourLabel(item.measuredAt, locale)}`;
+          const backup = item.isPending ? t('Guardada en el teléfono · pendiente de respaldo', 'Saved on phone · pending backup') : t('Respaldada en la nube', 'Backed up to cloud');
           return (
             <TouchableOpacity
               guide={index === 0 && section === sections[0] ? t('Abre el detalle de esta lectura: valores, recomendación y respaldo. Las demás filas funcionan de la misma manera.', 'Opens this reading’s values, recommendation and backup status. Other rows work the same way.') : false}
               guideTitle={t('Detalle de una lectura', 'Reading details')}
               accessibilityRole="button"
+              accessibilityLabel={`${[speciesName, stageName].filter(Boolean).join(' · ')}, ${when}. ${headline}. ${backup}`}
               onPress={() => onOpenDetail(item)}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border,
-                backgroundColor: colors.card, paddingHorizontal: 18, paddingVertical: 14, marginBottom: 12, minHeight: 72 }}>
-              <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: stroke }} />
-              <View style={{ flex: 1, gap: 3 }}>
-                <Text style={{ color: colors.text, fontSize: 17, fontWeight: '600' }} numberOfLines={1}>{localizedStageTitle(item.stage, item.verdict, item.title, language)}</Text>
-                <Text style={{ color: colors.textSecondary, fontSize: 14 }}>
-                  {grouping === 'date' ? hourLabel(item.measuredAt, locale) : `${new Date(item.measuredAt).toLocaleDateString(locale, { day: 'numeric', month: 'short' })} ${hourLabel(item.measuredAt, locale)}`} · {stage ? (language === 'en' ? stage.labelEn : stage.label) : ''}{species ? ` · ${presentationSpeciesName(species, language)}` : ''} · pH {item.ph.toLocaleString(locale, { maximumFractionDigits: 1, minimumFractionDigits: 1 })} · {Math.round(item.vwcPercent)} %
-                </Text>
-                <Text style={{ color: item.isPending ? colors.warning : colors.primary, fontSize: 13, fontWeight: '600' }}>
-                  {item.isPending ? t('Guardada en el teléfono · pendiente', 'Saved on phone · pending') : t('Respaldada en la nube', 'Backed up to cloud')}
-                </Text>
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 20, borderWidth: 1, borderColor: colors.border,
+                backgroundColor: colors.card, padding: 14, marginBottom: 10, minHeight: 72 }}>
+              <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: look.tint, alignItems: 'center', justifyContent: 'center' }}>
+                <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={look.ink} strokeWidth={2.8} strokeLinecap="round" strokeLinejoin="round"><Path d={look.glyph} /></Svg>
               </View>
-              <Text style={{ color: colors.primary, fontSize: 26 }}>›</Text>
+              <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
+                  <Text style={{ flex: 1, color: colors.text, fontSize: 16, fontWeight: '700' }} numberOfLines={1}>{[speciesName, stageName].filter(Boolean).join(' · ')}</Text>
+                  <Text style={{ color: colors.textSecondary, fontSize: 13 }}>{when}</Text>
+                </View>
+                <Text style={{ color: look.ink, fontSize: 14, fontWeight: '600' }} numberOfLines={2}>{headline}</Text>
+                <Text style={{ color: item.isPending ? colors.onTintWarning : colors.textSecondary, fontSize: 13 }}>{backup}</Text>
+              </View>
+              <Text accessibilityElementsHidden importantForAccessibility="no" style={{ color: colors.primary, fontSize: 22 }}>›</Text>
             </TouchableOpacity>
           );
         }}

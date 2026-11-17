@@ -423,9 +423,9 @@ Orden de la pantalla, de arriba hacia abajo (maqueta `Main`):
 export function savedHeadline(diagnosis: unknown): string | null;
 ```
 
-- [ ] **Paso 1: prueba.** Con un diagnóstico que trae recomendaciones devuelve el `headline` de la primera, o su `title` si no hay `headline`; con uno antiguo o con un valor que no es un objeto, `null`.
-- [ ] **Paso 2:** implementar. **Paso 3:** la fila del historial (maqueta `Mediciones`) lleva un cuadro con ícono según el veredicto (visto, signo de exclamación o equis, sobre `tintSuccess`, `tintWarning` o `tintDanger`), especie y etapa, la hora, el titular en el color del estado (o el título que ya se mostraba, si `savedHeadline` da `null`) y el estado de respaldo.
-- [ ] **Paso 4:** `npm run type-check && npm test`. Commit: `feat(app): muestra la primera acción en cada fila del historial`.
+- [x] **Paso 1: prueba.** Con un diagnóstico que trae recomendaciones devuelve el `headline` de la primera, o su `title` si no hay `headline`; con uno antiguo o con un valor que no es un objeto, `null`.
+- [x] **Paso 2:** implementar. **Paso 3:** la fila del historial (maqueta `Mediciones`) lleva un cuadro con ícono según el veredicto (visto, signo de exclamación o equis, sobre `tintSuccess`, `tintWarning` o `tintDanger`), especie y etapa, la hora, el titular en el color del estado (o el título que ya se mostraba, si `savedHeadline` da `null`) y el estado de respaldo.
+- [x] **Paso 4:** `npm run type-check && npm test`. Commit: `feat(app): muestra la primera acción en cada fila del historial`.
 
 ---
 
