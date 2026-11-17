@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { BackHandler, FlatList, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
 import { Text } from './AppText';
 import { useReducedMotion } from 'react-native-reanimated';
 import { GuideScrollView } from './guide/GuideControls';
@@ -16,13 +17,13 @@ import { useAppStore } from '../store/useAppStore';
 import { PHENOLOGICAL_STAGES } from '../types/app';
 import { distinctNotes, parameterLabel, presentationSpeciesName, speciesRulesOutdated, type MeasurementPresentation, type ParameterPresentation, type PresentationDerived } from '../engine/measurementPresentation';
 import { formatEngineMetric, formatTemperature, formatTemperatureDifference } from '../utils/units';
-import { MetricBadge, MetricScale } from './result/ResultVisuals';
+import { MetricScale } from './result/ResultVisuals';
 import { buildParameterCopy, derivedMeaning } from './result/resultCopy';
 import { BottomSheet, TechnicalDetail } from './result/BottomSheet';
 import { ResultHero } from './result/ResultHero';
 import { CoverageSummaryBox, CropOptionsList, PlanList, whenLabel } from './result/PlanList';
 import { WeatherStrip } from './result/WeatherStrip';
-import { ReadingGroup } from './result/ReadingGroup';
+import { ReadingGroup, statusLook } from './result/ReadingGroup';
 import { NutrientGroup } from './result/NutrientGroup';
 
 const NUTRIENTS = ['nitrogen', 'phosphorus', 'potassium'];
@@ -104,21 +105,15 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, onEx
   const desfasada = speciesRulesOutdated(p.species);
   const stageItem = PHENOLOGICAL_STAGES.find(s => s.id === p.stage);
   const stage = (language === 'en' ? stageItem?.labelEn : stageItem?.label) ?? '';
-  const statusLabel = (m: ParameterPresentation) => NUTRIENTS.includes(m.key) ? t('Sin validar', 'Not validated') : {
-    OPTIMAL: t('Condición favorable', 'Favorable condition'), WARNING: t('Requiere atención', 'Needs attention'),
-    CRITICAL: t('Condición limitante', 'Limiting condition'), INFO: t('Dato de contexto', 'Context data'),
-  }[m.status];
-  const tone = (m: ParameterPresentation) => NUTRIENTS.includes(m.key) ? colors.textSecondary
-    : m.status === 'CRITICAL' ? colors.danger : m.status === 'WARNING' ? colors.warning : m.status === 'OPTIMAL' ? colors.success : colors.textSecondary;
   const value = (m: ParameterPresentation) => {
     if (m.value == null) return t('Sin dato', 'No data');
     const f = formatEngineMetric(m.key, m.value, m.unit, system);
     return `${f.value.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} ${f.unit}`;
   };
-  const valueParts = (m: ParameterPresentation) => {
+  const valueParts = (m: ParameterPresentation, minimumFractionDigits = 0) => {
     if (m.value == null) return null;
     const f = formatEngineMetric(m.key, m.value, m.unit, system);
-    return { number: f.value.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 1 }), unit: f.unit };
+    return { number: f.value.toLocaleString(locale, { minimumFractionDigits, maximumFractionDigits: 1 }), unit: f.unit };
   };
 
   const derivedValue = (d: PresentationDerived) => {
@@ -142,20 +137,6 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, onEx
   });
 
   const battery = <BatteryBar percent={forecast.battery} />;
-  // Los datos de contexto y los nutrientes no tienen estado: su ícono lleva el verde de la marca.
-  const badgeTone = (m: ParameterPresentation) => NUTRIENTS.includes(m.key) || m.status === 'INFO' ? colors.primary : tone(m);
-  const statusPill = (m: ParameterPresentation) => <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: `${tone(m)}22` }}>
-    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: tone(m) }} />
-    <Text style={{ color: tone(m), fontSize: 13, fontWeight: '700' }}>{statusLabel(m)}</Text>
-  </View>;
-  const section = (label: string, body: string, color: string) => <View style={{ borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 16, gap: 6 }}>
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-      <View style={{ width: 4, height: 16, borderRadius: 2, backgroundColor: color }} />
-      <Text accessibilityRole="header" style={{ color: colors.text, fontSize: 13, fontWeight: '800', letterSpacing: 1.2 }}>{label.toUpperCase()}</Text>
-    </View>
-    <ScreenText muted={false}>{body}</ScreenText>
-  </View>;
-
   // Cuántas alternativas trae la pre-siembra: el plan sólo cuenta y remite.
   const cultivosCompatibles = p.cropOptions?.length ?? p.suggestedCrops?.length ?? 0;
   const possibleCropsCard = p.stage === 'pre_siembra' ? <ScreenCard accent={colors.primary}>
@@ -191,34 +172,44 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, onEx
       const consejos = [...(alerta ? [m.recommendation] : []), ...(sinLectura ? [m.recommendation] : copy.tips)];
       // Una instantánea guardada puede traer la misma nota dos veces: se depura al dibujar.
       const notas = [distinctNotes((m.control ?? '').split('\n\n')).join('\n\n'), copy.limitation].filter(Boolean).join(' ');
+      const group = MEASUREMENT_GROUPS.findIndex(keys => keys.includes(m.key));
+      const groupName = [t('Suelo', 'Soil'), t('Nutrientes', 'Nutrients'), t('Aire', 'Air')][group] ?? t('Lecturas', 'Readings');
+      // N, P y K no tienen estado: el rótulo es neutro. El resto lleva glifo y texto, nunca sólo color.
+      const look = NUTRIENTS.includes(m.key)
+        ? { text: t('Sin validar', 'Not validated'), glyph: '', ink: colors.textSecondary, tint: colors.bubbleInactive }
+        : statusLook(m, colors, t);
+      const parts = valueParts(m, NUTRIENTS.includes(m.key) ? 0 : 1);
       return <ScreenLayout embedded eyebrow={[
-        t(`VARIABLE ${index + 1} DE ${p.parameters.length}`, `VARIABLE ${index + 1} OF ${p.parameters.length}`),
+        groupName.toUpperCase(),
         p.species ? presentationSpeciesName(p.species, language).toUpperCase() : null,
         stage.toUpperCase(),
       ].filter(Boolean).join(' · ')}
         title={parameterLabel(m.key, language)}>
-        <View style={{ borderRadius: 22, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 20, gap: 14 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-            <MetricBadge metric={m.key} tone={badgeTone(m)} size={56} />
-            <View style={{ flex: 1, gap: 6 }}>
-              <Text adjustsFontSizeToFit numberOfLines={1} style={{ color: colors.text, fontSize: 36, fontWeight: '800', letterSpacing: -1 }}>{value(m)}</Text>
-              {statusPill(m)}
+        <View style={{ borderRadius: 26, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 20, gap: 16 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            {parts
+              ? <Text accessibilityLabel={`${parts.number} ${parts.unit}`} numberOfLines={1} adjustsFontSizeToFit style={{ flexShrink: 1, color: colors.text, fontSize: 60, lineHeight: 64, fontWeight: '700', letterSpacing: -2.4 }}>
+                {parts.number}<Text style={{ color: colors.textSecondary, fontSize: 28, fontWeight: '600', letterSpacing: 0 }}>{` ${parts.unit}`}</Text>
+              </Text>
+              : <Text style={{ color: colors.text, fontSize: 36, lineHeight: 42, fontWeight: '700' }}>{t('Sin dato', 'No data')}</Text>}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, backgroundColor: look.tint, marginBottom: 4 }}>
+              <Text style={{ color: look.ink, fontSize: 13, fontWeight: '700' }}>{look.glyph ? `${look.glyph} ` : ''}{look.text}</Text>
             </View>
           </View>
           <MetricScale metric={m.key} value={m.value} labels />
         </View>
-        {section(t('¿QUÉ PASA CON ESTA LECTURA?', 'WHAT THIS READING MEANS'), contexto, tone(m))}
-        {!!consejos.length && <View style={{ borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 16, gap: 10 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <View style={{ width: 4, height: 16, borderRadius: 2, backgroundColor: colors.primary }} />
-            <Text accessibilityRole="header" style={{ color: colors.text, fontSize: 13, fontWeight: '800', letterSpacing: 1.2 }}>{t('TIPS Y RECOMENDACIÓN', 'TIPS AND ADVICE')}</Text>
-          </View>
-          {consejos.map((consejo, i) => <View key={i} style={{ flexDirection: 'row', gap: 8 }}>
-            <Text style={{ color: colors.primary, fontSize: 15, fontWeight: '800', lineHeight: 22 }}>•</Text>
-            <ScreenText>{consejo}</ScreenText>
+        <View style={{ gap: 6 }}>
+          <Text accessibilityRole="header" style={{ color: colors.text, fontSize: 13, fontWeight: '700', letterSpacing: 1.4 }}>{t('QUÉ SIGNIFICA', 'WHAT IT MEANS')}</Text>
+          <ScreenText muted={false}>{contexto}</ScreenText>
+        </View>
+        {!!consejos.length && <View style={{ borderRadius: 22, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 16, gap: 12 }}>
+          <Text accessibilityRole="header" style={{ color: colors.text, fontSize: 13, fontWeight: '700', letterSpacing: 1.4 }}>{t('QUÉ HACER', 'WHAT TO DO')}</Text>
+          {consejos.map((consejo, i) => <View key={i} style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>
+            <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: 2 }}><Path d="M5 12l5 5 9-10" /></Svg>
+            <View style={{ flex: 1 }}><ScreenText muted={false}>{consejo}</ScreenText></View>
           </View>)}
         </View>}
-        {!!notas && <Text style={{ color: colors.textSecondary, fontSize: 12, lineHeight: 17 }}>{notas}</Text>}
+        {!!notas && <TechnicalDetail text={notas} />}
         {!!m.derived?.length && <View style={{ borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 16, gap: 14 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <View style={{ width: 4, height: 16, borderRadius: 2, backgroundColor: colors.textSecondary }} />
@@ -237,10 +228,11 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, onEx
       </ScreenLayout>;
     };
     return <ResultPager count={p.parameters.length} index={detail} onIndexChange={openDetail} renderPage={detailPage}
-      top={<ScreenTopBar onBack={() => setDetail(null)} backLabel={t('Resultado', 'Result')} />}
+      top={<ScreenTopBar onBack={() => setDetail(null)} backLabel={t('Resultado', 'Result')}
+        action={<Text style={{ color: colors.textSecondary, fontSize: 13, fontWeight: '600' }}>{t(`Variable ${detail + 1} de ${p.parameters.length}`, `Variable ${detail + 1} of ${p.parameters.length}`)}</Text>} />}
       footer={<View style={{ flexDirection: 'row', gap: 10 }}>
-        <View style={{ flex: 1 }}><EntryButton secondary disabled={detail === 0} label={t('‹ Anterior', '‹ Previous')} onPress={() => openDetail(detail - 1)} /></View>
-        <View style={{ flex: 1 }}><EntryButton secondary disabled={detail === p.parameters.length - 1} label={t('Siguiente ›', 'Next ›')} onPress={() => openDetail(detail + 1)} /></View>
+        <View style={{ flex: 1 }}><EntryButton secondary disabled={detail === 0} label={detail === 0 ? t('‹ Anterior', '‹ Previous') : `‹ ${parameterLabel(p.parameters[detail - 1].key, language)}`} onPress={() => openDetail(detail - 1)} /></View>
+        <View style={{ flex: 1 }}><EntryButton secondary disabled={detail === p.parameters.length - 1} label={detail === p.parameters.length - 1 ? t('Siguiente ›', 'Next ›') : `${parameterLabel(p.parameters[detail + 1].key, language)} ›`} onPress={() => openDetail(detail + 1)} /></View>
       </View>} />;
   }
 

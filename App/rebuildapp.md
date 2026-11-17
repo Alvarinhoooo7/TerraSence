@@ -406,9 +406,9 @@ Orden de la pantalla, de arriba hacia abajo (maqueta `Main`):
 
 **Archivo:** `src/components/MeasurementResultFlow.tsx` (función `detailPage`).
 
-- [ ] **Paso 1:** aplicar la maqueta `DetalleVariable`: cifra grande (60) con la unidad en menor tamaño, píldora de estado, escala con las zonas rotuladas, «Qué significa», «Qué hacer» con vistos, «Detalle técnico y fuente» cerrado y los botones anterior/siguiente con el nombre de la variable vecina.
-- [ ] **Paso 2:** el contenido no cambia: sigue saliendo de `buildParameterCopy` y del motor. Las variables de N, P y K conservan su texto de valores de referencia.
-- [ ] **Paso 3:** `npm run type-check && npm test`. Revisión en teléfono recorriendo las diez variables. Commit: `feat(app): rediseña el detalle de una variable`.
+- [x] **Paso 1:** aplicar la maqueta `DetalleVariable`: cifra grande (60) con la unidad en menor tamaño, píldora de estado, escala con las zonas rotuladas, «Qué significa», «Qué hacer» con vistos, «Detalle técnico y fuente» cerrado y los botones anterior/siguiente con el nombre de la variable vecina.
+- [x] **Paso 2:** el contenido no cambia: sigue saliendo de `buildParameterCopy` y del motor. Las variables de N, P y K conservan su texto de valores de referencia.
+- [x] **Paso 3:** `npm run type-check && npm test`. Revisión en teléfono recorriendo las diez variables. Commit: `feat(app): rediseña el detalle de una variable`.
 
 ### Tarea 13: el historial muestra la primera acción
 
