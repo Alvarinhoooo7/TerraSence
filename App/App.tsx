@@ -37,6 +37,9 @@ import { DevicesScreen } from './src/screens/DevicesScreen';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { HistoryScreen } from './src/screens/HistoryScreen';
 import { Typography } from './src/constants/theme';
+import { useFonts } from 'expo-font';
+import { SpaceGrotesk_500Medium, SpaceGrotesk_700Bold } from '@expo-google-fonts/space-grotesk';
+import { DISPLAY_FAMILIES, setDisplayFontsLoaded } from './src/constants/fonts';
 import { getOnboardingState } from './src/services/onboardingService';
 import { clearDevSkip, isDevSkipEnabled } from './src/utils/devSkipOnboarding';
 import { cachedAccountPreferences, chooseEntryLanguage, loadEntryLanguage, reconcileAccountLanguage } from './src/services/preferencesService';
@@ -65,9 +68,19 @@ import type { AppLanguage } from './src/types/preferences';
 
 type Route = 'dashboard' | 'measure' | 'settings' | 'devices' | 'history' | 'administration' | 'link-device';
 const WELCOME_KEY = '@terrasense/welcome-complete-v1';
+/** Tiempo máximo que la pantalla de carga espera la letra de títulos: pasado éste, la app sigue con la del sistema. */
+const FONT_TIMEOUT_MS = 3000;
 void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 export default function App() {
+  const [fonts, fontError] = useFonts({ [DISPLAY_FAMILIES.medium]: SpaceGrotesk_500Medium, [DISPLAY_FAMILIES.bold]: SpaceGrotesk_700Bold });
+  const [fontWaitOver, setFontWaitOver] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setFontWaitOver(true), FONT_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, []);
+  // Idempotente: fija qué letra usan los títulos antes de dibujar cualquier pantalla.
+  setDisplayFontsLoaded(fonts);
   const { isDark, colors } = useAppTheme();
   const { t } = useTranslation();
   const themePreference = useAppStore((state) => state.preferences.theme);
@@ -578,6 +591,9 @@ export default function App() {
       />
     );
   }
+
+  // La pantalla de carga nativa sigue visible hasta que la letra carga, falla o vence el plazo.
+  if (!fonts && !fontError && !fontWaitOver) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }} onLayout={() => { void SplashScreen.hideAsync().catch(() => undefined); }}>

@@ -435,11 +435,11 @@ Sólo apariencia. Ninguna opción cambia de lugar ni de comportamiento.
 
 ### Tarea 14: letra de títulos y cifras
 
-- [ ] **Paso 1:** `npx expo install expo-font @expo-google-fonts/space-grotesk`.
-- [ ] **Paso 2:** cargar `SpaceGrotesk_500Medium` y `SpaceGrotesk_700Bold` en `App.tsx` antes de ocultar la pantalla de carga. Si a los 3 segundos no cargaron, la app sigue con la letra del sistema: nunca se bloquea el inicio.
-- [ ] **Paso 3:** agregar a `Typography` (`theme.ts`) `display` y `numeric`, con la familia por peso. En Android una letra propia no admite `fontWeight`: cada peso es una familia distinta.
+- [x] **Paso 1:** `npx expo install expo-font @expo-google-fonts/space-grotesk`.
+- [x] **Paso 2:** cargar `SpaceGrotesk_500Medium` y `SpaceGrotesk_700Bold` en `App.tsx` antes de ocultar la pantalla de carga. Si a los 3 segundos no cargaron, la app sigue con la letra del sistema: nunca se bloquea el inicio.
+- [x] **Paso 3:** agregar a `Typography` (`theme.ts`) `display` y `numeric`, con la familia por peso. En Android una letra propia no admite `fontWeight`: cada peso es una familia distinta.
 - [ ] **Paso 4:** aplicarla en `EntryHeading` (`EntryUI.tsx:84`), en los títulos de `ScreenLayout` y en las cifras del resultado, el detalle y la batería.
-- [ ] **Paso 5:** comprobar que «Letra grande» sigue escalando (`AppText` escala por tamaño, no por familia). `npm run type-check && npm test`. Commit: `feat(app): usa Space Grotesk en títulos y cifras`.
+- [x] **Paso 5:** comprobar que «Letra grande» sigue escalando (`AppText` escala por tamaño, no por familia). `npm run type-check && npm test`. Commit: `feat(app): usa Space Grotesk en títulos y cifras`.
 
 ### Tarea 15: Configuración
 

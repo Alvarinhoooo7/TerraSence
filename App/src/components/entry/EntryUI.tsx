@@ -6,6 +6,7 @@ import Animated from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { enterDown } from '../../constants/motion';
+import { Typography } from '../../constants/theme';
 
 /** `below`: espacio que debe quedar visible bajo el campo, sobre el teclado (p. ej. resultados de una búsqueda). */
 const EntryFocus = createContext<(input: TextInput | null, below?: number) => void>(() => {});
@@ -81,7 +82,7 @@ export function EntryHeading({ eyebrow, title, description }: { eyebrow?: string
   const { compact } = useEntryMetrics();
   return <View style={{ gap: compact ? 8 : 12 }}>
     {!!eyebrow && <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.5 }}>{eyebrow}</Text>}
-    <Text accessibilityRole="header" style={{ color: colors.text, fontSize: compact ? 32 : 38, lineHeight: compact ? 38 : 44, fontWeight: '700', letterSpacing: -1.3 }}>{title}</Text>
+    <Text accessibilityRole="header" style={{ color: colors.text, fontSize: compact ? 32 : 38, lineHeight: compact ? 38 : 44, ...Typography.display.bold, letterSpacing: -1.3 }}>{title}</Text>
     {!!description && <Text style={{ color: colors.textSecondary, fontSize: 16, lineHeight: 24 }}>{description}</Text>}
   </View>;
 }
