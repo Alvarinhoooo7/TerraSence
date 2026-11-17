@@ -2,7 +2,9 @@ import { NewProbeArt } from '../components/pairing/PairingArt';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, BackHandler } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { SettingsPage, SettingsRow, SettingsText, SettingsButton } from '../components/SettingsUI';
+import { SettingsPage, SettingsText, SettingsButton } from '../components/SettingsUI';
+import { DeviceCard } from '../components/DeviceCard';
+import { useAppStore } from '../store/useAppStore';
 import { ScreenCard, ScreenValue } from '../components/screen/ScreenUI';
 import { EntryButton } from '../components/entry/EntryUI';
 import { useLinkedDevices } from '../hooks/useLinkedDevices';
@@ -18,6 +20,7 @@ import { formatDeviceId } from '../utils/deviceId';
 export function DevicesScreen({ onClose, onLinkDevice, initialDeviceId }: { onClose: () => void; onLinkDevice?: () => void; initialDeviceId?: string | null }) {
   const { t, locale } = useTranslation(); const { colors } = useAppTheme();
   const { devices, memberships, loading, error, refresh } = useLinkedDevices();
+  const selectedId = useAppStore(s => s.device?.id);
   const [detailId, setDetailId] = useState<string | null>(initialDeviceId ?? null);
   const [message, setMessage] = useState('');
   const detail = devices.find(d => d.id === detailId);
@@ -56,6 +59,10 @@ export function DevicesScreen({ onClose, onLinkDevice, initialDeviceId }: { onCl
     {loading && <ActivityIndicator color={colors.primary} />}
     {error && <><SettingsText>{t('No pudimos actualizar tus dispositivos.', 'Could not update your devices.')}</SettingsText><SettingsButton title={t('Reintentar', 'Retry')} onPress={() => void refresh()} /></>}
     {!loading && !error && !devices.length && <><NewProbeArt /><SettingsText>{t('Aún no tienes sondas autorizadas. Vincula una nueva con su botón PAIR o pide una invitación a quien ya la usa.', 'You have no authorized probes yet. Link a new one with its PAIR button or ask someone who already uses one for an invitation.')}</SettingsText></>}
-    {devices.map(d => <SettingsRow key={d.id} title={d.alias || d.name} subtitle={formatDeviceId(d.device_code)} onPress={() => { setDetailId(d.id); setMessage(''); }} />)}
+    {devices.map(d => <DeviceCard key={d.id} name={d.alias || d.name} identifier={formatDeviceId(d.device_code)}
+      role={memberships.find(m => m.device_id === d.id)?.role === 'admin' ? t('Administrador', 'Administrator') : t('Usuario', 'User')}
+      battery={d.battery_level} forMeasuring={d.id === selectedId}
+      lastSeen={d.last_seen_at ? `${t('Última comunicación', 'Last communication')}: ${new Date(d.last_seen_at).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' })}` : t('Sin comunicación registrada', 'No communication recorded')}
+      onPress={() => { setDetailId(d.id); setMessage(''); }} />)}
   </SettingsPage>;
 }

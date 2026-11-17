@@ -464,9 +464,9 @@ Sólo apariencia. Ninguna opción cambia de lugar ni de comportamiento.
 
 **Archivo:** `src/screens/DevicesScreen.tsx`.
 
-- [ ] **Paso 1:** cada sonda es una tarjeta con un panel `#17392C` a la izquierda con la sonda, y a la derecha el nombre, el identificador, el rol, una barra de batería con su porcentaje y la última comunicación. La sonda elegida para medir lleva la píldora «Para medir» y borde de 2.
-- [ ] **Paso 2:** batería bajo el umbral que ya usa `utils/batteryWarning`: barra y cifra en el color de atención. Sin dato: «Sin dato», sin barra.
-- [ ] **Paso 3:** `npm run type-check && npm test`. Commit: `feat(app): rediseña Mis dispositivos`.
+- [x] **Paso 1:** cada sonda es una tarjeta con un panel `#17392C` a la izquierda con la sonda, y a la derecha el nombre, el identificador, el rol, una barra de batería con su porcentaje y la última comunicación. La sonda elegida para medir lleva la píldora «Para medir» y borde de 2.
+- [x] **Paso 2:** batería bajo el umbral que ya usa `utils/batteryWarning`: barra y cifra en el color de atención. Sin dato: «Sin dato», sin barra.
+- [x] **Paso 3:** `npm run type-check && npm test`. Commit: `feat(app): rediseña Mis dispositivos`.
 
 ### Tarea 18: entrada, etapa y especie
 
