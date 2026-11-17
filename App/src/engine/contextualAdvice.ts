@@ -1,4 +1,4 @@
-import { applicableAlerts, type ParameterKey } from './measurementPresentation';
+import { applicableAlerts, PARAMETER_KEYS, type ParameterKey } from './measurementPresentation';
 import { evaluatePrePlantingOptions, suggestPrePlantingCrops, type PrePlantingOption } from './prePlanting';
 // Trazabilidad de cultivos sugeridos en pre_siembra: `suggestPrePlantingCrops`.
 import type { StageAwareEvaluation } from './stageEvaluator';
@@ -115,6 +115,16 @@ function pickSpeciesWeather(weather: CurrentWeather, dayLabel: (date: string) =>
   };
 }
 
+/**
+ * Variables medidas que sostienen una recomendación. N, P y K nunca van: son valores de
+ * referencia y no gatillan ninguna acción.
+ */
+const NUTRIENT_KEYS: readonly string[] = ['nitrogen', 'phosphorus', 'potassium'];
+const evidenceOf = (...keys: string[]): { evidence: ParameterKey[] } | Record<string, never> => {
+  const evidence = keys.filter((key): key is ParameterKey => (PARAMETER_KEYS as readonly string[]).includes(key) && !NUTRIENT_KEYS.includes(key));
+  return evidence.length ? { evidence } : {};
+};
+
 const TIMING_ORDER: Record<RecommendationTiming, number> = { now: 0, today: 1, next_days: 2, next_reading: 3 };
 
 /** Lluvia que reemplaza un riego: 5 mm o más hoy o mañana. */
@@ -164,7 +174,7 @@ export function buildContextualAdvice(
     seen.add(alert.action);
     // Una nota informativa (p. ej. pH dentro del óptimo de la especie) no pide actuar hoy:
     // va como seguimiento, después de lo que sí requiere revisión.
-    const detail = fusedDetail ? { detail: fusedDetail } : {};
+    const detail = { ...(fusedDetail ? { detail: fusedDetail } : {}), ...evidenceOf(alert.param) };
     if (alert.type === 'info') notes.push({ kind: 'monitoring', priority: 'normal', when: 'next_reading', title: alert.title, body: alert.action, ...detail });
     // El frío medido por el equipo en el aire es clima de este momento, no una condición del suelo.
     else if (alert.param === 'airTemp') plan.push({ kind: 'weather', priority: effectivePriority, when: 'now', title: alert.title, body: alert.action, ...detail });
@@ -233,7 +243,7 @@ export function buildContextualAdvice(
   if (rainSoon) {
     const mm = Math.round(rainSoon.precipitationMm ?? 0);
     const isToday = today?.date === rainSoon.date;
-    plan.push({ kind: 'irrigation', priority: 'high', when: isToday ? 'today' : 'next_days',
+    plan.push({ kind: 'irrigation', priority: 'high', when: isToday ? 'today' : 'next_days', ...evidenceOf('vwc'),
       title: en ? 'Wait for the rain before irrigating' : 'Espera la lluvia antes de regar',
       body: en
         ? `${mm} mm of rain is forecast for ${dayLabel(rainSoon.date)}. If you can, wait for it before irrigating and measure again afterwards.`
@@ -272,6 +282,7 @@ export function buildContextualAdvice(
           kind: 'irrigation',
           priority: 'high',
           when: 'now',
+          ...evidenceOf('vwc', 'airTemp', 'airHumidity'),
           title: en ? 'High evaporative demand with low soil moisture' : 'Alta demanda atmosférica con suelo seco',
           body: en
             ? `Instantaneous vapor pressure deficit is high (${vpdStr}) and root-zone moisture is low (${reading.vwc}%). Prioritize irrigation to avoid water stress.`
@@ -285,6 +296,7 @@ export function buildContextualAdvice(
           kind: 'monitoring',
           priority: 'normal',
           when: 'today',
+          ...evidenceOf('airTemp', 'airHumidity'),
           title: en ? 'High atmospheric demand (VPD)' : 'Alta demanda evaporativa del aire (DPV)',
           body: en
             ? `The air around the crop is very dry (VPD ${vpdStr}), increasing transpiration even with adequate soil moisture. Recheck soil moisture after peak heat.`
@@ -304,6 +316,7 @@ export function buildContextualAdvice(
       kind: 'evidence',
       priority: 'high',
       when: 'now',
+      ...evidenceOf('vwc'),
       title: en
         ? 'Dry soil limits galvanic pH and bulk EC contact'
         : 'Suelo muy seco limita el contacto electrolítico de pH y CE',
@@ -321,6 +334,7 @@ export function buildContextualAdvice(
       kind: 'evidence',
       priority: 'normal',
       when: 'today',
+      ...evidenceOf('ph'),
       title: en
         ? 'Soil pH outside probe nominal range (3.0 to 9.0)'
         : 'pH fuera del rango nominal del electrodo (3,0 a 9,0)',
@@ -338,6 +352,7 @@ export function buildContextualAdvice(
       kind: 'evidence',
       priority: 'normal',
       when: 'today',
+      ...evidenceOf('temp'),
       title: en
         ? 'Soil temperature outside EC thermal compensation window'
         : 'Temperatura del suelo fuera de la compensación térmica de CE',
@@ -371,6 +386,7 @@ export function buildContextualAdvice(
         kind: 'weather',
         priority: 'high',
         when: 'today',
+        ...evidenceOf('airTemp', 'airHumidity'),
         title: en
           ? 'Cold air with subzero dew point: radiative frost watch'
           : 'Aire frío con punto de rocío bajo cero: vigilancia de helada radiativa',
@@ -402,6 +418,7 @@ export function buildContextualAdvice(
       kind: 'monitoring',
       priority: 'normal',
       when: 'today',
+      ...evidenceOf('temp', 'airTemp'),
       title: en
         ? 'Cold root zone under warm air (thermal decoupling)'
         : 'Suelo frío bajo aire cálido (desacople térmico raíz-follaje)',

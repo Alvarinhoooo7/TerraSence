@@ -346,7 +346,9 @@ function isRecommendation(value: unknown): value is Recommendation {
   const r = value as Recommendation;
   return ['soil', 'evidence', 'weather', 'irrigation', 'monitoring'].includes(r.kind) && ['high', 'normal'].includes(r.priority)
     && ['now', 'today', 'next_days', 'next_reading'].includes(r.when) && typeof r.title === 'string' && typeof r.body === 'string'
-    && (r.detail === undefined || typeof r.detail === 'string');
+    && (r.detail === undefined || typeof r.detail === 'string')
+    && (r.headline === undefined || typeof r.headline === 'string')
+    && (r.evidence === undefined || (Array.isArray(r.evidence) && r.evidence.every(key => (PARAMETER_KEYS as readonly string[]).includes(key))));
 }
 
 function isPresentationSpecies(value: unknown): value is PresentationSpecies {

@@ -372,3 +372,56 @@ test('E6 (T39, T41, T43): históricos v1/v2/v3 y reglas retiradas se leen sin re
   assert.equal(readingB.evaluation.coverage?.capabilities.soil_moisture.status, 'partial');
   assert.doesNotMatch(readingB.presentation.summary, /tendencia|bajó desde|lectura anterior/i);
 });
+
+const fresh = () => { const now = new Date().toISOString(); return { capturedAt: now, evaluatedAt: now }; };
+const adviceFor = (reading: SoilMeasurement, stage: PhenologicalStage = 'vegetativo') => {
+  const evaluation = evaluateReadingForStage(reading, stage, 'es', fresh());
+  const advice = buildContextualAdvice(stage, evaluation, reading, null, 'es');
+  return { advice, presentation: buildMeasurementPresentation(reading, evaluation, advice, 'es') };
+};
+
+test('T9: una humedad bajo el umbral origina una recomendación que declara la variable y llega a la presentación', () => {
+  const { advice, presentation } = adviceFor({ ...raw, vwc: 3 });
+  const irrigation = advice.recommendations!.find(r => r.kind === 'soil' && r.evidence?.includes('vwc'));
+  assert.ok(irrigation, 'la alerta de humedad lleva evidence vwc');
+  assert.deepEqual(presentation.recommendations, advice.recommendations);
+  assert.ok(presentation.recommendations!.some(r => r.evidence?.includes('vwc')));
+});
+
+test('T9: ninguna recomendación lleva nitrógeno, fósforo ni potasio como evidencia', () => {
+  const readings: SoilMeasurement[] = [
+    raw, { ...raw, vwc: 3 }, { ...raw, ph: 9.4, ec: 4000 }, { ...raw, temp: 2, airTemp: 2, airHumidity: 30 },
+    { ...raw, nitrogen: 300, phosphorus: 300, potassium: 900, ec: 3000 }, { ...raw, airTemp: 30, airHumidity: 20, vwc: 12, temp: 9 },
+  ];
+  for (const reading of readings) for (const stage of ['pre_siembra', 'vegetativo', 'floracion', 'cosecha'] as const) {
+    const { presentation } = adviceFor(reading, stage);
+    for (const r of presentation.recommendations ?? []) {
+      assert.ok(!(r.evidence ?? []).some(key => ['nitrogen', 'phosphorus', 'potassium'].includes(key)), `${stage}: ${r.title}`);
+    }
+  }
+});
+
+test('T9: las recomendaciones que no salen de una variable no llevan evidencia', () => {
+  const { advice } = adviceFor(raw);
+  const again = advice.recommendations!.find(r => r.kind === 'monitoring' && r.when === 'next_reading');
+  assert.ok(again);
+  assert.equal(again.evidence, undefined);
+});
+
+test('T9: la demanda del aire con suelo seco declara las tres variables que la sostienen', () => {
+  const dry = { ...raw, vwc: 3, airTemp: 33, airHumidity: 20 };
+  const { advice } = adviceFor(dry);
+  const demand = advice.recommendations!.find(r => r.kind === 'irrigation');
+  assert.ok(demand, 'hay recomendación de riego por demanda del aire');
+  assert.deepEqual(demand.evidence, ['vwc', 'airTemp', 'airHumidity']);
+});
+
+test('T9: el validador acepta recomendaciones con y sin los campos nuevos y rechaza valores mal formados', () => {
+  const { presentation } = adviceFor({ ...raw, vwc: 3 });
+  const [first, ...rest] = presentation.recommendations!;
+  assert.equal(isMeasurementPresentation(presentation), true);
+  const legacy = { ...presentation, recommendations: [{ ...first, evidence: undefined, headline: undefined }, ...rest] };
+  assert.equal(isMeasurementPresentation(legacy), true);
+  assert.equal(isMeasurementPresentation({ ...presentation, recommendations: [{ ...first, evidence: ['humedad'] }, ...rest] }), false);
+  assert.equal(isMeasurementPresentation({ ...presentation, recommendations: [{ ...first, headline: 7 }, ...rest] }), false);
+});

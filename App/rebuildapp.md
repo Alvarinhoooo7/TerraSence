@@ -361,10 +361,10 @@ export function planActions(p: MeasurementPresentation): { visible: PlanAction[]
 - Modificar: `src/engine/contextualAdvice.ts` (interfaz `Recommendation`, 22–29; alertas, 164–167; recomendaciones de riego y de demanda del aire)
 - Prueba: `tests/measurementPresentation.test.ts`
 
-- [ ] **Paso 1:** agregar a `Recommendation` el campo opcional `evidence?: ParameterKey[]`. Se llena con la variable de la alerta que origina la recomendación; las de riego llevan `['vwc']` y las de demanda del aire `['airTemp', 'airHumidity']`. Las que no salen de una variable (clima, «vuelve a medir») no lo llevan.
-- [ ] **Paso 2: prueba.** Una lectura con humedad bajo el umbral produce una recomendación cuyo `evidence` incluye `'vwc'`, y el campo llega intacto a `MeasurementPresentation.recommendations`. Ninguna recomendación lleva `nitrogen`, `phosphorus` ni `potassium` en `evidence`.
-- [ ] **Paso 3:** comprobar que `Web/` no valida el diagnóstico guardado con un esquema estricto: el campo nuevo viaja dentro del JSON que ya se guarda, sin migración.
-- [ ] **Paso 4:** `npm run type-check && npm test`. Commit: `feat(app): cada recomendación declara la variable que la sostiene`.
+- [x] **Paso 1:** agregar a `Recommendation` el campo opcional `evidence?: ParameterKey[]`. Se llena con la variable de la alerta que origina la recomendación; las de riego llevan `['vwc']` y las de demanda del aire `['airTemp', 'airHumidity']`. Las que no salen de una variable (clima, «vuelve a medir») no lo llevan.
+- [x] **Paso 2: prueba.** Una lectura con humedad bajo el umbral produce una recomendación cuyo `evidence` incluye `'vwc'`, y el campo llega intacto a `MeasurementPresentation.recommendations`. Ninguna recomendación lleva `nitrogen`, `phosphorus` ni `potassium` en `evidence`.
+- [x] **Paso 3:** comprobar que `Web/` no valida el diagnóstico guardado con un esquema estricto: el campo nuevo viaja dentro del JSON que ya se guarda, sin migración.
+- [x] **Paso 4:** `npm run type-check && npm test`. Commit: `feat(app): cada recomendación declara la variable que la sostiene`.
 
 ### Tarea 10: titulares cortos (requiere aprobación del usuario)
 
