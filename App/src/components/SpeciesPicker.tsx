@@ -188,13 +188,18 @@ export function SpeciesPicker({ stage, value, onChange, onMissing }: {
     const name = speciesName(species, lang);
     return <Pressable key={species.id} accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={name}
       accessibilityHint={subtitle} onPress={() => choose(species)}
-      style={({ pressed }) => ({ minHeight: 54, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center', gap: 12,
-        backgroundColor: selected ? `${colors.primary}22` : pressed ? `${colors.primary}12` : 'transparent' })}>
-      <View style={{ flex: 1, gap: 2 }}>
-        <Text style={{ color: colors.text, fontSize: 16, fontWeight: selected ? '700' : '600' }}>{name}</Text>
-        {!!subtitle && <Text numberOfLines={1} style={{ color: colors.textSecondary, fontSize: 13 }}>{subtitle}</Text>}
+      style={({ pressed }) => ({ minHeight: 64, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14, flexDirection: 'row', alignItems: 'center', gap: 12,
+        backgroundColor: selected ? colors.tintSuccess : pressed ? `${colors.primary}12` : 'transparent' })}>
+      <View accessible={false} style={{ width: 40, height: 40, borderRadius: 13, alignItems: 'center', justifyContent: 'center', backgroundColor: selected ? BG : colors.tintSuccess }}>
+        <AppIcon name="leaf" size={20} color={selected ? LEAF : colors.primary} />
       </View>
-      {selected && <Text accessibilityElementsHidden importantForAccessibility="no" style={{ color: colors.primary, fontSize: 18 }}>●</Text>}
+      <View style={{ flex: 1, gap: 1 }}>
+        <Text style={{ color: colors.text, fontSize: 16, fontWeight: selected ? '700' : '600' }}>{name}</Text>
+        <Text numberOfLines={1} style={{ color: colors.textSecondary, fontSize: 13, fontStyle: 'italic' }}>{species.scientific}</Text>
+      </View>
+      {selected && <View accessible={false} style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
+        <AppIcon name="check" size={15} color={colors.background} />
+      </View>}
     </Pressable>;
   };
   const synonyms = (species: SpeciesEntry) => (lang === 'en' ? species.synonymsEn : species.synonymsEs).slice(0, 3).join(', ');

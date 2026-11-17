@@ -16,7 +16,7 @@ import { useAppStore } from '../store/useAppStore';
 import { PasswordChecklist } from '../components/PasswordChecklist';
 import { AccessField } from '../components/auth/AccessField';
 import { EntryLayout, EntryButton, EntryHeading } from '../components/entry/EntryUI';
-import { LanguageSwitch } from '../components/entry/LanguageSwitch';
+import { AuthBanner } from '../components/auth/AuthBanner';
 import type { RegistrationConsent } from '../utils/registrationConsent';
 import type { AppLanguage } from '../types/preferences';
 import { EmailCodeScreen } from './EmailCodeScreen';
@@ -242,12 +242,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage,
     </Pressable>
   </View>;
 
-  return <EntryLayout keyboardAware header={<View style={styles.header}>
-      <Text style={[styles.wordmark, { color: colors.primary }]}>TERRA<Text style={{ color: colors.text }}>SENSE</Text></Text>
-      {!!onChangeLanguage && <View style={styles.language}>
-        <LanguageSwitch language={preferences.language} onChange={onChangeLanguage} busy={busy || languageBusy} />
-      </View>}
-    </View>} footer={footer}>
+  return <EntryLayout keyboardAware header={<AuthBanner language={preferences.language} onChangeLanguage={onChangeLanguage} busy={busy || languageBusy} />} footer={footer}>
       <View style={styles.body}>
         <EntryHeading eyebrow={mode === 'signup' ? `${signupStep} / 2` : undefined}
           title={mode === 'signin' ? t('Entra a tu cuenta', 'Sign in') : mode === 'signup' ? signupStep === 1 ? t('Crea tu cuenta', 'Create your account') : t('Protege tu cuenta', 'Secure your account') : t('Recupera tu acceso', 'Reset your password')}
@@ -279,9 +274,6 @@ export const AuthScreen: React.FC<Props> = ({ onAuthenticated, onChangeLanguage,
 };
 
 const styles = StyleSheet.create({
-  header: { width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 42 },
-  wordmark: { fontSize: 17, fontWeight: '800', letterSpacing: 2 },
-  language: { minHeight: 48, minWidth: 48, alignItems: 'center', justifyContent: 'center' },
   body: { width: '100%', gap: 12 },
   forgot: { alignSelf: 'flex-end', minHeight: 48, justifyContent: 'center' },
   footer: { width: '100%', paddingTop: 8, gap: 2 },

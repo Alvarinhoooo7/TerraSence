@@ -4,6 +4,7 @@ import { Text } from './AppText';
 import Animated from 'react-native-reanimated';
 import Svg, { Circle, Ellipse, G, Path } from 'react-native-svg';
 import { GuideTouchable } from './guide/GuideControls';
+import { AppIcon } from './AppIcon';
 import { enterDown } from '../constants/motion';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
@@ -76,14 +77,16 @@ export function StageCards({ value, onChange }: { value: PhenologicalStage | nul
           <GuideTouchable guideTitle={label} guide={t('Elige esta etapa para interpretar la lectura según el desarrollo del cultivo.', 'Choose this stage to interpret the reading for crop development.')}
             accessibilityRole="radio" accessibilityLabel={label} accessibilityHint={language === 'en' ? item.focusEn : item.focus} accessibilityState={{ selected: marked }}
             onPress={() => onChange(item.id)}
-            style={{ borderRadius: 20, borderWidth: marked ? 2 : 1, borderColor: marked ? colors.primary : colors.border, backgroundColor: colors.card, padding: marked ? 7 : 8, gap: 10 }}>
-            <View style={{ aspectRatio: 120 / 90, borderRadius: 14, overflow: 'hidden', backgroundColor: '#17392C' }}>
+            style={{ borderRadius: 22, borderWidth: marked ? 2 : 1, borderColor: marked ? colors.primary : colors.border, backgroundColor: colors.card, overflow: 'hidden' }}>
+            <View style={{ aspectRatio: 120 / 90, backgroundColor: '#17392C' }}>
               <StageArt stage={item.id} />
-              {marked && <View style={{ position: 'absolute', top: 8, right: 8, width: 26, height: 26, borderRadius: 13, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: isDark ? colors.background : '#FFFFFF', fontSize: 15, fontWeight: '800' }}>✓</Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingHorizontal: 14, paddingVertical: 12 }}>
+              <Text numberOfLines={1} adjustsFontSizeToFit style={{ flex: 1, color: colors.text, fontSize: 17, fontWeight: '700' }}>{label}</Text>
+              {marked && <View accessible={false} style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
+                <AppIcon name="check" size={14} color={isDark ? colors.background : '#FFFFFF'} />
               </View>}
             </View>
-            <Text numberOfLines={1} adjustsFontSizeToFit style={{ color: colors.text, fontSize: 17, fontWeight: marked ? '800' : '600', paddingHorizontal: 6, paddingBottom: 4 }}>{label}</Text>
           </GuideTouchable>
         </Animated.View>;
       })}

@@ -470,11 +470,11 @@ Sólo apariencia. Ninguna opción cambia de lugar ni de comportamiento.
 
 ### Tarea 18: entrada, etapa y especie
 
-- [ ] **Paso 1 — inicio de sesión** (`AuthScreen.tsx`, `AuthUI.tsx`): cabecera `#12281F` con el nombre de la app y la sonda en el campo; campos y botones como en la maqueta `InicioSesion`.
-- [ ] **Paso 2 — vinculación** (`OnboardingScreen.tsx`): las dos opciones llevan un cuadro con ícono (sonda y QR); la opción de equipo nuevo va destacada. Los pasos del PAIR son una secuencia numerada unida por una línea, con la ilustración del LED azul.
-- [ ] **Paso 3 — etapa** (`StageCards.tsx`): ya es una grilla de dos columnas; sólo se ajustan radio, borde y el visto de selección a los valores de la sección 2.3.
+- [x] **Paso 1 — inicio de sesión** (`AuthScreen.tsx`, `AuthUI.tsx`): cabecera `#12281F` con el nombre de la app y la sonda en el campo; campos y botones como en la maqueta `InicioSesion`.
+- [x] **Paso 2 — vinculación** (`OnboardingScreen.tsx`): las dos opciones llevan un cuadro con ícono (sonda y QR); la opción de equipo nuevo va destacada. Los pasos del PAIR son una secuencia numerada unida por una línea, con la ilustración del LED azul.
+- [x] **Paso 3 — etapa** (`StageCards.tsx`): ya es una grilla de dos columnas; sólo se ajustan radio, borde y el visto de selección a los valores de la sección 2.3.
 - [ ] **Paso 4 — especie** (`SpeciesPicker.tsx`): cada fila lleva un cuadro con hoja, el nombre y el nombre científico en cursiva; la elegida, fondo `tintSuccess` y visto. El botón dice «Continuar con <especie>».
-- [ ] **Paso 5:** `npm run type-check && npm test`. Commit: `feat(app): rediseña la entrada, la etapa y la especie`.
+- [x] **Paso 5:** `npm run type-check && npm test`. Commit: `feat(app): rediseña la entrada, la etapa y la especie`.
 
 ### Tarea 19: cierre
 

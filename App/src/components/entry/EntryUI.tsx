@@ -95,7 +95,7 @@ export function EntryButton({ label, onPress, disabled = false, busy = false, se
   const outline = secondary || danger;
   const ink = danger ? colors.danger : secondary ? colors.primary : isDark ? colors.background : '#FFFFFF';
   return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: disabled || busy, busy }}
-    disabled={disabled || busy} onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => undefined); onPress(); }} style={({ pressed }) => ({ minHeight: 54, borderRadius: 16, borderWidth: 1,
+    disabled={disabled || busy} onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => undefined); onPress(); }} style={({ pressed }) => ({ minHeight: 56, borderRadius: 18, borderWidth: 1,
       borderColor: danger ? colors.danger : outline ? colors.border : colors.primary, backgroundColor: outline ? colors.card : colors.primary,
       alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18, paddingVertical: 12, opacity: disabled || busy ? .55 : pressed ? .8 : 1 })}>
     {busy ? <ActivityIndicator color={ink} /> :
