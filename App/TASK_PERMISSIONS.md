@@ -240,7 +240,7 @@ Una vista web o un emulador ayudan a revisar diseño; no prueban BLE, push ni pe
   crítica (propia o ajena), recordatorio de medir, alertas meteorológicas y preferencias de
   avisos agronómicos, clima o sincronización.
 - El diagnóstico dentro de la lectura se conserva; el pronóstico al medir sólo se consulta si
-  la persona incluye ubicación.
+  la persona aceptó la ubicación (se pregunta una vez, en la pantalla de permisos de la entrada).
 - Sin push de firmware mientras no exista instalación funcional por BLE.
 - Reset sólo desde el backoffice; revincular por Bluetooth y ventana PAIR.
 - Mapas, perímetros y PostGIS retirados; se conservan `latitude`, `longitude` y `gps_accuracy_m`.
@@ -286,7 +286,7 @@ reconciliar el plan; su existencia no acredita por sí sola la aceptación de es
 - No incorporar selección, creación ni nombres de campos agrícolas. La elección es
   de sonda y etapa del cultivo. Revisar ejemplos y textos de interfaz que sugieran
   gestionar campos; identificar las sondas por su nombre existente e ID abreviado.
-  Se conserva la ubicación opcional de la medición como coordenadas.
+  Se conserva la ubicación opcional como coordenadas de cada lectura.
 - Vinculación física: Preparar → Buscar → Confirmar y vincular → Finalizar. Se elimina
   el paso de nombrar la sonda y su formulario. Usar la identidad del equipo y el nombre
   predeterminado del registro cuando corresponda; distinguir equipos mediante el ID.
@@ -312,7 +312,7 @@ reconciliar el plan; su existencia no acredita por sí sola la aceptación de es
 
 | Pantalla o estado | Diseño y comportamiento previstos |
 | --- | --- |
-| Explicación de permisos | Cuatro funciones resumidas y Continuar visible; pedir cada permiso al usar la función. |
+| Explicación de permisos | Cuatro funciones resumidas, con la ubicación primera y destacada, y un solo botón Continuar que pregunta por la ubicación; Bluetooth, cámara y avisos se piden al usar la función. |
 | Revisión de cuenta fallida | Mensaje breve y Reintentar con la composición de entrada. |
 | Elección de vinculación | Dos opciones principales: invitación por QR/código y vinculación física por Bluetooth. |
 | Invitación | Escanear QR y alternativa de código temporal; teclado y envío visibles. |
@@ -324,7 +324,7 @@ reconciliar el plan; su existencia no acredita por sí sola la aceptación de es
 | Inicio | Encabezado con selector de sonda, botón Medir centrado sobre verde y barra inferior fija; aviso contextual sólo cuando corresponda. |
 | Selector de sonda | Nombre, identificador abreviado y selección; lista acotada, carga, vacío y reintento. |
 | Mis dispositivos | Lista sencilla de sondas vinculadas; ficha con nombre, ID copiable, rol y metadatos disponibles, sin selección para medir. |
-| Preparación de medición | Paso de etapa: pre-siembra, vegetativo, floración o cosecha; paso de preparación con ubicación/pronóstico opcionales y acción visible. |
+| Preparación de medición | Paso de etapa: pre-siembra, vegetativo, floración o cosecha; paso «Antes de medir» con la acción «Listo, medir»; la ubicación y el pronóstico ya no se eligen al medir (se deciden una vez en la entrada y se cambian en Preferencias). |
 | Conexión y lectura | Pantalla de carga dedicada, coherente con la carga de entrada: sonda identificada, animación y estados reales de conexión/lectura, con Cancelar visible. Al recibir el resultado se abandona la carga sin esperar el pronóstico; sin porcentaje inventado. |
 | Fallo de medición | Mensaje útil, Reintentar y Volver; conservar protecciones ante cancelación y respuestas tardías. |
 | Resultado: resumen | Diagnóstico de la etapa y datos esenciales; Guardar accesible sin esperar pronóstico. |

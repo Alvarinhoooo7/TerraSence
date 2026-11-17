@@ -309,11 +309,11 @@ export async function askLocationOnce(language: Language, legacyAndroidBluetooth
 
 ### Tarea 7: textos y documentación que quedan falsos
 
-- [ ] **Paso 1:** `src/utils/permissionCopy.ts:43` — «Si lo eliges al medir, guarda…» pasa a «Guarda las coordenadas de cada lectura y consulta el pronóstico con Open-Meteo.» (y su versión en inglés).
-- [ ] **Paso 2:** `src/screens/SettingsDetails.tsx:38` — se quita «si activas esa opción al medir».
-- [ ] **Paso 3:** `src/utils/legalSections.ts:16–17` — leer la frase completa. Si menciona la opción al medir, corregirla. **Antes de tocarla**, revisar `tests/privacy.test.ts` y `tests/registrationConsent.test.ts`: si el texto legal tiene versión, cambiarlo puede exigir una nueva aceptación, y eso lo decide el usuario.
-- [ ] **Paso 4:** `App/TASK_PERMISSIONS.md` y `App/README.md` — actualizar los párrafos que describen el interruptor al medir y la regla «cada permiso se pide al usar su función», que deja de valer para la ubicación.
-- [ ] **Paso 5:** desde la raíz, `python docs/verificar_documentacion.py` → 0 errores. Commit: `docs(app): actualiza los textos del permiso de ubicación`.
+- [x] **Paso 1:** `src/utils/permissionCopy.ts:43` — «Si lo eliges al medir, guarda…» pasa a «Guarda las coordenadas de cada lectura y consulta el pronóstico con Open-Meteo.» (y su versión en inglés).
+- [x] **Paso 2:** `src/screens/SettingsDetails.tsx:38` — se quita «si activas esa opción al medir».
+- [x] **Paso 3:** `src/utils/legalSections.ts:16–17` — leer la frase completa. Si menciona la opción al medir, corregirla. **Antes de tocarla**, revisar `tests/privacy.test.ts` y `tests/registrationConsent.test.ts`: si el texto legal tiene versión, cambiarlo puede exigir una nueva aceptación, y eso lo decide el usuario.
+- [x] **Paso 4:** `App/TASK_PERMISSIONS.md` y `App/README.md` — actualizar los párrafos que describen el interruptor al medir y la regla «cada permiso se pide al usar su función», que deja de valer para la ubicación.
+- [x] **Paso 5:** desde la raíz, `python docs/verificar_documentacion.py` → 0 errores. Commit: `docs(app): actualiza los textos del permiso de ubicación`.
 
 ---
 

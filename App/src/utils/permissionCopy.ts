@@ -40,7 +40,7 @@ export const PERMISSION_COPY: Record<PermissionKind, PermissionCopy> = {
   },
   location: {
     name: { es: 'Ubicación', en: 'Location' },
-    summary: { es: 'Si lo eliges al medir, guarda las coordenadas y consulta el pronóstico con Open-Meteo.', en: 'If you choose it when measuring, saves coordinates and gets the forecast from Open-Meteo.' },
+    summary: { es: 'Guarda las coordenadas de cada lectura y consulta el pronóstico con Open-Meteo.', en: 'Saves the coordinates of each reading and gets the forecast from Open-Meteo.' },
     rationale: {
       es: 'Con tu ubicación, la lectura guarda sus coordenadas y consulta el pronóstico. Sin ella, la medición se guarda igual, sin coordenadas ni pronóstico.',
       en: 'With your location, the reading saves its coordinates and gets the forecast. Without it, the reading is saved anyway, without coordinates or forecast.',
