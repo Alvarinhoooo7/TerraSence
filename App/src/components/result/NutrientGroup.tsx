@@ -1,4 +1,5 @@
 import React from 'react';
+import { Typography } from '../../constants/theme';
 import { Pressable, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Text } from '../AppText';
@@ -36,7 +37,7 @@ export function NutrientGroup({ entries, formatParts, onOpen }: {
             onPress={() => onOpen(index)}
             style={({ pressed }) => ({ flex: 1, minWidth: 0, minHeight: 96, borderRadius: 16, backgroundColor: colors.background, paddingVertical: 12, paddingHorizontal: 10, gap: 4, opacity: pressed ? .8 : 1 })}>
             <Text numberOfLines={1} adjustsFontSizeToFit style={{ color: colors.textSecondary, fontSize: 13 }}>{name}</Text>
-            <Text numberOfLines={1} adjustsFontSizeToFit style={{ color: colors.text, fontSize: 24, fontWeight: '700', letterSpacing: -0.4 }}>{parts ? parts.number : t('Sin dato', 'No data')}</Text>
+            <Text numberOfLines={1} adjustsFontSizeToFit style={{ color: colors.text, fontSize: 24, ...Typography.numeric.bold, letterSpacing: -0.4 }}>{parts ? parts.number : t('Sin dato', 'No data')}</Text>
             {!!parts && <Text style={{ color: colors.textSecondary, fontSize: 12 }}>{parts.unit}</Text>}
           </Pressable>;
         })}

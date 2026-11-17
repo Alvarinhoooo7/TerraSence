@@ -368,7 +368,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
       action={skipSpecies(t('Saltar', 'Skip'))}
       title={t('¿Qué tienes plantado?', 'What are you growing?')}
       description={t('Busca la especie de tu cultivo. Queda registrada solo en esta medición.', 'Search for your crop species. It is saved with this measurement only.')}
-      footer={<EntryButton disabled={!species} label={t('Continuar', 'Continue')} onPress={() => setPhase('steps')} />}>
+      footer={<EntryButton disabled={!species} label={species ? t(`Continuar con ${speciesName(species, 'es')}`, `Continue with ${speciesName(species, 'en')}`) : t('Continuar', 'Continue')} onPress={() => setPhase('steps')} />}>
       <SpeciesPicker stage={stage} value={species} onChange={setSpecies} onMissing={() => setPhase('species_missing')} />
     </ScreenLayout>;
   }

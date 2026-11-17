@@ -438,7 +438,7 @@ Sólo apariencia. Ninguna opción cambia de lugar ni de comportamiento.
 - [x] **Paso 1:** `npx expo install expo-font @expo-google-fonts/space-grotesk`.
 - [x] **Paso 2:** cargar `SpaceGrotesk_500Medium` y `SpaceGrotesk_700Bold` en `App.tsx` antes de ocultar la pantalla de carga. Si a los 3 segundos no cargaron, la app sigue con la letra del sistema: nunca se bloquea el inicio.
 - [x] **Paso 3:** agregar a `Typography` (`theme.ts`) `display` y `numeric`, con la familia por peso. En Android una letra propia no admite `fontWeight`: cada peso es una familia distinta.
-- [ ] **Paso 4:** aplicarla en `EntryHeading` (`EntryUI.tsx:84`), en los títulos de `ScreenLayout` y en las cifras del resultado, el detalle y la batería.
+- [x] **Paso 4:** aplicarla en `EntryHeading` (`EntryUI.tsx:84`), en los títulos de `ScreenLayout` y en las cifras del resultado, el detalle y la batería.
 - [x] **Paso 5:** comprobar que «Letra grande» sigue escalando (`AppText` escala por tamaño, no por familia). `npm run type-check && npm test`. Commit: `feat(app): usa Space Grotesk en títulos y cifras`.
 
 ### Tarea 15: Configuración
@@ -447,8 +447,8 @@ Sólo apariencia. Ninguna opción cambia de lugar ni de comportamiento.
 
 - [x] **Paso 1:** íconos nuevos en `AppIcon`: `user`, `help`, `logout`, `qr`, `team`, `download`, `shield` (trazos en las maquetas `Configuracion`, `Preferencias` y `EquiposYDatos`).
 - [x] **Paso 2:** `ScreenOption` acepta un `icon?: IconName` opcional, dibujado en un cuadro de 44 a la izquierda. Sin `icon`, la fila queda como hoy.
-- [ ] **Paso 3:** la portada de Configuración muestra una tarjeta de cuenta (`#17392C`: iniciales, nombre, correo y el estado de verificación) y agrupa sus filas en una sola tarjeta con separadores.
-- [ ] **Paso 4:** «Equipos y datos» abre con el resumen de sincronización (pendientes de enviar, último envío confirmado y «Sincronizar ahora»), con los mismos datos que hoy muestra `SyncSettings`.
+- [x] **Paso 3:** la portada de Configuración muestra una tarjeta de cuenta (`#17392C`: iniciales, nombre, correo y el estado de verificación) y agrupa sus filas en una sola tarjeta con separadores.
+- [x] **Paso 4:** «Equipos y datos» abre con el resumen de sincronización (pendientes de enviar, último envío confirmado y «Sincronizar ahora»), con los mismos datos que hoy muestra `SyncSettings`.
 - [x] **Paso 5:** `npm run type-check && npm test` (incluye `settingsNavigation.test.ts`). Commit: `feat(app): rediseña Configuración`.
 
 ### Tarea 16: Inicio
@@ -473,14 +473,14 @@ Sólo apariencia. Ninguna opción cambia de lugar ni de comportamiento.
 - [x] **Paso 1 — inicio de sesión** (`AuthScreen.tsx`, `AuthUI.tsx`): cabecera `#12281F` con el nombre de la app y la sonda en el campo; campos y botones como en la maqueta `InicioSesion`.
 - [x] **Paso 2 — vinculación** (`OnboardingScreen.tsx`): las dos opciones llevan un cuadro con ícono (sonda y QR); la opción de equipo nuevo va destacada. Los pasos del PAIR son una secuencia numerada unida por una línea, con la ilustración del LED azul.
 - [x] **Paso 3 — etapa** (`StageCards.tsx`): ya es una grilla de dos columnas; sólo se ajustan radio, borde y el visto de selección a los valores de la sección 2.3.
-- [ ] **Paso 4 — especie** (`SpeciesPicker.tsx`): cada fila lleva un cuadro con hoja, el nombre y el nombre científico en cursiva; la elegida, fondo `tintSuccess` y visto. El botón dice «Continuar con <especie>».
+- [x] **Paso 4 — especie** (`SpeciesPicker.tsx`): cada fila lleva un cuadro con hoja, el nombre y el nombre científico en cursiva; la elegida, fondo `tintSuccess` y visto. El botón dice «Continuar con <especie>».
 - [x] **Paso 5:** `npm run type-check && npm test`. Commit: `feat(app): rediseña la entrada, la etapa y la especie`.
 
 ### Tarea 19: cierre
 
-- [ ] **Paso 1:** desde `App/`: `npm run type-check && npm test`. Desde la raíz: `python docs/verificar_documentacion.py` → 0 errores.
+- [x] **Paso 1:** desde `App/`: `npm run type-check && npm test`. Desde la raíz: `python docs/verificar_documentacion.py` → 0 errores.
 - [ ] **Paso 2: recorrido completo en un teléfono**, desde una instalación limpia hasta una lectura guardada, tres veces: tema claro; tema oscuro; «Letra grande» con la letra del sistema al máximo.
 - [ ] **Paso 3:** el mismo recorrido con «reducir movimiento» activado: ninguna ilustración queda a medio camino.
 - [ ] **Paso 4:** en un teléfono angosto (menos de 360 de ancho): el resultado no se corta y los nombres largos de variable no empujan el valor fuera de la fila.
-- [ ] **Paso 5:** actualizar en `App/README.md` la descripción del flujo de medición y del resultado, que cambia con las fases 2 y 3.
+- [x] **Paso 5:** actualizar en `App/README.md` la descripción del flujo de medición y del resultado, que cambia con las fases 2 y 3.
 - [ ] **Paso 6:** el APK distribuible se compila en el otro computador, donde está la clave de firma.

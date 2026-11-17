@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Typography } from '../constants/theme';
 import { BackHandler, FlatList, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
@@ -188,8 +189,8 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, onEx
         <View style={{ borderRadius: 26, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 20, gap: 16 }}>
           <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
             {parts
-              ? <Text accessibilityLabel={`${parts.number} ${parts.unit}`} numberOfLines={1} adjustsFontSizeToFit style={{ flexShrink: 1, color: colors.text, fontSize: 60, lineHeight: 64, fontWeight: '700', letterSpacing: -2.4 }}>
-                {parts.number}<Text style={{ color: colors.textSecondary, fontSize: 28, fontWeight: '600', letterSpacing: 0 }}>{` ${parts.unit}`}</Text>
+              ? <Text accessibilityLabel={`${parts.number} ${parts.unit}`} numberOfLines={1} adjustsFontSizeToFit style={{ flexShrink: 1, color: colors.text, fontSize: 60, lineHeight: 64, ...Typography.numeric.bold, letterSpacing: -2.4 }}>
+                {parts.number}<Text style={{ color: colors.textSecondary, fontSize: 28, ...Typography.numeric.medium, letterSpacing: 0 }}>{` ${parts.unit}`}</Text>
               </Text>
               : <Text style={{ color: colors.text, fontSize: 36, lineHeight: 42, fontWeight: '700' }}>{t('Sin dato', 'No data')}</Text>}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, backgroundColor: look.tint, marginBottom: 4 }}>

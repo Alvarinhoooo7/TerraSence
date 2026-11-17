@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Text } from '../AppText';
-import { Colors } from '../../constants/theme';
+import { Colors, Typography } from '../../constants/theme';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { MeasurementPresentation, ParameterPresentation } from '../../engine/measurementPresentation';
 import { verdictBar } from './resultModel';
@@ -56,7 +56,7 @@ export function ResultHero({ presentation: p, stage, speciesName, capturedAt, la
     : undefined;
   return <View style={{ borderRadius: 26, backgroundColor: PANEL, padding: 22, gap: 14 }}>
     <Text style={{ color: '#C6DFB4', fontSize: 12, fontWeight: '700', letterSpacing: 1.4 }}>{eyebrow}</Text>
-    <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontSize: 28, lineHeight: 34, fontWeight: '700', letterSpacing: -0.6 }}>{p.title}</Text>
+    <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontSize: 28, lineHeight: 34, ...Typography.display.bold, letterSpacing: -0.6 }}>{p.title}</Text>
     {p.evaluationState === 'insufficient_data'
       ? <Text style={{ color: INK, fontSize: 16, fontWeight: '700' }}>{t('Evaluación insuficiente', 'Insufficient assessment')}</Text>
       : bar && counts && <>

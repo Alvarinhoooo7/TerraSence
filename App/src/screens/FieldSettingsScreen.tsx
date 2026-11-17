@@ -2,7 +2,9 @@ import { GuideSwitch as Switch } from '../components/guide/GuideControls';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, BackHandler, View } from 'react-native';
 import { Text } from '../components/AppText';
-import { SettingsPage, SettingsText, SettingsRow, SettingsCard } from '../components/SettingsUI';
+import { SettingsPage, SettingsText, SettingsRow, SettingsCard, SettingsGroup } from '../components/SettingsUI';
+import { SettingsAccountCard } from '../components/SettingsAccountCard';
+import { SyncSummaryCard } from '../components/SyncSummaryCard';
 import { ScreenCard, ScreenLabel, ScreenSegmented } from '../components/screen/ScreenUI';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
@@ -116,17 +118,23 @@ export function FieldSettingsScreen({ onClose, onOpenInbox, onOpenAdministration
   return <SettingsPage title={title} eyebrow={eyebrow} description={page === 'index' ? t('Tu cuenta, tus equipos y tus preferencias.', 'Your account, devices and preferences.') : undefined} onBack={page === 'index' ? undefined : back}>
     {!!error && <SettingsText danger>{error}</SettingsText>}
     {page === 'index' && <>
-      <SettingsRow title={t('Mi cuenta', 'My account')} subtitle={t('Nombre, correo y contraseña', 'Name, email and password')} onPress={() => setPage('profile')} />
-      <SettingsRow title={t('Preferencias', 'Preferences')} subtitle={t('Idioma, apariencia, letra y permisos', 'Language, appearance, text and permissions')} onPress={() => setPage('preferences')} />
-      <SettingsRow title={t('Equipos y datos', 'Devices and data')} subtitle={t('Acceso, actualizaciones y sincronización', 'Access, updates and synchronization')} onPress={() => setPage('equipment')} />
-      <SettingsRow title={t('Ayuda y privacidad', 'Help and privacy')} subtitle={t('Avisos, contacto y documentos', 'Alerts, contact and documents')} onPress={() => setPage('help')} />
-      <SettingsRow title={t('Cerrar sesión', 'Sign out')} subtitle={t('Sólo en este teléfono', 'On this phone only')} danger disabled={busy} onPress={() => void confirmSignOut()} />
+      <SettingsAccountCard />
+      <SettingsGroup>
+        <SettingsRow grouped icon="user" title={t('Mi cuenta', 'My account')} subtitle={t('Nombre, correo y contraseña', 'Name, email and password')} onPress={() => setPage('profile')} />
+        <SettingsRow grouped icon="settings" title={t('Preferencias', 'Preferences')} subtitle={t('Idioma, apariencia, letra y permisos', 'Language, appearance, text and permissions')} onPress={() => setPage('preferences')} />
+        <SettingsRow grouped icon="probe" title={t('Equipos y datos', 'Devices and data')} subtitle={t('Acceso, actualizaciones y sincronización', 'Access, updates and synchronization')} onPress={() => setPage('equipment')} />
+        <SettingsRow grouped icon="help" title={t('Ayuda y privacidad', 'Help and privacy')} subtitle={t('Avisos, contacto y documentos', 'Alerts, contact and documents')} onPress={() => setPage('help')} />
+      </SettingsGroup>
+      <SettingsRow icon="logout" title={t('Cerrar sesión', 'Sign out')} subtitle={t('Sólo en este teléfono', 'On this phone only')} danger disabled={busy} onPress={() => void confirmSignOut()} />
     </>}
     {page === 'equipment' && <>
-      <SettingsRow title={t('Compartir acceso', 'Share access')} subtitle={t('Invitación temporal por QR o código', 'Temporary invitation by QR or code')} onPress={() => setPage('share')} />
-      {canAdminister && <SettingsRow title={t('Administración del equipo', 'Device administration')} subtitle={t('Miembros, solicitudes y propiedad', 'Members, requests and ownership')} onPress={onOpenAdministration} />}
-      <SettingsRow title={t('Actualizaciones', 'Updates')} subtitle={t('Firmware del ESP32', 'ESP32 firmware')} onPress={() => setPage('firmware')} />
-      <SettingsRow title={t('Datos y sincronización', 'Data and synchronization')} onPress={() => setPage('sync')} />
+      <SyncSummaryCard />
+      <SettingsGroup>
+        <SettingsRow grouped icon="qr" title={t('Compartir acceso', 'Share access')} subtitle={t('Invitación temporal por QR o código', 'Temporary invitation by QR or code')} onPress={() => setPage('share')} />
+        {canAdminister && <SettingsRow grouped icon="team" title={t('Administración del equipo', 'Device administration')} subtitle={t('Miembros, solicitudes y propiedad', 'Members, requests and ownership')} onPress={onOpenAdministration} />}
+        <SettingsRow grouped icon="download" title={t('Actualizaciones', 'Updates')} subtitle={t('Firmware del ESP32', 'ESP32 firmware')} onPress={() => setPage('firmware')} />
+        <SettingsRow grouped icon="sync" title={t('Datos y sincronización', 'Data and synchronization')} onPress={() => setPage('sync')} />
+      </SettingsGroup>
     </>}
     {page === 'preferences' && <>
       {/* Las tres preferencias de pocas opciones se eligen aquí mismo, sin subpantallas. */}

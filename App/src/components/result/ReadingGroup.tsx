@@ -1,4 +1,5 @@
 import React from 'react';
+import { Typography } from '../../constants/theme';
 import { Pressable, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Text } from '../AppText';
@@ -65,7 +66,7 @@ export function ReadingGroup({ family, entries, formatValue, onOpen }: {
             <View style={{ flex: 1, minWidth: 0, gap: 7 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
                 <Text numberOfLines={2} style={{ flex: 1, color: colors.textSecondary, fontSize: 14 }}>{parameterLabel(m.key, language)}</Text>
-                <Text numberOfLines={1} style={{ color: colors.text, fontSize: 21, fontWeight: '700', letterSpacing: -0.3 }}>{formatValue(m)}</Text>
+                <Text numberOfLines={1} style={{ color: colors.text, fontSize: 21, ...Typography.numeric.bold, letterSpacing: -0.3 }}>{formatValue(m)}</Text>
               </View>
               {stateful && <MetricScale metric={m.key} value={m.value} />}
               <Text style={{ color: look.ink, fontSize: 13, fontWeight: '700' }}>{look.glyph ? `${look.glyph} ` : ''}{look.text}</Text>
