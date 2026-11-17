@@ -301,11 +301,11 @@ export async function askLocationOnce(language: Language, legacyAndroidBluetooth
 **Archivos**
 - Modificar: `src/screens/PermissionsScreen.tsx`, `src/screens/FieldSettingsScreen.tsx`
 
-- [ ] **Paso 1:** en `PermissionsScreen`, «Continuar» llama primero a `askLocationOnce`, guarda `choiceAfterAsking` y después hace lo que ya hacía (`markPermissionsReviewed`). Sigue siendo **un solo botón**. Se corrige el comentario de cabecera del componente, que hoy dice que la pantalla no abre ningún diálogo.
-- [ ] **Paso 2:** la tarjeta de Ubicación va primera y destacada, con la ilustración de la maqueta `Permisos` (pin sobre el campo y pronóstico). Las otras tres filas siguen siendo informativas.
-- [ ] **Paso 3:** quien ya pasó por esta pantalla no la vuelve a ver: a esas cuentas les pregunta la tarea 5 en su próxima medición. Ambas rutas escriben la misma clave, así que nadie responde dos veces.
-- [ ] **Paso 4:** en Preferencias (`FieldSettingsScreen.tsx`) se agrega la fila «Ubicación y pronóstico» con interruptor, que lee y escribe `LOCATION_CHOICE_KEY`. Encenderlo sin permiso llama a `askForAccess('location', …)`; si el sistema ya no pregunta, ofrece abrir los ajustes, como el resto de los permisos.
-- [ ] **Paso 5:** `npm run type-check && npm test`. Revisión en teléfono de ambos caminos. Commit: `feat(app): pregunta la ubicación en la entrada y la deja a mano en Preferencias`.
+- [x] **Paso 1:** en `PermissionsScreen`, «Continuar» llama primero a `askLocationOnce`, guarda `choiceAfterAsking` y después hace lo que ya hacía (`markPermissionsReviewed`). Sigue siendo **un solo botón**. Se corrige el comentario de cabecera del componente, que hoy dice que la pantalla no abre ningún diálogo.
+- [x] **Paso 2:** la tarjeta de Ubicación va primera y destacada, con la ilustración de la maqueta `Permisos` (pin sobre el campo y pronóstico). Las otras tres filas siguen siendo informativas.
+- [x] **Paso 3:** quien ya pasó por esta pantalla no la vuelve a ver: a esas cuentas les pregunta la tarea 5 en su próxima medición. Ambas rutas escriben la misma clave, así que nadie responde dos veces.
+- [x] **Paso 4:** en Preferencias (`FieldSettingsScreen.tsx`) se agrega la fila «Ubicación y pronóstico» con interruptor, que lee y escribe `LOCATION_CHOICE_KEY`. Encenderlo sin permiso llama a `askForAccess('location', …)`; si el sistema ya no pregunta, ofrece abrir los ajustes, como el resto de los permisos.
+- [x] **Paso 5:** `npm run type-check && npm test`. Revisión en teléfono de ambos caminos. Commit: `feat(app): pregunta la ubicación en la entrada y la deja a mano en Preferencias`.
 
 ### Tarea 7: textos y documentación que quedan falsos
 
