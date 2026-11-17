@@ -36,9 +36,11 @@ export function GuideTarget({ title, description, children }: React.PropsWithChi
   const ref = useGuideTarget(title, description);
   return <View ref={ref} collapsable={false}>{children}</View>;
 }
-export function GuideScrollView({ children, onScroll, ...props }: ScrollViewProps) {
+/** `restoreY`: posición a la que vuelve el desplazamiento cuando el contenido se mide por primera vez. */
+export function GuideScrollView({ children, onScroll, restoreY = 0, onContentSizeChange, ...props }: ScrollViewProps & { restoreY?: number }) {
   const ref = useRef<ScrollView>(null);
   const offset = useRef(0);
+  const restored = useRef(false);
   const context = useContext(GuideContext);
   const reveal = useCallback(async (node: Measurable) => {
     const [target, viewport] = await Promise.all([measure(node), measure(ref.current?.getNativeScrollRef() ?? null)]);
@@ -52,5 +54,9 @@ export function GuideScrollView({ children, onScroll, ...props }: ScrollViewProp
   }, []);
   return <GuideScrollContext.Provider value={reveal}><ScrollView {...props} ref={ref}
     scrollEnabled={context?.active ? false : props.scrollEnabled} removeClippedSubviews={false}
-    scrollEventThrottle={16} onScroll={event => { offset.current = event.nativeEvent.contentOffset.y; onScroll?.(event); }}>{children}</ScrollView></GuideScrollContext.Provider>;
+    scrollEventThrottle={16} onScroll={event => { offset.current = event.nativeEvent.contentOffset.y; onScroll?.(event); }}
+    onContentSizeChange={(width, height) => {
+      if (!restored.current && restoreY > 0 && height > restoreY) { restored.current = true; ref.current?.scrollTo({ y: restoreY, animated: false }); }
+      onContentSizeChange?.(width, height);
+    }}>{children}</ScrollView></GuideScrollContext.Provider>;
 }

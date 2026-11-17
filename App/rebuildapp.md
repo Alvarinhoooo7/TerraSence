@@ -247,7 +247,7 @@ export function choiceAfterAsking(accepted: boolean): Exclude<LocationChoice, nu
 | `null` | no concedido, se puede preguntar | `ask` (diálogo del sistema) |
 | `null` | no concedido, el sistema ya no pregunta | `skip` |
 
-- [ ] **Paso 1: escribir las pruebas**
+- [x] **Paso 1: escribir las pruebas**
 
 ```ts
 test('con la elección apagada nunca se captura ni se pregunta', () => {
@@ -272,8 +272,8 @@ test('después de preguntar siempre queda una elección guardada', () => {
 });
 ```
 
-- [ ] **Paso 2:** `npm test` → fallan. **Paso 3:** implementar. **Paso 4:** `npm test` → pasan, junto con las pruebas anteriores del archivo.
-- [ ] **Paso 5:** `initialIncludeLocation` queda sin uso después de la tarea 5; se elimina ahí, con sus pruebas. Commit: `feat(app): define cuándo se pregunta la ubicación al medir`.
+- [x] **Paso 2:** `npm test` → fallan. **Paso 3:** implementar. **Paso 4:** `npm test` → pasan, junto con las pruebas anteriores del archivo.
+- [x] **Paso 5:** `initialIncludeLocation` queda sin uso después de la tarea 5; se elimina ahí, con sus pruebas. Commit: `feat(app): define cuándo se pregunta la ubicación al medir`.
 
 ### Tarea 5: quitar «Todo listo» de la medición
 
@@ -287,33 +287,33 @@ test('después de preguntar siempre queda una elección guardada', () => {
 export async function askLocationOnce(language: Language, legacyAndroidBluetooth: boolean, isActive?: () => boolean): Promise<boolean>;
 ```
 
-- [ ] **Paso 1:** `Phase` (línea 52) pierde `'prepare'`. Se elimina el bloque 458–498, el estado `includeLocation`, `toggleLocation` (139–161), la lectura inicial (112–115) y la rama del botón atrás (línea 180).
-- [ ] **Paso 2:** el botón de «Antes de medir» (línea 442) pasa a `t('Listo, medir', 'Done, measure')` y llama a `runMeasurement()` directamente. `totalSteps` (línea 387) pasa a `asksSpecies ? 3 : 2`.
-- [ ] **Paso 3:** en `runMeasurement`, donde hoy se llama a `revalidateLocation()` (≈206), se lee la elección y el permiso, se evalúa `nextLocationStep` y, si da `ask`, se llama a `askLocationOnce` y se guarda `choiceAfterAsking`. El resultado decide el argumento de `captureLocation`, que no cambia.
-- [ ] **Paso 4:** el aviso de datos simulados (`demoNotice`) y el de permiso retirado, que vivían en «Todo listo», pasan: el primero a «Antes de medir», el segundo a los avisos del resultado (`notices`).
-- [ ] **Paso 5:** la etapa y la especie elegidas se muestran como dos píldoras en la barra superior de «Antes de medir» (maqueta `AntesDeMedir`).
-- [ ] **Paso 6:** `npm run type-check && npm test`.
+- [x] **Paso 1:** `Phase` (línea 52) pierde `'prepare'`. Se elimina el bloque 458–498, el estado `includeLocation`, `toggleLocation` (139–161), la lectura inicial (112–115) y la rama del botón atrás (línea 180).
+- [x] **Paso 2:** el botón de «Antes de medir» (línea 442) pasa a `t('Listo, medir', 'Done, measure')` y llama a `runMeasurement()` directamente. `totalSteps` (línea 387) pasa a `asksSpecies ? 3 : 2`.
+- [x] **Paso 3:** en `runMeasurement`, donde hoy se llama a `revalidateLocation()` (≈206), se lee la elección y el permiso, se evalúa `nextLocationStep` y, si da `ask`, se llama a `askLocationOnce` y se guarda `choiceAfterAsking`. El resultado decide el argumento de `captureLocation`, que no cambia.
+- [x] **Paso 4:** el aviso de datos simulados (`demoNotice`) y el de permiso retirado, que vivían en «Todo listo», pasan: el primero a «Antes de medir», el segundo a los avisos del resultado (`notices`).
+- [x] **Paso 5:** la etapa y la especie elegidas se muestran como dos píldoras en la barra superior de «Antes de medir» (maqueta `AntesDeMedir`).
+- [x] **Paso 6:** `npm run type-check && npm test`.
 - [ ] **Paso 7: revisión en teléfono**, con una instalación limpia cada vez: aceptar (la lectura trae coordenadas y pronóstico); rechazar (se mide igual y la siguiente medición no vuelve a preguntar); revocar el permiso desde los ajustes del teléfono entre dos lecturas (se mide sin coordenadas y aparece el aviso una vez); modo avión (coordenadas sí, pronóstico con la degradación que ya existe).
-- [ ] **Paso 8:** commit: `feat(app): pide la ubicación una sola vez y elimina el paso «Todo listo»`.
+- [x] **Paso 8:** commit: `feat(app): pide la ubicación una sola vez y elimina el paso «Todo listo»`.
 
 ### Tarea 6: la pantalla de permisos y el interruptor en Preferencias
 
 **Archivos**
 - Modificar: `src/screens/PermissionsScreen.tsx`, `src/screens/FieldSettingsScreen.tsx`
 
-- [ ] **Paso 1:** en `PermissionsScreen`, «Continuar» llama primero a `askLocationOnce`, guarda `choiceAfterAsking` y después hace lo que ya hacía (`markPermissionsReviewed`). Sigue siendo **un solo botón**. Se corrige el comentario de cabecera del componente, que hoy dice que la pantalla no abre ningún diálogo.
-- [ ] **Paso 2:** la tarjeta de Ubicación va primera y destacada, con la ilustración de la maqueta `Permisos` (pin sobre el campo y pronóstico). Las otras tres filas siguen siendo informativas.
-- [ ] **Paso 3:** quien ya pasó por esta pantalla no la vuelve a ver: a esas cuentas les pregunta la tarea 5 en su próxima medición. Ambas rutas escriben la misma clave, así que nadie responde dos veces.
-- [ ] **Paso 4:** en Preferencias (`FieldSettingsScreen.tsx`) se agrega la fila «Ubicación y pronóstico» con interruptor, que lee y escribe `LOCATION_CHOICE_KEY`. Encenderlo sin permiso llama a `askForAccess('location', …)`; si el sistema ya no pregunta, ofrece abrir los ajustes, como el resto de los permisos.
-- [ ] **Paso 5:** `npm run type-check && npm test`. Revisión en teléfono de ambos caminos. Commit: `feat(app): pregunta la ubicación en la entrada y la deja a mano en Preferencias`.
+- [x] **Paso 1:** en `PermissionsScreen`, «Continuar» llama primero a `askLocationOnce`, guarda `choiceAfterAsking` y después hace lo que ya hacía (`markPermissionsReviewed`). Sigue siendo **un solo botón**. Se corrige el comentario de cabecera del componente, que hoy dice que la pantalla no abre ningún diálogo.
+- [x] **Paso 2:** la tarjeta de Ubicación va primera y destacada, con la ilustración de la maqueta `Permisos` (pin sobre el campo y pronóstico). Las otras tres filas siguen siendo informativas.
+- [x] **Paso 3:** quien ya pasó por esta pantalla no la vuelve a ver: a esas cuentas les pregunta la tarea 5 en su próxima medición. Ambas rutas escriben la misma clave, así que nadie responde dos veces.
+- [x] **Paso 4:** en Preferencias (`FieldSettingsScreen.tsx`) se agrega la fila «Ubicación y pronóstico» con interruptor, que lee y escribe `LOCATION_CHOICE_KEY`. Encenderlo sin permiso llama a `askForAccess('location', …)`; si el sistema ya no pregunta, ofrece abrir los ajustes, como el resto de los permisos.
+- [x] **Paso 5:** `npm run type-check && npm test`. Revisión en teléfono de ambos caminos. Commit: `feat(app): pregunta la ubicación en la entrada y la deja a mano en Preferencias`.
 
 ### Tarea 7: textos y documentación que quedan falsos
 
-- [ ] **Paso 1:** `src/utils/permissionCopy.ts:43` — «Si lo eliges al medir, guarda…» pasa a «Guarda las coordenadas de cada lectura y consulta el pronóstico con Open-Meteo.» (y su versión en inglés).
-- [ ] **Paso 2:** `src/screens/SettingsDetails.tsx:38` — se quita «si activas esa opción al medir».
-- [ ] **Paso 3:** `src/utils/legalSections.ts:16–17` — leer la frase completa. Si menciona la opción al medir, corregirla. **Antes de tocarla**, revisar `tests/privacy.test.ts` y `tests/registrationConsent.test.ts`: si el texto legal tiene versión, cambiarlo puede exigir una nueva aceptación, y eso lo decide el usuario.
-- [ ] **Paso 4:** `App/TASK_PERMISSIONS.md` y `App/README.md` — actualizar los párrafos que describen el interruptor al medir y la regla «cada permiso se pide al usar su función», que deja de valer para la ubicación.
-- [ ] **Paso 5:** desde la raíz, `python docs/verificar_documentacion.py` → 0 errores. Commit: `docs(app): actualiza los textos del permiso de ubicación`.
+- [x] **Paso 1:** `src/utils/permissionCopy.ts:43` — «Si lo eliges al medir, guarda…» pasa a «Guarda las coordenadas de cada lectura y consulta el pronóstico con Open-Meteo.» (y su versión en inglés).
+- [x] **Paso 2:** `src/screens/SettingsDetails.tsx:38` — se quita «si activas esa opción al medir».
+- [x] **Paso 3:** `src/utils/legalSections.ts:16–17` — leer la frase completa. Si menciona la opción al medir, corregirla. **Antes de tocarla**, revisar `tests/privacy.test.ts` y `tests/registrationConsent.test.ts`: si el texto legal tiene versión, cambiarlo puede exigir una nueva aceptación, y eso lo decide el usuario.
+- [x] **Paso 4:** `App/TASK_PERMISSIONS.md` y `App/README.md` — actualizar los párrafos que describen el interruptor al medir y la regla «cada permiso se pide al usar su función», que deja de valer para la ubicación.
+- [x] **Paso 5:** desde la raíz, `python docs/verificar_documentacion.py` → 0 errores. Commit: `docs(app): actualiza los textos del permiso de ubicación`.
 
 ---
 
@@ -346,14 +346,14 @@ export const PLAN_VISIBLE = 3;
 export function planActions(p: MeasurementPresentation): { visible: PlanAction[]; hidden: number };
 ```
 
-- [ ] **Paso 1: escribir las pruebas.** Con presentaciones armadas a mano (el archivo `tests/measurementPresentation.test.ts` tiene ejemplos de la forma):
+- [x] **Paso 1: escribir las pruebas.** Con presentaciones armadas a mano (el archivo `tests/measurementPresentation.test.ts` tiene ejemplos de la forma):
   - `scoreCounts` no cuenta nitrógeno, fósforo, potasio ni las variables en `INFO`; una variable sin valor no suma a `ok`.
   - con cinco recomendaciones normales: `visible.length === 3`, `hidden === 2`.
   - con cinco recomendaciones y la cuarta en `high`: la cuarta está en `visible` y `hidden === 1`.
   - lectura antigua, sin `recommendations` y con `actions: ['a', 'b']`: dos acciones visibles, `when === null`, `evidence` vacío.
   - sin recomendaciones ni acciones: `visible` vacío y `hidden === 0`.
   - `title` usa `headline` cuando existe y `title` cuando no.
-- [ ] **Paso 2:** falla. **Paso 3:** implementar. **Paso 4:** pasa. Commit: `feat(app): agrega el modelo del resultado en una pantalla`.
+- [x] **Paso 2:** falla. **Paso 3:** implementar. **Paso 4:** pasa. Commit: `feat(app): agrega el modelo del resultado en una pantalla`.
 
 ### Tarea 9: el dato que gatilla cada acción
 
@@ -361,20 +361,20 @@ export function planActions(p: MeasurementPresentation): { visible: PlanAction[]
 - Modificar: `src/engine/contextualAdvice.ts` (interfaz `Recommendation`, 22–29; alertas, 164–167; recomendaciones de riego y de demanda del aire)
 - Prueba: `tests/measurementPresentation.test.ts`
 
-- [ ] **Paso 1:** agregar a `Recommendation` el campo opcional `evidence?: ParameterKey[]`. Se llena con la variable de la alerta que origina la recomendación; las de riego llevan `['vwc']` y las de demanda del aire `['airTemp', 'airHumidity']`. Las que no salen de una variable (clima, «vuelve a medir») no lo llevan.
-- [ ] **Paso 2: prueba.** Una lectura con humedad bajo el umbral produce una recomendación cuyo `evidence` incluye `'vwc'`, y el campo llega intacto a `MeasurementPresentation.recommendations`. Ninguna recomendación lleva `nitrogen`, `phosphorus` ni `potassium` en `evidence`.
-- [ ] **Paso 3:** comprobar que `Web/` no valida el diagnóstico guardado con un esquema estricto: el campo nuevo viaja dentro del JSON que ya se guarda, sin migración.
-- [ ] **Paso 4:** `npm run type-check && npm test`. Commit: `feat(app): cada recomendación declara la variable que la sostiene`.
+- [x] **Paso 1:** agregar a `Recommendation` el campo opcional `evidence?: ParameterKey[]`. Se llena con la variable de la alerta que origina la recomendación; las de riego llevan `['vwc']` y las de demanda del aire `['airTemp', 'airHumidity']`. Las que no salen de una variable (clima, «vuelve a medir») no lo llevan.
+- [x] **Paso 2: prueba.** Una lectura con humedad bajo el umbral produce una recomendación cuyo `evidence` incluye `'vwc'`, y el campo llega intacto a `MeasurementPresentation.recommendations`. Ninguna recomendación lleva `nitrogen`, `phosphorus` ni `potassium` en `evidence`.
+- [x] **Paso 3:** comprobar que `Web/` no valida el diagnóstico guardado con un esquema estricto: el campo nuevo viaja dentro del JSON que ya se guarda, sin migración.
+- [x] **Paso 4:** `npm run type-check && npm test`. Commit: `feat(app): cada recomendación declara la variable que la sostiene`.
 
 ### Tarea 10: titulares cortos (requiere aprobación del usuario)
 
 **Archivos:** `src/engine/contextualAdvice.ts`, `src/engine/stageEvaluator.ts`, `src/engine/agronomyEngine.ts`.
 
-- [ ] **Paso 1:** agregar `headline?: string` a `Recommendation` y a las alertas de las que nace.
-- [ ] **Paso 2:** escribir el titular de cada regla, en ambos idiomas, con estas reglas: empieza con un verbo en imperativo, 40 caracteres como máximo, sin emojis, sin dosis ni cantidades de producto. Ejemplos del tono: «Riega hoy», «Espera la lluvia antes de regar», «Vuelve a medir después de regar», «Confirma el pH en laboratorio».
-- [ ] **Paso 3: prueba.** Para las lecturas de ejemplo de `tests/measurementPresentation.test.ts`, toda recomendación trae `headline`, de 40 caracteres o menos, y no coincide con `/\p{Extended_Pictographic}/u`.
-- [ ] **Paso 4: entregar al usuario la tabla** regla → titular en español e inglés. No se fusiona sin su visto bueno: es texto agronómico.
-- [ ] **Paso 5:** `npm test`. Commit: `feat(app): agrega titulares cortos al plan de acción`.
+- [x] **Paso 1:** agregar `headline?: string` a `Recommendation` y a las alertas de las que nace.
+- [x] **Paso 2:** escribir el titular de cada regla, en ambos idiomas, con estas reglas: empieza con un verbo en imperativo, 40 caracteres como máximo, sin emojis, sin dosis ni cantidades de producto. Ejemplos del tono: «Riega hoy», «Espera la lluvia antes de regar», «Vuelve a medir después de regar», «Confirma el pH en laboratorio».
+- [x] **Paso 3: prueba.** Para las lecturas de ejemplo de `tests/measurementPresentation.test.ts`, toda recomendación trae `headline`, de 40 caracteres o menos, y no coincide con `/\p{Extended_Pictographic}/u`.
+- [x] **Paso 4: entregar al usuario la tabla** regla → titular en español e inglés. No se fusiona sin su visto bueno: es texto agronómico.
+- [x] **Paso 5:** `npm test`. Commit: `feat(app): agrega titulares cortos al plan de acción`.
 
 ### Tarea 11: la pantalla única
 
@@ -393,22 +393,22 @@ Orden de la pantalla, de arriba hacia abajo (maqueta `Main`):
 7. **Nutrientes** (`NutrientGroup`): tres casillas neutras con nombre, valor y `mg/kg`, sin color de estado, y la frase «Sirven para comparar entre mediciones del mismo punto. El análisis de laboratorio fija el punto de referencia.»
 8. **Pie fijo:** «Guardar resultado» en una medición nueva; «Cerrar» en el historial.
 
-- [ ] **Paso 1:** mudar `PlanSheet` a `BottomSheet.tsx` sin cambiarlo.
-- [ ] **Paso 2:** crear las cinco piezas con los valores de la sección 2.3, tomando los colores de `theme.ts`.
-- [ ] **Paso 3:** reescribir el cuerpo de `MeasurementResultFlow`: desaparecen `STEPS`, `GROUP_OF`, `StepProgress` y las ilustraciones de familia; `ResultPager` queda sólo para recorrer el detalle de las variables. La interfaz pública del componente (`presentation`, `forecast`, `notices`, `onExit`, `exitLabel`, `save`) no cambia: `MeasureScreen` y `MeasurementDetailModal` no se tocan.
-- [ ] **Paso 4:** botón atrás del teléfono: cierra la hoja abierta; si no hay, cierra el detalle; si no hay, sale (con la confirmación de descarte que ya existe).
-- [ ] **Paso 5:** `useResetGuide` usa la clave `resultado` para la pantalla y `detalle-<n>` para cada variable.
-- [ ] **Paso 6:** `npm run type-check && npm test`.
+- [x] **Paso 1:** mudar `PlanSheet` a `BottomSheet.tsx` sin cambiarlo.
+- [x] **Paso 2:** crear las cinco piezas con los valores de la sección 2.3, tomando los colores de `theme.ts`.
+- [x] **Paso 3:** reescribir el cuerpo de `MeasurementResultFlow`: desaparecen `STEPS`, `GROUP_OF`, `StepProgress` y las ilustraciones de familia; `ResultPager` queda sólo para recorrer el detalle de las variables. La interfaz pública del componente (`presentation`, `forecast`, `notices`, `onExit`, `exitLabel`, `save`) no cambia: `MeasureScreen` y `MeasurementDetailModal` no se tocan.
+- [x] **Paso 4:** botón atrás del teléfono: cierra la hoja abierta; si no hay, cierra el detalle; si no hay, sale (con la confirmación de descarte que ya existe).
+- [x] **Paso 5:** `useResetGuide` usa la clave `resultado` para la pantalla y `detalle-<n>` para cada variable.
+- [x] **Paso 6:** `npm run type-check && npm test`.
 - [ ] **Paso 7: revisión en teléfono** con: una lectura nueva con especie; una en pre-siembra; una sin especie; una sin ubicación; una con variables sin dato; y, desde el historial, una lectura guardada antes de este cambio. En cada una: el plan es lo primero que se lee después del veredicto, ninguna recomendación desaparece y N, P y K no llevan color.
-- [ ] **Paso 8:** commit: `feat(app): presenta el resultado en una pantalla con el plan primero`.
+- [x] **Paso 8:** commit: `feat(app): presenta el resultado en una pantalla con el plan primero`.
 
 ### Tarea 12: el detalle de una variable
 
 **Archivo:** `src/components/MeasurementResultFlow.tsx` (función `detailPage`).
 
-- [ ] **Paso 1:** aplicar la maqueta `DetalleVariable`: cifra grande (60) con la unidad en menor tamaño, píldora de estado, escala con las zonas rotuladas, «Qué significa», «Qué hacer» con vistos, «Detalle técnico y fuente» cerrado y los botones anterior/siguiente con el nombre de la variable vecina.
-- [ ] **Paso 2:** el contenido no cambia: sigue saliendo de `buildParameterCopy` y del motor. Las variables de N, P y K conservan su texto de valores de referencia.
-- [ ] **Paso 3:** `npm run type-check && npm test`. Revisión en teléfono recorriendo las diez variables. Commit: `feat(app): rediseña el detalle de una variable`.
+- [x] **Paso 1:** aplicar la maqueta `DetalleVariable`: cifra grande (60) con la unidad en menor tamaño, píldora de estado, escala con las zonas rotuladas, «Qué significa», «Qué hacer» con vistos, «Detalle técnico y fuente» cerrado y los botones anterior/siguiente con el nombre de la variable vecina.
+- [x] **Paso 2:** el contenido no cambia: sigue saliendo de `buildParameterCopy` y del motor. Las variables de N, P y K conservan su texto de valores de referencia.
+- [x] **Paso 3:** `npm run type-check && npm test`. Revisión en teléfono recorriendo las diez variables. Commit: `feat(app): rediseña el detalle de una variable`.
 
 ### Tarea 13: el historial muestra la primera acción
 
@@ -423,9 +423,9 @@ Orden de la pantalla, de arriba hacia abajo (maqueta `Main`):
 export function savedHeadline(diagnosis: unknown): string | null;
 ```
 
-- [ ] **Paso 1: prueba.** Con un diagnóstico que trae recomendaciones devuelve el `headline` de la primera, o su `title` si no hay `headline`; con uno antiguo o con un valor que no es un objeto, `null`.
-- [ ] **Paso 2:** implementar. **Paso 3:** la fila del historial (maqueta `Mediciones`) lleva un cuadro con ícono según el veredicto (visto, signo de exclamación o equis, sobre `tintSuccess`, `tintWarning` o `tintDanger`), especie y etapa, la hora, el titular en el color del estado (o el título que ya se mostraba, si `savedHeadline` da `null`) y el estado de respaldo.
-- [ ] **Paso 4:** `npm run type-check && npm test`. Commit: `feat(app): muestra la primera acción en cada fila del historial`.
+- [x] **Paso 1: prueba.** Con un diagnóstico que trae recomendaciones devuelve el `headline` de la primera, o su `title` si no hay `headline`; con uno antiguo o con un valor que no es un objeto, `null`.
+- [x] **Paso 2:** implementar. **Paso 3:** la fila del historial (maqueta `Mediciones`) lleva un cuadro con ícono según el veredicto (visto, signo de exclamación o equis, sobre `tintSuccess`, `tintWarning` o `tintDanger`), especie y etapa, la hora, el titular en el color del estado (o el título que ya se mostraba, si `savedHeadline` da `null`) y el estado de respaldo.
+- [x] **Paso 4:** `npm run type-check && npm test`. Commit: `feat(app): muestra la primera acción en cada fila del historial`.
 
 ---
 

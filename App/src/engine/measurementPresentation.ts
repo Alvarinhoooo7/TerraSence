@@ -346,7 +346,9 @@ function isRecommendation(value: unknown): value is Recommendation {
   const r = value as Recommendation;
   return ['soil', 'evidence', 'weather', 'irrigation', 'monitoring'].includes(r.kind) && ['high', 'normal'].includes(r.priority)
     && ['now', 'today', 'next_days', 'next_reading'].includes(r.when) && typeof r.title === 'string' && typeof r.body === 'string'
-    && (r.detail === undefined || typeof r.detail === 'string');
+    && (r.detail === undefined || typeof r.detail === 'string')
+    && (r.headline === undefined || typeof r.headline === 'string')
+    && (r.evidence === undefined || (Array.isArray(r.evidence) && r.evidence.every(key => (PARAMETER_KEYS as readonly string[]).includes(key))));
 }
 
 function isPresentationSpecies(value: unknown): value is PresentationSpecies {
@@ -363,6 +365,18 @@ function isPresentationSpecies(value: unknown): value is PresentationSpecies {
 export function savedSpecies(diagnosis: unknown): PresentationSpecies | null {
   const presentation = diagnosis && typeof diagnosis === 'object' ? (diagnosis as { presentation?: unknown }).presentation : undefined;
   return isMeasurementPresentation(presentation) && presentation.species ? presentation.species : null;
+}
+
+/**
+ * Titular de la primera recomendación de un diagnóstico guardado (su `headline`, o su `title` si
+ * no lo trae); `null` si el diagnóstico no trae recomendaciones. Sólo lee lo guardado: el texto
+ * queda en el idioma y con las reglas con que se midió.
+ */
+export function savedHeadline(diagnosis: unknown): string | null {
+  const presentation = diagnosis && typeof diagnosis === 'object' ? (diagnosis as { presentation?: unknown }).presentation : undefined;
+  if (!isMeasurementPresentation(presentation)) return null;
+  const first = presentation.recommendations?.[0];
+  return first ? first.headline ?? first.title : null;
 }
 
 /** Sólo lee la instantánea guardada; no ejecuta reglas nuevas sobre históricos. */

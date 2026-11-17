@@ -24,9 +24,9 @@ flowchart TD
 
 Al crear una cuenta se confirma el correo con un código. Quien ya inició sesión y completó la vinculación entra a Inicio sin repetir la bienvenida. Si una solicitud de acceso sigue pendiente, la app muestra la pantalla de espera.
 
-Bluetooth permite comunicarse con la sonda. La cámara se usa para leer invitaciones QR, con la alternativa de ingresar el código a mano. La ubicación es opcional: permite guardar coordenadas y consultar el pronóstico del lugar. Las notificaciones avisan sobre solicitudes y cambios de acceso.
+Bluetooth permite comunicarse con la sonda. La cámara se usa para leer invitaciones QR, con la alternativa de ingresar el código a mano. La ubicación es opcional y se decide una sola vez, al entrar a la app: si se acepta, cada lectura guarda sus coordenadas y consulta el pronóstico del lugar. Se puede cambiar en Configuración → Preferencias. Las notificaciones avisan sobre solicitudes y cambios de acceso.
 
-Los avisos se activan voluntariamente desde la espera de aprobación, Compartir acceso, la bandeja de Avisos o Configuración → Preferencias → Notificaciones. La explicación inicial de permisos no abre diálogos. Al tocar «Activar avisos de acceso», se solicita la autorización nativa; si el sistema ya no admite otra solicitud, se ofrece abrir sus ajustes. Al volver, se consulta el permiso y se reintenta el registro del teléfono. La preferencia de la cuenta, el permiso del sistema y el registro de envío se muestran como condiciones distintas; los avisos provisionales de iOS se identifican como silenciosos. La app sigue funcionando sin conceder el permiso, de acuerdo con la [solicitud contextual de notificaciones de Apple](https://developer.apple.com/documentation/usernotifications/asking-permission-to-use-notifications).
+Los avisos se activan voluntariamente desde la espera de aprobación, Compartir acceso, la bandeja de Avisos o Configuración → Preferencias → Notificaciones. La explicación inicial de permisos tiene un solo botón, «Continuar», que abre el diálogo del sistema de la ubicación (en Android 11 o anterior, uno propio de la app). Quien ya había pasado por esa pantalla recibe la pregunta en su próxima medición. Al tocar «Activar avisos de acceso», se solicita la autorización nativa; si el sistema ya no admite otra solicitud, se ofrece abrir sus ajustes. Al volver, se consulta el permiso y se reintenta el registro del teléfono. La preferencia de la cuenta, el permiso del sistema y el registro de envío se muestran como condiciones distintas; los avisos provisionales de iOS se identifican como silenciosos. La app sigue funcionando sin conceder el permiso, de acuerdo con la [solicitud contextual de notificaciones de Apple](https://developer.apple.com/documentation/usernotifications/asking-permission-to-use-notifications).
 
 La espera de aprobación conserva los equipos pendientes detectados al entrar y reconoce una aprobación o rechazo que ocurra antes de su primera actualización. La recuperación de contraseña permite reintentar la limpieza local si la sesión ya se cerró, sin exigir iniciar nuevamente esa sesión ni cerrar una cuenta distinta.
 
@@ -48,22 +48,22 @@ La bandeja de avisos reúne las notificaciones de acceso a los equipos. Los miem
 1. **Elegir la etapa:** pre-siembra, vegetativo, floración o cosecha.
 2. **Indicar la especie, si corresponde:** en vegetativo, floración y cosecha se puede buscar el cultivo o continuar sin especificarlo. La elección se guarda sólo para esa medición. En pre-siembra no se pide especie.
 3. **Preparar la sonda:** seguir las indicaciones para encenderla, limpiarla e introducirla en el suelo.
-4. **Revisar y medir:** confirmar la sonda y la etapa, elegir si se incluirán ubicación y pronóstico, y comenzar. La app conecta por Bluetooth, recibe la lectura y libera la conexión al terminar.
-5. **Recorrer el resultado:** avanzar entre las pantallas siguientes, con botones o deslizando.
+4. **Medir:** con «Listo, medir» la app conecta por Bluetooth, recibe la lectura y libera la conexión al terminar. Si hay ubicación aceptada, la lectura trae coordenadas y pronóstico; si se rechazó o el sistema ya no pregunta, se mide igual y sin coordenadas.
+5. **Leer el resultado:** una sola pantalla que se desplaza, con el plan de acción primero.
 6. **Guardar:** conservar la lectura, la fecha, la etapa, la especie indicada y la evaluación. Se puede guardar sin esperar a que termine de cargar el pronóstico.
 
-| Pantalla del resultado | Qué muestra |
+| Parte del resultado | Qué muestra |
 |---|---|
-| **Resumen** | Evaluación general, condiciones que requieren atención y límites de lo que se pudo evaluar. |
-| **Suelo** | Humedad, temperatura, pH y conductividad eléctrica. |
-| **Nutrientes** | Registros de nitrógeno, fósforo y potasio, identificados como **Sin validar**. |
-| **Ambiente** | Temperatura, humedad relativa y presión atmosférica medidas por el BME280 del equipo. |
-| **Clima** | Tiempo actual y pronóstico de los próximos cinco días, cuando están disponibles. |
-| **Recomendaciones** | Acciones de revisión y seguimiento, ordenadas por prioridad, con su explicación. |
+| **Veredicto** | Especie y etapa, el título de la evaluación, una barra con un segmento por variable con estado, y la fecha, las coordenadas y la precisión. Con evaluación insuficiente no hay barra: sólo «Evaluación insuficiente». |
+| **Qué hacer** | Las acciones del plan con su momento, un titular corto y los valores medidos que las sostienen; se ven tres y el resto queda tras «Ver N más», pero las de prioridad alta se ven siempre. Tocar una acción abre el porqué y el detalle técnico. «Cómo se evaluó» abre el resumen, la cobertura y las limitaciones. |
+| **Clima** | Una fila con el titular del pronóstico; abre el tiempo actual y los próximos cinco días, cuando están disponibles. Sin ubicación dice «Sin ubicación incluida». |
+| **Suelo** | Humedad, temperatura, pH y conductividad eléctrica, cada una con su escala y su estado. |
+| **Aire** | Temperatura, humedad relativa y presión atmosférica medidas por el BME280 del equipo. |
+| **Nutrientes** | Valores de referencia de nitrógeno, fósforo y potasio, sin color de estado ni dosis. |
 
 Cada variable permite abrir su detalle. La batería corresponde al último contacto con la sonda. Cuando falta un dato ambiental se muestra su ausencia: el pronóstico no sustituye las mediciones del equipo.
 
-El historial abre el mismo recorrido de resultados y conserva la evaluación y el clima que se guardaron con la lectura. Las coordenadas, cuando existen, se presentan como texto.
+El historial abre la misma pantalla y conserva la evaluación y el clima que se guardaron con la lectura; una lectura guardada antes de que existieran las recomendaciones arma su plan con las acciones de entonces. Las coordenadas, cuando existen, se presentan como texto.
 
 ## Cómo funciona el motor agronómico
 

@@ -151,6 +151,14 @@ export function meetsThreshold(comparison: SpeciesComparison, threshold: Species
   }
 }
 
+/** Titular del plan para un criterio de lectura: nombra la variable que hay que revisar. */
+function readingHeadline(variable: string, en: boolean): string {
+  if (variable === 'temp') return en ? 'Check the soil temperature' : 'Revisa la temperatura del suelo';
+  if (variable === 'vwc') return en ? 'Check the soil moisture' : 'Revisa la humedad del suelo';
+  if (variable === 'airHumidity') return en ? 'Check the air humidity' : 'Revisa la humedad del aire';
+  return en ? 'Check this reading in the field' : 'Revisa esta lectura en terreno';
+}
+
 /**
  * Alertas propias de la especie para esta captura y etapa. Se agregan a las alertas
  * generales sin reemplazarlas: una especie indicada no cambia cómo se evalúa el suelo
@@ -188,7 +196,7 @@ export function evaluateSpeciesCriteria(
       alerts.push({
         type: position === 'below_limit' || position === 'above_limit' ? 'warning' : 'info',
         param: 'ph', origin: 'species',
-        title: plain.title, action: plain.action,
+        title: plain.title, headline: en ? 'Confirm pH in a laboratory' : 'Confirma el pH en laboratorio', action: plain.action,
         detail: `${phTitle(criterion, position, language)}. ${explanation(criterion, check, language)}`,
       });
     } else if (criterion.kind === 'reading') {
@@ -200,6 +208,7 @@ export function evaluateSpeciesCriteria(
       alerts.push({
         type: criterion.severity, param: criterion.variable, origin: 'species',
         title: en ? criterion.effectEn : criterion.effect,
+        headline: readingHeadline(criterion.variable, en),
         action: `${measured} ${en ? criterion.adviceEn : criterion.advice}`,
         detail: explanation(criterion, '', language),
       });
@@ -209,6 +218,7 @@ export function evaluateSpeciesCriteria(
       alerts.push({
         type: 'info', param: 'ec', origin: 'species',
         title: en ? titleEn : title,
+        headline: en ? 'Ask for a salinity analysis' : 'Pide un análisis de salinidad',
         action: en ? `${plainEn} If you are concerned about salt, ask a laboratory for a soil salinity analysis.`
           : `${plain} Si te preocupa la sal, pide en laboratorio un análisis de salinidad del suelo.`,
         detail: explanation(criterion, en
@@ -222,6 +232,7 @@ export function evaluateSpeciesCriteria(
     } else if (criterion.kind === 'water_sensitivity') {
       alerts.push({
         type: 'info', param: 'vwc', origin: 'species',
+        headline: en ? 'Make sure it does not lack water' : 'Cuida que no le falte agua',
         title: en ? `${criterion.period === 'flowering' ? 'Flowering' : 'Vegetative growth'}: make sure this crop does not lack water`
           : `${criterion.period === 'flowering' ? 'Floración' : 'Crecimiento vegetativo'}: que no le falte agua a este cultivo`,
         action: en ? 'At this stage, a lack of water is what lowers this crop\'s harvest the most. Check that irrigation reaches the roots well.'
@@ -237,6 +248,7 @@ export function evaluateSpeciesCriteria(
     const measured = decimal(Math.round(reading.airTemp! * 10) / 10, language);
     alerts.push({
       type: local.severity, param: 'airTemp', origin: 'species',
+      headline: en ? 'Protect the crop from the cold' : 'Protege el cultivo del frío',
       title: `${en ? local.effectEn : local.effect} — ${en ? `the device measures ${measured} °C now` : `el equipo mide ${measured} °C ahora`}`,
       action: `${en ? local.adviceEn : local.advice} ${en
         ? 'Check it with a thermometer in the shade, at plant height.'
@@ -299,6 +311,8 @@ export interface SpeciesWeatherInput {
 export interface SpeciesWeatherFinding {
   type: SpeciesSeverity;
   title: string;
+  /** Titular corto en imperativo para la lista del plan. */
+  headline: string;
   /** Qué significa y qué hacer, en lenguaje simple. */
   body: string;
   /** Cifras de la fuente, limitaciones y cita, para quien quiera revisarlas. */
@@ -402,6 +416,8 @@ export function evaluateSpeciesWeather(
       found.push({
         type: criterion.severity,
         title: `${en ? criterion.effectEn : criterion.effect} — ${label} ${en ? 'of' : 'de'} ${n(valueOf(worst)!)} °C ${on}`,
+        headline: criterion.extreme === 'minimum' ? (en ? 'Protect the crop from the cold' : 'Protege el cultivo del frío')
+          : (en ? 'Protect the crop from the heat' : 'Protege el cultivo del calor'),
         body: `${en ? criterion.adviceEn : criterion.advice}${days}${duration}`,
         detail: explanation(criterion, forecastCheck, language),
         when: hits[0].isToday ? 'today' : 'next_days',
@@ -421,6 +437,8 @@ export function evaluateSpeciesWeather(
       found.push({
         type: criterion.severity,
         title: `${en ? criterion.effectEn : criterion.effect} — ${listDays(labels, language)}`,
+        headline: criterion.event === 'rain' ? (en ? 'Plan around the forecast rain' : 'Planifica según la lluvia prevista')
+          : (en ? 'Plan around the forecast fog' : 'Planifica según la niebla prevista'),
         body: en ? criterion.adviceEn : criterion.advice,
         detail: explanation(criterion, forecastCheck, language),
         when: now ? 'now' : hits[0].isToday ? 'today' : 'next_days',

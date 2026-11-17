@@ -2,6 +2,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { historyScopeIncludes, measurementHistoryScope, mergeCachedHistories, mergeMeasurementHistory, REMOTE_HISTORY_TIMEOUT_MS, runBoundedRemoteHistory, withConfirmedPoint } from '../src/utils/measurementHistory';
 import type { MeasurementPoint } from '../src/types/app';
+import { evaluateForStage } from '../src/engine/stageEvaluator';
+import { buildContextualAdvice } from '../src/engine/contextualAdvice';
+import { buildMeasurementPresentation, savedHeadline } from '../src/engine/measurementPresentation';
+import type { SoilMeasurement } from '../src/types/agronomy';
 import {
   assessProbeMetrologicalContext,
   ecAccuracyBandUsCm,
@@ -280,4 +284,29 @@ test('T41: compareSameSiteReadings compara con la lectura anterior del mismo equ
     measuredAt: '2026-09-01T12:00:00Z',
   };
   assert.equal(compareSameSiteReadings(basePoint, [tooOld]).reasonIfNotComparable, 'outside_time_window');
+});
+
+const savedReading: SoilMeasurement = { vwc: 22, temp: 20, ph: 6.5, ec: 500, nitrogen: 50, phosphorus: 20, potassium: 80, lux: 0, battery: 80, airTemp: null, airHumidity: null, airPressure: null };
+const savedPresentation = () => {
+  const evaluation = evaluateForStage(savedReading, 'vegetativo', 'maiz', 'franco');
+  return buildMeasurementPresentation(savedReading, evaluation, buildContextualAdvice('vegetativo', evaluation, savedReading, null));
+};
+
+test('el historial muestra el titular de la primera recomendación guardada', () => {
+  const presentation = savedPresentation();
+  const first = presentation.recommendations![0];
+  assert.equal(savedHeadline({ presentation }), first.headline);
+  // Sin titular, el título que se guardó.
+  const withoutHeadline = { ...presentation, recommendations: presentation.recommendations!.map(r => ({ ...r, headline: undefined })) };
+  assert.equal(savedHeadline({ presentation: withoutHeadline }), first.title);
+  // Lo guardado sobrevive a la ida y vuelta por JSON, como en la base.
+  assert.equal(savedHeadline(JSON.parse(JSON.stringify({ presentation }))), first.headline);
+});
+
+test('un diagnóstico antiguo o que no es un objeto no trae titular', () => {
+  const presentation = savedPresentation();
+  assert.equal(savedHeadline({ presentation: { ...presentation, recommendations: undefined } }), null);
+  assert.equal(savedHeadline({ presentation: { ...presentation, recommendations: [] } }), null);
+  assert.equal(savedHeadline({ presentation: { version: 1 } }), null);
+  for (const value of [null, undefined, 'texto', 7, [], {}, { presentation: 'x' }]) assert.equal(savedHeadline(value), null);
 });

@@ -2,7 +2,7 @@ import { useResetGuide } from '../components/guide/GuideContext';
 import { GuideTouchable } from '../components/guide/GuideControls';
 import { useTranslation } from '../hooks/useTranslation';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, AppState, BackHandler, Switch, View } from 'react-native';
+import { Alert, BackHandler, View } from 'react-native';
 import { Text } from '../components/AppText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
@@ -26,30 +26,25 @@ import { buildMeasurementPresentation } from '../engine/measurementPresentation'
 import { MeasurementSavedModal } from '../components/MeasurementSavedModal';
 import { MeasurementLoading } from '../components/MeasurementLoading';
 import { ProbeInsertArt } from '../components/ProbeInsertArt';
-import { StageArt, StageCards } from '../components/StageCards';
+import { StageCards } from '../components/StageCards';
 import { SpeciesArt, SpeciesPicker } from '../components/SpeciesPicker';
 import { SPECIES_CATALOG_VERSION, speciesName, type SpeciesEntry } from '../engine/speciesCatalog';
 import { asksForSpecies, cropIdForSave, initialMeasureSpecies, measuredSpeciesId, speciesAfterStageChange } from '../utils/measureSpecies';
-import { AppIcon } from '../components/AppIcon';
 import Animated from 'react-native-reanimated';
 import { enterDown } from '../constants/motion';
 import { EntryButton } from '../components/entry/EntryUI';
-import { askForAccess } from '../components/permissionPrompt';
+import { askForAccess, askLocationOnce } from '../components/permissionPrompt';
 import { isLegacyAndroidBluetooth, readPermission } from '../services/permissionsService';
 import { PERMISSION_COPY, pick } from '../utils/permissionCopy';
 import { createAccountOperation } from '../utils/accountOperation';
 import { useAuthStore } from '../store/useAuthStore';
 import { localizeProbeError } from '../utils/probeErrors';
 import { checkLowBattery } from '../utils/batteryWarning';
-import { captureLocation, initialIncludeLocation, revalidateIncludeLocation, type LocationChoice } from '../utils/measureLocation';
+import { captureLocation, choiceAfterAsking, LOCATION_CHOICE_KEY, nextLocationStep, type LocationChoice } from '../utils/measureLocation';
 import { applyWeatherToCapture, buildSavedDiagnosisSnapshot } from '../utils/measureCaptureSession';
 
-// Elección de incluir coordenadas y pronóstico, por instalación. Es distinta del permiso:
-// en Android anterior a 12 la ubicación también se concede para buscar la sonda.
-const LOCATION_CHOICE_KEY = '@terrasense/measure-location-v1';
-
 const ENGINE_VERSION = '1.4.0';
-type Phase = 'connecting' | 'connection_error' | 'stage' | 'species' | 'species_missing' | 'steps' | 'prepare' | 'reading' | 'result' | 'saving';
+type Phase = 'connecting' | 'connection_error' | 'stage' | 'species' | 'species_missing' | 'steps' | 'reading' | 'result' | 'saving';
 
 interface Props {
   onDone: () => void;
@@ -103,62 +98,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
   const [advice, setAdvice] = useState<ContextualAdvice | null>(null);
   const [showCalibration, setShowCalibration] = useState(false);
   const clientUuid = useRef(newClientUuid());
-  const [includeLocation, setIncludeLocation] = useState(false);
-  const [locationBusy, setLocationBusy] = useState(false);
   const [locationNote, setLocationNote] = useState<string | null>(null);
-
-  useEffect(() => {
-    let active = true;
-    void Promise.all([AsyncStorage.getItem(LOCATION_CHOICE_KEY).catch(() => null), readPermission('location')]).then(([choice, state]) => {
-      if (!active) return;
-      setIncludeLocation(initialIncludeLocation(choice as LocationChoice, state.status === 'granted', isLegacyAndroidBluetooth()));
-    });
-    return () => { active = false; };
-  }, []);
-
-  // El permiso puede revocarse en Ajustes del teléfono con esta pantalla abierta: al volver
-  // y antes de cada lectura se comprueba, y la opción se apaga con una nota en vez de
-  // quedar encendida sin efecto.
-  const includeLocationRef = useRef(includeLocation);
-  includeLocationRef.current = includeLocation;
-  const revalidateLocation = useCallback(async (): Promise<boolean> => {
-    if (!includeLocationRef.current) return false;
-    const state = await readPermission('location').catch(() => null);
-    const { include, lost } = revalidateIncludeLocation(includeLocationRef.current, state?.status === 'granted');
-    if (lost) {
-      setIncludeLocation(false);
-      setLocationNote(t('Se retiró el permiso de ubicación: esta lectura se guardará sin coordenadas.', 'Location permission was removed: this reading will be saved without coordinates.'));
-    }
-    return include;
-  }, [t]);
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', (next) => { if (next === 'active') void revalidateLocation(); });
-    return () => subscription.remove();
-  }, [revalidateLocation]);
-
-  const toggleLocation = useCallback(async (value: boolean) => {
-    if (locationBusy) return;
-    setLocationNote(null);
-    if (!value) {
-      setIncludeLocation(false);
-      AsyncStorage.setItem(LOCATION_CHOICE_KEY, 'off').catch(() => undefined);
-      return;
-    }
-    setLocationBusy(true);
-    const active = accountOperation.current.begin();
-    try {
-      // El permiso se pide al activar esta opción, no al abrir la pantalla ni al medir.
-      const access = await askForAccess('location', language, active);
-      if (!active()) return;
-      setIncludeLocation(access.ok);
-      if (access.ok) {
-        AsyncStorage.setItem(LOCATION_CHOICE_KEY, 'on').catch(() => undefined);
-        if (access.state.approximate) setLocationNote(t('Ubicación aproximada: las coordenadas serán menos precisas.', 'Approximate location: coordinates will be less precise.'));
-      } else if (access.deniedNow) {
-        setLocationNote(pick(PERMISSION_COPY.location.denied, language));
-      }
-    } finally { setLocationBusy(false); }
-  }, [language, locationBusy, t]);
 
   const cancel = useCallback(() => {
     if (saving.current) return;
@@ -177,7 +117,6 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
       if (current === 'species') { setPhase('stage'); return true; }
       if (current === 'species_missing') { setPhase('species'); return true; }
       if (current === 'steps') { setPhase(stageRef.current === 'pre_siembra' ? 'stage' : 'species'); return true; }
-      if (current === 'prepare') { setPhase('steps'); return true; }
       cancel(); return true;
     });
     return () => listener.remove();
@@ -203,7 +142,28 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
         return;
       }
     }
-    const withLocation = await revalidateLocation();
+    // La ubicación se decide una vez (elección guardada). Sin permiso o sin elección, se mide igual.
+    let withLocation = false;
+    setLocationNote(null);
+    try {
+      const [storedChoice, permission] = await Promise.all([AsyncStorage.getItem(LOCATION_CHOICE_KEY).catch(() => null), readPermission('location').catch(() => null)]);
+      if (!active()) { reading.current = false; return; }
+      const choice: LocationChoice = storedChoice === 'on' || storedChoice === 'off' ? storedChoice : null;
+      const step = permission
+        ? nextLocationStep(choice, { granted: permission.status === 'granted', canAskAgain: permission.canAskAgain }, isLegacyAndroidBluetooth())
+        : 'skip';
+      if (step === 'capture') withLocation = true;
+      else if (step === 'ask') {
+        const accepted = await askLocationOnce(language, isLegacyAndroidBluetooth(), active);
+        if (!active()) { reading.current = false; return; }
+        AsyncStorage.setItem(LOCATION_CHOICE_KEY, choiceAfterAsking(accepted)).catch(() => undefined);
+        withLocation = accepted;
+      } else if (choice === 'on') {
+        // Permiso retirado fuera de la app: se mide sin coordenadas y se avisa una vez.
+        AsyncStorage.setItem(LOCATION_CHOICE_KEY, 'off').catch(() => undefined);
+        setLocationNote(t('Se retiró el permiso de ubicación: esta lectura se guardará sin coordenadas.', 'Location permission was removed: this reading will be saved without coordinates.'));
+      }
+    } catch (error) { reading.current = false; throw error; }
     if (!active()) { reading.current = false; return; }
     context.current = snapshot;
     saved.current = false;
@@ -267,7 +227,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
     } finally {
       reading.current = false;
     }
-  }, [device, language, preferences.language, revalidateLocation, stage, speciesId, t]);
+  }, [device, language, preferences.language, stage, speciesId, t]);
 
   const inputQuality = useMemo(() => raw && capturedAt ? buildLocalInputQuality(raw, capturedAt, demoMode) : null, [raw, capturedAt, demoMode]);
   const presentation = useMemo(() => raw && evaluation && advice && inputQuality ? buildMeasurementPresentation(raw, evaluation, advice, language, inputQuality, speciesId) : null, [raw, evaluation, advice, language, inputQuality, speciesId]);
@@ -384,7 +344,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
   }
 
   // Fuera de pre-siembra hay un paso más: la especie.
-  const totalSteps = asksSpecies ? 4 : 3;
+  const totalSteps = asksSpecies ? 3 : 2;
   const stepLabel = (n: number) => t(`MEDIR · PASO ${n} DE ${totalSteps}`, `MEASURE · STEP ${n} OF ${totalSteps}`);
   const skipSpecies = (label: string) => <GuideTouchable accessibilityRole="button" onPress={() => { setSpecies(null); setPhase('steps'); }}
     guide={t('Continúa sin indicar especie. La lectura se interpreta con el análisis general.', 'Continues without a species. The reading uses the general assessment.')}
@@ -437,9 +397,19 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
       [t('Entiérrala en el suelo', 'Insert it into the soil'), t('Hasta cubrir los electrodos, en suelo representativo, sin piedras ni bolsas de aire.', 'Until the electrodes are covered, in representative soil, without stones or air pockets.')],
       [t('Mantenla recta y quieta', 'Keep it straight and still'), t('Vertical y sin moverla mientras se lee.', 'Upright and without moving it while it reads.')],
     ];
-    return <ScreenLayout key={phase} onBack={() => setPhase(asksSpecies ? 'species' : 'stage')} backLabel={asksSpecies ? t('Especie', 'Species') : t('Etapa', 'Stage')} eyebrow={stepLabel(totalSteps - 1)}
+    return <ScreenLayout key={phase} onBack={() => setPhase(asksSpecies ? 'species' : 'stage')} backLabel={asksSpecies ? t('Especie', 'Species') : t('Etapa', 'Stage')} eyebrow={stepLabel(totalSteps)}
       title={t('Antes de medir', 'Before measuring')}
-      footer={<EntryButton label={t('Listo, continuar', 'Done, continue')} onPress={() => setPhase('prepare')} />}>
+      footer={<EntryButton label={t('Listo, medir', 'Done, measure')} onPress={() => void runMeasurement()} />}>
+      {demoNotice}
+      {/* Lo elegido en los pasos anteriores: etapa y, si la hay, especie. */}
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+        {stage && <View style={{ borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, paddingHorizontal: 12, minHeight: 32, justifyContent: 'center' }}>
+          <Text numberOfLines={1} style={{ color: colors.text, fontSize: 14, fontWeight: '700' }}>{stageLabel(stage)}</Text>
+        </View>}
+        {asksSpecies && <View style={{ borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, paddingHorizontal: 12, minHeight: 32, justifyContent: 'center' }}>
+          <Text numberOfLines={1} style={{ color: colors.text, fontSize: 14, fontWeight: '700' }}>{species ? speciesName(species, language === 'en' ? 'en' : 'es') : t('Sin especie', 'No species')}</Text>
+        </View>}
+      </View>
       <ProbeInsertArt />
       {steps.map(([title, body], i) => <Animated.View key={i} entering={enterDown(120 + i * 110)}>
         <View style={{ flexDirection: 'row', gap: 14, alignItems: 'flex-start', paddingVertical: 4 }}>
@@ -455,54 +425,13 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
     </ScreenLayout>;
   }
 
-  if (phase === 'prepare') {
-    const badge = (icon: 'bluetooth' | 'location') => <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: '#17392C', alignItems: 'center', justifyContent: 'center' }}>
-      <AppIcon name={icon} color="#C6DFB4" size={24} />
-    </View>;
-    return <ScreenLayout key={phase} onBack={() => setPhase('steps')} backLabel={t('Pasos', 'Steps')} eyebrow={stepLabel(totalSteps)}
-      title={t('Todo listo', 'All set')}
-      footer={<EntryButton disabled={locationBusy} label={t('Medir', 'Measure')} onPress={() => void runMeasurement()} />}>
-      {demoNotice}
-      {/* Resumen de lo elegido: la etapa con su ilustración y la sonda. */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 10 }}>
-        {stage && <View style={{ width: 96, aspectRatio: 120 / 90, borderRadius: 12, overflow: 'hidden', backgroundColor: '#17392C' }}><StageArt stage={stage} /></View>}
-        <View style={{ flex: 1, gap: 2 }}>
-          <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.5 }}>{t('ETAPA', 'STAGE')}</Text>
-          <Text numberOfLines={1} style={{ color: colors.text, fontSize: 18, fontWeight: '700' }}>{stageLabel(stage)}</Text>
-          {asksSpecies && <Text numberOfLines={1} style={{ color: colors.text, fontSize: 15 }}>{species ? speciesName(species, language === 'en' ? 'en' : 'es') : t('Sin especie', 'No species')}</Text>}
-          <Text numberOfLines={1} style={{ color: colors.textSecondary, fontSize: 14 }}>{t(`Sonda ${deviceName}`, `Probe ${deviceName}`)}</Text>
-        </View>
-      </View>
-      <ScreenCard>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14 }}>
-          {badge('bluetooth')}
-          <View style={{ flex: 1, gap: 4 }}>
-            <Text style={{ color: colors.text, fontSize: 17, fontWeight: '600' }}>{t('Bluetooth', 'Bluetooth')}</Text>
-            <ScreenText>{t('Al tocar Medir, el teléfono se conecta con la sonda. Si es la primera vez, te pedirá permiso para usar Bluetooth.', 'When you tap Measure, the phone connects to the probe. The first time, it will ask for permission to use Bluetooth.')}</ScreenText>
-          </View>
-        </View>
-      </ScreenCard>
-      <ScreenCard>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-          {badge('location')}
-          <View style={{ flex: 1, gap: 4 }}>
-            <Text style={{ color: colors.text, fontSize: 17, fontWeight: '600' }}>{t('Ubicación y pronóstico', 'Location and forecast')}</Text>
-            <ScreenText>{t('Guarda las coordenadas y consulta el pronóstico. Sin esto, la lectura se guarda igual.', 'Saves the coordinates and gets the forecast. Without it, the reading is still saved.')}</ScreenText>
-          </View>
-          <Switch value={includeLocation} disabled={locationBusy} onValueChange={value => { void toggleLocation(value); }}
-            trackColor={{ true: colors.primary, false: colors.border }} accessibilityLabel={t('Ubicación y pronóstico', 'Location and forecast')} />
-        </View>
-        {!!locationNote && <ScreenText>{locationNote}</ScreenText>}
-      </ScreenCard>
-    </ScreenLayout>;
-  }
-
   if (!presentation) return null;
   return <>
     <MeasurementResultFlow presentation={presentation} onExit={cancel} exitLabel={t('Salir', 'Exit')}
       save={{ onSave: () => void save(), busy: phase === 'saving' }}
       notices={<>
         {demoNotice}
+        {!!locationNote && <ScreenCard accent={colors.warning}><ScreenText>{locationNote}</ScreenText></ScreenCard>}
         {lowBattery != null && <ScreenCard accent={colors.warning}>
           <Text accessibilityRole="alert" style={{ color: colors.warning, fontSize: 13, fontWeight: '700', letterSpacing: 1 }}>{t(`BATERÍA BAJA · ${lowBattery} %`, `LOW BATTERY · ${lowBattery}%`)}</Text>
           <ScreenText>{t('Carga la sonda antes de la próxima salida.', 'Charge the probe before your next trip.')}</ScreenText>

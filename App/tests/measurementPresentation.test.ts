@@ -6,6 +6,8 @@ import { buildMeasurementPresentation, isMeasurementPresentation, parameterLabel
 import { localizeProbeError } from '../src/utils/probeErrors';
 import { cropName, textureName } from '../src/engine/catalogNames';
 import { CROPS_DB, SOIL_TEXTURES } from '../src/engine/agronomyEngine';
+import { SPECIES_RULES } from '../src/engine/speciesRules';
+import type { CropId, SoilTextureId } from '../src/types/agronomy';
 import { NO_SPECIES_ID } from '../src/engine/speciesCatalog';
 import { cropIdForSave } from '../src/utils/measureSpecies';
 import { applyWeatherToCapture, buildSavedDiagnosisSnapshot } from '../src/utils/measureCaptureSession';
@@ -371,4 +373,132 @@ test('E6 (T39, T41, T43): históricos v1/v2/v3 y reglas retiradas se leen sin re
   assert.equal(readingA.evaluation.coverage?.capabilities.soil_moisture.status, 'partial');
   assert.equal(readingB.evaluation.coverage?.capabilities.soil_moisture.status, 'partial');
   assert.doesNotMatch(readingB.presentation.summary, /tendencia|bajó desde|lectura anterior/i);
+});
+
+const fresh = () => { const now = new Date().toISOString(); return { capturedAt: now, evaluatedAt: now }; };
+const adviceFor = (reading: SoilMeasurement, stage: PhenologicalStage = 'vegetativo') => {
+  const evaluation = evaluateReadingForStage(reading, stage, 'es', fresh());
+  const advice = buildContextualAdvice(stage, evaluation, reading, null, 'es');
+  return { advice, presentation: buildMeasurementPresentation(reading, evaluation, advice, 'es') };
+};
+
+test('T9: una humedad bajo el umbral origina una recomendación que declara la variable y llega a la presentación', () => {
+  const { advice, presentation } = adviceFor({ ...raw, vwc: 3 });
+  const irrigation = advice.recommendations!.find(r => r.kind === 'soil' && r.evidence?.includes('vwc'));
+  assert.ok(irrigation, 'la alerta de humedad lleva evidence vwc');
+  assert.deepEqual(presentation.recommendations, advice.recommendations);
+  assert.ok(presentation.recommendations!.some(r => r.evidence?.includes('vwc')));
+});
+
+test('T9: ninguna recomendación lleva nitrógeno, fósforo ni potasio como evidencia', () => {
+  const readings: SoilMeasurement[] = [
+    raw, { ...raw, vwc: 3 }, { ...raw, ph: 9.4, ec: 4000 }, { ...raw, temp: 2, airTemp: 2, airHumidity: 30 },
+    { ...raw, nitrogen: 300, phosphorus: 300, potassium: 900, ec: 3000 }, { ...raw, airTemp: 30, airHumidity: 20, vwc: 12, temp: 9 },
+  ];
+  for (const reading of readings) for (const stage of ['pre_siembra', 'vegetativo', 'floracion', 'cosecha'] as const) {
+    const { presentation } = adviceFor(reading, stage);
+    for (const r of presentation.recommendations ?? []) {
+      assert.ok(!(r.evidence ?? []).some(key => ['nitrogen', 'phosphorus', 'potassium'].includes(key)), `${stage}: ${r.title}`);
+    }
+  }
+});
+
+test('T9: las recomendaciones que no salen de una variable no llevan evidencia', () => {
+  const { advice } = adviceFor(raw);
+  const again = advice.recommendations!.find(r => r.kind === 'monitoring' && r.when === 'next_reading');
+  assert.ok(again);
+  assert.equal(again.evidence, undefined);
+});
+
+test('T9: la demanda del aire con suelo seco declara las tres variables que la sostienen', () => {
+  const dry = { ...raw, vwc: 3, airTemp: 33, airHumidity: 20 };
+  const { advice } = adviceFor(dry);
+  const demand = advice.recommendations!.find(r => r.kind === 'irrigation');
+  assert.ok(demand, 'hay recomendación de riego por demanda del aire');
+  assert.deepEqual(demand.evidence, ['vwc', 'airTemp', 'airHumidity']);
+});
+
+test('T9: el validador acepta recomendaciones con y sin los campos nuevos y rechaza valores mal formados', () => {
+  const { presentation } = adviceFor({ ...raw, vwc: 3 });
+  const [first, ...rest] = presentation.recommendations!;
+  assert.equal(isMeasurementPresentation(presentation), true);
+  const legacy = { ...presentation, recommendations: [{ ...first, evidence: undefined, headline: undefined }, ...rest] };
+  assert.equal(isMeasurementPresentation(legacy), true);
+  assert.equal(isMeasurementPresentation({ ...presentation, recommendations: [{ ...first, evidence: ['humedad'] }, ...rest] }), false);
+  assert.equal(isMeasurementPresentation({ ...presentation, recommendations: [{ ...first, headline: 7 }, ...rest] }), false);
+});
+
+// Titulares del plan (tarea 10). Se recorren todas las reglas alcanzables: lectura general y con cada
+// especie, las cuatro etapas, ambos idiomas, con y sin pronóstico, y el evaluador de perfiles explícitos.
+const HEADLINE_CASES: SoilMeasurement[] = [
+  raw,
+  { ...raw, vwc: 3, ph: 3.8, ec: 4000, temp: 2 },
+  { ...raw, vwc: 65, ph: 9.2, ec: 2600, temp: 30 },
+  { ...raw, airTemp: -3, airHumidity: 90, temp: 1 },
+  { ...raw, airTemp: 3, airHumidity: 60 },
+  { ...raw, airTemp: 34, airHumidity: 20, vwc: 10, temp: 9 },
+  { ...raw, ec: 1800, nitrogen: 400, phosphorus: 300, potassium: 900 },
+];
+const nowIso = new Date().toISOString();
+const HEADLINE_LOCATION = { latitude: -33.45, longitude: -70.66 };
+const headlineWeather = () => {
+  const base = normalizeWeather({ ...WEATHER_UNITS, timezone: 'America/Santiago', utc_offset_seconds: -10800,
+    current: { time: nowIso.slice(0, 13) + ':00', interval: 900, temperature_2m: 1, wind_speed_10m: 5, precipitation: 2 },
+    daily: {
+      time: [0, 1, 2, 3, 4, 5].map(i => new Date(Date.now() + i * 86400000).toISOString().slice(0, 10)),
+      temperature_2m_min: [-3, -4, 1, 2, 3, 4], temperature_2m_max: [36, 38, 20, 20, 21, 22],
+      precipitation_probability_max: [90, 90, 10, 10, 10, 10], precipitation_sum: [12, 14, 0, 0, 0, 0],
+    },
+  }, nowIso)!;
+  return { ...base, weatherCode: 61, request: { captureId: 'headline', ...HEADLINE_LOCATION },
+    hourly: { time: Array.from({ length: 24 }, (_, i) => `${nowIso.slice(0, 10)}T${String(i).padStart(2, '0')}:00`),
+      temperatureC: Array(24).fill(-1), relativeHumidityPct: Array(24).fill(95) } } as unknown as NonNullable<ReturnType<typeof normalizeWeather>>;
+};
+
+function headlineProblems(recommendations: NonNullable<ReturnType<typeof buildContextualAdvice>['recommendations']>, where: string): string[] {
+  const problems: string[] = [];
+  for (const r of recommendations) {
+    const h = r.headline;
+    if (!h) { problems.push(`${where}: sin titular (${r.title})`); continue; }
+    if (h.length > 40) problems.push(`${where}: ${h.length} caracteres «${h}»`);
+    if (/\p{Extended_Pictographic}/u.test(h)) problems.push(`${where}: emoji «${h}»`);
+    if (/\d+\s?(kg|g|l|litros|mm|ha|%)/i.test(h) || /dosis|dose/i.test(h)) problems.push(`${where}: cantidad o dosis «${h}»`);
+  }
+  return problems;
+}
+
+test('T10: toda recomendación del plan trae un titular de 40 caracteres o menos, sin emojis ni dosis', () => {
+  const problems: string[] = [];
+  const seen = new Set<string>();
+  for (const language of ['es', 'en'] as const) for (const stage of ['pre_siembra', 'vegetativo', 'floracion', 'cosecha'] as const) {
+    const species: (string | null)[] = [null, ...Object.keys(SPECIES_RULES)];
+    for (const speciesId of species) for (const reading of HEADLINE_CASES) for (const withWeather of [false, true]) {
+      const evaluation = evaluateReadingForStage(reading, stage, language, { capturedAt: nowIso, evaluatedAt: nowIso }, speciesId);
+      const context = withWeather ? { captureId: 'headline', location: HEADLINE_LOCATION, evaluatedAt: nowIso } : undefined;
+      const advice = buildContextualAdvice(stage, evaluation, reading, withWeather ? headlineWeather() : null, language, context, speciesId);
+      for (const r of advice.recommendations!) seen.add(`${language}|${r.headline ?? '(sin)'}`);
+      problems.push(...headlineProblems(advice.recommendations!, `${language}/${stage}/${speciesId}/${withWeather}`));
+    }
+  }
+  const unique = problems.filter((p, i) => problems.findIndex(q => q.slice(q.indexOf(':')) === p.slice(p.indexOf(':'))) === i);
+  assert.deepEqual(unique.slice(0, 20), []);
+  assert.ok(seen.size > 30, 'el recorrido alcanza distintas reglas');
+});
+
+test('T10: el evaluador de perfiles explícitos también produce titulares en ambos idiomas', () => {
+  const problems: string[] = [];
+  for (const language of ['es', 'en'] as const) for (const stage of ['pre_siembra', 'vegetativo', 'floracion', 'cosecha'] as const) {
+    for (const crop of Object.keys(CROPS_DB) as CropId[]) for (const texture of Object.keys(SOIL_TEXTURES) as SoilTextureId[]) for (const reading of HEADLINE_CASES) {
+      const evaluation = evaluateForStage(reading, stage, crop, texture, language);
+      problems.push(...headlineProblems(buildContextualAdvice(stage, evaluation, reading, null, language).recommendations!, `${language}/${stage}/${crop}/${texture}`));
+    }
+  }
+  const unique = problems.filter((p, i) => problems.findIndex(q => q.slice(q.indexOf(':')) === p.slice(p.indexOf(':'))) === i);
+  assert.deepEqual(unique.slice(0, 20), []);
+});
+
+test('T10: el titular llega a la presentación guardada y las lecturas sin titular siguen siendo válidas', () => {
+  const { presentation } = adviceFor({ ...raw, vwc: 3 });
+  assert.ok(presentation.recommendations!.every(r => typeof r.headline === 'string'));
+  assert.equal(isMeasurementPresentation(JSON.parse(JSON.stringify(presentation))), true);
 });
