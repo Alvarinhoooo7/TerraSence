@@ -1,4 +1,4 @@
-import { applicableAlerts } from './measurementPresentation';
+import { applicableAlerts, type ParameterKey } from './measurementPresentation';
 import { evaluatePrePlantingOptions, suggestPrePlantingCrops, type PrePlantingOption } from './prePlanting';
 // Trazabilidad de cultivos sugeridos en pre_siembra: `suggestPrePlantingCrops`.
 import type { StageAwareEvaluation } from './stageEvaluator';
@@ -24,8 +24,12 @@ export interface Recommendation {
   priority: 'high' | 'normal';
   when: RecommendationTiming;
   title: string;
+  /** Titular corto en imperativo para la lista del plan; si falta se usa `title`. */
+  headline?: string;
   body: string;
   detail?: string;
+  /** Variables medidas que sostienen la recomendación; ausente si no sale de una variable. */
+  evidence?: ParameterKey[];
 }
 
 export interface ContextualAdvice {

@@ -346,14 +346,14 @@ export const PLAN_VISIBLE = 3;
 export function planActions(p: MeasurementPresentation): { visible: PlanAction[]; hidden: number };
 ```
 
-- [ ] **Paso 1: escribir las pruebas.** Con presentaciones armadas a mano (el archivo `tests/measurementPresentation.test.ts` tiene ejemplos de la forma):
+- [x] **Paso 1: escribir las pruebas.** Con presentaciones armadas a mano (el archivo `tests/measurementPresentation.test.ts` tiene ejemplos de la forma):
   - `scoreCounts` no cuenta nitrógeno, fósforo, potasio ni las variables en `INFO`; una variable sin valor no suma a `ok`.
   - con cinco recomendaciones normales: `visible.length === 3`, `hidden === 2`.
   - con cinco recomendaciones y la cuarta en `high`: la cuarta está en `visible` y `hidden === 1`.
   - lectura antigua, sin `recommendations` y con `actions: ['a', 'b']`: dos acciones visibles, `when === null`, `evidence` vacío.
   - sin recomendaciones ni acciones: `visible` vacío y `hidden === 0`.
   - `title` usa `headline` cuando existe y `title` cuando no.
-- [ ] **Paso 2:** falla. **Paso 3:** implementar. **Paso 4:** pasa. Commit: `feat(app): agrega el modelo del resultado en una pantalla`.
+- [x] **Paso 2:** falla. **Paso 3:** implementar. **Paso 4:** pasa. Commit: `feat(app): agrega el modelo del resultado en una pantalla`.
 
 ### Tarea 9: el dato que gatilla cada acción
 
