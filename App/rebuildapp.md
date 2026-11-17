@@ -370,11 +370,11 @@ export function planActions(p: MeasurementPresentation): { visible: PlanAction[]
 
 **Archivos:** `src/engine/contextualAdvice.ts`, `src/engine/stageEvaluator.ts`, `src/engine/agronomyEngine.ts`.
 
-- [ ] **Paso 1:** agregar `headline?: string` a `Recommendation` y a las alertas de las que nace.
-- [ ] **Paso 2:** escribir el titular de cada regla, en ambos idiomas, con estas reglas: empieza con un verbo en imperativo, 40 caracteres como máximo, sin emojis, sin dosis ni cantidades de producto. Ejemplos del tono: «Riega hoy», «Espera la lluvia antes de regar», «Vuelve a medir después de regar», «Confirma el pH en laboratorio».
-- [ ] **Paso 3: prueba.** Para las lecturas de ejemplo de `tests/measurementPresentation.test.ts`, toda recomendación trae `headline`, de 40 caracteres o menos, y no coincide con `/\p{Extended_Pictographic}/u`.
-- [ ] **Paso 4: entregar al usuario la tabla** regla → titular en español e inglés. No se fusiona sin su visto bueno: es texto agronómico.
-- [ ] **Paso 5:** `npm test`. Commit: `feat(app): agrega titulares cortos al plan de acción`.
+- [x] **Paso 1:** agregar `headline?: string` a `Recommendation` y a las alertas de las que nace.
+- [x] **Paso 2:** escribir el titular de cada regla, en ambos idiomas, con estas reglas: empieza con un verbo en imperativo, 40 caracteres como máximo, sin emojis, sin dosis ni cantidades de producto. Ejemplos del tono: «Riega hoy», «Espera la lluvia antes de regar», «Vuelve a medir después de regar», «Confirma el pH en laboratorio».
+- [x] **Paso 3: prueba.** Para las lecturas de ejemplo de `tests/measurementPresentation.test.ts`, toda recomendación trae `headline`, de 40 caracteres o menos, y no coincide con `/\p{Extended_Pictographic}/u`.
+- [x] **Paso 4: entregar al usuario la tabla** regla → titular en español e inglés. No se fusiona sin su visto bueno: es texto agronómico.
+- [x] **Paso 5:** `npm test`. Commit: `feat(app): agrega titulares cortos al plan de acción`.
 
 ### Tarea 11: la pantalla única
 

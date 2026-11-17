@@ -102,6 +102,8 @@ export interface AgronomicAlert {
   /** Clave de la métrica que la origina (`vwc`, `temp`, `ec`, `ph`) o `npk`. La etapa y la ficha de cada parámetro la buscan por esta clave. */
   param: string;
   title: string;
+  /** Titular corto en imperativo para el plan de acción; si falta, la recomendación usa `title`. */
+  headline?: string;
   action: string;
   /** `species`: criterio propio de la especie indicada; se muestra en cualquier etapa aunque su parámetro no la gobierne. */
   origin?: 'species';

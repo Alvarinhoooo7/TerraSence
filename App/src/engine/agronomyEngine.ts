@@ -243,6 +243,7 @@ export function evaluateAgronomicStatus(
       type: 'danger',
       param: 'temp',
       title: '❄️ Suelo Frío para Germinación',
+      headline: 'No siembres con el suelo frío',
       action: `No sembrar hoy. La semilla entrará en letargo y se pudrirá. Esperar ${Math.round((crop.tempMin - temp) * 2 + 3)} días con sol.`
     });
   } else if (temp < crop.tempMin + 2.0) {
@@ -256,6 +257,7 @@ export function evaluateAgronomicStatus(
       type: 'warning',
       param: 'temp',
       title: '🌡️ Temperatura Marginal para Germinación',
+      headline: 'Espera días de sol para sembrar',
       action: 'Germinación lenta y despareja. Conviene esperar 2 o 3 días de sol, o sembrar algo más superficial para aprovechar el calor de los primeros centímetros.'
     });
   }
@@ -272,6 +274,7 @@ export function evaluateAgronomicStatus(
         type: 'danger',
         param: 'ph',
         title: '🧪 Suelo Ácido: Fósforo Bloqueado',
+        headline: 'Confirma el pH en laboratorio',
         action: 'Confirmar pH en laboratorio y solicitar requerimiento de encalado (capacidad tampón, profundidad y calidad de enmienda). Esta lectura no permite calcular kg/ha de cal.'
       });
     } else {
@@ -282,6 +285,7 @@ export function evaluateAgronomicStatus(
         type: 'warning',
         param: 'ph',
         title: '🧪 Ligera Acidez de Suelo',
+        headline: 'Confirma el pH en laboratorio',
         action: 'Confirmar pH y requerimientos del cultivo con análisis de suelo antes de aplicar enmiendas.'
       });
     }
@@ -293,6 +297,7 @@ export function evaluateAgronomicStatus(
       type: 'warning',
       param: 'ph',
       title: '🧂 Suelo Alcalino: Riesgo de Clorosis Férrica',
+      headline: 'Confirma el pH en laboratorio',
       action: 'Confirmar pH y alcalinidad en laboratorio; solicitar asesoría antes de aplicar azufre u otras enmiendas.'
     });
   }
@@ -309,6 +314,7 @@ export function evaluateAgronomicStatus(
         type: 'danger',
         param: 'ec',
         title: '⚠️ Exceso de Sales / Salinidad Tóxica',
+        headline: 'Confirma la salinidad en laboratorio',
         action: 'Confirmar salinidad y calidad del agua. Evaluar drenaje y asesoría agronómica antes de diseñar un lavado; no aplicar una fracción fija con esta lectura.'
       });
     } else {
@@ -319,6 +325,7 @@ export function evaluateAgronomicStatus(
         type: 'warning',
         param: 'ec',
         title: '⚠️ Salinidad Moderada',
+        headline: 'Evita los fertilizantes salinos',
         action: 'Evitar fertilizantes con alto índice salino y mantener humedad constante.'
       });
     }
@@ -331,6 +338,7 @@ export function evaluateAgronomicStatus(
       type: 'warning',
       param: 'npk',
       title: '⚠️ Posible Falso Positivo por Salinidad',
+      headline: 'Confirma los nutrientes en laboratorio',
       action:
         'La sonda estima los nutrientes a partir de la conductividad y no distingue el ' +
         'nitrógeno del sodio. Con esta salinidad, los valores altos de N-P-K pueden ser sal. ' +
@@ -349,6 +357,7 @@ export function evaluateAgronomicStatus(
       type: 'danger',
       param: 'vwc',
       title: '🏜️ Déficit Hídrico Severo',
+      headline: 'Riega antes de sembrar',
       action: 'Riego urgente indispensable previo a la siembra. La semilla no alcanzará a hidratarse para brotar.'
     });
   } else if (vwc >= texture.sat) {
@@ -359,6 +368,7 @@ export function evaluateAgronomicStatus(
       type: 'danger',
       param: 'vwc',
       title: '🌊 Asfixia Radicular por Exceso de Agua',
+      headline: 'Espera a que el suelo drene',
       action: 'Esperar 48 a 72 horas a que el suelo drene hasta Capacidad de Campo.'
     });
   } else if (vwc < texture.ur) {
@@ -372,6 +382,7 @@ export function evaluateAgronomicStatus(
       type: 'warning',
       param: 'vwc',
       title: '💧 Umbral de Riego Alcanzado',
+      headline: 'Programa el riego pronto',
       action: `Programar riego en las próximas 24 a 48 horas. Por debajo de ${texture.ur}% la planta gasta energía en extraer agua en vez de crecer.`
     });
   } else if (vwc > texture.cc) {
@@ -384,6 +395,7 @@ export function evaluateAgronomicStatus(
       type: 'warning',
       param: 'vwc',
       title: '💦 Suelo por Encima de Capacidad de Campo',
+      headline: 'Suspende el riego',
       action: 'Suspender el riego y no laborear todavía: el suelo húmedo se compacta al pasar maquinaria y la raíz dispone de poco oxígeno.'
     });
   }

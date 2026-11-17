@@ -174,7 +174,7 @@ export function buildContextualAdvice(
     seen.add(alert.action);
     // Una nota informativa (p. ej. pH dentro del óptimo de la especie) no pide actuar hoy:
     // va como seguimiento, después de lo que sí requiere revisión.
-    const detail = { ...(fusedDetail ? { detail: fusedDetail } : {}), ...evidenceOf(alert.param) };
+    const detail = { ...(fusedDetail ? { detail: fusedDetail } : {}), ...(alert.headline ? { headline: alert.headline } : {}), ...evidenceOf(alert.param) };
     if (alert.type === 'info') notes.push({ kind: 'monitoring', priority: 'normal', when: 'next_reading', title: alert.title, body: alert.action, ...detail });
     // El frío medido por el equipo en el aire es clima de este momento, no una condición del suelo.
     else if (alert.param === 'airTemp') plan.push({ kind: 'weather', priority: effectivePriority, when: 'now', title: alert.title, body: alert.action, ...detail });
@@ -183,6 +183,7 @@ export function buildContextualAdvice(
   if (!plan.length) plan.push(evaluation.state === 'insufficient_data'
     ? { kind: 'evidence', priority: 'normal', when: 'next_reading',
       title: en ? 'Use this reading as a reference' : 'Toma esta lectura como referencia',
+      headline: en ? 'Use this reading as a reference' : 'Usa esta lectura como referencia',
       body: en ? 'With this data we cannot give a complete diagnosis of the soil. Use it to compare with your next readings.'
         : 'Con estos datos no podemos darte un diagnóstico completo del suelo. Úsala para comparar con tus próximas mediciones.',
       detail: en ? 'Partial assessment: pH comparisons are indicative; probe conductivity cannot classify salinity without a compatible method; nutrient registers do not determine fertilization.'
@@ -190,10 +191,12 @@ export function buildContextualAdvice(
     : evaluation.verdict === 'GREEN'
       ? { kind: 'monitoring', priority: 'normal', when: 'next_reading',
         title: en ? 'Nothing to correct for now' : 'Nada que corregir por ahora',
+        headline: en ? 'Keep watching the crop' : 'Sigue observando el cultivo',
         body: en ? 'We see nothing to correct with this data. Keep watching the crop and measure other spots to compare.'
           : 'Con estos datos no vemos nada que corregir. Sigue observando el cultivo y mide en otros puntos para comparar.' }
       : { kind: 'soil', priority: 'normal', when: 'today',
         title: en ? 'Check what is highlighted' : 'Revisa lo que aparece destacado',
+        headline: en ? 'Check what is highlighted' : 'Revisa lo que aparece destacado',
         body: en ? 'Some conditions are worth checking. Before making changes, confirm them in the field or with your advisor.'
           : 'Hay condiciones que conviene revisar. Antes de hacer cambios, confírmalas en terreno o con tu asesor.' });
   plan.push(...notes);
@@ -210,10 +213,11 @@ export function buildContextualAdvice(
   const speciesWeather = evaluateSpeciesWeather(speciesId, stage, speciesWeatherInput, language);
   const coveredWeatherRisks = coveredGeneralWeatherRisks(speciesId, stage, speciesWeatherInput, GENERAL_WEATHER_RISK.frostAtOrBelowC);
   for (const finding of speciesWeather.findings) plan.push({ kind: 'weather', priority: finding.type === 'danger' ? 'high' : 'normal',
-    when: finding.when, title: finding.title, body: finding.body, detail: finding.detail });
+    when: finding.when, title: finding.title, headline: finding.headline, body: finding.body, detail: finding.detail });
   // Revisado y sin episodios: se dice, para que la ausencia de avisos no parezca un criterio omitido.
   if (speciesWeather.evaluated && !speciesWeather.findings.length) plan.push({ kind: 'monitoring', priority: 'normal', when: 'next_days',
     title: en ? 'No weather risks for this crop' : 'Clima sin riesgos para este cultivo',
+    headline: en ? 'Carry on with your planned work' : 'Sigue con tus labores previstas',
     body: en ? 'No frost, heat, rain or fog that could harm this crop at this stage is expected in the coming days. It is a forecast: still check the field.'
       : 'En los próximos días no se esperan heladas, calor, lluvia ni niebla que dañen a este cultivo en esta etapa. Es un pronóstico: igual revisa el campo.',
     detail: en ? 'The forecast was compared with the frost, heat, rain or fog that the sources document for this species at this stage.'
@@ -224,6 +228,7 @@ export function buildContextualAdvice(
     && evaluation.coverage?.freshness === 'fresh';
   if (speciesWeather.applicable && !speciesWeather.evaluated) plan.push({ kind: 'evidence', priority: 'normal', when: 'next_reading',
     title: en ? 'We could not check the weather for this crop' : 'No pudimos revisar el clima para este cultivo',
+    headline: en ? 'Measure again with internet access' : 'Vuelve a medir con internet',
     body: localAirChecked
       ? (en ? 'Without an up-to-date forecast we do not know whether frost, heat or rain is coming for this crop. We only checked the cold with the air temperature the device measures now. Measure again with an internet connection.'
         : 'Sin un pronóstico actualizado no sabemos si vienen heladas, calor o lluvia para este cultivo. Sólo revisamos el frío con la temperatura del aire que mide el equipo ahora. Vuelve a medir con conexión a internet.')
@@ -232,6 +237,7 @@ export function buildContextualAdvice(
 
   if (weather && isRainingNow(weather)) plan.push({ kind: 'weather', priority: 'high', when: 'now',
     title: en ? 'It is raining now' : 'Está lloviendo ahora',
+    headline: en ? 'Wait for the rain to stop' : 'Espera a que pare la lluvia',
     body: en ? 'Soil moisture may change over the next hours. If you are deciding on irrigation or field work, measure again once the rain stops.'
       : 'La humedad del suelo puede cambiar en las próximas horas. Si vas a decidir riego o labores, vuelve a medir cuando pare la lluvia.' });
 
@@ -245,6 +251,7 @@ export function buildContextualAdvice(
     const isToday = today?.date === rainSoon.date;
     plan.push({ kind: 'irrigation', priority: 'high', when: isToday ? 'today' : 'next_days', ...evidenceOf('vwc'),
       title: en ? 'Wait for the rain before irrigating' : 'Espera la lluvia antes de regar',
+      headline: en ? 'Wait for the rain before irrigating' : 'Espera la lluvia antes de regar',
       body: en
         ? `${mm} mm of rain is forecast for ${dayLabel(rainSoon.date)}. If you can, wait for it before irrigating and measure again afterwards.`
         : `Se pronostican ${mm} mm de lluvia para ${isToday ? 'hoy' : `el ${dayLabel(rainSoon.date)}`}. Si puedes, espérala antes de regar y vuelve a medir después.` });
@@ -284,6 +291,7 @@ export function buildContextualAdvice(
           when: 'now',
           ...evidenceOf('vwc', 'airTemp', 'airHumidity'),
           title: en ? 'High evaporative demand with low soil moisture' : 'Alta demanda atmosférica con suelo seco',
+          headline: en ? 'Prioritize irrigation today' : 'Prioriza el riego hoy',
           body: en
             ? `Instantaneous vapor pressure deficit is high (${vpdStr}) and root-zone moisture is low (${reading.vwc}%). Prioritize irrigation to avoid water stress.`
             : `El déficit de presión de vapor instantáneo es alto (${vpdStr}) y la humedad en zona radicular es baja (${reading.vwc} %). Prioriza el riego para evitar estrés hídrico.`,
@@ -298,6 +306,7 @@ export function buildContextualAdvice(
           when: 'today',
           ...evidenceOf('airTemp', 'airHumidity'),
           title: en ? 'High atmospheric demand (VPD)' : 'Alta demanda evaporativa del aire (DPV)',
+          headline: en ? 'Measure again after the heat' : 'Vuelve a medir tras el calor',
           body: en
             ? `The air around the crop is very dry (VPD ${vpdStr}), increasing transpiration even with adequate soil moisture. Recheck soil moisture after peak heat.`
             : `El aire en el cultivo está muy seco (DPV ${vpdStr}), lo que acelera la transpiración aunque el suelo tenga humedad. Vuelve a medir tras las horas de mayor calor.`,
@@ -320,6 +329,7 @@ export function buildContextualAdvice(
       title: en
         ? 'Dry soil limits galvanic pH and bulk EC contact'
         : 'Suelo muy seco limita el contacto electrolítico de pH y CE',
+      headline: en ? 'Wet the soil and measure again' : 'Humedece el suelo y vuelve a medir',
       body: en
         ? `Volumetric moisture is ${reading.vwc}% (< 5%). Below 5% VWC, the water film between the probe prongs is discontinuous and pH or bulk EC readings may drift. Irrigate or measure in a moist root zone before correcting pH or salinity.`
         : `La humedad volumétrica es ${reading.vwc} % (< 5 %). Bajo 5 % de humedad volumétrica, la película de agua entre los vástagos de la sonda se vuelve discontinua y el pH o la CE aparente pueden desviarse. Riega o mide en zona húmeda antes de corregir pH o salinidad.`,
@@ -338,6 +348,7 @@ export function buildContextualAdvice(
       title: en
         ? 'Soil pH outside probe nominal range (3.0 to 9.0)'
         : 'pH fuera del rango nominal del electrodo (3,0 a 9,0)',
+      headline: en ? 'Confirm pH in a laboratory' : 'Confirma el pH en laboratorio',
       body: en
         ? `Measured pH (${reading.ph}) is outside the nominal 3.0 to 9.0 pH calibration window of the probe. Confirm with a laboratory paste or suspension pH test before applying amendments.`
         : `El pH medido (${reading.ph}) está fuera de la ventana nominal de calibración de la sonda (3,0 a 9,0 pH). Confirma con un análisis de pH en pasta o suspensión en laboratorio antes de aplicar enmiendas.`,
@@ -356,6 +367,7 @@ export function buildContextualAdvice(
       title: en
         ? 'Soil temperature outside EC thermal compensation window'
         : 'Temperatura del suelo fuera de la compensación térmica de CE',
+      headline: en ? 'Repeat the reading above 0 °C' : 'Repite la lectura sobre 0 °C',
       body: en
         ? `Soil temperature (${reading.temp} °C) is outside the 0 to 50 °C automatic thermal compensation window of the conductivity circuit. Repeat the reading when the soil is above 0 °C.`
         : `La temperatura del suelo (${reading.temp} °C) está fuera de la ventana de compensación térmica automática (0 a 50 °C) del circuito de conductividad. Repite la lectura cuando el suelo supere 0 °C.`,
@@ -390,6 +402,7 @@ export function buildContextualAdvice(
         title: en
           ? 'Cold air with subzero dew point: radiative frost watch'
           : 'Aire frío con punto de rocío bajo cero: vigilancia de helada radiativa',
+        headline: en ? 'Watch the low tonight' : 'Vigila la mínima de esta noche',
         body: en
           ? `Air temperature is ${reading.airTemp} °C and the approximate dew point is ${dpStr}. With little water vapor to release latent heat, clear-sky radiative cooling can drop temperatures below 0 °C rapidly. Monitor night temperatures closely.`
           : `La temperatura del aire es ${reading.airTemp} °C y el punto de rocío aproximado es ${dpStr}. Con poco vapor de agua para liberar calor latente al condensar, el enfriamiento nocturno puede bajar rápido de 0 °C. Vigila de cerca la mínima en el campo.`,
@@ -422,6 +435,7 @@ export function buildContextualAdvice(
       title: en
         ? 'Cold root zone under warm air (thermal decoupling)'
         : 'Suelo frío bajo aire cálido (desacople térmico raíz-follaje)',
+      headline: en ? 'Watch for wilting at midday' : 'Vigila el decaimiento al mediodía',
       body: en
         ? `Soil temperature (${reading.temp} °C) is much colder than the air (${reading.airTemp} °C, difference ${diffStr}). Warm air drives canopy transpiration while cold roots absorb water and phosphorus slowly; avoid cold-water irrigation spikes and monitor wilting at midday.`
         : `La temperatura del suelo (${reading.temp} °C) es mucho más fría que la del aire (${reading.airTemp} °C, diferencia ${diffStr}). El aire cálido exige transpiración al follaje mientras la raíz fría absorbe agua y fósforo con lentitud; evita riegos bruscos con agua fría y vigila decaimiento al mediodía.`,
@@ -441,6 +455,7 @@ export function buildContextualAdvice(
         priority: 'normal',
         when: 'next_days',
         title: en ? 'Extended period of high air humidity forecast' : 'Periodo prolongado de alta humedad del aire previsto',
+        headline: en ? 'Check the crop ventilation' : 'Revisa la ventilación del cultivo',
         body: en
           ? `The hourly forecast shows ${highRhHours} consecutive hours with relative humidity at or above 90%. Check canopy ventilation and inspect the crop in the field.`
           : `El pronóstico horario prevé ${highRhHours} horas seguidas con humedad relativa igual o superior a 90 %. Revisa la ventilación del follaje e inspecciona el cultivo en el campo.`,
@@ -473,6 +488,7 @@ export function buildContextualAdvice(
     const dates = uncoveredRiskyDays.map(day => dayLabel(day.date)).join(', ');
     plan.push({ kind: 'weather', priority: 'normal', when: uncoveredRiskyDays[0].date === today?.date ? 'today' : 'next_days',
       title: en ? 'Plan field work around the weather' : 'Programa las labores según el clima',
+      headline: en ? 'Schedule field work around the weather' : 'Programa las labores según el clima',
       body: en
         ? `Review the date of the task because of forecast rain, frost or heat: ${dates}. Confirm conditions before entering the field.`
         : `Revisa la fecha de la labor por lluvia, helada o calor previstos: ${dates}. Confirma las condiciones antes de ingresar al campo.` });
@@ -480,6 +496,7 @@ export function buildContextualAdvice(
   const actions = plan.map(item => item.body);
   plan.push({ kind: 'monitoring', priority: 'normal', when: 'next_reading',
     title: en ? 'Measure again to compare' : 'Vuelve a medir para comparar',
+    headline: en ? 'Measure again to compare' : 'Vuelve a medir para comparar',
     body: en ? 'Measure representative points and repeat after each management change; the trend says more than a single reading.'
       : 'Mide puntos representativos y repite después de cada cambio de manejo: la tendencia dice más que una sola lectura.' });
   // Lo urgente primero y, dentro de cada prioridad, lo más próximo (§9.2); a igual urgencia y
