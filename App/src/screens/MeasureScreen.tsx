@@ -40,7 +40,7 @@ import { createAccountOperation } from '../utils/accountOperation';
 import { useAuthStore } from '../store/useAuthStore';
 import { localizeProbeError } from '../utils/probeErrors';
 import { checkLowBattery } from '../utils/batteryWarning';
-import { captureLocation, choiceAfterAsking, LOCATION_CHOICE_KEY, nextLocationStep, type LocationChoice } from '../utils/measureLocation';
+import { captureLocation, choiceAfterAsking, LOCATION_CHOICE_KEY, LOCATION_REVOKED_NOTICE_KEY, nextLocationStep, revokedNoticeDue, type LocationChoice } from '../utils/measureLocation';
 import { applyWeatherToCapture, buildSavedDiagnosisSnapshot } from '../utils/measureCaptureSession';
 
 const ENGINE_VERSION = '1.4.0';
@@ -152,16 +152,24 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
       const step = permission
         ? nextLocationStep(choice, { granted: permission.status === 'granted', canAskAgain: permission.canAskAgain }, isLegacyAndroidBluetooth())
         : 'skip';
-      if (step === 'capture') withLocation = true;
-      else if (step === 'ask') {
+      if (step === 'capture') {
+        withLocation = true;
+        // El permiso volvió: un próximo retiro se avisa de nuevo.
+        AsyncStorage.removeItem(LOCATION_REVOKED_NOTICE_KEY).catch(() => undefined);
+      } else if (step === 'ask') {
         const accepted = await askLocationOnce(language, isLegacyAndroidBluetooth(), active);
         if (!active()) { reading.current = false; return; }
         AsyncStorage.setItem(LOCATION_CHOICE_KEY, choiceAfterAsking(accepted)).catch(() => undefined);
         withLocation = accepted;
       } else if (choice === 'on') {
-        // Permiso retirado fuera de la app: se mide sin coordenadas y se avisa una vez.
-        AsyncStorage.setItem(LOCATION_CHOICE_KEY, 'off').catch(() => undefined);
-        setLocationNote(t('Se retiró el permiso de ubicación: esta lectura se guardará sin coordenadas.', 'Location permission was removed: this reading will be saved without coordinates.'));
+        // Permiso retirado fuera de la app: se mide sin coordenadas y la elección sigue activa
+        // (choiceAfterRevocation); se avisa sólo en la primera lectura de cada retiro.
+        const noticed = await AsyncStorage.getItem(LOCATION_REVOKED_NOTICE_KEY).catch(() => null);
+        if (!active()) { reading.current = false; return; }
+        if (revokedNoticeDue(choice, permission?.status === 'granted', noticed === '1')) {
+          AsyncStorage.setItem(LOCATION_REVOKED_NOTICE_KEY, '1').catch(() => undefined);
+          setLocationNote(t('El teléfono retiró el permiso de ubicación: esta lectura se guardará sin coordenadas. La ubicación sigue activa en TerraSense y volverá sola cuando des el permiso en los ajustes del teléfono.', 'The phone removed the location permission: this reading will be saved without coordinates. Location stays on in TerraSense and will come back by itself once you allow it in the phone settings.'));
+        }
       }
     } catch (error) { reading.current = false; throw error; }
     if (!active()) { reading.current = false; return; }

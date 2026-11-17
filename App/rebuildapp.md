@@ -48,6 +48,7 @@ npm test
 | --- | --- | --- |
 | El cuerpo de la sonda se dibuja con un LED y el botón PAIR. | 1 | Si el equipo real difiere, cambia sólo `ProbeGlyph`. |
 | La lectura guardada se marca con un pin ocre que cae sobre el punto medido. | 1 | Con respaldo pendiente, el pin lleva un reloj en vez de la nube. |
+| Una ubicación aceptada queda activa para siempre: un permiso retirado en el teléfono no apaga la elección. | 2 | Decidido por el usuario el 17-11-2026. La hoja del clima de una lectura sin ubicación lleva el mismo interruptor de Preferencias, para activarla sin salir del resultado. |
 | La pantalla de permisos lleva **un solo botón**, «Continuar», que abre el diálogo del sistema. | 2 | La maqueta dibuja además «Ahora no»; no se implementa: Apple limita la pantalla previa a un botón (ver el comentario de `askForAccess`) y el propio diálogo del sistema ya ofrece rechazar. |
 | En Android 11 o anterior la pregunta es un diálogo de la app, no del sistema. | 2 | Ahí el permiso de ubicación ya existe por el Bluetooth y no equivale a aceptar la georreferenciación. |
 | El plan muestra 3 acciones; el resto queda tras «Ver N más». Las de prioridad alta se muestran siempre. | 3 | Ninguna recomendación se descarta. |
@@ -100,7 +101,7 @@ Los números de línea que aparecen en las tareas son aproximados: corresponden 
 Condiciones que la maqueta no muestra y que más probablemente fallen en uso real. Cada una tiene su prueba en la tarea indicada.
 
 1. **Lectura antigua** (versiones 1 y 2 de la presentación, sin `recommendations`, `evidence` ni `headline`): el plan se arma con `actions` y nada queda vacío. Tarea 8.
-2. **Permiso de ubicación rechazado, «no volver a preguntar» o revocado entre dos lecturas:** se mide igual, sin coordenadas, y no se vuelve a preguntar. Tarea 4.
+2. **Permiso de ubicación rechazado, «no volver a preguntar» o revocado entre dos lecturas:** se mide igual, sin coordenadas, y no se vuelve a preguntar. Una ubicación aceptada queda activa para siempre: la app no la apaga y vuelve a georreferenciar sola cuando el teléfono devuelve el permiso. Tarea 4.
 3. **Lectura incompleta** (variables sin dato o evaluación insuficiente): el veredicto no muestra conteos que parezcan un diagnóstico. Tarea 8.
 4. **Más de tres recomendaciones, con una de prioridad alta en cuarto lugar:** se muestra. Tarea 8.
 5. **Letra grande, teléfono angosto (menos de 360) y tema oscuro:** nada se corta ni pierde contraste. No hay prueba automática; es la lista de la tarea 19.
@@ -241,7 +242,7 @@ export function choiceAfterAsking(accepted: boolean): Exclude<LocationChoice, nu
 | --- | --- | --- |
 | `off` | cualquiera | `skip` |
 | `on` | concedido | `capture` |
-| `on` | no concedido (revocado) | `skip`, y se avisa una vez como hoy |
+| `on` | no concedido (revocado) | `skip`; la elección sigue en `on` y se avisa una vez por cada retiro |
 | `null` | concedido, Android 12 o posterior / iOS | `capture` |
 | `null` | concedido, Android 11 o anterior | `ask` (diálogo de la app) |
 | `null` | no concedido, se puede preguntar | `ask` (diálogo del sistema) |
@@ -293,7 +294,7 @@ export async function askLocationOnce(language: Language, legacyAndroidBluetooth
 - [x] **Paso 4:** el aviso de datos simulados (`demoNotice`) y el de permiso retirado, que vivían en «Todo listo», pasan: el primero a «Antes de medir», el segundo a los avisos del resultado (`notices`).
 - [x] **Paso 5:** la etapa y la especie elegidas se muestran como dos píldoras en la barra superior de «Antes de medir» (maqueta `AntesDeMedir`).
 - [x] **Paso 6:** `npm run type-check && npm test`.
-- [ ] **Paso 7: revisión en teléfono**, con una instalación limpia cada vez: aceptar (la lectura trae coordenadas y pronóstico); rechazar (se mide igual y la siguiente medición no vuelve a preguntar); revocar el permiso desde los ajustes del teléfono entre dos lecturas (se mide sin coordenadas y aparece el aviso una vez); modo avión (coordenadas sí, pronóstico con la degradación que ya existe).
+- [ ] **Paso 7: revisión en teléfono**, con una instalación limpia cada vez: aceptar (la lectura trae coordenadas y pronóstico); rechazar (se mide igual y la siguiente medición no vuelve a preguntar); revocar el permiso desde los ajustes del teléfono entre dos lecturas (se mide sin coordenadas y aparece el aviso una vez; al devolver el permiso, la lectura siguiente vuelve a traer coordenadas sin tocar Preferencias); modo avión (coordenadas sí, pronóstico con la degradación que ya existe).
 - [x] **Paso 8:** commit: `feat(app): pide la ubicación una sola vez y elimina el paso «Todo listo»`.
 
 ### Tarea 6: la pantalla de permisos y el interruptor en Preferencias

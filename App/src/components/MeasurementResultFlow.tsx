@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { LocationPreference } from './LocationPreference';
 import { Typography } from '../constants/theme';
 import { BackHandler, FlatList, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -82,15 +83,13 @@ function ResultPager({ count, index, onIndexChange, renderPage, top, footer }: {
  * detalle y lo demás —el porqué de una acción, el clima completo, cómo se evaluó— se abre en una
  * hoja. Lo usan la medición nueva (con Guardar) y el detalle del historial (sin Guardar).
  */
-export function MeasurementResultFlow({ presentation: p, forecast, notices, onExit, exitLabel, save, onOpenPreferences }: {
+export function MeasurementResultFlow({ presentation: p, forecast, notices, onExit, exitLabel, save }: {
   presentation: MeasurementPresentation;
   forecast: ForecastProps;
   notices?: React.ReactNode;
   onExit: () => void;
   exitLabel?: string;
   save?: { onSave: () => void; busy: boolean };
-  /** Si la pantalla que lo contiene sabe abrir Preferencias, la hoja del clima sin ubicación lo ofrece. */
-  onOpenPreferences?: () => void;
 }) {
   const { colors } = useAppTheme();
   const { t, language, locale } = useTranslation();
@@ -296,9 +295,9 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, onEx
       title={forecast.historical ? t('Clima registrado', 'Recorded weather') : t('Clima', 'Weather')}>
       {!hasCoords && !forecast.days.length
         ? <>
-          <ScreenText muted={false}>{t('Esta lectura se guardó sin ubicación, así que no hay pronóstico. Puedes activar la ubicación en Configuración → Preferencias → Ubicación y pronóstico; las próximas lecturas la incluirán.',
-            'This reading was saved without location, so there is no forecast. You can turn location on in Settings → Preferences → Location and forecast; your next readings will include it.')}</ScreenText>
-          {!!onOpenPreferences && <EntryButton label={t('Abrir Preferencias', 'Open Preferences')} onPress={() => { setSheet(null); onOpenPreferences(); }} />}
+          <ScreenText muted={false}>{t('Esta lectura se guardó sin ubicación, así que no hay pronóstico. Actívala aquí y las próximas lecturas la incluirán.',
+            'This reading was saved without location, so there is no forecast. Turn it on here and your next readings will include it.')}</ScreenText>
+          <LocationPreference />
         </>
         : <MeasurementForecast {...forecast} />}
       {!!p.weatherNote && <Text style={{ color: colors.textSecondary, fontSize: 14, lineHeight: 20 }}>{p.weatherNote}</Text>}

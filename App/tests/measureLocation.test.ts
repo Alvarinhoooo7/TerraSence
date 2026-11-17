@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { captureLocation, choiceAfterAsking, nextLocationStep } from '../src/utils/measureLocation';
+import { captureLocation, choiceAfterAsking, choiceAfterRevocation, nextLocationStep, revokedNoticeDue } from '../src/utils/measureLocation';
 
 const posicion = { coords: { latitude: -33.45, longitude: -70.66, accuracy: 12 } };
 
@@ -51,6 +51,19 @@ test('en Android antiguo el permiso existe por el Bluetooth: se pregunta dentro 
 
 test('un permiso revocado no reabre la pregunta', () => {
   assert.equal(nextLocationStep('on', { granted: false, canAskAgain: true }, false), 'skip');
+});
+
+test('una ubicación aceptada queda activa para siempre: vuelve a capturar en cuanto el teléfono devuelve el permiso', () => {
+  assert.equal(choiceAfterRevocation('on'), 'on');
+  assert.equal(nextLocationStep(choiceAfterRevocation('on'), { granted: true, canAskAgain: true }, false), 'capture');
+});
+
+test('el aviso de permiso retirado sale una sola vez por cada retiro', () => {
+  assert.equal(revokedNoticeDue('on', false, false), true);
+  assert.equal(revokedNoticeDue('on', false, true), false);
+  assert.equal(revokedNoticeDue('on', true, false), false);
+  assert.equal(revokedNoticeDue('off', false, false), false);
+  assert.equal(revokedNoticeDue(null, false, false), false);
 });
 
 test('después de preguntar siempre queda una elección guardada', () => {
