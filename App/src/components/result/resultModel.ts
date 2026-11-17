@@ -46,12 +46,36 @@ export interface PlanAction {
 
 export const PLAN_VISIBLE = 3;
 
-/** Acciones a la vista y cuántas quedan tras «Ver N más». Las de prioridad alta se ven siempre; ninguna se descarta. */
-export function planActions(p: MeasurementPresentation): { visible: PlanAction[]; hidden: number } {
+/** Todas las acciones del plan, en el orden del motor. Una lectura antigua arma el plan con sus `actions`. */
+export function allPlanActions(p: MeasurementPresentation): PlanAction[] {
   const recommendations = p.recommendations ?? [];
-  const all: PlanAction[] = recommendations.length
+  return recommendations.length
     ? recommendations.map((r, index) => ({ index, when: r.when, title: r.headline ?? r.title, priority: r.priority, evidence: r.evidence ?? [] }))
     : (p.actions ?? []).map((title, index) => ({ index, when: null, title, priority: 'normal' as const, evidence: [] }));
+}
+
+/** Acciones a la vista y cuántas quedan tras «Ver N más». Las de prioridad alta se ven siempre; ninguna se descarta. */
+export function planActions(p: MeasurementPresentation): { visible: PlanAction[]; hidden: number } {
+  const all = allPlanActions(p);
   const visible = all.filter((a, i) => i < PLAN_VISIBLE || a.priority === 'high');
   return { visible, hidden: all.length - visible.length };
+}
+
+export type GroupSummary =
+  | { kind: 'bad' | 'warn'; count: number }
+  | { kind: 'ok'; count: number; withoutData: number }
+  | { kind: 'no_data' }
+  | { kind: 'context' };
+
+/**
+ * Resumen del encabezado de una familia (Suelo, Aire). Sólo cuenta variables con estado y valor:
+ * si alguna no trajo dato, «Todo favorable» no se afirma sobre lo que no se midió.
+ */
+export function groupSummary(parameters: ParameterPresentation[]): GroupSummary {
+  const counts = scoreCounts(parameters);
+  const withoutData = parameters.filter(m => m.value == null).length;
+  if (counts.bad) return { kind: 'bad', count: counts.bad };
+  if (counts.warn) return { kind: 'warn', count: counts.warn };
+  if (counts.ok) return { kind: 'ok', count: counts.ok, withoutData };
+  return withoutData === parameters.length ? { kind: 'no_data' } : { kind: 'context' };
 }

@@ -3,7 +3,7 @@ import test from 'node:test';
 import { evaluateForStage } from '../src/engine/stageEvaluator';
 import { buildContextualAdvice, type Recommendation } from '../src/engine/contextualAdvice';
 import { buildMeasurementPresentation, type MeasurementPresentation, type ParameterPresentation } from '../src/engine/measurementPresentation';
-import { PLAN_VISIBLE, planActions, scoreCounts, verdictBar } from '../src/components/result/resultModel';
+import { allPlanActions, groupSummary, PLAN_VISIBLE, planActions, scoreCounts, verdictBar } from '../src/components/result/resultModel';
 import type { SoilMeasurement } from '../src/types/agronomy';
 
 const raw: SoilMeasurement = { vwc: 22, temp: 20, ph: 6.5, ec: 500, nitrogen: 50, phosphorus: 20, potassium: 80, lux: 0, battery: 80, airTemp: 21, airHumidity: 55, airPressure: 1010 };
@@ -106,4 +106,22 @@ test('lectura incompleta: se declara cuántas variables quedaron sin dato en vez
   assert.ok(complete);
   assert.ok(bar.counts.total <= complete.counts.total);
   assert.equal(complete.withoutData, 0);
+});
+
+test('«Ver N más» recupera todas las acciones, en el orden del motor, sin descartar ninguna', () => {
+  const p = withRecs([rec(1), rec(2), rec(3), rec(4, { priority: 'high' }), rec(5), rec(6)]);
+  const all = allPlanActions(p);
+  assert.deepEqual(all.map(a => a.index), [0, 1, 2, 3, 4, 5]);
+  const { visible, hidden } = planActions(p);
+  assert.equal(visible.length + hidden, all.length);
+});
+
+test('el resumen de una familia no afirma «todo favorable» sobre lo que no se midió', () => {
+  const ok = (key: ParameterPresentation['key']) => param(key, 'OPTIMAL', 1);
+  assert.deepEqual(groupSummary([ok('vwc'), ok('temp')]), { kind: 'ok', count: 2, withoutData: 0 });
+  assert.deepEqual(groupSummary([ok('vwc'), param('temp', 'INFO', null)]), { kind: 'ok', count: 1, withoutData: 1 });
+  assert.deepEqual(groupSummary([ok('vwc'), param('temp', 'WARNING', 3)]), { kind: 'warn', count: 1 });
+  assert.deepEqual(groupSummary([param('vwc', 'CRITICAL', 3), param('temp', 'WARNING', 3)]), { kind: 'bad', count: 1 });
+  assert.deepEqual(groupSummary([param('airTemp', 'INFO', null), param('airHumidity', 'INFO', null)]), { kind: 'no_data' });
+  assert.deepEqual(groupSummary([param('airPressure', 'INFO', 1010)]), { kind: 'context' });
 });

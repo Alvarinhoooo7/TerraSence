@@ -393,14 +393,14 @@ Orden de la pantalla, de arriba hacia abajo (maqueta `Main`):
 7. **Nutrientes** (`NutrientGroup`): tres casillas neutras con nombre, valor y `mg/kg`, sin color de estado, y la frase «Sirven para comparar entre mediciones del mismo punto. El análisis de laboratorio fija el punto de referencia.»
 8. **Pie fijo:** «Guardar resultado» en una medición nueva; «Cerrar» en el historial.
 
-- [ ] **Paso 1:** mudar `PlanSheet` a `BottomSheet.tsx` sin cambiarlo.
-- [ ] **Paso 2:** crear las cinco piezas con los valores de la sección 2.3, tomando los colores de `theme.ts`.
-- [ ] **Paso 3:** reescribir el cuerpo de `MeasurementResultFlow`: desaparecen `STEPS`, `GROUP_OF`, `StepProgress` y las ilustraciones de familia; `ResultPager` queda sólo para recorrer el detalle de las variables. La interfaz pública del componente (`presentation`, `forecast`, `notices`, `onExit`, `exitLabel`, `save`) no cambia: `MeasureScreen` y `MeasurementDetailModal` no se tocan.
-- [ ] **Paso 4:** botón atrás del teléfono: cierra la hoja abierta; si no hay, cierra el detalle; si no hay, sale (con la confirmación de descarte que ya existe).
-- [ ] **Paso 5:** `useResetGuide` usa la clave `resultado` para la pantalla y `detalle-<n>` para cada variable.
-- [ ] **Paso 6:** `npm run type-check && npm test`.
+- [x] **Paso 1:** mudar `PlanSheet` a `BottomSheet.tsx` sin cambiarlo.
+- [x] **Paso 2:** crear las cinco piezas con los valores de la sección 2.3, tomando los colores de `theme.ts`.
+- [x] **Paso 3:** reescribir el cuerpo de `MeasurementResultFlow`: desaparecen `STEPS`, `GROUP_OF`, `StepProgress` y las ilustraciones de familia; `ResultPager` queda sólo para recorrer el detalle de las variables. La interfaz pública del componente (`presentation`, `forecast`, `notices`, `onExit`, `exitLabel`, `save`) no cambia: `MeasureScreen` y `MeasurementDetailModal` no se tocan.
+- [x] **Paso 4:** botón atrás del teléfono: cierra la hoja abierta; si no hay, cierra el detalle; si no hay, sale (con la confirmación de descarte que ya existe).
+- [x] **Paso 5:** `useResetGuide` usa la clave `resultado` para la pantalla y `detalle-<n>` para cada variable.
+- [x] **Paso 6:** `npm run type-check && npm test`.
 - [ ] **Paso 7: revisión en teléfono** con: una lectura nueva con especie; una en pre-siembra; una sin especie; una sin ubicación; una con variables sin dato; y, desde el historial, una lectura guardada antes de este cambio. En cada una: el plan es lo primero que se lee después del veredicto, ninguna recomendación desaparece y N, P y K no llevan color.
-- [ ] **Paso 8:** commit: `feat(app): presenta el resultado en una pantalla con el plan primero`.
+- [x] **Paso 8:** commit: `feat(app): presenta el resultado en una pantalla con el plan primero`.
 
 ### Tarea 12: el detalle de una variable
 

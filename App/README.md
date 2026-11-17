@@ -49,21 +49,21 @@ La bandeja de avisos reúne las notificaciones de acceso a los equipos. Los miem
 2. **Indicar la especie, si corresponde:** en vegetativo, floración y cosecha se puede buscar el cultivo o continuar sin especificarlo. La elección se guarda sólo para esa medición. En pre-siembra no se pide especie.
 3. **Preparar la sonda:** seguir las indicaciones para encenderla, limpiarla e introducirla en el suelo.
 4. **Medir:** con «Listo, medir» la app conecta por Bluetooth, recibe la lectura y libera la conexión al terminar. Si hay ubicación aceptada, la lectura trae coordenadas y pronóstico; si se rechazó o el sistema ya no pregunta, se mide igual y sin coordenadas.
-5. **Recorrer el resultado:** avanzar entre las pantallas siguientes, con botones o deslizando.
+5. **Leer el resultado:** una sola pantalla que se desplaza, con el plan de acción primero.
 6. **Guardar:** conservar la lectura, la fecha, la etapa, la especie indicada y la evaluación. Se puede guardar sin esperar a que termine de cargar el pronóstico.
 
-| Pantalla del resultado | Qué muestra |
+| Parte del resultado | Qué muestra |
 |---|---|
-| **Resumen** | Evaluación general, condiciones que requieren atención y límites de lo que se pudo evaluar. |
-| **Suelo** | Humedad, temperatura, pH y conductividad eléctrica. |
-| **Nutrientes** | Registros de nitrógeno, fósforo y potasio, identificados como **Sin validar**. |
-| **Ambiente** | Temperatura, humedad relativa y presión atmosférica medidas por el BME280 del equipo. |
-| **Clima** | Tiempo actual y pronóstico de los próximos cinco días, cuando están disponibles. |
-| **Recomendaciones** | Acciones de revisión y seguimiento, ordenadas por prioridad, con su explicación. |
+| **Veredicto** | Especie y etapa, el título de la evaluación, una barra con un segmento por variable con estado, y la fecha, las coordenadas y la precisión. Con evaluación insuficiente no hay barra: sólo «Evaluación insuficiente». |
+| **Qué hacer** | Las acciones del plan con su momento, un titular corto y los valores medidos que las sostienen; se ven tres y el resto queda tras «Ver N más», pero las de prioridad alta se ven siempre. Tocar una acción abre el porqué y el detalle técnico. «Cómo se evaluó» abre el resumen, la cobertura y las limitaciones. |
+| **Clima** | Una fila con el titular del pronóstico; abre el tiempo actual y los próximos cinco días, cuando están disponibles. Sin ubicación dice «Sin ubicación incluida». |
+| **Suelo** | Humedad, temperatura, pH y conductividad eléctrica, cada una con su escala y su estado. |
+| **Aire** | Temperatura, humedad relativa y presión atmosférica medidas por el BME280 del equipo. |
+| **Nutrientes** | Valores de referencia de nitrógeno, fósforo y potasio, sin color de estado ni dosis. |
 
 Cada variable permite abrir su detalle. La batería corresponde al último contacto con la sonda. Cuando falta un dato ambiental se muestra su ausencia: el pronóstico no sustituye las mediciones del equipo.
 
-El historial abre el mismo recorrido de resultados y conserva la evaluación y el clima que se guardaron con la lectura. Las coordenadas, cuando existen, se presentan como texto.
+El historial abre la misma pantalla y conserva la evaluación y el clima que se guardaron con la lectura; una lectura guardada antes de que existieran las recomendaciones arma su plan con las acciones de entonces. Las coordenadas, cuando existen, se presentan como texto.
 
 ## Cómo funciona el motor agronómico
 
