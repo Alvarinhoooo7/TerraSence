@@ -445,11 +445,11 @@ Sólo apariencia. Ninguna opción cambia de lugar ni de comportamiento.
 
 **Archivos:** `src/components/AppIcon.tsx`, `src/components/screen/ScreenUI.tsx`, `src/components/SettingsUI.tsx`, las pantallas de Configuración.
 
-- [ ] **Paso 1:** íconos nuevos en `AppIcon`: `user`, `help`, `logout`, `qr`, `team`, `download`, `shield` (trazos en las maquetas `Configuracion`, `Preferencias` y `EquiposYDatos`).
-- [ ] **Paso 2:** `ScreenOption` acepta un `icon?: IconName` opcional, dibujado en un cuadro de 44 a la izquierda. Sin `icon`, la fila queda como hoy.
+- [x] **Paso 1:** íconos nuevos en `AppIcon`: `user`, `help`, `logout`, `qr`, `team`, `download`, `shield` (trazos en las maquetas `Configuracion`, `Preferencias` y `EquiposYDatos`).
+- [x] **Paso 2:** `ScreenOption` acepta un `icon?: IconName` opcional, dibujado en un cuadro de 44 a la izquierda. Sin `icon`, la fila queda como hoy.
 - [ ] **Paso 3:** la portada de Configuración muestra una tarjeta de cuenta (`#17392C`: iniciales, nombre, correo y el estado de verificación) y agrupa sus filas en una sola tarjeta con separadores.
 - [ ] **Paso 4:** «Equipos y datos» abre con el resumen de sincronización (pendientes de enviar, último envío confirmado y «Sincronizar ahora»), con los mismos datos que hoy muestra `SyncSettings`.
-- [ ] **Paso 5:** `npm run type-check && npm test` (incluye `settingsNavigation.test.ts`). Commit: `feat(app): rediseña Configuración`.
+- [x] **Paso 5:** `npm run type-check && npm test` (incluye `settingsNavigation.test.ts`). Commit: `feat(app): rediseña Configuración`.
 
 ### Tarea 16: Inicio
 

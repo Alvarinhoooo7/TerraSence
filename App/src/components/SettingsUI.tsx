@@ -6,7 +6,8 @@ import { useResetGuide } from './guide/GuideContext';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { EntryButton } from './entry/EntryUI';
-import { ScreenCard, ScreenLayout, ScreenOption, ScreenText } from './screen/ScreenUI';
+import { ScreenCard, ScreenGroup, ScreenLayout, ScreenOption, ScreenText } from './screen/ScreenUI';
+import type { IconName } from './AppIcon';
 
 /**
  * Configuración y sus subpantallas, con las piezas compartidas de ScreenUI: el
@@ -27,8 +28,12 @@ export function SettingsText({ children, danger = false }: React.PropsWithChildr
 export function SettingsCard({ children }: React.PropsWithChildren) {
   return <ScreenCard>{children}</ScreenCard>;
 }
-export function SettingsRow({ title, subtitle, onPress, danger = false, disabled = false, selected }: { title: string; subtitle?: string; onPress: () => void; danger?: boolean; disabled?: boolean; selected?: boolean }) {
-  return <ScreenOption title={title} subtitle={subtitle} onPress={onPress} danger={danger} disabled={disabled} selected={selected} />;
+export function SettingsRow({ title, subtitle, onPress, danger = false, disabled = false, selected, icon, grouped = false }: { title: string; subtitle?: string; onPress: () => void; danger?: boolean; disabled?: boolean; selected?: boolean; icon?: IconName; grouped?: boolean }) {
+  return <ScreenOption title={title} subtitle={subtitle} onPress={onPress} danger={danger} disabled={disabled} selected={selected} icon={icon} grouped={grouped} />;
+}
+/** Filas de una misma categoría en una sola tarjeta con separadores. */
+export function SettingsGroup({ children }: React.PropsWithChildren) {
+  return <ScreenGroup>{children}</ScreenGroup>;
 }
 export function SettingsButton({ title, onPress, busy = false, disabled = false, danger = false }: { title: string; onPress: () => void; busy?: boolean; disabled?: boolean; danger?: boolean }) {
   return <EntryButton label={title} onPress={onPress} busy={busy} disabled={disabled} danger={danger} />;
