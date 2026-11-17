@@ -1,4 +1,5 @@
 import { applicableAlerts, PARAMETER_KEYS, type ParameterKey } from './measurementPresentation';
+import { personalizeHeadline } from './headlinePersonalization';
 import { evaluatePrePlantingOptions, suggestPrePlantingCrops, type PrePlantingOption } from './prePlanting';
 // Trazabilidad de cultivos sugeridos en pre_siembra: `suggestPrePlantingCrops`.
 import type { StageAwareEvaluation } from './stageEvaluator';
@@ -503,7 +504,9 @@ export function buildContextualAdvice(
   // momento se conserva el orden en que se armó. Nunca depende del orden del catálogo.
   const rank = (item: Recommendation) => (item.priority === 'high' ? 0 : 4) + TIMING_ORDER[item.when];
   const recommendations = plan.map((item, index) => ({ item, index }))
-    .sort((a, b) => rank(a.item) - rank(b.item) || a.index - b.index).map(({ item }) => item);
+    .sort((a, b) => rank(a.item) - rank(b.item) || a.index - b.index)
+    // El titular nombra la especie medida y sigue la etapa cuando el genérico habla de «el cultivo».
+    .map(({ item }) => item.headline ? { ...item, headline: personalizeHeadline(item.headline, stage, speciesId, en ? 'en' : 'es') } : item);
 
   const completeForecast = weather?.forecast.length === 5 && weather.forecast.every(day =>
     [day.precipitationMm, day.rainProbabilityPct, day.minimumTemperatureC, day.maximumTemperatureC]

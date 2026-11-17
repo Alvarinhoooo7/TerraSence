@@ -52,7 +52,7 @@ npm test
 | La pantalla de permisos lleva **un solo botón**, «Continuar», que abre el diálogo del sistema. | 2 | La maqueta dibuja además «Ahora no»; no se implementa: Apple limita la pantalla previa a un botón (ver el comentario de `askForAccess`) y el propio diálogo del sistema ya ofrece rechazar. |
 | En Android 11 o anterior la pregunta es un diálogo de la app, no del sistema. | 2 | Ahí el permiso de ubicación ya existe por el Bluetooth y no equivale a aceptar la georreferenciación. |
 | El plan muestra 3 acciones; el resto queda tras «Ver N más». Las de prioridad alta se muestran siempre. | 3 | Ninguna recomendación se descarta. |
-| Cada acción lleva un titular corto en imperativo (`headline`). | 3 | Es texto agronómico nuevo: lo revisa el usuario antes de fusionar. |
+| Cada acción lleva un titular corto en imperativo (`headline`). | 3 | Aprobado por el usuario el 17-11-2026. Los genéricos que nombran «el cultivo» se dicen con la especie medida («Protege tu tomate del frío») y «nada que corregir» sigue la etapa; si pasan de 40 caracteres queda el genérico (`src/engine/headlinePersonalization.ts`). |
 | El clima pasa de página propia a una franja que abre una hoja. | 3 | |
 | Títulos y cifras en Space Grotesk; el resto sigue con la letra del sistema. | 4 | |
 
