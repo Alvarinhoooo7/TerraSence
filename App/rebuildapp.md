@@ -205,10 +205,10 @@ for (const archivo of ARCHIVOS) test(`${archivo} dibuja la sonda con ProbeGlyph`
 
 **Archivo:** `src/components/ReadingSavedArt.tsx` (sello actual: ≈98–106).
 
-- [ ] **Paso 1:** reemplazar el sello circular por la secuencia de la maqueta `Guardada`: la sonda sale del suelo y queda inclinada a la izquierda; un pin ocre (`pin`) cae sobre el punto con un rebote corto; dos ondas se abren en el suelo; tres destellos; y arriba a la derecha aparece la nube con flecha. Trazo del pin, con la punta en el origen: `M0 0C-14-18-22-28-22-40A22 22 0 1 1 22-40C22-28 14-18 0 0Z`, con un círculo `#12281F` de radio 13 en `0, -40` y el visto en ocre.
-- [ ] **Paso 2:** conservar los dos estados que el componente ya distingue con `synced`: respaldada (nube con flecha) y pendiente (reloj en lugar de la nube). El paño que limpia los pines se conserva.
-- [ ] **Paso 3:** con «reducir movimiento» se muestra el estado final: pin clavado, sin ondas ni destellos.
-- [ ] **Paso 4:** usar `pin` y `pinLight` de `theme.ts` (sección 2.3). `npm run type-check && npm test`.
+- [x] **Paso 1:** reemplazar el sello circular por la secuencia de la maqueta `Guardada`: la sonda sale del suelo y queda inclinada a la izquierda; un pin ocre (`pin`) cae sobre el punto con un rebote corto; dos ondas se abren en el suelo; tres destellos; y arriba a la derecha aparece la nube con flecha. Trazo del pin, con la punta en el origen: `M0 0C-14-18-22-28-22-40A22 22 0 1 1 22-40C22-28 14-18 0 0Z`, con un círculo `#12281F` de radio 13 en `0, -40` y el visto en ocre.
+- [x] **Paso 2:** conservar los dos estados que el componente ya distingue con `synced`: respaldada (nube con flecha) y pendiente (reloj en lugar de la nube). El paño que limpia los pines se conserva.
+- [x] **Paso 3:** con «reducir movimiento» se muestra el estado final: pin clavado, sin ondas ni destellos.
+- [x] **Paso 4:** usar `pin` y `pinLight` de `theme.ts` (sección 2.3). `npm run type-check && npm test`.
 - [ ] **Paso 5: revisión en teléfono**, guardando una lectura con y sin conexión. Commit: `feat(app): marca la lectura guardada con un pin en el punto medido`.
 
 ---
