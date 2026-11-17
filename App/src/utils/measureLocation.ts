@@ -31,21 +31,6 @@ export function choiceAfterAsking(accepted: boolean): Exclude<LocationChoice, nu
   return accepted ? 'on' : 'off';
 }
 
-/**
- * Sin elección guardada se conserva lo anterior: coordenadas si la ubicación ya estaba
- * autorizada, salvo en Android antiguo, donde ese permiso existe por el Bluetooth.
- */
-export function initialIncludeLocation(choice: LocationChoice, granted: boolean, legacyAndroidBluetooth: boolean): boolean {
-  const wanted = choice === null ? granted && !legacyAndroidBluetooth : choice === 'on';
-  return wanted && granted;
-}
-
-/** El permiso se revoca fuera de la app: la opción encendida se apaga y se avisa una vez. */
-export function revalidateIncludeLocation(include: boolean, granted: boolean): { include: boolean; lost: boolean } {
-  if (!include) return { include: false, lost: false };
-  return granted ? { include: true, lost: false } : { include: false, lost: true };
-}
-
 export interface CapturedCoords {
   latitude: number;
   longitude: number;

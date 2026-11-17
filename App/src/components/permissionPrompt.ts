@@ -78,3 +78,18 @@ export async function askForAccess(kind: PermissionKind, language: Language, isA
   if (isActive() && result.status === 'granted' && result.poweredOff) await notice(title, poweredOffMessage(language), language);
   return done(result, true);
 }
+
+/**
+ * Pregunta por la ubicación una sola vez: diálogo del sistema o, en Android 11 o anterior,
+ * uno propio, porque ahí el permiso ya existe por el Bluetooth y no equivale a aceptar la
+ * georreferenciación. Devuelve si quedó aceptada; quien llama guarda `choiceAfterAsking`.
+ */
+export async function askLocationOnce(language: Language, legacyAndroidBluetooth: boolean, isActive: () => boolean = () => true): Promise<boolean> {
+  const copy = PERMISSION_COPY.location;
+  if (legacyAndroidBluetooth) {
+    const accepted = await choose(pick(copy.name, language), pick(copy.rationale, language), pick(PERMISSION_ACTIONS.cancel, language), pick(PERMISSION_ACTIONS.continue, language));
+    if (!accepted || !isActive()) return false;
+  }
+  const access = await askForAccess('location', language, isActive);
+  return access.ok;
+}

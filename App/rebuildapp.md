@@ -273,7 +273,7 @@ test('después de preguntar siempre queda una elección guardada', () => {
 ```
 
 - [x] **Paso 2:** `npm test` → fallan. **Paso 3:** implementar. **Paso 4:** `npm test` → pasan, junto con las pruebas anteriores del archivo.
-- [ ] **Paso 5:** `initialIncludeLocation` queda sin uso después de la tarea 5; se elimina ahí, con sus pruebas. Commit: `feat(app): define cuándo se pregunta la ubicación al medir`.
+- [x] **Paso 5:** `initialIncludeLocation` queda sin uso después de la tarea 5; se elimina ahí, con sus pruebas. Commit: `feat(app): define cuándo se pregunta la ubicación al medir`.
 
 ### Tarea 5: quitar «Todo listo» de la medición
 
@@ -287,14 +287,14 @@ test('después de preguntar siempre queda una elección guardada', () => {
 export async function askLocationOnce(language: Language, legacyAndroidBluetooth: boolean, isActive?: () => boolean): Promise<boolean>;
 ```
 
-- [ ] **Paso 1:** `Phase` (línea 52) pierde `'prepare'`. Se elimina el bloque 458–498, el estado `includeLocation`, `toggleLocation` (139–161), la lectura inicial (112–115) y la rama del botón atrás (línea 180).
-- [ ] **Paso 2:** el botón de «Antes de medir» (línea 442) pasa a `t('Listo, medir', 'Done, measure')` y llama a `runMeasurement()` directamente. `totalSteps` (línea 387) pasa a `asksSpecies ? 3 : 2`.
-- [ ] **Paso 3:** en `runMeasurement`, donde hoy se llama a `revalidateLocation()` (≈206), se lee la elección y el permiso, se evalúa `nextLocationStep` y, si da `ask`, se llama a `askLocationOnce` y se guarda `choiceAfterAsking`. El resultado decide el argumento de `captureLocation`, que no cambia.
-- [ ] **Paso 4:** el aviso de datos simulados (`demoNotice`) y el de permiso retirado, que vivían en «Todo listo», pasan: el primero a «Antes de medir», el segundo a los avisos del resultado (`notices`).
-- [ ] **Paso 5:** la etapa y la especie elegidas se muestran como dos píldoras en la barra superior de «Antes de medir» (maqueta `AntesDeMedir`).
-- [ ] **Paso 6:** `npm run type-check && npm test`.
+- [x] **Paso 1:** `Phase` (línea 52) pierde `'prepare'`. Se elimina el bloque 458–498, el estado `includeLocation`, `toggleLocation` (139–161), la lectura inicial (112–115) y la rama del botón atrás (línea 180).
+- [x] **Paso 2:** el botón de «Antes de medir» (línea 442) pasa a `t('Listo, medir', 'Done, measure')` y llama a `runMeasurement()` directamente. `totalSteps` (línea 387) pasa a `asksSpecies ? 3 : 2`.
+- [x] **Paso 3:** en `runMeasurement`, donde hoy se llama a `revalidateLocation()` (≈206), se lee la elección y el permiso, se evalúa `nextLocationStep` y, si da `ask`, se llama a `askLocationOnce` y se guarda `choiceAfterAsking`. El resultado decide el argumento de `captureLocation`, que no cambia.
+- [x] **Paso 4:** el aviso de datos simulados (`demoNotice`) y el de permiso retirado, que vivían en «Todo listo», pasan: el primero a «Antes de medir», el segundo a los avisos del resultado (`notices`).
+- [x] **Paso 5:** la etapa y la especie elegidas se muestran como dos píldoras en la barra superior de «Antes de medir» (maqueta `AntesDeMedir`).
+- [x] **Paso 6:** `npm run type-check && npm test`.
 - [ ] **Paso 7: revisión en teléfono**, con una instalación limpia cada vez: aceptar (la lectura trae coordenadas y pronóstico); rechazar (se mide igual y la siguiente medición no vuelve a preguntar); revocar el permiso desde los ajustes del teléfono entre dos lecturas (se mide sin coordenadas y aparece el aviso una vez); modo avión (coordenadas sí, pronóstico con la degradación que ya existe).
-- [ ] **Paso 8:** commit: `feat(app): pide la ubicación una sola vez y elimina el paso «Todo listo»`.
+- [x] **Paso 8:** commit: `feat(app): pide la ubicación una sola vez y elimina el paso «Todo listo»`.
 
 ### Tarea 6: la pantalla de permisos y el interruptor en Preferencias
 
