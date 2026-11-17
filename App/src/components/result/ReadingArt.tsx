@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
 import { View } from 'react-native';
 import Animated, { Easing, useAnimatedProps, useSharedValue, withDelay, withRepeat, withSequence, withTiming, type SharedValue } from 'react-native-reanimated';
-import Svg, { Circle, Ellipse, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
+import Svg, { Circle, Ellipse, Line, Path, Text as SvgText } from 'react-native-svg';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
+import { ProbeGlyph } from '../art/ProbeGlyph';
+import { PROBE_BODY } from '../art/probeGeometry';
 
 // Ilustraciones de las páginas de lecturas del resultado (suelo, nutrientes y ambiente).
 // Misma paleta que la bienvenida y las etapas. Ocupan el espacio libre entre el texto y
@@ -56,12 +58,13 @@ const ground = <>
   {[[40, 108, 5], [300, 112, 4], [96, 84, 3], [262, 80, 3.5]].map(([cx, cy, r]) => <Ellipse key={`${cx}`} cx={cx} cy={cy} rx={r * 1.4} ry={r} fill="#7C6A4C" />)}
 </>;
 
-const probe = (x: number, top: number, depth: number) => <>
-  <Rect x={x - 15} y={top} width={30} height={28} rx={9} fill={LEAF} />
-  <Rect x={x - 8} y={top + 7} width={16} height={7} rx={3} fill="#2E5A44" />
-  <Circle cx={x} cy={top + 20} r={2.6} fill="#2E5A44" />
-  {[-7, 0, 7].map(dx => <Line key={dx} x1={x + dx} x2={x + dx} y1={top + 28} y2={depth} stroke={LEAF} strokeWidth={3} strokeLinecap="round" />)}
-</>;
+const PROBE_SCALE = 0.6;
+/** La sonda única: el cuerpo termina donde terminaba el de `top` y los pines llegan hasta `depth`. */
+const probe = (x: number, top: number, depth: number) => {
+  const y = top + 28 - PROBE_BODY.height * PROBE_SCALE;
+  const pinLength = (depth - (y + (PROBE_BODY.height - 2) * PROBE_SCALE)) / PROBE_SCALE;
+  return <ProbeGlyph x={x} y={y} scale={PROBE_SCALE} pinLength={pinLength} />;
+};
 
 /** Gota de agua del suelo que titila. */
 function Droplet({ cx, cy, delay, reduced }: { cx: number; cy: number; delay: number; reduced: boolean }) {

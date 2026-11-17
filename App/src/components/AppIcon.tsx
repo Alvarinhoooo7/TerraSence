@@ -13,7 +13,7 @@ export function AppIcon({ name, color, size = 24 }: { name: IconName; color: str
     settings: 'M4 7H20M4 17H20M8 4V10M16 14V20',
     leaf: 'M5 19C-1 5 12 3 21 3 21 15 17 23 5 19ZM5 19 15 9M5 19 3 22',
     arrow: 'M5 12H19M13 6 19 12 13 18',
-    probe: 'M9 3H15V14H9ZM12 14V22M6 6H3M18 6H21M6 10H3M18 10H21',
+    probe: 'M6.5 2.5h11v9h-11ZM8 11.5v10M10 11.5v10M12 11.5v10M14 11.5v10M16 11.5v10M9.5 6h.01M13 6h2',
     sync: 'M3 10A9 9 0 0 1 19 6L21 9M21 3V9H15M21 14A9 9 0 0 1 5 18L3 15M3 21V15H9',
     bluetooth: 'M7 7 17 17 12 22V2L17 7 7 17',
     location: 'M12 21C12 21 5 14.5 5 9.5A7 7 0 0 1 19 9.5C19 14.5 12 21 12 21ZM12 12A2.5 2.5 0 1 0 12 7 2.5 2.5 0 0 0 12 12Z',

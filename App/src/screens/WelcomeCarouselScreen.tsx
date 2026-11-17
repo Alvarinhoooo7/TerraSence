@@ -3,6 +3,7 @@ import { AccessibilityInfo, FlatList, Pressable, ScrollView, useWindowDimensions
 import { Text } from '../components/AppText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import { ProbeGlyph } from '../components/art/ProbeGlyph';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import { EntryButton, useEntryMetrics } from '../components/entry/EntryUI';
 import { LanguageSwitch } from '../components/entry/LanguageSwitch';
@@ -55,11 +56,9 @@ function Artwork({ page, height, reducedMotion }: { page: number; height: number
         <Rect x="63" y="26" width="102" height="176" rx="17" fill="#EDE8D9" />
         <Rect x="73" y="38" width="82" height="144" rx="8" fill="#D8E6CD" />
         <Path d="M89 148h50M89 131h31M89 103h50" stroke="#43704B" strokeWidth="4" strokeLinecap="round" />
-        <Rect x="239" y="37" width="28" height="76" rx="8" fill="#C6DFB4" />
         <Path d="M187 64q-20 30 0 56m29-71q-36 49 0 91" stroke="#C6DFB4" strokeWidth="3" fill="none" />
-        {/* Sonda real: 5 electrodos bajo el cuerpo, no 2. */}
-        <Path d="M243 113v91M248 113v91M253 113v91M258 113v91M263 113v91" stroke="#C6DFB4" strokeWidth="2.2" fill="none" strokeLinecap="round" />
-        <Circle cx="253" cy="70" r="5" fill="#39704B" />
+        {/* La sonda única, con sus 5 electrodos. */}
+        <ProbeGlyph x={253} y={44} pinLength={102} />
       </> : <>
         <Rect x="42" y="41" width="276" height="150" rx="15" fill="#EDE8D9" />
         <Path d="M66 152h222M72 135l52-24 42 14 52-48 62 20" fill="none" stroke="#3D7651" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />

@@ -180,7 +180,7 @@ test('el trazo dibuja un pin por posición, con el largo pedido', () => {
 
 **Prueba:** `tests/probeArt.test.ts` (agregarla al script `test`). Lee los ocho archivos como texto y comprueba que los siete primeros importan `ProbeGlyph` y que ninguno conserva un trazo de pines propio.
 
-- [ ] **Paso 1: escribir la prueba**
+- [x] **Paso 1: escribir la prueba**
 
 ```ts
 const ARCHIVOS = ['components/ProbeInsertArt.tsx', 'components/result/ReadingArt.tsx', 'components/MeasurementLoading.tsx',
@@ -194,12 +194,12 @@ for (const archivo of ARCHIVOS) test(`${archivo} dibuja la sonda con ProbeGlyph`
 });
 ```
 
-- [ ] **Paso 2:** `npm test` → fallan los siete.
-- [ ] **Paso 3:** reemplazar archivo por archivo. En las animaciones que mueven la sonda (`ProbeInsertArt`, `ReadingSavedArt`) el recorrido se recalcula con el largo de pin nuevo: la sonda queda con el cuerpo justo sobre el suelo y los cinco pines cubiertos. En `MeasurementLoading` el LED animado se alinea con el LED de `ProbeGlyph`.
-- [ ] **Paso 4:** ícono `probe` de `AppIcon`: `M6.5 2.5h11v9h-11ZM8 11.5v10M10 11.5v10M12 11.5v10M14 11.5v10M16 11.5v10M9.5 6h.01M13 6h2`.
-- [ ] **Paso 5:** `npm run type-check && npm test` → pasa.
+- [x] **Paso 2:** `npm test` → fallan los siete.
+- [x] **Paso 3:** reemplazar archivo por archivo. En las animaciones que mueven la sonda (`ProbeInsertArt`, `ReadingSavedArt`) el recorrido se recalcula con el largo de pin nuevo: la sonda queda con el cuerpo justo sobre el suelo y los cinco pines cubiertos. En `MeasurementLoading` el LED animado se alinea con el LED de `ProbeGlyph`.
+- [x] **Paso 4:** ícono `probe` de `AppIcon`: `M6.5 2.5h11v9h-11ZM8 11.5v10M10 11.5v10M12 11.5v10M14 11.5v10M16 11.5v10M9.5 6h.01M13 6h2`.
+- [x] **Paso 5:** `npm run type-check && npm test` → pasa.
 - [ ] **Paso 6: revisión en teléfono.** Bienvenida (página 2), inicio de sesión, vinculación por PAIR, «Antes de medir», lectura, lectura guardada, las páginas de suelo y ambiente del resultado y la barra inferior. En cada una: cinco pines, misma sonda, y con «reducir movimiento» queda quieta en su estado final.
-- [ ] **Paso 7:** commit: `feat(app): usa la sonda de 5 pines en todas las ilustraciones`.
+- [x] **Paso 7:** commit: `feat(app): usa la sonda de 5 pines en todas las ilustraciones`.
 
 ### Tarea 3: el pin de la lectura guardada
 

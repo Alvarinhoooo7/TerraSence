@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
-import Svg, { Circle, G, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, G, Path } from 'react-native-svg';
+import { ProbeGlyph } from './art/ProbeGlyph';
 import Animated, { Easing, useAnimatedProps, useAnimatedStyle, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
@@ -69,10 +70,7 @@ export function ReadingSavedArt({ synced }: { synced: boolean }) {
     </Svg>
     <Animated.View style={[layer, probe]}>
       <Svg width="100%" height="100%" viewBox={VIEW} preserveAspectRatio="xMidYMid meet">
-        <Rect x="160" y="22" width="40" height="46" rx="12" fill={LEAF} />
-        <Rect x="170" y="31" width="20" height="13" rx="4" fill="#1F5B3F" />
-        <Circle cx="180" cy="56" r="4.5" fill="#39704B" />
-        <Path d="M170 68V118M180 68V122M190 68V118" stroke={LEAF} strokeWidth="4" strokeLinecap="round" />
+        <ProbeGlyph x={180} y={22} scale={0.8} pinLength={67} />
       </Svg>
     </Animated.View>
     {/* Suelo delante de la sonda: tapa la parte enterrada mientras sale. */}

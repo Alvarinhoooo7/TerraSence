@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AccessibilityInfo, View } from 'react-native';
-import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
+import { ProbeGlyph } from './art/ProbeGlyph';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 
 /**
@@ -26,7 +27,8 @@ export function ProbeInsertArt() {
       withDelay(1600, withTiming(0, { duration: 700, easing: Easing.out(Easing.cubic) })),
     ), -1, false);
   }, [reduced]);
-  // La sonda recorre 0,28 del alto: de flotar sobre el suelo a tener los electrodos enterrados.
+  // La sonda recorre 0,28 del alto: de flotar sobre el suelo a quedar con el cuerpo justo sobre él
+  // y los cinco pines cubiertos por los estratos del frente.
   // El dibujo conserva su proporción (360 × 200), así que el alto medido equivale a 200 unidades.
   const probe = useAnimatedStyle(() => ({ transform: [{ translateY: depth.value * height * 0.28 }] }));
   const layer = { position: 'absolute' as const, top: 0, right: 0, bottom: 0, left: 0 };
@@ -38,10 +40,7 @@ export function ProbeInsertArt() {
     </Svg>
     <Animated.View style={[layer, probe]}>
       <Svg width="100%" height="100%" viewBox="0 0 360 200" preserveAspectRatio="xMidYMid meet">
-        <Rect x="160" y="4" width="40" height="46" rx="12" fill="#C6DFB4" />
-        <Rect x="170" y="13" width="20" height="13" rx="4" fill="#1F5B3F" />
-        <Circle cx="180" cy="38" r="4.5" fill="#39704B" />
-        <Path d="M170 50V100M180 50V104M190 50V100" stroke="#C6DFB4" strokeWidth="4" strokeLinecap="round" />
+        <ProbeGlyph x={180} y={12} scale={0.8} pinLength={52} />
       </Svg>
     </Animated.View>
     <Svg style={layer} width="100%" height="100%" viewBox="0 0 360 200" preserveAspectRatio="xMidYMid meet">
