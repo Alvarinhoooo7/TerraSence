@@ -247,7 +247,7 @@ export function choiceAfterAsking(accepted: boolean): Exclude<LocationChoice, nu
 | `null` | no concedido, se puede preguntar | `ask` (diálogo del sistema) |
 | `null` | no concedido, el sistema ya no pregunta | `skip` |
 
-- [ ] **Paso 1: escribir las pruebas**
+- [x] **Paso 1: escribir las pruebas**
 
 ```ts
 test('con la elección apagada nunca se captura ni se pregunta', () => {
@@ -272,7 +272,7 @@ test('después de preguntar siempre queda una elección guardada', () => {
 });
 ```
 
-- [ ] **Paso 2:** `npm test` → fallan. **Paso 3:** implementar. **Paso 4:** `npm test` → pasan, junto con las pruebas anteriores del archivo.
+- [x] **Paso 2:** `npm test` → fallan. **Paso 3:** implementar. **Paso 4:** `npm test` → pasan, junto con las pruebas anteriores del archivo.
 - [ ] **Paso 5:** `initialIncludeLocation` queda sin uso después de la tarea 5; se elimina ahí, con sus pruebas. Commit: `feat(app): define cuándo se pregunta la ubicación al medir`.
 
 ### Tarea 5: quitar «Todo listo» de la medición

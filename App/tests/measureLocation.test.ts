@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { captureLocation, initialIncludeLocation, revalidateIncludeLocation } from '../src/utils/measureLocation';
+import { captureLocation, choiceAfterAsking, initialIncludeLocation, nextLocationStep, revalidateIncludeLocation } from '../src/utils/measureLocation';
 
 const posicion = { coords: { latitude: -33.45, longitude: -70.66, accuracy: 12 } };
 
@@ -44,4 +44,35 @@ test('sin señal la lectura no espera más que el tiempo límite', async () => {
   const coords = await captureLocation(true, () => new Promise<typeof posicion>(() => undefined), 50);
   assert.equal(coords, null);
   assert.ok(Date.now() - inicio < 1000);
+});
+
+test('con la elección apagada nunca se captura ni se pregunta', () => {
+  assert.equal(nextLocationStep('off', { granted: true, canAskAgain: true }, false), 'skip');
+  assert.equal(nextLocationStep('off', { granted: false, canAskAgain: true }, false), 'skip');
+});
+
+test('con la elección encendida y permiso se captura', () => {
+  assert.equal(nextLocationStep('on', { granted: true, canAskAgain: true }, false), 'capture');
+});
+
+test('sin elección guardada se pregunta una vez; con permiso previo se captura directo', () => {
+  assert.equal(nextLocationStep(null, { granted: false, canAskAgain: true }, false), 'ask');
+  assert.equal(nextLocationStep(null, { granted: true, canAskAgain: true }, false), 'capture');
+});
+
+test('si el sistema ya no pregunta, se mide sin ubicación y sin insistir', () => {
+  assert.equal(nextLocationStep(null, { granted: false, canAskAgain: false }, false), 'skip');
+});
+
+test('en Android antiguo el permiso existe por el Bluetooth: se pregunta dentro de la app', () => {
+  assert.equal(nextLocationStep(null, { granted: true, canAskAgain: true }, true), 'ask');
+});
+
+test('un permiso revocado no reabre la pregunta', () => {
+  assert.equal(nextLocationStep('on', { granted: false, canAskAgain: true }, false), 'skip');
+});
+
+test('después de preguntar siempre queda una elección guardada', () => {
+  assert.equal(choiceAfterAsking(true), 'on');
+  assert.equal(choiceAfterAsking(false), 'off');
 });

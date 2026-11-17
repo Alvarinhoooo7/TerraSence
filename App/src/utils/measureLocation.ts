@@ -5,6 +5,32 @@ export type LocationChoice = 'on' | 'off' | null;
 
 export const LOCATION_TIMEOUT_MS = 5000;
 
+/** Clave donde se guarda la elección de ubicación. */
+export const LOCATION_CHOICE_KEY = '@terrasense/measure-location-v1';
+
+export type LocationStep = 'capture' | 'ask' | 'skip';
+
+/**
+ * Qué hacer con la ubicación antes de una lectura. La pregunta se hace una sola vez: después
+ * queda una elección guardada. Un permiso revocado o que el sistema ya no pregunta no reabre nada.
+ * En Android 11 o anterior el permiso existe por el Bluetooth y no equivale a aceptar.
+ */
+export function nextLocationStep(
+  choice: LocationChoice,
+  permission: { granted: boolean; canAskAgain: boolean },
+  legacyAndroidBluetooth: boolean,
+): LocationStep {
+  if (choice === 'off') return 'skip';
+  if (choice === 'on') return permission.granted ? 'capture' : 'skip';
+  if (permission.granted) return legacyAndroidBluetooth ? 'ask' : 'capture';
+  return permission.canAskAgain ? 'ask' : 'skip';
+}
+
+/** Elección que se guarda después de preguntar: nunca vuelve a quedar en `null`. */
+export function choiceAfterAsking(accepted: boolean): Exclude<LocationChoice, null> {
+  return accepted ? 'on' : 'off';
+}
+
 /**
  * Sin elección guardada se conserva lo anterior: coordenadas si la ubicación ya estaba
  * autorizada, salvo en Android antiguo, donde ese permiso existe por el Bluetooth.
