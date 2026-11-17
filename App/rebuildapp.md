@@ -139,7 +139,7 @@ export function ProbeGlyph(props: {
 }): React.JSX.Element;
 ```
 
-- [ ] **Paso 1: escribir la prueba**
+- [x] **Paso 1: escribir la prueba**
 
 ```ts
 import assert from 'node:assert/strict';
@@ -158,10 +158,10 @@ test('el trazo dibuja un pin por posición, con el largo pedido', () => {
 });
 ```
 
-- [ ] **Paso 2:** `npm test` → falla porque el módulo no existe.
-- [ ] **Paso 3:** implementar `probeGeometry.ts`. Los pines parten 2 unidades dentro del cuerpo (`y = 58`) para que no se vea la unión.
-- [ ] **Paso 4:** implementar `ProbeGlyph` como un `<G transform>` con, en este orden: pines (`#E3F0D6`, ancho 3,2, extremos redondos), cuerpo (`#C6DFB4`), franja inferior (`M-24 44h48v3a13 13 0 0 1-13 13h-22a13 13 0 0 1-13-13Z`, `#A3C490`), LED (círculo en `-10, 14`, radio 4), botón PAIR (`x=1 y=9 w=15 h=10 rx=5`, `#1F5B3F`) y dos estrías (`M-12 29h24M-12 35h24`, `#8FB57C`).
-- [ ] **Paso 5:** `npm run type-check && npm test` → pasa. Commit: `feat(app): agrega el dibujo único de la sonda de 5 pines`.
+- [x] **Paso 2:** `npm test` → falla porque el módulo no existe.
+- [x] **Paso 3:** implementar `probeGeometry.ts`. Los pines parten 2 unidades dentro del cuerpo (`y = 58`) para que no se vea la unión.
+- [x] **Paso 4:** implementar `ProbeGlyph` como un `<G transform>` con, en este orden: pines (`#E3F0D6`, ancho 3,2, extremos redondos), cuerpo (`#C6DFB4`), franja inferior (`M-24 44h48v3a13 13 0 0 1-13 13h-22a13 13 0 0 1-13-13Z`, `#A3C490`), LED (círculo en `-10, 14`, radio 4), botón PAIR (`x=1 y=9 w=15 h=10 rx=5`, `#1F5B3F`) y dos estrías (`M-12 29h24M-12 35h24`, `#8FB57C`).
+- [x] **Paso 5:** `npm run type-check && npm test` → pasa. Commit: `feat(app): agrega el dibujo único de la sonda de 5 pines`.
 
 ### Tarea 2: reemplazar las sondas dibujadas a mano
 
