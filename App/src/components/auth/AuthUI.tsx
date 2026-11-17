@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet, View, type TextInputProps } from 'react-native';
 import { Text } from '../AppText';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
+import { ProbeGlyph } from '../art/ProbeGlyph';
 import * as Haptics from 'expo-haptics';
 import Animated, { Easing, interpolate, interpolateColor, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { useAppTheme } from '../../hooks/useAppTheme';
@@ -137,10 +138,8 @@ export function SoilArtwork({ variant = 0, compact = false }: { variant?: number
           <Path d="M175 175V88M175 122C145 128 126 109 128 83 158 83 177 93 175 122ZM175 106C178 78 199 61 226 65 224 92 209 108 175 106Z" fill="#C5E8AF" stroke="#C5E8AF" strokeWidth="3" />
           <Path d="M175 172 154 199M175 172 195 202M175 181V219" stroke="#C5E8AF" strokeWidth="2" opacity="0.6" />
         </> : variant === 1 ? <>
-          <Rect x="157" y="46" width="46" height="95" rx="12" fill="#C5E8AF" />
-          <Rect x="167" y="61" width="26" height="31" rx="5" fill="#1F5B3F" />
-          <Path d="M174 143V205M186 143V205M139 67Q118 92 139 116M221 67Q242 92 221 116" fill="none" stroke="#C5E8AF" strokeWidth="3" strokeLinecap="round" />
-          <Circle cx="180" cy="115" r="4" fill="#1F5B3F" />
+          <ProbeGlyph x={180} y={44} scale={1.2} pinLength={64} />
+          <Path d="M139 67Q118 92 139 116M221 67Q242 92 221 116" fill="none" stroke="#C5E8AF" strokeWidth="3" strokeLinecap="round" />
         </> : <>
           <Path d="M75 158 144 116 207 136 285 66" stroke="#C5E8AF" strokeWidth="3" fill="none" />
           {[{ x: 75, y: 158 }, { x: 144, y: 116 }, { x: 207, y: 136 }, { x: 285, y: 66 }].map(({ x, y }) => <Circle key={x} cx={x} cy={y} r="7" fill="#C5E8AF" stroke="#12281F" strokeWidth="3" />)}

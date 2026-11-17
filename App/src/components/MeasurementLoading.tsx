@@ -3,7 +3,8 @@ import { AccessibilityInfo, useWindowDimensions, View } from 'react-native';
 import { Text } from './AppText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withDelay, withRepeat, withTiming, type SharedValue } from 'react-native-reanimated';
-import Svg, { Circle, Ellipse, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Ellipse, Path } from 'react-native-svg';
+import { ProbeGlyph } from './art/ProbeGlyph';
 import { EntryButton } from './entry/EntryUI';
 import { SPLASH_BACKGROUND } from './LoadingScreen';
 import { useTranslation } from '../hooks/useTranslation';
@@ -12,6 +13,9 @@ import { useAppTheme } from '../hooks/useAppTheme';
 const LEAF = '#C6DFB4';
 const RINGS = [0, 1, 2];
 const CYCLE_MS = 2400;
+// La sonda única dentro del viewBox de 240; el LED animado se alinea con el de ProbeGlyph (-10, 14, radio 4).
+const PROBE_X = 120, PROBE_Y = 72, PROBE_SCALE = 0.92;
+const LED_DX = -10, LED_DY = 14, LED_R = 4;
 
 /** Una onda que nace en el centro y se desvanece al crecer. */
 function Ring({ progress, size, ellipse, color }: { progress: SharedValue<number>; size: number; ellipse: boolean; color: string }) {
@@ -72,12 +76,11 @@ function ProbeReadingArt({ reading, size }: { reading: boolean; size: number }) 
       <Path d="M18 166Q70 154 120 168T224 162A116 116 0 0 1 18 166Z" fill="#6B6A45" />
       <Path d="M44 204Q84 194 120 206T198 202A116 116 0 0 1 44 204Z" fill="#8A6A4A" />
       {[[52, 150], [176, 146], [70, 186], [168, 190], [96, 214], [150, 222]].map(([x, y]) => <Circle key={`${x}`} cx={x} cy={y} r="2" fill="#A08661" />)}
-      <Path d="M108 120V190M120 120V194M132 120V190" stroke={LEAF} strokeWidth="4" strokeLinecap="round" opacity={0.85} />
-      <Rect x="98" y="72" width="44" height="50" rx="13" fill={LEAF} />
-      <Rect x="109" y="82" width="22" height="14" rx="4" fill="#1F5B3F" />
+      <ProbeGlyph x={PROBE_X} y={PROBE_Y} scale={PROBE_SCALE} pinLength={72} pinOpacity={0.85} led="#22C55E" />
       <Path d="M58 128l7-11 7 11M170 124l6-10 6 10" stroke={LEAF} strokeWidth="2" fill="none" strokeLinecap="round" />
     </Svg>
-    <Animated.View style={[{ position: 'absolute', left: 114 * u, top: 103 * u, width: 12 * u, height: 12 * u, borderRadius: 6 * u, backgroundColor: '#22C55E' }, ledStyle]} />
+    <Animated.View style={[{ position: 'absolute', left: (PROBE_X + LED_DX * PROBE_SCALE - LED_R * PROBE_SCALE) * u, top: (PROBE_Y + LED_DY * PROBE_SCALE - LED_R * PROBE_SCALE) * u,
+      width: 2 * LED_R * PROBE_SCALE * u, height: 2 * LED_R * PROBE_SCALE * u, borderRadius: LED_R * PROBE_SCALE * u, backgroundColor: '#22C55E' }, ledStyle]} />
     <View style={{ position: 'absolute', left: center.x, top: center.y }}>
       {RINGS.map(i => <Ring key={i} progress={waves[i]} size={(reading ? 190 : 150) * u} ellipse={reading} color={reading ? '#6EE7B7' : LEAF} />)}
     </View>

@@ -6,6 +6,9 @@
 // Criterio de accesibilidad (WCAG 2.2 AA): las tonalidades de condición tienen
 // contraste suficiente y NUNCA son el único código; siempre llevan texto/icono.
 
+import type { TextStyle } from 'react-native';
+import { displayFont } from './fonts';
+
 export const Colors = {
   light: {
     background: '#F2F5F1',   // Verde grisáceo muy claro, no blanco puro
@@ -114,6 +117,15 @@ export const Typography = {
   button: { fontSize: 16, fontWeight: '600' as const, letterSpacing: 0.2 },
   // Mínimo 16 sp en texto de lectura: requisito de legibilidad en terreno.
   mono: { fontSize: 15, fontVariant: ['tabular-nums'] as const },
+  // Títulos y cifras en Space Grotesk. Se leen al dibujar (getters): la familia depende de que la letra haya cargado.
+  display: {
+    get medium() { return displayFont('medium'); },
+    get bold() { return displayFont('bold'); },
+  },
+  numeric: {
+    get medium() { return { ...displayFont('medium'), fontVariant: ['tabular-nums'] as TextStyle['fontVariant'] }; },
+    get bold() { return { ...displayFont('bold'), fontVariant: ['tabular-nums'] as TextStyle['fontVariant'] }; },
+  },
 };
 
 export const Spacing = {

@@ -85,7 +85,7 @@ export const AccessField = forwardRef<TextInput, Props>(function AccessField({ l
 const styles = StyleSheet.create({
   group: { gap: 5 },
   label: { fontSize: 14, fontWeight: '600' },
-  wrap: { minHeight: 50, borderWidth: 1.5, borderRadius: 14, flexDirection: 'row', alignItems: 'center' },
+  wrap: { minHeight: 54, borderWidth: 1.5, borderRadius: 16, flexDirection: 'row', alignItems: 'center' },
   field: { flex: 1, minWidth: 0, justifyContent: 'center' },
   input: { flex: 1, minWidth: 0, minHeight: 48, paddingHorizontal: 14, paddingVertical: 10, fontSize: 16 },
   mono: { fontFamily: MONO },

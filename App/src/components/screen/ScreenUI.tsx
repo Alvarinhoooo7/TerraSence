@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import { Text } from '../AppText';
 import { GuideTouchable } from '../guide/GuideControls';
+import { AppIcon, type IconName } from '../AppIcon';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useTranslation } from '../../hooks/useTranslation';
 import { EntryHeading, EntryLayout, useEntryMetrics } from '../entry/EntryUI';
@@ -53,19 +54,28 @@ export function ScreenTopBar({ onBack, backLabel, action, leading }: { onBack?: 
   </View>;
 }
 
-/** Fila elegible: el mismo formato de las opciones del selector de idioma. */
-export function ScreenOption({ title, subtitle, onPress, selected, danger = false, disabled = false, trailing, guide }: {
+/**
+ * Fila elegible: el mismo formato de las opciones del selector de idioma. Con `icon` lleva un
+ * cuadro de 44 a la izquierda; con `grouped` va dentro de un `ScreenGroup` (sin borde propio).
+ */
+export function ScreenOption({ title, subtitle, onPress, selected, danger = false, disabled = false, trailing, guide, icon, grouped = false }: {
   title: string; subtitle?: string; onPress: () => void; selected?: boolean; danger?: boolean; disabled?: boolean;
-  trailing?: string; guide?: string;
+  trailing?: string; guide?: string; icon?: IconName; grouped?: boolean;
 }) {
   const { colors } = useAppTheme();
   const marked = selected === true;
   const ink = danger ? colors.danger : colors.text;
+  const frame = grouped
+    ? { minHeight: 76, paddingHorizontal: 16, paddingVertical: 12 }
+    : { minHeight: 72, paddingHorizontal: 18, paddingVertical: 14, borderRadius: 18, borderWidth: marked ? 2 : 1,
+      borderColor: marked ? colors.primary : colors.border, backgroundColor: colors.card };
   return <GuideTouchable guideTitle={title} guide={guide} accessibilityRole={selected === undefined ? 'button' : 'radio'}
     accessibilityState={{ disabled, selected: marked }} disabled={disabled} onPress={onPress}
-    style={{ minHeight: 72, paddingHorizontal: 18, paddingVertical: 14, borderRadius: 18, borderWidth: marked ? 2 : 1,
-      borderColor: marked ? colors.primary : colors.border, backgroundColor: colors.card, opacity: disabled ? .5 : 1,
-      flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+    style={{ ...frame, opacity: disabled ? .5 : 1, flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+    {!!icon && <View accessible={false} style={{ width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center',
+      backgroundColor: danger ? colors.tintDanger : colors.tintSuccess }}>
+      <AppIcon name={icon} size={22} color={danger ? colors.danger : colors.primary} />
+    </View>}
     <View style={{ flex: 1, gap: 4 }}>
       <Text style={{ color: ink, fontSize: 17, fontWeight: marked ? '700' : '600' }}>{title}</Text>
       {!!subtitle && <Text style={{ color: colors.textSecondary, fontSize: 14, lineHeight: 20 }}>{subtitle}</Text>}
@@ -74,6 +84,18 @@ export function ScreenOption({ title, subtitle, onPress, selected, danger = fals
       {trailing ?? (selected === undefined ? '›' : marked ? '●' : '○')}
     </Text>
   </GuideTouchable>;
+}
+
+/** Varias filas en una sola tarjeta, separadas por una línea. */
+export function ScreenGroup({ children }: React.PropsWithChildren) {
+  const { colors } = useAppTheme();
+  const rows = React.Children.toArray(children).filter(Boolean);
+  return <View style={{ borderRadius: 22, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, overflow: 'hidden' }}>
+    {rows.map((row, index) => <React.Fragment key={index}>
+      {index > 0 && <View style={{ height: 1, backgroundColor: colors.border, marginHorizontal: 16 }} />}
+      {row}
+    </React.Fragment>)}
+  </View>;
 }
 
 export function ScreenCard({ children, accent }: React.PropsWithChildren<{ accent?: string }>) {

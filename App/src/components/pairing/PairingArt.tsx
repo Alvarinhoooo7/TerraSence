@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AccessibilityInfo, View } from 'react-native';
 import Animated, { Easing, useAnimatedProps, useSharedValue, withDelay, withRepeat, withSequence, withTiming, type SharedValue } from 'react-native-reanimated';
 import Svg, { Circle, G, Path, Rect, Text as SvgText } from 'react-native-svg';
+import { ProbeGlyph } from '../art/ProbeGlyph';
 
 /**
  * Ilustraciones de la vinculación, con la paleta de la bienvenida: fondo verde
@@ -41,17 +42,15 @@ function Ground() {
   </>;
 }
 
+const PROBE_TOP = 42;
+/** LED de la sonda única (ProbeGlyph lo dibuja en -10, 14): el parpadeo azul de PAIR se superpone ahí. */
+const ledPosition = (x: number) => ({ cx: x - 10, cy: PROBE_TOP + 14 });
+
 /** Sonda de pie sobre el suelo; `x` es su centro. */
 function Probe({ x, led = BLUE, pair = false }: { x: number; led?: string | null; pair?: boolean }) {
   return <G>
-    <Path d={`M${x - 12} 98V146M${x} 98V150M${x + 12} 98V146`} stroke={LEAF} strokeWidth="4" strokeLinecap="round" />
-    <Rect x={x - 24} y="44" width="48" height="58" rx="14" fill={LEAF} />
-    <Rect x={x - 13} y="54" width="26" height="15" rx="4" fill="#1F5B3F" />
-    {led ? <Circle cx={x} cy="84" r="5" fill={led} /> : null}
-    {pair ? <>
-      <Rect x={x + 22} y="70" width="10" height="18" rx="3" fill="#8FB57E" />
-      <SvgText x={x + 38} y="83" fill={LEAF} fontSize="11" fontWeight="bold">PAIR</SvgText>
-    </> : null}
+    <ProbeGlyph x={x} y={PROBE_TOP} pinLength={50} led={led ?? undefined} />
+    {pair ? <SvgText x={x} y={PROBE_TOP - 6} fill={LEAF} fontSize="11" fontWeight="bold" textAnchor="middle">PAIR</SvgText> : null}
   </G>;
 }
 
@@ -128,15 +127,15 @@ export function PairPrepareArt() {
   return <Frame>
     <Ground />
     <Probe x={96} led={null} pair />
-    <AnimatedCircle cx={96} cy={84} r={6} fill={BLUE} animatedProps={ledProps} />
+    <AnimatedCircle {...ledPosition(96)} r={4} fill={BLUE} animatedProps={ledProps} />
     {/* Dedo sobre PAIR */}
-    <Path d="M118 48c0-6 10-6 10 0v24c0 4-10 4-10 0Z" fill="#E8C9A8" />
+    <Path d="M114 46c0-6 10-6 10 0v24c0 4-10 4-10 0Z" fill="#E8C9A8" />
     <AnimatedPath d="M168 70q8 10 0 20" stroke={BLUE} strokeWidth="2.5" fill="none" strokeLinecap="round" animatedProps={a1} />
     <AnimatedPath d="M178 62q16 18 0 36" stroke={BLUE} strokeWidth="2.5" fill="none" strokeLinecap="round" animatedProps={a2} />
     <AnimatedPath d="M188 54q24 26 0 52" stroke={BLUE} strokeWidth="2.5" fill="none" strokeLinecap="round" animatedProps={a3} />
     <Phone x={262} y={44} w={52} h={88} />
     {/* Distancia: menos de 2 metros */}
-    <Path d="M96 160H288M96 154v12M288 154v12" stroke={PAPER} strokeWidth="1.6" strokeLinecap="round" />
+    <Path d="M96 160H288M96 154l0 12M288 154l0 12" stroke={PAPER} strokeWidth="1.6" strokeLinecap="round" />
     <Rect x="168" y="150" width="48" height="20" rx="10" fill={BG} />
     <SvgText x="192" y="164" fill={PAPER} fontSize="12" fontWeight="bold" textAnchor="middle">≤ 2 m</SvgText>
   </Frame>;

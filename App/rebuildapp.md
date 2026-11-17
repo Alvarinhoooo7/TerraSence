@@ -139,7 +139,7 @@ export function ProbeGlyph(props: {
 }): React.JSX.Element;
 ```
 
-- [ ] **Paso 1: escribir la prueba**
+- [x] **Paso 1: escribir la prueba**
 
 ```ts
 import assert from 'node:assert/strict';
@@ -158,10 +158,10 @@ test('el trazo dibuja un pin por posición, con el largo pedido', () => {
 });
 ```
 
-- [ ] **Paso 2:** `npm test` → falla porque el módulo no existe.
-- [ ] **Paso 3:** implementar `probeGeometry.ts`. Los pines parten 2 unidades dentro del cuerpo (`y = 58`) para que no se vea la unión.
-- [ ] **Paso 4:** implementar `ProbeGlyph` como un `<G transform>` con, en este orden: pines (`#E3F0D6`, ancho 3,2, extremos redondos), cuerpo (`#C6DFB4`), franja inferior (`M-24 44h48v3a13 13 0 0 1-13 13h-22a13 13 0 0 1-13-13Z`, `#A3C490`), LED (círculo en `-10, 14`, radio 4), botón PAIR (`x=1 y=9 w=15 h=10 rx=5`, `#1F5B3F`) y dos estrías (`M-12 29h24M-12 35h24`, `#8FB57C`).
-- [ ] **Paso 5:** `npm run type-check && npm test` → pasa. Commit: `feat(app): agrega el dibujo único de la sonda de 5 pines`.
+- [x] **Paso 2:** `npm test` → falla porque el módulo no existe.
+- [x] **Paso 3:** implementar `probeGeometry.ts`. Los pines parten 2 unidades dentro del cuerpo (`y = 58`) para que no se vea la unión.
+- [x] **Paso 4:** implementar `ProbeGlyph` como un `<G transform>` con, en este orden: pines (`#E3F0D6`, ancho 3,2, extremos redondos), cuerpo (`#C6DFB4`), franja inferior (`M-24 44h48v3a13 13 0 0 1-13 13h-22a13 13 0 0 1-13-13Z`, `#A3C490`), LED (círculo en `-10, 14`, radio 4), botón PAIR (`x=1 y=9 w=15 h=10 rx=5`, `#1F5B3F`) y dos estrías (`M-12 29h24M-12 35h24`, `#8FB57C`).
+- [x] **Paso 5:** `npm run type-check && npm test` → pasa. Commit: `feat(app): agrega el dibujo único de la sonda de 5 pines`.
 
 ### Tarea 2: reemplazar las sondas dibujadas a mano
 
@@ -180,7 +180,7 @@ test('el trazo dibuja un pin por posición, con el largo pedido', () => {
 
 **Prueba:** `tests/probeArt.test.ts` (agregarla al script `test`). Lee los ocho archivos como texto y comprueba que los siete primeros importan `ProbeGlyph` y que ninguno conserva un trazo de pines propio.
 
-- [ ] **Paso 1: escribir la prueba**
+- [x] **Paso 1: escribir la prueba**
 
 ```ts
 const ARCHIVOS = ['components/ProbeInsertArt.tsx', 'components/result/ReadingArt.tsx', 'components/MeasurementLoading.tsx',
@@ -194,21 +194,21 @@ for (const archivo of ARCHIVOS) test(`${archivo} dibuja la sonda con ProbeGlyph`
 });
 ```
 
-- [ ] **Paso 2:** `npm test` → fallan los siete.
-- [ ] **Paso 3:** reemplazar archivo por archivo. En las animaciones que mueven la sonda (`ProbeInsertArt`, `ReadingSavedArt`) el recorrido se recalcula con el largo de pin nuevo: la sonda queda con el cuerpo justo sobre el suelo y los cinco pines cubiertos. En `MeasurementLoading` el LED animado se alinea con el LED de `ProbeGlyph`.
-- [ ] **Paso 4:** ícono `probe` de `AppIcon`: `M6.5 2.5h11v9h-11ZM8 11.5v10M10 11.5v10M12 11.5v10M14 11.5v10M16 11.5v10M9.5 6h.01M13 6h2`.
-- [ ] **Paso 5:** `npm run type-check && npm test` → pasa.
+- [x] **Paso 2:** `npm test` → fallan los siete.
+- [x] **Paso 3:** reemplazar archivo por archivo. En las animaciones que mueven la sonda (`ProbeInsertArt`, `ReadingSavedArt`) el recorrido se recalcula con el largo de pin nuevo: la sonda queda con el cuerpo justo sobre el suelo y los cinco pines cubiertos. En `MeasurementLoading` el LED animado se alinea con el LED de `ProbeGlyph`.
+- [x] **Paso 4:** ícono `probe` de `AppIcon`: `M6.5 2.5h11v9h-11ZM8 11.5v10M10 11.5v10M12 11.5v10M14 11.5v10M16 11.5v10M9.5 6h.01M13 6h2`.
+- [x] **Paso 5:** `npm run type-check && npm test` → pasa.
 - [ ] **Paso 6: revisión en teléfono.** Bienvenida (página 2), inicio de sesión, vinculación por PAIR, «Antes de medir», lectura, lectura guardada, las páginas de suelo y ambiente del resultado y la barra inferior. En cada una: cinco pines, misma sonda, y con «reducir movimiento» queda quieta en su estado final.
-- [ ] **Paso 7:** commit: `feat(app): usa la sonda de 5 pines en todas las ilustraciones`.
+- [x] **Paso 7:** commit: `feat(app): usa la sonda de 5 pines en todas las ilustraciones`.
 
 ### Tarea 3: el pin de la lectura guardada
 
 **Archivo:** `src/components/ReadingSavedArt.tsx` (sello actual: ≈98–106).
 
-- [ ] **Paso 1:** reemplazar el sello circular por la secuencia de la maqueta `Guardada`: la sonda sale del suelo y queda inclinada a la izquierda; un pin ocre (`pin`) cae sobre el punto con un rebote corto; dos ondas se abren en el suelo; tres destellos; y arriba a la derecha aparece la nube con flecha. Trazo del pin, con la punta en el origen: `M0 0C-14-18-22-28-22-40A22 22 0 1 1 22-40C22-28 14-18 0 0Z`, con un círculo `#12281F` de radio 13 en `0, -40` y el visto en ocre.
-- [ ] **Paso 2:** conservar los dos estados que el componente ya distingue con `synced`: respaldada (nube con flecha) y pendiente (reloj en lugar de la nube). El paño que limpia los pines se conserva.
-- [ ] **Paso 3:** con «reducir movimiento» se muestra el estado final: pin clavado, sin ondas ni destellos.
-- [ ] **Paso 4:** usar `pin` y `pinLight` de `theme.ts` (sección 2.3). `npm run type-check && npm test`.
+- [x] **Paso 1:** reemplazar el sello circular por la secuencia de la maqueta `Guardada`: la sonda sale del suelo y queda inclinada a la izquierda; un pin ocre (`pin`) cae sobre el punto con un rebote corto; dos ondas se abren en el suelo; tres destellos; y arriba a la derecha aparece la nube con flecha. Trazo del pin, con la punta en el origen: `M0 0C-14-18-22-28-22-40A22 22 0 1 1 22-40C22-28 14-18 0 0Z`, con un círculo `#12281F` de radio 13 en `0, -40` y el visto en ocre.
+- [x] **Paso 2:** conservar los dos estados que el componente ya distingue con `synced`: respaldada (nube con flecha) y pendiente (reloj en lugar de la nube). El paño que limpia los pines se conserva.
+- [x] **Paso 3:** con «reducir movimiento» se muestra el estado final: pin clavado, sin ondas ni destellos.
+- [x] **Paso 4:** usar `pin` y `pinLight` de `theme.ts` (sección 2.3). `npm run type-check && npm test`.
 - [ ] **Paso 5: revisión en teléfono**, guardando una lectura con y sin conexión. Commit: `feat(app): marca la lectura guardada con un pin en el punto medido`.
 
 ---
@@ -435,46 +435,46 @@ Sólo apariencia. Ninguna opción cambia de lugar ni de comportamiento.
 
 ### Tarea 14: letra de títulos y cifras
 
-- [ ] **Paso 1:** `npx expo install expo-font @expo-google-fonts/space-grotesk`.
-- [ ] **Paso 2:** cargar `SpaceGrotesk_500Medium` y `SpaceGrotesk_700Bold` en `App.tsx` antes de ocultar la pantalla de carga. Si a los 3 segundos no cargaron, la app sigue con la letra del sistema: nunca se bloquea el inicio.
-- [ ] **Paso 3:** agregar a `Typography` (`theme.ts`) `display` y `numeric`, con la familia por peso. En Android una letra propia no admite `fontWeight`: cada peso es una familia distinta.
+- [x] **Paso 1:** `npx expo install expo-font @expo-google-fonts/space-grotesk`.
+- [x] **Paso 2:** cargar `SpaceGrotesk_500Medium` y `SpaceGrotesk_700Bold` en `App.tsx` antes de ocultar la pantalla de carga. Si a los 3 segundos no cargaron, la app sigue con la letra del sistema: nunca se bloquea el inicio.
+- [x] **Paso 3:** agregar a `Typography` (`theme.ts`) `display` y `numeric`, con la familia por peso. En Android una letra propia no admite `fontWeight`: cada peso es una familia distinta.
 - [ ] **Paso 4:** aplicarla en `EntryHeading` (`EntryUI.tsx:84`), en los títulos de `ScreenLayout` y en las cifras del resultado, el detalle y la batería.
-- [ ] **Paso 5:** comprobar que «Letra grande» sigue escalando (`AppText` escala por tamaño, no por familia). `npm run type-check && npm test`. Commit: `feat(app): usa Space Grotesk en títulos y cifras`.
+- [x] **Paso 5:** comprobar que «Letra grande» sigue escalando (`AppText` escala por tamaño, no por familia). `npm run type-check && npm test`. Commit: `feat(app): usa Space Grotesk en títulos y cifras`.
 
 ### Tarea 15: Configuración
 
 **Archivos:** `src/components/AppIcon.tsx`, `src/components/screen/ScreenUI.tsx`, `src/components/SettingsUI.tsx`, las pantallas de Configuración.
 
-- [ ] **Paso 1:** íconos nuevos en `AppIcon`: `user`, `help`, `logout`, `qr`, `team`, `download`, `shield` (trazos en las maquetas `Configuracion`, `Preferencias` y `EquiposYDatos`).
-- [ ] **Paso 2:** `ScreenOption` acepta un `icon?: IconName` opcional, dibujado en un cuadro de 44 a la izquierda. Sin `icon`, la fila queda como hoy.
+- [x] **Paso 1:** íconos nuevos en `AppIcon`: `user`, `help`, `logout`, `qr`, `team`, `download`, `shield` (trazos en las maquetas `Configuracion`, `Preferencias` y `EquiposYDatos`).
+- [x] **Paso 2:** `ScreenOption` acepta un `icon?: IconName` opcional, dibujado en un cuadro de 44 a la izquierda. Sin `icon`, la fila queda como hoy.
 - [ ] **Paso 3:** la portada de Configuración muestra una tarjeta de cuenta (`#17392C`: iniciales, nombre, correo y el estado de verificación) y agrupa sus filas en una sola tarjeta con separadores.
 - [ ] **Paso 4:** «Equipos y datos» abre con el resumen de sincronización (pendientes de enviar, último envío confirmado y «Sincronizar ahora»), con los mismos datos que hoy muestra `SyncSettings`.
-- [ ] **Paso 5:** `npm run type-check && npm test` (incluye `settingsNavigation.test.ts`). Commit: `feat(app): rediseña Configuración`.
+- [x] **Paso 5:** `npm run type-check && npm test` (incluye `settingsNavigation.test.ts`). Commit: `feat(app): rediseña Configuración`.
 
 ### Tarea 16: Inicio
 
 **Archivo:** `src/screens/DashboardScreen.tsx`.
 
-- [ ] **Paso 1:** el botón Medir pasa a ser un círculo de 236 con la sonda (`ProbeGlyph`) sobre el suelo y, montada sobre su borde inferior, una píldora con la palabra «Medir». Sigue siendo un solo control, con la misma etiqueta de accesibilidad.
-- [ ] **Paso 2:** el selector de sonda de la barra superior muestra también la batería registrada, cuando existe.
-- [ ] **Paso 3:** un halo se abre alrededor del círculo cada 2,6 segundos; con «reducir movimiento» no aparece.
-- [ ] **Paso 4:** revisar la versión compacta (alto menor de 700 o letra del sistema grande) y el tema oscuro, que en esta pantalla usa el verde de marca. Commit: `feat(app): rediseña Inicio`.
+- [x] **Paso 1:** el botón Medir pasa a ser un círculo de 236 con la sonda (`ProbeGlyph`) sobre el suelo y, montada sobre su borde inferior, una píldora con la palabra «Medir». Sigue siendo un solo control, con la misma etiqueta de accesibilidad.
+- [x] **Paso 2:** el selector de sonda de la barra superior muestra también la batería registrada, cuando existe.
+- [x] **Paso 3:** un halo se abre alrededor del círculo cada 2,6 segundos; con «reducir movimiento» no aparece.
+- [x] **Paso 4:** revisar la versión compacta (alto menor de 700 o letra del sistema grande) y el tema oscuro, que en esta pantalla usa el verde de marca. Commit: `feat(app): rediseña Inicio`.
 
 ### Tarea 17: Mis dispositivos
 
 **Archivo:** `src/screens/DevicesScreen.tsx`.
 
-- [ ] **Paso 1:** cada sonda es una tarjeta con un panel `#17392C` a la izquierda con la sonda, y a la derecha el nombre, el identificador, el rol, una barra de batería con su porcentaje y la última comunicación. La sonda elegida para medir lleva la píldora «Para medir» y borde de 2.
-- [ ] **Paso 2:** batería bajo el umbral que ya usa `utils/batteryWarning`: barra y cifra en el color de atención. Sin dato: «Sin dato», sin barra.
-- [ ] **Paso 3:** `npm run type-check && npm test`. Commit: `feat(app): rediseña Mis dispositivos`.
+- [x] **Paso 1:** cada sonda es una tarjeta con un panel `#17392C` a la izquierda con la sonda, y a la derecha el nombre, el identificador, el rol, una barra de batería con su porcentaje y la última comunicación. La sonda elegida para medir lleva la píldora «Para medir» y borde de 2.
+- [x] **Paso 2:** batería bajo el umbral que ya usa `utils/batteryWarning`: barra y cifra en el color de atención. Sin dato: «Sin dato», sin barra.
+- [x] **Paso 3:** `npm run type-check && npm test`. Commit: `feat(app): rediseña Mis dispositivos`.
 
 ### Tarea 18: entrada, etapa y especie
 
-- [ ] **Paso 1 — inicio de sesión** (`AuthScreen.tsx`, `AuthUI.tsx`): cabecera `#12281F` con el nombre de la app y la sonda en el campo; campos y botones como en la maqueta `InicioSesion`.
-- [ ] **Paso 2 — vinculación** (`OnboardingScreen.tsx`): las dos opciones llevan un cuadro con ícono (sonda y QR); la opción de equipo nuevo va destacada. Los pasos del PAIR son una secuencia numerada unida por una línea, con la ilustración del LED azul.
-- [ ] **Paso 3 — etapa** (`StageCards.tsx`): ya es una grilla de dos columnas; sólo se ajustan radio, borde y el visto de selección a los valores de la sección 2.3.
+- [x] **Paso 1 — inicio de sesión** (`AuthScreen.tsx`, `AuthUI.tsx`): cabecera `#12281F` con el nombre de la app y la sonda en el campo; campos y botones como en la maqueta `InicioSesion`.
+- [x] **Paso 2 — vinculación** (`OnboardingScreen.tsx`): las dos opciones llevan un cuadro con ícono (sonda y QR); la opción de equipo nuevo va destacada. Los pasos del PAIR son una secuencia numerada unida por una línea, con la ilustración del LED azul.
+- [x] **Paso 3 — etapa** (`StageCards.tsx`): ya es una grilla de dos columnas; sólo se ajustan radio, borde y el visto de selección a los valores de la sección 2.3.
 - [ ] **Paso 4 — especie** (`SpeciesPicker.tsx`): cada fila lleva un cuadro con hoja, el nombre y el nombre científico en cursiva; la elegida, fondo `tintSuccess` y visto. El botón dice «Continuar con <especie>».
-- [ ] **Paso 5:** `npm run type-check && npm test`. Commit: `feat(app): rediseña la entrada, la etapa y la especie`.
+- [x] **Paso 5:** `npm run type-check && npm test`. Commit: `feat(app): rediseña la entrada, la etapa y la especie`.
 
 ### Tarea 19: cierre
 

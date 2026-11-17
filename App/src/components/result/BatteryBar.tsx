@@ -1,6 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Text } from '../AppText';
+import { Typography } from '../../constants/theme';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useTranslation } from '../../hooks/useTranslation';
 
@@ -23,6 +24,6 @@ export function BatteryBar({ percent }: { percent: number | null | undefined }) 
       </View>
       <View style={{ width: 3, height: 7, marginLeft: 1.5, borderTopRightRadius: 2, borderBottomRightRadius: 2, backgroundColor: tone }} />
     </View>
-    <Text style={{ color: known ? colors.text : colors.textSecondary, fontSize: 15, fontWeight: '700' }}>{known ? `${level} %` : '–'}</Text>
+    <Text style={{ color: known ? colors.text : colors.textSecondary, fontSize: 15, ...Typography.numeric.bold }}>{known ? `${level} %` : '–'}</Text>
   </View>;
 }
