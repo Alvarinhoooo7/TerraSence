@@ -455,10 +455,10 @@ Sólo apariencia. Ninguna opción cambia de lugar ni de comportamiento.
 
 **Archivo:** `src/screens/DashboardScreen.tsx`.
 
-- [ ] **Paso 1:** el botón Medir pasa a ser un círculo de 236 con la sonda (`ProbeGlyph`) sobre el suelo y, montada sobre su borde inferior, una píldora con la palabra «Medir». Sigue siendo un solo control, con la misma etiqueta de accesibilidad.
-- [ ] **Paso 2:** el selector de sonda de la barra superior muestra también la batería registrada, cuando existe.
-- [ ] **Paso 3:** un halo se abre alrededor del círculo cada 2,6 segundos; con «reducir movimiento» no aparece.
-- [ ] **Paso 4:** revisar la versión compacta (alto menor de 700 o letra del sistema grande) y el tema oscuro, que en esta pantalla usa el verde de marca. Commit: `feat(app): rediseña Inicio`.
+- [x] **Paso 1:** el botón Medir pasa a ser un círculo de 236 con la sonda (`ProbeGlyph`) sobre el suelo y, montada sobre su borde inferior, una píldora con la palabra «Medir». Sigue siendo un solo control, con la misma etiqueta de accesibilidad.
+- [x] **Paso 2:** el selector de sonda de la barra superior muestra también la batería registrada, cuando existe.
+- [x] **Paso 3:** un halo se abre alrededor del círculo cada 2,6 segundos; con «reducir movimiento» no aparece.
+- [x] **Paso 4:** revisar la versión compacta (alto menor de 700 o letra del sistema grande) y el tema oscuro, que en esta pantalla usa el verde de marca. Commit: `feat(app): rediseña Inicio`.
 
 ### Tarea 17: Mis dispositivos
 
