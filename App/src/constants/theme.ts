@@ -6,6 +6,9 @@
 // Criterio de accesibilidad (WCAG 2.2 AA): las tonalidades de condición tienen
 // contraste suficiente y NUNCA son el único código; siempre llevan texto/icono.
 
+import type { TextStyle } from 'react-native';
+import { displayFont } from './fonts';
+
 export const Colors = {
   light: {
     background: '#F2F5F1',   // Verde grisáceo muy claro, no blanco puro
@@ -19,6 +22,14 @@ export const Colors = {
     warning: '#9E6612',      // Condición que requiere atención
     danger: '#A33528',       // Condición limitante
     error: '#A33528',
+    // Fondos de ícono por estado, zona favorable de la escala y pin del punto medido.
+    tintSuccess: '#E6F1EA',
+    tintWarning: '#F6EBD6',
+    onTintWarning: '#7A4E0B',
+    tintDanger: '#F7E3DF',
+    scaleOk: '#A9D3B8',
+    pin: '#F0A63A',
+    pinLight: '#F6D08F',
     text: '#14201B',
     textSecondary: '#48584F',
     textMuted: '#7B8A82',
@@ -39,6 +50,13 @@ export const Colors = {
     warning: '#D6A044',
     danger: '#E07463',
     error: '#E07463',
+    tintSuccess: '#1B3327',
+    tintWarning: '#3A2E14',
+    onTintWarning: '#E8B860',
+    tintDanger: '#3D1F1A',
+    scaleOk: '#2F6B49',
+    pin: '#F0A63A',
+    pinLight: '#F6D08F',
     text: '#E4EAE6',
     textSecondary: '#9DACA6',
     textMuted: '#75847D',
@@ -99,6 +117,15 @@ export const Typography = {
   button: { fontSize: 16, fontWeight: '600' as const, letterSpacing: 0.2 },
   // Mínimo 16 sp en texto de lectura: requisito de legibilidad en terreno.
   mono: { fontSize: 15, fontVariant: ['tabular-nums'] as const },
+  // Títulos y cifras en Space Grotesk. Se leen al dibujar (getters): la familia depende de que la letra haya cargado.
+  display: {
+    get medium() { return displayFont('medium'); },
+    get bold() { return displayFont('bold'); },
+  },
+  numeric: {
+    get medium() { return { ...displayFont('medium'), fontVariant: ['tabular-nums'] as TextStyle['fontVariant'] }; },
+    get bold() { return { ...displayFont('bold'), fontVariant: ['tabular-nums'] as TextStyle['fontVariant'] }; },
+  },
 };
 
 export const Spacing = {

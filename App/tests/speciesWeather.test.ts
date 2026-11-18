@@ -276,7 +276,7 @@ test('ES6: si el pronóstico no cumple ningún criterio de la especie, el plan l
   // Cerezo en cosecha sólo tiene el criterio de lluvia, y este pronóstico es seco.
   const evaluation = evaluateReadingForStage(raw, 'cosecha', 'es', { capturedAt: now, evaluatedAt: now }, 'sp.cerezo');
   const advice = buildContextualAdvice('cosecha', evaluation, raw, frostyWeather(), 'es', context, 'sp.cerezo');
-  const note = advice.recommendations!.find(r => r.title === 'Clima sin riesgos para este cultivo');
+  const note = advice.recommendations!.find(r => r.title === 'Sin alertas en los datos disponibles');
   assert.ok(note);
   assert.equal(note!.kind, 'monitoring');
   assert.ok(!advice.recommendations!.some(r => /partidura/.test(r.title)));

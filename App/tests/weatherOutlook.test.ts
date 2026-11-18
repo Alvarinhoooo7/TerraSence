@@ -181,7 +181,7 @@ test('T21–T27: separación de probabilidad y lámina de precipitación y conti
       ],
       temperature_2m: [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
     },
-  }, '2026-09-05T22:00:00Z')!;
+  }, '2026-09-06T01:00:00Z')!;
 
   assert.equal(weather.precipitationMm, 0);
   assert.equal(weather.dailyPrecipitationMm, 0);

@@ -267,9 +267,7 @@ test('integración activa de airPressure, metrología de sonda, punto de rocío 
   const highAltEval = evaluateReadingForStage(highAltReading, 'vegetativo', 'es', { capturedAt, evaluatedAt }, 'sp.tomate');
   const highAltAdvice = buildContextualAdvice('vegetativo', highAltEval, highAltReading, null, 'es', undefined, 'sp.tomate');
   const vpdRec = highAltAdvice.recommendations!.find(r => /C01 \+ C02/.test(r.detail ?? ''))!;
-  assert.ok(vpdRec, 'En altitud (880 hPa) debe activar C01+C02 con DPV 2,09 kPa');
-  assert.match(vpdRec.detail!, /880 hPa/);
-  assert.match(vpdRec.detail!, /0,0585 kPa\/°C/);
+  assert.equal(vpdRec, undefined, 'La presión no reduce el umbral de vigilancia sin validación');
 
   // 2) En la presentación, airPressure informa altitud y γ, y los canales de suelo informan su incertidumbre nominal:
   const pres = buildMeasurementPresentation(highAltReading, highAltEval, highAltAdvice, 'es');

@@ -1,15 +1,16 @@
-import { applicableAlerts } from './measurementPresentation';
-import { evaluatePrePlantingOptions, suggestPrePlantingCrops, type PrePlantingOption } from './prePlanting';
-// Trazabilidad de cultivos sugeridos en pre_siembra: `suggestPrePlantingCrops`.
+import { applicableAlerts, PARAMETER_KEYS, type ParameterKey } from './measurementPresentation';
+import { personalizeHeadline } from './headlinePersonalization';
+import { evaluatePrePlantingOptions, type PrePlantingOption } from './prePlanting';
 import type { StageAwareEvaluation } from './stageEvaluator';
 import type { PhenologicalStage } from '../types/app';
 import type { SoilMeasurement } from '../types/agronomy';
 import type { CurrentWeather } from '../services/weatherService';
 import type { AppLanguage } from '../types/preferences';
-import { GENERAL_WEATHER_RISK, generalRisksOfDay, isRainingNow, isRainyDay, weatherKind } from './weatherOutlook';
-import { coveredGeneralWeatherRisks, evaluateSpeciesWeather, hasLocalAirCriteria, type SpeciesWeatherInput } from './speciesRules';
-import { assessWeatherEvidence, type WeatherEvaluationContext, type WeatherCoverage } from './evaluationCoverage';
+import { GENERAL_WEATHER_RISK, generalRisksOfDay, isRainingNow, isRainyDay, weatherKind, type GeneralWeatherRisk } from './weatherOutlook';
+import { coveredGeneralWeatherRisks, evaluateSpeciesWeather, hasLocalAirCriteria, SPECIES_RULES_VERSION, type SpeciesWeatherInput } from './speciesRules';
+import { assessWeatherEvidence, evidenceFreshness, EVIDENCE_POLICY, type WeatherEvaluationContext, type WeatherCoverage } from './evaluationCoverage';
 import { assessProbeMetrologicalContext, dewPointC } from './localPhysics';
+import { LOCAL_VARIABLES } from './inputQuality';
 
 export type RecommendationKind = 'soil' | 'evidence' | 'weather' | 'irrigation' | 'monitoring';
 export type RecommendationTiming = 'now' | 'today' | 'next_days' | 'next_reading';
@@ -24,8 +25,15 @@ export interface Recommendation {
   priority: 'high' | 'normal';
   when: RecommendationTiming;
   title: string;
+  /** Titular corto en imperativo para la lista del plan; si falta se usa `title`. */
+  headline?: string;
   body: string;
   detail?: string;
+  /** Variables medidas que sostienen la recomendación; ausente si no sale de una variable. */
+  evidence?: ParameterKey[];
+  ruleId?: string;
+  ruleVersion?: string;
+  trace?: { ruleId: string; version: string; inputs: Record<string, number | null>; dates: string[]; sources: string[]; generalRisks?: GeneralWeatherRisk[]; weatherRisks?: { date: string; risk: GeneralWeatherRisk }[] };
 }
 
 export interface ContextualAdvice {
@@ -40,6 +48,7 @@ export interface ContextualAdvice {
   cropOptions?: PrePlantingOption[];
   mapEligible: boolean;
   weatherCoverage?: WeatherCoverage;
+  speciesWeatherCoverage?: { date: string; risk: string; available: boolean }[];
 }
 
 // Formato propio y no `toLocaleDateString`: Hermes y Node no dan el mismo texto para «es-CL».
@@ -76,20 +85,32 @@ export function computeLocalVpdKpa(airTempC: number | null | undefined, airHumid
  * Mayor racha consecutiva de horas con humedad relativa >= `thresholdPct` en la serie horaria
  * del pronóstico (combinación C09 / VG05 / FL03; sin inferir mojadura foliar ni infección, T33).
  */
-export function maxConsecutiveHighHumidityHours(weather: CurrentWeather | null | undefined, thresholdPct = 90): number {
+function highHumidityEpisode(weather: CurrentWeather | null | undefined, thresholdPct = 90, from?: string): { hours: number; start: string; end: string } | null {
   const rhSeries = weather?.hourly?.relativeHumidityPct;
-  if (!Array.isArray(rhSeries) || rhSeries.length === 0) return 0;
+  if (!Array.isArray(rhSeries) || rhSeries.length === 0) return null;
   let current = 0;
-  let maxStreak = 0;
-  for (const rh of rhSeries) {
-    if (finiteNumber(rh) && rh >= thresholdPct) {
+  let start = '';
+  let best: { hours: number; start: string; end: string } | null = null;
+  let previous = NaN;
+  for (let i = 0; i < rhSeries.length; i++) {
+    const rh = rhSeries[i];
+    const slot = weather!.hourly!.time[i];
+    const time = Date.parse(`${slot}:00Z`);
+    if (!Number.isFinite(time) || time - previous !== 3600000) current = 0;
+    if (Number.isFinite(time) && (!from || slot >= from) && finiteNumber(rh) && rh >= thresholdPct) {
+      if (!current) start = slot;
       current += 1;
-      if (current > maxStreak) maxStreak = current;
+      if (!best || current > best.hours) best = { hours: current, start, end: slot };
     } else {
       current = 0;
     }
+    previous = time;
   }
-  return maxStreak;
+  return best;
+}
+
+export function maxConsecutiveHighHumidityHours(weather: CurrentWeather | null | undefined, thresholdPct = 90): number {
+  return highHumidityEpisode(weather, thresholdPct)?.hours ?? 0;
 }
 
 /** Hoy y los días siguientes en la forma que comparan los criterios climáticos de la especie. */
@@ -111,6 +132,16 @@ function pickSpeciesWeather(weather: CurrentWeather, dayLabel: (date: string) =>
   };
 }
 
+/**
+ * Variables medidas que sostienen una recomendación. N, P y K nunca van: son valores de
+ * referencia y no gatillan ninguna acción.
+ */
+const NUTRIENT_KEYS: readonly string[] = ['nitrogen', 'phosphorus', 'potassium'];
+const evidenceOf = (...keys: string[]): { evidence: ParameterKey[] } | Record<string, never> => {
+  const evidence = keys.filter((key): key is ParameterKey => (PARAMETER_KEYS as readonly string[]).includes(key) && !NUTRIENT_KEYS.includes(key));
+  return evidence.length ? { evidence } : {};
+};
+
 const TIMING_ORDER: Record<RecommendationTiming, number> = { now: 0, today: 1, next_days: 2, next_reading: 3 };
 
 /** Lluvia que reemplaza un riego: 5 mm o más hoy o mañana. */
@@ -128,6 +159,9 @@ export function buildContextualAdvice(
   const en = language === 'en';
   const weatherCoverage = evaluation.coverage ? assessWeatherEvidence(weather, weatherContext) : undefined;
   if (weatherCoverage && weatherCoverage.status === 'not_evaluated') weather = null;
+  if (weather && weatherContext && evidenceFreshness(weather.inputQuality?.current?.temperatureC?.validTo ?? weather.inputQuality?.current?.precipitationMm?.validTo ?? null, weatherContext.evaluatedAt, EVIDENCE_POLICY.weatherMaxAgeMs) !== 'fresh') {
+    weather = { ...weather, temperatureC: null, precipitationMm: null, windKmh: null, weatherCode: null };
+  }
   const alerts = applicableAlerts(evaluation);
   // Plan de recomendaciones: cada una dice de qué trata, cuándo aplica y por qué. Quien
   // decide es el agricultor; el texto sugiere y explica, no ordena.
@@ -160,26 +194,29 @@ export function buildContextualAdvice(
     seen.add(alert.action);
     // Una nota informativa (p. ej. pH dentro del óptimo de la especie) no pide actuar hoy:
     // va como seguimiento, después de lo que sí requiere revisión.
-    const detail = fusedDetail ? { detail: fusedDetail } : {};
+    const detail = { ...(fusedDetail ? { detail: fusedDetail } : {}), ...(alert.headline ? { headline: alert.headline } : {}), ...(alert.ruleId ? { ruleId: alert.ruleId } : {}), ...(alert.ruleVersion ? { ruleVersion: alert.ruleVersion } : {}), ...evidenceOf(alert.param), ...(alert.sources ? { trace: { ruleId: alert.ruleId ?? 'legacy:unversioned', version: alert.ruleVersion ?? 'unknown', inputs: Object.fromEntries([alert.param].filter(key => finiteNumber(reading[key as keyof SoilMeasurement] as number)).map(key => [key, reading[key as keyof SoilMeasurement] as number])), dates: [], sources: alert.sources } } : {}) };
     if (alert.type === 'info') notes.push({ kind: 'monitoring', priority: 'normal', when: 'next_reading', title: alert.title, body: alert.action, ...detail });
     // El frío medido por el equipo en el aire es clima de este momento, no una condición del suelo.
     else if (alert.param === 'airTemp') plan.push({ kind: 'weather', priority: effectivePriority, when: 'now', title: alert.title, body: alert.action, ...detail });
     else plan.push({ kind: 'soil', priority: effectivePriority, when: 'today', title: alert.title, body: alert.action, ...detail });
   }
   if (!plan.length) plan.push(evaluation.state === 'insufficient_data'
-    ? { kind: 'evidence', priority: 'normal', when: 'next_reading',
+    ? { kind: 'evidence', priority: 'normal', when: 'next_reading', ruleId: 'plan:insufficient-data',
       title: en ? 'Use this reading as a reference' : 'Toma esta lectura como referencia',
+      headline: en ? 'Use this reading as a reference' : 'Usa esta lectura como referencia',
       body: en ? 'With this data we cannot give a complete diagnosis of the soil. Use it to compare with your next readings.'
         : 'Con estos datos no podemos darte un diagnóstico completo del suelo. Úsala para comparar con tus próximas mediciones.',
       detail: en ? 'Partial assessment: pH comparisons are indicative; probe conductivity cannot classify salinity without a compatible method; nutrient registers do not determine fertilization.'
         : 'Evaluación parcial: las comparaciones de pH son orientativas; la conductividad de la sonda no permite clasificar salinidad sin un método compatible; los valores de nutrientes no determinan fertilización.' }
     : evaluation.verdict === 'GREEN'
-      ? { kind: 'monitoring', priority: 'normal', when: 'next_reading',
+      ? { kind: 'monitoring', priority: 'normal', when: 'next_reading', ruleId: 'plan:observe',
         title: en ? 'Nothing to correct for now' : 'Nada que corregir por ahora',
+        headline: en ? 'Keep watching the crop' : 'Sigue observando el cultivo',
         body: en ? 'We see nothing to correct with this data. Keep watching the crop and measure other spots to compare.'
           : 'Con estos datos no vemos nada que corregir. Sigue observando el cultivo y mide en otros puntos para comparar.' }
-      : { kind: 'soil', priority: 'normal', when: 'today',
+      : { kind: 'soil', priority: 'normal', when: 'today', ruleId: 'plan:review',
         title: en ? 'Check what is highlighted' : 'Revisa lo que aparece destacado',
+        headline: en ? 'Check what is highlighted' : 'Revisa lo que aparece destacado',
         body: en ? 'Some conditions are worth checking. Before making changes, confirm them in the field or with your advisor.'
           : 'Hay condiciones que conviene revisar. Antes de hacer cambios, confírmalas en terreno o con tu asesor.' });
   plan.push(...notes);
@@ -196,98 +233,97 @@ export function buildContextualAdvice(
   const speciesWeather = evaluateSpeciesWeather(speciesId, stage, speciesWeatherInput, language);
   const coveredWeatherRisks = coveredGeneralWeatherRisks(speciesId, stage, speciesWeatherInput, GENERAL_WEATHER_RISK.frostAtOrBelowC);
   for (const finding of speciesWeather.findings) plan.push({ kind: 'weather', priority: finding.type === 'danger' ? 'high' : 'normal',
-    when: finding.when, title: finding.title, body: finding.body, detail: finding.detail });
+    when: finding.when, title: finding.title, headline: finding.headline, body: finding.body, detail: finding.detail,
+    trace: { ruleId: finding.ruleId ?? 'species:weather', version: SPECIES_RULES_VERSION, inputs: finding.inputs ?? {}, dates: finding.dates ?? [], sources: ['Open-Meteo', ...(finding.sources ?? [])], generalRisks: finding.generalRisks ?? [] } });
   // Revisado y sin episodios: se dice, para que la ausencia de avisos no parezca un criterio omitido.
-  if (speciesWeather.evaluated && !speciesWeather.findings.length) plan.push({ kind: 'monitoring', priority: 'normal', when: 'next_days',
-    title: en ? 'No weather risks for this crop' : 'Clima sin riesgos para este cultivo',
-    body: en ? 'No frost, heat, rain or fog that could harm this crop at this stage is expected in the coming days. It is a forecast: still check the field.'
-      : 'En los próximos días no se esperan heladas, calor, lluvia ni niebla que dañen a este cultivo en esta etapa. Es un pronóstico: igual revisa el campo.',
-    detail: en ? 'The forecast was compared with the frost, heat, rain or fog that the sources document for this species at this stage.'
-      : 'Se comparó el pronóstico con la helada, el calor, la lluvia o la niebla que las fuentes documentan para esta especie en esta etapa.' });
+  if (speciesWeather.evaluated && !speciesWeather.findings.length) plan.push({ kind: 'monitoring', priority: 'normal', when: 'next_days', ruleId: 'plan:species-weather-clear',
+    trace: { ruleId: 'plan:species-weather-clear', version: 'plan-v2', inputs: {}, dates: [...new Set((speciesWeather.coverage ?? []).filter(item => item.available).map(item => item.date))], sources: ['Open-Meteo'] },
+    title: en ? 'No alerts in available forecast data' : 'Sin alertas en los datos disponibles',
+    headline: en ? 'Check the forecast again' : 'Revisa el pronóstico nuevamente',
+    body: speciesWeather.coverage?.some(item => !item.available)
+      ? (en ? 'Some crop weather criteria could not be checked for every date. Confirm the missing conditions.' : 'Faltan datos para revisar todos los criterios climáticos del cultivo en cada fecha. Confirma las condiciones faltantes.')
+      : (en ? 'No alerts under the crop criteria checked. Confirm conditions in the field.' : 'No hay alertas en los criterios del cultivo revisados. Confirma las condiciones en terreno.') });
   // Sin pronóstico, el frío de este momento sí se revisó con el aire que midió el equipo
   // (speciesRules.ts, `localAirImplies`); los días siguientes, no.
   const localAirChecked = hasLocalAirCriteria(speciesId, stage) && typeof reading.airTemp === 'number' && Number.isFinite(reading.airTemp)
     && evaluation.coverage?.freshness === 'fresh';
-  if (speciesWeather.applicable && !speciesWeather.evaluated) plan.push({ kind: 'evidence', priority: 'normal', when: 'next_reading',
+  if (speciesWeather.applicable && !speciesWeather.evaluated) plan.push({ kind: 'evidence', priority: 'normal', when: 'next_reading', ruleId: 'plan:species-weather-missing',
     title: en ? 'We could not check the weather for this crop' : 'No pudimos revisar el clima para este cultivo',
+    headline: en ? 'Measure again with internet access' : 'Vuelve a medir con internet',
     body: localAirChecked
       ? (en ? 'Without an up-to-date forecast we do not know whether frost, heat or rain is coming for this crop. We only checked the cold with the air temperature the device measures now. Measure again with an internet connection.'
         : 'Sin un pronóstico actualizado no sabemos si vienen heladas, calor o lluvia para este cultivo. Sólo revisamos el frío con la temperatura del aire que mide el equipo ahora. Vuelve a medir con conexión a internet.')
       : (en ? 'Without an up-to-date forecast we could not check frost, heat or rain for this crop. Measure again with an internet connection.'
         : 'Sin un pronóstico actualizado no revisamos heladas, calor ni lluvia para este cultivo. Vuelve a medir con conexión a internet.') });
 
-  if (weather && isRainingNow(weather)) plan.push({ kind: 'weather', priority: 'high', when: 'now',
+  if (weather && isRainingNow(weather)) plan.push({ kind: 'weather', priority: 'high', when: 'now', ruleId: 'plan:rain-now',
+    trace: { ruleId: 'plan:rain-now', version: 'plan-v2', inputs: { currentPrecipitationMm: weather.precipitationMm, currentWeatherCode: weather.weatherCode ?? null }, dates: today ? [today.date] : [], sources: ['Open-Meteo'] },
     title: en ? 'It is raining now' : 'Está lloviendo ahora',
+    headline: en ? 'Wait for the rain to stop' : 'Espera a que pare la lluvia',
     body: en ? 'Soil moisture may change over the next hours. If you are deciding on irrigation or field work, measure again once the rain stops.'
       : 'La humedad del suelo puede cambiar en las próximas horas. Si vas a decidir riego o labores, vuelve a medir cuando pare la lluvia.' });
+  if (weather && weatherKind(weather.weatherCode) === null && (weather.precipitationMm ?? 0) > 0) plan.push({ kind: 'weather', priority: 'normal', when: 'now', ruleId: 'plan:precipitation-now',
+    trace: { ruleId: 'plan:precipitation-now', version: 'plan-v2', inputs: { currentPrecipitationMm: weather.precipitationMm, currentWeatherCode: weather.weatherCode ?? null }, dates: today ? [today.date] : [], sources: ['Open-Meteo'] },
+    title: en ? 'Precipitation reported' : 'Se registra precipitación',
+    headline: en ? 'Check conditions in the field' : 'Revisa las condiciones en terreno',
+    body: en ? 'The model reports precipitation without identifying its type. Check conditions before field work.' : 'El modelo informa precipitación sin identificar su tipo. Revisa las condiciones antes de realizar labores.' });
 
   // La humedad bajo el umbral de riego pide regar, pero si llueve pronto ese riego sobra.
-  const irrigationAdvised = evaluation.texture !== null && alerts.some(alert => alert.param === 'vwc') && reading.vwc < evaluation.texture.ur;
+  const irrigationAdvised = evaluation.texture !== null && finiteNumber(reading.vwc) && reading.vwc >= 0 && reading.vwc <= 100 && alerts.some(alert => alert.param === 'vwc') && reading.vwc < evaluation.texture.ur;
   const rainSoon = irrigationAdvised
     ? upcoming.slice(0, 2).find(day => (day.precipitationMm ?? 0) >= RAIN_INSTEAD_OF_IRRIGATION_MM)
     : undefined;
   if (rainSoon) {
     const mm = Math.round(rainSoon.precipitationMm ?? 0);
     const isToday = today?.date === rainSoon.date;
-    plan.push({ kind: 'irrigation', priority: 'high', when: isToday ? 'today' : 'next_days',
+    plan.push({ kind: 'irrigation', priority: 'high', when: isToday ? 'today' : 'next_days', ruleId: 'plan:rain-irrigation', ...evidenceOf('vwc'),
+      trace: { ruleId: 'plan:rain-irrigation', version: 'plan-v2', inputs: { vwc: reading.vwc, precipitationMm: rainSoon.precipitationMm }, dates: [rainSoon.date], sources: ['probe-bme280-v1', 'Open-Meteo'] },
       title: en ? 'Wait for the rain before irrigating' : 'Espera la lluvia antes de regar',
+      headline: en ? 'Wait for the rain before irrigating' : 'Espera la lluvia antes de regar',
       body: en
         ? `${mm} mm of rain is forecast for ${dayLabel(rainSoon.date)}. If you can, wait for it before irrigating and measure again afterwards.`
         : `Se pronostican ${mm} mm de lluvia para ${isToday ? 'hoy' : `el ${dayLabel(rainSoon.date)}`}. Si puedes, espérala antes de regar y vuelve a medir después.` });
   }
 
-  // Combinación física local C01 + C02 (§6.4): demanda evaporativa alta (DPV >= 2,2 kPa a presión
-  // estándar, o >= 2,0 kPa en altitud con P <= 920 hPa donde la menor constante psicrométrica
-  // γ = 0,000665·P incrementa la difusividad del vapor; FAO 56 ec. 8 y 11) cruzada con la humedad
-  // volumétrica del suelo en vegetativo y floración. Emite a lo sumo una tarjeta combinada (T44).
+  // El DPV es un indicador físico. El umbral es una convención orientativa del producto,
+  // no una dosis de riego ni una categoría validada por FAO o por ensayos de campo.
   const freshCapture = !evaluation.coverage || evaluation.coverage.freshness === 'fresh';
+  const usableLocal = (key: 'vwc' | 'temp' | 'airTemp' | 'airHumidity' | 'airPressure') => {
+    const value = reading[key];
+    return freshCapture && finiteNumber(value) && value >= LOCAL_VARIABLES[key].min && value <= LOCAL_VARIABLES[key].max;
+  };
   const metrology = assessProbeMetrologicalContext(reading);
-  const highAltitudeBarometry =
-    finiteNumber(reading.airPressure) &&
-    reading.airPressure <= 920 &&
-    metrology.psychrometricConstantKpaPerC !== null &&
-    metrology.barometricAltitudeM !== null;
-  const vpdIrrigationThreshold = highAltitudeBarometry ? 2.0 : 2.2;
-  const vpdMonitoringThreshold = highAltitudeBarometry ? 2.3 : 2.5;
+  // Umbrales orientativos de producto, sin validación agronómica local.
+  const vpdMonitoringThreshold = 2.5;
   const hasBarometry =
     finiteNumber(reading.airPressure) &&
     metrology.psychrometricConstantKpaPerC !== null &&
     metrology.barometricAltitudeM !== null;
   const baroDetailEn = hasBarometry
-    ? ` Barometric pressure ${reading.airPressure} hPa (approx. ${Math.round(metrology.barometricAltitudeM!)} m elevation, psychrometric constant ${metrology.psychrometricConstantKpaPerC!.toFixed(4)} kPa/°C, FAO 56 eq. 8)${highAltitudeBarometry ? '; reduced atmospheric pressure increases vapor diffusivity' : ''}.`
+    ? ` Barometric pressure ${reading.airPressure} hPa (approx. ${Math.round(metrology.barometricAltitudeM!)} m elevation, psychrometric constant ${metrology.psychrometricConstantKpaPerC!.toFixed(4)} kPa/°C, FAO 56 eq. 8).`
     : '';
   const baroDetailEs = hasBarometry
-    ? ` Presión barométrica ${reading.airPressure} hPa (aprox. ${Math.round(metrology.barometricAltitudeM!)} m s. n. m., constante psicrométrica ${metrology.psychrometricConstantKpaPerC!.toFixed(4).replace('.', ',')} kPa/°C, FAO 56 ec. 8)${highAltitudeBarometry ? '; la menor presión atmosférica incrementa la difusividad del vapor' : ''}.`
+    ? ` Presión barométrica ${reading.airPressure} hPa (aprox. ${Math.round(metrology.barometricAltitudeM!)} m s. n. m., constante psicrométrica ${metrology.psychrometricConstantKpaPerC!.toFixed(4).replace('.', ',')} kPa/°C, FAO 56 ec. 8).`
     : '';
-  if ((stage === 'vegetativo' || stage === 'floracion') && freshCapture && finiteNumber(reading.airHumidity) && reading.airHumidity <= 35) {
+  if ((stage === 'vegetativo' || stage === 'floracion') && usableLocal('airTemp') && usableLocal('airHumidity') && reading.airHumidity! <= 35) {
     const vpd = computeLocalVpdKpa(reading.airTemp, reading.airHumidity);
-    if (vpd !== null && vpd >= vpdIrrigationThreshold) {
+    if (vpd !== null && vpd >= vpdMonitoringThreshold) {
       const vpdStr = en ? `${vpd.toFixed(2)} kPa` : `${vpd.toFixed(2).replace('.', ',')} kPa`;
-      if (irrigationAdvised || (finiteNumber(reading.vwc) && reading.vwc < 15)) {
-        plan.push({
-          kind: 'irrigation',
-          priority: 'high',
-          when: 'now',
-          title: en ? 'High evaporative demand with low soil moisture' : 'Alta demanda atmosférica con suelo seco',
-          body: en
-            ? `Instantaneous vapor pressure deficit is high (${vpdStr}) and root-zone moisture is low (${reading.vwc}%). Prioritize irrigation to avoid water stress.`
-            : `El déficit de presión de vapor instantáneo es alto (${vpdStr}) y la humedad en zona radicular es baja (${reading.vwc} %). Prioriza el riego para evitar estrés hídrico.`,
-          detail: en
-            ? `Combined local rule C01 + C02 (FAO 56 eq. 11): VPD ${vpdStr} from local air (${reading.airTemp} °C, ${reading.airHumidity}% RH) + soil VWC ${reading.vwc}%.${baroDetailEn}`
-            : `Combinación física local C01 + C02 (FAO 56 ec. 11): DPV ${vpdStr} con aire local (${reading.airTemp} °C, ${reading.airHumidity} % HR) + humedad volumétrica del suelo ${reading.vwc} %.${baroDetailEs}`,
-        });
-      } else if (vpd >= vpdMonitoringThreshold) {
+      {
         plan.push({
           kind: 'monitoring',
+          ruleId: 'plan:vpd-monitoring',
           priority: 'normal',
           when: 'today',
+          ...evidenceOf('airTemp', 'airHumidity'),
           title: en ? 'High atmospheric demand (VPD)' : 'Alta demanda evaporativa del aire (DPV)',
+          headline: en ? 'Measure again after the heat' : 'Vuelve a medir tras el calor',
           body: en
-            ? `The air around the crop is very dry (VPD ${vpdStr}), increasing transpiration even with adequate soil moisture. Recheck soil moisture after peak heat.`
-            : `El aire en el cultivo está muy seco (DPV ${vpdStr}), lo que acelera la transpiración aunque el suelo tenga humedad. Vuelve a medir tras las horas de mayor calor.`,
+            ? `The air is dry (VPD ${vpdStr}). Check moisture near the roots before deciding whether to irrigate.`
+            : `El aire está seco (DPV ${vpdStr}). Revisa la humedad cerca de las raíces antes de decidir el riego.`,
           detail: en
-            ? `Combined local rule C01 + C02 (FAO 56 eq. 11): VPD ${vpdStr} from local air (${reading.airTemp} °C, ${reading.airHumidity}% RH) with current soil VWC ${reading.vwc}%.${baroDetailEn}`
-            : `Combinación física local C01 + C02 (FAO 56 ec. 11): DPV ${vpdStr} con aire local (${reading.airTemp} °C, ${reading.airHumidity} % HR) y humedad volumétrica actual de ${reading.vwc} %.${baroDetailEs}`,
+            ? `VPD ${vpdStr} from local air (${reading.airTemp} °C, ${reading.airHumidity}% RH). FAO 56 supports the formula; the monitoring threshold is an unvalidated product convention.${baroDetailEn}`
+            : `DPV ${vpdStr} con aire local (${reading.airTemp} °C, ${reading.airHumidity} % HR). FAO 56 respalda la fórmula; el umbral de vigilancia es una convención del producto sin validar.${baroDetailEs}`,
         });
       }
     }
@@ -298,14 +334,17 @@ export function buildContextualAdvice(
   if (freshCapture && metrology.flags.includes('low_moisture_electrolyte_contact')) {
     plan.push({
       kind: 'evidence',
+      ruleId: 'plan:dry-probe-contact',
       priority: 'high',
       when: 'now',
+      ...evidenceOf('vwc'),
       title: en
         ? 'Dry soil limits galvanic pH and bulk EC contact'
         : 'Suelo muy seco limita el contacto electrolítico de pH y CE',
+      headline: en ? 'Wet the soil and measure again' : 'Humedece el suelo y vuelve a medir',
       body: en
-        ? `Volumetric moisture is ${reading.vwc}% (< 5%). Below 5% VWC, the water film between the probe prongs is discontinuous and pH or bulk EC readings may drift. Irrigate or measure in a moist root zone before correcting pH or salinity.`
-        : `La humedad volumétrica es ${reading.vwc} % (< 5 %). Bajo 5 % de humedad volumétrica, la película de agua entre los vástagos de la sonda se vuelve discontinua y el pH o la CE aparente pueden desviarse. Riega o mide en zona húmeda antes de corregir pH o salinidad.`,
+        ? `Volumetric moisture is ${reading.vwc}% (< 5%). Dry soil can limit contact and affect pH or bulk EC. Repeat in moist soil before deciding on amendments.`
+        : `La humedad volumétrica es ${reading.vwc} % (< 5 %). El suelo seco puede limitar el contacto y afectar el pH o la CE aparente. Repite en suelo húmedo antes de decidir enmiendas.`,
       detail: en
         ? `Metrological rule (CWT-Soil-NPKPHCTH-S): galvanic pH and bulk EC require >= 5% VWC for a continuous ionic bridge (measured: ${reading.vwc}%).`
         : `Regla metrológica (CWT-Soil-NPKPHCTH-S): el pH galvánico y la CE a granel requieren >= 5 % de humedad volumétrica para sostener el puente iónico (medido: ${reading.vwc} %).`,
@@ -315,11 +354,14 @@ export function buildContextualAdvice(
   if (freshCapture && metrology.flags.includes('ph_outside_electrode_nominal_range')) {
     plan.push({
       kind: 'evidence',
+      ruleId: 'plan:ph-instrument-range',
       priority: 'normal',
       when: 'today',
+      ...evidenceOf('ph'),
       title: en
         ? 'Soil pH outside probe nominal range (3.0 to 9.0)'
         : 'pH fuera del rango nominal del electrodo (3,0 a 9,0)',
+      headline: en ? 'Confirm pH in a laboratory' : 'Confirma el pH en laboratorio',
       body: en
         ? `Measured pH (${reading.ph}) is outside the nominal 3.0 to 9.0 pH calibration window of the probe. Confirm with a laboratory paste or suspension pH test before applying amendments.`
         : `El pH medido (${reading.ph}) está fuera de la ventana nominal de calibración de la sonda (3,0 a 9,0 pH). Confirma con un análisis de pH en pasta o suspensión en laboratorio antes de aplicar enmiendas.`,
@@ -332,14 +374,17 @@ export function buildContextualAdvice(
   if (freshCapture && metrology.flags.includes('ec_outside_thermal_compensation_window')) {
     plan.push({
       kind: 'evidence',
+      ruleId: 'plan:ec-temperature',
       priority: 'normal',
       when: 'today',
+      ...evidenceOf('temp'),
       title: en
         ? 'Soil temperature outside EC thermal compensation window'
         : 'Temperatura del suelo fuera de la compensación térmica de CE',
+      headline: en ? 'Repeat within 0 to 50 °C' : 'Repite la lectura entre 0 y 50 °C',
       body: en
-        ? `Soil temperature (${reading.temp} °C) is outside the 0 to 50 °C automatic thermal compensation window of the conductivity circuit. Repeat the reading when the soil is above 0 °C.`
-        : `La temperatura del suelo (${reading.temp} °C) está fuera de la ventana de compensación térmica automática (0 a 50 °C) del circuito de conductividad. Repite la lectura cuando el suelo supere 0 °C.`,
+        ? `Soil temperature (${reading.temp} °C) is outside the 0 to 50 °C compensation window. Repeat when the temperature returns to that range.`
+        : `La temperatura del suelo (${reading.temp} °C) está fuera de la ventana de compensación de 0 a 50 °C. Repite cuando vuelva a ese intervalo.`,
       detail: en
         ? `Metrological rule (CWT-Soil-NPKPHCTH-S): automatic EC thermal compensation operates from 0 to 50 °C (measured: ${reading.temp} °C).`
         : `Regla metrológica (CWT-Soil-NPKPHCTH-S): la compensación térmica automática de CE opera entre 0 y 50 °C (medido: ${reading.temp} °C).`,
@@ -350,10 +395,10 @@ export function buildContextualAdvice(
   // con punto de rocío <= 0 °C (poca humedad absoluta para liberar calor latente al condensar).
   if (
     freshCapture &&
-    finiteNumber(reading.airTemp) &&
+    usableLocal('airTemp') && finiteNumber(reading.airTemp) &&
     reading.airTemp > 0 &&
     reading.airTemp <= 4.0 &&
-    finiteNumber(reading.airHumidity) &&
+    usableLocal('airHumidity') && finiteNumber(reading.airHumidity) &&
     reading.airHumidity > 0 &&
     reading.airHumidity <= 100
   ) {
@@ -365,11 +410,14 @@ export function buildContextualAdvice(
         : `${(reading.airTemp - dp).toFixed(1).replace('.', ',')} °C`;
       plan.push({
         kind: 'weather',
+        ruleId: 'plan:dewpoint-frost-watch',
         priority: 'high',
         when: 'today',
+        ...evidenceOf('airTemp', 'airHumidity'),
         title: en
           ? 'Cold air with subzero dew point: radiative frost watch'
           : 'Aire frío con punto de rocío bajo cero: vigilancia de helada radiativa',
+        headline: en ? 'Watch the low tonight' : 'Vigila la mínima de esta noche',
         body: en
           ? `Air temperature is ${reading.airTemp} °C and the approximate dew point is ${dpStr}. With little water vapor to release latent heat, clear-sky radiative cooling can drop temperatures below 0 °C rapidly. Monitor night temperatures closely.`
           : `La temperatura del aire es ${reading.airTemp} °C y el punto de rocío aproximado es ${dpStr}. Con poco vapor de agua para liberar calor latente al condensar, el enfriamiento nocturno puede bajar rápido de 0 °C. Vigila de cerca la mínima en el campo.`,
@@ -387,8 +435,8 @@ export function buildContextualAdvice(
   if (
     (stage === 'vegetativo' || stage === 'floracion') &&
     freshCapture &&
-    finiteNumber(reading.temp) &&
-    finiteNumber(reading.airTemp) &&
+    usableLocal('temp') &&
+    usableLocal('airTemp') && finiteNumber(reading.airTemp) &&
     reading.airTemp >= 24 &&
     reading.temp <= 12
   ) {
@@ -396,11 +444,14 @@ export function buildContextualAdvice(
     const diffStr = en ? `${diff.toFixed(1)} °C` : `${diff.toFixed(1).replace('.', ',')} °C`;
     plan.push({
       kind: 'monitoring',
+      ruleId: 'plan:soil-air-temperature',
       priority: 'normal',
       when: 'today',
+      ...evidenceOf('temp', 'airTemp'),
       title: en
         ? 'Cold root zone under warm air (thermal decoupling)'
         : 'Suelo frío bajo aire cálido (desacople térmico raíz-follaje)',
+      headline: en ? 'Watch for wilting at midday' : 'Vigila el decaimiento al mediodía',
       body: en
         ? `Soil temperature (${reading.temp} °C) is much colder than the air (${reading.airTemp} °C, difference ${diffStr}). Warm air drives canopy transpiration while cold roots absorb water and phosphorus slowly; avoid cold-water irrigation spikes and monitor wilting at midday.`
         : `La temperatura del suelo (${reading.temp} °C) es mucho más fría que la del aire (${reading.airTemp} °C, diferencia ${diffStr}). El aire cálido exige transpiración al follaje mientras la raíz fría absorbe agua y fósforo con lentitud; evita riegos bruscos con agua fría y vigila decaimiento al mediodía.`,
@@ -413,16 +464,29 @@ export function buildContextualAdvice(
   // Combinación horaria C09 / VG05 / FL03 (§6.4): persistencia de humedad relativa >= 90 % en la
   // serie horaria del pronóstico (>= 12 h seguidas), sin afirmar mojadura foliar ni diagnosticar infección (T33).
   if (stage === 'vegetativo' || stage === 'floracion') {
-    const highRhHours = maxConsecutiveHighHumidityHours(weather, 90);
+    const evaluationTime = weatherContext?.evaluatedAt ?? weather?.fetchedAt;
+    let localFrom: string | undefined;
+    if (evaluationTime && weather?.timezone) {
+      try {
+        const parts = new Intl.DateTimeFormat('en-CA', { timeZone: weather.timezone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(evaluationTime));
+        const part = (type: string) => parts.find(p => p.type === type)?.value;
+        localFrom = `${part('year')}-${part('month')}-${part('day')}T${part('hour')}:${part('minute')}`;
+      } catch { localFrom = undefined; }
+    }
+    const episode = localFrom ? highHumidityEpisode(weather, 90, localFrom) : null;
+    const highRhHours = episode?.hours ?? 0;
     if (highRhHours >= 12) {
       plan.push({
         kind: 'weather',
+        ruleId: 'plan:humidity-episode',
+        trace: { ruleId: 'plan:humidity-episode', version: 'plan-v2', inputs: { relativeHumidityThresholdPct: 90, hours: highRhHours }, dates: [...new Set(weather!.hourly!.time.filter(slot => slot >= episode!.start && slot <= episode!.end).map(slot => slot.slice(0, 10)))], sources: ['Open-Meteo'] },
         priority: 'normal',
         when: 'next_days',
         title: en ? 'Extended period of high air humidity forecast' : 'Periodo prolongado de alta humedad del aire previsto',
+        headline: en ? 'Check the crop ventilation' : 'Revisa la ventilación del cultivo',
         body: en
           ? `The hourly forecast shows ${highRhHours} consecutive hours with relative humidity at or above 90%. Check canopy ventilation and inspect the crop in the field.`
-          : `El pronóstico horario prevé ${highRhHours} horas seguidas con humedad relativa igual o superior a 90 %. Revisa la ventilación del follaje e inspecciona el cultivo en el campo.`,
+          : `El pronóstico horario prevé ${highRhHours} horas seguidas con humedad relativa igual o superior a 90 %, entre ${episode!.start} y ${episode!.end}. Revisa la ventilación del follaje e inspecciona el cultivo en el campo.`,
         detail: en
           ? `Hourly weather rule C09 (${highRhHours} consecutive hours >= 90% RH). Relative humidity is an indirect atmospheric indicator and does not measure leaf wetness.`
           : `Regla climática horaria C09 (${highRhHours} h consecutivas con HR >= 90 %). La humedad relativa del aire es un indicador atmosférico indirecto y no mide mojadura foliar.`,
@@ -444,28 +508,46 @@ export function buildContextualAdvice(
     // La razón general se adjunta a los avisos de clima que la absorbieron; si ninguno trae
     // detalle, se le crea, para que la regla nunca desaparezca sin dejar rastro.
     for (const item of plan) {
-      if (item.kind !== 'weather' || item.when === 'now') continue;
+      if (!item.trace?.ruleId.startsWith('species:')) continue;
+      const weatherRisks = item.trace.dates.flatMap(date => (item.trace!.generalRisks ?? [])
+        .filter(risk => coveredWeatherRisks.get(date)?.has(risk)
+          && upcoming.some(day => day.date === date && generalRisksOfDay(day).includes(risk)))
+        .map(risk => ({ date, risk })));
+      if (!weatherRisks.length) continue;
+      item.trace = { ...item.trace, weatherRisks };
       item.detail = item.detail ? `${item.detail} ${schedulingReason}` : schedulingReason;
     }
   }
   if (uncoveredRiskyDays.length) {
     const dates = uncoveredRiskyDays.map(day => dayLabel(day.date)).join(', ');
-    plan.push({ kind: 'weather', priority: 'normal', when: uncoveredRiskyDays[0].date === today?.date ? 'today' : 'next_days',
+    plan.push({ kind: 'weather', priority: 'normal', when: uncoveredRiskyDays[0].date === today?.date ? 'today' : 'next_days', ruleId: 'plan:general-weather',
+      trace: { ruleId: 'plan:general-weather', version: 'plan-v2', inputs: Object.fromEntries(uncoveredRiskyDays.flatMap(day => [[`${day.date}:minimumTemperatureC`, day.minimumTemperatureC], [`${day.date}:maximumTemperatureC`, day.maximumTemperatureC], [`${day.date}:precipitationMm`, day.precipitationMm], [`${day.date}:rainProbabilityPct`, day.rainProbabilityPct]])), dates: uncoveredRiskyDays.map(day => day.date), sources: ['Open-Meteo'], weatherRisks: uncoveredRiskyDays.flatMap(day => generalRisksOfDay(day).filter(risk => !coveredWeatherRisks.get(day.date)?.has(risk)).map(risk => ({ date: day.date, risk }))) },
       title: en ? 'Plan field work around the weather' : 'Programa las labores según el clima',
+      headline: en ? 'Schedule field work around the weather' : 'Programa las labores según el clima',
       body: en
         ? `Review the date of the task because of forecast rain, frost or heat: ${dates}. Confirm conditions before entering the field.`
         : `Revisa la fecha de la labor por lluvia, helada o calor previstos: ${dates}. Confirma las condiciones antes de ingresar al campo.` });
   }
   const actions = plan.map(item => item.body);
-  plan.push({ kind: 'monitoring', priority: 'normal', when: 'next_reading',
+  plan.push({ kind: 'monitoring', priority: 'normal', when: 'next_reading', ruleId: 'plan:repeat-reading',
     title: en ? 'Measure again to compare' : 'Vuelve a medir para comparar',
+    headline: en ? 'Measure again to compare' : 'Vuelve a medir para comparar',
     body: en ? 'Measure representative points and repeat after each management change; the trend says more than a single reading.'
       : 'Mide puntos representativos y repite después de cada cambio de manejo: la tendencia dice más que una sola lectura.' });
   // Lo urgente primero y, dentro de cada prioridad, lo más próximo (§9.2); a igual urgencia y
   // momento se conserva el orden en que se armó. Nunca depende del orden del catálogo.
   const rank = (item: Recommendation) => (item.priority === 'high' ? 0 : 4) + TIMING_ORDER[item.when];
   const recommendations = plan.map((item, index) => ({ item, index }))
-    .sort((a, b) => rank(a.item) - rank(b.item) || a.index - b.index).map(({ item }) => item);
+    .sort((a, b) => rank(a.item) - rank(b.item) || a.index - b.index)
+    // El titular nombra la especie medida y sigue la etapa cuando el genérico habla de «el cultivo».
+    .map(({ item }) => {
+      const inputs: Record<string, number | null> = Object.fromEntries((item.evidence ?? []).map(key => [key, finiteNumber(reading[key]) ? reading[key] : null]));
+      const ruleId = item.ruleId ?? 'legacy:unversioned';
+      const sources = item.evidence?.length ? ['probe-bme280-v1'] : [];
+      if (ruleId === 'plan:vpd-monitoring') sources.push('https://www.fao.org/4/x0490e/x0490e07.htm');
+      return { ...item, ...(item.headline ? { headline: personalizeHeadline(item.headline, stage, speciesId, en ? 'en' : 'es') } : {}),
+        trace: item.trace ?? { ruleId, version: item.ruleVersion ?? 'plan-v2', inputs, dates: [], sources } };
+    });
 
   const completeForecast = weather?.forecast.length === 5 && weather.forecast.every(day =>
     [day.precipitationMm, day.rainProbabilityPct, day.minimumTemperatureC, day.maximumTemperatureC]
@@ -499,10 +581,8 @@ export function buildContextualAdvice(
   const cropOptions = stage === 'pre_siembra' && (!evaluation.coverage || evaluation.coverage.freshness === 'fresh')
     ? evaluatePrePlantingOptions(reading, language, undefined, weather)
     : [];
-  const suggestedCrops = stage === 'pre_siembra' && (!evaluation.coverage || evaluation.coverage.freshness === 'fresh')
-    ? suggestPrePlantingCrops(reading, language, weather)
-    // En pre_siembra no se pide especie al agricultor: el motor recomienda cultivos compatibles.
-    : [];
+  // En pre-siembra no se pide especie: las etiquetas salen de las mismas fichas evaluadas.
+  const suggestedCrops = cropOptions.map(option => option.label);
 
   const copyEs: Record<PhenologicalStage, { title: string; summary: string }> = {
     pre_siembra: {
@@ -552,5 +632,6 @@ export function buildContextualAdvice(
     ...(stage === 'pre_siembra' ? { cropOptions } : {}),
     mapEligible: stage === 'pre_siembra',
     ...(weatherCoverage ? { weatherCoverage } : {}),
+    ...(speciesWeather.coverage ? { speciesWeatherCoverage: speciesWeather.coverage } : {}),
   };
 }

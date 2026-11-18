@@ -30,7 +30,8 @@ test('el visor mantiene como máximo cinco fechas registradas', () => {
   assert.equal(savedForecast({ weather: { forecast } }).length, 5);
 });
 
-test('captura y visor histórico conservan presentación, detalles y pronóstico después de serializar la fila', async () => {
+test('captura y visor histórico conservan presentación, detalles y pronóstico después de serializar la fila', async (t) => {
+  t.mock.timers.enable({ apis: ['Date'], now: new Date('2026-10-03T15:00:00Z') });
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => new Response(JSON.stringify({
     ...WEATHER_UNITS,

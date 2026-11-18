@@ -29,6 +29,11 @@ export function nextBatteryWarning(
 export const batteryWarningKey = (userId: string, deviceCode: string) =>
   `@terrasense/battery-warning-v1/${userId}/${deviceCode}`;
 
+/** ¿La carga informada está en el rango de aviso? Sin dato no es «baja». */
+export function isLowBattery(percent: number | null | undefined): boolean {
+  return percent != null && Number.isFinite(percent) && percent <= LOW_BATTERY_PERCENT;
+}
+
 /**
  * Devuelve si hay que avisar ahora. Un fallo del almacenamiento no avisa y nunca lanza:
  * el aviso no puede interrumpir una lectura.

@@ -23,11 +23,12 @@ import { LOCAL_VARIABLES } from './inputQuality';
 import { findSpecies, type SpeciesGroup } from './speciesCatalog';
 import { fahrenheitToCelsius, type SpeciesCriterionEvidence, type SpeciesSalinityCriterion, TABLA_52, type Tabla52Row, TABLA_B1, type TablaB1Row } from './speciesRuleKit';
 import { SPECIES_RULES } from './speciesRules';
+import { phAccuracyBand, soilTempAccuracyBandC } from './localPhysics';
 import type { CropId, SoilMeasurement } from '../types/agronomy';
 import type { AppLanguage } from '../types/preferences';
 import type { CurrentWeather } from '../services/weatherService';
 
-export const PRE_PLANTING_VERSION = '3.0.0';
+export const PRE_PLANTING_VERSION = '3.2.0';
 
 export type PrePlantingEstablishment = 'seed' | 'transplant' | 'tuber' | 'perennial_planting';
 export type PrePlantingScope = 'short_term_establishment' | 'partial_perennial_assessment';
@@ -87,6 +88,92 @@ export interface PrePlantingOption {
   limitationCodes: string[];
   /** Resumen técnico de rangos e instituciones para el desplegable secundario (§12.2). */
   technicalSummary: string;
+}
+
+/** Tabla de cadenas por captura; conserva el texto histórico sin duplicarlo por opción. */
+export interface PackedCropOptions {
+  version: 1 | 2;
+  strings: string[];
+  dictionary?: string[];
+  rows: [number, number, number, number, number, number, number, number, number[], number[], number][];
+}
+
+export function packCropOptions(options: readonly PrePlantingOption[]): PackedCropOptions {
+  const strings: string[] = [];
+  const indices = new Map<string, number>();
+  const intern = (value: string) => {
+    const existing = indices.get(value);
+    if (existing !== undefined) return existing;
+    const index = strings.length;
+    strings.push(value);
+    indices.set(value, index);
+    return index;
+  };
+  const rows: PackedCropOptions['rows'] = options.map(option => [
+    intern(option.profileId), intern(option.speciesId), option.group ? intern(option.group) : -1,
+    intern(option.label), intern(option.establishment), intern(option.scope), intern(option.classification),
+    option.optimalDistance, option.reasons.map(intern), option.limitationCodes.map(intern), intern(option.technicalSummary),
+  ]);
+  // Los resúmenes comparten frases e instituciones, aunque cada resumen completo sea distinto.
+  // Sustituir fragmentos repetidos conserva literalmente el texto sin depender del catálogo futuro.
+  const counts = new Map<string, number>();
+  for (const value of strings) {
+    const words = [...value.matchAll(/[\p{L}\p{N}]+/gu)];
+    for (let start = 0; start < words.length; start++) {
+      for (let length = 2; length <= 6 && start + length <= words.length; length++) {
+        const end = words[start + length - 1];
+        const phrase = value.slice(words[start].index!, end.index! + end[0].length);
+        if (phrase.length >= 14) counts.set(phrase, (counts.get(phrase) ?? 0) + 1);
+      }
+    }
+  }
+  const candidates = [...counts].filter(([, count]) => count > 1)
+    .sort(([a, ac], [b, bc]) => ((b.length - 3) * bc - b.length) - ((a.length - 3) * ac - a.length));
+  const encoded = [...strings];
+  const dictionary: string[] = [];
+  for (const [phrase] of candidates) {
+    if (dictionary.length >= 96) break;
+    const marker = String.fromCharCode(0xe000 + dictionary.length);
+    if (strings.some(value => value.includes(marker))) break;
+    const count = encoded.reduce((sum, value) => sum + value.split(phrase).length - 1, 0);
+    if ((phrase.length - 3) * count <= phrase.length + 8) continue;
+    dictionary.push(phrase);
+    for (let i = 0; i < encoded.length; i++) encoded[i] = encoded[i].split(phrase).join(marker);
+  }
+  return { version: 2, strings: encoded, dictionary, rows };
+}
+
+export function unpackCropOptions(packed: unknown): PrePlantingOption[] | null {
+  if (!packed || typeof packed !== 'object') return null;
+  const data = packed as PackedCropOptions;
+  if ((data.version !== 1 && data.version !== 2) || !Array.isArray(data.strings) || !data.strings.every(s => typeof s === 'string') || !Array.isArray(data.rows)) return null;
+  if (data.version === 2 && (!Array.isArray(data.dictionary) || !data.dictionary.every(s => typeof s === 'string') || data.dictionary.length > 96)) return null;
+  const lookup = (index: unknown) => {
+    if (typeof index !== 'number' || !Number.isInteger(index) || index < 0 || index >= data.strings.length) return undefined;
+    let value = data.strings[index];
+    if (data.version === 2) for (let i = data.dictionary!.length - 1; i >= 0; i--) {
+      value = value.split(String.fromCharCode(0xe000 + i)).join(data.dictionary![i]);
+    }
+    return value;
+  };
+  const options: PrePlantingOption[] = [];
+  for (const row of data.rows) {
+    if (!Array.isArray(row) || row.length !== 11 || !Array.isArray(row[8]) || !Array.isArray(row[9]) || !Number.isFinite(row[7])) return null;
+    const [profileId, speciesId, group, label, establishment, scope, classification] = row.slice(0, 7).map(lookup);
+    const reasons = row[8].map(lookup);
+    const limitationCodes = row[9].map(lookup);
+    const technicalSummary = lookup(row[10]);
+    if (!profileId || !speciesId || !label || !technicalSummary || (row[2] !== -1 && !group)
+      || !['seed', 'transplant', 'tuber', 'perennial_planting'].includes(establishment ?? '')
+      || !['short_term_establishment', 'partial_perennial_assessment'].includes(scope ?? '')
+      || !['matches_evaluated_criteria', 'has_limitations'].includes(classification ?? '')
+      || reasons.some(v => v === undefined) || limitationCodes.some(v => v === undefined)) return null;
+    options.push({ profileId, speciesId, ...(group ? { group: group as SpeciesGroup } : {}), label,
+      establishment: establishment as PrePlantingEstablishment, scope: scope as PrePlantingScope,
+      classification: classification as PrePlantingClassification, optimalDistance: row[7],
+      reasons: reasons as string[], limitationCodes: limitationCodes as string[], technicalSummary });
+  }
+  return options;
 }
 
 const S10_UCANR = (crop: Tabla52Row): SpeciesCriterionEvidence => {
@@ -827,8 +914,8 @@ const perennialPlanting = (
   phMax,
   evidence,
   convention: {
-    es: `rango térmico y bordes de pH (${decimalEs(phMin)}–${decimalEs(phMax)}) acotados desde la fuente de pH`,
-    en: `thermal range and pH bounds (${phMin}–${phMax}) set from the cited pH source`,
+    es: `rango térmico y bordes de pH (${decimalEs(phMin)}–${decimalEs(phMax)}) fijados por el equipo${extra ? `; ${extra.es}` : ''}`,
+    en: `thermal range and pH bounds (${phMin}–${phMax}) set by the team${extra ? `; ${extra.en}` : ''}`,
     limitsMatch: true,
   },
 });
@@ -1274,42 +1361,60 @@ export function evaluatePrePlantingOptions(
   const hasUpcomingHeavyRain = weatherDays.some(
     day => typeof day.precipitationMm === 'number' && Number.isFinite(day.precipitationMm) && day.precipitationMm >= 15,
   );
-  const extremeSeedbedMoisture =
-    Number.isFinite(reading.vwc) && (reading.vwc < 6 || reading.vwc >= 60);
-  const highBulkEc = Number.isFinite(reading.ec) && reading.ec > 1500;
+  const validMoisture = Number.isFinite(reading.vwc) && reading.vwc >= 0 && reading.vwc <= 100;
+  const uncertainPh = validMoisture && reading.vwc < 5;
+  const extremeSeedbedMoisture = validMoisture && (reading.vwc < 6 || reading.vwc >= 60);
+  const highBulkEc = Number.isFinite(reading.ec) && reading.ec >= 0 && reading.ec <= 20000 && reading.ec > 1500;
 
   // `declaredGap`: al perfil le falta un parámetro en la fuente o el motor le fijó un óptimo que
   // la fuente no documenta. Ordena detrás de los perfiles completos y no sale en el resultado.
   const matched: (PrePlantingOption & { declaredGap: boolean })[] = [];
+  const phBand = phAccuracyBand();
+  const tempBand = soilTempAccuracyBandC();
 
   for (const profile of profiles) {
-    if (reading.temp < profile.tempMin) continue;
+    if (reading.temp < profile.tempMin - tempBand - 1e-9) continue;
     const maxTemp = profile.tempMax ?? UNDOCUMENTED_MAX_FALLBACK_C;
-    if (reading.temp > maxTemp) continue;
-    if (reading.ph < profile.phMin || reading.ph > profile.phMax) continue;
+    if (reading.temp > maxTemp + (profile.tempMax === null ? 0 : tempBand) + 1e-9) continue;
+    if (!uncertainPh && (reading.ph < profile.phMin - phBand - 1e-9 || reading.ph > profile.phMax + phBand + 1e-9)) continue;
 
     const incomplete = profile.tempOpt === null || profile.tempMax === null;
     const tempInOpt = profile.tempOpt !== null && reading.temp >= profile.tempOpt.min && reading.temp <= profile.tempOpt.max;
     const phInOpt = reading.ph >= profile.phOpt.min && reading.ph <= profile.phOpt.max;
     const limitationCodes: string[] = ['ph_method_unknown', 'ec_not_compared'];
     const reasons: string[] = [];
+    const phNearBoundary = !uncertainPh && [profile.phMin, profile.phMax].some(value => Math.abs(reading.ph - value) <= phBand + 1e-9);
+    const tempNearBoundary = [profile.tempMin, profile.tempMax].some(value => value !== null && Math.abs(reading.temp - value) <= tempBand + 1e-9);
+    const outsideBoundary = reading.temp < profile.tempMin || reading.temp > maxTemp
+      || (!uncertainPh && (reading.ph < profile.phMin || reading.ph > profile.phMax));
+    if (outsideBoundary) {
+      limitationCodes.push('outside_reference_boundary');
+      reasons.push(en ? 'A reading falls just outside a reference limit. Repeat it before assessing this option.' : 'Una lectura está apenas fuera de un límite de referencia. Repítela antes de evaluar esta opción.');
+    }
+    if (phNearBoundary || tempNearBoundary) {
+      limitationCodes.push('near_reference_boundary');
+      reasons.push(en ? 'The reading is close to a reference boundary. Repeat it before deciding; the manufacturer accuracy is unverified in the field.' : 'La lectura está cerca de un límite de referencia. Repite antes de decidir; falta contrastar la exactitud declarada por el fabricante en terreno.');
+    }
 
     if (tempInOpt) {
-      reasons.push(en ? 'Soil temperature is within the documented optimal range.' : 'Temperatura del suelo dentro del rango óptimo documentado.');
+      reasons.push(profile.convention?.limitsMatch ? (en ? 'Soil temperature is within the range set by the team.' : 'Temperatura del suelo dentro del rango fijado por el equipo.') : (en ? 'Soil temperature is within the documented optimal range.' : 'Temperatura del suelo dentro del rango óptimo documentado.'));
     } else {
       limitationCodes.push('temp_outside_optimum');
       reasons.push(
         en
-          ? 'Soil temperature meets the minimum/maximum range but is outside the optimal band.'
-          : 'Temperatura del suelo dentro de los límites mínimo y máximo, pero fuera del rango óptimo.',
+          ? 'Soil temperature is outside the optimal band; check the reference boundaries before deciding.'
+          : 'Temperatura del suelo fuera del rango óptimo; revisa sus límites antes de decidir.',
       );
     }
 
-    if (phInOpt) {
+    if (uncertainPh) {
+      limitationCodes.push('ph_contact_unreliable');
+      reasons.push(en ? 'Dry soil limits pH contact. Repeat the measurement in moist soil.' : 'El suelo seco limita el contacto para medir pH. Repite la lectura en suelo húmedo.');
+    } else if (phInOpt) {
       reasons.push(en ? 'Soil pH is within the target range.' : 'pH del suelo dentro del rango objetivo.');
     } else {
       limitationCodes.push('ph_outside_target');
-      reasons.push(en ? 'Soil pH is within the tolerated range but outside the ideal target.' : 'pH del suelo dentro del rango tolerado, pero fuera del objetivo ideal.');
+      reasons.push(en ? 'Soil pH is outside the target; check the reference boundaries before deciding.' : 'pH del suelo fuera del objetivo; revisa los límites de referencia antes de decidir.');
     }
 
     if (incomplete) {
@@ -1335,9 +1440,7 @@ export function evaluatePrePlantingOptions(
     if (profile.convention) {
       limitationCodes.push('values_not_in_cited_sources');
       reasons.push(
-        en
-          ? `Values set by the engine, not stated in the cited sources: ${profile.convention.en}.`
-          : `Valores fijados por el motor, que las fuentes citadas no establecen: ${profile.convention.es}.`,
+        en ? `Values set by the engine: ${profile.convention.en}.` : `Valores fijados por el motor: ${profile.convention.es}.`,
       );
     }
 
@@ -1346,12 +1449,12 @@ export function evaluatePrePlantingOptions(
       reasons.push(
         reading.vwc < 5
           ? (en
-              ? 'Seedbed volumetric moisture is below 5%; irrigate before sowing or transplanting and recheck pH once the soil is moist (galvanic pH contact is limited below 5% VWC).'
-              : 'Humedad volumétrica de la cama de siembra bajo 5 %; riega antes de sembrar o trasplantar y vuelve a medir el pH con suelo húmedo (bajo 5 % de humedad el puente electrolítico del pH se reduce).')
+              ? 'Volumetric moisture is below 5%; check moisture in the field and repeat pH in moist soil before deciding.'
+              : 'Humedad volumétrica bajo 5 %; revisa la humedad en terreno y vuelve a medir el pH en suelo húmedo antes de decidir.')
           : reading.vwc < 6
             ? (en
-                ? 'Seedbed volumetric moisture is extremely low (< 6%); irrigate before sowing or transplanting.'
-                : 'Humedad volumétrica de la cama de siembra extremadamente baja (< 6 %); riega antes de sembrar o trasplantar.')
+                ? 'Volumetric moisture is very low (< 6%); check moisture in the field before deciding on irrigation.'
+                : 'Humedad volumétrica muy baja (< 6 %); revisa la humedad en terreno antes de decidir el riego.')
             : (en
                 ? 'Seedbed volumetric moisture is saturated (>= 60%); wait for drainage before sowing or planting.'
                 : 'Humedad volumétrica de la cama de siembra saturada (>= 60 %); espera a que drene antes de sembrar o plantar.'),
@@ -1391,21 +1494,21 @@ export function evaluatePrePlantingOptions(
     }
 
     const classification: PrePlantingClassification =
-      profile.scope === 'short_term_establishment' && !incomplete && !profile.convention?.limitsMatch && tempInOpt && phInOpt
+      profile.scope === 'short_term_establishment' && !incomplete && !profile.convention?.limitsMatch && tempInOpt && phInOpt && !extremeSeedbedMoisture && !phNearBoundary && !tempNearBoundary && !outsideBoundary && !(hasUpcomingFrost && profile.tempMin >= 10) && !(hasUpcomingHeavyRain && profile.establishment === 'seed')
         ? 'matches_evaluated_criteria'
         : 'has_limitations';
 
     const fmt = (n: number) => (Math.round(n * 10) / 10).toFixed(1).replace('.', en ? '.' : ',');
     const sources = [...new Set(profile.evidence.map(e => en ? e.institution : `${e.institution} (${e.section})`))].join('; ');
     const engineSet = profile.convention
-      ? (en ? ` Set by the engine, not stated in those sources: ${profile.convention.en}.` : ` Fijado por el motor, sin respaldo en esas fuentes: ${profile.convention.es}.`)
+      ? (en ? ' Engine assumptions are listed above.' : ' Supuestos del motor indicados arriba.')
       : '';
     const technicalSummary = en
       ? `Ranges used: soil temperature ${fmt(profile.tempMin)} to ${profile.tempMax !== null ? `${fmt(profile.tempMax)} °C` : 'no fixed maximum'} (optimum ${profile.tempOpt ? `${fmt(profile.tempOpt.min)}–${fmt(profile.tempOpt.max)} °C` : 'not tabulated'}); pH ${fmt(profile.phMin)} to ${fmt(profile.phMax)} (target ${fmt(profile.phOpt.min)}–${fmt(profile.phOpt.max)}). Sources: ${sources}.${engineSet}`
       : `Rangos usados: temperatura ${fmt(profile.tempMin)} a ${profile.tempMax !== null ? `${fmt(profile.tempMax)} °C` : 'sin máximo fijo'} (óptimo ${profile.tempOpt ? `${fmt(profile.tempOpt.min)}–${fmt(profile.tempOpt.max)} °C` : 'no tabulado'}); pH ${fmt(profile.phMin)} a ${fmt(profile.phMax)} (objetivo ${fmt(profile.phOpt.min)}–${fmt(profile.phOpt.max)}). Fuentes: ${sources}.${engineSet}`;
     const name = en ? profile.nameEn : profile.nameEs;
     const speciesEntry = findSpecies(profile.speciesId);
-    const optimalDistance = computeOptimalDistance(reading, profile);
+    const optimalDistance = computeOptimalDistance(uncertainPh ? { ...reading, ph: (profile.phOpt.min + profile.phOpt.max) / 2 } : reading, profile);
 
     matched.push({
       profileId: profile.id,
@@ -1425,6 +1528,12 @@ export function evaluatePrePlantingOptions(
 
   return matched
     .sort((a, b) => {
+      const aOutside = a.limitationCodes.includes('outside_reference_boundary');
+      const bOutside = b.limitationCodes.includes('outside_reference_boundary');
+      if (aOutside !== bOutside) return aOutside ? 1 : -1;
+      const aDelay = a.limitationCodes.some(code => ['upcoming_frost_risk', 'upcoming_heavy_rain', 'seedbed_moisture_limitation'].includes(code));
+      const bDelay = b.limitationCodes.some(code => ['upcoming_frost_risk', 'upcoming_heavy_rain', 'seedbed_moisture_limitation'].includes(code));
+      if (aDelay !== bDelay) return aDelay ? 1 : -1;
       const scopeOrder = (a.scope === 'short_term_establishment' ? 0 : 1) - (b.scope === 'short_term_establishment' ? 0 : 1);
       if (scopeOrder !== 0) return scopeOrder;
       const classOrder = (a.classification === 'matches_evaluated_criteria' ? 0 : 1) - (b.classification === 'matches_evaluated_criteria' ? 0 : 1);

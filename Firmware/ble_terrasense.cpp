@@ -10,6 +10,7 @@
 
 #include "config.h"
 #include "identidad.h"
+#include "registro.h"
 
 namespace {
 
@@ -55,7 +56,7 @@ void observarGap(esp_gap_ble_cb_event_t evento, esp_ble_gap_cb_param_t *param) {
 
 void rechazar(const char *motivo) {
   resultadoVinculacion = uint8_t(ResultadoVinculacion::Rechazado);
-  Serial.printf("[PAIR] Vinculación rechazada: %s\n", motivo);
+  registro::linea("PAIR", "Vinculación rechazada: %s", motivo);
 }
 
 // El ID sale de la MAC y siempre existe: el nombre lo lleva desde el arranque.
@@ -114,7 +115,7 @@ void configurarAnuncio() {
   anuncio->setScanResponseData(respuesta);
   anuncio->setMinInterval(ANUNCIO_INTERVALO_MIN);
   anuncio->setMaxInterval(ANUNCIO_INTERVALO_MAX);
-  Serial.printf("[BLE] Anunciando como \"%s\" cada %.0f-%.0f ms\n", nombre.c_str(),
+  registro::linea("BLE", "Anunciando como \"%s\" cada %.0f-%.0f ms", nombre.c_str(),
                 ANUNCIO_INTERVALO_MIN * 0.625f, ANUNCIO_INTERVALO_MAX * 0.625f);
 }
 
@@ -127,7 +128,7 @@ class CallbacksServidor : public BLEServerCallbacks {
     anunciando = false;
     reanudarAnuncio = false;
     desconectadoEn = 0;
-    Serial.println("[BLE] Teléfono conectado");
+    registro::linea("BLE", "Teléfono conectado");
   }
   void onDisconnect(BLEServer *) override {
     Guardia guardia(mutexEstado);
@@ -136,7 +137,7 @@ class CallbacksServidor : public BLEServerCallbacks {
     invalidarLectura();
     reanudarAnuncio = true;
     desconectadoEn = millis();
-    Serial.println("[BLE] Teléfono desconectado");
+    registro::linea("BLE", "Teléfono desconectado");
   }
 };
 
@@ -155,7 +156,7 @@ class CallbacksConfirmacion : public BLECharacteristicCallbacks {
 
     ventanaActiva = false;
     resultadoVinculacion = uint8_t(ResultadoVinculacion::Aceptado);
-    Serial.printf("[PAIR] Vinculación confirmada (%s); ventana cerrada\n", valor.c_str());
+    registro::linea("PAIR", "Vinculación confirmada (%s); ventana cerrada", valor.c_str());
   }
 };
 
@@ -167,7 +168,7 @@ class CallbacksSuscripcion : public BLEDescriptorCallbacks {
     if (suscrito) {
       solicitudEn = millis();
       solicitudLectura = true;
-      Serial.println("[BLE] Suscripción a telemetría: se armará una trama nueva");
+      registro::linea("BLE", "Suscripción a telemetría: se armará una trama nueva");
     }
   }
 };
@@ -209,7 +210,7 @@ void bleActualizar(uint32_t ahora) {
     Guardia guardia(mutexEstado);
     if (ventanaActiva && !ventanaVigente(ahora)) {
       ventanaActiva = false;
-      Serial.println("[PAIR] Ventana de vinculación cerrada por tiempo");
+      registro::linea("PAIR", "Ventana de vinculación cerrada por tiempo");
     }
 
     // Pequeña pausa tras desconectar para que la pila libere la conexión.
@@ -233,6 +234,11 @@ void bleAbrirVentana(uint32_t ahora) {
 }
 
 bool bleVentanaAbierta(uint32_t ahora) { Guardia guardia(mutexEstado); return ventanaVigente(ahora); }
+
+uint32_t bleVentanaRestanteMs(uint32_t ahora) {
+  Guardia guardia(mutexEstado);
+  return ventanaVigente(ahora) ? ventanaHasta - ahora : 0;
+}
 
 ResultadoVinculacion bleTomarResultadoVinculacion() {
   Guardia guardia(mutexEstado);

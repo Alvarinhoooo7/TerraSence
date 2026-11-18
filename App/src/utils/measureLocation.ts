@@ -5,19 +5,48 @@ export type LocationChoice = 'on' | 'off' | null;
 
 export const LOCATION_TIMEOUT_MS = 5000;
 
+/** Clave donde se guarda la elección de ubicación. */
+export const LOCATION_CHOICE_KEY = '@terrasense/measure-location-v1';
+
+export type LocationStep = 'capture' | 'ask' | 'skip';
+
 /**
- * Sin elección guardada se conserva lo anterior: coordenadas si la ubicación ya estaba
- * autorizada, salvo en Android antiguo, donde ese permiso existe por el Bluetooth.
+ * Qué hacer con la ubicación antes de una lectura. La pregunta se hace una sola vez: después
+ * queda una elección guardada. Un permiso revocado o que el sistema ya no pregunta no reabre nada,
+ * y la elección `on` se conserva: la lectura vuelve a georreferenciarse cuando el permiso regresa.
+ * En Android 11 o anterior el permiso existe por el Bluetooth y no equivale a aceptar.
  */
-export function initialIncludeLocation(choice: LocationChoice, granted: boolean, legacyAndroidBluetooth: boolean): boolean {
-  const wanted = choice === null ? granted && !legacyAndroidBluetooth : choice === 'on';
-  return wanted && granted;
+export function nextLocationStep(
+  choice: LocationChoice,
+  permission: { granted: boolean; canAskAgain: boolean },
+  legacyAndroidBluetooth: boolean,
+): LocationStep {
+  if (choice === 'off') return 'skip';
+  if (choice === 'on') return permission.granted ? 'capture' : 'skip';
+  if (permission.granted) return legacyAndroidBluetooth ? 'ask' : 'capture';
+  return permission.canAskAgain ? 'ask' : 'skip';
 }
 
-/** El permiso se revoca fuera de la app: la opción encendida se apaga y se avisa una vez. */
-export function revalidateIncludeLocation(include: boolean, granted: boolean): { include: boolean; lost: boolean } {
-  if (!include) return { include: false, lost: false };
-  return granted ? { include: true, lost: false } : { include: false, lost: true };
+/** Elección que se guarda después de preguntar: nunca vuelve a quedar en `null`. */
+export function choiceAfterAsking(accepted: boolean): Exclude<LocationChoice, null> {
+  return accepted ? 'on' : 'off';
+}
+
+/** Marca de que ya se avisó el retiro del permiso; se borra cuando el teléfono lo devuelve. */
+export const LOCATION_REVOKED_NOTICE_KEY = '@terrasense/measure-location-revoked-notice-v1';
+
+/**
+ * Elección después de que el teléfono retiró el permiso: una ubicación aceptada queda activa para
+ * siempre. La app no la apaga ni vuelve a preguntar; captura sola en cuanto el permiso vuelve.
+ * Sólo la persona la apaga, desde Preferencias.
+ */
+export function choiceAfterRevocation(choice: LocationChoice): LocationChoice {
+  return choice;
+}
+
+/** El aviso de permiso retirado sale en la primera lectura de cada retiro, no en todas. */
+export function revokedNoticeDue(choice: LocationChoice, granted: boolean, alreadyNoticed: boolean): boolean {
+  return choice === 'on' && !granted && !alreadyNoticed;
 }
 
 export interface CapturedCoords {

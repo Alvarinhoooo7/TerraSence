@@ -65,6 +65,7 @@ export function assessWeatherEvidence(weather: CurrentWeather | null, context?: 
   const limitationCodes: string[] = [];
   if (!weather) limitationCodes.push('weather_missing');
   if (weather) {
+    if (!Array.isArray(weather.forecast)) limitationCodes.push('weather_forecast_invalid');
     const location = context?.location;
     // Un pronóstico reutilizado sin red se asocia a la captura que lo reutiliza, dentro del radio de la caché.
     const target = weather.reuse ?? weather.request;
@@ -77,7 +78,7 @@ export function assessWeatherEvidence(weather: CurrentWeather | null, context?: 
     if (freshness !== 'fresh') limitationCodes.push(`weather_time_${freshness}`);
   }
   const blocked = limitationCodes.length > 0;
-  const complete = weather?.forecast.length === 5 && weather.forecast.every(day =>
+  const complete = Array.isArray(weather?.forecast) && weather.forecast.length === 5 && weather.forecast.every(day =>
     [day.minimumTemperatureC, day.maximumTemperatureC, day.precipitationMm, day.rainProbabilityPct].every(value => typeof value === 'number' && Number.isFinite(value)));
   if (!blocked && !complete) limitationCodes.push('daily_coverage_incomplete');
   if (!blocked && weather?.reuse) limitationCodes.push('weather_reused_offline');

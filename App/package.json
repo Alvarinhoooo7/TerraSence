@@ -10,10 +10,12 @@
     "android:release": "node scripts/build-android-release.mjs",
     "type-check": "tsc --noEmit",
     "assets:brand": "node scripts/generate-brand-assets.mjs",
-    "test": "tsx --test tests/weatherOutlook.test.ts tests/speciesCatalog.test.ts tests/speciesPresentation.test.ts tests/speciesRules.test.ts tests/speciesWeather.test.ts tests/speciesCriteriaFamilies.test.ts tests/speciesCoverage.test.ts tests/measureSpecies.test.ts tests/evaluationCoverage.test.ts tests/stageRules.test.ts tests/inputQuality.test.ts tests/localPhysics.test.ts tests/measurementPresentation.test.ts tests/deviceReset.test.ts tests/permissions.test.ts tests/authFlow.test.ts tests/authDeepLink.test.ts tests/deviceId.test.ts tests/onboardingState.test.ts tests/preferences.test.ts tests/probeTelemetry.test.ts tests/probeContact.test.ts tests/privacy.test.ts tests/passwordRules.test.ts tests/keyedLock.test.ts tests/measurementHistory.test.ts tests/weatherService.test.ts tests/weatherCache.test.ts tests/environmentHistory.test.ts tests/registrationConsent.test.ts tests/emailOtp.test.ts tests/smoothScroll.test.ts tests/guideLayout.test.ts tests/onboardingAudit.test.ts tests/entryLanguage.test.ts tests/accessRegistration.test.ts tests/entryPreferencesService.test.ts tests/notifications.test.ts tests/notificationRoute.test.ts tests/notificationInbox.test.ts tests/batteryWarning.test.ts tests/measureLocation.test.ts tests/bleTelemetry.test.ts tests/secretReveal.test.ts tests/measurementResultData.test.ts tests/approvalFlow.test.ts tests/deviceSelection.test.ts tests/qrAccountFlow.test.ts tests/qrScanGate.test.ts tests/secretRevealUnicode.test.ts tests/settingsNavigation.test.ts",
+    "test": "tsx --test tests/agronomyRegression.test.ts tests/weatherOutlook.test.ts tests/speciesCatalog.test.ts tests/speciesPresentation.test.ts tests/speciesRules.test.ts tests/speciesWeather.test.ts tests/speciesCriteriaFamilies.test.ts tests/speciesCoverage.test.ts tests/measureSpecies.test.ts tests/evaluationCoverage.test.ts tests/stageRules.test.ts tests/inputQuality.test.ts tests/localPhysics.test.ts tests/measurementPresentation.test.ts tests/deviceReset.test.ts tests/permissions.test.ts tests/authFlow.test.ts tests/authDeepLink.test.ts tests/deviceId.test.ts tests/onboardingState.test.ts tests/preferences.test.ts tests/probeTelemetry.test.ts tests/probeContact.test.ts tests/privacy.test.ts tests/passwordRules.test.ts tests/keyedLock.test.ts tests/measurementHistory.test.ts tests/weatherService.test.ts tests/weatherCache.test.ts tests/environmentHistory.test.ts tests/registrationConsent.test.ts tests/emailOtp.test.ts tests/smoothScroll.test.ts tests/guideLayout.test.ts tests/onboardingAudit.test.ts tests/entryLanguage.test.ts tests/accessRegistration.test.ts tests/entryPreferencesService.test.ts tests/notifications.test.ts tests/notificationRoute.test.ts tests/notificationInbox.test.ts tests/batteryWarning.test.ts tests/measureLocation.test.ts tests/bleTelemetry.test.ts tests/secretReveal.test.ts tests/measurementResultData.test.ts tests/approvalFlow.test.ts tests/deviceSelection.test.ts tests/qrAccountFlow.test.ts tests/qrScanGate.test.ts tests/secretRevealUnicode.test.ts tests/settingsNavigation.test.ts tests/probeGeometry.test.ts tests/probeArt.test.ts tests/typography.test.ts tests/accountInitials.test.ts tests/resultModel.test.ts tests/headlinePersonalization.test.ts",
+    "test:agronomy-regression": "tsx --test tests/agronomyRegression.test.ts",
     "test:supabase-onboarding": "node scripts/verify-supabase-onboarding.mjs"
   },
   "dependencies": {
+    "@expo-google-fonts/space-grotesk": "^0.4.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@supabase/supabase-js": "^2.45.4",
     "expo": "^57.0.20",
@@ -23,6 +25,7 @@
     "expo-crypto": "~57.0.2",
     "expo-dev-client": "~57.0.19",
     "expo-device": "~57.0.1",
+    "expo-font": "~57.0.4",
     "expo-haptics": "~57.0.3",
     "expo-location": "~57.0.16",
     "expo-notifications": "~57.0.17",

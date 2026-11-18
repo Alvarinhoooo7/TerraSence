@@ -33,6 +33,8 @@ export interface RemainingTodaySummary {
   minimumTemperatureC: number | null;
   maximumTemperatureC: number | null;
   precipitationMm: number | null;
+  /** El período incluye una hora parcial o faltan intervalos de precipitación. */
+  precipitationIncomplete?: boolean;
   rainProbabilityPct: number | null;
   maxWindKmh: number | null;
 }
@@ -148,11 +150,15 @@ function buildRemainingToday(
   today: string,
   startHour: string,
   hourly: HourlyWeatherSeries,
+  partialHour: boolean,
 ): RemainingTodaySummary | undefined {
   const indices: number[] = [];
+  const nextDay = new Date(`${today}T00:00:00Z`);
+  nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+  const midnight = `${nextDay.toISOString().slice(0, 10)}T00:00`;
   for (let i = 0; i < hourly.time.length; i += 1) {
     const slot = hourly.time[i];
-    if (slot.startsWith(`${today}T`) && slot >= startHour) indices.push(i);
+    if ((slot.startsWith(`${today}T`) && slot > startHour) || slot === midnight) indices.push(i);
   }
   if (!indices.length) return undefined;
   const pickNums = (series: (number | null)[] | undefined): number[] =>
@@ -161,6 +167,7 @@ function buildRemainingToday(
   const precips = pickNums(hourly.precipitationMm);
   const rainProbs = pickNums(hourly.rainProbabilityPct);
   const winds = pickNums(hourly.windKmh);
+  const completePrecipitation = !partialHour && precips.length === indices.length && indices.every((index, i) => i === 0 ? Date.parse(`${hourly.time[index]}:00Z`) - Date.parse(`${startHour}:00Z`) === 3600000 : Date.parse(`${hourly.time[index]}:00Z`) - Date.parse(`${hourly.time[indices[i - 1]]}:00Z`) === 3600000) && hourly.time[indices[indices.length - 1]] === midnight;
   return {
     date: today,
     fromHour: hourly.time[indices[0]],
@@ -168,7 +175,8 @@ function buildRemainingToday(
     slotCount: indices.length,
     minimumTemperatureC: temps.length ? Math.min(...temps) : null,
     maximumTemperatureC: temps.length ? Math.max(...temps) : null,
-    precipitationMm: precips.length ? Math.round(precips.reduce((acc, v) => acc + v, 0) * 10) / 10 : null,
+    precipitationMm: completePrecipitation ? Math.round(precips.reduce((acc, v) => acc + v, 0) * 10) / 10 : null,
+    precipitationIncomplete: !completePrecipitation,
     rainProbabilityPct: rainProbs.length ? Math.max(...rainProbs) : null,
     maxWindKmh: winds.length ? Math.max(...winds) : null,
   };
@@ -187,10 +195,11 @@ export function normalizeWeather(payload: unknown, fetchedAt: string): CurrentWe
   const currentTime = typeof current.time === 'string' && /^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):[0-5]\d$/.test(current.time)
     ? current.time : null;
   const currentDate = validDate(currentTime?.slice(0, 10));
-  const today = currentDate ?? localDate(fetchedAt, timezone);
-  if (!today) return null;
   const suppliedOffset = finite(root.utc_offset_seconds);
   const offset = suppliedOffset !== null && Number.isInteger(suppliedOffset) && Math.abs(suppliedOffset) <= 86400 ? suppliedOffset : null;
+  const offsetClock = offset === null ? null : new Date(Date.parse(fetchedAt) + offset * 1000);
+  const today = localDate(fetchedAt, timezone);
+  if (!today) return null;
   const utc = (local: string): string | null => offset !== null
     ? new Date(Date.parse(`${local}Z`) - offset * 1000).toISOString() : null;
   const invalidate = (datum: EvidenceDatum, reason: string) => {
@@ -260,6 +269,8 @@ export function normalizeWeather(payload: unknown, fetchedAt: string): CurrentWe
   });
   const day = dayAt(today);
   const currentInstant = currentDate && currentTime ? utc(`${currentTime}:00`) : null;
+  const currentAge = currentInstant ? Date.parse(fetchedAt) - Date.parse(currentInstant) : NaN;
+  const currentFresh = Number.isFinite(currentAge) && currentAge >= 0 && currentAge <= 3 * 60 * 60 * 1000;
   const interval = finite(current.interval);
   const precipitationFrom = currentInstant && interval !== null && interval > 0 && interval <= 86400
     ? new Date(Date.parse(currentInstant) - interval * 1000).toISOString() : null;
@@ -268,7 +279,7 @@ export function normalizeWeather(payload: unknown, fetchedAt: string): CurrentWe
     precipitationMm: datum(current.precipitation, 'mm', currentUnits.precipitation, 'sum', precipitationFrom, currentInstant, { min: 0, max: Infinity }),
     windKmh: datum(current.wind_speed_10m, 'km/h', currentUnits.wind_speed_10m, 'instant', currentInstant, currentInstant, { min: 0, max: Infinity }),
   };
-  if (!currentDate) for (const observation of Object.values(inputQuality.current)) invalidate(observation, 'invalid_current_time');
+  if (!currentFresh) for (const observation of Object.values(inputQuality.current)) invalidate(observation, 'invalid_current_time');
   const temperatureC = inputQuality.current.temperatureC.value;
   const precipitationMm = inputQuality.current.precipitationMm.value;
   const windKmh = inputQuality.current.windKmh.value;
@@ -306,14 +317,15 @@ export function normalizeWeather(payload: unknown, fetchedAt: string): CurrentWe
         ...(hourlyWindKmh ? { windKmh: hourlyWindKmh } : {}),
       }
     : undefined;
-  const fallbackHour = localHourSlot(fetchedAt, timezone) ?? '00:00';
-  const startHour = currentDate === today && currentTime ? `${currentTime.slice(0, 13)}:00` : `${today}T${fallbackHour}`;
-  const remainingToday = hourlySeries ? buildRemainingToday(today, startHour, hourlySeries) : undefined;
+  const fallbackHour = localHourSlot(fetchedAt, timezone) ?? (offsetClock ? `${offsetClock.toISOString().slice(11, 13)}:00` : '00:00');
+  const startHour = `${today}T${fallbackHour}`;
+  const partialHour = new Date(fetchedAt).getUTCMinutes() !== 0 || new Date(fetchedAt).getUTCSeconds() !== 0;
+  const remainingToday = hourlySeries ? buildRemainingToday(today, startHour, hourlySeries, partialHour) : undefined;
   return {
     forecast, today: day,
     ...(remainingToday ? { remainingToday } : {}),
     source: 'Open-Meteo', timezone, temperatureC, precipitationMm, windKmh,
-    weatherCode: currentDate ? weatherCodeOf(current.weather_code) : null,
+    weatherCode: currentFresh ? weatherCodeOf(current.weather_code) : null,
     rainProbabilityPct: day.rainProbabilityPct,
     dailyPrecipitationMm: day.precipitationMm,
     minimumTemperatureC: day.minimumTemperatureC,

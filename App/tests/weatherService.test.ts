@@ -6,7 +6,8 @@ import { evaluateReadingForStage } from '../src/engine/stageEvaluator';
 import { decodeTelemetry } from '../src/services/probeService';
 import { CHILE_OPEN_METEO_FIXTURE, WEATHER_UNITS } from './fixtures/weatherUnits';
 
-test('pronóstico usa cinco fechas posteriores locales, conserva ceros y ausencias', async () => {
+test('pronóstico usa cinco fechas posteriores locales, conserva ceros y ausencias', async (t) => {
+  t.mock.timers.enable({ apis: ['Date'], now: new Date('2026-10-01T02:45:00Z') });
   const original = globalThis.fetch;
   globalThis.fetch = async (url) => {
     assert.match(String(url), /forecast_days=6&timezone=auto/);
@@ -181,7 +182,8 @@ test('coordenadas inválidas no consultan el proveedor', async () => {
   } finally { globalThis.fetch = original; }
 });
 
-test('T30: la consulta entrega pronóstico parcial utilizable al consejo y al histórico', async () => {
+test('T30: la consulta entrega pronóstico parcial utilizable al consejo y al histórico', async (t) => {
+  t.mock.timers.enable({ apis: ['Date'], now: new Date('2026-10-01T01:30:00Z') });
   const original = globalThis.fetch;
   globalThis.fetch = async () => new Response(JSON.stringify({ ...partialPayload(),
     current: { time: '2026-09-30T22:30', temperature_2m: null },
@@ -266,14 +268,15 @@ test('E3: fixture reproducible para Chile normaliza las 5 series horarias, calcu
   // descartando las lluvias pasadas de 16:00 (5 mm) y 17:00 (4 mm) que sí suman en daily (12 mm).
   assert.deepEqual(weather.remainingToday, {
     date: '2026-10-12',
-    fromHour: '2026-10-12T18:00',
-    toHour: '2026-10-12T23:00',
+    fromHour: '2026-10-12T19:00',
+    toHour: '2026-10-13T00:00',
     slotCount: 6,
-    minimumTemperatureC: 8.8,
-    maximumTemperatureC: 19.6,
-    precipitationMm: 2.5,
+    minimumTemperatureC: 7.5,
+    maximumTemperatureC: 16.4,
+    precipitationMm: null,
+    precipitationIncomplete: true,
     rainProbabilityPct: 55,
-    maxWindKmh: 15,
+    maxWindKmh: 12.4,
   });
   // Sin serie horaria, nunca se deduce remainingToday desde daily.
   const withoutHourly = normalizeWeather(partialPayload(), fetchedAt);

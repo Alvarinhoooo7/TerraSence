@@ -55,11 +55,11 @@ const ICONS: Record<ParameterKey, readonly string[]> = {
 const LETTERS: Partial<Record<ParameterKey, string>> = { nitrogen: 'N', phosphorus: 'P', potassium: 'K' };
 
 /** Ícono de la variable sobre un fondo teñido con el color de su estado. */
-export function MetricBadge({ metric, tone, size = 44 }: { metric: ParameterKey; tone: string; size?: number }) {
+export function MetricBadge({ metric, tone, size = 44, background }: { metric: ParameterKey; tone: string; size?: number; background?: string }) {
   const { colors } = useAppTheme();
   const trazos = ICONS[metric];
   const letra = LETTERS[metric];
-  return <View style={{ width: size, height: size, borderRadius: size * 0.32, backgroundColor: `${tone}22`, alignItems: 'center', justifyContent: 'center' }}>
+  return <View style={{ width: size, height: size, borderRadius: size * 0.32, backgroundColor: background ?? `${tone}22`, alignItems: 'center', justifyContent: 'center' }}>
     <Svg width={size * 0.58} height={size * 0.58} viewBox="0 0 24 24" fill="none" stroke={tone} strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round">
       {trazos.map((d, i) => <Path key={i} d={d} />)}
     </Svg>

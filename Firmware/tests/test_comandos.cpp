@@ -15,7 +15,8 @@ constexpr bool acceso() {
   EntradaMonitor e;
   if (e.abierta() || linea(e, "11\n") != '?') return false;
   if (linea(e, "1\n") != '?' || linea(e, "10\r\n") != '?') return false;
-  if (linea(e, "h\n") != '?' || linea(e, "m\n") != '?') return false;
+  if (linea(e, "h\n") != '?' || linea(e, "m\n") != '?' || linea(e, "e\n") != '?') return false;
+  if (linea(e, "t\n") != '?' || linea(e, "s\n") != '?' || linea(e, "v\n") != '?') return false;
   if (linea(e, "D\r\n") != 'd' || !e.abierta()) return false;
   if (linea(e, "11\r\n") != 11) return false;
   if (linea(e, "1\n") != 1 || linea(e, "10\n") != 10) return false;
@@ -42,7 +43,14 @@ constexpr bool opcionesYLegado() {
   for (char c = '1'; c <= '9'; ++c) {
     if (e.consumir(c) || e.consumir('\n') != uint8_t(c - '0')) return false;
   }
-  for (char c : "hH?bBeEaAtTmMgGrR") {
+  if (linea(e, "e\n") != 'e' || linea(e, "E\r\n") != 'e') return false;
+  if (linea(e, "t\n") != 't' || linea(e, "T\n") != 't') return false;
+  if (linea(e, "v\n") != 'v' || linea(e, "V\r\n") != 'v') return false;
+  if (linea(e, "s\n") != 's' || linea(e, "S\n") != 's' || linea(e, "n\n") != 'n' || linea(e, "N\r\n") != 'n')
+    return false;
+  if (linea(e, "si\n") != 's' || linea(e, "No\n") != 'n' || linea(e, "NO\r\n") != 'n') return false;
+  if (linea(e, "sí\n") != '!' || linea(e, "nn\n") != '!' || linea(e, "s i\n") != '!') return false;
+  for (char c : "hH?bBaAmMgGrR") {
     if (!c) continue;
     if (e.consumir(c) || e.consumir('\n') != '!') return false;
   }
@@ -61,7 +69,36 @@ constexpr bool desbordamientoYBinario() {
   return linea(e, "x\n") == 'x';
 }
 
+constexpr bool igual(const char *a, const char *b) {
+  size_t i = 0;
+  for (; a[i] && b[i]; ++i)
+    if (a[i] != b[i]) return false;
+  return a[i] == b[i];
+}
+
+// El eco repite lo recibido para que el técnico vea qué llegó al equipo.
+constexpr bool ecoYPendiente() {
+  EntradaMonitor e;
+  if (e.pendiente() || !igual(e.eco(), "")) return false;
+  e.consumir('7');
+  if (!e.pendiente() || !igual(e.parcial(), "7")) return false;  // sin Enter: no ejecuta
+  if (e.consumir('\n') != '?' || e.pendiente() || !igual(e.eco(), "7")) return false;
+  linea(e, "  d \r\n");
+  if (!igual(e.eco(), "d")) return false;
+  linea(e, "13\n");
+  if (!igual(e.eco(), "13")) return false;
+  e.consumir('\x01'); e.consumir('a');
+  if (!igual(e.parcial(), "?a") || e.consumir('\n') != '!' || !igual(e.eco(), "?a")) return false;
+  // CRLF: el LF suelto no borra el eco del comando anterior.
+  linea(e, "5\r\n");
+  if (!igual(e.eco(), "5")) return false;
+  for (unsigned i = 0; i < 20; ++i) e.consumir('9');
+  if (!e.pendiente() || !igual(e.parcial(), "9999999999999999...")) return false;
+  return e.consumir('\n') == '!' && igual(e.eco(), "9999999999999999...") && !e.pendiente();
+}
+
+static_assert(ecoYPendiente(), "Eco saneado, pendiente sin Enter y truncado de líneas largas");
 static_assert(acceso(), "Debe exigir d/D, cerrar con q/Q y aceptar CR/LF/CRLF");
 static_assert(noEjecutarPrefijos(), "10 no debe ejecutar 1; rechazar líneas ambiguas");
-static_assert(opcionesYLegado(), "Sólo 1-11 y d/x/q; todos los atajos antiguos retirados");
+static_assert(opcionesYLegado(), "Sólo 1-12, e, t, s/n, v y d/x/q; los demás atajos antiguos siguen retirados");
 static_assert(desbordamientoYBinario(), "Desbordes y NUL no deben ejecutar comandos parciales");

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  batteryWarningKey, checkLowBattery, LOW_BATTERY_PERCENT, LOW_BATTERY_REARM_PERCENT, nextBatteryWarning,
+  batteryWarningKey, checkLowBattery, isLowBattery, LOW_BATTERY_PERCENT, LOW_BATTERY_REARM_PERCENT, nextBatteryWarning,
   type BatteryWarningStorage,
 } from '../src/utils/batteryWarning';
 
@@ -67,4 +67,11 @@ test('un fallo del almacenamiento no avisa ni lanza', async () => {
   assert.equal(await checkLowBattery(roto, 'u1', '000000000000001', 5), false);
   const soloLectura: BatteryWarningStorage = { getItem: async () => null, setItem: async () => { throw new Error('lleno'); } };
   assert.equal(await checkLowBattery(soloLectura, 'u1', '000000000000001', 5), false);
+});
+
+test("isLowBattery usa el umbral de aviso y no trata la falta de dato como batería baja", () => {
+  assert.equal(isLowBattery(LOW_BATTERY_PERCENT), true);
+  assert.equal(isLowBattery(LOW_BATTERY_PERCENT + 1), false);
+  assert.equal(isLowBattery(null), false);
+  assert.equal(isLowBattery(undefined), false);
 });
