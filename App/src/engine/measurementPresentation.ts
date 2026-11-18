@@ -15,7 +15,7 @@ import {
   type DerivedIndicatorId,
   type ProbeMetrologicalContext,
 } from './localPhysics';
-import type { PrePlantingOption } from './prePlanting';
+import { unpackCropOptions, type PackedCropOptions, type PrePlantingOption } from './prePlanting';
 
 export const PARAMETER_KEYS = ['vwc', 'temp', 'ph', 'ec', 'nitrogen', 'phosphorus', 'potassium', 'airTemp', 'airHumidity', 'airPressure'] as const;
 export type ParameterKey = typeof PARAMETER_KEYS[number];
@@ -76,6 +76,8 @@ export interface MeasurementPresentation {
   suggestedCrops?: string[];
   /** Alternativas de pre-siembra con razones y limitaciones explícitas (E5/E6); ausente en históricos anteriores. */
   cropOptions?: PrePlantingOption[];
+  /** Opciones históricas compactas; se expanden al abrir la medición guardada. */
+  packedCropOptions?: PackedCropOptions;
   parameters: ParameterPresentation[];
 }
 const labelsEs = ['Humedad del suelo', 'Temperatura del suelo', 'pH del suelo', 'Conductividad eléctrica', 'Nitrógeno', 'Fósforo', 'Potasio', 'Temperatura ambiente', 'Humedad ambiente', 'Presión atmosférica'];
@@ -305,6 +307,7 @@ export function isMeasurementPresentation(value: unknown): value is MeasurementP
     && (p.coverageSummary === undefined || isCoverageSummary(p.coverageSummary))
     && (p.suggestedCrops === undefined ? p.version === 1 : Array.isArray(p.suggestedCrops) && p.suggestedCrops.every(c => typeof c === 'string'))
     && (p.cropOptions === undefined || (Array.isArray(p.cropOptions) && p.cropOptions.every(isPrePlantingOption)))
+    && (p.packedCropOptions === undefined || unpackCropOptions(p.packedCropOptions) !== null)
     && ['context', 'title', 'summary', 'weatherNote'].every(k => typeof (p as unknown as Record<string, unknown>)[k] === 'string')
     && Array.isArray(p.actions) && p.actions.every(a => typeof a === 'string')
     && (p.recommendations === undefined || (Array.isArray(p.recommendations) && p.recommendations.every(isRecommendation)))
@@ -390,7 +393,10 @@ export function savedEvaluationState(diagnosis: unknown): EvaluationState | unde
 export function presentationFromPoint(point: MeasurementPoint, language: AppLanguage = 'es'): MeasurementPresentation {
   const diagnosis = point.diagnosis as { presentation?: unknown; advice?: { suggestedCrops?: unknown } } | null;
   if (isMeasurementPresentation(diagnosis?.presentation) && diagnosis.presentation.stage === point.stage) {
-    const saved = diagnosis.presentation;
+    const original = diagnosis.presentation;
+    const unpacked = original.packedCropOptions ? unpackCropOptions(original.packedCropOptions) : null;
+    const { packedCropOptions: _packedCropOptions, ...unpackedPresentation } = original;
+    const saved = unpacked ? { ...unpackedPresentation, cropOptions: unpacked } : original;
     const title = localizedStageTitle(point.stage, point.verdict, saved.title, language);
     if (saved.version === 1) {
       const crops = diagnosis?.advice?.suggestedCrops;

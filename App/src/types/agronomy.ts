@@ -116,6 +116,7 @@ export interface AgronomicAlert {
    */
   ruleId?: string;
   ruleVersion?: string;
+  sources?: string[];
 }
 
 export interface MetricDetail {

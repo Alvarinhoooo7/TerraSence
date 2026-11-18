@@ -6,6 +6,7 @@ import { buildMeasurementPresentation, isMeasurementPresentation, parameterLabel
 import { localizeProbeError } from '../src/utils/probeErrors';
 import { cropName, textureName } from '../src/engine/catalogNames';
 import { CROPS_DB, SOIL_TEXTURES } from '../src/engine/agronomyEngine';
+import { unpackCropOptions } from '../src/engine/prePlanting';
 import { SPECIES_RULES } from '../src/engine/speciesRules';
 import type { CropId, SoilTextureId } from '../src/types/agronomy';
 import { NO_SPECIES_ID } from '../src/engine/speciesCatalog';
@@ -191,7 +192,7 @@ test('un suelo frío para maíz puede ofrecer trigo; pH ácido puede ofrecer ar�
   assert.deepEqual(withoutProfile({ ...raw, temp: 42 }).presentation.suggestedCrops, []);
   assert.doesNotMatch(cold.presentation.actions.join(' '), /No sembrar|pudrir|días con sol/);
   const acidic = withoutProfile({ ...raw, ph: 4.5 });
-  assert.deepEqual(acidic.presentation.suggestedCrops, ['🫐 Arándano (Berries)']);
+  assert.ok(acidic.presentation.suggestedCrops!.includes('🫐 Arándano (Berries)'));
   assert.doesNotMatch(acidic.presentation.actions.join(' '), /encalar|encalado|aplicar cal/);
 });
 
@@ -278,6 +279,7 @@ test('E6 (T36–T38, tamaño de instantánea): guardar antes del clima conserva 
   // T37: el clima llega después con serie horaria de 120 horas
   const normalized = normalizeWeather({
     ...WEATHER_UNITS,
+    timezone: 'UTC', utc_offset_seconds: 0,
     current: { time: '2026-10-12T14:00', interval: 900, temperature_2m: 19, weather_code: 1, precipitation: 0 },
     daily: {
       time: ['2026-10-12', '2026-10-13'],
@@ -334,7 +336,7 @@ test('E6 (T36–T38, tamaño de instantánea): guardar antes del clima conserva 
   const preSowingSnapshot = buildSavedDiagnosisSnapshot({
     raw, evaluation: preSowing.evaluation, advice: preSowing.advice, language: 'es', capturedAt, weather: null,
   });
-  assert.ok((preSowingSnapshot.presentation.cropOptions?.length ?? 0) > 1);
+  assert.ok((unpackCropOptions(preSowingSnapshot.presentation.packedCropOptions)?.length ?? 0) > 1);
   assert.ok(!('cropOptions' in preSowingSnapshot.advice));
   const preSowingBytes = Buffer.byteLength(JSON.stringify(preSowingSnapshot), 'utf8');
   assert.ok(preSowingBytes < 60 * 1024, `Instantánea de pre-siembra demasiado grande: ${preSowingBytes} bytes`);
@@ -413,9 +415,10 @@ test('T9: las recomendaciones que no salen de una variable no llevan evidencia',
 test('T9: la demanda del aire con suelo seco declara las tres variables que la sostienen', () => {
   const dry = { ...raw, vwc: 3, airTemp: 33, airHumidity: 20 };
   const { advice } = adviceFor(dry);
-  const demand = advice.recommendations!.find(r => r.kind === 'irrigation');
-  assert.ok(demand, 'hay recomendación de riego por demanda del aire');
-  assert.deepEqual(demand.evidence, ['vwc', 'airTemp', 'airHumidity']);
+  const demand = advice.recommendations!.find(r => /demanda evaporativa/.test(r.title));
+  assert.ok(demand, 'hay vigilancia de demanda del aire');
+  assert.deepEqual(demand.evidence, ['airTemp', 'airHumidity']);
+  assert.ok(!advice.recommendations!.some(r => r.kind === 'irrigation'));
 });
 
 test('T9: el validador acepta recomendaciones con y sin los campos nuevos y rechaza valores mal formados', () => {

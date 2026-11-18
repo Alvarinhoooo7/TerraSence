@@ -153,7 +153,7 @@ const translateMetrics = (metrics: AgronomicEvaluation['metrics']): AgronomicEva
  * los perfiles y texturas del prototipo, congelados con el mismo valor: no son referencias
  * agronómicas revisadas (estado `documented`, no `locally_validated`) y así se declara.
  */
-export const GENERAL_RULES_VERSION = '1.0.0';
+export const GENERAL_RULES_VERSION = '1.1.0';
 export const GENERAL_RULES = {
   'GEN-TEMP-01': { inputs: ['temp'], below: 4, basis: 'Mínimo térmico más bajo de los perfiles del prototipo (trigo, 4 °C).' },
   'GEN-PH-01': { inputs: ['ph'], below: 4.2, above: 7.8, basis: 'Unión de los rangos de pH de los perfiles del prototipo (arándano 4,2 a vid 7,8).' },
@@ -342,7 +342,8 @@ export function evaluateReadingForStage(
   const en = language === 'en';
   const quality = buildLocalInputQuality(reading, context?.capturedAt ?? '', context?.simulated);
   const coverage = buildEvaluationCoverage(quality, context?.evaluatedAt ?? null);
-  const usable = (key: 'temp' | 'ph' | 'vwc' | 'airHumidity' | 'airTemp') => quality.observations[key].availability === 'available' && coverage.freshness === 'fresh';
+  const usable = (key: 'temp' | 'ph' | 'vwc' | 'airHumidity' | 'airTemp') => quality.observations[key].availability === 'available' && coverage.freshness === 'fresh'
+    && (key !== 'ph' || quality.observations.vwc.availability !== 'available' || reading.vwc >= 5);
   const alerts: AgronomicAlert[] = [];
   const rule = (ruleId: GeneralRuleId) => ({ ruleId, ruleVersion: GENERAL_RULES_VERSION });
   const metrics = Object.fromEntries(
@@ -367,6 +368,10 @@ export function evaluateReadingForStage(
     en ? 'Soil pH compared with the general reference range (4.2 to 7.8).' : 'pH del suelo comparado con el rango general de referencia (4,2 a 7,8).',
     en ? 'Confirm pH and crop requirements before applying amendments.' : 'Confirma el pH y los requerimientos del cultivo antes de aplicar enmiendas.',
     en ? 'Confirm pH in a laboratory' : 'Confirma el pH en laboratorio');
+  if (usable('temp') && Math.abs(reading.temp - GENERAL_RULES['GEN-TEMP-01'].below) <= 0.5 && !alerts.some(a => a.ruleId === 'GEN-TEMP-01')) {
+    alerts.push({ type: 'info', param: 'temp', title: en ? 'Temperature near a reference boundary' : 'Temperatura cerca de un límite de referencia',
+      action: en ? 'Repeat the measurement. The manufacturer declares ±0.5 °C accuracy; field performance is unverified.' : 'Repite la medición. El fabricante declara ±0,5 °C de exactitud; falta contrastar el equipo en terreno.', ...rule('GEN-TEMP-01') });
+  }
   metrics.ec.msg = localQualityNote(quality.observations.ec, language);
   metrics.ph.confidenceNote = localQualityNote(quality.observations.ph, language);
   // Sólo se destaca un extremo de humedad si todos los perfiles coinciden.
@@ -381,6 +386,10 @@ export function evaluateReadingForStage(
       action: en ? 'Check moisture and drainage in the field and repeat the reading before deciding on irrigation or machinery.' : 'Revisa humedad y drenaje en terreno y repite la lectura antes de decidir riego o ingreso de maquinaria.',
       ...rule('GEN-VWC-01'),
     });
+  }
+  if (usable('vwc') && !dry && !wet && (Math.abs(reading.vwc - GENERAL_RULES['GEN-VWC-01'].below) <= 2 || Math.abs(reading.vwc - GENERAL_RULES['GEN-VWC-01'].atOrAbove) <= 3)) {
+    alerts.push({ type: 'info', param: 'vwc', title: en ? 'Moisture near a reference boundary' : 'Humedad cerca de un límite de referencia',
+      action: en ? 'Repeat the reading and check field conditions before deciding. The declared sensor accuracy has not been verified in the field.' : 'Repite la lectura y revisa las condiciones en terreno antes de decidir. Falta contrastar la exactitud declarada de la sonda.', ...rule('GEN-VWC-01') });
   }
   for (const key of ['nitrogen', 'phosphorus', 'potassium'] as const) {
     metrics[key] = { ...metrics[key], confidence: 'LOW',

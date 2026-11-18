@@ -61,7 +61,8 @@ const WET: readonly WeatherKind[] = ['drizzle', 'rain', 'showers', 'storm'];
 export function isRainingNow(weather: Pick<CurrentWeather, 'precipitationMm' | 'weatherCode'> | null | undefined): boolean {
   if (!weather) return false;
   const kind = weatherKind(weather.weatherCode);
-  return (weather.precipitationMm ?? 0) > 0 || (kind !== null && WET.includes(kind));
+  if (kind === 'snow') return false;
+  return kind !== null && WET.includes(kind);
 }
 
 /** Día con lluvia relevante para planificar: 1 mm o más, o probabilidad de 60 % o más. */

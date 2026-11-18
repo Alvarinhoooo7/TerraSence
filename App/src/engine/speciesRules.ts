@@ -25,6 +25,7 @@
 import type { PhenologicalStage } from '../types/app';
 import type { AgronomicAlert, SoilMeasurement } from '../types/agronomy';
 import type { AppLanguage } from '../types/preferences';
+import { phAccuracyBand } from './localPhysics';
 import type { SpeciesAirTemperatureCriterion, SpeciesComparison, SpeciesCriterion, SpeciesPhCriterion, SpeciesRuleProfile, SpeciesSeverity, SpeciesThreshold, SpeciesWeatherEventCriterion } from './speciesRuleKit';
 import { decimal, salt } from './speciesRuleKit';
 import { HORTALIZA_PROFILES } from './speciesProfilesHortalizas';
@@ -32,12 +33,13 @@ import { FRUTAL_PROFILES } from './speciesProfilesFrutales';
 import { BERRY_AROMATIC_PROFILES } from './speciesProfilesBerriesAromaticas';
 import { FIELD_CROP_PROFILES } from './speciesProfilesCultivos';
 import type { GeneralWeatherRisk } from './weatherOutlook';
+import { GENERAL_WEATHER_RISK } from './weatherOutlook';
 
 export type { SpeciesCriterionState, SpeciesCriterionEvidence, SpeciesPhCriterion, SpeciesThreshold, SpeciesComparison, SpeciesSeverity, SpeciesAirTemperatureCriterion, SpeciesReadingCriterion, SpeciesWeatherEventCriterion, SpeciesSalinityCriterion, SpeciesWaterCriterion, SpeciesCriterion, SpeciesEstablishment, SpeciesRuleProfile } from './speciesRuleKit';
 export { fahrenheitToCelsius } from './speciesRuleKit';
 
 /** Versión del conjunto de criterios; cambia cuando se agrega, corrige o retira uno. */
-export const SPECIES_RULES_VERSION = '3.2.0';
+export const SPECIES_RULES_VERSION = '3.3.0';
 
 const PROFILES: readonly SpeciesRuleProfile[] = [...HORTALIZA_PROFILES, ...FRUTAL_PROFILES, ...BERRY_AROMATIC_PROFILES, ...FIELD_CROP_PROFILES];
 
@@ -123,10 +125,10 @@ function phPlain(criterion: SpeciesPhCriterion, position: PhPosition, ph: number
       action: `${measured} ${en ? 'It is within the ideal range.' : 'Está dentro de lo ideal.'}` };
     case 'below_optimum': return {
       title: en ? 'pH slightly low for this crop' : 'pH algo bajo para este cultivo',
-      action: `${measured} ${en ? 'It is below ideal but still acceptable.' : 'Está bajo lo ideal, pero todavía es aceptable.'} ${recheck}` };
+      action: criterion.lowerLimit == null ? `${measured} ${en ? 'Below the target; the lower tolerance is unknown. Confirm before deciding.' : 'Bajo el objetivo; no se conoce el límite inferior de tolerancia. Confirma antes de decidir.'}` : `${measured} ${recheck}` };
     case 'above_optimum': return {
       title: en ? 'pH slightly high for this crop' : 'pH algo alto para este cultivo',
-      action: `${measured} ${en ? 'It is above ideal but still acceptable.' : 'Está sobre lo ideal, pero todavía es aceptable.'} ${recheck}` };
+      action: criterion.upperLimit == null ? `${measured} ${en ? 'Above the target; the upper tolerance is unknown. Confirm before deciding.' : 'Sobre el objetivo; no se conoce el límite superior de tolerancia. Confirma antes de decidir.'}` : `${measured} ${recheck}` };
   }
 }
 
@@ -184,11 +186,22 @@ export function evaluateSpeciesCriteria(
   const en = language === 'en';
   const alerts: AgronomicAlert[] = [];
   const localAirHits: SpeciesAirTemperatureCriterion[] = [];
-  for (const criterion of profile.criteria) {
+  for (const [criterionIndex, criterion] of profile.criteria.entries()) {
     if (criterion.state !== 'enabled' || !criterion.stages.includes(stage)) continue;
+    const previousCount = alerts.length;
     if (criterion.kind === 'ph') {
       if (!usable('ph') || typeof reading.ph !== 'number' || !Number.isFinite(reading.ph)) continue;
       const position = classifyPh(criterion, reading.ph);
+      const boundaries = [criterion.lowerLimit, criterion.upperLimit].filter((value): value is number => value != null);
+      if (boundaries.some(value => Math.abs(reading.ph - value) <= phAccuracyBand())) {
+        alerts.push({ type: 'info', param: 'ph', origin: 'species',
+          title: en ? 'pH close to a reference boundary' : 'pH cerca de un límite de referencia',
+          headline: en ? 'Repeat and confirm pH' : 'Repite y confirma el pH',
+          action: en ? 'The reading is close to a reference boundary. Repeat it and confirm in a laboratory before deciding.' : 'La lectura está cerca de un límite de referencia. Repite la medición y confirma en laboratorio antes de decidir.',
+          detail: `${phTitle(criterion, position, language)}. ${explanation(criterion, en ? 'The manufacturer declares ±0.3 pH accuracy. The assembled device has not been validated in the field.' : 'El fabricante declara una exactitud de ±0,3 pH. El equipo ensamblado no ha sido validado en terreno.', language)}`,
+          ruleId: `species:${profile.speciesId}:${criterionIndex}`, ruleVersion: SPECIES_RULES_VERSION, sources: criterion.evidence.map(e => e.url) });
+        continue;
+      }
       const check = en
         ? 'Probe reading in the field: confirm pH with a laboratory analysis before correcting it.'
         : 'Lectura de la sonda en terreno: confirma el pH con un análisis de laboratorio antes de corregirlo.';
@@ -240,6 +253,12 @@ export function evaluateSpeciesCriteria(
         detail: explanation(criterion, '', language),
       });
     }
+    if (alerts.length > previousCount) {
+      const alert = alerts[alerts.length - 1];
+      alert.ruleId = `species:${profile.speciesId}:${criterionIndex}`;
+      alert.ruleVersion = SPECIES_RULES_VERSION;
+      alert.sources = criterion.evidence.map(e => e.url);
+    }
   }
   // Grados de un mismo riesgo: sólo el umbral más bajo que se cumple, como en el pronóstico (T44).
   const local = localAirHits.reduce<SpeciesAirTemperatureCriterion | null>((best, c) => !best || c.threshold.value < best.threshold.value
@@ -256,10 +275,11 @@ export function evaluateSpeciesCriteria(
       detail: explanation(local, en
         ? `Air temperature measured by the device at this point when measuring (${measured} °C), compared with the threshold the source gives for the daily low: if it is already at or below the threshold, the low of the day is too. It is a single reading: it does not say how long the cold lasts, and a reading above the threshold does not rule out frost later.`
         : `Temperatura del aire que midió el equipo en este punto al medir (${measured} °C), comparada con el umbral que la fuente da para la mínima del día: si ya está en el umbral o bajo él, la mínima del día también. Es una sola lectura: no dice cuánto dura el frío, y una lectura sobre el umbral no descarta una helada más tarde.`, language),
+      ruleId: `species:${profile.speciesId}:${profile.criteria.indexOf(local)}`, ruleVersion: SPECIES_RULES_VERSION, sources: local.evidence.map(e => e.url),
     });
   }
   // Trazabilidad (§8.1): la especie y la variable identifican el criterio; la versión, el conjunto.
-  return alerts.map(alert => ({ ...alert, ruleId: `species:${profile.speciesId}:${alert.param}`, ruleVersion: SPECIES_RULES_VERSION }));
+  return alerts;
 }
 
 /**
@@ -319,6 +339,11 @@ export interface SpeciesWeatherFinding {
   detail: string;
   /** El primer momento en que aplica. */
   when: 'now' | 'today' | 'next_days';
+  dates?: string[];
+  ruleId?: string;
+  sources?: string[];
+  inputs?: Record<string, number | null>;
+  generalRisks?: GeneralWeatherRisk[];
 }
 
 export interface SpeciesWeatherResult {
@@ -327,6 +352,7 @@ export interface SpeciesWeatherResult {
   /** Al menos un criterio aplicable se pudo comparar con el pronóstico. */
   evaluated: boolean;
   findings: SpeciesWeatherFinding[];
+  coverage?: { date: string; risk: string; available: boolean }[];
 }
 
 const isWeatherCriterion = (c: SpeciesCriterion): c is SpeciesAirTemperatureCriterion | SpeciesWeatherEventCriterion =>
@@ -387,15 +413,20 @@ export function evaluateSpeciesWeather(
   const criteria = (profile?.criteria ?? []).filter(c => c.state === 'enabled' && c.stages.includes(stage)).filter(isWeatherCriterion);
   if (!criteria.length) return { applicable: false, evaluated: false, findings: [] };
   if (!weather) return { applicable: true, evaluated: false, findings: [] };
+  const coverage = weather.days.flatMap(day => criteria.map(criterion => {
+    const risk = criterion.kind === 'weather_event' ? criterion.event : criterion.extreme === 'minimum' && /below/.test(criterion.comparison) ? 'cold' : 'heat';
+    const value = criterion.kind === 'weather_event' ? day[criterion.event === 'rain' ? 'rainy' : 'fog'] : day[criterion.extreme === 'minimum' ? 'minimumTemperatureC' : 'maximumTemperatureC'];
+    return { date: day.date, risk, available: value !== null && value !== undefined };
+  }));
   const en = language === 'en';
   const n = (value: number) => decimal(Math.round(value * 10) / 10, language);
   const forecastCheck = en
     ? 'Model forecast for the area, not a measurement on the plant: confirm conditions in the field.'
     : 'Pronóstico del modelo para el sector, no una medición en la planta: confirma las condiciones en terreno.';
   let evaluated = false;
-  const found: (SpeciesWeatherFinding & { rank: number; family: string })[] = [];
+  const found: (SpeciesWeatherFinding & { rank: number; family: string; dates: string[] })[] = [];
 
-  for (const criterion of criteria) {
+  for (const [criterionIndex, criterion] of criteria.entries()) {
     if (criterion.kind === 'air_temperature') {
       const key = criterion.extreme === 'minimum' ? 'minimumTemperatureC' : 'maximumTemperatureC';
       const valueOf = (day: SpeciesWeatherDay) => day[key];
@@ -404,11 +435,11 @@ export function evaluateSpeciesWeather(
       evaluated = true;
       const hits = known.filter(day => meetsThreshold(criterion.comparison, criterion.threshold, valueOf(day)!));
       if (!hits.length) continue;
-      const worst = hits.reduce((a, b) => (criterion.extreme === 'minimum' ? valueOf(b)! < valueOf(a)! : valueOf(b)! > valueOf(a)!) ? b : a);
+      const below = criterion.comparison === 'below' || criterion.comparison === 'at_or_below';
+      const worst = hits.reduce((a, b) => (below ? valueOf(b)! < valueOf(a)! : valueOf(b)! > valueOf(a)!) ? b : a);
       const label = criterion.extreme === 'minimum' ? (en ? 'low' : 'mínima') : (en ? 'high' : 'máxima');
       const on = worst.isToday ? worst.label : `${en ? 'on' : 'el'} ${worst.label}`;
       const days = hits.length > 1 ? ` ${en ? 'Days at risk' : 'Días con riesgo'}: ${listDays(hits.map(d => d.label), language)}.` : '';
-      const below = criterion.comparison === 'below' || criterion.comparison === 'at_or_below';
       const hoursRun = longestRun(weather.hours, worst.date, value => meetsThreshold(criterion.comparison, criterion.threshold, value));
       const duration = hoursRun == null ? ''
         : en ? ` About ${hoursRun} hours in a row ${below ? 'at or below' : 'above'} ${n(criterion.threshold.value)} °C are expected ${on}.`
@@ -416,11 +447,18 @@ export function evaluateSpeciesWeather(
       found.push({
         type: criterion.severity,
         title: `${en ? criterion.effectEn : criterion.effect} — ${label} ${en ? 'of' : 'de'} ${n(valueOf(worst)!)} °C ${on}`,
-        headline: criterion.extreme === 'minimum' ? (en ? 'Protect the crop from the cold' : 'Protege el cultivo del frío')
-          : (en ? 'Protect the crop from the heat' : 'Protege el cultivo del calor'),
+        headline: below ? (en ? 'Protect the crop from the cold' : 'Protege el cultivo del frío')
+          : criterion.extreme === 'minimum' ? (en ? 'Monitor fruit set after warm nights' : 'Vigila la cuaja tras la noche cálida')
+            : (en ? 'Protect the crop from the heat' : 'Protege el cultivo del calor'),
         body: `${en ? criterion.adviceEn : criterion.advice}${days}${duration}`,
         detail: explanation(criterion, forecastCheck, language),
         when: hits[0].isToday ? 'today' : 'next_days',
+        dates: hits.map(day => day.date),
+        ruleId: `species:${profile!.speciesId}:${stage}:weather:${criterionIndex}`,
+        sources: criterion.evidence.map(e => e.url),
+        inputs: Object.fromEntries(weather.days.map(day => [`${day.date}:${key}`, day[key]])),
+        generalRisks: criterion.extreme === 'minimum' && below && criterion.threshold.value <= GENERAL_WEATHER_RISK.frostAtOrBelowC ? ['frost']
+          : criterion.extreme === 'maximum' && !below ? ['heat'] : [],
         // Gana el umbral más extremo de cada familia: helada más fuerte, calor o noche más cálidos.
         rank: below ? criterion.threshold.value : -criterion.threshold.value,
         family: `${criterion.extreme}:${below ? 'below' : 'above'}`,
@@ -442,6 +480,11 @@ export function evaluateSpeciesWeather(
         body: en ? criterion.adviceEn : criterion.advice,
         detail: explanation(criterion, forecastCheck, language),
         when: now ? 'now' : hits[0].isToday ? 'today' : 'next_days',
+        dates: [...new Set([...(now ? weather.days.filter(day => day.isToday).map(day => day.date) : []), ...hits.map(day => day.date)])],
+        ruleId: `species:${profile!.speciesId}:${stage}:weather:${criterionIndex}`,
+        sources: criterion.evidence.map(e => e.url),
+        inputs: Object.fromEntries(weather.days.map(day => [`${day.date}:${key}`, day[key] === null ? null : day[key] ? 1 : 0])),
+        generalRisks: criterion.event === 'rain' ? ['rain'] : [],
         rank: 0, family: criterion.event,
       });
     }
@@ -449,10 +492,11 @@ export function evaluateSpeciesWeather(
 
   const findings = found
     .filter(f => !found.some(other => other !== f && other.family === f.family
+      && f.dates.every(date => other.dates.includes(date))
       && (other.rank < f.rank || (other.rank === f.rank && SEVERITY_ORDER[other.type] < SEVERITY_ORDER[f.type]))))
     .sort((a, b) => SEVERITY_ORDER[a.type] - SEVERITY_ORDER[b.type])
     .map(({ rank: _rank, family: _family, ...finding }) => finding);
-  const result: SpeciesWeatherResult = { applicable: true, evaluated, findings };
+  const result: SpeciesWeatherResult = { applicable: true, evaluated, findings, coverage };
   return result;
 }
 

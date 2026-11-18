@@ -1,5 +1,7 @@
 import { buildContextualAdvice, type ContextualAdvice } from '../engine/contextualAdvice';
+import { PRE_PLANTING_VERSION, packCropOptions } from '../engine/prePlanting';
 import type { WeatherEvaluationContext } from '../engine/evaluationCoverage';
+import { EVIDENCE_POLICY, evidenceFreshness } from '../engine/evaluationCoverage';
 import { buildLocalInputQuality } from '../engine/inputQuality';
 import { deriveLocalPhysics } from '../engine/localPhysics';
 import { buildMeasurementPresentation, type MeasurementPresentation } from '../engine/measurementPresentation';
@@ -56,10 +58,13 @@ export function applyWeatherToCapture(
     params.speciesId,
   );
   const weatherStatus = advice.weatherCoverage?.status ?? 'not_evaluated';
+  const currentValidTo = forecast?.inputQuality?.current?.temperatureC?.validTo ?? forecast?.inputQuality?.current?.precipitationMm?.validTo ?? null;
+  const currentFresh = evidenceFreshness(currentValidTo, evaluatedAt, EVIDENCE_POLICY.weatherMaxAgeMs) === 'fresh';
   return {
     evaluation,
     advice,
-    weather: weatherStatus === 'not_evaluated' ? null : forecast,
+    weather: weatherStatus === 'not_evaluated' || !forecast ? null : currentFresh ? forecast
+      : { ...forecast, temperatureC: null, precipitationMm: null, windKmh: null, weatherCode: null },
   };
 }
 
@@ -89,11 +94,14 @@ export function buildSavedDiagnosisSnapshot(params: {
     inputQuality,
     params.speciesId,
   );
+  const { cropOptions, ...presentationWithoutOptions } = presentation;
+  const savedPresentation = cropOptions ? { ...presentationWithoutOptions, packedCropOptions: packCropOptions(cropOptions) } : presentation;
   return {
-    presentation,
+    presentation: savedPresentation,
     inputQuality,
     derived: deriveLocalPhysics(inputQuality),
     evaluationState: params.evaluation.state,
+    ...(params.evaluation.stage === 'pre_siembra' ? { prePlantingVersion: PRE_PLANTING_VERSION } : {}),
     coverage: params.evaluation.coverage,
     localSource: 'probe-bme280-v1' as const,
     capturedAt: params.capturedAt,

@@ -68,13 +68,13 @@ test('ES6/T15: en cada perfil, el límite exacto no advierte y un décimo más a
     const type = (ph: number) => evaluateSpeciesCriteria(id, 'vegetativo', { ...raw, ph }, 'es')[0]?.type;
     if (c.lowerLimit != null) {
       assert.equal(type(c.lowerLimit), 'info', `${id}: en el mínimo ${c.lowerLimit}`);
-      assert.equal(type(round(c.lowerLimit - 0.1)), 'warning', `${id}: bajo el mínimo`);
+      assert.equal(type(round(c.lowerLimit - 0.1)), 'info', `${id}: cerca del mínimo se pide repetir`);
     } else {
       assert.equal(type(3.5), 'info', `${id}: sin mínimo documentado no hay advertencia`);
     }
     if (c.upperLimit != null) {
       assert.equal(type(c.upperLimit), 'info', `${id}: en el máximo ${c.upperLimit}`);
-      assert.equal(type(round(c.upperLimit + 0.1)), 'warning', `${id}: sobre el máximo`);
+      assert.equal(type(round(c.upperLimit + 0.1)), 'info', `${id}: cerca del máximo se pide repetir`);
     } else {
       assert.equal(type(9.5), 'info', `${id}: sin máximo documentado no hay advertencia`);
     }
@@ -96,13 +96,13 @@ test('ES6/T15: arándano distingue óptimo, fuera del óptimo y límites documen
   assert.match(at(4.8).detail!, /dentro del óptimo documentado para esta especie \(4,5–5,3\)/);
   // Entre 4,3 y 4,5 está bajo el ideal, pero la fuente sólo indica encalar bajo 4,3.
   assert.equal(at(4.4).type, 'info');
-  assert.equal(at(4.4).title, 'pH algo bajo para este cultivo');
-  assert.match(at(4.4).action, /no hace falta corregir/);
+  assert.equal(at(4.4).title, 'pH cerca de un límite de referencia');
+  assert.match(at(4.4).action, /Repite/);
   assert.match(at(4.4).detail!, /bajo el óptimo \(4,5–5,3\).*sobre su mínimo \(4,3\)/);
-  assert.equal(at(4.2).type, 'warning');
+  assert.equal(at(4.2).type, 'info');
   assert.equal(at(5.3).type, 'info');
-  assert.equal(at(5.4).type, 'warning');
-  assert.equal(at(5.4).title, 'pH demasiado alto para este cultivo (suelo alcalino)');
+  assert.equal(at(5.4).type, 'info');
+  assert.equal(at(5.4).title, 'pH cerca de un límite de referencia');
   assert.match(at(5.4).detail!, /sobre el máximo documentado para esta especie \(5,3\)/);
   assert.match(at(4.2).detail!, /University of Maryland Extension/);
   assert.match(at(4.2).action, /laboratorio/);
@@ -113,7 +113,7 @@ test('ES6/T15: arándano distingue óptimo, fuera del óptimo y límites documen
 
 test('ES6: tomate combina el óptimo de INIA con el mínimo de encalado y no inventa un máximo', () => {
   const at = (ph: number) => evaluateSpeciesCriteria('sp.tomate', 'floracion', { ...raw, ph }, 'es')[0];
-  assert.equal(at(5.9).type, 'warning');
+  assert.equal(at(5.9).type, 'info');
   assert.equal(at(6.0).type, 'info');
   assert.match(at(6.2).detail!, /dentro del óptimo documentado para esta especie \(6–6,5\)/);
   assert.equal(at(7.8).type, 'info', 'INIA documenta tomate establecido con pH 8');
@@ -124,7 +124,7 @@ test('ES6: tomate combina el óptimo de INIA con el mínimo de encalado y no inv
 
 test('ES6: papa sólo advierte bajo el mínimo común a ambos grupos de variedades', () => {
   const at = (ph: number) => evaluateSpeciesCriteria('sp.papa', 'vegetativo', { ...raw, ph }, 'es')[0];
-  assert.equal(at(4.9).type, 'warning');
+  assert.equal(at(4.9).type, 'info');
   for (const ph of [5.0, 5.3, 6.0, 7.0]) assert.equal(at(ph).type, 'info', `pH ${ph}`);
   assert.match(at(5.3).detail!, /variedad/);
 });
@@ -160,7 +160,7 @@ test('ES6/T45: los criterios de especie se agregan al final sin alterar las aler
         const withSpecies = evaluateReadingForStage(reading, stage, 'es', clock, speciesId);
         assert.deepEqual(withSpecies.alerts.slice(0, without.alerts.length), without.alerts, `${speciesId}/${stage}`);
         const added = withSpecies.alerts.slice(without.alerts.length);
-        assert.deepEqual(added, evaluateSpeciesCriteria(speciesId, stage, reading, 'es'), `${speciesId}/${stage}`);
+        assert.deepEqual(added, evaluateSpeciesCriteria(speciesId, stage, reading, 'es', key => key !== 'ph' || reading.vwc >= 5), `${speciesId}/${stage}`);
         assert.ok(added.every(a => a.origin === 'species'), 'las alertas de especie se identifican como tales');
         // Una nota informativa no cambia el estado; sólo cruzar un límite documentado lo hace.
         if (added.every(a => a.type === 'info')) assert.equal(withSpecies.state, without.state, `${speciesId}/${stage}`);

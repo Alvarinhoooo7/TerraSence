@@ -130,7 +130,9 @@ function CropOptionRow({ option }: { option: PrePlantingOption }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const badgeColor = option.classification === 'matches_evaluated_criteria' ? colors.success : colors.warning;
-  const badgeText = option.classification === 'matches_evaluated_criteria'
+  const badgeText = option.limitationCodes.includes('near_reference_boundary')
+    ? t('Cerca del límite', 'Near a boundary')
+    : option.classification === 'matches_evaluated_criteria'
     ? t('Compatible', 'Compatible')
     : t('Con limitaciones', 'With limitations');
   return <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10, gap: 6 }}>

@@ -74,11 +74,11 @@ test('reglas generales: cada alerta declara su regla y versión, con fronteras d
   assert.deepEqual(ids({ ...raw, ph: 7.8 }, 'vegetativo'), []);
   assert.deepEqual(ids({ ...raw, ph: 7.9 }, 'vegetativo'), ['GEN-PH-01']);
   assert.deepEqual(ids({ ...raw, vwc: 5.9 }, 'cosecha'), ['GEN-VWC-01']);
-  assert.deepEqual(ids({ ...raw, vwc: 6 }, 'cosecha'), []);
-  assert.deepEqual(ids({ ...raw, vwc: 59.9 }, 'cosecha'), []);
+  assert.deepEqual(ids({ ...raw, vwc: 6 }, 'cosecha'), ['GEN-VWC-01']);
+  assert.deepEqual(ids({ ...raw, vwc: 59.9 }, 'cosecha'), ['GEN-VWC-01']);
   assert.deepEqual(ids({ ...raw, vwc: 60 }, 'cosecha'), ['GEN-VWC-01']);
   assert.deepEqual(ids({ ...raw, temp: 3.9 }, 'pre_siembra'), ['GEN-TEMP-01']);
-  assert.deepEqual(ids({ ...raw, temp: 4 }, 'pre_siembra'), []);
+  assert.deepEqual(ids({ ...raw, temp: 4 }, 'pre_siembra'), ['GEN-TEMP-01']);
 });
 
 test('T20: en una etapa distinta de pre-siembra sin especie no se asigna especie ni se propone otro cultivo', () => {
@@ -165,13 +165,13 @@ test('E4/§9.2: GEN-PH-01 no contradice la especie elegida y las alertas del mis
 
 test('§9.2: un criterio de frío de la especie no oculta el aviso general de helada de otro día', () => {
   const location = { latitude: -33, longitude: -70 };
-  const context = { captureId: 'capture-frio', location, evaluatedAt: clock.evaluatedAt };
+  const context = { captureId: 'capture-frio', location, evaluatedAt: '2026-10-11T12:00:00Z' };
   const forecast = (mins: number[]) => {
     const weather = normalizeWeather({ ...WEATHER_UNITS, timezone: 'America/Santiago', utc_offset_seconds: -10800,
       current: { time: '2026-10-11T09:00', temperature_2m: 15 },
       daily: { time: ['2026-10-12', '2026-10-13', '2026-10-14', '2026-10-15'], temperature_2m_min: mins,
         temperature_2m_max: [18, 18, 18, 18], precipitation_sum: [0, 0, 0, 0], precipitation_probability_max: [0, 0, 0, 0] },
-    }, clock.evaluatedAt)!;
+    }, '2026-10-11T12:00:00Z')!;
     return { ...weather, request: { captureId: context.captureId, ...location } };
   };
   const weatherPlan = (speciesId: string, mins: number[]) => {
@@ -224,7 +224,8 @@ test('E5/\u00a77.5: toda cifra que la fuente citada no fija se declara y no da v
   // El techo de pH es una convenci\u00f3n del motor: la tabla B-1 s\u00f3lo da objetivo y pH de encalado.
   const broccoli = options.find(o => o.profileId === 'pre.brocoli.semilla')!;
   assert.ok(broccoli.limitationCodes.includes('values_not_in_cited_sources'));
-  assert.match(broccoli.technicalSummary, /Fijado por el motor, sin respaldo en esas fuentes: techo de pH 7,5/);
+  assert.match(broccoli.technicalSummary, /Supuestos del motor indicados arriba/);
+  assert.ok(broccoli.reasons.some(r => /techo de pH 7,5/.test(r)));
   assert.ok(broccoli.reasons.some(r => /Valores fijados por el motor/.test(r)));
   // Restringir no penaliza: el br\u00f3coli sigue siendo coincidencia plena.
   assert.equal(broccoli.classification, 'matches_evaluated_criteria');
@@ -314,7 +315,7 @@ test('ES9 (pre-siembra v3.0.0): cultivos anuales con fuente térmica directa, ra
       precipitation_sum: [20, 0, 0, 0],
       precipitation_probability_max: [80, 0, 0, 0],
     },
-  }, clock.evaluatedAt)!;
+  }, '2026-10-11T12:00:00Z')!;
   const crossed = evaluatePrePlantingOptions({ ...raw, temp: 22, ph: 6.4, vwc: 4.5, ec: 1800 }, 'es', undefined, {
     ...weather,
     request: { captureId: 'cap-pre', ...location },
@@ -332,7 +333,8 @@ test('ES9 (L8: C01+C02 y C09): demanda evaporativa combinada con suelo seco y pe
   const dryAirDrySoil = { ...raw, vwc: 10, airTemp: 32, airHumidity: 20 };
   const evalVeg = evaluateReadingForStage(dryAirDrySoil, 'vegetativo', 'es', clock, 'sp.tomate');
   const adviceVeg = buildContextualAdvice('vegetativo', evalVeg, dryAirDrySoil, null, 'es', undefined, 'sp.tomate');
-  assert.ok(adviceVeg.recommendations!.some(r => r.kind === 'irrigation' && r.priority === 'high' && /C01 \+ C02/.test(r.detail ?? '')));
+  assert.ok(adviceVeg.recommendations!.some(r => r.kind === 'monitoring' && /demanda evaporativa/.test(r.title)));
+  assert.ok(!adviceVeg.recommendations!.some(r => r.kind === 'irrigation'));
 
   const location = { latitude: -33, longitude: -70 };
   const context = { captureId: 'cap-rh', location, evaluatedAt: clock.evaluatedAt };
@@ -363,7 +365,6 @@ test('ES9 (L8: C01+C02 y C09): demanda evaporativa combinada con suelo seco y pe
   assert.equal(maxConsecutiveHighHumidityHours(taggedWeather, 90), 13);
   const adviceRh = buildContextualAdvice('floracion', evalVeg, raw, taggedWeather, 'es', context, 'sp.tomate');
   const rhRec = adviceRh.recommendations!.find(r => /C09/.test(r.detail ?? ''));
-  assert.ok(rhRec, 'Debe emitir recomendación horaria C09 con 13 h >= 90 % HR');
-  assert.doesNotMatch(`${rhRec.title} ${rhRec.body} ${rhRec.detail}`, /infecci[oó]n|infectad|fungicida|tiene hongos|est[aá] enfermo/i);
+  assert.equal(rhRec, undefined, 'Las horas transcurridas no se presentan como pronóstico');
 });
 

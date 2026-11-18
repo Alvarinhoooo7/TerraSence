@@ -66,6 +66,7 @@ export function weatherNow(weather: unknown): WeatherNow | null {
         minimumTemperatureC: number(rem.minimumTemperatureC),
         maximumTemperatureC: number(rem.maximumTemperatureC),
         precipitationMm: number(rem.precipitationMm),
+        ...(typeof rem.precipitationIncomplete === 'boolean' ? { precipitationIncomplete: rem.precipitationIncomplete } : {}),
         rainProbabilityPct: number(rem.rainProbabilityPct),
         maxWindKmh: number(rem.maxWindKmh),
       }

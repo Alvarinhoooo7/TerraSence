@@ -110,6 +110,7 @@ test('E1.3 cierre completo (T04–T06, T10–T14, T29–T32): integración de f�
   const location = { latitude: -33.45, longitude: -70.66, accuracy: 8 };
   const baseForecast = normalizeWeather({
     ...WEATHER_UNITS,
+    timezone: 'UTC', utc_offset_seconds: 0,
     current: { time: '2026-10-11T11:30', interval: 900, temperature_2m: 19, weather_code: 1, precipitation: 0 },
     daily: {
       time: ['2026-10-11', '2026-10-12'],

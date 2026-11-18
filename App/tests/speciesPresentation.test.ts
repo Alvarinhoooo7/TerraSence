@@ -47,7 +47,7 @@ test('ES6: una especie con criterios propios sólo cambia los parámetros que su
     assert.match(b.ec.state, /^Este cultivo (es|tolera)/);
     assert.equal(b.ec.status, a.ec.status);
     assert.notDeepEqual(b.ph, a.ph);
-    assert.ok(b.ph.state.includes('este cultivo'), `${speciesId}: el pH muestra el criterio de la especie`);
+    assert.match(b.ph.state, /este cultivo|cerca de un límite/, `${speciesId}: el pH muestra el criterio de la especie`);
     assert.equal(withSpecies.species?.hasStageCriteria, true);
     assert.match(withSpecies.context, /criterios de esta especie para vegetativo/);
   }
@@ -106,7 +106,7 @@ test('ES6: una nota de especie dentro del óptimo va como seguimiento; cruzar un
     return buildContextualAdvice('vegetativo', evaluation, reading, null, 'es').recommendations ?? [];
   };
   const within = plan(6.2);
-  const note = within.find(r => /pH adecuado/.test(r.title));
+  const note = within.find(r => /pH adecuado|pH cerca de un límite/.test(r.title));
   assert.equal(note?.kind, 'monitoring');
   assert.equal(note?.when, 'next_reading');
   assert.equal(within.some(r => r.kind === 'evidence'), true, 'la evaluación sigue siendo parcial');

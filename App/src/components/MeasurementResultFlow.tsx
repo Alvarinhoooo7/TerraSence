@@ -144,7 +144,7 @@ export function MeasurementResultFlow({ presentation: p, forecast, notices, onEx
       ? <ScreenText>{t('Esta lectura antigua no conserva sugerencias de cultivos.', 'This older reading does not keep crop suggestions.')}</ScreenText>
       : p.suggestedCrops.length ? <>
         <ScreenText muted={false}>{p.coverage
-          ? t('Coincidencias parciales por temperatura y pH. La conductividad no se compara sin método compatible:', 'Partial temperature and pH matches. Conductivity is not compared without a compatible method:')
+          ? t('Alternativas según temperatura y pH, incluidas las cercanas a un límite. La conductividad no se compara sin método compatible:', 'Options based on temperature and pH, including those near a boundary. Conductivity is not compared without a compatible method:')
           : t('Posibilidades registradas al medir:', 'Possibilities recorded at capture:')}</ScreenText>
         {p.cropOptions?.length
           ? <CropOptionsList options={p.cropOptions} />
