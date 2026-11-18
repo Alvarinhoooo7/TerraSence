@@ -27,6 +27,8 @@ void bleActualizar(uint32_t ahora);  // cierra la ventana vencida y reanuda el a
 bool bleConectado();
 void bleAbrirVentana(uint32_t ahora);
 bool bleVentanaAbierta(uint32_t ahora);
+// Milisegundos que le quedan a la ventana PAIR; 0 si está cerrada.
+uint32_t bleVentanaRestanteMs(uint32_t ahora);
 
 // Resultado del último intento de confirmar la vinculación, entregado una sola vez.
 enum class ResultadoVinculacion : uint8_t { Ninguno, Aceptado, Rechazado };
