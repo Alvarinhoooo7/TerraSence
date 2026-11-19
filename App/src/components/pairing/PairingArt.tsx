@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { AccessibilityInfo, View } from 'react-native';
-import Animated, { Easing, useAnimatedProps, useSharedValue, withDelay, withRepeat, withSequence, withTiming, type SharedValue } from 'react-native-reanimated';
+import React, { useEffect } from 'react';
+import { View } from 'react-native';
+import Animated, { Easing, useAnimatedProps, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, G, Path, Rect, Text as SvgText } from 'react-native-svg';
 import { ProbeGlyph } from '../art/ProbeGlyph';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
+import { useTranslation } from '../../hooks/useTranslation';
 
 /**
  * Ilustraciones de la vinculación, con la paleta de la bienvenida: fondo verde
@@ -12,24 +14,16 @@ const BG = '#17392C';
 const LEAF = '#C6DFB4';
 const PAPER = '#EDE8D9';
 const SCREEN = '#D8E6CD';
-const BLUE = '#3B9BF5';
+/** Azul del LED de la ventana PAIR; la espera «Buscando tu sonda» usa el mismo. */
+export const PAIR_BLUE = '#3B9BF5';
+const BLUE = PAIR_BLUE;
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-const AnimatedPath = Animated.createAnimatedComponent(Path);
 
-function useReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    void AccessibilityInfo.isReduceMotionEnabled().then(setReduced).catch(() => undefined);
-    const listener = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduced);
-    return () => listener.remove();
-  }, []);
-  return reduced;
-}
-
-function Frame({ children, ratio = 360 / 170 }: React.PropsWithChildren<{ ratio?: number }>) {
-  return <View accessible={false} importantForAccessibility="no-hide-descendants" style={{ width: '100%', aspectRatio: ratio, borderRadius: 18, overflow: 'hidden', backgroundColor: BG }}>
-    <Svg width="100%" height="100%" viewBox="0 0 360 170" preserveAspectRatio="xMidYMid meet">
-      <Circle cx="310" cy="20" r="80" fill="none" stroke="#3F604B" strokeWidth="1" />
+/** Marco de las ilustraciones; por omisión el viewBox de 360 × 170 con un arco decorativo arriba a la derecha. */
+function Frame({ children, width = 360, height = 170, decor }: React.PropsWithChildren<{ width?: number; height?: number; decor?: React.ReactNode }>) {
+  return <View accessible={false} importantForAccessibility="no-hide-descendants" style={{ width: '100%', aspectRatio: width / height, borderRadius: 18, overflow: 'hidden', backgroundColor: BG }}>
+    <Svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet">
+      {decor ?? <Circle cx="310" cy="20" r="80" fill="none" stroke="#3F604B" strokeWidth="1" />}
       {children}
     </Svg>
   </View>;
@@ -43,15 +37,10 @@ function Ground() {
 }
 
 const PROBE_TOP = 42;
-/** LED de la sonda única (ProbeGlyph lo dibuja en -10, 14): el parpadeo azul de PAIR se superpone ahí. */
-const ledPosition = (x: number) => ({ cx: x - 10, cy: PROBE_TOP + 14 });
 
 /** Sonda de pie sobre el suelo; `x` es su centro. */
-function Probe({ x, led = BLUE, pair = false }: { x: number; led?: string | null; pair?: boolean }) {
-  return <G>
-    <ProbeGlyph x={x} y={PROBE_TOP} pinLength={50} led={led ?? undefined} />
-    {pair ? <SvgText x={x} y={PROBE_TOP - 6} fill={LEAF} fontSize="11" fontWeight="bold" textAnchor="middle">PAIR</SvgText> : null}
-  </G>;
+function Probe({ x, led = BLUE }: { x: number; led?: string }) {
+  return <ProbeGlyph x={x} y={PROBE_TOP} pinLength={50} led={led} />;
 }
 
 function Phone({ x, y = 36, w = 62, h = 108, children }: React.PropsWithChildren<{ x: number; y?: number; w?: number; h?: number }>) {
@@ -103,41 +92,44 @@ export function NewProbeArt() {
   </Frame>;
 }
 
-/** Un arco de Bluetooth que aparece cuando la onda pasa por él y se apaga al alejarse. */
-function useArc(wave: SharedValue<number>, from: number, reduced: boolean) {
-  return useAnimatedProps(() => ({ opacity: reduced ? 0.9 : Math.max(0, Math.min(1, (wave.value - from) * 3)) * (1 - wave.value * 0.6) }));
-}
+/*
+ * Preparar la sonda: la sonda en grande (1,9×), con el LED y el botón PAIR rotulados.
+ * Posiciones en el viewBox de 342 × 232: la sonda se centra en x = 171 y su cuerpo parte en y = 22.
+ */
+const PREP_W = 342, PREP_H = 232;
+const PREP_X = 171, PREP_Y = 22, PREP_SCALE = 1.9;
+/** LED (-10, 14, radio 4) y centro del botón PAIR (8,5, 14) de ProbeGlyph, llevados a la escala de la ilustración. */
+const PREP_LED = { cx: PREP_X - 10 * PREP_SCALE, cy: PREP_Y + 14 * PREP_SCALE, r: 4 * PREP_SCALE };
+const PREP_PAIR = { cx: PREP_X + 8.5 * PREP_SCALE, cy: PREP_Y + 14 * PREP_SCALE };
 
 /**
- * Preparar la sonda: el dedo mantiene PAIR, el LED azul parpadea y el teléfono
- * espera a menos de 2 metros. Con «reducir movimiento» queda quieta.
+ * Preparar la sonda: el LED azul parpadea y un aro late sobre PAIR, con rótulos
+ * para no tener que adivinar dónde mirar. Con «reducir movimiento» queda quieta.
  */
 export function PairPrepareArt() {
   const reduced = useReducedMotion();
+  const { t } = useTranslation();
   const led = useSharedValue(1);
-  const wave = useSharedValue(0);
+  const ring = useSharedValue(0);
   useEffect(() => {
-    if (reduced) { led.value = 1; wave.value = 1; return; }
-    led.value = withRepeat(withSequence(withTiming(0.15, { duration: 260 }), withTiming(1, { duration: 260 })), -1, false);
-    wave.value = 0;
-    wave.value = withRepeat(withDelay(300, withTiming(1, { duration: 1600, easing: Easing.out(Easing.quad) })), -1, false);
+    if (reduced) { led.value = 1; ring.value = 0.5; return; }
+    led.value = withRepeat(withSequence(withTiming(0.15, { duration: 450, easing: Easing.inOut(Easing.quad) }), withTiming(1, { duration: 450, easing: Easing.inOut(Easing.quad) })), -1, false);
+    ring.value = 0;
+    ring.value = withRepeat(withTiming(1, { duration: 1800, easing: Easing.out(Easing.quad) }), -1, false);
   }, [reduced]);
   const ledProps = useAnimatedProps(() => ({ opacity: led.value }));
-  const a1 = useArc(wave, 0, reduced); const a2 = useArc(wave, 0.2, reduced); const a3 = useArc(wave, 0.4, reduced);
-  return <Frame>
-    <Ground />
-    <Probe x={96} led={null} pair />
-    <AnimatedCircle {...ledPosition(96)} r={4} fill={BLUE} animatedProps={ledProps} />
-    {/* Dedo sobre PAIR */}
-    <Path d="M114 46c0-6 10-6 10 0v24c0 4-10 4-10 0Z" fill="#E8C9A8" />
-    <AnimatedPath d="M168 70q8 10 0 20" stroke={BLUE} strokeWidth="2.5" fill="none" strokeLinecap="round" animatedProps={a1} />
-    <AnimatedPath d="M178 62q16 18 0 36" stroke={BLUE} strokeWidth="2.5" fill="none" strokeLinecap="round" animatedProps={a2} />
-    <AnimatedPath d="M188 54q24 26 0 52" stroke={BLUE} strokeWidth="2.5" fill="none" strokeLinecap="round" animatedProps={a3} />
-    <Phone x={262} y={44} w={52} h={88} />
-    {/* Distancia: menos de 2 metros */}
-    <Path d="M96 160H288M96 154l0 12M288 154l0 12" stroke={PAPER} strokeWidth="1.6" strokeLinecap="round" />
-    <Rect x="168" y="150" width="48" height="20" rx="10" fill={BG} />
-    <SvgText x="192" y="164" fill={PAPER} fontSize="12" fontWeight="bold" textAnchor="middle">≤ 2 m</SvgText>
+  const ringProps = useAnimatedProps(() => ({ r: 12 + 18 * ring.value, opacity: 0.9 * (1 - ring.value) }));
+  return <Frame width={PREP_W} height={PREP_H} decor={<Circle cx={PREP_X} cy="80" r="120" fill="none" stroke="#2C5440" strokeWidth="1" />}>
+    <ProbeGlyph x={PREP_X} y={PREP_Y} scale={PREP_SCALE} pinLength={46} />
+    <AnimatedCircle {...PREP_LED} fill={BLUE} animatedProps={ledProps} />
+    <AnimatedCircle cx={PREP_PAIR.cx} cy={PREP_PAIR.cy} fill="none" stroke="#FFFFFF" strokeWidth="2" animatedProps={ringProps} />
+    {/* Rótulos: LED a la izquierda, PAIR a la derecha, con su línea guía. */}
+    <Path d={`M${PREP_LED.cx - 12} ${PREP_LED.cy}H96`} stroke="#C4D4C9" strokeWidth="1.4" />
+    <SvgText x="88" y={PREP_LED.cy - 4} fill="#FFFFFF" fontSize="13" fontWeight="bold" textAnchor="end">{t('LED azul', 'Blue LED')}</SvgText>
+    <SvgText x="88" y={PREP_LED.cy + 13} fill="#C4D4C9" fontSize="12" textAnchor="end">{t('parpadea', 'blinks')}</SvgText>
+    <Path d={`M${PREP_PAIR.cx + 24} ${PREP_PAIR.cy}H256`} stroke="#C4D4C9" strokeWidth="1.4" />
+    <SvgText x="262" y={PREP_PAIR.cy - 4} fill="#FFFFFF" fontSize="13" fontWeight="bold">PAIR</SvgText>
+    <SvgText x="262" y={PREP_PAIR.cy + 13} fill="#C4D4C9" fontSize="12">{t('3 segundos', '3 seconds')}</SvgText>
   </Frame>;
 }
 

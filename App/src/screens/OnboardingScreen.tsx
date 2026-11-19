@@ -383,7 +383,7 @@ export const OnboardingScreen: React.FC<Props> = ({ onComplete, onDevSkip, onCan
 
   if (step === 'pairing') {
     if (pairingState === 'saving') return <BrandLoading title={t('Vinculando tu sonda', 'Linking your probe')} detail={t('Registrando el equipo en tu cuenta.', 'Registering the device to your account.')} />;
-    if (pairingState === 'scanning') return <ProbeWait reading={false} eyebrow={eyebrowFlow} onCancel={backToChoice}
+    if (pairingState === 'scanning') return <ProbeWait reading={false} pairing eyebrow={eyebrowFlow} onCancel={backToChoice}
       title={t('Buscando tu sonda', 'Looking for your probe')}
       detail={t('Con la ventana PAIR abierta (LED azul parpadeando) y a menos de 2 metros del teléfono.', 'With the PAIR window open (blue LED blinking) and within 2 meters of the phone.')} />;
     return <ScreenLayout onBack={backToChoice} eyebrow={eyebrowFlow}
