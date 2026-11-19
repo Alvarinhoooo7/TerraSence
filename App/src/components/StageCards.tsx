@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useWindowDimensions, View } from 'react-native';
 import { Text } from './AppText';
-import Animated from 'react-native-reanimated';
+import Animated, { FadeIn, ReduceMotion, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 import Svg, { Circle, Ellipse, G, Path } from 'react-native-svg';
 import { GuideTouchable } from './guide/GuideControls';
 import { AppIcon } from './AppIcon';
-import { enterDown } from '../constants/motion';
+import { checkPop, enterDown, motionTiming } from '../constants/motion';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { PHENOLOGICAL_STAGES, type PhenologicalStage } from '../types/app';
@@ -59,43 +60,66 @@ export function StageArt({ stage }: { stage: PhenologicalStage }) {
 }
 
 /**
+ * Una etapa como tarjeta ilustrada. La elegida acerca su dibujo, tiñe su rótulo y
+ * muestra el visto; las demás atenúan sólo el dibujo, nunca el texto.
+ */
+function StageCard({ stage, label, hint, marked, dimmed, onPress }: {
+  stage: PhenologicalStage; label: string; hint: string; marked: boolean; dimmed: boolean; onPress: () => void;
+}) {
+  const { colors, isDark } = useAppTheme();
+  const { t } = useTranslation();
+  const focus = useSharedValue(marked ? 1 : 0);
+  const dim = useSharedValue(dimmed ? 1 : 0);
+  useEffect(() => { focus.value = motionTiming(marked ? 1 : 0, 260); }, [focus, marked]);
+  useEffect(() => { dim.value = motionTiming(dimmed ? 1 : 0, 260); }, [dim, dimmed]);
+  const artStyle = useAnimatedStyle(() => ({ opacity: 1 - 0.3 * dim.value, transform: [{ scale: 1 + 0.07 * focus.value }] }));
+  return <GuideTouchable guideTitle={label} guide={t('Elige esta etapa para interpretar la lectura según el desarrollo del cultivo.', 'Choose this stage to interpret the reading for crop development.')}
+    accessibilityRole="radio" accessibilityLabel={label} accessibilityHint={hint} accessibilityState={{ selected: marked }}
+    activeOpacity={0.85} onPress={onPress}
+    style={{ borderRadius: 22, borderWidth: 2, borderColor: marked ? colors.primary : colors.border, backgroundColor: colors.card, overflow: 'hidden' }}>
+    <View style={{ aspectRatio: 120 / 90, backgroundColor: '#17392C', overflow: 'hidden' }}>
+      <Animated.View style={[{ flex: 1 }, artStyle]}><StageArt stage={stage} /></Animated.View>
+      {marked && <Animated.View entering={checkPop()} accessible={false}
+        style={{ position: 'absolute', top: 10, right: 10, width: 28, height: 28, borderRadius: 14, backgroundColor: colors.primary, borderWidth: 2, borderColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' }}>
+        <AppIcon name="check" size={15} color={isDark ? colors.background : '#FFFFFF'} />
+      </Animated.View>}
+    </View>
+    <View style={{ paddingHorizontal: 14, paddingVertical: 12, backgroundColor: marked ? colors.tintSuccess : colors.card }}>
+      <Text numberOfLines={1} adjustsFontSizeToFit style={{ color: marked ? colors.primary : colors.text, fontSize: 17, fontWeight: '700' }}>{label}</Text>
+    </View>
+  </GuideTouchable>;
+}
+
+/**
  * Paso 1 de Medir: las cuatro etapas como tarjetas ilustradas en dos columnas
  * (una sola con texto muy grande) y, debajo, qué significa la elegida.
  */
 export function StageCards({ value, onChange }: { value: PhenologicalStage | null; onChange: (stage: PhenologicalStage) => void }) {
-  const { colors, isDark } = useAppTheme();
+  const { colors } = useAppTheme();
   const { t, language } = useTranslation();
   const { fontScale } = useWindowDimensions();
   const columns = fontScale > 1.5 ? 1 : 2;
   const selected = PHENOLOGICAL_STAGES.find(item => item.id === value);
-  return <View style={{ gap: 12 }}>
+  const choose = (stage: PhenologicalStage) => {
+    if (stage !== value) void Haptics.selectionAsync().catch(() => undefined);
+    onChange(stage);
+  };
+  return <View style={{ gap: 14 }}>
     <View accessibilityRole="radiogroup" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-      {PHENOLOGICAL_STAGES.map((item, i) => {
-        const marked = item.id === value;
-        const label = language === 'en' ? item.labelEn : item.label;
-        return <Animated.View key={item.id} entering={enterDown(60 + i * 80)} style={{ width: columns === 1 ? '100%' : '47.9%', flexGrow: 1 }}>
-          <GuideTouchable guideTitle={label} guide={t('Elige esta etapa para interpretar la lectura según el desarrollo del cultivo.', 'Choose this stage to interpret the reading for crop development.')}
-            accessibilityRole="radio" accessibilityLabel={label} accessibilityHint={language === 'en' ? item.focusEn : item.focus} accessibilityState={{ selected: marked }}
-            onPress={() => onChange(item.id)}
-            style={{ borderRadius: 22, borderWidth: marked ? 2 : 1, borderColor: marked ? colors.primary : colors.border, backgroundColor: colors.card, overflow: 'hidden' }}>
-            <View style={{ aspectRatio: 120 / 90, backgroundColor: '#17392C' }}>
-              <StageArt stage={item.id} />
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingHorizontal: 14, paddingVertical: 12 }}>
-              <Text numberOfLines={1} adjustsFontSizeToFit style={{ flex: 1, color: colors.text, fontSize: 17, fontWeight: '700' }}>{label}</Text>
-              {marked && <View accessible={false} style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
-                <AppIcon name="check" size={14} color={isDark ? colors.background : '#FFFFFF'} />
-              </View>}
-            </View>
-          </GuideTouchable>
-        </Animated.View>;
-      })}
+      {PHENOLOGICAL_STAGES.map((item, i) => <Animated.View key={item.id} entering={enterDown(60 + i * 80)} style={{ width: columns === 1 ? '100%' : '47.9%', flexGrow: 1 }}>
+        <StageCard stage={item.id} label={language === 'en' ? item.labelEn : item.label} hint={language === 'en' ? item.focusEn : item.focus}
+          marked={item.id === value} dimmed={value != null && item.id !== value} onPress={() => choose(item.id)} />
+      </Animated.View>)}
     </View>
-    <View accessibilityLiveRegion="polite" style={{ borderRadius: 18, borderWidth: 1, borderColor: colors.border, borderLeftWidth: selected ? 5 : 1, borderLeftColor: selected ? colors.primary : colors.border, padding: 16, gap: 4 }}>
-      {selected ? <>
-        <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.5 }}>{(language === 'en' ? selected.labelEn : selected.label).toUpperCase()}</Text>
-        <Text style={{ color: colors.text, fontSize: 16, lineHeight: 23 }}>{language === 'en' ? selected.focusEn : selected.focus}</Text>
-      </> : <Text style={{ color: colors.textSecondary, fontSize: 16, lineHeight: 23 }}>{t('Toca la etapa que más se parece a tu cultivo hoy.', 'Tap the stage that best matches your crop today.')}</Text>}
+    {/* Qué significa la etapa elegida: miniatura de su dibujo y una frase. */}
+    <View accessibilityLiveRegion="polite" style={{ borderRadius: 18, backgroundColor: selected ? colors.tintSuccess : 'transparent', borderWidth: selected ? 0 : 1, borderColor: colors.border, borderStyle: selected ? 'solid' : 'dashed', padding: 14, minHeight: 78, justifyContent: 'center' }}>
+      {selected ? <Animated.View key={selected.id} entering={FadeIn.duration(220).reduceMotion(ReduceMotion.System)} style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+        <View accessible={false} style={{ width: 64, height: 48, borderRadius: 12, overflow: 'hidden', backgroundColor: '#17392C' }}><StageArt stage={selected.id} /></View>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '700', letterSpacing: 1.5 }}>{(language === 'en' ? selected.labelEn : selected.label).toUpperCase()}</Text>
+          <Text style={{ color: colors.text, fontSize: 16, lineHeight: 23 }}>{language === 'en' ? selected.focusEn : selected.focus}</Text>
+        </View>
+      </Animated.View> : <Text style={{ color: colors.textSecondary, fontSize: 16, lineHeight: 23, textAlign: 'center' }}>{t('Toca la etapa que más se parece a tu cultivo hoy.', 'Tap the stage that best matches your crop today.')}</Text>}
     </View>
   </View>;
 }
