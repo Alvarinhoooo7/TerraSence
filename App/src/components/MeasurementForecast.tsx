@@ -8,7 +8,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useAppStore } from '../store/useAppStore';
 import { formatEngineMetric } from '../utils/units';
 import type { ForecastDay } from '../services/weatherService';
-import { compareForecastWindows, forecastOutlook, isRainingNow, isRainyDay, weatherKind, weatherKindLabel } from '../engine/weatherOutlook';
+import { compareForecastWindows, displayKindNow, displayKindOfDay, forecastOutlook, isRainingNow, isRainyDay, weatherKindLabel } from '../engine/weatherOutlook';
 import type { WeatherNow } from './measurementResultData';
 import { WeatherGlyph } from './result/WeatherGlyph';
 import { ScreenLabel, ScreenText } from './screen/ScreenUI';
@@ -63,7 +63,8 @@ export function MeasurementForecast({ days, now, loading = false, capturedAt, hi
       `High, low and rain in mm. Offline: this is the Open-Meteo forecast downloaded ${age}, ${where}.`);
   };
 
-  const nowKind = now ? weatherKind(now.weatherCode) ?? weatherKind(now.today.weatherCode) : null;
+  // Un código de llovizna sin lluvia probable (modelos en desacuerdo, trazas) se dibuja nublado.
+  const nowKind = now ? displayKindNow(now) ?? displayKindOfDay(now.today) : null;
   // Sin tiempo actual (p. ej. un pronóstico guardado, que no reutiliza el «ahora») la tarjeta es
   // el resumen del día: no se rotula como «ahora» ni se dice «Sin dato».
   const hasCurrent = !!now && [now.temperatureC, now.weatherCode, now.precipitationMm].some(v => v != null);
@@ -114,7 +115,7 @@ export function MeasurementForecast({ days, now, loading = false, capturedAt, hi
   const strip = <View style={{ flexDirection: 'row', borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, paddingVertical: 12 }}>
     {days.map((d, i) => {
       const date = new Date(`${d.date}T12:00:00Z`);
-      const kind = weatherKind(d.weatherCode) ?? (isRainyDay(d) ? 'rain' : null);
+      const kind = displayKindOfDay(d) ?? (isRainyDay(d) ? 'rain' : null);
       return <View key={d.date} accessible accessibilityLabel={`${date.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' })}: ${kind ? weatherKindLabel(kind, lang) + ', ' : ''}${d.precipitationMm != null ? mm(d.precipitationMm) + ', ' : ''}${degrees(d.minimumTemperatureC)} / ${degrees(d.maximumTemperatureC)}`}
         style={{ flex: 1, alignItems: 'center', gap: 4, borderLeftWidth: i ? 1 : 0, borderLeftColor: colors.border }}>
         <Text style={{ color: colors.textSecondary, fontSize: 13, fontWeight: '700', textTransform: 'capitalize' }}>

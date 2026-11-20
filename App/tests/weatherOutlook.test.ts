@@ -103,7 +103,7 @@ test('el plan de recomendaciones pone primero la lluvia actual, incluye hoy y ci
   const plan = advice.recommendations!;
   assert.equal(plan[0].kind, 'weather');
   assert.equal(plan[0].when, 'now');
-  assert.equal(plan[0].title, 'Está lloviendo ahora');
+  assert.equal(plan[0].title, '¿Está lloviendo en tu campo?');
   assert.equal(plan[plan.length - 1].kind, 'monitoring');
   const labor = plan.find(item => item.title === 'Programa las labores según el clima');
   assert.equal(labor?.when, 'today');
@@ -118,7 +118,7 @@ test('el plan de recomendaciones pone primero la lluvia actual, incluye hoy y ci
 test('sin lluvia actual el plan no la inventa y el pronóstico no evaluado no aporta recomendaciones de clima', () => {
   const evaluation = evaluateReadingForStage(raw, 'vegetativo', 'es', clock);
   const dry = buildContextualAdvice('vegetativo', evaluation, raw, rainyWeather({ precipitation: 0, weather_code: 3 }), 'es', context);
-  assert.ok(!dry.recommendations!.some(item => item.title === 'Está lloviendo ahora'));
+  assert.ok(!dry.recommendations!.some(item => item.ruleId?.startsWith('plan:rain-now')));
   const unverified = buildContextualAdvice('vegetativo', evaluation, raw, rainyWeather(), 'es', { ...context, captureId: 'otra' });
   assert.ok(!unverified.recommendations!.some(item => item.kind === 'weather'));
   assert.equal(unverified.recommendations![0].kind, 'evidence');

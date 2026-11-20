@@ -1,6 +1,7 @@
 import { numericEvidence } from '../engine/inputQuality';
 import { EVIDENCE_POLICY, WEATHER_CACHE_POLICY } from '../engine/evaluationCoverage';
 import type { EvidenceDatum } from '../types/agronomy';
+import { applyPrecipitationConsensus, consensusQuery, type PrecipitationConsensus } from './weatherConsensus';
 
 export interface ForecastDay {
   date: string;
@@ -83,6 +84,12 @@ export interface CurrentWeather {
    * Sirven para estimar duración de episodios y lo que resta del día sin deducir horas desde `daily`.
    */
   hourly?: HourlyWeatherSeries;
+  /**
+   * Lluvia según varios modelos (weatherConsensus.ts). Si está, la lluvia de `today` y de
+   * `forecast` ya es la mediana entre modelos; ausente en diagnósticos anteriores o si la
+   * consulta de modelos falló.
+   */
+  precipitationConsensus?: PrecipitationConsensus;
   fetchedAt: string;
   inputQuality: {
     version: 1;
@@ -347,6 +354,8 @@ export interface WeatherCacheEntry {
   fetchedAt: string;
   /** Respuesta del proveedor tal como llegó: se vuelve a normalizar al reutilizarla. */
   payload: unknown;
+  /** Lluvia horaria de los modelos del consenso, tal como llegó; ausente en entradas anteriores. */
+  modelsPayload?: unknown;
 }
 
 /** Distancia sobre la esfera (haversine), en metros. */
@@ -384,8 +393,9 @@ export function reuseCachedWeather(
   const chosen = candidates[0];
   if (!chosen) return null;
   const { current: _current, ...payload } = chosen.entry.payload as Record<string, unknown>;
-  const weather = normalizeWeather(payload, new Date(nowMs).toISOString());
-  if (!weather) return null;
+  const normalized = normalizeWeather(payload, new Date(nowMs).toISOString());
+  if (!normalized) return null;
+  const weather = chosen.entry.modelsPayload ? applyPrecipitationConsensus(normalized, chosen.entry.modelsPayload, false) : normalized;
   for (const datum of Object.values(weather.inputQuality.current)) {
     datum.limitationCodes = [...datum.limitationCodes.filter(code => code !== 'invalid_current_time'), 'cached_current_omitted'];
   }
@@ -426,6 +436,11 @@ export async function fetchCurrentWeather(
 async function downloadWeather(latitude: number, longitude: number, captureId: string | null, cacheScope: string | null): Promise<CurrentWeather | null> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), WEATHER_RESPONSE_BUDGET.maxLatencyMs);
+  const getJson = async (url: string): Promise<unknown> => {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json() as Promise<unknown>;
+  };
   try {
     const url =
       'https://api.open-meteo.com/v1/forecast' +
@@ -435,13 +450,17 @@ async function downloadWeather(latitude: number, longitude: number, captureId: s
       '&hourly=temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,wind_speed_10m' +
       `&forecast_days=${WEATHER_RESPONSE_BUDGET.maxForecastDays}&timezone=auto` +
       '&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm';
-    const response = await fetch(url, { signal: controller.signal });
-    if (!response.ok) return null;
-    const payload: unknown = await response.json();
+    // La lluvia de los otros modelos va en paralelo: si falla, el pronóstico sigue sin consenso.
+    const [main, models] = await Promise.allSettled([getJson(url), getJson(consensusQuery(latitude, longitude, WEATHER_RESPONSE_BUDGET.maxForecastDays))]);
+    if (main.status !== 'fulfilled') return null;
+    const payload = main.value;
+    const modelsPayload = models.status === 'fulfilled' ? models.value : undefined;
     const fetchedAt = new Date().toISOString();
-    const weather = normalizeWeather(payload, fetchedAt);
+    const normalized = normalizeWeather(payload, fetchedAt);
+    const weather = normalized && modelsPayload ? applyPrecipitationConsensus(normalized, modelsPayload) : normalized;
     if (weather && cacheScope) void import('./weatherCacheStore')
-      .then(({ storeWeather }) => storeWeather(cacheScope, { adapter: WEATHER_ADAPTER_VERSION, latitude, longitude, fetchedAt, payload }))
+      .then(({ storeWeather }) => storeWeather(cacheScope, { adapter: WEATHER_ADAPTER_VERSION, latitude, longitude, fetchedAt, payload,
+        ...(modelsPayload ? { modelsPayload } : {}) }))
       .catch(() => undefined);
     return weather ? { ...weather, request: { captureId, latitude, longitude } } : null;
   } catch {

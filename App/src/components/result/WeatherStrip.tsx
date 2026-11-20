@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 import { Text } from '../AppText';
 import { useAppTheme } from '../../hooks/useAppTheme';
 import { useTranslation } from '../../hooks/useTranslation';
-import { forecastOutlook, weatherKind } from '../../engine/weatherOutlook';
+import { displayKindNow, displayKindOfDay, forecastOutlook } from '../../engine/weatherOutlook';
 import type { ForecastProps } from '../MeasurementForecast';
 import { WeatherGlyph } from './WeatherGlyph';
 
@@ -29,7 +29,7 @@ export function WeatherStrip({ forecast, onPress }: { forecast: ForecastProps; o
   const { colors } = useAppTheme();
   const { t, language } = useTranslation();
   const { headline, detail } = weatherStripText(forecast, language === 'en' ? 'en' : 'es', t);
-  const kind = forecast.now ? weatherKind(forecast.now.weatherCode) ?? weatherKind(forecast.now.today.weatherCode) : weatherKind(forecast.days[0]?.weatherCode);
+  const kind = forecast.now ? displayKindNow(forecast.now) ?? displayKindOfDay(forecast.now.today) : forecast.days[0] ? displayKindOfDay(forecast.days[0]) : null;
   return <Pressable accessibilityRole="button" accessibilityLabel={[headline, detail].filter(Boolean).join(' ')}
     accessibilityHint={t('Abre el pronóstico completo.', 'Opens the full forecast.')} onPress={onPress}
     style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 20,

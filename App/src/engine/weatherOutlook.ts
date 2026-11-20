@@ -4,6 +4,7 @@
 // `GENERAL_WEATHER_RISK`, los umbrales que definen «día adverso» para todo el motor.
 
 import type { CurrentWeather, ForecastDay } from '../services/weatherService';
+import { PRECIPITATION_CONSENSUS } from '../services/weatherConsensus';
 import type { AppLanguage } from '../types/preferences';
 
 export type GeneralWeatherRisk = 'rain' | 'frost' | 'heat';
@@ -57,12 +58,77 @@ export const weatherKindLabel = (kind: WeatherKind, language: AppLanguage = 'es'
 
 const WET: readonly WeatherKind[] = ['drizzle', 'rain', 'showers', 'storm'];
 
-/** Llueve en la consulta: el proveedor acumuló agua en el último intervalo o informa un tiempo lluvioso. */
-export function isRainingNow(weather: Pick<CurrentWeather, 'precipitationMm' | 'weatherCode'> | null | undefined): boolean {
-  if (!weather) return false;
+/**
+ * Umbrales de «llueve ahora». Un código de tiempo húmedo no basta: los modelos anuncian
+ * llovizna de trazas con nubosidad baja aunque no caiga agua.
+ */
+export const RAIN_NOW = {
+  /** Sin consenso de modelos, la llovizna (o la precipitación sin tipo) necesita esta lluvia en el intervalo actual. */
+  minUnconfirmedMm: 0.2,
+  /** Lluvia por debajo de la cual un día con código húmedo se muestra como nublado. */
+  minWetDayMm: 0.2,
+} as const;
+
+export type RainNowSignal = 'likely' | 'uncertain' | 'none';
+type RainNowInput = Pick<CurrentWeather, 'precipitationMm' | 'weatherCode'> & Partial<Pick<CurrentWeather, 'precipitationConsensus'>>;
+
+/**
+ * Qué tan probable es que esté lloviendo en la consulta. `likely`: el proveedor informa tiempo
+ * lluvioso y la mayoría de los modelos tiene agua en la hora en curso (o, sin consenso, lluvia
+ * franca o llovizna con agua medible). `uncertain`: algunos modelos la tienen y otros no.
+ * Nunca se afirma como un hecho: lo confirma quien está en el campo.
+ */
+export function rainNowSignal(weather: RainNowInput | null | undefined): RainNowSignal {
+  if (!weather) return 'none';
   const kind = weatherKind(weather.weatherCode);
-  if (kind === 'snow') return false;
-  return kind !== null && WET.includes(kind);
+  if (kind === 'snow') return 'none';
+  const mm = weather.precipitationMm ?? 0;
+  const untyped = kind === null && mm > 0;
+  if (!untyped && !(kind !== null && WET.includes(kind))) return 'none';
+  const now = weather.precipitationConsensus?.now;
+  if (now && now.total >= PRECIPITATION_CONSENSUS.minModels) {
+    if (now.wet * 2 > now.total) return 'likely';
+    return now.wet > 0 ? 'uncertain' : 'none';
+  }
+  if ((untyped || kind === 'drizzle') && mm < RAIN_NOW.minUnconfirmedMm) return 'none';
+  return 'likely';
+}
+
+/** Llueve en la consulta según `rainNowSignal`. */
+export const isRainingNow = (weather: RainNowInput | null | undefined): boolean => rainNowSignal(weather) === 'likely';
+
+/** Tiempo que se dibuja para la consulta: un código húmedo sin lluvia probable se muestra nublado. */
+export function displayKindNow(weather: RainNowInput | null | undefined): WeatherKind | null {
+  const kind = weatherKind(weather?.weatherCode);
+  return kind !== null && WET.includes(kind) && rainNowSignal(weather) === 'none' ? 'cloudy' : kind;
+}
+
+/** Tiempo que se dibuja para un día: llovizna o lluvia con menos de `minWetDayMm` se muestra nublado. */
+export function displayKindOfDay(day: Pick<ForecastDay, 'weatherCode' | 'precipitationMm'>): WeatherKind | null {
+  const kind = weatherKind(day.weatherCode);
+  return kind !== null && WET.includes(kind) && day.precipitationMm != null && day.precipitationMm < RAIN_NOW.minWetDayMm ? 'cloudy' : kind;
+}
+
+/** Lluvia de «best_match» en las horas que quedan (la hora en curso incluida); `null` si falta alguna. */
+function hourlyRemainingMm(hourly: CurrentWeather['hourly'], fromHour: string, toHour: string): number | null {
+  if (!hourly?.precipitationMm) return null;
+  const values = hourly.time.flatMap((slot, i) => slot >= fromHour && slot <= toHour ? [hourly.precipitationMm![i]] : []);
+  if (!values.length || values.some(v => v == null)) return null;
+  return Math.round((values as number[]).reduce((acc, v) => acc + v, 0) * 10) / 10;
+}
+
+/**
+ * «Hoy» para planificar: la lluvia y su probabilidad de lo que QUEDA del día, no del día
+ * completo, que incluye horas ya pasadas. Temperaturas y fecha son las del día. Si no se
+ * conoce lo que queda, devuelve el día tal como llegó.
+ */
+export function planningToday(weather: Pick<CurrentWeather, 'today' | 'remainingToday'> & Partial<Pick<CurrentWeather, 'precipitationConsensus' | 'hourly'>>): ForecastDay | undefined {
+  const today = weather.today;
+  const rem = weather.remainingToday;
+  if (!today || !rem || rem.date !== today.date) return today;
+  const remainingMm = weather.precipitationConsensus?.remainingToday?.medianMm ?? rem.precipitationMm ?? hourlyRemainingMm(weather.hourly, rem.fromHour, rem.toHour);
+  if (remainingMm == null) return today;
+  return { ...today, precipitationMm: remainingMm, rainProbabilityPct: rem.rainProbabilityPct ?? today.rainProbabilityPct };
 }
 
 /** Día con lluvia relevante para planificar: 1 mm o más, o probabilidad de 60 % o más. */

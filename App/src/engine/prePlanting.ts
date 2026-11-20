@@ -24,6 +24,7 @@ import { findSpecies, type SpeciesGroup } from './speciesCatalog';
 import { fahrenheitToCelsius, type SpeciesCriterionEvidence, type SpeciesSalinityCriterion, TABLA_52, type Tabla52Row, TABLA_B1, type TablaB1Row } from './speciesRuleKit';
 import { SPECIES_RULES } from './speciesRules';
 import { phAccuracyBand, soilTempAccuracyBandC } from './localPhysics';
+import { planningToday } from './weatherOutlook';
 import type { CropId, SoilMeasurement } from '../types/agronomy';
 import type { AppLanguage } from '../types/preferences';
 import type { CurrentWeather } from '../services/weatherService';
@@ -1354,7 +1355,8 @@ export function evaluatePrePlantingOptions(
   );
   if (!valid) return [];
   const en = language === 'en';
-  const weatherDays = weather ? [...(weather.today ? [weather.today] : []), ...(weather.forecast ?? [])] : [];
+  const today = weather ? planningToday(weather) : undefined;
+  const weatherDays = weather ? [...(today ? [today] : []), ...(weather.forecast ?? [])] : [];
   const hasUpcomingFrost = weatherDays.some(
     day => typeof day.minimumTemperatureC === 'number' && Number.isFinite(day.minimumTemperatureC) && day.minimumTemperatureC <= 0,
   );

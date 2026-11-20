@@ -6,7 +6,7 @@ import type { PhenologicalStage } from '../types/app';
 import type { SoilMeasurement } from '../types/agronomy';
 import type { CurrentWeather } from '../services/weatherService';
 import type { AppLanguage } from '../types/preferences';
-import { GENERAL_WEATHER_RISK, generalRisksOfDay, isRainingNow, isRainyDay, weatherKind, type GeneralWeatherRisk } from './weatherOutlook';
+import { GENERAL_WEATHER_RISK, generalRisksOfDay, isRainingNow, isRainyDay, planningToday, rainNowSignal, weatherKind, type GeneralWeatherRisk } from './weatherOutlook';
 import { coveredGeneralWeatherRisks, evaluateSpeciesWeather, hasLocalAirCriteria, SPECIES_RULES_VERSION, type SpeciesWeatherInput } from './speciesRules';
 import { assessWeatherEvidence, evidenceFreshness, EVIDENCE_POLICY, type WeatherEvaluationContext, type WeatherCoverage } from './evaluationCoverage';
 import { assessProbeMetrologicalContext, dewPointC } from './localPhysics';
@@ -115,12 +115,14 @@ export function maxConsecutiveHighHumidityHours(weather: CurrentWeather | null |
 
 /** Hoy y los días siguientes en la forma que comparan los criterios climáticos de la especie. */
 function pickSpeciesWeather(weather: CurrentWeather, dayLabel: (date: string) => string): SpeciesWeatherInput {
-  const days = [...(weather.today ? [weather.today] : []), ...weather.forecast];
+  // Hoy cuenta por lo que le queda: la lluvia de horas ya pasadas no cambia lo que conviene hacer.
+  const today = planningToday(weather);
+  const days = [...(today ? [today] : []), ...weather.forecast];
   return {
     days: days.map(day => ({
       date: day.date,
       label: dayLabel(day.date),
-      isToday: day === weather.today,
+      isToday: day === today,
       minimumTemperatureC: finiteNumber(day.minimumTemperatureC) ? day.minimumTemperatureC : null,
       maximumTemperatureC: finiteNumber(day.maximumTemperatureC) ? day.maximumTemperatureC : null,
       rainy: finiteNumber(day.precipitationMm) || finiteNumber(day.rainProbabilityPct) ? isRainyDay(day) : null,
@@ -221,8 +223,9 @@ export function buildContextualAdvice(
           : 'Hay condiciones que conviene revisar. Antes de hacer cambios, confírmalas en terreno o con tu asesor.' });
   plan.push(...notes);
 
-  // Hoy cuenta como el primer día: si llueve hoy, también importa para regar o entrar al campo.
-  const today = weather?.today ?? null;
+  // Hoy cuenta como el primer día: si llueve en lo que queda de hoy, también importa para regar
+  // o entrar al campo. La lluvia de horas ya pasadas no cuenta (planningToday).
+  const today = weather ? planningToday(weather) ?? null : null;
   const upcoming = weather ? [...(today ? [today] : []), ...weather.forecast] : [];
   const dayLabel = (date: string) => today && date === today.date ? (en ? 'today' : 'hoy') : forecastDayLabel(date, language);
 
@@ -256,17 +259,27 @@ export function buildContextualAdvice(
       : (en ? 'Without an up-to-date forecast we could not check frost, heat or rain for this crop. Measure again with an internet connection.'
         : 'Sin un pronóstico actualizado no revisamos heladas, calor ni lluvia para este cultivo. Vuelve a medir con conexión a internet.') });
 
-  if (weather && isRainingNow(weather)) plan.push({ kind: 'weather', priority: 'high', when: 'now', ruleId: 'plan:rain-now',
-    trace: { ruleId: 'plan:rain-now', version: 'plan-v2', inputs: { currentPrecipitationMm: weather.precipitationMm, currentWeatherCode: weather.weatherCode ?? null }, dates: today ? [today.date] : [], sources: ['Open-Meteo'] },
-    title: en ? 'It is raining now' : 'Está lloviendo ahora',
-    headline: en ? 'Wait for the rain to stop' : 'Espera a que pare la lluvia',
-    body: en ? 'Soil moisture may change over the next hours. If you are deciding on irrigation or field work, measure again once the rain stops.'
-      : 'La humedad del suelo puede cambiar en las próximas horas. Si vas a decidir riego o labores, vuelve a medir cuando pare la lluvia.' });
-  if (weather && weatherKind(weather.weatherCode) === null && (weather.precipitationMm ?? 0) > 0) plan.push({ kind: 'weather', priority: 'normal', when: 'now', ruleId: 'plan:precipitation-now',
-    trace: { ruleId: 'plan:precipitation-now', version: 'plan-v2', inputs: { currentPrecipitationMm: weather.precipitationMm, currentWeatherCode: weather.weatherCode ?? null }, dates: today ? [today.date] : [], sources: ['Open-Meteo'] },
+  // «Llueve ahora» sale de modelos, no de lo que se ve en el campo: se pregunta, no se afirma.
+  const rainNow = weather ? rainNowSignal(weather) : 'none';
+  const rainNowTrace = (ruleId: string) => ({ ruleId, version: 'plan-v3', inputs: { currentPrecipitationMm: weather?.precipitationMm ?? null, currentWeatherCode: weather?.weatherCode ?? null,
+    modelsWithRainNow: weather?.precipitationConsensus?.now?.wet ?? null, modelsNow: weather?.precipitationConsensus?.now?.total ?? null }, dates: today ? [today.date] : [], sources: ['Open-Meteo'] });
+  if (weather && rainNow === 'likely' && weatherKind(weather.weatherCode) !== null) plan.push({ kind: 'weather', priority: 'high', when: 'now', ruleId: 'plan:rain-now',
+    trace: rainNowTrace('plan:rain-now'),
+    title: en ? 'Is it raining in your field?' : '¿Está lloviendo en tu campo?',
+    headline: en ? 'If it is raining, wait for it to stop' : 'Si llueve, espera a que pare',
+    body: en ? 'The forecast shows rain right now. If it is raining in your field, soil moisture may change over the next hours: measure again once it stops before deciding on irrigation or field work. If it is not raining, you can ignore this notice.'
+      : 'El pronóstico indica lluvia en este momento. Si está lloviendo en tu campo, la humedad del suelo puede cambiar en las próximas horas: vuelve a medir cuando pare antes de decidir riego o labores. Si no llueve, puedes ignorar este aviso.' });
+  if (weather && rainNow === 'likely' && weatherKind(weather.weatherCode) === null) plan.push({ kind: 'weather', priority: 'normal', when: 'now', ruleId: 'plan:precipitation-now',
+    trace: rainNowTrace('plan:precipitation-now'),
     title: en ? 'Precipitation reported' : 'Se registra precipitación',
     headline: en ? 'Check conditions in the field' : 'Revisa las condiciones en terreno',
     body: en ? 'The model reports precipitation without identifying its type. Check conditions before field work.' : 'El modelo informa precipitación sin identificar su tipo. Revisa las condiciones antes de realizar labores.' });
+  if (weather && rainNow === 'uncertain') plan.push({ kind: 'weather', priority: 'normal', when: 'now', ruleId: 'plan:rain-now-uncertain',
+    trace: rainNowTrace('plan:rain-now-uncertain'),
+    title: en ? 'Some forecasts show light rain' : 'Algunos pronósticos indican lluvia débil',
+    headline: en ? 'Check whether it is raining in your field' : 'Revisa si llueve en tu campo',
+    body: en ? 'The forecast models do not agree on whether it is raining right now. If it is raining in your field, measure again once it stops before irrigating. If not, you can ignore this notice.'
+      : 'Los modelos de pronóstico no coinciden en si está lloviendo ahora. Si llueve en tu campo, vuelve a medir cuando pare antes de regar. Si no, puedes ignorar este aviso.' });
 
   // La humedad bajo el umbral de riego pide regar, pero si llueve pronto ese riego sobra.
   const irrigationAdvised = evaluation.texture !== null && finiteNumber(reading.vwc) && reading.vwc >= 0 && reading.vwc <= 100 && alerts.some(alert => alert.param === 'vwc') && reading.vwc < evaluation.texture.ur;

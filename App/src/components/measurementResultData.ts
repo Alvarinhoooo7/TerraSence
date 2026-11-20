@@ -1,5 +1,11 @@
 import type { ParameterKey } from '../engine/measurementPresentation';
-import type { ForecastDay, RemainingTodaySummary } from '../services/weatherService';
+import type { CurrentWeather, ForecastDay, RemainingTodaySummary } from '../services/weatherService';
+
+/** Un consenso guardado sirve si trae la hora en curso con sus conteos numéricos. */
+const consensusNow = (value: unknown): boolean => {
+  const now = value && typeof value === 'object' ? (value as { now?: { wet?: unknown; total?: unknown } }).now : null;
+  return !!now && typeof now.wet === 'number' && typeof now.total === 'number';
+};
 
 export const MEASUREMENT_GROUPS: readonly (readonly ParameterKey[])[] = [
   ['vwc', 'temp', 'ph', 'ec'],
@@ -32,6 +38,8 @@ export interface WeatherNow {
   weatherCode: number | null;
   today: { minimumTemperatureC: number | null; maximumTemperatureC: number | null; precipitationMm: number | null; rainProbabilityPct: number | null; weatherCode: number | null };
   remainingToday?: RemainingTodaySummary;
+  /** Consenso de modelos guardado con la medición; decide si se muestra «está lloviendo». */
+  precipitationConsensus?: CurrentWeather['precipitationConsensus'];
 }
 
 /**
@@ -84,6 +92,7 @@ export function weatherNow(weather: unknown): WeatherNow | null {
       weatherCode: number(today?.weatherCode),
     },
     ...(remainingToday ? { remainingToday } : {}),
+    ...(consensusNow(w.precipitationConsensus) ? { precipitationConsensus: w.precipitationConsensus as CurrentWeather['precipitationConsensus'] } : {}),
   };
   const values = [result.temperatureC, result.precipitationMm, result.weatherCode, ...Object.values(result.today)];
   return values.some(v => v !== null) ? result : null;
