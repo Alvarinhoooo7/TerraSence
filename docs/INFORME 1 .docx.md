@@ -818,28 +818,28 @@ La inversión inicial se construye de abajo hacia arriba —activo fijo, activo 
 
 | Destino | CLP | Participación |
 |---|---|---|
-| Equipamiento y activo fijo | $5.930.988 | 20,3 % |
-| Activo nominal (puesta en marcha) | $7.025.000 | 24,0 % |
-| Capital de trabajo (3,0 meses) | $12.719.785 | 43,5 % |
-| Inventario inicial | $3.575.022 | 12,2 % |
-| **Inversión inicial total** | **$29.250.795** | **100,0 %** |
+| Equipamiento y activo fijo | $5.930.988 | 19,7 % |
+| Activo nominal (puesta en marcha) | $7.900.000 | 26,2 % |
+| Capital de trabajo (3,0 meses) | $12.719.785 | 42,2 % |
+| Inventario inicial | $3.575.022 | 11,9 % |
+| **Inversión inicial total** | **$30.125.795** | **100,0 %** |
 
 ###### **Tabla 3.0 “Inversión Inicial”**
 
-El banco desembolsa **$29.250.795**, el 100 % de la inversión, y los socios abonan ese mismo día un pie de **$9.000.000** ($4.500.000 por socio) como cuotas pagadas por anticipado, que cubre las primeras 22,0 cuotas mensuales de $409.357 por el sistema francés. Fuentes (crédito más pie) igualan a usos (inversión más cuotas anticipadas).
+El banco desembolsa **$30.125.795**, el 100 % de la inversión, y los socios abonan ese mismo día un pie de **$9.000.000** ($4.500.000 por socio) como cuotas pagadas por anticipado, que cubre las primeras 21,3 cuotas mensuales de $421.602 por el sistema francés. Fuentes (crédito más pie) igualan a usos (inversión más cuotas anticipadas).
 
 | Periodo | Saldo inicial | Cuota de capital | Intereses | Cuota total | Saldo final |
 |---|---|---|---|---|---|
-| 2027 | $29.250.795 | $1.666.832 | $3.245.447 | $4.912.279 | $27.583.963 |
-| 2028 | $27.583.963 | $1.866.852 | $3.045.427 | $4.912.279 | $25.717.111 |
-| 2029 | $25.717.111 | $2.090.874 | $2.821.405 | $4.912.279 | $23.626.237 |
-| 2030 | $23.626.237 | $2.341.779 | $2.570.500 | $4.912.279 | $21.284.458 |
-| 2031 | $21.284.458 | $2.622.793 | $2.289.487 | $4.912.279 | $18.661.665 |
-| 2032 | $18.661.665 | $2.937.528 | $1.974.752 | $4.912.279 | $15.724.137 |
-| 2033 | $15.724.137 | $3.290.031 | $1.622.248 | $4.912.279 | $12.434.106 |
-| 2034 | $12.434.106 | $3.684.835 | $1.227.445 | $4.912.279 | $8.749.272 |
-| 2035 | $8.749.272 | $4.127.015 | $785.264 | $4.912.279 | $4.622.257 |
-| 2036 | $4.622.257 | $4.622.257 | $290.023 | $4.912.279 | $0 |
+| 2027 | $30.125.795 | $1.716.693 | $3.342.531 | $5.059.224 | $28.409.102 |
+| 2028 | $28.409.102 | $1.922.696 | $3.136.527 | $5.059.224 | $26.486.405 |
+| 2029 | $26.486.405 | $2.153.420 | $2.905.804 | $5.059.224 | $24.332.985 |
+| 2030 | $24.332.985 | $2.411.830 | $2.647.393 | $5.059.224 | $21.921.155 |
+| 2031 | $21.921.155 | $2.701.250 | $2.357.974 | $5.059.224 | $19.219.905 |
+| 2032 | $19.219.905 | $3.025.400 | $2.033.824 | $5.059.224 | $16.194.505 |
+| 2033 | $16.194.505 | $3.388.448 | $1.670.776 | $5.059.224 | $12.806.057 |
+| 2034 | $12.806.057 | $3.795.062 | $1.264.162 | $5.059.224 | $9.010.995 |
+| 2035 | $9.010.995 | $4.250.469 | $808.755 | $5.059.224 | $4.760.526 |
+| 2036 | $4.760.526 | $4.760.526 | $298.698 | $5.059.224 | $0 |
 
 ###### **Tabla 3.1 “Amortización del Crédito”**
 
@@ -847,13 +847,13 @@ La tasa efectiva anual se lleva a período mensual como `r_m = (1 + 0,12)^(1/12)
 
 | Plazo | Cuota mensual | Intereses totales | Saldo al cierre del año 5 |
 |---|---|---|---|
-| 5 años | $641.637 | $9.247.398 | $0 |
-| 10 años | $409.357 | $19.871.998 | $18.661.665 |
-| 15 años | $339.598 | $31.876.850 | $24.266.158 |
+| 5 años | $660.830 | $9.524.022 | $0 |
+| 10 años | $421.602 | $20.466.443 | $19.219.905 |
+| 15 años | $349.757 | $32.830.405 | $24.992.049 |
 
 ###### **Tabla 3.2 “Comparación de Plazos del Crédito”**
 
-El modelo evalúa el plazo de diez años. A cinco años los intereses bajan a $9.247.398, pero la cuota sube a $641.637 justo cuando los dos primeros ejercicios cierran con pérdida; a quince años la cuota baja a $339.598 a cambio de $31.876.850 de intereses y de una deuda que sobrevive al horizonte de evaluación.
+El modelo evalúa el plazo de diez años. A cinco años los intereses bajan a $9.524.022, pero la cuota sube a $660.830 justo cuando los dos primeros ejercicios cierran con pérdida; a quince años la cuota baja a $349.757 a cambio de $32.830.405 de intereses y de una deuda que sobrevive al horizonte de evaluación.
 
 <!-- INFORME:INVERSION:FIN -->
 
@@ -889,20 +889,20 @@ flowchart TD
 | (+) Ventas netas | $82.351.261 | $148.438.147 | $218.416.131 | $292.459.199 | $393.920.044 | $425.785.859 | $460.684.069 | $498.305.782 | $538.813.383 | $582.914.711 |
 | (-) Costos operacionales | $26.350.032 | $47.495.932 | $69.886.872 | $93.578.521 | $126.043.070 | $136.239.213 | $147.405.635 | $159.443.500 | $172.404.766 | $186.515.920 |
 | (-) Gastos de estructura | $50.879.140 | $93.587.254 | $123.193.769 | $149.499.182 | $166.401.124 | $187.885.523 | $195.759.168 | $203.741.652 | $227.670.820 | $236.536.391 |
-| (-) Depreciación y amortización | $2.591.198 | $2.591.198 | $2.591.198 | $2.591.198 | $2.591.198 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 |
-| (-) Intereses | $3.245.447 | $3.045.427 | $2.821.405 | $2.570.500 | $2.289.487 | $1.974.752 | $1.622.248 | $1.227.445 | $785.264 | $290.023 |
-| (-) Impuesto a la renta | $0 | $150.567 | $4.980.722 | $11.054.949 | $24.148.792 | $24.577.811 | $28.630.472 | $33.129.515 | $34.144.351 | $39.549.312 |
-| **(=) Utilidad del ejercicio** | $-714.556 | $1.567.769 | $14.942.165 | $33.164.848 | $72.446.375 | $73.733.432 | $85.891.417 | $99.388.544 | $102.433.054 | $118.647.937 |
-| (+) Depreciación y amortización | $2.591.198 | $2.591.198 | $2.591.198 | $2.591.198 | $2.591.198 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 |
-| (-) Cuota de capital | $1.666.832 | $1.866.852 | $2.090.874 | $2.341.779 | $2.622.793 | $2.937.528 | $3.290.031 | $3.684.835 | $4.127.015 | $4.622.257 |
+| (-) Depreciación y amortización | $2.766.198 | $2.766.198 | $2.766.198 | $2.766.198 | $2.766.198 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 |
+| (-) Intereses | $3.342.531 | $3.136.527 | $2.905.804 | $2.647.393 | $2.357.974 | $2.033.824 | $1.670.776 | $1.264.162 | $808.755 | $298.698 |
+| (-) Impuesto a la renta | $0 | $69.839 | $4.915.872 | $10.991.976 | $24.087.920 | $24.563.043 | $28.618.341 | $33.120.335 | $34.138.479 | $39.547.143 |
+| **(=) Utilidad del ejercicio** | $-986.639 | $1.382.397 | $14.747.616 | $32.975.928 | $72.263.759 | $73.689.128 | $85.855.022 | $99.361.006 | $102.415.437 | $118.641.430 |
+| (+) Depreciación y amortización | $2.766.198 | $2.766.198 | $2.766.198 | $2.766.198 | $2.766.198 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 |
+| (-) Cuota de capital | $1.716.693 | $1.922.696 | $2.153.420 | $2.411.830 | $2.701.250 | $3.025.400 | $3.388.448 | $3.795.062 | $4.250.469 | $4.760.526 |
 | (-) Reinversión en activo fijo | $0 | $0 | $0 | $0 | $0 | $6.875.641 | $0 | $0 | $0 | $0 |
-| (+) Cuota ya pagada con el pie | $4.912.279 | $4.087.721 | $0 | $0 | $0 | $0 | $0 | $0 | $0 | $0 |
-| **(=) Flujo de fondos** | $5.122.089 | $6.379.835 | $15.442.489 | $33.414.267 | $72.414.780 | $65.295.392 | $83.976.514 | $97.078.837 | $99.681.167 | $115.400.809 |
-| Caja acumulada | $17.841.874 | $24.221.709 | $39.664.198 | $73.078.464 | $145.493.244 | $210.788.636 | $294.765.151 | $391.843.988 | $491.525.155 | $606.925.964 |
+| (+) Cuota ya pagada con el pie | $5.059.224 | $3.940.776 | $0 | $0 | $0 | $0 | $0 | $0 | $0 | $0 |
+| **(=) Flujo de fondos** | $5.122.089 | $6.166.674 | $15.360.394 | $33.330.295 | $72.328.707 | $65.163.216 | $83.841.702 | $96.941.072 | $99.540.095 | $115.256.033 |
+| Caja acumulada | $17.841.874 | $24.008.548 | $39.368.941 | $72.699.237 | $145.027.944 | $210.191.159 | $294.032.861 | $390.973.933 | $490.514.028 | $605.770.061 |
 
 ###### **Tabla 3.3 “Estado de Resultados y Flujo de Fondos Proyectado”**
 
-Los ejercicios 2027 y 2028 cierran con pérdida, de $714.556 y $1.567.769, porque la estructura mínima para operar formalmente no se cubre con el volumen inicial; desde 2029 el resultado es positivo y creciente. En 2032 el activo fijo agota su vida útil y se renueva por $6.875.641, compra que el flujo descuenta y que sostiene la depreciación de los años siguientes. La caja nunca baja de **$17.841.874**.
+Los ejercicios 2027 y 2028 cierran con pérdida, de $986.639 y $1.382.397, porque la estructura mínima para operar formalmente no se cubre con el volumen inicial; desde 2029 el resultado es positivo y creciente. En 2032 el activo fijo agota su vida útil y se renueva por $6.875.641, compra que el flujo descuenta y que sostiene la depreciación de los años siguientes. La caja nunca baja de **$17.841.874**.
 
 <!-- INFORME:FLUJOS:FIN -->
 
@@ -927,11 +927,11 @@ Aplicando esta metodología al escenario base se obtienen los siguientes indicad
 
 | Indicador | Valor | Criterio | Veredicto |
 |---|---|---|---|
-| Inversión inicial | $29.250.795 | — | — |
-| VAN al 20 % | $130.438.474 | VAN > 0 | Cumple |
-| TIR efectiva anual | 55,51 % | TIR > 20 % | Cumple |
-| Payback simple | 3,34 años | ≤ 5 años | Cumple |
-| Payback descontado | 4,15 años | ≤ 5 años | Cumple |
+| Inversión inicial | $30.125.795 | — | — |
+| VAN al 20 % | $129.128.199 | VAN > 0 | Cumple |
+| TIR efectiva anual | 54,69 % | TIR > 20 % | Cumple |
+| Payback simple | 3,37 años | ≤ 5 años | Cumple |
+| Payback descontado | 4,19 años | ≤ 5 años | Cumple |
 | Deuda al cierre de 2036 | $0 | Crédito saldado | Cumple |
 
 ###### **Tabla 3.4 “Evaluación Económica”**
@@ -948,17 +948,17 @@ El margen técnico del equipo, el costo comercial y el ritmo de ventas deben ana
 
 | Caso | Precio | Utilidad año 1 | VAN a 10 años | TIR | Caja mínima |
 |---|---|---|---|---|---|
-| Caso base | $489.990 | $-714.556 | $130.438.474 | 55,5 % | $17.841.874 |
-| Ventas −10 % | $489.990 | $-5.675.013 | $76.378.308 | 41,8 % | $10.479.507 |
-| Ventas −25 % | $489.990 | $-13.115.699 | $-6.495.386 | 17,9 % | $-23.069.034 |
-| BOM +15 % | $489.990 | $-3.808.246 | $96.505.968 | 46,7 % | $14.804.354 |
-| BOM +30 % | $489.990 | $-6.901.936 | $62.312.075 | 37,7 % | $7.006.904 |
-| Precio a $399.990 | $399.990 | $-14.940.606 | $-27.874.073 | 10,9 % | $-38.856.712 |
-| Precio a $349.990 | $349.990 | $-22.843.968 | $-132.523.427 | -99,0 % | $-171.408.752 |
+| Caso base | $489.990 | $-986.639 | $129.128.199 | 54,7 % | $17.841.874 |
+| Ventas −10 % | $489.990 | $-5.947.097 | $75.070.602 | 41,2 % | $10.185.618 |
+| Ventas −25 % | $489.990 | $-13.387.782 | $-7.845.830 | 17,5 % | $-23.509.868 |
+| BOM +15 % | $489.990 | $-4.080.329 | $95.217.494 | 46,1 % | $14.804.354 |
+| BOM +30 % | $489.990 | $-7.174.019 | $61.004.369 | 37,1 % | $6.713.015 |
+| Precio a $399.990 | $399.990 | $-15.212.690 | $-29.243.383 | 10,6 % | $-39.444.490 |
+| Precio a $349.990 | $349.990 | $-23.116.051 | $-133.994.079 | -99,0 % | $-172.878.197 |
 
 ###### **Tabla 3.5 “Análisis de Sensibilidad y Punto de Quiebre”**
 
-Se modifica una condición a la vez **manteniendo congelado el financiamiento**. La caja se vuelve negativa bajo un precio de lista de $438.036 y el proyecto deja de crear valor bajo $415.338.
+Se modifica una condición a la vez **manteniendo congelado el financiamiento**. La caja se vuelve negativa bajo un precio de lista de $438.547 y el proyecto deja de crear valor bajo $416.085.
 
 <!-- INFORME:SENSIBILIDAD:FIN -->
 
@@ -972,14 +972,14 @@ Adicionalmente, se recalculó el VAN ante distintas tasas de descuento, para ver
 
 | Tasa efectiva anual | VAN |
 |---|---|
-| 5 % | $379.195.962 |
-| 10 % | $263.072.009 |
-| 15 % | $184.683.664 |
-| 20 % | $130.438.474 |
-| 30 % | $64.278.269 |
-| 40 % | $28.483.571 |
-| 50 % | $7.740.774 |
-| TIR: 55,51 % | $0 |
+| 5 % | $377.452.676 |
+| 10 % | $261.524.661 |
+| 15 % | $183.273.952 |
+| 20 % | $129.128.199 |
+| 30 % | $63.097.627 |
+| 40 % | $27.380.523 |
+| 50 % | $6.687.740 |
+| TIR: 54,69 % | $0 |
 
 ###### **Tabla 3.6 “Análisis del VAN”**
 
@@ -1011,10 +1011,10 @@ Con el análisis de sensibilidad y de riesgos expuesto, la evaluación del escen
 
 | Indicador | A 5 años (2027–2031) | A 10 años (2027–2036) |
 |---|---|---|
-| VAN al 20 % | $24.600.688 | $130.438.474 |
-| TIR efectiva anual | 36,41 % | 55,51 % |
-| Caja acumulada al cierre | $145.493.244 | $606.925.964 |
-| Deuda bancaria pendiente al cierre | $18.661.665 | $0 |
+| VAN al 20 % | $23.455.064 | $129.128.199 |
+| TIR efectiva anual | 35,42 % | 54,69 % |
+| Caja acumulada al cierre | $145.027.944 | $605.770.061 |
+| Deuda bancaria pendiente al cierre | $19.219.905 | $0 |
 
 ###### **Tabla 3.7 “Comparación del Horizonte: Cinco y Diez Años”**
 
@@ -1617,7 +1617,7 @@ Desde el punto de vista financiero, el proyecto se sostiene como un modelo de ne
 
 <!-- INFORME:CIERRE:INICIO -->
 
-En el escenario base el proyecto presenta **VAN de $130.438.474**, **TIR efectiva anual de 55,51 %** y **payback simple de 3,34 años**. La BOM asciende a **$93.751 netos por equipo** y el precio de lista derivado es de **$489.990 con IVA**. La empresa cancela su crédito dentro del horizonte y cierra 2036 con $606.925.964 de caja.
+En el escenario base el proyecto presenta **VAN de $129.128.199**, **TIR efectiva anual de 54,69 %** y **payback simple de 3,37 años**. La BOM asciende a **$93.751 netos por equipo** y el precio de lista derivado es de **$489.990 con IVA**. La empresa cancela su crédito dentro del horizonte y cierra 2036 con $605.770.061 de caja.
 
 <!-- INFORME:CIERRE:FIN -->
 

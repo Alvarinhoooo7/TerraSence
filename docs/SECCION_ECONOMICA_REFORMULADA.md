@@ -120,13 +120,13 @@ El activo fijo suma $5.930.988 y se deprecia en línea recta a cinco años, a ra
 | Prototipado mecánico (carcasa, juntas, estanqueidad) | $450.000 |
 | Firmware del ESP32 | $900.000 |
 | Aplicación móvil y consola web | $800.000 |
-| Metrología y campaña de validación (30 muestras pareadas) | $1.300.000 |
+| Metrología y campaña de validación (30 muestras pareadas) | $2.175.000 |
 | Ensayo IP67 en laboratorio acreditado | $475.000 |
 | Verificación SUBTEL (Res. N° 737/2025) | $1.300.000 |
-| **Total activo nominal** | **$7.025.000** |
-| Amortización anual (5 años) | $1.405.000 |
+| **Total activo nominal** | **$7.900.000** |
+| Amortización anual (5 años) | $1.580.000 |
 
-Del activo nominal, $6.325.000 (el 90 %) corresponde al desarrollo técnico que el propio informe declara pendiente: prototipos de placa y carcasa, programa del microcontrolador, aplicación, campaña de validación, ensayo IP67 y verificación ante SUBTEL. Solo $700.000 son trámites de constitución de la sociedad. Estos gastos no se deprecian porque no son bienes físicos; se amortizan en cinco años.
+Del activo nominal, $7.200.000 (el 91 %) corresponde al desarrollo técnico que el propio informe declara pendiente: prototipos de placa y carcasa, programa del microcontrolador, aplicación, campaña de validación, ensayo IP67 y verificación ante SUBTEL. Solo $700.000 son trámites de constitución de la sociedad. Estos gastos no se deprecian porque no son bienes físicos; se amortizan en cinco años.
 
 El capital de trabajo no se fijó por una regla de tantos meses, sino **iterando hasta que la caja nunca baje de un piso de seguridad** durante los diez años, con un mínimo de política de 3 meses de estructura. El cálculo es circular y conviene declararlo: más capital de trabajo exige más crédito, que genera más intereses, que profundizan la pérdida de los primeros años, que a su vez exigen más capital de trabajo. El modelo resuelve ese bucle por aproximaciones sucesivas.
 
@@ -134,17 +134,17 @@ El capital de trabajo no se fijó por una regla de tantos meses, sino **iterando
 
 | Destino | CLP | Participación |
 |---|---:|---:|
-| Equipamiento y activo fijo | $5.930.988 | 20,3 % |
-| Activo nominal (puesta en marcha) | $7.025.000 | 24,0 % |
-| Capital de trabajo (3,0 meses de estructura) | $12.719.785 | 43,5 % |
-| Inventario inicial (2 meses de ventas) | $3.575.022 | 12,2 % |
-| **Inversión inicial total** | **$29.250.795** | **100,0 %** |
+| Equipamiento y activo fijo | $5.930.988 | 19,7 % |
+| Activo nominal (puesta en marcha) | $7.900.000 | 26,2 % |
+| Capital de trabajo (3,0 meses de estructura) | $12.719.785 | 42,2 % |
+| Inventario inicial (2 meses de ventas) | $3.575.022 | 11,9 % |
+| **Inversión inicial total** | **$30.125.795** | **100,0 %** |
 
-La partida más grande de la inversión no es un bien físico sino el capital de trabajo: $12.719.785, el 43,5 % del total. Es el dinero que financia la pérdida de los dos primeros ejercicios y los dos meses de inventario con que parte la producción. El equipamiento y el activo nominal, que son lo que habitualmente se asocia a «montar la empresa», representan juntos menos de la mitad.
+La partida más grande de la inversión no es un bien físico sino el capital de trabajo: $12.719.785, el 42,2 % del total. Es el dinero que financia la pérdida de los dos primeros ejercicios y los dos meses de inventario con que parte la producción. El equipamiento y el activo nominal, que son lo que habitualmente se asocia a «montar la empresa», representan juntos menos de la mitad.
 
 ### Financiamiento
 
-La inversión inicial se financia con un crédito bancario de largo plazo que el banco desembolsa por el total, $29.250.795. Para otorgar un crédito de ese tamaño a una empresa sin historial de ventas, el banco exige que los socios comprometan capital propio: un pie de $9.000.000, $4.500.000 por socio, que se abona al banco el mismo día del desembolso como **cuotas pagadas por anticipado**. Ese abono cubre las primeras 22,0 cuotas mensuales del calendario, es decir, todo 2027 y la mayor parte de 2028, los dos ejercicios de arranque en que la empresa todavía no cubre su estructura. Desde ahí la cuota sale de la caja de la operación.
+La inversión inicial se financia con un crédito bancario de largo plazo que el banco desembolsa por el total, $30.125.795. Para otorgar un crédito de ese tamaño a una empresa sin historial de ventas, el banco exige que los socios comprometan capital propio: un pie de $9.000.000, $4.500.000 por socio, que se abona al banco el mismo día del desembolso como **cuotas pagadas por anticipado**. Ese abono cubre las primeras 21,3 cuotas mensuales del calendario, es decir, todo 2027 y la mayor parte de 2028, los dos ejercicios de arranque en que la empresa todavía no cubre su estructura. Desde ahí la cuota sale de la caja de la operación.
 
 El pie, entonces, no se suma a la inversión ni se pierde de vista: es dinero de los socios que paga deuda. Las fuentes del inicio son el crédito y el pie; los usos son la inversión inicial y las cuotas anticipadas. Ambos lados suman lo mismo, de modo que ningún peso se cuenta dos veces, y el pie aparece explícitamente en la tabla de amortización, en el flujo de fondos y en el desembolso inicial con que se calculan el VAN y la TIR.
 
@@ -152,26 +152,26 @@ El pie, entonces, no se suma a la inversión ni se pierde de vista: es dinero de
 
 | Condición | Valor |
 |---|---|
-| Inversión inicial total del proyecto | $29.250.795 |
-| Monto del préstamo (capital), desembolsado íntegro por el banco | $29.250.795 |
+| Inversión inicial total del proyecto | $30.125.795 |
+| Monto del préstamo (capital), desembolsado íntegro por el banco | $30.125.795 |
 | Pie de los socios, con capital propio | $9.000.000 |
 | Aporte por socio (2 socios, partes iguales) | $4.500.000 |
 | Destino del pie | Abono al banco el día del desembolso como cuotas pagadas por anticipado |
-| Cuotas que cubre el pie | 22,0 cuotas mensuales: todo 2027 y hasta septiembre de 2028 |
+| Cuotas que cubre el pie | 21,3 cuotas mensuales: todo 2027 y hasta septiembre de 2028 |
 | Sistema de amortización | Francés: cuota constante, interés decreciente, capital creciente |
 | Tasa de interés | 12 % efectiva anual (0,9489 % mensual) |
 | Plazo | 10 años, 120 cuotas mensuales iguales |
-| Cuota mensual | $409.357 |
-| Total intereses del crédito | $19.871.998 |
-| Total pagado al banco (con el pie incluido) | $49.122.793 |
+| Cuota mensual | $421.602 |
+| Total intereses del crédito | $20.466.443 |
+| Total pagado al banco (con el pie incluido) | $50.592.238 |
 
 ### Cuadro 9. Fuentes y usos de los fondos al inicio
 
 | Fuentes | Monto | Usos | Monto |
 |---|---:|---|---:|
-| Crédito bancario | $29.250.795 | Inversión inicial | $29.250.795 |
+| Crédito bancario | $30.125.795 | Inversión inicial | $30.125.795 |
 | Pie de los socios | $9.000.000 | Cuotas pagadas por anticipado | $9.000.000 |
-| **Total fuentes** | **$38.250.795** | **Total usos** | **$38.250.795** |
+| **Total fuentes** | **$39.125.795** | **Total usos** | **$39.125.795** |
 
 #### Alternativas de financiamiento evaluadas
 
@@ -192,25 +192,25 @@ El criterio con más peso es la **certeza de obtener los fondos**, porque la emp
 
 La decisión, por lo tanto, **no responde a que el proyecto no califique** para estos instrumentos, sino a que los socios no quieren que la puesta en marcha dependa de un beneficio que no está asegurado. Prefieren comprometer su propio capital como pie y ejecutar el proyecto con un financiamiento que pueden asegurar de antemano. Los instrumentos públicos quedan como **escenario favorable, fuera del caso base**: si durante 2027 se adjudicara un fondo concursable, se destinaría a prepagar el crédito, y si el banco ofreciera la garantía FOGAPE, podría rebajar el pie o la tasa. A modo de referencia, un Semilla Inicia por su monto máximo aplicado a reducir el crédito ahorraría $10.190.491 de intereses en los diez años. Ninguna de esas cifras entra en la evaluación, porque un modelo que cuenta con ellas falla precisamente en el escenario en que no llegan.
 
-Sobre el sistema de amortización: se adopta el **francés**, de cuota constante con interés decreciente y capital creciente, porque es el que la banca chilena aplica al crédito empresarial de largo plazo. La cuota fija facilita además la planificación de caja de una empresa que en sus primeros ejercicios opera con holgura estrecha. La cuota anual, $4.912.279, equivale al 6,0 % de las ventas netas del primer año y al 0,8 % de las del último, de modo que su peso sobre la operación se diluye a medida que el negocio crece.
+Sobre el sistema de amortización: se adopta el **francés**, de cuota constante con interés decreciente y capital creciente, porque es el que la banca chilena aplica al crédito empresarial de largo plazo. La cuota fija facilita además la planificación de caja de una empresa que en sus primeros ejercicios opera con holgura estrecha. La cuota anual, $5.059.224, equivale al 6,1 % de las ventas netas del primer año y al 0,9 % de las del último, de modo que su peso sobre la operación se diluye a medida que el negocio crece.
 
 ### Cuadro 11. Tabla de amortización del crédito
 
 | Periodo | Saldo inicial | Cuota de capital | Intereses | Cuota total | Pagada con el pie | Pagada por la empresa | Saldo final |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| 2027 | $29.250.795 | $1.666.832 | $3.245.447 | $4.912.279 | $4.912.279 | $0 | $27.583.963 |
-| 2028 | $27.583.963 | $1.866.852 | $3.045.427 | $4.912.279 | $4.087.721 | $824.559 | $25.717.111 |
-| 2029 | $25.717.111 | $2.090.874 | $2.821.405 | $4.912.279 | $0 | $4.912.279 | $23.626.237 |
-| 2030 | $23.626.237 | $2.341.779 | $2.570.500 | $4.912.279 | $0 | $4.912.279 | $21.284.458 |
-| 2031 | $21.284.458 | $2.622.793 | $2.289.487 | $4.912.279 | $0 | $4.912.279 | $18.661.665 |
-| 2032 | $18.661.665 | $2.937.528 | $1.974.752 | $4.912.279 | $0 | $4.912.279 | $15.724.137 |
-| 2033 | $15.724.137 | $3.290.031 | $1.622.248 | $4.912.279 | $0 | $4.912.279 | $12.434.106 |
-| 2034 | $12.434.106 | $3.684.835 | $1.227.445 | $4.912.279 | $0 | $4.912.279 | $8.749.272 |
-| 2035 | $8.749.272 | $4.127.015 | $785.264 | $4.912.279 | $0 | $4.912.279 | $4.622.257 |
-| 2036 | $4.622.257 | $4.622.257 | $290.023 | $4.912.279 | $0 | $4.912.279 | $0 |
-| **Total** |  | **$29.250.795** | **$19.871.998** | **$49.122.793** | **$9.000.000** | **$40.122.793** |  |
+| 2027 | $30.125.795 | $1.716.693 | $3.342.531 | $5.059.224 | $5.059.224 | $0 | $28.409.102 |
+| 2028 | $28.409.102 | $1.922.696 | $3.136.527 | $5.059.224 | $3.940.776 | $1.118.448 | $26.486.405 |
+| 2029 | $26.486.405 | $2.153.420 | $2.905.804 | $5.059.224 | $0 | $5.059.224 | $24.332.985 |
+| 2030 | $24.332.985 | $2.411.830 | $2.647.393 | $5.059.224 | $0 | $5.059.224 | $21.921.155 |
+| 2031 | $21.921.155 | $2.701.250 | $2.357.974 | $5.059.224 | $0 | $5.059.224 | $19.219.905 |
+| 2032 | $19.219.905 | $3.025.400 | $2.033.824 | $5.059.224 | $0 | $5.059.224 | $16.194.505 |
+| 2033 | $16.194.505 | $3.388.448 | $1.670.776 | $5.059.224 | $0 | $5.059.224 | $12.806.057 |
+| 2034 | $12.806.057 | $3.795.062 | $1.264.162 | $5.059.224 | $0 | $5.059.224 | $9.010.995 |
+| 2035 | $9.010.995 | $4.250.469 | $808.755 | $5.059.224 | $0 | $5.059.224 | $4.760.526 |
+| 2036 | $4.760.526 | $4.760.526 | $298.698 | $5.059.224 | $0 | $5.059.224 | $0 |
+| **Total** |  | **$30.125.795** | **$20.466.443** | **$50.592.238** | **$9.000.000** | **$41.592.238** |  |
 
-El crédito se cancela íntegramente dentro del horizonte de evaluación: al cierre de 2036 la deuda es cero. Los $19.871.998 de intereses son el precio del financiamiento y están descontados en el estado de resultados de cada ejercicio, aunque las cuotas de 2027 y de parte de 2028 las haya pagado el pie: el interés es un gasto del año en que se devenga, no del año en que se desembolsa el dinero.
+El crédito se cancela íntegramente dentro del horizonte de evaluación: al cierre de 2036 la deuda es cero. Los $20.466.443 de intereses son el precio del financiamiento y están descontados en el estado de resultados de cada ejercicio, aunque las cuotas de 2027 y de parte de 2028 las haya pagado el pie: el interés es un gasto del año en que se devenga, no del año en que se desembolsa el dinero.
 
 ### Estructura de costos de operación
 
@@ -315,15 +315,15 @@ Este resultado define el posicionamiento competitivo. A $489.990, TerraSense que
 | (-) Costos operacionales | $26.350.032 | $47.495.932 | $69.886.872 | $93.578.521 | $126.043.070 | $136.239.213 | $147.405.635 | $159.443.500 | $172.404.766 | $186.515.920 |
 | (-) Gastos de estructura | $50.879.140 | $93.587.254 | $123.193.769 | $149.499.182 | $166.401.124 | $187.885.523 | $195.759.168 | $203.741.652 | $227.670.820 | $236.536.391 |
 | (-) Depreciación | $1.186.198 | $1.186.198 | $1.186.198 | $1.186.198 | $1.186.198 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 |
-| (-) Amortización del activo nominal | $1.405.000 | $1.405.000 | $1.405.000 | $1.405.000 | $1.405.000 | $0 | $0 | $0 | $0 | $0 |
-| (-) Costo financiero (intereses) | $3.245.447 | $3.045.427 | $2.821.405 | $2.570.500 | $2.289.487 | $1.974.752 | $1.622.248 | $1.227.445 | $785.264 | $290.023 |
-| **(=) Utilidad antes de impuesto** | $-714.556 | $1.718.336 | $19.922.887 | $44.219.798 | $96.595.166 | $98.311.243 | $114.521.890 | $132.518.058 | $136.577.406 | $158.197.250 |
-| (-) Impuesto a la renta | $0 | $150.567 | $4.980.722 | $11.054.949 | $24.148.792 | $24.577.811 | $28.630.472 | $33.129.515 | $34.144.351 | $39.549.312 |
-| **(=) Utilidad del ejercicio** | $-714.556 | $1.567.769 | $14.942.165 | $33.164.848 | $72.446.375 | $73.733.432 | $85.891.417 | $99.388.544 | $102.433.054 | $118.647.937 |
+| (-) Amortización del activo nominal | $1.580.000 | $1.580.000 | $1.580.000 | $1.580.000 | $1.580.000 | $0 | $0 | $0 | $0 | $0 |
+| (-) Costo financiero (intereses) | $3.342.531 | $3.136.527 | $2.905.804 | $2.647.393 | $2.357.974 | $2.033.824 | $1.670.776 | $1.264.162 | $808.755 | $298.698 |
+| **(=) Utilidad antes de impuesto** | $-986.639 | $1.452.236 | $19.663.488 | $43.967.904 | $96.351.679 | $98.252.171 | $114.473.362 | $132.481.341 | $136.553.915 | $158.188.574 |
+| (-) Impuesto a la renta | $0 | $69.839 | $4.915.872 | $10.991.976 | $24.087.920 | $24.563.043 | $28.618.341 | $33.120.335 | $34.138.479 | $39.547.143 |
+| **(=) Utilidad del ejercicio** | $-986.639 | $1.382.397 | $14.747.616 | $32.975.928 | $72.263.759 | $73.689.128 | $85.855.022 | $99.361.006 | $102.415.437 | $118.641.430 |
 
-El primer ejercicio cierra con una pérdida de $714.556 y el segundo con $1.567.769. No es un defecto del modelo sino su hallazgo más útil: con 200 equipos vendidos, la estructura mínima que exige operar formalmente —dos socios, un contador, cotizaciones, servicios digitales y publicidad— no se cubre todavía. A partir de 2029 el resultado es positivo y creciente.
+El primer ejercicio cierra con una pérdida de $986.639 y el segundo con $1.382.397. No es un defecto del modelo sino su hallazgo más útil: con 200 equipos vendidos, la estructura mínima que exige operar formalmente —dos socios, un contador, cotizaciones, servicios digitales y publicidad— no se cubre todavía. A partir de 2029 el resultado es positivo y creciente.
 
-El impuesto a la renta se calcula bajo el régimen Pro Pyme [18], con las tasas de 12,5 % en 2027, 15 % en 2028 y 25 % desde 2029, y con arrastre de pérdidas: los $-1.003.780 perdidos en los dos primeros ejercicios se descuentan de la base imponible de 2029, que por eso tributa sobre una utilidad menor que la contable. La depreciación y la amortización reducen el impuesto sin ser salidas de dinero, y por esa razón se suman de vuelta en el flujo de fondos.
+El impuesto a la renta se calcula bajo el régimen Pro Pyme [18], con las tasas de 12,5 % en 2027, 15 % en 2028 y 25 % desde 2029, y con arrastre de pérdidas: los $-465.597 perdidos en los dos primeros ejercicios se descuentan de la base imponible de 2029, que por eso tributa sobre una utilidad menor que la contable. La depreciación y la amortización reducen el impuesto sin ser salidas de dinero, y por esa razón se suman de vuelta en el flujo de fondos.
 
 ### Flujo de fondos y evaluación
 
@@ -331,13 +331,13 @@ El impuesto a la renta se calcula bajo el régimen Pro Pyme [18], con las tasas 
 
 | Concepto | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 | 2035 | 2036 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Utilidad del ejercicio | $-714.556 | $1.567.769 | $14.942.165 | $33.164.848 | $72.446.375 | $73.733.432 | $85.891.417 | $99.388.544 | $102.433.054 | $118.647.937 |
-| (+) Depreciación y amortización | $2.591.198 | $2.591.198 | $2.591.198 | $2.591.198 | $2.591.198 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 |
-| (-) Cuota de capital del préstamo | $1.666.832 | $1.866.852 | $2.090.874 | $2.341.779 | $2.622.793 | $2.937.528 | $3.290.031 | $3.684.835 | $4.127.015 | $4.622.257 |
+| Utilidad del ejercicio | $-986.639 | $1.382.397 | $14.747.616 | $32.975.928 | $72.263.759 | $73.689.128 | $85.855.022 | $99.361.006 | $102.415.437 | $118.641.430 |
+| (+) Depreciación y amortización | $2.766.198 | $2.766.198 | $2.766.198 | $2.766.198 | $2.766.198 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 | $1.375.128 |
+| (-) Cuota de capital del préstamo | $1.716.693 | $1.922.696 | $2.153.420 | $2.411.830 | $2.701.250 | $3.025.400 | $3.388.448 | $3.795.062 | $4.250.469 | $4.760.526 |
 | (-) Reinversión en activo fijo | $0 | $0 | $0 | $0 | $0 | $6.875.641 | $0 | $0 | $0 | $0 |
-| (+) Cuota ya pagada con el pie | $4.912.279 | $4.087.721 | $0 | $0 | $0 | $0 | $0 | $0 | $0 | $0 |
-| **(=) Flujo de fondos** | $5.122.089 | $6.379.835 | $15.442.489 | $33.414.267 | $72.414.780 | $65.295.392 | $83.976.514 | $97.078.837 | $99.681.167 | $115.400.809 |
-| Caja acumulada | $17.841.874 | $24.221.709 | $39.664.198 | $73.078.464 | $145.493.244 | $210.788.636 | $294.765.151 | $391.843.988 | $491.525.155 | $606.925.964 |
+| (+) Cuota ya pagada con el pie | $5.059.224 | $3.940.776 | $0 | $0 | $0 | $0 | $0 | $0 | $0 | $0 |
+| **(=) Flujo de fondos** | $5.122.089 | $6.166.674 | $15.360.394 | $33.330.295 | $72.328.707 | $65.163.216 | $83.841.702 | $96.941.072 | $99.540.095 | $115.256.033 |
+| Caja acumulada | $17.841.874 | $24.008.548 | $39.368.941 | $72.699.237 | $145.027.944 | $210.191.159 | $294.032.861 | $390.973.933 | $490.514.028 | $605.770.061 |
 
 El flujo de fondos parte de la utilidad, le devuelve la depreciación y la amortización que no son salidas de caja, y le descuenta lo que sí sale de la empresa sin pasar por resultados: el capital del préstamo y, en 2032, la renovación del activo fijo. Le devuelve además la parte de la cuota que el pie ya pagó por anticipado en 2027 y 2028, porque ese dinero salió al inicio y no vuelve a salir de la caja. La caja nunca baja de $17.841.874, que ocurre en 2027.
 
@@ -345,15 +345,15 @@ El flujo de fondos parte de la utilidad, le devuelve la depreciación y la amort
 
 | Indicador | Valor | Criterio | Veredicto |
 |---|---:|---|---|
-| Desembolso inicial evaluado (inversión $29.250.795 + pie $9.000.000) | $38.250.795 | — | — |
-| VAN al 20 % | $130.438.474 | VAN > 0 | Cumple |
-| TIR efectiva anual | 55,51 % | TIR > 20 % | Cumple |
-| Payback simple | 3,34 años | ≤ 5 años | Cumple |
-| Payback descontado al 20 % | 4,15 años | ≤ 5 años | Cumple |
+| Desembolso inicial evaluado (inversión $30.125.795 + pie $9.000.000) | $39.125.795 | — | — |
+| VAN al 20 % | $129.128.199 | VAN > 0 | Cumple |
+| TIR efectiva anual | 54,69 % | TIR > 20 % | Cumple |
+| Payback simple | 3,37 años | ≤ 5 años | Cumple |
+| Payback descontado al 20 % | 4,19 años | ≤ 5 años | Cumple |
 | Caja mínima del horizonte | $17.841.874 | > 0 | Cumple |
 | Deuda al cierre del horizonte | $0 | Crédito saldado | Cumple |
 
-Todos los indicadores cumplen su criterio. El VAN de $130.438.474 indica excedente económico después de remunerar el capital al 20 % anual; la TIR de 55,51 % supera esa exigencia en 35,51 puntos porcentuales; y el desembolso inicial, que suma la inversión y el pie, se recupera en 3,34 años nominales o 4,15 descontados, dentro del plazo de cinco años que el proyecto se fijó como criterio.
+Todos los indicadores cumplen su criterio. El VAN de $129.128.199 indica excedente económico después de remunerar el capital al 20 % anual; la TIR de 54,69 % supera esa exigencia en 34,69 puntos porcentuales; y el desembolso inicial, que suma la inversión y el pie, se recupera en 3,37 años nominales o 4,19 descontados, dentro del plazo de cinco años que el proyecto se fijó como criterio.
 
 La evaluación principal es a diez años porque es el plazo del crédito y porque el equipo tiene una vida comercial que excede el lustro. La comparación con un horizonte de cinco años muestra qué parte del resultado depende de esa elección:
 
@@ -361,26 +361,26 @@ La evaluación principal es a diez años porque es el plazo del crédito y porqu
 
 | Indicador | A 5 años (2027–2031) | A 10 años (2027–2036) |
 |---|---:|---:|
-| VAN al 20 % | $24.600.688 | $130.438.474 |
-| TIR efectiva anual | 36,41 % | 55,51 % |
-| Caja acumulada al cierre | $145.493.244 | $606.925.964 |
-| Deuda bancaria pendiente al cierre | $18.661.665 | $0 |
+| VAN al 20 % | $23.455.064 | $129.128.199 |
+| TIR efectiva anual | 35,42 % | 54,69 % |
+| Caja acumulada al cierre | $145.027.944 | $605.770.061 |
+| Deuda bancaria pendiente al cierre | $19.219.905 | $0 |
 
-A cinco años el proyecto ya crea valor, con un VAN de $24.600.688, pero conserva una deuda bancaria de $18.661.665 que a diez años está saldada. El grueso del VAN se genera en la segunda mitad del horizonte, cuando la estructura ya está pagada y cada venta adicional aporta casi todo su margen de contribución: evaluar a cinco años subestimaría el negocio, pero no cambiaría la decisión.
+A cinco años el proyecto ya crea valor, con un VAN de $23.455.064, pero conserva una deuda bancaria de $19.219.905 que a diez años está saldada. El grueso del VAN se genera en la segunda mitad del horizonte, cuando la estructura ya está pagada y cada venta adicional aporta casi todo su margen de contribución: evaluar a cinco años subestimaría el negocio, pero no cambiaría la decisión.
 
 ### Cuadro 21. VAN ante distintas tasas de descuento
 
 | Tasa efectiva anual | VAN | Interpretación |
 |---:|---:|---|
-| 5 % | $379.195.962 | Positivo |
-| 8 % | $303.978.713 | Positivo |
-| 10 % | $263.072.009 | Positivo |
-| 15 % | $184.683.664 | Positivo |
-| 20 % | $130.438.474 | Positivo |
-| 30 % | $64.278.269 | Positivo |
-| 40 % | $28.483.571 | Positivo |
-| 50 % | $7.740.774 | Positivo |
-| TIR: 55,51 % | $0 | VAN aproximadamente cero |
+| 5 % | $377.452.676 | Positivo |
+| 8 % | $302.361.475 | Positivo |
+| 10 % | $261.524.661 | Positivo |
+| 15 % | $183.273.952 | Positivo |
+| 20 % | $129.128.199 | Positivo |
+| 30 % | $63.097.627 | Positivo |
+| 40 % | $27.380.523 | Positivo |
+| 50 % | $6.687.740 | Positivo |
+| TIR: 54,69 % | $0 | VAN aproximadamente cero |
 
 El VAN decrece monótonamente al subir la tasa de descuento y cruza cero exactamente en la TIR, tal como exige la definición de ambos indicadores, y se mantiene positivo hasta exigencias de rentabilidad muy superiores al 20 % de referencia.
 
@@ -392,23 +392,23 @@ Para verificar la robustez del resultado se recalculó el proyecto modificando u
 
 | Caso | Precio de lista | Utilidad del año 1 | VAN a 10 años | TIR | Caja mínima |
 |---|---:|---:|---:|---:|---:|
-| Caso base | $489.990 | $-714.556 | $130.438.474 | 55,5 % | $17.841.874 |
-| Ventas -10 % | $489.990 | $-5.675.013 | $76.378.308 | 41,8 % | $10.479.507 |
-| Ventas -25 % | $489.990 | $-13.115.699 | $-6.495.386 | 17,9 % | $-23.069.034 |
-| Ventas -35 % | $489.990 | $-18.076.156 | $-65.101.394 | -3,2 % | $-67.513.457 |
-| Ventas +20 % | $489.990 | $8.055.563 | $239.303.472 | 80,6 % | $26.691.325 |
-| BOM +15 % | $489.990 | $-3.808.246 | $96.505.968 | 46,7 % | $14.804.354 |
-| BOM +30 % | $489.990 | $-6.901.936 | $62.312.075 | 37,7 % | $7.006.904 |
-| Precio rebajado a $469.990 (−4,1 %) | $469.990 | $-3.875.901 | $95.969.262 | 46,8 % | $14.680.529 |
-| Precio rebajado a $439.990 (−10,2 %) | $439.990 | $-8.617.917 | $43.670.308 | 32,8 % | $1.684.626 |
-| Precio rebajado a $419.990 (−14,3 %) | $419.990 | $-11.779.262 | $8.253.850 | 22,5 % | $-15.559.718 |
-| Precio rebajado a $389.990 (−20,4 %) | $389.990 | $-16.521.279 | $-46.522.974 | 4,3 % | $-53.092.424 |
+| Caso base | $489.990 | $-986.639 | $129.128.199 | 54,7 % | $17.841.874 |
+| Ventas -10 % | $489.990 | $-5.947.097 | $75.070.602 | 41,2 % | $10.185.618 |
+| Ventas -25 % | $489.990 | $-13.387.782 | $-7.845.830 | 17,5 % | $-23.509.868 |
+| Ventas -35 % | $489.990 | $-18.348.239 | $-66.512.715 | -3,4 % | $-68.101.235 |
+| Ventas +20 % | $489.990 | $7.817.490 | $237.993.197 | 79,4 % | $26.725.335 |
+| BOM +15 % | $489.990 | $-4.080.329 | $95.217.494 | 46,1 % | $14.804.354 |
+| BOM +30 % | $489.990 | $-7.174.019 | $61.004.369 | 37,1 % | $6.713.015 |
+| Precio rebajado a $469.990 (−4,1 %) | $469.990 | $-4.147.984 | $94.680.788 | 46,1 % | $14.680.529 |
+| Precio rebajado a $439.990 (−10,2 %) | $439.990 | $-8.890.001 | $42.341.514 | 32,3 % | $1.243.793 |
+| Precio rebajado a $419.990 (−14,3 %) | $419.990 | $-12.051.345 | $6.925.056 | 22,1 % | $-16.000.551 |
+| Precio rebajado a $389.990 (−20,4 %) | $389.990 | $-16.793.362 | $-47.908.571 | 4,0 % | $-53.680.202 |
 
 Tres lecturas se desprenden de la tabla:
 
-- **El punto de quiebre del volumen está entre una caída del 10 % y una del 25 % en las ventas.** Con −10 % el VAN sigue positivo en $76.378.308 y la caja mínima se mantiene en $10.479.507; con −25 % el VAN cae a $-6.495.386 y la caja a $-23.069.034, de modo que una caída de esa magnitud destruye a la vez valor y liquidez. Las cuotas que el pie dejó pagadas en los dos primeros años son las que sostienen la caja en el escenario de −10 %.
-- **El costo de materiales admite desviación.** Un alza del 15 % en la BOM deja el VAN en $96.505.968 y la caja mínima en $14.804.354; a +30 % el VAN sigue siendo de $62.312.075 y la caja mínima baja a $7.006.904. El margen resiste, pero confirma que la cotización de la sonda no admite descuido.
-- **El precio no admite rebaja.** Con el financiamiento dimensionado, la caja se vuelve negativa con cualquier precio de lista inferior a $438.036, apenas un 10,6 % bajo el precio calculado, y el proyecto deja de crear valor bajo $415.338. Ese resultado confirma que el precio debe derivarse del costo y no fijarse por aspiración comercial: un precio elegido para parecer competitivo, sin mirar la estructura, deja a la empresa sin caja en su tercer año.
+- **El punto de quiebre del volumen está entre una caída del 10 % y una del 25 % en las ventas.** Con −10 % el VAN sigue positivo en $75.070.602 y la caja mínima se mantiene en $10.185.618; con −25 % el VAN cae a $-7.845.830 y la caja a $-23.509.868, de modo que una caída de esa magnitud destruye a la vez valor y liquidez. Las cuotas que el pie dejó pagadas en los dos primeros años son las que sostienen la caja en el escenario de −10 %.
+- **El costo de materiales admite desviación.** Un alza del 15 % en la BOM deja el VAN en $95.217.494 y la caja mínima en $14.804.354; a +30 % el VAN sigue siendo de $61.004.369 y la caja mínima baja a $6.713.015. El margen resiste, pero confirma que la cotización de la sonda no admite descuido.
+- **El precio no admite rebaja.** Con el financiamiento dimensionado, la caja se vuelve negativa con cualquier precio de lista inferior a $438.547, apenas un 10,5 % bajo el precio calculado, y el proyecto deja de crear valor bajo $416.085. Ese resultado confirma que el precio debe derivarse del costo y no fijarse por aspiración comercial: un precio elegido para parecer competitivo, sin mirar la estructura, deja a la empresa sin caja en su tercer año.
 
 ### Costo total de propiedad para el agricultor
 

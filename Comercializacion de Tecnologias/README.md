@@ -218,7 +218,7 @@ Precios exhibidos consultados el **04-09-2026**. **No comparar cantidad de varia
 # Preguntas Frecuentes sobre el Modelo de Negocio
 
 ### 1. ¿Cómo se financia el desembolso inicial y por qué un banco prestaría a una empresa recién creada?
-La inversión inicial es de **$29.250.795**, desembolsada íntegra por un crédito bancario a 10 años con cuota fija de $409.357 al 12 % efectivo anual. Los socios aportan un **pie fijo de $9.000.000** ($4.500.000 cada uno), que se abona al banco el día del desembolso como cuotas pagadas por anticipado: cubre las primeras 22,0 cuotas del calendario, no se descuenta del principal y no se devuelve. El desembolso inicial evaluado, inversión más pie, es de $38.250.795, y la caja del horizonte nunca baja de $17.841.874.
+La inversión inicial es de **$30.125.795**, desembolsada íntegra por un crédito bancario a 10 años con cuota fija de $421.602 al 12 % efectivo anual. Los socios aportan un **pie fijo de $9.000.000** ($4.500.000 cada uno), que se abona al banco el día del desembolso como cuotas pagadas por anticipado: cubre las primeras 21,3 cuotas del calendario, no se descuenta del principal y no se devuelve. El desembolso inicial evaluado, inversión más pie, es de $39.125.795, y la caja del horizonte nunca baja de $17.841.874.
 
 **La respuesta honesta a la segunda parte: todavía no sabemos si un banco prestaría.** No tenemos oferta bancaria. La tasa del 12 % efectivo anual y el 2 % de gastos de apertura son presupuestos, no un CAE cotizado. FOGAPE es una garantía estatal sujeta a evaluación, no un subsidio ni una aprobación automática. Si el banco no ofrece el plazo o exige garantías inaceptables, **reducimos el lanzamiento y validamos preventas**; no lo sustituimos por un crédito personal.
 
@@ -226,7 +226,7 @@ La inversión inicial es de **$29.250.795**, desembolsada íntegra por un crédi
 Porque el proyecto debe poder nacer y pagar sus deudas por sí mismo. Postular sigue siendo una opción abierta y beneficiosa: si se adjudica, sustituye deuda cara y mejora el resultado. El modelo no lo supone.
 
 ### 3. ¿Cómo se ve la caja del primer año?
-La utilidad del ejercicio de 2027 es de **$-714.556** y el flujo de fondos es de **$5.122.089**. La operación no alcanza a cubrir en su primer año la estructura mínima para funcionar formalmente, y esa pérdida la financia el capital de trabajo. La caja acumulada nunca baja de **$17.841.874**.
+La utilidad del ejercicio de 2027 es de **$-986.639** y el flujo de fondos es de **$5.122.089**. La operación no alcanza a cubrir en su primer año la estructura mínima para funcionar formalmente, y esa pérdida la financia el capital de trabajo. La caja acumulada nunca baja de **$17.841.874**.
 
 Esto es una advertencia, no un adorno: el primer año no tiene holgura. Por eso el crédito se dimensionó al mínimo que sostiene la reserva, y por eso pedimos cotización completa y probamos meses débiles antes de firmar. **La reserva financia transitorios, no pérdidas permanentes.**
 
