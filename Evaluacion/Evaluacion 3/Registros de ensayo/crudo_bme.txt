@@ -1,0 +1,248 @@
+
+### [2026-11-21 12:13:03] Encendido continuo #1
+
+> 6
+
+ 702.61s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.09 °C | presión 961.67 hPa | humedad 47.62 %
+ 702.61s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.6 % (sin contrastar con referencia)
+
+### [2026-11-21 12:13:23] Encendido continuo #2
+
+> 6
+
+ 722.61s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.09 °C | presión 961.66 hPa | humedad 47.46 %
+ 722.61s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.5 % (sin contrastar con referencia)
+
+### [2026-11-21 12:13:43] Encendido continuo #3
+
+> 6
+
+ 742.61s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.09 °C | presión 961.67 hPa | humedad 47.35 %
+ 742.61s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.4 % (sin contrastar con referencia)
+
+### [2026-11-21 12:14:03] Encendido continuo #4
+
+> 6
+
+ 762.61s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.10 °C | presión 961.67 hPa | humedad 47.52 %
+ 762.61s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.5 % (sin contrastar con referencia)
+
+### [2026-11-21 12:14:23] Encendido continuo #5
+
+> 6
+
+ 782.61s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.10 °C | presión 961.66 hPa | humedad 47.70 %
+ 782.61s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.7 % (sin contrastar con referencia)
+
+### [2026-11-21 12:14:43] Encendido continuo #6
+
+> 6
+
+ 802.61s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.12 °C | presión 961.68 hPa | humedad 47.63 %
+ 802.61s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.6 % (sin contrastar con referencia)
+
+### [2026-11-21 12:15:03] Encendido continuo #7
+
+> 6
+
+ 822.61s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.11 °C | presión 961.68 hPa | humedad 47.42 %
+ 822.61s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.4 % (sin contrastar con referencia)
+
+### [2026-11-21 12:15:23] Encendido continuo #8
+
+> 6
+
+ 842.61s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.10 °C | presión 961.64 hPa | humedad 47.22 %
+ 842.61s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.6 hPa, 47.2 % (sin contrastar con referencia)
+
+### [2026-11-21 12:15:43] Encendido continuo #9
+
+> 6
+
+ 862.61s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.09 °C | presión 961.68 hPa | humedad 47.22 %
+ 862.61s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.2 % (sin contrastar con referencia)
+
+### [2026-11-21 12:16:03] Encendido continuo #10
+
+> 6
+
+ 882.61s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.10 °C | presión 961.66 hPa | humedad 47.31 %
+ 882.61s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.3 % (sin contrastar con referencia)
+
+### [2026-11-21 12:16:23] Encendido continuo #11
+
+> 6
+
+ 902.61s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.08 °C | presión 961.67 hPa | humedad 46.90 %
+ 902.61s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 46.9 % (sin contrastar con referencia)
+
+### [2026-11-21 12:16:43] Encendido continuo #12
+
+> 6
+
+ 922.62s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.09 °C | presión 961.70 hPa | humedad 47.18 %
+ 922.62s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.2 % (sin contrastar con referencia)
+
+### [2026-11-21 12:17:03] Encendido continuo #13
+
+> 6
+
+ 942.62s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.10 °C | presión 961.68 hPa | humedad 47.48 %
+ 942.62s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.5 % (sin contrastar con referencia)
+
+### [2026-11-21 12:17:23] Encendido continuo #14
+
+> 6
+
+ 962.62s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.10 °C | presión 961.70 hPa | humedad 47.62 %
+ 962.62s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.6 % (sin contrastar con referencia)
+
+### [2026-11-21 12:17:43] Encendido continuo #15
+
+> 6
+
+ 982.62s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.10 °C | presión 961.72 hPa | humedad 47.73 %
+ 982.62s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.7 % (sin contrastar con referencia)
+
+### [2026-11-21 12:18:03] Encendido continuo #16
+
+> 6
+
+1002.62s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.09 °C | presión 961.68 hPa | humedad 47.79 %
+1002.62s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.8 % (sin contrastar con referencia)
+
+### [2026-11-21 12:18:23] Encendido continuo #17
+
+> 6
+
+1022.62s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.10 °C | presión 961.69 hPa | humedad 47.57 %
+1022.62s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.6 % (sin contrastar con referencia)
+
+### [2026-11-21 12:18:43] Encendido continuo #18
+
+> 6
+
+1042.62s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.10 °C | presión 961.67 hPa | humedad 47.60 %
+1042.62s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.6 % (sin contrastar con referencia)
+
+### [2026-11-21 12:19:03] Encendido continuo #19
+
+> 6
+
+1062.62s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.10 °C | presión 961.67 hPa | humedad 47.54 %
+1062.62s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.5 % (sin contrastar con referencia)
+
+### [2026-11-21 12:19:23] Encendido continuo #20
+
+> 6
+
+1082.62s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.11 °C | presión 961.68 hPa | humedad 47.63 %
+1082.62s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.6 % (sin contrastar con referencia)
+
+### [2026-11-21 12:19:43] Encendido continuo #21
+
+> 6
+
+1102.62s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.10 °C | presión 961.67 hPa | humedad 47.48 %
+1102.62s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.5 % (sin contrastar con referencia)
+
+### [2026-11-21 12:20:03] Encendido continuo #22
+
+> 6
+
+1122.62s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.10 °C | presión 961.67 hPa | humedad 47.17 %
+1122.62s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.2 % (sin contrastar con referencia)
+
+### [2026-11-21 12:20:23] Encendido continuo #23
+
+> 6
+
+1142.63s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.10 °C | presión 961.65 hPa | humedad 46.81 %
+1142.63s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.6 hPa, 46.8 % (sin contrastar con referencia)
+
+### [2026-11-21 12:20:43] Encendido continuo #24
+
+> 6
+
+1162.63s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.10 °C | presión 961.67 hPa | humedad 47.32 %
+1162.63s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 47.3 % (sin contrastar con referencia)
+
+### [2026-11-21 12:21:03] Encendido continuo #25
+
+> 6
+
+1182.65s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.11 °C | presión 961.64 hPa | humedad 47.13 %
+1182.65s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.6 hPa, 47.1 % (sin contrastar con referencia)
+
+### [2026-11-21 12:21:23] Encendido continuo #26
+
+> 6
+
+1202.65s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.10 °C | presión 961.67 hPa | humedad 46.91 %
+1202.65s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.7 hPa, 46.9 % (sin contrastar con referencia)
+
+### [2026-11-21 12:21:43] Encendido continuo #27
+
+> 6
+
+1222.65s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.11 °C | presión 961.64 hPa | humedad 46.93 %
+1222.65s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.6 hPa, 46.9 % (sin contrastar con referencia)
+
+### [2026-11-21 12:22:03] Encendido continuo #28
+
+> 6
+
+1242.65s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.10 °C | presión 961.60 hPa | humedad 47.03 %
+1242.65s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.6 hPa, 47.0 % (sin contrastar con referencia)
+
+### [2026-11-21 12:22:23] Encendido continuo #29
+
+> 6
+
+1262.65s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.09 °C | presión 961.60 hPa | humedad 47.30 %
+1262.65s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.6 hPa, 47.3 % (sin contrastar con referencia)
+
+### [2026-11-21 12:22:43] Encendido continuo #30
+
+> 6
+
+1282.65s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.11 °C | presión 961.56 hPa | humedad 47.19 %
+1282.65s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.6 hPa, 47.2 % (sin contrastar con referencia)
+
+### [2026-11-21 12:23:03] Encendido continuo #31
+
+> 6
+
+1302.65s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 24.12 °C | presión 961.58 hPa | humedad 47.36 %
+1302.65s [BME280]   OK       BME280 en 0x76: 24.1 °C, 961.6 hPa, 47.4 % (sin contrastar con referencia)

@@ -11,6 +11,7 @@ los dos índices.
 
     python finanzas/renumerar_informe_e2.py            # reescribe el informe
     python finanzas/renumerar_informe_e2.py --revisar  # sólo informa, no escribe
+    python finanzas/renumerar_informe_e2.py "Evaluacion/Evaluacion 3/INFORME 3.md"  # otro informe
 """
 
 import os
@@ -191,7 +192,9 @@ def main():
     except (AttributeError, OSError):
         pass
     revisar = "--revisar" in sys.argv
-    with open(INFORME, encoding="utf-8", newline="") as f:
+    rutas = [a for a in sys.argv[1:] if not a.startswith("--")]
+    informe = rutas[0] if rutas else INFORME
+    with open(informe, encoding="utf-8", newline="") as f:
         original = f.read()
 
     # Se trabaja con saltos de línea sueltos y se devuelve el CRLF del archivo.
@@ -209,7 +212,7 @@ def main():
         print("Hay cambios pendientes: ejecutar sin --revisar para aplicarlos.")
         return 1
 
-    with open(INFORME, "w", encoding="utf-8", newline="") as f:
+    with open(informe, "w", encoding="utf-8", newline="") as f:
         f.write(resultado.replace("\n", "\r\n"))
     print("Informe renumerado e índices regenerados.")
     return 0

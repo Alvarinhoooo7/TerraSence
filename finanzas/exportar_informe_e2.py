@@ -19,6 +19,7 @@ instalado, en una instancia oculta y aislada. --pdf-revision permite guardar una
 para inspeccionar las tablas y los saltos de página antes de entregar.
 
     python finanzas/exportar_informe_e2.py --paginar
+    python finanzas/exportar_informe_e2.py --informe 3 --desde-markdown   # informe de la Evaluación 3
 """
 
 import os
@@ -30,6 +31,7 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from copy import deepcopy
+from urllib.parse import unquote
 
 from docx import Document
 from docx.enum.section import WD_ORIENT
@@ -47,6 +49,19 @@ DESTINO = os.path.join(CARPETA, "INFORME 2.docx")
 LOGOTIPO = os.path.join(CARPETA, "Plantilla", "encabezado.png")
 FRANJA = os.path.join(CARPETA, "Plantilla", "pie.png")
 PLANTILLA = os.path.join(CARPETA, "Plantilla", "base_institucional.docx")
+TITULO = "TerraSense — Ingeniería conceptual, básica y de detalle"
+
+
+def configurar(numero):
+    """Apunta el exportador al informe de otra evaluación; la plantilla institucional es la misma."""
+    global CARPETA, ORIGEN, DESTINO, TITULO
+    if numero == 2:
+        return
+    CARPETA = os.path.join(RAIZ, "Evaluacion", "Evaluacion %d" % numero)
+    ORIGEN = os.path.join(CARPETA, "INFORME %d.md" % numero)
+    DESTINO = os.path.join(CARPETA, "INFORME %d.docx" % numero)
+    if numero == 3:
+        TITULO = "TerraSense — Ingeniería, implementación y validación del prototipo"
 
 ANCHO_TEXTO = Cm(16.0)
 
@@ -228,7 +243,7 @@ class Exportador:
                 _compacto(p)
 
     def imagen(self, alt, ruta):
-        absoluta = os.path.join(CARPETA, ruta.replace("/", os.sep))
+        absoluta = os.path.normpath(os.path.join(CARPETA, unquote(ruta).replace("/", os.sep)))
         p = self.doc.add_paragraph(style="Cuerpo del informe" if "Cuerpo del informe" in self.doc.styles else None)
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.keep_with_next = True
@@ -381,7 +396,7 @@ def convertir():
 
     usa_plantilla = os.path.exists(PLANTILLA)
     doc = Document(PLANTILLA) if usa_plantilla else Document()
-    doc.core_properties.title = "TerraSense — Ingeniería conceptual, básica y de detalle"
+    doc.core_properties.title = TITULO
     doc.core_properties.author = "Álvaro Nicolás Villena Torrejón; Alan Paul Escobar Rojas"
     doc.core_properties.comments = ""
     doc.core_properties.created = doc.core_properties.modified = datetime.now(timezone.utc)
@@ -782,7 +797,9 @@ def main():
                         help="Reconstruye el Word desde Markdown y sustituye las correcciones manuales")
     parser.add_argument("--paginar", action="store_true", help="Actualiza el índice y las páginas con LibreOffice instalado")
     parser.add_argument("--pdf-revision", help="Ruta opcional de una copia PDF para revisar la paginación")
+    parser.add_argument("--informe", type=int, default=2, choices=(2, 3), help="Evaluación cuyo informe se exporta")
     args = parser.parse_args()
+    configurar(args.informe)
     try:
         sys.stdout.reconfigure(encoding="utf-8")
     except (AttributeError, OSError):

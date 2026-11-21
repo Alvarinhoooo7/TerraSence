@@ -1,0 +1,132 @@
+[
+ {
+  "t": 1795273671.0341322,
+  "tramo": "A",
+  "evento": "inicio reposo con anuncio BLE"
+ },
+ {
+  "t": 1795273731.044422,
+  "tramo": "A",
+  "evento": "fin"
+ },
+ {
+  "t": 1795273731.0472288,
+  "tramo": "B",
+  "evento": "inicio"
+ },
+ {
+  "t": 1795273734.8774707,
+  "tramo": "B",
+  "evento": "medici\u00f3n 1: conectado"
+ },
+ {
+  "t": 1795273737.6830697,
+  "tramo": "B",
+  "evento": "medici\u00f3n 1: desconectado"
+ },
+ {
+  "t": 1795273753.5381672,
+  "tramo": "B",
+  "evento": "medici\u00f3n 2: conectado"
+ },
+ {
+  "t": 1795273756.3723898,
+  "tramo": "B",
+  "evento": "medici\u00f3n 2: desconectado"
+ },
+ {
+  "t": 1795273774.1488483,
+  "tramo": "B",
+  "evento": "medici\u00f3n 3: conectado"
+ },
+ {
+  "t": 1795273776.982605,
+  "tramo": "B",
+  "evento": "medici\u00f3n 3: desconectado"
+ },
+ {
+  "t": 1795273795.0360613,
+  "tramo": "B",
+  "evento": "medici\u00f3n 4: conectado"
+ },
+ {
+  "t": 1795273797.8442736,
+  "tramo": "B",
+  "evento": "medici\u00f3n 4: desconectado"
+ },
+ {
+  "t": 1795273814.7654514,
+  "tramo": "B",
+  "evento": "medici\u00f3n 5: conectado"
+ },
+ {
+  "t": 1795273817.575698,
+  "tramo": "B",
+  "evento": "medici\u00f3n 5: desconectado"
+ },
+ {
+  "t": 1795273835.0082386,
+  "tramo": "B",
+  "evento": "medici\u00f3n 6: conectado"
+ },
+ {
+  "t": 1795273837.837373,
+  "tramo": "B",
+  "evento": "medici\u00f3n 6: desconectado"
+ },
+ {
+  "t": 1795273855.453901,
+  "tramo": "B",
+  "evento": "medici\u00f3n 7: conectado"
+ },
+ {
+  "t": 1795273858.2667098,
+  "tramo": "B",
+  "evento": "medici\u00f3n 7: desconectado"
+ },
+ {
+  "t": 1795273873.9844604,
+  "tramo": "B",
+  "evento": "medici\u00f3n 8: conectado"
+ },
+ {
+  "t": 1795273876.821253,
+  "tramo": "B",
+  "evento": "medici\u00f3n 8: desconectado"
+ },
+ {
+  "t": 1795273894.2704964,
+  "tramo": "B",
+  "evento": "medici\u00f3n 9: conectado"
+ },
+ {
+  "t": 1795273897.086441,
+  "tramo": "B",
+  "evento": "medici\u00f3n 9: desconectado"
+ },
+ {
+  "t": 1795273914.2385776,
+  "tramo": "B",
+  "evento": "medici\u00f3n 10: conectado"
+ },
+ {
+  "t": 1795273917.067809,
+  "tramo": "B",
+  "evento": "medici\u00f3n 10: desconectado"
+ },
+ {
+  "t": 1795273931.1372046,
+  "tramo": "B",
+  "evento": "fin"
+ },
+ {
+  "t": 1795273931.1372046,
+  "tramo": "E",
+  "evento": "inicio reposo final"
+ },
+ {
+  "t": 1795273961.1520448,
+  "tramo": "E",
+  "evento": "fin"
+ }
+]

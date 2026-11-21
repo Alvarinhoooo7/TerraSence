@@ -1,0 +1,20 @@
+
+### [2026-11-21 11:36:48] envío: 7
+
+> 7
+
+  32.30s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+  34.45s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.2 °C, ΔCE 1 µS/cm, ΔpH 0.0
+
+  34.47s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 28.3 % | temperatura 17.9 °C | CE 233 µS/cm | pH 5.0
+                    N 10 | P 16 | K 38 mg/kg (valores de referencia)
+  34.47s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:36:55] envío: 6
+
+> 6
+
+  38.54s [BME280]   Ambiente: lectura nueva del sensor (ráfaga de 10, media recortada)
+                    Medido: temperatura 22.71 °C | presión 961.92 hPa | humedad 49.18 %
+  38.54s [BME280]   OK       BME280 en 0x76: 22.7 °C, 961.9 hPa, 49.2 % (sin contrastar con referencia)

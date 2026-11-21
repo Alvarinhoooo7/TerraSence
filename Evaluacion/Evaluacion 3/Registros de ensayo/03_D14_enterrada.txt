@@ -1,0 +1,55 @@
+
+### [2026-11-21 11:41:51] envío: d
+
+> d
+
+ 335.21s [MONITOR]  ========== TerraSense | DIAGNÓSTICO ==========
+                    Firmware 1.1.0 | ID 061840303867496 | encendido hace 335 s
+                    t            AUTOTEST: los 7 pasos en orden (~15 s) y un resumen para el registro
+                    e            estado del equipo: reinicio, memoria, Bluetooth y fallos acumulados
+                    ENERGÍA      1   batería: ADC, tensión y porcentaje
+                    SONDA        7   leer la sonda (ráfaga de 10), sin depender de la batería
+                                 10  barrido RS-485: lectura e identidad a 2400/4800/9600 baudios
+                                 12  ensayo D-14: 1.000 lecturas seguidas (CRC, tiempos, rango)
+                    AMBIENTE     6   lectura nueva del BME280
+                                 9   recorrer el bus I2C e identificar el sensor
+                    BLUETOOTH    8   anuncio, conexión y característica de estado
+                    INDICADORES  11  secuencia de luces: todas 2 s, luego rojo, verde y azul
+                                 2   buzzer 2 s | 3 LED azul | 4 LED rojo | 5 LED verde
+                    CONTROL      d   menú | x cancelar la prueba | q salir | s/n responder al autotest
+                    DETALLE      v   apagado, v lo enciende: HEX y muestra a muestra (las fallas lo muestran siempre)
+                    Cada prueba termina en OK, AVISO, FALLA, N/D o CONFIRMA, con causa y siguiente paso.
+                    Las pruebas piden reposo: sin teléfono conectado ni PAIR (8, e y v funcionan siempre).
+                    Un comando por línea, con Enter. Luz y sonido se confirman mirando y escuchando.
+ 335.21s [LUCES]    1/4: rojo + verde + azul (2 s). x cancela.
+ 337.21s [LUCES]    2/4: sólo rojo (1 s, IO27).
+ 338.21s [LUCES]    3/4: sólo verde (1 s, IO26).
+
+### [2026-11-21 11:41:54] envío: 12
+
+> 12
+ 338.23s [ENSAYO]   1000 consultas Modbus seguidas a 4800 baudios, sin reintentos; sonda energizada todo el ensayo (IO5). x cancela y apaga.
+ 351.27s [ENSAYO]   100/1000 | correctas 100 | fallos 0 | faltan ~117 s
+����������������������������������������������������������������orrectas 200 | fallos 0 | faltan ~100 s
+ 375.46s [ENSAYO]   300/1000 | correctas 300 | fallos 0 | faltan ~86 s
+ 387.56s [ENSAYO]   400/1000 | correctas 400 | fallos 0 | faltan ~73 s
+ 399.66s [ENSAYO]   500/1000 | correctas 500 | fallos 0 | faltan ~61 s
+ 411.75s [ENSAYO]   600/1000 | correctas 600 | fallos 0 | faltan ~49 s
+ 423.83s [ENSAYO]   700/1000 | correctas 700 | fallos 0 | faltan ~36 s
+ 435.92s [ENSAYO]   800/1000 | correctas 800 | fallos 0 | faltan ~24 s
+ 448.02s [ENSAYO]   900/1000 | correctas 900 | fallos 0 | faltan ~12 s
+ 460.11s [ENSAYO]   ===== RESULTADO: 1000 de 1000 consultas =====
+ 460.11s [ENSAYO]   Correctas 1000 | CRC 0 | silencio 0 | truncadas 0 | otras fallas 0 | fuera de rango 0
+ 460.12s [ENSAYO]   Sin fallas. Racha máxima: 1000 consultas seguidas
+ 460.12s [ENSAYO]   Respuesta por consulta: mín 66 ms, prom 70 ms, máx 77 ms (resolución ≈ 5 ms; sin la separación de 50 ms)
+ 460.14s [ENSAYO]   Rango leído: humedad 28.4-28.6 % | temperatura 17.7-18.0 °C | CE 239-242 µS/cm | pH 4.6-4.7
+ 460.14s [ENSAYO]   Rango leído: N 11-11 | P 16-17 | K 38-39 mg/kg (valores de referencia)
+ 460.15s [ENSAYO]   Duración total: 121.9 s. MOSFET apagado.
+ 460.16s [ENSAYO]   OK       1000/1000 consultas correctas, sin fallas
+ 338.23s [LUCES]    Secuencia interrumpida; se conservan los avisos del equipo.
+
+### [2026-11-21 11:44:09] envío: q
+
+> q
+
+ 473.29s [MONITOR]  Diagnóstico cerrado. Envía d o D para volver a entrar.

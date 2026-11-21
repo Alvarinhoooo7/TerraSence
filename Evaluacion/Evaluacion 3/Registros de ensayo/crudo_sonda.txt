@@ -1,0 +1,834 @@
+
+### [2026-11-21 11:40:21] Suelo seco #1
+
+> 7
+
+ 240.46s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 242.62s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.2 %, Δtemp 0.0 °C, ΔCE 1 µS/cm, ΔpH 0.0
+
+ 242.63s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 28.5 % | temperatura 17.9 °C | CE 239 µS/cm | pH 4.7
+                    N 11 | P 16 | K 38 mg/kg (valores de referencia)
+ 242.63s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:40:27] Suelo seco #2
+
+> 7
+
+ 246.46s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 248.62s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.2 %, Δtemp 0.2 °C, ΔCE 2 µS/cm, ΔpH 0.0
+
+ 248.63s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 28.6 % | temperatura 17.9 °C | CE 239 µS/cm | pH 4.7
+                    N 11 | P 16 | K 38 mg/kg (valores de referencia)
+ 248.63s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:40:33] Suelo seco #3
+
+> 7
+
+ 252.46s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 254.62s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.2 %, Δtemp 0.0 °C, ΔCE 1 µS/cm, ΔpH 0.0
+
+ 254.63s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 28.5 % | temperatura 17.9 °C | CE 238 µS/cm | pH 4.7
+                    N 11 | P 16 | K 38 mg/kg (valores de referencia)
+ 254.63s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:40:39] Suelo seco #4
+
+> 7
+
+ 258.46s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 260.62s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.3 %, Δtemp 0.0 °C, ΔCE 1 µS/cm, ΔpH 0.0
+
+ 260.63s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 28.4 % | temperatura 17.9 °C | CE 239 µS/cm | pH 4.7
+                    N 11 | P 16 | K 38 mg/kg (valores de referencia)
+ 260.63s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:40:45] Suelo seco #5
+
+> 7
+
+ 264.46s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 266.62s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 2 µS/cm, ΔpH 0.0
+
+ 266.63s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 28.4 % | temperatura 17.9 °C | CE 240 µS/cm | pH 4.7
+                    N 11 | P 16 | K 38 mg/kg (valores de referencia)
+ 266.63s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:40:51] Suelo seco #6
+����������������������������������������������������������������
+ 270.46s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 272.62s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.2 %, Δtemp 0.0 °C, ΔCE 0 µS/cm, ΔpH 0.0
+
+ 272.63s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 28.4 % | temperatura 17.9 °C | CE 239 µS/cm | pH 4.7
+                    N 11 | P 16 | K 38 mg/kg (valores de referencia)
+ 272.63s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:40:57] Suelo seco #7
+
+> 7
+
+ 276.46s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 278.62s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 0 µS/cm, ΔpH 0.0
+
+ 278.63s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 28.6 % | temperatura 17.9 °C | CE 239 µS/cm | pH 4.7
+                    N 11 | P 16 | K 38 mg/kg (valores de referencia)
+ 278.63s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:41:03] Suelo seco #8
+
+> 7
+
+ 282.47s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 284.63s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.2 %, Δtemp 0.0 °C, ΔCE 1 µS/cm, ΔpH 0.0
+
+ 284.64s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 28.6 % | temperatura 17.9 °C | CE 239 µS/cm | pH 4.7
+                    N 11 | P 16 | K 38 mg/kg (valores de referencia)
+ 284.64s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:41:09] Suelo seco #9
+
+> 7
+
+ 288.48s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 290.64s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.2 %, Δtemp 0.0 °C, ΔCE 1 µS/cm, ΔpH 0.0
+
+ 290.65s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 28.6 % | temperatura 17.9 °C | CE 239 µS/cm | pH 4.7
+                    N 11 | P 16 | K 38 mg/kg (valores de referencia)
+ 290.65s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:41:15] Suelo seco #10
+
+> 7
+
+ 294.48s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 296.64s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.2 %, Δtemp 0.0 °C, ΔCE 0 µS/cm, ΔpH 0.0
+
+ 296.65s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 28.5 % | temperatura 17.9 °C | CE 239 µS/cm | pH 4.7
+                    N 11 | P 16 | K 38 mg/kg (valores de referencia)
+ 296.65s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:41:21] Suelo seco #11
+
+> 7
+
+ 300.48s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 302.63s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 0 µS/cm, ΔpH 0.0
+
+ 302.65s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 28.6 % | temperatura 17.9 °C | CE 239 µS/cm | pH 4.7
+                    N 11 | P 16 | K 38 mg/kg (valores de referencia)
+ 302.65s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:41:27] Suelo seco #12
+
+> 7
+
+ 306.48s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 308.63s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.2 %, Δtemp 0.0 °C, ΔCE 1 µS/cm, ΔpH 0.0
+
+ 308.64s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 28.5 % | temperatura 17.9 °C | CE 239 µS/cm | pH 4.7
+                    N 11 | P 16 | K 38 mg/kg (valores de referencia)
+ 308.64s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:41:33] Suelo seco #13
+
+> 7
+
+ 312.48s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+����������������������������������������������������������������00 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.2 %, Δtemp 0.2 °C, ΔCE 0 µS/cm, ΔpH 0.0
+
+ 314.65s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 28.5 % | temperatura 17.9 °C | CE 239 µS/cm | pH 4.7
+                    N 11 | P 16 | K 38 mg/kg (valores de referencia)
+ 314.65s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:41:39] Suelo seco #14
+
+> 7
+
+ 318.48s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 320.64s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 0 µS/cm, ΔpH 0.0
+
+ 320.65s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 28.6 % | temperatura 17.9 °C | CE 239 µS/cm | pH 4.7
+                    N 11 | P 16 | K 38 mg/kg (valores de referencia)
+ 320.65s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:41:45] Suelo seco #15
+
+> 7
+
+ 324.48s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 326.64s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 1 µS/cm, ΔpH 0.0
+
+ 326.65s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 28.6 % | temperatura 17.9 °C | CE 240 µS/cm | pH 4.7
+                    N 11 | P 16 | K 39 mg/kg (valores de referencia)
+ 326.65s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:45:01] Aire #1
+
+> 7
+
+ 520.57s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 522.72s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.1 °C, ΔCE 0 µS/cm, ΔpH 0.1
+
+ 522.73s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 0.0 % | temperatura 19.0 °C | CE 0 µS/cm | pH 7.6
+                    N 0 | P 0 | K 0 mg/kg (valores de referencia)
+ 522.73s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:45:07] Aire #2
+
+> 7
+
+ 526.56s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 528.72s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 0 µS/cm, ΔpH 0.2
+
+ 528.73s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 0.0 % | temperatura 19.0 °C | CE 0 µS/cm | pH 7.6
+                    N 0 | P 0 | K 0 mg/kg (valores de referencia)
+ 528.73s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:45:13] Aire #3
+
+> 7
+
+ 532.56s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 534.72s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.8 °C, ΔCE 0 µS/cm, ΔpH 0.1
+
+ 534.73s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 0.0 % | temperatura 19.1 °C | CE 0 µS/cm | pH 7.7
+                    N 0 | P 0 | K 0 mg/kg (valores de referencia)
+ 534.73s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:45:19] Aire #4
+
+> 7
+
+ 538.57s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 540.73s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 1.3 °C, ΔCE 0 µS/cm, ΔpH 0.0
+
+ 540.74s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 0.0 % | temperatura 19.5 °C | CE 0 µS/cm | pH 7.6
+                    N 0 | P 0 | K 0 mg/kg (valores de referencia)
+ 540.74s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:45:25] Aire #5
+
+> 7
+
+ 544.57s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 546.73s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.2 °C, ΔCE 0 µS/cm, ΔpH 0.2
+
+ 546.74s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 0.0 % | temperatura 19.1 °C | CE 0 µS/cm | pH 7.6
+                    N 0 | P 0 | K 0 mg/kg (valores de referencia)
+ 546.74s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:45:31] Aire #6
+
+> 7
+
+ 550.57s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 552.73s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 1.0 °C, ΔCE 0 µS/cm, ΔpH 0.2
+
+ 552.74s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 0.0 % | temperatura 19.4 °C | CE 0 µS/cm | pH 7.7
+                    N 0 | P 0 | K 0 mg/kg (valores de referencia)
+ 552.74s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:45:37] Aire #7
+
+> 7
+
+ 556.57s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 558.73s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.1 °C, ΔCE 0 µS/cm, ΔpH 0.1
+
+ 558.74s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 0.0 % | temperatura 19.1 °C | CE 0 µS/cm | pH 7.7
+                    N 0 | P 0 | K 0 mg/kg (valores de referencia)
+ 558.74s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:45:43] Aire #8
+
+> 7
+
+ 562.57s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 564.73s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 1.2 °C, ΔCE 0 µS/cm, ΔpH 0.1
+
+ 564.74s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 0.0 % | temperatura 19.2 °C | CE 0 µS/cm | pH 7.6
+                    N 0 | P 0 | K 0 mg/kg (valores de referencia)
+ 564.74s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:45:49] Aire #9
+
+> 7
+
+ 568.57s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 570.73s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 1.2 °C, ΔCE 0 µS/cm, ΔpH 0.1
+
+ 570.74s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 0.0 % | temperatura 19.7 °C | CE 0 µS/cm | pH 7.5
+                    N 0 | P 0 | K 0 mg/kg (valores de referencia)
+ 570.74s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:45:55] Aire #10
+
+> 7
+
+ 574.57s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 576.73s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 1.0 °C, ΔCE 0 µS/cm, ΔpH 0.2
+
+ 576.74s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 0.0 % | temperatura 19.2 °C | CE 0 µS/cm | pH 7.9
+                    N 0 | P 0 | K 0 mg/kg (valores de referencia)
+ 576.74s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:46:39] Agua potable #1
+
+> 7
+
+ 618.53s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 620.69s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 2 µS/cm, ΔpH 0.0
+
+ 620.70s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 100.0 % | temperatura 21.4 °C | CE 818 µS/cm | pH 7.1
+                    N 40 | P 57 | K 131 mg/kg (valores de referencia)
+ 620.70s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:46:45] Agua potable #2
+
+> 7
+
+ 624.53s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 626.69s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 6 µS/cm, ΔpH 0.1
+
+ 626.70s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 100.0 % | temperatura 21.4 °C | CE 814 µS/cm | pH 7.0
+                    N 40 | P 57 | K 130 mg/kg (valores de referencia)
+ 626.70s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:46:51] Agua potable #3
+
+> 7
+
+ 630.53s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 632.69s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 7 µS/cm, ΔpH 0.0
+
+ 632.70s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 100.0 % | temperatura 21.4 °C | CE 794 µS/cm | pH 7.0
+                    N 39 | P 55 | K 128 mg/kg (valores de referencia)
+ 632.70s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:46:57] Agua potable #4
+
+> 7
+
+ 636.54s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 638.69s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 3 µS/cm, ΔpH 0.0
+
+ 638.71s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 100.0 % | temperatura 21.4 °C | CE 789 µS/cm | pH 7.0
+                    N 38 | P 55 | K 127 mg/kg (valores de referencia)
+ 638.71s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:47:03] Agua potable #5
+
+> 7
+
+ 642.54s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 644.69s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 2 µS/cm, ΔpH 0.0
+
+ 644.71s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 100.0 % | temperatura 21.4 °C | CE 786 µS/cm | pH 7.0
+                    N 38 | P 55 | K 126 mg/kg (valores de referencia)
+ 644.71s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:47:09] Agua potable #6
+
+> 7
+
+ 648.54s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 650.69s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 2 µS/cm, ΔpH 0.0
+
+ 650.70s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 100.0 % | temperatura 21.4 °C | CE 785 µS/cm | pH 7.0
+                    N 38 | P 55 | K 126 mg/kg (valores de referencia)
+ 650.70s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:47:15] Agua potable #7
+
+> 7
+
+ 654.54s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 656.70s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 4 µS/cm, ΔpH 0.0
+
+ 656.71s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 100.0 % | temperatura 21.4 °C | CE 786 µS/cm | pH 6.9
+                    N 38 | P 55 | K 126 mg/kg (valores de referencia)
+ 656.71s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:47:21] Agua potable #8
+
+> 7
+
+ 660.54s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 662.70s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.2 °C, ΔCE 10 µS/cm, ΔpH 0.0
+
+ 662.71s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 100.0 % | temperatura 21.4 °C | CE 787 µS/cm | pH 6.9
+                    N 38 | P 55 | K 126 mg/kg (valores de referencia)
+ 662.71s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:47:27] Agua potable #9
+
+> 7
+
+ 666.54s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 668.71s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.2 °C, ΔCE 0 µS/cm, ΔpH 0.0
+
+ 668.72s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 100.0 % | temperatura 21.4 °C | CE 784 µS/cm | pH 6.9
+                    N 38 | P 55 | K 126 mg/kg (valores de referencia)
+ 668.72s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:47:33] Agua potable #10
+
+> 7
+
+ 672.54s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 674.70s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 0 µS/cm, ΔpH 0.0
+
+ 674.71s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 100.0 % | temperatura 21.4 °C | CE 784 µS/cm | pH 6.9
+                    N 38 | P 55 | K 126 mg/kg (valores de referencia)
+ 674.71s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:49:06] Suelo regado #1
+
+> 7
+
+ 765.35s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 767.51s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.2 %, Δtemp 0.0 °C, ΔCE 6 µS/cm, ΔpH 0.0
+
+ 767.52s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 68.1 % | temperatura 18.7 °C | CE 957 µS/cm | pH 7.6
+                    N 47 | P 67 | K 153 mg/kg (valores de referencia)
+ 767.52s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:49:12] Suelo regado #2
+
+> 7
+
+ 771.36s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 773.51s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.2 %, Δtemp 0.0 °C, ΔCE 4 µS/cm, ΔpH 0.1
+
+ 773.52s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 68.8 % | temperatura 18.6 °C | CE 972 µS/cm | pH 7.3
+                    N 48 | P 68 | K 156 mg/kg (valores de referencia)
+ 773.52s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:49:18] Suelo regado #3
+
+> 7
+
+ 777.35s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 779.51s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.2 %, Δtemp 0.0 °C, ΔCE 6 µS/cm, ΔpH 0.0
+
+ 779.52s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 69.6 % | temperatura 18.5 °C | CE 984 µS/cm | pH 7.2
+                    N 48 | P 69 | K 158 mg/kg (valores de referencia)
+ 779.52s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:49:24] Suelo regado #4
+
+> 7
+
+ 783.35s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 785.51s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.3 %, Δtemp 0.0 °C, ΔCE 3 µS/cm, ΔpH 0.1
+
+ 785.52s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 70.0 % | temperatura 18.5 °C | CE 990 µS/cm | pH 7.0
+                    N 48 | P 69 | K 159 mg/kg (valores de referencia)
+ 785.52s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:49:30] Suelo regado #5
+
+> 7
+
+ 789.36s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 791.52s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.2 °C, ΔCE 0 µS/cm, ΔpH 0.0
+
+ 791.53s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 70.8 % | temperatura 18.5 °C | CE 993 µS/cm | pH 7.0
+                    N 49 | P 69 | K 159 mg/kg (valores de referencia)
+ 791.53s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:49:36] Suelo regado #6
+
+> 7
+
+ 795.36s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 797.52s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 1 µS/cm, ΔpH 0.0
+
+ 797.53s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 71.2 % | temperatura 18.5 °C | CE 998 µS/cm | pH 6.9
+                    N 49 | P 70 | K 160 mg/kg (valores de referencia)
+ 797.53s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:49:42] Suelo regado #7
+
+> 7
+
+ 801.36s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 803.52s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.3 %, Δtemp 0.0 °C, ΔCE 5 µS/cm, ΔpH 0.0
+
+ 803.53s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 71.5 % | temperatura 18.5 °C | CE 685 µS/cm | pH 6.8
+                    N 33 | P 48 | K 110 mg/kg (valores de referencia)
+ 803.53s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:49:48] Suelo regado #8
+
+> 7
+
+ 807.36s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 809.52s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.4 %, Δtemp 0.0 °C, ΔCE 6 µS/cm, ΔpH 0.0
+
+ 809.53s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 71.8 % | temperatura 18.5 °C | CE 689 µS/cm | pH 6.7
+                    N 33 | P 48 | K 111 mg/kg (valores de referencia)
+ 809.53s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:49:54] Suelo regado #9
+
+> 7
+
+ 813.36s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 815.52s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 0 µS/cm, ΔpH 0.0
+
+ 815.53s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 71.9 % | temperatura 18.5 °C | CE 695 µS/cm | pH 6.7
+                    N 34 | P 48 | K 112 mg/kg (valores de referencia)
+ 815.53s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:50:00] Suelo regado #10
+
+> 7
+
+ 819.36s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 821.52s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 1 µS/cm, ΔpH 0.0
+
+ 821.53s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 72.3 % | temperatura 18.5 °C | CE 697 µS/cm | pH 6.6
+                    N 34 | P 48 | K 112 mg/kg (valores de referencia)
+ 821.53s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:50:06] Suelo regado #11
+
+> 7
+
+ 825.36s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 827.52s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.3 %, Δtemp 0.0 °C, ΔCE 5 µS/cm, ΔpH 0.0
+
+ 827.53s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 72.5 % | temperatura 18.5 °C | CE 697 µS/cm | pH 6.5
+                    N 34 | P 48 | K 112 mg/kg (valores de referencia)
+ 827.53s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:50:12] Suelo regado #12
+
+> 7
+
+ 831.36s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 833.52s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.1 °C, ΔCE 9 µS/cm, ΔpH 0.0
+
+ 833.53s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 72.6 % | temperatura 18.5 °C | CE 695 µS/cm | pH 6.5
+                    N 34 | P 48 | K 112 mg/kg (valores de referencia)
+ 833.53s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:50:18] Suelo regado #13
+
+> 7
+
+ 837.36s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 839.52s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.1 °C, ΔCE 2 µS/cm, ΔpH 0.0
+
+ 839.53s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 72.6 % | temperatura 18.5 °C | CE 701 µS/cm | pH 6.4
+                    N 34 | P 49 | K 112 mg/kg (valores de referencia)
+ 839.53s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:50:24] Suelo regado #14
+
+> 7
+
+ 843.37s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 845.53s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.2 °C, ΔCE 1 µS/cm, ΔpH 0.1
+
+ 845.54s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 72.6 % | temperatura 18.5 °C | CE 703 µS/cm | pH 6.4
+                    N 34 | P 49 | K 113 mg/kg (valores de referencia)
+ 845.54s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:50:30] Suelo regado #15
+
+> 7
+
+ 849.37s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 851.52s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 1 µS/cm, ΔpH 0.0
+
+ 851.54s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 72.6 % | temperatura 18.6 °C | CE 703 µS/cm | pH 6.3
+                    N 34 | P 49 | K 113 mg/kg (valores de referencia)
+ 851.54s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:50:50] Suelo regado (estabilizacion) #1
+
+> 7
+
+ 869.57s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 871.73s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 2 µS/cm, ΔpH 0.0
+
+ 871.74s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 73.0 % | temperatura 18.6 °C | CE 707 µS/cm | pH 6.2
+                    N 34 | P 49 | K 113 mg/kg (valores de referencia)
+ 871.74s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:51:20] Suelo regado (estabilizacion) #2
+
+> 7
+
+ 899.57s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 901.73s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.3 %, Δtemp 0.0 °C, ΔCE 6 µS/cm, ΔpH 0.0
+
+ 901.74s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 73.4 % | temperatura 18.6 °C | CE 710 µS/cm | pH 6.0
+                    N 34 | P 49 | K 114 mg/kg (valores de referencia)
+ 901.74s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:51:50] Suelo regado (estabilizacion) #3
+
+> 7
+
+ 929.57s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 931.73s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 6 µS/cm, ΔpH 0.0
+
+ 931.74s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 73.7 % | temperatura 18.6 °C | CE 710 µS/cm | pH 5.9
+                    N 34 | P 49 | K 114 mg/kg (valores de referencia)
+ 931.74s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:52:20] Suelo regado (estabilizacion) #4
+
+> 7
+
+ 959.57s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 961.73s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 2 µS/cm, ΔpH 0.0
+
+ 961.74s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 73.4 % | temperatura 18.7 °C | CE 712 µS/cm | pH 5.7
+                    N 35 | P 50 | K 114 mg/kg (valores de referencia)
+ 961.74s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:52:50] Suelo regado (estabilizacion) #5
+����������������������������������������������������������������
+ 989.58s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+ 991.74s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 1 µS/cm, ΔpH 0.0
+
+ 991.75s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 73.4 % | temperatura 18.7 °C | CE 713 µS/cm | pH 5.6
+                    N 35 | P 50 | K 114 mg/kg (valores de referencia)
+ 991.75s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:53:20] Suelo regado (estabilizacion) #6
+
+> 7
+
+1019.58s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+1021.73s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.3 %, Δtemp 0.0 °C, ΔCE 2 µS/cm, ΔpH 0.0
+
+1021.75s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 73.5 % | temperatura 18.7 °C | CE 713 µS/cm | pH 5.5
+                    N 35 | P 50 | K 114 mg/kg (valores de referencia)
+1021.75s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:53:50] Suelo regado (estabilizacion) #7
+
+> 7
+
+1049.58s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+1051.73s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.4 %, Δtemp 0.0 °C, ΔCE 6 µS/cm, ΔpH 0.0
+
+1051.74s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 73.3 % | temperatura 18.7 °C | CE 710 µS/cm | pH 5.5
+                    N 34 | P 49 | K 114 mg/kg (valores de referencia)
+1051.74s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:54:20] Suelo regado (estabilizacion) #8
+
+> 7
+
+1079.58s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+1081.73s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.1 °C, ΔCE 5 µS/cm, ΔpH 0.0
+
+1081.74s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 73.4 % | temperatura 18.7 °C | CE 712 µS/cm | pH 5.4
+                    N 35 | P 50 | K 114 mg/kg (valores de referencia)
+1081.74s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:54:50] Suelo regado (estabilizacion) #9
+
+> 7
+
+1109.58s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+1111.74s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 1 µS/cm, ΔpH 0.0
+
+1111.75s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 73.4 % | temperatura 18.8 °C | CE 714 µS/cm | pH 5.3
+                    N 35 | P 50 | K 115 mg/kg (valores de referencia)
+1111.75s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:55:20] Suelo regado (estabilizacion) #10
+
+> 7
+
+1139.58s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+1141.74s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.4 %, Δtemp 0.0 °C, ΔCE 9 µS/cm, ΔpH 0.0
+
+1141.75s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 73.3 % | temperatura 18.8 °C | CE 711 µS/cm | pH 5.3
+                    N 34 | P 49 | K 114 mg/kg (valores de referencia)
+1141.75s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:55:50] Suelo regado (estabilizacion) #11
+
+> 7
+
+1169.58s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+1171.74s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 7 µS/cm, ΔpH 0.0
+
+1171.75s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 73.0 % | temperatura 18.8 °C | CE 708 µS/cm | pH 5.2
+                    N 34 | P 49 | K 114 mg/kg (valores de referencia)
+1171.75s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:56:20] Suelo regado (estabilizacion) #12
+
+> 7
+
+1199.59s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+1201.74s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.4 %, Δtemp 0.0 °C, ΔCE 5 µS/cm, ΔpH 0.0
+
+1201.75s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 73.1 % | temperatura 18.8 °C | CE 713 µS/cm | pH 5.1
+                    N 35 | P 50 | K 114 mg/kg (valores de referencia)
+1201.75s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:56:50] Suelo regado (estabilizacion) #13
+
+> 7
+
+1229.58s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+1231.75s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 2 µS/cm, ΔpH 0.0
+
+1231.76s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 73.0 % | temperatura 18.8 °C | CE 714 µS/cm | pH 5.1
+                    N 35 | P 50 | K 115 mg/kg (valores de referencia)
+1231.76s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:57:20] Suelo regado (estabilizacion) #14
+
+> 7
+
+1259.58s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+1261.74s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.4 %, Δtemp 0.1 °C, ΔCE 6 µS/cm, ΔpH 0.0
+
+1261.75s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 72.9 % | temperatura 18.8 °C | CE 712 µS/cm | pH 5.1
+                    N 35 | P 50 | K 115 mg/kg (valores de referencia)
+1261.75s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:57:50] Suelo regado (estabilizacion) #15
+
+> 7
+
+1289.59s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+1291.75s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.4 %, Δtemp 0.0 °C, ΔCE 3 µS/cm, ΔpH 0.0
+
+1291.76s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 72.6 % | temperatura 18.9 °C | CE 713 µS/cm | pH 5.0
+                    N 35 | P 50 | K 114 mg/kg (valores de referencia)
+1291.76s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:58:20] Suelo regado (estabilizacion) #16
+
+> 7
+
+1319.59s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+1321.74s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.4 %, Δtemp 0.0 °C, ΔCE 4 µS/cm, ΔpH 0.0
+
+1321.76s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 72.7 % | temperatura 18.9 °C | CE 715 µS/cm | pH 5.0
+                    N 35 | P 50 | K 115 mg/kg (valores de referencia)
+1321.76s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:58:50] Suelo regado (estabilizacion) #17
+����������������������������������������������������������������
+1349.59s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+1351.74s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.4 %, Δtemp 0.0 °C, ΔCE 5 µS/cm, ΔpH 0.0
+
+1351.75s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 72.7 % | temperatura 18.9 °C | CE 715 µS/cm | pH 4.9
+                    N 35 | P 50 | K 115 mg/kg (valores de referencia)
+1351.75s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:59:20] Suelo regado (estabilizacion) #18
+
+> 7
+
+1379.59s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+1381.75s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 7 µS/cm, ΔpH 0.0
+
+1381.76s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 72.6 % | temperatura 18.9 °C | CE 713 µS/cm | pH 4.9
+                    N 35 | P 50 | K 115 mg/kg (valores de referencia)
+1381.76s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 11:59:50] Suelo regado (estabilizacion) #19
+
+> 7
+
+1409.59s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+1411.75s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.1 °C, ΔCE 6 µS/cm, ΔpH 0.0
+
+1411.76s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 72.6 % | temperatura 19.0 °C | CE 714 µS/cm | pH 4.9
+                    N 35 | P 50 | K 114 mg/kg (valores de referencia)
+1411.76s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango
+
+### [2026-11-21 12:00:20] Suelo regado (estabilizacion) #20
+
+> 7
+
+1439.59s [SONDA]    MOSFET IO5 activado: estabilizando 1000 ms y leyendo una ráfaga de 10. x cancela y apaga.
+1441.75s [SONDA]    Ráfaga a 4800 baudios (10/10 muestras válidas, media recortada sobre 6 centrales) | dispersión: Δhum 0.0 %, Δtemp 0.0 °C, ΔCE 4 µS/cm, ΔpH 0.0
+
+1441.76s [SONDA]    Sonda: lectura independiente de la batería; MOSFET IO5 ya apagado
+                    Humedad 72.6 % | temperatura 19.0 °C | CE 715 µS/cm | pH 4.9
+                    N 35 | P 50 | K 115 mg/kg (valores de referencia)
+1441.76s [SONDA]    OK       10/10 muestras a 4800 baudios, CRC correcto y dentro de rango

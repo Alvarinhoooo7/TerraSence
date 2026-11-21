@@ -1,0 +1,62 @@
+
+### [2026-11-21 11:36:29] envío: d
+
+> d
+
+  12.78s [MONITOR]  ========== TerraSense | DIAGNÓSTICO ==========
+                    Firmware 1.1.0 | ID 061840303867496 | encendido hace 12 s
+                    t            AUTOTEST: los 7 pasos en orden (~15 s) y un resumen para el registro
+                    e            estado del equipo: reinicio, memoria, Bluetooth y fallos acumulados
+                    ENERGÍA      1   batería: ADC, tensión y porcentaje
+                    SONDA        7   leer la sonda (ráfaga de 10), sin depender de la batería
+                                 10  barrido RS-485: lectura e identidad a 2400/4800/9600 baudios
+                                 12  ensayo D-14: 1.000 lecturas seguidas (CRC, tiempos, rango)
+                    AMBIENTE     6   lectura nueva del BME280
+                                 9   recorrer el bus I2C e identificar el sensor
+                    BLUETOOTH    8   anuncio, conexión y característica de estado
+                    INDICADORES  11  secuencia de luces: todas 2 s, luego rojo, verde y azul
+                                 2   buzzer 2 s | 3 LED azul | 4 LED rojo | 5 LED verde
+                    CONTROL      d   menú | x cancelar la prueba | q salir | s/n responder al autotest
+                    DETALLE      v   apagado, v lo enciende: HEX y muestra a muestra (las fallas lo muestran siempre)
+                    Cada prueba termina en OK, AVISO, FALLA, N/D o CONFIRMA, con causa y siguiente paso.
+                    Las pruebas piden reposo: sin teléfono conectado ni PAIR (8, e y v funcionan siempre).
+                    Un comando por línea, con Enter. Luz y sonido se confirman mirando y escuchando.
+  12.78s [LUCES]    1/4: rojo + verde + azul (2 s). x cancela.
+  14.78s [LUCES]    2/4: sólo rojo (1 s, IO27).
+  15.78s [LUCES]    3/4: sólo verde (1 s, IO26).
+
+### [2026-11-21 11:36:32] envío: e
+
+> e
+
+  15.82s [ESTADO]   Estado del equipo
+                    Firmware 1.1.0 | ID 061840303867496 | encendido hace 0 h 00 min 15 s
+                    Último reinicio: encendido normal
+                    CPU 80 MHz | memoria libre 121 KB (mínima desde el arranque 120 KB)
+                    Batería: 3.95 V, 70 % (última lectura periódica)
+                    Ambiente: BME280 en 0x76
+                    Bluetooth: anunciando | conexiones desde el arranque: 0 | PAIR cerrada
+                    Lecturas pedidas por la app: ninguna desde el arranque
+                    Fallos Modbus desde el arranque (app y monitor, sin el ensayo 12): ninguno
+  15.82s [ESTADO]   OK       sin anomalías registradas desde el arranque
+  16.78s [LUCES]    4/4: sólo azul (1 s, IO25).
+  17.78s [LUCES]    CONFIRMA secuencia terminada: ¿se vieron las tres juntas y luego rojo, verde y azul?
+                    causa si falta un color: LED invertido, resistencia abierta o pista cortada en ese pin
+                    sigue: 11 repite; 3, 4 y 5 prueban cada color por separado
+
+### [2026-11-21 11:36:35] envío: 1
+
+> 1
+
+  18.84s [BAT]      Batería: lectura nueva (media recortada: 10 conversiones, se promedian las 8 centrales)
+                    ADC IO34: 2224 / 4095 | pin: 1979 mV | celda: 3.958 V (divisor ×2)
+  18.85s [BAT]      OK       3.96 V, 71 % (estimado por tensión, sin calibrar)
+
+### [2026-11-21 11:36:38] envío: 9
+
+> 9
+
+  21.90s [I2C]      Recorriendo el bus: direcciones 08-77 (SDA IO21, SCL IO22); x cancela.
+  22.45s [I2C]      Responde 0x76 (dirección del BME280)
+  22.45s [I2C]      Identidad (registro D0 = 60): BME280
+  22.45s [I2C]      OK       1 dispositivos, 0 errores; BME280 identificado

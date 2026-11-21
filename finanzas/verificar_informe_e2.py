@@ -8,6 +8,7 @@ Sale con codigo 1 si hay errores. No edita el informe: solo lo reporta.
 import os
 import re
 import sys
+from urllib.parse import unquote
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.stdout.reconfigure(encoding="utf-8")
@@ -312,10 +313,10 @@ def gantt(texto, err):
     m = re.search(r"```mermaid\s+gantt\n(.*?)```", texto, re.S)
     if not m:
         # La carta puede ir como imagen: la dibuja figuras_e2.py desde plan_proyecto(), con las mismas fechas.
-        im = re.search(r"!\[Carta Gantt del proyecto\]\(Figuras/([^)]+)\)", texto)
+        im = re.search(r"!\[Carta Gantt del proyecto\]\(((?:\.\./[^)/]+/)?Figuras/[^)]+)\)", texto)
         if not im:
             err("Gantt", "falta la carta Gantt del capítulo IX")
-        elif not os.path.exists(os.path.join(os.path.dirname(INFORME), "Figuras", im.group(1))):
+        elif not os.path.exists(os.path.join(os.path.dirname(INFORME), unquote(im.group(1)))):
             err("Gantt", "no existe la imagen de la carta Gantt")
         return
     tareas = {}
@@ -402,7 +403,9 @@ def validar(texto, con_anexos=True):
 
 
 def main():
+    global INFORME
     ruta = sys.argv[1] if len(sys.argv) > 1 else INFORME
+    INFORME = os.path.abspath(ruta)
     texto = open(ruta, encoding="utf-8").read()
     errores = validar(texto)
     for cat, msg in errores[:200]:

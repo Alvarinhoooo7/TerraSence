@@ -1,0 +1,1 @@
+2026-11-21 11:40:15 Batería: equipo 3.958 V (ADC, comando 1) | multímetro en bornes 3.895 V (operador). Placa alimentada por USB.
