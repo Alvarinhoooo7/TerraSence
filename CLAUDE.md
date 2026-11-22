@@ -53,7 +53,7 @@ Se ordena en tres clases de valor, y cada una se sostiene con evidencia distinta
 - **Georreferenciación:** el FieldScout TDR 350 también registra ubicación.
 - **Uso sin conexión:** Bluelab Pulse también opera sin red.
 - **Ausencia de suscripción y de cobro por lectura:** ⚠️ es diferencia frente al **laboratorio** (cobra por muestra) y al **monitoreo remoto** (plataforma mensual), **no frente a los medidores portátiles**, que tampoco cobran cuota. Nunca escribirlo como si Hanna o Bluelab cobraran suscripción.
-- **Celda recargable:** ventaja ambiental con contrapartida declarada. Reduce residuos de pilas primarias, pero el intervalo entre recargas es menor que el de un equipo sin radio (Bluelab declara ~4 meses por pila; TerraSense pide carga cada 6,7 semanas). No presentarla como ventaja de autonomía.
+- **Celda recargable con reposo profundo:** ventaja de autonomía y ambiental **en el uso habitual**, no una de las cuatro diferencias. Con el equipo dormido entre mediciones, una carga dura 22 a 28 semanas (5 a 6,5 meses) con dos jornadas semanales, más que los ~4 meses por pila que declara Bluelab. Se enuncia siempre con el patrón de uso: con 10 mediciones diarias todos los días (el patrón de la cifra de Bluelab) dura 7 a 9,5 semanas, porque cada medición deja la radio despierta 2 min. La corriente dormida de la placa del instrumento (40 µA) es de hoja de datos; lo medido es la caída de 35,9 mA en la placa de laboratorio.
 
 «Mide donde el agricultor decide» y «mide en más puntos» son diferencia **frente al nodo fijo**, no frente a otro medidor de mano.
 

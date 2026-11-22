@@ -107,6 +107,8 @@ def resumen(wb):
         ("Corriente", "Perfil de corriente del 21-11 promediado cada 100 ms", "21-11-2026", "FNIRSI FNB58"),
         ("Ciclo", "Tiempos de búsqueda, conexión, adquisición y ciclo completo de cada medición", "21-11-2026",
          "PC con Bluetooth, ciclo de la aplicación"),
+        ("Reposo", "Reposo profundo: corriente despierta, dormida, en diez mediciones y en la gracia, por segundo", "21-11-2026",
+         "FNIRSI FNB58 y PC con Bluetooth"),
         ("Modbus", "Ensayo D-14: 1.000 consultas consecutivas por corrida", "31-10 y 21-11-2026", "Monitor serie"),
         ("BME280", "Temperatura, presión y humedad del aire con el equipo encendido", "21-11-2026", "Monitor serie cada 20 s"),
         ("Batería", "Tensión leída por el equipo frente al multímetro", "21-11-2026", "Multímetro digital"),
@@ -126,8 +128,8 @@ def resumen(wb):
     for j, w in enumerate([14, 78, 20, 40], 1):
         ws.column_dimensions[get_column_letter(j)].width = w
     ws.cell(row=len(filas) + 7, column=1,
-            value="Placa de laboratorio con el firmware 1.1.0. Las condiciones y los criterios de aceptación de cada "
-                  "ensayo están en el capítulo de mediciones y resultados del informe.").font = NOTA
+            value="Placa de laboratorio con el firmware 1.1.0, salvo la hoja Reposo, medida con el 1.2.0. Las condiciones y "
+                  "los criterios de aceptación de cada ensayo están en el capítulo de mediciones y resultados del informe.").font = NOTA
 
 
 def sonda(wb):
@@ -297,6 +299,85 @@ def ciclo(wb):
     ws.add_chart(ch, "H4")
 
 
+TRAMOS_REPOSO = [("A", "Despierto, sin conexión"), ("D1", "Dormido"), ("B", "Diez mediciones cada 20 s"),
+                 ("G", "Gracia tras la última medición"), ("D2", "Dormido")]
+
+
+def reposo(wb):
+    """Campaña de reposo profundo: corriente media por segundo, tramo de cada segundo y estadísticos por tramo."""
+    carpeta = REG / "reposo"
+    if not (carpeta / "corriente.csv").exists():
+        return
+    marcas = json.loads((carpeta / "marcas.json").read_text(encoding="utf-8"))
+    limites = {}
+    for k, _ in TRAMOS_REPOSO:
+        e = [m["t"] for m in marcas if m["tramo"] == k]
+        limites[k] = (min(e), max(e))
+    t0 = min(m["t"] for m in marcas)
+    tf = max(m["t"] for m in marcas)
+
+    def tramo(t):
+        # Los 2 s de cada borde quedan como transición: arranque, apagado de la radio y cambio de tramo.
+        for k, (a, b) in limites.items():
+            if a + 2 <= t < b - 2:
+                return k
+        return "transición"
+
+    datos, bloque = [], []
+    for f in leer(carpeta / "corriente.csv"):
+        t = float(f["t_unix"])
+        if t0 <= t <= tf:
+            bloque.append((t, float(f["voltaje_V"]), float(f["corriente_A"]) * 1000))
+            if len(bloque) == 100:
+                tm = sum(x[0] for x in bloque) / 100
+                datos.append([round(tm - t0, 2), tramo(tm), round(sum(x[1] for x in bloque) / 100, 3),
+                              round(sum(x[2] for x in bloque) / 100, 2)])
+                bloque = []
+    ws = hoja(wb, "Reposo", "Reposo profundo entre mediciones (firmware 1.2.0)",
+              "Promedio de cada 100 muestras (1 s) del FNB58 en la entrada USB de 5,05 V de la placa de laboratorio. "
+              "El piso dormido es de la tarjeta de desarrollo y del módulo de carga, no del microcontrolador.",
+              ["Tiempo (s)", "Tramo", "Tensión (V)", "Corriente (mA)"], datos, {2: 14})
+    ultima = 4 + len(datos)
+    fila = 4
+    for j, c in enumerate(["Tramo", "Descripción", "Corriente media (mA)", "Mínimo de 1 s (mA)", "Máximo de 1 s (mA)"], 6):
+        celda = ws.cell(row=fila, column=j, value=c)
+        celda.font, celda.fill, celda.border = CABECERA, FONDO, BORDE
+        celda.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    rango_t = "$B$5:$B$%d" % ultima
+    rango_i = "$D$5:$D$%d" % ultima
+    for k, (clave, nombre) in enumerate(TRAMOS_REPOSO, 1):
+        r = fila + k
+        ws.cell(row=r, column=6, value=clave)
+        ws.cell(row=r, column=7, value=nombre)
+        ws.cell(row=r, column=8, value='=AVERAGEIF(%s,F%d,%s)' % (rango_t, r, rango_i))
+        ws.cell(row=r, column=9, value='=MINIFS(%s,%s,F%d)' % (rango_i, rango_t, r))
+        ws.cell(row=r, column=10, value='=MAXIFS(%s,%s,F%d)' % (rango_i, rango_t, r))
+        for col in range(6, 11):
+            c = ws.cell(row=r, column=col)
+            c.font, c.fill, c.border = NORMAL, RESALTE, BORDE
+            if col >= 8:
+                c.number_format = "0.0"
+    r = fila + len(TRAMOS_REPOSO) + 2
+    ws.cell(row=r, column=6, value="Caída al dormir (mA)").font = Font(name="Arial", size=10, bold=True)
+    c = ws.cell(row=r, column=8, value="=AVERAGE(H5,H8)-AVERAGE(H6,H9)")
+    c.number_format = "0.0"
+    ws.cell(row=r + 1, column=6, value="Reducción").font = Font(name="Arial", size=10, bold=True)
+    c = ws.cell(row=r + 1, column=8, value="=H%d/AVERAGE(H5,H8)" % r)
+    c.number_format = "0.0%"
+    for j, w in {6: 10, 7: 30, 8: 14, 9: 12, 10: 12}.items():
+        ws.column_dimensions[get_column_letter(j)].width = w
+    ch = ScatterChart()
+    ch.title = "Corriente con reposo profundo"
+    ch.x_axis.title = "Tiempo (s)"
+    ch.y_axis.title = "mA"
+    s = Series(Reference(ws, min_col=4, min_row=5, max_row=ultima), Reference(ws, min_col=1, min_row=5, max_row=ultima),
+               title="Corriente media de 1 s")
+    s.marker.symbol = "none"
+    ch.series.append(s)
+    ch.height, ch.width = 9, 22
+    ws.add_chart(ch, "F14")
+
+
 def modbus(wb):
     filas = [["Al aire", "31-10-2026", 1000, 1000, 0, 64, 69, 74], ["Al aire, repetición", "31-10-2026", 1000, 1000, 0, 64, 69, 74]]
     ruta = REG / "03_D14_enterrada.txt"
@@ -421,6 +502,7 @@ def main():
     consumo(wb)
     corriente(wb)
     ciclo(wb)
+    reposo(wb)
     modbus(wb)
     bme(wb)
     bateria(wb)

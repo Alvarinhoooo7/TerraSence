@@ -248,24 +248,79 @@ def fig_energia_medicion():
 
 
 def fig_autonomia():
-    """Mediciones por carga: diseño, estimación con el consumo medido, criterio y descarga."""
-    filas = [("Balance de diseño\n(reposo ligero, 18 mA)", 359, GRIS_M),
-             ("Estimación con el\nconsumo medido", 135, VERDE)]
-    lab = escenarios_descarga()[1][1]
-    filas.append(("Placa de laboratorio\ntal como está", round(semanas_por_carga(lab) * 20), AMBAR))
-    fig, ax = plt.subplots(figsize=(8.6, 3.2))
+    """Semanas y mediciones por carga en uso habitual: sin reposo, diseño y reposo profundo."""
+    sin_reposo = semanas_por_carga(escenarios_descarga()[0][1])
+    filas = [("Firmware sin reposo\n(consumo medido)", sin_reposo, GRIS_M),
+             ("Balance de diseño\n(reposo ligero, 18 mA)", 17.9, "#B8BEC3", 359)]
+    if (REPOSO / "marcas.json").exists():
+        r = resumen_reposo()
+        filas += [("Reposo profundo:\nmedir 60 s tras despertar", autonomia_reposo(DESPERTAR_S["peor"], r=r)["semanas"], VERDE_M),
+                  ("Reposo profundo:\nmedir 15 s tras despertar", autonomia_reposo(DESPERTAR_S["tipico"], r=r)["semanas"], VERDE)]
+    fig, ax = plt.subplots(figsize=(9.2, 3.9))
     y = np.arange(len(filas))[::-1]
-    bb = ax.barh(y, [f[1] for f in filas], color=[f[2] for f in filas], height=0.56)
+    bb = ax.barh(y, [f[1] for f in filas], color=[f[2] for f in filas], height=0.58)
     for b, f in zip(bb, filas):
-        ax.text(b.get_width() + 5, b.get_y() + b.get_height() / 2, "%d" % f[1], va="center", fontweight="bold", color=f[2])
-    ax.axvline(130, color=ROJO, ls="--", lw=1.2)
-    ax.text(132, y[0] + 0.42, "criterio R07: 130 mediciones", color=ROJO, fontsize=8.6)
+        ax.text(b.get_width() + 0.4, b.get_y() + b.get_height() / 2,
+                ("%.1f semanas · %d mediciones" % (f[1], f[3] if len(f) > 3 else round(f[1] * 20))).replace(".", ","),
+                va="center", fontweight="bold", color=TINTA if f[2] == "#B8BEC3" else f[2], fontsize=9)
+    ax.axvline(6.5, color=ROJO, ls="--", lw=1.2)
+    ax.text(6.7, y[0] + 0.45, "criterio R07: 130 mediciones", color=ROJO, fontsize=8.4)
+    ax.axvline(17.4, color=AZUL, ls=":", lw=1.4)
+    ax.text(17.6, y[-1] - 0.5, "≈ 4 meses", color=AZUL, fontsize=8.4)
     ax.set_yticks(y, [f[0] for f in filas])
-    ax.set_xlim(0, 420)
-    ax.set_xlabel("Mediciones por carga en uso habitual (10 por jornada de 2 h)")
+    ax.set_xlim(0, 40)
+    ax.set_ylim(y[-1] - 0.75, y[0] + 0.75)
+    ax.set_xlabel("Semanas por carga en uso habitual (dos jornadas semanales de 2 h con 10 mediciones)")
     ax.grid(axis="y", visible=False)
-    ax.set_title("Autonomía: lo diseñado, lo estimado con el consumo medido y lo exigido")
+    ax.set_title("Autonomía por carga antes y después del reposo profundo")
+    nota(fig, "Placa del instrumento: 5.920 mWh útiles, espera despierta medida en banco, reposo profundo de 40 µA estimado "
+              "por hoja de datos, gracia de 120 s tras cada medición,\napagado entre jornadas y autodescarga del 2 % mensual.")
     guardar(fig, "fig3_autonomia.png")
+
+
+def fig_perfil_reposo():
+    """Campaña con reposo profundo: despierta, dormida, diez mediciones, gracia y dormida."""
+    if not (REPOSO / "marcas.json").exists():
+        return
+    r = resumen_reposo()
+    (REPOSO / "resumen.json").write_text(json.dumps(r, indent=1, ensure_ascii=False), encoding="utf-8")
+    t, v, i = corriente(REPOSO)
+    marcas = json.loads((REPOSO / "marcas.json").read_text(encoding="utf-8"))
+    t0 = min(m["t"] for m in marcas)
+    tf = max(m["t"] for m in marcas)
+    m = (t >= t0) & (t <= tf)
+    ts = t[m] - t0
+    fig, ax = plt.subplots(figsize=(10.4, 4.6))
+    nombres = {"A": ("Despierta,\nsin conexión", GRIS_C), "D1": ("Dormida", VERDE_C), "B": ("Diez mediciones\ncada 20 s", AZUL_C),
+               "G": ("Gracia de\n120 s", GRIS_C), "D2": ("Dormida", VERDE_C)}
+    for k, (txt, c) in nombres.items():
+        e = [x["t"] - t0 for x in marcas if x["tramo"] == k]
+        a, b = min(e), max(e)
+        ax.axvspan(a, b, color=c, zorder=0, lw=0)
+        ax.text((a + b) / 2, 150, txt, ha="center", va="center", fontsize=8.6, color=GRIS)
+        ax.text((a + b) / 2, 124, ("media\n%.1f mA" % r["tramos"][k]["i"]).replace(".", ","),
+                ha="center", fontsize=9, fontweight="bold", color=VERDE if k.startswith("D") else AZUL)
+    ax.plot(ts, media_movil(i[m], 10), color="#9DB9DA", lw=0.5, label="media móvil de 100 ms")
+    ax.plot(ts, media_movil(i[m], 100), color=AZUL, lw=1.5, label="media móvil de 1 s")
+    d1 = [x["t"] - t0 for x in marcas if x["tramo"] == "D1"]
+    xm = (min(d1) + max(d1)) / 2
+    ax.annotate("", xy=(xm, r["dormida"] + 2), xytext=(xm, r["despierta"] - 2),
+                arrowprops=dict(arrowstyle="->", color=VERDE, lw=1.6))
+    ax.text(xm + 6, (r["dormida"] + r["despierta"]) / 2 + 4, ("−%.1f mA\n(−%.0f %%)" % (r["caida"], r["caida"] / r["despierta"] * 100)).replace(".", ","),
+            fontsize=9.5, color=VERDE, fontweight="bold", va="center")
+    ax.axhline(r["dormida"], color=AMBAR, ls=":", lw=1.1)
+    g = [x["t"] - t0 for x in marcas if x["tramo"] == "G"]
+    ax.text((min(g) + max(g)) / 2, r["dormida"] + 14, "piso de la placa de laboratorio:\ntarjeta de desarrollo y módulo de carga",
+            ha="center", va="center", fontsize=8.2, color=AMBAR)
+    ax.set_xlim(0, ts[-1])
+    ax.set_ylim(0, 165)
+    ax.set_xlabel("Tiempo (s)")
+    ax.set_ylabel("Corriente en la entrada USB (mA)")
+    ax.legend(loc="lower left", fontsize=8.2, ncol=1, bbox_to_anchor=(0.285, 0.0))
+    ax.set_title("Corriente con reposo profundo: el equipo duerme entre mediciones")
+    nota(fig, "FNIRSI FNB58 a 100 muestras/s en la entrada USB de 5,05 V de la placa de laboratorio con el firmware 1.2.0; "
+              "mediciones disparadas desde el PC con el ciclo de la aplicación.")
+    guardar(fig, "fig3_perfil_reposo.png")
 
 
 # --------------------------------------------------------------------------- sonda
@@ -444,6 +499,58 @@ def semanas_por_carga(p_mw):
     return ENERGIA_UTIL_MWH / por_semana
 
 
+# Reposo profundo (firmware 1.2.0). La corriente dormida de la placa del instrumento es una estimación
+# de hoja de datos (ESP32 en reposo profundo, corriente propia del RT9080 y divisor de batería): la placa
+# de laboratorio no la muestra porque su tarjeta de desarrollo y su módulo de carga siguen consumiendo.
+REPOSO = REG / "reposo"
+DORMIDA_INSTRUMENTO_MA = 0.040
+GRACIA_S = 120.0
+EXCESO_MEDICION_MWH = 0.08  # máximo medido sobre la espera despierta (campaña de consumo del 21-11-2026)
+DESPERTAR_S = {"tipico": 15.0, "peor": 60.0}
+
+
+def resumen_reposo():
+    """Corriente media de cada tramo de la campaña con reposo profundo y tiempos de sus mediciones."""
+    t, v, i = corriente(REPOSO)
+    marcas = json.loads((REPOSO / "marcas.json").read_text(encoding="utf-8"))
+
+    def limites(k):
+        e = [m["t"] for m in marcas if m["tramo"] == k]
+        return min(e), max(e)
+
+    tramos = {}
+    for k in ("A", "D1", "B", "G", "D2"):
+        a, b = limites(k)
+        # Se descartan 2 s en cada borde: arranque, apagado de la radio y cambio de tramo.
+        sel = (t >= a + 2) & (t < b - 2)
+        tramos[k] = dict(i=float(i[sel].mean()), i_min=float(i[sel].min()), i_max=float(i[sel].max()),
+                         v=float(v[sel].mean()), s=float(b - a))
+    med = leer_csv(REPOSO / "mediciones.csv")
+    ciclos = [float(m["ciclo_s"]) for m in med]
+    r = dict(tramos=tramos, despierta=(tramos["A"]["i"] + tramos["G"]["i"]) / 2,
+             dormida=(tramos["D1"]["i"] + tramos["D2"]["i"]) / 2,
+             ciclo_medio=float(np.mean(ciclos)), ciclo_min=min(ciclos), ciclo_max=max(ciclos),
+             mediciones=len(med), correctas=sum(1 for m in med if not m["error"]))
+    r["caida"] = r["despierta"] - r["dormida"]
+    return r
+
+
+def autonomia_reposo(despertar_s, jornadas=2, apaga=True, r=None):
+    """Semanas y mediciones por carga con reposo profundo: cada medición mantiene despierto el equipo
+    desde que se despierta hasta el fin de la gracia; el resto de la jornada duerme."""
+    r = r or resumen_reposo()
+    p_despierta = r["tramos"]["A"]["i"] * 3.7
+    p_dormida = DORMIDA_INSTRUMENTO_MA * 3.7
+    despierto = despertar_s + r["ciclo_medio"] + GRACIA_S
+    e_medicion = p_despierta * despierto / 3600 + EXCESO_MEDICION_MWH
+    e_jornada = 10 * e_medicion + p_dormida * (7200 - 10 * despierto) / 3600
+    resto = 7 * 24 * 0.076 if apaga else (168 - 2 * jornadas) * p_dormida
+    por_semana = jornadas * e_jornada + resto + 7 * 4.93
+    semanas = ENERGIA_UTIL_MWH / por_semana
+    return dict(semanas=semanas, mediciones=semanas * 10 * jornadas, e_medicion=e_medicion,
+                e_jornada=e_jornada, despierto_s=despierto, p_despierta=p_despierta, p_dormida=p_dormida)
+
+
 def escenarios_descarga():
     """Potencia que toma de la celda cada configuración, a partir del consumo medido en banco."""
     b = json.loads((D07 / "3 firmware final 80 MHz y anuncio 150 ms" / "resumen.json").read_text(encoding="utf-8"))
@@ -453,29 +560,30 @@ def escenarios_descarga():
 
 
 def fig_descarga():
+    curvas = [("Sin reposo: espera despierta medida (firmware anterior)", semanas_por_carga(escenarios_descarga()[0][1]), GRIS_M)]
+    if (REPOSO / "marcas.json").exists():
+        r = resumen_reposo()
+        curvas += [("Reposo profundo, medir 60 s tras despertar", autonomia_reposo(DESPERTAR_S["peor"], r=r)["semanas"], VERDE_M),
+                   ("Reposo profundo, medir 15 s tras despertar", autonomia_reposo(DESPERTAR_S["tipico"], r=r)["semanas"], VERDE)]
     fig, ax = plt.subplots(figsize=(9.6, 4.5))
-    for nombre, p_mw, color in escenarios_descarga():
-        semanas = semanas_por_carga(p_mw)
-        horas = semanas * 4
-        h = np.linspace(0, horas, 300)
-        pct = 100 * (1 - h / horas)
-        ax.plot(h, tension_celda(pct), color=color, lw=2.2, label=nombre)
-        t_aviso = horas * (1 - np.interp(3.40, [c[0] for c in CURVA_CELDA], [c[1] for c in CURVA_CELDA]) / 100)
-        med = round(semanas * 20)
-        ax.plot([t_aviso], [3.40], "o", color=color, ms=7, mec="white", mew=1.2)
-        ax.annotate(("%.1f semanas\n%d mediciones" % (semanas, med)).replace(".", ","), (t_aviso, 3.40),
+    fin = 1 - np.interp(3.40, [c[0] for c in CURVA_CELDA], [c[1] for c in CURVA_CELDA]) / 100
+    for nombre, semanas, color in curvas:
+        w = np.linspace(0, semanas, 300)
+        ax.plot(w, tension_celda(100 * (1 - w / semanas)), color=color, lw=2.2, label=nombre)
+        ax.plot([semanas * fin], [3.40], "o", color=color, ms=7, mec="white", mew=1.2)
+        ax.annotate(("%.1f semanas\n%d mediciones" % (semanas, round(semanas * 20))).replace(".", ","), (semanas * fin, 3.40),
                     xytext=(-8, 26), textcoords="offset points", ha="right", fontsize=8.8, color=color, fontweight="bold")
     ax.axhline(3.40, color=ROJO, ls="--", lw=1)
     ax.text(0.3, 3.42, "aviso de batería baja: 3,40 V", fontsize=8.6, color=ROJO)
-    ax.set_xlim(0, 31)
+    ax.set_xlim(0, 30)
     ax.set_ylim(3.25, 4.25)
-    ax.set_xlabel("Horas encendido con el uso habitual (10 mediciones por jornada de 2 h)")
+    ax.set_xlabel("Semanas de uso habitual (dos jornadas semanales de 2 h con 10 mediciones)")
     ax.set_ylabel("Tensión estimada de la celda (V)")
     ax.legend(loc="upper right", fontsize=8.4)
-    ax.set_title("Descarga estimada con el consumo medido en banco")
-    nota(fig, "Estimación: 5.920 mWh útiles (1.600 mAh a 3,7 V), potencia de reposo de la campaña del 31-10-2026 "
-              "dos jornadas semanales de 2 h con 10 mediciones,\nconsumo apagado y autodescarga del 2 % mensual; "
-              "curva de tensión que usa el firmware para el porcentaje de batería.")
+    ax.set_title("Descarga estimada de la placa del instrumento antes y después del reposo profundo")
+    nota(fig, "Estimación: 5.920 mWh útiles (1.600 mAh a 3,7 V), espera despierta medida en banco, reposo profundo de 40 µA "
+              "estimado por hoja de datos, apagado entre jornadas\ny autodescarga del 2 % mensual; curva de tensión que usa el "
+              "firmware para el porcentaje de batería.")
     guardar(fig, "fig3_descarga.png")
 
 
@@ -539,7 +647,7 @@ def main():
     except (AttributeError, OSError):
         pass
     print("Figuras de la Evaluación 3:")
-    for f in (fig_consumo_firmware, fig_perfil_consumo, fig_energia_medicion, fig_autonomia, fig_sonda_condiciones,
+    for f in (fig_consumo_firmware, fig_perfil_consumo, fig_energia_medicion, fig_perfil_reposo, fig_autonomia, fig_sonda_condiciones,
               fig_riego, fig_npk_ce, fig_modbus, fig_bme, fig_descarga, fig_carga, fig_alcance_ble):
         f()
     return 0

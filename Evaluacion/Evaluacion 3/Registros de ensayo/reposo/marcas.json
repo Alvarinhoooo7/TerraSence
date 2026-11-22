@@ -1,0 +1,102 @@
+[
+ {
+  "t": 1795308427.5482209,
+  "tramo": "A",
+  "evento": "encendido por EN: despierta y anunciando, sin conexión"
+ },
+ {
+  "t": 1795308489.6889982,
+  "tramo": "A",
+  "evento": "durmió (62.1 s)"
+ },
+ {
+  "t": 1795308489.6900322,
+  "tramo": "D1",
+  "evento": "inicio dormida"
+ },
+ {
+  "t": 1795308579.6978238,
+  "tramo": "D1",
+  "evento": "fin"
+ },
+ {
+  "t": 1795308579.799991,
+  "tramo": "B",
+  "evento": "despertada por EN"
+ },
+ {
+  "t": 1795308582.8114655,
+  "tramo": "B",
+  "evento": "inicio mediciones"
+ },
+ {
+  "t": 1795308588.7230172,
+  "tramo": "B",
+  "evento": "medición 1: desconectado"
+ },
+ {
+  "t": 1795308608.7155523,
+  "tramo": "B",
+  "evento": "medición 2: desconectado"
+ },
+ {
+  "t": 1795308631.0717676,
+  "tramo": "B",
+  "evento": "medición 3: desconectado"
+ },
+ {
+  "t": 1795308648.720982,
+  "tramo": "B",
+  "evento": "medición 4: desconectado"
+ },
+ {
+  "t": 1795308669.644,
+  "tramo": "B",
+  "evento": "medición 5: desconectado"
+ },
+ {
+  "t": 1795308689.1016796,
+  "tramo": "B",
+  "evento": "medición 6: desconectado"
+ },
+ {
+  "t": 1795308708.3829293,
+  "tramo": "B",
+  "evento": "medición 7: desconectado"
+ },
+ {
+  "t": 1795308728.6414652,
+  "tramo": "B",
+  "evento": "medición 8: desconectado"
+ },
+ {
+  "t": 1795308749.238425,
+  "tramo": "B",
+  "evento": "medición 9: desconectado"
+ },
+ {
+  "t": 1795308768.188739,
+  "tramo": "B",
+  "evento": "medición 10: desconectado"
+ },
+ {
+  "t": 1795308768.191907,
+  "tramo": "G",
+  "evento": "inicio gracia tras la última desconexión"
+ },
+ {
+  "t": 1795308891.5832036,
+  "tramo": "G",
+  "evento": "durmió (123.4 s)"
+ },
+ {
+  "t": 1795308891.5832036,
+  "tramo": "D2",
+  "evento": "inicio dormida"
+ },
+ {
+  "t": 1795308981.5838318,
+  "tramo": "D2",
+  "evento": "fin"
+ }
+]
