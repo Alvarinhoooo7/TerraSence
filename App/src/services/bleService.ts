@@ -26,6 +26,8 @@ import {
   TERRASENSE_TELEMETRY_UUID,
 } from './probeService';
 import { recordProbeContact } from './contactService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { recordProbeDisconnect, rememberProbeSleeps } from '../utils/probeWake';
 import { isValidDeviceId, normalizeDeviceId } from '../utils/deviceId';
 import type { SoilMeasurement } from '../types/agronomy';
 
@@ -238,6 +240,8 @@ async function reportContact(device: Device, deviceCode: string | null, known?: 
   if (!deviceCode) return;
   const status = known === undefined ? await readProbeStatus(device, signal) : known;
   ensureActive(signal);
+  // Si duerme entre mediciones, la próxima medición pide despertarla (utils/probeWake).
+  if (status) void rememberProbeSleeps(AsyncStorage, deviceCode, status.sleepsBetweenReadings);
   void recordProbeContact({
     deviceCode,
     battery: status?.battery ?? null,
@@ -398,6 +402,8 @@ export async function readTelemetryOverBle(deviceCode?: string, signal?: AbortSi
     // Imprescindible: sin desconectar, la sonda no vuelve a sueño profundo.
     if (connected) {
       await connected.cancelConnection().catch(() => undefined);
+      // Desde aquí corre la gracia del firmware para medir el punto siguiente sin despertarla.
+      recordProbeDisconnect(deviceCode, Date.now());
     }
   }
 }

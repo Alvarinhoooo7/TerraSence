@@ -12,6 +12,8 @@ import { useAppStore } from '../store/useAppStore';
 import { enterDown } from '../constants/motion';
 import { formatEngineMetric } from '../utils/units';
 import { presentationSpeciesName, type MeasurementPresentation } from '../engine/measurementPresentation';
+import { ProbeAwakeCard } from './ProbeAwakeCard';
+import { useProbeAwake } from '../hooks/useProbeAwake';
 
 /** Lo que se guardó, para confirmarlo de un vistazo; los valores salen de la presentación guardada. */
 export interface SavedReadingSummary {
@@ -27,9 +29,13 @@ const SUMMARY_KEYS = ['vwc', 'temp', 'ph'] as const;
  * guardó y recuerda cómo dejar la sonda lista. «Medir otro punto» abre una medición nueva,
  * sin la etapa ni la especie de ésta.
  */
-export function MeasurementSavedModal({ visible, synced, summary, onClose, onMeasureAgain }: {
+export function MeasurementSavedModal({ visible, synced, summary, onClose, onMeasureAgain, deviceCode = null, firmwareVersion = null }: {
   visible: boolean; synced: boolean; summary: SavedReadingSummary; onClose: () => void; onMeasureAgain: () => void;
+  /** Sonda de esta medición: si duerme entre mediciones, se muestra cuánto le queda despierta. */
+  deviceCode?: string | null;
+  firmwareVersion?: string | null;
 }) {
+  const awake = useProbeAwake(deviceCode, firmwareVersion);
   const { colors, isDark } = useAppTheme();
   const { t, locale, language } = useTranslation();
   const system = useAppStore(s => s.preferences.measurementSystem);
@@ -48,6 +54,10 @@ export function MeasurementSavedModal({ visible, synced, summary, onClose, onMea
   ];
   return <GuideModal visible={visible} animationType="fade" onRequestClose={onClose}>
     <EntryLayout align="top" footer={<View style={{ gap: 10 }}>
+      {/* Junto a «Medir otro punto», que es donde se decide si alcanza a medir sin despertarla. */}
+      {awake.sleeps && <ProbeAwakeCard remainingMs={awake.remainingMs} detail={awake.remainingMs > 0
+        ? t('Mide otro punto antes de que se duerma y no tendrás que presionar el botón.', 'Measure another spot before it sleeps and you will not need to press the button.')
+        : t('Al medir otro punto te pediremos despertarla con dos toques en PAIR.', 'When you measure another spot we will ask you to wake it with two taps on PAIR.')} />}
       <EntryButton label={t('Medir otro punto', 'Measure another spot')} onPress={onMeasureAgain} />
       <EntryButton secondary label={t('Volver a Inicio', 'Back to Home')} onPress={onClose} />
     </View>}>

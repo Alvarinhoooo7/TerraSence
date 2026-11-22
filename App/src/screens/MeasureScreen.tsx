@@ -42,9 +42,13 @@ import { localizeProbeError } from '../utils/probeErrors';
 import { checkLowBattery } from '../utils/batteryWarning';
 import { captureLocation, choiceAfterAsking, LOCATION_CHOICE_KEY, LOCATION_REVOKED_NOTICE_KEY, nextLocationStep, revokedNoticeDue, type LocationChoice } from '../utils/measureLocation';
 import { applyWeatherToCapture, buildSavedDiagnosisSnapshot } from '../utils/measureCaptureSession';
+import { WakeProbeArt } from '../components/WakeProbeArt';
+import { ProbeAwakeCard } from '../components/ProbeAwakeCard';
+import { useProbeAwake } from '../hooks/useProbeAwake';
+import { Typography } from '../constants/theme';
 
 const ENGINE_VERSION = '1.4.0';
-type Phase = 'connecting' | 'connection_error' | 'stage' | 'species' | 'species_missing' | 'steps' | 'reading' | 'result' | 'saving';
+type Phase = 'connecting' | 'connection_error' | 'stage' | 'species' | 'species_missing' | 'steps' | 'wake' | 'reading' | 'result' | 'saving';
 
 interface Props {
   onDone: () => void;
@@ -65,6 +69,10 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
   } = useAppStore();
 
   const [phase, setPhase] = useState<Phase>('stage');
+  // Sonda con reposo profundo: se despierta con dos toques en PAIR antes de medir, salvo que siga
+  // despierta tras la medición anterior (utils/probeWake).
+  const awake = useProbeAwake(device?.device_code ?? null, device?.firmware_version ?? null);
+  const mustWake = awake.sleeps && awake.remainingMs <= 0;
   const [stage, selectStage] = useState<PhenologicalStage | null>(null);
   // Especie de esta medición: opcional, fuera de pre-siembra y nunca en el store global,
   // para que una medición nueva no la herede.
@@ -117,6 +125,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
       if (current === 'species') { setPhase('stage'); return true; }
       if (current === 'species_missing') { setPhase('species'); return true; }
       if (current === 'steps') { setPhase(stageRef.current === 'pre_siembra' ? 'stage' : 'species'); return true; }
+      if (current === 'wake') { setPhase('steps'); return true; }
       cancel(); return true;
     });
     return () => listener.remove();
@@ -342,7 +351,9 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
   if (phase === 'connection_error') {
     return <ScreenLayout align="center" onBack={cancel} backLabel={t('Inicio', 'Home')} eyebrow={t('MEDICIÓN', 'MEASUREMENT')}
       title={t('No se pudo completar la medición', 'Could not complete the measurement')}
-      description={t('Comprueba que la sonda esté encendida, con batería y cerca del teléfono.', 'Check that the probe is on, has battery and is near the phone.')}
+      description={awake.sleeps
+        ? t('Puede que se haya dormido: presiona PAIR dos veces, espera la luz verde y reintenta.', 'It may have fallen asleep: press PAIR twice, wait for the green light and retry.')
+        : t('Comprueba que la sonda esté encendida, con batería y cerca del teléfono.', 'Check that the probe is on, has battery and is near the phone.')}
       footer={<>
         <EntryButton disabled={!stage} label={t('Reintentar medición', 'Retry measurement')} onPress={() => void runMeasurement()} />
         <EntryButton secondary label={t('Cambiar etapa', 'Change stage')} onPress={() => setPhase('stage')} />
@@ -398,17 +409,61 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
     </ScreenLayout>;
   }
 
+  if (phase === 'wake') {
+    const wakeSteps: [string, string][] = [
+      [t('Presiona PAIR dos veces', 'Press PAIR twice'), t('Dos toques seguidos. Uno solo no la despierta.', 'Two taps in a row. A single tap does not wake it.')],
+      [t('Espera la luz verde y el pitido', 'Wait for the green light and the beep'), t('Así sabes que despertó.', 'That tells you it is awake.')],
+      [t('Toca «Listo, medir»', 'Tap "Done, measure"'), t('Dentro de un minuto. Si no, vuelve a dormir para cuidar la batería.', 'Within a minute. Otherwise it goes back to sleep to save battery.')],
+    ];
+    return <ScreenLayout key={phase} onBack={() => setPhase('steps')} backLabel={t('Antes de medir', 'Before measuring')} eyebrow={t('MEDIR · ÚLTIMO PASO', 'MEASURE · LAST STEP')}
+      title={t('Despierta tu sonda', 'Wake your probe')}
+      description={t('Con la sonda ya enterrada, justo antes de medir.', 'With the probe already in the soil, right before measuring.')}
+      footer={<EntryButton label={t('Listo, medir', 'Done, measure')} onPress={() => void runMeasurement()} />}>
+      <Animated.View entering={enterDown(60)}><WakeProbeArt /></Animated.View>
+      {/* Los mismos pasos numerados y unidos por una línea que en la vinculación. */}
+      <View>
+        {wakeSteps.map(([title, body], i) => <Animated.View key={i} entering={enterDown(120 + i * 110)} style={{ flexDirection: 'row', gap: 14 }}>
+          <View style={{ alignItems: 'center' }}>
+            <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ color: isDark ? colors.background : '#FFFFFF', fontSize: 16, ...Typography.display.bold }}>{i + 1}</Text>
+            </View>
+            {i < wakeSteps.length - 1 && <View style={{ flex: 1, width: 2, backgroundColor: colors.border, marginVertical: 4 }} />}
+          </View>
+          <View style={{ flex: 1, gap: 2, paddingTop: 4, paddingBottom: i < wakeSteps.length - 1 ? 16 : 0 }}>
+            <Text style={{ color: colors.text, fontSize: 17, fontWeight: '700' }}>{title}</Text>
+            <ScreenText>{body}</ScreenText>
+          </View>
+        </Animated.View>)}
+      </View>
+    </ScreenLayout>;
+  }
+
   if (phase === 'steps') {
+    const stillAwake = awake.sleeps && awake.remainingMs > 0;
     const steps: [string, string][] = [
-      [t('Enciende la sonda', 'Turn the probe on'), t('Déjala cerca del teléfono, a menos de 2 metros.', 'Keep it near the phone, within 2 meters.')],
+      mustWake
+        ? [t('Ten la sonda encendida', 'Keep the probe switched on'), t('Con el interruptor encendido; la despertarás al final. Déjala a menos de 2 metros del teléfono.', 'With the switch on; you will wake it at the end. Keep it within 2 meters of the phone.')]
+        : stillAwake
+        ? [t('Déjala cerca del teléfono', 'Keep it near the phone'), t('A menos de 2 metros. Sigue despierta: no hace falta presionar el botón.', 'Within 2 meters. It is still awake: no need to press the button.')]
+        : [t('Enciende la sonda', 'Turn the probe on'), t('Déjala cerca del teléfono, a menos de 2 metros.', 'Keep it near the phone, within 2 meters.')],
       [t('Límpiala antes de insertarla', 'Clean it before inserting it'), t('Electrodos limpios y secos: la tierra pegada de otra medición altera la lectura.', 'Clean, dry electrodes: soil left from another reading skews the result.')],
       [t('Entiérrala en el suelo', 'Insert it into the soil'), t('Hasta cubrir los electrodos, en suelo representativo, sin piedras ni bolsas de aire.', 'Until the electrodes are covered, in representative soil, without stones or air pockets.')],
       [t('Mantenla recta y quieta', 'Keep it straight and still'), t('Vertical y sin moverla mientras se lee.', 'Upright and without moving it while it reads.')],
     ];
     return <ScreenLayout key={phase} onBack={() => setPhase(asksSpecies ? 'species' : 'stage')} backLabel={asksSpecies ? t('Especie', 'Species') : t('Etapa', 'Stage')} eyebrow={stepLabel(totalSteps)}
       title={t('Antes de medir', 'Before measuring')}
-      footer={<EntryButton label={t('Listo, medir', 'Done, measure')} onPress={() => void runMeasurement()} />}>
+      footer={<>
+        <EntryButton label={mustWake ? t('Continuar', 'Continue') : t('Listo, medir', 'Done, measure')} onPress={() => { if (mustWake) setPhase('wake'); else void runMeasurement(); }} />
+        {stillAwake && <GuideTouchable accessibilityRole="button" onPress={() => setPhase('wake')}
+          guide={t('Abre los pasos para despertar la sonda, por si ya se durmió.', 'Opens the steps to wake the probe, in case it already fell asleep.')}
+          style={{ minHeight: 48, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '700' }}>{t('Se durmió: despertarla de nuevo', 'It fell asleep: wake it again')}</Text>
+        </GuideTouchable>}
+      </>}>
       {demoNotice}
+      {stillAwake && <Animated.View entering={enterDown(60)}>
+        <ProbeAwakeCard remainingMs={awake.remainingMs} detail={t('Mide en este punto sin presionar el botón.', 'Measure at this spot without pressing the button.')} />
+      </Animated.View>}
       {/* Lo elegido en los pasos anteriores: etapa y, si la hay, especie. */}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
         {stage && <View style={{ borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, paddingHorizontal: 12, minHeight: 32, justifyContent: 'center' }}>
@@ -446,7 +501,7 @@ export const MeasureScreen: React.FC<Props> = ({ onDone, onCancel, onMeasureAgai
         </ScreenCard>}
       </>}
       forecast={{ days: weather?.forecast ?? [], now: weatherNow(weather), reuse: weather?.reuse ? { fetchedAt: weather.fetchedAt, distanceM: weather.reuse.distanceM } : null, loading: weatherLoading, capturedAt, battery: raw?.battery, latitude: coords?.latitude, longitude: coords?.longitude, accuracy: coords?.accuracy }} />
-    <MeasurementSavedModal synced={saveSynced} visible={showCalibration} summary={{ stage: stageLabel(stage), capturedAt, presentation }}
+    <MeasurementSavedModal synced={saveSynced} visible={showCalibration} deviceCode={context.current.device?.device_code ?? null} firmwareVersion={context.current.device?.firmware_version ?? null} summary={{ stage: stageLabel(stage), capturedAt, presentation }}
       onClose={() => { setShowCalibration(false); onDone(); }}
       onMeasureAgain={() => { setShowCalibration(false); (onMeasureAgain ?? onDone)(); }} />
   </>;

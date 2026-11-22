@@ -51,13 +51,15 @@ export interface ProbeStatus {
   firmwareVersion: string | null;
   /** Ventana PAIR abierta (byte 4, bit 0). Sin ese byte, false. */
   pairingOpen: boolean;
+  /** Duerme entre mediciones y se despierta con dos toques en PAIR (byte 4, bit 1). Sin ese byte, false. */
+  sleepsBetweenReadings: boolean;
 }
 
 /**
  * Decodifica la característica de estado: byte 0 = batería en % (0xFF sin
  * dato), bytes 1–3 = versión mayor, menor y parche, byte 4 = banderas (bit 0,
- * ventana PAIR abierta). Un valor fuera de rango o incompleto se entrega como
- * null, nunca como un número inventado.
+ * ventana PAIR abierta; bit 1, duerme entre mediciones). Un valor fuera de
+ * rango o incompleto se entrega como null, nunca como un número inventado.
  */
 export function decodeProbeStatus(bytes: Uint8Array): ProbeStatus {
   const raw = bytes.length >= 1 ? bytes[0]! : 0xff;
@@ -65,6 +67,7 @@ export function decodeProbeStatus(bytes: Uint8Array): ProbeStatus {
     battery: raw <= 100 ? raw : null,
     firmwareVersion: bytes.length >= 4 ? `${bytes[1]}.${bytes[2]}.${bytes[3]}` : null,
     pairingOpen: bytes.length >= 5 && (bytes[4]! & 0x01) === 0x01,
+    sleepsBetweenReadings: bytes.length >= 5 && (bytes[4]! & 0x02) === 0x02,
   };
 }
 
