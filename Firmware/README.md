@@ -8,9 +8,10 @@ El contrato con la app lo fija el código de la app, no este firmware: [`App/src
 
 | Archivo | Contenido |
 | :--- | :--- |
-| `Firmware.ino` | Arranque, bucle principal, batería y estado de los LEDs. |
+| `Firmware.ino` | Arranque, despertar del reposo, bucle principal, batería, estado de los LEDs y entrada al reposo profundo. |
+| `reposo.h` | Lógica del reposo profundo: el gesto de despertar con PAIR (doble pulsación, mantener 3 s o volver a dormir) y el temporizador de inactividad. |
 | `pines.h` | Asignación de pines del esquemático. |
-| `config.h` | UUID del servicio, versión del firmware, tiempos del pulsador, umbrales de batería y mapa Modbus de la sonda. |
+| `config.h` | UUID del servicio, versión del firmware y banderas de estado, tiempos del pulsador y del reposo, umbrales de batería y mapa Modbus de la sonda. |
 | `trama.h` | Empaquetado de la trama de 20 bytes. |
 | `ble_terrasense.*` | Servidor GATT, anuncio, identidad, confirmación de vinculación y estado. |
 | `pulsador.*` | Pulsador PAIR con antirrebote y pulsación de 3 s. |
@@ -25,7 +26,7 @@ El contrato con la app lo fija el código de la app, no este firmware: [`App/src
 | `registro.*` | Formato único de la consola (hora, `[ÁREA]`, continuaciones sangradas), veredictos `OK`/`AVISO`/`FALLA`/`N/D`/`CONFIRMA` y el modo detallado (`v`). |
 | `causas_diagnostico.h` | Veredicto, causa probable y siguiente paso de cada prueba y de cada fallo Modbus: la tabla de fallas llevada al equipo. |
 | `autotest.h` | Orden de los siete pasos del autotest (`t`), respuestas `s`/`n` del técnico y conteo del resumen. |
-| `tests/test_*.cpp` | Pruebas de `comandos_monitor.h`, `secuencia_leds.h`, `registro.h`, `causas_diagnostico.h` y `autotest.h` que evalúa el compilador (`static_assert`): se comprueban compilando, sin cargar el ESP32. Arduino IDE no compila esta carpeta con el sketch. |
+| `tests/test_*.cpp` | Pruebas de `comandos_monitor.h`, `secuencia_leds.h`, `registro.h`, `causas_diagnostico.h`, `autotest.h` y `reposo.h` que evalúa el compilador (`static_assert`): se comprueban compilando, sin cargar el ESP32. Arduino IDE no compila esta carpeta con el sketch. |
 | `TASK.md` | Estado, procedimiento de prueba con la app y pendientes. |
 | `PLAN.md` | Orden de implementación: Modbus, medición real, batería, validación, reposo y actualización por BLE (OTA). |
 
@@ -60,9 +61,19 @@ Nada se guarda ni se borra: el ID es del hardware y no cambia nunca. La app lo l
 
 | Acción | Efecto |
 | :--- | :--- |
-| Mantener **3 s** | Abre la ventana de vinculación de **30 s**. La app sólo registra una sonda que tenga la ventana abierta: prueba que el usuario la tiene en la mano. |
+| **Dos pulsaciones** con la sonda dormida | La despierta: verde 1 s y las tres notas de encendido, y empieza a anunciarse por Bluetooth. La segunda pulsación debe llegar dentro de **1 s** después de soltar la primera. |
+| **Una pulsación** con la sonda dormida | Nada visible: el ESP32 despierta un instante, no ve la segunda y vuelve a dormir. Así un toque involuntario no gasta batería. |
+| Mantener **3 s** | Abre la ventana de vinculación de **30 s**, con la sonda despierta o dormida. La app sólo registra una sonda que tenga la ventana abierta: prueba que el usuario la tiene en la mano. |
 
 La ventana se abre al cumplir los 3 s, sin esperar a soltar. El parpadeo azul rápido indica que ya se puede soltar. Tras registrar la sonda, la app le escribe su ID en la característica de confirmación; con la ventana abierta y el ID correcto, la sonda la cierra y avisa con verde y buzzer.
+
+## Reposo profundo
+
+Desde el firmware 1.2.0 la sonda **duerme entre mediciones**: sin anuncio Bluetooth, con la sonda de suelo sin energía y los indicadores apagados. Se duerme sola **60 s** después de despertar si ningún teléfono se conecta, y **120 s** después de cada desconexión de la app, una gracia para medir el punto siguiente sin volver a despertarla. Una conexión, una captura, la ventana PAIR abierta, PAIR presionado o el monitor de diagnóstico abierto (`d`) la mantienen despierta. El interruptor se conserva para el almacenaje y el transporte.
+
+La característica de estado lo declara con el bit 1 de las banderas, y la app sólo pide despertarla cuando lo lee. Los tiempos viven en la sección «Reposo profundo» de [`config.h`](config.h); la gracia de 120 s la repite la app para su cuenta regresiva, así que se cambia en ambos lados a la vez. `REPOSO_HABILITADO = false` deja el equipo despierto siempre, como el 1.1.0, para ensayos de banco.
+
+Al despertar, la batería se lee en la primera vuelta del bucle y el aviso de batería baja conserva su histéresis a través del reposo: los dos tonos graves suenan al entrar en batería baja, no en cada despertar. Durante el reposo se sostienen en `LOW` el gate de la sonda (IO5), DE/RE del RS-485 (IO4), los tres LEDs y el buzzer; PAIR (IO33, pin RTC) despierta por `ext0` en nivel bajo con su pull-up. En la placa de banco el reposo no muestra la caída completa en la entrada USB, porque la tarjeta de desarrollo y el módulo de carga siguen consumiendo ([TASK.md](TASK.md), F4).
 
 ## Indicadores LED y sonoros
 
@@ -70,7 +81,9 @@ La ventana se abre al cumplir los 3 s, sin esperar a soltar. El parpadeo azul r�
 
 | Cuándo | LED | Patrón | Sonido |
 | :--- | :--- | :--- | :--- |
-| Al encender | 🟢 Verde | Fijo 1 s, una vez | Tres notas que suben (grave, aguda, alta) |
+| Al encender o al despertar con dos pulsaciones | 🟢 Verde | Fijo 1 s, una vez | Tres notas que suben (grave, aguda, alta) |
+| Al despertar manteniendo PAIR 3 s | 🟢 Verde y 🔵 azul | Verde fijo 1 s y el azul de la ventana PAIR | Doble llamada aguda: ya se puede soltar |
+| Reposo profundo | — | Todo apagado | Silencio |
 | Ventana PAIR abierta (30 s) | 🔵 Azul | Parpadeo 2 Hz mientras dure | Doble llamada aguda al abrirse: ya se puede soltar |
 | Vinculación confirmada | 🟢 Verde | Tres destellos | Tres notas de confirmación con cierre largo |
 | Vinculación rechazada (ventana cerrada o ID que no es el de esta sonda) | 🔴 Rojo | Tres destellos | Dos notas que bajan (aguda y grave) |
@@ -84,7 +97,7 @@ Los LEDs son independientes: el azul de la ventana PAIR puede coincidir con los 
 
 Si la sonda no responde, o no hay una batería válida que informar, la medición termina en tres destellos rojos y el tono grave: el firmware no reemplaza el dato que falta por valores de ejemplo.
 
-Los LEDs ya no son el consumo que importa. El ESP32 despierto con la radio BLE anunciando consume decenas de mA de forma continua, muy por encima de un LED. Para que la batería dure hace falta el reposo profundo (pendiente F4 en [TASK.md](TASK.md)).
+Los LEDs no son el consumo que importa. El ESP32 despierto con la radio BLE anunciando consume decenas de mA de forma continua, muy por encima de un LED; por eso la sonda duerme entre mediciones (ver [Reposo profundo](#reposo-profundo)).
 
 ## Monitor de mantenimiento
 
@@ -157,7 +170,7 @@ Los bytes 0 a 14 todos en `FF` son el centinela «sin lectura de suelo» del [co
 
 ## Característica de estado
 
-Además de la trama, el firmware publica una característica de lectura con 5 bytes: batería en % (`FF` sin dato), la versión del firmware (`FIRMWARE_VERSION_*` en `config.h`) y un byte de banderas (bit 0 = ventana PAIR abierta). Se actualiza cada 5 s con la lectura del ADC. Detalle en el [contrato](../docs/CONTRATO_BLE.md#característica-de-estado); el trabajo pendiente de actualización por BLE está en [PLAN.md](PLAN.md).
+Además de la trama, el firmware publica una característica de lectura con 5 bytes: batería en % (`FF` sin dato), la versión del firmware (`FIRMWARE_VERSION_*` en `config.h`) y un byte de banderas (bit 0 = ventana PAIR abierta; bit 1 = duerme entre mediciones). Se actualiza cada 5 s con la lectura del ADC. Detalle en el [contrato](../docs/CONTRATO_BLE.md#característica-de-estado); el trabajo pendiente de actualización por BLE está en [PLAN.md](PLAN.md).
 
 ## Compilar y cargar
 

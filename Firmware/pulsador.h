@@ -18,6 +18,9 @@ public:
   EventoPulsador actualizar(uint32_t ahora);
   // Estado ya filtrado por el antirrebote (true = presionado).
   bool presionado() const { return presionado_; }
+  // La pulsación en curso ya abrió la ventana PAIR (al despertar del reposo
+  // manteniéndolo 3 s): no volver a emitir el evento hasta soltarlo.
+  void marcarPairingEmitido() { pairingEmitido_ = true; }
 
 private:
   uint8_t  pin_;

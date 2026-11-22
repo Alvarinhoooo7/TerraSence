@@ -20,8 +20,14 @@
 // Versión del firmware (X.Y.Z). Viaja en la característica de estado y es la
 // que la app informa a Supabase: subirla en cada binario que se publique.
 constexpr uint8_t FIRMWARE_VERSION_MAYOR = 1;
-constexpr uint8_t FIRMWARE_VERSION_MENOR = 1;
+constexpr uint8_t FIRMWARE_VERSION_MENOR = 2;
 constexpr uint8_t FIRMWARE_VERSION_PARCHE = 0;
+
+// Banderas del byte 4 de la característica de estado (docs/CONTRATO_BLE.md).
+constexpr uint8_t ESTADO_BANDERA_VENTANA_PAIR = 0x01;  // la app sólo registra con este bit
+// El equipo duerme entre mediciones y se despierta con dos pulsaciones de
+// PAIR: la app muestra «Despierta tu sonda» sólo si lo lee en 1. Desde 1.2.0.
+constexpr uint8_t ESTADO_BANDERA_DUERME = 0x02;
 
 // Nombre anunciado: "TerraSense-<ID de 15 dígitos>", del que la app extrae el
 // ID para reconocer su sonda al medir.
@@ -53,6 +59,21 @@ constexpr uint32_t CPU_MHZ = 80;
 // omisión).
 constexpr uint16_t ANUNCIO_INTERVALO_MIN = 0xF4;
 constexpr uint16_t ANUNCIO_INTERVALO_MAX = 0x104;
+
+// --- Reposo profundo (Firmware/TASK.md, F4; lógica en reposo.h) ---
+// En reposo el ESP32 no anuncia: la primera pulsación de PAIR lo despierta
+// (ext0 en IO33, activo en LOW) y sólo una segunda pulsación lo deja despierto,
+// para que un toque involuntario en el bolsillo no gaste batería.
+// false deja el equipo despierto siempre, como el firmware 1.1.0 (ensayos de banco).
+constexpr bool REPOSO_HABILITADO = true;
+// Plazo para la segunda pulsación, contado desde que se suelta la primera.
+constexpr uint32_t REPOSO_DOBLE_PULSACION_MS = 1000;
+// Despierta y sin que ningún teléfono se conecte: vuelve a dormir.
+constexpr uint32_t REPOSO_SIN_CONEXION_MS = 60000;
+// Gracia tras cada desconexión, para medir el punto siguiente sin volver a
+// despertarla. La app muestra la cuenta regresiva desde su última desconexión
+// con este MISMO valor: si cambia aquí, cambiarlo también en la app.
+constexpr uint32_t REPOSO_GRACIA_TRAS_DESCONEXION_MS = 120000;
 
 // --- Telemetría ---
 // Espera entre la suscripción de la app y la notificación, para que el

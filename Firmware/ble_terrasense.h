@@ -10,7 +10,7 @@
 //   · Confirmación (escritura, …6104): la app escribe el ID tras registrar la
 //     sonda. Se acepta sólo con la ventana PAIR abierta y si coincide; cierra
 //     la ventana y avisa con verde y buzzer.
-//   · Estado (lectura): batería, versión y ventana PAIR abierta.
+//   · Estado (lectura): batería, versión, ventana PAIR abierta y si duerme.
 //   · Telemetría (notificación): al suscribirse la app, el bucle principal
 //     arma una trama nueva de 20 bytes y la notifica una vez.
 //
@@ -41,8 +41,8 @@ bool bleTomarSolicitudLectura(uint32_t ahora, uint32_t &sesion);
 bool bleSesionLecturaVigente(uint32_t sesion);
 
 // Característica de estado (lectura, 5 bytes): batería en % (0xFF = sin dato),
-// versión mayor, menor y parche, y banderas (bit 0 = ventana PAIR abierta). La
-// app la lee en cada contacto.
+// versión mayor, menor y parche, y banderas (bit 0 = ventana PAIR abierta;
+// bit 1 = duerme entre mediciones, ver config.h). La app la lee en cada contacto.
 void bleActualizarEstado(uint8_t bateriaPct);
 // Sólo encola si sigue vigente la suscripción que inició esa captura. true
 // confirma aceptación local por la pila, no recepción por el teléfono.

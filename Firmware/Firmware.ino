@@ -9,7 +9,10 @@
  */
 
 #include <Wire.h>
+#include <driver/gpio.h>
+#include <driver/rtc_io.h>
 #include <esp_log.h>
+#include <esp_sleep.h>
 #include <esp_system.h>
 
 #include "pines.h"
@@ -28,6 +31,7 @@
 #include "registro.h"
 #include "causas_diagnostico.h"
 #include "autotest.h"
+#include "reposo.h"
 
 // Número de pin de pines.h dentro de un literal: el texto no se desfasa del esquemático.
 #define PIN_TEXTO_(n) #n
@@ -75,6 +79,73 @@ uint32_t ultimaLecturaAppMs = 0;
 
 Autotest autotest;
 char detallesAutotest[PASOS_AUTOTEST][AUTOTEST_DETALLE] = {};
+
+// --- Reposo profundo (F4; lógica en reposo.h, tiempos en config.h) ---
+// ext0 sólo despierta con pines del dominio RTC del ESP32.
+constexpr bool esPinRtc(int pin) {
+  return pin == 0 || pin == 2 || pin == 4 || (pin >= 12 && pin <= 15) || (pin >= 25 && pin <= 27) ||
+         (pin >= 32 && pin <= 39);
+}
+static_assert(esPinRtc(PIN_PARING), "PAIR debe ser un pin RTC para despertar del reposo profundo (ext0)");
+
+// Salidas que se sostienen en LOW durante el reposo: la sonda sin energía, el
+// transceptor RS-485 en recepción y los indicadores apagados. Sin el sostén
+// quedarían flotando y el gate de la sonda podría encenderla.
+constexpr uint8_t PINES_SOSTENIDOS[] = {PIN_GATE, PIN_RTS, PIN_LED_BLUE, PIN_LED_GREEN, PIN_LED_RED, PIN_BUZZER};
+
+TemporizadorReposo temporizadorReposo;
+// Sobrevive al reposo profundo (se borra al cortar la energía): conserva la
+// histéresis del aviso de batería baja y evita repetir sus dos tonos graves en
+// cada despertar mientras la celda siga baja.
+RTC_DATA_ATTR bool bateriaBajaEnReposo = false;
+
+// Arma ext0 en PAIR (activo en LOW, con pull-up RTC además del externo) y duerme.
+void dormir() {
+  for (const uint8_t pin : PINES_SOSTENIDOS) gpio_hold_en(gpio_num_t(pin));
+  gpio_deep_sleep_hold_en();
+  const gpio_num_t pair = gpio_num_t(PIN_PARING);
+  rtc_gpio_init(pair);
+  rtc_gpio_set_direction(pair, RTC_GPIO_MODE_INPUT_ONLY);
+  rtc_gpio_pulldown_dis(pair);
+  rtc_gpio_pullup_en(pair);
+  esp_sleep_enable_ext0_wakeup(pair, 0);
+  esp_deep_sleep_start();
+}
+
+// Lo primero al despertar por PAIR, antes de encender radio, consola o
+// indicadores: los pines siguen sostenidos desde el reposo. Devuelve el gesto
+// (Despertar o Vincular); con una sola pulsación vuelve a dormir sin señal.
+Gesto clasificarDespertar() {
+  const gpio_num_t pair = gpio_num_t(PIN_PARING);
+  rtc_gpio_deinit(pair);
+  pinMode(PIN_PARING, INPUT_PULLUP);
+  GestoDespertar gesto;
+  gesto.iniciar(digitalRead(PIN_PARING) == LOW, millis());
+  for (;;) {
+    delay(5);
+    const Gesto g = gesto.actualizar(digitalRead(PIN_PARING) == LOW, millis());
+    if (g == Gesto::Dormir) dormir();
+    if (g != Gesto::Pendiente) return g;
+  }
+}
+
+// Deja todo apagado y en silencio antes del reposo.
+void entrarEnReposo() {
+  sonda.cancelar();  // MOSFET de la sonda apagado y RS-485 en recepción
+  zumbador.silenciar();
+  ledcDetach(PIN_BUZZER);
+  ledAzul.apagar();
+  ledVerde.apagar();
+  ledRojo.apagar();
+  for (const uint8_t pin : PINES_SOSTENIDOS) {
+    pinMode(pin, OUTPUT);
+    digitalWrite(pin, LOW);
+  }
+  bateriaBajaEnReposo = bateriaActual.baja;
+  registro::linea("REPOSO", "Sin actividad: reposo profundo. Para despertarla, presiona PAIR dos veces.");
+  Serial.flush();
+  dormir();
+}
 
 // El motivo del reinicio delata fallas que el técnico no vio: un brownout al
 // energizar la sonda o un cuelgue que reinició el equipo en terreno.
@@ -652,10 +723,21 @@ void actualizarAvisos(uint32_t ahora) {
 
 void setup() {
   setCpuFrequencyMhz(CPU_MHZ);  // ver config.h: la espera domina el consumo
+
+  // Despertado por PAIR: antes que nada, confirmar la doble pulsación. Con una
+  // sola vuelve a dormir aquí mismo, sin consola, radio ni señales.
+  const bool desdeReposo = esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_EXT0;
+  const Gesto gesto = desdeReposo ? clasificarDespertar() : Gesto::Despertar;
+
   Serial.begin(115200);
 
   // Sonda sin energía y transceptor RS-485 en recepción hasta la primera captura.
   sonda.begin();
+  // Recién con las salidas configuradas en LOW se liberan los pines que el
+  // reposo sostenía: así el gate de la sonda nunca queda flotando.
+  gpio_deep_sleep_hold_dis();
+  for (const uint8_t pin : PINES_SOSTENIDOS) gpio_hold_dis(gpio_num_t(pin));
+  if (desdeReposo) bateriaActual.baja = bateriaBajaEnReposo;
   reinicio = motivoReinicio();
   Serial.write('\n');
   registro::linea("INICIO", "========== TerraSense | ARRANQUE ==========\n"
@@ -688,13 +770,31 @@ void setup() {
   registro::linea("PAIR", "ID de la sonda (desde la MAC): %s", identidad::codigo().c_str());
 
   bleIniciar();
-  // La única señal de «estoy encendida».
-  ledVerde.aviso(PatronLed::Encendido1s, millis());
-  zumbador.reproducir(Sonido::Encendido, millis());
-  registro::linea("LISTO", "Inicio terminado. La conexión y las lecturas se comprueban por separado.\n"
+  // La única señal de «estoy encendida»; despertar del reposo es un arranque y
+  // usa la misma.
+  const uint32_t listo = millis();
+  ledVerde.aviso(PatronLed::Encendido1s, listo);
+  if (gesto == Gesto::Vincular) {
+    // PAIR mantenido 3 s desde el reposo: se abre la ventana como con el
+    // equipo despierto, y la doble llamada indica que ya se puede soltar.
+    bleAbrirVentana(listo);
+    pulsadorPair.marcarPairingEmitido();
+    zumbador.reproducir(Sonido::VentanaAbierta, listo);
+    registro::linea("PAIR", "Ventana de vinculación abierta por %lu s (PAIR mantenido al despertar)",
+                    PAIR_VENTANA_MS / 1000UL);
+  } else {
+    zumbador.reproducir(Sonido::Encendido, listo);
+  }
+  temporizadorReposo.iniciar(listo);
+  registro::linea("LISTO", "Inicio terminado%s. La conexión y las lecturas se comprueban por separado.\n"
                   "Mantén PAIR 3 s para vincular; suelta al escuchar la doble llamada.\n"
                   "Consola a 115200 baudios con «Nueva línea»: envía d + Enter para el diagnóstico.\n"
-                  "==========================================");
+                  "==========================================",
+                  desdeReposo ? " (despertada con doble pulsación de PAIR)" : "");
+  if (REPOSO_HABILITADO)
+    registro::linea("REPOSO", "Duerme a los %lu s sin conexión o %lu s después de desconectarse la app.\n"
+                    "El diagnóstico abierto (d) la mantiene despierta.",
+                    REPOSO_SIN_CONEXION_MS / 1000UL, REPOSO_GRACIA_TRAS_DESCONEXION_MS / 1000UL);
 }
 
 void loop() {
@@ -758,6 +858,14 @@ void loop() {
   }
   actualizarAvisos(millis());
   monitor.actualizar(captura != OrigenCaptura::Ninguna);
+
+  // El diagnóstico abierto y cualquier prueba local mantienen el equipo
+  // despierto; una captura o la ventana PAIR nunca se interrumpen.
+  const uint32_t fin = millis();
+  const bool ocupado = captura != OrigenCaptura::Ninguna || bleVentanaAbierta(fin) || pulsadorPair.presionado() ||
+                       monitor.activo() || autotest.activo() || direccionI2C || secuenciaLeds.activa();
+  temporizadorReposo.actualizar(fin, bleConectado(), ocupado);
+  if (REPOSO_HABILITADO && temporizadorReposo.vencido(fin)) entrarEnReposo();
 
   delay(5);
 }

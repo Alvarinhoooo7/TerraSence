@@ -19,7 +19,9 @@ Aparte de la trama, el servicio expone la característica de estado `00000005-5e
 | :---: | :--- |
 | 0 | Batería en %, de 0 a 100. `FF` = sin dato (sin celda o aún sin medir) |
 | 1–3 | Versión del firmware: mayor, menor y parche. `01 00 00` = 1.0.0 |
-| 4 | Banderas. Bit 0 = ventana PAIR abierta: la app sólo registra una sonda con este bit en 1 |
+| 4 | Banderas. Bit 0 = ventana PAIR abierta: la app sólo registra una sonda con este bit en 1. Bit 1 = la sonda duerme entre mediciones (reposo profundo, desde el firmware 1.2.0) y se despierta con dos pulsaciones de PAIR; la app sólo pide despertarla si lo lee en 1. Los demás bits van en 0 |
+
+Con el bit 1 en 1, la sonda vuelve a dormir **60 s** después de despertar si ningún teléfono se conecta, y **120 s** después de cada desconexión. La app cuenta esos 120 s desde su propia desconexión para mostrar cuánto falta; el valor vive en `REPOSO_GRACIA_TRAS_DESCONEXION_MS` de [`Firmware/config.h`](../Firmware/config.h) y se cambia en ambos lados a la vez.
 
 El porcentaje sale de una curva LiPo típica sin calibrar contra la celda real (pendiente F2 de [`Firmware/TASK.md`](../Firmware/TASK.md)). La trama de 20 bytes no cambia.
 

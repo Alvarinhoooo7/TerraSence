@@ -68,9 +68,11 @@ bool ventanaVigente(uint32_t ahora) {
 
 // Estado (5 bytes): batería, versión mayor/menor/parche y banderas. Bit 0 de
 // las banderas = ventana PAIR abierta: la app lo exige antes de registrar la
-// sonda, así vincular requiere tenerla en la mano.
+// sonda, así vincular requiere tenerla en la mano. Bit 1 = el equipo duerme
+// entre mediciones y se despierta con dos pulsaciones de PAIR.
 void armarEstado(uint8_t valor[5]) {
-  const uint8_t banderas = ventanaVigente(millis()) ? 0x01 : 0x00;
+  const uint8_t banderas = uint8_t((ventanaVigente(millis()) ? ESTADO_BANDERA_VENTANA_PAIR : 0) |
+                                   (REPOSO_HABILITADO ? ESTADO_BANDERA_DUERME : 0));
   valor[0] = bateriaPublicada;
   valor[1] = FIRMWARE_VERSION_MAYOR;
   valor[2] = FIRMWARE_VERSION_MENOR;
