@@ -35,7 +35,7 @@ Para cambiar la **redacción** de un bloque generado, edita `finanzas/informe.py
 
 ## 3. Propuesta de valor: qué es diferencia y qué es paridad
 
-El texto canónico vive en el capítulo III de `Evaluacion/Evaluacion 2/INFORME 2.md` («La Propuesta de Valor» y «Atributos de Paridad y Atributos de Diferencia»). El README y los documentos de `Comercializacion de Tecnologias/` lo enlazan y lo aplican; **no lo redefinen**. Si un documento y el informe difieren, manda el informe.
+El texto canónico vive en el capítulo III de `Evaluacion/Evaluacion 3/INFORME 3.md` («La Propuesta de Valor» y «Atributos de Paridad y Atributos de Diferencia»), que reemplaza al del informe 2 desde que el reposo profundo cambió la autonomía; el informe 2 ya entregado conserva su versión y no se reescribe. El README y los documentos de `Comercializacion de Tecnologias/` lo enlazan y lo aplican; **no lo redefinen**. Si un documento y el informe difieren, manda el informe.
 
 Se ordena en tres clases de valor, y cada una se sostiene con evidencia distinta: **funcional** (qué permite hacer), **económica** (qué cuesta sostener la información) y **emocional** (qué incertidumbre le quita al productor). La tercera no es adorno publicitario: es la consecuencia de que el costo de errar una decisión de riego o fertilización sea incomparablemente mayor que el costo de medir.
 
