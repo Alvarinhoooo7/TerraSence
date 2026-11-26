@@ -14,8 +14,8 @@ Este documento reúne el contexto de la evaluación para quien edite el informe 
 | Entregable | Archivo | Estado |
 | :--- | :--- | :--- |
 | Informe técnico | [Evaluacion 3.docx](Evaluacion%203.docx) | Redactado, 33 páginas, con el formato institucional de la [Evaluación 2](../Evaluacion%202/Evaluacion%202.docx) |
-| Presentación oral | — | Pendiente; el guion propuesto está más abajo |
-| Prototipo | Placa de laboratorio, aplicación y consola | Existe y funciona; falta decidir la demostración en vivo |
+| Presentación oral | [PRESENTACION.md](PRESENTACION.md) | En rediseño: estructura y datos acordados; la primera versión, [Evaluacion 3.pptx](Evaluacion%203.pptx), quedó descartada |
+| Prototipo | Placa de laboratorio, aplicación y consola | Existe y funciona; la demostración en vivo se describe en [PRESENTACION.md](PRESENTACION.md) |
 
 `EVALUACIÓN 2 (2).pptx`, que está en esta carpeta, **no pertenece a este ramo**: es una evaluación de Sistemas de Telecomunicaciones (redes VLAN de un hospital). No se usa como base.
 
@@ -81,26 +81,7 @@ El informe repite cifras a propósito (es entregable). Si cambian, se toman de s
 
 Figuras del informe: dos se dibujaron para esta evaluación (el ciclo del sistema inteligente y la espiral de conocimiento); las demás vienen de [../../Evaluacion/Evaluacion 2/Figuras](../../Evaluacion/Evaluacion%202/Figuras) y [../../Evaluacion/Evaluacion 3/Figuras](../../Evaluacion/Evaluacion%203/Figuras), y dos (arquitectura y modelo híbrido) del `.docx` de la Evaluación 2. Para la presentación se pueden copiar desde el propio `.docx`.
 
-## Guion propuesto para la presentación
+## La presentación
 
-Formato de referencia: [Evaluacion 2.pptx](../Evaluacion%202/Evaluacion%202.pptx) (16:9, 15 diapositivas, una idea por lámina). Se presenta **como si se presentara el proyecto**: problema, propuesta de valor, hardware, funcionamiento, resultados, normativa, ética, conocimiento y economía, todo resumido. Duración supuesta: unos 15 minutos más preguntas (confirmar con el docente). Las cuatro personas hablan, con traspasos claros.
+El plan vigente, con la estructura acordada, los datos verificados de la problemática, el contenido técnico y las cifras económicas, está en [PRESENTACION.md](PRESENTACION.md).
 
-| N° | Diapositiva | Mensaje | Apoyo visual |
-| :---: | :--- | :--- | :--- |
-| 1 | Portada | TerraSense: una medición del suelo que se convierte en decisión, en el campo y sin internet | Logo, equipo, ramo y docente |
-| 2 | El problema | El pequeño agricultor decide riego, siembra y fertilización a ciegas: dos barreras, económica y de interpretación | Mega sequía, precio de fertilizantes, $50.000 por muestra y 15 a 30 días de laboratorio |
-| 3 | Por qué importa | Errar cuesta la temporada; medir cuesta poco. Cuatro momentos irreversibles | Figura de decisiones y consecuencias |
-| 4 | La solución | Sonda portátil multivariable de diagnóstico agronómico; el teléfono es el cerebro | Foto del prototipo y de la aplicación |
-| 5 | Propuesta de valor | Tres clases de valor y las cuatro diferencias; complemento del laboratorio y del asesor | Tabla de clases de valor |
-| 6 | Cómo funciona | Percibir, comunicar, razonar, orientar, actuar | Diagrama del ciclo del sistema inteligente |
-| 7 | Hardware | ESP32, sonda RS-485, BME280, celda con carga USB-C, corte de la sonda y reposo profundo | Arquitectura en bloques o render de la placa |
-| 8 | El motor agronómico | Reglas por etapa y especie, explicables; datos ausentes declarados; N, P y K como referencia | Captura del plan de acción |
-| 9 | Resultados medidos | 3.000 de 3.000 sin error, medición en menos de 10 s, inmersión y caídas superadas, autonomía de 5 a 6 meses en uso habitual | Tabla diseño frente a medido y gráfico de autonomía |
-| 10 | Normativa y tendencias | La ley como requisito de diseño; Ley N° 21.719 vigente; IA, ciberseguridad y baterías | Tabla resumida de tendencias |
-| 11 | Ética | No afirmar más de lo que se mide; la persona decide | Tres o cuatro dilemas con su decisión |
-| 12 | Conocimiento y trabajo en equipo | Contratos de interfaz, una fuente de verdad, conocimiento ejecutable, espiral SECI | Figura de la espiral y herramientas colaborativas |
-| 13 | Viabilidad económica | Precio derivado del costo, inversión, VAN, TIR y caja nunca negativa; cuándo se paga para el agricultor | Indicadores grandes |
-| 14 | Planificación | Prototipo funcional el 17-12-2026, laboratorio en enero y febrero, lanzamiento el 19-04-2027 | Carta Gantt simplificada |
-| 15 | Cierre | Qué está demostrado, qué falta y por qué el sistema es viable | Tres conclusiones y llamado a la demostración |
-
-**Demostración del prototipo (deseable en la pauta).** Propuesta: despertar la placa de laboratorio con dos toques, medir una maceta desde la aplicación y mostrar el plan de acción en pantalla (unos 2 minutos, después de la diapositiva 9). Llevar un video de respaldo por si falla el enlace en la sala y la sonda ya enterrada en tierra húmeda, porque al aire la humedad y la conductividad dan cero.
