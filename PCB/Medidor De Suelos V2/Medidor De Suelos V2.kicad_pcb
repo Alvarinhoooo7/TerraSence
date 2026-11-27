@@ -242,7 +242,7 @@
 			(uuid "cc8f9a94-9015-46a1-ae7e-b62396089c3d")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm_LooseFit.step"
+		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -569,7 +569,7 @@
 			(uuid "65b96135-2242-43b1-b44b-50f6f7f10df4")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm_LooseFit.step"
+		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -1007,7 +1007,7 @@
 			(uuid "1a850fda-4305-47e8-a3c5-568cefe7206d")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/TerminalBlock.3dshapes/TerminalBlock_MaiXu_MX126-5.0-02P_1x02_P5.00mm.step"
+		(model "${KIPRJMOD}/3d/TerminalBlock_5.00mm_2P.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -1135,7 +1135,7 @@
 			(uuid "54f0eff8-3a58-4ba5-aae9-d2b86edb3716")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm_LooseFit.step"
+		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -1892,7 +1892,7 @@
 			(uuid "f558561c-0d6d-459f-bba3-39bbcad51d24")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm_LooseFit.step"
+		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -2377,7 +2377,7 @@
 			(uuid "795f800a-306a-4a65-aa99-4c57c91f50c4")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Button_Switch_SMD.3dshapes/SW_Push_1P1T_XKB_TS-1187A.step"
+		(model "${KIPRJMOD}/3d/SW_Push_5.1x5.1_TS-1187A.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -2505,7 +2505,7 @@
 			(uuid "7b656353-eb91-4796-9879-dab09637d9f1")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm_LooseFit.step"
+		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -3251,7 +3251,7 @@
 			(uuid "6da8f328-a152-4f3f-9aee-c5efd8e6d2dc")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/alvar/Downloads/LX-LCBST Module.step"
+		(model "${KIPRJMOD}/3d/LX-LCBST.step"
 			(offset
 				(xyz -8.5 -16.8 -0.5)
 			)
@@ -3379,7 +3379,7 @@
 			(uuid "e99c19cf-c33b-4bc8-aade-386ef3603954")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm_LooseFit.step"
+		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -3905,7 +3905,7 @@
 			(uuid "e2c80cbb-dc81-46b1-adfd-db22988f3fc5")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm_LooseFit.step"
+		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -4263,7 +4263,7 @@
 			(uuid "ce8bf674-9102-4f5d-913a-a47545613958")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/TerminalBlock_MetzConnect.3dshapes/TerminalBlock_MetzConnect_Type055_RT01502HDWU_1x02_P5.00mm_Horizontal.step"
+		(model "${KIPRJMOD}/3d/TerminalBlock_5.00mm_2P.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -6552,7 +6552,7 @@
 			(uuid "3e34ab52-4fe9-4fc1-bc36-5491c576cac0")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm_LooseFit.step"
+		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -6945,7 +6945,7 @@
 			(uuid "d5a8d5e0-964f-483c-bf3d-c1186ce8c49e")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm_LooseFit.step"
+		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -7272,7 +7272,7 @@
 			(uuid "4e1f1a8b-3622-4f7b-b460-9b9a561e7d92")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm_LooseFit.step"
+		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -7707,7 +7707,7 @@
 			(uuid "0d9f1037-e986-4577-959b-3f4e803f1272")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm_LooseFit.step"
+		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -7835,7 +7835,7 @@
 			(uuid "77cc5a26-7813-4c6a-b3aa-c22784fcd321")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm_LooseFit.step"
+		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -8736,7 +8736,7 @@
 			(uuid "18c03733-91cb-474f-a052-303d8c0d2b97")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/alvar/Downloads/ESP32 WROOM.step"
+		(model "${KIPRJMOD}/3d/ESP32_DevKitC.step"
 			(offset
 				(xyz -0.5 0 4.5)
 			)
@@ -9783,7 +9783,7 @@
 			(uuid "955c4d70-7b51-42ff-9b7d-f4a5eb114d6c")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm_LooseFit.step"
+		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -9911,7 +9911,7 @@
 			(uuid "c4ee49b8-5107-4bda-a870-f6f3673cbc88")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm_LooseFit.step"
+		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -10421,7 +10421,7 @@
 			(uuid "120c5960-dc82-4efe-ad3c-b9276dcf31ab")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/alvar/Downloads/Bme280 PCB.STEP"
+		(model "${KIPRJMOD}/3d/BME280.step"
 			(offset
 				(xyz 0 -2.5 6.5)
 			)
@@ -10846,7 +10846,7 @@
 			(uuid "71271094-ca9a-4166-9b12-451b79dba218")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm_LooseFit.step"
+		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -11288,7 +11288,7 @@
 			(uuid "749fc1ae-2247-4b2a-840e-90b12f2198e4")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/TerminalBlock_MetzConnect.3dshapes/TerminalBlock_MetzConnect_Type055_RT01504HDWU_1x04_P5.00mm_Horizontal.step"
+		(model "${KIPRJMOD}/3d/TerminalBlock_5.00mm_4P.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -11416,7 +11416,7 @@
 			(uuid "9876f277-5239-49c3-b6f2-de21479910a9")
 		)
 		(embedded_fonts no)
-		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm_LooseFit.step"
+		(model "${KICAD9_3DMODEL_DIR}/Connector_Pin.3dshapes/Pin_D1.0mm_L10.0mm.step"
 			(offset
 				(xyz 0 0 0)
 			)

@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carcasa TerraSense</title>
+<style>
+  :root {
+    --fondo: #eef2ef; --panel: rgba(255,255,255,.86); --texto: #12281F; --suave: #4c6157;
+    --marca: #1F5B3F; --acento: #4FB783; --borde: rgba(18,40,31,.12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --fondo: #0e1713; --panel: rgba(20,32,26,.86); --texto: #e8f5ee; --suave: #9fb7aa;
+      --marca: #4FB783; --acento: #6FD3A0; --borde: rgba(232,245,238,.12);
+    }
+  }
+  :root[data-theme="dark"] {
+    --fondo: #0e1713; --panel: rgba(20,32,26,.86); --texto: #e8f5ee; --suave: #9fb7aa;
+    --marca: #4FB783; --acento: #6FD3A0; --borde: rgba(232,245,238,.12);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--fondo); color: var(--texto);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif; overflow: hidden; }
+  canvas { display: block; }
+  #cabecera { position: fixed; top: 16px; left: 16px; right: 16px; display: flex; gap: 12px;
+    align-items: flex-start; justify-content: space-between; pointer-events: none; }
+  .tarjeta { background: var(--panel); border: 1px solid var(--borde); border-radius: 14px;
+    padding: 12px 16px; backdrop-filter: blur(8px); pointer-events: auto; }
+  h1 { margin: 0; font-size: 18px; letter-spacing: .2px; }
+  h1 b { color: var(--marca); }
+  .sub { margin: 2px 0 0; font-size: 13px; color: var(--suave); }
+  #etapa { font-size: 15px; font-weight: 600; min-height: 20px; }
+  #etapa small { display: block; font-weight: 400; color: var(--suave); font-size: 12.5px; margin-top: 2px; }
+  #controles { position: fixed; left: 16px; right: 16px; bottom: 16px; display: flex; flex-wrap: wrap;
+    gap: 10px; align-items: center; }
+  #controles .tarjeta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; width: 100%; }
+  button { font: inherit; font-size: 13.5px; border: 1px solid var(--borde); background: transparent;
+    color: var(--texto); padding: 7px 12px; border-radius: 10px; cursor: pointer; }
+  button:hover { border-color: var(--acento); }
+  button.activo { background: var(--marca); color: #fff; border-color: var(--marca); }
+  #reproducir { background: var(--marca); color: #fff; border-color: var(--marca); min-width: 44px; }
+  input[type=range] { flex: 1 1 220px; accent-color: var(--marca); }
+  #tiempo { font-variant-numeric: tabular-nums; font-size: 12.5px; color: var(--suave); min-width: 40px; }
+  #carga { position: fixed; inset: 0; display: grid; place-items: center; font-size: 15px; color: var(--suave); }
+  body.video #cabecera, body.video #controles { display: none; }
+  @media (max-width: 640px) { #cabecera { flex-direction: column; } h1 { font-size: 16px; } }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="carga">Cargando modelo 3D…</div>
+<div id="cabecera">
+  <div class="tarjeta">
+    <h1><b>TerraSense</b> · medidor de suelo</h1>
+    <p class="sub">Carcasa de 110 × 105 × 31 mm · placa, celda y accesorios</p>
+  </div>
+  <div class="tarjeta" id="etapa">&nbsp;</div>
+</div>
+<div id="controles">
+  <div class="tarjeta">
+    <button id="reproducir" title="Reproducir o pausar">▶</button>
+    <input id="linea" type="range" min="0" max="1000" value="0" aria-label="Línea de tiempo">
+    <span id="tiempo">0,0 s</span>
+    <button id="explotar">Vista explosionada</button>
+    <button id="armar">Ensamblado</button>
+    <button id="transparente">Tapa transparente</button>
+    <button id="leds">LED encendidos</button>
+    <button id="usb">Abrir tapa USB</button>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
+
+const GLB = "__GLB_BASE64__";
+const esVideo = new URLSearchParams(location.search).has("video");
+if (esVideo) document.body.classList.add("video");
+
+// ---------- escena ----------
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: esVideo });
+renderer.setPixelRatio(esVideo ? 1 : Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const oscuro = matchMedia("(prefers-color-scheme: dark)").matches && !esVideo;
+scene.background = new THREE.Color(oscuro ? 0x0e1713 : 0xeef2ef);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const camera = new THREE.PerspectiveCamera(32, innerWidth / innerHeight, 20, 3000);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.target.set(0, 16, 2);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x445544, 0.55));
+const sol = new THREE.DirectionalLight(0xffffff, 1.6);
+sol.position.set(-120, 260, 160);
+sol.castShadow = true;
+sol.shadow.mapSize.set(2048, 2048);
+Object.assign(sol.shadow.camera, { left: -200, right: 200, top: 200, bottom: -200, near: 10, far: 800 });
+scene.add(sol);
+const relleno = new THREE.DirectionalLight(0xdfeee6, 0.5);
+relleno.position.set(200, 80, -150);
+scene.add(relleno);
+
+const suelo = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000), new THREE.ShadowMaterial({ opacity: oscuro ? 0.35 : 0.18 }));
+suelo.rotation.x = -Math.PI / 2;
+suelo.receiveShadow = true;
+scene.add(suelo);
+
+// ---------- guion de ensamblaje ----------
+// desde: desplazamiento (mm) del que parte la pieza; t0..t1: tramo en segundos.
+const DURACION = 24;
+const ETAPAS = [
+  { t: 0.0, titulo: "Base de la carcasa", nota: "Postes para la placa, nervios para la celda y cuatro postes para la tapa" },
+  { t: 1.6, titulo: "1 · Celda de litio", nota: "Se aloja en el fondo, entre los nervios, bajo la placa" },
+  { t: 3.8, titulo: "2 · Placa electrónica", nota: "Descansa sobre cuatro postes, a 4 mm de la celda" },
+  { t: 6.4, titulo: "3 · Tornillos de la placa", nota: "Cuatro M2 autorroscantes" },
+  { t: 8.0, titulo: "4 · Guías de luz", nota: "Llevan la luz de los tres LED al costado de la carcasa" },
+  { t: 9.6, titulo: "5 · Interruptor de encendido", nota: "Basculante, en el costado derecho" },
+  { t: 11.2, titulo: "6 · Prensaestopas de la sonda", nota: "PG7: sella el cable de la sonda contra polvo y humedad" },
+  { t: 13.0, titulo: "7 · Tapa con pulsador", nota: "El botón verde acciona el pulsador de la placa" },
+  { t: 16.2, titulo: "8 · Tornillos de la tapa", nota: "Cuatro M2 en las esquinas" },
+  { t: 17.6, titulo: "9 · Tapa del puerto de carga", nota: "Protege el USB-C de la humedad" },
+  { t: 19.0, titulo: "TerraSense, listo para medir", nota: "LED visibles en el costado y puerto de carga protegido" },
+];
+const PASOS = {
+  bateria:        { desde: [0, 70, 0], t0: 1.6, t1: 3.4 },
+  placa:          { desde: [0, 95, 0], t0: 3.8, t1: 6.0 },
+  tubo_rojo:      { desde: [-55, 0, 0], t0: 8.0, t1: 9.0 },
+  tubo_verde:     { desde: [-55, 0, 0], t0: 8.2, t1: 9.2 },
+  tubo_azul:      { desde: [-55, 0, 0], t0: 8.4, t1: 9.4 },
+  interruptor:    { desde: [60, 0, 0], t0: 9.6, t1: 10.8 },
+  prensaestopas:  { desde: [0, 0, 70], t0: 11.2, t1: 12.6, giro: "z", vueltas: 3 },
+  cable_sonda:    { desde: [0, 0, 70], t0: 11.2, t1: 12.6 },
+  tapa_usb:       { desde: [-40, 0, 0], t0: 17.6, t1: 18.6 },
+};
+for (let i = 1; i <= 4; i++) {
+  PASOS[`tornillo_placa_${i}`] = { desde: [0, 45, 0], t0: 6.4 + 0.15 * i, t1: 7.4 + 0.15 * i, giro: "y", vueltas: 4 };
+  PASOS[`tornillo_tapa_${i}`] = { desde: [0, 45, 0], t0: 16.2 + 0.15 * i, t1: 17.2 + 0.15 * i, giro: "y", vueltas: 4 };
+}
+const TAPA = ["tapa", "logo_T", "logo_S", "texto"];
+const TAPA_PASO = { desde: [0, 80, 0], t0: 14.4, t1: 16.0 };
+const BOTON_PASO = { desde: [0, 55, 0], t0: 13.0, t1: 14.2 };   // entra en la tapa mientras flota
+
+const ease = (p) => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const avance = (paso, t) => ease(THREE.MathUtils.clamp((t - paso.t0) / (paso.t1 - paso.t0), 0, 1));
+
+// ---------- carga ----------
+const piezas = {};
+const bytes = Uint8Array.from(atob(GLB), (c) => c.charCodeAt(0));
+new GLTFLoader().parse(bytes.buffer, "", (gltf) => {
+  const raiz = gltf.scene;
+  raiz.traverse((o) => {
+    if (o.isMesh) {
+      o.geometry = toCreasedNormals(o.geometry, Math.PI / 5);
+      o.castShadow = true;
+      o.receiveShadow = true;
+      const m = o.material;
+      // máscara de soldadura: va 0,015 mm sobre el cobre; sin desplazamiento de profundidad, el cobre la atraviesa
+      const c = m.color;
+      if (Math.abs(c.r - 20 / 255) < 0.01 && Math.abs(c.g - 51 / 255) < 0.01 && Math.abs(c.b - 36 / 255) < 0.01) {
+        Object.assign(m, { transparent: true, opacity: 0.86, depthWrite: true, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 });
+        o.renderOrder = 1;
+      } else if (m.transparent && m.opacity > 0.8) {
+        // serigrafía: se dibuja después de la máscara (cola de transparentes) y por encima de ella
+        Object.assign(m, { transparent: true, opacity: 1, polygonOffset: true, polygonOffsetFactor: -8, polygonOffsetUnits: -8 });
+        o.renderOrder = 2;
+      }
+    }
+  });
+  scene.add(raiz);
+  for (const hijo of [...raiz.children]) piezas[hijo.name] = hijo;
+
+  // pivote de cada pieza en su centro, para girar tornillos y prensaestopas sobre su eje
+  for (const [nombre, obj] of Object.entries(piezas)) {
+    const caja = new THREE.Box3().setFromObject(obj);
+    const c = caja.getCenter(new THREE.Vector3());
+    if (nombre === "prensaestopas" || nombre === "cable_sonda") c.set(c.x, c.y, c.z);
+    obj.children.forEach((h) => h.position.sub(c));
+    obj.position.add(c);
+    obj.userData.casa = obj.position.clone();
+  }
+  // eje del prensaestopas = eje del cable
+  if (piezas.prensaestopas && piezas.cable_sonda) {
+    const eje = new THREE.Box3().setFromObject(piezas.cable_sonda).getCenter(new THREE.Vector3());
+    const pe = piezas.prensaestopas;
+    const d = new THREE.Vector3(eje.x - pe.position.x, eje.y - pe.position.y, 0);
+    pe.children.forEach((h) => h.position.sub(d));
+    pe.position.add(d);
+    pe.userData.casa = pe.position.clone();
+  }
+
+  // materiales: guías de luz translúcidas que se encienden
+  const COLOR_LED = { tubo_rojo: 0xff2a2a, tubo_verde: 0x2bff6a, tubo_azul: 0x2a6bff };
+  for (const [nombre, color] of Object.entries(COLOR_LED)) {
+    const obj = piezas[nombre];
+    if (!obj) continue;
+    const mat = new THREE.MeshPhysicalMaterial({ color: 0xf4f7f9, roughness: 0.15, transmission: 0.0,
+      transparent: true, opacity: 0.92, emissive: new THREE.Color(color), emissiveIntensity: 0 });
+    obj.traverse((o) => { if (o.isMesh) { o.material = mat; o.castShadow = false; } });
+    const luz = new THREE.PointLight(color, 0, 40, 2);
+    const caja = new THREE.Box3().setFromObject(obj);
+    luz.position.set(caja.min.x - 4, (caja.min.y + caja.max.y) / 2, (caja.min.z + caja.max.z) / 2);
+    scene.add(luz);
+    obj.userData.led = { mat, luz };
+  }
+  // material propio de la tapa para poder volverla transparente
+  for (const n of TAPA) piezas[n]?.traverse((o) => { if (o.isMesh) { o.material = o.material.clone(); o.userData.opacidad = o.material.opacity; } });
+
+  document.getElementById("carga").remove();
+  colocar(esVideo ? 0 : DURACION);
+  ajustarCamara(esVideo ? 0 : DURACION, true);
+  window.__listo = true;
+  if (!esVideo) animar();
+}, (err) => { document.getElementById("carga").textContent = "No se pudo cargar el modelo: " + err; });
+
+// ---------- estado ----------
+let t = DURACION, reproduciendo = false, camaraAuto = false;
+let ledsForzados = false, usbAbierta = false, tapaTransparente = false;
+const v = new THREE.Vector3();
+
+function colocar(tt) {
+  for (const [nombre, obj] of Object.entries(piezas)) {
+    const casa = obj.userData.casa;
+    let paso = PASOS[nombre];
+    obj.position.copy(casa);
+    obj.rotation.set(0, 0, 0);
+    if (TAPA.includes(nombre)) paso = TAPA_PASO;
+    if (paso) {
+      const p = avance(paso, tt);
+      obj.position.add(v.fromArray(paso.desde).multiplyScalar(1 - p));
+      if (paso.giro) obj.rotation[paso.giro] = (1 - p) * paso.vueltas * Math.PI * 2;
+    }
+    if (nombre === "boton") {
+      const pt = avance(TAPA_PASO, tt), pb = avance(BOTON_PASO, tt);
+      obj.position.add(v.fromArray(TAPA_PASO.desde).multiplyScalar(1 - pt));
+      obj.position.add(v.fromArray(BOTON_PASO.desde).multiplyScalar(1 - pb));
+    }
+    // aparición suave de las piezas que llegan
+    const visible = !paso || tt >= paso.t0 - 0.4 || nombre === "base";
+    obj.visible = nombre === "boton" ? tt >= BOTON_PASO.t0 - 0.4 : visible;
+  }
+  // tapa USB que se abre al final para mostrar el puerto
+  const usb = piezas.tapa_usb;
+  if (usb) {
+    const abrir = usbAbierta ? 1 : THREE.MathUtils.clamp((tt - 21.0) / 0.8, 0, 1) * (tt < 23.2 ? 1 : 1 - THREE.MathUtils.clamp((tt - 23.2) / 0.7, 0, 1));
+    const a = ease(abrir);
+    usb.position.x -= 9 * a; usb.position.z -= 11 * a;
+    usb.rotation.y = -1.1 * a;
+  }
+  // LED: parpadeo del azul (enlace), verde fijo, rojo breve al inicio
+  const enc = ledsForzados ? 1 : THREE.MathUtils.clamp((tt - 19.2) / 0.5, 0, 1);
+  const blink = 0.5 + 0.5 * Math.sin(tt * Math.PI * 2 * 1.2);
+  const nivel = { tubo_rojo: enc * (tt < 20.4 || ledsForzados ? 1 : 0.15), tubo_verde: enc, tubo_azul: enc * (0.25 + 0.75 * blink) };
+  for (const [n, k] of Object.entries(nivel)) {
+    const led = piezas[n]?.userData.led;
+    if (!led) continue;
+    led.mat.emissiveIntensity = 2.4 * k;
+    led.luz.intensity = 900 * k;
+  }
+  // tapa transparente
+  for (const n of TAPA) piezas[n]?.traverse((o) => {
+    if (!o.isMesh) return;
+    o.material.transparent = tapaTransparente;
+    o.material.opacity = tapaTransparente ? 0.28 : 1;
+    o.material.depthWrite = !tapaTransparente;
+  });
+  const etapa = [...ETAPAS].reverse().find((e) => tt >= e.t) || ETAPAS[0];
+  document.getElementById("etapa").innerHTML = `${etapa.titulo}<small>${etapa.nota}</small>`;
+  document.getElementById("linea").value = Math.round((tt / DURACION) * 1000);
+  document.getElementById("tiempo").textContent = tt.toFixed(1).replace(".", ",") + " s";
+}
+
+// cámara guionada: órbita lenta que muestra cada costado cuando le toca
+function ajustarCamara(tt, forzar) {
+  if (!camaraAuto && !forzar && !esVideo) return;
+  const claves = [
+    [0, 40, 34, 300], [6, 25, 38, 290], [8, 205, 22, 220], [10.5, 330, 20, 230],
+    [12.5, 15, 18, 240], [16, 40, 40, 280], [18.2, 210, 18, 210], [21, 235, 14, 175],
+    [24, 315, 30, 260],
+  ];
+  let a = claves[0], b = claves[claves.length - 1];
+  for (let i = 0; i < claves.length - 1; i++) if (tt >= claves[i][0] && tt <= claves[i + 1][0]) { a = claves[i]; b = claves[i + 1]; break; }
+  const p = ease(THREE.MathUtils.clamp((tt - a[0]) / Math.max(b[0] - a[0], 1e-6), 0, 1));
+  let az1 = a[1], az2 = b[1];
+  if (az2 - az1 > 180) az2 -= 360; if (az1 - az2 > 180) az2 += 360;
+  const az = THREE.MathUtils.degToRad(az1 + (az2 - az1) * p);
+  const el = THREE.MathUtils.degToRad(a[2] + (b[2] - a[2]) * p);
+  const r = a[3] + (b[3] - a[3]) * p;
+  const objetivo = new THREE.Vector3(0, 16 + (tt < 16 ? 10 : 0) * (1 - THREE.MathUtils.clamp((tt - 14) / 2, 0, 1)), 2);
+  controls.target.copy(objetivo);
+  camera.position.set(objetivo.x + r * Math.cos(el) * Math.sin(az), objetivo.y + r * Math.sin(el), objetivo.z + r * Math.cos(el) * Math.cos(az));
+  camera.lookAt(objetivo);
+}
+
+// ---------- video: render determinista cuadro a cuadro ----------
+window.__render = (tt, w, h) => {
+  if (w && h && (renderer.domElement.width !== w || renderer.domElement.height !== h)) {
+    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+  colocar(tt); ajustarCamara(tt, true); renderer.render(scene, camera);
+  return renderer.domElement.toDataURL("image/jpeg", 0.93);
+};
+
+// ---------- interacción ----------
+const $ = (id) => document.getElementById(id);
+let ultimo = performance.now();
+function animar() {
+  requestAnimationFrame(animar);
+  const ahora = performance.now(), dt = Math.min((ahora - ultimo) / 1000, 0.1);
+  ultimo = ahora;
+  if (reproduciendo) {
+    t += dt;
+    if (t >= DURACION) { t = DURACION; reproduciendo = false; $("reproducir").textContent = "▶"; }
+  }
+  // fuera de la reproducción, el LED azul sigue parpadeando si están encendidos
+  colocar(reproduciendo ? t : (ledsForzados || t >= 19.2 ? t + ((ahora / 1000) % 10) * 0 : t));
+  if (!reproduciendo && (ledsForzados || t >= 19.2)) {
+    const led = piezas.tubo_azul?.userData.led;
+    if (led) { const k = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(ahora / 1000 * Math.PI * 2 * 1.2)); led.mat.emissiveIntensity = 2.4 * k; led.luz.intensity = 900 * k; }
+  }
+  ajustarCamara(t, false);
+  controls.update();
+  renderer.render(scene, camera);
+}
+$("reproducir").onclick = () => {
+  if (t >= DURACION) t = 0;
+  reproduciendo = !reproduciendo;
+  camaraAuto = reproduciendo;
+  $("reproducir").textContent = reproduciendo ? "❚❚" : "▶";
+};
+$("linea").oninput = (e) => { t = (e.target.value / 1000) * DURACION; reproduciendo = false; $("reproducir").textContent = "▶"; };
+$("explotar").onclick = () => { t = 1.0; reproduciendo = false; $("reproducir").textContent = "▶"; ajustarCamara(1.0, true); };
+$("armar").onclick = () => { t = DURACION; reproduciendo = false; $("reproducir").textContent = "▶"; };
+$("transparente").onclick = (e) => { tapaTransparente = !tapaTransparente; e.target.classList.toggle("activo", tapaTransparente); };
+$("leds").onclick = (e) => { ledsForzados = !ledsForzados; e.target.classList.toggle("activo", ledsForzados); };
+$("usb").onclick = (e) => { usbAbierta = !usbAbierta; e.target.classList.toggle("activo", usbAbierta); e.target.textContent = usbAbierta ? "Cerrar tapa USB" : "Abrir tapa USB"; };
+controls.addEventListener("start", () => { camaraAuto = false; });
+addEventListener("resize", () => {
+  if (esVideo) return;
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>

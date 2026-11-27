@@ -65,6 +65,8 @@ La V2 es una **placa portadora**: no integra el silicio, sino que sostiene y con
 | `README.md` | Este documento |
 | `BOM_TerraSense.xlsx` | Lista de materiales, **generada**; no editar a mano |
 | `Medidor De Suelos V2/` | Proyecto KiCad de la V2: esquemático y ruteo. **Fuente de verdad del hardware** |
+| `Medidor De Suelos V2/3d/` | Modelos 3D que usa la placa: pulsador, borneras y batería generados por `generar_modelos.py`, y los STEP de la DevKit, el BME280 y el `LX-LCBST` |
+| `Carcasa/` | Carcasa modelada alrededor de la placa V2, con su visor 3D y su animación de ensamblaje. Ver sección 6.1 |
 | `V1/` | Prototipo anterior, congelado. No se edita ni se usa como referencia de diseño |
 | `V3/` | Placa del instrumento del informe 2 (90 × 64 mm): esquemático con circuitos integrados soldados y placa ruteada en dos capas con planos de masa. Local, fuera de git; no está liberada a fabricación |
 
@@ -615,6 +617,31 @@ Instrumento compacto de mano, para llevar en la mano, mochila o bolsillo de trab
 | LED | Tras visores difusores de policarbonato |
 
 > El IP68 que anuncia el vendedor de la sonda **no certifica la carcasa del equipo**. Una junta o una resina no constituyen certificación: requiere ensayo de ingreso de polvo y agua sobre el producto terminado.
+
+### 6.1. Carcasa modelada para la placa V2
+
+La tabla anterior es el objetivo de producto. La carcasa que existe como modelo es la de la placa V2 armada (100 × 90 mm), en `Carcasa/`: base y tapa de 110 × 105 × 31 mm, con la celda de 100 × 60 × 7 mm bajo la placa.
+
+| Elemento | Dónde va |
+| :--- | :--- |
+| Guías de luz de los tres LED | Costado izquierdo, en un sócalo alargado |
+| USB-C de `MOD1` | Costado izquierdo, con tapa embutida que lo protege de la humedad |
+| Pulsador | Botón en la tapa, con vástago hasta el pulsador de la placa |
+| Interruptor de encendido (`J1`) | Costado derecho. Basculante de recorte de panel 15 × 10 mm |
+| Cable de la sonda (`J2`) | Prensaestopas PG7 en la cara de las borneras, frente a `J2`, con 8 mm libres para el cableado |
+| BME280 | Ranuras de ventilación en el costado derecho, a su altura |
+
+Regenerar, en este orden:
+
+```bash
+python "PCB/Medidor De Suelos V2/3d/generar_modelos.py"      # pulsador, borneras y batería
+kicad-cli pcb export glb --subst-models --include-tracks --include-pads --include-zones --include-silkscreen --include-soldermask -f -o PCB/Carcasa/salida/placa.glb "PCB/Medidor De Suelos V2/Medidor De Suelos V2.kicad_pcb"
+python PCB/Carcasa/carcasa.py        # STEP, STL por pieza y GLB de la carcasa
+python PCB/Carcasa/escena.py         # placa + carcasa en un GLB liviano
+python PCB/Carcasa/visor.py --video  # visor HTML autocontenido y video MP4 del ensamblaje
+```
+
+El visor carga three.js desde un CDN, así que necesita internet al abrirse; el video no. Sellado, ajuste de impresión y estanqueidad están **sin ensayo**.
 
 ---
 

@@ -18,3 +18,11 @@ docs/SECCION_ECONOMICA_REFORMULADA.md text eol=crlf
 docs/_cuadros_economicos.md text eol=crlf
 docs/INFORME*.md text eol=crlf
 Evaluacion/**/INFORME*.md text eol=crlf
+
+# Modelos 3D y salidas de la carcasa (PCB/Carcasa): los genera software, no se diffean
+*.step binary
+*.STEP binary
+*.glb binary
+*.stl binary
+*.mp4 binary
+PCB/Carcasa/salida/*.html binary
