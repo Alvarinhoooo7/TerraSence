@@ -1,0 +1,34 @@
+{
+  "inputs": [
+    {
+      "path": "Evaluacion\\Evaluacion 3\\Registros de ensayo\\reposo\\corriente.csv",
+      "sha256": "15888bd5fb799c1dde749055a259c532b1af947ddfa86f94706962c7edba426b"
+    },
+    {
+      "path": "Evaluacion\\Evaluacion 3\\Registros de ensayo\\reposo\\marcas.json",
+      "sha256": "58ed4c950d3efb64cab717111a9e5ee5014779b79c4a205fe80bf544af1e76a4"
+    },
+    {
+      "path": "Evaluacion\\Evaluacion 3\\Registros de ensayo\\reposo\\mediciones.csv",
+      "sha256": "bac7f850dbcad358819fba1e2321d5ee1b4665186cd620787f553d00d5141011"
+    },
+    {
+      "path": "Evaluacion\\Evaluacion 3\\Registros de ensayo\\consumo\\corriente.csv",
+      "sha256": "07ec92aec56a449e1dfea745551cdcc3fd3d32399e0ac8a5f485c7bad6ec0c90"
+    },
+    {
+      "path": "Evaluacion\\Evaluacion 3\\Registros de ensayo\\consumo\\marcas.json",
+      "sha256": "a503f79596f24456f6aff33b750eddb8978b24a6116a4786b4fb9561935b7eed"
+    },
+    {
+      "path": "Evaluacion\\Evaluacion 3\\Registros de ensayo\\consumo\\mediciones.csv",
+      "sha256": "bb9276f50d84c6f8730335c7829afd4f7f3e6fb2c869fcbe5f8446b352074b01"
+    }
+  ],
+  "samplePeriodSeconds": 0.01,
+  "integration": "Suma rectangular de V × I × 0,01 / 3600; mW a mWh",
+  "phaseMeans": "Se excluyen 2 s a cada borde; reducción calculada promediando A/G y D1/D2, como en el informe",
+  "measurementWindow": "Campaña consumo: conectado−0,3 s hasta desconectado+0,3 s; no incluye búsqueda ni gracia",
+  "battery": "5.000 mAh confirmados por el usuario; 3,7 V nominales; no se extrapola una descarga completa",
+  "financial": "Se importa modelo.py y se llama correr(); no se regeneran los entregables financieros"
+}

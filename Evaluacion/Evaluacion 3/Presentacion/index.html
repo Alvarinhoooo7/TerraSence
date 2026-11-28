@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#c8102e">
+  <meta name="description" content="TerraSense: del suelo a una decisión informada. Presentación del proyecto: problema, solución, tecnología, negocio y energía.">
+  <title>TerraSense · Presentación</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23c8102e'/%3E%3Ctext x='32' y='45' text-anchor='middle' font-family='sans-serif' font-size='42' fill='white'%3ET%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="estilos.css">
+  <script defer src="datos.js"></script>
+  <script defer src="contenido.js"></script>
+  <script defer src="presentacion.js"></script>
+  <script defer src="graficos.js"></script>
+  <script defer src="escenas.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#deck">Ir a la presentación</a>
+  <main id="viewport" aria-label="Presentación TerraSense">
+    <div id="deck" tabindex="-1"></div>
+  </main>
+  <nav class="controls" aria-label="Controles de presentación">
+    <button id="open-index" aria-haspopup="dialog" title="Índice (I)"><span aria-hidden="true">☷</span> Índice</button>
+    <div class="current"><span class="wordmark">TerraSense</span><span id="chapter-name"></span></div>
+    <div class="nav-actions">
+      <button id="notes-button" aria-haspopup="dialog" title="Notas y fuentes (N)">Notas</button>
+      <button id="fullscreen" title="Pantalla completa (F)">Pantalla completa</button>
+      <button id="previous" aria-label="Pantalla anterior" title="Anterior (flecha izquierda)">‹</button>
+      <output id="counter" aria-label="Pantalla actual"></output>
+      <button id="next" aria-label="Pantalla siguiente" title="Siguiente (flecha derecha)">›</button>
+    </div>
+    <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+  </nav>
+  <div id="announce" class="sr-only" aria-live="polite"></div>
+  <dialog id="index-dialog" aria-labelledby="index-title">
+    <div class="dialog-head"><div><p class="eyebrow">Recorrido</p><h2 id="index-title">Del campo a la decisión.</h2></div><button data-close aria-label="Cerrar índice">Cerrar</button></div>
+    <div id="index-items"></div>
+    <p class="hint">← → Cambiar pantalla · F Pantalla completa · N Notas · I Índice · Esc Cerrar</p>
+  </dialog>
+  <dialog id="notes-dialog" aria-labelledby="notes-title">
+    <div class="dialog-head"><h2 id="notes-title">Notas del expositor</h2><button data-close>Cerrar</button></div>
+    <div id="notes-content"></div>
+  </dialog>
+  <noscript>Activa JavaScript para recorrer la presentación. Los gráficos también están disponibles en la carpeta graficos.</noscript>
+</body>
+</html>
